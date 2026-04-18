@@ -2752,265 +2752,208 @@ var _d3Sim = null;  // hold simulation reference for cleanup
 
 function renderCorrelationMap() {
   var container = document.getElementById('ss2-map-graph');
-  if (!container || typeof d3 === 'undefined') return;
+  if (!container) return;
 
-  var W = container.clientWidth || 400;
-  var H = Math.max(container.clientHeight || 0, 260);
+  // ── Use live scores from the Sovereign Signal data ──
+  var scoreMap = {};
+  streamOrder.forEach(function(sid) { scoreMap[sid] = scores[sid] || 50; });
 
-  // Index codes for compact node labels
-  var INDEX_CODES = {
-    congress:'IHX', pac:'EPX', legislation:'MCX',
-    onchain:'OCX', institutional:'FDX', geo:'OPX'
-  };
+  var STREAMS = [
+    { id:'congress',      label:'CONGRESS',    code:'IHX', color:'#CC0000' },
+    { id:'pac',           label:'PAC CAPITAL', code:'EPX', color:'#f97316' },
+    { id:'legislation',   label:'LEGISLATION', code:'MCX', color:'#F8C15C' },
+    { id:'onchain',       label:'ON-CHAIN',    code:'OCX', color:'#22c55e' },
+    { id:'institutional', label:'INSTITUTIONAL',code:'FDX', color:'#3b82f6' },
+    { id:'geo',           label:'GEOPOLITICAL',code:'OPX', color:'#a78bfa' },
+  ];
 
-  // Score-based node color
-  function nodeColor(s) { return s >= 65 ? '#10B981' : s >= 45 ? '#F59E0B' : '#CC0000'; }
-  function nodeRadius(s) { return 18 + (s / 100) * 16; }
+  var N = STREAMS.length;
+  var W = container.clientWidth  || 500;
+  var H = Math.max(container.clientHeight || 0, 300);
 
-  // Build nodes from live scores
-  var nodes = streamOrder.map(function(sid) {
-    var s = scores[sid] || 50;
-    return { id: sid, code: INDEX_CODES[sid], score: s, r: nodeRadius(s), fill: nodeColor(s) };
-  });
+  // ── Remove old SVG ──
+  while (container.firstChild) container.removeChild(container.firstChild);
 
-  // Build edges: correlation = closeness of scores
-  var links = [];
-  for (var i = 0; i < nodes.length; i++) {
-    for (var j = i + 1; j < nodes.length; j++) {
-      var diff = Math.abs(nodes[i].score - nodes[j].score);
-      if (diff > 30) continue; // no edge for LOW correlation
-      var strength = diff < 15 ? 'high' : 'medium';
-      var aBull = nodes[i].score >= 65, bBull = nodes[j].score >= 65;
-      var aBear = nodes[i].score < 45, bBear = nodes[j].score < 45;
-      var edgeColor;
-      if (aBull && bBull) edgeColor = 'rgba(16,185,129,0.4)';
-      else if (aBear && bBear) edgeColor = 'rgba(204,0,0,0.3)';
-      else edgeColor = 'rgba(248,196,92,0.25)';
-      links.push({
-        source: nodes[i].id, target: nodes[j].id,
-        strength: strength, color: edgeColor,
-        width: strength === 'high' ? 3 : 1.5,
-        dash: strength === 'high' ? 'none' : '4 4'
-      });
+  // ── Correlation matrix: real score-based correlation ──
+  // corr[i][j] = 1 - abs(score_i - score_j)/100
+  // 1.0 = perfectly correlated, 0.0 = max divergence
+  var corr = [];
+  for (var i = 0; i < N; i++) {
+    corr[i] = [];
+    for (var j = 0; j < N; j++) {
+      if (i === j) { corr[i][j] = 1.0; continue; }
+      var diff = Math.abs(scoreMap[STREAMS[i].id] - scoreMap[STREAMS[j].id]);
+      corr[i][j] = parseFloat((1 - diff / 100).toFixed(2));
     }
   }
 
-  // On first call: create SVG. On subsequent calls: update in place.
-  var svg = d3.select(container).select('svg');
-  var isNew = svg.empty();
-  if (isNew) {
-    svg = d3.select(container).append('svg')
-      .attr('width', W).attr('height', H)
-      .style('background', '#050505');
+  // ── Layout constants ──
+  var LABEL_W  = 90;
+  var LABEL_H  = 22;
+  var CELL_PAD = 4;
+  var GRID_W   = W - LABEL_W - 12;
+  var GRID_H   = H - LABEL_H - 28;
+  var CELL_W   = GRID_W / N;
+  var CELL_H   = GRID_H / N;
 
-    // Subtle grid pattern
-    var defs = svg.append('defs');
-    var pat = defs.append('pattern').attr('id','ss2-grid-pat')
-      .attr('width',40).attr('height',40).attr('patternUnits','userSpaceOnUse');
-    pat.append('path').attr('d','M 40 0 L 0 0 0 40')
-      .attr('fill','none').attr('stroke','rgba(255,255,255,0.03)').attr('stroke-width',0.5);
-    // Glow filter
-    var glow = defs.append('filter').attr('id','ss2-node-glow')
-      .attr('x','-50%').attr('y','-50%').attr('width','200%').attr('height','200%');
-    glow.append('feGaussianBlur').attr('stdDeviation','6').attr('result','blur');
-    glow.append('feComposite').attr('in','SourceGraphic').attr('in2','blur').attr('operator','over');
+  var svg = d3.select(container).append('svg')
+    .attr('width', W).attr('height', H)
+    .style('background', '#030303')
+    .style('font-family', "'JetBrains Mono', monospace");
 
-    // WCAG: descriptive title + desc for screen readers
-    svg.append('title').text('Sovereign Signal Correlation Map');
-    svg.append('desc').text('Force-directed network graph showing correlation strength between 6 sovereign signal indices. Edge thickness encodes correlation; node size encodes score.');
-    svg.attr('role','img').attr('aria-labelledby','ss2-svg-title');
+  // Background
+  svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#030303');
 
-    svg.append('rect').attr('width',W).attr('height',H).attr('fill','url(#ss2-grid-pat)');
-    svg.append('g').attr('class','ss2-links');
-    svg.append('g').attr('class','ss2-nodes');
-  } else {
-    svg.attr('width', W).attr('height', H);
-    svg.select('rect').attr('width', W).attr('height', H);
+  // WCAG
+  svg.append('title').text('Sovereign Signal Correlation Heatmap');
+  svg.append('desc').text('6x6 correlation heatmap. Brighter red = stronger correlation between two signal streams.');
+
+  var g = svg.append('g').attr('transform', 'translate(' + LABEL_W + ',' + LABEL_H + ')');
+
+  // ── Color scale: cool dark → warm red ──
+  function corrColor(c) {
+    if (c >= 0.85) return '#CC0000';
+    if (c >= 0.70) return '#9e1010';
+    if (c >= 0.55) return '#5a0a0a';
+    if (c >= 0.40) return '#1f0a0a';
+    return '#0a0808';
+  }
+  function corrTextColor(c) {
+    return c >= 0.70 ? '#fff' : c >= 0.50 ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)';
   }
 
-  // --- Update links ---
-  var linkSel = svg.select('.ss2-links').selectAll('line').data(links, function(d) { return d.source.id || d.source; });
-  linkSel.exit().transition().duration(400).style('opacity', 0).remove();
-  var linkEnter = linkSel.enter().append('line').style('opacity', 0);
-  var linkAll = linkEnter.merge(linkSel);
-  linkAll.transition().duration(800)
-    .style('opacity', 1)
-    .attr('stroke', function(d) { return d.color; })
-    .attr('stroke-width', function(d) { return d.width; })
-    .attr('stroke-dasharray', function(d) { return d.dash; });
+  // Tooltip div
+  var tip = d3.select(container).append('div')
+    .style('position','absolute').style('pointer-events','none')
+    .style('opacity','0').style('background','rgba(5,5,5,0.96)')
+    .style('border','1px solid rgba(204,0,0,0.5)').style('border-radius','4px')
+    .style('padding','10px 14px').style('font-family',"'JetBrains Mono',monospace")
+    .style('font-size','10px').style('color','#fff').style('z-index','30')
+    .style('min-width','190px').style('line-height','1.7')
+    .style('top','0').style('left','0');
 
-  // --- Update nodes ---
-  var nodeSel = svg.select('.ss2-nodes').selectAll('g.ss2-node').data(nodes, function(d) { return d.id; });
-  nodeSel.exit().remove();
+  // ── Cells ──
+  for (var i = 0; i < N; i++) {
+    for (var j = 0; j < N; j++) {
+      (function(ii, jj) {
+        var c = corr[ii][jj];
+        var isDiag = ii === jj;
+        var cx = jj * CELL_W;
+        var cy = ii * CELL_H;
 
-  var nodeEnter = nodeSel.enter().append('g').attr('class','ss2-node').style('cursor','pointer')
-    .attr('tabindex', '0').attr('role', 'button')
-    .attr('aria-label', function(d) {
-      var sentiment = d.score >= 65 ? 'bullish' : d.score >= 45 ? 'neutral' : 'bearish';
-      return STREAMS[d.id].label + ' (' + d.code + '): score ' + d.score + ', ' + sentiment;
-    });
-  // Glow circle (behind)
-  nodeEnter.append('circle').attr('class','ss2-glow')
-    .attr('r', function(d) { return d.r * 1.8; })
-    .attr('fill','none').attr('filter','url(#ss2-node-glow)');
-  // Main circle
-  nodeEnter.append('circle').attr('class','ss2-disc')
-    .attr('r', function(d) { return d.r; })
-    .attr('stroke-width', 1.5);
-  // Index code label
-  nodeEnter.append('text').attr('class','ss2-code')
-    .attr('text-anchor','middle').attr('dy','-0.15em')
-    .style('font-family','JetBrains Mono, monospace').style('font-weight','800')
-    .style('font-size','11px').style('fill','#fff').style('pointer-events','none');
-  // Score label
-  nodeEnter.append('text').attr('class','ss2-nscore')
-    .attr('text-anchor','middle').attr('dy','1.15em')
-    .style('font-family','JetBrains Mono, monospace').style('font-weight','600')
-    .style('font-size','9px').style('fill','rgba(255,255,255,0.7)').style('pointer-events','none');
+        var cell = g.append('g')
+          .style('cursor', isDiag ? 'default' : 'pointer')
+          .on('mouseover', function(event) {
+            if (isDiag) return;
+            d3.select(this).select('rect').attr('stroke', '#CC0000').attr('stroke-width', 1.5);
+            var sA = STREAMS[ii], sB = STREAMS[jj];
+            var scoreA = Math.round(scoreMap[sA.id]), scoreB = Math.round(scoreMap[sB.id]);
+            var direction = scoreA > 60 && scoreB > 60 ? '▲ CO-BULLISH' : scoreA < 40 && scoreB < 40 ? '▼ CO-BEARISH' : '↔ DIVERGING';
+            var strength = c >= 0.85 ? 'STRONG' : c >= 0.70 ? 'MODERATE' : c >= 0.55 ? 'WEAK' : 'NONE';
+            tip.style('opacity','1')
+              .style('top', (cy + LABEL_H + 4) + 'px')
+              .style('left', (cx + LABEL_W + CELL_W + 6) + 'px')
+              .html(
+                '<span style="color:#CC0000">' + sA.code + ' × ' + sB.code + '</span><br>' +
+                '<span style="color:rgba(255,255,255,0.5)">Correlation: </span>' +
+                '<span style="font-weight:700">' + Math.round(c * 100) + '%</span> — ' + strength + '<br>' +
+                '<span style="color:' + sA.color + '">' + sA.label + '</span>: ' + scoreA + '/100<br>' +
+                '<span style="color:' + sB.color + '">' + sB.label + '</span>: ' + scoreB + '/100<br>' +
+                '<span style="font-size:8px;color:rgba(255,255,255,0.35)">' + direction + '</span>'
+              );
+          })
+          .on('mouseout', function() {
+            d3.select(this).select('rect').attr('stroke', 'rgba(255,255,255,0.04)').attr('stroke-width', 0.5);
+            tip.style('opacity','0');
+          });
 
-  var nodeAll = nodeEnter.merge(nodeSel);
+        // Background rect
+        cell.append('rect')
+          .attr('x', cx + CELL_PAD).attr('y', cy + CELL_PAD)
+          .attr('width', CELL_W - CELL_PAD * 2).attr('height', CELL_H - CELL_PAD * 2)
+          .attr('rx', 3)
+          .attr('fill', isDiag ? 'rgba(204,0,0,0.12)' : corrColor(c))
+          .attr('stroke', isDiag ? 'rgba(204,0,0,0.4)' : 'rgba(255,255,255,0.04)')
+          .attr('stroke-width', isDiag ? 1 : 0.5);
 
-  // Animated transitions for score changes
-  nodeAll.select('.ss2-glow').transition().duration(800)
-    .attr('r', function(d) { return d.r * 1.8; })
-    .attr('stroke', function(d) { return d.fill; })
-    .attr('stroke-width', 2)
-    .attr('opacity', 0.35);
-  nodeAll.select('.ss2-disc').transition().duration(800)
-    .attr('r', function(d) { return d.r; })
-    .attr('fill', function(d) { return d.fill + '18'; })
-    .attr('stroke', function(d) { return d.fill; });
-  nodeAll.select('.ss2-code').text(function(d) { return d.code; });
-  nodeAll.select('.ss2-nscore').text(function(d) { return d.score; });
-  // Update ARIA labels on data refresh
-  nodeAll.attr('aria-label', function(d) {
-    var sentiment = d.score >= 65 ? 'bullish' : d.score >= 45 ? 'neutral' : 'bearish';
-    return STREAMS[d.id].label + ' (' + d.code + '): score ' + d.score + ', ' + sentiment;
-  });
-
-  // --- Hover + click interactions ---
-  var tooltip = document.getElementById('ss2-map-tooltip');
-
-  nodeAll.on('mouseenter', function(ev, d) {
-    // Dim unconnected edges
-    var connected = {};
-    links.forEach(function(l) {
-      var s = l.source.id || l.source, t = l.target.id || l.target;
-      if (s === d.id || t === d.id) { connected[s] = true; connected[t] = true; }
-    });
-    svg.select('.ss2-links').selectAll('line').transition().duration(200)
-      .style('opacity', function(l) {
-        var s = l.source.id || l.source, t = l.target.id || l.target;
-        return (s === d.id || t === d.id) ? 1 : 0.08;
-      });
-    svg.select('.ss2-nodes').selectAll('g.ss2-node').transition().duration(200)
-      .style('opacity', function(n) { return connected[n.id] ? 1 : 0.25; });
-
-    // Tooltip
-    var rect = container.getBoundingClientRect();
-    var cx = ev.clientX - rect.left, cy = ev.clientY - rect.top;
-    tooltip.style.opacity = '1';
-    tooltip.style.left = (cx + 18) + 'px';
-    tooltip.style.top = (cy - 14) + 'px';
-    tooltip.innerHTML = '<div style="color:' + d.fill + ';font-size:7px;letter-spacing:.15em;margin-bottom:3px;">' + STREAMS[d.id].label + ' (' + d.code + ')</div>'
-      + '<div style="font-size:11px;font-weight:700;">' + d.score + '/100</div>'
-      + '<div style="font-size:8px;color:rgba(255,255,255,0.5);margin-top:3px;">' + getLiveSubLabel(d.id) + '</div>'
-      + '<div style="font-size:7px;color:rgba(255,255,255,0.3);margin-top:4px;">Click for full breakdown</div>';
-  })
-  .on('mouseleave', function() {
-    svg.select('.ss2-links').selectAll('line').transition().duration(300).style('opacity', 1);
-    svg.select('.ss2-nodes').selectAll('g.ss2-node').transition().duration(300).style('opacity', 1);
-    tooltip.style.opacity = '0';
-  })
-  .on('click', function(ev, d) {
-    var cell = document.getElementById('gc-' + d.id);
-    if (cell) cell.click();
-  })
-  .on('keydown', function(ev, d) {
-    if (ev.key === 'Enter' || ev.key === ' ') {
-      ev.preventDefault();
-      var cell = document.getElementById('gc-' + d.id);
-      if (cell) cell.click();
-    } else if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') {
-      ev.preventDefault();
-      var allNodes = svg.select('.ss2-nodes').selectAll('g.ss2-node').nodes();
-      var idx = allNodes.indexOf(this);
-      var next = allNodes[(idx + 1) % allNodes.length];
-      if (next) next.focus();
-    } else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') {
-      ev.preventDefault();
-      var allNodes = svg.select('.ss2-nodes').selectAll('g.ss2-node').nodes();
-      var idx = allNodes.indexOf(this);
-      var prev = allNodes[(idx - 1 + allNodes.length) % allNodes.length];
-      if (prev) prev.focus();
+        // Diagonal: stream code
+        if (isDiag) {
+          cell.append('text')
+            .attr('x', cx + CELL_W / 2).attr('y', cy + CELL_H / 2 - 4)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle')
+            .attr('font-size', 9).attr('font-weight', 700).attr('fill', STREAMS[ii].color)
+            .text(STREAMS[ii].code);
+          cell.append('text')
+            .attr('x', cx + CELL_W / 2).attr('y', cy + CELL_H / 2 + 9)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle')
+            .attr('font-size', 7).attr('fill', 'rgba(255,255,255,0.35)')
+            .text(Math.round(scoreMap[STREAMS[ii].id]));
+        } else {
+          // Correlation value
+          cell.append('text')
+            .attr('x', cx + CELL_W / 2).attr('y', cy + CELL_H / 2)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle')
+            .attr('font-size', CELL_W < 50 ? 8 : 9).attr('font-weight', c >= 0.7 ? 700 : 400)
+            .attr('fill', corrTextColor(c))
+            .text(Math.round(c * 100) + '%');
+        }
+      })(i, j);
     }
-  })
-  .on('focus', function(ev, d) {
-    // Reuse hover highlight logic on keyboard focus
-    var connected = {};
-    links.forEach(function(l) {
-      var s = l.source.id || l.source, t = l.target.id || l.target;
-      if (s === d.id || t === d.id) { connected[s] = true; connected[t] = true; }
-    });
-    svg.select('.ss2-links').selectAll('line').transition().duration(200)
-      .style('opacity', function(l) {
-        var s = l.source.id || l.source, t = l.target.id || l.target;
-        return (s === d.id || t === d.id) ? 1 : 0.08;
-      });
-    svg.select('.ss2-nodes').selectAll('g.ss2-node').transition().duration(200)
-      .style('opacity', function(n) { return connected[n.id] ? 1 : 0.25; });
-  })
-  .on('blur', function() {
-    svg.select('.ss2-links').selectAll('line').transition().duration(300).style('opacity', 1);
-    svg.select('.ss2-nodes').selectAll('g.ss2-node').transition().duration(300).style('opacity', 1);
-  });
-
-  // --- D3 drag (disabled on touch devices to avoid scroll conflicts) ---
-  var isTouch = window.matchMedia('(pointer: coarse)').matches;
-  if (!isTouch) {
-    nodeAll.call(d3.drag()
-      .on('start', function(ev, d) {
-        if (!ev.active && _d3Sim) _d3Sim.alphaTarget(0.3).restart();
-        d.fx = d.x; d.fy = d.y;
-      })
-      .on('drag', function(ev, d) { d.fx = ev.x; d.fy = ev.y; })
-      .on('end', function(ev, d) {
-        if (!ev.active && _d3Sim) _d3Sim.alphaTarget(0);
-        d.fx = null; d.fy = null;
-      })
-    );
   }
 
-  // --- Force simulation ---
-  // Design note: force-directed layout is appropriate for <=8 nodes.
-  // If sovereign signal indices exceed 8, migrate to heatmap matrix.
-  // See docs/audits/panopticon_viz/FINAL_CONSENSUS.md for rationale.
-  if (_d3Sim) _d3Sim.stop();
-  var collisionPad = W < 480 ? 14 : 6;  // P2: wider padding on small screens
-  _d3Sim = d3.forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(-200))
-    .force('link', d3.forceLink(links).id(function(d) { return d.id; }).distance(80))
-    .force('center', d3.forceCenter(W / 2, H / 2))
-    .force('collision', d3.forceCollide().radius(function(d) { return d.r + collisionPad; }))
-    .force('bounds', function() {
-      nodes.forEach(function(d) {
-        d.x = Math.max(d.r + 4, Math.min(W - d.r - 4, d.x));
-        d.y = Math.max(d.r + 4, Math.min(H - d.r - 4, d.y));
-      });
-    })
-    .alphaDecay(0.03)
-    .on('tick', function() {
-      linkAll
-        .attr('x1', function(d) { return d.source.x; })
-        .attr('y1', function(d) { return d.source.y; })
-        .attr('x2', function(d) { return d.target.x; })
-        .attr('y2', function(d) { return d.target.y; });
-      nodeAll.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
-    })
-    .on('end', function() { _d3Sim.stop(); });  // P1: halt CPU after convergence
+  // ── Column headers (top) ──
+  STREAMS.forEach(function(s, j) {
+    svg.append('text')
+      .attr('x', LABEL_W + j * CELL_W + CELL_W / 2)
+      .attr('y', LABEL_H - 6)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 7).attr('font-weight', 700)
+      .attr('fill', s.color)
+      .attr('letter-spacing', '0.08em')
+      .text(s.code);
+  });
+
+  // ── Row labels (left) ──
+  STREAMS.forEach(function(s, i) {
+    svg.append('text')
+      .attr('x', LABEL_W - 8)
+      .attr('y', LABEL_H + i * CELL_H + CELL_H / 2)
+      .attr('text-anchor', 'end')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', 7).attr('font-weight', 700)
+      .attr('fill', s.color)
+      .attr('letter-spacing', '0.06em')
+      .text(s.code);
+  });
+
+  // ── Legend strip ──
+  var legendY = LABEL_H + GRID_H + 10;
+  var legendX = LABEL_W;
+  var legendW = GRID_W;
+  var LH = 6;
+
+  // Gradient rect
+  var gradId = 'corr-legend-grad';
+  var defs = svg.append('defs');
+  var lg = defs.append('linearGradient').attr('id', gradId)
+    .attr('x1','0%').attr('x2','100%').attr('y1','0%').attr('y2','0%');
+  lg.append('stop').attr('offset','0%').attr('stop-color','#0a0808');
+  lg.append('stop').attr('offset','40%').attr('stop-color','#5a0a0a');
+  lg.append('stop').attr('offset','70%').attr('stop-color','#9e1010');
+  lg.append('stop').attr('offset','100%').attr('stop-color','#CC0000');
+
+  svg.append('rect')
+    .attr('x', legendX).attr('y', legendY)
+    .attr('width', legendW).attr('height', LH)
+    .attr('rx', 2).attr('fill', 'url(#' + gradId + ')');
+
+  svg.append('text').attr('x', legendX).attr('y', legendY + LH + 10)
+    .attr('font-size', 7).attr('fill', 'rgba(255,255,255,0.25)').text('LOW CORR');
+  svg.append('text').attr('x', legendX + legendW).attr('y', legendY + LH + 10)
+    .attr('text-anchor', 'end')
+    .attr('font-size', 7).attr('fill', '#CC0000').text('HIGH CORR');
 }
 
-// ─── Signal board ────────────────────────────────────────────────────────────
 function renderSignalBoard() {
   var board = document.getElementById('ss2-signal-board');
   if (!board) return;

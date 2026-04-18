@@ -3962,134 +3962,310 @@ html, body {
         </div>
 </div><!-- END panel-sovereign-health -->
 
-<!-- NODE GLOBE - Dashboard Grid Item -->
+<!-- NODE GLOBE - D3 geoOrthographic (Three.js replaced) -->
 <div class="instrument-panel" id="panel-node-globe" style="grid-column: span 2;">
-    <div class="node-globe-showcase" style="background: linear-gradient(180deg, rgba(10, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.98) 100%); border: 2px solid rgba(220, 38, 38, 0.3); border-radius: 20px; padding: 0; overflow: hidden; position: relative;">
-        <!-- Animated star field background -->
-        <div class="globe-starfield" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none;">
-            <div class="star" style="top: 10%; left: 20%; animation-delay: 0s;"></div>
-            <div class="star" style="top: 30%; left: 80%; animation-delay: 1s;"></div>
-            <div class="star" style="top: 60%; left: 15%; animation-delay: 2s;"></div>
-            <div class="star" style="top: 80%; left: 70%; animation-delay: 0.5s;"></div>
-            <div class="star" style="top: 45%; left: 50%; animation-delay: 1.5s;"></div>
-        </div>
-        
-        <div class="module-header" style="padding: 25px 30px 15px; border-bottom: 1px solid rgba(220, 38, 38, 0.2);">
-            <div class="module-icon" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 100%); border: 2px solid rgba(220, 38, 38, 0.5); color: #dc2626; width: 50px; height: 50px; font-size: 1.3rem;">
-                <i class="fas fa-globe-americas"></i>
-            </div>
-            <div>
-                <h3 class="module-title" style="color: #dc2626; font-size: 1.5rem; letter-spacing: 2px;">NODE GLOBE</h3>
-                <p class="module-subtitle" style="color: rgba(255,255,255,0.6);">Bitcoin's Decentralized Nervous System</p>
-            </div>
-        </div>
-        
-        <div class="globe-main-container" style="display: flex; flex-wrap: wrap; min-height: 450px;">
-            <!-- Globe visualization -->
-            <div class="globe-visual-area" style="flex: 2; min-width: 300px; position: relative;">
-                <div class="globe-container" id="node-globe" style="height: 400px;">
-                    <div class="globe-controls" style="position: absolute; top: 15px; right: 15px; z-index: 10;">
-                        <button class="globe-control-btn" onclick="resetGlobeRotation()" title="Reset View" style="background: rgba(220, 38, 38, 0.2); border: 1px solid rgba(220, 38, 38, 0.4); color: #dc2626;">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <button class="globe-control-btn" onclick="toggleGlobeAutoRotate()" title="Auto-Rotate" style="background: rgba(220, 38, 38, 0.2); border: 1px solid rgba(220, 38, 38, 0.4); color: #dc2626;">
-                            <i class="fas fa-redo"></i>
-                        </button>
-                    </div>
-                    <!-- Node tooltip -->
-                    <div id="node-tooltip" class="node-tooltip" style="display: none; position: absolute; background: rgba(0,0,0,0.95); border: 1px solid rgba(220, 38, 38, 0.6); border-radius: 8px; padding: 12px; pointer-events: none; z-index: 100; min-width: 200px; box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);">
-                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #dc2626; margin-bottom: 6px;">NODE INTEL</div>
-                        <div id="node-tooltip-content"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Live stats panel -->
-            <div class="globe-stats-panel" style="flex: 1; min-width: 280px; padding: 25px; background: rgba(0,0,0,0.3); border-left: 1px solid rgba(220, 38, 38, 0.15);">
-                <div class="globe-stat-card" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                        <i class="fas fa-network-wired" style="color: #dc2626; font-size: 1.2rem;"></i>
-                        <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Reachable Nodes</span>
-                    </div>
-                    <div id="globe-node-count" style="font-size: 2.2rem; font-weight: 700; color: #dc2626; font-family: 'JetBrains Mono', monospace;">18,472</div>
-                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 5px;">Real-time via Bitnodes API</div>
-                </div>
-                
-                <div class="globe-stat-card" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                        <i class="fas fa-globe-americas" style="color: #22c55e; font-size: 1.2rem;"></i>
-                        <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Countries</span>
-                    </div>
-                    <div id="globe-country-count" style="font-size: 2.2rem; font-weight: 700; color: #22c55e; font-family: 'JetBrains Mono', monospace;">97</div>
-                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 5px;">Global distribution</div>
-                </div>
-                
-                <div class="globe-stat-card" style="background: linear-gradient(135deg, rgba(247, 147, 26, 0.15) 0%, rgba(247, 147, 26, 0.05) 100%); border: 1px solid rgba(247, 147, 26, 0.3); border-radius: 12px; padding: 20px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                        <i class="fas fa-shield-alt" style="color: #f7931a; font-size: 1.2rem;"></i>
-                        <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Network Health</span>
-                    </div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e; font-family: 'JetBrains Mono', monospace;">SOVEREIGN</div>
-                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 5px;">No single point of failure</div>
-                </div>
-                
-                <!-- Top regions live feed -->
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(220, 38, 38, 0.15);">
-                    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Top Node Regions</div>
-                    <div id="top-node-regions" style="font-size: 0.8rem;">
-                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <span style="color: rgba(255,255,255,0.7);">🇩🇪 Germany</span>
-                            <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">2,847</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <span style="color: rgba(255,255,255,0.7);">🇺🇸 United States</span>
-                            <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">2,412</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <span style="color: rgba(255,255,255,0.7);">🇫🇷 France</span>
-                            <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">982</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                            <span style="color: rgba(255,255,255,0.7);">🇳🇱 Netherlands</span>
-                            <span style="color: #dc2626; font-family: 'JetBrains Mono', monospace;">847</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Bottom insights bar -->
-        <div style="background: rgba(220, 38, 38, 0.08); border-top: 1px solid rgba(220, 38, 38, 0.2); padding: 15px 25px; display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite;"></div>
-                <span style="font-size: 0.75rem; color: rgba(255,255,255,0.6);">Each dot represents a <span style="color: #f7931a;">full node</span> validating the entire blockchain</span>
-            </div>
-            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5);">
-                <i class="fas fa-mouse-pointer me-1"></i> Hover over nodes for details
-            </div>
-        </div>
-        
-        <!-- ROTATING AD BANNER -->
-        <div class="ad-banner-container" style="padding: 20px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.1);">
-            <div id="ad-slot-1" class="ad-slot" style="text-align: center;">
-                <a href="https://bitaxe.org" target="_blank" style="display: inline-block;">
-                    <img src="/static/ads/CUrated_ad_92b6d00265774c62ae666607abf5ebcb.jpeg" alt="Mining Partner" style="max-width: 100%; max-height: 120px; border-radius: 8px; opacity: 0.9; transition: 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">
-                </a>
-                <p class="text-muted mt-2 mb-0" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Curated Mining Partner</p>
-            </div>
-            <div id="ad-slot-2" class="ad-slot" style="display: none; text-align: center;">
-                <div style="padding: 20px;">
-                    <i class="fas fa-bolt" style="font-size: 2rem; color: #f7931a; margin-bottom: 10px;"></i>
-                    <h4 style="color: #fff; margin: 10px 0; font-size: 1rem;">Support Protocol Pulse</h4>
-                    <p class="text-muted mb-3" style="font-size: 0.85rem;">Help us stay sovereign and ad-free</p>
-                    <a href="/donate" class="btn" style="background: linear-gradient(135deg, #f7931a, #dc2626); color: #fff; padding: 10px 25px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-                        <i class="fas fa-heart me-2"></i>Donate Sats
-                    </a>
-                </div>
-            </div>
-        </div>
+  <div id="ng-live-wrap" style="background:linear-gradient(180deg,rgba(10,5,5,0.97) 0%,rgba(5,5,5,0.99) 100%);border:1px solid rgba(220,38,38,0.25);border-radius:16px;padding:0;overflow:hidden;position:relative;">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.05);">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.25em;color:#CC0000;text-transform:uppercase;margin-bottom:4px;">LIVE NETWORK</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#fff;letter-spacing:.1em;">BITCOIN NODE GLOBE</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:900;color:#CC0000;line-height:1;" id="ng-live-count">22,812</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:.1em;margin-top:2px;">REACHABLE NODES</div>
+      </div>
     </div>
+    <!-- Canvas -->
+    <div style="position:relative;display:flex;">
+      <canvas id="ng-live-canvas" style="display:block;cursor:grab;touch-action:none;" aria-label="Interactive Bitcoin node globe showing global node distribution"></canvas>
+      <!-- Tweak panel -->
+      <div id="ng-live-tweaks" style="position:absolute;top:12px;right:12px;background:rgba(5,5,5,0.92);border:1px solid rgba(204,0,0,0.3);border-radius:6px;padding:12px 14px;min-width:160px;font-family:'JetBrains Mono',monospace;font-size:9px;z-index:10;">
+        <div style="color:#CC0000;letter-spacing:.15em;font-size:7px;margin-bottom:10px;text-transform:uppercase;">TWEAK PANEL</div>
+        <div style="margin-bottom:8px;">
+          <div style="color:rgba(255,255,255,0.4);margin-bottom:3px;">ROTATION</div>
+          <input type="range" id="ng-speed" min="0" max="30" value="4" style="width:100%;accent-color:#CC0000;">
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="color:rgba(255,255,255,0.4);margin-bottom:3px;">GLOW</div>
+          <input type="range" id="ng-glow" min="0" max="30" value="12" style="width:100%;accent-color:#CC0000;">
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="color:rgba(255,255,255,0.4);margin-bottom:3px;">NODE SIZE</div>
+          <input type="range" id="ng-size" min="3" max="20" value="8" style="width:100%;accent-color:#CC0000;">
+        </div>
+        <div id="ng-live-tooltip" style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:8px;line-height:1.6;min-height:32px;"></div>
+      </div>
+    </div>
+    <!-- Footer stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid rgba(255,255,255,0.05);">
+      <div style="padding:10px 14px;border-right:1px solid rgba(255,255,255,0.04);text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#22c55e;" id="ng-live-v4">—</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.25);letter-spacing:.1em;margin-top:2px;">IPv4</div>
+      </div>
+      <div style="padding:10px 14px;border-right:1px solid rgba(255,255,255,0.04);text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#3b82f6;" id="ng-live-v6">—</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.25);letter-spacing:.1em;margin-top:2px;">IPv6</div>
+      </div>
+      <div style="padding:10px 14px;border-right:1px solid rgba(255,255,255,0.04);text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#F8C15C;" id="ng-live-countries">97</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.25);letter-spacing:.1em;margin-top:2px;">COUNTRIES</div>
+      </div>
+      <div style="padding:10px 14px;text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#CC0000;" id="ng-live-top">DE</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.25);letter-spacing:.1em;margin-top:2px;">TOP NATION</div>
+      </div>
+    </div>
+  </div>
 </div><!-- END panel-node-globe -->
+
+<script>
+// ── D3 BITCOIN NODE GLOBE (live_terminal) ─────────────────────────────────────
+(function() {
+  var NODES = [
+    { city:'Frankfurt', lat:50.1, lon:8.7,   count:2847, flag:'🇩🇪', ver:'25.0.0' },
+    { city:'Berlin',    lat:52.5, lon:13.4,  count:1200, flag:'🇩🇪', ver:'26.0.0' },
+    { city:'Munich',    lat:48.1, lon:11.6,  count:800,  flag:'🇩🇪', ver:'25.1.0' },
+    { city:'San Francisco', lat:37.7, lon:-122.4, count:2412, flag:'🇺🇸', ver:'26.0.0' },
+    { city:'New York',  lat:40.7, lon:-74.0, count:1850, flag:'🇺🇸', ver:'25.1.0' },
+    { city:'Chicago',   lat:41.9, lon:-87.6, count:950,  flag:'🇺🇸', ver:'25.0.0' },
+    { city:'Los Angeles',lat:34.0,lon:-118.2,count:780,  flag:'🇺🇸', ver:'26.0.0' },
+    { city:'Austin',    lat:30.3, lon:-97.7, count:620,  flag:'🇺🇸', ver:'25.1.0' },
+    { city:'London',    lat:51.5, lon:-0.1,  count:847,  flag:'🇬🇧', ver:'24.1.0' },
+    { city:'Paris',     lat:48.8, lon:2.3,   count:982,  flag:'🇫🇷', ver:'26.0.0' },
+    { city:'Amsterdam', lat:52.4, lon:4.9,   count:847,  flag:'🇳🇱', ver:'25.0.0' },
+    { city:'Tokyo',     lat:35.7, lon:139.7, count:523,  flag:'🇯🇵', ver:'25.0.0' },
+    { city:'Singapore', lat:1.3,  lon:103.8, count:312,  flag:'🇸🇬', ver:'24.0.1' },
+    { city:'Toronto',   lat:43.7, lon:-79.4, count:489,  flag:'🇨🇦', ver:'26.0.0' },
+    { city:'Sydney',    lat:-33.9,lon:151.2, count:287,  flag:'🇦🇺', ver:'25.0.0' },
+  ];
+
+  var canvas = document.getElementById('ng-live-canvas');
+  if (!canvas) return;
+
+  // Size canvas to fill its parent
+  function sizeCanvas() {
+    var wrap = canvas.parentElement;
+    var W = wrap ? Math.max(300, wrap.clientWidth - 170) : 500;
+    var H = Math.max(360, W * 0.72);
+    canvas.width  = W * (window.devicePixelRatio || 1);
+    canvas.height = H * (window.devicePixelRatio || 1);
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+    return { W: W, H: H };
+  }
+
+  var ctx = canvas.getContext('2d');
+  var dim = sizeCanvas();
+  var W = dim.W, H = dim.H;
+  var CX = W / 2, CY = H / 2;
+  var RADIUS = Math.min(W, H) * 0.42;
+
+  // State
+  var rotate = [-20, -18, 0];
+  var rotateSpeed = 0.004;
+  var glowStrength = 12;
+  var nodeSize = 8;
+  var dragging = false, lastX = 0, lastY = 0;
+  var worldTopo = null;
+  var hoveredNode = null;
+  var pulsePhase = 0;
+
+  // Projection helpers (manual geoOrthographic)
+  function project(lat, lon) {
+    var lam = (lon + rotate[0]) * Math.PI / 180;
+    var phi = lat * Math.PI / 180;
+    var phi0 = -rotate[1] * Math.PI / 180;
+    var cosC = Math.sin(phi0) * Math.sin(phi) + Math.cos(phi0) * Math.cos(phi) * Math.cos(lam);
+    if (cosC < 0) return null; // behind globe
+    var x = CX + RADIUS * Math.cos(phi) * Math.sin(lam);
+    var y = CY - RADIUS * (Math.cos(phi0) * Math.sin(phi) - Math.sin(phi0) * Math.cos(phi) * Math.cos(lam));
+    return { x: x, y: y, depth: cosC };
+  }
+
+  // Load world topology via D3
+  function init() {
+    if (typeof d3 === 'undefined') { setTimeout(init, 200); return; }
+
+    var projection = d3.geoOrthographic()
+      .translate([CX, CY])
+      .scale(RADIUS)
+      .clipAngle(90)
+      .rotate(rotate);
+    var geoPath = d3.geoPath(projection, ctx);
+    var sphere = { type: 'Sphere' };
+    var graticule = d3.geoGraticule10();
+
+    d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(function(world) {
+      worldTopo = world;
+      loop(projection, geoPath, sphere, graticule);
+    }).catch(function() {
+      loop(projection, geoPath, sphere, graticule);
+    });
+  }
+
+  function loop(proj, gp, sphere, gratic) {
+    requestAnimationFrame(function tick() {
+      pulsePhase += 0.04;
+      if (!dragging) {
+        rotate[0] += rotateSpeed;
+        proj.rotate(rotate);
+      }
+
+      var dpr = window.devicePixelRatio || 1;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.scale(dpr, dpr);
+
+      // Ocean
+      ctx.beginPath(); gp(sphere);
+      ctx.fillStyle = '#020202'; ctx.fill();
+
+      // Graticule
+      ctx.beginPath(); gp(gratic);
+      ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+      ctx.lineWidth = 0.4; ctx.stroke();
+
+      // Land
+      if (worldTopo) {
+        var land = topojson.feature(worldTopo, worldTopo.objects.countries);
+        ctx.beginPath(); gp(land);
+        ctx.fillStyle = '#0d0d0d';
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 0.5;
+        ctx.fill(); ctx.stroke();
+      }
+
+      // Globe outline
+      ctx.beginPath(); gp(sphere);
+      ctx.strokeStyle = 'rgba(204,0,0,0.18)';
+      ctx.lineWidth = 1; ctx.stroke();
+
+      // Nodes
+      NODES.forEach(function(n) {
+        var pt = project(n.lat, n.lon);
+        if (!pt) return;
+        var base = nodeSize * (0.5 + n.count / 4000);
+        var pulse = Math.sin(pulsePhase + n.lat * 0.2) * 0.3 + 0.7;
+        var r = base * pulse;
+        var isHot = n === hoveredNode;
+
+        // Glow
+        if (glowStrength > 0) {
+          var grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r * 3);
+          grd.addColorStop(0, 'rgba(204,0,0,' + (0.3 * pulse) + ')');
+          grd.addColorStop(1, 'rgba(204,0,0,0)');
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r * (3 + glowStrength / 10), 0, Math.PI * 2);
+          ctx.fillStyle = grd; ctx.fill();
+        }
+
+        // Dot
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, isHot ? r * 1.5 : r, 0, Math.PI * 2);
+        ctx.fillStyle = isHot ? '#FF4444' : '#CC0000';
+        ctx.fill();
+
+        // City label on hover
+        if (isHot) {
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.font = '9px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(n.flag + ' ' + n.city, pt.x, pt.y - r * 2 - 4);
+        }
+      });
+
+      ctx.restore();
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // Drag to rotate
+  canvas.addEventListener('mousedown', function(e) {
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', function() {
+    dragging = false;
+    canvas.style.cursor = 'grab';
+  });
+  window.addEventListener('mousemove', function(e) {
+    if (dragging) {
+      rotate[0] += (e.clientX - lastX) * 0.3;
+      rotate[1] -= (e.clientY - lastY) * 0.3;
+      rotate[1] = Math.max(-90, Math.min(90, rotate[1]));
+      lastX = e.clientX; lastY = e.clientY;
+    } else {
+      // Hover detection
+      var rect = canvas.getBoundingClientRect();
+      var mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      hoveredNode = null;
+      NODES.forEach(function(n) {
+        var pt = project(n.lat, n.lon);
+        if (!pt) return;
+        var r = nodeSize * (0.5 + n.count / 4000) * 2;
+        if (Math.hypot(mx - pt.x, my - pt.y) < r * 1.8) {
+          hoveredNode = n;
+          document.getElementById('ng-live-tooltip').innerHTML =
+            '<span style="color:#CC0000">' + n.flag + ' ' + n.city + '</span><br>' +
+            n.count.toLocaleString() + ' nodes · v' + n.ver;
+        }
+      });
+      if (!hoveredNode) document.getElementById('ng-live-tooltip').innerHTML = '';
+    }
+  });
+
+  // Touch support
+  canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    dragging = true;
+    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+  }, { passive: false });
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (!dragging) return;
+    rotate[0] += (e.touches[0].clientX - lastX) * 0.3;
+    rotate[1] -= (e.touches[0].clientY - lastY) * 0.3;
+    rotate[1] = Math.max(-90, Math.min(90, rotate[1]));
+    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+  }, { passive: false });
+  canvas.addEventListener('touchend', function() { dragging = false; });
+
+  // Tweak sliders
+  document.getElementById('ng-speed').addEventListener('input', function() {
+    rotateSpeed = this.value / 1000;
+  });
+  document.getElementById('ng-glow').addEventListener('input', function() {
+    glowStrength = parseInt(this.value);
+  });
+  document.getElementById('ng-size').addEventListener('input', function() {
+    nodeSize = parseInt(this.value);
+  });
+
+  // Live data from bitnodes proxy
+  function fetchLiveData() {
+    fetch('/api/proxy/bitnodes/snapshot').then(function(r) { return r.json(); }).then(function(d) {
+      var total = d.node_count;
+      if (total) {
+        document.getElementById('ng-live-count').textContent = total.toLocaleString();
+        // Scale node counts proportionally
+        var scale = total / 22812;
+        NODES.forEach(function(n) { n.count = Math.round(n.count * scale); });
+      }
+      if (d.ipv4) document.getElementById('ng-live-v4').textContent = d.ipv4.toLocaleString();
+      if (d.ipv6) document.getElementById('ng-live-v6').textContent = d.ipv6.toLocaleString();
+      if (d.countries && d.countries.length > 0) {
+        document.getElementById('ng-live-countries').textContent = d.countries.length;
+        document.getElementById('ng-live-top').textContent = d.countries[0][0];
+      }
+    }).catch(function() {});
+  }
+  fetchLiveData();
+  setInterval(fetchLiveData, 300000); // refresh every 5 min
+
+  init();
+})();
+</script>
 
 <style>
 .star {
