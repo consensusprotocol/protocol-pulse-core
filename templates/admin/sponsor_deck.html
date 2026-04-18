@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}Sponsor Deck Command — Protocol Pulse Admin{% endblock %}
+{% block content %}
+<style>
+:root{
+  --bg:#000;--s1:#080808;--s2:#0f0f0f;--border:#1c1c1c;
+  --red:#CC0000;--red-dim:rgba(204,0,0,0.14);--gold:#F8C15C;
+  --green:#22c55e;--blue:#3b82f6;--orange:#f97316;
+  --muted:#8a8a8a;--muted-dim:#555;--text:#e6e6e6;
+  --mono:'JetBrains Mono','IBM Plex Mono','Menlo',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);}
+
+.sd-wrap{max-width:1400px;margin:0 auto;padding:72px 20px 60px;}
+.sd-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 16px;border-bottom:2px solid var(--red);margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.sd-logo{font-family:var(--mono);font-size:13px;font-weight:900;letter-spacing:.22em;color:var(--red);text-transform:uppercase;}
+.sd-logo span{color:var(--gold);}
+.sd-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{background:none;border:1px solid var(--muted-dim);color:var(--muted);font-family:var(--mono);font-size:10px;padding:6px 14px;cursor:pointer;letter-spacing:.12em;text-transform:uppercase;transition:all .2s;text-decoration:none;display:inline-block;}
+.btn:hover{border-color:var(--gold);color:var(--gold);}
+.btn.primary{border-color:var(--red);color:var(--red);}
+.btn.primary:hover{background:var(--red);color:#fff;}
+.btn.gold{border-color:var(--gold);color:var(--gold);}
+.btn.gold:hover{background:var(--gold);color:#000;}
+.btn.green{border-color:var(--green);color:var(--green);}
+.btn.green:hover{background:var(--green);color:#000;}
+
+.sd-layout{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:flex-start;}
+@media (max-width:1050px){.sd-layout{grid-template-columns:1fr;}}
+
+/* LEFT COLUMN — control panel */
+.sd-panel{background:var(--s1);border:1px solid var(--border);padding:20px;position:sticky;top:80px;}
+.sd-panel h3{font-size:10px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;font-weight:800;}
+.sd-stat-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:18px;border:1px solid var(--border);}
+.sd-stat{background:var(--s2);padding:12px 10px;text-align:center;}
+.sd-stat .n{font-size:22px;font-weight:900;color:var(--gold);line-height:1;}
+.sd-stat .n.red{color:var(--red);}
+.sd-stat .n.green{color:var(--green);}
+.sd-stat .l{font-size:7px;letter-spacing:.2em;color:var(--muted);margin-top:5px;text-transform:uppercase;}
+
+.sd-field{margin-bottom:12px;}
+.sd-field label{display:block;font-size:8px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.sd-field select,.sd-field input{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:7px 10px;outline:none;}
+.sd-field select:focus,.sd-field input:focus{border-color:var(--red);}
+
+.sd-token{font-size:10px;color:var(--gold);word-break:break-all;padding:8px 10px;background:var(--s2);border:1px dashed var(--border);margin-bottom:8px;}
+.sd-link{display:block;font-size:10px;color:var(--text);padding:8px 10px;background:var(--s2);border:1px solid var(--border);margin-bottom:10px;word-break:break-all;font-family:var(--mono);}
+
+.sd-divider{height:1px;background:var(--border);margin:18px 0;}
+
+.action-stack{display:flex;flex-direction:column;gap:8px;}
+.action-stack .btn{text-align:center;padding:10px 14px;}
+
+/* RIGHT COLUMN — preview */
+.sd-preview-wrap{background:var(--s1);border:1px solid var(--border);}
+.sd-preview-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--s2);}
+.sd-preview-head .title{font-size:10px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;font-weight:800;}
+.sd-preview-head .meta{font-size:9px;color:var(--muted);letter-spacing:.15em;}
+.sd-preview{width:100%;height:calc(100vh - 180px);border:none;background:#000;}
+
+/* Recent views */
+.views-log{margin-top:22px;}
+.views-log h4{font-size:10px;letter-spacing:.22em;color:var(--red);text-transform:uppercase;margin-bottom:10px;font-weight:800;}
+.view-row{display:grid;grid-template-columns:1fr 140px 80px;gap:8px;padding:8px 10px;border-bottom:1px dashed var(--border);font-size:10px;}
+.view-row .co{color:var(--text);font-weight:700;}
+.view-row .when{color:var(--muted);font-size:9px;}
+.view-row .ip{color:var(--muted);font-size:9px;text-align:right;}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--green);font-family:var(--mono);font-size:10px;color:var(--text);padding:10px 18px;z-index:9999;letter-spacing:.06em;animation:ti .2s ease;}
+.toast.error{border-left-color:var(--red);}
+@keyframes ti{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+</style>
+
+<div class="sd-wrap">
+
+  <div class="sd-topbar">
+    <div>
+      <div class="sd-logo">PROTOCOL PULSE &nbsp;<span>// SPONSOR DECK</span></div>
+      <div style="font-size:8px;color:var(--muted);margin-top:4px;letter-spacing:.1em;">DUAL-PROPERTY BRIEF · PP + BITCOIN BOOMERS</div>
+    </div>
+    <div class="sd-actions">
+      <a href="/admin" class="btn">← ADMIN</a>
+      <a href="/admin/outreach" class="btn">OUTREACH</a>
+      <a href="/sponsor-deck" target="_blank" class="btn gold">OPEN (NO TOKEN)</a>
+      <a href="/api/admin/sponsor-deck/pdf" class="btn primary">⬇ DOWNLOAD PDF</a>
+    </div>
+  </div>
+
+  <div class="sd-layout">
+
+    <!-- ─── CONTROL PANEL ─── -->
+    <div class="sd-panel">
+      <h3>Deck Control</h3>
+
+      <div class="sd-stat-row">
+        <div class="sd-stat"><div class="n" id="st-prospects">—</div><div class="l">Prospects</div></div>
+        <div class="sd-stat"><div class="n green" id="st-tokens">—</div><div class="l">Tokens issued</div></div>
+        <div class="sd-stat"><div class="n red" id="st-views">—</div><div class="l">Deck views</div></div>
+        <div class="sd-stat"><div class="n" id="st-sent">—</div><div class="l">Deck emails sent</div></div>
+      </div>
+
+      <div class="sd-field">
+        <label>Preview as prospect</label>
+        <select id="prospect-select" onchange="onPick()">
+          <option value="">— Generic / no token —</option>
+        </select>
+      </div>
+
+      <div id="token-box" style="display:none;">
+        <div class="sd-field">
+          <label>Deck token</label>
+          <div class="sd-token" id="token-value">—</div>
+        </div>
+        <div class="sd-field">
+          <label>Shareable link</label>
+          <div class="sd-link" id="link-value">—</div>
+        </div>
+      </div>
+
+      <div class="action-stack">
+        <button class="btn gold" onclick="copyLink()">📋 COPY SHAREABLE LINK</button>
+        <button class="btn" onclick="generateAllTokens()">🔑 GENERATE TOKENS FOR ALL</button>
+        <button class="btn primary" onclick="sendAll()">✉ SEND DECK TO ALL PROSPECTS</button>
+      </div>
+
+      <div class="sd-divider"></div>
+
+      <div class="views-log">
+        <h4>Recent Deck Views</h4>
+        <div id="views-list"><div style="font-size:10px;color:var(--muted);padding:8px;">No views yet.</div></div>
+      </div>
+    </div>
+
+    <!-- ─── LIVE PREVIEW ─── -->
+    <div class="sd-preview-wrap">
+      <div class="sd-preview-head">
+        <div class="title">Live Preview</div>
+        <div class="meta" id="preview-meta">GENERIC VIEW · NO TOKEN</div>
+      </div>
+      <iframe class="sd-preview" id="preview-frame" src="/sponsor-deck"></iframe>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var PROSPECTS = [];
+var SITE_ORIGIN = window.location.origin;
+
+function load(){
+  // Stats
+  fetch('/api/admin/sponsor-deck/stats').then(r=>r.json()).then(s=>{
+    document.getElementById('st-prospects').textContent = s.total_prospects||0;
+    document.getElementById('st-tokens').textContent = s.tokens_issued||0;
+    document.getElementById('st-views').textContent = s.total_views||0;
+    document.getElementById('st-sent').textContent = s.deck_sent||0;
+  }).catch(()=>{});
+
+  // Prospects (for preview selector)
+  fetch('/api/admin/outreach/prospects').then(r=>r.json()).then(list=>{
+    PROSPECTS = list;
+    var sel = document.getElementById('prospect-select');
+    list.forEach(function(p){
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.company + (p.email ? ' · ' + p.email : '');
+      sel.appendChild(opt);
+    });
+  }).catch(()=>{});
+
+  // Views log
+  fetch('/api/admin/sponsor-deck/views').then(r=>r.json()).then(views=>{
+    var html = '';
+    if (!views.length){
+      html = '<div style="font-size:10px;color:var(--muted);padding:8px;">No views yet.</div>';
+    } else {
+      html = views.map(function(v){
+        return '<div class="view-row">'+
+          '<div class="co">'+esc(v.company||'(unknown)')+'</div>'+
+          '<div class="when">'+esc(v.viewed_at||'')+'</div>'+
+          '<div class="ip">'+esc((v.ip||'').split(':')[0])+'</div>'+
+        '</div>';
+      }).join('');
+    }
+    document.getElementById('views-list').innerHTML = html;
+  }).catch(()=>{});
+}
+
+function esc(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function onPick(){
+  var id = document.getElementById('prospect-select').value;
+  if (!id){
+    document.getElementById('token-box').style.display = 'none';
+    document.getElementById('preview-frame').src = '/sponsor-deck';
+    document.getElementById('preview-meta').textContent = 'GENERIC VIEW · NO TOKEN';
+    return;
+  }
+  fetch('/api/admin/sponsor-deck/token-for/'+id, {method:'POST'})
+    .then(r=>r.json()).then(function(d){
+      if (d.token){
+        document.getElementById('token-value').textContent = d.token;
+        var url = SITE_ORIGIN + '/sponsor-deck?token=' + d.token;
+        document.getElementById('link-value').textContent = url;
+        document.getElementById('token-box').style.display = 'block';
+        document.getElementById('preview-frame').src = url + '&preview=1';
+        document.getElementById('preview-meta').textContent = 'TOKENIZED · ' + (d.company || '');
+      } else {
+        toast('Error: ' + (d.error||'unknown'), true);
+      }
+    });
+}
+
+function copyLink(){
+  var link = document.getElementById('link-value').textContent;
+  if (!link || link === '—'){
+    toast('Pick a prospect first to generate a token.', true);
+    return;
+  }
+  navigator.clipboard.writeText(link).then(function(){
+    toast('Link copied.');
+  }).catch(function(){
+    toast('Copy failed — link: ' + link, true);
+  });
+}
+
+function generateAllTokens(){
+  if (!confirm('Generate shareable deck tokens for all prospects missing one?')) return;
+  fetch('/api/admin/sponsor-deck/generate-tokens', {method:'POST'})
+    .then(r=>r.json()).then(function(d){
+      toast('Generated ' + (d.created||0) + ' tokens. Total: ' + (d.total||0));
+      load();
+    });
+}
+
+function sendAll(){
+  var n = PROSPECTS.filter(function(p){ return p.email; }).length;
+  if (!confirm('Send the sponsor deck PDF by email to ' + n + ' prospects? This will fire real emails via Resend.')) return;
+  toast('Sending... this may take a moment.');
+  fetch('/api/admin/sponsor-deck/send-all', {method:'POST'})
+    .then(r=>r.json()).then(function(d){
+      if (d.ok){
+        toast('✉ Sent: ' + d.sent + ' · Skipped: ' + d.skipped + ' · Errors: ' + d.errors);
+        load();
+      } else {
+        toast('Error: ' + (d.error||'unknown'), true);
+      }
+    }).catch(function(e){ toast('Error: ' + e, true); });
+}
+
+function toast(msg, isErr){
+  var t = document.createElement('div');
+  t.className = 'toast' + (isErr ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3500);
+}
+
+load();
+setInterval(load, 20000);
+</script>
+{% endblock %}

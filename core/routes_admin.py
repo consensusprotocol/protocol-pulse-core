@@ -3713,3 +3713,325 @@ def api_outreach_stats():
             models.SponsorOutreach.notes.like('%Boomers%')
         ).count(),
     })
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SPONSOR DECK COMMAND CENTER (dual-property one-pager + PDF + bulk send)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _issue_deck_token(prospect):
+    """Generate + persist a deck_token for a prospect if missing. Returns the token."""
+    import secrets
+    if getattr(prospect, 'deck_token', None):
+        return prospect.deck_token
+    token = secrets.token_urlsafe(24)
+    prospect.deck_token = token
+    db.session.commit()
+    return token
+
+
+def _render_deck_html(prospect=None):
+    """Render the public sponsor-deck template for PDF / email use. Runs outside request ctx safely."""
+    issued_date = datetime.utcnow().strftime('%Y-%m-%d')
+    deck_id = f'PP-SB-{prospect.id:04d}' if prospect else 'PP-SB-2026'
+    prospect_company = prospect.company if prospect else None
+    return render_template(
+        'sponsor_deck_public.html',
+        deck_id=deck_id,
+        issued_date=issued_date,
+        prospect_company=prospect_company,
+        prospect=prospect,
+    )
+
+
+def _build_deck_pdf(prospect=None):
+    """Build the sponsor deck as a PDF. Returns (bytes, filename)."""
+    html = _render_deck_html(prospect=prospect)
+    try:
+        from weasyprint import HTML as _WP_HTML
+        # base_url lets WeasyPrint resolve relative assets (we use inline CSS only, but keep it correct).
+        pdf_bytes = _WP_HTML(string=html, base_url=request.url_root if request else 'https://protocolpulse.io/').write_pdf()
+    except Exception as wp_err:
+        logging.warning('WeasyPrint failed (%s) — falling back to reportlab.', wp_err)
+        pdf_bytes = _build_deck_pdf_reportlab(prospect=prospect)
+    slug = (prospect.company.lower().replace(' ', '_').replace('/', '_') if prospect else 'generic')
+    filename = f'protocol_pulse_sponsor_deck_{slug}.pdf'
+    return pdf_bytes, filename
+
+
+def _build_deck_pdf_reportlab(prospect=None):
+    """Fallback PDF builder (reportlab) — branded text deck when WeasyPrint is unavailable."""
+    from io import BytesIO
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+    buf = BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=letter,
+                            rightMargin=0.6*inch, leftMargin=0.6*inch,
+                            topMargin=0.6*inch, bottomMargin=0.6*inch)
+    styles = getSampleStyleSheet()
+    red = colors.HexColor('#CC0000'); gold = colors.HexColor('#F8C15C')
+    black = colors.HexColor('#0a0a0a'); white = colors.white; muted = colors.HexColor('#8a8a8a')
+    title = ParagraphStyle('t', parent=styles['Heading1'], textColor=red, fontName='Helvetica-Bold', fontSize=22, spaceAfter=4)
+    h2 = ParagraphStyle('h2', parent=styles['Heading2'], textColor=gold, fontName='Helvetica-Bold', fontSize=13, spaceAfter=6)
+    body = ParagraphStyle('b', parent=styles['Normal'], textColor=white, fontName='Helvetica', fontSize=10, leading=14)
+    small = ParagraphStyle('s', parent=styles['Normal'], textColor=muted, fontName='Helvetica', fontSize=8, leading=11)
+    company = prospect.company if prospect else 'Qualified Partners'
+    story = []
+    story.append(Paragraph('PROTOCOL PULSE × THE BITCOIN BOOMERS', title))
+    story.append(Paragraph(f'Sponsor Intelligence Brief for {company}', h2))
+    story.append(Paragraph(f"Issued: {datetime.utcnow().strftime('%Y-%m-%d')} UTC", small))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph('<b>Protocol Pulse</b> — 970K+ monthly reach · 1,300+ daily briefs · 638+ articles · Commander terminal.', body))
+    story.append(Paragraph('<b>The Bitcoin Boomers</b> — HNW Boomer/Gen X podcast. Hosts: Gary Leland, Lawrence Lepard, Bob Burnett.', body))
+    story.append(Spacer(1, 12))
+    rows = [
+        ['Format', 'Rate'],
+        ['PP Newsletter sponsor', '$800 / issue'],
+        ['PP Pulse Check video mid-roll', '$1,200 / episode'],
+        ['PP Terminal banner', '$400 / month'],
+        ['Boomers pre-roll', '$600 / episode'],
+        ['Boomers mid-roll dedicated', '$1,400 / episode'],
+        ['Boomers series sponsor', '$4,000 / month'],
+        ['DUAL bundle (save 30%)', '$2,800 / month'],
+    ]
+    t = Table(rows, colWidths=[3.8*inch, 1.6*inch])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), red),
+        ('TEXTCOLOR', (0, 0), (-1, 0), white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BACKGROUND', (0, 1), (-1, -1), black),
+        ('TEXTCOLOR', (0, 1), (-1, -1), white),
+        ('TEXTCOLOR', (1, 1), (1, -1), gold),
+        ('GRID', (0, 0), (-1, -1), 0.4, red),
+    ]))
+    story.append(t)
+    story.append(Spacer(1, 14))
+    story.append(Paragraph('<b>Book a call:</b> calendly.com/protocolpulse — <b>Email:</b> partnerships@protocolpulse.io', body))
+    doc.build(story)
+    buf.seek(0)
+    return buf.read()
+
+
+@admin_bp.route('/admin/sponsor-deck')
+@login_required
+def admin_sponsor_deck():
+    """Sponsor-deck command center — live preview, PDF export, bulk send."""
+    if not current_user.is_admin:
+        return redirect(url_for('pages.index'))
+    return render_template('admin/sponsor_deck.html')
+
+
+@admin_bp.route('/api/admin/sponsor-deck/stats', methods=['GET'])
+@login_required
+def api_sponsor_deck_stats():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    total_prospects = models.SponsorOutreach.query.count()
+    tokens_issued = models.SponsorOutreach.query.filter(
+        models.SponsorOutreach.deck_token.isnot(None),
+        models.SponsorOutreach.deck_token != ''
+    ).count()
+    deck_sent = models.SponsorOutreach.query.filter(
+        models.SponsorOutreach.deck_sent_at.isnot(None)
+    ).count()
+    total_views = 0
+    try:
+        total_views = models.SponsorDeckView.query.count()
+    except Exception:
+        total_views = 0
+    return jsonify({
+        'total_prospects': total_prospects,
+        'tokens_issued': tokens_issued,
+        'deck_sent': deck_sent,
+        'total_views': total_views,
+    })
+
+
+@admin_bp.route('/api/admin/sponsor-deck/token-for/<int:pid>', methods=['POST'])
+@login_required
+def api_sponsor_deck_token_for(pid):
+    """Ensure a token exists for this prospect and return it."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    p = models.SponsorOutreach.query.get_or_404(pid)
+    token = _issue_deck_token(p)
+    return jsonify({'ok': True, 'id': p.id, 'company': p.company, 'token': token})
+
+
+@admin_bp.route('/api/admin/sponsor-deck/generate-tokens', methods=['POST'])
+@login_required
+def api_sponsor_deck_generate_tokens():
+    """Issue tokens for all prospects that don't have one yet."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    missing = models.SponsorOutreach.query.filter(
+        (models.SponsorOutreach.deck_token.is_(None)) | (models.SponsorOutreach.deck_token == '')
+    ).all()
+    created = 0
+    for p in missing:
+        _issue_deck_token(p)
+        created += 1
+    total = models.SponsorOutreach.query.filter(
+        models.SponsorOutreach.deck_token.isnot(None),
+        models.SponsorOutreach.deck_token != ''
+    ).count()
+    return jsonify({'ok': True, 'created': created, 'total': total})
+
+
+@admin_bp.route('/api/admin/sponsor-deck/views', methods=['GET'])
+@login_required
+def api_sponsor_deck_views():
+    """Recent deck views (for admin dashboard)."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    out = []
+    try:
+        views = models.SponsorDeckView.query.order_by(models.SponsorDeckView.viewed_at.desc()).limit(25).all()
+        prospect_ids = {v.prospect_id for v in views if v.prospect_id}
+        prospects_by_id = {}
+        if prospect_ids:
+            for p in models.SponsorOutreach.query.filter(models.SponsorOutreach.id.in_(prospect_ids)).all():
+                prospects_by_id[p.id] = p.company
+        for v in views:
+            out.append({
+                'id': v.id,
+                'company': prospects_by_id.get(v.prospect_id, '(unknown)'),
+                'viewed_at': v.viewed_at.strftime('%Y-%m-%d %H:%M') if v.viewed_at else '',
+                'ip': v.ip or '',
+                'ua': (v.user_agent or '')[:60],
+            })
+    except Exception as e:
+        logging.warning('sponsor-deck views query failed: %s', e)
+    return jsonify(out)
+
+
+@admin_bp.route('/api/admin/sponsor-deck/pdf', methods=['GET'])
+@login_required
+def api_sponsor_deck_pdf():
+    """Download the deck as a PDF. Optional ?prospect_id=N for a personalized version."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    prospect = None
+    pid = request.args.get('prospect_id', type=int)
+    if pid:
+        prospect = models.SponsorOutreach.query.get(pid)
+    pdf_bytes, filename = _build_deck_pdf(prospect=prospect)
+    from io import BytesIO
+    buf = BytesIO(pdf_bytes)
+    buf.seek(0)
+    return send_file(buf, mimetype='application/pdf',
+                     as_attachment=True, download_name=filename)
+
+
+@admin_bp.route('/api/admin/sponsor-deck/send-all', methods=['POST'])
+@login_required
+def api_sponsor_deck_send_all():
+    """Email the sponsor deck (PDF attached) to every prospect with an email address."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+
+    import base64
+    import requests as _rq
+
+    resend_key = os.environ.get('RESEND_API_KEY', '').strip()
+    if not resend_key:
+        return jsonify({'ok': False, 'error': 'RESEND_API_KEY not set'}), 503
+
+    site_base = (os.environ.get('SITE_URL') or 'https://protocolpulse.io').rstrip('/')
+    from_email = 'Protocol Pulse Partnerships <pulse@protocolpulse.io>'
+
+    prospects = models.SponsorOutreach.query.filter(
+        models.SponsorOutreach.email.isnot(None),
+        models.SponsorOutreach.email != ''
+    ).all()
+
+    sent = 0; skipped = 0; errors = 0; errs = []
+    for p in prospects:
+        try:
+            token = _issue_deck_token(p)
+            deck_url = f'{site_base}/sponsor-deck?token={token}'
+
+            # Personalized PDF
+            pdf_bytes, pdf_name = _build_deck_pdf(prospect=p)
+
+            # Lightweight personalized email body
+            contact_first = (p.company or 'there').split()[0]
+            subject = f'Protocol Pulse × Bitcoin Boomers — sponsor brief for {p.company}'
+            html_body = f"""
+<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:620px;color:#222;">
+  <p>Hi {contact_first} team,</p>
+  <p>Attached is the Protocol Pulse × The Bitcoin Boomers <strong>sponsor brief</strong> —
+  a dual-property package built for brands that want to reach Bitcoin-native operators
+  <em>and</em> the Boomer/Gen&nbsp;X capital class in one motion.</p>
+  <p>Live version (mobile-friendly, trackable):
+  <br><a href="{deck_url}" style="color:#CC0000;">{deck_url}</a></p>
+  <p>Highlights:</p>
+  <ul>
+    <li>970K+ monthly reach across Protocol Pulse (video, newsletter, terminal, social)</li>
+    <li>The Bitcoin Boomers — HNW podcast audience, host-read ads, weekly release</li>
+    <li>Dual-property bundle at <strong>$2,800/mo</strong> (save 30% vs à-la-carte)</li>
+  </ul>
+  <p>Happy to hop on a 15-min call if the fit looks right —
+  book direct: <a href="https://calendly.com/protocolpulse" style="color:#CC0000;">calendly.com/protocolpulse</a></p>
+  <p>— Protocol Pulse Partnerships<br><a href="mailto:partnerships@protocolpulse.io" style="color:#888;">partnerships@protocolpulse.io</a></p>
+</div>
+""".strip()
+
+            payload = {
+                'from': from_email,
+                'to': [p.email],
+                'subject': subject,
+                'html': html_body,
+                'attachments': [{
+                    'filename': pdf_name,
+                    'content': base64.b64encode(pdf_bytes).decode('ascii'),
+                }],
+            }
+
+            r = _rq.post(
+                'https://api.resend.com/emails',
+                headers={'Authorization': f'Bearer {resend_key}', 'Content-Type': 'application/json'},
+                json=payload,
+                timeout=45,
+            )
+            if r.status_code in (200, 201):
+                p.deck_sent_at = datetime.utcnow()
+                # Keep main outreach status honest — if still 'prospect', nudge to 'contacted'.
+                if p.status == 'prospect':
+                    p.status = 'contacted'
+                    if not p.sent_at:
+                        p.sent_at = datetime.utcnow()
+                db.session.commit()
+                sent += 1
+            else:
+                errors += 1
+                errs.append({'company': p.company, 'status': r.status_code, 'body': r.text[:200]})
+        except Exception as e:
+            errors += 1
+            logging.warning('send-all deck error for %s: %s', p.company, e)
+            errs.append({'company': p.company, 'error': str(e)[:200]})
+
+    # Post a single board alert summarizing the push
+    try:
+        pbx = models.User.query.filter_by(email='soldtwodragons@gmail.com').first()
+        if pbx:
+            card = models.BoardCard(
+                title=f'Sponsor deck push: sent {sent} · errors {errors}',
+                description=(
+                    f'Sponsor deck PDF emailed to {sent} prospects '
+                    f'(skipped {skipped}, errors {errors}). '
+                    'Watch /admin/sponsor-deck for view alerts.'
+                ),
+                column='in_progress', priority='high', tag='marketing',
+                creator_id=pbx.id, position=0,
+            )
+            db.session.add(card)
+            db.session.commit()
+    except Exception:
+        pass
+
+    return jsonify({'ok': True, 'sent': sent, 'skipped': skipped, 'errors': errors, 'details': errs[:10]})

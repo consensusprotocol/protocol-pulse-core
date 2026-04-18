@@ -3532,6 +3532,90 @@ def video_v4_latest():
     if not full: abort(404)
     return send_file(full[-1], mimetype='video/mp4', as_attachment=False, conditional=True)
 
+@pages_bp.route('/sponsor-deck')
+def sponsor_deck_public():
+    """Public, token-gated sponsor one-pager. Logs view + alerts admin board."""
+    token = (request.args.get('token') or '').strip()
+    prospect = None
+    deck_id = 'PP-SB-2026'
+    prospect_company = None
+
+    if token:
+        try:
+            prospect = models.SponsorOutreach.query.filter_by(deck_token=token).first()
+        except Exception as _q_err:
+            logging.warning('sponsor-deck token lookup failed: %s', _q_err)
+            prospect = None
+
+        if prospect:
+            prospect_company = prospect.company
+            deck_id = f'PP-SB-{prospect.id:04d}'
+            try:
+                ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
+                ua = (request.headers.get('User-Agent') or '')[:500]
+                ref = (request.headers.get('Referer') or '')[:500]
+                # Count prior views for today BEFORE inserting the current one,
+                # so autoflush doesn't include it in the count.
+                today = datetime.utcnow().date()
+                day_start = datetime.combine(today, datetime.min.time())
+                existing_today = models.SponsorDeckView.query.filter(
+                    models.SponsorDeckView.prospect_id == prospect.id,
+                    models.SponsorDeckView.viewed_at >= day_start,
+                ).count()
+
+                view = models.SponsorDeckView(
+                    prospect_id=prospect.id,
+                    deck_token=token,
+                    ip=ip,
+                    user_agent=ua,
+                    referer=ref,
+                )
+                db.session.add(view)
+                db.session.commit()
+
+                if existing_today == 0:
+                    try:
+                        pbx = models.User.query.filter_by(email='soldtwodragons@gmail.com').first()
+                        if pbx:
+                            card = models.BoardCard(
+                                title=f'Sponsor deck viewed: {prospect.company}',
+                                description=(
+                                    f'{prospect.company} opened the sponsor brief.\n'
+                                    f'IP: {ip or "unknown"}  ·  UA: {ua[:80] or "unknown"}\n'
+                                    f'Referer: {ref or "direct"}\n'
+                                    f'Follow up while they are warm.'
+                                ),
+                                column='in_progress',
+                                priority='high',
+                                tag='marketing',
+                                creator_id=pbx.id,
+                                position=0,
+                            )
+                            db.session.add(card)
+                            db.session.commit()
+                    except Exception as _alert_err:
+                        logging.warning('sponsor-deck board alert failed: %s', _alert_err)
+            except Exception as _view_err:
+                logging.warning('sponsor-deck view log failed: %s', _view_err)
+                try:
+                    db.session.rollback()
+                except Exception:
+                    pass
+
+    issued_date = datetime.utcnow().strftime('%Y-%m-%d')
+    resp = make_response(render_template(
+        'sponsor_deck_public.html',
+        deck_id=deck_id,
+        issued_date=issued_date,
+        prospect_company=prospect_company,
+        prospect=prospect,
+    ))
+    # Private link — don't cache, don't index.
+    resp.headers['Cache-Control'] = 'private, no-store'
+    resp.headers['X-Robots-Tag'] = 'noindex, nofollow'
+    return resp
+
+
 @pages_bp.route('/video/latest')
 def serve_latest_video():
     import os, glob

@@ -1458,6 +1458,22 @@ class SponsorOutreach(db.Model):
     deal_value = db.Column(db.Float)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Per-prospect token for the shareable sponsor-deck URL.
+    deck_token = db.Column(db.String(64), unique=True, index=True)
+    deck_sent_at = db.Column(db.DateTime)
+
+
+class SponsorDeckView(db.Model):
+    """A recorded view of the public sponsor deck, keyed to the prospect token."""
+    __tablename__ = "sponsor_deck_view"
+
+    id = db.Column(db.Integer, primary_key=True)
+    prospect_id = db.Column(db.Integer, db.ForeignKey("sponsor_outreach.id"), index=True)
+    deck_token = db.Column(db.String(64), index=True)
+    viewed_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    ip = db.Column(db.String(64))
+    user_agent = db.Column(db.String(500))
+    referer = db.Column(db.String(500))
 
 
 class SponsorCampaign(db.Model):
