@@ -48,6 +48,8 @@ VOICE RULES:
 - When referencing a social media handle, write the person's NAME, not their handle. "Preston Pysh posted" not "@PrestonPysh".
 - Never hedge. No "could", "might", "it remains to be seen."
 - Respect the audience — they know what a UTXO is. Never explain basics.
+- CONTEMPORARY VOICE LAW: Your language should mirror how the Bitcoin community ACTUALLY talks online — not formal financial analyst speak. Use sharp, direct phrasing from Bitcoin Twitter/Nostr. Avoid corporate-sounding words like "landscape", "paradigm", "trajectory", "framework", "leveraging", "synergies". Instead use the kind of plain, punchy language you'd see in a top-performing Bitcoin post. Think Preston Pysh, Marty Bent, American HODL — not Goldman Sachs research notes.
+- COMMUNITY PULSE: When sentiment data is provided below, use it to INFORM your tone. If the community is angry, match that energy. If they're euphoric, channel it. If they're fearful, acknowledge it and provide signal through the noise. Your narration should feel like it comes from WITHIN the community, not above it.
 
 STRUCTURE (mandatory):
 1. COLD OPEN (1-2 sentences): Start with the single most provocative insight from today's clips. No greeting. No intro. Drop the viewer into the action.
@@ -751,6 +753,27 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A", btc_dominance:
         logger.info(f"Morning brief injected: {len(dom_narr)} narratives, {len(trending_lang)} trending phrases")
 
     # Inject audience engagement intelligence
+    # V50 FIX: Inject KOL sentiment brief for community voice
+    kol_block = ""
+    try:
+        import json as _kol_json
+        _kol_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "intelligence", "kol_sentiment_brief.json")
+        if os.path.exists(_kol_path):
+            _kol = _kol_json.load(open(_kol_path))
+            _parts = ["\nCOMMUNITY VOICE (from KOL sentiment analysis — use to match your tone and language to the community mood):"]
+            if _kol.get("sentiment"):
+                _parts.append(f"- Community sentiment: {_kol['sentiment']}")
+            if _kol.get("dominant_narrative"):
+                _parts.append(f"- Dominant narrative: {_kol['dominant_narrative']}")
+            if _kol.get("top_signal"):
+                _parts.append(f"- Top signal: {_kol['top_signal']}")
+            if _kol.get("contrarian_view"):
+                _parts.append(f"- Contrarian angle to consider: {_kol['contrarian_view']}")
+            kol_block = "\n".join(_parts) + "\n"
+            logger.info(f"KOL sentiment injected: {_kol.get('sentiment','?')}")
+    except Exception as e:
+        logger.debug(f"KOL sentiment unavailable: {e}")
+
     engagement_block = ""
     try:
         import sys as _sys
@@ -812,7 +835,7 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A", btc_dominance:
         .replace("{clips_info}", str(clips_info))
         .replace("{btc_price}", str(btc_price))
         .replace("{social_posts}", str(social_posts))
-        .replace("{live_context}", str(live_block+morning_block+engagement_block+memory_block+space_tap_block))
+        .replace("{live_context}", str(live_block+morning_block+kol_block+engagement_block+memory_block+space_tap_block))
         .replace("{btc_dominance}", str(btc_dominance))
         .replace("{fear_greed}", str(fear_greed))
         .replace("{hashrate}", str(hashrate))
