@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ episode.title if episode else 'Episode' }} — The Bitcoin Boomers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        font-family: 'Playfair Display', Georgia, serif;
+        background: #0A0804;
+        color: #F5E6C8;
+    }
+    .card {
+        width: 1200px;
+        height: 630px;
+        position: relative;
+        background:
+            radial-gradient(ellipse at 15% 20%, rgba(212,134,10,0.18), transparent 55%),
+            radial-gradient(ellipse at 85% 85%, rgba(163,101,5,0.22), transparent 55%),
+            linear-gradient(180deg, #0A0804, #1A130A 50%, #0A0804);
+        padding: 64px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+    }
+    .card::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+            repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(245,230,200,0.03) 80px),
+            repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(245,230,200,0.03) 80px);
+        pointer-events: none;
+    }
+    /* Top gold bar */
+    .card__top-bar {
+        height: 6px;
+        background: linear-gradient(90deg, #F5A623 0%, #D4860A 50%, #A36505 100%);
+        position: absolute;
+        top: 0; left: 0; right: 0;
+    }
+    /* Header */
+    .card__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        z-index: 1;
+    }
+    .card__brand {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+    }
+    .card__wordmark {
+        font-family: 'Playfair Display', serif;
+        font-weight: 900;
+        font-size: 32px;
+        color: #F5E6C8;
+        letter-spacing: -0.01em;
+    }
+    .card__wordmark-gold { color: #D4860A; }
+    .card__eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: #D4860A;
+        padding: 6px 14px;
+        border: 1px solid rgba(212,134,10,0.45);
+    }
+    /* Body */
+    .card__body {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+    }
+    .card__ep-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 16px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #D4860A;
+        margin-bottom: 22px;
+    }
+    .card__title {
+        font-family: 'Playfair Display', serif;
+        font-weight: 900;
+        font-size: 72px;
+        line-height: 1.02;
+        color: #F5E6C8;
+        letter-spacing: -0.02em;
+        margin-bottom: 32px;
+    }
+    .card__hosts {
+        font-family: 'Playfair Display', serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: 24px;
+        color: rgba(245,230,200,0.7);
+    }
+    /* Footer */
+    .card__footer {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 24px;
+        border-top: 1px solid rgba(212,134,10,0.35);
+    }
+    .card__pp-mark {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(245,230,200,0.5);
+    }
+    .card__pp-mark-red { color: #CC0000; font-weight: 600; }
+    .card__date {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(245,230,200,0.5);
+    }
+    /* Ornamental frame */
+    .card__frame {
+        position: absolute;
+        inset: 40px;
+        border: 1px solid rgba(212,134,10,0.25);
+        pointer-events: none;
+    }
+</style>
+</head>
+<body>
+<div class="card">
+    <div class="card__top-bar"></div>
+    <div class="card__frame" aria-hidden="true"></div>
+
+    <div class="card__header">
+        <div class="card__brand">
+            <span class="card__wordmark">The <span class="card__wordmark-gold">Bitcoin</span> Boomers</span>
+        </div>
+        <div class="card__eyebrow">New Episode</div>
+    </div>
+
+    <div class="card__body">
+        <div class="card__ep-num">Episode {{ episode.num if episode else '07' }} &middot; {{ episode.duration if episode else '52 min' }}</div>
+        <h1 class="card__title">{{ episode.title if episode else 'Why Your CPA Is Wrong About Bitcoin' }}</h1>
+        <p class="card__hosts">with Gary Leland, Lawrence Lepard &amp; Bob Burnett</p>
+    </div>
+
+    <div class="card__footer">
+        <span class="card__pp-mark">A <span class="card__pp-mark-red">Protocol Pulse</span> Series</span>
+        <span class="card__date">{{ episode.date if episode else 'April 14, 2026' }}</span>
+    </div>
+</div>
+</body>
+</html>

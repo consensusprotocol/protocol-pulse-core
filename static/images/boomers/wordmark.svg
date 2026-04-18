@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 120" width="640" height="120" role="img" aria-label="The Bitcoin Boomers">
+  <defs>
+    <linearGradient id="wmGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5A623"/>
+      <stop offset="100%" stop-color="#A36505"/>
+    </linearGradient>
+  </defs>
+  <text x="14" y="58"
+        font-family="'JetBrains Mono', monospace"
+        font-size="13"
+        letter-spacing="6"
+        fill="#D4860A"
+        opacity="0.85">T H E</text>
+  <text x="14" y="100"
+        font-family="'Playfair Display', Georgia, serif"
+        font-weight="900"
+        font-size="64"
+        fill="url(#wmGold)"
+        letter-spacing="-1">Bitcoin Boomers</text>
+  <line x1="14" y1="112" x2="320" y2="112" stroke="#D4860A" stroke-width="1.2" opacity="0.55"/>
+</svg>
