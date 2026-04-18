@@ -2700,6 +2700,31 @@ def premium_hub():
             pass
     tier = getattr(current_user, 'subscription_tier', 'free')
     mega_whale_alerts_enabled = getattr(current_user, 'mega_whale_email_alerts', False)
+    # medley_state — video pipeline director status
+    try:
+        import json as _json, pathlib as _path
+        _mf = _path.Path('/home/ultron/protocol_pulse/video_pipeline_v3/cache/medley_state.json')
+        medley_state = _json.loads(_mf.read_text()) if _mf.exists() else {}
+    except Exception:
+        medley_state = {}
+
+    # risk_oracle_center — top mining node location seed
+    try:
+        import json as _json, pathlib as _path
+        _sf = _path.Path('/home/ultron/protocol_pulse/data/signals.json')
+        _signals = _json.loads(_sf.read_text()) if _sf.exists() else {}
+        _top = (_signals.get('mining_pools') or [{}])[0] if _signals else {}
+        risk_oracle_center = {
+            'name': _top.get('name', 'Global Network'),
+            'lat': float(_top.get('lat', 50.1)),
+            'lng': float(_top.get('lng', 8.7)),
+            'last_updated': _top.get('updated', 'live'),
+        }
+    except Exception:
+        risk_oracle_center = {'name': 'Frankfurt, DE', 'lat': 50.1, 'lng': 8.7, 'last_updated': 'live'}
+
+    partner_disclaimer = 'Sponsored content is clearly labeled. Protocol Pulse maintains editorial independence.'
+
     return render_template('premium_hub.html',
                          network=network,
                          mempool_data=mempool_data,
@@ -2716,7 +2741,10 @@ def premium_hub():
                          sovereign_ask=sovereign_ask,
                          sovereign_asks_this_month=sovereign_asks_this_month,
                          tier=tier,
-                         mega_whale_alerts_enabled=mega_whale_alerts_enabled)
+                         mega_whale_alerts_enabled=mega_whale_alerts_enabled,
+                         medley_state=medley_state,
+                         risk_oracle_center=risk_oracle_center,
+                         partner_disclaimer=partner_disclaimer)
 
 @pages_bp.route('/hub/ask', methods=['POST'])
 @login_required
