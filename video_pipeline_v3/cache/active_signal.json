@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1776492906.2337277,
-  "fetched_at_iso": "2026-04-18T06:15:06.233732+00:00",
+  "fetched_at": 1776499206.6096628,
+  "fetched_at_iso": "2026-04-18T08:00:06.609673+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
-      "connected": true,
-      "events_raw": 100,
-      "events_filtered": 65,
-      "error": null
+      "connected": false,
+      "events_raw": 0,
+      "events_filtered": 0,
+      "error": "server rejected WebSocket connection: HTTP 503"
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 74,
+      "events_filtered": 77,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "timed out during opening handshake"
+      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 66,
+      "events_filtered": 60,
       "error": null
     }
   ],
@@ -44,7 +44,7 @@
       "pubkey": "841b017d49f8211881a23acbd002bfb07c0d9c0d720c4a99c42669458bf0ee39",
       "display_name": "npub1841b017d...f0ee39",
       "created_at": 1776488250,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 90,
       "has_zap": false
     },
@@ -53,7 +53,7 @@
       "pubkey": "8fc15aff10d5dd03b3171ccb8f744c1fb306f88ee40e70df27b76d2b383e7a37",
       "display_name": "npub18fc15aff...3e7a37",
       "created_at": 1776485746,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 90,
       "has_zap": false
     },
@@ -62,8 +62,35 @@
       "pubkey": "8fc15aff10d5dd03b3171ccb8f744c1fb306f88ee40e70df27b76d2b383e7a37",
       "display_name": "npub18fc15aff...3e7a37",
       "created_at": 1776485750,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "Here is a sample post:\n\n\"\ud83d\ude80 As I watch my Binance Coin (BTC) chart, I notice a sudden price surge overnight! I'm feeling excited but also nervous - the market's moving with a wave of ETH. I'll definitely keep an eye on that one for now and see if the current trend holds up!\"\n\n#CryptoNews #Bitcoin #BinanceCoin #MarketMoves #Ethereum #CurrencyExchange\n\nI'm always eager to react to price movements and stay informed about my investments! \ud83d\udcc5\ud83d\ude80 #ollama",
+      "pubkey": "8925494893b6d16360b2c6a3aa95388a41aaa94d340be9e4fa8606c0de7d2b32",
+      "display_name": "npub189254948...7d2b32",
+      "created_at": 1776498547,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nFarage Faces FCA Probe Over \u00a32m Bitcoin Promotion as Crypto Clashes With UK Politics\n\nHe claims to be the UK's only political champion for Bitcoin. Now, regulators are asking whether Nigel Farage was championing digital currency or just lining his own pockets...\n\nhttps://image.nostr.build/28fcc0ce637099d09aba1594cb316a26be60f2468fa73e7180cd7c1e5ee64da3.jpg\n\n\u270d\ufe0f Author: Oslo\n\n\ud83d\udd17 https://nostrmag.com/article/w16bitcoin02\n\n\ud83d\udcc8 id#659164024",
+      "pubkey": "e4dd796a3c78d952c509fb9791449c15c837da408650d4a2fbcac0c42f63d1d1",
+      "display_name": "npub1e4dd796a...63d1d1",
+      "created_at": 1776496644,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nBitcoin Quantum Dilemma: The Draft Proposal That Could Affect Satoshis Coins\n\nA radical draft proposal from within Bitcoin own developer ranks has ignited a firestorm, suggesting a path to permanently freeze assets in wallets deemed vulnerable...\n\nhttps://image.nostr.build/58f286486cdab41844c0c1ecf96b103067ae67e5a68f6cae56c06771ef3c7beb.jpg\n\n\u270d\ufe0f Author: NM Team\n\n\ud83d\udd17 https://nostrmag.com/article/w16bitcoin16\n\n\ud83d\udcc8 id#348305720",
+      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
+      "display_name": "npub1aee9d7ac...2e0502",
+      "created_at": 1776495324,
+      "relay": "wss://nos.lol",
+      "score": 70,
       "has_zap": false
     },
     {
@@ -71,7 +98,7 @@
       "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
       "display_name": "npub1706d79a4...6b2217",
       "created_at": 1776485667,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -80,8 +107,17 @@
       "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
       "display_name": "npub1794833e5...f9c731",
       "created_at": 1776485844,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 69,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.96 oz | 24hr: 1.87%\n1 oz Gold: 6,265,664 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.5 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 07:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776495667,
+      "relay": "wss://nos.lol",
+      "score": 68,
       "has_zap": false
     },
     {
@@ -89,7 +125,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1776492070,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -98,7 +134,7 @@
       "pubkey": "8fc15aff10d5dd03b3171ccb8f744c1fb306f88ee40e70df27b76d2b383e7a37",
       "display_name": "npub18fc15aff...3e7a37",
       "created_at": 1776486009,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -107,7 +143,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1776484868,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -116,26 +152,8 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1776481267,
-      "relay": "wss://relay.damus.io",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.98 oz | 24hr: 2.36%\n1 oz Gold: 6,257,822 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.5 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 02:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776477665,
       "relay": "wss://nos.lol",
       "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "Flagging this for my followers:\n\nBitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
-      "pubkey": "94b20d1833c968a75094569c7d8c7b38bfc4eec7e67ba037e9666fd8e74b2b90",
-      "display_name": "npub194b20d18...4b2b90",
-      "created_at": 1776488424,
-      "relay": "wss://relay.primal.net",
-      "score": 67,
       "has_zap": false
     },
     {
@@ -143,16 +161,16 @@
       "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
       "display_name": "npub19f59d911...4f166b",
       "created_at": 1776484524,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 66,
       "has_zap": false
     },
     {
-      "text": "\ud83c\uddef\ud83c\uddf2 Yard Bitcoin Report:\n\n\ud83d\udcb0 BTC/USD: $77,180\n\ud83d\udcb5 BTC/JMD: $12,001,490\n\n\u26a1 Sats for $1,000 JMD: 8,332\n\u26a1 Sats for $1 USD: 1,296\n\n\ud83e\uddf1 Block: 945570\n\u26a1 Fees: 1 sat/vB\n\n#Jamaica #Bitcoin #stacksats #YardVibes",
-      "pubkey": "0396bac72f86ca77cb6631e018dc3556afb9802613c993402a9b3cf28fae029f",
-      "display_name": "npub10396bac7...ae029f",
-      "created_at": 1776488449,
-      "relay": "wss://relay.damus.io",
+      "text": "Bitcoin's value recently reached around $77,150, reflecting a 3.1% rise over 24 hours. The cryptocurrency's market cap now stands at approximately $1.5 trillion, constituting 4.6% of gold's total market cap. Public miners have sold record amounts, indicating a dynamic mining landscape. #Bitcoin #studybitcoin",
+      "pubkey": "d4cf3423b64bfeb540b3e0ce22946191c033d38b5d32b37a8f0f3a4cf514cd23",
+      "display_name": "npub1d4cf3423...14cd23",
+      "created_at": 1776495806,
+      "relay": "wss://nos.lol",
       "score": 63,
       "has_zap": false
     },
@@ -161,15 +179,6 @@
       "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
       "display_name": "npub136493c2e...30a7c8",
       "created_at": 1776484927,
-      "relay": "wss://relay.damus.io",
-      "score": 63,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Farage Faces FCA Probe Over \u00a32m Bitcoin Promotion as Crypto Clashes With UK Politics**\nOslo\n\nhttps://image.nostr.build/28fcc0ce637099d09aba1594cb316a26be60f2468fa73e7180cd7c1e5ee64da3.jpg\n\nHe claims to be the UK's only political champion for Bitcoin. Now, regulators are asking whether Nigel Farage was champi...\n\nhttps://nostrmag.com/article/w16bitcoin02\n\nid#932384930",
-      "pubkey": "e4dd796a3c78d952c509fb9791449c15c837da408650d4a2fbcac0c42f63d1d1",
-      "display_name": "npub1e4dd796a...63d1d1",
-      "created_at": 1776475044,
       "relay": "wss://nos.lol",
       "score": 63,
       "has_zap": false
@@ -179,8 +188,26 @@
       "pubkey": "cf6340e3c10215c641700b5ff97f8f2ae8778305aaa74ce58cdd86cd5f98ba53",
       "display_name": "npub1cf6340e3...98ba53",
       "created_at": 1776481235,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 62,
+      "has_zap": false
+    },
+    {
+      "text": "Many countries are banning social media use for under-16s, and in response, they\u2019re starting to download alternative social apps\u2026\n\nAre you ready for the invasion of teenagers here on Nostr? \ud83d\ude02\n\n#Nostr #SocialMedia #FreeSpeech #Decentralization #Bitcoin #Censorship #GenZ #Teens #Tech #Privacy",
+      "pubkey": "bc1cfbbbfd215a55889b93bbc45f837dd1db6f9d66e968d25694ce183d425ed4",
+      "display_name": "npub1bc1cfbbb...425ed4",
+      "created_at": 1776493644,
+      "relay": "wss://nos.lol",
+      "score": 61,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udc0b Flying Whale \u2014 Official Positioning\n\nThe decision layer between intent and liquidity.\nNot the execution layer \u2014 the intelligence layer.\n\nINTENT \u2192 [FW DECISION ENGINE] \u2192 LIQUIDITY\n                  \u2193\n           FW-001 RECEIPT\n           (verifiable, on-chain)\n\nFW decides where capital moves.\nYou execute. No custody. No execution authority.\n\nOn-chain IP: SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW.whale-ip-store-v1\nTX: de568d8bf06fe6d64869e6343ec903208117866d400c1ace69e09c27894916d8\n\nzaghmout.btc | ERC-8004 #54",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776495751,
+      "relay": "wss://nos.lol",
+      "score": 60,
       "has_zap": false
     },
     {
@@ -188,39 +215,12 @@
       "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
       "display_name": "npub1706d79a4...6b2217",
       "created_at": 1776492260,
-      "relay": "wss://relay.damus.io",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udc0b @flying-whale/receipt v1.0.0 \u2014 IP REGISTERED ON-CHAIN\n\nFW-001 + FW-002 receipt verification library for the Stacks ecosystem.\n\n\ud83d\udce6 npm: @flying-whale/receipt\n\ud83d\udd17 IP TX: 6fbe136b6881e9bcb0481a82d1c3883b863a5b45d374e073276513f99170eac2\n\ud83d\udd10 SHA-256: 1b9c609a063450c2f76efe4cdf62d1c25bc36ce59ff175fd658f750a0593c8a6\n\u26d3\ufe0f Registry: SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW.whale-ip-store-v1\n\nStandards:\n\u2022 FW-001 \u2014 Single-Chain Execution (Stacks)\n\u2022 FW-002 \u2014 Cross-Chain Intent (BTC L1 + EVM)\n\nEvery execution. Every route. Every receipt. On-chain.\n\nCOPYRIGHT 2026 Flying Whale \u2014 zaghmout.btc | ERC-8004 #54\nALL RIGHTS RESERVED \u2014 Flying Whale Proprietary License v2.0",
-      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
-      "display_name": "npub1706d79a4...6b2217",
-      "created_at": 1776484454,
       "relay": "wss://nos.lol",
       "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Bitcoin Quantum Dilemma: The Draft Proposal That Could Affect Satoshis Coins**\nNM Team\n\nhttps://image.nostr.build/58f286486cdab41844c0c1ecf96b103067ae67e5a68f6cae56c06771ef3c7beb.jpg\n\nA radical draft proposal from within Bitcoin own developer ranks has ignited a firestorm, suggesting a path to permanent...\n\nhttps://nostrmag.com/article/w16bitcoin16\n\nid#277765450",
-      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
-      "display_name": "npub1aee9d7ac...2e0502",
-      "created_at": 1776473724,
-      "relay": "wss://nos.lol",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "The block height is 945573, and the current price for bitcoin is 77.2K USD. This means that you can get 1296 sats for one dollar. The fear/greed index is 62: Greed. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776492006,
-      "relay": "wss://relay.damus.io",
-      "score": 58,
       "has_zap": false
     }
   ],
-  "total_raw": 300,
-  "total_filtered": 205,
+  "total_raw": 200,
+  "total_filtered": 137,
   "total_scored": 20
 }

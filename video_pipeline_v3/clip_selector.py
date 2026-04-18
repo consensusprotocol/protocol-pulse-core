@@ -691,41 +691,6 @@ def select_clips(videos: list) -> dict:
         # Record this episode's clips to memory
         _record_episode(clean_clips)
 
-        # V50 FIX: FRESHNESS GATE — verify upload_date of selected clips via yt-dlp
-        # Scanner uses flat-playlist (fast, no dates). This verifies individually (slow, accurate).
-        try:
-            from datetime import datetime, timedelta
-            import subprocess as _sp_fresh
-            _cutoff = datetime.now() - timedelta(hours=72)
-            _cutoff_str = _cutoff.strftime("%Y%m%d")
-            _fresh_clips = []
-            for _fc in result.get("clips", []):
-                _vid_id = _fc.get("video_id", "")
-                try:
-                    _fr = _sp_fresh.run(
-                        ["yt-dlp", "--print", "%(upload_date)s", "--no-download",
-                         f"https://www.youtube.com/watch?v={_vid_id}"],
-                        capture_output=True, text=True, timeout=15
-                    )
-                    _date_str = _fr.stdout.strip()
-                    if _date_str and _date_str != "NA" and _date_str >= _cutoff_str:
-                        _fc["upload_date"] = _date_str
-                        _fresh_clips.append(_fc)
-                        logger.info(f"  FRESHNESS VERIFIED: {_fc.get('channel','')} {_vid_id} uploaded {_date_str}")
-                    elif _date_str and _date_str != "NA":
-                        logger.warning(f"  FRESHNESS REJECTED: {_fc.get('channel','')} {_vid_id} uploaded {_date_str} (>{_cutoff_str})")
-                    else:
-                        _fresh_clips.append(_fc)
-                        logger.warning(f"  FRESHNESS UNVERIFIED: {_fc.get('channel','')} {_vid_id} — no date from yt-dlp, allowing")
-                except Exception as _fe:
-                    _fresh_clips.append(_fc)
-                    logger.warning(f"  FRESHNESS CHECK FAILED: {_vid_id} — {_fe}")
-            if _fresh_clips:
-                result["clips"] = _fresh_clips
-                logger.info(f"  FRESHNESS GATE: {len(_fresh_clips)} clips passed (of {len(result.get('clips', []))})")
-        except Exception as _fge:
-            logger.warning(f"  FRESHNESS GATE ERROR: {_fge} — proceeding with unverified clips")
-
         return result
 
     except json.JSONDecodeError as e:
@@ -951,6 +916,41 @@ def _enforce_video_id_diversity(result: dict, videos: list = None) -> dict:
     return result
 
 
+
+def _enforce_freshness(result, max_age_hours=72):
+    clips = result.get("clips", [])
+    if not clips:
+        return result
+    from datetime import datetime, timedelta
+    import subprocess
+    cutoff = datetime.now() - timedelta(hours=max_age_hours)
+    cutoff_str = cutoff.strftime("%Y%m%d")
+    verified = []
+    for clip in clips:
+        vid_id = clip.get("video_id", "")
+        try:
+            r = subprocess.run(
+                ["yt-dlp", "--print", "%(upload_date)s", "--no-download",
+                 "https://www.youtube.com/watch?v=" + vid_id],
+                capture_output=True, text=True, timeout=15
+            )
+            date_str = r.stdout.strip()
+            if date_str and date_str != "NA" and date_str >= cutoff_str:
+                clip["upload_date"] = date_str
+                verified.append(clip)
+                logger.info(f"  FRESHNESS VERIFIED: {clip.get('channel','')} {vid_id} uploaded {date_str}")
+            elif date_str and date_str != "NA":
+                logger.warning(f"  FRESHNESS REJECTED: {clip.get('channel','')} {vid_id} uploaded {date_str} older than {max_age_hours}h")
+            else:
+                verified.append(clip)
+                logger.warning(f"  FRESHNESS UNVERIFIED: {clip.get('channel','')} {vid_id} no date, allowing")
+        except Exception as e:
+            verified.append(clip)
+            logger.warning(f"  FRESHNESS CHECK FAILED: {vid_id} {e}")
+    logger.info(f"  FRESHNESS GATE: {len(verified)}/{len(clips)} clips passed")
+    result["clips"] = verified
+    return result
+
 def select_clips_with_fallback(videos, max_clips=5):
     """Try Claude, then Qwen, then last known good, then random. NEVER return 0 clips."""
 
@@ -960,7 +960,7 @@ def select_clips_with_fallback(videos, max_clips=5):
         if result.get("clips"):
             _save_last_good_selection(result)
             logger.info(f"FALLBACK CHAIN: Claude succeeded — {len(result['clips'])} clips")
-            result = _enforce_channel_diversity(_enforce_min_clip_duration(result))
+            result = _enforce_freshness(_enforce_channel_diversity(_enforce_min_clip_duration(result)))
             return _enforce_video_id_diversity(result, videos)
         logger.warning("FALLBACK CHAIN: Claude returned 0 clips, trying Qwen...")
     except Exception as e:
@@ -973,7 +973,7 @@ def select_clips_with_fallback(videos, max_clips=5):
             _save_last_good_selection(result)
             _record_episode(result["clips"])  # V36 FIX: Record Qwen clips to prevent repeats
             logger.info(f"FALLBACK CHAIN: Qwen succeeded — {len(result['clips'])} clips")
-            result = _enforce_channel_diversity(_enforce_min_clip_duration(result))
+            result = _enforce_freshness(_enforce_channel_diversity(_enforce_min_clip_duration(result)))
             return _enforce_video_id_diversity(result, videos)
         logger.warning("FALLBACK CHAIN: Qwen returned 0 clips, trying last known good...")
     except Exception as e:

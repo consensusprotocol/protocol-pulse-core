@@ -11,23 +11,15 @@
     "price speculation",
     "altcoins"
   ],
-  "thought_leaders_mentioned": [
-    "@BitcoinArchive",
-    "@BitcoinMagazine",
-    "@TheGuySwann"
-  ],
+  "thought_leaders_mentioned": [],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
   "dominant_narrative": "Institutional adoption accelerating despite regulatory un...",
-  "market_mood": "bullish",
+  "market_mood": "neutral",
   "top_quote": "",
-  "top_quote_handles": [
-    "@BitcoinMagazine",
-    "@BitcoinArchive",
-    "@TheGuySwann"
-  ],
-  "quote_fetched_at": "2026-04-18T03:38:28.827931+00:00",
-  "computed_at": "2026-04-18T03:38:28.827931+00:00"
+  "top_quote_handles": [],
+  "quote_fetched_at": "2026-04-18T06:20:56.157384+00:00",
+  "computed_at": "2026-04-18T06:20:56.157384+00:00"
 }

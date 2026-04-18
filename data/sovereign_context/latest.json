@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-04-18T06:20:04.651494+00:00",
-  "block_height": 945575,
+  "timestamp": "2026-04-18T08:10:07.256957+00:00",
+  "block_height": 945586,
   "btc": {
-    "price": 77171,
-    "change_24h": 3.17,
+    "price": 77000,
+    "change_24h": 2.52,
     "change_7d": 0,
-    "market_cap": 1544503698612.2683,
-    "volume_24h": 71264455437.2204,
+    "market_cap": 1541312065401.5024,
+    "volume_24h": 74665416794.62286,
     "dominance": 57.3
   },
   "fear_greed": {
@@ -16,23 +16,23 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 1,
-    "unconfirmed": 55519,
-    "size_mb": 31.9
+    "fee_high": 2,
+    "unconfirmed": 55287,
+    "size_mb": 31.8
   },
   "network": {
-    "hashrate_eh": 996.0,
+    "hashrate_eh": 997.8,
     "difficulty": 0,
-    "next_adj_pct": 1.99,
-    "next_adj_blocks": 1945
+    "next_adj_pct": 1.0,
+    "next_adj_blocks": 1934
   },
   "lightning": {
-    "capacity_btc": 5239.0,
-    "channels": 41423,
-    "nodes": 17396
+    "capacity_btc": 5706.3,
+    "channels": 41986,
+    "nodes": 17342
   },
   "kol": {
-    "sentiment_score": 68,
+    "sentiment_score": 66,
     "top_topics": [
       "US debt crisis and Treasury collapse",
       "Currency debasement and inflation",
@@ -52,7 +52,7 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "MegaETH market cap (FDV) >$2B one day after launch?",
-    "top_probability": 71.5
+    "top_probability": 73.5
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
@@ -101,35 +101,35 @@
     "dxy": 98.23,
     "gold_price": 4857.6,
     "sp500": 7161.5,
-    "btc_vs_gold_30d_corr": 0.072,
-    "btc_vs_dxy_30d_corr": -0.432,
+    "btc_vs_gold_30d_corr": -0.045,
+    "btc_vs_dxy_30d_corr": -0.435,
     "real_yield": null,
     "ten_year_yield": 4.25
   },
   "options": {
-    "put_call_ratio": 0.697,
+    "put_call_ratio": 0.696,
     "dvol": 42.8,
     "max_pain": 80000.0,
-    "total_call_oi": 245340.2,
-    "total_put_oi": 170940.6,
-    "total_oi_btc": 416280.8,
-    "avg_mark_iv": 49.9
+    "total_call_oi": 243433.5,
+    "total_put_oi": 169309.3,
+    "total_oi_btc": 412742.8,
+    "avg_mark_iv": 49.4
   },
   "futures": {
-    "funding_rate": -2.198e-05,
-    "annualized_basis": -2.41,
-    "open_interest": 28019.43,
-    "open_interest_usd": 2162721130.0,
+    "funding_rate": -1.582e-05,
+    "annualized_basis": -1.73,
+    "open_interest": 28216.51,
+    "open_interest_usd": 2173221910.0,
     "long_short_ratio": null,
-    "mark_price": 77171.44,
-    "index_price": 77186.47,
-    "basis_pct": -0.0428
+    "mark_price": 77032.48,
+    "index_price": 77019.52,
+    "basis_pct": 0.0189
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 9132934.0,
+    "coin_days_destroyed_7d": 8987417.0,
     "active_addresses_7d": 618427.0,
-    "tx_volume_usd_7d": 62320082542.0,
-    "nvt_ratio": 21.8,
+    "tx_volume_usd_7d": 61700970048.0,
+    "nvt_ratio": 22.0,
     "accumulation_score": 75
   },
   "active_alerts": [
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 13 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-04-18T06:20:04.730705+00:00",
+      "ts": "2026-04-18T08:10:07.302832+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 13
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 63.8,
+      "score": 63.6,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -160,20 +160,20 @@
       "signal": "neutral"
     },
     "social_divergence": {
-      "score": 18,
+      "score": 16,
       "interpretation": "Social sentiment aligned with price action.",
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 68.3,
+      "score": 68.2,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
       "score": 77.3,
       "pattern": "BULLISH",
-      "fragmentation": 14.4,
-      "momentum": 61.1,
+      "fragmentation": 14.3,
+      "momentum": 61.0,
       "conviction": 58.8,
       "thesis": "mixed_regime",
       "confidence": 0.76
@@ -181,18 +181,18 @@
   },
   "pro_metrics": {
     "ssr": {
-      "value": 7.53,
-      "btc_market_cap": 1544503698612.2683,
-      "stablecoin_market_cap": 205000000000,
-      "signal": "NEUTRAL",
-      "description": "Balanced stablecoin-to-BTC ratio",
-      "source": "estimated"
+      "value": 5.71,
+      "btc_market_cap": 1539947173444.7913,
+      "stablecoin_market_cap": 269913749633.66354,
+      "signal": "BULLISH",
+      "description": "Healthy stablecoin reserves available for BTC purchasing",
+      "source": "coingecko_derived"
     },
     "mpi": {
-      "value": 0.524,
-      "cdd_7d": 9132934.0,
-      "cdd_ratio": 1.52,
-      "hashrate_eh": 996.7,
+      "value": 0.512,
+      "cdd_7d": 9061867.0,
+      "cdd_ratio": 1.51,
+      "hashrate_eh": 995.9,
       "signal": "CAUTIOUS",
       "description": "Above-average coin age destruction \u2014 some miner selling",
       "source": "derived_cdd_hashrate"
@@ -203,6 +203,6 @@
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-04-18T06:15:04.255301+00:00"
+    "timestamp": "2026-04-18T08:01:46.893870+00:00"
   }
 }

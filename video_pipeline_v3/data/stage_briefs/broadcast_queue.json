@@ -1,52 +1,42 @@
 [
   {
-    "id": "386b41a8-8f84-4992-bf5d-55f9fa62cdea",
+    "id": "a7f84103-d7d0-4759-8d42-728b79ced0dd",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "The monetary system we rely on today was designed for a world that no longer exists. Technology has fundamentally changed everything, yet our economic structures remain glued to the past.\n\nBitcoin adoption accelerates past institutional resistance. Watch wallet activity on mempool.space for confirmation.",
+    "script": "Protocol Pulse - THOUGHT LEADER\n\nJeff Booth's tweet reveals the fundamental truth: Bitcoin's energy alignment determines its success. The network's growth correlates directly with honest money adoption. Watch Bitcoin's hash rate for the next signal\u2014when it stabilizes above 350 exahashes, the energy shift will be complete.\n\nEND SEGMENT",
     "source_label": "\ud83e\udde0 @JEFFBOOTH",
-    "topic_preview": "\ud83e\uddf5 The monetary system we rely on today was designed for a world that no longer e",
-    "generated_at": "2026-04-18T04:55:06.057522+00:00",
-    "expires_at": "2026-04-18T06:55:06.057522+00:00"
+    "topic_preview": "The world mirrors where we place our energy. What we nurture thrives; what we ne",
+    "generated_at": "2026-04-18T06:55:11.513544+00:00",
+    "expires_at": "2026-04-18T08:55:11.513544+00:00"
   },
   {
-    "id": "60bb94e8-3d61-425b-93af-697caf71f49e",
+    "id": "8e910f53-f066-441e-b1e6-2e8321c010af",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trades at $77,333.71, up 2.96% in 24 hours.\n\nHashrate holds steady at 960.1 EH.\n\nFear and Greed index reads 26\u2014fear dominant.\n\nFastest fee sits at 2 sat/vB.\n\n55,205 transactions processed in the last hour.\n\nBlock 945,555 mined.\n\nWatch for next resistance at $80,000.",
+    "script": "Fear gauge pinned at 26 while hashrate holds 960 exahash\u2014miners aren't capitulating. Network processing 52,455 transactions at 1 sat/byte floor rates.\n\nWatch block subsidy halving pressure in next 2,000 blocks.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $77,334 \u00b7 FNG 26 \u00b7 960.1 EH/s",
-    "generated_at": "2026-04-18T03:00:32.953566+00:00",
-    "expires_at": "2026-04-18T07:00:32.953566+00:00"
+    "topic_preview": "BTC $77,101 \u00b7 FNG 26 \u00b7 960.1 EH/s",
+    "generated_at": "2026-04-18T07:15:21.620122+00:00",
+    "expires_at": "2026-04-18T11:15:21.620122+00:00"
   },
   {
-    "id": "26368803-a936-49ba-ba09-8412bcfa7c91",
-    "type": "ARTICLE_TEASER",
-    "priority": 3,
-    "script": "Bitcoin cleared $84,000 for the first time since March\u2014breaking a seven-month resistance that institutional players had been watching. Watch spot ETF inflows and node count acceleration; the real signal isn't price\u2014it's whether individual sovereignty is being chosen at scale.",
-    "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "Bitcoin Smashes 7-Month Barrier at $84K",
-    "generated_at": "2026-04-18T04:05:29.426255+00:00",
-    "expires_at": "2026-04-18T08:05:29.426255+00:00"
-  },
-  {
-    "id": "d9bf41bb-d37c-4481-8e3a-d641f0f37261",
+    "id": "81906949-cb21-4f14-aad5-09ef95f8cfae",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "The narrative is institutional adoption decoupling from regulatory uncertainty. This is false comfort.\n\nWatch: Will those institutions actually run nodes, or are they just buying settlement claims through custodians? Next signal arrives when custody metrics shift.",
+    "script": "Institutional Bitcoin adoption accelerating through Nostr relays, with major financial entities actively participating in decentralized discussions.\n\nWatch for on-chain wallet activity from known institutional addresses\u2014Bitcoin's institutional penetration is now measurable in real-time through Nostr's decentralized network.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Institutional adoption accelerating despite regulatory un...",
-    "generated_at": "2026-04-18T04:06:03.549145+00:00",
-    "expires_at": "2026-04-18T08:06:03.549145+00:00"
+    "generated_at": "2026-04-18T08:10:08.784035+00:00",
+    "expires_at": "2026-04-18T12:10:08.784035+00:00"
   },
   {
-    "id": "01f26de8-e74a-4f63-a372-dccddec2b359",
+    "id": "c22ae9b4-26a4-429f-b0c0-e68ac90e8218",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin price surges 3% to $77,053 as fear and greed index sits at 26, indicating panic selling. Mempool fees remain low at 2 sat/vbyte, suggesting minimal network congestion. Hashrate stabilizes at 960 EH/s, confirming mining security. Watch for mempool fee spikes above 5 sat/vbyte as network activity intensifies.",
+    "script": "Hashrate surged to 960 EH/s, confirming network security strength despite price resistance. Mempool fees remain suppressed at 3 sat/vbyte. Fear & Greed index at 26 signals capitulation. Bitcoin maintains its sovereign trajectory. Watch for mempool fee spikes above 5 sat/vbyte.",
     "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Bitcoin price surges 3% to $77,053 as fear and greed index sits at 26, indicatin",
-    "generated_at": "2026-04-18T04:50:30.421339+00:00",
-    "expires_at": "2026-04-18T06:50:30.421339+00:00"
+    "topic_preview": "Hashrate surged to 960 EH/s, confirming network security strength despite price ",
+    "generated_at": "2026-04-18T07:05:15.310051+00:00",
+    "expires_at": "2026-04-18T09:05:15.310051+00:00"
   }
 ]

@@ -118,5 +118,17 @@
     "generated_at": "2026-04-18T04:47:27.929402+00:00",
     "brief_date": "Friday, April 17, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260418_074314_0",
+    "text": "Powell's inflation target is 2%. US money supply grew 18% in the last 3 years. He's not fighting inflation. He's normalizing it",
+    "angle": "macro_monetary",
+    "type": "observation",
+    "format": "fiat_failure",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T07:43:14.357697+00:00",
+    "brief_date": "Friday, April 17, 2026",
+    "sentiment": "bullish"
   }
 ]

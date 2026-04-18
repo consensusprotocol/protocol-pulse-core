@@ -1,7 +1,22 @@
 {
-  "last_updated": "2026-04-18T04:01:17.581874+00:00",
-  "total_analyses": 155,
+  "last_updated": "2026-04-18T08:00:06.438591+00:00",
+  "total_analyses": 156,
   "analyses": [
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 0,
+      "main_thesis": null,
+      "key_quotes": [],
+      "topics": [],
+      "price_prediction": null,
+      "confidence": "n/a",
+      "note": "This transcript contains no Bitcoin-specific content. The discussion focuses on food supply, agricultural practices, Wagyu cattle ranching, and meat quality/safety concerns. No cryptocurrency, blockchain, or Bitcoin analysis is present.",
+      "channel": "Robert Breedlove",
+      "title": "How Corporate Giants Are Quietly Taking Control of America's Food Supply w/ Casey Parker",
+      "video_id": "aO-KlhO-cyQ",
+      "duration": 4242.01,
+      "analyzed_at": "2026-04-18T08:00:04.436345+00:00"
+    },
     {
       "sentiment": "bullish",
       "sentiment_score": 78,

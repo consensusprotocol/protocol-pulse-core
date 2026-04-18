@@ -1,12 +1,12 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-18T04:01:20.343407+00:00",
-  "creator_count": 15,
-  "avg_sentiment_score": 62.5,
+  "generated_at": "2026-04-18T08:00:09.567133+00:00",
+  "creator_count": 16,
+  "avg_sentiment_score": 58.6,
   "sentiment_breakdown": {
     "bullish": 8,
     "bearish": 1,
-    "neutral": 6
+    "neutral": 7
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
@@ -56,8 +56,14 @@
       "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly agree that systemic weaknesses in the fiat monetary system (debt, currency debasement, inflation) make Bitcoin an attractive alternative, with institutional and sovereign adoption accelerating this transition. They also agree that security vulnerabilities exist primarily in user behavior and centralized platforms rather than Bitcoin's protocol itself.\n\n**Key Divergence:** While most adopt a bullish outlook on Bitcoin's macro role, they significantly disagree on implementation concerns. Some reject proposed quantum-resistant upgrades as fundamentally incompatible with Bitcoin's immutability principles, while others worry that retail users remain dangerously exposed to social engineering and exploits despite protocol-level security. Additionally, geopolitical interpretations vary\u2014some see dollar weakness as organic monetary collapse, others as potentially engineered US strategy\u2014suggesting uncertainty about whether Bitcoin's rise will be demand-driven or structurally forced.",
+  "summary": "# Bitcoin Creators' Consensus and Divergence\n\n**Consensus:** Bitcoin creators overwhelmingly view Bitcoin as a compelling alternative to traditional fiat systems, with broad agreement that macroeconomic pressures (debt, currency debasement, inflation, dollar weakness) and institutional adoption are driving its relevance. There's also shared concern that security vulnerabilities stem from human behavior and user practices rather than Bitcoin's core protocol.\n\n**Divergence:** While most speakers are bullish on Bitcoin's macro narrative (78/100 average sentiment), they disagree on specific catalysts and timelines\u2014some emphasize imminent systemic collapse, others point to gradual institutional adoption, and a few highlight geopolitical dimensions like the US-China AI race. Additionally, there's tension between optimism about Bitcoin's long-term security and serious near-term concerns about retail users falling victim to social engineering and fake apps.\n\n**Notable Gap:** Robert Breedlove and Stacker News provided no substantive commentary, leaving some perspectives underrepresented in the discussion.",
   "top_creators": [
+    {
+      "channel": "Robert Breedlove",
+      "sentiment": "neutral",
+      "score": 0,
+      "thesis": null
+    },
     {
       "channel": "Simply Bitcoin",
       "sentiment": "bullish",
@@ -81,12 +87,6 @@
       "sentiment": "bullish",
       "score": 75,
       "thesis": "Bitcoin is attractive as geopolitical tensions ease, risk appetite returns, and the monetary system faces inflation pressures that make scarce assets like Bitcoin compelling alternatives to fiat."
-    },
-    {
-      "channel": "Swan Bitcoin",
-      "sentiment": "mixed",
-      "score": 60,
-      "thesis": "Bitcoin's cryptography and consensus rules are secure from AI threats, but retail users and centralized platforms face significant risks from AI-enabled social engineering and exploits. The key vulnerability is human behavior, not Bitcoin's protocol."
     }
   ]
 }
