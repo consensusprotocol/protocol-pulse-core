@@ -209,11 +209,11 @@
 </section>
 <script>
 (function(){
-  var COMP_META={article_sentiment:{label:'ARTICLE SENTIMENT',tip:'Bullish vs bearish tone across 80 Bitcoin news sources'},price_momentum:{label:'PRICE MOMENTUM',tip:'BTC price trend — direction + rate of change (24h)'},social_volume:{label:'SOCIAL VOLUME',tip:'Spike in Bitcoin mentions on X and Nostr vs 7-day baseline'},onchain_health:{label:'ON-CHAIN HEALTH',tip:'Hashrate, mempool fees, and active address growth'},fear_greed_contrib:{label:'FEAR/GREED',tip:'Alternative.me Bitcoin Fear & Greed mapped to signal contribution'}};
-  var COMP_ORDER=['article_sentiment','price_momentum','social_volume','onchain_health','fear_greed_contrib'];
+  var COMP_META={sentiment:{label:'NARRATIVE SENTIMENT',tip:'Bullish vs bearish tone across 80 Bitcoin news sources'},price_momentum:{label:'PRICE MOMENTUM',tip:'BTC price trend — direction + rate of change (24h)'},article_volume:{label:'ARTICLE VOLUME',tip:'News article volume across Bitcoin sources vs 7-day baseline'},hashrate:{label:'HASH RATE',tip:'Network hashrate — proxy for miner conviction and network health'},fear_greed:{label:'FEAR & GREED',tip:'Alternative.me Bitcoin Fear & Greed mapped to signal contribution'}};
+  var COMP_ORDER=['sentiment','price_momentum','article_volume','hashrate','fear_greed'];
   function barColor(v){return v>=65?'#10B981':v>=45?'#F59E0B':'#EF4444';}
   function render(d){
-    var score=d.score||(d.composite&&d.composite.score)||0,cls=d.classification||(d.composite&&d.composite.pattern)||'—',delta=d.delta;
+    var score=Math.round((typeof d.composite==='number'?d.composite:(d.composite&&d.composite.score))||d.score||0),cls=d.label||d.classification||(d.composite&&d.composite.pattern)||'—',delta=d.delta;
     var se=document.getElementById('hp-sig-score'),ce=document.getElementById('hp-sig-class'),be=document.getElementById('hp-sig-bar'),de=document.getElementById('hp-sig-delta'),te=document.getElementById('hp-signal-ts'),ce2=document.getElementById('hp-components');
     if(se){se.textContent=score;se.style.color=barColor(score);}
     if(ce){ce.textContent=cls.toUpperCase();ce.style.color=barColor(score);}
@@ -223,7 +223,7 @@
     var comps=d.components||{};
     if(ce2&&Object.keys(comps).length){ce2.innerHTML=COMP_ORDER.map(function(k){var m=COMP_META[k],v=Math.round(comps[k]||0),bc=barColor(v);return'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);"><span style="font:400 8px/1 JetBrains Mono,monospace;color:#888;width:120px;flex-shrink:0;text-transform:uppercase;" title="'+m.tip+'">'+m.label+'</span><span style="font:600 10px/1 JetBrains Mono,monospace;color:#fff;width:26px;text-align:right;flex-shrink:0;">'+v+'</span><div style="flex:1;height:3px;background:#1F1F1F;border-radius:2px;overflow:hidden;"><div style="height:100%;width:'+v+'%;background:'+bc+';border-radius:2px;transition:width .5s ease;"></div></div></div>';}).join('');}
   }
-  function poll(){fetch('/api/intelligence/signal').then(function(r){return r.json();}).then(render).catch(function(){});}
+  function poll(){fetch('/api/intelligence/signal').then(function(r){return r.json();}).then(function(d){render(d && d.data ? d.data : d);}).catch(function(){});}
   poll();setInterval(poll,120000);
 })();
 </script>
@@ -1100,7 +1100,7 @@ function updateIntelStrip() {
             // Hashrate
             var hrEl = document.getElementById('strip-hashrate');
             if (hrEl && d.hashrate) {
-                hrEl.textContent = d.hashrate.toFixed(0) + ' EH/s';
+                hrEl.textContent = (d.hashrate / 1e18).toFixed(0) + ' EH/s';
                 flashMetric(hrEl);
             }
         }).catch(function() {});

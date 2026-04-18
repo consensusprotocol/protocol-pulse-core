@@ -24,6 +24,28 @@ logger = logging.getLogger(__name__)
 
 panopticon_bp = Blueprint("panopticon", __name__)
 
+# ─── TTL cache helper (module-local; mirror of core.routes_api._ttl_cache) ───
+import functools as _functools
+import time as _time
+def _ttl_cache(seconds):
+    def decorator(fn):
+        _store = {}
+        @_functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            key = (args, tuple(sorted(kwargs.items())))
+            now = _time.monotonic()
+            if key in _store:
+                result, ts = _store[key]
+                if now - ts < seconds:
+                    return result
+            result = fn(*args, **kwargs)
+            _store[key] = (result, now)
+            return result
+        return wrapper
+    return decorator
+
+
+
 # ── Rate limiting via app-level Flask-Limiter (P0 audit fix: shared across workers) ──
 # The app.py limiter uses get_remote_address as key_func.
 # We apply limits per-route via a lazy import to avoid circular imports at module load.
@@ -209,6 +231,7 @@ def api_disclosures():
         return jsonify({"error": "Failed to fetch disclosures"}), 500
 
 
+@_ttl_cache(300)
 @panopticon_bp.route("/api/panopticon/whale-alerts")
 @panopticon_bp.route("/api/panopticon/whales")
 def api_whale_alerts():
@@ -258,6 +281,7 @@ def api_correlations():
         return jsonify({"error": "Failed to build correlations"}), 500
 
 
+@_ttl_cache(300)
 @panopticon_bp.route("/api/panopticon/geopolitical")
 def api_geopolitical():
     """Nation-state signals, forex interventions, sovereign BTC activity."""
@@ -323,6 +347,7 @@ def api_institutional():
         return jsonify({"error": str(e), "institutional_13f": [], "total_institutional_filers": 0}), 500
 
 
+@_ttl_cache(300)
 @panopticon_bp.route("/api/panopticon/pe-datastream")
 def api_pe_datastream():
     """Private equity datastream: Form D fundraising + coalition analysis.
@@ -499,6 +524,7 @@ def api_perception_layer():
 
 
 
+@_ttl_cache(300)
 @panopticon_bp.route('/api/panopticon/bills')
 def api_bills():
     # Bitcoin Bill Gap Tracker - public endpoint
