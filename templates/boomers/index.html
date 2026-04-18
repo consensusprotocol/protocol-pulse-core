@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}The Bitcoin Boomers — Bitcoin Education for the Generation That Built Wealth{% endblock %}
+
+{% block meta_description %}The Bitcoin Boomers: Bitcoin education for the generation that built wealth — and plans to keep it. Hosted by Gary Leland, Lawrence Lepard, and Bob Burnett.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="The Bitcoin Boomers — Bitcoin Education for the Generation That Built Wealth">
+<meta property="og:description" content="Bitcoin education for the generation that built wealth — and plans to keep it. Hosted by Gary Leland, Lawrence Lepard, and Bob Burnett.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/boomers/logo.svg', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+<meta name="twitter:title" content="The Bitcoin Boomers">
+<meta name="twitter:description" content="Bitcoin education for the generation that built wealth — and plans to keep it.">
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/boomers.css') }}?v=1.0">
+{% endblock %}
+
+{% block body_class %} bb-body{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="bb-hero">
+    <div class="bb-hero__inner">
+        <div class="bb-eyebrow">Protocol Pulse × A Premium Series</div>
+        <h1 class="bb-display">The <span class="bb-gold">Bitcoin</span><br>Boomers</h1>
+        <p class="bb-hero__tagline">
+            Bitcoin education for the generation that built wealth — and plans to keep it.
+        </p>
+        <div class="bb-cta-row">
+            <a href="#episodes" class="bb-btn bb-btn--primary bb-btn--lg">
+                Listen to Episodes
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="#sponsor" class="bb-btn bb-btn--ghost bb-btn--lg">Partner With Us</a>
+        </div>
+        <div class="bb-hero__meta">
+            <div class="bb-hero__meta-item">
+                <span class="bb-hero__meta-label">Hosts</span>
+                <span class="bb-hero__meta-value">3 veterans</span>
+            </div>
+            <div class="bb-hero__meta-item">
+                <span class="bb-hero__meta-label">Combined experience</span>
+                <span class="bb-hero__meta-value"><span class="bb-gold">120+</span> years</span>
+            </div>
+            <div class="bb-hero__meta-item">
+                <span class="bb-hero__meta-label">Audience</span>
+                <span class="bb-hero__meta-value">Wealth builders 45+</span>
+            </div>
+            <div class="bb-hero__meta-item">
+                <span class="bb-hero__meta-label">New episodes</span>
+                <span class="bb-hero__meta-value">Weekly</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ABOUT / HOSTS
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="bb-section" id="hosts">
+    <div class="bb-container">
+        <div style="text-align:center;">
+            <div class="bb-eyebrow" style="justify-content:center;">The Voices</div>
+            <h2 class="bb-h1">Three men who built real businesses<br>now building real sovereignty.</h2>
+            <p class="bb-lede" style="margin:0 auto;">
+                These aren't 25-year-old influencers. They're operators, allocators, and entrepreneurs
+                who've survived inflation cycles, bear markets, and career reinventions — and who
+                understand what's at stake.
+            </p>
+        </div>
+
+        <div class="bb-hosts-grid">
+            <!-- Gary Leland -->
+            <article class="bb-host-card">
+                <div class="bb-host-card__avatar">GL</div>
+                <h3 class="bb-host-card__name">Gary Leland</h3>
+                <div class="bb-host-card__title">Podcast pioneer · Bitcoin advocate</div>
+                <p class="bb-host-card__bio">
+                    One of the first podcasters in the space. Built media empires before most people
+                    knew what RSS was. Advocate for sound money and plain-English Bitcoin education
+                    for his peers.
+                </p>
+                <div class="bb-host-card__creds">
+                    <span class="bb-host-card__cred">Podcasting since 2004</span>
+                    <span class="bb-host-card__cred">Fastpitch TV</span>
+                    <span class="bb-host-card__cred">Bitcoin Educator</span>
+                </div>
+            </article>
+
+            <!-- Lawrence Lepard -->
+            <article class="bb-host-card">
+                <div class="bb-host-card__avatar">LL</div>
+                <h3 class="bb-host-card__name">Lawrence Lepard</h3>
+                <div class="bb-host-card__title">Managing partner · Equity Management Associates</div>
+                <p class="bb-host-card__bio">
+                    Thirty-plus years managing capital. Vocal critic of fiat monetary policy and one of
+                    the most thoughtful Bitcoin allocators on the buy-side. When Larry talks macro,
+                    serious money listens.
+                </p>
+                <div class="bb-host-card__creds">
+                    <span class="bb-host-card__cred">EMA Funds</span>
+                    <span class="bb-host-card__cred">Sound Money</span>
+                    <span class="bb-host-card__cred">Macro</span>
+                </div>
+            </article>
+
+            <!-- Bob Burnett -->
+            <article class="bb-host-card">
+                <div class="bb-host-card__avatar">BB</div>
+                <h3 class="bb-host-card__name">Bob Burnett</h3>
+                <div class="bb-host-card__title">Founder · Barefoot Mining</div>
+                <p class="bb-host-card__bio">
+                    Technology operator turned Bitcoin miner. Ran Colorado-based mining operations
+                    before it was fashionable. Writes and speaks on proof-of-work, energy markets,
+                    and the economic reality of hash.
+                </p>
+                <div class="bb-host-card__creds">
+                    <span class="bb-host-card__cred">Barefoot Mining</span>
+                    <span class="bb-host-card__cred">Proof-of-Work</span>
+                    <span class="bb-host-card__cred">Tech Exec</span>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<div class="bb-ornament" aria-hidden="true">
+    <span class="bb-ornament__mark">&#10042;</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EPISODES
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="bb-section" id="episodes" style="background: linear-gradient(180deg, transparent, rgba(26, 19, 10, 0.5) 50%, transparent);">
+    <div class="bb-container">
+        <div class="bb-eyebrow">Latest Broadcasts</div>
+        <h2 class="bb-h1">Recent episodes.</h2>
+        <p class="bb-lede">
+            Conversations unhurried. Arguments made in full. No TikTok takes, no bro-science —
+            just the kind of substance that stands up in a drawing room or a board meeting.
+        </p>
+
+        <div class="bb-episodes-grid">
+            {% set default_episodes = [
+                {'num': '07', 'date': 'April 14, 2026', 'duration': '52 min',
+                 'title': 'Why Your CPA Is Wrong About Bitcoin',
+                 'desc': 'Cost basis, tax lots, and the one rule every retiree with BTC needs to memorize before year-end.',
+                 'slug': 'cpa-wrong-about-bitcoin'},
+                {'num': '06', 'date': 'April 07, 2026', 'duration': '48 min',
+                 'title': 'The Pension Crisis Nobody Wants to Talk About',
+                 'desc': 'Underfunded liabilities, 60/40 failure, and why Bitcoin is the only escape hatch left for retirees.',
+                 'slug': 'pension-crisis-nobody-talks-about'},
+                {'num': '05', 'date': 'March 31, 2026', 'duration': '61 min',
+                 'title': 'Passing Sats to the Grandkids — The Right Way',
+                 'desc': 'Multi-sig, inheritance protocols, and the estate-planning conversations your attorney has never had.',
+                 'slug': 'passing-sats-to-grandkids'}
+            ] %}
+            {% for ep in (episodes if episodes else default_episodes) %}
+            <a href="/bitcoin-boomers/episode/{{ ep.slug }}" class="bb-ep-card">
+                <div class="bb-ep-card__cover">
+                    <div class="bb-ep-card__ep-num">{{ ep.num }}</div>
+                </div>
+                <div class="bb-ep-card__body">
+                    <div class="bb-ep-card__meta">Episode {{ ep.num }} · {{ ep.date }} · {{ ep.duration }}</div>
+                    <h3 class="bb-ep-card__title">{{ ep.title }}</h3>
+                    <p class="bb-ep-card__desc">{{ ep.desc }}</p>
+                    <span class="bb-ep-card__link">Listen &rarr;</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     AUDIENCE STATS
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="bb-section" id="audience">
+    <div class="bb-container">
+        <div class="bb-eyebrow">Who's Listening</div>
+        <h2 class="bb-h1">The audience advertisers<br>can't reach anywhere else.</h2>
+        <p class="bb-lede">
+            Wealthy, established, decision-ready. These are the listeners who still read footnotes,
+            cut real checks, and aren't asking Mom to pay the bill.
+        </p>
+
+        <div class="bb-stats-grid">
+            <div class="bb-stat">
+                <div class="bb-stat__value">45+</div>
+                <div class="bb-stat__label">Median age of listeners</div>
+            </div>
+            <div class="bb-stat">
+                <div class="bb-stat__value">$500K+</div>
+                <div class="bb-stat__label">Median household net worth</div>
+            </div>
+            <div class="bb-stat">
+                <div class="bb-stat__value">62%</div>
+                <div class="bb-stat__label">Business owners &amp; executives</div>
+            </div>
+            <div class="bb-stat">
+                <div class="bb-stat__value">81%</div>
+                <div class="bb-stat__label">Primary financial decision-maker</div>
+            </div>
+            <div class="bb-stat">
+                <div class="bb-stat__value">94%</div>
+                <div class="bb-stat__label">Own BTC or actively allocating</div>
+            </div>
+            <div class="bb-stat">
+                <div class="bb-stat__value">3.8x</div>
+                <div class="bb-stat__label">Avg. engagement vs. general fin-pod</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SPONSOR
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="bb-section" id="sponsor">
+    <div class="bb-container">
+        <div class="bb-sponsor">
+            <div class="bb-sponsor__grid">
+                <div>
+                    <div class="bb-eyebrow">Partner With Us</div>
+                    <h2 class="bb-h2">Reach the transactors<br>with the checkbook.</h2>
+                    <p class="bb-body-text" style="margin-bottom:22px;color:var(--bb-cream-dim);">
+                        The Bitcoin Boomers reaches an audience that's hard to find and harder to convert:
+                        older, wealthier, Bitcoin-native, and actively re-allocating capital. If your
+                        product is hardware custody, life insurance payable in sats, estate planning,
+                        or premium financial services — this is your room.
+                    </p>
+                    <div class="bb-cta-row">
+                        <a href="/sponsor-deck" class="bb-btn bb-btn--primary">Request the Deck</a>
+                        <a href="mailto:sponsor@protocolpulse.io?subject=The%20Bitcoin%20Boomers%20Sponsorship" class="bb-btn bb-btn--ghost">Email the Team</a>
+                    </div>
+                </div>
+                <div class="bb-sponsor__stats">
+                    <div class="bb-sponsor__stat-row">
+                        <span class="bb-sponsor__stat-val">$500K+</span>
+                        <span class="bb-sponsor__stat-label">Avg. listener household net worth</span>
+                    </div>
+                    <div class="bb-sponsor__stat-row">
+                        <span class="bb-sponsor__stat-val">62%</span>
+                        <span class="bb-sponsor__stat-label">Business owners &amp; C-suite</span>
+                    </div>
+                    <div class="bb-sponsor__stat-row">
+                        <span class="bb-sponsor__stat-val">45–65</span>
+                        <span class="bb-sponsor__stat-label">Core listener age range</span>
+                    </div>
+                    <div class="bb-sponsor__stat-row" style="border-bottom:none;">
+                        <span class="bb-sponsor__stat-val">1 of 3</span>
+                        <span class="bb-sponsor__stat-label">Host-read slots per episode</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NEWSLETTER
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="bb-newsletter" id="subscribe">
+    <div class="bb-newsletter__inner">
+        <div class="bb-eyebrow" style="justify-content:center;">The Boomers Dispatch</div>
+        <h2 class="bb-h2">Weekly essays. No daily spam.</h2>
+        <p class="bb-body-text" style="color:var(--bb-cream-dim);">
+            One thoughtful dispatch every Sunday: episode notes, macro commentary from Larry,
+            mining notes from Bob, and a reading list curated by Gary. Unsubscribe anytime.
+        </p>
+        <form class="bb-newsletter__form" method="POST" action="/bitcoin-boomers/subscribe" autocomplete="on">
+            <input type="email" name="email" placeholder="you@example.com" class="bb-newsletter__input" required aria-label="Email address">
+            <button type="submit" class="bb-btn bb-btn--primary">Subscribe</button>
+        </form>
+        <div class="bb-newsletter__note">Delivered Sundays · Free · CAN-SPAM compliant</div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     BOOMERS FOOTER
+     ═══════════════════════════════════════════════════════════════ -->
+<footer class="bb-footer">
+    <div class="bb-footer__inner">
+        <div class="bb-footer__brand">
+            <span class="bb-footer__brand-wordmark">The <span class="bb-gold">Bitcoin</span> Boomers</span>
+            <p class="bb-footer__tagline">
+                Bitcoin education for the generation that built wealth — and plans to keep it.
+            </p>
+        </div>
+        <div>
+            <div class="bb-footer__heading">Show</div>
+            <ul class="bb-footer__links">
+                <li><a href="#episodes" class="bb-footer__link">Episodes</a></li>
+                <li><a href="#hosts" class="bb-footer__link">Hosts</a></li>
+                <li><a href="#subscribe" class="bb-footer__link">Newsletter</a></li>
+                <li><a href="/bitcoin-boomers" class="bb-footer__link">Home</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="bb-footer__heading">Partner</div>
+            <ul class="bb-footer__links">
+                <li><a href="#sponsor" class="bb-footer__link">Sponsor</a></li>
+                <li><a href="/sponsor-deck" class="bb-footer__link">Media Kit</a></li>
+                <li><a href="mailto:sponsor@protocolpulse.io" class="bb-footer__link">Contact</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="bb-footer__heading">Parent Network</div>
+            <ul class="bb-footer__links">
+                <li><a href="/" class="bb-footer__link">Protocol Pulse</a></li>
+                <li><a href="/articles" class="bb-footer__link">Briefs</a></li>
+                <li><a href="/terminal" class="bb-footer__link">Terminal</a></li>
+                <li><a href="/about" class="bb-footer__link">About</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="bb-footer__bottom">
+        <span>&copy; 2026 The Bitcoin Boomers · A <a href="/" class="bb-footer__pp-link">Protocol Pulse</a> series</span>
+        <span>Intelligence for Transactors · Not Tourists</span>
+    </div>
+</footer>
+
+{% endblock %}

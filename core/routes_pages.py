@@ -1810,6 +1810,118 @@ def newsletter_unsubscribe():
 <a href="/" style="display:inline-block;margin-top:24px;color:#FF0000;text-decoration:none;border:1px solid #FF0000;padding:10px 24px;border-radius:4px;">Return to Protocol Pulse</a>
 </div></body></html>''', 200
 
+
+# ═══════════════════════════════════════════════════════════════════════
+# THE BITCOIN BOOMERS — Standalone brand presence within Protocol Pulse
+# ═══════════════════════════════════════════════════════════════════════
+
+# Canonical episode catalog — used by index + episode detail views
+_BOOMERS_EPISODES = [
+    {
+        'num': '07',
+        'slug': 'cpa-wrong-about-bitcoin',
+        'date': 'April 14, 2026',
+        'duration': '52 min',
+        'title': 'Why Your CPA Is Wrong About Bitcoin',
+        'desc': 'Cost basis, tax lots, and the one rule every retiree with BTC needs to memorize before year-end.',
+        'summary': 'Larry walks through the three most common cost-basis mistakes he sees on client K-1s, Bob explains why mining income is a different beast entirely, and Gary shares the one-pager he mails to every new BTC-curious friend over 60.',
+        'topics': [
+            'Cost-basis methods: FIFO, LIFO, specific-ID — what actually saves tax',
+            'Why your CPA does not understand what a sat actually is',
+            'Mining income and the self-employment tax trap',
+            'Gifting BTC to heirs: the stepped-up basis window',
+            'Year-end tax-loss harvesting when BTC is up 200%',
+        ],
+    },
+    {
+        'num': '06',
+        'slug': 'pension-crisis-nobody-talks-about',
+        'date': 'April 07, 2026',
+        'duration': '48 min',
+        'title': 'The Pension Crisis Nobody Wants to Talk About',
+        'desc': 'Underfunded liabilities, 60/40 failure, and why Bitcoin is the only escape hatch left for retirees.',
+        'summary': 'A hard look at the $5T of unfunded pension liabilities, what happens when boomers retire into a broken 60/40, and why a small BTC allocation now is the cheapest hedge money can buy.',
+        'topics': [
+            'The math behind a 0% real-return decade',
+            'Why corporate pension plans are quietly allocating to BTC',
+            'The 2% rule: small allocation, asymmetric upside',
+            'Sequence-of-returns risk for new retirees',
+        ],
+    },
+    {
+        'num': '05',
+        'slug': 'passing-sats-to-grandkids',
+        'date': 'March 31, 2026',
+        'duration': '61 min',
+        'title': 'Passing Sats to the Grandkids — The Right Way',
+        'desc': 'Multi-sig, inheritance protocols, and the estate-planning conversations your attorney has never had.',
+        'summary': 'The estate-planning playbook for BTC holders: why a standard will is not enough, how Unchained and Casa are solving this, and what to put in writing before you cannot write anything.',
+        'topics': [
+            'Why a standard will does nothing for your BTC',
+            'Multi-sig inheritance: Unchained, Casa, and DIY',
+            'The "letter of final instructions" template',
+            'Training heirs: custody literacy without exposure',
+        ],
+    },
+]
+
+
+@pages_bp.route('/bitcoin-boomers')
+def boomers_index():
+    """The Bitcoin Boomers — standalone brand landing page."""
+    return render_template('boomers/index.html', episodes=_BOOMERS_EPISODES)
+
+
+@pages_bp.route('/bitcoin-boomers/episode/<slug>')
+def boomers_episode(slug):
+    """Single episode page for The Bitcoin Boomers."""
+    episode = next((e for e in _BOOMERS_EPISODES if e['slug'] == slug), None)
+    if not episode:
+        return render_template('boomers/episode.html', episode=None), 404
+    return render_template('boomers/episode.html', episode=episode)
+
+
+@pages_bp.route('/bitcoin-boomers/subscribe', methods=['POST'])
+def boomers_subscribe():
+    """Subscribe to The Boomers Dispatch — writes to newsletter_subscribers with source='boomers'."""
+    email = (request.form.get('email') or '').strip().lower()
+    if not email or '@' not in email or '.' not in email:
+        flash('Please enter a valid email address.', 'error')
+        return redirect(url_for('pages.boomers_index') + '#subscribe')
+
+    try:
+        existing = models.NewsletterSubscriber.query.filter_by(email=email).first()
+        if existing:
+            if not existing.subscribed:
+                existing.subscribed = True
+                existing.unsubscribed_at = None
+                db.session.commit()
+            flash('You are already on the Boomers Dispatch list. Welcome back.', 'success')
+        else:
+            sub = models.NewsletterSubscriber(
+                email=email,
+                unsubscribe_token=str(uuid.uuid4()),
+                subscribed=True,
+                source='boomers',
+            )
+            db.session.add(sub)
+            db.session.commit()
+            flash('Subscribed. Your first Boomers Dispatch arrives Sunday.', 'success')
+    except Exception as e:
+        logging.error(f"Boomers subscribe error: {e}")
+        db.session.rollback()
+        flash('Subscription failed. Please try again.', 'error')
+
+    return redirect(url_for('pages.boomers_index') + '#subscribe')
+
+
+@pages_bp.route('/bitcoin-boomers/social-card/<slug>')
+def boomers_social_card(slug):
+    """1200x630 social card for episode announcements. Render to PNG via browser screenshot."""
+    episode = next((e for e in _BOOMERS_EPISODES if e['slug'] == slug), None)
+    return render_template('boomers/social_card.html', episode=episode)
+
+
 @pages_bp.route('/test/generate-article', methods=['POST'])
 def test_generate_article():
     """Test endpoint for article generation without auth"""

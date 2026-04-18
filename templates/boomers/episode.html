@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ episode.title if episode else 'Episode' }} — The Bitcoin Boomers{% endblock %}
+
+{% block meta_description %}{{ episode.desc if episode else 'The Bitcoin Boomers episode.' }}{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="{{ episode.title if episode else 'Episode' }} — The Bitcoin Boomers">
+<meta property="og:description" content="{{ episode.desc if episode else 'The Bitcoin Boomers episode.' }}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="The Bitcoin Boomers">
+<meta property="og:image" content="{{ url_for('static', filename='images/boomers/logo.svg', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/boomers.css') }}?v=1.0">
+{% endblock %}
+
+{% block body_class %} bb-body{% endblock %}
+
+{% block content %}
+
+<section class="bb-ep-hero">
+    <div class="bb-container bb-container--narrow">
+        <div class="bb-eyebrow"><a href="/bitcoin-boomers" style="color:inherit;text-decoration:none;">&larr; The Bitcoin Boomers</a></div>
+        <div class="bb-ep-hero__meta">
+            Episode {{ episode.num if episode else '--' }} · {{ episode.date if episode else 'Unreleased' }} · {{ episode.duration if episode else '' }}
+        </div>
+        <h1 class="bb-ep-hero__title">{{ episode.title if episode else 'Episode Title' }}</h1>
+        <p class="bb-lede">{{ episode.desc if episode else '' }}</p>
+        <div class="bb-cta-row">
+            <a href="#listen" class="bb-btn bb-btn--primary">
+                <i class="fas fa-play"></i> Play Episode
+            </a>
+            <a href="#notes" class="bb-btn bb-btn--ghost">Show Notes</a>
+        </div>
+    </div>
+</section>
+
+<article class="bb-ep-article" id="notes">
+    <div class="bb-ornament" aria-hidden="true">
+        <span class="bb-ornament__mark">&#10042;</span>
+    </div>
+
+    <h2>In This Episode</h2>
+    <p>
+        {{ episode.summary if episode and episode.summary else
+           "Gary, Larry, and Bob sit down to talk through the week's most important Bitcoin signal — what it means for allocators, for retirees, and for anyone stewarding serious capital in an uncertain monetary environment." }}
+    </p>
+
+    {% if episode and episode.topics %}
+    <h2>Topics Covered</h2>
+    <ul>
+        {% for topic in episode.topics %}
+        <li>{{ topic }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <h2>Topics Covered</h2>
+    <ul>
+        <li>The macro backdrop — rates, liquidity, and the dollar</li>
+        <li>Why this matters for retirees and capital allocators</li>
+        <li>Practical steps for Bitcoin allocation and custody</li>
+        <li>Listener questions from the Boomers Dispatch</li>
+    </ul>
+    {% endif %}
+
+    <div class="bb-ornament" aria-hidden="true">
+        <span class="bb-ornament__mark">&#10042;</span>
+    </div>
+
+    <h2 id="listen">Listen</h2>
+    <p style="color:var(--bb-text-muted);font-style:normal;font-size:1rem;">
+        Full episode audio drops Mondays at 07:00 ET. Subscribe to the Boomers Dispatch for links the moment they're live.
+    </p>
+
+    <div style="margin-top:32px;text-align:center;">
+        <a href="/bitcoin-boomers#subscribe" class="bb-btn bb-btn--primary bb-btn--lg">Subscribe to the Dispatch</a>
+    </div>
+</article>
+
+<footer class="bb-footer">
+    <div class="bb-footer__inner">
+        <div class="bb-footer__brand">
+            <span class="bb-footer__brand-wordmark">The <span class="bb-gold">Bitcoin</span> Boomers</span>
+            <p class="bb-footer__tagline">Bitcoin education for the generation that built wealth — and plans to keep it.</p>
+        </div>
+        <div>
+            <div class="bb-footer__heading">Show</div>
+            <ul class="bb-footer__links">
+                <li><a href="/bitcoin-boomers#episodes" class="bb-footer__link">Episodes</a></li>
+                <li><a href="/bitcoin-boomers#hosts" class="bb-footer__link">Hosts</a></li>
+                <li><a href="/bitcoin-boomers#subscribe" class="bb-footer__link">Newsletter</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="bb-footer__heading">Partner</div>
+            <ul class="bb-footer__links">
+                <li><a href="/bitcoin-boomers#sponsor" class="bb-footer__link">Sponsor</a></li>
+                <li><a href="mailto:sponsor@protocolpulse.io" class="bb-footer__link">Contact</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="bb-footer__heading">Parent Network</div>
+            <ul class="bb-footer__links">
+                <li><a href="/" class="bb-footer__link">Protocol Pulse</a></li>
+                <li><a href="/articles" class="bb-footer__link">Briefs</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="bb-footer__bottom">
+        <span>&copy; 2026 The Bitcoin Boomers · A <a href="/" class="bb-footer__pp-link">Protocol Pulse</a> series</span>
+        <span>Intelligence for Transactors · Not Tourists</span>
+    </div>
+</footer>
+
+{% endblock %}
