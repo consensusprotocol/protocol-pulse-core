@@ -1,74 +1,6 @@
 {
   "episodes": [
     {
-      "date": "2026-04-13",
-      "video_ids": [
-        "nIT-C1EHPyA",
-        "lswkrXnYQCE",
-        "dQKweyL4kl0",
-        "j2Ba_e5GIIw",
-        "IODFNfSIesk"
-      ],
-      "channels": [
-        "Bitfarms",
-        "BTC Sessions",
-        "Crypto Love",
-        "Blockware Solutions",
-        "Robert Breedlove"
-      ]
-    },
-    {
-      "date": "2026-04-13",
-      "video_ids": [
-        "TpaXATjzNNo",
-        "R2FhDAQ68Pw",
-        "etTv2PtW2UA",
-        "xJSEzOy96e4",
-        "IQXvd6ZecmQ"
-      ],
-      "channels": [
-        "The Bitcoin Podcast",
-        "Bitcoin Magazine Pro",
-        "Unchained",
-        "TheStreet",
-        "Blockworks"
-      ]
-    },
-    {
-      "date": "2026-04-13",
-      "video_ids": [
-        "OHT7pG-gZfU",
-        "NCs9uq8n6-s",
-        "qj0IGSc0sew",
-        "c7ueHTTdu-A",
-        "Jh9_I6KWYro"
-      ],
-      "channels": [
-        "Guy Swann",
-        "Base58",
-        "Swan Bitcoin",
-        "Guy Swann",
-        "Strike"
-      ]
-    },
-    {
-      "date": "2026-04-13",
-      "video_ids": [
-        "urhiMNIk27Q",
-        "-3fsC_aed88",
-        "MXA39ece4_c",
-        "_YB0-AMJteg",
-        "LJKAZk9bbtI"
-      ],
-      "channels": [
-        "Anthony Pompliano",
-        "Bitcoin Magazine Pro",
-        "Swan Bitcoin",
-        "Bitcoin Magazine Pro",
-        "Altcoin Daily"
-      ]
-    },
-    {
       "date": "2026-04-15",
       "video_ids": [
         "M1XPOFgjNPk",
@@ -137,6 +69,23 @@
         "The Bitcoin Podcast",
         "Natalie Brunell",
         "Bitcoin Magazine"
+      ]
+    },
+    {
+      "date": "2026-04-18",
+      "video_ids": [
+        "s7-l7gzm_PE",
+        "ao7HjmnyRFY",
+        "mDAfsWxgJrc",
+        "5scEV0IVYeY",
+        "T62HoH2GywU"
+      ],
+      "channels": [
+        "Preston Pysh",
+        "DataDash",
+        "VirtualBacon",
+        "Tone Vays",
+        "Bitcoin Magazine Pro"
       ]
     }
   ]

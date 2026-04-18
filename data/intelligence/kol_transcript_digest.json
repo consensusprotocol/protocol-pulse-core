@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-17T00:00:23.129735+00:00",
-  "creator_count": 16,
-  "avg_sentiment_score": 45.4,
+  "generated_at": "2026-04-18T04:01:20.343407+00:00",
+  "creator_count": 15,
+  "avg_sentiment_score": 62.5,
   "sentiment_breakdown": {
-    "bullish": 3,
-    "bearish": 4,
-    "neutral": 9
+    "bullish": 8,
+    "bearish": 1,
+    "neutral": 6
   },
-  "dominant_sentiment": "neutral",
+  "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "AI deepfake technology",
+      "topic": "US debt crisis and Treasury collapse",
       "creator_count": 1,
       "creators": [
-        "Coffeezilla"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
     },
     {
-      "topic": "Digital forensics and misinformation detection",
+      "topic": "Currency debasement and inflation",
       "creator_count": 1,
       "creators": [
-        "Coffeezilla"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
     },
     {
-      "topic": "Consumer-level deepfake accessibility",
+      "topic": "Historical parallels to Roman Empire and British pound decline",
       "creator_count": 1,
       "creators": [
-        "Coffeezilla"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
     },
     {
-      "topic": "Public figure impersonation",
+      "topic": "Bitcoin as alternative financial system",
       "creator_count": 1,
       "creators": [
-        "Coffeezilla"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
     },
     {
-      "topic": "Human ability to detect fake media",
+      "topic": "Federal Reserve policy and monetary supply control",
       "creator_count": 1,
       "creators": [
-        "Coffeezilla"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "does it need to be that real to fool enough people to be dangerous?"
+      "avg_sentiment_score": 78.0,
+      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
     }
   ],
-  "summary": "# Bitcoin Creators' Consensus and Divergence\n\n**Consensus:** Multiple creators express skepticism about institutional and political actors entering Bitcoin/crypto spaces, viewing them with suspicion rather than as legitimate adoption. There's also agreement that the broader crypto ecosystem faces serious risks from fraud, scams, and unsustainable financial schemes.\n\n**Divergence:** While Coffeezilla and Coin Bureau take bearish stances on institutional involvement and market dynamics (15-25/100), CoinTelegraph and Guy Swann offer more balanced or philosophical perspectives. CoinTelegraph sees bullish long-term fundamentals in AI integration and tokenization (62/100), whereas Guy Swann shifts focus entirely away from market sentiment toward personal values and community building.\n\n**Key tension:** The ecosystem is caught between those viewing institutional/political entry as predatory threats to Bitcoin's decentralization versus those seeing technological integration and real-world use cases as legitimate growth catalysts.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly agree that systemic weaknesses in the fiat monetary system (debt, currency debasement, inflation) make Bitcoin an attractive alternative, with institutional and sovereign adoption accelerating this transition. They also agree that security vulnerabilities exist primarily in user behavior and centralized platforms rather than Bitcoin's protocol itself.\n\n**Key Divergence:** While most adopt a bullish outlook on Bitcoin's macro role, they significantly disagree on implementation concerns. Some reject proposed quantum-resistant upgrades as fundamentally incompatible with Bitcoin's immutability principles, while others worry that retail users remain dangerously exposed to social engineering and exploits despite protocol-level security. Additionally, geopolitical interpretations vary\u2014some see dollar weakness as organic monetary collapse, others as potentially engineered US strategy\u2014suggesting uncertainty about whether Bitcoin's rise will be demand-driven or structurally forced.",
   "top_creators": [
     {
-      "channel": "Coffeezilla",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": "This video is not Bitcoin-specific; it investigates AI deepfakes as a broader technology threat. The creator demonstrates how easy it has become to create convincing fake videos of public figures using consumer tools, raising concerns about misinformation at scale."
+      "channel": "Simply Bitcoin",
+      "sentiment": "bullish",
+      "score": 78,
+      "thesis": "The US financial system is approaching collapse due to unsustainable debt and currency debasement, making Bitcoin an inevitable alternative as institutions build a new financial system before the old one fails."
     },
     {
-      "channel": "Coffeezilla Extras",
-      "sentiment": "bearish",
-      "score": 15,
-      "thesis": "Financial markets are experiencing widespread irrational exuberance and complacency during a bull market, with investors losing discipline and accepting obviously unsustainable investment schemes (AI pivots, impossible yields, unregistered funds)."
+      "channel": "Simply Bitcoin",
+      "sentiment": "bullish",
+      "score": 78,
+      "thesis": "Bitcoin adoption is accelerating through institutional demand and sovereign nation adoption while critics inadvertently validate Bitcoin's purpose by highlighting monetary system failures. A 'monetary singularity' is unfolding despite current bear market conditions and mainstream indifference."
     },
     {
-      "channel": "Coin Bureau",
-      "sentiment": "bearish",
-      "score": 25,
-      "thesis": "Morgan Stanley's entry into Bitcoin ETFs through predatory pricing represents a threat to Bitcoin's decentralized foundation, as traditional finance institutions are executing a calculated strategy to monopolize institutional custody rather than genuine belief in the technology."
+      "channel": "The Bitcoin Layer",
+      "sentiment": "mixed",
+      "score": 62,
+      "thesis": "The US Dollar is breaking a 20-year trend line and entering a weakening regime (DXY 80s-70s), which could trigger international capital flows, credit expansion abroad, and potentially benefit Bitcoin as a non-correlated asset. This dollar weakness may be geopolitically engineered to give the US a competitive edge in the AI race against China."
     },
     {
-      "channel": "Guy Swann",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": "Bitcoin and sound money philosophy require reassessing priorities beyond digital connectivity; becoming a father shifts perspective on what truly matters in building communities and sustainable systems."
+      "channel": "Swan Bitcoin",
+      "sentiment": "bullish",
+      "score": 75,
+      "thesis": "Bitcoin is attractive as geopolitical tensions ease, risk appetite returns, and the monetary system faces inflation pressures that make scarce assets like Bitcoin compelling alternatives to fiat."
     },
     {
-      "channel": "Coffeezilla",
-      "sentiment": "neutral",
-      "score": 0,
-      "thesis": null
+      "channel": "Swan Bitcoin",
+      "sentiment": "mixed",
+      "score": 60,
+      "thesis": "Bitcoin's cryptography and consensus rules are secure from AI threats, but retail users and centralized platforms face significant risks from AI-enabled social engineering and exploits. The key vulnerability is human behavior, not Bitcoin's protocol."
     }
   ]
 }

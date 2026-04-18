@@ -1,0 +1,1556 @@
+{% extends "base.html" %}
+{% block title %}Protocol Pulse | Bitcoin Intelligence Hub{% endblock %}
+
+{% block meta_description %}World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:title" content="Protocol Pulse — Bitcoin Intelligence Hub">
+<meta property="og:description" content="World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+<meta name="twitter:title" content="Protocol Pulse — Bitcoin Intelligence Hub">
+<meta name="twitter:description" content="World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting.">
+{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Protocol Pulse",
+    "url": "https://protocolpulse.io",
+    "description": "Real-time Bitcoin intelligence platform. Market signals, on-chain analytics, and sovereign AI oracle.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": {
+        "@type": "Offer",
+        "price": "29",
+        "priceCurrency": "USD"
+    }
+}
+</script>
+{% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block content %}
+<!-- ═══════════════════════════════════════════════════════════════
+     HERO SECTION
+     ═══════════════════════════════════════════════════════════════ -->
+
+<style>
+.orb-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 100px;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+}
+</style>
+
+<section class="pp-hero" style="position:relative;">
+    <!-- Ambient orbs (kept as fallback) -->
+    <div class="pp-hero__orb pp-hero__orb--1" style="opacity:0.3;"></div>
+    <div class="pp-hero__orb pp-hero__orb--2" style="opacity:0.3;"></div>
+    <div class="pp-hero__orb pp-hero__orb--3" style="opacity:0.3;"></div>
+
+    <div class="pp-container">
+        <div class="pp-hero__content">
+            <!-- Convergence Score — LIVE from engine -->
+            <div style="margin-bottom:12px;text-align:center;">
+                <span id="orb-convergence-score" style="font-family:'JetBrains Mono',monospace;font-size:3.5rem;font-weight:700;color:#00d68f;line-height:1;text-shadow:0 0 30px rgba(0,214,143,0.12);"></span>
+                <div style="margin-top:2px;">
+                    <span id="orb-label" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#888;letter-spacing:0.05em;"></span>
+                </div>
+                <div style="margin-top:2px;">
+                    <span id="orb-thesis" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#555;letter-spacing:0.03em;"></span>
+                </div>
+                <div id="orb-domain-pills" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
+            </div>
+
+            <!-- Live badge -->
+            <div class="pp-hero__badge pp-animate-in">
+                <span class="pp-pulse-dot"></span>
+                SOVEREIGN CONVERGENCE ENGINE
+            </div>
+
+            <!-- Title -->
+            <h1 class="pp-hero__title pp-animate-in pp-animate-in-delay-1">
+                The network doesn't lie.<br>
+                <span class="pp-hero__title-accent">The chain never sleeps.</span>
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="pp-hero__subtitle pp-animate-in pp-animate-in-delay-2">
+                On-chain truth. Sovereign intelligence. Built for those who understand what's coming.
+            </p>
+
+            <!-- CTAs - minimal, discovery-first -->
+            <div class="pp-hero__actions pp-animate-in pp-animate-in-delay-3">
+                <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--lg pp-cta-track" data-cta-id="hero-briefs" data-cta-page="home">
+                    <i class="fas fa-terminal"></i> Read Intel Briefs
+                </a>
+                <a href="/oracle-live" class="pp-btn pp-btn--ghost pp-btn--lg pp-cta-track" data-cta-id="hero-oracle" data-cta-page="home" style="color:var(--pp-red,#CC2222);border-color:rgba(220,38,38,0.3);">
+                    ⚡ Consult The Oracle
+                </a>
+            </div>
+
+            <!-- Social proof strip -->
+            <div class="pp-hero__proof pp-animate-in pp-animate-in-delay-3" style="display:flex;align-items:center;gap:20px;flex-wrap:nowrap;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#888;letter-spacing:0.03em;">
+                <span style="white-space:nowrap;"><span style="color:#dc2626;">&#9679;</span> 1,300+ intelligence briefs</span>
+                <span style="color:#444;">|</span>
+                <span style="white-space:nowrap;">Live AI oracle</span>
+                <span style="color:#444;">|</span>
+                <span style="white-space:nowrap;">X Spaces monitoring</span>
+                <span style="color:#444;">|</span>
+                <span style="white-space:nowrap;">Daily Pulse Check</span>
+            </div>
+
+            <!-- New here? path to Dossier -->
+            <div class="pp-hero__new-here pp-animate-in pp-animate-in-delay-4" style="margin-top:10px;animation-delay:0.6s;">
+                <span class="pp-hero__new-here-pill">New here?</span>
+                <span class="pp-hero__new-here-text">
+                    Start with <a href="/dossier" class="pp-hero__new-here-link">The Dossier</a> — 32 intelligence briefs on why Bitcoin wins.&nbsp;&nbsp;
+                    <span class="pp-hero__new-here-sep" style="margin:0 4px;">·</span>&nbsp;
+                    <a href="/oracle-live" class="pp-hero__new-here-link" style="color:var(--pp-red, #CC2222);opacity:0.8;">Consult The Oracle ⚡</a>
+                </span>
+            </div>
+
+            <!-- BTC Price Widget — upgraded spec -->
+            <div class="hero-btc-block pp-animate-in pp-animate-in-delay-4">
+                <div class="hero-btc-block__left">
+                    <div class="hero-btc-block__label">BITCOIN</div>
+                    <div class="hero-btc-block__price" id="heroBtcPrice">—</div>
+                    <div id="heroBtcChange" class="hero-btc-block__change {% if prices and prices.get('bitcoin') and prices['bitcoin'].get('usd_24h_change', 0) >= 0 %}hero-btc-block__change--up{% else %}hero-btc-block__change--down{% endif %}">
+                        {% if prices and prices.get('bitcoin') %}
+                            {% set change = prices['bitcoin'].get('usd_24h_change', 0) %}
+                            {% if change >= 0 %}<i class="fas fa-arrow-up" style="font-size:0.65rem;"></i> +{{ "%.1f"|format(change) }}%{% else %}<i class="fas fa-arrow-down" style="font-size:0.65rem;"></i> {{ "%.1f"|format(change) }}%{% endif %}
+                        {% else %}
+                            <i class="fas fa-minus" style="font-size:0.65rem;"></i> --%
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="hero-btc-block__right">
+                    <div class="hero-live-badge">
+                        <span class="pp-pulse-dot"></span>
+                        LIVE
+                    </div>
+                    <!-- Mini sparkline canvas -->
+                    <canvas id="heroSparkline" width="90" height="42" style="opacity:0.8;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animated pulse line at bottom -->
+    <div class="pp-hero__pulse-line"></div>
+</section>
+
+
+<style>
+@media (max-width: 768px) {
+  #convergence-engine { padding: 24px 0 !important; }
+  #convergence-engine > div > div { gap: 16px !important; }
+  .orb-container { max-width: 100% !important; }
+  #sovereign-orb-canvas { max-width: min(90vw, 420px) !important; margin: 0 auto !important; }
+}
+@media (max-width: 480px) {
+  #sovereign-orb-canvas { max-width: min(88vw, 360px) !important; }
+}
+</style>
+<!-- ═══════════════ SIGNAL INTELLIGENCE PANEL ═══════════════ -->
+<section id="convergence-engine" style="background:#060606;border-top:1px solid rgba(220,38,38,0.15);border-bottom:1px solid rgba(220,38,38,0.15);padding:56px 0;position:relative;overflow:hidden;">
+<div style="max-width:1200px;margin:0 auto;padding:0 24px;">
+<div style="display:flex;align-items:flex-start;gap:56px;flex-wrap:wrap;">
+
+  <div style="flex:1;min-width:260px;max-width:380px;padding-top:4px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.18em;color:#CC0000;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      <span style="width:6px;height:6px;background:#CC0000;border-radius:50%;display:inline-block;animation:pulseDot 2s ease-in-out infinite;"></span>PP Signal Intelligence
+    </div>
+    <h2 style="font-family:'JetBrains Mono',monospace;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:800;color:#fff;margin:0 0 12px;line-height:1.15;">Bitcoin Signal<br><span style="color:#CC0000;">Intelligence</span></h2>
+    <p style="color:rgba(255,255,255,0.45);font-size:0.875rem;line-height:1.65;margin:0 0 28px;max-width:340px;">Five live signal components synthesized from 80 sources — sentiment, momentum, social volume, on-chain health, and market fear. Updated every 2 minutes.</p>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.3);margin-bottom:20px;letter-spacing:.08em;">0–100 &nbsp;·&nbsp; <span style="color:#10B981;">&gt;65 bullish</span> &nbsp;·&nbsp; <span style="color:#EF4444;">&lt;45 bearish</span></div>
+    <a href="/terminal" style="display:inline-flex;align-items:center;gap:8px;background:#CC0000;color:#fff;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:11px 20px;border-radius:6px;text-decoration:none;" onmouseover="this.style.background='#aa0000'" onmouseout="this.style.background='#CC0000'">&#9654; VIEW FULL TERMINAL</a>
+  </div>
+
+  <div style="flex:1;min-width:300px;max-width:520px;">
+    <div style="background:#0d0d0d;border:1px solid #1F1F1F;border-radius:8px 8px 0 0;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:.15em;color:#888;text-transform:uppercase;">PP SIGNAL INTELLIGENCE</span>
+      <span style="display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#888;"><span style="width:5px;height:5px;background:#10B981;border-radius:50%;animation:pulseDot 2s infinite;display:inline-block;"></span><span id="hp-signal-ts">LIVE</span></span>
+    </div>
+    <div style="background:#111;border-left:1px solid #1F1F1F;border-right:1px solid #1F1F1F;padding:16px 16px 14px;display:flex;align-items:baseline;gap:12px;border-bottom:1px solid #1a1a1a;">
+      <span id="hp-sig-score" style="font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:800;color:#fff;line-height:1;">—</span>
+      <div><div id="hp-sig-class" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;letter-spacing:.1em;color:#10B981;">—</div><div id="hp-sig-delta" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#888;margin-top:2px;">UPDATING...</div></div>
+    </div>
+    <div style="background:#111;border-left:1px solid #1F1F1F;border-right:1px solid #1F1F1F;padding:0 16px 14px;">
+      <div style="height:3px;background:#1F1F1F;border-radius:2px;overflow:hidden;"><div id="hp-sig-bar" style="height:100%;width:0%;background:#10B981;transition:width .6s ease;border-radius:2px;"></div></div>
+    </div>
+    <div style="background:#111;border-left:1px solid #1F1F1F;border-right:1px solid #1F1F1F;padding:6px 16px 0;">
+      <hr style="border:none;border-top:1px solid #1a1a1a;margin:0;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:.12em;color:#888;padding:7px 0 9px;text-transform:uppercase;">Component Breakdown</div>
+    </div>
+    <div id="hp-components" style="background:#111;border-left:1px solid #1F1F1F;border-right:1px solid #1F1F1F;padding:0 16px 14px;display:flex;flex-direction:column;gap:0;"></div>
+    <div style="background:#0d0d0d;border:1px solid #1F1F1F;border-radius:0 0 8px 8px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.25);letter-spacing:.08em;">80 SOURCES · 2-MIN REFRESH</span>
+      <a href="/terminal" style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#CC0000;text-decoration:none;letter-spacing:.1em;text-transform:uppercase;">FULL TERMINAL &#8599;</a>
+    </div>
+  </div>
+
+</div>
+</div>
+</section>
+<script>
+(function(){
+  var COMP_META={article_sentiment:{label:'ARTICLE SENTIMENT',tip:'Bullish vs bearish tone across 80 Bitcoin news sources'},price_momentum:{label:'PRICE MOMENTUM',tip:'BTC price trend — direction + rate of change (24h)'},social_volume:{label:'SOCIAL VOLUME',tip:'Spike in Bitcoin mentions on X and Nostr vs 7-day baseline'},onchain_health:{label:'ON-CHAIN HEALTH',tip:'Hashrate, mempool fees, and active address growth'},fear_greed_contrib:{label:'FEAR/GREED',tip:'Alternative.me Bitcoin Fear & Greed mapped to signal contribution'}};
+  var COMP_ORDER=['article_sentiment','price_momentum','social_volume','onchain_health','fear_greed_contrib'];
+  function barColor(v){return v>=65?'#10B981':v>=45?'#F59E0B':'#EF4444';}
+  function render(d){
+    var score=d.score||(d.composite&&d.composite.score)||0,cls=d.classification||(d.composite&&d.composite.pattern)||'—',delta=d.delta;
+    var se=document.getElementById('hp-sig-score'),ce=document.getElementById('hp-sig-class'),be=document.getElementById('hp-sig-bar'),de=document.getElementById('hp-sig-delta'),te=document.getElementById('hp-signal-ts'),ce2=document.getElementById('hp-components');
+    if(se){se.textContent=score;se.style.color=barColor(score);}
+    if(ce){ce.textContent=cls.toUpperCase();ce.style.color=barColor(score);}
+    if(be){be.style.width=score+'%';be.style.background=barColor(score);}
+    if(de&&delta!==undefined){de.textContent=(delta>=0?'▲ +':'▼ ')+Math.abs(delta)+' FROM YESTERDAY';de.style.color=delta>=0?'#10B981':'#EF4444';}
+    if(te){var n=new Date();te.textContent='UPDATED '+[n.getHours(),n.getMinutes()].map(function(x){return String(x).padStart(2,'0')}).join(':');}
+    var comps=d.components||{};
+    if(ce2&&Object.keys(comps).length){ce2.innerHTML=COMP_ORDER.map(function(k){var m=COMP_META[k],v=Math.round(comps[k]||0),bc=barColor(v);return'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);"><span style="font:400 8px/1 JetBrains Mono,monospace;color:#888;width:120px;flex-shrink:0;text-transform:uppercase;" title="'+m.tip+'">'+m.label+'</span><span style="font:600 10px/1 JetBrains Mono,monospace;color:#fff;width:26px;text-align:right;flex-shrink:0;">'+v+'</span><div style="flex:1;height:3px;background:#1F1F1F;border-radius:2px;overflow:hidden;"><div style="height:100%;width:'+v+'%;background:'+bc+';border-radius:2px;transition:width .5s ease;"></div></div></div>';}).join('');}
+  }
+  function poll(){fetch('/api/intelligence/signal').then(function(r){return r.json();}).then(render).catch(function(){});}
+  poll();setInterval(poll,120000);
+})();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     INTEL STRIP — above-the-fold data bar
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="intel-strip" id="intelStrip" aria-label="Live network intelligence">
+    <div class="intel-metric">
+        <div class="intel-metric__label">BLOCK</div>
+        <div class="intel-metric__value" id="strip-block">—</div>
+    </div>
+    <div class="intel-metric">
+        <div class="intel-metric__label">MEMPOOL</div>
+        <div class="intel-metric__value" id="strip-mempool">— sat/vB</div>
+    </div>
+    <div class="intel-metric">
+        <div class="intel-metric__label">FEAR &amp; GREED</div>
+        <div class="intel-metric__value" id="strip-fg">—</div>
+    </div>
+    <div class="intel-metric">
+        <div class="intel-metric__label">HASHRATE</div>
+        <div class="intel-metric__value" id="strip-hashrate">— EH/s</div>
+    </div>
+    <div class="intel-metric">
+        <div class="intel-metric__label">HALVING</div>
+        <div class="intel-metric__value" id="strip-halving">— days</div>
+    </div>
+    <div class="intel-metric" style="margin-left:auto;">
+        <div class="intel-metric__label">BTC PRICE</div>
+        <div class="intel-metric__value" id="strip-btc">$—</div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TODAY'S SIGNAL
+     ═══════════════════════════════════════════════════════════════ -->
+{% if todays_signal %}
+<section class="pp-section" style="padding-top:32px;padding-bottom:0;">
+    <div class="pp-container">
+        <div class="pp-signal pp-reveal">
+            <div class="pp-signal__icon">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <div>
+                <div class="pp-label" style="margin-bottom:4px;">TODAY'S SIGNAL</div>
+                <p class="pp-signal__text">{{ todays_signal }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FEATURED ARTICLE CAROUSEL
+     ═══════════════════════════════════════════════════════════════ -->
+{% set carousel_list = carousel_articles if carousel_articles else (featured_articles if featured_articles else recent_articles[:3]) %}
+{% if carousel_list %}
+<section class="pp-section" style="padding-top:36px;padding-bottom:0;">
+    <div class="pp-container">
+        <div class="pp-section__title-bar pp-mb-3">
+            <div>
+                <h2 class="pp-section__title">Top Stories</h2>
+                <p class="pp-section__subtitle">Highest-signal intelligence from Protocol Pulse</p>
+            </div>
+            <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--sm">
+                View All <i class="fas fa-arrow-right" style="margin-left:4px;font-size:0.7rem;"></i>
+            </a>
+        </div>
+
+        <div class="carousel-wrap pp-reveal" id="featuredCarousel">
+            {% for article in carousel_list[:3] %}
+            <div class="carousel-slide{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}">
+                <img src="{{ (article.cover_image_url or article_image_urls.get(article.id, '/static/images/default-header.png')) }}"
+                     alt="{{ article.title }}"
+                     class="carousel-slide__img"
+                     onerror="this.style.display='none';this.parentElement.style.background='#111'"
+                     loading="{% if loop.first %}eager{% else %}lazy{% endif %}"
+                     decoding="async">
+                <div class="carousel-slide__overlay"></div>
+                <div class="carousel-slide__body">
+                    <div class="carousel-slide__badge">{{ article.category or 'Intel' }}</div>
+                    <a href="/articles/{{ article.slug or article.id }}" class="carousel-slide__title">{{ article.title }}</a>
+                    <div class="carousel-slide__meta">
+                        {{ article.published_at.strftime('%b %d, %Y') if article.published_at else article.created_at.strftime('%b %d, %Y') }}
+                        &nbsp;·&nbsp;
+                        {{ ((article.content|striptags|length) / 1200)|round|int }} min read
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Nav buttons -->
+            <button class="carousel-btn carousel-btn--prev" onclick="carouselPrev()" aria-label="Previous">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn carousel-btn--next" onclick="carouselNext()" aria-label="Next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <!-- Dots -->
+            <div class="carousel-dots">
+                {% for article in carousel_list[:3] %}
+                <div class="carousel-dot{% if loop.first %} active{% endif %}" data-dot="{{ loop.index0 }}" onclick="carouselGoTo({{ loop.index0 }})"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LIVE PROOF STRIP — real-time credibility indicators
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-top:24px;padding-bottom:0;">
+    <div class="pp-container">
+        <div class="pp-reveal" style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:24px;
+            flex-wrap:wrap;
+            padding:14px 24px;
+            background:rgba(220,38,38,0.04);
+            border:1px solid rgba(220,38,38,0.12);
+            border-radius:var(--pp-radius-lg);
+            font-family:'JetBrains Mono',monospace;
+            font-size:0.6875rem;
+            color:rgba(255,255,255,0.6);
+            letter-spacing:0.04em;
+        ">
+            <span style="display:flex;align-items:center;gap:6px;">
+                <span class="pp-pulse-dot"></span>
+                <span style="color:#dc2626;font-weight:700;text-transform:uppercase;">LIVE</span>
+                <span>BTC <span id="proofStripPrice" style="color:#fff;font-weight:700;">$—</span></span>
+            </span>
+            <span style="color:rgba(255,255,255,0.12);">|</span>
+            <span>Last brief: <span id="proofStripLastArticle" style="color:rgba(255,255,255,0.8);">loading...</span></span>
+            <span style="color:rgba(255,255,255,0.12);">|</span>
+            <span><span id="proofStripArticleCount" style="color:#fff;font-weight:700;">1,300</span>+ intelligence briefs published</span>
+            <span style="color:rgba(255,255,255,0.12);">|</span>
+            <span>Oracle sessions today: <span id="proofStripOracleSessions" style="color:var(--pp-amber);font-weight:700;">—</span></span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STATS COUNTERS
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-top:24px;">
+    <div class="pp-container">
+        <div class="pp-stats-row pp-reveal">
+            <div class="pp-stat">
+                <div class="pp-stat__value" data-count="977">977</div>
+                <div class="pp-stat__label">EH/s Hashrate</div>
+            </div>
+            <div class="pp-stat">
+                <div class="pp-stat__value" data-count="146">146</div>
+                <div class="pp-stat__label">T Difficulty</div>
+            </div>
+            <div class="pp-stat" id="nodeCountStat" title="Live Bitcoin reachable node count" style="cursor:pointer;" onclick="window.location='/nodes'">
+                <div class="pp-stat__value" id="nodeCountValue">—</div>
+                <div class="pp-stat__label">BTC Nodes <span id="nodeCountPulse" style="display:none;color:#dc2626;font-size:0.6em;vertical-align:middle;">●</span></div>
+            </div>
+            <div class="pp-stat">
+                <div class="pp-stat__value">24/7</div>
+                <div class="pp-stat__label">Live Coverage</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CATEGORY FILTER + ARTICLE GRID
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-top:0;">
+    <div class="pp-container">
+        <div class="pp-section__title-bar pp-mb-4">
+            <div>
+                <h2 class="pp-section__title">Latest Intelligence</h2>
+                <p class="pp-section__subtitle">Real-time analysis from the Protocol Pulse team</p>
+            </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar pp-reveal" id="filterBar">
+            <button class="filter-btn active" data-cat="all" onclick="filterArticles('all')">All</button>
+            <button class="filter-btn" data-cat="markets" onclick="filterArticles('markets')">Markets</button>
+            <button class="filter-btn" data-cat="mining" onclick="filterArticles('mining')">Mining</button>
+            <button class="filter-btn" data-cat="layer2" onclick="filterArticles('layer2')">Layer 2</button>
+            <button class="filter-btn" data-cat="regulation" onclick="filterArticles('regulation')">Regulation</button>
+            <button class="filter-btn" data-cat="macro" onclick="filterArticles('macro')">Macro</button>
+        </div>
+
+        <!-- Article grid -->
+        <div class="article-grid pp-stagger" id="article-grid">
+            {% for article in recent_articles %}
+            {% set cat_raw = (article.category or 'intel')|lower %}
+            {% set cat_key = 'mining' if 'mining' in cat_raw else
+                             'markets' if ('market' in cat_raw or 'price' in cat_raw or 'trading' in cat_raw or 'btc' in cat_raw) else
+                             'layer2' if ('layer' in cat_raw or 'lightning' in cat_raw or 'ln' == cat_raw) else
+                             'regulation' if ('regul' in cat_raw or 'legal' in cat_raw or 'policy' in cat_raw or 'sec' == cat_raw or 'law' in cat_raw) else
+                             'macro' if ('macro' in cat_raw or 'etf' in cat_raw or 'fed' in cat_raw or 'inflation' in cat_raw) else
+                             'intel' %}
+            {% set sent = article.sentiment if article.sentiment is defined else '' %}
+            {% set sent_lower = sent|lower %}
+            <a href="/articles/{{ article.slug or article.id }}"
+               class="article-card pp-reveal"
+               data-category="{{ cat_key }}">
+                <img src="{{ (article.cover_image_url or article_image_urls.get(article.id, '/static/images/default-header.png')) }}"
+                     alt="{{ article.title }}"
+                     class="article-card__img"
+                     onerror="this.src='/static/images/default-header.png'"
+                     loading="lazy"
+                     decoding="async">
+                <div class="article-card__body">
+                    <span class="article-card__badge">{{ article.category or 'Intel' }}</span>
+                    <h3 class="article-card__title">{{ article.title }}</h3>
+                    <div class="article-card__meta">
+                        {% if 'bullish' in sent_lower %}
+                            <span class="sentiment-badge bullish">▲ Bullish</span>
+                        {% elif 'bearish' in sent_lower %}
+                            <span class="sentiment-badge bearish">▼ Bearish</span>
+                        {% else %}
+                            <span class="sentiment-badge neutral">◆ Neutral</span>
+                        {% endif %}
+                        <span class="article-card__timestamp">
+                            {% set pub_dt = article.published_at or article.created_at %}
+                            {% if pub_dt %}
+                                {% set now_ts = namespace(v=0) %}
+                                {% set diff_secs = (now_ts.v) %}
+                                {{ pub_dt.strftime('%b %d') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+            {% else %}
+            <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--pp-text-muted);">
+                <i class="fas fa-satellite-dish" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+                <p>Intelligence feed warming up — check back shortly.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Load more / view all -->
+        {% if recent_articles|length >= 12 %}
+        <div style="text-align:center;margin-top:32px;" class="pp-reveal">
+            <a href="/articles" class="pp-btn pp-btn--ghost">
+                View All Articles <i class="fas fa-arrow-right" style="margin-left:6px;font-size:0.75rem;"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SIGNAL INTELLIGENCE TEASER
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-top:0;">
+    <div class="pp-container">
+        <div class="intel-teaser pp-reveal">
+            <div class="intel-teaser__header">
+                <span class="pp-pulse-dot"></span>
+                <span class="intel-teaser__title">Signal Intelligence</span>
+            </div>
+            <div class="intel-teaser__metrics">
+                <div>
+                    <div class="intel-teaser__metric-label">Market Sentiment</div>
+                    <div class="intel-teaser__metric-value" id="teaser-sentiment">
+                        <span class="bullish-text" id="teaser-bullish">—%</span> Bullish
+                    </div>
+                </div>
+                <div>
+                    <div class="intel-teaser__metric-label">Dominant Narrative</div>
+                    <div class="intel-teaser__metric-value" id="teaser-narrative">Loading…</div>
+                </div>
+                <div>
+                    <div class="intel-teaser__metric-label">Signal Score</div>
+                    <div class="intel-teaser__metric-value" id="teaser-score">—/100</div>
+                </div>
+            </div>
+            <a href="/intelligence" class="intel-teaser__cta">
+                Full Intelligence Dashboard <i class="fas fa-arrow-right" style="font-size:0.65rem;"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     THE ORACLE — AI INTELLIGENCE ANALYST
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-top:0;padding-bottom:48px;">
+    <div class="pp-container">
+        <div class="pp-reveal" style="
+            position:relative;
+            overflow:hidden;
+            border-radius:var(--pp-radius-lg);
+            border:1px solid rgba(245,166,35,0.2);
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(245,166,35,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(220,38,38,0.06) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+        ">
+            <!-- Scan line overlay -->
+            <div style="
+                position:absolute;inset:0;pointer-events:none;
+                background:repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(245,166,35,0.015) 2px,
+                    rgba(245,166,35,0.015) 4px
+                );
+            "></div>
+
+            <div style="display:flex;align-items:center;gap:32px;padding:40px;flex-wrap:wrap;">
+                <!-- Avatar preview -->
+                <div style="
+                    flex-shrink:0;
+                    width:180px;height:180px;
+                    border-radius:50%;
+                    border:2px solid rgba(245,166,35,0.3);
+                    box-shadow:0 0 40px rgba(245,166,35,0.1), 0 0 80px rgba(220,38,38,0.05);
+                    overflow:hidden;
+                    background:#0a0a0a;
+                    position:relative;
+                ">
+                    <img src="{{ '/static/oracle_avatar.png' }}"
+                         alt="The Oracle"
+                         style="width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:50%;"
+                         loading="lazy">
+                    <div style="
+                        position:absolute;inset:-4px;
+                        border-radius:50%;
+                        border:2px solid rgba(245,166,35,0.15);
+                        animation:pp-oracle-pulse 3s ease-in-out infinite;
+                    "></div>
+                </div>
+
+                <!-- Text content -->
+                <div style="flex:1;min-width:260px;">
+                    <div style="
+                        display:inline-flex;align-items:center;gap:6px;
+                        padding:4px 12px;
+                        background:rgba(245,166,35,0.08);
+                        border:1px solid rgba(245,166,35,0.2);
+                        border-radius:20px;
+                        font-family:var(--pp-font-mono);
+                        font-size:0.625rem;
+                        font-weight:700;
+                        color:var(--pp-amber);
+                        text-transform:uppercase;
+                        letter-spacing:0.08em;
+                        margin-bottom:16px;
+                    ">
+                        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--pp-amber);animation:pp-pulse-dot-glow 2s infinite;"></span>
+                        AI INTELLIGENCE ANALYST
+                    </div>
+
+                    <h2 style="
+                        font-family:var(--pp-font-body);
+                        font-size:clamp(1.5rem,3vw,2rem);
+                        font-weight:700;
+                        color:var(--pp-text);
+                        line-height:1.2;
+                        margin-bottom:10px;
+                    ">
+                        Consult <span style="
+                            background:linear-gradient(135deg, var(--pp-amber) 0%, #ff6b35 50%, var(--pp-red, #CC2222) 100%);
+                            -webkit-background-clip:text;
+                            -webkit-text-fill-color:transparent;
+                            background-clip:text;
+                        ">The Oracle</span>
+                    </h2>
+
+                    <p style="
+                        font-size:0.9375rem;
+                        color:var(--pp-text-secondary);
+                        line-height:1.7;
+                        margin-bottom:20px;
+                        max-width:420px;
+                    ">
+                        Real-time Bitcoin intelligence from our AI analyst.
+                        Real-time market state, mining economics, protocol analysis.
+                        Lip-synced avatar delivers briefings in seconds.
+                    </p>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <a href="/oracle-live" class="pp-btn pp-btn--primary pp-btn--lg" style="
+                            background:linear-gradient(135deg, var(--pp-amber), #ff6b35);
+                            border:none;
+                            color:#000;
+                            font-weight:700;
+                        ">
+                            <i class="fas fa-bolt"></i> Consult The Oracle
+                        </a>
+                        <a href="/stage" class="pp-btn pp-btn--ghost pp-btn--lg" style="border-color:rgba(245,166,35,0.3);color:var(--pp-amber);">
+                            <i class="fas fa-broadcast-tower"></i> Watch The Stage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PULSE CHECK — LATEST VIDEO
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="background: var(--pp-surface); border-top: 1px solid var(--pp-border); border-bottom: 1px solid var(--pp-border);">
+    <div class="pp-container">
+        <div class="pp-layout-sidebar pp-reveal">
+            <div>
+                <div class="pp-section__header">
+                    <span class="pp-badge pp-badge--live pp-mb-2">Daily</span>
+                    <h2 class="pp-section__title">Pulse Check</h2>
+                    <p class="pp-section__subtitle">Daily Bitcoin intelligence briefing</p>
+                </div>
+                <div id="pulseCheckEmbed" style="position:relative;width:100%;border-radius:8px;overflow:hidden;background:#000;">
+                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLQ4MjCv9OedqD_wCzKxCakoRPNUrEu2wq&index=0&rel=0&modestbranding=1&autoplay=0" style="width:100%;aspect-ratio:16/9;display:block;border:0;border-radius:8px;" allowfullscreen loading="lazy" title="Pulse Check - Daily Bitcoin Intelligence"></iframe>
+                </div>
+            </div>
+            <div>
+                <h3 class="pp-h5 pp-mb-3">Latest Episode</h3>
+                {% if latest_episode and latest_episode.found %}
+                    <a href="{{ latest_episode.video_url or '/stage' }}" target="_blank" rel="noopener" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;text-decoration:none;">
+                        <div style="flex-shrink:0;width:48px;height:48px;background:rgba(220,38,38,0.15);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;border:1px solid rgba(220,38,38,0.3);">
+                            <i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i>
+                        </div>
+                        <div style="min-width:0;">
+                            <div class="pp-small" style="font-weight:600;color:var(--pp-text);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ latest_episode.title }}</div>
+                            <div class="pp-tiny pp-text-muted">{{ latest_episode.date }} &middot; Pulse Check</div>
+                        </div>
+                    </a>
+                {% elif featured_podcasts %}
+                    {% for podcast in featured_podcasts[:3] %}
+                    <div class="pp-card pp-mb-2" style="padding:14px;">
+                        <div style="display:flex;gap:12px;">
+                            <div style="flex-shrink:0;width:48px;height:48px;background:var(--pp-teal-dim);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-microphone" style="color:var(--pp-red, #CC2222);"></i>
+                            </div>
+                            <div style="min-width:0;flex:1;">
+                                <div class="pp-small" style="font-weight:600;color:var(--pp-text);">{{ podcast.title }}</div>
+                                <div class="pp-tiny pp-text-muted">{{ podcast.published_date.strftime('%b %d') if podcast.published_date else '' }}</div>
+                            </div>
+                        </div>
+                        {% if podcast.audio_url %}
+                        <audio controls preload="none" style="width:100%;margin-top:8px;height:32px;">
+                            <source src="{{ podcast.audio_url }}" type="audio/mpeg">
+                        </audio>
+                        {% else %}
+                        <a href="{{ podcast.url or '/podcasts' }}" target="_blank" rel="noopener" class="pp-tiny" style="display:inline-block;margin-top:8px;color:var(--pp-red, #CC2222);">Listen on Spotify/Apple &rarr;</a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="pp-card" style="padding:16px;text-align:center;">
+                        <div class="pp-text-muted pp-small">Loading latest episode...</div>
+                    </div>
+                {% endif %}
+                <a href="/podcasts" class="pp-btn pp-btn--outline-teal pp-btn--sm pp-btn--full pp-mt-2">
+                    All Episodes <i class="fas fa-arrow-right" style="margin-left:4px;font-size:0.7rem;"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TOOLS & FEATURES
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section">
+    <div class="pp-container">
+        <div class="pp-section__header pp-text-center pp-reveal">
+            <h2 class="pp-section__title">Intelligence Tools</h2>
+            <p class="pp-section__subtitle">Real-time analysis and monitoring for serious transactors</p>
+        </div>
+
+        <div class="pp-grid pp-grid-3 pp-stagger">
+            <a href="/live" class="pp-card pp-card--stat">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-atom" style="color:var(--pp-red, #CC2222);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Live Terminal</h3>
+                <p class="pp-small pp-text-secondary">Real-time blockchain data visualization with network stats, mempool activity, and mining metrics.</p>
+            </a>
+            <a href="/whale-watcher" class="pp-card pp-card--stat pp-card--amber">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-water" style="color:var(--pp-amber);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Whale Watcher</h3>
+                <p class="pp-small pp-text-secondary">Monitor large Bitcoin transactions in real-time. See what the big players are doing before the market reacts.</p>
+            </a>
+            <a href="/map" class="pp-card pp-card--stat">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-map-marked-alt" style="color:var(--pp-red, #CC2222);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Merchant Map</h3>
+                <p class="pp-small pp-text-secondary">Discover Bitcoin-accepting businesses worldwide. Circular economy, visualized.</p>
+            </a>
+            <a href="/solo-slayers" class="pp-card pp-card--stat pp-card--amber">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-hammer" style="color:var(--pp-amber);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Solo Slayers</h3>
+                <p class="pp-small pp-text-secondary">Lottery miners who beat astronomical odds. Solo block finds, verified on-chain.</p>
+            </a>
+            <a href="/value-stream" class="pp-card pp-card--stat">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-bolt" style="color:var(--pp-red, #CC2222);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Value Stream</h3>
+                <p class="pp-small pp-text-secondary">Lightning Network value flows and micro-transaction intelligence. The speed layer, analyzed.</p>
+            </a>
+            <a href="/chat" class="pp-card pp-card--stat pp-card--amber">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-robot" style="color:var(--pp-amber);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Ask Satomi</h3>
+                <p class="pp-small pp-text-secondary">Ask anything about the protocol, market dynamics, or mining economics. Instant answers.</p>
+            </a>
+            <a href="/nostr-signal" class="pp-card pp-card--stat" style="border-color:rgba(245,166,35,0.15);">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-satellite-dish" style="color:var(--pp-amber);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Nostr Signal Radar</h3>
+                <p class="pp-small pp-text-secondary">Real-time alpha from 50+ Bitcoin OGs on Nostr — confidence-scored before it trends anywhere else.</p>
+            </a>
+            <a href="/network-health" class="pp-card pp-card--stat">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-heartbeat" style="color:var(--pp-red, #CC2222);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Network Health</h3>
+                <p class="pp-small pp-text-secondary">Real-time Bitcoin network vitals: mempool depth, fee rates, hashrate, difficulty, and block times.</p>
+            </a>
+            <a href="/charts" class="pp-card pp-card--stat pp-card--amber">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-chart-line" style="color:var(--pp-amber);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">BTC Charts</h3>
+                <p class="pp-small pp-text-secondary">Interactive price, hashrate, and fee charts with technical overlays. Deep history, clean UI.</p>
+            </a>
+            <a href="/stage" class="pp-card pp-card--stat" style="border-color:rgba(0,212,170,0.15);">
+                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i></div>
+                <h3 class="pp-h5 pp-mb-1">Avatar Stage</h3>
+                <p class="pp-small pp-text-secondary">24/7 Bitcoin intelligence from the AI avatar. Live sentiment, real-time transcript, partner tracking.</p>
+            </a>
+        </div>
+
+        <div class="pp-reveal" style="margin-top:32px;text-align:center;">
+            <p class="pp-small pp-text-secondary" style="margin-bottom:12px;">
+                Protocol Pulse is ad-free and sovereign. Support it with sats.
+            </p>
+            <a href="/donate/bitcoin" class="pp-btn pp-btn--ghost pp-btn--sm" style="border-color:rgba(247,147,26,0.4);color:#f7931a;margin-right:8px;">
+                <i class="fas fa-bolt"></i> Support with Bitcoin
+            </a>
+            <a href="/dossier" class="pp-btn pp-btn--ghost pp-btn--sm">
+                <i class="fas fa-folder-open"></i> The Dossier
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NEWSLETTER CTA
+     ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════
+     COMMANDER CTA — conversion-focused
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="pp-section" style="padding-bottom:0;">
+    <div class="pp-container">
+        <div class="pp-reveal" style="
+            position:relative;
+            overflow:hidden;
+            border-radius:var(--pp-radius-lg);
+            border:1px solid rgba(220,38,38,0.25);
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(220,38,38,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 60%, rgba(220,38,38,0.04) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+            padding:48px 40px;
+            text-align:center;
+        ">
+            <div style="
+                font-family:var(--pp-font-mono);font-size:0.625rem;font-weight:700;
+                color:#dc2626;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px;
+                display:inline-flex;align-items:center;gap:6px;
+            ">
+                <span class="pp-pulse-dot"></span> COMMANDER INTELLIGENCE
+            </div>
+            <h2 style="font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;color:#fff;margin-bottom:12px;line-height:1.2;">
+                Stop trading on yesterday's news.
+            </h2>
+            <p style="font-size:0.9375rem;color:rgba(255,255,255,0.55);max-width:520px;margin:0 auto 24px;line-height:1.7;">
+                Commander operators get the signal engine, real-time alerts, API access, and priority Oracle — while everyone else reads the recap.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
+                <a href="/commander" class="pp-btn pp-btn--primary pp-btn--lg pp-cta-track" data-cta-id="bottom-commander" data-cta-page="home" style="
+                    background:linear-gradient(135deg, #dc2626 0%, #ff3b5f 100%);
+                    border:none;color:#fff;font-weight:800;padding:16px 36px;
+                    box-shadow:0 0 24px rgba(220,38,38,0.3);
+                ">
+                    <i class="fas fa-shield-alt"></i> Deploy Commander — $29/mo
+                </a>
+            </div>
+            <p style="font-family:var(--pp-font-mono);font-size:0.6875rem;color:rgba(255,255,255,0.3);letter-spacing:0.04em;">
+                Cancel anytime. No lock-in. Bitcoin accepted.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="pp-section">
+    <div class="pp-container">
+        <div class="pp-newsletter pp-reveal">
+            <h2 class="pp-newsletter__title">Stay on the Signal</h2>
+            <p class="pp-newsletter__subtitle">Daily Bitcoin intelligence delivered to your inbox. No spam, no shilling — just signal.</p>
+            <form class="pp-newsletter__form" id="nlForm" onsubmit="nlSub(event)">
+                <input type="email" name="email" class="pp-input" placeholder="Your sovereign signal inbox" required aria-label="Email address">
+                <!-- Cloudflare Turnstile CAPTCHA -->
+                <div class="cf-turnstile" data-sitekey="{{ config.get('TURNSTILE_SITE_KEY', '') }}" data-theme="dark" data-callback="onTurnstileSuccess" id="nlTurnstile"></div>
+                <button type="submit" class="pp-btn pp-btn--primary pp-cta-track" data-cta-id="newsletter-subscribe" data-cta-page="home">Subscribe</button>
+            </form>
+            <p class="pp-tiny pp-text-muted pp-mt-2" id="nlMicrocopy">No spam. One daily brief. Unsubscribe anytime.</p>
+            <!-- Oracle Brief — Telegram/Discord delivery (Commander+) -->
+            <div style="margin-top:16px;padding:16px;border:1px solid rgba(220,38,38,0.15);border-radius:12px;background:rgba(220,38,38,0.03);max-width:420px;margin-left:auto;margin-right:auto;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#dc2626;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">
+                    &#9673; ORACLE DAILY BRIEF — 6:45 AM ET
+                </div>
+                <p style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#888;margin:0 0 12px 0;">
+                    90-second intelligence brief from Satomi. Real data, not news. Delivered via Telegram, Discord, or SMS.
+                </p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+                    <a href="https://t.me/Proto_P_bot" target="_blank" rel="noopener"
+                       style="flex:1;min-width:110px;display:flex;align-items:center;justify-content:center;gap:6px;
+                              font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                              padding:8px 12px;background:#229ED9;color:#fff;border:none;
+                              border-radius:6px;cursor:pointer;text-decoration:none;letter-spacing:0.04em;white-space:nowrap;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.013 9.49c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.876.731z"/></svg>
+                        Telegram
+                    </a>
+                    <a href="https://discord.gg/protocolpulse" target="_blank" rel="noopener"
+                       style="flex:1;min-width:110px;display:flex;align-items:center;justify-content:center;gap:6px;
+                              font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                              padding:8px 12px;background:#5865F2;color:#fff;border:none;
+                              border-radius:6px;cursor:pointer;text-decoration:none;letter-spacing:0.04em;white-space:nowrap;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+                        Discord
+                    </a>
+                </div>
+                <!-- SMS option -->
+                <div id="smsForm" style="display:flex;gap:6px;align-items:center;">
+                    <input type="tel" name="phone" placeholder="+1 (555) 000-0000"
+                           style="flex:1;font-family:'JetBrains Mono',monospace;font-size:0.68rem;
+                                  background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);color:#fff;
+                                  padding:8px 10px;border-radius:6px;outline:none;min-width:0;"
+                           onfocus="this.style.borderColor='rgba(204,0,0,0.5)'"
+                           onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+                    <button onclick="smsSub(event)"
+                            style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;
+                                   letter-spacing:0.06em;padding:8px 14px;background:rgba(204,0,0,0.85);
+                                   color:#fff;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;"
+                            onmouseover="this.style.background='#CC0000'" onmouseout="this.style.background='rgba(204,0,0,0.85)'">
+                        TEXT ME
+                    </button>
+                </div>
+                <div id="smsMsg" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;margin-top:5px;color:#888;display:none;"></div>
+                <p style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#555;margin:8px 0 0 0;">
+                    Commander tier unlocks the full brief. <a href="/join" style="color:#dc2626;">Upgrade here.</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Pre-footer quick links bar (above base footer) -->
+<div style="background:rgba(5,5,5,0.98);border-top:1px solid rgba(220,38,38,0.08);padding:20px 0;">
+    <div class="pp-container">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                <a href="/terminal" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s ease;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Terminal</a>
+                <a href="/charts" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Charts</a>
+                <a href="/mining" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Mining</a>
+                <a href="/intelligence" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Intelligence</a>
+                <a href="/newsletter" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">Newsletter</a>
+                <a href="/about" style="font-family:var(--pp-font-mono);font-size:0.625rem;color:var(--pp-text-muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">About</a>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <a href="https://x.com/ProtocolPulse" target="_blank" rel="noopener" style="width:28px;height:28px;border-radius:4px;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.7rem;text-decoration:none;transition:all 0.2s ease;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(220,38,38,0.4)'" onmouseout="this.style.color='';this.style.borderColor=''"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://www.youtube.com/@ProtocolPulse" target="_blank" rel="noopener" style="width:28px;height:28px;border-radius:4px;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.7rem;text-decoration:none;transition:all 0.2s ease;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(220,38,38,0.4)'" onmouseout="this.style.color='';this.style.borderColor=''"><i class="fab fa-youtube"></i></a>
+                <a href="/newsletter" style="width:28px;height:28px;border-radius:4px;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.7rem;text-decoration:none;transition:all 0.2s ease;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(220,38,38,0.4)'" onmouseout="this.style.color='';this.style.borderColor=''"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+/* ════════════════════════════════════════════════════════════
+   CAROUSEL
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    var slides = document.querySelectorAll('.carousel-slide');
+    var dots   = document.querySelectorAll('.carousel-dot');
+    var current = 0;
+    var timer;
+
+    function goTo(idx) {
+        slides[current].classList.remove('active');
+        dots[current] && dots[current].classList.remove('active');
+        current = (idx + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current] && dots[current].classList.add('active');
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    function startAuto() {
+        clearInterval(timer);
+        timer = setInterval(next, 5000);
+    }
+
+    window.carouselNext = function() { next(); startAuto(); };
+    window.carouselPrev = function() { prev(); startAuto(); };
+    window.carouselGoTo = function(i) { goTo(i); startAuto(); };
+
+    if (slides.length > 1) startAuto();
+
+    // Pause on hover
+    var wrap = document.getElementById('featuredCarousel');
+    if (wrap) {
+        wrap.addEventListener('mouseenter', function() { clearInterval(timer); });
+        wrap.addEventListener('mouseleave', startAuto);
+    }
+})();
+
+/* ════════════════════════════════════════════════════════════
+   CATEGORY FILTER
+   ════════════════════════════════════════════════════════════ */
+function filterArticles(cat) {
+    // Update button active state
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.cat === cat);
+    });
+
+    // Show/hide cards
+    document.querySelectorAll('.article-card').forEach(function(card) {
+        var cardCat = card.dataset.category || 'intel';
+        if (cat === 'all' || cardCat === cat) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+/* ════════════════════════════════════════════════════════════
+   HERO BTC PRICE — smooth count-up animation
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    var currentPrice = 0;
+    var priceEl = document.getElementById('heroBtcPrice');
+    var changeEl = document.getElementById('heroBtcChange');
+    var stripBtcEl = document.getElementById('strip-btc');
+
+    // Read initial server-rendered price
+    if (priceEl) {
+        var initial = priceEl.textContent.replace(/[^0-9]/g, '');
+        if (initial) currentPrice = parseInt(initial, 10);
+    }
+
+    function animatePrice(el, fromVal, toVal, duration) {
+        if (!el) return;
+        var start = null;
+        var diff = toVal - fromVal;
+        function step(ts) {
+            if (!start) start = ts;
+            var progress = Math.min((ts - start) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var val = Math.round(fromVal + diff * eased);
+            el.textContent = '$' + val.toLocaleString('en-US', {maximumFractionDigits: 0});
+            if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    function updatePrice() {
+        fetch('/api/btc-price', { signal: AbortSignal.timeout(5000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+            .then(function(d) {
+                var price = d.price || 0;
+                var change = d.change_24h !== undefined ? d.change_24h : 0;
+                var pct = d.change_24h_pct !== undefined ? d.change_24h_pct : change;
+
+                if (price && priceEl) {
+                    // Flash class
+                    var isUp = price >= currentPrice;
+                    priceEl.classList.remove('flash-up', 'flash-down');
+                    void priceEl.offsetWidth; // reflow
+                    priceEl.classList.add(isUp ? 'flash-up' : 'flash-down');
+                    setTimeout(function() { priceEl.classList.remove('flash-up', 'flash-down'); }, 1200);
+
+                    // Animated count
+                    animatePrice(priceEl, currentPrice || price, price, 800);
+                    currentPrice = price;
+                }
+
+                if (change !== undefined && changeEl) {
+                    var changeVal = parseFloat(pct || change);
+                    var arrow = changeVal >= 0 ? '<i class="fas fa-arrow-up" style="font-size:0.65rem;"></i>' : '<i class="fas fa-arrow-down" style="font-size:0.65rem;"></i>';
+                    changeEl.innerHTML = arrow + ' ' + (changeVal >= 0 ? '+' : '') + changeVal.toFixed(1) + '%';
+                    changeEl.className = 'hero-btc-block__change hero-btc-block__change--' + (changeVal >= 0 ? 'up' : 'down');
+                }
+
+                if (price && stripBtcEl) {
+                    stripBtcEl.textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0});
+                    flashMetric(stripBtcEl);
+                }
+            }).catch(function() {});
+    }
+
+    // Update after 30s delay (server-rendered is fresh on load), then every 30s
+    setTimeout(function() {
+        updatePrice();
+        setInterval(updatePrice, 30000);
+    }, 10000);
+})();
+
+/* ════════════════════════════════════════════════════════════
+   INTEL STRIP — block, mempool, fear & greed, hashrate, halving
+   ════════════════════════════════════════════════════════════ */
+function flashMetric(el) {
+    if (!el) return;
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+}
+
+var HALVING_BLOCK = 1050000; // next halving block (estimate post-4th halving)
+
+function updateIntelStrip() {
+    fetch('/api/intelligence/signal', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var data = d.data || d;
+            var score = data.composite || data.score || 50;
+            var fg = data.fear_greed || score;
+            var bullishPct = Math.round(fg);
+            var narList = ['Bitcoin fundamentals strong','Miner conviction holding','Accumulation active','Network health optimal','On-chain signals bullish'];
+            var narrative = data.narrative || narList[Math.floor(Date.now()/3600000) % narList.length];
+            var bEl = document.getElementById('teaser-bullish');
+            if (bEl) bEl.textContent = bullishPct + '%';
+            var nEl = document.getElementById('teaser-narrative');
+            if (nEl) nEl.textContent = narrative;
+            var sEl = document.getElementById('teaser-score');
+            if (sEl) sEl.textContent = score + '/100';
+        }).catch(function() {});
+    fetch('/api/media/telemetry', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            // Block height
+            var blockEl = document.getElementById('strip-block');
+            if (blockEl && d.blockHeight) {
+                var newVal = d.blockHeight.toLocaleString('en-US');
+                if (blockEl.textContent !== newVal) { blockEl.textContent = newVal; flashMetric(blockEl); }
+                // Halving countdown
+                var halvingEl = document.getElementById('strip-halving');
+                if (halvingEl) {
+                    var blocksLeft = Math.max(0, HALVING_BLOCK - d.blockHeight);
+                    var daysLeft = Math.round(blocksLeft * 10 / 1440);
+                    halvingEl.textContent = daysLeft > 0 ? daysLeft + ' days' : 'Next epoch';
+                    flashMetric(halvingEl);
+                }
+            }
+
+            // Mempool fees
+            var mempoolEl = document.getElementById('strip-mempool');
+            if (mempoolEl && d.fees) {
+                var fee = d.fees.fastestFee || d.fees.halfHourFee || '--';
+                mempoolEl.textContent = fee + ' sat/vB';
+                flashMetric(mempoolEl);
+            }
+
+            // Hashrate
+            var hrEl = document.getElementById('strip-hashrate');
+            if (hrEl && d.hashrate) {
+                hrEl.textContent = d.hashrate.toFixed(0) + ' EH/s';
+                flashMetric(hrEl);
+            }
+        }).catch(function() {});
+
+    // Fear & Greed from alternative.me
+    fetch('https://api.alternative.me/fng/?limit=1', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var fgEl = document.getElementById('strip-fg');
+            if (fgEl && d.data && d.data[0]) {
+                var val = d.data[0].value;
+                var label = d.data[0].value_classification;
+                fgEl.textContent = val + ' — ' + label;
+                flashMetric(fgEl);
+                // Also populate Signal Intelligence Teaser score
+                var scoreEl = document.getElementById('teaser-score');
+                if (scoreEl) scoreEl.textContent = val + '/100';
+            }
+        }).catch(function() {});
+}
+
+updateIntelStrip();
+setInterval(updateIntelStrip, 60000);
+
+/* ════════════════════════════════════════════════════════════
+   SIGNAL INTELLIGENCE TEASER — load from /api/sentiment
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    fetch('/api/sentiment', { signal: AbortSignal.timeout(5000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var bullishEl = document.getElementById('teaser-bullish');
+            var narrativeEl = document.getElementById('teaser-narrative');
+
+            if (bullishEl && d.bullish_pct != null) {
+                bullishEl.textContent = Math.round(d.bullish_pct) + '%';
+            }
+            if (narrativeEl && d.narrative) {
+                // Truncate long narrative to a pithy label
+                var n = d.narrative.split('.')[0];
+                if (n.length > 40) n = n.substring(0, 40) + '…';
+                narrativeEl.textContent = n;
+            }
+        }).catch(function() {
+            var narrativeEl = document.getElementById('teaser-narrative');
+            if (narrativeEl) narrativeEl.textContent = 'Bitcoin fundamentals strong';
+        });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   HERO SPARKLINE
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    var canvas = document.getElementById('heroSparkline');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width, h = canvas.height;
+
+    fetch('/api/market-dashboard/history?days=1', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(data) {
+            var prices = (data.prices || []).map(function(p) { return Array.isArray(p) ? p[1] : p; });
+            if (prices.length < 2) return;
+            var min = Math.min.apply(null, prices);
+            var max = Math.max.apply(null, prices);
+            var range = max - min || 1;
+            var isUp = prices[prices.length - 1] >= prices[0];
+
+            // Gradient fill
+            var grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, isUp ? 'rgba(0,212,170,0.3)' : 'rgba(255,71,87,0.3)');
+            grad.addColorStop(1, 'transparent');
+
+            ctx.beginPath();
+            for (var i = 0; i < prices.length; i++) {
+                var x = (i / (prices.length - 1)) * w;
+                var y = h - ((prices[i] - min) / range) * (h - 4) - 2;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            // Close path for fill
+            ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Stroke line
+            ctx.beginPath();
+            for (var j = 0; j < prices.length; j++) {
+                var px = (j / (prices.length - 1)) * w;
+                var py = h - ((prices[j] - min) / range) * (h - 4) - 2;
+                if (j === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = isUp ? '#00d4aa' : '#ff4757';
+            ctx.lineWidth = 1.5;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        }).catch(function() {
+            // Fallback: draw a flat line
+            ctx.beginPath();
+            ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2);
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   LAZY VIDEO LOAD
+   ════════════════════════════════════════════════════════════ */
+function ppLoadVideo(el) {
+    var container = document.getElementById('pulseCheckEmbed');
+    var videoUrl = container.getAttribute('data-video-url');
+    if (videoUrl) {
+        container.innerHTML = '<video src="' + videoUrl + '" controls autoplay style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;"></video>';
+    } else {
+        container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-broadcast-tower" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/stage" style="color:var(--pp-red, #CC2222);">Stage</a> for the latest episode</div></div>';
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   COUNTER ANIMATION (IntersectionObserver)
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    if (!('IntersectionObserver' in window)) return;
+    var animated = new Set();
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+            var el = entry.target;
+            if (animated.has(el)) return;
+            animated.add(el);
+            var target = parseInt(el.getAttribute('data-count'));
+            if (!target || isNaN(target)) return;
+            var duration = 1500;
+            var startTime = null;
+            function step(ts) {
+                if (!startTime) startTime = ts;
+                var progress = Math.min((ts - startTime) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.floor(eased * target).toLocaleString();
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('[data-count]').forEach(function(el) { observer.observe(el); });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   SCROLL REVEAL
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    if (!('IntersectionObserver' in window)) return;
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('pp-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.pp-reveal:not(.pp-visible)').forEach(function(el) { observer.observe(el); });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   LIVE BTC NODE COUNT
+   ════════════════════════════════════════════════════════════ */
+(function() {
+    var el = document.getElementById('nodeCountValue');
+    var pulse = document.getElementById('nodeCountPulse');
+    if (!el) return;
+    fetch('/api/proxy/bitnodes/snapshot', { signal: AbortSignal.timeout(6000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var count = d.node_count;
+            if (count && count > 0) {
+                el.textContent = count.toLocaleString('en-US');
+                if (pulse) pulse.style.display = 'inline';
+            }
+        }).catch(function() { el.textContent = 'N/A'; });
+})();
+</script>
+<script>
+    // Live BTC node count from Bitnodes proxy
+    (function() {
+        var el = document.getElementById('nodeCountValue');
+        var pulse = document.getElementById('nodeCountPulse');
+        if (!el) return;
+        fetch('/api/proxy/bitnodes/snapshot', { signal: AbortSignal.timeout(6000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+            .then(function(d) {
+                var count = d.node_count;
+                if (count && count > 0) {
+                    el.textContent = count.toLocaleString('en-US');
+                    if (pulse) pulse.style.display = 'inline';
+                }
+            })
+            .catch(function() { el.textContent = 'N/A'; });
+    })();
+
+    // Fast hero BTC price update on load
+    (function() {
+        fetch('/api/btc-price', { signal: AbortSignal.timeout(4000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+            .then(function(d) {
+                var price = d.price || (d.bitcoin && d.bitcoin.usd) || 0;
+                var change = (d.change_24h !== undefined ? d.change_24h : 0) ||
+                             (d.bitcoin && d.bitcoin.usd_24h_change) || 0;
+                if (!price) return;
+                var el = document.getElementById('heroBtcPrice');
+                var ch = document.getElementById('heroBtcChange');
+                if (el) el.textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0});
+                if (ch) {
+                    ch.textContent = (change >= 0 ? '+' : '') + parseFloat(change).toFixed(1) + '%';
+                    ch.className = 'pp-hero__price-change pp-hero__price-change--' + (change >= 0 ? 'up' : 'down');
+                }
+            }).catch(function() {});
+    })();
+</script>
+<script>
+/* ════════════════════════════════════════════════════════════
+   LIVE PROOF STRIP — populate from existing APIs
+   ════════════════════════════════════════════════════════════ */
+(function(){
+    // BTC price for proof strip (reuses existing price data)
+    function updateProofPrice() {
+        fetch('/api/btc-price', { signal: AbortSignal.timeout(5000) })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+            .then(function(d) {
+                var el = document.getElementById('proofStripPrice');
+                if (el && d.price) el.textContent = '$' + d.price.toLocaleString('en-US', {maximumFractionDigits: 0});
+            }).catch(function(){});
+    }
+    updateProofPrice();
+    setInterval(updateProofPrice, 30000);
+
+    // Last article published
+    fetch('/api/articles?limit=1', { signal: AbortSignal.timeout(5000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var el = document.getElementById('proofStripLastArticle');
+            if (el && d.articles && d.articles.length) {
+                var a = d.articles[0];
+                var title = (a.title || '').substring(0, 40);
+                if ((a.title || '').length > 40) title += '...';
+                el.textContent = title;
+            }
+        }).catch(function(){
+            var el = document.getElementById('proofStripLastArticle');
+            if (el) el.textContent = 'recently';
+        });
+
+    // Article count
+    fetch('/api/articles/count', { signal: AbortSignal.timeout(5000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var el = document.getElementById('proofStripArticleCount');
+            if (el && d.count) el.textContent = d.count.toLocaleString();
+        }).catch(function(){});
+
+    // Oracle sessions (best effort)
+    fetch('/api/oracle/sessions-today', { signal: AbortSignal.timeout(5000) })
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d) {
+            var el = document.getElementById('proofStripOracleSessions');
+            if (el && d.count !== undefined) el.textContent = d.count;
+        }).catch(function(){
+            var el = document.getElementById('proofStripOracleSessions');
+            if (el) el.textContent = '—';
+        });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   CTA ANALYTICS TRACKER — tracks all .pp-cta-track clicks
+   ════════════════════════════════════════════════════════════ */
+(function(){
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.pp-cta-track');
+        if (!btn) return;
+        var data = {
+            button_id: btn.getAttribute('data-cta-id') || 'unknown',
+            page: btn.getAttribute('data-cta-page') || window.location.pathname,
+            timestamp: new Date().toISOString()
+        };
+        // Fire and forget — don't block navigation
+        navigator.sendBeacon('/api/analytics/cta-click', JSON.stringify(data));
+    });
+})();
+
+var _nlTurnstileToken="";
+function onTurnstileSuccess(token){_nlTurnstileToken=token;}
+
+function nlSub(e){
+  e.preventDefault();
+  var em=document.querySelector("#nlForm input[type=email],#nlForm input[name=email]");
+  if(!em||!em.value)return;
+  var btn=document.querySelector("#nlForm button");
+  var micro=document.getElementById("nlMicrocopy");
+  var orig=btn?btn.innerHTML:"Subscribe";
+  if(btn){btn.innerHTML="...";btn.disabled=true;}
+  fetch("/api/newsletter/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em.value,"cf-turnstile-response":_nlTurnstileToken})})
+  .then(r=>r.json()).then(d=>{
+    if(d.success||String(d.message||"").toLowerCase().includes("subscrib")){
+      if(btn){btn.innerHTML="&#10003; Subscribed!";btn.style.background="#22c55e";}
+      if(micro){micro.innerHTML="Welcome. Your first brief arrives tomorrow at 6:45 AM ET.";micro.style.color="rgba(255,255,255,0.6)";}
+      em.value="";
+      setTimeout(()=>{if(btn){btn.innerHTML=orig;btn.style.background="";btn.disabled=false;}},4000);
+    }else{
+      if(btn){btn.innerHTML=orig;btn.disabled=false;}
+      var msg=document.getElementById('smsMsg');if(msg){msg.textContent=d.message||'Error. Please try again.';msg.style.color='#EF4444';msg.style.display='block';}
+    }
+  }).catch(()=>{if(btn){btn.innerHTML=orig;btn.disabled=false;}});
+}
+
+function smsSub(e){
+  e.preventDefault();
+  var ph=document.querySelector("#smsForm input[name=phone]");
+  if(!ph||!ph.value)return;
+  var btn=document.querySelector("#smsForm button");
+  var orig=btn?btn.innerHTML:"Subscribe";
+  if(btn){btn.innerHTML="...";btn.disabled=true;}
+  fetch("/api/sms/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph.value})})
+  .then(function(r){return r.json();}).then(function(d){
+    if(d.success){
+      if(btn){btn.innerHTML="&#10003; Subscribed!";btn.style.background="#22c55e";}
+      var msg=document.getElementById('smsMsg');if(msg){msg.textContent="✓ You're subscribed. Daily brief at 6:45 AM ET.";msg.style.color='#10B981';msg.style.display='block';}
+      ph.value="";
+      setTimeout(function(){if(btn){btn.innerHTML=orig;btn.style.background="#dc2626";btn.disabled=false;}},4000);
+    }else{
+      if(btn){btn.innerHTML=orig;btn.disabled=false;}
+      alert(d.message||"Error. Please try again.");
+    }
+  }).catch(function(){if(btn){btn.innerHTML=orig;btn.disabled=false;}});
+}
+</script>
+
+<script src="/static/js/sovereign_orb.js?v=1774939487"></script>
+<script>
+var _orbTries = 0;
+function bootOrb() {
+  _orbTries++;
+  if (_orbTries > 40) return;
+  var cv = document.getElementById('sovereign-orb-canvas');
+  if (!cv) { setTimeout(bootOrb, 250); return; }
+  if (typeof SovereignOrb !== 'function') { setTimeout(bootOrb, 250); return; }
+  if (window._sOrb) return;
+  var dpr = window.devicePixelRatio || 1;
+  var size = Math.min(cv.parentElement.clientWidth || 680, 680);
+  cv.style.width = size + 'px';
+  cv.style.height = size + 'px';
+  cv.setAttribute('width', Math.round(size * dpr));
+  cv.setAttribute('height', Math.round(size * dpr));
+  try {
+    window._sOrb = new SovereignOrb('sovereign-orb-canvas', '/api/orb');
+    console.log('Orb booted', cv.width, cv.height);
+  } catch(e) { console.error('Orb error:', e); }
+}
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(bootOrb, 300); });
+if (document.readyState !== 'loading') { setTimeout(bootOrb, 300); }
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   LIVE INTELLIGENCE FEED — populates from /api/orb
+   ═══════════════════════════════════════════════════════════ */
+(function(){
+var feedEl=document.getElementById('live-feed-inner');
+var countEl=document.getElementById('feed-count');
+var freshEl=document.getElementById('orb-freshness');
+if(!feedEl) return;
+
+var entryCount=0;
+var lastD=null;
+var fetchFails=0;
+
+function addE(tag,color,label,value,tier){
+  entryCount++;
+  var d=document.createElement('div');
+  d.style.cssText='display:flex;align-items:center;gap:6px;padding:3px 10px;font-family:JetBrains Mono,monospace;font-size:0.52rem;opacity:'+(tier==='SIM'?'0.35':'0.85');
+  var now=new Date();
+  var ts=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  d.innerHTML='<span style="color:#333;min-width:48px">'+ts+'</span>'
+    +'<span style="color:'+color+';min-width:28px;font-weight:600">'+tag+'</span>'
+    +'<span style="color:#555;min-width:65px">'+label+'</span>'
+    +'<span style="color:rgba(255,255,255,0.6)">'+value+'</span>';
+  if(tier==='SIM') d.title='UI heartbeat — interpolated from last real data';
+  feedEl.appendChild(d);
+  if(feedEl.children.length>60) feedEl.removeChild(feedEl.firstChild);
+  if(countEl) countEl.textContent=entryCount+' entries';
+  var scroll=document.getElementById('live-feed-scroll');
+  if(scroll) scroll.scrollTop=scroll.scrollHeight;
+}
+
+function updateHeader(){
+  if(!freshEl||!lastD) return;
+  var age=Math.round((Date.now()/1000)-(new Date(lastD.timestamp||0).getTime()/1000));
+  if(age<120){freshEl.textContent='LIVE · '+age+'s';freshEl.style.color='#22c55e';}
+  else{freshEl.textContent='STALE · '+age+'s';freshEl.style.color='#dc2626';}
+}
+
+function fetchAndIngest(silent){
+  fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
+    lastD=d;fetchFails=0;
+    var n=d.nodes||{},r=d.raw||{},s=d.streams||{};
+    if(!silent){
+      addE('SYS','#dc2626','ENGINE SYNC','Convergence '+Math.round(d.composite.score||0)+'/100 — '+d.composite.pattern,'DATA');
+    }
+    if(n.mcx) addE('MCX','#dc2626','MINER',Math.round(n.mcx.score)+'/100 '+(n.mcx.score>70?'BULLISH':n.mcx.score<35?'BEARISH':'NEUTRAL'),'DATA');
+    if(n.epx) addE('EPX','#f97316','EXCHANGE',Math.round(n.epx.score)+'/100 '+(n.epx.score>60?'OUTFLOW':n.epx.score<40?'INFLOW':'NEUTRAL'),'DATA');
+    if(n.ihx) addE('IHX','#8b5cf6','INSIDER',Math.round(n.ihx.score)+'/100 '+(n.ihx.score>65?'DIVERGING':'ALIGNED'),'DATA');
+    if(n.opx) addE('OPX','#a855f7','OPTIONS',Math.round(n.opx.score)+'/100','DATA');
+    if(n.fdx) addE('FDX','#06b6d4','FUTURES',Math.round(n.fdx.score)+'/100','DATA');
+    if(n.ocx) addE('OCX','#22c55e','ONCHAIN',Math.round(n.ocx.score)+'/100','DATA');
+    if(r.funding_rate!==undefined) addE('FDX','#06b6d4','FUNDING',(r.funding_rate*100).toFixed(4)+'%','DATA');
+    if(r.put_call_ratio) addE('OPX','#a855f7','P/C RATIO',parseFloat(r.put_call_ratio).toFixed(3),'DATA');
+    if(s.hashrate) addE('MCX','#dc2626','HASHRATE',Math.round(s.hashrate/100*1200)+' EH/s','DATA');
+    updateHeader();
+  }).catch(function(){
+    fetchFails++;
+    if(fetchFails>=2) addE('SYS','#dc2626','FETCH ERROR','backend unreachable','WARN');
+    updateHeader();
+  });
+}
+
+setTimeout(function(){
+  addE('SYS','#dc2626','SOVEREIGN ENGINE','v1.3 — initializing','BOOT');
+  addE('SYS','#555','INDEX MATRIX','MCX EPX IHX OPX FDX OCX — 6 active','BOOT');
+  setTimeout(function(){ fetchAndIngest(false); }, 500);
+},100);
+
+setInterval(function(){ fetchAndIngest(true); }, 30000);
+setInterval(updateHeader, 5000);
+
+function simHeartbeat(){
+  if(!lastD){setTimeout(simHeartbeat,4000);return;}
+  var s=lastD.streams||{},r=lastD.raw||{};
+  var hb=[
+    {t:'MCX',c:'#dc2626',l:'HASH POLL',v:Math.round((s.hashrate||84)/100*1200+(Math.random()*8-4))+' EH/s'},
+    {t:'FDX',c:'#06b6d4',l:'FUND TICK',v:((r.funding_rate||0)*100+(Math.random()-0.5)*0.000005).toFixed(5)+'%'},
+    {t:'OPX',c:'#a855f7',l:'P/C TICK',v:((r.put_call_ratio||0.7)+(Math.random()-0.5)*0.003).toFixed(3)},
+    {t:'NET',c:'#888',l:'MEM SCAN',v:Math.floor(Math.random()*3000+29000)+' unconf txs'},
+    {t:'EPX',c:'#f97316',l:'FLOW POLL',v:(s.exchange_flow>60?'outflow':'neutral')+' +'+Math.floor(Math.random()*30+5)+' BTC'},
+  ];
+  var e=hb[Math.floor(Math.random()*hb.length)];
+  addE(e.t,e.c,e.l,e.v,'SIM');
+  setTimeout(simHeartbeat,4000+Math.random()*6000);
+}
+setTimeout(simHeartbeat,5000);
+})();
+</script>
+
+{% endblock %}

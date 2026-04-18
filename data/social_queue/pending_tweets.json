@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260416_025028_0",
-    "text": "BIP-361 isn't about quantum. It's about whether Bitcoin's rules can be rewritten by consensus vote when governments ask nicely. The answer tells you everything about what Bitcoin actually is",
-    "angle": "sovereignty_freedom",
-    "type": "signal",
-    "format": "community_narrative",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-16T02:50:28.780686+00:00",
-    "brief_date": "Wednesday, April 15, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260416_100006_0",
     "text": "Diocletian froze prices in 301 AD to stop inflation. It created black markets and accelerated Rome's collapse. BIP-361 is the same impulse with different syntax",
     "angle": "historical_pattern",
@@ -104,6 +92,30 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-04-18T02:36:21.880885+00:00",
+    "brief_date": "Friday, April 17, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260418_040004_0",
+    "text": "270k BTC accumulated by whales while you're reading fear index headlines. At what point does the data you ignore become the price you pay",
+    "angle": "contrarian_take",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T04:00:04.864463+00:00",
+    "brief_date": "Friday, April 17, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260418_044727_0",
+    "text": "Exchange reserves hit 8-year lows while retail panic sells into Fear index 26. Institutional buyers aren't waiting for permission anymore. They're waiting for cheaper entry",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T04:47:27.929402+00:00",
     "brief_date": "Friday, April 17, 2026",
     "sentiment": "bullish"
   }

@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-04-18T03:30:03.045420+00:00",
-  "fetch_time_ms": 990,
+  "updated_at": "2026-04-18T06:00:02.485296+00:00",
+  "fetch_time_ms": 914,
   "composite": {
-    "perception_score": 62,
+    "perception_score": 58,
     "label": "Cautiously Bullish",
     "overall_signal": "bullish",
-    "bull_layers": 4,
+    "bull_layers": 3,
     "bear_layers": 1,
-    "neutral_layers": 2,
+    "neutral_layers": 3,
     "layer_signals": {
       "global": "bullish",
-      "trending": "bullish",
+      "trending": "neutral",
       "onchain": "bearish",
       "lightning": "bullish",
       "fees": "neutral",
@@ -19,11 +19,11 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 57.32,
-    "total_mcap_usd": 2697761289805.5327,
-    "total_mcap_t": 2.698,
-    "total_vol_24h_usd": 147192303173.6169,
-    "total_vol_24h_b": 147.2,
+    "btc_dominance_pct": 57.3,
+    "total_mcap_usd": 2695329411460.344,
+    "total_mcap_t": 2.695,
+    "total_vol_24h_usd": 149948511464.30032,
+    "total_vol_24h_b": 149.9,
     "active_coins": 17609,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
@@ -39,60 +39,60 @@
         "score": 0
       },
       {
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 109,
+        "score": 1
+      },
+      {
         "symbol": "ASTEROID",
         "name": "Asteroid Shiba",
-        "rank": 881,
-        "score": 1
+        "rank": 954,
+        "score": 2
+      },
+      {
+        "symbol": "SIREN",
+        "name": "Siren",
+        "rank": 104,
+        "score": 3
+      },
+      {
+        "symbol": "PI",
+        "name": "Pi Network",
+        "rank": 46,
+        "score": 4
+      },
+      {
+        "symbol": "OVPP",
+        "name": "OpenVPP",
+        "rank": 989,
+        "score": 5
       },
       {
         "symbol": "BTC",
         "name": "Bitcoin",
         "rank": 1,
-        "score": 2
-      },
-      {
-        "symbol": "GENIUS",
-        "name": "Genius",
-        "rank": 167,
-        "score": 3
-      },
-      {
-        "symbol": "TAO",
-        "name": "Bittensor",
-        "rank": 40,
-        "score": 4
-      },
-      {
-        "symbol": "SIREN",
-        "name": "Siren",
-        "rank": 103,
-        "score": 5
-      },
-      {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 108,
         "score": 6
       }
     ],
     "active_narratives": [
-      "AI/DePIN"
+      "BTC-adjacent"
     ],
     "has_meme_rotation": false,
-    "has_ai_rotation": true,
-    "narrative_signal": "AI/DePIN",
-    "btc_signal": "bullish",
+    "has_ai_rotation": false,
+    "narrative_signal": "BTC-adjacent",
+    "btc_signal": "neutral",
     "note": "Meme rotation signals late-cycle risk. AI/DeFi rotation signals mid-cycle strength.",
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 528168,
+    "tx_count_24h": 515452,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 10.01,
+    "minutes_between_blocks": 10.32,
     "difficulty": 135594876535256,
-    "estimated_btc_sent": 10514361914257,
-    "total_fees_btc": -42187500000,
+    "estimated_btc_sent": 10741739892195,
+    "total_fees_btc": -41250000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17342,
-    "channel_count": 41986,
-    "capacity_btc": 5706.26,
-    "capacity_sats": 570626090058,
-    "avg_channel_capacity_btc": 0.1359,
+    "node_count": 17402,
+    "channel_count": 42000,
+    "capacity_btc": 5677.47,
+    "capacity_sats": 567746929511,
+    "avg_channel_capacity_btc": 0.1352,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 2,
+    "fastest_fee_sat_vb": 3,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",

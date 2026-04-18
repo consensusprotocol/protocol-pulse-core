@@ -1,34 +1,13 @@
 [
   {
-    "id": "8c5d7973-29a2-4ee2-b39a-2907aa1abc4c",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "**ORACLE EVENING BRIEF**\n\nBitcoin's pushing north\u2014up 3.5% to $77,224 as we close the session. That's solid momentum despite the Fear & Greed meter sitting at 26, signaling pure fear in the market. Classic disconnect: price climbing while sentiment screams caution. That's often when smart money moves",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
-    "topic_preview": "Oracle Evening Brief \u2014 $77,224",
-    "generated_at": "2026-04-18T02:00:01.158268+00:00",
-    "expires_at": "2026-04-18T06:00:01.158268+00:00",
-    "video_url": "/data/stage_briefs/brief_20260418_0200.mp4"
-  },
-  {
-    "id": "5dfe36d3-83a1-4454-8fd7-4123609a09fc",
+    "id": "386b41a8-8f84-4992-bf5d-55f9fa62cdea",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "The monetary system we rely on today was designed for a world that no longer exists. Technology has fundamentally changed everything, yet our economic structures remain glued to the past.\n\nBitcoin adoption surges past 100 million addresses. Watch for the next major node upgrade.",
+    "script": "The monetary system we rely on today was designed for a world that no longer exists. Technology has fundamentally changed everything, yet our economic structures remain glued to the past.\n\nBitcoin adoption accelerates past institutional resistance. Watch wallet activity on mempool.space for confirmation.",
     "source_label": "\ud83e\udde0 @JEFFBOOTH",
     "topic_preview": "\ud83e\uddf5 The monetary system we rely on today was designed for a world that no longer e",
-    "generated_at": "2026-04-18T02:50:06.194147+00:00",
-    "expires_at": "2026-04-18T04:50:06.194147+00:00"
-  },
-  {
-    "id": "76e0a535-d30f-4061-931b-8ab599f0f3ae",
-    "type": "ARTICLE_TEASER",
-    "priority": 3,
-    "script": "Representative Sheri Biggs accumulated another $250,000 in BlackRock's spot Bitcoin ETF last month.\n\nHer total position now exceeds $500,000 in Bitcoin ETF shares.\n\nWatch for further congressional buying activity as the midterm elections approach.\n\nNext signal: Senate banking committee hearings on Bitcoin regulation.",
-    "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "Rep. Sheri Biggs Bets Big on Bitcoin ETF",
-    "generated_at": "2026-04-18T00:05:09.505130+00:00",
-    "expires_at": "2026-04-18T04:05:09.505130+00:00"
+    "generated_at": "2026-04-18T04:55:06.057522+00:00",
+    "expires_at": "2026-04-18T06:55:06.057522+00:00"
   },
   {
     "id": "60bb94e8-3d61-425b-93af-697caf71f49e",
@@ -41,13 +20,33 @@
     "expires_at": "2026-04-18T07:00:32.953566+00:00"
   },
   {
-    "id": "29c735a8-8847-4b48-bb3e-18e0cab027b2",
+    "id": "26368803-a936-49ba-ba09-8412bcfa7c91",
+    "type": "ARTICLE_TEASER",
+    "priority": 3,
+    "script": "Bitcoin cleared $84,000 for the first time since March\u2014breaking a seven-month resistance that institutional players had been watching. Watch spot ETF inflows and node count acceleration; the real signal isn't price\u2014it's whether individual sovereignty is being chosen at scale.",
+    "source_label": "\ud83d\udcf0 FRESH INTEL",
+    "topic_preview": "Bitcoin Smashes 7-Month Barrier at $84K",
+    "generated_at": "2026-04-18T04:05:29.426255+00:00",
+    "expires_at": "2026-04-18T08:05:29.426255+00:00"
+  },
+  {
+    "id": "d9bf41bb-d37c-4481-8e3a-d641f0f37261",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Institutional adoption dominates Nostr discourse. Bitcoin miners are increasingly accepting institutional custody solutions.\n\nWatch for on-chain signaling from major mining pools.",
+    "script": "The narrative is institutional adoption decoupling from regulatory uncertainty. This is false comfort.\n\nWatch: Will those institutions actually run nodes, or are they just buying settlement claims through custodians? Next signal arrives when custody metrics shift.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Institutional adoption wave",
-    "generated_at": "2026-04-18T00:05:18.329184+00:00",
-    "expires_at": "2026-04-18T04:05:18.329184+00:00"
+    "topic_preview": "Institutional adoption accelerating despite regulatory un...",
+    "generated_at": "2026-04-18T04:06:03.549145+00:00",
+    "expires_at": "2026-04-18T08:06:03.549145+00:00"
+  },
+  {
+    "id": "01f26de8-e74a-4f63-a372-dccddec2b359",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Bitcoin price surges 3% to $77,053 as fear and greed index sits at 26, indicating panic selling. Mempool fees remain low at 2 sat/vbyte, suggesting minimal network congestion. Hashrate stabilizes at 960 EH/s, confirming mining security. Watch for mempool fee spikes above 5 sat/vbyte as network activity intensifies.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Bitcoin price surges 3% to $77,053 as fear and greed index sits at 26, indicatin",
+    "generated_at": "2026-04-18T04:50:30.421339+00:00",
+    "expires_at": "2026-04-18T06:50:30.421339+00:00"
   }
 ]

@@ -1,0 +1,493 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} — Protocol Pulse{% endblock %}
+
+{% block meta_description %}{{ article.seo_description or article.summary or article.content[:160]|striptags }}{% endblock %}
+
+{% block og_meta %}
+<!-- Open Graph -->
+<meta property="og:title" content="{{ article.title }}">
+<meta property="og:description" content="{{ article.summary or article.content[:200]|striptags }}">
+<meta property="og:image" content="{{ ('https://protocolpulse.io' + cover_image_url if cover_image_url and not cover_image_url.startswith('http') else cover_image_url) or url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta property="article:published_time" content="{{ article.published_at.isoformat() if article.published_at else article.created_at.isoformat() }}">
+<meta property="article:section" content="{{ article.category or 'Bitcoin' }}">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+<meta name="twitter:title" content="{{ article.title }}">
+<meta name="twitter:description" content="{{ article.summary or article.content[:200]|striptags }}">
+<meta name="twitter:image" content="{{ ("https://protocolpulse.io" + cover_image_url if cover_image_url and not cover_image_url.startswith("http") else cover_image_url) or url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+{% endblock %}
+
+{% block head %}
+<meta name="keywords" content="{{ article.tags }}, Bitcoin, Protocol Pulse">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pp-article.css') }}">
+{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": "{{ article.title }}",
+    "description": "{{ article.summary or article.content[:200]|striptags }}",
+    "image": "{{ cover_image_url or '' }}",
+    "datePublished": "{{ article.published_at.isoformat() if article.published_at else article.created_at.isoformat() }}",
+    "dateModified": "{{ article.published_at.isoformat() if article.published_at else article.created_at.isoformat() }}",
+    "author": {
+        "@type": "Organization",
+        "name": "Protocol Pulse",
+        "url": "https://protocolpulse.io"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Protocol Pulse",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}"
+        }
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ request.url }}"
+    },
+    "articleSection": "{{ article.category or 'Bitcoin' }}",
+    "keywords": "{{ article.tags or 'Bitcoin, cryptocurrency' }}",
+    "wordCount": "{{ article.content|striptags|length // 5 }}"
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://protocolpulse.io/"},
+        {"@type": "ListItem", "position": 2, "name": "Intel", "item": "https://protocolpulse.io/articles"},
+        {"@type": "ListItem", "position": 3, "name": "{{ article.title }}"}
+    ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Reading progress bar -->
+<div class="ppa-reading-bar" id="ppReadingProgress"></div>
+
+{% set img = cover_image_url or '/static/images/default-header.png' %}
+{% set read_time = ((article.content|striptags|length) / 1200)|round|int %}
+
+<!-- ═══════════════ HERO SECTION ═══════════════ -->
+<section class="ppa-hero" style="background-image:url('{{ img }}');">
+    <div class="ppa-hero__overlay"></div>
+    <div class="ppa-hero__content">
+        <div class="ppa-hero__top-row">
+            <span class="ppa-hero__category">{{ (article.category or 'INTELLIGENCE')|upper }}</span>
+            <span class="ppa-hero__timestamp">
+                <span class="ppa-hero__live-dot"></span>
+                {{ article.published_at.strftime('%d %b %Y &middot; %H:%M UTC') if article.published_at else article.created_at.strftime('%d %b %Y &middot; %H:%M UTC') }}
+            </span>
+        </div>
+        <h1 class="ppa-hero__title">{{ article.title }}</h1>
+        <div class="ppa-hero__meta-row">
+            <span class="ppa-hero__read-time">{{ read_time }} MIN READ</span>
+            {% if article.premium_tier %}
+            <span class="ppa-hero__commander-badge"><i class="fas fa-crown"></i> COMMANDER</span>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ BREADCRUMB ═══════════════ -->
+<div class="ppa-container">
+    <nav class="ppa-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/articles">Intel</a>
+        <span>/</span>
+        <span>{{ article.title[:50] }}{% if article.title|length > 50 %}…{% endif %}</span>
+    </nav>
+</div>
+
+<!-- ═══════════════ TWO-COLUMN LAYOUT ═══════════════ -->
+<div class="ppa-container">
+    <div class="ppa-layout">
+        <!-- LEFT COLUMN (content) -->
+        <main class="ppa-main">
+            <!-- Byline -->
+            <div class="ppa-byline">
+                <div class="ppa-byline__left">
+                    <span class="ppa-byline__dot"></span>
+                    <span class="ppa-byline__author">{{ article.author or 'Protocol Pulse Intelligence' }}</span>
+                    <span class="ppa-byline__ai-badge">AI-GENERATED</span>
+                </div>
+                <time class="ppa-byline__date" datetime="{{ article.published_at.isoformat() if article.published_at else article.created_at.isoformat() }}">
+                    {{ article.published_at.strftime('%B %d, %Y') if article.published_at else article.created_at.strftime('%B %d, %Y') }}
+                </time>
+            </div>
+
+            <!-- TL;DR glassmorphic card — collapsed by default -->
+            {% set tldr_text = article.summary or "" %}
+            {% if not tldr_text %}
+              {% set tldr_match = article.content|regex_search("TL;DR:\s*([^<]+)") if article.content else "" %}
+            {% endif %}
+            {% if tldr_text %}
+            <div class="ppa-tldr-glass" id="ppTldrCard">
+                <button class="ppa-tldr-glass__toggle" onclick="ppToggleTldr()" aria-expanded="false" aria-controls="ppTldrBody">
+                    <div class="ppa-tldr-glass__left">
+                        <span class="ppa-tldr-glass__icon">⚡</span>
+                        <span class="ppa-tldr-glass__label">SIGNAL BRIEF</span>
+                        <span class="ppa-tldr-glass__hint">tap to expand</span>
+                    </div>
+                    <i class="fas fa-chevron-down ppa-tldr-glass__caret" id="ppTldrCaret"></i>
+                </button>
+                <div class="ppa-tldr-glass__body" id="ppTldrBody">
+                    {{ tldr_text }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Key Takeaways -->
+            {% if key_takeaways_bullets %}
+            <div class="ppa-takeaways">
+                <div class="ppa-takeaways__header">
+                    <i class="fas fa-bolt"></i> Key Takeaways
+                </div>
+                <ul class="ppa-takeaways__list">
+                    {% for bullet in key_takeaways_bullets %}
+                    <li>{{ bullet }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Article body -->
+            <div class="ppa-body" id="ppArticleBody">
+                {% if article.video_url %}
+                <div class="ppa-video-embed">
+                    <iframe src="{{ article.video_url }}" allowfullscreen></iframe>
+                </div>
+                {% endif %}
+
+                {{ body_html|safe if body_html else article.content|safe }}
+            </div>
+
+            <!-- Tags -->
+            {% if article.tags %}
+            <div class="ppa-tags">
+                {% for tag in article.tags.split(',') %}
+                <a href="/articles?tag={{ tag.strip()|urlencode }}" class="ppa-tags__pill">{{ tag.strip() }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Share Row -->
+            <div class="ppa-share-row">
+                <div class="ppa-share-row__left">
+                    <button class="ppa-share-btn" onclick="ppShareX()" aria-label="Share on X">
+                        <i class="fab fa-x-twitter"></i> <span>Post</span>
+                    </button>
+                    <button class="ppa-share-btn" onclick="ppShareNostr()" aria-label="Share on Nostr">
+                        <span class="ppa-share-btn__nostr">NOS</span> <span>Share</span>
+                    </button>
+                    <button class="ppa-share-btn" onclick="ppCopyLink(this)" aria-label="Copy link">
+                        <i class="fas fa-link"></i> <span>Copy</span>
+                    </button>
+                </div>
+                <div class="ppa-share-row__stamp">FILED UNDER INTELLIGENCE</div>
+            </div>
+
+            <!-- Tip jar -->
+            <div class="ppa-tip-jar">
+                <span class="ppa-tip-jar__title">Value this Intelligence Brief?</span>
+                <p class="ppa-tip-jar__sub">Support freedom tech journalism. Every sat funds the signal.</p>
+                <div class="ppa-tip-jar__btns">
+                    <button class="ppa-tip-btn" onclick="ppZapSats(1000)"><i class="fas fa-bolt"></i> 1K sats</button>
+                    <button class="ppa-tip-btn" onclick="ppZapSats(5000)"><i class="fas fa-bolt"></i> 5K sats</button>
+                    <button class="ppa-tip-btn ppa-tip-btn--gold" onclick="ppZapSats(21000)"><i class="fas fa-bolt"></i> 21K sats</button>
+                </div>
+            </div>
+
+            <!-- Oracle CTA -->
+            <div class="ppa-oracle-cta">
+                <img src="/static/oracle_avatar.png" alt="Protocol Pulse Oracle" class="ppa-oracle-cta__avatar">
+                <div class="ppa-oracle-cta__text">
+                    <div class="ppa-oracle-cta__headline">Still have questions?</div>
+                    <p class="ppa-oracle-cta__sub">Get real-time answers from our AI Bitcoin analyst — sovereign signal, no noise.</p>
+                </div>
+                <a href="/oracle-live" class="ppa-oracle-cta__btn"><i class="fas fa-bolt"></i> Ask The Oracle</a>
+            </div>
+
+            <!-- Prev / Next navigation -->
+            {% if related_articles %}
+            <div class="ppa-article-nav">
+                <a href="/articles" class="ppa-article-nav__link ppa-article-nav__link--prev">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>All Intel Briefs</span>
+                </a>
+                <a href="/articles/{{ related_articles[0].slug or related_articles[0].id }}" class="ppa-article-nav__link ppa-article-nav__link--next">
+                    <div class="ppa-article-nav__next-label">READ NEXT</div>
+                    <span>{{ related_articles[0].title[:60] }}{% if related_articles[0].title|length > 60 %}…{% endif %}</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% else %}
+            <div class="ppa-article-nav">
+                <a href="/articles" class="ppa-article-nav__link ppa-article-nav__link--prev">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>All Intel Briefs</span>
+                </a>
+                <a href="/dossier" class="ppa-article-nav__link ppa-article-nav__link--next">
+                    <div class="ppa-article-nav__next-label">EXPLORE</div>
+                    <span>The Dossier</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endif %}
+        </main>
+
+        <!-- RIGHT COLUMN (sidebar) -->
+        <aside class="ppa-sidebar">
+            <!-- Signal Brief -->
+            {% if key_takeaways_bullets %}
+            <div class="ppa-sidebar__card ppa-signal-brief">
+                <div class="ppa-sidebar__card-header">
+                    <span class="ppa-sidebar__card-dot"></span> SIGNAL BRIEF
+                </div>
+                <ul class="ppa-signal-brief__list">
+                    {% for bullet in key_takeaways_bullets[:4] %}
+                    <li>{{ bullet }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- BTC Price Widget -->
+            <div class="ppa-sidebar__card ppa-btc-widget" id="ppaBtcWidget">
+                <div class="ppa-sidebar__card-header">
+                    <span class="ppa-sidebar__card-dot"></span> BTC PRICE
+                </div>
+                <div class="ppa-btc-widget__price" id="ppaBtcPrice">--</div>
+                <div class="ppa-btc-widget__change" id="ppaBtcChange">Loading…</div>
+            </div>
+
+            <!-- Fear & Greed Widget -->
+            <div class="ppa-sidebar__card ppa-fg-widget" id="ppaFgWidget">
+                <div class="ppa-sidebar__card-header">
+                    <span class="ppa-sidebar__card-dot"></span> FEAR &amp; GREED
+                </div>
+                <div class="ppa-fg-widget__row">
+                    <div class="ppa-fg-widget__gauge" id="ppaFgGauge">
+                        <svg viewBox="0 0 100 50" class="ppa-fg-widget__svg">
+                            <path d="M10,45 A35,35 0 0,1 90,45" fill="none" stroke="var(--pp-border)" stroke-width="6" stroke-linecap="round"/>
+                            <path d="M10,45 A35,35 0 0,1 90,45" fill="none" stroke="url(#fgGrad)" stroke-width="6" stroke-linecap="round" id="ppaFgArc" stroke-dasharray="0 110"/>
+                            <defs>
+                                <linearGradient id="fgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="var(--pp-red)"/>
+                                    <stop offset="50%" stop-color="var(--pp-amber)"/>
+                                    <stop offset="100%" stop-color="var(--pp-green)"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="ppa-fg-widget__value" id="ppaFgValue">--</div>
+                    <div class="ppa-fg-widget__label" id="ppaFgLabel">Loading…</div>
+                </div>
+            </div>
+
+            <!-- Table of Contents -->
+            <div class="ppa-sidebar__card ppa-toc" id="ppToc" style="display:none;">
+                <div class="ppa-sidebar__card-header">
+                    <span class="ppa-sidebar__card-dot"></span> CONTENTS
+                </div>
+                <nav id="ppTocNav"></nav>
+            </div>
+
+            <!-- Related Articles -->
+            {% if related_articles %}
+            <div class="ppa-sidebar__card ppa-related">
+                <div class="ppa-sidebar__card-header">
+                    <span class="ppa-sidebar__card-dot"></span> RELATED BRIEFS
+                </div>
+                {% for related in related_articles[:3] %}
+                <a href="/articles/{{ related.slug or related.id }}" class="ppa-related__item">
+                    <span class="ppa-related__category">{{ related.category or 'Intel' }}</span>
+                    <span class="ppa-related__title">{{ related.title[:70] }}{% if related.title|length > 70 %}…{% endif %}</span>
+                    <span class="ppa-related__date">{{ related.created_at.strftime('%b %d') }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ── Reading progress ── */
+window.addEventListener('scroll', function() {
+    var body = document.getElementById('ppArticleBody');
+    var bar = document.getElementById('ppReadingProgress');
+    if (!body || !bar) return;
+    var bodyTop = body.offsetTop;
+    var bodyH = body.offsetHeight;
+    var scrollY = window.pageYOffset;
+    var winH = window.innerHeight;
+    var pct = Math.min(100, Math.max(0, ((scrollY - bodyTop + winH) / bodyH) * 100));
+    bar.style.width = pct + '%';
+}, {passive: true});
+
+/* ── Share functions ── */
+function ppShareX() {
+    var url = encodeURIComponent(window.location.href);
+    var text = encodeURIComponent(document.title + ' via @ProtocolPulse');
+    window.open('https://x.com/intent/tweet?url=' + url + '&text=' + text, '_blank', 'width=600,height=400');
+}
+
+function ppCopyLink(btn) {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> <span>Copied</span>';
+        setTimeout(function() { btn.innerHTML = orig; }, 2000);
+    }).catch(function() {
+        var ta = document.createElement('textarea');
+        ta.value = window.location.href;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+    });
+}
+
+function ppShareNostr() {
+    var text = document.title + ' — ' + window.location.href + ' via @ProtocolPulse';
+    window.open('https://nostr.com/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+}
+
+/* ── TL;DR toggle ── */
+function ppToggleTldr() {
+    var body = document.getElementById('ppTldrBody');
+    var toggle = document.querySelector('#ppTldrCard .ppa-tldr-glass__toggle');
+    var caret = document.getElementById('ppTldrCaret');
+    if (!body || !toggle) return;
+    var expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    body.style.display = expanded ? 'none' : 'block';
+    if (caret) caret.style.transform = expanded ? '' : 'rotate(180deg)';
+}
+
+/* ── Lightning tips ── */
+async function ppZapSats(amount) {
+    if (typeof window.webln !== 'undefined') {
+        try {
+            await window.webln.enable();
+            await window.webln.makeInvoice({ amount: amount, defaultMemo: 'Protocol Pulse tip' });
+        } catch (e) {
+            alert('WebLN error: ' + e.message);
+        }
+    } else {
+        alert('Install a WebLN wallet (like Alby) for instant Lightning tips, or visit /donate for other options.');
+    }
+}
+
+/* ── Table of Contents ── */
+(function() {
+    var body = document.getElementById('ppArticleBody');
+    var toc = document.getElementById('ppToc');
+    var tocNav = document.getElementById('ppTocNav');
+    if (!body || !toc || !tocNav) return;
+
+    var headings = body.querySelectorAll('h2, h3');
+    if (headings.length < 3) return;
+
+    toc.style.display = 'block';
+    var html = '';
+    headings.forEach(function(h, i) {
+        var id = 'toc-' + i;
+        h.id = id;
+        var cls = h.tagName === 'H3' ? ' ppa-toc--h3' : '';
+        html += '<a href="#' + id + '" class="ppa-toc__link' + cls + '">' + h.textContent.trim().substring(0, 60) + '</a>';
+    });
+    tocNav.innerHTML = html;
+
+    if (!('IntersectionObserver' in window)) return;
+    var links = tocNav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('ppa-toc--active'); });
+                var active = tocNav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('ppa-toc--active');
+            }
+        });
+    }, { rootMargin: '-64px 0px -80% 0px' });
+
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+
+/* ── Sidebar widgets: BTC price + Fear & Greed ── */
+(function() {
+    fetch('/api/verified-signals')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            var priceEl = document.getElementById('ppaBtcPrice');
+            var changeEl = document.getElementById('ppaBtcChange');
+            if (d.btc_price || d.price) {
+                var p = d.btc_price || d.price;
+                priceEl.textContent = '$' + Number(p).toLocaleString('en-US', {maximumFractionDigits: 0});
+            }
+            if (d.btc_change_24h !== undefined) {
+                var c = Number(d.btc_change_24h);
+                changeEl.textContent = (c >= 0 ? '+' : '') + c.toFixed(2) + '% (24h)';
+                changeEl.style.color = c >= 0 ? 'var(--pp-green)' : 'var(--pp-red)';
+            } else {
+                changeEl.textContent = 'Live';
+            }
+        })
+        .catch(function() {
+            document.getElementById('ppaBtcPrice').textContent = '--';
+            document.getElementById('ppaBtcChange').textContent = 'Unavailable';
+        });
+
+    fetch('/api/charts/fear-greed')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            var val = d.value || d.score || 50;
+            var label = d.label || d.classification || 'Neutral';
+            document.getElementById('ppaFgValue').textContent = val;
+            document.getElementById('ppaFgLabel').textContent = label;
+            var arc = document.getElementById('ppaFgArc');
+            if (arc) {
+                var pct = val / 100;
+                arc.setAttribute('stroke-dasharray', (pct * 110) + ' 110');
+            }
+        })
+        .catch(function() {
+            document.getElementById('ppaFgValue').textContent = '--';
+            document.getElementById('ppaFgLabel').textContent = 'Unavailable';
+        });
+})();
+
+/* ── Lazy load images ── */
+(function() {
+    var imgs = document.querySelectorAll('.ppa-body img');
+    if (!('IntersectionObserver' in window)) return;
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                var img = entry.target;
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                }
+                observer.unobserve(img);
+            }
+        });
+    }, { rootMargin: '200px' });
+    imgs.forEach(function(img) { observer.observe(img); });
+})();
+</script>
+{% endblock %}

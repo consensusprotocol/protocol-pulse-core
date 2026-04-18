@@ -1,0 +1,117 @@
+{
+  "grade": "A",
+  "overall_score": 98,
+  "broadcast_ready": true,
+  "technical_score": 96,
+  "content_score": 99,
+  "production_score": 100,
+  "dimensions": {
+    "duration_check": {
+      "score": 6,
+      "note": "Duration is 282s (4.7 min). This is below the 300-480s acceptable range, making it short. However, the episode is extremely information-dense, so the short runtime doesn't feel empty. Penalized for length, but not severely."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080 as required."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is perfect for the format."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.9 LUFS, perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -4.3 dBFS, safely below the -1.0 dBFS ceiling. No clipping."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "No mid-video black frames detected. Start and end fades are clean."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No unintended silence gaps. Pacing is deliberate and tight."
+    },
+    "freeze_check": {
+      "score": 10,
+      "note": "No unintentional freeze frames. Static data and social cards are exempt and well-executed."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Standard and correct h264/aac codecs used."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File is clean, both streams present, and bitrate is robust for 1080p delivery."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Clips from Simply Bitcoin, TFTC, and Preston Pysh are top-tier, editorially-aligned sources. The content directly supports the Austrian economics and sound money thesis of the show."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The narration is exceptional. It provides sharp, insightful analysis that connects disparate clips into a single, powerful narrative about institutional inevitability. It adds significant value."
+    },
+    "cold_open_hook": {
+      "score": 9,
+      "note": "The cold open is strong, establishing the theme of institutional adoption vs. regulatory uncertainty. It effectively sets the stage for the episode."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The narrative flow is flawless: Macro problem (US debt) -> Expert analysis (Simply Bitcoin, TFTC, Pysh) -> On-chain confirmation (Today's Intelligence) -> Social sentiment (Signal Active). It's a masterclass in storytelling."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's voiceover is authoritative, clear, and perfectly paced. As the sole host, the performance is flawless and carries the show's cypherpunk ethos."
+    },
+    "episode_title": {
+      "score": 10,
+      "note": "The title 'Institutions Drive Bitcoin Surge' is specific, accurate, and perfectly encapsulates the episode's central theme."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "Zero filler. Every second is dedicated to delivering signal. The episode is lean and respects the viewer's time."
+    },
+    "timeliness": {
+      "score": 10,
+      "note": "The topics of US debt, dollar decline, and institutional flows are perpetually relevant and framed as urgent, current analysis."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music is perfectly mixed. It provides a driving, cyberpunk energy without ever overpowering the narration or clip audio. Sidechaining is excellent."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Transitions are clean, on-brand, and visually interesting. The glitch effects and grid motifs are used consistently and effectively."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual presentation is broadcast-grade. The cyberpunk aesthetic is cohesive across all elements, from the intro to the lower thirds, data dashboards, and social cards. Top-tier execution."
+    },
+    "no_artifacts": {
+      "score": 10,
+      "note": "Playback is perfectly smooth with no visible compression artifacts, stuttering, or glitches."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "The host's narration audio is pristine studio quality. Clip audio is also clean and well-leveled. Overall audio is superb."
+    },
+    "pacing": {
+      "score": 10,
+      "note": "The pacing is relentless and engaging. Despite the short runtime, the episode feels substantial due to the rapid-fire delivery of high-signal content."
+    }
+  },
+  "critical_failures": [],
+  "warnings": [
+    "Episode duration of 282s is below the ideal 300s minimum, though its density compensates well."
+  ],
+  "strengths": [
+    "Exceptional narrative arc that weaves multiple expert clips and data points into a cohesive, powerful argument.",
+    "Broadcast-level visual and audio polish with a strong, consistent cyberpunk aesthetic.",
+    "High-signal, no-filler content from top-tier sources that aligns perfectly with the show's editorial mission."
+  ],
+  "verdict": "This is a near-flawless, broadcast-ready episode that exemplifies the show's mission with exceptional narrative construction and production quality.",
+  "recommendation": "PUBLISH"
+}

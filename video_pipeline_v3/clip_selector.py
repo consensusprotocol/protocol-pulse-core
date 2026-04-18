@@ -691,6 +691,41 @@ def select_clips(videos: list) -> dict:
         # Record this episode's clips to memory
         _record_episode(clean_clips)
 
+        # V50 FIX: FRESHNESS GATE — verify upload_date of selected clips via yt-dlp
+        # Scanner uses flat-playlist (fast, no dates). This verifies individually (slow, accurate).
+        try:
+            from datetime import datetime, timedelta
+            import subprocess as _sp_fresh
+            _cutoff = datetime.now() - timedelta(hours=72)
+            _cutoff_str = _cutoff.strftime("%Y%m%d")
+            _fresh_clips = []
+            for _fc in result.get("clips", []):
+                _vid_id = _fc.get("video_id", "")
+                try:
+                    _fr = _sp_fresh.run(
+                        ["yt-dlp", "--print", "%(upload_date)s", "--no-download",
+                         f"https://www.youtube.com/watch?v={_vid_id}"],
+                        capture_output=True, text=True, timeout=15
+                    )
+                    _date_str = _fr.stdout.strip()
+                    if _date_str and _date_str != "NA" and _date_str >= _cutoff_str:
+                        _fc["upload_date"] = _date_str
+                        _fresh_clips.append(_fc)
+                        logger.info(f"  FRESHNESS VERIFIED: {_fc.get('channel','')} {_vid_id} uploaded {_date_str}")
+                    elif _date_str and _date_str != "NA":
+                        logger.warning(f"  FRESHNESS REJECTED: {_fc.get('channel','')} {_vid_id} uploaded {_date_str} (>{_cutoff_str})")
+                    else:
+                        _fresh_clips.append(_fc)
+                        logger.warning(f"  FRESHNESS UNVERIFIED: {_fc.get('channel','')} {_vid_id} — no date from yt-dlp, allowing")
+                except Exception as _fe:
+                    _fresh_clips.append(_fc)
+                    logger.warning(f"  FRESHNESS CHECK FAILED: {_vid_id} — {_fe}")
+            if _fresh_clips:
+                result["clips"] = _fresh_clips
+                logger.info(f"  FRESHNESS GATE: {len(_fresh_clips)} clips passed (of {len(result.get('clips', []))})")
+        except Exception as _fge:
+            logger.warning(f"  FRESHNESS GATE ERROR: {_fge} — proceeding with unverified clips")
+
         return result
 
     except json.JSONDecodeError as e:
@@ -1072,40 +1107,6 @@ def select_montage_clips(videos: list) -> dict:
         # Fallback: skip — montage will have fewer clips if Qwen unavailable
         logger.info(f"[Montage] {channel}: using fallback empty (Qwen unavailable)")
 
-
-    # V50 FIX: FRESHNESS GATE — verify upload_date of selected clips via yt-dlp
-    # Scanner uses flat-playlist (fast, no dates). This step checks individually (slow, accurate).
-    if selected_clips:
-        from datetime import datetime, timedelta
-        import subprocess
-        cutoff = datetime.now() - timedelta(hours=72)
-        cutoff_str = cutoff.strftime("%Y%m%d")
-        verified = []
-        for clip in selected_clips:
-            vid_id = clip.get("video_id", "")
-            try:
-                r = subprocess.run(
-                    ["yt-dlp", "--print", "%(upload_date)s", "--no-download",
-                     f"https://www.youtube.com/watch?v={vid_id}"],
-                    capture_output=True, text=True, timeout=15
-                )
-                date_str = r.stdout.strip()
-                if date_str and date_str != "NA" and date_str >= cutoff_str:
-                    clip["upload_date"] = date_str
-                    verified.append(clip)
-                    logger.info(f"  FRESHNESS VERIFIED: {clip.get('channel','')} {vid_id} uploaded {date_str}")
-                elif date_str and date_str != "NA":
-                    logger.warning(f"  FRESHNESS REJECTED: {clip.get('channel','')} {vid_id} uploaded {date_str} — older than 72h")
-                else:
-                    # Can't verify — allow through but flag
-                    verified.append(clip)
-                    logger.warning(f"  FRESHNESS UNVERIFIED: {clip.get('channel','')} {vid_id} — no date, allowing")
-            except Exception as e:
-                verified.append(clip)
-                logger.warning(f"  FRESHNESS CHECK FAILED: {vid_id} — {e}, allowing")
-        if verified:
-            selected_clips = verified
-            logger.info(f"  FRESHNESS GATE: {len(verified)}/{len(selected_clips)} clips passed")
 
     return {"clips": montage_clips}
 

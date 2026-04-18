@@ -4,7 +4,7 @@
       "topic": "Institutional adoption accelerating despite regulatory un...",
       "channels": 30,
       "sentiment": "bullish",
-      "velocity_score": 90,
+      "velocity_score": 45,
       "authority_score": 50,
       "top_quote": "",
       "thought_leaders": [
@@ -46,7 +46,7 @@
       "freshness_hours": 4.0
     }
   ],
-  "breaking_threshold": true,
+  "breaking_threshold": false,
   "recommended_topics": [
     "Institutional adoption accelerating despite regulatory un...",
     "Supply squeeze intensifying: miners holding since Februar...",
@@ -56,5 +56,5 @@
   "market_mood": "bullish",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-04-18T02:33:42Z"
+  "scan_time": "2026-04-18T03:38:28Z"
 }

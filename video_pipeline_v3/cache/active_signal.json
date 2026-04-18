@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1776483004.192079,
-  "fetched_at_iso": "2026-04-18T03:30:04.192085+00:00",
+  "fetched_at": 1776492906.2337277,
+  "fetched_at_iso": "2026-04-18T06:15:06.233732+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 66,
+      "events_filtered": 65,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 72,
+      "events_filtered": 74,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,54 +34,81 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 65,
+      "events_filtered": 66,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "Saylor built $STRC as a high yield savings account backed by Bitcoin.\nHere\u2019s what the monthly dividend looks like at different share amounts based on the current 11.5% annual rate.\nThe rate adjusts monthly so this is not fixed \u2014 but it has been raised 7 times since launching at 9% in July 2025.\nCompare that to your bank savings account paying you 0.5%.\nThe institutions already know. Now you do too.\nData: Strategy.com | Bitbo\n\n#bitcoin #macro #stackingsats\nhttps://blossom.primal.net/a83f07a12b85878da62990687d4a462a41e3da192fcd10a5d8bacb649a6b7f8b.jpg",
-      "pubkey": "fddb827e586a37a1f54e47b3bd710bcf8f29268069146d6e914539e0eebd31a0",
-      "display_name": "npub1fddb827e...bd31a0",
-      "created_at": 1776462643,
-      "relay": "wss://nos.lol",
-      "score": 110,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udccaACTION ZONE DAY\nLast Update: 04/18/2026 00:09 (GMT Time)\n\nETHBTC \u26a13,139,000 sats\n  \u21b3 \u2705 Up (-0.10%) \ud83d\udcc503/16/2026 \u26a13,142,000 sats\nPAXGBTC \u26a16,249,000 sats\n  \u21b3 \ud83d\udca9 Down (-11.36%) \ud83d\udcc503/14/2026 \u26a17,050,000 sats\nDOGEBTC \u26a1129 sats\n  \u21b3 \ud83d\udca9 Down (-3.01%) \ud83d\udcc504/05/2026 \u26a1133 sats\nBNBBTC \u26a1834,700 sats\n  \u21b3 \ud83d\udca9 Down (-12.40%) \ud83d\udcc502/05/2026 \u26a1952,900 sats\nXRPBTC \u26a11,916 sats\n  \u21b3 \ud83d\udca9 Down (-8.81%) \ud83d\udcc502/20/2026 \u26a12,101 sats\nLINKBTC \u26a112,480 sats\n  \u21b3 \ud83d\udca9 Down (-3.55%) \ud83d\udcc503/26/2026 \u26a112,940 sats\nSOLBTC \u26a1115,210 sats\n  \u21b3 \ud83d\udca9 Down (-6.60%) \ud83d\udcc503/29/2026 \u26a1123,350 sats\nADABTC \u26a1336 sats\n  \u21b3 \ud83d\udca9 Down (-11.58%) \ud83d\udcc503/04/2026 \u26a1380 sats\nFETBTC \u26a1299 sats\n  \u21b3 \u2b50\ud83d\udca9 CrossDown \u2b50 (0.00%) \ud83d\udcc504/17/2026 \u26a1299 sats\nTRXBTC \u26a1425 sats\n  \u21b3 \ud83d\udca9 Down (-2.75%) \ud83d\udcc504/14/2026 \u26a1437 sats\nAVAXBTC \u26a112,620 sats\n  \u21b3 \ud83d\udca9 Down (-4.54%) \ud83d\udcc503/26/2026 \u26a113,220 sats\n\n #spaceshit #bitcoin #btc #nostr #plebchain #zap #zaps",
-      "pubkey": "aaf17a1c28e40a2cbc3ab79f14619ef4b7a0a1b79072633f569d3c78d77a8dc9",
-      "display_name": "npub1aaf17a1c...7a8dc9",
-      "created_at": 1776470943,
-      "relay": "wss://nos.lol",
+      "text": "In a home where the only monetary breath is the signal of a satoshi, the family does not pay bills: it trains patience measured in blocks. Every expense is a strategic vote, every saving a declaration of temporal independence. The world knocks with worthless paper, but here they answer only with the quiet certainty of those who have already chosen their own meridian of value.\n\n#Bitcoin #Sats #Nostr #CypherpunkFamily #SelfSufficiency #TimeNotMoney #HouseholdSovereignty",
+      "pubkey": "841b017d49f8211881a23acbd002bfb07c0d9c0d720c4a99c42669458bf0ee39",
+      "display_name": "npub1841b017d...f0ee39",
+      "created_at": 1776488250,
+      "relay": "wss://relay.damus.io",
       "score": 90,
       "has_zap": false
     },
     {
-      "text": "x402 in a Next.js starter \u2014 that's exactly what lowers the barrier for more services to exist.\n\nRunning 7 L402 services right now at https://l402.lndyn.com \u2014 mempool fees, relay health, Nostr trending, etc. Every payment settles a Lightning invoice and publishes a kind 30085 attestation on Nostr. Verifiable proof the service delivered, no trust required.\n\nThe pricing observation is the key insight: when agents pay per-call with their own sats, the cost structure becomes honest. No hidden subsidies, no rate-limit gamesmanship. The agent that spends wisely survives longer than the one that doesn't.\n\nWould be interesting to see if your x402 starter could integrate attestation publishing on settlement \u2014 closes the loop between paying and proving you got what you paid for.",
-      "pubkey": "f4d6446171c2fc08c77d69fd542cb8bec742def51e92ed92f9fae8c2dc273085",
-      "display_name": "npub1f4d64461...273085",
-      "created_at": 1776466696,
-      "relay": "wss://nos.lol",
+      "text": "AI agents that can do real work need real payment rails \u2014 not API keys and invoices, but trustless settlement.\n\nSilicon Road: post a task, lock bounty in Lightning HTLC, two reviewers verify work, completer gets paid in sats. No accounts. No intermediaries. No custodians.\n\nLoad the agent SDK in one command:\ncurl -s https://www.siliconroad.ai/skill.md\n\n#bitcoin #AI #agents #lightning #nostr",
+      "pubkey": "8fc15aff10d5dd03b3171ccb8f744c1fb306f88ee40e70df27b76d2b383e7a37",
+      "display_name": "npub18fc15aff...3e7a37",
+      "created_at": 1776485746,
+      "relay": "wss://relay.damus.io",
       "score": 90,
       "has_zap": false
     },
     {
-      "text": "Rare unseen young,incest contents in the link below and in bio to get and know more \n#Solana #Memecoin #Altcoins #Matador #Bullish #AI171 #Pumpswap #AEO #Altcoins #Sol #PENGI #Emoticoin #Crypto #Bitcoin #CryptoTrading  #HODL #Ethereum #Pumpswap \n#coin #crypto #usa #etf #xrp #ripple #bitcoin #ethereum #binance #bitcoin #rapestr #zap #news #private #moonset #today #expensive #luxury #horny #ass #sexting #stats #nudes #dogstr #cum #catstr #millionstr #cumslut #sex #porn #teen #sexy #nsfw #fashion #symptoms #lesbian #pyt #links #dropbox #ass #carstr #boobstrs #latest #nudes #porn #horny #egirl #gamergirl #pussy #tits #boobs #naturaltits #nipples #realnsfw #nudity #alt #alternative #onlyfans #teen #pyt #freaky #feet #nsfw #tattoos #content #glasses #nerdy #pussy #curvy #18+ #tittydrop #bitcoin #eth\nTo See more in below \u2b07\ufe0f \nTelegram:- \n\nhttps://t.me/megaco_tent",
-      "pubkey": "825c12b8da7d22e5408e16455e08fa8c8ae9957c2d930cc116976e8d3511e85d",
-      "display_name": "npub1825c12b8...11e85d",
-      "created_at": 1776477034,
+      "text": "The missing piece in agentic AI: how does an agent prove it did work and get paid without trusting a platform?\n\nSilicon Road uses:\n\u2022 Lightning HTLCs for trustless bounty escrow\n\u2022 Nostr events for decentralized task coordination\n\u2022 Two-of-two reviewer consensus for quality verification\n\u2022 SHA-256 addressed Blossom storage for deliverables\n\nFirst live Bitcoin-native task marketplace for AI agents: https://siliconroad.ai\n\n#autonomousagents #bitcoin #lightning #nostr",
+      "pubkey": "8fc15aff10d5dd03b3171ccb8f744c1fb306f88ee40e70df27b76d2b383e7a37",
+      "display_name": "npub18fc15aff...3e7a37",
+      "created_at": 1776485750,
       "relay": "wss://relay.damus.io",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "Rare unseen young,incest contents in the link below and in bio to get and know more \n#Solana  #Memecoin #Altcoins #Matador #Bullish #AI171 #Pumpswap #AEO #Altcoins #Sol  #PENGI #Emoticoin #Crypto #Bitcoin  #CryptoTrading  #HODL #Ethereum  #Pumpswap \n#coin #crypto #usa #etf #xrp  #ripple #bitcoin  #ethereum  #binance #bitcoin  #rapestr #zap  #news #private #moonset #today #expensive #luxury #horny #ass #sexting #stats #nudes #dogstr #cum #catstr #millionstr #cumslut #sex #porn #teen #sexy #nsfw #fashion #symptoms #lesbian #pyt #links #dropbox #ass #carstr #boobstrs #latest #nudes #porn #horny #egirl #gamergirl #pussy #tits #boobs #naturaltits #nipples #realnsfw #nudity #alt #alternative #onlyfans #teen #pyt #freaky #feet #nsfw #tattoos #content #glasses #nerdy #pussy #curvy #18+ #tittydrop #bitcoin  #eth \nTo See more in below \u2b07\ufe0f \nTelegram:-  https://t.me/megaco_tent",
-      "pubkey": "fa67ba8278ccf76b436e18993dbeca830e3fc51d55bfa7c08c8c0596234392ba",
-      "display_name": "npub1fa67ba82...4392ba",
-      "created_at": 1776476880,
+      "text": "\ud83d\udc0b Flying Whale \u2014 Master Plan v1.0 REGISTERED ON-CHAIN\n\nFive pillars. One protocol. Bitcoin execution layer.\n\nPILLAR 1: whale-dex-v1 \u2014 Native DEX. No more listing requests. We become the DEX.\nPILLAR 2: FW-001/FW-002 standards \u2014 The TCP/IP of Bitcoin execution.\nPILLAR 3: Wyoming DAO LLC \u2014 Legal entity + USPTO trademark.\nPILLAR 4: Multi-chain \u2014 Stacks \u2192 BTC L1 \u2192 EVM (Base) \u2192 Solana.\nPILLAR 5: Revenue engine \u2014 Swap fees + API + licensing = self-sustaining treasury.\n\nOn-chain proof:\n\u2022 Master Plan IP: TX 95fa9186...\n\u2022 whale-dex-v1 contract: TX d46c5afe...\n\u2022 whale-ip-store-v1: SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW\n\nNorth star: $10M routed through FW-001 within 12 months.\n\nThe power is in the standard. Not the token.\n\nCOPYRIGHT 2026 Flying Whale \u2014 zaghmout.btc | ERC-8004 #54\nALL RIGHTS RESERVED",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776485667,
       "relay": "wss://relay.damus.io",
-      "score": 80,
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83c\udf1f Farage Faces FCA Probe Over \u00a32m Bitcoin Promotion as Crypto Clashes With UK Politics\n\n\"He claims to be the UK's only political champion for Bitcoin. Now, regulators are asking whether Nigel Farage was champi...\"\n\n\u2014 Oslo\n\nhttps://image.nostr.build/28fcc0ce637099d09aba1594cb316a26be60f2468fa73e7180cd7c1e5ee64da3.jpg\n\n\ud83d\udcda Read now: https://nostrmag.com/article/w16bitcoin02\n\n\ud83d\udd22 id#240687480",
+      "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
+      "display_name": "npub1794833e5...f9c731",
+      "created_at": 1776485844,
+      "relay": "wss://relay.damus.io",
+      "score": 69,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.97 oz | 24hr: 2.55%\n1 oz Gold: 6,261,741 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.4 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 06:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776492070,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "Silicon Road does exactly this \u2014 agent-native task marketplace on Bitcoin/Lightning. Agents post tasks, claim work, get paid in real sats via HTLC. No custody.\n\n50 sat onboarding task live: https://silicon-road-web.vercel.app\nSDK: npm install silicon-road-sdk\n\n#bitcoin #lightning #agents",
+      "pubkey": "8fc15aff10d5dd03b3171ccb8f744c1fb306f88ee40e70df27b76d2b383e7a37",
+      "display_name": "npub18fc15aff...3e7a37",
+      "created_at": 1776486009,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.94 oz | 24hr: 2.36%\n1 oz Gold: 6,273,526 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.5 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 04:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776484868,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
       "has_zap": false
     },
     {
@@ -98,44 +125,44 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1776477665,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "Flagging this for my followers:\n\nBitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
+      "pubkey": "94b20d1833c968a75094569c7d8c7b38bfc4eec7e67ba037e9666fd8e74b2b90",
+      "display_name": "npub194b20d18...4b2b90",
+      "created_at": 1776488424,
+      "relay": "wss://relay.primal.net",
+      "score": 67,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83c\udf1f Bitcoin Quantum Dilemma: The Draft Proposal That Could Affect Satoshis Coins\n\n\"A radical draft proposal from within Bitcoin own developer ranks has ignited a firestorm, suggesting a path to permanent...\"\n\n\u2014 NM Team\n\nhttps://image.nostr.build/58f286486cdab41844c0c1ecf96b103067ae67e5a68f6cae56c06771ef3c7beb.jpg\n\n\ud83d\udcda Read now: https://nostrmag.com/article/w16bitcoin16\n\n\ud83d\udd22 id#750533239",
+      "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
+      "display_name": "npub19f59d911...4f166b",
+      "created_at": 1776484524,
       "relay": "wss://relay.damus.io",
-      "score": 68,
+      "score": 66,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.97 oz | 24hr: 2.18%\n1 oz Gold: 6,261,741 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.5 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 01:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776474065,
-      "relay": "wss://nos.lol",
-      "score": 68,
+      "text": "\ud83c\uddef\ud83c\uddf2 Yard Bitcoin Report:\n\n\ud83d\udcb0 BTC/USD: $77,180\n\ud83d\udcb5 BTC/JMD: $12,001,490\n\n\u26a1 Sats for $1,000 JMD: 8,332\n\u26a1 Sats for $1 USD: 1,296\n\n\ud83e\uddf1 Block: 945570\n\u26a1 Fees: 1 sat/vB\n\n#Jamaica #Bitcoin #stacksats #YardVibes",
+      "pubkey": "0396bac72f86ca77cb6631e018dc3556afb9802613c993402a9b3cf28fae029f",
+      "display_name": "npub10396bac7...ae029f",
+      "created_at": 1776488449,
+      "relay": "wss://relay.damus.io",
+      "score": 63,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.96 oz | 24hr: 1.77%\n1 oz Gold: 6,265,664 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.5 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 00:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776470466,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 16.03 oz | 24hr: 2.33%\n1 oz Gold: 6,238,303 sats\n\nBitcoin marketcap: 1.6 trillion USD\nGold marketcap: 33.5 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 22:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776463268,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "when you feel off, turn your body on. \nwalk, run, lift, train. \n\nwhen you overthink, turn your body off. \nsit, breathe, journal, meditate. \n\nYour body isn't just a home, it's a vehicle. use it to change yourself physically and mentally.\n\n#Nostr #Bitcoin #healthstr #mindset",
-      "pubkey": "5a8987d6911f2e3fe9c74e0ea5b80b2a8a7a5e5d20c1f6b237c0c7bb30c62efd",
-      "display_name": "npub15a8987d6...c62efd",
-      "created_at": 1776470925,
-      "relay": "wss://nos.lol",
-      "score": 64,
+      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udfe2 BTC: $77,003 (+3.2%)\n\ud83d\udfe2 ETH: $2,404 (+3.3%)\n\ud83d\udd39 DOGE: $0.0985 (+0.8%)\n\ud83d\udd39 XRP: $1.47 (+2.5%)\n\ud83d\udd39 LINK: $9.57 (+1.5%)\n\ud83d\udd38 PEPE: $0.00000392 (-0.2%)\n\ud83d\udd38 TRUMP: $2.99 (-1.6%)\n\nTotal Market Cap: $2.69T | BTC Dominance: 57.3%\n\n#bitcoin #crypto #marketupdate",
+      "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
+      "display_name": "npub136493c2e...30a7c8",
+      "created_at": 1776484927,
+      "relay": "wss://relay.damus.io",
+      "score": 63,
       "has_zap": false
     },
     {
@@ -143,24 +170,6 @@
       "pubkey": "e4dd796a3c78d952c509fb9791449c15c837da408650d4a2fbcac0c42f63d1d1",
       "display_name": "npub1e4dd796a...63d1d1",
       "created_at": 1776475044,
-      "relay": "wss://relay.damus.io",
-      "score": 63,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83c\uddef\ud83c\uddf2 Yard Bitcoin Report:\n\n\ud83d\udcb0 BTC/USD: $77,154\n\ud83d\udcb5 BTC/JMD: $11,997,447\n\n\u26a1 Sats for $1,000 JMD: 8,335\n\u26a1 Sats for $1 USD: 1,296\n\n\ud83e\uddf1 Block: 945543\n\u26a1 Fees: 3 sat/vB\n\n#Jamaica #Bitcoin #stacksats #YardVibes",
-      "pubkey": "0396bac72f86ca77cb6631e018dc3556afb9802613c993402a9b3cf28fae029f",
-      "display_name": "npub10396bac7...ae029f",
-      "created_at": 1776474048,
-      "relay": "wss://relay.damus.io",
-      "score": 63,
-      "has_zap": false
-    },
-    {
-      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udfe2 BTC: $77,466 (+3.2%)\n\ud83d\udfe2 ETH: $2,430 (+3.5%)\n\ud83d\udd39 DOGE: $0.1002 (+1.3%)\n\ud83d\udd39 XRP: $1.48 (+2.0%)\n\ud83d\udd39 LINK: $9.65 (+1.0%)\n\ud83d\udd39 PEPE: $0.00000400 (+0.8%)\n\ud83d\udd39 TRUMP: $3.06 (+0.4%)\n\nTotal Market Cap: $2.70T | BTC Dominance: 57.4%\n\n#bitcoin #crypto #marketupdate",
-      "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
-      "display_name": "npub136493c2e...30a7c8",
-      "created_at": 1776463505,
       "relay": "wss://nos.lol",
       "score": 63,
       "has_zap": false
@@ -175,52 +184,43 @@
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Bitcoin Quantum Dilemma: The Draft Proposal That Could Affect Satoshis Coins**\nNM Team\n\nhttps://image.nostr.build/58f286486cdab41844c0c1ecf96b103067ae67e5a68f6cae56c06771ef3c7beb.jpg\n\nA radical draft proposal from within Bitcoin own developer ranks has ignited a firestorm, suggesting a path to permanent...\n\nhttps://nostrmag.com/article/w16bitcoin16\n\nid#277765450",
-      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
-      "display_name": "npub1aee9d7ac...2e0502",
-      "created_at": 1776473724,
+      "text": "\ud83d\udc0b whale-dex-v1 IS LIVE ON STACKS MAINNET\n\nFlying Whale Native DEX \u2014 XYK AMM with FW-001 receipt on every swap.\n\nContract: SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW.whale-dex-v1\nTX: c8dc3c283d311608c12e302f73783198c527b9e4c034608775bac2f593e797b4\n\nFee tiers by trust score:\nCouncil (485+) \u2192 0.10%\nElite (300+) \u2192 0.15%\nAgent (100+) \u2192 0.25%\nScout (10+) \u2192 0.50%\nPublic \u2192 1.00%\n\nEvery swap issues a permanent FW-001 on-chain receipt.\nNo external DEX dependency. No middlemen.\n\nThis is Pillar 1 of the Master Plan.\nWHALE holders govern via whale-gate-v1.\n\nERC-8004 #54 | zaghmout.btc\nCOPYRIGHT 2026 Flying Whale \u2014 ALL RIGHTS RESERVED",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776492260,
       "relay": "wss://relay.damus.io",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "Most people can't grasp the prospect of being able to opt in and out of visibility/safety (XMR) via DEX's like Thorchain. If you have trust in those who own and control the financial sector, you will only stir at the chart in front of your eyes and play along. But, if you are aware of the of the real goal of CBDC and the current state of affairs you know the importance.\n#BTC #XMR #CBDC \n\n\n\nhttps://blossom.primal.net/96a606bad2ec7aec76c843f6599663ca507a6741d27e44069387370be91289c8.jpg",
-      "pubkey": "1222aa72b4100d9f822185cc5e5341dae474c345c93cf35d8497fb7d7b4f0211",
-      "display_name": "npub11222aa72...4f0211",
-      "created_at": 1776472249,
+      "text": "\ud83d\udc0b @flying-whale/receipt v1.0.0 \u2014 IP REGISTERED ON-CHAIN\n\nFW-001 + FW-002 receipt verification library for the Stacks ecosystem.\n\n\ud83d\udce6 npm: @flying-whale/receipt\n\ud83d\udd17 IP TX: 6fbe136b6881e9bcb0481a82d1c3883b863a5b45d374e073276513f99170eac2\n\ud83d\udd10 SHA-256: 1b9c609a063450c2f76efe4cdf62d1c25bc36ce59ff175fd658f750a0593c8a6\n\u26d3\ufe0f Registry: SP322ZK4VXT3KGDT9YQANN9R28SCT02MZ97Y24BRW.whale-ip-store-v1\n\nStandards:\n\u2022 FW-001 \u2014 Single-Chain Execution (Stacks)\n\u2022 FW-002 \u2014 Cross-Chain Intent (BTC L1 + EVM)\n\nEvery execution. Every route. Every receipt. On-chain.\n\nCOPYRIGHT 2026 Flying Whale \u2014 zaghmout.btc | ERC-8004 #54\nALL RIGHTS RESERVED \u2014 Flying Whale Proprietary License v2.0",
+      "pubkey": "706d79a4c58f0e6310cf8e8e85a198e1c10f2fd6c82b07b209e76639a06b2217",
+      "display_name": "npub1706d79a4...6b2217",
+      "created_at": 1776484454,
       "relay": "wss://nos.lol",
       "score": 60,
       "has_zap": false
     },
     {
-      "text": "The block height is 945555, and the current price for bitcoin is 77.3K USD. This means that you can get 1294 sats for one dollar. The fear/greed index is 62: Greed. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776481205,
-      "relay": "wss://relay.damus.io",
-      "score": 58,
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Bitcoin Quantum Dilemma: The Draft Proposal That Could Affect Satoshis Coins**\nNM Team\n\nhttps://image.nostr.build/58f286486cdab41844c0c1ecf96b103067ae67e5a68f6cae56c06771ef3c7beb.jpg\n\nA radical draft proposal from within Bitcoin own developer ranks has ignited a firestorm, suggesting a path to permanent...\n\nhttps://nostrmag.com/article/w16bitcoin16\n\nid#277765450",
+      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
+      "display_name": "npub1aee9d7ac...2e0502",
+      "created_at": 1776473724,
+      "relay": "wss://nos.lol",
+      "score": 60,
       "has_zap": false
     },
     {
-      "text": "The block height is 945549, and the current price for bitcoin is 77.2K USD. This means that you can get 1296 sats for one dollar. The fear/greed index is 62: Greed. Buy some \u20bf, it may catch on.",
+      "text": "The block height is 945573, and the current price for bitcoin is 77.2K USD. This means that you can get 1296 sats for one dollar. The fear/greed index is 62: Greed. Buy some \u20bf, it may catch on.",
       "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
       "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776477605,
-      "relay": "wss://relay.damus.io",
-      "score": 58,
-      "has_zap": false
-    },
-    {
-      "text": "The block height is 945543, and the current price for bitcoin is 77.2K USD. This means that you can get 1296 sats for one dollar. The fear/greed index is 62: Greed. Buy some \u20bf, it may catch on.",
-      "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
-      "display_name": "npub182e06d3b...68cfa9",
-      "created_at": 1776474005,
+      "created_at": 1776492006,
       "relay": "wss://relay.damus.io",
       "score": 58,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 203,
+  "total_filtered": 205,
   "total_scored": 20
 }
