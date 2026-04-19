@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protocol Pulse · Direction C · Product-First</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0c;
+    --bg-2: #0d1014;
+    --surface: #12161b;
+    --surface-2: #1a1f26;
+    --border: #222831;
+    --border-soft: #1a1f26;
+    --text: #e8ecf1;
+    --text-2: #9ba6b3;
+    --text-3: #5a6573;
+    --amber: #ffb347;
+    --amber-soft: #c9913c;
+    --green: #4ade80;
+    --red: #ef4444;
+    --red-dim: #b32e2e;
+    --ring-focus: rgba(255,179,71,0.5);
+    --sans: 'Geist', -apple-system, sans-serif;
+    --mono: 'Geist Mono', ui-monospace, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans); font-size: 15px;
+    line-height: 1.55; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  .banner {
+    background: var(--amber); color: #1a1200;
+    font-family: var(--mono); font-size: 11px;
+    text-align: center; padding: 6px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ============ APP SHELL (looks like product) ============ */
+  .app {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 968px) { .app { grid-template-columns: 1fr; } }
+
+  .sidebar {
+    background: var(--bg-2);
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    position: sticky; top: 0;
+    height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  @media (max-width: 968px) { .sidebar { display: none; } }
+
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 15px;
+    padding: 8px 10px; margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 20px; height: 20px;
+    background: var(--amber);
+    border-radius: 4px;
+    position: relative;
+  }
+  .brand-mark::after {
+    content: ''; position: absolute; inset: 3px;
+    background: var(--bg);
+    border-radius: 2px;
+  }
+  .brand-mark::before {
+    content: ''; position: absolute;
+    width: 6px; height: 6px; background: var(--amber);
+    border-radius: 50%;
+    left: 7px; top: 7px; z-index: 1;
+    box-shadow: 0 0 8px var(--amber);
+  }
+
+  .nav-group {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .nav-group:last-of-type { border-bottom: 0; }
+  .nav-label {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--text-3); letter-spacing: 0.1em;
+    padding: 6px 10px 10px; text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    border-radius: 5px;
+    color: var(--text-2); font-size: 14px;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .nav-item:hover { background: var(--surface); color: var(--text); }
+  .nav-item.active {
+    background: var(--surface-2); color: var(--amber);
+  }
+  .nav-item.active::before {
+    content: ''; position: absolute;
+    left: 0; top: 12px; bottom: 12px; width: 2px;
+    background: var(--amber); border-radius: 2px;
+  }
+  .nav-item .ico {
+    width: 14px; height: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    opacity: 0.85;
+  }
+  .nav-item .badge {
+    margin-left: auto;
+    padding: 1px 6px;
+    font-family: var(--mono); font-size: 10px;
+    background: var(--surface-2);
+    color: var(--text-3);
+    border-radius: 10px;
+  }
+  .nav-item.pro .badge { background: var(--amber); color: #1a1200; }
+
+  .sidebar-foot {
+    margin-top: auto; padding: 14px 10px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .sidebar-foot .upgrade-card {
+    background: linear-gradient(135deg, rgba(255,179,71,0.08), rgba(255,179,71,0.02));
+    border: 1px solid rgba(255,179,71,0.2);
+    border-radius: 6px; padding: 14px;
+  }
+  .sidebar-foot .upgrade-card h4 {
+    font-size: 13px; font-weight: 600; margin-bottom: 4px;
+  }
+  .sidebar-foot .upgrade-card p {
+    font-size: 11.5px; color: var(--text-2); margin-bottom: 10px; line-height: 1.45;
+  }
+  .sidebar-foot .upgrade-btn {
+    display: block; text-align: center; padding: 7px;
+    background: var(--amber); color: #1a1200;
+    border-radius: 4px; font-size: 12px; font-weight: 600;
+  }
+
+  /* ============ MAIN ============ */
+  main { min-width: 0; }
+
+  .top-ribbon {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-2);
+    position: sticky; top: 0; z-index: 40;
+    backdrop-filter: blur(10px);
+    gap: 16px;
+  }
+  .ticker-row {
+    display: flex; gap: 18px; align-items: center;
+    font-family: var(--mono); font-size: 11.5px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .ticker-row::-webkit-scrollbar { display: none; }
+  .tick {
+    display: flex; gap: 6px; align-items: center;
+    white-space: nowrap;
+  }
+  .tick .l { color: var(--text-3); }
+  .tick .v { color: var(--text); font-weight: 500; }
+  .tick .v.up { color: var(--green); }
+  .tick .v.dn { color: var(--red); }
+
+  .top-actions {
+    display: flex; gap: 10px; align-items: center; flex-shrink: 0;
+  }
+  .signin-link {
+    padding: 7px 12px; font-size: 13px; color: var(--text-2);
+  }
+  .signin-link:hover { color: var(--text); }
+  .cta-btn {
+    padding: 8px 14px;
+    background: var(--amber); color: #1a1200;
+    border-radius: 5px; font-size: 13px; font-weight: 600;
+    transition: all 0.15s; border: 0; cursor: pointer;
+  }
+  .cta-btn:hover { background: #ffc871; }
+
+  /* ============ HERO SECTION (inside app) ============ */
+  .hero {
+    padding: 48px 32px 32px;
+    position: relative;
+  }
+  @media (max-width: 968px) { .hero { padding: 32px 20px 20px; } }
+
+  .hero-meta {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 20px;
+  }
+  .hero-tag {
+    padding: 4px 10px;
+    background: rgba(255,179,71,0.1);
+    border: 1px solid rgba(255,179,71,0.25);
+    color: var(--amber);
+    border-radius: 12px;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+  .hero-tag::before {
+    content: ''; display: inline-block;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--amber); margin-right: 6px;
+    box-shadow: 0 0 6px var(--amber);
+  }
+  .hero-meta .divider { color: var(--text-3); font-size: 12px; }
+  .hero-meta .mono { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+
+  h1.hero-title {
+    font-size: clamp(44px, 6vw, 72px);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    margin-bottom: 18px;
+    max-width: 820px;
+  }
+  h1.hero-title .accent {
+    background: linear-gradient(135deg, var(--amber), var(--amber-soft));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text-2);
+    max-width: 620px;
+    margin-bottom: 28px;
+    font-weight: 400;
+  }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 18px;
+    border-radius: 5px;
+    font-size: 14px; font-weight: 500;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--amber); color: #1a1200;
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #ffc871; }
+  .btn-secondary {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .btn-secondary:hover { background: var(--surface-2); border-color: var(--border); }
+  .btn-secondary kbd {
+    font-family: var(--mono); font-size: 10px;
+    padding: 1px 5px; margin-left: 6px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+
+  /* ============ DASHBOARD PREVIEW ============ */
+  .dash-grid {
+    padding: 16px 32px 40px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 968px) { .dash-grid { padding: 12px 20px 32px; grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: #2d343e; }
+
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text-3); letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .card-status {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--green); display: flex; align-items: center; gap: 5px;
+  }
+  .card-status::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+
+  .card-big { grid-column: span 7; min-height: 320px; }
+  .card-mid { grid-column: span 5; min-height: 320px; }
+  .card-sm { grid-column: span 4; min-height: 180px; }
+  .card-xs { grid-column: span 3; min-height: 140px; }
+  .card-full { grid-column: 1/-1; }
+  @media (max-width: 968px) {
+    .card-big, .card-mid, .card-sm, .card-xs { grid-column: 1/-1; }
+  }
+
+  /* Convergence card */
+  .conv-value {
+    font-size: 96px; font-weight: 500;
+    letter-spacing: -0.05em;
+    color: var(--green);
+    line-height: 0.9; margin-bottom: 4px;
+  }
+  .conv-label {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text-2); margin-bottom: 28px;
+  }
+  .conv-breakdown {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden;
+  }
+  .conv-sub {
+    background: var(--bg-2); padding: 12px 14px;
+  }
+  .conv-sub .k {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 4px;
+  }
+  .conv-sub .v {
+    font-size: 15px; font-weight: 600;
+  }
+  .conv-sub .v.pos { color: var(--green); }
+  .conv-sub .v.neu { color: var(--text); }
+  .conv-sub .v.warn { color: var(--amber); }
+
+  /* Hashrate sparkline */
+  .pane-val-lg {
+    font-size: 40px; font-weight: 500;
+    letter-spacing: -0.03em; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .pane-val-lg .unit { font-size: 15px; color: var(--text-3); margin-left: 4px; }
+  .pane-delta {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--green); margin-bottom: 14px;
+  }
+  .pane-chart {
+    height: 110px; margin-top: 8px;
+  }
+  .pane-chart svg { width: 100%; height: 100%; }
+
+  /* Whale feed */
+  .feed {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--text-2); line-height: 1.9;
+  }
+  .feed .row {
+    display: grid; grid-template-columns: 68px 1fr auto;
+    gap: 12px; padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+    align-items: center;
+  }
+  .feed .row:last-child { border-bottom: 0; }
+  .feed .ts { color: var(--text-3); font-size: 10.5px; }
+  .feed .ev { color: var(--text); }
+  .feed .ev .type { color: var(--amber); }
+  .feed .amt {
+    font-weight: 600; color: var(--text);
+    padding: 2px 7px;
+    background: var(--bg); border-radius: 4px;
+    font-size: 11px;
+  }
+  .feed .row.new { animation: slideDown 0.4s ease; }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Sovereign orb mini */
+  .orb-mini {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 1px dashed rgba(255,179,71,0.3);
+    display: flex; align-items: center; justify-content: center;
+    animation: spin 40s linear infinite; margin: 10px auto 18px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .orb-mini-core {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--amber), var(--amber-soft) 50%, transparent 72%);
+    box-shadow: 0 0 24px rgba(255,179,71,0.35);
+  }
+
+  /* Brief card */
+  .brief-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: var(--red);
+    border-radius: 3px;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+  .brief-headline {
+    font-size: 19px; font-weight: 600;
+    letter-spacing: -0.015em; line-height: 1.25;
+    margin-bottom: 10px;
+  }
+  .brief-excerpt {
+    font-size: 13.5px; color: var(--text-2);
+    line-height: 1.55; margin-bottom: 14px;
+  }
+  .brief-meta {
+    display: flex; gap: 10px; align-items: center;
+    font-family: var(--mono); font-size: 10.5px;
+    color: var(--text-3);
+    padding-top: 10px; border-top: 1px solid var(--border-soft);
+  }
+  .brief-meta .read-more { color: var(--amber); margin-left: auto; }
+
+  /* Mini stat cards */
+  .mini-stat .card-head { margin-bottom: 8px; }
+  .mini-stat .v {
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.02em; line-height: 1.1;
+  }
+  .mini-stat .sub {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--text-3); margin-top: 4px;
+  }
+
+  /* ============ ORACLE CHAT (floating) ============ */
+  .oracle-fab {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    z-index: 90;
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid var(--amber);
+    box-shadow: 0 10px 30px rgba(255,179,71,0.25), 0 0 0 4px rgba(255,179,71,0.08);
+    background: var(--surface);
+    transition: transform 0.2s;
+    animation: fabPulse 3s ease-in-out infinite;
+  }
+  @keyframes fabPulse {
+    0%, 100% { box-shadow: 0 10px 30px rgba(255,179,71,0.25), 0 0 0 4px rgba(255,179,71,0.08); }
+    50% { box-shadow: 0 10px 30px rgba(255,179,71,0.35), 0 0 0 10px rgba(255,179,71,0.02); }
+  }
+  .oracle-fab:hover { transform: scale(1.05); }
+  .oracle-fab img {
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: center top;
+  }
+  .oracle-fab .pulse-ring {
+    position: absolute; top: -6px; right: -6px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--green);
+    border: 2px solid var(--bg);
+    animation: pulse 2s infinite;
+  }
+
+  .oracle-panel {
+    position: fixed;
+    bottom: 100px; right: 24px;
+    width: 380px;
+    max-width: calc(100vw - 48px);
+    max-height: 520px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex; flex-direction: column;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    z-index: 91;
+    opacity: 0; pointer-events: none;
+    transform: translateY(10px);
+    transition: all 0.25s;
+  }
+  .oracle-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+  .oracle-panel-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .oracle-panel-head .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    overflow: hidden; flex-shrink: 0;
+    border: 1px solid var(--amber);
+  }
+  .oracle-panel-head .avatar img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .oracle-panel-head .name {
+    font-weight: 600; font-size: 14px;
+  }
+  .oracle-panel-head .status {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--green);
+  }
+  .oracle-panel-close {
+    margin-left: auto;
+    width: 26px; height: 26px;
+    border-radius: 4px; cursor: pointer;
+    color: var(--text-3); border: 0; background: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .oracle-panel-close:hover { background: var(--surface-2); color: var(--text); }
+
+  .oracle-msgs {
+    flex: 1; overflow-y: auto;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .msg {
+    max-width: 82%;
+    padding: 10px 14px;
+    font-size: 13.5px; line-height: 1.55;
+    border-radius: 10px;
+  }
+  .msg.oracle {
+    background: var(--surface-2);
+    color: var(--text);
+    align-self: flex-start;
+    border-bottom-left-radius: 3px;
+  }
+  .msg.user {
+    background: var(--amber);
+    color: #1a1200;
+    align-self: flex-end;
+    border-bottom-right-radius: 3px;
+    font-weight: 500;
+  }
+  .msg .cursor {
+    display: inline-block; width: 7px; height: 14px;
+    background: var(--amber); vertical-align: -2px;
+    animation: blink 0.8s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .oracle-input-area {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .oracle-input-box {
+    display: flex;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .oracle-input-box:focus-within {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 2px rgba(255,179,71,0.15);
+  }
+  .oracle-input-box input {
+    flex: 1; padding: 10px 12px;
+    background: transparent; border: 0; outline: none;
+    color: var(--text); font-size: 13.5px;
+    font-family: var(--sans);
+  }
+  .oracle-input-box input::placeholder { color: var(--text-3); }
+  .oracle-input-box button {
+    padding: 0 14px;
+    background: var(--amber); color: #1a1200;
+    border: 0; cursor: pointer;
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+  }
+
+  /* ============ FEATURES / VALUE ============ */
+  .value-section {
+    padding: 80px 32px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-2);
+  }
+  @media (max-width: 968px) { .value-section { padding: 60px 20px; } }
+
+  .value-head { max-width: 720px; margin-bottom: 56px; }
+  .value-eyebrow {
+    display: inline-block; padding: 4px 10px;
+    background: rgba(255,179,71,0.08);
+    border: 1px solid rgba(255,179,71,0.2);
+    color: var(--amber);
+    border-radius: 12px;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+  }
+  .value-head h2 {
+    font-size: clamp(36px, 5vw, 52px);
+    font-weight: 600; letter-spacing: -0.03em;
+    line-height: 1.05; margin-bottom: 16px;
+  }
+  .value-head p {
+    font-size: 18px; color: var(--text-2); font-weight: 400;
+    max-width: 560px;
+  }
+
+  .feature-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 968px) { .feature-row { grid-template-columns: 1fr; } }
+  .feat {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+  .feat .ico-box {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255,179,71,0.15), rgba(255,179,71,0.05));
+    border: 1px solid rgba(255,179,71,0.2);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--amber);
+    margin-bottom: 18px;
+    font-family: var(--mono); font-weight: 600; font-size: 14px;
+  }
+  .feat h3 {
+    font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .feat p {
+    font-size: 14px; color: var(--text-2); line-height: 1.55;
+  }
+
+  /* ============ PRICING ============ */
+  .pricing-section {
+    padding: 80px 32px;
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 968px) { .pricing-section { padding: 60px 20px; } }
+  .pricing-head { text-align: center; margin-bottom: 48px; }
+  .pricing-head h2 {
+    font-size: clamp(36px, 5vw, 52px);
+    font-weight: 600; letter-spacing: -0.03em; line-height: 1.05;
+    margin-bottom: 12px;
+  }
+  .pricing-head p {
+    font-size: 17px; color: var(--text-2);
+    max-width: 480px; margin: 0 auto;
+  }
+
+  .price-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; max-width: 820px; margin: 0 auto;
+  }
+  @media (max-width: 768px) { .price-grid { grid-template-columns: 1fr; } }
+  .price-card {
+    padding: 32px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    position: relative;
+  }
+  .price-card.feat {
+    border-color: var(--amber);
+    background: linear-gradient(180deg, var(--surface), rgba(255,179,71,0.03));
+    box-shadow: 0 20px 60px rgba(255,179,71,0.05);
+  }
+  .price-card.feat::before {
+    content: 'RECOMMENDED';
+    position: absolute; top: -10px; right: 20px;
+    padding: 4px 10px;
+    background: var(--amber); color: #1a1200;
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    border-radius: 4px; letter-spacing: 0.08em;
+  }
+  .price-tier {
+    font-size: 13px; color: var(--text-2); font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .price-amt {
+    font-size: 44px; font-weight: 600;
+    letter-spacing: -0.03em; line-height: 1;
+    margin-bottom: 4px;
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .price-amt .per { font-size: 14px; color: var(--text-3); font-weight: 400; }
+  .price-sub {
+    font-size: 13px; color: var(--text-3); margin-bottom: 24px;
+  }
+  .price-sub .save { color: var(--green); }
+  .price-feats { list-style: none; margin-bottom: 24px; }
+  .price-feats li {
+    padding: 8px 0;
+    font-size: 14px; color: var(--text);
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .price-feats li .check {
+    color: var(--amber); flex-shrink: 0;
+    font-weight: 700;
+  }
+  .price-cta {
+    display: block; text-align: center; padding: 11px;
+    border-radius: 6px;
+    font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .price-cta.primary {
+    background: var(--amber); color: #1a1200;
+  }
+  .price-cta.primary:hover { background: #ffc871; }
+  .price-cta.ghost {
+    background: var(--bg-2); color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .price-cta.ghost:hover { border-color: var(--text-3); }
+
+  /* ============ FINAL CTA ============ */
+  .final-cta {
+    padding: 100px 32px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    background:
+      radial-gradient(circle at 30% 50%, rgba(255,179,71,0.05), transparent 50%),
+      radial-gradient(circle at 70% 50%, rgba(239,68,68,0.03), transparent 50%);
+  }
+  @media (max-width: 968px) { .final-cta { padding: 60px 20px; } }
+  .final-cta h2 {
+    font-size: clamp(42px, 6vw, 64px);
+    font-weight: 600; letter-spacing: -0.035em;
+    margin-bottom: 16px; line-height: 1;
+  }
+  .final-cta p {
+    font-size: 18px; color: var(--text-2);
+    margin-bottom: 32px;
+  }
+
+  footer {
+    padding: 30px 32px 50px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text-3);
+    display: flex; justify-content: space-between;
+    flex-wrap: wrap; gap: 18px;
+    background: var(--bg-2);
+  }
+</style>
+</head>
+<body>
+<div class="banner">PREVIEW · DIRECTION C · PRODUCT-FIRST · not live</div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark"></span>Protocol Pulse</div>
+
+    <div class="nav-group">
+      <div class="nav-label">Intelligence</div>
+      <a class="nav-item active"><span class="ico">◐</span> Overview</a>
+      <a class="nav-item"><span class="ico">◊</span> Signal Terminal</a>
+      <a class="nav-item"><span class="ico">◈</span> Convergence Engine</a>
+      <a class="nav-item"><span class="ico">▣</span> Brief Archive <span class="badge">1,347</span></a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Oracle</div>
+      <a class="nav-item"><span class="ico">◉</span> Ask Satomi</a>
+      <a class="nav-item"><span class="ico">◌</span> History</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Pro</div>
+      <a class="nav-item pro"><span class="ico">⬡</span> Private Alerts <span class="badge">PRO</span></a>
+      <a class="nav-item pro"><span class="ico">⬢</span> API & Playground <span class="badge">PRO</span></a>
+      <a class="nav-item pro"><span class="ico">◆</span> Deep Dives <span class="badge">PRO</span></a>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="upgrade-card">
+        <h4>Upgrade to Commander</h4>
+        <p>Unlimited Oracle, live Signal Terminal, private alerts, API access.</p>
+        <a href="#pricing" class="upgrade-btn">$29/mo →</a>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="top-ribbon">
+      <div class="ticker-row">
+        <div class="tick"><span class="l">BTC</span><span class="v" id="t-btc">$104,212</span><span class="v up">+1.8%</span></div>
+        <div class="tick"><span class="l">Conv</span><span class="v" id="t-conv">78.4</span></div>
+        <div class="tick"><span class="l">Hash</span><span class="v up">1,062 EH</span></div>
+        <div class="tick"><span class="l">Dom</span><span class="v">62.8%</span></div>
+        <div class="tick"><span class="l">Block</span><span class="v" id="t-blk">896,421</span></div>
+      </div>
+      <div class="top-actions">
+        <a class="signin-link" href="#">Sign in</a>
+        <a class="cta-btn" href="#pricing">Start free</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-meta">
+        <span class="hero-tag">LIVE INTELLIGENCE</span>
+        <span class="divider">·</span>
+        <span class="mono">Updated 2 seconds ago</span>
+      </div>
+
+      <h1 class="hero-title">
+        Bitcoin intelligence,<br>
+        <span class="accent">synthesized in real time.</span>
+      </h1>
+      <p class="hero-sub">
+        A live dashboard, an always-on analyst, and a daily briefing — built for people who trade, build, or simply want to understand the market as it moves.
+      </p>
+      <div class="hero-ctas">
+        <a href="#pricing" class="btn btn-primary">Start free — no card</a>
+        <a href="#" class="btn btn-secondary">Ask Satomi <kbd>⌘K</kbd></a>
+      </div>
+    </section>
+
+    <!-- LIVE DASHBOARD PREVIEW -->
+    <section class="dash-grid">
+      <!-- Convergence -->
+      <div class="card card-big">
+        <div class="card-head">
+          <div class="card-title">Sovereign Convergence Engine</div>
+          <div class="card-status">LIVE · 60s</div>
+        </div>
+        <div class="conv-value" id="conv-big">78.4</div>
+        <div class="conv-label">Synthesized from 47 on-chain, macro, and sentiment signals</div>
+        <div class="conv-breakdown">
+          <div class="conv-sub"><div class="k">On-Chain</div><div class="v pos">Strong ↑</div></div>
+          <div class="conv-sub"><div class="k">Macro</div><div class="v neu">Neutral →</div></div>
+          <div class="conv-sub"><div class="k">Sentiment</div><div class="v pos">Positive ↑</div></div>
+        </div>
+      </div>
+
+      <!-- Hashrate chart -->
+      <div class="card card-mid">
+        <div class="card-head">
+          <div class="card-title">Hashrate · 7-day</div>
+          <div class="card-status">LIVE</div>
+        </div>
+        <div class="pane-val-lg">1,062<span class="unit">EH/s</span></div>
+        <div class="pane-delta">+2.1% · new all-time high</div>
+        <div class="pane-chart">
+          <svg viewBox="0 0 300 110" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="hgrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4ade80" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#4ade80" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <polyline fill="none" stroke="#4ade80" stroke-width="2"
+              points="0,88 30,80 60,74 90,72 120,68 150,60 180,52 210,48 240,36 270,24 300,16"/>
+            <polygon fill="url(#hgrad)"
+              points="0,88 30,80 60,74 90,72 120,68 150,60 180,52 210,48 240,36 270,24 300,16 300,110 0,110"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Today's Brief -->
+      <div class="card card-sm">
+        <div class="brief-tag">TODAY · BRIEF #1,347</div>
+        <div class="brief-headline">Dormant Supply Begins to Stir</div>
+        <div class="brief-excerpt">
+          UTXOs aged 5+ years show a 12% week-over-week increase in on-chain movement — the sharpest uptick since March.
+        </div>
+        <div class="brief-meta">
+          <span>PULSE CHECK #182</span>
+          <span>·</span>
+          <span>5 min</span>
+          <a class="read-more" href="#">Read →</a>
+        </div>
+      </div>
+
+      <!-- Whale -->
+      <div class="card card-sm">
+        <div class="card-head">
+          <div class="card-title">Whale Watcher</div>
+          <div class="card-status">LIVE</div>
+        </div>
+        <div class="feed" id="whale-feed"></div>
+      </div>
+
+      <!-- Mini stats -->
+      <div class="card card-xs mini-stat">
+        <div class="card-head"><div class="card-title">Intel Queries Today</div></div>
+        <div class="v" id="queries">4,217</div>
+        <div class="sub">across all Commanders</div>
+      </div>
+      <div class="card card-xs mini-stat">
+        <div class="card-head"><div class="card-title">Briefs Filed</div></div>
+        <div class="v">1,347</div>
+        <div class="sub">searchable archive</div>
+      </div>
+      <div class="card card-xs mini-stat">
+        <div class="card-head"><div class="card-title">Pulse Check</div></div>
+        <div class="v">182</div>
+        <div class="sub">consecutive days</div>
+      </div>
+      <div class="card card-xs mini-stat">
+        <div class="card-head"><div class="card-title">Uptime</div></div>
+        <div class="v">99.94<span style="font-size:16px; color:var(--text-3);">%</span></div>
+        <div class="sub">past 90 days</div>
+      </div>
+    </section>
+
+    <!-- VALUE -->
+    <section class="value-section">
+      <div class="value-head">
+        <span class="value-eyebrow">WHAT COMMANDERS GET</span>
+        <h2>Everything you need to read the market. One subscription.</h2>
+        <p>Six intelligence tools designed to work together. Built for people who take Bitcoin seriously — whether you're trading, building, or just paying attention.</p>
+      </div>
+
+      <div class="feature-row">
+        <div class="feat">
+          <div class="ico-box">◈</div>
+          <h3>The Convergence Engine</h3>
+          <p>A proprietary 0–100 score synthesizing on-chain health, macro regime, and sentiment. Refreshed every sixty seconds.</p>
+        </div>
+        <div class="feat">
+          <div class="ico-box">◉</div>
+          <h3>Satomi, Your Oracle</h3>
+          <p>Ask any question about markets, macro, or on-chain conditions. Answers grounded in data, returned in seconds.</p>
+        </div>
+        <div class="feat">
+          <div class="ico-box">◊</div>
+          <h3>Signal Terminal</h3>
+          <p>A Bloomberg-style live dashboard. Twelve configurable panes. Drag-to-arrange. Persists across devices.</p>
+        </div>
+        <div class="feat">
+          <div class="ico-box">▶</div>
+          <h3>Daily Pulse Check</h3>
+          <p>An autonomous five-minute video briefing. Filed every morning at 6am. Commanders see it an hour early.</p>
+        </div>
+        <div class="feat">
+          <div class="ico-box">⬡</div>
+          <h3>Private Alerts</h3>
+          <p>Whale moves, macro triggers, on-chain anomalies. Piped to your Telegram. You control the thresholds.</p>
+        </div>
+        <div class="feat">
+          <div class="ico-box">⬢</div>
+          <h3>Full API</h3>
+          <p>Pipe our intelligence into your own systems. Ten thousand requests per day. Clean REST, proper docs.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing-section" id="pricing">
+      <div class="pricing-head">
+        <h2>Simple pricing. No trial games.</h2>
+        <p>Start free. Upgrade when you find it worth it.</p>
+      </div>
+
+      <div class="price-grid">
+        <div class="price-card">
+          <div class="price-tier">FREE</div>
+          <div class="price-amt">$0<span class="per">/month</span></div>
+          <div class="price-sub">For people still evaluating.</div>
+          <ul class="price-feats">
+            <li><span class="check">✓</span> Read all 1,347 intelligence briefs</li>
+            <li><span class="check">✓</span> Watch the daily Pulse Check</li>
+            <li><span class="check">✓</span> 3 Oracle questions per day</li>
+            <li><span class="check">✓</span> The Dossier onboarding series</li>
+          </ul>
+          <a href="#" class="price-cta ghost">Start free</a>
+        </div>
+
+        <div class="price-card feat">
+          <div class="price-tier">COMMANDER</div>
+          <div class="price-amt">$29<span class="per">/month</span></div>
+          <div class="price-sub">Or pay in Bitcoin — <span class="save">save 10%</span>.</div>
+          <ul class="price-feats">
+            <li><span class="check">✓</span> Unlimited Oracle (text + video avatar)</li>
+            <li><span class="check">✓</span> Live Signal Terminal · sub-second latency</li>
+            <li><span class="check">✓</span> Private alerts to your Telegram</li>
+            <li><span class="check">✓</span> Full API access · 10k requests/day</li>
+            <li><span class="check">✓</span> Exclusive bi-weekly deep-dives</li>
+            <li><span class="check">✓</span> First look at Pulse Check · 1 hour early</li>
+          </ul>
+          <a href="#" class="price-cta primary">Become a Commander →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <h2>Read the market as it happens.</h2>
+      <p>Start free. No card. Upgrade when you're ready.</p>
+      <a href="#pricing" class="btn btn-primary" style="padding:14px 28px; font-size:15px;">Get started →</a>
+    </section>
+
+    <footer>
+      <div>PROTOCOL PULSE · © 2026</div>
+      <div>Dashboard · Terminal · Oracle · API · Docs · Privacy</div>
+    </footer>
+  </main>
+
+</div>
+
+<!-- FLOATING ORACLE CHAT -->
+<button class="oracle-fab" id="oracle-fab" aria-label="Open Oracle">
+  <img src="/static/images/view_oracle_face.png" alt="Satomi" onerror="this.src='/static/images/oracle_analyst_dark.png'">
+  <span class="pulse-ring"></span>
+</button>
+
+<div class="oracle-panel" id="oracle-panel">
+  <div class="oracle-panel-head">
+    <div class="avatar"><img src="/static/images/view_oracle_face.png" alt="Satomi" onerror="this.src='/static/images/oracle_analyst_dark.png'"></div>
+    <div>
+      <div class="name">Satomi</div>
+      <div class="status">● Online · avg reply 2.1s</div>
+    </div>
+    <button class="oracle-panel-close" id="oracle-close">✕</button>
+  </div>
+  <div class="oracle-msgs" id="oracle-msgs">
+    <div class="msg oracle">
+      Hi — I'm Satomi. I synthesize on-chain, macro, and sentiment data in real time. Ask me anything about Bitcoin.
+    </div>
+  </div>
+  <div class="oracle-input-area">
+    <div class="oracle-input-box">
+      <input type="text" id="oracle-input" placeholder="What's the hashrate doing?" autocomplete="off">
+      <button id="oracle-send">SEND</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const answers = {
+    'hashrate': "Hashrate just set a 7-day high at 1,062 EH/s — up 2.1% WoW. Next difficulty adjustment is 4,217 blocks away, tracking +1.8%. Miners aren't leaving, they're doubling down.",
+    'etf': "Spot ETF inflows turned positive yesterday after 4 outflow sessions. IBIT is absorbing 68% of YTD flows. Watch for institutional demand to structurally exceed issuance (~450 BTC/day) — that's when the orderbook goes one-way.",
+    'fed': "Fed funds at 4.25–4.50%. Markets pricing 72% odds of a 25bp cut at the next meeting. Bitcoin tends to lead the liquidity cycle by ~6 weeks — current action is front-running easing, not responding to it.",
+    'whale': "Recent whale activity: 3 large exchange outflows in the last hour (Coinbase → cold storage totaling 1.8k BTC). Aged UTXOs stirring — 12% uptick WoW in 5-year-old coin movement.",
+    'default': "Convergence reads 78.4 — on-chain strong, macro neutral, sentiment positive. Hashrate ATH, dominance climbing, exchange outflows accelerating. The signal keeps saying: hold, stack weakness."
+  };
+
+  // Oracle FAB
+  const fab = document.getElementById('oracle-fab');
+  const panel = document.getElementById('oracle-panel');
+  const closeBtn = document.getElementById('oracle-close');
+  const msgs = document.getElementById('oracle-msgs');
+  const input = document.getElementById('oracle-input');
+  const send = document.getElementById('oracle-send');
+
+  fab.addEventListener('click', () => {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) setTimeout(() => input.focus(), 200);
+  });
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  function pick(q) {
+    const l = q.toLowerCase();
+    for (const k of Object.keys(answers)) {
+      if (k!=='default' && l.includes(k)) return answers[k];
+    }
+    return answers.default;
+  }
+
+  function submitMsg() {
+    const q = input.value.trim();
+    if (!q) return;
+    // user msg
+    const um = document.createElement('div');
+    um.className = 'msg user'; um.innerText = q;
+    msgs.appendChild(um);
+    input.value = '';
+    msgs.scrollTop = msgs.scrollHeight;
+    // oracle streaming msg
+    const om = document.createElement('div');
+    om.className = 'msg oracle';
+    om.innerHTML = '<span class="cursor"></span>';
+    msgs.appendChild(om);
+    const text = pick(q);
+    const words = text.split(' ');
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i >= words.length) { clearInterval(iv); om.innerHTML = text; return; }
+      om.innerHTML = words.slice(0, i+1).join(' ') + ' <span class="cursor"></span>';
+      msgs.scrollTop = msgs.scrollHeight;
+      i++;
+    }, 45);
+  }
+  send.addEventListener('click', submitMsg);
+  input.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); submitMsg(); } });
+
+  // ⌘K
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      panel.classList.add('open');
+      setTimeout(() => input.focus(), 100);
+    }
+  });
+
+  // Ticker
+  let btc = 104212, conv = 78.4, blk = 896421, queries = 4217;
+  setInterval(() => {
+    btc += Math.floor((Math.random()-0.5)*80);
+    document.getElementById('t-btc').innerText = '$'+btc.toLocaleString();
+  }, 2800);
+  setInterval(() => {
+    conv += (Math.random()-0.5)*0.25;
+    conv = Math.max(72, Math.min(84, conv));
+    document.getElementById('t-conv').innerText = conv.toFixed(1);
+    document.getElementById('conv-big').innerText = conv.toFixed(1);
+  }, 5200);
+  setInterval(() => { blk++; document.getElementById('t-blk').innerText = blk.toLocaleString(); }, 600000);
+  setInterval(() => {
+    queries += Math.floor(Math.random()*3)+1;
+    document.getElementById('queries').innerText = queries.toLocaleString();
+  }, 4000);
+
+  // Whale feed
+  const feed = document.getElementById('whale-feed');
+  const events = [
+    { t: 'OUTFLOW', src: 'COINBASE', dst: 'UNKNOWN', cls:'amt' },
+    { t: 'AGED_UTXO', src: 'DORMANT', dst: 'UNKNOWN', extra:'9Y' },
+    { t: 'OUTFLOW', src: 'BINANCE', dst: 'COLD' },
+    { t: 'INFLOW', src: 'UNKNOWN', dst: 'KRAKEN' },
+  ];
+  function pushRow() {
+    const e = events[Math.floor(Math.random()*events.length)];
+    const qty = Math.floor(200 + Math.random()*1800);
+    const ts = new Date().toTimeString().slice(0,5);
+    const row = document.createElement('div');
+    row.className = 'row new';
+    row.innerHTML = `<span class="ts">${ts}</span><span class="ev"><span class="type">${e.t}</span> ${e.src}→${e.dst}${e.extra?' ·'+e.extra:''}</span><span class="amt">${qty} BTC</span>`;
+    feed.insertBefore(row, feed.firstChild);
+    while (feed.children.length > 3) feed.removeChild(feed.lastChild);
+  }
+  pushRow(); pushRow(); pushRow();
+  setInterval(pushRow, 5000);
+</script>
+</body>
+</html>

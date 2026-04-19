@@ -1,63 +1,75 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-18T20:00:21.434223+00:00",
+  "generated_at": "2026-04-19T04:00:16.353026+00:00",
   "creator_count": 19,
-  "avg_sentiment_score": 62.8,
+  "avg_sentiment_score": 59.4,
   "sentiment_breakdown": {
-    "bullish": 11,
-    "bearish": 1,
+    "bullish": 10,
+    "bearish": 2,
     "neutral": 7
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "MicroStrategy's $1B daily Bitcoin purchases and MSTR holdings",
+      "topic": "Fiat currency devaluation",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "This is not adoption. This is a stampede in slow motion."
+      "avg_sentiment_score": 15.0,
+      "example_quote": "A dollar today is not a dollar tomorrow."
     },
     {
-      "topic": "Institutional adoption (Morgan Stanley, Bank of America, Citigroup)",
+      "topic": "Inflation misrepresentation (7% called 2%)",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "This is not adoption. This is a stampede in slow motion."
+      "avg_sentiment_score": 15.0,
+      "example_quote": "A dollar today is not a dollar tomorrow."
     },
     {
-      "topic": "Iran's Bitcoin-denominated toll collection at Strait of Hormuz",
+      "topic": "Institutional deception and narrative control",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "This is not adoption. This is a stampede in slow motion."
+      "avg_sentiment_score": 15.0,
+      "example_quote": "A dollar today is not a dollar tomorrow."
     },
     {
-      "topic": "Supply dynamics and absorption rates vs miner production",
+      "topic": "Monetary system manipulation",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "This is not adoption. This is a stampede in slow motion."
+      "avg_sentiment_score": 15.0,
+      "example_quote": "A dollar today is not a dollar tomorrow."
     },
     {
-      "topic": "Bitcoin as censorship-resistant settlement for sanctioned nations",
+      "topic": "Fed monetary policy",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 92.0,
-      "example_quote": "This is not adoption. This is a stampede in slow motion."
+      "avg_sentiment_score": 15.0,
+      "example_quote": "A dollar today is not a dollar tomorrow."
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly agree on bullish structural tailwinds\u2014institutional/sovereign adoption is creating supply shortages, fiat debasement and monetary system instability make Bitcoin inevitable, and the dollar is weakening. All major voices advocate Bitcoin accumulation, whether for corporate balance sheets or as a hedge against systemic collapse.\n\n**Divergence:** While most focus on macro monetary collapse and institutional demand, perspectives split on *mechanisms*: some emphasize geopolitical engineering and AI-driven commodity cycles, others stress dollar weakness and capital reallocation, and a minority highlight security vulnerabilities (not in Bitcoin itself, but in user behavior and centralized platforms). One outlier warns that the real risk isn't Bitcoin's protocol but human-layer exploits via social engineering.\n\n**Overall:** The ecosystem is unified on Bitcoin's bullish direction but fragmented on whether adoption stems from institutional foresight, systemic desperation, or some combination thereof\u2014with growing acknowledgment that technical security doesn't solve user-side risks.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Nearly all creators agree Bitcoin benefits from institutional/sovereign adoption and macroeconomic dysfunction (fiat debasement, debt unsustainability, dollar weakness). They view Bitcoin as a structural alternative to failing traditional finance, with multiple catalysts (AI, tokenization, QE, geopolitical factors) supporting price appreciation.\n\n**Divergence:** The primary split is on *urgency and causation*. Simply Bitcoin emphasizes imminent systemic collapse as Bitcoin's driver, while Altcoin Daily and Anthony Pompliano focus on technological catalysts (AI, hardware cycles) and market technicals. Additionally, Altcoin Daily uniquely predicts Ethereum alongside Bitcoin, whereas others concentrate solely on Bitcoin dominance.\n\n**Key Gap:** Only The Bitcoin Layer and Swan Bitcoin acknowledge mixed or conditional sentiment, questioning whether dollar weakness is permanent or geopolitically orchestrated\u2014introducing skepticism absent from the more dogmatic bearish-on-fiat voices.",
   "top_creators": [
+    {
+      "channel": "Simply Bitcoin",
+      "sentiment": "bearish",
+      "score": 15,
+      "thesis": "The dollar is a fabricated illusion maintained through institutional deception and constant narrative management, while the underlying economic system is fundamentally degrading. Bitcoin is implicitly presented as an alternative to this failing fiat system."
+    },
+    {
+      "channel": "Altcoin Daily",
+      "sentiment": "bullish",
+      "score": 85,
+      "thesis": "Congressional insider trading on Bitcoin ETFs signals major bullish moves ahead, driven by tokenization and agentic AI adoption that will significantly increase Bitcoin and Ethereum valuations."
+    },
     {
       "channel": "Simply Bitcoin",
       "sentiment": "bullish",
@@ -75,18 +87,6 @@
       "sentiment": "bullish",
       "score": 78,
       "thesis": "Bitcoin is positioned to surge after completing a correction, benefiting from AI-driven compute scarcity and a secular bull market in hardware and commodities that central bank QE will continue to support."
-    },
-    {
-      "channel": "Robert Breedlove",
-      "sentiment": "neutral",
-      "score": 0,
-      "thesis": null
-    },
-    {
-      "channel": "Simply Bitcoin",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "The US financial system is approaching collapse due to unsustainable debt and currency debasement, making Bitcoin an inevitable alternative as institutions build a new financial system before the old one fails."
     }
   ]
 }

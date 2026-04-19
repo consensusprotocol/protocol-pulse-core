@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-19T03:30:02.965987+00:00",
-  "fetch_time_ms": 961,
+  "updated_at": "2026-04-19T06:00:02.515334+00:00",
+  "fetch_time_ms": 1308,
   "composite": {
     "perception_score": 62,
     "label": "Cautiously Bullish",
@@ -19,11 +19,11 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 57.45,
-    "total_mcap_usd": 2631332327378.9326,
-    "total_mcap_t": 2.631,
-    "total_vol_24h_usd": 104374099105.57375,
-    "total_vol_24h_b": 104.4,
+    "btc_dominance_pct": 57.51,
+    "total_mcap_usd": 2630335135935.3423,
+    "total_mcap_t": 2.63,
+    "total_vol_24h_usd": 98038945813.36482,
+    "total_vol_24h_b": 98.0,
     "active_coins": 17576,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
@@ -35,43 +35,43 @@
       {
         "symbol": "RAVE",
         "name": "RaveDAO",
-        "rank": 130,
+        "rank": 109,
         "score": 0
       },
       {
         "symbol": "ASTEROID",
         "name": "Asteroid Shiba",
-        "rank": 218,
+        "rank": 199,
         "score": 1
       },
       {
         "symbol": "AAVE",
         "name": "Aave",
-        "rank": 55,
+        "rank": 56,
         "score": 2
       },
       {
         "symbol": "ZRO",
         "name": "LayerZero",
-        "rank": 117,
+        "rank": 119,
         "score": 3
-      },
-      {
-        "symbol": "BTC",
-        "name": "Bitcoin",
-        "rank": 1,
-        "score": 4
       },
       {
         "symbol": "SIREN",
         "name": "Siren",
-        "rank": 101,
+        "rank": 104,
+        "score": 4
+      },
+      {
+        "symbol": "ORDI",
+        "name": "ORDI",
+        "rank": 312,
         "score": 5
       },
       {
-        "symbol": "ETH",
-        "name": "Ethereum",
-        "rank": 2,
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 106,
         "score": 6
       }
     ],
@@ -86,12 +86,12 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 731230,
+    "tx_count_24h": 732403,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 8.62,
+    "minutes_between_blocks": 8.52,
     "difficulty": 135594876535256,
-    "estimated_btc_sent": 3161739661578,
+    "estimated_btc_sent": 2718036706237,
     "total_fees_btc": -49375000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17342,
-    "channel_count": 41986,
-    "capacity_btc": 5706.26,
-    "capacity_sats": 570626090058,
-    "avg_channel_capacity_btc": 0.1359,
+    "node_count": 17438,
+    "channel_count": 41109,
+    "capacity_btc": 5057.13,
+    "capacity_sats": 505713146174,
+    "avg_channel_capacity_btc": 0.123,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 2,
+    "fastest_fee_sat_vb": 1,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",

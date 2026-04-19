@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-04-19T03:50:04.435953+00:00",
-  "block_height": 945718,
+  "timestamp": "2026-04-19T06:25:08.137148+00:00",
+  "block_height": 945735,
   "btc": {
-    "price": 75626,
-    "change_24h": -2.01,
+    "price": 75421,
+    "change_24h": -2.21,
     "change_7d": 0,
-    "market_cap": 1513820866384.564,
-    "volume_24h": 53417891380.74844,
+    "market_cap": 1509534740206.8416,
+    "volume_24h": 48459066664.095505,
     "dominance": 57.5
   },
   "fear_greed": {
@@ -16,31 +16,31 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 2,
-    "unconfirmed": 42675,
-    "size_mb": 30.4
+    "fee_high": 1,
+    "unconfirmed": 40635,
+    "size_mb": 29.5
   },
   "network": {
-    "hashrate_eh": 1014.0,
+    "hashrate_eh": 1015.9,
     "difficulty": 0,
-    "next_adj_pct": 3.47,
-    "next_adj_blocks": 1802
+    "next_adj_pct": 4.76,
+    "next_adj_blocks": 1785
   },
   "lightning": {
-    "capacity_btc": 5239.0,
-    "channels": 41423,
-    "nodes": 17396
+    "capacity_btc": 5700.5,
+    "channels": 42215,
+    "nodes": 17369
   },
   "kol": {
-    "sentiment_score": 68,
+    "sentiment_score": 66,
     "top_topics": [
-      "MicroStrategy's $1B daily Bitcoin purchases and MSTR holdings",
-      "Institutional adoption (Morgan Stanley, Bank of America, Citigroup)",
-      "Iran's Bitcoin-denominated toll collection at Strait of Hormuz",
+      "Fiat currency devaluation",
+      "Inflation misrepresentation (7% called 2%)",
+      "Institutional deception and narrative control",
       "regulation",
       "macro"
     ],
-    "post_count_24h": 100,
+    "post_count_24h": 6,
     "dominant_sentiment": "bullish",
     "source": "tweets+transcripts"
   },
@@ -52,13 +52,13 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "MegaETH market cap (FDV) >$2B one day after launch?",
-    "top_probability": 73.5
+    "top_probability": 75.5
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "**ORACLE \u2014 EVENING BRIEF**\n\nBitcoin closed at $75,594, down 2.1% but holding critical support. This dip masks the real story: institutional accumulation is accelerating. BlackRock and peers are stacki",
-    "brief_type": "evening"
+    "narrative": "**Institutions are locking up Bitcoin supply at scale, and the narrative's shifted\u2014this isn't hype, it's capital repositioning.**\n\nBlackRock and major players are flooding in. ETF flows confirm it. Su",
+    "brief_type": "unknown"
   },
   "whale_alerts": [
     {
@@ -99,70 +99,58 @@
   ],
   "macro": {
     "dxy": 98.23,
-    "gold_price": 4857.6,
+    "gold_price": 4879.6,
     "sp500": 7161.5,
-    "btc_vs_gold_30d_corr": -0.045,
+    "btc_vs_gold_30d_corr": -0.036,
     "btc_vs_dxy_30d_corr": -0.435,
     "real_yield": null,
     "ten_year_yield": 4.25
   },
   "options": {
     "put_call_ratio": 0.705,
-    "dvol": 44.0,
+    "dvol": 44.2,
     "max_pain": 80000.0,
-    "total_call_oi": 243836.3,
-    "total_put_oi": 171807.7,
-    "total_oi_btc": 415644.0,
-    "avg_mark_iv": 51.5
+    "total_call_oi": 243958.2,
+    "total_put_oi": 171937.4,
+    "total_oi_btc": 415895.6,
+    "avg_mark_iv": 51.9
   },
   "futures": {
-    "funding_rate": -1.81e-06,
-    "annualized_basis": -0.2,
-    "open_interest": 28802.15,
-    "open_interest_usd": 2178632030.0,
+    "funding_rate": -5e-08,
+    "annualized_basis": -0.01,
+    "open_interest": 28901.34,
+    "open_interest_usd": 2181039200.0,
     "long_short_ratio": null,
-    "mark_price": 75636.11,
-    "index_price": 75641.31,
-    "basis_pct": -0.0272
+    "mark_price": 75463.0,
+    "index_price": 75464.98,
+    "basis_pct": -0.0176
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 3743544.0,
+    "coin_days_destroyed_7d": 3372512.0,
     "active_addresses_7d": 618943.0,
-    "tx_volume_usd_7d": 46959568803.0,
-    "nvt_ratio": 29.0,
+    "tx_volume_usd_7d": 46344795357.0,
+    "nvt_ratio": 29.3,
     "accumulation_score": 85
   },
   "active_alerts": [
     {
       "pattern_id": "SUPPLY_SHOCK",
       "title": "Miners not capitulating \u2014 supply shock risk",
-      "description": "Hashrate 1014.0 EH/s (adj +3.47%), price down -2.01% \u2014 miners holding.",
+      "description": "Hashrate 1015.9 EH/s (adj +4.76%), price down -2.21% \u2014 miners holding.",
       "severity": "WATCH",
-      "ts": "2026-04-19T03:50:04.491897+00:00",
+      "ts": "2026-04-19T06:25:08.182329+00:00",
       "data": {
-        "hashrate": 1014.0,
-        "change_24h": -2.01
-      }
-    },
-    {
-      "pattern_id": "POLYMARKET_CONFIRM",
-      "title": "Market consensus shifting",
-      "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
-      "severity": "WATCH",
-      "ts": "2026-04-19T03:50:04.491919+00:00",
-      "data": {
-        "poly_sentiment": 74,
-        "kol_posts": 100
+        "hashrate": 1015.9,
+        "change_24h": -2.21
       }
     }
   ],
   "pattern_matches": [
-    "SUPPLY_SHOCK",
-    "POLYMARKET_CONFIRM"
+    "SUPPLY_SHOCK"
   ],
   "indices": {
     "miner_conviction": {
-      "score": 69.4,
+      "score": 69.7,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -172,49 +160,49 @@
       "signal": "neutral"
     },
     "social_divergence": {
-      "score": 18,
+      "score": 16,
       "interpretation": "Social sentiment aligned with price action.",
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 68.5,
+      "score": 68.7,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
       "score": 77.4,
       "pattern": "BULLISH",
-      "fragmentation": 13.9,
-      "momentum": 64.0,
-      "conviction": 58.9,
+      "fragmentation": 14.1,
+      "momentum": 64.2,
+      "conviction": 58.8,
       "thesis": "miner_absorption_under_fear",
       "confidence": 0.76
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 7.38,
-      "btc_market_cap": 1513550467403.7837,
-      "stablecoin_market_cap": 205000000000,
-      "signal": "NEUTRAL",
-      "description": "Balanced stablecoin-to-BTC ratio",
-      "source": "estimated"
+      "value": 5.6,
+      "btc_market_cap": 1510933866887.8955,
+      "stablecoin_market_cap": 269924461635.67017,
+      "signal": "BULLISH",
+      "description": "Healthy stablecoin reserves available for BTC purchasing",
+      "source": "coingecko_derived"
     },
     "mpi": {
-      "value": -0.372,
-      "cdd_7d": 3729619.0,
-      "cdd_ratio": 0.62,
-      "hashrate_eh": 1016.0,
+      "value": -0.43,
+      "cdd_7d": 3378355.0,
+      "cdd_ratio": 0.56,
+      "hashrate_eh": 1017.1,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 38.0,
+      "value": 41.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-04-19T03:45:11.885161+00:00"
+    "timestamp": "2026-04-19T06:20:02.114955+00:00"
   }
 }

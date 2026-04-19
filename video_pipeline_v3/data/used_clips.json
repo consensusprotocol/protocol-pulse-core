@@ -1,40 +1,6 @@
 {
   "episodes": [
     {
-      "date": "2026-04-15",
-      "video_ids": [
-        "M1XPOFgjNPk",
-        "vwkRsp0gqX4",
-        "4h0fL7Zm_xk",
-        "zmD0OgbaKgM",
-        "fXwN3pW3nZk"
-      ],
-      "channels": [
-        "Andreas Antonopoulos",
-        "Andreas Antonopoulos",
-        "Real Vision Finance",
-        "Guy Swann",
-        "Yahoo Finance"
-      ]
-    },
-    {
-      "date": "2026-04-15",
-      "video_ids": [
-        "eO5_xYBXiVk",
-        "29PPmOaENbE",
-        "z22HnACwl7k",
-        "AYAreuNzx58",
-        "SSbgVHQrGjg"
-      ],
-      "channels": [
-        "Tone Vays",
-        "Blockware Solutions",
-        "BTC Sessions",
-        "Andreas Antonopoulos",
-        "Jameson Lopp"
-      ]
-    },
-    {
       "date": "2026-04-16",
       "video_ids": [
         "227anLxQ0mU",
@@ -141,6 +107,23 @@
         "CoinDesk",
         "Jameson Lopp",
         "Saifedean Ammous"
+      ]
+    },
+    {
+      "date": "2026-04-19",
+      "video_ids": [
+        "DD1Y-Uhj4Og",
+        "g6FVDJsCGE8",
+        "CrY_eJYJSeI",
+        "QWS0opYtS8g",
+        "iPVCjCmSeIo"
+      ],
+      "channels": [
+        "Simply Bitcoin",
+        "TFTC",
+        "Bitcoin Magazine Pro",
+        "Kitco News",
+        "Bitcoin Podcast"
       ]
     }
   ]

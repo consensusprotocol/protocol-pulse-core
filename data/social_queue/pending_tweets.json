@@ -142,5 +142,17 @@
     "generated_at": "2026-04-18T20:33:43.081835+00:00",
     "brief_date": "Saturday, April 18, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260419_045521_0",
+    "text": "Strait of Hormuz blockade. Global oil prices spike. Tankers reroute. Governments scramble. Bitcoin transaction settles in 10 minutes for 1 sat/vB. No blockade possible",
+    "angle": "geopolitical",
+    "type": "observation",
+    "format": "fiat_failure",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-19T04:55:21.812155+00:00",
+    "brief_date": "Saturday, April 18, 2026",
+    "sentiment": "bullish"
   }
 ]

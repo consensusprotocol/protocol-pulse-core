@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protocol Pulse · Direction A · Market Cinema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0908;
+    --surface: #151311;
+    --ink: #f5f0e5;
+    --ink-dim: #a39b8c;
+    --ink-muted: #5a544a;
+    --gold: #c89a3a;
+    --gold-bright: #e8b554;
+    --red: #CC0000;
+    --green: #3f9e5d;
+    --border: rgba(245, 240, 229, 0.08);
+    --serif: 'Fraunces', 'Playfair Display', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); line-height: 1.55;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  .banner {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--gold); color: #1a1612;
+    text-align: center; padding: 6px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+  }
+
+  /* Grain texture overlay for cinematic feel */
+  body::before {
+    content:''; position: fixed; inset:0; pointer-events: none; z-index: 1;
+    background-image:
+      radial-gradient(at 20% 10%, rgba(200,154,58,0.06) 0%, transparent 50%),
+      radial-gradient(at 80% 90%, rgba(204,0,0,0.04) 0%, transparent 50%);
+  }
+  body::after {
+    content:''; position: fixed; inset:0; pointer-events: none; z-index: 2;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+    opacity: 0.035;
+  }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 40px; position: relative; z-index: 3; }
+  @media (max-width: 768px) { .wrap { padding: 0 20px; } }
+
+  /* NAV */
+  nav {
+    position: relative; z-index: 5;
+    padding: 28px 0; display: flex; justify-content: space-between; align-items: center;
+  }
+  .brand {
+    font-family: var(--serif); font-weight: 500; font-size: 22px;
+    letter-spacing: -0.015em;
+  }
+  .brand-mark {
+    display:inline-block; width: 6px; height: 6px; background: var(--red);
+    border-radius: 50%; margin-right: 10px; vertical-align: middle;
+    box-shadow: 0 0 12px var(--red);
+  }
+  .nav-links { display: flex; gap: 36px; font-size: 14px; color: var(--ink-dim); }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta {
+    padding: 9px 18px; border: 1px solid var(--gold);
+    color: var(--gold); font-size: 13px; border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .nav-cta:hover { background: var(--gold); color: #1a1612; }
+  @media (max-width: 768px) { .nav-links { display: none; } }
+
+  /* HERO */
+  .hero {
+    position: relative; padding: 60px 0 100px;
+    display: grid; grid-template-columns: 1.1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+  @media (max-width: 968px) { .hero { grid-template-columns: 1fr; gap: 60px; padding: 40px 0 60px; } }
+
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--gold); letter-spacing: 0.2em;
+    margin-bottom: 28px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before { content:''; width: 32px; height: 1px; background: var(--gold); }
+
+  h1.display {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+  }
+  h1.display em {
+    font-style: italic; color: var(--gold);
+    font-weight: 500;
+  }
+
+  .hero-sub {
+    font-size: 19px; line-height: 1.55; color: var(--ink-dim);
+    max-width: 480px; margin-bottom: 44px;
+    font-weight: 300;
+  }
+
+  .hero-cta {
+    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+  }
+  .btn-primary {
+    padding: 16px 32px;
+    background: var(--ink); color: var(--bg);
+    font-family: var(--serif); font-weight: 500; font-size: 16px;
+    letter-spacing: -0.01em;
+    border-radius: 2px;
+    transition: all 0.25s;
+    border: 1px solid var(--ink);
+  }
+  .btn-primary:hover {
+    background: var(--gold); border-color: var(--gold); color: #1a1612;
+    transform: translateY(-1px);
+  }
+  .btn-ghost {
+    padding: 16px 0; color: var(--ink-dim);
+    font-size: 14px; font-family: var(--mono);
+    border-bottom: 1px solid transparent;
+  }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--gold); }
+
+  /* ORACLE ORB (right side of hero) */
+  .oracle-stage {
+    position: relative;
+    aspect-ratio: 1/1.15;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .orb-field {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* Concentric rotating rings */
+  .ring {
+    position: absolute; border: 1px solid rgba(200,154,58,0.14);
+    border-radius: 50%;
+    animation: rotate 40s linear infinite;
+  }
+  .ring-1 { width: 100%; height: 100%; }
+  .ring-2 {
+    width: 86%; height: 86%;
+    border-color: rgba(200,154,58,0.22);
+    border-style: dashed;
+    animation-duration: 60s; animation-direction: reverse;
+  }
+  .ring-3 {
+    width: 72%; height: 72%;
+    border-color: rgba(204,0,0,0.15);
+    animation-duration: 80s;
+  }
+  .ring-ticks {
+    width: 100%; height: 100%;
+    position: absolute; animation: rotate 120s linear infinite;
+  }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+
+  /* Avatar at center */
+  .avatar-core {
+    position: relative;
+    width: 54%; aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow:
+      0 0 80px rgba(200,154,58,0.2),
+      0 0 0 1px rgba(200,154,58,0.4),
+      inset 0 0 60px rgba(0,0,0,0.5);
+  }
+  .avatar-core img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: contrast(1.1) saturate(0.9) brightness(0.95);
+    mix-blend-mode: normal;
+  }
+  .avatar-core::after {
+    content:''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 30%, transparent 40%, rgba(10,9,8,0.4) 90%);
+    mix-blend-mode: multiply;
+  }
+  .avatar-pulse {
+    position: absolute; inset: -5%;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    opacity: 0; animation: pulseRing 3.5s ease-out infinite;
+  }
+  @keyframes pulseRing {
+    0% { transform: scale(1); opacity: 0.45; }
+    100% { transform: scale(1.18); opacity: 0; }
+  }
+
+  /* Live stats around orb */
+  .orb-stat {
+    position: absolute;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--ink-muted); letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: var(--bg); padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .orb-stat .val { color: var(--gold); font-weight: 500; margin-left: 6px; }
+  .orb-stat .up { color: var(--green); }
+  .orb-stat .dn { color: var(--red); }
+  .stat-1 { top: 12%; left: -8%; }
+  .stat-2 { top: 8%; right: -4%; }
+  .stat-3 { bottom: 20%; left: -10%; }
+  .stat-4 { bottom: 14%; right: -6%; }
+  .stat-5 { top: 52%; right: -14%; }
+  @media (max-width: 968px) {
+    .orb-stat { font-size: 9px; padding: 3px 7px; }
+  }
+
+  /* Oracle input floating below orb */
+  .oracle-askbar {
+    position: absolute; bottom: -40px; left: 10%; right: 10%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex; align-items: center;
+    padding: 2px; gap: 0;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .oracle-askbar:focus-within {
+    border-color: var(--gold);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px var(--gold);
+  }
+  .oracle-askbar .promptmark {
+    padding: 0 14px; color: var(--gold);
+    font-family: var(--mono); font-size: 14px;
+  }
+  .oracle-askbar input {
+    flex: 1; padding: 14px 0;
+    background: transparent; border: 0; outline: none;
+    color: var(--ink); font-family: var(--serif); font-size: 15px;
+    font-style: italic;
+  }
+  .oracle-askbar input::placeholder { color: var(--ink-muted); }
+  .oracle-askbar button {
+    padding: 12px 18px;
+    background: var(--ink); color: var(--bg);
+    border: 0; cursor: pointer;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    transition: all 0.15s;
+  }
+  .oracle-askbar button:hover { background: var(--gold); color: #1a1612; }
+
+  /* Oracle response panel */
+  .oracle-response {
+    display: none;
+    grid-column: 1/-1;
+    margin-top: 80px;
+    max-width: 780px; margin-left: auto; margin-right: auto;
+    padding: 32px 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--gold);
+    border-radius: 2px;
+  }
+  .oracle-response.active { display: block; }
+  .oracle-response .meta {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--gold); letter-spacing: 0.15em;
+    margin-bottom: 14px; text-transform: uppercase;
+  }
+  .oracle-response .body {
+    font-family: var(--serif); font-size: 19px;
+    line-height: 1.55; color: var(--ink);
+    font-weight: 300;
+  }
+  .oracle-response .cursor {
+    display: inline-block; width: 9px; height: 20px;
+    background: var(--gold); vertical-align: -3px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ================ PROOF STRIP ================= */
+  .proof-strip {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0;
+    margin-top: 80px;
+  }
+  .proof-inner {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 40px; align-items: center;
+  }
+  .proof-cell .label {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--ink-muted); letter-spacing: 0.15em;
+    margin-bottom: 6px;
+  }
+  .proof-cell .val {
+    font-family: var(--serif); font-size: 28px;
+    font-weight: 300; letter-spacing: -0.015em;
+  }
+  .proof-cell .val .tail { font-size: 13px; color: var(--ink-muted); margin-left: 4px; }
+  @media (max-width: 768px) {
+    .proof-inner { grid-template-columns: 1fr 1fr; gap: 24px 20px; }
+    .proof-cell .val { font-size: 22px; }
+  }
+
+  /* ================ CAPABILITIES ================= */
+  .capabilities { padding: 140px 0 120px; }
+  .section-kicker {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--gold); letter-spacing: 0.2em;
+    margin-bottom: 20px; text-transform: uppercase;
+  }
+  .section-title {
+    font-family: var(--serif); font-weight: 300;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05; letter-spacing: -0.025em;
+    margin-bottom: 20px; max-width: 720px;
+  }
+  .section-title em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .section-lede {
+    font-size: 18px; color: var(--ink-dim); max-width: 600px;
+    margin-bottom: 60px; font-weight: 300; line-height: 1.55;
+  }
+
+  .cap-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border);
+  }
+  @media (max-width: 968px) { .cap-grid { grid-template-columns: 1fr; } }
+  .cap {
+    background: var(--bg);
+    padding: 44px 36px; display: flex; flex-direction: column; gap: 14px;
+    transition: background 0.3s;
+  }
+  .cap:hover { background: var(--surface); }
+  .cap-num {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--gold); letter-spacing: 0.15em;
+  }
+  .cap h3 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: 24px; letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+  .cap p {
+    font-size: 14px; color: var(--ink-dim); line-height: 1.6;
+    font-weight: 300;
+  }
+  .cap-tag {
+    margin-top: auto; padding-top: 20px;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--ink-muted); letter-spacing: 0.1em;
+  }
+
+  /* ================= TERMINAL GLIMPSE ================ */
+  .terminal-peek {
+    padding: 120px 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .tgrid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+  @media (max-width: 968px) { .tgrid { grid-template-columns: 1fr; gap: 40px; } }
+  .tview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 30px 100px rgba(0,0,0,0.6);
+  }
+  .tview-head {
+    padding: 10px 16px; display: flex; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono); font-size: 10px;
+    color: var(--ink-muted); letter-spacing: 0.1em;
+  }
+  .tview-dots { display: flex; gap: 5px; }
+  .tview-dots span {
+    width: 8px; height: 8px; border-radius: 50%; background: #2a2724;
+  }
+  .tview-dots span:nth-child(3) { background: var(--gold); }
+  .tview-panes {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--border);
+  }
+  .tpane {
+    background: var(--bg); padding: 22px;
+  }
+  .tpane-label {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--ink-muted); letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+  .tpane-val {
+    font-family: var(--serif); font-size: 30px;
+    font-weight: 300; letter-spacing: -0.02em;
+  }
+  .tpane-val.gold { color: var(--gold); }
+  .tpane-val.green { color: var(--green); }
+  .tpane-chg {
+    font-family: var(--mono); font-size: 10px;
+    margin-top: 6px; color: var(--ink-muted);
+  }
+  .tpane-spark {
+    margin-top: 12px; height: 34px;
+  }
+  .tpane-spark svg { width: 100%; height: 100%; }
+  .tfeed {
+    grid-column: 1/-1; padding: 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink-dim); line-height: 1.7;
+  }
+  .tfeed .row { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tfeed .tk { color: var(--ink-muted); }
+  .tfeed .tl { color: var(--gold); }
+
+  /* ================ PRICING ================ */
+  .pricing {
+    padding: 140px 0 120px;
+    text-align: center;
+  }
+  .pricing .section-title,
+  .pricing .section-lede { margin-left: auto; margin-right: auto; }
+  .pricing .section-lede { margin-bottom: 80px; }
+
+  .price-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 24px; max-width: 820px; margin: 0 auto;
+    text-align: left;
+  }
+  @media (max-width: 768px) { .price-row { grid-template-columns: 1fr; } }
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px 36px;
+    border-radius: 2px;
+    position: relative;
+  }
+  .price-card.feat {
+    background: var(--bg);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold), 0 30px 80px rgba(200,154,58,0.08);
+  }
+  .price-card.feat::before {
+    content: 'COMMANDER';
+    position: absolute; top: -12px; left: 28px;
+    padding: 4px 10px;
+    background: var(--gold); color: #1a1612;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.2em;
+  }
+  .price-tier {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink-muted); letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .price-amt {
+    font-family: var(--serif); font-weight: 300;
+    font-size: 56px; line-height: 1; letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .price-amt .per { font-size: 16px; color: var(--ink-muted); font-weight: 400; margin-left: 4px; }
+  .price-sub {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink-muted); margin-bottom: 32px;
+  }
+  .price-feats { list-style: none; margin-bottom: 32px; }
+  .price-feats li {
+    padding: 10px 0; font-size: 14px; color: var(--ink-dim);
+    border-bottom: 1px dotted var(--border);
+    display: flex; gap: 12px;
+  }
+  .price-feats li:last-child { border: 0; }
+  .price-feats li::before {
+    content: '·'; color: var(--gold); font-weight: 700;
+  }
+  .price-cta {
+    display: block; text-align: center; padding: 14px;
+    font-family: var(--serif); font-weight: 500; font-size: 15px;
+    letter-spacing: -0.01em;
+    border-radius: 2px; transition: all 0.2s;
+  }
+  .price-cta.primary {
+    background: var(--gold); color: #1a1612;
+  }
+  .price-cta.primary:hover { background: var(--gold-bright); }
+  .price-cta.ghost {
+    background: transparent; color: var(--ink-dim);
+    border: 1px solid var(--border);
+  }
+  .price-cta.ghost:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+  /* ================ FINAL ================ */
+  .final {
+    padding: 140px 0 80px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+  .final h2 {
+    font-family: var(--serif); font-weight: 300;
+    font-size: clamp(48px, 7vw, 88px);
+    letter-spacing: -0.03em; line-height: 1; margin-bottom: 40px;
+  }
+  .final h2 em { font-style: italic; color: var(--gold); }
+
+  footer {
+    padding: 40px 0 60px;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink-muted); letter-spacing: 0.1em;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="banner">PREVIEW · DIRECTION A · MARKET CINEMA · not live</div>
+
+<div class="wrap">
+
+  <nav>
+    <div class="brand"><span class="brand-mark"></span>Protocol Pulse</div>
+    <div class="nav-links">
+      <a href="#capabilities">Intelligence</a>
+      <a href="#terminal">Terminal</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <a class="nav-cta" href="#pricing">Sign in</a>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow">Bitcoin Intelligence · Synthesized</div>
+      <h1 class="display">
+        Where the<br>network goes<br><em>to speak.</em>
+      </h1>
+      <p class="hero-sub">
+        A private intelligence desk for Bitcoin. Live on-chain, macro, and sentiment data synthesized into one actionable view. Ask it anything.
+      </p>
+      <div class="hero-cta">
+        <a href="#pricing" class="btn-primary">Begin subscription</a>
+        <a href="#oracle" class="btn-ghost">// ask the oracle →</a>
+      </div>
+    </div>
+
+    <div class="oracle-stage">
+      <div class="orb-field">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
+        <div class="avatar-pulse"></div>
+        <div class="avatar-core">
+          <img src="/static/images/oracle_analyst_dark.png" alt="Satomi Oracle" onerror="this.src='/static/images/view_oracle_face.png'">
+        </div>
+      </div>
+      <div class="orb-stat stat-1">BTC<span class="val">$<span id="stat-btc">104,212</span></span></div>
+      <div class="orb-stat stat-2">Convergence<span class="val" id="stat-conv">78.4</span></div>
+      <div class="orb-stat stat-3">Hashrate<span class="val up">1,062 EH ↑</span></div>
+      <div class="orb-stat stat-4">Dominance<span class="val up">62.8% ↑</span></div>
+      <div class="orb-stat stat-5">Block<span class="val" id="stat-blk">896,421</span></div>
+
+      <div class="oracle-askbar" id="oracle-bar">
+        <span class="promptmark">~</span>
+        <input type="text" id="oracle-input" placeholder="Ask the oracle a question…" autocomplete="off">
+        <button id="oracle-submit">ASK</button>
+      </div>
+    </div>
+
+    <div class="oracle-response" id="oracle-response">
+      <div class="meta">· SATOMI · RESPONDING</div>
+      <div class="body" id="oracle-answer"></div>
+    </div>
+  </section>
+
+  <div class="proof-strip">
+    <div class="proof-inner">
+      <div class="proof-cell">
+        <div class="label">INTEL BRIEFS</div>
+        <div class="val">1,347<span class="tail">and climbing</span></div>
+      </div>
+      <div class="proof-cell">
+        <div class="label">LAST ORACLE REPLY</div>
+        <div class="val">2.1<span class="tail">sec avg</span></div>
+      </div>
+      <div class="proof-cell">
+        <div class="label">PULSE CHECK EPISODES</div>
+        <div class="val">182<span class="tail">daily</span></div>
+      </div>
+      <div class="proof-cell">
+        <div class="label">DATA STREAMS SYNTHESIZED</div>
+        <div class="val">47</div>
+      </div>
+    </div>
+  </div>
+
+  <section class="capabilities" id="capabilities">
+    <div class="section-kicker">What you get</div>
+    <h2 class="section-title">A desk of analysts, <em>reporting in real time.</em></h2>
+    <p class="section-lede">
+      Six intelligence tools, one subscription. Built for investors and operators who trade the signal, not the noise.
+    </p>
+
+    <div class="cap-grid">
+      <div class="cap">
+        <div class="cap-num">01</div>
+        <h3>Sovereign Convergence Engine</h3>
+        <p>A single 0–100 score synthesizing on-chain health, macro regime, and sentiment posture. Refreshed every 60 seconds.</p>
+        <div class="cap-tag">· proprietary · bitcoin only</div>
+      </div>
+      <div class="cap">
+        <div class="cap-num">02</div>
+        <h3>Satomi, the Intelligence Oracle</h3>
+        <p>Ask any question about markets, macro, or on-chain conditions. Trained on 1,300+ briefs. Answers in under three seconds.</p>
+        <div class="cap-tag">· unlimited for commanders</div>
+      </div>
+      <div class="cap">
+        <div class="cap-num">03</div>
+        <h3>The Pulse Check</h3>
+        <p>An autonomous daily video briefing. Five minutes. Five sources. Zero human editorializing. Delivered at 6am Eastern.</p>
+        <div class="cap-tag">· commanders see it an hour early</div>
+      </div>
+      <div class="cap">
+        <div class="cap-num">04</div>
+        <h3>Signal Terminal</h3>
+        <p>A Bloomberg-style live dashboard. Twelve panes, sub-second latency. Drag and arrange. Built for serious operators.</p>
+        <div class="cap-tag">· configurable · persistent</div>
+      </div>
+      <div class="cap">
+        <div class="cap-num">05</div>
+        <h3>The Archive</h3>
+        <p>Every brief we've ever published, indexed and searchable. Deep dives, investigations, and historical context at your fingertips.</p>
+        <div class="cap-tag">· 1,347 and counting</div>
+      </div>
+      <div class="cap">
+        <div class="cap-num">06</div>
+        <h3>Private Alerts</h3>
+        <p>Whale movements, macro triggers, on-chain anomalies. Piped directly to your Telegram. You decide what's worth your attention.</p>
+        <div class="cap-tag">· custom thresholds</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="terminal-peek" id="terminal">
+    <div class="wrap">
+      <div class="tgrid">
+        <div>
+          <div class="section-kicker">The Terminal</div>
+          <h2 class="section-title">Your mission control <em>for the market.</em></h2>
+          <p class="section-lede">
+            Read-only preview. Live data, fifteen-second throttle. The full terminal unlocks with Commander — drag any pane, configure thresholds, wire your own alerts.
+          </p>
+          <a href="#pricing" class="btn-primary">See the live version</a>
+        </div>
+
+        <div class="tview">
+          <div class="tview-head">
+            <div class="tview-dots"><span></span><span></span><span></span></div>
+            <div>signal-terminal // public-preview</div>
+            <div style="color:var(--gold);">LIVE</div>
+          </div>
+          <div class="tview-panes">
+            <div class="tpane">
+              <div class="tpane-label">CONVERGENCE</div>
+              <div class="tpane-val gold" id="pane-conv">78.4</div>
+              <div class="tpane-chg">on-chain strong · macro neutral</div>
+              <div class="tpane-spark">
+                <svg viewBox="0 0 100 34" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#c89a3a" stroke-width="1.5"
+                    points="0,22 10,24 20,20 30,18 40,21 50,15 60,13 70,16 80,11 90,9 100,8"/>
+                </svg>
+              </div>
+            </div>
+            <div class="tpane">
+              <div class="tpane-label">HASHRATE · 7D</div>
+              <div class="tpane-val green">1,062 EH</div>
+              <div class="tpane-chg">+2.1% · new ATH</div>
+              <div class="tpane-spark">
+                <svg viewBox="0 0 100 34" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#3f9e5d" stroke-width="1.5"
+                    points="0,28 10,26 20,24 30,22 40,20 50,18 60,16 70,12 80,10 90,8 100,6"/>
+                </svg>
+              </div>
+            </div>
+            <div class="tfeed" id="tfeed"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="section-kicker">Pricing</div>
+    <h2 class="section-title">Two tiers.<br><em>Both honest.</em></h2>
+    <p class="section-lede">No trial gimmicks. No annual lock-in. Cancel any time, in two clicks.</p>
+
+    <div class="price-row">
+      <div class="price-card">
+        <div class="price-tier">Free</div>
+        <div class="price-amt">$0<span class="per">/ month</span></div>
+        <div class="price-sub">For those still evaluating.</div>
+        <ul class="price-feats">
+          <li>Read all 1,347 intelligence briefs</li>
+          <li>Watch the daily Pulse Check</li>
+          <li>Three Oracle questions per day</li>
+          <li>The Dossier onboarding series</li>
+        </ul>
+        <a href="#" class="price-cta ghost">Continue free</a>
+      </div>
+
+      <div class="price-card feat">
+        <div class="price-tier">Commander</div>
+        <div class="price-amt">$29<span class="per">/ month</span></div>
+        <div class="price-sub">Or pay in Bitcoin — save 10%.</div>
+        <ul class="price-feats">
+          <li>Unlimited Oracle queries (text + video avatar)</li>
+          <li>Live Signal Terminal, sub-second latency</li>
+          <li>Private alerts piped to your Telegram</li>
+          <li>Full API access, 10,000 requests/day</li>
+          <li>Exclusive bi-weekly deep-dives</li>
+          <li>First-look Pulse Check, 1 hour early</li>
+        </ul>
+        <a href="#" class="price-cta primary">Become a Commander →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <h2>The network is <em>already speaking.</em></h2>
+    <a href="#pricing" class="btn-primary" style="padding:18px 44px; font-size:17px;">Begin subscription</a>
+  </section>
+
+  <footer>
+    <div>PROTOCOL PULSE · © 2026</div>
+    <div>Terminal · Oracle · Briefs · API · Contact</div>
+  </footer>
+</div>
+
+<script>
+  // Oracle interaction
+  const oracleAnswers = {
+    'hashrate': "Network hashrate set a new seven-day high at 1,062 exahashes per second, up 2.1% week-over-week. The next difficulty adjustment is 4,217 blocks away and tracking plus 1.8%. Miners are not capitulating — they are doubling down. By every measurable metric, the network has never been healthier.",
+    'etf': "Spot ETF net inflows turned positive yesterday after a four-session outflow streak. IBIT has absorbed 68% of year-to-date inflows. The signal to watch: when institutional demand outpaces new issuance — currently around 450 BTC per day — the orderbook goes one-directional.",
+    'fed': "The Fed funds rate sits at 4.25 to 4.50%. Markets are pricing a 72% probability of a 25 basis-point cut at the next meeting. Bitcoin typically leads the liquidity cycle by roughly six weeks — current price action is front-running easing, not responding to it.",
+    'default': "The Convergence Engine currently reads 78.4 — on-chain strong, macro neutral, sentiment positive. Hashrate at an all-time high, dominance climbing, exchange outflows accelerating. The signal the market keeps repeating: hold, and stack on weakness."
+  };
+
+  const input = document.getElementById('oracle-input');
+  const submit = document.getElementById('oracle-submit');
+  const responsePanel = document.getElementById('oracle-response');
+  const answerEl = document.getElementById('oracle-answer');
+
+  function pickAnswer(q) {
+    const low = q.toLowerCase();
+    for (const k of Object.keys(oracleAnswers)) {
+      if (k !== 'default' && low.includes(k)) return oracleAnswers[k];
+    }
+    return oracleAnswers.default;
+  }
+  function stream(text) {
+    responsePanel.classList.add('active');
+    responsePanel.scrollIntoView({ behavior:'smooth', block:'center' });
+    answerEl.innerHTML = '<span class="cursor"></span>';
+    const words = text.split(' ');
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i >= words.length) { clearInterval(iv); answerEl.innerHTML = text; return; }
+      answerEl.innerHTML = words.slice(0, i+1).join(' ') + '<span class="cursor"></span>';
+      i++;
+    }, 45);
+  }
+  submit.addEventListener('click', () => { if (input.value.trim()) stream(pickAnswer(input.value)); });
+  input.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); if (input.value.trim()) stream(pickAnswer(input.value)); } });
+
+  // Live stat ticks
+  let btc = 104212, conv = 78.4, blk = 896421;
+  setInterval(() => {
+    btc += Math.floor((Math.random()-0.5)*80);
+    document.getElementById('stat-btc').innerText = btc.toLocaleString();
+  }, 2800);
+  setInterval(() => {
+    conv += (Math.random()-0.5)*0.25;
+    conv = Math.max(72, Math.min(84, conv));
+    document.getElementById('stat-conv').innerText = conv.toFixed(1);
+    const p = document.getElementById('pane-conv'); if (p) p.innerText = conv.toFixed(1);
+  }, 5200);
+  setInterval(() => { blk++; document.getElementById('stat-blk').innerText = blk.toLocaleString(); }, 600000);
+
+  // Whale feed
+  const feed = document.getElementById('tfeed');
+  const events = [
+    { t: 'EXCHANGE_OUTFLOW', src: 'COINBASE', dst: 'UNKNOWN_WALLET' },
+    { t: 'UTXO_AGED',        src: 'DORMANT',  dst: 'UNKNOWN', extra: 'AGE·9Y' },
+    { t: 'EXCHANGE_OUTFLOW', src: 'BINANCE',  dst: 'COLD_STORAGE' },
+    { t: 'EXCHANGE_INFLOW',  src: 'UNKNOWN',  dst: 'KRAKEN' },
+  ];
+  function pushRow() {
+    const e = events[Math.floor(Math.random()*events.length)];
+    const qty = Math.floor(200 + Math.random()*1800);
+    const ts = new Date().toTimeString().slice(0,8);
+    const row = document.createElement('span');
+    row.className = 'row';
+    row.innerHTML = `<span class="tk">${ts}</span> · <span class="tl">${e.t}</span>${e.extra?' ['+e.extra+']':''} · ${qty} BTC · ${e.src} → ${e.dst}`;
+    feed.insertBefore(row, feed.firstChild);
+    while (feed.children.length > 3) feed.removeChild(feed.lastChild);
+  }
+  pushRow(); pushRow(); pushRow();
+  setInterval(pushRow, 4500);
+</script>
+</body>
+</html>

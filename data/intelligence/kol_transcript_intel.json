@@ -1,7 +1,55 @@
 {
-  "last_updated": "2026-04-18T20:00:17.680862+00:00",
-  "total_analyses": 159,
+  "last_updated": "2026-04-19T04:00:12.907464+00:00",
+  "total_analyses": 161,
   "analyses": [
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "The dollar is a fabricated illusion maintained through institutional deception and constant narrative management, while the underlying economic system is fundamentally degrading. Bitcoin is implicitly presented as an alternative to this failing fiat system.",
+      "key_quotes": [
+        "A dollar today is not a dollar tomorrow.",
+        "Maintaining the appearance of value when underlying value is degrading requires a full production.",
+        "Behind the shiny facade is a crumbling system operating on ancient technology."
+      ],
+      "topics": [
+        "Fiat currency devaluation",
+        "Inflation misrepresentation (7% called 2%)",
+        "Institutional deception and narrative control",
+        "Monetary system manipulation",
+        "Fed monetary policy"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Simply Bitcoin",
+      "title": "The Greatest Lie Ever Told Is The Dollar In Your Pocket",
+      "video_id": "4AGJRX2BYsE",
+      "duration": 1152.41,
+      "analyzed_at": "2026-04-19T04:00:10.905046+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "Congressional insider trading on Bitcoin ETFs signals major bullish moves ahead, driven by tokenization and agentic AI adoption that will significantly increase Bitcoin and Ethereum valuations.",
+      "key_quotes": [
+        "It's pretty clear that insider trading is going on in Washington right now",
+        "Bitcoin can hit much more than a quarter million dollars sometime in the future",
+        "I think Ethereum is probably on its way to 60,000"
+      ],
+      "topics": [
+        "Congressional Bitcoin purchases and insider trading",
+        "Bitcoin ETF adoption",
+        "Tokenization as financial system catalyst",
+        "Agentic AI and blockchain integration",
+        "Bitcoin as store of value"
+      ],
+      "price_prediction": "Bitcoin $250,000 (fair value, timeframe unspecified); Bitcoin $1.3-2.3 million by 2035; Ethereum $62,000",
+      "confidence": "high",
+      "channel": "Altcoin Daily",
+      "title": "IT\u2019S RIGGED! Buckle Up\u2019 Bitcoin & Crypto Holders",
+      "video_id": "Wji5JRqdlZk",
+      "duration": 718.29,
+      "analyzed_at": "2026-04-19T04:00:06.448411+00:00"
+    },
     {
       "sentiment": "bullish",
       "sentiment_score": 92,

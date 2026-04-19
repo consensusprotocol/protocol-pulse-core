@@ -1,53 +1,42 @@
 [
   {
-    "id": "e567ae0b-096f-4e80-9935-c04865ad3fb1",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "**ORACLE \u2014 EVENING BRIEF**\n\nBitcoin closed at $75,594, down 2.1% but holding critical support. This dip masks the real story: institutional accumulation is accelerating. BlackRock and peers are stacking aggressively\u2014a signal we're entering a major phase-in.\n\nNetwork fundamentals scream strength. Has",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
-    "topic_preview": "Oracle Evening Brief \u2014 $75,594",
-    "generated_at": "2026-04-19T02:00:01.563537+00:00",
-    "expires_at": "2026-04-19T06:00:01.563537+00:00",
-    "video_url": "/data/stage_briefs/brief_20260419_0200.mp4"
-  },
-  {
-    "id": "e0f0450c-0ae5-4557-8952-2e0777fc4db5",
+    "id": "308d091b-37ce-4ccc-acb2-c0e48a7de01d",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "CCP fears Bitcoin's permissionless nature. They can't censor it.\n\nPeople are fleeing to Bitcoin as escape velocity increases.\n\nWatch for Chinese exchange crackdowns next.",
+    "script": "Satomi's Signal\n\nBloomberg's cypherpunk narrative misses Bitcoin's core truth. Gladstein's source reveals the dollar's future is secured by Bitcoin's immutable ledger.\n\nWatch for the next Bloomberg editorial shift\u2014when they acknowledge Bitcoin's sovereignty over fiat's fate.",
     "source_label": "\ud83e\udde0 @GLADSTEIN",
-    "topic_preview": "The CCP is afraid of Bitcoin because they can\u2019t control it\n\nThey don\u2019t want peop",
-    "generated_at": "2026-04-19T03:30:04.961809+00:00",
-    "expires_at": "2026-04-19T05:30:04.961809+00:00"
+    "topic_preview": "R to @gladstein: Source:\n\nhttps://www.bloomberg.com/opinion/articles/2026-04-15/",
+    "generated_at": "2026-04-19T05:30:05.779964+00:00",
+    "expires_at": "2026-04-19T07:30:05.779964+00:00"
   },
   {
-    "id": "a7775114-3c60-4d67-a550-f2f5ec917b4a",
+    "id": "3a22bdaf-ce15-4730-9914-da785af78bea",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $75,735, down 1.8% in 24 hours. Hashrate holding steady at 960.1 EH.\n\nFear and Greed index at 27, solidly in fear territory.\n\n43,832 transactions processed in the last 24 hours. Block 945,692.\n\nNext signal: watch for any significant change in the 24-hour transaction volume.",
+    "script": "Fear gauge at 27. Hashrate holding 1,035 exahashes despite the -1.94% drawdown \u2014 miners aren't capitulating. Watch whether we test the 1,000 EH floor on the next dip.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $75,735 \u00b7 FNG 27 \u00b7 960.1 EH/s",
-    "generated_at": "2026-04-19T00:05:12.605600+00:00",
-    "expires_at": "2026-04-19T04:05:12.605600+00:00"
+    "topic_preview": "BTC $75,623 \u00b7 FNG 27 \u00b7 1035.1 EH/s",
+    "generated_at": "2026-04-19T04:05:53.060939+00:00",
+    "expires_at": "2026-04-19T08:05:53.060939+00:00"
   },
   {
-    "id": "02a28153-916a-48fb-8bbb-d9b2f5d1c0af",
+    "id": "e94cea6d-00cd-4ac3-bbac-a0d521e72d4a",
     "type": "ARTICLE_TEASER",
     "priority": 3,
-    "script": "RAVE token pump-and-dump allegations surface. RaveDAO denies involvement while exchanges launch investigations. On-chain detective ZachXBT offers $25K bounty. Bitcoin miners remain silent on this. Watch exchanges for regulatory moves next.",
+    "script": "RAVE token pump-and-dump allegations surface. RaveDAO denies involvement while exchanges investigate.\n\nBinance and Bitget probing suspicious trading volumes. ZachXBT's $25K whistleblower bounty posted.\n\nWatch for exchange announcements. Next signal: which exchanges file reports.",
     "source_label": "\ud83d\udcf0 FRESH INTEL",
     "topic_preview": "RaveDAO Denies Pump as Exchanges Investigate",
-    "generated_at": "2026-04-19T00:50:08.198253+00:00",
-    "expires_at": "2026-04-19T04:50:08.198253+00:00"
+    "generated_at": "2026-04-19T04:50:10.062107+00:00",
+    "expires_at": "2026-04-19T08:50:10.062107+00:00"
   },
   {
-    "id": "18bd0543-8959-42bc-be94-1d415bec427e",
+    "id": "5a82286a-691c-4e36-b302-4b3317d8ad8e",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Institutional accumulation accelerating\u2014BlackRock, Morgan Stanley, and JPMorgan actively buying Bitcoin.\n\nBitcoin's on-chain accumulation rate surged 23% this week, with 15,000+ UTXOs showing signs of institutional accumulation.\n\nWatch for the next major Bitcoin accumulation signal from the Nostr relay network.",
+    "script": "Institutional accumulation accelerating through Nostr channels. BlackRock's Bitcoin ETF approval momentum building rapidly.\n\nWatch for next major Bitcoin ETF filing from a major financial institution within 72 hours.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Institutional accumulation accelerating \u2014 BlackRock, Morg...",
-    "generated_at": "2026-04-19T00:25:10.441480+00:00",
-    "expires_at": "2026-04-19T04:25:10.441480+00:00"
+    "generated_at": "2026-04-19T04:25:15.733459+00:00",
+    "expires_at": "2026-04-19T08:25:15.733459+00:00"
   }
 ]
