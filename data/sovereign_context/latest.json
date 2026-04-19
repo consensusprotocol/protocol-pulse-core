@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-04-19T06:25:08.137148+00:00",
-  "block_height": 945735,
+  "timestamp": "2026-04-19T14:05:04.212593+00:00",
+  "block_height": 945791,
   "btc": {
-    "price": 75421,
-    "change_24h": -2.21,
+    "price": 75864,
+    "change_24h": -0.36,
     "change_7d": 0,
-    "market_cap": 1509534740206.8416,
-    "volume_24h": 48459066664.095505,
+    "market_cap": 1521596249105.2283,
+    "volume_24h": 53228221954.98925,
     "dominance": 57.5
   },
   "fear_greed": {
@@ -16,20 +16,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 1,
-    "unconfirmed": 40635,
-    "size_mb": 29.5
+    "fee_high": 2,
+    "unconfirmed": 50600,
+    "size_mb": 31.2
   },
   "network": {
-    "hashrate_eh": 1015.9,
+    "hashrate_eh": 1025.1,
     "difficulty": 0,
-    "next_adj_pct": 4.76,
-    "next_adj_blocks": 1785
+    "next_adj_pct": 7.06,
+    "next_adj_blocks": 1729
   },
   "lightning": {
-    "capacity_btc": 5700.5,
-    "channels": 42215,
-    "nodes": 17369
+    "capacity_btc": 5239.0,
+    "channels": 41423,
+    "nodes": 17396
   },
   "kol": {
     "sentiment_score": 66,
@@ -40,7 +40,7 @@
       "regulation",
       "macro"
     ],
-    "post_count_24h": 6,
+    "post_count_24h": 25,
     "dominant_sentiment": "bullish",
     "source": "tweets+transcripts"
   },
@@ -52,13 +52,13 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "MegaETH market cap (FDV) >$2B one day after launch?",
-    "top_probability": 75.5
+    "top_probability": 77.5
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "**Institutions are locking up Bitcoin supply at scale, and the narrative's shifted\u2014this isn't hype, it's capital repositioning.**\n\nBlackRock and major players are flooding in. ETF flows confirm it. Su",
-    "brief_type": "unknown"
+    "narrative": "**MORNING BRIEF**\n\nBitcoin holding firm at 75K despite a two-percent overnight pullback\u2014that's stability when it matters. Fear and Greed index sits at 27, pure fear territory, yet the network just pro",
+    "brief_type": "morning"
   },
   "whale_alerts": [
     {
@@ -101,61 +101,61 @@
     "dxy": 98.23,
     "gold_price": 4879.6,
     "sp500": 7161.5,
-    "btc_vs_gold_30d_corr": -0.036,
-    "btc_vs_dxy_30d_corr": -0.435,
+    "btc_vs_gold_30d_corr": -0.035,
+    "btc_vs_dxy_30d_corr": -0.441,
     "real_yield": null,
     "ten_year_yield": 4.25
   },
   "options": {
-    "put_call_ratio": 0.705,
-    "dvol": 44.2,
+    "put_call_ratio": 0.699,
+    "dvol": 43.4,
     "max_pain": 80000.0,
-    "total_call_oi": 243958.2,
-    "total_put_oi": 171937.4,
-    "total_oi_btc": 415895.6,
-    "avg_mark_iv": 51.9
+    "total_call_oi": 243079.7,
+    "total_put_oi": 169899.6,
+    "total_oi_btc": 412979.3,
+    "avg_mark_iv": 52.1
   },
   "futures": {
-    "funding_rate": -5e-08,
-    "annualized_basis": -0.01,
-    "open_interest": 28901.34,
-    "open_interest_usd": 2181039200.0,
+    "funding_rate": 1.105e-05,
+    "annualized_basis": 1.21,
+    "open_interest": 28793.7,
+    "open_interest_usd": 2187238550.0,
     "long_short_ratio": null,
-    "mark_price": 75463.0,
-    "index_price": 75464.98,
-    "basis_pct": -0.0176
+    "mark_price": 75958.28,
+    "index_price": 75962.41,
+    "basis_pct": -0.033
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 3372512.0,
+    "coin_days_destroyed_7d": 2985753.0,
     "active_addresses_7d": 618943.0,
-    "tx_volume_usd_7d": 46344795357.0,
-    "nvt_ratio": 29.3,
+    "tx_volume_usd_7d": 45942896198.0,
+    "nvt_ratio": 29.6,
     "accumulation_score": 85
   },
   "active_alerts": [
     {
-      "pattern_id": "SUPPLY_SHOCK",
-      "title": "Miners not capitulating \u2014 supply shock risk",
-      "description": "Hashrate 1015.9 EH/s (adj +4.76%), price down -2.21% \u2014 miners holding.",
+      "pattern_id": "POLYMARKET_CONFIRM",
+      "title": "Market consensus shifting",
+      "description": "Polymarket sentiment 74/100 (bullish), 25 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-04-19T06:25:08.182329+00:00",
+      "ts": "2026-04-19T14:05:04.260970+00:00",
       "data": {
-        "hashrate": 1015.9,
-        "change_24h": -2.21
+        "poly_sentiment": 74,
+        "kol_posts": 25
       }
     }
   ],
   "pattern_matches": [
-    "SUPPLY_SHOCK"
+    "POLYMARKET_CONFIRM"
   ],
   "indices": {
     "miner_conviction": {
-      "score": 69.7,
+      "score": 70.3,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
     "exchange_pressure": {
-      "score": 54.2,
+      "score": 51.2,
       "interpretation": "Exchange pressure mixed",
       "signal": "neutral"
     },
@@ -165,44 +165,44 @@
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 68.7,
+      "score": 69.0,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 77.4,
+      "score": 76.7,
       "pattern": "BULLISH",
-      "fragmentation": 14.1,
-      "momentum": 64.2,
-      "conviction": 58.8,
+      "fragmentation": 17.4,
+      "momentum": 63.5,
+      "conviction": 58.3,
       "thesis": "miner_absorption_under_fear",
       "confidence": 0.76
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 5.6,
-      "btc_market_cap": 1510933866887.8955,
-      "stablecoin_market_cap": 269924461635.67017,
-      "signal": "BULLISH",
-      "description": "Healthy stablecoin reserves available for BTC purchasing",
-      "source": "coingecko_derived"
+      "value": 7.42,
+      "btc_market_cap": 1520478444332.5637,
+      "stablecoin_market_cap": 205000000000,
+      "signal": "NEUTRAL",
+      "description": "Balanced stablecoin-to-BTC ratio",
+      "source": "estimated"
     },
     "mpi": {
-      "value": -0.43,
-      "cdd_7d": 3378355.0,
-      "cdd_ratio": 0.56,
-      "hashrate_eh": 1017.1,
+      "value": -0.491,
+      "cdd_7d": 2986279.0,
+      "cdd_ratio": 0.5,
+      "hashrate_eh": 1023.8,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 41.0,
+      "value": 47.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-04-19T06:20:02.114955+00:00"
+    "timestamp": "2026-04-19T14:00:07.640452+00:00"
   }
 }

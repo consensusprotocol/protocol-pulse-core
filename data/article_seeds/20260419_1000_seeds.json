@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-04-19T10:00:14.917453+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Why Bitcoin's 1035 EH/s Hashrate Proves Fear Is Premature",
+      "angle": "Network security metrics contradicting sentiment extremes during fear phases",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "network-security",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "The Fiat Collapse Thesis: Why Bitcoin's 57% Dominance Matters More Than Price",
+      "angle": "Macro deterioration + regulatory pressure + wealth inequality creating demand for monetary alternatives",
+      "tags": [
+        "bitcoin",
+        "macro",
+        "fiat",
+        "market-dominance",
+        "regulation"
+      ]
+    },
+    {
+      "headline": "Cheap Fees, Weak Hands: How Sub-2 Sat/Byte Mempool Sets Up Accumulation Zones",
+      "angle": "Technical setup analysis of current network conditions creating entry opportunities",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "accumulation",
+        "technical-analysis"
+      ]
+    }
+  ]
+}

@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260417_070004_0",
-    "text": "If the Fed can print $8 trillion in 15 years and call it monetary policy, at what point does Bitcoin stop being a hedge and start being the only rational choice",
-    "angle": "macro_monetary",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-17T07:00:04.299425+00:00",
-    "brief_date": "Thursday, April 16, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260417_160006_0",
     "text": "Treasury Secretary just warned of a debt crisis. Commercial bank reserves dropped 200 billion this month. Bitcoin's supply is fixed at 21 million. One of these solves the problem",
     "angle": "historical_pattern",
@@ -152,6 +140,18 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-04-19T04:55:21.812155+00:00",
+    "brief_date": "Saturday, April 18, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260419_071256_0",
+    "text": "Do you know what happens to your money when the institution holding it decides you're a liability",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-19T07:12:56.673825+00:00",
     "brief_date": "Saturday, April 18, 2026",
     "sentiment": "bullish"
   }

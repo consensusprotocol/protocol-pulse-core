@@ -755,11 +755,27 @@ def _select_clips_local(videos, max_clips=5):
 
     # V36 FIX: Shuffle transcripts for variety across renders
     import random
-    _eligible = [v for v in videos if v.get("video_id", "") not in set(_used_vids)]
-    if len(_eligible) < 5:
-        _eligible = list(videos)
-    random.shuffle(_eligible)
-    _shuffled_videos = _eligible[:15]
+    # V53 FIX: Pre-filter stale videos BEFORE sending to Qwen
+    # Videos with parseable upload_date older than 7 days are excluded
+    # Videos with no upload_date are kept (can't verify without slow lookup)
+    from datetime import datetime, timedelta
+    _cutoff = (datetime.now() - timedelta(days=7)).strftime("%Y%m%d")
+    _fresh_pool = []
+    _stale_count = 0
+    for v in videos:
+        vid_id = v.get("video_id", "")
+        if vid_id in set(_used_vids):
+            continue  # already used
+        ud = v.get("upload_date", "")
+        if ud and len(ud) == 8 and ud < _cutoff:
+            _stale_count += 1
+            continue  # known stale — don't even show to Qwen
+        _fresh_pool.append(v)
+    if len(_fresh_pool) < 5:
+        _fresh_pool = [v for v in videos if v.get("video_id", "") not in set(_used_vids)]
+    logger.info(f"FRESHNESS PRE-FILTER: {len(videos)} total, {_stale_count} stale removed, {len(_fresh_pool)} fresh pool")
+    random.shuffle(_fresh_pool)
+    _shuffled_videos = _fresh_pool[:15]
     logger.info(f"CLIP DIVERSITY: {len(videos)} total, {len(_used_vids)} blocked, {len(_eligible)} eligible, sending {len(_shuffled_videos)} to Qwen")
     random.shuffle(_shuffled_videos)
     transcripts_text = _format_transcripts(_shuffled_videos)

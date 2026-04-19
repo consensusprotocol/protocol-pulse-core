@@ -1,48 +1,82 @@
 {
   "topic_velocity": [
     {
-      "topic": "Bitcoin as monetary alternative to collapsing fiat & CBDC...",
-      "channels": 22,
+      "topic": "Institutional adoption & accumulation",
+      "channels": 2,
       "sentiment": "bullish",
-      "velocity_score": 33,
-      "authority_score": 33,
-      "top_quote": "",
-      "thought_leaders": [],
+      "velocity_score": 12,
+      "authority_score": 21,
+      "top_quote": "Think Even \u20bfigger",
+      "thought_leaders": [
+        "saylor",
+        "BitcoinMagazine"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Exchange exodus at 7-year lows \u2014 2.43M BTC off-ramp signa...",
-      "channels": 17,
-      "sentiment": "bullish",
-      "velocity_score": 26,
-      "authority_score": 26,
-      "top_quote": "",
-      "thought_leaders": [],
+      "topic": "Political/regulatory skepticism",
+      "channels": 2,
+      "sentiment": "bearish",
+      "velocity_score": 3,
+      "authority_score": 3,
+      "top_quote": "It means that nothing in Washington will ever become abundantly clear",
+      "thought_leaders": [
+        "TomerStrolight",
+        "PeterMcCormack"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Institutional accumulation accelerating \u2014 BlackRock, Morg...",
-      "channels": 32,
+      "topic": "Economics discourse & credibility",
+      "channels": 2,
+      "sentiment": "neutral",
+      "velocity_score": 3,
+      "authority_score": 3,
+      "top_quote": "You're not an economist unless having an opinion means you are",
+      "thought_leaders": [
+        "PeterMcCormack"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Bitcoin as long-term store of value",
+      "channels": 1,
       "sentiment": "bullish",
-      "velocity_score": 24,
-      "authority_score": 24,
-      "top_quote": "",
-      "thought_leaders": [],
+      "velocity_score": 2,
+      "authority_score": 3,
+      "top_quote": "Bitcoin is long term. Your health should be too.",
+      "thought_leaders": [
+        "BTCsessions"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Harm reduction & Silk Road legacy",
+      "channels": 1,
+      "sentiment": "mixed",
+      "velocity_score": 2,
+      "authority_score": 3,
+      "top_quote": "One of the greatest travesties of @RealRossU's persecution was that he got little credit for the harm reduction that Silk Road created",
+      "thought_leaders": [
+        "lopp"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Bitcoin as monetary alternative to collapsing fiat & CBDC...",
-    "Exchange exodus at 7-year lows \u2014 2.43M BTC off-ramp signa...",
-    "Institutional accumulation accelerating \u2014 BlackRock, Morg..."
+    "Institutional adoption & accumulation",
+    "Political/regulatory skepticism",
+    "Economics discourse & credibility"
   ],
-  "dominant_narrative": "Bitcoin as monetary alternative to collapsing fiat & CBDC...",
-  "market_mood": "neutral",
-  "total_tweets_analyzed": 0,
-  "thought_leaders_active": 0,
-  "scan_time": "2026-04-19T06:26:08Z"
+  "dominant_narrative": "Institutional adoption & accumulation",
+  "market_mood": "cautiously_bullish",
+  "total_tweets_analyzed": 13,
+  "thought_leaders_active": 8,
+  "scan_time": "2026-04-19T13:30:09Z"
 }
