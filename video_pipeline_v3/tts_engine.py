@@ -395,7 +395,11 @@ TTS_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tts_ca
 _PRONUNCIATION_DICT_CACHE = None
 
 def _get_pronunciation_dict_locators():
-    """Load pronunciation dictionary ID from scripts/.pronunciation_dict_id.json."""
+    """DISABLED V53: Server-side dict overrides native ElevenLabs pronunciation of
+    words like 'fiat' and 'Szabo' with bad phonetics. Local text substitution
+    (apply_pronunciation_map) handles all pronunciation needs.
+    """
+    return None  # V53: disabled — server-side dict causes more problems than it solves
     global _PRONUNCIATION_DICT_CACHE
     if _PRONUNCIATION_DICT_CACHE is not None:
         return _PRONUNCIATION_DICT_CACHE

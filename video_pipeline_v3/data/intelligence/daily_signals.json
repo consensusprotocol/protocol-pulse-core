@@ -27,7 +27,7 @@
       "channels": 32,
       "sentiment": "bullish",
       "velocity_score": 24,
-      "authority_score": 96,
+      "authority_score": 24,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -40,9 +40,9 @@
     "Exchange exodus at 7-year lows \u2014 2.43M BTC off-ramp signa...",
     "Institutional accumulation accelerating \u2014 BlackRock, Morg..."
   ],
-  "dominant_narrative": "Institutional accumulation accelerating \u2014 BlackRock, Morg...",
+  "dominant_narrative": "Bitcoin as monetary alternative to collapsing fiat & CBDC...",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-04-19T03:52:30Z"
+  "scan_time": "2026-04-19T06:26:08Z"
 }
