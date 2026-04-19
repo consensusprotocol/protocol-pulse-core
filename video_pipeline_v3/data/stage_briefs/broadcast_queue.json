@@ -21,24 +21,24 @@
     "expires_at": "2026-04-19T21:50:06.024613+00:00"
   },
   {
-    "id": "26bba409-9173-400a-985f-5e10ded8369d",
+    "id": "c10c3b8c-c54f-4686-8e65-bdae04af8df6",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trades at $75,666, down 0.47% in 24 hours.\n\nHashrate holds steady at 1,035 exahashes.\n\nFear and Greed index at 27\u2014fear dominant.\n\nFastest fee sits at 2 satoshis per vbyte.\n\nFifty thousand seven hundred forty-one transactions processed in the last hour.\n\nBlock 945,803 mined.\n\nWatch for any significant mining pool reorganization in the next 24 hours.",
+    "script": "Bitcoin trading at $74,844, down 1.2% in 24 hours. Hashrate sustained at 1,035.1 EH.\n\nFear and Greed index at 27, confirming widespread fear. Fastest fee sitting at 2 satoshis.\n\n51,970 transactions processed in the last block. Block 945,827.\n\nWatch for any significant fee spikes over 5 satoshis.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $75,666 \u00b7 FNG 27 \u00b7 1035.1 EH/s",
-    "generated_at": "2026-04-19T16:40:12.461727+00:00",
-    "expires_at": "2026-04-19T20:40:12.461727+00:00"
+    "topic_preview": "BTC $74,844 \u00b7 FNG 27 \u00b7 1035.1 EH/s",
+    "generated_at": "2026-04-19T20:40:12.549505+00:00",
+    "expires_at": "2026-04-20T00:40:12.549505+00:00"
   },
   {
-    "id": "ae8ded75-8b12-4609-a824-43723978661b",
+    "id": "7cf53625-969a-4c62-b7ac-56c418cdc31d",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Institutional Bitcoin accumulation accelerating through Nostr relays. \n\nMining difficulty rising 2.3% monthly\u2014nodes confirming institutional supply accumulation. Watch for next difficulty adjustment cycle.",
+    "script": "Institutional Bitcoin accumulation accelerating through Nostr relays. \n\nMining hash rate stabilizing above 350 exahashes per second.\n\nWatch for next major on-chain accumulation pattern.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Institutional adoption & accumulation",
-    "generated_at": "2026-04-19T16:35:07.463432+00:00",
-    "expires_at": "2026-04-19T20:35:07.463432+00:00"
+    "generated_at": "2026-04-19T20:40:15.260175+00:00",
+    "expires_at": "2026-04-20T00:40:15.260175+00:00"
   },
   {
     "id": "b9a18961-f59f-4c53-beae-0949ae5014c5",

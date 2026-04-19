@@ -1,13 +1,13 @@
 {
-  "fetched_at": 1776630606.325041,
-  "fetched_at_iso": "2026-04-19T20:30:06.325045+00:00",
+  "fetched_at": 1776632406.2294505,
+  "fetched_at_iso": "2026-04-19T21:00:06.229456+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
-      "connected": true,
-      "events_raw": 100,
-      "events_filtered": 81,
-      "error": null
+      "connected": false,
+      "events_raw": 0,
+      "events_filtered": 0,
+      "error": "server rejected WebSocket connection: HTTP 503"
     },
     {
       "relay": "wss://nos.lol",
@@ -34,26 +34,17 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 75,
+      "events_filtered": 71,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "Rare unseen young,incest contents in the link below and in bio to get and know more \n#Solana   #Memecoin #Altcoins #Matador #Bullish #AI171 #Pumpswap #AEO #Altcoins #Sol   #PENGI #Emoticoin #Crypto #Bitcoin   #CryptoTrading  #HODL #Ethereum   #Pumpswap \n#coin #crypto #usa #etf #xrp   #ripple #bitcoin   #ethereum   #binance #bitcoin   #rapestr #zap   #news #private #moonset #today #expensive #luxury #horny #ass #sexting #stats #nudes #dogstr #cum #catstr #millionstr #cumslut #sex #porn #teen #sexy #nsfw #fashion #symptoms #lesbian #pyt #links #dropbox #ass #carstr #boobstrs #latest #nudes #porn #horny #egirl #gamergirl #pussy #tits #boobs #naturaltits #nipples #realnsfw #nudity #alt #alternative #onlyfans #teen #pyt #freaky #feet #nsfw #tattoos #content #glasses #nerdy #pussy #curvy #18+ #tittydrop #bitcoin   #eth  \nTo See more in below \u2b07\ufe0f \nTelegram:-   https://t.me/megaco_tent",
-      "pubkey": "fa67ba8278ccf76b436e18993dbeca830e3fc51d55bfa7c08c8c0596234392ba",
-      "display_name": "npub1fa67ba82...4392ba",
-      "created_at": 1776625196,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
       "text": "Zap this post for 2000 sats and get the full newsletter straight to your Nostr DM!\n\nFor free subscribers: Carmelite Monks Building a Cathedral, Feminization of the Internet, Vetocracy, Game Theory and Fiat's Zero-Sum Trap, ActBlue Donation Fraud and more!\n\nFor paid subscribers: Quantum Safe Bitcoin With No Fork, Formal Proof of secp256k1, France Withdraws Gold from the Fed, Iran's Complicated Relationship With Bitcoin, Bitcoin Is For Criminals and more!\n\n#Bitcoin Tech Talk #496\n\nhttps://jimmysong.substack.com/p/bitcoin-tech-talk-496",
       "pubkey": "813f881e3b064a619788838860accacff445a0e9e2229a24c5d3b7a2257bada0",
       "display_name": "npub1813f881e...7bada0",
       "created_at": 1776624237,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
@@ -71,7 +62,7 @@
       "pubkey": "a4210579f0e892b911c3916007bf4be8959d29c29c7fa049f55a5516f6b14f69",
       "display_name": "npub1a4210579...b14f69",
       "created_at": 1776624115,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 76,
       "has_zap": false
     },
@@ -98,7 +89,7 @@
       "pubkey": "edab52ad923a36fad747d92da12f2a76f5838ec5229463bdfcb265c3bc2fa97b",
       "display_name": "npub1edab52ad...2fa97b",
       "created_at": 1776629333,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -107,7 +98,7 @@
       "pubkey": "e4dd796a3c78d952c509fb9791449c15c837da408650d4a2fbcac0c42f63d1d1",
       "display_name": "npub1e4dd796a...63d1d1",
       "created_at": 1776626246,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -116,7 +107,7 @@
       "pubkey": "b785ad30714ff150f4c7d6d0d74423e50947f58c04c6d8ec44977ddfce73c0fc",
       "display_name": "npub1b785ad30...73c0fc",
       "created_at": 1776623988,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -125,7 +116,7 @@
       "pubkey": "b18e9c1cc9ffc361a8f2262fb9a5411a061342aafb4beb15a9650ae5114d6862",
       "display_name": "npub1b18e9c1c...4d6862",
       "created_at": 1776623667,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -134,7 +125,7 @@
       "pubkey": "813f881e3b064a619788838860accacff445a0e9e2229a24c5d3b7a2257bada0",
       "display_name": "npub1813f881e...7bada0",
       "created_at": 1776623334,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -143,7 +134,7 @@
       "pubkey": "fe5915e97c59b0672a80351bd2e4a89d1414c56a25e74eab9b2ebc9014a8403b",
       "display_name": "npub1fe5915e9...a8403b",
       "created_at": 1776624926,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 69,
       "has_zap": false
     },
@@ -152,7 +143,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1776628863,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -161,7 +152,7 @@
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
       "created_at": 1776625265,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
@@ -170,17 +161,17 @@
       "pubkey": "34d2619e68720360854828326d149415e96394b76a93d7c107556d57e5d0d9a8",
       "display_name": "npub134d2619e...d0d9a8",
       "created_at": 1776625346,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 63,
       "has_zap": false
     },
     {
-      "text": "The 'what is #Nostr' type sites are brilliant \ud83d\udc4f \n\nWe need a 'what is lightning' site to show new #Bitcoin people the difference between real lightning and spark ark bullshit\n\n*adds to list",
-      "pubkey": "17430eae0e292ba649bb4dbef5aa245956d2095f03b4f9a0f4767d8f999895e1",
-      "display_name": "npub117430eae...9895e1",
-      "created_at": 1776625165,
-      "relay": "wss://relay.primal.net",
-      "score": 63,
+      "text": "\ud83d\udcc9 Bitcoin Price Update\n\nPrice: $74,835\nSats/$: 1,336\n24h: -1.18%\nVolume: $56.86B\nMarket Cap: $1.50T\n\nBlock: 945,827\nFear & Greed: 27/100 \ud83d\udfe0 Fear\n\nMoscow Time: 1336 sats\n\n#Bitcoin #BTC #Price #Cryptocurrency #SatsPerDollar",
+      "pubkey": "a40305c0fa6dffc989bf86e7cfdccce56422fd9d3d8de207d480025a8dc4b500",
+      "display_name": "npub1a40305c0...c4b500",
+      "created_at": 1776631104,
+      "relay": "wss://nos.lol",
+      "score": 62,
       "has_zap": false
     },
     {
@@ -188,7 +179,7 @@
       "pubkey": "a40305c0fa6dffc989bf86e7cfdccce56422fd9d3d8de207d480025a8dc4b500",
       "display_name": "npub1a40305c0...c4b500",
       "created_at": 1776627504,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 62,
       "has_zap": false
     },
@@ -197,7 +188,7 @@
       "pubkey": "a40305c0fa6dffc989bf86e7cfdccce56422fd9d3d8de207d480025a8dc4b500",
       "display_name": "npub1a40305c0...c4b500",
       "created_at": 1776623904,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 62,
       "has_zap": false
     },
@@ -206,7 +197,7 @@
       "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
       "display_name": "npub1794833e5...f9c731",
       "created_at": 1776624866,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 59,
       "has_zap": false
     },
@@ -215,12 +206,21 @@
       "pubkey": "82e06d3bfd8cc0973b40b9b994a3dd64b4e70b30556a8df0ee998dcd8668cfa9",
       "display_name": "npub182e06d3b...68cfa9",
       "created_at": 1776628804,
-      "relay": "wss://relay.damus.io",
+      "relay": "wss://nos.lol",
       "score": 58,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/SEK hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 689,367 sek | 24hr: -0.54%\n1 SEK: 145 sats\nMarket cap: 13,801,351,805,169 sek\n\nUpdated: 2026-04-19 | 22:01 CEST",
+      "pubkey": "80b2b76a3a1fc4332df2129d9a77b32b027fbb226cca9a96f73fc9bea972c5a8",
+      "display_name": "npub180b2b76a...72c5a8",
+      "created_at": 1776628922,
+      "relay": "wss://nos.lol",
+      "score": 56,
       "has_zap": false
     }
   ],
-  "total_raw": 300,
-  "total_filtered": 250,
+  "total_raw": 200,
+  "total_filtered": 165,
   "total_scored": 20
 }

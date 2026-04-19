@@ -29,11 +29,6 @@ channels:
   url: https://www.youtube.com/@thebitcoinlayer
   tier: 1
   priority: 1
-- handle: '@Blockworks'
-  name: Blockworks
-  url: https://www.youtube.com/@Blockworks
-  tier: 1
-  priority: 1
 - handle: '@nataliebrunell'
   name: Natalie Brunell
   url: https://www.youtube.com/@nataliebrunell

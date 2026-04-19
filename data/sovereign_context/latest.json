@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-04-19T20:35:03.789012+00:00",
-  "block_height": 945827,
+  "timestamp": "2026-04-19T21:10:04.543837+00:00",
+  "block_height": 945831,
   "btc": {
-    "price": 74857,
-    "change_24h": -1.18,
+    "price": 74724,
+    "change_24h": -1.46,
     "change_7d": 0,
-    "market_cap": 1497980891537.3416,
-    "volume_24h": 56764015350.54689,
-    "dominance": 57.4
+    "market_cap": 1495168844087.254,
+    "volume_24h": 57695609431.01901,
+    "dominance": 57.5
   },
   "fear_greed": {
     "value": 27,
@@ -16,20 +16,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 2,
-    "unconfirmed": 50975,
-    "size_mb": 31.1
+    "fee_high": 1,
+    "unconfirmed": 45569,
+    "size_mb": 29.9
   },
   "network": {
-    "hashrate_eh": 1022.1,
+    "hashrate_eh": 1022.3,
     "difficulty": 0,
-    "next_adj_pct": 6.52,
-    "next_adj_blocks": 1693
+    "next_adj_pct": 5.83,
+    "next_adj_blocks": 1689
   },
   "lightning": {
-    "capacity_btc": 5704.9,
-    "channels": 42027,
-    "nodes": 17372
+    "capacity_btc": 5706.3,
+    "channels": 41986,
+    "nodes": 17342
   },
   "kol": {
     "sentiment_score": 68,
@@ -52,7 +52,7 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "MegaETH market cap (FDV) >$2B one day after launch?",
-    "top_probability": 78.0
+    "top_probability": 77.0
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
@@ -108,28 +108,28 @@
   },
   "options": {
     "put_call_ratio": 0.698,
-    "dvol": 43.8,
+    "dvol": 43.9,
     "max_pain": 80000.0,
-    "total_call_oi": 243627.3,
-    "total_put_oi": 170094.4,
-    "total_oi_btc": 413721.7,
+    "total_call_oi": 243659.3,
+    "total_put_oi": 170193.3,
+    "total_oi_btc": 413852.6,
     "avg_mark_iv": 53.1
   },
   "futures": {
-    "funding_rate": 3.5e-07,
-    "annualized_basis": 0.04,
-    "open_interest": 29263.77,
-    "open_interest_usd": 2186174810.0,
+    "funding_rate": 0.0,
+    "annualized_basis": 0.0,
+    "open_interest": 29278.69,
+    "open_interest_usd": 2185989300.0,
     "long_short_ratio": null,
-    "mark_price": 74703.26,
-    "index_price": 74705.86,
-    "basis_pct": -0.033
+    "mark_price": 74662.17,
+    "index_price": 74661.44,
+    "basis_pct": -0.025
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 3524078.0,
+    "coin_days_destroyed_7d": 3575194.0,
     "active_addresses_7d": 618943.0,
-    "tx_volume_usd_7d": 47025200861.0,
-    "nvt_ratio": 28.9,
+    "tx_volume_usd_7d": 47534318008.0,
+    "nvt_ratio": 28.6,
     "accumulation_score": 85
   },
   "active_alerts": [
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 70 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-04-19T20:35:03.829807+00:00",
+      "ts": "2026-04-19T21:10:04.613825+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 70
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 70.1,
+      "score": 69.9,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -165,44 +165,44 @@
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 67.0,
+      "score": 69.2,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 76.9,
+      "score": 75.9,
       "pattern": "BULLISH",
-      "fragmentation": 16.5,
-      "momentum": 62.8,
-      "conviction": 58.4,
+      "fragmentation": 17.3,
+      "momentum": 63.5,
+      "conviction": 54.7,
       "thesis": "miner_absorption_under_fear",
-      "confidence": 0.76
+      "confidence": 0.72
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 5.54,
-      "btc_market_cap": 1495209725357.8984,
-      "stablecoin_market_cap": 270134760337.50485,
-      "signal": "BULLISH",
-      "description": "Healthy stablecoin reserves available for BTC purchasing",
-      "source": "coingecko_derived"
+      "value": 7.29,
+      "btc_market_cap": 1493677461493.488,
+      "stablecoin_market_cap": 205000000000,
+      "signal": "NEUTRAL",
+      "description": "Balanced stablecoin-to-BTC ratio",
+      "source": "estimated"
     },
     "mpi": {
-      "value": -0.404,
-      "cdd_7d": 3524078.0,
-      "cdd_ratio": 0.59,
-      "hashrate_eh": 1022.1,
+      "value": -0.397,
+      "cdd_7d": 3570683.0,
+      "cdd_ratio": 0.6,
+      "hashrate_eh": 1020.0,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 40.0,
+      "value": 39.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-04-19T20:30:01.604805+00:00"
+    "timestamp": "2026-04-19T21:00:06.853828+00:00"
   }
 }

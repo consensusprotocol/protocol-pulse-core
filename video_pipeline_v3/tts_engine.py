@@ -423,7 +423,6 @@ def _get_pronunciation_dict_locators():
 # ElevenLabs renders these phonetic substitutions naturally.
 # Longer/more specific entries first to avoid partial replacements.
 PRONUNCIATION_MAP = {
-    # Satoshi
     "Nakamoto": "nah kah MOE toe",
     # Saylor
     "Michael Saylor": "Michael Sayler",
@@ -448,7 +447,6 @@ PRONUNCIATION_MAP = {
     # Saifedean Ammous
     "Saifedean Ammous": "Sigh-fuh-dean Ah-moose",
     "Saifedean": "Sigh-fuh-dean",
-    "Ammous": "Ah-moose",
     # Robert Breedlove
     "Robert Breedlove": "Robert BREED love",
     "Breedlove": "BREED love",
@@ -462,8 +460,6 @@ PRONUNCIATION_MAP = {
     "Luke Dashjr": "LUKE DASH-junior",
     "Dashjr": "DASH-junior",
     # Nick Szabo
-    "Nick Szabo": "Nick Say-bo",
-    "Szabo": "Say-bo",
     # Anthony Pompliano
     "Anthony Pompliano": "Anthony pahm-plee-AH-no",
     "Pompliano": "pahm-plee-AH-no",
@@ -572,7 +568,6 @@ PRONUNCIATION_MAP = {
     # People
     "Saifedean": "Sigh-feh-DEAN",
     "Nakamoto": "Nah-kah-MOH-toh",
-    "Szabo": "Say-bo",  # V46 FIX: lowercase for natural ElevenLabs pronunciation
     # Protocols
     "Taproot": "Tap-root",
     "Nostr": "nawster",
