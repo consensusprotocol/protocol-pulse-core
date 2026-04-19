@@ -424,8 +424,6 @@ def _get_pronunciation_dict_locators():
 # Longer/more specific entries first to avoid partial replacements.
 PRONUNCIATION_MAP = {
     # Satoshi
-    "Satoshi Nakamoto": "sah TOE shee nah kah MOE toe",
-    "Satoshi": "sah TOE shee",
     "Nakamoto": "nah kah MOE toe",
     # Saylor
     "Michael Saylor": "Michael Sayler",

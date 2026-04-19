@@ -1,7 +1,31 @@
 {
-  "last_updated": "2026-04-19T04:00:12.907464+00:00",
-  "total_analyses": 161,
+  "last_updated": "2026-04-19T16:00:12.940768+00:00",
+  "total_analyses": 162,
   "analyses": [
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 25,
+      "main_thesis": "Bitcoin will likely face continued downward pressure in the near-term due to prolonged geopolitical conflict and its correlation with risk assets. A bottom may form gradually around $40k, with potential for lower prices ($30k-$20k) only in severe liquidity crisis scenarios.",
+      "key_quotes": [
+        "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad.",
+        "I think this war is going to go a lot longer than people think and ultimately that's bad for risk assets.",
+        "Bitcoin tends to find bottoms gradually...you have to turn out the fast money."
+      ],
+      "topics": [
+        "geopolitical conflict impact on Bitcoin",
+        "Bitcoin-software sector correlation",
+        "liquidity crisis scenarios",
+        "accumulation strategy and price targeting",
+        "risk asset valuation"
+      ],
+      "price_prediction": "$40k near-term target; potential $20k-$30k in severe liquidity crisis; upside to $75k-$90k+ dependent on geopolitical resolution",
+      "confidence": "low",
+      "channel": "BTC Sessions",
+      "title": "$40k or $80k? \u2014 Lyn Alden & Luke Gromen Reveal Where Bitcoin Goes Next",
+      "video_id": "LsR11IQESCs",
+      "duration": 485.08,
+      "analyzed_at": "2026-04-19T16:00:10.937424+00:00"
+    },
     {
       "sentiment": "bearish",
       "sentiment_score": 15,

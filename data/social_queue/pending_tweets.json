@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260417_160006_0",
-    "text": "Treasury Secretary just warned of a debt crisis. Commercial bank reserves dropped 200 billion this month. Bitcoin's supply is fixed at 21 million. One of these solves the problem",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-17T16:00:06.370604+00:00",
-    "brief_date": "Friday, April 17, 2026",
-    "sentiment": "uncertain"
-  },
-  {
     "id": "tweet_20260417_190004_0",
     "text": "Commercial bank reserves dropped 200 billion in 30 days. When was the last time that happened outside a crisis. What are they not telling us",
     "angle": "macro_monetary",
@@ -153,6 +141,42 @@
     "status": "pending",
     "generated_at": "2026-04-19T07:12:56.673825+00:00",
     "brief_date": "Saturday, April 18, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260419_151303_0",
+    "text": "Morgan Stanley holds 1,348 Bitcoin. BlackRock's iShares fund bought 34,000 BTC in 90 days. Institutions aren't diversifying into Bitcoin. They're exiting everything else",
+    "angle": "institutional_flow",
+    "type": "signal",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-19T15:13:03.760308+00:00",
+    "brief_date": "Sunday, April 19, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260419_160007_0",
+    "text": "Morgan Stanley holds 1,348 Bitcoin. MicroStrategy holds 242,595. One's a bank. One's a software company. The distribution layer just inverted",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "brief_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-19T16:00:07.439457+00:00",
+    "brief_date": "Sunday, April 19, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260419_190004_0",
+    "text": "Morgan Stanley holds 1,348 Bitcoin. Not as a trade. As a balance sheet asset. When the largest US banks start treating it like gold, what are they hedging against",
+    "angle": "institutional_flow",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-19T19:00:04.139944+00:00",
+    "brief_date": "Sunday, April 19, 2026",
     "sentiment": "bullish"
   }
 ]

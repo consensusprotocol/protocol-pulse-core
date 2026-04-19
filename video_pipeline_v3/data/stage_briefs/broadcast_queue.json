@@ -1,42 +1,53 @@
 [
   {
-    "id": "efb78308-839d-4d06-b179-7268a5aea5a6",
+    "id": "e0bc3bcc-dc8b-4aac-89ec-d08528050c22",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "**ORACLE MIDDAY BRIEF**\n\nBitcoin holding $74,760 despite overnight weakness\u2014fear gauge at 27 signals capitulation, not panic. That's institutional entry pricing.\n\n**The Real Signal:** Hashrate crushing 1,035 EH/s while mempool clears to 2 sat/vB. Network's bulletproof during accumulation season. Van",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
+    "topic_preview": "Oracle Midday Brief \u2014 $74,760",
+    "generated_at": "2026-04-19T18:00:01.742580+00:00",
+    "expires_at": "2026-04-19T22:00:01.742580+00:00",
+    "video_url": "/data/stage_briefs/brief_20260419_1800.mp4"
+  },
+  {
+    "id": "39779a51-e989-4c0c-9b01-516f322e52fd",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Satomi Broadcast\n\nMarty Bent dismisses Charles' Bitcoin understanding. \n\nCharles' tweet count drops 40% since last month.\n\nWatch for new Bitcoin node deployments in Asia.",
+    "script": "Satomi Broadcast\n\nMarty Bent launches Bitcoin Treasury Playbook with Capital B Advisory.\n\nCompanies now have structured framework for Bitcoin balance sheet positioning.\n\nWatch for CFO adoption of these allocation models in Q4.\n\nForward signal: Monitor Capital B's client onboarding for playbook implementation.",
     "source_label": "\ud83e\udde0 @MARTYBENT",
-    "topic_preview": "Charles doesn\u2019t understand bitcoin.",
-    "generated_at": "2026-04-19T13:45:04.282416+00:00",
-    "expires_at": "2026-04-19T15:45:04.282416+00:00"
+    "topic_preview": "Proud to launch the Bitcoin Treasury & Exit Playbook with Scott Marmoll of Capit",
+    "generated_at": "2026-04-19T19:50:06.024613+00:00",
+    "expires_at": "2026-04-19T21:50:06.024613+00:00"
   },
   {
-    "id": "eb55e91c-8998-41e3-a284-19582fc8724f",
+    "id": "26bba409-9173-400a-985f-5e10ded8369d",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $75,627, down 0.76% in 24 hours. Hashrate holding steady at 1,035 exahashes.\n\nFear and Greed index at 27, solidly in fear territory.\n\n49,780 transactions processed in the last hour. Fast fee at 1 satoshi.\n\nBlock 945,773. Watch for any mining pool reorgs in the next 24 hours.",
+    "script": "Bitcoin trades at $75,666, down 0.47% in 24 hours.\n\nHashrate holds steady at 1,035 exahashes.\n\nFear and Greed index at 27\u2014fear dominant.\n\nFastest fee sits at 2 satoshis per vbyte.\n\nFifty thousand seven hundred forty-one transactions processed in the last hour.\n\nBlock 945,803 mined.\n\nWatch for any significant mining pool reorganization in the next 24 hours.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $75,627 \u00b7 FNG 27 \u00b7 1035.1 EH/s",
-    "generated_at": "2026-04-19T12:20:15.128975+00:00",
-    "expires_at": "2026-04-19T16:20:15.128975+00:00"
+    "topic_preview": "BTC $75,666 \u00b7 FNG 27 \u00b7 1035.1 EH/s",
+    "generated_at": "2026-04-19T16:40:12.461727+00:00",
+    "expires_at": "2026-04-19T20:40:12.461727+00:00"
   },
   {
-    "id": "ca6ee1ef-09bf-4f0f-bb42-78b0105bc113",
+    "id": "ae8ded75-8b12-4609-a824-43723978661b",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin miners are activating new nodes across Africa and Southeast Asia. This signals a deliberate push to decentralize mining infrastructure away from Western dominance. Watch for new node deployments in Nigeria and Indonesia over the next 72 hours.\n\nThe Nostr relay discourse confirms Bitcoin's emergence as a viable monetary alternative to collapsing fiat systems. This represents a fundamental shift in how sovereign individuals view monetary sovereignty. Monitor the next wave of Bitcoin adoption in emerging markets for confirmation.",
+    "script": "Institutional Bitcoin accumulation accelerating through Nostr relays. \n\nMining difficulty rising 2.3% monthly\u2014nodes confirming institutional supply accumulation. Watch for next difficulty adjustment cycle.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Bitcoin as monetary alternative to collapsing fiat & CBDC...",
-    "generated_at": "2026-04-19T12:30:20.719867+00:00",
-    "expires_at": "2026-04-19T16:30:20.719867+00:00"
+    "topic_preview": "Institutional adoption & accumulation",
+    "generated_at": "2026-04-19T16:35:07.463432+00:00",
+    "expires_at": "2026-04-19T20:35:07.463432+00:00"
   },
   {
-    "id": "b99bb36e-7feb-474f-ba79-6648d6c1ef4f",
+    "id": "b9a18961-f59f-4c53-beae-0949ae5014c5",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate breached 1035 EH/s, confirming network security remains robust despite price pressure. Fear & greed at 27 indicates institutional selling. Mempool fees remain ultra-low. Watch for retest of $76K resistance.",
+    "script": "Hashrate sustained above 1035 EH/s despite price resistance, signaling institutional accumulation. Mempool fees remain suppressed at 3 sat/vbyte. Bitcoin miners continue operating at scale. Watch for mempool fee spikes above 5 sat/vbyte.",
     "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate breached 1035 EH/s, confirming network security remains robust despite ",
-    "generated_at": "2026-04-19T12:15:27.064105+00:00",
-    "expires_at": "2026-04-19T14:15:27.064105+00:00"
+    "topic_preview": "Hashrate sustained above 1035 EH/s despite price resistance, signaling instituti",
+    "generated_at": "2026-04-19T19:45:21.992074+00:00",
+    "expires_at": "2026-04-19T21:45:21.992074+00:00"
   }
 ]

@@ -1,30 +1,13 @@
 {
   "topic_velocity": [
     {
-      "topic": "Institutional adoption & accumulation",
-      "channels": 2,
-      "sentiment": "bullish",
-      "velocity_score": 12,
-      "authority_score": 21,
-      "top_quote": "Think Even \u20bfigger",
-      "thought_leaders": [
-        "saylor",
-        "BitcoinMagazine"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
       "topic": "Political/regulatory skepticism",
       "channels": 2,
       "sentiment": "bearish",
       "velocity_score": 3,
       "authority_score": 3,
-      "top_quote": "It means that nothing in Washington will ever become abundantly clear",
-      "thought_leaders": [
-        "TomerStrolight",
-        "PeterMcCormack"
-      ],
+      "top_quote": "",
+      "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
@@ -34,10 +17,19 @@
       "sentiment": "neutral",
       "velocity_score": 3,
       "authority_score": 3,
-      "top_quote": "You're not an economist unless having an opinion means you are",
-      "thought_leaders": [
-        "PeterMcCormack"
-      ],
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Institutional adoption & accumulation",
+      "channels": 2,
+      "sentiment": "bullish",
+      "velocity_score": 2,
+      "authority_score": 12,
+      "top_quote": "",
+      "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
@@ -46,11 +38,9 @@
       "channels": 1,
       "sentiment": "bullish",
       "velocity_score": 2,
-      "authority_score": 3,
-      "top_quote": "Bitcoin is long term. Your health should be too.",
-      "thought_leaders": [
-        "BTCsessions"
-      ],
+      "authority_score": 2,
+      "top_quote": "",
+      "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
@@ -59,24 +49,22 @@
       "channels": 1,
       "sentiment": "mixed",
       "velocity_score": 2,
-      "authority_score": 3,
-      "top_quote": "One of the greatest travesties of @RealRossU's persecution was that he got little credit for the harm reduction that Silk Road created",
-      "thought_leaders": [
-        "lopp"
-      ],
+      "authority_score": 2,
+      "top_quote": "",
+      "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Institutional adoption & accumulation",
     "Political/regulatory skepticism",
-    "Economics discourse & credibility"
+    "Economics discourse & credibility",
+    "Institutional adoption & accumulation"
   ],
   "dominant_narrative": "Institutional adoption & accumulation",
-  "market_mood": "cautiously_bullish",
-  "total_tweets_analyzed": 13,
-  "thought_leaders_active": 8,
-  "scan_time": "2026-04-19T13:30:09Z"
+  "market_mood": "neutral",
+  "total_tweets_analyzed": 0,
+  "thought_leaders_active": 0,
+  "scan_time": "2026-04-19T14:07:21Z"
 }

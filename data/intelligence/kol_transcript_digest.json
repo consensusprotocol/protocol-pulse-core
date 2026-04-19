@@ -1,63 +1,69 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-19T04:00:16.353026+00:00",
-  "creator_count": 19,
-  "avg_sentiment_score": 59.4,
+  "generated_at": "2026-04-19T16:00:16.254922+00:00",
+  "creator_count": 6,
+  "avg_sentiment_score": 63.3,
   "sentiment_breakdown": {
-    "bullish": 10,
+    "bullish": 4,
     "bearish": 2,
-    "neutral": 7
+    "neutral": 0
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "Fiat currency devaluation",
+      "topic": "geopolitical conflict impact on Bitcoin",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "A dollar today is not a dollar tomorrow."
+      "avg_sentiment_score": 25.0,
+      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
     },
     {
-      "topic": "Inflation misrepresentation (7% called 2%)",
+      "topic": "Bitcoin-software sector correlation",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "A dollar today is not a dollar tomorrow."
+      "avg_sentiment_score": 25.0,
+      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
     },
     {
-      "topic": "Institutional deception and narrative control",
+      "topic": "liquidity crisis scenarios",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "A dollar today is not a dollar tomorrow."
+      "avg_sentiment_score": 25.0,
+      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
     },
     {
-      "topic": "Monetary system manipulation",
+      "topic": "accumulation strategy and price targeting",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "A dollar today is not a dollar tomorrow."
+      "avg_sentiment_score": 25.0,
+      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
     },
     {
-      "topic": "Fed monetary policy",
+      "topic": "risk asset valuation",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "A dollar today is not a dollar tomorrow."
+      "avg_sentiment_score": 25.0,
+      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Nearly all creators agree Bitcoin benefits from institutional/sovereign adoption and macroeconomic dysfunction (fiat debasement, debt unsustainability, dollar weakness). They view Bitcoin as a structural alternative to failing traditional finance, with multiple catalysts (AI, tokenization, QE, geopolitical factors) supporting price appreciation.\n\n**Divergence:** The primary split is on *urgency and causation*. Simply Bitcoin emphasizes imminent systemic collapse as Bitcoin's driver, while Altcoin Daily and Anthony Pompliano focus on technological catalysts (AI, hardware cycles) and market technicals. Additionally, Altcoin Daily uniquely predicts Ethereum alongside Bitcoin, whereas others concentrate solely on Bitcoin dominance.\n\n**Key Gap:** Only The Bitcoin Layer and Swan Bitcoin acknowledge mixed or conditional sentiment, questioning whether dollar weakness is permanent or geopolitically orchestrated\u2014introducing skepticism absent from the more dogmatic bearish-on-fiat voices.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Most creators agree Bitcoin has fundamental long-term value, with institutional/sovereign adoption and supply dynamics supporting higher prices. There's also agreement that macroeconomic factors (geopolitical conflict, monetary policy, dollar weakness) significantly influence Bitcoin's direction.\n\n**Divergence:** The core split is on near-term price direction. Bullish voices (5 creators, 78-92 sentiment) cite institutional adoption, supply constraints, and AI/tokenization tailwinds, while BTC Sessions stands alone with bearish near-term outlook ($40k bottom, potential $20-30k crash). Simply Bitcoin uniquely frames Bitcoin as an ideological alternative to fiat collapse rather than a purely financial asset.\n\n**Key tension:** Bullish creators see institutional buying creating structural support, while the bearish view emphasizes macro headwinds and correlation with risk assets that could overwhelm adoption narratives in a liquidity crisis.",
   "top_creators": [
+    {
+      "channel": "BTC Sessions",
+      "sentiment": "bearish",
+      "score": 25,
+      "thesis": "Bitcoin will likely face continued downward pressure in the near-term due to prolonged geopolitical conflict and its correlation with risk assets. A bottom may form gradually around $40k, with potential for lower prices ($30k-$20k) only in severe liquidity crisis scenarios."
+    },
     {
       "channel": "Simply Bitcoin",
       "sentiment": "bearish",
@@ -81,12 +87,6 @@
       "sentiment": "bullish",
       "score": 85,
       "thesis": "Private business owners should accumulate Bitcoin on their corporate balance sheets as a treasury strategy, which outperforms traditional private equity returns and provides superior optionality compared to fiat-based valuations."
-    },
-    {
-      "channel": "Anthony Pompliano",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Bitcoin is positioned to surge after completing a correction, benefiting from AI-driven compute scarcity and a secular bull market in hardware and commodities that central bank QE will continue to support."
     }
   ]
 }

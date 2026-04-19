@@ -1,0 +1,119 @@
+{
+  "grade": "B",
+  "overall_score": 92,
+  "broadcast_ready": false,
+  "technical_score": 87,
+  "content_score": 96,
+  "production_score": 95,
+  "dimensions": {
+    "duration_check": {
+      "score": 7,
+      "note": "Duration is 314.8s (5.2 min). This is acceptable but shorter than the 8-15 minute ideal target."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, meeting the broadcast standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is ideal."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -14.9 LUFS, perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True peak is -3.3 dBFS, safely below the -1.0 dBFS maximum."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "No mid-video black frames detected."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No unintended silence gaps detected."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "Critical Failure. Multiple penalized freeze frames detected throughout the episode, particularly during screen recordings and tweet displays (e.g., 0:23-0:27, 1:31-1:42, and a very long freeze from 2:47-3:40). The visuals are static for far too long while narration continues."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Standard h264/aac codecs used."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File is clean with a healthy bitrate and both streams present."
+    },
+    "clip_relevance": {
+      "score": 9,
+      "note": "Clips from Blockworks, Altcoin Daily, and Bitcoin News Alerts are relevant and well-contextualized, covering community, political, and institutional angles."
+    },
+    "script_quality": {
+      "score": 9,
+      "note": "The narration effectively synthesizes the clips into a coherent argument about different layers of Bitcoin adoption, adding significant value and context."
+    },
+    "cold_open_hook": {
+      "score": 10,
+      "note": "The cold open is excellent, immediately establishing a compelling thesis about 'hidden signals' behind institutional accumulation."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode follows a strong, logical progression from grassroots innovation to political hypocrisy and institutional supply shocks, culminating in a data-backed conclusion."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's voice is clean, authoritative, and naturally paced. The AI synthesis is of high quality."
+    },
+    "episode_title": {
+      "score": 9,
+      "note": "The title 'Institutions Fuel Bitcoin Surge' is specific, accurate, and reflects the main theme of the episode."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is concise and focused, with no off-topic content or unnecessary segments."
+    },
+    "timeliness": {
+      "score": 10,
+      "note": "Content is timely, referencing events and data from the past few days (April 17-19)."
+    },
+    "music_mix": {
+      "score": 9,
+      "note": "The music bed is well-mixed, supports the cyberpunk tone, and ducks correctly for narration."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Transitions are clean, on-brand, and effectively segment the episode."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The visual aesthetic is consistent and high-quality. Data overlays, lower thirds, and the overall cyberpunk theme are well-executed."
+    },
+    "no_artifacts": {
+      "score": 9,
+      "note": "Aside from the critical freeze frames, the video is free of compression artifacts or stuttering."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "Narration and clip audio are both clear, well-leveled, and free of noise or distortion."
+    },
+    "pacing": {
+      "score": 9,
+      "note": "The pacing is tight and engaging, effectively covering multiple topics in a short runtime."
+    }
+  },
+  "critical_failures": [
+    "freeze_check: The episode contains more than two instances of prolonged freeze frames where the on-screen visual remains static while narration continues. This is a major viewer experience issue."
+  ],
+  "warnings": [
+    "duration_check: At 5.2 minutes, the episode is on the short side of the acceptable range. Aiming for the 8-minute mark would allow for deeper analysis."
+  ],
+  "strengths": [
+    "narrative_arc: The episode masterfully weaves together seemingly disparate clips (Minecraft modding, insider trading, institutional buying) into a single, powerful narrative.",
+    "cold_open_hook: The opening is exceptionally strong, creating immediate intrigue and setting a clear direction for the episode.",
+    "visual_polish: The overall aesthetic, including data visualizations and transitions, is highly polished and reinforces the show's brand identity."
+  ],
+  "verdict": "A thematically strong and well-produced episode critically undermined by numerous and lengthy freeze frames that make it unpublishable in its current state.",
+  "recommendation": "FIX_AND_RERENDER"
+}

@@ -1,35 +1,25 @@
 {
-  "episode_narrative": "Institutional adoption & accumulation is dominating Bitcoin discourse \u2014 2 of 1 Priority-1 thought leaders tweeted about it in the last 4 hours",
-  "eryn_intro_hook": "Eryn should reference: 'Think Even \u20bfigger' from thought leaders saylor, BitcoinMagazine (fetched at 2026-04-19T13:30:09.320991+00:00)",
-  "mark_context": "Mark should add context: 'Bitcoin as long-term store of value' is also trending with 1 thought leaders discussing it",
+  "episode_narrative": "Institutional adoption & accumulation is dominating Bitcoin discourse \u2014 2 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
+  "mark_context": "Mark should add context: 'Political/regulatory skepticism' is also trending with 2 thought leaders discussing it",
   "clip_selection_priority": [
     "Institutional adoption & accumulation",
-    "Bitcoin as long-term store of value",
-    "Harm reduction & Silk Road legacy"
+    "Political/regulatory skepticism",
+    "Economics discourse & credibility"
   ],
   "avoid_topics": [
     "price speculation",
     "altcoins"
   ],
-  "thought_leaders_mentioned": [
-    "BitcoinMagazine",
-    "PeterMcCormack",
-    "saylor",
-    "TomerStrolight",
-    "BTCsessions",
-    "lopp"
-  ],
+  "thought_leaders_mentioned": [],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
   "dominant_narrative": "Institutional adoption & accumulation",
-  "market_mood": "cautiously_bullish",
-  "top_quote": "Think Even \u20bfigger",
-  "top_quote_handles": [
-    "saylor",
-    "BitcoinMagazine"
-  ],
-  "quote_fetched_at": "2026-04-19T13:30:09.320991+00:00",
-  "computed_at": "2026-04-19T13:30:09.320991+00:00"
+  "market_mood": "neutral",
+  "top_quote": "",
+  "top_quote_handles": [],
+  "quote_fetched_at": "2026-04-19T14:07:21.198182+00:00",
+  "computed_at": "2026-04-19T14:07:21.198182+00:00"
 }
