@@ -1,63 +1,81 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-18T08:00:09.567133+00:00",
-  "creator_count": 16,
-  "avg_sentiment_score": 58.6,
+  "generated_at": "2026-04-18T20:00:21.434223+00:00",
+  "creator_count": 19,
+  "avg_sentiment_score": 62.8,
   "sentiment_breakdown": {
-    "bullish": 8,
+    "bullish": 11,
     "bearish": 1,
     "neutral": 7
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "US debt crisis and Treasury collapse",
+      "topic": "MicroStrategy's $1B daily Bitcoin purchases and MSTR holdings",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "This is not adoption. This is a stampede in slow motion."
     },
     {
-      "topic": "Currency debasement and inflation",
+      "topic": "Institutional adoption (Morgan Stanley, Bank of America, Citigroup)",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "This is not adoption. This is a stampede in slow motion."
     },
     {
-      "topic": "Historical parallels to Roman Empire and British pound decline",
+      "topic": "Iran's Bitcoin-denominated toll collection at Strait of Hormuz",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "This is not adoption. This is a stampede in slow motion."
     },
     {
-      "topic": "Bitcoin as alternative financial system",
+      "topic": "Supply dynamics and absorption rates vs miner production",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "This is not adoption. This is a stampede in slow motion."
     },
     {
-      "topic": "Federal Reserve policy and monetary supply control",
+      "topic": "Bitcoin as censorship-resistant settlement for sanctioned nations",
       "creator_count": 1,
       "creators": [
         "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "When we hit it, it will be vicious. So we have to prepare for that eventuality."
+      "avg_sentiment_score": 92.0,
+      "example_quote": "This is not adoption. This is a stampede in slow motion."
     }
   ],
-  "summary": "# Bitcoin Creators' Consensus and Divergence\n\n**Consensus:** Bitcoin creators overwhelmingly view Bitcoin as a compelling alternative to traditional fiat systems, with broad agreement that macroeconomic pressures (debt, currency debasement, inflation, dollar weakness) and institutional adoption are driving its relevance. There's also shared concern that security vulnerabilities stem from human behavior and user practices rather than Bitcoin's core protocol.\n\n**Divergence:** While most speakers are bullish on Bitcoin's macro narrative (78/100 average sentiment), they disagree on specific catalysts and timelines\u2014some emphasize imminent systemic collapse, others point to gradual institutional adoption, and a few highlight geopolitical dimensions like the US-China AI race. Additionally, there's tension between optimism about Bitcoin's long-term security and serious near-term concerns about retail users falling victim to social engineering and fake apps.\n\n**Notable Gap:** Robert Breedlove and Stacker News provided no substantive commentary, leaving some perspectives underrepresented in the discussion.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators overwhelmingly agree on bullish structural tailwinds\u2014institutional/sovereign adoption is creating supply shortages, fiat debasement and monetary system instability make Bitcoin inevitable, and the dollar is weakening. All major voices advocate Bitcoin accumulation, whether for corporate balance sheets or as a hedge against systemic collapse.\n\n**Divergence:** While most focus on macro monetary collapse and institutional demand, perspectives split on *mechanisms*: some emphasize geopolitical engineering and AI-driven commodity cycles, others stress dollar weakness and capital reallocation, and a minority highlight security vulnerabilities (not in Bitcoin itself, but in user behavior and centralized platforms). One outlier warns that the real risk isn't Bitcoin's protocol but human-layer exploits via social engineering.\n\n**Overall:** The ecosystem is unified on Bitcoin's bullish direction but fragmented on whether adoption stems from institutional foresight, systemic desperation, or some combination thereof\u2014with growing acknowledgment that technical security doesn't solve user-side risks.",
   "top_creators": [
+    {
+      "channel": "Simply Bitcoin",
+      "sentiment": "bullish",
+      "score": 92,
+      "thesis": "Bitcoin adoption has shifted from retail speculation to institutional and sovereign nation adoption, creating a structural supply shortage as major entities like MicroStrategy absorb multiples of monthly miner output."
+    },
+    {
+      "channel": "TFTC",
+      "sentiment": "bullish",
+      "score": 85,
+      "thesis": "Private business owners should accumulate Bitcoin on their corporate balance sheets as a treasury strategy, which outperforms traditional private equity returns and provides superior optionality compared to fiat-based valuations."
+    },
+    {
+      "channel": "Anthony Pompliano",
+      "sentiment": "bullish",
+      "score": 78,
+      "thesis": "Bitcoin is positioned to surge after completing a correction, benefiting from AI-driven compute scarcity and a secular bull market in hardware and commodities that central bank QE will continue to support."
+    },
     {
       "channel": "Robert Breedlove",
       "sentiment": "neutral",
@@ -69,24 +87,6 @@
       "sentiment": "bullish",
       "score": 78,
       "thesis": "The US financial system is approaching collapse due to unsustainable debt and currency debasement, making Bitcoin an inevitable alternative as institutions build a new financial system before the old one fails."
-    },
-    {
-      "channel": "Simply Bitcoin",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Bitcoin adoption is accelerating through institutional demand and sovereign nation adoption while critics inadvertently validate Bitcoin's purpose by highlighting monetary system failures. A 'monetary singularity' is unfolding despite current bear market conditions and mainstream indifference."
-    },
-    {
-      "channel": "The Bitcoin Layer",
-      "sentiment": "mixed",
-      "score": 62,
-      "thesis": "The US Dollar is breaking a 20-year trend line and entering a weakening regime (DXY 80s-70s), which could trigger international capital flows, credit expansion abroad, and potentially benefit Bitcoin as a non-correlated asset. This dollar weakness may be geopolitically engineered to give the US a competitive edge in the AI race against China."
-    },
-    {
-      "channel": "Swan Bitcoin",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "Bitcoin is attractive as geopolitical tensions ease, risk appetite returns, and the monetary system faces inflation pressures that make scarce assets like Bitcoin compelling alternatives to fiat."
     }
   ]
 }

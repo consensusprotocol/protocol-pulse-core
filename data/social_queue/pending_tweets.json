@@ -1,29 +1,5 @@
 [
   {
-    "id": "tweet_20260416_160003_0",
-    "text": "270k BTC moved off exchanges in 30 days while price flatlined. Institutional buyers don't wait for permission to accumulate. They accumulate first, then prices follow",
-    "angle": "onchain_metric",
-    "type": "signal",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-16T16:00:03.960648+00:00",
-    "brief_date": "Thursday, April 16, 2026",
-    "sentiment": "uncertain"
-  },
-  {
-    "id": "tweet_20260416_190005_0",
-    "text": "How many people in your life actually own the private keys to their Bitcoin, or are they all just holding IOUs on an exchange",
-    "angle": "network_fundamentals",
-    "type": "signal",
-    "format": "fiat_failure",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-16T19:00:05.971474+00:00",
-    "brief_date": "Thursday, April 16, 2026",
-    "sentiment": "uncertain"
-  },
-  {
     "id": "tweet_20260417_070004_0",
     "text": "If the Fed can print $8 trillion in 15 years and call it monetary policy, at what point does Bitcoin stop being a hedge and start being the only rational choice",
     "angle": "macro_monetary",
@@ -140,6 +116,30 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-04-18T16:00:04.188512+00:00",
+    "brief_date": "Saturday, April 18, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260418_190005_0",
+    "text": "BlackRock bought $1.34B in 8 days. Morgan Stanley on a 8-day streak. Boyaa added allocation. None of them are waiting for regulatory clarity. Institutions accumulate when they already know the answer",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T19:00:05.179916+00:00",
+    "brief_date": "Saturday, April 18, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260418_203343_0",
+    "text": "Do you know what happens to $327B in capital inflows when the Fear index sits at 26. Someone's already decided the answer",
+    "angle": "institutional_flow",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-18T20:33:43.081835+00:00",
     "brief_date": "Saturday, April 18, 2026",
     "sentiment": "bullish"
   }

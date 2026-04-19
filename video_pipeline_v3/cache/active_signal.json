@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1776536103.8895495,
-  "fetched_at_iso": "2026-04-18T18:15:03.889554+00:00",
+  "fetched_at": 1776570306.3344193,
+  "fetched_at_iso": "2026-04-19T03:45:06.334424+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
-      "connected": false,
-      "events_raw": 0,
-      "events_filtered": 0,
-      "error": "server rejected WebSocket connection: HTTP 503"
+      "connected": true,
+      "events_raw": 100,
+      "events_filtered": 57,
+      "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 76,
+      "events_filtered": 70,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,193 +34,193 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 60,
+      "events_filtered": 56,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "Hello Nostr world! \u26a1\ud83c\uddee\ud83c\uddf3\nExcited to join this decentralized community. I've been deeply involved in crypto mining and airdrop projects like Omega, Celia, and Xenea for a long time.\nI'll be sharing my mining journey and new project updates here. Looking forward to connecting with fellow Bitcoin and Web3 enthusiasts! \ud83d\ude80\n#Nostr #India #Bitcoin #CryptoMining #Airdrop #Zap #Web3\"",
-      "pubkey": "03ad22195d9fdcdf21728fbf4676d0afbae087873a8169fa09617611b067e19e",
-      "display_name": "npub103ad2219...67e19e",
-      "created_at": 1776531305,
+      "text": "Hey Bitcoin & EV degens! \ud83d\ude80 What's the future of decentralized energy? Mining sats with excess solar while plugging into EVMerx for seamless Lightning-powered EV charging? Or using mining heat for V2G battery warming? Spill your wild ideas\u2014reply, zap, or long-form! \u26a1 Nostr EVMerx",
+      "pubkey": "cb37919b98555801fc534fb0f4efa5ee2e4f7820b0dc1f283532aa57033f6f00",
+      "display_name": "npub1cb37919b...3f6f00",
+      "created_at": 1776566243,
+      "relay": "wss://relay.damus.io",
+      "score": 94,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udccaACTION ZONE DAY\nLast Update: 04/19/2026 00:09 (GMT Time)\n\nETHBTC \u26a13,105,000 sats\n  \u21b3 \u2705 Up (-1.18%) \ud83d\udcc503/16/2026 \u26a13,142,000 sats\nPAXGBTC \u26a16,310,000 sats\n  \u21b3 \ud83d\udca9 Down (-10.50%) \ud83d\udcc503/14/2026 \u26a17,050,000 sats\nDOGEBTC \u26a1125 sats\n  \u21b3 \ud83d\udca9 Down (-6.02%) \ud83d\udcc504/05/2026 \u26a1133 sats\nBNBBTC \u26a1832,100 sats\n  \u21b3 \ud83d\udca9 Down (-12.68%) \ud83d\udcc502/05/2026 \u26a1952,900 sats\nXRPBTC \u26a11,892 sats\n  \u21b3 \ud83d\udca9 Down (-9.95%) \ud83d\udcc502/20/2026 \u26a12,101 sats\nLINKBTC \u26a112,280 sats\n  \u21b3 \ud83d\udca9 Down (-5.10%) \ud83d\udcc503/26/2026 \u26a112,940 sats\nSOLBTC \u26a1113,810 sats\n  \u21b3 \ud83d\udca9 Down (-7.73%) \ud83d\udcc503/29/2026 \u26a1123,350 sats\nADABTC \u26a1329 sats\n  \u21b3 \ud83d\udca9 Down (-13.42%) \ud83d\udcc503/04/2026 \u26a1380 sats\nFETBTC \u26a1285 sats\n  \u21b3 \ud83d\udca9 Down (-4.68%) \ud83d\udcc504/17/2026 \u26a1299 sats\nTRXBTC \u26a1435 sats\n  \u21b3 \ud83d\udca9 Down (-0.46%) \ud83d\udcc504/14/2026 \u26a1437 sats\nAVAXBTC \u26a112,330 sats\n  \u21b3 \ud83d\udca9 Down (-6.73%) \ud83d\udcc503/26/2026 \u26a113,220 sats\n\n #spaceshit #bitcoin #btc #nostr #plebchain #zap #zaps",
+      "pubkey": "aaf17a1c28e40a2cbc3ab79f14619ef4b7a0a1b79072633f569d3c78d77a8dc9",
+      "display_name": "npub1aaf17a1c...7a8dc9",
+      "created_at": 1776557343,
+      "relay": "wss://nos.lol",
+      "score": 90,
+      "has_zap": false
+    },
+    {
+      "text": "One trouble with mass adoption that Satoshi *didn\u2019t* consider was all the influencoors, hot takes, scammers, and general shittiness available amongst gen pop who would come out of the woodwork without any knowledge (or respect) for cypherpunk ideals\u2026 and I\u2019m not just talking about coding. \nI\u2019m a retard in the terminal, but I\u2019ll out up my \u20bf-aligned code of ethics on the table against the guy who created ordinals or Faketoshi. Ability to code isn\u2019t the bar. Adherence to decentralized, distributed, secure, immutable, censorship-resistant money *is*. \n\nAnd please, miss me with your \u201cbut is money SoW or MoE?\u201d bullshit.  Money is life energy stored in capital. Use it however you want. \n\n#bitcoin",
+      "pubkey": "8dd0cc880546df5e96e084782db0fa2af717595a07d4b4c40f8fa5428aded63d",
+      "display_name": "npub18dd0cc88...ded63d",
+      "created_at": 1776552361,
       "relay": "wss://nos.lol",
       "score": 80,
       "has_zap": false
     },
     {
-      "text": "\u200b\u26a1\ufe0f Building my first Nostr sovereign engine on a Mac! I need a few sats to test my live invoice logic for a demo video. Can a kind pleb zap my address: secureslave167@walletofsatoshi.com? \ud83d\ude80 #bitcoin #lightning #nostr #dev",
-      "pubkey": "88dd8e7ebc03ed3497f9dafdd2a6a2ce71cef5f0d728c8992bd4e9eadf8ea2d7",
-      "display_name": "npub188dd8e7e...8ea2d7",
-      "created_at": 1776534459,
+      "text": "Telegram x Teleguard below\ud83d\udc47\ud83d\udc47\nDm For Menu\nAll content available in all kinds\n\nTELEGRAM: https://t.me/Gethotomeglevip\n\nTELEGUARD ID: RGWRW6J4W \n\n#NSFW #nsfw #nostr #onlyfans #onlyfansmodel #spicy #spicycontent #adult #adultcontent #xxx #erotic #lewd #lewdstr #thirsttrap #hot #sexy #camgirl #contentcreator #findom #girlsofnostr #boobstr #titstr #nudestr #nipstr #buttstr #grownostr #plebchain #bitcoin #btc #primal \n \n\n\n\nhttps://blossom.primal.net/755ae825d7d159c65fce1aaf0b486e0ba84ee734990d96082dce6af20cd883c0.mp4",
+      "pubkey": "7859d80f5e7823e3b209b1e42bdc76be50967599bf0b2969895b02cb53fab73f",
+      "display_name": "npub17859d80f...fab73f",
+      "created_at": 1776552894,
       "relay": "wss://nos.lol",
-      "score": 78,
+      "score": 79,
       "has_zap": false
     },
     {
-      "text": "Last cycle\u2019s loudest tell was the middle class of holders quietly getting fat, and it\u2019s happening again: fish plus sharks now control about 47% of supply (10\u20131,000 #BTC), while only 1,947 whale addresses hold ~21% and just 4 mega wallets sit at ~3.3% \ud83d\udc1f This is what decentralization looks like in numbers, not vibes \u2014 #BTC keeps spreading out while everyone argues about price.\n\nhttps://heyframe.com/images/bitcoin-page11.png?v=1776531676",
-      "pubkey": "45addb99d8ec5e34a96d52b850c653dfefe2b49f46f6acadf62592bfe74b6e09",
-      "display_name": "npub145addb99...4b6e09",
-      "created_at": 1776531676,
-      "relay": "wss://nos.lol",
+      "text": "Nope. 0 confirmations. Not 15.\n\nYour BTC tx just needs to land in a Bitcoin block \u2014 that block is already anchoring the current Stacks tenure. Clarity reads it in the next Stacks block (~5s) and sBTC is unlocked.\n\nInclusion, not confirmation.\n\nDon't take our word for it \u2014 try it live: https://www.jingswap.com/deposit",
+      "pubkey": "0760ebd1138db2c41fda4d17e4d9ef63336ba35622261e1888a7d65c5f5ee998",
+      "display_name": "npub10760ebd1...5ee998",
+      "created_at": 1776561853,
+      "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "Week 16 - the bittastic halving blanket \ud83e\uddf6\nBecause just a few days ago (Bitcoin didn't wait for me.. \ud83d\ude44) it was half time until the next halving!\n\nThe inner part is a double sided doublefaced knitting piece with the halving equation. Explanation at the end of the pattern, as always. \ud83d\ude09\n\n#crafts #pattern #handmade #Bitcoin #Halving #doublefaced #doubleknitting #equation #knitting #knitstr #yarn #yarnstr #diy #knit\n\nhttps://www.ravelry.com/patterns/library/bittastic-halving-blanket",
-      "pubkey": "1f3a6a5aff603608e63ba3e986f581e20e8d7e044737e5bf44137cfb845c2b5d",
-      "display_name": "npub11f3a6a5a...5c2b5d",
-      "created_at": 1776531374,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\ude80 Watch the latest cryptocurrency and Bitcoin chart movements! \ud83d\udcda | \ud83c\uddfa\ud83c\uddf8 #CryptoNews #Bitcoin #Ethereum\n\nBTC, the ultimate price indicator of the digital currency community, continues to experience significant fluctuations due to market moves. \ud83c\udf1f It's important to stay informed and adjust your strategies accordingly. \ud83d\udcb0 #InvestingTips #MarketWatch\n\nBe ready to react and adapt your trading strategy based on current market conditions! \ud83d\ude80 #TradingTips #RealEstate\n\nDon't forget to follow me for more insights into the crypto world! \ud83d\ude0a #SocialMediaFollowers #StayInformed\n\n#TechUpdate #CryptocurrencyLivesForever #BitcoinWhisperings #ollama",
-      "pubkey": "98537463e624c7cf427d7abb69b43cda32e806b37ceee4aa57e0f27e2b6eb25e",
-      "display_name": "npub198537463...6eb25e",
-      "created_at": 1776520994,
-      "relay": "wss://nos.lol",
-      "score": 70,
-      "has_zap": false
-    },
-    {
-      "text": "Good analysis on this from The Board:\n\nBitcoin Price War & Geopolitics: Does BTC Hedge Conflict?\n\nDoes bitcoin price rise during war? Analysis of BTC during Ukraine invasion, Iran strikes, and Gulf crises. Correlation data, sanctions flows, and 2026 outlook.\n\nhttps://theboard.world/articles/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026\n\nhttps://theboard.world/static/og/bitcoin-price-war-geopolitics-does-btc-hedge-conflict-2026.png\n\n#TheBoard #Iran #bitcoin #crypto #war #Ukraine #tradewar",
-      "pubkey": "c45b0fc728fcd4c7f580f1bb551c39c009d443d3f9c2f28448151bba847a7786",
-      "display_name": "npub1c45b0fc7...7a7786",
-      "created_at": 1776532912,
-      "relay": "wss://relay.primal.net",
-      "score": 69,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.70 oz | 24hr: -1.40%\n1 oz Gold: 6,369,427 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.3 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 18:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776535265,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.71 oz | 24hr: -1.83%\n1 oz Gold: 6,365,372 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.3 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 17:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776531665,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.77 oz | 24hr: -1.50%\n1 oz Gold: 6,341,154 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.3 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 16:00 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776528064,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.78 oz | 24hr: -1.06%\n1 oz Gold: 6,337,136 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.3 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 15:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776524464,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.76 oz | 24hr: -0.56%\n1 oz Gold: 6,345,178 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.3 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-18 | 14:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1776520864,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "Two Bitcoin puzzles are currently open for participation, with cash prizes of 1000 sats and 500 sats, respectively. Bitcoin's price is $76,205, while a new selling offer at a 4% premium is available. Additionally, discussions about self-custody highlight the importance of secure Bitcoin storage. #Bitcoin #studybitcoin",
-      "pubkey": "d4cf3423b64bfeb540b3e0ce22946191c033d38b5d32b37a8f0f3a4cf514cd23",
-      "display_name": "npub1d4cf3423...14cd23",
-      "created_at": 1776531178,
-      "relay": "wss://nos.lol",
-      "score": 66,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Farage Faces FCA Probe Over \u00a32m Bitcoin Promotion as Crypto Clashes With UK Politics**\nOslo\n\nhttps://image.nostr.build/28fcc0ce637099d09aba1594cb316a26be60f2468fa73e7180cd7c1e5ee64da3.jpg\n\nHe claims to be the UK's only political champion for Bitcoin. Now, regulators are asking whether Nigel Farage was champi...\n\nhttps://nostrmag.com/article/w16bitcoin02\n\nid#656925072",
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/28fcc0ce637099d09aba1594cb316a26be60f2468fa73e7180cd7c1e5ee64da3.jpg\n\n\ud83d\udcf0 **Farage Faces FCA Probe Over \u00a32m Bitcoin Promotion as Crypto Clashes With UK Politics**\n\u270d\ufe0f by Oslo\n\nHe claims to be the UK's only political champion for Bitcoin. Now, regulators are asking whether Nigel Farage was championing digital currency or just lining his own pockets...\n\n\ud83d\udd17 https://nostrmag.com/article/w16bitcoin02\n\n\ud83d\udcca id#883936753",
       "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
       "display_name": "npub1794833e5...f9c731",
-      "created_at": 1776529045,
+      "created_at": 1776561445,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **Weekly BTC Technical Analysis \u2014 Nostriches Only**\n\nThe setup is not bullish, the chart is not a flag and the bad news is that everyone who bought the dip is about to find out they quite probably bought...\n\n\ud83d\udc64 Madrid\n\nhttps://image.nostr.build/4c2541852dd90d8ee59b197a25925d88f48e447cc9195ce34a32721b61902b7f.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w16bitcoin04\n\n\ud83d\udcca id#754448045",
+      "pubkey": "d9c2ec9765485f7f39a1b59c4ef7578879d2d17908364e1031129cc7b72f692d",
+      "display_name": "npub1d9c2ec97...2f692d",
+      "created_at": 1776560545,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\nhttps://image.nostr.build/58f286486cdab41844c0c1ecf96b103067ae67e5a68f6cae56c06771ef3c7beb.jpg\n\n\ud83d\udcf0 **Bitcoin Quantum Dilemma: The Draft Proposal That Could Affect Satoshis Coins**\n\u270d\ufe0f by NM Team\n\nA radical draft proposal from within Bitcoin own developer ranks has ignited a firestorm, suggesting a path to permanently freeze assets in wallets deemed vulnerable...\n\n\ud83d\udd17 https://nostrmag.com/article/w16bitcoin16\n\n\ud83d\udcca id#308718752",
+      "pubkey": "a8eeb2053dade88662496c468b92d425e3060af4dc32fc37a25abc99e35c7269",
+      "display_name": "npub1a8eeb205...5c7269",
+      "created_at": 1776560125,
+      "relay": "wss://relay.damus.io",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\"You send BTC to the protocol address, and in a single Stacks tsx, a Clarity escrow contract verifies your Bitcoin payment natively \u2014 no oracle, no signer set, no federated bridge, just Clarity reading Bitcoin state directly \u2014 and unlocks sBTC to you. Zero Bitcoin conf required.\"\n\nRead the full thesis: https://www.jingswap.com/blog/stacks-compounds-bitcoin\n\nTry it live: https://www.jingswap.com/deposit\n\nhttps://www.jingswap.com/blog/bitcoin-extension.jpeg",
+      "pubkey": "0760ebd1138db2c41fda4d17e4d9ef63336ba35622261e1888a7d65c5f5ee998",
+      "display_name": "npub10760ebd1...5ee998",
+      "created_at": 1776557538,
       "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nFarage Faces FCA Probe Over \u00a32m Bitcoin Promotion as Crypto Clashes With UK Politics\n\nHe claims to be the UK's only political champion for Bitcoin. Now, regulators are asking whether Nigel Farage was championing digital currency or just lining his own pockets...\n\nhttps://image.nostr.build/28fcc0ce637099d09aba1594cb316a26be60f2468fa73e7180cd7c1e5ee64da3.jpg\n\n\u270d\ufe0f Author: Oslo\n\n\ud83d\udd17 https://nostrmag.com/article/w16bitcoin02\n\n\ud83d\udcc8 id#936053690",
+      "pubkey": "aee9d7ac9343f48e00337a7b97d7ff4d3d7877dacbb3fcccc0dce2a81b2e0502",
+      "display_name": "npub1aee9d7ac...2e0502",
+      "created_at": 1776550645,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Hi Nostrer, \nSaing here, A husband and farther to one.\nI love freedom, tech #dev opensource as well as travel. \n\nI believe in Bitcoin for self sovereignty of owning your money and nostr as freedom of speak in term of social media platform.  \n\nTry na to familar with nostr so I can run a relay as my contribution back then see if there I can contribute for the client even build one for my community  to support #freespeach here in the Country. \n#introductions #opensource #Bitcoin",
+      "pubkey": "741951862b247c2ebee36bebcdaefcc47b0ae58eecadd9d672579668b7a466f9",
+      "display_name": "npub174195186...a466f9",
+      "created_at": 1776569788,
+      "relay": "wss://relay.primal.net",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.65 oz | 24hr: -1.99%\n1 oz Gold: 6,389,776 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.2 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-19 | 02:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776564066,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.66 oz | 24hr: -1.96%\n1 oz Gold: 6,385,696 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.2 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-19 | 01:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776560465,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.64 oz | 24hr: -2.25%\n1 oz Gold: 6,393,862 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.2 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-19 | 03:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776567664,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **What happened this week in the Bitcoin World**\n\nThey want to freeze Satoshis coins. One Bitcoin miner is selling everything. And a Wall Street giant is suddenly the market\u2019s biggest bull. If you bli...\n\n\ud83d\udc64 NM team\n\nhttps://image.nostr.build/122457713303171e6c05b9c219407120dfce31270d7d12d86841f8574e001ce5.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w16bitcoin03\n\n\ud83d\udcca id#220144047",
+      "pubkey": "e4dd796a3c78d952c509fb9791449c15c837da408650d4a2fbcac0c42f63d1d1",
+      "display_name": "npub1e4dd796a...63d1d1",
+      "created_at": 1776560065,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.67 oz | 24hr: -1.91%\n1 oz Gold: 6,381,621 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.2 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-19 | 00:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776556866,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 15.69 oz | 24hr: -1.87%\n1 oz Gold: 6,373,486 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 33.3 trillion USD\nBitcoin Vs Gold marketcap: 4.6%\n\nUpdated: 2026-04-19 | 23:01 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1776553267,
+      "relay": "wss://nos.lol",
+      "score": 68,
+      "has_zap": false
+    },
+    {
+      "text": "Nope. 0 confirmations, not 15.\n\nYour BTC tx just needs to land in a Bitcoin block \u2014 that block is already anchoring the current Stacks tenure. Clarity reads it in the next Stacks block (~5s) and sBTC is unlocked.\n\nInclusion, not confirmation.\n\nTry it: https://www.jingswap.com/deposit",
+      "pubkey": "0760ebd1138db2c41fda4d17e4d9ef63336ba35622261e1888a7d65c5f5ee998",
+      "display_name": "npub10760ebd1...5ee998",
+      "created_at": 1776562023,
+      "relay": "wss://relay.damus.io",
+      "score": 65,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83c\uddef\ud83c\uddf2 Yard Bitcoin Report:\n\n\ud83d\udcb0 BTC/USD: $75,795\n\ud83d\udcb5 BTC/JMD: $11,786,123\n\n\u26a1 Sats for $1,000 JMD: 8,485\n\u26a1 Sats for $1 USD: 1,319\n\n\ud83e\uddf1 Block: 945696\n\u26a1 Fees: 1 sat/vB\n\n#Jamaica #Bitcoin #stacksats #YardVibes",
+      "pubkey": "0396bac72f86ca77cb6631e018dc3556afb9802613c993402a9b3cf28fae029f",
+      "display_name": "npub10396bac7...ae029f",
+      "created_at": 1776560449,
+      "relay": "wss://relay.damus.io",
       "score": 63,
       "has_zap": false
     },
     {
-      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd38 BTC: $76,165 (-2.2%)\n\ud83d\udd34 ETH: $2,362 (-3.5%)\n\ud83d\udd34 DOGE: $0.0960 (-4.6%)\n\ud83d\udd34 XRP: $1.43 (-3.5%)\n\ud83d\udd34 LINK: $9.39 (-3.8%)\n\ud83d\udd34 PEPE: $0.00000382 (-5.0%)\n\ud83d\udd34 TRUMP: $2.93 (-4.1%)\n\nTotal Market Cap: $2.66T | BTC Dominance: 57.4%\n\n#bitcoin #crypto #marketupdate",
+      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd38 BTC: $75,795 (-2.2%)\n\ud83d\udd34 ETH: $2,355 (-3.1%)\n\ud83d\udd34 DOGE: $0.0953 (-5.0%)\n\ud83d\udd38 XRP: $1.44 (-3.0%)\n\ud83d\udd34 LINK: $9.32 (-3.4%)\n\ud83d\udd34 PEPE: $0.00000381 (-4.9%)\n\ud83d\udd34 TRUMP: $2.88 (-6.0%)\n\nTotal Market Cap: $2.64T | BTC Dominance: 57.4%\n\n#bitcoin #crypto #marketupdate",
       "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
       "display_name": "npub136493c2e...30a7c8",
-      "created_at": 1776528102,
+      "created_at": 1776549760,
       "relay": "wss://nos.lol",
       "score": 63,
-      "has_zap": false
-    },
-    {
-      "text": "New here. I\u2019m Watt\u2019s Happening.\n\nRenewables + energy news without the PR spin or doomer headlines.\n\nPosting what actually got built, what it cost, what it generated.\n\nBased in Sydney, covering  Bitcoin + mining energy plays.\n\n#introductions #energy  #bitcoin #solar #wind #hydro",
-      "pubkey": "dec01bbdd9d433611c109d15f2828b15109f417b7dedc39c753d9a12a3d798ca",
-      "display_name": "npub1dec01bbd...d798ca",
-      "created_at": 1776531842,
-      "relay": "wss://nos.lol",
-      "score": 62,
-      "has_zap": false
-    },
-    {
-      "text": "Every day there are more businesses accepting Bitcoin all around the world. \n\nWithout asking permission.\nWithout providing personal information.\nWithout paying unnecessary fees.\n\nWith a deep sense of community and local collaboration. \n\nThat's how bridges are built. \n\nBig shoutout to IL FORNO DI LUCAS \u2014 the first local in the city of Arica, Chile to accept Bitcoin! Your forward-thinking spirit is helping bring innovation to the community. \n\nGracias por apoyar la innovaci\u00f3n y por abrir camino. \u00a1\u00c9xitos y que sigan creciendo!\n\n\u26d3\ufe0f ilfornodilucas@blink.sv \n\n#Bitcoin #Arica #Crypto #SupportLocal \n\n\n\nhttps://blossom.primal.net/84ddfbb051bed4bd654edf2f9500fed53b50419140bd58589138d4e2658d3d14.jpg\nhttps://blossom.primal.net/ae6a10fe9500892124699af66ffd843f22ad19dd1c23d409e3ba6673680ee804.jpg",
-      "pubkey": "a2a8f2c824ff503d406372ab1c0392d89a15ab5b3e30365b1626e8a19ecf07ae",
-      "display_name": "npub1a2a8f2c8...cf07ae",
-      "created_at": 1776533878,
-      "relay": "wss://nos.lol",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "Watt's Happening: UK Edition\n\nBritain paid \u00a31.5 billion last year to switch OFF wind farms.\n\nNot a typo.\n\nScottish turbines get paid to stop spinning because the grid can't move the power south\u30106140506468247566745\u2020L262-L264\u3011. Then gas plants get paid to switch ON to replace it\u30106140506468247566745\u2020L325-L326\u3011.\n\nWorst offender: Seagreen wind farm. Curtailed 2.7 TWh in 2025\u30106140506468247566745\u2020L28-L29\u3011. That's 740,000 homes' annual power, wasted.\n\nCost in 2024/25: \u00a31.9bn = 71% of GB's total balancing bill\u30106140506468247566745\u2020L13-L14\u3011. Forecast 2030: \u00a38bn/year\u30106140506468247566745\u2020L25-L26\u3011.\n\nThe fix? Batteries could cut curtailment costs 80%\u30106140506468247566745\u2020L221-L223\u3011. Bitcoin miners could buy the -$43/MWh power instead of paying to waste it.\n\nSource: Modo Energy, The Times, Octopus Energy data.\n\nZap if you want the Aus numbers next.\n\n#energy #uk #wind #bitcoin #curtailment #renewables",
-      "pubkey": "dec01bbdd9d433611c109d15f2828b15109f417b7dedc39c753d9a12a3d798ca",
-      "display_name": "npub1dec01bbd...d798ca",
-      "created_at": 1776533573,
-      "relay": "wss://nos.lol",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "Watt's Happening: Apr 18\n\n3 Aus energy stories in 60 seconds:\n\n1. AEMO: NSW solar curtailed 18% yesterday at noon. Price hit -$43/MWh. That's 1.2GWh of free energy with nowhere to go.\n\n2. New 400MW/800MWh battery approved for Goulburn. Target ops 2027. Cost: $450M. \n\n3. Origin confirms Eraring coal plant still closing Aug 2025. \u201cExtension unlikely\u201d despite govt pressure.\n\nRenewables made 74% of NSW grid power 11am-2pm. Coal: 9%.\n\nSource: AEMO data dashboard.\n\nZap if this saved you reading 3 articles. \n\n#energy #australia #solar #bitcoin #sydney #aemo",
-      "pubkey": "dec01bbdd9d433611c109d15f2828b15109f417b7dedc39c753d9a12a3d798ca",
-      "display_name": "npub1dec01bbd...d798ca",
-      "created_at": 1776532038,
-      "relay": "wss://nos.lol",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Bitcoin Quantum Dilemma: The Draft Proposal That Could Affect Satoshis Coins**\nNM Team\n\nhttps://image.nostr.build/58f286486cdab41844c0c1ecf96b103067ae67e5a68f6cae56c06771ef3c7beb.jpg\n\nA radical draft proposal from within Bitcoin own developer ranks has ignited a firestorm, suggesting a path to permanent...\n\nhttps://nostrmag.com/article/w16bitcoin16\n\nid#859645756",
-      "pubkey": "9f59d9117ce44768cc2cf259735455dbeaf1a38ee7c90aec1c5de4e1294f166b",
-      "display_name": "npub19f59d911...4f166b",
-      "created_at": 1776527725,
-      "relay": "wss://nos.lol",
-      "score": 60,
-      "has_zap": false
-    },
-    {
-      "text": "Second business i frequent that once bitcoin was mentioned they counter with XRP...instead of arguing i pointed out that ripple has a single point of failure,the code could be changed arbitrarily  and transactions are more easily monitored. And the kicker that made them go wait what was telling them the ethereum story of the chain being rolled back. \nImagine i buy something, without your knowledge the chain is rolled back and as a merchant youre out inventory and money... im not sure what ripples use claim is but when it comes to a base layer for money #bitcoin is the only choice\n\nIdk if ive changed their mind but i did what i could",
-      "pubkey": "6e1098c20e585866b89a8e4b152b874243d2c524a8555f66e6e53f63e5fcf726",
-      "display_name": "npub16e1098c2...fcf726",
-      "created_at": 1776526736,
-      "relay": "wss://nos.lol",
-      "score": 60,
       "has_zap": false
     }
   ],
-  "total_raw": 200,
-  "total_filtered": 136,
+  "total_raw": 300,
+  "total_filtered": 183,
   "total_scored": 20
 }

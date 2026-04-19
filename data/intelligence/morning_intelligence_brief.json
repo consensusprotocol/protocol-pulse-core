@@ -1,49 +1,50 @@
 {
-  "generated_at": "2026-04-18T18:00:00Z",
+  "generated_at": "2026-04-18T00:00:00Z",
   "date": "Saturday, April 18, 2026",
-  "btc_price": "$76,240",
+  "btc_price": "$75,637",
   "btc_change_24h": "-2.2%",
   "fng": "Fear",
   "dominant_narratives": [
-    "Institutional accumulation accelerating — BlackRock, Morgan Stanley, Boyaa Interactive all increasing Bitcoin allocation",
-    "Bitcoin as monetary alternative to collapsing fiat & CBDC surveillance — Ray Dalio's CBDC warnings amplified",
-    "Exchange exodus at 7-year lows — 2.43M BTC off-ramp signals whale capitulation capitulation bottom formation"
+    "Bitcoin as the unblockable, censorship-resistant asset in geopolitical chaos (Strait of Hormuz blockade)",
+    "Post-quantum cryptography research momentum gaining institutional attention",
+    "Capital rotation back into Bitcoin ($327B since Feb 5) despite macro uncertainty"
   ],
   "trending_language": [
-    "Bitcoin hasn't even begun",
-    "No asset washes out non-believers like Bitcoin",
-    "Whales accumulated 270K BTC in 30 days",
-    "Bitcoin is being bought at fastest pace in 10 years",
-    "Largest inflow since January 14",
-    "Sellers exhausted"
+    "Impossible to blockade Bitcoin",
+    "Unblockable",
+    "Real money",
+    "The best payment experience is the one you don't notice",
+    "7 out of 7 times"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite -2.2% price action and Fear reading, on-chain metrics show aggressive institutional accumulation, spot ETF inflows surging after 13-week drought, and exchange reserves hitting 7-year lows—classic capitulation bottom signals. Conviction among Bitcoin thought leaders exceptionally high.",
+  "sentiment_reasoning": "Despite -2.2% price action and Fear index at 26, dominant signals emphasize Bitcoin's structural superiority (outperformance in crises, geopolitical use case, capital inflow velocity). Fear creates accumulation mentality among conviction holders.",
   "top_accounts_active": [
-    "@BitcoinArchive",
-    "@NickSzabo4",
-    "@_Checkmatey_",
-    "@nvk",
-    "@gladstein",
-    "@CaitlinLong_"
+    "BitcoinArchive",
+    "nvk",
+    "LynAldenContact",
+    "saylor",
+    "PeterMcCormack",
+    "TomerStrolight",
+    "lopp",
+    "CaitlinLong_"
   ],
   "recommended_tweet_angles": [
-    "On-chain exhaustion: 2.43M BTC off exchanges (7-year low) while 270K BTC accumulated in 30 days. Whales know what Fear index signals deny.",
-    "BlackRock $1.34B in 8 days + Morgan Stanley's 8-day streak + spot ETF inflows after 13-week drought = institutional FOMO re-ignition. They're not waiting.",
-    "$1.5M Bitcoin by 2030 (Ark Invest) assumes major banks still waking up. Reality: they're already in. Institutions don't accumulate on hope — they accumulate on conviction.",
-    "Ray Dalio: CBDCs will track every transaction. Bitcoin: immutable, uncensorable, sovereign. This isn't investment thesis. This is monetary inevitability."
+    "Strait of Hormuz blockade validates Bitcoin's thesis: governments cannot blockade code. Real-time geopolitical proof of concept.",
+    "Post-quantum Bitcoin research accelerating (SHRIMPS, quantum-safe tx): the protocol hardens as threats materialize.",
+    "$327B capital inflow since Feb 5 while Fear Index at 26 = institutional dry powder meeting cypherpunk conviction.",
+    "Lightning Network adoption (Lugano Plan B): Bitcoin becomes the money you don't notice using—the final form."
   ],
   "topics_to_avoid": [
-    "Middle East geopolitical speculation — noise obscuring signal",
-    "Social media account purges — conspiracy-adjacent, low credibility",
-    "Democratic/political infighting discourse — distraction from monetary thesis"
+    "Israeli-Palestinian conflict (polarizing, distracts from protocol signal)",
+    "US domestic political theater (noise; irrelevant to Bitcoin's technical narrative)",
+    "UBI/inflation debates (theological, not actionable intelligence)"
   ],
-  "engagement_patterns": "Data-backed conviction statements resonate hardest. On-chain metrics trump price action. Phrases like 'Whales accumulated X in Y days' and 'Largest inflow since' generate high engagement. Cypherpunk critiques of fiat/CBDC surveillance get amplification. Avoid speculation without hard numbers.",
-  "protocol_pulse_voice_guidance": "Today: lean into the tension between Fear index (26) and accumulation data. Use phrases like 'capitulation bottom formation' and 'seller exhaustion metrics.' Reference specific whale behaviors and institutional inflows with precision. Cypherpunk tone: 'They fear CBDC surveillance, we build Bitcoin.' Avoid cheerleading — let on-chain data speak. Sound like an analyst reading chain data in real-time, not a cheerleader.",
+  "engagement_patterns": "Aphoristic, conviction-heavy language dominates (short declarative statements, historical analogies, technical depth wrapped in philosophy). Humor underperforming vs. stark reality statements. Archive-style signal aggregation out-performs individual hot takes. Lightning/payments content converting engagement to action.",
+  "protocol_pulse_voice_guidance": "Lean into geopolitical inevitability narrative. Blockade of Strait of Hormuz is live demo of why Bitcoin exists. Stay factual, cite protocol improvements (quantum research), avoid political moralizing. Lead with 'impossible to blockade' framing—let listeners draw their own conclusions about government failure. Signal capital flows as vote of confidence. Sound like historian documenting an unstoppable transition, not cheerleader.",
   "key_stats_today": {
-    "tweets_analyzed": 160,
+    "tweets_analyzed": 158,
     "nostr_signals": 0,
-    "unique_handles": 94
+    "unique_handles": 85
   },
   "generated_by": "claude_haiku"
 }

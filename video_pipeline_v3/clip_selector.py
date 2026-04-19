@@ -779,8 +779,8 @@ def _select_clips_local(videos, max_clips=5):
         f"- NO ad reads, NO show intros, NO generic pleasantries, NO 'welcome to the show'.\n"
         f"- COMPLETE THOUGHT: Speaker MUST finish their argument. Never cut before conclusion.\n"
         f"- PREFER videos with HIGH view counts — those topics resonate with audience.\n"
-        f"- PREFER videos uploaded in last 48 hours over older content.\n"
-        f"- REJECT any video uploaded more than 72 hours ago — stale content destroys credibility.\n"
+        f"- PREFER videos uploaded in last 48 hours — but anything within 7 days is acceptable.\n"
+        f"- REJECT any video uploaded more than 7 days ago — stale content destroys credibility.\n"
         f"- Find the MOMENT that makes someone stop scrolling — not just any 40 seconds about Bitcoin.\n"
         f"- The WHY field must explain what makes this moment VIRAL, not just summarize the topic.\n"
         f"- Criticism and contrarian takes are WELCOME — we want honest signal, not echo chamber.\n"
@@ -935,7 +935,7 @@ def _enforce_video_id_diversity(result: dict, videos: list = None) -> dict:
 
 
 
-def _enforce_freshness(result, max_age_hours=72):
+def _enforce_freshness(result, max_age_hours=168):
     clips = result.get("clips", [])
     if not clips:
         return result

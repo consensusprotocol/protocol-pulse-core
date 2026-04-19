@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-04-18T18:00:03.462459+00:00",
-  "fetch_time_ms": 1494,
+  "updated_at": "2026-04-19T03:30:02.965987+00:00",
+  "fetch_time_ms": 961,
   "composite": {
-    "perception_score": 58,
+    "perception_score": 62,
     "label": "Cautiously Bullish",
     "overall_signal": "bullish",
-    "bull_layers": 3,
+    "bull_layers": 4,
     "bear_layers": 1,
-    "neutral_layers": 3,
+    "neutral_layers": 2,
     "layer_signals": {
       "global": "bullish",
-      "trending": "neutral",
+      "trending": "bullish",
       "onchain": "bearish",
       "lightning": "bullish",
       "fees": "neutral",
@@ -19,11 +19,11 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 57.36,
-    "total_mcap_usd": 2648460592464.4707,
-    "total_mcap_t": 2.648,
-    "total_vol_24h_usd": 124966329928.28523,
-    "total_vol_24h_b": 125.0,
+    "btc_dominance_pct": 57.45,
+    "total_mcap_usd": 2631332327378.9326,
+    "total_mcap_t": 2.631,
+    "total_vol_24h_usd": 104374099105.57375,
+    "total_vol_24h_b": 104.4,
     "active_coins": 17576,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
@@ -35,64 +35,64 @@
       {
         "symbol": "RAVE",
         "name": "RaveDAO",
-        "rank": 45,
+        "rank": 130,
         "score": 0
       },
       {
-        "symbol": "SIREN",
-        "name": "Siren",
-        "rank": 98,
+        "symbol": "ASTEROID",
+        "name": "Asteroid Shiba",
+        "rank": 218,
         "score": 1
+      },
+      {
+        "symbol": "AAVE",
+        "name": "Aave",
+        "rank": 55,
+        "score": 2
+      },
+      {
+        "symbol": "ZRO",
+        "name": "LayerZero",
+        "rank": 117,
+        "score": 3
       },
       {
         "symbol": "BTC",
         "name": "Bitcoin",
         "rank": 1,
-        "score": 2
-      },
-      {
-        "symbol": "REQ",
-        "name": "Request",
-        "rank": 341,
-        "score": 3
-      },
-      {
-        "symbol": "MON",
-        "name": "Monad",
-        "rank": 119,
         "score": 4
       },
       {
-        "symbol": "GENIUS",
-        "name": "Genius",
-        "rank": 147,
+        "symbol": "SIREN",
+        "name": "Siren",
+        "rank": 101,
         "score": 5
       },
       {
-        "symbol": "HYPE",
-        "name": "Hyperliquid",
-        "rank": 13,
+        "symbol": "ETH",
+        "name": "Ethereum",
+        "rank": 2,
         "score": 6
       }
     ],
     "active_narratives": [
-      "BTC-adjacent"
+      "DeFi"
     ],
     "has_meme_rotation": false,
     "has_ai_rotation": false,
-    "narrative_signal": "BTC-adjacent",
-    "btc_signal": "neutral",
+    "narrative_signal": "DeFi",
+    "btc_signal": "bullish",
     "note": "Meme rotation signals late-cycle risk. AI/DeFi rotation signals mid-cycle strength.",
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 602806,
+    "tx_count_24h": 731230,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 9.48,
+    "minutes_between_blocks": 8.62,
     "difficulty": 135594876535256,
-    "estimated_btc_sent": 5359221037646,
-    "total_fees_btc": -45000000000,
+    "estimated_btc_sent": 3161739661578,
+    "total_fees_btc": -49375000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17438,
-    "channel_count": 41109,
-    "capacity_btc": 5057.13,
-    "capacity_sats": 505713146174,
-    "avg_channel_capacity_btc": 0.123,
+    "node_count": 17342,
+    "channel_count": 41986,
+    "capacity_btc": 5706.26,
+    "capacity_sats": 570626090058,
+    "avg_channel_capacity_btc": 0.1359,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 1,
+    "fastest_fee_sat_vb": 2,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,21 +121,21 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 26,
-    "7d_ago": 16,
-    "7d_delta": 10,
+    "current": 27,
+    "7d_ago": 12,
+    "7d_delta": 15,
     "trend": "improving",
     "7d_values": [
+      27,
       26,
       21,
       23,
       23,
       21,
-      12,
-      16
+      12
     ],
     "btc_signal": "bullish",
-    "note": "F&G trending up (16 -> 26)",
+    "note": "F&G trending up (12 -> 27)",
     "label": "Fear",
     "source": "alternative.me F&G"
   }

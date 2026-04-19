@@ -1,85 +1,60 @@
 {
   "topic_velocity": [
     {
-      "topic": "Institutional capital inflow & market recovery",
-      "channels": 12,
+      "topic": "Institutional accumulation accelerating \u2014 BlackRock, Morg...",
+      "channels": 32,
       "sentiment": "bullish",
-      "velocity_score": 72,
-      "authority_score": 54,
-      "top_quote": "Bitcoin has added $327 billion in market cap since the February 5 bottom. Capital is flowing back fast.",
+      "velocity_score": 96,
+      "authority_score": 50,
+      "top_quote": "",
       "thought_leaders": [
-        "BitcoinArchive",
-        "adam3us"
+        "@BitcoinArchive",
+        "@NickSzabo4",
+        "@_Checkmatey_"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "UBI inflation & monetary debasement risk",
-      "channels": 9,
-      "sentiment": "bearish",
-      "velocity_score": 54,
-      "authority_score": 48,
-      "top_quote": "All UBI is inflationary, you are literally getting spending money for producing nothing.",
-      "thought_leaders": [
-        "nvk",
-        "adam3us"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Bitcoin as crisis hedge & asset supremacy",
-      "channels": 8,
+      "topic": "Bitcoin as monetary alternative to collapsing fiat & CBDC...",
+      "channels": 22,
       "sentiment": "bullish",
-      "velocity_score": 48,
-      "authority_score": 42,
-      "top_quote": "Bitcoin has outperformed every major asset or index in each crisis. 7 out of 7 times.",
+      "velocity_score": 33,
+      "authority_score": 40,
+      "top_quote": "",
       "thought_leaders": [
-        "BitcoinArchive",
-        "LynAldenContact"
+        "@BitcoinArchive",
+        "@NickSzabo4",
+        "@_Checkmatey_"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Government distrust & limited state philosophy",
-      "channels": 6,
-      "sentiment": "mixed",
-      "velocity_score": 9,
-      "authority_score": 32,
-      "top_quote": "The role of government should be only to protect: 1. Your life 2. Your freedoms 3. Your property",
+      "topic": "Exchange exodus at 7-year lows \u2014 2.43M BTC off-ramp signa...",
+      "channels": 17,
+      "sentiment": "bullish",
+      "velocity_score": 26,
+      "authority_score": 30,
+      "top_quote": "",
       "thought_leaders": [
-        "PeterMcCormack",
-        "knutsvanholm"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Wealth preservation & inheritance planning",
-      "channels": 5,
-      "sentiment": "neutral",
-      "velocity_score": 8,
-      "authority_score": 28,
-      "top_quote": "Most Bitcoiners forget to plan for inheritance.",
-      "thought_leaders": [
-        "BTCsessions",
-        "nunchuk_io"
+        "@BitcoinArchive",
+        "@NickSzabo4",
+        "@_Checkmatey_"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
-  "breaking_threshold": false,
+  "breaking_threshold": true,
   "recommended_topics": [
-    "Institutional capital inflow & market recovery",
-    "UBI inflation & monetary debasement risk",
-    "Bitcoin as crisis hedge & asset supremacy"
+    "Institutional accumulation accelerating \u2014 BlackRock, Morg...",
+    "Bitcoin as monetary alternative to collapsing fiat & CBDC...",
+    "Exchange exodus at 7-year lows \u2014 2.43M BTC off-ramp signa..."
   ],
-  "dominant_narrative": "Institutional capital inflow & market recovery",
-  "market_mood": "bullish_with_macro_concerns",
-  "total_tweets_analyzed": 54,
-  "thought_leaders_active": 14,
-  "scan_time": "2026-04-18T13:30:08Z"
+  "dominant_narrative": "Institutional accumulation accelerating \u2014 BlackRock, Morg...",
+  "market_mood": "bullish",
+  "total_tweets_analyzed": 0,
+  "thought_leaders_active": 0,
+  "scan_time": "2026-04-18T19:27:22Z"
 }

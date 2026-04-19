@@ -1,7 +1,79 @@
 {
-  "last_updated": "2026-04-18T08:00:06.438591+00:00",
-  "total_analyses": 156,
+  "last_updated": "2026-04-18T20:00:17.680862+00:00",
+  "total_analyses": 159,
   "analyses": [
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 92,
+      "main_thesis": "Bitcoin adoption has shifted from retail speculation to institutional and sovereign nation adoption, creating a structural supply shortage as major entities like MicroStrategy absorb multiples of monthly miner output.",
+      "key_quotes": [
+        "This is not adoption. This is a stampede in slow motion.",
+        "Every Bitcoin that goes into that wallet doesn't come out.",
+        "The Bitcoin standard isn't coming. It's being built strait by strait."
+      ],
+      "topics": [
+        "MicroStrategy's $1B daily Bitcoin purchases and MSTR holdings",
+        "Institutional adoption (Morgan Stanley, Bank of America, Citigroup)",
+        "Iran's Bitcoin-denominated toll collection at Strait of Hormuz",
+        "Supply dynamics and absorption rates vs miner production",
+        "Bitcoin as censorship-resistant settlement for sanctioned nations"
+      ],
+      "price_prediction": "$189,000 (Citigroup case); $1,000,000 Bitcoin before end of 2026 (Michael Saylor target)",
+      "confidence": "high",
+      "channel": "Simply Bitcoin",
+      "title": "Did Michael Saylor & Strategy Just TRIGGER a Bitcoin STAMPEDE?",
+      "video_id": "DD1Y-Uhj4Og",
+      "duration": 768.55,
+      "analyzed_at": "2026-04-18T20:00:15.678973+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "Private business owners should accumulate Bitcoin on their corporate balance sheets as a treasury strategy, which outperforms traditional private equity returns and provides superior optionality compared to fiat-based valuations.",
+      "key_quotes": [
+        "Why are we allocating capital to private equity professionals for them to underperform spot Bitcoin?",
+        "The goal on the individual side and the business side is to get as much Bitcoin as possible.",
+        "When Bitcoin is your opportunity cost that question gets a lot harder to answer."
+      ],
+      "topics": [
+        "Bitcoin treasury strategy for private businesses",
+        "Private equity underperformance vs Bitcoin",
+        "Corporate balance sheet Bitcoin accumulation",
+        "Tax implications and equity structure considerations",
+        "Dollar-cost averaging for businesses"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "TFTC",
+      "title": "Bitcoin Just Killed Private Equity",
+      "video_id": "g6FVDJsCGE8",
+      "duration": 3798.98,
+      "analyzed_at": "2026-04-18T20:00:10.494738+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "Bitcoin is positioned to surge after completing a correction, benefiting from AI-driven compute scarcity and a secular bull market in hardware and commodities that central bank QE will continue to support.",
+      "key_quotes": [
+        "I believe we have just finished a correction, and I've been waiting patiently to kind of build off the lows we made at 60,000",
+        "The ecosystem of the direct relationship between Bitcoin and the AI world is starting to act well",
+        "we have outlawed pro-long bear markets...we have outlawed multi-year recessions"
+      ],
+      "topics": [
+        "Bitcoin technical correction and recovery",
+        "AI compute scarcity and Bitcoin relationship",
+        "Commodity bull market",
+        "Federal Reserve QE playbook",
+        "Portfolio scarcity allocation"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Anthony Pompliano",
+      "title": "All-Time High Stocks\u2026 Bitcoin About To Explode?",
+      "video_id": "SlPpXs_8WI4",
+      "duration": 3460.46,
+      "analyzed_at": "2026-04-18T20:00:06.009623+00:00"
+    },
     {
       "sentiment": "neutral",
       "sentiment_score": 0,
