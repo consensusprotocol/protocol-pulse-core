@@ -44,17 +44,69 @@ class ImageGenerationService:
         - Professional news publication aesthetic
         """
 
-    def generate_article_header_image(self, article_title: str, article_summary: str) -> str:
-        """Generate a header image for an article using DALL-E"""
+    def _build_topic_prompt(self, title: str, category: str = 'Bitcoin') -> str:
+        """Build a diverse, topic-aware image prompt that avoids visual repetition."""
+        title_lower = title.lower()
+
+        # Detect topic theme for visual direction
+        if any(w in title_lower for w in ['hack', 'exploit', 'breach', 'attack', 'drain', 'stolen', 'fraud', 'scam']):
+            theme = "dark cybersecurity threat — cracked digital lock, fractured code grid, red warning signals, dark tech atmosphere"
+            palette = "deep crimson, black, electric red warning tones"
+        elif any(w in title_lower for w in ['etf', 'fund', 'institutional', 'blackrock', 'fidelity', 'schwab', 'wall street', 'bank']):
+            theme = "institutional finance meets bitcoin — sleek glass towers, vault doors, modern financial architecture"
+            palette = "charcoal grey, gold accents, deep blue"
+        elif any(w in title_lower for w in ['mining', 'hashrate', 'miner', 'asic', 'difficulty', 'smelter']):
+            theme = "industrial bitcoin mining — abstract server racks, heat waves, circuit topology, energy infrastructure"
+            palette = "industrial orange, dark steel, electric blue circuits"
+        elif any(w in title_lower for w in ['law', 'congress', 'senate', 'regulation', 'bill', 'sec', 'legal', 'court', 'ban']):
+            theme = "government and cryptocurrency — classical column architecture, scale of justice, document seal, legislative hall"
+            palette = "marble white, navy blue, gold seal"
+        elif any(w in title_lower for w in ['lightning', 'payment', 'transaction', 'fees', 'mempool', 'transfer']):
+            theme = "instant payment network — lightning bolt pathways, connected nodes, flowing data streams"
+            palette = "electric gold, black, bright white flashes"
+        elif any(w in title_lower for w in ['price', 'ath', 'rally', 'crash', 'dip', 'bull', 'bear', '100k', '75k', '80k']):
+            theme = "financial market momentum — abstract price chart mountain, upward trajectory, market waves"
+            palette = "bitcoin orange, dark background, green or red accent"
+        elif any(w in title_lower for w in ['defi', 'protocol', 'dao', 'smart contract', 'ethereum', 'staking', 'yield']):
+            theme = "decentralized network topology — interconnected hexagonal nodes, protocol flow diagram"
+            palette = "purple gradient nodes, dark background, teal connections"
+        elif any(w in title_lower for w in ['halving', 'supply', 'scarcity', 'satoshi', 'nakamoto', 'genesis']):
+            theme = "digital scarcity and mathematical beauty — fibonacci spiral made of bitcoin symbols, geometric precision"
+            palette = "pure gold, black, white geometric"
+        elif any(w in title_lower for w in ['country', 'nation', 'reserve', 'government', 'strategic', 'sovereign']):
+            theme = "sovereign nation and bitcoin — abstract flag geometry, national architecture silhouette, global map"
+            palette = "national red and gold, deep blue, white"
+        else:
+            # Default: editorial Bitcoin — but vary the composition each time
+            import hashlib
+            variation = int(hashlib.md5(title.encode()).hexdigest(), 16) % 5
+            themes = [
+                ("abstract bitcoin network — scattered node constellation on dark field, red connection lines", "deep red, black, sparse white nodes"),
+                ("digital gold concept — faceted geometric bitcoin symbol with depth and shadow", "gold, black, metallic highlights"),
+                ("blockchain architecture — stacked transparent block layers, data flowing between them", "electric blue, dark, white data streams"),
+                ("financial security concept — abstract vault geometry, encrypted grid pattern", "silver, black, red accent"),
+                ("sovereign technology — lone bitcoin tower in abstract cityscape silhouette", "crimson, black, white skyline"),
+            ]
+            theme, palette = themes[variation]
+
+        return (
+            f"Editorial header image for a Bitcoin news article. "
+            f"Visual concept: {theme}. "
+            f"Color palette: {palette}. "
+            f"Style: professional news publication photography or editorial illustration. "
+            f"Photorealistic or high-quality digital art. NO text, NO words, NO logos. "
+            f"Cinematic composition, dramatic lighting, high contrast. "
+            f"Subject matter related to: {title[:120]}. "
+            f"16:9 or square format. Ultra high quality."
+        )
+
+    def generate_article_header_image(self, article_title: str, article_summary: str = '', category: str = 'Bitcoin') -> str:
+        """Generate a topic-aware header image for an article using DALL-E"""
         if not self.openai_client:
             logging.warning("Image generation service not available - using default image")
             return self._get_default_image()
 
-        # Construct the full prompt for DALL-E
-        full_prompt = (
-            self.base_style_prompt +
-            f"\n\n**Article Topic/Essence:** '{article_title}' and its core idea summarized as: '{article_summary[:150]}'."
-        )
+        full_prompt = self._build_topic_prompt(article_title, category)
 
         try:
             logging.info(f"Generating header image for: {article_title}")
