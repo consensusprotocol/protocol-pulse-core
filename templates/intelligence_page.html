@@ -1726,9 +1726,18 @@
     const canvas = document.getElementById('radarChart');
     if (!canvas) return;
     const rctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
+    // DPR-aware canvas sizing
+    var dpr = window.devicePixelRatio || 1;
+    var cssW = Math.min(canvas.parentElement ? canvas.parentElement.clientWidth : 380, 420);
+    if (cssW < 200) cssW = 380;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssW * dpr);
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssW + 'px';
+    rctx.scale(dpr, dpr);
+    const W = cssW, H = cssW;
     const cx = W / 2, cy = H / 2;
-    const maxR = Math.min(W, H) * 0.38;
+    const maxR = Math.min(W, H) * 0.40;
 
     const labels = ['MCX', 'EPX', 'IHX', 'OPX', 'FDX', 'OCX'];
     const axisColors = ['#dc2626', '#f97316', '#8b5cf6', '#a855f7', '#06b6d4', '#22c55e'];
@@ -2120,20 +2129,20 @@
       drawLabels(ep);
 
       requestAnimationFrame(drawRadar);
-
-    // Live refresh from convergence engine every 30s
-    setInterval(function() {
-      fetch('/api/orb').then(function(r){return r.json()}).then(function(d){
-        var n = d.nodes || {};
-        var order = ['mcx','epx','ihx','opx','fdx','ocx'];
-        var vals = order.map(function(k){ return Math.round((n[k]||{}).score||50); });
-        var comp = Math.round((d.composite||{}).score||50);
-        var bias = comp >= 65 ? 'BULLISH' : comp <= 35 ? 'BEARISH' : (comp >= 55 ? 'CAUTIOUS BULLISH' : 'NEUTRAL');
-        ingestMatrix({ values: vals, composite: comp, bias: bias });
-      }).catch(function(){});
-    }, 30000);
     }
     requestAnimationFrame(drawRadar);
+
+    // Live refresh every 30s (OUTSIDE drawRadar — fires once, not per frame)
+    setInterval(function() {
+      fetch('/api/orb').then(function(rr){return rr.json()}).then(function(dd){
+        var nn = dd.nodes || {};
+        var order = ['mcx','epx','ihx','opx','fdx','ocx'];
+        var vv = order.map(function(k){ return Math.round((nn[k]||{}).score||50); });
+        var cc = Math.round((dd.composite||{}).score||50);
+        var bb = cc >= 65 ? 'BULLISH' : cc <= 35 ? 'BEARISH' : (cc >= 55 ? 'CAUTIOUS BULLISH' : 'NEUTRAL');
+        ingestMatrix({ values: vv, composite: cc, bias: bb });
+      }).catch(function(){});
+    }, 30000);
   })();
 
   // ═══════════════════════════════════════════════════════════════
