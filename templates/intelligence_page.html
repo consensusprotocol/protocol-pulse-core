@@ -2062,12 +2062,7 @@
       }
     }
 
-    // ── 7. RANDOM WALK: every 6s each score drifts ±4, smoothly interpolated ──
-    setInterval(function() {
-      for (var i = 0; i < n; i++) {
-        targetVals[i] = Math.max(0, Math.min(100, baseVals[i] + (Math.random() - 0.5) * 8));
-      }
-    }, 6000);
+    // Random walk removed -- /api/orb refreshes every 30s, no fake drift needed
 
     // ── INTERACTIVITY ──
     function canvasToChart(e) {
@@ -2169,7 +2164,7 @@
 
       // Smooth interpolation toward targets (~2s at 0.04/frame)
       for (var i = 0; i < n; i++) {
-        animVals[i] += (targetVals[i] - animVals[i]) * 0.04;
+        animVals[i] += (targetVals[i] - animVals[i]) * 0.015;
         if (flashAlpha[i] > 0) flashAlpha[i] = Math.max(0, flashAlpha[i] - 0.018);
       }
 
