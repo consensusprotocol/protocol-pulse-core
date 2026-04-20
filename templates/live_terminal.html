@@ -2716,13 +2716,6 @@ html, body {
     color: var(--pp-bitcoin);
 }
 
-.bitfeed-frame {
-    width: 100%;
-    height: calc(65vh - 60px);
-    border: none;
-    filter: hue-rotate(330deg) saturate(1.2);
-}
-
 #blockchain-visualizer {
     position: absolute;
     top: 0;
@@ -3590,28 +3583,26 @@ html, body {
 
 <div class="terminal-container" style="background: transparent !important;">
     
-    <!-- Toggle between visualizer and external bitfeed -->
+    <!-- Toggle between orb visualizer and chain blocks viz -->
     <div class="viz-toggle-container">
         <button class="viz-toggle-btn active" id="toggle-custom" onclick="toggleVisualizer('custom')">
-            <i class="fas fa-cubes me-2"></i>Protocol Pulse
+            <i class="fas fa-atom me-2"></i>Mempool Orb
         </button>
         <button class="viz-toggle-btn" id="toggle-bitfeed" onclick="toggleVisualizer('bitfeed')">
-            <i class="fas fa-external-link-alt me-2"></i>Bitfeed
+            <i class="fas fa-cubes me-2"></i>Chain Blocks
         </button>
         <a href="/kinetic" class="viz-toggle-btn">
             <i class="fas fa-expand me-2"></i>Full View
         </a>
     </div>
-    
-    <!-- Hidden iframe for external bitfeed (shown on toggle) -->
-    <iframe 
-        src="https://bits.monospace.live/" 
-        class="bitfeed-frame" 
-        id="bitfeed-iframe"
-        allow="fullscreen"
-        loading="lazy"
-        style="display: none;"
-    ></iframe>
+
+    <!-- Chain Blocks Visualizer — live 3-block canvas chain -->
+    <div id="chain-blocks-viz" style="display:none;position:relative;width:100%;height:260px;background:#000;border:1px solid rgba(204,0,0,0.18);border-radius:8px;overflow:hidden;margin-top:14px;">
+        <canvas id="chain-blocks-canvas" style="display:block;width:100%;height:260px;background:#000;"></canvas>
+        <div id="chain-blocks-banner" style="position:absolute;top:10px;left:50%;transform:translateX(-50%) translateY(-40px);padding:6px 18px;background:rgba(0,0,0,0.9);border:1px solid #22c55e;color:#22c55e;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;border-radius:4px;opacity:0;transition:transform .4s ease,opacity .4s ease;pointer-events:none;z-index:5;">&#x26A1; NEW BLOCK</div>
+        <div style="position:absolute;top:10px;left:14px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.25em;color:rgba(204,0,0,0.8);text-transform:uppercase;pointer-events:none;">LIVE CHAIN &nbsp;·&nbsp; LAST 3 BLOCKS</div>
+        <div style="position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.25em;color:rgba(255,255,255,0.3);pointer-events:none;">MEMPOOL.SPACE</div>
+    </div>
     
     <div class="terminal-footer">
         <div class="terminal-status">
@@ -3624,8 +3615,8 @@ html, body {
             </div>
         </div>
         <div class="terminal-source">
-            Powered by <a href="https://mempool.space" target="_blank">Mempool.space</a> | 
-            Visualization by <a href="https://bits.monospace.live" target="_blank">Bitfeed</a>
+            Powered by <a href="https://mempool.space" target="_blank">Mempool.space</a> |
+            Native chain visualization by Protocol Pulse
         </div>
     </div>
 </div>
@@ -3978,7 +3969,7 @@ html, body {
     </div>
     <!-- Canvas -->
     <div style="position:relative;display:flex;">
-      <canvas id="ng-live-canvas" style="display:block;cursor:grab;touch-action:none;" aria-label="Interactive Bitcoin node globe showing global node distribution"></canvas>
+      <canvas id="ng-live-canvas" style="display:block;cursor:grab;touch-action:none;min-height:360px;width:100%;" aria-label="Interactive Bitcoin node globe showing global node distribution"></canvas>
       <!-- Tweak panel -->
       <div id="ng-live-tweaks" style="position:absolute;top:12px;right:12px;background:rgba(5,5,5,0.92);border:1px solid rgba(204,0,0,0.3);border-radius:6px;padding:12px 14px;min-width:160px;font-family:'JetBrains Mono',monospace;font-size:9px;z-index:10;">
         <div style="color:#CC0000;letter-spacing:.15em;font-size:7px;margin-bottom:10px;text-transform:uppercase;">TWEAK PANEL</div>
@@ -4021,7 +4012,7 @@ html, body {
 
 <script>
 // ── D3 BITCOIN NODE GLOBE (live_terminal) ─────────────────────────────────────
-(function() {
+function __initNodeGlobeLive() {
   var NODES = [
     { city:'Frankfurt', lat:50.1, lon:8.7,   count:2847, flag:'🇩🇪', ver:'25.0.0' },
     { city:'Berlin',    lat:52.5, lon:13.4,  count:1200, flag:'🇩🇪', ver:'26.0.0' },
@@ -4043,15 +4034,18 @@ html, body {
   var canvas = document.getElementById('ng-live-canvas');
   if (!canvas) return;
 
-  // Size canvas to fill its parent
   function sizeCanvas() {
     var wrap = canvas.parentElement;
-    var W = wrap ? Math.max(300, wrap.clientWidth - 170) : 500;
-    var H = Math.max(360, W * 0.72);
-    canvas.width  = W * (window.devicePixelRatio || 1);
-    canvas.height = H * (window.devicePixelRatio || 1);
+    var parentW = wrap ? wrap.clientWidth : 0;
+    if (!parentW) parentW = canvas.clientWidth || 500;
+    var W = Math.max(300, parentW - 170);
+    var H = Math.max(360, Math.round(W * 0.72));
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width  = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
     canvas.style.width  = W + 'px';
     canvas.style.height = H + 'px';
+    canvas.style.minHeight = '360px';
     return { W: W, H: H };
   }
 
@@ -4061,7 +4055,6 @@ html, body {
   var CX = W / 2, CY = H / 2;
   var RADIUS = Math.min(W, H) * 0.42;
 
-  // State
   var rotate = [-20, -18, 0];
   var rotateSpeed = 0.004;
   var glowStrength = 12;
@@ -4070,39 +4063,55 @@ html, body {
   var worldTopo = null;
   var hoveredNode = null;
   var pulsePhase = 0;
+  var currentProjection = null;
 
-  // Projection helpers (manual geoOrthographic)
   function project(lat, lon) {
     var lam = (lon + rotate[0]) * Math.PI / 180;
     var phi = lat * Math.PI / 180;
     var phi0 = -rotate[1] * Math.PI / 180;
     var cosC = Math.sin(phi0) * Math.sin(phi) + Math.cos(phi0) * Math.cos(phi) * Math.cos(lam);
-    if (cosC < 0) return null; // behind globe
+    if (cosC < 0) return null;
     var x = CX + RADIUS * Math.cos(phi) * Math.sin(lam);
     var y = CY - RADIUS * (Math.cos(phi0) * Math.sin(phi) - Math.sin(phi0) * Math.cos(phi) * Math.cos(lam));
     return { x: x, y: y, depth: cosC };
   }
 
-  // Load world topology via D3
   function init() {
-    if (typeof d3 === 'undefined') { setTimeout(init, 200); return; }
+    if (typeof d3 === 'undefined' || typeof d3.geoOrthographic !== 'function') {
+      setTimeout(init, 500); return;
+    }
 
     var projection = d3.geoOrthographic()
       .translate([CX, CY])
       .scale(RADIUS)
       .clipAngle(90)
       .rotate(rotate);
+    currentProjection = projection;
     var geoPath = d3.geoPath(projection, ctx);
     var sphere = { type: 'Sphere' };
     var graticule = d3.geoGraticule10();
 
-    d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(function(world) {
-      worldTopo = world;
+    if (typeof d3.json === 'function') {
+      d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(function(world) {
+        worldTopo = world;
+        loop(projection, geoPath, sphere, graticule);
+      }).catch(function() {
+        loop(projection, geoPath, sphere, graticule);
+      });
+    } else {
       loop(projection, geoPath, sphere, graticule);
-    }).catch(function() {
-      loop(projection, geoPath, sphere, graticule);
-    });
+    }
   }
+
+  window.addEventListener('resize', function() {
+    var d = sizeCanvas();
+    W = d.W; H = d.H;
+    CX = W / 2; CY = H / 2;
+    RADIUS = Math.min(W, H) * 0.42;
+    if (currentProjection) {
+      currentProjection.translate([CX, CY]).scale(RADIUS);
+    }
+  });
 
   function loop(proj, gp, sphere, gratic) {
     requestAnimationFrame(function tick() {
@@ -4264,7 +4273,370 @@ html, body {
   setInterval(fetchLiveData, 300000); // refresh every 5 min
 
   init();
-})();
+}
+
+if (document.readyState === 'complete') {
+  __initNodeGlobeLive();
+} else {
+  window.addEventListener('load', __initNodeGlobeLive);
+}
+</script>
+
+<script>
+// ── LIVE CHAIN BLOCKS VISUALIZER (Canvas 2D, mempool.space) ─────────────────
+function __initChainBlocksViz() {
+  var canvas = document.getElementById('chain-blocks-canvas');
+  var banner = document.getElementById('chain-blocks-banner');
+  if (!canvas) return;
+
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 260;
+  var running = true;
+  var rafId = null;
+
+  // State
+  var displayed = [];        // [{height, tx_count, size, timestamp, id}, ...] newest first
+  var slideOffset = 0;       // animation progress 0..1, 1 = finished slide
+  var sliding = false;
+  var burstParticles = [];   // {x,y,vx,vy,life}
+  var frameT = 0;
+  var dataDotPhase = 0;
+
+  function dpr() { return window.devicePixelRatio || 1; }
+
+  function sizeCanvas() {
+    W = canvas.clientWidth || canvas.parentElement.clientWidth || 600;
+    H = 260;
+    var r = dpr();
+    canvas.width = Math.round(W * r);
+    canvas.height = Math.round(H * r);
+    canvas.style.height = H + 'px';
+  }
+
+  function fmtBytes(b) {
+    if (!b && b !== 0) return '—';
+    return (b / 1048576).toFixed(2) + ' MB';
+  }
+  function fmtNum(n) {
+    if (n === undefined || n === null) return '—';
+    return n.toLocaleString();
+  }
+  function fmtAge(ts) {
+    if (!ts) return '—';
+    var secs = Math.floor(Date.now() / 1000 - ts);
+    if (secs < 60) return secs + 's ago';
+    var m = Math.floor(secs / 60);
+    if (m < 60) return m + 'm ago';
+    var h = Math.floor(m / 60);
+    return h + 'h ago';
+  }
+
+  // Draw a perspective-style 3D block
+  // x,y = front face top-left; s = size (width/height of front); scale = depth scale
+  function drawBlock(cx, cy, s, opacity, block, isNewest, glowPhase) {
+    var half = s / 2;
+    var depth = Math.round(s * 0.22);
+    var frontX = cx - half;
+    var frontY = cy - half;
+
+    // Shadow / glow corona for newest
+    if (isNewest) {
+      var pulse = (Math.sin(glowPhase) * 0.15 + 0.35);
+      var grd = ctx.createRadialGradient(cx, cy, s * 0.3, cx, cy, s * 1.5);
+      grd.addColorStop(0, 'rgba(204,0,0,' + (0.45 * pulse * opacity) + ')');
+      grd.addColorStop(0.5, 'rgba(204,0,0,' + (0.15 * pulse * opacity) + ')');
+      grd.addColorStop(1, 'rgba(204,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.fillRect(cx - s * 1.5, cy - s * 1.5, s * 3, s * 3);
+    }
+
+    ctx.globalAlpha = opacity;
+
+    // Top face (lighter, simulated lighting) — parallelogram
+    ctx.beginPath();
+    ctx.moveTo(frontX, frontY);
+    ctx.lineTo(frontX + s, frontY);
+    ctx.lineTo(frontX + s + depth, frontY - depth);
+    ctx.lineTo(frontX + depth, frontY - depth);
+    ctx.closePath();
+    ctx.fillStyle = '#141414';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(204,0,0,' + (0.5 * opacity) + ')';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Right side face (darker)
+    ctx.beginPath();
+    ctx.moveTo(frontX + s, frontY);
+    ctx.lineTo(frontX + s + depth, frontY - depth);
+    ctx.lineTo(frontX + s + depth, frontY + s - depth);
+    ctx.lineTo(frontX + s, frontY + s);
+    ctx.closePath();
+    ctx.fillStyle = '#080808';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(204,0,0,' + (0.4 * opacity) + ')';
+    ctx.stroke();
+
+    // Front face
+    ctx.fillStyle = '#0d0d0d';
+    ctx.fillRect(frontX, frontY, s, s);
+    ctx.strokeStyle = 'rgba(204,0,0,' + (isNewest ? 0.9 : 0.6) * opacity + ')';
+    ctx.lineWidth = isNewest ? 1.5 : 1;
+    ctx.strokeRect(frontX, frontY, s, s);
+
+    // Newest: animated red scan line across top
+    if (isNewest) {
+      var scanY = frontY + (Math.sin(glowPhase * 2) * 0.5 + 0.5) * s;
+      var scanGrd = ctx.createLinearGradient(frontX, scanY, frontX + s, scanY);
+      scanGrd.addColorStop(0, 'rgba(204,0,0,0)');
+      scanGrd.addColorStop(0.5, 'rgba(255,60,60,' + (0.6 * opacity) + ')');
+      scanGrd.addColorStop(1, 'rgba(204,0,0,0)');
+      ctx.strokeStyle = scanGrd;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(frontX, scanY);
+      ctx.lineTo(frontX + s, scanY);
+      ctx.stroke();
+    }
+
+    // Bitcoin ₿ symbol centered
+    ctx.fillStyle = 'rgba(204,0,0,' + (isNewest ? 0.85 : 0.55) * opacity + ')';
+    ctx.font = '700 ' + Math.round(s * 0.42) + "px 'JetBrains Mono', monospace";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('\u20BF', cx + 1, cy - s * 0.08);
+
+    // Metadata overlay (tiny monospace)
+    if (block) {
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.75 * opacity) + ')';
+      ctx.font = '600 9px "JetBrains Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText('#' + fmtNum(block.height), frontX + 8, frontY + s - 42);
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.5 * opacity) + ')';
+      ctx.font = '8px "JetBrains Mono", monospace';
+      ctx.fillText(fmtNum(block.tx_count) + ' txs', frontX + 8, frontY + s - 28);
+      ctx.fillText(fmtBytes(block.size), frontX + 8, frontY + s - 16);
+      ctx.fillStyle = 'rgba(204,0,0,' + (0.7 * opacity) + ')';
+      ctx.fillText(fmtAge(block.timestamp), frontX + 8, frontY + s - 4);
+    }
+
+    ctx.globalAlpha = 1;
+  }
+
+  function drawChainLinks(blocks) {
+    // 3 horizontal lines between consecutive blocks
+    for (var i = 0; i < blocks.length - 1; i++) {
+      var a = blocks[i], b = blocks[i + 1];
+      if (!a.pos || !b.pos) continue;
+      var ax = a.pos.cx + a.pos.s / 2;
+      var bx = b.pos.cx - b.pos.s / 2;
+      var cy = a.pos.cy;
+      var opa = Math.min(a.opacity, b.opacity);
+
+      for (var k = -1; k <= 1; k++) {
+        var yy = cy + k * 10;
+        ctx.strokeStyle = 'rgba(204,0,0,' + (0.6 * opa) + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(ax, yy);
+        ctx.lineTo(bx, yy);
+        ctx.stroke();
+
+        // Animated data dot travelling right-to-left, one per link every 0.8s
+        var period = 0.8;
+        var phase = ((dataDotPhase + k * 0.25 + i * 0.4) % period) / period;
+        var dotX = bx + (ax - bx) * phase;
+        ctx.fillStyle = 'rgba(255,60,60,' + (0.9 * opa) + ')';
+        ctx.beginPath();
+        ctx.arc(dotX, yy, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  function spawnBurst(cx, cy) {
+    for (var i = 0; i < 18; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var v = 2 + Math.random() * 3;
+      burstParticles.push({
+        x: cx, y: cy,
+        vx: Math.cos(a) * v, vy: Math.sin(a) * v - 1.5,
+        life: 1.0
+      });
+    }
+  }
+
+  function drawBurst() {
+    for (var i = burstParticles.length - 1; i >= 0; i--) {
+      var p = burstParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.12;
+      p.life -= 0.025;
+      if (p.life <= 0) { burstParticles.splice(i, 1); continue; }
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = '#CC0000';
+      ctx.font = '700 14px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('\u20BF', p.x, p.y);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function layout() {
+    // 3 blocks: newest (right, biggest) → middle → oldest (left, smallest with perspective)
+    // When sliding: new block enters from far right, chain shifts left, oldest fades out on left
+    var r = dpr();
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+
+    var cy = H / 2 + 10;
+    var baseSize = Math.min(W / 4.8, 140);
+    var gap = baseSize * 0.55;
+    var blocks = displayed.slice(0, 3);
+
+    // If sliding, prepend incoming block at index 0 and animate positions
+    var positions = [];
+    var count = blocks.length;
+    for (var i = 0; i < count; i++) {
+      // Index 0 = newest, shown on right
+      // Scale: newest=1.0, next=0.82, next=0.66
+      var scales = [1.0, 0.82, 0.66];
+      var opacities = [1.0, 0.70, 0.40];
+      var s = baseSize * scales[i];
+      var opacity = opacities[i];
+      // x position: newest on right, oldest on left
+      // Right edge anchored, each block offset left by (prev_size/2 + gap + this_size/2)
+      var cx;
+      if (i === 0) {
+        cx = W - baseSize / 2 - 24;
+      } else {
+        var prev = positions[i - 1];
+        cx = prev.cx - prev.s / 2 - gap - s / 2;
+      }
+      // During slide: shift positions right by (1 - slideOffset) * shiftAmount
+      if (sliding) {
+        // newest block slides from off-right into position, rest shift left
+        var shiftPx = baseSize * 1.2;
+        if (i === 0) {
+          cx += shiftPx * (1 - slideOffset);
+          opacity = slideOffset;
+        } else {
+          cx += shiftPx * (1 - slideOffset);
+        }
+        // If 4th (oldest being pushed off), fade out on left
+        if (i === 3) {
+          opacity = opacities[2] * (1 - slideOffset);
+        }
+      }
+      positions.push({ cx: cx, cy: cy, s: s, opacity: opacity });
+    }
+
+    // Draw chain links first (behind blocks)
+    var linkBlocks = [];
+    for (var j = 0; j < blocks.length; j++) {
+      linkBlocks.push({ pos: positions[j], opacity: positions[j].opacity });
+    }
+    drawChainLinks(linkBlocks);
+
+    // Draw blocks back-to-front (oldest first so newest overlaps)
+    for (var k = blocks.length - 1; k >= 0; k--) {
+      var p = positions[k];
+      drawBlock(p.cx, p.cy, p.s, p.opacity, blocks[k], k === 0 && !sliding, frameT);
+    }
+
+    // Burst particles on top
+    drawBurst();
+  }
+
+  function tick() {
+    if (!running) return;
+    frameT += 0.05;
+    dataDotPhase += 1 / 60;
+
+    if (sliding) {
+      slideOffset += 0.025;
+      if (slideOffset >= 1) {
+        slideOffset = 0;
+        sliding = false;
+        // trim to 3 after slide
+        displayed = displayed.slice(0, 3);
+      }
+    }
+
+    layout();
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function flashBanner() {
+    if (!banner) return;
+    banner.style.opacity = '1';
+    banner.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(function() {
+      banner.style.opacity = '0';
+      banner.style.transform = 'translateX(-50%) translateY(-40px)';
+    }, 2000);
+  }
+
+  function fetchBlocks() {
+    fetch('https://mempool.space/api/v1/blocks')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!Array.isArray(data) || !data.length) return;
+        var fresh = data.slice(0, 3).map(function(b) {
+          return {
+            height: b.height,
+            tx_count: b.tx_count,
+            size: b.size,
+            timestamp: b.timestamp,
+            id: b.id
+          };
+        });
+        if (!displayed.length) {
+          displayed = fresh;
+          return;
+        }
+        if (fresh[0].height > displayed[0].height) {
+          // Animate slide-in
+          displayed = [fresh[0]].concat(displayed).slice(0, 4);
+          sliding = true;
+          slideOffset = 0;
+          flashBanner();
+          // Schedule burst at newest block position after slide starts
+          setTimeout(function() {
+            var baseSize = Math.min(W / 4.8, 140);
+            spawnBurst(W - baseSize / 2 - 24, H / 2 + 10);
+          }, 300);
+        } else {
+          displayed = fresh;
+        }
+      })
+      .catch(function() {});
+  }
+
+  sizeCanvas();
+  window.addEventListener('resize', function() { sizeCanvas(); });
+
+  fetchBlocks();
+  var pollId = setInterval(fetchBlocks, 60000);
+
+  window.__chainBlocksViz = {
+    start: function() { if (!running) { running = true; tick(); } },
+    stop: function() {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+    }
+  };
+
+  tick();
+}
+
+if (document.readyState === 'complete') {
+  __initChainBlocksViz();
+} else {
+  window.addEventListener('load', __initChainBlocksViz);
+}
 </script>
 
 <style>
@@ -5395,31 +5767,29 @@ function closeTxPopup() {
 
 function toggleVisualizer(mode) {
     const customViz = document.getElementById('visualizer-container');
-    const bitfeedIframe = document.getElementById('bitfeed-iframe');
+    const chainBlocks = document.getElementById('chain-blocks-viz');
     const vizHud = document.querySelector('.viz-hud');
     const toggleCustom = document.getElementById('toggle-custom');
     const toggleBitfeed = document.getElementById('toggle-bitfeed');
-    
+
     if (mode === 'custom') {
-        customViz.style.display = 'block';
-        bitfeedIframe.style.display = 'none';
-        vizHud.style.display = 'block';
+        if (customViz) customViz.style.display = 'block';
+        if (chainBlocks) chainBlocks.style.display = 'none';
+        if (vizHud) vizHud.style.display = 'block';
         toggleCustom.classList.add('active');
         toggleBitfeed.classList.remove('active');
-        
-        if (window.visualizer) {
-            window.visualizer.start();
-        }
+
+        if (window.visualizer) window.visualizer.start();
+        if (window.__chainBlocksViz) window.__chainBlocksViz.stop();
     } else {
-        customViz.style.display = 'none';
-        bitfeedIframe.style.display = 'block';
-        vizHud.style.display = 'none';
+        if (customViz) customViz.style.display = 'none';
+        if (chainBlocks) chainBlocks.style.display = 'block';
+        if (vizHud) vizHud.style.display = 'none';
         toggleCustom.classList.remove('active');
         toggleBitfeed.classList.add('active');
-        
-        if (window.visualizer) {
-            window.visualizer.stop();
-        }
+
+        if (window.visualizer) window.visualizer.stop();
+        if (window.__chainBlocksViz) window.__chainBlocksViz.start();
     }
 }
 
