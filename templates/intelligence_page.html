@@ -156,6 +156,25 @@
   .span-12 { grid-column: span 12; }
 }
 
+.idx-hover-row {
+  background: rgba(255,255,255,0.01);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.idx-hover-row:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
+}
+.idx-hover-row.axis-active {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+}
+.idx-detail-card {
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
 /* ══════════════════════════════════════════════════════════════════
    1. PCAF SCORE ORB — Breathing, color-shifting central orb
    ══════════════════════════════════════════════════════════════════ */
@@ -1037,11 +1056,34 @@
        ══════════════════════════════════════════════════════════════ -->
   <div class="intel-grid" style="margin-bottom:16px;">
 
-    <!-- A. PCAF SCORE ORB + ALGO SIGNAL -->
+    <!-- A. SOVEREIGN SIGNAL MATRIX — center hero (span-5) -->
+    <div class="span-5" style="display:flex;flex-direction:column;">
+      <div class="g-panel" style="flex:1;position:relative;">
+        <div class="eyebrow">SOVEREIGN SIGNAL MATRIX — CONVERGENCE ENGINE</div>
+        <div class="radar-wrap" style="align-items:center;">
+          <canvas id="radarChart" class="radar-canvas"></canvas>
+          <div class="radar-composite-row" style="justify-content:center;">
+            <span class="radar-comp-num" id="radar-composite" style="color:#fff;">—</span>
+            <span class="radar-comp-label" id="radar-bias" style="margin-left:8px;">Loading...</span>
+          </div>
+        </div>
+        <div class="axis-legend" style="justify-content:center;margin-top:10px;">
+          <span style="color:#dc2626;">&#9632; MCX</span>
+          <span style="color:#f97316;">&#9632; EPX</span>
+          <span style="color:#8b5cf6;">&#9632; IHX</span>
+          <span style="color:#a855f7;">&#9632; OPX</span>
+          <span style="color:#06b6d4;">&#9632; FDX</span>
+          <span style="color:#22c55e;">&#9632; OCX</span>
+        </div>
+        <div id="axis-detail-card" class="axis-detail-card"></div>
+      </div>
+    </div>
+
+    <!-- B. PCAF ORB — left column (span-3) -->
     <div class="span-3">
-      <div class="g-panel accent-red" id="pcaf-card" style="position:relative;">
+      <div class="g-panel accent-red" id="pcaf-card" style="position:relative;height:100%;">
         <div class="eyebrow">PCAF SIGNAL SCORE</div>
-        <div class="pcaf-orb-wrap">
+        <div class="pcaf-orb-wrap" style="align-items:center;">
           <div class="pcaf-orb-container">
             <canvas id="pcafOrb" class="pcaf-orb-canvas" width="360" height="360"></canvas>
             <div class="pcaf-orb-score">
@@ -1049,51 +1091,8 @@
               <span class="pcaf-label">COMPOSITE</span>
             </div>
           </div>
-          <div class="pcaf-sublabel" id="pcaf-bias" style="color:{{ signal.color }};">{{ signal.label }}</div>
+          <div class="pcaf-sublabel" id="pcaf-bias" style="color:{{ signal.color }};text-align:center;">{{ signal.label }}</div>
         </div>
-
-        <!-- Algo subscores -->
-        <div style="margin-top:14px;">
-          {% if signal.components %}
-          {% set tech_keys = ['hashrate', 'mempool'] %}
-          {% set chain_keys = ['exchange_flow', 'whale'] %}
-
-          {% set tech_score = [] %}
-          {% set chain_score = [] %}
-          {% set sent_score = [] %}
-
-          {% for key, comp in signal.components.items() %}
-            {% set s = comp.score|default(50)|float %}
-            {% if key in tech_keys %}{% if tech_score.append(s) %}{% endif %}
-            {% elif key in chain_keys %}{% if chain_score.append(s) %}{% endif %}
-            {% else %}{% if sent_score.append(s) %}{% endif %}
-            {% endif %}
-          {% endfor %}
-
-          {% set ts = (tech_score|sum / tech_score|length)|int if tech_score|length > 0 else 50 %}
-          {% set cs = (chain_score|sum / chain_score|length)|int if chain_score|length > 0 else 50 %}
-          {% set ss = (sent_score|sum / sent_score|length)|int if sent_score|length > 0 else 50 %}
-
-          <div class="algo-row">
-            <span class="algo-row-label">Technical</span>
-            <span class="algo-row-val" style="color:{% if ts >= 65 %}#fff{% elif ts >= 45 %}rgba(255,255,255,0.6){% else %}#ff3b5f{% endif %};">{{ ts }}</span>
-          </div>
-          <div class="algo-bar"><div class="algo-bar-fill" style="width:{{ ts }}%;background:{% if ts >= 65 %}#fff{% elif ts >= 45 %}rgba(255,255,255,0.3){% else %}#ff3b5f{% endif %};"></div></div>
-
-          <div class="algo-row">
-            <span class="algo-row-label">On-Chain</span>
-            <span class="algo-row-val" style="color:{% if cs >= 65 %}#fff{% elif cs >= 45 %}rgba(255,255,255,0.6){% else %}#ff3b5f{% endif %};">{{ cs }}</span>
-          </div>
-          <div class="algo-bar"><div class="algo-bar-fill" style="width:{{ cs }}%;background:{% if cs >= 65 %}#fff{% elif cs >= 45 %}rgba(255,255,255,0.3){% else %}#ff3b5f{% endif %};"></div></div>
-
-          <div class="algo-row">
-            <span class="algo-row-label">Sentiment</span>
-            <span class="algo-row-val" style="color:{% if ss >= 65 %}#fff{% elif ss >= 45 %}rgba(255,255,255,0.6){% else %}#ff3b5f{% endif %};">{{ ss }}</span>
-          </div>
-          <div class="algo-bar"><div class="algo-bar-fill" style="width:{{ ss }}%;background:{% if ss >= 65 %}#fff{% elif ss >= 45 %}rgba(255,255,255,0.3){% else %}#ff3b5f{% endif %};"></div></div>
-          {% endif %}
-        </div>
-
         {% if not is_commander %}
         <div class="classified-gate"><div class="classified-panel-hint">COMMANDER INTELLIGENCE</div>
           <a href="/terminal/checkout" class="classified-cta">Upgrade to Commander</a>
@@ -1103,58 +1102,90 @@
       </div>
     </div>
 
-    <!-- B. SOVEREIGN SIGNAL MATRIX (Custom Canvas Radar) -->
-    <div class="span-5">
-      <div class="g-panel">
-        <div class="eyebrow">SOVEREIGN SIGNAL MATRIX — CONVERGENCE ENGINE</div>
-        <div class="radar-wrap">
-          <canvas id="radarChart" class="radar-canvas" width="760" height="760"></canvas>
-          <div class="radar-composite-row">
-            <span class="radar-comp-num" id="radar-composite" style="color:#fff;">—</span>
-            <span class="radar-comp-label" id="radar-bias">Loading...</span>
+    <!-- C. PROPRIETARY INDICES — sidebar (span-4) with hover crosslink to radar -->
+    <div class="span-4">
+      <div class="g-panel" style="height:100%;">
+        <div class="eyebrow">PROPRIETARY INDICES</div>
+        <div id="idx-list" style="display:flex;flex-direction:column;gap:2px;margin-top:8px;">
+
+          <!-- Each row: data-axis maps to radar axis index (0=MCX,1=EPX,2=IHX,3=OPX,4=FDX,5=OCX) -->
+          {% set idx_data = [
+            ('MCX', 'Miner Conviction', 0, '#dc2626',
+             sovereign_ctx.indices.miner_conviction if sovereign_ctx and sovereign_ctx.indices else {},
+             'Hashrate: ' ~ (sovereign_ctx.network.hashrate_eh|round(0)|int if sovereign_ctx and sovereign_ctx.network else '—') ~ ' EH/s · Next adj: ' ~ (sovereign_ctx.network.next_adj_pct if sovereign_ctx and sovereign_ctx.network else '—') ~ '%',
+             sovereign_ctx.pro_metrics.mpi.description if sovereign_ctx and sovereign_ctx.pro_metrics and sovereign_ctx.pro_metrics.mpi else ''),
+            ('EPX', 'Exchange Pressure', 1, '#f97316',
+             sovereign_ctx.indices.exchange_pressure if sovereign_ctx and sovereign_ctx.indices else {},
+             'Exchange flow: ' ~ (sovereign_ctx.exchange_flow if sovereign_ctx else '—'),
+             ''),
+            ('IHX', 'Insider Heat', 2, '#8b5cf6',
+             sovereign_ctx.indices.insider_heat if sovereign_ctx and sovereign_ctx.indices else {},
+             'Congress trades active · Polymarket: ' ~ (sovereign_ctx.polymarket.macro_sentiment if sovereign_ctx and sovereign_ctx.polymarket else '—') ~ '/100',
+             ''),
+            ('OPX', 'Options Pressure', 3, '#a855f7',
+             {'score': (sovereign_ctx.options.put_call_ratio * 100)|round(0)|int if sovereign_ctx and sovereign_ctx.options else 50, 'signal': 'bullish' if (sovereign_ctx.options.put_call_ratio < 0.8 if sovereign_ctx and sovereign_ctx.options else False) else 'neutral'},
+             'P/C Ratio: ' ~ (sovereign_ctx.options.put_call_ratio if sovereign_ctx and sovereign_ctx.options else '—') ~ ' · DVOL: ' ~ (sovereign_ctx.options.dvol if sovereign_ctx and sovereign_ctx.options else '—') ~ ' · Max pain: $' ~ (sovereign_ctx.options.max_pain|int if sovereign_ctx and sovereign_ctx.options else '—'),
+             'Total OI: ' ~ (sovereign_ctx.options.total_oi_btc|round(0)|int if sovereign_ctx and sovereign_ctx.options else '—') ~ ' BTC'),
+            ('FDX', 'Futures/Derivatives', 4, '#06b6d4',
+             {'score': 50 + (sovereign_ctx.futures.funding_rate * 1e6)|round(0)|int if sovereign_ctx and sovereign_ctx.futures else 50, 'signal': 'bullish' if (sovereign_ctx.futures.funding_rate > 0 if sovereign_ctx and sovereign_ctx.futures else False) else 'neutral'},
+             'Funding: ' ~ ('%.5f'|format(sovereign_ctx.futures.funding_rate) if sovereign_ctx and sovereign_ctx.futures else '—') ~ ' · Basis: ' ~ (sovereign_ctx.futures.annualized_basis if sovereign_ctx and sovereign_ctx.futures else '—') ~ '%',
+             'OI: ' ~ (sovereign_ctx.futures.open_interest_usd|round(-6)|int // 1000000 if sovereign_ctx and sovereign_ctx.futures else '—') ~ 'M USD'),
+            ('OCX', 'On-Chain Activity', 5, '#22c55e',
+             {'score': (sovereign_ctx.on_chain.accumulation_score if sovereign_ctx and sovereign_ctx.on_chain else 50), 'signal': 'bullish' if (sovereign_ctx.on_chain.accumulation_score > 65 if sovereign_ctx and sovereign_ctx.on_chain else False) else 'neutral'},
+             'Active addrs 7d: ' ~ ('{:,}'.format(sovereign_ctx.on_chain.active_addresses_7d|int) if sovereign_ctx and sovereign_ctx.on_chain else '—') ~ ' · NVT: ' ~ (sovereign_ctx.on_chain.nvt_ratio if sovereign_ctx and sovereign_ctx.on_chain else '—'),
+             'TX vol 7d: $' ~ (sovereign_ctx.on_chain.tx_volume_usd_7d|round(-9)|int // 1000000000 if sovereign_ctx and sovereign_ctx.on_chain else '—') ~ 'B · Accum score: ' ~ (sovereign_ctx.on_chain.accumulation_score if sovereign_ctx and sovereign_ctx.on_chain else '—')),
+          ] %}
+
+          {% for code, name, axis_i, color, idata, detail1, detail2 in idx_data %}
+          {% set score = idata.score if idata and idata.score else '—' %}
+          {% set sig = idata.signal if idata else 'neutral' %}
+          <div class="idx-hover-row"
+               data-axis="{{ axis_i }}"
+               data-code="{{ code }}"
+               data-name="{{ name }}"
+               data-score="{{ score }}"
+               data-signal="{{ sig }}"
+               data-detail1="{{ detail1 }}"
+               data-detail2="{{ detail2 }}"
+               onmouseenter="highlightAxis({{ axis_i }}, this)"
+               onmouseleave="unhighlightAxis()">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:{{ color }};box-shadow:0 0 6px {{ color }};flex-shrink:0;"></span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,0.7);">{{ name }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;color:{% if sig == 'bullish' %}#22c55e{% elif sig == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.35){% endif %};">{{ sig|upper }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:900;color:{{ color }};">{{ score }}</span>
+              </div>
+            </div>
+            <!-- Hover detail card -->
+            <div class="idx-detail-card" id="idx-detail-{{ axis_i }}" style="display:none;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.5);line-height:1.7;padding:6px 10px 8px;">
+                {{ detail1 }}{% if detail2 %}<br>{{ detail2 }}{% endif %}
+                {% if idata and idata.interpretation %}<br><span style="color:rgba(255,255,255,0.7);">{{ idata.interpretation }}</span>{% endif %}
+              </div>
+            </div>
           </div>
+          {% endfor %}
+
         </div>
-        <div class="axis-legend">
-          <span style="color:#dc2626;">&#9632; MCX Miner</span>
-          <span style="color:#f97316;">&#9632; EPX Exchange</span>
-          <span style="color:#8b5cf6;">&#9632; IHX Insider</span>
-          <span style="color:#a855f7;">&#9632; OPX Options</span>
-          <span style="color:#06b6d4;">&#9632; FDX Futures</span>
-          <span style="color:#22c55e;">&#9632; OCX On-Chain</span>
-        </div>
-        <div id="axis-detail-card" class="axis-detail-card"></div>
 
-        <!-- Protocol Pulse Indices -->
-        {% set indices = sovereign_ctx.indices if sovereign_ctx and sovereign_ctx.indices else {} %}
-        {% if indices %}
-        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:#ff3b5f;display:block;margin-bottom:10px;">PROPRIETARY INDICES</span>
-
-          {% set mc = indices.get('miner_conviction', {}) %}
-          {% set ep = indices.get('exchange_pressure', {}) %}
-          {% set sd = indices.get('social_divergence', {}) %}
-
-          <div class="idx-row">
-            <span class="idx-name">Miner Conviction</span>
-            <span class="idx-val" style="color:{% if mc.signal == 'bullish' %}#fff{% elif mc.signal == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.5){% endif %};">{{ mc.score|default('—') }}</span>
+        <!-- Convergence score at bottom -->
+        {% if sovereign_ctx and sovereign_ctx.indices and sovereign_ctx.indices.convergence_score %}
+        {% set cv = sovereign_ctx.indices.convergence_score %}
+        <div style="margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.18em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Convergence</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#fff;">{{ cv.score|round(1) }}</span>
           </div>
-          <div class="idx-interp">{{ mc.interpretation|default('') }}</div>
-
-          <div class="idx-row">
-            <span class="idx-name">Exchange Pressure</span>
-            <span class="idx-val" style="color:{% if ep.signal == 'bullish' %}#fff{% elif ep.signal == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.5){% endif %};">{{ ep.score|default('0') }}</span>
-          </div>
-          <div class="idx-interp">{{ ep.interpretation|default('') }}</div>
-
-          <div class="idx-row">
-            <span class="idx-name">Social Divergence</span>
-            <span class="idx-val" style="color:{% if sd.signal == 'bullish' %}#fff{% elif sd.signal == 'bearish' %}#ff3b5f{% else %}rgba(255,255,255,0.5){% endif %};">{{ sd.score|default('0') }}</span>
-          </div>
-          <div class="idx-interp">{{ sd.interpretation|default('') }}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.3);margin-top:2px;">{{ cv.pattern }} · {{ cv.thesis|replace('_',' ')|upper }}</div>
         </div>
         {% endif %}
+
       </div>
     </div>
+
 
     
     <!-- C. FEAR & GREED + NARRATIVE TIMELINE -->
@@ -1722,6 +1753,27 @@
   // ═══════════════════════════════════════════════════════════════
   // 2. SOVEREIGN SIGNAL MATRIX — Alive Canvas Radar with Full Physics
   // ═══════════════════════════════════════════════════════════════
+
+  // ── INDEX ROW → RADAR AXIS HIGHLIGHT ──────────────────────────────────────
+  var _hoveredAxisExternal = -1;
+  function highlightAxis(axisIndex, rowEl) {
+    _hoveredAxisExternal = axisIndex;
+    // Show detail card
+    document.querySelectorAll('.idx-detail-card').forEach(function(c){ c.style.display='none'; });
+    document.querySelectorAll('.idx-hover-row').forEach(function(r){ r.classList.remove('axis-active'); });
+    var card = document.getElementById('idx-detail-' + axisIndex);
+    if (card) card.style.display = 'block';
+    if (rowEl) rowEl.classList.add('axis-active');
+    // Signal the radar to highlight this axis
+    if (typeof window._radarHighlightAxis === 'function') window._radarHighlightAxis(axisIndex);
+  }
+  function unhighlightAxis() {
+    _hoveredAxisExternal = -1;
+    document.querySelectorAll('.idx-detail-card').forEach(function(c){ c.style.display='none'; });
+    document.querySelectorAll('.idx-hover-row').forEach(function(r){ r.classList.remove('axis-active'); });
+    if (typeof window._radarHighlightAxis === 'function') window._radarHighlightAxis(-1);
+  }
+
   (function initRadar() {
     const canvas = document.getElementById('radarChart');
     if (!canvas) return;
@@ -1752,6 +1804,8 @@
     let scoreHistory = labels.map(function() { return []; });
     let t = 0, entryStart = -1, entered = false;
     let hoveredAxis = -1, selectedAxis = -1;
+    // Expose axis highlight for external row hover
+    window._radarHighlightAxis = function(i) { hoveredAxis = i; };
     let flashAlpha = [0, 0, 0, 0, 0, 0];
 
     var _orbCache = null;
