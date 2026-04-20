@@ -289,7 +289,7 @@ def _get_btc_price() -> Tuple[str, str]:
         if os.path.exists(signals_path):
             _mtime = os.path.getmtime(signals_path)
             _age_s = __import__('time').time() - _mtime
-            if _age_s < 600:  # fresh if < 10 minutes
+            if _age_s < 3600:  # widened: 1h is fine for subject line precision
                 import json as _json
                 with open(signals_path) as _f:
                     _sdata = _json.load(_f)
@@ -303,7 +303,36 @@ def _get_btc_price() -> Tuple[str, str]:
                     return price_str, change_str
     except Exception as e:
         logger.warning(f"BTC price cache read failed: {e}")
-    # Fallback: CoinGecko API
+    # Fallback 2: sovereign_context/latest.json (our own data engine, very reliable)
+    try:
+        import json as _sc_json
+        _sc_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data', 'sovereign_context', 'latest.json'))
+        if os.path.exists(_sc_path):
+            with open(_sc_path) as _scf:
+                _sc_data = _sc_json.load(_scf)
+            _btc_sc = _sc_data.get('btc', {})
+            _sc_price = _btc_sc.get('price', 0)
+            _sc_change = _btc_sc.get('change_24h', 0.0)
+            if _sc_price and float(_sc_price) > 1000:
+                _sign = '+' if float(_sc_change) >= 0 else ''
+                logger.info(f'BTC price from sovereign_context: ${float(_sc_price):,.0f}')
+                return f'${float(_sc_price):,.0f}', f'{_sign}{float(_sc_change):.1f}%'
+    except Exception as _sce:
+        logger.warning(f'BTC price sovereign_context failed: {_sce}')
+
+    # Fallback 3: mempool.space (no rate limit, no API key needed)
+    try:
+        _mp_r = requests.get('https://mempool.space/api/v1/prices', timeout=6)
+        if _mp_r.status_code == 200:
+            _mp_data = _mp_r.json()
+            _mp_price = _mp_data.get('USD', 0)
+            if _mp_price and float(_mp_price) > 1000:
+                logger.info(f'BTC price from mempool.space: ${float(_mp_price):,.0f}')
+                return f'${float(_mp_price):,.0f}', '+0.0%'
+    except Exception as _mpe:
+        logger.warning(f'BTC price mempool.space failed: {_mpe}')
+
+    # Fallback 4: CoinGecko API
     try:
         r = requests.get(
             "https://api.coingecko.com/api/v3/simple/price",
