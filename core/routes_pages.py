@@ -1699,6 +1699,11 @@ def about():
     """About page"""
     return render_template('about.html')
 
+@pages_bp.route('/philosophy')
+def philosophy():
+    """Freedom tech philosophy and manifesto."""
+    return render_template('philosophy.html')
+
 @pages_bp.route('/privacy-policy')
 def privacy_policy():
     """Privacy policy (legal)."""

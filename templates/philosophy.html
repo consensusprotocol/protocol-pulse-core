@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Philosophy — Protocol Pulse{% endblock %}
+{% block head %}
+<meta property="og:title" content="Philosophy — Protocol Pulse">
+<meta property="og:description" content="Built on open protocols. Accountable to no one. Bitcoin-first intelligence for people who understand that financial sovereignty isn't a preference — it's a necessity.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protocol Pulse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ProtocolPulse">
+<style>
+.phil-wrap { max-width: 860px; margin: 0 auto; padding: 60px 24px 120px; }
+.phil-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 800;
+  letter-spacing: .28em; text-transform: uppercase; color: #CC0000; margin-bottom: 18px; }
+.phil-hero { margin-bottom: 72px; padding-bottom: 48px; border-bottom: 1px solid #1a1a1a; }
+.phil-hero h1 { font-family: 'JetBrains Mono', monospace; font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 900; letter-spacing: -.02em; color: #fff; line-height: 1.2; margin: 0 0 28px; }
+.phil-hero h1 span { color: #CC0000; }
+.phil-hero-sub { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.9;
+  color: #888; max-width: 640px; }
+.phil-section { margin-bottom: 64px; }
+.phil-section h2 { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 900;
+  letter-spacing: .22em; text-transform: uppercase; color: #CC0000; margin: 0 0 20px;
+  padding-bottom: 10px; border-bottom: 1px solid rgba(204,0,0,.2); }
+.phil-section p { font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 2;
+  color: #aaa; margin: 0 0 16px; max-width: 700px; }
+.phil-section p strong { color: #fff; }
+.phil-section p a { color: #CC0000; text-decoration: none; }
+.phil-section p a:hover { color: #fff; }
+.phil-stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px; background: #1a1a1a; margin: 24px 0 0; }
+.phil-stack-item { background: #000; padding: 18px 20px; }
+.phil-stack-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 900;
+  letter-spacing: .1em; color: #fff; margin-bottom: 6px; }
+.phil-stack-desc { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #555;
+  line-height: 1.7; }
+.phil-tenets { margin: 24px 0 0; }
+.phil-tenet { display: flex; gap: 20px; padding: 18px 0; border-bottom: 1px solid #0d0d0d; }
+.phil-tenet:last-child { border-bottom: none; }
+.phil-tenet-num { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 900;
+  color: #CC0000; min-width: 24px; margin-top: 1px; }
+.phil-tenet-body { font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.9;
+  color: #888; }
+.phil-tenet-body strong { color: #ccc; display: block; margin-bottom: 4px; font-size: 11px;
+  letter-spacing: .04em; }
+.phil-cta { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 32px; margin-top: 64px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  flex-wrap: wrap; }
+.phil-cta-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #666;
+  line-height: 1.8; }
+.phil-cta-text strong { color: #fff; display: block; font-size: 12px; margin-bottom: 6px; }
+.phil-cta-btn { display: inline-block; background: #CC0000; color: #fff;
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 900;
+  letter-spacing: .2em; padding: 12px 24px; text-decoration: none; text-transform: uppercase;
+  white-space: nowrap; }
+.phil-cta-btn:hover { background: #aa0000; color: #fff; }
+.phil-scan-bar { height: 1px; background: linear-gradient(90deg,transparent,#CC0000,transparent);
+  margin: 48px 0; animation: scan 4s ease-in-out infinite; }
+@keyframes scan { 0%,100% { opacity: .15; } 50% { opacity: .6; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="phil-wrap">
+
+  <div class="phil-eyebrow">Protocol Pulse · Freedom Tech · Est. 2025</div>
+
+  <div class="phil-hero">
+    <h1>Built on open protocols.<br><span>Accountable to no one.</span></h1>
+    <p class="phil-hero-sub">
+      Bitcoin intelligence for people who understand that financial sovereignty
+      isn't a preference — it's a necessity. We track the signal because the
+      noise is manufactured. We build in the open because closed systems
+      protect incumbents, not people.
+    </p>
+  </div>
+
+  <div class="phil-scan-bar"></div>
+
+  <!-- WHY WE EXIST -->
+  <div class="phil-section">
+    <h2>Why We Exist</h2>
+    <p>
+      The information asymmetry between institutions and individuals is the
+      core problem. Bloomberg terminals cost <strong>$24,000 per year.</strong>
+      The on-chain data is public. The gap between those two facts is where
+      Protocol Pulse lives.
+    </p>
+    <p>
+      We synthesize on-chain metrics, congressional STOCK Act disclosures,
+      options flow, miner signals, and KOL sentiment into a single live
+      intelligence feed — updated every 30 seconds, machine-readable,
+      and accessible for the price of a Substack.
+    </p>
+    <p>
+      The edge used to belong to whoever had the most expensive data terminal.
+      <strong>We're changing that.</strong>
+    </p>
+  </div>
+
+  <!-- WHAT WE BELIEVE -->
+  <div class="phil-section">
+    <h2>What We Believe</h2>
+    <div class="phil-tenets">
+      <div class="phil-tenet">
+        <div class="phil-tenet-num">01</div>
+        <div class="phil-tenet-body">
+          <strong>Bitcoin is the exit.</strong>
+          Not an asset class. Not a trade. The exit from a system that confiscates
+          purchasing power through inflation, surveils transactions, and requires
+          permission to participate.
+        </div>
+      </div>
+      <div class="phil-tenet">
+        <div class="phil-tenet-num">02</div>
+        <div class="phil-tenet-body">
+          <strong>Self-custody is the only real custody.</strong>
+          Not your keys, not your coins. This applies to everything — money,
+          data, identity, communications. Any system that requires trusting a
+          company or government with your financial life is a dependency, not a solution.
+        </div>
+      </div>
+      <div class="phil-tenet">
+        <div class="phil-tenet-num">03</div>
+        <div class="phil-tenet-body">
+          <strong>Open protocols beat closed platforms.</strong>
+          Lightning, Nostr, BTCPay — these survive because no single entity
+          controls them. Protocol Pulse APIs are pay-per-use via Lightning invoices.
+          No accounts. No KYC. No permission required.
+        </div>
+      </div>
+      <div class="phil-tenet">
+        <div class="phil-tenet-num">04</div>
+        <div class="phil-tenet-body">
+          <strong>The signal is always there. The noise is manufactured.</strong>
+          Media cycles, macro narratives, and sentiment extremes are the mechanism
+          through which conviction gets transferred from weak hands to strong ones.
+          We track the on-chain reality, not the narrative overlay.
+        </div>
+      </div>
+      <div class="phil-tenet">
+        <div class="phil-tenet-num">05</div>
+        <div class="phil-tenet-body">
+          <strong>Intelligence should be sovereign.</strong>
+          No ads. No data sold. No algorithm optimizing for your engagement at the
+          expense of your clarity. Protocol Pulse is funded by subscribers who
+          value signal over noise — nothing else.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW WE BUILD -->
+  <div class="phil-section">
+    <h2>How We Build</h2>
+    <p>
+      Autonomous infrastructure on hardware we own. No cloud lock-in.
+      No third-party AI middlemen between the data and your screen.
+      <strong>Ultron</strong> — our AMD EPYC server with 4x RTX 4090s —
+      runs the full stack: video pipeline, signal synthesis, oracle AI,
+      tweet machine, agent fleet.
+    </p>
+    <p>
+      APIs are gated via <strong>LSAT</strong> (Lightning Service Authentication
+      Tokens) — the Bitcoin-native answer to API keys. Pay a Lightning invoice,
+      get access. No registration. No data harvested. Agents can call our
+      endpoints autonomously without human intervention.
+    </p>
+    <p>
+      Service discovery happens on <strong>Nostr</strong> via NIP-89 service cards —
+      cryptographically signed, relay-published, readable by any Nostr-aware agent.
+      No centralized index required.
+    </p>
+  </div>
+
+  <!-- THE FREEDOM TECH STACK -->
+  <div class="phil-section">
+    <h2>The Freedom Tech Stack We Support</h2>
+    <p>We cover and use builders who are extending sovereign infrastructure:</p>
+    <div class="phil-stack">
+      <div class="phil-stack-item">
+        <div class="phil-stack-name">Bitcoin</div>
+        <div class="phil-stack-desc">The base layer. No alternatives.</div>
+      </div>
+      <div class="phil-stack-item">
+        <div class="phil-stack-name">Lightning</div>
+        <div class="phil-stack-desc">Instant, private, programmable payments.</div>
+      </div>
+      <div class="phil-stack-item">
+        <div class="phil-stack-name">Nostr</div>
+        <div class="phil-stack-desc">Censorship-resistant communication layer.</div>
+      </div>
+      <div class="phil-stack-item">
+        <div class="phil-stack-name">Self-Custody</div>
+        <div class="phil-stack-desc">Foundation, Coinkite, Bitkey, Start9.</div>
+      </div>
+      <div class="phil-stack-item">
+        <div class="phil-stack-name">Open Source</div>
+        <div class="phil-stack-desc">BTCPay, OpenSats, Spiral, HRF.</div>
+      </div>
+      <div class="phil-stack-item">
+        <div class="phil-stack-name">Mining</div>
+        <div class="phil-stack-desc">The physical security layer of the protocol.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="phil-cta">
+    <div class="phil-cta-text">
+      <strong>Read the signal. Own the outcome.</strong>
+      Commander access gives you the full intelligence terminal — live convergence
+      engine, on-chain pro metrics, congressional STOCK Act disclosures, and the
+      Satomi Oracle. Pay monthly or with sats.
+    </div>
+    <a href="/terminal/checkout" class="phil-cta-btn">Access Commander</a>
+  </div>
+
+</div>
+{% endblock %}
