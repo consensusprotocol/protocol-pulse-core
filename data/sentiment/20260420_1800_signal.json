@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-04-20T18:00:14.171132+00:00",
+  "brief_type": "midday",
+  "score": 65,
+  "bullish_signals": [
+    "Hashrate surge to 1065 EH/s",
+    "Mempool active at 65K transactions despite low sentiment",
+    "Price holds $75,910 amid TradFi stress",
+    "Network breathing easy (2 sat/vB fees)",
+    "Anti-fragility thesis validates protocol strength"
+  ],
+  "bearish_signals": [
+    "Fear & Greed Index at 29 (extreme fear)",
+    "Regulatory skepticism mounting"
+  ],
+  "neutral_topics": [
+    "Block size debate resurgence",
+    "Demographic monetary evolution frameworks",
+    "Real estate bubble validation"
+  ]
+}

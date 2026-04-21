@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-21T02:00:31.104658+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Capitulation Playbook: Why Bitcoin's Fear Index of 33 Signals a Reversal, Not a Crash",
+      "angle": "Historical precedent shows F&G readings this low precede bounces; analyze previous reversals and miner behavior as leading indicator",
+      "tags": [
+        "bitcoin",
+        "sentiment analysis",
+        "fear & greed",
+        "market cycles"
+      ]
+    },
+    {
+      "headline": "The Miner's Tell: Why 874 EH/s Hashrate Matters More Than Price Action",
+      "angle": "Institutional fear vs. miner conviction\u2014when producers hold steady despite bearish sentiment, it signals conviction in long-term economics",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "hashrate",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "Mempool Clearance as Accumulation Proxy: What 1 sat/vB Fees Tell Us About On-Chain Demand",
+      "angle": "Clean mempool = patience in market; low fees = weak forced selling; connect to buyer behavior patterns pre-rally",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "on-chain analysis"
+      ]
+    }
+  ]
+}

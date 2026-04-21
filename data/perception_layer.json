@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-19T21:00:02.785183+00:00",
-  "fetch_time_ms": 1559,
+  "updated_at": "2026-04-21T21:45:25.485390+00:00",
+  "fetch_time_ms": 20696,
   "composite": {
     "perception_score": 62,
     "label": "Cautiously Bullish",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 57.45,
-    "total_mcap_usd": 2603719469989.8467,
-    "total_mcap_t": 2.604,
-    "total_vol_24h_usd": 114418225596.82858,
-    "total_vol_24h_b": 114.4,
-    "active_coins": 17567,
+    "btc_dominance_pct": 57.51,
+    "total_mcap_usd": 2632248641093.9517,
+    "total_mcap_t": 2.632,
+    "total_vol_24h_usd": 100923428768.90953,
+    "total_vol_24h_b": 100.9,
+    "active_coins": 17549,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,45 +33,45 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "RAVE",
-        "name": "RaveDAO",
-        "rank": 199,
+        "symbol": "CHIP",
+        "name": "CHIP",
+        "rank": 236,
         "score": 0
       },
       {
-        "symbol": "AAVE",
-        "name": "Aave",
-        "rank": 56,
+        "symbol": "RAVE",
+        "name": "RaveDAO",
+        "rank": 136,
         "score": 1
       },
       {
-        "symbol": "ASTEROID",
-        "name": "Asteroid Shiba",
-        "rank": 252,
+        "symbol": "MAGA",
+        "name": "Make Aliens Great Again",
+        "rank": 883,
         "score": 2
-      },
-      {
-        "symbol": "PIEVERSE",
-        "name": "Pieverse",
-        "rank": 131,
-        "score": 3
-      },
-      {
-        "symbol": "WOJAK",
-        "name": "wojak",
-        "rank": 828,
-        "score": 4
-      },
-      {
-        "symbol": "BOME",
-        "name": "BOOK OF MEME",
-        "rank": 528,
-        "score": 5
       },
       {
         "symbol": "PENGU",
         "name": "Pudgy Penguins",
-        "rank": 109,
+        "rank": 105,
+        "score": 3
+      },
+      {
+        "symbol": "OPG",
+        "name": "OpenGradient",
+        "rank": 361,
+        "score": 4
+      },
+      {
+        "symbol": "AAVE",
+        "name": "Aave",
+        "rank": 55,
+        "score": 5
+      },
+      {
+        "symbol": "ASTEROID",
+        "name": "Asteroid Shiba",
+        "rank": 219,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 748479,
+    "tx_count_24h": 503778,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 8.46,
+    "minutes_between_blocks": 10.72,
     "difficulty": 135594876535256,
-    "estimated_btc_sent": 3358063003351,
-    "total_fees_btc": -50000000000,
+    "estimated_btc_sent": 10095542584052,
+    "total_fees_btc": -40000000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -111,7 +111,7 @@
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 2,
+    "fastest_fee_sat_vb": 1,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,21 +121,21 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 27,
-    "7d_ago": 12,
-    "7d_delta": 15,
+    "current": 33,
+    "7d_ago": 23,
+    "7d_delta": 10,
     "trend": "improving",
     "7d_values": [
+      33,
+      29,
       27,
       26,
       21,
       23,
-      23,
-      21,
-      12
+      23
     ],
     "btc_signal": "bullish",
-    "note": "F&G trending up (12 -> 27)",
+    "note": "F&G trending up (23 -> 33)",
     "label": "Fear",
     "source": "alternative.me F&G"
   }

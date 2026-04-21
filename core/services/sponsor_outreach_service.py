@@ -155,6 +155,10 @@ Protocol Pulse is the "ESPN SportsCenter for Bitcoin" — premium daily intellig
 - Audience: Bitcoin builders, investors, operators (85% male, 25-55, high income, high net worth)
 - Content: Daily articles, Cypherpunkd podcast, Pulse Check videos, daily newsletter, live terminal
 - Events: BitcoinDay Naples, BTC in DC at the Kennedy Center
+- BITCOIN 2026: Our team is attending Bitcoin Conference 2026 (Apr 27-29, The Venetian, Las Vegas) as PRESS
+- Our team member John Michael Drew is a SPEAKER at Bitcoin Conference 2026
+- We have the Protocol Pulse Media press lounge at the conference
+- Our CEO Matty is looking to connect with sponsors at the event
 
 This is step 1 (intro). Write 3-4 paragraphs:
 1. Mention you noticed {company} is active in the Bitcoin space and advertising on podcasts
@@ -235,6 +239,13 @@ Cypherpunkd is Protocol Pulse's flagship Bitcoin podcast:
 - Focus: Bitcoin conviction, sovereignty, cypherpunk ethos
 - Audience: serious Bitcoiners, not crypto tourists
 - Distribution: Apple, Spotify, YouTube, Fountain, RSS
+
+IMPORTANT - weave this into the email naturally:
+- Our team is attending Bitcoin 2026 (Apr 27-29, The Venetian, Las Vegas) as PRESS
+- John Michael Drew from our team is a SPEAKER at Bitcoin Conference 2026
+- We have the Protocol Pulse Media press lounge at the conference
+- Our CEO Matty would love a strategic conversation
+- If they are at Bitcoin 2026, suggest connecting at our press lounge
 
 Topic angle for this episode: {topic_angle}
 

@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-21T10:00:30.315055+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Halving Positioning Game: Why Bitcoin's Quiet Grind Beats the Hype",
+      "angle": "Analyzing how low fear and clean on-chain metrics signal smart money accumulation 55K blocks before August's supply cut",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "accumulation",
+        "on-chain",
+        "miners"
+      ]
+    },
+    {
+      "headline": "Mempool Signals Institutional Patience: Why Bitcoin's 3 sat/vB Fees Matter",
+      "angle": "Light mempool and compressed fees reveal confident institutional positioning without desperate buying pressure",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "institutional",
+        "fees",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Hashrate at All-Time High: Miners Signal Conviction Ahead of Halving",
+      "angle": "874 EH/s commitment despite market grind shows miner conviction and confidence in post-halving economics",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "halving",
+        "fundamentals"
+      ]
+    }
+  ]
+}

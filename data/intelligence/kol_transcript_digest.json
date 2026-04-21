@@ -1,63 +1,69 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-19T16:00:16.254922+00:00",
-  "creator_count": 6,
-  "avg_sentiment_score": 63.3,
+  "generated_at": "2026-04-20T00:00:09.993246+00:00",
+  "creator_count": 4,
+  "avg_sentiment_score": 50.8,
   "sentiment_breakdown": {
-    "bullish": 4,
+    "bullish": 2,
     "bearish": 2,
     "neutral": 0
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "geopolitical conflict impact on Bitcoin",
+      "topic": "Seller exhaustion and capitulation",
       "creator_count": 1,
       "creators": [
         "BTC Sessions"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
+      "avg_sentiment_score": 78.0,
+      "example_quote": "There's a 90% chance we're going higher fear"
     },
     {
-      "topic": "Bitcoin-software sector correlation",
+      "topic": "Bear market bottom formation",
       "creator_count": 1,
       "creators": [
         "BTC Sessions"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
+      "avg_sentiment_score": 78.0,
+      "example_quote": "There's a 90% chance we're going higher fear"
     },
     {
-      "topic": "liquidity crisis scenarios",
+      "topic": "Long-term holder accumulation",
       "creator_count": 1,
       "creators": [
         "BTC Sessions"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
+      "avg_sentiment_score": 78.0,
+      "example_quote": "There's a 90% chance we're going higher fear"
     },
     {
-      "topic": "accumulation strategy and price targeting",
+      "topic": "Profit-taking cycles",
       "creator_count": 1,
       "creators": [
         "BTC Sessions"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
+      "avg_sentiment_score": 78.0,
+      "example_quote": "There's a 90% chance we're going higher fear"
     },
     {
-      "topic": "risk asset valuation",
+      "topic": "Asset performance during geopolitical shocks",
       "creator_count": 1,
       "creators": [
         "BTC Sessions"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "I still think I'm going to be able to buy Bitcoin in the 40s. Maybe lower if things really get bad."
+      "avg_sentiment_score": 78.0,
+      "example_quote": "There's a 90% chance we're going higher fear"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Most creators agree Bitcoin has fundamental long-term value, with institutional/sovereign adoption and supply dynamics supporting higher prices. There's also agreement that macroeconomic factors (geopolitical conflict, monetary policy, dollar weakness) significantly influence Bitcoin's direction.\n\n**Divergence:** The core split is on near-term price direction. Bullish voices (5 creators, 78-92 sentiment) cite institutional adoption, supply constraints, and AI/tokenization tailwinds, while BTC Sessions stands alone with bearish near-term outlook ($40k bottom, potential $20-30k crash). Simply Bitcoin uniquely frames Bitcoin as an ideological alternative to fiat collapse rather than a purely financial asset.\n\n**Key tension:** Bullish creators see institutional buying creating structural support, while the bearish view emphasizes macro headwinds and correlation with risk assets that could overwhelm adoption narratives in a liquidity crisis.",
+  "summary": "# Bitcoin Creator Consensus & Divergence\n\n**Consensus:** All creators view Bitcoin through a macro lens\u2014whether geopolitical instability, systemic currency concerns, or institutional positioning\u2014rather than pure technicals.\n\n**Key Divergence:** BTC Sessions is internally contradicted (bullish then bearish), while Simply Bitcoin and Altcoin Daily lean aggressively bullish on macro/systemic grounds (fiat collapse, insider trading signals), contrasting sharply with BTC Sessions' bearish near-term outlook citing geopolitical headwinds and potential $20k-$40k bottoming.\n\n**Net Signal:** Mixed\u2014creators agree Bitcoin matters as a macro hedge but disagree fundamentally on timing (immediate upside vs. gradual/severe downside) and catalysts (capitulation vs. conflict vs. institutional adoption).",
   "top_creators": [
+    {
+      "channel": "BTC Sessions",
+      "sentiment": "bullish",
+      "score": 78,
+      "thesis": "Bitcoin has likely already bottomed (90% probability of going higher) after seller exhaustion and price capitulation at $60k, similar to previous bear market patterns. The lack of downside despite bearish headlines suggests capitulation has already occurred and the market is positioned for upside."
+    },
     {
       "channel": "BTC Sessions",
       "sentiment": "bearish",
@@ -75,18 +81,6 @@
       "sentiment": "bullish",
       "score": 85,
       "thesis": "Congressional insider trading on Bitcoin ETFs signals major bullish moves ahead, driven by tokenization and agentic AI adoption that will significantly increase Bitcoin and Ethereum valuations."
-    },
-    {
-      "channel": "Simply Bitcoin",
-      "sentiment": "bullish",
-      "score": 92,
-      "thesis": "Bitcoin adoption has shifted from retail speculation to institutional and sovereign nation adoption, creating a structural supply shortage as major entities like MicroStrategy absorb multiples of monthly miner output."
-    },
-    {
-      "channel": "TFTC",
-      "sentiment": "bullish",
-      "score": 85,
-      "thesis": "Private business owners should accumulate Bitcoin on their corporate balance sheets as a treasury strategy, which outperforms traditional private equity returns and provides superior optionality compared to fiat-based valuations."
     }
   ]
 }

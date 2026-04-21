@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-04-20T18:00:14.171132+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Anti-Fragility Paradox: Why Regulatory Pressure Strengthens the Network",
+      "angle": "On-chain metrics reveal consensus-without-king architecture hardens under attack; sentiment-conviction disconnect signals accumulation opportunity",
+      "tags": [
+        "bitcoin",
+        "regulation",
+        "hashrate",
+        "anti-fragility",
+        "on-chain",
+        "macro"
+      ]
+    },
+    {
+      "headline": "The Mempool Signal: Why 65K Pending Transactions Beat Fear & Greed Index",
+      "angle": "Network activity persists despite crushed sentiment; cheap fees prove protocol health independent of price psychology",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "sentiment",
+        "mempool",
+        "network-health"
+      ]
+    },
+    {
+      "headline": "Block Size Wars Redux: Why Decentralized Consensus Beats Regulatory Dictates",
+      "angle": "Historical power struggles resurface as regulatory noise mounts; Bitcoin's leaderless model proves superior to centralized fiat responses",
+      "tags": [
+        "bitcoin",
+        "governance",
+        "regulation",
+        "consensus",
+        "protocol"
+      ]
+    }
+  ]
+}

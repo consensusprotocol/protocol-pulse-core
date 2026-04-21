@@ -1,53 +1,52 @@
 [
   {
-    "id": "e0bc3bcc-dc8b-4aac-89ec-d08528050c22",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "**ORACLE MIDDAY BRIEF**\n\nBitcoin holding $74,760 despite overnight weakness\u2014fear gauge at 27 signals capitulation, not panic. That's institutional entry pricing.\n\n**The Real Signal:** Hashrate crushing 1,035 EH/s while mempool clears to 2 sat/vB. Network's bulletproof during accumulation season. Van",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
-    "topic_preview": "Oracle Midday Brief \u2014 $74,760",
-    "generated_at": "2026-04-19T18:00:01.742580+00:00",
-    "expires_at": "2026-04-19T22:00:01.742580+00:00",
-    "video_url": "/data/stage_briefs/brief_20260419_1800.mp4"
-  },
-  {
-    "id": "39779a51-e989-4c0c-9b01-516f322e52fd",
+    "id": "6afc1466-1c89-47ca-992e-92ebb523bc43",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Satomi Broadcast\n\nMarty Bent launches Bitcoin Treasury Playbook with Capital B Advisory.\n\nCompanies now have structured framework for Bitcoin balance sheet positioning.\n\nWatch for CFO adoption of these allocation models in Q4.\n\nForward signal: Monitor Capital B's client onboarding for playbook implementation.",
-    "source_label": "\ud83e\udde0 @MARTYBENT",
-    "topic_preview": "Proud to launch the Bitcoin Treasury & Exit Playbook with Scott Marmoll of Capit",
-    "generated_at": "2026-04-19T19:50:06.024613+00:00",
-    "expires_at": "2026-04-19T21:50:06.024613+00:00"
+    "script": "Jeff Booth clarifies what debasement actually is\u2014not a metaphor, a transfer mechanism. Rome diluted coin metal; central banks dilute monetary units. Same theft, different infrastructure.\n\nWatch the M2 velocity collapse when real rates finally invert.",
+    "source_label": "\ud83e\udde0 @JEFFBOOTH",
+    "topic_preview": "R to @JeffBooth: Historically, when governments debase currency, they transfer v",
+    "generated_at": "2026-04-21T20:55:28.086564+00:00",
+    "expires_at": "2026-04-21T22:55:28.086564+00:00"
   },
   {
-    "id": "c10c3b8c-c54f-4686-8e65-bdae04af8df6",
+    "id": "1a00bf89-951b-4544-a4ce-48bcbdb6b406",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Bitcoin trading at $74,844, down 1.2% in 24 hours. Hashrate sustained at 1,035.1 EH.\n\nFear and Greed index at 27, confirming widespread fear. Fastest fee sitting at 2 satoshis.\n\n51,970 transactions processed in the last block. Block 945,827.\n\nWatch for any significant fee spikes over 5 satoshis.",
+    "script": "PROTOCOL PULSE \u2014 METRICS SEGMENT\n\nHashrate climbed to 874 exahashes despite price rejection. Fear index at 33 signals capitulation bottom\u2014watch for sustained miner commitment above 870EH as confirmation signal.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $74,844 \u00b7 FNG 27 \u00b7 1035.1 EH/s",
-    "generated_at": "2026-04-19T20:40:12.549505+00:00",
-    "expires_at": "2026-04-20T00:40:12.549505+00:00"
+    "topic_preview": "BTC $75,532 \u00b7 FNG 33 \u00b7 874.0 EH/s",
+    "generated_at": "2026-04-21T18:51:00.997433+00:00",
+    "expires_at": "2026-04-21T22:51:00.997433+00:00"
   },
   {
-    "id": "7cf53625-969a-4c62-b7ac-56c418cdc31d",
+    "id": "5eba9150-4708-42df-b126-2dbf18623c05",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Institutional Bitcoin accumulation accelerating through Nostr relays. \n\nMining hash rate stabilizing above 350 exahashes per second.\n\nWatch for next major on-chain accumulation pattern.",
+    "script": "PROTOCOL PULSE \u2014 NOSTR SIGNAL\n\nInstitutional ETF inflows dominate Nostr discourse. This narrative conveniently sidelines the actual signal: nodes, hashrate, and self-custody adoption metrics are what matter at settlement layer.\n\nWatch for on-chain transaction volume from non-exchange addresses next 72 hours \u2014 that tells you if conviction actually",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Institutional adoption & accumulation",
-    "generated_at": "2026-04-19T20:40:15.260175+00:00",
-    "expires_at": "2026-04-20T00:40:15.260175+00:00"
+    "topic_preview": "Institutional ETF inflows",
+    "generated_at": "2026-04-21T21:15:48.915931+00:00",
+    "expires_at": "2026-04-22T01:15:48.915931+00:00"
   },
   {
-    "id": "b9a18961-f59f-4c53-beae-0949ae5014c5",
+    "id": "a6522440-747e-442a-9ddc-b40272ea2e97",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hashrate sustained above 1035 EH/s despite price resistance, signaling institutional accumulation. Mempool fees remain suppressed at 3 sat/vbyte. Bitcoin miners continue operating at scale. Watch for mempool fee spikes above 5 sat/vbyte.",
-    "source_label": "\u26a1 LIVE INSIGHT",
-    "topic_preview": "Hashrate sustained above 1035 EH/s despite price resistance, signaling instituti",
-    "generated_at": "2026-04-19T19:45:21.992074+00:00",
-    "expires_at": "2026-04-19T21:45:21.992074+00:00"
+    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
+    "generated_at": "2026-04-21T18:36:12.569404+00:00",
+    "expires_at": "2026-04-21T22:36:12.569404+00:00"
+  },
+  {
+    "id": "e9526d60-baf0-4612-b6a5-65c69181b7ff",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Nostr is building the decentralized social layer that Bitcoin's monetary layer always needed. Censorship-resistant communication plus censorship-resistant money \u2014 that's the full stack of digital sovereignty.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Nostr is building the decentralized social layer that Bitcoin's monetary layer a",
+    "generated_at": "2026-04-21T18:46:11.929957+00:00",
+    "expires_at": "2026-04-21T22:46:11.929957+00:00"
   }
 ]

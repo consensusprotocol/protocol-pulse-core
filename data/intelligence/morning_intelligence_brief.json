@@ -1,59 +1,52 @@
 {
-  "generated_at": "2026-04-19T00:00:00Z",
-  "date": "Sunday, April 19, 2026",
-  "btc_price": "$74,977",
-  "btc_change_24h": "-0.9%",
-  "fng": "Fear (27/100)",
+  "generated_at": "2026-04-21T00:00:00Z",
+  "date": "Tuesday, April 21, 2026",
+  "btc_price": "$74,966",
+  "btc_change_24h": "-1.7%",
+  "fng": "Fear",
   "dominant_narratives": [
-    "Bitcoin as deflationary alternative to currency debasement — sound money thesis resurging",
-    "Regulatory arbitrage: UK FCA authorization deadline creates 18-month window for Bitcoin infrastructure legitimacy",
-    "Institutional accumulation signals (Saylor, insider trading, sovereign adoption) offsetting macro headwinds",
-    "Bitcoin City momentum: Lugano's merchant adoption (400+) as proof-of-concept for parallel economy"
+    "Institutional legitimacy accelerating — U.S. military/Pentagon framing Bitcoin as national security infrastructure",
+    "Whale accumulation & corporate treasury expansion — largest weekly BTC hoarding since July 2025, MicroStrategy generating $3.6B+ in 'BTC Gain'",
+    "DeFi/altcoin rejection — Bitcoin maximalism reasserting; PoS & tokenomics viewed as failed experiments vs. PoW immutability"
   ],
   "trending_language": [
-    "Think Even ₿igger",
-    "Break free from centuries of currency manipulation",
-    "TCP/IP of money",
-    "The state caused it. The state will make it worse.",
-    "Entropy Tax",
-    "Deflationary future",
-    "Fixed supply immunity to manipulation"
+    "Proof of Work is the signal. Everything else is noise.",
+    "Bitcoin shows incredible potential as a computer science tool",
+    "Largest weekly accumulation since July 2025",
+    "We live in the most absurd timeline",
+    "BTC Gain is the closest analog to Net Income on the Bitcoin Standard"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite 24h price weakness and Fear index at 27, creator consensus heavily favors long-term accumulation. Institutional adoption signals, UK regulatory clarity timeline, and deflationary narrative pushback against fiat debasement dominate discourse. Near-term price action decoupled from conviction strength.",
+  "sentiment_reasoning": "Despite -1.7% price action and Fear index reading, community conviction is elevated by institutional inflows (Morgan Stanley ETF ranking #3 in 9 days), 4-star Admiral testimony reframing Bitcoin as strategic infrastructure, and whale accumulation at macro scale. Price weakness is viewed as capitulation opportunity, not reversal signal.",
   "top_accounts_active": [
-    "@JeffBooth",
-    "@saylor",
-    "@DocumentingBTC",
     "@BitcoinArchive",
+    "@MartyBent",
+    "@DocumentingBTC",
+    "@BitcoinMagazine",
+    "@saylor",
     "@lopp",
-    "@NickSzabo4",
-    "@sunnyriverr",
-    "@BitcoinMagazine"
+    "@BTCsessions",
+    "@TFTC21",
+    "@gladstein",
+    "@TomerStrolight"
   ],
   "recommended_tweet_angles": [
-    "UK FCA 18-month authorization race: institutional capital queuing at gate while retail sleeps. Regulatory permission structures adoption before price does.",
-    "Saylor's 'Think Even ₿igger' + Lugano's 400+ merchants = parallel economy infrastructure already live. Not waiting for permission. Building it now.",
-    "Fear Index 27 while conviction data screams deflationary thesis. When Fear = Greed's inverse signal, accumulation window closes fast. Sound money doesn't discount itself twice.",
-    "Currency debasement is 2,000+ year pattern (Rome → today's digital printer). Bitcoin's fixed 21M supply = first monetary protocol immune to theft. This isn't speculation, it's escape velocity."
+    "Pentagon legitimacy angle — Admiral testimony + national security framing creates permission structure for institutional adoption; cite Admiral Paparo's PoW-as-cost-function testimony as first military-grade validation of Bitcoin's asymmetric security model",
+    "Accumulation vs. price disconnect — while retail sees -1.7%, whales executing largest weekly buys since July 2025; frame as classic distribution bottom pattern where 'noise' traders exit at capitulation while strategists load",
+    "DeFi graveyard / Bitcoin singularity — capitalize on @gladstein/@TomerStrolight/@MartyBent consensus that altcoins/PoS/DeFi failed the decentralization promise; Bitcoin's uniqueness (not replicability) is the thesis",
+    "Corporate treasury Bitcoin standard emerging — MicroStrategy's 6.2% yield + $3.6B April gains reframe BTC as balance sheet asset class; cite Morgan Stanley's shift from 1-2% (2019 Fools) to 7% allocation as regime change"
   ],
   "topics_to_avoid": [
-    "Satoshi identity debates (low signal-to-noise, distracts from protocol)",
-    "Geopolitical conflict framing unrelated to monetary/network effects (generates noise, not conviction)",
-    "AI/singularity productivity claims without scarcity analysis (contradicts Bitcoin's value premise)",
-    "Short-term price targets disconnected from accumulation thesis"
+    "Ethereum quantum-readiness claims (dismissive tone embedded in KOL discourse)",
+    "Geopolitical conflict updates unrelated to Bitcoin (Iran/Pakistan/West Bank noise diluting signal)",
+    "Fractional governance debates ('can't even decide on unit of account' sarcasm signals fatigue)"
   ],
-  "engagement_patterns": "Thread format (multi-part conviction building) outperforming single tweets. Historical parallels (Rome debasement, Silk Road harm reduction, Lexington/Concord) generating retweets. Deflationary thesis language cutting through noise. Institutional signal posts (Saylor, insider trading data) trigger accumulation psychology. Regulatory clarity posts get sustained engagement—permission structure is permission to accumulate.",
-  "protocol_pulse_voice_guidance": "Lead with institutional accumulation facts (Saylor, insider trading, FCA timeline) before ideological framing. Use historical parallels (Rome, currency debasement) to validate Bitcoin's necessity rather than idealism. Acknowledge Fear Index but anchor to conviction data divergence. Sound like someone who reads both the code and the incentives. Deflationary thesis is the intellectual ammunition—deploy it as 'this solves what central banks created.' Avoid revolutionary rhetoric; use precision: 'protocol immune to manipulation' not 'freedom from tyranny.' The cypherpunk edge comes from clarity, not anger.",
+  "engagement_patterns": "Short, declarative statements with embedded conviction (e.g., MartyBent's 'Proof of Work is the signal') outperform long-form threads. Data-backed threads (whale flows, Morgan Stanley inflows, Admiral testimony) drive high retweets. Cypherpunk sarcasm ('We live in the most absurd timeline,' 'COPE') generates engagement through cultural resonance. Bitcoin Archive's hard numbers format (exact dollar inflows, BTC holdings) sets engagement baseline.",
+  "protocol_pulse_voice_guidance": "Lean into Admiral-testimony-as-legitimacy-inflection-point without losing cypherpunk edge. Frame institutional adoption as checkmate against fiat denial, not capitulation to legacy. Use exact numbers (Morgan Stanley $256M, MicroStrategy $3.6B, 139M BTC holdings) as ammunition against 'still early' discourse — but weaponize them to argue whales ARE early, retail is late. Maintain hardline PoW maximalism; anchor Bitcoin's uniqueness in thermodynamic cost rather than network effects. Dismiss altcoin/DeFi as solved problem. Reference Admiral testimony as first explicit state-level acknowledgment that Bitcoin's immutability has strategic value. Tone: confident, data-dense, dismissive of noise.",
   "key_stats_today": {
-    "tweets_analyzed": 89,
+    "tweets_analyzed": 171,
     "nostr_signals": 0,
-    "unique_handles": 61,
-    "bullish_conviction_creators": 5,
-    "bearish_near_term_creators": 1,
-    "deflationary_thesis_mentions": 12,
-    "regulatory_clarity_mentions": 3,
-    "institutional_accumulation_signals": 4
+    "unique_handles": 114
   },
   "generated_by": "claude_haiku"
 }

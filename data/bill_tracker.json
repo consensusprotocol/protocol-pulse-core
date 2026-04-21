@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-19T10:00:24.706595+00:00",
-  "fetch_time_ms": 23257,
+  "updated_at": "2026-04-21T10:00:36.426077+00:00",
+  "fetch_time_ms": 33591,
   "total_bills": 40,
   "bills_with_votes": 9,
   "bullish_count": 1,
@@ -41,7 +41,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "126dc906244a2eb11b1035763dc03aeb",
-      "updated_at": "2026-04-19T10:00:23.862387+00:00"
+      "updated_at": "2026-04-21T10:00:35.359336+00:00"
     },
     {
       "bill_id": 2138937,
@@ -78,7 +78,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "66e0e8e7df68fa8d09d23697b95b3ca6",
-      "updated_at": "2026-04-19T10:00:05.209282+00:00"
+      "updated_at": "2026-04-21T10:00:07.911948+00:00"
     },
     {
       "bill_id": 2132768,
@@ -115,7 +115,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "60f7f440c47906392eb61a580413287c",
-      "updated_at": "2026-04-19T10:00:14.821637+00:00"
+      "updated_at": "2026-04-21T10:00:21.901470+00:00"
     },
     {
       "bill_id": 2123654,
@@ -152,7 +152,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "d7ced30e911d5fc7c4778e9c1ba3a764",
-      "updated_at": "2026-04-19T10:00:11.806482+00:00"
+      "updated_at": "2026-04-21T10:00:17.304433+00:00"
     },
     {
       "bill_id": 2088126,
@@ -190,7 +190,7 @@
       "gap_score": 0,
       "gap_label": "ALIGNED",
       "change_hash": "a12874be4c72d7c105a6c8cc2dda96d9",
-      "updated_at": "2026-04-19T10:00:11.305319+00:00"
+      "updated_at": "2026-04-21T10:00:16.622783+00:00"
     },
     {
       "bill_id": 2104525,
@@ -227,7 +227,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "80ca27ba4c57fd4d0073ec2431371205",
-      "updated_at": "2026-04-19T10:00:14.326739+00:00"
+      "updated_at": "2026-04-21T10:00:21.145421+00:00"
     },
     {
       "bill_id": 2072088,
@@ -265,7 +265,7 @@
       "gap_score": 31,
       "gap_label": "MODERATE GAP",
       "change_hash": "0ac0b661f0260a33179b106f3e1a08f1",
-      "updated_at": "2026-04-19T10:00:10.755553+00:00"
+      "updated_at": "2026-04-21T10:00:15.811169+00:00"
     },
     {
       "bill_id": 2058571,
@@ -302,7 +302,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7b28ccded89f1c1bcc3d617634dc0794",
-      "updated_at": "2026-04-19T10:00:19.730983+00:00"
+      "updated_at": "2026-04-21T10:00:29.295875+00:00"
     },
     {
       "bill_id": 2008583,
@@ -340,7 +340,7 @@
       "gap_score": 29,
       "gap_label": "MODERATE GAP",
       "change_hash": "3c720262c461b0567c8fc457af07e73c",
-      "updated_at": "2026-04-19T10:00:24.406058+00:00"
+      "updated_at": "2026-04-21T10:00:36.124207+00:00"
     },
     {
       "bill_id": 2060370,
@@ -377,7 +377,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "09575c7630318f87191901b039c5b803",
-      "updated_at": "2026-04-19T10:00:07.184742+00:00"
+      "updated_at": "2026-04-21T10:00:10.452883+00:00"
     },
     {
       "bill_id": 2031808,
@@ -415,7 +415,7 @@
       "gap_score": 21,
       "gap_label": "MODERATE GAP",
       "change_hash": "aaed04ce67fe14e71297a5fb4ba03efd",
-      "updated_at": "2026-04-19T10:00:19.229483+00:00"
+      "updated_at": "2026-04-21T10:00:28.541403+00:00"
     },
     {
       "bill_id": 2058188,
@@ -452,7 +452,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "c60c9cac3765a3651c13cd91d8345c81",
-      "updated_at": "2026-04-19T10:00:12.842004+00:00"
+      "updated_at": "2026-04-21T10:00:18.875785+00:00"
     },
     {
       "bill_id": 2053628,
@@ -489,7 +489,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "0bb51c08b935cc1cf2e82d8096e68c4d",
-      "updated_at": "2026-04-19T10:00:04.714793+00:00"
+      "updated_at": "2026-04-21T10:00:07.281069+00:00"
     },
     {
       "bill_id": 2053561,
@@ -526,7 +526,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "3bf0255e02f72f7d1973f1b020e91162",
-      "updated_at": "2026-04-19T10:00:09.744543+00:00"
+      "updated_at": "2026-04-21T10:00:14.296048+00:00"
     },
     {
       "bill_id": 2053516,
@@ -563,7 +563,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "add06a6c8a07b9b45ec15062218abada",
-      "updated_at": "2026-04-19T10:00:16.372866+00:00"
+      "updated_at": "2026-04-21T10:00:24.208858+00:00"
     },
     {
       "bill_id": 2039530,
@@ -601,7 +601,7 @@
       "gap_score": 2,
       "gap_label": "ALIGNED",
       "change_hash": "ab2d4c5aa35973aa970514c915e8e03c",
-      "updated_at": "2026-04-19T10:00:20.821895+00:00"
+      "updated_at": "2026-04-21T10:00:30.906094+00:00"
     },
     {
       "bill_id": 2051327,
@@ -638,7 +638,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7fa3f76c7f5c8461cccdafece478bc09",
-      "updated_at": "2026-04-19T10:00:07.724904+00:00"
+      "updated_at": "2026-04-21T10:00:11.361895+00:00"
     },
     {
       "bill_id": 2036439,
@@ -676,7 +676,7 @@
       "gap_score": 1,
       "gap_label": "ALIGNED",
       "change_hash": "dfba4d488cfe1d50257bcb545e804da7",
-      "updated_at": "2026-04-19T10:00:21.367280+00:00"
+      "updated_at": "2026-04-21T10:00:31.732595+00:00"
     },
     {
       "bill_id": 2034656,
@@ -715,7 +715,7 @@
       "gap_score": 19,
       "gap_label": "SMALL GAP",
       "change_hash": "1a8ec0cc7eeb0552740c9c4b0c22a143",
-      "updated_at": "2026-04-19T10:00:15.872716+00:00"
+      "updated_at": "2026-04-21T10:00:23.480303+00:00"
     },
     {
       "bill_id": 2044781,
@@ -752,7 +752,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "8b303af9f322aa844ac89053273c27cb",
-      "updated_at": "2026-04-19T10:00:13.830174+00:00"
+      "updated_at": "2026-04-21T10:00:20.337103+00:00"
     },
     {
       "bill_id": 2043448,
@@ -789,7 +789,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "04185b9f75864be3142594dc862c3e55",
-      "updated_at": "2026-04-19T10:00:10.262594+00:00"
+      "updated_at": "2026-04-21T10:00:15.048427+00:00"
     },
     {
       "bill_id": 2028140,
@@ -827,7 +827,7 @@
       "gap_score": 22,
       "gap_label": "MODERATE GAP",
       "change_hash": "d969cfbc1bd094858fd6d725334a8b7d",
-      "updated_at": "2026-04-19T10:00:12.343941+00:00"
+      "updated_at": "2026-04-21T10:00:18.135237+00:00"
     },
     {
       "bill_id": 1994350,
@@ -865,7 +865,7 @@
       "gap_score": 1,
       "gap_label": "ALIGNED",
       "change_hash": "d23c1f613f93cfd5f75c765fde6faa4c",
-      "updated_at": "2026-04-19T10:00:17.135163+00:00"
+      "updated_at": "2026-04-21T10:00:25.397428+00:00"
     },
     {
       "bill_id": 2037259,
@@ -902,7 +902,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "b88e82458aecbb0ba59a2e5fea8f8e30",
-      "updated_at": "2026-04-19T10:00:06.691480+00:00"
+      "updated_at": "2026-04-21T10:00:09.792023+00:00"
     },
     {
       "bill_id": 2036119,
@@ -939,7 +939,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "9696516df497b7fc73372dd778030061",
-      "updated_at": "2026-04-19T10:00:06.197224+00:00"
+      "updated_at": "2026-04-21T10:00:09.175537+00:00"
     },
     {
       "bill_id": 2033371,
@@ -976,7 +976,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "80729603a8cd3be436971aa2965fe1c1",
-      "updated_at": "2026-04-19T10:00:08.217148+00:00"
+      "updated_at": "2026-04-21T10:00:11.964990+00:00"
     },
     {
       "bill_id": 2033256,
@@ -1013,7 +1013,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "44205685690855ab2e54a26413c3230d",
-      "updated_at": "2026-04-19T10:00:08.704262+00:00"
+      "updated_at": "2026-04-21T10:00:12.701371+00:00"
     },
     {
       "bill_id": 2029992,
@@ -1050,7 +1050,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "eb6c6df9c2aaa4e3744e27de0cfccf45",
-      "updated_at": "2026-04-19T10:00:18.179220+00:00"
+      "updated_at": "2026-04-21T10:00:26.981286+00:00"
     },
     {
       "bill_id": 2029943,
@@ -1087,7 +1087,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "d92b25a04bc77e0446e2a2ea6ebfbc37",
-      "updated_at": "2026-04-19T10:00:18.674054+00:00"
+      "updated_at": "2026-04-21T10:00:27.728410+00:00"
     },
     {
       "bill_id": 2015649,
@@ -1124,7 +1124,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "2db9b93a4db447339488d190219c5323",
-      "updated_at": "2026-04-19T10:00:17.680262+00:00"
+      "updated_at": "2026-04-21T10:00:26.227929+00:00"
     },
     {
       "bill_id": 2023233,
@@ -1161,7 +1161,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "dc2e4c0966051f1664b5fa146e7c4169",
-      "updated_at": "2026-04-19T10:00:09.205148+00:00"
+      "updated_at": "2026-04-21T10:00:13.460370+00:00"
     },
     {
       "bill_id": 2018648,
@@ -1198,7 +1198,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "46cba699585b091c8322c3b304600a1c",
-      "updated_at": "2026-04-19T10:00:22.171890+00:00"
+      "updated_at": "2026-04-21T10:00:32.873184+00:00"
     },
     {
       "bill_id": 2018718,
@@ -1235,7 +1235,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "0f8f0d2f5a978f11d0ca92e60728d7ee",
-      "updated_at": "2026-04-19T10:00:22.863464+00:00"
+      "updated_at": "2026-04-21T10:00:33.831104+00:00"
     },
     {
       "bill_id": 1999424,
@@ -1272,7 +1272,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "f73e1fff9df80bff8a20c5b8e4f5e907",
-      "updated_at": "2026-04-19T10:00:15.317542+00:00"
+      "updated_at": "2026-04-21T10:00:22.639522+00:00"
     },
     {
       "bill_id": 2010631,
@@ -1309,7 +1309,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "618cc2ed09a82c2522b9c33e8a3fd5ca",
-      "updated_at": "2026-04-19T10:00:23.370815+00:00"
+      "updated_at": "2026-04-21T10:00:34.612515+00:00"
     },
     {
       "bill_id": 2008633,
@@ -1346,7 +1346,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7dbf57235ac0898a7a81697b8cc5ec50",
-      "updated_at": "2026-04-19T10:00:05.708804+00:00"
+      "updated_at": "2026-04-21T10:00:08.544132+00:00"
     },
     {
       "bill_id": 2000399,
@@ -1383,7 +1383,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "89ea25c53e4b8c06e35cb03dcde67c0f",
-      "updated_at": "2026-04-19T10:00:03.722682+00:00"
+      "updated_at": "2026-04-21T10:00:06.009736+00:00"
     },
     {
       "bill_id": 2000465,
@@ -1420,7 +1420,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "f9b026931f63bc71239c5b2cbad23528",
-      "updated_at": "2026-04-19T10:00:04.224352+00:00"
+      "updated_at": "2026-04-21T10:00:06.654994+00:00"
     },
     {
       "bill_id": 1961730,
@@ -1457,7 +1457,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "8a3cf07f1149d95193cdc9af9d13543e",
-      "updated_at": "2026-04-19T10:00:20.237914+00:00"
+      "updated_at": "2026-04-21T10:00:30.061338+00:00"
     },
     {
       "bill_id": 1956316,
@@ -1494,7 +1494,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "1488081a6d9f946abed34fe082420c3e",
-      "updated_at": "2026-04-19T10:00:13.340467+00:00"
+      "updated_at": "2026-04-21T10:00:19.591844+00:00"
     }
   ],
   "source": "LegiScan API (CC BY 4.0)"

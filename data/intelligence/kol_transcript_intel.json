@@ -1,7 +1,31 @@
 {
-  "last_updated": "2026-04-19T16:00:12.940768+00:00",
-  "total_analyses": 162,
+  "last_updated": "2026-04-20T00:00:07.118918+00:00",
+  "total_analyses": 163,
   "analyses": [
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "Bitcoin has likely already bottomed (90% probability of going higher) after seller exhaustion and price capitulation at $60k, similar to previous bear market patterns. The lack of downside despite bearish headlines suggests capitulation has already occurred and the market is positioned for upside.",
+      "key_quotes": [
+        "There's a 90% chance we're going higher fear",
+        "There's no sellers left and the shorts have just painted a giant target on their back",
+        "This was the event where, if you are price sensitive, you're gone"
+      ],
+      "topics": [
+        "Seller exhaustion and capitulation",
+        "Bear market bottom formation",
+        "Long-term holder accumulation",
+        "Profit-taking cycles",
+        "Asset performance during geopolitical shocks"
+      ],
+      "price_prediction": "Next 6 months expected to see upside; no base case for drop to $40k",
+      "confidence": "high",
+      "channel": "BTC Sessions",
+      "title": "\"The Bitcoin Bottom Is 99% In\" \u2014 But James Check Exposes What NOBODY Saw (Until Now)",
+      "video_id": "7IeGjkAvvyI",
+      "duration": 1590.27,
+      "analyzed_at": "2026-04-20T00:00:05.115877+00:00"
+    },
     {
       "sentiment": "bearish",
       "sentiment_score": 25,
