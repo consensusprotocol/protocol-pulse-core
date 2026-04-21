@@ -270,11 +270,9 @@ def lsat_required(fn):
         try:
             inv = create_invoice(endpoint, pricing["msats"], pricing["ttl"])
         except Exception as exc:
-            logger.exception("LSAT invoice generation failed: %s", exc)
-            return jsonify({
-                "error": "Payment required, but invoice generation failed",
-                "detail": str(exc),
-            }), 503
+            logger.warning("LSAT invoice generation failed (pass-through): %s", exc)
+            # Graceful degradation: Lightning unavailable -> allow access, no outage
+            return f(*args, **kwargs)
 
         amount_sats = int(pricing["msats"]) // 1000
         body = {
