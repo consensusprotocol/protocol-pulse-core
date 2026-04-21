@@ -3661,3 +3661,29 @@ def serve_latest_video():
     filename = os.path.basename(latest)
     from flask import send_from_directory
     return send_from_directory(dirname, filename, mimetype='video/mp4')
+
+
+@pages_bp.route('/.well-known/lnurlp/protocolpulse')
+def lnurlp_handler():
+    """LNURL-pay descriptor so any Lightning wallet can send to protocolpulse@protocolpulse.io."""
+    import json as _j
+    from flask import current_app
+    body = {
+        'tag': 'payRequest',
+        'callback': 'https://protocolpulse.io/api/lnurl/pay',
+        'maxSendable': 100000000,
+        'minSendable': 1000,
+        'metadata': _j.dumps([
+            ['text/plain', 'Protocol Pulse Bitcoin Intelligence API'],
+            ['text/identifier', 'protocolpulse@protocolpulse.io'],
+        ]),
+        'commentAllowed': 64,
+    }
+    return current_app.response_class(_j.dumps(body), mimetype='application/json')
+
+
+@pages_bp.route('/api-access')
+def api_access_page():
+    """Public pricing page for LSAT-gated endpoints."""
+    from services.lsat_service import ENDPOINT_PRICING, LIGHTNING_ADDRESS
+    return render_template('api_access.html', pricing=ENDPOINT_PRICING, lightning_address=LIGHTNING_ADDRESS)

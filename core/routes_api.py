@@ -29,6 +29,7 @@ from datetime import datetime, timedelta, timezone
 import threading
 import time
 from services.node_service import NodeService
+from services.lsat_service import lsat_required
 
 try:
     from services.schiff_service import (
@@ -702,6 +703,7 @@ def api_dashboard_generate_key():
     return jsonify({'api_key': current_user.api_key})
 
 @api_bp.route('/api/orb')
+@lsat_required
 @limiter.exempt
 def api_orb_public():
     import json as _j
@@ -1764,6 +1766,7 @@ def api_narrative_momentum():
         return jsonify({'success': False, 'momentum': []})
 
 @api_bp.route('/api/intelligence/signal')
+@lsat_required
 def api_signal_strength():
     """Return signal strength composite. Cached 5 minutes."""
     try:
@@ -4098,6 +4101,7 @@ def api_rtsa_foundational():
     })
 
 @api_bp.route("/v1/signals/live", methods=["GET"])
+@lsat_required
 @_jwt_required
 def v1_signals_live(**kwargs):
     """
@@ -7613,3 +7617,26 @@ def api_hub_layout_reset():
     models.HubWidget.query.filter_by(user_id=current_user.id).delete()
     db.session.commit()
     return jsonify({'ok': True, 'reset': True})
+
+
+@api_bp.route('/api/lsat/status/<token_id>', methods=['GET'])
+def lsat_token_status(token_id):
+    """Poll LSAT token state so clients can detect payment settlement."""
+    from services.lsat_service import check_cached_token, LSAT_DB
+    import sqlite3
+    with sqlite3.connect(LSAT_DB) as db:
+        row = db.execute(
+            'SELECT status, expires_at, amount_msats, endpoint FROM lsat_tokens WHERE token_id=?',
+            (token_id,),
+        ).fetchone()
+    if not row:
+        return jsonify({'status': 'not_found'}), 404
+    status, expires_at, msats, endpoint = row
+    return jsonify({
+        'token_id': token_id,
+        'status': status,
+        'paid': status == 'paid',
+        'expires_at': expires_at,
+        'amount_msats': msats,
+        'endpoint': endpoint,
+    })
