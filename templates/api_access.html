@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% block title %}API Access — Protocol Pulse{% endblock %}
+{% block meta_description %}Machine-readable Bitcoin intelligence. Pay per use. No accounts. No API keys. Bitcoin-native via LSAT.{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --pp-bg: #000;
+    --pp-surface: #0a0a0a;
+    --pp-surface-2: #111;
+    --pp-border: #1a1a1a;
+    --pp-border-strong: #262626;
+    --pp-text: #e5e5e5;
+    --pp-muted: #737373;
+    --pp-accent: #ff9500;
+    --pp-accent-dim: #cc7700;
+    --pp-red: #dc2626;
+    --pp-green: #16a34a;
+    --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  }
+
+  .api-access-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+    color: var(--pp-text);
+    font-family: var(--mono);
+  }
+
+  .api-hero {
+    border: 1px solid var(--pp-border-strong);
+    background:
+      linear-gradient(180deg, rgba(255,149,0,0.06), transparent 60%),
+      var(--pp-surface);
+    padding: 48px 40px;
+    margin-bottom: 40px;
+  }
+  .api-hero__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    color: var(--pp-accent);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .api-hero__title {
+    font-size: clamp(28px, 4.2vw, 52px);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #fff;
+    margin: 0 0 14px;
+  }
+  .api-hero__sub {
+    color: var(--pp-muted);
+    font-size: 16px;
+    max-width: 720px;
+    line-height: 1.55;
+    margin: 0;
+  }
+  .api-hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+  }
+  .api-chip {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    padding: 7px 12px;
+    border: 1px solid var(--pp-border-strong);
+    color: var(--pp-text);
+    background: var(--pp-surface-2);
+  }
+  .api-chip--accent { color: var(--pp-accent); border-color: var(--pp-accent-dim); }
+
+  .api-section {
+    border: 1px solid var(--pp-border);
+    background: var(--pp-surface);
+    margin-bottom: 28px;
+  }
+  .api-section__head {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--pp-border);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .api-section__title {
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--pp-text);
+    margin: 0;
+  }
+  .api-section__meta {
+    font-size: 11px;
+    color: var(--pp-muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  table.pricing {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.pricing th,
+  table.pricing td {
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--pp-border);
+    vertical-align: top;
+  }
+  table.pricing th {
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--pp-muted);
+    font-weight: 600;
+    background: var(--pp-surface-2);
+  }
+  table.pricing tr:last-child td { border-bottom: none; }
+  table.pricing td.endpoint { color: var(--pp-accent); font-weight: 600; }
+  table.pricing td.price { color: #fff; font-weight: 700; white-space: nowrap; }
+  table.pricing td.price small { display: block; color: var(--pp-muted); font-weight: 400; font-size: 10px; letter-spacing: 0.12em; margin-top: 2px; }
+  table.pricing td.ttl { color: var(--pp-text); white-space: nowrap; }
+
+  .code-block {
+    background: #000;
+    border: 1px solid var(--pp-border-strong);
+    padding: 22px 26px;
+    font-size: 13px;
+    color: #d4d4d4;
+    line-height: 1.65;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .code-block .c { color: #6b7280; font-style: italic; }
+  .code-block .k { color: var(--pp-accent); }
+  .code-block .s { color: #a3e635; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--pp-border);
+  }
+  .detail-cell {
+    background: var(--pp-surface);
+    padding: 22px 24px;
+  }
+  .detail-cell__label {
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--pp-muted);
+    margin-bottom: 10px;
+  }
+  .detail-cell__value {
+    font-size: 15px;
+    color: #fff;
+    word-break: break-all;
+  }
+  .detail-cell__value a { color: var(--pp-accent); text-decoration: none; }
+  .detail-cell__value a:hover { color: #fff; }
+
+  .api-footer-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--pp-muted);
+    letter-spacing: 0.14em;
+    margin-top: 32px;
+    padding: 20px;
+    border-top: 1px solid var(--pp-border);
+  }
+  .api-footer-note strong { color: var(--pp-accent); letter-spacing: 0.2em; }
+
+  @media (max-width: 640px) {
+    .api-hero { padding: 32px 22px; }
+    table.pricing th, table.pricing td { padding: 12px 14px; font-size: 12px; }
+    .code-block { padding: 18px 16px; font-size: 12px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="api-access-wrap">
+
+  <!-- HERO -->
+  <section class="api-hero">
+    <div class="api-hero__eyebrow">PROTOCOL PULSE · MACHINE API</div>
+    <h1 class="api-hero__title">MACHINE-READABLE<br>BITCOIN INTELLIGENCE</h1>
+    <p class="api-hero__sub">Pay per use. No accounts. No API keys. Bitcoin-native. Every endpoint returns a Lightning invoice; settle it with any wallet and your next request is authorised.</p>
+    <div class="api-hero__chips">
+      <span class="api-chip api-chip--accent">HTTP 402 · PAYMENT REQUIRED</span>
+      <span class="api-chip">LSAT · RFC 9186</span>
+      <span class="api-chip">LNURL-PAY</span>
+      <span class="api-chip">NIP-89 DISCOVERABLE</span>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="api-section">
+    <div class="api-section__head">
+      <h2 class="api-section__title">PRICING</h2>
+      <span class="api-section__meta">SATS PER CALL · TOKEN TTL</span>
+    </div>
+    <table class="pricing">
+      <thead>
+        <tr>
+          <th>ENDPOINT</th>
+          <th>DESCRIPTION</th>
+          <th>PRICE</th>
+          <th>ACCESS WINDOW</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for endpoint, cfg in pricing.items() %}
+        <tr>
+          <td class="endpoint">{{ endpoint }}</td>
+          <td>{{ cfg.description or 'API access' }}</td>
+          <td class="price">
+            {{ (cfg.msats // 1000) }} sats
+            <small>{{ cfg.msats }} msats</small>
+          </td>
+          <td class="ttl">
+            {% if cfg.ttl >= 86400 %}{{ cfg.ttl // 86400 }}d
+            {% elif cfg.ttl >= 3600 %}{{ cfg.ttl // 3600 }}h
+            {% elif cfg.ttl >= 60 %}{{ cfg.ttl // 60 }}m
+            {% else %}{{ cfg.ttl }}s{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FLOW -->
+  <section class="api-section">
+    <div class="api-section__head">
+      <h2 class="api-section__title">THE 402 HANDSHAKE</h2>
+      <span class="api-section__meta">THREE CURL COMMANDS</span>
+    </div>
+    <div class="code-block"><span class="c"># 1. Hit endpoint (no auth) → get 402 + invoice</span>
+<span class="k">curl</span> -i <span class="s">https://protocolpulse.io/v1/signals/live</span>
+
+<span class="c"># Response:</span>
+<span class="c">#   HTTP/1.1 402 Payment Required</span>
+<span class="c">#   WWW-Authenticate: LSAT macaroon="&lt;token_id&gt;", invoice="lnbc..."</span>
+<span class="c">#   { "lsat": { "token_id": "...", "invoice": "lnbc...", "amount_sats": 1, ... } }</span>
+
+<span class="c"># 2. Pay the Lightning invoice with any wallet.</span>
+<span class="c">#    Your wallet returns the hex preimage on settlement.</span>
+
+<span class="c"># 3. Retry with the LSAT token</span>
+<span class="k">curl</span> -H <span class="s">"Authorization: LSAT &lt;token_id&gt;:&lt;preimage&gt;"</span> \
+     <span class="s">https://protocolpulse.io/v1/signals/live</span></div>
+  </section>
+
+  <!-- META -->
+  <section class="api-section">
+    <div class="api-section__head">
+      <h2 class="api-section__title">PAYMENT + DISCOVERY</h2>
+      <span class="api-section__meta">ADDRESS · LNURL · NOSTR</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-cell">
+        <div class="detail-cell__label">LIGHTNING ADDRESS</div>
+        <div class="detail-cell__value">{{ lightning_address }}</div>
+      </div>
+      <div class="detail-cell">
+        <div class="detail-cell__label">LNURL-PAY DESCRIPTOR</div>
+        <div class="detail-cell__value"><a href="/.well-known/lnurlp/protocolpulse">/.well-known/lnurlp/protocolpulse</a></div>
+      </div>
+      <div class="detail-cell">
+        <div class="detail-cell__label">TOKEN STATUS POLL</div>
+        <div class="detail-cell__value">GET /api/lsat/status/&lt;token_id&gt;</div>
+      </div>
+      <div class="detail-cell">
+        <div class="detail-cell__label">NOSTR DISCOVERY</div>
+        <div class="detail-cell__value">kind:31990 · NIP-89</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="api-footer-note">
+    Powered by <strong>LSAT</strong> — Lightning Service Authentication Tokens. The Bitcoin-native answer to x402.
+  </div>
+
+</div>
+{% endblock %}

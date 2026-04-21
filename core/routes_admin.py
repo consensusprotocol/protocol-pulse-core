@@ -4100,3 +4100,13 @@ def api_sponsor_deck_send_all():
         pass
 
     return jsonify({'ok': True, 'sent': sent, 'skipped': skipped, 'errors': errors, 'details': errs[:10]})
+
+
+@admin_bp.route('/api/admin/nostr/publish-services', methods=['POST'])
+@login_required
+def admin_publish_nostr():
+    """Sign + broadcast kind:31990 NIP-89 service cards to configured relays."""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Forbidden'}), 403
+    from services.nip89_publisher import publish_all_services
+    return jsonify(publish_all_services())
