@@ -1,0 +1,14 @@
+# Protocol Pulse — Sovereign Agent Fleet cron entries
+# ---------------------------------------------------------
+# Install:
+#   (crontab -l; cat agents/crontab.fragment) | crontab -
+# Uninstall:
+#   crontab -l | grep -v agent_runner.py | crontab -
+#
+# @reboot       — bring the fleet up when the box restarts
+# */10 * * * *  — watchdog: respawn if the supervisor has died between restarts
+#
+# Logs land in ~/protocol_pulse/logs/agent_fleet.log (rotate as you prefer).
+
+@reboot cd /home/ultron/protocol_pulse && python3 agents/agent_runner.py >> logs/agent_fleet.log 2>&1 &
+*/10 * * * * pgrep -f agent_runner.py > /dev/null || (cd /home/ultron/protocol_pulse && python3 agents/agent_runner.py >> logs/agent_fleet.log 2>&1 &)
