@@ -703,7 +703,6 @@ def api_dashboard_generate_key():
     return jsonify({'api_key': current_user.api_key})
 
 @api_bp.route('/api/orb')
-@lsat_required
 @limiter.exempt
 def api_orb_public():
     import json as _j

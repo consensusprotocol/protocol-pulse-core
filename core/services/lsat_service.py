@@ -272,7 +272,7 @@ def lsat_required(fn):
         except Exception as exc:
             logger.warning("LSAT invoice generation failed (pass-through): %s", exc)
             # Graceful degradation: Lightning unavailable -> allow access, no outage
-            return f(*args, **kwargs)
+            return jsonify({"error":"payment_required","hint":"Lightning temporarily unavailable"}), 402
 
         amount_sats = int(pricing["msats"]) // 1000
         body = {
