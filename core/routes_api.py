@@ -30,6 +30,8 @@ import threading
 import time
 from services.node_service import NodeService
 from services.lsat_service import lsat_required
+from services.dune_service import get_hub_widget_data as dune_hub_data
+from services.lunarcrush_service import get_hub_widget_data as lunar_hub_data
 
 try:
     from services.schiff_service import (
@@ -7320,6 +7322,9 @@ HUB_DEFAULT_LAYOUT = [
     {'widget_id': 'exchange_flow',   'enabled': True, 'position_x': 3, 'position_y': 2, 'width': 1, 'height': 1},
     # Row 3: Command lanes (2w pinned)
     {'widget_id': 'command_lanes',   'enabled': True, 'position_x': 0, 'position_y': 3, 'width': 2, 'height': 1},
+    # Row 4: Dune on-chain (2w) + LunarCrush social (2w) — added f-dune-lunar
+    {'widget_id': 'dune_onchain',    'enabled': True, 'position_x': 0, 'position_y': 4, 'width': 2, 'height': 2, 'collapsed': False},
+    {'widget_id': 'lunar_social',    'enabled': True, 'position_x': 2, 'position_y': 4, 'width': 2, 'height': 2, 'collapsed': False},
 ]
 
 HUB_VALID_WIDGETS = {w['widget_id'] for w in HUB_DEFAULT_LAYOUT}
@@ -7384,6 +7389,19 @@ def _build_hub_intel():
     whale_alerts = sovereign.get('whale_alerts', []) or []
 
     conv = indices.get('convergence_score', {}) or {}
+
+    # External Commander Hub data sources (Dune on-chain + LunarCrush social).
+    # Both services degrade gracefully when their API key is absent.
+    try:
+        d_dune = dune_hub_data()
+    except Exception as e:
+        logging.warning('dune_hub_data error: %s', e)
+        d_dune = {'available': False, 'source': 'dune'}
+    try:
+        d_lunar = lunar_hub_data()
+    except Exception as e:
+        logging.warning('lunar_hub_data error: %s', e)
+        d_lunar = {'available': False, 'source': 'lunarcrush'}
 
     return {
         'timestamp': sovereign.get('timestamp') or datetime.utcnow().isoformat() + 'Z',
@@ -7486,6 +7504,9 @@ def _build_hub_intel():
                 'created_at': w.get('created_at'),
             } for w in whale_alerts[:5]],
         },
+
+        'dune_onchain': d_dune,
+        'lunar_social': d_lunar,
     }
 
 
@@ -7506,6 +7527,32 @@ def api_hub_intel():
     except Exception as e:
         logging.exception('hub intel error: %s', e)
         return jsonify({'error': str(e)}), 500
+
+
+@api_bp.route('/api/hub/dune')
+@login_required
+def api_hub_dune():
+    """Single-widget refresh: Dune on-chain analytics."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    try:
+        return jsonify(dune_hub_data())
+    except Exception as e:
+        logging.warning('hub dune error: %s', e)
+        return jsonify({'available': False, 'source': 'dune', 'error': str(e)}), 200
+
+
+@api_bp.route('/api/hub/lunar')
+@login_required
+def api_hub_lunar():
+    """Single-widget refresh: LunarCrush social signal."""
+    if not current_user.has_commander_tier():
+        return jsonify({'error': 'Commander tier required'}), 403
+    try:
+        return jsonify(lunar_hub_data())
+    except Exception as e:
+        logging.warning('hub lunar error: %s', e)
+        return jsonify({'available': False, 'source': 'lunarcrush', 'error': str(e)}), 200
 
 
 def _user_layout_rows(user_id):
