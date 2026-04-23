@@ -3,7 +3,7 @@
 tweet_machine.py — Protocol Pulse Social Intelligence Engine
 Phase 4: Sentiment mirroring, format diversity, data-driven tweets, PBX voice
 
-Runs at 6:30am ET daily (and optionally at 14:00 UTC, 01:00 UTC).
+Runs 2x/day: 9:00am ET + 6:00pm ET (9 hours apart).
 Uses morning_intelligence_brief.json + thought leader sentiment + live BTC data
 to generate signal-dense tweets. Posts via X API v2 write if credentials exist,
 otherwise queues to pending_tweets.json for manual review.
@@ -43,6 +43,9 @@ def load_env():
 
 load_env()
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+
+# NVIDIA NIM free tier model
+NIM_MODEL = "nvidia/llama-3.3-nemotron-super-49b-v1"
 X_ACCESS_TOKEN = os.environ.get("X_ACCESS_TOKEN", "")
 X_ACCESS_TOKEN_SECRET = os.environ.get("X_ACCESS_TOKEN_SECRET", "")
 X_API_KEY = os.environ.get("X_API_KEY", os.environ.get("X_CONSUMER_KEY", ""))
@@ -862,13 +865,33 @@ def _call_llm_with_fallback(prompt: str) -> str:
         except Exception as e:
             logger.warning(f"Grok fallback failed: {e}")
 
+    # 4. NVIDIA NIM (free tier fallback)
+    nvidia_key = os.environ.get("NVIDIA_API_KEY", "")
+    if nvidia_key:
+        try:
+            from openai import OpenAI as _NIMClient
+            nim = _NIMClient(base_url="https://integrate.api.nvidia.com/v1", api_key=nvidia_key)
+            nim_resp = nim.chat.completions.create(
+                model=NIM_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=500,
+                temperature=0.7,
+            )
+            content = nim_resp.choices[0].message.content or ""
+            content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
+            if content:
+                logger.info("Tweet generated via NVIDIA NIM")
+                return content
+        except Exception as e:
+            logger.warning(f"NVIDIA NIM fallback failed: {e}")
+
     return ""
 
 
 def generate_tweets(brief: dict, count: int = 1, length_override: str = "") -> list:
     """Call LLM to generate tweets from the brief with format diversity."""
-    if not ANTHROPIC_API_KEY and not os.environ.get("GEMINI_API_KEY") and not os.environ.get("XAI_API_KEY"):
-        logger.error("No LLM API keys available (ANTHROPIC, GEMINI, XAI)")
+    if not ANTHROPIC_API_KEY and not os.environ.get("GEMINI_API_KEY") and not os.environ.get("XAI_API_KEY") and not os.environ.get("NVIDIA_API_KEY"):
+        logger.error("No LLM API keys available (ANTHROPIC, GEMINI, XAI, NVIDIA)")
         return []
 
     brief_text = json.dumps(brief, indent=2)[:3000]

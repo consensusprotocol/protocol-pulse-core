@@ -39,6 +39,9 @@ def _load_env():
 
 _load_env()
 
+# NVIDIA NIM free tier model
+NIM_MODEL = "nvidia/llama-3.3-nemotron-super-49b-v1"
+
 logging.basicConfig(
     level=logging.INFO,
     format="[quote_rt] %(asctime)s %(levelname)s %(message)s",
@@ -264,6 +267,26 @@ class QuoteRTEngine:
                     return content
             except Exception as e:
                 logger.warning(f"Grok failed: {e}")
+
+        # 4. NVIDIA NIM (free tier fallback)
+        nvidia_key = os.environ.get("NVIDIA_API_KEY", "")
+        if nvidia_key:
+            try:
+                from openai import OpenAI as _NIMClient
+                nim = _NIMClient(base_url="https://integrate.api.nvidia.com/v1", api_key=nvidia_key)
+                nim_resp = nim.chat.completions.create(
+                    model=NIM_MODEL,
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=600,
+                    temperature=0.7,
+                )
+                content = nim_resp.choices[0].message.content or ""
+                content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
+                if content:
+                    logger.info("Hooks generated via NVIDIA NIM")
+                    return content
+            except Exception as e:
+                logger.warning(f"NVIDIA NIM failed: {e}")
 
         return ""
 

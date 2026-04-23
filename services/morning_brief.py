@@ -41,6 +41,9 @@ def load_env():
 load_env()
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
+# NVIDIA NIM free tier model
+NIM_MODEL = "nvidia/llama-3.3-nemotron-super-49b-v1"
+
 logging.basicConfig(
     level=logging.INFO,
     format="[morning_brief] %(asctime)s %(levelname)s %(message)s",
@@ -407,6 +410,39 @@ def call_grok(prompt: str) -> dict:
         return {}
 
 
+def call_nvidia_nim(prompt: str) -> dict:
+    """Call NVIDIA NIM hosted API — free tier fallback when all paid models fail."""
+    nvidia_key = os.environ.get("NVIDIA_API_KEY", "")
+    if not nvidia_key:
+        logger.warning("NVIDIA_API_KEY not set — skipping NIM fallback")
+        return {}
+    try:
+        from openai import OpenAI as _NIMClient
+        nim = _NIMClient(base_url="https://integrate.api.nvidia.com/v1", api_key=nvidia_key)
+        resp = nim.chat.completions.create(
+            model=NIM_MODEL,
+            messages=[
+                {"role": "system", "content": "You are a Bitcoin intelligence analyst. Return ONLY valid JSON. No markdown. No preamble. No explanation."},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=1500,
+            temperature=0.3,
+        )
+        raw = resp.choices[0].message.content or ""
+        # Strip thinking tokens from models like DeepSeek R1
+        raw = re.sub(r'<think>.*?</think>', '', raw, flags=re.DOTALL).strip()
+        # Strip markdown fences
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        result = json.loads(raw.strip())
+        logger.info("Brief generated via NVIDIA NIM fallback")
+        return result
+    except Exception as e:
+        logger.error(f"NVIDIA NIM fallback failed: {e}")
+        return {}
+
+
 def main():
     logger.info("=" * 60)
     logger.info("Morning Intelligence Brief generating")
@@ -471,12 +507,18 @@ def main():
         brief = call_grok(prompt)
         _model_used = "grok_fallback"
 
+    # NVIDIA NIM fallback if Grok also failed
+    if not brief or not all(k in brief for k in required):
+        logger.warning("Grok failed/incomplete, falling back to NVIDIA NIM")
+        brief = call_nvidia_nim(prompt)
+        _model_used = "nvidia_nim_fallback"
+
     # Tag which model generated it
     if brief:
         brief["generated_by"] = _model_used
 
     if not brief:
-        logger.error("All LLM providers failed (Qwen + Haiku + Gemini + Grok)")
+        logger.error("All LLM providers failed (Qwen + Haiku + Gemini + Grok + NIM)")
         # Write a minimal fallback brief
         brief = {
             "generated_at": datetime.now(timezone.utc).isoformat(),
