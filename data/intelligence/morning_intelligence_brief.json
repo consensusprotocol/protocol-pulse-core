@@ -1,52 +1,62 @@
 {
-  "generated_at": "2026-04-21T00:00:00Z",
-  "date": "Tuesday, April 21, 2026",
-  "btc_price": "$74,966",
-  "btc_change_24h": "-1.7%",
+  "generated_at": "2026-04-22T00:00:00Z",
+  "date": "Wednesday, April 22, 2026",
+  "btc_price": "$78,840",
+  "btc_change_24h": "+5.2%",
   "fng": "Fear",
   "dominant_narratives": [
-    "Institutional legitimacy accelerating — U.S. military/Pentagon framing Bitcoin as national security infrastructure",
-    "Whale accumulation & corporate treasury expansion — largest weekly BTC hoarding since July 2025, MicroStrategy generating $3.6B+ in 'BTC Gain'",
-    "DeFi/altcoin rejection — Bitcoin maximalism reasserting; PoS & tokenomics viewed as failed experiments vs. PoW immutability"
+    "Bitcoin as macro hedge against infinite money printing and fiat collapse",
+    "Privacy infrastructure maturation: cluster mempool, Lightning adoption, self-custody emphasis",
+    "Institutional accumulation at scale (Saylor, Morgan Stanley) despite bearish funding rates",
+    "Geopolitical volatility (Iran/Israel, Russia legalization) driving safe-haven demand",
+    "Samourai/civil liberties narrative: Bitcoin as resistance to state surveillance and arrest overreach"
   ],
   "trending_language": [
-    "Proof of Work is the signal. Everything else is noise.",
-    "Bitcoin shows incredible potential as a computer science tool",
-    "Largest weekly accumulation since July 2025",
-    "We live in the most absurd timeline",
-    "BTC Gain is the closest analog to Net Income on the Bitcoin Standard"
+    "Bears absolutely hate this rally",
+    "Seller exhaustion",
+    "Melt-up",
+    "46 straight days of negative funding",
+    "Fixed supply is the lifeboat",
+    "Privacy is power",
+    "Cluster mempool",
+    "Self-custody means it's all on you"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite -1.7% price action and Fear index reading, community conviction is elevated by institutional inflows (Morgan Stanley ETF ranking #3 in 9 days), 4-star Admiral testimony reframing Bitcoin as strategic infrastructure, and whale accumulation at macro scale. Price weakness is viewed as capitulation opportunity, not reversal signal.",
+  "sentiment_reasoning": "Despite Fear Index reading (32), on-chain behavior and institutional positioning contradict bearish signals. 46-day negative funding streak indicates bears capitulating; $5B YTD gains from Saylor alone, Morgan Stanley's $190M+ inflows since April 8, and sustained $78K+ price action during geopolitical shocks suggest accumulation phase dominance. Mixed creator consensus (bullish macro, bearish near-term) nets to cautious optimism.",
   "top_accounts_active": [
-    "@BitcoinArchive",
     "@MartyBent",
-    "@DocumentingBTC",
-    "@BitcoinMagazine",
-    "@saylor",
-    "@lopp",
-    "@BTCsessions",
     "@TFTC21",
-    "@gladstein",
-    "@TomerStrolight"
+    "@BitcoinArchive",
+    "@lopp",
+    "@saylor",
+    "@_Checkmatey_",
+    "@BitcoinMagazine",
+    "@sethforprivacy",
+    "@DocumentingBTC",
+    "@TheBitcoinConf"
   ],
   "recommended_tweet_angles": [
-    "Pentagon legitimacy angle — Admiral testimony + national security framing creates permission structure for institutional adoption; cite Admiral Paparo's PoW-as-cost-function testimony as first military-grade validation of Bitcoin's asymmetric security model",
-    "Accumulation vs. price disconnect — while retail sees -1.7%, whales executing largest weekly buys since July 2025; frame as classic distribution bottom pattern where 'noise' traders exit at capitulation while strategists load",
-    "DeFi graveyard / Bitcoin singularity — capitalize on @gladstein/@TomerStrolight/@MartyBent consensus that altcoins/PoS/DeFi failed the decentralization promise; Bitcoin's uniqueness (not replicability) is the thesis",
-    "Corporate treasury Bitcoin standard emerging — MicroStrategy's 6.2% yield + $3.6B April gains reframe BTC as balance sheet asset class; cite Morgan Stanley's shift from 1-2% (2019 Fools) to 7% allocation as regime change"
+    "Bears paying 6% annualized to short while Bitcoin grinds higher—longest negative funding streak since FTX collapse signals capitulation exhaustion, not conviction",
+    "Cluster mempool + Lightning everywhere: Bitcoin Core v31 ships privacy layer while institutions stack sats. Decentralization accelerates as adoption scales",
+    "Russia legalization, Morgan Stanley $190M+ inflows, Saylor on pace to break 2025 records—geopolitical instability + currency debasement = institutional capitulation to hard money",
+    "Samourai arrests frame Bitcoin as last defense against surveillance state. Privacy isn't optional—it's infrastructure. Self-custody is civil disobedience",
+    "Finney/Sassaman collaboration theory in Finding Satoshi resurfaces—philosophical continuity from cypherpunk origins matters as Bitcoin enters institutional era"
   ],
   "topics_to_avoid": [
-    "Ethereum quantum-readiness claims (dismissive tone embedded in KOL discourse)",
-    "Geopolitical conflict updates unrelated to Bitcoin (Iran/Pakistan/West Bank noise diluting signal)",
-    "Fractional governance debates ('can't even decide on unit of account' sarcasm signals fatigue)"
+    "Altcoin speculation or shitcoin narratives (not trending, dilutes signal)",
+    "Geopolitical conflict analysis beyond Bitcoin-as-safe-haven framing (community fiercely divided on Middle East/Russia content; risks alienating holders)",
+    "Web3/DeFi 'agentas' and privacy theater (Seth for Privacy's 100-call exhaustion signals community fatigue with fake-privacy projects)"
   ],
-  "engagement_patterns": "Short, declarative statements with embedded conviction (e.g., MartyBent's 'Proof of Work is the signal') outperform long-form threads. Data-backed threads (whale flows, Morgan Stanley inflows, Admiral testimony) drive high retweets. Cypherpunk sarcasm ('We live in the most absurd timeline,' 'COPE') generates engagement through cultural resonance. Bitcoin Archive's hard numbers format (exact dollar inflows, BTC holdings) sets engagement baseline.",
-  "protocol_pulse_voice_guidance": "Lean into Admiral-testimony-as-legitimacy-inflection-point without losing cypherpunk edge. Frame institutional adoption as checkmate against fiat denial, not capitulation to legacy. Use exact numbers (Morgan Stanley $256M, MicroStrategy $3.6B, 139M BTC holdings) as ammunition against 'still early' discourse — but weaponize them to argue whales ARE early, retail is late. Maintain hardline PoW maximalism; anchor Bitcoin's uniqueness in thermodynamic cost rather than network effects. Dismiss altcoin/DeFi as solved problem. Reference Admiral testimony as first explicit state-level acknowledgment that Bitcoin's immutability has strategic value. Tone: confident, data-dense, dismissive of noise.",
+  "engagement_patterns": "Data-backed contrarian takes dominate (funding rates, on-chain metrics, Saylor's portfolio performance). Macro/geopolitical framing outperforms pure technicals. Cypherpunk principles (privacy, civil liberties, self-sovereignty) drive moral urgency. Long-form Substack analysis and chart threads outperform quick takes. Dark humor about bears paying to lose resonates.",
+  "protocol_pulse_voice_guidance": "Lead with on-chain evidence of institutional capitulation (funding rates, whale accumulation, inflow data) masked as bearish fear. Frame Bitcoin as inevitable hedge, not speculation—connect to macro instability (fiat collapse, geopolitical shocks, surveillance states). Use cypherpunk moral language (freedom, sovereignty, privacy as power) without hectoring. Embed contrarian data points early (46-day funding streak, Saylor's pace, Morgan Stanley flows). Keep tone: sardonic about bears, matter-of-fact about technicals, uncompromising on privacy/liberty principles. Avoid cheerleading; let numbers speak.",
   "key_stats_today": {
-    "tweets_analyzed": 171,
+    "tweets_analyzed": 175,
     "nostr_signals": 0,
-    "unique_handles": 114
+    "unique_handles": 114,
+    "institutional_inflow_signals": 3,
+    "privacy_infrastructure_mentions": 4,
+    "geopolitical_catalysts_mentioned": 5,
+    "civil_liberties_narratives": 2
   },
   "generated_by": "claude_haiku"
 }

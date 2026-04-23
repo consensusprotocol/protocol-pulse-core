@@ -234,10 +234,10 @@ def generate_guest_email(guest_name: str, topic_angle: str, sequence_step: int) 
     prompts = {
         "intro": f"""Write an email inviting {guest_name} to be a guest on the Cypherpunkd podcast.
 
-Cypherpunkd is Protocol Pulse's flagship Bitcoin podcast:
-- Long-form conversations (60-90 min)
-- Focus: Bitcoin conviction, sovereignty, cypherpunk ethos
-- Audience: serious Bitcoiners, not crypto tourists
+Protocol Pulse is doing a series of interviews — real conversations about where Bitcoin is at today and where it's headed:
+- Honest, casual conversations — no fluff, no script
+- Focus: where are we today, what a wild ride it's been, what's next
+- Audience: serious Bitcoin people who've been in the trenches
 - Distribution: Apple, Spotify, YouTube, Fountain, RSS
 
 IMPORTANT - weave this into the email naturally:

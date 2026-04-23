@@ -1,73 +1,68 @@
 {
   "topic_velocity": [
     {
-      "topic": "Institutional ETF inflows",
-      "channels": 3,
+      "topic": "Quantum computing threat to Bitcoin",
+      "channels": 12,
       "sentiment": "bullish",
-      "velocity_score": 18,
-      "authority_score": 39,
-      "top_quote": "Morgan Stanley's spot Bitcoin ETF now holds over $139 million worth of BTC after only 9 days of trading",
+      "velocity_score": 36,
+      "authority_score": 64,
+      "top_quote": "Bitcoin will be fine.",
       "thought_leaders": [
-        "BitcoinMagazine",
-        "BitcoinArchive",
+        "_Checkmatey_",
+        "stephanlivera"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Market bottom and demand floor",
+      "channels": 5,
+      "sentiment": "bullish",
+      "velocity_score": 15,
+      "authority_score": 42,
+      "top_quote": "Bitcoin changed trend because demand put a floor in, 25% of the realised cap to put a number on it.",
+      "thought_leaders": [
+        "_Checkmatey_",
         "saylor"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Altcoin/shitcoin criticism",
-      "channels": 3,
-      "sentiment": "bearish",
-      "velocity_score": 9,
-      "authority_score": 12,
-      "top_quote": "Bitcoiners were right again to label crypto as shitcoins",
-      "thought_leaders": [
-        "TomerStrolight",
-        "adam3us"
-      ],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Self-custody and security",
+      "topic": "AI limitations in on-chain analysis",
       "channels": 4,
-      "sentiment": "bullish",
+      "sentiment": "neutral",
       "velocity_score": 6,
-      "authority_score": 12,
-      "top_quote": "Learn how to properly secure your Bitcoin! Wallets, hardware, nodes, multisig and more",
+      "authority_score": 22,
+      "top_quote": "AI is retarded with onchain analysis, it has no idea what any of the tools mean.",
       "thought_leaders": [
-        "BTCsessions",
-        "theBTCmentor",
-        "HodlHodl",
-        "nvk"
+        "_Checkmatey_"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Bitcoin as corporate treasury strategy",
-      "channels": 2,
+      "topic": "Bitcoin intrinsic value and trust",
+      "channels": 3,
       "sentiment": "bullish",
-      "velocity_score": 6,
-      "authority_score": 12,
-      "top_quote": "Strategy has generated 6.2% BTC Yield and \u20bf47,079 of BTC Gain in the first three weeks of April, worth approximately $3.6 billion",
+      "velocity_score": 4,
+      "authority_score": 18,
+      "top_quote": "Bitcoin is valuable because we can trust it to be honest.",
       "thought_leaders": [
-        "saylor"
+        "_Checkmatey_"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Geopolitical macroeconomics and currency debasement",
-      "channels": 2,
-      "sentiment": "mixed",
-      "velocity_score": 3,
-      "authority_score": 6,
-      "top_quote": "The Iran 'war' isn't a war \u2014 it's a deadly, destructive, devastating theater, an energy & currency negotiation",
+      "topic": "Satoshi Nakamoto legacy and mystery",
+      "channels": 3,
+      "sentiment": "neutral",
+      "velocity_score": 4,
+      "authority_score": 15,
+      "top_quote": "Fifteen years later, their identity remains the Internet's greatest mystery.",
       "thought_leaders": [
-        "BTCsessions",
-        "SimonDixonTwitt"
+        "DocumentingBTC"
       ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
@@ -75,13 +70,13 @@
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Institutional ETF inflows",
-    "Altcoin/shitcoin criticism",
-    "Self-custody and security"
+    "Quantum computing threat to Bitcoin",
+    "Market bottom and demand floor",
+    "AI limitations in on-chain analysis"
   ],
-  "dominant_narrative": "Institutional ETF inflows",
+  "dominant_narrative": "Quantum computing threat to Bitcoin",
   "market_mood": "cautiously_bullish",
-  "total_tweets_analyzed": 27,
-  "thought_leaders_active": 11,
-  "scan_time": "2026-04-21T13:30:33Z"
+  "total_tweets_analyzed": 54,
+  "thought_leaders_active": 14,
+  "scan_time": "2026-04-23T13:30:35Z"
 }

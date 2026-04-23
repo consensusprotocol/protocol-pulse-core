@@ -1,65 +1,5 @@
 [
   {
-    "id": "tweet_20260419_222452_0",
-    "text": "1023.4 EH/s network hashrate at all-time high while fees sit at 1 sat/vB. Network security scaling while transaction costs collapse. That's not supposed to happen in a competitive market",
-    "angle": "network_fundamentals",
-    "type": "observation",
-    "format": "community_narrative",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-19T22:24:52.045387+00:00",
-    "brief_date": "Sunday, April 19, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260420_160012_0",
-    "text": "UAE asking for dollar swap lines isn't a request for help. It's a confession that the dollar system requires constant life support to function. Bitcoin doesn't need permission to exist",
-    "angle": "geopolitical",
-    "type": "observation",
-    "format": "community_narrative",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-20T16:00:12.496478+00:00",
-    "brief_date": "Monday, April 20, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260420_190004_0",
-    "text": "UAE just requested dollar swap lines from the Fed. When your closest ally needs a liquidity guarantee to access dollars, you're not the reserve currency anymore. You're the problem",
-    "angle": "geopolitical",
-    "type": "signal",
-    "format": "fiat_failure",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-20T19:00:04.709957+00:00",
-    "brief_date": "Monday, April 20, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260420_220025_0",
-    "text": "815k BTC. Saylor's Strategy now holds more Bitcoin than BlackRock. One guy with conviction. One mega-institution with a committee. Only one of them is actually accumulating",
-    "angle": "institutional_flow",
-    "type": "observation",
-    "format": "brief_signal",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-20T22:00:25.828569+00:00",
-    "brief_date": "Monday, April 20, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260421_061516_0",
-    "text": "The Fed's balance sheet hit 7.2 trillion. That's 34% larger than 2019. Nobody asks what happens when they need to shrink it. Bitcoin's supply is fixed at 21 million",
-    "angle": "macro_monetary",
-    "type": "signal",
-    "format": "fiat_failure",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-04-21T06:15:16.066962+00:00",
-    "brief_date": "Monday, April 20, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260421_130022_0",
     "text": "Do you know what your bank's reserve ratio actually is. Or are you just assuming they have your money",
     "angle": "sovereignty_freedom",
@@ -165,6 +105,66 @@
     "status": "pending",
     "generated_at": "2026-04-21T22:00:27.783107+00:00",
     "brief_date": "Tuesday, April 21, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260422_070020_0",
+    "text": "MicroStrategy's $3.6B in Bitcoin gains this year. That's not investment returns. That's balance sheet reformation. Corporate treasuries are becoming vaults",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-22T07:00:20.394160+00:00",
+    "brief_date": "Tuesday, April 21, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260422_100023_0",
+    "text": "1-hour mempool fee at 1 sat/vB while whales execute largest weekly buys since July 2025. Retail capitulating into institutional accumulation. This is the pattern every cycle",
+    "angle": "institutional_flow",
+    "type": "signal",
+    "format": "on_chain_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-22T10:00:23.847156+00:00",
+    "brief_date": "Tuesday, April 21, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260422_130023_0",
+    "text": "If MicroStrategy just printed $3.6B in unrealized gains while the price dropped 1.7%, what exactly are they holding that your portfolio isn't",
+    "angle": "institutional_flow",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-22T13:00:23.311441+00:00",
+    "brief_date": "Tuesday, April 21, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260422_190025_0",
+    "text": "Weimar stopped printing marks in 1923. The printing press broke from overuse. In 2026 we just print digital now so there's no mechanical limit. Same collapse, faster speed",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-22T19:00:25.025313+00:00",
+    "brief_date": "Wednesday, April 22, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260422_220022_0",
+    "text": "Morgan Stanley moved 190 million into Bitcoin since April 8. Their treasury probably knows something about what happens when you print 28.8 trillion in sovereign debt and call it policy",
+    "angle": "institutional_flow",
+    "type": "signal",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-22T22:00:22.841307+00:00",
+    "brief_date": "Wednesday, April 22, 2026",
     "sentiment": "bullish"
   }
 ]

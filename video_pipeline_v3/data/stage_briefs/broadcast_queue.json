@@ -1,52 +1,52 @@
 [
   {
-    "id": "6afc1466-1c89-47ca-992e-92ebb523bc43",
+    "id": "e464d36f-0fd8-4c78-b5c8-471d3c2f990a",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Jeff Booth clarifies what debasement actually is\u2014not a metaphor, a transfer mechanism. Rome diluted coin metal; central banks dilute monetary units. Same theft, different infrastructure.\n\nWatch the M2 velocity collapse when real rates finally invert.",
-    "source_label": "\ud83e\udde0 @JEFFBOOTH",
-    "topic_preview": "R to @JeffBooth: Historically, when governments debase currency, they transfer v",
-    "generated_at": "2026-04-21T20:55:28.086564+00:00",
-    "expires_at": "2026-04-21T22:55:28.086564+00:00"
+    "script": "Marty Bent just flagged what matters: centralization creep is the silent killer of monetary sovereignty. Watch for the next major mining pool announcement\u2014that's where the real concentration risk lives.",
+    "source_label": "\ud83e\udde0 @MARTYBENT",
+    "topic_preview": "Doesn't sound very decentralized to me.",
+    "generated_at": "2026-04-23T13:45:26.709913+00:00",
+    "expires_at": "2026-04-23T15:45:26.709913+00:00"
   },
   {
-    "id": "1a00bf89-951b-4544-a4ce-48bcbdb6b406",
+    "id": "84155f45-44ab-44ac-975d-b1145bf03ea3",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "PROTOCOL PULSE \u2014 METRICS SEGMENT\n\nHashrate climbed to 874 exahashes despite price rejection. Fear index at 33 signals capitulation bottom\u2014watch for sustained miner commitment above 870EH as confirmation signal.",
+    "script": "PROTOCOL PULSE \u2014 METRICS SEGMENT\n\nBitcoin at 77,823. Hashrate holding 884 exahash while fear index sits at 46\u2014miners pricing in consolidation, not capitulation.\n\nWatch for network stress: 66,828 transactions queued at 2 sat/byte floor suggests accumulation window opening.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $75,532 \u00b7 FNG 33 \u00b7 874.0 EH/s",
-    "generated_at": "2026-04-21T18:51:00.997433+00:00",
-    "expires_at": "2026-04-21T22:51:00.997433+00:00"
+    "topic_preview": "BTC $77,823 \u00b7 FNG 46 \u00b7 884.0 EH/s",
+    "generated_at": "2026-04-23T12:15:57.816559+00:00",
+    "expires_at": "2026-04-23T16:15:57.816559+00:00"
   },
   {
-    "id": "5eba9150-4708-42df-b126-2dbf18623c05",
+    "id": "6c5e0559-25f4-47fa-b60a-7a0895a416a6",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "PROTOCOL PULSE \u2014 NOSTR SIGNAL\n\nInstitutional ETF inflows dominate Nostr discourse. This narrative conveniently sidelines the actual signal: nodes, hashrate, and self-custody adoption metrics are what matter at settlement layer.\n\nWatch for on-chain transaction volume from non-exchange addresses next 72 hours \u2014 that tells you if conviction actually",
+    "script": "Quantum computing threat dominates Nostr discourse right now. Bitcoin's elliptic curve cryptography requires addressing \u2014 but not tomorrow. Watch for sustained discussion of threshold signatures and hash-based alternatives spreading across relay clusters.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Institutional ETF inflows",
-    "generated_at": "2026-04-21T21:15:48.915931+00:00",
-    "expires_at": "2026-04-22T01:15:48.915931+00:00"
+    "topic_preview": "Quantum computing threat to Bitcoin",
+    "generated_at": "2026-04-23T13:40:46.259632+00:00",
+    "expires_at": "2026-04-23T17:40:46.259632+00:00"
   },
   {
-    "id": "a6522440-747e-442a-9ddc-b40272ea2e97",
+    "id": "318e2c8b-1ccf-4205-be37-fc3a2a2ffd1e",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
+    "script": "The Bitcoin network has been operational for over 99.98 percent of its existence. No bank, no government system, no tech company can match that uptime. Decentralization isn't just philosophy \u2014 it's resilience.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
-    "generated_at": "2026-04-21T18:36:12.569404+00:00",
-    "expires_at": "2026-04-21T22:36:12.569404+00:00"
+    "topic_preview": "The Bitcoin network has been operational for over 99.98 percent of its existence",
+    "generated_at": "2026-04-23T11:36:14.855480+00:00",
+    "expires_at": "2026-04-23T15:36:14.855480+00:00"
   },
   {
-    "id": "e9526d60-baf0-4612-b6a5-65c69181b7ff",
+    "id": "475be4c2-be35-4ecd-b442-b07e3c763f57",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Nostr is building the decentralized social layer that Bitcoin's monetary layer always needed. Censorship-resistant communication plus censorship-resistant money \u2014 that's the full stack of digital sovereignty.",
+    "script": "Multisig wallets eliminate single points of failure. A two-of-three setup means no single key compromise can drain your funds. This is how institutions are beginning to custody billions in bitcoin.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Nostr is building the decentralized social layer that Bitcoin's monetary layer a",
-    "generated_at": "2026-04-21T18:46:11.929957+00:00",
-    "expires_at": "2026-04-21T22:46:11.929957+00:00"
+    "topic_preview": "Multisig wallets eliminate single points of failure. A two-of-three setup means ",
+    "generated_at": "2026-04-23T12:11:09.026095+00:00",
+    "expires_at": "2026-04-23T16:11:09.026095+00:00"
   }
 ]

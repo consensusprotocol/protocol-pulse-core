@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-22T02:00:30.520161+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Fear at 32: Why Bitcoin's Pessimism Could Signal an Imminent Bottom",
+      "angle": "Historical analysis of Fear & Greed extremes and their predictive power for market reversals; examining current network strength as contrarian signal",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-greed-index",
+        "market-analysis",
+        "trading"
+      ]
+    },
+    {
+      "headline": "The Catalyst Watch: What Could Spark Bitcoin's Next Major Move",
+      "angle": "Deep dive into potential macro triggers (Fed data, regulatory news, institutional positioning) that could break Bitcoin out of current $75.5k-$77.5k range",
+      "tags": [
+        "bitcoin",
+        "catalysts",
+        "macro",
+        "technical-analysis",
+        "trading"
+      ]
+    },
+    {
+      "headline": "Network Resilience in Uncertain Times: Bitcoin's Hashrate Stays Strong Despite Market Fear",
+      "angle": "Why miner behavior and hashrate stability matter more than sentiment\u2014examining mempool health and transaction throughput as underrated bullish indicators",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "network-fundamentals",
+        "technical"
+      ]
+    }
+  ]
+}
