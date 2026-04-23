@@ -29,7 +29,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
         return ""
 
     # V31 AV FIX: Measure V/A durations separately and trim both to the shorter one.
-    # fps=30 adds ~0.1s to video; without this, every clip drifts +0.1s.
+    # yt-dlp V/A streams can have mismatched durations; trim to shorter to avoid drift.
     _v_dur = ffprobe_video_duration(video_path)
     _a_dur_raw = 0.0
     try:
@@ -54,7 +54,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
     fg = ""
     # Full frame clip
     fg += (f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
-           f"setsar=1,fps=30,trim=duration={_target_dur:.3f},setpts=PTS-STARTPTS,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[pc_raw];\n")
+           f"setsar=1,trim=duration={_target_dur:.3f},setpts=PTS-STARTPTS,fade=t=in:d=0.3,fade=t=out:st={fade_out_start}:d=0.5[pc_raw];\n")
     # Cyberpunk aesthetic: darken clip slightly + tactical grid + radial vignette
     fg += (f"[pc_raw]"
            f"eq=brightness=-0.05:saturation=0.9:contrast=1.05,"
@@ -99,6 +99,7 @@ def make_partner_clip_scene(video_path: str, audio_path: str, speaker: str,
         [input_spec], fg, ["[outv]", "[outa]"],
         ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+         "-r", "30", "-vsync", "cfr",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k"],
         output_path, f"APEX partner clip ({safe_speaker})",
     )
@@ -313,13 +314,14 @@ def make_remotion_lower_third(clip_path: str, source: str, output_path: str,
         "-i", clip_path,
         "-i", raw_overlay,
         "-filter_complex",
-        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[clip];"
+        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1[clip];"
         f"[1:v]crop=1920:120:0:960[ltband];"
         f"[clip][ltband]overlay=0:960:enable='lte(t,{overlay_dur})',format=yuv420p[outv];"
         f"[0:a]atrim=duration={_target_cv:.3f},asetpts=PTS-STARTPTS,volume=1.0[outa]",
         "-map", "[outv]", "-map", "[outa]",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+        "-r", "30", "-vsync", "cfr",
         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
         output_path,
     ], "remotion lower third composite", 180)
@@ -356,7 +358,7 @@ def make_transition_visual(output_path: str, duration: float = 2.2) -> str:
     _use_bg_loop = os.path.exists(BG_LOOP)
     if _use_bg_loop:
         _bg_input = ["-stream_loop", "-1", "-i", BG_LOOP]
-        _bg_vf_prefix = f"scale=1920:1080,setsar=1,fps=30,trim=0:{duration + 0.5},setpts=PTS-STARTPTS,eq=brightness=-0.1:contrast=0.9,"
+        _bg_vf_prefix = f"scale=1920:1080,setsar=1,trim=0:{duration + 0.5},setpts=PTS-STARTPTS,eq=brightness=-0.1:contrast=0.9,"
     else:
         _bg_input = ["-f", "lavfi", "-i", f"color=c=0x1A1A2F:s=1920x1080:d={duration}:r=30"]
         _bg_vf_prefix = ""
@@ -411,8 +413,8 @@ def apply_xfade(clip1_path: str, clip2_path: str, output_path: str,
     ok = run_ffmpeg([
         "-i", clip1_path, "-i", clip2_path,
         "-filter_complex",
-        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[v0];"
-        f"[1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[v1];"
+        f"[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1[v0];"
+        f"[1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1[v1];"
         f"[0:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a0];"
         f"[1:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a1];"
         f"[v0][v1]xfade=transition={transition}:duration={duration}:offset={offset},format=yuv420p[outv];"
@@ -420,6 +422,7 @@ def apply_xfade(clip1_path: str, clip2_path: str, output_path: str,
         "-map", "[outv]", "-map", "[outa]",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+        "-r", "30", "-vsync", "cfr",
         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
         output_path,
     ], "xfade transition", 300)
@@ -440,7 +443,7 @@ def make_clip_visual(clip_path: str, source: str, output_path: str,
         return ""
 
     # V34 AV FIX: Measure V/A durations and trim both to shorter one.
-    # fps=30 adds ~0.1s video; without trim, clips drift perceptibly.
+    # yt-dlp V/A streams can have mismatched durations; trim to shorter to avoid drift.
     _v_dur_cv = ffprobe_video_duration(clip_path)
     _a_dur_cv = 0.0
     try:
