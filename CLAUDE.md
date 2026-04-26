@@ -156,3 +156,19 @@ Type /help to see all. Key commands:
 ## Subagents
 - reviewer (Sonnet) — code review specialist, invoked for auditing
 - ops-monitor (Haiku) — lightweight health checks
+
+## KARPATHY RULES (added 2026-04-25)
+Derived from Andrej Karpathy LLM coding pitfall observations (83K GitHub stars).
+
+### K1: STATE ASSUMPTIONS BEFORE IMPLEMENTING
+Before any fix, write: I believe X causes Y because Z -- and VERIFY Z before coding.
+If uncertain between two approaches, present both. Do not pick silently.
+
+### K2: MENTION DONT DELETE
+If you see dead code or suspicious patterns unrelated to your task, FLAG them -- do NOT silently remove.
+
+### K3: STEP-VERIFY LOOP (mandatory for multi-file changes)
+Every fix: Step 1 action -> verify specific check -> Step 2 action -> verify -> proceed only on pass.
+
+### K4: SIMPLICITY GATE
+Before committing: Would a senior engineer say this is overcomplicated? If 200 lines could be 50, rewrite.
