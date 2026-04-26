@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-04-25T18:00:34.526411+00:00",
+  "brief_type": "midday",
+  "score": 62,
+  "bullish_signals": [
+    "Fear & Greed at 31 = capitulation zone (historically bullish)",
+    "Hashrate stable at 1.005 EH/s despite price pressure",
+    "Whales not liquidating",
+    "Mempool clearing efficiently at 2 sat/byte",
+    "Network health bulletproof",
+    "Price-network divergence suggests floor not collapse"
+  ],
+  "bearish_signals": [
+    "BTC down 0.6% intraday",
+    "Price pressure ongoing"
+  ],
+  "neutral_topics": [
+    "Block height 946,620 halving cycle positioning"
+  ]
+}

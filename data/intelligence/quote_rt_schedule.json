@@ -1,0 +1,202 @@
+[
+  {
+    "anchor_id": "338",
+    "anchor_text": "1-hour mempool at 1 sat/vB. Last time this cheap was March 2024. Everyone's waiting for permission to panic. Nobody's actually panicking yet",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The market's looking for permission slip it doesn't need. Self-custody doesn't require consensus.",
+    "scheduled_at": "2026-04-24T02:00:15.607122+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-24T04:00:02.951589+00:00",
+    "created_at": "2026-04-23T18:00:15.607122+00:00"
+  },
+  {
+    "anchor_id": "338",
+    "anchor_text": "1-hour mempool at 1 sat/vB. Last time this cheap was March 2024. Everyone's waiting for permission to panic. Nobody's actually panicking yet",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Cheap fees are the network working exactly as designed. Panic is optional.",
+    "scheduled_at": "2026-04-24T10:00:15.607122+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-24T19:00:03.285660+00:00",
+    "created_at": "2026-04-23T18:00:15.607122+00:00"
+  },
+  {
+    "anchor_id": "338",
+    "anchor_text": "1-hour mempool at 1 sat/vB. Last time this cheap was March 2024. Everyone's waiting for permission to panic. Nobody's actually panicking yet",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "1 sat/vB means settlement certainty at near-zero cost. That's not a bug, that's the whole point.",
+    "scheduled_at": "2026-04-24T18:00:15.607122+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-24T22:00:03.293409+00:00",
+    "created_at": "2026-04-23T18:00:15.607122+00:00"
+  },
+  {
+    "anchor_id": "338",
+    "anchor_text": "1-hour mempool at 1 sat/vB. Last time this cheap was March 2024. Everyone's waiting for permission to panic. Nobody's actually panicking yet",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money that requires you to wait for others to panic first isn't actually yours yet.",
+    "scheduled_at": "2026-04-25T02:00:15.607122+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-25T04:00:03.146827+00:00",
+    "created_at": "2026-04-23T18:00:15.607122+00:00"
+  },
+  {
+    "anchor_id": "338",
+    "anchor_text": "1-hour mempool at 1 sat/vB. Last time this cheap was March 2024. Everyone's waiting for permission to panic. Nobody's actually panicking yet",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone's watching for capitulation they think they're too smart to experience. Classic.",
+    "scheduled_at": "2026-04-25T10:00:15.607122+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-25T19:00:03.515310+00:00",
+    "created_at": "2026-04-23T18:00:15.607122+00:00"
+  },
+  {
+    "anchor_id": "342",
+    "anchor_text": "932.2 EH/s of hashrate securing a network that doesn't need permission to exist. How many datacenters would a government need to shut down to kill Bitcoin",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "They'd need to shut down every major datacenter simultaneously across multiple continents. Good luck coordinating that.",
+    "scheduled_at": "2026-04-25T02:00:15.823652+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-25T22:00:02.912006+00:00",
+    "created_at": "2026-04-24T18:00:15.823652+00:00"
+  },
+  {
+    "anchor_id": "342",
+    "anchor_text": "932.2 EH/s of hashrate securing a network that doesn't need permission to exist. How many datacenters would a government need to shut down to kill Bitcoin",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The irony: the more they try to kill it, the more distributed it becomes. Bitcoin's antifragility is built into the math.",
+    "scheduled_at": "2026-04-25T10:00:15.823652+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-26T04:00:03.335661+00:00",
+    "created_at": "2026-04-24T18:00:15.823652+00:00"
+  },
+  {
+    "anchor_id": "342",
+    "anchor_text": "932.2 EH/s of hashrate securing a network that doesn't need permission to exist. How many datacenters would a government need to shut down to kill Bitcoin",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "932 exahashes means the attacker cost exceeds the value they could destroy. Economic security through sheer computational weight.",
+    "scheduled_at": "2026-04-25T18:00:15.823652+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-26T19:00:03.176064+00:00",
+    "created_at": "2026-04-24T18:00:15.823652+00:00"
+  },
+  {
+    "anchor_id": "342",
+    "anchor_text": "932.2 EH/s of hashrate securing a network that doesn't need permission to exist. How many datacenters would a government need to shut down to kill Bitcoin",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "This is what actual monetary independence looks like. No central point of failure because there is no center.",
+    "scheduled_at": "2026-04-26T02:00:15.823652+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-24T18:00:15.823652+00:00"
+  },
+  {
+    "anchor_id": "342",
+    "anchor_text": "932.2 EH/s of hashrate securing a network that doesn't need permission to exist. How many datacenters would a government need to shut down to kill Bitcoin",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone focuses on price. Nobody talks about how the network just keeps getting harder to attack while they sleep.",
+    "scheduled_at": "2026-04-26T10:00:15.823652+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-24T18:00:15.823652+00:00"
+  },
+  {
+    "anchor_id": "346",
+    "anchor_text": "Decentralized stablecoins are mathematical impossibilities. Bitcoin is the only decentralized solution. Everything else is a faith-based product with an expiration date",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "If math is impossible, every stablecoin is just a slow motion bank run waiting for the moment nobody believes anymore",
+    "scheduled_at": "2026-04-26T02:00:15.982325+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-25T18:00:15.982325+00:00"
+  },
+  {
+    "anchor_id": "346",
+    "anchor_text": "Decentralized stablecoins are mathematical impossibilities. Bitcoin is the only decentralized solution. Everything else is a faith-based product with an expiration date",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Funny how the ones claiming mathematical purity still need humans to vote on parameters every few months",
+    "scheduled_at": "2026-04-26T10:00:15.982325+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-25T18:00:15.982325+00:00"
+  },
+  {
+    "anchor_id": "346",
+    "anchor_text": "Decentralized stablecoins are mathematical impossibilities. Bitcoin is the only decentralized solution. Everything else is a faith-based product with an expiration date",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The mechanism doesn't matter if the counterparty can always print. Decentralization without removing intermediaries is theater",
+    "scheduled_at": "2026-04-26T18:00:15.982325+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-25T18:00:15.982325+00:00"
+  },
+  {
+    "anchor_id": "346",
+    "anchor_text": "Decentralized stablecoins are mathematical impossibilities. Bitcoin is the only decentralized solution. Everything else is a faith-based product with an expiration date",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money that requires faith in its stability is just currency with extra steps. Bitcoin removed the need to believe",
+    "scheduled_at": "2026-04-27T02:00:15.982325+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-25T18:00:15.982325+00:00"
+  },
+  {
+    "anchor_id": "346",
+    "anchor_text": "Decentralized stablecoins are mathematical impossibilities. Bitcoin is the only decentralized solution. Everything else is a faith-based product with an expiration date",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone building decentralized stablecoins is solving for the wrong variable. They want price stability. Bitcoin wanted financial sovereignty",
+    "scheduled_at": "2026-04-27T10:00:15.982325+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-25T18:00:15.982325+00:00"
+  },
+  {
+    "anchor_id": "349",
+    "anchor_text": "Do you know what your long-term holder did at the bottom. Took 20% losses. Now they're up 10% and selling quietly. This is how Bitcoin actually accumulates",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "They didn't panic sell at -20%. They sold at +10%. That's not weakness, that's discipline masquerading as profit taking.",
+    "scheduled_at": "2026-04-27T02:00:17.251216+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-26T18:00:17.251216+00:00"
+  },
+  {
+    "anchor_id": "349",
+    "anchor_text": "Do you know what your long-term holder did at the bottom. Took 20% losses. Now they're up 10% and selling quietly. This is how Bitcoin actually accumulates",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real tell: long-term holders take losses silently but sell gains quietly. Nobody announces either move.",
+    "scheduled_at": "2026-04-27T10:00:17.251216+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-26T18:00:17.251216+00:00"
+  },
+  {
+    "anchor_id": "349",
+    "anchor_text": "Do you know what your long-term holder did at the bottom. Took 20% losses. Now they're up 10% and selling quietly. This is how Bitcoin actually accumulates",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Distribution happens in green candles, not red ones. Check who's moving coins when price recovers, not when it crashes.",
+    "scheduled_at": "2026-04-27T18:00:17.251216+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-26T18:00:17.251216+00:00"
+  },
+  {
+    "anchor_id": "349",
+    "anchor_text": "Do you know what your long-term holder did at the bottom. Took 20% losses. Now they're up 10% and selling quietly. This is how Bitcoin actually accumulates",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Bitcoin accumulates through those willing to hold worthless paper while watching their net worth evaporate. Conviction is the filter.",
+    "scheduled_at": "2026-04-28T02:00:17.251216+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-26T18:00:17.251216+00:00"
+  },
+  {
+    "anchor_id": "349",
+    "anchor_text": "Do you know what your long-term holder did at the bottom. Took 20% losses. Now they're up 10% and selling quietly. This is how Bitcoin actually accumulates",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone focuses on who buys the dip. The pattern that matters is who refuses to sell the rip.",
+    "scheduled_at": "2026-04-28T10:00:17.251216+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-26T18:00:17.251216+00:00"
+  }
+]

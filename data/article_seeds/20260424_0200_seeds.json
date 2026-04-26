@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-04-24T02:00:47.515644+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "When Network Strength Diverges from Sentiment: Bitcoin's Accumulation Setup",
+      "angle": "Examine why hashrate conviction + fear sentiment + collapsed fees = institutional positioning window",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "hashrate",
+        "accumulation",
+        "network-health"
+      ]
+    },
+    {
+      "headline": "The Mempool Paradox: Why Bloated Transaction Queue + 1 sat/byte Fees = Builder Opportunity",
+      "angle": "Deep dive on on-chain friction dynamics and what low fees signal about market positioning",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "transaction-fees",
+        "on-chain-analysis"
+      ]
+    },
+    {
+      "headline": "Miner Conviction at $78K: Why Hashrate Stability Matters More Than Price Action",
+      "angle": "Why sustained mining commitment during fear phases historically precedes relief rallies",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "hashrate",
+        "market-structure"
+      ]
+    }
+  ]
+}

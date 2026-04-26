@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-25T18:00:34.526411+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Fear Maxes Out: Why Bitcoin's 31 Fear & Greed Reading Could Signal a Bottom",
+      "angle": "Historical analysis of capitulation zones and how network metrics validate floor formations",
+      "tags": [
+        "bitcoin",
+        "fear-greed",
+        "capitulation",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Network Conviction Amid Price Weakness: Bitcoin's Hashrate Tells a Different Story",
+      "angle": "Divergence between price action and miner behavior as contrarian indicator",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "network-health"
+      ]
+    },
+    {
+      "headline": "Mempool Efficiency in Crisis: How Bitcoin's Transaction Layer Holds During Volatility",
+      "angle": "Network infrastructure resilience during fear cycles; 2 sat/byte base fees examined",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network-infrastructure"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-23T14:15:15.378980+00:00",
-  "fetch_time_ms": 11065,
+  "updated_at": "2026-04-26T20:45:14.523764+00:00",
+  "fetch_time_ms": 9484,
   "composite": {
     "perception_score": 58,
     "label": "Cautiously Bullish",
@@ -10,21 +10,21 @@
     "neutral_layers": 3,
     "layer_signals": {
       "global": "bullish",
-      "trending": "neutral",
+      "trending": "bullish",
       "onchain": "bearish",
       "lightning": "bullish",
       "fees": "neutral",
       "social": "neutral",
-      "fg_trend": "bullish"
+      "fg_trend": "neutral"
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.08,
-    "total_mcap_usd": 2674346594756.8535,
-    "total_mcap_t": 2.674,
-    "total_vol_24h_usd": 107147747671.36356,
-    "total_vol_24h_b": 107.1,
-    "active_coins": 17548,
+    "btc_dominance_pct": 58.12,
+    "total_mcap_usd": 2696707016556.7017,
+    "total_mcap_t": 2.697,
+    "total_vol_24h_usd": 52756641963.83847,
+    "total_vol_24h_b": 52.8,
+    "active_coins": 17532,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,85 +33,85 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "BTC",
-        "name": "Bitcoin",
-        "rank": 1,
+        "symbol": "AERO",
+        "name": "Aerodrome Finance",
+        "rank": 112,
         "score": 0
-      },
-      {
-        "symbol": "GALA",
-        "name": "GALA",
-        "rank": 212,
-        "score": 1
-      },
-      {
-        "symbol": "SPK",
-        "name": "Spark",
-        "rank": 224,
-        "score": 2
-      },
-      {
-        "symbol": "CHIP",
-        "name": "CHIP",
-        "rank": 176,
-        "score": 3
-      },
-      {
-        "symbol": "RAVE",
-        "name": "RaveDAO",
-        "rank": 153,
-        "score": 4
-      },
-      {
-        "symbol": "ASTEROID",
-        "name": "Asteroid Shiba",
-        "rank": 230,
-        "score": 5
       },
       {
         "symbol": "PENGU",
         "name": "Pudgy Penguins",
-        "rank": 100,
+        "rank": 97,
+        "score": 1
+      },
+      {
+        "symbol": "ZBT",
+        "name": "ZEROBASE",
+        "rank": 434,
+        "score": 2
+      },
+      {
+        "symbol": "PI",
+        "name": "Pi Network",
+        "rank": 46,
+        "score": 3
+      },
+      {
+        "symbol": "LTC",
+        "name": "Litecoin",
+        "rank": 25,
+        "score": 4
+      },
+      {
+        "symbol": "CRV",
+        "name": "Curve DAO",
+        "rank": 130,
+        "score": 5
+      },
+      {
+        "symbol": "CHIP",
+        "name": "USD.AI",
+        "rank": 220,
         "score": 6
       }
     ],
     "active_narratives": [
-      "BTC-adjacent"
+      "DeFi"
     ],
     "has_meme_rotation": false,
     "has_ai_rotation": false,
-    "narrative_signal": "BTC-adjacent",
-    "btc_signal": "neutral",
+    "narrative_signal": "DeFi",
+    "btc_signal": "bullish",
     "note": "Meme rotation signals late-cycle risk. AI/DeFi rotation signals mid-cycle strength.",
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 400661,
+    "tx_count_24h": 727887,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 12.29,
+    "minutes_between_blocks": 8.93,
     "difficulty": 135594876535256,
-    "estimated_btc_sent": 10232391849653,
-    "total_fees_btc": -35000000000,
+    "estimated_btc_sent": 2078562195685,
+    "total_fees_btc": -47500000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
-    "block_signal": "slow_blocks",
+    "block_signal": "normal",
     "btc_signal": "bearish",
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17402,
-    "channel_count": 42000,
-    "capacity_btc": 5677.47,
-    "capacity_sats": 567746929511,
-    "avg_channel_capacity_btc": 0.1352,
+    "node_count": 17369,
+    "channel_count": 42215,
+    "capacity_btc": 5700.54,
+    "capacity_sats": 570054327303,
+    "avg_channel_capacity_btc": 0.135,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 1,
+    "fastest_fee_sat_vb": 3,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,21 +121,21 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 46,
-    "7d_ago": 21,
-    "7d_delta": 25,
-    "trend": "rapidly_improving",
+    "current": 33,
+    "7d_ago": 29,
+    "7d_delta": 4,
+    "trend": "stable",
     "7d_values": [
+      33,
+      31,
+      39,
       46,
       32,
       33,
-      29,
-      27,
-      26,
-      21
+      29
     ],
-    "btc_signal": "bullish",
-    "note": "F&G rising sharply (21 -> 46) \u2014 sentiment recovery",
+    "btc_signal": "neutral",
+    "note": "F&G stable at 33",
     "label": "Fear",
     "source": "alternative.me F&G"
   }

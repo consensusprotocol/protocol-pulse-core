@@ -568,5 +568,59 @@
     "timestamp": "2026-04-23T13:00:21.192224+00:00",
     "text_preview": "If you can't withdraw your own money without permission, do you actually own it ",
     "format_type": "sovereignty_freedom"
+  },
+  {
+    "hash": "2e8450aaee127041701c96eb0962348b",
+    "timestamp": "2026-04-23T16:00:22.088471+00:00",
+    "text_preview": "1-hour mempool at 1 sat/vB. Last time this cheap was March 2024. Everyone's wait",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "c91c1c858f7f1cd5a2bae02c8ae5c293",
+    "timestamp": "2026-04-23T21:44:16.788889+00:00",
+    "text_preview": "946,350 blocks. Nobody's talking about what happens when the network confirms mo",
+    "format_type": "contrarian_take"
+  },
+  {
+    "hash": "16ce00ea9c803d78ede67bcfbbc21a4d",
+    "timestamp": "2026-04-24T02:00:22.611453+00:00",
+    "text_preview": "Satoshi left 15 years ago and the network's still running without him. Every OFA",
+    "format_type": "sovereignty_freedom"
+  },
+  {
+    "hash": "3716e2cbce40550fc0cf7c07ac59dde0",
+    "timestamp": "2026-04-24T17:00:21.309757+00:00",
+    "text_preview": "932.2 EH/s of hashrate securing a network that doesn't need permission to exist.",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "a26eff2fd91909f3f648dc832d90c108",
+    "timestamp": "2026-04-25T02:00:23.863255+00:00",
+    "text_preview": "Nixon closed the gold window in 1971. Governments have been printing ever since.",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "4d8270ca81d1869e83e0f812336da9c1",
+    "timestamp": "2026-04-25T06:19:52.587611+00:00",
+    "text_preview": "Do you know what BlackRock's $1.4B weekly inflow means. Institutions are buying ",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "95751fcf5fc7426d1fea0b86d5304a02",
+    "timestamp": "2026-04-25T17:00:24.398809+00:00",
+    "text_preview": "Decentralized stablecoins are mathematical impossibilities. Bitcoin is the only ",
+    "format_type": "contrarian_take"
+  },
+  {
+    "hash": "03317ea85b7afe8fdf1c615f49a906da",
+    "timestamp": "2026-04-26T02:00:22.753903+00:00",
+    "text_preview": "Block 946,666. Hashrate 932.4 EH/s. Fees 1 sat/vB. Markets sleep. Bitcoin doesn'",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "c784c432b8aa153f0c034be72f6b48f2",
+    "timestamp": "2026-04-26T17:00:25.944069+00:00",
+    "text_preview": "Do you know what your long-term holder did at the bottom. Took 20% losses. Now t",
+    "format_type": "historical_pattern"
   }
 ]

@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-04-25T10:00:31.594967+00:00",
+  "brief_type": "morning",
+  "score": 35,
+  "bullish_signals": [
+    "Fear gauge at 31 historically attracts DCA buyers",
+    "No liquidations or panic selling in Asia session",
+    "Robust hashrate at 1005.7 EH/s\u2014miners holding strong",
+    "Exceptionally clean mempool with minimal transaction pressure",
+    "Fastest fees at 1 sat/vB suggests no network stress",
+    "Steady progress toward next halving cycle"
+  ],
+  "bearish_signals": [
+    "Thin volume indicates low conviction",
+    "77k level is critical support\u2014loss would trigger technical weakness",
+    "Minimal overnight movement suggests consolidation or indecision"
+  ],
+  "neutral_topics": [
+    "Asia session activity",
+    "Block height progression",
+    "Current price hold at 77,754"
+  ]
+}

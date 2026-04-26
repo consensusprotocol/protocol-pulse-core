@@ -1,13 +1,11 @@
 {
-  "generated_at": "2026-04-23T10:00:30.642570+00:00",
-  "brief_type": "morning",
+  "generated_at": "2026-04-26T18:00:28.923574+00:00",
+  "brief_type": "midday",
   "bullets": [
-    "Bitcoin consolidating at $77,653 with Fear index at 46\u2014cautious but not panic territory",
-    "Network fundamentals remain strong: 884 EH/s hashrate and efficient mempool clearing at 3 sat/vB fees",
-    "Volume drought signals traders awaiting direction; institutional buyers positioned for $75K zone",
-    "Capitulation likely incomplete\u2014watch for $75K test as real catalyst for directional move",
-    "Lack of urgency either direction today suggests positioning consolidation before catalyst event"
+    "Hashrate stability at 952 EH/s = miner conviction; watch for ANY drop below 900 EH/s as true capitulation signal",
+    "Mempool at 62k txns + 2 sat/byte fees = ideal friction point for whale movements; monitor next 72 hours for large on-chain activity",
+    "No volume capitulation spikes at block 946,771 = market structure intact; $78k is the battle line\u2014break below triggers reassessment"
   ],
-  "sentiment_score": 15,
-  "brief_summary": "**BITCOIN MORNING BRIEF \u2014 April 23, 2026**\n\nBitcoin holding $77,653 after a modest overnight dip. Fear index at 46 signals cautious positioning\u2014not panic, but sentiment's cooling.\n\nNetwork health remains solid. Hashrate steady at 884 exahashes. Mempool's clearing efficiently with fees bottoming at 3"
+  "sentiment_score": 25,
+  "brief_summary": "# BITCOIN MIDDAY BRIEF\n\nBitcoin's holding steady at seventy-eight thousand, up a single percent over twenty-four hours\u2014modest gains in what's clearly a cautious market. Fear and Greed sitting at thirty-three tells you everything: pure fear territory.\n\nHere's what matters: hashrate remains robust at "
 }

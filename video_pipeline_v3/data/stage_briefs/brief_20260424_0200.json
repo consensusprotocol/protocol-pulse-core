@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Evening Brief",
+  "generated_at": "2026-04-24T02:00:04.479943+00:00",
+  "duration": 80.9,
+  "mp4_path": "brief_20260424_0200.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260424_0200.mp4",
+  "video_url": "/data/stage_briefs/brief_20260424_0200.mp4",
+  "episode_date": "2026-04-24",
+  "brief_type": "evening",
+  "script_summary": "# ORACLE \u2014 Evening Brief\n\nBitcoin holding steady at $78,404, no movement on the day. But here's what matters: Fear and Greed sits at 39 \u2014 deep in fear territory. That's your signal. Markets are pricing in uncertainty.\n\nNetwork strength is solid. Hashrate holding firm at 815.8 exahashes. Block height just crossed 946,382. The infrastructure's intact.\n\nTransaction layer's interesting \u2014 mempool's bloated at 56,847 pending transactions, yet fees have collapsed to 1 sat per byte. That's builder oppor",
+  "word_count": 160,
+  "tts_provider": "chatterbox",
+  "btc_price": 78404.0,
+  "sentiment_score": -35
+}

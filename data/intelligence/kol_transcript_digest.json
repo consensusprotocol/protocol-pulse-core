@@ -1,86 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-20T00:00:09.993246+00:00",
-  "creator_count": 4,
-  "avg_sentiment_score": 50.8,
+  "generated_at": "2026-04-25T12:00:35.059040+00:00",
+  "creator_count": 13,
+  "avg_sentiment_score": 59.5,
   "sentiment_breakdown": {
-    "bullish": 2,
-    "bearish": 2,
-    "neutral": 0
+    "bullish": 6,
+    "bearish": 1,
+    "neutral": 6
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "Seller exhaustion and capitulation",
+      "topic": "capitalism definition and principles",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Saifedean Ammous"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "There's a 90% chance we're going higher fear"
+      "avg_sentiment_score": 75.0,
+      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
     },
     {
-      "topic": "Bear market bottom formation",
+      "topic": "stock markets as litmus test for capitalist economies",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Saifedean Ammous"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "There's a 90% chance we're going higher fear"
+      "avg_sentiment_score": 75.0,
+      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
     },
     {
-      "topic": "Long-term holder accumulation",
+      "topic": "capital allocation efficiency",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Saifedean Ammous"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "There's a 90% chance we're going higher fear"
+      "avg_sentiment_score": 75.0,
+      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
     },
     {
-      "topic": "Profit-taking cycles",
+      "topic": "division of labor in capital production",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Saifedean Ammous"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "There's a 90% chance we're going higher fear"
+      "avg_sentiment_score": 75.0,
+      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
     },
     {
-      "topic": "Asset performance during geopolitical shocks",
+      "topic": "property rights and free markets",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Saifedean Ammous"
       ],
-      "avg_sentiment_score": 78.0,
-      "example_quote": "There's a 90% chance we're going higher fear"
+      "avg_sentiment_score": 75.0,
+      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence\n\n**Consensus:** All creators view Bitcoin through a macro lens\u2014whether geopolitical instability, systemic currency concerns, or institutional positioning\u2014rather than pure technicals.\n\n**Key Divergence:** BTC Sessions is internally contradicted (bullish then bearish), while Simply Bitcoin and Altcoin Daily lean aggressively bullish on macro/systemic grounds (fiat collapse, insider trading signals), contrasting sharply with BTC Sessions' bearish near-term outlook citing geopolitical headwinds and potential $20k-$40k bottoming.\n\n**Net Signal:** Mixed\u2014creators agree Bitcoin matters as a macro hedge but disagree fundamentally on timing (immediate upside vs. gradual/severe downside) and catalysts (capitulation vs. conflict vs. institutional adoption).",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Nearly all speakers are bullish on Bitcoin's fundamental value and adoption trajectory (most ranging 65-78/100), citing macro instability, institutional interest, and technical innovation as drivers. There's broad agreement that Bitcoin serves important roles\u2014whether as capital allocation tool, inflation hedge, or security asset.\n\n**Key Divergences:** \n\n1. **Macro Timing & Risk**: Optimists (Altcoin Daily, Simply Bitcoin) see imminent catalysts (Fed dovishness, AI deflation, regulatory clarity), while pessimists (BTC Sessions, Coin Bureau) emphasize near-term dangers\u2014energy crises, debt, and reflexive collapse risks in leveraged Bitcoin-dependent schemes like MicroStrategy.\n\n2. **Bitcoin's Purpose**: Ideological split between free-market capitalists (Ammous) viewing Bitcoin as enabling efficient capital deployment versus macro hedgers (BTC Sessions) seeing it primarily as crisis insurance. Military/security-focused views (Simply Bitcoin) diverge sharply from both.\n\n3. **Governance Philosophy**: Stacker News advocates grassroots community consensus over special-interest soft fork proposals, contrasting with top-down institutional adoption narratives elsewhere.\n\n4. **Market Mechanics**: TFTC's duration/credit risk framework challenges simple M2-driven narratives, introducing complexity most other speakers overlook.\n\n**Bottom Line:** Bullish on Bitcoin's role, but sharp disagreement on *why*, *when*, and *how much* current valuations reflect genuine adoption versus speculative cycles.",
   "top_creators": [
     {
-      "channel": "BTC Sessions",
+      "channel": "Saifedean Ammous",
       "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Bitcoin has likely already bottomed (90% probability of going higher) after seller exhaustion and price capitulation at $60k, similar to previous bear market patterns. The lack of downside despite bearish headlines suggests capitulation has already occurred and the market is positioned for upside."
+      "score": 75,
+      "thesis": "Capitalism, enabled by free markets and stock markets for capital allocation, is the most efficient system for productive capital deployment and economic growth. Property rights and decentralized capital decisions by owners (not government) drive prosperity."
+    },
+    {
+      "channel": "TFTC",
+      "sentiment": "bullish",
+      "score": 72,
+      "thesis": "Bitcoin has asymmetric upside potential for institutional investors despite quantum computing risks. The best cryptographers in the world are working on Bitcoin security solutions to address these concerns."
     },
     {
       "channel": "BTC Sessions",
-      "sentiment": "bearish",
-      "score": 25,
-      "thesis": "Bitcoin will likely face continued downward pressure in the near-term due to prolonged geopolitical conflict and its correlation with risk assets. A bottom may form gradually around $40k, with potential for lower prices ($30k-$20k) only in severe liquidity crisis scenarios."
+      "sentiment": "mixed",
+      "score": 35,
+      "thesis": "Bitcoin serves as a hedge against macro instability including energy crises, inflation, and government policy failures. While near-term conditions appear dire (energy crisis, debt, rising prices), Bitcoin's fixed supply provides protection."
     },
     {
-      "channel": "Simply Bitcoin",
+      "channel": "Coin Bureau",
       "sentiment": "bearish",
       "score": 15,
-      "thesis": "The dollar is a fabricated illusion maintained through institutional deception and constant narrative management, while the underlying economic system is fundamentally degrading. Bitcoin is implicitly presented as an alternative to this failing fiat system."
+      "thesis": "MicroStrategy operates a reflexive capital cycle dependent on Bitcoin appreciation and continuous equity dilution that functions as a Ponzi-like scheme; if Bitcoin stops appreciating or the stock trades at NAV discount, the model collapses and threatens broader crypto market stability."
     },
     {
-      "channel": "Altcoin Daily",
-      "sentiment": "bullish",
-      "score": 85,
-      "thesis": "Congressional insider trading on Bitcoin ETFs signals major bullish moves ahead, driven by tokenization and agentic AI adoption that will significantly increase Bitcoin and Ethereum valuations."
+      "channel": "Stacker News",
+      "sentiment": "neutral",
+      "score": 45,
+      "thesis": "Soft forks should only be implemented when genuinely needed for consensus cleanup or essential security fixes, not speculatively. Much of the current soft fork discussion appears driven by special interests rather than grassroots community consensus."
     }
   ]
 }

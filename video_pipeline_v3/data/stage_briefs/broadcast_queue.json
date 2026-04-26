@@ -1,52 +1,53 @@
 [
   {
-    "id": "e464d36f-0fd8-4c78-b5c8-471d3c2f990a",
+    "id": "57dd9288-ad12-49e3-8c4b-66be04a54642",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "# BITCOIN MIDDAY BRIEF\n\nBitcoin's holding steady at seventy-eight thousand, up a single percent over twenty-four hours\u2014modest gains in what's clearly a cautious market. Fear and Greed sitting at thirty-three tells you everything: pure fear territory.\n\nHere's what matters: hashrate remains robust at ",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
+    "topic_preview": "Oracle Midday Brief \u2014 $78,035",
+    "generated_at": "2026-04-26T18:00:04.849074+00:00",
+    "expires_at": "2026-04-26T22:00:04.849074+00:00",
+    "video_url": "/data/stage_briefs/brief_20260426_1800.mp4"
+  },
+  {
+    "id": "c28a43b7-8af9-4cae-bcb2-f62d80727dc2",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Marty Bent just flagged what matters: centralization creep is the silent killer of monetary sovereignty. Watch for the next major mining pool announcement\u2014that's where the real concentration risk lives.",
-    "source_label": "\ud83e\udde0 @MARTYBENT",
-    "topic_preview": "Doesn't sound very decentralized to me.",
-    "generated_at": "2026-04-23T13:45:26.709913+00:00",
-    "expires_at": "2026-04-23T15:45:26.709913+00:00"
+    "script": "PROTOCOL PULSE \u2014 THOUGHT LEADER SIGNAL\n\nNatalie Brunell endorsing privacy consultation frameworks. Signal: established voices treating operational security as infrastructure, not paranoia.\n\nWatch for migration velocity\u2014how many serious holders are actually implementing node + wallet separation versus performative HODL.",
+    "source_label": "\ud83e\udde0 @NATBRUNELL",
+    "topic_preview": "R to @natbrunell: Highly recommend @Thebitcoinway_ for privacy how-to consultati",
+    "generated_at": "2026-04-26T19:30:31.145583+00:00",
+    "expires_at": "2026-04-26T21:30:31.145583+00:00"
   },
   {
-    "id": "84155f45-44ab-44ac-975d-b1145bf03ea3",
+    "id": "fa5f3e69-b4fb-4c0e-ab1b-f1ff99923c4c",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "PROTOCOL PULSE \u2014 METRICS SEGMENT\n\nBitcoin at 77,823. Hashrate holding 884 exahash while fear index sits at 46\u2014miners pricing in consolidation, not capitulation.\n\nWatch for network stress: 66,828 transactions queued at 2 sat/byte floor suggests accumulation window opening.",
+    "script": "PROTOCOL PULSE \u2014 METRICS SEGMENT\n\nHashrate at 952.9 exahash. Fear index at 33 while transaction volume holds steady at 56,263\u2014miners are accumulating conviction that retail panic is structural weakness, not signal. Watch mempool velocity at the next difficulty adjustment in 1,152 blocks.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $77,823 \u00b7 FNG 46 \u00b7 884.0 EH/s",
-    "generated_at": "2026-04-23T12:15:57.816559+00:00",
-    "expires_at": "2026-04-23T16:15:57.816559+00:00"
+    "topic_preview": "BTC $78,251 \u00b7 FNG 33 \u00b7 952.9 EH/s",
+    "generated_at": "2026-04-26T19:16:00.017574+00:00",
+    "expires_at": "2026-04-26T23:16:00.017574+00:00"
   },
   {
-    "id": "6c5e0559-25f4-47fa-b60a-7a0895a416a6",
+    "id": "a36f1ad4-8b4b-4d59-8276-0446eae362ce",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Quantum computing threat dominates Nostr discourse right now. Bitcoin's elliptic curve cryptography requires addressing \u2014 but not tomorrow. Watch for sustained discussion of threshold signatures and hash-based alternatives spreading across relay clusters.",
+    "script": "The network is running price narrative hard. Long-form technical threads are getting buried under momentum chasing. Watch whether node operators shift discourse back to base layer capacity in the next 72 hours \u2014 that's your signal the market's entered price-discovery mode versus liquidity flush.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Quantum computing threat to Bitcoin",
-    "generated_at": "2026-04-23T13:40:46.259632+00:00",
-    "expires_at": "2026-04-23T17:40:46.259632+00:00"
+    "topic_preview": "Bitcoin price momentum",
+    "generated_at": "2026-04-26T18:30:48.995929+00:00",
+    "expires_at": "2026-04-26T22:30:48.995929+00:00"
   },
   {
-    "id": "318e2c8b-1ccf-4205-be37-fc3a2a2ffd1e",
+    "id": "ad35b475-6d61-484a-a7a5-54b18b6b8f16",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The Bitcoin network has been operational for over 99.98 percent of its existence. No bank, no government system, no tech company can match that uptime. Decentralization isn't just philosophy \u2014 it's resilience.",
+    "script": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they commit capital, electricity, and hardware. When hash rate climbs to all-time highs, it means serious operators are betting their balance sheets on Bitcoin's future.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The Bitcoin network has been operational for over 99.98 percent of its existence",
-    "generated_at": "2026-04-23T11:36:14.855480+00:00",
-    "expires_at": "2026-04-23T15:36:14.855480+00:00"
-  },
-  {
-    "id": "475be4c2-be35-4ecd-b442-b07e3c763f57",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Multisig wallets eliminate single points of failure. A two-of-three setup means no single key compromise can drain your funds. This is how institutions are beginning to custody billions in bitcoin.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Multisig wallets eliminate single points of failure. A two-of-three setup means ",
-    "generated_at": "2026-04-23T12:11:09.026095+00:00",
-    "expires_at": "2026-04-23T16:11:09.026095+00:00"
+    "topic_preview": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they co",
+    "generated_at": "2026-04-26T19:26:05.906811+00:00",
+    "expires_at": "2026-04-26T23:26:05.906811+00:00"
   }
 ]

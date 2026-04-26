@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-04-26T02:00:31.793045+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Network Strength Before the Storm: Why Bitcoin's 952.9 EH/s Hashrate Matters More Than Price",
+      "angle": "Institutional accumulation signal hidden in hashrate stability amid market fear; miners aren't capitulating pre-halving",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "network-health",
+        "mining",
+        "halving",
+        "institutional"
+      ]
+    },
+    {
+      "headline": "The 1 Sat/Byte Paradox: Why Record-Low Fees Signal Retail Resilience in Bear Sentiment",
+      "angle": "Despite fear gauge at 33, low mempool fees indicate sustained small-holder activity\u2014a contrarian bullish indicator",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "retail",
+        "sentiment",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "53,334 Blocks to Halving: Why the Consolidation Phase Matters More Than Price Action",
+      "angle": "Bitcoin's flat trading amid network strength suggests patient capital positioning ahead of halving; halving runway analysis",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "block-height",
+        "consolidation",
+        "supply-shock"
+      ]
+    }
+  ]
+}

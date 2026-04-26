@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-04-26T18:00:28.923574+00:00",
+  "brief_type": "midday",
+  "score": 25,
+  "bullish_signals": [
+    "Robust hashrate at 952 EH/s despite bearish sentiment",
+    "No capitulation volume spikes observed",
+    "Minimal transaction fees (2 sat/byte) indicating calm conditions",
+    "Miner hands remain steady and disciplined",
+    "Network stability and consolidation pattern forming"
+  ],
+  "bearish_signals": [
+    "Fear & Greed Index at 33 (pure fear territory)",
+    "Only +1% gains over 24 hours (modest momentum)",
+    "Price still defended at $78k support level"
+  ],
+  "neutral_topics": [
+    "Mempool elevation at 62k transactions",
+    "Block height progression at 946,771"
+  ]
+}

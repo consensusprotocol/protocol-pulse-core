@@ -1,62 +1,60 @@
 {
-  "generated_at": "2026-04-22T00:00:00Z",
-  "date": "Wednesday, April 22, 2026",
-  "btc_price": "$78,840",
-  "btc_change_24h": "+5.2%",
+  "generated_at": "2026-04-26T00:00:00Z",
+  "date": "Sunday, April 26, 2026",
+  "btc_price": "$78,269",
+  "btc_change_24h": "+1.3%",
   "fng": "Fear",
   "dominant_narratives": [
-    "Bitcoin as macro hedge against infinite money printing and fiat collapse",
-    "Privacy infrastructure maturation: cluster mempool, Lightning adoption, self-custody emphasis",
-    "Institutional accumulation at scale (Saylor, Morgan Stanley) despite bearish funding rates",
-    "Geopolitical volatility (Iran/Israel, Russia legalization) driving safe-haven demand",
-    "Samourai/civil liberties narrative: Bitcoin as resistance to state surveillance and arrest overreach"
+    "Bitcoin as systemic hedge against macro instability and currency debasement",
+    "Lightning Network professionalization and institutional-grade payment infrastructure",
+    "Regulatory clarity as near-term catalyst—CLARITY Act momentum with bipartisan support",
+    "Self-sovereignty and individual autonomy as core value proposition versus 'digital sovereignty' framing",
+    "Self-custody imperative—coldcard/hardware wallet adoption as non-negotiable security practice"
   ],
   "trending_language": [
-    "Bears absolutely hate this rally",
-    "Seller exhaustion",
-    "Melt-up",
-    "46 straight days of negative funding",
-    "Fixed supply is the lifeboat",
-    "Privacy is power",
-    "Cluster mempool",
-    "Self-custody means it's all on you"
+    "There is no second best",
+    "Buy bitcoin, or you will be fucked",
+    "Withdraw to your coldcard, or you will be fucked",
+    "Individual Sovereignty (not digital sovereignty)",
+    "The ratio of capital goods to consumer goods",
+    "Collateral velocity is vanishing",
+    "Incentives and game theory, not morality",
+    "If you can't check the number yourself, it's rigged"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite Fear Index reading (32), on-chain behavior and institutional positioning contradict bearish signals. 46-day negative funding streak indicates bears capitulating; $5B YTD gains from Saylor alone, Morgan Stanley's $190M+ inflows since April 8, and sustained $78K+ price action during geopolitical shocks suggest accumulation phase dominance. Mixed creator consensus (bullish macro, bearish near-term) nets to cautious optimism.",
+  "sentiment_reasoning": "Despite Fear index at 33/100, Bitcoin community consensus remains conviction-driven and ideologically bullish on fundamentals. Macro skepticism (energy, debt reflexivity) is present but overwhelmed by regulatory clarity optimism, institutional adoption signals (Saylor/MicroStrategy), and philosophical alignment on self-custody as non-negotiable.",
   "top_accounts_active": [
-    "@MartyBent",
-    "@TFTC21",
     "@BitcoinArchive",
-    "@lopp",
+    "@MartyBent",
+    "@nvk",
+    "@TheGuySwann",
+    "@saifedean",
+    "@CaitlinLong_",
     "@saylor",
-    "@_Checkmatey_",
-    "@BitcoinMagazine",
-    "@sethforprivacy",
-    "@DocumentingBTC",
-    "@TheBitcoinConf"
+    "@lopp",
+    "@TomerStrolight",
+    "@BTCsessions"
   ],
   "recommended_tweet_angles": [
-    "Bears paying 6% annualized to short while Bitcoin grinds higher—longest negative funding streak since FTX collapse signals capitulation exhaustion, not conviction",
-    "Cluster mempool + Lightning everywhere: Bitcoin Core v31 ships privacy layer while institutions stack sats. Decentralization accelerates as adoption scales",
-    "Russia legalization, Morgan Stanley $190M+ inflows, Saylor on pace to break 2025 records—geopolitical instability + currency debasement = institutional capitulation to hard money",
-    "Samourai arrests frame Bitcoin as last defense against surveillance state. Privacy isn't optional—it's infrastructure. Self-custody is civil disobedience",
-    "Finney/Sassaman collaboration theory in Finding Satoshi resurfaces—philosophical continuity from cypherpunk origins matters as Bitcoin enters institutional era"
+    "Capital goods re-industrialization + Bitcoin as inflation hedge framework—connect Vissler's import ratio data to monetary debasement narrative",
+    "Regulatory clarity as reflexive catalyst—position CLARITY Act as inflection point for institutional capital deployment; avoid premature celebration",
+    "Lightning Network professionalization angle—Zeus report + Axiom copublish signals professional-grade payment layer maturation; contrast with custodial narratives",
+    "Self-custody as non-negotiable practice—double down on coldcard/hardware wallet messaging; frame as asymmetric risk reduction in uncertain macro",
+    "Individual sovereignty vs. digital sovereignty—semantic clarity on what 'sovereignty' actually means in Bitcoin context; avoid state-captured framing"
   ],
   "topics_to_avoid": [
-    "Altcoin speculation or shitcoin narratives (not trending, dilutes signal)",
-    "Geopolitical conflict analysis beyond Bitcoin-as-safe-haven framing (community fiercely divided on Middle East/Russia content; risks alienating holders)",
-    "Web3/DeFi 'agentas' and privacy theater (Seth for Privacy's 100-call exhaustion signals community fatigue with fake-privacy projects)"
+    "Quantum computing 'threats'—community consensus is that QDay Prize framing is predictably flawed; avoid amplifying FUD",
+    "Geopolitical commentary unrelated to Bitcoin policy (Israel/Palestine discourse bleeding into feeds; off-narrative)",
+    "Celebrity/personal security incidents (RFK/Trump evacuation)—noise, not signal",
+    "Virtue signaling through environmental/social narratives—community skeptical of performative activism",
+    "Altcoin/shitcoin discussions—no signal value in today's feed"
   ],
-  "engagement_patterns": "Data-backed contrarian takes dominate (funding rates, on-chain metrics, Saylor's portfolio performance). Macro/geopolitical framing outperforms pure technicals. Cypherpunk principles (privacy, civil liberties, self-sovereignty) drive moral urgency. Long-form Substack analysis and chart threads outperform quick takes. Dark humor about bears paying to lose resonates.",
-  "protocol_pulse_voice_guidance": "Lead with on-chain evidence of institutional capitulation (funding rates, whale accumulation, inflow data) masked as bearish fear. Frame Bitcoin as inevitable hedge, not speculation—connect to macro instability (fiat collapse, geopolitical shocks, surveillance states). Use cypherpunk moral language (freedom, sovereignty, privacy as power) without hectoring. Embed contrarian data points early (46-day funding streak, Saylor's pace, Morgan Stanley flows). Keep tone: sardonic about bears, matter-of-fact about technicals, uncompromising on privacy/liberty principles. Avoid cheerleading; let numbers speak.",
+  "engagement_patterns": "Direct, conviction-driven language with dark humor and profanity is resonating. Short, axiomatic statements outperform lengthy technical threads. Memes + philosophical anchoring > pure price speculation. Account credibility tied to demonstrable skin-in-the-game (coldcard usage, node running, actual mining). Sarcasm/mockery of institutional/regulatory capture getting high engagement.",
+  "protocol_pulse_voice_guidance": "Lean into unflinching, game-theoretic framing. Use Lopp's incentive-structure language and Swann's 'if you can't verify it, it's rigged' epistemology. Avoid corporate-speak entirely. When discussing regulatory clarity, position as necessary evil for capital allocation, not moral victory. Emphasize self-custody as survival, not preference. Reference macro data (import ratios, collateral velocity, credit risk) to anchor technical narrative in reality. Mock quantum FUD directly. Front-load conviction; assume audience is already bullish and seeking signal-to-noise ratio optimization.",
   "key_stats_today": {
-    "tweets_analyzed": 175,
+    "tweets_analyzed": 77,
     "nostr_signals": 0,
-    "unique_handles": 114,
-    "institutional_inflow_signals": 3,
-    "privacy_infrastructure_mentions": 4,
-    "geopolitical_catalysts_mentioned": 5,
-    "civil_liberties_narratives": 2
+    "unique_handles": 50
   },
   "generated_by": "claude_haiku"
 }

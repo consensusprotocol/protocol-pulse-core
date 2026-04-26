@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-04-23T18:00:31.504577+00:00",
+  "brief_type": "midday",
+  "score": 45,
+  "bullish_signals": [
+    "Hashrate holding firm at 884 EH/s despite price pullback",
+    "Fear index at 46 indicates caution without panic",
+    "Low transaction fees (4 sat/byte) suggest no urgency/freefall",
+    "Thin volume = weak hands not capitulating",
+    "Eight months to halving with historical precedent for consolidation before explosive moves"
+  ],
+  "bearish_signals": [
+    "Bitcoin down 2% overnight",
+    "66,000 transaction mempool backup suggests network congestion potential"
+  ],
+  "neutral_topics": [
+    "Low-energy trading environment",
+    "Near-term 77k-78k support zone testing"
+  ]
+}
