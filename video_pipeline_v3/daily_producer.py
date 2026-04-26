@@ -2283,9 +2283,27 @@ def main():
     # GPU-specific lock allows parallel instances on separate GPUs
     import os as _os
     _gpu_id = _os.environ.get('CUDA_VISIBLE_DEVICES', '0').replace(',','_')
-    lock_file = open(f"/tmp/daily_producer_gpu{_gpu_id}.lock", "w")
+    _lock_path = f"/tmp/daily_producer_gpu{_gpu_id}.lock"
+
+    # P0 Fix 1b: STALE LOCK detection — read PID before opening (open "w" truncates).
+    # If the recorded PID is no longer in /proc, the previous producer crashed
+    # without releasing the file lock; remove the file so flock can be re-acquired.
+    if _os.path.exists(_lock_path):
+        try:
+            with open(_lock_path, "r") as _existing_lf:
+                _existing_pid = _existing_lf.read().strip()
+            if _existing_pid and not _os.path.exists(f"/proc/{_existing_pid}"):
+                logger.warning(f"STALE LOCK: PID {_existing_pid} dead — removing {_lock_path}")
+                _os.remove(_lock_path)
+        except (ValueError, IOError, OSError) as _stale_err:
+            logger.warning(f"STALE LOCK check failed for {_lock_path}: {_stale_err}")
+
+    lock_file = open(_lock_path, "w")
     try:
         fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        # Record our PID so a future run can detect a stale lock if we crash.
+        lock_file.write(str(_os.getpid()))
+        lock_file.flush()
     except IOError:
         logger.error("Another daily_producer is already running. Exiting.")
         sys.exit(1)

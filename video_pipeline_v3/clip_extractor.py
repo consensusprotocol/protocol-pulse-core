@@ -444,7 +444,32 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
 
     logger.info(f"  Extracting {video_id} [{start_sec}-{end_sec}s]...")
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        # P0 FIX: timeout 120->300s; log stderr on failure; retry with 720p fallback.
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        if result.returncode != 0:
+            logger.error(
+                f"[extractor] yt-dlp FAILED for {video_id}: returncode={result.returncode} | "
+                f"stderr: {result.stderr[:500]}"
+            )
+            logger.info(f"[extractor] Retrying {video_id} with 720p fallback format...")
+            cmd_720 = list(cmd)
+            try:
+                _f_idx = cmd_720.index("-f")
+                cmd_720[_f_idx + 1] = (
+                    "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/"
+                    "bestvideo[height<=720]+bestaudio/best[height<=720]/best"
+                )
+            except ValueError:
+                pass
+            try:
+                result = subprocess.run(cmd_720, capture_output=True, text=True, timeout=300)
+                if result.returncode != 0:
+                    logger.error(
+                        f"[extractor] yt-dlp 720p RETRY also failed for {video_id}: "
+                        f"stderr: {result.stderr[:500]}"
+                    )
+            except subprocess.TimeoutExpired:
+                logger.error(f"[extractor] yt-dlp 720p RETRY timed out after 300s for {video_id}")
         if result.returncode == 0 and os.path.exists(output_path):
             # V30 FIX: yt-dlp --download-sections seeks video to keyframes but audio exactly.
             # Measure actual V/A start times and trim video to match audio start.
