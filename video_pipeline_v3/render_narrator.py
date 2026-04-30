@@ -93,7 +93,7 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0,
         "-vsync", "cfr", "-r", "30",
         "-c:a", "aac", "-ar", "48000",
         cfr_path,
-    ], "pip cfr pre-process", 120)
+    ], "pip cfr pre-process", 300)
     if cfr_ok and os.path.exists(cfr_path) and os.path.getsize(cfr_path) > 50_000:
         pip_source = cfr_path
         logger.info(f"PiP: CFR pre-processed {os.path.basename(clip_path)}")

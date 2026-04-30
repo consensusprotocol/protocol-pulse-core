@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "id": "tweet_20260429_170026_0",
+    "text": "Silent payments packed. Cashu packed. Private key management packed. Nobody's asking for permission to own their money anymore. The demand signal isn't privacy tech. It's the end of asking",
+    "angle": "institutional_flow",
+    "type": "observation",
+    "format": "fiat_failure",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-29T17:00:26.834813+00:00",
+    "brief_date": "Wednesday, April 29, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260430_020023_0",
+    "text": "930.7 EH/s hashrate while Fear sits at 29. Miners are accumulating at prices institutions are still afraid to touch. That gap closes fast",
+    "angle": "network_fundamentals",
+    "type": "signal",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-30T02:00:23.839531+00:00",
+    "brief_date": "Wednesday, April 29, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260430_170024_0",
+    "text": "Do you know what happens to your Bitcoin if the custodian holding it gets subpoenaed tomorrow",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-04-30T17:00:24.911503+00:00",
+    "brief_date": "Thursday, April 30, 2026",
+    "sentiment": "bullish"
+  }
+]

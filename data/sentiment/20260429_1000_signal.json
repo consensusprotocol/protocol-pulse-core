@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-04-29T10:00:33.140044+00:00",
+  "brief_type": "morning",
+  "score": 35,
+  "bullish_signals": [
+    "Fear & Greed Index at 26 (historically precedes rallies)",
+    "Hashrate stable at 933.9 EH/s (miner conviction)",
+    "Mempool clean with minimal congestion (no panic selling)",
+    "Low fee environment (1 sat/byte) enables on-chain activity",
+    "Overnight +1.5% gain despite fear",
+    "Consolidation rather than capitulation in Asia session"
+  ],
+  "bearish_signals": [
+    "Extreme fear sentiment dominance",
+    "Modest gains despite structural strength suggests hesitation",
+    "Risk appetite absent in current market conditions"
+  ],
+  "neutral_topics": [
+    "Asia session activity (consolidation phase)",
+    "Block height progression (technical checkpoint)"
+  ]
+}

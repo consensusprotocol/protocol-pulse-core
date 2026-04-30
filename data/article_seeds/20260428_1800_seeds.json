@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-04-28T18:00:29.038348+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Fear Gauge Hits 33: Why Bitcoin's On-Chain Strength Suggests Institutional Accumulation Ahead",
+      "angle": "Network fundamentals remain pristine while Fear & Greed signals capitulation\u2014analyzing whether this disconnect precedes recovery",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "fear-greed",
+        "institutional-flows",
+        "network-security"
+      ]
+    },
+    {
+      "headline": "$76k Hold-and-Wait: Bitcoin's Mempool Reveals the Absence of Panic",
+      "angle": "Sub-3-sat fees and clean transaction queue indicate no forced liquidations despite price pressure",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "technical-analysis",
+        "on-chain-metrics"
+      ]
+    },
+    {
+      "headline": "Consolidation or Capitulation? How 927 EH/s Hashrate Signals Miner Conviction",
+      "angle": "Miners aren't abandoning ship\u2014record hashrate during drawdown suggests they're pricing in recovery",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "network-security"
+      ]
+    }
+  ]
+}

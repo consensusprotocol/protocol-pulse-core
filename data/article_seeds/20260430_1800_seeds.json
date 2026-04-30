@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-30T18:00:31.148105+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Fear at 29: Why Bitcoin's Deepest Dread Could Signal the Next Rally",
+      "angle": "Historical analysis of accumulation cycles and Fear/Greed extremes as contrarian indicators",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "on-chain",
+        "accumulation",
+        "contrarian"
+      ]
+    },
+    {
+      "headline": "Halving Countdown: 50K Blocks Away, Miners Show Zero Weakness",
+      "angle": "Hashrate stability as institutional confidence signal heading into next epoch",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "halving",
+        "hashrate",
+        "institutional"
+      ]
+    },
+    {
+      "headline": "Mempool Signals Ordinal Cooling as Bitcoin Returns to Network Fundamentals",
+      "angle": "Why declining inscription activity could improve Bitcoin's utility and fee dynamics",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "ordinals",
+        "fees",
+        "network-health"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-29T10:00:33.140044+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Fear Paradox: Why Bitcoin's Strongest Rallies Start When Sentiment Hits Rock Bottom",
+      "angle": "Historical analysis of Fear & Greed Index readings below 30 and subsequent price action; current 26 reading as contrarian buy signal",
+      "tags": [
+        "bitcoin",
+        "sentiment-analysis",
+        "technical-analysis",
+        "fear-index"
+      ]
+    },
+    {
+      "headline": "Mining Conviction Never Wavers: Hashrate Stability as Bitcoin's True Macro Indicator",
+      "angle": "Why sustained hashrate (933.9 EH/s) matters more than retail panic; structural health vs. sentiment weakness",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "macro"
+      ]
+    },
+    {
+      "headline": "Clean Mempool, Empty Panic: The Absence of Capitulation Signals Institutional Positioning Becomes Critical",
+      "angle": "1 sat/byte fees and low transaction pressure indicate retail hasn't sold; focus shifts to where big money enters",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain",
+        "institutional"
+      ]
+    }
+  ]
+}

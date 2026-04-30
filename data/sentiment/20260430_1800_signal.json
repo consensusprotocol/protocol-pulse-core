@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-04-30T18:00:31.148105+00:00",
+  "brief_type": "midday",
+  "score": 45,
+  "bullish_signals": [
+    "Hashrate commitment at 857.9 EH/s despite price flatness",
+    "No cascade selling pressure in mempool",
+    "Reasonable fees indicate ordinal activity reduction",
+    "Deep fear typically precedes accumulation rallies",
+    "Network health solid with approaching halving catalyst (50K blocks)"
+  ],
+  "bearish_signals": [
+    "Fear and Greed at 29 shows retail capitulation",
+    "Thin volume limits conviction for upside"
+  ],
+  "neutral_topics": [
+    "Price holding $76K sideways",
+    "Mempool congestion (104K txs) without fee pressure"
+  ]
+}

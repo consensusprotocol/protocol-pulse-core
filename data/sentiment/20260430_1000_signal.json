@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-04-30T10:00:32.987155+00:00",
+  "brief_type": "morning",
+  "score": 15,
+  "bullish_signals": [
+    "Fear & Greed at 29 indicates capitulation, historically attractive for accumulation",
+    "Network hashrate holding steady at 858 exahashes shows miner confidence",
+    "Clean mempool with low base fees (3 sat/vB) suggests no forced liquidation pressure",
+    "Consolidation phase often precedes relief bounces"
+  ],
+  "bearish_signals": [
+    "2% overnight decline with $76K support being tested",
+    "Potential break below $76K could cascade to $74-75K",
+    "Low trading activity during Asia session suggests uncertainty"
+  ],
+  "neutral_topics": [
+    "Regulatory environment remains quiet",
+    "94k transaction backlog is manageable"
+  ]
+}

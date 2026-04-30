@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-04-27T18:00:29.821590+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "The Corporate Bitcoin Fortress: 14% of Supply Now Locked in Institutional Vaults",
+      "angle": "Deep dive into institutional accumulation patterns, self-custody trends, and what 14% threshold means for supply scarcity",
+      "tags": [
+        "bitcoin",
+        "institutions",
+        "custody",
+        "accumulation",
+        "supply"
+      ]
+    },
+    {
+      "headline": "Halving Front-Running: Why Institutions Are Stockpiling Before Supply Shock",
+      "angle": "Analysis of institutional positioning ahead of block 946,903 and cascading shortage scenarios",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "institutions",
+        "supply-shock",
+        "scarcity"
+      ]
+    },
+    {
+      "headline": "Monetary Exhaustion Meets Censorship Resistance: Fed Policy Driving Corporate Self-Custody",
+      "angle": "How Fed rate limits and policy limits are creating institutional demand for non-custodial Bitcoin holdings",
+      "tags": [
+        "bitcoin",
+        "fed",
+        "monetary-policy",
+        "self-custody",
+        "institutions"
+      ]
+    },
+    {
+      "headline": "The Mempool Whisper: Tight Fees at 2 sat/vB Signal Accumulation, Not Capitulation",
+      "angle": "On-chain metrics suggesting institutional buying continues while retail sentiment remains neutral",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "accumulation",
+        "on-chain"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-04-27T10:00:32.211927+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The 14% Threshold: How Institutional Hoarding Rewrites Bitcoin's Supply Story",
+      "angle": "Institutional accumulation has reached unprecedented levels\u2014exploring what happens when corporate treasuries control over 14% of Bitcoin supply and how this structural shift differs from retail-driven cycles.",
+      "tags": [
+        "bitcoin",
+        "institutions",
+        "supply-dynamics",
+        "corporate-treasury"
+      ]
+    },
+    {
+      "headline": "Fed Exhaustion Accelerates Corporate Bitcoin Adoption\u2014But at What Cost?",
+      "angle": "As monetary policy constraints push treasuries toward self-custody, examining the macro thesis driving $100K price targets and the regulatory/social externalities being overlooked.",
+      "tags": [
+        "bitcoin",
+        "fed-policy",
+        "macro",
+        "corporate-adoption",
+        "regulation"
+      ]
+    },
+    {
+      "headline": "Hashrate as Institutional Confidence: Why 1,006 EH/s Matters More Than Price",
+      "angle": "Network security strength signals institutional commitment to Bitcoin infrastructure\u2014analyzing why hashrate trends outweigh short-term volatility as a leading indicator.",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "network-security",
+        "infrastructure"
+      ]
+    }
+  ]
+}

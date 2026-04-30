@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-04-20T18:08:41.376465+00:00",
-  "fetch_ms": 9913,
+  "updated_at": "2026-04-29T02:00:52.545832+00:00",
+  "fetch_ms": 51690,
   "score": 88,
   "label": "HIGH",
   "crypto_committees": 13,
   "states_active": 3,
-  "fairshake_spend": 26871125.53,
-  "fairshake_raised": 134043371.71,
+  "fairshake_spend": 33065935.71,
+  "fairshake_raised": 134606729.32,
   "fairshake_expenditures": [
     {
       "pac": "Fairshake PAC",

@@ -1,60 +1,55 @@
 {
-  "generated_at": "2026-04-26T00:00:00Z",
-  "date": "Sunday, April 26, 2026",
-  "btc_price": "$78,269",
+  "generated_at": "2026-04-30T00:00:00Z",
+  "date": "Thursday, April 30, 2026",
+  "btc_price": "$76,415",
   "btc_change_24h": "+1.3%",
   "fng": "Fear",
   "dominant_narratives": [
-    "Bitcoin as systemic hedge against macro instability and currency debasement",
-    "Lightning Network professionalization and institutional-grade payment infrastructure",
-    "Regulatory clarity as near-term catalyst—CLARITY Act momentum with bipartisan support",
-    "Self-sovereignty and individual autonomy as core value proposition versus 'digital sovereignty' framing",
-    "Self-custody imperative—coldcard/hardware wallet adoption as non-negotiable security practice"
+    "Bitcoin as humanitarian tool in authoritarian regimes (El Salvador press freedom collapse, Myanmar detention, Palestinian displacement narratives)",
+    "Macroeconomic instability driving institutional accumulation (Fed rate cut expectations, currency intervention signals, treasury looting phase)",
+    "Post-quantum cryptography maturation and technical protocol expansion (SHRINCS/SHRIMPS live, BitVM tokenization, LDK server-side node support)"
   ],
   "trending_language": [
-    "There is no second best",
-    "Buy bitcoin, or you will be fucked",
-    "Withdraw to your coldcard, or you will be fucked",
-    "Individual Sovereignty (not digital sovereignty)",
-    "The ratio of capital goods to consumer goods",
-    "Collateral velocity is vanishing",
-    "Incentives and game theory, not morality",
-    "If you can't check the number yourself, it's rigged"
+    "gigawatt pricing",
+    "airgapped isn't a buzzword",
+    "you can just do things",
+    "digital yield backed by Bitcoin",
+    "looting the treasury phase",
+    "freedom tech",
+    "white-glove Bitcoin mining"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite Fear index at 33/100, Bitcoin community consensus remains conviction-driven and ideologically bullish on fundamentals. Macro skepticism (energy, debt reflexivity) is present but overwhelmed by regulatory clarity optimism, institutional adoption signals (Saylor/MicroStrategy), and philosophical alignment on self-custody as non-negotiable.",
+  "sentiment_reasoning": "Despite Fear index (29/100), creator consensus is 66.6/100 bullish on price trajectory. Macro anxiety (currency intervention, geopolitical oil, government spending) is being interpreted as *favorable* to Bitcoin adoption, not as headwind. Low FNG reading contradicts creator optimism—signal disconnect suggests informed accumulation vs. retail caution.",
   "top_accounts_active": [
-    "@BitcoinArchive",
-    "@MartyBent",
-    "@nvk",
-    "@TheGuySwann",
-    "@saifedean",
-    "@CaitlinLong_",
+    "@knutsvanholm",
     "@saylor",
-    "@lopp",
-    "@TomerStrolight",
-    "@BTCsessions"
+    "@LynAldenContact",
+    "@BTCsessions",
+    "@BitcoinArchive",
+    "@gladstein",
+    "@apyx_fi",
+    "@Blockstream",
+    "@CoinDesk",
+    "@lopp"
   ],
   "recommended_tweet_angles": [
-    "Capital goods re-industrialization + Bitcoin as inflation hedge framework—connect Vissler's import ratio data to monetary debasement narrative",
-    "Regulatory clarity as reflexive catalyst—position CLARITY Act as inflection point for institutional capital deployment; avoid premature celebration",
-    "Lightning Network professionalization angle—Zeus report + Axiom copublish signals professional-grade payment layer maturation; contrast with custodial narratives",
-    "Self-custody as non-negotiable practice—double down on coldcard/hardware wallet messaging; frame as asymmetric risk reduction in uncertain macro",
-    "Individual sovereignty vs. digital sovereignty—semantic clarity on what 'sovereignty' actually means in Bitcoin context; avoid state-captured framing"
+    "The Fear Index says 29. The Fed intervention rate says otherwise. While retail sleeps, institutions watch central banks burn ammo. What happens when the BOJ playbook runs dry?",
+    "Post-quantum Bitcoin isn't coming. It's *live*. March 2026 = first post-quantum tx on mainnet. While quantum FUD peddlers talk, Bitcoin shipped. That's the difference.",
+    "El Salvador's press freedom fell 69 positions since Bitcoin adoption. Myanmar, Palestine, Iran—Bitcoin thrives where states fail. This isn't price narrative. This is sovereignty narrative.",
+    "Gigawatt pricing. $125M STRC holdings. Digital yield on Bitcoin. The DeFi conversation moved from 'will Bitcoin scale' to 'how do we price Bitcoin infrastructure.' Layer 2 is eating L1's lunch.",
+    "Three veteran devs on record. Primary sources. Receipts. Adam Back asked 'why didn't you just talk to developers?' The answer is you did—and documented it. Receipts > rhetoric."
   ],
   "topics_to_avoid": [
-    "Quantum computing 'threats'—community consensus is that QDay Prize framing is predictably flawed; avoid amplifying FUD",
-    "Geopolitical commentary unrelated to Bitcoin policy (Israel/Palestine discourse bleeding into feeds; off-narrative)",
-    "Celebrity/personal security incidents (RFK/Trump evacuation)—noise, not signal",
-    "Virtue signaling through environmental/social narratives—community skeptical of performative activism",
-    "Altcoin/shitcoin discussions—no signal value in today's feed"
+    "El Salvador's authoritarian governance crackdown as pro-Bitcoin narrative (geopolitical risk to adoption, limits legitimacy for freedom tech angle)",
+    "Speculative mining yield plays without custody/security framework emphasis (retail FOMO trap, contradicts cypherpunk values)",
+    "Vague macroeconomic doom without Bitcoin-specific transmission mechanisms (noise, not signal)"
   ],
-  "engagement_patterns": "Direct, conviction-driven language with dark humor and profanity is resonating. Short, axiomatic statements outperform lengthy technical threads. Memes + philosophical anchoring > pure price speculation. Account credibility tied to demonstrable skin-in-the-game (coldcard usage, node running, actual mining). Sarcasm/mockery of institutional/regulatory capture getting high engagement.",
-  "protocol_pulse_voice_guidance": "Lean into unflinching, game-theoretic framing. Use Lopp's incentive-structure language and Swann's 'if you can't verify it, it's rigged' epistemology. Avoid corporate-speak entirely. When discussing regulatory clarity, position as necessary evil for capital allocation, not moral victory. Emphasize self-custody as survival, not preference. Reference macro data (import ratios, collateral velocity, credit risk) to anchor technical narrative in reality. Mock quantum FUD directly. Front-load conviction; assume audience is already bullish and seeking signal-to-noise ratio optimization.",
+  "engagement_patterns": "Direct, receipts-based language outperforms hype. @hodlonaut's defense via primary sources (three dev names) outpaced speculation. @lopp's 'you can just do things' aphorism (3-word wisdom) resonates. Technical shipping announcements (@spiralbtc LDK, @maximalistus SHRIMPS) get engagement when paired with *real-world utility frame* not price speculation. Humanitarian angle (@gladstein, @BitcoinArchive Myanmar/Palestine context) high-engagement but carries geopolitical liability. Macro macro macro—BOJ, Fed, currency intervention signals dominate sentiment context, not on-chain metrics.",
+  "protocol_pulse_voice_guidance": "Sound like someone who reads receipts, not press releases. Lead with first-principles macro (currency wars, treasury debasement, geopolitical oil) *then* Bitcoin's response. Reject both utopianism and doomerism—data doesn't fit either narrative cleanly. Use the 'gigawatt' frame: Bitcoin won so early that units of analysis (pricing in watts) have shifted. Cypherpunk edge: emphasize *builders shipping* (LDK, post-quantum, BitVM) over traders speculating. When touching humanitarian angle, name the contradiction (freedom tech + authoritarian regimes adopting it = governance paradox). Expect retail fear disconnect from creator conviction—signal the gap without moralizing.",
   "key_stats_today": {
-    "tweets_analyzed": 77,
+    "tweets_analyzed": 168,
     "nostr_signals": 0,
-    "unique_handles": 50
+    "unique_handles": 124
   },
   "generated_by": "claude_haiku"
 }

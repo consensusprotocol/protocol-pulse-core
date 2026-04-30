@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-29T18:00:31.832792+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Fear & Greed at 26: Why This Bitcoin Consolidation Could Be a Buying Signal",
+      "angle": "Historical analysis of accumulation phases during fear extremes; contrast capitulation vs. healthy skepticism",
+      "tags": [
+        "bitcoin",
+        "fear-and-greed",
+        "on-chain",
+        "accumulation",
+        "sentiment"
+      ]
+    },
+    {
+      "headline": "Hashrate Resilience: Why Miners Aren't Panicking at $75,946",
+      "angle": "Deep dive into miner behavior, network commitment, and what strong hashrate signals during consolidation",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "network-strength",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "The Mempool Tells the Truth: Why Bitcoin's Clean 6 sat/vB Fees Are Bullish",
+      "angle": "Mempool analysis as leading indicator; how fee compression + network activity reveal real demand patterns",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network-health",
+        "technical"
+      ]
+    }
+  ]
+}

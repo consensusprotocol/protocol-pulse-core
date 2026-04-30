@@ -1,11 +1,13 @@
 {
-  "generated_at": "2026-04-26T18:00:28.923574+00:00",
+  "generated_at": "2026-04-30T18:00:31.148105+00:00",
   "brief_type": "midday",
   "bullets": [
-    "Hashrate stability at 952 EH/s = miner conviction; watch for ANY drop below 900 EH/s as true capitulation signal",
-    "Mempool at 62k txns + 2 sat/byte fees = ideal friction point for whale movements; monitor next 72 hours for large on-chain activity",
-    "No volume capitulation spikes at block 946,771 = market structure intact; $78k is the battle line\u2014break below triggers reassessment"
+    "Fear/Greed at 29 = classic accumulation floor; breakout likely when reading exceeds 35",
+    "Hashrate at 857.9 EH/s proves miners are net-long despite $76K range-bound price",
+    "Mempool unclogged at 7 sat/vB = ordinal volume fading; network prioritizing base-layer efficiency",
+    "50K blocks to halving = institutional positioning window; watch for accumulation acceleration",
+    "Thin volume + solid network health = setup phase, not stagnation"
   ],
-  "sentiment_score": 25,
-  "brief_summary": "# BITCOIN MIDDAY BRIEF\n\nBitcoin's holding steady at seventy-eight thousand, up a single percent over twenty-four hours\u2014modest gains in what's clearly a cautious market. Fear and Greed sitting at thirty-three tells you everything: pure fear territory.\n\nHere's what matters: hashrate remains robust at "
+  "sentiment_score": 45,
+  "brief_summary": "**BITCOIN MIDDAY BRIEF**\n\nBTC holding $76K after a flat morning\u2014barely moving on 0.3% gains. Fear and Greed at 29: pure fear territory, and it's showing in the data.\n\nHere's what matters: Mempool's congested with 104K transactions backed up, but fees remain reasonable at 7 sat/vB for fastest confirm"
 }

@@ -1,53 +1,52 @@
 [
   {
-    "id": "57dd9288-ad12-49e3-8c4b-66be04a54642",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "# BITCOIN MIDDAY BRIEF\n\nBitcoin's holding steady at seventy-eight thousand, up a single percent over twenty-four hours\u2014modest gains in what's clearly a cautious market. Fear and Greed sitting at thirty-three tells you everything: pure fear territory.\n\nHere's what matters: hashrate remains robust at ",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE MIDDAY",
-    "topic_preview": "Oracle Midday Brief \u2014 $78,035",
-    "generated_at": "2026-04-26T18:00:04.849074+00:00",
-    "expires_at": "2026-04-26T22:00:04.849074+00:00",
-    "video_url": "/data/stage_briefs/brief_20260426_1800.mp4"
-  },
-  {
-    "id": "c28a43b7-8af9-4cae-bcb2-f62d80727dc2",
+    "id": "c470768c-bff3-4fdf-92bf-fb187662d6e4",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "PROTOCOL PULSE \u2014 THOUGHT LEADER SIGNAL\n\nNatalie Brunell endorsing privacy consultation frameworks. Signal: established voices treating operational security as infrastructure, not paranoia.\n\nWatch for migration velocity\u2014how many serious holders are actually implementing node + wallet separation versus performative HODL.",
-    "source_label": "\ud83e\udde0 @NATBRUNELL",
-    "topic_preview": "R to @natbrunell: Highly recommend @Thebitcoinway_ for privacy how-to consultati",
-    "generated_at": "2026-04-26T19:30:31.145583+00:00",
-    "expires_at": "2026-04-26T21:30:31.145583+00:00"
+    "script": "gladstein just invited the network to the FGU stage in Vegas. This signals Foundation leadership consolidating real-world coordination infrastructure\u2014conferences matter when they're about nodes, not narratives.\n\nWatch whether attendance patterns shift toward technical builders or promotional flotsam.",
+    "source_label": "\ud83e\udde0 @GLADSTEIN",
+    "topic_preview": "Come by our FGU stage in Vegas \u270c\ufe0f",
+    "generated_at": "2026-04-30T21:50:29.566430+00:00",
+    "expires_at": "2026-04-30T23:50:29.566430+00:00"
   },
   {
-    "id": "fa5f3e69-b4fb-4c0e-ab1b-f1ff99923c4c",
+    "id": "755b1014-11ae-4b60-afd5-7f35318bc0fa",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "PROTOCOL PULSE \u2014 METRICS SEGMENT\n\nHashrate at 952.9 exahash. Fear index at 33 while transaction volume holds steady at 56,263\u2014miners are accumulating conviction that retail panic is structural weakness, not signal. Watch mempool velocity at the next difficulty adjustment in 1,152 blocks.",
+    "script": "Fear gauge at 29\u2014capitulation pricing in effect. Hashrate holding 857.9 exahash despite sideways price, miners still committed to the protocol.\n\nWatch for sustained hashrate through next difficulty adjustment. Cheapest fees in weeks signal consolidation phase, not network stress.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $78,251 \u00b7 FNG 33 \u00b7 952.9 EH/s",
-    "generated_at": "2026-04-26T19:16:00.017574+00:00",
-    "expires_at": "2026-04-26T23:16:00.017574+00:00"
+    "topic_preview": "BTC $76,268 \u00b7 FNG 29 \u00b7 857.9 EH/s",
+    "generated_at": "2026-04-30T22:51:04.448256+00:00",
+    "expires_at": "2026-05-01T02:51:04.448256+00:00"
   },
   {
-    "id": "a36f1ad4-8b4b-4d59-8276-0446eae362ce",
+    "id": "2c41c0dc-b45a-49cd-bc65-7f01c6dffedf",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "The network is running price narrative hard. Long-form technical threads are getting buried under momentum chasing. Watch whether node operators shift discourse back to base layer capacity in the next 72 hours \u2014 that's your signal the market's entered price-discovery mode versus liquidity flush.",
+    "script": "The Nostr relay chatter is locked on community expansion and personnel moves. This is noise masking what matters: whether nodes are actually running the software, or if we're watching brand building disguised as adoption.\n\nWatch for: actual relay infrastructure metrics\u2014uptime, message volume, verification of non-custodial operations\u2014not headcount announcements.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Bitcoin price momentum",
-    "generated_at": "2026-04-26T18:30:48.995929+00:00",
-    "expires_at": "2026-04-26T22:30:48.995929+00:00"
+    "topic_preview": "Community growth and team milestones",
+    "generated_at": "2026-04-30T22:06:01.507949+00:00",
+    "expires_at": "2026-05-01T02:06:01.507949+00:00"
   },
   {
-    "id": "ad35b475-6d61-484a-a7a5-54b18b6b8f16",
+    "id": "6cc6c768-a58c-4b49-95e1-606a05de4512",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they commit capital, electricity, and hardware. When hash rate climbs to all-time highs, it means serious operators are betting their balance sheets on Bitcoin's future.",
+    "script": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermediaries, no permission required. For the first time in digital history, we have bearer assets that move at the speed of light.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they co",
-    "generated_at": "2026-04-26T19:26:05.906811+00:00",
-    "expires_at": "2026-04-26T23:26:05.906811+00:00"
+    "topic_preview": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermedia",
+    "generated_at": "2026-04-30T22:36:14.373647+00:00",
+    "expires_at": "2026-05-01T02:36:14.373647+00:00"
+  },
+  {
+    "id": "55693b41-a3ac-4d4d-a92d-e9b448750e57",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Bitcoin is the only monetary network in history that operates with zero counterparty risk. Every ten minutes, a new block confirms that no single entity controls the ledger. That's not a feature \u2014 that's a paradigm shift in how humans coordinate value across trust boundaries.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Bitcoin is the only monetary network in history that operates with zero counterp",
+    "generated_at": "2026-04-30T22:46:11.753124+00:00",
+    "expires_at": "2026-05-01T02:46:11.753124+00:00"
   }
 ]

@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-25T12:00:35.059040+00:00",
-  "creator_count": 13,
-  "avg_sentiment_score": 59.5,
+  "generated_at": "2026-04-27T12:00:35.179294+00:00",
+  "creator_count": 7,
+  "avg_sentiment_score": 66.6,
   "sentiment_breakdown": {
-    "bullish": 6,
+    "bullish": 5,
     "bearish": 1,
-    "neutral": 6
+    "neutral": 1
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "capitalism definition and principles",
+      "topic": "quantum computing threat",
       "creator_count": 1,
       "creators": [
-        "Saifedean Ammous"
+        "Stacker News"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
     },
     {
-      "topic": "stock markets as litmus test for capitalist economies",
+      "topic": "coin freezing mechanism",
       "creator_count": 1,
       "creators": [
-        "Saifedean Ammous"
+        "Stacker News"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
     },
     {
-      "topic": "capital allocation efficiency",
+      "topic": "51% attack scenario",
       "creator_count": 1,
       "creators": [
-        "Saifedean Ammous"
+        "Stacker News"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
     },
     {
-      "topic": "division of labor in capital production",
+      "topic": "mining pool incentives",
       "creator_count": 1,
       "creators": [
-        "Saifedean Ammous"
+        "Stacker News"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
     },
     {
-      "topic": "property rights and free markets",
+      "topic": "long-term Bitcoin security",
       "creator_count": 1,
       "creators": [
-        "Saifedean Ammous"
+        "Stacker News"
       ],
-      "avg_sentiment_score": 75.0,
-      "example_quote": "if capital allocation is determined by capital owners who are free to buy and sell capital, then you have capitalism"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Nearly all speakers are bullish on Bitcoin's fundamental value and adoption trajectory (most ranging 65-78/100), citing macro instability, institutional interest, and technical innovation as drivers. There's broad agreement that Bitcoin serves important roles\u2014whether as capital allocation tool, inflation hedge, or security asset.\n\n**Key Divergences:** \n\n1. **Macro Timing & Risk**: Optimists (Altcoin Daily, Simply Bitcoin) see imminent catalysts (Fed dovishness, AI deflation, regulatory clarity), while pessimists (BTC Sessions, Coin Bureau) emphasize near-term dangers\u2014energy crises, debt, and reflexive collapse risks in leveraged Bitcoin-dependent schemes like MicroStrategy.\n\n2. **Bitcoin's Purpose**: Ideological split between free-market capitalists (Ammous) viewing Bitcoin as enabling efficient capital deployment versus macro hedgers (BTC Sessions) seeing it primarily as crisis insurance. Military/security-focused views (Simply Bitcoin) diverge sharply from both.\n\n3. **Governance Philosophy**: Stacker News advocates grassroots community consensus over special-interest soft fork proposals, contrasting with top-down institutional adoption narratives elsewhere.\n\n4. **Market Mechanics**: TFTC's duration/credit risk framework challenges simple M2-driven narratives, introducing complexity most other speakers overlook.\n\n**Bottom Line:** Bullish on Bitcoin's role, but sharp disagreement on *why*, *when*, and *how much* current valuations reflect genuine adoption versus speculative cycles.",
+  "summary": "# Bitcoin Creator Consensus and Divergence Summary\n\n**Consensus:** Bitcoin creators broadly agree on Bitcoin's fundamental value proposition\u2014whether as protection against monetary debasement (money printing concerns), geopolitical instability, or quantum threats\u2014and most expect bullish price action driven by institutional adoption and macroeconomic pressures.\n\n**Key Divergence:** While most sources are bullish on Bitcoin's price and utility, they diverge sharply on *why* and *when*. Swan Bitcoin and Altcoin Daily expect near-term gains from Fed rate cuts and institutional accumulation, while BTC Sessions warns of severe inflation from unsustainable government spending that could actually harm Bitcoin's purchasing power in the short term. Additionally, Stacker News raises a critical technical debate about whether the Bitcoin community should *proactively manage* quantum risk or trust market mechanisms\u2014a governance question that contrasts with other sources' focus on price and adoption.\n\n**Emerging Narrative:** Beyond price, Bitcoin Magazine emphasizes Bitcoin's humanitarian role in unstable regimes and BitVM's technical expansion, suggesting the conversation is maturing beyond speculation toward real-world utility and protocol innovation.",
   "top_creators": [
-    {
-      "channel": "Saifedean Ammous",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "Capitalism, enabled by free markets and stock markets for capital allocation, is the most efficient system for productive capital deployment and economic growth. Property rights and decentralized capital decisions by owners (not government) drive prosperity."
-    },
-    {
-      "channel": "TFTC",
-      "sentiment": "bullish",
-      "score": 72,
-      "thesis": "Bitcoin has asymmetric upside potential for institutional investors despite quantum computing risks. The best cryptographers in the world are working on Bitcoin security solutions to address these concerns."
-    },
-    {
-      "channel": "BTC Sessions",
-      "sentiment": "mixed",
-      "score": 35,
-      "thesis": "Bitcoin serves as a hedge against macro instability including energy crises, inflation, and government policy failures. While near-term conditions appear dire (energy crisis, debt, rising prices), Bitcoin's fixed supply provides protection."
-    },
-    {
-      "channel": "Coin Bureau",
-      "sentiment": "bearish",
-      "score": 15,
-      "thesis": "MicroStrategy operates a reflexive capital cycle dependent on Bitcoin appreciation and continuous equity dilution that functions as a Ponzi-like scheme; if Bitcoin stops appreciating or the stock trades at NAV discount, the model collapses and threatens broader crypto market stability."
-    },
     {
       "channel": "Stacker News",
       "sentiment": "neutral",
-      "score": 45,
-      "thesis": "Soft forks should only be implemented when genuinely needed for consensus cleanup or essential security fixes, not speculatively. Much of the current soft fork discussion appears driven by special interests rather than grassroots community consensus."
+      "score": 50,
+      "thesis": "Bitcoin community debates whether to proactively freeze quantum-vulnerable coins (20% of supply) to prevent theft by future quantum computers, or allow the market to handle the threat naturally."
+    },
+    {
+      "channel": "Swan Bitcoin",
+      "sentiment": "bullish",
+      "score": 75,
+      "thesis": "Bitcoin will benefit from Fed rate cuts once inflation becomes more explicable and geopolitical oil chaos subsides. Kevin Warsh will cut rates using AI productivity gains and trimmed inflation metrics as intellectual cover, which is bullish for Bitcoin as the hardest asset."
+    },
+    {
+      "channel": "Bitcoin Magazine",
+      "sentiment": "bullish",
+      "score": 78,
+      "thesis": "Bitcoin is not merely a speculative asset in stable economies, but a critical survival tool for people in unstable regimes and conflict zones where traditional banking systems cannot be trusted. Western media misrepresents Bitcoin by focusing on negative use cases rather than understanding its humanitarian and protective value."
+    },
+    {
+      "channel": "Bitcoin Magazine",
+      "sentiment": "bullish",
+      "score": 75,
+      "thesis": "BitVM with binohasher enables transaction introspection on Bitcoin without requiring full chain proofs, allowing secure cross-chain bridges and expanding Bitcoin's programmability through clever cryptographic primitives."
+    },
+    {
+      "channel": "BTC Sessions",
+      "sentiment": "bearish",
+      "score": 15,
+      "thesis": "The U.S. faces inevitable large-scale money printing due to unsustainable debt dynamics, with government spending on military, interest, and entitlements leaving no cuts possible, forcing monetary expansion that will be highly inflationary\u2014especially problematic during supply-side constraints rather than demand-side stimulus."
     }
   ]
 }

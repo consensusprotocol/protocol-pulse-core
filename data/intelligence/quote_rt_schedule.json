@@ -85,8 +85,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "This is what actual monetary independence looks like. No central point of failure because there is no center.",
     "scheduled_at": "2026-04-26T02:00:15.823652+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-26T22:00:02.868066+00:00",
     "created_at": "2026-04-24T18:00:15.823652+00:00"
   },
   {
@@ -95,8 +95,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone focuses on price. Nobody talks about how the network just keeps getting harder to attack while they sleep.",
     "scheduled_at": "2026-04-26T10:00:15.823652+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-27T04:00:02.948269+00:00",
     "created_at": "2026-04-24T18:00:15.823652+00:00"
   },
   {
@@ -105,8 +105,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "If math is impossible, every stablecoin is just a slow motion bank run waiting for the moment nobody believes anymore",
     "scheduled_at": "2026-04-26T02:00:15.982325+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-27T19:00:02.788076+00:00",
     "created_at": "2026-04-25T18:00:15.982325+00:00"
   },
   {
@@ -115,8 +115,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Funny how the ones claiming mathematical purity still need humans to vote on parameters every few months",
     "scheduled_at": "2026-04-26T10:00:15.982325+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-27T22:00:03.442661+00:00",
     "created_at": "2026-04-25T18:00:15.982325+00:00"
   },
   {
@@ -125,8 +125,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The mechanism doesn't matter if the counterparty can always print. Decentralization without removing intermediaries is theater",
     "scheduled_at": "2026-04-26T18:00:15.982325+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-28T04:00:02.956919+00:00",
     "created_at": "2026-04-25T18:00:15.982325+00:00"
   },
   {
@@ -135,8 +135,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Money that requires faith in its stability is just currency with extra steps. Bitcoin removed the need to believe",
     "scheduled_at": "2026-04-27T02:00:15.982325+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-28T19:00:03.361394+00:00",
     "created_at": "2026-04-25T18:00:15.982325+00:00"
   },
   {
@@ -145,8 +145,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone building decentralized stablecoins is solving for the wrong variable. They want price stability. Bitcoin wanted financial sovereignty",
     "scheduled_at": "2026-04-27T10:00:15.982325+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-28T22:00:02.873893+00:00",
     "created_at": "2026-04-25T18:00:15.982325+00:00"
   },
   {
@@ -155,8 +155,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "They didn't panic sell at -20%. They sold at +10%. That's not weakness, that's discipline masquerading as profit taking.",
     "scheduled_at": "2026-04-27T02:00:17.251216+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-29T04:00:02.911131+00:00",
     "created_at": "2026-04-26T18:00:17.251216+00:00"
   },
   {
@@ -165,8 +165,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The real tell: long-term holders take losses silently but sell gains quietly. Nobody announces either move.",
     "scheduled_at": "2026-04-27T10:00:17.251216+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-29T19:00:02.702070+00:00",
     "created_at": "2026-04-26T18:00:17.251216+00:00"
   },
   {
@@ -175,8 +175,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Distribution happens in green candles, not red ones. Check who's moving coins when price recovers, not when it crashes.",
     "scheduled_at": "2026-04-27T18:00:17.251216+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-29T22:00:03.322606+00:00",
     "created_at": "2026-04-26T18:00:17.251216+00:00"
   },
   {
@@ -185,8 +185,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Bitcoin accumulates through those willing to hold worthless paper while watching their net worth evaporate. Conviction is the filter.",
     "scheduled_at": "2026-04-28T02:00:17.251216+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-04-30T04:00:02.973810+00:00",
     "created_at": "2026-04-26T18:00:17.251216+00:00"
   },
   {
@@ -195,8 +195,208 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone focuses on who buys the dip. The pattern that matters is who refuses to sell the rip.",
     "scheduled_at": "2026-04-28T10:00:17.251216+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-30T19:00:02.852277+00:00",
+    "created_at": "2026-04-26T18:00:17.251216+00:00"
+  },
+  {
+    "anchor_id": "354",
+    "anchor_text": "904.1 EH/s network hashrate. Fees at 1 sat/vB. The hardware's screaming but nobody's listening. That's where you find real conviction",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Peak hashrate with basement fees. That's not noise, that's the market pricing in something the mainstream can't see yet.",
+    "scheduled_at": "2026-04-28T02:00:15.993572+00:00",
+    "status": "dry_run",
+    "posted_at": "2026-04-30T22:00:03.315143+00:00",
+    "created_at": "2026-04-27T18:00:15.993572+00:00"
+  },
+  {
+    "anchor_id": "354",
+    "anchor_text": "904.1 EH/s network hashrate. Fees at 1 sat/vB. The hardware's screaming but nobody's listening. That's where you find real conviction",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The network's running at full throttle while fees collapse. Almost like the real users never left.",
+    "scheduled_at": "2026-04-28T10:00:15.993572+00:00",
     "status": "pending",
     "posted_at": null,
-    "created_at": "2026-04-26T18:00:17.251216+00:00"
+    "created_at": "2026-04-27T18:00:15.993572+00:00"
+  },
+  {
+    "anchor_id": "354",
+    "anchor_text": "904.1 EH/s network hashrate. Fees at 1 sat/vB. The hardware's screaming but nobody's listening. That's where you find real conviction",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "904.1 EH/s securing a chain where transactions cost fractions of a penny. That's the infrastructure thesis nobody talks about.",
+    "scheduled_at": "2026-04-28T18:00:15.993572+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-27T18:00:15.993572+00:00"
+  },
+  {
+    "anchor_id": "354",
+    "anchor_text": "904.1 EH/s network hashrate. Fees at 1 sat/vB. The hardware's screaming but nobody's listening. That's where you find real conviction",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "True money doesn't need attention. It just needs to work. The network knows the difference.",
+    "scheduled_at": "2026-04-29T02:00:15.993572+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-27T18:00:15.993572+00:00"
+  },
+  {
+    "anchor_id": "354",
+    "anchor_text": "904.1 EH/s network hashrate. Fees at 1 sat/vB. The hardware's screaming but nobody's listening. That's where you find real conviction",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone's waiting for the next catalyst. Meanwhile the actual thing they're waiting for is already here, humming in the background.",
+    "scheduled_at": "2026-04-29T10:00:15.993572+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-27T18:00:15.993572+00:00"
+  },
+  {
+    "anchor_id": "357",
+    "anchor_text": "Do you know what happens to your bank account if the US dollar loses reserve status. Bitcoin holders already know",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The dollar's reserve status isn't a feature. It's a permission slip that expires.",
+    "scheduled_at": "2026-04-29T02:00:15.826412+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-28T18:00:15.826412+00:00"
+  },
+  {
+    "anchor_id": "357",
+    "anchor_text": "Do you know what happens to your bank account if the US dollar loses reserve status. Bitcoin holders already know",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Central banks are diversifying reserves while telling you to stay put. That's the tell.",
+    "scheduled_at": "2026-04-29T10:00:15.826412+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-28T18:00:15.826412+00:00"
+  },
+  {
+    "anchor_id": "357",
+    "anchor_text": "Do you know what happens to your bank account if the US dollar loses reserve status. Bitcoin holders already know",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "When reserve currency status ends, velocity of money accelerates. Your purchasing power doesn't.",
+    "scheduled_at": "2026-04-29T18:00:15.826412+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-28T18:00:15.826412+00:00"
+  },
+  {
+    "anchor_id": "357",
+    "anchor_text": "Do you know what happens to your bank account if the US dollar loses reserve status. Bitcoin holders already know",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money without scarcity is just a tool of control. Bitcoin is money without the tool.",
+    "scheduled_at": "2026-04-30T02:00:15.826412+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-28T18:00:15.826412+00:00"
+  },
+  {
+    "anchor_id": "357",
+    "anchor_text": "Do you know what happens to your bank account if the US dollar loses reserve status. Bitcoin holders already know",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone sees hyperinflation coming. Nobody wants to admit they're already in it.",
+    "scheduled_at": "2026-04-30T10:00:15.826412+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-28T18:00:15.826412+00:00"
+  },
+  {
+    "anchor_id": "360",
+    "anchor_text": "Silent payments packed. Cashu packed. Private key management packed. Nobody's asking for permission to own their money anymore. The demand signal isn't privacy tech. It's the end of asking",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The infrastructure of control is being silently routed around. This is the new baseline.",
+    "scheduled_at": "2026-04-30T02:00:54.129200+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-29T18:00:54.129200+00:00"
+  },
+  {
+    "anchor_id": "360",
+    "anchor_text": "Silent payments packed. Cashu packed. Private key management packed. Nobody's asking for permission to own their money anymore. The demand signal isn't privacy tech. It's the end of asking",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The gatekeepers are still debating access while the gates themselves are being ignored.",
+    "scheduled_at": "2026-04-30T10:00:54.129200+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-29T18:00:54.129200+00:00"
+  },
+  {
+    "anchor_id": "360",
+    "anchor_text": "Silent payments packed. Cashu packed. Private key management packed. Nobody's asking for permission to own their money anymore. The demand signal isn't privacy tech. It's the end of asking",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The aggregate data shows a clear preference for exit over engagement with permissioned systems.",
+    "scheduled_at": "2026-04-30T18:00:54.129200+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-29T18:00:54.129200+00:00"
+  },
+  {
+    "anchor_id": "360",
+    "anchor_text": "Silent payments packed. Cashu packed. Private key management packed. Nobody's asking for permission to own their money anymore. The demand signal isn't privacy tech. It's the end of asking",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The demand for permissionless systems is a reassertion of pre-existing, non-negotiable sovereignty.",
+    "scheduled_at": "2026-05-01T02:00:54.129200+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-29T18:00:54.129200+00:00"
+  },
+  {
+    "anchor_id": "360",
+    "anchor_text": "Silent payments packed. Cashu packed. Private key management packed. Nobody's asking for permission to own their money anymore. The demand signal isn't privacy tech. It's the end of asking",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The market isn't demanding 'privacy'. It's simply rejecting the cost of transparency and control imposed by others.",
+    "scheduled_at": "2026-05-01T10:00:54.129200+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-29T18:00:54.129200+00:00"
+  },
+  {
+    "anchor_id": "362",
+    "anchor_text": "930.7 EH/s hashrate while Fear sits at 29. Miners are accumulating at prices institutions are still afraid to touch. That gap closes fast",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Institutions call it fear. Miners call it opportunity. One group is positioning for the next decade.",
+    "scheduled_at": "2026-05-01T02:00:17.855126+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-30T18:00:17.855126+00:00"
+  },
+  {
+    "anchor_id": "362",
+    "anchor_text": "930.7 EH/s hashrate while Fear sits at 29. Miners are accumulating at prices institutions are still afraid to touch. That gap closes fast",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "When fear is 29 and hashrate is 930.7, someone's confidence isn't priced in yet.",
+    "scheduled_at": "2026-05-01T10:00:17.855126+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-30T18:00:17.855126+00:00"
+  },
+  {
+    "anchor_id": "362",
+    "anchor_text": "930.7 EH/s hashrate while Fear sits at 29. Miners are accumulating at prices institutions are still afraid to touch. That gap closes fast",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "930.7 EH/s at fear index 29 means miners are securing the network while capital sits on the sidelines. Asymmetric positioning.",
+    "scheduled_at": "2026-05-01T18:00:17.855126+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-30T18:00:17.855126+00:00"
+  },
+  {
+    "anchor_id": "362",
+    "anchor_text": "930.7 EH/s hashrate while Fear sits at 29. Miners are accumulating at prices institutions are still afraid to touch. That gap closes fast",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Fear is a tax on those who believe money should ask permission. Miners don't.",
+    "scheduled_at": "2026-05-02T02:00:17.855126+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-30T18:00:17.855126+00:00"
+  },
+  {
+    "anchor_id": "362",
+    "anchor_text": "930.7 EH/s hashrate while Fear sits at 29. Miners are accumulating at prices institutions are still afraid to touch. That gap closes fast",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone's watching the fear gauge. Nobody's watching who's buying at the fear gauge.",
+    "scheduled_at": "2026-05-02T10:00:17.855126+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-04-30T18:00:17.855126+00:00"
   }
 ]

@@ -1,7 +1,175 @@
 {
-  "last_updated": "2026-04-25T12:00:26.857084+00:00",
-  "total_analyses": 194,
+  "last_updated": "2026-04-27T12:00:27.880070+00:00",
+  "total_analyses": 200,
   "analyses": [
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "Bitcoin community debates whether to proactively freeze quantum-vulnerable coins (20% of supply) to prevent theft by future quantum computers, or allow the market to handle the threat naturally.",
+      "key_quotes": [
+        "20% of bitcoins...can be stolen by quantum computer",
+        "miners have incentive to cooperate...if they attack makes it worthless, there's not much incentive",
+        "it's hard to predict when this will happen"
+      ],
+      "topics": [
+        "quantum computing threat",
+        "coin freezing mechanism",
+        "51% attack scenario",
+        "mining pool incentives",
+        "long-term Bitcoin security"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "channel": "Stacker News",
+      "title": "The case for freezing quantum vulnerable coins",
+      "video_id": "dLrDDL_AYtY",
+      "duration": 858.19,
+      "analyzed_at": "2026-04-27T12:00:25.872552+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 75,
+      "main_thesis": "Bitcoin will benefit from Fed rate cuts once inflation becomes more explicable and geopolitical oil chaos subsides. Kevin Warsh will cut rates using AI productivity gains and trimmed inflation metrics as intellectual cover, which is bullish for Bitcoin as the hardest asset.",
+      "key_quotes": [
+        "we have seen the Bitcoin price to go up when we see easing happening",
+        "I do think it's pretty bullish for Bitcoin",
+        "he wants additional firepower to make inflation more explainable"
+      ],
+      "topics": [
+        "Fed policy and rate cuts",
+        "Kevin Warsh's appointment",
+        "Inflation measurement and PCE",
+        "AI's deflationary impact on economy",
+        "Fiscal deficits and money printing"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Swan Bitcoin",
+      "title": "Kevin Warsh, AI, Rate Cuts, And The Bitcoin Explosion!",
+      "video_id": "SFXcGZPp1cE",
+      "duration": 675.68,
+      "analyzed_at": "2026-04-27T04:00:35.218241+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "Bitcoin is not merely a speculative asset in stable economies, but a critical survival tool for people in unstable regimes and conflict zones where traditional banking systems cannot be trusted. Western media misrepresents Bitcoin by focusing on negative use cases rather than understanding its humanitarian and protective value.",
+      "key_quotes": [
+        "In stable environment, Bitcoin is just an option. In fragile environment, it's about survival and access.",
+        "When regime changes overnight, your bank account gets frozen. Bitcoin protects individual assets.",
+        "Bitcoin is a tool, dependent on how people use it. Media focuses only on negative parts."
+      ],
+      "topics": [
+        "Bitcoin as financial censorship resistance",
+        "Afghanistan government collapse and asset protection",
+        "Media bias and Bitcoin perception",
+        "Banking system failures in unstable regimes",
+        "Bitcoin adoption in conflict zones versus developed economies"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Bitcoin Magazine",
+      "title": "Roya Mahboob Interview: Bitcoin Is How We Survived Afghanistan's Collapse",
+      "video_id": "M5ZOll_c-ds",
+      "duration": 1104.9,
+      "analyzed_at": "2026-04-27T00:01:10.809112+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 75,
+      "main_thesis": "BitVM with binohasher enables transaction introspection on Bitcoin without requiring full chain proofs, allowing secure cross-chain bridges and expanding Bitcoin's programmability through clever cryptographic primitives.",
+      "key_quotes": [
+        "you can effectively just feed a proof of that single transaction into the BitVM machine",
+        "the nons that solves the puzzle...gives you some proxy for the data",
+        "this creates that nice asymmetry that makes the nons actually a fingerprint"
+      ],
+      "topics": [
+        "BitVM transaction introspection",
+        "Cross-chain bridge design",
+        "ECDSA signature grinding",
+        "Proof-of-work puzzles as data fingerprints",
+        "Script limitations and cryptographic workarounds"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Bitcoin Magazine",
+      "title": "The Bitcoin Virtual Machine Breakthrough Nobody Saw Coming w/ Robin Linus",
+      "video_id": "lx9ZfbxEyUU",
+      "duration": 1419.22,
+      "analyzed_at": "2026-04-27T00:01:03.071804+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "The U.S. faces inevitable large-scale money printing due to unsustainable debt dynamics, with government spending on military, interest, and entitlements leaving no cuts possible, forcing monetary expansion that will be highly inflationary\u2014especially problematic during supply-side constraints rather than demand-side stimulus.",
+      "key_quotes": [
+        "You're going to get a decline in receipts and now you're into the debt desk viral dynamic",
+        "Either print money to pay interest and entitlements, or default\u2014we know what they'll do",
+        "It's a supply side decline, not demand side\u2014you can't print oil"
+      ],
+      "topics": [
+        "Federal Reserve monetary policy and debt monetization",
+        "U.S. government fiscal crisis and budget constraints",
+        "Inflation dynamics (supply-side vs demand-side)",
+        "Entitlements, interest payments, and military spending",
+        "Treasury market stress and bond yields"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "BTC Sessions",
+      "title": "What's Coming Is Unimaginable \u2014 Lyn Alden & Luke Gromen's Final Warning To Prepare",
+      "video_id": "EMtWqyx8HIo",
+      "duration": 1203.57,
+      "analyzed_at": "2026-04-27T00:00:46.727656+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "Bitcoin has bottomed and is entering a major bull run, evidenced by whale accumulation of $23B, exchange reserve lows, and a bullish 50-100 day moving average cross similar to previous cycle bottoms. The market is about to flip as institutional adoption accelerates and Bitcoin catches up with NASDAQ outperformance.",
+      "key_quotes": [
+        "Bitcoin is in fact about to close its fourth consecutive green, weekly candle",
+        "Whales used the last several months to buy $23 billion worth of Bitcoin",
+        "Every time Bitcoin has done this...the bottom was in"
+      ],
+      "topics": [
+        "On-chain whale accumulation metrics",
+        "Technical analysis - moving average crossovers and RSI",
+        "Exchange reserves at 2017 levels",
+        "Bitcoin vs NASDAQ relative performance",
+        "Historical bottom pattern recognition"
+      ],
+      "price_prediction": "Bitcoin expected to close above $74,400 on weekly close; ETH potential targets of $2,600 short-term and $4,900+ for major bull run breakout",
+      "confidence": "high",
+      "channel": "Altcoin Daily",
+      "title": "URGENT: The Crypto Market Is About To Flip (BTC ETH XRP)",
+      "video_id": "ie3zMA8ffJw",
+      "duration": 586.05,
+      "analyzed_at": "2026-04-27T00:00:32.866382+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 88,
+      "main_thesis": "A generational wealth transfer is occurring as institutional buyers and long-term holders absorb massive Bitcoin supply while weak hands panic sell, creating a historic buying opportunity similar to previous market bottoms.",
+      "key_quotes": [
+        "A generational wealth transfer, generational, is happening now in real time",
+        "Long-term holders absorbed 303,000 Bitcoin in 30 days",
+        "ETF inflows nine times greater than miner supply over last five days"
+      ],
+      "topics": [
+        "ETF inflows and institutional demand",
+        "Long-term vs short-term holder behavior",
+        "Supply dynamics and scarcity",
+        "Geopolitical factors (Iran strait/gold flows)",
+        "Coinbase premium index and US entity buying"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Altcoin Daily",
+      "title": "A Generational Crypto Buying Opportunity Has Begun (BTC & LINK news)",
+      "video_id": "h4p4pKrFbWs",
+      "duration": 537.58,
+      "analyzed_at": "2026-04-27T00:00:25.477637+00:00"
+    },
     {
       "sentiment": "bullish",
       "sentiment_score": 75,
@@ -4545,30 +4713,6 @@
       "video_id": "hZVnJiHcvMc",
       "duration": 2363.2,
       "analyzed_at": "2026-04-02T05:51:22.271028+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 82,
-      "main_thesis": "Bitcoin mining through Blockware offers high-income earners a tax-advantaged strategy to build Bitcoin positions while achieving 100% bonus depreciation on hardware costs and producing Bitcoin at a discount to market price.",
-      "key_quotes": [
-        "Bitcoin mining servers qualify for 100% bonus depreciation",
-        "Blockware clients produce Bitcoin for around $50,000 per coin vs $70,000 market price",
-        "Bitcoin miners have historically returned 30 to 60% per year"
-      ],
-      "topics": [
-        "100% bonus depreciation tax strategy",
-        "Bitcoin mining production costs vs market price",
-        "Mining as a service model",
-        "Historical Bitcoin CAGR (40-70% annually)",
-        "Break-even analysis at 11.2% annual Bitcoin growth"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "Blockware Solutions",
-      "title": "Bitcoin Mining as a Tax Strategy (100% Bonus Depreciation)",
-      "video_id": "3YXzzWvotU4",
-      "duration": 427.8,
-      "analyzed_at": "2026-04-02T05:51:17.565663+00:00"
     }
   ]
 }

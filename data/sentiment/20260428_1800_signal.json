@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-04-28T18:00:29.038348+00:00",
+  "brief_type": "midday",
+  "score": 45,
+  "bullish_signals": [
+    "Network hashrate near 927 EH/s (security locked in)",
+    "Clean mempool under 67k transactions",
+    "Fees bottomed at 3 sats/byte (no panic liquidations)",
+    "Fear & Greed at 33 (historical accumulation zone)",
+    "Institutional players staying patient, not panicked"
+  ],
+  "bearish_signals": [
+    "0.7% decline over 24 hours",
+    "Anemic trading volume",
+    "Risk of sub-$75k test"
+  ],
+  "neutral_topics": [
+    "Consolidation phase between moves",
+    "Waiting for catalyst direction"
+  ]
+}
