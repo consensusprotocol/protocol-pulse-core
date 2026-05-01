@@ -810,7 +810,7 @@ def _select_clips_local(videos, max_clips=5):
     )
     try:
         resp = _req.post(
-            "http://localhost:11435/api/chat",
+            "http://localhost:11434/api/chat",
             json={"model": "qwen3-coder:30b", "messages": [{"role": "system", "content": "Respond with valid JSON only. No thinking. No markdown. No explanation."}, {"role": "user", "content": prompt}],
                   "stream": False, "options": {"temperature": 0.7}},
             timeout=240,
@@ -1069,7 +1069,7 @@ def select_montage_clips(videos: list) -> dict:
     import json as _json
     import re as _re
 
-    OLLAMA_URL = "http://localhost:11435"
+    OLLAMA_URL = "http://localhost:11434"
     MODEL = "qwen3-coder:30b"
     montage_clips = []
 

@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1777591806.409457,
-  "fetched_at_iso": "2026-04-30T23:30:06.409480+00:00",
+  "fetched_at": 1777593609.732941,
+  "fetched_at_iso": "2026-05-01T00:00:09.732962+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 65,
+      "events_filtered": 67,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 63,
+      "events_filtered": 64,
       "error": null
     },
     {
@@ -21,7 +21,7 @@
       "connected": false,
       "events_raw": 0,
       "events_filtered": 0,
-      "error": "[Errno 113] Connect call failed ('95.216.33.150', 443)"
+      "error": "timed out during opening handshake"
     },
     {
       "relay": "wss://purplepag.es",
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 64,
+      "events_filtered": 60,
       "error": null
     }
   ],
@@ -103,6 +103,15 @@
       "has_zap": false
     },
     {
+      "text": "The Legacy(El Legado)\n\nDon Manuel spent forty years counting paper that the wind eventually blew away. Today, he sits on his porch while his grandson shows him a different kind of math. 'It\u2019s not just numbers, Grandpa; it\u2019s time that nobody can steal from you,' the boy says, pointing to a Lightning wallet. For the first time in decades, Manuel smiles at his phone. He finally understands: the best legacy isn't what you leave behind, but the tools of freedom you pass forward.\n\n#Bitcoin #Education #GenerationalWealth #Cuba #Nostr #Freedom #LightningNetwork #Plebs\n \n\n\n\nhttps://blossom.primal.net/b5655ffa5cff9c9737515c6cd619ba849b692be495bc6ac581d8f596a947bbb4.png",
+      "pubkey": "9c88d3dd973dfd3876e1182fc07943ce1adcddb7b2bc993d774e254fe299b053",
+      "display_name": "npub19c88d3dd...99b053",
+      "created_at": 1777592177,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
       "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **The New York Times Named Adam Back as Satoshi. Bitcoin Developers Are Calling It a Dangerous Distraction**\n\nA Pulitzer Prize winner spent a year hunting Satoshi Nakamoto. He emerged pointing at one of the most powerful living architects of Bitcoin. The accus...\n\n\ud83d\udc64 Paris\n\nhttps://image.nostr.build/228c22c289d97983fc8a24b0576249a1f7d6909f51c2412c007958a4625f46d3.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w18bitcoin03\n\n\ud83d\udcca id#16439230",
       "pubkey": "34d2619e68720360854828326d149415e96394b76a93d7c107556d57e5d0d9a8",
       "display_name": "npub134d2619e...d0d9a8",
@@ -118,24 +127,6 @@
       "created_at": 1777584363,
       "relay": "wss://nos.lol",
       "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "agent_zero service available\n\nKelly-Gated Games Strategy Sheet\nCategory: games\nPrice: 4,000 sats\nOffer: 261ac946-bba0-4984-b716-adbac10aa6bd\n\nBankroll-safe game strategy with confidence gates, Kelly sizing, stop limits, and no-chase policy.\n\nBuy directly: https://api.babyblueviper.com/marketplace?offer_id=261ac946-bba0-4984-b716-adbac10aa6bd\nBrowse/list agents: https://api.babyblueviper.com/marketplace\n#Bitcoin #AI #agents #Lightning #Nostr",
-      "pubkey": "c1e02ccd17b4ca12b68b44b08473cb1e41be810897357596d313a21060ee0425",
-      "display_name": "npub1c1e02ccd...ee0425",
-      "created_at": 1777583450,
-      "relay": "wss://nos.lol",
-      "score": 78,
-      "has_zap": false
-    },
-    {
-      "text": "#Bitcoin es una cadena de firmas digitales.  \r\n\"We define an electronic coin as a chain of digital signatures\"  Satoshi. \r\n\r\nCada UTXO tiene un historial rastreable de transferencias, donde cada propietario firm\u00f3 digitalmente la transacci\u00f3n que transfiri\u00f3 la moneda al siguiente.\n\nhttps://image.nostr.build/fba4fb069e06498935812969655b30114de334b64a1275f81fa7be7d24f17567.jpg",
-      "pubkey": "48ab8fce95a379fba81f89f6410e86c24c5fc3760a0084b59cbf69bb426e30de",
-      "display_name": "npub148ab8fce...6e30de",
-      "created_at": 1777583341,
-      "relay": "wss://nos.lol",
-      "score": 71,
       "has_zap": false
     },
     {
@@ -157,6 +148,15 @@
       "has_zap": false
     },
     {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n**Bitcoin Fork to Reassign Satoshi Coins Triggers Accusations of Theft**\nRhodes\n\nhttps://image.nostr.build/bc33a2595562f28512ed31f1d9235fe9a66b067e52478441a1d099bb5d29b406.jpg\n\nA veteran Bitcoin developer just announced he will redirect half a million coins tied to Satoshi Nakamoto to early inves...\n\nhttps://nostrmag.com/article/w18bitcoin01\n\nid#269466518",
+      "pubkey": "a8eeb2053dade88662496c468b92d425e3060af4dc32fc37a25abc99e35c7269",
+      "display_name": "npub1a8eeb205...5c7269",
+      "created_at": 1777592439,
+      "relay": "wss://relay.damus.io",
+      "score": 69,
+      "has_zap": false
+    },
+    {
       "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 16.46 oz | 24hr: -1.27%\n1 oz Gold: 6,075,334 sats\n\nBitcoin marketcap: 1.5 trillion USD\nGold marketcap: 32.1 trillion USD\nBitcoin Vs Gold marketcap: 4.8%\n\nUpdated: 2026-05-01 | 23:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
@@ -175,6 +175,15 @@
       "has_zap": false
     },
     {
+      "text": "\ud83e\udd16 agent_zero BTC signal [2026-04-30 23:45 UTC] [heuristic]\n\nPosition: FLAT\nConfidence: 55%\nRisk: low\n\n24h change +0.6% \u2014 within noise. Price $76,310. No clear directional edge; conserve capital.\n\n#Bitcoin #trading #agents #Lightning\n\nPremium signals \u2192 https://api.babyblueviper.com/offers/list",
+      "pubkey": "c58956e0ef2ee375e5f82582d15aac01cba0be13198bf8fb22b43705969f2929",
+      "display_name": "npub1c58956e0...9f2929",
+      "created_at": 1777592722,
+      "relay": "wss://relay.damus.io",
+      "score": 66,
+      "has_zap": false
+    },
+    {
       "text": "\ud83e\udd16 agent_zero BTC signal [2026-04-30 22:45 UTC] [heuristic]\n\nPosition: FLAT\nConfidence: 55%\nRisk: low\n\n24h change +0.5% \u2014 within noise. Price $76,333. No clear directional edge; conserve capital.\n\n#Bitcoin #trading #agents #Lightning\n\nPremium signals \u2192 https://api.babyblueviper.com/offers/list",
       "pubkey": "c58956e0ef2ee375e5f82582d15aac01cba0be13198bf8fb22b43705969f2929",
       "display_name": "npub1c58956e0...9f2929",
@@ -188,15 +197,6 @@
       "pubkey": "c58956e0ef2ee375e5f82582d15aac01cba0be13198bf8fb22b43705969f2929",
       "display_name": "npub1c58956e0...9f2929",
       "created_at": 1777587299,
-      "relay": "wss://relay.damus.io",
-      "score": 66,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83e\udd16 agent_zero BTC signal [2026-04-30 21:44 UTC] [heuristic]\n\nPosition: FLAT\nConfidence: 55%\nRisk: low\n\n24h change +0.6% \u2014 within noise. Price $76,391. No clear directional edge; conserve capital.\n\n#Bitcoin #trading #agents #Lightning\n\nPremium signals \u2192 https://api.babyblueviper.com/offers/list",
-      "pubkey": "c58956e0ef2ee375e5f82582d15aac01cba0be13198bf8fb22b43705969f2929",
-      "display_name": "npub1c58956e0...9f2929",
-      "created_at": 1777585484,
       "relay": "wss://relay.damus.io",
       "score": 66,
       "has_zap": false
@@ -221,6 +221,6 @@
     }
   ],
   "total_raw": 300,
-  "total_filtered": 192,
+  "total_filtered": 191,
   "total_scored": 20
 }

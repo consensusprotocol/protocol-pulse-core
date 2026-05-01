@@ -1,17 +1,6 @@
 {
   "topic_velocity": [
     {
-      "topic": "Community growth and team milestones",
-      "channels": 1,
-      "sentiment": "bullish",
-      "velocity_score": 2,
-      "authority_score": 3,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
       "topic": "Privacy-respecting Bitcoin acquisition",
       "channels": 1,
       "sentiment": "bullish",
@@ -21,16 +10,27 @@
       "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
+    },
+    {
+      "topic": "Community growth and team milestones",
+      "channels": 1,
+      "sentiment": "bullish",
+      "velocity_score": 1,
+      "authority_score": 1,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
     }
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Community growth and team milestones",
-    "Privacy-respecting Bitcoin acquisition"
+    "Privacy-respecting Bitcoin acquisition",
+    "Community growth and team milestones"
   ],
-  "dominant_narrative": "Community growth and team milestones",
+  "dominant_narrative": "Privacy-respecting Bitcoin acquisition",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-04-30T13:30:07Z"
+  "scan_time": "2026-04-30T23:57:46Z"
 }

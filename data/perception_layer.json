@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-30T23:15:15.378346+00:00",
-  "fetch_time_ms": 10396,
+  "updated_at": "2026-04-30T23:45:16.064544+00:00",
+  "fetch_time_ms": 11505,
   "composite": {
     "perception_score": 48,
     "label": "Neutral",
@@ -20,10 +20,10 @@
   },
   "global_market": {
     "btc_dominance_pct": 58.14,
-    "total_mcap_usd": 2624669126817.597,
-    "total_mcap_t": 2.625,
-    "total_vol_24h_usd": 77507453705.71593,
-    "total_vol_24h_b": 77.5,
+    "total_mcap_usd": 2627962959142.494,
+    "total_mcap_t": 2.628,
+    "total_vol_24h_usd": 77389280497.48364,
+    "total_vol_24h_b": 77.4,
     "active_coins": 17499,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
@@ -35,43 +35,43 @@
       {
         "symbol": "MEGA",
         "name": "MegaETH",
-        "rank": 184,
+        "rank": 182,
         "score": 0
       },
       {
         "symbol": "ACN",
         "name": "AITECH Cloud Network",
-        "rank": 798,
+        "rank": 799,
         "score": 1
-      },
-      {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 86,
-        "score": 2
       },
       {
         "symbol": "MON",
         "name": "Monad",
         "rank": 136,
-        "score": 3
+        "score": 2
       },
       {
-        "symbol": "AI",
-        "name": "Gensyn",
-        "rank": 472,
-        "score": 4
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 86,
+        "score": 3
       },
       {
         "symbol": "BIO",
         "name": "Bio Protocol",
-        "rank": 313,
+        "rank": 312,
+        "score": 4
+      },
+      {
+        "symbol": "AI",
+        "name": "Gensyn",
+        "rank": 471,
         "score": 5
       },
       {
-        "symbol": "XRP",
-        "name": "XRP",
-        "rank": 4,
+        "symbol": "LUNC",
+        "name": "Terra Luna Classic",
+        "rank": 113,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 411081,
+    "tx_count_24h": 409896,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 9.72,
+    "minutes_between_blocks": 9.79,
     "difficulty": 135594876535256,
-    "estimated_btc_sent": 10427378902860,
-    "total_fees_btc": -43437500000,
+    "estimated_btc_sent": 10361954832300,
+    "total_fees_btc": -43750000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17402,
-    "channel_count": 42000,
-    "capacity_btc": 5677.47,
-    "capacity_sats": 567746929511,
-    "avg_channel_capacity_btc": 0.1352,
+    "node_count": 17438,
+    "channel_count": 41109,
+    "capacity_btc": 5057.13,
+    "capacity_sats": 505713146174,
+    "avg_channel_capacity_btc": 0.123,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 3,
+    "fastest_fee_sat_vb": 2,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
