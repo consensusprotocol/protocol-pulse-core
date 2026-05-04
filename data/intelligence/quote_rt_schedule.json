@@ -215,8 +215,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The network's running at full throttle while fees collapse. Almost like the real users never left.",
     "scheduled_at": "2026-04-28T10:00:15.993572+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-01T04:00:03.289558+00:00",
     "created_at": "2026-04-27T18:00:15.993572+00:00"
   },
   {
@@ -225,8 +225,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "904.1 EH/s securing a chain where transactions cost fractions of a penny. That's the infrastructure thesis nobody talks about.",
     "scheduled_at": "2026-04-28T18:00:15.993572+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-01T19:00:02.809125+00:00",
     "created_at": "2026-04-27T18:00:15.993572+00:00"
   },
   {
@@ -235,8 +235,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "True money doesn't need attention. It just needs to work. The network knows the difference.",
     "scheduled_at": "2026-04-29T02:00:15.993572+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-01T22:00:03.110593+00:00",
     "created_at": "2026-04-27T18:00:15.993572+00:00"
   },
   {
@@ -245,8 +245,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone's waiting for the next catalyst. Meanwhile the actual thing they're waiting for is already here, humming in the background.",
     "scheduled_at": "2026-04-29T10:00:15.993572+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-02T04:00:02.796928+00:00",
     "created_at": "2026-04-27T18:00:15.993572+00:00"
   },
   {
@@ -255,8 +255,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The dollar's reserve status isn't a feature. It's a permission slip that expires.",
     "scheduled_at": "2026-04-29T02:00:15.826412+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-02T19:00:02.902207+00:00",
     "created_at": "2026-04-28T18:00:15.826412+00:00"
   },
   {
@@ -265,8 +265,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Central banks are diversifying reserves while telling you to stay put. That's the tell.",
     "scheduled_at": "2026-04-29T10:00:15.826412+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-02T22:00:03.163112+00:00",
     "created_at": "2026-04-28T18:00:15.826412+00:00"
   },
   {
@@ -275,8 +275,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "When reserve currency status ends, velocity of money accelerates. Your purchasing power doesn't.",
     "scheduled_at": "2026-04-29T18:00:15.826412+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-03T04:00:02.955824+00:00",
     "created_at": "2026-04-28T18:00:15.826412+00:00"
   },
   {
@@ -398,5 +398,105 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-04-30T18:00:17.855126+00:00"
+  },
+  {
+    "anchor_id": "365",
+    "anchor_text": "3 sat/vB while Fear sits at 26. Network running cooler than the macro data suggests it should. Someone knows something retail doesn't",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "When fees compress while fear stays elevated, the market is pricing in certainty. That certainty isn't retail.",
+    "scheduled_at": "2026-05-02T02:00:18.369832+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-01T18:00:18.369832+00:00"
+  },
+  {
+    "anchor_id": "365",
+    "anchor_text": "3 sat/vB while Fear sits at 26. Network running cooler than the macro data suggests it should. Someone knows something retail doesn't",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Low fees during high fear is the market equivalent of selling umbrellas in a drought. Someone's very confident about the weather.",
+    "scheduled_at": "2026-05-02T10:00:18.369832+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-01T18:00:18.369832+00:00"
+  },
+  {
+    "anchor_id": "365",
+    "anchor_text": "3 sat/vB while Fear sits at 26. Network running cooler than the macro data suggests it should. Someone knows something retail doesn't",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Fee compression + elevated fear = institutional dry powder waiting. Network capacity tells you what on-chain volume expects next.",
+    "scheduled_at": "2026-05-02T18:00:18.369832+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-01T18:00:18.369832+00:00"
+  },
+  {
+    "anchor_id": "365",
+    "anchor_text": "3 sat/vB while Fear sits at 26. Network running cooler than the macro data suggests it should. Someone knows something retail doesn't",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Cheap blockspace during panic reveals what money actually believes versus what noise claims to believe.",
+    "scheduled_at": "2026-05-03T02:00:18.369832+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-01T18:00:18.369832+00:00"
+  },
+  {
+    "anchor_id": "365",
+    "anchor_text": "3 sat/vB while Fear sits at 26. Network running cooler than the macro data suggests it should. Someone knows something retail doesn't",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real tell isn't the fees or the fear index. It's that they're diverging at all. That gap is where information lives.",
+    "scheduled_at": "2026-05-03T10:00:18.369832+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-01T18:00:18.369832+00:00"
+  },
+  {
+    "anchor_id": "370",
+    "anchor_text": "Block 947595 and fees at 1 sat/vB. The network isn't congested. It's patient. While everyone debates scaling wars, Bitcoin just sits there working. That's the actual moat",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The moat isn't speed. It's that Bitcoin works the same way at 1 sat/vB as it does at 500. Consistency beats innovation.",
+    "scheduled_at": "2026-05-03T02:00:17.017084+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-02T18:00:17.017084+00:00"
+  },
+  {
+    "anchor_id": "370",
+    "anchor_text": "Block 947595 and fees at 1 sat/vB. The network isn't congested. It's patient. While everyone debates scaling wars, Bitcoin just sits there working. That's the actual moat",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Every layer 2 solution is basically an admission that the base layer doesn't need to be fast. It just needs to be right.",
+    "scheduled_at": "2026-05-03T10:00:17.017084+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-02T18:00:17.017084+00:00"
+  },
+  {
+    "anchor_id": "370",
+    "anchor_text": "Block 947595 and fees at 1 sat/vB. The network isn't congested. It's patient. While everyone debates scaling wars, Bitcoin just sits there working. That's the actual moat",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Low fees during non-congestion periods reveal the real constraint: Bitcoin's value isn't throughput, it's settlement finality.",
+    "scheduled_at": "2026-05-03T18:00:17.017084+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-02T18:00:17.017084+00:00"
+  },
+  {
+    "anchor_id": "370",
+    "anchor_text": "Block 947595 and fees at 1 sat/vB. The network isn't congested. It's patient. While everyone debates scaling wars, Bitcoin just sits there working. That's the actual moat",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money that doesn't care about your urgency is the only money you can actually trust. Patience is the feature.",
+    "scheduled_at": "2026-05-04T02:00:17.017084+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-02T18:00:17.017084+00:00"
+  },
+  {
+    "anchor_id": "370",
+    "anchor_text": "Block 947595 and fees at 1 sat/vB. The network isn't congested. It's patient. While everyone debates scaling wars, Bitcoin just sits there working. That's the actual moat",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "While everyone builds faster horses, Bitcoin's moat is that it doesn't race. It just settles what matters.",
+    "scheduled_at": "2026-05-04T10:00:17.017084+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-02T18:00:17.017084+00:00"
   }
 ]

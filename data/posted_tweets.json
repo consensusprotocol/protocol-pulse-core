@@ -676,5 +676,35 @@
     "timestamp": "2026-04-30T18:04:02.899339+00:00",
     "text_preview": "Bitcoin\u2019s Financial Future: CEOs Chart Bold Path\nhttps://protocolpulse.io/articl",
     "format_type": "institutional_flow"
+  },
+  {
+    "hash": "6624bc7b2f75188e8543f604a99cf6ea",
+    "timestamp": "2026-05-01T01:32:39.245483+00:00",
+    "text_preview": "3 sat/vB while Fear sits at 26. Network running cooler than the macro data sugge",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "2dc75ef0463aac8e7a68460341b3c143",
+    "timestamp": "2026-05-01T18:03:59.926916+00:00",
+    "text_preview": "VC Funding for Blockchain Dips to $659M Low\nhttps://protocolpulse.io/articles/93",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "bd307b0d6deb416fb7ffe1f6cc7a7f63",
+    "timestamp": "2026-05-02T02:00:21.041372+00:00",
+    "text_preview": "If institutions are rotating $2.44B into Bitcoin monthly because fiat is broken,",
+    "format_type": "contrarian_take"
+  },
+  {
+    "hash": "96e790b17077231f401ca16c75857841",
+    "timestamp": "2026-05-02T17:00:21.338994+00:00",
+    "text_preview": "Block 947595 and fees at 1 sat/vB. The network isn't congested. It's patient. Wh",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "b2414e5083ec809122d0c3f2ed4a9c62",
+    "timestamp": "2026-05-03T02:00:18.908023+00:00",
+    "text_preview": "Argentina froze bank accounts in 1989. Lebanon did it in 2019. Cyprus in 2013. E",
+    "format_type": "historical_pattern"
   }
 ]

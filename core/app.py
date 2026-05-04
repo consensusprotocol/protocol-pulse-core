@@ -325,6 +325,14 @@ try:
         logging.info("Oracle voice blueprint registered")
     except Exception as _ov_e:
         logging.warning("Oracle voice not loaded: %s", _ov_e)
+
+    try:
+        import sys as _vo_sys; _vo_sys.path.insert(0, "/home/ultron/protocol_pulse")
+        from services.voice_ops_blueprint import voice_ops_bp
+        app.register_blueprint(voice_ops_bp)
+        logging.info("Voice ops blueprint registered")
+    except Exception as _vo_e:
+        logging.warning("Voice ops not loaded: %s", _vo_e)
     logging.info("Panopticon blueprint registered")
 except Exception as _pano_err:
     logging.warning("Panopticon blueprint not loaded: %s", _pano_err)

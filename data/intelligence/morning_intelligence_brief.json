@@ -1,55 +1,52 @@
 {
-  "generated_at": "2026-04-30T00:00:00Z",
-  "date": "Thursday, April 30, 2026",
-  "btc_price": "$76,415",
-  "btc_change_24h": "+1.3%",
+  "generated_at": "2026-05-02T00:00:00Z",
+  "date": "Saturday, May 02, 2026",
+  "btc_price": "$78,459",
+  "btc_change_24h": "+0.0%",
   "fng": "Fear",
   "dominant_narratives": [
-    "Bitcoin as humanitarian tool in authoritarian regimes (El Salvador press freedom collapse, Myanmar detention, Palestinian displacement narratives)",
-    "Macroeconomic instability driving institutional accumulation (Fed rate cut expectations, currency intervention signals, treasury looting phase)",
-    "Post-quantum cryptography maturation and technical protocol expansion (SHRINCS/SHRIMPS live, BitVM tokenization, LDK server-side node support)"
+    "Bitcoin as monetary escape hatch from unsustainable fiscal policy and currency debasement",
+    "Institutional adoption driving next bull cycle via macroeconomic pressures and layer-2 innovation (STRC as 'iPhone moment')",
+    "Protocol hardening against quantum threats—proactive freezing vs. market-driven solutions debate emerging"
   ],
   "trending_language": [
-    "gigawatt pricing",
-    "airgapped isn't a buzzword",
-    "you can just do things",
-    "digital yield backed by Bitcoin",
-    "looting the treasury phase",
-    "freedom tech",
-    "white-glove Bitcoin mining"
+    "stack sats / stack in HWW",
+    "the protocol can't bend anymore",
+    "STRC = iPhone moment for credit markets",
+    "open source funding is strategic, not charity",
+    "quantum-resistant rescue mechanisms",
+    "Buy Bitcoin. Buy more Bitcoin."
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite Fear index (29/100), creator consensus is 66.6/100 bullish on price trajectory. Macro anxiety (currency intervention, geopolitical oil, government spending) is being interpreted as *favorable* to Bitcoin adoption, not as headwind. Low FNG reading contradicts creator optimism—signal disconnect suggests informed accumulation vs. retail caution.",
+  "sentiment_reasoning": "Dominant creator consensus scores 66.6/100 bullish despite Fear index at 39. Institutional accumulation narratives, macro tailwinds from $39T debt bomb, and technical innovation (BitVM, STRC layer-2s) sustain conviction even as market flatlines.",
   "top_accounts_active": [
-    "@knutsvanholm",
-    "@saylor",
+    "@stephanlivera",
+    "@PeterMcCormack",
+    "@giacomozucco",
+    "@nvk",
+    "@saifedean",
+    "@lopp",
     "@LynAldenContact",
-    "@BTCsessions",
-    "@BitcoinArchive",
-    "@gladstein",
-    "@apyx_fi",
-    "@Blockstream",
-    "@CoinDesk",
-    "@lopp"
+    "@saylor"
   ],
   "recommended_tweet_angles": [
-    "The Fear Index says 29. The Fed intervention rate says otherwise. While retail sleeps, institutions watch central banks burn ammo. What happens when the BOJ playbook runs dry?",
-    "Post-quantum Bitcoin isn't coming. It's *live*. March 2026 = first post-quantum tx on mainnet. While quantum FUD peddlers talk, Bitcoin shipped. That's the difference.",
-    "El Salvador's press freedom fell 69 positions since Bitcoin adoption. Myanmar, Palestine, Iran—Bitcoin thrives where states fail. This isn't price narrative. This is sovereignty narrative.",
-    "Gigawatt pricing. $125M STRC holdings. Digital yield on Bitcoin. The DeFi conversation moved from 'will Bitcoin scale' to 'how do we price Bitcoin infrastructure.' Layer 2 is eating L1's lunch.",
-    "Three veteran devs on record. Primary sources. Receipts. Adam Back asked 'why didn't you just talk to developers?' The answer is you did—and documented it. Receipts > rhetoric."
+    "Contrast Fed's monetary renegotiation chaos daily vs. Bitcoin's fixed 21M supply guarantee—macro pain → BTC demand signal",
+    "STRC layer-2 credit stack is live yield play while institutions quietly accumulate; retail still sleeping on protocol expansion",
+    "Quantum threat is real but governance question matters more: does Bitcoin freeze vulnerable UTXOs proactively or let market solve it? This shapes next 5 years.",
+    "Open source Bitcoin devs are strategic infrastructure plays, not charity cases—companies funding protocol wins geopolitical advantage"
   ],
   "topics_to_avoid": [
-    "El Salvador's authoritarian governance crackdown as pro-Bitcoin narrative (geopolitical risk to adoption, limits legitimacy for freedom tech angle)",
-    "Speculative mining yield plays without custody/security framework emphasis (retail FOMO trap, contradicts cypherpunk values)",
-    "Vague macroeconomic doom without Bitcoin-specific transmission mechanisms (noise, not signal)"
+    "Geopolitical conflicts (West Bank/Israel content dominating feed but signal-to-noise ratio extremely low; off-brand for technical audience)",
+    "DEI discourse (polarizing, tangential to protocol, attracts ideological rather than technical engagement)"
   ],
-  "engagement_patterns": "Direct, receipts-based language outperforms hype. @hodlonaut's defense via primary sources (three dev names) outpaced speculation. @lopp's 'you can just do things' aphorism (3-word wisdom) resonates. Technical shipping announcements (@spiralbtc LDK, @maximalistus SHRIMPS) get engagement when paired with *real-world utility frame* not price speculation. Humanitarian angle (@gladstein, @BitcoinArchive Myanmar/Palestine context) high-engagement but carries geopolitical liability. Macro macro macro—BOJ, Fed, currency intervention signals dominate sentiment context, not on-chain metrics.",
-  "protocol_pulse_voice_guidance": "Sound like someone who reads receipts, not press releases. Lead with first-principles macro (currency wars, treasury debasement, geopolitical oil) *then* Bitcoin's response. Reject both utopianism and doomerism—data doesn't fit either narrative cleanly. Use the 'gigawatt' frame: Bitcoin won so early that units of analysis (pricing in watts) have shifted. Cypherpunk edge: emphasize *builders shipping* (LDK, post-quantum, BitVM) over traders speculating. When touching humanitarian angle, name the contradiction (freedom tech + authoritarian regimes adopting it = governance paradox). Expect retail fear disconnect from creator conviction—signal the gap without moralizing.",
+  "engagement_patterns": "Short, declarative assertions resonating hardest ('Buy Bitcoin. Buy more Bitcoin.'). Long-form threads on macro policy and protocol philosophy get amplification from core builders (Zucco, Lopp, Alden). Sarcasm/irony layering (Zucco's cultist subtweet ratio) signals community in playful defensive posture. Emoji use minimal; technical precision valued.",
+  "protocol_pulse_voice_guidance": "Stay macro-skeptical but protocol-neutral. Emphasize Bitcoin's *immunity to narrative capture* rather than participating in culture war commentary. Lead with quantifiable incentive structures (Hightide_ch: 'protocol loses what made it unique the moment it bends'). Use cypherpunk realism: acknowledge quantum risk openly, analyze governance tradeoffs clinically, avoid tribal certainty. Mirror the precision of Lopp's quantum essays and Alden's macroeconomic rigor—this is where influence concentrates today.",
   "key_stats_today": {
-    "tweets_analyzed": 168,
+    "tweets_analyzed": 116,
     "nostr_signals": 0,
-    "unique_handles": 124
+    "unique_handles": 69,
+    "consensus_dominance": "bullish (66.6/100 avg)",
+    "price_action_correlation": "flat (0.0% 24h) but conviction sustained on macro/protocol fundamentals rather than price momentum"
   },
   "generated_by": "claude_haiku"
 }

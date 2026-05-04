@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-05-02T02:00:29.232914+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "The Hashrate Paradox: Why Miners Aren't Panicking (But Markets Are)",
+      "angle": "Technical analysis of network health metrics vs. Fear & Greed sentiment disconnect",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "network-health",
+        "sentiment-analysis"
+      ]
+    },
+    {
+      "headline": "$77,500: The Line in the Sand for Bitcoin's Overnight Regime Shift",
+      "angle": "Support level analysis and what Asian market volatility could mean for conviction",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "support-levels",
+        "volatility"
+      ]
+    },
+    {
+      "headline": "Mempool Signals: Why Sub-3sat Fees Mean Builders Are Ready for the Next Move",
+      "angle": "On-chain infrastructure readiness during periods of market uncertainty",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "on-chain-data",
+        "infrastructure"
+      ]
+    }
+  ]
+}

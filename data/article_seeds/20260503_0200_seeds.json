@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-05-03T02:00:28.690498+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Quiet Fortress: Why 78K Consolidation Is Actually Bullish",
+      "angle": "Network health metrics (hashrate, mempool) show strength during sideways price action\u2014consolidation often precedes breakouts",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "network-health",
+        "consolidation"
+      ]
+    },
+    {
+      "headline": "Fear & Greed at 47: What Market Equilibrium Tells Us About Bitcoin's Next Move",
+      "angle": "Neutral sentiment readings create vacuum for catalysts; Asian macro noise could be the trigger",
+      "tags": [
+        "bitcoin",
+        "sentiment-analysis",
+        "fear-greed-index",
+        "market-psychology"
+      ]
+    },
+    {
+      "headline": "Mempool Watch: Why Clean Queues Signal Patient Accumulation, Not Capitulation",
+      "angle": "46,900 pending transactions at low fees indicate measured on-chain activity\u2014healthy network conditions during ranging markets",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain-metrics",
+        "transaction-fees"
+      ]
+    }
+  ]
+}

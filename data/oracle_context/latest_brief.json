@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-04-30T18:00:31.148105+00:00",
-  "brief_type": "midday",
+  "generated_at": "2026-05-03T10:00:29.517206+00:00",
+  "brief_type": "morning",
   "bullets": [
-    "Fear/Greed at 29 = classic accumulation floor; breakout likely when reading exceeds 35",
-    "Hashrate at 857.9 EH/s proves miners are net-long despite $76K range-bound price",
-    "Mempool unclogged at 7 sat/vB = ordinal volume fading; network prioritizing base-layer efficiency",
-    "50K blocks to halving = institutional positioning window; watch for accumulation acceleration",
-    "Thin volume + solid network health = setup phase, not stagnation"
+    "Consolidation at 78.5K with neutral sentiment = setup phase before directional conviction emerges",
+    "Network fundamentals (890.5 EH/s hashrate, efficient mempool) remain decoupled from price\u2014bullish structural backdrop",
+    "Three catalysts watch: 80K resistance test, unusual on-chain exchange movements (distribution risk), Asian/European macro data open",
+    "Low fee pressure (3 sat/byte) indicates no network stress\u2014retail hasn't capitulated, institutions haven't rushed in",
+    "This 'waiting game' will break when macro sentiment or on-chain flows diverge from current equilibrium"
   ],
-  "sentiment_score": 45,
-  "brief_summary": "**BITCOIN MIDDAY BRIEF**\n\nBTC holding $76K after a flat morning\u2014barely moving on 0.3% gains. Fear and Greed at 29: pure fear territory, and it's showing in the data.\n\nHere's what matters: Mempool's congested with 104K transactions backed up, but fees remain reasonable at 7 sat/vB for fastest confirm"
+  "sentiment_score": 15,
+  "brief_summary": "**BITCOIN INTELLIGENCE BRIEF**\n\nBitcoin holding steady at 78.5K\u2014barely moving on the day, up just point-three percent. Fear and Greed sitting neutral at 47, suggesting no panic, no euphoria. Hashrate remains robust at 890.5 exahashes, network security holding firm.\n\nThe mempool's clearing efficientl"
 }

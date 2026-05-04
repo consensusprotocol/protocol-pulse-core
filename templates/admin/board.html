@@ -893,5 +893,148 @@ function toast(msg, isError) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { closeModal(); closeNew(); }
 });
+
+// ============================================================
+// Satomi Voice Ops — push-to-talk mic for the team kanban board
+// ============================================================
+(function() {
+  // Build floating mic button + transcript panel at runtime
+  var btn = document.createElement('button');
+  btn.id = 'satomi-mic-btn';
+  btn.title = 'Press and hold to talk to Satomi';
+  btn.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+  btn.style.cssText = 'position:fixed;right:24px;bottom:24px;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#CC0000,#880000);color:#fff;border:2px solid #1F1F1F;box-shadow:0 8px 24px rgba(204,0,0,.35);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:9999;transition:transform .15s,box-shadow .15s;';
+  btn.onmouseenter = function(){ this.style.transform='scale(1.05)'; };
+  btn.onmouseleave = function(){ this.style.transform='scale(1)'; };
+  document.body.appendChild(btn);
+
+  var panel = document.createElement('div');
+  panel.id = 'satomi-panel';
+  panel.style.cssText = 'position:fixed;right:24px;bottom:104px;width:360px;max-width:calc(100vw - 48px);background:#0A0A0A;border:1px solid #1F1F1F;border-radius:12px;padding:16px;color:#EDEDED;font-family:Inter,sans-serif;font-size:13px;line-height:1.5;box-shadow:0 12px 40px rgba(0,0,0,.6);z-index:9998;display:none;';
+  panel.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div style="font-weight:600;color:#CC0000;letter-spacing:.5px;font-size:11px;">SATOMI</div><div id="satomi-status" style="font-size:10px;color:#888;">idle</div></div><div id="satomi-heard" style="color:#888;margin-bottom:6px;font-style:italic;min-height:18px;"></div><div id="satomi-reply" style="color:#EDEDED;min-height:36px;"></div><audio id="satomi-audio" style="width:100%;margin-top:10px;display:none;"></audio>';
+  document.body.appendChild(panel);
+
+  var statusEl = panel.querySelector('#satomi-status');
+  var heardEl  = panel.querySelector('#satomi-heard');
+  var replyEl  = panel.querySelector('#satomi-reply');
+  var audioEl  = panel.querySelector('#satomi-audio');
+
+  function setStatus(s, color) {
+    statusEl.textContent = s;
+    statusEl.style.color = color || '#888';
+  }
+  function showPanel() { panel.style.display = 'block'; }
+
+  // Web Speech API setup
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    btn.onclick = function() {
+      showPanel();
+      replyEl.textContent = 'Voice input not supported in this browser. Use Chrome, Edge, or Safari.';
+      setStatus('unsupported', '#FF4444');
+    };
+    return;
+  }
+
+  var recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  var finalTranscript = '';
+  var listening = false;
+
+  recognition.onstart  = function() { listening = true; setStatus('listening...', '#CC0000'); btn.style.boxShadow = '0 0 0 6px rgba(204,0,0,.25), 0 8px 24px rgba(204,0,0,.6)'; };
+  recognition.onend    = function() { listening = false; btn.style.boxShadow = '0 8px 24px rgba(204,0,0,.35)'; };
+  recognition.onerror  = function(e) { setStatus('error: ' + e.error, '#FF4444'); listening = false; };
+
+  recognition.onresult = function(event) {
+    var interim = '';
+    finalTranscript = '';
+    for (var i = 0; i < event.results.length; i++) {
+      var res = event.results[i];
+      if (res.isFinal) finalTranscript += res[0].transcript;
+      else interim += res[0].transcript;
+    }
+    heardEl.textContent = finalTranscript || interim;
+  };
+
+  function startListening() {
+    showPanel();
+    finalTranscript = '';
+    heardEl.textContent = '';
+    replyEl.textContent = '';
+    audioEl.style.display = 'none';
+    try { recognition.start(); } catch (e) { /* already started */ }
+  }
+
+  function stopAndSend() {
+    if (listening) {
+      try { recognition.stop(); } catch(e) {}
+    }
+    setTimeout(function() {
+      var text = (finalTranscript || heardEl.textContent || '').trim();
+      if (!text) { setStatus('nothing heard', '#888'); return; }
+      setStatus('thinking...', '#CCAA00');
+      replyEl.textContent = '';
+      fetch('/api/voice/full', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text: text, speak: true })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        if (!data.ok && !data.reply) {
+          setStatus('error', '#FF4444');
+          replyEl.textContent = data.error || 'Something went wrong.';
+          return;
+        }
+        replyEl.textContent = data.reply || '(no reply)';
+        setStatus(data.engine || 'ok', '#33CC66');
+        if (data.audio_b64) {
+          audioEl.src = 'data:audio/mpeg;base64,' + data.audio_b64;
+          audioEl.style.display = 'block';
+          audioEl.play().catch(function(){});
+        }
+        // If a board mutation tool ran, refresh the board.
+        var mutated = (data.tool_calls || []).some(function(t) {
+          return /board_(create|move|update|add_comment|assign)/.test(t.name);
+        });
+        if (mutated && typeof loadCards === 'function') loadCards();
+      })
+      .catch(function(err) {
+        setStatus('error', '#FF4444');
+        replyEl.textContent = String(err);
+      });
+    }, 250);
+  }
+
+  // Push-to-talk: hold to record, release to send.
+  // Also tap-to-toggle on touch devices.
+  var pressing = false;
+  var pressStart = 0;
+  btn.addEventListener('mousedown', function(){ pressing = true; pressStart = Date.now(); startListening(); });
+  btn.addEventListener('mouseup',   function(){ if (pressing) { pressing = false; stopAndSend(); } });
+  btn.addEventListener('mouseleave',function(){ if (pressing) { pressing = false; stopAndSend(); } });
+  btn.addEventListener('touchstart',function(e){ e.preventDefault(); pressing = true; pressStart = Date.now(); startListening(); }, {passive:false});
+  btn.addEventListener('touchend',  function(e){ e.preventDefault(); if (pressing) { pressing = false; stopAndSend(); } });
+
+  // Spacebar = push-to-talk shortcut (only when no input is focused)
+  document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space' && !pressing && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+      e.preventDefault();
+      pressing = true;
+      startListening();
+    }
+  });
+  document.addEventListener('keyup', function(e) {
+    if (e.code === 'Space' && pressing) {
+      e.preventDefault();
+      pressing = false;
+      stopAndSend();
+    }
+  });
+})();
+
 </script>
 {% endblock %}

@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-05-02T18:00:28.460440+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Miners Hold Firm: Bitcoin's 1066 EH/s Hashrate Signals Smart Money Accumulation",
+      "angle": "Thesis-driven deep dive on why sustained hashrate commitment during fear-dominated sentiment historically precedes rallies",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "sentiment",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "The 78K Pivot: Bitcoin's Psychological Support Test and the 72-Hour Volatility Window",
+      "angle": "Technical analysis of support dynamics and why Fear & Greed compression at 39 matters for the next directional move",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "support-resistance",
+        "volatility"
+      ]
+    },
+    {
+      "headline": "Mempool Stability in Fear Markets: Why Bitcoin's Clean Transaction Layer Matters Now",
+      "angle": "On-chain infrastructure health as a contrarian indicator when retail sentiment is compressed",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain",
+        "infrastructure"
+      ]
+    }
+  ]
+}

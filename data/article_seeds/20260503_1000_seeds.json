@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-05-03T10:00:29.517206+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Consolidation Zone: Why Network Strength Matters When Price Stands Still",
+      "angle": "Analyzing how on-chain metrics remain bullish even as price action shows indecision\u2014fundamentals vs. sentiment disconnect",
+      "tags": [
+        "bitcoin",
+        "network-health",
+        "hashrate",
+        "consolidation",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "The Mempool Tell: Low Fees Signal Bitcoin's Functional Network Despite Price Stagnation",
+      "angle": "How efficient transaction clearing at 3 sat/byte indicates no retail panic and network robustness during flat price periods",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network-efficiency"
+      ]
+    },
+    {
+      "headline": "Setup Days in Bitcoin: Why Institutional Silence Can Precede Major Moves",
+      "angle": "Explaining why neutral Fear & Greed combined with consolidation creates breakout conditions\u2014the waiting game before 80K test",
+      "tags": [
+        "bitcoin",
+        "institutional-flows",
+        "price-action",
+        "breakout",
+        "sentiment"
+      ]
+    }
+  ]
+}
