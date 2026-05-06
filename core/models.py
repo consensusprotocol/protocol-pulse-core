@@ -1639,6 +1639,7 @@ class BoardCard(db.Model):
             'created_at':  self.created_at.isoformat() + 'Z' if self.created_at else None,
             'updated_at':  self.updated_at.isoformat() + 'Z' if self.updated_at else None,
             'comment_count': self.comments.count(),
+            'attachment_count': self.attachments.count() if hasattr(self, 'attachments') else 0,
         }
 
 
@@ -1711,3 +1712,38 @@ class HubWidget(db.Model):
             'collapsed': bool(self.collapsed),
             'settings':  settings,
         }
+
+class BoardAttachment(db.Model):
+    __tablename__ = 'board_attachments'
+
+    id           = db.Column(db.Integer, primary_key=True)
+    card_id      = db.Column(db.Integer, db.ForeignKey('board_cards.id'), nullable=False)
+    uploader_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    attach_type  = db.Column(db.String(10), nullable=False)
+    filename     = db.Column(db.String(255))
+    stored_path  = db.Column(db.String(500))
+    file_size    = db.Column(db.Integer)
+    mime_type    = db.Column(db.String(120))
+    url          = db.Column(db.String(1000))
+    label        = db.Column(db.String(200))
+    created_at   = db.Column(db.DateTime, default=datetime.utcnow)
+
+    card     = db.relationship('BoardCard', backref=db.backref('attachments',
+                lazy='dynamic', order_by='BoardAttachment.created_at',
+                cascade='all, delete-orphan'))
+    uploader = db.relationship('User', foreign_keys=[uploader_id])
+
+    def to_dict(self):
+        return {
+            'id':          self.id,
+            'card_id':     self.card_id,
+            'attach_type': self.attach_type,
+            'filename':    self.filename,
+            'file_size':   self.file_size,
+            'mime_type':   self.mime_type,
+            'url':         self.url,
+            'label':       self.label or self.filename or self.url,
+            'uploader':    self.uploader.email.split('@')[0] if self.uploader else 'system',
+            'created_at':  self.created_at.isoformat() + 'Z' if self.created_at else None,
+        }
+
