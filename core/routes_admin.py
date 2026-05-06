@@ -4110,3 +4110,79 @@ def admin_publish_nostr():
         return jsonify({'error': 'Forbidden'}), 403
     from services.nip89_publisher import publish_all_services
     return jsonify(publish_all_services())
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BOARD ATTACHMENTS — file upload + link pinning on cards
+# ─────────────────────────────────────────────────────────────────────────────
+
+_BOARD_UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static', 'board_attachments')
+_BOARD_ALLOWED = {'pdf', 'doc', 'docx', 'txt', 'md', 'png', 'jpg', 'jpeg', 'gif', 'xlsx', 'csv', 'zip', 'pptx', 'mp4'}
+_BOARD_MAX_MB = 25
+
+def _board_ok_ext(fn):
+    return '.' in fn and fn.rsplit('.', 1)[1].lower() in _BOARD_ALLOWED
+
+@admin_bp.route('/api/admin/board/cards/<int:card_id>/attachments', methods=['GET'])
+@login_required
+def api_board_get_attachments(card_id):
+    from models import BoardAttachment
+    card = BoardCard.query.get_or_404(card_id)
+    return jsonify([a.to_dict() for a in card.attachments.order_by(BoardAttachment.created_at.desc())])
+
+@admin_bp.route('/api/admin/board/cards/<int:card_id>/attachments/upload', methods=['POST'])
+@login_required
+def api_board_upload_attachment(card_id):
+    from models import BoardAttachment
+    import uuid, mimetypes
+    card = BoardCard.query.get_or_404(card_id)
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    f = request.files['file']
+    if not f.filename or not _board_ok_ext(f.filename):
+        return jsonify({'error': 'File type not allowed'}), 400
+    f.seek(0, 2); size = f.tell(); f.seek(0)
+    if size > _BOARD_MAX_MB * 1024 * 1024:
+        return jsonify({'error': f'File exceeds {_BOARD_MAX_MB}MB limit'}), 400
+    os.makedirs(_BOARD_UPLOAD_DIR, exist_ok=True)
+    ext = f.filename.rsplit('.', 1)[1].lower()
+    stored_name = uuid.uuid4().hex + '.' + ext
+    stored_path = os.path.join(_BOARD_UPLOAD_DIR, stored_name)
+    f.save(stored_path)
+    att = BoardAttachment(
+        card_id=card_id, uploader_id=current_user.id,
+        attach_type='file', filename=f.filename, stored_path=stored_path,
+        file_size=size, mime_type=mimetypes.guess_type(f.filename)[0] or 'application/octet-stream',
+        url='/static/board_attachments/' + stored_name, label=f.filename,
+    )
+    db.session.add(att); db.session.commit()
+    return jsonify(att.to_dict()), 201
+
+@admin_bp.route('/api/admin/board/cards/<int:card_id>/attachments/link', methods=['POST'])
+@login_required
+def api_board_add_link(card_id):
+    from models import BoardAttachment
+    card = BoardCard.query.get_or_404(card_id)
+    data = request.get_json() or {}
+    url = (data.get('url') or '').strip()
+    label = (data.get('label') or url).strip()[:200]
+    if not url:
+        return jsonify({'error': 'URL required'}), 400
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url
+    att = BoardAttachment(card_id=card_id, uploader_id=current_user.id,
+        attach_type='link', url=url, label=label or url)
+    db.session.add(att); db.session.commit()
+    return jsonify(att.to_dict()), 201
+
+@admin_bp.route('/api/admin/board/attachments/<int:att_id>', methods=['DELETE'])
+@login_required
+def api_board_delete_attachment(att_id):
+    from models import BoardAttachment
+    att = BoardAttachment.query.get_or_404(att_id)
+    if att.attach_type == 'file' and att.stored_path and os.path.exists(att.stored_path):
+        try: os.remove(att.stored_path)
+        except Exception: pass
+    db.session.delete(att); db.session.commit()
+    return jsonify({'deleted': att_id})
+

@@ -325,6 +325,46 @@
 }
 .ob-toast.error { border-left-color: var(--red); }
 @keyframes obToastIn { from{transform:translateX(20px);opacity:0} to{transform:none;opacity:1} }
+
+/* ── ATTACHMENTS ───────────────────────────────────────── */
+.ob-attach-list { margin-top: 4px; }
+.ob-attach-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 8px; border: 1px solid var(--border);
+  border-radius: 3px; margin-bottom: 4px; background: rgba(255,255,255,.02);
+}
+.ob-attach-item:hover { border-color: var(--red); }
+.ob-attach-icon { font-size: 12px; margin-right: 6px; flex-shrink: 0; }
+.ob-attach-name {
+  font-size: 9px; color: var(--text); flex: 1; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; max-width: 320px;
+}
+.ob-attach-name a { color: var(--gold); text-decoration: none; }
+.ob-attach-name a:hover { color: #fff; text-decoration: underline; }
+.ob-attach-meta { font-size: 7px; color: var(--muted); margin-left: 6px; }
+.ob-attach-del { background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 10px; padding: 0 4px; }
+.ob-attach-del:hover { color: var(--red); }
+.ob-attach-actions { display: flex; gap: 6px; margin-top: 8px; }
+.ob-attach-btn {
+  flex: 1; font-family: var(--font-mono); font-size: 8px; letter-spacing: .12em;
+  padding: 6px 10px; background: transparent; border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer; text-align: center;
+  transition: border-color .15s, color .15s;
+}
+.ob-attach-btn:hover { border-color: var(--red); color: var(--text); }
+.ob-link-form { display: flex; gap: 6px; margin-top: 6px; }
+.ob-link-input {
+  flex: 1; font-family: var(--font-mono); font-size: 9px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); padding: 5px 8px;
+}
+.ob-link-input:focus { border-color: var(--red); outline: none; }
+.ob-attach-card-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 7px; color: var(--muted);
+}
+
 </style>
 
 <!-- STATS STRIP -->
@@ -402,6 +442,29 @@
               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitComment();}">
             <button class="ob-comment-submit" onclick="submitComment()">POST</button>
           </div>
+
+        <!-- Attachments -->
+        <div class="ob-comments" id="attach-section" style="margin-top:20px;">
+          <label class="ob-field-label" style="margin-top:0;">ATTACHMENTS</label>
+          <div class="ob-attach-list" id="modal-attachments"></div>
+          <div class="ob-attach-actions">
+            <label class="ob-attach-btn" for="attach-file-input" style="cursor:pointer;">
+              &#128206; UPLOAD FILE
+              <input type="file" id="attach-file-input" style="display:none;"
+                accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.gif,.xlsx,.csv,.zip,.pptx,.mp4"
+                onchange="uploadAttachment(this)">
+            </label>
+            <button class="ob-attach-btn" onclick="toggleLinkForm()">&#128279; ADD LINK</button>
+          </div>
+          <div id="attach-link-form" style="display:none;">
+            <div class="ob-link-form">
+              <input class="ob-link-input" id="link-url" placeholder="https://..." type="url">
+              <input class="ob-link-input" id="link-label" placeholder="Label (optional)" style="max-width:140px;">
+              <button class="ob-attach-btn" style="flex:0;padding:5px 12px;" onclick="submitLink()">ADD</button>
+            </div>
+          </div>
+          <div id="attach-upload-progress" style="display:none;font-size:8px;color:var(--muted);margin-top:4px;">Uploading...</div>
+        </div>
         </div>
       </div>
       <div class="ob-modal-side">
@@ -1035,6 +1098,103 @@ document.addEventListener('keydown', function(e) {
     }
   });
 })();
+
+
+
+// ── ATTACHMENT BADGE ON CARDS ─────────────────────────────────────────────
+function renderAttachBadge(card) {
+  if (!card.attachment_count) return '';
+  return '<span class="ob-attach-card-badge">&#128206; ' + card.attachment_count + '</span>';
+}
+
+// ── LOAD ATTACHMENTS FOR OPEN CARD ────────────────────────────────────────
+let _currentCardId = null;
+function loadAttachments(cardId) {
+  _currentCardId = cardId;
+  fetch('/api/admin/board/cards/' + cardId + '/attachments')
+    .then(r => r.json()).then(renderAttachList).catch(console.error);
+}
+
+function renderAttachList(items) {
+  const el = document.getElementById('modal-attachments');
+  if (!el) return;
+  if (!items.length) {
+    el.innerHTML = '<div style="font-size:8px;color:var(--muted);padding:4px 0;">No attachments yet.</div>';
+    return;
+  }
+  el.innerHTML = items.map(a => {
+    const icon = a.attach_type === 'link' ? '&#128279;' : getFileIcon(a.mime_type, a.filename);
+    const sizeStr = a.file_size ? ' · ' + Math.round(a.file_size / 1024) + 'KB' : '';
+    return '<div class="ob-attach-item">' +
+      '<span class="ob-attach-icon">' + icon + '</span>' +
+      '<span class="ob-attach-name"><a href="' + a.url + '" target="_blank" rel="noopener">' + (a.label || a.filename || a.url) + '</a></span>' +
+      '<span class="ob-attach-meta">' + (a.uploader || '') + sizeStr + '</span>' +
+      '<button class="ob-attach-del" onclick="deleteAttachment(' + a.id + ')" title="Remove">✕</button>' +
+      '</div>';
+  }).join('');
+}
+
+function getFileIcon(mime, filename) {
+  if (!mime && filename) mime = filename.split('.').pop().toLowerCase();
+  if (mime && mime.includes('pdf')) return '&#128196;';
+  if (mime && (mime.includes('word') || String(filename).endsWith('.docx') || String(filename).endsWith('.doc'))) return '&#128195;';
+  if (mime && mime.includes('image')) return '&#128444;';
+  if (mime && (mime.includes('sheet') || String(filename).endsWith('.xlsx'))) return '&#128202;';
+  if (mime && mime.includes('video')) return '&#127909;';
+  return '&#128206;';
+}
+
+// ── UPLOAD FILE ───────────────────────────────────────────────────────────
+function uploadAttachment(input) {
+  if (!input.files.length || !_currentCardId) return;
+  const file = input.files[0];
+  const prog = document.getElementById('attach-upload-progress');
+  if (prog) { prog.textContent = 'Uploading ' + file.name + '...'; prog.style.display = 'block'; }
+  const fd = new FormData();
+  fd.append('file', file);
+  fetch('/api/admin/board/cards/' + _currentCardId + '/attachments/upload', {
+    method: 'POST', body: fd
+  }).then(r => r.json()).then(data => {
+    if (data.error) { alert('Upload failed: ' + data.error); }
+    else { loadAttachments(_currentCardId); }
+    if (prog) prog.style.display = 'none';
+    input.value = '';
+  }).catch(e => {
+    alert('Upload error: ' + e);
+    if (prog) prog.style.display = 'none';
+  });
+}
+
+// ── ADD LINK ──────────────────────────────────────────────────────────────
+function toggleLinkForm() {
+  const f = document.getElementById('attach-link-form');
+  if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function submitLink() {
+  const url = (document.getElementById('link-url') || {}).value || '';
+  const label = (document.getElementById('link-label') || {}).value || '';
+  if (!url || !_currentCardId) return;
+  fetch('/api/admin/board/cards/' + _currentCardId + '/attachments/link', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({url, label})
+  }).then(r => r.json()).then(data => {
+    if (data.error) { alert('Error: ' + data.error); return; }
+    document.getElementById('link-url').value = '';
+    document.getElementById('link-label').value = '';
+    const f = document.getElementById('attach-link-form');
+    if (f) f.style.display = 'none';
+    loadAttachments(_currentCardId);
+  }).catch(e => alert('Error: ' + e));
+}
+
+// ── DELETE ATTACHMENT ─────────────────────────────────────────────────────
+function deleteAttachment(attId) {
+  if (!confirm('Remove this attachment?')) return;
+  fetch('/api/admin/board/attachments/' + attId, {method: 'DELETE'})
+    .then(() => loadAttachments(_currentCardId));
+}
 
 </script>
 {% endblock %}
