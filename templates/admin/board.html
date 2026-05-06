@@ -792,6 +792,7 @@ function openCard(id) {
     'Created: ' + (card.created_at||'').substring(0,10) + '<br>' +
     'Updated: ' + (card.updated_at||'').substring(0,10);
   loadComments(id);
+  loadAttachments(id);
   document.getElementById('ob-modal-overlay').classList.add('open');
 }
 

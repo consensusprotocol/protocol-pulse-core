@@ -52,7 +52,7 @@ curl -s http://localhost:5000/health
 ## INVIOLABLE RULES
 - NEVER print .env contents or expose API keys
 - NEVER sed .env files — use nano
-- NEVER start avatar_server.py (HeyGen broken, wastes 6GB RAM)
+- avatar_server.py is a PROTECTED live service running Wav2Lip/Kokoro for Satomi Oracle — DO NOT KILL
 - NEVER export ANTHROPIC_API_KEY before CC
 - NEVER force push to git
 - NEVER add logic to assembler.py — use the split modules
