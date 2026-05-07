@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-05-07T02:00:32.542467+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Quiet Consolidation: Why $81K Could Hold When Macro Pressure Arrives",
+      "angle": "Analysis of consolidation phase with focus on network fundamentals (hashrate, mempool) as potential support anchors despite overnight macro sensitivity",
+      "tags": [
+        "bitcoin",
+        "consolidation",
+        "technical-analysis",
+        "network-health",
+        "macro"
+      ]
+    },
+    {
+      "headline": "Fear & Greed at 47: The Market Psychology Behind Bitcoin's Measured Overnight Window",
+      "angle": "Explore what neutral sentiment signals mean for position timing and risk management during macro-sensitive periods",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "trading",
+        "fear-and-greed"
+      ]
+    },
+    {
+      "headline": "Mempool Efficiency & Network Strength: Why Bitcoin's Technical Foundation Matters in Choppy Markets",
+      "angle": "Deep dive into why low fees (1 sat/byte) and clean mempool clearing are bullish microeconomic signals even during consolidation",
+      "tags": [
+        "bitcoin",
+        "network",
+        "technical",
+        "fees",
+        "blockchain"
+      ]
+    }
+  ]
+}

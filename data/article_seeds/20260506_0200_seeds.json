@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-05-06T02:00:30.164929+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "The Conviction Gap: Why Bitcoin's Rally Feels Hollow at Fear Index 46",
+      "angle": "Despite green candles, institutional buyers remain sidelined as Fear & Greed sentiment contradicts price action\u2014examining the psychology behind light-volume rallies",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "institutional-adoption",
+        "market-psychology"
+      ]
+    },
+    {
+      "headline": "Miner Resilience vs. Market Doubt: Bitcoin's Divided Signal at 81.4K",
+      "angle": "Hashrate stability at 985 EH/s shows miners' conviction, but defensive market sentiment suggests institutional capitulation isn't imminent\u2014what gives?",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "hashrate",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "Mempool Friction and the Price Rally That Couldn't: Bitcoin's Network Congestion Story",
+      "angle": "47,500 transactions queued at minimal fees reveal network stress during modest gains\u2014exploring the technical limits of this advance",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network-health",
+        "transaction-fees"
+      ]
+    }
+  ]
+}

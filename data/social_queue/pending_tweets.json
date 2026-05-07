@@ -1,62 +1,62 @@
 [
   {
-    "id": "tweet_20260501_020020_0",
-    "text": "Fed just spent $847B on currency interventions last quarter. Block 947,362 running at 1 sat/vB. One system burns capital defending its denominator. The other just works",
+    "id": "tweet_20260505_020023_0",
+    "text": "1 sat/vB fees while 947,955 blocks deep. The network is saying something. Nobody's in a rush to move bitcoin. That's not weakness",
+    "angle": "onchain_metric",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-05T02:00:23.826513+00:00",
+    "brief_date": "Saturday, May 02, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260505_170027_0",
+    "text": "Spain's pension system carries 500% unfunded obligations on a collapsing birth rate. Italy's worse. They'll print currency to pretend it's manageable. Bitcoin doesn't care about their math",
     "angle": "macro_monetary",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-05T17:00:27.294822+00:00",
+    "brief_date": "Tuesday, May 05, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260506_020027_0",
+    "text": "Brown University holds 212,500 BTC shares. Harvard sits on the sidelines. In 10 years we'll know which endowment understood that fiat dies but bitcoin doesn't",
+    "angle": "institutional_flow",
     "type": "observation",
     "format": "fiat_failure",
     "priority": 3,
     "status": "pending",
-    "generated_at": "2026-05-01T02:00:20.206107+00:00",
-    "brief_date": "Thursday, April 30, 2026",
+    "generated_at": "2026-05-06T02:00:27.532663+00:00",
+    "brief_date": "Tuesday, May 05, 2026",
     "sentiment": "bullish"
   },
   {
-    "id": "tweet_20260501_170020_0",
-    "text": "1 sat/vB while Fear reads 26. Network is saying something the macro crowd hasn't noticed yet",
-    "angle": "contrarian_take",
+    "id": "tweet_20260506_170025_0",
+    "text": "971.2 EH/s network hashrate while fear index sits at 46. Miners aren't selling. That's the only institutional vote that actually matters",
+    "angle": "onchain_metric",
     "type": "observation",
     "format": "brief_signal",
     "priority": 3,
     "status": "pending",
-    "generated_at": "2026-05-01T17:00:20.349297+00:00",
-    "brief_date": "Friday, May 01, 2026",
-    "sentiment": "bullish"
+    "generated_at": "2026-05-06T17:00:25.811667+00:00",
+    "brief_date": "Wednesday, May 06, 2026",
+    "sentiment": "uncertain"
   },
   {
-    "id": "tweet_20260502_020023_0",
-    "text": "If institutions are rotating $2.44B into Bitcoin monthly because fiat is broken, why do they still lobby for the system that's breaking it",
-    "angle": "contrarian_take",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-02T02:00:23.297374+00:00",
-    "brief_date": "Friday, May 01, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260502_170024_0",
-    "text": "Block 947595 and fees at 1 sat/vB. The network isn't congested. It's patient. While everyone debates scaling wars, Bitcoin just sits there working. That's the actual moat",
+    "id": "tweet_20260507_020027_0",
+    "text": "1 sat/vB fees while 964.4 EH/s hashrate keeps climbing. Nobody's panicking into selling. The market's obsessed with narratives. The network's obsessed with work",
     "angle": "network_fundamentals",
     "type": "observation",
     "format": "community_narrative",
     "priority": 3,
     "status": "pending",
-    "generated_at": "2026-05-02T17:00:24.752324+00:00",
-    "brief_date": "Saturday, May 02, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260503_020022_0",
-    "text": "Argentina froze bank accounts in 1989. Lebanon did it in 2019. Cyprus in 2013. Every time a currency dies, capital controls follow. Bitcoin doesn't freeze",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-03T02:00:22.264927+00:00",
-    "brief_date": "Saturday, May 02, 2026",
-    "sentiment": "bullish"
+    "generated_at": "2026-05-07T02:00:27.458669+00:00",
+    "brief_date": "Wednesday, May 06, 2026",
+    "sentiment": "uncertain"
   }
 ]

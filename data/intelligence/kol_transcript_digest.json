@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-04-27T12:00:35.179294+00:00",
-  "creator_count": 7,
-  "avg_sentiment_score": 66.6,
+  "generated_at": "2026-05-05T16:00:33.310026+00:00",
+  "creator_count": 26,
+  "avg_sentiment_score": 60.2,
   "sentiment_breakdown": {
-    "bullish": 5,
-    "bearish": 1,
-    "neutral": 1
+    "bullish": 10,
+    "bearish": 4,
+    "neutral": 12
   },
-  "dominant_sentiment": "bullish",
+  "dominant_sentiment": "neutral",
   "trending_themes": [
     {
-      "topic": "quantum computing threat",
+      "topic": "Political manipulation and deep state control",
       "creator_count": 1,
       "creators": [
-        "Stacker News"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "The Constitution is dying. I'm sorry to tell you."
     },
     {
-      "topic": "coin freezing mechanism",
+      "topic": "Palantir surveillance technology",
       "creator_count": 1,
       "creators": [
-        "Stacker News"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "The Constitution is dying. I'm sorry to tell you."
     },
     {
-      "topic": "51% attack scenario",
+      "topic": "Constitutional rights erosion",
       "creator_count": 1,
       "creators": [
-        "Stacker News"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "The Constitution is dying. I'm sorry to tell you."
     },
     {
-      "topic": "mining pool incentives",
+      "topic": "Wealth as resistance/financial sovereignty",
       "creator_count": 1,
       "creators": [
-        "Stacker News"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "The Constitution is dying. I'm sorry to tell you."
     },
     {
-      "topic": "long-term Bitcoin security",
+      "topic": "Police and surveillance state expansion",
       "creator_count": 1,
       "creators": [
-        "Stacker News"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "20% of bitcoins...can be stolen by quantum computer"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "The Constitution is dying. I'm sorry to tell you."
     }
   ],
-  "summary": "# Bitcoin Creator Consensus and Divergence Summary\n\n**Consensus:** Bitcoin creators broadly agree on Bitcoin's fundamental value proposition\u2014whether as protection against monetary debasement (money printing concerns), geopolitical instability, or quantum threats\u2014and most expect bullish price action driven by institutional adoption and macroeconomic pressures.\n\n**Key Divergence:** While most sources are bullish on Bitcoin's price and utility, they diverge sharply on *why* and *when*. Swan Bitcoin and Altcoin Daily expect near-term gains from Fed rate cuts and institutional accumulation, while BTC Sessions warns of severe inflation from unsustainable government spending that could actually harm Bitcoin's purchasing power in the short term. Additionally, Stacker News raises a critical technical debate about whether the Bitcoin community should *proactively manage* quantum risk or trust market mechanisms\u2014a governance question that contrasts with other sources' focus on price and adoption.\n\n**Emerging Narrative:** Beyond price, Bitcoin Magazine emphasizes Bitcoin's humanitarian role in unstable regimes and BitVM's technical expansion, suggesting the conversation is maturing beyond speculation toward real-world utility and protocol innovation.",
+  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators broadly view it as a hedge against systemic monetary and political dysfunction\u2014whether from surveillance states, central bank mismanagement, inflation, or taxation. They emphasize personal key custody as fundamental to Bitcoin's value proposition.\n\n**Key Divergence:** Sentiment ranges from deeply bearish (15/100) on near-term macro conditions to strongly bullish (92/100) on Bitcoin's long-term adoption inevitability. Simply Bitcoin sees Kevin Warsh's Fed appointment as potentially catalyzing Bitcoin adoption despite elite concerns, while BTC Sessions views similar political developments as threats to constitutional liberty. Disagreement also exists on timing\u2014some identify $60K as a bear market bottom worth waiting on, while others treat Bitcoin adoption as assured regardless of price action.\n\n**Secondary Split:** On macro outlook, there's a divide between those predicting economic catastrophe (supply shocks, rate hikes, demand destruction) and those focused on structural AI-driven shifts requiring monetary regime change\u2014both conclude Bitcoin benefits, but from different causal narratives.",
   "top_creators": [
-    {
-      "channel": "Stacker News",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": "Bitcoin community debates whether to proactively freeze quantum-vulnerable coins (20% of supply) to prevent theft by future quantum computers, or allow the market to handle the threat naturally."
-    },
-    {
-      "channel": "Swan Bitcoin",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "Bitcoin will benefit from Fed rate cuts once inflation becomes more explicable and geopolitical oil chaos subsides. Kevin Warsh will cut rates using AI productivity gains and trimmed inflation metrics as intellectual cover, which is bullish for Bitcoin as the hardest asset."
-    },
-    {
-      "channel": "Bitcoin Magazine",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Bitcoin is not merely a speculative asset in stable economies, but a critical survival tool for people in unstable regimes and conflict zones where traditional banking systems cannot be trusted. Western media misrepresents Bitcoin by focusing on negative use cases rather than understanding its humanitarian and protective value."
-    },
-    {
-      "channel": "Bitcoin Magazine",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "BitVM with binohasher enables transaction introspection on Bitcoin without requiring full chain proofs, allowing secure cross-chain bridges and expanding Bitcoin's programmability through clever cryptographic primitives."
-    },
     {
       "channel": "BTC Sessions",
       "sentiment": "bearish",
       "score": 15,
-      "thesis": "The U.S. faces inevitable large-scale money printing due to unsustainable debt dynamics, with government spending on military, interest, and entitlements leaving no cuts possible, forcing monetary expansion that will be highly inflationary\u2014especially problematic during supply-side constraints rather than demand-side stimulus."
+      "thesis": "J.D. Vance is a groomed political operative for the tech-industrial complex who will accelerate surveillance state policies and constitutional erosion if elected. Bitcoin/wealth accumulation is positioned as the primary resistance to systemic control."
+    },
+    {
+      "channel": "BTC Sessions",
+      "sentiment": "bearish",
+      "score": 25,
+      "thesis": "A major supply shock from Middle East conflict and poor energy policy will cause catastrophic demand destruction in Europe, leading to economic pain worse than COVID as central banks raise rates on non-inflationary supply constraints."
+    },
+    {
+      "channel": "Coin Bureau",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "eCash fork creates a philosophical debate about chain ownership rules rather than actual theft, since original Bitcoin remains completely safe and unchanged; the real question is whether a new network can establish its own starting rules using external ownership data."
+    },
+    {
+      "channel": "Simply Bitcoin",
+      "sentiment": "mixed",
+      "score": 65,
+      "thesis": "Kevin Warsh's appointment as Fed Chair appears concerning due to elite connections and potential conflicts of interest, but could paradoxically be bullish for Bitcoin by destabilizing traditional monetary policy and increasing institutional adoption."
+    },
+    {
+      "channel": "Simply Bitcoin",
+      "sentiment": "bullish",
+      "score": 92,
+      "thesis": "AI-driven structural economic changes are forcing a Fed regime shift under Kevin Warsh that will create a massive supply shock, making Bitcoin's adoption as a digital store of value an inevitability rather than a forecast."
     }
   ]
 }

@@ -1,42 +1,63 @@
 [
   {
-    "id": "e2f8cb14-c26a-4316-8177-f359bc6b9859",
+    "id": "e1d00c80-875a-4c63-ad13-716768f90266",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "**BITCOIN EVENING BRIEF**\n\nBTC holding steady at eighty-one-thousand, one-sixty-six\u2014down just point-three percent on the day. We're seeing neutral sentiment across the board. Fear and Greed sitting at forty-seven, which tells us the market's taking a measured approach heading into the overnight wind",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
+    "topic_preview": "Oracle Evening Brief \u2014 $81,166",
+    "generated_at": "2026-05-07T02:00:05.476695+00:00",
+    "expires_at": "2026-05-07T06:00:05.476695+00:00",
+    "video_url": "/data/stage_briefs/brief_20260507_0200.mp4"
+  },
+  {
+    "id": "f3a44a06-456a-4aa0-85a1-b9078c1579ac",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Lyn Alden just documented infrastructure collapse in real time: Spirit Airlines shutdown eliminates regional airport access, forcing centralization onto major hubs. This is monetary collapse's physical mirror \u2014 when systems fail, individuals absorb the friction cost.\n\nWatch: which regional airports become uneconomical next.",
-    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
-    "topic_preview": "I live near a tiny, oddly convenient airport that only had Spirit flights.\n\nWith",
-    "generated_at": "2026-05-04T20:20:20.035575+00:00",
-    "expires_at": "2026-05-04T22:20:20.035575+00:00"
+    "script": "Nat Brunell quotes Hemingway on bankruptcy\u2014the apt metaphor. Financial dissolution mirrors relationship collapse: imperceptible deterioration until the ledger stops balancing entirely. Watch the Bitcoin holder's marriage rate against fiat purchasing power loss in next three quarters.",
+    "source_label": "\ud83e\udde0 @NATBRUNELL",
+    "topic_preview": "\u201cWe fall out of love the way we go bankrupt\u2026which is very slowly, and then all a",
+    "generated_at": "2026-05-07T03:35:29.572879+00:00",
+    "expires_at": "2026-05-07T05:35:29.572879+00:00"
   },
   {
-    "id": "3fa7723e-3ae3-41b9-b4ed-a4a48d2517e7",
+    "id": "f272161f-9f0f-4038-bbd2-17af2a370378",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "PROTOCOL PULSE \u2014 METRICS HOUR\n\nBitcoin holding 79,978 despite Fear gauge at 40. Hashrate climbed to 1,007 exahash \u2014 miners still confident while retail panics.\n\nWatch the next difficulty adjustment. Sustained hashrate at these levels during fear typically precedes capitulation events.",
+    "script": "PROTOCOL PULSE \u2014 METRICS SEGMENT\n\nHashrate holding at 936.5 exahash despite price compression\u2014miners aren't capitulating. Fear & Greed at 47 neutral, transaction volume steady at 45k/block, but watch the 1 sat/byte floor: if fee market collapses below subsidy economics,",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $79,979 \u00b7 FNG 40 \u00b7 1007.8 EH/s",
-    "generated_at": "2026-05-04T20:20:40.251684+00:00",
-    "expires_at": "2026-05-05T00:20:40.251684+00:00"
+    "topic_preview": "BTC $80,954 \u00b7 FNG 47 \u00b7 936.5 EH/s",
+    "generated_at": "2026-05-07T02:21:03.362138+00:00",
+    "expires_at": "2026-05-07T06:21:03.362138+00:00"
   },
   {
-    "id": "ccd00fc4-42e0-40fc-97ef-761d02fc0de0",
+    "id": "75701707-f3bb-4262-9fb3-b99bd4e15274",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin Nostr relays show community growth accelerating. New user registrations up 34% month-over-month.\n\nWatch for next wave of node deployments from emerging relay operators.",
+    "script": "PROTOCOL PULSE \u2014 NOSTR SIGNAL\n\nBitcoin builders are broadcasting milestones over Nostr relays instead of traditional media. This signals collapse of institutional gatekeeping \u2014 sovereign nodes now control narrative distribution.\n\nWatch for migration velocity: how many developers move primary comms off Twitter to self-hosted relays next quarter.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Community growth and team milestones",
-    "generated_at": "2026-05-04T20:20:52.041006+00:00",
-    "expires_at": "2026-05-05T00:20:52.041006+00:00"
+    "generated_at": "2026-05-07T00:50:50.526181+00:00",
+    "expires_at": "2026-05-07T04:50:50.526181+00:00"
   },
   {
-    "id": "8f999625-fff9-490f-bdeb-86bd5d37f1d0",
+    "id": "ebd71ba9-2bf1-49b1-925d-f3af7c305e2a",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "There are only 21 million bitcoin. That's not a soft cap, not a target \u2014 it's a mathematical certainty enforced by every node on the network. In a world of infinite money printing, scarcity is the ultimate signal.",
+    "script": "Running a full node costs less than a streaming subscription. For that price, you independently verify every transaction since the genesis block. That's sovereignty you can run on a Raspberry Pi.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "There are only 21 million bitcoin. That's not a soft cap, not a target \u2014 it's a ",
-    "generated_at": "2026-05-04T20:21:08.418984+00:00",
-    "expires_at": "2026-05-05T00:21:08.418984+00:00"
+    "topic_preview": "Running a full node costs less than a streaming subscription. For that price, yo",
+    "generated_at": "2026-05-07T02:11:07.752853+00:00",
+    "expires_at": "2026-05-07T06:11:07.752853+00:00"
+  },
+  {
+    "id": "07762dcf-ac03-48cc-851e-00f42e261e14",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, the network recalibrates to maintain ten-minute block intervals regardless of how much hash power joins or leaves. Self-regulating monetary infrastructure.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, th",
+    "generated_at": "2026-05-07T02:11:34.217535+00:00",
+    "expires_at": "2026-05-07T06:11:34.217535+00:00"
   }
 ]

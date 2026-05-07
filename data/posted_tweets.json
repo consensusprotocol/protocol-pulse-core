@@ -706,5 +706,41 @@
     "timestamp": "2026-05-03T02:00:18.908023+00:00",
     "text_preview": "Argentina froze bank accounts in 1989. Lebanon did it in 2019. Cyprus in 2013. E",
     "format_type": "historical_pattern"
+  },
+  {
+    "hash": "213d83a1ead024a7143033085fbfb933",
+    "timestamp": "2026-05-04T21:30:41.761416+00:00",
+    "text_preview": "Fear index at 40 while hashrate hits 952.3 EH/s. The network doesn't care about ",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "db5d28a2b6773cfa880c146503e4ad46",
+    "timestamp": "2026-05-05T02:00:20.797670+00:00",
+    "text_preview": "1 sat/vB fees while 947,955 blocks deep. The network is saying something. Nobody",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "2544534ce60e302f3b41ff8988020232",
+    "timestamp": "2026-05-05T17:00:25.161150+00:00",
+    "text_preview": "Spain's pension system carries 500% unfunded obligations on a collapsing birth r",
+    "format_type": "macro_monetary"
+  },
+  {
+    "hash": "a061704a10461dba5fa51caf39825cf9",
+    "timestamp": "2026-05-06T02:00:24.304205+00:00",
+    "text_preview": "Brown University holds 212,500 BTC shares. Harvard sits on the sidelines. In 10 ",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "09c6d06f7933c77fdd0ca0982af0049a",
+    "timestamp": "2026-05-06T17:00:22.536167+00:00",
+    "text_preview": "971.2 EH/s network hashrate while fear index sits at 46. Miners aren't selling. ",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "f3823b0c71e0ce8050579f821225264a",
+    "timestamp": "2026-05-07T02:00:24.036856+00:00",
+    "text_preview": "1 sat/vB fees while 964.4 EH/s hashrate keeps climbing. Nobody's panicking into ",
+    "format_type": "network_fundamentals"
   }
 ]

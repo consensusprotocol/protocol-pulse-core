@@ -89,7 +89,7 @@ def fix_av_sync(input_path: str, output_path: str) -> bool:
         "-map", "0:a:0",
         "-c:v", "libx264", "-crf", "17", "-preset", "medium",
         "-r", "30", "-vsync", "cfr",
-        "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30,format=yuv420p,setpts=PTS-STARTPTS",
+        "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=fps=30,format=yuv420p,setpts=PTS-STARTPTS",
         "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
         "-af", "aresample=async=1:min_hard_comp=0.1:first_pts=0,asetpts=PTS-STARTPTS",
         "-avoid_negative_ts", "make_zero",
@@ -333,11 +333,11 @@ def _ensure_clip_av_sync(clip_path: str, video_id: str = ""):
         ok = _run_ffmpeg([
             "-fflags", "+genpts",
             "-i", clip_path,
-            "-vf", "setpts=PTS-STARTPTS",
+            "-vf", "fps=30,setpts=PTS-STARTPTS",
             "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
             "-c:v", "libx264", "-preset", "medium", "-crf", "17",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-            "-r", "30", "-vsync", "cfr",
+            "-vsync", "cfr",
             "-shortest",
             synced,
         ], f"AV sync {video_id}", 120)
@@ -444,32 +444,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
 
     logger.info(f"  Extracting {video_id} [{start_sec}-{end_sec}s]...")
     try:
-        # P0 FIX: timeout 120->300s; log stderr on failure; retry with 720p fallback.
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-        if result.returncode != 0:
-            logger.error(
-                f"[extractor] yt-dlp FAILED for {video_id}: returncode={result.returncode} | "
-                f"stderr: {result.stderr[:500]}"
-            )
-            logger.info(f"[extractor] Retrying {video_id} with 720p fallback format...")
-            cmd_720 = list(cmd)
-            try:
-                _f_idx = cmd_720.index("-f")
-                cmd_720[_f_idx + 1] = (
-                    "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/"
-                    "bestvideo[height<=720]+bestaudio/best[height<=720]/best"
-                )
-            except ValueError:
-                pass
-            try:
-                result = subprocess.run(cmd_720, capture_output=True, text=True, timeout=300)
-                if result.returncode != 0:
-                    logger.error(
-                        f"[extractor] yt-dlp 720p RETRY also failed for {video_id}: "
-                        f"stderr: {result.stderr[:500]}"
-                    )
-            except subprocess.TimeoutExpired:
-                logger.error(f"[extractor] yt-dlp 720p RETRY timed out after 300s for {video_id}")
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         if result.returncode == 0 and os.path.exists(output_path):
             # V30 FIX: yt-dlp --download-sections seeks video to keyframes but audio exactly.
             # Measure actual V/A start times and trim video to match audio start.
@@ -506,7 +481,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             resync_ok = _run_ffmpeg([
                 "-i", output_path,
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-r", "30", "-vsync", "cfr",
-                "-vf", "setpts=PTS-STARTPTS",
+                "-vf", "setpts=PTS-STARTPTS,fps=30",
                 "-c:a", "aac", "-ar", "48000",
                 "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                 "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",
@@ -638,7 +613,7 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
             resync_ok = _run_ffmpeg([
                 "-i", output_path,
                 "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-r", "30", "-vsync", "cfr",
-                "-vf", "setpts=PTS-STARTPTS",
+                "-vf", "setpts=PTS-STARTPTS,fps=30",
                 "-c:a", "aac", "-ar", "48000",
                 "-af", "aresample=async=1:first_pts=0,asetpts=PTS-STARTPTS",
                 "-avoid_negative_ts", "make_zero", "-max_interleave_delta", "0",

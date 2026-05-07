@@ -467,17 +467,6 @@ def scan_all_channels(model_size: str = "base") -> list:
             logger.info(f"  Transcript cached ({len(video['transcript_text'])} chars)")
             continue
 
-        # P0 FIX: Skip Whisper transcription for videos longer than 30 min.
-        # Long videos cause Whisper to run 7+ minutes and sometimes crash —
-        # duration is already captured in scan_channel() metadata.
-        _vid_duration = video.get("duration", 0)
-        if _vid_duration > 1800:
-            logger.warning(
-                f"  Skipping {vid}: duration {_vid_duration}s exceeds 1800s "
-                f"(30 min) Whisper gate"
-            )
-            continue
-
         # Download audio
         audio_path = download_audio(vid)
         if not audio_path:

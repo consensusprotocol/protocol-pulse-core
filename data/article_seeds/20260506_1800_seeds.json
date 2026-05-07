@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-05-06T18:00:29.760193+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "The Quiet Accumulation: Why Hashrate Climbing Into 990s EH/s Matters More Than Bitcoin's Price Action",
+      "angle": "Network fundamentals as leading indicator for price moves; why miner commitment signals institutional conviction",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "on-chain",
+        "miners",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "Clean Mempool, Patient Whales: Inside Bitcoin's Stabilization Phase Before the Next Move",
+      "angle": "Analyzing whale accumulation patterns and mempool health as signals of institutional positioning during consolidation",
+      "tags": [
+        "bitcoin",
+        "whales",
+        "on-chain",
+        "mempool",
+        "accumulation"
+      ]
+    },
+    {
+      "headline": "Fear Index at 46: Why Bitcoin's Stabilization Above Psychological Thresholds Precedes Rallies",
+      "angle": "Historical analysis of Bitcoin's price behavior when network metrics strengthen amid moderate fear sentiment",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-greed",
+        "price-action",
+        "cycles"
+      ]
+    }
+  ]
+}

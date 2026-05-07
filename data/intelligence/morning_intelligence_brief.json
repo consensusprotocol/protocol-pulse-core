@@ -1,52 +1,59 @@
 {
-  "generated_at": "2026-05-02T00:00:00Z",
-  "date": "Saturday, May 02, 2026",
-  "btc_price": "$78,459",
-  "btc_change_24h": "+0.0%",
+  "generated_at": "2026-05-06T14:32:00Z",
+  "date": "Wednesday, May 06, 2026",
+  "btc_price": "$81,464",
+  "btc_change_24h": "-0.1%",
   "fng": "Fear",
   "dominant_narratives": [
-    "Bitcoin as monetary escape hatch from unsustainable fiscal policy and currency debasement",
-    "Institutional adoption driving next bull cycle via macroeconomic pressures and layer-2 innovation (STRC as 'iPhone moment')",
-    "Protocol hardening against quantum threats—proactive freezing vs. market-driven solutions debate emerging"
+    "Bitcoin as inflation hedge against monetary dysfunction and central bank mismanagement",
+    "Self-custody and key ownership as non-negotiable sovereignty against surveillance infrastructure",
+    "Regulatory capture via CLARITY Act language as immediate threat vector requiring vigilance",
+    "Institutional adoption (Morgan Stanley, Colombian mining) legitimizing Bitcoin into legacy finance",
+    "AI-driven economic restructuring necessitating hard money exit from fiat regime"
   ],
   "trending_language": [
-    "stack sats / stack in HWW",
-    "the protocol can't bend anymore",
-    "STRC = iPhone moment for credit markets",
-    "open source funding is strategic, not charity",
-    "quantum-resistant rescue mechanisms",
-    "Buy Bitcoin. Buy more Bitcoin."
+    "Stack sats",
+    "Stay humble",
+    "Narrative follows price",
+    "Proof of Results",
+    "Freedom tech",
+    "Immense boost",
+    "There Will Be Blood phase",
+    "Treasonous",
+    "Cold storage mentality"
   ],
-  "sentiment": "bullish",
-  "sentiment_reasoning": "Dominant creator consensus scores 66.6/100 bullish despite Fear index at 39. Institutional accumulation narratives, macro tailwinds from $39T debt bomb, and technical innovation (BitVM, STRC layer-2s) sustain conviction even as market flatlines.",
+  "sentiment": "uncertain",
+  "sentiment_reasoning": "Fear gauge at 46 reflects distribution hesitation amid institutional adoption signals. Community oscillates between 'catalyst waiting' skepticism and conviction that price action irrelevant to fundamental value prop. Macro anxiety (CLARITY Act, surveillance expansion, rate suppression) countered by structural tailwinds (Morgan Stanley E*Trade launch, Latin American mining, AI demand shift).",
   "top_accounts_active": [
-    "@stephanlivera",
-    "@PeterMcCormack",
-    "@giacomozucco",
-    "@nvk",
-    "@saifedean",
+    "@_Checkmatey_",
+    "@MartyBent",
     "@lopp",
-    "@LynAldenContact",
-    "@saylor"
+    "@nvk",
+    "@BitcoinMagazine",
+    "@TFTC21",
+    "@unchained",
+    "@sethforprivacy",
+    "@NickSzabo4"
   ],
   "recommended_tweet_angles": [
-    "Contrast Fed's monetary renegotiation chaos daily vs. Bitcoin's fixed 21M supply guarantee—macro pain → BTC demand signal",
-    "STRC layer-2 credit stack is live yield play while institutions quietly accumulate; retail still sleeping on protocol expansion",
-    "Quantum threat is real but governance question matters more: does Bitcoin freeze vulnerable UTXOs proactively or let market solve it? This shapes next 5 years.",
-    "Open source Bitcoin devs are strategic infrastructure plays, not charity cases—companies funding protocol wins geopolitical advantage"
+    "Morgan Stanley's E*Trade integration: institutional plumbing matters more than price action. 8.6M retail touching Bitcoin infrastructure = narrative inevitability.",
+    "CLARITY Act watch: 'illicit finance' provisions are Patriot Act 2.0. Self-custody isn't optional—it's existential resistance to regulatory mission creep.",
+    "Bears defending 78K (STH cost basis) + 83-85K (200DMA). Supply clusters there matter. Patience rewards those who buy conviction, not bounces.",
+    "Colombian President calling Bitcoin 'immense boost to Caribbean development' while US bureaucrats weaponize 'illicit finance' language. The regime is losing the narrative.",
+    "GenAI spending: $30-40B enterprise ROI = zero. Consumer demand growing 12x by 2030. Bitcoin is the hard money that survives the AI restructuring—fiat won't."
   ],
   "topics_to_avoid": [
-    "Geopolitical conflicts (West Bank/Israel content dominating feed but signal-to-noise ratio extremely low; off-brand for technical audience)",
-    "DEI discourse (polarizing, tangential to protocol, attracts ideological rather than technical engagement)"
+    "Jon Stewart Bitcoin commentary (too soft, mainstream-adjacent)",
+    "Humanoid robot monk stories (novelty, dilutes signal)",
+    "Geopolitical theater (Ayatollah memes undermine credibility)",
+    "Generic 'Bitcoin marketing is great' praise (lacks edge)"
   ],
-  "engagement_patterns": "Short, declarative assertions resonating hardest ('Buy Bitcoin. Buy more Bitcoin.'). Long-form threads on macro policy and protocol philosophy get amplification from core builders (Zucco, Lopp, Alden). Sarcasm/irony layering (Zucco's cultist subtweet ratio) signals community in playful defensive posture. Emoji use minimal; technical precision valued.",
-  "protocol_pulse_voice_guidance": "Stay macro-skeptical but protocol-neutral. Emphasize Bitcoin's *immunity to narrative capture* rather than participating in culture war commentary. Lead with quantifiable incentive structures (Hightide_ch: 'protocol loses what made it unique the moment it bends'). Use cypherpunk realism: acknowledge quantum risk openly, analyze governance tradeoffs clinically, avoid tribal certainty. Mirror the precision of Lopp's quantum essays and Alden's macroeconomic rigor—this is where influence concentrates today.",
+  "engagement_patterns": "Cypherpunk realism dominates: data-first analysis (_Checkmatey_ trendlines, supply clusters), regulatory threat acknowledgment (CLARITY Act specifics), and self-sovereignty language resonate hardest. Dismissal of 'catalyst waiting' gets retweeted. Macro analysis + microeconomic custody angles outperform price speculation. Tone: irreverent, conviction-driven, hostile to institutional capture.",
+  "protocol_pulse_voice_guidance": "Today's voice: forensic, wary, defiant. Lead with regulatory threats (CLARITY Act expansion) as clarifying moment—regime is panicking as institutional adoption becomes inevitable. Position Morgan Stanley as symptom of their lost narrative war, not victory. Emphasize supply clusters and bear defense levels as where real players accumulate, not tourists. Use 'narrative follows price' frame to mock waiting-for-catalyst mindset. Cypherpunk angle: self-custody is becoming non-negotiable infrastructure as surveillance apparatus tightens. Data-backed skepticism of macro conditions paired with structural inevitability of Bitcoin adoption creates intellectual honesty the mainstream can't match.",
   "key_stats_today": {
-    "tweets_analyzed": 116,
+    "tweets_analyzed": 158,
     "nostr_signals": 0,
-    "unique_handles": 69,
-    "consensus_dominance": "bullish (66.6/100 avg)",
-    "price_action_correlation": "flat (0.0% 24h) but conviction sustained on macro/protocol fundamentals rather than price momentum"
+    "unique_handles": 95
   },
   "generated_by": "claude_haiku"
 }

@@ -5,7 +5,7 @@
       "channels": 1,
       "sentiment": "bullish",
       "velocity_score": 2,
-      "authority_score": 1,
+      "authority_score": 2,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -16,7 +16,7 @@
       "channels": 1,
       "sentiment": "bullish",
       "velocity_score": 1,
-      "authority_score": 2,
+      "authority_score": 1,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -28,9 +28,9 @@
     "Privacy-respecting Bitcoin acquisition",
     "Community growth and team milestones"
   ],
-  "dominant_narrative": "Community growth and team milestones",
+  "dominant_narrative": "Privacy-respecting Bitcoin acquisition",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-05-04T20:52:48Z"
+  "scan_time": "2026-05-07T04:18:38Z"
 }

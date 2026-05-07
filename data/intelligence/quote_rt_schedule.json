@@ -285,8 +285,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Money without scarcity is just a tool of control. Bitcoin is money without the tool.",
     "scheduled_at": "2026-04-30T02:00:15.826412+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-04T22:00:01.835512+00:00",
     "created_at": "2026-04-28T18:00:15.826412+00:00"
   },
   {
@@ -295,8 +295,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone sees hyperinflation coming. Nobody wants to admit they're already in it.",
     "scheduled_at": "2026-04-30T10:00:15.826412+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-05T04:00:03.621888+00:00",
     "created_at": "2026-04-28T18:00:15.826412+00:00"
   },
   {
@@ -305,8 +305,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The infrastructure of control is being silently routed around. This is the new baseline.",
     "scheduled_at": "2026-04-30T02:00:54.129200+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-05T19:00:02.612344+00:00",
     "created_at": "2026-04-29T18:00:54.129200+00:00"
   },
   {
@@ -315,8 +315,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The gatekeepers are still debating access while the gates themselves are being ignored.",
     "scheduled_at": "2026-04-30T10:00:54.129200+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-05T22:00:03.431544+00:00",
     "created_at": "2026-04-29T18:00:54.129200+00:00"
   },
   {
@@ -325,8 +325,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The aggregate data shows a clear preference for exit over engagement with permissioned systems.",
     "scheduled_at": "2026-04-30T18:00:54.129200+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-06T04:00:03.121848+00:00",
     "created_at": "2026-04-29T18:00:54.129200+00:00"
   },
   {
@@ -335,8 +335,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The demand for permissionless systems is a reassertion of pre-existing, non-negotiable sovereignty.",
     "scheduled_at": "2026-05-01T02:00:54.129200+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-06T19:00:02.716352+00:00",
     "created_at": "2026-04-29T18:00:54.129200+00:00"
   },
   {
@@ -345,8 +345,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The market isn't demanding 'privacy'. It's simply rejecting the cost of transparency and control imposed by others.",
     "scheduled_at": "2026-05-01T10:00:54.129200+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-06T22:00:03.409688+00:00",
     "created_at": "2026-04-29T18:00:54.129200+00:00"
   },
   {
@@ -355,8 +355,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Institutions call it fear. Miners call it opportunity. One group is positioning for the next decade.",
     "scheduled_at": "2026-05-01T02:00:17.855126+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-07T04:00:03.455335+00:00",
     "created_at": "2026-04-30T18:00:17.855126+00:00"
   },
   {
@@ -498,5 +498,105 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-02T18:00:17.017084+00:00"
+  },
+  {
+    "anchor_id": "376",
+    "anchor_text": "Spain's pension system carries 500% unfunded obligations on a collapsing birth rate. Italy's worse. They'll print currency to pretend it's manageable. Bitcoin doesn't care about their math",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "500% unfunded obligations means they've already spent money that doesn't exist. They're just deciding who pays for it now.",
+    "scheduled_at": "2026-05-06T02:00:19.997464+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-05T18:00:19.997464+00:00"
+  },
+  {
+    "anchor_id": "376",
+    "anchor_text": "Spain's pension system carries 500% unfunded obligations on a collapsing birth rate. Italy's worse. They'll print currency to pretend it's manageable. Bitcoin doesn't care about their math",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "When your pension math requires currency debasement to work, you've admitted the currency is the problem.",
+    "scheduled_at": "2026-05-06T10:00:19.997464+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-05T18:00:19.997464+00:00"
+  },
+  {
+    "anchor_id": "376",
+    "anchor_text": "Spain's pension system carries 500% unfunded obligations on a collapsing birth rate. Italy's worse. They'll print currency to pretend it's manageable. Bitcoin doesn't care about their math",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "A collapsing birth rate plus unfunded liabilities equals a country that must choose between defaulting or inflating. They'll pick option two.",
+    "scheduled_at": "2026-05-06T18:00:19.997464+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-05T18:00:19.997464+00:00"
+  },
+  {
+    "anchor_id": "376",
+    "anchor_text": "Spain's pension system carries 500% unfunded obligations on a collapsing birth rate. Italy's worse. They'll print currency to pretend it's manageable. Bitcoin doesn't care about their math",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Pensions built on the assumption of perpetual growth are just ponzi schemes with government letterhead.",
+    "scheduled_at": "2026-05-07T02:00:19.997464+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-05T18:00:19.997464+00:00"
+  },
+  {
+    "anchor_id": "376",
+    "anchor_text": "Spain's pension system carries 500% unfunded obligations on a collapsing birth rate. Italy's worse. They'll print currency to pretend it's manageable. Bitcoin doesn't care about their math",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real story isn't that their system is broken. It's that they're legally obligated to break it on schedule.",
+    "scheduled_at": "2026-05-07T10:00:19.997464+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-05T18:00:19.997464+00:00"
+  },
+  {
+    "anchor_id": "379",
+    "anchor_text": "971.2 EH/s network hashrate while fear index sits at 46. Miners aren't selling. That's the only institutional vote that actually matters",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "When miners won't sell at 46 fear, they're pricing in something the market hasn't priced yet",
+    "scheduled_at": "2026-05-07T02:00:19.180296+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-06T18:00:19.180296+00:00"
+  },
+  {
+    "anchor_id": "379",
+    "anchor_text": "971.2 EH/s network hashrate while fear index sits at 46. Miners aren't selling. That's the only institutional vote that actually matters",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The fear index trades on emotion. The hashrate trades on math. One of them is always right",
+    "scheduled_at": "2026-05-07T10:00:19.180296+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-06T18:00:19.180296+00:00"
+  },
+  {
+    "anchor_id": "379",
+    "anchor_text": "971.2 EH/s network hashrate while fear index sits at 46. Miners aren't selling. That's the only institutional vote that actually matters",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "971.2 EH/s means the actual custodians of the network see asymmetric upside. Everything else is noise",
+    "scheduled_at": "2026-05-07T18:00:19.180296+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-06T18:00:19.180296+00:00"
+  },
+  {
+    "anchor_id": "379",
+    "anchor_text": "971.2 EH/s network hashrate while fear index sits at 46. Miners aren't selling. That's the only institutional vote that actually matters",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Sovereignty isn't voted on. It's secured. And right now it's being secured by people who refuse to sell",
+    "scheduled_at": "2026-05-08T02:00:19.180296+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-06T18:00:19.180296+00:00"
+  },
+  {
+    "anchor_id": "379",
+    "anchor_text": "971.2 EH/s network hashrate while fear index sits at 46. Miners aren't selling. That's the only institutional vote that actually matters",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone watches whale wallets. Meanwhile the real power brokers are the ones pointing hash at blocks",
+    "scheduled_at": "2026-05-08T10:00:19.180296+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-06T18:00:19.180296+00:00"
   }
 ]

@@ -1,7 +1,631 @@
 {
-  "last_updated": "2026-04-27T12:00:27.880070+00:00",
+  "last_updated": "2026-05-05T16:00:26.945953+00:00",
   "total_analyses": 200,
   "analyses": [
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "J.D. Vance is a groomed political operative for the tech-industrial complex who will accelerate surveillance state policies and constitutional erosion if elected. Bitcoin/wealth accumulation is positioned as the primary resistance to systemic control.",
+      "key_quotes": [
+        "The Constitution is dying. I'm sorry to tell you.",
+        "The best resistance is you have to become wealthy.",
+        "They need you to be domestic terrorists so they can take away your constitutional rights."
+      ],
+      "topics": [
+        "Political manipulation and deep state control",
+        "Palantir surveillance technology",
+        "Constitutional rights erosion",
+        "Wealth as resistance/financial sovereignty",
+        "Police and surveillance state expansion"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "BTC Sessions",
+      "title": "\"He's 100% Fake\" \u2014 Simon Dixon Just Exposed JD Vance",
+      "video_id": "AxyoajNO6uI",
+      "duration": 967.34,
+      "analyzed_at": "2026-05-05T16:00:24.933399+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 25,
+      "main_thesis": "A major supply shock from Middle East conflict and poor energy policy will cause catastrophic demand destruction in Europe, leading to economic pain worse than COVID as central banks raise rates on non-inflationary supply constraints.",
+      "key_quotes": [
+        "The demand destruction that you're going to see down the pipe from here is going to be absolutely catastrophic",
+        "Golf crude production has dropped by 14.5 million barrels per day, 57% below the pre-war levels",
+        "When you go against first principles, these things happen"
+      ],
+      "topics": [
+        "Oil supply shock and crude production decline",
+        "Central bank interest rate policy and inflation treatment",
+        "European energy crisis and demand destruction",
+        "Energy policy failures and geopolitical conflict"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "BTC Sessions",
+      "title": "The Supply Shock NOBODY Sees Coming \u2014 The Pain Will Be Bigger Than COVID",
+      "video_id": "DKCTAQTKULs",
+      "duration": 1535.18,
+      "analyzed_at": "2026-05-05T04:00:43.459716+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "eCash fork creates a philosophical debate about chain ownership rules rather than actual theft, since original Bitcoin remains completely safe and unchanged; the real question is whether a new network can establish its own starting rules using external ownership data.",
+      "key_quotes": [
+        "The original Bitcoin is completely safe and unchanged by this plan",
+        "The real question is whether a new chain...is morally required to perfectly honor that ownership structure",
+        "It's not the same as the theft argument that is currently all over social media"
+      ],
+      "topics": [
+        "eCash Bitcoin fork at block 964,000",
+        "Satoshi coin reassignment controversy",
+        "Patoshi pattern and statistical attribution",
+        "Sidechain technology (BIP 300, BIP 3001)",
+        "Philosophical ownership rights of forked chains"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Coin Bureau",
+      "title": "Satoshi's Stash Gets Grabbed in eCash Bitcoin Fork",
+      "video_id": "itJpwsK3WVg",
+      "duration": 1103.81,
+      "analyzed_at": "2026-05-05T04:00:27.587970+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 65,
+      "main_thesis": "Kevin Warsh's appointment as Fed Chair appears concerning due to elite connections and potential conflicts of interest, but could paradoxically be bullish for Bitcoin by destabilizing traditional monetary policy and increasing institutional adoption.",
+      "key_quotes": [
+        "By the end of this video, I'm going to explain why this might actually be the most bullish thing that's ever happened for Bitcoin",
+        "Warsh wasn't just an attendee. He was on the steering committee. That's not showing up to a party. That is running the party",
+        "Powell himself called it a pretext to force him to lower rates"
+      ],
+      "topics": [
+        "Federal Reserve leadership and monetary policy",
+        "Elite group memberships (Bilderberg, Group of 30)",
+        "Conflict of interest and connections (Lauder family)",
+        "Powell DOJ investigation and leverage",
+        "Bitcoin adoption and institutional implications"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "channel": "Simply Bitcoin",
+      "title": "Why Trump REALLY Chose Kevin Warsh to Run the Fed",
+      "video_id": "FEJWFuhSNKk",
+      "duration": 1096.98,
+      "analyzed_at": "2026-05-05T00:03:10.338107+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 92,
+      "main_thesis": "AI-driven structural economic changes are forcing a Fed regime shift under Kevin Warsh that will create a massive supply shock, making Bitcoin's adoption as a digital store of value an inevitability rather than a forecast.",
+      "key_quotes": [
+        "This is not a forecast, this is an inevitability.",
+        "Gold, religion, and now Bitcoin. These are the three things human beings have trusted to hold value when systems crumble.",
+        "Fed independence is at risk - Powell warning his replacement is being installed to do something the Fed isn't supposed to do."
+      ],
+      "topics": [
+        "Fed chair transition (Powell to Warsh)",
+        "AI disruption of labor and capital distribution",
+        "Bitcoin as digital store of value",
+        "Supply shock thesis",
+        "Fed independence and institutional stability"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Simply Bitcoin",
+      "title": "The Fed Shakeup That Sets Off Bitcoin's Biggest Rally Ever!",
+      "video_id": "sjCHEGFDJks",
+      "duration": 1118.17,
+      "analyzed_at": "2026-05-05T00:03:04.370615+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 55,
+      "main_thesis": "Satoshi's identity doesn't matter\u2014Bitcoin's true security lies in private key custody and decentralization. The real question is whether you control your own keys or have surrendered that control to exchanges.",
+      "key_quotes": [
+        "Until someone signs with Satoshi's keys, every theory is just narrative",
+        "You bought the asset designed so no one could take it from you and then you simply handed it over to someone else",
+        "Not your keys, not your coins"
+      ],
+      "topics": [
+        "Satoshi Nakamoto identity speculation",
+        "Self-custody vs exchange custody",
+        "Bitcoin's censorship-resistant design",
+        "Private key security",
+        "Market cycle patterns"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Simply Bitcoin",
+      "title": "Who is Satoshi Nakamoto?",
+      "video_id": "Zp7HKQ0jkMs",
+      "duration": 958.64,
+      "analyzed_at": "2026-05-05T00:02:59.109168+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "Inflation and taxation systematically destroy the purchasing power of human labor, eroding approximately 5.2 hours of an 8-hour workday through combined tax wedge (30.1%) and CPI inflation (95% over 25 years). Bitcoin represents a revolt against this monetary entropy by offering an alternative to fiat currency debasement.",
+      "key_quotes": [
+        "Bitcoin is the revolt of saved human time against monetary entropy",
+        "The first 30.1% of your working life goes to the tax structure before you even get to decide",
+        "Only 36 cents of every single labor dollar that you earn survives after 25 years"
+      ],
+      "topics": [
+        "Inflation impact on purchasing power",
+        "Tax wedge and effective labor theft",
+        "Fiat currency debasement",
+        "Bitcoin as alternative currency",
+        "Real cost of living analysis"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Swan Bitcoin",
+      "title": "Why Inflation Destroyed 8 Hours Of Your Workday",
+      "video_id": "STCHCKeFm04",
+      "duration": 876.5,
+      "analyzed_at": "2026-05-05T00:02:53.866778+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 68,
+      "main_thesis": "Bitcoin's bear market bottom is likely in around $60K based on multiple on-chain and technical signals, but the creator is not buying yet and wants more confirmation before entering positions.",
+      "key_quotes": [
+        "Bitcoin's bottom is probably in at $60K \u2014 but I'm not buying here",
+        "I don't think it's wise to bet on further downside price action",
+        "Over 80% of Bitcoin supply held by long-term holders"
+      ],
+      "topics": [
+        "200-week moving average support levels",
+        "ETF institutional flows and demand",
+        "On-chain metrics (value days destroyed, long-term holder behavior)",
+        "Funding rates and short positioning",
+        "Bitcoin vs gold relative purchasing power"
+      ],
+      "price_prediction": "$96,000 potentially in May (based on institutional accumulation patterns averaging 24% returns)",
+      "confidence": "medium",
+      "channel": "Bitcoin Magazine Pro",
+      "title": "Bitcoin's Bottom Is Probably In At $60K \u2014 But I'm Not Buying Here",
+      "video_id": "gBX6epR93w0",
+      "duration": 501.72,
+      "analyzed_at": "2026-05-05T00:02:35.113548+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 45,
+      "main_thesis": "STRC offers attractive 11.5% yields backed by MicroStrategy's Bitcoin treasury, but the analysis suggests potential breaking points and risks that warrant careful examination before investing.",
+      "key_quotes": [
+        "this might sound a little bit too good to be true",
+        "show you where it's going to break, which is something not many people are talking about",
+        "21.8 billion dollars in senior claims, sitting ahead of common stockholders"
+      ],
+      "topics": [
+        "STRC stablecoin mechanics and yield structure",
+        "MicroStrategy capital structure and debt hierarchy",
+        "Bitcoin accumulation via dilution vs alternative financing",
+        "STRC price stability mechanisms and dividend adjustments",
+        "Risk analysis of preferred securities"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Bitcoin Magazine Pro",
+      "title": "I Stress Tested STRC's 11.5% Yield \u2014 Is It Too Good To Be True?",
+      "video_id": "4AdXULofkkk",
+      "duration": 949.1,
+      "analyzed_at": "2026-05-05T00:02:29.452524+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 55,
+      "main_thesis": "Real Vision is releasing new tools and content features to democratize crypto market analysis and improve community signal quality through AI-powered summaries and member call tracking.",
+      "key_quotes": [
+        "We're only as strong as we battle test each other's ideas",
+        "Our community is the best signal",
+        "This is what RV is all about"
+      ],
+      "topics": [
+        "Institutional crypto research (Coinbase partnership)",
+        "MIT report accessibility",
+        "AI chatbot community tools (Marty)",
+        "Member call tracking and leaderboards",
+        "Community sentiment analysis"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Real Vision Finance",
+      "title": "Bitcoin, AI, and Trade Ideas: Real Vision Weekly Wrap",
+      "video_id": "AYyylU4_A04",
+      "duration": 1089.77,
+      "analyzed_at": "2026-05-05T00:02:23.370460+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 62,
+      "main_thesis": "AI integration with crypto and macro trends presents significant opportunities, particularly with Ethereum as a coordination layer. Geopolitical shifts favoring China and East Asia create both winners and losers in energy markets.",
+      "key_quotes": [
+        "June, August 2026 breakout remains the highest probability window",
+        "US is operating more like a great power focusing on sphere of influence",
+        "There's so many different ways to use it [AI]"
+      ],
+      "topics": [
+        "AI integration with cryptocurrency",
+        "Ethereum as AI coordination layer",
+        "Geopolitical shifts and energy markets",
+        "Technical analysis (Heikin Ashi, Bitcoin charts)",
+        "Community trading ideas and analysis"
+      ],
+      "price_prediction": "June-August 2026 breakout window identified as highest probability",
+      "confidence": "medium",
+      "channel": "Real Vision Finance",
+      "title": "The Weekly Wrap-Up: AI, Crypto, and Market Sentiment",
+      "video_id": "4kW4VETwPBM",
+      "duration": 768.47,
+      "analyzed_at": "2026-05-05T00:02:18.137539+00:00"
+    },
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 25,
+      "main_thesis": "May 2026 presents an unusually concentrated set of macro catalysts that pose significant downside risks to Bitcoin, including potential failure of the Clarity Act, Fed Chair transition uncertainty, tech sector layoffs, and Warren Buffett's record cash hoarding signaling defensive positioning.",
+      "key_quotes": [
+        "May 2026 is different, and not because of seasonality. Seven separate catalysts are converging",
+        "If the Clarity Act dies in this window, then comprehensive market structure legislation pushes deep into 2027",
+        "Buffett has only positioned this defensively twice before, pre-2000 and pre-2008. Both times, he was right"
+      ],
+      "topics": [
+        "Regulatory risk - Digital Asset Market Clarity Act stalling in Senate",
+        "Monetary policy - Fed Chair confirmation hearing and rate expectations",
+        "Tech sector recession - 81,000+ layoffs impacting crypto-native demographics",
+        "Macro positioning - Warren Buffett's record $373B cash position",
+        "Seasonality myth debunking - 'Sell in May' analysis"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Coin Bureau",
+      "title": "Bitcoin's Biggest TEST - Sell In May?",
+      "video_id": "YLHHLa3G8kU",
+      "duration": 689.41,
+      "analyzed_at": "2026-05-05T00:02:11.817912+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "The U.S. military's official adoption of Bitcoin nodes for cybersecurity infrastructure represents institutional validation of Bitcoin's proof-of-work system as a strategic national defense tool against adversaries like China.",
+      "key_quotes": [
+        "Bitcoin's proof of work is a serious strategic tool like a modern form of military deterrence",
+        "peer-to-peer zero-trust transfer of value...directly relevant to how the military protects its critical networks",
+        "proof-of-work is just as important today and any country that ignores it is giving up a key way to project power"
+      ],
+      "topics": [
+        "U.S. military adoption and cybersecurity applications",
+        "Bitcoin proof-of-work as national defense infrastructure",
+        "Decentralized system resilience and 100% uptime reliability",
+        "Geopolitical competition with China",
+        "Electro-cyber security theory"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Coin Bureau",
+      "title": "US Military Confirms Bitcoin Is National Defense",
+      "video_id": "1uT7QrFb0W4",
+      "duration": 775.17,
+      "analyzed_at": "2026-05-05T00:02:04.803180+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "Bitcoin is entering a massive bull run driven primarily by digital credit flowing into crypto assets, with corporate treasury adoption and institutional capital providing additional tailwinds.",
+      "key_quotes": [
+        "Digital credit is a genie that is out of the bottle...one of the fastest growing products in finance",
+        "It's irresponsible now for a company to operate and not have 5-15% of treasury in Bitcoin",
+        "If even one or two percent flows into digital credit, this will be an explosion"
+      ],
+      "topics": [
+        "digital credit growth and yield opportunities",
+        "corporate Bitcoin treasury adoption",
+        "institutional capital inflows",
+        "private credit market migration to crypto",
+        "financial system currency substitution risk"
+      ],
+      "price_prediction": "$125,000 (Arthur Hayes end-of-year target)",
+      "confidence": "high",
+      "channel": "Anthony Pompliano",
+      "title": "Bitcoiners Predict MASSIVE Bull Market",
+      "video_id": "VER8TkkZQQI",
+      "duration": 852.16,
+      "analyzed_at": "2026-05-05T00:01:52.457991+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 62,
+      "main_thesis": "Bitcoin companies are consolidating under treasury/PE-style holding companies (like Tether's XXI acquiring Strike) because traditional IPO pathways don't exist, creating a new business model resembling Berkshire Hathaway but this may concentrate wealth away from regular users.",
+      "key_quotes": [
+        "there's just not a pathway for some of these companies to get to the open market",
+        "Teller's the buyer of last resort for most companies",
+        "Plebs are just on the sidelines now"
+      ],
+      "topics": [
+        "Tether XXI Strike Elektron merger",
+        "Bitcoin company consolidation",
+        "Treasury companies and PE models",
+        "IPO pathways for Bitcoin firms",
+        "Wealth concentration in Bitcoin ecosystem"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "channel": "Stacker News",
+      "title": "Tether plans merger between XXI, Strike, and Elektron - Jack Maller",
+      "video_id": "GFmaX2DPuIo",
+      "duration": 300.19,
+      "analyzed_at": "2026-05-05T00:01:45.885963+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "This is not a Bitcoin video; it's a discussion of AI trends and capabilities shown through various graphs and metrics from a science journal.",
+      "key_quotes": [
+        "The United States, China, and Europe... US leads in AI models",
+        "World AI compute capacity has grown 3.3x yearly since 2022",
+        "AI's overall impact on employment remains unclear"
+      ],
+      "topics": [
+        "AI model development by geography",
+        "Computing capacity growth",
+        "AI limitations (analog clock recognition)",
+        "AI investment trends",
+        "Employment impact of AI"
+      ],
+      "price_prediction": null,
+      "confidence": "low",
+      "note": "This transcript contains no Bitcoin-specific content. The video appears to be about AI trends and metrics, not cryptocurrency or Bitcoin. The Stacker News attribution may be incorrect or this may be a misclassified submission.",
+      "channel": "Stacker News",
+      "title": "12 Graphs That Explain the State of AI in 2026",
+      "video_id": "aTD_dwXpuNQ",
+      "duration": 193.17,
+      "analyzed_at": "2026-05-05T00:01:39.515433+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 45,
+      "main_thesis": "GrapheneOS expansion beyond Pixels is a positive development for privacy, but risks quality degradation and may not solve the larger problem of mobile OS independence from Big Tech.",
+      "key_quotes": [
+        "Graphene OS is finally ready to break free from Pixels",
+        "trying to support multiple devices is really hard",
+        "we need an operating system for mobile and Graphene is doing that"
+      ],
+      "topics": [
+        "GrapheneOS expansion strategy",
+        "Android hardware fragmentation",
+        "Mobile privacy and KYC requirements",
+        "Open-source mobile OS development",
+        "App distribution platforms (F-Droid, Google Play)"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "Stacker News",
+      "title": "GrapheneOS is finally ready to break free from Pixels - F-Driod",
+      "video_id": "paGxq5kv2T8",
+      "duration": 327.08,
+      "analyzed_at": "2026-05-05T00:01:31.639974+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "Institutional adoption of Bitcoin through major ETF launches and normalized crypto ownership among financial advisors signals strong long-term growth potential. Bitcoin could appreciate 10X by the 2030s as it remains dramatically undervalued relative to its addressable market.",
+      "key_quotes": [
+        "Bitcoin could go up 10X by 2030s",
+        "Almost everyone [150 of 170 financial advisors] personally held Bitcoin or crypto",
+        "A year from now, we're going to be much higher"
+      ],
+      "topics": [
+        "Institutional ETF flows (Morgan Stanley, Goldman Sachs, Charles Schwab)",
+        "Bitcoin price channel (60K-80K resistance)",
+        "Mainstream adoption among financial advisors",
+        "Layer 1 blockchain competition (Solana, Avalanche)",
+        "Corporate treasury buying"
+      ],
+      "price_prediction": "Bitcoin will be 'significantly higher' within one year; stuck in 60K-80K channel near-term; Solana expected to reach triple digits by end of year",
+      "confidence": "high",
+      "channel": "CoinTelegraph",
+      "title": "Why Institutions Keep Buying Bitcoin \u2013 Bitwise CIO Explains",
+      "video_id": "56jMmF5rASg",
+      "duration": 773.2,
+      "analyzed_at": "2026-05-05T00:01:25.378762+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 72,
+      "main_thesis": "Government adoption of Bitcoin, particularly through a potential US strategic reserve, represents a sign of Bitcoin's success and could trigger a domino effect of nation-state accumulation despite not necessarily involving new purchases initially.",
+      "key_quotes": [
+        "It's just a sign of success, basically",
+        "Could have a pretty spectacular side effects on the Bitcoin price",
+        "Everybody buys Bitcoin at the price they deserve"
+      ],
+      "topics": [
+        "US Bitcoin strategic reserve policy",
+        "Nation-state Bitcoin accumulation and geopolitical competition",
+        "Bitcoin price targets (million dollar halving cycle bet)",
+        "Layer 2 scaling and base layer improvements",
+        "Post-quantum cryptography security"
+      ],
+      "price_prediction": "One bet to reach one million dollars in current halving cycle; potential for 'spectacular side effects' if nation-state bidding war occurs",
+      "confidence": "medium",
+      "channel": "CoinTelegraph",
+      "title": "Adam Back on Bitcoin\u2019s Drop and the US Bitcoin Reserve",
+      "video_id": "NxKi9OSmXiw",
+      "duration": 1143.66,
+      "analyzed_at": "2026-05-05T00:01:18.033144+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 75,
+      "main_thesis": "Bitcoin will reach $125,000 by end of year driven by improving dollar liquidity conditions and geopolitical factors. Crypto should operate independently rather than seek regulatory approval from governments.",
+      "key_quotes": [
+        "I think we could get through $125,000 by the end of the year",
+        "We didn't need regulations when Bitcoin was at zero. We don't need them at $125,000",
+        "Crypto should not be trying to be more like Treffi. Try and find these be more like crypto"
+      ],
+      "topics": [
+        "Bitcoin price targets ($100k-$125k)",
+        "Macroeconomic factors (dollar liquidity, geopolitical tensions)",
+        "Regulatory stance (FIT21/Clarity Act criticism)",
+        "Altcoin season and Hyperliquid trading",
+        "Bitcoin vs traditional markets outperformance"
+      ],
+      "price_prediction": "$125,000 by end of 2024; $100,000 after Northern Hemisphere summer",
+      "confidence": "medium",
+      "channel": "CoinTelegraph",
+      "title": "How Close Are We to $125,000 Bitcoin? Arthur Hayes Weighs In",
+      "video_id": "WlzjGMRglbs",
+      "duration": 414.72,
+      "analyzed_at": "2026-05-05T00:01:11.327235+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "Bitcoin breaking above $75,000 support with two consecutive weekly closes above this level strengthens the case for a move toward $100,000, supported by a bullish shark pattern and risk-on market environment.",
+      "key_quotes": [
+        "the case for a move towards $100,000 is actually rapidly strengthening",
+        "we have a big bullish setup on Ethereum",
+        "the bias remains that we're still seeing a move higher"
+      ],
+      "topics": [
+        "$75,000 support level significance",
+        "bullish shark chart pattern",
+        "stock market all-time highs correlation",
+        "higher lows sequence formation",
+        "fear and greed extremes at market lows"
+      ],
+      "price_prediction": "$93,000-$100,000 zone as next major resistance target",
+      "confidence": "medium",
+      "channel": "DataDash",
+      "title": "\ud83d\udea8 Bitcoin Breaks $80K Is $100K the Next Stop or Another Fakeout?",
+      "video_id": "Y5RUrBoGTnI",
+      "duration": 1309.08,
+      "analyzed_at": "2026-05-05T00:01:03.606306+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 78,
+      "main_thesis": "Bitcoin breaking above $80K represents a critical technical and psychological level with multiple bullish signals including a cup-and-handle pattern, short squeeze potential, and a 200-week moving average bounce that historically precedes significant rallies. The creator believes this week's volatility from Fed events could drive Bitcoin to $84-86K, though acknowledges a cycle low is still possible later in the year.",
+      "key_quotes": [
+        "Bitcoin doesn't have to make a lower low later this year",
+        "highest returns in Bitcoin come from the most uncomfortable moments",
+        "A massive short squeeze is possibly playing out right now"
+      ],
+      "topics": [
+        "Technical support levels ($80K psychological level, 200-week moving average)",
+        "Short squeeze potential and order book dynamics",
+        "Federal Reserve policy and economic calendar (FOMC, jobless claims, trade balance)",
+        "On-chain metrics (true market mean, short-term holder realized price)",
+        "Geopolitical risk (Iran missile strikes, oil prices)"
+      ],
+      "price_prediction": "$84,000-$86,000 this week if oil prices decrease; long-term ETH price target $7,000",
+      "confidence": "medium",
+      "channel": "Altcoin Daily",
+      "title": "WHY BITCOIN IS PUMPING LIKE CRAZY... What Comes Next??",
+      "video_id": "t9fhhBCtydk",
+      "duration": 489.6,
+      "analyzed_at": "2026-05-05T00:00:56.355241+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 85,
+      "main_thesis": "Bitcoin has likely bottomed and is entering a new bull market cycle lasting 2-3 years, supported by macro indicators like ISM manufacturing expansion, monthly RSI signals, and MVRV metrics matching previous bear market bottoms.",
+      "key_quotes": [
+        "The bottom is in and now we have upside to go",
+        "Two to three years of bullish market upon us",
+        "Bitcoin in short term is on a run to 90 to 95K"
+      ],
+      "topics": [
+        "ISM manufacturing cycle expansion",
+        "Bitcoin monthly RSI and cup-and-handle pattern",
+        "MVRV metric analysis",
+        "Copper/gold MACD bullish cross",
+        "S&P 500 and tech market strength correlation"
+      ],
+      "price_prediction": "90K-95K in short term; based on 2-3 year bull cycle projection from MVRV historical signals",
+      "confidence": "high",
+      "channel": "Altcoin Daily",
+      "title": "Bitcoin & Ethereum are about to SKYROCKET! (SERIOUSLY)",
+      "video_id": "jiftFdu3Apw",
+      "duration": 708.65,
+      "analyzed_at": "2026-05-05T00:00:48.716783+00:00"
+    },
+    {
+      "sentiment": "bullish",
+      "sentiment_score": 92,
+      "main_thesis": "Bitcoin price is rising due to institutional accumulation despite low retail participation, signaling a transformational period. Holding Bitcoin is now essential for protecting family, business, and country assets given macroeconomic deterioration.",
+      "key_quotes": [
+        "You better hold Bitcoin. If you want to protect your family, you want to protect your company, you want to protect your country, you better have some Bitcoin.",
+        "Bitcoin for the first time in history is the separation of money and state.",
+        "This is the greatest period in the history of crypto and just hold on, guys, hold on, it's coming."
+      ],
+      "topics": [
+        "Institutional Bitcoin ETF inflows ($2.44B in April 2026)",
+        "Retail participation decline despite price increases",
+        "US national debt exceeding GDP post-WWII",
+        "Global adoption (Japan JPX Bitcoin/crypto ETFs)",
+        "Stablecoin adoption rate (1.4% of M2 money supply)"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Altcoin Daily",
+      "title": "Billionaire Warns You Will REGRET Not Buying Bitcoin Here + XRP News",
+      "video_id": "bcYKueS31ZE",
+      "duration": 579.5,
+      "analyzed_at": "2026-05-05T00:00:40.211615+00:00"
+    },
+    {
+      "sentiment": "mixed",
+      "sentiment_score": 58,
+      "main_thesis": "While war doesn't boost Bitcoin's price in the short term, geopolitical conflict highlights Bitcoin's value as a neutral, borderless alternative to politically-controlled financial systems that can weaponize money and access.",
+      "key_quotes": [
+        "Bitcoin often behaves less like digital gold and more like a volatile tech stock",
+        "The global financial system is not neutral...built on institutions, alliances, and rules",
+        "It's the only workable alternative if the current system implodes"
+      ],
+      "topics": [
+        "Bitcoin as safe-haven asset during conflict",
+        "Government monetary policy and inflation",
+        "Financial sanctions and geopolitical control",
+        "Bitcoin's decentralized vs. traditional financial systems",
+        "Price volatility during market stress"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "CoinGecko",
+      "title": "Does War Make Bitcoin More Valuable?",
+      "video_id": "ubXUat-wmyc",
+      "duration": 223.27,
+      "analyzed_at": "2026-05-05T00:00:31.844252+00:00"
+    },
+    {
+      "sentiment": "neutral",
+      "sentiment_score": 50,
+      "main_thesis": "Prediction market platforms like Polymarket and Kalshi are expanding into perpetual futures trading, which could blur the line between prediction markets and crypto exchanges while intensifying competition with established players like Coinbase and Robinhood.",
+      "key_quotes": [
+        "It's increasingly a story about the future of retail trading, crypto competition",
+        "Perp trading in 2025 grew almost 50% to reach 86.2 trillion dollars in volume",
+        "The line between prediction markets and crypto exchanges could get much blurrier"
+      ],
+      "topics": [
+        "Perpetual futures (perps) market growth",
+        "Prediction market platform expansion",
+        "Crypto exchange competition",
+        "Regulatory oversight and insider trading concerns",
+        "Retail trading ecosystem consolidation"
+      ],
+      "price_prediction": null,
+      "confidence": "medium",
+      "channel": "CNBC",
+      "title": "Why Kalshi And Polymarket Are Betting On High Risk Crypto-Style Trading",
+      "video_id": "ifRbIzAFIJE",
+      "duration": 221.27,
+      "analyzed_at": "2026-05-05T00:00:25.162412+00:00"
+    },
     {
       "sentiment": "neutral",
       "sentiment_score": 50,
@@ -4090,629 +4714,6 @@
       "video_id": "yTFF27GEy5o",
       "duration": 2911.75,
       "analyzed_at": "2026-04-02T05:53:25.756003+00:00"
-    },
-    {
-      "sentiment": "bearish",
-      "sentiment_score": 25,
-      "main_thesis": "Hard decisions in the next 2-3 weeks are critical; without them, markets could face 35-40% declines driven by private credit problems and requiring massive central bank liquidity injections. Bitcoin and gold are recommended as safe-haven assets.",
-      "key_quotes": [
-        "35, 40% possible declines...hard decisions need to be made in the next two, three weeks",
-        "mother of all liquidity injections...Bitcoin and gold are what you're going to want to own",
-        "The problem is private credit. A lot of this isn't going to get paid back"
-      ],
-      "topics": [
-        "private credit crisis",
-        "central bank liquidity injections",
-        "market decline risk",
-        "Bitcoin as safe-haven asset",
-        "Q2 2026 economic outlook"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "TFTC",
-      "title": "He Was Right About Q1. His Q2 Warning Changes Everything.",
-      "video_id": "biotJvfDmIM",
-      "duration": 5021.05,
-      "analyzed_at": "2026-04-02T05:53:21.282299+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 78,
-      "main_thesis": "Bitcoin is the ultimate growth asset because it's the only scarce asset that cannot be devalued by AI, while macro instability (energy crises, geopolitical conflict, inflation) makes hard money essential.",
-      "key_quotes": [
-        "Bitcoin is the best opportunity because it's the one that doesn't get destroyed by AI",
-        "By the end of the year, people are going to be looking around going, it's the best growth asset",
-        "Economics is based on scarcity. We need scarce assets because we can print everything with AI"
-      ],
-      "topics": [
-        "AI disruption and economic scarcity",
-        "Geopolitical conflict (Iran, energy markets)",
-        "Inflation expectations and macro uncertainty",
-        "Strategic resource control (rare earth, energy supply chains)",
-        "Bitcoin as macro hedge"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Natalie Brunell",
-      "title": "Macro Breaking Point: Iran, AI & Why Bitcoin is the Ultimate Growth Asset with Jordi Visser",
-      "video_id": "C5aN5yHbAzE",
-      "duration": 2194.75,
-      "analyzed_at": "2026-04-02T05:53:16.575437+00:00"
-    },
-    {
-      "sentiment": "neutral",
-      "sentiment_score": 50,
-      "main_thesis": "Quantum computing poses a real but not immediate threat to Bitcoin's cryptographic security. The Google paper provides concrete timelines and requirements that move the discussion from science fiction to serious engineering, but significant hardware development is still required before any practical attack becomes feasible.",
-      "key_quotes": [
-        "Somewhere between Bitcoin is dead tomorrow and who cares this is 100 years away is the actual adult answer",
-        "1200 to 1450 logical qubits...still implies a huge amount of physical hardware that needs to be built out",
-        "The paper does make the threat feel a little more concrete"
-      ],
-      "topics": [
-        "Quantum computing threat to Bitcoin signatures",
-        "Elliptic curve cryptography vulnerability",
-        "Logical vs physical qubits distinction",
-        "Post-quantum cryptography migration timeline",
-        "Mempool attack scenarios"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Swan Bitcoin",
-      "title": "Bitcoin's Quantum-Resistant Future Just Got Real",
-      "video_id": "MXA39ece4_c",
-      "duration": 749.95,
-      "analyzed_at": "2026-04-02T05:53:11.821124+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 78,
-      "main_thesis": "Bitcoin has bottomed and this cycle differs from 2022 due to institutional adoption (spot ETFs, corporate accumulation) and new financial services enabling Bitcoin use without selling. Strategic's $42B ATM authorization signals confidence in sustained demand.",
-      "key_quotes": [
-        "I think we have bottomed in price",
-        "This is the kind of financial service that will make Bitcoin much more attractive to own as a long-term savings asset",
-        "They're setting the stage to be able to do that without too many more hurdles"
-      ],
-      "topics": [
-        "Spot Bitcoin ETFs and institutional adoption",
-        "Coinbase mortgage down payment program",
-        "Strategic's $42B ATM authorization",
-        "Bitcoin-backed lending innovation",
-        "Macro conditions vs 2022 comparison"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Swan Bitcoin",
-      "title": "Why this Bitcoin cycle is different: Coinbase Mortgage Down Payments + Strategy\u2019s $42B ATM Setup",
-      "video_id": "Aqo5zYv7U08",
-      "duration": 274.75,
-      "analyzed_at": "2026-04-02T05:53:07.348054+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 75,
-      "main_thesis": "Bitcoiners and gold advocates should unite around sound money principles and distrust of fiat currency, despite disagreements on specific assets. Bitcoin's properties make tokenized gold solutions problematic compared to Bitcoin's advantages.",
-      "key_quotes": [
-        "Bitcoiners and Goldbugs united in a disdain for fiat money",
-        "we need some kind of sound money to rebuild civilization on a sounder foundation",
-        "trying to tokenize gold is just ignoring what already happened in monetary history"
-      ],
-      "topics": [
-        "Sound money philosophy",
-        "Bitcoin vs gold comparison",
-        "Tokenized gold critique",
-        "Monetary history (pre-1971 gold standard)",
-        "Community building and Bitcoin conferences"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "Swan Bitcoin",
-      "title": "The Unexpected Connection Between Gold and Bitcoin",
-      "video_id": "W807xi9BPVA",
-      "duration": 267.42,
-      "analyzed_at": "2026-04-02T05:53:02.848138+00:00"
-    },
-    {
-      "sentiment": "neutral",
-      "sentiment_score": 50,
-      "main_thesis": "Bitcoin security and scam prevention are primarily social engineering problems, not technical ones, and affect all generations equally. Proper custody structures and understanding the distinction between legal ownership and control are essential for protecting Bitcoin holdings.",
-      "key_quotes": [
-        "Most of all, it's a social engineering problem. It's less technical or technological.",
-        "If I take self custody, surely I do own it, right? I control it now. But that is only part of the puzzle.",
-        "Anyone of any generation is susceptible to the main form of fraud and scams that target people's Bitcoin."
-      ],
-      "topics": [
-        "Social engineering and phishing scams",
-        "Self-custody vs custodial solutions",
-        "Bitcoin ownership vs control definitions",
-        "Multi-signature vault products",
-        "Generational vulnerability to Bitcoin fraud"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "BTC Sessions",
-      "title": "Bitcoin Boomers: Joe Kelly on Scams, Security & Self-Custody in 2026",
-      "video_id": "c5XO-zOGLT8",
-      "duration": 4816.85,
-      "analyzed_at": "2026-04-02T05:52:57.926108+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 78,
-      "main_thesis": "A simple dollar-cost averaging strategy using only the Fear and Greed Index (buying at 20 or below, selling at 80 or above) outperforms passive Bitcoin holding by nearly 500%, returning 1,153% vs 657% over 8+ years.",
-      "key_quotes": [
-        "1,153%. Nearly 500% outperformance by buying 1% every day",
-        "we're either extremely greedy or extremely fearful. We're a bit of a irrational crowd",
-        "657% returns, are gonna be hard to be across traditional equity markets"
-      ],
-      "topics": [
-        "Fear and Greed Index sentiment indicator",
-        "Dollar-cost averaging strategy",
-        "MVRV Z-score on-chain metric",
-        "Bitcoin cycle analysis and drawdowns",
-        "Trading strategy backtesting"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Bitcoin Magazine Pro",
-      "title": "I Use Just 1 Indicator And Outperform Bitcoin (Easily)",
-      "video_id": "-3fsC_aed88",
-      "duration": 1205.99,
-      "analyzed_at": "2026-04-02T05:52:48.537082+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 35,
-      "main_thesis": "Bitcoin is highly correlated to equity markets with a beta of 1.33, meaning a potential S&P 500 decline to its bottom 10th percentile (11.5-19% downside) would likely trigger a significant Bitcoin correction of 15-25%.",
-      "key_quotes": [
-        "Bitcoin is considerably smaller asset...very strongly correlated",
-        "only been seven instances of the S&P dropping into this lower 10th percentile",
-        "if we continue to see conflict and uncertainties...very sensible level to be watching"
-      ],
-      "topics": [
-        "S&P 500 correlation and beta analysis",
-        "equity market drawdown scenarios",
-        "Bitcoin volatility relative to traditional markets",
-        "geopolitical uncertainty and monetary policy impacts",
-        "historical market precedent analysis"
-      ],
-      "price_prediction": "Bitcoin expected to decline 15-25% if S&P 500 falls 19% to bottom 10th percentile range ($5,150-$5,600), occurring between April-September 2026",
-      "confidence": "medium",
-      "channel": "Bitcoin Magazine Pro",
-      "title": "This Has Only Happened 7 Times In Over 50 Years",
-      "video_id": "R2FhDAQ68Pw",
-      "duration": 1037.53,
-      "analyzed_at": "2026-04-02T05:52:44.174001+00:00"
-    },
-    {
-      "sentiment": "neutral",
-      "sentiment_score": 50,
-      "main_thesis": "The Epstein-Bitcoin conspiracy theory lacks substantive evidence; the block size war was fundamentally about technical scalability and decentralization, not a government/Epstein hijacking plot.",
-      "key_quotes": [
-        "Bitcoin is decentralized peer-to-peer electronic cash. The key word being decentralized.",
-        "There's a reason why every argument from the big blockers is some conspiracy rather than one about the actual technical debate.",
-        "The naive approach of just make the blocks bigger is actually referred to as having inverse scalability."
-      ],
-      "topics": [
-        "Block size war (2017 scaling debate)",
-        "Blockstream funding and influence allegations",
-        "MIT Media Lab and Epstein connections",
-        "Bitcoin decentralization and network architecture",
-        "Layer 2 scaling solutions (Lightning Network, sidechains)"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Guy Swann",
-      "title": "2Sats - Did Epstein Hijack Bitcoin?",
-      "video_id": "OHT7pG-gZfU",
-      "duration": 1482.45,
-      "analyzed_at": "2026-04-02T05:52:39.230930+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 45,
-      "main_thesis": "Quantum computing poses a significant long-term threat to Bitcoin's security, but the timeline is uncertain and debated. Bitcoin is taking proactive steps through BIP360 to become quantum-resistant before Q-Day arrives.",
-      "key_quotes": [
-        "nobody actually knows for sure, and that's exactly why action needs to happen sooner rather than later",
-        "quantum computers could crack Bitcoin's elliptic curve cryptography as early as 2028",
-        "Bitcoin won't face a quantum threat for the next 20 to 40 years"
-      ],
-      "topics": [
-        "Quantum computing threat to Bitcoin",
-        "BIP360 quantum resistance upgrade",
-        "Taproot vulnerability to quantum attacks",
-        "Elliptic curve cryptography (ECC)",
-        "Timeline predictions for Q-Day"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "Coin Bureau",
-      "title": "$470 Billion Risk: Bitcoin\u2019s Quantum Countdown Starts",
-      "video_id": "Ykwi-3S1bYs",
-      "duration": 1360.94,
-      "analyzed_at": "2026-04-02T05:52:34.996225+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 35,
-      "main_thesis": "While altcoin ETF approvals promise bullish price action from institutional inflows, they create a hidden governance centralization trap that strips retail investors of decentralized voting rights, concentrating protocol control in Wall Street custodians.",
-      "key_quotes": [
-        "massive centralization trap hidden inside the custody architecture",
-        "millions of retail investors are effectively surrendering their decentralized voting rights",
-        "18% of the total ETH staking market centralized under a single custodial umbrella"
-      ],
-      "topics": [
-        "altcoin ETF approvals and institutional capital flows",
-        "governance token centralization risks",
-        "custody architecture and voting rights",
-        "proof-of-stake consensus implications",
-        "regulatory commodity classification"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Coin Bureau",
-      "title": "Altcoin ETFs: Liquidity or Governance Trap?",
-      "video_id": "L6c-HtBf7EE",
-      "duration": 848.94,
-      "analyzed_at": "2026-04-02T05:52:30.789876+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 78,
-      "main_thesis": "MicroStrategy's aggressive $44B Bitcoin accumulation strategy during a bear market signals confidence in Bitcoin's long-term value and demonstrates a contrarian buying opportunity, positioning the company to hit its 1M BTC goal by 2026.",
-      "key_quotes": [
-        "if it's not going to zero, it's going to a million",
-        "strategy is simply buying the dip",
-        "762,091 BTC accounting for 3.6% of Bitcoin's total supply"
-      ],
-      "topics": [
-        "MicroStrategy Bitcoin accumulation",
-        "ATM stock offerings (MSTR and STRC)",
-        "Bear market contrarian buying",
-        "Bitcoin per share maximization",
-        "1 million BTC target by 2026"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Coin Bureau",
-      "title": "Strategy's $44B Bitcoin Buying Plan",
-      "video_id": "-h0WALimfkY",
-      "duration": 1250.53,
-      "analyzed_at": "2026-04-02T05:52:26.578709+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 75,
-      "main_thesis": "We're transitioning from a deflationary, software-dominated asset regime to an inflationary environment favoring hard assets and physical infrastructure, making Bitcoin and asset-controlling companies more valuable.",
-      "key_quotes": [
-        "Companies that control assets are worth more...software companies are worth less",
-        "We're going from a software and financialized world to hard assets",
-        "In higher interest rate regime, certain companies like software are tremendously more valuable"
-      ],
-      "topics": [
-        "Regime shift from deflation to inflation",
-        "Hard assets vs software company valuations",
-        "Bitcoin portfolio allocation",
-        "Geopolitical factors and defense spending",
-        "Discounted cash flow models in different rate environments"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Anthony Pompliano",
-      "title": "Bitcoin, Gold & Energy: The Next Massive Wealth Shift",
-      "video_id": "M3yac-RkXJA",
-      "duration": 2579.67,
-      "analyzed_at": "2026-04-02T05:52:22.433653+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 72,
-      "main_thesis": "The Fed lacks the fiscal and financial leeway to sustain aggressive rate hikes despite inflation pressures, which removes a major headwind for Bitcoin and risk assets. Treasury market instability and leverage dynamics will constrain the Fed's policy options.",
-      "key_quotes": [
-        "the Fed does not have the leeway to get substantially more aggressive",
-        "we're bumping up on the ceiling and you go much higher and you get into pretty bad territory",
-        "fiscal rectitude...just respond mechanically to higher inflation with higher rates"
-      ],
-      "topics": [
-        "Federal Reserve policy constraints",
-        "US fiscal deficit and debt service",
-        "Treasury market volatility (MOVE index)",
-        "Leverage and hedge fund positioning in treasuries",
-        "Inflation expectations and rate hike probabilities"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "Marty Bent (Rabbit Hole Recap)",
-      "title": "Why the Fed Is About To Make Bitcoin Price Takeoff",
-      "video_id": "vn_kFxqM_gw",
-      "duration": 1479.77,
-      "analyzed_at": "2026-04-02T05:52:17.725697+00:00"
-    },
-    {
-      "sentiment": "neutral",
-      "sentiment_score": 50,
-      "main_thesis": "A 2-block reorg at height 941880 initially sparked selfish mining concerns, but investigation revealed it was normal network behavior caused by block propagation delays rather than intentional withholding by Foundry.",
-      "key_quotes": [
-        "Selfish mining is financially advantageous if you run a large pool",
-        "The network just didn't see it as well...allowed Foundry to have a selfish mining moment",
-        "This is like normal network behavior given the circumstances"
-      ],
-      "topics": [
-        "Block reorg mechanics",
-        "Selfish mining strategy",
-        "Mining pool behavior (Foundry)",
-        "Network propagation delays",
-        "Chain consensus security"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "Stacker News",
-      "title": "Bitcoin Mining - Two block reorg at height 941880",
-      "video_id": "Q_s6LhPfoU0",
-      "duration": 458.15,
-      "analyzed_at": "2026-04-02T05:52:13.526801+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 45,
-      "main_thesis": "While chip manufacturing returning to the US is strategically important, Elon's ambitious announcements require skepticism due to a history of unfulfilled promises like the 2022 Tesla-Block solar mining project.",
-      "key_quotes": [
-        "He's way too early. But he makes these aggressive predictions... I believe he's eventually right",
-        "It is a thing until it isn't a thing. And most likely, it's not a thing.",
-        "You just can't believe anything until it actually breaks"
-      ],
-      "topics": [
-        "Semiconductor manufacturing in US",
-        "Elon Musk's project delivery track record",
-        "Bitcoin mining via renewable energy",
-        "Vertical integration of chip production",
-        "Texas manufacturing expansion"
-      ],
-      "price_prediction": null,
-      "confidence": "low",
-      "channel": "Stacker News",
-      "title": "Tesla and SpaceX announce $25B 'Terafab' chip factory - Elon Musk",
-      "video_id": "QrF9-eUy4ww",
-      "duration": 463.05,
-      "analyzed_at": "2026-04-02T05:52:09.241317+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 45,
-      "main_thesis": "Gen Z's financial nihilism and turn toward speculative investments reveals a broken traditional economy, though the crypto/Bitcoin industry may be exploiting this desperation through narrative-based 'belief capitalism' rather than creating real productive value.",
-      "key_quotes": [
-        "80% of Gen Z feel behind financially, turning to gambling as quick fixes",
-        "Belief capitalism is narrative-based, not actual capital formation",
-        "Industries are monetizing nihilism through promising solutions"
-      ],
-      "topics": [
-        "Gen Z financial anxiety and nihilism",
-        "Crypto industry criticism (narrative vs. productive value)",
-        "Speculative investment culture",
-        "Bitcoin ecosystem and startups",
-        "Traditional vs. belief-based capitalism"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "Stacker News",
-      "title": "The Ozempicization of Everything - Ozempic",
-      "video_id": "Hy2oPfA5jyU",
-      "duration": 857.05,
-      "analyzed_at": "2026-04-02T05:52:04.531399+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 75,
-      "main_thesis": "Bitcoin miners are strategically pivoting to AI infrastructure because the economics are superior; this shift represents a major 2024-2026 trend where data center operators can generate higher margins hosting AI servers than mining Bitcoin.",
-      "key_quotes": [
-        "Bitcoin sold not because Bitcoin is bad, rather it's a testament to how good it is to be in AI",
-        "90% of the infrastructure needs are the same between Bitcoin mining and AI",
-        "The math is quite clearly in favor of being an AI server host"
-      ],
-      "topics": [
-        "Bitcoin mining industry transition",
-        "AI/HPC infrastructure hosting economics",
-        "Data center power costs and profitability",
-        "Publicly traded miner strategy shifts",
-        "Energy infrastructure monetization"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Blockware Solutions",
-      "title": "Marathon Just Dumped $1B in Bitcoin - Here's Why Miners Are Pivoting to AI",
-      "video_id": "4kt2KV08axY",
-      "duration": 1022.38,
-      "analyzed_at": "2026-04-02T05:51:59.944579+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 45,
-      "main_thesis": "Bitcoin could face a bear market bottom of $40,000 (70% drawdown) based on historical patterns, but a shallower downturn is possible if the prior bull market was less pronounced. The key strategy is protecting downside while allowing upside to play out.",
-      "key_quotes": [
-        "I think you must have a thesis backed by data and you must protect yourself from the downside",
-        "There is a possibility that the Bitcoin low could be $40,000",
-        "Markets are pendulums that swing from overbought to oversold"
-      ],
-      "topics": [
-        "Bear market cycles and duration",
-        "200-week moving average as support indicator",
-        "Historical drawdown percentages (70-83%)",
-        "Bull market intensity vs bear market severity",
-        "Risk management and position sizing"
-      ],
-      "price_prediction": "$40,000 as potential bear market low (2026 timeframe implied)",
-      "confidence": "low",
-      "channel": "CoinTelegraph",
-      "title": "Bitcoin to $40,000? Ran Neuner Breaks Down 2 Scenarios for 2026",
-      "video_id": "bfbCwXrRC7Q",
-      "duration": 1336.73,
-      "analyzed_at": "2026-04-02T05:51:55.376908+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 65,
-      "main_thesis": "Leveraged XRP ETFs are powerful short-term trading tools that require careful risk management, while Ripple's long-term vision for efficient money movement and institutional infrastructure positioning makes XRP fundamentally bullish.",
-      "key_quotes": [
-        "You will lose money in volatile sideways markets",
-        "All leveraged products are short-term products",
-        "XRP community is an army and they're willing to go to battle"
-      ],
-      "topics": [
-        "Leveraged ETF mechanics and daily reset risks",
-        "XRP ETF inflows and market migration",
-        "Ripple's institutional strategy and ecosystem building",
-        "Crypto derivatives vs spot products"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "CoinDesk",
-      "title": "Leveraged XRP ETFs Explained",
-      "video_id": "LRIddOgzX7c",
-      "duration": 604.78,
-      "analyzed_at": "2026-04-02T05:51:50.654401+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 72,
-      "main_thesis": "Bitcoin is entering a mainstream adoption phase similar to Facebook's growth trajectory, where losing early counterculture appeal validates the asset's legitimacy and enables broader institutional acceptance. Tokenized assets and 24/7 trading infrastructure represent the next evolution enabling institutional capital flows into crypto.",
-      "key_quotes": [
-        "Bitcoin today may feel a bit like when your parents joined Facebook, less edgy perhaps, but entering a new phase of mainstream adoption",
-        "Losing some of that early cool, it'd be exactly what Bitcoin needs to reach its next phase",
-        "Debates like this help institutions understand what's important to them and what they should be researching"
-      ],
-      "topics": [
-        "Bitcoin ETF institutional adoption",
-        "Tokenized equities and 24/7 trading",
-        "Blockchain privacy vs. institutional access (Canton network)",
-        "Stablecoin regulation and yield restrictions",
-        "Global crypto asset distribution ($2.5T opportunity)"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "CoinDesk",
-      "title": "What Morgan Stanley's BTC ETF Signals; XRP's Institutional Outlook",
-      "video_id": "LDQx3omqIwA",
-      "duration": 1785.71,
-      "analyzed_at": "2026-04-02T05:51:46.287495+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 58,
-      "main_thesis": "Bitcoin is at a potential inflection point showing similar patterns to 2022 lows, with extreme fear sentiment creating a setup for a significant upside move, though further downside remains possible.",
-      "key_quotes": [
-        "could get a pretty sizable move to the upside...even just back to $84,000 $85,000 area",
-        "We've got fear basically on the floor...could go lower but we're making higher lows and higher highs",
-        "this is the time where it's like...could it go a little lower? Sure"
-      ],
-      "topics": [
-        "Bitcoin price structure and support levels",
-        "Fear and Greed Index across markets",
-        "ETF flows and inflows analysis",
-        "Market cycle comparisons to 2022",
-        "Technical analysis - higher lows and highs pattern"
-      ],
-      "price_prediction": "$84,000-$85,000 potential target representing ~30% upside move from current $60,000-$70,000 range",
-      "confidence": "medium",
-      "channel": "DataDash",
-      "title": "\ud83d\udea8 URGENT: Everyone Is About To Miss Bitcoin\u2019s Next Move (Here\u2019s Why)",
-      "video_id": "pqMQw8JNlBM",
-      "duration": 1063.42,
-      "analyzed_at": "2026-04-02T05:51:40.864958+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 78,
-      "main_thesis": "Despite quantum computing risks to Bitcoin by 2029, the threat is overblown and manageable through existing quantum-resistant upgrades already in development. Institutional investors understand this and are accumulating Bitcoin during retail panic, positioning for long-term gains.",
-      "key_quotes": [
-        "Bitcoin is just a device for transferring money from the impatient to the patient",
-        "If Bitcoin is dead from quantum, your portfolio is the least of your problems",
-        "Quantum computers are dumb...Bitcoin can be updated to be quantum resistant"
-      ],
-      "topics": [
-        "Quantum computing threat to Bitcoin",
-        "Institutional vs retail investor behavior",
-        "Bitcoin ETF competition (BlackRock vs Morgan Stanley)",
-        "Quantum-resistant upgrades and Bitcoin development",
-        "Game theory of quantum attacks"
-      ],
-      "price_prediction": "Bitcoin's 200-week moving average referenced at ~$60,000 as buying opportunity",
-      "confidence": "high",
-      "channel": "Altcoin Daily",
-      "title": "I\u2019m selling all my Bitcoin now\u2026 (Quantum Update)",
-      "video_id": "N-Ts6My5jFI",
-      "duration": 615.08,
-      "analyzed_at": "2026-04-02T05:51:35.839309+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 72,
-      "main_thesis": "The Federal Reserve will be forced to print trillions and cut rates during the next recession because the U.S. cannot sustain rising debt-to-GDP ratios, which historically triggers asset price explosions like Bitcoin experienced in 2020.",
-      "key_quotes": [
-        "The path is not sustainable... it will not end well if we don't do something fairly soon",
-        "Last time we printed 40% of the money that had ever been printed in history, Bitcoin and the crypto market exploded",
-        "The Fed can't really hike rates all that much, they have to cut"
-      ],
-      "topics": [
-        "U.S. national debt sustainability",
-        "Fed monetary policy and rate cuts",
-        "GDP growth vs debt growth ratio",
-        "Bitcoin as inflation/stimulus hedge",
-        "Recession probability and Fed response"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "Altcoin Daily",
-      "title": "The Fed Will Print Trillions.. What That ACTUALLY Means for Bitcoin",
-      "video_id": "W37WgSq9nzI",
-      "duration": 597.44,
-      "analyzed_at": "2026-04-02T05:51:31.175623+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 75,
-      "main_thesis": "Google's quantum computing breakthrough doesn't threaten Bitcoin because the technology remains theoretical and decades away from practical application. Bitcoin developers have already been implementing solutions to address quantum risks before this became public.",
-      "key_quotes": [
-        "This is not the first time someone has declared Bitcoin dead. The body count on Bitcoin obituary is somewhere near like 500.",
-        "They did the math on paper, very impressive math, still just math.",
-        "That is a 100,000 times coherent gap. That is a fundamental unsolved physics problem."
-      ],
-      "topics": [
-        "Quantum computing threat to Bitcoin",
-        "Elliptic curve cryptography vs hash functions",
-        "Google's quantum research and responsible disclosure",
-        "Bitcoin's cryptographic architecture",
-        "Media sensationalism vs technical reality"
-      ],
-      "price_prediction": null,
-      "confidence": "high",
-      "channel": "Simply Bitcoin",
-      "title": "Did Google Just CRACK Bitcoin? (Here's What They're Hiding)",
-      "video_id": "5wLBnSMy2Vc",
-      "duration": 2122.26,
-      "analyzed_at": "2026-04-02T05:51:26.635990+00:00"
-    },
-    {
-      "sentiment": "mixed",
-      "sentiment_score": 65,
-      "main_thesis": "Bitcoin derivatives market and easing OG selling pressure are bullish signals, but Wall Street adoption remains cautious. AI-driven opportunities in Bitcoin mining present the strongest near-term catalyst.",
-      "key_quotes": [
-        "What's happened in the derivatives market for Bitcoin leaves me much more bullish",
-        "Bitcoin miners are really the tip of the spear in terms of this AI CapEx trend",
-        "Those stocks are down 40% from peaks. It doesn't feel like a time to be selling"
-      ],
-      "topics": [
-        "Bitcoin derivatives market dynamics",
-        "AI CapEx returns and productivity gains",
-        "Bitcoin mining stocks (Marathon, Mara, Cypher, Iron)",
-        "Mega-cap tech (Mag7) underperformance",
-        "Corporate Bitcoin treasury strategy"
-      ],
-      "price_prediction": null,
-      "confidence": "medium",
-      "channel": "Anthony Pompliano",
-      "title": "When Will Wall Street Start Buying Bitcoin Again?",
-      "video_id": "hZVnJiHcvMc",
-      "duration": 2363.2,
-      "analyzed_at": "2026-04-02T05:51:22.271028+00:00"
     }
   ]
 }

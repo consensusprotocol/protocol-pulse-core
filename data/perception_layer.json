@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-05-04T20:30:03.528276+00:00",
-  "fetch_time_ms": 1998,
+  "updated_at": "2026-05-07T04:00:18.961667+00:00",
+  "fetch_time_ms": 13938,
   "composite": {
     "perception_score": 58,
     "label": "Cautiously Bullish",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.71,
-    "total_mcap_usd": 2729550177440.29,
-    "total_mcap_t": 2.73,
-    "total_vol_24h_usd": 132009339437.36383,
-    "total_vol_24h_b": 132.0,
-    "active_coins": 17455,
+    "btc_dominance_pct": 58.62,
+    "total_mcap_usd": 2767179863166.8164,
+    "total_mcap_t": 2.767,
+    "total_vol_24h_usd": 114543258063.70859,
+    "total_vol_24h_b": 114.5,
+    "active_coins": 17433,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,45 +33,45 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "LUNC",
-        "name": "Terra Luna Classic",
-        "rank": 99,
+        "symbol": "TON",
+        "name": "Toncoin",
+        "rank": 19,
         "score": 0
       },
       {
-        "symbol": "FIRO",
-        "name": "Firo",
-        "rank": 978,
+        "symbol": "DOGS",
+        "name": "Dogs",
+        "rank": 485,
         "score": 1
       },
       {
-        "symbol": "ASTEROID",
-        "name": "Asteroid Shiba",
-        "rank": 201,
+        "symbol": "LAB",
+        "name": "LAB",
+        "rank": 138,
         "score": 2
       },
       {
-        "symbol": "ONDO",
-        "name": "Ondo",
-        "rank": 53,
+        "symbol": "WOJAK",
+        "name": "wojak",
+        "rank": 677,
         "score": 3
+      },
+      {
+        "symbol": "LUNC",
+        "name": "Terra Luna Classic",
+        "rank": 111,
+        "score": 4
       },
       {
         "symbol": "BTC",
         "name": "Bitcoin",
         "rank": 1,
-        "score": 4
-      },
-      {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 87,
         "score": 5
       },
       {
-        "symbol": "RAVE",
-        "name": "RaveDAO",
-        "rank": 169,
+        "symbol": "ZEC",
+        "name": "Zcash",
+        "rank": 17,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 565406,
+    "tx_count_24h": 585439,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 9.18,
+    "minutes_between_blocks": 9.25,
     "difficulty": 132472011079030,
-    "estimated_btc_sent": 9157877590444,
-    "total_fees_btc": -46562500000,
+    "estimated_btc_sent": 9379704635163,
+    "total_fees_btc": -45937500000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17342,
-    "channel_count": 41986,
-    "capacity_btc": 5706.26,
-    "capacity_sats": 570626090058,
-    "avg_channel_capacity_btc": 0.1359,
+    "node_count": 17396,
+    "channel_count": 41423,
+    "capacity_btc": 5238.97,
+    "capacity_sats": 523897019799,
+    "avg_channel_capacity_btc": 0.1265,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 2,
+    "fastest_fee_sat_vb": 1,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,22 +121,22 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 40,
-    "7d_ago": 33,
-    "7d_delta": 7,
-    "trend": "improving",
+    "current": 47,
+    "7d_ago": 26,
+    "7d_delta": 21,
+    "trend": "rapidly_improving",
     "7d_values": [
+      47,
+      46,
+      50,
       40,
       47,
       39,
-      26,
-      29,
-      26,
-      33
+      26
     ],
     "btc_signal": "bullish",
-    "note": "F&G trending up (33 -> 40)",
-    "label": "Fear",
+    "note": "F&G rising sharply (26 -> 47) \u2014 sentiment recovery",
+    "label": "Neutral",
     "source": "alternative.me F&G"
   }
 }

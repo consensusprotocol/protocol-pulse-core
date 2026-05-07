@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-05-06T10:00:31.483784+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Miner Conviction: Why Rising Hashrate Signals Bitcoin's Bull Case",
+      "angle": "Hashrate surge to 985 EH/s despite energy headwinds proves miners see long-term value; institutional halving positioning analysis",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "The Halving Countdown: How 18 Months Changed Institutional Bitcoin Strategy",
+      "angle": "On-chain analysis of early institutional positioning ahead of 2026 halving cycle; what block height 948,151 tells us about future cycles",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "institutions",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Patient Markets Win: Why Low Mempool and Neutral Sentiment Create Opportunity",
+      "angle": "Lean mempool (34K transactions, 1 sat fees) + neutral fear index = contrarian accumulation signal; Asia session consolidation watch",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "trading",
+        "mempool"
+      ]
+    }
+  ]
+}
