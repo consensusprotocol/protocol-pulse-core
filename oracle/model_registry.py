@@ -20,7 +20,7 @@ _src_1024 = os.path.join(os.path.dirname(__file__), "Proto_P_Avatar_1024.png")
 _src_512 = os.path.join(os.path.dirname(__file__), "Proto_P_Avatar_512.png")
 AVATAR_SOURCE = _src_1024 if os.path.exists(_src_1024) else _src_512
 
-DEVICE = "cuda:1"  # GPU 1 — avatar server exclusive. Pipeline on cuda:0 via CUDA_VISIBLE_DEVICES
+DEVICE = "cuda:0"  # physical GPU1 via CUDA_VISIBLE_DEVICES=1 in start_avatar_server.sh  # GPU 1 — avatar server exclusive. Pipeline on cuda:0 via CUDA_VISIBLE_DEVICES
 
 
 class ModelRegistry:
