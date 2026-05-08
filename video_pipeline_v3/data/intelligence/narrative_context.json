@@ -1,24 +1,33 @@
 {
-  "episode_narrative": "Privacy-respecting Bitcoin acquisition is dominating Bitcoin discourse \u2014 1 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "episode_narrative": "Bitcoin as a sovereign hedge against failing traditional ... is dominating Bitcoin discourse \u2014 12 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
   "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
-  "mark_context": "Mark should add context: 'Community growth and team milestones' is also trending with 1 thought leaders discussing it",
+  "mark_context": "Mark should add context: 'Increasing institutional validation and mainstream adopti...' is also trending with 8 thought leaders discussing it",
   "clip_selection_priority": [
-    "Privacy-respecting Bitcoin acquisition",
-    "Community growth and team milestones"
+    "Bitcoin as a sovereign hedge against failing traditional ...",
+    "Increasing institutional validation and mainstream adopti...",
+    "The critical importance of self-custody, personal respons..."
   ],
   "avoid_topics": [
     "price speculation",
     "altcoins"
   ],
-  "thought_leaders_mentioned": [],
+  "thought_leaders_mentioned": [
+    "@BitcoinArchive",
+    "@MartyBent",
+    "@PeterMcCormack"
+  ],
   "narrative_bridge_lines": [
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Privacy-respecting Bitcoin acquisition",
-  "market_mood": "neutral",
+  "dominant_narrative": "Bitcoin as a sovereign hedge against failing traditional ...",
+  "market_mood": "bullish",
   "top_quote": "",
-  "top_quote_handles": [],
-  "quote_fetched_at": "2026-05-07T04:18:38.868589+00:00",
-  "computed_at": "2026-05-07T04:18:38.868589+00:00"
+  "top_quote_handles": [
+    "@PeterMcCormack",
+    "@MartyBent",
+    "@BitcoinArchive"
+  ],
+  "quote_fetched_at": "2026-05-07T22:51:53.645514+00:00",
+  "computed_at": "2026-05-07T22:51:53.645514+00:00"
 }

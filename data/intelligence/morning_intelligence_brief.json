@@ -1,59 +1,47 @@
 {
-  "generated_at": "2026-05-06T14:32:00Z",
-  "date": "Wednesday, May 06, 2026",
-  "btc_price": "$81,464",
-  "btc_change_24h": "-0.1%",
-  "fng": "Fear",
+  "generated_at": "2026-05-07T12:00:00Z",
+  "date": "Thursday, May 07, 2026",
+  "btc_price": "$80,085",
+  "btc_change_24h": "-1.7%",
+  "fng": "Neutral",
   "dominant_narratives": [
-    "Bitcoin as inflation hedge against monetary dysfunction and central bank mismanagement",
-    "Self-custody and key ownership as non-negotiable sovereignty against surveillance infrastructure",
-    "Regulatory capture via CLARITY Act language as immediate threat vector requiring vigilance",
-    "Institutional adoption (Morgan Stanley, Colombian mining) legitimizing Bitcoin into legacy finance",
-    "AI-driven economic restructuring necessitating hard money exit from fiat regime"
+    "Bitcoin as a sovereign hedge against failing traditional systems and 'broken money'.",
+    "Increasing institutional validation and mainstream adoption of Bitcoin.",
+    "The critical importance of self-custody, personal responsibility, and security in the Bitcoin ecosystem.",
+    "Advancements in Bitcoin's underlying technology and mining infrastructure."
   ],
   "trending_language": [
-    "Stack sats",
-    "Stay humble",
-    "Narrative follows price",
-    "Proof of Results",
-    "Freedom tech",
-    "Immense boost",
-    "There Will Be Blood phase",
-    "Treasonous",
-    "Cold storage mentality"
+    "Buy more Bitcoin than you can sell",
+    "Self-custody / personal responsibility",
+    "Broken money / managed decline",
+    "Developers facing prison for writing code",
+    "Compelling results / a little bitcoin can go a long way"
   ],
-  "sentiment": "uncertain",
-  "sentiment_reasoning": "Fear gauge at 46 reflects distribution hesitation amid institutional adoption signals. Community oscillates between 'catalyst waiting' skepticism and conviction that price action irrelevant to fundamental value prop. Macro anxiety (CLARITY Act, surveillance expansion, rate suppression) countered by structural tailwinds (Morgan Stanley E*Trade launch, Latin American mining, AI demand shift).",
+  "sentiment": "bullish",
+  "sentiment_reasoning": "Despite a minor price dip and neutral market sentiment, the community maintains a strong bullish outlook, driven by increasing institutional validation, real-world adoption, and a deep conviction in Bitcoin's fundamental role as a sovereign hedge against perceived failures of traditional financial and political systems.",
   "top_accounts_active": [
-    "@_Checkmatey_",
+    "@PeterMcCormack",
     "@MartyBent",
-    "@lopp",
-    "@nvk",
-    "@BitcoinMagazine",
-    "@TFTC21",
-    "@unchained",
-    "@sethforprivacy",
-    "@NickSzabo4"
+    "@BitcoinArchive",
+    "@BTCsessions",
+    "@DocumentingBTC"
   ],
   "recommended_tweet_angles": [
-    "Morgan Stanley's E*Trade integration: institutional plumbing matters more than price action. 8.6M retail touching Bitcoin infrastructure = narrative inevitability.",
-    "CLARITY Act watch: 'illicit finance' provisions are Patriot Act 2.0. Self-custody isn't optional—it's existential resistance to regulatory mission creep.",
-    "Bears defending 78K (STH cost basis) + 83-85K (200DMA). Supply clusters there matter. Patience rewards those who buy conviction, not bounces.",
-    "Colombian President calling Bitcoin 'immense boost to Caribbean development' while US bureaucrats weaponize 'illicit finance' language. The regime is losing the narrative.",
-    "GenAI spending: $30-40B enterprise ROI = zero. Consumer demand growing 12x by 2030. Bitcoin is the hard money that survives the AI restructuring—fiat won't."
+    "Highlight the stark contrast between the 'managed decline' of traditional economies and Bitcoin's resilience as the only viable alternative for individual sovereignty.",
+    "Amplify the growing institutional embrace of Bitcoin, citing reports from BlackRock and Morgan Stanley as undeniable proof of its financial gravity.",
+    "Emphasize the urgent need for self-custody and personal responsibility, especially in light of legal challenges against code developers, framing it as a defense of fundamental digital rights."
   ],
   "topics_to_avoid": [
-    "Jon Stewart Bitcoin commentary (too soft, mainstream-adjacent)",
-    "Humanoid robot monk stories (novelty, dilutes signal)",
-    "Geopolitical theater (Ayatollah memes undermine credibility)",
-    "Generic 'Bitcoin marketing is great' praise (lacks edge)"
+    "Detailed commentary on specific local political elections or non-Bitcoin-related political scandals.",
+    "Unverified or non-Bitcoin-centric health advice/medical claims.",
+    "Broad geopolitical events not directly tied to Bitcoin's value proposition or adoption."
   ],
-  "engagement_patterns": "Cypherpunk realism dominates: data-first analysis (_Checkmatey_ trendlines, supply clusters), regulatory threat acknowledgment (CLARITY Act specifics), and self-sovereignty language resonate hardest. Dismissal of 'catalyst waiting' gets retweeted. Macro analysis + microeconomic custody angles outperform price speculation. Tone: irreverent, conviction-driven, hostile to institutional capture.",
-  "protocol_pulse_voice_guidance": "Today's voice: forensic, wary, defiant. Lead with regulatory threats (CLARITY Act expansion) as clarifying moment—regime is panicking as institutional adoption becomes inevitable. Position Morgan Stanley as symptom of their lost narrative war, not victory. Emphasize supply clusters and bear defense levels as where real players accumulate, not tourists. Use 'narrative follows price' frame to mock waiting-for-catalyst mindset. Cypherpunk angle: self-custody is becoming non-negotiable infrastructure as surveillance apparatus tightens. Data-backed skepticism of macro conditions paired with structural inevitability of Bitcoin adoption creates intellectual honesty the mainstream can't match.",
+  "engagement_patterns": "High engagement with 'JUST IN' announcements, direct calls to action (e.g., 'Buy Bitcoin', 'Stack sats'), sharp critiques of legacy financial and political systems, educational content promoting self-custody, and updates on Bitcoin's technological advancements.",
+  "protocol_pulse_voice_guidance": "Maintain a cypherpunk, data-backed, and specific tone. Focus on Bitcoin's role in individual sovereignty, privacy, and economic freedom, leveraging institutional data points to underscore its inevitable rise against a backdrop of failing traditional systems. Highlight the importance of self-custody and technological advancements that empower users.",
   "key_stats_today": {
-    "tweets_analyzed": 158,
+    "tweets_analyzed": 60,
     "nostr_signals": 0,
-    "unique_handles": 95
+    "unique_handles": 31
   },
-  "generated_by": "claude_haiku"
+  "generated_by": "gemini_fallback"
 }

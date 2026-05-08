@@ -742,5 +742,23 @@
     "timestamp": "2026-05-07T02:00:24.036856+00:00",
     "text_preview": "1 sat/vB fees while 964.4 EH/s hashrate keeps climbing. Nobody's panicking into ",
     "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "e1df98aaef119c4320cde14d2dd09b77",
+    "timestamp": "2026-05-07T11:37:13.016235+00:00",
+    "text_preview": "1971. Nixon closed the gold window. The dollar became pure fiat backed by nothin",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "94af538cebf694309145fe9e5be85e8a",
+    "timestamp": "2026-05-07T17:00:21.288687+00:00",
+    "text_preview": "If institutions are buying Bitcoin to hedge against currency collapse, why are t",
+    "format_type": "contrarian_take"
+  },
+  {
+    "hash": "b6ae180e029a0bb716da593fe686dbc9",
+    "timestamp": "2026-05-08T02:00:20.823446+00:00",
+    "text_preview": "Block 948,389 and fees still 1 sat/vB. The network doesn't care about price. It ",
+    "format_type": "onchain_metric"
   }
 ]

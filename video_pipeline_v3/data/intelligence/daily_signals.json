@@ -1,36 +1,75 @@
 {
   "topic_velocity": [
     {
-      "topic": "Privacy-respecting Bitcoin acquisition",
-      "channels": 1,
+      "topic": "Bitcoin as a sovereign hedge against failing traditional ...",
+      "channels": 12,
       "sentiment": "bullish",
-      "velocity_score": 2,
-      "authority_score": 2,
+      "velocity_score": 18,
+      "authority_score": 50,
       "top_quote": "",
-      "thought_leaders": [],
+      "thought_leaders": [
+        "@PeterMcCormack",
+        "@MartyBent",
+        "@BitcoinArchive"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Community growth and team milestones",
-      "channels": 1,
+      "topic": "Increasing institutional validation and mainstream adopti...",
+      "channels": 8,
       "sentiment": "bullish",
-      "velocity_score": 1,
-      "authority_score": 1,
+      "velocity_score": 12,
+      "authority_score": 40,
       "top_quote": "",
-      "thought_leaders": [],
+      "thought_leaders": [
+        "@PeterMcCormack",
+        "@MartyBent",
+        "@BitcoinArchive"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "The critical importance of self-custody, personal respons...",
+      "channels": 6,
+      "sentiment": "bullish",
+      "velocity_score": 9,
+      "authority_score": 30,
+      "top_quote": "",
+      "thought_leaders": [
+        "@PeterMcCormack",
+        "@MartyBent",
+        "@BitcoinArchive"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Advancements in Bitcoin's underlying technology and minin...",
+      "channels": 5,
+      "sentiment": "bullish",
+      "velocity_score": 8,
+      "authority_score": 20,
+      "top_quote": "",
+      "thought_leaders": [
+        "@PeterMcCormack",
+        "@MartyBent",
+        "@BitcoinArchive"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Privacy-respecting Bitcoin acquisition",
-    "Community growth and team milestones"
+    "Bitcoin as a sovereign hedge against failing traditional ...",
+    "Increasing institutional validation and mainstream adopti...",
+    "The critical importance of self-custody, personal respons..."
   ],
-  "dominant_narrative": "Privacy-respecting Bitcoin acquisition",
-  "market_mood": "neutral",
+  "dominant_narrative": "Bitcoin as a sovereign hedge against failing traditional ...",
+  "market_mood": "bullish",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-05-07T04:18:38Z"
+  "scan_time": "2026-05-07T22:51:53Z"
 }

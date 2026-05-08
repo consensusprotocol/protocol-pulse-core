@@ -1,92 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-05-05T16:00:33.310026+00:00",
-  "creator_count": 26,
-  "avg_sentiment_score": 60.2,
+  "generated_at": "2026-05-08T00:00:39.039202+00:00",
+  "creator_count": 16,
+  "avg_sentiment_score": 68.1,
   "sentiment_breakdown": {
-    "bullish": 10,
-    "bearish": 4,
-    "neutral": 12
+    "bullish": 12,
+    "bearish": 2,
+    "neutral": 2
   },
-  "dominant_sentiment": "neutral",
+  "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "Political manipulation and deep state control",
+      "topic": "MicroStrategy's Bitcoin treasury strategy",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "The Constitution is dying. I'm sorry to tell you."
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
     },
     {
-      "topic": "Palantir surveillance technology",
+      "topic": "Corporate dividend funding through Bitcoin appreciation",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "The Constitution is dying. I'm sorry to tell you."
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
     },
     {
-      "topic": "Constitutional rights erosion",
+      "topic": "Tax-loss harvesting optimization",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "The Constitution is dying. I'm sorry to tell you."
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
     },
     {
-      "topic": "Wealth as resistance/financial sovereignty",
+      "topic": "SCRC retail adoption and on-ramping",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "The Constitution is dying. I'm sorry to tell you."
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
     },
     {
-      "topic": "Police and surveillance state expansion",
+      "topic": "Bitcoin's historical annual appreciation rate",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 15.0,
-      "example_quote": "The Constitution is dying. I'm sorry to tell you."
+      "avg_sentiment_score": 85.0,
+      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus & Divergence Summary\n\n**Consensus:** Bitcoin creators broadly view it as a hedge against systemic monetary and political dysfunction\u2014whether from surveillance states, central bank mismanagement, inflation, or taxation. They emphasize personal key custody as fundamental to Bitcoin's value proposition.\n\n**Key Divergence:** Sentiment ranges from deeply bearish (15/100) on near-term macro conditions to strongly bullish (92/100) on Bitcoin's long-term adoption inevitability. Simply Bitcoin sees Kevin Warsh's Fed appointment as potentially catalyzing Bitcoin adoption despite elite concerns, while BTC Sessions views similar political developments as threats to constitutional liberty. Disagreement also exists on timing\u2014some identify $60K as a bear market bottom worth waiting on, while others treat Bitcoin adoption as assured regardless of price action.\n\n**Secondary Split:** On macro outlook, there's a divide between those predicting economic catastrophe (supply shocks, rate hikes, demand destruction) and those focused on structural AI-driven shifts requiring monetary regime change\u2014both conclude Bitcoin benefits, but from different causal narratives.",
+  "summary": "# Bitcoin Creators' Consensus and Divergence Summary\n\n**Consensus:** The Bitcoin community broadly agrees on Bitcoin's fundamental value proposition\u2014financial sovereignty, decentralization, and superior monetary properties\u2014with most voices (7 of 10 sources) expressing bullish sentiment. There's also agreement that security and proper implementation practices are critical to mainstream adoption.\n\n**Divergence:** Sharp disagreement exists on market outlook: while most creators emphasize Bitcoin's long-term technological and monetary superiority, CoinTelegraph presents a bearish technical analysis predicting continued decline through mid-2024. Additionally, creators differ on obstacles to adoption\u2014some highlight geopolitical advantages and institutional interest (Pompliano, Bent), while others stress security vulnerabilities as the primary deterrent. One source (Stacker News) breaks entirely from Bitcoin-specific discourse to discuss unrelated legal matters.",
   "top_creators": [
     {
-      "channel": "BTC Sessions",
-      "sentiment": "bearish",
-      "score": 15,
-      "thesis": "J.D. Vance is a groomed political operative for the tech-industrial complex who will accelerate surveillance state policies and constitutional erosion if elected. Bitcoin/wealth accumulation is positioned as the primary resistance to systemic control."
-    },
-    {
-      "channel": "BTC Sessions",
-      "sentiment": "bearish",
-      "score": 25,
-      "thesis": "A major supply shock from Middle East conflict and poor energy policy will cause catastrophic demand destruction in Europe, leading to economic pain worse than COVID as central banks raise rates on non-inflationary supply constraints."
-    },
-    {
-      "channel": "Coin Bureau",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": "eCash fork creates a philosophical debate about chain ownership rules rather than actual theft, since original Bitcoin remains completely safe and unchanged; the real question is whether a new network can establish its own starting rules using external ownership data."
-    },
-    {
       "channel": "Simply Bitcoin",
-      "sentiment": "mixed",
-      "score": 65,
-      "thesis": "Kevin Warsh's appointment as Fed Chair appears concerning due to elite connections and potential conflicts of interest, but could paradoxically be bullish for Bitcoin by destabilizing traditional monetary policy and increasing institutional adoption."
+      "sentiment": "bullish",
+      "score": 85,
+      "thesis": "Saylor's announcement to sell small amounts of Bitcoin is not a loss of conviction but a sophisticated capital optimization strategy that proves MicroStrategy can fund dividends through Bitcoin appreciation alone, validating a sustainable long-term model."
     },
     {
       "channel": "Simply Bitcoin",
       "sentiment": "bullish",
-      "score": 92,
-      "thesis": "AI-driven structural economic changes are forcing a Fed regime shift under Kevin Warsh that will create a massive supply shock, making Bitcoin's adoption as a digital store of value an inevitability rather than a forecast."
+      "score": 78,
+      "thesis": "Bitcoin exists as a decentralized alternative to traditional banking systems that can freeze accounts and restrict financial access. It represents the culmination of 40 years of cryptographic innovation designed to enable financial sovereignty independent of governments and institutions."
+    },
+    {
+      "channel": "Stacker News",
+      "sentiment": "neutral",
+      "score": 45,
+      "thesis": "This transcript is not Bitcoin-specific content; it discusses the Elon Musk vs. OpenAI legal trial regarding Sam Altman's leadership and organizational structure rather than cryptocurrency or Bitcoin."
+    },
+    {
+      "channel": "BTC Sessions",
+      "sentiment": "mixed",
+      "score": 45,
+      "thesis": "Bitcoin security practices are critically important as the ecosystem faces increasing threats from exploits and poor wallet choices. Users must prioritize proper storage solutions and UTXO management over cost savings."
+    },
+    {
+      "channel": "Saifedean Ammous",
+      "sentiment": "bullish",
+      "score": 75,
+      "thesis": "Hard money that cannot be easily produced in excessive quantities enables lower time preference and future-oriented behavior in individuals and society. Bitcoin's monetary properties make it a superior technology for storing value across time."
     }
   ]
 }

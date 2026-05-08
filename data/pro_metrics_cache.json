@@ -1,26 +1,26 @@
 {
   "ssr": {
-    "value": 5.94,
-    "btc_market_cap": 1618399804343.4094,
-    "stablecoin_market_cap": 272686023892.0376,
+    "value": 5.82,
+    "btc_market_cap": 1588374341727.2554,
+    "stablecoin_market_cap": 272875877483.37674,
     "signal": "BULLISH",
     "description": "Healthy stablecoin reserves available for BTC purchasing",
     "source": "coingecko_derived"
   },
   "mpi": {
-    "value": 0.02,
-    "cdd_7d": 6117410.0,
-    "cdd_ratio": 1.02,
-    "hashrate_eh": 973.2,
-    "signal": "NEUTRAL",
-    "description": "Normal miner behavior \u2014 no anomalous selling pattern",
+    "value": 0.526,
+    "cdd_7d": 9059743.0,
+    "cdd_ratio": 1.51,
+    "hashrate_eh": 968.7,
+    "signal": "CAUTIOUS",
+    "description": "Above-average coin age destruction \u2014 some miner selling",
     "source": "derived_cdd_hashrate"
   },
   "dormancy_flow": {
-    "value": 23.0,
+    "value": 15.0,
     "signal": "BEARISH",
     "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
     "source": "derived"
   },
-  "timestamp": "2026-05-07T04:15:05.575013+00:00"
+  "timestamp": "2026-05-08T03:15:06.176561+00:00"
 }

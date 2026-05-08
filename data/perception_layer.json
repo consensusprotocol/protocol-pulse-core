@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-05-07T04:00:18.961667+00:00",
-  "fetch_time_ms": 13938,
+  "updated_at": "2026-05-08T03:00:17.310731+00:00",
+  "fetch_time_ms": 12208,
   "composite": {
-    "perception_score": 58,
-    "label": "Cautiously Bullish",
-    "overall_signal": "bullish",
-    "bull_layers": 3,
+    "perception_score": 52,
+    "label": "Neutral",
+    "overall_signal": "neutral",
+    "bull_layers": 2,
     "bear_layers": 1,
-    "neutral_layers": 3,
+    "neutral_layers": 4,
     "layer_signals": {
       "global": "bullish",
       "trending": "neutral",
@@ -15,16 +15,16 @@
       "lightning": "bullish",
       "fees": "neutral",
       "social": "neutral",
-      "fg_trend": "bullish"
+      "fg_trend": "neutral"
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.62,
-    "total_mcap_usd": 2767179863166.8164,
-    "total_mcap_t": 2.767,
-    "total_vol_24h_usd": 114543258063.70859,
-    "total_vol_24h_b": 114.5,
-    "active_coins": 17433,
+    "btc_dominance_pct": 58.34,
+    "total_mcap_usd": 2730311691190.5684,
+    "total_mcap_t": 2.73,
+    "total_vol_24h_usd": 105476940811.65451,
+    "total_vol_24h_b": 105.5,
+    "active_coins": 17421,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,45 +33,45 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "TON",
-        "name": "Toncoin",
-        "rank": 19,
+        "symbol": "WOJAK",
+        "name": "wojak",
+        "rank": 695,
         "score": 0
       },
       {
-        "symbol": "DOGS",
-        "name": "Dogs",
-        "rank": 485,
+        "symbol": "TON",
+        "name": "Toncoin",
+        "rank": 18,
         "score": 1
       },
       {
         "symbol": "LAB",
         "name": "LAB",
-        "rank": 138,
+        "rank": 137,
         "score": 2
       },
       {
-        "symbol": "WOJAK",
-        "name": "wojak",
-        "rank": 677,
+        "symbol": "NIL",
+        "name": "Nillion",
+        "rank": 696,
         "score": 3
       },
       {
-        "symbol": "LUNC",
-        "name": "Terra Luna Classic",
-        "rank": 111,
+        "symbol": "BILL",
+        "name": "Billions Network",
+        "rank": 208,
         "score": 4
       },
       {
-        "symbol": "BTC",
-        "name": "Bitcoin",
-        "rank": 1,
+        "symbol": "JTO",
+        "name": "Jito",
+        "rank": 164,
         "score": 5
       },
       {
-        "symbol": "ZEC",
-        "name": "Zcash",
-        "rank": 17,
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 89,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 585439,
+    "tx_count_24h": 523299,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 9.25,
+    "minutes_between_blocks": 9.56,
     "difficulty": 132472011079030,
-    "estimated_btc_sent": 9379704635163,
-    "total_fees_btc": -45937500000,
+    "estimated_btc_sent": 8958341554858,
+    "total_fees_btc": -44062500000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -121,22 +121,22 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 47,
-    "7d_ago": 26,
-    "7d_delta": 21,
-    "trend": "rapidly_improving",
+    "current": 38,
+    "7d_ago": 39,
+    "7d_delta": -1,
+    "trend": "stable",
     "7d_values": [
+      38,
       47,
       46,
       50,
       40,
       47,
-      39,
-      26
+      39
     ],
-    "btc_signal": "bullish",
-    "note": "F&G rising sharply (26 -> 47) \u2014 sentiment recovery",
-    "label": "Neutral",
+    "btc_signal": "neutral",
+    "note": "F&G stable at 38",
+    "label": "Fear",
     "source": "alternative.me F&G"
   }
 }

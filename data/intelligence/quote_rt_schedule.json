@@ -365,8 +365,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "When fear is 29 and hashrate is 930.7, someone's confidence isn't priced in yet.",
     "scheduled_at": "2026-05-01T10:00:17.855126+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-07T19:00:02.806119+00:00",
     "created_at": "2026-04-30T18:00:17.855126+00:00"
   },
   {
@@ -375,8 +375,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "930.7 EH/s at fear index 29 means miners are securing the network while capital sits on the sidelines. Asymmetric positioning.",
     "scheduled_at": "2026-05-01T18:00:17.855126+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-07T22:00:03.076193+00:00",
     "created_at": "2026-04-30T18:00:17.855126+00:00"
   },
   {
@@ -598,5 +598,55 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-06T18:00:19.180296+00:00"
+  },
+  {
+    "anchor_id": "383",
+    "anchor_text": "If institutions are buying Bitcoin to hedge against currency collapse, why are they still holding the currency that's collapsing",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "They're not hedging against collapse. They're hedging against admitting the collapse already happened.",
+    "scheduled_at": "2026-05-08T02:00:20.866491+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-07T18:00:20.866491+00:00"
+  },
+  {
+    "anchor_id": "383",
+    "anchor_text": "If institutions are buying Bitcoin to hedge against currency collapse, why are they still holding the currency that's collapsing",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Holding both is just portfolio theory with extra steps and cognitive dissonance.",
+    "scheduled_at": "2026-05-08T10:00:20.866491+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-07T18:00:20.866491+00:00"
+  },
+  {
+    "anchor_id": "383",
+    "anchor_text": "If institutions are buying Bitcoin to hedge against currency collapse, why are they still holding the currency that's collapsing",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Every Bitcoin purchase is an implicit admission that USD purchasing power has a expiration date they can see.",
+    "scheduled_at": "2026-05-08T18:00:20.866491+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-07T18:00:20.866491+00:00"
+  },
+  {
+    "anchor_id": "383",
+    "anchor_text": "If institutions are buying Bitcoin to hedge against currency collapse, why are they still holding the currency that's collapsing",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money's legitimacy has always rested on collective agreement. Once institutions stop agreeing, it stops being money.",
+    "scheduled_at": "2026-05-09T02:00:20.866491+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-07T18:00:20.866491+00:00"
+  },
+  {
+    "anchor_id": "383",
+    "anchor_text": "If institutions are buying Bitcoin to hedge against currency collapse, why are they still holding the currency that's collapsing",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real move is institutions buying Bitcoin while publicly dismissing it. That gap is where fortunes transfer.",
+    "scheduled_at": "2026-05-09T10:00:20.866491+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-07T18:00:20.866491+00:00"
   }
 ]

@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-05-07T10:00:32.157632+00:00",
+  "brief_type": "morning",
+  "score": 35,
+  "bullish_signals": [
+    "Neutral Fear & Greed (47) without capitulation historically precedes conviction",
+    "Uncongested mempool with 1 sat/byte floor fees",
+    "Stable hashrate (936.5 EH/s) shows miners not panicking",
+    "Institutional positioning ahead of 2027 halving window"
+  ],
+  "bearish_signals": [
+    "1.2% overnight decline",
+    "Price treading water with no directional momentum",
+    "Correlation reliance on macro/equities over technicals"
+  ],
+  "neutral_topics": [
+    "Sideways price action",
+    "Block height proximity to halving (99 blocks away)"
+  ]
+}
