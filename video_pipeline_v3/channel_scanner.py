@@ -467,6 +467,11 @@ def scan_all_channels(model_size: str = "base") -> list:
             logger.info(f"  Transcript cached ({len(video['transcript_text'])} chars)")
             continue
 
+        # DURATION GATE: skip videos over 30min
+        vid_dur = video.get("duration", 0)
+        if vid_dur > 1800:
+            logger.info(f"  SKIPPED: {vid_dur}s > 30min")
+            continue
         # Download audio
         audio_path = download_audio(vid)
         if not audio_path:

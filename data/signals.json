@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-05-08T03:15:04.999783+00:00",
+  "updated_at": "2026-05-08T03:20:04.815026+00:00",
   "btc_price": {
-    "value": 79438,
-    "change_24h": -1.97,
+    "value": 79538,
+    "change_24h": -1.83,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1588374341727,
+    "value": 1592495771961.7595,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 37579838722,
+    "value": 38237491722.78829,
     "source": "coingecko"
   },
   "block_height": {
@@ -18,9 +18,9 @@
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 1.05,
+    "percent": 0.99,
     "blocks_remaining": 1137,
-    "estimated_date": "2026-05-15T22:59:40.184000+00:00",
+    "estimated_date": "2026-05-15T23:10:59.353000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
@@ -29,8 +29,8 @@
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 36357,
-    "vsize_mb": 31.6,
+    "tx_count": 42858,
+    "vsize_mb": 32.6,
     "source": "mempool.space"
   },
   "recommended_fees": {
@@ -52,21 +52,21 @@
     "source": "alternative.me"
   },
   "funding_rate": {
-    "value": 3.01e-06,
+    "value": 3e-06,
     "annualized": 0.33,
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 27923.0,
-    "usd": 2219289520,
+    "btc": 27884.4,
+    "usd": 2218567720,
     "source": "deribit"
   },
   "dominance": {
-    "value": 57.59,
-    "source": "coinpaprika"
+    "value": 58.32,
+    "source": "coingecko"
   },
   "gold": {
-    "value": 4725.1,
+    "value": 4726.8,
     "source": "yahoo"
   },
   "sp500": {
@@ -74,11 +74,11 @@
     "source": "yahoo"
   },
   "dxy": {
-    "value": 98.24,
+    "value": 98.23,
     "source": "yahoo"
   },
   "exchange_volume": {
-    "binance_btc": 124369.3,
+    "binance_btc": 124640.8,
     "coinbase_btc": null,
     "source": "coingecko"
   },
@@ -116,10 +116,10 @@
     "value": null,
     "source": "unavailable"
   },
-  "btc_dominance": 57.59,
-  "gold_price": 4725.1,
+  "btc_dominance": 58.32,
+  "gold_price": 4726.8,
   "sp500_price": 7337.11,
-  "dxy_index": 98.24,
+  "dxy_index": 98.23,
   "signal_score": {
     "bull_count": 3,
     "bear_count": 1,
