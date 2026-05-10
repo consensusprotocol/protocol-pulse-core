@@ -747,7 +747,7 @@ def concatenate_parts(parts: list, output_path: str,
             _tp_check = subprocess.run(
                 ["ffmpeg", "-i", output_path, "-af", "loudnorm=print_format=json",
                  "-vn", "-f", "null", "/dev/null"],
-                capture_output=True, text=True, timeout=120
+                capture_output=True, text=True, timeout=600
             )
             import re as _tp_re
             _tp_match = _tp_re.search(r'"input_tp"\s*:\s*"([^"]+)"', _tp_check.stderr)
@@ -771,7 +771,7 @@ def concatenate_parts(parts: list, output_path: str,
                     _tp2 = subprocess.run(
                         ["ffmpeg", "-i", _limited, "-af", "loudnorm=print_format=json",
                          "-vn", "-f", "null", "/dev/null"],
-                        capture_output=True, text=True, timeout=120
+                        capture_output=True, text=True, timeout=600
                     )
                     _tp2_match = _tp_re.search(r'"input_tp"\s*:\s*"([^"]+)"', _tp2.stderr)
                     _tp2_val = float(_tp2_match.group(1)) if _tp2_match else -99
@@ -1355,7 +1355,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     "-vsync", "cfr", "-r", "30", "-pix_fmt", "yuv420p",
                     "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                     cfr_clip,
-                ], f"CFR pre-process clip #{rank}", 120)
+                ], f"CFR pre-process clip #{rank}", 600)
                 if cfr_ok and os.path.exists(cfr_clip) and os.path.getsize(cfr_clip) > 50_000:
                     clip_path = cfr_clip
                     logger.info(f"  FIX CFR: Clip #{rank} normalized to CFR 30fps")
