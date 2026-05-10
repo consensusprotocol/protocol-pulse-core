@@ -69,7 +69,7 @@ class ModelRegistry:
         from models import Wav2Lip as Wav2LipModel
         logger.info(f"Loading Wav2Lip from {CHECKPOINT} on {DEVICE}...")
         model = Wav2LipModel()
-        ckpt = torch.load(CHECKPOINT, map_location=DEVICE)
+        ckpt = torch.load(CHECKPOINT, map_location=lambda storage, loc: storage.cuda(0) if torch.cuda.is_available() else storage)
         state = ckpt["state_dict"]
         cleaned = {k.replace("module.", ""): v for k, v in state.items()}
         model.load_state_dict(cleaned)

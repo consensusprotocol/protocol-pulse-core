@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-05-08T03:00:17.310731+00:00",
-  "fetch_time_ms": 12208,
+  "updated_at": "2026-05-10T01:30:15.043519+00:00",
+  "fetch_time_ms": 10859,
   "composite": {
-    "perception_score": 52,
-    "label": "Neutral",
-    "overall_signal": "neutral",
-    "bull_layers": 2,
+    "perception_score": 58,
+    "label": "Cautiously Bullish",
+    "overall_signal": "bullish",
+    "bull_layers": 3,
     "bear_layers": 1,
-    "neutral_layers": 4,
+    "neutral_layers": 3,
     "layer_signals": {
       "global": "bullish",
       "trending": "neutral",
@@ -15,16 +15,16 @@
       "lightning": "bullish",
       "fees": "neutral",
       "social": "neutral",
-      "fg_trend": "neutral"
+      "fg_trend": "bullish"
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.34,
-    "total_mcap_usd": 2730311691190.5684,
-    "total_mcap_t": 2.73,
-    "total_vol_24h_usd": 105476940811.65451,
-    "total_vol_24h_b": 105.5,
-    "active_coins": 17421,
+    "btc_dominance_pct": 58.31,
+    "total_mcap_usd": 2767462939426.2812,
+    "total_mcap_t": 2.767,
+    "total_vol_24h_usd": 61592325349.37923,
+    "total_vol_24h_b": 61.6,
+    "active_coins": 17437,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,45 +33,45 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "WOJAK",
-        "name": "wojak",
-        "rank": 695,
+        "symbol": "VVV",
+        "name": "Venice Token",
+        "rank": 86,
         "score": 0
-      },
-      {
-        "symbol": "TON",
-        "name": "Toncoin",
-        "rank": 18,
-        "score": 1
-      },
-      {
-        "symbol": "LAB",
-        "name": "LAB",
-        "rank": 137,
-        "score": 2
-      },
-      {
-        "symbol": "NIL",
-        "name": "Nillion",
-        "rank": 696,
-        "score": 3
-      },
-      {
-        "symbol": "BILL",
-        "name": "Billions Network",
-        "rank": 208,
-        "score": 4
-      },
-      {
-        "symbol": "JTO",
-        "name": "Jito",
-        "rank": 164,
-        "score": 5
       },
       {
         "symbol": "PENGU",
         "name": "Pudgy Penguins",
         "rank": 89,
+        "score": 1
+      },
+      {
+        "symbol": "WOJAK",
+        "name": "wojak",
+        "rank": 667,
+        "score": 2
+      },
+      {
+        "symbol": "BILL",
+        "name": "Billions Network",
+        "rank": 157,
+        "score": 3
+      },
+      {
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "rank": 1,
+        "score": 4
+      },
+      {
+        "symbol": "INX",
+        "name": "Infinex",
+        "rank": 658,
+        "score": 5
+      },
+      {
+        "symbol": "CC",
+        "name": "Canton",
+        "rank": 21,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 523299,
+    "tx_count_24h": 788699,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 9.56,
+    "minutes_between_blocks": 8.33,
     "difficulty": 132472011079030,
-    "estimated_btc_sent": 8958341554858,
-    "total_fees_btc": -44062500000,
+    "estimated_btc_sent": 2491452821258,
+    "total_fees_btc": -50937500000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,11 +100,11 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17396,
-    "channel_count": 41423,
-    "capacity_btc": 5238.97,
-    "capacity_sats": 523897019799,
-    "avg_channel_capacity_btc": 0.1265,
+    "node_count": 17402,
+    "channel_count": 42000,
+    "capacity_btc": 5677.47,
+    "capacity_sats": 567746929511,
+    "avg_channel_capacity_btc": 0.1352,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
@@ -121,22 +121,22 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 38,
-    "7d_ago": 39,
-    "7d_delta": -1,
-    "trend": "stable",
+    "current": 47,
+    "7d_ago": 40,
+    "7d_delta": 7,
+    "trend": "improving",
     "7d_values": [
+      47,
+      38,
       38,
       47,
       46,
       50,
-      40,
-      47,
-      39
+      40
     ],
-    "btc_signal": "neutral",
-    "note": "F&G stable at 38",
-    "label": "Fear",
+    "btc_signal": "bullish",
+    "note": "F&G trending up (40 -> 47)",
+    "label": "Neutral",
     "source": "alternative.me F&G"
   }
 }

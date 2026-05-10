@@ -760,5 +760,29 @@
     "timestamp": "2026-05-08T02:00:20.823446+00:00",
     "text_preview": "Block 948,389 and fees still 1 sat/vB. The network doesn't care about price. It ",
     "format_type": "onchain_metric"
+  },
+  {
+    "hash": "1c56bd78bc2156977c7e70ee147e8ec0",
+    "timestamp": "2026-05-08T06:43:21.966962+00:00",
+    "text_preview": "972.5 EH/s network hashrate. Fees at 1 sat/vB. Fear index at 38. The network doe",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "be7e917cd3e1ea994c971839e4efef84",
+    "timestamp": "2026-05-08T18:04:17.065111+00:00",
+    "text_preview": "Revolut Glitch Prices Bitcoin at 2 Cents\nhttps://protocolpulse.io/articles/1028",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "3e4a81d2d15c5630826162048bc1d033",
+    "timestamp": "2026-05-09T02:00:21.215672+00:00",
+    "text_preview": "Basel III locks banks out of Bitcoin custody June 18. Institutions can't hold it",
+    "format_type": "contrarian_take"
+  },
+  {
+    "hash": "d7cea5e5f432fa2670b14c86dfde03ae",
+    "timestamp": "2026-05-09T18:03:59.528665+00:00",
+    "text_preview": "U.S. Military Runs Bitcoin Node for Power Projection\nhttps://protocolpulse.io/ar",
+    "format_type": "institutional_flow"
   }
 ]

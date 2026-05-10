@@ -1,92 +1,93 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-05-08T00:00:39.039202+00:00",
-  "creator_count": 16,
-  "avg_sentiment_score": 68.1,
+  "generated_at": "2026-05-08T12:00:31.291410+00:00",
+  "creator_count": 27,
+  "avg_sentiment_score": 63.7,
   "sentiment_breakdown": {
-    "bullish": 12,
-    "bearish": 2,
-    "neutral": 2
+    "bullish": 17,
+    "bearish": 5,
+    "neutral": 5
   },
   "dominant_sentiment": "bullish",
   "trending_themes": [
     {
-      "topic": "MicroStrategy's Bitcoin treasury strategy",
-      "creator_count": 1,
+      "topic": "Bitcoin as sound money alternative",
+      "creator_count": 2,
       "creators": [
-        "Simply Bitcoin"
+        "Robert Breedlove",
+        "Saifedean Ammous"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
+      "avg_sentiment_score": 50.0,
+      "example_quote": "100 million years worth of productive labor stolen through counterfeiting of six trillion US dollars"
     },
     {
-      "topic": "Corporate dividend funding through Bitcoin appreciation",
+      "topic": "Global economic reset and crisis cycles",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
+      "avg_sentiment_score": 25.0,
+      "example_quote": "The next 5 to 7 years, everything is going to change"
     },
     {
-      "topic": "Tax-loss harvesting optimization",
+      "topic": "Passport diversification and citizenship by descent",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
+      "avg_sentiment_score": 25.0,
+      "example_quote": "The next 5 to 7 years, everything is going to change"
     },
     {
-      "topic": "SCRC retail adoption and on-ramping",
+      "topic": "Geopolitical risk and border redrawn scenarios",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
+      "avg_sentiment_score": 25.0,
+      "example_quote": "The next 5 to 7 years, everything is going to change"
     },
     {
-      "topic": "Bitcoin's historical annual appreciation rate",
+      "topic": "Offshore relocation strategies",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "BTC Sessions"
       ],
-      "avg_sentiment_score": 85.0,
-      "example_quote": "Buy Bitcoin with credit, let it appreciate and sell a tiny fraction to pay the dividend"
+      "avg_sentiment_score": 25.0,
+      "example_quote": "The next 5 to 7 years, everything is going to change"
     }
   ],
-  "summary": "# Bitcoin Creators' Consensus and Divergence Summary\n\n**Consensus:** The Bitcoin community broadly agrees on Bitcoin's fundamental value proposition\u2014financial sovereignty, decentralization, and superior monetary properties\u2014with most voices (7 of 10 sources) expressing bullish sentiment. There's also agreement that security and proper implementation practices are critical to mainstream adoption.\n\n**Divergence:** Sharp disagreement exists on market outlook: while most creators emphasize Bitcoin's long-term technological and monetary superiority, CoinTelegraph presents a bearish technical analysis predicting continued decline through mid-2024. Additionally, creators differ on obstacles to adoption\u2014some highlight geopolitical advantages and institutional interest (Pompliano, Bent), while others stress security vulnerabilities as the primary deterrent. One source (Stacker News) breaks entirely from Bitcoin-specific discourse to discuss unrelated legal matters.",
+  "summary": "# Bitcoin Creator Consensus and Divergence\n\n**Consensus:** Most creators are bullish on Bitcoin's long-term prospects, viewing it as a legitimate monetary asset gaining institutional adoption. There's broad agreement that Bitcoin's critics have repeatedly underestimated the asset and that traditional valuation frameworks don't apply.\n\n**Divergence:** While most sources emphasize Bitcoin's store-of-value role and institutional momentum, BTC Sessions presents a contrarian bearish case predicting imminent economic crisis, and TFTC raises concerns about regulatory persecution of privacy developers. Technical analysts (DataDash, Altcoin Daily) focus on near-term price consolidation and resistance levels, whereas macro-focused sources (Coin Bureau, CoinTelegraph) discuss Bitcoin's structural role replacing traditional finance.\n\n**Secondary theme:** Concerns about centralized intermediaries (Mount Gox history, SWIFT replacement, privacy rights) appear across bearish and bullish camps alike, suggesting this is a shared industry vulnerability regardless of overall sentiment direction.",
   "top_creators": [
     {
-      "channel": "Simply Bitcoin",
-      "sentiment": "bullish",
-      "score": 85,
-      "thesis": "Saylor's announcement to sell small amounts of Bitcoin is not a loss of conviction but a sophisticated capital optimization strategy that proves MicroStrategy can fund dividends through Bitcoin appreciation alone, validating a sustainable long-term model."
-    },
-    {
-      "channel": "Simply Bitcoin",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Bitcoin exists as a decentralized alternative to traditional banking systems that can freeze accounts and restrict financial access. It represents the culmination of 40 years of cryptographic innovation designed to enable financial sovereignty independent of governments and institutions."
-    },
-    {
-      "channel": "Stacker News",
-      "sentiment": "neutral",
-      "score": 45,
-      "thesis": "This transcript is not Bitcoin-specific content; it discusses the Elon Musk vs. OpenAI legal trial regarding Sam Altman's leadership and organizational structure rather than cryptocurrency or Bitcoin."
-    },
-    {
       "channel": "BTC Sessions",
-      "sentiment": "mixed",
-      "score": 45,
-      "thesis": "Bitcoin security practices are critically important as the ecosystem faces increasing threats from exploits and poor wallet choices. Users must prioritize proper storage solutions and UTXO management over cost savings."
+      "sentiment": "bearish",
+      "score": 25,
+      "thesis": "Major global economic and geopolitical crisis is imminent (5-7 years), prompting wealthy individuals to obtain multiple passports and relocate to obscure jurisdictions as a survival strategy."
     },
     {
-      "channel": "Saifedean Ammous",
+      "channel": "Coin Bureau",
       "sentiment": "bullish",
       "score": 75,
-      "thesis": "Hard money that cannot be easily produced in excessive quantities enables lower time preference and future-oriented behavior in individuals and society. Bitcoin's monetary properties make it a superior technology for storing value across time."
+      "thesis": "Bitcoin critics have used wrong analytical frameworks to evaluate the asset for 15 years, consistently failing to predict its demise. Bitcoin's real value lies in being a monetary asset and store of value, not a payment currency, making traditional valuation methods obsolete."
+    },
+    {
+      "channel": "CoinTelegraph",
+      "sentiment": "bullish",
+      "score": 95,
+      "thesis": "Bitcoin and digital assets will replace traditional finance infrastructure like SWIFT because digital technology always wins over analog alternatives. The institutional adoption is already underway and growth over the next few years will be monumental."
+    },
+    {
+      "channel": "DataDash",
+      "sentiment": "bullish",
+      "score": 78,
+      "thesis": "Bitcoin is consolidating tightly under $80,000 and poised to break through this resistance level soon, likely this week, before moving toward $93,000 as markets shift from peak fear to neutral sentiment."
+    },
+    {
+      "channel": "Altcoin Daily",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "This is a platform review for Crypto Fund Trader prop firm demonstrating how to register and trade on their demo accounts. The content is purely instructional about platform mechanics rather than Bitcoin price or market analysis."
     }
   ]
 }

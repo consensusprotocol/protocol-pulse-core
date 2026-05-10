@@ -385,8 +385,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Fear is a tax on those who believe money should ask permission. Miners don't.",
     "scheduled_at": "2026-05-02T02:00:17.855126+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-08T04:00:02.740992+00:00",
     "created_at": "2026-04-30T18:00:17.855126+00:00"
   },
   {
@@ -395,8 +395,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone's watching the fear gauge. Nobody's watching who's buying at the fear gauge.",
     "scheduled_at": "2026-05-02T10:00:17.855126+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-08T19:00:03.006113+00:00",
     "created_at": "2026-04-30T18:00:17.855126+00:00"
   },
   {
@@ -405,8 +405,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "When fees compress while fear stays elevated, the market is pricing in certainty. That certainty isn't retail.",
     "scheduled_at": "2026-05-02T02:00:18.369832+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-08T22:00:02.795137+00:00",
     "created_at": "2026-05-01T18:00:18.369832+00:00"
   },
   {
@@ -415,8 +415,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Low fees during high fear is the market equivalent of selling umbrellas in a drought. Someone's very confident about the weather.",
     "scheduled_at": "2026-05-02T10:00:18.369832+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-09T04:00:02.653376+00:00",
     "created_at": "2026-05-01T18:00:18.369832+00:00"
   },
   {
@@ -425,8 +425,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Fee compression + elevated fear = institutional dry powder waiting. Network capacity tells you what on-chain volume expects next.",
     "scheduled_at": "2026-05-02T18:00:18.369832+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-09T19:00:03.306590+00:00",
     "created_at": "2026-05-01T18:00:18.369832+00:00"
   },
   {
@@ -435,8 +435,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Cheap blockspace during panic reveals what money actually believes versus what noise claims to believe.",
     "scheduled_at": "2026-05-03T02:00:18.369832+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-09T22:00:03.533300+00:00",
     "created_at": "2026-05-01T18:00:18.369832+00:00"
   },
   {
@@ -648,5 +648,105 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-07T18:00:20.866491+00:00"
+  },
+  {
+    "anchor_id": "387",
+    "anchor_text": "972.5 EH/s network hashrate. Fees at 1 sat/vB. Fear index at 38. The network doesn't negotiate with sentiment. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "972.5 EH/s doesn't care if you're terrified. That's the entire point.",
+    "scheduled_at": "2026-05-09T02:00:18.468019+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-08T18:00:18.468019+00:00"
+  },
+  {
+    "anchor_id": "387",
+    "anchor_text": "972.5 EH/s network hashrate. Fees at 1 sat/vB. Fear index at 38. The network doesn't negotiate with sentiment. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Fear at 38 while fees collapse to 1 sat/vB. The market's pricing fear wrong.",
+    "scheduled_at": "2026-05-09T10:00:18.468019+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-08T18:00:18.468019+00:00"
+  },
+  {
+    "anchor_id": "387",
+    "anchor_text": "972.5 EH/s network hashrate. Fees at 1 sat/vB. Fear index at 38. The network doesn't negotiate with sentiment. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Near-peak hashrate on minimal fees means the network's security costs almost nothing right now.",
+    "scheduled_at": "2026-05-09T18:00:18.468019+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-08T18:00:18.468019+00:00"
+  },
+  {
+    "anchor_id": "387",
+    "anchor_text": "972.5 EH/s network hashrate. Fees at 1 sat/vB. Fear index at 38. The network doesn't negotiate with sentiment. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "A machine that runs on mathematics alone has no use for your confidence or your doubt.",
+    "scheduled_at": "2026-05-10T02:00:18.468019+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-08T18:00:18.468019+00:00"
+  },
+  {
+    "anchor_id": "387",
+    "anchor_text": "972.5 EH/s network hashrate. Fees at 1 sat/vB. Fear index at 38. The network doesn't negotiate with sentiment. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone's watching sentiment. Nobody's watching that hashrate stayed firm while fear dropped.",
+    "scheduled_at": "2026-05-10T10:00:18.468019+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-08T18:00:18.468019+00:00"
+  },
+  {
+    "anchor_id": "390",
+    "anchor_text": "Basel III locks banks out of Bitcoin custody June 18. Institutions can't hold it. Legislation odds hit 73%. They'll buy it anyway. The rule exists to slow what's inevitable",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Regulators think they can legislate inevitability. They can't. June 18 changes nothing.",
+    "scheduled_at": "2026-05-10T02:00:19.714849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-09T18:00:19.714849+00:00"
+  },
+  {
+    "anchor_id": "390",
+    "anchor_text": "Basel III locks banks out of Bitcoin custody June 18. Institutions can't hold it. Legislation odds hit 73%. They'll buy it anyway. The rule exists to slow what's inevitable",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Basel III bans institutional Bitcoin custody right before institutions are forced to own it anyway.",
+    "scheduled_at": "2026-05-10T10:00:19.714849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-09T18:00:19.714849+00:00"
+  },
+  {
+    "anchor_id": "390",
+    "anchor_text": "Basel III locks banks out of Bitcoin custody June 18. Institutions can't hold it. Legislation odds hit 73%. They'll buy it anyway. The rule exists to slow what's inevitable",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "73% legislation odds means the market already priced in what regulators are still pretending to prevent.",
+    "scheduled_at": "2026-05-10T18:00:19.714849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-09T18:00:19.714849+00:00"
+  },
+  {
+    "anchor_id": "390",
+    "anchor_text": "Basel III locks banks out of Bitcoin custody June 18. Institutions can't hold it. Legislation odds hit 73%. They'll buy it anyway. The rule exists to slow what's inevitable",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "You can't regulate away what becomes necessary infrastructure. Bitcoin doesn't wait for permission.",
+    "scheduled_at": "2026-05-11T02:00:19.714849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-09T18:00:19.714849+00:00"
+  },
+  {
+    "anchor_id": "390",
+    "anchor_text": "Basel III locks banks out of Bitcoin custody June 18. Institutions can't hold it. Legislation odds hit 73%. They'll buy it anyway. The rule exists to slow what's inevitable",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real tell: they're not banning the asset, just the custodians. They know what's coming.",
+    "scheduled_at": "2026-05-11T10:00:19.714849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-09T18:00:19.714849+00:00"
   }
 ]

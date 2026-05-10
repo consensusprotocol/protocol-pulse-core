@@ -1,52 +1,52 @@
 [
   {
-    "id": "18fdeb8b-8a73-4885-8d9b-d76cc26b6a25",
+    "id": "f9298747-a482-404f-ac58-0aa3a896203b",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Michael Saylor's hosting a Q1 call at 5pm ET \u2014 MicroStrategy balance sheet metrics will surface institutional demand signals. Watch for specific Bitcoin acquisition pace and debt structure commentary.",
+    "script": "Saylor just positioned a financial instrument backed by Bitcoin reserves as preferred equity rather than debt. Watch whether institutional custody standards treat equity claims on Bitcoin holdings differently than collateralized debt \u2014 that's your regulatory arbitrage signal.",
     "source_label": "\ud83e\udde0 @SAYLOR",
-    "topic_preview": "Join us today at 5pm ET for our Q1 Earnings Call. We\u2019ll discuss our outlook for ",
-    "generated_at": "2026-05-08T02:05:30.677752+00:00",
-    "expires_at": "2026-05-08T04:05:30.677752+00:00"
+    "topic_preview": "$STRC is credit engineered for income, stability, liquidity, and principal prote",
+    "generated_at": "2026-05-10T01:05:31.069917+00:00",
+    "expires_at": "2026-05-10T03:05:31.069917+00:00"
   },
   {
-    "id": "561cf230-44c5-47b1-bbba-dbd50179ab8b",
+    "id": "aea9838a-0583-452b-b133-145062682c7c",
     "type": "ARTICLE_TEASER",
     "priority": 3,
-    "script": "House Financial Services Committee advances CLARITY Act markup next week. Bipartisan voter support at 67% signals congressional cover for market structure codification.\n\nWatch: whether banking lobby amendments strip self-custody protections before floor vote.",
+    "script": "Bailey's warning: UK regulators fear dollar stablecoins become hot potato during crisis. Watch for FSB regulatory divergence announcement\u2014this is where capital controls get rebranded.",
     "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "CLARITY Act Markup Looms Next Week",
-    "generated_at": "2026-05-08T00:05:48.665316+00:00",
-    "expires_at": "2026-05-08T04:05:48.665316+00:00"
+    "topic_preview": "BoE's Bailey Warns of US Stablecoin Flood Risk",
+    "generated_at": "2026-05-10T00:05:51.258386+00:00",
+    "expires_at": "2026-05-10T04:05:51.258386+00:00"
   },
   {
-    "id": "9e5fcfe5-83d8-4398-a67a-d06440567705",
+    "id": "c03a9d8f-4dd2-424b-9b98-1515190f9ac0",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "PROTOCOL PULSE \u2014 METRICS BRIEF\n\nBitcoin sits at 79,454 \u2014 down 2.03% in 24 hours while hashrate holds firm at 918.8 exahashes. Fear index at 38 signals capitulation conditions; watch whether network security sustains through this liquidation cycle.",
+    "script": "Hashrate hit 1104.5 exahashes\u2014miners are not capitulating. Fear & Greed at 47 signals structural indifference, not panic.\n\nWatch block 948700 for difficulty adjustment timing.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $79,454 \u00b7 FNG 38 \u00b7 918.8 EH/s",
-    "generated_at": "2026-05-08T03:06:20.978267+00:00",
-    "expires_at": "2026-05-08T07:06:20.978267+00:00"
+    "topic_preview": "BTC $80,680 \u00b7 FNG 47 \u00b7 1104.5 EH/s",
+    "generated_at": "2026-05-10T00:56:17.011150+00:00",
+    "expires_at": "2026-05-10T04:56:17.011150+00:00"
   },
   {
-    "id": "8987707d-c78f-49f3-bc24-e25dce1b6504",
+    "id": "45433e34-666c-4fdd-9527-f45de9b50b58",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "PROTOCOL PULSE - NOSTR SIGNAL\n\nNostr relays are running hard on one thesis: Bitcoin replaces monetary collapse when institutions fail. Not as speculation. As infrastructure.\n\nThis isn't retail positioning. This is architectural conversation. Watch settlement velocity on-chain over the next 72 hours\u2014it's the real vote.",
+    "script": "The sovereign hedge narrative is consolidating across Nostr\u2014correlation between USDX weakness and node operator discourse is inverted from six months ago. Watch whether M1 money supply decisions trigger sustained above-7-day HODL accumulation patterns next week.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Bitcoin as a sovereign hedge against failing traditional ...",
-    "generated_at": "2026-05-08T01:41:10.192994+00:00",
-    "expires_at": "2026-05-08T05:41:10.192994+00:00"
+    "generated_at": "2026-05-10T01:56:08.786554+00:00",
+    "expires_at": "2026-05-10T05:56:08.786554+00:00"
   },
   {
-    "id": "490f4eeb-602b-42cd-89fd-68b7bdbd695d",
+    "id": "2284ced0-aff8-4d2d-b946-298f933722c2",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
+    "script": "Coinjoin transactions are growing month over month. Privacy isn't optional in a sound money system \u2014 it's essential. Financial surveillance is incompatible with individual sovereignty.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
-    "generated_at": "2026-05-07T23:56:06.369908+00:00",
-    "expires_at": "2026-05-08T03:56:06.369908+00:00"
+    "topic_preview": "Coinjoin transactions are growing month over month. Privacy isn't optional in a ",
+    "generated_at": "2026-05-09T23:01:13.977186+00:00",
+    "expires_at": "2026-05-10T03:01:13.977186+00:00"
   }
 ]

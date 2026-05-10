@@ -1,47 +1,48 @@
 {
-  "generated_at": "2026-05-07T12:00:00Z",
-  "date": "Thursday, May 07, 2026",
-  "btc_price": "$80,085",
-  "btc_change_24h": "-1.7%",
-  "fng": "Neutral",
+  "generated_at": "2026-05-09T00:00:00Z",
+  "date": "Saturday, May 09, 2026",
+  "btc_price": "$80,887",
+  "btc_change_24h": "+1.0%",
+  "fng": "Fear",
   "dominant_narratives": [
-    "Bitcoin as a sovereign hedge against failing traditional systems and 'broken money'.",
-    "Increasing institutional validation and mainstream adoption of Bitcoin.",
-    "The critical importance of self-custody, personal responsibility, and security in the Bitcoin ecosystem.",
-    "Advancements in Bitcoin's underlying technology and mining infrastructure."
+    "Corporate/ETF accumulation as 'silent IPO' — institutions buying 1M BTC while individuals sold 750K over 16 months",
+    "Bitcoin Standard infrastructure maturation — BPS (Bitcoin Per Share) as true north metric for capital allocation",
+    "Regulatory clarity momentum — Senate Banking Committee markup of Clarity Act scheduled May 14th signals institutional legitimacy path"
   ],
   "trending_language": [
-    "Buy more Bitcoin than you can sell",
-    "Self-custody / personal responsibility",
-    "Broken money / managed decline",
-    "Developers facing prison for writing code",
-    "Compelling results / a little bitcoin can go a long way"
+    "Bitcoin Per Share (BPS)",
+    "Silent IPO",
+    "Time is the ultimate resource",
+    "Decentralize our trust",
+    "Hold and still move forward"
   ],
   "sentiment": "bullish",
-  "sentiment_reasoning": "Despite a minor price dip and neutral market sentiment, the community maintains a strong bullish outlook, driven by increasing institutional validation, real-world adoption, and a deep conviction in Bitcoin's fundamental role as a sovereign hedge against perceived failures of traditional financial and political systems.",
+  "sentiment_reasoning": "Institutional adoption narratives dominate despite Fear-level FNG index. Market structure legitimacy (Clarity Act) combined with corporate treasury adoption (Saylor/MicroStrategy narrative) creates asymmetric positioning belief — classic accumulation phase psychology where price consolidation masks conviction.",
   "top_accounts_active": [
-    "@PeterMcCormack",
-    "@MartyBent",
-    "@BitcoinArchive",
-    "@BTCsessions",
+    "@saylor",
+    "@saifedean",
+    "@NickSzabo4",
+    "@TFTC21",
     "@DocumentingBTC"
   ],
   "recommended_tweet_angles": [
-    "Highlight the stark contrast between the 'managed decline' of traditional economies and Bitcoin's resilience as the only viable alternative for individual sovereignty.",
-    "Amplify the growing institutional embrace of Bitcoin, citing reports from BlackRock and Morgan Stanley as undeniable proof of its financial gravity.",
-    "Emphasize the urgent need for self-custody and personal responsibility, especially in light of legal challenges against code developers, framing it as a defense of fundamental digital rights."
+    "The silent IPO thesis: 1M BTC institutional absorption vs 750K retail exodus = wealth transfer complete. Map the flow, ignore the price noise.",
+    "BPS is the metric that matters. Every MicroStrategy capital decision optimized for Bitcoin yield, not dollar denominated returns. This is the playbook.",
+    "Senate Banking Committee May 14 markup = regulatory capture or legitimacy layer? Clarity Act forces choice: Bitcoin as money or asset class. Neither changes the math.",
+    "Decentralize trust: the more followers someone has on X, the less you should trust them. Verify through your own economic incentives, not influencer conviction data."
   ],
   "topics_to_avoid": [
-    "Detailed commentary on specific local political elections or non-Bitcoin-related political scandals.",
-    "Unverified or non-Bitcoin-centric health advice/medical claims.",
-    "Broad geopolitical events not directly tied to Bitcoin's value proposition or adoption."
+    "Geopolitical conflict narratives unrelated to monetary systems",
+    "Israeli-Palestinian conflict commentary (off-brand noise diluting signal)",
+    "Internal personality/drama feuds between Bitcoin figures",
+    "X platform censorship unless directly tied to Bitcoin financial speech"
   ],
-  "engagement_patterns": "High engagement with 'JUST IN' announcements, direct calls to action (e.g., 'Buy Bitcoin', 'Stack sats'), sharp critiques of legacy financial and political systems, educational content promoting self-custody, and updates on Bitcoin's technological advancements.",
-  "protocol_pulse_voice_guidance": "Maintain a cypherpunk, data-backed, and specific tone. Focus on Bitcoin's role in individual sovereignty, privacy, and economic freedom, leveraging institutional data points to underscore its inevitable rise against a backdrop of failing traditional systems. Highlight the importance of self-custody and technological advancements that empower users.",
+  "engagement_patterns": "Institutional Bitcoin narrative + macro monetary theory outperforming hype cycles. Long-form conviction statements (Saylor/Saifedean threading) accumulating engagement. Regulatory milestone announcements driving measured bullish reactions. Avoid emoji-heavy 'laser eyes' tradfi signaling — it's diluted. Precision > enthusiasm.",
+  "protocol_pulse_voice_guidance": "Operate as financial intelligence, not cheerleader. Center on verifiable flows: corporate accumulation data, regulatory calendar facts, on-chain metrics. Acknowledge Fear index honestly while exposing the institutional positioning thesis beneath. Sound like a strategist reading tea leaves of power transfer, not a coiner yelling. Cypherpunk ethos emerges through precision and skepticism of centralized narratives (including Bitcoin mainstream), not tribal signaling.",
   "key_stats_today": {
-    "tweets_analyzed": 60,
+    "tweets_analyzed": 80,
     "nostr_signals": 0,
-    "unique_handles": 31
+    "unique_handles": 51
   },
-  "generated_by": "gemini_fallback"
+  "generated_by": "claude_haiku"
 }

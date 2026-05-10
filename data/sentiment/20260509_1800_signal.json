@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-05-09T18:00:31.631977+00:00",
+  "brief_type": "midday",
+  "score": 15,
+  "bullish_signals": [
+    "Hashrate stable at 987 EH/s\u2014no miner capitulation",
+    "Price holding $80k despite fear readings suggests institutional support",
+    "Low fees (7 sat/byte) indicate no critical network stress",
+    "Historical pattern: Fear + stable hashrate precedes accumulation"
+  ],
+  "bearish_signals": [
+    "Fear & Greed at 38\u2014elevated anxiety in market",
+    "Institutional indifference shown by 0.8% 24h move",
+    "Sentiment-price disconnect suggests vulnerability"
+  ],
+  "neutral_topics": [
+    "Mempool congestion (manageable at current levels)",
+    "Difficulty adjustment signals (none detected yet)"
+  ]
+}
