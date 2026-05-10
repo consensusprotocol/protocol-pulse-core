@@ -747,7 +747,7 @@ def concatenate_parts(parts: list, output_path: str,
             _tp_check = subprocess.run(
                 ["ffmpeg", "-i", output_path, "-af", "loudnorm=print_format=json",
                  "-vn", "-f", "null", "/dev/null"],
-                capture_output=True, text=True, timeout=600
+                capture_output=True, text=True, timeout=120
             )
             import re as _tp_re
             _tp_match = _tp_re.search(r'"input_tp"\s*:\s*"([^"]+)"', _tp_check.stderr)
@@ -771,7 +771,7 @@ def concatenate_parts(parts: list, output_path: str,
                     _tp2 = subprocess.run(
                         ["ffmpeg", "-i", _limited, "-af", "loudnorm=print_format=json",
                          "-vn", "-f", "null", "/dev/null"],
-                        capture_output=True, text=True, timeout=600
+                        capture_output=True, text=True, timeout=120
                     )
                     _tp2_match = _tp_re.search(r'"input_tp"\s*:\s*"([^"]+)"', _tp2.stderr)
                     _tp2_val = float(_tp2_match.group(1)) if _tp2_match else -99
@@ -1380,11 +1380,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 except Exception as e:
                     logger.warning(f"Remotion LowerThird failed: {e}")
                 if not result:
-                    try:
                     result = make_clip_visual(clip_path, handle, clip_out, btc_price=btc_price)
-                except Exception as _mcv_err:
-                    logger.error(f"  CLIP QUARANTINED: #{rank} failed ({_mcv_err})")
-                    result = ""
                 # Render24 FIX 2: If partner clip ffmpeg fails, retry stream copy then bg_loop fallback
                 # V34 AV POST-TRIM: Measure V/A after render, fix drift > 0.05s
                 if result and os.path.exists(result):
