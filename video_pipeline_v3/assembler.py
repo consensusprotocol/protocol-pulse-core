@@ -1351,7 +1351,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 cfr_clip = clip_path + ".cfr_clip.mp4"
                 cfr_ok = run_ffmpeg([
                     "-i", clip_path,
-                    "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                    "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
                     "-vsync", "cfr", "-r", "30", "-pix_fmt", "yuv420p",
                     "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                     cfr_clip,
@@ -1380,7 +1380,11 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                 except Exception as e:
                     logger.warning(f"Remotion LowerThird failed: {e}")
                 if not result:
+                    try:
                     result = make_clip_visual(clip_path, handle, clip_out, btc_price=btc_price)
+                except Exception as _mcv_err:
+                    logger.error(f"  CLIP QUARANTINED: #{rank} failed ({_mcv_err})")
+                    result = ""
                 # Render24 FIX 2: If partner clip ffmpeg fails, retry stream copy then bg_loop fallback
                 # V34 AV POST-TRIM: Measure V/A after render, fix drift > 0.05s
                 if result and os.path.exists(result):

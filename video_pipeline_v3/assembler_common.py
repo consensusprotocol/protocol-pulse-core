@@ -471,7 +471,7 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
     return fg
 
 
-def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
+def run_ffmpeg(args: list, label: str = "", timeout: int = 900) -> bool:
     cmd = ["ffmpeg", "-y"] + args
     r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
     if r.returncode != 0:
@@ -482,7 +482,7 @@ def run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
 
 def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
                            output_args: list, output_path: str,
-                           label: str = "", timeout: int = 300) -> bool:
+                           label: str = "", timeout: int = 900) -> bool:
     fd, fpath = tempfile.mkstemp(suffix=".txt", prefix="ff_filter_")
     try:
         with os.fdopen(fd, "w") as f:

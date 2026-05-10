@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-05-10T05:40:23.173207+00:00",
-  "block_height": 948724,
+  "timestamp": "2026-05-10T07:00:22.636797+00:00",
+  "block_height": 948739,
   "btc": {
-    "price": 80764,
-    "change_24h": 0.38,
+    "price": 80707,
+    "change_24h": 0.6,
     "change_7d": 0,
-    "market_cap": 1617273009038.3904,
-    "volume_24h": 17692454155.607723,
-    "dominance": 58.3
+    "market_cap": 1616366848337.1533,
+    "volume_24h": 17527541135.82045,
+    "dominance": 57.5
   },
   "fear_greed": {
     "value": 47,
@@ -16,20 +16,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 2,
-    "unconfirmed": 42592,
-    "size_mb": 32.7
+    "fee_high": 1,
+    "unconfirmed": 36605,
+    "size_mb": 31.3
   },
   "network": {
-    "hashrate_eh": 991.0,
+    "hashrate_eh": 997.4,
     "difficulty": 0,
-    "next_adj_pct": 2.7,
-    "next_adj_blocks": 812
+    "next_adj_pct": 3.27,
+    "next_adj_blocks": 797
   },
   "lightning": {
-    "capacity_btc": 5057.1,
-    "channels": 41109,
-    "nodes": 17438
+    "capacity_btc": 5677.5,
+    "channels": 42000,
+    "nodes": 17402
   },
   "kol": {
     "sentiment_score": 51,
@@ -52,7 +52,7 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "Will MegaETH perform an airdrop by June 30? ",
-    "top_probability": 69.5
+    "top_probability": 68.5
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
@@ -61,6 +61,13 @@
     "brief_type": "midday"
   },
   "whale_alerts": [
+    {
+      "tier": "NOTE",
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: Foundry USA at 60% of last 10 blocks",
+      "score": 30,
+      "created_at": 1778394881.037204
+    },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
@@ -88,49 +95,42 @@
       "message": "Whale transaction detected: 553.41 BTC unconfirmed 0bd4a752...",
       "score": 10,
       "created_at": 1778388517.4988334
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Hashrate concentration",
-      "message": "Hashrate concentration: Foundry USA at 60% of last 10 blocks",
-      "score": 30,
-      "created_at": 1778387682.0984519
     }
   ],
   "macro": {
     "dxy": 97.84,
     "gold_price": 4730.7,
     "sp500": 7419.0,
-    "btc_vs_gold_30d_corr": 0.052,
-    "btc_vs_dxy_30d_corr": -0.292,
+    "btc_vs_gold_30d_corr": 0.064,
+    "btc_vs_dxy_30d_corr": -0.319,
     "real_yield": null,
     "ten_year_yield": 4.36
   },
   "options": {
-    "put_call_ratio": 0.636,
-    "dvol": 38.4,
+    "put_call_ratio": 0.635,
+    "dvol": 38.6,
     "max_pain": 80000.0,
-    "total_call_oi": 229305.2,
-    "total_put_oi": 145799.0,
-    "total_oi_btc": 375104.2,
-    "avg_mark_iv": 45.7
+    "total_call_oi": 229383.9,
+    "total_put_oi": 145770.2,
+    "total_oi_btc": 375154.1,
+    "avg_mark_iv": 45.6
   },
   "futures": {
     "funding_rate": 3.94e-06,
     "annualized_basis": 0.43,
-    "open_interest": 26515.54,
-    "open_interest_usd": 2141990110.0,
+    "open_interest": 26527.24,
+    "open_interest_usd": 2141828730.0,
     "long_short_ratio": null,
-    "mark_price": 80792.71,
-    "index_price": 80782.44,
-    "basis_pct": -0.0309
+    "mark_price": 80748.16,
+    "index_price": 80740.74,
+    "basis_pct": 0.0092
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 3667190.0,
+    "coin_days_destroyed_7d": 3727574.0,
     "active_addresses_7d": 715656.0,
-    "tx_volume_usd_7d": 33935790966.0,
-    "nvt_ratio": 40.1,
-    "accumulation_score": 80
+    "tx_volume_usd_7d": 34216525508.0,
+    "nvt_ratio": 39.7,
+    "accumulation_score": 90
   },
   "active_alerts": [
     {
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 11 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-05-10T05:40:27.139771+00:00",
+      "ts": "2026-05-10T07:00:24.123572+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 11
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 67.3,
+      "score": 71.2,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -165,34 +165,34 @@
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 65.1,
+      "score": 64.7,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 77.4,
+      "score": 76.9,
       "pattern": "BULLISH",
-      "fragmentation": 14.2,
-      "momentum": 61.2,
-      "conviction": 58.8,
+      "fragmentation": 16.6,
+      "momentum": 62.4,
+      "conviction": 58.4,
       "thesis": "miner_absorption_under_fear",
       "confidence": 0.76
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 5.94,
-      "btc_market_cap": 1617263681991.582,
-      "stablecoin_market_cap": 272367174768.6972,
-      "signal": "BULLISH",
-      "description": "Healthy stablecoin reserves available for BTC purchasing",
-      "source": "coingecko_derived"
+      "value": 7.88,
+      "btc_market_cap": 1616187917357.6548,
+      "stablecoin_market_cap": 205000000000,
+      "signal": "NEUTRAL",
+      "description": "Balanced stablecoin-to-BTC ratio",
+      "source": "estimated"
     },
     "mpi": {
-      "value": -0.392,
-      "cdd_7d": 3667190.0,
+      "value": -0.388,
+      "cdd_7d": 3684450.0,
       "cdd_ratio": 0.61,
-      "hashrate_eh": 991.0,
+      "hashrate_eh": 993.7,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
@@ -203,6 +203,6 @@
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-05-10T05:40:27.135503+00:00"
+    "timestamp": "2026-05-10T06:51:04.554837+00:00"
   }
 }

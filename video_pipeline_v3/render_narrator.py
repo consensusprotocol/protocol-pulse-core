@@ -89,7 +89,7 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0,
     cfr_path = clip_path + ".cfr_prep.mp4"
     cfr_ok = run_ffmpeg([
         "-i", clip_path,
-        "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
         "-vsync", "cfr", "-r", "30",
         "-c:a", "aac", "-ar", "48000",
         cfr_path,
