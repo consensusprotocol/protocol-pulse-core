@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-05-10T07:00:22.636797+00:00",
-  "block_height": 948739,
+  "timestamp": "2026-05-10T07:05:24.628350+00:00",
+  "block_height": 948742,
   "btc": {
-    "price": 80707,
-    "change_24h": 0.6,
+    "price": 80756,
+    "change_24h": 0.68,
     "change_7d": 0,
-    "market_cap": 1616366848337.1533,
-    "volume_24h": 17527541135.82045,
-    "dominance": 57.5
+    "market_cap": 1617367517140.16,
+    "volume_24h": 18248656016.412003,
+    "dominance": 58.3
   },
   "fear_greed": {
     "value": 47,
@@ -17,14 +17,14 @@
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 1,
-    "unconfirmed": 36605,
-    "size_mb": 31.3
+    "unconfirmed": 25609,
+    "size_mb": 29.7
   },
   "network": {
-    "hashrate_eh": 997.4,
+    "hashrate_eh": 996.8,
     "difficulty": 0,
-    "next_adj_pct": 3.27,
-    "next_adj_blocks": 797
+    "next_adj_pct": 3.48,
+    "next_adj_blocks": 794
   },
   "lightning": {
     "capacity_btc": 5677.5,
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 11 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-05-10T07:00:24.123572+00:00",
+      "ts": "2026-05-10T07:05:28.063375+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 11
@@ -181,18 +181,18 @@
   },
   "pro_metrics": {
     "ssr": {
-      "value": 7.88,
-      "btc_market_cap": 1616187917357.6548,
-      "stablecoin_market_cap": 205000000000,
-      "signal": "NEUTRAL",
-      "description": "Balanced stablecoin-to-BTC ratio",
-      "source": "estimated"
+      "value": 5.93,
+      "btc_market_cap": 1616366848337.1533,
+      "stablecoin_market_cap": 272377765081.20706,
+      "signal": "BULLISH",
+      "description": "Healthy stablecoin reserves available for BTC purchasing",
+      "source": "coingecko_derived"
     },
     "mpi": {
-      "value": -0.388,
-      "cdd_7d": 3684450.0,
-      "cdd_ratio": 0.61,
-      "hashrate_eh": 993.7,
+      "value": -0.38,
+      "cdd_7d": 3727574.0,
+      "cdd_ratio": 0.62,
+      "hashrate_eh": 997.4,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
@@ -203,6 +203,6 @@
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-05-10T06:51:04.554837+00:00"
+    "timestamp": "2026-05-10T07:05:05.116999+00:00"
   }
 }

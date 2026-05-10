@@ -1,36 +1,36 @@
 {
-  "updated_at": "2026-05-10T07:00:04.181887+00:00",
+  "updated_at": "2026-05-10T07:05:04.244868+00:00",
   "btc_price": {
-    "value": 80707,
-    "change_24h": 0.6,
+    "value": 80758,
+    "change_24h": 0.68,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1616366848337.1533,
+    "value": 1616727607596,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 17527541135.82045,
+    "value": 18226464683,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 948739,
+    "value": 948742,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 3.27,
-    "blocks_remaining": 797,
-    "estimated_date": "2026-05-15T15:43:55.011000+00:00",
+    "percent": 3.48,
+    "blocks_remaining": 794,
+    "estimated_date": "2026-05-15T15:04:13.908000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "997.4 EH/s",
-    "raw_eh": 997.4,
+    "value": "996.8 EH/s",
+    "raw_eh": 996.8,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 36582,
-    "vsize_mb": 31.3,
+    "tx_count": 25609,
+    "vsize_mb": 29.7,
     "source": "mempool.space"
   },
   "recommended_fees": {
@@ -40,9 +40,9 @@
     "source": "mempool.space"
   },
   "lightning": {
-    "node_count": 17353,
-    "channel_count": 41162,
-    "capacity_btc": 5292.1,
+    "node_count": 17438,
+    "channel_count": 41109,
+    "capacity_btc": 5057.1,
     "source": "mempool.space"
   },
   "fear_greed": {
@@ -57,8 +57,8 @@
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 26522.4,
-    "usd": 2141602500,
+    "btc": 26516.2,
+    "usd": 2141643790,
     "source": "deribit"
   },
   "dominance": {

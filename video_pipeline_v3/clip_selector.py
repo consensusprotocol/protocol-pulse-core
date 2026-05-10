@@ -1062,7 +1062,7 @@ def select_montage_clips(videos: list) -> dict:
     # P0: Single Qwen health check
     try:
         import requests as _mreq
-        _r = _mreq.get("http://localhost:11434/api/tags", timeout=3)
+        _r = _mreq.get("http://localhost:11434/api/ps", timeout=3)
         _models = _r.json().get("models", [])
         if not _models:
             logger.warning("MONTAGE SKIP: Qwen not loaded")
