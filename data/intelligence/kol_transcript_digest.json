@@ -1,93 +1,68 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-05-08T12:00:31.291410+00:00",
-  "creator_count": 27,
-  "avg_sentiment_score": 63.7,
+  "generated_at": "2026-05-10T04:00:35.145228+00:00",
+  "creator_count": 1,
+  "avg_sentiment_score": 15.0,
   "sentiment_breakdown": {
-    "bullish": 17,
-    "bearish": 5,
-    "neutral": 5
+    "bullish": 0,
+    "bearish": 1,
+    "neutral": 0
   },
-  "dominant_sentiment": "bullish",
+  "dominant_sentiment": "bearish",
   "trending_themes": [
     {
-      "topic": "Bitcoin as sound money alternative",
-      "creator_count": 2,
-      "creators": [
-        "Robert Breedlove",
-        "Saifedean Ammous"
-      ],
-      "avg_sentiment_score": 50.0,
-      "example_quote": "100 million years worth of productive labor stolen through counterfeiting of six trillion US dollars"
-    },
-    {
-      "topic": "Global economic reset and crisis cycles",
+      "topic": "CBDC regulation disguised as stablecoin policy",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The next 5 to 7 years, everything is going to change"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "That is a CBDC with a private sector mascot"
     },
     {
-      "topic": "Passport diversification and citizenship by descent",
+      "topic": "US debt crisis and treasury sustainability",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The next 5 to 7 years, everything is going to change"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "That is a CBDC with a private sector mascot"
     },
     {
-      "topic": "Geopolitical risk and border redrawn scenarios",
+      "topic": "Petrodollar decline and reserve currency replacement",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The next 5 to 7 years, everything is going to change"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "That is a CBDC with a private sector mascot"
     },
     {
-      "topic": "Offshore relocation strategies",
+      "topic": "Financial control mechanisms and programmable money",
       "creator_count": 1,
       "creators": [
-        "BTC Sessions"
+        "Simply Bitcoin"
       ],
-      "avg_sentiment_score": 25.0,
-      "example_quote": "The next 5 to 7 years, everything is going to change"
+      "avg_sentiment_score": 15.0,
+      "example_quote": "That is a CBDC with a private sector mascot"
+    },
+    {
+      "topic": "Crypto Clarity Act analysis",
+      "creator_count": 1,
+      "creators": [
+        "Simply Bitcoin"
+      ],
+      "avg_sentiment_score": 15.0,
+      "example_quote": "That is a CBDC with a private sector mascot"
     }
   ],
-  "summary": "# Bitcoin Creator Consensus and Divergence\n\n**Consensus:** Most creators are bullish on Bitcoin's long-term prospects, viewing it as a legitimate monetary asset gaining institutional adoption. There's broad agreement that Bitcoin's critics have repeatedly underestimated the asset and that traditional valuation frameworks don't apply.\n\n**Divergence:** While most sources emphasize Bitcoin's store-of-value role and institutional momentum, BTC Sessions presents a contrarian bearish case predicting imminent economic crisis, and TFTC raises concerns about regulatory persecution of privacy developers. Technical analysts (DataDash, Altcoin Daily) focus on near-term price consolidation and resistance levels, whereas macro-focused sources (Coin Bureau, CoinTelegraph) discuss Bitcoin's structural role replacing traditional finance.\n\n**Secondary theme:** Concerns about centralized intermediaries (Mount Gox history, SWIFT replacement, privacy rights) appear across bearish and bullish camps alike, suggesting this is a shared industry vulnerability regardless of overall sentiment direction.",
+  "summary": "# Summary\n\nBitcoin creators show **significant divergence** on regulatory interpretation. Simply Bitcoin views the Crypto Clarity Act as a dangerous consolidation of government power disguised as consumer protection\u2014framing it as part of a broader collapse of traditional currency systems. The core **consensus** appears limited to concern about regulatory overreach, though Simply Bitcoin takes an extreme position linking it to systemic monetary collapse rather than focusing on narrower stablecoin policy concerns. No counterargument is presented here, making it difficult to identify genuine agreement among multiple creators on this specific legislation.",
   "top_creators": [
     {
-      "channel": "BTC Sessions",
+      "channel": "Simply Bitcoin",
       "sentiment": "bearish",
-      "score": 25,
-      "thesis": "Major global economic and geopolitical crisis is imminent (5-7 years), prompting wealthy individuals to obtain multiple passports and relocate to obscure jurisdictions as a survival strategy."
-    },
-    {
-      "channel": "Coin Bureau",
-      "sentiment": "bullish",
-      "score": 75,
-      "thesis": "Bitcoin critics have used wrong analytical frameworks to evaluate the asset for 15 years, consistently failing to predict its demise. Bitcoin's real value lies in being a monetary asset and store of value, not a payment currency, making traditional valuation methods obsolete."
-    },
-    {
-      "channel": "CoinTelegraph",
-      "sentiment": "bullish",
-      "score": 95,
-      "thesis": "Bitcoin and digital assets will replace traditional finance infrastructure like SWIFT because digital technology always wins over analog alternatives. The institutional adoption is already underway and growth over the next few years will be monumental."
-    },
-    {
-      "channel": "DataDash",
-      "sentiment": "bullish",
-      "score": 78,
-      "thesis": "Bitcoin is consolidating tightly under $80,000 and poised to break through this resistance level soon, likely this week, before moving toward $93,000 as markets shift from peak fear to neutral sentiment."
-    },
-    {
-      "channel": "Altcoin Daily",
-      "sentiment": "neutral",
-      "score": 50,
-      "thesis": "This is a platform review for Crypto Fund Trader prop firm demonstrating how to register and trade on their demo accounts. The content is purely instructional about platform mechanics rather than Bitcoin price or market analysis."
+      "score": 15,
+      "thesis": "The Crypto Clarity Act is a disguised CBDC mechanism designed to trap citizens in programmable money controlled by the Treasury Department while appearing to be private stablecoin regulation. This represents the final phase of the dollar Ponzi scheme as traditional petrodollar arrangements collapse."
     }
   ]
 }

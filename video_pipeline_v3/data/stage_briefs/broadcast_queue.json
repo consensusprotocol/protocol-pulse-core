@@ -1,33 +1,33 @@
 [
   {
-    "id": "f9298747-a482-404f-ac58-0aa3a896203b",
+    "id": "d4cc8312-a7fa-4cb5-b1ef-0ab0d399da6c",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Saylor just positioned a financial instrument backed by Bitcoin reserves as preferred equity rather than debt. Watch whether institutional custody standards treat equity claims on Bitcoin holdings differently than collateralized debt \u2014 that's your regulatory arbitrage signal.",
-    "source_label": "\ud83e\udde0 @SAYLOR",
-    "topic_preview": "$STRC is credit engineered for income, stability, liquidity, and principal prote",
-    "generated_at": "2026-05-10T01:05:31.069917+00:00",
-    "expires_at": "2026-05-10T03:05:31.069917+00:00"
+    "script": "Marty Bent says the government's surveillance infrastructure rollout is stumbling \u2014 federal coordination gaps are real. Watch whether state-level mining operations use this window to harden their node infrastructure before regrouping occurs.",
+    "source_label": "\ud83e\udde0 @MARTYBENT",
+    "topic_preview": "Weak start to Project Blue Beam.",
+    "generated_at": "2026-05-10T05:10:28.048590+00:00",
+    "expires_at": "2026-05-10T07:10:28.048590+00:00"
   },
   {
-    "id": "aea9838a-0583-452b-b133-145062682c7c",
+    "id": "e3a0b7d8-a646-489d-81c7-b10dea3e4690",
     "type": "ARTICLE_TEASER",
     "priority": 3,
-    "script": "Bailey's warning: UK regulators fear dollar stablecoins become hot potato during crisis. Watch for FSB regulatory divergence announcement\u2014this is where capital controls get rebranded.",
+    "script": "Bailey's flagging cross-border stablecoin arbitrage \u2014 UK banks face redemption risk if US regulatory gaps force liability flows eastward. Watch Federal Reserve's next policy signal for whether the US closes those gaps or exports the problem.",
     "source_label": "\ud83d\udcf0 FRESH INTEL",
     "topic_preview": "BoE's Bailey Warns of US Stablecoin Flood Risk",
-    "generated_at": "2026-05-10T00:05:51.258386+00:00",
-    "expires_at": "2026-05-10T04:05:51.258386+00:00"
+    "generated_at": "2026-05-10T04:05:53.506262+00:00",
+    "expires_at": "2026-05-10T08:05:53.506262+00:00"
   },
   {
-    "id": "c03a9d8f-4dd2-424b-9b98-1515190f9ac0",
+    "id": "50f6170b-c130-430b-b299-de07a7d92bdd",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "Hashrate hit 1104.5 exahashes\u2014miners are not capitulating. Fear & Greed at 47 signals structural indifference, not panic.\n\nWatch block 948700 for difficulty adjustment timing.",
+    "script": "METRICS PULSE \u2014 BLOCK 948723\n\nHashrate holding 1,104 exahashes. Fear and Greed at 47 \u2014 neutral sentiment before the structural moves.\n\nWatch block subsidy halvings on the mining calendar. Difficulty adjustment comes next month.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $80,680 \u00b7 FNG 47 \u00b7 1104.5 EH/s",
-    "generated_at": "2026-05-10T00:56:17.011150+00:00",
-    "expires_at": "2026-05-10T04:56:17.011150+00:00"
+    "topic_preview": "BTC $80,758 \u00b7 FNG 47 \u00b7 1104.5 EH/s",
+    "generated_at": "2026-05-10T05:06:19.184948+00:00",
+    "expires_at": "2026-05-10T09:06:19.184948+00:00"
   },
   {
     "id": "45433e34-666c-4fdd-9527-f45de9b50b58",
@@ -40,13 +40,13 @@
     "expires_at": "2026-05-10T05:56:08.786554+00:00"
   },
   {
-    "id": "2284ced0-aff8-4d2d-b946-298f933722c2",
+    "id": "6ceba4fd-07a2-469d-bd7d-12f3d251a99c",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Coinjoin transactions are growing month over month. Privacy isn't optional in a sound money system \u2014 it's essential. Financial surveillance is incompatible with individual sovereignty.",
+    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Coinjoin transactions are growing month over month. Privacy isn't optional in a ",
-    "generated_at": "2026-05-09T23:01:13.977186+00:00",
-    "expires_at": "2026-05-10T03:01:13.977186+00:00"
+    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
+    "generated_at": "2026-05-10T05:01:39.024518+00:00",
+    "expires_at": "2026-05-10T09:01:39.024518+00:00"
   }
 ]

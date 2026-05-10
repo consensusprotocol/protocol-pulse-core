@@ -1,7 +1,31 @@
 {
-  "last_updated": "2026-05-08T12:00:24.467945+00:00",
+  "last_updated": "2026-05-10T04:00:29.555996+00:00",
   "total_analyses": 200,
   "analyses": [
+    {
+      "sentiment": "bearish",
+      "sentiment_score": 15,
+      "main_thesis": "The Crypto Clarity Act is a disguised CBDC mechanism designed to trap citizens in programmable money controlled by the Treasury Department while appearing to be private stablecoin regulation. This represents the final phase of the dollar Ponzi scheme as traditional petrodollar arrangements collapse.",
+      "key_quotes": [
+        "That is a CBDC with a private sector mascot",
+        "Programmable poverty. That is the dream of every central planner",
+        "Where do we find the next sucker? Every Ponzi has the same problem"
+      ],
+      "topics": [
+        "CBDC regulation disguised as stablecoin policy",
+        "US debt crisis and treasury sustainability",
+        "Petrodollar decline and reserve currency replacement",
+        "Financial control mechanisms and programmable money",
+        "Crypto Clarity Act analysis"
+      ],
+      "price_prediction": null,
+      "confidence": "high",
+      "channel": "Simply Bitcoin",
+      "title": "Are They Hiding a CBDC in the Crypto Clarity Act?",
+      "video_id": "UAe-A5A-6EA",
+      "duration": 1029.31,
+      "analyzed_at": "2026-05-10T04:00:27.549275+00:00"
+    },
     {
       "sentiment": "bearish",
       "sentiment_score": 25,
@@ -4717,30 +4741,6 @@
       "video_id": "nEKZH7vP638",
       "duration": 270.05,
       "analyzed_at": "2026-04-07T20:00:10.284625+00:00"
-    },
-    {
-      "sentiment": "bullish",
-      "sentiment_score": 75,
-      "main_thesis": "Bitcoin is demonstrating uncorrelated asset behavior during geopolitical uncertainty and is entering a phase of mass adoption through individuals, companies, and ETFs. The market is transitioning from high volatility to stability while institutional/sovereign adoption is occurring more gradually than expected.",
-      "key_quotes": [
-        "Bitcoin has been the shining light over the Iran conflict",
-        "This is what mass adoption looks like because you have individuals, you have companies, you have ETFs",
-        "Volatility has significantly compressed in Bitcoin... from 80, 90 ball asset to a 40 ball asset"
-      ],
-      "topics": [
-        "Geopolitical hedge properties",
-        "Bitcoin volatility compression",
-        "ETF adoption and mass adoption",
-        "Sovereign wealth fund allocations",
-        "Institutional vs retail inflows"
-      ],
-      "price_prediction": "Long-term targets of $500,000 to $1,000,000 per Bitcoin mentioned, but no specific timeline provided. Near-term support noted at $60,000+",
-      "confidence": "medium",
-      "channel": "CNBC Television",
-      "title": "Bitcoin has been the 'shining light' during the Iran war, says Anthony Pompliano",
-      "video_id": "GFriZiEByWk",
-      "duration": 355.16,
-      "analyzed_at": "2026-04-07T20:00:06.087233+00:00"
     }
   ]
 }

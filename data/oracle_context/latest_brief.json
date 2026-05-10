@@ -1,12 +1,13 @@
 {
-  "generated_at": "2026-05-09T18:00:31.631977+00:00",
-  "brief_type": "midday",
+  "generated_at": "2026-05-10T02:00:29.277672+00:00",
+  "brief_type": "evening",
   "bullets": [
-    "Hashrate at 987 EH/s confirms miners aren't capitulating despite fear readings\u2014strong structural support",
-    "Fear & Greed at 38 historically precedes either 15-25% washouts or coordinated accumulation; watch for volume confirmation",
-    "Mempool at 73,561 txs but 7 sat/byte fees = congestion risk is low; network can handle volume if conviction returns",
-    "0.8% 24h move signals institutional patience, not conviction\u2014next catalyst will come from on-chain positioning, not price"
+    "Hashrate at 1,104.5 EH/s = miners pricing in long-term BTC value despite sideways price",
+    "43K mempool with 1 sat/byte fees = network functioning efficiently, no congestion stress",
+    "Fear & Greed at 47 (neutral) = market lacks directional conviction; macro catalysts are deal-makers",
+    "Light volume + consolidation = classic pre-breakout setup; watch 80K/81K levels closely",
+    "Block 948,703 depth + network stability = organic growth narrative still intact"
   ],
-  "sentiment_score": 15,
-  "brief_summary": "# MIDDAY BRIEF \u2014 May 9, 2026\n\nBitcoin holding $80,798\u2014modest gains but sentiment telling a different story. Fear & Greed at 38. That's fear territory. Price resilience isn't matching the anxiety underneath.\n\nNetwork health solid. Hashrate cruising at 987 exahashes\u2014no capitulation signals from miners"
+  "sentiment_score": 35,
+  "brief_summary": "**BITCOIN EVENING BRIEF**\n\nBTC holding steady at 80,652\u2014a tick up 0.3% over twenty-four hours. Not a mover, but stability matters when Fear & Greed sits neutral at 47. That's the baseline: no panic, no euphoria.\n\nNetwork health is solid. Hashrate climbing to 1,104.5 EH/s signals miners are confident"
 }

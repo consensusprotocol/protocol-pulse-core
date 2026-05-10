@@ -1,41 +1,5 @@
 [
   {
-    "id": "tweet_20260507_170023_0",
-    "text": "If institutions are buying Bitcoin to hedge against currency collapse, why are they still holding the currency that's collapsing",
-    "angle": "contrarian_take",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-07T17:00:23.445252+00:00",
-    "brief_date": "Thursday, May 07, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260507_224959_0",
-    "text": "Block 948371. Network hashrate 971.8 EH/s. Fastest fee 2 sat/vB. The mining infrastructure is literally more resilient than the price action. Nobody's stressed",
-    "angle": "network_fundamentals",
-    "type": "signal",
-    "format": "on_chain_signal",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-07T22:49:59.037252+00:00",
-    "brief_date": "Thursday, May 07, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260508_020022_0",
-    "text": "Block 948,389 and fees still 1 sat/vB. The network doesn't care about price. It cares about being used. Most people are still waiting for permission to own money",
-    "angle": "onchain_metric",
-    "type": "observation",
-    "format": "contrarian_observation",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-08T02:00:22.960760+00:00",
-    "brief_date": "Thursday, May 07, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260508_064323_0",
     "text": "972.5 EH/s network hashrate. Fees at 1 sat/vB. Fear index at 38. The network doesn't negotiate with sentiment. It just keeps working",
     "angle": "historical_pattern",
@@ -80,6 +44,30 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-05-09T17:00:21.590149+00:00",
+    "brief_date": "Saturday, May 09, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260510_020028_0",
+    "text": "France pegged the franc to gold in 1803. Took 126 years before they couldn't maintain it. How long does a fiat standard last once enough people stop believing",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-10T02:00:28.273993+00:00",
+    "brief_date": "Saturday, May 09, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260510_040232_0",
+    "text": "If institutions bought 1M BTC while you sold 750K over 16 months, at what point did the transfer of wealth complete without you noticing the price never moved",
+    "angle": "institutional_flow",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-10T04:02:32.991237+00:00",
     "brief_date": "Saturday, May 09, 2026",
     "sentiment": "bullish"
   }

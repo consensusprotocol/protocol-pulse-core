@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-05-10T01:30:15.043519+00:00",
-  "fetch_time_ms": 10859,
+  "updated_at": "2026-05-10T05:30:16.119530+00:00",
+  "fetch_time_ms": 11253,
   "composite": {
-    "perception_score": 58,
+    "perception_score": 62,
     "label": "Cautiously Bullish",
     "overall_signal": "bullish",
-    "bull_layers": 3,
+    "bull_layers": 4,
     "bear_layers": 1,
-    "neutral_layers": 3,
+    "neutral_layers": 2,
     "layer_signals": {
       "global": "bullish",
-      "trending": "neutral",
+      "trending": "bullish",
       "onchain": "bearish",
       "lightning": "bullish",
       "fees": "neutral",
@@ -19,11 +19,11 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.31,
-    "total_mcap_usd": 2767462939426.2812,
-    "total_mcap_t": 2.767,
-    "total_vol_24h_usd": 61592325349.37923,
-    "total_vol_24h_b": 61.6,
+    "btc_dominance_pct": 58.3,
+    "total_mcap_usd": 2775476530190.4214,
+    "total_mcap_t": 2.775,
+    "total_vol_24h_usd": 57776575331.58391,
+    "total_vol_24h_b": 57.8,
     "active_coins": 17437,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
@@ -33,66 +33,66 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "VVV",
-        "name": "Venice Token",
-        "rank": 86,
+        "symbol": "TROLL",
+        "name": "TROLL",
+        "rank": 359,
         "score": 0
-      },
-      {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 89,
-        "score": 1
       },
       {
         "symbol": "WOJAK",
         "name": "wojak",
-        "rank": 667,
+        "rank": 618,
+        "score": 1
+      },
+      {
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 90,
         "score": 2
+      },
+      {
+        "symbol": "SOL",
+        "name": "Solana",
+        "rank": 7,
+        "score": 3
       },
       {
         "symbol": "BILL",
         "name": "Billions Network",
-        "rank": 157,
-        "score": 3
-      },
-      {
-        "symbol": "BTC",
-        "name": "Bitcoin",
-        "rank": 1,
+        "rank": 164,
         "score": 4
       },
       {
-        "symbol": "INX",
-        "name": "Infinex",
-        "rank": 658,
+        "symbol": "ICP",
+        "name": "Internet Computer",
+        "rank": 47,
         "score": 5
       },
       {
-        "symbol": "CC",
-        "name": "Canton",
-        "rank": 21,
+        "symbol": "TON",
+        "name": "Toncoin",
+        "rank": 20,
         "score": 6
       }
     ],
     "active_narratives": [
-      "BTC-adjacent"
+      "AI/DePIN"
     ],
     "has_meme_rotation": false,
-    "has_ai_rotation": false,
-    "narrative_signal": "BTC-adjacent",
-    "btc_signal": "neutral",
+    "has_ai_rotation": true,
+    "narrative_signal": "AI/DePIN",
+    "btc_signal": "bullish",
     "note": "Meme rotation signals late-cycle risk. AI/DeFi rotation signals mid-cycle strength.",
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 788699,
+    "tx_count_24h": 777867,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 8.33,
+    "minutes_between_blocks": 8.38,
     "difficulty": 132472011079030,
-    "estimated_btc_sent": 2491452821258,
-    "total_fees_btc": -50937500000,
+    "estimated_btc_sent": 2299756751594,
+    "total_fees_btc": -50000000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,11 +100,11 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17402,
-    "channel_count": 42000,
-    "capacity_btc": 5677.47,
-    "capacity_sats": 567746929511,
-    "avg_channel_capacity_btc": 0.1352,
+    "node_count": 17369,
+    "channel_count": 42215,
+    "capacity_btc": 5700.54,
+    "capacity_sats": 570054327303,
+    "avg_channel_capacity_btc": 0.135,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",

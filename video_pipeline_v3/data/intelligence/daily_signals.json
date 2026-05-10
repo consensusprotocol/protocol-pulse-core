@@ -1,22 +1,11 @@
 {
   "topic_velocity": [
     {
-      "topic": "Increasing institutional validation and mainstream adopti...",
-      "channels": 8,
-      "sentiment": "bullish",
-      "velocity_score": 12,
-      "authority_score": 6,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
       "topic": "Bitcoin as a sovereign hedge against failing traditional ...",
       "channels": 12,
       "sentiment": "bullish",
-      "velocity_score": 9,
-      "authority_score": 18,
+      "velocity_score": 18,
+      "authority_score": 9,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -43,17 +32,28 @@
       "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
+    },
+    {
+      "topic": "Increasing institutional validation and mainstream adopti...",
+      "channels": 8,
+      "sentiment": "bullish",
+      "velocity_score": 6,
+      "authority_score": 12,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
     }
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Increasing institutional validation and mainstream adopti...",
     "Bitcoin as a sovereign hedge against failing traditional ...",
-    "The critical importance of self-custody, personal respons..."
+    "The critical importance of self-custody, personal respons...",
+    "Advancements in Bitcoin's underlying technology and minin..."
   ],
-  "dominant_narrative": "Bitcoin as a sovereign hedge against failing traditional ...",
+  "dominant_narrative": "Increasing institutional validation and mainstream adopti...",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-05-10T01:59:28Z"
+  "scan_time": "2026-05-10T02:36:36Z"
 }

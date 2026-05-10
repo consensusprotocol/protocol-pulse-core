@@ -445,8 +445,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The real tell isn't the fees or the fear index. It's that they're diverging at all. That gap is where information lives.",
     "scheduled_at": "2026-05-03T10:00:18.369832+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-10T04:00:03.208148+00:00",
     "created_at": "2026-05-01T18:00:18.369832+00:00"
   },
   {
