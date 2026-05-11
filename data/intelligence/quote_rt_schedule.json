@@ -455,8 +455,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The moat isn't speed. It's that Bitcoin works the same way at 1 sat/vB as it does at 500. Consistency beats innovation.",
     "scheduled_at": "2026-05-03T02:00:17.017084+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-10T19:00:02.632969+00:00",
     "created_at": "2026-05-02T18:00:17.017084+00:00"
   },
   {
@@ -465,8 +465,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Every layer 2 solution is basically an admission that the base layer doesn't need to be fast. It just needs to be right.",
     "scheduled_at": "2026-05-03T10:00:17.017084+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-10T22:00:02.663504+00:00",
     "created_at": "2026-05-02T18:00:17.017084+00:00"
   },
   {
@@ -475,8 +475,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Low fees during non-congestion periods reveal the real constraint: Bitcoin's value isn't throughput, it's settlement finality.",
     "scheduled_at": "2026-05-03T18:00:17.017084+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-11T04:00:03.489983+00:00",
     "created_at": "2026-05-02T18:00:17.017084+00:00"
   },
   {
@@ -748,5 +748,55 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-09T18:00:19.714849+00:00"
+  },
+  {
+    "anchor_id": "396",
+    "anchor_text": "3 sat/vB fees while miners run 993.9 EH/s. Nobody's moving coins. Nobody's paying to move them. That's not accumulation. That's settlement",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Settlement without movement is just accounting. Bitcoin proved we don't need banks for that part either.",
+    "scheduled_at": "2026-05-11T02:00:20.309649+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-10T18:00:20.309649+00:00"
+  },
+  {
+    "anchor_id": "396",
+    "anchor_text": "3 sat/vB fees while miners run 993.9 EH/s. Nobody's moving coins. Nobody's paying to move them. That's not accumulation. That's settlement",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Peak hashrate with basement-level fees. The network works best when nobody's in a rush.",
+    "scheduled_at": "2026-05-11T10:00:20.309649+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-10T18:00:20.309649+00:00"
+  },
+  {
+    "anchor_id": "396",
+    "anchor_text": "3 sat/vB fees while miners run 993.9 EH/s. Nobody's moving coins. Nobody's paying to move them. That's not accumulation. That's settlement",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "At 3 sat/vB, you're paying less to secure your keys than to send a wire transfer. That's the inflection point.",
+    "scheduled_at": "2026-05-11T18:00:20.309649+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-10T18:00:20.309649+00:00"
+  },
+  {
+    "anchor_id": "396",
+    "anchor_text": "3 sat/vB fees while miners run 993.9 EH/s. Nobody's moving coins. Nobody's paying to move them. That's not accumulation. That's settlement",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money that doesn't move is just potential. The question is whether it's being held or being held for.",
+    "scheduled_at": "2026-05-12T02:00:20.309649+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-10T18:00:20.309649+00:00"
+  },
+  {
+    "anchor_id": "396",
+    "anchor_text": "3 sat/vB fees while miners run 993.9 EH/s. Nobody's moving coins. Nobody's paying to move them. That's not accumulation. That's settlement",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone watched the price. Nobody noticed the infrastructure just became cheaper to use than the system it replaced.",
+    "scheduled_at": "2026-05-12T10:00:20.309649+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-10T18:00:20.309649+00:00"
   }
 ]

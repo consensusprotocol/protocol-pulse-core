@@ -23,7 +23,7 @@ def _ffprobe_duration(path: str) -> float:
         r = subprocess.run(
             ["ffprobe", "-v", "error", "-show_entries", "format=duration",
              "-of", "default=noprint_wrappers=1:nokey=1", path],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=300,
         )
         return float(r.stdout.strip()) if r.stdout.strip() else 0.0
     except (subprocess.TimeoutExpired, ValueError):
@@ -76,7 +76,7 @@ def apply_crossfade(clip1: str, clip2: str, output_path: str,
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
-        ], capture_output=True, text=True, timeout=120)
+        ], capture_output=True, text=True, timeout=600)
     except subprocess.TimeoutExpired:
         log.warning("apply_crossfade: timeout")
         return ""

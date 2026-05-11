@@ -1,52 +1,62 @@
 [
   {
-    "id": "d512efb8-d07d-49a0-afcc-c53491498599",
+    "id": "c097549f-489a-400c-a33b-3b79a7ce670d",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "PROTOCOL PULSE \u2014 THOUGHT LEADER SEGMENT\n\nGladstein retweeting Taylor Lorenz on institutional blindness. The left's monetary policy ignorance isn't accidental \u2014 it's structural. Watch for the first mainstream left-adjacent figure to publicly separate sound money from identity politics. That pivot changes everything.",
-    "source_label": "\ud83e\udde0 @GLADSTEIN",
-    "topic_preview": "RT @TaylorLorenz: Is anyone on the left going to wake up to what\u2019s happening or ",
-    "generated_at": "2026-05-10T07:10:28.501402+00:00",
-    "expires_at": "2026-05-10T09:10:28.501402+00:00"
+    "script": "Lyn Alden warning: impersonators flooding email and Instagram with fake trading systems. Verify handle directly before trusting any comms from recognized figures\u2014social engineering is now primary attack vector against Bitcoin hodlers.\n\nWatch for coordinated impersonation campaigns targeting other known voices next 48-72 hours.",
+    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
+    "topic_preview": "PSA: There\u2019s an impersonator pretending to be me sending out scam emails about s",
+    "generated_at": "2026-05-11T03:30:32.694964+00:00",
+    "expires_at": "2026-05-11T05:30:32.694964+00:00"
   },
   {
-    "id": "e3a0b7d8-a646-489d-81c7-b10dea3e4690",
-    "type": "ARTICLE_TEASER",
-    "priority": 3,
-    "script": "Bailey's flagging cross-border stablecoin arbitrage \u2014 UK banks face redemption risk if US regulatory gaps force liability flows eastward. Watch Federal Reserve's next policy signal for whether the US closes those gaps or exports the problem.",
-    "source_label": "\ud83d\udcf0 FRESH INTEL",
-    "topic_preview": "BoE's Bailey Warns of US Stablecoin Flood Risk",
-    "generated_at": "2026-05-10T04:05:53.506262+00:00",
-    "expires_at": "2026-05-10T08:05:53.506262+00:00"
-  },
-  {
-    "id": "50f6170b-c130-430b-b299-de07a7d92bdd",
+    "id": "a826907d-9017-4efa-8990-ee69206d88ac",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "METRICS PULSE \u2014 BLOCK 948723\n\nHashrate holding 1,104 exahashes. Fear and Greed at 47 \u2014 neutral sentiment before the structural moves.\n\nWatch block subsidy halvings on the mining calendar. Difficulty adjustment comes next month.",
+    "script": "Hashrate crested 993.9 exahashes \u2014 network security at cycle peak while price stalls 1% gains. Fear and Greed at 48: neutral territory masks the real story, which is computational power consolidation outpacing price discovery.\n\nWatch settlement velocity next broadcast \u2014 transaction throughput at 82K blocks will signal whether miners are accumulating or distrib",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $80,758 \u00b7 FNG 47 \u00b7 1104.5 EH/s",
-    "generated_at": "2026-05-10T05:06:19.184948+00:00",
-    "expires_at": "2026-05-10T09:06:19.184948+00:00"
+    "topic_preview": "BTC $81,462 \u00b7 FNG 48 \u00b7 993.9 EH/s",
+    "generated_at": "2026-05-11T01:55:55.514169+00:00",
+    "expires_at": "2026-05-11T05:55:55.514169+00:00"
   },
   {
-    "id": "cf76fee7-adb0-49e2-b769-0c0cbe24a093",
+    "id": "4e77981b-06df-4c78-af7e-2d290511060a",
+    "type": "ARTICLE_TEASER",
+    "priority": 3,
+    "script": "Dormant whale address just moved 500 Bitcoin after 12 years \u2014 $41 million repositioned. That's an 89x appreciation on sleeping capital now in motion.\n\nWatch the chain for immediate spend or consolidation patterns.",
+    "source_label": "\ud83d\udcf0 FRESH INTEL",
+    "topic_preview": "Bitcoin Whale Awakens, Moves $41M After 12 Years",
+    "generated_at": "2026-05-11T02:05:50.661834+00:00",
+    "expires_at": "2026-05-11T06:05:50.661834+00:00"
+  },
+  {
+    "id": "17706b1c-2fb1-4100-a06a-006cc8f1cb4b",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "PROTOCOL PULSE \u2014 NOSTR SIGNAL\n\nSovereign hedge narrative dominates Nostr relays tonight. This is thermometer-reading, not price prediction \u2014 builders and node operators are actively positioning away from legacy infrastructure.\n\nWatch custody patterns this week. Self-sovereign behavior precedes price discovery.",
+    "script": "Institutional money entering Bitcoin markets signals capital structure realignment\u2014not adoption validation. Watch settlement layer demand across major exchanges: if Coinbase Prime custody holdings exceed $25B this quarter, we're witnessing real monetary reallocation, not narrative capture.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Bitcoin as a sovereign hedge against failing traditional ...",
-    "generated_at": "2026-05-10T05:56:39.708187+00:00",
-    "expires_at": "2026-05-10T09:56:39.708187+00:00"
+    "topic_preview": "Increasing institutional validation and mainstream adopti...",
+    "generated_at": "2026-05-11T02:06:13.292670+00:00",
+    "expires_at": "2026-05-11T06:06:13.292670+00:00"
   },
   {
-    "id": "6ceba4fd-07a2-469d-bd7d-12f3d251a99c",
+    "id": "ad721e5f-a4ca-4f36-aefa-2e016faed83b",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
+    "script": "The mempool is Bitcoin's waiting room. When fees spike, it means demand for block space exceeds supply. That's not a bug \u2014 it's proof that people value the security of final settlement enough to pay for it.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
-    "generated_at": "2026-05-10T05:01:39.024518+00:00",
-    "expires_at": "2026-05-10T09:01:39.024518+00:00"
+    "topic_preview": "The mempool is Bitcoin's waiting room. When fees spike, it means demand for bloc",
+    "generated_at": "2026-05-11T01:21:22.782374+00:00",
+    "expires_at": "2026-05-11T05:21:22.782374+00:00"
+  },
+  {
+    "id": "8e071e1c-2b56-4da1-9b56-1fdc0c239d69",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Every four years, the block subsidy cuts in half. This halving mechanism is the most predictable monetary policy in human history. No central banker can override it. No politician can delay it.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Every four years, the block subsidy cuts in half. This halving mechanism is the ",
+    "generated_at": "2026-05-11T01:51:16.214977+00:00",
+    "expires_at": "2026-05-11T05:51:16.214977+00:00"
   }
 ]

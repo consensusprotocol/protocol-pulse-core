@@ -38,7 +38,7 @@ def get_lufs(audio_path: str) -> float:
         "-f", "null", "-",
     ]
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
     except subprocess.TimeoutExpired:
         log.warning("get_lufs: timeout on %s", audio_path)
         return -24.0
@@ -101,7 +101,7 @@ def normalize_segment(segment_path: str, target_lufs: float = -16) -> None:
             "-c:v", "copy",
             "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
             output,
-        ], capture_output=True, timeout=120)
+        ], capture_output=True, timeout=600)
     except subprocess.TimeoutExpired:
         log.warning("normalize_segment: timeout on %s", segment_path)
         if os.path.exists(output):

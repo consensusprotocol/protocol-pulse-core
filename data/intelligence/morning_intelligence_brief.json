@@ -1,48 +1,56 @@
 {
-  "generated_at": "2026-05-09T00:00:00Z",
-  "date": "Saturday, May 09, 2026",
-  "btc_price": "$80,887",
-  "btc_change_24h": "+1.0%",
-  "fng": "Fear",
+  "generated_at": "2026-05-10T23:59:59Z",
+  "date": "Sunday, May 10, 2026",
+  "btc_price": "$81,321",
+  "btc_change_24h": "+0.5%",
+  "fng": "Neutral (47/100)",
   "dominant_narratives": [
-    "Corporate/ETF accumulation as 'silent IPO' — institutions buying 1M BTC while individuals sold 750K over 16 months",
-    "Bitcoin Standard infrastructure maturation — BPS (Bitcoin Per Share) as true north metric for capital allocation",
-    "Regulatory clarity momentum — Senate Banking Committee markup of Clarity Act scheduled May 14th signals institutional legitimacy path"
+    "Saylor accumulation thesis vindicated — MSTR back to relentless BTC buying despite price volatility",
+    "Regulatory momentum shift — US political class (Scott, others) signaling crypto legitimacy as geopolitical strategy",
+    "Privacy-as-resistance — Bitcoiners rallying against surveillance infrastructure (Google deplatforming GrapheneOS users, CBDC disguised as stablecoin policy)",
+    "Protocol purity debates — community friction between puritanical idealism and pragmatic adoption",
+    "AI + Bitcoin intersection emerging — local AI, Sci-Hub autonomy, decentralized tech stacks gaining mindshare"
   ],
   "trending_language": [
-    "Bitcoin Per Share (BPS)",
-    "Silent IPO",
-    "Time is the ultimate resource",
-    "Decentralize our trust",
-    "Hold and still move forward"
+    "Back to work",
+    "Never sell your Bitcoin (but context is shifting)",
+    "Trust minimized protocols",
+    "Sybil attack prep",
+    "Programmable money as control mechanism",
+    "Proof of Spud (culture signal)",
+    "The natural state is deflationary"
   ],
-  "sentiment": "bullish",
-  "sentiment_reasoning": "Institutional adoption narratives dominate despite Fear-level FNG index. Market structure legitimacy (Clarity Act) combined with corporate treasury adoption (Saylor/MicroStrategy narrative) creates asymmetric positioning belief — classic accumulation phase psychology where price consolidation masks conviction.",
+  "sentiment": "uncertain",
+  "sentiment_reasoning": "Price flat, FNG neutral, but underlying discourse shows tension between bullish macro catalysts (regulatory tailwinds, Saylor buyback confirmation) and bearish structural concerns (CBDC threats, privacy erosion, protocol fracturing). Community is hedged and watching.",
   "top_accounts_active": [
+    "@lopp",
     "@saylor",
-    "@saifedean",
-    "@NickSzabo4",
-    "@TFTC21",
-    "@DocumentingBTC"
+    "@DocumentingBTC",
+    "@BitcoinArchive",
+    "@PeterMcCormack",
+    "@BTCsessions",
+    "@MartyBent",
+    "@natbrunell",
+    "@saifedean"
   ],
   "recommended_tweet_angles": [
-    "The silent IPO thesis: 1M BTC institutional absorption vs 750K retail exodus = wealth transfer complete. Map the flow, ignore the price noise.",
-    "BPS is the metric that matters. Every MicroStrategy capital decision optimized for Bitcoin yield, not dollar denominated returns. This is the playbook.",
-    "Senate Banking Committee May 14 markup = regulatory capture or legitimacy layer? Clarity Act forces choice: Bitcoin as money or asset class. Neither changes the math.",
-    "Decentralize trust: the more followers someone has on X, the less you should trust them. Verify through your own economic incentives, not influencer conviction data."
+    "Saylor's 'sell 1, buy 20' doctrine as macro signal — corporate Bitcoin adoption reaching institutional singularity; contrast with retail HODL psychology",
+    "GrapheneOS lockout by Google as capitulation marker — surveillance capitalism now hostile to privacy tech; Bitcoin as the only exit",
+    "The Sybil attack signals @lopp flagged — network-level threat intelligence; Bitcoin's P2P immune system under stress test",
+    "US crypto-capital race (Scott) vs. CBDC trap (Crypto Clarity Act) — geopolitical judo move where regulatory legitimacy masks digital control layers",
+    "Protocol purity vs. adoption pragmatism — the Lopp/Saylor tension as proxy for movement's identity crisis post-mainstream acceptance"
   ],
   "topics_to_avoid": [
-    "Geopolitical conflict narratives unrelated to monetary systems",
-    "Israeli-Palestinian conflict commentary (off-brand noise diluting signal)",
-    "Internal personality/drama feuds between Bitcoin figures",
-    "X platform censorship unless directly tied to Bitcoin financial speech"
+    "Geopolitical conflict narratives (Palestine/Israel threads are noise, dilute Bitcoin signal)",
+    "Netflix/entertainment culture war takes (off-brand for serious analysts)",
+    "Generic motivational content (sleep optimization, burnout discourse) unless tied to network security or protocol work"
   ],
-  "engagement_patterns": "Institutional Bitcoin narrative + macro monetary theory outperforming hype cycles. Long-form conviction statements (Saylor/Saifedean threading) accumulating engagement. Regulatory milestone announcements driving measured bullish reactions. Avoid emoji-heavy 'laser eyes' tradfi signaling — it's diluted. Precision > enthusiasm.",
-  "protocol_pulse_voice_guidance": "Operate as financial intelligence, not cheerleader. Center on verifiable flows: corporate accumulation data, regulatory calendar facts, on-chain metrics. Acknowledge Fear index honestly while exposing the institutional positioning thesis beneath. Sound like a strategist reading tea leaves of power transfer, not a coiner yelling. Cypherpunk ethos emerges through precision and skepticism of centralized narratives (including Bitcoin mainstream), not tribal signaling.",
+  "engagement_patterns": "Cypherpunk aphorisms and historical callbacks performing strongest ('Cypherpunks write code. Bitcoiners run code.' / '1 BTC = 1 BTC FOREVER'). Saylor moves drive immediate discourse velocity. Regulatory signals amplify despite low price action. Thread-form confessionals about ideology tension outperforming hype posts. Archival/documentation posts (historical price comparisons, mining evolution) build authority without noise.",
+  "protocol_pulse_voice_guidance": "Today: lean into *uncertainty with conviction*. Price is quiet but macro pressure is building (regulatory legitimacy + corporate accumulation + surveillance escalation). Sound like someone watching multiple games at once — Saylor's buyback thesis, Google's privacy war, and the CBDC Trojan horse. Use forensic intelligence tone (Lopp's Sybil attack warning, not speculation). Reference the protocol purity tension directly — it's real and it matters. Avoid populist hype; target the sophisticated reader who sees three moves ahead. Cypherpunk means: information asymmetry exploitation + threat modeling + long-term optionality.",
   "key_stats_today": {
-    "tweets_analyzed": 80,
+    "tweets_analyzed": 72,
     "nostr_signals": 0,
-    "unique_handles": 51
+    "unique_handles": 42
   },
   "generated_by": "claude_haiku"
 }

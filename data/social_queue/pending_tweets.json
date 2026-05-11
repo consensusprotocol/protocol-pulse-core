@@ -1,29 +1,5 @@
 [
   {
-    "id": "tweet_20260508_064323_0",
-    "text": "972.5 EH/s network hashrate. Fees at 1 sat/vB. Fear index at 38. The network doesn't negotiate with sentiment. It just keeps working",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-08T06:43:23.071795+00:00",
-    "brief_date": "Thursday, May 07, 2026",
-    "sentiment": "bullish"
-  },
-  {
-    "id": "tweet_20260508_170020_0",
-    "text": "1.3M BTC from 5+ year holders just moved on-chain. Are they exiting conviction or repositioning it",
-    "angle": "onchain_metric",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-08T17:00:20.755628+00:00",
-    "brief_date": "Friday, May 08, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260509_020023_0",
     "text": "Basel III locks banks out of Bitcoin custody June 18. Institutions can't hold it. Legislation odds hit 73%. They'll buy it anyway. The rule exists to slow what's inevitable",
     "angle": "contrarian_take",
@@ -70,5 +46,41 @@
     "generated_at": "2026-05-10T04:02:32.991237+00:00",
     "brief_date": "Saturday, May 09, 2026",
     "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260510_081530_0",
+    "text": "995.1 EH/s hashrate hitting all time highs while Fear index sits at 47. Miners don't accumulate when price is uncertain. They're pricing in something the market hasn't priced in yet",
+    "angle": "onchain_metric",
+    "type": "signal",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-10T08:15:30.514343+00:00",
+    "brief_date": "Saturday, May 09, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260510_170022_0",
+    "text": "3 sat/vB fees while miners run 993.9 EH/s. Nobody's moving coins. Nobody's paying to move them. That's not accumulation. That's settlement",
+    "angle": "network_fundamentals",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-10T17:00:22.239005+00:00",
+    "brief_date": "Sunday, May 10, 2026",
+    "sentiment": "bullish"
+  },
+  {
+    "id": "tweet_20260511_020024_0",
+    "text": "Google just deplatformed GrapheneOS. The surveillance state doesn't tolerate privacy tech. Bitcoin doesn't need permission to exist or run",
+    "angle": "sovereignty_freedom",
+    "type": "signal",
+    "format": "fiat_failure",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-11T02:00:24.616463+00:00",
+    "brief_date": "Sunday, May 10, 2026",
+    "sentiment": "uncertain"
   }
 ]

@@ -119,7 +119,7 @@ def _make_remotion_glitch(output_path: str) -> str:
         r = subprocess.run(
             ["npx", "remotion", "render", entry, "GlitchTransition",
              output_path, "--log=error"],
-            cwd=REMOTION_DIR, timeout=60, capture_output=True, text=True,
+            cwd=REMOTION_DIR, timeout=300, capture_output=True, text=True,
         )
         if r.returncode == 0 and os.path.exists(output_path):
             with_audio = output_path + ".waud.mp4"

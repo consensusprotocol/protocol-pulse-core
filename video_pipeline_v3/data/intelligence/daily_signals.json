@@ -5,7 +5,7 @@
       "channels": 8,
       "sentiment": "bullish",
       "velocity_score": 12,
-      "authority_score": 6,
+      "authority_score": 12,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -16,7 +16,7 @@
       "channels": 12,
       "sentiment": "bullish",
       "velocity_score": 9,
-      "authority_score": 18,
+      "authority_score": 9,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -51,9 +51,9 @@
     "Bitcoin as a sovereign hedge against failing traditional ...",
     "The critical importance of self-custody, personal respons..."
   ],
-  "dominant_narrative": "Bitcoin as a sovereign hedge against failing traditional ...",
+  "dominant_narrative": "Increasing institutional validation and mainstream adopti...",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-05-10T07:03:38Z"
+  "scan_time": "2026-05-10T13:30:07Z"
 }

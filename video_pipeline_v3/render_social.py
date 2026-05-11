@@ -1015,7 +1015,7 @@ def _make_remotion_intel_panel(duration_frames: int = 300,
         "quoteText": quote_text,
         "quoteHandle": quote_handle,
         "durationInFrames": duration_frames,
-    }, timeout=120)
+    }, timeout=600)
 
     if result:
         logger.info(f"  Remotion IntelPanel rendered: {narrative} / {market_mood}")

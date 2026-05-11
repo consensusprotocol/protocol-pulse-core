@@ -158,7 +158,7 @@ def make_pip_preview(clip_path: str, output_path: str, duration: float = 8.0,
             fc_result = subprocess.run(
                 ["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0",
                  "-show_entries", "stream=nb_read_frames", "-of", "csv=p=0", output_path],
-                capture_output=True, text=True, timeout=30)
+                capture_output=True, text=True, timeout=300)
             frame_count = int(fc_result.stdout.strip() or "0")
         except Exception:
             frame_count = 0

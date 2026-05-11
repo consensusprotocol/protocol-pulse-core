@@ -796,5 +796,23 @@
     "timestamp": "2026-05-10T04:02:31.104766+00:00",
     "text_preview": "If institutions bought 1M BTC while you sold 750K over 16 months, at what point ",
     "format_type": "institutional_flow"
+  },
+  {
+    "hash": "28d4e936cec9149aec6494096bc15e04",
+    "timestamp": "2026-05-10T08:15:27.577563+00:00",
+    "text_preview": "995.1 EH/s hashrate hitting all time highs while Fear index sits at 47. Miners d",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "cf54d32bbe8b85967d07d1127196912b",
+    "timestamp": "2026-05-10T17:00:19.853716+00:00",
+    "text_preview": "3 sat/vB fees while miners run 993.9 EH/s. Nobody's moving coins. Nobody's payin",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "3d8acd5360ec641d372e5bc240b4bb85",
+    "timestamp": "2026-05-11T02:00:21.231334+00:00",
+    "text_preview": "Google just deplatformed GrapheneOS. The surveillance state doesn't tolerate pri",
+    "format_type": "sovereignty_freedom"
   }
 ]
