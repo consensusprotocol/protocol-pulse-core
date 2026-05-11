@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-05-11T04:55:24.058828+00:00",
-  "block_height": 948891,
+  "timestamp": "2026-05-11T05:45:26.282460+00:00",
+  "block_height": 948892,
   "btc": {
-    "price": 80822,
-    "change_24h": 0.07,
+    "price": 80825,
+    "change_24h": 0.13,
     "change_7d": 0,
-    "market_cap": 1617373023806.2976,
-    "volume_24h": 33916103083.695847,
+    "market_cap": 1619094077802.5264,
+    "volume_24h": 33753516133.341446,
     "dominance": 58.2
   },
   "fear_greed": {
@@ -16,20 +16,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 1,
-    "unconfirmed": 77698,
-    "size_mb": 36.4
+    "fee_high": 2,
+    "unconfirmed": 92430,
+    "size_mb": 38.8
   },
   "network": {
-    "hashrate_eh": 1008.8,
+    "hashrate_eh": 1004.3,
     "difficulty": 0,
-    "next_adj_pct": 4.51,
-    "next_adj_blocks": 645
+    "next_adj_pct": 4.19,
+    "next_adj_blocks": 644
   },
   "lightning": {
-    "capacity_btc": 5706.3,
-    "channels": 41986,
-    "nodes": 17342
+    "capacity_btc": 5239.0,
+    "channels": 41423,
+    "nodes": 17396
   },
   "kol": {
     "sentiment_score": 51,
@@ -52,7 +52,7 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "Will MegaETH perform an airdrop by June 30? ",
-    "top_probability": 63.4
+    "top_probability": 63.0
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
@@ -98,11 +98,11 @@
     }
   ],
   "macro": {
-    "dxy": 98.13,
-    "gold_price": 4679.4,
-    "sp500": 7411.5,
-    "btc_vs_gold_30d_corr": 0.077,
-    "btc_vs_dxy_30d_corr": -0.326,
+    "dxy": 98.12,
+    "gold_price": 4681.8,
+    "sp500": 7413.5,
+    "btc_vs_gold_30d_corr": 0.073,
+    "btc_vs_dxy_30d_corr": -0.322,
     "real_yield": null,
     "ten_year_yield": 4.36
   },
@@ -110,26 +110,26 @@
     "put_call_ratio": 0.632,
     "dvol": 38.6,
     "max_pain": 80000.0,
-    "total_call_oi": 230900.5,
-    "total_put_oi": 145895.4,
-    "total_oi_btc": 376795.9,
+    "total_call_oi": 231001.8,
+    "total_put_oi": 145991.4,
+    "total_oi_btc": 376993.2,
     "avg_mark_iv": 46.8
   },
   "futures": {
-    "funding_rate": 3.385e-05,
-    "annualized_basis": 3.71,
-    "open_interest": 26901.76,
-    "open_interest_usd": 2172855940.0,
+    "funding_rate": 4.36e-05,
+    "annualized_basis": 4.77,
+    "open_interest": 26854.88,
+    "open_interest_usd": 2173278420.0,
     "long_short_ratio": null,
-    "mark_price": 80800.16,
-    "index_price": 80770.03,
-    "basis_pct": 0.0467
+    "mark_price": 80954.31,
+    "index_price": 80926.77,
+    "basis_pct": 0.0434
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 6552215.0,
+    "coin_days_destroyed_7d": 6485843.0,
     "active_addresses_7d": 707428.0,
-    "tx_volume_usd_7d": 38151626499.0,
-    "nvt_ratio": 35.6,
+    "tx_volume_usd_7d": 37560282217.0,
+    "nvt_ratio": 36.2,
     "accumulation_score": 80
   },
   "active_alerts": [
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 20 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-05-11T04:55:26.514616+00:00",
+      "ts": "2026-05-11T05:45:28.946989+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 20
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 67.2,
+      "score": 67.1,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -181,28 +181,28 @@
   },
   "pro_metrics": {
     "ssr": {
-      "value": 7.89,
-      "btc_market_cap": 1617751566775.3706,
-      "stablecoin_market_cap": 205000000000,
-      "signal": "NEUTRAL",
-      "description": "Balanced stablecoin-to-BTC ratio",
-      "source": "estimated"
+      "value": 5.95,
+      "btc_market_cap": 1620237586250.9604,
+      "stablecoin_market_cap": 272315991989.20563,
+      "signal": "BULLISH",
+      "description": "Healthy stablecoin reserves available for BTC purchasing",
+      "source": "coingecko_derived"
     },
     "mpi": {
-      "value": 0.086,
-      "cdd_7d": 6523234.0,
-      "cdd_ratio": 1.09,
-      "hashrate_eh": 1009.1,
+      "value": 0.08,
+      "cdd_7d": 6485843.0,
+      "cdd_ratio": 1.08,
+      "hashrate_eh": 1008.8,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 21.0,
+      "value": 22.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-05-11T04:45:33.229744+00:00"
+    "timestamp": "2026-05-11T05:35:30.731548+00:00"
   }
 }

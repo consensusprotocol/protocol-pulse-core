@@ -1,48 +1,48 @@
 {
-  "updated_at": "2026-05-11T04:55:04.831385+00:00",
+  "updated_at": "2026-05-11T05:45:04.587232+00:00",
   "btc_price": {
-    "value": 80822,
-    "change_24h": 0.07,
+    "value": 80835,
+    "change_24h": 0.14,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1617373023806.2976,
+    "value": 1619094077802.5264,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 33916103083.695847,
+    "value": 33754303800.888702,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 948891,
+    "value": 948892,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 4.51,
-    "blocks_remaining": 645,
-    "estimated_date": "2026-05-15T11:51:32.815000+00:00",
+    "percent": 4.19,
+    "blocks_remaining": 644,
+    "estimated_date": "2026-05-15T12:50:54.216000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "1008.8 EH/s",
-    "raw_eh": 1008.8,
+    "value": "1004.3 EH/s",
+    "raw_eh": 1004.3,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 77752,
-    "vsize_mb": 36.4,
+    "tx_count": 92470,
+    "vsize_mb": 38.8,
     "source": "mempool.space"
   },
   "recommended_fees": {
-    "fastest": 1,
+    "fastest": 2,
     "hour": 1,
     "economy": 1,
     "source": "mempool.space"
   },
   "lightning": {
-    "node_count": 17353,
-    "channel_count": 41162,
-    "capacity_btc": 5292.1,
+    "node_count": 17396,
+    "channel_count": 41423,
+    "capacity_btc": 5239.0,
     "source": "mempool.space"
   },
   "fear_greed": {
@@ -52,21 +52,21 @@
     "source": "alternative.me"
   },
   "funding_rate": {
-    "value": 3.496e-05,
-    "annualized": 3.83,
+    "value": 4.74e-05,
+    "annualized": 5.19,
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 26867.2,
-    "usd": 2172898520,
+    "btc": 26910.1,
+    "usd": 2173816340,
     "source": "deribit"
   },
   "dominance": {
-    "value": 58.21,
+    "value": 58.19,
     "source": "coingecko"
   },
   "gold": {
-    "value": 4681.4,
+    "value": 4687.1,
     "source": "yahoo"
   },
   "sp500": {
@@ -74,11 +74,11 @@
     "source": "yahoo"
   },
   "dxy": {
-    "value": 98.13,
+    "value": 98.12,
     "source": "yahoo"
   },
   "exchange_volume": {
-    "binance_btc": 111709.3,
+    "binance_btc": 112739.3,
     "coinbase_btc": null,
     "source": "coingecko"
   },
@@ -116,10 +116,10 @@
     "value": null,
     "source": "unavailable"
   },
-  "btc_dominance": 58.21,
-  "gold_price": 4681.4,
+  "btc_dominance": 58.19,
+  "gold_price": 4687.1,
   "sp500_price": 7398.93,
-  "dxy_index": 98.13,
+  "dxy_index": 98.12,
   "signal_score": {
     "bull_count": 4,
     "bear_count": 0,

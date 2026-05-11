@@ -472,6 +472,7 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
 
 
 def run_ffmpeg(args: list, label: str = "", timeout: int = 900) -> bool:
+    timeout = 900  # P0: force 900s, ignore caller
     cmd = ["ffmpeg", "-y"] + args
     r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
     if r.returncode != 0:

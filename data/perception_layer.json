@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-05-11T04:30:17.031345+00:00",
-  "fetch_time_ms": 11976,
+  "updated_at": "2026-05-11T05:30:17.241652+00:00",
+  "fetch_time_ms": 12829,
   "composite": {
     "perception_score": 52,
     "label": "Neutral",
@@ -20,10 +20,10 @@
   },
   "global_market": {
     "btc_dominance_pct": 58.21,
-    "total_mcap_usd": 2777628433449.311,
-    "total_mcap_t": 2.778,
-    "total_vol_24h_usd": 98066767382.80038,
-    "total_vol_24h_b": 98.1,
+    "total_mcap_usd": 2784519055898.8965,
+    "total_mcap_t": 2.785,
+    "total_vol_24h_usd": 99421032498.19269,
+    "total_vol_24h_b": 99.4,
     "active_coins": 17429,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
@@ -35,7 +35,7 @@
       {
         "symbol": "ZANO",
         "name": "Zano",
-        "rank": 203,
+        "rank": 201,
         "score": 0
       },
       {
@@ -45,33 +45,33 @@
         "score": 1
       },
       {
-        "symbol": "WOJAK",
-        "name": "wojak",
-        "rank": 647,
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 91,
         "score": 2
       },
       {
-        "symbol": "ZEC",
-        "name": "Zcash",
-        "rank": 15,
+        "symbol": "WOJAK",
+        "name": "wojak",
+        "rank": 648,
         "score": 3
       },
       {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 92,
+        "symbol": "BILL",
+        "name": "Billions Network",
+        "rank": 164,
         "score": 4
       },
       {
-        "symbol": "TON",
-        "name": "Toncoin",
-        "rank": 20,
+        "symbol": "VVV",
+        "name": "Venice Token",
+        "rank": 88,
         "score": 5
       },
       {
-        "symbol": "MON",
-        "name": "Monad",
-        "rank": 124,
+        "symbol": "ONDO",
+        "name": "Ondo",
+        "rank": 43,
         "score": 6
       }
     ],
@@ -86,32 +86,32 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 803014,
+    "tx_count_24h": 823440,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 8.14,
+    "minutes_between_blocks": 7.93,
     "difficulty": 132472011079030,
-    "estimated_btc_sent": 2342085639748,
-    "total_fees_btc": -51562500000,
+    "estimated_btc_sent": 2451340885905,
+    "total_fees_btc": -52500000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
-    "block_signal": "normal",
+    "block_signal": "fast_blocks",
     "btc_signal": "bearish",
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17402,
-    "channel_count": 42000,
-    "capacity_btc": 5677.47,
-    "capacity_sats": 567746929511,
-    "avg_channel_capacity_btc": 0.1352,
+    "node_count": 17369,
+    "channel_count": 42215,
+    "capacity_btc": 5700.54,
+    "capacity_sats": 570054327303,
+    "avg_channel_capacity_btc": 0.135,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 1,
+    "fastest_fee_sat_vb": 3,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",

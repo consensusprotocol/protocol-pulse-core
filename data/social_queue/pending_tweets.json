@@ -82,5 +82,17 @@
     "generated_at": "2026-05-11T04:51:49.824176+00:00",
     "brief_date": "Sunday, May 10, 2026",
     "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260511_054633_0",
+    "text": "Saylor bought 5,262 BTC last week. MSTR's cost basis is now $47,038. He's not accumulating at tops. He's accumulating because he knows what's coming",
+    "angle": "institutional_flow",
+    "type": "signal",
+    "format": "contrarian_observation",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-11T05:46:33.948527+00:00",
+    "brief_date": "Sunday, May 10, 2026",
+    "sentiment": "uncertain"
   }
 ]
