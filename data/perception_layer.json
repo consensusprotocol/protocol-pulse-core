@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-05-11T05:30:17.241652+00:00",
-  "fetch_time_ms": 12829,
+  "updated_at": "2026-05-11T06:00:16.661433+00:00",
+  "fetch_time_ms": 11842,
   "composite": {
     "perception_score": 52,
     "label": "Neutral",
@@ -19,11 +19,11 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.21,
-    "total_mcap_usd": 2784519055898.8965,
-    "total_mcap_t": 2.785,
-    "total_vol_24h_usd": 99421032498.19269,
-    "total_vol_24h_b": 99.4,
+    "btc_dominance_pct": 58.17,
+    "total_mcap_usd": 2782339396913.8813,
+    "total_mcap_t": 2.782,
+    "total_vol_24h_usd": 99675797202.89119,
+    "total_vol_24h_b": 99.7,
     "active_coins": 17429,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
@@ -53,13 +53,13 @@
       {
         "symbol": "WOJAK",
         "name": "wojak",
-        "rank": 648,
+        "rank": 647,
         "score": 3
       },
       {
-        "symbol": "BILL",
-        "name": "Billions Network",
-        "rank": 164,
+        "symbol": "ONDO",
+        "name": "Ondo",
+        "rank": 44,
         "score": 4
       },
       {
@@ -69,9 +69,9 @@
         "score": 5
       },
       {
-        "symbol": "ONDO",
-        "name": "Ondo",
-        "rank": 43,
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "rank": 1,
         "score": 6
       }
     ],
@@ -86,32 +86,32 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 823440,
+    "tx_count_24h": 812273,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 7.93,
+    "minutes_between_blocks": 8.17,
     "difficulty": 132472011079030,
-    "estimated_btc_sent": 2451340885905,
-    "total_fees_btc": -52500000000,
+    "estimated_btc_sent": 2476758127400,
+    "total_fees_btc": -51875000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
-    "block_signal": "fast_blocks",
+    "block_signal": "normal",
     "btc_signal": "bearish",
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17369,
-    "channel_count": 42215,
-    "capacity_btc": 5700.54,
-    "capacity_sats": 570054327303,
-    "avg_channel_capacity_btc": 0.135,
+    "node_count": 17396,
+    "channel_count": 41423,
+    "capacity_btc": 5238.97,
+    "capacity_sats": 523897019799,
+    "avg_channel_capacity_btc": 0.1265,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 3,
+    "fastest_fee_sat_vb": 1,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
