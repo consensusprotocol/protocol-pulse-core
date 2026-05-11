@@ -1,59 +1,90 @@
 {
   "topic_velocity": [
     {
-      "topic": "Increasing institutional validation and mainstream adopti...",
+      "topic": "Saylor accumulation thesis vindicated \u2014 MSTR back to rele...",
+      "channels": 14,
+      "sentiment": "uncertain",
+      "velocity_score": 42,
+      "authority_score": 50,
+      "top_quote": "",
+      "thought_leaders": [
+        "@lopp",
+        "@saylor",
+        "@DocumentingBTC"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Regulatory momentum shift \u2014 US political class (Scott, ot...",
+      "channels": 10,
+      "sentiment": "uncertain",
+      "velocity_score": 15,
+      "authority_score": 40,
+      "top_quote": "",
+      "thought_leaders": [
+        "@lopp",
+        "@saylor",
+        "@DocumentingBTC"
+      ],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Privacy-as-resistance \u2014 Bitcoiners rallying against surve...",
       "channels": 8,
-      "sentiment": "bullish",
+      "sentiment": "uncertain",
       "velocity_score": 12,
-      "authority_score": 12,
+      "authority_score": 30,
       "top_quote": "",
-      "thought_leaders": [],
+      "thought_leaders": [
+        "@lopp",
+        "@saylor",
+        "@DocumentingBTC"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Bitcoin as a sovereign hedge against failing traditional ...",
-      "channels": 12,
-      "sentiment": "bullish",
-      "velocity_score": 9,
-      "authority_score": 9,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "The critical importance of self-custody, personal respons...",
+      "topic": "Protocol purity debates \u2014 community friction between puri...",
       "channels": 6,
-      "sentiment": "bullish",
+      "sentiment": "uncertain",
       "velocity_score": 9,
-      "authority_score": 9,
+      "authority_score": 20,
       "top_quote": "",
-      "thought_leaders": [],
+      "thought_leaders": [
+        "@lopp",
+        "@saylor",
+        "@DocumentingBTC"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Advancements in Bitcoin's underlying technology and minin...",
+      "topic": "AI + Bitcoin intersection emerging \u2014 local AI, Sci-Hub au...",
       "channels": 5,
-      "sentiment": "bullish",
+      "sentiment": "uncertain",
       "velocity_score": 8,
-      "authority_score": 8,
+      "authority_score": 10,
       "top_quote": "",
-      "thought_leaders": [],
+      "thought_leaders": [
+        "@lopp",
+        "@saylor",
+        "@DocumentingBTC"
+      ],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     }
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Increasing institutional validation and mainstream adopti...",
-    "Bitcoin as a sovereign hedge against failing traditional ...",
-    "The critical importance of self-custody, personal respons..."
+    "Saylor accumulation thesis vindicated \u2014 MSTR back to rele...",
+    "Regulatory momentum shift \u2014 US political class (Scott, ot...",
+    "Privacy-as-resistance \u2014 Bitcoiners rallying against surve..."
   ],
-  "dominant_narrative": "Increasing institutional validation and mainstream adopti...",
+  "dominant_narrative": "Saylor accumulation thesis vindicated \u2014 MSTR back to rele...",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-05-10T13:30:07Z"
+  "scan_time": "2026-05-11T04:04:56Z"
 }

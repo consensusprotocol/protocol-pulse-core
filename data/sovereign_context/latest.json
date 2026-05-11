@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-05-11T04:00:33.020454+00:00",
-  "block_height": 948880,
+  "timestamp": "2026-05-11T04:55:24.058828+00:00",
+  "block_height": 948891,
   "btc": {
-    "price": 80703,
-    "change_24h": -0.1,
+    "price": 80822,
+    "change_24h": 0.07,
     "change_7d": 0,
-    "market_cap": 1616642313458.267,
-    "volume_24h": 33125121834.33368,
-    "dominance": 57.4
+    "market_cap": 1617373023806.2976,
+    "volume_24h": 33916103083.695847,
+    "dominance": 58.2
   },
   "fear_greed": {
     "value": 48,
@@ -17,19 +17,19 @@
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 1,
-    "unconfirmed": 83139,
-    "size_mb": 37.2
+    "unconfirmed": 77698,
+    "size_mb": 36.4
   },
   "network": {
-    "hashrate_eh": 1001.7,
+    "hashrate_eh": 1008.8,
     "difficulty": 0,
-    "next_adj_pct": 4.1,
-    "next_adj_blocks": 656
+    "next_adj_pct": 4.51,
+    "next_adj_blocks": 645
   },
   "lightning": {
-    "capacity_btc": 5292.1,
-    "channels": 41162,
-    "nodes": 17353
+    "capacity_btc": 5706.3,
+    "channels": 41986,
+    "nodes": 17342
   },
   "kol": {
     "sentiment_score": 51,
@@ -40,7 +40,7 @@
       "macro",
       "mining"
     ],
-    "post_count_24h": 100,
+    "post_count_24h": 20,
     "dominant_sentiment": "bullish",
     "source": "tweets+transcripts"
   },
@@ -52,7 +52,7 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "Will MegaETH perform an airdrop by June 30? ",
-    "top_probability": 59.7
+    "top_probability": 63.4
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
@@ -61,6 +61,13 @@
     "brief_type": "midday"
   },
   "whale_alerts": [
+    {
+      "tier": "NOTE",
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: Foundry USA at 50% of last 10 blocks",
+      "score": 30,
+      "created_at": 1778472315.7883492
+    },
     {
       "tier": "NOTE",
       "rule": "Hashrate concentration",
@@ -88,60 +95,53 @@
       "message": "Whale transaction detected: 137.13 BTC unconfirmed 4359aaff...",
       "score": 10,
       "created_at": 1778467299.380265
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Block timing anomaly",
-      "message": "Block timing anomaly: avg 259.9s/block over last 10 blocks (fast)",
-      "score": 40,
-      "created_at": 1778466892.1996584
     }
   ],
   "macro": {
-    "dxy": 98.09,
-    "gold_price": 4692.3,
-    "sp500": 7413.5,
-    "btc_vs_gold_30d_corr": 0.067,
-    "btc_vs_dxy_30d_corr": -0.319,
+    "dxy": 98.13,
+    "gold_price": 4679.4,
+    "sp500": 7411.5,
+    "btc_vs_gold_30d_corr": 0.077,
+    "btc_vs_dxy_30d_corr": -0.326,
     "real_yield": null,
     "ten_year_yield": 4.36
   },
   "options": {
-    "put_call_ratio": 0.634,
-    "dvol": 38.7,
+    "put_call_ratio": 0.632,
+    "dvol": 38.6,
     "max_pain": 80000.0,
-    "total_call_oi": 230240.5,
-    "total_put_oi": 145871.9,
-    "total_oi_btc": 376112.4,
-    "avg_mark_iv": 46.9
+    "total_call_oi": 230900.5,
+    "total_put_oi": 145895.4,
+    "total_oi_btc": 376795.9,
+    "avg_mark_iv": 46.8
   },
   "futures": {
-    "funding_rate": 2.214e-05,
-    "annualized_basis": 2.42,
-    "open_interest": 26870.89,
-    "open_interest_usd": 2168447360.0,
+    "funding_rate": 3.385e-05,
+    "annualized_basis": 3.71,
+    "open_interest": 26901.76,
+    "open_interest_usd": 2172855940.0,
     "long_short_ratio": null,
-    "mark_price": 80721.05,
-    "index_price": 80698.76,
-    "basis_pct": 0.038
+    "mark_price": 80800.16,
+    "index_price": 80770.03,
+    "basis_pct": 0.0467
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 6559714.0,
+    "coin_days_destroyed_7d": 6552215.0,
     "active_addresses_7d": 707428.0,
-    "tx_volume_usd_7d": 37350823163.0,
-    "nvt_ratio": 36.4,
+    "tx_volume_usd_7d": 38151626499.0,
+    "nvt_ratio": 35.6,
     "accumulation_score": 80
   },
   "active_alerts": [
     {
       "pattern_id": "POLYMARKET_CONFIRM",
       "title": "Market consensus shifting",
-      "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
+      "description": "Polymarket sentiment 74/100 (bullish), 20 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-05-11T04:00:37.364845+00:00",
+      "ts": "2026-05-11T04:55:26.514616+00:00",
       "data": {
         "poly_sentiment": 74,
-        "kol_posts": 100
+        "kol_posts": 20
       }
     }
   ],
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 67.1,
+      "score": 67.2,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -165,15 +165,15 @@
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 63.1,
+      "score": 63.7,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
       "score": 77.5,
       "pattern": "BULLISH",
-      "fragmentation": 13.4,
-      "momentum": 60.5,
+      "fragmentation": 13.7,
+      "momentum": 60.7,
       "conviction": 58.9,
       "thesis": "miner_absorption_under_fear",
       "confidence": 0.76
@@ -182,17 +182,17 @@
   "pro_metrics": {
     "ssr": {
       "value": 7.89,
-      "btc_market_cap": 1616434064978.7227,
+      "btc_market_cap": 1617751566775.3706,
       "stablecoin_market_cap": 205000000000,
       "signal": "NEUTRAL",
       "description": "Balanced stablecoin-to-BTC ratio",
       "source": "estimated"
     },
     "mpi": {
-      "value": 0.093,
-      "cdd_7d": 6559714.0,
+      "value": 0.086,
+      "cdd_7d": 6523234.0,
       "cdd_ratio": 1.09,
-      "hashrate_eh": 1001.7,
+      "hashrate_eh": 1009.1,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
@@ -203,6 +203,6 @@
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-05-11T04:00:37.360358+00:00"
+    "timestamp": "2026-05-11T04:45:33.229744+00:00"
   }
 }

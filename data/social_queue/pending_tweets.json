@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260509_020023_0",
-    "text": "Basel III locks banks out of Bitcoin custody June 18. Institutions can't hold it. Legislation odds hit 73%. They'll buy it anyway. The rule exists to slow what's inevitable",
-    "angle": "contrarian_take",
-    "type": "signal",
-    "format": "community_narrative",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-09T02:00:23.566382+00:00",
-    "brief_date": "Friday, May 08, 2026",
-    "sentiment": "bullish"
-  },
-  {
     "id": "tweet_20260509_170021_0",
     "text": "980.4 EH/s network hashrate while Fear sits at 38. Every crash institutions use to buy, miners use to sell. Watch who actually holds when the state moves",
     "angle": "network_fundamentals",
@@ -80,6 +68,18 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-05-11T02:00:24.616463+00:00",
+    "brief_date": "Sunday, May 10, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260511_045149_0",
+    "text": "Nixon closed the gold window in 1971 to hide inflation. 55 years later governments are hiding inflation in CBDCs. Same lie, digital wrapper",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-11T04:51:49.824176+00:00",
     "brief_date": "Sunday, May 10, 2026",
     "sentiment": "uncertain"
   }
