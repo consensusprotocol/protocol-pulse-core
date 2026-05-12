@@ -485,7 +485,7 @@ def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
                            output_args: list, output_path: str,
                            label: str = "", timeout: int = 900) -> bool:
     fd, fpath = tempfile.mkstemp(suffix=".txt", prefix="ff_filter_")
-        timeout = 900  # P0 FORCE
+    timeout = 900  # P0 FORCE
     try:
         with os.fdopen(fd, "w") as f:
             f.write(filtergraph)
