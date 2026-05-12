@@ -575,7 +575,6 @@ def _enforce_av_sync(path: str) -> str:
 
 def ensure_audio(video_path: str) -> str:
     """Ensure video has an audio stream (add silent track if missing)."""
-    timeout = 900  # P0: force 900s filtergraph
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "a",
          "-show_entries", "stream=codec_type", "-of", "csv=p=0", video_path],

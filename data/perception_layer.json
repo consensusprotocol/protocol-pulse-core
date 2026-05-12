@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-05-11T06:00:16.661433+00:00",
-  "fetch_time_ms": 11842,
+  "updated_at": "2026-05-12T01:30:14.785272+00:00",
+  "fetch_time_ms": 10118,
   "composite": {
     "perception_score": 52,
     "label": "Neutral",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.17,
-    "total_mcap_usd": 2782339396913.8813,
-    "total_mcap_t": 2.782,
-    "total_vol_24h_usd": 99675797202.89119,
-    "total_vol_24h_b": 99.7,
-    "active_coins": 17429,
+    "btc_dominance_pct": 58.23,
+    "total_mcap_usd": 2798049480536.8853,
+    "total_mcap_t": 2.798,
+    "total_vol_24h_usd": 89190620591.05325,
+    "total_vol_24h_b": 89.2,
+    "active_coins": 17418,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -35,43 +35,43 @@
       {
         "symbol": "ZANO",
         "name": "Zano",
-        "rank": 201,
+        "rank": 205,
         "score": 0
       },
       {
-        "symbol": "SUI",
-        "name": "Sui",
-        "rank": 23,
+        "symbol": "WOJAK",
+        "name": "wojak",
+        "rank": 619,
         "score": 1
+      },
+      {
+        "symbol": "VVV",
+        "name": "Venice Token",
+        "rank": 84,
+        "score": 2
       },
       {
         "symbol": "PENGU",
         "name": "Pudgy Penguins",
         "rank": 91,
-        "score": 2
-      },
-      {
-        "symbol": "WOJAK",
-        "name": "wojak",
-        "rank": 647,
         "score": 3
       },
       {
-        "symbol": "ONDO",
-        "name": "Ondo",
-        "rank": 44,
+        "symbol": "SUI",
+        "name": "Sui",
+        "rank": 23,
         "score": 4
-      },
-      {
-        "symbol": "VVV",
-        "name": "Venice Token",
-        "rank": 88,
-        "score": 5
       },
       {
         "symbol": "BTC",
         "name": "Bitcoin",
         "rank": 1,
+        "score": 5
+      },
+      {
+        "symbol": "LAB",
+        "name": "LAB",
+        "rank": 136,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 812273,
+    "tx_count_24h": 730466,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 8.17,
+    "minutes_between_blocks": 8.64,
     "difficulty": 132472011079030,
-    "estimated_btc_sent": 2476758127400,
-    "total_fees_btc": -51875000000,
+    "estimated_btc_sent": 6701838712491,
+    "total_fees_btc": -49062500000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17396,
-    "channel_count": 41423,
-    "capacity_btc": 5238.97,
-    "capacity_sats": 523897019799,
-    "avg_channel_capacity_btc": 0.1265,
+    "node_count": 17342,
+    "channel_count": 41986,
+    "capacity_btc": 5706.26,
+    "capacity_sats": 570626090058,
+    "avg_channel_capacity_btc": 0.1359,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 1,
+    "fastest_fee_sat_vb": 2,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,21 +121,21 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 48,
-    "7d_ago": 50,
-    "7d_delta": -2,
+    "current": 49,
+    "7d_ago": 46,
+    "7d_delta": 3,
     "trend": "stable",
     "7d_values": [
+      49,
       48,
       47,
       38,
       38,
       47,
-      46,
-      50
+      46
     ],
     "btc_signal": "neutral",
-    "note": "F&G stable at 48",
+    "note": "F&G stable at 49",
     "label": "Neutral",
     "source": "alternative.me F&G"
   }

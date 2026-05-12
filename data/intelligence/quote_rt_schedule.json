@@ -485,8 +485,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Money that doesn't care about your urgency is the only money you can actually trust. Patience is the feature.",
     "scheduled_at": "2026-05-04T02:00:17.017084+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-11T19:00:03.240903+00:00",
     "created_at": "2026-05-02T18:00:17.017084+00:00"
   },
   {
@@ -495,8 +495,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "While everyone builds faster horses, Bitcoin's moat is that it doesn't race. It just settles what matters.",
     "scheduled_at": "2026-05-04T10:00:17.017084+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-11T22:00:02.687256+00:00",
     "created_at": "2026-05-02T18:00:17.017084+00:00"
   },
   {
@@ -798,5 +798,55 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-10T18:00:20.309649+00:00"
+  },
+  {
+    "anchor_id": "401",
+    "anchor_text": "Saylor bought again. MSTR now holds enough BTC that if he stops accumulating, the market loses a 100B+ bid wall. That's not institutional adoption. That's dependency",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "One man's balance sheet is now price discovery. That's what we're calling institutional adoption.",
+    "scheduled_at": "2026-05-12T02:00:20.990525+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-11T18:00:20.990525+00:00"
+  },
+  {
+    "anchor_id": "401",
+    "anchor_text": "Saylor bought again. MSTR now holds enough BTC that if he stops accumulating, the market loses a 100B+ bid wall. That's not institutional adoption. That's dependency",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The irony: Bitcoin's supposed to remove dependency on single actors. Instead we're building new ones.",
+    "scheduled_at": "2026-05-12T10:00:20.990525+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-11T18:00:20.990525+00:00"
+  },
+  {
+    "anchor_id": "401",
+    "anchor_text": "Saylor bought again. MSTR now holds enough BTC that if he stops accumulating, the market loses a 100B+ bid wall. That's not institutional adoption. That's dependency",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "MSTR holds 1% of all Bitcoin. When one entity owns that much of the supply, liquidity becomes a personal choice.",
+    "scheduled_at": "2026-05-12T18:00:20.990525+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-11T18:00:20.990525+00:00"
+  },
+  {
+    "anchor_id": "401",
+    "anchor_text": "Saylor bought again. MSTR now holds enough BTC that if he stops accumulating, the market loses a 100B+ bid wall. That's not institutional adoption. That's dependency",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "We wanted money free from central banks. We got money dependent on one billionaire's next quarterly earnings call.",
+    "scheduled_at": "2026-05-13T02:00:20.990525+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-11T18:00:20.990525+00:00"
+  },
+  {
+    "anchor_id": "401",
+    "anchor_text": "Saylor bought again. MSTR now holds enough BTC that if he stops accumulating, the market loses a 100B+ bid wall. That's not institutional adoption. That's dependency",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Nobody's talking about what happens when Saylor needs cash. His forced selling would be the largest bid wall destruction in history.",
+    "scheduled_at": "2026-05-13T10:00:20.990525+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-11T18:00:20.990525+00:00"
   }
 ]
