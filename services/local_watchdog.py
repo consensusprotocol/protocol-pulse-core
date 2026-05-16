@@ -939,19 +939,17 @@ def run_health_scan():
     # Social automation health — check log mtimes
     social_logs = {
         "morning_brief": BASE / "logs" / "morning_brief_cron.log",
-        "tweet_machine": BASE / "core" / "logs" / "tweet_machine_cron.log",
+        "tweet_machine": BASE / "logs" / "tweet_machine.log",
         "nitter_scraper": BASE / "logs" / "nitter_scraper.log",
         "nostr_cron": BASE / "logs" / "nostr_cron.log",
         "substack_digest": BASE / "logs" / "substack_digest.log",
-        "comment_radar": BASE / "logs" / "comment_radar.log",
-        "reply_engine": BASE / "logs" / "reply_engine.log",
     }
     stale_social = []
     for name, log_path in social_logs.items():
         if log_path.exists():
             mtime = datetime.fromtimestamp(log_path.stat().st_mtime, tz=timezone.utc)
             age_hours = (datetime.now(timezone.utc) - mtime).total_seconds() / 3600
-            if age_hours > 25:
+            if age_hours > 48:  # 48h threshold — allows for weekend gaps
                 stale_social.append(f"{name} ({age_hours:.0f}h stale)")
         else:
             stale_social.append(f"{name} (no log)")
