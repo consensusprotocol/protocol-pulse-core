@@ -596,7 +596,7 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        ["-c:v", "libx264", "-crf", "17", "-preset", "fast",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
         output_path, "signal_active_60_40", 600,
@@ -795,7 +795,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        ["-c:v", "libx264", "-crf", "17", "-preset", "fast",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
         output_path, "social tweet card", 180,
@@ -939,7 +939,7 @@ def make_remotion_title_card(audio_path: str, output_path: str,
             f"[2:a]volume=0.35[jingle_a];"
             f"[tts_a][jingle_a]amix=inputs=2:duration=first:weights=1 0.35[outa]",
             "-map", "[v]", "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast",
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(total_dur), output_path,

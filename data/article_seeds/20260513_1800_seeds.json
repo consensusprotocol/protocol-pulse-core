@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-05-13T18:00:31.214655+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Pre-Halving Shake-Out: Why $79K Pullbacks Are Feature, Not Bug",
+      "angle": "Historical pattern analysis\u2014how fear-driven dips consolidate before halvings; hashrate stability + fee compression signal accumulation phase",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "on-chain",
+        "sentiment",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Mempool Congestion Myth-Busting: Why Bitcoin's Base Fees Actually Signal Recovery",
+      "angle": "Despite 89K pending txs, base fees compressed to 1 sat/byte\u2014network stress easing and miners staying patient",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain",
+        "network-health"
+      ]
+    },
+    {
+      "headline": "Institutional Flow Watch: Why Bitcoin's Thin Morning Volume Matters for Afternoon Action",
+      "angle": "Zero 24-hour volume data suggests US institutional entry points still forming; afternoon session will reveal real directional intent",
+      "tags": [
+        "bitcoin",
+        "institutional",
+        "volume",
+        "market-structure"
+      ]
+    }
+  ]
+}

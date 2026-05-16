@@ -1,9 +1,42 @@
 {
   "topic_velocity": [
     {
-      "topic": "Regulatory momentum shift \u2014 US political class (Scott, ot...",
+      "topic": "Bitcoin as digital capital and treasury asset \u2014 instituti...",
+      "channels": 27,
+      "sentiment": "bullish",
+      "velocity_score": 40,
+      "authority_score": 40,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Regulatory warfare escalation \u2014 Banking cartel (ABA) in p...",
+      "channels": 15,
+      "sentiment": "bullish",
+      "velocity_score": 22,
+      "authority_score": 22,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "AI/Bitcoin convergence \u2014 Local AI improving 2x faster tha...",
+      "channels": 12,
+      "sentiment": "bullish",
+      "velocity_score": 18,
+      "authority_score": 18,
+      "top_quote": "",
+      "thought_leaders": [],
+      "source": "thought_leader_tweets",
+      "freshness_hours": 4.0
+    },
+    {
+      "topic": "Adoption normalization \u2014 Dubai tax payments in BTC; taxat...",
       "channels": 10,
-      "sentiment": "uncertain",
+      "sentiment": "bullish",
       "velocity_score": 15,
       "authority_score": 15,
       "top_quote": "",
@@ -12,44 +45,11 @@
       "freshness_hours": 4.0
     },
     {
-      "topic": "Privacy-as-resistance \u2014 Bitcoiners rallying against surve...",
-      "channels": 8,
-      "sentiment": "uncertain",
-      "velocity_score": 12,
-      "authority_score": 12,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Saylor accumulation thesis vindicated \u2014 MSTR back to rele...",
-      "channels": 14,
-      "sentiment": "uncertain",
-      "velocity_score": 10,
-      "authority_score": 21,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Protocol purity debates \u2014 community friction between puri...",
-      "channels": 6,
-      "sentiment": "uncertain",
-      "velocity_score": 9,
-      "authority_score": 9,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "AI + Bitcoin intersection emerging \u2014 local AI, Sci-Hub au...",
-      "channels": 5,
-      "sentiment": "uncertain",
-      "velocity_score": 8,
-      "authority_score": 8,
+      "topic": "Digital Credit yield economy maturation \u2014 STRC/Pendle pro...",
+      "channels": 19,
+      "sentiment": "bullish",
+      "velocity_score": 14,
+      "authority_score": 14,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -58,13 +58,13 @@
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Regulatory momentum shift \u2014 US political class (Scott, ot...",
-    "Privacy-as-resistance \u2014 Bitcoiners rallying against surve...",
-    "Saylor accumulation thesis vindicated \u2014 MSTR back to rele..."
+    "Bitcoin as digital capital and treasury asset \u2014 instituti...",
+    "Regulatory warfare escalation \u2014 Banking cartel (ABA) in p...",
+    "AI/Bitcoin convergence \u2014 Local AI improving 2x faster tha..."
   ],
-  "dominant_narrative": "Saylor accumulation thesis vindicated \u2014 MSTR back to rele...",
+  "dominant_narrative": "Bitcoin as digital capital and treasury asset \u2014 instituti...",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-05-11T13:30:07Z"
+  "scan_time": "2026-05-15T13:30:06Z"
 }

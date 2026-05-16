@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-05-14T10:00:30.269343+00:00",
+  "brief_type": "morning",
+  "score": 25,
+  "bullish_signals": [
+    "Hashrate holding firm at 916 EH/s",
+    "No major liquidations overnight",
+    "Base fees low (1 sat/byte) suggest healthy network",
+    "Short squeeze potential on bounce given elevated fear",
+    "Network running smooth"
+  ],
+  "bearish_signals": [
+    "2% overnight decline",
+    "Fear gauge elevated at 34",
+    "Fragile sentiment structure",
+    "Potential for deeper retest if 79K support breaks"
+  ],
+  "neutral_topics": [
+    "950K block height milestone (symbolic, not fundamental)",
+    "Asia session quiet overnight",
+    "Volume data lag status unclear"
+  ]
+}

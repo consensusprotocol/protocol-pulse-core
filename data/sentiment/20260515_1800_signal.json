@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-05-15T18:00:38.404650+00:00",
+  "brief_type": "midday",
+  "score": 52,
+  "bullish_signals": [
+    "Hashrate holding steady at 987 EH/s\u2014no miner capitulation",
+    "No major exchange outflows or liquidations",
+    "Institutional positioning unchanged\u2014whales aren't dumping",
+    "Fee market remains reasonable despite mempool congestion",
+    "Consolidation behavior in larger uptrend",
+    "Fear gauge at 43 is healthy territory"
+  ],
+  "bearish_signals": [
+    "2.8% pullback from recent highs",
+    "Support zone at $77K now under scrutiny"
+  ],
+  "neutral_topics": [
+    "Mempool congestion (154K transactions)",
+    "Morning session quiet activity"
+  ]
+}

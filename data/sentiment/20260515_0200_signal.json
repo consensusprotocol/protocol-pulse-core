@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-05-15T02:00:29.916862+00:00",
+  "brief_type": "evening",
+  "score": 65,
+  "bullish_signals": [
+    "Solid 2% gains in Fear regime (43 GI)",
+    "Robust hashrate at 987 EH/s\u2014miners not panicking",
+    "Institutional accumulation patterns evident",
+    "Tight consolidation holding above $81K",
+    "Mempool flushed with low fees (1 sat/byte)",
+    "Network breathing easy\u2014no stress signals"
+  ],
+  "bearish_signals": [
+    "Fear regime dominance (43/100 Greed Index)",
+    "Tight daily range suggests indecision",
+    "Halving proximity adds volatility risk"
+  ],
+  "neutral_topics": [
+    "Consolidation phase",
+    "Block height approaching halving window",
+    "Margin pressure on miners"
+  ]
+}

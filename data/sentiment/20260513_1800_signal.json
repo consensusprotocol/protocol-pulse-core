@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-05-13T18:00:31.214655+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate stable at 864.9 EH/s\u2014miners confident",
+    "Base fees compressed despite congestion\u2014network normalizing",
+    "Fear sentiment (42) attracts buyers without capitulation signals",
+    "Block height 949,247 in historical consolidation zone",
+    "Hodlers holding through pullback"
+  ],
+  "bearish_signals": [
+    "1.3% 24-hour decline",
+    "89,000 pending transactions signal congestion",
+    "Fear index at 42\u2014caution territory"
+  ],
+  "neutral_topics": [
+    "Volume data showing zero\u2014likely data lag rather than thinness",
+    "US morning hours institutional flow unclear"
+  ]
+}

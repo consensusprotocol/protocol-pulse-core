@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-05-15T10:00:32.044969+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Why Cheap Bitcoin Fees Signal Calm Before the Storm",
+      "angle": "Fee markets as leading indicators of market urgency; current 2 sat/byte cheapness suggests digestion phase before next leg",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "Bitcoin Hashrate at ATH While Price Consolidates\u2014What Miners Know",
+      "angle": "Miner confidence metrics outpacing price action; 987 exahash peak suggests institutional accumulation conviction",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Halving in 10 Months: Bitcoin's Roadmap Beyond Consolidation",
+      "angle": "Block height 949,492 puts halving at mid-2025; historical patterns suggest pre-halving momentum builds in Q1",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "cycle-analysis"
+      ]
+    }
+  ]
+}

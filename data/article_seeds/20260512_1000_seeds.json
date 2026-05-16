@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-05-12T10:00:32.395011+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Treasury Thesis: Why Hashrate Strength Signals Bitcoin's $100K Destiny",
+      "angle": "Network metrics (1107.9 EH/s) validate post-halving scarcity narrative; institutional treasury adoption accelerating",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "treasury",
+        "halving",
+        "institutional-adoption"
+      ]
+    },
+    {
+      "headline": "Privacy's Next Frontier: How Halving Forces Miners Toward Censorship-Resistance",
+      "angle": "Mining economics shifting toward privacy innovation; self-custody adoption outpaces Fed alternatives",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "privacy",
+        "censorship-resistance",
+        "innovation"
+      ]
+    },
+    {
+      "headline": "Fiat Fragility Accelerating: Bitcoin's Unconfiscable Capital Outpaces Central Bank Alternatives",
+      "angle": "Cultural shift as users ditch traditional banking; Unchained's resonance signals mainstream self-custody momentum",
+      "tags": [
+        "bitcoin",
+        "fiat",
+        "self-custody",
+        "banking",
+        "cultural-shift"
+      ]
+    }
+  ]
+}

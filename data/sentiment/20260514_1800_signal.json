@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-05-14T18:00:30.926332+00:00",
+  "brief_type": "midday",
+  "score": 62,
+  "bullish_signals": [
+    "3% price increase showing conviction",
+    "Whale accumulation despite fearful sentiment",
+    "Strong hashrate at 916 exahashes indicates network confidence",
+    "Price action divergence from Fear & Greed metric",
+    "Institutional positioning ahead of halving in 340 days",
+    "Fee compression at 1 sat/byte shows no panic capitulation"
+  ],
+  "bearish_signals": [
+    "Fear & Greed at 34 shows deep retail anxiety",
+    "76K transaction mempool backlog signals network stress",
+    "Impending volatility from mempool clearing event"
+  ],
+  "neutral_topics": [
+    "Network congestion (not yet pricing out transactions)",
+    "Block height progression (normal cadence)"
+  ]
+}

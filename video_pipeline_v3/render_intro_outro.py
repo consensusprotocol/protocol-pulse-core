@@ -54,7 +54,7 @@ def make_intro_video(output_path: str) -> str:
             "-i", INTRO_VIDEO,
             "-vf", vf,
             "-af", f"afade=t=out:st={fade_out_a}:d=1.5",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(intro_dur),
@@ -69,7 +69,7 @@ def make_intro_video(output_path: str) -> str:
              f"[1:a]afade=t=out:st={fade_out_a}:d=1.5[outa]"),
             "-map", "[outv]",
             "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(intro_dur), "-shortest",
@@ -78,7 +78,7 @@ def make_intro_video(output_path: str) -> str:
     else:
         ok = run_ffmpeg([
             "-i", INTRO_VIDEO,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p", "-vf", vf,
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
@@ -136,7 +136,7 @@ def make_outro_video(output_path: str) -> str:
              f"afade=t=out:st={fade_out_a}:d=1.0[outa]"),
             "-map", "[outv]",
             "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(outro_dur),
@@ -151,7 +151,7 @@ def make_outro_video(output_path: str) -> str:
              f"[1:a]afade=t=out:st={fade_out_a}:d=1.0[outa]"),
             "-map", "[outv]",
             "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(outro_dur), "-shortest",
@@ -160,7 +160,7 @@ def make_outro_video(output_path: str) -> str:
     else:
         ok = run_ffmpeg([
             "-i", OUTRO_VIDEO,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p", "-vf", vf,
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
@@ -208,7 +208,7 @@ def make_tag_video(output_path: str, narration_audio: str = "") -> str:
              f"[tagaud][narr]amix=inputs=2:duration=first,"
              f"afade=t=out:st={fade_out_a}:d=1.0[outa]"),
             "-map", "[outv]", "-map", "[outa]",
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(tag_dur),
@@ -217,7 +217,7 @@ def make_tag_video(output_path: str, narration_audio: str = "") -> str:
     else:
         ok = run_ffmpeg([
             "-i", tag_src,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p", "-vf", vf,
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             output_path,
@@ -261,7 +261,7 @@ def make_intro_tag_sequence(output_path: str) -> str:
         ok = run_ffmpeg([
             "-i", INTRO_TAG,
             "-vf", vf,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast",
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
@@ -275,7 +275,7 @@ def make_intro_tag_sequence(output_path: str) -> str:
             "-i", INTRO_TAG,
             "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo",
             "-vf", vf,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast",
             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
             "-r", "30", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
@@ -356,7 +356,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"aresample=48000[outa]"
                     ),
                     "-map", "[outv]", "-map", "[outa]",
-                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
                     "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
                     "-r", "30",
                     "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
@@ -376,7 +376,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                         f"aresample=48000[outa]"
                     ),
                     "-map", "[outv]", "-map", "[outa]",
-                    "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                    "-c:v", "libx264", "-crf", "17", "-preset", "fast",
                     "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
                     "-r", "30",
                     "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
@@ -396,7 +396,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
                     f"aresample=48000[outa]"
                 ),
                 "-map", "[outv]", "-map", "[outa]",
-                "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
                 "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
                 "-r", "30",
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
@@ -424,7 +424,7 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        ["-c:v", "libx264", "-crf", "17", "-preset", "fast",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
         output_path, "clean cold open (fallback)", 120,
@@ -483,7 +483,7 @@ def _make_clip_unavailable_card(rank: int, output_path: str, btc_price: str = "$
         f"[_uc_pre]scale=1960:1102:flags=lanczos,"
         f"crop=1920:1080:'20*t/{dur}':'11*t/{dur}',setsar=1[outv]",
         "-map", "[outv]", "-map", "1:a",
-        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
         "-pix_fmt", "yuv420p", "-r", "30",
         "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
@@ -515,13 +515,13 @@ def make_branded_outro(output_path: str, narration_audio: str = "") -> str:
             "-filter_complex",
             "[0:a]volume=0.25[va];[1:a]volume=1.0[vb];[va][vb]amix=inputs=2:duration=longest[outa]",
             "-map", "0:v", "-map", "[outa]", "-vf", vf,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M", "-pix_fmt", "yuv420p",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k", output_path],
             "branded outro", 60)
     else:
         ok = run_ffmpeg([
             "-i", src, "-vf", vf,
-            "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M", "-pix_fmt", "yuv420p",
+            "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k", output_path],
             "branded outro", 60)
 
@@ -553,7 +553,7 @@ def make_outro_branded_new(output_path: str) -> str:
     ok = run_ffmpeg([
         "-i", OUTRO_BRANDED_NEW,
         "-vf", vf,
-        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
         "-pix_fmt", "yuv420p", "-r", "30",
         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",

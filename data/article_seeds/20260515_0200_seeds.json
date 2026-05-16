@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-05-15T02:00:29.916862+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Why Hashrate Stability Beats Price Action in Bear Conditions",
+      "angle": "Examining how 987 EH/s robustness during a Fear regime indicates institutional conviction vs. retail sentiment",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "institutional",
+        "consolidation"
+      ]
+    },
+    {
+      "headline": "The Mempool Whisper: Why 1 Sat/Byte Fees Signal Calm Before the Storm",
+      "angle": "Decoding network health metrics and what transaction bottlenecks (or lack thereof) reveal about market psychology",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network",
+        "fees",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Halving Proximity Window: Block 949,441 and the Institutional Accumulation Game",
+      "angle": "Why two-percent gains in Fear territory matter more than any mania rally during pre-halving phases",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "cycles",
+        "institutional",
+        "accumulation"
+      ]
+    }
+  ]
+}

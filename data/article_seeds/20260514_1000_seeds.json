@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-05-14T10:00:30.269343+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Why Bitcoin's 79K Support Level Matters More Than 950K Blocks",
+      "angle": "Technical analysis on key support levels amid elevated fear gauge; what a break below means for macro trend",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "support-levels",
+        "sentiment"
+      ]
+    },
+    {
+      "headline": "Cheap Fees, Congested Mempool: What Bitcoin's Network Data Says About User Behavior",
+      "angle": "Deep dive into 94K tx backlog at 1 sat/byte\u2014are users patient or is volume genuinely light?",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain",
+        "fees"
+      ]
+    },
+    {
+      "headline": "Fear Gauge at 34: Is This the Setup for a Short Squeeze?",
+      "angle": "How elevated fear (34) + firm hashrate + low volatility creates conditions for explosive moves either direction",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "trading",
+        "fear-gauge"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-05-14T18:00:30.926332+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "The $81.6K Signal: Why Bitcoin's Rally Matters More Than Fear & Greed",
+      "angle": "Analyzing the price/sentiment divergence as a hallmark of institutional conviction buying versus retail panic\u2014the alpha in the spread",
+      "tags": [
+        "bitcoin",
+        "whales",
+        "sentiment",
+        "on-chain",
+        "conviction"
+      ]
+    },
+    {
+      "headline": "340 Days to Halving: Why Institutions Are Buying While Retail Stays Fearful",
+      "angle": "Institutional calendars, hashrate strength, and the halving cycle as a macro catalyst for 2025 positioning",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "institutions",
+        "macro",
+        "mining"
+      ]
+    },
+    {
+      "headline": "Bitcoin's Mempool Crisis? 76K Transactions and What's Next",
+      "angle": "Deep dive into network congestion, fee dynamics at 1 sat/byte, and the volatility trigger looming in the mempool",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network",
+        "technical"
+      ]
+    }
+  ]
+}

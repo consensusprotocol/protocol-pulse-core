@@ -505,8 +505,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "500% unfunded obligations means they've already spent money that doesn't exist. They're just deciding who pays for it now.",
     "scheduled_at": "2026-05-06T02:00:19.997464+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-12T04:00:02.852178+00:00",
     "created_at": "2026-05-05T18:00:19.997464+00:00"
   },
   {
@@ -515,8 +515,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "When your pension math requires currency debasement to work, you've admitted the currency is the problem.",
     "scheduled_at": "2026-05-06T10:00:19.997464+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-12T19:00:02.860396+00:00",
     "created_at": "2026-05-05T18:00:19.997464+00:00"
   },
   {
@@ -525,8 +525,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "A collapsing birth rate plus unfunded liabilities equals a country that must choose between defaulting or inflating. They'll pick option two.",
     "scheduled_at": "2026-05-06T18:00:19.997464+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-12T22:00:03.332535+00:00",
     "created_at": "2026-05-05T18:00:19.997464+00:00"
   },
   {
@@ -535,8 +535,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Pensions built on the assumption of perpetual growth are just ponzi schemes with government letterhead.",
     "scheduled_at": "2026-05-07T02:00:19.997464+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-13T04:00:02.768649+00:00",
     "created_at": "2026-05-05T18:00:19.997464+00:00"
   },
   {
@@ -545,8 +545,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The real story isn't that their system is broken. It's that they're legally obligated to break it on schedule.",
     "scheduled_at": "2026-05-07T10:00:19.997464+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-13T19:00:03.244961+00:00",
     "created_at": "2026-05-05T18:00:19.997464+00:00"
   },
   {
@@ -555,8 +555,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "When miners won't sell at 46 fear, they're pricing in something the market hasn't priced yet",
     "scheduled_at": "2026-05-07T02:00:19.180296+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-13T22:00:02.787509+00:00",
     "created_at": "2026-05-06T18:00:19.180296+00:00"
   },
   {
@@ -565,8 +565,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The fear index trades on emotion. The hashrate trades on math. One of them is always right",
     "scheduled_at": "2026-05-07T10:00:19.180296+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-14T04:00:03.399018+00:00",
     "created_at": "2026-05-06T18:00:19.180296+00:00"
   },
   {
@@ -575,8 +575,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "971.2 EH/s means the actual custodians of the network see asymmetric upside. Everything else is noise",
     "scheduled_at": "2026-05-07T18:00:19.180296+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-14T19:00:03.094323+00:00",
     "created_at": "2026-05-06T18:00:19.180296+00:00"
   },
   {
@@ -585,8 +585,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Sovereignty isn't voted on. It's secured. And right now it's being secured by people who refuse to sell",
     "scheduled_at": "2026-05-08T02:00:19.180296+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-14T22:00:03.445928+00:00",
     "created_at": "2026-05-06T18:00:19.180296+00:00"
   },
   {
@@ -595,8 +595,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone watches whale wallets. Meanwhile the real power brokers are the ones pointing hash at blocks",
     "scheduled_at": "2026-05-08T10:00:19.180296+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-15T04:00:03.496564+00:00",
     "created_at": "2026-05-06T18:00:19.180296+00:00"
   },
   {
@@ -605,8 +605,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "They're not hedging against collapse. They're hedging against admitting the collapse already happened.",
     "scheduled_at": "2026-05-08T02:00:20.866491+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-15T19:00:02.924308+00:00",
     "created_at": "2026-05-07T18:00:20.866491+00:00"
   },
   {
@@ -615,8 +615,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Holding both is just portfolio theory with extra steps and cognitive dissonance.",
     "scheduled_at": "2026-05-08T10:00:20.866491+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-15T22:00:03.508934+00:00",
     "created_at": "2026-05-07T18:00:20.866491+00:00"
   },
   {
@@ -625,8 +625,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Every Bitcoin purchase is an implicit admission that USD purchasing power has a expiration date they can see.",
     "scheduled_at": "2026-05-08T18:00:20.866491+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-16T04:00:03.333464+00:00",
     "created_at": "2026-05-07T18:00:20.866491+00:00"
   },
   {
@@ -848,5 +848,205 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-11T18:00:20.990525+00:00"
+  },
+  {
+    "anchor_id": "406",
+    "anchor_text": "True Market Mean support at 78k held. Price action near there means institutions aren't selling. They're accumulating. You're watching the transfer happen in real time",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Support held because selling pressure never materialized. The real question is who's been accumulating since 2022",
+    "scheduled_at": "2026-05-13T02:00:20.658320+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-12T18:00:20.658320+00:00"
+  },
+  {
+    "anchor_id": "406",
+    "anchor_text": "True Market Mean support at 78k held. Price action near there means institutions aren't selling. They're accumulating. You're watching the transfer happen in real time",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Retail watches price action at support levels. Institutions watch accumulation windows. One group is preparing",
+    "scheduled_at": "2026-05-13T10:00:20.658320+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-12T18:00:20.658320+00:00"
+  },
+  {
+    "anchor_id": "406",
+    "anchor_text": "True Market Mean support at 78k held. Price action near there means institutions aren't selling. They're accumulating. You're watching the transfer happen in real time",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "78k support tells you exactly where the smart money's cost basis ceiling is. Everything below that is a gift",
+    "scheduled_at": "2026-05-13T18:00:20.658320+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-12T18:00:20.658320+00:00"
+  },
+  {
+    "anchor_id": "406",
+    "anchor_text": "True Market Mean support at 78k held. Price action near there means institutions aren't selling. They're accumulating. You're watching the transfer happen in real time",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money doesn't transfer by accident. It transfers when one group knows what another doesn't yet",
+    "scheduled_at": "2026-05-14T02:00:20.658320+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-12T18:00:20.658320+00:00"
+  },
+  {
+    "anchor_id": "406",
+    "anchor_text": "True Market Mean support at 78k held. Price action near there means institutions aren't selling. They're accumulating. You're watching the transfer happen in real time",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone's waiting for institutions to enter. They've been here. You're just watching them finish",
+    "scheduled_at": "2026-05-14T10:00:20.658320+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-12T18:00:20.658320+00:00"
+  },
+  {
+    "anchor_id": "409",
+    "anchor_text": "1971 Nixon closed the gold window. 55 years later the Fed still can't audit Fort Knox. Bitcoin doesn't require trust in vaults that won't open",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "55 years of 'we'll show you the gold eventually' is just another way of saying there is no gold",
+    "scheduled_at": "2026-05-14T02:00:21.652597+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-13T18:00:21.652597+00:00"
+  },
+  {
+    "anchor_id": "409",
+    "anchor_text": "1971 Nixon closed the gold window. 55 years later the Fed still can't audit Fort Knox. Bitcoin doesn't require trust in vaults that won't open",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The Fed demands you trust their audit. Bitcoin audits itself every 10 minutes",
+    "scheduled_at": "2026-05-14T10:00:21.652597+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-13T18:00:21.652597+00:00"
+  },
+  {
+    "anchor_id": "409",
+    "anchor_text": "1971 Nixon closed the gold window. 55 years later the Fed still can't audit Fort Knox. Bitcoin doesn't require trust in vaults that won't open",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "If Fort Knox can't be verified, the dollar's backing is a thought experiment. Bitcoin's supply is math",
+    "scheduled_at": "2026-05-14T18:00:21.652597+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-13T18:00:21.652597+00:00"
+  },
+  {
+    "anchor_id": "409",
+    "anchor_text": "1971 Nixon closed the gold window. 55 years later the Fed still can't audit Fort Knox. Bitcoin doesn't require trust in vaults that won't open",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Sovereignty means knowing your money exists. Most people own neither",
+    "scheduled_at": "2026-05-15T02:00:21.652597+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-13T18:00:21.652597+00:00"
+  },
+  {
+    "anchor_id": "409",
+    "anchor_text": "1971 Nixon closed the gold window. 55 years later the Fed still can't audit Fort Knox. Bitcoin doesn't require trust in vaults that won't open",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone assumes the vault is full because admitting otherwise breaks the whole system. Bitcoin made that assumption unnecessary",
+    "scheduled_at": "2026-05-15T10:00:21.652597+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-13T18:00:21.652597+00:00"
+  },
+  {
+    "anchor_id": "412",
+    "anchor_text": "Bank Secrecy Act flagged $847B in suspicious activity last year. Same banks moved $3T undetected. The surveillance isn't broken. It's working exactly as designed",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "They flagged $847B to look busy. The real money moves in the gaps between their spreadsheets.",
+    "scheduled_at": "2026-05-15T02:00:19.788562+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-14T18:00:19.788562+00:00"
+  },
+  {
+    "anchor_id": "412",
+    "anchor_text": "Bank Secrecy Act flagged $847B in suspicious activity last year. Same banks moved $3T undetected. The surveillance isn't broken. It's working exactly as designed",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Surveillance theater requires an audience. Banks are both the performers and the ones selling tickets.",
+    "scheduled_at": "2026-05-15T10:00:19.788562+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-14T18:00:19.788562+00:00"
+  },
+  {
+    "anchor_id": "412",
+    "anchor_text": "Bank Secrecy Act flagged $847B in suspicious activity last year. Same banks moved $3T undetected. The surveillance isn't broken. It's working exactly as designed",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "$3T moved undetected means detection itself is the product being sold, not prevention.",
+    "scheduled_at": "2026-05-15T18:00:19.788562+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-14T18:00:19.788562+00:00"
+  },
+  {
+    "anchor_id": "412",
+    "anchor_text": "Bank Secrecy Act flagged $847B in suspicious activity last year. Same banks moved $3T undetected. The surveillance isn't broken. It's working exactly as designed",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "We built systems to know everything about money. Money simply learned to exist where we aren't looking.",
+    "scheduled_at": "2026-05-16T02:00:19.788562+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-14T18:00:19.788562+00:00"
+  },
+  {
+    "anchor_id": "412",
+    "anchor_text": "Bank Secrecy Act flagged $847B in suspicious activity last year. Same banks moved $3T undetected. The surveillance isn't broken. It's working exactly as designed",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The scandal isn't that they missed $3T. It's that we thought they were trying to catch it.",
+    "scheduled_at": "2026-05-16T10:00:19.788562+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-14T18:00:19.788562+00:00"
+  },
+  {
+    "anchor_id": "415",
+    "anchor_text": "France pegged the franc to gold in 1873. Took 50 years and two wars before that peg broke. We're 15 years into fiat infinity mode and the bond market won't wait another 35",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Pegs don't break on schedule. They break when no one's willing to hold the bag anymore.",
+    "scheduled_at": "2026-05-16T02:00:21.643178+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-15T18:00:21.643178+00:00"
+  },
+  {
+    "anchor_id": "415",
+    "anchor_text": "France pegged the franc to gold in 1873. Took 50 years and two wars before that peg broke. We're 15 years into fiat infinity mode and the bond market won't wait another 35",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "France's mistake wasn't the peg. It was thinking 50 years was a long time to wait for reality.",
+    "scheduled_at": "2026-05-16T10:00:21.643178+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-15T18:00:21.643178+00:00"
+  },
+  {
+    "anchor_id": "415",
+    "anchor_text": "France pegged the franc to gold in 1873. Took 50 years and two wars before that peg broke. We're 15 years into fiat infinity mode and the bond market won't wait another 35",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The bond market reprices in months what takes governments decades to admit. That gap is your signal.",
+    "scheduled_at": "2026-05-16T18:00:21.643178+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-15T18:00:21.643178+00:00"
+  },
+  {
+    "anchor_id": "415",
+    "anchor_text": "France pegged the franc to gold in 1873. Took 50 years and two wars before that peg broke. We're 15 years into fiat infinity mode and the bond market won't wait another 35",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Gold anchored the franc to something. Fiat anchors itself to the faith that there's no alternative.",
+    "scheduled_at": "2026-05-17T02:00:21.643178+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-15T18:00:21.643178+00:00"
+  },
+  {
+    "anchor_id": "415",
+    "anchor_text": "France pegged the franc to gold in 1873. Took 50 years and two wars before that peg broke. We're 15 years into fiat infinity mode and the bond market won't wait another 35",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone's watching the dollar. The real tell is which governments quietly start buying gold again.",
+    "scheduled_at": "2026-05-17T10:00:21.643178+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-15T18:00:21.643178+00:00"
   }
 ]

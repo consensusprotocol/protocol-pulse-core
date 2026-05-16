@@ -1,61 +1,40 @@
 {
-  "generated_at": "2026-05-11T14:30:00Z",
-  "date": "Monday, May 11, 2026",
-  "btc_price": "$81,943",
-  "btc_change_24h": "+0.8%",
-  "fng": "Neutral (48/100)",
+  "generated_at": "2026-05-15T18:00:00Z",
+  "date": "Friday, May 15, 2026",
+  "btc_price": "$79,102",
+  "btc_change_24h": "-2.9%",
+  "fng": "Fear",
   "dominant_narratives": [
-    "Bitcoin as digital capital and treasury asset — institutional accumulation entering exponential phase (Saylor/MicroStrategy narrative dominance)",
-    "Digital Credit yield economy maturation — STRC/Pendle protocols enabling financial engineering to drain tradFi into Bitcoin",
-    "Regulatory warfare escalation — Banking cartel (ABA) in panic mode attempting to block Crypto Clarity Act; government attempting CBDC entrapment via stablecoin regulation",
-    "AI/Bitcoin convergence — Local AI improving 2x faster than Moore's Law; 5B smartphones running GPP-5.5-level models offline by 2028 creates new Bitcoin demand vectors",
-    "Adoption normalization — Dubai tax payments in BTC; taxation acceptance signals institutional legitimacy threshold crossed"
+    "Sovereign debt crisis and rising global bond yields",
+    "MicroStrategy's aggressive Bitcoin accumulation strategy",
+    "Bitcoin as superior store of value versus collapsing fiat bonds"
   ],
   "trending_language": [
-    "Banking cartel in full panic mode",
-    "Digital capital",
-    "Suck money out of tradFi into Bitcoin",
-    "Bitcoin is central banking replacement",
-    "Proof of work in the real economy",
-    "STRC Sharpe ratio engineering",
-    "Killer apps",
-    "No management fees, no lockups, daily liquidity"
+    "Japan is the canary in the coal mine",
+    "bond market breaking",
+    "Saylor buying back $1.5b notes"
   ],
-  "sentiment": "bullish",
-  "sentiment_reasoning": "Despite neutral Fear & Greed, community signal density shows high-conviction accumulation narratives (Saylor weekly $1B+ buys normalized), regulatory clarity as existential threat to legacy finance (not Bitcoin), and technological convergence thesis (local AI + Bitcoin sovereignty) gaining mainstream creator attention. Price consolidation at $81.9K reflects calm before institutional wave.",
+  "sentiment": "uncertain",
+  "sentiment_reasoning": "Price dip and Fear index reflect short-term macro pressure from bond turmoil, yet data shows continued institutional BTC buying amid fiat instability.",
   "top_accounts_active": [
-    "@saylor",
-    "@BitcoinArchive",
-    "@BitcoinMagazine",
-    "@TFTC21",
+    "@MartyBent",
     "@nvk",
-    "@knutsvanholm",
-    "@TheGuySwann",
-    "@CoinDesk",
-    "@BitcoinMagPro"
+    "@BitcoinMagazine"
   ],
   "recommended_tweet_angles": [
-    "Saylor's $43M daily BTC buys have become so routine that the community's emotional response is now *apathy toward magnitude*. This is the signal. Institutional absorption rate has crossed into invisibility. Chart the psychology.",
-    "ABA's desperation to block Crypto Clarity Act proves the thesis: legacy finance fears a *transparent market structure* more than Bitcoin itself. They're not fighting the asset—they're fighting the audit.",
-    "Local AI on consumer hardware improving 2x faster than Moore's Law creates new Bitcoin demand by 2028: 5B smartphones will need trustless, uncensored compute. Bitcoin = settlement layer for an offline-first world.",
-    "Digital Credit yield (9.4% YTD via STRC) isn't competing with tradFi returns—it's *replacing the entire intermediary*. No management fees. No lockups. Daily liquidity. This is financial engineering designed to drain tradFi systematically.",
-    "Dubai tax payments in Bitcoin signal: adoption has entered the *boring infrastructure phase*. When governments voluntarily accept it for revenue, the fight is over. They're just negotiating terms of surrender."
+    "Link Japan's 20Y yield spike to Bitcoin's scarcity narrative with exact yield numbers",
+    "Highlight Saylor's $1.5B note repurchase as fuel for record 2026 BTC buys",
+    "Push self-custody hardware solutions citing bond market seizure risks"
   ],
   "topics_to_avoid": [
-    "Price prediction/TA cheerleading — sentiment data shows sophisticated holders are numb to hype; focus on structural narratives instead",
-    "Geopolitical speculation divorced from Bitcoin mechanics (Venezuela statehood, Taiwan WHO attendance, etc. — noise without signal)",
-    "Performative social justice narratives — community signal shows fatigue with activism theater; focus on systems/incentives instead"
+    "Unrelated geopolitical scandals"
   ],
-  "engagement_patterns": "Data-dense, narrative-stacked posts outperforming. Saylor's financial engineering specifics (BTC yield %, acquisition costs, STRC mechanics) receive high engagement. Creator long-form audio content (Bitcoin Audible, TFTC podcasts) trending. Cynical/sardonic tone on regulatory overreach performs better than earnest appeals. Technical architecture discussions (local AI, protocol design) gaining traction. Charts with historical context (boomer pension math, housing expectation collapse) resonating.",
-  "protocol_pulse_voice_guidance": "Speak as a systems analyst, not a cheerleader. Lead with structural inevitability, not sentiment. Use adversary panic (ABA blocking Clarity Act, banking cartel desperation) as proof-of-work. Quantify financial engineering (yield rates, fee elimination, liquidity). Frame adoption in boring infrastructure terms (tax payments, hardware convergence) rather than revolutionary rhetoric. Maintain cypherpunk skepticism toward government intentions while noting their *inability to stop Bitcoin adoption at scale*. Data-first, cynicism-second, hope-optional.",
+  "engagement_patterns": "Short, data-backed threads tying specific bond yields and accumulation stats to Bitcoin's edge",
+  "protocol_pulse_voice_guidance": "Direct cypherpunk tone with precise numbers on yields and Saylor buys to expose fiat failure",
   "key_stats_today": {
-    "tweets_analyzed": 137,
+    "tweets_analyzed": 102,
     "nostr_signals": 0,
-    "unique_handles": 87,
-    "saylor_btc_acquisitions_discussed": 5,
-    "regulatory_threat_signals": 4,
-    "adoption_milestone_signals": 3,
-    "ai_convergence_signals": 3
+    "unique_handles": 67
   },
-  "generated_by": "claude_haiku"
+  "generated_by": "grok_fallback"
 }

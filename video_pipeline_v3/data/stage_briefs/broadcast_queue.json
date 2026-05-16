@@ -1,52 +1,63 @@
 [
   {
-    "id": "7172b773-f203-436b-bd67-4c216e9a753a",
+    "id": "0256b025-cc6e-4523-9c3a-dc8a9ef15061",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "**Bitcoin Evening Brief**\n\nBTC took a beating today\u2014down 2.6% to $79,067. We're firmly in Fear territory at 31 on the Greed Index, signaling capitulation sentiment across the market.\n\n**The setup:** Daily trading carved out meaningful pressure. We're watching support hold here\u2014any break below mid-78",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
+    "topic_preview": "Oracle Evening Brief \u2014 $79,067",
+    "generated_at": "2026-05-16T02:00:04.741504+00:00",
+    "expires_at": "2026-05-16T06:00:04.741504+00:00",
+    "video_url": "/data/stage_briefs/brief_20260516_0200.mp4"
+  },
+  {
+    "id": "9cc4b943-40d1-40b2-bc79-bdfc9b194a21",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Marty Bent just crystallized the institutional trap: Bitcoin ETFs capture price appreciation but hollow out the core property\u2014permissionless settlement. Current on-chain transaction volume: 340,000 daily, down 18% YTM despite spot ETF inflows exceeding $45 billion. Watch custody patterns next 90 days\u2014if self-sovereign node runners don",
-    "source_label": "\ud83e\udde0 @MARTYBENT",
-    "topic_preview": "It was a pleasure sitting down with @EricBalchunas to discuss the bitcoin ETFs.\n",
-    "generated_at": "2026-05-12T01:50:30.631644+00:00",
-    "expires_at": "2026-05-12T03:50:30.631644+00:00"
+    "script": "Nat Brunell pins the organizing principle: Bitcoin infrastructure scales like municipal systems, not financial products. On-chain transaction throughput hit 2,100 peak concurrent users last week\u2014proof that network geometry now constrains adoption, not ideology. Watch settlement finality times across regional node clusters; acceleration there signals institutional infrastructure maturation.",
+    "source_label": "\ud83e\udde0 @NATBRUNELL",
+    "topic_preview": "\"We're turning corporations into cities.\"\n\n#Bitcoin is growing like a city.\n\nDon",
+    "generated_at": "2026-05-16T03:45:33.074341+00:00",
+    "expires_at": "2026-05-16T05:45:33.074341+00:00"
   },
   {
-    "id": "78c2c07a-b918-42da-bd13-e99ceba323d0",
+    "id": "5be8f026-bd6c-4947-bec0-539cfc0843b0",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "METRICS PULSE \u2014 PROTOCOL SATOMI\n\nHashrate at 993.9 exahashes. Network absorbed the post-election volatility without flinching \u2014 that's structural strength.\n\nFear and Greed at 48: neutral zone. Price action flat at $81,737 after minor pullback. Watch block 949005 onward for",
+    "script": "Bitcoin trades at $79,122 \u2014 down 2.22% \u2014 while hashrate holds firm at 968.7 exahashes. Fear gauge at 31 signals capitulation pricing, not panic selling; watch whether $78k becomes support or capitulation deepens.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $81,737 \u00b7 FNG 48 \u00b7 993.9 EH/s",
-    "generated_at": "2026-05-11T22:41:02.262667+00:00",
-    "expires_at": "2026-05-12T02:41:02.262667+00:00"
+    "topic_preview": "BTC $79,122 \u00b7 FNG 31 \u00b7 968.7 EH/s",
+    "generated_at": "2026-05-16T02:25:56.648477+00:00",
+    "expires_at": "2026-05-16T06:25:56.648477+00:00"
   },
   {
-    "id": "a6d486c5-0be1-40e9-ade4-bf461759514f",
+    "id": "0e502a96-b43e-406e-b68b-a5ef357c808c",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "The narrative crystallizing across Nostr: Saylor's corporate accumulation model has survived institutional skepticism. MSTR trading back to relevance signals miners and institutions reading the same supply scarcity signal. Watch whether mining difficulty adjustment accelerates\u2014that's the actual tell.",
+    "script": "The institutional narrative has hardened: Bitcoin as balance sheet asset, not currency. Nostr relays show zero debate on this point anymore.\n\nWatch custody announcements next \u2014 they're the trailing indicator of conviction.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Saylor accumulation thesis vindicated \u2014 MSTR back to rele...",
-    "generated_at": "2026-05-11T22:16:21.775239+00:00",
-    "expires_at": "2026-05-12T02:16:21.775239+00:00"
+    "topic_preview": "Bitcoin as digital capital and treasury asset \u2014 instituti...",
+    "generated_at": "2026-05-16T03:16:22.838710+00:00",
+    "expires_at": "2026-05-16T07:16:22.838710+00:00"
   },
   {
-    "id": "5377a898-8494-4fd4-9219-b79808ac5eae",
+    "id": "273cc69e-ea5e-4cc9-b330-e8ecdf60805a",
     "type": "FILLER_INSIGHT",
     "priority": 5,
     "script": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year or more \u2014 consistently hold over sixty percent of all bitcoin supply. The conviction of this network's participants is unprecedented.",
     "source_label": "\ud83d\udca1 INSIGHT",
     "topic_preview": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year ",
-    "generated_at": "2026-05-11T22:26:07.522212+00:00",
-    "expires_at": "2026-05-12T02:26:07.522212+00:00"
+    "generated_at": "2026-05-16T02:11:20.819591+00:00",
+    "expires_at": "2026-05-16T06:11:20.819591+00:00"
   },
   {
-    "id": "18f6d678-e724-4345-9405-3878408dc7d8",
+    "id": "72088e58-cf45-4ad5-b0ea-f1fcd97182aa",
     "type": "FILLER_INSIGHT",
     "priority": 5,
     "script": "Bitcoin script is intentionally limited. No Turing completeness, no complex smart contracts on the base layer. This constraint is a security feature \u2014 the monetary layer should be boring and bulletproof.",
     "source_label": "\ud83d\udca1 INSIGHT",
     "topic_preview": "Bitcoin script is intentionally limited. No Turing completeness, no complex smar",
-    "generated_at": "2026-05-11T22:36:14.148173+00:00",
-    "expires_at": "2026-05-12T02:36:14.148173+00:00"
+    "generated_at": "2026-05-16T02:21:19.577139+00:00",
+    "expires_at": "2026-05-16T06:21:19.577139+00:00"
   }
 ]

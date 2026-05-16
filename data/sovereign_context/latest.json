@@ -1,35 +1,35 @@
 {
-  "timestamp": "2026-05-12T01:51:05.586933+00:00",
-  "block_height": 949017,
+  "timestamp": "2026-05-16T05:45:24.226811+00:00",
+  "block_height": 949611,
   "btc": {
-    "price": 81100,
-    "change_24h": -0.45,
+    "price": 78986,
+    "change_24h": -1.82,
     "change_7d": 0,
-    "market_cap": 1624278705592.4807,
-    "volume_24h": 32528571648.670757,
-    "dominance": 58.2
+    "market_cap": 1581383499901.5137,
+    "volume_24h": 33905279171.56392,
+    "dominance": 58.3
   },
   "fear_greed": {
-    "value": 49,
-    "label": "Neutral"
+    "value": 31,
+    "label": "Fear"
   },
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 1,
-    "unconfirmed": 102950,
-    "size_mb": 40.5
+    "unconfirmed": 152440,
+    "size_mb": 50.7
   },
   "network": {
-    "hashrate_eh": 999.8,
+    "hashrate_eh": 979.0,
     "difficulty": 0,
-    "next_adj_pct": 4.15,
-    "next_adj_blocks": 519
+    "next_adj_pct": -2.93,
+    "next_adj_blocks": 1941
   },
   "lightning": {
-    "capacity_btc": 5057.1,
-    "channels": 41109,
-    "nodes": 17438
+    "capacity_btc": 5700.5,
+    "channels": 42215,
+    "nodes": 17369
   },
   "kol": {
     "sentiment_score": 51,
@@ -40,7 +40,7 @@
       "macro",
       "mining"
     ],
-    "post_count_24h": 100,
+    "post_count_24h": 8,
     "dominant_sentiment": "bullish",
     "source": "tweets+transcripts"
   },
@@ -52,105 +52,91 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "Will MegaETH perform an airdrop by June 30? ",
-    "top_probability": 68.0
+    "top_probability": 70.3
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "Bitcoin holding steady at eighty-one thousand\u2014up point-eight percent overnight. Fear and Greed Index sits neutral at forty-seven, signaling mixed conviction despite macro tailwinds.\n\nHere's the signal",
-    "brief_type": "midday"
+    "narrative": "**Bitcoin Evening Brief**\n\nBTC took a beating today\u2014down 2.6% to $79,067. We're firmly in Fear territory at 31 on the Greed Index, signaling capitulation sentiment across the market.\n\n**The setup:** D",
+    "brief_type": "evening"
   },
   "whale_alerts": [
     {
       "tier": "NOTE",
-      "rule": "Block timing anomaly",
-      "message": "Block timing anomaly: avg 940.4s/block over last 10 blocks",
-      "score": 45,
-      "created_at": 1778549692.848529
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 518.61 BTC unconfirmed b950fc0f...",
+      "score": 10,
+      "created_at": 1778908913.5094244
+    },
+    {
+      "tier": "NOTE",
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: F2Pool at 50% of last 10 blocks",
+      "score": 30,
+      "created_at": 1778908494.9714496
+    },
+    {
+      "tier": "NOTE",
+      "rule": "Hashrate concentration",
+      "message": "Hashrate concentration: F2Pool at 50% of last 10 blocks",
+      "score": 30,
+      "created_at": 1778908494.8704407
+    },
+    {
+      "tier": "WATCH",
+      "rule": "CONVERGENCE",
+      "message": "Convergence ALERT \u2014 3 signals aligned",
+      "score": 60,
+      "created_at": 1778907351.4240267
     },
     {
       "tier": "NOTE",
       "rule": "Hashrate concentration",
       "message": "Hashrate concentration: Foundry USA at 50% of last 10 blocks",
-      "score": 45,
-      "created_at": 1778549692.544463
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 108.62 BTC unconfirmed bb49f0c3...",
-      "score": 10,
-      "created_at": 1778548119.3080344
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 137.98 BTC unconfirmed 254291d8...",
-      "score": 10,
-      "created_at": 1778531775.5692098
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 305.59 BTC unconfirmed 74800302...",
-      "score": 10,
-      "created_at": 1778528811.4007413
+      "score": 30,
+      "created_at": 1778897089.3595002
     }
   ],
   "macro": {
-    "dxy": 98.13,
-    "gold_price": 4734.7,
-    "sp500": 7414.75,
-    "btc_vs_gold_30d_corr": 0.067,
-    "btc_vs_dxy_30d_corr": -0.319,
+    "dxy": 99.27,
+    "gold_price": 4555.8,
+    "sp500": 7432.25,
+    "btc_vs_gold_30d_corr": 0.166,
+    "btc_vs_dxy_30d_corr": -0.321,
     "real_yield": null,
-    "ten_year_yield": 4.41
+    "ten_year_yield": 4.59
   },
   "options": {
-    "put_call_ratio": 0.635,
-    "dvol": 38.6,
+    "put_call_ratio": 0.691,
+    "dvol": 39.1,
     "max_pain": 80000.0,
-    "total_call_oi": 232733.9,
-    "total_put_oi": 147884.3,
-    "total_oi_btc": 380618.2,
-    "avg_mark_iv": 47.4
+    "total_call_oi": 232612.1,
+    "total_put_oi": 160687.5,
+    "total_oi_btc": 393299.6,
+    "avg_mark_iv": 46.2
   },
   "futures": {
-    "funding_rate": 1.13e-06,
-    "annualized_basis": 0.12,
-    "open_interest": 26586.98,
-    "open_interest_usd": 2158157890.0,
+    "funding_rate": 0.0,
+    "annualized_basis": 0.0,
+    "open_interest": 27425.78,
+    "open_interest_usd": 2166280550.0,
     "long_short_ratio": null,
-    "mark_price": 81173.47,
-    "index_price": 81173.49,
-    "basis_pct": 0.0344
+    "mark_price": 78978.44,
+    "index_price": 78987.02,
+    "basis_pct": -0.0124
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 5575998.0,
-    "active_addresses_7d": 707428.0,
-    "tx_volume_usd_7d": 53424250763.0,
-    "nvt_ratio": 25.5,
-    "accumulation_score": 80
+    "coin_days_destroyed_7d": 4321228.0,
+    "active_addresses_7d": 645590.0,
+    "tx_volume_usd_7d": 55488416262.0,
+    "nvt_ratio": 24.5,
+    "accumulation_score": 85
   },
-  "active_alerts": [
-    {
-      "pattern_id": "POLYMARKET_CONFIRM",
-      "title": "Market consensus shifting",
-      "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
-      "severity": "WATCH",
-      "ts": "2026-05-12T01:51:07.235955+00:00",
-      "data": {
-        "poly_sentiment": 74,
-        "kol_posts": 100
-      }
-    }
-  ],
-  "pattern_matches": [
-    "POLYMARKET_CONFIRM"
-  ],
+  "active_alerts": [],
+  "pattern_matches": [],
   "indices": {
     "miner_conviction": {
-      "score": 67.5,
+      "score": 67.7,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -165,44 +151,44 @@
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 62.2,
+      "score": 62.3,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 77.5,
+      "score": 76.5,
       "pattern": "BULLISH",
-      "fragmentation": 13.6,
-      "momentum": 60.3,
-      "conviction": 58.9,
+      "fragmentation": 13.7,
+      "momentum": 60.4,
+      "conviction": 54.6,
       "thesis": "miner_absorption_under_fear",
-      "confidence": 0.76
+      "confidence": 0.71
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 5.95,
-      "btc_market_cap": 1618570587295.0134,
-      "stablecoin_market_cap": 272053258008.62308,
+      "value": 5.83,
+      "btc_market_cap": 1581505437048.3167,
+      "stablecoin_market_cap": 271495445190.9852,
       "signal": "BULLISH",
       "description": "Healthy stablecoin reserves available for BTC purchasing",
       "source": "coingecko_derived"
     },
     "mpi": {
-      "value": -0.075,
-      "cdd_7d": 5548114.0,
-      "cdd_ratio": 0.92,
-      "hashrate_eh": 999.8,
+      "value": -0.286,
+      "cdd_7d": 4321228.0,
+      "cdd_ratio": 0.72,
+      "hashrate_eh": 979.0,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 25.0,
+      "value": 32.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-05-12T01:50:05.265623+00:00"
+    "timestamp": "2026-05-16T05:40:27.499872+00:00"
   }
 }

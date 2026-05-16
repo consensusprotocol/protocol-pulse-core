@@ -349,7 +349,7 @@ def overlay_pip_on_narration(narration_path: str, pip_path: str,
         f"x=12:y=h-38:box=1:boxcolor={COLOR_BG}@0.5:boxborderw=6,format=yuva420p[pip];"
         f"[bg_shadow][pip]overlay=1056:140:enable='lte(t,{pip_dur})',format=yuv420p[outv]",
         "-map", "[outv]", "-map", "0:a",
-        "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
         "-b:v", "8M", "-maxrate", "10M", "-bufsize", "15M",
         "-c:a", "copy", "-shortest",
         output_path,
@@ -648,7 +648,7 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        ["-c:v", "libx264", "-crf", "17", "-preset", "fast",
          "-b:v", "8M", "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          "-t", str(total_dur)],
         output_path, "narrator+pip split", 300,
@@ -877,7 +877,7 @@ def make_host_visual(audio_path: str, host: int, text: str,
 
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        ["-c:v", "libx264", "-crf", "17", "-preset", "fast",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
         output_path, label or f"host visual ({speaker})", 180,
