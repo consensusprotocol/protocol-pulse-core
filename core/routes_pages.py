@@ -3692,3 +3692,15 @@ def api_access_page():
     """Public pricing page for LSAT-gated endpoints."""
     from services.lsat_service import ENDPOINT_PRICING, LIGHTNING_ADDRESS
     return render_template('api_access.html', pricing=ENDPOINT_PRICING, lightning_address=LIGHTNING_ADDRESS)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Faye scam-check tool — registered here because routes_pages.py
+# is loaded reliably (unlike late conditional registrations in app.py)
+# ─────────────────────────────────────────────────────────────────────
+try:
+    from routes_faye import faye_bp as _faye_bp
+    app.register_blueprint(_faye_bp)
+    logging.info("[faye] blueprint registered via routes_pages — /faye + /api/faye/analyze live")
+except Exception as _faye_err:
+    logging.warning("[faye] blueprint registration failed: %s", _faye_err)

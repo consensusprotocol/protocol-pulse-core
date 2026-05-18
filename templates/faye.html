@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0A0A0A" />
+<title>Faye — Is it real?</title>
+<meta name="description" content="Point your phone at anything. Find out if it's a scam before you lose everything." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --bg:#0A0A0A;
+    --bg-2:#0D0D0D;
+    --ink:#EDEDED;
+    --mute:#6E6E6E;
+    --line:#1A1A1A;
+    --red:#CC0000;
+    --red-deep:#880000;
+    --red-soft:#FF4444;
+    --ok:#9BB89B;     /* desaturated sage — never bright "trust me" green */
+    --warn:#C9A66B;   /* warm amber for inconclusive */
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"JetBrains Mono", ui-monospace, monospace;
+    font-weight:300;
+    overflow:hidden;
+    overscroll-behavior:none;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+
+  /* subtle film grain */
+  body::after{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;
+    background-image:
+      radial-gradient(rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size:3px 3px;
+    mix-blend-mode:overlay;
+    opacity:.6;
+    z-index:50;
+  }
+
+  .stage{
+    position:fixed;inset:0;
+    display:grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow-y:auto;
+  }
+
+  /* header */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:22px 24px 0;
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--mute);
+  }
+  header .mark{
+    font-family:"Fraunces", serif;
+    font-weight:400;
+    font-size:18px;
+    letter-spacing:.04em;
+    text-transform:none;
+    color:var(--ink);
+  }
+  header .mark em{
+    font-style:italic;
+    color:var(--red);
+    font-weight:500;
+  }
+  header .dot{
+    display:inline-block;
+    width:6px;height:6px;border-radius:50%;
+    background:var(--red);
+    box-shadow:0 0 12px var(--red);
+    margin-right:8px;
+    animation:dot 2.4s ease-in-out infinite;
+    vertical-align:middle;
+  }
+  @keyframes dot{
+    0%,100%{opacity:.35}
+    50%{opacity:1}
+  }
+
+  /* core */
+  main{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:20px 24px 0;
+    position:relative;
+    min-height: 56vh;
+  }
+
+  .orb-wrap{
+    position:relative;
+    width:min(62vw, 320px);
+    aspect-ratio:1/1;
+    display:grid;
+    place-items:center;
+  }
+  canvas#orb{
+    width:100%;height:100%;
+    display:block;
+    border-radius:50%;
+  }
+
+  .status{
+    margin-top:36px;
+    min-height:108px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .status .verdict{
+    font-family:"Fraunces", serif;
+    font-weight:400;
+    font-size:clamp(28px, 7vw, 40px);
+    line-height:1.05;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+    transition: color .8s ease, transform .8s ease;
+  }
+  .status .verdict em{ font-style:italic; font-weight:500; }
+  .status .sub{
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--mute);
+    max-width:30ch;
+    line-height:1.5;
+  }
+
+  /* state colors */
+  .state-scam .verdict{ color:var(--red-soft); }
+  .state-ok   .verdict{ color:var(--ok); }
+  .state-warn .verdict{ color:var(--warn); }
+
+  /* controls */
+  footer{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+    padding:0 24px 28px;
+  }
+  .actions{
+    display:flex;
+    gap:18px;
+  }
+  .btn{
+    -webkit-appearance:none;
+    appearance:none;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--ink);
+    width:68px;height:68px;
+    border-radius:50%;
+    display:grid;place-items:center;
+    cursor:pointer;
+    transition: border-color .2s ease, transform .15s ease, background .2s ease;
+    backdrop-filter: blur(8px);
+  }
+  .btn:hover{ border-color:#2A2A2A; }
+  .btn:active{ transform:scale(.95); }
+  .btn.armed{
+    border-color:var(--red);
+    background:rgba(204,0,0,.06);
+    box-shadow:0 0 0 6px rgba(204,0,0,.04);
+  }
+  .btn svg{ width:24px;height:24px; stroke:currentColor; fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;}
+  .btn-label{
+    font-size:10px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--mute);
+  }
+  .btn[disabled]{ opacity:.4; pointer-events:none; }
+
+  .reset{
+    margin-top:4px;
+    background:none;border:none;
+    color:var(--mute);
+    font-family:inherit;
+    font-size:10px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    cursor:pointer;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .reset.show{ opacity:1; pointer-events:auto; }
+  .reset:hover{ color:var(--ink); }
+
+  .memorial{
+    text-align:center;
+    font-size:10px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:#444;
+    margin-top:8px;
+  }
+  .memorial em{
+    font-family:"Fraunces", serif;
+    font-style:italic;
+    text-transform:none;
+    letter-spacing:.02em;
+    color:var(--mute);
+    font-size:12px;
+    display:block;
+    margin-top:4px;
+  }
+
+  /* ── donation: footer link + post-verdict nudge ───────────────── */
+  .donate-link{
+    margin-top: 14px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color: var(--mute);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border: 1px solid #1A1A1A;
+    border-radius: 999px;
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .donate-link:hover{
+    color: var(--ink);
+    border-color: var(--red);
+    background: rgba(204,0,0,.05);
+  }
+  .donate-link .zap{
+    color: var(--red);
+    font-size: 13px;
+  }
+
+  .nudge{
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1px solid #1A1A1A;
+    border-radius: 6px;
+    background: rgba(204,0,0,.04);
+    max-width: 32ch;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .5s ease, transform .5s ease;
+    pointer-events: none;
+  }
+  .nudge.show{
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .nudge .kicker{
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 4px;
+    line-height: 1.35;
+  }
+  .nudge .joke{
+    font-size: 11px;
+    color: var(--mute);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .nudge a{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    color: var(--red-soft);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .nudge a:hover{ color: var(--ink); }
+
+  /* ── THE RULES — top-of-page safety creed ───────────────────── */
+  .rules{
+    margin: 18px 22px 4px;
+    padding: 18px 18px 16px;
+    border: 1px solid #1F1F1F;
+    border-left: 2px solid var(--red);
+    border-radius: 4px;
+    background: linear-gradient(180deg, rgba(204,0,0,0.035) 0%, rgba(204,0,0,0) 100%);
+    max-width: 640px;
+    width: calc(100% - 44px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .rules .eyebrow{
+    font-size:10px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--red);
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .rules .eyebrow::before{
+    content:"";
+    width:4px;height:4px;border-radius:50%;
+    background:var(--red);
+    box-shadow:0 0 8px var(--red);
+  }
+  .rules h2{
+    font-family:"Fraunces", serif;
+    font-weight:400;
+    font-size:clamp(18px, 4.5vw, 22px);
+    line-height:1.25;
+    letter-spacing:-0.015em;
+    color:var(--ink);
+    margin-bottom:14px;
+  }
+  .rules h2 em{
+    font-style:italic;
+    font-weight:500;
+  }
+  .rules ol{
+    list-style:none;
+    counter-reset:rule;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .rules ol li{
+    counter-increment:rule;
+    position:relative;
+    padding-left:26px;
+    font-size:13px;
+    line-height:1.55;
+    color:#C8C8C8;
+    letter-spacing:0.01em;
+  }
+  .rules ol li::before{
+    content: counter(rule, decimal-leading-zero);
+    position:absolute;
+    left:0; top:1px;
+    font-family:"JetBrains Mono", monospace;
+    font-size:10px;
+    color:var(--red);
+    letter-spacing:.06em;
+    padding-top:3px;
+  }
+  .rules ol li b{
+    color:var(--ink);
+    font-weight:500;
+  }
+  .rules ol li .scam-word{
+    color:var(--red-soft);
+    font-weight:500;
+  }
+
+  /* bridge between rules and tool */
+  .bridge{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding: 22px 0 6px;
+    color: var(--mute);
+    font-size: 11px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+  }
+  .bridge::before, .bridge::after{
+    content:"";
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #222, transparent);
+  }
+  .bridge span{
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: #888;
+    font-weight: 400;
+  }
+
+  /* hidden inputs */
+  #file-cam, #file-fallback{ position:absolute; left:-9999px; }
+
+  /* permission overlay */
+  .toast{
+    position:fixed;
+    left:50%;transform:translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom) + 24px);
+    background:rgba(20,20,20,.92);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:12px 16px;
+    border-radius:6px;
+    font-size:12px;
+    letter-spacing:.04em;
+    backdrop-filter: blur(10px);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:60;
+    max-width:84vw;
+    text-align:center;
+  }
+  .toast.show{ opacity:1; }
+
+  @media (min-width: 640px){
+    .orb-wrap{ width:min(40vw, 380px); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001s !important; transition-duration:.001s !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <header>
+    <div class="mark">faye<em>.</em></div>
+    <div><span class="dot"></span>live</div>
+  </header>
+
+  <section class="rules" aria-label="Safety rules — read first">
+    <div class="eyebrow">Read this first</div>
+    <h2>Three rules. Memorize them. They will save your money.</h2>
+    <ol>
+      <li><b>Anyone asking for your seed phrase, PIN, or wallet access is a <span class="scam-word">scammer</span>.</b> No exceptions. Ledger will never ask. Trezor will never ask. Your exchange will never ask. Real support never needs your keys.</li>
+      <li><b>Do not trust messages that come to you.</b> Not email. Not phone calls. Not SMS. Not DMs. Not chat support. If they reached out first, assume it's fake until you verify it independently — by typing the company's URL yourself or calling the number on the back of your card.</li>
+      <li><b>"Urgent security problem with your account" is a <span class="scam-word">red flag</span>, every time.</b> Real companies don't pressure you. They don't threaten loss of access. They don't have 24-hour countdowns. If it feels rushed, walk away.</li>
+    </ol>
+  </section>
+
+  <div class="bridge" aria-hidden="true">
+    <span>Still not sure?</span>
+  </div>
+
+  <main>
+    <div class="orb-wrap">
+      <canvas id="orb" width="720" height="720" aria-hidden="true"></canvas>
+    </div>
+
+    <div class="status" id="status">
+      <div class="verdict" id="verdict">Not sure? Let me check it.</div>
+      <div class="sub" id="sub">Tap the camera or microphone. I'll cross-reference what you're seeing.</div>
+    </div>
+
+    <div class="nudge" id="nudge" role="complementary" aria-live="polite">
+      <div class="kicker" id="nudgeKicker">If Faye helped, throw us some sats.</div>
+      <div class="joke">Customary tip if we saved your savings: <em>10% of whatever you didn't lose</em>. Just kidding. Whatever you can spare keeps this free for the next person.</div>
+      <a href="/donate" target="_blank" rel="noopener">
+        <span style="color:var(--red);">⚡</span> Send sats →
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="actions">
+      <button class="btn" id="btn-cam" aria-label="Capture image">
+        <svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="4"/></svg>
+      </button>
+      <button class="btn" id="btn-mic" aria-label="Record voice or audio">
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+      </button>
+    </div>
+    <button class="reset" id="btn-reset">Check something else</button>
+
+    <a class="donate-link" href="/donate" target="_blank" rel="noopener">
+      <span class="zap">⚡</span> Support Faye
+    </a>
+
+    <div class="memorial">
+      <em>In honor of Karen Faye.</em>
+      so it doesn't happen again.
+    </div>
+  </footer>
+
+</div>
+
+<input type="file" id="file-cam" accept="image/*" capture="environment" />
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   FAYE — minimalist scam-check UI
+   Backend endpoint (to wire): POST /api/faye/analyze
+   ========================================================= */
+
+const $verdict = document.getElementById('verdict');
+const $sub     = document.getElementById('sub');
+const $status  = document.getElementById('status');
+const $btnCam  = document.getElementById('btn-cam');
+const $btnMic  = document.getElementById('btn-mic');
+const $btnReset= document.getElementById('btn-reset');
+const $fileCam = document.getElementById('file-cam');
+const $toast   = document.getElementById('toast');
+
+let STATE = 'idle'; // idle | capturing | analyzing | scam | ok | warn | error
+let mediaRecorder = null;
+let audioChunks = [];
+
+function setState(next, opts={}){
+  STATE = next;
+  $status.classList.remove('state-scam','state-ok','state-warn');
+  if(next === 'scam') $status.classList.add('state-scam');
+  if(next === 'ok')   $status.classList.add('state-ok');
+  if(next === 'warn') $status.classList.add('state-warn');
+
+  const map = {
+    idle:      { v: "Not sure? Let me check it.", s: "Tap the camera or microphone. I'll cross-reference what you're seeing." },
+    capturing: { v: "Hold steady…",                     s: "Capturing what you're seeing." },
+    listening: { v: "Listening…",                        s: "Speak the message or play the call out loud." },
+    analyzing: { v: "Cross-checking…",                   s: "Searching X, the open web, and known scam patterns." },
+    scam:      { v: opts.title || "Likely a scam.",      s: opts.reason || "Do not click. Do not sign. Do not send funds." },
+    ok:        { v: opts.title || "Looks legitimate.",   s: opts.reason || "No fraud patterns matched. Verify the source independently." },
+    warn:      { v: opts.title || "Inconclusive.",       s: opts.reason || "Not enough signal. When in doubt — walk away." },
+    error:     { v: "Service is warming up.",            s: "Try again in a moment." }
+  };
+  const m = map[next] || map.idle;
+  $verdict.textContent = m.v;
+  $sub.textContent = m.s;
+
+  $btnReset.classList.toggle('show', ['scam','ok','warn','error'].includes(next));
+  $btnCam.toggleAttribute('disabled', ['capturing','listening','analyzing'].includes(next));
+  $btnMic.toggleAttribute('disabled', ['capturing','listening','analyzing'].includes(next));
+
+  // Donation nudge: show after a verdict lands; hide on idle/active states
+  const $nudge = document.getElementById('nudge');
+  const $nudgeKicker = document.getElementById('nudgeKicker');
+  if (['scam','ok','warn'].includes(next)){
+    if (next === 'scam')      $nudgeKicker.textContent = "Glad we caught it. Help us catch the next one.";
+    else if (next === 'warn') $nudgeKicker.textContent = "When in doubt — walk away. And if Faye helped, throw us some sats.";
+    else                      $nudgeKicker.textContent = "If Faye helped, throw us some sats.";
+    $nudge.classList.add('show');
+  } else {
+    $nudge.classList.remove('show');
+  }
+}
+
+function toast(msg, ms=2400){
+  $toast.textContent = msg;
+  $toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> $toast.classList.remove('show'), ms);
+}
+
+/* =========================================================
+   ORB — Canvas 2D, breathing / pulsing / locked verdict
+   ========================================================= */
+const canvas = document.getElementById('orb');
+const ctx = canvas.getContext('2d');
+const DPR = Math.min(2, window.devicePixelRatio || 1);
+
+function sizeCanvas(){
+  const r = canvas.getBoundingClientRect();
+  canvas.width  = r.width  * DPR;
+  canvas.height = r.height * DPR;
+}
+new ResizeObserver(sizeCanvas).observe(canvas);
+sizeCanvas();
+
+let t0 = performance.now();
+
+const PALETTES = {
+  idle:      { core:[255, 70, 70], aura:[204, 0, 0], outer:[136,0,0] },
+  capturing: { core:[255,120,80],  aura:[230, 40, 30], outer:[136,0,0] },
+  listening: { core:[255,120,80],  aura:[230, 40, 30], outer:[136,0,0] },
+  analyzing: { core:[255,180,80],  aura:[220, 80, 30], outer:[120,30,0] },
+  scam:      { core:[255, 30, 30], aura:[200, 0, 0],   outer:[80,0,0] },
+  ok:        { core:[230,235,225], aura:[155, 184, 155], outer:[40,60,40] },
+  warn:      { core:[230,200,140], aura:[201,166,107], outer:[60,40,10] },
+  error:     { core:[180,180,180], aura:[110,110,110], outer:[40,40,40] }
+};
+
+function lerp(a,b,t){ return a + (b-a)*t; }
+function lerpRGB(a,b,t){ return [lerp(a[0],b[0],t), lerp(a[1],b[1],t), lerp(a[2],b[2],t)]; }
+function rgba(c,a){ return `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`; }
+
+let palCur = { ...PALETTES.idle };
+let palTarget = { ...PALETTES.idle };
+
+function setPalette(name){
+  palTarget = PALETTES[name] || PALETTES.idle;
+}
+
+function draw(now){
+  const t = (now - t0) / 1000;
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const R = Math.min(W,H)/2 * 0.86;
+
+  // ease palette toward target
+  const ease = 0.04;
+  palCur.core  = lerpRGB(palCur.core,  palTarget.core,  ease);
+  palCur.aura  = lerpRGB(palCur.aura,  palTarget.aura,  ease);
+  palCur.outer = lerpRGB(palCur.outer, palTarget.outer, ease);
+
+  ctx.clearRect(0,0,W,H);
+
+  // breathing amplitude by state
+  let amp = 0.04, speed = 1.0, swirl = 0;
+  if(STATE === 'idle')      { amp = 0.035; speed = 0.9; }
+  if(STATE === 'capturing' || STATE === 'listening'){ amp = 0.07; speed = 2.0; }
+  if(STATE === 'analyzing') { amp = 0.06;  speed = 2.6; swirl = 1; }
+  if(STATE === 'scam')      { amp = 0.09;  speed = 3.4; }
+  if(STATE === 'ok')        { amp = 0.025; speed = 0.7; }
+  if(STATE === 'warn')      { amp = 0.04;  speed = 1.4; }
+
+  const breathe = 1 + Math.sin(t*speed) * amp + Math.sin(t*speed*0.37)*amp*0.4;
+  const r = R * breathe;
+
+  // outer aura (very soft)
+  const g1 = ctx.createRadialGradient(cx,cy,r*0.4, cx,cy,r*1.6);
+  g1.addColorStop(0, rgba(palCur.aura, 0.32));
+  g1.addColorStop(0.5, rgba(palCur.outer, 0.10));
+  g1.addColorStop(1, rgba(palCur.outer, 0));
+  ctx.fillStyle = g1;
+  ctx.beginPath(); ctx.arc(cx,cy,r*1.6,0,Math.PI*2); ctx.fill();
+
+  // body
+  const g2 = ctx.createRadialGradient(cx - r*0.25, cy - r*0.25, r*0.05, cx, cy, r);
+  g2.addColorStop(0, rgba(palCur.core, 0.95));
+  g2.addColorStop(0.45, rgba(palCur.aura, 0.55));
+  g2.addColorStop(1, rgba(palCur.outer, 0.05));
+  ctx.fillStyle = g2;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+
+  // analyzing swirl — orbiting highlight
+  if(swirl){
+    for(let i=0;i<3;i++){
+      const a = t*1.8 + i*(Math.PI*2/3);
+      const px = cx + Math.cos(a)*r*0.55;
+      const py = cy + Math.sin(a)*r*0.55;
+      const gs = ctx.createRadialGradient(px,py,0, px,py, r*0.45);
+      gs.addColorStop(0, rgba(palCur.core, 0.55));
+      gs.addColorStop(1, rgba(palCur.core, 0));
+      ctx.fillStyle = gs;
+      ctx.beginPath(); ctx.arc(px,py,r*0.45,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  // inner specular highlight
+  const g3 = ctx.createRadialGradient(cx - r*0.3, cy - r*0.35, 0, cx - r*0.3, cy - r*0.35, r*0.5);
+  g3.addColorStop(0, 'rgba(255,255,255,0.22)');
+  g3.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g3;
+  ctx.beginPath(); ctx.arc(cx - r*0.3, cy - r*0.35, r*0.5, 0, Math.PI*2); ctx.fill();
+
+  // rim
+  ctx.lineWidth = Math.max(1, r * 0.004);
+  ctx.strokeStyle = rgba(palCur.aura, 0.35);
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* =========================================================
+   CAMERA CAPTURE — uses native file input with capture=environment
+   Most reliable cross-device path. Falls back to gallery picker.
+   ========================================================= */
+$btnCam.addEventListener('click', ()=>{
+  if(STATE !== 'idle' && !['scam','ok','warn','error'].includes(STATE)) return;
+  $btnCam.classList.add('armed');
+  $fileCam.click();
+  setTimeout(()=> $btnCam.classList.remove('armed'), 600);
+});
+
+$fileCam.addEventListener('change', async (e)=>{
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  setState('capturing');
+  setPalette('capturing');
+  await new Promise(r=>setTimeout(r,500));
+  setState('analyzing');
+  setPalette('analyzing');
+  try{
+    const fd = new FormData();
+    fd.append('kind','image');
+    fd.append('file', f, f.name || 'capture.jpg');
+    const verdict = await analyze(fd);
+    applyVerdict(verdict);
+  }catch(err){
+    console.error(err);
+    setState('error');
+    setPalette('error');
+  }finally{
+    $fileCam.value = '';
+  }
+});
+
+/* =========================================================
+   MIC — MediaRecorder, max 8 seconds
+   ========================================================= */
+$btnMic.addEventListener('click', async ()=>{
+  if(STATE === 'listening'){
+    stopRecording();
+    return;
+  }
+  if(STATE !== 'idle' && !['scam','ok','warn','error'].includes(STATE)) return;
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    audioChunks = [];
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+               : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+               : '';
+    mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+    mediaRecorder.ondataavailable = e => { if(e.data && e.data.size) audioChunks.push(e.data); };
+    mediaRecorder.onstop = onRecordingStop;
+    mediaRecorder.start();
+    setState('listening');
+    setPalette('listening');
+    $btnMic.classList.add('armed');
+    toast('Tap mic again to stop. Auto-stops in 8s.');
+    setTimeout(()=> { if(STATE === 'listening') stopRecording(); }, 8000);
+  }catch(err){
+    console.error(err);
+    toast('Microphone permission denied.');
+  }
+});
+
+function stopRecording(){
+  try{ mediaRecorder && mediaRecorder.state !== 'inactive' && mediaRecorder.stop(); }catch(e){}
+  if(mediaRecorder && mediaRecorder.stream){
+    mediaRecorder.stream.getTracks().forEach(t=>t.stop());
+  }
+  $btnMic.classList.remove('armed');
+}
+
+async function onRecordingStop(){
+  setState('analyzing');
+  setPalette('analyzing');
+  try{
+    const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+    const fd = new FormData();
+    fd.append('kind','audio');
+    fd.append('file', blob, 'capture.webm');
+    const verdict = await analyze(fd);
+    applyVerdict(verdict);
+  }catch(err){
+    console.error(err);
+    setState('error');
+    setPalette('error');
+  }
+}
+
+/* =========================================================
+   BACKEND CALL
+   ========================================================= */
+async function analyze(formData){
+  // Endpoint to be wired on Ultron: POST /api/faye/analyze
+  // Returns: { verdict: 'scam'|'ok'|'warn', title: string, reason: string }
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=> ctrl.abort(), 25000);
+  try{
+    const res = await fetch('/api/faye/analyze', {
+      method:'POST',
+      body: formData,
+      signal: ctrl.signal,
+      headers: { 'Accept':'application/json' }
+    });
+    clearTimeout(timer);
+    if(!res.ok){
+      if(res.status === 404){
+        // backend not yet deployed — return a graceful inconclusive verdict
+        return { verdict:'warn', title:'Service is warming up.', reason:'Backend not yet live. Treat as inconclusive.' };
+      }
+      throw new Error('http '+res.status);
+    }
+    return await res.json();
+  }catch(err){
+    clearTimeout(timer);
+    if(err.name === 'AbortError'){
+      return { verdict:'warn', title:'Took too long.', reason:'Network slow. Treat as inconclusive — when in doubt, walk away.' };
+    }
+    throw err;
+  }
+}
+
+function applyVerdict(v){
+  const verdict = (v && v.verdict) || 'warn';
+  setPalette(verdict);
+  setState(verdict, { title: v.title, reason: v.reason });
+  // haptic for scam
+  if(verdict === 'scam' && navigator.vibrate){ navigator.vibrate([40,60,40,60,200]); }
+  else if(navigator.vibrate){ navigator.vibrate(20); }
+}
+
+/* RESET */
+$btnReset.addEventListener('click', ()=>{
+  setPalette('idle');
+  setState('idle');
+});
+
+/* prevent pull-to-refresh chaos on mobile */
+document.addEventListener('touchmove', e=>{ if(e.touches.length>1) e.preventDefault(); }, { passive:false });
+
+</script>
+</body>
+</html>
