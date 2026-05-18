@@ -32,7 +32,10 @@
   }
 
   /* Reset base layout to give us a full-width admin canvas */
-  .pp-main { padding: 0 !important; }
+  /* Override base.html .pp-main animation -- the translateY(0) end-state creates a containing block
+     for position:fixed descendants, which detaches the admin sidebar from the viewport and hides it
+     on desktop. animation:none + transform:none restores normal viewport-anchored fixed positioning. */
+  .pp-main { padding: 0 !important; animation: none !important; transform: none !important; }
   body { background: var(--ad-bg); color: var(--ad-text); font-family: var(--ad-mono); }
 
   /* ===== SIDEBAR ===== */
