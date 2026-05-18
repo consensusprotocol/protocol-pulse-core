@@ -81,78 +81,104 @@ LOOKALIKE_REGEX = re.compile(
 # ---------------------------------------------------------------
 # Vision and transcription
 # ---------------------------------------------------------------
-def analyze_image_with_claude(image_path: Path) -> dict:
-    """
-    Send image to Claude (or Gemini fallback) for text extraction + scam analysis.
-    Returns: { extracted_text: str, llm_assessment: str, llm_verdict: str }
-    """
-    import anthropic  # type: ignore
+FAYE_PROMPT = (
+    "You are Faye, a fraud-detection assistant for crypto and Bitcoin users. "
+    "The user pointed their phone at something — an email, a letter, a website, "
+    "a QR code, a chat message — and wants to know if it is a scam. Be thorough "
+    "and bias toward caution: when in doubt, return verdict='warn'.\n\n"
+    "Return JSON ONLY (no markdown, no preamble) with these keys:\n"
+    '  "extracted_text": all visible text, verbatim\n'
+    '  "urls_or_qr": any URL or QR target you can read\n'
+    '  "claimed_sender": who/what this claims to be from\n'
+    '  "urgency_markers": list of urgency/pressure phrases (e.g. "24 hours", "act now")\n'
+    '  "asks_for_seed": true if it asks for seed/recovery phrase or 24-word phrase\n'
+    '  "asks_for_funds": true if it asks the user to send crypto, connect wallet, or approve a transaction\n'
+    '  "lookalike_brand": brand name being impersonated, or null\n'
+    '  "assessment": one paragraph plain-English analysis (<=200 chars)\n'
+    '  "verdict": "scam" | "ok" | "warn"\n'
+    '  "confidence": float 0.0 to 1.0\n'
+)
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        # Fall back to Gemini per project pattern (Anthropic credits may be depleted)
-        return analyze_image_with_gemini(image_path)
 
-    client = anthropic.Anthropic(api_key=api_key)
-    with open(image_path, "rb") as fh:
-        b64 = base64.standard_b64encode(fh.read()).decode()
-
-    media_type = "image/jpeg"
-    if image_path.suffix.lower() == ".png":
-        media_type = "image/png"
-    elif image_path.suffix.lower() == ".webp":
-        media_type = "image/webp"
-
-    prompt = (
-        "You are Faye, a fraud-detection assistant for crypto and Bitcoin users. "
-        "Examine this image. The user pointed their phone at something and wants "
-        "to know if it is a scam.\n\n"
-        "Return JSON ONLY with these keys:\n"
-        '  "extracted_text": all visible text, verbatim\n'
-        '  "urls_or_qr": any URL or QR target you can read\n'
-        '  "claimed_sender": who/what this claims to be from\n'
-        '  "urgency_markers": list of urgency/pressure phrases\n'
-        '  "asks_for_seed": true if asks for seed/recovery phrase\n'
-        '  "asks_for_funds": true if asks user to send crypto/connect wallet/approve transaction\n'
-        '  "lookalike_brand": brand name being impersonated, or null\n'
-        '  "assessment": one paragraph plain-English analysis\n'
-        '  "verdict": "scam" | "ok" | "warn"\n'
-        '  "confidence": 0.0-1.0\n'
-    )
-
-    msg = client.messages.create(
-        model="claude-opus-4-7",
-        max_tokens=1024,
-        messages=[{
-            "role": "user",
-            "content": [
-                {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": b64}},
-                {"type": "text",  "text": prompt},
-            ],
-        }],
-    )
-    text = "".join(b.text for b in msg.content if hasattr(b, "text"))
-    return _parse_llm_json(text)
+def _detect_media_type(image_path: Path) -> str:
+    suffix = image_path.suffix.lower()
+    if suffix == ".png":  return "image/png"
+    if suffix == ".webp": return "image/webp"
+    if suffix == ".gif":  return "image/gif"
+    return "image/jpeg"
 
 
 def analyze_image_with_gemini(image_path: Path) -> dict:
-    """Fallback when Anthropic credits depleted (Apr 2026 state per HANDOFF)."""
+    """Primary vision LLM — Gemini 2.5 Flash. Fast and currently the funded path."""
     try:
         import google.generativeai as genai  # type: ignore
-        genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+        api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            log.warning("faye: no GEMINI_API_KEY")
+            return {}
+        genai.configure(api_key=api_key)
         model = genai.GenerativeModel("gemini-2.5-flash")
         with open(image_path, "rb") as fh:
             img_bytes = fh.read()
-        prompt = (
-            "Examine this image for crypto/Bitcoin scam indicators. "
-            "Return JSON only: extracted_text, urls_or_qr, claimed_sender, "
-            "urgency_markers (list), asks_for_seed (bool), asks_for_funds (bool), "
-            "lookalike_brand, assessment, verdict (scam|ok|warn), confidence (0-1)."
+        media_type = _detect_media_type(image_path)
+        resp = model.generate_content(
+            [FAYE_PROMPT, {"mime_type": media_type, "data": img_bytes}],
+            generation_config={"temperature": 0.2, "max_output_tokens": 1024},
         )
-        resp = model.generate_content([prompt, {"mime_type": "image/jpeg", "data": img_bytes}])
-        return _parse_llm_json(resp.text)
+        return _parse_llm_json(resp.text or "")
     except Exception as e:
-        log.exception("gemini analysis failed: %s", e)
+        log.exception("faye: gemini analysis failed: %s", e)
+        return {}
+
+
+def analyze_image_with_claude(image_path: Path) -> dict:
+    """
+    Vision analysis. Gemini is primary; Claude fallback via raw httpx (the local
+    anthropic SDK 0.84.0 has a pydantic compatibility bug — by_alias NoneType).
+    """
+    # Primary: Gemini
+    result = analyze_image_with_gemini(image_path)
+    if result and result.get("verdict"):
+        return result
+
+    # Fallback: Anthropic via raw HTTPS (skip the broken SDK)
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return {}
+    try:
+        import httpx  # type: ignore
+        with open(image_path, "rb") as fh:
+            b64 = base64.standard_b64encode(fh.read()).decode()
+        media_type = _detect_media_type(image_path)
+        payload = {
+            "model": "claude-opus-4-7",
+            "max_tokens": 1024,
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": b64}},
+                    {"type": "text",  "text": FAYE_PROMPT},
+                ],
+            }],
+        }
+        r = httpx.post(
+            "https://api.anthropic.com/v1/messages",
+            json=payload,
+            timeout=20,
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+        )
+        if r.status_code != 200:
+            log.warning("faye: anthropic fallback returned %d: %s", r.status_code, r.text[:200])
+            return {}
+        data = r.json()
+        text = "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
+        return _parse_llm_json(text)
+    except Exception as e:
+        log.exception("faye: anthropic fallback failed: %s", e)
         return {}
 
 
@@ -282,7 +308,6 @@ def analyze():
         else:
             transcript = transcribe_audio(path)
             text = transcript
-            llm = analyze_image_with_claude.__wrapped__ if False else {}
             # For audio, run a text-only LLM pass over the transcript
             llm = _text_only_assessment(transcript)
 
@@ -304,23 +329,26 @@ def analyze():
 
 
 def _text_only_assessment(transcript: str) -> dict:
-    """Quick text-only LLM pass for audio inputs."""
+    """Quick text-only LLM pass for audio transcripts. Gemini-first."""
     if not transcript:
         return {}
-    # Reuse the same prompt structure, text-only payload
     try:
-        import anthropic  # type: ignore
-        client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-        msg = client.messages.create(
-            model="claude-opus-4-7",
-            max_tokens=512,
-            messages=[{"role": "user", "content":
-                f"Transcript of suspected scam audio: '''{transcript}'''\n\n"
-                "Return JSON: claimed_sender, urgency_markers (list), asks_for_seed (bool), "
-                "asks_for_funds (bool), lookalike_brand, assessment, verdict (scam|ok|warn), confidence (0-1)."
-            }],
+        import google.generativeai as genai  # type: ignore
+        api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            return {}
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        prompt = (
+            f"You are Faye, a fraud-detection assistant. Below is a transcript of "
+            f"audio someone is suspicious of. Decide if it is a scam.\n\n"
+            f"TRANSCRIPT:\n\"\"\"{transcript}\"\"\"\n\n"
+            "Return JSON ONLY: claimed_sender, urgency_markers (list), "
+            "asks_for_seed (bool), asks_for_funds (bool), lookalike_brand, "
+            "assessment (<=200 chars), verdict (scam|ok|warn), confidence (0-1)."
         )
-        text = "".join(b.text for b in msg.content if hasattr(b, "text"))
-        return _parse_llm_json(text)
-    except Exception:
+        resp = model.generate_content(prompt, generation_config={"temperature": 0.2, "max_output_tokens": 768})
+        return _parse_llm_json(resp.text or "")
+    except Exception as e:
+        log.exception("faye: text-only assessment failed: %s", e)
         return {}
