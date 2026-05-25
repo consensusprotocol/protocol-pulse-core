@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-05-16T05:30:14.658022+00:00",
-  "fetch_time_ms": 10013,
+  "updated_at": "2026-05-25T06:00:16.458464+00:00",
+  "fetch_time_ms": 11621,
   "composite": {
-    "perception_score": 35,
+    "perception_score": 40,
     "label": "Cautiously Bearish",
     "overall_signal": "bearish",
     "bull_layers": 1,
-    "bear_layers": 2,
-    "neutral_layers": 4,
+    "bear_layers": 1,
+    "neutral_layers": 5,
     "layer_signals": {
       "global": "neutral",
       "trending": "neutral",
@@ -15,52 +15,52 @@
       "lightning": "bullish",
       "fees": "neutral",
       "social": "neutral",
-      "fg_trend": "bearish"
+      "fg_trend": "neutral"
     }
   },
   "global_market": {},
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "HYPE",
-        "name": "Hyperliquid",
-        "rank": 13,
+        "symbol": "XAN",
+        "name": "Anoma",
+        "rank": 653,
         "score": 0
-      },
-      {
-        "symbol": "BTC",
-        "name": "Bitcoin",
-        "rank": 1,
-        "score": 1
-      },
-      {
-        "symbol": "ASTEROID",
-        "name": "Asteroid Shiba",
-        "rank": 237,
-        "score": 2
-      },
-      {
-        "symbol": "BILL",
-        "name": "Billions Network",
-        "rank": 125,
-        "score": 3
       },
       {
         "symbol": "PENGU",
         "name": "Pudgy Penguins",
-        "rank": 98,
+        "rank": 96,
+        "score": 1
+      },
+      {
+        "symbol": "RAIL",
+        "name": "Railgun",
+        "rank": 176,
+        "score": 2
+      },
+      {
+        "symbol": "HYPE",
+        "name": "Hyperliquid",
+        "rank": 11,
+        "score": 3
+      },
+      {
+        "symbol": "ONDO",
+        "name": "Ondo",
+        "rank": 42,
         "score": 4
       },
       {
-        "symbol": "LAB",
-        "name": "LAB",
-        "rank": 133,
+        "symbol": "ZEC",
+        "name": "Zcash",
+        "rank": 13,
         "score": 5
       },
       {
-        "symbol": "BNKR",
-        "name": "BankrCoin",
-        "rank": 460,
+        "symbol": "VVV",
+        "name": "Venice Token",
+        "rank": 79,
         "score": 6
       }
     ],
@@ -75,13 +75,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 570786,
+    "tx_count_24h": 658533,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 10.06,
+    "minutes_between_blocks": 10.26,
     "difficulty": 136607070854775,
-    "estimated_btc_sent": 12086839976740,
-    "total_fees_btc": -42500000000,
+    "estimated_btc_sent": 3296855164821,
+    "total_fees_btc": -41875000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -89,11 +89,11 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17396,
-    "channel_count": 41423,
-    "capacity_btc": 5238.97,
-    "capacity_sats": 523897019799,
-    "avg_channel_capacity_btc": 0.1265,
+    "node_count": 17369,
+    "channel_count": 42215,
+    "capacity_btc": 5700.54,
+    "capacity_sats": 570054327303,
+    "avg_channel_capacity_btc": 0.135,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
@@ -110,21 +110,21 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 31,
-    "7d_ago": 47,
-    "7d_delta": -16,
-    "trend": "rapidly_deteriorating",
+    "current": 30,
+    "7d_ago": 25,
+    "7d_delta": 5,
+    "trend": "stable",
     "7d_values": [
-      31,
-      43,
-      34,
-      42,
-      49,
-      48,
-      47
+      30,
+      25,
+      28,
+      28,
+      29,
+      27,
+      25
     ],
-    "btc_signal": "bearish",
-    "note": "F&G collapsing (47 -> 31) \u2014 capitulation building",
+    "btc_signal": "neutral",
+    "note": "F&G stable at 30",
     "label": "Fear",
     "source": "alternative.me F&G"
   }

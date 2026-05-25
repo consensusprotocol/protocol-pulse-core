@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-05-17T18:00:31.513784+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Miners Hold Steady: Reading Conviction Signals at 1,029 EH/s",
+      "angle": "Miners' refusal to panic despite price pressure is a contrarian indicator during capitulation phases. Hashrate stability in weak markets suggests institutional/professional miners see value below.",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "contrarian",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "The Mempool Whisper: Why 97K Pending Transactions at 1 sat/vB Is Bullish",
+      "angle": "Network patience during fear extremes\u2014low fees and no congestion suggest infrastructure ready for the next leg. History shows cleared mempools often precede rallies.",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "on-chain",
+        "technical"
+      ]
+    },
+    {
+      "headline": "50K Blocks to Halvening: Why Capitulation Now Could Be the Setup",
+      "angle": "Bitcoin has historically flushed weak hands before major events. We're entering the pre-halvening capitulation window; miners' conviction + network health suggest this could mark a foundational shift.",
+      "tags": [
+        "bitcoin",
+        "halvening",
+        "history",
+        "cycle",
+        "sentiment"
+      ]
+    }
+  ]
+}

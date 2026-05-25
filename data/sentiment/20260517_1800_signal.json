@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-05-17T18:00:31.513784+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate staying robust (1,029 EH/s) despite price pressure signals miner conviction",
+    "Mempool flushed but patient\u2014transactions clearing without congestion or fee spikes",
+    "No panic selling, only steady grinding pressure (differs from cascading liquidations)",
+    "Historically, capitulation before major events (halvening ~50K blocks away) precedes runs",
+    "Holding $77K-$78K range despite weak sentiment"
+  ],
+  "bearish_signals": [
+    "Fear & Greed at 27 signals extreme weakness and weak hand rotation",
+    "Volume hollow and thin",
+    "Price pressure grinding downward"
+  ],
+  "neutral_topics": [
+    "Block height (949,840) as temporal reference"
+  ]
+}

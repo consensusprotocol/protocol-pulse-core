@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-05-18T18:00:30.646222+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Fear Index at 28: Why Bitcoin's On-Chain Health Suggests Capitulation Buyers Are Waiting",
+      "angle": "Deep dive into the disconnect between sentiment (Fear) and fundamentals (steady hashrate, loose mempool)\u2014classic reversal setup analysis",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "on-chain",
+        "hashrate",
+        "capitulation",
+        "fear-greed"
+      ]
+    },
+    {
+      "headline": "Bitcoin's 950k Block Milestone: Why Network Stress Isn't the Real Story Today",
+      "angle": "Examine how protocol-level health metrics (mempool, fees, miner behavior) are signaling calm while price action screams panic",
+      "tags": [
+        "bitcoin",
+        "network-health",
+        "blocks",
+        "mempool",
+        "mining"
+      ]
+    },
+    {
+      "headline": "Thin Volume + Deep Fear = Institutional Entry Point? What Bitcoin's US Close Will Reveal",
+      "angle": "Focus on how zero volume reporting and Fear Index 28 historically precede institutional buying; anticipate afternoon session flows",
+      "tags": [
+        "bitcoin",
+        "volume",
+        "institutional",
+        "trading",
+        "us-markets"
+      ]
+    }
+  ]
+}

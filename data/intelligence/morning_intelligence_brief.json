@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-05-15T18:00:00Z",
-  "date": "Friday, May 15, 2026",
-  "btc_price": "$79,102",
-  "btc_change_24h": "-2.9%",
-  "fng": "Fear",
+  "generated_at": "2026-05-24T18:00:00Z",
+  "date": "Sunday, May 24, 2026",
+  "btc_price": "$76,655",
+  "btc_change_24h": "+1.1%",
+  "fng": "Extreme Fear",
   "dominant_narratives": [
-    "Sovereign debt crisis and rising global bond yields",
-    "MicroStrategy's aggressive Bitcoin accumulation strategy",
-    "Bitcoin as superior store of value versus collapsing fiat bonds"
+    "Institutional accumulation via bonds and allocations",
+    "Bitcoin's nonstop operation vs fiat closures",
+    "Self-custody as core defense"
   ],
   "trending_language": [
-    "Japan is the canary in the coal mine",
-    "bond market breaking",
-    "Saylor buying back $1.5b notes"
+    "Money printer.",
+    "The ₿itVac is charging.",
+    "Bitcoin never closes"
   ],
   "sentiment": "uncertain",
-  "sentiment_reasoning": "Price dip and Fear index reflect short-term macro pressure from bond turmoil, yet data shows continued institutional BTC buying amid fiat instability.",
+  "sentiment_reasoning": "Extreme Fear index holds despite minor price gain and institutional signals, with tweets mixing accumulation optimism against regulatory and geopolitical noise.",
   "top_accounts_active": [
-    "@MartyBent",
     "@nvk",
-    "@BitcoinMagazine"
+    "@saylor",
+    "@saifedean"
   ],
   "recommended_tweet_angles": [
-    "Link Japan's 20Y yield spike to Bitcoin's scarcity narrative with exact yield numbers",
-    "Highlight Saylor's $1.5B note repurchase as fuel for record 2026 BTC buys",
-    "Push self-custody hardware solutions citing bond market seizure risks"
+    "Frame Saylor bond buys as reload for larger BTC purchases",
+    "Push self-custody resources ahead of future volatility",
+    "Emphasize Bitcoin's 24/7 uptime during US bank holidays"
   ],
   "topics_to_avoid": [
-    "Unrelated geopolitical scandals"
+    "Israel-Iran geopolitical conflicts"
   ],
-  "engagement_patterns": "Short, data-backed threads tying specific bond yields and accumulation stats to Bitcoin's edge",
-  "protocol_pulse_voice_guidance": "Direct cypherpunk tone with precise numbers on yields and Saylor buys to expose fiat failure",
+  "engagement_patterns": "Short conviction statements paired with direct calls to action or resources",
+  "protocol_pulse_voice_guidance": "Raw cypherpunk delivery focused on sovereignty, mocking fiat fragility with precise institutional data points",
   "key_stats_today": {
-    "tweets_analyzed": 102,
+    "tweets_analyzed": 78,
     "nostr_signals": 0,
-    "unique_handles": 67
+    "unique_handles": 58
   },
   "generated_by": "grok_fallback"
 }

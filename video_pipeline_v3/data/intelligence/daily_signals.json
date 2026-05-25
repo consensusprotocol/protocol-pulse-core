@@ -1,55 +1,33 @@
 {
   "topic_velocity": [
     {
-      "topic": "Bitcoin as digital capital and treasury asset \u2014 instituti...",
-      "channels": 27,
-      "sentiment": "bullish",
-      "velocity_score": 40,
-      "authority_score": 40,
+      "topic": "MicroStrategy's aggressive Bitcoin accumulation strategy",
+      "channels": 14,
+      "sentiment": "uncertain",
+      "velocity_score": 21,
+      "authority_score": 10,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "Regulatory warfare escalation \u2014 Banking cartel (ABA) in p...",
-      "channels": 15,
-      "sentiment": "bullish",
-      "velocity_score": 22,
-      "authority_score": 22,
+      "topic": "Bitcoin as superior store of value versus collapsing fiat...",
+      "channels": 11,
+      "sentiment": "uncertain",
+      "velocity_score": 16,
+      "authority_score": 16,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
       "freshness_hours": 4.0
     },
     {
-      "topic": "AI/Bitcoin convergence \u2014 Local AI improving 2x faster tha...",
-      "channels": 12,
-      "sentiment": "bullish",
-      "velocity_score": 18,
-      "authority_score": 18,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Adoption normalization \u2014 Dubai tax payments in BTC; taxat...",
-      "channels": 10,
-      "sentiment": "bullish",
+      "topic": "Sovereign debt crisis and rising global bond yields",
+      "channels": 20,
+      "sentiment": "uncertain",
       "velocity_score": 15,
-      "authority_score": 15,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Digital Credit yield economy maturation \u2014 STRC/Pendle pro...",
-      "channels": 19,
-      "sentiment": "bullish",
-      "velocity_score": 14,
-      "authority_score": 14,
+      "authority_score": 30,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -58,13 +36,13 @@
   ],
   "breaking_threshold": false,
   "recommended_topics": [
-    "Bitcoin as digital capital and treasury asset \u2014 instituti...",
-    "Regulatory warfare escalation \u2014 Banking cartel (ABA) in p...",
-    "AI/Bitcoin convergence \u2014 Local AI improving 2x faster tha..."
+    "MicroStrategy's aggressive Bitcoin accumulation strategy",
+    "Bitcoin as superior store of value versus collapsing fiat...",
+    "Sovereign debt crisis and rising global bond yields"
   ],
-  "dominant_narrative": "Bitcoin as digital capital and treasury asset \u2014 instituti...",
+  "dominant_narrative": "Sovereign debt crisis and rising global bond yields",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-05-15T13:30:06Z"
+  "scan_time": "2026-05-24T13:30:07Z"
 }

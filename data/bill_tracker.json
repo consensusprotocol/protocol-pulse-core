@@ -1,11 +1,125 @@
 {
-  "updated_at": "2026-05-15T10:00:36.830818+00:00",
-  "fetch_time_ms": 33830,
+  "updated_at": "2026-05-24T10:00:39.392802+00:00",
+  "fetch_time_ms": 36498,
   "total_bills": 40,
   "bills_with_votes": 9,
   "bullish_count": 1,
   "bearish_count": 1,
   "bills": [
+    {
+      "bill_id": 2151409,
+      "bill_number": "HB8957",
+      "title": "To establish a Strategic Bitcoin Reserve and other programs to ensure the transparent management of Bitcoin holdings of the Federal Government, to offset costs utilizing certain resources of the Federal Reserve System, and for other purposes.",
+      "short_title": "To establish a Strategic Bitcoin Reserve and other prog...",
+      "categories": [
+        "strategic_reserve"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the House Committee on Financial Services.",
+      "last_action_date": "2026-05-21",
+      "sponsor": "Nicholas Begich",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB8957/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "abbe7d62d01351176b4dacbc94289909",
+      "updated_at": "2026-05-24T10:00:14.105706+00:00"
+    },
+    {
+      "bill_id": 2150760,
+      "bill_number": "HR1299",
+      "title": "21st Century ROAD to Housing Act",
+      "short_title": "21st Century ROAD to Housing Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Motion to reconsider laid on the table Agreed to without objection.",
+      "last_action_date": "2026-05-20",
+      "sponsor": "French Hill",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HR1299/2025",
+      "vote_tally": {
+        "yea": 396,
+        "nay": 13,
+        "total": 409,
+        "pct_yes": 97,
+        "chamber": "H",
+        "date": "2026-05-20",
+        "roll_call_id": 1700946
+      },
+      "congress_pct": 97,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 47,
+      "gap_label": "LARGE GAP",
+      "change_hash": "49493d37a3c5fadc5df7bfef51dca257",
+      "updated_at": "2026-05-24T10:00:32.507194+00:00"
+    },
+    {
+      "bill_id": 2034656,
+      "bill_number": "HB3633",
+      "title": "Digital Asset Market Clarity Act of 2025 CLARITY Act of 2025 Anti-CBDC Surveillance State Act",
+      "short_title": "Digital Asset Market Clarity Act",
+      "categories": [
+        "cbdc",
+        "market_structure"
+      ],
+      "btc_signal": "bullish",
+      "status": "Engrossed",
+      "status_id": 2,
+      "last_action": "Committee on Banking, Housing, and Urban Affairs. Ordered to be reported with an amendment in the nature of a substitute favorably.",
+      "last_action_date": "2026-05-14",
+      "sponsor": "French Hill",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB3633/2025",
+      "vote_tally": {
+        "yea": 294,
+        "nay": 134,
+        "total": 428,
+        "pct_yes": 69,
+        "chamber": "H",
+        "date": "2025-07-17",
+        "roll_call_id": 1598921
+      },
+      "congress_pct": 69,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 19,
+      "gap_label": "SMALL GAP",
+      "change_hash": "ab9e1606377395634b3854f2cfdab2f2",
+      "updated_at": "2026-05-24T10:00:28.871861+00:00"
+    },
     {
       "bill_id": 2021656,
       "bill_number": "SB1318",
@@ -42,7 +156,7 @@
       "gap_score": 5,
       "gap_label": "ALIGNED",
       "change_hash": "b781930c6a456f2da3ee99733d25f926",
-      "updated_at": "2026-05-15T10:00:31.125379+00:00"
+      "updated_at": "2026-05-24T10:00:35.722593+00:00"
     },
     {
       "bill_id": 2145806,
@@ -79,13 +193,13 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "8827db3fba021c518e41ad88bb9e38c8",
-      "updated_at": "2026-05-15T10:00:15.786390+00:00"
+      "updated_at": "2026-05-24T10:00:19.469318+00:00"
     },
     {
       "bill_id": 2145593,
       "bill_number": "HB8488",
-      "title": "To require developers of AI-focused data centers to disclose certain information before the AI-focused data centers are developed, and for other purposes.",
-      "short_title": "To require developers of AI-focused data centers to dis...",
+      "title": "AI Data Center Site Selection Transparency Act of 2026",
+      "short_title": "AI Data Center Site Selection Transparency Act",
       "categories": [
         "other"
       ],
@@ -115,8 +229,8 @@
       },
       "gap_score": null,
       "gap_label": "PENDING VOTE",
-      "change_hash": "b0f46b41d338b09472ffa52fcfef35b7",
-      "updated_at": "2026-05-15T10:00:28.739857+00:00"
+      "change_hash": "e5d9c8df8280055c78544409043cbfef",
+      "updated_at": "2026-05-24T10:00:33.308873+00:00"
     },
     {
       "bill_id": 2144753,
@@ -153,7 +267,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "16547c2c243ee18ad736b6cfc600d521",
-      "updated_at": "2026-05-15T10:00:20.391704+00:00"
+      "updated_at": "2026-05-24T10:00:24.127803+00:00"
     },
     {
       "bill_id": 2138937,
@@ -189,45 +303,8 @@
       },
       "gap_score": null,
       "gap_label": "PENDING VOTE",
-      "change_hash": "66e0e8e7df68fa8d09d23697b95b3ca6",
-      "updated_at": "2026-05-15T10:00:08.006133+00:00"
-    },
-    {
-      "bill_id": 2135954,
-      "bill_number": "HB7977",
-      "title": "Energy Bills Relief Act",
-      "short_title": "Energy Bills Relief Act",
-      "categories": [
-        "other"
-      ],
-      "btc_signal": "neutral",
-      "status": "Introduced",
-      "status_id": 1,
-      "last_action": "Referred to the Committee on Energy and Commerce, and in addition to the Committees on Agriculture, Ways and Means, Natural Resources, Financial Services, Transportation and Infrastructure, Education and Workforce, Oversight and Government Reform, and Science, Space, and Technology, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned.",
-      "last_action_date": "2026-03-18",
-      "sponsor": "Sean Casten",
-      "sponsor_party": "D",
-      "url": "https://legiscan.com/US/bill/HB7977/2025",
-      "vote_tally": {
-        "yea": 0,
-        "nay": 0,
-        "total": 0,
-        "pct_yes": 0,
-        "chamber": "",
-        "date": ""
-      },
-      "congress_pct": 0,
-      "public_pct": 50,
-      "public_votes": {
-        "yes": 0,
-        "no": 0,
-        "total": 0,
-        "pct_yes": 50
-      },
-      "gap_score": null,
-      "gap_label": "PENDING VOTE",
-      "change_hash": "b1f6fa0d7dc31f3df72442150e95a5fb",
-      "updated_at": "2026-05-15T10:00:36.527516+00:00"
+      "change_hash": "7cc431888a788cec3860ef15fc8515bb",
+      "updated_at": "2026-05-24T10:00:10.473685+00:00"
     },
     {
       "bill_id": 2132768,
@@ -264,7 +341,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "60f7f440c47906392eb61a580413287c",
-      "updated_at": "2026-05-15T10:00:23.473321+00:00"
+      "updated_at": "2026-05-24T10:00:27.254844+00:00"
     },
     {
       "bill_id": 2123654,
@@ -301,7 +378,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "d7ced30e911d5fc7c4778e9c1ba3a764",
-      "updated_at": "2026-05-15T10:00:18.076489+00:00"
+      "updated_at": "2026-05-24T10:00:21.787345+00:00"
     },
     {
       "bill_id": 2088126,
@@ -339,7 +416,7 @@
       "gap_score": 0,
       "gap_label": "ALIGNED",
       "change_hash": "5fb17622426e0a23f7d31dcb6adec4be",
-      "updated_at": "2026-05-15T10:00:17.334634+00:00"
+      "updated_at": "2026-05-24T10:00:21.037671+00:00"
     },
     {
       "bill_id": 2104525,
@@ -376,7 +453,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "80ca27ba4c57fd4d0073ec2431371205",
-      "updated_at": "2026-05-15T10:00:22.704947+00:00"
+      "updated_at": "2026-05-24T10:00:26.483305+00:00"
     },
     {
       "bill_id": 2072088,
@@ -414,7 +491,7 @@
       "gap_score": 31,
       "gap_label": "MODERATE GAP",
       "change_hash": "0ac0b661f0260a33179b106f3e1a08f1",
-      "updated_at": "2026-05-15T10:00:16.559962+00:00"
+      "updated_at": "2026-05-24T10:00:20.217739+00:00"
     },
     {
       "bill_id": 2058571,
@@ -451,7 +528,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7b28ccded89f1c1bcc3d617634dc0794",
-      "updated_at": "2026-05-15T10:00:32.670999+00:00"
+      "updated_at": "2026-05-24T10:00:37.293434+00:00"
     },
     {
       "bill_id": 2060370,
@@ -488,7 +565,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "09575c7630318f87191901b039c5b803",
-      "updated_at": "2026-05-15T10:00:10.558781+00:00"
+      "updated_at": "2026-05-24T10:00:13.268603+00:00"
     },
     {
       "bill_id": 2031808,
@@ -526,7 +603,7 @@
       "gap_score": 21,
       "gap_label": "MODERATE GAP",
       "change_hash": "aa7ac308e5419d9655d196d4cb1392f2",
-      "updated_at": "2026-05-15T10:00:31.899774+00:00"
+      "updated_at": "2026-05-24T10:00:36.532486+00:00"
     },
     {
       "bill_id": 2058188,
@@ -563,7 +640,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "c546bdbafeabe6b612b458ce0a12378a",
-      "updated_at": "2026-05-15T10:00:19.677909+00:00"
+      "updated_at": "2026-05-24T10:00:23.377622+00:00"
     },
     {
       "bill_id": 2053628,
@@ -600,7 +677,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "0bb51c08b935cc1cf2e82d8096e68c4d",
-      "updated_at": "2026-05-15T10:00:07.353957+00:00"
+      "updated_at": "2026-05-24T10:00:09.834103+00:00"
     },
     {
       "bill_id": 2053561,
@@ -637,7 +714,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "3bf0255e02f72f7d1973f1b020e91162",
-      "updated_at": "2026-05-15T10:00:14.221311+00:00"
+      "updated_at": "2026-05-24T10:00:17.950492+00:00"
     },
     {
       "bill_id": 2053516,
@@ -674,13 +751,13 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "add06a6c8a07b9b45ec15062218abada",
-      "updated_at": "2026-05-15T10:00:25.861375+00:00"
+      "updated_at": "2026-05-24T10:00:29.643513+00:00"
     },
     {
       "bill_id": 2039530,
       "bill_number": "SB2296",
-      "title": "GAIN AI Act of 2025 Coast Guard Authorization Act of 2025 Intelligence Authorization Act for Fiscal Year 2026 Military Construction Authorization Act for Fiscal Year 2026 COUNTER Act of 2025 Combating PRC Overseas and Unlawful Networked Threats through Enhanced Resilience Act of 2025 Holding Foreign Insiders Accountable Act PAID OFF Act of 2025 Preventing Adversary Influence, Disinformation, and Obscured Foreign Financing Act of 2025 International Nuclear Energy Act of 2025 Atomic Energy Testing Liability Act Abducted Ukrainian Children Recovery and Accountability Act Retired Law Enforcement Officers Continuing Service Act MAPS Act Mapping America's Pharmaceutical Supply Act Preventing Child Trafficking Act of 2025 Taiwan Non-Discrimination Act of 2025 AUKUS Improvement Act of 2025 Guaranteeing Access and Innovation for National Artificial Intelligence Act of 2025 DETERRENCE Act DISRUPT Act Defending International Security by Restricting Unacceptable Partnerships and Tactics Act DFC Modernization and Reauthorization Act of 2025 Western Balkans Democracy and Prosperity Act Fighting Foreign Illegal Seafood Harvests Act of 2025 CDFI Bond Guarantee Program Improvement Act of 2025 FIGHT China Act of 2025 Foreign Investment Guardrails to Help Thwart China Act of 2025 Department of State Authorization Act for Fiscal Year 2026 ROAD to Housing Act of 2025 Renewing Opportunity in the American Dream to Housing Act of 2025",
-      "short_title": "GAIN AI Act",
+      "title": "National Defense Authorization Act for Fiscal Year 2026 COUNTER Act of 2025 Combating PRC Overseas and Unlawful Networked Threats through Enhanced Resilience Act of 2025 Holding Foreign Insiders Accountable Act PAID OFF Act of 2025 Preventing Adversary Influence, Disinformation, and Obscured Foreign Financing Act of 2025 International Nuclear Energy Act of 2025 Atomic Energy Testing Liability Act Abducted Ukrainian Children Recovery and Accountability Act Retired Law Enforcement Officers Continuing Service Act MAPS Act Mapping America's Pharmaceutical Supply Act Preventing Child Trafficking Act of 2025 Taiwan Non-Discrimination Act of 2025 AUKUS Improvement Act of 2025 GAIN AI Act of 2025 Guaranteeing Access and Innovation for National Artificial Intelligence Act of 2025 DISRUPT Act Defending International Security by Restricting Unacceptable Partnerships and Tactics Act DFC Modernization and Reauthorization Act of 2025 Western Balkans Democracy and Prosperity Act Fighting Foreign Illegal Seafood Harvests Act of 2025 CDFI Bond Guarantee Program Improvement Act of 2025 FIGHT China Act of 2025 Foreign Investment Guardrails to Help Thwart China Act of 2025 Department of State Authorization Act for Fiscal Year 2026 ROAD to Housing Act of 2025 Renewing Opportunity in the American Dream to Housing Act of 2025 Coast Guard Authorization Act of 2025 Intelligence Authorization Act for Fiscal Year 2026 Military Construction Authorization Act for Fiscal Year 2026 DETERRENCE Act",
+      "short_title": "National Defense Authorization Act for Fiscal Year 2026...",
       "categories": [
         "other"
       ],
@@ -711,8 +788,8 @@
       },
       "gap_score": 2,
       "gap_label": "ALIGNED",
-      "change_hash": "ebdd5adc1d1010b0ddfbbb770cd3fcee",
-      "updated_at": "2026-05-15T10:00:34.310890+00:00"
+      "change_hash": "6a6a3a7804230556a0bc45df8837f136",
+      "updated_at": "2026-05-24T10:00:39.089690+00:00"
     },
     {
       "bill_id": 2051327,
@@ -749,84 +826,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7fa3f76c7f5c8461cccdafece478bc09",
-      "updated_at": "2026-05-15T10:00:11.247665+00:00"
-    },
-    {
-      "bill_id": 2036439,
-      "bill_number": "HB3838",
-      "title": "Coast Guard Authorization Act of 2025 SAFE Research Act Securing American Funding and Expertise from Adversarial Research Exploitation Act of 2025 Anti-CBDC Surveillance State Act",
-      "short_title": "Coast Guard Authorization Act",
-      "categories": [
-        "cbdc"
-      ],
-      "btc_signal": "neutral",
-      "status": "Engrossed",
-      "status_id": 2,
-      "last_action": "Received in the Senate.",
-      "last_action_date": "2025-09-30",
-      "sponsor": "Mike D. Rogers",
-      "sponsor_party": "R",
-      "url": "https://legiscan.com/US/bill/HB3838/2025",
-      "vote_tally": {
-        "yea": 208,
-        "nay": 219,
-        "total": 427,
-        "pct_yes": 49,
-        "chamber": "H",
-        "date": "2025-09-10",
-        "roll_call_id": 1602041
-      },
-      "congress_pct": 49,
-      "public_pct": 50,
-      "public_votes": {
-        "yes": 0,
-        "no": 0,
-        "total": 0,
-        "pct_yes": 50
-      },
-      "gap_score": 1,
-      "gap_label": "ALIGNED",
-      "change_hash": "dfba4d488cfe1d50257bcb545e804da7",
-      "updated_at": "2026-05-15T10:00:35.293780+00:00"
-    },
-    {
-      "bill_id": 2034656,
-      "bill_number": "HB3633",
-      "title": "Digital Asset Market Clarity Act of 2025 CLARITY Act of 2025 Anti-CBDC Surveillance State Act",
-      "short_title": "Digital Asset Market Clarity Act",
-      "categories": [
-        "cbdc",
-        "market_structure"
-      ],
-      "btc_signal": "bullish",
-      "status": "Engrossed",
-      "status_id": 2,
-      "last_action": "Received in the Senate and Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.",
-      "last_action_date": "2025-09-18",
-      "sponsor": "French Hill",
-      "sponsor_party": "R",
-      "url": "https://legiscan.com/US/bill/HB3633/2025",
-      "vote_tally": {
-        "yea": 294,
-        "nay": 134,
-        "total": 428,
-        "pct_yes": 69,
-        "chamber": "H",
-        "date": "2025-07-17",
-        "roll_call_id": 1598921
-      },
-      "congress_pct": 69,
-      "public_pct": 50,
-      "public_votes": {
-        "yes": 0,
-        "no": 0,
-        "total": 0,
-        "pct_yes": 50
-      },
-      "gap_score": 19,
-      "gap_label": "SMALL GAP",
-      "change_hash": "1a8ec0cc7eeb0552740c9c4b0c22a143",
-      "updated_at": "2026-05-15T10:00:25.089531+00:00"
+      "updated_at": "2026-05-24T10:00:14.907962+00:00"
     },
     {
       "bill_id": 2044781,
@@ -863,7 +863,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "8b303af9f322aa844ac89053273c27cb",
-      "updated_at": "2026-05-15T10:00:21.969350+00:00"
+      "updated_at": "2026-05-24T10:00:25.654572+00:00"
     },
     {
       "bill_id": 2043448,
@@ -900,7 +900,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "04185b9f75864be3142594dc862c3e55",
-      "updated_at": "2026-05-15T10:00:15.010472+00:00"
+      "updated_at": "2026-05-24T10:00:18.699011+00:00"
     },
     {
       "bill_id": 2028140,
@@ -938,7 +938,7 @@
       "gap_score": 22,
       "gap_label": "MODERATE GAP",
       "change_hash": "aa7fb119fc6b9fe1f4610227d75b9c93",
-      "updated_at": "2026-05-15T10:00:18.913955+00:00"
+      "updated_at": "2026-05-24T10:00:22.606848+00:00"
     },
     {
       "bill_id": 1994350,
@@ -976,7 +976,7 @@
       "gap_score": 1,
       "gap_label": "ALIGNED",
       "change_hash": "d23c1f613f93cfd5f75c765fde6faa4c",
-      "updated_at": "2026-05-15T10:00:27.104449+00:00"
+      "updated_at": "2026-05-24T10:00:30.863186+00:00"
     },
     {
       "bill_id": 2037259,
@@ -1013,7 +1013,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "b88e82458aecbb0ba59a2e5fea8f8e30",
-      "updated_at": "2026-05-15T10:00:09.916935+00:00"
+      "updated_at": "2026-05-24T10:00:12.455662+00:00"
     },
     {
       "bill_id": 2036119,
@@ -1050,7 +1050,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "9696516df497b7fc73372dd778030061",
-      "updated_at": "2026-05-15T10:00:09.277672+00:00"
+      "updated_at": "2026-05-24T10:00:11.756297+00:00"
     },
     {
       "bill_id": 2033371,
@@ -1087,7 +1087,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "80729603a8cd3be436971aa2965fe1c1",
-      "updated_at": "2026-05-15T10:00:11.892029+00:00"
+      "updated_at": "2026-05-24T10:00:15.653592+00:00"
     },
     {
       "bill_id": 2033256,
@@ -1124,7 +1124,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "44205685690855ab2e54a26413c3230d",
-      "updated_at": "2026-05-15T10:00:12.631496+00:00"
+      "updated_at": "2026-05-24T10:00:16.409192+00:00"
     },
     {
       "bill_id": 2029992,
@@ -1161,7 +1161,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "eb6c6df9c2aaa4e3744e27de0cfccf45",
-      "updated_at": "2026-05-15T10:00:29.514714+00:00"
+      "updated_at": "2026-05-24T10:00:34.086405+00:00"
     },
     {
       "bill_id": 2029943,
@@ -1198,7 +1198,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "d92b25a04bc77e0446e2a2ea6ebfbc37",
-      "updated_at": "2026-05-15T10:00:30.282951+00:00"
+      "updated_at": "2026-05-24T10:00:34.846901+00:00"
     },
     {
       "bill_id": 2015649,
@@ -1235,7 +1235,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "2db9b93a4db447339488d190219c5323",
-      "updated_at": "2026-05-15T10:00:27.956666+00:00"
+      "updated_at": "2026-05-24T10:00:31.698725+00:00"
     },
     {
       "bill_id": 2023233,
@@ -1272,7 +1272,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "dc2e4c0966051f1664b5fa146e7c4169",
-      "updated_at": "2026-05-15T10:00:13.408712+00:00"
+      "updated_at": "2026-05-24T10:00:17.164619+00:00"
     },
     {
       "bill_id": 1999424,
@@ -1309,7 +1309,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "f73e1fff9df80bff8a20c5b8e4f5e907",
-      "updated_at": "2026-05-15T10:00:24.244458+00:00"
+      "updated_at": "2026-05-24T10:00:28.008582+00:00"
     },
     {
       "bill_id": 2008633,
@@ -1346,7 +1346,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7dbf57235ac0898a7a81697b8cc5ec50",
-      "updated_at": "2026-05-15T10:00:08.639627+00:00"
+      "updated_at": "2026-05-24T10:00:11.112632+00:00"
     },
     {
       "bill_id": 2000399,
@@ -1383,7 +1383,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "89ea25c53e4b8c06e35cb03dcde67c0f",
-      "updated_at": "2026-05-15T10:00:06.071981+00:00"
+      "updated_at": "2026-05-24T10:00:05.896480+00:00"
     },
     {
       "bill_id": 2000465,
@@ -1420,7 +1420,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "f9b026931f63bc71239c5b2cbad23528",
-      "updated_at": "2026-05-15T10:00:06.715104+00:00"
+      "updated_at": "2026-05-24T10:00:09.218090+00:00"
     },
     {
       "bill_id": 1961730,
@@ -1457,7 +1457,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "8a3cf07f1149d95193cdc9af9d13543e",
-      "updated_at": "2026-05-15T10:00:33.428537+00:00"
+      "updated_at": "2026-05-24T10:00:38.206015+00:00"
     },
     {
       "bill_id": 1956316,
@@ -1494,7 +1494,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "1488081a6d9f946abed34fe082420c3e",
-      "updated_at": "2026-05-15T10:00:21.144670+00:00"
+      "updated_at": "2026-05-24T10:00:24.906861+00:00"
     }
   ],
   "source": "LegiScan API (CC BY 4.0)"

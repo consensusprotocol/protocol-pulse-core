@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-05-18T18:00:30.646222+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate holding steady despite price pressure\u2014miners not capitulating",
+    "Mempool loose at 102,920 txs\u2014no network congestion or stress",
+    "Base fees at 3 sat/vB\u2014network operating at low friction",
+    "Fear Index at 28\u2014textbook capitulation sentiment precedes reversals",
+    "Healthy on-chain metrics contrasting with weak price action"
+  ],
+  "bearish_signals": [
+    "Bitcoin down 1.7% heading into US close",
+    "Fear sentiment firmly entrenched at 28/100",
+    "Volume reporting as zero\u2014potential thin liquidity risk"
+  ],
+  "neutral_topics": [
+    "950k blocks milestone\u2014narrative cycle marker"
+  ]
+}

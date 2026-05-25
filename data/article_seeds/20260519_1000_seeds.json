@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-05-19T10:00:32.302814+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Why Mempool Congestion at 1-Sat Fees is Bitcoin's Real Setup Signal",
+      "angle": "Technical analysis of transaction backlog as leading indicator for demand surge; distinguishing real demand from noise",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network-metrics",
+        "on-chain-analysis"
+      ]
+    },
+    {
+      "headline": "Hashrate Stability During Extreme Fear: What Miners Know That Markets Don't",
+      "angle": "Structural confidence signals from mining sector during panic; capitulation dynamics and floor support",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "market-psychology"
+      ]
+    },
+    {
+      "headline": "Block 950K Support and the Art of Reading Capitulation Signals",
+      "angle": "Psychological support levels combined with extreme fear readings as textbook buy setups; volume dynamics",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "support-resistance",
+        "capitulation"
+      ]
+    }
+  ]
+}

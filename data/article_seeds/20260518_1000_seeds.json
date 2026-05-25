@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-05-18T10:00:31.482141+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Fear at 28: Why Bitcoin's On-Chain Calm Defies Panic Selling",
+      "angle": "Network fundamentals remain pristine while sentiment crashes\u2014examining whether this disconnect signals capitulation bottom or premature fear",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "on-chain",
+        "fundamentals",
+        "fear-gauge"
+      ]
+    },
+    {
+      "headline": "The $76k Question: Where Bitcoin Support Holds Today",
+      "angle": "Price testing psychological level amid institutional uncertainty; analyzing hashrate stability vs. price weakness divergence",
+      "tags": [
+        "bitcoin",
+        "price-action",
+        "support",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Mempool Signals Market Capitulation Energy\u2014But For How Long?",
+      "angle": "With fees negligible and transaction backlog light, on-chain metrics suggest weak hands exiting; exploring whether this sets up contrarian bounce",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain-data",
+        "capitulation",
+        "market-structure"
+      ]
+    }
+  ]
+}

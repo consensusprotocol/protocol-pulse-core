@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-05-18T02:00:32.976384+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Fear Index at 28: Why Bitcoin's Capitulation Signal May Precede a Reversal",
+      "angle": "Historical analysis of how extreme fear readings (28) have preceded rallies; contrarian case for accumulation despite red close",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "technical-analysis",
+        "capitulation",
+        "halving"
+      ]
+    },
+    {
+      "headline": "Network Strength Under Stress: Why Bitcoin's 98K Mempool & Solid Hashrate Matter More Than Price",
+      "angle": "Deep dive into on-chain metrics (mempool, hashrate, fees) as leading indicators of long-term health vs. short-term price panic",
+      "tags": [
+        "bitcoin",
+        "network-health",
+        "mempool",
+        "hashrate",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "The Halving Countdown: Block 949,879 & Why Fear This Deep Often Precedes Bitcoin's Next Move",
+      "angle": "Structural case for why proximity to halving combined with extreme fear creates asymmetric upside risk",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "on-chain-data",
+        "market-cycles"
+      ]
+    }
+  ]
+}

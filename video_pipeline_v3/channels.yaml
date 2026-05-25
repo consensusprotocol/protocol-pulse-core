@@ -4,11 +4,6 @@ channels:
   url: https://www.youtube.com/@BitcoinMagazine
   tier: 1
   priority: 1
-- handle: '@SimplyBitcoin'
-  name: Simply Bitcoin
-  url: https://www.youtube.com/@SimplyBitcoin
-  tier: 1
-  priority: 1
 - handle: '@WBDPodcast'
   name: What Bitcoin Did
   url: https://www.youtube.com/@WBDPodcast
@@ -627,3 +622,34 @@ scan:
     2: 30
     3: 60
     4: 60
+
+# ── MAINSTREAM FINANCE (Bitcoin keyword filter active) ──
+- name: CNBC Television
+  url: https://www.youtube.com/@CNBCtelevision
+  handle: "@CNBCtelevision"
+  priority: 3
+  keyword_filter: ["bitcoin", "btc", "crypto", "digital asset", "satoshi"]
+
+- name: Bloomberg Television
+  url: https://www.youtube.com/@BloombergTelevision
+  handle: "@BloombergTelevision"
+  priority: 3
+  keyword_filter: ["bitcoin", "btc", "crypto", "digital asset"]
+
+- name: Fox Business
+  url: https://www.youtube.com/@FoxBusiness
+  handle: "@FoxBusiness"
+  priority: 3
+  keyword_filter: ["bitcoin", "btc", "crypto"]
+
+- name: Yahoo Finance
+  url: https://www.youtube.com/@YahooFinance
+  handle: "@YahooFinance"
+  priority: 3
+  keyword_filter: ["bitcoin", "btc", "crypto"]
+
+- name: Kitco NEWS
+  url: https://www.youtube.com/@kitaborrita
+  handle: "@KitcoNEWS"
+  priority: 3
+  keyword_filter: ["bitcoin", "btc", "crypto"]

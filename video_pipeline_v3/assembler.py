@@ -188,8 +188,8 @@ def make_broadcast_segment(segment_data: dict, audio_path: str, host_num: int,
                 "-f", "lavfi", "-i",
                 "color=c=0x0A0A0F:s=1920x1080:d={:.3f}:r=30".format(dur),
                 "-i", audio_path,
-                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+                "-c:v", "copy",
+                 "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
                 "-t", "{:.3f}".format(dur), output_path
             ], "emergency bg clip", 60)
@@ -240,8 +240,8 @@ def concatenate_parts(parts: list, output_path: str,
         _enc = get_video_encoder(crf=17)
         ok = run_ffmpeg(
             ["-i", p] + _enc + [
-             "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-             "-r", "30", "-vsync", "cfr",
+             
+             
              "-vf", f"fps=30,setpts=PTS-STARTPTS,scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d={v_fade},fade=t=out:st={fade_out_start_v}:d={v_fade}",
              "-video_track_timescale", "15360",
              "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
@@ -287,8 +287,8 @@ def concatenate_parts(parts: list, output_path: str,
                         "-i", chosen,
                         "-filter_complex", _fc,
                         "-map", "[outv]", "-map", "1:a?",
-                        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                        "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+                        "-c:v", "copy",
+                         "-pix_fmt", "yuv420p",
                         "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
                         "-t", "{:.3f}".format(part_dur), bg_only
                     ], "bg-loop fallback {}".format(i), 60)
@@ -298,8 +298,8 @@ def concatenate_parts(parts: list, output_path: str,
                         "color=c=0x06070b:s=1920x1080:d={:.3f}:r=30".format(part_dur),
                         "-i", chosen,
                         "-map", "0:v", "-map", "1:a",
-                        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                        "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+                        "-c:v", "copy",
+                         "-pix_fmt", "yuv420p",
                         "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
                         "-t", "{:.3f}".format(part_dur), bg_only
                     ], "bg-only fallback {}".format(i), 60)
@@ -352,8 +352,8 @@ def concatenate_parts(parts: list, output_path: str,
             fade_a_start = max(0, last_dur - 2.5)
             ok_refade = run_ffmpeg(
                 ["-i", last_part,
-                 "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                 "-b:v", "8M", "-r", "30", "-vsync", "cfr",
+                 "-c:v", "copy",
+                 "-b:v", "8M", 
                  "-vf", f"scale=1920:1080,setsar=1,format=yuv420p,fade=t=in:d=0.15,fade=t=out:st={fade_v_start:.2f}:d=1.5:color=0x0A0A0F",
                  "-video_track_timescale", "90000",
                  "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "192k",
@@ -391,9 +391,9 @@ def concatenate_parts(parts: list, output_path: str,
     ok = run_ffmpeg(
         ["-fflags", "+genpts",
          "-i", f"concat:{ts_concat_str}",
-         "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-         "-r", "30", "-vsync", "cfr",
-         "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+         "-c:v", "copy",
+         
+         
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          "-af", "asetpts=PTS-STARTPTS",
          "-avoid_negative_ts", "make_zero",
@@ -487,10 +487,10 @@ def concatenate_parts(parts: list, output_path: str,
                 ),
                 "-map", "0:v", "-map", "[outa]",
                 # BUG2 FIX: Full libx264 re-encode (not -c:v copy) to reset PTS for AV sync
-                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
-                "-r", "30", "-vsync", "cfr",
-                "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+                "-c:v", "copy",
+                
+                
+                
                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                 "-t", str(dur),
                 music_mixed
@@ -688,8 +688,8 @@ def concatenate_parts(parts: list, output_path: str,
          "-i", concat_raw,
          "-map", "0:v:0", "-map", "1:a:0"] + _final_enc + [
          "-b:v", "8M", "-minrate", "3.5M", "-maxrate", "10M", "-bufsize", "15M",
-         "-r", "30", "-vsync", "cfr",
-         "-vf", "setpts=PTS-STARTPTS,format=yuv420p",
+         
+         
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
          # BUG5 FIX: Single authoritative loudnorm at end (removed from all intermediate steps)
          # V4.2 FIX 8: loudnorm I=-14 TP=-1.0 LRA=11 — broadcast standard (MUST be LAST audio filter)
@@ -933,7 +933,7 @@ def _make_filler_segment(work_dir: str, idx: int, audio_path: str) -> str:
             "-vf", vf,
             "-map", "0:v", "-map", "1:a",
             "-c:v", "libx264", "-crf", "18", "-preset", "fast",
-            "-r", "30", "-vsync", "cfr", "-pix_fmt", "yuv420p",
+             "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
             "-t", str(dur), out
         ])
@@ -1339,7 +1339,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     h264_path = clip_path + ".h264.mp4"
                     ok_conv = run_ffmpeg([
                         "-i", clip_path,
-                        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                        "-c:v", "copy",
                         "-r", "30", "-pix_fmt", "yuv420p", "-c:a", "aac", "-ar", "48000", "-b:a", "192k", h264_path,
                     ], f"AV1→H264 pre-convert clip #{rank}", 120)
                     if ok_conv and os.path.exists(h264_path):
@@ -1398,7 +1398,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                                 "-i", result,
                                 "-vf", f"trim=duration={_trim_target:.3f},setpts=PTS-STARTPTS",
                                 "-af", f"atrim=duration={_trim_target:.3f},asetpts=PTS-STARTPTS",
-                                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                                "-c:v", "copy",
                                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                                 _trimmed
                             ], f"AV POST-TRIM clip #{rank} ({_diff:+.3f}s)", 120)
@@ -1436,7 +1436,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                             f"drawtext=fontfile={FONT_BOLD}:text='{channel}':fontcolor=white:fontsize=36:x=60:y=50,"
                             f"drawtext=fontfile={FONT_MONO}:text='AUDIO ONLY':fontcolor={COLOR_RED}:fontsize=20:x=60:y=100[outv]",
                             "-map", "[outv]", "-map", "0:a",
-                            "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                            "-c:v", "copy",
                             "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                             "-t", str(clip_audio_dur_wf), "-shortest",
                             waveform_out,
@@ -1455,7 +1455,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                                 "-stream_loop", "-1", "-i", BG_LOOP,
                                 "-i", clip_path,
                                 "-map", "0:v", "-map", "1:a",
-                                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                                "-c:v", "copy",
                                 "-vf", f"trim=0:{clip_audio_dur + 0.5},setpts=PTS-STARTPTS,scale=1920:1080,setsar=1,fps=30",
                                 "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                                 "-t", str(clip_audio_dur),
@@ -1885,7 +1885,7 @@ def _assemble_episode_inner(script, audio_data, extracted_clips,
                     bd_broll_vf +
                     "[1:a]atrim=0:4[outa]",
                     "-map", "[outv]", "-map", "[outa]",
-                    "-c:v", "libx264", "-crf", "17", "-preset", "fast", "-b:v", "8M",
+                    "-c:v", "copy", "-b:v", "8M",
                     "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
                     "-shortest",
                     broll_out,
