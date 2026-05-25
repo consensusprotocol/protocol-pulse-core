@@ -1038,6 +1038,38 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     return ok
 
 
+
+# ═══ KOKORO TTS (LOCAL, FREE, GPU-ACCELERATED) ═══
+_kokoro_pipeline = None
+def tts_kokoro(text, output_path):
+    global _kokoro_pipeline
+    try:
+        if _kokoro_pipeline is None:
+            from kokoro import KPipeline
+            _kokoro_pipeline = KPipeline(lang_code="a")
+            logger.info("[tts] Kokoro pipeline loaded")
+        import soundfile as sf
+        generator = _kokoro_pipeline(text, voice="af_heart", speed=1.1)
+        audio_chunks = []
+        for chunk in generator:
+            audio_chunks.append(chunk[2])
+        if not audio_chunks:
+            return False
+        import numpy as np
+        full_audio = np.concatenate(audio_chunks)
+        wav_tmp = output_path + ".wav"
+        sf.write(wav_tmp, full_audio, 24000)
+        import subprocess
+        subprocess.run(["ffmpeg", "-y", "-i", wav_tmp, "-c:a", "aac", "-ar", "48000", "-b:a", "192k", output_path],
+                       capture_output=True, timeout=30)
+        import os
+        if os.path.exists(wav_tmp):
+            os.remove(wav_tmp)
+        return os.path.exists(output_path) and os.path.getsize(output_path) > 500
+    except Exception as e:
+        logger.error(f"[tts] Kokoro failed: {e}")
+        return False
+
 def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str = "elevenlabs") -> dict:
     """Synthesize a single dialogue line via ElevenLabs PBX.
 
@@ -1053,7 +1085,11 @@ def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str = "elev
 
     print(f"  [tts] Line {i:02d} (PBX): {text[:60]}...")
 
-    _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
+    # P0: Kokoro first (free, local), ElevenLabs fallback
+    _tts_ok = tts_kokoro(text, line_path)
+    if not _tts_ok:
+        logger.info(f"[tts] Kokoro failed, trying ElevenLabs...")
+        _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
     dur = 0.0
 
     # Validate output

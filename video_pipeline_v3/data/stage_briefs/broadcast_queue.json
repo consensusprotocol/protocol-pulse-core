@@ -1,42 +1,42 @@
 [
   {
-    "id": "6a345fed-c83b-4c2c-bfa6-336c73329664",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Nostr is building the decentralized social layer that Bitcoin's monetary layer always needed. Censorship-resistant communication plus censorship-resistant money \u2014 that's the full stack of digital sovereignty.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Nostr is building the decentralized social layer that Bitcoin's monetary layer a",
-    "generated_at": "2026-05-25T02:06:31.230517+00:00",
-    "expires_at": "2026-05-25T06:06:31.230517+00:00"
+    "id": "bffacbc7-bfcc-457e-9187-8de8daedd263",
+    "type": "NOSTR_SIGNAL",
+    "priority": 4,
+    "script": "Global bond yields climbing as sovereign debt concerns intensify. Bitcoin miners' hash rate stabilizing above 100 exahashes. Watch for yield curve inversions signaling Bitcoin's next move.",
+    "source_label": "\u26a1 NOSTR SIGNAL",
+    "topic_preview": "Sovereign debt crisis and rising global bond yields",
+    "generated_at": "2026-05-25T07:50:31.438608+00:00",
+    "expires_at": "2026-05-25T11:50:31.438608+00:00"
   },
   {
-    "id": "ec380335-7dbd-436b-8156-3ec62d00ebd2",
+    "id": "9dd08850-9881-4d9b-9e08-351217fb8089",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year or more \u2014 consistently hold over sixty percent of all bitcoin supply. The conviction of this network's participants is unprecedented.",
+    "script": "Coinjoin transactions are growing month over month. Privacy isn't optional in a sound money system \u2014 it's essential. Financial surveillance is incompatible with individual sovereignty.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year ",
-    "generated_at": "2026-05-25T02:06:56.236279+00:00",
-    "expires_at": "2026-05-25T06:06:56.236279+00:00"
+    "topic_preview": "Coinjoin transactions are growing month over month. Privacy isn't optional in a ",
+    "generated_at": "2026-05-25T06:11:07.957920+00:00",
+    "expires_at": "2026-05-25T10:11:07.957920+00:00"
   },
   {
-    "id": "d35d5603-68b8-4149-89e8-20e7413ced09",
+    "id": "cb4cf235-17f0-4452-991b-dc4ecb4b3eac",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin script is intentionally limited. No Turing completeness, no complex smart contracts on the base layer. This constraint is a security feature \u2014 the monetary layer should be boring and bulletproof.",
+    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin script is intentionally limited. No Turing completeness, no complex smar",
-    "generated_at": "2026-05-25T02:21:29.199213+00:00",
-    "expires_at": "2026-05-25T06:21:29.199213+00:00"
+    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
+    "generated_at": "2026-05-25T06:11:33.506149+00:00",
+    "expires_at": "2026-05-25T10:11:33.506149+00:00"
   },
   {
-    "id": "3497a9cc-afc7-48ca-8327-54828d4bf509",
+    "id": "a83e32e0-0001-4b03-af04-d609f9d7d9a0",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't just build software \u2014 they embedded a permanent protest against monetary manipulation into the first block ever mined.",
+    "script": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermediaries, no permission required. For the first time in digital history, we have bearer assets that move at the speed of light.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't ",
-    "generated_at": "2026-05-25T04:01:35.437183+00:00",
-    "expires_at": "2026-05-25T08:01:35.437183+00:00"
+    "topic_preview": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermedia",
+    "generated_at": "2026-05-25T06:26:07.366993+00:00",
+    "expires_at": "2026-05-25T10:26:07.366993+00:00"
   }
 ]

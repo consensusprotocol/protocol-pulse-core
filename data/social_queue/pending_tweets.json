@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260523_020033_0",
-    "text": "10,000 BTC bought two pizzas in 2010. Today it buys a small country. Fiat price is the mirage",
-    "angle": "historical_pattern",
-    "type": "stat",
-    "format": "fiat_failure",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-23T02:00:33.456482+00:00",
-    "brief_date": "Friday, May 22, 2026",
-    "sentiment": "bearish"
-  },
-  {
     "id": "tweet_20260523_170033_0",
     "text": "If a digital payment needs a bank's permission to complete, at what point did you stop owning your money",
     "angle": "sovereignty_freedom",
@@ -56,6 +44,30 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-05-25T02:00:31.576679+00:00",
+    "brief_date": "Sunday, May 24, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260525_074304_0",
+    "text": "Do you think a 30 (Fear) market will make central banks stop printing on their next holiday",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-25T07:43:04.841497+00:00",
+    "brief_date": "Sunday, May 24, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260525_074402_0",
+    "text": "950,922 blocks. Every single one confirms the problem bonds can't fix. You still handing over your keys",
+    "angle": "contrarian_take",
+    "type": "question",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-25T07:44:02.867247+00:00",
     "brief_date": "Sunday, May 24, 2026",
     "sentiment": "uncertain"
   }

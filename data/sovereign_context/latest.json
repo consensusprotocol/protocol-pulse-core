@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-05-25T06:00:28.320735+00:00",
-  "block_height": 950915,
+  "timestamp": "2026-05-25T08:40:52.471142+00:00",
+  "block_height": 950928,
   "btc": {
-    "price": 77308,
-    "change_24h": 0.75,
+    "price": 77249,
+    "change_24h": 0.68,
     "change_7d": 0,
-    "market_cap": 1548869584337.784,
-    "volume_24h": 24136270898.554867,
-    "dominance": 57.5
+    "market_cap": 1547580439480.143,
+    "volume_24h": 24377794031.889774,
+    "dominance": 58.2
   },
   "fear_greed": {
     "value": 30,
@@ -17,19 +17,19 @@
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 1,
-    "unconfirmed": 109722,
+    "unconfirmed": 108053,
     "size_mb": 42.6
   },
   "network": {
-    "hashrate_eh": 984.9,
+    "hashrate_eh": 979.6,
     "difficulty": 0,
-    "next_adj_pct": 0.01,
-    "next_adj_blocks": 637
+    "next_adj_pct": -0.21,
+    "next_adj_blocks": 624
   },
   "lightning": {
-    "capacity_btc": 5700.5,
-    "channels": 42215,
-    "nodes": 17369
+    "capacity_btc": 5704.9,
+    "channels": 42027,
+    "nodes": 17372
   },
   "kol": {
     "sentiment_score": 54,
@@ -52,7 +52,7 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "Will MegaETH perform an airdrop by June 30? ",
-    "top_probability": 83.5
+    "top_probability": 84.0
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
@@ -63,73 +63,73 @@
   "whale_alerts": [
     {
       "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 160.4 BTC unconfirmed 43a729bf...",
+      "score": 10,
+      "created_at": 1779698118.7367487
+    },
+    {
+      "tier": "NOTE",
       "rule": "Hashrate cliff",
       "message": "Hashrate cliff: 16.7% drop vs 24h prior",
       "score": 50,
-      "created_at": 1779687280.0269194
+      "created_at": 1779698090.1841068
     },
     {
       "tier": "NOTE",
       "rule": "Block timing anomaly",
-      "message": "Block timing anomaly: avg 1006.6s/block over last 10 blocks",
+      "message": "Block timing anomaly: avg 914.4s/block over last 10 blocks",
       "score": 50,
-      "created_at": 1779687279.7827175
+      "created_at": 1779698089.7877243
+    },
+    {
+      "tier": "NOTE",
+      "rule": "Block timing anomaly",
+      "message": "Block timing anomaly: avg 910.4s/block over last 10 blocks",
+      "score": 50,
+      "created_at": 1779697810.2719703
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 1499.1 BTC unconfirmed cca69e37...",
+      "message": "Whale transaction detected: 106.49 BTC unconfirmed 4e659058...",
       "score": 10,
-      "created_at": 1779686291.0257351
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 16.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1779685481.0881407
-    },
-    {
-      "tier": "NOTE",
-      "rule": "Hashrate cliff",
-      "message": "Hashrate cliff: 16.7% drop vs 24h prior",
-      "score": 35,
-      "created_at": 1779683674.0705159
+      "created_at": 1779697082.9828014
     }
   ],
   "macro": {
-    "dxy": 98.99,
+    "dxy": 99.02,
     "gold_price": 4523.2,
     "sp500": 7491.0,
     "btc_vs_gold_30d_corr": 0.337,
-    "btc_vs_dxy_30d_corr": -0.461,
+    "btc_vs_dxy_30d_corr": -0.471,
     "real_yield": null,
     "ten_year_yield": 4.56
   },
   "options": {
-    "put_call_ratio": 0.697,
-    "dvol": 35.0,
+    "put_call_ratio": 0.686,
+    "dvol": 34.5,
     "max_pain": 80000.0,
-    "total_call_oi": 238816.2,
-    "total_put_oi": 166396.5,
-    "total_oi_btc": 405212.7,
-    "avg_mark_iv": 46.9
+    "total_call_oi": 237203.0,
+    "total_put_oi": 162615.0,
+    "total_oi_btc": 399818.0,
+    "avg_mark_iv": 46.5
   },
   "futures": {
-    "funding_rate": 7.5e-07,
+    "funding_rate": 7.7e-07,
     "annualized_basis": 0.08,
-    "open_interest": 27794.44,
-    "open_interest_usd": 2150210920.0,
+    "open_interest": 27738.91,
+    "open_interest_usd": 2143387420.0,
     "long_short_ratio": null,
-    "mark_price": 77359.37,
-    "index_price": 77361.18,
-    "basis_pct": 0.0053
+    "mark_price": 77258.44,
+    "index_price": 77270.06,
+    "basis_pct": 0.0307
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 4408637.0,
+    "coin_days_destroyed_7d": 4601335.0,
     "active_addresses_7d": 611948.0,
-    "tx_volume_usd_7d": 36527650382.0,
-    "nvt_ratio": 37.2,
+    "tx_volume_usd_7d": 35144192985.0,
+    "nvt_ratio": 38.7,
     "accumulation_score": 85
   },
   "active_alerts": [],
@@ -151,15 +151,15 @@
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 65.2,
+      "score": 65.3,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
       "score": 77.1,
       "pattern": "BULLISH",
-      "fragmentation": 14.9,
-      "momentum": 61.6,
+      "fragmentation": 15.0,
+      "momentum": 61.7,
       "conviction": 58.1,
       "thesis": "miner_absorption_under_fear",
       "confidence": 0.75
@@ -167,28 +167,28 @@
   },
   "pro_metrics": {
     "ssr": {
-      "value": 5.73,
-      "btc_market_cap": 1549438760303.15,
-      "stablecoin_market_cap": 270530445763.1534,
+      "value": 5.72,
+      "btc_market_cap": 1547240800858.9565,
+      "stablecoin_market_cap": 270545015261.8087,
       "signal": "BULLISH",
       "description": "Healthy stablecoin reserves available for BTC purchasing",
       "source": "coingecko_derived"
     },
     "mpi": {
-      "value": -0.269,
-      "cdd_7d": 4408637.0,
-      "cdd_ratio": 0.73,
-      "hashrate_eh": 984.9,
+      "value": -0.251,
+      "cdd_7d": 4524522.0,
+      "cdd_ratio": 0.75,
+      "hashrate_eh": 979.9,
       "signal": "NEUTRAL",
       "description": "Normal miner behavior \u2014 no anomalous selling pattern",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 32.0,
+      "value": 31.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-05-25T06:00:06.487359+00:00"
+    "timestamp": "2026-05-25T08:40:04.231137+00:00"
   }
 }
