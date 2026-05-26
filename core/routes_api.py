@@ -1766,10 +1766,8 @@ def api_narrative_momentum():
         logging.error("api_narrative_momentum error: %s", e)
         return jsonify({'success': False, 'momentum': []})
 
-@api_bp.route('/api/intelligence/signal')
-@lsat_required
-def api_signal_strength():
-    """Return signal strength composite. Cached 5 minutes."""
+def _signal_strength_payload():
+    """Shared signal-strength composite (gated + public routes call this)."""
     try:
         import importlib.util as _i1
         _s1 = _i1.spec_from_file_location("is1", "/home/ultron/protocol_pulse/services/intelligence_service.py")
@@ -1807,6 +1805,19 @@ def api_signal_strength():
     except Exception as e:
         logging.error("api_signal_strength error: %s", e)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/api/intelligence/signal')
+@lsat_required
+def api_signal_strength():
+    """Signal strength composite (LSAT-gated external API)."""
+    return _signal_strength_payload()
+
+
+@api_bp.route('/api/intelligence/signal/public')
+def api_signal_strength_public():
+    """Ungated signal composite for the first-party homepage widget."""
+    return _signal_strength_payload()
 
 @api_bp.route('/api/v2/sentiment/summary')
 def api_v2_sentiment_summary():
