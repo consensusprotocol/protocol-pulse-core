@@ -618,38 +618,35 @@ scan:
   max_videos_per_channel: 3
   min_duration_seconds: 120
   tier_scan_intervals:
-    1: 15
-    2: 30
-    3: 60
-    4: 60
-
 # ── MAINSTREAM FINANCE (Bitcoin keyword filter active) ──
 - name: CNBC Television
   url: https://www.youtube.com/@CNBCtelevision
   handle: "@CNBCtelevision"
   priority: 3
   keyword_filter: ["bitcoin", "btc", "crypto", "digital asset", "satoshi"]
-
 - name: Bloomberg Television
   url: https://www.youtube.com/@BloombergTelevision
   handle: "@BloombergTelevision"
   priority: 3
   keyword_filter: ["bitcoin", "btc", "crypto", "digital asset"]
-
 - name: Fox Business
   url: https://www.youtube.com/@FoxBusiness
   handle: "@FoxBusiness"
   priority: 3
   keyword_filter: ["bitcoin", "btc", "crypto"]
-
 - name: Yahoo Finance
   url: https://www.youtube.com/@YahooFinance
   handle: "@YahooFinance"
   priority: 3
   keyword_filter: ["bitcoin", "btc", "crypto"]
-
 - name: Kitco NEWS
   url: https://www.youtube.com/@kitaborrita
   handle: "@KitcoNEWS"
   priority: 3
   keyword_filter: ["bitcoin", "btc", "crypto"]
+    1: 15
+    2: 30
+    3: 60
+    4: 60
+
+# ── MAINSTREAM FINANCE (Bitcoin keyword filter active) ──
