@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260523_170033_0",
-    "text": "If a digital payment needs a bank's permission to complete, at what point did you stop owning your money",
-    "angle": "sovereignty_freedom",
-    "type": "question",
-    "format": "socratic_question",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-23T17:00:33.963694+00:00",
-    "brief_date": "Saturday, May 23, 2026",
-    "sentiment": "bearish"
-  },
-  {
     "id": "tweet_20260524_020032_0",
     "text": "25 (Extreme Fear) on the Fear & Greed Index. People think they have a high time preference problem. They have a fiat problem. It's designed to make you panic sell.",
     "angle": "contrarian_take",
@@ -104,6 +92,18 @@
     "priority": 3,
     "status": "pending",
     "generated_at": "2026-05-25T17:00:32.537834+00:00",
+    "brief_date": "Monday, May 25, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260526_020031_0",
+    "text": "951,059 Bitcoin blocks have been mined without a single centralized halt. What stops a central bank from just turning off your digital currency",
+    "angle": "sovereignty_freedom",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-26T02:00:31.624472+00:00",
     "brief_date": "Monday, May 25, 2026",
     "sentiment": "uncertain"
   }

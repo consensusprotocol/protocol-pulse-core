@@ -1,36 +1,36 @@
 {
-  "updated_at": "2026-05-26T01:50:04.996745+00:00",
+  "updated_at": "2026-05-26T02:35:04.647506+00:00",
   "btc_price": {
-    "value": 76673,
-    "change_24h": -0.48,
+    "value": 76602,
+    "change_24h": -0.6,
     "source": "coingecko"
   },
   "market_cap": {
-    "value": 1534088570325.6548,
+    "value": 1534452024917.6143,
     "source": "coingecko"
   },
   "volume_24h": {
-    "value": 22280977411.638126,
+    "value": 22193383383.16941,
     "source": "coingecko"
   },
   "block_height": {
-    "value": 951058,
+    "value": 951063,
     "source": "mempool.space"
   },
   "difficulty_adjustment": {
-    "percent": 1.61,
-    "blocks_remaining": 494,
-    "estimated_date": "2026-05-29T10:55:19.660000+00:00",
+    "percent": 1.64,
+    "blocks_remaining": 489,
+    "estimated_date": "2026-05-29T10:49:29.613000+00:00",
     "source": "mempool.space"
   },
   "hashrate": {
-    "value": "1012.5 EH/s",
-    "raw_eh": 1012.5,
+    "value": "1014.7 EH/s",
+    "raw_eh": 1014.7,
     "source": "mempool.space"
   },
   "mempool_size": {
-    "tx_count": 96399,
-    "vsize_mb": 40.8,
+    "tx_count": 102029,
+    "vsize_mb": 41.6,
     "source": "mempool.space"
   },
   "recommended_fees": {
@@ -57,16 +57,16 @@
     "source": "deribit"
   },
   "open_interest": {
-    "btc": 27788.7,
-    "usd": 2131893280,
+    "btc": 27747.8,
+    "usd": 2126386570,
     "source": "deribit"
   },
   "dominance": {
-    "value": 58.24,
-    "source": "coingecko"
+    "value": 57.46,
+    "source": "coinpaprika"
   },
   "gold": {
-    "value": 4532.9,
+    "value": 4538.8,
     "source": "yahoo"
   },
   "sp500": {
@@ -78,7 +78,7 @@
     "source": "yahoo"
   },
   "exchange_volume": {
-    "binance_btc": 83362.5,
+    "binance_btc": 83696.5,
     "coinbase_btc": null,
     "source": "coingecko"
   },
@@ -116,8 +116,8 @@
     "value": null,
     "source": "unavailable"
   },
-  "btc_dominance": 58.24,
-  "gold_price": 4532.9,
+  "btc_dominance": 57.46,
+  "gold_price": 4538.8,
   "sp500_price": 7473.47,
   "dxy_index": 99.24,
   "signal_score": {

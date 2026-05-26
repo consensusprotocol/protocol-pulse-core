@@ -103,7 +103,7 @@ def scan_recent_videos(channels_yaml, max_age_hours=48):
                     dur = v.get("duration", 0)
                     if dur and 60 < dur < 1800:  # 1-30 min only
                         if not _is_spam_channel(name):
-                        videos.append(v)
+                            videos.append(v)
                 except json.JSONDecodeError:
                     pass
         except Exception as e:

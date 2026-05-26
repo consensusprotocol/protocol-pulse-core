@@ -1,15 +1,5 @@
 [
   {
-    "id": "86706fb4-2361-48d4-bd3f-c2bcd5f39453",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
-    "generated_at": "2026-05-25T22:21:37.539390+00:00",
-    "expires_at": "2026-05-26T02:21:37.539390+00:00"
-  },
-  {
     "id": "89dfcbcf-339f-4435-8d5b-23eb42db1f49",
     "type": "FILLER_INSIGHT",
     "priority": 5,
@@ -38,5 +28,15 @@
     "topic_preview": "Bitcoin script is intentionally limited. No Turing completeness, no complex smar",
     "generated_at": "2026-05-26T00:02:15.350727+00:00",
     "expires_at": "2026-05-26T04:02:15.350727+00:00"
+  },
+  {
+    "id": "a9dc5630-717e-4dd5-a10e-c6471c38654a",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't just build software \u2014 they embedded a permanent protest against monetary manipulation into the first block ever mined.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't ",
+    "generated_at": "2026-05-26T02:26:48.595447+00:00",
+    "expires_at": "2026-05-26T06:26:48.595447+00:00"
   }
 ]

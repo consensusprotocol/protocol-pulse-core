@@ -3,6 +3,7 @@
   "buffer_api_url": "https://api.buffer.com",
   "channels": {
     "protocol_pulse": {
+      "twitter": "6a14fd85c687a22dd42796de",
       "instagram": "69eb3103031bfa423c3a3d06",
       "tiktok": "69eb3114031bfa423c3a3d40",
       "youtube": "69d5f663031bfa423cdf0905"
@@ -12,9 +13,39 @@
       "youtube": "69e0f163031bfa423c0e1438",
       "tiktok": "69fb99055c4c051afa198db5"
     },
+    "cypherpunkd": {
+      "twitter": "6a14fe7bc687a22dd42798cb",
+      "youtube": "6a14ffefc687a22dd427a50a"
+    },
     "bitcoin_day": {
       "instagram": "693c91fc29ea336fd676c03f",
       "linkedin": "6941f90829ea336fd6894986"
+    }
+  },
+  "assets": {
+    "pp_outro": "assets/outro_branded_new.mp4",
+    "pp_intro": "assets/intro_tag_new_1080p.mp4",
+    "pp_background": "assets/Protocol Pulse Check Background video.mp4",
+    "sponsors_dir": "assets/sponsors/"
+  },
+  "clip_formats": {
+    "shorts": {
+      "duration": "30-60s",
+      "orientation": "vertical_9x16",
+      "branding": "pp_outro + small_sponsor_banner + creator_credit",
+      "publish_to": [
+        "twitter",
+        "tiktok",
+        "instagram"
+      ]
+    },
+    "long_clips": {
+      "duration": "5-15min",
+      "orientation": "horizontal_16x9",
+      "branding": "pp_branded_frame + sponsor_segments + pp_outro",
+      "publish_to": [
+        "youtube"
+      ]
     }
   }
 }
