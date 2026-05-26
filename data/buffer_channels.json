@@ -1,0 +1,20 @@
+{
+  "buffer_org_id": "672bf13d36385f4ca9125c1f",
+  "buffer_api_url": "https://api.buffer.com",
+  "channels": {
+    "protocol_pulse": {
+      "instagram": "69eb3103031bfa423c3a3d06",
+      "tiktok": "69eb3114031bfa423c3a3d40",
+      "youtube": "69d5f663031bfa423cdf0905"
+    },
+    "btc_boomers": {
+      "twitter": "69e0d739031bfa423c0d867d",
+      "youtube": "69e0f163031bfa423c0e1438",
+      "tiktok": "69fb99055c4c051afa198db5"
+    },
+    "bitcoin_day": {
+      "instagram": "693c91fc29ea336fd676c03f",
+      "linkedin": "6941f90829ea336fd6894986"
+    }
+  }
+}

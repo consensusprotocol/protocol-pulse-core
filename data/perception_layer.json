@@ -1,30 +1,30 @@
 {
-  "updated_at": "2026-05-25T08:30:15.546877+00:00",
-  "fetch_time_ms": 10812,
+  "updated_at": "2026-05-26T01:30:13.906970+00:00",
+  "fetch_time_ms": 9230,
   "composite": {
-    "perception_score": 58,
-    "label": "Cautiously Bullish",
-    "overall_signal": "bullish",
+    "perception_score": 52,
+    "label": "Neutral",
+    "overall_signal": "neutral",
     "bull_layers": 3,
-    "bear_layers": 1,
-    "neutral_layers": 3,
+    "bear_layers": 2,
+    "neutral_layers": 2,
     "layer_signals": {
       "global": "bullish",
-      "trending": "bullish",
+      "trending": "bearish",
       "onchain": "bearish",
       "lightning": "bullish",
       "fees": "neutral",
       "social": "neutral",
-      "fg_trend": "neutral"
+      "fg_trend": "bullish"
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.23,
-    "total_mcap_usd": 2658251093689.514,
-    "total_mcap_t": 2.658,
-    "total_vol_24h_usd": 63768668030.70005,
-    "total_vol_24h_b": 63.8,
-    "active_coins": 17394,
+    "btc_dominance_pct": 58.22,
+    "total_mcap_usd": 2641318560000.0566,
+    "total_mcap_t": 2.641,
+    "total_vol_24h_usd": 65153236511.62168,
+    "total_vol_24h_b": 65.2,
+    "active_coins": 17396,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,66 +33,67 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "HYPE",
-        "name": "Hyperliquid",
-        "rank": 11,
+        "symbol": "ONDO",
+        "name": "Ondo",
+        "rank": 46,
         "score": 0
       },
       {
         "symbol": "NEAR",
         "name": "NEAR Protocol",
-        "rank": 35,
+        "rank": 33,
         "score": 1
       },
       {
-        "symbol": "XAN",
-        "name": "Anoma",
-        "rank": 656,
+        "symbol": "BONK",
+        "name": "Bonk",
+        "rank": 101,
         "score": 2
       },
       {
-        "symbol": "RAIL",
-        "name": "Railgun",
-        "rank": 179,
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 100,
         "score": 3
       },
       {
-        "symbol": "SOL",
-        "name": "Solana",
-        "rank": 7,
+        "symbol": "FET",
+        "name": "Artificial Superintelligence Alliance",
+        "rank": 103,
         "score": 4
       },
       {
-        "symbol": "NEX",
-        "name": "Nexus",
-        "rank": 166,
+        "symbol": "SLX",
+        "name": "Solstice",
+        "rank": 510,
         "score": 5
       },
       {
         "symbol": "VVV",
         "name": "Venice Token",
-        "rank": 79,
+        "rank": 82,
         "score": 6
       }
     ],
     "active_narratives": [
-      "AI/DePIN"
+      "AI/DePIN",
+      "Meme/Speculation"
     ],
-    "has_meme_rotation": false,
+    "has_meme_rotation": true,
     "has_ai_rotation": true,
-    "narrative_signal": "AI/DePIN",
-    "btc_signal": "bullish",
+    "narrative_signal": "AI/DePIN, Meme/Speculation",
+    "btc_signal": "bearish",
     "note": "Meme rotation signals late-cycle risk. AI/DeFi rotation signals mid-cycle strength.",
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 662563,
+    "tx_count_24h": 777635,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 10.02,
+    "minutes_between_blocks": 8.07,
     "difficulty": 136607070854775,
-    "estimated_btc_sent": 3475631650631,
-    "total_fees_btc": -42500000000,
+    "estimated_btc_sent": 4189790791074,
+    "total_fees_btc": -51250000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -111,7 +112,7 @@
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 2,
+    "fastest_fee_sat_vb": 1,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,21 +122,21 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 30,
-    "7d_ago": 25,
-    "7d_delta": 5,
-    "trend": "stable",
+    "current": 34,
+    "7d_ago": 27,
+    "7d_delta": 7,
+    "trend": "improving",
     "7d_values": [
+      34,
       30,
       25,
       28,
       28,
       29,
-      27,
-      25
+      27
     ],
-    "btc_signal": "neutral",
-    "note": "F&G stable at 30",
+    "btc_signal": "bullish",
+    "note": "F&G trending up (27 -> 34)",
     "label": "Fear",
     "source": "alternative.me F&G"
   }

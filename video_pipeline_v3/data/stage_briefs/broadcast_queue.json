@@ -1,42 +1,42 @@
 [
   {
-    "id": "bffacbc7-bfcc-457e-9187-8de8daedd263",
-    "type": "NOSTR_SIGNAL",
-    "priority": 4,
-    "script": "Global bond yields climbing as sovereign debt concerns intensify. Bitcoin miners' hash rate stabilizing above 100 exahashes. Watch for yield curve inversions signaling Bitcoin's next move.",
-    "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Sovereign debt crisis and rising global bond yields",
-    "generated_at": "2026-05-25T07:50:31.438608+00:00",
-    "expires_at": "2026-05-25T11:50:31.438608+00:00"
-  },
-  {
-    "id": "9dd08850-9881-4d9b-9e08-351217fb8089",
+    "id": "86706fb4-2361-48d4-bd3f-c2bcd5f39453",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Coinjoin transactions are growing month over month. Privacy isn't optional in a sound money system \u2014 it's essential. Financial surveillance is incompatible with individual sovereignty.",
+    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Coinjoin transactions are growing month over month. Privacy isn't optional in a ",
-    "generated_at": "2026-05-25T06:11:07.957920+00:00",
-    "expires_at": "2026-05-25T10:11:07.957920+00:00"
+    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
+    "generated_at": "2026-05-25T22:21:37.539390+00:00",
+    "expires_at": "2026-05-26T02:21:37.539390+00:00"
   },
   {
-    "id": "cb4cf235-17f0-4452-991b-dc4ecb4b3eac",
+    "id": "89dfcbcf-339f-4435-8d5b-23eb42db1f49",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
+    "script": "Nostr is building the decentralized social layer that Bitcoin's monetary layer always needed. Censorship-resistant communication plus censorship-resistant money \u2014 that's the full stack of digital sovereignty.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
-    "generated_at": "2026-05-25T06:11:33.506149+00:00",
-    "expires_at": "2026-05-25T10:11:33.506149+00:00"
+    "topic_preview": "Nostr is building the decentralized social layer that Bitcoin's monetary layer a",
+    "generated_at": "2026-05-25T22:41:08.310171+00:00",
+    "expires_at": "2026-05-26T02:41:08.310171+00:00"
   },
   {
-    "id": "a83e32e0-0001-4b03-af04-d609f9d7d9a0",
+    "id": "5a36f0d1-da86-47f5-8c2a-04f0c55d6edb",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermediaries, no permission required. For the first time in digital history, we have bearer assets that move at the speed of light.",
+    "script": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year or more \u2014 consistently hold over sixty percent of all bitcoin supply. The conviction of this network's participants is unprecedented.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermedia",
-    "generated_at": "2026-05-25T06:26:07.366993+00:00",
-    "expires_at": "2026-05-25T10:26:07.366993+00:00"
+    "topic_preview": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year ",
+    "generated_at": "2026-05-25T23:06:18.864126+00:00",
+    "expires_at": "2026-05-26T03:06:18.864126+00:00"
+  },
+  {
+    "id": "16665180-9215-4812-a45a-deddbb665bb1",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Bitcoin script is intentionally limited. No Turing completeness, no complex smart contracts on the base layer. This constraint is a security feature \u2014 the monetary layer should be boring and bulletproof.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Bitcoin script is intentionally limited. No Turing completeness, no complex smar",
+    "generated_at": "2026-05-26T00:02:15.350727+00:00",
+    "expires_at": "2026-05-26T04:02:15.350727+00:00"
   }
 ]

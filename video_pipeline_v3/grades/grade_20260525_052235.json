@@ -1,0 +1,119 @@
+{
+  "grade": "C",
+  "overall_score": 89,
+  "broadcast_ready": false,
+  "technical_score": 87,
+  "content_score": 99,
+  "production_score": 88,
+  "dimensions": {
+    "duration_check": {
+      "score": 7,
+      "note": "Duration is 291.3s (4.9 mins). This is acceptable but on the shorter side of the ideal 8-15 minute target. It's a complete narrative, just concise."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, meeting the required standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is perfect for this format."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -15.5 LUFS, which is perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True Peak is -4.0 dBFS, safely below the -1.0 dBFS ceiling. No clipping."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "Forensic analysis confirms zero mid-video black frames."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "No unintended silence gaps detected in the audio track."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE. Forensic data reports 7 penalized freeze frames. Visual inspection confirms the source clips of the speakers are extremely choppy and freeze repeatedly, severely degrading the viewing experience."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Video uses the standard and high-quality h264/aac codec combination."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "The file container is clean, both streams are present, and the bitrate of 5273 kbps is robust."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Clips from Marty Bent (Rabbit Hole Recap) and Andreas Antonopoulos are top-tier. The content directly addresses the macro pressures on fiat and Bitcoin's fundamental properties, aligning perfectly with the show's Austrian/cypherpunk lens."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The narration is exceptional, providing sharp, insightful connections between the macro, technical (halving), and philosophical (self-custody) clips. It adds significant value."
+    },
+    "cold_open_hook": {
+      "score": 10,
+      "note": "The cold open is tight, specific, and immediately establishes the episode's core thesis by linking Saylor's actions to Fed constraints and the halving."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode constructs a powerful and logical narrative: Fiat system is breaking -> Bitcoin's code is hardening -> This is why self-sovereignty matters. The flow is excellent."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's narration is clean, authoritative, and well-paced. The performance is flawless."
+    },
+    "episode_title": {
+      "score": 10,
+      "note": "The title 'Saylor Stack Meets Fed Limits' is punchy, relevant, and accurately summarizes the episode's theme."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is dense with information and contains zero filler, ad reads, or off-topic diversions."
+    },
+    "timeliness": {
+      "score": 9,
+      "note": "The content feels very current, referencing recent market data and ongoing macroeconomic trends."
+    },
+    "music_mix": {
+      "score": 9,
+      "note": "The background music is well-mixed, effectively ducking under the narration. The levels are appropriate and enhance the cyberpunk tone."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Transitions are clean, stylized glitch effects that are consistent with the show's brand and executed without error."
+    },
+    "visual_polish": {
+      "score": 9,
+      "note": "The overall aesthetic is strong and consistent. Data overlays, lower thirds, and split-screen layouts are professional. The meme-like animations in the Andreas clip are a bit jarring but appear to be an intentional, if questionable, creative choice."
+    },
+    "no_artifacts": {
+      "score": 5,
+      "note": "While the render itself is free of compression artifacts, the severe choppiness of the source clips (penalized under freeze_check) constitutes a major visual artifact for the viewer."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "Narration audio is pristine. Clip audio is clear and well-leveled. No technical issues with the audio."
+    },
+    "pacing": {
+      "score": 9,
+      "note": "The pacing is brisk and engaging. Despite its short runtime, the episode covers a lot of ground effectively without feeling rushed."
+    }
+  },
+  "critical_failures": [
+    "freeze_check: The episode contains at least 7 significant freeze frames within the source video clips, making them difficult to watch. This is a major technical flaw."
+  ],
+  "warnings": [
+    "duration_check: At 4.9 minutes, the episode is shorter than the 8-minute target. While the content is strong, a slightly longer runtime could allow for deeper exploration."
+  ],
+  "strengths": [
+    "script_quality: The narration is the standout feature, weaving disparate clips into a single, powerful thesis about Bitcoin's role in a failing macro environment.",
+    "narrative_arc: The logical flow from macro problem to Bitcoin solution is exceptionally well-structured and persuasive.",
+    "clip_relevance: The choice of speakers and topics is perfectly aligned with the show's mission and provides high-signal content."
+  ],
+  "verdict": "The episode presents an outstandingly sharp and coherent narrative, but is critically undermined by severe technical issues, specifically multiple freeze frames that make the source clips unwatchable.",
+  "recommendation": "FIX_AND_RERENDER"
+}

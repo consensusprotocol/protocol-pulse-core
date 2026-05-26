@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-05-24T18:00:00Z",
-  "date": "Sunday, May 24, 2026",
-  "btc_price": "$76,655",
-  "btc_change_24h": "+1.1%",
-  "fng": "Extreme Fear",
+  "generated_at": "2026-05-25T14:30:00Z",
+  "date": "Monday, May 25, 2026",
+  "btc_price": "$77,375",
+  "btc_change_24h": "+0.9%",
+  "fng": "Fear",
   "dominant_narratives": [
-    "Institutional accumulation via bonds and allocations",
-    "Bitcoin's nonstop operation vs fiat closures",
-    "Self-custody as core defense"
+    "Strategic Bitcoin Reserve momentum",
+    "Self-custody as trust replacement",
+    "Business cycle signaling parabolic rally"
   ],
   "trending_language": [
-    "Money printer.",
-    "The ₿itVac is charging.",
-    "Bitcoin never closes"
+    "self-custody Bitcoin",
+    "Strategic Bitcoin Reserve",
+    "Bitcoin Summer"
   ],
   "sentiment": "uncertain",
-  "sentiment_reasoning": "Extreme Fear index holds despite minor price gain and institutional signals, with tweets mixing accumulation optimism against regulatory and geopolitical noise.",
+  "sentiment_reasoning": "Fear & Greed at 30 signals caution despite strong reserve and self-custody signals; KOL transcripts show regulatory bearishness pulling against adoption narratives.",
   "top_accounts_active": [
-    "@nvk",
+    "@BitcoinArchive",
     "@saylor",
-    "@saifedean"
+    "@COLDCARDwallet"
   ],
   "recommended_tweet_angles": [
-    "Frame Saylor bond buys as reload for larger BTC purchases",
-    "Push self-custody resources ahead of future volatility",
-    "Emphasize Bitcoin's 24/7 uptime during US bank holidays"
+    "US legislators locking in 5% BTC reserve matching gold holdings",
+    "Airgapped open-source hardware verifying over trusting modern finance",
+    "Business cycle flip mirroring 2020 parabolic setup"
   ],
   "topics_to_avoid": [
-    "Israel-Iran geopolitical conflicts"
+    "geopolitical conflicts"
   ],
-  "engagement_patterns": "Short conviction statements paired with direct calls to action or resources",
-  "protocol_pulse_voice_guidance": "Raw cypherpunk delivery focused on sovereignty, mocking fiat fragility with precise institutional data points",
+  "engagement_patterns": "Short conviction statements backed by on-chain or legislative data",
+  "protocol_pulse_voice_guidance": "Speak in cypherpunk verification mode, cite specific reserve moves and self-custody tools while noting fear index as contrarian fuel",
   "key_stats_today": {
-    "tweets_analyzed": 78,
+    "tweets_analyzed": 97,
     "nostr_signals": 0,
-    "unique_handles": 58
+    "unique_handles": 63
   },
   "generated_by": "grok_fallback"
 }

@@ -70,5 +70,41 @@
     "generated_at": "2026-05-25T07:44:02.867247+00:00",
     "brief_date": "Sunday, May 24, 2026",
     "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260525_092051_0",
+    "text": "950,935 blocks confirmed. Emperor Aurelian's mint workers revolted in 271 AD over debasement. Bitcoin just keeps confirming transactions at 1 sat/vB",
+    "angle": "recovered",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-25T09:20:51.962578+00:00",
+    "brief_date": "Sunday, May 24, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260525_092248_0",
+    "text": "1 sat/vB for a 1-hour transaction. Your bank is closed for the holiday. Bitcoin is open",
+    "angle": "onchain_metric",
+    "type": "stat",
+    "format": "brief_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-25T09:22:48.715908+00:00",
+    "brief_date": "Sunday, May 24, 2026",
+    "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260525_170032_0",
+    "text": "1 sat/vB is the 1-hour fee to settle final value. Governments spend billions tracking your digital transactions. Your permission is not required",
+    "angle": "contrarian_take",
+    "type": "stat",
+    "format": "fiat_failure",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-25T17:00:32.537834+00:00",
+    "brief_date": "Monday, May 25, 2026",
+    "sentiment": "uncertain"
   }
 ]

@@ -905,8 +905,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "55 years of 'we'll show you the gold eventually' is just another way of saying there is no gold",
     "scheduled_at": "2026-05-14T02:00:21.652597+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-25T19:00:02.728872+00:00",
     "created_at": "2026-05-13T18:00:21.652597+00:00"
   },
   {
@@ -915,8 +915,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The Fed demands you trust their audit. Bitcoin audits itself every 10 minutes",
     "scheduled_at": "2026-05-14T10:00:21.652597+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-25T22:00:02.937157+00:00",
     "created_at": "2026-05-13T18:00:21.652597+00:00"
   },
   {
@@ -1498,5 +1498,55 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-24T18:00:31.678747+00:00"
+  },
+  {
+    "anchor_id": "450",
+    "anchor_text": "1 sat/vB is the 1-hour fee to settle final value. Governments spend billions tracking your digital transactions. Your permission is not required",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Permissionless settlement is not a luxury, it's the default. Governments will adapt, or be bypassed.",
+    "scheduled_at": "2026-05-26T02:00:29.807365+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-25T18:00:29.807365+00:00"
+  },
+  {
+    "anchor_id": "450",
+    "anchor_text": "1 sat/vB is the 1-hour fee to settle final value. Governments spend billions tracking your digital transactions. Your permission is not required",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "They spend billions to know what you paid pennies to keep private. An expensive hobby.",
+    "scheduled_at": "2026-05-26T10:00:29.807365+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-25T18:00:29.807365+00:00"
+  },
+  {
+    "anchor_id": "450",
+    "anchor_text": "1 sat/vB is the 1-hour fee to settle final value. Governments spend billions tracking your digital transactions. Your permission is not required",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The state's surveillance budget dwarfs the cost of truly final settlement. Efficiency is not their priority.",
+    "scheduled_at": "2026-05-26T18:00:29.807365+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-25T18:00:29.807365+00:00"
+  },
+  {
+    "anchor_id": "450",
+    "anchor_text": "1 sat/vB is the 1-hour fee to settle final value. Governments spend billions tracking your digital transactions. Your permission is not required",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Sovereignty over value transfer is not granted by decree. It is claimed through action, at minimal cost.",
+    "scheduled_at": "2026-05-27T02:00:29.807365+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-25T18:00:29.807365+00:00"
+  },
+  {
+    "anchor_id": "450",
+    "anchor_text": "1 sat/vB is the 1-hour fee to settle final value. Governments spend billions tracking your digital transactions. Your permission is not required",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The true cost isn't 1 sat/vB. It's the billions spent by states trying to maintain a control they've already lost.",
+    "scheduled_at": "2026-05-27T10:00:29.807365+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-25T18:00:29.807365+00:00"
   }
 ]
