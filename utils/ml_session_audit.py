@@ -472,7 +472,7 @@ You have:
 - sentinel.py is asyncio + aiohttp daemon in a background thread
 - intelligence.py uses importlib.util to load sentinel by absolute path
 - Two services/ packages exist — core/services/ shadows top-level services/
-- NEVER use `from services.X import Y` — always importlib.util path loading
+- NEVER use `from pp_services.X import Y` — always importlib.util path loading
 - PyTorch 2.6.0 + CUDA 12.4 on RTX 4090 (GPU 1 for PCAF training/inference)
 - SentinelState written to /tmp/sentinel_state.json every 5s
 - SSE stream reads that file every 2s

@@ -313,7 +313,7 @@ def get_sovereign_matrix():
 def _compute_live_convergence():
     """Compute convergence live from data files when DB is empty."""
     try:
-        from services.signal_normalizer_service import SignalNormalizer, compute_convergence
+        from pp_services.signal_normalizer_service import SignalNormalizer, compute_convergence
         normalizer = SignalNormalizer()
         results = normalizer.compute_all()
         conv = compute_convergence(results)
@@ -333,7 +333,7 @@ def _compute_live_convergence():
 def _compute_live_convergence_graph():
     """Compute graph payload live."""
     try:
-        from services.signal_normalizer_service import SignalNormalizer, compute_convergence
+        from pp_services.signal_normalizer_service import SignalNormalizer, compute_convergence
         normalizer = SignalNormalizer()
         results = normalizer.compute_all()
         conv = compute_convergence(results)

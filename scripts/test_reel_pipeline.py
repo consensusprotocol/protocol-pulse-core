@@ -71,8 +71,8 @@ def run_pipeline(
     """Run full pipeline: build reel → narrate → publish. Returns report dict."""
     from app import app
     import models
-    from services.viralmoments import ViralMomentsReelEngine
-    from services.scheduler import ENABLE_LIVE_POSTING, _send_alert_email as scheduler_alert
+    from pp_services.viralmoments import ViralMomentsReelEngine
+    from pp_services.scheduler import ENABLE_LIVE_POSTING, _send_alert_email as scheduler_alert
 
     report = {
         "started_at": datetime.now(timezone.utc).isoformat(),
@@ -159,7 +159,7 @@ def run_pipeline(
 
         # Publish to X
         try:
-            from services.x_service import XService
+            from pp_services.x_service import XService
             x = XService()
             text = f"Intel Briefing reel — {channel_name} | {report['reel_url']}"
             if len(text) > 280:

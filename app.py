@@ -426,7 +426,7 @@ except Exception as _e:
     logging.critical("Oracle Avatar blueprint not loaded: %s", _e)
 
 try:
-    from services.video_engine.dashboard.app import dashboard_bp
+    from pp_services.video_engine.dashboard.app import dashboard_bp
     app.register_blueprint(dashboard_bp)
     logging.info("Dashboard blueprint registered at /dashboard/")
 except ImportError as _e:
@@ -478,7 +478,7 @@ def api_sovereign_context():
     """Serve the latest sovereign context world-state snapshot."""
     from flask import jsonify
     try:
-        from services.sovereign_context_engine import get_latest_context, get_recent_alerts
+        from pp_services.sovereign_context_engine import get_latest_context, get_recent_alerts
         ctx = get_latest_context()
         if not ctx:
             return jsonify({"error": "No context available — run a cycle first"}), 503
@@ -493,7 +493,7 @@ def api_sovereign_alerts():
     """Serve recent sovereign pattern-match alerts."""
     from flask import jsonify, request
     try:
-        from services.sovereign_context_engine import get_recent_alerts
+        from pp_services.sovereign_context_engine import get_recent_alerts
         limit = min(int(request.args.get('limit', 20)), 100)
         alerts = get_recent_alerts(limit)
         return jsonify({"alerts": alerts, "count": len(alerts)})

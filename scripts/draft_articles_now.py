@@ -13,7 +13,7 @@ if __name__ == "__main__":
     os.chdir(core_dir)
 
 from app import app
-from services.automation import generate_article_with_tracking
+from pp_services.automation import generate_article_with_tracking
 
 
 def main():

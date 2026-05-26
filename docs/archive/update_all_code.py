@@ -3,10 +3,10 @@ import logging
 from typing import Dict, Optional
 from app import db
 from models import Article
-from services.ai_service import AIService
-from services.substack_service import SubstackService
-from services.elevenlabs_service import ElevenLabsService
-from services.heygen_service import HeyGenService
+from pp_services.ai_service import AIService
+from pp_services.substack_service import SubstackService
+from pp_services.elevenlabs_service import ElevenLabsService
+from pp_services.heygen_service import HeyGenService
 from substack import Api
 from substack.post import Post
 
@@ -192,11 +192,11 @@ from flask_login import login_required, login_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
 from models import Article, Podcast, ContentPrompt, User
-from services.ai_service import AIService
-from services.reddit_service import RedditService
-from services.content_generator import ContentGenerator
-from services.content_engine import ContentEngine
-from services.substack_service import SubstackService
+from pp_services.ai_service import AIService
+from pp_services.reddit_service import RedditService
+from pp_services.content_generator import ContentGenerator
+from pp_services.content_engine import ContentEngine
+from pp_services.substack_service import SubstackService
 import logging
 import requests
 import os
@@ -444,7 +444,7 @@ def publish_to_substack(article_id):
 def share_to_reddit(article_id):
     """Cross-post article to Reddit using PRAW"""
     try:
-        from services.reddit_service import RedditService
+        from pp_services.reddit_service import RedditService
 
         article = Article.query.get_or_404(article_id)
 

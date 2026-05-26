@@ -4,8 +4,8 @@ Test YouTube Scanner + Local Whisper — End-to-End
 import sys
 sys.path.insert(0, "/home/ultron/protocol_pulse")
 
-from services.video_engine.sources.youtube_scanner import YouTubeScanner
-from services.video_engine.local_whisper import download_audio, transcribe_audio
+from pp_services.video_engine.sources.youtube_scanner import YouTubeScanner
+from pp_services.video_engine.local_whisper import download_audio, transcribe_audio
 
 TEST_CHANNELS = [
     {"name": "Simply Bitcoin", "handle": "@SimplyBitcoin", "channel_id": "", "enabled": True, "tags": ["daily"], "priority": "high"},

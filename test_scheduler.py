@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from app import app, db
 from models import Article
-from services.content_generator import ContentGenerator
+from pp_services.content_generator import ContentGenerator
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

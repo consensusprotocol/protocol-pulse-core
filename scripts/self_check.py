@@ -100,7 +100,7 @@ def main() -> int:
             failures.append(f"/api/command/test-connection:{cmd_resp.status_code}")
 
     try:
-        from services.medley_assembler import MedleyAssemblerService
+        from pp_services.medley_assembler import MedleyAssemblerService
 
         svc = MedleyAssemblerService()
         if callable(getattr(svc, "run", None)):
@@ -129,7 +129,7 @@ def main() -> int:
     # Article integrity (warn-only): newest 5 published must pass validation gate.
     try:
         import models
-        from services.content_generator import validate_article_for_publish
+        from pp_services.content_generator import validate_article_for_publish
 
         with app.app_context():
             newest = (

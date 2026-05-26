@@ -26,7 +26,7 @@ def main():
 
     from app import app
     with app.app_context():
-        from services.content_generator import ContentGenerator
+        from pp_services.content_generator import ContentGenerator
 
         gen = ContentGenerator()
         print("ContentGenerator loaded.")

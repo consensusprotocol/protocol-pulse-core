@@ -246,7 +246,7 @@ Begin with the headline, then the full article."""
             return None
         
         try:
-            from services.gemini_service import gemini_service
+            from pp_services.gemini_service import gemini_service
             
             prompt = f"""Write a comprehensive Bitcoin article about: {topic}
 
@@ -636,8 +636,8 @@ def generate_article_with_review() -> Dict:
     try:
         from app import app, db
         from models import Article
-        from services.claude_article_service import claude_article_service
-        from services.grok_review_service import grok_review_service
+        from pp_services.claude_article_service import claude_article_service
+        from pp_services.grok_review_service import grok_review_service
         
         with app.app_context():
             # Get unique topic
@@ -1026,7 +1026,7 @@ class SentimentAggregator:
     def get_x_sentiment(self) -> Optional[PlatformSentiment]:
         """X/Twitter sentiment via Grok."""
         try:
-            from services.grok_review_service import grok_review_service
+            from pp_services.grok_review_service import grok_review_service
             data = grok_review_service.get_x_sentiment("Bitcoin")
             
             return PlatformSentiment(
@@ -1159,7 +1159,7 @@ class SentimentAggregator:
     def get_nostr_sentiment(self) -> Optional[PlatformSentiment]:
         """Nostr sentiment via Grok's knowledge."""
         try:
-            from services.grok_review_service import grok_review_service
+            from pp_services.grok_review_service import grok_review_service
             data = grok_review_service.get_x_sentiment("Bitcoin Nostr")
             
             return PlatformSentiment(
@@ -1240,7 +1240,7 @@ class SentimentAggregator:
         """
         # Get Grok suggestions
         try:
-            from services.grok_review_service import grok_review_service
+            from pp_services.grok_review_service import grok_review_service
             return grok_review_service.suggest_trending_topics(count)
         except Exception as e:
             logger.warning(f"Topic suggestion error: {e}")
@@ -1560,7 +1560,7 @@ class VideoPipeline:
             voiceover_script: optional narration script
             title: medley title
         """
-        from services.ultron_gpu_service import ultron_gpu_service
+        from pp_services.ultron_gpu_service import ultron_gpu_service
         
         if not ultron_gpu_service.connected:
             return {"success": False, "error": "Ultron not connected"}
@@ -1591,7 +1591,7 @@ class VideoPipeline:
     
     def get_job_status(self, job_id: str) -> Dict:
         """Check status of a render job."""
-        from services.ultron_gpu_service import ultron_gpu_service
+        from pp_services.ultron_gpu_service import ultron_gpu_service
         return ultron_gpu_service.get_render_progress(job_id)
 
 
@@ -1905,7 +1905,7 @@ class MasterAutomation:
     def run_article_generation(self):
         """Generate a new article."""
         try:
-            from services.article_automation import run_article_generation_cycle
+            from pp_services.article_automation import run_article_generation_cycle
             
             result = run_article_generation_cycle()
             
@@ -1927,7 +1927,7 @@ class MasterAutomation:
     def run_sentiment_check(self):
         """Check multi-platform sentiment."""
         try:
-            from services.sentiment_aggregator import sentiment_aggregator
+            from pp_services.sentiment_aggregator import sentiment_aggregator
             
             sentiment = sentiment_aggregator.get_aggregated_sentiment()
             self.stats["sentiment_checks"] += 1
@@ -1946,7 +1946,7 @@ class MasterAutomation:
             return None
         
         try:
-            from services.x_automation_service import x_automation_service
+            from pp_services.x_automation_service import x_automation_service
             
             result = x_automation_service.auto_engage(max_actions=5)
             self.stats["x_engagements"] += result.get("actions", 0)
@@ -1967,7 +1967,7 @@ class MasterAutomation:
         try:
             from app import app
             from models import Article
-            from services.x_automation_service import x_automation_service
+            from pp_services.x_automation_service import x_automation_service
             
             with app.app_context():
                 if article_id:

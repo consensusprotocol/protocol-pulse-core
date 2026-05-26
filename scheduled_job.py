@@ -22,7 +22,7 @@ def main():
     
     try:
         from app import app
-        from services.automation import generate_article_with_tracking
+        from pp_services.automation import generate_article_with_tracking
         
         with app.app_context():
             result = generate_article_with_tracking()

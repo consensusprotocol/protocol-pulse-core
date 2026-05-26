@@ -18,7 +18,7 @@ SLEEP_BETWEEN = 5                   # 5s between calls — Grok has no tight rat
 
 from app import app, db
 from models import Article
-from services.image_service import ImageGenerationService
+from pp_services.image_service import ImageGenerationService
 
 def is_real_image(url):
     """Return True if the cover_image_url points to a real (non-placeholder) image."""

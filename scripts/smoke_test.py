@@ -39,7 +39,7 @@ def check(name, fn):
 
 
 def check_config():
-    from services.config_loader import get_enabled_channels, get_settings
+    from pp_services.config_loader import get_enabled_channels, get_settings
     channels = get_enabled_channels()
     settings = get_settings()
     return len(channels) > 0, f"{len(channels)} channels, top_clips={settings.get('top_clips_for_video', '?')}"
@@ -85,7 +85,7 @@ def check_headers_dir():
 
 def check_ultron():
     try:
-        from services.video_engine.ultron_client import ultron
+        from pp_services.video_engine.ultron_client import ultron
         result = ultron.health_check()
         if result and result.get("status") == "ok":
             gpus = result.get("gpu_count", "?")

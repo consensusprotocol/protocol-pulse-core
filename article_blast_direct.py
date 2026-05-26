@@ -7,7 +7,7 @@ os.chdir('/home/ultron/protocol_pulse')
 from app import app, db
 import models
 from datetime import datetime
-from services.automation import generate_article_with_tracking
+from pp_services.automation import generate_article_with_tracking
 
 LOG = '/home/ultron/protocol_pulse/logs/article_blast_direct.log'
 

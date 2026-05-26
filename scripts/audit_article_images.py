@@ -41,7 +41,7 @@ def main():
 
     try:
         from models import Article
-        from services.articles.image_guard import check_image_bytes, remember_accepted
+        from pp_services.articles.image_guard import check_image_bytes, remember_accepted
 
         query = Article.query
         if args.published_only:
@@ -139,7 +139,7 @@ def main():
         flagged = banned_list + dup_list + low_quality_list
         if args.fix and flagged:
             print("\n--- AUTO-REPLACING %d flagged images ---" % len(flagged))
-            from services.image_service import generate_article_header_image
+            from pp_services.image_service import generate_article_header_image
 
             replaced = 0
             failed = 0

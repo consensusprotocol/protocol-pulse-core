@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 from app import app, db
 from models import Article
-from services.ai_service import AIService
+from pp_services.ai_service import AIService
 from datetime import datetime
 
 ARTICLES = [

@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 # Add current directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.scheduler import generate_scheduled_article, run_social_monitoring, maintain_featured_count, archive_old_articles
+from pp_services.scheduler import generate_scheduled_article, run_social_monitoring, maintain_featured_count, archive_old_articles
 
 # Schedule automated content generation
 schedule.every(15).minutes.do(generate_scheduled_article)  # Breaking news every 15 minutes

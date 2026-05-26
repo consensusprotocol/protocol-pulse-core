@@ -44,7 +44,7 @@ def main():
         logger.error("File not found: %s", args.path)
         sys.exit(1)
 
-    from services.articles.image_guard import add_banned_image_file, get_banned_count
+    from pp_services.articles.image_guard import add_banned_image_file, get_banned_count
 
     phash = add_banned_image_file(args.path, label=args.label, max_dist=args.maxdist)
     if phash:

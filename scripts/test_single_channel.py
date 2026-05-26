@@ -40,7 +40,7 @@ def main():
 
     # Step 1: Check Ultron
     print("\n--- Step 1: Check Ultron ---")
-    from services.video_engine.ultron_client import ultron
+    from pp_services.video_engine.ultron_client import ultron
     health = ultron.health_check()
     if health.get("status") != "ok":
         print(f"FAIL: Ultron is not healthy: {health}")
@@ -49,7 +49,7 @@ def main():
 
     # Step 2: Select channel
     print("\n--- Step 2: Select Channel ---")
-    from services.config_loader import get_enabled_channels
+    from pp_services.config_loader import get_enabled_channels
     channels = get_enabled_channels()
 
     if args.channel:
@@ -143,7 +143,7 @@ def main():
         print("SKIP: No XAI_API_KEY set — cannot test Grok analysis")
         print("  Set XAI_API_KEY in Replit Secrets to enable this step")
     else:
-        from services.video_engine.intelligence_pipeline import IntelligencePipeline
+        from pp_services.video_engine.intelligence_pipeline import IntelligencePipeline
         pipeline = IntelligencePipeline()
 
         timestamped = "\n".join([f"[{s['start']:.1f}s] {s['text']}" for s in segments])

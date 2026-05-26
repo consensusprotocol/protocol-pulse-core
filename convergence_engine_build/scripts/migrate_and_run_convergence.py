@@ -61,7 +61,7 @@ def run_convergence_cycle():
     """Execute full convergence cycle: compute signals → compute convergence → persist."""
     from core.app import app, db
     from core.models_intelligence import SignalNormalized, ConvergenceState
-    from services.signal_normalizer_service import SignalNormalizer, compute_convergence
+    from pp_services.signal_normalizer_service import SignalNormalizer, compute_convergence
 
     normalizer = SignalNormalizer()
     results = normalizer.compute_all()

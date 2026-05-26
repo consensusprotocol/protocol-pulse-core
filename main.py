@@ -37,7 +37,7 @@ def start_scheduler():
                 from models import Article
                 Article.query.first()
 
-                from services.automation import generate_article_with_tracking
+                from pp_services.automation import generate_article_with_tracking
                 logger.info("=== SCHEDULED AUTOMATION TRIGGERED ===")
                 result = generate_article_with_tracking()
                 if result.get('success'):
@@ -62,7 +62,7 @@ def start_scheduler():
 
     # Affiliate editorial articles - 3 per day, rotated partners
     try:
-        from services.article_automation import run_scheduled_affiliate_article
+        from pp_services.article_automation import run_scheduled_affiliate_article
         scheduler.add_job(
             run_scheduled_affiliate_article,
             'cron',
@@ -79,7 +79,7 @@ def start_scheduler():
 
     # Comment Radar — every 3 hours, reply to viral Bitcoin tweets
     try:
-        from services.radar_automation import run_radar_cycle_safe
+        from pp_services.radar_automation import run_radar_cycle_safe
         scheduler.add_job(
             run_radar_cycle_safe,
             'interval',
@@ -94,7 +94,7 @@ def start_scheduler():
         logger.error(f"Failed to schedule Comment Radar: {e}")
     # Sentiment Pulse — daily editorial digest at 6 PM ET (23:00 UTC)
     try:
-        from services.sentiment_pulse import generate_daily_sentiment_pulse
+        from pp_services.sentiment_pulse import generate_daily_sentiment_pulse
         scheduler.add_job(
             generate_daily_sentiment_pulse,
             'cron',
@@ -111,7 +111,7 @@ def start_scheduler():
 
     # Viral Tweet Engine — original tweets + quote tweets every 4 hours (offset from Comment Radar)
     try:
-        from services.x_engagement_engine import run_full_engagement_strategy
+        from pp_services.x_engagement_engine import run_full_engagement_strategy
         scheduler.add_job(
             run_full_engagement_strategy,
             'interval',
@@ -127,7 +127,7 @@ def start_scheduler():
 
     # Reply-Back Engine — respond to replies on our tweets every 2 hours
     try:
-        from services.reply_back_engine import run_reply_back
+        from pp_services.reply_back_engine import run_reply_back
         scheduler.add_job(
             run_reply_back, 'interval', hours=2,
             id='reply_back', name='Reply-Back Engine',
@@ -140,7 +140,7 @@ def start_scheduler():
 
     # Intel Briefing — opinion columns 3x daily (8AM, 1PM, 7PM ET)
     try:
-        from services.intel_briefing import generate_intel_briefing
+        from pp_services.intel_briefing import generate_intel_briefing
         for hour_utc, label in [(13, 'morning'), (18, 'afternoon'), (0, 'evening')]:
             scheduler.add_job(
                 generate_intel_briefing,
@@ -164,7 +164,7 @@ def start_scheduler():
         """Background task to refresh podcast RSS feeds"""
         try:
             with app.app_context():
-                from services.rss_service import rss_service
+                from pp_services.rss_service import rss_service
                 rss_service.clear_cache()
                 episodes = rss_service.get_latest_episodes(limit=20)
                 logger.info(f"RSS refresh: {len(episodes)} episodes loaded")
@@ -184,7 +184,7 @@ def start_scheduler():
         """Background task to generate audio intelligence podcasts from partner channels"""
         try:
             with app.app_context():
-                from services.automation import generate_podcasts_from_partners
+                from pp_services.automation import generate_podcasts_from_partners
                 generate_podcasts_from_partners()
                 logger.info("Podcast generation completed")
         except Exception as e:
@@ -194,7 +194,7 @@ def start_scheduler():
         """Background task to auto-process new partner videos with full social packages"""
         try:
             with app.app_context():
-                from services.youtube_service import YouTubeService
+                from pp_services.youtube_service import YouTubeService
                 yt_service = YouTubeService()
                 results = yt_service.auto_process_new_partner_videos()
                 logger.info(f"Multimodal auto-processing completed: {results.get('videos_found', 0)} videos processed")
@@ -234,7 +234,7 @@ def start_scheduler():
         """
         try:
             with app.app_context():
-                from services.youtube_service import YouTubeService
+                from pp_services.youtube_service import YouTubeService
                 yt_service = YouTubeService()
                 results = yt_service.auto_process_cypherpunkd_with_launch()
 
@@ -259,7 +259,7 @@ def start_scheduler():
         """Sync Bitcoin network metrics to GHL Custom Values"""
         try:
             with app.app_context():
-                from services.ghl_service import ghl_service
+                from pp_services.ghl_service import ghl_service
                 result = ghl_service.sync_network_metrics()
                 if result.get('success'):
                     logger.info(f"GHL SYNC SUCCESS: Network metrics pushed - Difficulty={result.get('difficulty')}, Hashrate={result.get('hashrate')}")
@@ -281,7 +281,7 @@ def start_scheduler():
         """Scan social targets for new engagement opportunities"""
         try:
             with app.app_context():
-                from services.social_listener import social_listener
+                from pp_services.social_listener import social_listener
                 if social_listener.initialized:
                     results = social_listener.scan_all_targets()
                     if results.get('new_tweets'):
@@ -306,7 +306,7 @@ def start_scheduler():
         """Ingest feeds from RSS, YouTube, and other sources"""
         try:
             with app.app_context():
-                from services.feed_ingest import run_full_ingestion
+                from pp_services.feed_ingest import run_full_ingestion
                 count = run_full_ingestion()
                 logger.info(f"Feed ingestion complete: {count} items")
         except Exception as e:
@@ -325,7 +325,7 @@ def start_scheduler():
         """Compute network sentiment using weighted scoring and state detection"""
         try:
             with app.app_context():
-                from services.sentiment_engine import compute_network_sentiment
+                from pp_services.sentiment_engine import compute_network_sentiment
                 result = compute_network_sentiment(hours=24)
                 if result.get('state_changed'):
                     logger.info(f"Network state changed: {result.get('previous_state')} -> {result.get('state', {}).get('key')}")
@@ -347,7 +347,7 @@ def start_scheduler():
         """Auto-generate and publish content via Multi-Agent Supervisor"""
         try:
             with app.app_context():
-                from services.launch_sequence import launch_sequence_service
+                from pp_services.launch_sequence import launch_sequence_service
                 from models import Article
 
                 latest_article = Article.query.order_by(Article.created_at.desc()).first()
@@ -375,7 +375,7 @@ def start_scheduler():
         """Generate and publish Alex/Sarah intel tweets from partner content every 3 hours"""
         try:
             with app.app_context():
-                from services.intelligence_stream_service import intelligence_stream
+                from pp_services.intelligence_stream_service import intelligence_stream
                 result = intelligence_stream.run_intelligence_stream()
                 if result.get('success'):
                     logger.info(f"[INTEL STREAM] Published: {result.get('partner', 'unknown')}")
@@ -402,7 +402,7 @@ def start_scheduler():
                 whales = [tx for tx in resp.json() if tx.get('value', 0) / 100000000 >= 100]
                 if whales:
                     logger.info(f"[WHALE] Detected {len(whales)} whale transactions (>=100 BTC)")
-                    from services.telegram_service import send_whale_alert
+                    from pp_services.telegram_service import send_whale_alert
                     for whale in whales[:2]:
                         btc = whale.get('value', 0) / 100000000
                         is_mega = btc >= 500
@@ -424,7 +424,7 @@ def start_scheduler():
         try:
             with app.app_context():
                 from models import Article
-                from services.telegram_service import send_article_notification
+                from pp_services.telegram_service import send_article_notification
 
                 if not hasattr(Article, 'status'):
                     logger.debug("[DISTRIBUTION] Article model does not have status field - skipping")
@@ -471,7 +471,7 @@ def start_scheduler():
     def run_daily_sentiment_report():
         """Generate daily Bitcoin sentiment report from X and Nostr"""
         try:
-            from services.sentiment_tracker_service import sentiment_tracker
+            from pp_services.sentiment_tracker_service import sentiment_tracker
             article_id = sentiment_tracker.run_daily_report()
             if article_id:
                 logger.info(f"[SENTIMENT] Daily report generated: Article #{article_id}")
@@ -530,7 +530,7 @@ def start_scheduler():
 
     # Thread Engine — weekly deep-dive threads (Mon & Thu 10AM ET)
     try:
-        from services.thread_engine import run_weekly_thread
+        from pp_services.thread_engine import run_weekly_thread
         scheduler.add_job(
             run_weekly_thread, 'cron', day_of_week='mon,thu', hour=14, minute=30,
             id='thread_engine', name='Thread Engine - weekly deep-dive',
@@ -542,7 +542,7 @@ def start_scheduler():
 
     # Performance Tracker — update strategy weights daily
     try:
-        from services.performance_tracker import update_performance_weights
+        from pp_services.performance_tracker import update_performance_weights
         scheduler.add_job(
             update_performance_weights, 'cron', hour=4, minute=0,
             id='performance_tracker', name='Performance Tracker',
@@ -554,7 +554,7 @@ def start_scheduler():
 
     # Bookmark Bait — save-worthy tweets daily at 2PM ET
     try:
-        from services.bookmark_bait import run_bookmark_bait
+        from pp_services.bookmark_bait import run_bookmark_bait
         scheduler.add_job(
             run_bookmark_bait, 'cron', hour=19, minute=0,
             id='bookmark_bait', name='Bookmark Bait tweet',
@@ -566,7 +566,7 @@ def start_scheduler():
 
     # Nostr Cross-poster — daily best tweet to Nostr at 3PM ET
     try:
-        from services.nostr_crosspost import run_nostr_crosspost
+        from pp_services.nostr_crosspost import run_nostr_crosspost
         scheduler.add_job(
             run_nostr_crosspost, 'cron', hour=20, minute=0,
             id='nostr_crosspost', name='Nostr cross-post best tweet',
@@ -578,7 +578,7 @@ def start_scheduler():
 
     # Daily Newsletter — morning intelligence brief at 9AM ET (14:00 UTC)
     try:
-        from services.newsletter_engine import NewsletterEngine
+        from pp_services.newsletter_engine import NewsletterEngine
         def run_daily_newsletter():
             with app.app_context():
                 engine = NewsletterEngine()
@@ -596,7 +596,7 @@ def start_scheduler():
 
     # Weekly Premium Digest — "The Sovereign Signal" every Monday 8AM ET (13:00 UTC)
     try:
-        from services.newsletter_digest import NewsletterDigestService
+        from pp_services.newsletter_digest import NewsletterDigestService
         def run_weekly_premium():
             with app.app_context():
                 digest = NewsletterDigestService()
@@ -604,7 +604,7 @@ def start_scheduler():
                 logger.info(f"Weekly premium digest result: {result}")
 
                 # Send to subscribers
-                from services.newsletter_engine import NewsletterEngine
+                from pp_services.newsletter_engine import NewsletterEngine
                 engine = NewsletterEngine()
                 subscribers = engine.get_subscribers()
                 if subscribers and result.get("success"):

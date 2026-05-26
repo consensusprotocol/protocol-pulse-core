@@ -9,7 +9,7 @@ PROJECT_ROOT = Path("/home/ultron/protocol_pulse")
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from services.sovereign_medley_pipeline import sovereign_medley_pipeline
+from pp_services.sovereign_medley_pipeline import sovereign_medley_pipeline
 
 
 def main() -> int:

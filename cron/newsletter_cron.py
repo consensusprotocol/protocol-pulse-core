@@ -46,7 +46,7 @@ def _run_in_app_context(fn):
 
 def fire_newsletter(force: bool = False) -> dict:
     """Send today's newsletter. Wrapped in app context."""
-    from services.newsletter_service import send_daily_newsletter
+    from pp_services.newsletter_service import send_daily_newsletter
 
     def _send():
         return send_daily_newsletter(force=force)
@@ -60,7 +60,7 @@ def fire_newsletter(force: bool = False) -> dict:
 
 def fire_test(to_email: str) -> dict:
     """Send test newsletter. Wrapped in app context."""
-    from services.newsletter_service import send_test_newsletter
+    from pp_services.newsletter_service import send_test_newsletter
 
     def _send():
         return send_test_newsletter(to_email)

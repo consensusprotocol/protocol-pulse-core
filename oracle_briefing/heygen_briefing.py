@@ -32,7 +32,7 @@ for env_path in [
                 os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 import anthropic
-from services.heygen_client import generate_and_download, SARAH_AVATAR_ID
+from pp_services.heygen_client import generate_and_download, SARAH_AVATAR_ID
 
 
 # ---------------------------------------------------------------------------

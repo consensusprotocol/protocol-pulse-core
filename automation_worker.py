@@ -13,7 +13,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app import app
-from services.automation import generate_article_with_tracking
+from pp_services.automation import generate_article_with_tracking
 
 def main():
     """Main entry point for automation worker"""

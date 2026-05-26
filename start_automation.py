@@ -9,7 +9,7 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
-from services.scheduler import generate_scheduled_article, run_social_monitoring
+from pp_services.scheduler import generate_scheduled_article, run_social_monitoring
 
 def start_content_generation():
     """Start generating content immediately"""

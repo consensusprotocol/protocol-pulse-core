@@ -25,8 +25,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app import app, db
 from models import WhaleTransaction, TargetAlert, CuratedPost, SentryQueue, XInboxTweet
-from services.feature_flags import is_enabled
-from services.runtime_status import update_status
+from pp_services.feature_flags import is_enabled
+from pp_services.runtime_status import update_status
 from services import ollama_runtime
 from core.event_bus import emit_event
 from core.governance import check_and_consume
@@ -169,8 +169,8 @@ def run_x_sentry_cycle(dry_run: bool = False, seed_posts: Any = None, handles: L
     - draft one-line replies
     - persist drafts to TargetAlert for review/automation
     """
-    from services.target_monitor import target_monitor
-    from services.social_listener import social_listener
+    from pp_services.target_monitor import target_monitor
+    from pp_services.social_listener import social_listener
 
     posts = list(seed_posts or target_monitor.get_new_x_posts(hours_back=2, handles=handles or _load_bol_handles()))
     fetched = len(posts)
@@ -228,8 +228,8 @@ def run_nostr_sentry_cycle(dry_run: bool = False) -> Dict[str, Any]:
     - draft one-line replies
     - persist drafts to TargetAlert for review/automation
     """
-    from services.sentiment_tracker_service import SentimentTrackerService
-    from services.social_listener import social_listener
+    from pp_services.sentiment_tracker_service import SentimentTrackerService
+    from pp_services.social_listener import social_listener
 
     tracker = SentimentTrackerService()
     notes = tracker.fetch_nostr_notes(hours_back=2, limit=50)
@@ -284,7 +284,7 @@ def run_whale_watcher_cycle() -> Dict[str, Any]:
     Pull live whale data using existing route logic and persist new tx rows.
     Returns simple counters for observability in logs.
     """
-    from services.whale_watcher import whale_watcher
+    from pp_services.whale_watcher import whale_watcher
 
     whales = whale_watcher.fetch_live_whales(min_btc=10.0)
     scanned = 0
@@ -465,7 +465,7 @@ def run_ghostwriter_autodraft(handles: List[str], max_drafts: int = 60) -> Dict[
     """
     Scan target-list X posts and write sovereign witty draft replies into SentryQueue.
     """
-    from services.target_monitor import target_monitor
+    from pp_services.target_monitor import target_monitor
 
     posts = target_monitor.get_new_x_posts(hours_back=2, handles=handles or _load_bol_handles())
     if not posts:
@@ -590,7 +590,7 @@ def main() -> None:
                 except Exception:
                     logging.exception("orchestration summary emit failed")
                 try:
-                    from services.distribution_manager import distribution_manager
+                    from pp_services.distribution_manager import distribution_manager
 
                     if is_enabled("ENABLE_DISTRIBUTION_ENGINE"):
                         schedule_result = distribution_manager.run_scheduled_dispatch()
@@ -605,7 +605,7 @@ def main() -> None:
                 try:
                     mega_events = w_result.get("mega_events") or []
                     if mega_events:
-                        from services.web_push_service import web_push_service
+                        from pp_services.web_push_service import web_push_service
                         for event in mega_events:
                             usd = float(event.get("usd_value") or 0)
                             btc = float(event.get("btc_amount") or 0)
@@ -623,7 +623,7 @@ def main() -> None:
                 except Exception:
                     logging.exception("whale web-push dispatch failed")
                 try:
-                    from services.matty_ice_engagement import matty_ice_agent
+                    from pp_services.matty_ice_engagement import matty_ice_agent
 
                     if is_enabled("ENABLE_MATTY_ICE_ENGAGEMENT"):
                         matty_result = matty_ice_agent.run_cycle()
@@ -646,14 +646,14 @@ def main() -> None:
                 except Exception:
                     logging.exception("ghostwriter autodraft failed")
                 try:
-                    from services.media_generator import media_generator
+                    from pp_services.media_generator import media_generator
                     media_result = media_generator.maybe_render_from_latest_brief()
                     if media_result.get("rendered"):
                         signal_logger.emit("signal", "media factory shipped daily pulse render on gpu 1.")
                 except Exception:
                     logging.exception("media generator run failed")
                 try:
-                    from services.nostr_broadcaster import nostr_broadcaster
+                    from pp_services.nostr_broadcaster import nostr_broadcaster
                     retry_result = nostr_broadcaster.retry_pending()
                     if int(retry_result.get("retried", 0)) > 0:
                         signal_logger.emit("signal", f"nostr retry sweep completed | retried={retry_result.get('retried')}.")

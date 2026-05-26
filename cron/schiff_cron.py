@@ -34,7 +34,7 @@ def main():
 
     # Import service
     try:
-        from services.schiff_service import update_score, seed_statements
+        from pp_services.schiff_service import update_score, seed_statements
     except ImportError:
         try:
             from core.services.schiff_service import update_score, seed_statements

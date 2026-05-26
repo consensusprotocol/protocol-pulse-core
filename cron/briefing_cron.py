@@ -41,7 +41,7 @@ def run_briefing(briefing_type: str) -> None:
     """Invoke briefing_service.generate_briefing with full error isolation."""
     logger.info("Cron fired: %s briefing", briefing_type)
     try:
-        from services.briefing_service import generate_briefing
+        from pp_services.briefing_service import generate_briefing
         result = generate_briefing(briefing_type)
         if result.get("success"):
             logger.info(

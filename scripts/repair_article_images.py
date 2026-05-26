@@ -70,7 +70,7 @@ def _classify_image(url):
 def _check_existing_image_guard(filepath):
     """Run image_guard on an existing OK file. Returns verdict or None."""
     try:
-        from services.articles.image_guard import check_image_bytes
+        from pp_services.articles.image_guard import check_image_bytes
         with open(filepath, "rb") as f:
             img_bytes = f.read()
         return check_image_bytes(img_bytes)
@@ -201,7 +201,7 @@ def fix_broken_to_default(session, results):
 
 def regenerate_images(session, results, published_only=False):
     """Re-generate broken/missing/banned/duplicate images via AI with image_guard checks."""
-    from services.image_service import generate_article_header_image
+    from pp_services.image_service import generate_article_header_image
 
     targets = results['broken'] + results['no_image'] + results.get('banned', []) + results.get('duplicate', [])
     if published_only:

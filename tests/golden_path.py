@@ -538,11 +538,11 @@ def check_tweet_gate():
     test_db = "/tmp/golden_path_x_gate_test.db"
 
     try:
-        from services.x_service import can_post_tweet, _init_gate_db, _GATE_DB
+        from pp_services.x_service import can_post_tweet, _init_gate_db, _GATE_DB
 
         # Save original DB path, swap in test DB
         original_db = _GATE_DB
-        import services.x_service as xs
+        import pp_services.x_service as xs
         xs._GATE_DB = Path(test_db)
 
         try:

@@ -29,7 +29,7 @@ import logging
 import traceback
 from datetime import datetime, timedelta
 from threading import Event
-from services.radar_automation import run_radar_cycle_safe
+from pp_services.radar_automation import run_radar_cycle_safe
 
 # Setup logging
 logging.basicConfig(
@@ -88,7 +88,7 @@ class MasterAutomation:
     def run_article_generation(self):
         """Generate a new article."""
         try:
-            from services.article_automation import run_article_generation_cycle
+            from pp_services.article_automation import run_article_generation_cycle
             
             result = run_article_generation_cycle()
             
@@ -110,7 +110,7 @@ class MasterAutomation:
     def run_sentiment_check(self):
         """Check multi-platform sentiment."""
         try:
-            from services.sentiment_aggregator import sentiment_aggregator
+            from pp_services.sentiment_aggregator import sentiment_aggregator
             
             sentiment = sentiment_aggregator.get_aggregated_sentiment()
             self.stats["sentiment_checks"] += 1
@@ -129,7 +129,7 @@ class MasterAutomation:
             return None
         
         try:
-            from services.x_automation_service import x_automation_service
+            from pp_services.x_automation_service import x_automation_service
             
             result = x_automation_service.auto_engage(max_actions=5)
             self.stats["x_engagements"] += result.get("actions", 0)
@@ -146,7 +146,7 @@ class MasterAutomation:
     def run_pulse_intelligence(self):
         """Run partner channel intelligence pulse"""
         try:
-            from services.pulse_intelligence import pulse_intelligence
+            from pp_services.pulse_intelligence import pulse_intelligence
             
             logger.info("Running Pulse Intelligence...")
             result = pulse_intelligence.run_daily_pulse()
@@ -160,7 +160,7 @@ class MasterAutomation:
                 x_posts = result.get("x_posts", [])
                 if x_posts and os.environ.get("AUTOPOST_X", "").lower() == "true":
                     try:
-                        from services.x_service import XService
+                        from pp_services.x_service import XService
                         
                         from datetime import datetime
                         
@@ -213,8 +213,8 @@ class MasterAutomation:
                                 # Post it
                                 hook = post["hook"].replace("[LINK]", video_url)
                                 # Use quality gate for pulse posts
-                                from services.human_voice_filter import humanize
-                                from services.post_quality_gate import post_quality_gate
+                                from pp_services.human_voice_filter import humanize
+                                from pp_services.post_quality_gate import post_quality_gate
                                 
                                 clean_hook = humanize(hook)
                                 
@@ -267,7 +267,7 @@ class MasterAutomation:
         try:
             from app import app
             from models import Article
-            from services.x_automation_service import x_automation_service
+            from pp_services.x_automation_service import x_automation_service
             
             with app.app_context():
                 if article_id:
@@ -284,7 +284,7 @@ class MasterAutomation:
                 url = f"{base_url}/articles/{article.id}"  # Note: /articles/ not /article/
                 
                 # Use quality gate for all posts
-                from services.post_quality_gate import post_quality_gate
+                from pp_services.post_quality_gate import post_quality_gate
                 
                 gate_result = post_quality_gate.process_article_post(
                     article_id=article.id,
@@ -418,7 +418,7 @@ if __name__ == "__main__":
             return None
         
         try:
-            from services.newsletter_engine import newsletter_engine
+            from pp_services.newsletter_engine import newsletter_engine
             
             result = newsletter_engine.run_daily_newsletter()
             

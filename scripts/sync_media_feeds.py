@@ -22,7 +22,7 @@ def main():
     log.info('Starting feed sync...')
     try:
         from app import app, db
-        from services.media_feed_service import sync_all_feeds
+        from pp_services.media_feed_service import sync_all_feeds
         import models
 
         with app.app_context():

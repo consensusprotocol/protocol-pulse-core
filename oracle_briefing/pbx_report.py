@@ -36,7 +36,7 @@ for env_path in [
                 os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 import anthropic
-from services.heygen_client import generate_and_download, PBX_AVATAR_ID, SARAH_VOICE_ID
+from pp_services.heygen_client import generate_and_download, PBX_AVATAR_ID, SARAH_VOICE_ID
 
 # Voice for PBX — Thanos Broadcaster
 PBX_VOICE_ID = "74c81bbeaccc4fe5b883efd5e242d0b5"

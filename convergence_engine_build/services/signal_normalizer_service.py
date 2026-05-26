@@ -13,7 +13,7 @@ All formulas are deterministic and explainable.
 No LLM in the scoring loop. Every score has drivers + counterweights.
 
 Usage:
-    from services.signal_normalizer_service import SignalNormalizer
+    from pp_services.signal_normalizer_service import SignalNormalizer
     normalizer = SignalNormalizer()
     normalizer.compute_all()
 

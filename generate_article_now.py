@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app import app, db
 from models import Article
-from services.content_generator import ContentGenerator
+from pp_services.content_generator import ContentGenerator
 import random
 import logging
 
@@ -65,7 +65,7 @@ def generate_article():
                 
                 # Auto-publish to Substack
                 try:
-                    from services.substack_service import SubstackService
+                    from pp_services.substack_service import SubstackService
                     substack_service = SubstackService()
                     newsletter_content = substack_service.format_content_for_newsletter(article.content, 'bitcoin')
                     substack_url = substack_service.publish_to_substack(article.title, newsletter_content, article.header_image_url)

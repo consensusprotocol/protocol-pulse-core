@@ -352,8 +352,8 @@ def patch_content_generator():
     4. Add Grok review step before returning
     """
     
-    from services.ai_service import AIService
-    from services.grok_review_service import grok_review_service
+    from pp_services.ai_service import AIService
+    from pp_services.grok_review_service import grok_review_service
     
     # Store original method
     original_generate = AIService.generate_content_openai
@@ -376,7 +376,7 @@ def patch_content_generator():
         if self.gemini_available:
             try:
                 logger.info("Falling back to Gemini...")
-                from services.gemini_service import gemini_service
+                from pp_services.gemini_service import gemini_service
                 result = gemini_service.generate_content(prompt)
                 if result and len(result) > 100:
                     logger.info(f"Gemini generated {len(result)} chars")
@@ -406,7 +406,7 @@ def add_grok_review_to_pipeline():
     Inject Grok review into the article publishing pipeline.
     Articles must pass Grok review before being published.
     """
-    from services.grok_review_service import grok_review_service
+    from pp_services.grok_review_service import grok_review_service
     from services import automation
     
     # Store original function
@@ -561,7 +561,7 @@ class XAutomationService:
         
         # Get Grok's real-time analysis
         try:
-            from services.grok_review_service import grok_review_service
+            from pp_services.grok_review_service import grok_review_service
             grok_sentiment = grok_review_service.get_x_sentiment("Bitcoin")
             result.update(grok_sentiment)
         except Exception as e:
@@ -604,7 +604,7 @@ class XAutomationService:
         
         # Get Grok suggestions
         try:
-            from services.grok_review_service import grok_review_service
+            from pp_services.grok_review_service import grok_review_service
             grok_topics = grok_review_service.suggest_article_topics(5)
             topics.extend(grok_topics)
         except Exception as e:
@@ -818,7 +818,7 @@ class MultiPlatformSentimentMonitor:
     def get_x_sentiment(self) -> Optional[SentimentReading]:
         """Get X/Twitter sentiment."""
         try:
-            from services.x_automation_service import x_automation_service
+            from pp_services.x_automation_service import x_automation_service
             data = x_automation_service.get_bitcoin_sentiment()
             
             return SentimentReading(
@@ -917,7 +917,7 @@ class MultiPlatformSentimentMonitor:
             return None
         
         try:
-            from services.grok_review_service import grok_review_service
+            from pp_services.grok_review_service import grok_review_service
             
             # Grok has knowledge of Nostr activity
             prompt_data = grok_review_service.get_x_sentiment("Bitcoin Nostr community")
@@ -1018,7 +1018,7 @@ class MultiPlatformSentimentMonitor:
         
         # Use Grok for topic generation
         try:
-            from services.grok_review_service import grok_review_service
+            from pp_services.grok_review_service import grok_review_service
             grok_topics = grok_review_service.suggest_article_topics(count)
             topics.extend(grok_topics)
         except Exception as e:
@@ -1128,8 +1128,8 @@ class MasterAutomationLoop:
         """Generate a new article with Claude + Grok review."""
         try:
             from app import app
-            from services.automation import generate_breaking_article_with_tracking
-            from services.sentiment_monitor import sentiment_monitor
+            from pp_services.automation import generate_breaking_article_with_tracking
+            from pp_services.sentiment_monitor import sentiment_monitor
             
             with app.app_context():
                 # Get trending topic from sentiment
@@ -1166,7 +1166,7 @@ class MasterAutomationLoop:
     def run_sentiment_check(self):
         """Check sentiment across all platforms."""
         try:
-            from services.sentiment_monitor import sentiment_monitor
+            from pp_services.sentiment_monitor import sentiment_monitor
             
             sentiment = sentiment_monitor.get_aggregated_sentiment()
             self.stats["sentiment_checks"] += 1
@@ -1189,7 +1189,7 @@ class MasterAutomationLoop:
             return
             
         try:
-            from services.x_automation_service import x_automation_service
+            from pp_services.x_automation_service import x_automation_service
             
             result = x_automation_service.auto_engage(max_actions=5)
             
@@ -1211,7 +1211,7 @@ class MasterAutomationLoop:
         try:
             from app import app, db
             from models import Article
-            from services.x_automation_service import x_automation_service
+            from pp_services.x_automation_service import x_automation_service
             
             with app.app_context():
                 if article_id:
@@ -1264,7 +1264,7 @@ class MasterAutomationLoop:
         
         # Apply patches
         try:
-            from services.claude_primary_patch import patch_content_generator, add_grok_review_to_pipeline
+            from pp_services.claude_primary_patch import patch_content_generator, add_grok_review_to_pipeline
             patch_content_generator()
             add_grok_review_to_pipeline()
             logger.info("✅ Claude + Grok patches applied")
