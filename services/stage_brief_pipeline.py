@@ -325,9 +325,104 @@ def _load_pulse_check_script():
 # Brief Script Generation
 # ---------------------------------------------------------------------------
 
+def _call_llm(system, user_prompt, max_tokens=400):
+    """LLM provider cascade: Anthropic -> Gemini -> Grok -> Qwen (local Ollama).
+
+    Brief generation must never depend on a single provider's availability or
+    credit balance. Tries each provider in order; returns the first success.
+    """
+    errors = []
+
+    # 1. Anthropic (Claude Haiku) -- primary
+    try:
+        api_key = _get_anthropic_key()
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": CLAUDE_MODEL,
+                "max_tokens": max_tokens,
+                "system": system,
+                "messages": [{"role": "user", "content": user_prompt}],
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        text = resp.json()["content"][0]["text"].strip()
+        if text:
+            logger.info("[brief] LLM provider: anthropic")
+            return text
+        errors.append("anthropic: empty response")
+    except Exception as e:
+        errors.append("anthropic: %s" % e)
+
+    # 2. Gemini
+    try:
+        from gemini_service import GeminiService
+        text = GeminiService().generate_content(user_prompt, system_prompt=system)
+        if text and text.strip():
+            logger.warning("[brief] LLM fallback -> gemini (anthropic unavailable)")
+            return text.strip()
+        errors.append("gemini: empty response")
+    except Exception as e:
+        errors.append("gemini: %s" % e)
+
+    # 3. Grok (x.ai, OpenAI-compatible)
+    try:
+        xai_key = os.environ.get("XAI_API_KEY", "")
+        if not xai_key:
+            try:
+                for line in open(os.path.join(BASE, ".env")):
+                    if line.startswith("XAI_API_KEY="):
+                        xai_key = line.split("=", 1)[1].strip().strip('"').strip("'")
+                        break
+            except Exception:
+                pass
+        if xai_key:
+            resp = requests.post(
+                "https://api.x.ai/v1/chat/completions",
+                headers={"Authorization": "Bearer %s" % xai_key,
+                         "Content-Type": "application/json"},
+                json={
+                    "model": "grok-3",
+                    "max_tokens": max_tokens,
+                    "messages": [
+                        {"role": "system", "content": system},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            text = resp.json()["choices"][0]["message"]["content"].strip()
+            if text:
+                logger.warning("[brief] LLM fallback -> grok (anthropic+gemini unavailable)")
+                return text
+        errors.append("grok: no key or empty response")
+    except Exception as e:
+        errors.append("grok: %s" % e)
+
+    # 4. Qwen / local Ollama -- last resort, $0, always-on
+    try:
+        import local_llm
+        text = local_llm._ollama_generate(user_prompt, system=system,
+                                          max_tokens=max_tokens)
+        if text and text.strip():
+            logger.warning("[brief] LLM fallback -> local ollama (all cloud providers down)")
+            return text.strip()
+        errors.append("local_llm: empty response")
+    except Exception as e:
+        errors.append("local_llm: %s" % e)
+
+    raise RuntimeError("All LLM providers failed: " + " | ".join(errors))
+
+
 def generate_brief_script(data, brief_type="morning"):
-    """Generate brief script via Claude Haiku."""
-    api_key = _get_anthropic_key()
+    """Generate brief script via the LLM provider cascade."""
 
     btc = data["btc"]
     mempool = data["mempool"]
@@ -360,23 +455,7 @@ def generate_brief_script(data, brief_type="morning"):
 
     system = BRIEF_SYSTEM_PROMPTS.get(brief_type, BRIEF_SYSTEM_PROMPTS["morning"])
 
-    resp = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        },
-        json={
-            "model": CLAUDE_MODEL,
-            "max_tokens": 400,
-            "system": system,
-            "messages": [{"role": "user", "content": user_prompt}],
-        },
-        timeout=30,
-    )
-    resp.raise_for_status()
-    text = resp.json()["content"][0]["text"].strip()
+    text = _call_llm(system, user_prompt, max_tokens=400)
     word_count = len(text.split())
     logger.info("Brief script: %d words (%s)", word_count, brief_type)
     return text
