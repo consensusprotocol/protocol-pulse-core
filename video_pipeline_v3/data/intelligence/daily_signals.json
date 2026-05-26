@@ -5,7 +5,7 @@
       "channels": 20,
       "sentiment": "uncertain",
       "velocity_score": 30,
-      "authority_score": 15,
+      "authority_score": 30,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -27,7 +27,7 @@
       "channels": 14,
       "sentiment": "uncertain",
       "velocity_score": 10,
-      "authority_score": 21,
+      "authority_score": 10,
       "top_quote": "",
       "thought_leaders": [],
       "source": "thought_leader_tweets",
@@ -40,9 +40,9 @@
     "Bitcoin as superior store of value versus collapsing fiat...",
     "MicroStrategy's aggressive Bitcoin accumulation strategy"
   ],
-  "dominant_narrative": "MicroStrategy's aggressive Bitcoin accumulation strategy",
+  "dominant_narrative": "Sovereign debt crisis and rising global bond yields",
   "market_mood": "neutral",
   "total_tweets_analyzed": 0,
   "thought_leaders_active": 0,
-  "scan_time": "2026-05-25T13:30:06Z"
+  "scan_time": "2026-05-26T13:30:06Z"
 }

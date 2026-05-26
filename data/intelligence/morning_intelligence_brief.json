@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-05-25T14:30:00Z",
-  "date": "Monday, May 25, 2026",
-  "btc_price": "$77,375",
-  "btc_change_24h": "+0.9%",
+  "generated_at": "2026-05-26T14:30:00Z",
+  "date": "Tuesday, May 26, 2026",
+  "btc_price": "$75,962",
+  "btc_change_24h": "-1.8%",
   "fng": "Fear",
   "dominant_narratives": [
-    "Strategic Bitcoin Reserve momentum",
-    "Self-custody as trust replacement",
-    "Business cycle signaling parabolic rally"
+    "Erosion of Trust in Traditional Systems & Bitcoin as a Solution",
+    "Transparency and Dividend Yield through Bitcoin-Backed Initiatives (e.g., Strive)",
+    "Bitcoin's Resilience Amid Global Uncertainty (Wars, Sanctions, Economic Shifts)"
   ],
   "trending_language": [
-    "self-custody Bitcoin",
-    "Strategic Bitcoin Reserve",
-    "Bitcoin Summer"
+    "Trust in Traditional Systems Eroding",
+    "Bitcoin as a Store of Value Amid Conflict",
+    "Daily Bitcoin-Backed Dividends"
   ],
-  "sentiment": "uncertain",
-  "sentiment_reasoning": "Fear & Greed at 30 signals caution despite strong reserve and self-custody signals; KOL transcripts show regulatory bearishness pulling against adoption narratives.",
+  "sentiment": "bearish",
+  "sentiment_reasoning": "Fear & Greed Index at 34, indicating fear, coupled with narratives highlighting global uncertainty and the need for alternative trust systems.",
   "top_accounts_active": [
+    "@saifedean",
     "@BitcoinArchive",
-    "@saylor",
-    "@COLDCARDwallet"
+    "@PunterJeff"
   ],
   "recommended_tweet_angles": [
-    "US legislators locking in 5% BTC reserve matching gold holdings",
-    "Airgapped open-source hardware verifying over trusting modern finance",
-    "Business cycle flip mirroring 2020 parabolic setup"
+    "Highlighting Bitcoin's stability in times of war and economic turmoil",
+    "Explaining the benefits of Bitcoin-backed daily dividends for investors",
+    "Discussing the erosion of trust in fiat and traditional banking systems"
   ],
   "topics_to_avoid": [
-    "geopolitical conflicts"
+    "Sensitive Geopolitical Conflicts (e.g., Israel-Palestine discussions by @saifedean)"
   ],
-  "engagement_patterns": "Short conviction statements backed by on-chain or legislative data",
-  "protocol_pulse_voice_guidance": "Speak in cypherpunk verification mode, cite specific reserve moves and self-custody tools while noting fear index as contrarian fuel",
+  "engagement_patterns": "Direct, solution-focused content with a touch of cypherpunk ideology is gaining traction today.",
+  "protocol_pulse_voice_guidance": "Emphasize the resilience of Bitcoin in uncertain times, highlight innovative dividend models, and caution against over-speculation on market direction.",
   "key_stats_today": {
-    "tweets_analyzed": 97,
+    "tweets_analyzed": 119,
     "nostr_signals": 0,
     "unique_handles": 63
   },
-  "generated_by": "grok_fallback"
+  "generated_by": "nvidia_nim_fallback"
 }

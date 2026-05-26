@@ -925,8 +925,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "If Fort Knox can't be verified, the dollar's backing is a thought experiment. Bitcoin's supply is math",
     "scheduled_at": "2026-05-14T18:00:21.652597+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-26T04:00:03.254263+00:00",
     "created_at": "2026-05-13T18:00:21.652597+00:00"
   },
   {
@@ -935,8 +935,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Sovereignty means knowing your money exists. Most people own neither",
     "scheduled_at": "2026-05-15T02:00:21.652597+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-26T19:00:02.651677+00:00",
     "created_at": "2026-05-13T18:00:21.652597+00:00"
   },
   {
@@ -945,8 +945,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone assumes the vault is full because admitting otherwise breaks the whole system. Bitcoin made that assumption unnecessary",
     "scheduled_at": "2026-05-15T10:00:21.652597+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-26T22:00:03.355605+00:00",
     "created_at": "2026-05-13T18:00:21.652597+00:00"
   },
   {
@@ -1548,5 +1548,55 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-25T18:00:29.807365+00:00"
+  },
+  {
+    "anchor_id": "453",
+    "anchor_text": "How many of the 143M debanked thought it would never happen to them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The 143M figure confirms that self-sovereignty is not a choice, but an imperative.",
+    "scheduled_at": "2026-05-27T02:00:31.080062+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-26T18:00:31.080062+00:00"
+  },
+  {
+    "anchor_id": "453",
+    "anchor_text": "How many of the 143M debanked thought it would never happen to them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The system promises security, then demonstrates its capacity for sudden exclusion. A predictable irony.",
+    "scheduled_at": "2026-05-27T10:00:31.080062+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-26T18:00:31.080062+00:00"
+  },
+  {
+    "anchor_id": "453",
+    "anchor_text": "How many of the 143M debanked thought it would never happen to them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "That 143M represents a population larger than many nations, suddenly excluded. A significant economic and social destabilizer.",
+    "scheduled_at": "2026-05-27T18:00:31.080062+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-26T18:00:31.080062+00:00"
+  },
+  {
+    "anchor_id": "453",
+    "anchor_text": "How many of the 143M debanked thought it would never happen to them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "True ownership of capital is only realized outside the reach of third-party discretion. This figure underscores the illusion of bank-held assets.",
+    "scheduled_at": "2026-05-28T02:00:31.080062+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-26T18:00:31.080062+00:00"
+  },
+  {
+    "anchor_id": "453",
+    "anchor_text": "How many of the 143M debanked thought it would never happen to them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real oversight is assuming this trend will slow, rather than accelerate as financial systems further centralize and automate their controls.",
+    "scheduled_at": "2026-05-28T10:00:31.080062+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-26T18:00:31.080062+00:00"
   }
 ]

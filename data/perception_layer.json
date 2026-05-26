@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-05-26T02:30:14.802188+00:00",
-  "fetch_time_ms": 10509,
+  "updated_at": "2026-05-26T22:30:16.318021+00:00",
+  "fetch_time_ms": 11608,
   "composite": {
     "perception_score": 52,
     "label": "Neutral",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.25,
-    "total_mcap_usd": 2637429732769.7744,
-    "total_mcap_t": 2.637,
-    "total_vol_24h_usd": 65200607593.64383,
-    "total_vol_24h_b": 65.2,
-    "active_coins": 17396,
+    "btc_dominance_pct": 58.0,
+    "total_mcap_usd": 2614906039444.355,
+    "total_mcap_t": 2.615,
+    "total_vol_24h_usd": 98276463886.14095,
+    "total_vol_24h_b": 98.3,
+    "active_coins": 17399,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -35,43 +35,43 @@
       {
         "symbol": "BONK",
         "name": "Bonk",
-        "rank": 101,
+        "rank": 103,
         "score": 0
       },
       {
-        "symbol": "ONDO",
-        "name": "Ondo",
-        "rank": 46,
+        "symbol": "ERG",
+        "name": "Ergo",
+        "rank": 808,
         "score": 1
       },
       {
-        "symbol": "SLX",
-        "name": "Solstice",
-        "rank": 540,
+        "symbol": "NOCK",
+        "name": "Nockchain",
+        "rank": 334,
         "score": 2
-      },
-      {
-        "symbol": "NEAR",
-        "name": "NEAR Protocol",
-        "rank": 33,
-        "score": 3
-      },
-      {
-        "symbol": "VVV",
-        "name": "Venice Token",
-        "rank": 81,
-        "score": 4
       },
       {
         "symbol": "HYPE",
         "name": "Hyperliquid",
         "rank": 11,
+        "score": 3
+      },
+      {
+        "symbol": "NEAR",
+        "name": "NEAR Protocol",
+        "rank": 33,
+        "score": 4
+      },
+      {
+        "symbol": "CTR",
+        "name": "Citrea",
+        "rank": 827,
         "score": 5
       },
       {
-        "symbol": "CARDS",
-        "name": "Collector Crypt",
-        "rank": 519,
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 101,
         "score": 6
       }
     ],
@@ -87,13 +87,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 768226,
+    "tx_count_24h": 656792,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 8.33,
+    "minutes_between_blocks": 9.45,
     "difficulty": 136607070854775,
-    "estimated_btc_sent": 4163238291839,
-    "total_fees_btc": -50937500000,
+    "estimated_btc_sent": 7121098457044,
+    "total_fees_btc": -45000000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -101,18 +101,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17429,
-    "channel_count": 41009,
-    "capacity_btc": 4913.05,
-    "capacity_sats": 491305457365,
-    "avg_channel_capacity_btc": 0.1198,
+    "node_count": 17402,
+    "channel_count": 42000,
+    "capacity_btc": 5677.47,
+    "capacity_sats": 567746929511,
+    "avg_channel_capacity_btc": 0.1352,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 1,
+    "fastest_fee_sat_vb": 2,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",

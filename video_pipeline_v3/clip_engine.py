@@ -174,10 +174,9 @@ def extract_clip(video_url, start_s, end_s, output_path):
             "yt-dlp",
             "-f", "bestvideo[height<=1080][vcodec^=avc1]+bestaudio[acodec^=mp4a]/best[height<=1080]",
             "--download-sections", f"*{start_s}-{end_s}",
-            "--force-keyframes-at-cuts",
             "-o", tmp_raw,
             video_url,
-        ], capture_output=True, text=True, timeout=120)
+        ], capture_output=True, text=True, timeout=300)
 
         if not os.path.exists(tmp_raw):
             logger.error(f"  Download failed: {r.stderr[:200]}")

@@ -1,42 +1,42 @@
 [
   {
-    "id": "89dfcbcf-339f-4435-8d5b-23eb42db1f49",
+    "id": "72b57371-9819-4092-8fda-d93f97a9f8ed",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
+    "generated_at": "2026-05-26T18:41:08.868632+00:00",
+    "expires_at": "2026-05-26T22:41:08.868632+00:00"
+  },
+  {
+    "id": "19cb32d9-207f-4d5d-9042-7a81056e3ba3",
     "type": "FILLER_INSIGHT",
     "priority": 5,
     "script": "Nostr is building the decentralized social layer that Bitcoin's monetary layer always needed. Censorship-resistant communication plus censorship-resistant money \u2014 that's the full stack of digital sovereignty.",
     "source_label": "\ud83d\udca1 INSIGHT",
     "topic_preview": "Nostr is building the decentralized social layer that Bitcoin's monetary layer a",
-    "generated_at": "2026-05-25T22:41:08.310171+00:00",
-    "expires_at": "2026-05-26T02:41:08.310171+00:00"
+    "generated_at": "2026-05-26T19:01:15.135931+00:00",
+    "expires_at": "2026-05-26T23:01:15.135931+00:00"
   },
   {
-    "id": "5a36f0d1-da86-47f5-8c2a-04f0c55d6edb",
+    "id": "2bc454fc-ad1f-47f0-b762-f443aaf153c0",
     "type": "FILLER_INSIGHT",
     "priority": 5,
     "script": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year or more \u2014 consistently hold over sixty percent of all bitcoin supply. The conviction of this network's participants is unprecedented.",
     "source_label": "\ud83d\udca1 INSIGHT",
     "topic_preview": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year ",
-    "generated_at": "2026-05-25T23:06:18.864126+00:00",
-    "expires_at": "2026-05-26T03:06:18.864126+00:00"
+    "generated_at": "2026-05-26T19:26:12.686096+00:00",
+    "expires_at": "2026-05-26T23:26:12.686096+00:00"
   },
   {
-    "id": "16665180-9215-4812-a45a-deddbb665bb1",
+    "id": "716aec0d-90a3-46ca-935b-52c9905e8579",
     "type": "FILLER_INSIGHT",
     "priority": 5,
     "script": "Bitcoin script is intentionally limited. No Turing completeness, no complex smart contracts on the base layer. This constraint is a security feature \u2014 the monetary layer should be boring and bulletproof.",
     "source_label": "\ud83d\udca1 INSIGHT",
     "topic_preview": "Bitcoin script is intentionally limited. No Turing completeness, no complex smar",
-    "generated_at": "2026-05-26T00:02:15.350727+00:00",
-    "expires_at": "2026-05-26T04:02:15.350727+00:00"
-  },
-  {
-    "id": "a9dc5630-717e-4dd5-a10e-c6471c38654a",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't just build software \u2014 they embedded a permanent protest against monetary manipulation into the first block ever mined.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't ",
-    "generated_at": "2026-05-26T02:26:48.595447+00:00",
-    "expires_at": "2026-05-26T06:26:48.595447+00:00"
+    "generated_at": "2026-05-26T20:21:19.757892+00:00",
+    "expires_at": "2026-05-27T00:21:19.757892+00:00"
   }
 ]

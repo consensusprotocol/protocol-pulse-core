@@ -1,78 +1,13 @@
 {
-  "updated_at": "2026-04-29T02:00:52.545832+00:00",
-  "fetch_ms": 51690,
-  "score": 88,
+  "updated_at": "2026-05-26T20:02:08.563952+00:00",
+  "fetch_ms": 86444,
+  "score": 80,
   "label": "HIGH",
-  "crypto_committees": 13,
-  "states_active": 3,
-  "fairshake_spend": 33065935.71,
-  "fairshake_raised": 134606729.32,
-  "fairshake_expenditures": [
-    {
-      "pac": "Fairshake PAC",
-      "candidate": "PORTER, KATHERINE REP.",
-      "support": "O",
-      "amount": 20000000.02,
-      "state": "CA",
-      "date": "2024-02-08"
-    },
-    {
-      "pac": "Fairshake PAC",
-      "candidate": "STRATTON, JULIANA HON.",
-      "support": "O",
-      "amount": 13610343.0,
-      "state": "IL",
-      "date": "2026-02-25"
-    },
-    {
-      "pac": "Fairshake PAC",
-      "candidate": "STEEL, MICHELLE PARK REP.",
-      "support": "S",
-      "amount": 5560618.0,
-      "state": "CA",
-      "date": "2024-10-01"
-    },
-    {
-      "pac": "Fairshake PAC",
-      "candidate": "DAVIS, DONALD GENE REP.",
-      "support": "S",
-      "amount": 4361702.0,
-      "state": "NC",
-      "date": "2024-08-27"
-    },
-    {
-      "pac": "Fairshake PAC",
-      "candidate": "BOWMAN, JAMAAL REP.",
-      "support": "O",
-      "amount": 4133800.0,
-      "state": "NY",
-      "date": "2024-06-12"
-    },
-    {
-      "pac": "Fairshake PAC",
-      "candidate": "RYAN, PATRICK REP.",
-      "support": "S",
-      "amount": 3941860.0,
-      "state": "NY",
-      "date": "2024-09-18"
-    },
-    {
-      "pac": "Fairshake PAC",
-      "candidate": "PELTOLA, MARY SATTLER REP.",
-      "support": "S",
-      "amount": 3796804.0,
-      "state": "AK",
-      "date": "2024-08-27"
-    },
-    {
-      "pac": "Fairshake PAC",
-      "candidate": "CARAVEO, YADIRA REP.",
-      "support": "S",
-      "amount": 1855964.0,
-      "state": "CO",
-      "date": "2024-08-28"
-    }
-  ],
+  "crypto_committees": 9,
+  "states_active": 2,
+  "fairshake_spend": 49759658.89,
+  "fairshake_raised": 135112779.13,
+  "fairshake_expenditures": [],
   "top_donations": [
     {
       "donor": "AH CAPITAL MANAGEMENT",
@@ -109,72 +44,9 @@
       "recipient": "Bitcoin Freedom PAC",
       "state": "DC",
       "city": "WASHINGTON"
-    },
-    {
-      "donor": "SHIRZAD, FARYAR",
-      "employer": "COINBASE",
-      "amount": 5000.0,
-      "date": "2024-06-30",
-      "recipient": "Stand With Crypto Alliance PAC",
-      "state": "DC",
-      "city": "WASHINGTON"
-    },
-    {
-      "donor": "CAMPBELL, KARA CALVERT",
-      "employer": "COINBASE",
-      "amount": 5000.0,
-      "date": "2024-06-28",
-      "recipient": "Stand With Crypto Alliance PAC",
-      "state": "VA",
-      "city": "ARLINGTON"
     }
   ],
   "committees": [
-    {
-      "id": "C00822775",
-      "name": "BITCOIN FREEDOM PAC",
-      "type": "Super PAC (Independent Expenditure-Only)",
-      "state": "DC",
-      "party": null,
-      "cycle": [
-        2022,
-        2024,
-        2026
-      ]
-    },
-    {
-      "id": "C00880518",
-      "name": "BITCOIN VOTER PAC",
-      "type": "Hybrid PAC (with Non-Contribution Account) - Nonqualified",
-      "state": "VA",
-      "party": null,
-      "cycle": [
-        2024,
-        2026
-      ]
-    },
-    {
-      "id": "C00882472",
-      "name": "CRYPTO / BITCOIN USA SUPER PAC",
-      "type": "Super PAC (Independent Expenditure-Only)",
-      "state": "WY",
-      "party": null,
-      "cycle": [
-        2024,
-        2026
-      ]
-    },
-    {
-      "id": "C00881250",
-      "name": "MAKE BITCOIN GREAT AGAIN",
-      "type": "Super PAC (Independent Expenditure-Only)",
-      "state": "IL",
-      "party": null,
-      "cycle": [
-        2024,
-        2026
-      ]
-    },
     {
       "id": "C00897595",
       "name": "CAMPAIGN CRYPTO PAC",
@@ -194,6 +66,17 @@
       "cycle": [
         2020,
         2022,
+        2024,
+        2026
+      ]
+    },
+    {
+      "id": "C00882472",
+      "name": "CRYPTO / BITCOIN USA SUPER PAC",
+      "type": "Super PAC (Independent Expenditure-Only)",
+      "state": "WY",
+      "party": null,
+      "cycle": [
         2024,
         2026
       ]
@@ -260,17 +143,6 @@
       "name": "US FEDERAL BLOCKCHAIN PAC",
       "type": "Hybrid PAC (with Non-Contribution Account) - Nonqualified",
       "state": "NJ",
-      "party": null,
-      "cycle": [
-        2024,
-        2026
-      ]
-    },
-    {
-      "id": "C00835959",
-      "name": "FAIRSHAKE",
-      "type": "Super PAC (Independent Expenditure-Only)",
-      "state": "MN",
       "party": null,
       "cycle": [
         2024,
