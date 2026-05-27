@@ -1,17 +1,5 @@
 [
   {
-    "id": "tweet_20260524_170032_0",
-    "text": "975.1 EH/s network hashrate. Empires always print to fund their eternal wars. Nixon closing the gold window in 1971 was just the latest chapter",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-05-24T17:00:32.303894+00:00",
-    "brief_date": "Sunday, May 24, 2026",
-    "sentiment": "bearish"
-  },
-  {
     "id": "tweet_20260525_020031_0",
     "text": "Institutions load up on bonds for yield. Bitcoin just hit $76,655. One of them still thinks central banks are solvent",
     "angle": "macro_monetary",
@@ -106,5 +94,17 @@
     "generated_at": "2026-05-26T17:00:33.949745+00:00",
     "brief_date": "Tuesday, May 26, 2026",
     "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260527_020033_0",
+    "text": "25 Extreme Fear. People fleeing fiat are still chasing yield. They just moved from one centralized promise to another",
+    "angle": "contrarian_take",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-05-27T02:00:33.126980+00:00",
+    "brief_date": "Tuesday, May 26, 2026",
+    "sentiment": "bearish"
   }
 ]

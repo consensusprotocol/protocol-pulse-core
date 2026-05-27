@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-05-26T22:30:16.318021+00:00",
-  "fetch_time_ms": 11608,
+  "updated_at": "2026-05-27T02:30:14.165089+00:00",
+  "fetch_time_ms": 9835,
   "composite": {
-    "perception_score": 52,
+    "perception_score": 48,
     "label": "Neutral",
     "overall_signal": "neutral",
-    "bull_layers": 3,
+    "bull_layers": 2,
     "bear_layers": 2,
-    "neutral_layers": 2,
+    "neutral_layers": 3,
     "layer_signals": {
       "global": "bullish",
       "trending": "bearish",
@@ -15,16 +15,16 @@
       "lightning": "bullish",
       "fees": "neutral",
       "social": "neutral",
-      "fg_trend": "bullish"
+      "fg_trend": "neutral"
     }
   },
   "global_market": {
-    "btc_dominance_pct": 58.0,
-    "total_mcap_usd": 2614906039444.355,
-    "total_mcap_t": 2.615,
-    "total_vol_24h_usd": 98276463886.14095,
-    "total_vol_24h_b": 98.3,
-    "active_coins": 17399,
+    "btc_dominance_pct": 57.99,
+    "total_mcap_usd": 2614129768353.7417,
+    "total_mcap_t": 2.614,
+    "total_vol_24h_usd": 96875995456.42241,
+    "total_vol_24h_b": 96.9,
+    "active_coins": 17407,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -35,43 +35,43 @@
       {
         "symbol": "BONK",
         "name": "Bonk",
-        "rank": 103,
+        "rank": 104,
         "score": 0
       },
       {
         "symbol": "ERG",
         "name": "Ergo",
-        "rank": 808,
+        "rank": 811,
         "score": 1
       },
       {
-        "symbol": "NOCK",
-        "name": "Nockchain",
-        "rank": 334,
+        "symbol": "SLX",
+        "name": "Solstice",
+        "rank": 522,
         "score": 2
+      },
+      {
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "rank": 1,
+        "score": 3
       },
       {
         "symbol": "HYPE",
         "name": "Hyperliquid",
         "rank": 11,
-        "score": 3
+        "score": 4
       },
       {
         "symbol": "NEAR",
         "name": "NEAR Protocol",
-        "rank": 33,
-        "score": 4
-      },
-      {
-        "symbol": "CTR",
-        "name": "Citrea",
-        "rank": 827,
+        "rank": 34,
         "score": 5
       },
       {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 101,
+        "symbol": "VVV",
+        "name": "Venice Token",
+        "rank": 83,
         "score": 6
       }
     ],
@@ -87,13 +87,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 656792,
+    "tx_count_24h": 621605,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 9.45,
+    "minutes_between_blocks": 9.84,
     "difficulty": 136607070854775,
-    "estimated_btc_sent": 7121098457044,
-    "total_fees_btc": -45000000000,
+    "estimated_btc_sent": 7854885576018,
+    "total_fees_btc": -43437500000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -101,18 +101,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17402,
-    "channel_count": 42000,
-    "capacity_btc": 5677.47,
-    "capacity_sats": 567746929511,
-    "avg_channel_capacity_btc": 0.1352,
+    "node_count": 17438,
+    "channel_count": 41444,
+    "capacity_btc": 4905.62,
+    "capacity_sats": 490562411509,
+    "avg_channel_capacity_btc": 0.1184,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 2,
+    "fastest_fee_sat_vb": 1,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -122,22 +122,22 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 34,
-    "7d_ago": 27,
-    "7d_delta": 7,
-    "trend": "improving",
+    "current": 25,
+    "7d_ago": 29,
+    "7d_delta": -4,
+    "trend": "stable",
     "7d_values": [
+      25,
       34,
       30,
       25,
       28,
       28,
-      29,
-      27
+      29
     ],
-    "btc_signal": "bullish",
-    "note": "F&G trending up (27 -> 34)",
-    "label": "Fear",
+    "btc_signal": "neutral",
+    "note": "F&G stable at 25",
+    "label": "Extreme Fear",
     "source": "alternative.me F&G"
   }
 }

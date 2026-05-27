@@ -1,35 +1,35 @@
 {
-  "timestamp": "2026-05-26T22:30:25.778417+00:00",
-  "block_height": 951178,
+  "timestamp": "2026-05-27T02:50:26.833472+00:00",
+  "block_height": 951203,
   "btc": {
-    "price": 75685,
-    "change_24h": -1.99,
+    "price": 75638,
+    "change_24h": -1.18,
     "change_7d": 0,
-    "market_cap": 1516479905569.6753,
-    "volume_24h": 38470703118.34419,
+    "market_cap": 1515478958084.1733,
+    "volume_24h": 37908536681.38425,
     "dominance": 58.0
   },
   "fear_greed": {
-    "value": 34,
-    "label": "Fear"
+    "value": 25,
+    "label": "Extreme Fear"
   },
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 2,
-    "unconfirmed": 121612,
-    "size_mb": 44.7
+    "unconfirmed": 116464,
+    "size_mb": 44.2
   },
   "network": {
-    "hashrate_eh": 1001.0,
+    "hashrate_eh": 998.4,
     "difficulty": 0,
-    "next_adj_pct": 1.24,
-    "next_adj_blocks": 374
+    "next_adj_pct": 1.16,
+    "next_adj_blocks": 349
   },
   "lightning": {
-    "capacity_btc": 5704.9,
-    "channels": 42027,
-    "nodes": 17372
+    "capacity_btc": 5700.5,
+    "channels": 42215,
+    "nodes": 17369
   },
   "kol": {
     "sentiment_score": 54,
@@ -40,7 +40,7 @@
       "macro",
       "mining"
     ],
-    "post_count_24h": 166,
+    "post_count_24h": 100,
     "dominant_sentiment": "bullish",
     "source": "tweets+transcripts"
   },
@@ -52,15 +52,29 @@
   "polymarket": {
     "macro_sentiment": 74,
     "top_market": "Will MegaETH perform an airdrop by June 30? ",
-    "top_probability": 82.7
+    "top_probability": 83.2
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "**ORACLE MIDDAY BRIEF**\n\nBitcoin holding steady at $76,757\u2014barely moving on the day despite extreme fear gripping markets at 25 on the Greed Index. That's your signal: capitulation sentiment while pri",
-    "brief_type": "midday"
+    "narrative": "Bitcoin slipped to seventy-five thousand eight hundred fifty-five at the US close, down one point one percent on the day as fear and greed hit extreme fear at twenty-five. The market is signaling caut",
+    "brief_type": "evening"
   },
   "whale_alerts": [
+    {
+      "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 346.07 BTC unconfirmed 0a947177...",
+      "score": 10,
+      "created_at": 1779844388.654005
+    },
+    {
+      "tier": "NOTE",
+      "rule": "WHALE_TX",
+      "message": "Whale transaction detected: 465.16 BTC unconfirmed 7ee4665d...",
+      "score": 10,
+      "created_at": 1779839477.3406007
+    },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
@@ -81,67 +95,53 @@
       "message": "Whale transaction detected: 113.43 BTC unconfirmed 650e4926...",
       "score": 10,
       "created_at": 1779829892.2517817
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 109.28 BTC unconfirmed 435cecf4...",
-      "score": 10,
-      "created_at": 1779828750.782539
-    },
-    {
-      "tier": "NOTE",
-      "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 467.32 BTC unconfirmed fac715a7...",
-      "score": 10,
-      "created_at": 1779824081.3496387
     }
   ],
   "macro": {
-    "dxy": 99.14,
-    "gold_price": 4507.3,
-    "sp500": 7532.5,
-    "btc_vs_gold_30d_corr": 0.327,
-    "btc_vs_dxy_30d_corr": -0.426,
+    "dxy": 99.11,
+    "gold_price": 4504.7,
+    "sp500": 7546.25,
+    "btc_vs_gold_30d_corr": 0.335,
+    "btc_vs_dxy_30d_corr": -0.48,
     "real_yield": null,
     "ten_year_yield": 4.49
   },
   "options": {
-    "put_call_ratio": 0.684,
-    "dvol": 35.9,
+    "put_call_ratio": 0.688,
+    "dvol": 35.7,
     "max_pain": 80000.0,
-    "total_call_oi": 241690.1,
-    "total_put_oi": 165298.0,
-    "total_oi_btc": 406988.1,
-    "avg_mark_iv": 47.5
+    "total_call_oi": 242442.7,
+    "total_put_oi": 166697.2,
+    "total_oi_btc": 409139.9,
+    "avg_mark_iv": 47.6
   },
   "futures": {
-    "funding_rate": 1.15e-06,
-    "annualized_basis": 0.13,
-    "open_interest": 28414.8,
-    "open_interest_usd": 2149943680.0,
+    "funding_rate": 6.1e-07,
+    "annualized_basis": 0.07,
+    "open_interest": 28486.15,
+    "open_interest_usd": 2156259110.0,
     "long_short_ratio": null,
-    "mark_price": 75660.12,
-    "index_price": 75662.8,
-    "basis_pct": -0.0121
+    "mark_price": 75679.06,
+    "index_price": 75695.01,
+    "basis_pct": -0.0211
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 8377334.0,
-    "active_addresses_7d": 607604.0,
-    "tx_volume_usd_7d": 50206611730.0,
-    "nvt_ratio": 27.1,
+    "coin_days_destroyed_7d": 9540216.0,
+    "active_addresses_7d": 606728.0,
+    "tx_volume_usd_7d": 51992081849.0,
+    "nvt_ratio": 26.2,
     "accumulation_score": 75
   },
   "active_alerts": [
     {
       "pattern_id": "POLYMARKET_CONFIRM",
       "title": "Market consensus shifting",
-      "description": "Polymarket sentiment 74/100 (bullish), 166 KOL posts in 24h \u2014 consensus forming.",
+      "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-05-26T22:30:30.247470+00:00",
+      "ts": "2026-05-27T02:50:29.802929+00:00",
       "data": {
         "poly_sentiment": 74,
-        "kol_posts": 166
+        "kol_posts": 100
       }
     }
   ],
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 63.9,
+      "score": 63.5,
       "interpretation": "Miner reserves stable \u2014 constructive",
       "signal": "bullish"
     },
@@ -165,44 +165,44 @@
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 69.3,
+      "score": 67.1,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 77.2,
+      "score": 77.5,
       "pattern": "BULLISH",
-      "fragmentation": 15.2,
-      "momentum": 61.5,
-      "conviction": 58.6,
+      "fragmentation": 13.6,
+      "momentum": 60.6,
+      "conviction": 58.9,
       "thesis": "mixed_regime",
       "confidence": 0.76
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 7.4,
-      "btc_market_cap": 1516757637398.576,
-      "stablecoin_market_cap": 205000000000,
-      "signal": "NEUTRAL",
-      "description": "Balanced stablecoin-to-BTC ratio",
-      "source": "estimated"
+      "value": 5.6,
+      "btc_market_cap": 1515990543768.9043,
+      "stablecoin_market_cap": 270567644877.1001,
+      "signal": "BULLISH",
+      "description": "Healthy stablecoin reserves available for BTC purchasing",
+      "source": "coingecko_derived"
     },
     "mpi": {
-      "value": 0.396,
-      "cdd_7d": 8377334.0,
-      "cdd_ratio": 1.4,
-      "hashrate_eh": 1000.7,
-      "signal": "NEUTRAL",
-      "description": "Normal miner behavior \u2014 no anomalous selling pattern",
+      "value": 0.591,
+      "cdd_7d": 9540216.0,
+      "cdd_ratio": 1.59,
+      "hashrate_eh": 998.4,
+      "signal": "CAUTIOUS",
+      "description": "Above-average coin age destruction \u2014 some miner selling",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 17.0,
+      "value": 15.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-05-26T22:25:38.394941+00:00"
+    "timestamp": "2026-05-27T02:45:11.506668+00:00"
   }
 }

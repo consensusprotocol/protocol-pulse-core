@@ -1,42 +1,43 @@
 [
   {
-    "id": "72b57371-9819-4092-8fda-d93f97a9f8ed",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
-    "generated_at": "2026-05-26T18:41:08.868632+00:00",
-    "expires_at": "2026-05-26T22:41:08.868632+00:00"
+    "id": "59530014-21c9-488b-94ca-a7a7143eee5a",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "Bitcoin slipped to seventy-five thousand eight hundred fifty-five at the US close, down one point one percent on the day as fear and greed hit extreme fear at twenty-five. The market is signaling caution despite hashrate holding firm at nine hundred forty EH/s and block production steady at height n",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
+    "topic_preview": "Oracle Evening Brief \u2014 $75,855",
+    "generated_at": "2026-05-27T02:00:05.431006+00:00",
+    "expires_at": "2026-05-27T06:00:05.431006+00:00",
+    "video_url": "/data/stage_briefs/brief_20260527_0200.mp4"
   },
   {
-    "id": "19cb32d9-207f-4d5d-9042-7a81056e3ba3",
+    "id": "7e174a04-9188-4eca-9ecf-88306efcc9b2",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Nostr is building the decentralized social layer that Bitcoin's monetary layer always needed. Censorship-resistant communication plus censorship-resistant money \u2014 that's the full stack of digital sovereignty.",
+    "script": "Coinjoin transactions are growing month over month. Privacy isn't optional in a sound money system \u2014 it's essential. Financial surveillance is incompatible with individual sovereignty.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Nostr is building the decentralized social layer that Bitcoin's monetary layer a",
-    "generated_at": "2026-05-26T19:01:15.135931+00:00",
-    "expires_at": "2026-05-26T23:01:15.135931+00:00"
+    "topic_preview": "Coinjoin transactions are growing month over month. Privacy isn't optional in a ",
+    "generated_at": "2026-05-26T23:06:15.902437+00:00",
+    "expires_at": "2026-05-27T03:06:15.902437+00:00"
   },
   {
-    "id": "2bc454fc-ad1f-47f0-b762-f443aaf153c0",
+    "id": "d62b94a5-bfb1-4267-a37d-65efdf035703",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year or more \u2014 consistently hold over sixty percent of all bitcoin supply. The conviction of this network's participants is unprecedented.",
+    "script": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts physical energy into digital security. The cost of attacking the network must always exceed the cost of defending it.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year ",
-    "generated_at": "2026-05-26T19:26:12.686096+00:00",
-    "expires_at": "2026-05-26T23:26:12.686096+00:00"
+    "topic_preview": "Bitcoin's energy consumption is a feature, not a bug. Proof of work converts phy",
+    "generated_at": "2026-05-26T23:31:15.985677+00:00",
+    "expires_at": "2026-05-27T03:31:15.985677+00:00"
   },
   {
-    "id": "716aec0d-90a3-46ca-935b-52c9905e8579",
+    "id": "222193e9-fa21-405e-b6e1-1e253242631a",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin script is intentionally limited. No Turing completeness, no complex smart contracts on the base layer. This constraint is a security feature \u2014 the monetary layer should be boring and bulletproof.",
+    "script": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermediaries, no permission required. For the first time in digital history, we have bearer assets that move at the speed of light.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin script is intentionally limited. No Turing completeness, no complex smar",
-    "generated_at": "2026-05-26T20:21:19.757892+00:00",
-    "expires_at": "2026-05-27T00:21:19.757892+00:00"
+    "topic_preview": "Every bitcoin transaction is a voluntary exchange. No chargebacks, no intermedia",
+    "generated_at": "2026-05-27T00:26:06.540930+00:00",
+    "expires_at": "2026-05-27T04:26:06.540930+00:00"
   }
 ]

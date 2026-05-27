@@ -888,6 +888,8 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
     # These tags are for script structure — narrator should never read them aloud
     text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
+    # V56 FIX: Strip plain-text script labels
+    text = re.sub(r"^\s*(Cold Open|Warm Open|Narration|Setup|React|Transition|Intro|Outro|Signal Active|Data Segment|Social Segment|Intelligence)\s*[:.]?\s*", "", text, flags=re.IGNORECASE).strip()
     # Session fix: Never start narration with "Right" as opening word
     text = strip_right_opener(text)
     # Bitcoin/finance pronunciation normalizer (runs first)
@@ -1085,8 +1087,10 @@ def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str = "elev
 
     print(f"  [tts] Line {i:02d} (PBX): {text[:60]}...")
 
-    # P0: Kokoro first (free, local), ElevenLabs fallback
-    _tts_ok = tts_kokoro(text, line_path)
+    # P0: Chatterbox PBX first, Kokoro fallback, ElevenLabs last
+    _tts_ok = tts_chatterbox(text, line_path)
+    if not _tts_ok:
+        _tts_ok = tts_kokoro(text, line_path)
     if not _tts_ok:
         logger.info(f"[tts] Kokoro failed, trying ElevenLabs...")
         _tts_ok = tts_elevenlabs(text, line_path, host_num, segment_type=segment_type)
