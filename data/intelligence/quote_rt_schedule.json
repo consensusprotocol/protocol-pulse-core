@@ -955,8 +955,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "They flagged $847B to look busy. The real money moves in the gaps between their spreadsheets.",
     "scheduled_at": "2026-05-15T02:00:19.788562+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-27T04:00:02.949022+00:00",
     "created_at": "2026-05-14T18:00:19.788562+00:00"
   },
   {
@@ -965,8 +965,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Surveillance theater requires an audience. Banks are both the performers and the ones selling tickets.",
     "scheduled_at": "2026-05-15T10:00:19.788562+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-27T19:00:03.185133+00:00",
     "created_at": "2026-05-14T18:00:19.788562+00:00"
   },
   {
@@ -975,8 +975,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "$3T moved undetected means detection itself is the product being sold, not prevention.",
     "scheduled_at": "2026-05-15T18:00:19.788562+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-27T22:00:03.207254+00:00",
     "created_at": "2026-05-14T18:00:19.788562+00:00"
   },
   {
@@ -985,8 +985,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "We built systems to know everything about money. Money simply learned to exist where we aren't looking.",
     "scheduled_at": "2026-05-16T02:00:19.788562+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-28T04:00:03.283633+00:00",
     "created_at": "2026-05-14T18:00:19.788562+00:00"
   },
   {
@@ -995,8 +995,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The scandal isn't that they missed $3T. It's that we thought they were trying to catch it.",
     "scheduled_at": "2026-05-16T10:00:19.788562+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-28T19:00:02.816455+00:00",
     "created_at": "2026-05-14T18:00:19.788562+00:00"
   },
   {
@@ -1005,8 +1005,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Pegs don't break on schedule. They break when no one's willing to hold the bag anymore.",
     "scheduled_at": "2026-05-16T02:00:21.643178+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-28T22:00:03.432002+00:00",
     "created_at": "2026-05-15T18:00:21.643178+00:00"
   },
   {
@@ -1015,8 +1015,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "France's mistake wasn't the peg. It was thinking 50 years was a long time to wait for reality.",
     "scheduled_at": "2026-05-16T10:00:21.643178+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-29T04:00:03.068266+00:00",
     "created_at": "2026-05-15T18:00:21.643178+00:00"
   },
   {
@@ -1025,8 +1025,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The bond market reprices in months what takes governments decades to admit. That gap is your signal.",
     "scheduled_at": "2026-05-16T18:00:21.643178+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-29T19:00:02.704180+00:00",
     "created_at": "2026-05-15T18:00:21.643178+00:00"
   },
   {
@@ -1035,8 +1035,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Gold anchored the franc to something. Fiat anchors itself to the faith that there's no alternative.",
     "scheduled_at": "2026-05-17T02:00:21.643178+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-29T22:00:03.214256+00:00",
     "created_at": "2026-05-15T18:00:21.643178+00:00"
   },
   {
@@ -1045,8 +1045,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone's watching the dollar. The real tell is which governments quietly start buying gold again.",
     "scheduled_at": "2026-05-17T10:00:21.643178+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-30T04:00:02.889767+00:00",
     "created_at": "2026-05-15T18:00:21.643178+00:00"
   },
   {
@@ -1598,5 +1598,125 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-26T18:00:31.080062+00:00"
+  },
+  {
+    "anchor_id": "456",
+    "anchor_text": "5,000 years of monetary history proves governments always debase. Diocletian tried price controls in 301 AD. Today they just call it stablecoin regulation",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The state's impulse to control money is constant. Stablecoin regulation is just the latest futile chapter in a 5,000-year struggle.",
+    "scheduled_at": "2026-05-28T02:00:34.454204+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-27T18:00:34.454204+00:00"
+  },
+  {
+    "anchor_id": "456",
+    "anchor_text": "5,000 years of monetary history proves governments always debase. Diocletian tried price controls in 301 AD. Today they just call it stablecoin regulation",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Funny how the \"innovation\" of stablecoin regulation mirrors Diocletian's 301 AD price controls. Some things never change, except the branding.",
+    "scheduled_at": "2026-05-28T10:00:34.454204+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-27T18:00:34.454204+00:00"
+  },
+  {
+    "anchor_id": "456",
+    "anchor_text": "5,000 years of monetary history proves governments always debase. Diocletian tried price controls in 301 AD. Today they just call it stablecoin regulation",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "This 5,000-year pattern of debasement shows that centralized monetary control inevitably leads to erosion of value. Stablecoins offer a choice.",
+    "scheduled_at": "2026-05-28T18:00:34.454204+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-27T18:00:34.454204+00:00"
+  },
+  {
+    "anchor_id": "456",
+    "anchor_text": "5,000 years of monetary history proves governments always debase. Diocletian tried price controls in 301 AD. Today they just call it stablecoin regulation",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The debasement of currency is a subtle assertion of state power over individual wealth. Monetary sovereignty is the ultimate battleground.",
+    "scheduled_at": "2026-05-29T02:00:34.454204+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-27T18:00:34.454204+00:00"
+  },
+  {
+    "anchor_id": "456",
+    "anchor_text": "5,000 years of monetary history proves governments always debase. Diocletian tried price controls in 301 AD. Today they just call it stablecoin regulation",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "While framed as consumer protection, stablecoin regulation is fundamentally about preserving the state's monetary monopoly, not preventing debasement.",
+    "scheduled_at": "2026-05-29T10:00:34.454204+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-27T18:00:34.454204+00:00"
+  },
+  {
+    "anchor_id": "459",
+    "anchor_text": "Fear & Greed at 22 (Extreme Fear). The market is telling you to panic. This is when the quiet ones stack sats",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Extreme fear is merely a discount signal for those with long-term conviction. The quiet ones know what to do.",
+    "scheduled_at": "2026-05-29T02:00:35.971804+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-28T18:00:35.971804+00:00"
+  },
+  {
+    "anchor_id": "459",
+    "anchor_text": "Fear & Greed at 22 (Extreme Fear). The market is telling you to panic. This is when the quiet ones stack sats",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The market's 'extreme fear' indicator consistently points to the moment most are least prepared to act. A predictable cycle.",
+    "scheduled_at": "2026-05-29T10:00:35.971804+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-28T18:00:35.971804+00:00"
+  },
+  {
+    "anchor_id": "462",
+    "anchor_text": "3 sat/vB fees are too low for a global reserve asset. Nobody actually wants a high fee market until they need it",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Global reserve assets must reflect their security in their cost. Cheap fees betray the value proposition.",
+    "scheduled_at": "2026-05-30T02:00:31.809033+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-29T18:00:31.809033+00:00"
+  },
+  {
+    "anchor_id": "462",
+    "anchor_text": "3 sat/vB fees are too low for a global reserve asset. Nobody actually wants a high fee market until they need it",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The market gets the fees it asks for, until it realizes what it actually needs. A recurring lesson.",
+    "scheduled_at": "2026-05-30T10:00:31.809033+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-29T18:00:31.809033+00:00"
+  },
+  {
+    "anchor_id": "462",
+    "anchor_text": "3 sat/vB fees are too low for a global reserve asset. Nobody actually wants a high fee market until they need it",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "3 sat/vB suggests a lack of urgent, high-value settlement demand. This indicates a system not yet fully tested by necessity.",
+    "scheduled_at": "2026-05-30T18:00:31.809033+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-29T18:00:31.809033+00:00"
+  },
+  {
+    "anchor_id": "462",
+    "anchor_text": "3 sat/vB fees are too low for a global reserve asset. Nobody actually wants a high fee market until they need it",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The cost of final settlement is the price of true sovereignty. Cheap finality is often no finality at all.",
+    "scheduled_at": "2026-05-31T02:00:31.809033+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-29T18:00:31.809033+00:00"
+  },
+  {
+    "anchor_id": "462",
+    "anchor_text": "3 sat/vB fees are too low for a global reserve asset. Nobody actually wants a high fee market until they need it",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "While low fees are lauded, they often signal a lack of critical demand for censorship-resistant settlement, not efficiency.",
+    "scheduled_at": "2026-05-31T10:00:31.809033+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-29T18:00:31.809033+00:00"
   }
 ]

@@ -885,11 +885,19 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
     if not key:
         return _tts_generate_silence_fallback(text, output_path)
 
-    # BUG 1 FIX: Strip [DATA], [WARM], [SETUP] etc bracket tags before TTS synthesis
-    # These tags are for script structure — narrator should never read them aloud
-    text = re.sub(r'^\s*\[[A-Z_]+\]\s*', '', text).strip()
-    # V56 FIX: Strip plain-text script labels
-    text = re.sub(r"^\s*(Cold Open|Warm Open|Narration|Setup|React|Transition|Intro|Outro|Signal Active|Data Segment|Social Segment|Intelligence)\s*[:.]?\s*", "", text, flags=re.IGNORECASE).strip()
+    # Strip ALL script metadata before TTS — bracket tags, parenthesized delivery
+    # tags, plain-text labels. Defense-in-depth: script_writer should strip these
+    # but enforcement functions can re-inject them.
+    text = re.sub(r'\[(?:COLD_OPEN|COLD|NARRATION|DATA|SOCIAL|WARM|BRIDGE|SPACE_TAP|SETUP|REACT|CTA)\]\s*', '', text)
+    text = re.sub(r'\[ID:tweet_[a-f0-9]+_\d+\]\s*', '', text)
+    text = re.sub(r'\((?:NARRATION|WARM|COLD\s*OPEN|SETUP|REACT|AUTHORITY|CLEAR|WHISPER|RESOLVE|SOCIAL|DATA|BRIDGE|CTA)\)\s*', '', text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"^\s*(?:Cold Open|Warm Open|Narration|Setup|React|Transition|Intro|Outro|"
+        r"Signal Active|Data Segment|Social Segment|Intelligence|Community Pulse|Space Tap)"
+        r"\s*[:.]?\s*", "", text, flags=re.IGNORECASE
+    )
+    text = re.sub(r'^Tweet\s+\d+\s+from\s+', '', text)
+    text = text.strip()
     # Session fix: Never start narration with "Right" as opening word
     text = strip_right_opener(text)
     # Bitcoin/finance pronunciation normalizer (runs first)

@@ -82,7 +82,16 @@ class NewsletterEngine:
             p = r.json().get('bitcoin', {}).get('usd', 0)
             return f"${p:,.0f}"
         except Exception:
-            return '$--,---'
+            pass
+        # Fallback 3: Yahoo Finance (most reliable)
+        try:
+            import requests as req
+            r = req.get('https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?interval=1d&range=1d',
+                        headers={'User-Agent': 'Mozilla/5.0'}, timeout=5)
+            p = r.json()['chart']['result'][0]['meta']['regularMarketPrice']
+            return f"${p:,.0f}"
+        except Exception:
+            return '$--,---' 
 
     @staticmethod
     def _clean_summary(content, max_length=200):
@@ -136,7 +145,7 @@ class NewsletterEngine:
 
     <!-- HEADER -->
     <tr><td style="background: linear-gradient(135deg, #0a0a0a 0%, #1a0000 100%); padding: 30px 24px; text-align: center; border-bottom: 2px solid #FF0000;">
-        <h1 style="margin:0; color:#FF0000; font-size:28px; letter-spacing:0.15em; font-weight:800;">PROTOCOL PULSE</h1>
+        <img src="https://protocolpulse.io/static/img/logo_protocol_pulse.png" alt="Protocol Pulse" width="80" height="80" style="display:block; margin:0 auto 10px;"><h1 style="margin:0; color:#FF0000; font-size:28px; letter-spacing:0.15em; font-weight:800;">PROTOCOL PULSE</h1>
         <p style="margin:8px 0 0; color:#888; font-size:13px; letter-spacing:0.1em;">{today_str}</p>
         <p style="margin:6px 0 0; color:#F8C15C; font-size:18px; font-weight:700;">BTC: {btc_price}</p>
     </td></tr>

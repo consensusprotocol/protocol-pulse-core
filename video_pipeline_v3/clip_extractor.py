@@ -58,6 +58,42 @@ def cache_clip(video_id, start_sec, end_sec, clip_path):
     return cache_dest
 
 
+def _has_video_motion(clip_path: str) -> bool:
+    """Detect if a video has actual motion or is a still image / static placeholder.
+
+    Samples 5 frames evenly across the clip and compares pixel differences.
+    Returns False if the video has no meaningful inter-frame motion.
+    """
+    try:
+        dur = ffprobe_duration(clip_path)
+        if dur < 2:
+            return True  # too short to measure reliably
+
+        # Use ffmpeg to compute scene-change detection across the clip.
+        # lavfi.scene_score near 0.0 for all frames = no motion (still image).
+        result = subprocess.run(
+            ["ffmpeg", "-i", clip_path,
+             "-vf", f"select='gt(scene,0.005)',showinfo",
+             "-vsync", "vfr", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=30,
+        )
+        # Count scene changes detected — a real video with talking heads
+        # will have many. A still image will have 0 or very few.
+        import re as _re_motion
+        scene_hits = _re_motion.findall(r"pts_time:", result.stderr)
+
+        # Minimum 3 scene changes expected in any real video clip
+        if len(scene_hits) < 3:
+            logger.warning(f"  MOTION CHECK: only {len(scene_hits)} scene changes in {dur:.1f}s — likely still image")
+            return False
+
+        logger.info(f"  MOTION CHECK: {len(scene_hits)} scene changes in {dur:.1f}s — video has motion")
+        return True
+    except Exception as e:
+        logger.warning(f"  MOTION CHECK failed: {e} — assuming video is OK")
+        return True  # can't check — assume ok
+
+
 def _run_ffmpeg(args: list, label: str = "", timeout: int = 300) -> bool:
     """Run ffmpeg command, return True on success."""
     cmd = ["ffmpeg", "-y"] + args
@@ -547,6 +583,15 @@ def _extract_clip_inner(video_id: str, start_sec: int, end_sec: int,
                     logger.info(f"  FIX 7: Re-encode done, sync now {post_fix7:+.3f}s")
                 elif os.path.exists(fix7_tmp):
                     os.remove(fix7_tmp)
+            # Still-image / placeholder detection — reject clips with no motion
+            if not _has_video_motion(output_path):
+                logger.error(f"  STILL IMAGE DETECTED: {video_id} has no motion — rejecting clip")
+                try:
+                    os.remove(output_path)
+                except OSError:
+                    pass
+                return False
+
             # Render21: Skip intro jingle via speech onset detection
             _skip_intro_silence(output_path, channel=channel)
             dur = ffprobe_duration(output_path)

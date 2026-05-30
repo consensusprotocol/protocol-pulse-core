@@ -551,7 +551,7 @@ def _enforce_av_sync(path: str) -> str:
         return path
 
     drift = abs(a_dur - v_dur)
-    if drift < 0.1:  # <100ms is acceptable
+    if drift < 0.03:  # <30ms acceptable (PIPELINE_LAWS Section 6)
         return path
 
     logger.warning(f"AV SYNC FIX: {os.path.basename(path)} V={v_dur:.3f}s A={a_dur:.3f}s drift={drift:.3f}s")
@@ -881,6 +881,32 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
         output_path, label, 300,
     )
     return output_path if ok else ""
+
+
+def strip_script_metadata(text: str) -> str:
+    """Strip ALL script metadata labels from text before TTS or subtitle rendering.
+
+    Catches bracket tags [NARRATION], parenthesized (WARM), and plain-text
+    labels like 'Cold Open:' that the LLM or enforcement functions may insert.
+    """
+    if not text:
+        return text
+    # 1. Bracket tags: [COLD_OPEN], [NARRATION], [DATA], [SOCIAL], [WARM], etc.
+    text = re.sub(r'\[(?:COLD_OPEN|COLD|NARRATION|DATA|SOCIAL|WARM|BRIDGE|SPACE_TAP|SETUP|REACT|CTA)\]\s*', '', text)
+    # 2. Bracket ID tags: [ID:tweet_xxxxx_N]
+    text = re.sub(r'\[ID:tweet_[a-f0-9]+_\d+\]\s*', '', text)
+    # 3. Parenthesized delivery tags: (NARRATION), (WARM), (COLD OPEN), etc.
+    text = re.sub(r'\((?:NARRATION|WARM|COLD\s*OPEN|SETUP|REACT|AUTHORITY|CLEAR|WHISPER|RESOLVE|SOCIAL|DATA|BRIDGE|CTA)\)\s*', '', text, flags=re.IGNORECASE)
+    # 4. Plain-text labels at start of line: "Cold Open:", "Narration:", etc.
+    text = re.sub(
+        r'^\s*(?:Cold Open|Warm Open|Narration|Setup|React|Transition|Intro|Outro|'
+        r'Signal Active|Data Segment|Social Segment|Intelligence|'
+        r'Community Pulse|Space Tap)\s*[:.]?\s*',
+        '', text, flags=re.IGNORECASE
+    )
+    # 5. "Tweet N from @handle posted recently:" prefix (internal binding label)
+    text = re.sub(r'^Tweet\s+\d+\s+from\s+', '', text)
+    return text.strip()
 
 
 def _sanitize_text(text: str) -> str:

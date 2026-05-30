@@ -911,6 +911,13 @@ def generate_from_clips(selections: dict, btc_price: str = "N/A", btc_dominance:
         # Force PBX-only: normalize any host:1 â host:2
         for _e in dialogue:
             if isinstance(_e, dict) and _e.get("host") in (1, "1"): _e["host"] = 2
+        # FINAL PASS: Strip ALL script metadata tags from dialogue text.
+        # Enforcement functions (_enforce_setup_per_clip, _enforce_social_segment)
+        # inject entries with [NARRATION]/[SOCIAL] tags AFTER _extract_segment_tags ran.
+        for _e in dialogue:
+            if isinstance(_e, dict) and _e.get("text") and _e.get("host") not in ("CLIP", "SPACE_CLIP"):
+                _e["text"] = _TAG_PATTERN.sub('', _e["text"]).strip()
+
         clip_entries = [d for d in dialogue if d.get("host") == "CLIP"]
         speech_entries = [d for d in dialogue if d.get("host") in (1, 2, "1", "2")]
 

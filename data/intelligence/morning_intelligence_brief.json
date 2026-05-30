@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-05-26T14:30:00Z",
-  "date": "Tuesday, May 26, 2026",
-  "btc_price": "$75,962",
-  "btc_change_24h": "-1.8%",
-  "fng": "Fear",
+  "generated_at": "2026-05-29T18:00:00Z",
+  "date": "Friday, May 29, 2026",
+  "btc_price": "$73,535",
+  "btc_change_24h": "+0.2%",
+  "fng": "Extreme Fear",
   "dominant_narratives": [
-    "Erosion of Trust in Traditional Systems & Bitcoin as a Solution",
-    "Transparency and Dividend Yield through Bitcoin-Backed Initiatives (e.g., Strive)",
-    "Bitcoin's Resilience Amid Global Uncertainty (Wars, Sanctions, Economic Shifts)"
+    "CFTC onshoring of Bitcoin perpetual futures",
+    "Texas Strategic Bitcoin Reserve formation",
+    "Hormuz-driven energy repricing as Bitcoin catalyst"
   ],
   "trending_language": [
-    "Trust in Traditional Systems Eroding",
-    "Bitcoin as a Store of Value Amid Conflict",
-    "Daily Bitcoin-Backed Dividends"
+    "CFTC approves first U.S. Bitcoin perpetual futures contracts",
+    "Texas Strategic Bitcoin Reserve Advisory Committee",
+    "Hormuz crisis is not an oil spike. It's a structural repricing"
   ],
-  "sentiment": "bearish",
-  "sentiment_reasoning": "Fear & Greed Index at 34, indicating fear, coupled with narratives highlighting global uncertainty and the need for alternative trust systems.",
+  "sentiment": "uncertain",
+  "sentiment_reasoning": "Regulatory wins and state adoption signals clash with Extreme Fear index and geopolitical energy shocks.",
   "top_accounts_active": [
-    "@saifedean",
-    "@BitcoinArchive",
-    "@PunterJeff"
+    "@saylor",
+    "@BitcoinMagazine",
+    "@brian_armstrong"
   ],
   "recommended_tweet_angles": [
-    "Highlighting Bitcoin's stability in times of war and economic turmoil",
-    "Explaining the benefits of Bitcoin-backed daily dividends for investors",
-    "Discussing the erosion of trust in fiat and traditional banking systems"
+    "Frame CFTC perpetuals approval as direct power-up for MSTR and BTC holders",
+    "Texas reserve as proof of state-level Bitcoin accumulation momentum",
+    "Energy volatility from Hormuz as fresh structural case for Bitcoin"
   ],
   "topics_to_avoid": [
-    "Sensitive Geopolitical Conflicts (e.g., Israel-Palestine discussions by @saifedean)"
+    "Israel-Palestine geopolitical commentary"
   ],
-  "engagement_patterns": "Direct, solution-focused content with a touch of cypherpunk ideology is gaining traction today.",
-  "protocol_pulse_voice_guidance": "Emphasize the resilience of Bitcoin in uncertain times, highlight innovative dividend models, and caution against over-speculation on market direction.",
+  "engagement_patterns": "Short regulatory and adoption updates backed by specific announcements and data",
+  "protocol_pulse_voice_guidance": "Sharp cypherpunk read on regulatory theater versus real self-sovereignty wins, data-first and anti-fragile",
   "key_stats_today": {
-    "tweets_analyzed": 119,
+    "tweets_analyzed": 101,
     "nostr_signals": 0,
-    "unique_handles": 63
+    "unique_handles": 68
   },
-  "generated_by": "nvidia_nim_fallback"
+  "generated_by": "grok_fallback"
 }

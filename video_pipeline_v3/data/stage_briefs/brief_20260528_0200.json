@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Evening Brief",
+  "generated_at": "2026-05-28T02:00:04.836424+00:00",
+  "duration": 39.6,
+  "mp4_path": "brief_20260528_0200.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260528_0200.mp4",
+  "video_url": "/data/stage_briefs/brief_20260528_0200.mp4",
+  "episode_date": "2026-05-28",
+  "brief_type": "evening",
+  "script_summary": "Bitcoin slipped 2.1% to close at $74,220 as fear hit extreme levels at 22. Sellers dominated the US session with no meaningful bounce into the close. \n\nNetwork strength remains intact with hashrate steady at 949 EH/s, while mempool congestion sits at 95k transactions and fees as low as 2 sat/vB. \n\nKey takeaway: price weakness is not yet reflected in miner behavior or on-chain activity. Overnight watch is any break below 73k that could accelerate liquidations into Asia hours.",
+  "word_count": 78,
+  "tts_provider": "chatterbox",
+  "btc_price": 74220.0,
+  "sentiment_score": null
+}

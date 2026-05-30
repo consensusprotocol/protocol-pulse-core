@@ -115,7 +115,11 @@ def get_todays_social_posts(max_posts=5):
             # DIVERSITY FIX: sort by likes desc FIRST, then dedup by handle
             # This ensures the highest-engagement tweet per handle is retained
             pool = recent if recent else tweets
-            pool = sorted(pool, key=lambda t: t.get('likes', t.get('like_count', 0)) or 0, reverse=True)
+            # Filter out trivially short tweets that make poor card visuals
+            _MIN_TWEET_LEN = 40
+            pool = [t for t in pool if len(t.get("text", "").strip()) >= _MIN_TWEET_LEN]
+            # Sort: likes desc, then text length desc (prefer substantive content when likes equal)
+            pool = sorted(pool, key=lambda t: (t.get('likes', t.get('like_count', 0)) or 0, len(t.get('text', ''))), reverse=True)
             seen_h = set()
             deduped_pool = []
             for t in pool:

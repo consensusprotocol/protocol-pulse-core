@@ -15,6 +15,7 @@ from assembler_common import (
     _build_broadcast_bg, _build_black_diamond_bg, _build_info_bar_fg,
     _build_narration_wave, _build_signature_info_rail,
     _add_episode_title_pill, _ken_burns_motion, _bv2_encode,
+    strip_script_metadata,
 )
 
 
@@ -389,8 +390,8 @@ def make_cold_open_scene(audio_path: str, headline: str, body: str, tag: str,
         audio_dur = 5
     total_dur = duration if duration > 0 else audio_dur + 0.3
 
-    safe_head = _sanitize_text(headline)[:60]
-    safe_body = _word_wrap(_sanitize_text(body), max_width=38, max_lines=4) if body else ""
+    safe_head = _sanitize_text(strip_script_metadata(headline))[:60]
+    safe_body = _word_wrap(_sanitize_text(strip_script_metadata(body)), max_width=38, max_lines=4) if body else ""
     safe_btc = btc_price.replace("'", "").replace('"', "").replace("\\", "")
 
     inputs = [audio_path]
@@ -512,8 +513,8 @@ def make_narrator_pip_scene(audio_path: str, headline: str, body: str,
     total_dur = duration if duration > 0 else audio_dur
     total_frames = max(int(total_dur * 30), 30)
 
-    safe_head = _sanitize_text(headline)
-    safe_body = _word_wrap(_sanitize_text(body), max_width=30, max_lines=3) if body else ""
+    safe_head = _sanitize_text(strip_script_metadata(headline))
+    safe_body = _word_wrap(_sanitize_text(strip_script_metadata(body)), max_width=30, max_lines=3) if body else ""
     safe_btc = _sanitize_text(btc_price) if btc_price else "$N/A"
 
     inputs = [audio_path]
@@ -728,9 +729,10 @@ def make_host_visual(audio_path: str, host: int, text: str,
     # Divider line
     fg += f"[lpanel]drawbox=x=20:y=358:w=680:h=1:color={COLOR_RED}@0.35:t=fill[ldiv];\n"
 
-    # Body text (wrapped subtitle) — Issue 13: filter out debug/internal text
+    # Body text (wrapped subtitle) — strip script metadata before rendering
     _debug_patterns = {"COLD OPEN", "COLD_OPEN", "SETUP", "REACT", "BRIDGE", "WRAP", "DATA", "SOCIAL"}
-    safe_sub = _sanitize_text(text) if text else ""
+    safe_sub = strip_script_metadata(text) if text else ""
+    safe_sub = _sanitize_text(safe_sub) if safe_sub else ""
     if safe_sub and safe_sub.strip().upper() in _debug_patterns:
         safe_sub = ""  # suppress internal segment type labels
     if safe_sub:
