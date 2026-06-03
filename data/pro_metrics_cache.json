@@ -1,11 +1,11 @@
 {
   "ssr": {
-    "value": 5.01,
-    "btc_market_cap": 1345271771377.824,
-    "stablecoin_market_cap": 268512452873.57584,
+    "value": 6.56,
+    "btc_market_cap": 1343853540991.817,
+    "stablecoin_market_cap": 205000000000,
     "signal": "BULLISH",
     "description": "Healthy stablecoin reserves available for BTC purchasing",
-    "source": "coingecko_derived"
+    "source": "estimated"
   },
   "mpi": {
     "value": 1.566,
@@ -22,5 +22,5 @@
     "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
     "source": "derived"
   },
-  "timestamp": "2026-06-03T08:15:06.017372+00:00"
+  "timestamp": "2026-06-03T08:26:03.468324+00:00"
 }

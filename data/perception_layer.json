@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-06-03T08:00:17.402031+00:00",
-  "fetch_time_ms": 12309,
+  "updated_at": "2026-06-03T08:30:17.861015+00:00",
+  "fetch_time_ms": 12864,
   "composite": {
     "perception_score": 42,
     "label": "Cautiously Bearish",
@@ -19,10 +19,10 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 55.96,
-    "total_mcap_usd": 2405676986461.1167,
-    "total_mcap_t": 2.406,
-    "total_vol_24h_usd": 143557881857.617,
+    "btc_dominance_pct": 55.92,
+    "total_mcap_usd": 2399170906767.994,
+    "total_mcap_t": 2.399,
+    "total_vol_24h_usd": 143560818290.97284,
     "total_vol_24h_b": 143.6,
     "active_coins": 17410,
     "dominance_signal": "btc_dominant",
@@ -39,27 +39,27 @@
         "score": 0
       },
       {
-        "symbol": "LAB",
-        "name": "LAB",
-        "rank": 23,
+        "symbol": "BP",
+        "name": "Backpack",
+        "rank": 389,
         "score": 1
       },
       {
-        "symbol": "BP",
-        "name": "Backpack",
-        "rank": 390,
+        "symbol": "LAB",
+        "name": "LAB",
+        "rank": 23,
         "score": 2
-      },
-      {
-        "symbol": "HYPE",
-        "name": "Hyperliquid",
-        "rank": 10,
-        "score": 3
       },
       {
         "symbol": "NEAR",
         "name": "NEAR Protocol",
         "rank": 31,
+        "score": 3
+      },
+      {
+        "symbol": "HYPE",
+        "name": "Hyperliquid",
+        "rank": 10,
         "score": 4
       },
       {
@@ -69,9 +69,9 @@
         "score": 5
       },
       {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 113,
+        "symbol": "VVV",
+        "name": "Venice Token",
+        "rank": 79,
         "score": 6
       }
     ],
@@ -87,13 +87,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 388396,
+    "tx_count_24h": 383126,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 13.24,
+    "minutes_between_blocks": 13.49,
     "difficulty": 138955357012247,
-    "estimated_btc_sent": 18460524332335,
-    "total_fees_btc": -32187500000,
+    "estimated_btc_sent": 18229747137167,
+    "total_fees_btc": -31875000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "slow_blocks",
@@ -101,11 +101,11 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17429,
-    "channel_count": 41009,
-    "capacity_btc": 4913.05,
-    "capacity_sats": 491305457365,
-    "avg_channel_capacity_btc": 0.1198,
+    "node_count": 17353,
+    "channel_count": 41162,
+    "capacity_btc": 5292.07,
+    "capacity_sats": 529207315890,
+    "avg_channel_capacity_btc": 0.1286,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",

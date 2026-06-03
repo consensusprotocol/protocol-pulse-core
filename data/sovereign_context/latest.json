@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-06-03T08:25:59.050867+00:00",
+  "timestamp": "2026-06-03T08:30:32.231594+00:00",
   "block_height": 952194,
   "btc": {
-    "price": 66983,
-    "change_24h": -4.09,
+    "price": 66944,
+    "change_24h": -4.24,
     "change_7d": 0,
-    "market_cap": 1342495903142.7703,
-    "volume_24h": 61230691792.22932,
-    "dominance": 55.9
+    "market_cap": 1341649471258.1958,
+    "volume_24h": 61138823592.34149,
+    "dominance": 55.4
   },
   "fear_greed": {
     "value": 11,
@@ -16,20 +16,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 1,
-    "unconfirmed": 106804,
-    "size_mb": 43.6
+    "fee_high": 2,
+    "unconfirmed": 86627,
+    "size_mb": 40.4
   },
   "network": {
-    "hashrate_eh": 942.1,
+    "hashrate_eh": 941.5,
     "difficulty": 0,
-    "next_adj_pct": -9.12,
+    "next_adj_pct": -9.19,
     "next_adj_blocks": 1374
   },
   "lightning": {
-    "capacity_btc": 5057.1,
-    "channels": 41109,
-    "nodes": 17438
+    "capacity_btc": 5292.1,
+    "channels": 41162,
+    "nodes": 17353
   },
   "kol": {
     "sentiment_score": 51,
@@ -136,7 +136,7 @@
   "pattern_matches": [],
   "indices": {
     "miner_conviction": {
-      "score": 55.3,
+      "score": 55.4,
       "interpretation": "Miner flow signals mixed",
       "signal": "neutral"
     },
@@ -151,18 +151,18 @@
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 67.8,
+      "score": 66.1,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 62.2,
+      "score": 62.1,
       "pattern": "CAUTIOUS BULLISH",
-      "fragmentation": 14.1,
-      "momentum": 58.1,
-      "conviction": 46.9,
+      "fragmentation": 12.5,
+      "momentum": 57.6,
+      "conviction": 45.3,
       "thesis": "mixed_regime",
-      "confidence": 0.75
+      "confidence": 0.73
     }
   },
   "pro_metrics": {
