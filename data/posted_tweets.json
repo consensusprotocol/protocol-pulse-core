@@ -1060,5 +1060,65 @@
     "timestamp": "2026-05-30T02:00:30.171478+00:00",
     "text_preview": "23 Extreme Fear. Oil prices jump on Hormuz. The network keeps mining at 1006.0 E",
     "format_type": "geopolitical"
+  },
+  {
+    "hash": "16a0919492a476425ac67ad6f4d793b3",
+    "timestamp": "2026-05-30T17:00:25.058568+00:00",
+    "text_preview": "Block 951,731 and the network still runs at 1014 EH/s while governments can't ev",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "900b199dd15a774fd8a292f21df88a90",
+    "timestamp": "2026-05-31T02:00:19.611639+00:00",
+    "text_preview": "If the government can freeze your bank account on suspicion alone, how is that d",
+    "format_type": "sovereignty_freedom"
+  },
+  {
+    "hash": "af5b6e653f7591240859a2364e7e46ae",
+    "timestamp": "2026-05-31T06:47:13.867650+00:00",
+    "text_preview": "Ron Baron bought Bitcoin on CNBC. Strive added 89M more last week. Extreme Fear ",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "b703532721e20f889eba3cb3b8d92291",
+    "timestamp": "2026-05-31T17:00:20.896707+00:00",
+    "text_preview": "1020.3 EH/s network hashrate. Every hash from someone who could sell but chose n",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "8f7cef29fe45476e9fd466b1c6b5cb67",
+    "timestamp": "2026-06-01T02:00:20.702514+00:00",
+    "text_preview": "Do you know what block height Bitcoin is at right now. 951925. Most people own B",
+    "format_type": "contrarian_take"
+  },
+  {
+    "hash": "32bbe70a16dc070612eef685790ae6af",
+    "timestamp": "2026-06-01T17:00:24.629081+00:00",
+    "text_preview": "White House questions Fed independence. Powell's successor faces political press",
+    "format_type": "macro_monetary"
+  },
+  {
+    "hash": "ee4eddcd72065391ba6c758f8fb3cd0e",
+    "timestamp": "2026-06-02T02:00:20.195930+00:00",
+    "text_preview": "Argentina's peso collapsed in 2001 because the central bank printed to fund spen",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "20d53a6dde853a0bc6f651ff545b480b",
+    "timestamp": "2026-06-02T17:00:21.934216+00:00",
+    "text_preview": "If you can't withdraw your own money without the bank's permission, do you actua",
+    "format_type": "sovereignty_freedom"
+  },
+  {
+    "hash": "f0f26d16fa3290b2199db10b2522d600",
+    "timestamp": "2026-06-02T21:16:55.911772+00:00",
+    "text_preview": "4 sat/vB fees while Fear sits at 23. Last time this happened was 2015. Retail se",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "d17340a028281a32ef832ff890876821",
+    "timestamp": "2026-06-03T02:00:21.061174+00:00",
+    "text_preview": "Strive bought 2,500 BTC at 74.1k. Retail margin liquidated at 67.2k. Same fear i",
+    "format_type": "institutional_flow"
   }
 ]

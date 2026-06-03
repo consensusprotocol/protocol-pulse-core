@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-05-31T02:00:29.126978+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Fear Index at 28: Why Bitcoin's Capitulation Could Signal the Bottom",
+      "angle": "Historical analysis of Fear & Greed extremes as contrarian indicators; comparison of current conditions to previous capitulation bottoms",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "technical-analysis",
+        "capitulation",
+        "trading"
+      ]
+    },
+    {
+      "headline": "Network Strength in Weakness: Why Hashrate Matters More Than Price Right Now",
+      "angle": "Deep-dive on hashrate stability at 977 EH/s as indicator of miner conviction; contrast with capitulation scenarios",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "network-security"
+      ]
+    },
+    {
+      "headline": "The Mempool Whisper: Why Rational Fees Signal Healthy Bitcoin Markets",
+      "angle": "On-chain data analysis showing 2 sat/byte fees despite 91k transaction volume; what this tells us about market psychology",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "on-chain"
+      ]
+    }
+  ]
+}

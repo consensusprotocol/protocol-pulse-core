@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-06-01T18:00:04.994514+00:00",
+  "duration": 82.7,
+  "mp4_path": "brief_20260601_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260601_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260601_1800.mp4",
+  "episode_date": "2026-06-01",
+  "brief_type": "midday",
+  "script_summary": "# ORACLE MIDDAY BRIEF\n\nBitcoin's down 2.7% to $71,629\u2014clean rejection at resistance. Fear & Greed at 29 shows capitulation mood, but here's what matters: hashrate holding steady at 1,007 EH/s means miners aren't panicking despite margin compression. That's structural strength underneath the noise.\n\nOn-chain signal worth watching\u2014mempool's relatively lean at 84,751 transactions. That suggests we're not seeing panic liquidations cascading through the network. Base fee sitting at 8 sat/vB is cheap.",
+  "word_count": 157,
+  "tts_provider": "chatterbox",
+  "btc_price": 71629.0,
+  "sentiment_score": 35
+}

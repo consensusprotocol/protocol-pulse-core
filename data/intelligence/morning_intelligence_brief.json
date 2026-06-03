@@ -1,40 +1,54 @@
 {
-  "generated_at": "2026-05-29T18:00:00Z",
-  "date": "Friday, May 29, 2026",
-  "btc_price": "$73,535",
-  "btc_change_24h": "+0.2%",
-  "fng": "Extreme Fear",
+  "generated_at": "2026-06-02T14:30:00Z",
+  "date": "Tuesday, June 02, 2026",
+  "btc_price": "$67,292",
+  "btc_change_24h": "-5.8%",
+  "fng": "Extreme Fear (23/100)",
   "dominant_narratives": [
-    "CFTC onshoring of Bitcoin perpetual futures",
-    "Texas Strategic Bitcoin Reserve formation",
-    "Hormuz-driven energy repricing as Bitcoin catalyst"
+    "Institutional accumulation continues despite price decline — Strive buying 2,500 BTC signals conviction amid retail panic",
+    "ETF flows directly correlate with BTC volatility — traditional finance gatekeepers now control price discovery",
+    "Bitcoin as stateless money gaining geopolitical legitimacy — Oslo Freedom Forum elevates Bitcoin beyond finance into human rights infrastructure",
+    "Regulatory capture risk disguised as consumer protection — Crypto Clarity Act framed as CBDC trojan horse by protocol critics",
+    "Bear market psychology inducing tribalism — internal Bitcoin community fracturing over scapegoats rather than coordinating on fundamentals"
   ],
   "trending_language": [
-    "CFTC approves first U.S. Bitcoin perpetual futures contracts",
-    "Texas Strategic Bitcoin Reserve Advisory Committee",
-    "Hormuz crisis is not an oil spike. It's a structural repricing"
+    "Summer of stack — bargain-priced accumulation narrative during drawdown",
+    "HODL! ✊ — simplistic conviction signaling amid market noise",
+    "Starlink for money — transcends geography, boundaries, permission — geopolitical framing gaining traction",
+    "True ownership — self-custody education narratives dominating hardware/wallet discourse",
+    "Asymmetric output — funding acceleration toward underserved markets (Global South hardware/education)"
   ],
-  "sentiment": "uncertain",
-  "sentiment_reasoning": "Regulatory wins and state adoption signals clash with Extreme Fear index and geopolitical energy shocks.",
+  "sentiment": "bearish",
+  "sentiment_reasoning": "Price action (-5.8%), Extreme Fear index (23/100), and polymarket projections ($65K floor) create panic conditions. However, institutional buyers (Strive, Schwab rollout, Corporate treasuries) show conviction, creating bifurcated sentiment: retail fear vs. institutional accumulation.",
   "top_accounts_active": [
-    "@saylor",
     "@BitcoinMagazine",
-    "@brian_armstrong"
+    "@saifedean",
+    "@saylor",
+    "@lopp",
+    "@CaitlinLong_",
+    "@natbrunell",
+    "@DocumentingBTC",
+    "@MartyBent",
+    "@nvk"
   ],
   "recommended_tweet_angles": [
-    "Frame CFTC perpetuals approval as direct power-up for MSTR and BTC holders",
-    "Texas reserve as proof of state-level Bitcoin accumulation momentum",
-    "Energy volatility from Hormuz as fresh structural case for Bitcoin"
+    "ETF flows = price discovery algorithm now: $500M+ weekly inflows = 5-15% gains; $200M+ outflows = 5-20% declines. Traditional finance didn't join Bitcoin; Bitcoin joined TradFi's order flow. The chain is transparent. Their flows aren't.",
+    "Strive accumulating 2,500 BTC at $74.1k avg while retail margin liquidates at $67.2k. Asymmetric conviction. This is how capital reorganizes during fear regimes. Institutions know the playbook — accumulation phases precede narrative shifts.",
+    "Regulatory codification incoming: Crypto Clarity Act marketed as consumer protection. Read the mechanics: stablecoin containment + CBDC infrastructure pre-positioning + programmable money guardrails. Not regulation. Financial architecture restructuring.",
+    "Oslo Freedom Forum 2026: Bitcoin positioned as stateless infrastructure for activists, journalists, persecuted populations. Not asset speculation. Not banking. Human rights technology. This narrative trajectory matters more than $5.8% 24h volatility.",
+    "Bear market truth: Most Bitcoin conflict is temporal scarcity anxiety, not protocol disagreement. Lopp nails it—folks want scapegoats for disappointing TradFi returns. Network fundamentals (security, hashrate, adoption) unchanged. Emotion is signal distortion."
   ],
   "topics_to_avoid": [
-    "Israel-Palestine geopolitical commentary"
+    "Israeli-Palestinian conflict commentary — high volume but divisive; dilutes Bitcoin signal; draws geopolitical flamewars unrelated to protocol",
+    "Peptide supplementation endorsements — off-protocol lifestyle content diluting credibility in serious bear market",
+    "Intra-community tribalism narratives — amplifying 'many Bitcoiners upset and beefing' weakens unified messaging during drawdown"
   ],
-  "engagement_patterns": "Short regulatory and adoption updates backed by specific announcements and data",
-  "protocol_pulse_voice_guidance": "Sharp cypherpunk read on regulatory theater versus real self-sovereignty wins, data-first and anti-fragile",
+  "engagement_patterns": "Short-form conviction signals (HODL! ✊) paired with data snapshots (earnings yields, accumulation volumes, price levels) outperform narrative essays. Video/livestream content from Oslo Freedom Forum sustained engagement despite market downturn. Educational threads on self-custody and hardware security gaining traction (Coldcard Mk5, BitBox discussions). Institutional buyer announcements ($185M, 2,500 BTC) treated as counter-narrative signals to bear momentum.",
+  "protocol_pulse_voice_guidance": "Operate as unblinking observer of capital reorganization mechanics during fear regimes. Frame institutional accumulation not as 'bullish signal' but as evidence of asymmetric conviction among players with longer time horizons. Embed cypherpunk skepticism toward regulatory language (Clarity Act = architecture, not protection). Elevate geopolitical narrative (stateless money for persecuted populations) over asset price speculation. Sound: analytical, data-native, anti-scapegoat, focused on system mechanics rather than sentiment.",
   "key_stats_today": {
-    "tweets_analyzed": 101,
+    "tweets_analyzed": 141,
     "nostr_signals": 0,
-    "unique_handles": 68
+    "unique_handles": 88
   },
-  "generated_by": "grok_fallback"
+  "generated_by": "claude_haiku"
 }

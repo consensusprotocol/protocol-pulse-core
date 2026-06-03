@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-01T18:00:31.366385+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate holding steady at 1,007 EH/s despite margin compression",
+    "Lean mempool (84,751 transactions) shows no panic liquidations",
+    "Base fee at 8 sat/vB indicates cheap entry conditions",
+    "Smart money accumulating quietly",
+    "Shakeout pattern rather than capitulation"
+  ],
+  "bearish_signals": [
+    "2.7% rejection at resistance",
+    "71K breakdown could trigger 69,500 target",
+    "Fear & Greed at 29 signals retail fear"
+  ],
+  "neutral_topics": [
+    "Range-bound consolidation pattern",
+    "Volume data temporarily unavailable"
+  ]
+}

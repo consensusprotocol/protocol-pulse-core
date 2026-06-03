@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-01T10:00:29.981735+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Regulators Enforce Seizure: Why Bitcoin's Censorship Resistance Just Became the Story",
+      "angle": "Regulatory enforcement shifts from theoretical to practical; Bitcoin's fundamental value proposition transitions from speculation to necessity",
+      "tags": [
+        "bitcoin",
+        "regulation",
+        "censorship-resistance",
+        "narrative-shift"
+      ]
+    },
+    {
+      "headline": "On-Chain Accumulation Signals: Why 1 Sat/vB Mempool Flush Matters More Than $72K Price",
+      "angle": "Technical on-chain metrics (hashrate, fees, mempool) reveal conviction buying beneath price noise",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "accumulation",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Fed Pivot Incoming: Bitcoin's Macro Setup as Rate-Tightening Hits the Wall",
+      "angle": "Removal of monetary tightening headwind creates tailwind for inflows; real yields data becomes key catalyst",
+      "tags": [
+        "bitcoin",
+        "macro",
+        "fed-policy",
+        "inflows"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-05-30T10:00:31.542953+00:00",
+  "brief_type": "morning",
+  "score": 35,
+  "bullish_signals": [
+    "Extreme Fear & Greed reading (23) = historical contrarian buy signal",
+    "Hashrate stability despite price pressure shows miner conviction",
+    "Rock-solid network fundamentals with no structural warnings",
+    "Cheap fees (1 sat/byte) create attractive entry conditions",
+    "Clean mempool with healthy 100K transaction queue",
+    "Sentiment weakness decoupled from network health"
+  ],
+  "bearish_signals": [
+    "Price down overnight from $73.5K",
+    "Extreme fear index indicates capitulation risk",
+    "Support test at $72K could lead to further probing lower"
+  ],
+  "neutral_topics": [
+    "Institutional positioning unclear ahead of macro data",
+    "Mempool clearing speed TBD as health indicator"
+  ]
+}

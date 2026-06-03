@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-06-01T18:00:31.366385+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Bitcoin Holds Above 71K as Miners Ignore Fear Signals\u2014What On-Chain Data Really Says",
+      "angle": "Examining the disconnect between Fear & Greed (29) and on-chain structural health: steady hashrate, lean mempool, and accumulation patterns suggest institutional strength beneath retail panic.",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "hashrate",
+        "miners",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "The Mempool Never Lies: Why Bitcoin's Lean Transaction Pool Is a Bullish Signal in a Dip",
+      "angle": "Breaking down why the absence of panic liquidations and cheap base fees (8 sat/vB) during a 2.7% pullback indicates controlled consolidation rather than capitulation.",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "technical-analysis",
+        "on-chain-metrics"
+      ]
+    },
+    {
+      "headline": "Bitcoin at 71K: The Shakeout That Separates Retail From Smart Money",
+      "angle": "How miner hashrate stability and quiet accumulation during market weakness reveal a two-tier market where institutional conviction trumps Fear & Greed readings.",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "market-psychology",
+        "accumulation"
+      ]
+    }
+  ]
+}

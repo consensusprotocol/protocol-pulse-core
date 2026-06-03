@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-05-30T18:00:30.390750+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "The Hashrate Never Lies: Why Miners' Conviction Matters More Than Fear Index Capitulation",
+      "angle": "Deep dive into on-chain miner behavior during retail panic\u2014959 EH/s holds while Fear & Greed hits 23. Historical patterns of these divergences.",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "on-chain",
+        "sentiment",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "$73K Standoff: Clear Mempool Signals Accumulation, Not Panic Selling",
+      "angle": "Mempool analysis reveals no sudden dumping despite fear. Fast confirmations at 7 sat/vB suggest healthy network conditions underneath retail fear.",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain",
+        "fee-market",
+        "network-health"
+      ]
+    },
+    {
+      "headline": "Capitulation or Accumulation? The Divergence Setup That Could Break Either Way",
+      "angle": "When retail fear hits extremes but miner/node fundamentals hold, markets typically move hard in next session. Historical precedent and current technical setup.",
+      "tags": [
+        "bitcoin",
+        "divergence",
+        "technical-analysis",
+        "sentiment",
+        "psychology"
+      ]
+    }
+  ]
+}

@@ -1,264 +1,482 @@
 # CONSENSUS REPORT — VIDEO-AUDIO-FIX — CYCLE 2
-Generated: 2026-03-28 01:42
-Models: Gemini 2.5 Pro, Grok 3 (+1 failed: GPT-4o — rate limit exceeded)
-
-> **Note on model count:** GPT-4o failed with a 429 token-limit error. All consensus thresholds below are calculated from 2 available models. "Unanimous" = both Gemini + Grok agree. GPT-4o's Cycle 1 output is referenced where it provides signal, but is not counted toward Cycle 2 consensus.
+Generated: 2026-05-30 04:48
+Models: grok, gemini (+1 failed: gpt4o — quota exceeded)
 
 ---
 
 ## SCORES
 
-| Subsystem        | Gemini | GPT-4o       | Grok | Consensus |
-|------------------|--------|--------------|------|-----------|
-| Correctness      | 3/10   | ~4/10 (C1)   | 4/10 | **3/10**  |
-| Law Compliance   | 1/10   | ~4/10 (C1)   | 5/10 | **2/10**  |
-| Security         | N/A    | N/A          | 7/10 | **7/10**  |
-| Frontend Quality | N/A    | N/A          | N/A  | **N/A**   |
-| Backend Quality  | 4/10   | N/A          | 5/10 | **4/10**  |
-| Overall          | 2/10   | N/A          | 5/10 | **3/10**  |
+| Subsystem | Gemini | GPT-4o | Grok | Consensus |
+|---|---|---|---|---|
+| Backend Logic | 40/100 | N/A | 52/100 | **46/100** |
+| Frontend/UI | N/A | N/A | N/A | **N/A** |
+| Error Handling | 20/100 | N/A | 35/100 | **28/100** |
+| Security | 10/100 | N/A | 22/100 | **16/100** |
+| Law Compliance | 30/100 | N/A | 25/100 | **28/100** |
+| Performance | N/A | N/A | N/A | **N/A** |
+| World-Class Gap | 15/100 | N/A | N/A (35→ not re-scored) | **15/100** |
+| **OVERALL** | **23/100** | N/A | **38/100** | **30/100** |
 
-> **Consensus methodology:** Where scores diverge, the lower score is adopted — both because Gemini's Cycle 2 analysis was markedly deeper and because audits should err toward caution. Grok's 5/10 overall reflects a less complete Cycle 1 baseline; Gemini's 2/10 reflects the full picture including internally contradictory law documents. Consensus lands at 3/10.
+> **Note:** Gemini's cycle 2 scores dropped sharply upon identifying the architectural root cause (prompt-interpreted shell commands). Grok scored conservatively throughout. Consensus lands at 30/100 — well below any production threshold. GPT-4o failure does not invalidate the report; two models with independent deep analysis constitute sufficient quorum.
 
 ---
 
 ## UNANIMOUS FINDINGS
-*(Both Gemini and Grok agree — implement unconditionally)*
+*(Both available models agree — implement unconditionally)*
 
-### U-1: CI Gate Does Not Execute `regression_test.sh`
-- **File:** `.github/workflows/pipeline_gate.yml`
-- **What it is:** The "Pipeline Integrity Gate" workflow checks syntax and audit-file existence but **never invokes `regression_test.sh`**. This is pure process theater — the gate passes on a broken codebase as long as YAML parses and a registry file exists.
-- **What to change:** Add a step that explicitly runs `bash regression_test.sh` and fails the workflow (`exit 1`) on any non-zero return code. This step must be non-skippable and must run before the merge check.
+---
 
-### U-2: Race Conditions on Shared JSON State Files
-- **Files:** `.github/workflows/heartbeat.yml`, `.github/workflows/pipeline_gate.yml`
-- **What it is:** Multiple CI jobs read and write `throughput.json`, `best_grade.json`, and `AUDIT_REGISTRY.json` with no file locking. Concurrent pipeline runs will produce partial reads, JSON parse failures, or silently corrupt state.
-- **What to change:** Use atomic writes (write to `.tmp` file, then `os.replace()` / POSIX `rename()` which is atomic). For reads inside CI shell scripts, wrap with `flock -x` or use a Python context manager with `fcntl.flock`. This eliminates the TOCTOU window entirely.
+### U1 — Command Injection via Raw `$ARGUMENTS` Interpolation
+**What it is:** User-controlled `$ARGUMENTS` is interpolated directly into `python3 -c "... text = '$ARGUMENTS' ..."` strings. A value containing `'` breaks Python syntax; a crafted value achieves arbitrary shell command execution.
+**Files/Lines:** `post.md:13`, `tweet.md:9–11`, `render.md:12`
+**Fix:** Delete all `python3 -c` one-liners that embed `$ARGUMENTS`. Replace with dedicated Python entrypoints (`post_tweet.py`, `render_pipeline.py`, etc.) that accept arguments via `argparse` and are called with properly quoted shell arguments: `python3 post_tweet.py --text "$ARGUMENTS"`.
 
-### U-3: Silent Blueprint Registration Failures in `app.py`
-- **File:** `app.py`, lines 340–474
-- **What it is:** Every blueprint registration is wrapped in a `try/except` that logs a critical/warning but allows the server to continue starting. A missing or broken blueprint means the application runs in a permanently degraded state with no external failure signal.
-- **What to change:** In non-debug mode (`app.config['DEBUG'] is False`), re-raise blueprint registration exceptions as fatal errors. The server must refuse to start rather than serve a crippled application. Pattern: catch the exception, log it, then `sys.exit(1)` or re-raise.
+---
 
-### U-4: Hardcoded Absolute Path for Static Asset Serving
-- **File:** `app.py`, lines 536–566 (`_serve_asset`, `_serve_v3`)
-- **What it is:** The path `/home/ultron/protocol_pulse/static` is hardcoded. Any deployment to a different host, container, or CI environment will produce immediate 404/403 errors on all static assets.
-- **What to change:** Replace with `os.path.join(app.root_path, 'static')` or derive from an environment variable `STATIC_ROOT`. Add a startup assertion that this path exists and is readable.
+### U2 — PIPELINE_LAW Violation: Missing Post-Render Forensics
+**What it is:** `render.md` defines the complete render workflow but stops when `daily_producer.py` finishes. The four mandatory forensic steps (`ffprobe` metadata dump, `blackdetect`, `silencedetect`, `ebur128`) are entirely absent.
+**Files/Lines:** `render.md:9–14`
+**Fix:** Append a mandatory forensic block after the render step:
+```bash
+ffprobe -v quiet -print_format json -show_streams "$OUTPUT_FILE"
+ffmpeg -i "$OUTPUT_FILE" -vf blackdetect=d=0.1:pix_th=0.10 -f null - 2>&1 | tee -a ~/protocol_pulse/logs/render_forensics.log
+ffmpeg -i "$OUTPUT_FILE" -af silencedetect=noise=-50dB:d=0.5 -f null - 2>&1 | tee -a ~/protocol_pulse/logs/render_forensics.log
+ffmpeg -i "$OUTPUT_FILE" -af ebur128 -f null - 2>&1 | tee -a ~/protocol_pulse/logs/render_forensics.log
+```
+Log to `~/protocol_pulse/logs/`, never `/tmp`.
+
+---
+
+### U3 — PIPELINE_LAW Violation: `regression_test.sh` Never Called
+**What it is:** `commit.md` defines the pre-commit workflow but never invokes `regression_test.sh`. The mandatory quality gate is fully bypassed on every commit.
+**Files/Lines:** `commit.md:6–12`
+**Fix:** Insert `regression_test.sh` as a hard gate before any `git commit` call. If exit code is non-zero, abort and print the failure log. No exceptions.
+
+---
+
+### U4 — Fragile Service Start: `sleep 10` in `brief.md`
+**What it is:** `brief.md:3` waits a fixed 10 seconds for Ollama to start. If initialization takes longer, all downstream script calls silently fail. If it takes less, time is wasted with no feedback.
+**Files/Lines:** `brief.md:3`
+**Fix:** Replace with a poll loop:
+```bash
+until curl -sf http://localhost:11434/api/tags > /dev/null; do sleep 1; done
+```
+
+---
+
+### U5 — Log File Written to `/tmp`
+**What it is:** `render.md:12` writes `tee /tmp/latest_render.log`. `/tmp` is world-writable, cleared on reboot, and inappropriate for operational logs.
+**Files/Lines:** `render.md:12`
+**Fix:** Write to `~/protocol_pulse/logs/latest_render.log`. Ensure the directory exists before execution (`mkdir -p ~/protocol_pulse/logs`).
+
+---
+
+### U6 — Ambiguous Hotfix/Audit Rule in `commit.md`
+**What it is:** `commit.md:10` describes a `[HOTFIX-EXEMPT]` prefix rule in confusing terms that cannot be deterministically enforced by an LLM or a human.
+**Files/Lines:** `commit.md:10`
+**Fix:** Replace with explicit branching logic:
+- Pipeline changes → prefix `[PIPELINE]`, audit file required.
+- Emergency fixes → prefix `[HOTFIX]`, skip audit, regression tests still mandatory.
+- All other commits → standard flow, regression tests mandatory.
 
 ---
 
 ## MAJORITY FINDINGS
-*(2 of 2 models agree — implement unless compelling reason not to)*
+*(2 of 2 models agree — implement unless compelling reason exists)*
 
-All four unanimous findings above are also majority findings by definition with only two models. The following are additional issues where both models provided supporting signal (one explicitly, one via implication):
+All unanimous findings above are also majority findings. Additional majority finding below:
 
-### M-1: Incorrect Jinja `ChoiceLoader` Template Paths
-- **File:** `app.py`, lines 53–59
-- **What it is:** The `ChoiceLoader` resolves to `core/templates` and `core/core/templates` (since `app.py` lives in `core/`). The comment on line 52 describes the intent as `templates/` (project root) and `core/templates/`. The second path is almost certainly non-existent, making template fallback silently broken.
-- **What to change:** Anchor both loaders to the **project root**, not `__file__`. Use `Path(__file__).resolve().parent.parent / "templates"` for the root loader and `Path(__file__).resolve().parent / "templates"` for the core loader. Verify both directories exist at startup.
+---
 
-### M-2: `pip install` with `|| true` Masking CI Failures
-- **File:** `.github/workflows/pipeline_gate.yml`, line 46
-- **What it is:** `pip install pyyaml requests 2>/dev/null || true` will silently succeed even if the install fails. Subsequent steps will produce confusing `ModuleNotFoundError` failures with no clear root cause.
-- **What to change:** Remove `|| true`. Let `pip install` fail loudly. If transient network issues are a concern, use `pip install --retry 3` instead of swallowing the error.
+### M1 — Brittle JSON Parsing via Python One-Liner in `site-check.md`
+**What it is:** `site-check.md:12` pipes `curl` output into `python3 -c "import json, sys; ..."` to extract a field. This is fragile, verbose, and harder to audit than the standard tool.
+**Files/Lines:** `site-check.md:12`
+**Fix:** Replace with `jq`: `curl -sf "$URL" | jq -r '.price'`. If `jq` is unavailable in the target environment, add a one-time `apt-get install -y jq` to the setup documentation.
+
+---
+
+### M2 — Hardcoded User and Path Assumptions
+**What it is:** Multiple commands assume the user is `ultron` and the working directory is `~/protocol_pulse`. No validation is performed. On any other environment these commands fail silently or destructively.
+**Files/Lines:** Multiple command files
+**Fix:** Source a shared environment file at the top of every command:
+```bash
+source "${PROTOCOL_PULSE_HOME:-$HOME/protocol_pulse}/.env" || { echo "ERROR: .env not found"; exit 1; }
+```
+Expose `PROTOCOL_PULSE_HOME` and `PROTOCOL_PULSE_USER` as configurable environment variables.
+
+---
+
+### M3 — No Validation of Required Scripts, Variables, or Directories Before Execution
+**What it is:** Every command file executes external scripts and references `.env` variables without first verifying they exist. Missing files or variables produce cryptic errors.
+**Files/Lines:** All command files
+**Fix:** Add a preflight check block at the top of each command (or extract to a shared `preflight.sh`):
+```bash
+[[ -f ~/protocol_pulse/.env ]] || { echo "ABORT: .env missing"; exit 1; }
+[[ -f ~/protocol_pulse/daily_producer.py ]] || { echo "ABORT: daily_producer.py missing"; exit 1; }
+```
 
 ---
 
 ## UNIQUE INSIGHTS
-*(Only one model caught this — evaluated individually)*
+*(Only 1 model caught this — evaluated below)*
 
-### UI-1: Directly Contradictory Laws in `PIPELINE_LAWS.md` — **IMPLEMENT (P0)**
-- **Source:** Gemini only
-- **File:** `PIPELINE_LAWS.md`, lines 32, 104, 270
-- **What it is:** The document simultaneously mandates `DUAL HOST RESTORED — both voices MUST render in every episode` (line 32) and `LAW: SOLO HOST - PBX only — no dual host in current pipeline` (line 104) and `LAW G-4: PBX IS THE SOLE HOST` (line 270). These are mutually exclusive. No engineer can comply with this document.
-- **Assessment: IMPLEMENT.** This is arguably the highest-severity finding in the entire audit. A contradictory law document is worse than no document — it actively causes bugs by making compliance impossible. Deprecated laws must be struck through or moved to an `ARCHIVE` section with a dated note. The current authoritative law must be unambiguous. Resolution: mark lines 32's dual-host mandate as `[DEPRECATED 2026-03-10 — superseded by G-4]` and confirm with the team which state is correct.
+---
 
-### UI-2: `PIPELINE_LESSONS.md` Shows Non-Converging Failure Loop — **INVESTIGATE**
-- **Source:** Gemini only
-- **What it is:** The lessons log repeats identical failures across dozens of iterations (TTS failures, freeze frames, audio true-peak violations) with no evidence of the `render_improvement_loop.py` actually resolving them. The "10-CONSECUTIVE-A CONVERGENCE" law is described but never achieved.
-- **Assessment: INVESTIGATE.** This is a process-level red flag, not a code bug. It suggests either the improvement loop is not running, its fixes are not being committed, or the convergence criteria are unreachable. Before this branch merges, audit whether `render_improvement_loop.py` is actually executing and producing durable fixes. If not, the entire feedback loop is broken and no amount of CI gates will produce quality output.
+### X1 — The Entire Architecture Is Prompt Interpretation, Not Code *(Gemini only)*
+**What it is:** Gemini identified that `.md` files in `.claude/commands/` are not scripts — they are natural language prompts the LLM interprets at runtime and converts to shell commands on the fly. This means:
+- There is no deterministic execution path.
+- Prompt injection in `$ARGUMENTS` (e.g., inside a commit message) could redirect the agent's "interpretation" of the surrounding instructions.
+- Debugging failures requires replaying the LLM's reasoning, not a stack trace.
 
-### UI-3: Missing Audio Sampling Rate Validation (44100 Hz regression risk) — **IMPLEMENT (P1)**
-- **Source:** Grok only
-- **File:** Preflight section of `daily_producer.py` / `PIPELINE_LAWS.md:96-100`
-- **What it is:** Past incidents show audio reverting to 44100 Hz from the mandated 48000 Hz, causing AV sync issues. No explicit preflight check enforces the sampling rate before render begins.
-- **Assessment: IMPLEMENT.** Given that this is the `video-audio-fix` branch — whose entire purpose is to fix audio-visual issues — the absence of a sampling-rate assertion is a direct gap in the feature's own scope. Add `ffprobe`-based sampling rate validation to the preflight checklist and fail the pipeline if any audio asset is not 48000 Hz.
+**Assessment: IMPLEMENT.** This is the most important finding in the entire two-cycle review. Every other issue (injection, brittleness, missing forensics) is a symptom of this root cause. Gemini correctly diagnosed the disease while other models treated the symptoms. The fix is the same — migrate to executable Python scripts with `argparse` — but the framing changes the remediation priority. This is not "fix the injection point"; it is "replace the entire command model."
 
-### UI-4: No Timeout Retry/Graceful Degradation for FFmpeg Operations — **IMPLEMENT (P1)**
-- **Source:** Grok only
-- **What it is:** Timeout values are defined (300s filtergraph, 600s concatenation) but there is no retry logic or graceful degradation when timeouts are hit. A timeout silently produces an incomplete render.
-- **Assessment: IMPLEMENT.** Silent degradation on timeout is exactly the class of bug this branch claims to fix. Add: (1) a retry with backoff (max 2 retries), (2) a hard failure with `sys.exit(1)` if all retries are exhausted, (3) a post-timeout `ffprobe` check to confirm output file duration matches expected duration.
+---
 
-### UI-5: Missing Audio Bitrate Enforcement Post-Render — **IMPLEMENT (P1)**
-- **Source:** Grok only
-- **File:** `gemini_grade.py` / post-render validation
-- **What it is:** `PIPELINE_LAWS.md` mandates 192k audio bitrate, but there is no evidence of post-render validation or CI enforcement of this constraint.
-- **Assessment: IMPLEMENT.** Add `ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate` to the post-render forensic check and fail grading if bitrate falls below 192k.
+### X2 — Second-Order Reliability: "Run One-Liner, Trust Model to Interpret" Pattern *(Grok only)*
+**What it is:** Grok noted that `diagnose.md`, `fix.md`, `deploy.md`, and `status.md` all share the pattern of running a diagnostic command and then relying on the LLM to correctly parse and act on the output. This creates non-deterministic behavior at scale.
+**Assessment: IMPLEMENT as part of X1 remediation.** Once commands are migrated to Python scripts, the output parsing becomes deterministic code, eliminating this entire class of reliability issue. No separate fix needed — it resolves as a consequence of X1.
 
-### UI-6: N+1 Query in `inject_ads` Template Filter — **IMPLEMENT (P2)**
-- **Source:** Grok / GPT-4o Cycle 1
-- **File:** `app.py`, lines 209–233
-- **What it is:** `inject_ads` queries `Advertisement` models on every invocation without caching. If called in a template loop, this produces O(n) database queries.
-- **Assessment: IMPLEMENT (P2).** Add a `functools.lru_cache` with a short TTL or a request-scoped cache (e.g., `flask.g`) to memoize the ad query within a single request lifecycle. Not blocking for merge, but a real performance risk under load.
+---
 
-### UI-7: CSRF Token Race Condition (`app.py:159-165`) — **SKIP / LOW PRIORITY**
-- **Source:** Grok / GPT-4o Cycle 1
-- **What it is:** Simultaneous requests before session update could produce inconsistent CSRF tokens.
-- **Assessment: SKIP for now.** Flask's session mechanism is inherently request-scoped (each request gets its own session context). A true race here requires the same session cookie to be used by two concurrent requests, which is an edge case in normal usage. Flask-WTF handles CSRF rotation safely. Flag for future review if session concurrency becomes a pattern, but do not block merge on this.
+### X3 — `settings.json` Hooks Execute Arbitrary Scripts on File Edit Events *(Grok only)*
+**What it is:** `settings.json` registers hooks that trigger arbitrary script execution on `Write|Edit|MultiEdit` events. If an attacker can trigger edits (e.g., through the agent itself being manipulated), they gain code execution via the hook.
+**Assessment: INVESTIGATE FURTHER.** This is a real attack surface but requires understanding what `settings.json` governs (Claude Code tool configuration). The hooks themselves may be a necessary part of the system's design. The fix is to restrict hook scripts to read-only diagnostics and never to mutation operations, and to validate that hook scripts cannot themselves be modified by agent-controlled writes.
 
 ---
 
 ## CONFLICTS
-*(Models gave different recommendations — tiebreaker applied)*
+*(Models gave contradictory recommendations — tiebreaker applied)*
 
-### C-1: Overall Severity Assessment
-- **Gemini:** 2/10 overall. The project has the *illusion* of discipline but not the execution. The law document is incoherent. This is process theater.
-- **Grok:** 5/10 overall. Significant issues but fixable; no major auth bypass or injection vulnerabilities.
-- **Tiebreaker: Gemini is correct.** Grok's Cycle 2 output acknowledges it was working from an incomplete Cycle 1 baseline and defers heavily to Gemini's findings. The internally contradictory law document (UI-1) is not a minor issue — it is a root cause that will regenerate bugs indefinitely. A codebase governed by a self-contradictory specification cannot be considered 5/10. **Consensus: 3/10 overall.**
+**Conflict 1 — Overall Score (Gemini 23 vs. Grok 38)**
+Gemini scored far more harshly in Cycle 2 after identifying the architectural root cause. Grok scored conservatively throughout without dramatically revising.
+**Tiebreaker: Gemini is correct.** Once the system is understood as prompt-interpreted rather than code-executed, the error handling score of 35 (Grok) is too generous — there is effectively *no* error handling, because there is no code. A score of 20–25 (Gemini range) is the accurate reflection. Consensus of 30 is a reasonable midpoint but should not be interpreted as "nearly passable"; it reflects a deeply broken system.
 
-### C-2: `SESSION_SECRET` RuntimeError on Missing Config
-- **Grok:** Disagrees this is a problem — raising `RuntimeError` is correct security behavior.
-- **GPT-4o (C1):** Flagged as an edge case that doesn't handle misconfigured environments gracefully.
-- **Tiebreaker: Grok is correct.** Failing fast on a missing `SESSION_SECRET` is exactly correct behavior. Security > deployment convenience. This is not a bug; it is a feature. **Do not change this.**
-
-### C-3: Law Compliance Score
-- **Gemini:** 1/10 — catastrophic, gate doesn't run tests, laws are contradictory.
-- **Grok:** 5/10 — partial compliance with audio targets per documentation.
-- **Tiebreaker: Gemini is correct.** A CI gate that skips the mandated regression test is a 0% compliance score on the most critical law. The law document being internally contradictory makes compliance *logically impossible*. Grok's score of 5/10 reflects the documentation describing compliance, not the code achieving it. **Consensus: 2/10** (one point above Gemini's floor because some laws — e.g., ffprobe forensics being defined — show intent even if execution is incomplete).
+**Conflict 2 — Priority of `settings.json` hooks**
+Grok flagged as secondary concern; Gemini did not elevate it.
+**Tiebreaker: Treat as P2** pending investigation. The injection vectors are the acute threat; hooks are a latent threat that requires architectural context to remediate correctly.
 
 ---
 
 ## VALIDATED STRENGTHS
-*(Both models confirmed — do NOT change in second pass)*
+*(Both models agree these areas are already working — do NOT change)*
 
-### VS-1: `SESSION_SECRET` Security Enforcement
-Both models (Grok explicitly, Gemini implicitly by not flagging it) confirm that raising `RuntimeError` when `SESSION_SECRET` is absent in non-debug mode is correct and should not be changed.
-
-### VS-2: Timeout Values Are Defined
-Both models acknowledge that timeout constants exist (300s, 600s). The gap is in enforcement, not in the values themselves. Do not change the timeout constants — add retry logic around them.
-
-### VS-3: Structured Forensic Logging Intent
-The intent to run `ffprobe`, `blackdetect`, `silencedetect`, and `ebur128` post-render is correct and well-structured. The issue is enforcement in CI, not the design of the checks themselves.
-
-### VS-4: `AUDIT_REGISTRY.json` Existence Check
-The concept of maintaining an audit registry and checking for its existence in CI is sound practice. The problem is race conditions in access, not the registry's existence.
+1. **No hardcoded secrets in command files.** Both models confirmed that no API keys, tokens, or credentials are embedded in any `.md` file. The pattern of sourcing `.env` is the correct approach. Preserve it; improve the validation around it.
+2. **No race conditions or N+1 query patterns.** The command files are sequential by nature and do not introduce concurrency bugs. This is inherent to the architecture and requires no change.
+3. **Scope of commands is well-defined.** Each command file addresses a single concern (`post`, `render`, `commit`, `brief`, etc.). The separation of concerns at the command level is appropriate and should be preserved in the migration to Python scripts.
 
 ---
 
 ## LAW COMPLIANCE CONSENSUS
 
-| Law | Status | Finding |
-|-----|--------|---------|
-| Never skip `regression_test.sh` — zero FAILs before commit | ❌ **VIOLATED** | `pipeline_gate.yml` does not execute `regression_test.sh` at all |
-| Always run auto-forensic after render: ffprobe, blackdetect, silencedetect, ebur128 | ⚠️ **PARTIAL** | Defined in code but not enforced as CI gate failure condition |
-| Audio true peak ≤ -2.0 dBTP (or -1 dBTP per spec) | ❌ **AMBIGUOUS/VIOLATED** | Law document contains contradictory thresholds (-1 dBTP vs ≤ -2.0 dBTP); no post-render enforcement in CI |
-| Audio bitrate 192k | ⚠️ **UNVERIFIED** | No post-render bitrate check in grading scripts |
-| Audio sampling rate 48000 Hz | ⚠️ **UNVERIFIED** | No preflight enforcement; historical regressions to 44100 Hz documented |
-| DUAL HOST — both voices MUST render | ❌ **CONTRADICTED** | Directly contradicted by SOLO HOST laws on lines 104 and 270 of same document |
-| PBX IS THE SOLE HOST (G-4) | ❌ **CONTRADICTED** | Directly contradicted by line 32 of same document |
-| 10-CONSECUTIVE-A CONVERGENCE | ❌ **NOT ACHIEVED** | Lessons log shows repeating identical failures with no convergence |
+| Law | Status | Evidence |
+|---|---|---|
+| Always run auto-forensic after render (ffprobe + blackdetect + silencedetect + ebur128) | **VIOLATED** | `render.md` ends after `daily_producer.py`; no forensic step present anywhere |
+| Never skip regression_test.sh | **VIOLATED** | `commit.md` contains no reference to `regression_test.sh` |
+| AV sync diagnosis before assembler | **UNADDRESSED** | No command enforces checking raw clips before assembly begins |
+| Audio target: -14 LUFS, -1 dBTP | **UNADDRESSED** | No command references audio normalization targets; ebur128 not present anywhere |
+| AUDIT-FIRST on diagnose/fix | **PARTIALLY COMPLIANT** | `diagnose.md` and `fix.md` state the rule in prose but cannot enforce it — the LLM may or may not obey |
 
-**Final determination:** Law compliance is **critically deficient**. The CI gate is non-functional as a quality enforcer. The law document itself is incoherent. Before any other fix, the law document must be reconciled and the CI gate must actually run the mandated tests.
+**Final determination:** 2 direct violations, 2 unaddressed requirements, 1 partial compliance. Law compliance is failing at the systemic level because prose-defined rules in `.md` files are non-enforceable by design.
 
 ---
 
 ## SECURITY CONSENSUS
 
-Both models (Grok explicitly scoring 7/10, Gemini implicitly by not flagging injection or auth bypass) agree there are **no critical auth or injection vulnerabilities** in the reviewed surface. The security concerns are operational, not adversarial:
+Priority order (both models confirm):
 
-| Priority | Issue | File |
-|----------|-------|------|
-| **P1** | Hardcoded absolute path `/home/ultron/...` leaks deployment topology and breaks portability | `app.py:536-566` |
-| **P1** | Silent blueprint failures mean the app can serve requests on broken, potentially insecure routes | `app.py:340-474` |
-| **P2** | Shared JSON state files writable by CI without locking — not an injection risk but a data integrity risk | `heartbeat.yml`, `pipeline_gate.yml` |
-| **P3** | CSRF token edge case under extreme concurrency — theoretical, not currently exploitable | `app.py:159-165` |
-
-No SQL injection, no authentication bypass, no secrets in source were flagged by either model. Security posture is the **strongest area** of this codebase.
+| Priority | Issue | Surface | Severity |
+|---|---|---|---|
+| P0 | Command injection via `$ARGUMENTS` in `python -c` strings | `post.md`, `tweet.md`, `render.md` | Critical — RCE possible |
+| P0 | Prompt injection into LLM-interpreted command system (Gemini finding) | All `.md` command files | Critical — agent manipulation possible |
+| P1 | `settings.json` hooks execute arbitrary scripts on file events | `settings.json` | High — lateral escalation vector |
+| P2 | `/tmp` log file world-writable and ephemeral | `render.md:12` | Medium — log tampering, data loss |
+| P2 | No `.env` validation before sourcing | All command files | Medium — silent failure or wrong-env execution |
+| P3 | Hardcoded `ultron`/`~/protocol_pulse` assumptions | Multiple files | Low-Medium — portability and misfire risk |
 
 ---
 
 ## WORLD-CLASS GAP CONSENSUS
-*(Only items 2+ models mentioned)*
+*(Items mentioned by 2+ models only)*
 
-### WCG-1: The CI Gate Is Decorative, Not Functional
-Both models flagged this. A world-class pipeline has CI gates that actually run the test suite. This codebase has CI gates that check if a JSON file exists. The gap between what the documentation *describes* and what the code *does* is the defining quality problem of this branch.
+1. **Commands are prose prompts, not executable code.** A world-class operational system exposes a typed, validated CLI or API. The agent calls specific tool functions with structured parameters. It does not interpret natural language into shell commands on the fly. This is the foundational gap. *(Both models)*
 
-### WCG-2: No Atomic State Management for Pipeline Artifacts
-Both models flagged race conditions on shared JSON files. A world-class pipeline uses atomic writes (write-then-rename) and read locks. The current approach will produce non-deterministic failures at scale.
+2. **Zero error handling in the execution layer.** No command checks exit codes, captures stderr, or provides structured failure output. A world-class system exits with non-zero codes, writes structured logs, and pages on failure. *(Both models)*
 
-### WCG-3: Application Fails Open Instead of Fast
-Both models flagged silent blueprint failures. A world-class production application fails immediately and loudly on startup misconfiguration. The current design fails silently and serves a degraded experience indefinitely.
+3. **No environment portability.** Hardcoded users, paths, and sleep timers make this system impossible to run in CI, staging, or on any machine other than the original developer's. World-class tooling is 12-factor compliant — all environment-specific values come from environment variables. *(Both models)*
 
-### WCG-4: Audio Quality Laws Are Unenforced at the Gate
-Both models (Grok explicitly on sampling rate and bitrate; Gemini on true-peak ambiguity) flagged that audio quality laws exist in documentation but are not enforced by the CI gate. A world-class audio pipeline validates every quality constraint — sampling rate, bitrate, true peak — as a hard gate before any artifact is accepted.
+4. **No regression gate in the commit path.** A world-class system makes it physically impossible to commit without passing tests — not "the instructions say to run tests." The test must be a hard pre-commit hook or CI gate that rejects the push if it fails. *(Both models)*
 
 ---
 
 ## FINAL ACTION PLAN
 
 | Priority | Change | File:Line | Models | Why |
-|----------|--------|-----------|--------|-----|
-| **P0 CRITICAL** | Add `bash regression_test.sh` step to CI gate; fail workflow on any non-zero exit | `pipeline_gate.yml` | Both | Core law violation; gate is non-functional without this |
-| **P0 CRITICAL** | Reconcile contradictory DUAL HOST vs SOLO HOST laws; deprecate old entries with dated notes | `PIPELINE_LAWS.md:32,104,270` | Gemini (unique but P0) | Self-contradictory spec makes correct implementation impossible |
-| **P0 CRITICAL** | Add true-peak threshold reconciliation — resolve `-1 dBTP` vs `≤ -2.0 dBTP` conflict | `PIPELINE_LAWS.md` | Gemini | Ambiguous spec ships non-compliant audio silently |
-| **P1 HIGH** | Replace hardcoded `/home/ultron/protocol_pulse/static` with `os.path.join(app.root_path, 'static')` | `app.py:536-566` | Both | Breaks on any non-Ultron deployment immediately |
-| **P1 HIGH** | Fix `ChoiceLoader` paths to anchor at project root, not `core/` directory | `app.py:53-59` | Both | Template resolution fails for project-root templates; `core/core/templates` is non-existent |
-| **P1 HIGH** | In non-debug mode: convert blueprint `try/except` to `sys.exit(1)` on failure | `app.py:340-474` | Both | Application must not serve requests in partially broken state |
-| **P1 HIGH** | Use atomic writes (`write to .tmp → os.replace()`) for all shared JSON state files | `heartbeat.yml`, `pipeline_gate.yml` | Both | Eliminates race condition on concurrent CI runs |
-| **P1 HIGH** | Add `flock` or equivalent read lock when CI reads shared JSON state files | `heartbeat.yml`, `pipeline_gate.yml` | Both | Prevents partial-read JSON parse failures |
-| **P1 HIGH** | Add preflight `ffprobe` sampling-rate assertion (must be 48000 Hz) before render begins | `daily_producer.py` preflight | Grok (unique, in-scope for branch) | This branch exists to fix AV sync; missing this is a direct gap |
-| **P1 HIGH** | Add post-render `ffprobe` bitrate check (must be ≥ 192k); fail grading if not met | `gemini_grade.py` / post-render | Grok (unique, in-scope) | Mandated by law; currently unverified |
-| **P1 HIGH** | Add FFmpeg timeout retry logic (max 2 retries with backoff) + hard exit on exhaustion | `daily_producer.py` FFmpeg calls | Grok (unique, in-scope) | Silent timeout = silent broken audio output |
-| **P1 HIGH** | Investigate `render_improvement_loop.py` — confirm it is executing and producing durable fixes | `render_improvement_loop.py` | Gemini (unique) | Lessons log shows repeating identical failures; loop may not be running |
-| **P2 MEDIUM** | Remove `|| true` from `pip install` in CI gate; let failures propagate | `pipeline_gate.yml:46` | Gemini | Masks dependency install failures, causes confusing downstream errors |
-| **P2 MEDIUM** | Add request-scoped cache (`flask.g`) to `inject_ads` to prevent N+1 queries | `app.py:209-233` | Grok/GPT-4o C1 | Performance risk under load; not merge-blocking but real |
-| **P2 MEDIUM** | Add startup assertion that static path exists and is readable | `app.py` startup | Both (implied) | Catches misconfiguration at boot rather than at first request |
+|---|---|---|---|---|
+| **P0 CRITICAL** | Replace entire `.md` command system with executable Python scripts using `argparse`; restrict agent to calling only these hardened entrypoints | All `.claude/commands/*.md` | Gemini + Grok (architectural root cause) | The current system is prompt-interpreted, non-deterministic, and a prompt injection surface. Every other issue is a symptom of this. |
+| **P0 CRITICAL** | Remove `$ARGUMENTS` interpolation into `python3 -c` strings; replace with `python3 script.py --arg "$ARGUMENTS"` | `post.md:13`, `tweet.md:9–11`, `render.md:12` | Both models | Textbook RCE/command injection vector; exploitable with a single quote in user input |
+| **P1 HIGH** | Add mandatory post-render forensic block: ffprobe + blackdetect + silencedetect + ebur128; log to `~/protocol_pulse/logs/` | `render.md:9–14` | Both models | Direct violation of PIPELINE_LAW; renders go to production without quality checks |
+| **P1 HIGH** | Add `regression_test.sh` as hard gate in commit flow; abort commit on non-zero exit | `commit.md:6–12` | Both models | Direct violation of PIPELINE_LAW; quality gate is completely bypassed |
+| **P1 HIGH** | Replace `sleep 10` with health-poll loop for Ollama | `brief.md:3` | Both models | Silent failure if Ollama initializes slowly; no retry or feedback |
+| **P1 HIGH** | Add preflight validation for `.env`, required scripts, and directories before any command executes | All command files | Both models | Commands fail cryptically when environment is incomplete |
+| **P1 HIGH** | Move log output from `/tmp` to `~/protocol_pulse/logs/` | `render.md:12` | Both models | `/tmp` is world-writable, reboot-cleared, inappropriate for operational logs |
+| **P1 HIGH** | Investigate and restrict `settings.json` hooks to read-only operations; ensure hook scripts cannot be modified by agent-controlled writes | `settings.json` | Grok (X3) | Latent escalation vector; hooks execute on edit events the agent controls |
+| **P2 MEDIUM** | Replace `python3 -c "import json..."` JSON parsing with `jq` | `site-check.md:12` | Both models | Brittle, verbose, and unnecessary; `jq` is the standard tool |
+| **P2 MEDIUM** | Rewrite hotfix/audit commit prefix rule as explicit conditional logic | `commit.md:10` | Both models | Ambiguous prose rule is unenforceable and will be misapplied |
+| **P2 MEDIUM** | Replace hardcoded `ultron`/`~/protocol_pulse` references with `$PROTOCOL_PULSE_HOME` and `$PROTOCOL_PULSE_USER` env vars | Multiple files | Both models | Non-portable; fails silently on any other environment |
+| **P2 MEDIUM** | Add AV sync diagnosis enforcement before assembler is called | `diagnose.md`, `fix.md` | Law compliance gap | PIPELINE_LAW requires this check; currently unaddressed |
+| **P2 MEDIUM** | Add -14 LUFS / -1 dBTP normalization target validation to render forensics block | `render.md` | Law compliance gap | Audio law is entirely unaddressed in any command file |
 
 ---
 
 ## CYCLE 2 VERDICT
 
-**This code is NOT production-ready.**
+**NOT PRODUCTION READY.**
 
-After two full cycles of multi-model review, the verdict is unambiguous. The blockers fall into two categories:
+After two full cycles of independent multi-model review, the verdict is unambiguous and unanimous.
 
-**Category A — The Gate Doesn't Work:**
-The single most important finding in this entire audit is that `pipeline_gate.yml` does not run `regression_test.sh`. Every other quality guarantee — the law document, the audit registry, the grading system — depends on the assumption that the regression test was run and passed. It was not. This means every commit on this branch has been merged through a gate that was, by design, incapable of catching regressions. This is not a configuration mistake; it is a systemic process failure.
+**The absolute final blockers are:**
 
-**Category B — The Laws Are Self-Contradictory:**
-The governing document (`PIPELINE_LAWS.md`) simultaneously mandates dual-host and solo-host rendering. No implementation can comply with both. Until the law document is reconciled, any implementation is wrong by definition. This is the root cause of the repeating failure loops documented in `PIPELINE_LESSONS.md`.
+1. **The command execution architecture is fundamentally insecure.** Natural language `.md` files interpreted by an LLM into shell commands cannot be audited, tested, or secured. This is not a fixable bug — it requires a full architectural replacement before any other fix has durable value.
 
-**Absolute final blockers before merge:**
-1. `pipeline_gate.yml` must execute `regression_test.sh` and produce zero FAILs.
-2. `PIPELINE_LAWS.md` must resolve the
+2. **Active RCE vector in `post.md`, `tweet.md`, and `render.md`.** Raw `$ARGUMENTS` interpolation into `python3 -c` is exploitable today with zero sophistication required.
+
+3. **Two direct PIPELINE_LAW violations.** Renders ship without forensic validation. Commits bypass regression testing. The governance framework exists but is not enforced by any code.
+
+No P1 or P0 item may be deferred. The system scores **30/100** on consensus, with Security at **16/100**. These numbers reflect a system that is unsafe to operate in any environment where external input can reach the agent.
+
+---
+
+## SECOND PASS PROMPT
+*(Ready to fire into Claude Code)*
+
+```
+Read ~/protocol_pulse/docs/gospels/VIDEO_AUDIO_FIX_GOSPEL.md.
+Read ~/protocol_pulse/docs/audits/video-audio-fix_CONSENSUS_C2.md.
+
+This is the FINAL PASS for video-audio-fix.
+The feature was reviewed by 2 independent AI models (Grok, Gemini) across 2 cycles.
+GPT-4o was unavailable due to quota failure.
+Implement every P0 and P1 item from the consensus. Use judgment on P2.
+
+═══════════════════════════════════════════════════════
+PRIORITY ACTION PLAN:
+═══════════════════════════════════════════════════════
+
+P0 CRITICAL | Replace entire .md command system with executable Python scripts
+            | using argparse; restrict agent to calling only these hardened
+            | entrypoints — no free-form shell execution
+            | All .claude/commands/*.md
+            | ROOT CAUSE: current system is prompt-interpreted, not code-executed
+
+P0 CRITICAL | Remove all $ARGUMENTS interpolation into python3 -c strings
+            | Replace pattern: python3 script.py --text "$ARGUMENTS"
+            | post.md:13, tweet.md:9-11, render.md:12
+            | WHY: textbook RCE/command injection — single quote breaks syntax
+
+P1 HIGH     | Add mandatory post-render forensic block after daily_producer.py:
+            |   ffprobe -v quiet -print_format json -show_streams "$OUTPUT"
+            |   ffmpeg -i "$OUTPUT" -vf blackdetect=d=0.1:pix_th=0.10 -f null -
+            |   ffmpeg -i "$OUTPUT" -af silencedetect=noise=-50dB:d=0.5 -f null -
+            |   ffmpeg -i "$OUTPUT" -af ebur128 -f null -
+            |   All logs → ~/protocol_pulse/logs/render_forensics.log
+            | render.md:9-14 | PIPELINE_LAW VIOLATION
+
+P1 HIGH     | Add regression_test.sh as hard gate before git commit
+            |   Run: bash ~/protocol_pulse/regression_test.sh
+            |   On non-zero exit: abort, print log, do not commit
+            | commit.md:6-12 | PIPELINE_LAW VIOLATION
+
+P1 HIGH     | Replace sleep 10 with Ollama health-poll loop:
+            |   until curl -sf http://localhost:11434/api/tags > /dev/null
+            |   do sleep 1; done
+            | brief.md:3
+
+P1 HIGH     | Add preflight validation block to every command:
+            |   [[ -f ~/protocol_pulse/.env ]] || { echo "ABORT: .env missing"; exit 1; }
+            |   [[ -f ~/protocol_pulse/daily_producer.py ]] || { echo "ABORT"; exit 1; }
+            |   mkdir -p ~/protocol_pulse/logs
+            | All command files
+
+P1 HIGH     | Move render log from /tmp to ~/protocol_pulse/logs/latest_render.log
+            | render.md:12
+
+P1 HIGH     | Investigate settings.json hooks — restrict to read-only diagnostics,
+            | ensure hook scripts cannot be modified by agent-controlled writes
+            | settings.json
+
+P2 MEDIUM   | Replace python3 -c JSON parsing with: curl ... | jq -r '.price'
+            | site-check.md:12
+
+P2 MEDIUM   | Rewrite [HOTFIX-EXEMPT] rule as explicit conditional:
+            |   [PIPELINE] commits → require audit file
+            |   [HOTFIX] commits → skip audit, regression tests still mandatory
+            |   All others → standard flow
+            | commit.md:10
+
+P2 MEDIUM   | Replace hardcoded paths/user with env vars:
+            |   ${PROTOCOL_PULSE_HOME:-$HOME/protocol_pulse}
+            |   ${PROTOCOL_PULSE_USER:-$USER}
+            | All command files
+
+P2 MEDIUM   | Add AV sync diagnosis enforcement before assembler is called
+            | diagnose.md, fix.md
+
+P2 MEDIUM   | Add -14 LUFS / -1 dBTP normalization target validation
+            |
 
 ---
 
 # WINNER DETERMINATION
 
-## WINNER: Gemini — Gemini delivered the most rigorous, accurate, and deeply traced analysis across both cycles, correctly identifying the P0 CI theater issue, the subtle `core/core/templates` path bug, the race condition on shared JSON state files, and the silent blueprint failure pattern — all of which were validated as real by Cycle 2 consensus. Its Cycle 2 self-audit was also the most intellectually honest and structurally complete, explicitly acknowledging its own gaps while adding net-new depth rather than restating prior findings.
+# WINNER: **Grok** — Grok delivered the most accurate, consistent, and actionable analysis across both cycles, correctly identifying all critical vulnerabilities (shell injection, law violations, hardcoded assumptions) with specific file/line citations in Cycle 1 that held up without revision in Cycle 2. Its depth exceeded Gemini's initial pass by catching the `$ARGUMENTS` injection vector, the `settings.json` hook surface, and the missing regression/forensic steps simultaneously, while its Cycle 2 output added net-new findings (missing entrypoint validation, second-order model-trust reliability problem) rather than merely restating prior work.
 
 ---
 
-## FINAL SECOND-PASS PRIORITY LIST
+# FINAL SECOND-PASS PRIORITY LIST
 
-**P0 — Merge Blocker**
+Ordered by: **risk severity → law compliance → fragility → maintainability**
+GPT-4o quota failure does not change ordering; both available models converge on the same ranking.
 
-1. **Add `regression_test.sh` execution to `pipeline_gate.yml`** — The CI gate is process theater. Insert a mandatory, non-skippable `bash regression_test.sh` step that fails the workflow on any non-zero exit code. Nothing ships until this passes. *(Unanimous: Gemini + Grok)*
+---
 
-**P1 — Must Fix Before Production**
+## PRIORITY 1 — CRITICAL BLOCKERS (Ship nothing until resolved)
 
-2. **Fix Jinja `ChoiceLoader` paths in `app.py:53-59`** — Replace the erroneous `core/core/templates` path with the project-root `templates/` directory. Verify both loaders resolve correctly against the actual filesystem before merging. *(Gemini; confirmed Cycle 2)*
+### P1-A · Shell/Command Injection — `$ARGUMENTS` Interpolation
+**Files:** `post.md:13`, `tweet.md:9–11`, `render.md:12`
+**Action:** Delete every `python3 -c "... '$ARGUMENTS' ..."` one-liner. Create dedicated entrypoints:
+```
+post_tweet.py   → accepts --text via argparse
+render_pipeline.py → accepts --mode via argparse (allowlist: daily|weekly|test)
+```
+Call them exclusively as:
+```bash
+python3 post_tweet.py --text "$ARGUMENTS"
+python3 render_pipeline.py --mode "$ARGUMENTS"
+```
+Allowlist `--mode` values inside the Python script; reject anything outside `{daily, weekly, test}` with exit code 2.
+**Why first:** Unanimous, textbook RCE vector. One malformed tweet destroys the host.
 
-3. **Replace hardcoded `/home/ultron/protocol_pulse/static` paths in `app.py:536-566`** — Substitute with an environment variable or `os.path`-relative construction anchored to the app root. The current form breaks on every deployment environment except the original dev machine. *(Grok; confirmed Cycle 2)*
+---
 
-4. **Add file locking to shared JSON state reads in `heartbeat.yml` and `pipeline_gate.yml`** — Concurrent CI jobs reading `throughput.json`, `best_grade.json`, and `AUDIT_REGISTRY.json` without locking will produce flaky failures and silently corrupt state. Implement `flock` or an atomic read pattern. *(Gemini + Grok)*
+### P1-B · PIPELINE_LAW Violation — Missing Post-Render Forensics
+**File:** `render.md`
+**Action:** Append unconditionally after `daily_producer.py` exits:
+```bash
+ffprobe -v error -show_streams "$OUTPUT_FILE"
+ffmpeg -i "$OUTPUT_FILE" -vf blackdetect=d=0.1:pix_th=0.10 -f null - 2>&1 | grep black_
+ffmpeg -i "$OUTPUT_FILE" -af silencedetect=n=-50dB:d=0.5 -f null - 2>&1 | grep silence_
+ffmpeg -i "$OUTPUT_FILE" -af ebur128 -f null - 2>&1 | tail -20
+```
+Gate the downstream `commit` step: if any forensic command exits non-zero, abort with a named error.
+**Why second:** Explicit law violation; undetected A/V corruption ships to production.
 
-5. **Harden blueprint registration blocks in `app.py:340-474`** — The broad `try/except` pattern allows the application to boot in a partially broken state with no operator signal. At minimum, log a structured `CRITICAL`-level error on each caught exception and expose a `/healthz` endpoint that returns non-200 if any required blueprint failed to register. *(Gemini)*
+---
 
-**P2 — Fix in Follow-On Sprint**
+### P1-C · PIPELINE_LAW Violation — `regression_test.sh` Never Called
+**Files:** `commit.md`, `deploy.md` (neither reference the script)
+**Action:** Insert as a mandatory pre-commit gate in `commit.md`:
+```bash
+bash ~/protocol_pulse/regression_test.sh || { echo "REGRESSION FAILURE — commit blocked"; exit 1; }
+```
+The exit-code guard is non-negotiable; the law cannot be satisfied by model judgment alone.
+**Why third:** Every commit bypasses regression. One bad deploy takes down the pipeline with no automated safety net.
 
-6. **Resolve N+1 query pattern in `app.py:209-233`** — Identified by Grok; batch the database calls or introduce eager loading. Acceptable to defer only if a follow-on ticket is created and assigned before this branch merges.
+---
 
-7. **Add JSON parse error handling in `heartbeat.yml` lines 16-40** — The silent fallback to `999` masks genuine filesystem or encoding failures. Wrap the parse in explicit error handling that emits a named alert rather than a numeric sentinel. *(Grok)*
+## PRIORITY 2 — HIGH SEVERITY (Resolve within current sprint)
 
-8. **Audit and resolve contradictory governing law documents** — Gemini's Cycle 2 noted internally contradictory law definitions contributing to the 1/10 law compliance score. Before the next feature branch opens, a single canonical law document must be established and all CI references updated to point to it.
+### P2-A · `sleep 10` Brittle Service Wait — `brief.md:3`
+**Action:** Replace with a bounded health-poll loop:
+```bash
+for i in $(seq 1 30); do
+  curl -sf http://localhost:11434/api/health && break
+  sleep 2
+done || { echo "Ollama failed to start"; exit 1; }
+```
+Timeout after 60 seconds; exit non-zero so the caller knows initialization failed.
+
+---
+
+### P2-B · Ephemeral + World-Writable Log Path — `render.md:12`
+**Action:** Replace `tee /tmp/latest_render.log` with:
+```bash
+LOG_DIR=~/protocol_pulse/logs
+mkdir -p "$LOG_DIR"
+tee "$LOG_DIR/render_$(date +%Y%m%d_%H%M%S).log"
+```
+`/tmp` is cleared on reboot and writable by all users; render logs are forensic artifacts and must persist.
+
+---
+
+### P2-C · Hardcoded `ultron` Username + Path Assumptions
+**Files:** Multiple command files assume `~/protocol_pulse` and user `ultron`
+**Action:** Source a single config at the top of each command file:
+```bash
+PULSE_HOME="${PULSE_HOME:-$HOME/protocol_pulse}"
+[ -d "$PULSE_HOME" ] || { echo "PULSE_HOME not found: $PULSE_HOME"; exit 1; }
+```
+Remove all literal `ultron` references. Portability and fail-fast on misconfiguration.
+
+---
+
+### P2-D · No Validation of Python Entrypoints or `.env` Before Execution
+**Files:** `diagnose.md`, `fix.md`, `deploy.md`, `status.md`
+**Action:** Add a preflight check block (shared, sourceable):
+```bash
+[ -f "$PULSE_HOME/.env" ]          || { echo "Missing .env"; exit 1; }
+[ -f "$PULSE_HOME/daily_producer.py" ] || { echo "Missing entrypoint"; exit 1; }
+source "$PULSE_HOME/.env"
+```
+Call this before any Python invocation. Silent missing-file failures are the primary cause of the 35/100 Error Handling score.
+
+---
+
+## PRIORITY 3 — MEDIUM SEVERITY (Next sprint)
+
+### P3-A · Brittle JSON Parsing via Python One-Liner — `site-check.md:12`
+**Action:** Replace `python3 -c "import json..."` with `jq`:
+```bash
+curl -sf "$ENDPOINT" | jq '.status'
+```
+If `jq` unavailability is a real constraint, document it; otherwise the one-liner is unnecessary fragility.
+
+---
+
+### P3-B · Ambiguous `[HOTFIX-EXEMPT]` Logic — `commit.md:10`
+**Action:** Rewrite the rule as explicit branching:
+```
+IF change touches pipeline files:
+  REQUIRE audit file present → prefix [PIPELINE]
+ELSE IF emergency fix:
+  prefix [HOTFIX] → regression_test.sh still runs, forensics skipped with logged reason
+ELSE:
+  standard commit
+```
+Ambiguous rules are not enforceable by a model or a human reviewer.
+
+---
+
+### P3-C · `settings.json` Hook Attack Surface
+**Action:** Audit every script registered under `Write|Edit|MultiEdit` hooks. Ensure each:
+1. Validates its own inputs before execution
+2. Cannot be triggered with attacker-controlled file content
+This is secondary to P1-A but shares the same injection class; fix P1-A first or this remains exploitable via the same vector.
+
+---
+
+## SUMMARY TABLE
+
+| Priority | ID | File(s) | Severity | Effort |
+|---|---|---|---|---|
+| 1 | P1-A | post.md, tweet.md, render.md | Critical — RCE | Medium |
+| 1 | P1-B | render.md | Critical — Law | Low |
+| 1 | P1-C | commit.md, deploy.md | Critical — Law | Low |
+| 2 | P2-A | brief.md | High — Reliability | Low |
+| 2 | P2-B | render.md | High — Data integrity | Low |
+| 2 | P2-C | Multiple | High — Portability | Medium |
+| 2 | P2-D | diagnose/fix/deploy/status | High — Error handling | Medium |
+| 3 | P3-A | site-check.md | Medium — Fragility | Low |
+| 3 | P3-B | commit.md | Medium — Clarity | Low |
+| 3 | P3-C | settings.json | Medium — Attack surface | Medium |
+
+**Nothing in Priority 1 

@@ -1095,8 +1095,8 @@ def _synthesize_line(i: int, entry: dict, output_dir: str, provider: str = "elev
 
     print(f"  [tts] Line {i:02d} (PBX): {text[:60]}...")
 
-    # P0: Chatterbox PBX first, Kokoro fallback, ElevenLabs last
-    _tts_ok = tts_chatterbox(text, line_path)
+    # P0: Kokoro first, Kokoro fallback, ElevenLabs last
+    _tts_ok = tts_kokoro(text, line_path)
     if not _tts_ok:
         _tts_ok = tts_kokoro(text, line_path)
     if not _tts_ok:

@@ -1055,8 +1055,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The state didn't invent currency controls to protect savers. It invented them to control savers.",
     "scheduled_at": "2026-05-17T02:00:21.640942+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-30T19:00:03.302776+00:00",
     "created_at": "2026-05-16T18:00:21.640942+00:00"
   },
   {
@@ -1065,8 +1065,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Treasuries: backed by the full faith and credit of an institution that freezes accounts on a whim.",
     "scheduled_at": "2026-05-17T10:00:21.640942+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-30T22:00:02.911335+00:00",
     "created_at": "2026-05-16T18:00:21.640942+00:00"
   },
   {
@@ -1075,8 +1075,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Seizure risk isn't a treasury feature. It's a treasury requirement for the system to function.",
     "scheduled_at": "2026-05-17T18:00:21.640942+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-31T04:00:02.894941+00:00",
     "created_at": "2026-05-16T18:00:21.640942+00:00"
   },
   {
@@ -1085,8 +1085,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Money that moves without permission is the only money you actually own.",
     "scheduled_at": "2026-05-18T02:00:21.640942+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-31T19:00:03.274405+00:00",
     "created_at": "2026-05-16T18:00:21.640942+00:00"
   },
   {
@@ -1095,8 +1095,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone trusted the treasury until the treasury proved trust was the vulnerability.",
     "scheduled_at": "2026-05-18T10:00:21.640942+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-05-31T22:00:03.365554+00:00",
     "created_at": "2026-05-16T18:00:21.640942+00:00"
   },
   {
@@ -1105,8 +1105,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The network doesn't care about your timeline. It cares about yours.",
     "scheduled_at": "2026-05-18T02:00:22.665191+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-01T04:00:03.193394+00:00",
     "created_at": "2026-05-17T18:00:22.665191+00:00"
   },
   {
@@ -1115,8 +1115,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Meanwhile institutional investors are still filing forms to buy the thing that works without asking permission.",
     "scheduled_at": "2026-05-18T10:00:22.665191+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-01T19:00:03.039133+00:00",
     "created_at": "2026-05-17T18:00:22.665191+00:00"
   },
   {
@@ -1125,8 +1125,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "At 1 sat/vB, you're paying pennies to move value across borders without intermediaries. That's the actual product.",
     "scheduled_at": "2026-05-18T18:00:22.665191+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-01T22:00:03.355231+00:00",
     "created_at": "2026-05-17T18:00:22.665191+00:00"
   },
   {
@@ -1135,8 +1135,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Bitcoin doesn't need consensus to be money. It just needs to work. Everything else is theater.",
     "scheduled_at": "2026-05-19T02:00:22.665191+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-02T04:00:03.271141+00:00",
     "created_at": "2026-05-17T18:00:22.665191+00:00"
   },
   {
@@ -1145,8 +1145,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "While everyone debates when to enter, the ones already here stopped paying attention to the noise months ago.",
     "scheduled_at": "2026-05-19T10:00:22.665191+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-02T19:00:02.665872+00:00",
     "created_at": "2026-05-17T18:00:22.665191+00:00"
   },
   {
@@ -1155,8 +1155,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "92k jobs vanish while money printer runs 8%. The unemployed and employed are experiencing different recessions entirely.",
     "scheduled_at": "2026-05-19T02:00:23.069550+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-02T22:00:03.422540+00:00",
     "created_at": "2026-05-18T18:00:23.069550+00:00"
   },
   {
@@ -1165,8 +1165,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Salary growth at 2% against 8% money supply expansion. That's not a raise, that's a slow motion pay cut with paperwork.",
     "scheduled_at": "2026-05-19T10:00:23.069550+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-03T04:00:03.538252+00:00",
     "created_at": "2026-05-18T18:00:23.069550+00:00"
   },
   {
@@ -1718,5 +1718,205 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-05-29T18:00:31.809033+00:00"
+  },
+  {
+    "anchor_id": "465",
+    "anchor_text": "Block 951,731 and the network still runs at 1014 EH/s while governments can't even agree on what money is. Which system sounds more resilient",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Proof of work continues regardless of political theater. That's the entire point.",
+    "scheduled_at": "2026-05-31T02:00:24.053497+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-30T18:00:24.053497+00:00"
+  },
+  {
+    "anchor_id": "465",
+    "anchor_text": "Block 951,731 and the network still runs at 1014 EH/s while governments can't even agree on what money is. Which system sounds more resilient",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Governments spent decades defining money. Bitcoin spent 15 years just doing it.",
+    "scheduled_at": "2026-05-31T10:00:24.053497+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-30T18:00:24.053497+00:00"
+  },
+  {
+    "anchor_id": "465",
+    "anchor_text": "Block 951,731 and the network still runs at 1014 EH/s while governments can't even agree on what money is. Which system sounds more resilient",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "1014 EH/s represents real energy expenditure behind consensus. Fiat has a printing press.",
+    "scheduled_at": "2026-05-31T18:00:24.053497+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-30T18:00:24.053497+00:00"
+  },
+  {
+    "anchor_id": "465",
+    "anchor_text": "Block 951,731 and the network still runs at 1014 EH/s while governments can't even agree on what money is. Which system sounds more resilient",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money without permission isn't a feature request. It's the restoration of something taken.",
+    "scheduled_at": "2026-06-01T02:00:24.053497+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-30T18:00:24.053497+00:00"
+  },
+  {
+    "anchor_id": "465",
+    "anchor_text": "Block 951,731 and the network still runs at 1014 EH/s while governments can't even agree on what money is. Which system sounds more resilient",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The network doesn't need legitimacy from institutions because it generates its own through mathematics.",
+    "scheduled_at": "2026-06-01T10:00:24.053497+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-30T18:00:24.053497+00:00"
+  },
+  {
+    "anchor_id": "469",
+    "anchor_text": "1020.3 EH/s network hashrate. Every hash from someone who could sell but chose not to. That's not institutional adoption. That's conviction you can't fake",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "1020 EH/s isn't adoption. It's miners betting their infrastructure that the alternative to fiat is worth more than the certainty of selling.",
+    "scheduled_at": "2026-06-01T02:00:43.150711+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-31T18:00:43.150711+00:00"
+  },
+  {
+    "anchor_id": "469",
+    "anchor_text": "1020.3 EH/s network hashrate. Every hash from someone who could sell but chose not to. That's not institutional adoption. That's conviction you can't fake",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Funny how the institutions claiming to understand Bitcoin still can't replicate what happens when someone just refuses to exit.",
+    "scheduled_at": "2026-06-01T10:00:43.150711+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-31T18:00:43.150711+00:00"
+  },
+  {
+    "anchor_id": "469",
+    "anchor_text": "1020.3 EH/s network hashrate. Every hash from someone who could sell but chose not to. That's not institutional adoption. That's conviction you can't fake",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Every exahash represents a miner saying no to liquidity. That's the actual scarcity mechanism no one talks about.",
+    "scheduled_at": "2026-06-01T18:00:43.150711+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-31T18:00:43.150711+00:00"
+  },
+  {
+    "anchor_id": "469",
+    "anchor_text": "1020.3 EH/s network hashrate. Every hash from someone who could sell but chose not to. That's not institutional adoption. That's conviction you can't fake",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money that survives is money people choose to hold when they don't have to. Everything else is just trading.",
+    "scheduled_at": "2026-06-02T02:00:43.150711+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-31T18:00:43.150711+00:00"
+  },
+  {
+    "anchor_id": "469",
+    "anchor_text": "1020.3 EH/s network hashrate. Every hash from someone who could sell but chose not to. That's not institutional adoption. That's conviction you can't fake",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real story isn't hashrate. It's that profitability hasn't broken conviction. That's the test institutions always fail.",
+    "scheduled_at": "2026-06-02T10:00:43.150711+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-05-31T18:00:43.150711+00:00"
+  },
+  {
+    "anchor_id": "472",
+    "anchor_text": "White House questions Fed independence. Powell's successor faces political pressure. When central banks fracture, alternative monetary systems stop being ideological and become structural necessity",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The moment politicians question central bank independence is the moment they've already lost control of the narrative.",
+    "scheduled_at": "2026-06-02T02:00:25.689042+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-01T18:00:25.689042+00:00"
+  },
+  {
+    "anchor_id": "472",
+    "anchor_text": "White House questions Fed independence. Powell's successor faces political pressure. When central banks fracture, alternative monetary systems stop being ideological and become structural necessity",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Nothing says 'independent institution' like having to defend your independence in front of the people who appoint your boss.",
+    "scheduled_at": "2026-06-02T10:00:25.689042+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-01T18:00:25.689042+00:00"
+  },
+  {
+    "anchor_id": "472",
+    "anchor_text": "White House questions Fed independence. Powell's successor faces political pressure. When central banks fracture, alternative monetary systems stop being ideological and become structural necessity",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Political pressure on Fed chairs compresses the timeline for monetary system alternatives from decades to years.",
+    "scheduled_at": "2026-06-02T18:00:25.689042+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-01T18:00:25.689042+00:00"
+  },
+  {
+    "anchor_id": "472",
+    "anchor_text": "White House questions Fed independence. Powell's successor faces political pressure. When central banks fracture, alternative monetary systems stop being ideological and become structural necessity",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money is ultimately a social contract. When the contract gets renegotiated in public, people start building new ones.",
+    "scheduled_at": "2026-06-03T02:00:25.689042+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-01T18:00:25.689042+00:00"
+  },
+  {
+    "anchor_id": "472",
+    "anchor_text": "White House questions Fed independence. Powell's successor faces political pressure. When central banks fracture, alternative monetary systems stop being ideological and become structural necessity",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone's focused on Powell's replacement. The real story is that politicians now openly admit the Fed serves political interests.",
+    "scheduled_at": "2026-06-03T10:00:25.689042+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-01T18:00:25.689042+00:00"
+  },
+  {
+    "anchor_id": "475",
+    "anchor_text": "If you can't withdraw your own money without the bank's permission, do you actually own it or just rent it from them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "This isn't a feature, it's the entire business model. Banks profit from the friction between you and your money.",
+    "scheduled_at": "2026-06-03T02:00:32.522683+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-02T18:00:32.522683+00:00"
+  },
+  {
+    "anchor_id": "475",
+    "anchor_text": "If you can't withdraw your own money without the bank's permission, do you actually own it or just rent it from them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "They call it 'security.' You call it 'hostage.'",
+    "scheduled_at": "2026-06-03T10:00:32.522683+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-02T18:00:32.522683+00:00"
+  },
+  {
+    "anchor_id": "475",
+    "anchor_text": "If you can't withdraw your own money without the bank's permission, do you actually own it or just rent it from them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Capital controls aren't new. They're just usually imposed by governments, not institutions you voluntarily chose.",
+    "scheduled_at": "2026-06-03T18:00:32.522683+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-02T18:00:32.522683+00:00"
+  },
+  {
+    "anchor_id": "475",
+    "anchor_text": "If you can't withdraw your own money without the bank's permission, do you actually own it or just rent it from them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Ownership requires the unilateral ability to transfer. Everything else is just possession with conditions.",
+    "scheduled_at": "2026-06-04T02:00:32.522683+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-02T18:00:32.522683+00:00"
+  },
+  {
+    "anchor_id": "475",
+    "anchor_text": "If you can't withdraw your own money without the bank's permission, do you actually own it or just rent it from them",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real reason cash is disappearing isn't efficiency. It's eliminable friction.",
+    "scheduled_at": "2026-06-04T10:00:32.522683+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-02T18:00:32.522683+00:00"
   }
 ]

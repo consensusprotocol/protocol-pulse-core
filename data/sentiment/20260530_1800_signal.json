@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-05-30T18:00:30.390750+00:00",
+  "brief_type": "midday",
+  "score": 15,
+  "bullish_signals": [
+    "Hashrate holding strong at 959 EH/s despite price stagnation",
+    "Clear mempool with fast confirmations (7 sat/vB)",
+    "No panic selling signals from on-chain metrics",
+    "Miner conviction during retail capitulation\u2014classic accumulation pattern",
+    "Fear index at 23 = contrarian buy signal historically"
+  ],
+  "bearish_signals": [
+    "Price flat overnight with no directional conviction",
+    "Extreme fear in markets (F&G 23)",
+    "No explosive volume to confirm moves",
+    "Could be genuine resistance at $73k level"
+  ],
+  "neutral_topics": [
+    "Price stagnation in holding pattern",
+    "Unclear whether accumulation or resistance testing"
+  ]
+}

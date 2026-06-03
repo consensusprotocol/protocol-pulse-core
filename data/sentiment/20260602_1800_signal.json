@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-02T18:00:33.922949+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate steady at 922 EH/s\u2014miners not capitulating",
+    "Fees compressed despite price drop\u2014weak hands dumping, not network stress",
+    "No on-chain whale movement detected",
+    "Network structural integrity maintained",
+    "Mempool loaded\u2014liquidity present for recovery"
+  ],
+  "bearish_signals": [
+    "6% decline in 24 hours",
+    "Fear & Greed at extreme low (23)",
+    "Price action vulnerable to lower break"
+  ],
+  "neutral_topics": [
+    "Volume data unavailable",
+    "Support/resistance unclear until next move"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-05-30T10:00:31.542953+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 23: Why Bitcoin's Extreme Fear Reading is a Contrarian Trader's Dream",
+      "angle": "Historical analysis of Fear & Greed Index extreme lows and subsequent relief bounces; why sentiment detachment from fundamentals creates opportunity",
+      "tags": [
+        "bitcoin",
+        "fear-greed",
+        "sentiment-analysis",
+        "contrarian-trading",
+        "accumulation"
+      ]
+    },
+    {
+      "headline": "Bitcoin Network Health Report: Hashrate Holds Firm While Fees Collapse to 1 Sat/Byte",
+      "angle": "Deep dive into on-chain metrics showing miner resilience and builder's market conditions despite price weakness",
+      "tags": [
+        "bitcoin",
+        "network-fundamentals",
+        "hashrate",
+        "mempool",
+        "transaction-fees"
+      ]
+    },
+    {
+      "headline": "$72K Support or Capitulation? Three Signals to Watch in Bitcoin's Contrarian Setup",
+      "angle": "Real-time monitoring framework for today's key levels, institutional positioning, and mempool throughput as early warning system",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "support-levels",
+        "market-structure",
+        "real-time"
+      ]
+    }
+  ]
+}

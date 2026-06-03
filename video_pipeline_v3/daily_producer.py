@@ -595,8 +595,8 @@ def preflight_health_check():
     try:
         import psutil
         ram_free_gb = psutil.virtual_memory().available / (1024 ** 3)
-        if ram_free_gb < 30:
-            issues.append(f"RAM: only {ram_free_gb:.1f}GB free (need 30GB+)")
+        if ram_free_gb < 20:
+            issues.append(f"RAM: only {ram_free_gb:.1f}GB free (need 20GB+)")
         else:
             logger.info(f"PREFLIGHT: RAM {ram_free_gb:.1f}GB free")
     except ImportError:
