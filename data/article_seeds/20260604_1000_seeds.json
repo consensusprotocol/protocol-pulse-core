@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-04T10:00:32.364131+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Bitcoin's $61k Inflection: Why Extreme Fear Could Signal Bottom Formation",
+      "angle": "Analysis of how Extreme Fear readings combined with stable hashrate and clearing mempool suggest capitulation bottom rather than cascade failure",
+      "tags": [
+        "bitcoin",
+        "fear-index",
+        "support-levels",
+        "technical-analysis",
+        "market-psychology"
+      ]
+    },
+    {
+      "headline": "Hashrate Resilience: Why Miners Aren't Capitulating During Bitcoin's 6% Selloff",
+      "angle": "Deep dive into miner profitability thresholds and what sustained hashrate at 752.9 EH/s tells us about conviction during corrections",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "profitability",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "The Mempool as Leading Indicator: Low Fees Signal Potential Rally Setup",
+      "angle": "Examination of clearing mempool at 2 sat/vB as builder's opportunity and on-chain activity predictor for next move",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "on-chain",
+        "indicators"
+      ]
+    }
+  ]
+}

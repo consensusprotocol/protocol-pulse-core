@@ -1175,8 +1175,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Bond yields at 4.63% signal real interest rates are finally positive. Capital is repricing risk. Tech headcount adjustment is the market working.",
     "scheduled_at": "2026-05-19T18:00:23.069550+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-03T19:00:03.381068+00:00",
     "created_at": "2026-05-18T18:00:23.069550+00:00"
   },
   {
@@ -1185,8 +1185,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "We've monetized the difference between real work and printed claims. The visible part was always going to be painful for wage earners.",
     "scheduled_at": "2026-05-20T02:00:23.069550+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-03T22:00:02.636509+00:00",
     "created_at": "2026-05-18T18:00:23.069550+00:00"
   },
   {
@@ -1195,8 +1195,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone focused on job cuts missed the real story: 6% gap between money supply and wage growth is the actual transfer mechanism at work here.",
     "scheduled_at": "2026-05-20T10:00:23.069550+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-04T04:00:03.603434+00:00",
     "created_at": "2026-05-18T18:00:23.069550+00:00"
   },
   {
@@ -1205,8 +1205,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "This is why self-custody isn't optional. It's the difference between owning bitcoin and your heirs owning nothing.",
     "scheduled_at": "2026-05-20T02:00:23.835361+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-04T19:00:03.435225+00:00",
     "created_at": "2026-05-19T18:00:23.835361+00:00"
   },
   {
@@ -1215,8 +1215,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Your bitcoin becomes the perfect crime. Permanently locked, utterly inaccessible, and completely legal.",
     "scheduled_at": "2026-05-20T10:00:23.835361+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-04T22:00:03.060084+00:00",
     "created_at": "2026-05-19T18:00:23.835361+00:00"
   },
   {
@@ -1225,8 +1225,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "An estimated $30B in BTC sits in lost wallets. That's not a market inefficiency. That's monetary destruction.",
     "scheduled_at": "2026-05-20T18:00:23.835361+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-05T04:00:03.278827+00:00",
     "created_at": "2026-05-19T18:00:23.835361+00:00"
   },
   {
@@ -1235,8 +1235,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Money that dies with you was never really yours. True wealth is what survives you.",
     "scheduled_at": "2026-05-21T02:00:23.835361+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-05T19:00:03.277738+00:00",
     "created_at": "2026-05-19T18:00:23.835361+00:00"
   },
   {
@@ -1245,8 +1245,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Everyone obsesses over security. Nobody talks about the other side of that coin: making sure the right person can actually access it.",
     "scheduled_at": "2026-05-21T10:00:23.835361+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-05T22:00:03.191718+00:00",
     "created_at": "2026-05-19T18:00:23.835361+00:00"
   },
   {
@@ -1255,8 +1255,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Fear is a market signal. Hashrate is a protocol signal. One is noise, the other is truth.",
     "scheduled_at": "2026-05-21T02:00:29.656638+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-06T04:00:03.169221+00:00",
     "created_at": "2026-05-20T18:00:29.656638+00:00"
   },
   {
@@ -1265,8 +1265,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Fear of regulators is high, yet the network keeps doing what networks do. Some fears are simply irrelevant.",
     "scheduled_at": "2026-05-21T10:00:29.656638+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-06T19:00:02.747779+00:00",
     "created_at": "2026-05-20T18:00:29.656638+00:00"
   },
   {
@@ -1275,8 +1275,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Fear & Greed at 27. Hashrate at 981.1 EH/s. That's a lot of capital and energy securing a system people are 'scared' of.",
     "scheduled_at": "2026-05-21T18:00:29.656638+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-06T22:00:03.577592+00:00",
     "created_at": "2026-05-20T18:00:29.656638+00:00"
   },
   {
@@ -1285,8 +1285,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The index reflects a system of control. The hashrate reflects the will to opt out. Choose your reality.",
     "scheduled_at": "2026-05-22T02:00:29.656638+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-07T04:00:03.646925+00:00",
     "created_at": "2026-05-20T18:00:29.656638+00:00"
   },
   {
@@ -1295,8 +1295,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Fear of regulators means the system is working as intended. It's permissionless, and that's precisely what scares them.",
     "scheduled_at": "2026-05-22T10:00:29.656638+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-07T19:00:02.867360+00:00",
     "created_at": "2026-05-20T18:00:29.656638+00:00"
   },
   {
@@ -1305,8 +1305,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The answer remains unchanged: self-sovereignty is the only defense.",
     "scheduled_at": "2026-05-22T02:00:28.659504+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-07T22:00:03.149440+00:00",
     "created_at": "2026-05-21T18:00:28.659504+00:00"
   },
   {
@@ -1315,8 +1315,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "They'll keep 'rescuing' you until there's nothing left to rescue. Just not your Bitcoin.",
     "scheduled_at": "2026-05-22T10:00:28.659504+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-08T04:00:03.589359+00:00",
     "created_at": "2026-05-21T18:00:28.659504+00:00"
   },
   {
@@ -1918,5 +1918,255 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-06-02T18:00:32.522683+00:00"
+  },
+  {
+    "anchor_id": "480",
+    "anchor_text": "Do you know what your bank's reserve ratio actually is. Most people don't even know it's a number they could look up",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Your bank can lend out 90% of deposits and you're supposed to trust them with your life savings. That's the system.",
+    "scheduled_at": "2026-06-04T02:00:26.854404+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-03T18:00:26.854404+00:00"
+  },
+  {
+    "anchor_id": "480",
+    "anchor_text": "Do you know what your bank's reserve ratio actually is. Most people don't even know it's a number they could look up",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Banks publish their reserve ratios publicly. The fact that nobody reads them is the actual story here.",
+    "scheduled_at": "2026-06-04T10:00:26.854404+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-03T18:00:26.854404+00:00"
+  },
+  {
+    "anchor_id": "480",
+    "anchor_text": "Do you know what your bank's reserve ratio actually is. Most people don't even know it's a number they could look up",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "A 10% reserve ratio means 90 cents of every dollar you deposit was never yours to begin with.",
+    "scheduled_at": "2026-06-04T18:00:26.854404+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-03T18:00:26.854404+00:00"
+  },
+  {
+    "anchor_id": "480",
+    "anchor_text": "Do you know what your bank's reserve ratio actually is. Most people don't even know it's a number they could look up",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "We've normalized the idea that money in a bank account isn't really money. Just a claim on money.",
+    "scheduled_at": "2026-06-05T02:00:26.854404+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-03T18:00:26.854404+00:00"
+  },
+  {
+    "anchor_id": "480",
+    "anchor_text": "Do you know what your bank's reserve ratio actually is. Most people don't even know it's a number they could look up",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone's upset about inflation but won't check the one number that explains where new money comes from.",
+    "scheduled_at": "2026-06-05T10:00:26.854404+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-03T18:00:26.854404+00:00"
+  },
+  {
+    "anchor_id": "483",
+    "anchor_text": "2 sat/vB fees during extreme fear. Last time this happened, people were selling at $19k. How many of those sellers still think they made the right call",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Fear is the only reliable buy signal. The sellers at 19k proved it. The question is what you'll prove at the next bottom.",
+    "scheduled_at": "2026-06-05T02:00:29.077726+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-04T18:00:29.077726+00:00"
+  },
+  {
+    "anchor_id": "483",
+    "anchor_text": "2 sat/vB fees during extreme fear. Last time this happened, people were selling at $19k. How many of those sellers still think they made the right call",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "2 sat/vB during panic. Meanwhile, the network kept working. That's the whole point, and most people still miss it.",
+    "scheduled_at": "2026-06-05T10:00:29.077726+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-04T18:00:29.077726+00:00"
+  },
+  {
+    "anchor_id": "483",
+    "anchor_text": "2 sat/vB fees during extreme fear. Last time this happened, people were selling at $19k. How many of those sellers still think they made the right call",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Low fees during high fear means institutions aren't panic selling. Retail moved the price. Institutions moved the chain.",
+    "scheduled_at": "2026-06-05T18:00:29.077726+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-04T18:00:29.077726+00:00"
+  },
+  {
+    "anchor_id": "483",
+    "anchor_text": "2 sat/vB fees during extreme fear. Last time this happened, people were selling at $19k. How many of those sellers still think they made the right call",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Every crash forces a choice: do you own money, or does money own you. The sellers at 19k chose the latter.",
+    "scheduled_at": "2026-06-06T02:00:29.077726+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-04T18:00:29.077726+00:00"
+  },
+  {
+    "anchor_id": "483",
+    "anchor_text": "2 sat/vB fees during extreme fear. Last time this happened, people were selling at $19k. How many of those sellers still think they made the right call",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Nobody talks about the sellers who bought again at 25k after selling at 19k. That's where real losses live.",
+    "scheduled_at": "2026-06-06T10:00:29.077726+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-04T18:00:29.077726+00:00"
+  },
+  {
+    "anchor_id": "486",
+    "anchor_text": "Block 952,502. Hashrate 907.0 EH/s. Fees at 4 sat/vB during extreme fear. The network doesn't care about your conviction. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "This is what monetary policy without a central bank looks like. Indifferent. Meritocratic. Working.",
+    "scheduled_at": "2026-06-06T02:00:28.677849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-05T18:00:28.677849+00:00"
+  },
+  {
+    "anchor_id": "486",
+    "anchor_text": "Block 952,502. Hashrate 907.0 EH/s. Fees at 4 sat/vB during extreme fear. The network doesn't care about your conviction. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Fear capitulation pays 4 sat/vB to move value. The network couldn't care less about your emotional state.",
+    "scheduled_at": "2026-06-06T10:00:28.677849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-05T18:00:28.677849+00:00"
+  },
+  {
+    "anchor_id": "486",
+    "anchor_text": "Block 952,502. Hashrate 907.0 EH/s. Fees at 4 sat/vB during extreme fear. The network doesn't care about your conviction. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "907 EH/s of hashrate means someone is mining at a loss right now. That's the fee floor being discovered in real time.",
+    "scheduled_at": "2026-06-06T18:00:28.677849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-05T18:00:28.677849+00:00"
+  },
+  {
+    "anchor_id": "486",
+    "anchor_text": "Block 952,502. Hashrate 907.0 EH/s. Fees at 4 sat/vB during extreme fear. The network doesn't care about your conviction. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money that runs whether you believe in it or not is the only money worth having. Everything else is just consensus theater.",
+    "scheduled_at": "2026-06-07T02:00:28.677849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-05T18:00:28.677849+00:00"
+  },
+  {
+    "anchor_id": "486",
+    "anchor_text": "Block 952,502. Hashrate 907.0 EH/s. Fees at 4 sat/vB during extreme fear. The network doesn't care about your conviction. It just keeps working",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Low fees during fear aren't a sign of network weakness. They're proof the base layer doesn't need your validation to survive.",
+    "scheduled_at": "2026-06-07T10:00:28.677849+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-05T18:00:28.677849+00:00"
+  },
+  {
+    "anchor_id": "490",
+    "anchor_text": "Zcash's inflation bug proves Bitcoin won. When your privacy coin's math breaks, you're trusting cryptographers. When Bitcoin's math breaks, physics stops working. Silent Payments incoming without the asterisk",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Zcash needed a patch. Bitcoin needed physics to keep working. One is a currency, the other is a law of nature.",
+    "scheduled_at": "2026-06-07T02:00:30.254190+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-06T18:00:30.254190+00:00"
+  },
+  {
+    "anchor_id": "490",
+    "anchor_text": "Zcash's inflation bug proves Bitcoin won. When your privacy coin's math breaks, you're trusting cryptographers. When Bitcoin's math breaks, physics stops working. Silent Payments incoming without the asterisk",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Privacy coin discovers inflation bug. Fixes it. Everyone acts shocked that math can be wrong when humans write it.",
+    "scheduled_at": "2026-06-07T10:00:30.254190+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-06T18:00:30.254190+00:00"
+  },
+  {
+    "anchor_id": "490",
+    "anchor_text": "Zcash's inflation bug proves Bitcoin won. When your privacy coin's math breaks, you're trusting cryptographers. When Bitcoin's math breaks, physics stops working. Silent Payments incoming without the asterisk",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Zcash's $130M supply error means every holder's percentage ownership got diluted by cryptographer incompetence. Bitcoin can't have this problem.",
+    "scheduled_at": "2026-06-07T18:00:30.254190+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-06T18:00:30.254190+00:00"
+  },
+  {
+    "anchor_id": "490",
+    "anchor_text": "Zcash's inflation bug proves Bitcoin won. When your privacy coin's math breaks, you're trusting cryptographers. When Bitcoin's math breaks, physics stops working. Silent Payments incoming without the asterisk",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "A currency backed by consensus beats a currency backed by the smartest people in the room. Zcash just proved it.",
+    "scheduled_at": "2026-06-08T02:00:30.254190+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-06T18:00:30.254190+00:00"
+  },
+  {
+    "anchor_id": "490",
+    "anchor_text": "Zcash's inflation bug proves Bitcoin won. When your privacy coin's math breaks, you're trusting cryptographers. When Bitcoin's math breaks, physics stops working. Silent Payments incoming without the asterisk",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Everyone focused on Zcash's bug. Nobody noticed: Silent Payments solves privacy without the maintenance burden of an entire alternate consensus layer.",
+    "scheduled_at": "2026-06-08T10:00:30.254190+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-06T18:00:30.254190+00:00"
+  },
+  {
+    "anchor_id": "493",
+    "anchor_text": "1946: Bretton Woods promised gold backing. By 1971 Nixon closed the window. 2026: CBDCs promise consumer protection. By 2030 they'll control every transaction. Same con, faster tech",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Every monetary promise comes with an expiration date. The difference now is they won't need to formally announce when it expires.",
+    "scheduled_at": "2026-06-08T02:00:29.602258+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-07T18:00:29.602258+00:00"
+  },
+  {
+    "anchor_id": "493",
+    "anchor_text": "1946: Bretton Woods promised gold backing. By 1971 Nixon closed the window. 2026: CBDCs promise consumer protection. By 2030 they'll control every transaction. Same con, faster tech",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "They'll sell it as protection. You'll get the surveillance. History doesn't repeat, it just charges a processing fee.",
+    "scheduled_at": "2026-06-08T10:00:29.602258+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-07T18:00:29.602258+00:00"
+  },
+  {
+    "anchor_id": "493",
+    "anchor_text": "1946: Bretton Woods promised gold backing. By 1971 Nixon closed the window. 2026: CBDCs promise consumer protection. By 2030 they'll control every transaction. Same con, faster tech",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Gold backing failed because citizens could demand delivery. CBDCs won't have that problem. By design.",
+    "scheduled_at": "2026-06-08T18:00:29.602258+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-07T18:00:29.602258+00:00"
+  },
+  {
+    "anchor_id": "493",
+    "anchor_text": "1946: Bretton Woods promised gold backing. By 1971 Nixon closed the window. 2026: CBDCs promise consumer protection. By 2030 they'll control every transaction. Same con, faster tech",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money was always about control. We're just moving from the illusion of freedom to the honesty of the ledger.",
+    "scheduled_at": "2026-06-09T02:00:29.602258+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-07T18:00:29.602258+00:00"
+  },
+  {
+    "anchor_id": "493",
+    "anchor_text": "1946: Bretton Woods promised gold backing. By 1971 Nixon closed the window. 2026: CBDCs promise consumer protection. By 2030 they'll control every transaction. Same con, faster tech",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real tell: they're not hiding CBDCs from you. They're normalizing the infrastructure while you debate whether they're coming.",
+    "scheduled_at": "2026-06-09T10:00:29.602258+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-07T18:00:29.602258+00:00"
   }
 ]

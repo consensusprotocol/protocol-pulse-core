@@ -1,0 +1,12 @@
+{
+  "karen_faye": {
+    "address": "bc1qymlnquevxhedlqt52uutuz7h4qrkglf00dan42",
+    "name": "Karen Faye",
+    "network": "Bitcoin",
+    "address_type": "native_segwit",
+    "created": "2026-05-11",
+    "verified": true,
+    "purpose": "Donation wallet for Karen Faye, victim of physical mail Ledger phishing scam. Wallet created on a new hardware device, address verified.",
+    "episode": "cypherpunkd_karen_faye_2026"
+  }
+}

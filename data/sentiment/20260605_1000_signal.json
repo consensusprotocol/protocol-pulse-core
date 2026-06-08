@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-05T10:00:33.591890+00:00",
+  "brief_type": "morning",
+  "score": 65,
+  "bullish_signals": [
+    "Extreme Fear reading at 12 (historical local bottom indicator)",
+    "Hashrate elevated at 990 EH/s (miners showing conviction)",
+    "Light mempool with low fees (accumulation environment)",
+    "No violent selling overnight in Asia (consolidation pattern)",
+    "Network infrastructure stable (no stress signals)"
+  ],
+  "bearish_signals": [
+    "Price flat for 24 hours (lack of directional momentum)",
+    "Apathy in volume (not panic selling, but weak conviction)"
+  ],
+  "neutral_topics": [
+    "Macro catalysts from US equity opens (unpredictable)",
+    "Price level testing ($62K support)"
+  ]
+}

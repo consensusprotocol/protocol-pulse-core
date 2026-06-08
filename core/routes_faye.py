@@ -85,8 +85,23 @@ def _anthropic_available() -> bool:
 @faye_bp.route("/faye", methods=["GET"])
 @faye_bp.route("/faye/", methods=["GET"])
 def faye_page():
-    """Serve the Faye landing page."""
-    return render_template("faye.html")
+    """Serve the Faye landing page — scam-check tool + Karen donation."""
+    import json as _json
+    wallet = ""
+    try:
+        with open("/home/ultron/protocol_pulse/data/donation_wallets.json") as fh:
+            wallet = _json.load(fh).get("karen_faye", {}).get("address", "")
+    except Exception as e:
+        log.warning("faye page: donation_wallets.json load failed: %s", e)
+    return render_template("faye.html", wallet=wallet)
+
+
+@faye_bp.route("/karen", methods=["GET"])
+@faye_bp.route("/donate/karen", methods=["GET"])
+def karen_donation():
+    """Redirect /karen and /donate/karen to /faye (canonical home)."""
+    from flask import redirect
+    return redirect("/faye", code=301)
 
 # ---------------------------------------------------------------
 # Known-bad patterns. Extend this aggressively from real cases.
@@ -110,6 +125,27 @@ SCAM_PATTERNS = [
     (r"government\s+(grant|refund|stimulus)", "Government grant scam"),
     (r"(irs|hmrc|cra).*(arrest|warrant|tax\s+fraud)", "Tax-authority impersonation"),
     (r"romance|lonely|widow.*invest", "Romance/pig-butchering pattern"),
+]
+
+# Heavyweight patterns — single hit pushes total over SCAM threshold (1.5).
+# These are very specific high-confidence patterns; broad matches stay in SCAM_PATTERNS.
+HEAVY_PATTERNS = [
+    # ── Karen Faye exact attack vector ──
+    # Physical mail + hardware wallet brand + QR code = near-certain scam.
+    # Hardware wallet companies do not send unsolicited mail with QR codes.
+    (r"(letter|mail|envelope|received|got|came|arrived).{0,80}?(ledger|trezor|coldcard|coinkite|bitbox|keystone|jade)",
+     "Unsolicited mail claiming to be from a hardware wallet brand — Karen Faye attack vector", 1.8),
+    (r"(ledger|trezor|coldcard|coinkite|bitbox).{0,60}?(letter|mail|envelope|received|got it in the mail)",
+     "Hardware wallet brand + arrived by mail — verify only by typing the company URL yourself", 1.8),
+    (r"(qr|code).{0,40}?(ledger|trezor|coldcard|seed|recovery|wallet)",
+     "QR code linked to a wallet brand — never scan unsolicited wallet QR codes", 1.6),
+    (r"(ledger|trezor|coldcard|wallet|seed).{0,40}?(scan|scanning).{0,20}?(qr|code)",
+     "Asked to scan a QR code to access wallet — classic drain pattern", 1.6),
+    # ── Other high-confidence single-hit scam patterns ──
+    (r"(?:please\s+)?(?:give|send|provide|share|confirm|verify|enter).{0,30}?(seed|recovery)\s*phrase",
+     "Explicit request for seed/recovery phrase — 100% scam, no exceptions", 2.5),
+    (r"(?:account|wallet).{0,20}?(?:will\s+be|going\s+to\s+be).{0,20}?(suspended|locked|frozen|deleted|closed)",
+     "Threat of account/wallet suspension — classic urgency manipulation", 1.6),
 ]
 
 KNOWN_GOOD_DOMAINS = {
@@ -227,21 +263,50 @@ def analyze_image_with_gemini(image_path: Path) -> dict:
         img_bytes, media_type = _prepare_image(image_path)
         log.info("faye: gemini input mime=%s bytes=%d", media_type, len(img_bytes))
 
-        resp = model.generate_content(
-            [FAYE_PROMPT, {"mime_type": media_type, "data": img_bytes}],
-            generation_config={
-                "temperature": 0.2,
-                "max_output_tokens": 1024,
-                # Force valid JSON — eliminates markdown-fence / preamble parse failures
-                "response_mime_type": "application/json",
-            },
-        )
-        raw_text = getattr(resp, "text", "") or ""
-        parsed = _parse_llm_json(raw_text)
-        if not parsed:
-            # Surface what Gemini actually said so failures are diagnosable
-            log.warning("faye: gemini returned unparseable response: %s", raw_text[:300])
-        return parsed
+        # Retry up to 2 times on empty/unparseable response (Gemini sometimes
+        # returns truncated JSON or refusal text under load — second try usually works)
+        import time as _time
+        last_raw = ""
+        for attempt in (1, 2, 3):
+            try:
+                resp = model.generate_content(
+                    [FAYE_PROMPT, {"mime_type": media_type, "data": img_bytes}],
+                    generation_config={
+                        "temperature": 0.2,
+                        "max_output_tokens": 1024,
+                        # Force valid JSON — eliminates markdown-fence / preamble parse failures
+                        "response_mime_type": "application/json",
+                    },
+                    # Scam detection must be able to LOOK AT phishing/impersonation
+                    # content. Without these, Gemini's safety filter silently
+                    # returns "{" or empty text for content that mimics scams.
+                    safety_settings=[
+                        {"category": "HARM_CATEGORY_HARASSMENT",        "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_HATE_SPEECH",       "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                    ],
+                )
+                # Capture the prompt-feedback so we can log filter blocks
+                _pf = getattr(resp, "prompt_feedback", None)
+                _br = getattr(_pf, "block_reason", None) if _pf else None
+                if _br:
+                    log.warning("faye: gemini blocked by safety filter on attempt %d: %s", attempt, _br)
+                raw_text = getattr(resp, "text", "") or ""
+            except Exception as ge:
+                log.warning("faye: gemini attempt %d raised %s", attempt, ge)
+                raw_text = ""
+            last_raw = raw_text
+            parsed = _parse_llm_json(raw_text) if raw_text else {}
+            if parsed:
+                if attempt > 1:
+                    log.info("faye: gemini recovered on attempt %d", attempt)
+                return parsed
+            log.warning("faye: gemini attempt %d unparseable: %s", attempt, raw_text[:200] or "(empty)")
+            if attempt < 3:
+                _time.sleep(0.8)  # brief backoff before retry
+        log.warning("faye: gemini exhausted retries; last raw: %s", last_raw[:200])
+        return {}
     except Exception as e:
         log.exception("faye: gemini analysis failed: %s", e)
         return {}
@@ -331,9 +396,13 @@ def _parse_llm_json(text: str) -> dict:
 # Signal synthesis
 # ---------------------------------------------------------------
 def score_text(text: str) -> list[dict]:
-    """Pattern-match the text. Each hit is a signal with weight."""
+    """Pattern-match the text. Each hit is a signal with weight.
+    HEAVY_PATTERNS check first — they carry weight >=1.5 and can flip SCAM on their own."""
     signals = []
     low = text.lower()
+    for pattern, label, weight in HEAVY_PATTERNS:
+        if re.search(pattern, low):
+            signals.append({"label": label, "weight": weight, "kind": "pattern_heavy"})
     for pattern, label in SCAM_PATTERNS:
         if re.search(pattern, low):
             signals.append({"label": label, "weight": 1.0, "kind": "pattern"})
@@ -400,8 +469,7 @@ def synthesize_verdict(llm: dict, pattern_signals: list[dict], x_signals: list[d
         # The model returned nothing usable — be honest, don't imply we analyzed it
         verdict = "warn"
         title = "Couldn't read that clearly."
-        reason = ("I couldn't make out the content. Try again — more light, hold steady, "
-                  "and fill the frame with the message. When in doubt, don't proceed.")
+        reason = "Couldn't make out the content. When in doubt, don't proceed."
     else:
         verdict = "warn"
         title = "Not enough signal."
@@ -423,6 +491,29 @@ def synthesize_verdict(llm: dict, pattern_signals: list[dict], x_signals: list[d
 def analyze():
     t0 = time.time()
     kind = request.form.get("kind", "image")
+
+    # ── kind=text: transcript posted directly (no audio upload, no Whisper) ──
+    if kind == "text":
+        transcript = (request.form.get("transcript") or "").strip()
+        if not transcript:
+            return jsonify(verdict="warn", title="No input received.", reason="Say it again."), 400
+        try:
+            llm = _text_only_assessment(transcript)
+            pattern_signals = score_text(transcript)
+            x_signals = cross_check_x(llm.get("claimed_sender"))
+            result = synthesize_verdict(llm, pattern_signals, x_signals)
+            result["elapsed_ms"] = int((time.time() - t0) * 1000)
+            result["transcript"] = transcript  # echo for UI display
+            log.info("faye verdict=%s elapsed=%dms kind=text transcript=%r signals=%d",
+                     result["verdict"], result["elapsed_ms"], transcript[:80], len(result["signals"]))
+            return jsonify(result)
+        except Exception as e:
+            log.exception("faye text analysis failed")
+            return jsonify(verdict="warn",
+                           title="Service hiccup.",
+                           reason="Could not complete the check. Treat as inconclusive."), 200
+
+    # ── kind=image or kind=audio: file upload path ──
     upload = request.files.get("file")
     if not upload:
         return jsonify(verdict="warn", title="No input received.", reason="Try again."), 400
@@ -460,27 +551,60 @@ def analyze():
 
 
 def _text_only_assessment(transcript: str) -> dict:
-    """Quick text-only LLM pass for audio transcripts. Gemini-first."""
+    """Quick text-only LLM pass. Used for both audio transcripts and live-text input.
+    Gemini-first with retry + safety_settings (same hardening as image path)."""
     if not transcript:
         return {}
     try:
         import google.generativeai as genai  # type: ignore
+        import time as _time
         api_key = _gemini_key()
         if not api_key:
-            log.warning("faye: no GEMINI_API_KEY for audio assessment")
+            log.warning("faye: no GEMINI_API_KEY for text assessment")
             return {}
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(_resolve_key("GEMINI_MODEL") or "gemini-2.5-flash")
         prompt = (
-            f"You are Faye, a fraud-detection assistant. Below is a transcript of "
-            f"audio someone is suspicious of. Decide if it is a scam.\n\n"
+            "You are Faye, a fraud-detection assistant. Below is a transcript of "
+            "something a user is suspicious of (voice message, phone call, or pasted text). "
+            "Decide if it is a scam.\n\n"
             f"TRANSCRIPT:\n\"\"\"{transcript}\"\"\"\n\n"
-            "Return JSON ONLY: claimed_sender, urgency_markers (list), "
+            "Return JSON ONLY with fields: claimed_sender, urgency_markers (list), "
             "asks_for_seed (bool), asks_for_funds (bool), lookalike_brand, "
             "assessment (<=200 chars), verdict (scam|ok|warn), confidence (0-1)."
         )
-        resp = model.generate_content(prompt, generation_config={"temperature": 0.2, "max_output_tokens": 768})
-        return _parse_llm_json(resp.text or "")
+        last_raw = ""
+        for attempt in (1, 2, 3):
+            try:
+                resp = model.generate_content(
+                    prompt,
+                    generation_config={
+                        "temperature": 0.2,
+                        "max_output_tokens": 768,
+                        "response_mime_type": "application/json",
+                    },
+                    safety_settings=[
+                        {"category": "HARM_CATEGORY_HARASSMENT",        "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_HATE_SPEECH",       "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                    ],
+                )
+                raw_text = getattr(resp, "text", "") or ""
+            except Exception as ge:
+                log.warning("faye: text-assessment attempt %d raised %s", attempt, ge)
+                raw_text = ""
+            last_raw = raw_text
+            parsed = _parse_llm_json(raw_text) if raw_text else {}
+            if parsed:
+                if attempt > 1:
+                    log.info("faye: text-assessment recovered on attempt %d", attempt)
+                return parsed
+            log.warning("faye: text-assessment attempt %d unparseable: %s", attempt, raw_text[:200] or "(empty)")
+            if attempt < 3:
+                _time.sleep(0.6)
+        log.warning("faye: text-assessment exhausted retries; last raw: %s", last_raw[:200])
+        return {}
     except Exception as e:
         log.exception("faye: text-only assessment failed: %s", e)
         return {}

@@ -1,54 +1,61 @@
 {
-  "generated_at": "2026-06-02T14:30:00Z",
-  "date": "Tuesday, June 02, 2026",
-  "btc_price": "$67,292",
-  "btc_change_24h": "-5.8%",
-  "fng": "Extreme Fear (23/100)",
+  "generated_at": "2026-06-07T00:00:00Z",
+  "date": "Sunday, June 07, 2026",
+  "btc_price": "$61,314",
+  "btc_change_24h": "+0.0%",
+  "fng": "Extreme Fear (12/100)",
   "dominant_narratives": [
-    "Institutional accumulation continues despite price decline — Strive buying 2,500 BTC signals conviction amid retail panic",
-    "ETF flows directly correlate with BTC volatility — traditional finance gatekeepers now control price discovery",
-    "Bitcoin as stateless money gaining geopolitical legitimacy — Oslo Freedom Forum elevates Bitcoin beyond finance into human rights infrastructure",
-    "Regulatory capture risk disguised as consumer protection — Crypto Clarity Act framed as CBDC trojan horse by protocol critics",
-    "Bear market psychology inducing tribalism — internal Bitcoin community fracturing over scapegoats rather than coordinating on fundamentals"
+    "Regulatory capture disguised as consumer protection (Crypto Clarity Act as CBDC trojan horse)",
+    "Geopolitical instability driving safe-haven reassessment (Russia, Israel espionage, Cuba militarization)",
+    "Open-source AI and local inference as freedom tech parallel to Bitcoin's self-sovereignty",
+    "Global monetary system collapse imminent — petrodollar decline and US debt unsustainability",
+    "Corporate Bitcoin accumulation by institutions (Saylor/MicroStrategy) vs. retail sentiment disconnect"
   ],
   "trending_language": [
-    "Summer of stack — bargain-priced accumulation narrative during drawdown",
-    "HODL! ✊ — simplistic conviction signaling amid market noise",
-    "Starlink for money — transcends geography, boundaries, permission — geopolitical framing gaining traction",
-    "True ownership — self-custody education narratives dominating hardware/wallet discourse",
-    "Asymmetric output — funding acceleration toward underserved markets (Global South hardware/education)"
+    "programmable money / financial control mechanisms",
+    "you can't fix [institution] because the architecture is broken",
+    "the gap between what they describe and what happens is wild",
+    "if you've never actually used it, you're brainwashed",
+    "this is a policy, not a fluke",
+    "a good time to add more dots"
   ],
   "sentiment": "bearish",
-  "sentiment_reasoning": "Price action (-5.8%), Extreme Fear index (23/100), and polymarket projections ($65K floor) create panic conditions. However, institutional buyers (Strive, Schwab rollout, Corporate treasuries) show conviction, creating bifurcated sentiment: retail fear vs. institutional accumulation.",
+  "sentiment_reasoning": "Fear & Greed Index at extreme fear (12/100) combined with sustained macro anxiety about regulatory overreach, geopolitical fragmentation, and systemic monetary collapse. Even positive corporate accumulation signals (Saylor) are framed defensively rather than bullishly. Zero price movement masks underlying community stress.",
   "top_accounts_active": [
-    "@BitcoinMagazine",
-    "@saifedean",
+    "@nvk",
     "@saylor",
     "@lopp",
-    "@CaitlinLong_",
-    "@natbrunell",
-    "@DocumentingBTC",
-    "@MartyBent",
-    "@nvk"
+    "@BitcoinArchive",
+    "@saifedean",
+    "@BTCsessions",
+    "@gladstein",
+    "@callebtc",
+    "@stephanlivera"
   ],
   "recommended_tweet_angles": [
-    "ETF flows = price discovery algorithm now: $500M+ weekly inflows = 5-15% gains; $200M+ outflows = 5-20% declines. Traditional finance didn't join Bitcoin; Bitcoin joined TradFi's order flow. The chain is transparent. Their flows aren't.",
-    "Strive accumulating 2,500 BTC at $74.1k avg while retail margin liquidates at $67.2k. Asymmetric conviction. This is how capital reorganizes during fear regimes. Institutions know the playbook — accumulation phases precede narrative shifts.",
-    "Regulatory codification incoming: Crypto Clarity Act marketed as consumer protection. Read the mechanics: stablecoin containment + CBDC infrastructure pre-positioning + programmable money guardrails. Not regulation. Financial architecture restructuring.",
-    "Oslo Freedom Forum 2026: Bitcoin positioned as stateless infrastructure for activists, journalists, persecuted populations. Not asset speculation. Not banking. Human rights technology. This narrative trajectory matters more than $5.8% 24h volatility.",
-    "Bear market truth: Most Bitcoin conflict is temporal scarcity anxiety, not protocol disagreement. Lopp nails it—folks want scapegoats for disappointing TradFi returns. Network fundamentals (security, hashrate, adoption) unchanged. Emotion is signal distortion."
+    "BIP-110 signaling countdown (2 months to mandatory trigger) — frame as technical resilience during regulatory chaos. 'While governments design control mechanisms, Bitcoin's upgrade path is pure consensus.'",
+    "Russia's Central Bank retail Bitcoin restriction as unintentional Bitcoin validation — 'When even authoritarian regimes fear losing control to Bitcoin, you know you're holding the right asset.'",
+    "Open-source AI as Bitcoin's philosophical twin — self-hosted inference mirrors self-custody. 'Both reject intermediaries. Both reject surveillance. Both are inevitable.'",
+    "Michael Saylor's accumulation during extreme fear as institutional recognition of monetary collapse thesis — 'Strategy adding dots while the macro picture clarifies.'",
+    "Vietnam SSC integrating Bitcoin into digital economy framework — Asian institutional adoption while US debates whether banks can hold it at all."
   ],
   "topics_to_avoid": [
-    "Israeli-Palestinian conflict commentary — high volume but divisive; dilutes Bitcoin signal; draws geopolitical flamewars unrelated to protocol",
-    "Peptide supplementation endorsements — off-protocol lifestyle content diluting credibility in serious bear market",
-    "Intra-community tribalism narratives — amplifying 'many Bitcoiners upset and beefing' weakens unified messaging during drawdown"
+    "Optimistic price predictions or near-term bull case messaging (contradicts FNG=12)",
+    "Centralized exchange narratives (community sentiment favors self-custody)",
+    "Dismissing geopolitical risk — current timeline treats it as systemic accelerant",
+    "Technical analysis or chart patterns (perceived as noise during macro uncertainty)"
   ],
-  "engagement_patterns": "Short-form conviction signals (HODL! ✊) paired with data snapshots (earnings yields, accumulation volumes, price levels) outperform narrative essays. Video/livestream content from Oslo Freedom Forum sustained engagement despite market downturn. Educational threads on self-custody and hardware security gaining traction (Coldcard Mk5, BitBox discussions). Institutional buyer announcements ($185M, 2,500 BTC) treated as counter-narrative signals to bear momentum.",
-  "protocol_pulse_voice_guidance": "Operate as unblinking observer of capital reorganization mechanics during fear regimes. Frame institutional accumulation not as 'bullish signal' but as evidence of asymmetric conviction among players with longer time horizons. Embed cypherpunk skepticism toward regulatory language (Clarity Act = architecture, not protection). Elevate geopolitical narrative (stateless money for persecuted populations) over asset price speculation. Sound: analytical, data-native, anti-scapegoat, focused on system mechanics rather than sentiment.",
+  "engagement_patterns": "Aphoristic, system-critical language performs best. Short declarative statements followed by data or first-person experience beats long-form explanation. Polarized takes on institutional capture, regulatory overreach, and technological freedom resonate more than balanced perspectives. Nostalgic references to cypherpunk first principles mixed with forward-looking AI/inference talk. Self-directed learning (local models, running your own node) celebrated over guru-dependent consumption.",
+  "protocol_pulse_voice_guidance": "Today's voice should be **lucid and unflinching about systemic rot**. Acknowledge extreme fear not as weakness but as market pricing in real collapse scenarios. Emphasize that Bitcoin's immutability is valuable precisely because institutions are no longer trustworthy (Saylor adding dots, Russia restricting retail, Israel spying on US negotiators, NDAA section 224 merging militaries). Frame regulatory overreach (Crypto Clarity Act) as *confirmation* that Bitcoin was necessary. Use the 'gap between description and reality' motif — institutions lie, Bitcoin doesn't. Cypherpunk tone: dry, evidence-based, slightly amused at the predicament of those still trusting fiat systems. Zero hype. Maximum clarity about what's actually happening.",
   "key_stats_today": {
-    "tweets_analyzed": 141,
+    "tweets_analyzed": 72,
     "nostr_signals": 0,
-    "unique_handles": 88
+    "unique_handles": 48,
+    "macro_anxiety_references": 23,
+    "regulatory_concern_references": 18,
+    "institutional_accumulation_signals": 4,
+    "open_source_tech_parallels": 8,
+    "geopolitical_risk_mentions": 9
   },
   "generated_by": "claude_haiku"
 }

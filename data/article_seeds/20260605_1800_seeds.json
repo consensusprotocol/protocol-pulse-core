@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-06-05T18:00:28.359714+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When On-Chain Metrics Contradict Price: Why Bitcoin's Extreme Fear May Signal a Reversal",
+      "angle": "Deep dive into the divergence between Fear & Greed sentiment extremes and strong network fundamentals during corrections",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "sentiment",
+        "fundamentals",
+        "mining"
+      ]
+    },
+    {
+      "headline": "The Mempool Whisper: How Network Efficiency Reveals True Market Weakness vs. Panic",
+      "angle": "Technical analysis of transaction fees and pending transactions as leading indicators of market bottoms",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network-health",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "$58K or Bust? Bitcoin's Critical Support Level and What Miners Are Telling Us",
+      "angle": "Using hashrate and on-chain data to assess where real capitulation vs. tactical shakeout occurs",
+      "tags": [
+        "bitcoin",
+        "support-levels",
+        "mining",
+        "price-action"
+      ]
+    }
+  ]
+}

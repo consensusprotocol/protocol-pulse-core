@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
   :root{
     --bg:#0A0A0A;
@@ -53,7 +55,7 @@
   .stage{
     position:fixed;inset:0;
     display:grid;
-    grid-template-rows: auto auto 1fr auto;
+    grid-template-rows: auto auto auto auto;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     overflow-y:auto;
   }
@@ -101,11 +103,9 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
     text-align:center;
-    padding:20px 24px 0;
+    padding:24px 24px 12px;
     position:relative;
-    min-height: 56vh;
   }
 
   .orb-wrap{
@@ -144,14 +144,73 @@
     letter-spacing:.14em;
     text-transform:uppercase;
     color:var(--mute);
-    max-width:30ch;
+    max-width:44ch;
     line-height:1.5;
+    padding: 0 8px;
   }
 
   /* state colors */
   .state-scam .verdict{ color:var(--red-soft); }
   .state-ok   .verdict{ color:var(--ok); }
   .state-warn .verdict{ color:var(--warn); }
+
+  /* live transcript bubble — shows what the user is saying / said */
+  .transcript{
+    margin: 18px auto 0;
+    max-width: 44ch;
+    padding: 14px 18px;
+    border: 1px solid #1F1F1F;
+    border-left: 2px solid #C9A66B;
+    border-radius: 4px;
+    background: rgba(201, 166, 107, 0.04);
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #C8C8C8;
+    text-align: left;
+    min-height: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity .25s ease, max-height .35s ease, padding .25s ease, margin .25s ease;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+  }
+  .transcript.show{
+    opacity: 1;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 14px 18px;
+    margin: 18px auto 0;
+  }
+  .transcript::before{
+    content: '"';
+    color: #C9A66B;
+    font-weight: 500;
+    margin-right: 2px;
+  }
+  .transcript::after{
+    content: '"';
+    color: #C9A66B;
+    font-weight: 500;
+    margin-left: 2px;
+  }
+  .transcript.interim{ color: #888; }
+  .transcript.interim::after{ content: '…'; color: #888; }
+
+  /* mic button recording-pulse */
+  .btn.recording{
+    border-color: var(--red);
+    background: rgba(204, 0, 0, 0.08);
+    animation: micPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes micPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(204, 0, 0, 0.35); }
+    50%      { box-shadow: 0 0 0 12px rgba(204, 0, 0, 0); }
+  }
 
   /* controls */
   footer{
@@ -437,6 +496,235 @@
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.001s !important; transition-duration:.001s !important;}
   }
+
+  /* ── Tagline: "When in doubt, Faye it out" ─────────────────────── */
+  .tagline{
+    text-align:center;
+    margin: 38px auto 8px;
+    padding: 0 24px;
+    font-family:"Fraunces", serif;
+    font-weight:300;
+    font-size: clamp(20px, 5vw, 28px);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: #C8C8C8;
+  }
+  .tagline em{
+    font-style:italic;
+    font-weight:500;
+    color: var(--ink);
+  }
+  .tagline .small{
+    display:block;
+    margin-top: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #C9A66B;
+    font-weight: 400;
+  }
+
+  /* ── Karen tribute section ────────────────────────────────────── */
+  .tribute{
+    max-width: 560px;
+    margin: 28px auto 0;
+    padding: 36px 24px 8px;
+    text-align: center;
+    border-top: 1px solid #141414;
+  }
+  .tribute .eyebrow{
+    font-size:10px;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    color: #C9A66B;
+    margin-bottom:12px;
+  }
+  .tribute h2{
+    font-family:"Fraunces", serif;
+    font-weight:400;
+    font-size: clamp(34px, 8vw, 52px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .tribute h2 em{ font-style:italic; font-weight:500; }
+  .tribute .ids{
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color: var(--mute);
+    margin-bottom: 26px;
+  }
+  .tribute .ids .sep{ color:#333; margin: 0 6px; }
+  .tribute .story{
+    font-family:"Fraunces", serif;
+    font-weight:300;
+    font-size: clamp(15px, 3.6vw, 17px);
+    line-height: 1.55;
+    color: #C8C8C8;
+    margin: 0 auto;
+    max-width: 48ch;
+  }
+  .tribute .story em{ font-style:italic; color: var(--ink); }
+
+  /* ── Wallet donation card ─────────────────────────────────────── */
+  .wallet-card{
+    background: linear-gradient(180deg, #0E0E0E 0%, #0A0A0A 100%);
+    border: 1px solid #1F1F1F;
+    border-radius: 14px;
+    padding: 26px 22px 22px;
+    margin: 32px auto 18px;
+    max-width: 380px;
+    text-align: center;
+  }
+  .wallet-card .label{
+    font-size:10px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color: #C9A66B;
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .wallet-card .label::before, .wallet-card .label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background: linear-gradient(to right, transparent, #2A2A2A, transparent);
+    max-width:50px;
+  }
+  #qrcode{
+    width: 224px;
+    height: 224px;
+    margin: 0 auto 20px;
+    background: #FFFFFF;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  #qrcode img, #qrcode canvas{ display:block; }
+  .qr-logo{
+    position: absolute;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: #F7931A;
+    display: flex; align-items: center; justify-content: center;
+    border: 3px solid #FFFFFF;
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    color: #FFFFFF;
+    font-size: 19px;
+    line-height: 1;
+  }
+  .wallet-card .address{
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    word-break: break-all;
+    background: #060606;
+    border: 1px solid #1A1A1A;
+    padding: 11px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    line-height: 1.45;
+    text-align: left;
+  }
+  .wallet-card .copy-row{ display:flex; gap:8px; }
+  .wallet-btn{
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    border: 1px solid #2A2A2A;
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .wallet-btn:hover{ border-color: #C9A66B; color: #C9A66B; }
+  .wallet-btn:active{ transform: scale(0.98); }
+  .wallet-btn.copied{ border-color: #9BB89B; color: #9BB89B; }
+  .verify-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: 6px 0 28px;
+  }
+  .verify-pill::before{
+    content:"";
+    width:6px; height:6px;
+    border-radius:50%;
+    background: #9BB89B;
+    box-shadow: 0 0 8px rgba(155,184,155,0.5);
+  }
+
+  /* ── Listen CTA ───────────────────────────────────────────────── */
+  .listen-cta{
+    display:flex;
+    justify-content:center;
+    margin: 0 auto 36px;
+  }
+  .listen-cta a{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border: 1px solid #2A2A2A;
+    border-radius: 8px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+  .listen-cta a:hover{ border-color: var(--red); color: var(--red); }
+  .listen-cta svg{ width: 14px; height: 14px; }
+
+  /* ── Karen's closing quote ────────────────────────────────────── */
+  .karen-quote{
+    margin-top: 24px;
+    padding: 26px 24px 0;
+    border-top: 1px solid #141414;
+    text-align: center;
+    font-family:"Fraunces", serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--mute);
+    line-height: 1.6;
+  }
+  .karen-quote .attr{
+    display:block;
+    margin-top: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #444;
+  }
 </style>
 </head>
 <body>
@@ -453,7 +741,7 @@
     <h2>Three rules. Memorize them. They will save your money.</h2>
     <ol>
       <li><b>Anyone asking for your seed phrase, PIN, or wallet access is a <span class="scam-word">scammer</span>.</b> No exceptions. Ledger will never ask. Trezor will never ask. Your exchange will never ask. Real support never needs your keys.</li>
-      <li><b>Do not trust messages that come to you.</b> Not email. Not phone calls. Not SMS. Not DMs. Not chat support. If they reached out first, assume it's fake until you verify it independently — by typing the company's URL yourself or calling the number on the back of your card.</li>
+      <li><b>Do not trust messages that come to you.</b> <b>Not letters in the mail.</b> Not email. Not phone calls. Not SMS. Not DMs. Not chat support. <b>Especially a <span class="scam-word">QR code in mail</span> you didn't request — this is exactly how Karen lost everything.</b> If they reached out first, assume it's fake until you verify it independently — by typing the company's URL yourself or calling the number on the back of your card.</li>
       <li><b>"Urgent security problem with your account" is a <span class="scam-word">red flag</span>, every time.</b> Real companies don't pressure you. They don't threaten loss of access. They don't have 24-hour countdowns. If it feels rushed, walk away.</li>
     </ol>
   </section>
@@ -472,13 +760,7 @@
       <div class="sub" id="sub">Tap the camera or microphone. I'll cross-reference what you're seeing.</div>
     </div>
 
-    <div class="nudge" id="nudge" role="complementary" aria-live="polite">
-      <div class="kicker" id="nudgeKicker">If Faye helped, throw us some sats.</div>
-      <div class="joke">Customary tip if we saved your savings: <em>10% of whatever you didn't lose</em>. Just kidding. Whatever you can spare keeps this free for the next person.</div>
-      <a href="/donate" target="_blank" rel="noopener">
-        <span style="color:var(--red);">⚡</span> Send sats →
-      </a>
-    </div>
+    <div class="transcript" id="transcript" aria-live="polite"></div>
   </main>
 
   <footer>
@@ -492,13 +774,44 @@
     </div>
     <button class="reset" id="btn-reset">Check something else</button>
 
-    <a class="donate-link" href="/donate" target="_blank" rel="noopener">
-      <span class="zap">⚡</span> Support Faye
-    </a>
+    <div class="tagline">
+      When in doubt — <em>Faye it out.</em>
+      <span class="small">A free public tool, in her honor</span>
+    </div>
 
-    <div class="memorial">
-      <em>In honor of Karen Faye.</em>
-      so it doesn't happen again.
+    <section class="tribute" aria-label="In honor of Karen Faye">
+      <div class="eyebrow">In honor of</div>
+      <h2>Karen <em>Faye</em></h2>
+      <div class="ids">
+        <span>Nurse</span><span class="sep">·</span><span>Gold Star Widow</span><span class="sep">·</span><span>Honor Flight Guardian</span>
+      </div>
+      <p class="story">
+        Karen gave forty-nine years to nursing. She raised three children alone after Vietnam took her husband. She saved every dollar she could into Bitcoin — her future, her peace of mind, her retirement. <em>One phishing letter took it all.</em>
+      </p>
+    </section>
+
+    <div class="wallet-card">
+      <div class="label">Help Karen Rebuild</div>
+      <div id="qrcode"><div class="qr-logo">₿</div></div>
+      <div class="address" id="addr">{{ wallet }}</div>
+      <div class="copy-row">
+        <button class="wallet-btn" id="copyBtn" onclick="copyAddr()">Copy address</button>
+        <a class="wallet-btn" href="bitcoin:{{ wallet }}">Open wallet</a>
+      </div>
+    </div>
+
+    <div style="text-align:center;"><span class="verify-pill">Verified on Karen's new hardware wallet</span></div>
+
+    <div class="listen-cta">
+      <a href="/cypherpunkd">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Hear Karen's Story
+      </a>
+    </div>
+
+    <div class="karen-quote">
+      "I hope this helps somebody and stops them from being scammed."
+      <span class="attr">— Karen Faye</span>
     </div>
   </footer>
 
@@ -536,8 +849,8 @@ function setState(next, opts={}){
   const map = {
     idle:      { v: "Not sure? Let me check it.", s: "Tap the camera or microphone. I'll cross-reference what you're seeing." },
     capturing: { v: "Hold steady…",                     s: "Capturing what you're seeing." },
-    listening: { v: "Listening…",                        s: "Speak the message or play the call out loud." },
-    analyzing: { v: "Cross-checking…",                   s: "Searching X, the open web, and known scam patterns." },
+    listening: { v: "Listening…",                        s: "Speak the message or play the call. Tap mic to stop." },
+    analyzing: { v: "Cross-checking…",                   s: "Still working." },
     scam:      { v: opts.title || "Likely a scam.",      s: opts.reason || "Do not click. Do not sign. Do not send funds." },
     ok:        { v: opts.title || "Looks legitimate.",   s: opts.reason || "No fraud patterns matched. Verify the source independently." },
     warn:      { v: opts.title || "Inconclusive.",       s: opts.reason || "Not enough signal. When in doubt — walk away." },
@@ -550,18 +863,6 @@ function setState(next, opts={}){
   $btnReset.classList.toggle('show', ['scam','ok','warn','error'].includes(next));
   $btnCam.toggleAttribute('disabled', ['capturing','listening','analyzing'].includes(next));
   $btnMic.toggleAttribute('disabled', ['capturing','listening','analyzing'].includes(next));
-
-  // Donation nudge: show after a verdict lands; hide on idle/active states
-  const $nudge = document.getElementById('nudge');
-  const $nudgeKicker = document.getElementById('nudgeKicker');
-  if (['scam','ok','warn'].includes(next)){
-    if (next === 'scam')      $nudgeKicker.textContent = "Glad we caught it. Help us catch the next one.";
-    else if (next === 'warn') $nudgeKicker.textContent = "When in doubt — walk away. And if Faye helped, throw us some sats.";
-    else                      $nudgeKicker.textContent = "If Faye helped, throw us some sats.";
-    $nudge.classList.add('show');
-  } else {
-    $nudge.classList.remove('show');
-  }
 }
 
 function toast(msg, ms=2400){
@@ -717,51 +1018,120 @@ $fileCam.addEventListener('change', async (e)=>{
 });
 
 /* =========================================================
-   MIC — MediaRecorder, max 8 seconds
+   MIC — Web Speech API with live transcript (Satomi pattern)
+   Falls back to MediaRecorder + audio upload if SR unavailable.
    ========================================================= */
-$btnMic.addEventListener('click', async ()=>{
-  if(STATE === 'listening'){
-    stopRecording();
+const $transcript = document.getElementById('transcript');
+
+let speechRec = null;
+let isListening = false;
+let finalTranscript = '';
+let interimTranscript = '';
+
+function showTranscript(text, isInterim){
+  if(!$transcript) return;
+  if(!text){
+    $transcript.classList.remove('show');
+    $transcript.classList.remove('interim');
+    setTimeout(()=> { if(!$transcript.classList.contains('show')) $transcript.textContent = ''; }, 350);
     return;
   }
-  if(STATE !== 'idle' && !['scam','ok','warn','error'].includes(STATE)) return;
-  try{
-    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
-    audioChunks = [];
-    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
-               : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
-               : '';
-    mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
-    mediaRecorder.ondataavailable = e => { if(e.data && e.data.size) audioChunks.push(e.data); };
-    mediaRecorder.onstop = onRecordingStop;
-    mediaRecorder.start();
-    setState('listening');
-    setPalette('listening');
-    $btnMic.classList.add('armed');
-    toast('Tap mic again to stop. Auto-stops in 8s.');
-    setTimeout(()=> { if(STATE === 'listening') stopRecording(); }, 8000);
-  }catch(err){
-    console.error(err);
-    toast('Microphone permission denied.');
-  }
-});
-
-function stopRecording(){
-  try{ mediaRecorder && mediaRecorder.state !== 'inactive' && mediaRecorder.stop(); }catch(e){}
-  if(mediaRecorder && mediaRecorder.stream){
-    mediaRecorder.stream.getTracks().forEach(t=>t.stop());
-  }
-  $btnMic.classList.remove('armed');
+  $transcript.textContent = text;
+  $transcript.classList.toggle('interim', !!isInterim);
+  $transcript.classList.add('show');
 }
 
-async function onRecordingStop(){
+function _newSR(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const r = new SR();
+  r.continuous = false;       // single-shot — fires onend reliably on iOS
+  r.interimResults = true;    // LIVE transcript as user speaks
+  r.lang = 'en-US';
+  r.maxAlternatives = 1;
+  return r;
+}
+
+function startListening(){
+  speechRec = _newSR();
+  if(!speechRec){
+    // Fallback: old audio-blob path for browsers without SR
+    return startLegacyAudioRecord();
+  }
+  finalTranscript = '';
+  interimTranscript = '';
+  let submitted = false;
+
+  speechRec.onresult = (e) => {
+    let fin = '', interim = '';
+    for(let i = 0; i < e.results.length; i++){
+      if(e.results[i].isFinal) fin += e.results[i][0].transcript;
+      else                      interim += e.results[i][0].transcript;
+    }
+    // REPLACE final transcript with cumulative result (matches Satomi pattern).
+    // The results array is cumulative — appending would duplicate.
+    if(fin) finalTranscript = fin.trim();
+    interimTranscript = interim.trim();
+    const display = (finalTranscript || interimTranscript).trim();
+    showTranscript(display, !fin && !!interim);
+  };
+
+  speechRec.onend = () => {
+    isListening = false;
+    $btnMic.classList.remove('recording');
+    const text = (finalTranscript || interimTranscript || '').trim();
+    if(submitted) return;
+    submitted = true;
+    if(text){
+      showTranscript(text, false);
+      submitTranscript(text);
+    } else {
+      setState('idle');
+      setPalette('idle');
+      toast("Didn't catch that. Try again.");
+    }
+  };
+
+  speechRec.onerror = (e) => {
+    console.warn('faye SR error:', e.error);
+    isListening = false;
+    $btnMic.classList.remove('recording');
+    if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+      toast('Microphone permission denied.');
+    } else if(e.error === 'no-speech'){
+      toast("Didn't hear anything. Try again.");
+    }
+    setState('idle');
+    setPalette('idle');
+  };
+
+  try{
+    speechRec.start();
+    isListening = true;
+    setState('listening');
+    setPalette('listening');
+    $btnMic.classList.add('recording');
+    showTranscript('Listening…', true);
+  }catch(err){
+    console.error(err);
+    toast('Microphone failed to start.');
+    setState('idle'); setPalette('idle');
+  }
+}
+
+function stopListening(){
+  if(!speechRec) return;
+  try{ speechRec.stop(); }catch(e){}
+  $btnMic.classList.remove('recording');
+}
+
+async function submitTranscript(text){
   setState('analyzing');
   setPalette('analyzing');
   try{
-    const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
     const fd = new FormData();
-    fd.append('kind','audio');
-    fd.append('file', blob, 'capture.webm');
+    fd.append('kind','text');
+    fd.append('transcript', text);
     const verdict = await analyze(fd);
     applyVerdict(verdict);
   }catch(err){
@@ -771,6 +1141,55 @@ async function onRecordingStop(){
   }
 }
 
+/* Legacy fallback for browsers without SpeechRecognition */
+async function startLegacyAudioRecord(){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    audioChunks = [];
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+               : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+               : '';
+    mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+    mediaRecorder.ondataavailable = e => { if(e.data && e.data.size) audioChunks.push(e.data); };
+    mediaRecorder.onstop = onLegacyRecordingStop;
+    mediaRecorder.start();
+    setState('listening');
+    setPalette('listening');
+    $btnMic.classList.add('recording');
+    toast('Tap mic again to stop. Auto-stops in 8s.');
+    setTimeout(()=> { if(STATE === 'listening') stopLegacyRecording(); }, 8000);
+  }catch(err){
+    console.error(err);
+    toast('Microphone permission denied.');
+  }
+}
+function stopLegacyRecording(){
+  try{ mediaRecorder && mediaRecorder.state !== 'inactive' && mediaRecorder.stop(); }catch(e){}
+  if(mediaRecorder && mediaRecorder.stream) mediaRecorder.stream.getTracks().forEach(t=>t.stop());
+  $btnMic.classList.remove('recording');
+}
+async function onLegacyRecordingStop(){
+  setState('analyzing'); setPalette('analyzing');
+  try{
+    const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+    const fd = new FormData();
+    fd.append('kind','audio');
+    fd.append('file', blob, 'capture.webm');
+    const verdict = await analyze(fd);
+    applyVerdict(verdict);
+  }catch(err){
+    console.error(err); setState('error'); setPalette('error');
+  }
+}
+
+$btnMic.addEventListener('click', ()=>{
+  if(isListening){ stopListening(); return; }
+  if(STATE !== 'idle' && !['scam','ok','warn','error'].includes(STATE)) return;
+  // Reset transcript visibility for a fresh session
+  showTranscript('');
+  startListening();
+});
+
 /* =========================================================
    BACKEND CALL
    ========================================================= */
@@ -778,7 +1197,16 @@ async function analyze(formData){
   // Endpoint to be wired on Ultron: POST /api/faye/analyze
   // Returns: { verdict: 'scam'|'ok'|'warn', title: string, reason: string }
   const ctrl = new AbortController();
-  const timer = setTimeout(()=> ctrl.abort(), 25000);
+  // Backend latency is 15–55s (Gemini variance). 60s gives meaningful headroom.
+  const timer = setTimeout(()=> ctrl.abort(), 60000);
+  // Progress: nudge the status copy every few seconds so user knows it's working
+  const progressTimer = setInterval(() => {
+    const cur = $sub.textContent || "";
+    if (cur.startsWith("Still working")) {
+      const dots = (cur.match(/\./g) || []).length;
+      $sub.textContent = "Still working" + ".".repeat((dots % 3) + 1);
+    }
+  }, 1500);
   try{
     const res = await fetch('/api/faye/analyze', {
       method:'POST',
@@ -787,6 +1215,7 @@ async function analyze(formData){
       headers: { 'Accept':'application/json' }
     });
     clearTimeout(timer);
+    clearInterval(progressTimer);
     if(!res.ok){
       if(res.status === 404){
         // backend not yet deployed — return a graceful inconclusive verdict
@@ -797,8 +1226,9 @@ async function analyze(formData){
     return await res.json();
   }catch(err){
     clearTimeout(timer);
+    clearInterval(progressTimer);
     if(err.name === 'AbortError'){
-      return { verdict:'warn', title:'Took too long.', reason:'Network slow. Treat as inconclusive — when in doubt, walk away.' };
+      return { verdict:'warn', title:'Took too long.', reason:'Backend slow. Treat as inconclusive — when in doubt, walk away.' };
     }
     throw err;
   }
@@ -817,10 +1247,60 @@ function applyVerdict(v){
 $btnReset.addEventListener('click', ()=>{
   setPalette('idle');
   setState('idle');
+  showTranscript('');
+  finalTranscript = ''; interimTranscript = '';
 });
 
 /* prevent pull-to-refresh chaos on mobile */
 document.addEventListener('touchmove', e=>{ if(e.touches.length>1) e.preventDefault(); }, { passive:false });
+
+/* ─────────────────────────────────────────────────────────────────
+   KAREN DONATION WALLET — QR generation + copy-to-clipboard
+   ───────────────────────────────────────────────────────────────── */
+const KAREN_ADDR = "{{ wallet }}";
+
+(function initWallet(){
+  if(!KAREN_ADDR) return;
+  try{
+    new QRCode(document.getElementById("qrcode"), {
+      text: "bitcoin:" + KAREN_ADDR,
+      width: 196,
+      height: 196,
+      colorDark: "#000000",
+      colorLight: "#FFFFFF",
+      correctLevel: QRCode.CorrectLevel.H,
+    });
+  }catch(e){ console.warn("QR init failed", e); }
+})();
+
+function copyAddr(){
+  const btn = document.getElementById("copyBtn");
+  const restore = () => { btn.textContent = "Copy address"; btn.classList.remove("copied"); };
+  const ok = () => {
+    btn.textContent = "✓ Copied";
+    btn.classList.add("copied");
+    if(navigator.vibrate) navigator.vibrate(15);
+    clearTimeout(copyAddr._t);
+    copyAddr._t = setTimeout(restore, 2400);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(KAREN_ADDR).then(ok).catch(()=>{
+      const ta = document.createElement("textarea");
+      ta.value = KAREN_ADDR;
+      document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta);
+      ok();
+    });
+  }else{
+    const ta = document.createElement("textarea");
+    ta.value = KAREN_ADDR;
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy");
+    document.body.removeChild(ta);
+    ok();
+  }
+}
 
 </script>
 </body>

@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-06-04T18:00:30.284899+00:00",
+  "brief_type": "midday",
+  "score": -35,
+  "bullish_signals": [
+    "Hashrate holding steady at 752.9 EH/s shows miner commitment",
+    "Base fees at 4 sat/vB create buyer's market for on-chain activity",
+    "Miner behavior pre-halving is textbook, not panic-driven",
+    "Extreme fear historically precedes reversals",
+    "Infrastructure metrics remain solid despite price decline"
+  ],
+  "bearish_signals": [
+    "3.5% drop in 24 hours",
+    "Greed Index at extreme fear (12/100)",
+    "Mempool backed up with 83K+ pending transactions",
+    "Thin volume conditions",
+    "Technicals described as 'messy'"
+  ],
+  "neutral_topics": [
+    "Block height progression toward halving",
+    "Miner tightening operations pre-halving"
+  ]
+}

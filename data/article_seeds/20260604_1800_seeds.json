@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-04T18:00:30.284899+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Why Hashrate Steadiness Matters More Than Bitcoin's 3.5% Dip",
+      "angle": "Analyzing on-chain miner behavior as a contrarian signal during capitulation events; how infrastructure metrics diverge from price action",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "sentiment",
+        "on-chain-analysis"
+      ]
+    },
+    {
+      "headline": "The Halving Countdown: Why Pre-Halving Miner Tightening Signals Opportunity",
+      "angle": "Exploring textbook miner behavior as Bitcoin approaches the 952,378 block milestone; structural thesis for accumulation",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "miners",
+        "cycle-analysis",
+        "opportunity"
+      ]
+    },
+    {
+      "headline": "Extreme Fear & Cheap Fees: Setting Up the Next On-Chain Spike?",
+      "angle": "When fear peaks and base fees crater, who moves first? Examining mempool dynamics and fee markets as early volume indicators",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "volume",
+        "market-structure"
+      ]
+    }
+  ]
+}

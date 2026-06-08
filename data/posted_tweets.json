@@ -1120,5 +1120,71 @@
     "timestamp": "2026-06-03T02:00:21.061174+00:00",
     "text_preview": "Strive bought 2,500 BTC at 74.1k. Retail margin liquidated at 67.2k. Same fear i",
     "format_type": "institutional_flow"
+  },
+  {
+    "hash": "a658ea92dd46a9531f604f413288eafa",
+    "timestamp": "2026-06-03T11:14:49.648474+00:00",
+    "text_preview": "Block 952207. Hashrate 936.7 EH/s estimated. Fees at 1 sat/vB. Network is hummin",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "756c27a4bed5ed3eb0ed6210df3c4f12",
+    "timestamp": "2026-06-03T17:00:20.716965+00:00",
+    "text_preview": "Do you know what your bank's reserve ratio actually is. Most people don't even k",
+    "format_type": "sovereignty_freedom"
+  },
+  {
+    "hash": "05a9c9b7eff06ea0e820dfcdb14cca52",
+    "timestamp": "2026-06-04T02:00:24.957574+00:00",
+    "text_preview": "2026 institutional Bitcoin adoption is just regulatory permission to hold. They'",
+    "format_type": "macro_monetary"
+  },
+  {
+    "hash": "f6eda1542ee66f3f38ecb7124fa85ffa",
+    "timestamp": "2026-06-04T17:00:25.968480+00:00",
+    "text_preview": "2 sat/vB fees during extreme fear. Last time this happened, people were selling ",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "db32ea7d8143c96657f50464ce4610e6",
+    "timestamp": "2026-06-05T17:00:21.121551+00:00",
+    "text_preview": "Block 952,502. Hashrate 907.0 EH/s. Fees at 4 sat/vB during extreme fear. The ne",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "0d6e4579fb2ec9c2d0cd2814ed34ad27",
+    "timestamp": "2026-06-06T02:00:20.844958+00:00",
+    "text_preview": "JPM's tokenized deposit network launches while they gate $79B in redemptions. Th",
+    "format_type": "institutional_flow"
+  },
+  {
+    "hash": "5ff8cdc51c25d5460ae7091cb5c1587f",
+    "timestamp": "2026-06-06T06:26:33.377184+00:00",
+    "text_preview": "If banks can gate redemptions on $79B while launching tokenized deposits, at wha",
+    "format_type": "sovereignty_freedom"
+  },
+  {
+    "hash": "5452f7b4b9b483a13cf86a15a2d3307d",
+    "timestamp": "2026-06-06T17:00:27.238001+00:00",
+    "text_preview": "Zcash's inflation bug proves Bitcoin won. When your privacy coin's math breaks, ",
+    "format_type": "network_fundamentals"
+  },
+  {
+    "hash": "480b2b78e5ca250d2a45fa2e647e6e0f",
+    "timestamp": "2026-06-07T02:00:20.834753+00:00",
+    "text_preview": "2 sat/vB fees while fear index sits at 12. Every time this happens, the people w",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "701a897d79e8c6707eb13caf3f102784",
+    "timestamp": "2026-06-07T17:00:21.401648+00:00",
+    "text_preview": "1946: Bretton Woods promised gold backing. By 1971 Nixon closed the window. 2026",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "705adf22fbfa8b817f7ee9e01a0dc808",
+    "timestamp": "2026-06-08T02:00:27.776026+00:00",
+    "text_preview": "If the Federal Reserve can't audit its own gold reserves, why should anyone trus",
+    "format_type": "sovereignty_freedom"
   }
 ]

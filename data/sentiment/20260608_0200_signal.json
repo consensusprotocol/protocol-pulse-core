@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-08T02:00:33.632602+00:00",
+  "brief_type": "evening",
+  "score": 35,
+  "bullish_signals": [
+    "Price momentum outpacing fear sentiment",
+    "Extreme fear readings (8) historically precede reversals",
+    "Hashrate conviction at 806.9 EH/s",
+    "No miner capitulation signals",
+    "2.7% daily gain holds above critical support",
+    "Mempool clearing with low fees"
+  ],
+  "bearish_signals": [
+    "Fear & Greed at extreme low (8)",
+    "2.7% pop lacks breakout conviction",
+    "Only a retest of resolve, not trend confirmation"
+  ],
+  "neutral_topics": [
+    "Consolidation phase",
+    "Low-fee environment typically precedes volatility"
+  ]
+}

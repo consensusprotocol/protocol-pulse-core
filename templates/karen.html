@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0A0A0A" />
+<title>For Karen Faye — Protocol Pulse</title>
+<meta name="description" content="Karen Faye gave 49 years to nursing. One phishing letter took her Bitcoin. If her story moves you — here's how to help her rebuild." />
+
+<meta property="og:title" content="For Karen Faye" />
+<meta property="og:description" content="Nurse, Gold Star widow, Honor Flight guardian. Lost her Bitcoin to a phishing letter. Verified donation wallet." />
+<meta property="og:type" content="website" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+  :root{
+    --bg:#0A0A0A;
+    --bg-2:#0D0D0D;
+    --ink:#EDEDED;
+    --mute:#6E6E6E;
+    --line:#1A1A1A;
+    --red:#CC0000;
+    --gold:#C9A66B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"JetBrains Mono", ui-monospace, monospace;
+    font-weight:300;
+    overscroll-behavior:none;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  body::after{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;
+    background-image: radial-gradient(rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size:3px 3px;
+    mix-blend-mode:overlay;
+    opacity:.6;
+    z-index:50;
+  }
+
+  /* header */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:22px 24px 0;
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--mute);
+  }
+  header .mark{
+    font-family:"Fraunces", serif;
+    font-weight:400;
+    font-size:18px;
+    letter-spacing:.04em;
+    text-transform:none;
+    color:var(--ink);
+  }
+  header a{ color:var(--mute); text-decoration:none; }
+  header a:hover{ color:var(--ink); }
+
+  /* main column */
+  main{
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
+    text-align: center;
+  }
+
+  /* hero name */
+  .eyebrow{
+    font-size:10px;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:"Fraunces", serif;
+    font-weight:400;
+    font-size:clamp(40px, 9vw, 64px);
+    line-height:1;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+    margin-bottom:18px;
+  }
+  h1 em{ font-style:italic; font-weight:500; }
+  .identifiers{
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--mute);
+    margin-bottom: 36px;
+  }
+  .identifiers span{ display:inline-block; margin: 0 4px; }
+  .identifiers .sep{ color:#333; margin: 0 8px; }
+
+  /* story */
+  .story{
+    font-family:"Fraunces", serif;
+    font-weight:300;
+    font-size: clamp(16px, 3.6vw, 18px);
+    line-height: 1.55;
+    color: #C8C8C8;
+    margin: 0 auto 44px;
+    max-width: 52ch;
+  }
+  .story em{ font-style:italic; color: var(--ink); }
+
+  /* wallet card */
+  .wallet{
+    background: linear-gradient(180deg, #0E0E0E 0%, #0A0A0A 100%);
+    border: 1px solid #1F1F1F;
+    border-radius: 14px;
+    padding: 28px 22px 22px;
+    margin: 0 auto 24px;
+    max-width: 420px;
+  }
+  .wallet .label{
+    font-size:10px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .wallet .label::before, .wallet .label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background: linear-gradient(to right, transparent, #2A2A2A, transparent);
+    max-width:60px;
+  }
+  #qrcode{
+    width: 240px;
+    height: 240px;
+    margin: 0 auto 22px;
+    background: #FFFFFF;
+    padding: 14px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  #qrcode img, #qrcode canvas{ display:block; }
+  /* center logo overlay */
+  .qr-logo{
+    position: absolute;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: #F7931A;
+    display: flex; align-items: center; justify-content: center;
+    border: 4px solid #FFFFFF;
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    color: #FFFFFF;
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .address{
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    word-break: break-all;
+    background: #060606;
+    border: 1px solid #1A1A1A;
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    line-height: 1.45;
+  }
+  .copy-row{
+    display: flex;
+    gap: 8px;
+  }
+  .btn{
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    border: 1px solid #2A2A2A;
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 11px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn:hover{ border-color: var(--gold); color: var(--gold); }
+  .btn:active{ transform: scale(0.98); }
+  .btn.copied{ border-color: #9BB89B; color: #9BB89B; }
+
+  /* verification */
+  .verify{
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .verify::before{
+    content:"";
+    display:inline-block;
+    width:6px; height:6px;
+    border-radius:50%;
+    background: #9BB89B;
+    box-shadow: 0 0 8px rgba(155,184,155,0.5);
+  }
+
+  /* listen CTA */
+  .listen{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 22px;
+    border: 1px solid #2A2A2A;
+    border-radius: 8px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+  .listen:hover{ border-color: var(--red); color: var(--red); }
+  .listen svg{ width: 14px; height: 14px; }
+
+  /* footer */
+  .footer-line{
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid #141414;
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--mute);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* tiny watermark */
+  .watermark{
+    margin-top: 24px;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #333;
+  }
+  .watermark a{ color: #444; text-decoration: none; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001s !important; transition-duration:.001s !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="mark">protocol pulse</a>
+  <a href="/cypherpunkd">cypherpunk'd</a>
+</header>
+
+<main>
+  <div class="eyebrow">For Karen</div>
+  <h1>Karen <em>Faye</em></h1>
+  <div class="identifiers">
+    <span>Nurse</span><span class="sep">·</span><span>Gold Star Widow</span><span class="sep">·</span><span>Honor Flight Guardian</span>
+  </div>
+
+  <p class="story">
+    Karen gave forty-nine years to nursing. She raised three children alone after Vietnam took her husband. She saved every dollar she could into Bitcoin — her future, her peace of mind, her retirement. <em>One phishing letter took it all.</em>
+  </p>
+
+  <div class="wallet">
+    <div class="label">Verified Donation Wallet</div>
+    <div id="qrcode"><div class="qr-logo">₿</div></div>
+    <div class="address" id="addr">{{ wallet }}</div>
+    <div class="copy-row">
+      <button class="btn" id="copyBtn" onclick="copyAddr()">Copy address</button>
+      <a class="btn" id="walletLink" href="bitcoin:{{ wallet }}" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">Open wallet</a>
+    </div>
+  </div>
+
+  <div class="verify">Address verified on Karen's new hardware wallet</div>
+
+  <a class="listen" href="/cypherpunkd">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Hear Karen's Story
+  </a>
+
+  <div class="footer-line">
+    In her own words —<br>
+    <em>"I hope this helps somebody and stops them from being scammed."</em>
+  </div>
+
+  <div class="watermark">
+    Protocol Pulse · Cypherpunk'd
+  </div>
+</main>
+
+<script>
+  const ADDR = "{{ wallet }}";
+
+  // Generate QR code with Bitcoin URI scheme (most wallet apps detect this)
+  const qr = new QRCode(document.getElementById("qrcode"), {
+    text: "bitcoin:" + ADDR,
+    width: 212,
+    height: 212,
+    colorDark: "#000000",
+    colorLight: "#FFFFFF",
+    correctLevel: QRCode.CorrectLevel.H,  // High — supports center logo overlay
+  });
+
+  function copyAddr(){
+    const btn = document.getElementById("copyBtn");
+    navigator.clipboard.writeText(ADDR).then(() => {
+      btn.textContent = "✓ Copied";
+      btn.classList.add("copied");
+      if (navigator.vibrate) navigator.vibrate(15);
+      setTimeout(() => {
+        btn.textContent = "Copy address";
+        btn.classList.remove("copied");
+      }, 2400);
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement("textarea");
+      ta.value = ADDR;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      btn.textContent = "✓ Copied";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = "Copy address";
+        btn.classList.remove("copied");
+      }, 2400);
+    });
+  }
+</script>
+</body>
+</html>

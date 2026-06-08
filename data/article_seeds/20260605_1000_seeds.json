@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-05T10:00:33.591890+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 12: Why Extreme Fear Readings Historically Mark Bitcoin Bottoms",
+      "angle": "Historical analysis of Extreme Fear gauge as accumulation signal and miner behavior correlation",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-gauge",
+        "capitulation",
+        "mining"
+      ]
+    },
+    {
+      "headline": "Hashrate Conviction: Why Miners Are the Canary in Bitcoin's Coal Mine",
+      "angle": "Deep dive into hashrate as leading indicator of market bottoms vs panic selling",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "indicators",
+        "accumulation"
+      ]
+    },
+    {
+      "headline": "The Light Mempool Play: Low Fees as Accumulation Setup",
+      "angle": "Why minimal network stress creates ideal conditions for smart money deployment",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network",
+        "technical-analysis"
+      ]
+    }
+  ]
+}

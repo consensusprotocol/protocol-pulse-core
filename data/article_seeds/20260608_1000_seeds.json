@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-06-08T10:00:30.519490+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Mempool Speaks: Why Bitcoin's Transaction Backlog Signals Capitulation or Volatility Ahead",
+      "angle": "Deep dive into what 107k queued transactions + 2 sat/vB base fees tell us about market structure and the likelihood of a directional break",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network-analysis",
+        "volatility",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Fear Index at 8: How Bitcoin's Extreme Fear Reading Makes Today's Macro Catalysts Dangerously Important",
+      "angle": "Sentiment analysis piece on why Greed Index extremes + thin volume = asymmetric risk setup",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "greed-index",
+        "risk-management"
+      ]
+    },
+    {
+      "headline": "Hashrate vs. Price: Why Bitcoin's Network Health Doesn't Match Its Sentiment Weakness",
+      "angle": "Miner behavior disconnect\u2014strong hashrate amid extreme fear suggests institutional support floors exist",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "on-chain-metrics"
+      ]
+    }
+  ]
+}

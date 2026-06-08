@@ -611,6 +611,7 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
 
 
 def make_social_card_visual(audio_path: str, posts: list, output_path: str,
+    return None  # DISABLED: social card crashes assembly
                             btc_price: str = "N/A") -> str:
     """Render tweet card visual with real tweet data behind narration audio.
 
@@ -629,6 +630,7 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     Returns:
         Path to output video, or "" on failure
     """
+    return None  # DISABLED: social cards crash assembly
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5

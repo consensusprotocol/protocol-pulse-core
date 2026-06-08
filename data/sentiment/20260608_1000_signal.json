@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-08T10:00:30.519490+00:00",
+  "brief_type": "morning",
+  "score": -35,
+  "bullish_signals": [
+    "Hashrate steady at 806.9 EH/s (no mining capitulation)",
+    "No panic liquidations in Asia session",
+    "Rock-bottom base fees (2 sat/vB) historically precede volatility"
+  ],
+  "bearish_signals": [
+    "Extreme fear on Greed Index (8/100)",
+    "Mempool backing up with 107k transactions",
+    "Thin volume = high vulnerability to cascade moves",
+    "Consolidation under pressure = distribution risk"
+  ],
+  "neutral_topics": [
+    "Price action at $63,392",
+    "Asia session stability"
+  ]
+}

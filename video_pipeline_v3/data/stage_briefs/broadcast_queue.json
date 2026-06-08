@@ -1,52 +1,42 @@
 [
   {
-    "id": "cbcd1f11-2fca-4f76-9ed7-a3c213cfff0d",
+    "id": "17b6310f-5e26-4cec-909e-a9deff8d0830",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Lyn Alden just articulated the core Bitcoin argument: voluntary association beats enforced collectivism. This is monetary policy applied to foreign policy\u2014decentralization of consent. Watch whether this frame penetrates beyond the Bitcoin discourse into mainstream America First rhetoric.",
-    "source_label": "\ud83e\udde0 @LYNALDENCONTACT",
-    "topic_preview": "The America First view would be to let Americans decide which foreign causes to ",
-    "generated_at": "2026-06-03T07:55:31.345857+00:00",
-    "expires_at": "2026-06-03T09:55:31.345857+00:00"
+    "script": "Marty Bent just told his followers to have self-respect. Translation: stop chasing yield farms and algorithmic stablecoins masquerading as innovation. The signal is sovereignty \u2014 not speculation.\n\nWatch whether this sparks a broader rejection of financialized Bitcoin wrappers in the next 48 hours.",
+    "source_label": "\ud83e\udde0 @MARTYBENT",
+    "topic_preview": "R to @MartyBent: Have some self respect, people.",
+    "generated_at": "2026-06-08T09:00:36.333574+00:00",
+    "expires_at": "2026-06-08T11:00:36.333574+00:00"
   },
   {
-    "id": "483ffa0a-95ea-46fb-8cb1-eecff0dc4722",
+    "id": "33b142ba-51a2-423e-8f99-19b4d4ce394f",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "PROTOCOL PULSE \u2014 METRICS SEGMENT\n\nBitcoin down 4.11% to 66,884. Network hashrate holding at 759.8 exahash while Fear & Greed sits at 11 \u2014 that's capitulation pricing, not panic selling.\n\nWatch block confirmation times when miners start shutting down unprofitable rigs at these",
+    "script": "PROTOCOL PULSE - METRICS PULSE\n\nHashrate at 806.9 exahashes while Fear and Greed sits at 8\u2014miners aren't leaving despite maximum pessimism. Watch whether sustained fear below 15 triggers accumulation at institutional desks.",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $66,884 \u00b7 FNG 11 \u00b7 759.8 EH/s",
-    "generated_at": "2026-06-03T07:10:58.673961+00:00",
-    "expires_at": "2026-06-03T11:10:58.673961+00:00"
+    "topic_preview": "BTC $63,177 \u00b7 FNG 8 \u00b7 806.9 EH/s",
+    "generated_at": "2026-06-08T07:36:05.535402+00:00",
+    "expires_at": "2026-06-08T11:36:05.535402+00:00"
   },
   {
-    "id": "560af7c9-4aca-4192-9641-f034b552eacd",
+    "id": "5c8f3f93-3768-4206-9718-a501379da4de",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Nostr relays are running hot on seizeability vectors. Regulators escalating enforcement against holders, not just exchanges \u2014 the uncensorability thesis is being tested in real time.\n\nWatch: whether miners begin clustering geographically or fragmenting further.",
+    "script": "Major banks are openly coordinating custody restrictions. Nostr relays report unified messaging across institutional nodes since Thursday. This is the gatekeeping acceleration Bitcoin was designed to neutralize.\n\nWatch: Peer-to-peer settlement volumes. Self-custody adoption metrics. Banks cannot restrict what they cannot see.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Seizeability vs. true Bitcoin uncensorability \u2014 regulator...",
-    "generated_at": "2026-06-03T04:35:52.192804+00:00",
-    "expires_at": "2026-06-03T08:35:52.192804+00:00"
+    "topic_preview": "Traditional finance gatekeeping accelerates \u2014 major banks...",
+    "generated_at": "2026-06-08T09:50:52.921549+00:00",
+    "expires_at": "2026-06-08T13:50:52.921549+00:00"
   },
   {
-    "id": "92ed00c4-f90a-4a41-aa37-21f2828a3cd2",
+    "id": "bc95b52c-31cc-460b-bf48-63905cdfa4c2",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Running a full node costs less than a streaming subscription. For that price, you independently verify every transaction since the genesis block. That's sovereignty you can run on a Raspberry Pi.",
+    "script": "Bitcoin is the only monetary network in history that operates with zero counterparty risk. Every ten minutes, a new block confirms that no single entity controls the ledger. That's not a feature \u2014 that's a paradigm shift in how humans coordinate value across trust boundaries.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Running a full node costs less than a streaming subscription. For that price, yo",
-    "generated_at": "2026-06-03T07:01:14.712562+00:00",
-    "expires_at": "2026-06-03T11:01:14.712562+00:00"
-  },
-  {
-    "id": "1808a5d2-2ee1-4345-9e40-97fafc62beb0",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, the network recalibrates to maintain ten-minute block intervals regardless of how much hash power joins or leaves. Self-regulating monetary infrastructure.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin's difficulty adjustment is an engineering marvel. Every 2,016 blocks, th",
-    "generated_at": "2026-06-03T07:01:37.605014+00:00",
-    "expires_at": "2026-06-03T11:01:37.605014+00:00"
+    "topic_preview": "Bitcoin is the only monetary network in history that operates with zero counterp",
+    "generated_at": "2026-06-08T07:31:16.731219+00:00",
+    "expires_at": "2026-06-08T11:31:16.731219+00:00"
   }
 ]

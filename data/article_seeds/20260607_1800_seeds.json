@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-07T18:00:32.186092+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Extreme Fear Meets Network Strength: Why Bitcoin's Current Setup Favors Institutional Accumulation",
+      "angle": "Contrarian analysis of how hashrate stability and low fees during fear cycles signal smart money positioning",
+      "tags": [
+        "bitcoin",
+        "fear-greed-index",
+        "institutional-flows",
+        "hashrate",
+        "accumulation"
+      ]
+    },
+    {
+      "headline": "The Mempool Signal: Why Clean Transaction Backlog Could Precede Bitcoin's Summer Rally",
+      "angle": "Technical deep-dive on what sub-2 sat/byte fees reveal about market structure and upcoming catalyst triggers",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "technical-analysis",
+        "catalysts"
+      ]
+    },
+    {
+      "headline": "Halving Cycle Tracking: Bitcoin at Block 952,748 with Miners Holding Steady",
+      "angle": "Fundamental network health assessment heading into next halving, why miner capitulation absence matters",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "miners",
+        "fundamentals",
+        "network-health"
+      ]
+    }
+  ]
+}
