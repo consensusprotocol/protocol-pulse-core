@@ -611,7 +611,6 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
 
 
 def make_social_card_visual(audio_path: str, posts: list, output_path: str,
-    return None  # DISABLED: social card crashes assembly
                             btc_price: str = "N/A") -> str:
     """Render tweet card visual with real tweet data behind narration audio.
 
