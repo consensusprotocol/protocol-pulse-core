@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-06-09T15:15:15.884854+00:00",
-  "fetch_time_ms": 11504,
+  "updated_at": "2026-06-09T16:15:27.432522+00:00",
+  "fetch_time_ms": 19441,
   "composite": {
     "perception_score": 52,
     "label": "Neutral",
@@ -35,43 +35,43 @@
       {
         "symbol": "DEUS",
         "name": "XMAQUINA",
-        "rank": 859,
+        "rank": 858,
         "score": 0
-      },
-      {
-        "symbol": "H",
-        "name": "Humanity",
-        "rank": 123,
-        "score": 1
-      },
-      {
-        "symbol": "MORPHO",
-        "name": "Morpho",
-        "rank": 62,
-        "score": 2
-      },
-      {
-        "symbol": "WLD",
-        "name": "Worldcoin",
-        "rank": 44,
-        "score": 3
-      },
-      {
-        "symbol": "ZEC",
-        "name": "Zcash",
-        "rank": 15,
-        "score": 4
       },
       {
         "symbol": "BTC",
         "name": "Bitcoin",
         "rank": 1,
-        "score": 5
+        "score": 1
+      },
+      {
+        "symbol": "H",
+        "name": "Humanity",
+        "rank": 125,
+        "score": 2
+      },
+      {
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 113,
+        "score": 3
       },
       {
         "symbol": "HYPE",
         "name": "Hyperliquid",
         "rank": 10,
+        "score": 4
+      },
+      {
+        "symbol": "MORPHO",
+        "name": "Morpho",
+        "rank": 62,
+        "score": 5
+      },
+      {
+        "symbol": "SOL",
+        "name": "Solana",
+        "rank": 7,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 541356,
+    "tx_count_24h": 554616,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 11.3,
+    "minutes_between_blocks": 11.11,
     "difficulty": 138955357012247,
-    "estimated_btc_sent": 11238299129014,
-    "total_fees_btc": -37500000000,
+    "estimated_btc_sent": 11350191488315,
+    "total_fees_btc": -38437500000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17483,
-    "channel_count": 41049,
-    "capacity_btc": 4904.96,
-    "capacity_sats": 490495548206,
-    "avg_channel_capacity_btc": 0.1195,
+    "node_count": 17353,
+    "channel_count": 41162,
+    "capacity_btc": 5292.07,
+    "capacity_sats": 529207315890,
+    "avg_channel_capacity_btc": 0.1286,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 3,
+    "fastest_fee_sat_vb": 4,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",

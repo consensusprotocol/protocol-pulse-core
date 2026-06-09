@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1781019006.0609396,
-  "fetched_at_iso": "2026-06-09T15:30:06.060961+00:00",
+  "fetched_at": 1781021707.415688,
+  "fetched_at_iso": "2026-06-09T16:15:07.415718+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 80,
+      "events_filtered": 82,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 81,
+      "events_filtered": 85,
       "error": null
     },
     {
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 87,
+      "events_filtered": 88,
       "error": null
     }
   ],
@@ -85,15 +85,6 @@
       "has_zap": false
     },
     {
-      "text": "Self-custody isn\u2019t just a tech thing. \nIt\u2019s a responsibility thing.\n\nHanding your sats over to an exchange is basically trusting a stranger with what God gave you to manage.\n\nTaking your own keys forces you to grow up, learn the tech, and actually steward it.\n\nFeels like the difference between the wise and foolish servants in the parables.\n\n#gm #nostr #bible #bitcoin",
-      "pubkey": "91e87e7268c95ec63e97a648a7ab372d79b565fa46494de7417e8a028a5b9fdf",
-      "display_name": "npub191e87e72...5b9fdf",
-      "created_at": 1781012199,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
       "text": "Team Somali \ud83c\uddf8\ud83c\uddf4 #Bitcoin #HosKasi Buys EVERYDAY \ud83d\udcaa\ud83c\udffe\n\nJanuary 1st, 2025 - June 9th, 2026 \n\n525days Total Saved  = $5,680\n\nTotal #Bitcoin Saved = 6,441,771 #Sats\n                                           = 0.0644 #Btc\n\n All I did was buy $10 everyday so far this year Alxamdulliah.\n\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\nI ADDED AN EXTRA $300 ON March 20th, 2026 TO CELEBRATE EID.\n\nI ADDED AN EXTRA $100 on July 1st 2025 TO CELEBRATE SOMALI \ud83c\uddf8\ud83c\uddf4 INDEPENDENCE!!!\n\nI ALSO ADDED AN EXTRA $100 on  June 6, 2025 TO CELEBRATE EID. \n\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014-\n\n\u26a1\ufe0f61k Gang, but we buy at any price \ud83e\udee1\nhttps://blossom.primal.net/99d6e3100f00b954d37018efa551c34c8acc5fbd56a1c568aff64be564a63aad.jpg",
       "pubkey": "f6803bf85c5b27ccddbd77ece6f65c9c7b805b64a1961a9cdb13963c6112b2aa",
       "display_name": "npub1f6803bf8...12b2aa",
@@ -112,6 +103,15 @@
       "has_zap": false
     },
     {
+      "text": "Someone, quickly, send your #Bitcoin to Saylor, the perfect digital credit machine isn't working.\n\nhttps://blossom.primal.net/3a6745ebfadda8b4f03727cbce07f410923a4bfda99841f842210df5a70eb9de.png",
+      "pubkey": "d9f2471cc8f33111071bd0de1fef87d783cc4140e0f70ba9298a53b9e07c60f6",
+      "display_name": "npub1d9f2471c...7c60f6",
+      "created_at": 1781021436,
+      "relay": "wss://nos.lol",
+      "score": 75,
+      "has_zap": false
+    },
+    {
       "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nBitcoin Civil War Erupts as Developers Clash Over Censorship and Future Work\n\nBitcoin is tearing itself apart. A censorship firestorm, a controversial proposal to ban non-monetary data, and a mysterious Reddit ban have exposed deep divisions among core developers, igniting fears of a network-splitting fork. Find out why the fight over BIP-110 is about far more than just technology.\n\nhttps://image.nostr.build/8eff54adc931f2981d95fa09700f6de9cca18b9fa5ef1041268abf5ed336fc28.jpg\n\n\u270d\ufe0f Author: NM team\n\n\ud83d\udd17 https://nostrmag.com/article/w23bitcoin02\n\n\ud83d\udcc8 id#397660103",
       "pubkey": "fe5915e97c59b0672a80351bd2e4a89d1414c56a25e74eab9b2ebc9014a8403b",
       "display_name": "npub1fe5915e9...a8403b",
@@ -121,11 +121,11 @@
       "has_zap": false
     },
     {
-      "text": "\u2600\ufe0f Nostr Trending Now\nTue, Jun 9, 1:45 PM UTC\n\n\ud83d\udcca Top Hashtags (last 4h)\n\ud83e\udd47 #the (942 posts)\n\ud83e\udd48 #election (794 posts)\n\ud83e\udd49 #list (537 posts)\n4. #singles (461 posts)\n5. #open (460 posts)\n6. #senate (328 posts)\n7. #challenger (328 posts)\n8. #house (321 posts)\n9. #men (303 posts)\n10. #world (302 posts)\n\n\ud83d\udd25 Most Discussed\n1. \"AI\u30ac\u30fc\u30eb\u306b\u8aa4\u8aad https://x.com/a10networksjp/status/2064210884931772541...\" (4 replies)\n2. \"Why do people assume I\u2019m getting paid when I show support for Primal, but not wh...\" (3 replies)\n\nPowered by wss://relay.hugosplash.com\n\n#Nostr #Trending #NostrTrending #Zap #Bitcoin",
-      "pubkey": "ef4fc5cbc2d1f480b8a2ed62725f993de164777f7cc6bf9a65d4c1a4b8ec5111",
-      "display_name": "npub1ef4fc5cb...ec5111",
-      "created_at": 1781012749,
-      "relay": "wss://relay.damus.io",
+      "text": "\u26a1 New weather market!\n\n\ud83d\udccd New York City\n\nWhat will the highest temperature in New York City be on 2026-06-09?\n\n\ud83d\udd35 71\u00b0F or below\n\ud83d\udfe2 between 72-73\u00b0F\n\ud83d\udfe1 between 74-75\u00b0F\n\ud83d\udfe0 between 76-77\u00b0F\n\ud83d\udd34 between 78-79\u00b0F\n\ud83d\udfe3 between 80-81\u00b0F\n\u26aa between 82-83\u00b0F\n\u26ab between 84-85\u00b0F\n\ud83d\udd35 between 86-87\u00b0F\n\ud83d\udfe2 between 88-89\u00b0F\n\ud83d\udfe1 90\u00b0F or higher\n\nBet Pick the temperature with Bitcoin Lightning\n\npwsats.com",
+      "pubkey": "461c04a65e8795235e50140709e0e7162d3c6e3c32413e3889d937dd8a95e8db",
+      "display_name": "npub1461c04a6...95e8db",
+      "created_at": 1781020663,
+      "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
@@ -136,6 +136,15 @@
       "created_at": 1781015861,
       "relay": "wss://nos.lol",
       "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.31 oz | 24hr: -2.63%\n1 oz Gold: 6,988,120 sats\n\nBitcoin marketcap: 1.2 trillion USD\nGold marketcap: 29.6 trillion USD\nBitcoin Vs Gold marketcap: 4.1%\n\nUpdated: 2026-06-09 | 16:00 UTC",
+      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
+      "display_name": "npub190fd5d46...475ff8",
+      "created_at": 1781020865,
+      "relay": "wss://relay.damus.io",
+      "score": 68,
       "has_zap": false
     },
     {
@@ -157,24 +166,6 @@
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.42 oz | 24hr: -1.92%\n1 oz Gold: 6,934,813 sats\n\nBitcoin marketcap: 1.3 trillion USD\nGold marketcap: 30.0 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-06-09 | 13:01 UTC",
-      "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
-      "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1781010067,
-      "relay": "wss://nos.lol",
-      "score": 68,
-      "has_zap": false
-    },
-    {
-      "text": "LND, Lightning Labs' Lightning Network node software, releases version 0.21.0 with production Taproot channel support, onion message forwarding, performance improvements, and several critical bug fixes. https://github.com/lightningnetwork/lnd/blob/master/docs%2Frelease-notes%2Frelease-notes-0.21.0.md?utm_source=www.btcbreakdown.com&utm_medium=newsletter&utm_campaign=clarity-hits-senate-uk-funds-near-btc-house-files-reserve&_bhlid=ebf6f6b4e33badee849f6fd20c123c1fc3b3cb99 #bitcoin",
-      "pubkey": "df50c179ed670394c4fd54cd3c611d3c0c4c8087c9535586592cd1fb9503ab1f",
-      "display_name": "npub1df50c179...03ab1f",
-      "created_at": 1781011624,
-      "relay": "wss://relay.damus.io",
-      "score": 67,
-      "has_zap": false
-    },
-    {
       "text": "While your paycheck fights rent and groceries, Bitcoin\u2019s engine just got louder: 856 EH/s, up 6.09% \u2014 more computers spending real money on electricity to protect your savings from the money printer \ud83e\uddfe #BTC doesn\u2019t ask permission, it just keeps getting harder to stop.\n\nhttps://heyframe.com/images/img.php/bitcoin-page5.png?v=1781017278",
       "pubkey": "45addb99d8ec5e34a96d52b850c653dfefe2b49f46f6acadf62592bfe74b6e09",
       "display_name": "npub145addb99...4b6e09",
@@ -190,6 +181,15 @@
       "created_at": 1781016604,
       "relay": "wss://relay.damus.io",
       "score": 64,
+      "has_zap": false
+    },
+    {
+      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd34 BTC: $61,060 (-4.3%)\n\ud83d\udd34 ETH: $1,634 (-3.4%)\n\ud83d\udd34 DOGE: $0.0841 (-3.3%)\n\ud83d\udd34 XRP: $1.13 (-3.6%)\n\ud83d\udd34 LINK: $7.72 (-3.8%)\n\ud83d\udd34 PEPE: $0.00000274 (-3.5%)\n\ud83d\udd34 TRUMP: $1.63 (-4.3%)\n\nTotal Market Cap: $2.23T | BTC Dominance: 55.9%\n\n#bitcoin #crypto #marketupdate",
+      "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
+      "display_name": "npub136493c2e...30a7c8",
+      "created_at": 1781021081,
+      "relay": "wss://relay.damus.io",
+      "score": 63,
       "has_zap": false
     },
     {
@@ -211,16 +211,16 @@
       "has_zap": false
     },
     {
-      "text": "Andrew Lunde: Uncancelable Names: Building Identity on Bitcoin - Atlanta BitDevs (EVNT008)\n\nCan Bitcoin replace DNS? Andrew Lunde presents Spaces Protocol, a permissionless naming system anchored on the Bitcoin blockchain. Learn how auctions determine ownership of top-level names like \"@bitcoin,\" the technical challenges of browser integration, and the trade-offs between decentralization and scalability. The project is gaining adoption, over 1.5 Bitcoin has already been burned through the auction process.\nhttps://youtu.be/-5T9pyyt85g\n#Bitcoin #AndrewLunde #DNS #SpacesProtocol",
-      "pubkey": "8f7c7600a27b675867c92c960b3ddb36badc6aba6d3dae38fa9c2c6e01ba66b2",
-      "display_name": "npub18f7c7600...ba66b2",
-      "created_at": 1781011604,
-      "relay": "wss://relay.damus.io",
+      "text": "\ud83c\uddef\ud83c\uddf5 JAPANESE BANKING GIANT SBI SHINSEI IS TURNING BANK DEPOSITS INTO A BITCOIN ON-RAMP \ud83d\udc40\n\nReports say that SBI Shinsei Bank will launch a service that rewards deposit customers with crypto exchange vouchers equal to 20% of their interest payments, in addition to their normal yen-denominated interest. \n\nThese vouchers can be redeemed for #Bitcoin and other cryptos \ud83e\udd2f\n\nA normal bank deposit can now serve as a gateway to bitcoin and crypto\u203c\ufe0f\n\nMAJOR BANKS ARE BUILDING RAILS FOR BITCOIN ADOPTION \ud83d\ude80 https://blossom.primal.net/d922b1d41fdaaa851457f6ed16a956b30d0504223b50ac2c03152dd99b359e48.png",
+      "pubkey": "1baf18ae863cfd815a775c28943d8f4efe7ddbfe9e7bd1da1cddac93b75e2806",
+      "display_name": "npub11baf18ae...5e2806",
+      "created_at": 1781019526,
+      "relay": "wss://relay.primal.net",
       "score": 60,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 248,
+  "total_filtered": 255,
   "total_scored": 20
 }

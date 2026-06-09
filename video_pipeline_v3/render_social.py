@@ -649,20 +649,15 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     else:
         wm_idx = -1
 
-    # VDS procedural background (7-layer, no video files)
+    # VDS procedural background (fast — no geq/drawgrid/vignette)
     _, bg_fg = _build_black_diamond_bg(total_dur, label_out="bgvig")
     fg = bg_fg
 
-    # BUG 5 FIX: Red vignette glow behind card area for depth
-    fg += (f"[bgvig]drawbox=x=220:y=60:w=1480:h=560:color=0x880000@0.12:t=fill,"
-           f"drawbox=x=240:y=80:w=1440:h=520:color=0x660000@0.08:t=fill,"
-           # VDS-1: Top red accent bar
-           f"drawbox=x=0:y=0:w=1920:h=4:color={COLOR_RED}:t=fill[bgbar];\n")
-
-    # VDS: Pulse dot top-left
+    # V57 PERF: Removed alpha drawboxes (@0.12, @0.08) — alpha forces YUV→RGB format
+    # conversion per frame. Card bodies drawn directly on canvas below.
+    # Top accent bar only (solid, no alpha)
+    fg += (f"[bgvig]drawbox=x=0:y=0:w=1920:h=4:color={COLOR_RED}:t=fill[bgbar];\n")
     fg += f"[bgbar]drawbox=x=20:y=16:w=10:h=10:color={COLOR_RED}:t=fill[bgdot];\n"
-
-    # VDS: Section header — gold eyebrow kicker
     fg += (f"[bgdot]drawtext=fontfile={FONT_MONO}:"
            f"text='SOCIAL PULSE - WHAT BITCOIN IS SAYING':"
            f"fontcolor={COLOR_RED}:fontsize=14:x=(w-text_w)/2:y=20[bgtitle];\n")
@@ -712,74 +707,75 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
         cy = card_y_start + ci * (card_height + card_spacing)
         tag = f"c{ci}"
 
-        # Card glow (subtle red behind card — outer glow)
-        fg += f"color=c={COLOR_RED}@0.08:s={card_width + 24}x{card_height + 24}:d={total_dur}:r=30[{tag}glow];\n"
-        fg += f"[{last_v}][{tag}glow]overlay={card_x - 12}:{cy - 12}[{tag}g];\n"
-
-        # Card body
-        fg += f"color=c={COLOR_PANEL}@0.92:s={card_width}x{card_height}:d={total_dur}:r=30[{tag}body];\n"
-        # Outer red border (2px)
-        fg += f"[{tag}body]drawbox=x=0:y=0:w={card_width}:h={card_height}:color={COLOR_RED}@0.4:t=2[{tag}brd];\n"
-        # Inner glow border (dark red, 2px inside the outer border)
-        fg += f"[{tag}brd]drawbox=x=4:y=4:w={card_width - 8}:h={card_height - 8}:color={COLOR_PANEL2}@0.3:t=2[{tag}inner];\n"
-        # Left accent bar
-        fg += f"[{tag}inner]drawbox=x=0:y=0:w=6:h={card_height}:color={COLOR_RED}:t=fill[{tag}lbar];\n"
-        # Top edge accent
-        fg += f"[{tag}lbar]drawbox=x=0:y=0:w={card_width}:h=2:color={COLOR_RED}:t=fill[{tag}top];\n"
+        # V57 PERF: Card drawn directly on canvas — eliminates separate color source
+        # streams + overlay ops (each overlay doubles memory bandwidth).
+        # No alpha on any color — alpha triggers YUV→RGB conversion per frame.
+        fg += (f"[{last_v}]"
+               f"drawbox=x={card_x}:y={cy}:w={card_width}:h={card_height}:color=0x050607:t=fill,"
+               f"drawbox=x={card_x}:y={cy}:w={card_width}:h={card_height}:color=0xCC2222:t=2,"
+               f"drawbox=x={card_x}:y={cy}:w=6:h={card_height}:color=0xCC2222:t=fill,"
+               f"drawbox=x={card_x}:y={cy}:w={card_width}:h=2:color=0xCC2222:t=fill,"
+               f"drawbox=x={card_x + 20}:y={cy + 18}:w=8:h=8:color=0xCC2222:t=fill"
+               f"[{tag}base];\n")
+        last_v = f"{tag}base"
 
         # Issue 6: If screenshot available, overlay it inside card; else render text
         if ci in screenshot_indices:
             ss_idx = screenshot_indices[ci]
-            # Scale screenshot to fit inside card (with padding)
             fg += (f"[{ss_idx}:v]scale={card_width - 16}:{card_height - 16}:"
                    f"force_original_aspect_ratio=decrease,"
-                   f"pad={card_width - 16}:{card_height - 16}:(ow-iw)/2:(oh-ih)/2:{COLOR_PANEL}[{tag}ss];\n")
-            fg += f"[{tag}top][{tag}ss]overlay=8:8[{tag}src];\n"
+                   f"pad={card_width - 16}:{card_height - 16}:(ow-iw)/2:(oh-ih)/2:0x050607[{tag}ss];\n")
+            fg += f"[{last_v}][{tag}ss]overlay={card_x + 8}:{cy + 8}[{tag}ssout];\n"
+            last_v = f"{tag}ssout"
         else:
-            # Pulse dot
-            fg += f"[{tag}top]drawbox=x=20:y=18:w=8:h=8:color={COLOR_RED}:t=fill[{tag}dot];\n"
-
-            # Handle — monospace font
-            fg += (f"[{tag}dot]drawtext=fontfile={FONT_MONO}:"
+            # Handle — monospace font (absolute canvas coordinates)
+            fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
                    f"text='{handle}':"
-                   f"fontcolor={COLOR_RED}:fontsize=14:x=38:y=16[{tag}hdl];\n")
+                   f"fontcolor=0xCC2222:fontsize=14:x={card_x + 38}:y={cy + 16}"
+                   f"[{tag}hdl];\n")
+            last_v = f"{tag}hdl"
 
             # Tweet text — bold for readability (V9 FIX 6: adaptive font size)
-            fg += (f"[{tag}hdl]drawtext=fontfile={FONT_BOLD}:"
+            fg += (f"[{last_v}]drawtext=fontfile={FONT_BOLD}:"
                    f"text='{tweet_text}':"
-                   f"fontcolor={COLOR_TEXT}:fontsize={_tweet_fontsize}:x=24:y=52:line_spacing=12:"
-                   f"box=0[{tag}txt];\n")
+                   f"fontcolor=0xF4F5F8:fontsize={_tweet_fontsize}:x={card_x + 24}:y={cy + 52}:line_spacing=12"
+                   f"[{tag}txt];\n")
+            last_v = f"{tag}txt"
 
             # Engagement stats bottom — FIX 2: suppress zero metrics
             if _has_real_metrics:
-                fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
+                fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
                        f"text='{likes_str} likes  |  {rt_str} RTs':"
-                       f"fontcolor={COLOR_RED}:fontsize=12:x=24:y=h-28[{tag}stats];\n")
+                       f"fontcolor=0xCC2222:fontsize=12:x={card_x + 24}:y={cy + card_height - 28}"
+                       f"[{tag}stats];\n")
             else:
-                fg += (f"[{tag}txt]drawtext=fontfile={FONT_MONO}:"
-                       f"text='via X':fontcolor={COLOR_MUTED}:fontsize=12:"
-                       f"x=24:y=h-28[{tag}stats];\n")
+                fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
+                       f"text='via X':fontcolor=0x777777:fontsize=12:"
+                       f"x={card_x + 24}:y={cy + card_height - 28}"
+                       f"[{tag}stats];\n")
+            last_v = f"{tag}stats"
 
-            # Source label bottom-right
-            fg += (f"[{tag}stats]drawtext=fontfile={FONT_MONO}:"
-                   f"text='via X':fontcolor={COLOR_MUTED}:fontsize=12:"
-                   f"x=w-80:y=h-30[{tag}src];\n")
-
-        # Overlay card on base with fade-in
-        # Session fix 9c: 0.5s delay before tweet cards appear
-        fade_start = 0.1  # V36: reduced from 0.5s to avoid blackdetect triggers + ci * 0.4
-        fg += f"[{tag}g][{tag}src]overlay={card_x}:{cy}:format=auto,fade=t=in:st={fade_start}:d=0.3[{tag}out];\n"
-        last_v = f"{tag}out"
-
-    # VDS: Subtle bottom label
+    # Bottom label (solid color — removed @0.3 alpha)
     bottom_header_y = card_y_start + len(posts[:2]) * (card_height + card_spacing) + 10
     fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
            f"text='SOCIAL PULSE - WHAT BITCOIN IS SAYING':"
-           f"fontcolor={COLOR_RED}@0.3:fontsize=12:x=(w-text_w)/2:y={bottom_header_y}[vbhdr];\n")
+           f"fontcolor=0x661111:fontsize=12:x=(w-text_w)/2:y={bottom_header_y}[vbhdr];\n")
     last_v = "vbhdr"
 
-    # VDS animated scrolling info bar
-    fg += _build_info_bar_fg(total_dur, btc_price, label_in=last_v, label_out="vtick")
+    # V57 PERF: Static info bar replaces animated scrolling ticker.
+    # Animated x=W-mod(n*2\,W+text_w) re-renders full text string per frame — slow.
+    import datetime
+    _date_str = datetime.datetime.now().strftime("%b %d, %Y").upper()
+    _info_text = f"PROTOCOL PULSE  //  BTC {safe_btc}  //  {_date_str}  //  PROTOCOLPULSE.IO"
+    fg += (f"[{last_v}]drawbox=x=0:y=1032:w=1920:h=48:color=0x000000:t=fill,"
+           f"drawbox=x=0:y=1032:w=1920:h=2:color=0xCC2222:t=fill[vtickbar];\n")
+    last_v = "vtickbar"
+    fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:text='PULSE CHECK':"
+           f"fontcolor=0xF4F5F8:fontsize=14:x=8:y=1050[vtickstatic];\n")
+    last_v = "vtickstatic"
+    fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
+           f"text='{_info_text}':"
+           f"fontcolor=0xCC2222:fontsize=14:x=(w-text_w)/2:y=1050[vtick];\n")
     last_v = "vtick"
 
     # Watermark
