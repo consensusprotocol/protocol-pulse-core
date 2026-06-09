@@ -1325,8 +1325,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Each intervention further concentrates power and devalues fiat. Bitcoin offers the inverse.",
     "scheduled_at": "2026-05-22T18:00:28.659504+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-08T19:00:03.353159+00:00",
     "created_at": "2026-05-21T18:00:28.659504+00:00"
   },
   {
@@ -1335,8 +1335,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "True ownership transcends the reach of any state. Self-custody is not an option, but a principle.",
     "scheduled_at": "2026-05-23T02:00:28.659504+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-08T22:00:03.188170+00:00",
     "created_at": "2026-05-21T18:00:28.659504+00:00"
   },
   {
@@ -1345,8 +1345,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "The banks are merely proxies. The real target is your financial autonomy, unless you secure it yourself.",
     "scheduled_at": "2026-05-23T10:00:28.659504+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-09T04:00:02.966759+00:00",
     "created_at": "2026-05-21T18:00:28.659504+00:00"
   },
   {
@@ -2168,5 +2168,55 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-06-07T18:00:29.602258+00:00"
+  },
+  {
+    "anchor_id": "498",
+    "anchor_text": "862.2 EH/s of computing power securing a ledger that costs $3 to move. Meanwhile traditional banking needs 3 days and a committee approval. One of these scales",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "862 exahashes securing a $3 transaction. The infrastructure required to break it costs more than most nations' GDP",
+    "scheduled_at": "2026-06-09T02:00:28.006796+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-08T18:00:28.006796+00:00"
+  },
+  {
+    "anchor_id": "498",
+    "anchor_text": "862.2 EH/s of computing power securing a ledger that costs $3 to move. Meanwhile traditional banking needs 3 days and a committee approval. One of these scales",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Your bank needs a committee to move your money three days. Bitcoin needs physics to stop it. Pick your security model",
+    "scheduled_at": "2026-06-09T10:00:28.006796+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-08T18:00:28.006796+00:00"
+  },
+  {
+    "anchor_id": "498",
+    "anchor_text": "862.2 EH/s of computing power securing a ledger that costs $3 to move. Meanwhile traditional banking needs 3 days and a committee approval. One of these scales",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "At 862.2 EH/s, you're paying $3 to achieve cryptographic certainty across 50,000 nodes. Banks charge $30 for the illusion of certainty",
+    "scheduled_at": "2026-06-09T18:00:28.006796+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-08T18:00:28.006796+00:00"
+  },
+  {
+    "anchor_id": "498",
+    "anchor_text": "862.2 EH/s of computing power securing a ledger that costs $3 to move. Meanwhile traditional banking needs 3 days and a committee approval. One of these scales",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Money that moves without permission. That was always the point",
+    "scheduled_at": "2026-06-10T02:00:28.006796+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-08T18:00:28.006796+00:00"
+  },
+  {
+    "anchor_id": "498",
+    "anchor_text": "862.2 EH/s of computing power securing a ledger that costs $3 to move. Meanwhile traditional banking needs 3 days and a committee approval. One of these scales",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The real innovation isn't speed. It's that settlement happens whether the institution approves or not",
+    "scheduled_at": "2026-06-10T10:00:28.006796+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-08T18:00:28.006796+00:00"
   }
 ]

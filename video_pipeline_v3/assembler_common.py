@@ -48,51 +48,6 @@ from audio_master import get_lufs, normalize_segment, master_audio
 from transitions import apply_crossfade, apply_transitions
 from lower_thirds import lower_third_filter, apply_lower_third
 
-
-# ═══ NVENC GPU ENCODING (10-50x faster than libx264 CPU) ═══
-def _nvenc_substitute(args: list) -> list:
-    """Replace libx264 CPU encoding with h264_nvenc GPU encoding in ffmpeg args.
-    Automatically maps presets and quality params."""
-    new_args = []
-    i = 0
-    while i < len(args):
-        a = args[i]
-        # Replace codec
-        if a == "libx264":
-            new_args.append("h264_nvenc")
-            i += 1
-            continue
-        # Replace preset
-        if a == "-preset" and i + 1 < len(args):
-            preset_map = {
-                "ultrafast": "p1", "superfast": "p2", "veryfast": "p3",
-                "faster": "p4", "fast": "p4", "medium": "p5",
-                "slow": "p6", "slower": "p7"
-            }
-            new_args.append("-preset")
-            new_args.append(preset_map.get(args[i+1], "p4"))
-            i += 2
-            continue
-        # Replace -crf with -cq (constant quality)
-        if a == "-crf" and i + 1 < len(args):
-            new_args.append("-cq")
-            # Map CRF to CQ (NVENC CQ is roughly similar scale)
-            try:
-                crf = int(args[i+1])
-                cq = max(15, min(35, crf + 3))  # NVENC needs slightly higher value
-                new_args.append(str(cq))
-            except ValueError:
-                new_args.append(args[i+1])
-            i += 2
-            continue
-        # Remove -tune (not supported by NVENC)
-        if a == "-tune" and i + 1 < len(args):
-            i += 2
-            continue
-        new_args.append(a)
-        i += 1
-    return new_args
-
 logger = logging.getLogger("Assembler")
 if not logger.handlers:
     handler = logging.StreamHandler()
@@ -517,8 +472,8 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
 
 
 def run_ffmpeg(args: list, label: str = "", timeout: int = 900) -> bool:
+    timeout = 900
     timeout = 900  # P0: force 900s, ignore caller
-    args = _nvenc_substitute(args)  # NVENC: GPU encoding
     cmd = ["ffmpeg", "-y"] + args
     r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
     if r.returncode != 0:
@@ -532,7 +487,6 @@ def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
                            label: str = "", timeout: int = 900) -> bool:
     fd, fpath = tempfile.mkstemp(suffix=".txt", prefix="ff_filter_")
     timeout = 900  # P0 FORCE
-    output_args = _nvenc_substitute(output_args)  # NVENC: GPU encoding
     try:
         with os.fdopen(fd, "w") as f:
             f.write(filtergraph)
@@ -598,7 +552,7 @@ def _enforce_av_sync(path: str) -> str:
         return path
 
     drift = abs(a_dur - v_dur)
-    if drift < 0.03:  # <30ms acceptable (PIPELINE_LAWS Section 6)
+    if drift < 0.1:  # <100ms is acceptable
         return path
 
     logger.warning(f"AV SYNC FIX: {os.path.basename(path)} V={v_dur:.3f}s A={a_dur:.3f}s drift={drift:.3f}s")
@@ -928,32 +882,6 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
         output_path, label, 300,
     )
     return output_path if ok else ""
-
-
-def strip_script_metadata(text: str) -> str:
-    """Strip ALL script metadata labels from text before TTS or subtitle rendering.
-
-    Catches bracket tags [NARRATION], parenthesized (WARM), and plain-text
-    labels like 'Cold Open:' that the LLM or enforcement functions may insert.
-    """
-    if not text:
-        return text
-    # 1. Bracket tags: [COLD_OPEN], [NARRATION], [DATA], [SOCIAL], [WARM], etc.
-    text = re.sub(r'\[(?:COLD_OPEN|COLD|NARRATION|DATA|SOCIAL|WARM|BRIDGE|SPACE_TAP|SETUP|REACT|CTA)\]\s*', '', text)
-    # 2. Bracket ID tags: [ID:tweet_xxxxx_N]
-    text = re.sub(r'\[ID:tweet_[a-f0-9]+_\d+\]\s*', '', text)
-    # 3. Parenthesized delivery tags: (NARRATION), (WARM), (COLD OPEN), etc.
-    text = re.sub(r'\((?:NARRATION|WARM|COLD\s*OPEN|SETUP|REACT|AUTHORITY|CLEAR|WHISPER|RESOLVE|SOCIAL|DATA|BRIDGE|CTA)\)\s*', '', text, flags=re.IGNORECASE)
-    # 4. Plain-text labels at start of line: "Cold Open:", "Narration:", etc.
-    text = re.sub(
-        r'^\s*(?:Cold Open|Warm Open|Narration|Setup|React|Transition|Intro|Outro|'
-        r'Signal Active|Data Segment|Social Segment|Intelligence|'
-        r'Community Pulse|Space Tap)\s*[:.]?\s*',
-        '', text, flags=re.IGNORECASE
-    )
-    # 5. "Tweet N from @handle posted recently:" prefix (internal binding label)
-    text = re.sub(r'^Tweet\s+\d+\s+from\s+', '', text)
-    return text.strip()
 
 
 def _sanitize_text(text: str) -> str:

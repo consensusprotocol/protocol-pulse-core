@@ -1,61 +1,46 @@
 {
-  "generated_at": "2026-06-07T00:00:00Z",
-  "date": "Sunday, June 07, 2026",
-  "btc_price": "$61,314",
-  "btc_change_24h": "+0.0%",
-  "fng": "Extreme Fear (12/100)",
+  "generated_at": "2026-06-09T00:00:00Z",
+  "date": "Tuesday, June 09, 2026",
+  "btc_price": "$61,261",
+  "btc_change_24h": "-4.1%",
+  "fng": "Extreme Fear (10/100)",
   "dominant_narratives": [
-    "Regulatory capture disguised as consumer protection (Crypto Clarity Act as CBDC trojan horse)",
-    "Geopolitical instability driving safe-haven reassessment (Russia, Israel espionage, Cuba militarization)",
-    "Open-source AI and local inference as freedom tech parallel to Bitcoin's self-sovereignty",
-    "Global monetary system collapse imminent — petrodollar decline and US debt unsustainability",
-    "Corporate Bitcoin accumulation by institutions (Saylor/MicroStrategy) vs. retail sentiment disconnect"
+    "Institutional accumulation continues despite price drawdown—family offices, sovereign funds, and traditional finance (Schwab, Bessent) showing conviction when they historically wouldn't",
+    "Regulatory clarity advancing globally: UK FCA approves 10% crypto allocation for investment funds; 200+ firms urging Senate CLARITY Act vote; Japanese commercial banking integration (SBI Shinsei)",
+    "Bitcoin treasury company debate heating up—premium to mNAV valuation justification vs. pure self-custody narrative; leverage risk warnings from macro commentators"
   ],
   "trending_language": [
-    "programmable money / financial control mechanisms",
-    "you can't fix [institution] because the architecture is broken",
-    "the gap between what they describe and what happens is wild",
-    "if you've never actually used it, you're brainwashed",
-    "this is a policy, not a fluke",
-    "a good time to add more dots"
+    "NGU (Number Go Up) outperformance",
+    "In every prior cycle, they would have tabled it by now",
+    "Super Saiyan status",
+    "Self custody is the safer play",
+    "When it's painful to hold and you just want out, that's typically the wrong time to sell"
   ],
   "sentiment": "bearish",
-  "sentiment_reasoning": "Fear & Greed Index at extreme fear (12/100) combined with sustained macro anxiety about regulatory overreach, geopolitical fragmentation, and systemic monetary collapse. Even positive corporate accumulation signals (Saylor) are framed defensively rather than bullishly. Zero price movement masks underlying community stress.",
+  "sentiment_reasoning": "Price action is -4.1% in 24h with Extreme Fear (10/100 FNG), yet institutional and regulatory signals remain constructive. Community splits between pain-tolerance hodlers and leverage-warning macro voices. Net effect: capitulation pressure meeting conviction accumulation.",
   "top_accounts_active": [
-    "@nvk",
-    "@saylor",
-    "@lopp",
     "@BitcoinArchive",
-    "@saifedean",
-    "@BTCsessions",
-    "@gladstein",
-    "@callebtc",
-    "@stephanlivera"
+    "@stephanlivera",
+    "@LynAldenContact",
+    "@TFTC21",
+    "@BTCsessions"
   ],
   "recommended_tweet_angles": [
-    "BIP-110 signaling countdown (2 months to mandatory trigger) — frame as technical resilience during regulatory chaos. 'While governments design control mechanisms, Bitcoin's upgrade path is pure consensus.'",
-    "Russia's Central Bank retail Bitcoin restriction as unintentional Bitcoin validation — 'When even authoritarian regimes fear losing control to Bitcoin, you know you're holding the right asset.'",
-    "Open-source AI as Bitcoin's philosophical twin — self-hosted inference mirrors self-custody. 'Both reject intermediaries. Both reject surveillance. Both are inevitable.'",
-    "Michael Saylor's accumulation during extreme fear as institutional recognition of monetary collapse thesis — 'Strategy adding dots while the macro picture clarifies.'",
-    "Vietnam SSC integrating Bitcoin into digital economy framework — Asian institutional adoption while US debates whether banks can hold it at all."
+    "Institutional accumulation thesis: Why Schwab, Bessent, and sovereign wealth funds staying committed at $61k matters more than 4.1% daily volatility—historical precedent broken",
+    "Self-custody vs. treasury company premium debate—quantify the leverage risk trade-off for family offices considering GBTC/IBIT vs. direct holdings",
+    "Global regulatory convergence signal: UK (10% allocation approved), Japan (SBI crypto interest), US (CLARITY Act momentum)—institutional on-ramps normalizing despite Extreme Fear"
   ],
   "topics_to_avoid": [
-    "Optimistic price predictions or near-term bull case messaging (contradicts FNG=12)",
-    "Centralized exchange narratives (community sentiment favors self-custody)",
-    "Dismissing geopolitical risk — current timeline treats it as systemic accelerant",
-    "Technical analysis or chart patterns (perceived as noise during macro uncertainty)"
+    "Geopolitical conflict commentary unrelated to Bitcoin/macro (e.g., West Bank, North Korea-China pledges) — noise, not signal",
+    "Apple product releases and general tech news without direct monetary policy relevance",
+    "Celebrity/influencer gossip and non-Bitcoin media culture references"
   ],
-  "engagement_patterns": "Aphoristic, system-critical language performs best. Short declarative statements followed by data or first-person experience beats long-form explanation. Polarized takes on institutional capture, regulatory overreach, and technological freedom resonate more than balanced perspectives. Nostalgic references to cypherpunk first principles mixed with forward-looking AI/inference talk. Self-directed learning (local models, running your own node) celebrated over guru-dependent consumption.",
-  "protocol_pulse_voice_guidance": "Today's voice should be **lucid and unflinching about systemic rot**. Acknowledge extreme fear not as weakness but as market pricing in real collapse scenarios. Emphasize that Bitcoin's immutability is valuable precisely because institutions are no longer trustworthy (Saylor adding dots, Russia restricting retail, Israel spying on US negotiators, NDAA section 224 merging militaries). Frame regulatory overreach (Crypto Clarity Act) as *confirmation* that Bitcoin was necessary. Use the 'gap between description and reality' motif — institutions lie, Bitcoin doesn't. Cypherpunk tone: dry, evidence-based, slightly amused at the predicament of those still trusting fiat systems. Zero hype. Maximum clarity about what's actually happening.",
+  "engagement_patterns": "Long-form conviction threading (Stephane Livera comparative analysis), macro macro-economic framing (petrodollar decline, currency collapse), and contrarian accumulation messaging gaining traction. Leverage warnings and self-custody emphasis resonate during fear cycles. Humor and cypherpunk philosophy (Taleb vegetable references, 'democracy joke' humor) driving engagement among core audience.",
+  "protocol_pulse_voice_guidance": "Stay data-obsessed and contrarian: acknowledge the pain (-4.1%, Extreme Fear) but lean into the institutional behavior pattern break ('In every prior cycle, they would have tabled it by now'). Front-load regulatory wins and banking integration as non-consensual monetary system decay evidence. Use macro framing (petrodollar, CBDC risks, leverage dynamics) to connect Bitcoin adoption to systemic necessity, not speculation. Avoid panic; emphasize that pain-tolerance separates signal from noise. Cypherpunk edge: frame CLARITY Act and regulatory clarity as containment attempts by legacy systems—transparency on their terms, not decentralized resilience on ours.",
   "key_stats_today": {
-    "tweets_analyzed": 72,
+    "tweets_analyzed": 128,
     "nostr_signals": 0,
-    "unique_handles": 48,
-    "macro_anxiety_references": 23,
-    "regulatory_concern_references": 18,
-    "institutional_accumulation_signals": 4,
-    "open_source_tech_parallels": 8,
-    "geopolitical_risk_mentions": 9
+    "unique_handles": 84
   },
   "generated_by": "claude_haiku"
 }

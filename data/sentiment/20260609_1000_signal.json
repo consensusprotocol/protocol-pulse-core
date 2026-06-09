@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-09T10:00:32.827587+00:00",
+  "brief_type": "morning",
+  "score": 72,
+  "bullish_signals": [
+    "Hashrate conviction at 898 EH/s despite price dips",
+    "LTH supply accumulation into cold storage",
+    "Monetary policy exhaustion removes demand brake",
+    "Halving inside capitulation window (historical asymmetry)",
+    "On-chain data shows accumulators buying dips",
+    "Extreme Fear reading at 10 (historically precedes momentum)",
+    "Network mempool elevated but not panicked"
+  ],
+  "bearish_signals": [
+    "1.2% overnight price decline",
+    "Need to hold 60K support level"
+  ],
+  "neutral_topics": [
+    "Mempool transaction volume (100K)",
+    "Current fee levels (2 sat/vB)"
+  ]
+}

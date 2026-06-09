@@ -415,15 +415,12 @@ def apply_xfade(clip1_path: str, clip2_path: str, output_path: str,
         f"[1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,fps=30[v1];"
         f"[0:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a0];"
         f"[1:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a1];"
-        # AV SYNC FIX: Reset PTS after xfade to prevent cumulative drift on clips 2+
-        f"[v0][v1]xfade=transition={transition}:duration={duration}:offset={offset},"
-        f"setpts=PTS-STARTPTS,format=yuv420p[outv];"
-        f"[a0][a1]acrossfade=d={duration}:c1=tri:c2=tri,asetpts=PTS-STARTPTS[outa]",
+        f"[v0][v1]xfade=transition={transition}:duration={duration}:offset={offset},format=yuv420p[outv];"
+        f"[a0][a1]acrossfade=d={duration}:c1=tri:c2=tri[outa]",
         "-map", "[outv]", "-map", "[outa]",
         "-c:v", "libx264", "-crf", "17", "-preset", "fast",
         "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
         "-c:a", "aac", "-ar", "48000", "-b:a", "192k",
-        "-vsync", "cfr",
         output_path,
     ], "xfade transition", 300)
     return output_path if ok and os.path.exists(output_path) else ""

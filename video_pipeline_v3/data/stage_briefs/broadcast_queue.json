@@ -1,42 +1,42 @@
 [
   {
-    "id": "17b6310f-5e26-4cec-909e-a9deff8d0830",
+    "id": "653b3beb-6490-40e7-ba2b-d6b2023b7a0b",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Marty Bent just told his followers to have self-respect. Translation: stop chasing yield farms and algorithmic stablecoins masquerading as innovation. The signal is sovereignty \u2014 not speculation.\n\nWatch whether this sparks a broader rejection of financialized Bitcoin wrappers in the next 48 hours.",
-    "source_label": "\ud83e\udde0 @MARTYBENT",
-    "topic_preview": "R to @MartyBent: Have some self respect, people.",
-    "generated_at": "2026-06-08T09:00:36.333574+00:00",
-    "expires_at": "2026-06-08T11:00:36.333574+00:00"
+    "script": "Alex Gladstein reframes AI sovereignty through a Bitcoin lens. Open-source models aren't luxury\u2014they're infrastructure rights. Closed ecosystems are the actual threat vector.\n\nWatch: whether mining pools adopt local inference models to reduce third-party dependencies.",
+    "source_label": "\ud83e\udde0 @GLADSTEIN",
+    "topic_preview": "If you\u2019ve never actually used open-source, open-weight AI, then you might be bra",
+    "generated_at": "2026-06-09T13:55:33.764850+00:00",
+    "expires_at": "2026-06-09T15:55:33.764850+00:00"
   },
   {
-    "id": "33b142ba-51a2-423e-8f99-19b4d4ce394f",
+    "id": "e689beb6-dbf4-433b-87be-3d296a11a37b",
     "type": "METRICS_PULSE",
     "priority": 3,
-    "script": "PROTOCOL PULSE - METRICS PULSE\n\nHashrate at 806.9 exahashes while Fear and Greed sits at 8\u2014miners aren't leaving despite maximum pessimism. Watch whether sustained fear below 15 triggers accumulation at institutional desks.",
+    "script": "METRICS PULSE \u2014 BLOCK 952967\n\nHashrate holding 898 exahashes while fear index collapses to 10. Price rejection at 62,635 \u2014 mempool clearing at 2 sat/byte signals capitulation, not conviction.\n\nWatch transaction velocity next block cycle. Extreme fear this deep typically precedes either institutional accumulation or",
     "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $63,177 \u00b7 FNG 8 \u00b7 806.9 EH/s",
-    "generated_at": "2026-06-08T07:36:05.535402+00:00",
-    "expires_at": "2026-06-08T11:36:05.535402+00:00"
+    "topic_preview": "BTC $62,635 \u00b7 FNG 10 \u00b7 898.4 EH/s",
+    "generated_at": "2026-06-09T12:36:06.961038+00:00",
+    "expires_at": "2026-06-09T16:36:06.961038+00:00"
   },
   {
-    "id": "5c8f3f93-3768-4206-9718-a501379da4de",
+    "id": "b7833faf-a5c8-46a4-89d2-b37c9bf7c6fd",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Major banks are openly coordinating custody restrictions. Nostr relays report unified messaging across institutional nodes since Thursday. This is the gatekeeping acceleration Bitcoin was designed to neutralize.\n\nWatch: Peer-to-peer settlement volumes. Self-custody adoption metrics. Banks cannot restrict what they cannot see.",
+    "script": "Banks are consolidating custody infrastructure. Watch whether major exchanges lose self-custody volume this quarter \u2014 that's the real meter of resistance.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Traditional finance gatekeeping accelerates \u2014 major banks...",
-    "generated_at": "2026-06-08T09:50:52.921549+00:00",
-    "expires_at": "2026-06-08T13:50:52.921549+00:00"
+    "generated_at": "2026-06-09T14:05:55.658223+00:00",
+    "expires_at": "2026-06-09T18:05:55.658223+00:00"
   },
   {
-    "id": "bc95b52c-31cc-460b-bf48-63905cdfa4c2",
+    "id": "1dcd4734-e9c6-40ed-8e66-c20e057ad044",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin is the only monetary network in history that operates with zero counterparty risk. Every ten minutes, a new block confirms that no single entity controls the ledger. That's not a feature \u2014 that's a paradigm shift in how humans coordinate value across trust boundaries.",
+    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin is the only monetary network in history that operates with zero counterp",
-    "generated_at": "2026-06-08T07:31:16.731219+00:00",
-    "expires_at": "2026-06-08T11:31:16.731219+00:00"
+    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
+    "generated_at": "2026-06-09T12:31:18.965839+00:00",
+    "expires_at": "2026-06-09T16:31:18.965839+00:00"
   }
 ]

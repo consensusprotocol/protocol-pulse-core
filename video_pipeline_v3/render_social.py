@@ -629,7 +629,6 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     Returns:
         Path to output video, or "" on failure
     """
-    return None  # DISABLED: social cards crash assembly
     audio_dur = ffprobe_duration(audio_path)
     if audio_dur <= 0:
         audio_dur = 5
