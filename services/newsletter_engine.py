@@ -434,21 +434,22 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
         summary_paragraphs = ""
         if summary:
             sentences = [s.strip() for s in summary.replace(". ", ".|").split("|") if s.strip()]
-            if len(sentences) >= 3:
-                # Group into 3 paragraphs
+            # sentences[0] is already shown in the hero price block — start from sentences[1]
+            # to prevent the same opening line repeating in Signal Intelligence
+            remaining = sentences[1:] if len(sentences) > 1 else sentences
+            if len(remaining) >= 2:
                 summary_paragraphs = f'''<p style="margin: 0 0 16px; font-size: 14px; line-height: 1.8; color: #e5e7eb; font-family: Georgia, 'Times New Roman', Times, serif;">
-{sentences[0]}
-</p>
-<p style="margin: 0 0 16px; font-size: 14px; line-height: 1.8; color: #e5e7eb; font-family: Georgia, 'Times New Roman', Times, serif;">
-{sentences[1]}
+{remaining[0]}
 </p>
 <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #e5e7eb; font-family: Georgia, 'Times New Roman', Times, serif;">
-{" ".join(sentences[2:])}
+{" ".join(remaining[1:])}
+</p>'''
+            elif remaining:
+                summary_paragraphs = f'''<p style="margin: 0; font-size: 14px; line-height: 1.8; color: #e5e7eb; font-family: Georgia, 'Times New Roman', Times, serif;">
+{remaining[0]}
 </p>'''
             else:
-                summary_paragraphs = f'''<p style="margin: 0; font-size: 14px; line-height: 1.8; color: #e5e7eb; font-family: Georgia, 'Times New Roman', Times, serif;">
-{summary}
-</p>'''
+                summary_paragraphs = ''
 
         # Signal text — extract the sharpest insight
         signal_text = ""
