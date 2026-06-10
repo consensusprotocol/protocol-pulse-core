@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-06-09T16:15:27.432522+00:00",
-  "fetch_time_ms": 19441,
+  "updated_at": "2026-06-10T13:15:16.091631+00:00",
+  "fetch_time_ms": 10997,
   "composite": {
     "perception_score": 52,
     "label": "Neutral",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 55.91,
-    "total_mcap_usd": 2231369430336.6367,
-    "total_mcap_t": 2.231,
-    "total_vol_24h_usd": 84519415269.28923,
-    "total_vol_24h_b": 84.5,
-    "active_coins": 17342,
+    "btc_dominance_pct": 55.95,
+    "total_mcap_usd": 2203497983548.9604,
+    "total_mcap_t": 2.203,
+    "total_vol_24h_usd": 107813966625.16835,
+    "total_vol_24h_b": 107.8,
+    "active_coins": 17332,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,45 +33,45 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "DEUS",
-        "name": "XMAQUINA",
-        "rank": 858,
-        "score": 0
-      },
-      {
         "symbol": "BTC",
         "name": "Bitcoin",
         "rank": 1,
-        "score": 1
+        "score": 0
       },
       {
         "symbol": "H",
         "name": "Humanity",
-        "rank": 125,
-        "score": 2
-      },
-      {
-        "symbol": "PENGU",
-        "name": "Pudgy Penguins",
-        "rank": 113,
-        "score": 3
+        "rank": 135,
+        "score": 1
       },
       {
         "symbol": "HYPE",
         "name": "Hyperliquid",
-        "rank": 10,
-        "score": 4
-      },
-      {
-        "symbol": "MORPHO",
-        "name": "Morpho",
-        "rank": 62,
-        "score": 5
+        "rank": 11,
+        "score": 2
       },
       {
         "symbol": "SOL",
         "name": "Solana",
         "rank": 7,
+        "score": 3
+      },
+      {
+        "symbol": "ZEC",
+        "name": "Zcash",
+        "rank": 15,
+        "score": 4
+      },
+      {
+        "symbol": "LIT",
+        "name": "Lighter",
+        "rank": 122,
+        "score": 5
+      },
+      {
+        "symbol": "BEAT",
+        "name": "Audiera",
+        "rank": 51,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 554616,
+    "tx_count_24h": 623161,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 11.11,
+    "minutes_between_blocks": 10.27,
     "difficulty": 138955357012247,
-    "estimated_btc_sent": 11350191488315,
-    "total_fees_btc": -38437500000,
+    "estimated_btc_sent": 9795878509810,
+    "total_fees_btc": -41875000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -111,7 +111,7 @@
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 4,
+    "fastest_fee_sat_vb": 3,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,21 +121,21 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 10,
-    "7d_ago": 11,
-    "7d_delta": -1,
+    "current": 9,
+    "7d_ago": 12,
+    "7d_delta": -3,
     "trend": "stable",
     "7d_values": [
+      9,
       10,
       8,
       12,
       12,
       12,
-      12,
-      11
+      12
     ],
     "btc_signal": "neutral",
-    "note": "F&G stable at 10",
+    "note": "F&G stable at 9",
     "label": "Extreme Fear",
     "source": "alternative.me F&G"
   }

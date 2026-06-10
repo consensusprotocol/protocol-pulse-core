@@ -1,0 +1,55 @@
+# LiteLLM Config for Protocol Pulse
+# Auto-routes between providers, enforces budgets, falls back to cheaper models
+
+model_list:
+  # Tier 1: Best quality (use for script writing, critical tasks)
+  - model_name: "best"
+    litellm_params:
+      model: "anthropic/claude-sonnet-4-20250514"
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+    model_info:
+      max_budget: 2.00  # $2/day max
+      
+  - model_name: "best"  
+    litellm_params:
+      model: "gemini/gemini-2.5-flash"
+      api_key: "os.environ/GEMINI_API_KEY"
+    model_info:
+      max_budget: 5.00
+
+  # Tier 2: Good quality, cheaper (use for clip scoring, montage)
+  - model_name: "fast"
+    litellm_params:
+      model: "groq/llama-3.3-70b-versatile"
+      api_key: "os.environ/GROQ_API_KEY"
+    model_info:
+      max_budget: 1.00
+      
+  - model_name: "fast"
+    litellm_params:
+      model: "ollama/qwen3-coder:30b"
+      api_base: "http://localhost:11434"
+    model_info:
+      max_budget: 999.00  # Free, no limit
+
+  # Tier 3: Free local (use for everything when budget is tight)
+  - model_name: "local"
+    litellm_params:
+      model: "ollama/qwen3-coder:30b"
+      api_base: "http://localhost:11434"
+    model_info:
+      max_budget: 999.00
+
+litellm_settings:
+  drop_params: True
+  set_verbose: False
+  max_budget: 10.00  # $10/day total across all providers
+  budget_duration: "1d"
+  
+router_settings:
+  routing_strategy: "cost-based-routing"  # Always pick cheapest available
+  num_retries: 3
+  timeout: 120
+  fallbacks:
+    - "best": ["fast", "local"]
+    - "fast": ["local"]

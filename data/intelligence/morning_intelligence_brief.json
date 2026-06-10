@@ -1,46 +1,53 @@
 {
-  "generated_at": "2026-06-09T00:00:00Z",
+  "generated_at": "2026-06-09T16:00:00Z",
   "date": "Tuesday, June 09, 2026",
-  "btc_price": "$61,261",
-  "btc_change_24h": "-4.1%",
-  "fng": "Extreme Fear (10/100)",
+  "btc_price": "$61,979",
+  "btc_change_24h": "-2.2%",
+  "fng": "Extreme Fear",
   "dominant_narratives": [
-    "Institutional accumulation continues despite price drawdown—family offices, sovereign funds, and traditional finance (Schwab, Bessent) showing conviction when they historically wouldn't",
-    "Regulatory clarity advancing globally: UK FCA approves 10% crypto allocation for investment funds; 200+ firms urging Senate CLARITY Act vote; Japanese commercial banking integration (SBI Shinsei)",
-    "Bitcoin treasury company debate heating up—premium to mNAV valuation justification vs. pure self-custody narrative; leverage risk warnings from macro commentators"
+    "Self-custody infrastructure maturation (Second/Bark mainnet launch signals protocol-layer payments readiness)",
+    "Regulatory asymmetry: Clarity Act as CBDC trojan horse vs. genuine industry advocacy",
+    "Paper market suppression thesis gaining institutional attention (Luke Gromen on $58-72k ceiling)"
   ],
   "trending_language": [
-    "NGU (Number Go Up) outperformance",
-    "In every prior cycle, they would have tabled it by now",
-    "Super Saiyan status",
-    "Self custody is the safer play",
-    "When it's painful to hold and you just want out, that's typically the wrong time to sell"
+    "stay humble and stack sats",
+    "As designed",
+    "The rewriting of history",
+    "centralized platforms are one phone call away from cutting you off",
+    "self-custodial",
+    "frontier-quality open source"
   ],
   "sentiment": "bearish",
-  "sentiment_reasoning": "Price action is -4.1% in 24h with Extreme Fear (10/100 FNG), yet institutional and regulatory signals remain constructive. Community splits between pain-tolerance hodlers and leverage-warning macro voices. Net effect: capitulation pressure meeting conviction accumulation.",
+  "sentiment_reasoning": "Extreme Fear index + price decline creates macro bearishness, but infrastructure launches and regulatory clarity efforts inject underlying conviction. Market is bifurcated: weak hands in fear, builders shipping products anyway.",
   "top_accounts_active": [
+    "@secondhq",
+    "@BitcoinMagazine",
+    "@sethforprivacy",
+    "@derekmross",
+    "@saylor",
     "@BitcoinArchive",
-    "@stephanlivera",
-    "@LynAldenContact",
-    "@TFTC21",
-    "@BTCsessions"
+    "@saifedean",
+    "@nvk",
+    "@TheGuySwann"
   ],
   "recommended_tweet_angles": [
-    "Institutional accumulation thesis: Why Schwab, Bessent, and sovereign wealth funds staying committed at $61k matters more than 4.1% daily volatility—historical precedent broken",
-    "Self-custody vs. treasury company premium debate—quantify the leverage risk trade-off for family offices considering GBTC/IBIT vs. direct holdings",
-    "Global regulatory convergence signal: UK (10% allocation approved), Japan (SBI crypto interest), US (CLARITY Act momentum)—institutional on-ramps normalizing despite Extreme Fear"
+    "Frame Second/Bark mainnet launch as 'fear = opportunity' signal: while sentiment crashes, actual payment infrastructure goes live — builders don't wait for green candles",
+    "Exploit Luke Gromen's paper vs. physical thesis with data: compare gold suppression playbook to current BTC price action, position self-custody as asymmetric hedge against paper market manipulation",
+    "Privacy surveillance angle: connect CBDC regulatory push + White House law enforcement coordination to core Bitcoin narrative about censorship resistance — 'they're openly coordinating, we're building quietly'"
   ],
   "topics_to_avoid": [
-    "Geopolitical conflict commentary unrelated to Bitcoin/macro (e.g., West Bank, North Korea-China pledges) — noise, not signal",
-    "Apple product releases and general tech news without direct monetary policy relevance",
-    "Celebrity/influencer gossip and non-Bitcoin media culture references"
+    "Prediction market speculation on price targets (market too fragile, looks desperate)",
+    "Musk/Solana/altcoin comparisons (noise; focus on Bitcoin protocol maturity instead)"
   ],
-  "engagement_patterns": "Long-form conviction threading (Stephane Livera comparative analysis), macro macro-economic framing (petrodollar decline, currency collapse), and contrarian accumulation messaging gaining traction. Leverage warnings and self-custody emphasis resonate during fear cycles. Humor and cypherpunk philosophy (Taleb vegetable references, 'democracy joke' humor) driving engagement among core audience.",
-  "protocol_pulse_voice_guidance": "Stay data-obsessed and contrarian: acknowledge the pain (-4.1%, Extreme Fear) but lean into the institutional behavior pattern break ('In every prior cycle, they would have tabled it by now'). Front-load regulatory wins and banking integration as non-consensual monetary system decay evidence. Use macro framing (petrodollar, CBDC risks, leverage dynamics) to connect Bitcoin adoption to systemic necessity, not speculation. Avoid panic; emphasize that pain-tolerance separates signal from noise. Cypherpunk edge: frame CLARITY Act and regulatory clarity as containment attempts by legacy systems—transparency on their terms, not decentralized resilience on ours.",
+  "engagement_patterns": "Short-form conviction statements outperforming long threads. Users responding to: (1) technical infrastructure shipped on mainnet, (2) political/freedom narrative framing, (3) data-backed macro thesis (Gromen, Saylor style). Emoji-heavy posts on self-custody getting traction. Philosophical positioning (cypherpunk ethos, non-aggression principle) resonating across builder and theorist demographics.",
+  "protocol_pulse_voice_guidance": "Today's voice should be: unflinching about macro headwinds (Extreme Fear is real), but laser-focused on protocol-layer victories (Second live, infrastructure hardening). Adopt 'builders don't panic' positioning — contrast fear-driven retail with calm execution by core devs. Use precise language on regulation (Clarity Act framing, not vague 'bad policy'). Inject cypherpunk irreverence: paint centralized payment rails as fragile legacy systems vs. unstoppable Bitcoin infrastructure. Data-first (Gromen's paper suppression thesis), philosophy-second (non-aggression, sovereignty).",
   "key_stats_today": {
-    "tweets_analyzed": 128,
+    "tweets_analyzed": 134,
     "nostr_signals": 0,
-    "unique_handles": 84
+    "unique_handles": 81,
+    "mainnet_launches_signaled": 1,
+    "regulatory_hearing_alerts": 2,
+    "infrastructure_narrative_dominance": "high"
   },
   "generated_by": "claude_haiku"
 }

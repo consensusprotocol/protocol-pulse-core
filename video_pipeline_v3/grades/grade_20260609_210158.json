@@ -1,0 +1,119 @@
+{
+  "grade": "F",
+  "overall_score": 54,
+  "broadcast_ready": false,
+  "technical_score": 87,
+  "content_score": 100,
+  "production_score": 82,
+  "dimensions": {
+    "duration_check": {
+      "score": 7,
+      "note": "Duration is 290.3s (4.8 min). This is acceptable but on the shorter side of the 300-480s target range. The content is dense, so it works, but it's not in the ideal 8-15 min range."
+    },
+    "resolution_check": {
+      "score": 10,
+      "note": "Resolution is 1920x1080, meeting the required standard."
+    },
+    "framerate_check": {
+      "score": 10,
+      "note": "Framerate is 30.0 fps, which is perfect for this format."
+    },
+    "loudness_check": {
+      "score": 10,
+      "note": "Integrated loudness is -15.6 LUFS, perfectly within the -16 to -14 LUFS target range."
+    },
+    "true_peak_check": {
+      "score": 10,
+      "note": "True peak is -4.0 dBFS, safely below the -1.0 dBFS limit. No clipping."
+    },
+    "black_frames_check": {
+      "score": 10,
+      "note": "Forensic scan confirms zero mid-video black frames."
+    },
+    "silence_check": {
+      "score": 10,
+      "note": "Forensic scan confirms zero unintended silence gaps."
+    },
+    "freeze_check": {
+      "score": 0,
+      "note": "CRITICAL FAILURE. At least 6 severe freeze frames were observed during motion video segments (e.g., at 0:17, 0:44, 1:35). The video stream freezes while audio continues, making the clips difficult to watch. This is a fatal render error."
+    },
+    "codec_check": {
+      "score": 10,
+      "note": "Standard and correct h264/aac codecs used."
+    },
+    "file_integrity_check": {
+      "score": 10,
+      "note": "File is clean with a healthy bitrate and both streams present."
+    },
+    "clip_relevance": {
+      "score": 10,
+      "note": "Clips from Marty Bent, Andreas Antonopoulos, and Bitcoin Unchained are top-tier, credible, and perfectly aligned with the show's cypherpunk/Austrian economics ethos."
+    },
+    "script_quality": {
+      "score": 10,
+      "note": "The PBX narration is exceptional. It provides sharp, insightful analysis that connects the macro themes (Fed policy) directly to the Bitcoin thesis (halving, self-custody) creating a powerful, coherent argument."
+    },
+    "cold_open_hook": {
+      "score": 10,
+      "note": "The cold open is punchy and effective, immediately establishing the core conflict between traditional finance gatekeeping and Bitcoin's freedom."
+    },
+    "narrative_arc": {
+      "score": 10,
+      "note": "The episode has a clear and compelling narrative arc, moving from the problem (Fed hitting a rate wall) to the solution (Bitcoin as a permissionless exit)."
+    },
+    "host_authenticity": {
+      "score": 10,
+      "note": "PBX's voice is clean, well-paced, and authoritative. The performance is flawless."
+    },
+    "episode_title": {
+      "score": 10,
+      "note": "The title 'Fed Gatekeeping Ignites Bitcoin Freedom' is specific, accurate, and captures the essence of the episode's argument."
+    },
+    "no_filler": {
+      "score": 10,
+      "note": "The episode is 100% signal, with no ads, sponsor reads, or off-topic diversions."
+    },
+    "timeliness": {
+      "score": 10,
+      "note": "The content is highly timely, focusing on current market discussions around Fed policy and its implications for Bitcoin."
+    },
+    "music_mix": {
+      "score": 10,
+      "note": "The background music is well-mixed, atmospheric, and properly ducked under the narration."
+    },
+    "transitions": {
+      "score": 10,
+      "note": "Transitions are clean, on-brand, and effectively segment the show."
+    },
+    "visual_polish": {
+      "score": 10,
+      "note": "The overall visual aesthetic is excellent. The cyberpunk theme, lower thirds, and data overlays are polished and consistent."
+    },
+    "no_artifacts": {
+      "score": 0,
+      "note": "The severe freeze frames are a major visual artifact that ruins the viewing experience, overriding the otherwise clean visual presentation."
+    },
+    "audio_quality": {
+      "score": 10,
+      "note": "PBX narration audio is pristine, with no noise, echo, or clipping."
+    },
+    "pacing": {
+      "score": 9,
+      "note": "The pacing is very tight and information-dense. It moves quickly but effectively, holding attention throughout."
+    }
+  },
+  "critical_failures": [
+    "freeze_check: 6+ freeze frames detected during motion video segments, rendering the video unwatchable in parts."
+  ],
+  "warnings": [
+    "duration_check: At 4.8 minutes, the episode is on the short side. While the content is dense, aiming for the 8-15 minute sweet spot would allow for deeper exploration."
+  ],
+  "strengths": [
+    "The narrative synthesis is world-class, weaving together macroeconomics, Bitcoin's core principles, and current events into a powerful and coherent argument.",
+    "Clip selection is superb, featuring highly respected and relevant voices in the space.",
+    "The overall aesthetic and audio production are broadcast-quality."
+  ],
+  "verdict": "This episode is a masterpiece of content and narrative crippled by a fatal technical flaw in the video render; the numerous freeze frames make it unpublishable.",
+  "recommendation": "FIX_AND_RERENDER"
+}

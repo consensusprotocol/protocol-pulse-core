@@ -1,29 +1,5 @@
 [
   {
-    "id": "tweet_20260607_020024_0",
-    "text": "2 sat/vB fees while fear index sits at 12. Every time this happens, the people who actually understand Bitcoin are loading up. The people talking about it are watching",
-    "angle": "onchain_metric",
-    "type": "observation",
-    "format": "community_narrative",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-06-07T02:00:24.231608+00:00",
-    "brief_date": "Saturday, June 06, 2026",
-    "sentiment": "bearish"
-  },
-  {
-    "id": "tweet_20260607_170024_0",
-    "text": "1946: Bretton Woods promised gold backing. By 1971 Nixon closed the window. 2026: CBDCs promise consumer protection. By 2030 they'll control every transaction. Same con, faster tech",
-    "angle": "historical_pattern",
-    "type": "observation",
-    "format": "historical_parallel",
-    "priority": 3,
-    "status": "pending",
-    "generated_at": "2026-06-07T17:00:24.758259+00:00",
-    "brief_date": "Sunday, June 07, 2026",
-    "sentiment": "bearish"
-  },
-  {
     "id": "tweet_20260608_020029_0",
     "text": "If the Federal Reserve can't audit its own gold reserves, why should anyone trust the currency it claims to back",
     "angle": "sovereignty_freedom",
@@ -82,5 +58,53 @@
     "generated_at": "2026-06-09T02:00:23.363850+00:00",
     "brief_date": "Monday, June 08, 2026",
     "sentiment": "uncertain"
+  },
+  {
+    "id": "tweet_20260609_170029_0",
+    "text": "If regulatory approval means institutions can finally buy Bitcoin, why did they need permission to buy gold",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-09T17:00:29.209786+00:00",
+    "brief_date": "Tuesday, June 09, 2026",
+    "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260609_194754_0",
+    "text": "1-hour average fee hit 1 sat/vB. Last time mempool got this loose, people were panic selling into single digits. Now they're just watching. That's the difference between a cycle top and a cycle bottom",
+    "angle": "onchain_metric",
+    "type": "signal",
+    "format": "on_chain_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-09T19:47:54.331537+00:00",
+    "brief_date": "Tuesday, June 09, 2026",
+    "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260610_012433_0",
+    "text": "Second mainnet went live while Fear and Greed hit 9. Builders don't wait for green candles. Protocol layer payments infrastructure ships regardless of what retail is doing",
+    "angle": "network_fundamentals",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-10T01:24:33.732471+00:00",
+    "brief_date": "Tuesday, June 09, 2026",
+    "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260610_020021_0",
+    "text": "Why did the Clarity Act quietly define self-hosted wallets as money transmitters while everyone focused on institutional custody rules",
+    "angle": "geopolitical",
+    "type": "question",
+    "format": "direct_engagement_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-10T02:00:21.253724+00:00",
+    "brief_date": "Tuesday, June 09, 2026",
+    "sentiment": "bearish"
   }
 ]

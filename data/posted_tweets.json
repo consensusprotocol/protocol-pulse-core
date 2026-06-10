@@ -1210,5 +1210,23 @@
     "timestamp": "2026-06-09T02:00:19.951197+00:00",
     "text_preview": "Do you know why Saylor bought 1,550 BTC last week when Fear and Greed hit 10. Be",
     "format_type": "institutional_flow"
+  },
+  {
+    "hash": "7bd0deab289c5591d8e6497f68c5e96d",
+    "timestamp": "2026-06-09T17:00:25.569969+00:00",
+    "text_preview": "If regulatory approval means institutions can finally buy Bitcoin, why did they ",
+    "format_type": "historical_pattern"
+  },
+  {
+    "hash": "43bcd633755b513a88b842f0e71c2e8b",
+    "timestamp": "2026-06-09T19:47:52.481908+00:00",
+    "text_preview": "1-hour average fee hit 1 sat/vB. Last time mempool got this loose, people were p",
+    "format_type": "onchain_metric"
+  },
+  {
+    "hash": "aaa746b123ebf2010e0b0fa5e888724d",
+    "timestamp": "2026-06-10T01:24:31.867625+00:00",
+    "text_preview": "Second mainnet went live while Fear and Greed hit 9. Builders don't wait for gre",
+    "format_type": "network_fundamentals"
   }
 ]

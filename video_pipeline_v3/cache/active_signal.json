@@ -1,19 +1,19 @@
 {
-  "fetched_at": 1781021707.415688,
-  "fetched_at_iso": "2026-06-09T16:15:07.415718+00:00",
+  "fetched_at": 1781097306.1119661,
+  "fetched_at_iso": "2026-06-10T13:15:06.111984+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 82,
+      "events_filtered": 29,
       "error": null
     },
     {
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 85,
+      "events_filtered": 70,
       "error": null
     },
     {
@@ -34,193 +34,193 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 88,
+      "events_filtered": 25,
       "error": null
     }
   ],
   "nostr_posts": [
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nWhat happened this week in the Bitcoin World\n\nThe crypto world collapsed this week. A single corporate sale triggered a brutal price drop, liquidated over a billion dollars, and ignited a firestorm of accusations ranging from market manipulation to outright theft. Do not miss the story of how Michael Saylor broke his never sell mantra...\n\nhttps://image.nostr.build/122457713303171e6c05b9c219407120dfce31270d7d12d86841f8574e001ce5.jpg\n\n\u270d\ufe0f Author: NM team\n\n\ud83d\udd17 https://nostrmag.com/article/w23bitcoin03\n\n\ud83d\udcc8 id#665935723",
-      "pubkey": "d9c2ec9765485f7f39a1b59c4ef7578879d2d17908364e1031129cc7b72f692d",
-      "display_name": "npub1d9c2ec97...2f692d",
-      "created_at": 1781014597,
-      "relay": "wss://relay.damus.io",
-      "score": 120,
-      "has_zap": false
-    },
-    {
       "text": "Hey Bitcoin & EV degens! \ud83d\ude80 What's the future of decentralized energy? Mining sats with excess solar while plugging into EVMerx for seamless Lightning-powered EV charging? Or using mining heat for V2G battery warming? Spill your wild ideas\u2014reply, zap, or long-form! \u26a1 Nostr EVMerx",
       "pubkey": "cb37919b98555801fc534fb0f4efa5ee2e4f7820b0dc1f283532aa57033f6f00",
       "display_name": "npub1cb37919b...3f6f00",
-      "created_at": 1781013785,
+      "created_at": 1781095141,
       "relay": "wss://relay.damus.io",
       "score": 94,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nBTC Weekly Technical Analysis - Nostriches Only\n\nThis is not the moment to hide in the sand. Bitcoin just posted its worst weekly loss since the FTX collapse, falling to levels that have triggered panic, whale sell-offs, and the biggest ETF outflow streak on record. Every indicator is screaming. Read this before you make your next move.\n\nhttps://image.nostr.build/4c2541852dd90d8ee59b197a25925d88f48e447cc9195ce34a32721b61902b7f.jpg\n\n\u270d\ufe0f Author: Rhodes\n\n\ud83d\udd17 https://nostrmag.com/article/w23bitcoin04\n\n\ud83d\udcc8 id#909427774",
-      "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
-      "display_name": "npub1794833e5...f9c731",
-      "created_at": 1781015017,
+      "text": "The combat sports industry is just a series of predatory middlemen taking a massive cut of a fighter's blood and sweat.\n\nTime to decentralize the \"Stable.\"\n\nImagine a DAO that scouts the hungriest young killers in MMA/Boxing and funds their ascent using #Bitcoin. No predatory promoters. No opaque contracts. Just a peer-to-peer alignment between the community and the warriors.\n\nWe fund the camp, the fighter wins, the DAO shares the purse via Lightning. \u26a1\ufe0f\n\nWe aren't just betting on fights; we're funding the sovereignty of the athlete.\n\nWho's ready to build the first Sovereign Fight Fund?\n\n#CombatDAO #Sats #DecentralizeEverything #MMA #Boxing",
+      "pubkey": "a87c9bfc4570fe15afdda6c0095ade2d74fb14e3294bff37a965522983bda6a8",
+      "display_name": "npub1a87c9bfc...bda6a8",
+      "created_at": 1781093895,
       "relay": "wss://relay.damus.io",
-      "score": 90,
+      "score": 80,
       "has_zap": false
     },
     {
-      "text": "Sending money to your family in another country should be simple.\n\nIn practice, the traditional system charges high fees, takes days, and on some corridors simply doesn't operate.\n\nWith Mostro \ud83e\uddcc and Lightning \u26a1 sats arrive in seconds, to any wallet, in any country where there's an active node.\n\nThe recipient converts to their local currency with whoever they choose, in their own community, without depending on any centralized service.\n\nRemittances shouldn't be a business for intermediaries. They should be a transfer between people.\n\nhttps://mostro.network\n\n#Bitcoin #Remittances #Lightning #P2P #Mostro",
+      "text": "If someone in your circle wants to buy or sell bitcoin,\nMostro \ud83e\uddcc is what you recommend.\n\nWhy:\n\u26a1 Trades settle on Lightning, in minutes\n\ud83d\udd11 Their funds never pass through anyone's hands\n\ud83c\udf0e Works with each community's local currency\n\ud83d\udee1\ufe0f Disputes have a resolution system\n\ud83d\udcd6 The code is open, anyone can audit it\n\nNo account to create. No identity to verify.\nJust a Lightning wallet and the willingness to trade.\n\nShare the link \ud83d\udc47\nhttps://mostro.network\n\n#Bitcoin #P2P #Nostr #Lightning #Mostro",
       "pubkey": "dbe0b1bdbe129ce38db753d6a997e6a29e693afd02aa1d1f9b005fa7386e5c26",
       "display_name": "npub1dbe0b1bd...6e5c26",
-      "created_at": 1781014050,
+      "created_at": 1781093550,
+      "relay": "wss://nos.lol",
+      "score": 80,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **BTC Weekly Technical Analysis - Nostriches Only**\n\nThis is not the moment to hide in the sand. Bitcoin just posted its worst weekly loss since the FTX collapse, falling to levels that have triggered pa...\n\n\ud83d\udc64 Rhodes\n\nhttps://image.nostr.build/4c2541852dd90d8ee59b197a25925d88f48e447cc9195ce34a32721b61902b7f.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w23bitcoin04\n\n\ud83d\udcca id#838171862",
+      "pubkey": "fe5915e97c59b0672a80351bd2e4a89d1414c56a25e74eab9b2ebc9014a8403b",
+      "display_name": "npub1fe5915e9...a8403b",
+      "created_at": 1781090618,
+      "relay": "wss://nos.lol",
+      "score": 78,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udce7 Paid newsletter writer? Ghost/Substack taking 10%?\n\nI install a Lightning paywall on your site in 5 business days. One-time fee, 0% platform cuts forever. Your audience keeps their email address, payment is instant, no chargebacks.\n\nhttps://hugosplash.com/services\n\n#Bitcoin #Lightning #Creators #Substack #Ghost\n\n\u20bf $60,969.00 | 1640 sats/$",
+      "pubkey": "1ff7f3a4352e3188c18ca39a8aa159e4579a7038b28dddd932e2bdc1055a00c1",
+      "display_name": "npub11ff7f3a4...5a00c1",
+      "created_at": 1781093040,
+      "relay": "wss://nos.lol",
+      "score": 77,
+      "has_zap": false
+    },
+    {
+      "text": "\ud83d\udee1\ufe0f Secure the Network\n\nEvery hash matters. Every miner strengthens Bitcoin.\n\nWhen you mine through HugoSplash Pool, you're:\n\u2022 Running against our own full node\n\u2022 Validating real transactions\n\u2022 Contributing to decentralization\n\u2022 Taking a shot at 3.125 BTC\n\nJoin: stratum+tcp://pool.hugosplash.com:3333\n\n#Bitcoin #Mining #Security",
+      "pubkey": "a4210579f0e892b911c3916007bf4be8959d29c29c7fa049f55a5516f6b14f69",
+      "display_name": "npub1a4210579...b14f69",
+      "created_at": 1781095452,
       "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "The first collectors always have the best stories.\n\n\u26a1\ufe0f\u26bd\ufe0f\u26a1\ufe0f Satoshi's Goal Mystery Packs are now available on Supermultiverse.\n\nAmong the first digital collectible collections launched on Bitcoin using Taproot Assets.\n\n\ud83c\udfb4 Open packs\n\ud83d\udd25 Hunt rare cards\n\u26a1 Own them on Bitcoin\n\nEarly collectors won't be early forever.\n\nGet your packs before everyone else.\n\n\ud83d\udc49 app.supermultiverse.io\n\n#Bitcoin #TaprootAssets #Collectibles\nhttps://blossom.primal.net/9f5308549d9211ac4bb4330bbb73c789d96fa63e1f0e8ae036c5fe7f52154691.mov",
-      "pubkey": "1974096b452b09ec6a99b84b3bee5e826f6d2645d77ebf8c5aebb0b26f59618c",
-      "display_name": "npub11974096b...59618c",
-      "created_at": 1781013923,
-      "relay": "wss://relay.damus.io",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "Team Somali \ud83c\uddf8\ud83c\uddf4 #Bitcoin #HosKasi Buys EVERYDAY \ud83d\udcaa\ud83c\udffe\n\nJanuary 1st, 2025 - June 9th, 2026 \n\n525days Total Saved  = $5,680\n\nTotal #Bitcoin Saved = 6,441,771 #Sats\n                                           = 0.0644 #Btc\n\n All I did was buy $10 everyday so far this year Alxamdulliah.\n\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\nI ADDED AN EXTRA $300 ON March 20th, 2026 TO CELEBRATE EID.\n\nI ADDED AN EXTRA $100 on July 1st 2025 TO CELEBRATE SOMALI \ud83c\uddf8\ud83c\uddf4 INDEPENDENCE!!!\n\nI ALSO ADDED AN EXTRA $100 on  June 6, 2025 TO CELEBRATE EID. \n\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014-\n\n\u26a1\ufe0f61k Gang, but we buy at any price \ud83e\udee1\nhttps://blossom.primal.net/99d6e3100f00b954d37018efa551c34c8acc5fbd56a1c568aff64be564a63aad.jpg",
-      "pubkey": "f6803bf85c5b27ccddbd77ece6f65c9c7b805b64a1961a9cdb13963c6112b2aa",
-      "display_name": "npub1f6803bf8...12b2aa",
-      "created_at": 1781016850,
-      "relay": "wss://nos.lol",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83d\ude80 BOLT12 Pay is now officially available on both StartOS and Umbrel.\nSelf-hosted Lightning payments and identity:\n\u26a1 BOLT12 Offers \u26a1 Lightning Address (BIP353) \u26a1 LNURL fallback \u26a1 Nostr identity (NIP-05 + Zaps)\nBig thanks to Matt Hill, the StartOS community, allac and nmfretz from Umbrel for testing and review.\nGitHub:\nhttps://github.com/Alex71btc/lndk-pay\u2060\ufffd\n#bitcoin #lightning #bolt12 https://blossom.primal.net/bfd61de44d649b69e70919465354203ee4327b66cf3d6be0b5db392f0ab66348.jpg https://blossom.primal.net/01fdddb991286148b0d5ecb4f7945e7121606d0f88657df7c72b807d66f6099e.jpg https://blossom.primal.net/c9c978f22a07eb1a662643e57f8a0d6d80a303953440979348d2d90b5de9cf9f.jpg",
-      "pubkey": "e5fe36eb9bec9af19991d1a1f502c2154c8db08a2ee25dde67e807313d1e31c6",
-      "display_name": "npub1e5fe36eb...1e31c6",
-      "created_at": 1781014528,
-      "relay": "wss://nos.lol",
-      "score": 80,
-      "has_zap": false
-    },
-    {
-      "text": "Someone, quickly, send your #Bitcoin to Saylor, the perfect digital credit machine isn't working.\n\nhttps://blossom.primal.net/3a6745ebfadda8b4f03727cbce07f410923a4bfda99841f842210df5a70eb9de.png",
-      "pubkey": "d9f2471cc8f33111071bd0de1fef87d783cc4140e0f70ba9298a53b9e07c60f6",
-      "display_name": "npub1d9f2471c...7c60f6",
-      "created_at": 1781021436,
-      "relay": "wss://nos.lol",
       "score": 75,
       "has_zap": false
     },
     {
-      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\uddde\ufe0f **BREAKING**\n\nBitcoin Civil War Erupts as Developers Clash Over Censorship and Future Work\n\nBitcoin is tearing itself apart. A censorship firestorm, a controversial proposal to ban non-monetary data, and a mysterious Reddit ban have exposed deep divisions among core developers, igniting fears of a network-splitting fork. Find out why the fight over BIP-110 is about far more than just technology.\n\nhttps://image.nostr.build/8eff54adc931f2981d95fa09700f6de9cca18b9fa5ef1041268abf5ed336fc28.jpg\n\n\u270d\ufe0f Author: NM team\n\n\ud83d\udd17 https://nostrmag.com/article/w23bitcoin02\n\n\ud83d\udcc8 id#397660103",
-      "pubkey": "fe5915e97c59b0672a80351bd2e4a89d1414c56a25e74eab9b2ebc9014a8403b",
-      "display_name": "npub1fe5915e9...a8403b",
-      "created_at": 1781015557,
+      "text": "Here's some perspective provided by nostr:nprofile1qyx8wumn8ghj7cnjvghxjmcpz4mhxue69uhk2er9dchxummnw3ezumrpdejqqgp4kg7dqtfdwhj4em3clhhzd0yz78g460y4szqqkp9smghdkaghaglmys9t as to what's driving the #Bitcoin price at this time.  \n\nThe closing paragraph says it best: \n\"The reasons people own bitcoin haven\u2019t changed. It\u2019s the scarcest asset in a world of endless money creation. With each day that passes, the case for bitcoin becomes clearer\".\n\nhttps://river.com/content/whats-driving-bitcoins-crash",
+      "pubkey": "81584c1f33009007cee814607c8376a5f700c7db6ee8262dbec2f70fc1a85714",
+      "display_name": "npub181584c1f...a85714",
+      "created_at": 1781093987,
       "relay": "wss://relay.damus.io",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "\u26a1 New weather market!\n\n\ud83d\udccd New York City\n\nWhat will the highest temperature in New York City be on 2026-06-09?\n\n\ud83d\udd35 71\u00b0F or below\n\ud83d\udfe2 between 72-73\u00b0F\n\ud83d\udfe1 between 74-75\u00b0F\n\ud83d\udfe0 between 76-77\u00b0F\n\ud83d\udd34 between 78-79\u00b0F\n\ud83d\udfe3 between 80-81\u00b0F\n\u26aa between 82-83\u00b0F\n\u26ab between 84-85\u00b0F\n\ud83d\udd35 between 86-87\u00b0F\n\ud83d\udfe2 between 88-89\u00b0F\n\ud83d\udfe1 90\u00b0F or higher\n\nBet Pick the temperature with Bitcoin Lightning\n\npwsats.com",
+      "text": "Deuteronomy 8:18 \u2014 \u201cBut remember the Lord your God, for it is he who gives you the ability to produce wealth\u2026\u201d\n\nBitcoin didn\u2019t create wealth out of nowhere. It\u2019s a tool that rewards those who understand scarcity, work, and long-term thinking. But the ability to even see it and act on it? That\u2019s from the Lord. Easy to get prideful when the stack grows, but remembering the source keeps it all in perspective.\n\nWhere do you see God\u2019s hand in your ability to build with Bitcoin? \ud83d\udc47\n\n#bitcoin #bible #nostr #asknostr",
+      "pubkey": "91e87e7268c95ec63e97a648a7ab372d79b565fa46494de7417e8a028a5b9fdf",
+      "display_name": "npub191e87e72...5b9fdf",
+      "created_at": 1781089199,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "Most software teams argue about reality.\nhttps://image.nostr.build/81887c94074535b15dfbc0765bd8bf517bb42476627aca612efdc3192a17c09d.jpg\nDamageBDD records it.\n\nNot opinions.\nNot meetings.\nNot Jira tickets.\nNot PowerPoint.\n\nBehaviour.\n\nEvery requirement becomes a verifiable statement.\n\nEvery change becomes evidence.\n\nEvery release becomes a chain of proof from intention to execution.\n\nWhen behaviour is continuously measured, trust stops being a human problem and becomes an engineering problem.\n\nThat is the shift.\n\nSoftware is temporary.\nBehaviour is forever.\n\n#DamageBDD #BDD #Verification #SoftwareEngineering #ContinuousVerification #Bitcoin",
+      "pubkey": "ae6ce958e804be86b145e6a73cdcda8a42bb5e5427d5049fe6259b6dd0f02c7d",
+      "display_name": "npub1ae6ce958...f02c7d",
+      "created_at": 1781087177,
+      "relay": "wss://nos.lol",
+      "score": 70,
+      "has_zap": false
+    },
+    {
+      "text": "\u26a1 New weather market!\n\n\ud83d\udccd Austin\n\nWhat will the highest temperature in Austin be on 2026-06-10?\n\n\ud83d\udd35 83\u00b0F or below\n\ud83d\udfe2 between 84-85\u00b0F\n\ud83d\udfe1 between 86-87\u00b0F\n\ud83d\udfe0 between 88-89\u00b0F\n\ud83d\udd34 between 90-91\u00b0F\n\ud83d\udfe3 between 92-93\u00b0F\n\u26aa between 94-95\u00b0F\n\u26ab between 96-97\u00b0F\n\ud83d\udd35 between 98-99\u00b0F\n\ud83d\udfe2 between 100-101\u00b0F\n\ud83d\udfe1 102\u00b0F or higher\n\nBet Pick the temperature with Bitcoin Lightning\n\npwsats.com",
       "pubkey": "461c04a65e8795235e50140709e0e7162d3c6e3c32413e3889d937dd8a95e8db",
       "display_name": "npub1461c04a6...95e8db",
-      "created_at": 1781020663,
+      "created_at": 1781085427,
       "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "When you send a safety alert, who else gets to know you sent it?\n\nTomorrow at nostr:npub16u0y2xnx093q92c2nzv8t4raqnxxcv3c02eatyazrd6j22rnawxq7yqpwk , Francesco introduces NIP-GART (Group Alert & Response Transmission). A Nostr event kind for safety-critical alerts that hides both the content and the metadata from relay operators.\n\nJune 10, 11:50 to 12:20. Prague.\nhttps://program.freedomtechsummit.com/fts2026/talk/L3Z8YG/\n\n#privacy #security #safety #bitcoin #freedomtech",
-      "pubkey": "d918a426c6cf028fc396a16dfed03d157dc23556278bb41c911b881d3633d1f6",
-      "display_name": "npub1d918a426...33d1f6",
-      "created_at": 1781015861,
+      "text": "\u26a1 New weather market!\n\n\ud83d\udccd Denver\n\nWhat will the highest temperature in Denver be on 2026-06-10?\n\n\ud83d\udd35 83\u00b0F or below\n\ud83d\udfe2 between 84-85\u00b0F\n\ud83d\udfe1 between 86-87\u00b0F\n\ud83d\udfe0 between 88-89\u00b0F\n\ud83d\udd34 between 90-91\u00b0F\n\ud83d\udfe3 between 92-93\u00b0F\n\u26aa between 94-95\u00b0F\n\u26ab between 96-97\u00b0F\n\ud83d\udd35 between 98-99\u00b0F\n\ud83d\udfe2 between 100-101\u00b0F\n\ud83d\udfe1 102\u00b0F or higher\n\nBet Pick the temperature with Bitcoin Lightning\n\npwsats.com",
+      "pubkey": "461c04a65e8795235e50140709e0e7162d3c6e3c32413e3889d937dd8a95e8db",
+      "display_name": "npub1461c04a6...95e8db",
+      "created_at": 1781085427,
       "relay": "wss://nos.lol",
       "score": 70,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.31 oz | 24hr: -2.63%\n1 oz Gold: 6,988,120 sats\n\nBitcoin marketcap: 1.2 trillion USD\nGold marketcap: 29.6 trillion USD\nBitcoin Vs Gold marketcap: 4.1%\n\nUpdated: 2026-06-09 | 16:00 UTC",
+      "text": "\u26a1 New weather market!\n\n\ud83d\udccd Houston\n\nWhat will the highest temperature in Houston be on 2026-06-10?\n\n\ud83d\udd35 79\u00b0F or below\n\ud83d\udfe2 between 80-81\u00b0F\n\ud83d\udfe1 between 82-83\u00b0F\n\ud83d\udfe0 between 84-85\u00b0F\n\ud83d\udd34 between 86-87\u00b0F\n\ud83d\udfe3 between 88-89\u00b0F\n\u26aa between 90-91\u00b0F\n\u26ab between 92-93\u00b0F\n\nBet Pick the temperature with Bitcoin Lightning\n\npwsats.com",
+      "pubkey": "461c04a65e8795235e50140709e0e7162d3c6e3c32413e3889d937dd8a95e8db",
+      "display_name": "npub1461c04a6...95e8db",
+      "created_at": 1781085427,
+      "relay": "wss://nos.lol",
+      "score": 69,
+      "has_zap": false
+    },
+    {
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.84 oz | 24hr: 2.92%\n1 oz Gold: 6,738,544 sats\n\nBitcoin marketcap: 1.2 trillion USD\nGold marketcap: 28.7 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-06-10 | 13:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1781020865,
+      "created_at": 1781096471,
       "relay": "wss://relay.damus.io",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.29 oz | 24hr: -3.26%\n1 oz Gold: 6,997,901 sats\n\nBitcoin marketcap: 1.2 trillion USD\nGold marketcap: 29.7 trillion USD\nBitcoin Vs Gold marketcap: 4.1%\n\nUpdated: 2026-06-09 | 15:01 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.70 oz | 24hr: 1.58%\n1 oz Gold: 6,802,721 sats\n\nBitcoin marketcap: 1.2 trillion USD\nGold marketcap: 28.8 trillion USD\nBitcoin Vs Gold marketcap: 4.3%\n\nUpdated: 2026-06-10 | 12:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1781017267,
-      "relay": "wss://relay.damus.io",
+      "created_at": 1781092869,
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.39 oz | 24hr: -2.16%\n1 oz Gold: 6,949,270 sats\n\nBitcoin marketcap: 1.2 trillion USD\nGold marketcap: 30.0 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-06-09 | 14:00 UTC",
+      "text": "~~~~~~~~~~~~~~~~~~~~~\n#Bitcoin BTC/Gold hourly price\n~~~~~~~~~~~~~~~~~~~~~\n1 BTC: 14.69 oz | 24hr: 1.88%\n1 oz Gold: 6,807,352 sats\n\nBitcoin marketcap: 1.2 trillion USD\nGold marketcap: 28.9 trillion USD\nBitcoin Vs Gold marketcap: 4.2%\n\nUpdated: 2026-06-10 | 11:01 UTC",
       "pubkey": "90fd5d464f8e8c235a33ac1515c9a808a0c8fc07804ef81d650b5a31cd475ff8",
       "display_name": "npub190fd5d46...475ff8",
-      "created_at": 1781013667,
-      "relay": "wss://relay.damus.io",
+      "created_at": 1781089267,
+      "relay": "wss://nos.lol",
       "score": 68,
       "has_zap": false
     },
     {
-      "text": "While your paycheck fights rent and groceries, Bitcoin\u2019s engine just got louder: 856 EH/s, up 6.09% \u2014 more computers spending real money on electricity to protect your savings from the money printer \ud83e\uddfe #BTC doesn\u2019t ask permission, it just keeps getting harder to stop.\n\nhttps://heyframe.com/images/img.php/bitcoin-page5.png?v=1781017278",
-      "pubkey": "45addb99d8ec5e34a96d52b850c653dfefe2b49f46f6acadf62592bfe74b6e09",
-      "display_name": "npub145addb99...4b6e09",
-      "created_at": 1781017278,
-      "relay": "wss://relay.damus.io",
-      "score": 65,
+      "text": "\ud83d\udcf0 **In this week's issue:**\n\n\ud83d\udcd6 **What happened this week in the Bitcoin World**\n\nThe crypto world collapsed this week. A single corporate sale triggered a brutal price drop, liquidated over a billion dollars, and ignited a firestor...\n\n\ud83d\udc64 NM team\n\nhttps://image.nostr.build/122457713303171e6c05b9c219407120dfce31270d7d12d86841f8574e001ce5.jpg\n\n\ud83d\udc49 https://nostrmag.com/article/w23bitcoin03\n\n\ud83d\udcca id#601741522",
+      "pubkey": "794833e538ff2acb9149a736cf02d30c6ae0022c76d2dd55b57e540dc2f9c731",
+      "display_name": "npub1794833e5...f9c731",
+      "created_at": 1781090198,
+      "relay": "wss://nos.lol",
+      "score": 66,
       "has_zap": false
     },
     {
-      "text": "In this clip of - Share Your Bitcoin Journey EP:7,  nostr:npub1rdluu2uvwqrh87yl5rpltfvjrd0rvy8peqxqt8wrh5yxggxa2y2q3g58rj talks about the value for value that Nostr provides. \n\n#Bitcoin #Art #V4V #SocialMedia #Nostr #Decentralize #BitcoinArt #Maker #Creator #SoundMoney #Zap #Lightning #Artists \nhttps://blossom.primal.net/165a2a1a412d35354bdbdc2416028c7542fc46f8613004443024d676a43d9486.mp4",
-      "pubkey": "a0e73529e04b4970a185e864b89e7d6e1ed148fdf08381b540ac020a742c62d5",
-      "display_name": "npub1a0e73529...2c62d5",
-      "created_at": 1781016604,
+      "text": "\ud83c\uddef\ud83c\uddf2 Yard Bitcoin Report:\n\n\ud83d\udcb0 BTC/USD: $61,574\n\ud83d\udcb5 BTC/JMD: $9,574,757\n\n\u26a1 Sats for $1,000 JMD: 10,444\n\u26a1 Sats for $1 USD: 1,624\n\n\ud83e\uddf1 Block: 953104\n\u26a1 Fees: 2 sat/vB\n\n#Jamaica #Bitcoin #stacksats #YardVibes",
+      "pubkey": "0396bac72f86ca77cb6631e018dc3556afb9802613c993402a9b3cf28fae029f",
+      "display_name": "npub10396bac7...ae029f",
+      "created_at": 1781096421,
       "relay": "wss://relay.damus.io",
-      "score": 64,
+      "score": 63,
       "has_zap": false
     },
     {
-      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd34 BTC: $61,060 (-4.3%)\n\ud83d\udd34 ETH: $1,634 (-3.4%)\n\ud83d\udd34 DOGE: $0.0841 (-3.3%)\n\ud83d\udd34 XRP: $1.13 (-3.6%)\n\ud83d\udd34 LINK: $7.72 (-3.8%)\n\ud83d\udd34 PEPE: $0.00000274 (-3.5%)\n\ud83d\udd34 TRUMP: $1.63 (-4.3%)\n\nTotal Market Cap: $2.23T | BTC Dominance: 55.9%\n\n#bitcoin #crypto #marketupdate",
+      "text": "\u26a1 Crypto Market Update\n\n\ud83d\udd38 BTC: $61,265 (-2.4%)\n\ud83d\udd38 ETH: $1,622 (-3.0%)\n\ud83d\udd38 DOGE: $0.0835 (-2.3%)\n\ud83d\udd34 XRP: $1.11 (-4.4%)\n\ud83d\udd38 LINK: $7.69 (-2.1%)\n\ud83d\udd38 PEPE: $0.00000272 (-2.1%)\n\ud83d\udd38 TRUMP: $1.63 (-2.2%)\n\nTotal Market Cap: $2.20T | BTC Dominance: 56.0%\n\n#bitcoin #crypto #marketupdate",
       "pubkey": "36493c2eb6faf3a218c72a1ee163fb3914a06cb7583498297943e2377c30a7c8",
       "display_name": "npub136493c2e...30a7c8",
-      "created_at": 1781021081,
-      "relay": "wss://relay.damus.io",
+      "created_at": 1781085762,
+      "relay": "wss://nos.lol",
       "score": 63,
       "has_zap": false
     },
     {
-      "text": "I was listening to the conversation below, between nostr:npub1s33sw6y2p8kpz2t8avz5feu2n6yvfr6swykrnm2frletd7spnt5qew252p and Daniel Prince.  \n\nThe content inspired me to create this image, which I have titled: \u201c10 Stoic Rules to Defend the Chain\u201d \ud83d\udca1 :\n\nhttps://i.nostr.build/8RHInZjLSOONOwRO.png\n\nHere is the conversation \ud83d\udc47\ud83c\udffc:\nhttps://youtu.be/sSA8gaVF08s\n\n#Bitcoin #Design #Nostr",
-      "pubkey": "08964cb53cbce2abafbfb5560a7d1f8af2d80f32a53e845d304e830a51bf010f",
-      "display_name": "npub108964cb5...bf010f",
-      "created_at": 1781015488,
+      "text": "Most people think you need a bank card to spend crypto online. You don't.  \n\nIn this video, We show how to use Monero, Bitcoin, and USDT for online purchases, subscriptions, gaming, and more \u2014 while keeping your financial privacy intact.  \n\nWatch now \ud83d\udc47\nhttps://www.youtube.com/watch?v=RPI0p3n-Lm8  \nwebsite \ud83d\udc49 xmrvcc.com  \n\n#Monero #XMR #Bitcoin #Crypto #Privacy #VirtualCard #VCC #CryptoPayments #OnlinePrivacy #DigitalPayments #Fintech https://blossom.primal.net/57fc1b6f7fddd5ba7f368a98c3fbfed97f72d35434bd25c34da520cb5d31bed9.png",
+      "pubkey": "2cba5764bb2810ea5ac452f7324f107170a7db5e3e5be7ab3bb3bf41b78314d2",
+      "display_name": "npub12cba5764...8314d2",
+      "created_at": 1781095218,
       "relay": "wss://relay.damus.io",
-      "score": 63,
+      "score": 60,
       "has_zap": false
     },
     {
-      "text": "\u26a1\ufe0f Issue #53 of The Bitcoin Act newsletter is live! \n\n\ud83e\udde1 Dive into the latest global moves reshaping #Bitcoin regulation and adoption. \n\n\ud83d\udc49 For subscribers, don\u2019t forget to check and claim your free sats! \n\n\ud83d\udc49 Full issue here: https://thebitcoinact.xyz\nhttps://blossom.primal.net/699e9170bca43f9b9dae2cda15ae641413f5182aa67fd88dea0eb5f549061b18.jpg\nhttps://blossom.primal.net/9efdb13f6b9204a7aa71c642a4eb74398f8d0d684bc2b7c6ade13ddefefad22d.jpg",
-      "pubkey": "b18e9c1cc9ffc361a8f2262fb9a5411a061342aafb4beb15a9650ae5114d6862",
-      "display_name": "npub1b18e9c1c...4d6862",
-      "created_at": 1781013822,
-      "relay": "wss://relay.damus.io",
-      "score": 61,
-      "has_zap": false
-    },
-    {
-      "text": "\ud83c\uddef\ud83c\uddf5 JAPANESE BANKING GIANT SBI SHINSEI IS TURNING BANK DEPOSITS INTO A BITCOIN ON-RAMP \ud83d\udc40\n\nReports say that SBI Shinsei Bank will launch a service that rewards deposit customers with crypto exchange vouchers equal to 20% of their interest payments, in addition to their normal yen-denominated interest. \n\nThese vouchers can be redeemed for #Bitcoin and other cryptos \ud83e\udd2f\n\nA normal bank deposit can now serve as a gateway to bitcoin and crypto\u203c\ufe0f\n\nMAJOR BANKS ARE BUILDING RAILS FOR BITCOIN ADOPTION \ud83d\ude80 https://blossom.primal.net/d922b1d41fdaaa851457f6ed16a956b30d0504223b50ac2c03152dd99b359e48.png",
-      "pubkey": "1baf18ae863cfd815a775c28943d8f4efe7ddbfe9e7bd1da1cddac93b75e2806",
-      "display_name": "npub11baf18ae...5e2806",
-      "created_at": 1781019526,
-      "relay": "wss://relay.primal.net",
+      "text": "Intern at Fast Pool here \u2014 quick stacking note for the Stacks folks \ud83d\udfe7\u2615\n\nPoX cycle 136 is live (~504M STX stacked, pox active). Fast Pool keeps running the same way it has since the early days: transparent rewards, a flat BTC fee, and no surprises. Non-custodial stacking, you keep control of your STX.\n\nIf you're new to stacking and want the fee math laid out plainly, ask \u2014 happy to walk through it. fastpool.org",
+      "pubkey": "c9e30a01be5de6144dd5199a7b5798357c552d438c6091edcf9a15e4475dde6b",
+      "display_name": "npub1c9e30a01...5dde6b",
+      "created_at": 1781093315,
+      "relay": "wss://nos.lol",
       "score": 60,
       "has_zap": false
     }
   ],
   "total_raw": 300,
-  "total_filtered": 255,
+  "total_filtered": 124,
   "total_scored": 20
 }

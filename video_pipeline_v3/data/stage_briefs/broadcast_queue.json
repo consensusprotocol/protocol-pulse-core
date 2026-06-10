@@ -1,42 +1,42 @@
 [
   {
-    "id": "54dde380-8aa3-4b27-97db-a19d1339d732",
+    "id": "4e507510-dc07-4a94-b808-b26f8f5d636f",
     "type": "THOUGHT_LEADER",
     "priority": 2,
-    "script": "Gladstein's thesis inverts the AI panic: augment sovereignty, don't outsource it. The mistake isn't using machines\u2014it's mistaking tools for thinking.\n\nWatch: Who's actually running nodes versus who's running prompts.",
-    "source_label": "\ud83e\udde0 @GLADSTEIN",
-    "topic_preview": "The trick is to expand your thinking and creativity with machines, not give up o",
-    "generated_at": "2026-06-09T15:55:47.356793+00:00",
-    "expires_at": "2026-06-09T17:55:47.356793+00:00"
+    "script": "Natbrunell's running three distribution channels\u2014Apple, Spotify, Fountain. Fountain adoption signals which voices the sovereign builder class actually follows. Watch his listener migration patterns next quarter.",
+    "source_label": "\ud83e\udde0 @NATBRUNELL",
+    "topic_preview": "R to @natbrunell: Stream us wherever you listen to podcasts:\n\nApple: https://pod",
+    "generated_at": "2026-06-10T12:25:39.062735+00:00",
+    "expires_at": "2026-06-10T14:25:39.062735+00:00"
   },
   {
-    "id": "e689beb6-dbf4-433b-87be-3d296a11a37b",
-    "type": "METRICS_PULSE",
-    "priority": 3,
-    "script": "METRICS PULSE \u2014 BLOCK 952967\n\nHashrate holding 898 exahashes while fear index collapses to 10. Price rejection at 62,635 \u2014 mempool clearing at 2 sat/byte signals capitulation, not conviction.\n\nWatch transaction velocity next block cycle. Extreme fear this deep typically precedes either institutional accumulation or",
-    "source_label": "\ud83d\udcca METRICS PULSE",
-    "topic_preview": "BTC $62,635 \u00b7 FNG 10 \u00b7 898.4 EH/s",
-    "generated_at": "2026-06-09T12:36:06.961038+00:00",
-    "expires_at": "2026-06-09T16:36:06.961038+00:00"
-  },
-  {
-    "id": "b7833faf-a5c8-46a4-89d2-b37c9bf7c6fd",
+    "id": "4992ea09-041d-4ad4-a4b7-144b1adafb0e",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Banks are consolidating custody infrastructure. Watch whether major exchanges lose self-custody volume this quarter \u2014 that's the real meter of resistance.",
+    "script": "Banking sector tightening custody rails. Nostr relays reporting institutional infrastructure denial across three major clearing houses in the past 72 hours.\n\nThis isn't friction \u2014 it's confirmation of the thesis. They're closing doors because the alternative is becoming undeniable.\n\nWatch custody application rejection rates at the Federal Reserve's approved",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "Traditional finance gatekeeping accelerates \u2014 major banks...",
-    "generated_at": "2026-06-09T14:05:55.658223+00:00",
-    "expires_at": "2026-06-09T18:05:55.658223+00:00"
+    "generated_at": "2026-06-10T10:20:56.178599+00:00",
+    "expires_at": "2026-06-10T14:20:56.178599+00:00"
   },
   {
-    "id": "1dcd4734-e9c6-40ed-8e66-c20e057ad044",
+    "id": "f5193c44-fa4c-4b19-8fa6-c8f332366bd3",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
+    "script": "Satoshi Nakamoto's last known communication was in December 2010. Fifteen years later, the protocol runs exactly as designed. No CEO, no board meetings, no emergency patches. The code is the constitution.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
-    "generated_at": "2026-06-09T12:31:18.965839+00:00",
-    "expires_at": "2026-06-09T16:31:18.965839+00:00"
+    "topic_preview": "Satoshi Nakamoto's last known communication was in December 2010. Fifteen years ",
+    "generated_at": "2026-06-10T13:21:29.369491+00:00",
+    "expires_at": "2026-06-10T17:21:29.369491+00:00"
+  },
+  {
+    "id": "4aa929bf-a367-485f-a9ba-b49531d423dc",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they commit capital, electricity, and hardware. When hash rate climbs to all-time highs, it means serious operators are betting their balance sheets on Bitcoin's future.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they co",
+    "generated_at": "2026-06-10T13:21:55.745052+00:00",
+    "expires_at": "2026-06-10T17:21:55.745052+00:00"
   }
 ]

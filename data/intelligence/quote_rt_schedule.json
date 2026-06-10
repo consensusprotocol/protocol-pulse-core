@@ -1355,8 +1355,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Bitcoin's core utility is its unbuyable nature. It resists capture by design, an immutable truth.",
     "scheduled_at": "2026-05-23T02:00:29.471860+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-09T19:00:03.217146+00:00",
     "created_at": "2026-05-22T18:00:29.471860+00:00"
   },
   {
@@ -1365,8 +1365,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "They seek to buy what was designed to be unbuyable. The market misses the point entirely.",
     "scheduled_at": "2026-05-23T10:00:29.471860+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-09T22:00:03.286739+00:00",
     "created_at": "2026-05-22T18:00:29.471860+00:00"
   },
   {
@@ -1375,8 +1375,8 @@
     "anchor_handle": "ProtocolPulse",
     "hook": "Each passing block deepens the network's resistance. 950,542 proofs that Bitcoin's unseizability compounds daily.",
     "scheduled_at": "2026-05-23T18:00:29.471860+00:00",
-    "status": "pending",
-    "posted_at": null,
+    "status": "dry_run",
+    "posted_at": "2026-06-10T04:00:03.319726+00:00",
     "created_at": "2026-05-22T18:00:29.471860+00:00"
   },
   {
@@ -2218,5 +2218,55 @@
     "status": "pending",
     "posted_at": null,
     "created_at": "2026-06-08T18:00:28.006796+00:00"
+  },
+  {
+    "anchor_id": "501",
+    "anchor_text": "If regulatory approval means institutions can finally buy Bitcoin, why did they need permission to buy gold",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "The requirement for permission reveals the real asset class they're protecting: control, not gold.",
+    "scheduled_at": "2026-06-10T02:00:38.446834+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-09T18:00:38.446834+00:00"
+  },
+  {
+    "anchor_id": "501",
+    "anchor_text": "If regulatory approval means institutions can finally buy Bitcoin, why did they need permission to buy gold",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Gold needed no regulatory blessing. Bitcoin needs one. Yet somehow Bitcoin is the revolutionary technology.",
+    "scheduled_at": "2026-06-10T10:00:38.446834+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-09T18:00:38.446834+00:00"
+  },
+  {
+    "anchor_id": "501",
+    "anchor_text": "If regulatory approval means institutions can finally buy Bitcoin, why did they need permission to buy gold",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Institutions buying Bitcoin requires approval. Institutions shorting Bitcoin requires nothing. Notice which direction they're incentivized.",
+    "scheduled_at": "2026-06-10T18:00:38.446834+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-09T18:00:38.446834+00:00"
+  },
+  {
+    "anchor_id": "501",
+    "anchor_text": "If regulatory approval means institutions can finally buy Bitcoin, why did they need permission to buy gold",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "Permission to own money is just another word for money you don't actually own.",
+    "scheduled_at": "2026-06-11T02:00:38.446834+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-09T18:00:38.446834+00:00"
+  },
+  {
+    "anchor_id": "501",
+    "anchor_text": "If regulatory approval means institutions can finally buy Bitcoin, why did they need permission to buy gold",
+    "anchor_handle": "ProtocolPulse",
+    "hook": "They already had permission to buy gold. They needed regulators to legitimize why they were buying Bitcoin instead.",
+    "scheduled_at": "2026-06-11T10:00:38.446834+00:00",
+    "status": "pending",
+    "posted_at": null,
+    "created_at": "2026-06-09T18:00:38.446834+00:00"
   }
 ]

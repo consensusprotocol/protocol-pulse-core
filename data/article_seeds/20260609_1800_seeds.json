@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-06-09T18:00:36.224795+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "The Halving That Breaks the Cycle: Bitcoin Arrives When Monetary Repression Loses Its Teeth",
+      "angle": "Supply shock meets policy inversion\u2014why this cycle diverges from previous patterns when central banks can't raise rates",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "monetary-policy",
+        "fed",
+        "rate-hikes",
+        "cycle-analysis"
+      ]
+    },
+    {
+      "headline": "Self-Custody Infrastructure: The Shadow Network Banks Can't Block",
+      "angle": "As fiat gatekeeping tightens, Bitcoin's payment rails and self-custody become the unavoidable exit\u2014technical deep dive",
+      "tags": [
+        "bitcoin",
+        "self-custody",
+        "infrastructure",
+        "banking-restrictions",
+        "sidechains"
+      ]
+    },
+    {
+      "headline": "Why 898 EH/s Network Security Matters More Than Price Right Now",
+      "angle": "Bitcoin hashrate at all-time highs despite 2.8% decline signals miner conviction and network robustness during capitulation",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "network-security",
+        "mining",
+        "market-structure"
+      ]
+    }
+  ]
+}

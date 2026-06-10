@@ -1,53 +1,70 @@
-# Protocol Pulse Video Pipeline — AutoResearch Program
+# Protocol Pulse Video Pipeline — AutoResearch Program v2
+# Updated with V57 viewer feedback
 
 ## Goal
-Make the Protocol Pulse video pipeline render successfully every time. The pipeline generates a daily Bitcoin video briefing from partner channel clips, TTS narration, charts, and social posts.
+Fix remaining quality issues in the Pulse Check video render and optimize for 2026 YouTube best practices.
 
-## Current State
-- Pipeline location: ~/protocol_pulse/video_pipeline_v3/
-- Entry point: `python3 daily_producer.py --test --no-resume --skip-scan`
-- Last successful render: V56b (May 25, 2026) — 124MB, 4.2 min
-- Current failure: Assembly stage crashes due to complex ffmpeg filtergraphs timing out
+## V57 Render Feedback (from PBX review)
+These are the specific issues to fix, in priority order:
 
-## The Problem
-`run_ffmpeg_filtergraph()` in `assembler_common.py` times out at 900s for simple video segments. The filtergraphs in `render_social.py` and `render_narrator.py` are too complex for CPU processing. NVENC GPU encoding was tried but only speeds up the encode step, not the filter processing.
+### ISSUE 1: Partner clips cut off before completing the thought
+Clips end abruptly mid-sentence. The clip extractor uses silence detection with an 8-second window. 
+FIX APPROACH: Use Whisper transcript timestamps to find sentence boundaries. Cut at the end of the last complete sentence, not at silence. Add 1.5s audio fadeout at cut point.
+FILES: video_pipeline_v3/clip_extractor.py — _trim_clip() function
+
+### ISSUE 2: Social media card text overflow
+Tweet/Nostr post text flows past the red border container (see: text extends beyond box boundaries).
+FIX APPROACH: Auto-calculate text height based on character count and font size. Expand container height dynamically. Use word-wrap with max line width. If text exceeds max container height, truncate with "..." 
+FILES: video_pipeline_v3/render_social.py — make_social_card_visual() drawtext parameters
+
+### ISSUE 3: "Fiat" pronunciation
+Kokoro TTS mispronounces "fiat" — should sound like "fee-aht" not "fee-at" or "fy-at".
+FIX APPROACH: Add text replacement in tts_engine.py: "fiat" -> "fee-aht" before sending to TTS.
+FILES: video_pipeline_v3/tts_engine.py — pronunciation map
+STATUS: ALREADY FIXED in this update
+
+### ISSUE 4: Narrator intro delivery is stale and oddly toned
+The opening narration sounds robotic and unnatural. Needs warmth, enthusiasm, authentic human energy.
+FIX APPROACH: 
+- Adjust Kokoro voice speed (try 1.0 instead of 1.1 for more natural pacing)
+- Add slight pauses between sentences (insert 0.3s silence at period/comma boundaries)
+- Script writer should generate more conversational, energetic opening lines
+- Consider using Chatterbox PBX voice clone for warmer delivery (needs tts_chatterbox function defined)
+FILES: video_pipeline_v3/tts_engine.py, video_pipeline_v3/script_writer.py
+
+### ISSUE 5: Opening/closing polish
+Intro and outro need to feel premium and polished, matching 2026 YouTube production standards.
+FIX APPROACH: Review render_intro_outro.py for timing, transitions, and visual quality.
+FILES: video_pipeline_v3/render_intro_outro.py
+
+### ISSUE 6: geq filtergraph bottleneck (from prior AutoResearch session)
+The geq per-pixel filter in _build_black_diamond_bg causes 83+ second renders for simple backgrounds.
+FIX APPROACH: Replace geq with pre-rendered PNG backgrounds + simple overlay. Or use color + gradient filters.
+FILES: video_pipeline_v3/render_narrator.py, render_social.py
 
 ## Success Metric
-A test render completes with:
-1. Output file > 50MB
-2. Duration > 180 seconds
-3. No assembly crash
-4. ffprobe validates 1920x1080, h264, aac
+A test render that:
+1. Completes without crash
+2. All partner clips end at natural sentence boundaries (no mid-word cutoff)
+3. Social card text fits within its container
+4. "Fiat" pronounced correctly
+5. Narrator sounds natural and enthusiastic
+6. Total render time < 30 minutes
 
 ## Experiment Loop
-1. Read the crash traceback from the latest render log
-2. Identify which filtergraph function crashed
-3. SIMPLIFY that filtergraph (fewer overlays, simpler compositing)
-4. Run a test render: `cd ~/protocol_pulse/video_pipeline_v3 && CUDA_VISIBLE_DEVICES=0 python3 daily_producer.py --test --no-resume --skip-scan 2>&1 | tee /tmp/render_test.log`
-5. Check result: did it complete? Check output file size and duration
-6. If success: commit with "PASS: [description]"
-7. If fail: revert, try a different simplification, repeat
+1. Pick the highest-priority unfixed issue
+2. Read the relevant file(s) completely before making changes
+3. Make ONE targeted fix
+4. If the fix involves TTS: generate a 10-second test audio and verify
+5. If the fix involves visuals: render a single segment and verify with ffprobe/ffplay
+6. If fix works: commit with "PASS: [issue] [description]"
+7. If fix fails: revert, try different approach
+8. Move to next issue
+9. After all issues addressed: run full test render and verify
 
 ## Constraints
 - Do NOT change clip_extractor.py and assembler.py in the same commit
-- Do NOT remove the timeout=900 force in run_ffmpeg
-- Do NOT change fps=30 anywhere without measuring AV sync before/after
-- TTS uses Kokoro (tts_kokoro function in tts_engine.py) — do NOT call tts_chatterbox (undefined)
-- All presets should be "fast" or "ultrafast" for intermediates
-- The music mix step in assembler.py must use -c:v copy (stream copy video)
-
-## Key Files
-- assembler_common.py — run_ffmpeg, run_ffmpeg_filtergraph (core encode functions)
-- render_social.py — make_social_card_visual (CRASHES — needs simplification)
-- render_narrator.py — make_host_visual (CRASHES — needs simplification)
-- render_clip.py — make_clip_visual
-- render_intro_outro.py — intro/outro rendering
-- assembler.py — orchestrator, do NOT add logic here
-
-## Simplification Strategy
-The filtergraphs have too many overlay layers, drawtext calls, and compositing operations. Simplify by:
-1. Reducing overlay count (remove decorative elements, keep essential text)
-2. Using pre-rendered static backgrounds instead of generating them via filtergraph
-3. Breaking complex filtergraphs into multiple simple passes instead of one massive filter_complex
-4. Using -preset ultrafast for all intermediate renders
-5. Pre-rendering backgrounds as simple PNG + overlaying text in a second pass
+- Do NOT remove timeout=900 force in run_ffmpeg
+- TTS uses tts_kokoro (Kokoro af_heart voice) — tts_chatterbox is NOT defined yet
+- All presets: "fast" or "ultrafast" for intermediates
+- One change at a time, verify before moving on
