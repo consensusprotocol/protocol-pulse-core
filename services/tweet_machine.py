@@ -790,7 +790,7 @@ def _call_llm_with_fallback(prompt: str) -> str:
     if ANTHROPIC_API_KEY:
         try:
             payload = {
-                "model": "claude-haiku-4-5-20251001",
+                "model": "claude-sonnet-4-6",  # voice-critical: Sonnet executes PBX persona far better than Haiku
                 "max_tokens": 500,
                 "messages": [{"role": "user", "content": prompt}],
             }
