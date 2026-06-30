@@ -50,6 +50,9 @@ X_ACCESS_TOKEN = os.environ.get("X_ACCESS_TOKEN", "")
 X_ACCESS_TOKEN_SECRET = os.environ.get("X_ACCESS_TOKEN_SECRET", "")
 X_API_KEY = os.environ.get("X_API_KEY", os.environ.get("X_CONSUMER_KEY", ""))
 X_API_SECRET = os.environ.get("X_API_SECRET", os.environ.get("X_CONSUMER_SECRET", ""))
+BUFFER_API_KEY = os.environ.get("BUFFER_API_KEY", "")
+# Posting backend: "buffer" (free GraphQL, default) or "x" (direct API, 402 no credits)
+POST_BACKEND = os.environ.get("POST_BACKEND", "buffer").lower()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -61,7 +64,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("tweet_machine")
 
-CAN_POST = bool(X_ACCESS_TOKEN and X_ACCESS_TOKEN_SECRET and X_API_KEY and X_API_SECRET)
+CAN_POST = bool((X_ACCESS_TOKEN and X_ACCESS_TOKEN_SECRET and X_API_KEY and X_API_SECRET) or BUFFER_API_KEY)
 
 # ── Thought Leader Accounts for Sentiment Mirroring ──────────────────────────
 THOUGHT_LEADERS = [
@@ -1017,6 +1020,43 @@ def post_to_x(tweet_text: str) -> dict:
         return {"success": False, "error": str(e)}
 
 
+def post_tweet(tweet_text: str) -> dict:
+    """Dispatch a tweet to the configured backend.
+
+    Primary: Buffer GraphQL (free, publishes to @ProtocolPulseHQ). The direct X
+    API returns 402 Payment Required (no write credits), so Buffer is default.
+    Falls back to the X API only if POST_BACKEND="x" or Buffer is unavailable.
+    Returns {success, tweet_id, backend, error}.
+    """
+    order = ["x", "buffer"] if POST_BACKEND == "x" else ["buffer", "x"]
+    last_err = ""
+    for backend in order:
+        if backend == "buffer":
+            if not BUFFER_API_KEY:
+                continue
+            try:
+                from services.buffer_poster import post_to_buffer
+            except Exception as e:
+                last_err = f"buffer import: {e}"
+                logger.warning(last_err)
+                continue
+            r = post_to_buffer(tweet_text, channel="x", mode="shareNow")
+            if r.get("success"):
+                logger.info(f"Posted via Buffer: post_id={r.get('post_id')}")
+                return {"success": True, "tweet_id": r.get("post_id"), "backend": "buffer"}
+            last_err = f"buffer: {r.get('error')}"
+            logger.warning(f"Buffer post failed, trying next backend: {last_err}")
+        elif backend == "x":
+            if not (X_ACCESS_TOKEN and X_ACCESS_TOKEN_SECRET and X_API_KEY and X_API_SECRET):
+                continue
+            r = post_to_x(tweet_text)
+            if r.get("success"):
+                r["backend"] = "x"
+                return r
+            last_err = f"x: {r.get('error')}"
+    return {"success": False, "error": last_err or "no posting backend available"}
+
+
 def queue_tweet(tweet: dict, brief: dict) -> None:
     """Add tweet to pending_tweets.json queue for manual review."""
     existing = []
@@ -1264,7 +1304,7 @@ def main():
             except Exception as e:
                 logger.warning(f"Gate check failed (allowing): {e}")
 
-            result = post_to_x(text)
+            result = post_tweet(text)
             if result.get("success"):
                 log_to_db(tweet, posted=True, tweet_id=result.get("tweet_id"))
                 posted_count += 1
