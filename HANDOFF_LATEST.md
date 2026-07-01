@@ -5,3 +5,10 @@ Append one dated line per completed Work Queue item (see FABLE5_MASTER_HANDOFF.m
 - 2026-07-01: Tweet posting moved to Buffer GraphQL (commit a507dcd8); tweet voice model Haiku->Sonnet 4.6 (d90f2412); X read-credit blocker diagnosed + x_search validated as free read layer (x_reader = P0, not yet built).
 2026-07-01 (ET): 6.1 x_reader DONE — services/x_reader.py live on Grok x_search (grok-4.3 /v1/responses). Live test: 5 real posts (saylor/Breedlove22/MartyBent) w/ status IDs + get_reactions (8 radar-shaped replies, sentiment+themes). 12/12 unit tests. Degraded/uncited responses rejected. Cache data/x_reader_cache/ (30m posts / 60m reactions TTL), cost logged (~$0.018/call). Flag config/x_reader_config.json enabled=true. Next: 6.2 comment_radar repoint.
 2026-07-01 (ET): 6.2 comment_radar REVIVED — fetch_candidates + extract_comments repointed at x_reader (x_search), dual-path imports, X API kept as fallback. Live cycle: 10 candidates, 5 posts processed, 5 on-voice drafts (scores 86-89) in radar_drafts.json from real reply sentiment. Note: mode=live but posting still dead (402 X API) -> drafts land as post_failed; posting revival is 6.3/6.5. Next: 6.3 quote_rt_engine.
+
+## 2026-07-01 — P1 6.3 quote_rt_engine ✅ DONE (Fable 5)
+- Rewired anchor discovery to x_reader (x_search): THOUGHT_LEADERS primary, WIDE_KOLS fallback when <2 anchors clear min_anchor_engagement floor.
+- identify_anchors now requires real status IDs (isdigit, len>=15) — killed the legacy bug where DB row ids produced broken quote URLs. Cleaned 137 invalid legacy pending entries in quote_rt_schedule.json.
+- Hooks: claude-sonnet-4-6 (voice law), capped hooks_per_anchor=3, 24h spacing.
+- Posting: config/quote_rt_config.json flag (posting_enabled=true after live proof), hard 2 posts/day cap, routes through services/buffer_poster.post_to_buffer (shareNow). Fixed success-check to accept post_id (buffer_poster returns success/post_id, not id).
+- LIVE EVIDENCE: quote-tweet posted to @ProtocolPulseHQ 2026-07-01 18:35 ET, Buffer post 6a459648f2b098d070548fc6 status=sent, anchor x.com/i/status/2072354952182141253 (River, 1,722 engagement), X gate allowed 3/8.

@@ -83,7 +83,70 @@ Respond with a JSON array of strings only, no markdown:
 ["hook 1", "hook 2", ...]"""
 
 
+QRT_CONFIG_PATH = BASE / "config" / "quote_rt_config.json"
+
+def _qrt_config():
+    cfg = {"posting_enabled": False, "max_posts_per_day": 2,
+           "min_anchor_engagement": 500, "hooks_per_anchor": 3}
+    try:
+        with open(QRT_CONFIG_PATH) as f:
+            cfg.update(json.load(f))
+    except Exception:
+        pass
+    return cfg
+
+
 class QuoteRTEngine:
+
+    def _get_xreader_anchors(self, hours_back: int = 24) -> list:
+        """2026-07 (Fable5 6.3): primary anchor discovery via x_reader
+        (Grok x_search). The raw_tweets.json KOL scrape is stale and the
+        X API is 402 for reads."""
+        try:
+            import sys as _s
+            _s.path.insert(0, str(BASE))
+            try:
+                from services import x_reader
+            except ImportError:
+                import x_reader
+            try:
+                from services.tweet_machine import THOUGHT_LEADERS
+            except Exception:
+                THOUGHT_LEADERS = ["PrestonPysh", "LynAldenContact",
+                                   "Breedlove22", "MartyBent", "TFTC21",
+                                   "American_HODL", "daborado", "nic__carter"]
+            min_eng = _qrt_config()["min_anchor_engagement"]
+
+            def _collect(handles):
+                posts = x_reader.get_top_posts(handles,
+                                               hours=hours_back, limit=8)
+                res = []
+                for p in posts:
+                    if p.get("engagement", 0) < min_eng:
+                        continue
+                    res.append({
+                        "tweet_id": p["post_id"],
+                        "text": p["text"],
+                        "engagement": p["engagement"],
+                        "source": "x_search",
+                        "handle": p["author"],
+                        "posted_at": p.get("fetched_at", ""),
+                    })
+                return res
+
+            out = _collect(THOUGHT_LEADERS)
+            if len(out) < 2:
+                # quiet day on the core list — widen to curated quality KOLs
+                WIDE_KOLS = ["saylor", "BitcoinMagazine", "ODELL",
+                             "DocumentingBTC", "gladstein", "River",
+                             "CaitlinLong_", "jack"]
+                logger.info("Core list quiet; widening to curated KOLs")
+                out += _collect(WIDE_KOLS)
+            logger.info(f"x_reader anchors: {len(out)} above {min_eng} engagement")
+            return out
+        except Exception as e:
+            logger.warning(f"x_reader anchor discovery failed: {e}")
+            return []
 
     def _get_own_tweet_engagement(self, hours_back: int = 48) -> list:
         """Check Protocol Pulse posted tweets from the DB for recent high performers."""
@@ -164,19 +227,26 @@ class QuoteRTEngine:
 
     def identify_anchors(self, hours_back: int = 48) -> list:
         """Identify top 3 anchor candidates from own tweets + KOL tweets."""
+        xr = self._get_xreader_anchors(min(hours_back, 24))
         own = self._get_own_tweet_engagement(hours_back)
         kol = self._get_kol_high_performers(hours_back)
 
-        # Combine and sort by engagement
-        candidates = own + kol
+        # Combine and sort by engagement (x_search anchors carry live metrics)
+        candidates = xr + own + kol
         candidates.sort(key=lambda x: x["engagement"], reverse=True)
 
-        # Deduplicate by tweet_id
+        # Deduplicate by tweet_id; require a REAL X status id (own-ledger
+        # rows carry DB row ids like "486" which would produce broken quote
+        # URLs) and nonzero engagement
         seen = set()
         unique = []
         for c in candidates:
-            tid = c.get("tweet_id", "")
-            if tid and tid not in seen:
+            tid = str(c.get("tweet_id", ""))
+            if not (tid.isdigit() and len(tid) >= 15):
+                continue
+            if c.get("engagement", 0) < 1:
+                continue
+            if tid not in seen:
                 seen.add(tid)
                 unique.append(c)
 
@@ -195,7 +265,7 @@ class QuoteRTEngine:
         if api_key:
             try:
                 payload = {
-                    "model": "claude-haiku-4-5-20251001",
+                    "model": "claude-sonnet-4-6",  # voice law: Haiku flat, Sonnet on-persona
                     "max_tokens": 600,
                     "messages": [{"role": "user", "content": prompt}],
                 }
@@ -213,7 +283,7 @@ class QuoteRTEngine:
                 data = json.loads(resp.read())
                 content = data.get("content", [{}])[0].get("text", "").strip()
                 if content:
-                    logger.info("Hooks generated via Anthropic Haiku")
+                    logger.info("Hooks generated via Anthropic Sonnet")
                     return content
             except Exception as e:
                 logger.warning(f"Anthropic failed: {e}")
@@ -376,8 +446,9 @@ class QuoteRTEngine:
         schedule = self._load_schedule()
 
         now = datetime.now(timezone.utc)
+        hooks = hooks[:_qrt_config()["hooks_per_anchor"]]
         for i, hook in enumerate(hooks):
-            post_at = now + timedelta(hours=8 * (i + 1))
+            post_at = now + timedelta(hours=24 * i)  # first due now, then daily
             entry = {
                 "anchor_id": anchor_id,
                 "anchor_text": anchor_text[:280],
@@ -398,9 +469,25 @@ class QuoteRTEngine:
         schedule = self._load_schedule()
         now = datetime.now(timezone.utc)
 
+        # 2026-07 (Fable5 6.3): hard daily cap — PBX gate is 1-2 QRTs/day max
+        cfg = _qrt_config()
+        today = now.strftime("%Y-%m-%d")
+        posted_today = sum(1 for e in schedule
+                           if e.get("status") == "posted"
+                           and (e.get("posted_at") or "").startswith(today))
+        if posted_today >= cfg["max_posts_per_day"]:
+            logger.info(f"Daily QRT cap reached ({posted_today}/{cfg['max_posts_per_day']})")
+            return None
+
         # Find the first pending entry that is due
         for entry in schedule:
             if entry["status"] != "pending":
+                continue
+            _aid = str(entry.get("anchor_id", ""))
+            if not (_aid.isdigit() and len(_aid) >= 15):
+                entry["status"] = "invalid_anchor"
+                self._save_schedule(schedule)
+                logger.warning(f"Marked invalid anchor entry: {_aid}")
                 continue
             scheduled_at = datetime.fromisoformat(entry["scheduled_at"])
             if scheduled_at.tzinfo is None:
@@ -423,8 +510,8 @@ class QuoteRTEngine:
 
             logger.info(f"Posting quote-RT: {hook[:60]}... for anchor {anchor_id}")
 
-            # Check if posting is enabled
-            if os.environ.get("ENABLE_TWEETS", "false").lower() != "true":
+            # Check if posting is enabled (config/quote_rt_config.json)
+            if not cfg.get("posting_enabled"):
                 logger.info(f"[DRY RUN] Would post: {quote_text[:100]}")
                 entry["status"] = "dry_run"
                 entry["posted_at"] = now.isoformat()
@@ -443,28 +530,35 @@ class QuoteRTEngine:
             except Exception as e:
                 logger.warning(f"Gate check failed (allowing): {e}")
 
+            # 2026-07 (Fable5 6.3): post via Buffer GraphQL (X API is 402).
+            # A quote-tweet is the hook plus the quoted status URL appended;
+            # X renders the quote card automatically.
             try:
-                import tweepy
-                client = tweepy.Client(
-                    consumer_key=os.environ.get("X_API_KEY", os.environ.get("X_CONSUMER_KEY", "")),
-                    consumer_secret=os.environ.get("X_API_SECRET", os.environ.get("X_CONSUMER_SECRET", "")),
-                    access_token=os.environ.get("X_ACCESS_TOKEN", ""),
-                    access_token_secret=os.environ.get("X_ACCESS_TOKEN_SECRET", ""),
-                )
-                # Use quote_tweet_id for proper quote-RT
-                response = client.create_tweet(text=hook, quote_tweet_id=anchor_id)
-                tweet_id = response.data["id"]
-                entry["status"] = "posted"
-                entry["posted_at"] = now.isoformat()
-                entry["posted_tweet_id"] = tweet_id
+                import sys as _s
+                _s.path.insert(0, str(BASE))
+                try:
+                    from services.buffer_poster import post_to_buffer
+                except ImportError:
+                    from buffer_poster import post_to_buffer
+                result = post_to_buffer(quote_text, channel="x", mode="shareNow")
+                _bid = (result or {}).get("post_id") or (result or {}).get("id")
+                if result and (result.get("success") or _bid):
+                    entry["status"] = "posted"
+                    entry["posted_at"] = now.isoformat()
+                    entry["posted_tweet_id"] = str(_bid)
+                    entry["posted_via"] = "buffer"
+                    self._save_schedule(schedule)
+                    logger.info(f"Posted quote-RT via Buffer: {_bid}")
+                    return {"posted": True, "tweet_id": str(_bid),
+                            "text": quote_text, "anchor_id": anchor_id}
+                logger.error(f"Buffer post returned no id: {result}")
+                entry["status"] = "post_failed"
                 self._save_schedule(schedule)
-                logger.info(f"Posted quote-RT {tweet_id}")
-                return {"posted": True, "tweet_id": tweet_id, "text": hook, "anchor_id": anchor_id}
-            except ImportError:
-                logger.error("tweepy not installed")
-                return {"posted": False, "error": "tweepy not installed"}
+                return {"posted": False, "error": "buffer_no_id"}
             except Exception as e:
-                logger.error(f"Quote-RT post failed: {e}")
+                logger.error(f"Quote-RT Buffer post failed: {e}")
+                entry["status"] = "post_failed"
+                self._save_schedule(schedule)
                 return {"posted": False, "error": str(e)}
 
         logger.info("No pending quote-RTs due")
