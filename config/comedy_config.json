@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "posting_enabled": true,
+  "min_days_between_posts": 3,
+  "quality_floor": 88,
+  "candidates_per_run": 5,
+  "dedup_history": 8,
+  "model": "claude-sonnet-4-6",
+  "max_chars": 240
+}
