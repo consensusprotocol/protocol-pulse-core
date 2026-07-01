@@ -380,6 +380,39 @@ class CommentRadar:
 
     def fetch_candidates(self):
         candidates = []
+        # 2026-07 (Fable5 6.2): primary read path via x_reader (Grok x_search).
+        # The direct X API is 402 CreditsDepleted for reads; keep it only as
+        # a fallback in case credits are ever restored.
+        try:
+            try:
+                from services import x_reader
+            except ImportError:
+                import x_reader  # script run from inside services/
+            accounts = self.cfg.get("target_accounts", [])
+            sample = random.sample(accounts, min(10, len(accounts)))
+            log.info("x_reader scan of %d handles via x_search...", len(sample))
+            posts = x_reader.get_top_posts(sample, hours=24, limit=10)
+            for p in posts:
+                candidates.append({
+                    "id": p["post_id"],
+                    "text": p["text"],
+                    "_author_username": p["author"],
+                    "conversation_id": p["post_id"],
+                    "created_at": "",  # unknown -> ranker defaults age to 120m
+                    "public_metrics": {
+                        "like_count": int(p.get("engagement", 0)),
+                        "retweet_count": int(p.get("retweets", 0)),
+                        "reply_count": int(p.get("replies", 0)) or 3,
+                    },
+                    "_source_url": p.get("url", ""),
+                    "_reply_sentiment": p.get("reply_sentiment", ""),
+                })
+            if candidates:
+                log.info("x_reader: %d candidates from x_search", len(candidates))
+                return candidates
+            log.warning("x_reader returned 0 posts; falling back to X API")
+        except Exception as e:
+            log.warning("x_reader path failed (%s); falling back to X API", e)
         if self.cfg.get("list_id"):
             log.info("Scanning List %s...", self.cfg["list_id"])
             data = self.x_client.get_list_tweets(self.cfg["list_id"])
@@ -445,7 +478,8 @@ class CommentRadar:
                 "author": tweet.get("_author_username", "unknown"),
                 "conversation_id": tweet.get("conversation_id", post_id),
                 "metrics": metrics, "velocity": velocity,
-                "age_minutes": round(age_minutes), "created_at": created
+                "age_minutes": round(age_minutes), "created_at": created,
+                "_source_url": tweet.get("_source_url", "")
             })
         scored.sort(key=lambda x: x["velocity"], reverse=True)
         top = scored[:self.cfg["max_posts_per_cycle"]]
@@ -453,6 +487,31 @@ class CommentRadar:
         return top
 
     def extract_comments(self, post):
+        # 2026-07 (Fable5 6.2): primary via x_reader.get_reactions (x_search).
+        # representative_replies already matches the {author,likes,text} shape
+        # synthesize() consumes. Falls back to the (402) X API path below.
+        try:
+            try:
+                from services import x_reader
+            except ImportError:
+                import x_reader  # script run from inside services/
+            url = post.get("_source_url") or (
+                "https://x.com/" + post["author"] + "/status/" + post["id"])
+            rx = x_reader.get_reactions(url)
+            if rx and rx.get("representative_replies"):
+                comments = [{"text": r.get("text", ""), "likes": r.get("likes", 0),
+                             "author": r.get("author", "anon"), "id": ""}
+                            for r in rx["representative_replies"]]
+                quality = [c for c in comments
+                           if c["likes"] >= self.cfg["min_comment_likes"]]
+                top = quality if len(quality) >= 2 else comments
+                top = sorted(top, key=lambda x: x["likes"], reverse=True)[:15]
+                log.info("x_reader: %d replies (sentiment: %s) for %s",
+                         len(top), rx.get("sentiment", "?"), post["id"])
+                if len(top) >= 2:
+                    return top
+        except Exception as e:
+            log.warning("x_reader reactions failed (%s); falling back", e)
         conv_id = post["conversation_id"]
         log.info("Fetching comments for conversation %s...", conv_id)
         data = self.x_client.get_conversation_replies(conv_id)

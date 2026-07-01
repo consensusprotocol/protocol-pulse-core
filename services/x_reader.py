@@ -283,10 +283,11 @@ def get_top_posts(handles, hours=24, limit=10):
         "accounts since {since} UTC: {handles}. Only include posts you can "
         "actually see on X right now. For each post return: the author handle "
         "(without @), the full x.com status URL, the complete post text, the "
-        "like count as an integer, and a one-word sentiment of the replies to "
-        "it (bullish/bearish/mixed/neutral). Respond with ONLY a JSON array "
-        "of objects with keys: author, url, text, likes, reply_sentiment. "
-        "No prose, no markdown fences."
+        "like count as an integer, the retweet count as an integer, the reply "
+        "count as an integer, and a one-word sentiment of the replies to it "
+        "(bullish/bearish/mixed/neutral). Respond with ONLY a JSON array of "
+        "objects with keys: author, url, text, likes, retweets, replies, "
+        "reply_sentiment. No prose, no markdown fences."
     ).format(n=limit, since=since.strftime("%Y-%m-%d %H:%M"),
              handles=", ".join("@" + h for h in handles))
 
@@ -318,11 +319,18 @@ def get_top_posts(handles, hours=24, limit=10):
             likes = int(p.get("likes", 0))
         except (TypeError, ValueError):
             likes = 0
+        def _i(v):
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                return 0
         posts.append({
             "author": author,
             "url": url,
             "text": str(p.get("text", "")).strip(),
             "engagement": likes,
+            "retweets": _i(p.get("retweets", 0)),
+            "replies": _i(p.get("replies", 0)),
             "reply_sentiment": str(p.get("reply_sentiment", "unknown")),
             "post_id": pid,
             "fetched_at": now_iso,
