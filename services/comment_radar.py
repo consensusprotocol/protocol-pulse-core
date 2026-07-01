@@ -626,8 +626,52 @@ class CommentRadar:
             self._save_draft(post, analysis, selected=best,
                              status="posted" if success else "post_failed")
 
+    def _already_quoted_by_qrt_engine(self, post_id):
+        """2026-07-01 (Fable5 6.5): never double-QRT a status the
+        quote_rt_engine already posted against."""
+        try:
+            sched = json.loads(Path(
+                "/home/ultron/protocol_pulse/data/intelligence/quote_rt_schedule.json"
+            ).read_text())
+            entries = sched if isinstance(sched, list) else (
+                sched.get("posted", []) + sched.get("pending", []))
+            for e in entries:
+                blob = json.dumps(e)
+                if post_id and post_id in blob:
+                    return True
+        except Exception:
+            pass
+        return False
+
     def _post_tweet(self, draft, source_post):
         try:
+            # 2026-07-01 (Fable5 6.5): the X API is 402 for writes. Route
+            # through Buffer as a quote-tweet (text + status URL renders the
+            # quote card; pattern proven live by quote_rt_engine, Buffer post
+            # 6a459648f2b098d070548fc6). True in-reply-to is not possible via
+            # Buffer, so 'reply' drafts also go out as quotes: the author is
+            # still notified and the commentary reads identically. The legacy
+            # X path below remains as fallback if Buffer is unavailable.
+            try:
+                from services.buffer_poster import post_to_buffer, buffer_available
+                if buffer_available():
+                    _text = draft["tweet"]
+                    _pid = source_post["id"]
+                    _url = ("https://x.com/" + source_post["author"]
+                            + "/status/" + _pid)
+                    if self._already_quoted_by_qrt_engine(_pid):
+                        log.info("Skip: quote_rt_engine already quoted %s", _pid)
+                        return False
+                    resp = post_to_buffer(_text + " " + _url,
+                                          channel="x", mode="shareNow")
+                    if resp and (resp.get("success") or resp.get("post_id")):
+                        record_post(resp.get("post_id", "buffer"),
+                                    "quote", _pid, _text)
+                        log.info("POSTED via Buffer (quote): %s", _text[:80])
+                        return True
+                    log.warning("Buffer post failed (%s), trying X API", resp)
+            except Exception as be:
+                log.warning("Buffer route error (%s), trying X API", be)
             try:
                 from services.x_service import post_tweet, reply_to_tweet, quote_tweet
             except ImportError:
