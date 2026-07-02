@@ -758,17 +758,43 @@ def _avatar_tts(text):
 
     text = _preprocess_tts_text(text)
 
+    # Fable5 2026-07-02: dedicated TTS daemon first (localhost:8250).
+    # In-process Kokoro here takes 20-32s/call (unresolved in-process
+    # pathology); the identical call in a standalone process takes ~0.3s.
+    # The daemon IS that standalone process, kept warm on GPU1.
+    try:
+        import urllib.request as _ur
+        import json as _json
+        _req = _ur.Request("http://127.0.0.1:8250/tts",
+                           data=_json.dumps({"text": text}).encode(),
+                           headers={"Content-Type": "application/json"})
+        _t0 = time.time()
+        with _ur.urlopen(_req, timeout=20) as _resp:
+            _wav = _resp.read()
+        if _wav[:4] == b"RIFF" and len(_wav) > 1000:
+            logger.info(f"[AVATAR_TTS] daemon OK: {time.time()-_t0:.2f}s ({len(_wav)} bytes)")
+            return _wav
+        logger.warning("[AVATAR_TTS] daemon returned invalid audio, falling back")
+    except Exception as _de:
+        logger.warning(f"[AVATAR_TTS] daemon unavailable ({_de}), falling back to in-process")
+
     # Try Kokoro first
     if _AVATAR_KOKORO_READY and _KOKORO_PIPELINE is not None:
         t0 = time.time()
         try:
             import soundfile as sf
+            _t_gen = time.time()
             # Generate with af_heart voice
             generator = _KOKORO_PIPELINE(text, voice='af_heart')
             # Collect all audio chunks
             audio_chunks = []
             for _gs, _ps, audio_np in generator:
                 audio_chunks.append(audio_np)
+            try:
+                _dev = str(next(_KOKORO_PIPELINE.model.parameters()).device)
+            except Exception:
+                _dev = '?'
+            logger.info(f"[TTS_STAGE] kokoro_gen={time.time()-_t_gen:.2f}s device={_dev} chunks={len(audio_chunks)}")
             if not audio_chunks:
                 raise ValueError("Kokoro returned no audio")
             full_audio = np.concatenate(audio_chunks)
