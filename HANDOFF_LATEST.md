@@ -44,3 +44,9 @@ Append one dated line per completed Work Queue item (see FABLE5_MASTER_HANDOFF.m
 - The crontab "Overnight render loop failsafe" is a COMMENT ONLY — no actual auto-restart line exists. Consider adding one (next session).
 - Restarted 20:07:30 ET in tmux render_main after full preflight (avatar :8200 ok, GPUs idle, no competing procs): overnight_render_loop.py --daemon, iteration 1 running, daily_producer spawned. Latest prior grade: 85 (iter4), broadcast_ready False, counter 0. Convergence continues next session.
 - 6.9 data-resilience NOT started — next session's first item, along with 6.6 monitoring.
+
+## 2026-07-02 — Satomi user input FIXED (Fable5) + clip-ending verification
+- SATOMI: two frontend bugs killed months of "does not accept user input": (1) _audioFinished ReferenceError broke greeting chain on every load; (2) stageTextSubmit silently dropped input while busy (greeting holds busy 8-30s). Plus UI timeouts (45s/30s) shorter than avatar latency (51-100s) — retuned 120s/90s. Headless-browser proof: typed question -> /oracle/chat 200 -> 12.08s lip-synced answer video played. Backups: templates/oracle_live.html.bak_satomi_input_* and .bak_timing_*.
+- REMAINING Satomi item: audio-first path dead (job /audio 202 until video done) — avatar_server side; latency polish, not input blocker.
+- LEARNING CORRECTION: template edits NOT always live-immediate — Jinja caches compiled templates in running Waitress; bounce required. Waitress self-heal cron did NOT restart it (manual setsid start needed) — verify/repair that cron next session.
+- CLIP ENDINGS: Cypherpunk'd v2 FIXED — word-level find_optimal_end_words, 0 boundary-error fallbacks in full run, 3/3 sampled tails end on complete resolved sentences. PP partner clips (Pulse Check) have V58 sentence-boundary+2.5s-tail logic in clip_extractor. Boomers: NO v3 rerender found on disk — old library likely still has abrupt cuts; rerender with the v2 engine is the queued fix.
