@@ -935,7 +935,7 @@ var S={
   GOODBYE:"Stack sats, verify everything, and come back anytime."
 };
 
-var busy=false,isRec=false,pending='',objURL=null,recognition=null;
+var busy=false,isRec=false,pending='',objURL=null,recognition=null,_audioFinished=false;
 var _greeted=false;
 
 /* ── ORACLE STATE MACHINE ──
@@ -1253,10 +1253,10 @@ function process(text){
   setOracleState('PROCESSING');
   setBusy(true);hideCards();hideActionCard();showTX(text);
 
-  /* ── 30s global safety timeout — if nothing plays in 30s, show retry prompt ── */
+  /* ── 90s global safety timeout (Fable5: avatar video avg 51-59s) — if nothing plays in 30s, show retry prompt ── */
   var _globalTimeout=setTimeout(function(){
     if(!busy)return; /* Already resolved */
-    console.warn('[Satomi] 30s global timeout — resetting');
+    console.warn('[Satomi] 90s global timeout — resetting');
     try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioPlaying=false;}}catch(e){}
     try{vid.pause();vid.loop=false;vid.style.opacity='0';}catch(e){}
     if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
@@ -1265,7 +1265,7 @@ function process(text){
     setStat('Satomi needs a moment \u2014 tap to try again','#f4c46f',false);
     mic.disabled=false;
     setTimeout(safeStartRec, 800);
-  },30000);
+  },90000);
   /* Store so we can cancel it on success */
   window._globalTimeout=_globalTimeout;
 
@@ -1313,7 +1313,7 @@ function process(text){
   }catch(e){}
 
   var pendingVideoUrl=null;
-  var _audioFinished=false;
+  _audioFinished=false; /* Fable5: shared global (was shadowing var — caused ReferenceError in greeting path) */
 
   /* ── AUDIO-FIRST FLOW ──
      1. POST /oracle/chat with audio_first:true
@@ -1342,7 +1342,7 @@ function process(text){
       var videoJobId=j.job_id;
       var audioUrl=j.audio_url;
       var _pendingCard = j.action_card || null;
-      var _pollAttempts=0, _maxAttempts=45, _pollDone=false;
+      var _pollAttempts=0, _maxAttempts=60, _pollDone=false;
 
       /* ── STEP A: Fetch and play audio immediately ── */
       function _playAudioFirst(){
@@ -1352,7 +1352,7 @@ function process(text){
           var _audioPollCount=0;
           function _tryAudio(){
             _audioPollCount++;
-            if(_audioPollCount>10){console.warn('[Satomi] Audio poll gave up');resolve(false);return;}
+            if(_audioPollCount>25){console.warn('[Satomi] Audio poll gave up');resolve(false);return;}
             fetch(A+audioUrl)
               .then(function(ar){
                 if(ar.status===200 && (ar.headers.get('content-type')||'').indexOf('audio')>=0){
@@ -1807,8 +1807,8 @@ function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinE
 function setBusy(b){busy=b;if(b){mic.disabled=true;window._busyTimestamp=Date.now();if(isRec)stopRec();}else{mic.disabled=false;window._busyTimestamp=null;}}
 /* Busy watchdog: force-reset if stuck >45s */
 setInterval(function(){
-  if(busy && window._busyTimestamp && Date.now()-window._busyTimestamp>45000){
-    console.warn('[Satomi] Busy watchdog: forced reset after 45s');
+  if(busy && window._busyTimestamp && Date.now()-window._busyTimestamp>120000){
+    console.warn('[Satomi] Busy watchdog: forced reset after 120s');
     try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioPlaying=false;}}catch(e){}
     try{vid.pause();vid.loop=false;vid.style.opacity='0';}catch(e){}
     if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
@@ -1911,9 +1911,15 @@ function submitTextInput(){
 function stageTextSubmit(){
   var field=document.getElementById('stage-text-field');
   var text=(field.value||'').trim();
-  if(!text||busy)return;
+  if(!text)return;
   field.value='';
-  process(text);
+  /* Fable5: never silently drop input while busy (greeting holds busy ~8-30s
+     after load and ate anything typed during it). Queue like submitTextInput. */
+  if(!busy){process(text);return;}
+  setStat('Queued\u2026','#8a8',true);
+  var _waitBusy=setInterval(function(){
+    if(!busy){clearInterval(_waitBusy);process(text);}
+  },500);
 }
 
 /* ── GEMINI VISION ── */
