@@ -38,3 +38,9 @@ Append one dated line per completed Work Queue item (see FABLE5_MASTER_HANDOFF.m
 
 ## 2026-07-01 — Relay operational learning (Fable 5)
 - Relay returns HTTP 500 when command stdout contains non-UTF8 binary (breaks its JSON encoding). E.g. catting avatar MP4 response bytes. Sanitize with: cmd | tr -cd '[:print:]\n'. This, plus the $-interpolation trap, explains all 500s this session.
+
+## 2026-07-01 — P2 6.6 status (Fable 5): loop died silently, RESTARTED 20:07 ET — MONITOR
+- Boot-started loop (18:06) died between ~18:40 and ~19:50 with no exception logged: render_main tmux vanished, no OOM evidence readable, no output produced. Heartbeat had consecutive_failures=3 pre-cycle. Possible GPU0 instability (Xid 79 earlier today) — if it dies silently again, investigate GPU0 first.
+- The crontab "Overnight render loop failsafe" is a COMMENT ONLY — no actual auto-restart line exists. Consider adding one (next session).
+- Restarted 20:07:30 ET in tmux render_main after full preflight (avatar :8200 ok, GPUs idle, no competing procs): overnight_render_loop.py --daemon, iteration 1 running, daily_producer spawned. Latest prior grade: 85 (iter4), broadcast_ready False, counter 0. Convergence continues next session.
+- 6.9 data-resilience NOT started — next session's first item, along with 6.6 monitoring.
