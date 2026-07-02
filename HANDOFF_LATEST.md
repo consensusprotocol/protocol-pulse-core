@@ -50,3 +50,11 @@ Append one dated line per completed Work Queue item (see FABLE5_MASTER_HANDOFF.m
 - REMAINING Satomi item: audio-first path dead (job /audio 202 until video done) — avatar_server side; latency polish, not input blocker.
 - LEARNING CORRECTION: template edits NOT always live-immediate — Jinja caches compiled templates in running Waitress; bounce required. Waitress self-heal cron did NOT restart it (manual setsid start needed) — verify/repair that cron next session.
 - CLIP ENDINGS: Cypherpunk'd v2 FIXED — word-level find_optimal_end_words, 0 boundary-error fallbacks in full run, 3/3 sampled tails end on complete resolved sentences. PP partner clips (Pulse Check) have V58 sentence-boundary+2.5s-tail logic in clip_extractor. Boomers: NO v3 rerender found on disk — old library likely still has abrupt cuts; rerender with the v2 engine is the queued fix.
+
+## 2026-07-02 — Boomers clipping LIVE + Satomi near-instant + cron repair (Fable5)
+- BOOMERS CLIPPER: scripts/boomers_clip.py (runs from ~/boomers_pipeline/channels/bitcoin_boomers/). Fixed word-boundary engine now applied to Bitcoin Boomers. EP6 clip001 verified: ends "...my kids, grandkids." — clean sentence, no mid-cut. nvenc encode. Supervisor processing all 3 downloaded episodes (EP6_JOE_KELLY, EPoV69sfxWM, irzDcWaRRNs) detached -> ~/protocol_pulse/static/boomers_clips_v2/. Log: /tmp/boomers_all.log.
+  - GOTCHA: don't launch transcribe under CUDA_VISIBLE_DEVICES=0 (word_transcribe pins device_index=1 -> invalid ordinal -> CPU fallback, 267s+). Use WHISPER_GPU=1, no CVD mask. Ollama must be up for Qwen moments.
+- SATOMI NEAR-INSTANT: dedicated Kokoro TTS daemon (services/kokoro_tts_daemon.py, localhost:8250, GPU1, warm). In-process Kokoro was 20-32s/call (pathology); daemon does 0.6-1.2s. avatar_server routes to daemon first. Time-to-audio 31s->1.8s, full video 52s->34s. Commit 5d2901a0.
+- GPU ISOLATION: avatar_server was silently on GPU0; pinned to GPU1 via site_health.sh (CUDA_VISIBLE_DEVICES=1).
+- CRON REPAIR: waitress self-heal pattern self-matched pgrep (never restarted -> why manual bounce was needed); fixed to bracket "[w]aitress.*5000". Added */2 bracket-safe self-heal for kokoro_tts_daemon.
+- All 5 oracle mandatory tests PASS. Browser test: typed question -> chat 200 -> answer video played.
