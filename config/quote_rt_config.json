@@ -2,5 +2,5 @@
   "posting_enabled": true,
   "max_posts_per_day": 2,
   "min_anchor_engagement": 100,
-  "hooks_per_anchor": 3
+  "hooks_per_anchor": 1
 }

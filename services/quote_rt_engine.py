@@ -85,6 +85,30 @@ Respond with a JSON array of strings only, no markdown:
 
 QRT_CONFIG_PATH = BASE / "config" / "quote_rt_config.json"
 
+QUOTED_LEDGER_PATH = BASE / "data" / "intelligence" / "quoted_anchors.json"
+
+
+def _quoted_ledger() -> set:
+    """Permanent set of anchor_ids ever quoted by quote_rt OR comment_radar.
+    2026-07-06 (PBX): never quote the same post twice, even across restarts."""
+    try:
+        import json as _j
+        d = _j.load(open(QUOTED_LEDGER_PATH))
+        return set(str(x) for x in d.get("quoted_anchor_ids", []))
+    except Exception:
+        return set()
+
+
+def _mark_quoted(anchor_id: str):
+    import json as _j
+    ids = _quoted_ledger()
+    ids.add(str(anchor_id))
+    QUOTED_LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _j.dump({"quoted_anchor_ids": sorted(ids),
+             "note": "Anchors ever quote-tweeted by quote_rt OR comment_radar. Never re-quote."},
+            open(QUOTED_LEDGER_PATH, "w"), indent=2)
+
+
 def _qrt_config():
     cfg = {"posting_enabled": False, "max_posts_per_day": 2,
            "min_anchor_engagement": 500, "hooks_per_anchor": 3}
@@ -253,7 +277,11 @@ class QuoteRTEngine:
         # Check against existing schedule to avoid re-quoting
         schedule = self._load_schedule()
         scheduled_ids = {entry["anchor_id"] for entry in schedule}
-        unique = [c for c in unique if c["tweet_id"] not in scheduled_ids]
+        ledgered = _quoted_ledger()
+        # 2026-07-06 (PBX): never re-quote an anchor already scheduled OR ever quoted
+        unique = [c for c in unique
+                  if c["tweet_id"] not in scheduled_ids
+                  and str(c["tweet_id"]) not in ledgered]
 
         top = unique[:3]
         logger.info(f"Identified {len(top)} anchor candidates from {len(own)} own + {len(kol)} KOL tweets")
@@ -544,6 +572,7 @@ class QuoteRTEngine:
                 _bid = (result or {}).get("post_id") or (result or {}).get("id")
                 if result and (result.get("success") or _bid):
                     entry["status"] = "posted"
+                    _mark_quoted(anchor_id)
                     entry["posted_at"] = now.isoformat()
                     entry["posted_tweet_id"] = str(_bid)
                     entry["posted_via"] = "buffer"

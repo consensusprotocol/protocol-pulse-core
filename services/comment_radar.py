@@ -626,9 +626,23 @@ class CommentRadar:
             self._save_draft(post, analysis, selected=best,
                              status="posted" if success else "post_failed")
 
-    def _already_quoted_by_qrt_engine(self, post_id):
-        """2026-07-01 (Fable5 6.5): never double-QRT a status the
-        quote_rt_engine already posted against."""
+    _LEDGER_PATH = "/home/ultron/protocol_pulse/data/intelligence/quoted_anchors.json"
+
+    def _already_quoted_anywhere(self, post_id):
+        """2026-07-06 (PBX): never quote a status ANY engine already quoted.
+        Checks the permanent cross-engine ledger first (survives schedule
+        pruning), then the live quote_rt schedule as a backstop."""
+        pid = str(post_id or "")
+        if not pid:
+            return False
+        # permanent ledger (written by both quote_rt and radar)
+        try:
+            d = json.loads(Path(self._LEDGER_PATH).read_text())
+            if pid in set(str(x) for x in d.get("quoted_anchor_ids", [])):
+                return True
+        except Exception:
+            pass
+        # live schedule backstop
         try:
             sched = json.loads(Path(
                 "/home/ultron/protocol_pulse/data/intelligence/quote_rt_schedule.json"
@@ -636,12 +650,36 @@ class CommentRadar:
             entries = sched if isinstance(sched, list) else (
                 sched.get("posted", []) + sched.get("pending", []))
             for e in entries:
-                blob = json.dumps(e)
-                if post_id and post_id in blob:
+                if pid in json.dumps(e):
                     return True
         except Exception:
             pass
         return False
+
+    def _mark_quoted(self, post_id):
+        """Record an anchor as quoted in the permanent cross-engine ledger."""
+        pid = str(post_id or "")
+        if not pid:
+            return
+        try:
+            lp = Path(self._LEDGER_PATH)
+            try:
+                d = json.loads(lp.read_text())
+            except Exception:
+                d = {"quoted_anchor_ids": []}
+            ids = set(str(x) for x in d.get("quoted_anchor_ids", []))
+            ids.add(pid)
+            lp.parent.mkdir(parents=True, exist_ok=True)
+            lp.write_text(json.dumps(
+                {"quoted_anchor_ids": sorted(ids),
+                 "note": "Anchors ever quote-tweeted by quote_rt OR comment_radar. Never re-quote."},
+                indent=2))
+        except Exception as e:
+            log.warning("ledger write failed: %s", e)
+
+    def _already_quoted_by_qrt_engine(self, post_id):
+        """Back-compat alias -> now checks the full cross-engine ledger."""
+        return self._already_quoted_anywhere(post_id)
 
     def _post_tweet(self, draft, source_post):
         try:
@@ -667,6 +705,7 @@ class CommentRadar:
                     if resp and (resp.get("success") or resp.get("post_id")):
                         record_post(resp.get("post_id", "buffer"),
                                     "quote", _pid, _text)
+                        self._mark_quoted(_pid)
                         log.info("POSTED via Buffer (quote): %s", _text[:80])
                         return True
                     log.warning("Buffer post failed (%s), trying X API", resp)
