@@ -58,3 +58,8 @@ Append one dated line per completed Work Queue item (see FABLE5_MASTER_HANDOFF.m
 - GPU ISOLATION: avatar_server was silently on GPU0; pinned to GPU1 via site_health.sh (CUDA_VISIBLE_DEVICES=1).
 - CRON REPAIR: waitress self-heal pattern self-matched pgrep (never restarted -> why manual bounce was needed); fixed to bracket "[w]aitress.*5000". Added */2 bracket-safe self-heal for kokoro_tts_daemon.
 - All 5 oracle mandatory tests PASS. Browser test: typed question -> chat 200 -> answer video played.
+
+## 2026-07-15 — QRT reactive voice locked + Anthropic credits flag (via PBX chat)
+- QUOTE-RT VOICE LOCKED: HOOK_GENERATION_PROMPT rewritten around "react, never summarize" with few-shot anchor->reaction pairs, stance-first, concrete-over-abstract, read-aloud test. BANNED_PHRASES extended with AI tells. Verified reactive output on the Lyn Alden anchor. Backup quote_rt_engine.py.bak_voice. DO NOT regress to summary-style hooks.
+- BIP-110 stance baked into the QRT prompt (lean IN FAVOR, peaceful, never anti). TODO for Fable5: mirror the same stance line into tweet_machine.py voice laws — earlier anti-BIP-110 tweets originated there.
+- ANTHROPIC CREDITS DEPLETED (PBX billing action needed): api.anthropic.com returns 400 "credit balance too low" for ALL claude models. tweet_machine + quote_rt_engine are silently running on the Gemini fallback. Output is still strong, but the intended Sonnet voice is NOT active until credits are topped up at console.anthropic.com Plans & Billing. Makes the Haiku->Sonnet swap (d90f2412) a no-op until then.
