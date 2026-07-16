@@ -512,16 +512,22 @@ def format_live_data(data: dict) -> str:
     if not data:
         return ""
 
+    def _ok(v):
+        # only include a metric if it has a real, non-empty value —
+        # guarding on key presence alone let blank values render as
+        # "1-Hour Fee:  sat/vB" and the LLM parroted the blank (2026-07-15 fix)
+        return v is not None and str(v).strip() not in ("", "None", "N/A")
+
     lines = ["LIVE BITCOIN NETWORK DATA (use these numbers EXACTLY as shown, including qualifiers):"]
-    if "block_height" in data:
+    if _ok(data.get("block_height")):
         lines.append(f"  Block Height: {data['block_height']:,}")
-    if "hashrate_eh" in data:
+    if _ok(data.get("hashrate_eh")):
         lines.append(f"  Network Hashrate: {data['hashrate_eh']} EH/s ({data.get('hashrate_source', 'difficulty-derived')})")
-    if "fee_fastest" in data:
+    if _ok(data.get("fee_fastest")):
         lines.append(f"  Fastest Fee: {data['fee_fastest']} sat/vB")
-    if "fee_hour" in data:
+    if _ok(data.get("fee_hour")):
         lines.append(f"  1-Hour Fee: {data['fee_hour']} sat/vB")
-    if "fng_score" in data:
+    if _ok(data.get("fng_score")):
         lines.append(f"  Fear & Greed: {data['fng_score']} ({data.get('fng_label', '?')})")
 
     return "\n".join(lines)
