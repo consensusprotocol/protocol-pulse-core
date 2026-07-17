@@ -606,6 +606,31 @@ def pick_format(brief: dict, themes: list[str]) -> str:
 
 # ── JSON Extraction (robust) ─────────────────────────────────────────────────
 
+# Words that, when they are the LAST word, mean the tweet was cut off mid-thought.
+_DANGLING_ENDINGS = {
+    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+    "to", "of", "and", "but", "or", "for", "with", "as", "at", "in", "on",
+    "by", "from", "into", "than", "then", "that", "which", "who", "because",
+    "while", "when", "if", "so", "its", "their", "your", "our",
+    "think", "thinks", "thinking", "about", "like", "just", "not",
+}
+
+
+def _is_fragment(text: str) -> bool:
+    """True if a tweet looks broken/truncated and must NOT be posted.
+    Catches the extract_json Stage-5 failure where unescaped inner quotes
+    from the Gemini fallback yield a fragment like 'Most people think'."""
+    t = (text or "").strip().strip('"').strip()
+    if len(t) < 15:
+        return True
+    words = re.findall(r"[A-Za-z']+", t.lower())
+    if not words:
+        return True
+    if words[-1] in _DANGLING_ENDINGS:
+        return True
+    return False
+
+
 def extract_json(raw: str) -> dict:
     """Robustly extract JSON from LLM response, handling markdown fences."""
     raw = raw.strip()
@@ -646,8 +671,15 @@ def extract_json(raw: str) -> dict:
         # Trim to 280 chars and clean trailing incomplete words
         if len(extracted_text) > 280:
             extracted_text = extracted_text[:277].rsplit(" ", 1)[0]
-        logger.warning(f"Recovered tweet text from truncated JSON ({len(extracted_text)} chars)")
-        return {"text": extracted_text, "angle": "recovered", "type": "observation", "format": "recovered"}
+        # Unescaped inner quotes make the regex above capture only the piece
+        # before the first inner quote (e.g. 'Most people think' out of
+        # 'Most people think "Bitcoin" is ...'). Reject obvious fragments so a
+        # broken recovery never becomes a live tweet.
+        if _is_fragment(extracted_text):
+            logger.error(f"Stage 5 recovery produced a fragment, rejecting: {extracted_text!r}")
+        else:
+            logger.warning(f"Recovered tweet text from truncated JSON ({len(extracted_text)} chars)")
+            return {"text": extracted_text, "angle": "recovered", "type": "observation", "format": "recovered"}
     # Stage 6: plain text response (no JSON at all) — accept as tweet
     cleaned = raw.strip().strip('"').strip()
     if 20 <= len(cleaned) <= 300 and "{" not in cleaned:
@@ -1221,6 +1253,11 @@ def main():
         # ── LENGTH ENFORCEMENT (FIX 1) ──
         text = _enforce_length(text, brief, generate_tweets)
         tweet["text"] = text
+
+        # ── FAIL-CLOSED SANITY GATE: never post a broken/truncated fragment ──
+        if _is_fragment(text):
+            logger.error(f"BLOCKED unpostable fragment, skipping (not posting/queuing): {text!r}")
+            continue
 
         if len(text) > 280:
             logger.warning(f"Tweet too long ({len(text)} chars), truncating: {text[:50]}...")
