@@ -342,6 +342,35 @@ class QuoteRTEngine:
             except Exception as e:
                 logger.warning(f"Anthropic failed: {e}")
 
+        # Grok-3 promoted to primary writer 2026-07-17 (Anthropic + OpenAI keys
+        # unfunded on this server; grok-3 out-writes Gemini Flash and used real
+        # live data instead of fabricating stats). Demote once Anthropic can spend.
+        xai_key = os.environ.get("XAI_API_KEY", "")
+        if xai_key:
+            try:
+                gpayload = json.dumps({
+                    "model": "grok-3",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": 600,
+                    "temperature": 0.8,
+                }).encode()
+                req = urllib.request.Request(
+                    "https://api.x.ai/v1/chat/completions",
+                    data=gpayload,
+                    headers={
+                        "Authorization": f"Bearer {xai_key}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                resp = urllib.request.urlopen(req, timeout=30)
+                data = json.loads(resp.read())
+                content = data["choices"][0]["message"]["content"].strip()
+                if content:
+                    logger.info("Hooks generated via Grok-3 (primary writer)")
+                    return content
+            except Exception as e:
+                logger.warning(f"Grok-3 primary failed: {e}")
+
         gemini_key = os.environ.get("GEMINI_API_KEY", "")
         if gemini_key:
             try:

@@ -851,7 +851,34 @@ def _call_llm_with_fallback(prompt: str) -> str:
         except Exception as e:
             logger.warning(f"Anthropic Haiku failed: {e}")
 
-    # 2. Gemini 2.5 Flash (fallback)
+    # 2. Grok / xAI (PROMOTED to primary writer 2026-07-17: Anthropic + OpenAI keys
+    #    are unfunded on this server; grok-3 writes with more edge than Gemini Flash
+    #    and, in side-by-side tests, used real live-data numbers instead of fabricating
+    #    stats the way Gemini did. Demote back below Anthropic once its key can spend.)
+    xai_key = os.environ.get("XAI_API_KEY", "")
+    if xai_key:
+        try:
+            xpayload = json.dumps({
+                "model": "grok-3",
+                "max_tokens": 500,
+                "temperature": 0.8,
+                "messages": [{"role": "user", "content": prompt}],
+            }).encode()
+            req = urllib.request.Request(
+                "https://api.x.ai/v1/chat/completions",
+                data=xpayload,
+                headers={"Content-Type": "application/json", "Authorization": "Bearer " + xai_key},
+            )
+            resp = urllib.request.urlopen(req, timeout=30)
+            data = json.loads(resp.read())
+            content = data["choices"][0]["message"]["content"].strip()
+            if content:
+                logger.info("Tweet generated via Grok-3 (primary writer)")
+                return content
+        except Exception as e:
+            logger.warning(f"Grok-3 primary failed: {e}")
+
+    # 3. Gemini 2.5 Flash (fallback, demoted below Grok 2026-07-17)
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
     if gemini_key:
         try:
