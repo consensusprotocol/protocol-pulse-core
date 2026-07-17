@@ -45,6 +45,19 @@ _MUTATION = """mutation($input: CreatePostInput!){
 }"""
 
 
+
+_PAUSE_FLAG = Path.home() / "protocol_pulse" / "data" / "POSTING_PAUSED"
+
+
+def _posting_paused():
+    """Global kill switch. If data/POSTING_PAUSED exists, NO post goes out.
+    Toggle by creating/deleting that file — no code change or restart needed."""
+    try:
+        return _PAUSE_FLAG.exists()
+    except Exception:
+        return False
+
+
 def _token():
     tok = os.environ.get("BUFFER_API_KEY", "")
     if tok:
@@ -97,6 +110,9 @@ def post_to_buffer(text, channel="x", mode="shareNow", save_to_draft=False):
 
     Returns: {"success": bool, "post_id": str, "error": str, "raw": dict}
     """
+    if _posting_paused():
+        logger.warning("POSTING PAUSED (kill switch) — not posting: %s", str(text)[:60])
+        return {"success": False, "error": "posting paused (kill switch active)", "raw": None}
     channel_id = CHANNELS.get(channel, channel)
     variables = {
         "input": {
