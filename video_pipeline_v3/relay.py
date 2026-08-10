@@ -108,6 +108,91 @@ def query_db(sql: str) -> str:
 
 SPEND_CAP_SENTINEL = '/home/ultron/protocol_pulse/logs/ANTHROPIC_SPEND_CAP_HIT.flag'
 
+# v3-phase6: cost tracking. Rates in $/1M tokens (published list prices).
+LLM_COST_LOG = '/home/ultron/protocol_pulse/logs/llm_costs.jsonl'
+_LLM_RATES = {
+    # anthropic
+    "claude-opus-4-7": (15.00, 75.00),
+    "claude-sonnet-4-6": (3.00, 15.00),
+    "claude-haiku-4-5-20251001": (1.00, 5.00),
+    "claude-haiku-4-5": (1.00, 5.00),
+    # xai
+    "grok-3": (3.00, 15.00),
+    "grok-3-mini-fast": (0.30, 1.50),
+    "grok-3-mini": (0.30, 1.50),
+    # google
+    "gemini-2.0-flash": (0.10, 0.40),
+    "gemini-1.5-pro": (1.25, 5.00),
+}
+
+_LLM_TOTAL_COST = 0.0
+_LLM_BUDGET_SOFT_USD = float(os.environ.get("PP_LLM_BUDGET_SOFT", "5.0"))
+_LLM_BUDGET_HARD_USD = float(os.environ.get("PP_LLM_BUDGET_HARD", "10.0"))
+
+
+def _estimate_cost(model: str, tokens_in: int, tokens_out: int) -> float:
+    """Cost in USD using per-model rate table. 0 if model unknown.
+    Longest key match wins (so "grok-3-mini-fast" wins over "grok-3")."""
+    key = (model or "").lower()
+    best_key = ""
+    for k in _LLM_RATES:
+        if k.lower() in key and len(k) > len(best_key):
+            best_key = k
+    if not best_key:
+        return 0.0
+    rate_in, rate_out = _LLM_RATES[best_key]
+    return round(
+        (tokens_in / 1_000_000.0) * rate_in
+        + (tokens_out / 1_000_000.0) * rate_out,
+        6,
+    )
+
+
+def _log_llm_call(provider: str, model: str, tokens_in: int,
+                  tokens_out: int, cost: float, ok: bool = True,
+                  purpose: str = "") -> None:
+    """Structured cost log entry (Phase 6B)."""
+    global _LLM_TOTAL_COST
+    import datetime
+    import json as _j
+    import logging as _l
+    if ok:
+        _LLM_TOTAL_COST += cost
+    entry = {
+        "ts": datetime.datetime.utcnow().isoformat() + "Z",
+        "provider": provider,
+        "model": model,
+        "tokens_in": tokens_in,
+        "tokens_out": tokens_out,
+        "cost_usd": cost,
+        "total_usd": round(_LLM_TOTAL_COST, 6),
+        "ok": ok,
+        "purpose": purpose,
+    }
+    try:
+        os.makedirs(os.path.dirname(LLM_COST_LOG), exist_ok=True)
+        with open(LLM_COST_LOG, "a") as f:
+            f.write(_j.dumps(entry) + "\n")
+    except OSError:
+        pass
+    lg = _l.getLogger("relay.llm_cost")
+    lg.info(f"[LLM] provider={provider} model={model} "
+            f"tokens_in={tokens_in} tokens_out={tokens_out} "
+            f"cost=${cost:.4f} total=${_LLM_TOTAL_COST:.4f}")
+    # Budget alerts
+    if _LLM_TOTAL_COST >= _LLM_BUDGET_HARD_USD:
+        lg.error(f"[LLM_BUDGET] hard cap ${_LLM_BUDGET_HARD_USD} EXCEEDED "
+                 f"(total=${_LLM_TOTAL_COST:.4f})")
+    elif _LLM_TOTAL_COST >= _LLM_BUDGET_SOFT_USD:
+        lg.warning(f"[LLM_BUDGET] soft cap ${_LLM_BUDGET_SOFT_USD} passed "
+                   f"(total=${_LLM_TOTAL_COST:.4f})")
+
+
+def _approx_tokens(text: str) -> int:
+    """Fallback token estimator (~4 chars/token) when API doesn't return usage."""
+    return max(1, len(text or "") // 4)
+
+
 def _check_spend_cap_sentinel():
     """Return True if spend cap sentinel exists — abort all LLM calls."""
     return os.path.exists(SPEND_CAP_SENTINEL)
@@ -150,12 +235,19 @@ def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3, mode
         try:
             import anthropic
             client = anthropic.Anthropic(api_key=anthropic_key)
+            _model = model or "claude-haiku-4-5-20251001"
             resp = client.messages.create(
-                model=model or "claude-haiku-4-5-20251001",
+                model=_model,
                 max_tokens=max_tokens,
                 messages=[{"role": "user", "content": prompt}],
             )
-            return resp.content[0].text.strip()
+            text = resp.content[0].text.strip()
+            # v3-phase6: cost log
+            _tin = getattr(getattr(resp, "usage", None), "input_tokens", None) or _approx_tokens(prompt)
+            _tout = getattr(getattr(resp, "usage", None), "output_tokens", None) or _approx_tokens(text)
+            _log_llm_call("anthropic", _model, _tin, _tout,
+                          _estimate_cost(_model, _tin, _tout))
+            return text
         except Exception as e:
             err_str = str(e).lower()
             # Spend cap / quota errors → write sentinel, halt Anthropic permanently this session
@@ -184,7 +276,15 @@ def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3, mode
                 timeout=120,
             )
             if resp.status_code == 200:
-                return resp.json()["choices"][0]["message"]["content"].strip()
+                _data = resp.json()
+                text = _data["choices"][0]["message"]["content"].strip()
+                # v3-phase6: cost log — Grok returns usage in response
+                _usage = _data.get("usage", {}) or {}
+                _tin = _usage.get("prompt_tokens") or _approx_tokens(prompt)
+                _tout = _usage.get("completion_tokens") or _approx_tokens(text)
+                _log_llm_call("xai", "grok-3-mini-fast", _tin, _tout,
+                              _estimate_cost("grok-3-mini-fast", _tin, _tout))
+                return text
             log.warning(f"Grok API error {resp.status_code}: {resp.text[:200]}")
         except Exception as e:
             log.warning(f"Grok failed: {e}")
@@ -208,6 +308,12 @@ def call_llm(prompt: str, max_tokens: int = 4000, temperature: float = 0.3, mode
                 data = resp.json()
                 text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
                 log.info("Gemini fallback succeeded")
+                # v3-phase6: Gemini returns usageMetadata
+                _usage = data.get("usageMetadata", {}) or {}
+                _tin = _usage.get("promptTokenCount") or _approx_tokens(prompt)
+                _tout = _usage.get("candidatesTokenCount") or _approx_tokens(text)
+                _log_llm_call("google", gemini_model, _tin, _tout,
+                              _estimate_cost(gemini_model, _tin, _tout))
                 return text
             log.warning(f"Gemini API error {resp.status_code}: {resp.text[:200]}")
         except Exception as e:
