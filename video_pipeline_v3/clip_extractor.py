@@ -185,17 +185,28 @@ def find_nearest_pause(clip_path: str, original_end: float, pad_window: float = 
             "-f", "null", "-"
         ], capture_output=True, text=True, timeout=30)
 
-        # Extract silence_start timestamps (beginning of each pause)
-        pauses = [float(m.group(1)) for m in
-                  re.finditer(r"silence_start: ([\d.]+)", result.stderr)]
+        # v3-phase4c-lite: extract both start and end of each silence so we can
+        # score candidates by pause duration. Longer pauses correlate strongly
+        # with sentence/paragraph boundaries; short pauses are intra-sentence
+        # breathing. Silence is only a CANDIDATE — we pick the WINNER by length.
+        pause_starts = [float(m.group(1)) for m in
+                        re.finditer(r"silence_start: ([\d.]+)", result.stderr)]
+        pause_ends = [float(m.group(1)) for m in
+                      re.finditer(r"silence_end: ([\d.]+)", result.stderr)]
 
         # V58: +2.5s tail padding so speaker finishes sentence before cut
         min_end = original_end + 2.5
-        # Find first pause that starts after min_end but within pad window
-        candidates = [p for p in pauses if min_end <= p <= original_end + pad_window]
+        max_end = original_end + pad_window
+        # Build (start, duration) candidates in-window
+        pause_pairs = list(zip(pause_starts, pause_ends[:len(pause_starts)]))
+        candidates = [(s, e - s) for s, e in pause_pairs if min_end <= s <= max_end]
         if candidates:
-            trim_at = candidates[0] + 0.3  # trim into the silence (past any trailing consonant)
-            logger.info(f"CLIP TRIM: Trimmed at natural pause at {trim_at:.1f}s (+2.5s tail padding)")
+            # Prefer longest pause in window (Phase 4C intent: silence as candidate,
+            # length-as-score picks the winner). Fall back to earliest on ties.
+            candidates.sort(key=lambda p: (-p[1], p[0]))
+            trim_at = candidates[0][0] + 0.3  # trim past trailing consonant
+            pause_len = candidates[0][1]
+            logger.info(f"CLIP TRIM: {trim_at:.1f}s (pause len={pause_len:.2f}s, +2.5s tail)")
             return trim_at
     except Exception as e:
         logger.warning(f"  Silence detection failed: {e}")
