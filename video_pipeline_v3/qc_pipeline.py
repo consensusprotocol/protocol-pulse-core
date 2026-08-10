@@ -48,6 +48,88 @@ def _ffprobe_bitrate(path: str) -> int:
         return 0
 
 
+def _ffprobe_resolution(path: str) -> str:
+    """v3-phase5a: video resolution as WxH string, or ''."""
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=width,height",
+             "-of", "csv=p=0:s=x", path],
+            capture_output=True, text=True, timeout=30,
+        )
+        return r.stdout.strip()
+    except Exception:
+        return ""
+
+
+def _ffprobe_has_audio(path: str) -> bool:
+    """v3-phase5a: True if the file contains at least one audio stream."""
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "a",
+             "-show_entries", "stream=codec_type",
+             "-of", "csv=p=0", path],
+            capture_output=True, text=True, timeout=30,
+        )
+        return "audio" in (r.stdout or "")
+    except Exception:
+        return False
+
+
+# v3-phase5b: metadata leak patterns from script (per program.md).
+BANNED_METADATA_PATTERNS = [
+    "(NARRATION)", "(WARM)", "(COLD OPEN)", "(SETUP)",
+    "(REACT)", "(AUTHORITY)", "(CLEAR)", "(WHISPER)",
+    "Cold Open:", "Narration:", "Warm:", "Setup:",
+]
+
+
+def verify_output(path: str, test_mode: bool = False) -> dict:
+    """Phase 5A QC gate — hard boundaries on the final rendered file.
+
+    Returns dict with per-check values and overall `pass` boolean.
+    Program.md thresholds: size>50MB, duration>180s, res=1920x1080,
+    has_audio, bitrate>3Mbps.
+    """
+    checks = {"exists": os.path.exists(path)}
+    if not checks["exists"]:
+        checks["pass"] = False
+        return checks
+    checks["size_mb"] = round(os.path.getsize(path) / 1024 / 1024, 2)
+    checks["duration"] = round(_ffprobe_duration(path), 2)
+    checks["resolution"] = _ffprobe_resolution(path)
+    checks["has_audio"] = _ffprobe_has_audio(path)
+    checks["bitrate_mbps"] = round(_ffprobe_bitrate(path) / 1_000_000, 2)
+    # Test mode gets relaxed size/duration thresholds
+    min_size = 20 if test_mode else 50
+    min_dur = 180 if test_mode else 300
+    checks["pass"] = (
+        checks["exists"] and
+        checks["size_mb"] > min_size and
+        checks["duration"] > min_dur and
+        checks["resolution"] == "1920x1080" and
+        checks["has_audio"] and
+        checks["bitrate_mbps"] > 3
+    )
+    return checks
+
+
+def verify_script_no_metadata(script: dict) -> dict:
+    """Phase 5B QC gate — verify script has no stage-direction metadata leaks.
+
+    Returns dict with `pass` boolean and list of `leaks` (pattern, entry_idx).
+    """
+    leaks = []
+    dialogue = script.get("dialogue", []) if isinstance(script, dict) else []
+    for idx, entry in enumerate(dialogue):
+        text = entry.get("text", "") if isinstance(entry, dict) else str(entry)
+        for pattern in BANNED_METADATA_PATTERNS:
+            if pattern in text:
+                leaks.append({"pattern": pattern, "entry_idx": idx,
+                              "snippet": text[max(0, text.find(pattern) - 10):text.find(pattern) + len(pattern) + 20]})
+    return {"pass": len(leaks) == 0, "leaks": leaks}
+
+
 def preflight_check(manifest_path: str) -> tuple:
     """Verify all assets exist and are valid BEFORE rendering.
 
@@ -262,6 +344,37 @@ def post_render_qc(video_path: str, manifest_path: str = "", test_mode: bool = F
     exp_clips = qc_exp.get("clip_count", 0)
     if exp_clips > 0:
         report["details"]["expected_clips"] = exp_clips
+
+    # v3-phase5a: hard output verification (size/resolution/audio/bitrate).
+    hard = verify_output(video_path, test_mode=test_mode)
+    report["checks"]["output_gate"] = bool(hard.get("pass"))
+    report["details"]["output_gate"] = hard
+    logger.info(
+        f"  Output gate: size={hard.get('size_mb')}MB res={hard.get('resolution')} "
+        f"dur={hard.get('duration')}s audio={hard.get('has_audio')} "
+        f"bitrate={hard.get('bitrate_mbps')}Mbps "
+        f"{'PASS' if hard.get('pass') else 'FAIL'}"
+    )
+
+    # v3-phase5b: script metadata leak check (if manifest carries the script)
+    if manifest_path and os.path.exists(manifest_path):
+        try:
+            with open(manifest_path) as f:
+                _m = json.load(f)
+            _script = _m.get("script") or {}
+            # If manifest doesn't carry the script inline, try sibling script.json
+            if not _script.get("dialogue"):
+                sib_script = os.path.join(os.path.dirname(manifest_path), "script.json")
+                if os.path.exists(sib_script):
+                    with open(sib_script) as f:
+                        _script = json.load(f)
+            if _script.get("dialogue"):
+                meta = verify_script_no_metadata(_script)
+                report["checks"]["no_metadata_leaks"] = bool(meta.get("pass"))
+                report["details"]["metadata_leaks"] = meta.get("leaks", [])
+                logger.info(f"  Metadata leaks: {len(meta.get('leaks', []))} {'PASS' if meta.get('pass') else 'FAIL'}")
+        except Exception as _me:
+            logger.warning(f"  Metadata check skipped: {_me}")
 
     # Overall pass
     check_vals = [v for v in report["checks"].values() if v is not None]
