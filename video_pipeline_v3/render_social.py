@@ -247,16 +247,20 @@ def make_space_tap_scene(audio_path: str, space_clips: list,
 
     # Profile picture overlay (if available, first clip's profile)
     has_profile = False
-    if space_clips:
+    circle_mask = os.path.join(ASSETS, "masks", "circle_320.png")
+    if space_clips and os.path.exists(circle_mask):
         profile_path = space_clips[0].get("host_profile_image", "")
         if profile_path and os.path.exists(profile_path) and os.path.getsize(profile_path) > 100:
             has_profile = True
             inputs.append(profile_path)
             prof_idx = len(inputs) - 1
-            # Scale to 320x320, circular crop via geq (approximate with drawbox mask)
-            fg += (f"[{prof_idx}:v]scale=320:320,setsar=1,format=rgba,"
-                   f"geq=lum='lum(X\\,Y)':cb='cb(X\\,Y)':cr='cr(X\\,Y)':"
-                   f"a='if(lt(hypot(X-160\\,Y-160)\\,155)\\,255\\,0)'[st_profile];\n")
+            inputs.append(circle_mask)
+            mask_idx = len(inputs) - 1
+            # V58 PERF FIX: alphamerge with pre-baked circular PNG (was geq per-pixel
+            # hypot() → ~30s per render for a 320x320 crop)
+            fg += (f"[{prof_idx}:v]scale=320:320,setsar=1,format=rgba[st_profile_rgb];\n"
+                   f"[{mask_idx}:v]format=gray[st_profile_mask];\n"
+                   f"[st_profile_rgb][st_profile_mask]alphamerge[st_profile];\n")
             # Overlay profile centered in portal (x=1340-160=1180, y=380-160=220 → adjusted for portal)
             fg += f"[st_portal_frame][st_profile]overlay=1180:260:shortest=1[st_with_profile];\n"
             # Pulsing ring around profile
@@ -665,7 +669,6 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
 
     # Render up to 2 tweet cards — stacked vertically with spacing
     card_y_start = 90
-    card_height = 260
     card_spacing = 30
     card_width = 1360
     card_x = 280
@@ -680,11 +683,14 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
             inp_idx += 1
             logger.info(f"  Using tweet screenshot for card {ci}: {os.path.basename(ss_path)}")
 
+    # V58 FIX (Issue 2): Pre-compute per-card data and dynamic heights so text
+    # never overflows the red border container. card_height is now calculated
+    # from actual wrapped line count × font size, not a fixed 260px.
+    card_data = []
     for ci, post in enumerate(posts[:2]):
         handle = _sanitize_text(post.get("handle", "unknown"))
         if not handle.startswith("@"):
             handle = f"@{handle}"
-        # V9 FIX 6: Adaptive font/wrap for tweet length — long tweets get smaller font + more lines
         _raw_tweet = _sanitize_text(post.get("text", ""))
         if len(_raw_tweet) > 200:
             tweet_text = _word_wrap(_raw_tweet, max_width=44, max_lines=6)
@@ -697,19 +703,30 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
             _tweet_fontsize = 52
         likes = post.get("likes", 0)
         retweets = post.get("retweets", 0)
-        # FIX 2: Detect zero metrics — suppress "0 likes 0 RTs" which looks broken
         _likes_int = likes if isinstance(likes, int) else 0
         _rts_int = retweets if isinstance(retweets, int) else 0
         _has_real_metrics = _likes_int > 0 or _rts_int > 0
         likes_str = f"{likes:,}" if isinstance(likes, int) else str(likes)
         rt_str = f"{retweets:,}" if isinstance(retweets, int) else str(retweets)
 
-        cy = card_y_start + ci * (card_height + card_spacing)
+        # Dynamic card height: 52px top pad (handle) + text block + 40px bottom (stats + pad)
+        _num_lines = tweet_text.count("\n") + 1
+        _text_block_h = _num_lines * _tweet_fontsize + (_num_lines - 1) * 12
+        card_height = 52 + _text_block_h + 40
+        # Clamp: min 200 (looks okay for 1-liners), max 450 (2 cards + spacing must fit above ticker at y=1032)
+        card_height = max(200, min(card_height, 450))
+
+        card_data.append({
+            "handle": handle, "tweet_text": tweet_text, "fontsize": _tweet_fontsize,
+            "likes_str": likes_str, "rt_str": rt_str, "has_metrics": _has_real_metrics,
+            "card_height": card_height,
+        })
+
+    cy = card_y_start
+    for ci, cd in enumerate(card_data):
+        card_height = cd["card_height"]
         tag = f"c{ci}"
 
-        # V57 PERF: Card drawn directly on canvas — eliminates separate color source
-        # streams + overlay ops (each overlay doubles memory bandwidth).
-        # No alpha on any color — alpha triggers YUV→RGB conversion per frame.
         fg += (f"[{last_v}]"
                f"drawbox=x={card_x}:y={cy}:w={card_width}:h={card_height}:color=0x050607:t=fill,"
                f"drawbox=x={card_x}:y={cy}:w={card_width}:h={card_height}:color=0xCC2222:t=2,"
@@ -718,6 +735,13 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
                f"drawbox=x={card_x + 20}:y={cy + 18}:w=8:h=8:color=0xCC2222:t=fill"
                f"[{tag}base];\n")
         last_v = f"{tag}base"
+
+        # Extract dict values for f-string compatibility
+        _handle = cd["handle"]
+        _tweet_text = cd["tweet_text"]
+        _fontsize = cd["fontsize"]
+        _likes_str = cd["likes_str"]
+        _rt_str = cd["rt_str"]
 
         # Issue 6: If screenshot available, overlay it inside card; else render text
         if ci in screenshot_indices:
@@ -728,24 +752,21 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
             fg += f"[{last_v}][{tag}ss]overlay={card_x + 8}:{cy + 8}[{tag}ssout];\n"
             last_v = f"{tag}ssout"
         else:
-            # Handle — monospace font (absolute canvas coordinates)
             fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
-                   f"text='{handle}':"
+                   f"text='{_handle}':"
                    f"fontcolor=0xCC2222:fontsize=14:x={card_x + 38}:y={cy + 16}"
                    f"[{tag}hdl];\n")
             last_v = f"{tag}hdl"
 
-            # Tweet text — bold for readability (V9 FIX 6: adaptive font size)
             fg += (f"[{last_v}]drawtext=fontfile={FONT_BOLD}:"
-                   f"text='{tweet_text}':"
-                   f"fontcolor=0xF4F5F8:fontsize={_tweet_fontsize}:x={card_x + 24}:y={cy + 52}:line_spacing=12"
+                   f"text='{_tweet_text}':"
+                   f"fontcolor=0xF4F5F8:fontsize={_fontsize}:x={card_x + 24}:y={cy + 52}:line_spacing=12"
                    f"[{tag}txt];\n")
             last_v = f"{tag}txt"
 
-            # Engagement stats bottom — FIX 2: suppress zero metrics
-            if _has_real_metrics:
+            if cd["has_metrics"]:
                 fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
-                       f"text='{likes_str} likes  |  {rt_str} RTs':"
+                       f"text='{_likes_str} likes  |  {_rt_str} RTs':"
                        f"fontcolor=0xCC2222:fontsize=12:x={card_x + 24}:y={cy + card_height - 28}"
                        f"[{tag}stats];\n")
             else:
@@ -755,8 +776,10 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
                        f"[{tag}stats];\n")
             last_v = f"{tag}stats"
 
+        cy += card_height + card_spacing
+
     # Bottom label (solid color — removed @0.3 alpha)
-    bottom_header_y = card_y_start + len(posts[:2]) * (card_height + card_spacing) + 10
+    bottom_header_y = cy + 10
     fg += (f"[{last_v}]drawtext=fontfile={FONT_MONO}:"
            f"text='SOCIAL PULSE - WHAT BITCOIN IS SAYING':"
            f"fontcolor=0x661111:fontsize=12:x=(w-text_w)/2:y={bottom_header_y}[vbhdr];\n")

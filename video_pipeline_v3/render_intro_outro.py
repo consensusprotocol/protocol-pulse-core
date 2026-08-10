@@ -33,10 +33,12 @@ def make_intro_video(output_path: str) -> str:
         logger.warning("intro.mp4 has zero duration")
         return ""
 
-    fade_out_v = max(0, intro_dur - 0.5)
-    fade_out_a = max(0, intro_dur - 1.5)
+    # V58 Issue 5: snappier 2026 pacing — fade-in 0.3s (was 0.5s) so the logo
+    # lands quickly, tighter 0.4s fade-out so intro→narration cut feels intentional.
+    fade_out_v = max(0, intro_dur - 0.4)
+    fade_out_a = max(0, intro_dur - 1.2)
     vf = (f"scale=1920:1080,setsar=1,format=yuv420p,"
-          f"fade=t=in:st=0:d=0.5,fade=t=out:st={fade_out_v}:d=0.5")
+          f"fade=t=in:st=0:d=0.3,fade=t=out:st={fade_out_v}:d=0.4")
 
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "a",
@@ -112,8 +114,13 @@ def make_outro_video(output_path: str) -> str:
     if outro_dur <= 0:
         return ""
 
-    # Sprint 1.8: No fade-to-black on outro. Hard cut.
-    vf = f"scale=1920:1080,setsar=1,format=yuv420p"
+    # V58 Issue 5 fix: define fade-out timestamps here (was leaking from make_intro_video
+    # scope). Video crossfades to black over the last 0.6s; audio tapers over 1.0s so
+    # the jingle doesn't clip when the outro cuts.
+    fade_out_a = max(0.0, outro_dur - 1.0)
+    fade_out_v = max(0.0, outro_dur - 0.6)
+    vf = (f"scale=1920:1080,setsar=1,format=yuv420p,"
+          f"fade=t=out:st={fade_out_v}:d=0.6")
 
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "a",
@@ -327,9 +334,12 @@ def make_intro_coldopen(tts_path: str, output_path: str, btc_price: str = "N/A",
         vid_dur = max(total_dur, tag_dur)
         # loop=-1 infinite loops all frames, then trim to exact duration needed
         tag_frames = max(1, int(tag_dur * 30))
+        # V58 Issue 5: 0.25s fade-in from black so the logo emerges rather than
+        # snapping on — matches broadcast pacing viewers expect in 2026.
         vf = (f"scale=1920:1080,setsar=1,format=yuv420p,"
               f"loop=-1:size={tag_frames}:start=0,"
-              f"trim=0:{vid_dur + 0.5},setpts=PTS-STARTPTS")
+              f"trim=0:{vid_dur + 0.5},setpts=PTS-STARTPTS,"
+              f"fade=t=in:st=0:d=0.25")
 
         if tag_has_audio:
             # FIX 1 (render11): Hard cut intro music at exactly 3.0s — strip tag's baked audio,

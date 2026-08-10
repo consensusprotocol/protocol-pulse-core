@@ -1051,6 +1051,37 @@ def tts_elevenlabs(text: str, output_path: str, host: int = 1,
 
 # ═══ KOKORO TTS (LOCAL, FREE, GPU-ACCELERATED) ═══
 _kokoro_pipeline = None
+
+# V58 Issue 4: sentence-level synthesis with inter-sentence pauses for
+# natural cadence. Speed 1.0 (down from 1.1) preserves warmth; 0.3s silence
+# between sentences prevents run-on delivery.
+_KOKORO_SR = 24000
+_KOKORO_SPEED = 1.0
+_KOKORO_SENTENCE_PAUSE_S = 0.30
+_KOKORO_COMMA_PAUSE_S = 0.12
+
+
+def _split_sentences_for_tts(text: str):
+    """Split text at sentence boundaries (. ? !) preserving punctuation.
+    Returns list of (fragment, trailing_pause_seconds) tuples."""
+    import re as _re
+    parts = _re.split(r'([.!?]+["\')\]]*\s+)', text.strip())
+    out = []
+    buf = ""
+    for p in parts:
+        if not p:
+            continue
+        buf += p
+        if _re.search(r'[.!?]+["\')\]]*\s+$', p):
+            frag = buf.strip()
+            if frag:
+                out.append((frag, _KOKORO_SENTENCE_PAUSE_S))
+            buf = ""
+    if buf.strip():
+        out.append((buf.strip(), 0.0))
+    return out or [(text.strip(), 0.0)]
+
+
 def tts_kokoro(text, output_path):
     global _kokoro_pipeline
     try:
@@ -1059,16 +1090,42 @@ def tts_kokoro(text, output_path):
             _kokoro_pipeline = KPipeline(lang_code="a")
             logger.info("[tts] Kokoro pipeline loaded")
         import soundfile as sf
-        generator = _kokoro_pipeline(text, voice="af_heart", speed=1.1)
-        audio_chunks = []
-        for chunk in generator:
-            audio_chunks.append(chunk[2])
-        if not audio_chunks:
-            return False
         import numpy as np
-        full_audio = np.concatenate(audio_chunks)
+
+        # V58 Issue 4: strip stage tags Kokoro was reading literally ("COLD OPEN"
+        # spoken aloud), then run the same phonetic normalizer ElevenLabs uses.
+        text = re.sub(r'\[(?:COLD_OPEN|COLD|NARRATION|DATA|SOCIAL|WARM|BRIDGE|SPACE_TAP|SETUP|REACT|CTA)\]\s*', '', text)
+        text = re.sub(r'\[ID:tweet_[a-f0-9]+_\d+\]\s*', '', text)
+        text = re.sub(r'\((?:NARRATION|WARM|COLD\s*OPEN|SETUP|REACT|AUTHORITY|CLEAR|WHISPER|RESOLVE|SOCIAL|DATA|BRIDGE|CTA)\)\s*', '', text, flags=re.IGNORECASE)
+        text = tts_normalize(text)
+        text = expand_numbers_for_tts(text)
+        text = text.strip()
+        if not text:
+            return False
+
+        sentences = _split_sentences_for_tts(text)
+        pause_samples = int(_KOKORO_SENTENCE_PAUSE_S * _KOKORO_SR)
+        silence = np.zeros(pause_samples, dtype=np.float32)
+
+        combined = []
+        for idx, (frag, pause_s) in enumerate(sentences):
+            if not frag:
+                continue
+            generator = _kokoro_pipeline(frag, voice="af_heart", speed=_KOKORO_SPEED)
+            frag_chunks = [c[2] for c in generator]
+            if not frag_chunks:
+                continue
+            frag_audio = np.concatenate(frag_chunks)
+            combined.append(frag_audio)
+            if pause_s > 0 and idx < len(sentences) - 1:
+                combined.append(silence if pause_s == _KOKORO_SENTENCE_PAUSE_S
+                                else np.zeros(int(pause_s * _KOKORO_SR), dtype=np.float32))
+
+        if not combined:
+            return False
+        full_audio = np.concatenate(combined)
         wav_tmp = output_path + ".wav"
-        sf.write(wav_tmp, full_audio, 24000)
+        sf.write(wav_tmp, full_audio, _KOKORO_SR)
         import subprocess
         subprocess.run(["ffmpeg", "-y", "-i", wav_tmp, "-c:a", "aac", "-ar", "48000", "-b:a", "192k", output_path],
                        capture_output=True, timeout=30)

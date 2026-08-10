@@ -165,10 +165,14 @@ def find_nearest_pause(clip_path: str, original_end: float, pad_window: float = 
     natural pause after the original end timestamp. If no silence found
     within the window, hard-cuts at the pad mark.
 
+    V58 (Issue 1): Increased silence duration from 0.3s to 0.6s so we only
+    cut at real inter-sentence pauses, not intra-sentence breathing gaps.
+    Tail padding increased from 1.5s to 2.5s so speaker finishes the thought.
+
     Args:
-        clip_path: Path to the extracted clip (already has 8s padding)
+        clip_path: Path to the extracted clip (already has 10s padding)
         original_end: The original end timestamp relative to clip start
-        pad_window: How many seconds of padding were added (default 8)
+        pad_window: How many seconds of padding were added (default 15)
 
     Returns:
         Trim point in seconds from clip start
@@ -177,7 +181,7 @@ def find_nearest_pause(clip_path: str, original_end: float, pad_window: float = 
     try:
         result = subprocess.run([
             "ffmpeg", "-i", clip_path,
-            "-af", "silencedetect=noise=-30dB:d=0.3",
+            "-af", "silencedetect=noise=-30dB:d=0.6",
             "-f", "null", "-"
         ], capture_output=True, text=True, timeout=30)
 
@@ -185,13 +189,13 @@ def find_nearest_pause(clip_path: str, original_end: float, pad_window: float = 
         pauses = [float(m.group(1)) for m in
                   re.finditer(r"silence_start: ([\d.]+)", result.stderr)]
 
-        # FIX: +1.5s tail padding so speaker finishes sentence before cut
-        min_end = original_end + 1.5
+        # V58: +2.5s tail padding so speaker finishes sentence before cut
+        min_end = original_end + 2.5
         # Find first pause that starts after min_end but within pad window
         candidates = [p for p in pauses if min_end <= p <= original_end + pad_window]
         if candidates:
-            trim_at = candidates[0] + 0.2  # trim slightly into the silence
-            logger.info(f"CLIP TRIM: Trimmed at natural pause at {trim_at:.1f}s (+1.5s tail padding)")
+            trim_at = candidates[0] + 0.3  # trim into the silence (past any trailing consonant)
+            logger.info(f"CLIP TRIM: Trimmed at natural pause at {trim_at:.1f}s (+2.5s tail padding)")
             return trim_at
     except Exception as e:
         logger.warning(f"  Silence detection failed: {e}")
@@ -1185,6 +1189,8 @@ def extract_all(selections: dict, output_dir: str) -> dict:
                 _trim_host_intro_bleed(output_path, _ts_text, end, start, rank)
 
             # Session fix 5: Add 1.5s audio fade-out for clean clip endings
+            # V58: bumped timeout 30→180 — full-clip re-mux at 63s was hitting the
+            # 30s ceiling so the fade never landed on longer partner clips.
             _clip_dur_fo = ffprobe_duration(output_path)
             if _clip_dur_fo > 3.0:
                 _fade_out_st = max(0, _clip_dur_fo - 1.5)
@@ -1193,7 +1199,7 @@ def extract_all(selections: dict, output_dir: str) -> dict:
                     "-i", output_path,
                     "-af", f"afade=t=out:st={_fade_out_st:.2f}:d=1.5",
                     "-c:v", "copy", _faded,
-                ], "clip_fade_out", 30) and os.path.exists(_faded):
+                ], "clip_fade_out", 180) and os.path.exists(_faded):
                     os.replace(_faded, output_path)
                     logger.info(f"  Fade-out: clip #{rank} at {_fade_out_st:.1f}s (1.5s taper)")
                 elif os.path.exists(_faded):

@@ -631,41 +631,19 @@ def _build_corner_brackets_fg(label_in: str, label_out: str) -> str:
 
 
 def _build_broadcast_bg(duration: float, label_out: str = "bb_bg") -> tuple:
-    """APEX UNIFIED 7-layer procedural background.
+    """APEX UNIFIED procedural background (V58 fast path).
 
-    Layer 1: BEV2 cinematic obsidian base (#020304)
-    Layer 2: BEV2 3-glow radial (top-left red, top-right white, bottom-center red)
-    Layer 3: VDS perspective grid (bottom 30%, very subtle)
-    Layer 4: BD scanlines (horizontal every 4px, red @2.5%)
-    Layer 5: Vignette
-    Layer 6: (film grain skipped — geq too slow per spec)
-    Layer 7: Red border frame (2px all edges)
+    Layer 1: Obsidian base (#0A0A0F)
+    Layer 2: Red border frame (2px all edges)
+
+    V58 PERF FIX: Removed geq radial glows (3x per-pixel exp() at 1080p30
+    caused 900s timeouts) and drawgrid/vignette (per-frame alpha rebuilds).
+    Bg_loop.mp4 provides the cinematic depth when available; this fallback
+    stays lightweight for edge cases where the loop asset is missing.
     """
     f = ""
-    # Layer 1: VDS dark navy base (#0A0A0F per PIPELINE_LAWS)
     f += f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30[bb_base];\n"
-    # Layer 2a: Red radial glow — top-left
-    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(46*exp(-((X)*(X)+Y*Y)/350000),0,255)':g='0':b='0'[bb_glow_tl];\n")
-    f += f"[bb_base][bb_glow_tl]blend=all_mode=screen[bb1];\n"
-    # Layer 2b: White radial glow — top-right (subtle)
-    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
-          f":g='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'"
-          f":b='clip(15*exp(-((X-1920)*(X-1920)+Y*Y)/300000),0,255)'[bb_glow_tr];\n")
-    f += f"[bb1][bb_glow_tr]blend=all_mode=screen[bb2];\n"
-    # Layer 2c: Red radial glow — bottom-center
-    f += (f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30,"
-          f"geq=r='clip(25*exp(-((X-960)*(X-960)+(Y-1080)*(Y-1080))/400000),0,255)':g='0':b='0'[bb_glow_bc];\n")
-    f += f"[bb2][bb_glow_bc]blend=all_mode=screen[bb3];\n"
-    # Layer 3: VDS perspective grid (bottom 30% — subtle white)
-    f += f"[bb3]drawgrid=width=90:height=54:thickness=1:color=0xFFFFFF@0.04[bb4];\n"
-    # Layer 4: BD scanlines (horizontal every 4px, red @2.5%)
-    f += f"[bb4]drawgrid=width=0:height=4:thickness=1:color={COLOR_RED}@0.025[bb5];\n"
-    # Layer 5: Vignette
-    f += f"[bb5]vignette=PI/4:mode=backward[bb6];\n"
-    # Layer 7: Red border frame (2px all edges)
-    f += (f"[bb6]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
+    f += (f"[bb_base]drawbox=x=0:y=0:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
           f"drawbox=x=0:y=1078:w=1920:h=2:color={COLOR_RED}@0.75:t=fill,"
           f"drawbox=x=0:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill,"
           f"drawbox=x=1918:y=0:w=2:h=1080:color={COLOR_RED}@0.75:t=fill[{label_out}];\n")
@@ -870,9 +848,12 @@ def _bv2_encode(inputs, fg, output_path, total_dur, label="bv2 scene",
     fg += (f"{audio_pad}aformat=channel_layouts=stereo,"
            f"alimiter=limit=0.85:level=disabled:attack=5:release=50,aresample=48000[outa]")
 
+    # V58 PERF: preset=fast (was medium) — per PIPELINE_LAWS all intermediates
+    # must be fast/ultrafast. Wrap+data+social scenes with dense filtergraphs
+    # were taking 14+min per 16s output under medium.
     ok = run_ffmpeg_filtergraph(
         inputs, fg, ["[outv]", "[outa]"],
-        ["-c:v", "libx264", "-crf", "17", "-preset", "medium",
+        ["-c:v", "libx264", "-crf", "17", "-preset", "fast",
          "-b:v", "8M", "-minrate", "5M", "-maxrate", "10M", "-bufsize", "15M",
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-t", str(total_dur)],
         output_path, label, 300,
