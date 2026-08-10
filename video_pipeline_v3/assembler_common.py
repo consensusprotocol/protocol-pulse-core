@@ -473,33 +473,6 @@ def _ken_burns_motion(label_in: str, label_out: str, duration: float) -> str:
             f"setsar=1,format=yuv420p[{label_out}];\n")
 
 
-def _build_black_diamond_bg(duration: float, label_out: str = "bd_bg") -> tuple:
-    """BLACK DIAMOND background — Sovereign Command Center.
-
-    V57 PERF FIX: Removed geq radial glow layers 2-3 — they caused 900s+
-    timeouts due to per-pixel exponential math (exp()) evaluated at
-    30fps × 1920×1080 pixels. Replaced with flat base + grid + vignette +
-    border (same brand look, ~10x faster).
-
-    Returns (extra_inputs, filtergraph_string).
-    extra_inputs is always [] — pure procedural generation.
-    """
-    f = ""
-    # Layer 1: VDS dark navy base (#0A0A0F per PIPELINE_LAWS)
-    f += f"color=c=0x0A0A0F:s=1920x1080:d={duration}:r=30[bd_base];\n"
-    # Layers 2-3 REMOVED: geq radial glow — exp() per-pixel at 30fps → 900s timeout
-    # Layer 4 REMOVED: drawgrid with alpha color — forces full-frame format conversion
-    #   per frame → 70x slower than drawbox (measured: 73s vs 18s for 7.625s clip)
-    # Layer 5 REMOVED: drawgrid fine scanlines — same issue as layer 4
-    # Layer 6 REMOVED: vignette — per-pixel sqrt math, 45s for 60 frames
-    # Layer 7: Red border frame (2px solid on all 4 edges) — fast, no alpha conversion
-    f += (f"[bd_base]drawbox=x=0:y=0:w=1920:h=2:color=0xFF3333:t=fill,"
-          f"drawbox=x=0:y=1078:w=1920:h=2:color=0xFF3333:t=fill,"
-          f"drawbox=x=0:y=0:w=2:h=1080:color=0xFF3333:t=fill,"
-          f"drawbox=x=1918:y=0:w=2:h=1080:color=0xFF3333:t=fill[{label_out}];\n")
-    return ([], f)
-
-
 def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
                        label_in: str = "v_pre_tick", label_out: str = "v_ticked") -> str:
     """BLACK DIAMOND ticker bar — red scrolling intel on near-black bg."""

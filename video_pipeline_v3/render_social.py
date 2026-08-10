@@ -15,7 +15,7 @@ from assembler_common import (
     _sanitize_text, _word_wrap, _split_headline_for_render, _get_live_metric,
     _is_nostr_spam_assembler,
     _get_bg_layer, _build_top_system_bar, _build_corner_brackets_fg,
-    _build_black_diamond_bg, _build_info_bar_fg,
+    _build_info_bar_fg,
     _build_narration_wave, _build_signature_info_rail,
     _add_episode_title_pill, _ken_burns_motion, apply_scanline,
     _bv2_encode,
