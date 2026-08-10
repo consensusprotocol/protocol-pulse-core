@@ -83,6 +83,65 @@ def _retry_extract_clips(selections, clip_dir):
 
 CHECKPOINT_FILE = "/tmp/render_checkpoint.json"
 
+# v3-phase1d: intermediate files on RAM disk (47GB tmpfs on /dev/shm).
+# Cuts I/O on TTS clips, card PNGs, segment videos, filter graph temp files.
+_RAM_ROOT = "/dev/shm/pp_render"
+
+
+def _work_root(run_dir: str) -> str:
+    """Return work directory for a run.
+
+    Default: /dev/shm/pp_render/{basename}/work (RAM tmpfs).
+    Also ensures run_dir/work is a symlink to the RAM path so assembler.py
+    (which computes work_dir from output_path) lands on the same directory.
+    Set PP_DISABLE_RAM_WORK=1 to fall back to run_dir/work on disk.
+    """
+    disk_work = os.path.join(run_dir, "work")
+    if os.environ.get("PP_DISABLE_RAM_WORK") == "1":
+        os.makedirs(disk_work, exist_ok=True)
+        return disk_work
+    base = os.path.basename(run_dir.rstrip("/")) or "run"
+    ram_work = os.path.join(_RAM_ROOT, base, "work")
+    os.makedirs(ram_work, exist_ok=True)
+    # Ensure disk_work is a symlink to ram_work (assembler.py builds path from output_path)
+    if os.path.islink(disk_work):
+        if os.readlink(disk_work) != ram_work:
+            os.unlink(disk_work)
+            os.symlink(ram_work, disk_work)
+    elif os.path.isdir(disk_work):
+        # Migrate existing on-disk work to RAM (preserves resumability)
+        for entry in os.listdir(disk_work):
+            src = os.path.join(disk_work, entry)
+            dst = os.path.join(ram_work, entry)
+            if not os.path.exists(dst):
+                try:
+                    shutil.move(src, dst)
+                except Exception:
+                    pass
+        try:
+            shutil.rmtree(disk_work)
+        except OSError:
+            pass
+        os.makedirs(os.path.dirname(disk_work), exist_ok=True)
+        os.symlink(ram_work, disk_work)
+    elif not os.path.exists(disk_work):
+        os.makedirs(os.path.dirname(disk_work), exist_ok=True)
+        os.symlink(ram_work, disk_work)
+    return ram_work
+
+
+def _cleanup_ram_work(run_dir: str) -> None:
+    """Wipe /dev/shm/pp_render/{basename} for this run. Safe to call at end."""
+    if os.environ.get("PP_DISABLE_RAM_WORK") == "1":
+        return
+    base = os.path.basename(run_dir.rstrip("/")) or "run"
+    root = os.path.join(_RAM_ROOT, base)
+    if os.path.isdir(root):
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except Exception:
+            pass
+
 
 def write_render_context(step, status, error=None, stage_data=None, **extra):
     """Write/update /tmp/render_context_YYYYMMDD.json for watchdog consumption.
@@ -848,7 +907,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         if is_enabled("cache_rendered_parts"):
             cached_parts = os.path.join(locked_dir, "parts")
             cached_hash_file = os.path.join(locked_dir, "parts_hash.txt")
-            live_parts = os.path.join(run_dir, "work")
+            live_parts = _work_root(run_dir)  # v3-phase1d
             # Verify script hash matches before restoring
             current_hash = hashlib.md5(json.dumps(script, sort_keys=True).encode()).hexdigest()
             hash_ok = False
@@ -1070,7 +1129,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
             logger.info(f"  Wiped stale clips dir: {clip_dir}")
         os.makedirs(clip_dir, exist_ok=True)
         # Also wipe stale pip_preview files from work dir
-        work_dir = os.path.join(run_dir, "work")
+        work_dir = _work_root(run_dir)  # v3-phase1d: /dev/shm/pp_render
         if os.path.exists(work_dir):
             import glob as _pip_glob
             for stale_pip in _pip_glob.glob(os.path.join(work_dir, "pip_preview_*.mp4")):
@@ -1078,7 +1137,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                     os.remove(stale_pip)
                 except OSError:
                     pass
-            logger.info("  Wiped stale pip_preview files from work/")
+            logger.info(f"  Wiped stale pip_preview files from {work_dir}")
         extracted_clips = _retry_extract_clips(selections, clip_dir)
         print(f"  Extracted: {len(extracted_clips)}/{len(clips)} clips")
 
@@ -1595,7 +1654,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         # PARTS CACHE HIT — skip full assembly, go straight to final concat
         print("\n[STEP 7/12] PARTS CACHE HIT — skipping assembly, concatenating cached parts...")
         t0 = time.time()
-        work_dir = os.path.join(run_dir, "work")
+        work_dir = _work_root(run_dir)  # v3-phase1d
         cached_part_files = sorted([
             os.path.join(work_dir, f)
             for f in os.listdir(work_dir)
@@ -1617,7 +1676,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
         # ── PARTS CACHE: save rendered parts after successful assembly ────
         if is_enabled("cache_rendered_parts") and result and os.path.exists(final_video):
             locked_dir = os.path.join(run_dir, "locked_content")
-            work_dir = os.path.join(run_dir, "work")
+            work_dir = _work_root(run_dir)  # v3-phase1d
             if os.path.exists(work_dir):
                 part_files = [f for f in os.listdir(work_dir) if f.startswith("part_") and f.endswith(".mp4")]
                 if part_files:
@@ -2230,6 +2289,7 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
     success = passed and hc_passed and qc_passed
     if success:
         _clear_checkpoint()  # P0 Fix 3: clear checkpoint on success
+        _cleanup_ram_work(run_dir)  # v3-phase1d: free RAM disk
     return success
 
 
