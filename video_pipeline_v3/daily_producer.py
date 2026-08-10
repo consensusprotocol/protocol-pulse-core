@@ -1357,6 +1357,17 @@ def run_pipeline(test_mode: bool = False, skip_scan: bool = False,
                     sp["seg_id"] = f"tweet_{_seg_hashlib.md5(raw.encode()).hexdigest()[:8]}_{si}"
                     sp["display_order"] = si
                     logger.info(f"SOCIAL ORDER: #{si}: @{sp.get('handle', '?')} [seg_id={sp['seg_id']}] — {sp.get('text', '')[:40]}")
+                # v3-phase2: Pre-render branded card PNGs via Playwright.
+                # Sets post["screenshot_path"]; assembler overlays as image asset,
+                # avoiding ffmpeg drawtext for tweet body.
+                try:
+                    from social_card_renderer import render_posts as _render_cards
+                    _card_cache = os.path.join(_work_root(run_dir), "cards")
+                    _render_cards(sorted_social, _card_cache, prefer_live=True)
+                    _rendered = sum(1 for p in sorted_social if p.get("screenshot_path"))
+                    logger.info(f"SOCIAL CARDS: {_rendered}/{len(sorted_social)} PNGs rendered")
+                except Exception as _ce:
+                    logger.warning(f"Social card pre-render failed: {_ce} (fallback: ffmpeg drawtext)")
         except Exception as e:
             logger.warning(f"Social posts fetch failed: {e}")
 
