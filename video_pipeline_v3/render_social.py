@@ -324,9 +324,8 @@ def make_signal_active_scene(audio_path: str, signal_content: dict,
 
     inputs = [audio_path]
 
-    # Procedural dark background
-    _, bg_fg = _build_black_diamond_bg(total_dur, label_out="sig_bg")
-    fg = bg_fg
+    # v3-phase1a: use bg_loop.mp4 (procedural fallback inside _get_bg_layer)
+    fg = _get_bg_layer(inputs, total_dur, label_out="sig_bg")
 
     # ── R26 UPGRADE 2: HEADER BAR — left-aligned terminal header ──
     import datetime as _dt_sig
@@ -653,9 +652,8 @@ def make_social_card_visual(audio_path: str, posts: list, output_path: str,
     else:
         wm_idx = -1
 
-    # VDS procedural background (fast — no geq/drawgrid/vignette)
-    _, bg_fg = _build_black_diamond_bg(total_dur, label_out="bgvig")
-    fg = bg_fg
+    # v3-phase1a: bg_loop.mp4 (procedural fallback inside _get_bg_layer)
+    fg = _get_bg_layer(inputs, total_dur, label_out="bgvig")
 
     # V57 PERF: Removed alpha drawboxes (@0.12, @0.08) — alpha forces YUV→RGB format
     # conversion per frame. Card bodies drawn directly on canvas below.

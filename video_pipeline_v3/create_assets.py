@@ -31,10 +31,11 @@ def create_transition():
     cmd = (
         f"ffmpeg -y -f lavfi -i color=c=black:s=1920x1080:d=0.5:r=30 "
         f"-f lavfi -i color=c=0xCC0000:s=1920x1080:d=0.5:r=30 "
-        f"-f lavfi -i nullsrc=s=1920x1080:d=0.5:r=30,geq=random(1)*255:128:128 "
+        f"-f lavfi -i color=c=gray:s=1920x1080:d=0.5:r=30 "
         f"-filter_complex \""
+        f"[2:v]noise=alls=90:allf=t+u,format=yuv420p[grain];"
         f"[0:v][1:v]blend=all_expr='if(gt(T,0.15),A,B)':shortest=1[bg];"
-        f"[bg][2:v]blend=all_expr='A*(1-0.3*B/255)+B*0.3':shortest=1[mix];"
+        f"[bg][grain]blend=all_expr='A*(1-0.3*B/255)+B*0.3':shortest=1[mix];"
         f"[mix]colorbalance=rs=0.5:gs=-0.3:bs=-0.3,"
         f"noise=alls=40:allf=t,format=yuv420p[out]\" "
         f"-map '[out]' -c:v libx264 -crf 18 -t 0.5 '{out}'"

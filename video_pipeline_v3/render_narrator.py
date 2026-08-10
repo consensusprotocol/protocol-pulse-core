@@ -697,9 +697,8 @@ def make_host_visual(audio_path: str, host: int, text: str,
     # Build inputs: 0=TTS audio only (APEX V2: music mixed in concatenate_parts)
     inputs = [audio_path]
 
-    # BLACK DIAMOND procedural background
-    _, bg_fg = _build_black_diamond_bg(total_dur, label_out="bd_bg")
-    fg = bg_fg
+    # v3-phase1a: use bg_loop.mp4 when available (procedural fallback)
+    fg = _get_bg_layer(inputs, total_dur, label_out="bd_bg")
 
     # ── HEADER BAR ──
     fg += (f"[bd_bg]drawbox=x=0:y=0:w=1920:h=72:color=0x050505@0.97:t=fill,"
