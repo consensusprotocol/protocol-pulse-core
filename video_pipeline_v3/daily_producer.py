@@ -2355,10 +2355,25 @@ def main():
         logger.error("Another daily_producer is already running. Exiting.")
         sys.exit(1)
 
-    success = run_pipeline(test_mode=args.test, skip_scan=args.skip_scan,
-                           fast_test=args.fast_test,
-                           reuse_content=args.reuse_content,
-                           no_resume=args.no_resume)
+    # v3-phase1d-audit: try/finally guarantees /dev/shm/pp_render is swept
+    # even on crash/exception/KeyboardInterrupt. Individual run cleanup
+    # inside run_pipeline() runs on success; this sweeps everything on abort.
+    success = False
+    try:
+        success = run_pipeline(test_mode=args.test, skip_scan=args.skip_scan,
+                               fast_test=args.fast_test,
+                               reuse_content=args.reuse_content,
+                               no_resume=args.no_resume)
+    finally:
+        try:
+            import glob as _shm_glob
+            _shm_root = "/dev/shm/pp_render"
+            if os.path.isdir(_shm_root):
+                for _d in _shm_glob.glob(os.path.join(_shm_root, "*")):
+                    shutil.rmtree(_d, ignore_errors=True)
+                logger.info(f"RAM cleanup: swept {_shm_root} on exit")
+        except Exception as _ce:
+            logger.warning(f"RAM cleanup failed: {_ce}")
 
     fcntl.flock(lock_file, fcntl.LOCK_UN)
     # ── Post-render: fire tweet machine from morning brief ──────────────
