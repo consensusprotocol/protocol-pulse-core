@@ -107,6 +107,60 @@ def _swap_libx264_to_nvenc(args: list) -> list:
             pass
     return out
 
+
+# v3-phase1c audit: decode-side hwaccel. Injects -hwaccel cuda before each
+# -i <video-file> so decode runs on the RTX 4090. Skips PNG/JPG/audio/lavfi
+# inputs (leaves them on CPU). Skips if hwaccel already precedes the -i.
+_HWACCEL_VIDEO_EXTS = {
+    '.mp4', '.mov', '.mkv', '.webm', '.avi', '.m4v',
+    '.ts', '.mts', '.m2ts', '.mpg', '.mpeg', '.flv',
+}
+
+
+def _inject_decode_hwaccel(cmd: list) -> list:
+    """Insert -hwaccel cuda before each -i <video-file>.
+
+    IMPORTANT: we use -hwaccel cuda WITHOUT -hwaccel_output_format cuda.
+    Empirical result on this ffmpeg build (4.4.2-Ubuntu):
+      - hwaccel cuda only         -> auto-downloads frames to system memory,
+                                     works with drawtext/drawbox/overlay
+                                     graphs, ~2.7x decode speedup over CPU
+      - hwaccel cuda + output=cuda -> keeps frames in CUDA memory, requires
+                                     'hwdownload,format=nv12' at the head
+                                     of every filter graph. Injecting that
+                                     into 40+ callsites is a huge refactor
+                                     and BREAKS mixed graphs otherwise.
+    Program.md v3 says 'mixed CPU/GPU graph is acceptable' — so we keep
+    the safe/compatible flavor. Set PP_HWACCEL_STRICT=1 to opt in to the
+    full flag pair (only if you've audited every filter graph)."""
+    if not _nvenc_available():
+        return cmd
+    if os.environ.get("PP_DISABLE_HWACCEL") == "1":
+        return cmd
+    strict = os.environ.get("PP_HWACCEL_STRICT") == "1"
+    out = []
+    i = 0
+    n = len(cmd)
+    while i < n:
+        a = cmd[i]
+        if a == '-i' and i + 1 < n and isinstance(cmd[i + 1], str):
+            inp = cmd[i + 1]
+            ext = os.path.splitext(inp)[1].lower()
+            # Only inject for real video files that exist on disk
+            is_video = ext in _HWACCEL_VIDEO_EXTS and not inp.startswith('-')
+            # Don't inject before lavfi sources or stdin/pipe
+            if is_video and not inp.startswith('pipe:') and os.path.exists(inp):
+                # Don't double-inject: check that the preceding args aren't already hwaccel
+                tail = out[-6:] if len(out) >= 6 else out
+                if '-hwaccel' not in tail:
+                    prefix = ['-hwaccel', 'cuda']
+                    if strict:
+                        prefix += ['-hwaccel_output_format', 'cuda']
+                    out.extend(prefix)
+        out.append(a)
+        i += 1
+    return out
+
 # V4 Session 2: Modular render pipeline imports
 from audio_master import get_lufs, normalize_segment, master_audio
 from transitions import apply_crossfade, apply_transitions
@@ -507,8 +561,9 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
 def run_ffmpeg(args: list, label: str = "", timeout: int = 900) -> bool:
     timeout = 900
     timeout = 900  # P0: force 900s, ignore caller
-    args = _swap_libx264_to_nvenc(args)  # v3-phase1c
+    args = _swap_libx264_to_nvenc(args)  # v3-phase1c: encode NVENC
     cmd = ["ffmpeg", "-y"] + args
+    cmd = _inject_decode_hwaccel(cmd)  # v3-phase1c-audit: decode hwaccel
     r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
     if r.returncode != 0:
         logger.error(f"FAIL {label}: {r.stderr[-600:]}")
@@ -535,6 +590,7 @@ def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
             cmd.extend(["-map", m])
         cmd.extend(_swap_libx264_to_nvenc(list(output_args)))  # v3-phase1c
         cmd.append(output_path)
+        cmd = _inject_decode_hwaccel(cmd)  # v3-phase1c-audit: decode hwaccel
         r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
         if r.returncode != 0:
             logger.error(f"FAIL {label}: {r.stderr[-600:]}")
