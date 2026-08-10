@@ -24,24 +24,88 @@ from music import (
 )
 
 
-# V4.3 FIX 5: NVENC GPU encoder with libx264 fallback
+# v3-phase1c: NVENC gateway. get_video_encoder() returns canonical args;
+# _swap_libx264_to_nvenc() rewrites arbitrary libx264 arg lists at wrapper level
+# so every ffmpeg call in the pipeline lands on the RTX 4090.
 _NVENC_AVAILABLE = None
+_NVENC_DISABLE = os.environ.get("PP_DISABLE_NVENC") == "1"
 
-def get_video_encoder(crf: int = 18):
-    """Use NVENC if available (RTX 4090), fallback to libx264."""
+def _nvenc_available() -> bool:
     global _NVENC_AVAILABLE
+    if _NVENC_DISABLE:
+        return False
     if _NVENC_AVAILABLE is None:
         try:
-            result = subprocess.run(['ffmpeg', '-hide_banner', '-encoders'],
-                                    capture_output=True, text=True, timeout=10)
-            _NVENC_AVAILABLE = 'h264_nvenc' in result.stdout
+            r = subprocess.run(['ffmpeg', '-hide_banner', '-encoders'],
+                               capture_output=True, text=True, timeout=10)
+            _NVENC_AVAILABLE = 'h264_nvenc' in r.stdout
         except Exception:
             _NVENC_AVAILABLE = False
         logging.getLogger("Assembler").info(f"NVENC available: {_NVENC_AVAILABLE}")
-    if _NVENC_AVAILABLE:
-        return ['-c:v', 'h264_nvenc', '-preset', 'p4', '-rc', 'vbr', '-cq', str(crf),
-                '-b:v', '8M', '-maxrate', '12M', '-gpu', '0']
+    return _NVENC_AVAILABLE
+
+def get_video_encoder(crf: int = 19):
+    """Canonical NVENC args per program.md Phase 1C (preset p5, tune hq, vbr, cq)."""
+    if _nvenc_available():
+        return ['-c:v', 'h264_nvenc', '-preset', 'p5', '-tune', 'hq',
+                '-rc', 'vbr', '-cq', str(crf), '-b:v', '0']
     return ['-c:v', 'libx264', '-preset', 'medium', '-crf', str(crf)]
+
+def _swap_libx264_to_nvenc(args: list) -> list:
+    """Transform an ffmpeg arg list: any '-c:v libx264' → NVENC (h264_nvenc)
+    with p5/hq/vbr/cq preset. Preserves -b:v/-maxrate/-bufsize/-pix_fmt.
+    Removes conflicting -preset/-tune/-crf (crf value becomes cq)."""
+    if not _nvenc_available():
+        return args
+    out = []
+    i = 0
+    n = len(args)
+    swap_pending = False
+    captured_crf = None
+    while i < n:
+        a = args[i]
+        # Detect '-c:v libx264'
+        if a == '-c:v' and i + 1 < n and args[i + 1] == 'libx264':
+            out.extend(['-c:v', 'h264_nvenc'])
+            swap_pending = True
+            i += 2
+            continue
+        # If we're in a NVENC swap region, drop libx264-only options
+        if swap_pending:
+            if a in ('-preset', '-tune'):
+                i += 2  # skip flag and its value
+                continue
+            if a == '-crf' and i + 1 < n:
+                try:
+                    captured_crf = int(args[i + 1])
+                except (ValueError, TypeError):
+                    captured_crf = None
+                i += 2
+                continue
+            # Once we hit an arg that clearly ends the encoder section, close swap
+            if a in ('-map', '-shortest', '-t') and not out[-1].startswith('-'):
+                # inject NVENC preset/tune/rc/cq before continuing
+                cq = str(captured_crf if captured_crf is not None else 19)
+                out.extend(['-preset', 'p5', '-tune', 'hq', '-rc', 'vbr', '-cq', cq])
+                # only add -b:v 0 if user hasn't specified a bitrate
+                if '-b:v' not in out:
+                    out.extend(['-b:v', '0'])
+                swap_pending = False
+        out.append(a)
+        i += 1
+    # Flush pending injection at end
+    if swap_pending:
+        cq = str(captured_crf if captured_crf is not None else 19)
+        # insert NVENC opts just after '-c:v h264_nvenc'
+        try:
+            idx = out.index('h264_nvenc')
+            inject = ['-preset', 'p5', '-tune', 'hq', '-rc', 'vbr', '-cq', cq]
+            if '-b:v' not in out:
+                inject.extend(['-b:v', '0'])
+            out = out[:idx + 1] + inject + out[idx + 1:]
+        except ValueError:
+            pass
+    return out
 
 # V4 Session 2: Modular render pipeline imports
 from audio_master import get_lufs, normalize_segment, master_audio
@@ -470,6 +534,7 @@ def _build_info_bar_fg(duration: float, btc_price: str, block_height: str = "",
 def run_ffmpeg(args: list, label: str = "", timeout: int = 900) -> bool:
     timeout = 900
     timeout = 900  # P0: force 900s, ignore caller
+    args = _swap_libx264_to_nvenc(args)  # v3-phase1c
     cmd = ["ffmpeg", "-y"] + args
     r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
     if r.returncode != 0:
@@ -495,7 +560,7 @@ def run_ffmpeg_filtergraph(inputs: list, filtergraph: str, maps: list,
         cmd.extend(["-filter_complex_script", fpath])
         for m in maps:
             cmd.extend(["-map", m])
-        cmd.extend(output_args)
+        cmd.extend(_swap_libx264_to_nvenc(list(output_args)))  # v3-phase1c
         cmd.append(output_path)
         r = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
         if r.returncode != 0:
