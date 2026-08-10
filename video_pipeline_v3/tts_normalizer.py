@@ -9,6 +9,8 @@ Usage:
     clean = normalize("Bitcoin hit $1T at 500 EH/s on SHA-256")
 """
 
+import json
+import os
 import re
 
 # ---------------------------------------------------------------------------
@@ -171,6 +173,18 @@ _TERM_MAP = {
     "FUD": "fud",
     "FOMO": "foe-moe",
 }
+
+
+# v3-phase3c: overlay pronunciations from JSON file at import time.
+# JSON is authoritative — edit pronunciations.json to add/change terms.
+_PRONUNCIATIONS_JSON = os.path.join(os.path.dirname(__file__), "pronunciations.json")
+try:
+    with open(_PRONUNCIATIONS_JSON) as _pf:
+        _loaded = json.load(_pf)
+    if isinstance(_loaded, dict):
+        _TERM_MAP.update({str(k): str(v) for k, v in _loaded.items()})
+except (OSError, ValueError):
+    pass  # fall back to embedded map only
 
 # ---------------------------------------------------------------------------
 # Ordinals
