@@ -385,7 +385,8 @@ import re as _re
 # ---------------------------------------------------------------------------
 # Pre-Flight QC — Grade A Guarantee
 # ---------------------------------------------------------------------------
-MAX_PREFLIGHT_ATTEMPTS = 3
+MAX_PREFLIGHT_ATTEMPTS = 1  # v3-audit: 1 attempt. A QC fix must never
+                             # take longer than the render itself.
 MAX_EPISODE_DURATION_S = 900  # 15 minutes HARD CAP — grade F if exceeded
 _CLIP_BOUND_TYPES = {"setup", "react", "clip"}  # Types removed when clip extraction fails
 
@@ -561,31 +562,33 @@ def _apply_preflight_fixes(video_path: str, qc: dict):
         freeze_count = qc.get("metrics", {}).get("freeze_frames", 0)
         logger.info(f"[PREFLIGHT FIX] Ken Burns re-encode to fix {freeze_count} freeze regions")
         tmp = video_path + ".freeze_fix.mp4"
+        # v3-audit [1C-fix]: route through NVENC wrapper (decode hwaccel + h264_nvenc)
+        # and hard-cap at 300s. A QC fix must never take longer than the render.
+        from assembler_common import _swap_libx264_to_nvenc, _inject_decode_hwaccel
         try:
-            # Scale up 3% then crop back with 6s sin oscillation (30px H, 16px V)
-            # Guarantees >=1px integer displacement per frame at 30fps
-            r = subprocess.run(
-                ["ffmpeg", "-y",
-                 "-i", video_path,
-                 "-vf", "mpdecimate=max=0:hi=64:lo=32:frac=0.33,setpts=N/FRAME_RATE/TB",
-                 "-r", "30",
-                 "-c:v", "libx264", "-crf", "17", "-preset", "fast",
-                 "-c:a", "copy",
-                 tmp],
-                capture_output=True, text=True, timeout=600,
-            )
+            _fix_args = [
+                "-i", video_path,
+                "-vf", "mpdecimate=max=0:hi=64:lo=32:frac=0.33,setpts=N/FRAME_RATE/TB",
+                "-r", "30",
+                "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+                "-c:a", "copy",
+                tmp,
+            ]
+            _fix_cmd = ["ffmpeg", "-y"] + _swap_libx264_to_nvenc(_fix_args)
+            _fix_cmd = _inject_decode_hwaccel(_fix_cmd)
+            r = subprocess.run(_fix_cmd, capture_output=True, text=True, timeout=300)
             if r.returncode == 0 and os.path.exists(tmp):
-                # Verify the fix reduced freeze frames
-                verify = subprocess.run(
+                # Verify the fix reduced freeze frames — also decode-hwaccel accelerated
+                _ver_cmd = _inject_decode_hwaccel(
                     ["ffmpeg", "-i", tmp, "-vf", "freezedetect=n=0.003:d=3.0",
-                     "-f", "null", "-"],
-                    capture_output=True, text=True, timeout=300,
+                     "-f", "null", "-"]
                 )
+                verify = subprocess.run(_ver_cmd, capture_output=True, text=True, timeout=120)
                 remaining = len(_re.findall(r"freeze_start", verify.stderr))
                 logger.info(f"[PREFLIGHT FIX] Freeze frames: {freeze_count} → {remaining}")
                 if remaining < freeze_count:
                     os.replace(tmp, video_path)
-                    logger.info("[PREFLIGHT FIX] Ken Burns freeze fix applied")
+                    logger.info("[PREFLIGHT FIX] Ken Burns freeze fix applied (NVENC)")
                 else:
                     logger.warning("[PREFLIGHT FIX] Ken Burns did not reduce freezes — keeping original")
                     os.remove(tmp)
