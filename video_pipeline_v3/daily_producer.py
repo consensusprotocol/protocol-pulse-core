@@ -385,8 +385,13 @@ import re as _re
 # ---------------------------------------------------------------------------
 # Pre-Flight QC — Grade A Guarantee
 # ---------------------------------------------------------------------------
-MAX_PREFLIGHT_ATTEMPTS = 1  # v3-audit: 1 attempt. A QC fix must never
-                             # take longer than the render itself.
+MAX_PREFLIGHT_ATTEMPTS = 2  # v3-audit: 2 iterations = 1 fix attempt + 1
+                             # verify. With MAX=1 the loop breaks before
+                             # _apply_preflight_fixes is ever called. Fix
+                             # itself is hard-capped at 300s inside
+                             # _apply_preflight_fixes so total preflight
+                             # cost is bounded (QC ~300s + fix ~300s + QC ~300s
+                             # <= 15 min, always less than the render).
 MAX_EPISODE_DURATION_S = 900  # 15 minutes HARD CAP — grade F if exceeded
 _CLIP_BOUND_TYPES = {"setup", "react", "clip"}  # Types removed when clip extraction fails
 
