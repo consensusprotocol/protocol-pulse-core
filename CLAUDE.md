@@ -113,3 +113,8 @@ This eliminates preamble and forces structured output.
 Enable extended thinking to see HOW Claude reasons about your data.
 Use this to find where Claude's logic diverges from yours.
 Build corrections into the system prompt based on thinking patterns.
+
+## CMP FLEET (added 2026-08-20)
+- `ssh cmp` → 192.168.1.121 (CMP 170HX box, 2x 65GB, ultron user, passwordless from Ultron). Serves Qwen3.8-27B via llama-server :8002 and muse-glimmer :8001. Bifrost sidecar in ~/bifrost-sidecar (cron self-heal). Disk ~95% full: never download large models without checking `df -h`.
+- `ssh bifrost` → 192.168.1.49 (greedythanos, Proxmox host, Bifrost gateway in Docker at /opt/bifrost/deploy/tunnel-stack, bifrost user has docker group). Public: https://api.consensusprotocol.org via CF tunnel consensus-inference-cp on Ultron. Agent/worker ports 7010/7011. Admin API 127.0.0.1:18010 (creds in its .env; never print).
+- CMP GPUs run pipeline workloads on a SEPARATE box: they do not affect Ultron GPU isolation laws.
