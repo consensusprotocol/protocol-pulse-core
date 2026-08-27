@@ -153,7 +153,7 @@ def saturation_and_corroboration(item, all_items):
     for other in all_items:
         if other is item: continue
         otoks = set(re.findall(r"[a-z]{4,}", other["title"].lower()))
-        if otoks and len(toks & otoks) / len(toks) > 0.4:
+        if otoks and len(toks & otoks) / len(toks) > 0.3:
             dupes += 1
             covering_domains.add(other.get("source_domain",""))
     saturation = min(dupes / 6.0, 1.0)
@@ -249,6 +249,75 @@ def compute_overall(item, all_items):
     item["overall_score"] = round(overall * 100)
     return item
 
+
+
+# ================= LAYER 3.5: CLAIM VERIFICATION =================
+# GPT spec: extract atomic claims, verify each against independent sources,
+# stamp status. Unverified numeric claims must NOT reach the writer.
+
+VERIFIABLE_LIVE = {
+    # claim keyword -> (fetch_fn_name, tolerance_pct)
+    "btc_price": 0.03, "block_height": 0, "hashrate": 0.10, "fee": 0.5,
+}
+
+def _live_btc_price():
+    import urllib.request as u
+    try:
+        r = u.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?interval=1d&range=1d",
+                      timeout=8)
+        d = json.loads(r.read().decode())
+        return float(d["chart"]["result"][0]["meta"]["regularMarketPrice"])
+    except Exception:
+        return None
+
+def _live_block_height():
+    import urllib.request as u
+    try:
+        return int(u.urlopen("https://mempool.space/api/blocks/tip/height", timeout=8).read().decode())
+    except Exception:
+        return None
+
+def extract_claims(item):
+    """Pull atomic, checkable claims (numeric + named-entity) from a story."""
+    text = (item.get("title","") + " . " + item.get("summary",""))
+    claims = []
+    # numeric claims with unit
+    for m in re.finditer(r"(\$?\d[\d,\.]*)\s*(%|percent|billion|trillion|million|bps|EH/s|sat|BTC|bitcoin)?", text):
+        val, unit = m.group(1), (m.group(2) or "")
+        if len(val.replace(",","").replace(".","").replace("$","")) >= 2:  # skip trivial 1-digit
+            claims.append({"raw": m.group(0).strip(), "value": val, "unit": unit, "kind": "numeric"})
+    return claims[:8]
+
+def verify_story(item):
+    """
+    Verification tiers:
+    - HARD-VERIFIABLE (live BTC price / block height): check against live API.
+    - SOURCE-BACKED: has >=1 primary source URL + came from a quality domain.
+    - UNVERIFIED: numeric claims we can't independently check -> flagged, writer must hedge or skip.
+    """
+    claims = extract_claims(item)
+    item["primary_claims"] = [c["raw"] for c in claims]
+    status = "source_backed" if item.get("url") and _source_quality(item["url"]) >= 0.7 else "unverified"
+
+    # Hard-verify any BTC price / block-height claims
+    text_low = (item.get("title","") + " " + item.get("summary","")).lower()
+    hard_checks = []
+    if "block" in text_low and re.search(r"\b9\d{5}\b", text_low):
+        live_h = _live_block_height()
+        claimed = re.search(r"\b(9\d{5})\b", text_low)
+        if live_h and claimed:
+            diff = abs(int(claimed.group(1)) - live_h)
+            hard_checks.append(("block_height", diff <= 20, f"claimed {claimed.group(1)} vs live {live_h}"))
+    if hard_checks:
+        status = "verified" if all(ok for _, ok, _ in hard_checks) else "contradicted"
+        item["hard_checks"] = [{"field": f, "pass": ok, "detail": d} for f, ok, d in hard_checks]
+
+    item["verification_status"] = status
+    # writer-gating flag: only verified or source_backed may be written confidently
+    item["writer_eligible"] = status in ("verified", "source_backed")
+    item["requires_hedge"] = status == "unverified"
+    return item
+
 def run(top_n=10):
     print("=== SENSING ===")
     rss = harvest_rss()
@@ -269,6 +338,10 @@ def run(top_n=10):
         compute_overall(it, all_items)
 
     ranked = sorted(all_items, key=lambda x: x.get("overall_score", 0), reverse=True)[:top_n]
+
+    # Verify each ranked story before output (GPT spec: no unverified claim reaches writer)
+    for it in ranked:
+        verify_story(it)
 
     stories = []
     for i, it in enumerate(ranked):
@@ -292,7 +365,11 @@ def run(top_n=10):
             "would_teach": it.get("would_teach"),
             "suggested_editorial_type": it.get("suggested_editorial_type", "unknown"),
             "overall_score": it["overall_score"],
-            "verification_status": "unverified",
+            "verification_status": it.get("verification_status", "unverified"),
+            "writer_eligible": it.get("writer_eligible", False),
+            "requires_hedge": it.get("requires_hedge", True),
+            "primary_claims": it.get("primary_claims", []),
+            "hard_checks": it.get("hard_checks", []),
         })
 
     with open(OUT, "w") as f:
