@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-16T18:00:30.973831+00:00",
+  "brief_type": "midday",
+  "score": -35,
+  "bullish_signals": [
+    "Hashrate holding solid at 924 EH/s despite price weakness",
+    "Extreme fear historically precedes reversals",
+    "Miners not panicking demonstrates conviction",
+    "Miner betting on recovery implicit in hashrate stability"
+  ],
+  "bearish_signals": [
+    "Bitcoin down 1.4% to $65,938",
+    "Fear & Greed at 23 (extreme fear)",
+    "Institutional conviction wavering",
+    "Mempool congestion with weak hand liquidations",
+    "No whale accumulation patterns visible yet"
+  ],
+  "neutral_topics": [
+    "Market cap and volume data unavailable",
+    "Timing uncertainty for reversal"
+  ]
+}

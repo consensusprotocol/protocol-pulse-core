@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-06-27T02:00:29.862850+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "When Miners Hold, Markets Eventually Follow: The Bitcoin Hashrate Signal Investors Miss",
+      "angle": "Analyzing why miner conviction during capitulation periods historically predicts sentiment reversals",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "sentiment",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Fear & Greed at 15: Is This Bitcoin's Capitulation Bottom or a Warning Sign?",
+      "angle": "Decoding the asymmetric setup when extreme fear meets fundamental strength",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-greed-index",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "The Mempool Never Lies: Why Bitcoin Network Health Matters More Than Price Action",
+      "angle": "Network metrics (fee floors, transaction clearing) as leading indicators of market conviction",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network-health",
+        "on-chain"
+      ]
+    }
+  ]
+}

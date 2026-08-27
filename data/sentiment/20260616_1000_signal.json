@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-16T10:00:34.296537+00:00",
+  "brief_type": "morning",
+  "score": 15,
+  "bullish_signals": [
+    "Extreme fear readings (23 F&G) historically mark accumulation zones",
+    "Strong hashrate at 924 EH/s indicates miner confidence despite price weakness",
+    "Lean mempool suggests no panic selling cascades",
+    "On-schedule block production shows network stability",
+    "No significant liquidation cascades or exchange inflows overnight"
+  ],
+  "bearish_signals": [
+    "Trading in 'extreme fear territory' despite 1.5% overnight gain",
+    "Volume void creates liquidity uncertainty",
+    "Support level at $65K remains vulnerable to institutional pullback"
+  ],
+  "neutral_topics": [
+    "Asia overnight trading activity (quiet, no major moves)",
+    "Block 953,926 standard progression"
+  ]
+}

@@ -1,0 +1,1260 @@
+{
+  "video_id": "4abYOFAtvAo",
+  "title": "The Evolution of Bitcoin Mining with NG Zhang SLP742",
+  "channel": "Stephan Livera",
+  "upload_date": "",
+  "duration": 2917,
+  "transcript_text": "Hi everyone, welcome back to Stefan Limerah podcast today. We've got a special one My guest today rarely does podcasts interviews NG Zang is the founder chairman and CEO of Canaan Inc The company behind the world's first Bitcoin asic mining machines the Avalon series shipped in 2013 NG Zang has a background in electronic engineering and software from Bayhanging University NG. Thank you for joining me today, and let's you know I think it would be great to start with a bit of a background on yourself and Tell us what what was it like in the early days of Bitcoin asic machines I'm so happy to join the interview Yeah, I think I can I come into Bitcoin business I think at the very beginning it's a hobby. It's not a it's a bit of the business. It's a start like 20 2011 I risked on I was taught news about some some why you invited a cryptocurrency and very little Technical informations, but it really attracted me from that time and maybe I spent about One week to set up my own family money farm at the time. Yeah, and uh Then I think the the community at that time is it's a really very very good. It's fantastic uh, and Back to that time I have sell some small electronic uh Products uh on the internet uh on the internet, so um You know uh back to like Ten ten ten ten or something years It's really hard to sell sell booths uh over the overseas. So we use uh, we use the billcoins Uh to do training at that time. So uh at first time not a manager. I'm a user of uh The cryptocurrency very very very or is that uh, and then I think I can do something for the community at that time. So I think at late uh 2012 um, uh i decided to Start the development project. Uh, it's a project to try to design manufacturer uh asic-based uh bitcoin miner. So uh, I think in 20 Late September, uh, we started a project Uh, and after four and a half months, uh, our first generation of uh Bitcoin money machine Uh, because uh, I will one ship to our first customer. Uh, I can't remember the Our first customer is uh, it's gif-gadig. It's uh, called developer present time. Uh, I think it's uh It's really very important because uh, it's um, you know, uh, where I get the first box of the uh, asic chips Uh, the computing power is uh, it's equal to about half of the entire uh, uh, Bitcoin network at the time. So It's really uh, unbelievable Yeah, and you can you can do solo mining uh, use only one machine and uh, tour three blocks uh, uh, a day. Yeah That's uh, that's uh, uh, early, early time. Yeah So yeah, and as I understand at that time, it was transitioning from you know, those Transition in the early days was, you know, CPU mining, then it was GPU mining and then it was FPGA and then after FPGA was The asic um machine. So do you want to just talk to us a little bit about the inside there of transitioning from FPGA to an asic? Oh, sure um, I think early days um, uh, we use uh, I think very early days we we use uh CPU money uh, and then we have uh, the CPU GPU miner, the CG miner, and then you can use GPU instead of CPU. It's uh, uh, 10 sex of the uh, acceleration um, and because uh, I started in uh, college, uh, college, so uh, I uh, I have the uh, uh, uh, skill to build the uh, uh, FPGA uh, wars for for mining. Uh, I think the FPGA mining is uh, lower the power consumption, uh, maybe five X X at that time, but uh, uh, the performance is the same. Uh, and also have a higher cost. So, uh, but you know, if uh, algorithm is very easy to be uh, implemented in uh, FPGA, that then it means uh, it will be perfect, uh, real asic. So, uh, I think the FPGA period is really strong. It's about maybe one year or two years at most, uh, then we start to uh, convert to the asic, uh, technology. Uh, I think the very, at the very beginning is uh, uh, it's all about uh, the time to market. You know, uh, from an idea, uh, then you need to assemble your team, uh, to build an asic, uh, and uh, it's only weeks left for for you to do that. Uh, at the same time, you need to, um, find every, uh, electronic components, uh, the cases, it's seen everything. And find a factory to help you to manufacture them or you need to handle it by yourself. Yeah, I think uh, very significant percentage of the machines is uh, assembly by myself. So yeah, uh, and uh, uh, ship them to your, your customer, uh, you have no channels, uh, you have nothing knowledge about how to, uh, trade overseas. I'm, I'm only a student at that time. So, uh, uh, every time I remember that, uh, that maybe three months is, uh, it's really, uh, you know, it's extremely busy, uh, only three or two, four hours for, for a day to sleep, but it's really, uh, the most interesting time, uh, you might arrive. So let's bring it forward now to the modern era of Asics. I know you have the Canon Avalon A16 series. So can you talk us through a little bit on this A16 series, how it compares to prior generations, uh, and maybe just comment a little bit on the jewels per terahash efficiency. Uh, yeah, for, for A16, our list is uh, uh, model, um, I think the simple number is, uh, we have a 300 terahash, uh, first, uh, model breaks through the 300, um, milestone, uh, at a 4.8, uh, jewels per terahash. And, uh, we also have the, uh, casting factory version of A16. It's, uh, 282 and about 13.8 jars. I think it's a very major improvement for us, uh, especially compared with the previous generation. Um, but, uh, I think, uh, I, but I always tell tell customers not to look only at a lab number, uh, minor do not just buy a number for, for our slide. And, uh, you buy the, uh, three economics, uh, so that means, uh, stable hatch rate, uptime, uh, several. Uh, this kind of, uh, since it's, uh, it's really important. Uh, if, uh, like, uh, 99% uptime, uh, versus, versus, uh, like 70 or 80% uptime, uh, we'll change the game fundamentally. So, uh, we, I think from the 13, 14, 15, we continue to upgrade the, um, the machine to have best quality. Uh, because, uh, this, uh, in these days, um, the machines will last for much, much longer time than the previous stage. So, um, yeah. So this is, uh, uh, what we did on the machines. Uh, and if you, you know, we have, we already have some, um, test, uh, in the wild. So, we can check the, the videos from the YouTube. Uh, I think the very, um, uh, if we, if we can, uh, uh, think about one, uh, most of tracking me is the noise. The sound is much, much lower than the previous model. Yeah. We can do interview. Even, uh, even, even is next to a machine is running like, uh, economic model. Yeah. It's an interview. So, uh, while you're there, I mean, I guess we're talking about the reliability and the durability aspects. Uh, can you speak to how canons, Avalon machines stack up against competitors, such as, you know, Bitmains and miners or micro BTs? What's minors? Can you speak to how canons, Avalon machines, uh, from a reliability perspective? Um, yeah. Um, you know, uh, I would be very careful about comparing black failure is with competitors. Uh, unless we use the same methodology. Uh, otherwise it becomes the marketing is not engineering. You know, you know, I'm at a nearby. So, uh, to be honest, uh, reliability is not a, there's no magic. It comes from, uh, from the design, uh, the materials. Or how many testing you, you have done, uh, manufacturing, uh, even the software firmware and, uh, you need to do upsells feedback, uh, to deal with the upsells. So, uh, in the, in the, uh, to be honest, I think in the past, the industry, uh, just moved too fast. So, sometimes time to market was, uh, measured in hours or days, uh, not weeks or months. So, a new generation came out. You need to ship it in like 24 hours, uh, without any testing because, uh, your customer asked you to do that. You know, it's, uh, every day is, uh, it's so much money. So, um, and oh, but, uh, luckily, the, uh, machines, uh, were replaced quickly. So many companies include us, uh, relied heavily on experience and stronger compliments. Uh, there are many, many over-dance, uh, and lack of the dance in the, in the, uh, real machine. So, uh, that work in a fast cycle industry, uh, but sure it's not enough for the, uh, current stage or next stage. So, uh, now I think the product cycle is, uh, becoming much longer. So, uh, efficiency improvement is slow. This is, uh, it's a real situation. Uh, first, uh, I have been in this industry for over 10 years, but first, uh, first time I feel the, uh, efficiency improvement is slowing. So, the machines need to run for more years. Uh, that means the industry must improve design, uh, validation, uh, environmental testing, burning, uh, also we have water-cooled model. So, you must test the, uh, water block, uh, reliability, uh, also, uh, better firmware testing and quality, uh, quality control standards. So, uh, internally, we are pushing, uh, toward a very, uh, low annual repair rate. This is our goal. So, uh, my engineering target is, uh, to around, like, low single digits, or even less than five percent, four percent, two percent. This is our goal to, uh, annual rate. And that's for the failure rates or, um, that, that under five percent number that you're talking about. So, just to summarize, I guess, as you're saying, in the early days of Bitcoin, there was such rapid efficiency improvements that the customers wanted your machines as quickly as possible. And I guess what the point you're making is that there was maybe less focus on testing, burning, making sure that the, like, the uptimes and low failure rates, this kind of thing, whereas now as I understand, obviously, the, the efficiency gains are slowing down. Compared to the early years of Bitcoin, and so the focus is on useful life for these machines. So, uh, NG, can you tell us what do you see as the useful life for an Avalon A16 nowadays? Oh, it's, uh, I think the answer is really, really, really interesting. Um, useful life depends on, uh, I think heavily on the environment. Uh, if you put the machines in a good IDC or data center like environment, uh, our more than matters, uh, it's able to run like five years or more. It's very, very easy. Yeah. But, uh, the reality is, uh, many, uh, real mining sites, uh, Dusty, or, or just in, in the wild, you know, you can, you can see through the, you know, the, the, the fence, you can see the outside. Uh, so this is the real environment. For those environments, uh, customer wants, uh, you still need to have three years for the, uh, stable operation. So this is really, what is really challenging for, for us. Yeah. So as I read you then, if it is a challenging environment, then it might be as low as three years, but otherwise, it might be more like five years is a typical useful life nowadays. Um, and then I guess obviously that also will vary based on the, uh, the cost of electricity for that minor, because as I understand the normal dynamic is that, you know, if you have, uh, you know, if your cost of electricity is higher, then you need a more. Uh, you need a more efficient machine to make it work, whereas like people who have like a very low cost of energy, maybe they can get away with using a less efficient machine because of the extreme low energy cost. Is that how you've seen it? And then that plays out into the, let's say the primary market for Bitcoin mining and then also the secondary market when it's resold. Yeah, I think there's, um, uh, yeah, compared to electricity rates, uh, it's, uh, it's one side, uh, the other side is the scale and the stability for your electricity. Uh, usually, um, like, uh, we have a flat, uh, electricity rates, like the common, uh, electric cost in like Texas, like there's a, maybe a wrong, like three, four, five cents. Um, yeah, this will give you a very stable operation. Uh, if we move to like Africa, uh, it's maybe like a one or two cents. Uh, but you must deal with like 20 or 30% of, uh, like the power down for the, from the grid, because the, uh, infrastructure is not that good. Or even like a lot of countries that, uh, that have an unstable, uh, or politic environments, uh, they're the, they can not ban you from anywhere at any time. So, uh, this is different. So, uh, if you have, uh, like, uh, we assume that you have a low electricity cost and it's very stable. Then I think you, uh, should buy the, uh, you should buy new machines. This is my opinion. And you should buy the, uh, cost and factor models, because your electricity rate is low. Uh, but, uh, second hand machines are very, uh, latency, uh, machines is not, uh, encouraged because, uh, you know, uh, the chip electricity always, uh, have a smaller scale. So you must, uh, you want, you surely want, uh, a total, uh, you know, the, the TCO for the, or the total revenue for, from the side. So, uh, uh, very, very, uh, no, you know, the bad machines will not give you a very, very good, uh, return. So, uh, by, by new machines, by the cost, the effective model is, is, it's better. Yeah. I see. Uh, now we were talking about small scale miners. I think it's probably a good spot also just to ask about that. So there's, uh, this, you know, there are home miners and small scale miners and maybe there's discussion around things like heat recovery or heat reuse. Can you tell us about any products you've done for this category for the home or small scale miner? Um, I think we, uh, before we talk about the home miner is a very big topic. Uh, we start from the big public miners versus small private miners. Um, I think maybe it's, uh, it's not very, uh, uh, you know, not as, uh, public thought large miners and, uh, uh, small private miners have different advantages. This is my, uh, my view. Uh, large miners, uh, care about like the, the fleet, economics, financing, the use financing, right? Uh, like, uh, big scale delivery schedule, warranty service, everything. Um, and, uh, smaller miners, you really care about the flexibility, uh, you need to price, uh, easy of deployment because they have maybe, uh, no IT team for the operation. Only the owner itself will have to deal with everything so that they need easier for deployment, uh, also fast support and, uh, uh, it's, uh, and local power opportunities. So, uh, both models will continue, uh, to, to that's the, uh, big coin money is very, uh, drill, uh, geography. So very, uh, very large size, uh, that's not always have the, or always have nothing. And not always have the lowest cost. Uh, sometimes, uh, the infrastructure, green connection, uh, we'll make the, and also financing, we'll make the cost higher than, uh, probably the smaller, uh, miner, uh, a smaller one, you really have access to local, uh, like, uh, surplus power or regional energy opportunities that, uh, a large public miner, uh, cannot use. So, I think this is a very healthy, uh, model, not being a model for big coin. Uh, that means, uh, it's, uh, have a natural, uh, decentralization for the, uh, deployment of the, uh, money hardware. So, uh, yeah, we want industry scale, but we also want, uh, decentralization. So, uh, we, we, we are very friendly for both large and small, uh, miners. Also, the price for the, uh, large scale, or like 200, 500 machines, uh, the gap is really narrow in these days. So, yeah, this is the, uh, realization. Yeah. And then, as I understand, you have product lines that, um, I targeted for, um, smaller scale miners. Uh, can you talk a little bit about some of those, uh, the different lines that you have, because you have the Avalon A16, and then you have the, uh, some of these other product lines. Yeah, you know, we built, uh, build, uh, home miner and small scale miner from the very beginning for, uh, Avalon, uh, brand from maybe Avalon III, I think. Yeah. Um, yeah. So, uh, today we have, uh, uh, reopened the, the, the home miner production line. Uh, we have several products in the category. Uh, Avalon Mini-3, uh, I think I introduced from the, the, the bigger one, from to the smaller one. Uh, we have Avalon Q is the biggest for, uh, home mining, uh, it's 90 terahesh, uh, today. And, uh, I think it's going to upgrade, uh, in the next few months. And then it's Mini-3, uh, and we have, uh, Nano-3S, uh, and we also have, uh, a few, uh, new products that's coming out this year. Uh, so the line up is, uh, from higher performance to lower performance, uh, but, uh, the, um, uh, lower, it's a lower, the hatch rate. Uh, it will be more friendly for the, for a home, uh, like, uh, Avalon Mini-3 is, uh, it's electronic heater style. It has a very good, uh, uh, out, uh, outlooking. So, uh, why, why we do the, uh, home, uh, the series, I, I think the first answer is decentralization. Uh, Bitcoin is, uh, not, uh, compete of, uh, other people can only hold coins, but cannot, uh, participate in the mining layer. So my, my long term, I have a long term green, uh, it's, uh, that's very clear. Uh, we, uh, I would like to see home mining become, uh, meaningful part of the global hatch rate, uh, maybe, like, 20 percent, uh, for the total, uh, network hatch rate. Uh, that, that means, uh, we need to sell two, two million, uh, Avalon Kumashis. So it's very tough for, uh, so actually out of curiosity, what would you estimate home mining is today as a percentage of Bitcoin. Overall hatch rate. Um, I think it's still low. Uh, we are, uh, uh, I think the, the, the mouse dough is like, uh, we, maybe like, start from like two percent, no 30 percent. So you're trying to 10x, uh, that, uh, that number. It's not a very, very, very big spill in this industry, right? So, uh, yeah, we, um, I think the product, uh, it's still, uh, it's, uh, it's, uh, it's fairly good enough for, for, for that target. Uh, but, uh, the marketing, uh, channels, uh, it's different, uh, it's different, uh, for, uh, from the like, uh, our traditional to be business. So, uh, it's really, uh, we need to learn something new. Yeah. I see. Yeah. And I guess you're, you're selling different features in a way, because maybe with the whole heat recovery, heat reuse idea, it makes more sense in cold countries, uh, to, to sell these home miners, because obviously they can get a benefit, uh, from the heat reuse aspect, which maybe lowers the cost of mining, um, for them, uh, is that something you're looking at, is that how it works? Yeah, about the heat recovery, uh, we, we started topic from the home miner, um, you know, every what, uh, used by a miner eventually becomes heat, uh, so normal electron, uh, heater, converse electricity into heat and a Bitcoin miner, a Bitcoin heater, uh, converse electricity into, uh, network, security, uh, Bitcoin reward, and the heat. So, so it's much more interesting use of an energy, uh, you know, uh, to achieve that goal, uh, a home miner is not just a smaller industry miner, uh, it has to look good, uh, has to be easy to use, and has to be safe. Uh, yeah, it's a need to have very good materials and the reliability, uh, it must have lasted three or five years in your home, at least. So, uh, for me, um, I think the noise, uh, requirement is the very, it's very strict, uh, I test, uh, our, uh, home miner, uh, in my bedroom, uh, I need to have a, uh, in her, sleep overnight, when the miner is running next to my bag, this is the, the target, uh, also, this is a standard, it's not targeted, we already achieved that. So, uh, this is, uh, the, uh, standard for home, home product. Um, and I also want to see, uh, say, say something, uh, uh, further than that. I think, uh, we are entering an age of continuous personal computing. Uh, Bitcoin mining is the first, uh, over various example, um, you know, uh, I think you are using every, every, every, every one is using AI today, right? And, uh, uh, also, uh, I think in the next stage, uh, most people will have their, uh, private cloud, uh, it, the access space, the place is, uh, to install the workstation or a server in your room, but, uh, sure, it, it must be very quiet, just like the, uh, uh, uh, home miner today. So, uh, I think we, uh, this, uh, this product line in, uh, in, uh, individuals home, uh, open, uh, new concept for, uh, the computing, uh, device, uh, in, for, for, uh, personal use. Yeah. And, uh, then I think we can talk about, uh, the bigger one. Yeah, uh, the bigger one. Um, uh, you know, we, uh, today, uh, we, uh, uh, changing the, um, well, well, we're not together with the, uh, the ESG stuff. Uh, yeah. So, uh, firstly, uh, it's very, uh, the money, the money, uh, running is very clean. Uh, it's, uh, it will not, uh, product any waste for, promise, uh, running. So, uh, and also it's very, uh, low cost, uh, compared with many industrial laws. So, uh, it can turn, uh, directly, uh, with electricity into, uh, value for digital, digital asset. And, uh, it's very useful for renewable energy. Uh, and, uh, we, uh, the heat recovery, uh, in the last scale, it's, uh, it's very different to, to home miner. Um, we need to produce hot water, uh, the standard for the hot water is, uh, it's really high. I think we, we need to start like, uh, 80, I think number is 81 degrees, uh, sources. Uh, so it's, uh, it's really high. I think most of the, uh, the home, uh, water heater can generate like, uh, 80 degrees sources. It cannot handle that. But we need to, uh, produce 81, uh, uh, uh, and also, and maybe 85 at most. So, uh, it requires, uh, many special design for the system. Uh, and, uh, it, it must have lasted for 3,000 years. So, uh, we, uh, I think we've already spent like, uh, over one year working on all this. It's a different, uh, industry feel, I think. So, uh, um, uh, we already, uh, deployed, uh, many, uh, I think it's about like a three, three or five, uh, sites, uh, using the miners to generate hot water, uh, to, uh, service the, the town, uh, many, uh, yeah. I guess what you're getting at is, um, it's, it's not just a home minor thing. Actually, even at larger minor scales, they are looking at heat reuse. And in this case, water heating as a way of, um, maybe lowering the cost, uh, or getting the benefit in another way so that, um, you can make it work as an overall business model. I think it's a major target is to, is to get out of the heat. And then it's, uh, Bitcoin mining. This is a different. Yeah. So I guess different business models are out there. Um, I guess the other aspect is when it comes to Bitcoin mining, people can talk about the different methods of calling, right? Like air calling, hydro, um, which seems to be also gaining in popularity and immersion calling. So can you just talk to the different methods of calling and how you see that as, you know, from a canon perspective? Um, yeah. Uh, because there's, uh, the one cooling master that cannot with everywhere. So, uh, still today, I think the air cooling is the most universal because it's simple. Uh, lower cost and either to deploy and use it to maintain. Uh, it works for many times of customers. Uh, and our machines is optimized to running in the wild. So it's good. Uh, but for larger industrial sites, uh, especially in, uh, in like the US or Europe, hydro cooling is becoming much more important. Uh, the direction is high density machines. Uh, because, um, the hydro sites is more expensive for every rank. So, uh, often like our, uh, to you class machine, uh, can, it's already like 10 kilowatts. So, uh, I think it's very, it's equal, equal to the, uh, modern, uh, GPU servers. So, you, maybe you can just use them, uh, before the, uh, the expensive GPUs come, comes, comes in your advocacy, uh, just to use the, uh, the, the, the, uh, miners, uh, to, to just consumption, uh, the electricity and the general heat. It's, it's already good. Yeah. Um, yeah. So, uh, also, I, I think, um, it's, uh, it's good for, uh, like, uh, if you have, uh, mining site, uh, next to some, uh, living area, uh, the hydro system will, uh, generate lower, uh, noise and, uh, uh, lower maintenance. It's also benefits for, uh, for that, uh, also we have the immersion, uh, version for the machines. Uh, yeah. So, we, we have all the types, uh, uh, we, we don't make decisions, uh, uh, for our customers, uh, our customers can, can decide. Yeah. Uh, and also on the form factor. As I understand, it's still, most of the mining is done in this so-called shoebox, um, form factor. Um, there's been some talk. No, maybe it's just talk. I'm curious to hear your reaction. Are there people interested in this idea of like a server rack style form factor for Bitcoin mining? Uh, I think, uh, except some, um, old, uh, sites, uh, the new sites is open work to, uh, to use style. Yeah. Because it's a standard, uh, factor for, uh, the water cooled servers that can reuse the, uh, infrastructure, uh, for something else. Yeah. So, uh, today, I think that maybe like 99% of the machines is already two to two. It's a two year factor. Yeah. This year. Yeah. Yes. It's a, it's a shift there. Um, now, um, another area or topic I was interested to ask you about is strut and V2, which is, um, you know, a new protocol for Bitcoin mining. Uh, is Kenan looking at this? Would this be, would it make sense to have native firmware support for it on Avalon machines? Um, yeah. I think I, uh, I need to talk more about this topic. Uh, yes. I think the short answer is, uh, it's, it's yes. Uh, but there are two layers. Uh, you know, one layer is, uh, the first is a secure and efficient mining communication. Uh, there's no, uh, the encryption in the street and we won and in V2, we have, uh, this, uh, we have, uh, encryption, so it's a, it's safer. Uh, so the second layer, I think it's, uh, it's a, it's the JD, the drop, uh, declaration declaration. Yeah. This is, uh, uh, the really matters. Uh, but this is a lot down in the, uh, usually it's not down in the, uh, manner from where it's down in the, uh, like the bridge or the mining router or controller in the, in the size. Uh, for Kenan, um, yeah, we, uh, you know, we, we are looking at this, uh, from an, uh, we are looking at this, uh, from an engineering perspective. Uh, because many existing, uh, Avalon machines is using very, uh, concentrated, um, CU controllers. It's running, uh, ATOS. It's only have like four, four megabytes, no, no gigabytes, megabytes, uh, have memory. Uh, so it's, uh, for that generation, the, the, the, even the, the, uh, you can only run the modern, uh, uh, incorporated communication because they're not, not confident power. So, uh, it's, uh, that limitation is from hardware. Uh, this is why we, uh, uh, uh, reflecting the, uh, our first, uh, firmware architecture and also we are moving, uh, at some time, we are moving to a more, uh, capable associate platform, our, uh, K2, uh, to 30, uh, associate chip. Uh, we are improving the SDK and, uh, uh, modelizing the control software, uh, improving the, uh, everything, and we can have, uh, the compatibility to, uh, implement more algorithm, like, uh, community communication, uh, and corrupt it for, for, uh, uh, in the, in the, in the firmware. So, uh, this region with two support is, uh, it's now on, uh, our to do internal to do list. Uh, but I want to be clear, uh, the manner selected, uh, transaction templates should not be very small, manner controllers run at a full node. So, uh, a red architecture is a local gateway or something that, uh, as I mentioned. Yeah, and, uh, yeah, and you know, we, uh, we do some, uh, we already published the, the code for, uh, our new platform, uh, late last year. Uh, but, uh, I don't think the, uh, it's a, it's a, it's a, I have a very, very good code quality. So we are, uh, re, uh, re, re, re write everything, uh, nearly, re write everything this year. Uh, I think the next, uh, three to six months, uh, you can, uh, yeah, keep our, uh, GitHub, uh, and, uh, we, we are doing. We will have a new, uh, firmware platform. Interesting. And so, are you saying then that, that you, you might look at surrounding V2 support in that three to six months. Yeah. I'm on the new firmware. Uh, in fact, uh, we are moving to, uh, 100%. Uh, we, internally, I said the number of 100% open source, uh, uh, firmware. Uh, and also it's a modern design. So, uh, we could, uh, easily, uh, install, uh, new feature support, our, uh, new, uh, firmware platform. Now, uh, it's, it's really hard because, uh, you know, it's not, uh, modular design. If you, you modify some, some, some, something and maybe, uh, kind of just kind of running. So, uh, it's a very, uh, latency, uh, structure for the old, uh, old, old platform. So we are trying to, uh, build a new one in the next three to six months. Yeah. Also, uh, this region, V2 support is, uh, on a total list. Yeah. Yeah. Gotcha. Um, okay. So that's on the, the firmware side and then the, the two list. Okay. So I guess, uh, zooming out a little bit about the broader minor mining industry. I mean, we were touching on this a little bit around how there are these, you know, big public miners. Some of those have, let's say partially or fully pivoted to AI and HPC. And then you have these smaller and private miners. Can you talk to us a little bit about just the difference in how you're going to the market there because I guess it must be different when you're selling to these big hyperscalers versus selling. To retail and smaller miners. How does this shift affect you from a sales marketing perspective? Um, yeah. I think for, uh, as I mentioned, if, uh, we, we assume we are talking about to be, uh, models. Um, yeah. Uh, there's a lot of miners, uh, care about, uh, you know, that mentioned like the, uh, financing delivery schedule, everything warranty, uh, outside support. Uh, yeah. Uh, smaller miners, uh, is more close to like the home miners, uh, you need to do marketing. Or then we just don't know what is our reminder. Yeah. Yeah. We, we, we all buy, we, uh, the only thing I know is, uh, it's big mess. So this is, this is such early Chinese stuff. Uh, so we, we need to do more marketing, uh, for this, uh, uh, this group of customers. And also they are care about the cost, uh, uh, and, uh, the flexibility, uh, easy, uh, deployment, uh, if you have some software to manage, uh, of our, uh, my, my 20 machines, uh, this kind of stuff. Or, uh, and also, uh, have the local army, uh, site, uh, it's, uh, it's better, uh, for, for this kind of customers, because that's a natural one. We have their own, uh, you, you always, always that we have, uh, uh, all repaired a station, uh, outside, but, uh, you cannot have that for a smaller one. Yeah. Uh, so this is, uh, different for, for, uh, larger one, uh, smaller one. Now, when it comes to energy and grid integration, there's been a lot of discussion about this also, especially in recent years, things like grid balancing, demand response, heat reuse at scale. Uh, I know you have been commenting or the company has been commenting a little bit on this. Can you expand on that on how you are viewing this Bitcoin mining and energy grid integration. Yeah, I think these years, uh, people discussing, uh, mine is, uh, not only, uh, uh, and pure energy consumer, uh, mine is also a very, uh, flexible energy commission for today. Uh, the first is very clean to operation. Uh, second is very useful for the renewable energy. Uh, we have some QC sites, uh, installed, uh, using battery and, uh, the wind power, uh, mostly it can run like 20, 220 days per year. Uh, but because the wind and solar is a very volatile. So, uh, the power is not, uh, stable enough. Uh, we need to do special designs and write software calls for, uh, to combine the, uh, the wind return, uh, the battery and the machines. So, uh, also we have some, uh, cooperation with, uh, with college, uh, we are doing research for, uh, products, weather, uh, to have the best, uh, uh, uh, our reason for that. So this is, uh, uh, there's no like, uh, yeah, we need to do some, some more research on this, uh, this field. Um, but sure it can, uh, can, the mining can absorb, uh, supplies and the improbably corn, oh, it's for, uh, renewable, for that. Yeah, so, uh, our work with, uh, uh, seamless type of example for direction, uh, generation, uh, storage and the mining, uh, together, uh, with power scheduling. So, uh, hatred follows, uh, energy, uh, conditions, uh, run at different, uh, running levels, uh, so this idea is not, uh, to compete with the, uh, the grid, uh, idea is the follow the power and the, the, the use energy that, uh, otherwise, uh, may have a very, very low value. Yeah, this is, uh, whatever I do. Uh, and, uh, we just mentioned, uh, heat recovery is another important part. Uh, if mining produces hot water that can heat homes, uh, drain houses or industry, uh, processes, uh, this is a real ESC use case. Uh, yeah, it's much better for then, uh, like, uh, you can, you can, you, you, you, to, to, uh, let the, the cap and the bottle together, you know. So, uh, this is, uh, uh, and I would add one more thing that, uh, the home mining is, uh, already the, uh, best heat reuse is also ESG. So, uh, yeah, uh, ESG is, uh, you can, you can do a very large scale project. Also, you can do it in a very tiny project. Yeah. So, um, also, uh, looking forward, I think the idea is that it's, uh, we have a great huge, uh, electricity demand. Uh, they also need redundancy, uh, backup power, you pay for the, for the grid, for the, uh, line, uh, for backup. Uh, for backup, uh, so, uh, uh, uh, and also they need, uh, load management. I think mining can work together with the infrastructure as a flexible computing load. Uh, we can use the backup power for, for mining and just the cut off, uh, the, the miners when you, you needed the backup power. So, the physical infrastructure is, uh, becoming more, uh, simpler, uh, high-density power, uh, liquid cooling ranks, uh, and energy management software. Yeah. This is, uh, uh, the future for the, uh, the mining industry. Excellent. Well, uh, I think those are the key areas that I was interested to talk about. Do you have any closing thoughts before we finish up? Anything? Yeah. Um, I think for the, uh, yeah, I, I think for the, uh, you know, uh, about the, yeah, we'll be talking about some, uh, something about the, the next generation or next about years about the mining industry. I think 2026 is, uh, the first time, uh, I really, really feel the efficiency curve is slowing down in, in Bitcoin mining. Uh, it's not that only a cannon issue. Uh, it's, uh, it is, uh, I, I'm talking about the reasons. Uh, it, it is a semiconductor economics. Uh, you know, the, the best knows, uh, becoming more and more expensive today. Uh, AI benefits a lot from high density because, uh, it needs, uh, larger, more complex chips and packages. Bitcoin money is different. Uh, that's actually, uh, 2006 is, uh, it's very simple and the power now. So the size is never a big deal problem. Uh, so for every transistor's, uh, price, uh, I think the lowest point is like 12 millimeters. Uh, many years ago, uh, and then the price for, uh, each transistor's is, uh, going up, it's not going down, uh, when you upgrade your, uh, your notes. Uh, but the efficiency, uh, and the performance is still, uh, improving significantly from, uh, the, uh, more advanced notes. So the whole industry is continued to upgrade rapidly. Um, but today, um, you know, as I mentioned, like from four nanometers to three, then, uh, two nanometers, uh, the performance, uh, improvements is low, much lower than, uh, uh, yesterday. And, uh, the cost is, uh, skyrocket high today. Uh, the only benefits is you have, uh, you can achieve more density, which is useless for money. So this is the reason why the, uh, the first time I really feel the efficiency curve is throwing down. Um, um, but, uh, sure, we, we, I think we already, uh, down the, uh, uh, R&D for the next generation. Uh, today, uh, we also have like, uh, uh, uh, uh, uh, uh, 15, 20% of improvements for the next generation, uh, with the reasonable cost. Uh, but I think that the, you know, last, the last generation, there's, uh, like 30% of improvements. And also, uh, much higher cost for that generation. So, um, in some ways, I think this is good because, uh, the industry is finally, uh, mature enough to, uh, build infrastructure, uh, knows the, not just, uh, replace the machines all day. So, uh, yeah. So if you, uh, I think if you, anyone want to, uh, join the industry is still, uh, a good time into, to buy machines, uh, but, uh, yeah, you know, it's, uh, it's a better, better market now. So, uh, but, uh, I think the, uh, for, uh, have a better profit, uh, usually we, people invest in the bear market and harvest, uh, in the bull market. So this is, uh, many, many times. Yeah. This is, uh, maybe the, the last thing I, I want to talk today. Yeah. Well, uh, thank you for sharing, um, your insights with us. Uh, and, uh, yeah, listen to this, check it out. It's, uh, my guest is NG Zang of Canaan. Uh, NG, thank you for joining me today. Welcome. See you next time. Bye-bye.",
+  "timestamped_text": [
+    {
+      "start": 0.37,
+      "end": 4.05,
+      "text": "Hi everyone, welcome back to Stefan Limerah podcast today. We've got a special one"
+    },
+    {
+      "start": 5.09,
+      "end": 11.37,
+      "text": "My guest today rarely does podcasts interviews NG Zang is the founder chairman and CEO of Canaan Inc"
+    },
+    {
+      "start": 11.65,
+      "end": 17.49,
+      "text": "The company behind the world's first Bitcoin asic mining machines the Avalon series shipped in 2013 NG"
+    },
+    {
+      "start": 17.73,
+      "end": 22.61,
+      "text": "Zang has a background in electronic engineering and software from Bayhanging University"
+    },
+    {
+      "start": 23.41,
+      "end": 26.93,
+      "text": "NG. Thank you for joining me today, and let's you know"
+    },
+    {
+      "start": 26.93,
+      "end": 29.77,
+      "text": "I think it would be great to start with a bit of a background on yourself and"
+    },
+    {
+      "start": 30.61,
+      "end": 35.25,
+      "text": "Tell us what what was it like in the early days of Bitcoin asic machines"
+    },
+    {
+      "start": 37.01,
+      "end": 40.21,
+      "text": "I'm so happy to join the interview"
+    },
+    {
+      "start": 41.33,
+      "end": 45.89,
+      "text": "Yeah, I think I can I come into Bitcoin business"
+    },
+    {
+      "start": 47.01,
+      "end": 51.97,
+      "text": "I think at the very beginning it's a hobby. It's not a it's a bit of the business. It's a start like 20"
+    },
+    {
+      "start": 52.69,
+      "end": 54.85,
+      "text": "2011 I risked on"
+    },
+    {
+      "start": 55.81,
+      "end": 61.89,
+      "text": "I was taught news about some some why you invited a cryptocurrency and"
+    },
+    {
+      "start": 63.57,
+      "end": 65.57,
+      "text": "very little"
+    },
+    {
+      "start": 65.73,
+      "end": 69.49,
+      "text": "Technical informations, but it really attracted me from"
+    },
+    {
+      "start": 70.21,
+      "end": 73.57,
+      "text": "that time and maybe I spent about"
+    },
+    {
+      "start": 74.53,
+      "end": 76.53,
+      "text": "One week to set up my"
+    },
+    {
+      "start": 78.19,
+      "end": 82.99,
+      "text": "own family money farm at the time. Yeah, and"
+    },
+    {
+      "start": 83.79,
+      "end": 84.59,
+      "text": "uh"
+    },
+    {
+      "start": 84.59,
+      "end": 90.03,
+      "text": "Then I think the the community at that time is it's a really very very good. It's fantastic"
+    },
+    {
+      "start": 90.83,
+      "end": 92.83,
+      "text": "uh, and"
+    },
+    {
+      "start": 92.83,
+      "end": 96.43,
+      "text": "Back to that time I have sell some small electronic"
+    },
+    {
+      "start": 97.07,
+      "end": 98.27,
+      "text": "uh"
+    },
+    {
+      "start": 98.27,
+      "end": 100.43,
+      "text": "Products uh on the internet"
+    },
+    {
+      "start": 101.07,
+      "end": 103.07,
+      "text": "uh on the internet, so um"
+    },
+    {
+      "start": 103.87,
+      "end": 105.63,
+      "text": "You know uh back to like"
+    },
+    {
+      "start": 106.75,
+      "end": 108.91,
+      "text": "Ten ten ten ten or something years"
+    },
+    {
+      "start": 109.87,
+      "end": 117.63,
+      "text": "It's really hard to sell sell booths uh over the overseas. So we use uh, we use the billcoins"
+    },
+    {
+      "start": 118.51,
+      "end": 123.47,
+      "text": "Uh to do training at that time. So uh at first time not a manager. I'm a user of uh"
+    },
+    {
+      "start": 123.95,
+      "end": 126.03,
+      "text": "The cryptocurrency very very very or is that"
+    },
+    {
+      "start": 126.75,
+      "end": 128.75,
+      "text": "uh, and then I think I can"
+    },
+    {
+      "start": 130.98,
+      "end": 132.98,
+      "text": "do something for the"
+    },
+    {
+      "start": 133.94,
+      "end": 135.62,
+      "text": "community at that time. So"
+    },
+    {
+      "start": 136.58,
+      "end": 138.34,
+      "text": "I think at late uh"
+    },
+    {
+      "start": 138.34,
+      "end": 142.75,
+      "text": "2012 um, uh i decided to"
+    },
+    {
+      "start": 144.43,
+      "end": 148.75,
+      "text": "Start the development project. Uh, it's a project to"
+    },
+    {
+      "start": 150.05,
+      "end": 152.05,
+      "text": "try to design manufacturer"
+    },
+    {
+      "start": 152.45,
+      "end": 158.53,
+      "text": "uh asic-based uh bitcoin miner. So uh, I think in 20"
+    },
+    {
+      "start": 159.65,
+      "end": 162.13,
+      "text": "Late September, uh, we started a project"
+    },
+    {
+      "start": 162.93,
+      "end": 167.57,
+      "text": "Uh, and after four and a half months, uh, our first generation of uh"
+    },
+    {
+      "start": 168.61,
+      "end": 170.61,
+      "text": "Bitcoin money machine"
+    },
+    {
+      "start": 170.61,
+      "end": 177.09,
+      "text": "Uh, because uh, I will one ship to our first customer. Uh, I can't remember the"
+    },
+    {
+      "start": 177.41,
+      "end": 183.17,
+      "text": "Our first customer is uh, it's gif-gadig. It's uh, called developer present time. Uh, I think it's uh"
+    },
+    {
+      "start": 183.17,
+      "end": 188.85,
+      "text": "It's really very important because uh, it's um, you know, uh, where I get the first box of the"
+    },
+    {
+      "start": 189.65,
+      "end": 191.65,
+      "text": "uh, asic chips"
+    },
+    {
+      "start": 192.51,
+      "end": 197.79,
+      "text": "Uh, the computing power is uh, it's equal to about half of the entire uh, uh,"
+    },
+    {
+      "start": 197.95,
+      "end": 200.19,
+      "text": "Bitcoin network at the time. So"
+    },
+    {
+      "start": 201.25,
+      "end": 203.25,
+      "text": "It's really uh, unbelievable"
+    },
+    {
+      "start": 203.73,
+      "end": 208.13,
+      "text": "Yeah, and you can you can do solo mining uh, use only one machine and uh,"
+    },
+    {
+      "start": 209.01,
+      "end": 211.89,
+      "text": "tour three blocks uh, uh, a day. Yeah"
+    },
+    {
+      "start": 212.93,
+      "end": 215.73,
+      "text": "That's uh, that's uh, uh, early, early time. Yeah"
+    },
+    {
+      "start": 216.37,
+      "end": 220.45,
+      "text": "So yeah, and as I understand at that time, it was transitioning from you know, those"
+    },
+    {
+      "start": 220.61,
+      "end": 227.09,
+      "text": "Transition in the early days was, you know, CPU mining, then it was GPU mining and then it was FPGA and then after FPGA was"
+    },
+    {
+      "start": 227.49,
+      "end": 234.21,
+      "text": "The asic um machine. So do you want to just talk to us a little bit about the inside there of transitioning from FPGA to an asic?"
+    },
+    {
+      "start": 235.41,
+      "end": 248.51,
+      "text": "Oh, sure um, I think early days um, uh, we use uh, I think very early days we we use uh CPU money uh, and then we have uh,"
+    },
+    {
+      "start": 248.51,
+      "end": 256.99,
+      "text": "the CPU GPU miner, the CG miner, and then you can use GPU instead of CPU. It's uh, uh, 10 sex of the uh, acceleration"
+    },
+    {
+      "start": 257.71,
+      "end": 265.31,
+      "text": "um, and because uh, I started in uh, college, uh, college, so uh, I uh, I have the uh, uh, uh,"
+    },
+    {
+      "start": 266.19,
+      "end": 268.75,
+      "text": "skill to build the uh, uh, FPGA"
+    },
+    {
+      "start": 269.47,
+      "end": 277.79,
+      "text": "uh, wars for for mining. Uh, I think the FPGA mining is uh, lower the power consumption, uh, maybe five X"
+    },
+    {
+      "start": 278.27,
+      "end": 288.75,
+      "text": "X at that time, but uh, uh, the performance is the same. Uh, and also have a higher cost. So, uh, but you know, if uh, algorithm is very easy to be"
+    },
+    {
+      "start": 289.55,
+      "end": 301.55,
+      "text": "uh, implemented in uh, FPGA, that then it means uh, it will be perfect, uh, real asic. So, uh, I think the FPGA period is really strong."
+    },
+    {
+      "start": 301.63,
+      "end": 310.35,
+      "text": "It's about maybe one year or two years at most, uh, then we start to uh, convert to the asic, uh, technology."
+    },
+    {
+      "start": 310.99,
+      "end": 316.83,
+      "text": "Uh, I think the very, at the very beginning is uh, uh, it's all about uh, the time to market."
+    },
+    {
+      "start": 317.63,
+      "end": 329.47,
+      "text": "You know, uh, from an idea, uh, then you need to assemble your team, uh, to build an asic, uh, and uh, it's only weeks left for for you to do that."
+    },
+    {
+      "start": 330.19,
+      "end": 337.95,
+      "text": "Uh, at the same time, you need to, um, find every, uh, electronic components, uh, the cases, it's seen everything."
+    },
+    {
+      "start": 338.59,
+      "end": 344.83,
+      "text": "And find a factory to help you to manufacture them or you need to handle it by yourself."
+    },
+    {
+      "start": 345.47,
+      "end": 358.59,
+      "text": "Yeah, I think uh, very significant percentage of the machines is uh, assembly by myself. So yeah, uh, and uh, uh, ship them to your, your customer, uh, you have no channels, uh, you have nothing"
+    },
+    {
+      "start": 359.55,
+      "end": 381.79,
+      "text": "knowledge about how to, uh, trade overseas. I'm, I'm only a student at that time. So, uh, uh, every time I remember that, uh, that maybe three months is, uh, it's really, uh, you know, it's extremely busy, uh, only three or two, four hours for, for a day to sleep, but it's really, uh, the most interesting time, uh, you might arrive."
+    },
+    {
+      "start": 382.43,
+      "end": 403.63,
+      "text": "So let's bring it forward now to the modern era of Asics. I know you have the Canon Avalon A16 series. So can you talk us through a little bit on this A16 series, how it compares to prior generations, uh, and maybe just comment a little bit on the jewels per terahash efficiency."
+    },
+    {
+      "start": 404.27,
+      "end": 423.23,
+      "text": "Uh, yeah, for, for A16, our list is uh, uh, model, um, I think the simple number is, uh, we have a 300 terahash, uh, first, uh, model breaks through the 300, um, milestone, uh, at a 4.8, uh, jewels per terahash."
+    },
+    {
+      "start": 423.95,
+      "end": 432.75,
+      "text": "And, uh, we also have the, uh, casting factory version of A16. It's, uh, 282 and about 13.8 jars."
+    },
+    {
+      "start": 433.7,
+      "end": 452.34,
+      "text": "I think it's a very major improvement for us, uh, especially compared with the previous generation. Um, but, uh, I think, uh, I, but I always tell tell customers not to look only at a lab number, uh, minor do not just buy a number for, for our slide."
+    },
+    {
+      "start": 452.94,
+      "end": 462.3,
+      "text": "And, uh, you buy the, uh, three economics, uh, so that means, uh, stable hatch rate, uptime, uh, several."
+    },
+    {
+      "start": 462.3,
+      "end": 491.82,
+      "text": "Uh, this kind of, uh, since it's, uh, it's really important. Uh, if, uh, like, uh, 99% uptime, uh, versus, versus, uh, like 70 or 80% uptime, uh, we'll change the game fundamentally. So, uh, we, I think from the 13, 14, 15, we continue to upgrade the, um, the machine to have best quality."
+    },
+    {
+      "start": 492.38,
+      "end": 515.58,
+      "text": "Uh, because, uh, this, uh, in these days, um, the machines will last for much, much longer time than the previous stage. So, um, yeah. So this is, uh, uh, what we did on the machines. Uh, and if you, you know, we have, we already have some, um, test, uh, in the wild."
+    },
+    {
+      "start": 516.06,
+      "end": 535.83,
+      "text": "So, we can check the, the videos from the YouTube. Uh, I think the very, um, uh, if we, if we can, uh, uh, think about one, uh, most of tracking me is the noise. The sound is much, much lower than the previous model. Yeah."
+    },
+    {
+      "start": 536.15,
+      "end": 544.55,
+      "text": "We can do interview. Even, uh, even, even is next to a machine is running like, uh, economic model. Yeah. It's an interview."
+    },
+    {
+      "start": 545.43,
+      "end": 567.43,
+      "text": "So, uh, while you're there, I mean, I guess we're talking about the reliability and the durability aspects. Uh, can you speak to how canons, Avalon machines stack up against competitors, such as, you know, Bitmains and miners or micro BTs? What's minors? Can you speak to how canons, Avalon machines, uh, from a reliability perspective?"
+    },
+    {
+      "start": 568.18,
+      "end": 585.14,
+      "text": "Um, yeah. Um, you know, uh, I would be very careful about comparing black failure is with competitors. Uh, unless we use the same methodology. Uh, otherwise it becomes the marketing is not engineering. You know, you know, I'm at a nearby."
+    },
+    {
+      "start": 585.78,
+      "end": 595.86,
+      "text": "So, uh, to be honest, uh, reliability is not a, there's no magic. It comes from, uh, from the design, uh, the materials."
+    },
+    {
+      "start": 596.26,
+      "end": 610.82,
+      "text": "Or how many testing you, you have done, uh, manufacturing, uh, even the software firmware and, uh, you need to do upsells feedback, uh, to deal with the upsells."
+    },
+    {
+      "start": 611.06,
+      "end": 618.5,
+      "text": "So, uh, in the, in the, uh, to be honest, I think in the past, the industry, uh, just moved too fast."
+    },
+    {
+      "start": 618.98,
+      "end": 636.94,
+      "text": "So, sometimes time to market was, uh, measured in hours or days, uh, not weeks or months. So, a new generation came out. You need to ship it in like 24 hours, uh, without any testing because, uh, your customer asked you to do that."
+    },
+    {
+      "start": 637.18,
+      "end": 656.38,
+      "text": "You know, it's, uh, every day is, uh, it's so much money. So, um, and oh, but, uh, luckily, the, uh, machines, uh, were replaced quickly. So many companies include us, uh, relied heavily on experience and stronger compliments."
+    },
+    {
+      "start": 657.02,
+      "end": 671.34,
+      "text": "Uh, there are many, many over-dance, uh, and lack of the dance in the, in the, uh, real machine. So, uh, that work in a fast cycle industry, uh, but sure it's not enough for the, uh, current stage or next stage."
+    },
+    {
+      "start": 671.9,
+      "end": 683.1,
+      "text": "So, uh, now I think the product cycle is, uh, becoming much longer. So, uh, efficiency improvement is slow. This is, uh, it's a real situation. Uh, first,"
+    },
+    {
+      "start": 683.85,
+      "end": 706.57,
+      "text": "uh, I have been in this industry for over 10 years, but first, uh, first time I feel the, uh, efficiency improvement is slowing. So, the machines need to run for more years. Uh, that means the industry must improve design, uh, validation, uh, environmental testing, burning, uh, also we have water-cooled model. So, you must test the, uh,"
+    },
+    {
+      "start": 706.81,
+      "end": 723.29,
+      "text": "water block, uh, reliability, uh, also, uh, better firmware testing and quality, uh, quality control standards. So, uh, internally, we are pushing, uh, toward a very, uh, low annual repair rate. This is our goal."
+    },
+    {
+      "start": 723.69,
+      "end": 733.45,
+      "text": "So, uh, my engineering target is, uh, to around, like, low single digits, or even less than five percent, four percent, two percent. This is our goal to, uh, annual rate."
+    },
+    {
+      "start": 733.45,
+      "end": 763.37,
+      "text": "And that's for the failure rates or, um, that, that under five percent number that you're talking about. So, just to summarize, I guess, as you're saying, in the early days of Bitcoin, there was such rapid efficiency improvements that the customers wanted your machines as quickly as possible. And I guess what the point you're making is that there was maybe less focus on testing, burning, making sure that the, like, the uptimes and low failure rates, this kind of thing, whereas now as I understand, obviously, the, the efficiency gains are slowing down."
+    },
+    {
+      "start": 763.45,
+      "end": 776.09,
+      "text": "Compared to the early years of Bitcoin, and so the focus is on useful life for these machines. So, uh, NG, can you tell us what do you see as the useful life for an Avalon A16 nowadays?"
+    },
+    {
+      "start": 776.65,
+      "end": 785.21,
+      "text": "Oh, it's, uh, I think the answer is really, really, really interesting. Um, useful life depends on, uh, I think heavily on the environment."
+    },
+    {
+      "start": 785.77,
+      "end": 797.45,
+      "text": "Uh, if you put the machines in a good IDC or data center like environment, uh, our more than matters, uh, it's able to run like five years or more. It's very, very easy. Yeah."
+    },
+    {
+      "start": 797.61,
+      "end": 811.0,
+      "text": "But, uh, the reality is, uh, many, uh, real mining sites, uh, Dusty, or, or just in, in the wild, you know, you can, you can see through the, you know, the, the, the fence, you can see the outside."
+    },
+    {
+      "start": 811.64,
+      "end": 825.64,
+      "text": "Uh, so this is the real environment. For those environments, uh, customer wants, uh, you still need to have three years for the, uh, stable operation. So this is really, what is really challenging for, for us."
+    },
+    {
+      "start": 825.64,
+      "end": 855.42,
+      "text": "Yeah. So as I read you then, if it is a challenging environment, then it might be as low as three years, but otherwise, it might be more like five years is a typical useful life nowadays. Um, and then I guess obviously that also will vary based on the, uh, the cost of electricity for that minor, because as I understand the normal dynamic is that, you know, if you have, uh, you know, if your cost of electricity is higher, then you need a more."
+    },
+    {
+      "start": 855.74,
+      "end": 868.46,
+      "text": "Uh, you need a more efficient machine to make it work, whereas like people who have like a very low cost of energy, maybe they can get away with using a less efficient machine because of the extreme low energy cost."
+    },
+    {
+      "start": 868.74,
+      "end": 876.86,
+      "text": "Is that how you've seen it? And then that plays out into the, let's say the primary market for Bitcoin mining and then also the secondary market when it's resold."
+    },
+    {
+      "start": 878.1,
+      "end": 893.38,
+      "text": "Yeah, I think there's, um, uh, yeah, compared to electricity rates, uh, it's, uh, it's one side, uh, the other side is the scale and the stability for your electricity."
+    },
+    {
+      "start": 894.02,
+      "end": 910.25,
+      "text": "Uh, usually, um, like, uh, we have a flat, uh, electricity rates, like the common, uh, electric cost in like Texas, like there's a, maybe a wrong, like three, four, five cents."
+    },
+    {
+      "start": 911.05,
+      "end": 915.29,
+      "text": "Um, yeah, this will give you a very stable operation."
+    },
+    {
+      "start": 915.93,
+      "end": 921.05,
+      "text": "Uh, if we move to like Africa, uh, it's maybe like a one or two cents."
+    },
+    {
+      "start": 921.69,
+      "end": 930.73,
+      "text": "Uh, but you must deal with like 20 or 30% of, uh, like the power down for the, from the grid, because the, uh, infrastructure is not that good."
+    },
+    {
+      "start": 931.29,
+      "end": 942.65,
+      "text": "Or even like a lot of countries that, uh, that have an unstable, uh, or politic environments, uh, they're the, they can not ban you from anywhere at any time."
+    },
+    {
+      "start": 943.21,
+      "end": 950.65,
+      "text": "So, uh, this is different. So, uh, if you have, uh, like, uh, we assume that you have a low electricity cost and"
+    },
+    {
+      "start": 951.13,
+      "end": 959.37,
+      "text": "it's very stable. Then I think you, uh, should buy the, uh, you should buy new machines. This is my opinion."
+    },
+    {
+      "start": 960.09,
+      "end": 971.21,
+      "text": "And you should buy the, uh, cost and factor models, because your electricity rate is low. Uh, but, uh, second hand machines are very, uh, latency, uh,"
+    },
+    {
+      "start": 971.21,
+      "end": 980.89,
+      "text": "machines is not, uh, encouraged because, uh, you know, uh, the chip electricity always, uh, have a smaller scale."
+    },
+    {
+      "start": 981.45,
+      "end": 998.66,
+      "text": "So you must, uh, you want, you surely want, uh, a total, uh, you know, the, the TCO for the, or the total revenue for, from the side. So, uh, uh, very, very, uh, no, you know, the bad machines will not give you a very, very good, uh, return."
+    },
+    {
+      "start": 998.66,
+      "end": 1003.62,
+      "text": "So, uh, by, by new machines, by the cost, the effective model is, is, it's better. Yeah."
+    },
+    {
+      "start": 1004.18,
+      "end": 1019.54,
+      "text": "I see. Uh, now we were talking about small scale miners. I think it's probably a good spot also just to ask about that. So there's, uh, this, you know, there are home miners and small scale miners and maybe there's discussion around things like heat recovery or heat reuse."
+    },
+    {
+      "start": 1020.1,
+      "end": 1024.9,
+      "text": "Can you tell us about any products you've done for this category for the home or small scale miner?"
+    },
+    {
+      "start": 1025.8,
+      "end": 1037.16,
+      "text": "Um, I think we, uh, before we talk about the home miner is a very big topic. Uh, we start from the big public miners versus small private miners."
+    },
+    {
+      "start": 1037.88,
+      "end": 1054.17,
+      "text": "Um, I think maybe it's, uh, it's not very, uh, uh, you know, not as, uh, public thought large miners and, uh, uh, small private miners have different advantages."
+    },
+    {
+      "start": 1054.17,
+      "end": 1063.53,
+      "text": "This is my, uh, my view. Uh, large miners, uh, care about like the, the fleet, economics, financing, the use financing, right?"
+    },
+    {
+      "start": 1064.01,
+      "end": 1083.93,
+      "text": "Uh, like, uh, big scale delivery schedule, warranty service, everything. Um, and, uh, smaller miners, you really care about the flexibility, uh, you need to price, uh, easy of deployment because they have maybe, uh, no IT team for the operation."
+    },
+    {
+      "start": 1084.17,
+      "end": 1096.25,
+      "text": "Only the owner itself will have to deal with everything so that they need easier for deployment, uh, also fast support and, uh, uh, it's, uh, and local power opportunities."
+    },
+    {
+      "start": 1096.49,
+      "end": 1112.31,
+      "text": "So, uh, both models will continue, uh, to, to that's the, uh, big coin money is very, uh, drill, uh, geography. So very, uh, very large size, uh, that's not always have the, or always have nothing."
+    },
+    {
+      "start": 1112.63,
+      "end": 1139.5,
+      "text": "And not always have the lowest cost. Uh, sometimes, uh, the infrastructure, green connection, uh, we'll make the, and also financing, we'll make the cost higher than, uh, probably the smaller, uh, miner, uh, a smaller one, you really have access to local, uh, like, uh, surplus power or regional energy opportunities that, uh, a large public miner, uh, cannot use."
+    },
+    {
+      "start": 1139.58,
+      "end": 1154.62,
+      "text": "So, I think this is a very healthy, uh, model, not being a model for big coin. Uh, that means, uh, it's, uh, have a natural, uh, decentralization for the, uh, deployment of the, uh, money hardware."
+    },
+    {
+      "start": 1155.18,
+      "end": 1169.34,
+      "text": "So, uh, yeah, we want industry scale, but we also want, uh, decentralization. So, uh, we, we, we are very friendly for both large and small, uh, miners. Also, the price for the, uh, large scale,"
+    },
+    {
+      "start": 1169.66,
+      "end": 1178.86,
+      "text": "or like 200, 500 machines, uh, the gap is really narrow in these days. So, yeah, this is the, uh, realization."
+    },
+    {
+      "start": 1179.42,
+      "end": 1197.1,
+      "text": "Yeah. And then, as I understand, you have product lines that, um, I targeted for, um, smaller scale miners. Uh, can you talk a little bit about some of those, uh, the different lines that you have, because you have the Avalon A16, and then you have the, uh, some of these other product lines."
+    },
+    {
+      "start": 1198.31,
+      "end": 1210.15,
+      "text": "Yeah, you know, we built, uh, build, uh, home miner and small scale miner from the very beginning for, uh, Avalon, uh, brand from maybe Avalon III, I think."
+    },
+    {
+      "start": 1210.71,
+      "end": 1221.67,
+      "text": "Yeah. Um, yeah. So, uh, today we have, uh, uh, reopened the, the, the home miner production line. Uh, we have several products in the category."
+    },
+    {
+      "start": 1222.23,
+      "end": 1241.66,
+      "text": "Uh, Avalon Mini-3, uh, I think I introduced from the, the, the bigger one, from to the smaller one. Uh, we have Avalon Q is the biggest for, uh, home mining, uh, it's 90 terahesh, uh, today. And, uh, I think it's going to upgrade, uh, in the next few months."
+    },
+    {
+      "start": 1242.62,
+      "end": 1252.3,
+      "text": "And then it's Mini-3, uh, and we have, uh, Nano-3S, uh, and we also have, uh, a few, uh, new products that's coming out this year."
+    },
+    {
+      "start": 1253.02,
+      "end": 1263.77,
+      "text": "Uh, so the line up is, uh, from higher performance to lower performance, uh, but, uh, the, um, uh, lower, it's a lower, the hatch rate."
+    },
+    {
+      "start": 1264.49,
+      "end": 1271.13,
+      "text": "Uh, it will be more friendly for the, for a home, uh, like, uh, Avalon Mini-3 is, uh,"
+    },
+    {
+      "start": 1271.85,
+      "end": 1286.25,
+      "text": "it's electronic heater style. It has a very good, uh, uh, out, uh, outlooking. So, uh, why, why we do the, uh, home, uh, the series, I, I think the first answer is decentralization."
+    },
+    {
+      "start": 1286.89,
+      "end": 1297.53,
+      "text": "Uh, Bitcoin is, uh, not, uh, compete of, uh, other people can only hold coins, but cannot, uh, participate in the mining layer."
+    },
+    {
+      "start": 1297.53,
+      "end": 1306.97,
+      "text": "So my, my long term, I have a long term green, uh, it's, uh, that's very clear. Uh, we, uh, I would like to see home mining become, uh,"
+    },
+    {
+      "start": 1306.97,
+      "end": 1319.61,
+      "text": "meaningful part of the global hatch rate, uh, maybe, like, 20 percent, uh, for the total, uh, network hatch rate. Uh, that, that means, uh, we need to sell two, two million, uh, Avalon Kumashis."
+    },
+    {
+      "start": 1319.61,
+      "end": 1327.21,
+      "text": "So it's very tough for, uh, so actually out of curiosity, what would you estimate home mining is today as a percentage of Bitcoin."
+    },
+    {
+      "start": 1327.53,
+      "end": 1339.72,
+      "text": "Overall hatch rate. Um, I think it's still low. Uh, we are, uh, uh, I think the, the, the mouse dough is like, uh, we, maybe like, start from like two percent, no 30 percent."
+    },
+    {
+      "start": 1340.2,
+      "end": 1343.08,
+      "text": "So you're trying to 10x, uh, that, uh, that number."
+    },
+    {
+      "start": 1343.4,
+      "end": 1353.56,
+      "text": "It's not a very, very, very big spill in this industry, right? So, uh, yeah, we, um, I think the product, uh, it's still, uh,"
+    },
+    {
+      "start": 1354.28,
+      "end": 1370.28,
+      "text": "it's, uh, it's, uh, it's fairly good enough for, for, for that target. Uh, but, uh, the marketing, uh, channels, uh, it's different, uh, it's different, uh, for, uh, from the like, uh, our traditional to be business."
+    },
+    {
+      "start": 1370.28,
+      "end": 1375.8,
+      "text": "So, uh, it's really, uh, we need to learn something new. Yeah."
+    },
+    {
+      "start": 1376.12,
+      "end": 1402.14,
+      "text": "I see. Yeah. And I guess you're, you're selling different features in a way, because maybe with the whole heat recovery, heat reuse idea, it makes more sense in cold countries, uh, to, to sell these home miners, because obviously they can get a benefit, uh, from the heat reuse aspect, which maybe lowers the cost of mining, um, for them, uh, is that something you're looking at, is that how it works?"
+    },
+    {
+      "start": 1403.18,
+      "end": 1424.12,
+      "text": "Yeah, about the heat recovery, uh, we, we started topic from the home miner, um, you know, every what, uh, used by a miner eventually becomes heat, uh, so normal electron, uh, heater, converse electricity into heat and a Bitcoin miner, a Bitcoin heater, uh,"
+    },
+    {
+      "start": 1424.12,
+      "end": 1451.16,
+      "text": "converse electricity into, uh, network, security, uh, Bitcoin reward, and the heat. So, so it's much more interesting use of an energy, uh, you know, uh, to achieve that goal, uh, a home miner is not just a smaller industry miner, uh, it has to look good, uh, has to be easy to use, and has to be safe."
+    },
+    {
+      "start": 1451.16,
+      "end": 1481.08,
+      "text": "Uh, yeah, it's a need to have very good materials and the reliability, uh, it must have lasted three or five years in your home, at least. So, uh, for me, um, I think the noise, uh, requirement is the very, it's very strict, uh, I test, uh, our, uh, home miner, uh, in my bedroom, uh, I need to have a, uh, in her,"
+    },
+    {
+      "start": 1482.36,
+      "end": 1496.92,
+      "text": "sleep overnight, when the miner is running next to my bag, this is the, the target, uh, also, this is a standard, it's not targeted, we already achieved that. So, uh, this is, uh, the, uh,"
+    },
+    {
+      "start": 1497.88,
+      "end": 1511.16,
+      "text": "standard for home, home product. Um, and I also want to see, uh, say, say something, uh, uh, further than that. I think, uh, we are entering an age of continuous personal computing."
+    },
+    {
+      "start": 1511.72,
+      "end": 1522.6,
+      "text": "Uh, Bitcoin mining is the first, uh, over various example, um, you know, uh, I think you are using every, every, every, every one is using AI today, right?"
+    },
+    {
+      "start": 1523.16,
+      "end": 1541.08,
+      "text": "And, uh, uh, also, uh, I think in the next stage, uh, most people will have their, uh, private cloud, uh, it, the access space, the place is, uh, to install the workstation or a server in your room, but, uh, sure, it, it must be very quiet, just like the, uh,"
+    },
+    {
+      "start": 1542.12,
+      "end": 1561.56,
+      "text": "uh, uh, home miner today. So, uh, I think we, uh, this, uh, this product line in, uh, in, uh, individuals home, uh, open, uh, new concept for, uh, the computing, uh, device, uh, in, for, for, uh, personal use. Yeah."
+    },
+    {
+      "start": 1562.39,
+      "end": 1586.1,
+      "text": "And, uh, then I think we can talk about, uh, the bigger one. Yeah, uh, the bigger one. Um, uh, you know, we, uh, today, uh, we, uh, uh, changing the, um, well, well, we're not together with the, uh, the ESG stuff."
+    },
+    {
+      "start": 1586.1,
+      "end": 1602.1,
+      "text": "Uh, yeah. So, uh, firstly, uh, it's very, uh, the money, the money, uh, running is very clean. Uh, it's, uh, it will not, uh, product any waste for, promise, uh, running."
+    },
+    {
+      "start": 1602.1,
+      "end": 1610.1,
+      "text": "So, uh, and also it's very, uh, low cost, uh, compared with many industrial laws."
+    },
+    {
+      "start": 1610.5,
+      "end": 1619.7,
+      "text": "So, uh, it can turn, uh, directly, uh, with electricity into, uh, value for digital, digital asset."
+    },
+    {
+      "start": 1619.7,
+      "end": 1632.1,
+      "text": "And, uh, it's very useful for renewable energy. Uh, and, uh, we, uh, the heat recovery, uh, in the last scale, it's, uh, it's very different to, to home miner."
+    },
+    {
+      "start": 1633.06,
+      "end": 1648.2,
+      "text": "Um, we need to produce hot water, uh, the standard for the hot water is, uh, it's really high. I think we, we need to start like, uh, 80, I think number is 81 degrees, uh, sources."
+    },
+    {
+      "start": 1648.2,
+      "end": 1659.0,
+      "text": "Uh, so it's, uh, it's really high. I think most of the, uh, the home, uh, water heater can generate like, uh, 80 degrees sources. It cannot handle that."
+    },
+    {
+      "start": 1659.0,
+      "end": 1665.0,
+      "text": "But we need to, uh, produce 81, uh, uh, uh, and also, and maybe 85 at most."
+    },
+    {
+      "start": 1665.0,
+      "end": 1685.0,
+      "text": "So, uh, it requires, uh, many special design for the system. Uh, and, uh, it, it must have lasted for 3,000 years. So, uh, we, uh, I think we've already spent like, uh, over one year working on all this. It's a different, uh, industry feel, I think. So, uh,"
+    },
+    {
+      "start": 1685.0,
+      "end": 1709.0,
+      "text": "um, uh, we already, uh, deployed, uh, many, uh, I think it's about like a three, three or five, uh, sites, uh, using the miners to generate hot water, uh, to, uh, service the, the town, uh, many, uh, yeah."
+    },
+    {
+      "start": 1709.0,
+      "end": 1733.32,
+      "text": "I guess what you're getting at is, um, it's, it's not just a home minor thing. Actually, even at larger minor scales, they are looking at heat reuse. And in this case, water heating as a way of, um, maybe lowering the cost, uh, or getting the benefit in another way so that, um, you can make it work as an overall business model."
+    },
+    {
+      "start": 1733.32,
+      "end": 1765.04,
+      "text": "I think it's a major target is to, is to get out of the heat. And then it's, uh, Bitcoin mining. This is a different. Yeah. So I guess different business models are out there. Um, I guess the other aspect is when it comes to Bitcoin mining, people can talk about the different methods of calling, right? Like air calling, hydro, um, which seems to be also gaining in popularity and immersion calling. So can you just talk to the different methods of calling and how you see that as, you know, from a canon perspective? Um, yeah."
+    },
+    {
+      "start": 1765.08,
+      "end": 1782.08,
+      "text": "Uh, because there's, uh, the one cooling master that cannot with everywhere. So, uh, still today, I think the air cooling is the most universal because it's simple. Uh, lower cost and either to deploy and use it to maintain."
+    },
+    {
+      "start": 1782.08,
+      "end": 1793.08,
+      "text": "Uh, it works for many times of customers. Uh, and our machines is optimized to running in the wild. So it's good."
+    },
+    {
+      "start": 1793.08,
+      "end": 1807.08,
+      "text": "Uh, but for larger industrial sites, uh, especially in, uh, in like the US or Europe, hydro cooling is becoming much more important."
+    },
+    {
+      "start": 1807.08,
+      "end": 1821.18,
+      "text": "Uh, the direction is high density machines. Uh, because, um, the hydro sites is more expensive for every rank."
+    },
+    {
+      "start": 1821.18,
+      "end": 1837.18,
+      "text": "So, uh, often like our, uh, to you class machine, uh, can, it's already like 10 kilowatts. So, uh, I think it's very, it's equal, equal to the, uh, modern, uh, GPU servers."
+    },
+    {
+      "start": 1837.18,
+      "end": 1859.18,
+      "text": "So, you, maybe you can just use them, uh, before the, uh, the expensive GPUs come, comes, comes in your advocacy, uh, just to use the, uh, the, the, the, uh, miners, uh, to, to just consumption, uh, the electricity and the general heat. It's, it's already good. Yeah."
+    },
+    {
+      "start": 1859.18,
+      "end": 1881.18,
+      "text": "Um, yeah. So, uh, also, I, I think, um, it's, uh, it's good for, uh, like, uh, if you have, uh, mining site, uh, next to some, uh, living area, uh, the hydro system will, uh, generate lower, uh, noise and, uh, uh, lower maintenance."
+    },
+    {
+      "start": 1881.18,
+      "end": 1901.27,
+      "text": "It's also benefits for, uh, for that, uh, also we have the immersion, uh, version for the machines. Uh, yeah. So, we, we have all the types, uh, uh, we, we don't make decisions, uh, uh, for our customers, uh, our customers can, can decide. Yeah."
+    },
+    {
+      "start": 1901.27,
+      "end": 1923.27,
+      "text": "Uh, and also on the form factor. As I understand, it's still, most of the mining is done in this so-called shoebox, um, form factor. Um, there's been some talk. No, maybe it's just talk. I'm curious to hear your reaction. Are there people interested in this idea of like a server rack style form factor for Bitcoin mining?"
+    },
+    {
+      "start": 1923.27,
+      "end": 1952.27,
+      "text": "Uh, I think, uh, except some, um, old, uh, sites, uh, the new sites is open work to, uh, to use style. Yeah. Because it's a standard, uh, factor for, uh, the water cooled servers that can reuse the, uh, infrastructure, uh, for something else. Yeah. So, uh, today, I think that maybe like 99% of the machines is already two to two."
+    },
+    {
+      "start": 1953.27,
+      "end": 1976.98,
+      "text": "It's a two year factor. Yeah. This year. Yeah. Yes. It's a, it's a shift there. Um, now, um, another area or topic I was interested to ask you about is strut and V2, which is, um, you know, a new protocol for Bitcoin mining. Uh, is Kenan looking at this? Would this be, would it make sense to have native firmware support for it on Avalon machines?"
+    },
+    {
+      "start": 1976.98,
+      "end": 1997.71,
+      "text": "Um, yeah. I think I, uh, I need to talk more about this topic. Uh, yes. I think the short answer is, uh, it's, it's yes. Uh, but there are two layers. Uh, you know, one layer is, uh, the first is a secure and efficient mining communication."
+    },
+    {
+      "start": 1997.71,
+      "end": 2010.71,
+      "text": "Uh, there's no, uh, the encryption in the street and we won and in V2, we have, uh, this, uh, we have, uh, encryption, so it's a, it's safer."
+    },
+    {
+      "start": 2010.71,
+      "end": 2024.9,
+      "text": "Uh, so the second layer, I think it's, uh, it's a, it's the JD, the drop, uh, declaration declaration. Yeah. This is, uh, uh, the really matters. Uh, but this is a lot down in the, uh,"
+    },
+    {
+      "start": 2024.9,
+      "end": 2033.9,
+      "text": "usually it's not down in the, uh, manner from where it's down in the, uh, like the bridge or the mining router or controller in the, in the size."
+    },
+    {
+      "start": 2033.9,
+      "end": 2046.0,
+      "text": "Uh, for Kenan, um, yeah, we, uh, you know, we, we are looking at this, uh, from an, uh, we are looking at this, uh, from an engineering perspective."
+    },
+    {
+      "start": 2046.0,
+      "end": 2054.0,
+      "text": "Uh, because many existing, uh, Avalon machines is using very, uh, concentrated,"
+    },
+    {
+      "start": 2054.0,
+      "end": 2062.0,
+      "text": "um, CU controllers. It's running, uh, ATOS. It's only have like four, four megabytes, no, no gigabytes, megabytes, uh, have memory."
+    },
+    {
+      "start": 2062.0,
+      "end": 2075.0,
+      "text": "Uh, so it's, uh, for that generation, the, the, the, even the, the, uh, you can only run the modern, uh, uh, incorporated communication because they're not, not confident power."
+    },
+    {
+      "start": 2075.0,
+      "end": 2096.0,
+      "text": "So, uh, it's, uh, that limitation is from hardware. Uh, this is why we, uh, uh, uh, reflecting the, uh, our first, uh, firmware architecture and also we are moving, uh, at some time, we are moving to a more, uh, capable associate platform, our, uh, K2, uh, to 30, uh, associate chip."
+    },
+    {
+      "start": 2096.0,
+      "end": 2112.0,
+      "text": "Uh, we are improving the SDK and, uh, uh, modelizing the control software, uh, improving the, uh, everything, and we can have, uh, the compatibility to, uh, implement more algorithm, like, uh, community communication, uh,"
+    },
+    {
+      "start": 2112.0,
+      "end": 2124.1,
+      "text": "and corrupt it for, for, uh, uh, in the, in the, in the firmware. So, uh, this region with two support is, uh, it's now on, uh, our to do internal to do list."
+    },
+    {
+      "start": 2124.1,
+      "end": 2140.1,
+      "text": "Uh, but I want to be clear, uh, the manner selected, uh, transaction templates should not be very small, manner controllers run at a full node. So, uh, a red architecture is a local gateway or something that, uh, as I mentioned."
+    },
+    {
+      "start": 2140.1,
+      "end": 2154.1,
+      "text": "Yeah, and, uh, yeah, and you know, we, uh, we do some, uh, we already published the, the code for, uh, our new platform, uh, late last year."
+    },
+    {
+      "start": 2154.1,
+      "end": 2169.1,
+      "text": "Uh, but, uh, I don't think the, uh, it's a, it's a, it's a, I have a very, very good code quality. So we are, uh, re, uh, re, re, re write everything, uh, nearly, re write everything this year."
+    },
+    {
+      "start": 2169.1,
+      "end": 2180.1,
+      "text": "Uh, I think the next, uh, three to six months, uh, you can, uh, yeah, keep our, uh, GitHub, uh, and, uh, we, we are doing."
+    },
+    {
+      "start": 2180.1,
+      "end": 2183.1,
+      "text": "We will have a new, uh, firmware platform."
+    },
+    {
+      "start": 2183.1,
+      "end": 2191.1,
+      "text": "Interesting. And so, are you saying then that, that you, you might look at surrounding V2 support in that three to six months."
+    },
+    {
+      "start": 2191.1,
+      "end": 2193.1,
+      "text": "Yeah. I'm on the new firmware."
+    },
+    {
+      "start": 2193.1,
+      "end": 2206.1,
+      "text": "Uh, in fact, uh, we are moving to, uh, 100%. Uh, we, internally, I said the number of 100% open source, uh, uh, firmware."
+    },
+    {
+      "start": 2206.1,
+      "end": 2219.1,
+      "text": "Uh, and also it's a modern design. So, uh, we could, uh, easily, uh, install, uh, new feature support, our, uh, new, uh, firmware platform."
+    },
+    {
+      "start": 2219.1,
+      "end": 2231.1,
+      "text": "Now, uh, it's, it's really hard because, uh, you know, it's not, uh, modular design. If you, you modify some, some, some, something and maybe, uh, kind of just kind of running."
+    },
+    {
+      "start": 2231.1,
+      "end": 2242.1,
+      "text": "So, uh, it's a very, uh, latency, uh, structure for the old, uh, old, old platform. So we are trying to, uh, build a new one in the next three to six months."
+    },
+    {
+      "start": 2242.1,
+      "end": 2248.38,
+      "text": "Yeah. Also, uh, this region, V2 support is, uh, on a total list. Yeah. Yeah. Gotcha."
+    },
+    {
+      "start": 2248.38,
+      "end": 2257.38,
+      "text": "Um, okay. So that's on the, the firmware side and then the, the two list. Okay. So I guess, uh, zooming out a little bit about the broader minor mining industry."
+    },
+    {
+      "start": 2257.38,
+      "end": 2267.38,
+      "text": "I mean, we were touching on this a little bit around how there are these, you know, big public miners. Some of those have, let's say partially or fully pivoted to AI and HPC."
+    },
+    {
+      "start": 2267.38,
+      "end": 2277.38,
+      "text": "And then you have these smaller and private miners. Can you talk to us a little bit about just the difference in how you're going to the market there because I guess it must be different when you're selling to these big hyperscalers versus selling."
+    },
+    {
+      "start": 2277.38,
+      "end": 2287.22,
+      "text": "To retail and smaller miners. How does this shift affect you from a sales marketing perspective?"
+    },
+    {
+      "start": 2287.22,
+      "end": 2297.22,
+      "text": "Um, yeah. I think for, uh, as I mentioned, if, uh, we, we assume we are talking about to be, uh, models."
+    },
+    {
+      "start": 2297.22,
+      "end": 2313.6,
+      "text": "Um, yeah. Uh, there's a lot of miners, uh, care about, uh, you know, that mentioned like the, uh, financing delivery schedule, everything warranty, uh, outside support."
+    },
+    {
+      "start": 2313.6,
+      "end": 2326.82,
+      "text": "Uh, yeah. Uh, smaller miners, uh, is more close to like the home miners, uh, you need to do marketing."
+    },
+    {
+      "start": 2326.82,
+      "end": 2336.82,
+      "text": "Or then we just don't know what is our reminder. Yeah. Yeah. We, we, we all buy, we, uh, the only thing I know is, uh, it's big mess. So this is, this is such early Chinese stuff."
+    },
+    {
+      "start": 2336.82,
+      "end": 2343.82,
+      "text": "Uh, so we, we need to do more marketing, uh, for this, uh, uh, this group of customers."
+    },
+    {
+      "start": 2343.82,
+      "end": 2362.82,
+      "text": "And also they are care about the cost, uh, uh, and, uh, the flexibility, uh, easy, uh, deployment, uh, if you have some software to manage, uh, of our, uh, my, my 20 machines, uh, this kind of stuff."
+    },
+    {
+      "start": 2362.82,
+      "end": 2384.82,
+      "text": "Or, uh, and also, uh, have the local army, uh, site, uh, it's, uh, it's better, uh, for, for this kind of customers, because that's a natural one. We have their own, uh, you, you always, always that we have, uh, uh, all repaired a station, uh, outside, but, uh, you cannot have that for a smaller one. Yeah."
+    },
+    {
+      "start": 2384.82,
+      "end": 2389.82,
+      "text": "Uh, so this is, uh, different for, for, uh, larger one, uh, smaller one."
+    },
+    {
+      "start": 2389.82,
+      "end": 2402.82,
+      "text": "Now, when it comes to energy and grid integration, there's been a lot of discussion about this also, especially in recent years, things like grid balancing, demand response, heat reuse at scale."
+    },
+    {
+      "start": 2402.82,
+      "end": 2413.82,
+      "text": "Uh, I know you have been commenting or the company has been commenting a little bit on this. Can you expand on that on how you are viewing this Bitcoin mining and energy grid integration."
+    },
+    {
+      "start": 2413.82,
+      "end": 2433.92,
+      "text": "Yeah, I think these years, uh, people discussing, uh, mine is, uh, not only, uh, uh, and pure energy consumer, uh, mine is also a very, uh, flexible energy commission for today."
+    },
+    {
+      "start": 2433.92,
+      "end": 2454.92,
+      "text": "Uh, the first is very clean to operation. Uh, second is very useful for the renewable energy. Uh, we have some QC sites, uh, installed, uh, using battery and, uh, the wind power, uh, mostly it can run like 20, 220 days per year."
+    },
+    {
+      "start": 2454.92,
+      "end": 2477.92,
+      "text": "Uh, but because the wind and solar is a very volatile. So, uh, the power is not, uh, stable enough. Uh, we need to do special designs and write software calls for, uh, to combine the, uh, the wind return, uh, the battery and the machines."
+    },
+    {
+      "start": 2477.92,
+      "end": 2492.92,
+      "text": "So, uh, also we have some, uh, cooperation with, uh, with college, uh, we are doing research for, uh, products, weather, uh, to have the best, uh, uh, uh, our reason for that."
+    },
+    {
+      "start": 2492.92,
+      "end": 2502.92,
+      "text": "So this is, uh, uh, there's no like, uh, yeah, we need to do some, some more research on this, uh, this field."
+    },
+    {
+      "start": 2502.92,
+      "end": 2512.92,
+      "text": "Um, but sure it can, uh, can, the mining can absorb, uh, supplies and the improbably corn, oh, it's for, uh, renewable, for that."
+    },
+    {
+      "start": 2512.92,
+      "end": 2528.02,
+      "text": "Yeah, so, uh, our work with, uh, uh, seamless type of example for direction, uh, generation, uh, storage and the mining, uh, together, uh, with power scheduling."
+    },
+    {
+      "start": 2528.02,
+      "end": 2548.02,
+      "text": "So, uh, hatred follows, uh, energy, uh, conditions, uh, run at different, uh, running levels, uh, so this idea is not, uh, to compete with the, uh, the grid, uh, idea is the follow the power and the, the, the use energy that, uh, otherwise, uh, may have a very, very low value."
+    },
+    {
+      "start": 2548.02,
+      "end": 2550.02,
+      "text": "Yeah, this is, uh, whatever I do."
+    },
+    {
+      "start": 2550.02,
+      "end": 2556.02,
+      "text": "Uh, and, uh, we just mentioned, uh, heat recovery is another important part."
+    },
+    {
+      "start": 2556.02,
+      "end": 2568.02,
+      "text": "Uh, if mining produces hot water that can heat homes, uh, drain houses or industry, uh, processes, uh, this is a real ESC use case."
+    },
+    {
+      "start": 2568.02,
+      "end": 2580.56,
+      "text": "Uh, yeah, it's much better for then, uh, like, uh, you can, you can, you, you, you, to, to, uh, let the, the cap and the bottle together, you know."
+    },
+    {
+      "start": 2580.56,
+      "end": 2592.56,
+      "text": "So, uh, this is, uh, uh, and I would add one more thing that, uh, the home mining is, uh, already the, uh, best heat reuse is also ESG."
+    },
+    {
+      "start": 2592.56,
+      "end": 2602.56,
+      "text": "So, uh, yeah, uh, ESG is, uh, you can, you can do a very large scale project. Also, you can do it in a very tiny project."
+    },
+    {
+      "start": 2602.56,
+      "end": 2612.56,
+      "text": "Yeah. So, um, also, uh, looking forward, I think the idea is that it's, uh, we have a great huge, uh, electricity demand."
+    },
+    {
+      "start": 2612.56,
+      "end": 2620.56,
+      "text": "Uh, they also need redundancy, uh, backup power, you pay for the, for the grid, for the, uh, line, uh, for backup."
+    },
+    {
+      "start": 2620.56,
+      "end": 2632.56,
+      "text": "Uh, for backup, uh, so, uh, uh, uh, and also they need, uh, load management. I think mining can work together with the infrastructure as a flexible computing load."
+    },
+    {
+      "start": 2632.56,
+      "end": 2642.56,
+      "text": "Uh, we can use the backup power for, for mining and just the cut off, uh, the, the miners when you, you needed the backup power."
+    },
+    {
+      "start": 2642.56,
+      "end": 2654.56,
+      "text": "So, the physical infrastructure is, uh, becoming more, uh, simpler, uh, high-density power, uh, liquid cooling ranks, uh, and energy management software."
+    },
+    {
+      "start": 2654.56,
+      "end": 2660.56,
+      "text": "Yeah. This is, uh, uh, the future for the, uh, the mining industry."
+    },
+    {
+      "start": 2660.56,
+      "end": 2669.04,
+      "text": "Excellent. Well, uh, I think those are the key areas that I was interested to talk about. Do you have any closing thoughts before we finish up?"
+    },
+    {
+      "start": 2669.04,
+      "end": 2691.55,
+      "text": "Anything? Yeah. Um, I think for the, uh, yeah, I, I think for the, uh, you know, uh, about the, yeah, we'll be talking about some, uh, something about the, the next generation or next about years about the mining industry."
+    },
+    {
+      "start": 2691.55,
+      "end": 2703.74,
+      "text": "I think 2026 is, uh, the first time, uh, I really, really feel the efficiency curve is slowing down in, in Bitcoin mining."
+    },
+    {
+      "start": 2703.74,
+      "end": 2720.74,
+      "text": "Uh, it's not that only a cannon issue. Uh, it's, uh, it is, uh, I, I'm talking about the reasons. Uh, it, it is a semiconductor economics. Uh, you know, the, the best knows, uh, becoming more and more expensive today."
+    },
+    {
+      "start": 2720.74,
+      "end": 2730.74,
+      "text": "Uh, AI benefits a lot from high density because, uh, it needs, uh, larger, more complex chips and packages."
+    },
+    {
+      "start": 2730.74,
+      "end": 2740.94,
+      "text": "Bitcoin money is different. Uh, that's actually, uh, 2006 is, uh, it's very simple and the power now. So the size is never a big deal problem."
+    },
+    {
+      "start": 2740.94,
+      "end": 2750.0,
+      "text": "Uh, so for every transistor's, uh, price, uh, I think the lowest point is like 12 millimeters."
+    },
+    {
+      "start": 2750.0,
+      "end": 2763.03,
+      "text": "Uh, many years ago, uh, and then the price for, uh, each transistor's is, uh, going up, it's not going down, uh, when you upgrade your, uh, your notes."
+    },
+    {
+      "start": 2763.03,
+      "end": 2775.03,
+      "text": "Uh, but the efficiency, uh, and the performance is still, uh, improving significantly from, uh, the, uh, more advanced notes."
+    },
+    {
+      "start": 2775.03,
+      "end": 2796.26,
+      "text": "So the whole industry is continued to upgrade rapidly. Um, but today, um, you know, as I mentioned, like from four nanometers to three, then, uh, two nanometers, uh, the performance, uh, improvements is low, much lower than, uh,"
+    },
+    {
+      "start": 2796.26,
+      "end": 2808.26,
+      "text": "uh, yesterday. And, uh, the cost is, uh, skyrocket high today. Uh, the only benefits is you have, uh, you can achieve more density, which is useless for money."
+    },
+    {
+      "start": 2808.26,
+      "end": 2825.74,
+      "text": "So this is the reason why the, uh, the first time I really feel the efficiency curve is throwing down. Um, um, but, uh, sure, we, we, I think we already, uh, down the, uh, uh, R&D for the next generation."
+    },
+    {
+      "start": 2825.74,
+      "end": 2839.9,
+      "text": "Uh, today, uh, we also have like, uh, uh, uh, uh, uh, uh, 15, 20% of improvements for the next generation, uh, with the reasonable cost."
+    },
+    {
+      "start": 2839.9,
+      "end": 2846.9,
+      "text": "Uh, but I think that the, you know, last, the last generation, there's, uh, like 30% of improvements."
+    },
+    {
+      "start": 2846.9,
+      "end": 2866.12,
+      "text": "And also, uh, much higher cost for that generation. So, um, in some ways, I think this is good because, uh, the industry is finally, uh, mature enough to, uh, build infrastructure, uh, knows the, not just, uh, replace the machines all day."
+    },
+    {
+      "start": 2866.12,
+      "end": 2880.12,
+      "text": "So, uh, yeah. So if you, uh, I think if you, anyone want to, uh, join the industry is still, uh, a good time into, to buy machines, uh, but, uh, yeah, you know, it's, uh, it's a better, better market now."
+    },
+    {
+      "start": 2880.12,
+      "end": 2893.12,
+      "text": "So, uh, but, uh, I think the, uh, for, uh, have a better profit, uh, usually we, people invest in the bear market and harvest, uh, in the bull market."
+    },
+    {
+      "start": 2893.12,
+      "end": 2901.63,
+      "text": "So this is, uh, many, many times. Yeah. This is, uh, maybe the, the last thing I, I want to talk today."
+    },
+    {
+      "start": 2901.63,
+      "end": 2910.63,
+      "text": "Yeah. Well, uh, thank you for sharing, um, your insights with us. Uh, and, uh, yeah, listen to this, check it out. It's, uh, my guest is NG Zang of Canaan."
+    },
+    {
+      "start": 2910.63,
+      "end": 2912.63,
+      "text": "Uh, NG, thank you for joining me today."
+    },
+    {
+      "start": 2912.63,
+      "end": 2915.92,
+      "text": "Welcome. See you next time. Bye-bye."
+    }
+  ],
+  "topics": [
+    "mining",
+    "price",
+    "regulation",
+    "lightning",
+    "institutional",
+    "privacy"
+  ],
+  "sentiment": "bearish",
+  "archived_at": "2026-07-15T18:47:38Z"
+}

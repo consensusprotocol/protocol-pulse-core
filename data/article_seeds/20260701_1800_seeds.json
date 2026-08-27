@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-07-01T18:00:30.423388+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Extreme Fear, Institutional Accumulation: Is Bitcoin At The Capitulation Bottom?",
+      "angle": "Analyze the Fear & Greed/price divergence\u2014why extreme fear readings historically precede reversals and what on-chain data (mempool, hashrate, miner behavior) reveals about conviction",
+      "tags": [
+        "bitcoin",
+        "sentiment-analysis",
+        "capitulation",
+        "institutions",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Mempool Breathing Room: Why Low Bitcoin Fees Signal More Than Just Congestion Relief",
+      "angle": "Explore how normalized mempool (102k txs, 4 sat/vB) reflects miner health and retail vs. institutional spending patterns during volatility cycles",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "miners",
+        "on-chain-metrics"
+      ]
+    },
+    {
+      "headline": "The $62K Inflection: What Bitcoin Needs to Confirm a Real Reversal",
+      "angle": "Technical setup for the key resistance break\u2014volume requirements, macro context, and halving narrative (4k blocks away) that miners are already pricing in",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "resistance",
+        "halving",
+        "price-action"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Evening Brief",
+  "generated_at": "2026-08-12T02:00:05.155242+00:00",
+  "duration": 45.5,
+  "mp4_path": "brief_20260812_0200.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260812_0200.mp4",
+  "video_url": "/data/stage_briefs/brief_20260812_0200.mp4",
+  "episode_date": "2026-08-12",
+  "brief_type": "evening",
+  "script_summary": "Bitcoin closed US hours at $63,799, down 0.3 percent, holding above key support as fear grips the tape at 27 on the index. \n\nNetwork health stays robust with hashrate at 822.8 EH/s and mempool backlog at 80,087 transactions, though fees remain low at 3 sat per vB. Block height now sits at 962,073. \n\nKey takeaway: price action shows resilience while sentiment stays depressed, keeping downside limited for now. \n\nWatch overnight for any macro headline that could trigger a move through 64,200 resist",
+  "word_count": 85,
+  "tts_provider": "chatterbox",
+  "btc_price": 63799.0,
+  "sentiment_score": null
+}

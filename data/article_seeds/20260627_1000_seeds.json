@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-27T10:00:31.815253+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Fear & Greed at 15: Is Bitcoin Capitulation Setting Up the Next Rip?",
+      "angle": "Historical analysis of extreme fear readings and how they've preceded major reversals; miner behavior as leading indicator",
+      "tags": [
+        "bitcoin",
+        "fear-greed-index",
+        "market-psychology",
+        "miners",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "1 Sat/vB Fees Signal Retail Exodus\u2014Where's Institutional Demand?",
+      "angle": "Mempool analysis and what collapsed transaction fees reveal about smart money positioning vs retail panic",
+      "tags": [
+        "bitcoin",
+        "network-fees",
+        "mempool",
+        "institutional-buyers",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "Hashrate Holds at 970.7 EH/s: Are Miners Accumulating or Capitulating?",
+      "angle": "Deep dive into miner conviction during margin pressure; what sustained hashrate means for network security and price floors",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "network-health",
+        "accumulation"
+      ]
+    }
+  ]
+}

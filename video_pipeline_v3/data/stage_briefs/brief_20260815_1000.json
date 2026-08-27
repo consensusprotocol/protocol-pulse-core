@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-08-15T10:00:05.156192+00:00",
+  "duration": 67.7,
+  "mp4_path": "brief_20260815_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260815_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260815_1000.mp4",
+  "episode_date": "2026-08-15",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin self-custody discussions are surging as hashrate holds at 941.7 EH/s and the network absorbs the latest supply shock from this halving cycle. Marty Bent has noted the Fed remains boxed in on rates, a limit already baked into Bitcoin's design. Andreas Antonopoulos has flagged this cycle as distinct because prior halvings have hardened the protocol against shocks.\n\nPrice sits at $62,966, up 0.4 percent, with Fear & Greed at 34. Mempool shows 76,230 transactions and a 1 sat/vB floor. Block ",
+  "word_count": 123,
+  "tts_provider": "chatterbox",
+  "btc_price": 62966.0,
+  "sentiment_score": null
+}

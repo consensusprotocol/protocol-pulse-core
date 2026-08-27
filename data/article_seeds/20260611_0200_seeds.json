@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-11T02:00:33.176669+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Bitcoin at Maximum Fear: Why Extreme Capitulation Readings Could Signal a Contrarian Bottom",
+      "angle": "Historical analysis of F&G readings at 12 and subsequent market reversals; network health as confirmation signal",
+      "tags": [
+        "bitcoin",
+        "fear-and-greed",
+        "capitulation",
+        "market-psychology"
+      ]
+    },
+    {
+      "headline": "The Mempool Whisper: Why Collapsed Fees Tell a Different Story Than Price",
+      "angle": "On-chain metrics as leading indicators; how 1 sat/byte fees reveal market apathy vs. accumulation intent",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain",
+        "transaction-fees"
+      ]
+    },
+    {
+      "headline": "Waiting for Asia: Why Bitcoin's Next Move Depends on Volume, Not Headlines",
+      "angle": "Range consolidation mechanics; how Asia's market open historically breaks compressed trading patterns",
+      "tags": [
+        "bitcoin",
+        "asia-trading",
+        "volume",
+        "technical-analysis"
+      ]
+    }
+  ]
+}

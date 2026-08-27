@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-07-03T02:00:19.614081+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Extreme Fear + Flushed Mempool: Bitcoin's Asymmetric Setup Into July",
+      "angle": "When retail capitulation meets network health, reversals often follow\u2014but timing remains elusive. Here's why F&G at 21 matters this weekend.",
+      "tags": [
+        "bitcoin",
+        "fear-greed-index",
+        "on-chain",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "Miners Steady at 871 EH/s as BTC Treads $60-63k Range",
+      "angle": "While price searches for direction, hashrate stability and absent network stress suggest confidence from the supply side.",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "on-chain-metrics"
+      ]
+    },
+    {
+      "headline": "Mempool Flush & 3 sat/vB Fees Signal Network Relief",
+      "angle": "As transaction queue clears and fees plummet, Bitcoin's congestion narrative collapses\u2014what does that mean for demand?",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network-health"
+      ]
+    }
+  ]
+}

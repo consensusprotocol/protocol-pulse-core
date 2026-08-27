@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-20T02:00:30.347465+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Extreme Fear at 23: Why Bitcoin's Capitulation Setup Is Historically Bullish",
+      "angle": "Deep dive on contrarian psychology\u2014when fear gauges hit extremes, markets typically reverse. Historical precedent + current on-chain data supporting bounce potential.",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "contrarian",
+        "technical-analysis",
+        "fear-gauge"
+      ]
+    },
+    {
+      "headline": "Miners Aren't Panicking: Why Bitcoin Hashrate Stability Signals Confidence",
+      "angle": "On-chain perspective\u2014steady hashrate at 938 EH/s despite market fear indicates institutional miners still bullish, contrasting with retail capitulation.",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "institutions",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Mempool Clearing, Fees Plunging: The Whale Movement Hidden Beneath Panic",
+      "angle": "Network analysis\u2014104K pending transactions but 2 sat/vB fees suggest smart money clearing friction. What does congestion clearing mean for the next move?",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "whale-movement",
+        "network-data"
+      ]
+    }
+  ]
+}

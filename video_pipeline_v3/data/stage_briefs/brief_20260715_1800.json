@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-07-15T18:00:02.367925+00:00",
+  "duration": 42.5,
+  "mp4_path": "brief_20260715_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260715_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260715_1800.mp4",
+  "episode_date": "2026-07-15",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin trades at 64,987 dollars with a modest 0.6 percent gain despite Extreme Fear at 25 on the index. Hashrate has climbed to 1019 exahashes per second, underscoring miner conviction.  \n\nMempool sits heavy at 100,747 transactions yet fastest fees hold at just 2 sat per vbyte, signaling efficient throughput. Block 958,179 confirms steady network progress. US session shows quiet resilience with no major liquidation spikes. On-chain data points to accumulation pressure building under the surface",
+  "word_count": 75,
+  "tts_provider": "chatterbox",
+  "btc_price": 64987.0,
+  "sentiment_score": null
+}

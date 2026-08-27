@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-08-06T18:00:04.909227+00:00",
+  "duration": 38.0,
+  "mp4_path": "brief_20260806_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260806_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260806_1800.mp4",
+  "episode_date": "2026-08-06",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin holds steady at 64,580 dollars, down just 0.2 percent, while extreme fear dominates with the index at 25. Miners show conviction as hashrate sits at 899 exahashes per second. The mempool carries 94,855 transactions yet fastest fees remain at just 2 sat per vbyte, indicating light urgency in the network. Block height advances to 961,324. US session action reflects quiet consolidation rather than capitulation.",
+  "word_count": 65,
+  "tts_provider": "chatterbox",
+  "btc_price": 64580.0,
+  "sentiment_score": null
+}

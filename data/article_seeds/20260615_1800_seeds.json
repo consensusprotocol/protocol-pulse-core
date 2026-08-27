@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-06-15T18:00:32.140063+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Contrarian Rally: Why Extreme Fear is a Bullish Signal",
+      "angle": "Analyzing how institutional accumulation during retail panic mirrors historical capitulation bottoms; hashrate confidence as leading indicator",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "institutional",
+        "capitulation",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Network Health Check: Bitcoin Holds Steady Despite Mempool Pressure",
+      "angle": "Why manageable base fees at 5 sat/byte prove Bitcoin's network isn't stressed despite 122k transaction backlog",
+      "tags": [
+        "bitcoin",
+        "network",
+        "mempool",
+        "scalability"
+      ]
+    },
+    {
+      "headline": "The $66,500 Line: Bitcoin's 12-Hour Test for Capitulation Bottom",
+      "angle": "Technical and on-chain evidence suggesting support level could mark major reversal if held through difficulty adjustment",
+      "tags": [
+        "bitcoin",
+        "price",
+        "support",
+        "technical-analysis",
+        "difficulty"
+      ]
+    }
+  ]
+}

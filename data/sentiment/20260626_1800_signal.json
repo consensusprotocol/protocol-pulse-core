@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-26T18:00:30.329953+00:00",
+  "brief_type": "midday",
+  "score": -35,
+  "bullish_signals": [
+    "Extreme fear index (13) historically precedes relief rallies",
+    "No on-chain panic dumps or exchange inflows",
+    "Network health solid: 1.05 EH hashrate, no miner capitulation",
+    "Clean mempool indicates no transaction backlog stress",
+    "Institutional selling lacks conviction"
+  ],
+  "bearish_signals": [
+    "Flat momentum in US morning session",
+    "Price stuck below $60K psychological level",
+    "Extreme fear sentiment suggests broader market anxiety"
+  ],
+  "neutral_topics": [
+    "Block height 955,527 \u2014 halvening narrative backdrop",
+    "Base fees at 4 sat/vB \u2014 normal network activity"
+  ]
+}

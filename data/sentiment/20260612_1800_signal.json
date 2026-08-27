@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-06-12T18:00:31.492712+00:00",
+  "brief_type": "midday",
+  "score": -35,
+  "bullish_signals": [
+    "Hashrate holding strong at 932 EH/s despite sideways price",
+    "No major liquidation signals emerging",
+    "Base fees remain cheap, network healthy",
+    "Extreme fear often precedes accumulation phases",
+    "$63,500 support holding so far"
+  ],
+  "bearish_signals": [
+    "Fear & Greed at extreme low of 12",
+    "Flat 24h performance (0.7% up)",
+    "Mempool congestion with 108k transactions",
+    "Thin institutional volume during US hours",
+    "Risk of $62,000 test if support breaks"
+  ],
+  "neutral_topics": [
+    "Block height progression (953,400)",
+    "Weekend Friday volume patterns",
+    "US morning trading hours"
+  ]
+}

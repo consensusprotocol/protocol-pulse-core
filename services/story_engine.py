@@ -398,6 +398,35 @@ def adversarial_verify(item):
             pass
     return item
 
+
+# ================= DOMAIN-FIT GATE (runs before expensive scoring) =================
+# GPT spec: kill off-topic stories before costly verification/writing.
+# PP covers: money, markets, bitcoin/crypto, macro, monetary policy, tech-power,
+# energy, financial censorship/sovereignty. NOT: personal finance advice columns,
+# lifestyle, sports, celebrity, generic consumer news.
+
+DOMAIN_FIT_KILL = [
+    r"\bam i too old\b", r"\broth conversion\b", r"\bshould i (buy|sell|retire)\b",
+    r"\bmy (wife|husband|spouse|kids?|401k|ira)\b", r"\bdear (moneyist|abby)\b",
+    r"\brecipe\b", r"\bhoroscope\b", r"\bcelebrity\b", r"\bhow to save money on\b",
+    r"\bbest (deals?|gifts?)\b", r"\btravel tips\b",
+]
+DOMAIN_FIT_CORE = [
+    "bitcoin","btc","crypto","fed","treasury","inflation","debt","dollar","currency",
+    "mining","hashrate","etf","blackrock","monetary","central bank","sovereign","sanction",
+    "stablecoin","energy","grid","ai","chip","semiconductor","regulation","sec","tariff",
+    "yield","bond","liquidity","banking","default","gold","reserve",
+]
+
+def domain_fit_score(item):
+    text = (item.get("title","") + " " + item.get("summary","")).lower()
+    for pat in DOMAIN_FIT_KILL:
+        if re.search(pat, text):
+            return 0.0  # hard kill
+    hits = sum(1 for kw in DOMAIN_FIT_CORE if kw in text)
+    return min(hits / 3.0, 1.0)  # 0 = off-topic, 1 = squarely in domain
+
+
 def run(top_n=10):
     print("=== SENSING ===")
     rss = harvest_rss()
@@ -411,6 +440,14 @@ def run(top_n=10):
     dropped = len(all_items) - len(fresh)
     all_items = fresh
     print(f"  After dedup + 48h freshness gate: {len(all_items)} (dropped {dropped} stale)")
+
+    print("=== DOMAIN-FIT GATE ===")
+    before = len(all_items)
+    all_items = [it for it in all_items if domain_fit_score(it) > 0.0]
+    # Sort by domain-fit so the LLM scores the most on-brand first; keep top 40 to bound cost
+    all_items.sort(key=lambda x: domain_fit_score(x), reverse=True)
+    all_items = all_items[:40]
+    print(f"  Domain-fit: {before} -> {len(all_items)} (killed off-topic + capped at 40)")
 
     print("=== DETERMINISTIC + LLM SCORING ===")
     all_items = llm_score_batch(all_items)

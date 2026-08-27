@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-11T10:00:32.340146+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 12: Why Bitcoin's Extreme Sentiment Reading Could Trigger Smart Money Entry",
+      "angle": "Historical analysis of capitulation-level fear readings as contrarian buy signals; how on-chain metrics confirm institutional accumulation patterns",
+      "tags": [
+        "bitcoin",
+        "sentiment analysis",
+        "institutional buying",
+        "contrarian investing"
+      ]
+    },
+    {
+      "headline": "The Mempool Tells the Truth: Why 1 Sat/Byte Fees Signal the End of Retail Panic",
+      "angle": "Deep dive into transaction data showing shift from desperation liquidation to patient accumulation; what low fees reveal about market psychology",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain analysis",
+        "market structure"
+      ]
+    },
+    {
+      "headline": "Hashrate Stability at 852 EH/s: Why Miners Aren't Capitulating Despite Bitcoin Volatility",
+      "angle": "Network fundamentals as leading indicator; how miner behavior diverges from retail panic, signaling conviction in long-term value",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "network health"
+      ]
+    }
+  ]
+}

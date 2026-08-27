@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-07-24T18:00:02.043378+00:00",
+  "duration": 43.8,
+  "mp4_path": "brief_20260724_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260724_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260724_1800.mp4",
+  "episode_date": "2026-07-24",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin trades at $64,089, down 1.1 percent in the last 24 hours as fear grips the market with a 28 reading on the index. US morning session showed steady selling pressure without major catalysts.\n\nOn-chain, hashrate sits at 835.8 EH/s, confirming miner commitment. The mempool holds 88,368 transactions with the fastest fee at just 1 sat per vB, signaling light priority demand despite volume.\n\nBlock height reached 959,451 at the 18:00 UTC mark. No breaking news moving the tape.",
+  "word_count": 79,
+  "tts_provider": "chatterbox",
+  "btc_price": 64089.0,
+  "sentiment_score": null
+}

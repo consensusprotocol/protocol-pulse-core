@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-30T18:00:31.646861+00:00",
+  "brief_type": "midday",
+  "score": -35,
+  "bullish_signals": [
+    "Extreme fear historically marks accumulation windows",
+    "Miners holding firm at 843.6 exahashes despite price decline",
+    "Mempool staying efficient at 107K txs, 3 sat/vB base fees",
+    "No panic liquidation on-chain yet",
+    "Shakeout pattern rather than structural breakdown"
+  ],
+  "bearish_signals": [
+    "3.5% overnight decline to $58.3K",
+    "Fear & Greed at 15 (extreme territory)",
+    "Retail abandoning positions"
+  ],
+  "neutral_topics": [
+    "Incomplete volume data",
+    "24-hour watch window clarity needed"
+  ]
+}

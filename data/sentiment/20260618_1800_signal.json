@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-18T18:00:28.038240+00:00",
+  "brief_type": "midday",
+  "score": 45,
+  "bullish_signals": [
+    "Hashrate holding firm at 823.1 EH/s despite price dump",
+    "Miners not capitulating",
+    "Extreme Fear (15) historically creates opportunity",
+    "Halving supply shock compression thesis intact",
+    "Mempool clearing efficiently (103K txs, 3 sat/vB)",
+    "Pre-halving volatility historically resolves upward"
+  ],
+  "bearish_signals": [
+    "5.2% 24-hour decline",
+    "Short-term price action weakness"
+  ],
+  "neutral_topics": [
+    "Block height at 954,288",
+    "Network transaction volume"
+  ]
+}

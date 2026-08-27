@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-08-02T18:00:05.314231+00:00",
+  "duration": 44.7,
+  "mp4_path": "brief_20260802_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260802_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260802_1800.mp4",
+  "episode_date": "2026-08-02",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin's hashrate has climbed to 1028.9 EH/s while fear and greed sits at 27, showing miners are expanding even as sentiment stays suppressed. Price holds at 63,256 dollars, up one percent in the last 24 hours through the US morning session. \n\nMempool remains heavy at 95,502 transactions, yet the fastest fee sits at just 2 sat per vbyte, signaling no urgency from spenders. Block height now stands at 960,754. On-chain metrics point to steady network security without corresponding demand pressure",
+  "word_count": 80,
+  "tts_provider": "chatterbox",
+  "btc_price": 63256.0,
+  "sentiment_score": null
+}

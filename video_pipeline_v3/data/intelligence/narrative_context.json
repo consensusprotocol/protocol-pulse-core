@@ -1,12 +1,8 @@
 {
-  "episode_narrative": "Traditional finance gatekeeping accelerates \u2014 major banks... is dominating Bitcoin discourse \u2014 18 of 0 Priority-1 thought leaders tweeted about it in the last 4 hours",
+  "episode_narrative": "No dominant narrative detected",
   "eryn_intro_hook": "Eryn should lead with the day's strongest Bitcoin signal",
-  "mark_context": "Mark should add context: 'Regulatory clarity as monetary control mechanism \u2014 Crypto...' is also trending with 14 thought leaders discussing it",
-  "clip_selection_priority": [
-    "Traditional finance gatekeeping accelerates \u2014 major banks...",
-    "Regulatory clarity as monetary control mechanism \u2014 Crypto...",
-    "Bitcoin capitulation presents historical buying opportuni..."
-  ],
+  "mark_context": "Mark should provide contrarian analysis on the dominant narrative",
+  "clip_selection_priority": [],
   "avoid_topics": [
     "price speculation",
     "altcoins"
@@ -16,10 +12,10 @@
     "And this is exactly what Bitcoin thought leaders predicted \u2014 here's what they said:",
     "The discourse on X is clear \u2014 let's hear from the channels who called this first:"
   ],
-  "dominant_narrative": "Traditional finance gatekeeping accelerates \u2014 major banks...",
+  "dominant_narrative": "unknown",
   "market_mood": "neutral",
   "top_quote": "",
   "top_quote_handles": [],
-  "quote_fetched_at": "2026-06-09T19:52:02.019177+00:00",
-  "computed_at": "2026-06-09T19:52:02.019177+00:00"
+  "quote_fetched_at": "2026-08-26T20:42:52.550647+00:00",
+  "computed_at": "2026-08-26T20:42:52.550647+00:00"
 }

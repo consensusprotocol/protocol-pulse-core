@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-07-03T10:00:20.849585+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Fear Bottom or Rally Setup? Why Bitcoin's Greed Index Capitulation + Hashrate Highs Matter More Than Price",
+      "angle": "Deep dive into the divergence between sentiment (extreme fear) and network health (builder commitment); historical precedent for directional moves when this spread widens",
+      "tags": [
+        "bitcoin",
+        "sentiment analysis",
+        "hashrate",
+        "capitulation",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Institutional Accumulation in Plain Sight: Why Thin Volume + Stable Price Is Bitcoin's Bullish Signal Today",
+      "angle": "Asymmetric market structure (only institutions bidding, retail gone) as precursor to volatility events; mempool health confirms no panic",
+      "tags": [
+        "bitcoin",
+        "institutions",
+        "volume analysis",
+        "market structure"
+      ]
+    },
+    {
+      "headline": "Bitcoin's Independence Day Wildcard: Fed Holiday + Asia Open Could Trigger the Move Everyone's Waiting For",
+      "angle": "Macro calendar void removes friction; crypto's isolated trading environment on July 3rd creates conditions for organic directional break",
+      "tags": [
+        "bitcoin",
+        "macro",
+        "trading",
+        "volatility"
+      ]
+    }
+  ]
+}

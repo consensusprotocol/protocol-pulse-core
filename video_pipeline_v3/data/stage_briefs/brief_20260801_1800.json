@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-08-01T18:00:05.056353+00:00",
+  "duration": 30.4,
+  "mp4_path": "brief_20260801_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260801_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260801_1800.mp4",
+  "episode_date": "2026-08-01",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin trades at sixty-two thousand six hundred twenty-five dollars, down zero point eight percent, as fear sentiment locks in at twenty-seven on the index. Hashrate holds firm at nine hundred eighty-seven EH/s, reflecting sustained miner strength through the pullback. Mempool sits at eighty-two thousand transactions with fees bottoming at one sat per vbyte, keeping on-chain activity cheap and uncongested. Block height advances to nine hundred sixty thousand six hundred.",
+  "word_count": 69,
+  "tts_provider": "chatterbox",
+  "btc_price": 62625.0,
+  "sentiment_score": null
+}

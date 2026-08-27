@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Evening Brief",
+  "generated_at": "2026-07-20T02:00:02.579669+00:00",
+  "duration": 39.9,
+  "mp4_path": "brief_20260720_0200.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260720_0200.mp4",
+  "video_url": "/data/stage_briefs/brief_20260720_0200.mp4",
+  "episode_date": "2026-07-20",
+  "brief_type": "evening",
+  "script_summary": "Bitcoin slips 0.3% to close at $64,520 as fear dominates with a 29 reading on the index. Price action stayed contained through the US session with no decisive break. Network strength stands out: hashrate holds at 1061 EH/s while the mempool carries 99,672 transactions at a low 3 sat/vB fee. Block height sits at 958,803. Overnight watch centers on whether low fees clear the backlog or volume picks up to test support near 64k.",
+  "word_count": 74,
+  "tts_provider": "chatterbox",
+  "btc_price": 64520.0,
+  "sentiment_score": null
+}

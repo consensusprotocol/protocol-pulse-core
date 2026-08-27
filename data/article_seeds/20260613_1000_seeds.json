@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-13T10:00:32.293809+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Extreme Fear at Historic Lows: Is Bitcoin's Capitulation Floor Already In?",
+      "angle": "Analysis of whether the 13 fear reading represents a true bottom vs. continued downside pressure; historical precedent for extreme fear capitulations",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "capitulation",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Bitcoin Volume Drought: Why Institutional Absence Matters More Than Price",
+      "angle": "Sub-$1B daily volume signals institutional sidelined positioning; what happens when they re-enter?",
+      "tags": [
+        "bitcoin",
+        "volume",
+        "institutions",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "The Network Speaks: Stable Hashrate & Collapsed Fees Reveal Bitcoin Miners' True Health",
+      "angle": "Despite price pressure, hashrate stability and fee collapse suggest healthy network fundamentals and miner conviction",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "on-chain",
+        "fundamentals"
+      ]
+    }
+  ]
+}

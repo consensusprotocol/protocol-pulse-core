@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-06-10T13:15:16.091631+00:00",
-  "fetch_time_ms": 10997,
+  "updated_at": "2026-08-27T04:45:10.189425+00:00",
+  "fetch_time_ms": 8168,
   "composite": {
     "perception_score": 52,
     "label": "Neutral",
@@ -19,12 +19,12 @@
     }
   },
   "global_market": {
-    "btc_dominance_pct": 55.95,
-    "total_mcap_usd": 2203497983548.9604,
-    "total_mcap_t": 2.203,
-    "total_vol_24h_usd": 107813966625.16835,
-    "total_vol_24h_b": 107.8,
-    "active_coins": 17332,
+    "btc_dominance_pct": 59.13,
+    "total_mcap_usd": 2669216767845.3184,
+    "total_mcap_t": 2.669,
+    "total_vol_24h_usd": 79810080963.27695,
+    "total_vol_24h_b": 79.8,
+    "active_coins": 18718,
     "dominance_signal": "btc_dominant",
     "dominance_note": "BTC leading \u2014 typical bull market structure",
     "btc_signal": "bullish",
@@ -33,45 +33,45 @@
   "trending_narratives": {
     "trending_coins": [
       {
-        "symbol": "BTC",
-        "name": "Bitcoin",
-        "rank": 1,
+        "symbol": "BTR",
+        "name": "Bitlayer",
+        "rank": 484,
         "score": 0
       },
       {
-        "symbol": "H",
-        "name": "Humanity",
-        "rank": 135,
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "rank": 1,
         "score": 1
       },
       {
-        "symbol": "HYPE",
-        "name": "Hyperliquid",
-        "rank": 11,
+        "symbol": "SPX",
+        "name": "SPX6900",
+        "rank": 93,
         "score": 2
       },
       {
-        "symbol": "SOL",
-        "name": "Solana",
-        "rank": 7,
+        "symbol": "PENGU",
+        "name": "Pudgy Penguins",
+        "rank": 94,
         "score": 3
       },
       {
-        "symbol": "ZEC",
-        "name": "Zcash",
-        "rank": 15,
+        "symbol": "CASHCAT",
+        "name": "Cash Cat",
+        "rank": 161,
         "score": 4
       },
       {
-        "symbol": "LIT",
-        "name": "Lighter",
-        "rank": 122,
+        "symbol": "PONS",
+        "name": "Pons",
+        "rank": 272,
         "score": 5
       },
       {
-        "symbol": "BEAT",
-        "name": "Audiera",
-        "rank": 51,
+        "symbol": "ANSEM",
+        "name": "The Black Bull",
+        "rank": 210,
         "score": 6
       }
     ],
@@ -86,13 +86,13 @@
     "source": "CoinGecko Trending"
   },
   "onchain_fundamentals": {
-    "tx_count_24h": 623161,
+    "tx_count_24h": 728241,
     "miners_revenue_usd": 0.0,
     "miners_revenue_m": 0.0,
-    "minutes_between_blocks": 10.27,
-    "difficulty": 138955357012247,
-    "estimated_btc_sent": 9795878509810,
-    "total_fees_btc": -41875000000,
+    "minutes_between_blocks": 9.05,
+    "difficulty": 125807076547197,
+    "estimated_btc_sent": 9420217856963,
+    "total_fees_btc": -46875000000,
     "miner_signal": "capitulation_risk",
     "miner_note": "Miner revenue critically low \u2014 capitulation pressure",
     "block_signal": "normal",
@@ -100,18 +100,18 @@
     "source": "Blockchain.com Stats"
   },
   "lightning_health": {
-    "node_count": 17353,
-    "channel_count": 41162,
-    "capacity_btc": 5292.07,
-    "capacity_sats": 529207315890,
-    "avg_channel_capacity_btc": 0.1286,
+    "node_count": 16258,
+    "channel_count": 32927,
+    "capacity_btc": 3852.69,
+    "capacity_sats": 385268702294,
+    "avg_channel_capacity_btc": 0.117,
     "network_health": "healthy",
     "health_note": "Lightning network growing steadily",
     "btc_signal": "bullish",
     "source": "mempool.space Lightning"
   },
   "fee_market": {
-    "fastest_fee_sat_vb": 3,
+    "fastest_fee_sat_vb": 2,
     "hour_fee_sat_vb": 1,
     "economy_fee_sat_vb": 1,
     "fee_signal": "accumulation_phase",
@@ -121,22 +121,22 @@
   },
   "social_sentiment": {},
   "fg_trend": {
-    "current": 9,
-    "7d_ago": 12,
-    "7d_delta": -3,
+    "current": 71,
+    "7d_ago": 72,
+    "7d_delta": -1,
     "trend": "stable",
     "7d_values": [
-      9,
-      10,
-      8,
-      12,
-      12,
-      12,
-      12
+      71,
+      65,
+      74,
+      73,
+      66,
+      71,
+      72
     ],
     "btc_signal": "neutral",
-    "note": "F&G stable at 9",
-    "label": "Extreme Fear",
+    "note": "F&G stable at 71",
+    "label": "Greed",
     "source": "alternative.me F&G"
   }
 }

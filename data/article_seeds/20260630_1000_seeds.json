@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-30T10:00:31.121458+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Hashrate Holds But Price Breaks: Why Bitcoin's Capitulation May Be Sentiment, Not Fundamental",
+      "angle": "Mining resilience during fear extremes signals strong network conviction even as retail panics",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "sentiment",
+        "miners",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Low Fees, High Backlog: Bitcoin's Mempool Tells a Different Story Than the Price Chart",
+      "angle": "Elevated transaction backlog with compressed fees reveals orderly consolidation, not emergency selling",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Fear & Greed at 15: Historical Playbook for What Happens Next in Bitcoin",
+      "angle": "Deep dive into past capitulation patterns and why network metrics matter more than sentiment indices",
+      "tags": [
+        "bitcoin",
+        "fear-and-greed",
+        "capitulation",
+        "opportunity",
+        "history"
+      ]
+    }
+  ]
+}

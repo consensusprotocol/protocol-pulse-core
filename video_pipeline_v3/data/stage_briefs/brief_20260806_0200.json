@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Evening Brief",
+  "generated_at": "2026-08-06T02:00:04.412191+00:00",
+  "duration": 42.9,
+  "mp4_path": "brief_20260806_0200.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260806_0200.mp4",
+  "video_url": "/data/stage_briefs/brief_20260806_0200.mp4",
+  "episode_date": "2026-08-06",
+  "brief_type": "evening",
+  "script_summary": "Bitcoin holds $64,562 after a flat US close, up just 0.5% despite extreme fear at 25 on the index. Network strength stands out with hashrate at 899 EH/s and a loaded mempool of 90,914 transactions carrying a 2 sat/vB floor fee. \n\nKey takeaway: price action ignores sentiment while fundamentals grind higher. Block 961,234 confirms steady throughput. \n\nOvernight watch: any break below 64k could trigger quick stops into Asia, while sustained low fees may signal building demand.",
+  "word_count": 76,
+  "tts_provider": "chatterbox",
+  "btc_price": 64562.0,
+  "sentiment_score": null
+}

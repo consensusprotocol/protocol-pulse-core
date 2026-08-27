@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-06-25T02:00:29.302546+00:00",
+  "brief_type": "evening",
+  "score": -35,
+  "bullish_signals": [
+    "Hashrate holding firm at 963.3 EH/s (miners not capitulating)",
+    "Mempool clear at 102K transactions (no on-chain panic)",
+    "Extreme fear territory historically precedes reversals",
+    "Low conviction selling (thin volume)",
+    "Network not stressed despite price decline"
+  ],
+  "bearish_signals": [
+    "3.3% daily decline to $60,857",
+    "Greed Index at 12 (extreme fear)",
+    "Sub-60K risks cascading stop-losses",
+    "Thin volume = unpredictable price action",
+    "Extended high of $62,800 to low of $60,200 (wide range)"
+  ],
+  "neutral_topics": [
+    "Low conviction buying alongside low conviction selling",
+    "Thin volume (double-edged sword)"
+  ]
+}

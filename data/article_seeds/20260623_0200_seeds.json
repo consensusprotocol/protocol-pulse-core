@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-23T02:00:32.357161+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "When Fear Becomes Opportunity: Bitcoin's Extreme Fear Index Signals Reversal Setup",
+      "angle": "Historical analysis of how Fear & Greed extremes (below 25) preceded major Bitcoin bounces; contrasts sentiment panic with solid network fundamentals",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-and-greed",
+        "trading-signals",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "The Mempool Story: Why 101K Queued Transactions Don't Signal Danger",
+      "angle": "Deep dive into mempool congestion metrics, fee environment, and retail activity patterns; why modest congestion with 2 sat/byte fees is healthy, not alarming",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "transaction-fees",
+        "network-health",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Institutional Accumulation Playbook: How Whales Exploit Retail Capitulation",
+      "angle": "Explores how professional players use extreme fear readings and weak-hand liquidations as entry signals; why $63K-$64.5K price range matters overnight",
+      "tags": [
+        "bitcoin",
+        "institutional-trading",
+        "whale-activity",
+        "support-resistance",
+        "volatility"
+      ]
+    }
+  ]
+}

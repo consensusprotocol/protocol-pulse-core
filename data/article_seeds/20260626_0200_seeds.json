@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-06-26T02:00:29.380405+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Capitulation or Opportunity? Why Bitcoin's $59K Crash Looks Like Retail Panic, Not Institutional Collapse",
+      "angle": "Analysis of lower low formation without macro catalyst; miners holding steady while retail sells into extreme fear",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "capitulation",
+        "on-chain",
+        "trading"
+      ]
+    },
+    {
+      "headline": "The Mempool Relief Play: Why 2 Sat/Byte Fees Signal Bitcoin's Next Move",
+      "angle": "Decoding the mempool dynamics\u2014collapsed fees as early warning system for capitulation completion or reversal setup",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "on-chain-metrics"
+      ]
+    },
+    {
+      "headline": "$59K or $57K? Bitcoin's Overnight Support Test and Why Hashrate Stability Matters",
+      "angle": "Miners not panicking despite price pressure; technical support level breakdown as cascade trigger",
+      "tags": [
+        "bitcoin",
+        "support-levels",
+        "hashrate",
+        "mining"
+      ]
+    }
+  ]
+}

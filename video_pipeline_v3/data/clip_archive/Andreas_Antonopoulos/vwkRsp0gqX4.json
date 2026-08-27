@@ -1,10 +1,10 @@
 {
-  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/test_20260609_195238/clips/clip_2_Andreas_Antonopoulos_vwkRsp0gqX4.mp4",
+  "path": "/home/ultron/protocol_pulse/video_pipeline_v3/output/2026-08-26/clips/clip_2_Andreas_Antonopoulos_vwkRsp0gqX4.mp4",
   "video_id": "vwkRsp0gqX4",
   "channel": "Andreas_Antonopoulos",
-  "start": 300,
-  "end": 350,
-  "duration": 56.334,
+  "start": 21,
+  "end": 75,
+  "duration": 62.5,
   "quote": "This halving will be the most significant one yet, and the price will go to $100,000.",
-  "archived_at": 1781037051.4541147
+  "archived_at": 1787777642.0874803
 }

@@ -1,0 +1,430 @@
+{
+  "video_id": "lC0EK8RCwxk",
+  "title": "Why Crypto Is Betting Big On AI Agents",
+  "channel": "CNBC",
+  "upload_date": "",
+  "duration": 325,
+  "transcript_text": "For years, the crypto industry's biggest challenge has been finding users beyond traders. Now, some of its biggest companies have a new target, AI agents. Crypto as an industry is still largely driven by speculation, but companies who are betting AI can become a second growth engine by turning AI agents into users of its crypto wallets, stablecoins, and blockchain payment networks. And several major players are already moving in that direction. Over the past three months, Circle has launched agent stack, which is infrastructure for the agentic economy. Cracken has rebuilt its app around agentic trading, and Coinbase has rolled out tools that let AI agents like ChatGPT or Cloud execute crypto trades. Agents are the new mobile story. In the 2010s, every internet company dealt the transition from desktop and web into a mobile environment. And now, in the late 2020s, we're seeing the exact same thing happen, where agents are going to be the new primary economic actors on the internet. The bet marks a major shift for the industry, which for years has pitched crypto as either a better alternative to traditional money or a way to make payments faster and cheaper. The pitch is different now. Instead of convincing humans to adopt crypto-based financial services, companies are betting the AI boom will drive demand for their AI agents to use it. That's because unlike humans, AI agents operate entirely online, which makes the use of digital wallets, programmable money, and always on payment networks more of a technical requirement than a behavioral shift. Coinbase says its users are now able to give an AI agent its own crypto wallet, allowing it to trade and rebalance portfolios, and all without asking for permission every step of the way. You can imagine this doing all sorts of things on your behalf, whether it's trading or rebalancing a portfolio to your specific specifications, whether it's paying for premium information, like access to S1 violence to help you make trading decisions. The whole idea is to give agents access to money, and through that financial independence, improve their set of capabilities to pretty much anything on the internet. One technology sitting at the center of that vision is stablecoins. Unlike Bitcoin, whose price can fluctuate significantly, stablecoins are designed to maintain a steady value, making them much more practical for payments. Because they operate on blockchain networks that are available 24-7 and can be programmed directly into software, they're well-suited for AI agents that need to send money or settle transactions automatically. Industry executives say traditional banking systems weren't designed for machine machine payments happening in real time. I think conventional banking systems are really, really poorly suited to real-time, agentic to agentic machine to a machine commerce. Reason why this is becoming a bit of a crypto story is not that the primary thing that's going to be exchanged is crypto. It's just at the end of the day, stablecoins and smart contracts allow AI agents to send payments, settle transactions automatically without requiring human oversight. That's why circle has been positioning its USDC stablecoin as digital dollars built for internet native payments. If AI agents become widespread, they could generate a whole new stream of payment activity, one that's less dependent on crypto trading and more on everyday software activity. But circle also faces growing competition. Since the passage of the genus Act last year, more banks and financial services firms have begun exploring their own stablecoins, potentially reducing the reliance on third-party issuers like circle. Circle for its part says its new arc blockchain can help connect those different systems while expanding the use of USDC across the broader financial ecosystem. This shift to AI agents also comes during a crypto price lump. Bitcoin is well off its cycle peak, and speculative investors are turning to hotter opportunities like tech IPOs, prediction markets, and perpetual futures. At the same time, crypto exchanges are evolving into broader financial platforms, with many now offering stocks, commodities, payments, lending, and banking services alongside crypto trading. Whether AI agents ultimately become crypto's next billion users remains to be seen. But supporters believe that if nothing else, AI powered investing could make sophisticated trading tools available to everyday investors, not just hedge funds or professional traders. Most retail investors did not have the tools that Wall Street has. And I think in the near term, it's going to start unlocking institutional-like tools and capabilities for retail investors that were never in their hands. And I think it's going to create prosperity more than just volumes and volumes of transactions. The fun casino days of Bitcoin are over. I think there's opportunity to really discuss with AI regarding any given asset that you're interested in, discuss what it means for you, whether that's Bitcoin or a random meme coin, or a prediction market, or tokenized asset, or even an equity. For an industry that's spent years searching for real-world utility beyond speculation, AI agents may represent its biggest opportunity yet. And if these companies are right, crypto's next wave of adoption won't be driven by people, it'll be driven by software.",
+  "timestamped_text": [
+    {
+      "start": 0.0,
+      "end": 4.72,
+      "text": "For years, the crypto industry's biggest challenge has been finding users beyond traders."
+    },
+    {
+      "start": 4.72,
+      "end": 8.4,
+      "text": "Now, some of its biggest companies have a new target, AI agents."
+    },
+    {
+      "start": 8.4,
+      "end": 11.6,
+      "text": "Crypto as an industry is still largely driven by speculation,"
+    },
+    {
+      "start": 11.6,
+      "end": 15.04,
+      "text": "but companies who are betting AI can become a second growth engine"
+    },
+    {
+      "start": 15.04,
+      "end": 18.24,
+      "text": "by turning AI agents into users of its crypto wallets,"
+    },
+    {
+      "start": 18.24,
+      "end": 20.4,
+      "text": "stablecoins, and blockchain payment networks."
+    },
+    {
+      "start": 20.4,
+      "end": 23.6,
+      "text": "And several major players are already moving in that direction."
+    },
+    {
+      "start": 23.6,
+      "end": 26.48,
+      "text": "Over the past three months, Circle has launched agent stack,"
+    },
+    {
+      "start": 26.48,
+      "end": 29.12,
+      "text": "which is infrastructure for the agentic economy."
+    },
+    {
+      "start": 29.2,
+      "end": 32.08,
+      "text": "Cracken has rebuilt its app around agentic trading,"
+    },
+    {
+      "start": 32.08,
+      "end": 35.6,
+      "text": "and Coinbase has rolled out tools that let AI agents like ChatGPT"
+    },
+    {
+      "start": 35.6,
+      "end": 38.16,
+      "text": "or Cloud execute crypto trades."
+    },
+    {
+      "start": 38.16,
+      "end": 39.6,
+      "text": "Agents are the new mobile story."
+    },
+    {
+      "start": 39.6,
+      "end": 42.48,
+      "text": "In the 2010s, every internet company dealt the transition"
+    },
+    {
+      "start": 42.48,
+      "end": 45.28,
+      "text": "from desktop and web into a mobile environment."
+    },
+    {
+      "start": 45.28,
+      "end": 48.48,
+      "text": "And now, in the late 2020s, we're seeing the exact same thing happen,"
+    },
+    {
+      "start": 48.48,
+      "end": 52.4,
+      "text": "where agents are going to be the new primary economic actors on the internet."
+    },
+    {
+      "start": 52.4,
+      "end": 54.48,
+      "text": "The bet marks a major shift for the industry,"
+    },
+    {
+      "start": 54.48,
+      "end": 57.44,
+      "text": "which for years has pitched crypto as either a better alternative"
+    },
+    {
+      "start": 57.44,
+      "end": 61.12,
+      "text": "to traditional money or a way to make payments faster and cheaper."
+    },
+    {
+      "start": 61.12,
+      "end": 62.64,
+      "text": "The pitch is different now."
+    },
+    {
+      "start": 62.64,
+      "end": 66.24,
+      "text": "Instead of convincing humans to adopt crypto-based financial services,"
+    },
+    {
+      "start": 66.24,
+      "end": 70.48,
+      "text": "companies are betting the AI boom will drive demand for their AI agents to use it."
+    },
+    {
+      "start": 70.48,
+      "end": 74.32,
+      "text": "That's because unlike humans, AI agents operate entirely online,"
+    },
+    {
+      "start": 74.32,
+      "end": 77.12,
+      "text": "which makes the use of digital wallets, programmable money,"
+    },
+    {
+      "start": 77.12,
+      "end": 79.92,
+      "text": "and always on payment networks more of a technical requirement"
+    },
+    {
+      "start": 79.92,
+      "end": 81.44,
+      "text": "than a behavioral shift."
+    },
+    {
+      "start": 81.44,
+      "end": 85.6,
+      "text": "Coinbase says its users are now able to give an AI agent its own crypto wallet,"
+    },
+    {
+      "start": 85.6,
+      "end": 87.92,
+      "text": "allowing it to trade and rebalance portfolios,"
+    },
+    {
+      "start": 87.92,
+      "end": 91.12,
+      "text": "and all without asking for permission every step of the way."
+    },
+    {
+      "start": 91.12,
+      "end": 93.76,
+      "text": "You can imagine this doing all sorts of things on your behalf,"
+    },
+    {
+      "start": 93.76,
+      "end": 98.56,
+      "text": "whether it's trading or rebalancing a portfolio to your specific specifications,"
+    },
+    {
+      "start": 98.56,
+      "end": 100.72,
+      "text": "whether it's paying for premium information,"
+    },
+    {
+      "start": 100.72,
+      "end": 103.92,
+      "text": "like access to S1 violence to help you make trading decisions."
+    },
+    {
+      "start": 103.92,
+      "end": 107.04,
+      "text": "The whole idea is to give agents access to money,"
+    },
+    {
+      "start": 107.04,
+      "end": 108.8,
+      "text": "and through that financial independence,"
+    },
+    {
+      "start": 108.8,
+      "end": 111.6,
+      "text": "improve their set of capabilities to pretty much anything on the internet."
+    },
+    {
+      "start": 113.79,
+      "end": 117.55,
+      "text": "One technology sitting at the center of that vision is stablecoins."
+    },
+    {
+      "start": 117.55,
+      "end": 120.67,
+      "text": "Unlike Bitcoin, whose price can fluctuate significantly,"
+    },
+    {
+      "start": 120.67,
+      "end": 123.31,
+      "text": "stablecoins are designed to maintain a steady value,"
+    },
+    {
+      "start": 123.31,
+      "end": 125.71,
+      "text": "making them much more practical for payments."
+    },
+    {
+      "start": 125.71,
+      "end": 129.23,
+      "text": "Because they operate on blockchain networks that are available 24-7"
+    },
+    {
+      "start": 129.23,
+      "end": 131.31,
+      "text": "and can be programmed directly into software,"
+    },
+    {
+      "start": 131.31,
+      "end": 134.43,
+      "text": "they're well-suited for AI agents that need to send money"
+    },
+    {
+      "start": 134.43,
+      "end": 136.59,
+      "text": "or settle transactions automatically."
+    },
+    {
+      "start": 136.59,
+      "end": 139.07,
+      "text": "Industry executives say traditional banking systems"
+    },
+    {
+      "start": 139.07,
+      "end": 142.59,
+      "text": "weren't designed for machine machine payments happening in real time."
+    },
+    {
+      "start": 142.59,
+      "end": 146.99,
+      "text": "I think conventional banking systems are really, really poorly suited"
+    },
+    {
+      "start": 147.55,
+      "end": 152.27,
+      "text": "to real-time, agentic to agentic machine to a machine commerce."
+    },
+    {
+      "start": 152.27,
+      "end": 156.03,
+      "text": "Reason why this is becoming a bit of a crypto story is not that"
+    },
+    {
+      "start": 156.03,
+      "end": 159.15,
+      "text": "the primary thing that's going to be exchanged is crypto."
+    },
+    {
+      "start": 159.87,
+      "end": 166.51,
+      "text": "It's just at the end of the day, stablecoins and smart contracts allow AI agents"
+    },
+    {
+      "start": 166.51,
+      "end": 170.59,
+      "text": "to send payments, settle transactions automatically"
+    },
+    {
+      "start": 170.67,
+      "end": 173.23,
+      "text": "without requiring human oversight."
+    },
+    {
+      "start": 173.23,
+      "end": 176.99,
+      "text": "That's why circle has been positioning its USDC stablecoin as digital dollars"
+    },
+    {
+      "start": 176.99,
+      "end": 178.83,
+      "text": "built for internet native payments."
+    },
+    {
+      "start": 178.83,
+      "end": 183.63,
+      "text": "If AI agents become widespread, they could generate a whole new stream of payment activity,"
+    },
+    {
+      "start": 183.63,
+      "end": 187.55,
+      "text": "one that's less dependent on crypto trading and more on everyday software activity."
+    },
+    {
+      "start": 187.55,
+      "end": 189.71,
+      "text": "But circle also faces growing competition."
+    },
+    {
+      "start": 191.55,
+      "end": 195.71,
+      "text": "Since the passage of the genus Act last year, more banks and financial services firms"
+    },
+    {
+      "start": 195.71,
+      "end": 200.35,
+      "text": "have begun exploring their own stablecoins, potentially reducing the reliance on third-party"
+    },
+    {
+      "start": 200.35,
+      "end": 204.99,
+      "text": "issuers like circle. Circle for its part says its new arc blockchain can help connect"
+    },
+    {
+      "start": 204.99,
+      "end": 210.03,
+      "text": "those different systems while expanding the use of USDC across the broader financial ecosystem."
+    },
+    {
+      "start": 215.57,
+      "end": 219.01,
+      "text": "This shift to AI agents also comes during a crypto price lump."
+    },
+    {
+      "start": 219.01,
+      "end": 223.01,
+      "text": "Bitcoin is well off its cycle peak, and speculative investors are turning to hotter"
+    },
+    {
+      "start": 223.01,
+      "end": 226.85,
+      "text": "opportunities like tech IPOs, prediction markets, and perpetual futures."
+    },
+    {
+      "start": 227.57,
+      "end": 231.81,
+      "text": "At the same time, crypto exchanges are evolving into broader financial platforms,"
+    },
+    {
+      "start": 231.81,
+      "end": 236.93,
+      "text": "with many now offering stocks, commodities, payments, lending, and banking services alongside"
+    },
+    {
+      "start": 236.93,
+      "end": 242.53,
+      "text": "crypto trading. Whether AI agents ultimately become crypto's next billion users remains to be seen."
+    },
+    {
+      "start": 242.53,
+      "end": 246.85,
+      "text": "But supporters believe that if nothing else, AI powered investing could make sophisticated"
+    },
+    {
+      "start": 246.85,
+      "end": 251.81,
+      "text": "trading tools available to everyday investors, not just hedge funds or professional traders."
+    },
+    {
+      "start": 251.81,
+      "end": 258.05,
+      "text": "Most retail investors did not have the tools that Wall Street has."
+    },
+    {
+      "start": 258.05,
+      "end": 263.89,
+      "text": "And I think in the near term, it's going to start unlocking institutional-like tools and"
+    },
+    {
+      "start": 263.89,
+      "end": 270.21,
+      "text": "capabilities for retail investors that were never in their hands. And I think it's going to create"
+    },
+    {
+      "start": 270.21,
+      "end": 276.37,
+      "text": "prosperity more than just volumes and volumes of transactions."
+    },
+    {
+      "start": 276.37,
+      "end": 282.29,
+      "text": "The fun casino days of Bitcoin are over. I think there's opportunity to really discuss"
+    },
+    {
+      "start": 282.93,
+      "end": 288.93,
+      "text": "with AI regarding any given asset that you're interested in, discuss what it means for you,"
+    },
+    {
+      "start": 288.93,
+      "end": 294.45,
+      "text": "whether that's Bitcoin or a random meme coin, or a prediction market, or"
+    },
+    {
+      "start": 295.57,
+      "end": 298.21,
+      "text": "tokenized asset, or even an equity."
+    },
+    {
+      "start": 298.21,
+      "end": 302.69,
+      "text": "For an industry that's spent years searching for real-world utility beyond speculation,"
+    },
+    {
+      "start": 302.69,
+      "end": 307.65,
+      "text": "AI agents may represent its biggest opportunity yet. And if these companies are right,"
+    },
+    {
+      "start": 307.65,
+      "end": 317.65,
+      "text": "crypto's next wave of adoption won't be driven by people, it'll be driven by software."
+    }
+  ],
+  "topics": [
+    "price",
+    "regulation",
+    "lightning",
+    "macro",
+    "institutional",
+    "privacy"
+  ],
+  "sentiment": "neutral",
+  "archived_at": "2026-08-07T14:24:58Z"
+}

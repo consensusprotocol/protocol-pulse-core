@@ -342,6 +342,79 @@ def get_top_posts(handles, hours=24, limit=10):
     return posts
 
 
+def get_mentions(handle, hours=24, limit=10):
+    """Recent posts from OTHER accounts mentioning @handle via x_search.
+
+    Returns a list of dicts:
+      {author, url, text, engagement, post_id, fetched_at}
+    Empty list on failure/disabled/unsourced. Never raises.
+    """
+    cfg = _load_config()
+    if not cfg.get("enabled"):
+        log.warning("x_reader disabled via config/x_reader_config.json")
+        return []
+    handle = str(handle).lstrip("@")
+
+    payload = {"mentions_of": handle.lower(), "hours": hours, "limit": limit}
+    key = _cache_key("mentions", payload)
+    cached = _cache_get(key, cfg["posts_ttl_seconds"])
+    if cached is not None:
+        return cached
+
+    since = datetime.now(timezone.utc) - timedelta(hours=hours)
+    prompt = (
+        "Find up to {n} recent X posts that mention or reply to @{h}, "
+        "posted since {since} UTC, written by accounts OTHER than @{h}. "
+        "Only include posts you can actually see on X right now. For each "
+        "post return: the author handle (without @), the full x.com status "
+        "URL, the complete post text, and the like count as an integer. "
+        "Respond with ONLY a JSON array of objects with keys: author, url, "
+        "text, likes. No prose, no markdown fences. If there are none, "
+        "return an empty JSON array []."
+    ).format(n=limit, h=handle, since=since.strftime("%Y-%m-%d %H:%M"))
+
+    text, citations, _ = _call_xsearch(
+        prompt, from_date=since.strftime("%Y-%m-%d"),
+        timeout=cfg["timeout_seconds"])
+    if text is None:
+        return []
+
+    parsed = parse_json_block(text)
+    if not isinstance(parsed, list):
+        log.warning("get_mentions: could not parse JSON array from response")
+        return []
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    out = []
+    for p in parsed:
+        if not isinstance(p, dict):
+            continue
+        url = str(p.get("url", ""))
+        pid = extract_post_id(url)
+        if not pid:
+            continue  # no verifiable status URL -> drop
+        author = str(p.get("author", "")).lstrip("@")
+        if author.lower() == handle.lower():
+            continue  # our own post is not a mention of us
+        try:
+            likes = int(p.get("likes", 0))
+        except (TypeError, ValueError):
+            likes = 0
+        out.append({
+            "author": author,
+            "url": url,
+            "text": str(p.get("text", "")).strip(),
+            "engagement": likes,
+            "post_id": pid,
+            "fetched_at": now_iso,
+        })
+    out.sort(key=lambda x: x["engagement"], reverse=True)
+    out = out[:limit]
+    if out:
+        _cache_put(key, out)
+    return out
+
+
 def get_reactions(post_url):
     """Reply sentiment + themes + representative replies for one post.
 

@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-16T02:00:31.874116+00:00",
+  "brief_type": "evening",
+  "score": 35,
+  "bullish_signals": [
+    "Fear reading of 23 signals capitulation (historical buy signal)",
+    "Hashrate holding strong at 924.2 EH/s (miners not panicking)",
+    "Low mempool congestion and 1 sat/vB fees (network healthy)",
+    "Price holding above psychological support despite pressure",
+    "On-chain metrics diverging from extreme sentiment (contrarian setup)"
+  ],
+  "bearish_signals": [
+    "Price trapped in tight range ($65K\u2013$67K)",
+    "$65,500 support at risk if broken cleanly overnight",
+    "Shorts will accelerate if support breaks",
+    "Extreme fear readings can persist for extended periods"
+  ],
+  "neutral_topics": [
+    "Volume data corruption (unable to assess conviction)",
+    "Asian session overnight volatility (timing dependent)"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-06-12T18:00:31.492712+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Why Bitcoin Miners Aren't Panicking Even as Fear Hits Extremes",
+      "angle": "On-chain analysis shows hashrate stability during Fear & Greed 12 reading\u2014what miners know that price-watchers don't",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "hashrate",
+        "on-chain",
+        "fear-and-greed"
+      ]
+    },
+    {
+      "headline": "The $63,500 Bitcoin Moment: Capitulation or Accumulation?",
+      "angle": "Extreme fear backdrop + support level creates binary outcome; institutional absence leaves the move to retail and conviction players",
+      "tags": [
+        "bitcoin",
+        "support-levels",
+        "market-structure",
+        "sentiment"
+      ]
+    },
+    {
+      "headline": "Mempool Congestion, Cheap Fees: Bitcoin's Weekend Wildcard",
+      "angle": "108k transaction backlog with sub-4 sat/byte fees signals operational network but volume void\u2014conditions for explosive move when conviction returns",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "transaction-fees",
+        "network-health"
+      ]
+    }
+  ]
+}

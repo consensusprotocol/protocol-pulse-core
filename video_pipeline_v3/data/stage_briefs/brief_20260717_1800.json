@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-07-17T18:00:01.829840+00:00",
+  "duration": 34.5,
+  "mp4_path": "brief_20260717_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260717_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260717_1800.mp4",
+  "episode_date": "2026-07-17",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin holds steady at $64,030 as Fear & Greed sinks to 27, keeping sentiment in fear territory despite the flat US session. Network hashrate sits at 781 EH/s, confirming strong miner commitment. Mempool backlog hits 106,909 transactions with fees at just 6 sat/vB, pointing to light fee pressure amid congestion. Block height reaches 958,439. No fresh catalysts in morning trade.",
+  "word_count": 60,
+  "tts_provider": "chatterbox",
+  "btc_price": 64030.0,
+  "sentiment_score": null
+}

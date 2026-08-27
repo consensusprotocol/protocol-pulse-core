@@ -1,48 +1,7 @@
 {
-  "topic_velocity": [
-    {
-      "topic": "Traditional finance gatekeeping accelerates \u2014 major banks...",
-      "channels": 18,
-      "sentiment": "bearish",
-      "velocity_score": 27,
-      "authority_score": 27,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Regulatory clarity as monetary control mechanism \u2014 Crypto...",
-      "channels": 14,
-      "sentiment": "bearish",
-      "velocity_score": 21,
-      "authority_score": 21,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    },
-    {
-      "topic": "Bitcoin capitulation presents historical buying opportuni...",
-      "channels": 25,
-      "sentiment": "bearish",
-      "velocity_score": 19,
-      "authority_score": 19,
-      "top_quote": "",
-      "thought_leaders": [],
-      "source": "thought_leader_tweets",
-      "freshness_hours": 4.0
-    }
-  ],
+  "topic_velocity": [],
   "breaking_threshold": false,
-  "recommended_topics": [
-    "Traditional finance gatekeeping accelerates \u2014 major banks...",
-    "Regulatory clarity as monetary control mechanism \u2014 Crypto...",
-    "Bitcoin capitulation presents historical buying opportuni..."
-  ],
-  "dominant_narrative": "Traditional finance gatekeeping accelerates \u2014 major banks...",
-  "market_mood": "neutral",
-  "total_tweets_analyzed": 0,
-  "thought_leaders_active": 0,
-  "scan_time": "2026-06-09T19:52:02Z"
+  "recommended_topics": [],
+  "scan_time": "2026-08-27T04:46:23Z",
+  "total_videos_48h": 0
 }

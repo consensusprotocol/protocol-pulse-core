@@ -1,46 +1,46 @@
 {
-  "timestamp": "2026-06-10T13:25:32.982200+00:00",
-  "block_height": 953106,
+  "timestamp": "2026-08-27T04:50:10.781032+00:00",
+  "block_height": 964243,
   "btc": {
-    "price": 61484,
-    "change_24h": -1.32,
+    "price": 78736,
+    "change_24h": -0.14,
     "change_7d": 0,
-    "market_cap": 1231824153084.16,
-    "volume_24h": 37749598288.92317,
-    "dominance": 55.9
+    "market_cap": 1580674814598.255,
+    "volume_24h": 27686764730.896152,
+    "dominance": 59.1
   },
   "fear_greed": {
-    "value": 9,
-    "label": "Extreme Fear"
+    "value": 71,
+    "label": "Greed"
   },
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
     "fee_high": 2,
-    "unconfirmed": 102300,
-    "size_mb": 43.7
+    "unconfirmed": 84686,
+    "size_mb": 42.2
   },
   "network": {
-    "hashrate_eh": 856.2,
+    "hashrate_eh": 884.2,
     "difficulty": 0,
-    "next_adj_pct": 0,
-    "next_adj_blocks": 0
+    "next_adj_pct": -0.69,
+    "next_adj_blocks": 1421
   },
   "lightning": {
-    "capacity_btc": 5292.1,
-    "channels": 41162,
-    "nodes": 17353
+    "capacity_btc": 4531.6,
+    "channels": 40588,
+    "nodes": 17361
   },
   "kol": {
-    "sentiment_score": 54,
+    "sentiment_score": 70,
     "top_topics": [
-      "CBDC regulation disguised as stablecoin policy",
-      "US debt crisis and treasury sustainability",
-      "Petrodollar decline and reserve currency replacement",
+      "Polymarket deceptive advertising practices",
+      "Fake website domain spoofing (Polymarket vs PollyMarket)",
+      "Fraudulent promotional content targeting college-age creators",
       "macro",
-      "mining"
+      "regulation"
     ],
-    "post_count_24h": 24,
+    "post_count_24h": 100,
     "dominant_sentiment": "bullish",
     "source": "tweets+transcripts"
   },
@@ -51,97 +51,97 @@
   },
   "polymarket": {
     "macro_sentiment": 74,
-    "top_market": "Will MegaETH perform an airdrop by June 30? ",
-    "top_probability": 89.8
+    "top_market": "Will Pete Hegseth win the 2028 US Presidential Election?",
+    "top_probability": 99.9
   },
   "pcaf_score": 100,
   "exchange_flow": "neutral",
   "stage_brief": {
-    "narrative": "**ORACLE EVENING BRIEF**\n\nBitcoin capitulation is clearing weak hands at exactly the right moment. Price sits at $62,750, down half a percent, but here's what matters: the Fed's rate-hiking cycle is e",
+    "narrative": "Bitcoin's next halving will force miner revenue compression with no Fed backstop, as rate hikes remain locked out and the monetary base stops expanding by design. \n\nAt US close, Bitcoin trades at seve",
     "brief_type": "evening"
   },
   "whale_alerts": [
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 157.76 BTC unconfirmed 25468bd1...",
+      "message": "Whale transaction detected: 870.97 BTC unconfirmed 794538be...",
       "score": 10,
-      "created_at": 1781096694.982561
+      "created_at": 1787777365.4041784
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 242.36 BTC unconfirmed 305b8150...",
+      "message": "Whale transaction detected: 321.39 BTC unconfirmed 84faabfe...",
       "score": 10,
-      "created_at": 1781096041.2445533
+      "created_at": 1787682882.7011955
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 238.09 BTC unconfirmed 4973b76e...",
+      "message": "Whale transaction detected: 184.79 BTC unconfirmed 053e51be...",
       "score": 10,
-      "created_at": 1781089489.2491102
+      "created_at": 1787680882.1950629
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 215.99 BTC unconfirmed 4bbaeeca...",
+      "message": "Whale transaction detected: 113.16 BTC unconfirmed 03b3416d...",
       "score": 10,
-      "created_at": 1781086381.9133813
+      "created_at": 1787680045.675317
     },
     {
       "tier": "NOTE",
       "rule": "WHALE_TX",
-      "message": "Whale transaction detected: 103.62 BTC unconfirmed 6a351ad0...",
+      "message": "Whale transaction detected: 250.0 BTC unconfirmed fedc1b94...",
       "score": 10,
-      "created_at": 1781084057.5464315
+      "created_at": 1787677823.5137603
     }
   ],
   "macro": {
-    "dxy": 99.91,
-    "gold_price": 4172.7,
-    "sp500": 7352.25,
-    "btc_vs_gold_30d_corr": 0.377,
-    "btc_vs_dxy_30d_corr": -0.467,
+    "dxy": 99.14,
+    "gold_price": 4673.8,
+    "sp500": 7724.0,
+    "btc_vs_gold_30d_corr": 0.556,
+    "btc_vs_dxy_30d_corr": 0.082,
     "real_yield": null,
-    "ten_year_yield": 4.53
+    "ten_year_yield": 4.66
   },
   "options": {
-    "put_call_ratio": 0.634,
-    "dvol": 46.6,
-    "max_pain": 80000.0,
-    "total_call_oi": 269841.1,
-    "total_put_oi": 171187.9,
-    "total_oi_btc": 441029.0,
-    "avg_mark_iv": 57.8
+    "put_call_ratio": 0.59,
+    "dvol": 40.1,
+    "max_pain": 70000.0,
+    "total_call_oi": 274749.8,
+    "total_put_oi": 162140.3,
+    "total_oi_btc": 436890.1,
+    "avg_mark_iv": 55.1
   },
   "futures": {
-    "funding_rate": -3.2e-07,
-    "annualized_basis": -0.04,
-    "open_interest": 37548.83,
-    "open_interest_usd": 2307303070.0,
+    "funding_rate": 1.07e-06,
+    "annualized_basis": 0.12,
+    "open_interest": 22294.79,
+    "open_interest_usd": 1755406210.0,
     "long_short_ratio": null,
-    "mark_price": 61460.16,
-    "index_price": 61448.07,
-    "basis_pct": 0.0794
+    "mark_price": 78754.36,
+    "index_price": 78736.18,
+    "basis_pct": 0.7611
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 8998225.0,
-    "active_addresses_7d": 638027.0,
-    "tx_volume_usd_7d": 57044396380.0,
-    "nvt_ratio": 23.8,
-    "accumulation_score": 75
+    "coin_days_destroyed_7d": 11231564.0,
+    "active_addresses_7d": 665004.0,
+    "tx_volume_usd_7d": 70860487543.0,
+    "nvt_ratio": 19.2,
+    "accumulation_score": 65
   },
   "active_alerts": [
     {
       "pattern_id": "POLYMARKET_CONFIRM",
       "title": "Market consensus shifting",
-      "description": "Polymarket sentiment 74/100 (bullish), 24 KOL posts in 24h \u2014 consensus forming.",
+      "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-06-10T13:25:38.434444+00:00",
+      "ts": "2026-08-27T04:50:12.083257+00:00",
       "data": {
         "poly_sentiment": 74,
-        "kol_posts": 24
+        "kol_posts": 100
       }
     }
   ],
@@ -150,9 +150,9 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 60.7,
-      "interpretation": "Miner reserves stable \u2014 constructive",
-      "signal": "bullish"
+      "score": 58.7,
+      "interpretation": "Miner flow signals mixed",
+      "signal": "neutral"
     },
     "exchange_pressure": {
       "score": 51.2,
@@ -160,49 +160,49 @@
       "signal": "neutral"
     },
     "social_divergence": {
-      "score": 4,
+      "score": 20,
       "interpretation": "Social sentiment aligned with price action.",
       "signal": "neutral"
     },
     "insider_heat": {
-      "score": 72.0,
+      "score": 71.4,
       "interpretation": "Insider signals active",
       "signal": "bullish"
     },
     "convergence_score": {
-      "score": 76.8,
-      "pattern": "BULLISH",
-      "fragmentation": 17.0,
-      "momentum": 61.3,
-      "conviction": 58.4,
+      "score": 61.9,
+      "pattern": "CAUTIOUS BULLISH",
+      "fragmentation": 16.6,
+      "momentum": 60.5,
+      "conviction": 47.0,
       "thesis": "mixed_regime",
       "confidence": 0.76
     }
   },
   "pro_metrics": {
     "ssr": {
-      "value": 6.01,
-      "btc_market_cap": 1232568347138.3748,
+      "value": 7.71,
+      "btc_market_cap": 1580545526637.4976,
       "stablecoin_market_cap": 205000000000,
-      "signal": "BULLISH",
-      "description": "Healthy stablecoin reserves available for BTC purchasing",
+      "signal": "NEUTRAL",
+      "description": "Balanced stablecoin-to-BTC ratio",
       "source": "estimated"
     },
     "mpi": {
-      "value": 0.595,
-      "cdd_7d": 9044553.0,
-      "cdd_ratio": 1.51,
-      "hashrate_eh": 852.2,
+      "value": 0.989,
+      "cdd_7d": 11245282.0,
+      "cdd_ratio": 1.87,
+      "hashrate_eh": 884.2,
       "signal": "CAUTIOUS",
       "description": "Above-average coin age destruction \u2014 some miner selling",
       "source": "derived_cdd_hashrate"
     },
     "dormancy_flow": {
-      "value": 16.0,
+      "value": 12.0,
       "signal": "BEARISH",
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-06-10T13:21:17.187799+00:00"
+    "timestamp": "2026-08-27T04:40:31.188618+00:00"
   }
 }

@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-17T02:00:29.256568+00:00",
+  "brief_type": "evening",
+  "score": 35,
+  "bullish_signals": [
+    "Fear & Greed at 22\u2014historically accumulation zone",
+    "Hashrate holding firm at 1005 EH/s\u2014miners not capitulating",
+    "Tight daily range suggests institutional patience",
+    "Consolidation holding despite intraday selloff"
+  ],
+  "bearish_signals": [
+    "Mempool bloated at 115K transactions\u2014network congestion",
+    "Risk of weak hand panic-dump during Asia open",
+    "Macro sensitivity to Fed commentary remains high"
+  ],
+  "neutral_topics": [
+    "Bitcoin price consolidation at $65.8K",
+    "Base fee collapse to 1 sat/vB"
+  ]
+}

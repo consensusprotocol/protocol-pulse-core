@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-07-15T10:00:01.844516+00:00",
+  "duration": 41.3,
+  "mp4_path": "brief_20260715_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260715_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260715_1000.mp4",
+  "episode_date": "2026-07-15",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin defies extreme fear, climbing 3.4% to $64,638 as sentiment sits at 25. Overnight gains held through the Asia session with steady buying pressure despite the caution.\n\nHashrate remains robust at 1,019 EH/s while the mempool shows 97,273 transactions and minimal fees at 2 sat/vB. Block height has reached 958,138.\n\nWatch for follow-through momentum today. Low fees could support on-chain activity if price sustains above $64,000.",
+  "word_count": 66,
+  "tts_provider": "chatterbox",
+  "btc_price": 64638.0,
+  "sentiment_score": null
+}

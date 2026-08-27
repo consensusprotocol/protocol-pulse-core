@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-07-11T10:00:02.438821+00:00",
+  "duration": 32.8,
+  "mp4_path": "brief_20260711_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260711_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260711_1000.mp4",
+  "episode_date": "2026-07-11",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin holds at $64,104, down 0.4 percent, with fear and greed stuck at 26. Network strength shows in hashrate at 864.9 EH/s while the mempool sits at 92,030 transactions and fees stay pinned at 1 sat per vbyte. Block height now 957,550. Asia session looks quiet so far. Watch for any volume spike or fear gauge shift that could break the range.",
+  "word_count": 62,
+  "tts_provider": "chatterbox",
+  "btc_price": 64104.0,
+  "sentiment_score": null
+}

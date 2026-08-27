@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-18T10:00:34.334900+00:00",
+  "brief_type": "morning",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate stability at 823 EH/s signals miner conviction",
+    "No major liquidations triggered despite price weakness",
+    "Extreme fear (15) historically attracts smart accumulation",
+    "Asymmetric setup: contained downside vs. room on upside",
+    "Network health remains pristine"
+  ],
+  "bearish_signals": [
+    "Bitcoin down 1% overnight to $64,201",
+    "Extreme fear dominance at 15 (capitulation territory)",
+    "118,000 transactions queued in mempool (user friction)"
+  ],
+  "neutral_topics": [
+    "Base fees at 4 sat/byte (normal network state)",
+    "Block 954,221 progress toward difficulty adjustment",
+    "Asian institutional markets quiet/inactive"
+  ]
+}

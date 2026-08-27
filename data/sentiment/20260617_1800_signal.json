@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-17T18:00:29.995837+00:00",
+  "brief_type": "midday",
+  "score": 62,
+  "bullish_signals": [
+    "Extreme fear (22) = historical reversal setup",
+    "Hashrate stable at 1005 EH/s despite thin margins",
+    "Mempool loaded with cheap 4 sat/vB fees = accumulation weather",
+    "No panic liquidations despite bearish sentiment",
+    "Network fundamentals showing structural strength"
+  ],
+  "bearish_signals": [
+    "Anemic trading volume suggests lack of conviction",
+    "Muted price action stuck in range at $66K"
+  ],
+  "neutral_topics": [
+    "Transaction backlog (structural, not directional)",
+    "Miner margin pressure (expected in sideways markets)"
+  ]
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "tweet_20260628_020029_0",
+    "text": "Diocletian capped grain prices in 301 AD. Rome starved anyway. Price controls on energy today will hollow out supply the same way. Bitcoin doesn't care about edicts",
+    "angle": "historical_pattern",
+    "type": "observation",
+    "format": "historical_parallel",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-28T02:00:29.606175+00:00",
+    "brief_date": "Saturday, June 27, 2026",
+    "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260628_170024_0",
+    "text": "If the network hashrate hits difficulty-derived highs while fear sits at 18, who's actually selling and who's accumulating right now",
+    "angle": "onchain_metric",
+    "type": "question",
+    "format": "socratic_question",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-28T17:00:24.397098+00:00",
+    "brief_date": "Sunday, June 28, 2026",
+    "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260629_020024_0",
+    "text": "StratumV2 just mined its first block. Miners can now choose their own transactions. Meanwhile Taproot sits at 50% adoption after 5 years. The network knows what matters",
+    "angle": "network_fundamentals",
+    "type": "observation",
+    "format": "brief_signal",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-29T02:00:24.545959+00:00",
+    "brief_date": "Sunday, June 28, 2026",
+    "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260629_170007_0",
+    "text": "Congress passes the Crypto Clarity Act to 'protect consumers.' First draft includes programmable money and transaction freezes. Bitcoin doesn't ask permission to exist",
+    "angle": "sovereignty_freedom",
+    "type": "observation",
+    "format": "fiat_failure",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-29T17:00:07.282909+00:00",
+    "brief_date": "Sunday, June 28, 2026",
+    "sentiment": "bearish"
+  },
+  {
+    "id": "tweet_20260630_020022_0",
+    "text": "1 sat/vB fees on block 956,004. You know what that means. The people who need Bitcoin most are the ones who can actually use it right now",
+    "angle": "onchain_metric",
+    "type": "observation",
+    "format": "community_narrative",
+    "priority": 3,
+    "status": "pending",
+    "generated_at": "2026-06-30T02:00:22.231079+00:00",
+    "brief_date": "Monday, June 29, 2026",
+    "sentiment": "bearish"
+  }
+]

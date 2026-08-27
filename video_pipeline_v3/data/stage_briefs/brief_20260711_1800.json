@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-07-11T18:00:02.521364+00:00",
+  "duration": 43.1,
+  "mp4_path": "brief_20260711_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260711_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260711_1800.mp4",
+  "episode_date": "2026-07-11",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin trades at $64,288, up 0.7% in the last 24 hours, while fear grips the market with the index stuck at 26. Network security remains ironclad as hashrate holds 864.9 EH/s. The mempool shows heavy congestion at 96,023 transactions, yet the fastest fee sits at just 3 sat/vB, keeping on-chain costs minimal. Block 957,592 confirms steady production. No major catalysts emerged during the US session, leaving price action driven by thin volume and sentiment rather than fresh flows.",
+  "word_count": 78,
+  "tts_provider": "chatterbox",
+  "btc_price": 64288.0,
+  "sentiment_score": null
+}

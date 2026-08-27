@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-06-05T00:32:27.632623+00:00",
-  "fetch_ms": 21812,
-  "score": 85,
+  "updated_at": "2026-08-23T20:39:56.659920+00:00",
+  "fetch_ms": 30164,
+  "score": 82,
   "label": "HIGH",
   "crypto_committees": 13,
   "states_active": 3,
-  "fairshake_spend": 49759658.89,
-  "fairshake_raised": 135112779.13,
+  "fairshake_spend": 88663412.57,
+  "fairshake_raised": 137407399.21,
   "fairshake_expenditures": [
     {
       "pac": "Fairshake PAC",
@@ -67,22 +67,13 @@
   ],
   "top_donations": [
     {
-      "donor": "HOROWITZ, BEN",
-      "employer": "AH CAPITAL MANAGEMENT",
-      "amount": 11900000.0,
-      "date": "2025-12-10",
+      "donor": "DIGITAL CURRENCY GROUP, INC.",
+      "employer": null,
+      "amount": 1000000.0,
+      "date": "2026-06-05",
       "recipient": "Fairshake PAC",
-      "state": "CA",
-      "city": "MENLO PARK"
-    },
-    {
-      "donor": "ANDREESSEN, MARC",
-      "employer": "AH CAPITAL MANAGEMENT",
-      "amount": 11900000.0,
-      "date": "2025-12-10",
-      "recipient": "Fairshake PAC",
-      "state": "CA",
-      "city": "MENLO PARK"
+      "state": "CT",
+      "city": "STAMFORD"
     },
     {
       "donor": "CFG ACTION MONTANA",

@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-20T18:00:30.287485+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Why Bitcoin's Hashrate Matters More Than Price During Panic",
+      "angle": "On-chain structural support signals when price fear reaches extremes",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "capitulation",
+        "on-chain-analysis"
+      ]
+    },
+    {
+      "headline": "The Mempool Tells a Different Story: Retail Exhaustion vs. Forced Liquidation",
+      "angle": "Compressed fees at 2 sat/vB reveal voluntary sideline positioning, not panic selling",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "transaction-fees",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Fear & Greed at 23: Historical Transitions That Precede Rallies",
+      "angle": "Extreme fear readings paired with network health often mark inflection points",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-greed-index",
+        "market-cycles"
+      ]
+    }
+  ]
+}

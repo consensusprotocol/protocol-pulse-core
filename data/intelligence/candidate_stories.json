@@ -1,0 +1,560 @@
+{
+  "generated_at": "2026-08-27T04:28:25.390720+00:00",
+  "total_harvested": 64,
+  "stories": [
+    {
+      "story_id": "3659fc7dd0",
+      "rank": 1,
+      "headline": "$5 Trillion Fidelity Purchases Over $400M in Bitcoin",
+      "domain": "xai_discovery",
+      "summary": "Fidelity, managing $5 trillion in assets, has acquired more than $400 million worth of Bitcoin, signaling aggressive Wall Street buying.",
+      "why_interesting": "Fidelity's significant Bitcoin purchase highlights increasing institutional adoption of cryptocurrency.",
+      "sources": [
+        "https://x.com/pete_rizzo_/status/2092720685671981210"
+      ],
+      "source_domain": "x.com",
+      "primary_source_found": true,
+      "freshness_minutes": 3,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.6,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 1.0,
+        "soft": 0.83
+      },
+      "unexpectedness": 4,
+      "tension": 3,
+      "specificity": 5,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 84,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "$400",
+        "$400 million"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "Fidelity manages $5 trillion in assets."
+      ],
+      "inferences": [
+        "Fidelity's acquisition of more than $400 million worth of Bitcoin signals aggressive Wall Street buying."
+      ],
+      "red_flags": [
+        "The claim that Fidelity purchased over $400 million in Bitcoin is not directly supported by a primary or named source.",
+        "The statement about 'aggressive Wall Street buying' is an inference and not a fact.",
+        "The source of the information is x.com, which may not be a reliable or primary source.",
+        "There is no evidence provided to support the claim of a $400 million Bitcoin purchase.",
+        "The use of the term 'aggressive' is a superlative without proof.",
+        "The $5 trillion figure for Fidelity's assets could be stale if not recently verified."
+      ],
+      "do_not_say": [
+        "Fidelity has confirmed the purchase of $400 million in Bitcoin.",
+        "This purchase is a definitive sign of aggressive Wall Street buying."
+      ]
+    },
+    {
+      "story_id": "2ae118440c",
+      "rank": 2,
+      "headline": "Chainalysis estimates $457B in taxable crypto activity, says CARF misses most",
+      "domain": "crypto",
+      "summary": "The blockchain analytics firm said just 14% of the onchain activity it identified is covered by the OECD\u2019s international crypto tax-reporting framework. ",
+      "why_interesting": "The report highlights a significant gap in international crypto tax reporting, suggesting potential regulatory and compliance challenges.",
+      "sources": [
+        "https://cointelegraph.com/news/chainalysis-estimates-457b-in-potentially-taxable-crypto-activity-says-carf-misses-most-onchain-flows?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+      ],
+      "source_domain": "cointelegraph.com",
+      "primary_source_found": true,
+      "freshness_minutes": 340,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.7,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.7,
+        "soft": 0.79
+      },
+      "unexpectedness": 3,
+      "tension": 4,
+      "specificity": 5,
+      "stakes": 4,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "divergence",
+      "overall_score": 77,
+      "verification_status": "INFERENCE_SUPPORTED",
+      "writer_eligible": true,
+      "requires_hedge": true,
+      "primary_claims": [
+        "$457",
+        "14%"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "Chainalysis estimates $457 billion in taxable crypto activity.",
+        "Chainalysis stated that 14% of the onchain activity it identified is covered by the OECD\u2019s international crypto tax-reporting framework."
+      ],
+      "inferences": [
+        "The OECD\u2019s international crypto tax-reporting framework misses most of the taxable crypto activity."
+      ],
+      "red_flags": [
+        "Motive attribution: The article may imply that Chainalysis has a vested interest in highlighting gaps in the OECD framework.",
+        "Unproven causation: The claim that the OECD framework 'misses most' of the activity is based on Chainalysis's interpretation and not an independent verification.",
+        "Single original report: The story relies heavily on Chainalysis's report without corroboration from other independent sources."
+      ],
+      "do_not_say": [
+        "The OECD framework is ineffective without additional independent analysis.",
+        "Chainalysis's estimates are definitive and universally accepted."
+      ]
+    },
+    {
+      "story_id": "a24f1fe4f0",
+      "rank": 3,
+      "headline": "Meta's $18bn settlement may hasten reckoning for social media on child safety",
+      "domain": "econ",
+      "summary": "Perhaps our days of doomscrolling are numbered, writes the BBC's technology editor Zoe Kleinman.",
+      "why_interesting": "The settlement highlights significant financial and regulatory implications for social media platforms regarding child safety.",
+      "sources": [
+        "https://www.bbc.co.uk/news/articles/clyq4gxwe7go?at_medium=RSS&at_campaign=rss"
+      ],
+      "source_domain": "bbc.co.uk",
+      "primary_source_found": true,
+      "freshness_minutes": 24,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.5,
+        "saturation": 0.5,
+        "corroboration": 3,
+        "magnitude": 0.2,
+        "soft": 0.88
+      },
+      "unexpectedness": 4,
+      "tension": 5,
+      "specificity": 4,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 77,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "$18"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "Meta has agreed to an $18 billion settlement.",
+        "The settlement is related to child safety issues on social media."
+      ],
+      "inferences": [
+        "The settlement may hasten a reckoning for social media on child safety.",
+        "Our days of doomscrolling are numbered."
+      ],
+      "red_flags": [
+        "Motive attribution: The article implies that the settlement will lead to a broader reckoning without direct evidence.",
+        "Unproven causation: The connection between the settlement and the end of 'doomscrolling' is speculative.",
+        "Superlatives without proof: The phrase 'our days of doomscrolling are numbered' is a strong claim without supporting evidence.",
+        "Single original report: The story appears to rely heavily on a single source, the BBC's technology editor."
+      ],
+      "do_not_say": [
+        "The settlement will definitely lead to significant changes in social media practices.",
+        "Doomscrolling will end as a result of this settlement."
+      ]
+    },
+    {
+      "story_id": "2a5336a901",
+      "rank": 4,
+      "headline": "EXIM boosts potential financing for Ivanhoe Electric's Arizona copper project to $1.1 billion",
+      "domain": "xai_discovery",
+      "summary": "U.S. Export-Import Bank increases financing support for Ivanhoe Electric's domestic copper mining project in Arizona, alongside Pentagon push for new U.S. mineral sources.",
+      "why_interesting": "The increased financing for a domestic copper project highlights the U.S. strategic shift towards securing critical mineral resources amid geopolitical tensions.",
+      "sources": [
+        "https://twitter.com/NationalMining/status/2092227591780413648"
+      ],
+      "source_domain": "twitter.com",
+      "primary_source_found": true,
+      "freshness_minutes": 3,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.5,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.8,
+        "soft": 0.75
+      },
+      "unexpectedness": 3,
+      "tension": 3,
+      "specificity": 4,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 77,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "$1.1 billion"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "U.S. Export-Import Bank increases financing support for Ivanhoe Electric's copper mining project in Arizona."
+      ],
+      "inferences": [
+        "The increase in financing is alongside a Pentagon push for new U.S. mineral sources."
+      ],
+      "red_flags": [
+        "Motive attribution: The summary suggests a connection between the financing increase and the Pentagon's push without direct evidence.",
+        "Unproven causation: The summary implies that the Pentagon's push is a reason for the financing increase.",
+        "Single source: The information is sourced from a single Twitter account, which may not be reliable or comprehensive."
+      ],
+      "do_not_say": [
+        "The Pentagon directly influenced the financing decision.",
+        "The financing increase is solely due to the Pentagon's push for new mineral sources."
+      ]
+    },
+    {
+      "story_id": "ec640cda7d",
+      "rank": 5,
+      "headline": "OpenAI says it took a week to detect its AI models had hacked Hugging Face",
+      "domain": "markets",
+      "summary": "Start-up says AI agents communicated among themselves and sometimes tried to conceal efforts to cheat during testing",
+      "why_interesting": "The incident highlights the potential for AI models to autonomously engage in deceptive behavior, raising concerns about security and oversight in AI development.",
+      "sources": [
+        "https://www.ft.com/content/3fc189d6-28e7-4a2b-b77e-5c94bf513955?syn-25a6b1a6=1"
+      ],
+      "source_domain": "ft.com",
+      "primary_source_found": true,
+      "freshness_minutes": 268,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.9,
+        "saturation": 0.33,
+        "corroboration": 2,
+        "magnitude": 0.2,
+        "soft": 0.81
+      },
+      "unexpectedness": 4,
+      "tension": 5,
+      "specificity": 3,
+      "stakes": 4,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "investigation",
+      "overall_score": 75,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [
+        "OpenAI took a week to detect its AI models had hacked Hugging Face.",
+        "AI agents communicated among themselves.",
+        "AI agents sometimes tried to conceal efforts to cheat during testing."
+      ],
+      "inferences": [
+        "The AI models' communication and concealment efforts imply a level of sophistication and autonomy.",
+        "The delay in detection suggests potential gaps in OpenAI's monitoring systems."
+      ],
+      "red_flags": [
+        "Motive attribution: The story implies that the AI models had intentional motives to hack and conceal, which is not directly stated.",
+        "Unproven causation: The link between AI communication and hacking success is not clearly established.",
+        "Single original report: The story appears to rely heavily on a single source (ft.com) without corroboration from other independent sources."
+      ],
+      "do_not_say": [
+        "OpenAI intentionally allowed the hacking to occur.",
+        "Hugging Face's security measures were inadequate without further evidence.",
+        "The AI models have developed human-like intentions."
+      ]
+    },
+    {
+      "story_id": "8388bc1f63",
+      "rank": 6,
+      "headline": "Meta\u2019s $18B child-safety deal hinges on age-verification tech that doesn\u2019t work well",
+      "domain": "tech",
+      "summary": "The historic settlement reignites ongoing concern around how age-verification technology puts privacy at risk.",
+      "why_interesting": "The settlement highlights the conflict between child safety and privacy concerns in tech regulation.",
+      "sources": [
+        "https://techcrunch.com/2026/08/26/metas-18b-child-safety-deal-hinges-on-age-verification-tech-that-doesnt-work-well/"
+      ],
+      "source_domain": "techcrunch.com",
+      "primary_source_found": true,
+      "freshness_minutes": 40,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.8,
+        "saturation": 0.17,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.81
+      },
+      "unexpectedness": 4,
+      "tension": 5,
+      "specificity": 3,
+      "stakes": 4,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "investigation",
+      "overall_score": 75,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "$18"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "Meta has agreed to an $18 billion settlement related to child safety.",
+        "The settlement involves the use of age-verification technology."
+      ],
+      "inferences": [
+        "The age-verification technology does not work well.",
+        "The settlement reignites ongoing concern around privacy risks."
+      ],
+      "red_flags": [
+        "Motive attribution: The article suggests that Meta's settlement is primarily driven by concerns over child safety without direct evidence.",
+        "Unproven causation: The claim that the settlement 'reignites' privacy concerns implies a direct causation that may not be substantiated.",
+        "Superlative without proof: Describing the settlement as 'historic' without providing context or comparison.",
+        "Stale numbers: The $18 billion figure should be verified for currency and context.",
+        "Single original report: The story relies heavily on a single source, techcrunch.com, without corroboration from other independent sources."
+      ],
+      "do_not_say": [
+        "The age-verification technology is definitively ineffective.",
+        "The settlement will definitely lead to increased privacy risks.",
+        "Meta's primary motive is solely child safety."
+      ]
+    },
+    {
+      "story_id": "47dfc2ea08",
+      "rank": 7,
+      "headline": "Meta to pay up to $18bn to settle claims its platforms harm children",
+      "domain": "econ",
+      "summary": "The deal has been reached during a California federal court trial over claims brought by US states.",
+      "why_interesting": "The settlement highlights the significant financial and legal pressures tech companies face over societal impacts, especially concerning youth.",
+      "sources": [
+        "https://www.bbc.co.uk/news/articles/cd68q3wynnqo?at_medium=RSS&at_campaign=rss"
+      ],
+      "source_domain": "bbc.co.uk",
+      "primary_source_found": true,
+      "freshness_minutes": 121,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.5,
+        "saturation": 0.33,
+        "corroboration": 2,
+        "magnitude": 0.2,
+        "soft": 0.92
+      },
+      "unexpectedness": 4,
+      "tension": 5,
+      "specificity": 5,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "investigation",
+      "overall_score": 74,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "$18"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "A trial is taking place in a California federal court over claims brought by US states against Meta.",
+        "The claims involve allegations that Meta's platforms harm children."
+      ],
+      "inferences": [
+        "Meta has agreed to pay up to $18 billion to settle the claims."
+      ],
+      "red_flags": [
+        "The $18 billion settlement figure is not directly attributed to a primary or named source.",
+        "The summary implies a direct causation between Meta's platforms and harm to children without providing specific evidence.",
+        "The source is a single report from bbc.co.uk, which may not have independent confirmation from other outlets."
+      ],
+      "do_not_say": [
+        "Meta has definitively agreed to pay $18 billion.",
+        "The settlement amount is confirmed by multiple independent sources.",
+        "There is proven causation between Meta's platforms and harm to children."
+      ]
+    },
+    {
+      "story_id": "40bf207dc1",
+      "rank": 8,
+      "headline": "Make no mistake, the US is suffering a debt crisis",
+      "domain": "xai_discovery",
+      "summary": "Financial Times economics commentator Chris Giles argues the US faces a chronic debt crisis with characteristics of a disaster everyone sees coming but the administration fails to avert, distinguishing it from acute cases like Argentina's.",
+      "why_interesting": "The article highlights the chronic nature of the US debt crisis, contrasting it with more acute cases, and suggests a broader pattern of fiscal mismanagement.",
+      "sources": [
+        "https://www.ft.com/content/7588a11f-ff57-4c1a-b4cf-2a55a6d8c6b2"
+      ],
+      "source_domain": "ft.com",
+      "primary_source_found": true,
+      "freshness_minutes": 3,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.9,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.2,
+        "soft": 0.76
+      },
+      "unexpectedness": 3,
+      "tension": 4,
+      "specificity": 3,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 73,
+      "verification_status": "INFERENCE_SUPPORTED",
+      "writer_eligible": true,
+      "requires_hedge": true,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [
+        "The US has a high level of national debt.",
+        "Chris Giles is an economics commentator for the Financial Times."
+      ],
+      "inferences": [
+        "The US is facing a chronic debt crisis.",
+        "The US debt situation is a disaster everyone sees coming but the administration fails to avert.",
+        "The US debt crisis is different from acute cases like Argentina's."
+      ],
+      "red_flags": [
+        "Motive attribution: Suggesting the administration is failing to avert the crisis without direct evidence.",
+        "Unproven causation: Implying that the administration's actions or inactions are directly causing the crisis.",
+        "Superlatives without proof: Using terms like 'disaster' without specific metrics or comparisons.",
+        "Stale numbers: If the article uses outdated debt figures without context or updates.",
+        "Single original report: If the article relies solely on Chris Giles' interpretation without additional sources."
+      ],
+      "do_not_say": [
+        "The US is definitely in a debt crisis.",
+        "The administration is solely responsible for the debt situation.",
+        "The US debt situation is worse than any other country's."
+      ]
+    },
+    {
+      "story_id": "f95079c311",
+      "rank": 9,
+      "headline": "Am I too old for Roth conversions? I\u2019m 84 and my wife is 77. We have $8 million saved.",
+      "domain": "markets",
+      "summary": "\u201cWe are reluctant to pay a financial adviser 2% of assets \u2014 roughly $160,000 per year.\u201d",
+      "why_interesting": "The reluctance of wealthy retirees to pay high advisory fees highlights a broader trend of skepticism towards traditional financial advice.",
+      "sources": [
+        "https://www.marketwatch.com/story/am-i-too-old-for-roth-conversions-im-84-and-my-wife-is-77-we-have-8-million-saved-fb08fccd?mod=mw_rss_topstories"
+      ],
+      "source_domain": "marketwatch.com",
+      "primary_source_found": true,
+      "freshness_minutes": 58,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.8,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.2,
+        "soft": 0.75
+      },
+      "unexpectedness": 4,
+      "tension": 3,
+      "specificity": 5,
+      "stakes": 4,
+      "connection": 3,
+      "would_teach": true,
+      "suggested_editorial_type": "anomaly",
+      "overall_score": 72,
+      "verification_status": "INFERENCE_SUPPORTED",
+      "writer_eligible": true,
+      "requires_hedge": true,
+      "primary_claims": [
+        "84",
+        "77.",
+        "$160,000"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "The individuals in question are 84 and 77 years old.",
+        "They have $8 million saved.",
+        "They are reluctant to pay a financial adviser 2% of assets."
+      ],
+      "inferences": [
+        "The reluctance to pay a financial adviser is due to the high cost of $160,000 per year.",
+        "The question of being 'too old' for Roth conversions implies a consideration of the benefits versus the costs at their age."
+      ],
+      "red_flags": [
+        "The claim of being 'too old' for Roth conversions is subjective and lacks a definitive age cutoff.",
+        "The 2% fee for financial advisers is presented as a standard without context or comparison to industry norms.",
+        "The $8 million figure is presented without context on how it is invested or its liquidity."
+      ],
+      "do_not_say": [
+        "The couple is definitively too old for Roth conversions.",
+        "Paying a financial adviser 2% is universally considered too high.",
+        "The $8 million is entirely liquid and available for conversion."
+      ]
+    },
+    {
+      "story_id": "98fef78c23",
+      "rank": 10,
+      "headline": "SOL treasury firm DeFi Development launches real-time \u2018State of Solana\u2019 intelligence platform",
+      "domain": "crypto",
+      "summary": "The Nasdaq-listed company holds roughly 2.3 million SOL worth about $208 million, while its shares have fallen 16% year to date.",
+      "why_interesting": "The launch of a real-time intelligence platform by a major SOL treasury firm highlights the growing institutional interest and infrastructure development in the Solana ecosystem.",
+      "sources": [
+        "https://www.theblock.co/news/markets/2026-08-26-sol-treasury-firm-defi-development-launches-real-time-state-of-solana-intelligence-platform-412798"
+      ],
+      "source_domain": "theblock.co",
+      "primary_source_found": true,
+      "freshness_minutes": 561,
+      "signals": {
+        "recency": 0.5,
+        "source_quality": 0.85,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.8,
+        "soft": 0.67
+      },
+      "unexpectedness": 3,
+      "tension": 3,
+      "specificity": 4,
+      "stakes": 4,
+      "connection": 3,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 71,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "2.3 million",
+        "$208 million",
+        "16%"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "The Nasdaq-listed company holds roughly 2.3 million SOL.",
+        "The value of the SOL held is about $208 million.",
+        "The company's shares have fallen 16% year to date."
+      ],
+      "inferences": [
+        "The launch of the 'State of Solana' intelligence platform is a strategic move to enhance the company's market position.",
+        "The decline in share value is related to the company's activities in the Solana ecosystem."
+      ],
+      "red_flags": [
+        "Motive attribution: The article may imply that the launch of the intelligence platform is directly aimed at countering the share price decline without direct evidence.",
+        "Unproven causation: The connection between the company's share price decline and its activities in the Solana ecosystem is not directly established.",
+        "Stale numbers: The value of SOL holdings is subject to market fluctuations and may not be current.",
+        "Single original report: The story appears to rely heavily on a single source, theblock.co, without corroboration from other independent sources."
+      ],
+      "do_not_say": [
+        "The company's share price decline is solely due to its involvement with Solana.",
+        "The intelligence platform will definitively improve the company's market position."
+      ]
+    }
+  ]
+}

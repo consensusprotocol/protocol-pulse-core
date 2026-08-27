@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-22T10:00:36.207205+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Halving Shakeout: Why Bitcoin's Pre-Halving Panic Is Textbook Distribution",
+      "angle": "Historical pattern analysis showing why extreme fear readings 25K blocks before halving often signal accumulation windows, not capitulation",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "fear-greed",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Reading the Mempool: How Institutional Buyers Signal Intent Without Moving Price",
+      "angle": "Exploring why compressed fees and explosive fee spikes without price movement are more reliable accumulation signals than sentiment metrics",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "institutional",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Hashrate Conviction: Why Miners Holding Steady at 64K Matters More Than Fear Index",
+      "angle": "Deep dive into hashrate as a conviction metric and why miner behavior contradicts extreme fear readings",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "technical-analysis"
+      ]
+    }
+  ]
+}

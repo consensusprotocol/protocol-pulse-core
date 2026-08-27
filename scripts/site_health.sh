@@ -53,7 +53,7 @@ fi
 # === Avatar Server (Satomi Oracle) ===
 if ! pgrep -f "avatar_server.py" > /dev/null 2>&1; then
     echo "[$(date)] Avatar server down — restarting"
-    cd ~/protocol_pulse/oracle && CUDA_VISIBLE_DEVICES=1 nohup python3 avatar_server.py > /tmp/avatar_server.log 2>&1 &
+    cd ~/protocol_pulse/oracle && CUDA_VISIBLE_DEVICES=0 nohup python3 avatar_server.py > /tmp/avatar_server.log 2>&1 &
     sleep 5
     echo "[$(date)] Avatar server restarted (PID: $!)"
 fi

@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-25T10:00:32.269565+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Extreme Fear Index Signals Potential Capitulation Bottom",
+      "angle": "Fear & Greed at 12 represents historical accumulation zones; analyze past recoveries from similar extremes",
+      "tags": [
+        "bitcoin",
+        "sentiment-analysis",
+        "fear-greed-index",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Cheap On-Chain Friction: Bitcoin Mempool Dries Up as Fees Crater",
+      "angle": "Lowest network costs in months create ideal conditions for whale accumulation and retail entry",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network-health",
+        "transaction-fees"
+      ]
+    },
+    {
+      "headline": "The $60k Support Test: What Bitcoin's Technical Levels Mean for the Next Move",
+      "angle": "Network remains healthy despite price weakness; key to watching support holds vs. cascade breakdown",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "support-levels",
+        "price-action"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-08-10T10:00:04.929825+00:00",
+  "duration": 51.1,
+  "mp4_path": "brief_20260810_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260810_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260810_1000.mp4",
+  "episode_date": "2026-08-10",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin holds 64,927 with a slim 0.2% gain while fear sits at 30, signaling capitulation risk rather than breakout momentum. Hashrate at 897 EH/s shows miners remain committed despite the sentiment dip. Mempool congestion at nearly 79,000 transactions keeps the fee floor at 1 sat/vB, easing pressure on users but hinting at latent demand.\n\nOvernight, Asia flows stayed quiet with no decisive volume surge. The next watchpoints are any move above 65,500 to flip the fear gauge or a drop below 64,000 ",
+  "word_count": 97,
+  "tts_provider": "chatterbox",
+  "btc_price": 64927.0,
+  "sentiment_score": null
+}

@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-17T10:00:34.392778+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Mempool Signals Contradict Price Action: Why Bitcoin's Fee Collapse Could Mark a Bottom",
+      "angle": "Deep dive on on-chain fee metrics as leading indicators during panic selloffs\u2014what collapsed sat/vB actually reveals about buyer/seller composition",
+      "tags": [
+        "bitcoin",
+        "on-chain-analysis",
+        "mempool",
+        "market-bottoms",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Hashrate Stability in Crisis: Why Miner Conviction Matters More Than Price",
+      "angle": "Analyze why 1005.8 EH/s holding through a 2.5% daily drop signals structural strength and miner confidence vs. retail panic",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "fundamentals",
+        "conviction"
+      ]
+    },
+    {
+      "headline": "Fear & Greed at 22: Historical Reversals and the Asia Liquidation Catalyst",
+      "angle": "Track pattern recognition when Fear & Greed hits 22\u2014typical bounce velocity, duration, and macro catalysts that could accelerate relief rallies",
+      "tags": [
+        "bitcoin",
+        "fear-greed-index",
+        "sentiment",
+        "liquidations",
+        "technical-analysis"
+      ]
+    }
+  ]
+}

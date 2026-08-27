@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-07-16T10:00:02.534604+00:00",
+  "duration": 36.8,
+  "mp4_path": "brief_20260716_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260716_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260716_1000.mp4",
+  "episode_date": "2026-07-16",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin holds at $64,065, down 0.9% in 24 hours, while Fear & Greed plunges to 25 in extreme fear territory. Hashrate stays strong at 852 EH/s, showing miners are not blinking. Mempool backs up to 100k transactions with fees still at 1 sat/vB, pointing to steady but not urgent demand. No major Asia session breakouts in the data. Watch for any bounce attempt if fear readings stabilize or further downside if volume stays suppressed into the next blocks.",
+  "word_count": 78,
+  "tts_provider": "chatterbox",
+  "btc_price": 64065.0,
+  "sentiment_score": null
+}

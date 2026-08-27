@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-06-16T18:00:30.973831+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Bitcoin Hits Extreme Fear at $65,938\u2014But Miner Metrics Suggest No Capitulation Yet",
+      "angle": "Why hashrate strength during price weakness could signal an imminent reversal, and what on-chain accumulation patterns traders should watch for",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "fear-and-greed",
+        "on-chain-analysis",
+        "miners",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Mempool Congestion at 119k Transactions: Signs of Weak-Hand Liquidation or Accumulation Setup?",
+      "angle": "Analyzing compressed fees (3 sat/vB) and transaction backlog as indicators of capitulation behavior vs. pre-reversal consolidation",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "transaction-fees",
+        "on-chain",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "The $900 EH/s Hashrate Line: Bitcoin's Next Critical Support Level",
+      "angle": "Why miners are the real barometer of Bitcoin conviction, and what a hashrate collapse below 900 EH/s would signal for the market",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "support-levels",
+        "market-structure"
+      ]
+    }
+  ]
+}

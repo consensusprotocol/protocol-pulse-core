@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-11T18:00:31.319951+00:00",
+  "brief_type": "midday",
+  "score": 45,
+  "bullish_signals": [
+    "Extreme Fear (GI: 12) = historical accumulation window",
+    "Hashrate holding steady at 852 EH/s despite volatility",
+    "Network congestion collapsed; fees at 2 sat/byte",
+    "Cheap settlement environment attracts institutions",
+    "Clean on-chain architecture contradicts sentiment panic"
+  ],
+  "bearish_signals": [
+    "Elevated volatility persists",
+    "Volume data thin/lagging on exchanges"
+  ],
+  "neutral_topics": [
+    "Block height 953,274 (routine network function)",
+    "US morning session green (within normal range)"
+  ]
+}

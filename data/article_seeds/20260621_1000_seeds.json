@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-21T10:00:33.253117+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Capitulation Vacuum: Why Bitcoin's Extreme Fear Reading Could Signal the Next Move",
+      "angle": "Analyze the disconnect between 23 fear gauge and steady hashrate; explore how absence of negative catalysts historically precedes reversals",
+      "tags": [
+        "bitcoin",
+        "market-psychology",
+        "sentiment",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Volume Above $66K: The Real Breakup Signal Bitcoin Needs",
+      "angle": "Technical breakdown of why volume confirmation matters more than support holds; what constitutes conviction vs. dead-cat bounce",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "volume",
+        "support-resistance"
+      ]
+    },
+    {
+      "headline": "Hashrate Conviction vs. Mempool Silence: Reading Bitcoin's Mixed Signals",
+      "angle": "Deep dive into what miner behavior and transaction data reveal about institutional vs. retail positioning during extreme fear",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "on-chain",
+        "miners"
+      ]
+    }
+  ]
+}

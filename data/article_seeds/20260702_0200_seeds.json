@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-07-02T02:00:17.937766+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "The Capitulation Disconnect: Why Bitcoin's Hashrate Tells a Different Story Than Fear Index",
+      "angle": "Deep dive into why on-chain metrics (hashrate, mempool, transaction volume) contradict extreme sentiment, and what this historical pattern suggests for next moves",
+      "tags": [
+        "bitcoin",
+        "sentiment-analysis",
+        "on-chain-metrics",
+        "hashrate",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "$60K Hold: Bitcoin's Network Health During Peak Retail Fear",
+      "angle": "Examine the structural strength (lean mempool, low fees, block progress) that's supporting price while Greed Index hits extremes\u2014miner conviction vs. retail panic",
+      "tags": [
+        "bitcoin",
+        "network-health",
+        "miners",
+        "greed-index",
+        "support-levels"
+      ]
+    },
+    {
+      "headline": "Asia's $60K-$61K Gauntlet: What Bitcoin's Overnight Range Means for Momentum Shift",
+      "angle": "Technical outlook on key overnight levels, macro spillover risks from equity markets, and what breakout scenarios ($59K down, $62K up) signal for the trade",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "asia-markets",
+        "trading-levels",
+        "momentum"
+      ]
+    }
+  ]
+}

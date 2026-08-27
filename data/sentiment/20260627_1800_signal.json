@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-27T18:00:29.429617+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Extreme fear at historical accumulation levels",
+    "Hashrate remains robust at 970 EH/s\u2014miners showing conviction",
+    "Mempool clear with minimal fees (1 sat/byte)",
+    "No capitulation signals in network data",
+    "Institutional discount-hunting likely to resume"
+  ],
+  "bearish_signals": [
+    "Modest 1% daily gain suggests weak momentum",
+    "Extreme fear dominance in sentiment markets",
+    "Volume data absent\u2014conviction unclear"
+  ],
+  "neutral_topics": [
+    "99K mempool transactions\u2014normal range",
+    "Price holding rather than advancing"
+  ]
+}

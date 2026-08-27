@@ -1,11 +1,123 @@
 {
-  "updated_at": "2026-06-10T10:00:36.295211+00:00",
-  "fetch_time_ms": 33360,
+  "updated_at": "2026-08-25T10:00:37.015300+00:00",
+  "fetch_time_ms": 33957,
   "total_bills": 40,
-  "bills_with_votes": 7,
+  "bills_with_votes": 6,
   "bullish_count": 1,
   "bearish_count": 1,
   "bills": [
+    {
+      "bill_id": 2034656,
+      "bill_number": "HB3633",
+      "title": "Digital Asset Market Clarity Act Lummis-Gillibrand Responsible Financial Innovation Act of 2026",
+      "short_title": "Digital Asset Market Clarity Act Lummis-Gillibrand Resp...",
+      "categories": [
+        "market_structure"
+      ],
+      "btc_signal": "bullish",
+      "status": "Engrossed",
+      "status_id": 2,
+      "last_action": "Cloture motion on the motion to proceed to the measure presented in Senate. (CR S4557)",
+      "last_action_date": "2026-08-08",
+      "sponsor": "French Hill",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB3633/2025",
+      "vote_tally": {
+        "yea": 294,
+        "nay": 134,
+        "total": 428,
+        "pct_yes": 69,
+        "chamber": "H",
+        "date": "2025-07-17",
+        "roll_call_id": 1598921
+      },
+      "congress_pct": 69,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": 19,
+      "gap_label": "SMALL GAP",
+      "change_hash": "e453c434db6441b9331d25dac1bec6fe",
+      "updated_at": "2026-08-25T10:00:29.412201+00:00"
+    },
+    {
+      "bill_id": 2153559,
+      "bill_number": "HB9250",
+      "title": "Great American Outdoors Act 250",
+      "short_title": "Great American Outdoors Act 250",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Ordered to be Reported in the Nature of a Substitute (Amended) by Voice Vote.",
+      "last_action_date": "2026-06-24",
+      "sponsor": "Bruce Westerman",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/HB9250/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "3b946d5e0d7eac5459244f59108aac9a",
+      "updated_at": "2026-08-25T10:00:35.018249+00:00"
+    },
+    {
+      "bill_id": 2028195,
+      "bill_number": "SB1547",
+      "title": "America the Beautiful Act",
+      "short_title": "America the Beautiful Act",
+      "categories": [
+        "other"
+      ],
+      "btc_signal": "neutral",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Placed on Senate Legislative Calendar under General Orders. Calendar No. 439.",
+      "last_action_date": "2026-06-17",
+      "sponsor": "Steve Daines",
+      "sponsor_party": "R",
+      "url": "https://legiscan.com/US/bill/SB1547/2025",
+      "vote_tally": {
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
+      },
+      "congress_pct": 0,
+      "public_pct": 50,
+      "public_votes": {
+        "yes": 0,
+        "no": 0,
+        "total": 0,
+        "pct_yes": 50
+      },
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "0c21c4fbffa52967b401d4825531a641",
+      "updated_at": "2026-08-25T10:00:36.016693+00:00"
+    },
     {
       "bill_id": 2153292,
       "bill_number": "HB9173",
@@ -41,7 +153,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "4afb4012c447bfa713c0fbd60c06e3e2",
-      "updated_at": "2026-06-10T10:00:19.936996+00:00"
+      "updated_at": "2026-08-25T10:00:20.267203+00:00"
     },
     {
       "bill_id": 2153318,
@@ -78,7 +190,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "2279c5070458cf3ca7545b1620310862",
-      "updated_at": "2026-06-10T10:00:21.589228+00:00"
+      "updated_at": "2026-08-25T10:00:21.772493+00:00"
     },
     {
       "bill_id": 2153304,
@@ -115,34 +227,33 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "88815ec597cdc7917608e178b931d0f8",
-      "updated_at": "2026-06-10T10:00:22.364095+00:00"
+      "updated_at": "2026-08-25T10:00:22.541723+00:00"
     },
     {
-      "bill_id": 2058568,
-      "bill_number": "HB6644",
-      "title": "21st Century ROAD to Housing Act",
-      "short_title": "21st Century ROAD to Housing Act",
+      "bill_id": 2153314,
+      "bill_number": "HB9178",
+      "title": "Less Tax Paperwork for Digital Asset Owners Act",
+      "short_title": "Less Tax Paperwork for Digital Asset Owners Act",
       "categories": [
-        "other"
+        "taxation"
       ],
       "btc_signal": "neutral",
-      "status": "Engrossed",
-      "status_id": 2,
-      "last_action": "Message on House action received in Senate and at desk: House amendment to Senate amendment.",
-      "last_action_date": "2026-06-02",
-      "sponsor": "French Hill",
+      "status": "Introduced",
+      "status_id": 1,
+      "last_action": "Referred to the House Committee on Ways and Means.",
+      "last_action_date": "2026-06-08",
+      "sponsor": "Rudolph Yakym III",
       "sponsor_party": "R",
-      "url": "https://legiscan.com/US/bill/HB6644/2025",
+      "url": "https://legiscan.com/US/bill/HB9178/2025",
       "vote_tally": {
-        "yea": 89,
-        "nay": 10,
-        "total": 99,
-        "pct_yes": 90,
-        "chamber": "S",
-        "date": "2026-03-12",
-        "roll_call_id": 1662382
+        "yea": 0,
+        "nay": 0,
+        "total": 0,
+        "pct_yes": 0,
+        "chamber": "",
+        "date": ""
       },
-      "congress_pct": 90,
+      "congress_pct": 0,
       "public_pct": 50,
       "public_votes": {
         "yes": 0,
@@ -150,48 +261,10 @@
         "total": 0,
         "pct_yes": 50
       },
-      "gap_score": 40,
-      "gap_label": "LARGE GAP",
-      "change_hash": "ae359d67eb624b1751548e153956e28e",
-      "updated_at": "2026-06-10T10:00:34.423228+00:00"
-    },
-    {
-      "bill_id": 2034656,
-      "bill_number": "HB3633",
-      "title": "Digital Asset Market Clarity Act Lummis-Gillibrand Responsible Financial Innovation Act of 2026",
-      "short_title": "Digital Asset Market Clarity Act Lummis-Gillibrand Resp...",
-      "categories": [
-        "market_structure"
-      ],
-      "btc_signal": "bullish",
-      "status": "Engrossed",
-      "status_id": 2,
-      "last_action": "Placed on Senate Legislative Calendar under General Orders. Calendar No. 423.",
-      "last_action_date": "2026-06-01",
-      "sponsor": "French Hill",
-      "sponsor_party": "R",
-      "url": "https://legiscan.com/US/bill/HB3633/2025",
-      "vote_tally": {
-        "yea": 294,
-        "nay": 134,
-        "total": 428,
-        "pct_yes": 69,
-        "chamber": "H",
-        "date": "2025-07-17",
-        "roll_call_id": 1598921
-      },
-      "congress_pct": 69,
-      "public_pct": 50,
-      "public_votes": {
-        "yes": 0,
-        "no": 0,
-        "total": 0,
-        "pct_yes": 50
-      },
-      "gap_score": 19,
-      "gap_label": "SMALL GAP",
-      "change_hash": "4d3304ce6dea53c8683279b819088ed7",
-      "updated_at": "2026-06-10T10:00:28.418421+00:00"
+      "gap_score": null,
+      "gap_label": "PENDING VOTE",
+      "change_hash": "8b4b543f21b06fa835c2bffdd30b56d0",
+      "updated_at": "2026-08-25T10:00:23.319817+00:00"
     },
     {
       "bill_id": 2151409,
@@ -227,8 +300,8 @@
       },
       "gap_score": null,
       "gap_label": "PENDING VOTE",
-      "change_hash": "99e052d6ea663ad05b0e6fabe917a6d8",
-      "updated_at": "2026-06-10T10:00:07.418399+00:00"
+      "change_hash": "a6004c90a93ee1e2cb4cb3aa081f8fc4",
+      "updated_at": "2026-08-25T10:00:07.977465+00:00"
     },
     {
       "bill_id": 2150760,
@@ -266,7 +339,7 @@
       "gap_score": 47,
       "gap_label": "LARGE GAP",
       "change_hash": "a067c2fedb54aab9d44f7bf3a6fc9642",
-      "updated_at": "2026-06-10T10:00:32.810655+00:00"
+      "updated_at": "2026-08-25T10:00:33.561979+00:00"
     },
     {
       "bill_id": 2150767,
@@ -303,13 +376,13 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "0e69655037e6470039f103e75098671c",
-      "updated_at": "2026-06-10T10:00:23.836771+00:00"
+      "updated_at": "2026-08-25T10:00:24.794502+00:00"
     },
     {
       "bill_id": 2145806,
       "bill_number": "HB8495",
-      "title": "Executive Office of the President Appropriations Act, 2027 District of Columbia Appropriations Act, 2027 Judiciary Appropriations Act, 2027 Department of the Treasury Appropriations Act, 2027",
-      "short_title": "Executive Office of the President Appropriations Act, 2...",
+      "title": "Financial Services and General Government Appropriations Act, 2027 Department of the Treasury Appropriations Act, 2027 Executive Office of the President Appropriations Act, 2027 District of Columbia Appropriations Act, 2027 Judiciary Appropriations Act, 2027",
+      "short_title": "Financial Services and General Government Appropriation...",
       "categories": [
         "other"
       ],
@@ -339,8 +412,8 @@
       },
       "gap_score": null,
       "gap_label": "PENDING VOTE",
-      "change_hash": "6d6a5db231e8bee495b328b87f1fb33f",
-      "updated_at": "2026-06-10T10:00:16.765381+00:00"
+      "change_hash": "f009aec28e1ad345075c2fd8a5b1c86e",
+      "updated_at": "2026-08-25T10:00:17.337159+00:00"
     },
     {
       "bill_id": 2145593,
@@ -377,7 +450,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "e5d9c8df8280055c78544409043cbfef",
-      "updated_at": "2026-06-10T10:00:33.532118+00:00"
+      "updated_at": "2026-08-25T10:00:36.712213+00:00"
     },
     {
       "bill_id": 2144753,
@@ -413,8 +486,8 @@
       },
       "gap_score": null,
       "gap_label": "PENDING VOTE",
-      "change_hash": "16547c2c243ee18ad736b6cfc600d521",
-      "updated_at": "2026-06-10T10:00:24.571748+00:00"
+      "change_hash": "dd86956e58e9b1aeeb78337a614f58fe",
+      "updated_at": "2026-08-25T10:00:26.309614+00:00"
     },
     {
       "bill_id": 2138937,
@@ -451,7 +524,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7cc431888a788cec3860ef15fc8515bb",
-      "updated_at": "2026-06-10T10:00:08.768697+00:00"
+      "updated_at": "2026-08-25T10:00:09.263020+00:00"
     },
     {
       "bill_id": 2132768,
@@ -488,7 +561,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "60f7f440c47906392eb61a580413287c",
-      "updated_at": "2026-06-10T10:00:27.592462+00:00"
+      "updated_at": "2026-08-25T10:00:28.585012+00:00"
     },
     {
       "bill_id": 2123654,
@@ -525,13 +598,13 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "d7ced30e911d5fc7c4778e9c1ba3a764",
-      "updated_at": "2026-06-10T10:00:19.153813+00:00"
+      "updated_at": "2026-08-25T10:00:19.611164+00:00"
     },
     {
       "bill_id": 2088126,
       "bill_number": "HB7148",
-      "title": "District of Columbia Appropriations Act, 2026 Judiciary Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 Department of the Treasury Appropriations Act, 2026 Transportation, Housing and Urban Development, and Related Agencies Appropriations Act, 2026 Department of Transportation Appropriations Act, 2026 Department of Defense Appropriations Act, 2026 Further Continuing Appropriations Act, 2026 Financial Services and General Government Appropriations Act, 2026 Department of Health and Human Services Appropriations Act, 2026 Department of Education Appropriations Act, 2026 Department of Housing and Urban Development Appropriations Act, 2026 National Security, Department of State, and Related Programs Appropriations Act, 2026 Department of Labor Appropriations Act, 2026 Departments of Labor, Health and Human Services, and Education, and Related Agencies Appropriations Act, 2026",
-      "short_title": "District of Columbia Appropriations Act, 2026 Judiciary...",
+      "title": "Transportation, Housing and Urban Development, and Related Agencies Appropriations Act, 2026 Department of Transportation Appropriations Act, 2026 Department of Defense Appropriations Act, 2026 District of Columbia Appropriations Act, 2026 Judiciary Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 Department of the Treasury Appropriations Act, 2026 Further Continuing Appropriations Act, 2026 Financial Services and General Government Appropriations Act, 2026 Department of Health and Human Services Appropriations Act, 2026 Department of Education Appropriations Act, 2026 Department of Housing and Urban Development Appropriations Act, 2026 Departments of Labor, Health and Human Services, and Education, and Related Agencies Appropriations Act, 2026 National Security, Department of State, and Related Programs Appropriations Act, 2026 Department of Labor Appropriations Act, 2026",
+      "short_title": "Transportation, Housing and Urban Development, and Rela...",
       "categories": [
         "other"
       ],
@@ -562,8 +635,8 @@
       },
       "gap_score": 0,
       "gap_label": "ALIGNED",
-      "change_hash": "5fb17622426e0a23f7d31dcb6adec4be",
-      "updated_at": "2026-06-10T10:00:18.377134+00:00"
+      "change_hash": "d4fcf579333d0d2dd5722b7da70e0a7c",
+      "updated_at": "2026-08-25T10:00:18.938320+00:00"
     },
     {
       "bill_id": 2104525,
@@ -600,13 +673,13 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "80ca27ba4c57fd4d0073ec2431371205",
-      "updated_at": "2026-06-10T10:00:26.876177+00:00"
+      "updated_at": "2026-08-25T10:00:27.812687+00:00"
     },
     {
       "bill_id": 2072088,
       "bill_number": "HB7006",
-      "title": "Judiciary Appropriations Act, 2026 Financial Services and General Government Appropriations Act, 2026 District of Columbia Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 Department of the Treasury Appropriations Act, 2026 National Security, Department of State, and Related Programs Appropriations Act, 2026",
-      "short_title": "Judiciary Appropriations Act, 2026 Financial Services a...",
+      "title": "Department of the Treasury Appropriations Act, 2026 Financial Services and General Government Appropriations Act, 2026 District of Columbia Appropriations Act, 2026 Judiciary Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 National Security, Department of State, and Related Programs Appropriations Act, 2026",
+      "short_title": "Department of the Treasury Appropriations Act, 2026 Fin...",
       "categories": [
         "other"
       ],
@@ -637,8 +710,8 @@
       },
       "gap_score": 31,
       "gap_label": "MODERATE GAP",
-      "change_hash": "0ac0b661f0260a33179b106f3e1a08f1",
-      "updated_at": "2026-06-10T10:00:17.554854+00:00"
+      "change_hash": "6e748cfe29beacdf64891b0f006fa90d",
+      "updated_at": "2026-08-25T10:00:18.127113+00:00"
     },
     {
       "bill_id": 2060370,
@@ -675,7 +748,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "09575c7630318f87191901b039c5b803",
-      "updated_at": "2026-06-10T10:00:11.353848+00:00"
+      "updated_at": "2026-08-25T10:00:11.947520+00:00"
     },
     {
       "bill_id": 2058188,
@@ -712,7 +785,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "c546bdbafeabe6b612b458ce0a12378a",
-      "updated_at": "2026-06-10T10:00:23.061913+00:00"
+      "updated_at": "2026-08-25T10:00:24.104061+00:00"
     },
     {
       "bill_id": 2053628,
@@ -749,7 +822,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "0bb51c08b935cc1cf2e82d8096e68c4d",
-      "updated_at": "2026-06-10T10:00:08.127785+00:00"
+      "updated_at": "2026-08-25T10:00:08.627462+00:00"
     },
     {
       "bill_id": 2053561,
@@ -786,7 +859,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "3bf0255e02f72f7d1973f1b020e91162",
-      "updated_at": "2026-06-10T10:00:15.208941+00:00"
+      "updated_at": "2026-08-25T10:00:15.864971+00:00"
     },
     {
       "bill_id": 2053516,
@@ -823,7 +896,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "add06a6c8a07b9b45ec15062218abada",
-      "updated_at": "2026-06-10T10:00:29.965827+00:00"
+      "updated_at": "2026-08-25T10:00:30.931905+00:00"
     },
     {
       "bill_id": 2051327,
@@ -860,7 +933,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7fa3f76c7f5c8461cccdafece478bc09",
-      "updated_at": "2026-06-10T10:00:12.050112+00:00"
+      "updated_at": "2026-08-25T10:00:13.517867+00:00"
     },
     {
       "bill_id": 2044781,
@@ -897,13 +970,13 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "8b303af9f322aa844ac89053273c27cb",
-      "updated_at": "2026-06-10T10:00:26.092198+00:00"
+      "updated_at": "2026-08-25T10:00:27.067805+00:00"
     },
     {
       "bill_id": 2043448,
       "bill_number": "HB5166",
-      "title": "Judiciary Appropriations Act, 2026 District of Columbia Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 Department of the Treasury Appropriations Act, 2026",
-      "short_title": "Judiciary Appropriations Act, 2026 District of Columbia...",
+      "title": "Financial Services and General Government Appropriations Act, 2026 District of Columbia Appropriations Act, 2026 Judiciary Appropriations Act, 2026 Executive Office of the President Appropriations Act, 2026 Department of the Treasury Appropriations Act, 2026",
+      "short_title": "Financial Services and General Government Appropriation...",
       "categories": [
         "other"
       ],
@@ -933,8 +1006,8 @@
       },
       "gap_score": null,
       "gap_label": "PENDING VOTE",
-      "change_hash": "04185b9f75864be3142594dc862c3e55",
-      "updated_at": "2026-06-10T10:00:15.997797+00:00"
+      "change_hash": "6234474ba54b9b24c2741bfca96b22d2",
+      "updated_at": "2026-08-25T10:00:16.626461+00:00"
     },
     {
       "bill_id": 2028140,
@@ -972,7 +1045,7 @@
       "gap_score": 22,
       "gap_label": "MODERATE GAP",
       "change_hash": "aa7fb119fc6b9fe1f4610227d75b9c93",
-      "updated_at": "2026-06-10T10:00:20.805201+00:00"
+      "updated_at": "2026-08-25T10:00:21.111501+00:00"
     },
     {
       "bill_id": 1994350,
@@ -1010,7 +1083,7 @@
       "gap_score": 1,
       "gap_label": "ALIGNED",
       "change_hash": "d23c1f613f93cfd5f75c765fde6faa4c",
-      "updated_at": "2026-06-10T10:00:31.202400+00:00"
+      "updated_at": "2026-08-25T10:00:31.968942+00:00"
     },
     {
       "bill_id": 2037259,
@@ -1047,7 +1120,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "b88e82458aecbb0ba59a2e5fea8f8e30",
-      "updated_at": "2026-06-10T10:00:10.699544+00:00"
+      "updated_at": "2026-08-25T10:00:11.191705+00:00"
     },
     {
       "bill_id": 2036119,
@@ -1084,7 +1157,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "9696516df497b7fc73372dd778030061",
-      "updated_at": "2026-06-10T10:00:10.052591+00:00"
+      "updated_at": "2026-08-25T10:00:10.543350+00:00"
     },
     {
       "bill_id": 2033371,
@@ -1121,7 +1194,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "80729603a8cd3be436971aa2965fe1c1",
-      "updated_at": "2026-06-10T10:00:12.836793+00:00"
+      "updated_at": "2026-08-25T10:00:12.692360+00:00"
     },
     {
       "bill_id": 2033256,
@@ -1158,81 +1231,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "44205685690855ab2e54a26413c3230d",
-      "updated_at": "2026-06-10T10:00:13.636714+00:00"
-    },
-    {
-      "bill_id": 2029992,
-      "bill_number": "HB3266",
-      "title": "Mental Health Infrastructure Improvement Act of 2025",
-      "short_title": "Mental Health Infrastructure Improvement Act",
-      "categories": [
-        "other"
-      ],
-      "btc_signal": "neutral",
-      "status": "Introduced",
-      "status_id": 1,
-      "last_action": "Referred to the House Committee on Energy and Commerce.",
-      "last_action_date": "2025-05-08",
-      "sponsor": "Jennifer McClellan",
-      "sponsor_party": "D",
-      "url": "https://legiscan.com/US/bill/HB3266/2025",
-      "vote_tally": {
-        "yea": 0,
-        "nay": 0,
-        "total": 0,
-        "pct_yes": 0,
-        "chamber": "",
-        "date": ""
-      },
-      "congress_pct": 0,
-      "public_pct": 50,
-      "public_votes": {
-        "yes": 0,
-        "no": 0,
-        "total": 0,
-        "pct_yes": 50
-      },
-      "gap_score": null,
-      "gap_label": "PENDING VOTE",
-      "change_hash": "eb6c6df9c2aaa4e3744e27de0cfccf45",
-      "updated_at": "2026-06-10T10:00:35.198263+00:00"
-    },
-    {
-      "bill_id": 2029943,
-      "bill_number": "SB1673",
-      "title": "Mental Health Infrastructure Improvement Act of 2025",
-      "short_title": "Mental Health Infrastructure Improvement Act",
-      "categories": [
-        "other"
-      ],
-      "btc_signal": "neutral",
-      "status": "Introduced",
-      "status_id": 1,
-      "last_action": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions.",
-      "last_action_date": "2025-05-08",
-      "sponsor": "Jeff Merkley",
-      "sponsor_party": "D",
-      "url": "https://legiscan.com/US/bill/SB1673/2025",
-      "vote_tally": {
-        "yea": 0,
-        "nay": 0,
-        "total": 0,
-        "pct_yes": 0,
-        "chamber": "",
-        "date": ""
-      },
-      "congress_pct": 0,
-      "public_pct": 50,
-      "public_votes": {
-        "yes": 0,
-        "no": 0,
-        "total": 0,
-        "pct_yes": 50
-      },
-      "gap_score": null,
-      "gap_label": "PENDING VOTE",
-      "change_hash": "d92b25a04bc77e0446e2a2ea6ebfbc37",
-      "updated_at": "2026-06-10T10:00:35.991906+00:00"
+      "updated_at": "2026-08-25T10:00:14.275766+00:00"
     },
     {
       "bill_id": 2015649,
@@ -1269,7 +1268,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "2db9b93a4db447339488d190219c5323",
-      "updated_at": "2026-06-10T10:00:32.057443+00:00"
+      "updated_at": "2026-08-25T10:00:32.794363+00:00"
     },
     {
       "bill_id": 2023233,
@@ -1306,7 +1305,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "dc2e4c0966051f1664b5fa146e7c4169",
-      "updated_at": "2026-06-10T10:00:14.385481+00:00"
+      "updated_at": "2026-08-25T10:00:15.044549+00:00"
     },
     {
       "bill_id": 1999424,
@@ -1343,7 +1342,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "f73e1fff9df80bff8a20c5b8e4f5e907",
-      "updated_at": "2026-06-10T10:00:29.202878+00:00"
+      "updated_at": "2026-08-25T10:00:30.205789+00:00"
     },
     {
       "bill_id": 2008633,
@@ -1380,7 +1379,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "7dbf57235ac0898a7a81697b8cc5ec50",
-      "updated_at": "2026-06-10T10:00:09.411572+00:00"
+      "updated_at": "2026-08-25T10:00:09.900598+00:00"
     },
     {
       "bill_id": 2000399,
@@ -1417,7 +1416,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "89ea25c53e4b8c06e35cb03dcde67c0f",
-      "updated_at": "2026-06-10T10:00:06.052083+00:00"
+      "updated_at": "2026-08-25T10:00:06.081472+00:00"
     },
     {
       "bill_id": 2000465,
@@ -1454,7 +1453,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "f9b026931f63bc71239c5b2cbad23528",
-      "updated_at": "2026-06-10T10:00:06.698497+00:00"
+      "updated_at": "2026-08-25T10:00:07.266057+00:00"
     },
     {
       "bill_id": 1956316,
@@ -1491,7 +1490,7 @@
       "gap_score": null,
       "gap_label": "PENDING VOTE",
       "change_hash": "1488081a6d9f946abed34fe082420c3e",
-      "updated_at": "2026-06-10T10:00:25.329202+00:00"
+      "updated_at": "2026-08-25T10:00:25.553483+00:00"
     }
   ],
   "source": "LegiScan API (CC BY 4.0)"

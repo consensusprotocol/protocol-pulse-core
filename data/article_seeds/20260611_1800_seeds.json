@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-11T18:00:31.319951+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Fear Bottoms: Why Bitcoin's Extreme Fear + Healthy Infrastructure = Accumulation Signal",
+      "angle": "On-chain metrics tell a different story than sentiment indexes. Analyze how hashrate stability, collapsed mempool, and rock-bottom fees contradict panic narratives.",
+      "tags": [
+        "bitcoin",
+        "greed-index",
+        "on-chain",
+        "accumulation",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "The Mempool Collapse: Why Cheap Fees Matter More Than Price in Bear Markets",
+      "angle": "Network efficiency during downturns historically precedes rallies. Explore how 2 sat/byte fees create entry conditions for institutions.",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network-health",
+        "macro"
+      ]
+    },
+    {
+      "headline": "Exchange Volume Lag vs. Real Capitulation: Decoding Conflicting Signals",
+      "angle": "Zero volume reports may be data artifacts, not capitulation. Investigate why on-chain metrics matter more than exchange feeds during volatility.",
+      "tags": [
+        "bitcoin",
+        "data",
+        "exchanges",
+        "on-chain",
+        "transparency"
+      ]
+    }
+  ]
+}

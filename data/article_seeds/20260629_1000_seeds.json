@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-29T10:00:33.243047+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "The Mempool Paradox: Why Collapsing Fees Amid Congestion Signal Smart Money Loading",
+      "angle": "Contrarian analysis of the disconnect between 97k pending transactions and 1 sat/vB fees\u2014what miners and nodes know that retail doesn't",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain-analysis",
+        "accumulation",
+        "smart-money"
+      ]
+    },
+    {
+      "headline": "Fear Index at 12: Historical Bitcoin Relief Rallies From Capitulation Extremes",
+      "angle": "Deep dive into whether extreme fear (12) combined with miner conviction sets up the next bounce\u2014or confirms further downside",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-index",
+        "psychology",
+        "market-cycles"
+      ]
+    },
+    {
+      "headline": "Hashrate Strength at 857.2 EH/s: The Miner Vote of Confidence Bitcoin Needs",
+      "angle": "Why persistent hashrate during price weakness proves infrastructure fundamentals remain intact\u2014a leading indicator most miss",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "infrastructure",
+        "fundamentals"
+      ]
+    }
+  ]
+}

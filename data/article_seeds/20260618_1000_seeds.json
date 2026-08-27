@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-06-18T10:00:34.334900+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Why Hashrate Conviction Matters More Than Fear Gauge When Bitcoin Dumps",
+      "angle": "On-chain metrics tell a story of miner stability that retail sentiment completely misses\u2014a historical predictor of accumulation phases",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "hashrate",
+        "miner-behavior",
+        "fear-gauge",
+        "market-psychology"
+      ]
+    },
+    {
+      "headline": "Mempool Congestion at 118K Transactions: Friction Signal or Capitulation Trap?",
+      "angle": "Rising fee pressure creates UX friction but masks institutional absence of panic\u2014what this asymmetry reveals about the current dip",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network-health",
+        "on-chain-analysis"
+      ]
+    },
+    {
+      "headline": "Extreme Fear Score of 15: Historical Data on What Happens Next",
+      "angle": "Bitcoin's fear gauge hits capitulation territory while miners hold steady\u2014backtesting when these signals diverge",
+      "tags": [
+        "bitcoin",
+        "fear-index",
+        "sentiment-analysis",
+        "accumulation",
+        "market-history"
+      ]
+    }
+  ]
+}

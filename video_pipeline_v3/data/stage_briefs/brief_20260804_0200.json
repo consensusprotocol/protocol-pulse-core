@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Evening Brief",
+  "generated_at": "2026-08-04T02:00:04.885882+00:00",
+  "duration": 40.8,
+  "mp4_path": "brief_20260804_0200.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260804_0200.mp4",
+  "video_url": "/data/stage_briefs/brief_20260804_0200.mp4",
+  "episode_date": "2026-08-04",
+  "brief_type": "evening",
+  "script_summary": "Bitcoin closed the US session at 63,788 dollars, up 1.1 percent, even as fear and greed hit extreme fear at 25. Hashrate remains elevated at 943 exahashes, underscoring miner resilience. Mempool sits at 84,566 transactions with fees at one sat per vbyte. \n\nKey takeaway: price holds above key support while sentiment stays suppressed. Block height reached 960,948. Overnight watch for any Asia-driven volume spike or hashrate drop that could shift the tone.",
+  "word_count": 72,
+  "tts_provider": "chatterbox",
+  "btc_price": 63788.0,
+  "sentiment_score": null
+}

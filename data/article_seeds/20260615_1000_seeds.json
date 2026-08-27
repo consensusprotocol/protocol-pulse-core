@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-15T10:00:34.227947+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Miners Don't Bail: Why Hashrate at 913 EH/s Matters More Than Fear Index at 20",
+      "angle": "Hashrate commitment during extreme fear is underrated accumulation signal; analyze on-chain behavior vs sentiment disconnect",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "hashrate",
+        "capitulation",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "The Mempool Paradox: 110K Backlog, 2 sat/vB Fees, and Why This Isn't Emergency Mode",
+      "angle": "Decoupling of transaction volume from fee urgency suggests patient capital, not panicked selling\u2014what the network data really reveals",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "network-health",
+        "accumulation"
+      ]
+    },
+    {
+      "headline": "Asia's Sunday-to-Monday Reckoning: How Fear Index at 20 Sets Up for Volatile Week Ahead",
+      "angle": "Historical precedent for sentiment reversals when Fear & Greed diverges from price action; prepare for Asia's open as catalyst",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "asia",
+        "trading",
+        "volatility"
+      ]
+    }
+  ]
+}

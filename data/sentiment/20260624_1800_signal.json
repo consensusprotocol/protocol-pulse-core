@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-24T18:00:31.408171+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate holding steady at 1.08 EH/s despite price pressure",
+    "Mempool relatively light at 103k transactions",
+    "Low fee pressure (2 sat/byte) indicates no panic selling",
+    "Transaction velocity suggests institutional buyers remain active",
+    "Miners not capitulating"
+  ],
+  "bearish_signals": [
+    "5% decline in 24 hours",
+    "Fear & Greed index bottomed at 17 (extreme fear)",
+    "Price testing $59,321"
+  ],
+  "neutral_topics": [
+    "No major protocol events on horizon",
+    "Block height at 955,206"
+  ]
+}

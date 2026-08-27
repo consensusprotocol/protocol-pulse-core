@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-07-27T18:00:02.110757+00:00",
+  "duration": 41.9,
+  "mp4_path": "brief_20260727_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260727_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260727_1800.mp4",
+  "episode_date": "2026-07-27",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin holds at 64,916 dollars with a 0.4 percent gain as fear dominates sentiment at a 30 reading. US morning action delivered little conviction despite the modest move higher.\n\nHashrate remains elevated at 919.6 EH/s, confirming sustained miner commitment. The mempool shows 92,672 pending transactions with fees at 3 sat/vB, reflecting congestion without bidding pressure. Block height now sits at 959,866.\n\nNo material news broke during the session.",
+  "word_count": 68,
+  "tts_provider": "chatterbox",
+  "btc_price": 64916.0,
+  "sentiment_score": null
+}

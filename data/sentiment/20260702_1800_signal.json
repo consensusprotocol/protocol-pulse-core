@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-07-02T18:00:18.529634+00:00",
+  "brief_type": "midday",
+  "score": 62,
+  "bullish_signals": [
+    "Fear & Greed at 19 (capitulation precedes rallies historically)",
+    "Bitcoin +2.5% on US morning momentum",
+    "Hashrate holding steady at 954.3 EH/s (no miner panic)",
+    "Clean mempool at 108K transactions (no congestion)",
+    "Institutional accumulation dynamics visible",
+    "Low fee environment (6 sat/vB) excludes retail noise"
+  ],
+  "bearish_signals": [
+    "Resistance at $62,500 could trigger if volume fails",
+    "Macro data dumps later could disrupt setup",
+    "Gap in volume metrics creates uncertainty"
+  ],
+  "neutral_topics": [
+    "Halving-cycle inflection point approaching",
+    "Selective buying interest (tape evidence inconclusive)"
+  ]
+}

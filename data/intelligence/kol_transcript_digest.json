@@ -1,68 +1,92 @@
 {
   "period_hours": 24,
-  "generated_at": "2026-05-10T04:00:35.145228+00:00",
-  "creator_count": 1,
-  "avg_sentiment_score": 15.0,
+  "generated_at": "2026-07-03T00:00:13.372470+00:00",
+  "creator_count": 12,
+  "avg_sentiment_score": 55.8,
   "sentiment_breakdown": {
-    "bullish": 0,
+    "bullish": 3,
     "bearish": 1,
-    "neutral": 0
+    "neutral": 8
   },
-  "dominant_sentiment": "bearish",
+  "dominant_sentiment": "neutral",
   "trending_themes": [
     {
-      "topic": "CBDC regulation disguised as stablecoin policy",
+      "topic": "Polymarket deceptive advertising practices",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Coffeezilla Extras"
       ],
       "avg_sentiment_score": 15.0,
-      "example_quote": "That is a CBDC with a private sector mascot"
+      "example_quote": "a lot of the trades are completely fake...these investigations heavily imply that Polymarket knew and facilitated a lot of this deception"
     },
     {
-      "topic": "US debt crisis and treasury sustainability",
+      "topic": "Fake website domain spoofing (Polymarket vs PollyMarket)",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Coffeezilla Extras"
       ],
       "avg_sentiment_score": 15.0,
-      "example_quote": "That is a CBDC with a private sector mascot"
+      "example_quote": "a lot of the trades are completely fake...these investigations heavily imply that Polymarket knew and facilitated a lot of this deception"
     },
     {
-      "topic": "Petrodollar decline and reserve currency replacement",
+      "topic": "Fraudulent promotional content targeting college-age creators",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Coffeezilla Extras"
       ],
       "avg_sentiment_score": 15.0,
-      "example_quote": "That is a CBDC with a private sector mascot"
+      "example_quote": "a lot of the trades are completely fake...these investigations heavily imply that Polymarket knew and facilitated a lot of this deception"
     },
     {
-      "topic": "Financial control mechanisms and programmable money",
+      "topic": "Financial losses from fake bet simulations",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Coffeezilla Extras"
       ],
       "avg_sentiment_score": 15.0,
-      "example_quote": "That is a CBDC with a private sector mascot"
+      "example_quote": "a lot of the trades are completely fake...these investigations heavily imply that Polymarket knew and facilitated a lot of this deception"
     },
     {
-      "topic": "Crypto Clarity Act analysis",
+      "topic": "Media industry conflicts of interest and partnerships",
       "creator_count": 1,
       "creators": [
-        "Simply Bitcoin"
+        "Coffeezilla Extras"
       ],
       "avg_sentiment_score": 15.0,
-      "example_quote": "That is a CBDC with a private sector mascot"
+      "example_quote": "a lot of the trades are completely fake...these investigations heavily imply that Polymarket knew and facilitated a lot of this deception"
     }
   ],
-  "summary": "# Summary\n\nBitcoin creators show **significant divergence** on regulatory interpretation. Simply Bitcoin views the Crypto Clarity Act as a dangerous consolidation of government power disguised as consumer protection\u2014framing it as part of a broader collapse of traditional currency systems. The core **consensus** appears limited to concern about regulatory overreach, though Simply Bitcoin takes an extreme position linking it to systemic monetary collapse rather than focusing on narrower stablecoin policy concerns. No counterargument is presented here, making it difficult to identify genuine agreement among multiple creators on this specific legislation.",
+  "summary": "# Bitcoin Creator Consensus and Divergence\n\n**Consensus:** Bitcoin creators broadly agree that regulatory clarity (particularly the Clarity Act) and institutional infrastructure (ETFs, improved cryptography) are beneficial for long-term legitimacy and adoption, despite short-term market headwinds. There's also agreement that Bitcoin's technical resilience\u2014whether through PoW defenses or advanced signature schemes\u2014strengthens its core properties.\n\n**Divergence:** Sentiment splits sharply on near-term market conditions. Bullish voices (Swan Bitcoin, Bitcoin Magazine) view current valuations and bear markets as buying opportunities for institutional adoption, while cautious analysts (Bitcoin Magazine Pro) cite USD strength and extreme outflows as reasons to pause accumulation. Additionally, creators disagree on what constitutes \"smart money\"\u2014some see ETF outflows as contrarian signals, while others argue that raw metrics obscure actual acquisition timing intelligence.\n\n**Secondary note:** Most content lacks Bitcoin-specific analysis (LEGO/Polymarket discussions are tangential), so consensus reflects only the genuinely Bitcoin-focused commentary.",
   "top_creators": [
     {
-      "channel": "Simply Bitcoin",
+      "channel": "Coffeezilla Extras",
       "sentiment": "bearish",
       "score": 15,
-      "thesis": "The Crypto Clarity Act is a disguised CBDC mechanism designed to trap citizens in programmable money controlled by the Treasury Department while appearing to be private stablecoin regulation. This represents the final phase of the dollar Ponzi scheme as traditional petrodollar arrangements collapse."
+      "thesis": "Polymarket has been running a massive fraud scheme using fake websites and deceptive marketing to promote prediction trading, with evidence suggesting the company knowingly facilitated fake bets and misleading promotional content targeting young users."
+    },
+    {
+      "channel": "Coffeezilla Extras",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "This transcript contains no Bitcoin-specific content. It discusses vigilante behavior at LEGO stores related to a missing collection case."
+    },
+    {
+      "channel": "BTC Sessions",
+      "sentiment": "mixed",
+      "score": 62,
+      "thesis": "Crypto regulation through the Clarity Act will eventually pass despite banking lobby opposition; a 'neutered' version without stablecoin yield provisions is a reasonable compromise that benefits Bitcoin's long-term legitimacy in the US."
+    },
+    {
+      "channel": "Bitcoin Magazine Pro",
+      "sentiment": "mixed",
+      "score": 62,
+      "thesis": "Bitcoin ETF outflows are creating significant sell-side pressure, but historical data shows these extreme outflow periods are contrarian buying signals that have outperformed buy-and-hold strategies by 7.79x."
+    },
+    {
+      "channel": "Bitcoin Magazine Pro",
+      "sentiment": "neutral",
+      "score": 50,
+      "thesis": "Most Bitcoin classified as 'long-term holder' supply was actually accumulated at market peaks rather than lows, indicating that raw metrics alone don't distinguish smart money behavior. True smart money must be analyzed through both acquisition timing and distribution patterns across price quantiles."
     }
   ]
 }

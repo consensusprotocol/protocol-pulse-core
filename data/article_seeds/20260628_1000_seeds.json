@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-28T10:00:30.618966+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Fear & Greed Hits 18: Why Institutional Money Moves While Retail Waits for the Bottom",
+      "angle": "Historical pattern analysis of extreme fear regimes and smart money accumulation cycles",
+      "tags": [
+        "bitcoin",
+        "institutional",
+        "fear-greed",
+        "accumulation",
+        "sentiment"
+      ]
+    },
+    {
+      "headline": "Mempool Signals Consolidation: How Sub-1sat Fees Reveal Market Psychology Shifts",
+      "angle": "Technical analysis of transaction backlog and fee pressure as leading indicators",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "fees",
+        "consolidation",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Hashrate Divergence: Why Miner Confidence May Be the Real Bottom Signal",
+      "angle": "Network security metrics as underrated capitulation indicators versus price action",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "capitulation",
+        "network-security"
+      ]
+    }
+  ]
+}

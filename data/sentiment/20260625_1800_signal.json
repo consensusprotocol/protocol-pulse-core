@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-25T18:00:29.264121+00:00",
+  "brief_type": "midday",
+  "score": -25,
+  "bullish_signals": [
+    "Hashrate solid at 963 exahashes\u2014network security intact",
+    "Extreme fear historically precedes reversals",
+    "Holding $59,458 on light volume suggests support found"
+  ],
+  "bearish_signals": [
+    "Extremely low greed index (12) signals capitulation risk",
+    "Light volume during price hold suggests weak conviction",
+    "Break below $59k on volume would confirm weakness",
+    "Market cap data corrupted adds uncertainty"
+  ],
+  "neutral_topics": [
+    "Mempool congestion without fee urgency",
+    "Miners unbothered by current conditions",
+    "Price languor despite network security"
+  ]
+}

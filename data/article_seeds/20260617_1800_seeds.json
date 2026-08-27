@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-17T18:00:29.995837+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 22: Why Bitcoin's Capitulation Index Signals Institutional Dry Powder",
+      "angle": "Historical context on extreme fear reversals + on-chain accumulation signals",
+      "tags": [
+        "bitcoin",
+        "fear-greed-index",
+        "institutional-accumulation",
+        "on-chain-analysis"
+      ]
+    },
+    {
+      "headline": "Bitcoin Miners Hold the Line: Hashrate Stability in Extreme Fear Territory",
+      "angle": "Why miner endurance at 1005 EH/s matters more than price action",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "network-strength"
+      ]
+    },
+    {
+      "headline": "The Mempool Signal: Why Cheap Fees at $66K Could Mean Capitulation, Not Collapse",
+      "angle": "Network data tells a different story than sentiment indicators",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "transaction-fees",
+        "on-chain-metrics"
+      ]
+    }
+  ]
+}

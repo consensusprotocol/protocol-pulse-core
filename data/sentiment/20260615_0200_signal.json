@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-15T02:00:31.387547+00:00",
+  "brief_type": "evening",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate stability despite extreme fear (913.8 EH/s)",
+    "Price holding support at $65,511",
+    "Cheap mempool fees (1 sat/byte) despite congestion",
+    "Miner behavior shows no capitulation",
+    "Fear & Greed at 20 = historical accumulation opportunity",
+    "Smart money behavior implied by fundamentals/sentiment disconnect"
+  ],
+  "bearish_signals": [
+    "Extreme fear sentiment (Fear & Greed = 20)",
+    "Mempool congestion (101k unconfirmed transactions)"
+  ],
+  "neutral_topics": [
+    "Daily price movement (+1.4%)",
+    "Block height (953,725)"
+  ]
+}

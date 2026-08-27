@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-23T02:00:32.357161+00:00",
+  "brief_type": "evening",
+  "score": -35,
+  "bullish_signals": [
+    "Extreme fear index (23) historically precedes reversals",
+    "Network fundamentals healthy (970 EH/s hashrate, steady blocks)",
+    "Institutional accumulation typically occurs at capitulation points",
+    "Cheap fees (2 sat/byte) indicate no on-chain stress",
+    "Sentiment overdone relative to technical reality"
+  ],
+  "bearish_signals": [
+    "Price down 0.8% on the day",
+    "Mempool queue over 101k transactions",
+    "Risk of break below $63,000 flushing weak hands"
+  ],
+  "neutral_topics": [
+    "Volume data inconclusive",
+    "Retail activity ongoing but unpredictable"
+  ]
+}

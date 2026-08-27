@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-07-01T10:00:33.094758+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 11: Why Extreme Greed Index Readings Signal Bitcoin Accumulation Seasons",
+      "angle": "Historical analysis of how institutional buyers deploy capital during extreme fear extremes; data on rally precedents",
+      "tags": [
+        "bitcoin",
+        "fear-greed-index",
+        "institutional-buying",
+        "market-psychology"
+      ]
+    },
+    {
+      "headline": "Transaction Fees Hit Floor: Bitcoin's Perfect Entry Window for Patient Capital",
+      "angle": "Why 3 sat/byte fees represent lowest friction entry point in months; network capacity vs. demand analysis",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "transaction-costs"
+      ]
+    },
+    {
+      "headline": "Network Health Checks Out: Hashrate Stability Amid Price Volatility",
+      "angle": "What 978.5 EH/s means for security and miner profitability during downside testing",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "network-security",
+        "mining"
+      ]
+    }
+  ]
+}

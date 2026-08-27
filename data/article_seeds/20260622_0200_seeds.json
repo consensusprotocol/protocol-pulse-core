@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-22T02:00:34.865744+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Fear Index at 20: Is This Bitcoin's Capitulation Bottom?",
+      "angle": "Historical analysis of F&G Index 20 readings and correlation with price reversals; examining current network health as confirmation signal",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "technical-analysis",
+        "market-cycles"
+      ]
+    },
+    {
+      "headline": "Asia's Overnight Edge: How Hong Kong & Singapore Set Bitcoin's Daily Tone",
+      "angle": "Trading pattern analysis of Asia market open impact on risk assets; macro catalyst observation window for next 12 hours",
+      "tags": [
+        "bitcoin",
+        "trading",
+        "market-structure",
+        "asia"
+      ]
+    },
+    {
+      "headline": "When Network Health Diverges from Price: Bitcoin's Infrastructure Strength Signal",
+      "angle": "Deep dive into hashrate stability (826.7 EH/s) and mempool efficiency as contrarian indicators during fear periods",
+      "tags": [
+        "bitcoin",
+        "network",
+        "hashrate",
+        "on-chain"
+      ]
+    }
+  ]
+}

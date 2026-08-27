@@ -1,6 +1,56 @@
 {
   "drafts": [
     {
+      "id": "radar_1782945838_646",
+      "timestamp": "2026-07-01T22:43:58.646766+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2072178789464097148",
+      "source_author": "stephanlivera",
+      "source_text": "The Knots/110 camp will scream about how they think Bitcoin Core is somehow opening the floodgates for spammers - but if you actually look at what  L2/Lightning builders said, you see that actually yes, the relay work HELPED bitcoin as money.",
+      "source_url": "https://x.com/stephanlivera/status/2072178789464097148",
+      "velocity": 56.8,
+      "crowd_thesis": "L2 support and spam tolerance remain orthogonal concerns with added L1 risks",
+      "counterpoint": "metrics show no clear spam surge after relay changes",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "even if some L2 flows improved, does that offset new L1 attack surfaces?",
+          "tweet_raw": "even if some L2 flows improved, does that offset new L1 attack surfaces?",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 66.8,
+          "reasoning": "questions the tradeoff directly"
+        }
+      ],
+      "selected": null
+    },
+    {
+      "id": "radar_1782945823_262",
+      "timestamp": "2026-07-01T22:43:43.870752+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2072332531567866167",
+      "source_author": "BTCSessions",
+      "source_text": "The past couple months I've been using @freedomiacard - a reloadable visa that I can fund with Bitcoin, use online, or (more importantly) use with tap on my phone (Android). Cost my $60 for the year and I can reload up to $5k USD/mo with no KYC. \n\nI've used it in 5 countries so far and it's great! M",
+      "source_url": "https://x.com/BTCSessions/status/2072332531567866167",
+      "velocity": 99.5,
+      "crowd_thesis": "freedomia card is a solid practical no-kyc spend option",
+      "counterpoint": "no kyc raises obvious fund safety questions",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "how do disputes work when there's no kyc on either side",
+          "tweet_raw": "how do disputes work when there's no kyc on either side",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 69.0,
+          "reasoning": "probes the real risk"
+        }
+      ],
+      "selected": null
+    },
+    {
       "id": "radar_1774632264_208",
       "timestamp": "2026-03-27T17:24:24.027447+00:00",
       "status": "below_threshold",

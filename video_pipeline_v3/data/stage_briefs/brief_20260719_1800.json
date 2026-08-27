@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-07-19T18:00:02.225957+00:00",
+  "duration": 43.6,
+  "mp4_path": "brief_20260719_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260719_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260719_1800.mp4",
+  "episode_date": "2026-07-19",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin holds at 64,548 dollars with a slim 0.2 percent gain as fear dominates the tape at a 28 reading. US morning action delivered no breakout, just sideways drift.\n\nHashrate prints 1,036 EH/s, reinforcing miner commitment despite the sentiment. Mempool backlog sits at 97,880 transactions yet the fastest fee remains only 2 sat per vbyte, pointing to congestion without fee pressure. Block height now 958,763.\n\nNetwork security stays elevated while spot traders wait for direction.",
+  "word_count": 75,
+  "tts_provider": "chatterbox",
+  "btc_price": 64548.0,
+  "sentiment_score": null
+}

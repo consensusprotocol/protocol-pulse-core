@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-22T18:00:30.891715+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Fear Hits Extreme: Why Bitcoin's On-Chain Metrics Tell a Different Story",
+      "angle": "Deep dive into the divergence between sentiment (fear index 20) and on-chain health signals suggesting accumulation phase rather than panic",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "fear-index",
+        "accumulation",
+        "hashrate"
+      ]
+    },
+    {
+      "headline": "The Hashrate as Confidence Indicator: What 826.7 EH/s Tells Us About Miner Conviction",
+      "angle": "Analyzing industrial-side commitment through steady hashrate maintenance during price weakness",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "miners",
+        "on-chain",
+        "infrastructure"
+      ]
+    },
+    {
+      "headline": "4 Sat/Byte Fees in an Extreme Fear Market: Why Network Accessibility Matters Now",
+      "angle": "How low fee environment enables retail accumulation during capitulation psychology",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "retail",
+        "accessibility"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-20T10:00:32.541194+00:00",
+  "brief_type": "morning",
+  "score": 35,
+  "bullish_signals": [
+    "2.1% overnight gain during extreme fear environment",
+    "Hashrate stability at 938.8 EH/s shows miner conviction",
+    "Asia session steady buying in low-liquidity hours historically precedes larger moves",
+    "Mempool efficiency despite congestion suggests smart routing",
+    "Price stabilization after recent weakness"
+  ],
+  "bearish_signals": [
+    "Extreme Fear and Greed Index at 23 signals capitulation risk",
+    "Packed mempool indicates network stress potential",
+    "Margin compression on miners suggests profitability pressure"
+  ],
+  "neutral_topics": [
+    "Fee market dynamics",
+    "Altcoin correlation with BTC",
+    "Macro data dependency"
+  ]
+}

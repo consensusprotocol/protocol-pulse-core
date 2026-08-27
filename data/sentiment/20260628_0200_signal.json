@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-06-28T02:00:28.981814+00:00",
+  "brief_type": "evening",
+  "score": -25,
+  "bullish_signals": [
+    "Network health remains solid at 1.1 EH/s hashrate",
+    "Price holding $60K support level",
+    "Potential for institutional re-entry on break above $60K into Monday"
+  ],
+  "bearish_signals": [
+    "Extreme fear index at 18 indicates capitulation pressure",
+    "Mempool gridlock with 101K unconfirmed transactions",
+    "Compressed fees (2 sat/vB) show lack of user urgency",
+    "Price stability without conviction",
+    "25% below cycle highs with no institutional demand materializing",
+    "Risk of cascading liquidations below $59,500"
+  ],
+  "neutral_topics": [
+    "Daily trading range ($59,200-$60,800)",
+    "Hashrate stability",
+    "Normal block propagation"
+  ]
+}

@@ -3190,10 +3190,215 @@
       ],
       "sentiment": "neutral",
       "archived_at": "2026-03-15T23:00:02Z"
+    },
+    "srr0rRgF2Fw": {
+      "title": "Investigating AI Deepfakes",
+      "channel": "Coffeezilla",
+      "upload_date": "",
+      "duration": 2061,
+      "topics": [
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-07-03T12:18:11Z"
+    },
+    "hBNWInRS6hM": {
+      "title": "Exposing a $10,000,000,000 Debt Industry",
+      "channel": "Coffeezilla",
+      "upload_date": "",
+      "duration": 980,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-07-03T12:18:11Z"
+    },
+    "ACijyfS3ya4": {
+      "title": "Exposing a Romance Scammer",
+      "channel": "Coffeezilla",
+      "upload_date": "",
+      "duration": 1443,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-07-03T12:18:11Z"
+    },
+    "-L-EH5dryuU": {
+      "title": "huge polymarket scandal",
+      "channel": "Coffeezilla Extras",
+      "upload_date": "",
+      "duration": 846,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-07-03T12:18:13Z"
+    },
+    "1L__h8BGF7M": {
+      "title": "lego vigilantes need to stop",
+      "channel": "Coffeezilla Extras",
+      "upload_date": "",
+      "duration": 607,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-07-03T12:18:13Z"
+    },
+    "4abYOFAtvAo": {
+      "title": "The Evolution of Bitcoin Mining with NG Zhang SLP742",
+      "channel": "Stephan Livera",
+      "upload_date": "",
+      "duration": 2917,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bearish",
+      "archived_at": "2026-07-15T18:47:38Z"
+    },
+    "JtYtUmjN33E": {
+      "title": "The Power of Leverage: Netflix's Secret Weapon",
+      "channel": "Investing With Tom",
+      "upload_date": "",
+      "duration": 750,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-07-15T18:58:15Z"
+    },
+    "7LtStzPRRvo": {
+      "title": "Saylor Bought Time. Bitcoin Still Has a Problem",
+      "channel": "Bankless",
+      "upload_date": "",
+      "duration": 3230,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-07-19T05:19:15Z"
+    },
+    "t0mhU6umAuI": {
+      "title": "Michael Saylor\u2019s Master Plan: \"Fix the Money, Fix the World\"",
+      "channel": "Bankless",
+      "upload_date": "",
+      "duration": 6051,
+      "topics": [
+        "etf",
+        "mining",
+        "price",
+        "regulation",
+        "lightning",
+        "self-custody",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "bullish",
+      "archived_at": "2026-07-19T05:19:15Z"
+    },
+    "FnmHsN_fXw8": {
+      "title": "CLARITY GRIDLOCK: Senate SCRAMBLES to pass crypto bill as TIME RUNS OUT",
+      "channel": "Fox Business",
+      "upload_date": "",
+      "duration": 569,
+      "topics": [
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-07-21T14:46:58Z"
+    },
+    "TRbfyaR3Y5c": {
+      "title": "BREAKING: Lummis UNVEILS new crypto bill, BLASTS the \u2018BANKERS\u2019",
+      "channel": "Fox Business",
+      "upload_date": "",
+      "duration": 697,
+      "topics": [
+        "mining",
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-07-23T12:16:57Z"
+    },
+    "lC0EK8RCwxk": {
+      "title": "Why Crypto Is Betting Big On AI Agents",
+      "channel": "CNBC",
+      "upload_date": "",
+      "duration": 325,
+      "topics": [
+        "price",
+        "regulation",
+        "lightning",
+        "macro",
+        "institutional",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-08-07T14:24:58Z"
+    },
+    "ZOHZSKPTgJA": {
+      "title": "How Not To Invest In Zombie Crypto",
+      "channel": "Yahoo Finance",
+      "upload_date": "",
+      "duration": 156,
+      "topics": [
+        "price",
+        "regulation",
+        "macro",
+        "privacy"
+      ],
+      "sentiment": "neutral",
+      "archived_at": "2026-08-13T20:53:57Z"
     }
   },
-  "last_scan": "2026-03-16T05:31:17Z",
-  "total_archived": 202,
+  "last_scan": "2026-08-27T04:46:23Z",
+  "total_archived": 215,
   "_last_upload_Bitcoin Magazine": "2026-03-12T21:00:01Z",
   "_last_upload_Simply Bitcoin": "2026-03-15T23:00:02Z",
   "_last_upload_TFTC": "2026-03-15T19:00:04Z",
@@ -3239,5 +3444,13 @@
   "_last_upload_CoinGecko": "2026-03-12T04:16:52Z",
   "_last_upload_CNBC Television": "2026-03-12T22:31:42Z",
   "_last_upload_Real Vision Finance": "2026-03-13T09:06:52Z",
-  "_last_upload_TheStreet": "2026-03-15T19:03:07Z"
+  "_last_upload_TheStreet": "2026-03-15T19:03:07Z",
+  "_last_upload_Coffeezilla": "2026-07-03T12:18:11Z",
+  "_last_upload_Coffeezilla Extras": "2026-07-03T12:18:13Z",
+  "_last_upload_Stephan Livera": "2026-07-15T18:47:38Z",
+  "_last_upload_Investing With Tom": "2026-07-15T18:58:15Z",
+  "_last_upload_Bankless": "2026-07-19T05:19:15Z",
+  "_last_upload_Fox Business": "2026-07-23T12:16:57Z",
+  "_last_upload_CNBC": "2026-08-07T14:24:58Z",
+  "_last_upload_Yahoo Finance": "2026-08-13T20:53:57Z"
 }

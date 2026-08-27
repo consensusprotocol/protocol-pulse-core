@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-07-12T10:00:01.782323+00:00",
+  "duration": 37.2,
+  "mp4_path": "brief_20260712_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260712_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260712_1000.mp4",
+  "episode_date": "2026-07-12",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin holds at 63,940 dollars with fear entrenched at a 26 reading, yet hashrate sits firm at 915 EH/s, showing miners refuse to blink. Overnight price action stayed flat with minimal Asia session follow-through. \n\nMempool backlog at 92,000 transactions keeps fees pinned at one sat per vbyte, signaling steady but unspectacular demand. \n\nWatch for any push above 64,000 dollars today; sustained fear readings often precede sharp relief moves if volume picks up into the US session.",
+  "word_count": 76,
+  "tts_provider": "chatterbox",
+  "btc_price": 63940.0,
+  "sentiment_score": null
+}

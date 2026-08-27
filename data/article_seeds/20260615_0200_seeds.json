@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-06-15T02:00:31.387547+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "When Capitulation Becomes Opportunity: Why Bitcoin's Hashrate Tells a Different Story Than Fear & Greed",
+      "angle": "Breaking down the disconnect between extreme fear sentiment and on-chain miner stability as a contrarian indicator",
+      "tags": [
+        "bitcoin",
+        "capitulation",
+        "hashrate",
+        "sentiment",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "Mempool Congestion Without Crisis: Bitcoin's Cheap Fees Signal Network Health, Not Stress",
+      "angle": "Why bloated mempools at 1 sat/byte fees indicate resilience rather than network breakdown",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network",
+        "fees",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Smart Money Accumulation Signals: Reading Between Bitcoin's Fear & Greed Extremes",
+      "angle": "Historical analysis of institutional behavior during Fear & Greed lows and what miner steady-state means for next moves",
+      "tags": [
+        "bitcoin",
+        "accumulation",
+        "institutional",
+        "market-cycles"
+      ]
+    }
+  ]
+}

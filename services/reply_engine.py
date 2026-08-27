@@ -303,7 +303,32 @@ def init_db():
 
 
 def fetch_mentions() -> list:
-    """Fetch recent mentions/replies via X API v2 Bearer token."""
+    """Fetch recent mentions. Primary: x_reader (x_search). Fallback: X API v2."""
+    # --- primary: x_reader on x_search (free reads; X API v2 reads are 402) ---
+    try:
+        try:
+            from services import x_reader
+        except ImportError:
+            import x_reader
+        posts = x_reader.get_mentions("ProtocolPulseHQ", hours=24, limit=10)
+        if posts:
+            mentions = []
+            for p in posts:
+                mentions.append({
+                    "id": p["post_id"],
+                    "text": p.get("text", ""),
+                    "author_id": p.get("author", "unknown"),
+                    "created_at": p.get("fetched_at", ""),
+                    "conversation_id": p["post_id"],
+                    "_source_url": p.get("url", ""),
+                })
+            logger.info(f"x_reader mentions found: {len(mentions)}")
+            return mentions
+        logger.info("x_reader found no mentions; trying legacy X API")
+    except Exception as e:
+        logger.warning(f"x_reader mention fetch failed: {e}; trying legacy X API")
+
+    # --- fallback: legacy X API v2 bearer (known 402-dead) ---
     if not TWITTER_BEARER_TOKEN:
         logger.warning("No TWITTER_BEARER_TOKEN — cannot fetch mentions")
         return []

@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-17T02:00:29.256568+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Fear & Greed at 22: Why Bitcoin's Extreme Desperation Could Signal Institutional Accumulation",
+      "angle": "Historical analysis of how extreme fear zones correlate with smart money entry points and recovery patterns",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "institutional-flows",
+        "fear-greed-index"
+      ]
+    },
+    {
+      "headline": "Mempool Congestion at 115K: Decoding On-Chain Friction Before Bitcoin's Next Move",
+      "angle": "Network stress metrics and what bloated mempools reveal about transaction velocity and fee pressure",
+      "tags": [
+        "bitcoin",
+        "on-chain",
+        "mempool",
+        "network-health"
+      ]
+    },
+    {
+      "headline": "Miners Holding the Line: Why 1005 EH/s Hashrate Matters for Bitcoin's Recovery Narrative",
+      "angle": "Miner behavior as leading indicator\u2014why sustained hashrate signals conviction despite price volatility",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "capitulation"
+      ]
+    }
+  ]
+}

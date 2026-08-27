@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-29T18:00:17.058547+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Extreme fear reading (12) historically precedes repricing",
+    "Institutional accumulation windows opening",
+    "Controlled buying in panic conditions",
+    "Network health solid (857 EH/s hashrate)",
+    "Mempool clearing efficiently",
+    "Low base fees indicate no transaction stress",
+    "Price action resilient despite fear"
+  ],
+  "bearish_signals": [
+    "Fear & Greed at extreme low indicates ongoing capitulation",
+    "Retail panic selling pressure"
+  ],
+  "neutral_topics": [
+    "Volume data anomalies in feed",
+    "Need for volume expansion confirmation"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-14T18:00:28.630560+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Extreme fear index at 18 (capitulation floor reached)",
+    "Hashrate stable at 858 EH/s (no miner distress)",
+    "Network fundamentals rock-solid",
+    "Cheap fees despite mempool congestion (network efficiency)",
+    "Historical pattern: dark sentiment precedes smart money positioning"
+  ],
+  "bearish_signals": [
+    "Anemic trading volume",
+    "Macro uncertainty lingering",
+    "CPI print tomorrow could trigger leg down if hotter-than-expected",
+    "Support test at mid-$62k if $63k breaks"
+  ],
+  "neutral_topics": [
+    "Mempool backlog (102.8k transactions)",
+    "Summer market doldrums"
+  ]
+}

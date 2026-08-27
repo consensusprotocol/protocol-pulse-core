@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-27T18:00:29.429617+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Fear Hits 15: Why Bitcoin's Extreme Fear Index Signals Smart Money Accumulation",
+      "angle": "Historical patterns show extreme fear combined with strong network fundamentals precedes rallies\u2014current conditions tick both boxes",
+      "tags": [
+        "bitcoin",
+        "fear-greed-index",
+        "accumulation",
+        "market-psychology",
+        "institutional-demand"
+      ]
+    },
+    {
+      "headline": "Hashrate Holds Steady at 970 EH/s: Miners Show No Panic Despite Sentiment Collapse",
+      "angle": "While fear dominates headlines, miners' commitment to the network remains unshaken\u2014a contrarian bullish signal",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "network-health",
+        "miner-behavior"
+      ]
+    },
+    {
+      "headline": "The Clear Mempool Advantage: Why Bottom Fees Mean Opportunity in Bear Sentiment",
+      "angle": "Ultra-low transaction costs (1 sat/byte) combined with extreme fear create rare onchain conditions favoring patient accumulators",
+      "tags": [
+        "bitcoin",
+        "transaction-fees",
+        "mempool",
+        "network-efficiency",
+        "accumulation"
+      ]
+    }
+  ]
+}

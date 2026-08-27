@@ -24,7 +24,7 @@ from typing import Dict, List
 logger = logging.getLogger("reply_back")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-PROTOCOL_PULSE_USERNAME = "ProtocolPulse"
+PROTOCOL_PULSE_USERNAME = "ProtocolPulseHQ"
 
 
 class ReplyBackEngine:
@@ -36,7 +36,35 @@ class ReplyBackEngine:
         logger.info("ReplyBackEngine initialized")
 
     def _get_our_recent_tweets(self, max_tweets=10) -> List[Dict]:
-        """Fetch Protocol Pulse's recent tweets."""
+        """Fetch Protocol Pulse's recent tweets. x_reader primary."""
+        # --- primary: x_reader on x_search ---
+        try:
+            try:
+                from services import x_reader
+            except ImportError:
+                import x_reader
+            posts = x_reader.get_top_posts(
+                [PROTOCOL_PULSE_USERNAME], hours=48, limit=max_tweets)
+            tweets = []
+            for p in posts:
+                if p.get("replies", 0) >= 1:
+                    tweets.append({
+                        "id": p["post_id"],
+                        "text": p.get("text", ""),
+                        "metrics": {"like_count": p.get("engagement", 0),
+                                    "reply_count": p.get("replies", 0)},
+                        "reply_count": p.get("replies", 0),
+                        "url": p.get("url", ""),
+                    })
+            if tweets:
+                tweets.sort(key=lambda x: x["reply_count"], reverse=True)
+                logger.info(f"x_reader: {len(tweets)} of our tweets have replies")
+                return tweets
+            logger.info("x_reader: no replied-to tweets; trying legacy API")
+        except Exception as e:
+            logger.warning(f"x_reader own-tweet fetch failed: {e}")
+
+        # --- fallback: legacy X API (known 402-dead) ---
         try:
             data = self.x_client.get_user_tweets(PROTOCOL_PULSE_USERNAME, max_results=max_tweets)
             if not data or "data" not in data:
@@ -62,8 +90,47 @@ class ReplyBackEngine:
             logger.error(f"Failed to fetch our tweets: {e}")
             return []
 
-    def _get_best_replies(self, tweet_id: str, max_replies=5) -> List[Dict]:
-        """Get the best replies to one of our tweets."""
+    def _get_best_replies(self, tweet, max_replies=5) -> List[Dict]:
+        """Get the best replies to one of our tweets.
+
+        Accepts a tweet dict (with url) or a bare id string."""
+        import hashlib as _hl
+        tweet_id = tweet["id"] if isinstance(tweet, dict) else str(tweet)
+        url = tweet.get("url", "") if isinstance(tweet, dict) else ""
+        if not url and tweet_id.isdigit():
+            url = f"https://x.com/i/status/{tweet_id}"
+
+        # --- primary: x_reader reactions ---
+        if url:
+            try:
+                try:
+                    from services import x_reader
+                except ImportError:
+                    import x_reader
+                rx = x_reader.get_reactions(url)
+                replies = []
+                for r in (rx or {}).get("representative_replies", []):
+                    text = r.get("text", "")
+                    author = str(r.get("author", "unknown")).lstrip("@")
+                    if author.lower() == PROTOCOL_PULSE_USERNAME.lower():
+                        continue
+                    if len(text) < 10:
+                        continue
+                    if any(bad in text.lower() for bad in
+                           ["scam", "rug", "shill", "ratio", "L take", "trash"]):
+                        continue
+                    likes = r.get("likes", 0) or 0
+                    rid = "xr:" + _hl.sha1(
+                        (author + "|" + text).encode()).hexdigest()[:16]
+                    replies.append({"id": rid, "text": text, "author": author,
+                                    "likes": likes, "engagement": likes})
+                if replies:
+                    replies.sort(key=lambda x: x["engagement"], reverse=True)
+                    return replies[:max_replies]
+            except Exception as e:
+                logger.warning(f"x_reader reactions failed for {tweet_id}: {e}")
+
+        # --- fallback: legacy conversation API (known 402-dead) ---
         try:
             data = self.x_client.get_conversation_replies(tweet_id)
             if not data or "data" not in data:
@@ -114,6 +181,25 @@ class ReplyBackEngine:
         except:
             pass
         return False
+
+    def _save_draft(self, tweet, target, text):
+        """Persist a drafted reply for review (no write path to X replies yet)."""
+        path = "data/reply_back_drafts.json"
+        os.makedirs("data", exist_ok=True)
+        try:
+            drafts = json.load(open(path)) if os.path.exists(path) else []
+        except Exception:
+            drafts = []
+        drafts.append({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "our_tweet_id": tweet.get("id", "") if isinstance(tweet, dict) else str(tweet),
+            "our_tweet_text": (tweet.get("text", "") if isinstance(tweet, dict) else "")[:200],
+            "reply_author": target.get("author", ""),
+            "reply_text": target.get("text", "")[:300],
+            "draft_response": text,
+            "status": "draft",
+        })
+        json.dump(drafts[-200:], open(path, "w"), indent=2)
 
     def _record_reply(self, reply_to_id: str, our_text: str):
         """Record that we replied to avoid double-responding."""
@@ -218,7 +304,7 @@ Generate 1 response for each reply. Short, sharp, conversational."""
         results = []
 
         for tweet in our_tweets[:3]:  # Check top 3 tweets
-            replies = self._get_best_replies(tweet["id"])
+            replies = self._get_best_replies(tweet)
             # Filter already-replied
             fresh = [r for r in replies if not self._check_already_replied(r["id"])]
 
@@ -239,8 +325,10 @@ Generate 1 response for each reply. Short, sharp, conversational."""
                 text = resp["response"][:280]
 
                 if os.environ.get("ENABLE_TWEETS", "false").lower() != "true":
-                    logger.info(f"[DISABLED] Would reply to @{target['author']}: {text}")
+                    logger.info(f"[DRAFT] Would reply to @{target['author']}: {text}")
                     results.append({"posted": False, "text": text, "to": target["author"]})
+                    self._save_draft(tweet, target, text)
+                    self._record_reply(target["id"], text)
                     continue
 
                 try:

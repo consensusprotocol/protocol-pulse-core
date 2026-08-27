@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-08-12T10:00:05.438823+00:00",
+  "duration": 38.0,
+  "mp4_path": "brief_20260812_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260812_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260812_1000.mp4",
+  "episode_date": "2026-08-12",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin holds at 63,986 dollars, down 0.3 percent, while fear sits at 27 on the index. Hashrate stays firm at 822.8 EH/s, showing miners are not backing off. Mempool carries 76,000 transactions with fees pinned at one sat per vbyte. Asia session delivered little movement overnight. Watch for a push above 64,500 or a slip toward 63,000 support through the day. Block height stands at 962,124.",
+  "word_count": 66,
+  "tts_provider": "chatterbox",
+  "btc_price": 63986.0,
+  "sentiment_score": null
+}

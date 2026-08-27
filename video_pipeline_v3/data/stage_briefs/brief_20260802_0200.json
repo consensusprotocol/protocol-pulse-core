@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Evening Brief",
+  "generated_at": "2026-08-02T02:00:05.454917+00:00",
+  "duration": 41.1,
+  "mp4_path": "brief_20260802_0200.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260802_0200.mp4",
+  "video_url": "/data/stage_briefs/brief_20260802_0200.mp4",
+  "episode_date": "2026-08-02",
+  "brief_type": "evening",
+  "script_summary": "Bitcoin holds flat at $62,937 after a quiet US close, with no daily high or low to mark. Fear & Greed sits at 27, signaling caution despite the lack of downside. Network health stands out: hashrate at 1,028.9 EH/s shows miners remain committed, while the mempool stacks 90,886 transactions at a low 3 sat/vB fastest fee. Block 960,655 just cleared. Overnight, watch for any fee spikes or hashrate dips that could signal shifting miner behavior into Asia hours.",
+  "word_count": 78,
+  "tts_provider": "chatterbox",
+  "btc_price": 62937.0,
+  "sentiment_score": null
+}

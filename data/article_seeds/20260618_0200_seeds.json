@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-06-18T02:00:29.881028+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "When Hashrate Holds: Why Miner Conviction Matters More Than Price Pain",
+      "angle": "Deep dive on 823 EH/s staying steady during 2.1% dump\u2014what institutional miners know that retail doesn't",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "accumulation",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "The Mempool Never Lies: Why Calm Networks Signal Capitulation Bottoms",
+      "angle": "Analyzing how 120K transactions and 2 sat/vB fees prove no forced liquidation during extreme fear events",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network-health",
+        "on-chain",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Extreme Fear at 15: Historical Playbook for What Happens Next in Bitcoin",
+      "angle": "Fear & Greed extremes as leading indicators; wick-and-recover patterns vs. breakdown scenarios",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "technical-analysis",
+        "price-action"
+      ]
+    }
+  ]
+}

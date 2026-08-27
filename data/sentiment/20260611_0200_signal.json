@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-11T02:00:33.176669+00:00",
+  "brief_type": "evening",
+  "score": 15,
+  "bullish_signals": [
+    "Fear & Greed at 12 = capitulation territory (historically contrarian buy)",
+    "Network health solid with 852 EH/s hashrate",
+    "No miner capitulation signals present",
+    "Loose mempool with low fees suggests patient accumulation possible"
+  ],
+  "bearish_signals": [
+    "Macro headwinds still weighing on market",
+    "Lack of conviction and breakout attempts",
+    "Muted session with less than 1% daily gain",
+    "Compressed range suggests indecision"
+  ],
+  "neutral_topics": [
+    "Current price action ($62.2K)",
+    "Transaction volume in mempool",
+    "Fee structure (1 sat/byte)"
+  ]
+}

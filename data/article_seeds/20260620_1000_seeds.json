@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-06-20T10:00:32.541194+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Why Bitcoin's Mempool is Packed But Fees Stay Dirt Cheap",
+      "angle": "Deep dive into unusual network efficiency signals and smart routing reducing congestion during high-volume periods",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network",
+        "fees",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Hashrate as Conviction: Why Miner Commitment Matters More Than Price",
+      "angle": "Analysis of 938.8 EH/s stability during margin compression as leading indicator for bounce scenarios",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "hashrate",
+        "sentiment",
+        "infrastructure"
+      ]
+    },
+    {
+      "headline": "Extreme Fear Playbook: $63k Support and the Case for Stabilization",
+      "angle": "Structural support levels and Asia session momentum patterns that historically precede major moves",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "support-resistance",
+        "market-structure"
+      ]
+    }
+  ]
+}

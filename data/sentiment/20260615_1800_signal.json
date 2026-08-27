@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-06-15T18:00:32.140063+00:00",
+  "brief_type": "midday",
+  "score": 65,
+  "bullish_signals": [
+    "5% rally in 24 hours breaking $66,800",
+    "Institutional demand picking up momentum",
+    "Hashrate holding steady at 913 EH/s despite market fear",
+    "Rally occurring into extreme fear (contrarian strength)",
+    "Base fees manageable at 5 sat/byte (network healthy)",
+    "On-chain signals not screaming danger",
+    "Accumulation phase forming at bottom"
+  ],
+  "bearish_signals": [
+    "Fear and Greed Index at extreme fear (20)",
+    "Retail capitulation and panic selling",
+    "Heavy mempool with 122,000 transactions backed up"
+  ],
+  "neutral_topics": [
+    "Difficulty adjustment upcoming",
+    "Sparse volume data"
+  ]
+}

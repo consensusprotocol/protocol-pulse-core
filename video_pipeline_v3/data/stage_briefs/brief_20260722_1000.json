@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-07-22T10:00:02.140743+00:00",
+  "duration": 43.1,
+  "mp4_path": "brief_20260722_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260722_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260722_1000.mp4",
+  "episode_date": "2026-07-22",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin slips 0.7% to $65,810 as fear and greed hits 33. Network hashrate stays solid at 866.8 EH/s while the mempool backs up to 92,511 transactions with fees at just 2 sat/vB. Block 959,117 confirms steady production.\n\nAsia session opens with thin volume and no clear catalyst. Watch for any bounce attempt above 66k or a deeper test of 65k support as sentiment stays defensive. Low fees suggest room for buyers if dip buying emerges.",
+  "word_count": 75,
+  "tts_provider": "chatterbox",
+  "btc_price": 65810.0,
+  "sentiment_score": null
+}

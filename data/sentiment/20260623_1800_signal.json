@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-23T18:00:31.338213+00:00",
+  "brief_type": "midday",
+  "score": 35,
+  "bullish_signals": [
+    "Hashrate steady at 970 EH/s despite price pressure\u2014miner conviction",
+    "Extreme Fear reading (23) historically precedes reversals within days",
+    "Network efficiency solid with functioning fundamentals",
+    "Low base fees (3 sat/vB) create cheap entry conditions",
+    "On-chain picture shows no structural breakdown"
+  ],
+  "bearish_signals": [
+    "3.3% daily decline to $62,398",
+    "Extreme Fear sentiment (23 reading)",
+    "105K transaction mempool indicates congestion stress"
+  ],
+  "neutral_topics": [
+    "Block height progress toward halving cycle",
+    "Transaction mempool bloat as technical metric"
+  ]
+}

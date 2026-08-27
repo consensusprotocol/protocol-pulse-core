@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-18T18:00:28.038240+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Extreme Fear Capitulation: Why On-Chain Metrics Point to an Accumulation Opportunity",
+      "angle": "Deep dive on miner resilience and hashrate strength contradicting bearish price action",
+      "tags": [
+        "bitcoin",
+        "on-chain analysis",
+        "fear and greed",
+        "miners",
+        "accumulation"
+      ]
+    },
+    {
+      "headline": "The Halving Countdown: 3 Weeks to Supply Shock as Bitcoin Bleeds 5%",
+      "angle": "Historical patterns of pre-halving volatility and institutional positioning",
+      "tags": [
+        "bitcoin",
+        "halving",
+        "volatility",
+        "supply shock",
+        "institutional"
+      ]
+    },
+    {
+      "headline": "Mempool Relief and Fee Compression: Why Network Health Matters More Than Price Right Now",
+      "angle": "How clearing transaction queues and low fees signal operational strength during downturns",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "network health",
+        "fees",
+        "infrastructure"
+      ]
+    }
+  ]
+}

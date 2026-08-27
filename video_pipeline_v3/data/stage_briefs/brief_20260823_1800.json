@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Midday Brief",
+  "generated_at": "2026-08-23T18:00:04.657919+00:00",
+  "duration": 48.4,
+  "mp4_path": "brief_20260823_1800.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260823_1800.mp4",
+  "video_url": "/data/stage_briefs/brief_20260823_1800.mp4",
+  "episode_date": "2026-08-23",
+  "brief_type": "midday",
+  "script_summary": "Bitcoin holds steady at $77,248 with minimal movement as hashrate reaches 945.9 EH/s, signaling sustained miner strength into the US session. Fear and Greed sits at 66 in Greed territory, reflecting measured optimism without overheating.\n\nMempool carries 80,166 transactions yet fastest fees remain at just 2 sat/vB, pointing to ample block space and light congestion. Block height advances to 963,754 with no major disruptions reported.\n\nPrice action shows resilience near current levels amid stable",
+  "word_count": 76,
+  "tts_provider": "chatterbox",
+  "btc_price": 77248.0,
+  "sentiment_score": null
+}

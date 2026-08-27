@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-24T18:00:31.408171+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Bitcoin's Bullish Divergence: Why On-Chain Metrics Trump Sentiment in Market Selloffs",
+      "angle": "Analyzing the disconnect between extreme fear metrics and stable on-chain fundamentals as a contrarian buying signal",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "on-chain",
+        "fear-greed",
+        "volatility"
+      ]
+    },
+    {
+      "headline": "No Capitulation Yet: How Miners and Hashrate Stability Signal Institutional Conviction",
+      "angle": "Examining why miner behavior and network health metrics matter more than price action during corrections",
+      "tags": [
+        "bitcoin",
+        "mining",
+        "hashrate",
+        "institutional-demand",
+        "market-structure"
+      ]
+    },
+    {
+      "headline": "$55K Support Test: What Mempool and Fee Data Reveal About Bitcoin's Next Move",
+      "angle": "Using real-time network congestion and fee trends to forecast whether this dip is mean reversion or deeper breakdown",
+      "tags": [
+        "bitcoin",
+        "technical-support",
+        "mempool",
+        "fees",
+        "price-prediction"
+      ]
+    }
+  ]
+}

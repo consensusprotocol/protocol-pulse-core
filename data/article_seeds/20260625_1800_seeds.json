@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-25T18:00:29.264121+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "When Extreme Fear Becomes a Buy Signal: Bitcoin's 12 Greed Index Moment Explained",
+      "angle": "Historical analysis of how extreme fear readings precede major reversals; what on-chain metrics suggest this time",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "greed-index",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "Mempool Mysteries: Why Transaction Congestion Without Fee Urgency Matters for Bitcoin's Next Move",
+      "angle": "Deep dive into 108k pending transactions at 2 sat/vB\u2014what it reveals about miner behavior and network demand",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "miners",
+        "on-chain"
+      ]
+    },
+    {
+      "headline": "The $59K Patience Zone: Why Bitcoin's Calm Before the Storm Tests Institutional Conviction",
+      "angle": "Light volume holds at key support levels; distinguishing accumulation signals from capitulation flush",
+      "tags": [
+        "bitcoin",
+        "price-action",
+        "institutional-flow",
+        "support-resistance"
+      ]
+    }
+  ]
+}

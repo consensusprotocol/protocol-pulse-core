@@ -1,6 +1,236 @@
 {
   "drafts": [
     {
+      "id": "radar_1782946594_211",
+      "timestamp": "2026-07-01T22:56:34.520690+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2072180058702127427",
+      "source_author": "SimplyBitcoin",
+      "source_text": "\ud83c\uddfa\ud83c\uddf8 Illinois quietly pushed a bill proposing a 0.2% Bitcoin tax. \n\nTim and Jeff of the Illinois Bitcoin Council explain what was left out of the legislation, why it matters, and why they believe it's unconstitutional.",
+      "source_url": "https://x.com/SimplyBitcoin/status/2072180058702127427",
+      "velocity": 53.2,
+      "crowd_thesis": "vague definitions will cause messy inconsistent enforcement",
+      "counterpoint": "none",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "vague taxable events + tax collectors rarely ends in clarity",
+          "tweet_raw": "vague taxable events + tax collectors rarely ends in clarity",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 66.7,
+          "reasoning": "sharpens top comment on vagueness"
+        }
+      ],
+      "selected": null
+    },
+    {
+      "id": "radar_1782946565_312",
+      "timestamp": "2026-07-01T22:56:05.468803+00:00",
+      "status": "below_threshold",
+      "source_post_id": "2072259677979541933",
+      "source_author": "SimplyBitcoin",
+      "source_text": "The hardest asset on earth is 54% off",
+      "source_url": "https://x.com/SimplyBitcoin/status/2072259677979541933",
+      "velocity": 136.8,
+      "crowd_thesis": "54% off is a dip worth buying",
+      "counterpoint": "waiting for 90% off instead",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "hard to call it a discount when no one agrees on the price",
+          "tweet_raw": "hard to call it a discount when no one agrees on the price",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 70.8,
+          "reasoning": "questions the off framing directly"
+        }
+      ],
+      "selected": null
+    },
+    {
+      "id": "radar_1782946549_349",
+      "timestamp": "2026-07-01T22:55:49.259046+00:00",
+      "status": "posted",
+      "source_post_id": "2072304368695812219",
+      "source_author": "saylor",
+      "source_text": "Credit on the Bitcoin Standard.",
+      "source_url": "https://x.com/saylor/status/2072304368695812219",
+      "velocity": 2891.8,
+      "crowd_thesis": "Saylor's post uses unclear fabricated metrics and charts with no explanation",
+      "counterpoint": "none",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "what exactly gets rated here or is the axis just vibes",
+          "tweet_raw": "what exactly gets rated here or is the axis just vibes",
+          "reply_or_quote": "reply",
+          "confidence": 0.9,
+          "radar_score": 94.5,
+          "reasoning": "sharpens the core complaint without piling on"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "what exactly gets rated here or is the axis just vibes",
+        "radar_score": 94.5,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1782944783_732",
+      "timestamp": "2026-07-01T22:26:23.401432+00:00",
+      "status": "post_failed",
+      "source_post_id": "2072402792883314773",
+      "source_author": "BitcoinMagazine",
+      "source_text": "JUST IN: \ud83c\uddfa\ud83c\uddf8 Public company Hyperscale Data buys 49.249 BTC worth $2.9 million \ud83d\ude80",
+      "source_url": "https://x.com/BitcoinMagazine/status/2072402792883314773",
+      "velocity": 550.2,
+      "crowd_thesis": "company and founder carry serious red flags despite the buy",
+      "counterpoint": "another public company adding to its btc treasury",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "ault's history suggests this is less treasury strategy, more optics",
+          "tweet_raw": "ault's history suggests this is less treasury strategy, more optics",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 89.0,
+          "reasoning": "directly engages the red flag comment with implication"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "ault's history suggests this is less treasury strategy, more optics",
+        "radar_score": 89.0,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1782944766_976",
+      "timestamp": "2026-07-01T22:26:06.126343+00:00",
+      "status": "post_failed",
+      "source_post_id": "2072345250849227185",
+      "source_author": "BitcoinMagazine",
+      "source_text": "JUST IN: \ud83c\uddfa\ud83c\uddf8 Wall Street bank giant Cantor Fitzgerald says Bitcoin is entering the final stages of the bear market \ud83d\udc40\n\n\"Ultimately, our belief is that we are only a few months away from the bottom of this pullback\"\ud83d\ude80",
+      "source_url": "https://x.com/BitcoinMagazine/status/2072345250849227185",
+      "velocity": 776.0,
+      "crowd_thesis": "banks calling bottoms after missing tops is a familiar late signal",
+      "counterpoint": "some see this as confirmation the bottom is now",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "cantor naming the bottom now feels like the follow-up to their 2021 top calls",
+          "tweet_raw": "cantor naming the bottom now feels like the follow-up to their 2021 top calls",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 89.0,
+          "reasoning": "highlights timing irony without platitudes"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "cantor naming the bottom now feels like the follow-up to their 2021 top calls",
+        "radar_score": 89.0,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1782944748_519",
+      "timestamp": "2026-07-01T22:25:48.102896+00:00",
+      "status": "post_failed",
+      "source_post_id": "2072354952182141253",
+      "source_author": "River",
+      "source_text": "Our new and improved \"Sell bitcoin\" button",
+      "source_url": "https://x.com/River/status/2072354952182141253",
+      "velocity": 1082.2,
+      "crowd_thesis": "sell button should be deliberately harder to use or auto-flip to buy",
+      "counterpoint": "none",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "what if it just disappears the moment price ticks up",
+          "tweet_raw": "what if it just disappears the moment price ticks up",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 89.0,
+          "reasoning": "extends the joke with a cleaner mechanic"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "what if it just disappears the moment price ticks up",
+        "radar_score": 89.0,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1782944730_408",
+      "timestamp": "2026-07-01T22:25:30.534068+00:00",
+      "status": "post_failed",
+      "source_post_id": "2072300726206804021",
+      "source_author": "BitcoinMagazine",
+      "source_text": "JUST IN: \ud83c\uddfa\ud83c\uddf8 SEC Commissioner Hester Peirce on the Clarity Act: \"I'm still optimistic it will get done this summer.\"\n\n\"I expect that we'll see it pass soon.\" \ud83d\ude80",
+      "source_url": "https://x.com/BitcoinMagazine/status/2072300726206804021",
+      "velocity": 1408.5,
+      "crowd_thesis": "skepticism that summer timelines for crypto clarity are just repeated empty promises and gaslighting",
+      "counterpoint": "a few still hold out hope it finally lands this year",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "summer deadlines age like milk. which one are we on now",
+          "tweet_raw": "summer deadlines age like milk. which one are we on now",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 89.0,
+          "reasoning": "compresses the fatigue in comments into a pointed question"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "summer deadlines age like milk. which one are we on now",
+        "radar_score": 89.0,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
+      "id": "radar_1782944711_238",
+      "timestamp": "2026-07-01T22:25:11.425048+00:00",
+      "status": "post_failed",
+      "source_post_id": "2072286589997154784",
+      "source_author": "BitcoinMagazine",
+      "source_text": "JUST IN: \ud83c\uddf9\ud83c\uddfc Taiwan's legislature passes law establishing a regulatory framework for the Bitcoin and crypto industry. \n\n\"We're officially entering a new era of digital finance.\" \ud83d\ude80",
+      "source_url": "https://x.com/BitcoinMagazine/status/2072286589997154784",
+      "velocity": 1950.8,
+      "crowd_thesis": "US lagging other nations on crypto regulation while Taiwan and others advance",
+      "counterpoint": "regs may create permissioned cages rather than open ramps",
+      "risk_flags": [],
+      "all_drafts": [
+        {
+          "voice": "sharp",
+          "tweet": "taiwan writes the rules while dc still argues over whether to notice. enforcement details will matter more than the announcement.",
+          "tweet_raw": "taiwan writes the rules while dc still argues over whether to notice. enforcement details will matter more than the announcement.",
+          "reply_or_quote": "reply",
+          "confidence": 0.8,
+          "radar_score": 86.0,
+          "reasoning": "adds enforcement angle missing from post"
+        }
+      ],
+      "selected": {
+        "voice": "sharp",
+        "tweet": "taiwan writes the rules while dc still argues over whether to notice. enforcement details will matter more than the announcement.",
+        "radar_score": 86.0,
+        "reply_or_quote": "reply"
+      }
+    },
+    {
       "id": "radar_1772398206_369",
       "timestamp": "2026-03-01T20:50:06.748241+00:00",
       "status": "post_failed",

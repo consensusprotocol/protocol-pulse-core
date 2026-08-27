@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-13T10:00:32.293809+00:00",
+  "brief_type": "morning",
+  "score": 15,
+  "bullish_signals": [
+    "Extreme fear (13) at historically bullish capitulation levels",
+    "Hashrate stable at 1010 EH/s\u2014no miner panic",
+    "Network not stressed despite congestion",
+    "Fee collapse suggests temporary capacity issue, not demand destruction"
+  ],
+  "bearish_signals": [
+    "Anemic volume <$1B in 24 hours",
+    "Institutions remain sidelined",
+    "No directional conviction from market participants",
+    "Retail completely absent from order flow"
+  ],
+  "neutral_topics": [
+    "Price holding at 63.7K (consolidation range)",
+    "Asia session produced no catalysts",
+    "Dependence on macro (Fed speakers, TradFi open)"
+  ]
+}

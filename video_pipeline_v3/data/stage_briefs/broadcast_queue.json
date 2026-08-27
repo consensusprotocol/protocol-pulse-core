@@ -1,42 +1,53 @@
 [
   {
-    "id": "4e507510-dc07-4a94-b808-b26f8f5d636f",
-    "type": "THOUGHT_LEADER",
-    "priority": 2,
-    "script": "Natbrunell's running three distribution channels\u2014Apple, Spotify, Fountain. Fountain adoption signals which voices the sovereign builder class actually follows. Watch his listener migration patterns next quarter.",
-    "source_label": "\ud83e\udde0 @NATBRUNELL",
-    "topic_preview": "R to @natbrunell: Stream us wherever you listen to podcasts:\n\nApple: https://pod",
-    "generated_at": "2026-06-10T12:25:39.062735+00:00",
-    "expires_at": "2026-06-10T14:25:39.062735+00:00"
+    "id": "555d74a4-0b40-495a-ac67-33d9f0f0012c",
+    "type": "ORACLE_BRIEF",
+    "priority": 1,
+    "script": "Bitcoin's next halving will force miner revenue compression with no Fed backstop, as rate hikes remain locked out and the monetary base stops expanding by design. \n\nAt US close, Bitcoin trades at seventy-eight thousand nine hundred ninety-one, up point three percent on the day with support holding n",
+    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
+    "topic_preview": "Oracle Evening Brief \u2014 $78,991",
+    "generated_at": "2026-08-27T02:00:02.383557+00:00",
+    "expires_at": "2026-08-27T06:00:02.383557+00:00",
+    "video_url": "/data/stage_briefs/brief_20260827_0200.mp4"
   },
   {
-    "id": "4992ea09-041d-4ad4-a4b7-144b1adafb0e",
+    "id": "0d5d2197-7a2b-4d93-a76d-42d92c1e4eaa",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Banking sector tightening custody rails. Nostr relays reporting institutional infrastructure denial across three major clearing houses in the past 72 hours.\n\nThis isn't friction \u2014 it's confirmation of the thesis. They're closing doors because the alternative is becoming undeniable.\n\nWatch custody application rejection rates at the Federal Reserve's approved",
+    "script": "Bitcoin Nostr relays show zero dominant narrative emergence. Channels remain fragmented across technical discussions and ideological debates. Watch for coordinated messaging patterns in next 24 hours.\n\nForward signal: Monitor Bitcoin Core developer chat for consensus shifts on relay infrastructure.",
     "source_label": "\u26a1 NOSTR SIGNAL",
-    "topic_preview": "Traditional finance gatekeeping accelerates \u2014 major banks...",
-    "generated_at": "2026-06-10T10:20:56.178599+00:00",
-    "expires_at": "2026-06-10T14:20:56.178599+00:00"
+    "topic_preview": "unknown",
+    "generated_at": "2026-08-27T01:25:17.971215+00:00",
+    "expires_at": "2026-08-27T05:25:17.971215+00:00"
   },
   {
-    "id": "f5193c44-fa4c-4b19-8fa6-c8f332366bd3",
+    "id": "051e8969-b269-4478-9fb7-3df6149f0de8",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Satoshi Nakamoto's last known communication was in December 2010. Fifteen years later, the protocol runs exactly as designed. No CEO, no board meetings, no emergency patches. The code is the constitution.",
+    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Satoshi Nakamoto's last known communication was in December 2010. Fifteen years ",
-    "generated_at": "2026-06-10T13:21:29.369491+00:00",
-    "expires_at": "2026-06-10T17:21:29.369491+00:00"
+    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
+    "generated_at": "2026-08-27T00:50:37.208625+00:00",
+    "expires_at": "2026-08-27T04:50:37.208625+00:00"
   },
   {
-    "id": "4aa929bf-a367-485f-a9ba-b49531d423dc",
+    "id": "99d34e3b-d14b-4deb-9410-c4cc6261791c",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they commit capital, electricity, and hardware. When hash rate climbs to all-time highs, it means serious operators are betting their balance sheets on Bitcoin's future.",
+    "script": "Nostr is building the decentralized social layer that Bitcoin's monetary layer always needed. Censorship-resistant communication plus censorship-resistant money \u2014 that's the full stack of digital sovereignty.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Hash rate is the most honest signal in Bitcoin. Miners don't speculate \u2014 they co",
-    "generated_at": "2026-06-10T13:21:55.745052+00:00",
-    "expires_at": "2026-06-10T17:21:55.745052+00:00"
+    "topic_preview": "Nostr is building the decentralized social layer that Bitcoin's monetary layer a",
+    "generated_at": "2026-08-27T00:50:53.884075+00:00",
+    "expires_at": "2026-08-27T04:50:53.884075+00:00"
+  },
+  {
+    "id": "d365c61d-956c-4b47-beee-b601c782ab65",
+    "type": "FILLER_INSIGHT",
+    "priority": 5,
+    "script": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year or more \u2014 consistently hold over sixty percent of all bitcoin supply. The conviction of this network's participants is unprecedented.",
+    "source_label": "\ud83d\udca1 INSIGHT",
+    "topic_preview": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year ",
+    "generated_at": "2026-08-27T00:51:11.408384+00:00",
+    "expires_at": "2026-08-27T04:51:11.408384+00:00"
   }
 ]

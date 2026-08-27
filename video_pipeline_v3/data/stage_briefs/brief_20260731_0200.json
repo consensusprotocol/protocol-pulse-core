@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Evening Brief",
+  "generated_at": "2026-07-31T02:00:05.164247+00:00",
+  "duration": 47.6,
+  "mp4_path": "brief_20260731_0200.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260731_0200.mp4",
+  "video_url": "/data/stage_briefs/brief_20260731_0200.mp4",
+  "episode_date": "2026-07-31",
+  "brief_type": "evening",
+  "script_summary": "Bitcoin holds $64,559 at US close, up 0.6% while fear and greed sits at extreme fear 25. The network runs strong at 959 EH/s hashrate, signaling miner conviction even as sentiment sours. Mempool carries 91,878 transactions with fees bottomed at 5 sat/vB, showing steady demand without fee spikes.\n\nKey takeaway: price action stays resilient above the round number despite the fear reading. Block height now 960,331 after another steady day of production.\n\nOvernight, watch for any hashrate dips or me",
+  "word_count": 89,
+  "tts_provider": "chatterbox",
+  "btc_price": 64559.0,
+  "sentiment_score": null
+}

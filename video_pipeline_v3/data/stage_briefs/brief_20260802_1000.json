@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-08-02T10:00:04.620520+00:00",
+  "duration": 40.8,
+  "mp4_path": "brief_20260802_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260802_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260802_1000.mp4",
+  "episode_date": "2026-08-02",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin holds at 63,202 dollars with a modest 0.3 percent gain, yet fear remains entrenched at 27 on the index. Hashrate sits at 1,028.9 exahashes, underscoring miner resilience even as sentiment stays defensive. \n\nMempool congestion at 84,737 transactions keeps the base fee at 1 sat per vbyte, supporting steady on-chain flow. Block height advances to 960,714.\n\nAsia session liquidity and any early fear-gauge rebound will set the tone for volatility into the U.S. open.",
+  "word_count": 74,
+  "tts_provider": "chatterbox",
+  "btc_price": 63202.0,
+  "sentiment_score": null
+}

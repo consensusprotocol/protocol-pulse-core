@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-16T10:00:34.296537+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Capitulation Signals: Why Bitcoin's Fear & Greed Index at 23 Matters for Smart Money",
+      "angle": "Historical analysis of extreme fear readings as accumulation opportunities, with current network metrics supporting the bottom hypothesis",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "fear-greed-index",
+        "accumulation",
+        "smart-money"
+      ]
+    },
+    {
+      "headline": "Miner Conviction in Uncertain Times: What 924 EH/s Hashrate Tells Us About Bitcoin's Foundation",
+      "angle": "Onchain security metrics providing counternarrative to fearful sentiment; what sustained hashrate means for network resilience",
+      "tags": [
+        "bitcoin",
+        "hashrate",
+        "mining",
+        "network-security",
+        "onchain"
+      ]
+    },
+    {
+      "headline": "The Volume Void: Why Low Liquidity Early Sessions Could Trigger Institutional Moves",
+      "angle": "Asia overnight quiet signals opportunity for institutional accumulation; mempool behavior as leading indicator for intraday volatility",
+      "tags": [
+        "bitcoin",
+        "volume",
+        "liquidity",
+        "institutional",
+        "trading"
+      ]
+    }
+  ]
+}

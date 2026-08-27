@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-08-16T10:00:04.504918+00:00",
+  "duration": 39.9,
+  "mp4_path": "brief_20260816_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260816_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260816_1000.mp4",
+  "episode_date": "2026-08-16",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin steadies at $62,954 with zero daily change while fear dominates at 34 on the index. Network security stays strong with hashrate at 918.4 EH/s and the mempool clearing 72,783 transactions at a minimal 1 sat/vB fee. Overnight price action remained flat through the Asia session, showing no momentum either way. Block height sits at 962,717. Watch for any sentiment reversal that could lift price out of this fear zone and spark volume later today.",
+  "word_count": 75,
+  "tts_provider": "chatterbox",
+  "btc_price": 62954.0,
+  "sentiment_score": null
+}

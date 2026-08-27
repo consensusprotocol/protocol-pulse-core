@@ -1,53 +1,55 @@
 {
-  "generated_at": "2026-06-09T16:00:00Z",
-  "date": "Tuesday, June 09, 2026",
-  "btc_price": "$61,979",
-  "btc_change_24h": "-2.2%",
-  "fng": "Extreme Fear",
+  "generated_at": "2026-08-25T12:00:00Z",
+  "date": "Tuesday, August 25, 2026",
+  "btc_price": "$79,271",
+  "btc_change_24h": "-0.1%",
+  "fng": "Greed",
   "dominant_narratives": [
-    "Self-custody infrastructure maturation (Second/Bark mainnet launch signals protocol-layer payments readiness)",
-    "Regulatory asymmetry: Clarity Act as CBDC trojan horse vs. genuine industry advocacy",
-    "Paper market suppression thesis gaining institutional attention (Luke Gromen on $58-72k ceiling)"
+    "Long-term legitimacy and adoption driven by regulatory clarity (Clarity Act) and institutional infrastructure.",
+    "Bitcoin's core strength derived from its technical resilience (PoW, advanced signatures).",
+    "Divergent views on near-term market conditions: whether current valuations are buying opportunities or if caution is warranted due to USD strength/outflows.",
+    "The ongoing debate about the true meaning of 'smart money' signals, particularly regarding ETF outflows."
   ],
   "trending_language": [
-    "stay humble and stack sats",
-    "As designed",
-    "The rewriting of history",
-    "centralized platforms are one phone call away from cutting you off",
-    "self-custodial",
-    "frontier-quality open source"
+    "regulatory clarity",
+    "Clarity Act",
+    "institutional infrastructure",
+    "technical resilience",
+    "PoW defenses",
+    "advanced signature schemes",
+    "buying opportunities",
+    "USD strength",
+    "extreme outflows",
+    "smart money",
+    "ETF outflows"
   ],
-  "sentiment": "bearish",
-  "sentiment_reasoning": "Extreme Fear index + price decline creates macro bearishness, but infrastructure launches and regulatory clarity efforts inject underlying conviction. Market is bifurcated: weak hands in fear, builders shipping products anyway.",
+  "sentiment": "uncertain",
+  "sentiment_reasoning": "While there's broad consensus on Bitcoin's long-term legitimacy and technical resilience, community leaders are sharply divided on near-term market conditions, accumulation strategies, and the interpretation of 'smart money' signals like ETF outflows.",
   "top_accounts_active": [
-    "@secondhq",
-    "@BitcoinMagazine",
-    "@sethforprivacy",
-    "@derekmross",
-    "@saylor",
-    "@BitcoinArchive",
-    "@saifedean",
-    "@nvk",
-    "@TheGuySwann"
+    "@mempool_space",
+    "@deribit",
+    "@binance",
+    "@blockchain"
   ],
   "recommended_tweet_angles": [
-    "Frame Second/Bark mainnet launch as 'fear = opportunity' signal: while sentiment crashes, actual payment infrastructure goes live — builders don't wait for green candles",
-    "Exploit Luke Gromen's paper vs. physical thesis with data: compare gold suppression playbook to current BTC price action, position self-custody as asymmetric hedge against paper market manipulation",
-    "Privacy surveillance angle: connect CBDC regulatory push + White House law enforcement coordination to core Bitcoin narrative about censorship resistance — 'they're openly coordinating, we're building quietly'"
+    "Protocol Pulse observes a consensus among Bitcoin thought leaders: regulatory clarity via the #ClarityAct and robust institutional infrastructure are critical for long-term adoption. The signal is clear: build the rails.",
+    "While market sentiment splits, the bedrock of Bitcoin's #technicalresilience remains undisputed. PoW defenses and advanced signature schemes fortify the network against all headwinds. Focus on the fundamentals.",
+    "The 'smart money' debate rages. Are #ETFoutflows a contrarian signal for accumulation, or do they mask deeper acquisition timing? Protocol Pulse cuts through the noise: raw metrics often obscure true intelligence. What's your take?"
   ],
   "topics_to_avoid": [
-    "Prediction market speculation on price targets (market too fragile, looks desperate)",
-    "Musk/Solana/altcoin comparisons (noise; focus on Bitcoin protocol maturity instead)"
+    "Polymarket deceptive advertising/fraud schemes",
+    "Fake website domain spoofing (PollyMarket)",
+    "Fraudulent promotional content targeting college-age creators",
+    "Financial losses from fake bet simulations",
+    "Media industry conflicts of interest",
+    "Non-Bitcoin specific content (e.g., LEGO vigilante behavior)"
   ],
-  "engagement_patterns": "Short-form conviction statements outperforming long threads. Users responding to: (1) technical infrastructure shipped on mainnet, (2) political/freedom narrative framing, (3) data-backed macro thesis (Gromen, Saylor style). Emoji-heavy posts on self-custody getting traction. Philosophical positioning (cypherpunk ethos, non-aggression principle) resonating across builder and theorist demographics.",
-  "protocol_pulse_voice_guidance": "Today's voice should be: unflinching about macro headwinds (Extreme Fear is real), but laser-focused on protocol-layer victories (Second live, infrastructure hardening). Adopt 'builders don't panic' positioning — contrast fear-driven retail with calm execution by core devs. Use precise language on regulation (Clarity Act framing, not vague 'bad policy'). Inject cypherpunk irreverence: paint centralized payment rails as fragile legacy systems vs. unstoppable Bitcoin infrastructure. Data-first (Gromen's paper suppression thesis), philosophy-second (non-aggression, sovereignty).",
+  "engagement_patterns": "Content that articulates both consensus and divergence within the community, backed by specific data points, tends to resonate. A critical, analytical tone when dissecting market signals is also effective.",
+  "protocol_pulse_voice_guidance": "Maintain a cypherpunk voice: analytical, data-driven, and critical. Highlight the long-term, fundamental strengths of Bitcoin while dissecting short-term market noise and community divergences with a skeptical, intelligence-focused lens. Emphasize technical resilience and regulatory impacts, avoiding tangential or fraudulent topics.",
   "key_stats_today": {
-    "tweets_analyzed": 134,
+    "tweets_analyzed": 4,
     "nostr_signals": 0,
-    "unique_handles": 81,
-    "mainnet_launches_signaled": 1,
-    "regulatory_hearing_alerts": 2,
-    "infrastructure_narrative_dominance": "high"
+    "unique_handles": 4
   },
-  "generated_by": "claude_haiku"
+  "generated_by": "gemini_fallback"
 }

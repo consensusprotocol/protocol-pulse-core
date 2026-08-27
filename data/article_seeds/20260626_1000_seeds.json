@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-26T10:00:32.290953+00:00",
+  "brief_type": "morning",
+  "seeds": [
+    {
+      "headline": "Miner Conviction vs. Market Panic: Why Bitcoin's Hashrate Tells a Different Story Than Price",
+      "angle": "Deep dive on hashrate stability as contrarian indicator to extreme fear sentiment",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "hashrate",
+        "technical-analysis"
+      ]
+    },
+    {
+      "headline": "The $58,200 Trap: Inside Asia's Stablecoin Exodus and Liquidation Risk",
+      "angle": "Regional flow analysis revealing retail unwind patterns and institutional vacuum",
+      "tags": [
+        "bitcoin",
+        "liquidity",
+        "asia",
+        "risk-management"
+      ]
+    },
+    {
+      "headline": "2 Sat/vB Mempool: How Fee Collapse Signals Both Opportunity and Indifference",
+      "angle": "Mempool dynamics as metric of transaction urgency vs. capitulation positioning",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "on-chain-metrics"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-06-23T18:00:31.338213+00:00",
+  "brief_type": "midday",
+  "seeds": [
+    {
+      "headline": "Why Bitcoin's Extreme Fear Reading Could Signal a Multi-Day Reversal",
+      "angle": "Historical analysis of Fear & Greed extremes (20-25 range) and subsequent price recoveries; data-driven exploration of why capitulation zones precede institutional accumulation",
+      "tags": [
+        "bitcoin",
+        "fear-greed",
+        "market-psychology",
+        "on-chain-analysis",
+        "capitulation"
+      ]
+    },
+    {
+      "headline": "Miner Conviction in Crisis: Why Hashrate Stability at 970 EH/s Matters More Than Price",
+      "angle": "Deep dive into miner behavior during drawdowns; why hashrate maintenance signals fundamental network health vs. panic selling by weak hands",
+      "tags": [
+        "bitcoin",
+        "miners",
+        "hashrate",
+        "on-chain",
+        "fundamentals"
+      ]
+    },
+    {
+      "headline": "The Opportunity Window: How 3 sat/vB Base Fees Create Smart Entry Points",
+      "angle": "Practical guide to understanding mempool dynamics, fee markets, and why transaction cost crashes during panic create asymmetric opportunities",
+      "tags": [
+        "bitcoin",
+        "fees",
+        "mempool",
+        "technical-analysis",
+        "trading-strategy"
+      ]
+    }
+  ]
+}

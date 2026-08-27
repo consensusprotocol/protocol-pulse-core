@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-06-14T02:00:28.702913+00:00",
+  "brief_type": "evening",
+  "seeds": [
+    {
+      "headline": "Fear Extremes & Smart Money: Why Bitcoin's Bounce May Already Be Priced In",
+      "angle": "Analyze why thin retail volume + solid hashrate during fear reads signals accumulation, not panic",
+      "tags": [
+        "bitcoin",
+        "sentiment",
+        "on-chain",
+        "retail-vs-institutions"
+      ]
+    },
+    {
+      "headline": "$64K Hold = $66K Test? Bitcoin's Overnight Catalyst Awaits Asia Open",
+      "angle": "Technical breakdown of key overnight levels and what network conditions signal about next move",
+      "tags": [
+        "bitcoin",
+        "technical-analysis",
+        "price-targets",
+        "trading"
+      ]
+    },
+    {
+      "headline": "Mempool Congestion Myth: Why Base Fees Tell a Different Story Than Fear Headlines",
+      "angle": "Explore how reasonable 4 sat/vB fees despite TX backlog contradict panic narratives",
+      "tags": [
+        "bitcoin",
+        "mempool",
+        "on-chain",
+        "network-health"
+      ]
+    }
+  ]
+}

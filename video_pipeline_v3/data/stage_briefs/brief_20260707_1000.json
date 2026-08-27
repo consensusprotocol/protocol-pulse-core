@@ -1,0 +1,15 @@
+{
+  "title": "Oracle Morning Brief",
+  "generated_at": "2026-07-07T10:00:02.319093+00:00",
+  "duration": 41.8,
+  "mp4_path": "brief_20260707_1000.mp4",
+  "mp4_url": "/data/stage_briefs/brief_20260707_1000.mp4",
+  "video_url": "/data/stage_briefs/brief_20260707_1000.mp4",
+  "episode_date": "2026-07-07",
+  "brief_type": "morning",
+  "script_summary": "Bitcoin holds at 63,250 after a 1% overnight lift while Fear and Greed stays deep in fear at 27. Hashrate remains firm at 776 EH/s, showing miners are not backing off.\n\nAsia session added modest buying pressure with no major liquidations reported. Mempool sits at 93,000 transactions yet fees are pinned at 2 sat/vB, keeping on-chain costs negligible.\n\nWatch for a push above 64k today. Any sustained move could flip sentiment quickly as block 957,021 advances the chain.",
+  "word_count": 78,
+  "tts_provider": "chatterbox",
+  "btc_price": 63250.0,
+  "sentiment_score": null
+}

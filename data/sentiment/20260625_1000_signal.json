@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-25T10:00:32.269565+00:00",
+  "brief_type": "morning",
+  "score": -15,
+  "bullish_signals": [
+    "Fear & Greed at 12 (extreme fear = contrarian buy signal)",
+    "Network hashrate stable at 963 EH/s",
+    "Mempool lean with minimal fees (3 sat/byte)",
+    "Historical pattern: extreme fear precedes rallies",
+    "No technical breakdown in on-chain metrics"
+  ],
+  "bearish_signals": [
+    "Price down 1.5% to $61,658",
+    "Europe opening into weakness",
+    "Risk of testing $60k support",
+    "Compressed volatility before potential breakdown"
+  ],
+  "neutral_topics": [
+    "Asia session close mixed results",
+    "Block production normal at 955,314"
+  ]
+}

@@ -1,0 +1,2747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="theme-color" content="#000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta http-equiv="Permissions-Policy" content="microphone=*, camera=*">
+<title>Satomi · Protocol Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" href="/oracle/thinking" as="video" type="video/mp4">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;background:#000;overflow:hidden;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+
+/* ─── KEYFRAMES ─────────────────────────────────────────── */
+@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes orbit-rev{to{transform:rotate(-360deg)}}
+@keyframes breathe{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+@keyframes scan{0%{top:-4px}100%{top:100%}}
+@keyframes live-blink{0%,100%{opacity:1}49%{opacity:1}50%,99%{opacity:.15}}
+@keyframes fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mic-pulse{0%{box-shadow:0 0 0 0 rgba(255,59,95,.6)}70%{box-shadow:0 0 0 22px rgba(255,59,95,0)}100%{box-shadow:0 0 0 0 rgba(255,59,95,0)}}
+@keyframes mic-idle-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,95,0)}50%{box-shadow:0 0 0 14px rgba(255,59,95,.22),0 0 18px 4px rgba(255,59,95,.12)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes card-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes hex-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,59,95,.4))}50%{filter:drop-shadow(0 0 22px rgba(255,59,95,.9))}}
+
+/* ─── ROOT ──────────────────────────────────────────────── */
+#root{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+/* ─── BACKGROUND GRID ───────────────────────────────────── */
+#root::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,59,95,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,59,95,.04) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+  pointer-events:none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GATE SCREEN
+═══════════════════════════════════════════════════════════ */
+#gate{
+  display:flex;flex-direction:column;align-items:center;
+  gap:clamp(18px,4vw,28px);
+  padding:clamp(24px,5vw,48px) clamp(24px,5vw,48px);
+  width:100%;max-width:520px;
+  transition:opacity .35s ease;
+}
+
+/* Satomi sigil */
+.sigil-wrap{
+  position:relative;
+  width:clamp(140px,38vw,200px);
+  height:clamp(140px,38vw,200px);
+  flex-shrink:0;
+}
+/* Rotating rings */
+.ring{
+  position:absolute;inset:0;
+  border-radius:50%;
+  border:1px solid rgba(255,59,95,.25);
+}
+.ring-1{animation:orbit 12s linear infinite}
+.ring-1::before{
+  content:'';position:absolute;
+  width:6px;height:6px;background:#ff3b5f;border-radius:50%;
+  top:-3px;left:50%;transform:translateX(-50%);
+  box-shadow:0 0 8px #ff3b5f;
+}
+.ring-2{
+  inset:12%;border-color:rgba(255,180,50,.2);
+  animation:orbit-rev 8s linear infinite;
+}
+.ring-2::before{
+  content:'';position:absolute;
+  width:4px;height:4px;background:#f8c15c;border-radius:50%;
+  bottom:-2px;left:50%;transform:translateX(-50%);
+  box-shadow:0 0 6px #f8c15c;
+}
+/* Avatar in center */
+.sigil-avatar{
+  position:absolute;
+  inset:18%;
+  border-radius:50%;
+  overflow:hidden;
+  background:radial-gradient(circle,#1a0608 0%,#050203 100%);
+  border:1px solid rgba(255,59,95,.3);
+  animation:breathe 3.5s ease-in-out infinite;
+}
+.sigil-avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.sigil-fallback{
+  width:100%;height:100%;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(28px,8vw,44px);
+  background:radial-gradient(circle,#2a0810 0%,#080205 100%);
+}
+/* Scan line */
+.sigil-scan{
+  position:absolute;inset:18%;border-radius:50%;overflow:hidden;pointer-events:none;
+}
+.sigil-scan::after{
+  content:'';position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,59,95,.6),transparent);
+  animation:scan 2.5s ease-in-out infinite;
+}
+
+/* Wordmark */
+.gate-brand{
+  font-size:10px;font-weight:700;
+  letter-spacing:.4em;color:rgba(255,59,95,.7);
+  text-transform:uppercase;
+}
+
+/* Title */
+.gate-title{
+  font-size:clamp(32px,9vw,52px);
+  font-weight:900;color:#fff;
+  letter-spacing:-.03em;line-height:1;
+  text-align:center;
+}
+.gate-title span{color:#ff3b5f}
+
+/* Sub */
+.gate-sub{
+  font-size:clamp(13px,3.5vw,15px);
+  color:#556;
+  text-align:center;line-height:1.6;
+  max-width:300px;
+  font-weight:400;
+}
+
+/* ─── THE BUTTON ─────────────────────────────────────────── */
+#gate-btn{
+  position:relative;
+  background:transparent;
+  border:none;cursor:pointer;
+  padding:0;
+  width:clamp(200px,55vw,280px);
+  -webkit-appearance:none;
+  touch-action:manipulation;
+}
+#gate-btn:disabled{opacity:.4;cursor:not-allowed}
+#gate-btn:active .btn-inner{transform:scale(.97)}
+
+.btn-inner{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1a0508 0%,#0d0203 100%);
+  border:1px solid rgba(255,59,95,.5);
+  border-radius:4px;
+  padding:clamp(14px,4vw,18px) clamp(20px,5vw,32px);
+  transition:transform .1s,border-color .2s;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+#gate-btn:not(:disabled):hover .btn-inner{border-color:rgba(255,59,95,.9)}
+
+/* Top label */
+.btn-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:.35em;
+  color:rgba(255,59,95,.6);text-transform:uppercase;
+}
+/* Main text */
+.btn-text{
+  font-size:clamp(13px,4vw,16px);font-weight:700;
+  color:#fff;letter-spacing:.05em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;
+}
+.btn-mic-icon{
+  width:16px;height:16px;flex-shrink:0;
+  opacity:.9;
+}
+/* Corner accents */
+.btn-inner::before,.btn-inner::after{
+  content:'';position:absolute;width:8px;height:8px;
+  border-color:rgba(255,59,95,.6);border-style:solid;
+}
+.btn-inner::before{top:4px;left:4px;border-width:1px 0 0 1px}
+.btn-inner::after{bottom:4px;right:4px;border-width:0 1px 1px 0}
+/* Glow sweep on hover */
+.btn-sweep{
+  position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,59,95,.06) 50%,transparent 60%);
+  transform:translateX(-100%);
+  transition:transform .5s ease;
+}
+#gate-btn:not(:disabled):hover .btn-sweep{transform:translateX(100%)}
+
+/* Status line below btn */
+#gate-status{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:#334;letter-spacing:.08em;
+  min-height:16px;text-align:center;
+}
+#gate-error{
+  display:none;font-size:12px;color:#ff3b5f;
+  text-align:center;line-height:1.5;max-width:280px;
+  background:rgba(255,59,95,.06);border:1px solid rgba(255,59,95,.15);
+  border-radius:4px;padding:8px 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIVE STAGE
+═══════════════════════════════════════════════════════════ */
+#stage{
+  display:none;flex-direction:column;align-items:center;
+  position:relative;
+  width:100%;height:100%;
+  padding:clamp(8px,2.5vw,14px) clamp(12px,3.5vw,20px) clamp(10px,3vw,16px);
+  gap:clamp(6px,1.5vw,10px);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  animation:fade-up .4s ease;
+}
+
+/* Top bar */
+.topbar{
+  width:100%;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;
+}
+/* Exit and minimize buttons */
+.stage-controls{display:flex;align-items:center;gap:8px}
+#minimize-btn,#exit-btn{
+  width:28px;height:28px;border-radius:50%;
+  background:transparent;border:1px solid #1e2235;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,background .15s;
+  -webkit-appearance:none;touch-action:manipulation;flex-shrink:0;
+  opacity:0.5;
+}
+#minimize-btn:hover,#exit-btn:hover{opacity:1;border-color:#556;background:#0f1117}
+#exit-btn:hover{border-color:rgba(255,59,95,.5)}
+
+/* ── FLOATING MINI MODE ─────────────────────────────────────────── */
+@keyframes mini-in{from{opacity:0;transform:scale(.6) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes mini-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,95,.4)}70%{box-shadow:0 0 0 8px rgba(255,59,95,0)}}
+
+#oracle-float{
+  position:fixed;bottom:24px;right:24px;
+  width:72px;height:72px;border-radius:50%;
+  background:#0a0b0f;border:2px solid rgba(255,59,95,.6);
+  cursor:pointer;z-index:9999;
+  display:none;align-items:center;justify-content:center;
+  animation:mini-in .3s ease, mini-pulse 2s ease-in-out infinite;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  overflow:hidden;transition:transform .15s;
+}
+#oracle-float:hover{transform:scale(1.08)}
+#oracle-float:active{transform:scale(.95)}
+#oracle-float img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+#oracle-float-fallback{font-size:28px}
+/* Speaking ring on float */
+#oracle-float.speaking{border-color:#6cff9f;animation:mini-pulse 0.8s ease-in-out infinite}
+/* Tooltip */
+#oracle-float::after{
+  content:"Talk to Satomi";
+  position:absolute;right:80px;
+  background:#0f1117;border:1px solid #1e2235;border-radius:4px;
+  padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:#b8c2d9;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .2s;
+}
+#oracle-float:hover::after{opacity:1}
+.topbar-brand{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:500;
+  letter-spacing:.3em;color:rgba(255,59,95,.7);text-transform:uppercase;
+}
+.live-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(74,222,128,.06);
+  border:1px solid rgba(74,222,128,.2);
+  border-radius:20px;padding:3px 8px;
+}
+.live-dot{
+  width:5px;height:5px;border-radius:50%;background:#4ade80;
+  animation:live-blink 2s step-end infinite;
+}
+.live-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:500;color:#4ade80;letter-spacing:.15em;
+}
+
+/* Video */
+.video-wrap{
+  position:relative;
+  width:100%;
+  max-width:min(440px,calc(100vw - 24px));
+  aspect-ratio:1/1;
+  border-radius:8px;overflow:hidden;
+  background: #050508;
+  overflow: hidden;
+  flex-shrink:0;
+  min-height: min(440px, calc(100vw - 24px));
+}
+/* Corner brackets */
+.video-wrap::before,.video-wrap::after{
+  content:'';position:absolute;width:16px;height:16px;
+  border-color:rgba(255,59,95,.4);border-style:solid;z-index:2;
+}
+.video-wrap::before{top:6px;left:6px;border-width:1px 0 0 1px}
+.video-wrap::after{bottom:6px;right:6px;border-width:0 1px 1px 0}
+
+#vid{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+/* Subtitle */
+#subtitle{
+  width:100%;
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(11px,3vw,13px);color:#f8c15c;
+  line-height:1.55;text-align:center;
+  min-height:34px;
+  opacity:0;transition:opacity .3s;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;padding:0 4px;
+}
+#subtitle.on{opacity:1}
+
+/* Status */
+#stat{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,2.8vw,12px);
+  color:#334;display:flex;align-items:center;gap:6px;
+  height:18px;transition:color .2s;flex-shrink:0;
+}
+.spin{width:12px;height:12px;border:1.5px solid currentColor;border-top-color:transparent;border-radius:50%;display:none;animation:spin .6s linear infinite;flex-shrink:0}
+
+/* Transcript */
+#tx{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,2.8vw,11px);color:#445;font-style:italic;
+  min-height:16px;text-align:center;
+  opacity:0;transition:opacity .2s;
+  width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+#tx.on{opacity:1}
+
+/* Mic */
+.mic-area{display:flex;flex-direction:column;align-items:center;gap:7px;flex-shrink:0}
+#mic{
+  width:clamp(60px,15vw,72px);height:clamp(60px,15vw,72px);
+  border-radius:50%;
+  background:#0a0c12;
+  border:1.5px solid #ff3b5f;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s,transform .1s;
+  -webkit-appearance:none;touch-action:manipulation;
+  flex-shrink:0;
+}
+#mic:active:not(:disabled){transform:scale(.92)}
+#mic:disabled{opacity:.2;cursor:not-allowed}
+#mic.rec{background:#ff3b5f;animation:mic-pulse 1s ease-out infinite}
+#mic.idle-pulse{border-color:#ff3b5f;border-width:2px;animation:mic-idle-pulse 1.8s ease-in-out 3}
+.mic-hint{font-family:'JetBrains Mono',monospace;font-size:9px;color:#334;letter-spacing:.12em;text-transform:uppercase}
+#cam-btn{
+  width:42px;height:42px;border-radius:50%;background:#0a0c12;
+  border:1.5px solid #334;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s;-webkit-appearance:none;touch-action:manipulation;
+  flex-shrink:0;
+}
+#cam-btn:hover{border-color:#f8c15c}
+#cam-btn.active{border-color:#f8c15c;background:#1a1500}
+#cam-input{display:none}
+#vision-status{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:#f8c15c;
+  text-align:center;opacity:0;transition:opacity .3s;min-height:14px;
+}
+#vision-status.on{opacity:1}
+
+/* Sovereignty cards */
+#cards{display:none;grid-template-columns:1fr 1fr;gap:8px;width:100%;animation:card-up .35s ease;position:relative;z-index:0}
+#cards.on{display:grid}
+.card{
+  background:#080a0f;
+  border:1px solid #141824;
+  border-radius:6px;
+  padding:clamp(10px,2.5vw,13px);
+  cursor:pointer;
+  transition:border-color .15s,background .15s;
+  display:flex;flex-direction:column;gap:5px;
+  touch-action:manipulation;
+}
+.card:active{background:#100610;border-color:rgba(255,59,95,.5)}
+.card-title{font-size:clamp(11px,3.2vw,13px);font-weight:600;color:#ccd;line-height:1.3}
+.card-link{font-family:'JetBrains Mono',monospace;font-size:clamp(9px,2.5vw,10px);color:rgba(255,59,95,.7);text-decoration:none;letter-spacing:.03em}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE — max-width 640px
+═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   TABLET — max-width 768px
+═══════════════════════════════════════════════════════════ */
+@media(max-width:768px){
+  body{padding-top:48px}
+  .video-wrap{
+    max-width:100%;
+    margin:0 auto;
+  }
+  #vid{
+    width:100%;
+    max-width:100%;
+    display:block;
+    margin:0 auto;
+  }
+  #cards{grid-template-columns:1fr 1fr}
+  .card{min-height:48px}
+  #mic{min-width:48px;min-height:48px}
+  #cam-btn{min-width:48px;min-height:48px}
+  #gate-btn{min-height:48px}
+  #root{padding-bottom:80px}
+}
+
+@media(max-width:640px){
+  body{position:fixed;width:100%;overflow:hidden}
+  #root{position:relative;height:100dvh}
+  /* Stage: full viewport, vertical stack, no overflow leak */
+  #stage{
+    height:100vh;height:100dvh;
+    padding:8px 10px 0;
+    gap:6px;
+    overflow:hidden;
+    display:none;flex-direction:column;
+  }
+
+  /* Topbar: compact for 375px screens */
+  .topbar{
+    padding:0;
+    min-height:28px;
+    flex-shrink:0;
+  }
+  .topbar-brand{font-size:9px;letter-spacing:.25em}
+  .live-pill{padding:2px 6px}
+  .live-text{font-size:8px}
+  .stage-controls{gap:4px}
+  #minimize-btn,#exit-btn{width:26px;height:26px}
+
+  /* Video: constrain to 60vh max, centered */
+  .video-wrap{
+    max-height:60vh;
+    max-width:calc(100vw - 20px);
+    width:100%;
+    aspect-ratio:1/1;
+    margin:0 auto;
+    flex-shrink:1;
+    min-height:0;
+  }
+  #vid{
+    width:100%;
+    height:100%;
+    max-width:340px;
+    margin:0 auto;
+    display:block;
+    border-radius:8px;
+    object-fit:cover;
+  }
+
+  /* Subtitle: tighter */
+  #subtitle{
+    font-size:11px;
+    min-height:28px;
+    padding:0 2px;
+    flex-shrink:0;
+  }
+
+  /* Status + transcript: compact */
+  #stat{font-size:10px;height:16px;flex-shrink:0}
+  #tx{font-size:10px;min-height:14px;flex-shrink:0}
+
+  /* Mic area + input controls: sticky to bottom, full width, tap-friendly */
+  .mic-area{
+    width:100%;
+    flex-shrink:0;
+    padding-bottom:env(safe-area-inset-bottom,8px);
+    margin-top:auto;
+  }
+  #mic{
+    width:60px;height:60px;
+    min-width:48px;min-height:48px;
+  }
+  .mic-hint{font-size:9px}
+
+  /* Camera button: 48px touch target */
+  #cam-btn{
+    width:48px;height:48px;
+    min-width:48px;min-height:48px;
+  }
+
+  /* Vision status */
+  #vision-status{font-size:9px;min-height:12px}
+
+  /* Cards grid: 1 column on mobile */
+  #cards{grid-template-columns:1fr}
+  #cards.on{
+    display:grid;
+    max-height:30vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .card{
+    padding:10px;
+    min-height:48px;
+    display:flex;flex-direction:row;align-items:center;
+    gap:8px;
+  }
+  .card-title{font-size:13px}
+  .card-link{font-size:10px}
+
+  /* Gate: ensure it fits small screens */
+  #gate{
+    padding:20px 16px;
+    gap:16px;
+  }
+  .sigil-wrap{width:130px;height:130px}
+  .gate-title{font-size:32px}
+  .gate-sub{font-size:13px;max-width:260px}
+  #gate-btn{width:220px}
+  .btn-inner{padding:14px 20px}
+  #gate-status{font-size:10px}
+  #gate-error{font-size:11px;max-width:260px}
+
+  /* Float bubble: smaller on mobile */
+  #oracle-float{
+    width:56px;height:56px;
+    bottom:16px;right:16px;
+  }
+}
+
+/* ── STUDIO TREATMENT (oracle-live only) ─────────── */
+.video-wrap {
+  border: 2px solid rgba(220,38,38,0.4);
+  box-shadow: 0 0 40px rgba(220,38,38,0.15);
+}
+#oracle-matrix { pointer-events: none; }
+
+/* ── HOLOGRAM BEAM-IN ─────────────────────────── */
+@keyframes holo-beam{
+  0%{opacity:0;filter:brightness(3) blur(8px) saturate(0);transform:scaleY(0.3) scaleX(1.05)}
+  25%{opacity:1;filter:brightness(2) blur(4px) saturate(0.3);transform:scaleY(0.7) scaleX(1.03)}
+  70%{filter:brightness(1.1) blur(0) saturate(1);transform:scaleY(1.03) scaleX(1)}
+  83%{filter:brightness(1.4) blur(0) saturate(1);transform:scaleY(1) scaleX(1)}
+  100%{filter:brightness(1) blur(0) saturate(1);transform:scaleY(1) scaleX(1);opacity:1}
+}
+@keyframes holo-scan{
+  0%{top:-2px;opacity:1}
+  80%{opacity:1}
+  100%{top:100%;opacity:0}
+}
+@keyframes holo-flicker{
+  0%,100%{opacity:1}
+  50%{opacity:0.97}
+  75%{opacity:0.98}
+}
+.video-wrap.oracle-hologram-enter{
+  animation:holo-beam 600ms cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.video-wrap.oracle-hologram-enter .holo-scanline{
+  display:block !important;
+  animation:holo-scan 150ms linear forwards;
+}
+.holo-scanline{
+  display:none;
+  position:absolute;left:0;right:0;top:-2px;
+  height:2px;
+  background:linear-gradient(90deg,transparent 0%,#ff3b5f 30%,#ff3b5f 70%,transparent 100%);
+  box-shadow:0 0 8px 2px rgba(255,59,95,.6);
+  z-index:20;
+  pointer-events:none;
+}
+.video-wrap.oracle-hologram-flicker #vid{
+  animation:holo-flicker 10s ease-in-out infinite;
+}
+
+/* ── VISION TRANSCRIPT ─────────────────────────── */
+.vision-entry {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  cursor: pointer;
+}
+.vision-entry:hover { background: rgba(255,255,255,.03); }
+.vision-entry:last-child { border-bottom: none; }
+.vision-entry-device {
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: rgba(255,59,95,.7);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.vision-entry-step {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,.7);
+  line-height: 1.5;
+  margin: 2px 0;
+}
+.vision-entry-time {
+  font-family: monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,.2);
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+<div id="vision-security-overlay" style="display:none;position:fixed;inset:0;
+z-index:99999;background:rgba(180,0,0,0.97);flex-direction:column;
+align-items:center;justify-content:center;padding:32px;text-align:center;">
+  <div style="font-size:64px;margin-bottom:16px;">⚠️</div>
+  <div style="font-family:monospace;font-size:13px;letter-spacing:.12em;
+color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;">
+SECURITY ALERT</div>
+  <div id="vision-security-msg" style="font-size:1.2rem;font-weight:700;
+color:#fff;margin-bottom:32px;line-height:1.5;max-width:340px;"></div>
+  <button id="vision-security-dismiss"
+    style="background:#fff;color:#b40000;font-family:monospace;font-weight:800;
+font-size:14px;letter-spacing:.1em;border:none;border-radius:8px;
+padding:16px 32px;cursor:pointer;text-transform:uppercase;
+min-height:56px;width:100%;max-width:320px;">
+    ✓ GOT IT — COVER NOW
+  </button>
+  <div id="vision-recovery-panel" style="display:none;width:100%;
+max-width:340px;margin-top:24px;">
+    <div style="font-family:monospace;font-size:11px;letter-spacing:.12em;
+color:rgba(255,255,255,.5);margin-bottom:12px;text-transform:uppercase;">
+YOUR FUNDS MAY BE AT RISK — ACT NOW</div>
+    <div id="vision-recovery-step-label" style="font-family:monospace;
+font-size:11px;color:rgba(255,200,0,.8);letter-spacing:.1em;
+margin-bottom:8px;text-transform:uppercase;">STEP 1 OF 3</div>
+    <div id="vision-recovery-step-text" style="font-size:1rem;
+font-weight:600;color:#fff;line-height:1.6;margin-bottom:24px;"></div>
+    <button id="vision-recovery-next"
+      style="background:rgba(255,255,255,.15);color:#fff;
+font-family:monospace;font-weight:700;font-size:13px;
+letter-spacing:.08em;border:2px solid rgba(255,255,255,.3);
+border-radius:8px;padding:14px 24px;cursor:pointer;
+text-transform:uppercase;min-height:52px;width:100%;">
+      NEXT STEP →
+    </button>
+    <button id="vision-recovery-help"
+      style="display:none;background:#fff;color:#b40000;
+font-family:monospace;font-weight:800;font-size:13px;
+letter-spacing:.08em;border:none;border-radius:8px;
+padding:14px 24px;cursor:pointer;text-transform:uppercase;
+min-height:52px;width:100%;margin-top:8px;">
+      HELP ME SET UP NEW WALLET
+    </button>
+    <button id="vision-recovery-close"
+      style="display:none;background:none;color:rgba(255,255,255,.4);
+font-family:monospace;font-size:11px;letter-spacing:.08em;
+border:none;padding:12px;cursor:pointer;text-transform:uppercase;
+width:100%;margin-top:4px;">
+      I UNDERSTAND THE RISK — CLOSE
+    </button>
+  </div>
+</div>
+<div id="mobile-nav-bar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:rgba(4,5,10,.95);padding:10px 16px;border-bottom:1px solid rgba(255,59,95,.15);align-items:center;gap:12px;">
+  <button onclick="window.history.back()" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);padding:6px 14px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.08em;">&larr; BACK</button>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,59,95,.8);letter-spacing:.15em;">ORACLE &mdash; PROTOCOL PULSE</span>
+</div>
+<div id="root">
+
+<!-- ══ GATE ══ -->
+<div id="gate">
+  <div class="gate-brand">Protocol Pulse</div>
+
+  <div class="sigil-wrap">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="sigil-avatar">
+      <img src="/static/oracle_avatar.png" alt="Satomi"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="sigil-fallback" style="display:none">⚡</div>
+    </div>
+    <div class="sigil-scan"></div>
+  </div>
+
+  <h1 class="gate-title">THE <span>SATOMI</span></h1>
+  <p class="gate-sub">Sovereign Bitcoin intelligence.<br>Ask anything, in real time.</p>
+  <p style="font-family:monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:.1em;margin-top:8px;">BUILD 56134105-v5</p>
+
+  <button id="gate-btn" onclick="requestMic()">
+    <div class="btn-sweep"></div>
+    <div class="btn-inner">
+      <div class="btn-label">Protocol Pulse Intelligence</div>
+      <div class="btn-text">
+        <svg class="btn-mic-icon" viewBox="0 0 24 24" fill="none">
+          <rect x="9" y="2" width="6" height="12" rx="3" fill="#ff3b5f"/>
+          <path d="M5 10a7 7 0 0014 0" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="19" x2="12" y2="22" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Speak to Satomi
+      </div>
+    </div>
+  </button>
+  <!-- ORACLE BUILD: 2026-03-25-v5 -->
+  <script>
+(function(){
+  window.onerror=function(msg,src,line){
+    var s=document.getElementById("gate-status");
+    if(s)s.textContent="JSERR:"+String(msg).substring(0,80)+" L"+line;
+    return false;
+  };
+  window.addEventListener("unhandledrejection",function(e){
+    var s=document.getElementById("gate-status");
+    if(s)s.textContent="PERR:"+(e.reason&&e.reason.message||String(e.reason));
+  });
+  window.addEventListener("pageshow",function(e){
+    if(e.persisted){ window.location.reload(); }
+  });
+})();
+</script>
+
+<script>
+/* ISOLATED GATE FUNCTIONS - separate script block, independent of main script */
+/* requestMic and go() are the only things needed to pass the gate */
+
+function requestMic(){
+  var gBtn=document.getElementById('gate-btn');
+  var gStatus=document.getElementById('gate-status');
+  var gErr=document.getElementById('gate-error');
+  var vid=document.getElementById('vid');
+  if(gBtn) gBtn.disabled=true;
+  if(gStatus) gStatus.textContent='Requesting microphone...';
+  if(gErr) gErr.style.display='none';
+
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    if(gStatus) gStatus.textContent='ERR: mediaDevices unavailable on this browser';
+    if(gBtn) gBtn.disabled=false;
+    return;
+  }
+  if(!window.isSecureContext){
+    if(gStatus) gStatus.textContent='ERR: page not served over HTTPS';
+    if(gBtn) gBtn.disabled=false;
+    return;
+  }
+
+  if(gStatus) gStatus.textContent='Calling getUserMedia...';
+  navigator.mediaDevices.getUserMedia({audio:true,video:false})
+    .then(function(stream){
+      stream.getTracks().forEach(function(t){t.stop();});
+      try{
+        var _ac=new(window.AudioContext||window.webkitAudioContext)();
+        var _b=_ac.createBuffer(1,1,22050);
+        var _s=_ac.createBufferSource();
+        _s.buffer=_b;_s.connect(_ac.destination);_s.start(0);
+        setTimeout(function(){try{_ac.close();}catch(e){}},500);
+      }catch(e){}
+      if(vid){vid.muted=true;vid.play().catch(function(){});}
+      window._chatAudioPlaying=false;
+      if(gStatus) gStatus.textContent='';
+      if(typeof go==='function'){ go(); }
+      else { if(gStatus) gStatus.textContent='ERR: go() not defined - main script failed'; }
+    })
+    .catch(function(err){
+      console.warn('[Satomi mic error]',err);
+      if(gBtn) gBtn.disabled=false;
+      if(gStatus) gStatus.textContent='';
+      if(gErr){
+        gErr.style.display='block';
+        var name=err&&err.name?err.name:'';
+        var msg=name==='NotAllowedError'?'Microphone access denied. Allow mic in browser settings.':
+                name==='NotFoundError'?'No microphone detected.':
+                'Microphone unavailable'+(name?' ('+name+')':'')+'.';
+        gErr.innerHTML='<div style="color:rgba(255,59,95,.8);font-size:12px;margin-bottom:10px;">'+msg+'</div>'
+          +'<button onclick="requestMic()" style="background:rgba(255,59,95,.15);border:1px solid rgba(255,59,95,.4);color:#ff3b5f;padding:10px 20px;border-radius:4px;cursor:pointer;font-size:12px;display:block;margin-bottom:8px;width:100%;">RETRY MIC ACCESS</button>'
+          +'<button onclick="goTextMode()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;padding:10px 20px;border-radius:4px;cursor:pointer;font-size:12px;display:block;width:100%;">CONTINUE WITH TEXT INPUT</button>';
+      }
+    });
+}
+</script>
+
+  <div id="gate-status">— tap to activate —</div>
+  <div id="gate-error"></div>
+  <!-- P0: Text input fallback when mic is unavailable -->
+  <div id="text-input-fallback" style="display:none;width:100%;max-width:320px;margin-top:12px;">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="text" id="text-input-field" placeholder="Type your question..."
+        style="flex:1;background:#0a0c12;border:1px solid rgba(255,59,95,.4);border-radius:4px;
+        padding:12px 14px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:13px;
+        outline:none;" onkeydown="if(event.key==='Enter')submitTextInput()">
+      <button onclick="submitTextInput()"
+        style="background:rgba(255,59,95,.15);border:1px solid rgba(255,59,95,.5);
+        border-radius:4px;padding:12px 16px;color:#ff3b5f;font-family:'JetBrains Mono',monospace;
+        font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;letter-spacing:.05em;">SEND</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LIVE STAGE ══ -->
+<div id="stage">
+
+  <div class="topbar">
+    <span class="topbar-brand">Satomi</span>
+    <div class="live-pill"><div class="live-dot"></div><span class="live-text">LIVE</span></div>
+    <a href="/" style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:22px;text-decoration:none;padding:4px 10px;line-height:1;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'" aria-label="Exit Satomi" title="Go to homepage">&times;</a>
+  </div>
+
+  <canvas id="bg-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;will-change:transform;"></canvas>
+
+  <canvas id="satomiOrbitCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;will-change:transform;border-radius:50%;"></canvas>
+
+  <div class="video-wrap" style="position:relative;z-index:1;background:#000;border-radius:50%;overflow:hidden;">
+    <div class="holo-scanline"></div>
+    <!-- P0-1: Static avatar always visible behind video — never black screen -->
+    <img id="avatar-idle" src="/static/oracle_avatar.png" alt="Satomi"
+         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;z-index:1;border-radius:50%;background:#000;"
+         onerror="this.style.background='radial-gradient(circle,#1a0608,#050203)'">
+    <canvas id="oracle-matrix" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:0.35;transition:opacity 0.5s;"></canvas>
+    <video id="vid" playsinline webkit-playsinline x-webkit-airplay="allow" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:2;"></video>
+    <!-- P0: Tap-to-play overlay for iOS Safari autoplay restrictions -->
+    <div id="tap-to-play" style="display:none;position:absolute;inset:0;z-index:10;background:rgba(0,0,0,.55);
+      border-radius:8px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:8px;"
+      onclick="dismissTapOverlay()">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="11" stroke="rgba(255,59,95,.7)" stroke-width="1.5"/>
+        <polygon points="10,7 10,17 18,12" fill="#ff3b5f"/>
+      </svg>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.8);text-transform:uppercase;">Tap to Play</span>
+    </div>
+  </div>
+
+  <div id="subtitle"></div>
+  <div id="oracle-action-card" style="display:none;margin-top:12px;max-width:min(440px,calc(100vw - 24px));width:100%;"></div>
+
+  <div id="stat">
+    <span class="spin" id="spin"></span>
+    <span id="stat-text">Ready</span>
+  </div>
+
+  <div id="tx"></div>
+
+  <div class="mic-area">
+    <button id="mic" disabled onclick="toggleMic()">
+      <svg id="i-mic" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect x="9" y="2" width="6" height="12" rx="3" fill="#ff3b5f"/>
+        <path d="M5 10a7 7 0 0014 0" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="12" y1="19" x2="12" y2="22" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="9" y1="22" x2="15" y2="22" stroke="#ff3b5f" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <svg id="i-stop" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:none">
+        <rect x="6" y="6" width="12" height="12" rx="2" fill="#fff"/>
+      </svg>
+    </button>
+    <span class="mic-hint" id="mic-hint">tap to speak</span>
+  </div>
+  <!-- P0: Stage text input — shown when mic is unavailable or as alternative -->
+  <div id="stage-text-input" style="display:none;width:100%;max-width:min(440px,calc(100vw - 24px));margin-top:4px;">
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input type="text" id="stage-text-field" placeholder="Type your question..."
+        style="flex:1;background:#080a0f;border:1px solid #1e2235;border-radius:4px;
+        padding:10px 12px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;
+        outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='rgba(255,59,95,.5)'" onblur="this.style.borderColor='#1e2235'" onkeydown="if(event.key==='Enter')stageTextSubmit()">
+      <button onclick="stageTextSubmit()"
+        style="background:#0a0c12;border:1px solid rgba(255,59,95,.4);border-radius:4px;
+        padding:10px 14px;color:#ff3b5f;font-family:'JetBrains Mono',monospace;font-size:11px;
+        font-weight:600;cursor:pointer;letter-spacing:.05em;">SEND</button>
+    </div>
+  </div>
+
+  <!-- Vision status + Camera button -->
+  <div id="vision-status"></div>
+  <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-top:4px">
+    <button id="cam-btn" onclick="triggerCamera()" title="Show Satomi your screen — she will guide you step by step">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#556" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="12" cy="13" r="4" stroke="#556" stroke-width="1.5"/>
+      </svg>
+    </button>
+    <span id="cam-btn-label" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#334;letter-spacing:.08em">ANALYZE HARDWARE</span>
+  </div>
+  <div id="vision-transcript-panel" style="display:none;
+  width:100%;max-width:min(440px,calc(100vw - 24px));
+  margin:12px auto 0;background:rgba(6,7,14,.9);
+  border:1px solid rgba(255,59,95,.15);border-radius:8px;
+  overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);">
+      <span style="font-family:monospace;font-size:10px;letter-spacing:.12em;
+  color:rgba(255,59,95,.8);text-transform:uppercase;">SESSION LOG</span>
+      <button id="vision-transcript-clear"
+        style="background:none;border:none;color:rgba(255,255,255,.3);
+  font-family:monospace;font-size:9px;letter-spacing:.08em;
+  cursor:pointer;text-transform:uppercase;padding:2px 6px;">
+        CLEAR
+      </button>
+    </div>
+    <div id="vision-transcript-entries" style="max-height:280px;
+  overflow-y:auto;padding:8px 0;"></div>
+  </div>
+
+  <input type="file" id="cam-input" accept="image/*" capture="environment" onchange="handleVisionUpload(event)">
+
+  <div id="cards">
+    <div class="card" onclick="si('SOVEREIGNTY_COLD_WALLET')">
+      <div class="card-title">&#128272; Self-Custody</div>
+      <a class="card-link" href="https://coldcard.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">coldcard.com &#8594;</a>
+    </div>
+    <div class="card" onclick="si('SOVEREIGNTY_NODE')">
+      <div class="card-title">&#9889; Run a Node</div>
+      <a class="card-link" href="https://getumbrel.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">getumbrel.com &#8594;</a>
+    </div>
+    <div class="card" onclick="si('SOVEREIGNTY_BITAXE')">
+      <div class="card-title">&#9935; Solo Mining</div>
+      <a class="card-link" href="https://curatedmining.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">curatedmining.com &#8594;</a>
+    </div>
+    <div class="card" onclick="si('SOVEREIGNTY_LIFE_INSURANCE')">
+      <div class="card-title">&#128737; BTC Insurance</div>
+      <a class="card-link" href="https://application.meanwhile.bm/start?referralCode=KKM73K" target="_blank" rel="noopener" onclick="event.stopPropagation()">meanwhile.bm &#8594;</a>
+    </div>
+  </div>
+
+</div><!-- /stage -->
+</div><!-- /root -->
+
+<script>
+'use strict';
+/* ── iOS zoom prevention ── */
+document.addEventListener('gesturestart',function(e){e.preventDefault();},{passive:false});
+document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preventDefault();},{passive:false});
+var A='https://avatar.protocolpulse.io';
+var S={
+  GREETING:"Hey. I'm Satomi — your Protocol Pulse intelligence anchor. On-chain, macro, geopolitical. What can I help you with?",
+  SOVEREIGNTY_INTRO:"Your sovereignty score is a snapshot of how free you actually are — how much of your financial life you've pulled out of legacy systems.",
+  SOVEREIGNTY_ASSESSMENT:"Four pillars: self-custody of your Bitcoin, your own node, private comms, and no KYC on your income. Where are you today?",
+  SOVEREIGNTY_COLD_WALLET:"If your Bitcoin is on an exchange, it's not yours — it's an IOU. A hardware wallet fixes that. I can walk you through it.",
+  SOVEREIGNTY_NODE:"Running your own node means you verify your own transactions. You don't trust, you verify. Umbrel on a Pi is the easiest path.",
+  SOVEREIGNTY_BITAXE:"Bitaxe is a solo miner you can run at home. A Bitcoin lottery ticket. Curated Mining also does white-glove setup.",
+  SOVEREIGNTY_LIFE_INSURANCE:"If you die with Bitcoin in cold storage and nobody knows the seed phrase, it's gone. Meanwhile offers life insurance that actually understands Bitcoin.",
+  SOVEREIGNTY_RESIDENCY:"Digital residency through Palau via RNS.ID gives you a second legal identity outside your home country. Real tax and privacy implications.",
+  DAILY_BRIEF_INTRO:"Here's what's moving in Bitcoin right now. Pulling the latest from our intelligence layer...",
+  DAILY_BRIEF_LIVE:"Here's today's Bitcoin intelligence brief.",
+  UNKNOWN_QUESTION:"I'm researching that now. One moment.",
+  GOODBYE:"Stack sats, verify everything, and come back anytime."
+};
+
+var busy=false,isRec=false,pending='',objURL=null,recognition=null;
+var _greeted=false;
+
+/* ── ORACLE STATE MACHINE ──
+   States: WELCOME → LISTENING → PROCESSING → RESPONDING → LISTENING
+   Every state shows the avatar face (never black screen).
+   LISTENING: mic active, avatar static idle visible, status "Ready"
+   PROCESSING: mic off, spinner, avatar idle visible
+   RESPONDING: video playing over idle bg, mic off
+*/
+var ORACLE_STATE = 'IDLE'; /* IDLE, WELCOME, LISTENING, PROCESSING, RESPONDING */
+function setOracleState(state){
+  ORACLE_STATE = state;
+  console.log('[Satomi] State →', state);
+  switch(state){
+    case 'LISTENING':
+      mic.disabled=false;
+      setStat('Ready','#334',false);
+      /* Ensure avatar idle is visible (video-wrap bg shows through when vid is transparent) */
+      vid.style.opacity='0';
+      break;
+    case 'PROCESSING':
+      mic.disabled=true;
+      if(isRec) stopRec();
+      break;
+    case 'RESPONDING':
+      mic.disabled=true;
+      if(isRec) stopRec();
+      break;
+    case 'WELCOME':
+      mic.disabled=true;
+      break;
+  }
+}
+
+var VISION_SPONSOR_MAP = {
+  'trezor':   { category:'amazon', title:'Trezor Hardware Wallet', id:'vision_trezor',
+    description:'The original Bitcoin hardware wallet. Battle-tested since 2014.',
+    url:'https://amzn.to/trezor', cta:'View on Amazon' },
+  'coldcard': { category:'affiliate', title:'Coldcard Mk4', id:'vision_coldcard',
+    description:'The most secure Bitcoin signing device. Air-gapped by default.',
+    url:'https://coldcard.com', cta:'Get Coldcard' },
+  'ledger':   { category:'amazon', title:'Ledger Hardware Wallet', id:'vision_ledger',
+    description:'Secure your Bitcoin with industry-leading hardware security.',
+    url:'https://amzn.to/ledger', cta:'View on Amazon' },
+  'bitaxe':   { category:'affiliate', title:'BitAxe Solo Miner', id:'vision_bitaxe',
+    description:'Open-source Bitcoin miner. Stack sats from your home.',
+    url:'https://bitaxe.org', cta:'Get BitAxe' },
+  'umbrel':   { category:'affiliate', title:'Umbrel Home Server', id:'vision_umbrel',
+    description:'Run your own Bitcoin node. Your keys, your coins.',
+    url:'https://umbrel.com', cta:'Run Umbrel' },
+  'start9':   { category:'affiliate', title:'Start9 Embassy', id:'vision_start9',
+    description:'Sovereign computing for the sovereign individual.',
+    url:'https://start9.com', cta:'Get Embassy' },
+  'seedsigner':{ category:'affiliate', title:'SeedSigner', id:'vision_seedsigner',
+    description:'Air-gapped signing device. Build your own or buy assembled.',
+    url:'https://seedsigner.com', cta:'Learn More' },
+  'passport': { category:'affiliate', title:'Foundation Passport', id:'vision_passport',
+    description:'Open-source, air-gapped Bitcoin hardware wallet.',
+    url:'https://foundationdevices.com', cta:'Get Passport' },
+  'jade':     { category:'affiliate', title:'Blockstream Jade', id:'vision_jade',
+    description:'Open-source hardware wallet with air-gapped signing.',
+    url:'https://store.blockstream.com', cta:'Get Jade' }
+};
+
+function pulseMic(){
+  if(!mic||mic.disabled||isRec)return;
+  mic.classList.remove('idle-pulse');
+  void mic.offsetWidth;
+  mic.classList.add('idle-pulse');
+  setStat('Tap mic to respond','#ff3b5f',false);
+  setTimeout(function(){mic.classList.remove('idle-pulse');setStat('Ready','#334',false);},6000);
+}
+
+/* FIX 4: Fallback tap-to-speak — if greeting played but mic never activated,
+   any tap on the stage area starts recognition */
+var _tapFallbackSet=false;
+function setupTapFallback(){
+  if(_tapFallbackSet)return;
+  _tapFallbackSet=true;
+  var _stageEl=document.getElementById('stage');
+  if(!_stageEl)return;
+  function _tapToSpeak(e){
+    /* Only fire if: greeted, not busy, mic not recording, recognition available */
+    if(!_greeted||busy||isRec||!recognition)return;
+    /* Don't intercept mic button clicks or other interactive elements */
+    if(e.target.closest&&(e.target.closest('#mic-btn')||e.target.closest('.action-card')||e.target.closest('#stage-text-input')))return;
+    console.log('[Satomi] Tap fallback — starting recognition');
+    setBusy(false);
+    mic.disabled=false;
+    safeStartRec();
+    setStat('Listening\u2026','#6cff9f',false);
+    /* Remove after first successful activation */
+    _stageEl.removeEventListener('click',_tapToSpeak);
+  }
+  _stageEl.addEventListener('click',_tapToSpeak);
+  console.log('[Satomi] Tap-to-speak fallback registered on stage');
+}
+
+// ── VISITOR FINGERPRINT ───────────────────────────────────
+// Generates a stable browser fingerprint — no cookies, no login
+// Used server-side to recognize returning visitors
+(function() {
+  try {
+    var fp = '';
+    // Canvas fingerprint
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillText('Satomi fp', 2, 2);
+    fp += canvas.toDataURL().slice(-20);
+    // Screen + timezone
+    fp += screen.width + 'x' + screen.height + Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Hash it (simple djb2)
+    var hash = 5381;
+    for (var i = 0; i < fp.length; i++) {
+      hash = ((hash << 5) + hash) + fp.charCodeAt(i);
+      hash = hash & hash; // 32-bit int
+    }
+    window._visitorToken = Math.abs(hash).toString(36);
+  } catch(e) {
+    window._visitorToken = 'anon';
+  }
+})();
+
+// Read session_id and page context from URL params (injected by widget)
+var _urlParams = new URLSearchParams(window.location.search);
+var SESSION_ID = _urlParams.get('session_id') || ('sess_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
+window.ORACLE_FINGERPRINT_MATCH = false;
+var PAGE_CONTEXT = {
+  type: _urlParams.get('page_type') || 'general',
+  path: _urlParams.get('page_path') || window.location.pathname,
+  content: null,
+  url: document.referrer || window.location.href,
+};
+
+// Receive richer context from parent widget via postMessage
+window.addEventListener('message', function(e) {
+  if (!e.data || typeof e.data !== 'object') return;
+  var d = e.data;
+  if (d.type === 'oracle:context') {
+    // Parent widget sent full page context
+    if (d.sessionId) SESSION_ID = d.sessionId;
+    if (d.pageContext) PAGE_CONTEXT = d.pageContext;
+  }
+});
+
+// Tell parent we want context (in case we loaded before message was sent)
+setTimeout(function(){
+  try{ if(window.parent!==window) window.parent.postMessage({type:'oracle:context_request'},'*'); }catch(e){}
+},300);
+
+/* DOM */
+var gate=document.getElementById('gate');
+var stage=document.getElementById('stage');
+var gBtn=document.getElementById('gate-btn');
+/* iOS bfcache fix: always reset gate button on page load */
+if(gBtn){ gBtn.disabled=false; }
+var gStatus=document.getElementById('gate-status');
+/* iOS bfcache: re-enable gate button when page is restored from cache */
+window.addEventListener('pageshow', function(e){
+  if(e.persisted){ window.location.reload(); }
+});
+var gErr=document.getElementById('gate-error');
+var vid=document.getElementById('vid');
+var sub=document.getElementById('subtitle');
+var statEl=document.getElementById('stat-text');
+var spinEl=document.getElementById('spin');
+var txEl=document.getElementById('tx');
+var mic=document.getElementById('mic');
+var micHint=document.getElementById('mic-hint');
+var iMic=document.getElementById('i-mic');
+var iStop=document.getElementById('i-stop');
+var cards=document.getElementById('cards');
+
+/* ── MIC REQUEST ── */
+/* requestMic defined in isolated block above */
+
+/* ── TRANSITION ── */
+/* ── HOLOGRAM BEAM-IN ── */
+function holoBeamIn(){
+  var wrap=document.querySelector('.video-wrap');
+  if(!wrap)return;
+  wrap.classList.remove('oracle-hologram-enter','oracle-hologram-flicker');
+  void wrap.offsetWidth; /* force reflow for animation restart */
+  wrap.classList.add('oracle-hologram-enter');
+  setTimeout(function(){wrap.classList.remove('oracle-hologram-enter');},700);
+  setTimeout(function(){wrap.classList.add('oracle-hologram-flicker');},800);
+}
+
+function go(){
+  gate.style.opacity='0';
+  setTimeout(function(){
+    gate.style.display='none';
+    stage.style.display='flex';
+    stage.style.opacity='0';
+    setTimeout(function(){
+      stage.style.transition='opacity .45s';
+      stage.style.opacity='1';
+      holoBeamIn();
+      initSR();
+      setOracleState('WELCOME');
+      playIntent('GREETING');
+      setupTapFallback(); /* FIX 4: register tap-to-speak safety net */
+    },30);
+  },350);
+}
+
+/* ── PLAY CACHED INTENT ── */
+function playIntent(intent){
+  if(busy&&intent!=='GREETING')return;
+  if(intent.indexOf('DAILY_BRIEF')===0&&window._briefFetched)return;
+  setBusy(true);
+  setStat('Satomi loading\u2026','#f4c46f',true);
+  // Show thinking loop during intent loading (never dark screen)
+  try{vid.muted=true;vid.loop=true;vid.src=A+'/oracle/thinking';vid.style.opacity='1';vid.play().catch(function(){vid.style.opacity='0';});}catch(e){}
+  // Progress messages so user knows it's working, not broken
+  var _loadMsgs = ['Initializing\u2026','Rendering response\u2026','Almost ready\u2026'];
+  var _loadIdx = 0;
+  var _loadTimer = setInterval(function(){
+    _loadIdx++;
+    if(_loadIdx < _loadMsgs.length) setStat(_loadMsgs[_loadIdx],'#f4c46f',true);
+    else clearInterval(_loadTimer);
+  }, 6000);
+  var _clearTimer = function(){ clearInterval(_loadTimer); };
+  fetchTO(A+'/oracle/speak',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({intent:intent})
+  },30000)
+  .then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var ct=r.headers.get('content-type')||'';
+    if(ct.indexOf('video')>=0)return r.blob().then(blobURL);
+    return r.json().then(function(j){
+      return fetchTO(A+j.video_url,{},20000).then(function(r2){return r2.blob().then(blobURL);});
+    });
+  })
+  .then(function(url){
+    if(typeof _clearTimer=='function') _clearTimer();
+    /* FIX 2: Start independent mic activation timer BEFORE video plays.
+       This fires regardless of whether playVid() Promise resolves. */
+    if(intent==='GREETING'){
+      var _estDuration=8; /* estimated greeting video duration in seconds */
+      console.log('[Satomi] Greeting video starting — mic timer set for',_estDuration+1,'s');
+      setTimeout(function(){
+        console.log('[Satomi] Independent mic timer fired — _greeted:',_greeted,'busy:',busy,'isRec:',isRec);
+        if(_greeted&&!busy&&!isRec&&mic){
+          mic.disabled=false;
+          safeStartRec();
+          setStat('Listening\u2026','#6cff9f',false);
+        }
+      },(_estDuration+1)*1000);
+    }
+    return playVid(url);
+  })
+  .then(function(){
+    if(intent==='SOVEREIGNTY_ASSESSMENT')showCards();
+    /* FIX 4: Always reset _audioFinished after response plays */
+    _audioFinished=false;
+    if(intent==='GREETING'){
+      window._briefFetched=false;
+      _greeted=true;
+      console.log('[Satomi] Greeting .then() — activating mic');
+      /* FIX 3: Explicit setBusy(false) BEFORE mic activation */
+      setBusy(false);
+      setOracleState('LISTENING');
+      /* FIX 2 cont: fresh SR instance per turn — iOS Safari multi-turn fix */
+      if(!isRec&&mic){
+        mic.disabled=false;
+        safeStartRec();
+        setStat('Listening\u2026','#6cff9f',false);
+      }
+    }
+  })
+  .catch(function(e){
+    console.warn('[Satomi] playIntent catch:',e);
+    /* On any error (including playVid timeout), ensure mic activates for greeting */
+    if(intent==='GREETING'){
+      _greeted=true;
+      setBusy(false);
+      setOracleState('LISTENING');
+      if(!isRec&&mic){
+        mic.disabled=false;
+        safeStartRec();
+        setStat('Listening\u2026','#6cff9f',false);
+      }
+    } else {
+      if(e&&e.message&&String(e.message).indexOf('HTTP')>=0)
+        setStat('Satomi error \u2014 try again.','#ff3b5f',false);
+    }
+  })
+  .finally(function(){
+    setBusy(false);
+    setOracleState('LISTENING');
+    setTimeout(pulseMic,500);
+  });
+}
+
+function si(intent){if(busy)return;hideCards();playIntent(intent);}
+
+/* ── PROCESS SPEECH (two-phase: audio-first + async video) ── */
+function process(text){
+  console.log('[Satomi] process() called — text:',JSON.stringify((text||'').substring(0,50)),'busy:',busy);
+  /* FIX: Hard-stop any currently playing video/audio before starting response */
+  try{vid.pause();vid.loop=false;}catch(e){} /* do not mute — let playVid control mute state */
+  try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;window._chatAudioPlaying=false;}}catch(e){}
+  _audioFinished=false;
+  var _audioFirstMode=false;
+  if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+  if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+  if(!text.trim()||busy)return;
+  // Guard: mark brief as fetched to prevent double-play with DAILY_BRIEF_INTRO
+  if(/daily\s*brief/i.test(text)) window._briefFetched=true;
+  setOracleState('PROCESSING');
+  setBusy(true);hideCards();hideActionCard();showTX(text);
+
+  /* ── 30s global safety timeout — if nothing plays in 30s, show retry prompt ── */
+  var _globalTimeout=setTimeout(function(){
+    if(!busy)return; /* Already resolved */
+    console.warn('[Satomi] 30s global timeout — resetting');
+    try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioPlaying=false;}}catch(e){}
+    try{vid.pause();vid.loop=false;vid.style.opacity='0';}catch(e){}
+    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+    setBusy(false);
+    setOracleState('LISTENING');
+    setStat('Satomi needs a moment \u2014 tap to try again','#f4c46f',false);
+    mic.disabled=false;
+    setTimeout(safeStartRec, 800);
+  },30000);
+  /* Store so we can cancel it on success */
+  window._globalTimeout=_globalTimeout;
+
+  // P0-3: Elapsed time counter — show "Satomi is thinking... Xs" with live counter
+  var _thinkStart=Date.now();
+  var _thinkReassured=false;
+  setStat('Satomi is thinking\u2026 0s','#f4c46f',true);
+  var _thinkTimer=setInterval(function(){
+    var elapsed=Math.floor((Date.now()-_thinkStart)/1000);
+    // P0-4: Reassurance message after 15s
+    if(elapsed>=15&&!_thinkReassured){
+      _thinkReassured=true;
+      setStat('Rendering your brief\u2026 '+elapsed+'s','#f4c46f',true);
+    } else if(!_thinkReassured){
+      setStat('Satomi is thinking\u2026 '+elapsed+'s','#f4c46f',true);
+    } else {
+      setStat('Rendering your brief\u2026 '+elapsed+'s','#f4c46f',true);
+    }
+  },1000);
+  window._thinkTimer=_thinkTimer;
+
+  // Phase 2 T1.4: Play thinking loop immediately for instant visual feedback
+  // P0-2: Add onerror fallback — if thinking video fails, show static avatar
+  vid.muted=true;
+  vid.loop=true;
+  vid.src=A+'/oracle/thinking';
+  vid.style.opacity='1';
+  vid.onerror=function(){
+    console.warn('[Satomi] thinking video failed — showing static avatar');
+    vid.style.opacity='0'; /* static avatar image underneath is always visible */
+  };
+  vid.play().catch(function(e){
+    console.warn('[Satomi] thinking autoplay blocked:',e);
+    vid.style.opacity='0'; /* fallback to static avatar */
+  });
+
+  // Re-unlock audio context on every user interaction
+  try{
+    var _ac=new(window.AudioContext||window.webkitAudioContext)();
+    if(_ac.state==='suspended') _ac.resume();
+    var _buf=_ac.createBuffer(1,1,22050);
+    var _src=_ac.createBufferSource();
+    _src.buffer=_buf;_src.connect(_ac.destination);_src.start(0);
+    setTimeout(function(){try{_ac.close();}catch(e){}},300);
+  }catch(e){}
+
+  var pendingVideoUrl=null;
+  var _audioFinished=false;
+
+  /* ── AUDIO-FIRST FLOW ──
+     1. POST /oracle/chat with audio_first:true
+     2. Server returns JSON: {text, job_id, audio_url, video_pending}
+     3. Immediately fetch audio_url → play through <audio> (avatar stays in thinking loop)
+     4. Poll /oracle/job/<id> for lip-sync video
+     5. When video ready, play it (replaces thinking loop)
+     6. If audio fetch fails, fall back to video-only poll
+  */
+
+  fetchTO(A+'/oracle/chat',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:text,session_id:SESSION_ID,visitor_token:window._visitorToken||'anon',use_cache_for_intents:true,page_context:PAGE_CONTEXT,audio_first:true,avatar_source:"oracle_studio"})
+  },90000)
+  .then(function(r){
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var ct=r.headers.get('content-type')||'';
+    if(ct.indexOf('video')>=0){
+      /* Cache hit — video came back immediately (non-audio-first path) */
+      return r.blob().then(blobURL).then(function(url){ return playVid(url); });
+    }
+    /* Audio-first JSON response */
+    return r.json().then(function(j){
+      _audioFirstMode=true;
+      var responseText=j.text;
+      var videoJobId=j.job_id;
+      var audioUrl=j.audio_url;
+      var _pendingCard = j.action_card || null;
+      var _pollAttempts=0, _maxAttempts=45, _pollDone=false;
+
+      /* ── STEP A: Fetch and play audio immediately ── */
+      function _playAudioFirst(){
+        return new Promise(function(resolve){
+          if(!audioUrl||!videoJobId){resolve(false);return;}
+          /* Poll for audio (TTS runs async in render_async, may take 1-3s) */
+          var _audioPollCount=0;
+          function _tryAudio(){
+            _audioPollCount++;
+            if(_audioPollCount>10){console.warn('[Satomi] Audio poll gave up');resolve(false);return;}
+            fetch(A+audioUrl)
+              .then(function(ar){
+                if(ar.status===200 && (ar.headers.get('content-type')||'').indexOf('audio')>=0){
+                  return ar.blob();
+                }
+                /* 202 = not ready yet, retry */
+                if(ar.status===202){setTimeout(_tryAudio,500);return null;}
+                resolve(false);return null;
+              })
+              .then(function(ab){
+                if(!ab)return;
+                /* Got audio — play it immediately */
+                var aUrl=URL.createObjectURL(ab);
+                var audioEl=window._chatAudioEl;
+                if(!audioEl){
+                  audioEl=document.createElement('audio');
+                  audioEl.id='satomi-chat-audio';
+                  document.body.appendChild(audioEl);
+                  window._chatAudioEl=audioEl;
+                }
+                audioEl.pause();audioEl.currentTime=0;
+                audioEl.src=aUrl;
+                audioEl.volume=1.0;
+                window._chatAudioPlaying=true;
+                /* Stop thinking timer, update status */
+                if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+                /* Cancel global timeout — audio is playing */
+                if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+                setStat('Satomi is speaking','#6cff9f',false);
+                setOracleState('RESPONDING');
+                audioEl.onended=function(){
+                  window._chatAudioPlaying=false;
+                  _audioFinished=true;
+                  try{URL.revokeObjectURL(aUrl);}catch(e){}
+                  /* If video already played or is playing, don't touch state */
+                  if(_pollDone) return;
+                  /* Audio finished but video still rendering — show status, keep polling */
+                  setStat('Video rendering\u2026','#f4c46f',false);
+                };
+                audioEl.onerror=function(){
+                  window._chatAudioPlaying=false;
+                  _audioFinished=true;
+                  try{URL.revokeObjectURL(aUrl);}catch(e){}
+                };
+                audioEl.play().then(function(){resolve(true);}).catch(function(e){
+                  console.warn('[Satomi] Audio autoplay blocked:',e);
+                  resolve(false);
+                });
+              })
+              .catch(function(){resolve(false);});
+          }
+          /* Start first audio poll after 500ms (give TTS time to run) */
+          setTimeout(_tryAudio,500);
+        });
+      }
+
+      /* ── STEP B: Poll for lip-sync video ── */
+      function _pollForVideo(){
+        if(_pollDone) return;
+        _pollAttempts++;
+        /* Only update thinking status if audio hasn't started playing */
+        if(!window._chatAudioPlaying&&!_audioFinished){
+          var _thinkSec=Math.round(_pollAttempts*2);
+          setStat('Satomi is thinking\u2026 '+_thinkSec+'s','#f4c46f',true);
+        }
+        fetch(A+'/oracle/job/'+videoJobId)
+          .then(function(vr){
+            if(_pollDone) return null;
+            if(vr.status===200 && (vr.headers.get('content-type')||'').indexOf('video')>=0){
+              return vr.blob();
+            }
+            return null;
+          })
+          .then(function(vb){
+            if(_pollDone) return;
+            if(vb && vb.size > 10000){
+              _pollDone=true;
+              var url=blobURL(vb);
+              if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+              /* Cancel global timeout — video is ready */
+              if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+              /* Stop audio if still playing — video has baked audio */
+              try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioEl.currentTime=0;window._chatAudioPlaying=false;}}catch(e){}
+              setStat('Speaking','#6cff9f',false);
+              playVid(url)
+                .then(function(){
+                  setBusy(false);
+                  setOracleState('LISTENING');
+                  hideTX();
+                  setTimeout(safeStartRec, 600);
+                })
+                .catch(function(e){
+                  console.warn('[Satomi] playVid error:',e);
+                  setBusy(false);
+                  setOracleState('LISTENING');
+                  setTimeout(safeStartRec, 600);
+                });
+            } else if(_pollAttempts < _maxAttempts){
+              setTimeout(_pollForVideo, 2000);
+            } else {
+              /* Video poll timeout — if audio played, that's OK, just restart */
+              console.warn('[Satomi] Video poll timeout');
+              _pollDone=true;
+              if(_audioFinished||window._chatAudioPlaying){
+                /* Audio already played/playing — wait for it to finish, then restart */
+                function _waitAudioEnd(){
+                  if(!window._chatAudioPlaying){
+                    setBusy(false);setOracleState('LISTENING');
+                    setStat('Tap mic to respond','#334',false);
+                    setTimeout(safeStartRec, 600);
+                  } else { setTimeout(_waitAudioEnd,500); }
+                }
+                _waitAudioEnd();
+              } else {
+                setBusy(false);setOracleState('LISTENING');
+                setStat('Tap mic to respond','#ff3b5f',false);
+                setTimeout(safeStartRec, 800);
+              }
+            }
+          })
+          .catch(function(){ if(_pollAttempts < _maxAttempts && !_pollDone) setTimeout(_pollForVideo,2000); });
+      }
+
+      /* ── Launch audio fetch + video poll in parallel ── */
+      _playAudioFirst().then(function(audioPlayed){
+        if(!audioPlayed){
+          console.log('[Satomi] Audio-first failed, falling back to video-only poll');
+        } else {
+          console.log('[Satomi] Audio playing, polling for lip-sync video in background');
+        }
+      });
+      /* Start video poll after 2s (give GPU time) */
+      setTimeout(_pollForVideo, 2000);
+
+      return Promise.resolve();
+    });
+  })
+  .then(function(){
+    /* In audio-first mode, audio/video handlers manage mic restart */
+    if(_audioFirstMode) return;
+    /* Auto-restart mic after every response — conversational flow */
+    setTimeout(function(){
+      if(_greeted&&!busy&&!isRec&&mic){
+        safeStartRec();
+      }
+    }, 800);
+  })
+  .catch(function(e){
+    console.error('process error:',e);
+    var msg=(e&&e.message)||'';
+    /* Stop any playing audio on error */
+    try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioPlaying=false;}}catch(ex){}
+    /* P1: 429/503 — server overloaded, auto-retry after 5s */
+    if(msg.indexOf('429')>=0||msg.indexOf('503')>=0){
+      vid.style.opacity='0';
+      setStat('Satomi is meditating\u2026 retrying in 5s','#f4c46f',true);
+      var _retryText=text;
+      setTimeout(function(){
+        setBusy(false);
+        if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+        setOracleState('LISTENING');
+        if(_retryText)process(_retryText);
+      },5000);
+      return;
+    } else if(msg.indexOf('timeout')>=0){
+      vid.style.opacity='0';
+      setStat('Request timed out \u2014 tap mic to retry','#f4c46f',false);
+    } else if(msg.indexOf('HTTP')>=0){
+      vid.style.opacity='0';
+      setStat('Satomi error \u2014 tap mic to retry','#ff3b5f',false);
+    } else if(msg.indexOf('Failed to fetch')>=0||msg.indexOf('NetworkError')>=0){
+      vid.style.opacity='0';
+      setStat('Network error \u2014 check connection','#ff3b5f',false);
+    }
+  })
+  .finally(function(){
+    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+    if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+    /* In audio-first mode, state is managed by audio/video completion handlers — NOT here */
+    if(_audioFirstMode) return;
+    /* Original video-only cleanup */
+    if(!window._chatAudioPlaying){
+      setBusy(false);hideTX();
+      setOracleState('LISTENING');
+    }
+    setTimeout(function(){
+      if(_greeted&&!busy&&!isRec&&mic){
+        safeStartRec();
+      }
+    }, 1000);
+  });
+}
+
+function blobURL(b){
+  if(objURL)try{URL.revokeObjectURL(objURL);}catch(e){}
+  objURL=URL.createObjectURL(b);
+  return objURL;
+}
+
+/* ── PLAY VIDEO (FIX 1: settled guard + timeupdate fallback + dynamic timeout) ── */
+function playVid(url){
+  return new Promise(function(res,rej){
+    console.log('[Satomi] playVid called:',url&&url.substring(0,60));
+    setOracleState('RESPONDING');
+    /* FORENSIC FIX: Fully reset video element before loading new source.
+       iOS Safari requires pause+clear+load when switching from thinking loop.
+       Without this, iOS shows the frozen last frame of the previous video. */
+    vid.onerror=null;vid.onended=null;vid.ontimeupdate=null;
+    vid.pause();
+    vid.removeAttribute('src');
+    vid.load();
+    vid.loop=false;
+    vid.muted=false; /* Always unmute — the video IS the audio source */
+    vid.src=url;
+    vid.style.opacity='1';
+    if(window._matrixHide) window._matrixHide();
+
+    /* Settled guard — prevents double-resolution from onended/onerror/safety/timeupdate */
+    var _settled=false;
+    function _finish(ok){
+      if(_settled)return;
+      _settled=true;
+      clearTimeout(_safetyTimer);
+      clearTimeout(_dynamicTimer);
+      vid.ontimeupdate=null;
+      if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+      console.log('[Satomi] playVid settled via:',ok?'success':'error/timeout');
+      vid.onended=null;vid.onerror=null;
+      vid.style.opacity='0';
+      setTimeout(function(){ try{vid.pause();vid.removeAttribute('src');vid.load();}catch(e){} },300);
+      if(window._matrixShow) window._matrixShow();
+      hideSub();
+      try{if(window.parent!==window) window.parent.postMessage({type:'oracle:idle'},'*');}catch(e){}
+      /* FIX 1: Always resolve — even on error — so .then() chain continues */
+      res();
+    }
+
+    /* Safety timeout: fixed 12s fallback (covers worst case if duration unknown) */
+    var _safetyTimer=setTimeout(function(){
+      if(!_settled){
+        console.warn('[Satomi] Safety timeout — forcing playVid resolve');
+        setStat('Ready','#6cff9f',false);
+        _finish(false);
+      }
+    },12000);
+
+    /* Dynamic timeout: set once we know actual duration (duration + 3s buffer) */
+    var _dynamicTimer=null;
+    vid.addEventListener('loadedmetadata',function _onmeta(){
+      vid.removeEventListener('loadedmetadata',_onmeta);
+      if(_settled)return;
+      var dur=vid.duration;
+      if(dur&&isFinite(dur)){
+        clearTimeout(_safetyTimer);
+        var timeoutMs=Math.ceil(dur*1000)+3000;
+        console.log('[Satomi] Dynamic timeout set:',timeoutMs+'ms for',dur+'s video');
+        _dynamicTimer=setTimeout(function(){
+          if(!_settled){
+            console.warn('[Satomi] Dynamic safety timeout fired after',dur+'s video');
+            setStat('Ready','#6cff9f',false);
+            _finish(false);
+          }
+        },timeoutMs);
+      }
+    });
+
+    /* timeupdate near-end fallback: catches iOS onended suppression */
+    vid.ontimeupdate=function(){
+      if(!_settled&&vid.duration>0&&vid.currentTime>=vid.duration-0.3){
+        console.log('[Satomi] timeupdate near-end fallback triggered');
+        _finish(true);
+      }
+    };
+
+    try{if(window.parent!==window) window.parent.postMessage({type:'oracle:speaking'},'*');}catch(e){}
+    vid.onended=function(){
+      console.log('[Satomi] vid.onended fired');
+      _finish(true);
+    };
+    vid.onerror=function(e){
+      console.warn('[Satomi] vid.onerror:',e);
+      /* FORENSIC FIX: No "Recovering" deadlock — finish cleanly so state machine continues */
+      _finish(false);
+    };
+    /* Status update when video starts playing */
+    vid.addEventListener('canplay',function oncp(){
+      vid.removeEventListener('canplay',oncp);
+      setStat('Speaking','#6cff9f',false);
+      vid.muted=false; /* Ensure unmuted — no conditions */
+      vid.volume=1.0;
+    },{once:true});
+    var p=vid.play();
+    if(p){
+      p.then(function(){}).catch(function(err){
+        console.warn('[Satomi] vid.play() rejected (autoplay):',err);
+        /* P0: iOS Safari — show centered tap-to-play overlay */
+        showTapOverlay();
+      });
+    }
+  });
+}
+
+/* ── SPEECH RECOGNITION ── */
+function initSR(){
+  /* iOS-safe: test only, actual instances created fresh per session */
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ micHint.textContent='no speech api'; return; }
+  window._SR = SR; /* store constructor */
+  console.log('[Satomi] SR available');
+}
+
+function _newRecognition(){
+  if(!window._SR) return null;
+  var r = new window._SR();
+  r.continuous = false;       /* single-shot: fires onend reliably on iOS */
+  r.interimResults = true;
+  r.lang = 'en-US';
+  r.maxAlternatives = 1;
+  return r;
+}
+
+function toggleMic(){
+  if(busy) return;
+  /* Debounce: ignore taps within 600ms of last tap to prevent double-click glitch */
+  var now = Date.now();
+  if(window._lastMicTap && now - window._lastMicTap < 600) return;
+  window._lastMicTap = now;
+  if(isRec){ _submitSpeech(); } else { startRec(); }
+}
+
+function startRec(){
+  if(!window._SR){ setStat('No speech API','#ff3b5f',false); return; }
+  if(isRec) return; /* already recording */
+
+  /* Always create fresh recognition instance — iOS InvalidStateError fix */
+  recognition = _newRecognition();
+  if(!recognition) return;
+
+  var _transcript = '';   /* captured in closure — survives onend */
+  var _submitted  = false;
+
+  recognition.onresult = function(e){
+    var fin='', int='';
+    for(var i=0; i<e.results.length; i++){
+      if(e.results[i].isFinal) fin += e.results[i][0].transcript;
+      else                      int += e.results[i][0].transcript;
+    }
+    if(fin){ _transcript = fin; }
+    else if(int && !_transcript){ _transcript = int; } /* keep best */
+    showTX(_transcript || int);
+    pending = _transcript; /* keep global in sync */
+  };
+
+  recognition.onend = function(){
+    setRec(false); isRec = false;
+    var text = (_transcript || pending || '').trim();
+    _transcript = ''; pending = ''; window._interimPending = '';
+    console.log('[Satomi] onend text:', JSON.stringify(text.substring(0,50)), 'busy:', busy, 'submitted:', _submitted);
+    if(_submitted) return; /* already handled by _submitSpeech */
+    if(text && !busy){
+      setStat('Processing…','#f4c46f',true);
+      setTimeout(function(){ process(text); }, 100);
+    } else if(!busy && _greeted){
+      /* No speech — restart listening after brief pause */
+      setStat('Listening…','#6cff9f',false);
+      setTimeout(safeStartRec, 600);
+    }
+  };
+
+  recognition.onerror = function(e){
+    console.warn('[Satomi] SR error:', e.error);
+    setRec(false); isRec = false;
+    if(e.error === 'no-speech'){
+      if(_greeted && !busy) setTimeout(safeStartRec, 600);
+    } else if(e.error === 'not-allowed'){
+      setStat('Mic permission denied','#ff3b5f',false);
+    }
+  };
+
+  isRec = true; setRec(true);
+  setStat('Listening…','#6cff9f',false);
+  pending = ''; _transcript = '';
+  try{
+    recognition.start();
+    console.log('[Satomi] recognition.start() OK');
+  } catch(e){
+    console.warn('[Satomi] recognition.start() error:', e.message);
+    isRec = false; setRec(false);
+    setStat('Tap mic to speak','#ff3b5f',false);
+  }
+}
+
+/* ── safeStartRec: iOS Safari multi-turn fix ──
+   Creates fresh SR instance via startRec() with error recovery + 3s fallback.
+   Use this INSTEAD of raw startRec() from async callbacks (timeouts, promises).
+   Prevents iOS Safari bug where recognition.start() silently fails after 2-3 turns. */
+function safeStartRec(){
+  if(busy || isRec) return;
+  try{
+    startRec();
+    /* 3s watchdog: if mic hasn't activated, show tap-to-speak hint */
+    setTimeout(function(){
+      if(!isRec && !busy && _greeted){
+        console.warn('[Satomi] safeStartRec 3s watchdog — mic failed to activate');
+        setStat('Tap mic to speak','#ff3b5f',false);
+        mic.disabled=false;
+        micHint.textContent='tap to speak';
+      }
+    }, 3000);
+  } catch(e){
+    console.warn('[Satomi] safeStartRec failed:', e);
+    isRec=false; setRec(false);
+    mic.disabled=false;
+    setStat('Tap mic to speak','#ff3b5f',false);
+  }
+}
+
+function _submitSpeech(){
+  /* Called by tap-to-send — stop recognition and submit what we have */
+  if(!recognition) return;
+  var text = (pending || window._interimPending || '').trim();
+  console.log('[Satomi] _submitSpeech:', JSON.stringify(text.substring(0,40)));
+  if(text && !busy){
+    /* Mark as submitted so onend doesn't double-submit */
+    try{ recognition._submitted = true; }catch(e){}
+    isRec = false; setRec(false);
+    try{ recognition.stop(); }catch(e){}
+    setStat('Processing…','#f4c46f',true);
+    setTimeout(function(){ process(text); pending=''; window._interimPending=''; }, 150);
+  } else {
+    /* No text yet — just stop, onend will handle */
+    isRec = false; setRec(false);
+    try{ recognition.stop(); }catch(e){}
+  }
+}
+
+function stopRec(){
+  /* Called internally — just stop, let onend handle submission */
+  isRec = false; setRec(false);
+  if(recognition) try{ recognition.stop(); }catch(e){}
+}
+
+function setRec(on){
+  mic.classList.toggle('rec',on);
+  iMic.style.display  = on?'none':'block';
+  iStop.style.display = on?'block':'none';
+  micHint.textContent = on?'tap to send':'tap to speak';
+}
+
+/* ── HELPERS ── */
+function setStat(t,c,sp){statEl.textContent=t;statEl.style.color=c||'#334';spinEl.style.display=sp?'block':'none';spinEl.style.color=c||'#334';}
+function setBusy(b){busy=b;if(b){mic.disabled=true;window._busyTimestamp=Date.now();if(isRec)stopRec();}else{mic.disabled=false;window._busyTimestamp=null;}}
+/* Busy watchdog: force-reset if stuck >45s */
+setInterval(function(){
+  if(busy && window._busyTimestamp && Date.now()-window._busyTimestamp>45000){
+    console.warn('[Satomi] Busy watchdog: forced reset after 45s');
+    try{if(window._chatAudioEl){window._chatAudioEl.pause();window._chatAudioPlaying=false;}}catch(e){}
+    try{vid.pause();vid.loop=false;vid.style.opacity='0';}catch(e){}
+    if(window._globalTimeout){clearTimeout(window._globalTimeout);window._globalTimeout=null;}
+    if(window._thinkTimer){clearInterval(window._thinkTimer);window._thinkTimer=null;}
+    setBusy(false);setOracleState('LISTENING');
+    setStat('Tap mic to speak','#6cff9f',false);
+    setTimeout(safeStartRec,800);
+  }
+},5000);
+function showSub(t){sub.textContent=t;sub.classList.add('on');}
+function hideSub(){sub.classList.remove('on');}
+function showTX(t){txEl.textContent=t;txEl.classList.add('on');}
+function hideTX(){txEl.classList.remove('on');}
+function showCards(){cards.classList.add('on');}
+function hideCards(){cards.classList.remove('on');}
+
+/* ── TAP-TO-PLAY OVERLAY (P0: iOS Safari autoplay) ── */
+function showTapOverlay(){
+  var ov=document.getElementById('tap-to-play');
+  if(ov){ov.style.display='flex';}
+  setStat('Tap to play','#f4c46f',false);
+  /* P2 FORENSIC FIX (Grok): Auto-dismiss after 10s if user ignores — prevents permanent UI block */
+  setTimeout(function(){
+    if(ov&&ov.style.display==='flex'){
+      ov.style.display='none';
+      vid.style.opacity='0';
+      setStat('Ready','#334',false);
+      setBusy(false);
+      setOracleState('LISTENING');
+    }
+  },10000);
+}
+function dismissTapOverlay(){
+  var ov=document.getElementById('tap-to-play');
+  if(ov){ov.style.display='none';}
+  vid.muted=false;vid.volume=1.0;
+  vid.play().then(function(){
+    setStat('Speaking','#6cff9f',false);
+  }).catch(function(e){
+    console.warn('[Satomi] tap-to-play retry failed:',e);
+    vid.style.opacity='0';
+    setStat('Ready','#334',false);
+  });
+}
+
+/* ── TEXT INPUT FALLBACK (P0: mic failure → text mode) ── */
+var _textMode=false;
+function goTextMode(){
+  /* Skip mic, transition straight to stage with text input visible */
+  _textMode=true;
+  gBtn.disabled=true;
+  gErr.style.display='none';
+  /* Unlock audio context on this user gesture (same as requestMic) */
+  try{
+    var _ac=new(window.AudioContext||window.webkitAudioContext)();
+    var _buf=_ac.createBuffer(1,1,22050);var _src=_ac.createBufferSource();
+    _src.buffer=_buf;_src.connect(_ac.destination);_src.start(0);
+    setTimeout(function(){try{_ac.close();}catch(e){}},300);
+  }catch(e){}
+  vid.muted=true;vid.play().catch(function(){});
+  window._audioUnlocked=new Audio();
+  window._audioUnlocked.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQIAAAABAA==';
+  window._audioUnlocked.volume=0.001;
+  window._audioUnlocked.play().catch(function(){});
+  window._chatAudioPlaying=false;
+  gate.style.opacity='0';
+  setTimeout(function(){
+    gate.style.display='none';
+    stage.style.display='flex';
+    stage.style.opacity='0';
+    setTimeout(function(){
+      stage.style.transition='opacity .45s';
+      stage.style.opacity='1';
+      holoBeamIn();
+      /* Show text input, hide mic area, init speech recognition (may still work for some) */
+      document.getElementById('stage-text-input').style.display='block';
+      mic.disabled=true;
+      micHint.textContent='text mode';
+      initSR();
+      setOracleState('WELCOME');
+      playIntent('GREETING');
+      /* After greeting, enable mic if SR is available as bonus */
+      setTimeout(function(){
+        if(recognition){mic.disabled=false;micHint.textContent='tap to speak';}
+      },8000);
+    },30);
+  },350);
+}
+function submitTextInput(){
+  var field=document.getElementById('text-input-field');
+  var text=(field.value||'').trim();
+  if(!text)return;
+  field.value='';
+  goTextMode();
+  /* Queue the text to process after greeting finishes */
+  var _waitGreeting=setInterval(function(){
+    if(!busy){clearInterval(_waitGreeting);process(text);}
+  },500);
+}
+function stageTextSubmit(){
+  var field=document.getElementById('stage-text-field');
+  var text=(field.value||'').trim();
+  if(!text||busy)return;
+  field.value='';
+  process(text);
+}
+
+/* ── GEMINI VISION ── */
+var _visionSessionId = null;
+
+function updateCameraButtonState() {
+  var lbl = document.getElementById('cam-btn-label');
+  if (!lbl) return;
+  lbl.textContent = _visionSessionId
+    ? 'FOLLOW-UP PHOTO'
+    : 'ANALYZE HARDWARE';
+}
+
+function triggerCamera(){
+  document.getElementById("cam-input").click();
+}
+
+function handleVisionUpload(evt){
+  var file = evt.target.files[0];
+  if(!file) return;
+  if (busy) {
+    showVisionStatus('Satomi is speaking — wait a moment');
+    setTimeout(hideVisionStatus, 2000);
+    evt.target.value = "";
+    return;
+  }
+  evt.target.value = "";
+  
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var b64 = e.target.result.split(",")[1];
+    var mime = file.type || "image/jpeg";
+    sendVisionImage(b64, mime);
+  };
+  reader.readAsDataURL(file);
+}
+
+var SEED_RECOVERY_STEPS = [
+  {
+    label: 'STEP 1 OF 3 — STOP IMMEDIATELY',
+    text: 'Do NOT send any Bitcoin from this wallet until you have moved your funds. Anyone who saw this seed phrase can access your Bitcoin right now.',
+    speak: 'Stop. Do not send any Bitcoin from this wallet. Anyone who saw this seed phrase can steal your funds right now.'
+  },
+  {
+    label: 'STEP 2 OF 3 — MOVE YOUR FUNDS',
+    text: 'On a different device, create a brand new wallet. Generate a NEW seed phrase — write it down on paper only, never photograph it. Transfer ALL funds to the new wallet address immediately.',
+    speak: 'On a different device, create a new wallet with a new seed phrase. Write it on paper only. Transfer all your funds to the new wallet immediately.'
+  },
+  {
+    label: 'STEP 3 OF 3 — SECURE THE NEW WALLET',
+    text: 'Once funds are transferred, the old wallet is abandoned. Store your new seed phrase in a metal backup, split across two secure locations. Never store seed phrases digitally.',
+    speak: 'Once funds are moved, abandon the old wallet. Store your new seed phrase in metal, split across two secure locations. Never store seed phrases digitally.'
+  }
+];
+
+function showSecurityAlert(msg, onDismiss) {
+  var overlay = document.getElementById('vision-security-overlay');
+  var msgEl = document.getElementById('vision-security-msg');
+  var dismissBtn = document.getElementById('vision-security-dismiss');
+  var recoveryPanel = document.getElementById('vision-recovery-panel');
+  if (!overlay || !msgEl) return;
+
+  msgEl.textContent = msg;
+  overlay.style.display = 'flex';
+
+  // Speak the initial alert urgently
+  function speakText(text) {
+    fetchTO(A+'/oracle/voice', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: text})
+    }, 20000).then(function(r) {
+      if (!r.ok) return;
+      return r.blob();
+    }).then(function(blob) {
+      if (!blob) return;
+      var alertAudio = new Audio(URL.createObjectURL(blob));
+      alertAudio.volume = 1.0;
+      alertAudio.play().catch(function(){});
+    }).catch(function(){});
+  }
+
+  speakText('SECURITY ALERT. ' + msg +
+    ' Your seed phrase may be compromised. Do not send Bitcoin until you hear the recovery steps.');
+
+  // Dismiss transitions to recovery steps
+  dismissBtn.onclick = function() {
+    dismissBtn.style.display = 'none';
+    msgEl.style.fontSize = '0.9rem';
+    msgEl.style.opacity = '0.7';
+    recoveryPanel.style.display = 'block';
+    _showRecoveryStep(0, speakText);
+  };
+}
+
+function _showRecoveryStep(idx, speakFn) {
+  var steps = SEED_RECOVERY_STEPS;
+  var stepLabel = document.getElementById('vision-recovery-step-label');
+  var stepText = document.getElementById('vision-recovery-step-text');
+  var nextBtn = document.getElementById('vision-recovery-next');
+  var helpBtn = document.getElementById('vision-recovery-help');
+  var closeBtn = document.getElementById('vision-recovery-close');
+
+  if (!stepLabel || !stepText) return;
+
+  stepLabel.textContent = steps[idx].label;
+  stepText.textContent = steps[idx].text;
+  speakFn(steps[idx].speak);
+
+  var isLast = (idx === steps.length - 1);
+  nextBtn.style.display = isLast ? 'none' : 'block';
+  helpBtn.style.display = isLast ? 'block' : 'none';
+  closeBtn.style.display = isLast ? 'block' : 'none';
+
+  nextBtn.onclick = function() {
+    if (idx < steps.length - 1) _showRecoveryStep(idx + 1, speakFn);
+  };
+
+  helpBtn.onclick = function() {
+    // Close overlay and trigger Satomi to help set up new wallet
+    var overlay = document.getElementById('vision-security-overlay');
+    if (overlay) overlay.style.display = 'none';
+    // Inject a vision guidance request for new wallet setup
+    sendVisionImage(null, null, 'help me set up a new hardware wallet safely');
+  };
+
+  closeBtn.onclick = function() {
+    var overlay = document.getElementById('vision-security-overlay');
+    if (overlay) overlay.style.display = 'none';
+  };
+}
+
+function _speakVisionGuidance(d) {
+  var raw = d.guidance_text || d.guidance || d.analysis || d.response
+    || "I can see your hardware. Let me walk you through the next step.";
+  // Hard 30-word cap for TTS speed
+  var words = raw.split(/\s+/);
+  var guideText = words.length > 30 ? words.slice(0,30).join(" ") : raw;
+
+  // Urgent spoken prefix for transaction verdicts
+  if (d.verdict === 'DO NOT SIGN') {
+    guideText = 'WARNING. DO NOT SIGN THIS TRANSACTION. ' + guideText;
+  } else if (d.verdict === 'REVIEW CAREFULLY' && d.red_flags && d.red_flags.length) {
+    guideText = 'REVIEW CAREFULLY. ' + guideText;
+  }
+
+  showVisionStatus("Speaking...");
+  showSub(guideText);
+
+  // Transaction review verdict card
+  if (d.category === 'transaction' && d.verdict) {
+    var verdictColor = d.verdict === 'SAFE TO SIGN'
+      ? '#00d4aa'
+      : d.verdict === 'DO NOT SIGN'
+      ? '#ff3b5f'
+      : '#f5a623';
+
+    var verdictHtml = '<div style="background:rgba(0,0,0,.4);' +
+      'border:2px solid ' + verdictColor + ';border-radius:8px;' +
+      'padding:12px 16px;margin-bottom:12px;">' +
+      '<div style="font-family:monospace;font-size:10px;' +
+      'letter-spacing:.12em;color:' + verdictColor + ';' +
+      'text-transform:uppercase;margin-bottom:6px;">' +
+      '\u26A1 TRANSACTION ANALYSIS</div>' +
+      '<div style="font-size:1.1rem;font-weight:800;' +
+      'color:' + verdictColor + ';margin-bottom:8px;">' +
+      d.verdict + '</div>';
+
+    if (d.recipient_address) {
+      verdictHtml += '<div style="font-family:monospace;font-size:10px;' +
+        'color:rgba(255,255,255,.5);word-break:break-all;">' +
+        'TO: ' + d.recipient_address + '</div>';
+    }
+    if (d.amount_btc) {
+      verdictHtml += '<div style="font-family:monospace;font-size:11px;' +
+        'color:rgba(255,255,255,.7);margin-top:4px;">' +
+        'AMOUNT: ' + d.amount_btc + ' BTC</div>';
+    }
+    if (d.fee_sats) {
+      verdictHtml += '<div style="font-family:monospace;font-size:11px;' +
+        'color:rgba(255,255,255,.6);">' +
+        'FEE: ' + d.fee_sats + ' sats</div>';
+    }
+    if (d.red_flags && d.red_flags.length) {
+      verdictHtml += '<div style="margin-top:8px;">';
+      d.red_flags.forEach(function(flag) {
+        verdictHtml += '<div style="font-family:monospace;font-size:9px;' +
+          'color:#f5a623;letter-spacing:.06em;">\u26A0 ' + flag + '</div>';
+      });
+      verdictHtml += '</div>';
+    }
+    verdictHtml += '</div>';
+
+    var vsEl = document.getElementById('vision-status');
+    if (vsEl) {
+      vsEl.innerHTML = verdictHtml + (vsEl.innerHTML || '');
+      vsEl.classList.add('on');
+    }
+  }
+
+  // Show steps in vision-status area if present
+  if(d.steps && d.steps.length){
+    var stepsHtml = d.steps.map(function(s,i){ return (i+1)+". "+s; }).join("<br>");
+    var el=document.getElementById("vision-status");
+    el.innerHTML = (d.device_name && d.device_name!=="unknown" ? "<b>"+d.device_name+"</b><br>" : "") + stepsHtml;
+    el.classList.add("on");
+  }
+
+  // Add to session transcript
+  _addVisionEntry(d.device_name, d.steps || [], guideText);
+
+  // VISION -> SATOMI: pipe guidance through Wav2Lip via process()
+  // This makes Satomi actually LIP SYNC the analysis, not just audio
+  hideVisionStatus();
+  setBusy(false); mic.disabled=false;
+  process(guideText);
+  // (voice-only path removed - process() handles TTS + Wav2Lip)
+}
+
+function sendVisionImage(b64, mimeType, textOverride){
+  // Text-only mode: no image, just a guided question
+  if (!b64 && textOverride) {
+    setBusy(true);
+    showVisionStatus('Preparing guidance...');
+    _speakVisionGuidance({
+      guidance_text: 'I can guide you through setting up a new hardware wallet securely. First, choose a wallet: Coldcard for maximum security, Trezor for ease of use, or SeedSigner for open-source air-gapped signing. Which would you like help with?',
+      device_name: 'new_wallet_setup',
+      steps: [
+        'Choose your hardware wallet: Coldcard, Trezor, or SeedSigner',
+        'Purchase only from official manufacturer websites — never third party',
+        'On first boot, generate a new seed phrase on the device itself',
+        'Write seed phrase on paper only — never photograph or type it',
+        'Test recovery before sending any funds'
+      ]
+    });
+    setBusy(false);
+    return;
+  }
+
+  setBusy(true);
+  showVisionStatus("Analyzing your screen...");
+
+  var endpoint = _visionSessionId ? A+"/vision/guide" : A+"/vision/analyze";
+  var body = {image_base64:b64, mime_type:mimeType,
+    context:"User needs Bitcoin hardware setup guidance"};
+  if(_visionSessionId){
+    body.session_id = _visionSessionId;
+    body.question = "What step am I at and what should I do next?";
+    body.last_context = _visionTranscript.length > 0
+      ? _visionTranscript[_visionTranscript.length - 1].steps.join('; ')
+      : '';
+  }
+
+  fetchTO(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(body)},20000)
+  .then(function(r){
+    if(!r.ok) throw new Error("vision "+r.status);
+    return r.json();
+  })
+  .then(function(d){
+    _visionSessionId = d.session_id || _visionSessionId;
+    updateCameraButtonState();
+
+    // Security alert takes absolute priority — recovery flow keeps overlay open
+    if (d.security_alert) {
+      showSecurityAlert(d.security_alert);
+      return;
+    }
+    _speakVisionGuidance(d);
+  })
+  .catch(function(e){
+    console.error("Vision error:", e);
+    showVisionStatus("Vision error — try again.");
+    setTimeout(hideVisionStatus, 3000);
+  })
+  .finally(function(){ setBusy(false); mic.disabled=false; });
+}
+
+function showVisionStatus(msg){ 
+  var el=document.getElementById("vision-status");
+  el.textContent=msg; el.classList.add("on");
+}
+function hideVisionStatus(){
+  var el=document.getElementById("vision-status");
+  el.classList.remove("on");
+}
+
+/* ── VISION SESSION TRANSCRIPT ── */
+var _visionTranscript = [];
+
+function _addVisionEntry(deviceName, steps, guidanceText) {
+  var panel = document.getElementById('vision-transcript-panel');
+  var entries = document.getElementById('vision-transcript-entries');
+  if (!entries) return;
+
+  if (panel && _visionTranscript.length === 0) {
+    panel.style.display = 'block';
+  }
+
+  var entry = {
+    device: deviceName || 'Unknown Device',
+    steps: steps || [],
+    guidance: guidanceText || '',
+    time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+  };
+  _visionTranscript.push(entry);
+
+  var el = document.createElement('div');
+  el.className = 'vision-entry';
+
+  var deviceEl = document.createElement('div');
+  deviceEl.className = 'vision-entry-device';
+  deviceEl.textContent = entry.device.toUpperCase();
+  el.appendChild(deviceEl);
+
+  if (entry.steps.length) {
+    entry.steps.forEach(function(s, i) {
+      var stepEl = document.createElement('div');
+      stepEl.className = 'vision-entry-step';
+      stepEl.textContent = (i+1) + '. ' + s;
+      el.appendChild(stepEl);
+    });
+  } else if (entry.guidance) {
+    var guidEl = document.createElement('div');
+    guidEl.className = 'vision-entry-step';
+    guidEl.textContent = entry.guidance.substring(0, 120) +
+      (entry.guidance.length > 120 ? '…' : '');
+    el.appendChild(guidEl);
+  }
+
+  var timeEl = document.createElement('div');
+  timeEl.className = 'vision-entry-time';
+  timeEl.textContent = entry.time + ' — tap to re-read';
+  el.appendChild(timeEl);
+
+  el.onclick = function() {
+    var text = entry.steps.length
+      ? entry.device + '. ' + entry.steps.join('. ')
+      : entry.guidance;
+    fetchTO(A+'/oracle/voice', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: text.substring(0, 200)})
+    }, 20000).then(function(r) {
+      return r.ok ? r.blob() : null;
+    }).then(function(blob) {
+      if (!blob) return;
+      var a = new Audio(URL.createObjectURL(blob));
+      a.volume = 1.0;
+      a.play().catch(function(){});
+    }).catch(function(){});
+  };
+
+  entries.appendChild(el);
+  entries.scrollTop = entries.scrollHeight;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var clearBtn = document.getElementById('vision-transcript-clear');
+  if (clearBtn) {
+    clearBtn.onclick = function() {
+      _visionTranscript = [];
+      var entries = document.getElementById('vision-transcript-entries');
+      if (entries) entries.innerHTML = '';
+      var panel = document.getElementById('vision-transcript-panel');
+      if (panel) panel.style.display = 'none';
+      _visionSessionId = null;
+      updateCameraButtonState();
+    };
+  }
+});
+
+/* ── MINIMIZE / EXIT / FLOAT ── */
+var _oracleMinimized = false;
+
+function minimizeOracle(){
+  var inIframe = (function(){ try{ return window.self !== window.top; }catch(e){ return true; }})();
+  if(inIframe){
+    try{ window.parent.postMessage({type:'oracle:minimize'},'*'); }catch(e){}
+    return;
+  }
+  // Standalone: shrink to float bubble
+  _oracleMinimized = true;
+  document.getElementById("oracle-root").style.display = "none";
+  var f = document.getElementById("oracle-float");
+  if(f){ f.style.display = "flex"; if(busy) f.classList.add("speaking"); }
+}
+
+function restoreOracle(){
+  _oracleMinimized = false;
+  document.getElementById("oracle-float").style.display = "none";
+  document.getElementById("oracle-root").style.display = "flex";
+  document.getElementById("oracle-float").classList.remove("speaking");
+}
+
+function exitOracle(){
+  // If running inside widget iframe — tell parent to close
+  var inIframe = (function(){ try{ return window.self !== window.top; }catch(e){ return true; }})();
+  if(inIframe){
+    try{ window.parent.postMessage({type:'oracle:close'},'*'); }catch(e){}
+    return;
+  }
+  // Standalone page — return to gate screen
+  _oracleMinimized = false;
+  // Stop any playing audio/video
+  vid.pause(); vid.src="";
+  if(isRec) stopRec();
+  // Reset session on server
+  fetch(A+"/oracle/session/reset",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({session_id:SESSION_ID})}).catch(function(){});
+  // Hide everything
+  document.getElementById("oracle-float").style.display = "none";
+  document.getElementById("live-stage").style.display = "none";
+  document.getElementById("oracle-root").style.display = "flex";
+  // Show gate again
+  var g = document.getElementById("gate");
+  g.style.display = "flex";
+  g.style.opacity = "1";
+  g.style.transition = "opacity .3s";
+  // Reset state
+  busy = false; window._briefFetched = false;
+  setStat("Ready","#334",false);
+  hideSub(); hideTranscript && hideTX();
+}
+
+// Keep float speaking indicator in sync
+var _origSetStat = setStat;
+setStat = function(msg, color, spin){
+  _origSetStat(msg, color, spin);
+  var f = document.getElementById("oracle-float");
+  if(f && _oracleMinimized){
+    if(msg === "Speaking") f.classList.add("speaking");
+    else f.classList.remove("speaking");
+  }
+};
+
+/* ── ORACLE IDLE MATRIX ANIMATION ── */
+(function(){
+  var canvas = document.getElementById('oracle-matrix');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var chars = '01₿⚡∆Ω█▓░10₿Ξ∞◆'.split('');
+  var cols, drops;
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    cols = Math.floor(canvas.width / 14);
+    drops = Array(cols).fill(1);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(4,5,8,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '11px monospace';
+    for (var i = 0; i < drops.length; i++) {
+      var char = chars[Math.floor(Math.random() * chars.length)];
+      var alpha = Math.random() * 0.4 + 0.05;
+      var cx = canvas.width / 2;
+      var dist = Math.abs(i * 14 - cx) / cx;
+      var r = Math.floor(180 + (1 - dist) * 75);
+      var g = Math.floor(20 + (1 - dist) * 30);
+      var b = Math.floor(40 + (1 - dist) * 20);
+      ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+      ctx.fillText(char, i * 14, drops[i] * 14);
+      if (drops[i] * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  var _matrixInterval = setInterval(draw, 50);
+
+  window._matrixHide = function() {
+    canvas.style.opacity = '0';
+  };
+  window._matrixShow = function() {
+    /* P0-1: Subtle overlay so static avatar face stays visible during idle */
+    canvas.style.opacity = '0.35';
+  };
+})();
+
+/* ── CYBERPUNK MATRIX BACKGROUND ── */
+(function(){
+  var cvs=document.getElementById('bg-canvas');
+  if(!cvs)return;
+  var ctx=cvs.getContext('2d');
+  var W,H,cols,drops,hexFrags=[];
+  var matrixChars='0123456789ABCDEFabcdef₿⚡∆Ω█▓░▒╔╗╚╝║═';
+  var fontSize=14;
+  var scanY=-2,scanDir=1,scanTimer=0,scanInterval=15000;
+
+  function resize(){
+    W=cvs.width=cvs.offsetWidth;
+    H=cvs.height=cvs.offsetHeight;
+    cols=Math.floor(W/fontSize);
+    drops=new Array(cols);
+    for(var i=0;i<cols;i++) drops[i]=Math.random()*(-H/fontSize);
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  // Hex fragments: random hex strings that fade in/out
+  function spawnHex(){
+    if(hexFrags.length>6) return;
+    hexFrags.push({
+      x:Math.random()*W,
+      y:Math.random()*H,
+      text:'0x'+Math.random().toString(16).substr(2,6).toUpperCase(),
+      alpha:0,phase:0, // 0=fade in, 1=hold, 2=fade out
+      speed:0.003+Math.random()*0.005,
+      holdTime:2000+Math.random()*3000,
+      holdStart:0
+    });
+  }
+
+  var lastTime=0;
+  function frame(ts){
+    requestAnimationFrame(frame);
+    if(!lastTime) lastTime=ts;
+    var dt=ts-lastTime;
+    lastTime=ts;
+
+    ctx.clearRect(0,0,W,H);
+
+    // 1. Falling matrix characters (sparse)
+    ctx.font=fontSize+'px JetBrains Mono,monospace';
+    for(var i=0;i<cols;i++){
+      if(Math.random()>0.06) { // sparse: only 6% of columns draw per frame
+        if(drops[i]>0){
+          ctx.fillStyle='rgba(255,59,95,0.15)';
+          var ch=matrixChars[Math.floor(Math.random()*matrixChars.length)];
+          ctx.fillText(ch,i*fontSize,drops[i]*fontSize);
+        }
+      }
+      drops[i]+=0.3;
+      if(drops[i]*fontSize>H && Math.random()>0.98){
+        drops[i]=0;
+      }
+    }
+
+    // 2. Scan line sweep every 15s
+    scanTimer+=dt;
+    if(scanTimer>=scanInterval){
+      scanTimer=0;
+      scanY=-2;
+      scanDir=1;
+    }
+    if(scanY>=0 && scanY<=H){
+      var grad=ctx.createLinearGradient(0,scanY-8,0,scanY+8);
+      grad.addColorStop(0,'rgba(255,59,95,0)');
+      grad.addColorStop(0.5,'rgba(255,59,95,0.12)');
+      grad.addColorStop(1,'rgba(255,59,95,0)');
+      ctx.fillStyle=grad;
+      ctx.fillRect(0,scanY-8,W,16);
+    }
+    if(scanY>=-2 && scanY<=H+10) scanY+=2;
+
+    // 3. Hex fragments fade in/out
+    if(Math.random()<0.008) spawnHex();
+    for(var h=hexFrags.length-1;h>=0;h--){
+      var frag=hexFrags[h];
+      if(frag.phase===0){
+        frag.alpha+=frag.speed*dt;
+        if(frag.alpha>=0.2){frag.alpha=0.2;frag.phase=1;frag.holdStart=ts;}
+      } else if(frag.phase===1){
+        if(ts-frag.holdStart>frag.holdTime) frag.phase=2;
+      } else {
+        frag.alpha-=frag.speed*dt;
+        if(frag.alpha<=0){hexFrags.splice(h,1);continue;}
+      }
+      ctx.fillStyle='rgba(255,59,95,'+frag.alpha.toFixed(3)+')';
+      ctx.font='10px JetBrains Mono,monospace';
+      ctx.fillText(frag.text,frag.x,frag.y);
+    }
+  }
+  requestAnimationFrame(frame);
+})();
+
+function fetchTO(url,opts,ms){
+  var ctrl=new AbortController();
+  var id=setTimeout(function(){ctrl.abort();},ms);
+  var o=opts||{};o.signal=ctrl.signal;
+  return fetch(url,o).finally(function(){clearTimeout(id);})
+    .catch(function(e){if(e.name==='AbortError')throw new Error('timeout');throw e;});
+}
+/* ── ACTION CARDS ── */
+function showActionCard(card){
+  var el=document.getElementById('oracle-action-card');
+  var catColor = card.category==='amazon' ? '#FF9900' : card.category==='internal' ? '#6cff9f' : '#ff3b5f';
+  el.innerHTML='<a href="'+card.url+'" target="_blank" rel="noopener" onclick="trackCardClick(\''+card.id+'\')" style="display:block;background:#0d0f14;border:1px solid '+catColor+';border-radius:8px;padding:14px 16px;text-decoration:none;transition:border-color 0.2s;">'
+    +'<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:.1em;color:'+catColor+';margin-bottom:4px;">'+card.category.toUpperCase()+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">'+card.title+'</div>'
+    +'<div style="font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:10px;">'+card.description+'</div>'
+    +'<div style="font-size:11px;font-weight:600;color:'+catColor+';">'+card.cta+'</div>'
+    +'</a>';
+  el.style.display='block';
+  el.style.opacity='0';
+  setTimeout(function(){el.style.transition='opacity 0.4s';el.style.opacity='1';},100);
+  setTimeout(function(){hideActionCard();},45000);
+}
+function showVisionSponsor(deviceName){
+  if(!deviceName || deviceName==='unknown') return;
+  var key=deviceName.toLowerCase();
+  var match=null;
+  Object.keys(VISION_SPONSOR_MAP).forEach(function(k){
+    if(!match && key.indexOf(k)>=0) match=VISION_SPONSOR_MAP[k];
+  });
+  if(!match) return;
+  showActionCard(match);
+}
+function hideActionCard(){
+  var el=document.getElementById('oracle-action-card');
+  el.style.opacity='0';
+  setTimeout(function(){el.style.display='none';el.innerHTML='';},400);
+}
+function trackCardClick(id){
+  fetch('/api/telemetry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'oracle_card_clicked',properties:{card_id:id,fingerprint:window._visitorToken||'anon'}})}).catch(function(){});
+}
+
+/* ── MOBILE NAV BAR ── */
+(function(){
+  var isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile){
+    var nb=document.getElementById('mobile-nav-bar');
+    if(nb) nb.style.display='flex';
+  }
+})();
+
+window.addEventListener('beforeunload',function(){
+  try{
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST',A+'/oracle/session/save',false);
+    xhr.setRequestHeader('Content-Type','application/json');
+    xhr.send(JSON.stringify({session_id:SESSION_ID}));
+  }catch(e){}
+});
+
+/* ── SATOMI PLASMA CORONA + ORBITAL RINGS ── */
+(function(){
+  var canvas=document.getElementById('satomiOrbitCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var wrap=document.querySelector('.video-wrap');
+  var stage=document.getElementById('stage');
+  var vid=document.getElementById('vid');
+  if(!wrap||!stage)return;
+
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var isMobile=window.innerWidth<=640;
+  var PAD=isMobile?24:55;
+  var W=0,H=0,cx=0,cy=0,avatarR=0;
+  var arcs=[];
+  var lastSpawn=0;
+  var drift=0;
+  var running=false;
+  var lastSync=0;
+
+  /* ── Ring particles ── */
+  var RING_COUNTS=isMobile?[8,6,10]:[12,8,16];
+  var ringOffsetFrac=[0.18,0.42,0.75];
+  var ringSpeed=[0.30,-0.20,0.12];
+  var ringSz=[2.2,1.6,1.0];
+  var ringAlpha=[0.70,0.45,0.25];
+  var ringCol=[[255,59,95],[255,90,110],[255,170,170]];
+  var rings=[[],[],[]];
+
+  function initRings(){
+    for(var r=0;r<3;r++){
+      rings[r]=[];
+      for(var i=0;i<RING_COUNTS[r];i++){
+        rings[r].push({
+          a:(2*Math.PI/RING_COUNTS[r])*i,
+          ph:Math.random()*2*Math.PI,
+          ws:0.7+Math.random()*0.6
+        });
+      }
+    }
+  }
+  initRings();
+
+  function sync(){
+    if(stage.style.display==='none')return false;
+    var ow=wrap.offsetWidth;
+    if(ow<10)return false;
+    isMobile=window.innerWidth<=640;
+    PAD=isMobile?24:55;
+    var cw=ow+PAD*2,ch=wrap.offsetHeight+PAD*2;
+    canvas.style.left=(wrap.offsetLeft-PAD)+'px';
+    canvas.style.top=(wrap.offsetTop-PAD)+'px';
+    canvas.style.width=cw+'px';
+    canvas.style.height=ch+'px';
+    if(Math.abs(canvas.width-cw*dpr)>2||Math.abs(canvas.height-ch*dpr)>2){
+      canvas.width=cw*dpr;
+      canvas.height=ch*dpr;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    W=cw;H=ch;cx=cw/2;cy=ch/2;avatarR=ow/2;
+    return true;
+  }
+
+  function speaking(){
+    return vid&&!vid.paused&&parseFloat(vid.style.opacity||0)>0;
+  }
+
+  function spawnArc(t){
+    var mx=isMobile?4:7;
+    if(arcs.length>=mx)return;
+    var a1=Math.random()*Math.PI*2;
+    var spread=0.3+Math.random()*0.5;
+    var a2=a1+(Math.random()>0.5?1:-1)*spread;
+    arcs.push({
+      a1:a1,a2:a2,
+      reach:(isMobile?10:30)+Math.random()*(isMobile?12:35),
+      born:t,
+      life:2000+Math.random()*2000,
+      ctrl:(Math.random()-0.5)*0.5,
+      w:1+Math.random()*1.5
+    });
+  }
+
+  function draw(t){
+    requestAnimationFrame(draw);
+    /* Sync position every 500ms */
+    if(t-lastSync>500){lastSync=t;if(!sync())return;}
+    if(W===0)return;
+
+    ctx.clearRect(0,0,W,H);
+    var sp=speaking();
+    var intensity=sp?1.35:1.0;
+
+    drift+=(sp?0.12:0.06)*0.016;
+
+    /* Spawn plasma arcs */
+    var interval=sp?350:700;
+    if(t-lastSpawn>interval){spawnArc(t);lastSpawn=t;}
+
+    ctx.save();
+    ctx.translate(cx,cy);
+
+    /* ── PLASMA CORONA ARCS ── */
+    ctx.save();
+    ctx.rotate(drift*0.08);
+    for(var i=arcs.length-1;i>=0;i--){
+      var a=arcs[i];
+      var age=t-a.born;
+      if(age>a.life){arcs.splice(i,1);continue;}
+      var al;
+      if(age<300)al=age/300;
+      else if(age>a.life-400)al=(a.life-age)/400;
+      else al=1;
+      al*=0.75*intensity;
+
+      var sx=Math.cos(a.a1)*avatarR,sy=Math.sin(a.a1)*avatarR;
+      var ex=Math.cos(a.a2)*avatarR,ey=Math.sin(a.a2)*avatarR;
+      var mid=(a.a1+a.a2)/2+a.ctrl;
+      var cpx=Math.cos(mid)*(avatarR+a.reach);
+      var cpy=Math.sin(mid)*(avatarR+a.reach);
+
+      /* Glow layer */
+      ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(cpx,cpy,ex,ey);
+      ctx.strokeStyle='rgba(255,59,95,'+(al*0.12)+')';
+      ctx.lineWidth=a.w+6;ctx.lineCap='round';ctx.stroke();
+
+      /* Main arc with radial gradient */
+      ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(cpx,cpy,ex,ey);
+      var gr=ctx.createRadialGradient(0,0,avatarR*0.95,0,0,avatarR+a.reach);
+      gr.addColorStop(0,'rgba(255,59,95,'+al+')');
+      gr.addColorStop(0.6,'rgba(255,80,100,'+(al*0.4)+')');
+      gr.addColorStop(1,'rgba(255,59,95,0)');
+      ctx.strokeStyle=gr;ctx.lineWidth=a.w;ctx.stroke();
+    }
+    ctx.restore();
+
+    /* ── ORBITAL PARTICLE RINGS ── */
+    for(var r=0;r<3;r++){
+      var ps=rings[r];
+      var rr=avatarR+PAD*ringOffsetFrac[r]+4;
+      var spd=ringSpeed[r]*intensity;
+      var sz=ringSz[r]*(sp?1.15:1);
+      var ra=ringAlpha[r]*intensity;
+      var c=ringCol[r];
+
+      for(var j=0;j<ps.length;j++){
+        var p=ps[j];
+        p.a+=spd*0.016;
+        var wobble=Math.sin(t*0.001*p.ws+p.ph)*(isMobile?3:5);
+        var pr=rr+wobble;
+        var px=Math.cos(p.a)*pr,py=Math.sin(p.a)*pr;
+
+        /* Glow */
+        if(sz>1.2){
+          ctx.beginPath();ctx.arc(px,py,sz+2.5,0,Math.PI*2);
+          ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+(ra*0.12)+')';
+          ctx.fill();
+        }
+        /* Dot */
+        ctx.beginPath();ctx.arc(px,py,sz,0,Math.PI*2);
+        ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+ra+')';
+        ctx.fill();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  /* Start when stage becomes visible */
+  var obs=new MutationObserver(function(){
+    if(stage.style.display!=='none'&&!running){
+      running=true;sync();requestAnimationFrame(draw);
+    }
+  });
+  obs.observe(stage,{attributes:true,attributeFilter:['style']});
+  if(stage.style.display!=='none'){running=true;sync();requestAnimationFrame(draw);}
+
+  window.addEventListener('resize',function(){
+    var mob=window.innerWidth<=640;
+    if(mob!==isMobile){
+      isMobile=mob;PAD=mob?24:55;
+      RING_COUNTS=mob?[8,6,10]:[12,8,16];
+      initRings();
+    }
+    sync();
+  });
+})();
+
+</script>
+</body>
+</html>
