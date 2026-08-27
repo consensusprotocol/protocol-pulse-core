@@ -68,3 +68,6 @@ video_pipeline_v4/output/
 video_pipeline_v4/logs/
 video_pipeline_v4/remotion/node_modules/
 video_pipeline_v4/remotion/public/assets/
+
+# 170MB+ append-only log; exceeds GitHub 100MB limit (removed from index 2026-08-27)
+data/sovereign_context/history.jsonl
