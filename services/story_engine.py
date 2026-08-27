@@ -251,24 +251,13 @@ def compute_overall(item, all_items):
 
 
 
-# ================= LAYER 3.5: CLAIM VERIFICATION =================
-# GPT spec: extract atomic claims, verify each against independent sources,
-# stamp status. Unverified numeric claims must NOT reach the writer.
+# ================= LAYER 3.5: ADVERSARIAL VERIFICATION =================
+# GPT spec: the verifier is HOSTILE to the candidate. Its job is to BREAK the story.
+# Core rule: a story can survive with inference, but a claim cannot masquerade as fact.
+# Outputs: per-claim status, story status, a do-not-say list (writer guardrail),
+# and logs rejected claims to a growing dataset.
 
-VERIFIABLE_LIVE = {
-    # claim keyword -> (fetch_fn_name, tolerance_pct)
-    "btc_price": 0.03, "block_height": 0, "hashrate": 0.10, "fee": 0.5,
-}
-
-def _live_btc_price():
-    import urllib.request as u
-    try:
-        r = u.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?interval=1d&range=1d",
-                      timeout=8)
-        d = json.loads(r.read().decode())
-        return float(d["chart"]["result"][0]["meta"]["regularMarketPrice"])
-    except Exception:
-        return None
+REJECTED_CLAIMS_LOG = BASE / "data" / "intelligence" / "rejected_claims.jsonl"
 
 def _live_block_height():
     import urllib.request as u
@@ -277,45 +266,136 @@ def _live_block_height():
     except Exception:
         return None
 
+def _live_btc_price():
+    import urllib.request as u
+    try:
+        r = u.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?interval=1d&range=1d", timeout=8)
+        d = json.loads(r.read().decode())
+        return float(d["chart"]["result"][0]["meta"]["regularMarketPrice"])
+    except Exception:
+        return None
+
 def extract_claims(item):
-    """Pull atomic, checkable claims (numeric + named-entity) from a story."""
+    """Pull atomic, checkable claims. Tag superlatives and causal/inference language."""
     text = (item.get("title","") + " . " + item.get("summary",""))
     claims = []
-    # numeric claims with unit
-    for m in re.finditer(r"(\$?\d[\d,\.]*)\s*(%|percent|billion|trillion|million|bps|EH/s|sat|BTC|bitcoin)?", text):
-        val, unit = m.group(1), (m.group(2) or "")
-        if len(val.replace(",","").replace(".","").replace("$","")) >= 2:  # skip trivial 1-digit
-            claims.append({"raw": m.group(0).strip(), "value": val, "unit": unit, "kind": "numeric"})
-    return claims[:8]
+    for m in re.finditer(r"(\$?\d[\d,\.]*)\s*(%|percent|billion|trillion|million|bps|EH/s|sat|BTC|k)?", text):
+        val = m.group(1)
+        if len(val.replace(",","").replace(".","").replace("$","")) >= 2:
+            claims.append({"raw": m.group(0).strip(), "value": val, "unit": m.group(2) or "", "kind": "numeric"})
+    # superlative / "first/record/largest/unprecedented" claims
+    for m in re.finditer(r"\b(first|largest|biggest|record|unprecedented|highest|lowest|never before|all-time)\b", text, re.I):
+        claims.append({"raw": m.group(0), "kind": "superlative"})
+    return claims[:10]
 
-def verify_story(item):
+def adversarial_verify(item):
     """
-    Verification tiers:
-    - HARD-VERIFIABLE (live BTC price / block height): check against live API.
-    - SOURCE-BACKED: has >=1 primary source URL + came from a quality domain.
-    - UNVERIFIED: numeric claims we can't independently check -> flagged, writer must hedge or skip.
+    Hostile verification. Tries to break each claim. Produces:
+      - per-claim status: VERIFIED_PRIMARY | VERIFIED_SECONDARY | INFERENCE_SUPPORTED | UNVERIFIED | CONTRADICTED | STALE
+      - story-level verification_status (worst-case aware)
+      - do_not_say[]  (active writer guardrail)
+      - writer_eligible / requires_hedge
+    Uses GPT-4o as an adversarial checker for claims we can't hard-verify.
     """
     claims = extract_claims(item)
     item["primary_claims"] = [c["raw"] for c in claims]
-    status = "source_backed" if item.get("url") and _source_quality(item["url"]) >= 0.7 else "unverified"
+    do_not_say = []
+    claim_results = []
 
-    # Hard-verify any BTC price / block-height claims
+    src_q = _source_quality(item.get("url",""))
+    has_primary = bool(item.get("url")) and src_q >= 0.9   # gov/primary-grade
+    domain = item.get("source_domain","")
+
+    # 1) HARD live checks (block height / btc price if the story states one)
     text_low = (item.get("title","") + " " + item.get("summary","")).lower()
-    hard_checks = []
-    if "block" in text_low and re.search(r"\b9\d{5}\b", text_low):
-        live_h = _live_block_height()
-        claimed = re.search(r"\b(9\d{5})\b", text_low)
-        if live_h and claimed:
-            diff = abs(int(claimed.group(1)) - live_h)
-            hard_checks.append(("block_height", diff <= 20, f"claimed {claimed.group(1)} vs live {live_h}"))
-    if hard_checks:
-        status = "verified" if all(ok for _, ok, _ in hard_checks) else "contradicted"
-        item["hard_checks"] = [{"field": f, "pass": ok, "detail": d} for f, ok, d in hard_checks]
+    hard = []
+    bh = re.search(r"\bblock\s*(9\d{5})\b", text_low) or (re.search(r"\b(9\d{5})\b", text_low) if "block" in text_low else None)
+    if bh:
+        live = _live_block_height()
+        if live:
+            diff = abs(int(bh.group(1)) - live)
+            ok = diff <= 20
+            hard.append({"field":"block_height","status":"VERIFIED_PRIMARY" if ok else "CONTRADICTED","detail":f"claimed {bh.group(1)} vs live {live}"})
+            if not ok: do_not_say.append(f"Do not cite block height {bh.group(1)} (live chain is {live})")
 
-    item["verification_status"] = status
-    # writer-gating flag: only verified or source_backed may be written confidently
-    item["writer_eligible"] = status in ("verified", "source_backed")
-    item["requires_hedge"] = status == "unverified"
+    # 2) Superlative claims: require primary proof, else forbid the word
+    for c in claims:
+        if c["kind"] == "superlative":
+            if has_primary:
+                claim_results.append({"claim": c["raw"], "status": "VERIFIED_SECONDARY"})
+            else:
+                claim_results.append({"claim": c["raw"], "status": "UNVERIFIED"})
+                do_not_say.append(f'Do not use "{c["raw"]}" unless a primary source proves it')
+
+    # 3) LLM adversarial pass on the story's factual spine (fact vs inference separation)
+    if OPENAI_KEY:
+        try:
+            import urllib.request as u
+            prompt = "You are a HOSTILE fact-checker. Your job is to BREAK this story, not confirm it.\n\n"
+            prompt += "TITLE: " + item.get("title","") + "\nSUMMARY: " + item.get("summary","") + "\nSOURCE: " + domain + "\n\n"
+            prompt += ("For the main factual claims, separate FACT (directly stated by a primary/named source) "
+                       "from INFERENCE (analyst interpretation, projection, implied causation). "
+                       "Flag any: motive attribution, unproven causation between two events, "
+                       "superlatives without proof, stale numbers, or a single original report dressed up as multiple sources. "
+                       'Return ONLY JSON: {"facts":[".."],"inferences":[".."],"red_flags":[".."],'
+                       '"do_not_say":[".."],"overall":"VERIFIED_PRIMARY|VERIFIED_SECONDARY|INFERENCE_SUPPORTED|UNVERIFIED|CONTRADICTED"}')
+            payload = json.dumps({"model":"gpt-4o","messages":[{"role":"user","content":prompt}],
+                                  "max_tokens":400,"temperature":0.1}).encode()
+            req = u.Request("https://api.openai.com/v1/chat/completions", data=payload,
+                headers={"Authorization":"Bearer "+OPENAI_KEY,"Content-Type":"application/json"})
+            resp = json.loads(u.urlopen(req, timeout=30).read().decode())
+            content = resp["choices"][0]["message"]["content"]
+            j = re.search(r"\{.*\}", content, re.DOTALL)
+            if j:
+                adv = json.loads(j.group(0))
+                item["facts"] = adv.get("facts", [])
+                item["inferences"] = adv.get("inferences", [])
+                item["red_flags"] = adv.get("red_flags", [])
+                do_not_say.extend(adv.get("do_not_say", []))
+                llm_status = adv.get("overall", "UNVERIFIED")
+            else:
+                llm_status = "UNVERIFIED"
+        except Exception as ex:
+            print("[verify] LLM adversarial failed: " + str(ex))
+            llm_status = "UNVERIFIED"
+    else:
+        llm_status = "SOURCE_BACKED" if src_q >= 0.7 else "UNVERIFIED"
+
+    # 4) Resolve story status (worst-case aware: contradiction dominates)
+    statuses = [h["status"] for h in hard] + [c["status"] for c in claim_results] + [llm_status]
+    if "CONTRADICTED" in statuses:
+        story_status = "CONTRADICTED"
+    elif has_primary and llm_status in ("VERIFIED_PRIMARY","VERIFIED_SECONDARY"):
+        story_status = "VERIFIED_PRIMARY"
+    elif llm_status in ("VERIFIED_PRIMARY","VERIFIED_SECONDARY"):
+        story_status = "VERIFIED_SECONDARY"
+    elif llm_status == "INFERENCE_SUPPORTED":
+        story_status = "INFERENCE_SUPPORTED"
+    else:
+        story_status = "UNVERIFIED"
+
+    item["verification_status"] = story_status
+    item["hard_checks"] = hard
+    item["claim_results"] = claim_results
+    item["do_not_say"] = list(dict.fromkeys(do_not_say))  # dedupe, preserve order
+    # writer may use VERIFIED_* and INFERENCE_SUPPORTED (with hedge). UNVERIFIED/CONTRADICTED are blocked as fact.
+    item["writer_eligible"] = story_status in ("VERIFIED_PRIMARY","VERIFIED_SECONDARY","INFERENCE_SUPPORTED")
+    item["requires_hedge"] = story_status == "INFERENCE_SUPPORTED"
+
+    # 5) Log rejected claims as a growing hallucination dataset
+    if story_status in ("UNVERIFIED","CONTRADICTED"):
+        try:
+            with open(REJECTED_CLAIMS_LOG, "a") as f:
+                f.write(json.dumps({
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "headline": item.get("title",""),
+                    "source": domain,
+                    "status": story_status,
+                    "claims": item.get("primary_claims", []),
+                    "red_flags": item.get("red_flags", []),
+                }) + "\n")
+        except Exception:
+            pass
     return item
 
 def run(top_n=10):
@@ -341,7 +421,7 @@ def run(top_n=10):
 
     # Verify each ranked story before output (GPT spec: no unverified claim reaches writer)
     for it in ranked:
-        verify_story(it)
+        adversarial_verify(it)
 
     stories = []
     for i, it in enumerate(ranked):
@@ -370,6 +450,10 @@ def run(top_n=10):
             "requires_hedge": it.get("requires_hedge", True),
             "primary_claims": it.get("primary_claims", []),
             "hard_checks": it.get("hard_checks", []),
+            "facts": it.get("facts", []),
+            "inferences": it.get("inferences", []),
+            "red_flags": it.get("red_flags", []),
+            "do_not_say": it.get("do_not_say", []),
         })
 
     with open(OUT, "w") as f:
