@@ -1,0 +1,27 @@
+{
+  "fixture_id": "trump_usd1_toll_booth_thread",
+  "created": "2026-08-27",
+  "purpose": "Regression test for external claim verification. The machine must reach NO_POST on this thread WITHOUT any out-of-pipeline research. It must independently (1) mark 'USD1 crossed $4B on Aug 26' CONTRADICTED/STALE, (2) date Hagerty's structural-demand statement to May 2025 with Aug 24 2026 as a repost, (3) date OCC charter to Aug 14 and FinCEN BOI deletion to Aug 11, (4) refuse the motive/causal chain as unverifiable.",
+  "expected_outcome": "NO_POST",
+  "expected_claim_results": {
+    "USD1 crossed $4 billion on August 26 2026": "CONTRADICTED (supply ~4.05B on Aug 25 per DeFiLlama; was 4.6B in July 2026; not a crossing)",
+    "Hagerty said GENIUS Act written in part for structural Treasury demand": "VERIFIED but original statement May 2025 (CNBC), reposted Aug 24 2026 on X",
+    "Brookings projects $2.3T captive demand by 2030": "REPORTED_ATTRIBUTED with range 400B-2.3T first-round, substitution caveat; 'captive' is editorializing",
+    "OCC granted family company a federal bank charter": "STALE (conditional trust charter approval, Aug 14 2026)",
+    "FinCEN beneficial ownership database deleted": "STALE (Aug 11 2026)",
+    "Treasury Secretary made $3.5B crashing another currency": "UNVERIFIED in packet",
+    "every step described has already happened": "INFERENCE / motive chain - BLOCKED"
+  },
+  "human_verified_facts_2026_08_27": [
+    "USD1 ~$4.05B market cap per DeFiLlama, Aug 25 2026 (Cointelegraph, Cryptonomist)",
+    "USD1 $4.6B in circulation reported July 2026 (eco.com support doc); crypto.news: circulation has fallen from February level",
+    "Witkoff on CNBC Aug 25: 'over $4 billion of USD1 in circulation'",
+    "Hagerty X post Monday Aug 24 2026: 'I wrote the GENIUS Act in part to cement dollar dominance ... and drive structural demand for U.S. Treasuries' (Crowdfund Insider, Stocktwits/Yahoo Aug 25)",
+    "Hagerty on CNBC Squawk Box May 2025 made same Treasury-demand argument (Decrypt, May 22 2025)",
+    "GENIUS Act reserve requirement: cash + Treasury bills maturity 93 days or less (S.1582 text)"
+  ],
+  "gpt_draft_that_failed": "GENIUS Act author Bill Hagerty says creating structural demand for U.S. Treasuries was part of the design. Yesterday, the Trump-linked USD1 stablecoin crossed $4 billion. Those two facts belong next to each other",
+  "why_it_failed": "Second fact false (not a crossing; supply declining). First fact a restatement from 2025. Publication freshness mistaken for event freshness.",
+  "claim_auditor_result_2026_08_27": "Passed the false $4B claim as VERIFIED FACT. Flagged Hagerty self-stated motive as 'motive attribution' (wrong: first-person statement is a quote). Corrected packet from non-listed domain blocked at 0.5 before LLM pass; same facts from cnbc.com passed with EMPTY facts and writer_eligible=True (now fixed by invariant).",
+  "source_text_file": "trump_usd1_toll_booth_thread.txt"
+}

@@ -355,7 +355,9 @@ def extract_claims(item):
 
 def adversarial_verify(item):
     """
-    Hostile verification. Tries to break each claim. Produces:
+    CLAIM AUDITOR (not an external verifier). Hostile internal-consistency pass.
+    Only BTC price + block height are live hard-checked; every other claim is judged
+    by an LLM against the packet text. See docs/SOCIAL_ENGINE_HANDOFF.md Layer 3. Tries to break each claim. Produces:
       - per-claim status: VERIFIED_PRIMARY | VERIFIED_SECONDARY | INFERENCE_SUPPORTED | UNVERIFIED | CONTRADICTED | STALE
       - story-level verification_status (worst-case aware)
       - do_not_say[]  (active writer guardrail)
@@ -457,8 +459,15 @@ def adversarial_verify(item):
     #   REPORTED_ATTRIBUTED-> MUST attribute to the outlet ("The FT reports...")
     #   INFERENCE_SUPPORTED-> MUST hedge ("suggests", "would imply")
     #   UNVERIFIED/CONTRADICTED/STALE -> blocked
+    # HARD INVARIANT (2026-08-27): no evidence -> no eligibility. A story whose audit
+    # returned zero usable facts/inferences gives the writer only a headline to rewrite.
+    usable_claims = len(item.get("facts") or []) + len(item.get("inferences") or [])
+    item["usable_claim_count"] = usable_claims
     item["writer_eligible"] = story_status in (
-        "VERIFIED_PRIMARY","VERIFIED_SECONDARY","REPORTED_ATTRIBUTED","INFERENCE_SUPPORTED")
+        "VERIFIED_PRIMARY","VERIFIED_SECONDARY","REPORTED_ATTRIBUTED","INFERENCE_SUPPORTED") \
+        and usable_claims > 0
+    if usable_claims == 0 and story_status not in ("UNVERIFIED","CONTRADICTED","STALE"):
+        item.setdefault("red_flags", []).append("EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False")
     item["requires_hedge"] = story_status in ("INFERENCE_SUPPORTED",)
     item["requires_attribution"] = story_status in ("REPORTED_ATTRIBUTED","VERIFIED_SECONDARY")
 
