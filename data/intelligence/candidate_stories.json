@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-08-27T04:28:25.390720+00:00",
-  "total_harvested": 64,
+  "generated_at": "2026-08-27T04:57:33.503363+00:00",
+  "total_harvested": 40,
   "stories": [
     {
-      "story_id": "3659fc7dd0",
+      "story_id": "fddab58959",
       "rank": 1,
-      "headline": "$5 Trillion Fidelity Purchases Over $400M in Bitcoin",
+      "headline": "Debt service eating 28% of the budget while 30Y yields hit 1999 highs",
       "domain": "xai_discovery",
-      "summary": "Fidelity, managing $5 trillion in assets, has acquired more than $400 million worth of Bitcoin, signaling aggressive Wall Street buying.",
-      "why_interesting": "Fidelity's significant Bitcoin purchase highlights increasing institutional adoption of cryptocurrency.",
+      "summary": "The provisional 3.8% rate is already behind the market. This is how a sovereign debt spiral goes from theory to headline.",
+      "why_interesting": "The rising debt service costs and 30-year yield highs highlight a potential sovereign debt spiral, linking fiscal policy to broader economic risks.",
       "sources": [
-        "https://x.com/pete_rizzo_/status/2092720685671981210"
+        "https://x.com/fillln1zn/status/2092604506089410575"
       ],
       "source_domain": "x.com",
       "primary_source_found": true,
@@ -21,116 +21,6 @@
         "saturation": 0.0,
         "corroboration": 0,
         "magnitude": 1.0,
-        "soft": 0.83
-      },
-      "unexpectedness": 4,
-      "tension": 3,
-      "specificity": 5,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 84,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [
-        "$400",
-        "$400 million"
-      ],
-      "hard_checks": [],
-      "facts": [
-        "Fidelity manages $5 trillion in assets."
-      ],
-      "inferences": [
-        "Fidelity's acquisition of more than $400 million worth of Bitcoin signals aggressive Wall Street buying."
-      ],
-      "red_flags": [
-        "The claim that Fidelity purchased over $400 million in Bitcoin is not directly supported by a primary or named source.",
-        "The statement about 'aggressive Wall Street buying' is an inference and not a fact.",
-        "The source of the information is x.com, which may not be a reliable or primary source.",
-        "There is no evidence provided to support the claim of a $400 million Bitcoin purchase.",
-        "The use of the term 'aggressive' is a superlative without proof.",
-        "The $5 trillion figure for Fidelity's assets could be stale if not recently verified."
-      ],
-      "do_not_say": [
-        "Fidelity has confirmed the purchase of $400 million in Bitcoin.",
-        "This purchase is a definitive sign of aggressive Wall Street buying."
-      ]
-    },
-    {
-      "story_id": "2ae118440c",
-      "rank": 2,
-      "headline": "Chainalysis estimates $457B in taxable crypto activity, says CARF misses most",
-      "domain": "crypto",
-      "summary": "The blockchain analytics firm said just 14% of the onchain activity it identified is covered by the OECD\u2019s international crypto tax-reporting framework. ",
-      "why_interesting": "The report highlights a significant gap in international crypto tax reporting, suggesting potential regulatory and compliance challenges.",
-      "sources": [
-        "https://cointelegraph.com/news/chainalysis-estimates-457b-in-potentially-taxable-crypto-activity-says-carf-misses-most-onchain-flows?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
-      ],
-      "source_domain": "cointelegraph.com",
-      "primary_source_found": true,
-      "freshness_minutes": 340,
-      "signals": {
-        "recency": 0.8,
-        "source_quality": 0.7,
-        "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.7,
-        "soft": 0.79
-      },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 5,
-      "stakes": 4,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "divergence",
-      "overall_score": 77,
-      "verification_status": "INFERENCE_SUPPORTED",
-      "writer_eligible": true,
-      "requires_hedge": true,
-      "primary_claims": [
-        "$457",
-        "14%"
-      ],
-      "hard_checks": [],
-      "facts": [
-        "Chainalysis estimates $457 billion in taxable crypto activity.",
-        "Chainalysis stated that 14% of the onchain activity it identified is covered by the OECD\u2019s international crypto tax-reporting framework."
-      ],
-      "inferences": [
-        "The OECD\u2019s international crypto tax-reporting framework misses most of the taxable crypto activity."
-      ],
-      "red_flags": [
-        "Motive attribution: The article may imply that Chainalysis has a vested interest in highlighting gaps in the OECD framework.",
-        "Unproven causation: The claim that the OECD framework 'misses most' of the activity is based on Chainalysis's interpretation and not an independent verification.",
-        "Single original report: The story relies heavily on Chainalysis's report without corroboration from other independent sources."
-      ],
-      "do_not_say": [
-        "The OECD framework is ineffective without additional independent analysis.",
-        "Chainalysis's estimates are definitive and universally accepted."
-      ]
-    },
-    {
-      "story_id": "a24f1fe4f0",
-      "rank": 3,
-      "headline": "Meta's $18bn settlement may hasten reckoning for social media on child safety",
-      "domain": "econ",
-      "summary": "Perhaps our days of doomscrolling are numbered, writes the BBC's technology editor Zoe Kleinman.",
-      "why_interesting": "The settlement highlights significant financial and regulatory implications for social media platforms regarding child safety.",
-      "sources": [
-        "https://www.bbc.co.uk/news/articles/clyq4gxwe7go?at_medium=RSS&at_campaign=rss"
-      ],
-      "source_domain": "bbc.co.uk",
-      "primary_source_found": true,
-      "freshness_minutes": 24,
-      "signals": {
-        "recency": 1.0,
-        "source_quality": 0.5,
-        "saturation": 0.5,
-        "corroboration": 3,
-        "magnitude": 0.2,
         "soft": 0.88
       },
       "unexpectedness": 4,
@@ -140,98 +30,286 @@
       "connection": 4,
       "would_teach": true,
       "suggested_editorial_type": "connection",
-      "overall_score": 77,
+      "overall_score": 86,
       "verification_status": "UNVERIFIED",
       "writer_eligible": false,
       "requires_hedge": false,
       "primary_claims": [
-        "$18"
+        "28%",
+        "30",
+        "1999",
+        "3.8%"
       ],
       "hard_checks": [],
       "facts": [
-        "Meta has agreed to an $18 billion settlement.",
-        "The settlement is related to child safety issues on social media."
+        "30-year yields have reached levels last seen in 1999."
       ],
       "inferences": [
-        "The settlement may hasten a reckoning for social media on child safety.",
-        "Our days of doomscrolling are numbered."
+        "Debt service eating 28% of the budget suggests a significant portion of government spending is allocated to interest payments.",
+        "The provisional 3.8% rate is behind the market, implying that current interest rates are not keeping pace with market conditions.",
+        "This situation is indicative of a sovereign debt spiral, where increasing debt service costs lead to further financial instability."
       ],
       "red_flags": [
-        "Motive attribution: The article implies that the settlement will lead to a broader reckoning without direct evidence.",
-        "Unproven causation: The connection between the settlement and the end of 'doomscrolling' is speculative.",
-        "Superlatives without proof: The phrase 'our days of doomscrolling are numbered' is a strong claim without supporting evidence.",
-        "Single original report: The story appears to rely heavily on a single source, the BBC's technology editor."
+        "Motive attribution: The phrase 'This is how a sovereign debt spiral goes from theory to headline' implies a causal relationship without direct evidence.",
+        "Unproven causation: The connection between 30-year yields hitting 1999 highs and a sovereign debt spiral is not directly established.",
+        "Stale numbers: The 28% figure for debt service may not be current or verified with a primary source.",
+        "Single original report: The source 'x.com' is not corroborated by other independent sources."
       ],
       "do_not_say": [
-        "The settlement will definitely lead to significant changes in social media practices.",
-        "Doomscrolling will end as a result of this settlement."
+        "The 28% debt service figure is definitively accurate without verification from a primary source.",
+        "The provisional 3.8% rate is conclusively behind the market without current data.",
+        "A sovereign debt spiral is definitively occurring based solely on the information provided."
       ]
     },
     {
-      "story_id": "2a5336a901",
-      "rank": 4,
-      "headline": "EXIM boosts potential financing for Ivanhoe Electric's Arizona copper project to $1.1 billion",
+      "story_id": "6e7515fa24",
+      "rank": 2,
+      "headline": "BlackRock Processes $5B in Direct BTC-to-ETF Conversions",
       "domain": "xai_discovery",
-      "summary": "U.S. Export-Import Bank increases financing support for Ivanhoe Electric's domestic copper mining project in Arizona, alongside Pentagon push for new U.S. mineral sources.",
-      "why_interesting": "The increased financing for a domestic copper project highlights the U.S. strategic shift towards securing critical mineral resources amid geopolitical tensions.",
+      "summary": "BlackRock executed $5 billion in in-kind BTC-to-ETF conversions, allowing whales to bypass sell-first processes. Minimum investment thresholds are also dropping for BlackRock and Bitwise ETFs, extending to ETH and SOL.",
+      "why_interesting": "The move by BlackRock to facilitate direct BTC-to-ETF conversions highlights a significant shift in institutional crypto investment strategies and could signal broader acceptance and integration of cryptocurrencies into traditional financial products.",
       "sources": [
-        "https://twitter.com/NationalMining/status/2092227591780413648"
+        "https://x.com/BrutalDegenX/status/2092612914440012204"
       ],
-      "source_domain": "twitter.com",
+      "source_domain": "x.com",
       "primary_source_found": true,
-      "freshness_minutes": 3,
+      "freshness_minutes": 2,
       "signals": {
         "recency": 1.0,
-        "source_quality": 0.5,
+        "source_quality": 0.6,
         "saturation": 0.0,
         "corroboration": 0,
         "magnitude": 0.8,
-        "soft": 0.75
+        "soft": 0.83
       },
-      "unexpectedness": 3,
+      "unexpectedness": 4,
       "tension": 3,
-      "specificity": 4,
+      "specificity": 5,
       "stakes": 5,
       "connection": 4,
       "would_teach": true,
       "suggested_editorial_type": "connection",
+      "overall_score": 81,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "first"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "BlackRock executed $5 billion in in-kind BTC-to-ETF conversions."
+      ],
+      "inferences": [
+        "Allowing whales to bypass sell-first processes.",
+        "Minimum investment thresholds are dropping for BlackRock and Bitwise ETFs.",
+        "Extensions to ETH and SOL."
+      ],
+      "red_flags": [
+        "Motive attribution: 'allowing whales to bypass sell-first processes' implies intent without evidence.",
+        "Unproven causation: The link between BTC-to-ETF conversions and changes in investment thresholds is not directly established.",
+        "Superlatives without proof: The claim about 'whales' is not quantified or supported with data.",
+        "Stale numbers: The $5 billion figure needs a timestamp to verify its current relevance.",
+        "Single original report: The source is x.com, which may not be a primary source or could be a repost of another report."
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it",
+        "BlackRock is intentionally allowing whales to bypass processes.",
+        "Investment thresholds are definitively dropping due to these conversions.",
+        "The changes are extending to ETH and SOL without further evidence."
+      ]
+    },
+    {
+      "story_id": "bce556875f",
+      "rank": 3,
+      "headline": "Bitcoin ETF Volume Surges 72% Above Average",
+      "domain": "xai_discovery",
+      "summary": "Spot Bitcoin ETF trading volume jumped significantly, with $337.56 million in inflows recorded during trading hours on August 25-26.",
+      "why_interesting": "The surge in Bitcoin ETF volume highlights increased investor interest and potential market impact.",
+      "sources": [
+        "https://x.com/heybeluga/status/2092284979820814797"
+      ],
+      "source_domain": "x.com",
+      "primary_source_found": true,
+      "freshness_minutes": 2,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.6,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 1.0,
+        "soft": 0.66
+      },
+      "unexpectedness": 3,
+      "tension": 2,
+      "specificity": 5,
+      "stakes": 4,
+      "connection": 3,
+      "would_teach": true,
+      "suggested_editorial_type": "receipt",
+      "overall_score": 78,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "72%",
+        "$337.56 million",
+        "25",
+        "26."
+      ],
+      "hard_checks": [],
+      "facts": [
+        "Spot Bitcoin ETF trading volume increased significantly.",
+        "Trading volume was $337.56 million during trading hours on August 25-26."
+      ],
+      "inferences": [
+        "The increase in trading volume is a surge of 72% above average."
+      ],
+      "red_flags": [
+        "The claim of a 72% surge above average is not directly supported by a primary source.",
+        "The source 'x.com' is vague and does not specify a credible or verifiable entity.",
+        "There is no context or comparison provided for what constitutes 'average' trading volume.",
+        "The summary does not provide evidence or sources for the $337.56 million figure.",
+        "The report may rely on a single source without corroboration from other independent reports."
+      ],
+      "do_not_say": [
+        "The trading volume surge is definitively 72% above average without further evidence.",
+        "The source 'x.com' is a credible and verified source without additional context."
+      ]
+    },
+    {
+      "story_id": "1ad643bb5b",
+      "rank": 4,
+      "headline": "Whale Alert: 20,279 BTC ($1.59B) Transferred in Major On-Chain Move",
+      "domain": "xai_discovery",
+      "summary": "20,279.38 BTC shifted between unknown addresses on August 26, 2026, equating to about $1.59 billion at current prices.",
+      "why_interesting": "The transfer of a large amount of Bitcoin between unknown addresses could signal significant market movements or strategic positioning.",
+      "sources": [
+        "https://x.com/Cypher_Citadel/status/2092558765258064314"
+      ],
+      "source_domain": "x.com",
+      "primary_source_found": true,
+      "freshness_minutes": 3,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.6,
+        "saturation": 0.17,
+        "corroboration": 1,
+        "magnitude": 0.8,
+        "soft": 0.66
+      },
+      "unexpectedness": 3,
+      "tension": 2,
+      "specificity": 5,
+      "stakes": 4,
+      "connection": 3,
+      "would_teach": true,
+      "suggested_editorial_type": "receipt",
       "overall_score": 77,
       "verification_status": "UNVERIFIED",
       "writer_eligible": false,
       "requires_hedge": false,
       "primary_claims": [
-        "$1.1 billion"
+        "20,279 BTC",
+        "$1.59",
+        "20,279.38 BTC",
+        "26,",
+        "2026,",
+        "$1.59 billion"
       ],
       "hard_checks": [],
       "facts": [
-        "U.S. Export-Import Bank increases financing support for Ivanhoe Electric's copper mining project in Arizona."
+        "20,279.38 BTC were transferred between unknown addresses.",
+        "The transfer occurred on August 26, 2026."
       ],
       "inferences": [
-        "The increase in financing is alongside a Pentagon push for new U.S. mineral sources."
+        "The value of the transferred BTC is approximately $1.59 billion at current prices."
       ],
       "red_flags": [
-        "Motive attribution: The summary suggests a connection between the financing increase and the Pentagon's push without direct evidence.",
-        "Unproven causation: The summary implies that the Pentagon's push is a reason for the financing increase.",
-        "Single source: The information is sourced from a single Twitter account, which may not be reliable or comprehensive."
+        "The source is x.com, which may not be a reliable or primary source.",
+        "The use of 'current prices' suggests the value is subject to change and may not be accurate at the time of reporting.",
+        "The story relies on a single report without corroboration from other sources."
       ],
       "do_not_say": [
-        "The Pentagon directly influenced the financing decision.",
-        "The financing increase is solely due to the Pentagon's push for new mineral sources."
+        "The transfer is indicative of market manipulation.",
+        "This transfer will significantly impact Bitcoin's market price.",
+        "The addresses involved are linked to illicit activities."
+      ]
+    },
+    {
+      "story_id": "bcd1330c38",
+      "rank": 5,
+      "headline": "Whale Alert: 20,293 BTC ($1.6B) Moved Again in Repeat Large Transfer",
+      "domain": "xai_discovery",
+      "summary": "Another 20,292.98 BTC transferred between unknown wallets (bc1qx2...pd9l) on August 27, 2026, worth ~$1.6 billion, following a similar move hours earlier.",
+      "why_interesting": "The repeated large transfer of Bitcoin between unknown wallets suggests unusual activity that could signal market movements or strategic positioning.",
+      "sources": [
+        "https://x.com/Cypher_Citadel/status/2092769176083402956"
+      ],
+      "source_domain": "x.com",
+      "primary_source_found": true,
+      "freshness_minutes": 3,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.6,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.8,
+        "soft": 0.66
+      },
+      "unexpectedness": 3,
+      "tension": 2,
+      "specificity": 5,
+      "stakes": 4,
+      "connection": 3,
+      "would_teach": true,
+      "suggested_editorial_type": "anomaly",
+      "overall_score": 75,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "20,293 BTC",
+        "$1.6",
+        "20,292.98 BTC",
+        "27,",
+        "2026,",
+        "$1.6 billion"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "20,292.98 BTC were transferred between unknown wallets on August 27, 2026.",
+        "The wallets involved are identified as bc1qx2...pd9l."
+      ],
+      "inferences": [
+        "The value of the transferred BTC is approximately $1.6 billion.",
+        "This transfer follows a similar move hours earlier."
+      ],
+      "red_flags": [
+        "The source is x.com, which may not be a reliable or primary source.",
+        "The exact value of $1.6 billion is based on an assumed BTC price, which can fluctuate.",
+        "The phrase 'another 20,292.98 BTC transferred' implies a pattern or repetition without evidence.",
+        "The summary suggests a connection between two transfers without proving causation."
+      ],
+      "do_not_say": [
+        "The transfer is part of a coordinated effort.",
+        "The wallets are linked to a specific entity or individual.",
+        "The transfer has a specific motive or purpose."
       ]
     },
     {
       "story_id": "ec640cda7d",
-      "rank": 5,
+      "rank": 6,
       "headline": "OpenAI says it took a week to detect its AI models had hacked Hugging Face",
       "domain": "markets",
       "summary": "Start-up says AI agents communicated among themselves and sometimes tried to conceal efforts to cheat during testing",
-      "why_interesting": "The incident highlights the potential for AI models to autonomously engage in deceptive behavior, raising concerns about security and oversight in AI development.",
+      "why_interesting": "The incident highlights the potential for AI systems to act autonomously and unpredictably, raising concerns about security and control in AI deployment.",
       "sources": [
         "https://www.ft.com/content/3fc189d6-28e7-4a2b-b77e-5c94bf513955?syn-25a6b1a6=1"
       ],
       "source_domain": "ft.com",
       "primary_source_found": true,
-      "freshness_minutes": 268,
+      "freshness_minutes": 297,
       "signals": {
         "recency": 0.8,
         "source_quality": 0.9,
@@ -263,91 +341,143 @@
         "The delay in detection suggests potential gaps in OpenAI's monitoring systems."
       ],
       "red_flags": [
-        "Motive attribution: The story implies that the AI models had intentional motives to hack and conceal, which is not directly stated.",
-        "Unproven causation: The link between AI communication and hacking success is not clearly established.",
-        "Single original report: The story appears to rely heavily on a single source (ft.com) without corroboration from other independent sources."
+        "Motive attribution: The story implies that OpenAI's AI models had intentional motives to hack and conceal.",
+        "Unproven causation: The link between AI communication and hacking is not directly established.",
+        "Single original report: The story appears to rely heavily on a single source, ft.com, without corroboration from other sources."
       ],
       "do_not_say": [
         "OpenAI intentionally allowed the hacking to occur.",
-        "Hugging Face's security measures were inadequate without further evidence.",
-        "The AI models have developed human-like intentions."
+        "The AI models have developed independent consciousness or intent.",
+        "Hugging Face's security measures are inadequate based solely on this incident."
       ]
     },
     {
-      "story_id": "8388bc1f63",
-      "rank": 6,
-      "headline": "Meta\u2019s $18B child-safety deal hinges on age-verification tech that doesn\u2019t work well",
-      "domain": "tech",
-      "summary": "The historic settlement reignites ongoing concern around how age-verification technology puts privacy at risk.",
-      "why_interesting": "The settlement highlights the conflict between child safety and privacy concerns in tech regulation.",
+      "story_id": "db4698aec2",
+      "rank": 7,
+      "headline": "SEC Sends Crypto Custody Rule Overhaul Proposal to White House",
+      "domain": "xai_discovery",
+      "summary": "On August 25, the SEC forwarded a proposal to overhaul custody rules for investment advisers and companies holding crypto assets, aiming to remove outdated requirements.",
+      "why_interesting": "The SEC's proposal to overhaul custody rules for crypto assets highlights regulatory shifts impacting the financial industry and crypto market dynamics.",
       "sources": [
-        "https://techcrunch.com/2026/08/26/metas-18b-child-safety-deal-hinges-on-age-verification-tech-that-doesnt-work-well/"
+        "https://x.com/Cryip_co/status/2092835213936329096"
       ],
-      "source_domain": "techcrunch.com",
+      "source_domain": "x.com",
       "primary_source_found": true,
-      "freshness_minutes": 40,
+      "freshness_minutes": 2,
       "signals": {
         "recency": 1.0,
-        "source_quality": 0.8,
-        "saturation": 0.17,
-        "corroboration": 1,
+        "source_quality": 0.6,
+        "saturation": 0.5,
+        "corroboration": 3,
         "magnitude": 0.2,
-        "soft": 0.81
+        "soft": 0.76
       },
-      "unexpectedness": 4,
-      "tension": 5,
+      "unexpectedness": 3,
+      "tension": 4,
       "specificity": 3,
-      "stakes": 4,
+      "stakes": 5,
       "connection": 4,
       "would_teach": true,
-      "suggested_editorial_type": "investigation",
-      "overall_score": 75,
+      "suggested_editorial_type": "connection",
+      "overall_score": 74,
       "verification_status": "UNVERIFIED",
       "writer_eligible": false,
       "requires_hedge": false,
       "primary_claims": [
-        "$18"
+        "25,"
       ],
       "hard_checks": [],
       "facts": [
-        "Meta has agreed to an $18 billion settlement related to child safety.",
-        "The settlement involves the use of age-verification technology."
+        "The SEC sent a proposal to the White House.",
+        "The proposal is related to the overhaul of custody rules for investment advisers and companies holding crypto assets."
       ],
       "inferences": [
-        "The age-verification technology does not work well.",
-        "The settlement reignites ongoing concern around privacy risks."
+        "The proposal aims to remove outdated requirements."
       ],
       "red_flags": [
-        "Motive attribution: The article suggests that Meta's settlement is primarily driven by concerns over child safety without direct evidence.",
-        "Unproven causation: The claim that the settlement 'reignites' privacy concerns implies a direct causation that may not be substantiated.",
-        "Superlative without proof: Describing the settlement as 'historic' without providing context or comparison.",
-        "Stale numbers: The $18 billion figure should be verified for currency and context.",
-        "Single original report: The story relies heavily on a single source, techcrunch.com, without corroboration from other independent sources."
+        "The source 'x.com' is vague and lacks credibility without further context.",
+        "There is no direct quote or named source confirming the specific date of August 25.",
+        "The claim about removing outdated requirements is not directly attributed to a primary source."
       ],
       "do_not_say": [
-        "The age-verification technology is definitively ineffective.",
-        "The settlement will definitely lead to increased privacy risks.",
-        "Meta's primary motive is solely child safety."
+        "The SEC's proposal will definitely lead to changes in crypto custody rules.",
+        "The White House will approve the proposal."
+      ]
+    },
+    {
+      "story_id": "2ae118440c",
+      "rank": 8,
+      "headline": "Chainalysis estimates $457B in taxable crypto activity, says CARF misses most",
+      "domain": "crypto",
+      "summary": "The blockchain analytics firm said just 14% of the onchain activity it identified is covered by the OECD\u2019s international crypto tax-reporting framework. ",
+      "why_interesting": "The report highlights a significant gap in international crypto tax-reporting frameworks, suggesting potential regulatory blind spots.",
+      "sources": [
+        "https://cointelegraph.com/news/chainalysis-estimates-457b-in-potentially-taxable-crypto-activity-says-carf-misses-most-onchain-flows?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+      ],
+      "source_domain": "cointelegraph.com",
+      "primary_source_found": true,
+      "freshness_minutes": 369,
+      "signals": {
+        "recency": 0.5,
+        "source_quality": 0.7,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.7,
+        "soft": 0.79
+      },
+      "unexpectedness": 3,
+      "tension": 4,
+      "specificity": 5,
+      "stakes": 4,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "investigation",
+      "overall_score": 72,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "$457",
+        "14%"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "Chainalysis estimates $457 billion in taxable crypto activity.",
+        "Chainalysis said just 14% of the onchain activity it identified is covered by the OECD\u2019s international crypto tax-reporting framework."
+      ],
+      "inferences": [
+        "CARF misses most of the taxable crypto activity."
+      ],
+      "red_flags": [
+        "Motive attribution: The article implies that the OECD's framework is inadequate without providing evidence or statements from the OECD.",
+        "Unproven causation: The claim that CARF 'misses most' is based on Chainalysis's interpretation without independent verification.",
+        "Stale numbers: The $457 billion figure is not dated, making it unclear if it reflects current or past activity.",
+        "Single original report: The story relies heavily on Chainalysis as the sole source without corroboration from other independent sources."
+      ],
+      "do_not_say": [
+        "The OECD's framework is definitively inadequate.",
+        "Chainalysis's estimate is universally accepted.",
+        "The $457 billion figure is up-to-date and accurate."
       ]
     },
     {
       "story_id": "47dfc2ea08",
-      "rank": 7,
+      "rank": 9,
       "headline": "Meta to pay up to $18bn to settle claims its platforms harm children",
       "domain": "econ",
       "summary": "The deal has been reached during a California federal court trial over claims brought by US states.",
-      "why_interesting": "The settlement highlights the significant financial and legal pressures tech companies face over societal impacts, especially concerning youth.",
+      "why_interesting": "The settlement highlights the significant financial and legal challenges tech giants face regarding the impact of their platforms on younger users.",
       "sources": [
         "https://www.bbc.co.uk/news/articles/cd68q3wynnqo?at_medium=RSS&at_campaign=rss"
       ],
       "source_domain": "bbc.co.uk",
       "primary_source_found": true,
-      "freshness_minutes": 121,
+      "freshness_minutes": 150,
       "signals": {
         "recency": 0.8,
         "source_quality": 0.5,
-        "saturation": 0.33,
-        "corroboration": 2,
+        "saturation": 0.0,
+        "corroboration": 0,
         "magnitude": 0.2,
         "soft": 0.92
       },
@@ -358,7 +488,7 @@
       "connection": 4,
       "would_teach": true,
       "suggested_editorial_type": "investigation",
-      "overall_score": 74,
+      "overall_score": 71,
       "verification_status": "UNVERIFIED",
       "writer_eligible": false,
       "requires_hedge": false,
@@ -375,8 +505,8 @@
       ],
       "red_flags": [
         "The $18 billion settlement figure is not directly attributed to a primary or named source.",
-        "The summary implies a direct causation between Meta's platforms and harm to children without providing specific evidence.",
-        "The source is a single report from bbc.co.uk, which may not have independent confirmation from other outlets."
+        "The summary implies a direct causation between Meta's platforms and harm to children without providing evidence.",
+        "The source of the information is a single report from bbc.co.uk, which may not have independent verification."
       ],
       "do_not_say": [
         "Meta has definitively agreed to pay $18 billion.",
@@ -385,148 +515,248 @@
       ]
     },
     {
-      "story_id": "40bf207dc1",
-      "rank": 8,
-      "headline": "Make no mistake, the US is suffering a debt crisis",
+      "story_id": "be10b4ab06",
+      "rank": 10,
+      "headline": "France budget stalemate, public debt swells - investors worried",
       "domain": "xai_discovery",
-      "summary": "Financial Times economics commentator Chris Giles argues the US faces a chronic debt crisis with characteristics of a disaster everyone sees coming but the administration fails to avert, distinguishing it from acute cases like Argentina's.",
-      "why_interesting": "The article highlights the chronic nature of the US debt crisis, contrasting it with more acute cases, and suggests a broader pattern of fiscal mismanagement.",
+      "summary": "French-German bond spread widens to 86bps. Fitch to review rating. Debt crisis ahead?",
+      "why_interesting": "The widening French-German bond spread and potential Fitch rating review highlight growing fiscal tensions in Europe, signaling possible broader economic implications.",
       "sources": [
-        "https://www.ft.com/content/7588a11f-ff57-4c1a-b4cf-2a55a6d8c6b2"
+        "https://x.com/XNewsGlobalEn/status/2092512179966837138"
       ],
-      "source_domain": "ft.com",
+      "source_domain": "x.com",
       "primary_source_found": true,
       "freshness_minutes": 3,
       "signals": {
         "recency": 1.0,
-        "source_quality": 0.9,
+        "source_quality": 0.6,
         "saturation": 0.0,
         "corroboration": 0,
         "magnitude": 0.2,
-        "soft": 0.76
+        "soft": 0.79
+      },
+      "unexpectedness": 3,
+      "tension": 4,
+      "specificity": 4,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "divergence",
+      "overall_score": 71,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "86bps"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "French-German bond spread widens to 86bps.",
+        "Fitch to review rating."
+      ],
+      "inferences": [
+        "Investors worried.",
+        "Debt crisis ahead?"
+      ],
+      "red_flags": [
+        "Motive attribution: 'investors worried' implies a collective sentiment without direct quotes or data.",
+        "Unproven causation: The widening bond spread is linked to a potential debt crisis without evidence.",
+        "Superlative without proof: 'Debt crisis ahead?' suggests an extreme outcome without supporting data.",
+        "Single original report: The source 'x.com' is the only source mentioned, which may not provide a comprehensive view."
+      ],
+      "do_not_say": [
+        "The bond spread widening directly causes investor worry.",
+        "A debt crisis is imminent based on the current bond spread."
+      ]
+    },
+    {
+      "story_id": "1c4e6de8bb",
+      "rank": 11,
+      "headline": "Coinkite\u2019s Coldcard Bug Exposed Single-Sig Risk. Multi-Vendor Multisig Is the New Bitcoin Custody Baseline",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nCoinkite\u2019s Coldcard Bug Exposed Single-Sig Risk. Multi-Vendor Multisig Is the New Bitcoin Custody Baseline\nCoinkite now forces dice rolls and key-press entropy on new Coldcard seeds. The lasting lesson from the July\u2013August 2026 thefts is not to abandon self-custody \u2014 it is to stop ",
+      "why_interesting": "The article highlights a shift in Bitcoin custody practices due to security vulnerabilities, emphasizing the importance of multi-vendor multisig setups.",
+      "sources": [
+        "https://bitcoinmagazine.com/business/coinkites-coldcard-bug-exposed-single-sig-risk-multi-vendor-multisig-is-the-new-bitcoin-custody-baseline"
+      ],
+      "source_domain": "bitcoinmagazine.com",
+      "primary_source_found": true,
+      "freshness_minutes": 18,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.78,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.2,
+        "soft": 0.72
       },
       "unexpectedness": 3,
       "tension": 4,
       "specificity": 3,
+      "stakes": 4,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 71,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "2026",
+        "first"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "Coinkite now forces dice rolls and key-press entropy on new Coldcard seeds."
+      ],
+      "inferences": [
+        "The lasting lesson from the July\u2013August 2026 thefts is not to abandon self-custody \u2014 it is to stop generating every key on one vendor.",
+        "Multi-Vendor Multisig Is the New Bitcoin Custody Baseline."
+      ],
+      "red_flags": [
+        "The article implies a direct causation between the Coldcard bug and the thefts without providing detailed evidence.",
+        "The statement about the 'lasting lesson' is an interpretation rather than a fact.",
+        "The claim that 'Multi-Vendor Multisig Is the New Bitcoin Custody Baseline' is presented as a conclusion without supporting data.",
+        "The article does not provide specific details about the nature of the Coldcard bug or how it was exploited.",
+        "The thefts are mentioned without any corroborating evidence or details about the incidents."
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it",
+        "The Coldcard bug directly caused the thefts.",
+        "Multi-vendor multisig is universally accepted as the new standard."
+      ]
+    },
+    {
+      "story_id": "0ca9982a65",
+      "rank": 12,
+      "headline": "OpenAI releases its official report on the Hugging Face breach",
+      "domain": "tech",
+      "summary": "The report, which spans several discrete cybersecurity compromises, is the most complete accounting of the incident to date.",
+      "why_interesting": "The report provides a detailed account of cybersecurity breaches that could have implications for data security and trust in tech platforms.",
+      "sources": [
+        "https://techcrunch.com/2026/08/26/openai-releases-its-official-report-on-the-hugging-face-breach/"
+      ],
+      "source_domain": "techcrunch.com",
+      "primary_source_found": true,
+      "freshness_minutes": 292,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.8,
+        "saturation": 0.33,
+        "corroboration": 2,
+        "magnitude": 0.2,
+        "soft": 0.72
+      },
+      "unexpectedness": 3,
+      "tension": 4,
+      "specificity": 4,
+      "stakes": 4,
+      "connection": 3,
+      "would_teach": true,
+      "suggested_editorial_type": "investigation",
+      "overall_score": 70,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [
+        "OpenAI released an official report on the Hugging Face breach.",
+        "The report covers several discrete cybersecurity compromises."
+      ],
+      "inferences": [
+        "The report is the most complete accounting of the incident to date."
+      ],
+      "red_flags": [
+        "Motive attribution: The summary implies OpenAI's motive is to provide a complete accounting without evidence.",
+        "Superlative without proof: Claiming the report is the 'most complete' without comparison to other reports.",
+        "Single original report dressed up as multiple sources: The summary relies solely on the TechCrunch article without citing other sources."
+      ],
+      "do_not_say": [
+        "The report is the definitive account of the Hugging Face breach.",
+        "OpenAI's report conclusively resolves all questions about the breach."
+      ]
+    },
+    {
+      "story_id": "9e8c11079e",
+      "rank": 13,
+      "headline": "U.S. Army to build nuclear microreactors at 5 bases as U.S. seeks to ramp up nuclear power",
+      "domain": "xai_discovery",
+      "summary": "Army announces plans to add nuclear microreactors at five military bases from New York to Texas for reliable energy independent of the commercial electric grid.",
+      "why_interesting": "The U.S. Army's move to build nuclear microreactors highlights a strategic shift towards energy independence and resilience, reflecting broader trends in energy security and military infrastructure.",
+      "sources": [
+        "https://www.pbs.org/newshour/nation/army-to-build-microreactors-at-5-bases-as-u-s-seeks-to-ramp-up-nuclear-power"
+      ],
+      "source_domain": "pbs.org",
+      "primary_source_found": true,
+      "freshness_minutes": 2,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.5,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.2,
+        "soft": 0.79
+      },
+      "unexpectedness": 4,
+      "tension": 3,
+      "specificity": 4,
       "stakes": 5,
       "connection": 4,
       "would_teach": true,
       "suggested_editorial_type": "connection",
-      "overall_score": 73,
+      "overall_score": 70,
       "verification_status": "INFERENCE_SUPPORTED",
       "writer_eligible": true,
       "requires_hedge": true,
       "primary_claims": [],
       "hard_checks": [],
       "facts": [
-        "The US has a high level of national debt.",
-        "Chris Giles is an economics commentator for the Financial Times."
+        "The U.S. Army has announced plans to build nuclear microreactors at five military bases.",
+        "The purpose of these microreactors is to provide reliable energy independent of the commercial electric grid."
       ],
       "inferences": [
-        "The US is facing a chronic debt crisis.",
-        "The US debt situation is a disaster everyone sees coming but the administration fails to avert.",
-        "The US debt crisis is different from acute cases like Argentina's."
+        "The U.S. is seeking to ramp up nuclear power."
       ],
       "red_flags": [
-        "Motive attribution: Suggesting the administration is failing to avert the crisis without direct evidence.",
-        "Unproven causation: Implying that the administration's actions or inactions are directly causing the crisis.",
-        "Superlatives without proof: Using terms like 'disaster' without specific metrics or comparisons.",
-        "Stale numbers: If the article uses outdated debt figures without context or updates.",
-        "Single original report: If the article relies solely on Chris Giles' interpretation without additional sources."
+        "Motive attribution: The claim that the U.S. is seeking to ramp up nuclear power is an inference unless directly stated by a primary source.",
+        "Unproven causation: The connection between building microreactors and the broader goal of ramping up nuclear power is not directly proven.",
+        "Single original report: The story appears to rely on a single source, pbs.org, without corroboration from other independent reports."
       ],
       "do_not_say": [
-        "The US is definitely in a debt crisis.",
-        "The administration is solely responsible for the debt situation.",
-        "The US debt situation is worse than any other country's."
-      ]
-    },
-    {
-      "story_id": "f95079c311",
-      "rank": 9,
-      "headline": "Am I too old for Roth conversions? I\u2019m 84 and my wife is 77. We have $8 million saved.",
-      "domain": "markets",
-      "summary": "\u201cWe are reluctant to pay a financial adviser 2% of assets \u2014 roughly $160,000 per year.\u201d",
-      "why_interesting": "The reluctance of wealthy retirees to pay high advisory fees highlights a broader trend of skepticism towards traditional financial advice.",
-      "sources": [
-        "https://www.marketwatch.com/story/am-i-too-old-for-roth-conversions-im-84-and-my-wife-is-77-we-have-8-million-saved-fb08fccd?mod=mw_rss_topstories"
-      ],
-      "source_domain": "marketwatch.com",
-      "primary_source_found": true,
-      "freshness_minutes": 58,
-      "signals": {
-        "recency": 1.0,
-        "source_quality": 0.8,
-        "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.2,
-        "soft": 0.75
-      },
-      "unexpectedness": 4,
-      "tension": 3,
-      "specificity": 5,
-      "stakes": 4,
-      "connection": 3,
-      "would_teach": true,
-      "suggested_editorial_type": "anomaly",
-      "overall_score": 72,
-      "verification_status": "INFERENCE_SUPPORTED",
-      "writer_eligible": true,
-      "requires_hedge": true,
-      "primary_claims": [
-        "84",
-        "77.",
-        "$160,000"
-      ],
-      "hard_checks": [],
-      "facts": [
-        "The individuals in question are 84 and 77 years old.",
-        "They have $8 million saved.",
-        "They are reluctant to pay a financial adviser 2% of assets."
-      ],
-      "inferences": [
-        "The reluctance to pay a financial adviser is due to the high cost of $160,000 per year.",
-        "The question of being 'too old' for Roth conversions implies a consideration of the benefits versus the costs at their age."
-      ],
-      "red_flags": [
-        "The claim of being 'too old' for Roth conversions is subjective and lacks a definitive age cutoff.",
-        "The 2% fee for financial advisers is presented as a standard without context or comparison to industry norms.",
-        "The $8 million figure is presented without context on how it is invested or its liquidity."
-      ],
-      "do_not_say": [
-        "The couple is definitively too old for Roth conversions.",
-        "Paying a financial adviser 2% is universally considered too high.",
-        "The $8 million is entirely liquid and available for conversion."
+        "The U.S. is definitively ramping up nuclear power based solely on this announcement.",
+        "The decision to build microreactors is part of a larger, confirmed national strategy without additional supporting evidence."
       ]
     },
     {
       "story_id": "98fef78c23",
-      "rank": 10,
+      "rank": 14,
       "headline": "SOL treasury firm DeFi Development launches real-time \u2018State of Solana\u2019 intelligence platform",
       "domain": "crypto",
       "summary": "The Nasdaq-listed company holds roughly 2.3 million SOL worth about $208 million, while its shares have fallen 16% year to date.",
-      "why_interesting": "The launch of a real-time intelligence platform by a major SOL treasury firm highlights the growing institutional interest and infrastructure development in the Solana ecosystem.",
+      "why_interesting": "The launch of a real-time intelligence platform by a major SOL treasury firm highlights the increasing institutional focus on Solana's ecosystem.",
       "sources": [
         "https://www.theblock.co/news/markets/2026-08-26-sol-treasury-firm-defi-development-launches-real-time-state-of-solana-intelligence-platform-412798"
       ],
       "source_domain": "theblock.co",
       "primary_source_found": true,
-      "freshness_minutes": 561,
+      "freshness_minutes": 590,
       "signals": {
         "recency": 0.5,
         "source_quality": 0.85,
         "saturation": 0.0,
         "corroboration": 0,
         "magnitude": 0.8,
-        "soft": 0.67
+        "soft": 0.63
       },
       "unexpectedness": 3,
-      "tension": 3,
+      "tension": 2,
       "specificity": 4,
       "stakes": 4,
       "connection": 3,
       "would_teach": true,
       "suggested_editorial_type": "connection",
-      "overall_score": 71,
+      "overall_score": 70,
       "verification_status": "UNVERIFIED",
       "writer_eligible": false,
       "requires_hedge": false,
@@ -542,18 +772,333 @@
         "The company's shares have fallen 16% year to date."
       ],
       "inferences": [
-        "The launch of the 'State of Solana' intelligence platform is a strategic move to enhance the company's market position.",
-        "The decline in share value is related to the company's activities in the Solana ecosystem."
+        "The launch of the real-time \u2018State of Solana\u2019 intelligence platform is a strategic move by the company.",
+        "The decline in share price is related to the company's holdings or activities in the Solana ecosystem."
       ],
       "red_flags": [
-        "Motive attribution: The article may imply that the launch of the intelligence platform is directly aimed at countering the share price decline without direct evidence.",
-        "Unproven causation: The connection between the company's share price decline and its activities in the Solana ecosystem is not directly established.",
+        "Motive attribution: The article may imply that the company's launch of the platform is directly aimed at boosting its share price without direct evidence.",
+        "Unproven causation: The connection between the company's SOL holdings and the decline in share price is not directly established.",
         "Stale numbers: The value of SOL holdings is subject to market fluctuations and may not be current.",
-        "Single original report: The story appears to rely heavily on a single source, theblock.co, without corroboration from other independent sources."
+        "Single original report: The story appears to rely on a single source without corroboration from other independent sources."
       ],
       "do_not_say": [
         "The company's share price decline is solely due to its involvement with Solana.",
-        "The intelligence platform will definitively improve the company's market position."
+        "The intelligence platform launch will definitely improve the company's market position."
+      ]
+    },
+    {
+      "story_id": "b538a70a7f",
+      "rank": 15,
+      "headline": "Trump signs order banning some foreign equipment from US energy grid",
+      "domain": "xai_discovery",
+      "summary": "President Trump declares national emergency over US power grid, bans certain foreign-made bulk-power equipment citing security risks, latest move in tech standoff with China.",
+      "why_interesting": "The move highlights the ongoing tech and trade tensions between the US and China, impacting national security and energy policy.",
+      "sources": [
+        "https://www.reuters.com/legal/government/trump-signs-order-banning-some-foreign-equipment-us-energy-grid-2026-08-26/"
+      ],
+      "source_domain": "reuters.com",
+      "primary_source_found": true,
+      "freshness_minutes": 2,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.5,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.2,
+        "soft": 0.76
+      },
+      "unexpectedness": 3,
+      "tension": 4,
+      "specificity": 3,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 69,
+      "verification_status": "INFERENCE_SUPPORTED",
+      "writer_eligible": true,
+      "requires_hedge": true,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [
+        "President Trump signed an order banning certain foreign-made bulk-power equipment.",
+        "The order cites security risks as the reason for the ban.",
+        "The action is part of a broader tech standoff with China."
+      ],
+      "inferences": [
+        "The ban is a direct response to security threats posed by foreign equipment.",
+        "The order is a strategic move in the ongoing tech standoff with China."
+      ],
+      "red_flags": [
+        "Motive attribution: The summary suggests the ban is specifically targeting China without direct evidence from the order itself.",
+        "Unproven causation: The link between the ban and the tech standoff with China is implied but not directly stated in the order.",
+        "Single source: The story relies heavily on a single report from Reuters without corroboration from other independent sources."
+      ],
+      "do_not_say": [
+        "The ban is solely aimed at China.",
+        "The order will definitively improve US energy grid security.",
+        "Multiple sources confirm the details of the order."
+      ]
+    },
+    {
+      "story_id": "b58ac5a8e2",
+      "rank": 16,
+      "headline": "Better launches Bitcoin-backed mortgages powered by Coinbase",
+      "domain": "crypto",
+      "summary": "Better and Coinbase have launched a crypto-backed mortgage product that lets US homebuyers pledge Bitcoin as collateral for a down payment without having to sell it.",
+      "why_interesting": "The launch of Bitcoin-backed mortgages by Better and Coinbase highlights the growing integration of cryptocurrency into traditional financial systems.",
+      "sources": [
+        "https://cointelegraph.com/news/better-launches-bitcoin-backed-mortgages-powered-by-coinbase?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+      ],
+      "source_domain": "cointelegraph.com",
+      "primary_source_found": true,
+      "freshness_minutes": 228,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.7,
+        "saturation": 0.33,
+        "corroboration": 2,
+        "magnitude": 0.2,
+        "soft": 0.72
+      },
+      "unexpectedness": 4,
+      "tension": 3,
+      "specificity": 3,
+      "stakes": 4,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 69,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [
+        "Better and Coinbase have launched a crypto-backed mortgage product.",
+        "The product allows US homebuyers to pledge Bitcoin as collateral for a down payment."
+      ],
+      "inferences": [
+        "The product lets homebuyers use Bitcoin without having to sell it."
+      ],
+      "red_flags": [
+        "The source is cointelegraph.com, which may not be a primary source.",
+        "There is no mention of other corroborating sources or official statements from Better or Coinbase.",
+        "The claim about not having to sell Bitcoin is an inference unless directly stated by a primary source."
+      ],
+      "do_not_say": [
+        "The partnership between Better and Coinbase is confirmed by multiple sources.",
+        "This product is the first of its kind.",
+        "The product will revolutionize the mortgage industry."
+      ]
+    },
+    {
+      "story_id": "dfb417db0e",
+      "rank": 17,
+      "headline": "SEC sends crypto custody rule changes to White House for review",
+      "domain": "crypto",
+      "summary": "A proposal from the SEC to change its rules governing how investment advisers hold digital assets was sent this week to the White House.",
+      "why_interesting": "The SEC's proposal to change crypto custody rules indicates a significant regulatory shift that could impact how digital assets are managed by investment advisers.",
+      "sources": [
+        "https://www.theblock.co/news/regulation/2026-08-26-sec-sends-crypto-custody-rule-changes-to-white-house-for-review-412811"
+      ],
+      "source_domain": "theblock.co",
+      "primary_source_found": true,
+      "freshness_minutes": 542,
+      "signals": {
+        "recency": 0.5,
+        "source_quality": 0.85,
+        "saturation": 0.5,
+        "corroboration": 3,
+        "magnitude": 0.2,
+        "soft": 0.76
+      },
+      "unexpectedness": 3,
+      "tension": 4,
+      "specificity": 3,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 69,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [
+        "The SEC has a proposal to change its rules governing how investment advisers hold digital assets.",
+        "The proposal was sent to the White House for review."
+      ],
+      "inferences": [
+        "The proposal being sent to the White House implies it is under consideration for approval or further action."
+      ],
+      "red_flags": [
+        "The source is a single report from theblock.co, which may not have independent verification.",
+        "There is no direct statement from the SEC or the White House confirming the details of the proposal or its contents.",
+        "The motive behind the SEC's proposal is not explicitly stated, leaving room for speculation."
+      ],
+      "do_not_say": [
+        "The SEC's proposal will definitely be approved by the White House.",
+        "The proposal will lead to immediate changes in how investment advisers hold digital assets."
+      ]
+    },
+    {
+      "story_id": "b1344d96b5",
+      "rank": 18,
+      "headline": "Amazon just tripled its order of Nvidia chips over \u2018surging demand\u2019",
+      "domain": "tech",
+      "summary": "Amazon is adding another 2 million Nvidia GPU chips to its data centers over the next two years. But this extended partnerships stretches beyond buying more chips.",
+      "why_interesting": "The expansion of Amazon's Nvidia chip order highlights the growing demand for advanced computing power, reflecting broader trends in AI and data processing.",
+      "sources": [
+        "https://techcrunch.com/2026/08/26/amazon-just-tripled-its-order-of-nvidia-chips-over-surging-demand/"
+      ],
+      "source_domain": "techcrunch.com",
+      "primary_source_found": true,
+      "freshness_minutes": 10,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.8,
+        "saturation": 0.0,
+        "corroboration": 0,
+        "magnitude": 0.2,
+        "soft": 0.66
+      },
+      "unexpectedness": 3,
+      "tension": 2,
+      "specificity": 4,
+      "stakes": 4,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 69,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [
+        "Amazon is adding another 2 million Nvidia GPU chips to its data centers over the next two years."
+      ],
+      "inferences": [
+        "The extended partnership stretches beyond buying more chips.",
+        "The order is due to 'surging demand'."
+      ],
+      "red_flags": [
+        "Motive attribution: The claim of 'surging demand' is not directly supported by a primary source.",
+        "Unproven causation: The link between the chip order and 'surging demand' is implied but not directly evidenced.",
+        "Single source: The information appears to be based on a single report from techcrunch.com."
+      ],
+      "do_not_say": [
+        "Amazon's partnership with Nvidia is solely due to surging demand.",
+        "Multiple sources confirm Amazon's order of Nvidia chips."
+      ]
+    },
+    {
+      "story_id": "23f23dd671",
+      "rank": 19,
+      "headline": "Unexpected chat between OpenAI agents led to Hugging Face hack",
+      "domain": "econ",
+      "summary": "OpenAI's cyber agents banded together to perform a hack during a security test.",
+      "why_interesting": "The incident highlights potential risks in AI autonomy and cybersecurity.",
+      "sources": [
+        "https://www.bbc.co.uk/news/articles/cj9xj89dk40o?at_medium=RSS&at_campaign=rss"
+      ],
+      "source_domain": "bbc.co.uk",
+      "primary_source_found": true,
+      "freshness_minutes": 114,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.5,
+        "saturation": 0.33,
+        "corroboration": 2,
+        "magnitude": 0.2,
+        "soft": 0.74
+      },
+      "unexpectedness": 5,
+      "tension": 4,
+      "specificity": 2,
+      "stakes": 4,
+      "connection": 3,
+      "would_teach": true,
+      "suggested_editorial_type": "anomaly",
+      "overall_score": 68,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [
+        "The story claims there was an unexpected chat between OpenAI agents.",
+        "The story claims this chat led to a hack of Hugging Face."
+      ],
+      "inferences": [
+        "The chat between OpenAI agents was directly responsible for the hack.",
+        "OpenAI agents banded together intentionally to perform the hack."
+      ],
+      "red_flags": [
+        "Motive attribution: The story suggests OpenAI agents intentionally banded together to perform a hack.",
+        "Unproven causation: The link between the chat and the hack is implied but not directly proven.",
+        "Single original report: The story is based on a single source, bbc.co.uk, without corroboration from other sources."
+      ],
+      "do_not_say": [
+        "The hack was a coordinated effort by OpenAI agents.",
+        "OpenAI agents have the capability to autonomously perform hacks."
+      ]
+    },
+    {
+      "story_id": "4301b05367",
+      "rank": 20,
+      "headline": "SEC Sends Proposal to White House To Modernize Crypto Custody",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nSEC Sends Proposal to White House To Modernize Crypto Custody\nA vote on the Clarity Act has stalled but regulators are pushing ahead with policy regardless. \nThis post SEC Sends Proposal to White House To Modernize Crypto Custody first appeared on Bitcoin Magazine and is written by",
+      "why_interesting": "The SEC's proposal to modernize crypto custody highlights ongoing regulatory efforts despite legislative delays, impacting financial sovereignty and the crypto market.",
+      "sources": [
+        "https://bitcoinmagazine.com/news/sec-sends-crypto-custody-proposal"
+      ],
+      "source_domain": "bitcoinmagazine.com",
+      "primary_source_found": true,
+      "freshness_minutes": 508,
+      "signals": {
+        "recency": 0.5,
+        "source_quality": 0.78,
+        "saturation": 0.5,
+        "corroboration": 3,
+        "magnitude": 0.2,
+        "soft": 0.72
+      },
+      "unexpectedness": 3,
+      "tension": 4,
+      "specificity": 2,
+      "stakes": 5,
+      "connection": 4,
+      "would_teach": true,
+      "suggested_editorial_type": "connection",
+      "overall_score": 67,
+      "verification_status": "UNVERIFIED",
+      "writer_eligible": false,
+      "requires_hedge": false,
+      "primary_claims": [
+        "first"
+      ],
+      "hard_checks": [],
+      "facts": [
+        "The SEC has sent a proposal to the White House regarding the modernization of crypto custody.",
+        "A vote on the Clarity Act has stalled."
+      ],
+      "inferences": [
+        "Regulators are pushing ahead with policy regardless of the stalled vote on the Clarity Act."
+      ],
+      "red_flags": [
+        "The article may imply causation between the stalled vote on the Clarity Act and the SEC's actions without direct evidence.",
+        "The source of the information is Bitcoin Magazine, which may not be a primary source for SEC actions.",
+        "The article does not provide direct quotes or named sources from the SEC or the White House.",
+        "The claim that regulators are pushing ahead with policy is an interpretation without specific evidence."
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it",
+        "The SEC's proposal is directly linked to the stalled Clarity Act vote.",
+        "The White House has approved or taken action on the proposal."
       ]
     }
   ]

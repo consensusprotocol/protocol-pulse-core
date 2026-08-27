@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-08-27T04:50:10.781032+00:00",
-  "block_height": 964243,
+  "timestamp": "2026-08-27T05:05:08.711141+00:00",
+  "block_height": 964247,
   "btc": {
-    "price": 78736,
-    "change_24h": -0.14,
+    "price": 78752,
+    "change_24h": -0.04,
     "change_7d": 0,
-    "market_cap": 1580674814598.255,
-    "volume_24h": 27686764730.896152,
+    "market_cap": 1581052976117.6365,
+    "volume_24h": 27544335410.15172,
     "dominance": 59.1
   },
   "fear_greed": {
@@ -16,20 +16,20 @@
   "mempool": {
     "fee_low": 1,
     "fee_mid": 1,
-    "fee_high": 2,
-    "unconfirmed": 84686,
-    "size_mb": 42.2
+    "fee_high": 1,
+    "unconfirmed": 74011,
+    "size_mb": 40.1
   },
   "network": {
-    "hashrate_eh": 884.2,
+    "hashrate_eh": 882.3,
     "difficulty": 0,
-    "next_adj_pct": -0.69,
-    "next_adj_blocks": 1421
+    "next_adj_pct": -0.27,
+    "next_adj_blocks": 1417
   },
   "lightning": {
-    "capacity_btc": 4531.6,
-    "channels": 40588,
-    "nodes": 17361
+    "capacity_btc": 3851.8,
+    "channels": 32932,
+    "nodes": 16258
   },
   "kol": {
     "sentiment_score": 70,
@@ -98,38 +98,38 @@
     }
   ],
   "macro": {
-    "dxy": 99.14,
-    "gold_price": 4673.8,
-    "sp500": 7724.0,
-    "btc_vs_gold_30d_corr": 0.556,
+    "dxy": 99.15,
+    "gold_price": 4674.9,
+    "sp500": 7721.25,
+    "btc_vs_gold_30d_corr": 0.555,
     "btc_vs_dxy_30d_corr": 0.082,
     "real_yield": null,
     "ten_year_yield": 4.66
   },
   "options": {
     "put_call_ratio": 0.59,
-    "dvol": 40.1,
+    "dvol": 40.0,
     "max_pain": 70000.0,
-    "total_call_oi": 274749.8,
-    "total_put_oi": 162140.3,
-    "total_oi_btc": 436890.1,
+    "total_call_oi": 274983.5,
+    "total_put_oi": 162144.6,
+    "total_oi_btc": 437128.1,
     "avg_mark_iv": 55.1
   },
   "futures": {
     "funding_rate": 1.07e-06,
     "annualized_basis": 0.12,
-    "open_interest": 22294.79,
-    "open_interest_usd": 1755406210.0,
+    "open_interest": 22292.67,
+    "open_interest_usd": 1755830580.0,
     "long_short_ratio": null,
-    "mark_price": 78754.36,
-    "index_price": 78736.18,
-    "basis_pct": 0.7611
+    "mark_price": 78776.71,
+    "index_price": 78762.67,
+    "basis_pct": 0.7609
   },
   "on_chain": {
-    "coin_days_destroyed_7d": 11231564.0,
+    "coin_days_destroyed_7d": 11614803.0,
     "active_addresses_7d": 665004.0,
-    "tx_volume_usd_7d": 70860487543.0,
-    "nvt_ratio": 19.2,
+    "tx_volume_usd_7d": 71241549414.0,
+    "nvt_ratio": 19.1,
     "accumulation_score": 65
   },
   "active_alerts": [
@@ -138,7 +138,7 @@
       "title": "Market consensus shifting",
       "description": "Polymarket sentiment 74/100 (bullish), 100 KOL posts in 24h \u2014 consensus forming.",
       "severity": "WATCH",
-      "ts": "2026-08-27T04:50:12.083257+00:00",
+      "ts": "2026-08-27T05:05:11.762304+00:00",
       "data": {
         "poly_sentiment": 74,
         "kol_posts": 100
@@ -150,7 +150,7 @@
   ],
   "indices": {
     "miner_conviction": {
-      "score": 58.7,
+      "score": 58.5,
       "interpretation": "Miner flow signals mixed",
       "signal": "neutral"
     },
@@ -172,8 +172,8 @@
     "convergence_score": {
       "score": 61.9,
       "pattern": "CAUTIOUS BULLISH",
-      "fragmentation": 16.6,
-      "momentum": 60.5,
+      "fragmentation": 16.7,
+      "momentum": 60.4,
       "conviction": 47.0,
       "thesis": "mixed_regime",
       "confidence": 0.76
@@ -181,18 +181,18 @@
   },
   "pro_metrics": {
     "ssr": {
-      "value": 7.71,
-      "btc_market_cap": 1580545526637.4976,
-      "stablecoin_market_cap": 205000000000,
-      "signal": "NEUTRAL",
-      "description": "Balanced stablecoin-to-BTC ratio",
-      "source": "estimated"
+      "value": 6.03,
+      "btc_market_cap": 1580696930800.691,
+      "stablecoin_market_cap": 262119306987.62924,
+      "signal": "BULLISH",
+      "description": "Healthy stablecoin reserves available for BTC purchasing",
+      "source": "coingecko_derived"
     },
     "mpi": {
-      "value": 0.989,
-      "cdd_7d": 11245282.0,
-      "cdd_ratio": 1.87,
-      "hashrate_eh": 884.2,
+      "value": 1.061,
+      "cdd_7d": 11614803.0,
+      "cdd_ratio": 1.94,
+      "hashrate_eh": 882.3,
       "signal": "CAUTIOUS",
       "description": "Above-average coin age destruction \u2014 some miner selling",
       "source": "derived_cdd_hashrate"
@@ -203,6 +203,6 @@
       "description": "Low dormancy flow \u2014 old coins moving aggressively, potential distribution",
       "source": "derived"
     },
-    "timestamp": "2026-08-27T04:40:31.188618+00:00"
+    "timestamp": "2026-08-27T05:05:11.761019+00:00"
   }
 }

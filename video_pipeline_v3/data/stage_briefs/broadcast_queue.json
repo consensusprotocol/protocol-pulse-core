@@ -21,33 +21,23 @@
     "expires_at": "2026-08-27T05:25:17.971215+00:00"
   },
   {
-    "id": "051e8969-b269-4478-9fb7-3df6149f0de8",
+    "id": "4857dfe3-a0a6-4961-a0f5-d12dda61c36d",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike account-based systems, every transaction output is independent \u2014 enabling parallel validation and coin-level audit trails.",
+    "script": "Bitcoin script is intentionally limited. No Turing completeness, no complex smart contracts on the base layer. This constraint is a security feature \u2014 the monetary layer should be boring and bulletproof.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The UTXO model is Bitcoin's secret weapon for privacy and scalability. Unlike ac",
-    "generated_at": "2026-08-27T00:50:37.208625+00:00",
-    "expires_at": "2026-08-27T04:50:37.208625+00:00"
+    "topic_preview": "Bitcoin script is intentionally limited. No Turing completeness, no complex smar",
+    "generated_at": "2026-08-27T04:55:30.110810+00:00",
+    "expires_at": "2026-08-27T08:55:30.110810+00:00"
   },
   {
-    "id": "99d34e3b-d14b-4deb-9410-c4cc6261791c",
+    "id": "f8d6afe4-c154-47ec-8278-e3a0ec435182",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Nostr is building the decentralized social layer that Bitcoin's monetary layer always needed. Censorship-resistant communication plus censorship-resistant money \u2014 that's the full stack of digital sovereignty.",
+    "script": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't just build software \u2014 they embedded a permanent protest against monetary manipulation into the first block ever mined.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Nostr is building the decentralized social layer that Bitcoin's monetary layer a",
-    "generated_at": "2026-08-27T00:50:53.884075+00:00",
-    "expires_at": "2026-08-27T04:50:53.884075+00:00"
-  },
-  {
-    "id": "d365c61d-956c-4b47-beee-b601c782ab65",
-    "type": "FILLER_INSIGHT",
-    "priority": 5,
-    "script": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year or more \u2014 consistently hold over sixty percent of all bitcoin supply. The conviction of this network's participants is unprecedented.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Time-chain analysis shows that long-term holders \u2014 wallets dormant for one year ",
-    "generated_at": "2026-08-27T00:51:11.408384+00:00",
-    "expires_at": "2026-08-27T04:51:11.408384+00:00"
+    "topic_preview": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't ",
+    "generated_at": "2026-08-27T04:55:46.741535+00:00",
+    "expires_at": "2026-08-27T08:55:46.741535+00:00"
   }
 ]

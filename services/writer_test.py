@@ -51,6 +51,7 @@ FIREWALL = (
     "EPISTEMIC PERMISSION LADDER — the verification status of THIS story sets what you may do:\n"
     "- VERIFIED_PRIMARY: may state the fact directly.\n"
     "- VERIFIED_SECONDARY: may state with normal attribution where useful.\n"
+    "- REPORTED_ATTRIBUTED: a credible outlet reports this; you MUST attribute to them ('The FT reports...', 'Per Reuters...', 'According to The Block...'). Real and postable, but the attribution is mandatory and must stay attached to the claim.\n"
     "- ESTIMATE_ATTRIBUTED: MUST say 'X estimates...' / 'according to X...' — never bare.\n"
     "- INFERENCE_SUPPORTED: MUST use qualified language: 'suggests', 'would imply', 'appears "
     "consistent with'. The inference may NEVER be stated as fact.\n"
@@ -82,7 +83,7 @@ def _effective_tier(story):
     """Refine verification_status into a writer permission tier."""
     vs = story.get("verification_status", "UNVERIFIED")
     facts_text = " ".join(story.get("facts", [])).lower()
-    if vs == "INFERENCE_SUPPORTED" and ("estimate" in facts_text or "estimates" in facts_text):
+    if vs in ("INFERENCE_SUPPORTED","REPORTED_ATTRIBUTED") and ("estimate" in facts_text):
         return "ESTIMATE_ATTRIBUTED"
     return vs
 

@@ -1,18 +1,8 @@
 {
-  "generated_at": "2026-08-27T04:49:43.883612+00:00",
+  "generated_at": "2026-08-27T05:00:18.983503+00:00",
   "results": [
     {
-      "headline": "Chainalysis estimates $457B in taxable crypto activity, says CARF misses most",
-      "editorial_type": "divergence",
-      "verification_status": "INFERENCE_SUPPORTED",
-      "variants": {
-        "cold_forensic": "Chainalysis estimates $457B in taxable crypto activity, with only 14% covered by the OECD's tax-reporting framework.",
-        "native_deadpan": "Chainalysis estimates $457B in taxable crypto\u2014only 14% seen by OECD tax nets. Suggests CARF's net could use a few more holes.",
-        "investigative": "NO_POST"
-      }
-    },
-    {
-      "headline": "Make no mistake, the US is suffering a debt crisis",
+      "headline": "U.S. Army to build nuclear microreactors at 5 bases as U.S. seeks to ramp up nuclear power",
       "editorial_type": "connection",
       "verification_status": "INFERENCE_SUPPORTED",
       "variants": {
@@ -22,8 +12,8 @@
       }
     },
     {
-      "headline": "Am I too old for Roth conversions? I\u2019m 84 and my wife is 77. We have $8 million saved.",
-      "editorial_type": "anomaly",
+      "headline": "Trump signs order banning some foreign equipment from US energy grid",
+      "editorial_type": "connection",
       "verification_status": "INFERENCE_SUPPORTED",
       "variants": {
         "cold_forensic": "NO_POST",

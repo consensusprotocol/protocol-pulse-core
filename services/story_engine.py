@@ -361,29 +361,44 @@ def adversarial_verify(item):
     else:
         llm_status = "SOURCE_BACKED" if src_q >= 0.7 else "UNVERIFIED"
 
-    # 4) Resolve story status (worst-case aware: contradiction dominates)
+    # 4) Resolve story status — GPT tier ladder separating TRUTH-CONFIDENCE from AUTHORITY-LEVEL.
+    #    The question is never "true in the abstract" but "can we say it responsibly, at the
+    #    correct attribution level." Reputable outlets on-record => REPORTED_ATTRIBUTED (eligible).
     statuses = [h["status"] for h in hard] + [c["status"] for c in claim_results] + [llm_status]
+    src_q = _source_quality(item.get("url",""))
+    is_reputable = src_q >= 0.70          # FT, Block, MarketWatch, Ars, CoinDesk, gov, etc.
+    is_primary_grade = src_q >= 0.90      # Fed, Treasury, BIS, EIA, mempool (direct)
+
     if "CONTRADICTED" in statuses:
         story_status = "CONTRADICTED"
-    elif has_primary and llm_status in ("VERIFIED_PRIMARY","VERIFIED_SECONDARY"):
-        story_status = "VERIFIED_PRIMARY"
-    elif llm_status in ("VERIFIED_PRIMARY","VERIFIED_SECONDARY"):
-        story_status = "VERIFIED_SECONDARY"
+    elif is_primary_grade and llm_status in ("VERIFIED_PRIMARY","VERIFIED_SECONDARY"):
+        story_status = "VERIFIED_PRIMARY"          # direct from primary source, checkable
+    elif is_reputable and llm_status in ("VERIFIED_PRIMARY","VERIFIED_SECONDARY"):
+        story_status = "VERIFIED_SECONDARY"        # solid, corroborated reporting
+    elif is_reputable:
+        story_status = "REPORTED_ATTRIBUTED"       # credible outlet reports it; we attribute
     elif llm_status == "INFERENCE_SUPPORTED":
-        story_status = "INFERENCE_SUPPORTED"
+        story_status = "INFERENCE_SUPPORTED"       # interpretation the source's logic supports
     else:
         story_status = "UNVERIFIED"
 
     item["verification_status"] = story_status
     item["hard_checks"] = hard
     item["claim_results"] = claim_results
-    item["do_not_say"] = list(dict.fromkeys(do_not_say))  # dedupe, preserve order
-    # writer may use VERIFIED_* and INFERENCE_SUPPORTED (with hedge). UNVERIFIED/CONTRADICTED are blocked as fact.
-    item["writer_eligible"] = story_status in ("VERIFIED_PRIMARY","VERIFIED_SECONDARY","INFERENCE_SUPPORTED")
-    item["requires_hedge"] = story_status == "INFERENCE_SUPPORTED"
+    item["do_not_say"] = list(dict.fromkeys(do_not_say))
+    # Writer-eligible tiers (each carries its own required attribution level, enforced by the ladder):
+    #   VERIFIED_PRIMARY   -> may state directly
+    #   VERIFIED_SECONDARY -> state with normal attribution where useful
+    #   REPORTED_ATTRIBUTED-> MUST attribute to the outlet ("The FT reports...")
+    #   INFERENCE_SUPPORTED-> MUST hedge ("suggests", "would imply")
+    #   UNVERIFIED/CONTRADICTED/STALE -> blocked
+    item["writer_eligible"] = story_status in (
+        "VERIFIED_PRIMARY","VERIFIED_SECONDARY","REPORTED_ATTRIBUTED","INFERENCE_SUPPORTED")
+    item["requires_hedge"] = story_status in ("INFERENCE_SUPPORTED",)
+    item["requires_attribution"] = story_status in ("REPORTED_ATTRIBUTED","VERIFIED_SECONDARY")
 
     # 5) Log rejected claims as a growing hallucination dataset
-    if story_status in ("UNVERIFIED","CONTRADICTED"):
+    if story_status in ("UNVERIFIED","CONTRADICTED","STALE"):
         try:
             with open(REJECTED_CLAIMS_LOG, "a") as f:
                 f.write(json.dumps({
@@ -427,7 +442,7 @@ def domain_fit_score(item):
     return min(hits / 3.0, 1.0)  # 0 = off-topic, 1 = squarely in domain
 
 
-def run(top_n=10):
+def run(top_n=20):
     print("=== SENSING ===")
     rss = harvest_rss()
     print(f"  RSS harvested: {len(rss)}")

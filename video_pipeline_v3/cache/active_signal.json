@@ -1,6 +1,6 @@
 {
-  "fetched_at": 1787805907.0266316,
-  "fetched_at_iso": "2026-08-27T04:45:07.026641+00:00",
+  "fetched_at": 1787806806.7606976,
+  "fetched_at_iso": "2026-08-27T05:00:06.760760+00:00",
   "relay_stats": [
     {
       "relay": "wss://relay.damus.io",
@@ -13,7 +13,7 @@
       "relay": "wss://nos.lol",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 86,
+      "events_filtered": 87,
       "error": null
     },
     {
@@ -34,7 +34,7 @@
       "relay": "wss://relay.primal.net",
       "connected": true,
       "events_raw": 100,
-      "events_filtered": 77,
+      "events_filtered": 76,
       "error": null
     }
   ],
