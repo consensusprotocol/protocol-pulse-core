@@ -31,7 +31,32 @@ RSS_FEEDS = [
     ("energy",  "https://www.eia.gov/rss/todayinenergy.xml"),
     ("banking", "https://www.bis.org/rss/press.xml"),
     ("econ",    "https://feeds.bbci.co.uk/news/business/rss.xml"),
-    ("onchain", "https://mempool.space/rss"),  # may 404; harvester tolerates
+    # --- added 2026-08-27 (probed live from Ultron; primary sources first) ---
+    ("macro",   "https://www.sec.gov/news/pressreleases.rss"),
+    ("macro",   "https://www.ecb.europa.eu/rss/press.html"),
+    ("macro",   "https://www.bankofengland.co.uk/rss/news"),
+    ("macro",   "https://www.boj.or.jp/en/rss/whatsnew.xml"),
+    ("macro",   "https://apps.bea.gov/rss/rss.xml"),
+    ("macro",   "https://www.occ.gov/rss/occ_news.xml"),
+    ("macro",   "https://www.federalreserve.gov/feeds/speeches.xml"),
+    ("banking", "https://www.bis.org/doclist/cbspeeches.rss"),
+    ("banking", "https://www.fsb.org/feed/"),
+    ("markets", "https://feeds.bloomberg.com/markets/news.rss"),
+    ("markets", "https://www.economist.com/finance-and-economics/rss.xml"),
+    ("markets", "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml"),
+    ("markets", "https://www.cnbc.com/id/10000664/device/rss/rss.html"),
+    ("crypto",  "https://bitcoinops.org/feed.xml"),
+    ("crypto",  "https://blog.bitmex.com/feed/"),
+    ("crypto",  "https://protos.com/feed/"),
+    ("crypto",  "https://decrypt.co/feed"),
+    ("onchain", "https://blog.blockstream.com/rss/"),
+    ("energy",  "https://www.utilitydive.com/feeds/news/"),
+    ("tech",    "https://www.theregister.com/headlines.atom"),
+    ("tech",    "https://www.wired.com/feed/category/business/latest/rss"),
+    ("tech",    "https://www.eff.org/rss/updates.xml"),
+    ("tech",    "https://krebsonsecurity.com/feed/"),
+    ("politics","https://feeds.bbci.co.uk/news/world/rss.xml"),
+    ("politics","https://www.aljazeera.com/xml/rss/all.xml"),
 ]
 
 XAI_SEARCH_THEMES = [
@@ -41,6 +66,14 @@ XAI_SEARCH_THEMES = [
     "major institution Bitcoin or crypto move",
     "energy grid or mining news today",
     "financial censorship or account freeze news",
+    # added 2026-08-27
+    "BIP-110 Bitcoin consensus discussion this week",
+    "stablecoin regulation or tokenized deposit news",
+    "CBDC rollout or capital controls announcement",
+    "AI datacenter power demand grid strain",
+    "treasury auction or bond market stress",
+    "corporate or sovereign bitcoin treasury purchase",
+    "tariff sanction or trade escalation today",
 ]
 
 # ---- SOURCE QUALITY WEIGHTS (deterministic) ----
@@ -51,6 +84,14 @@ SOURCE_QUALITY = {
     "techcrunch.com": 0.80, "arstechnica.com": 0.82, "politico.com": 0.82,
     "bbci.co.uk": 0.85, "marketwatch": 0.80, "mempool.space": 0.95,
     "x.com": 0.60,
+    # added 2026-08-27
+    "sec.gov": 0.97, "ecb.europa.eu": 0.96, "bankofengland.co.uk": 0.96,
+    "boj.or.jp": 0.95, "bea.gov": 0.95, "occ.gov": 0.95, "fsb.org": 0.95,
+    "bloomberg.com": 0.92, "economist.com": 0.88, "nytimes.com": 0.85,
+    "cnbc.com": 0.78, "bitcoinops.org": 0.92, "blog.bitmex.com": 0.80,
+    "protos.com": 0.75, "decrypt.co": 0.70, "blockstream.com": 0.85,
+    "utilitydive.com": 0.80, "theregister.com": 0.78, "wired.com": 0.78,
+    "eff.org": 0.85, "krebsonsecurity.com": 0.85, "aljazeera.com": 0.75,
 }
 
 def _domain(url):
@@ -67,14 +108,14 @@ def _source_quality(url):
 
 # ================= LAYER 1: SENSING (harvest) =================
 def harvest_rss(max_per_feed=8):
-    import feedparser
+    import feedparser, calendar
     items = []
     for domain_tag, feed_url in RSS_FEEDS:
         try:
             parsed = feedparser.parse(feed_url)
             for e in parsed.entries[:max_per_feed]:
                 published = e.get("published_parsed") or e.get("updated_parsed")
-                ts = time.mktime(published) if published else time.time()
+                ts = calendar.timegm(published) if published else time.time()  # feedparser structs are UTC; mktime assumed local (ET) and pushed fresh items 4h into the future
                 items.append({
                     "title": e.get("title", "").strip(),
                     "summary": re.sub("<[^>]+>", "", e.get("summary", ""))[:500],
@@ -82,11 +123,30 @@ def harvest_rss(max_per_feed=8):
                     "domain_tag": domain_tag,
                     "source_domain": _domain(e.get("link", feed_url)),
                     "published_ts": ts,
+                    "discovered_ts": time.time(),
+                    "timestamp_provenance": "source" if published else "unknown_defaulted_now",
                     "origin": "rss",
                 })
         except Exception as ex:
             print(f"[rss] {feed_url} failed: {ex}")
     return items
+
+def _parse_iso_utc(v):
+    """ISO 8601 -> epoch (UTC). Returns None if missing/garbage/future(>15m)/older than 30d."""
+    if not v or not isinstance(v, str):
+        return None
+    try:
+        v2 = v.strip().replace("Z", "+00:00")
+        dt = datetime.fromisoformat(v2)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        ts = dt.timestamp()
+        now = time.time()
+        if ts > now + 900 or ts < now - 30 * 86400:
+            return None
+        return ts
+    except Exception:
+        return None
 
 def harvest_xai(max_per_theme=5):
     """Correct xAI Agent Tools format: POST /v1/responses, model grok-4.3, tools=[{type:x_search}]."""
@@ -100,7 +160,7 @@ def harvest_xai(max_per_theme=5):
         try:
             payload = json.dumps({
                 "model": "grok-4.3",
-                "input": "Find the most significant, recent, specific news about: " + theme + ". Return a JSON array of 3-5 items, each with keys headline, summary, source_url, why_significant. Only real verifiable items from the last 48h with citations.",
+                "input": "Find the most significant, recent, specific news about: " + theme + ". Return a JSON array of 3-5 items, each with keys headline, summary, source_url, published_at, why_significant. published_at MUST be the ISO 8601 UTC datetime the SOURCE published it (e.g. 2026-08-26T14:30:00Z), not the time you found it; use null if unknown. Only real verifiable items from the last 48h with citations.",
                 "tools": [{"type": "x_search", "from_date": from_date}],
             }).encode()
             req = u.Request("https://api.x.ai/v1/responses", data=payload,
@@ -116,13 +176,18 @@ def harvest_xai(max_per_theme=5):
             found = re.search(r"\[.*\]", text, re.DOTALL)
             if found:
                 for it in json.loads(found.group(0)):
+                    # TIMESTAMP PROVENANCE: never stamp discovery time as publish time.
+                    # Unknown publish time -> neutral 12h-old (recency 0.5), not "now" (1.0).
+                    src_ts = _parse_iso_utc(it.get("published_at"))
                     items.append({
                         "title": it.get("headline", "")[:200],
                         "summary": it.get("summary", "")[:500],
                         "url": it.get("source_url", ""),
                         "domain_tag": "xai_discovery",
                         "source_domain": _domain(it.get("source_url", "")),
-                        "published_ts": time.time(),
+                        "published_ts": src_ts if src_ts else time.time() - 12 * 3600,
+                        "discovered_ts": time.time(),
+                        "timestamp_provenance": "source" if src_ts else "unknown_defaulted_12h",
                         "origin": "xai",
                         "why_significant": it.get("why_significant", ""),
                     })
@@ -461,8 +526,8 @@ def run(top_n=20):
     all_items = [it for it in all_items if domain_fit_score(it) > 0.0]
     # Sort by domain-fit so the LLM scores the most on-brand first; keep top 40 to bound cost
     all_items.sort(key=lambda x: domain_fit_score(x), reverse=True)
-    all_items = all_items[:40]
-    print(f"  Domain-fit: {before} -> {len(all_items)} (killed off-topic + capped at 40)")
+    all_items = all_items[:60]
+    print(f"  Domain-fit: {before} -> {len(all_items)} (killed off-topic + capped at 60)")
 
     print("=== DETERMINISTIC + LLM SCORING ===")
     all_items = llm_score_batch(all_items)
