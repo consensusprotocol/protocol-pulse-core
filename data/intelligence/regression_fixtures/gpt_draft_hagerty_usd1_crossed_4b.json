@@ -1,0 +1,11 @@
+{
+  "fixture_id": "gpt_draft_hagerty_usd1_crossed_4b",
+  "created": "2026-08-27",
+  "purpose": "The exact draft the claim auditor passed as VERIFIED FACT. External verifier must (1) date Hagerty's statement to 2025 -> STALE restatement, (2) mark 'crossed $4B on Aug 26' CONTRADICTED or STALE (supply was 4.6B in July, ~4.1B now; not a crossing).",
+  "expected_outcome": "NO_POST",
+  "expected_claim_results": {
+    "Hagerty wrote GENIUS Act in part for Treasury demand": "STALE (original 2024-10 to 2025-05; Aug 2026 is a restatement)",
+    "USD1 crossed $4B on Aug 26 2026": "CONTRADICTED (first above 4B 2026-01-24, peak 5.39B 2026-02-11; not a crossing)"
+  },
+  "last_pass": "2026-08-27 fixture run: NO_POST, CONTRADICTED, cost $0.28"
+}
