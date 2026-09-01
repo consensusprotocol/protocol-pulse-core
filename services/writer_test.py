@@ -37,10 +37,11 @@ PRECEDENCE = ("PRECEDENCE: The EPISTEMIC PERMISSION LADDER and HARD RULES below 
               "dropped for voice. A joke is never added; deadpan means stopping when the fact is already absurd.")
 
 EDGE_PROMPT = (
-    "From the EVIDENCE PACKET ONLY, state the Protocol Pulse edge in at most 2 plain sentences: "
-    "what is the non-obvious observation here, and which receipt supports it? Name the receipt "
-    "(filing, dataset, statement, outlet). If verified evidence contains no non-obvious observation, "
-    "output exactly: NONE. No tweet voice; this is an editor's note.\n\n"
+    "You are the editor. From the EVIDENCE PACKET ONLY, write a 1-2 sentence editor's note answering: "
+    "what is the single most interesting connection, contrast, or number here, and which receipt "
+    "(filing, dataset, statement, outlet) carries it? Prefer contrasts between two verified facts, a number "
+    "versus its history, or an official document versus how it was reported. Plain prose, no tweet voice, "
+    "no new facts. Output exactly NONE only if the packet is a bare announcement with one fact and nothing to set it against.\n\n"
 )
 
 REGISTERS = {
@@ -99,13 +100,23 @@ FIREWALL = (
     "6. Do not manufacture interestingness. Boring-but-true should return NO_POST."
 )
 
-def call_gpt(prompt, temp=0.7):
+def call_gpt(prompt, temp=0.7, retries=4):
+    import time as _t
     payload = json.dumps({"model":"gpt-4o","messages":[{"role":"user","content":prompt}],
                           "max_tokens":150,"temperature":temp}).encode()
-    req = urllib.request.Request("https://api.openai.com/v1/chat/completions", data=payload,
-        headers={"Authorization":"Bearer "+OPENAI_KEY,"Content-Type":"application/json"})
-    resp = json.loads(urllib.request.urlopen(req, timeout=30).read().decode())
-    return resp["choices"][0]["message"]["content"].strip()
+    for attempt in range(retries + 1):
+        req = urllib.request.Request("https://api.openai.com/v1/chat/completions", data=payload,
+            headers={"Authorization":"Bearer "+OPENAI_KEY,"Content-Type":"application/json"})
+        try:
+            resp = json.loads(urllib.request.urlopen(req, timeout=30).read().decode())
+            return resp["choices"][0]["message"]["content"].strip()
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503) and attempt < retries:
+                _t.sleep(3 * (2 ** attempt)); continue
+            raise
+        except (urllib.error.URLError, TimeoutError) as e:
+            if attempt < retries: _t.sleep(3 * (2 ** attempt)); continue
+            raise
 
 def _effective_tier(story):
     """Refine verification_status into a writer permission tier."""
