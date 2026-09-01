@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Review Queue | Protocol Pulse{% endblock %}
+{% block head %}
+<style>
+.rq{max-width:1080px;margin:0 auto;padding:24px 16px;color:#EDEDED;font-family:Inter,system-ui,sans-serif}
+.rq h1{font-size:22px;letter-spacing:.04em;margin:0 0 6px}
+.rq .stats{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:#888;margin-bottom:22px}
+.rq .stats b{color:#EDEDED}
+.card{background:#141414;border:1px solid #1F1F1F;border-left:3px solid #CC0000;border-radius:6px;padding:18px 20px;margin-bottom:18px}
+.card.decided{opacity:.35}
+.lbl{font-size:11px;letter-spacing:.14em;color:#888;margin:14px 0 4px;font-family:'JetBrains Mono',monospace}
+.lbl:first-child{margin-top:0}
+.story{font-size:17px;font-weight:600;line-height:1.35}
+.sum{font-size:13px;color:#aaa;line-height:1.5}
+.edge{font-size:15px;color:#FF4444;line-height:1.45;border-left:2px solid #880000;padding-left:10px}
+.meta{font-size:12px;color:#888;font-family:'JetBrains Mono',monospace}
+.tier{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono',monospace;background:#1F1F1F}
+.tier.VERIFIED_PRIMARY{background:#3a0000;color:#FF4444}.tier.VERIFIED_SECONDARY{background:#2a0000;color:#FF6666}
+.receipt{font-size:12px;color:#bbb;margin:3px 0;font-family:'JetBrains Mono',monospace;word-break:break-all}
+.receipt a{color:#FF4444;text-decoration:none}
+.receipt .r{color:#888}
+.var{display:block;background:#0A0A0A;border:1px solid #1F1F1F;border-radius:4px;padding:10px 12px;margin:6px 0;font-size:15px;line-height:1.45;white-space:pre-wrap;cursor:pointer}
+.var.sel{border-color:#CC0000}
+.var small{display:block;color:#888;font-size:11px;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+.var.nopost{color:#666;font-style:italic}
+textarea.final{width:100%;min-height:90px;background:#0A0A0A;color:#EDEDED;border:1px solid #1F1F1F;border-radius:4px;padding:10px;font-size:15px;line-height:1.45;font-family:inherit}
+.chars{font-size:11px;color:#888;text-align:right;font-family:'JetBrains Mono',monospace}
+.grades{display:flex;gap:28px;flex-wrap:wrap;margin:8px 0}
+.grades .g{font-size:12px;color:#888}
+.grades .g span{margin-left:8px}
+.grades label{cursor:pointer;margin-right:6px;font-size:13px;color:#EDEDED}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:4px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.06em}
+.btn.post{background:#CC0000;color:#fff}.btn.edit{background:#1F1F1F;color:#EDEDED;border:1px solid #333}.btn.kill{background:#0A0A0A;color:#888;border:1px solid #333}
+select.kr{background:#0A0A0A;color:#EDEDED;border:1px solid #333;border-radius:4px;padding:8px;font-size:13px}
+.done{font-size:12px;color:#FF4444;font-family:'JetBrains Mono',monospace}
+.empty{color:#888;padding:40px;text-align:center}
+.recent{font-size:12px;color:#888;font-family:'JetBrains Mono',monospace;margin-top:30px}
+.recent div{padding:4px 0;border-bottom:1px solid #1F1F1F}
+</style>
+{% endblock %}
+{% block content %}
+<div class="rq">
+  <h1>REVIEW QUEUE <span style="color:#888;font-weight:400">shadow mode · nothing posts</span></h1>
+  <div class="stats">
+    <div>pending <b>{{ st.pending }}</b></div>
+    <div>decided <b>{{ st.decided }}</b></div>
+    <div>approval rate <b>{{ (st.approval_rate*100)|round|int if st.approval_rate is not none else '–' }}%</b> ({{ st.approved }}/{{ st.decided }})</div>
+    <div>edited <b>{{ st.edited }}</b></div>
+    <div>great story / bad copy <b>{{ st.great_story_bad_copy }}</b></div>
+    <div>great copy / bad story <b>{{ st.great_copy_bad_story }}</b></div>
+    {% if st.kill_reasons %}<div>kills: {% for k,v in st.kill_reasons.items() %}{{k}} <b>{{v}}</b> {% endfor %}</div>{% endif %}
+  </div>
+
+  {% if not items %}<div class="empty">Queue empty. Next shadow cycle will fill it.</div>{% endif %}
+
+  {% for it in items %}
+  <div class="card" id="card-{{ it.story_id }}" data-id="{{ it.story_id }}">
+    <div class="lbl">STORY</div>
+    <div class="story">{{ it.headline }}</div>
+    <div class="sum">{{ it.summary[:320] }}</div>
+
+    <div class="lbl">WHY NOW</div>
+    <div class="meta">
+      underlying event: {% if it.event_age_hours is not none %}<b>{{ it.event_age_hours|round|int }}h ago</b>{% else %}unknown{% endif %}
+      · published {{ it.freshness_minutes }} min before discovery
+      · {{ it.report_count }} report{{ 's' if it.report_count != 1 }} / {{ it.independent_corroboration }} independent
+      {% if it.syndicated_from %}· relaying {{ it.syndicated_from|join(', ') }}{% endif %}
+    </div>
+
+    <div class="lbl">WHAT WE FOUND <span style="color:#555">· the machine's editorial claim</span></div>
+    <div class="edge">{{ it.edge }}</div>
+
+    <div class="lbl">EVIDENCE</div>
+    {% for r in it.receipts %}
+      <div class="receipt"><span class="r">[{{ r.result }}]</span> {{ r.claim }}
+        {% if r.observed_value %}<br><span class="r">observed:</span> {{ r.observed_value|string|truncate(140) }}{% endif %}
+        {% if r.original_date %} <span class="r">· dated {{ r.original_date }}</span>{% endif %}
+        {% if r.source_url %}<br><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.source_url|truncate(90) }}</a>{% endif %}
+      </div>
+    {% else %}
+      {% for f in it.facts %}<div class="receipt">{{ f }}</div>{% endfor %}
+    {% endfor %}
+    {% if it.do_not_say %}<div class="receipt" style="color:#666;margin-top:6px">do not say: {{ it.do_not_say|join(' · ')|truncate(300) }}</div>{% endif %}
+
+    <div class="lbl">CONFIDENCE</div>
+    <div><span class="tier {{ it.verification_status }}">{{ it.verification_status }}</span> <span class="meta">tier {{ it.effective_tier }} · {{ it.editorial_type }}</span></div>
+
+    <div class="lbl">PROPOSED POST <span style="color:#555">· click a variant to select</span></div>
+    {% for reg, txt in it.variants.items() %}
+      <div class="var {{ 'sel' if reg == it.proposed_register }} {{ 'nopost' if txt == 'NO_POST' }}" data-reg="{{ reg }}"><small>{{ reg }}</small>{{ txt }}</div>
+    {% endfor %}
+    <textarea class="final" placeholder="Final text (edit here)">{{ it.proposed if it.proposed != 'NO_POST' else '' }}</textarea>
+    <div class="chars"><span class="n">0</span>/280</div>
+
+    <div class="lbl">PRESENTATION</div>
+    <div class="meta">{{ it.presentation }} <span style="color:#555">(media layer deferred)</span></div>
+
+    <div class="grades">
+      <div class="g">STORY
+        <span>{% for g in grades %}<label><input type="radio" name="sg-{{ it.story_id }}" value="{{ g }}"> {{ '🔥' if g=='FIRE' else g }}</label>{% endfor %}</span></div>
+      <div class="g">COPY
+        <span>{% for g in grades %}<label><input type="radio" name="cg-{{ it.story_id }}" value="{{ g }}"> {{ '🔥' if g=='FIRE' else g }}</label>{% endfor %}</span></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn post" data-act="POST">POST</button>
+      <button class="btn edit" data-act="EDIT">EDIT &amp; APPROVE</button>
+      <select class="kr">{% for k in kill_reasons %}<option>{{ k }}</option>{% endfor %}</select>
+      <button class="btn kill" data-act="KILL">KILL</button>
+      <span class="done"></span>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if st.recent %}
+  <div class="recent">RECENT DECISIONS
+    {% for d in st.recent %}<div>{{ d.decided_at[:16] }} · {{ d.action }}{% if d.kill_reason %}/{{ d.kill_reason }}{% endif %} · S:{{ d.story_grade or '-' }} C:{{ d.copy_grade or '-' }} · {{ d.headline|truncate(70) }}</div>{% endfor %}
+  </div>
+  {% endif %}
+</div>
+<script>
+document.querySelectorAll('.card').forEach(card => {
+  const id = card.dataset.id, ta = card.querySelector('.final'), n = card.querySelector('.chars .n');
+  const count = () => { n.textContent = ta.value.length; n.style.color = ta.value.length > 280 ? '#FF4444' : '#888'; }; count();
+  ta.addEventListener('input', count);
+  card.querySelectorAll('.var').forEach(v => v.addEventListener('click', () => {
+    card.querySelectorAll('.var').forEach(x => x.classList.remove('sel')); v.classList.add('sel');
+    const t = v.textContent.replace(v.querySelector('small').textContent, '').trim();
+    if (t !== 'NO_POST') { ta.value = t; count(); }
+  }));
+  card.querySelectorAll('.btn').forEach(b => b.addEventListener('click', async () => {
+    const act = b.dataset.act, sel = card.querySelector('.var.sel');
+    const body = {
+      action: act, register: sel ? sel.dataset.reg : null,
+      final_text: ta.value.trim(), kill_reason: card.querySelector('.kr').value,
+      story_grade: (card.querySelector(`input[name="sg-${id}"]:checked`)||{}).value || null,
+      copy_grade: (card.querySelector(`input[name="cg-${id}"]:checked`)||{}).value || null,
+    };
+    if (act !== 'KILL' && !body.final_text) { alert('No text to approve. Pick a variant or edit.'); return; }
+    if (act !== 'KILL' && body.final_text.length > 280) { alert('Over 280.'); return; }
+    if (!body.story_grade || !body.copy_grade) { alert('Grade STORY and COPY first. That split is the point.'); return; }
+    card.querySelectorAll('.btn').forEach(x => x.disabled = true);
+    const r = await fetch(`/api/admin/review/${id}/decide`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const j = await r.json();
+    card.querySelector('.done').textContent = j.ok ? `recorded ${act}` : ('error: ' + (j.error||r.status));
+    if (j.ok) { card.classList.add('decided'); if (act !== 'KILL') { try { await navigator.clipboard.writeText(body.final_text); card.querySelector('.done').textContent += ' · copied to clipboard'; } catch(e){} } }
+  }));
+});
+</script>
+{% endblock %}

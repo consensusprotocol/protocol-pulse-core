@@ -4186,3 +4186,36 @@ def api_board_delete_attachment(att_id):
     db.session.delete(att); db.session.commit()
     return jsonify({'deleted': att_id})
 
+
+# ── Social engine shadow-mode review queue (2026-09-01) ─────────────────────────
+@admin_bp.route('/admin/review')
+@login_required
+@admin_required
+def admin_review_queue():
+    """Human review queue for SOCIAL_ENGINE_V1 shadow run. Nothing here posts."""
+    from services import review_queue as rq
+    return render_template('admin/review_queue.html', items=rq.pending(), st=rq.stats(),
+                           kill_reasons=rq.KILL_REASONS, grades=rq.GRADES)
+
+@admin_bp.route('/api/admin/review/<story_id>/decide', methods=['POST'])
+@login_required
+@admin_required
+def api_admin_review_decide(story_id):
+    from services import review_queue as rq
+    b = request.get_json(silent=True) or {}
+    try:
+        d = rq.decide(story_id, b.get('action', ''), kill_reason=b.get('kill_reason'),
+                      story_grade=b.get('story_grade'), copy_grade=b.get('copy_grade'),
+                      final_text=b.get('final_text'), register=b.get('register'), note=b.get('note'))
+    except AssertionError:
+        return jsonify(ok=False, error='bad action'), 400
+    if not d:
+        return jsonify(ok=False, error='unknown story_id'), 404
+    return jsonify(ok=True, decision=d)
+
+@admin_bp.route('/api/admin/review/stats')
+@login_required
+@admin_required
+def api_admin_review_stats():
+    from services import review_queue as rq
+    return jsonify(rq.stats())

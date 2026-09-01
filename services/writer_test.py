@@ -15,6 +15,34 @@ STORIES = BASE / "data" / "intelligence" / "candidate_stories.json"
 OUT = BASE / "data" / "intelligence" / "writer_test_output.json"
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
 
+def _load_persona():
+    """Reuse the existing PBX voice material from tweet_machine.py verbatim (frozen baseline).
+    Extracted as text so importing this module never triggers tweet_machine side effects."""
+    try:
+        src = (BASE / "services" / "tweet_machine.py").read_text()
+        persona = re.search(r'PBX_PERSONA = """(.*?)"""', src, re.S).group(1).strip()
+        laws = re.search(r'TWEET_VOICE_LAWS = """(.*?)"""', src, re.S).group(1).strip()
+        return persona, laws
+    except Exception as e:
+        print(f"[writer] persona load failed: {e}")
+        return "You are the voice of @ProtocolPulseHQ, a sharp Bitcoin/markets intelligence account.", ""
+
+PBX_PERSONA, TWEET_VOICE_LAWS = _load_persona()
+
+# The persona and laws are the frozen baseline. Where they conflict with the evidence firewall
+# (e.g. persona says 'no hedging' but tier is INFERENCE_SUPPORTED), the FIREWALL WINS. Recorded,
+# not resolved: voice conflicts are for PBX/GPT after the first reviewed batch.
+PRECEDENCE = ("PRECEDENCE: The EPISTEMIC PERMISSION LADDER and HARD RULES below override the persona "
+              "and voice laws above wherever they conflict. A required attribution or hedge is never "
+              "dropped for voice. A joke is never added; deadpan means stopping when the fact is already absurd.")
+
+EDGE_PROMPT = (
+    "From the EVIDENCE PACKET ONLY, state the Protocol Pulse edge in at most 2 plain sentences: "
+    "what is the non-obvious observation here, and which receipt supports it? Name the receipt "
+    "(filing, dataset, statement, outlet). If verified evidence contains no non-obvious observation, "
+    "output exactly: NONE. No tweet voice; this is an editor's note.\n\n"
+)
+
 REGISTERS = {
     "cold_forensic": (
         "COLD/FORENSIC register. Pure receipt, almost no personality. State the claim at its "
@@ -100,7 +128,59 @@ def build_packet(story):
         f"- SOURCE: {story.get('source_domain','')} | {story.get('freshness_minutes','?')} min old\n"
         f"- VERIFICATION: {story.get('verification_status','')}\n"
         f"- EFFECTIVE TIER: {_effective_tier(story)}\n"
+        f"- UNDERLYING EVENT AGE: {story.get('event_age_hours','?')} hours\n"
+        f"- REPORTS / INDEPENDENT ORIGINS: {story.get('report_count',1)} / {story.get('independent_corroboration',1)}"
+        f"{(' (relaying: ' + ', '.join(story.get('syndicated_from') or []) + ')') if story.get('syndicated_from') else ''}\n"
+        f"- RECEIPTS: {json.dumps([{k: c.get(k) for k in ('claim','result','observed_value','source_url','original_date')} for c in ((story.get('external_verification') or {}).get('claims') or []) if c.get('result') in ('VERIFIED','STALE')])}\n"
     )
+
+def write_story(story):
+    """Edge note + 3 register variants for one story. Returns a review-queue-ready record."""
+    packet = build_packet(story)
+    try:
+        edge = call_gpt(EDGE_PROMPT + packet, temp=0.3)
+    except Exception as e:
+        edge = f"ERROR: {e}"
+    variants = {}
+    for reg_key, reg_desc in REGISTERS.items():
+        prompt = (
+            PBX_PERSONA + "\n\n" + TWEET_VOICE_LAWS + "\n\n" + PRECEDENCE + "\n\n"
+            + FIREWALL + "\n\n" + packet + "\n\n"
+            + "REGISTER FOR THIS VERSION: " + reg_desc + "\n\n"
+            + "Write ONE tweet in this register, or return NO_POST. Output only the tweet text or NO_POST."
+        )
+        try:
+            out = call_gpt(prompt)
+        except Exception as e:
+            out = f"ERROR: {e}"
+        variants[reg_key] = out
+    postable = {k: v for k, v in variants.items() if v and v.strip() != "NO_POST" and not v.startswith("ERROR")}
+    return {
+        "story_id": story.get("story_id"),
+        "headline": story["headline"],
+        "summary": story.get("summary", ""),
+        "editorial_type": story.get("suggested_editorial_type", ""),
+        "verification_status": story.get("verification_status", ""),
+        "effective_tier": _effective_tier(story),
+        "edge": edge,
+        "facts": story.get("facts", []),
+        "inferences": story.get("inferences", []),
+        "do_not_say": story.get("do_not_say", []),
+        "receipts": [c for c in ((story.get("external_verification") or {}).get("claims") or []) if c.get("result") in ("VERIFIED", "STALE")],
+        "sources": story.get("sources", []),
+        "report_count": story.get("report_count", 1),
+        "independent_corroboration": story.get("independent_corroboration", 1),
+        "syndicated_from": story.get("syndicated_from", []),
+        "event_age_hours": story.get("event_age_hours"),
+        "underlying_event_ts": story.get("underlying_event_ts"),
+        "discovered_at": datetime.now(timezone.utc).isoformat(),
+        "freshness_minutes": story.get("freshness_minutes"),
+        "presentation": "QT" if story.get("suggested_editorial_type", "").lower().startswith("quote") else "text",
+        "variants": variants,
+        "postable_count": len(postable),
+        "proposed": next(iter(postable.values()), "NO_POST"),
+        "proposed_register": next(iter(postable.keys()), None),
+    }
 
 def run():
     data = json.load(open(STORIES))
@@ -109,26 +189,7 @@ def run():
 
     results = []
     for story in eligible:
-        packet = build_packet(story)
-        variants = {}
-        for reg_key, reg_desc in REGISTERS.items():
-            prompt = (
-                "You are the voice of @ProtocolPulseHQ, a sharp Bitcoin/markets intelligence account.\n\n"
-                + FIREWALL + "\n\n" + packet + "\n\n"
-                + "REGISTER FOR THIS VERSION: " + reg_desc + "\n\n"
-                + "Write ONE tweet in this register, or return NO_POST. Output only the tweet text or NO_POST."
-            )
-            try:
-                out = call_gpt(prompt)
-            except Exception as e:
-                out = f"ERROR: {e}"
-            variants[reg_key] = out
-        results.append({
-            "headline": story["headline"],
-            "editorial_type": story.get("suggested_editorial_type",""),
-            "verification_status": story.get("verification_status",""),
-            "variants": variants,
-        })
+        results.append(write_story(story))
         print(f"  done: {story['headline'][:50]}")
 
     json.dump({"generated_at": datetime.now(timezone.utc).isoformat(), "results": results},

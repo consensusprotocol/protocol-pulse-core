@@ -598,13 +598,14 @@ def domain_fit_score(item):
     return min(hits / 3.0, 1.0)  # 0 = off-topic, 1 = squarely in domain
 
 
-def run(top_n=20):
+def run(top_n=20, extra_items=None):
     print("=== SENSING ===")
     rss = harvest_rss()
     print(f"  RSS harvested: {len(rss)}")
     xai = harvest_xai()
     print(f"  xAI harvested: {len(xai)}")
-    all_items = dedup_items(rss + xai)
+    extra = extra_items or []   # shadow-mode RSS pool (plumbing only; same item schema)
+    all_items = dedup_items(rss + xai + extra)
     # Hard freshness gate: drop anything older than 48h (news must be current)
     now = time.time()
     fresh = [it for it in all_items if 0 <= (now - it["published_ts"]) <= 172800]
@@ -710,6 +711,7 @@ def run(top_n=20):
         json.dump({"generated_at": datetime.now(timezone.utc).isoformat(),
                    "total_harvested": len(all_items), "stories": stories}, f, indent=2)
     print(f"=== DONE: {len(stories)} ranked stories -> {OUT} ===")
+    return stories
     return stories
 
 if __name__ == "__main__":

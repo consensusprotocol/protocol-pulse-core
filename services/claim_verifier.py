@@ -361,9 +361,21 @@ def apply(item, text=None):
     item["external_verification"] = ev
     ov = ev["overall"]
     # facts become ONLY what we observed; stale facts move to do-not-say-as-fresh
-    item["auditor_facts"] = item.get("facts", [])
-    item["facts"] = [f"{r['claim']} [observed: {str(r.get('observed_value'))[:80]} | {r.get('source_url','')}]"
-                     for r in ev["claims"] if r["result"] == "VERIFIED"]
+    item["auditor_facts"] = list(item.get("facts", []) or [])
+    observed = [f"{r['claim']} [observed: {str(r.get('observed_value'))[:80]} | {r.get('source_url','')}]"
+                for r in ev["claims"] if r["result"] == "VERIFIED"]
+    # Keep the auditor's source-stated facts unless they collide with a CONTRADICTED/STALE claim.
+    # Replacing them wholesale starved the writer (packets collapsed to one headline-shaped fact).
+    bad_terms = set()
+    for r in ev["claims"]:
+        if r["result"] in ("CONTRADICTED", "STALE"):
+            bad_terms.update(w for w in re.findall(r"[a-z0-9$%.]{4,}", (r.get("claim") or "").lower()) if not w.isalpha() or len(w) > 5)
+    kept = []
+    for f in item["auditor_facts"]:
+        fw = set(re.findall(r"[a-z0-9$%.]{4,}", f.lower()))
+        overlap = len(fw & bad_terms) / max(len(bad_terms), 1) if bad_terms else 0
+        if overlap < 0.4: kept.append(f + " [source-stated; attribute]")
+    item["facts"] = observed + kept
     dns = item.get("do_not_say", []) or []
     for r in ev["claims"]:
         if r["result"] == "CONTRADICTED": dns.append(f"{r['claim']} ({r.get('note','contradicted')})")
