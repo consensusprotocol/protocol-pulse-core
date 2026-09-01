@@ -545,9 +545,29 @@ def run(top_n=20):
 
     ranked = sorted(all_items, key=lambda x: x.get("overall_score", 0), reverse=True)[:top_n]
 
-    # Verify each ranked story before output (GPT spec: no unverified claim reaches writer)
+    # Audit each ranked story (claim auditor: internal consistency, fact/inference split)
     for it in ranked:
         adversarial_verify(it)
+
+    # LAYER 3.5: external claim verification on auditor-eligible candidates only (cost ~$0.25/story).
+    # External evidence OVERRIDES the auditor. Cap bounds cost; env PP_EXTERNAL_VERIFY=0 disables.
+    if os.environ.get("PP_EXTERNAL_VERIFY", "1") == "1":
+        from services import claim_verifier
+        cap = int(os.environ.get("PP_EXTERNAL_VERIFY_CAP", "10"))
+        todo = [it for it in ranked if it.get("writer_eligible")][:cap]
+        print(f"=== EXTERNAL VERIFICATION (Layer 3.5) on {len(todo)} eligible ===")
+        spent = 0.0
+        for it in todo:
+            try:
+                claim_verifier.apply(it)
+                ev = it["external_verification"]
+                per = ev["cost_usd"] - spent; spent = ev["cost_usd"]; ev["cost_usd_story"] = round(per, 4)
+                print(f"  [{ev['overall']:12s}] v/s/c/u {ev['n_verified']}/{ev['n_stale']}/{ev['n_contradicted']}/{ev['n_unverifiable']} ${per:.2f} :: {it['title'][:70]}")
+            except Exception as e:
+                it["writer_eligible"] = False
+                it["verification_status"] = "UNVERIFIED"
+                it.setdefault("red_flags", []).append(f"external_verifier_error:{type(e).__name__}")
+                print(f"  [VERIFIER ERR ] {type(e).__name__}: {it['title'][:70]}")
 
     stories = []
     for i, it in enumerate(ranked):
@@ -573,6 +593,10 @@ def run(top_n=20):
             "overall_score": it["overall_score"],
             "verification_status": it.get("verification_status", "unverified"),
             "writer_eligible": it.get("writer_eligible", False),
+            "external_verification": it.get("external_verification"),
+            "underlying_event_ts": it.get("underlying_event_ts"),
+            "event_age_hours": it.get("event_age_hours"),
+            "usable_claim_count": it.get("usable_claim_count"),
             "requires_hedge": it.get("requires_hedge", True),
             "primary_claims": it.get("primary_claims", []),
             "hard_checks": it.get("hard_checks", []),
