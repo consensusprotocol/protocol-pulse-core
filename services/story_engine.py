@@ -208,6 +208,84 @@ def recency_score(ts):
     if age_min < 2880: return 0.3
     return 0.1
 
+
+# ================= LAYER 1.75: SEMANTIC EVENT CLUSTERING =================
+# One wire story reported by three outlets is ONE event with three reports, not three events.
+# Fingerprint = primary_entity + event + object + event_date, normalized by gpt-4o in one batch call.
+# origin_outlet captures syndication ("per Reuters", "Bloomberg reported") so independent_corroboration
+# counts distinct ORIGINS, not distinct domains.
+CLUSTER_PROMPT = """You normalize news items into event fingerprints for de-duplication. TODAY is {today}; all items were published in the last 48 hours, so event dates are {today} or a few days before — never earlier years unless the text explicitly says so.
+For EACH item return one object: {{"i": <index>, "event_key": "<entity>_<event>_<object>_<YYYY-MM-DD or unknown>" as a lowercase snake slug,
+"entity": "...", "event": "<verb phrase, 1-3 words>", "object": "...", "event_date": "YYYY-MM-DD or null (date the underlying event happened, NOT the article date)",
+"origin_outlet": "<the UPSTREAM outlet this item is relaying, e.g. Reuters, Bloomberg, WSJ, AP, FT, CNBC, court filing, company release. NEVER the item's own [domain] shown in brackets. null if the item is itself the original report or you cannot tell>"}}
+Two items describing the SAME real-world event MUST get the IDENTICAL event_key even if headlines differ. Different events about the same entity get different keys.
+Return ONLY a JSON array.
+
+ITEMS:
+{items}
+"""
+
+def _origin_label(x):
+    """'Bloomberg' / 'bloomberg.com' / 'www.bloomberg.co.uk' / 'Reuters' -> 'bloomberg' / 'reuters'."""
+    x = (x or "").lower().strip()
+    x = re.sub(r"^https?://", "", x).split("/")[0]
+    parts = [p for p in x.split(".") if p not in ("www", "en", "m")]
+    if len(parts) >= 2 and parts[-1] in ("com","org","net","io","co","gov","uk","de","jp","info") :
+        parts = parts[:-1]
+        if parts and parts[-1] in ("co","com"): parts = parts[:-1]
+    return re.sub(r"[^a-z0-9]", "", parts[-1] if parts else x)
+
+def cluster_events(items):
+    if not OPENAI_KEY or len(items) < 2:
+        for it in items: it.update(report_count=1, independent_corroboration=1, sources_all=[it["url"]])
+        return items
+    import urllib.request as u
+    fps = {}
+    for start in range(0, len(items), 30):
+        batch = items[start:start+30]
+        listing = "\n".join(f'{start+i}. [{it.get("source_domain","")}] {it["title"][:140]} :: {it["summary"][:220]}' for i, it in enumerate(batch))
+        try:
+            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            payload = json.dumps({"model": "gpt-4o", "temperature": 0, "max_tokens": 3500,
+                                  "messages": [{"role": "user", "content": CLUSTER_PROMPT.format(items=listing, today=today)}]}).encode()
+            req = u.Request("https://api.openai.com/v1/chat/completions", data=payload,
+                            headers={"Authorization": "Bearer " + OPENAI_KEY, "Content-Type": "application/json"})
+            txt = json.loads(u.urlopen(req, timeout=90).read())["choices"][0]["message"]["content"]
+            m = re.search(r"\[.*\]", txt, re.S)
+            for fp in json.loads(m.group(0)) if m else []:
+                if isinstance(fp, dict) and isinstance(fp.get("i"), int): fps[fp["i"]] = fp
+        except Exception as e:
+            print(f"  [cluster] batch {start} failed: {type(e).__name__}")
+    groups = {}
+    for i, it in enumerate(items):
+        fp = fps.get(i) or {}
+        key = (fp.get("event_key") or hashlib.md5(it["title"].lower().encode()).hexdigest()[:12]).lower().strip()
+        it["event_fingerprint"] = fp
+        groups.setdefault(key, []).append(it)
+    merged = []
+    for key, grp in groups.items():
+        grp.sort(key=lambda x: (-_source_quality(x["url"]), x["published_ts"]))
+        canon = grp[0]
+        origins = set()
+        for g in grp:
+            fp = g.get("event_fingerprint") or {}
+            oo = fp.get("origin_outlet")
+            own = (g.get("source_domain") or "").lower()
+            if oo and (oo.lower() in own or own.split(".")[0] in oo.lower()):
+                oo = None; fp["origin_outlet"] = None
+            origins.add(_origin_label(oo or own))
+        canon["event_key"] = key
+        canon["report_count"] = len(grp)
+        canon["independent_corroboration"] = max(1, len(origins))
+        canon["sources_all"] = [g["url"] for g in grp]
+        canon["source_domains_all"] = sorted({g.get("source_domain","") for g in grp})
+        canon["syndicated_from"] = sorted({(g.get("event_fingerprint") or {}).get("origin_outlet") for g in grp} - {None})
+        canon["earliest_published_ts"] = min(g["published_ts"] for g in grp)
+        ed = (canon.get("event_fingerprint") or {}).get("event_date")
+        if ed: canon["event_date_hint"] = ed
+        merged.append(canon)
+    return merged
+
 def saturation_and_corroboration(item, all_items):
     # Returns (saturation, corroboration). Saturation = same-source echo (bad).
     # Corroboration = DISTINCT independent domains covering it (good).
@@ -295,7 +373,11 @@ JSON: {{"unexpectedness":N,"tension":N,"specificity":N,"stakes":N,"connection":N
 def compute_overall(item, all_items):
     rec = recency_score(item["published_ts"])
     sq = _source_quality(item["url"])
-    sat, corrob = saturation_and_corroboration(item, all_items)
+    if item.get("report_count"):
+        sat = min((item["report_count"] - 1) / 6.0, 1.0)          # echo of the same event = less unique
+        corrob = item.get("independent_corroboration", 1)          # distinct ORIGINS, syndication collapsed
+    else:
+        sat, corrob = saturation_and_corroboration(item, all_items)
     mag = magnitude_score(item)
     # independent corroboration credit (2+ distinct domains = more trustworthy story)
     corrob_bonus = min(corrob, 3) / 3.0 * 0.08
@@ -538,6 +620,15 @@ def run(top_n=20):
     all_items = all_items[:60]
     print(f"  Domain-fit: {before} -> {len(all_items)} (killed off-topic + capped at 60)")
 
+    print("=== EVENT CLUSTERING ===")
+    before = len(all_items)
+    all_items = cluster_events(all_items)
+    multi = [it for it in all_items if it.get("report_count", 1) > 1]
+    print(f"  {before} items -> {len(all_items)} events ({len(multi)} multi-report; "
+          f"syndication collapsed on {sum(1 for it in multi if it['independent_corroboration'] < it['report_count'])})")
+    for it in sorted(multi, key=lambda x: -x["report_count"])[:6]:
+        print(f"    x{it['report_count']} reports / {it['independent_corroboration']} independent :: {it['title'][:70]}")
+
     print("=== DETERMINISTIC + LLM SCORING ===")
     all_items = llm_score_batch(all_items)
     for it in all_items:
@@ -554,8 +645,12 @@ def run(top_n=20):
     if os.environ.get("PP_EXTERNAL_VERIFY", "1") == "1":
         from services import claim_verifier
         cap = int(os.environ.get("PP_EXTERNAL_VERIFY_CAP", "10"))
-        todo = [it for it in ranked if it.get("writer_eligible")][:cap]
-        print(f"=== EXTERNAL VERIFICATION (Layer 3.5) on {len(todo)} eligible ===")
+        elig = [it for it in ranked if it.get("writer_eligible")]
+        todo, pending = elig[:cap], elig[cap:]
+        for it in pending:   # no unverified claim reaches the writer: beyond the cap = not yet eligible
+            it["writer_eligible"] = False
+            it.setdefault("red_flags", []).append("PENDING_EXTERNAL_VERIFICATION: outside top-%d cap" % cap)
+        print(f"=== EXTERNAL VERIFICATION (Layer 3.5) on {len(todo)} eligible ({len(pending)} pending, beyond cap) ===")
         spent = 0.0
         for it in todo:
             try:
@@ -578,7 +673,12 @@ def run(top_n=20):
             "domain": it["domain_tag"],
             "summary": it["summary"][:300],
             "why_interesting": it.get("why_interesting", ""),
-            "sources": [it["url"]],
+            "sources": it.get("sources_all") or [it["url"]],
+            "report_count": it.get("report_count", 1),
+            "independent_corroboration": it.get("independent_corroboration", 1),
+            "syndicated_from": it.get("syndicated_from", []),
+            "event_key": it.get("event_key"),
+            "event_date_hint": it.get("event_date_hint"),
             "source_domain": it["source_domain"],
             "primary_source_found": bool(it["url"]),
             "freshness_minutes": round((time.time() - it["published_ts"]) / 60),
