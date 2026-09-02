@@ -146,3 +146,61 @@ Editorial principle added today: **publication freshness is not event freshness.
 - **"Verifier" is a reserved word.** Do not call a component a verifier unless it fetches evidence from outside the packet.
 - **Claim nothing is pushed until `git status -sb` shows `main...origin/main` with no ahead count.**
 - The morning handoff overstated: "discovery + verification + writer PROVEN" -> "discovery + claim auditing + writer proven; external verification incomplete."
+
+---
+
+## POST-CALIBRATION ROADMAP (GPT spec, PBX-relayed 2026-09-01 — DO NOT START before 20 decisions)
+
+Sequence is fixed. Nothing below begins until the calibration batch is graded and analyzed.
+
+1. **Calibration batch (NOW, PBX only):** grade 20-30 candidates at /admin/review. STORY and COPY
+   separately, POST/EDIT/KILL, kill reasons. Claude fixes only outright bugs revealed by the batch.
+   Known already: story-age rollup uses oldest receipt date, not the current event (MAS case);
+   NO_POST on 🔥 stories = writer too timid; quip-bolting = TRY_HARD; wordy edge notes.
+   After 20 decisions: export review_decisions.jsonl + machine drafts to GPT for the final writer spec.
+2. **Final writer spec:** GPT derives it from the decisions. Lock registers (likely cold_forensic /
+   native_deadpan / investigative / maybe FLASH ultra-short). Freeze the voice prompt. No further style iteration.
+3. **Presentation selection:** TEXT_ONLY / QUOTE_POST / RECEIPT_SCREENSHOT / ORIGINAL_CHART / TWO_IMAGE / NO_POST.
+   Receipt screenshots + quote posts first, charts second. Never scraped/generic images or BTC-logo decoration.
+4. **Human-approved POST -> Buffer:** wire the review queue's POST action through tweet_machine's existing
+   Buffer GraphQL path. Human-approved posting != autonomous posting; POSTING_PAUSED continues to block
+   unattended publication. This is the moment the channel is operational again.
+5. **Supervised run 1-2 weeks:** collect approval rates, edit distance, kill reasons, topic/register/
+   presentation, and X performance (impressions, replies, reposts, bookmarks, follows where accessible).
+6. **Autonomy criteria (all required):** regression suite clean; zero unsupported claims in reviewed batch;
+   STORY approval >=~60%; COPY approval-or-light-edit >=~60%; no recurring stale-event failures; NO_POST
+   proven; Buffer path proven; kill switch tested. Then autonomous posting conservatively,
+   VERIFIED_PRIMARY/SECONDARY only at first.
+
+### ATTENTION ENGINE (separate lane, build after calibration)
+`attention_engine.py`, standalone from story_engine.py. Job: find posts already proving they are attention
+magnets that Protocol Pulse can add something to — not "important stories."
+- Monitor curated handle lists via xAI X Search (allowlists, date windows, video/image understanding):
+  Bitcoin-native, political-economy/libertarian, finance/tech/viral culture.
+- Every 10-15 min, posts <~3h old, especially clips. Score: engagement velocity (per-minute relative to
+  account size), cross-account spread, comment opportunity, brand fit (money/power/freedom/institutions/
+  culture/absurdity/tech), saturation (obvious joke already made 50x), context risk (misleading edit,
+  ragebait, provenance).
+- Output: original post, velocity, why spreading, 3 QT options, QT/SKIP. Human-reviewed quote posts ONLY.
+  Never auto-post. SKIP is valid.
+- Comment writer prefers: undercut / compress the implication / add ONE verified missing fact.
+  Never summarize the clip.
+- Keep the lane analytically separate from intelligence output for performance comparison.
+- Politics widening = political economy + institutional absurdity (spending, taxation, surveillance,
+  banking, property rights, censorship, war financing, capital controls, regulation, central banks,
+  prediction markets, receipts-backed corruption, bureaucratic absurdity). Reward economic/freedom/tech
+  relevance; penalize team-sport framing and ragebait. "That's a weird incentive," never "our side destroys."
+- Doubles as audience research: track what Bitcoin-native audiences over-index on outside Bitcoin; feed
+  migration signals back into discovery.
+
+### MEMORY / PURCHASING-POWER lane (inside attention engine, not a new subsystem)
+NOSTALGIA / PURCHASING_POWER discovery category. Nostalgia is the hook; the verified economic contrast is
+the story. Pipeline: historical clip/image -> identify date/place/product/price -> verify provenance ->
+extract nominal prices/wages -> inflation-adjust (CPI AND hours-of-median-labor) -> compare present ->
+editorial score -> QT/original/SKIP. Mandatory historical-price verification before any economic claim.
+The machine must be allowed to find the OPPOSITE (things that got cheaper); no manufactured debasement
+stories. Raw material: grocery/menu/dealership/catalog/home-listing/gas-sign/wage/tuition/ticket footage.
+
+### Target output mix (loose, not quotas)
+~50% INTELLIGENCE / ~25-30% ATTENTION / ~20-25% POWER, with MEMORY inside ATTENTION.
+Bitcoin appears naturally across lanes (15-35% by week), no silo.
