@@ -44,11 +44,13 @@ def _generate_and_url(text: str) -> str:
 def send_sms(to: str, message: str) -> bool:
     """Send an SMS. Returns True on success."""
     try:
-        msg = get_client().messages.create(
-            body=message[:1600],
-            from_=_from_number(),
-            to=to,
-        )
+        kwargs = {'body': message[:1600], 'to': to}
+        ms_sid = os.getenv('TWILIO_MESSAGING_SERVICE_SID')
+        if ms_sid:
+            kwargs['messaging_service_sid'] = ms_sid  # A2P 10DLC registered path
+        else:
+            kwargs['from_'] = _from_number()
+        msg = get_client().messages.create(**kwargs)
         logger.info('SMS sent: %s to %s', msg.sid, to)
         return True
     except Exception as e:
