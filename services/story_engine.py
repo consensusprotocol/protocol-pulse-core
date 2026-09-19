@@ -59,21 +59,13 @@ RSS_FEEDS = [
     ("politics","https://www.aljazeera.com/xml/rss/all.xml"),
 ]
 
+# 2026-09-19: Reduced from 13 to 3 themes. The other 10 are covered by RSS.
+# Only themes that genuinely require X-native real-time social signals remain.
+# This cuts x_search from ~156 calls/day to ~36 calls/day.
 XAI_SEARCH_THEMES = [
     "unusual Bitcoin on-chain movement today",
-    "central bank policy surprise this week",
-    "sovereign debt or currency stress today",
     "major institution Bitcoin or crypto move",
-    "energy grid or mining news today",
-    "financial censorship or account freeze news",
-    # added 2026-08-27
-    "BIP-110 Bitcoin consensus discussion this week",
-    "stablecoin regulation or tokenized deposit news",
-    "CBDC rollout or capital controls announcement",
-    "AI datacenter power demand grid strain",
-    "treasury auction or bond market stress",
     "corporate or sovereign bitcoin treasury purchase",
-    "tariff sanction or trade escalation today",
 ]
 
 # ---- SOURCE QUALITY WEIGHTS (deterministic) ----
@@ -148,31 +140,58 @@ def _parse_iso_utc(v):
     except Exception:
         return None
 
+def _load_gateway():
+    try:
+        import importlib.util
+        gw_path = os.path.join(str(BASE), "core", "services", "xai_gateway.py")
+        spec = importlib.util.spec_from_file_location("xai_gateway", gw_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    except Exception:
+        return None
+
 def harvest_xai(max_per_theme=5):
-    """Correct xAI Agent Tools format: POST /v1/responses, model grok-4.3, tools=[{type:x_search}]."""
-    if not XAI_KEY:
+    """xAI x_search discovery via gateway. Reduced to 3 X-native themes."""
+    gw = _load_gateway()
+    if not gw and not XAI_KEY:
         return []
-    import urllib.request as u
     from datetime import timedelta
     items = []
     from_date = (datetime.now(timezone.utc) - timedelta(days=2)).strftime("%Y-%m-%d")
     for theme in XAI_SEARCH_THEMES:
         try:
-            payload = json.dumps({
-                "model": "grok-4.3",
-                "input": "Find the most significant, recent, specific news about: " + theme + ". Return a JSON array of 3-5 items, each with keys headline, summary, source_url, published_at, why_significant. published_at MUST be the ISO 8601 UTC datetime the SOURCE published it (e.g. 2026-08-26T14:30:00Z), not the time you found it; use null if unknown. Only real verifiable items from the last 48h with citations.",
-                "tools": [{"type": "x_search", "from_date": from_date}],
-            }).encode()
-            req = u.Request("https://api.x.ai/v1/responses", data=payload,
-                headers={"Authorization": "Bearer " + XAI_KEY, "Content-Type": "application/json"})
-            resp = json.loads(u.urlopen(req, timeout=45).read().decode())
-            text = ""
-            for out in resp.get("output", []):
-                for block in out.get("content", []):
-                    if block.get("type") in ("output_text", "text"):
-                        text += block.get("text", "")
-            if not text and "output_text" in resp:
-                text = resp["output_text"]
+            prompt = "Find the most significant, recent, specific news about: " + theme + ". Return a JSON array of 3-5 items, each with keys headline, summary, source_url, published_at, why_significant. published_at MUST be the ISO 8601 UTC datetime the SOURCE published it (e.g. 2026-08-26T14:30:00Z), not the time you found it; use null if unknown. Only real verifiable items from the last 48h with citations."
+            tool = {"type": "x_search", "from_date": from_date}
+
+            if gw:
+                result = gw.responses(
+                    prompt, model="grok-4.3",
+                    allow_search=True, search_tools=[tool], timeout=45,
+                )
+                if isinstance(result, gw.BudgetExceeded):
+                    print(f"[xai] budget exceeded for theme: {theme[:30]}")
+                    break  # stop all themes, budget is done
+                if isinstance(result, tuple):
+                    text, resp = result
+                else:
+                    continue
+            else:
+                import urllib.request as u
+                payload = json.dumps({
+                    "model": "grok-4.3", "input": prompt,
+                    "tools": [tool],
+                }).encode()
+                req = u.Request("https://api.x.ai/v1/responses", data=payload,
+                    headers={"Authorization": "Bearer " + XAI_KEY, "Content-Type": "application/json"})
+                resp = json.loads(u.urlopen(req, timeout=45).read().decode())
+                text = ""
+                for out in resp.get("output", []):
+                    for block in out.get("content", []):
+                        if block.get("type") in ("output_text", "text"):
+                            text += block.get("text", "")
+                if not text and "output_text" in resp:
+                    text = resp["output_text"]
             found = re.search(r"\[.*\]", text, re.DOTALL)
             if found:
                 for it in json.loads(found.group(0)):

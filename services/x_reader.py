@@ -154,14 +154,23 @@ def _log_cost(kind, usage):
 
 # ------------------------------------------------------------- xAI plumbing
 
+def _load_gateway():
+    """Load xai_gateway; returns module or None if unavailable."""
+    try:
+        import importlib.util
+        gw_path = os.path.join(BASE_DIR, "core", "services", "xai_gateway.py")
+        spec = importlib.util.spec_from_file_location("xai_gateway", gw_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    except Exception as e:
+        log.warning("xai_gateway not available (%s); using direct calls", e)
+        return None
+
 def _call_xsearch(prompt, handles=None, from_date=None, to_date=None,
                   timeout=75):
-    """Raw call. Returns (text, citations, usage) or (None, [], {}) on
-    failure/degraded/unsourced."""
-    key = _get_xai_key()
-    if not key:
-        log.error("XAI_API_KEY not found (env or .env)")
-        return None, [], {}
+    """Raw call via xai_gateway. Returns (text, citations, usage) or
+    (None, [], {}) on failure/degraded/unsourced."""
 
     tool = {"type": "x_search"}
     if handles:
@@ -171,24 +180,47 @@ def _call_xsearch(prompt, handles=None, from_date=None, to_date=None,
     if to_date:
         tool["to_date"] = to_date
 
-    body = {
-        "model": XAI_MODEL,
-        "input": [{"role": "user", "content": prompt}],
-        "tools": [tool],
-    }
-    req = urllib.request.Request(
-        XAI_URL, data=json.dumps(body).encode(),
-        headers={"Authorization": "Bearer " + key,
-                 "Content-Type": "application/json"})
-    try:
-        resp = urllib.request.urlopen(req, timeout=timeout)
-        data = json.loads(resp.read().decode())
-    except urllib.error.HTTPError as e:
-        log.error("xAI HTTP %s: %s", e.code, e.read().decode()[:300])
-        return None, [], {}
-    except Exception as e:
-        log.error("xAI call failed: %s", e)
-        return None, [], {}
+    # Route through gateway
+    gw = _load_gateway()
+    if gw:
+        result = gw.responses(
+            [{"role": "user", "content": prompt}],
+            model=XAI_MODEL,
+            allow_search=True,
+            search_tools=[tool],
+            timeout=timeout,
+        )
+        if isinstance(result, gw.BudgetExceeded):
+            log.warning("x_search budget exceeded: %s", result.reason)
+            return None, [], {}
+        if isinstance(result, tuple):
+            text_out, data = result
+        else:
+            return None, [], {}
+    else:
+        # Fallback: direct call (should not happen in production)
+        key = _get_xai_key()
+        if not key:
+            log.error("XAI_API_KEY not found (env or .env)")
+            return None, [], {}
+        body = {
+            "model": XAI_MODEL,
+            "input": [{"role": "user", "content": prompt}],
+            "tools": [tool],
+        }
+        req = urllib.request.Request(
+            XAI_URL, data=json.dumps(body).encode(),
+            headers={"Authorization": "Bearer " + key,
+                     "Content-Type": "application/json"})
+        try:
+            resp = urllib.request.urlopen(req, timeout=timeout)
+            data = json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            log.error("xAI HTTP %s: %s", e.code, e.read().decode()[:300])
+            return None, [], {}
+        except Exception as e:
+            log.error("xAI call failed: %s", e)
+            return None, [], {}
 
     usage = data.get("usage", {}) or {}
     _log_cost("x_search", usage)

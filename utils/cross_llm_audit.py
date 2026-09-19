@@ -1530,19 +1530,27 @@ def call_gpt4o(prompt: str, results: dict, errors: dict):
 
 def call_grok(prompt: str, results: dict, errors: dict):
     try:
-        from openai import OpenAI
-        client = OpenAI(
-            api_key=os.environ["XAI_API_KEY"],
-            base_url="https://api.x.ai/v1"
+        # 2026-09-19: Route through xai_gateway with XAI_AUDIT_API_KEY
+        import importlib.util
+        gw_path = os.path.join(str(BASE), "core", "services", "xai_gateway.py")
+        spec = importlib.util.spec_from_file_location("xai_gateway", gw_path)
+        gw = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gw)
+        result = gw.chat(
+            [{"role": "user", "content": prompt}],
+            model="grok-3-latest", max_tokens=6000,
+            temperature=0.3, for_audit=True,
         )
-        resp = client.chat.completions.create(
-            model="grok-3-latest",
-            messages=[{"role": "user", "content": prompt}],
-            max_completion_tokens=6000,
-            temperature=0.3,
-        )
-        results["grok"] = resp.choices[0].message.content
-        print(f"  [GROK]   ✅ Done")
+        if isinstance(result, gw.BudgetExceeded):
+            errors["grok"] = f"Budget exceeded: {result.reason}"
+            print(f"  [GROK]   ⚠ BUDGET: {result.reason}")
+            return
+        if result is None:
+            errors["grok"] = "API error (None returned)"
+            print(f"  [GROK]   ❌ API error")
+            return
+        results["grok"] = result
+        print(f"  [GROK]   ✅ Done (via gateway)")
     except Exception as e:
         errors["grok"] = str(e)
         print(f"  [GROK]   ❌ ERROR: {e}")

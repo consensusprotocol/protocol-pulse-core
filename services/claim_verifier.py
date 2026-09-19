@@ -51,9 +51,48 @@ def _json_in(txt):
         except Exception: return None
 
 _XAI_LOG = []
+
+def _load_gateway():
+    try:
+        import importlib.util
+        gw_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                               "core", "services", "xai_gateway.py")
+        spec = importlib.util.spec_from_file_location("xai_gateway", gw_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    except Exception:
+        return None
+
 def _xai_search(prompt, tools=None, from_date=None, retries=2):
-    tools = tools or [{"type": "web_search"}]
-    body = {"model": "grok-4.3", "input": prompt, "tools": tools}
+    # 2026-09-19: search tools NO LONGER attached by default.
+    # Callers must explicitly pass tools if they need search.
+    gw = _load_gateway()
+    if gw:
+        has_search = bool(tools)
+        result = gw.responses(
+            prompt, model="grok-4.3",
+            allow_search=has_search, search_tools=tools,
+            timeout=80,
+        )
+        if isinstance(result, gw.BudgetExceeded):
+            _XAI_LOG.append(f"budget_exceeded:{result.reason}")
+            return ""
+        if isinstance(result, tuple):
+            txt, data = result
+            _COST["usd"] += data.get("usage", {}).get("cost_in_usd_ticks", 0) / 1e10
+            if data.get("degraded") or not (txt or "").strip():
+                _XAI_LOG.append(f"degraded={data.get('degraded')}")
+                return ""
+            return txt or ""
+        return ""
+
+    # Fallback: direct call (no gateway available)
+    if not tools:
+        tools = []  # no search by default
+    body = {"model": "grok-4.3", "input": prompt}
+    if tools:
+        body["tools"] = tools
     for attempt in range(retries + 1):
         req = u.Request("https://api.x.ai/v1/responses", data=json.dumps(body).encode(),
                         headers={"Authorization": "Bearer " + XAI_KEY, "Content-Type": "application/json"})

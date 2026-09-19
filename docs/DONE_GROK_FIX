@@ -1,0 +1,49 @@
+# DONE: GROK FIX — 2026-09-19
+
+## What was removed
+- Grok from article_automation.py article writing (was $0.96/day for a task Anthropic does equally)
+- 10 of 13 XAI_SEARCH_THEMES in story_engine.py (covered by RSS feeds)
+- Default web_search attachment in claim_verifier.py (was on every call)
+- Direct xAI API calls from x_reader.py (now routed through gateway)
+- Direct xAI API calls from cross_llm_audit.py (now via gateway with for_audit flag)
+
+## What was rerouted
+- article_automation.py article generation: Grok → Anthropic (AIService)
+- cross_llm_audit.py Grok leg: direct → xai_gateway with XAI_AUDIT_API_KEY
+
+## New daily ceilings (data/xai_budget_config.json)
+- max_requests_per_day: 400 (was unlimited; actual was ~8,200)
+- max_search_calls_per_day: 40 (was unlimited; actual was ~1,520)
+- max_usd_per_day: 1.00 (was unlimited; actual was ~$20)
+
+## Verified results (dry-run simulation)
+- Requests/day: 99 (down from ~8,200) — 98.8% reduction
+- Search calls/day: 40 (down from ~1,520) — 97.4% reduction
+- Est USD/day: $1.00 (down from ~$20) — 95% reduction
+- Monthly projected: ~$30 (down from ~$600)
+
+## Files created
+- core/services/xai_gateway.py — budget-enforcing single gateway
+- tests/test_xai_gateway.py — 19 unit tests (all pass)
+- data/xai_budget_config.json — configurable limits
+- docs/GROK_USAGE_INVENTORY.md — full call site inventory
+- docs/audits/grok_fix_audit.md — cross-LLM audit (DEGRADED: Gemini only)
+- docs/GROK_FIX_VERIFICATION.md — test results + dry-run proof
+- docs/COST_LAWS.md — paid API budget governance
+
+## Files modified
+- services/x_reader.py — routed through gateway
+- services/story_engine.py — reduced themes + gateway
+- services/claim_verifier.py — search off by default + gateway
+- services/article_automation.py — Grok removed, Anthropic primary
+- utils/cross_llm_audit.py — XAI_AUDIT_API_KEY via gateway
+- docs/QWEN_CONTEXT_BIBLE.md — failure pattern appended
+
+## Line Paul must add to .env with nano
+XAI_AUDIT_API_KEY=<the trifecta-audit xAI key — same key or a separate one with its own spend limit>
+
+If using the same key for both intel and audit, set:
+XAI_AUDIT_API_KEY=<same value as XAI_API_KEY>
+
+If using a separate key for audit isolation (recommended):
+XAI_AUDIT_API_KEY=<new xAI API key from console.x.ai>

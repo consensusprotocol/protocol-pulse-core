@@ -1,0 +1,6 @@
+{
+  "max_requests_per_day": 400,
+  "max_search_calls_per_day": 40,
+  "max_usd_per_day": 1.00,
+  "enabled": true
+}

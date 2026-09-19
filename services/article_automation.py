@@ -584,84 +584,45 @@ Target: 450-650 words. No shorter than 400. Every sentence earns its place or ge
 Clean HTML only. No markdown. No backticks. No code fences.
 """
 
+        # 2026-09-19: Grok removed from article generation (cost: $0.96/day for
+        # a task Anthropic handles equally well). Primary: Anthropic direct.
         try:
-            # Primary: Grok-3 (xAI) — reliable quota, high quality
-            from openai import OpenAI as _OAI
-            _grok = _OAI(api_key=__import__('os').environ.get('XAI_API_KEY',''), base_url='https://api.x.ai/v1')
-            response = _grok.chat.completions.create(
-                model="grok-3",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000,
-                temperature=0.7
-            )
+            from services.ai_service import AIService
+            ai = AIService()
+            content = ai.generate_content_anthropic(prompt)
 
-            content = response.choices[0].message.content
+            if content:
+                import re
+                if content.strip().startswith('```'):
+                    content = re.sub(r'^```(?:html)?\s*', '', content.strip(), flags=re.IGNORECASE)
+                    content = re.sub(r'```\s*$', '', content).strip()
+                title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content) or re.search(r'<h2[^>]*>([^<]+)</h2>', content)
+                title = title_match.group(1) if title_match else source['title']
 
-            # Strip code fences
-            if content and content.strip().startswith('```'):
-                import re as _re
-                content = _re.sub(r'^```(?:html)?\s*', '', content.strip(), flags=_re.IGNORECASE)
-                content = _re.sub(r'```\s*$', '', content).strip()
+                # Try to extract TL;DR from generated content first
+                tldr_match2 = re.search(r'TL;DR:\s*([^<]+)', content)
+                fallback_summary = tldr_match2.group(1).strip()[:280] if tldr_match2 else source['summary'][:200]
 
-            # Extract title from h1 tag
-            import re
-            title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content) or re.search(r'<h2[^>]*>([^<]+)</h2>', content)
-            title = title_match.group(1) if title_match else source['title']
+                # Inject real source URL into content
+                try:
+                    from urllib.parse import urlparse
+                    src_domain = urlparse(source['url']).netloc.replace('www.', '')
+                except Exception:
+                    src_domain = source['url'][:40]
+                content = content.replace(
+                    '{source_url}', source['url']
+                ).replace('{source_domain}', src_domain)
 
-            # Extract summary from tldr
-            tldr_match = re.search(r'TL;DR:\s*([^<]+)', content)
-            summary = tldr_match.group(1).strip() if tldr_match else source['summary'][:200]
-
-            return {
-                'title': title,
-                'content': content,
-                'summary': summary,
-                'source_url': source['url'],
-                'source_type': source['type'],
-                'source_name': source['source']
-            }
-
+                return {
+                    'title': title,
+                    'content': content,
+                    'summary': fallback_summary,
+                    'source_url': source['url'],
+                    'source_type': source['type'],
+                    'source_name': source['source']
+                }
         except Exception as e:
-            logger.error(f"Error generating article: {e}")
-
-            # Fallback to Anthropic direct
-            try:
-                from services.ai_service import AIService
-                ai = AIService()
-                content = ai.generate_content_anthropic(prompt)
-
-                if content:
-                    import re
-                    if content.strip().startswith('```'):
-                        content = re.sub(r'^```(?:html)?\s*', '', content.strip(), flags=re.IGNORECASE)
-                        content = re.sub(r'```\s*$', '', content).strip()
-                    title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content) or re.search(r'<h2[^>]*>([^<]+)</h2>', content)
-                    title = title_match.group(1) if title_match else source['title']
-
-                    # Try to extract TL;DR from generated content first
-                    tldr_match2 = re.search(r'TL;DR:\s*([^<]+)', content)
-                    fallback_summary = tldr_match2.group(1).strip()[:280] if tldr_match2 else source['summary'][:200]
-
-                    # Inject real source URL into content
-                    try:
-                        from urllib.parse import urlparse
-                        src_domain = urlparse(source['url']).netloc.replace('www.', '')
-                    except Exception:
-                        src_domain = source['url'][:40]
-                    content = content.replace(
-                        '{source_url}', source['url']
-                    ).replace('{source_domain}', src_domain)
-
-                    return {
-                        'title': title,
-                        'content': content,
-                        'summary': fallback_summary,
-                        'source_url': source['url'],
-                        'source_type': source['type'],
-                        'source_name': source['source']
-                    }
-            except Exception as e2:
-                logger.error(f"Fallback also failed: {e2}")
+            logger.error(f"Article generation failed: {e}")
 
         return None
 

@@ -584,3 +584,83 @@ PATTERN: TWEET SEGMENT ID BINDING (permanent fix - Mar 28 2026)
   Assembler reorders tweet_card_posts by seg_id order extracted from narration
   Strip ID prefix before TTS so it's never spoken (restore after TTS for assembler)
   This is the ONLY correct tweet-narration sync mechanism. Never revert to handle matching.
+
+## 2026-09-16 — tmux_cleanup.sh kills non-whitelisted sessions every 2h
+Pattern: any tmux session not matching KEEP_SESSIONS (and whose pane lacks Running/Rendering keywords) is killed by the 0 */2 cron. Hanson Hash ingest (hh_ingest) died mid-whisper at 14:00. Fix: added hanson|hh_ to KEEP_SESSIONS; name long-running HH sessions pipeline_hanson_*.
+
+## 2026-09-16 — Corrupted proxy moov atom from interrupted ffmpeg encode
+Pattern: take2_camA_main_720p.mp4 had "moov atom not found" error. Root cause: ffmpeg proxy encode was likely killed mid-write (possibly by tmux cleanup or OOM). MP4 moov atom is written at end-of-file by default; an interrupted encode produces an unplayable file. Fix for POC: used camera_A_main_720p.mp4 (full shoot proxy, intact) with trim filter instead. Prevention: use `-movflags +faststart` or pipe to a temp file and atomic-move on completion. For long encodes, use tmux sessions named pipeline_hanson_* to survive the 2h cron.
+
+## 2026-09-16 — Selenium CDP for transparent PNG screenshots
+Pattern: Playwright's screenshot API and standard Selenium screenshots produce RGB (no alpha). For RGBA transparent overlays, must use Chrome DevTools Protocol directly: `Emulation.setDefaultBackgroundColorOverride` with `{'color': {'r':0,'g':0,'b':0,'a':0}}` before `Page.captureScreenshot`. This is the correct approach for rendering HTML motion templates to alpha-channel overlay PNGs for video compositing.
+
+## 2026-09-16 — CC chain never fired
+Pattern: chain waited for a Claude Code tmux session to exit, but CC idles at its prompt after finishing and never exits. Fix: chain on a completion marker file (e.g. docs/DONE_<task>) or a git commit message, not session exit; or kill the finished session explicitly.
+
+## 2026-09-18 — relay 500 on tmux capture-pane of Claude Code sessions
+Pattern: CC UI glyphs are non-printable/invalid for the relay JSON response -> HTTP 500. Fix: pipe capture-pane through tr -cd [:print:]\n. Also: tmux paste-buffer into CC can land without the Enter registering; send a second Enter after ~20s.
+
+## 2026-09-18 — concat demuxer accumulates A/V desync
+Pattern: clips whose audio stream is shorter than their video stream (common with fast -ss seek before -i) slide audio earlier at every join when concatenated with the concat DEMUXER; over 40 joins this becomes visible lip-sync drift. Fix: pad audio to exact video length per clip, or use the concat FILTER, or re-cut with -ss after -i. Gate: |video_duration - audio_duration| <= 1 frame on the final master.
+
+## 2026-09-19 — Boomers clip IN/OUT failure patterns (cutpoint engine v1)
+
+PATTERN: LLM overshoots OUT time by ~3s median
+  ROOT CAUSE: Qwen provides integer-second timestamps from truncated SRT (8000+4000 chars).
+    Across 20 benchmarked moments, every ground-truth OUT was BEFORE the LLM raw_end.
+    Median overshoot: 3.2 seconds. Range: 0.4s to 30s.
+  FIX: Center OUT search on raw_end − 3.0, not raw_end. Use asymmetric window (−10s/+8s).
+  IMPACT: OUT median error dropped from 10748ms to 4164ms.
+
+PATTERN: Clip thought-continues past OUT point (40% of clips)
+  ROOT CAUSE: Old punchline_detector checked only the word AT the cut for sentence-ending
+    punctuation. It did not check whether the NEXT sentence started with a continuation cue
+    (because, which, that's, since, meaning, therefore).
+  FIX: Multi-hop continuation walk — if next word after sentence end is a continuation cue,
+    extend to the end of that sentence. Up to 3 hops.
+
+PATTERN: Missing-payoff — clip ends before the main point lands (40% of clips)
+  ROOT CAUSE: Old OUT search had +10 score for endings PAST raw_end and −2× penalty for
+    endings BEFORE raw_end. Since LLM consistently overshoots, the algorithm never finds
+    the actual payoff sentence which is BEFORE raw_end.
+  FIX: Replace forward-biased scoring with distance-from-adjusted-target scoring.
+
+PATTERN: Orphan-filler — clip starts on "so", "and", "but", "like" (20% of clips)
+  ROOT CAUSE: find_optimal_start snapped to the first word after a pause, including
+    discourse markers that sound awkward as clip openers.
+  FIX: Discourse-marker skip — if first word in clip is a filler, advance to next word.
+    Pre-roll is computed from the non-filler word.
+
+PATTERN: Mid-word cut — audio audibly clips inside a spoken word
+  ROOT CAUSE: Pre-roll computation (gap × 0.6, capped 300ms) could push the cut point
+    inside the preceding word when gap was small. Frame-snap via round() could also nudge
+    the cut backwards into a word boundary.
+  FIX: (a) Guard: if cut < prev_word.end, set cut = prev_word.end + 10ms.
+    (b) Use math.ceil instead of round for frame-snapping (always nudge forward).
+    (c) Tail uses safe_max = gap − 30ms to avoid extending into next word.
+
+PATTERN: Self-containment false positives — "it", "this", "that" flagged as orphan pronouns
+  ROOT CAUSE: check_self_contained() treated all pronouns as orphan indicators.
+    But "it", "this", "that" commonly start self-contained thoughts ("It's obvious that...").
+  FIX: Only flag third-person pronouns (he/she/they/them/him/her) AND only when the
+    preceding word outside the clip does NOT end a sentence.
+
+## 2026-09-19 — Runaway Grok/xAI spend ($99.97 in 5 days)
+PATTERN: Paid API with live search on every automated run, no budget, no alert on limit
+  ROOT CAUSE: 38+ call sites used XAI_API_KEY directly with no rate limiting or budget caps.
+    story_engine fired 13 x_search themes every 2h (156/day). x_reader fed 6+ social consumers
+    with 30min cache TTL. claim_verifier attached web_search + x_search on every verification.
+    article_automation used Grok-3 for article writing every 45 minutes. Total: ~8,200 req/day,
+    ~1,520 search calls/day, ~$20/day. Key hit account limit Sept 5; all calls failed silently
+    for 14 days with zero alerts and zero visible impact.
+  FIX (2026-09-19):
+    1. core/services/xai_gateway.py — single gateway with daily budget (400 req, 40 search, $1)
+    2. story_engine themes reduced from 13 to 3 (X-native only; rest covered by RSS)
+    3. claim_verifier search tools removed by default (explicit opt-in only)
+    4. article_automation switched from Grok to Anthropic
+    5. cross_llm_audit.py uses XAI_AUDIT_API_KEY via gateway for_audit flag
+    6. Telegram alert on first budget stop per day
+    7. data/xai_budget.json persists counters with daily reset
+  VERIFY: python3 -c "import importlib.util; s=importlib.util.spec_from_file_location('g','core/services/xai_gateway.py'); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.status())"
+  WATCHDOG: If data/xai_budget_alert.json exists and is < 1h old, xAI budget is hit.
+  RULE: See docs/COST_LAWS.md — every paid API must go through a gateway with a daily budget.
