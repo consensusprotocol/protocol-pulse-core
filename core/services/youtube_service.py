@@ -24,7 +24,7 @@ except ImportError:
     Flow = None
     MediaFileUpload = None
 
-YOUTUBE_UPLOAD_SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+YOUTUBE_UPLOAD_SCOPES = ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/yt-analytics.readonly']
 
 class YouTubeService:
     # Global filter list for content to exclude from media feeds
