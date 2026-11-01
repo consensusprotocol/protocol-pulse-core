@@ -664,3 +664,11 @@ PATTERN: Paid API with live search on every automated run, no budget, no alert o
   VERIFY: python3 -c "import importlib.util; s=importlib.util.spec_from_file_location('g','core/services/xai_gateway.py'); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.status())"
   WATCHDOG: If data/xai_budget_alert.json exists and is < 1h old, xAI budget is hit.
   RULE: See docs/COST_LAWS.md — every paid API must go through a gateway with a daily budget.
+
+## 2026-09-21 — Chromium renders nothing on a box with a dead NVIDIA GPU
+Pattern: Playwright/Chromium page.screenshot hangs after fonts load; chrome-headless-shell --screenshot exits rc=0 but writes no PNG, with every flag (no-sandbox, disable-gpu, swiftshader, single-process). The display stack probes the broken nvidia-drm device. Fix: do not render motion graphics in a browser on this box; draw RGBA frames with Pillow/matplotlib and pipe to ffmpeg prores_ks 4444.
+## 2026-09-21 — pkill -f PATTERN via relay kills the relay itself
+Pattern: the relay shell command line contains the pattern text, so pkill -f matches and kills its own shell and the rest of the command silently never runs. Fix: bracket the first character, e.g. pkill -f [c]hrome.
+
+## 2026-11-01 — tmux_cleanup.sh killed yespbx.com (5-min outage)
+Pattern: any new long-running tmux service on Ultron that is not in KEEP_SESSIONS of scripts/tmux_cleanup.sh gets killed at the next even hour. Symptom: Cloudflare 530 for yespbx.com at 08:00. Fix: added `yespbx_` to KEEP_SESSIONS. Rule: every new tmux-hosted service must be added to KEEP_SESSIONS the moment it is created.

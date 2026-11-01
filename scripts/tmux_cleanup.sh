@@ -1,8 +1,8 @@
 #!/bin/bash
 # Auto-cleanup dead/idle tmux sessions older than 2 hours
-# Preserves: watchdog_llm, pipeline, render_forensic, media_audit, intel_audit, oracle_forensic, sovereign_context, panopticon
+# Preserves: watchdog_llm, yespbx_* (yespbx.com site + tunnel, see ~/yespbx/GUIDE.md), pipeline, render_forensic, media_audit, intel_audit, oracle_forensic, sovereign_context, panopticon
 
-KEEP_SESSIONS="watchdog_llm|pipeline|render_forensic|media_audit|intel_audit|oracle_forensic|sovereign_context|panopticon|zombie_fix|join_redesign"
+KEEP_SESSIONS="watchdog_llm|yespbx_|hanson|hh_|ep18_|boomers_|codex|pipeline|render_forensic|media_audit|intel_audit|oracle_forensic|sovereign_context|panopticon|zombie_fix|join_redesign"
 
 CLEANED=0
 while IFS= read -r line; do
