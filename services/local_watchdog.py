@@ -757,12 +757,12 @@ def run_reactive_check():
     if not ollama_healthy():
         logger.error("Ollama not responding on %s", OLLAMA_URL)
         send_telegram(
-            "\u26a0\ufe0f <b>WATCHDOG ALERT</b>: Ollama not responding on GPU 2 "
+            "\u26a0\ufe0f <b>WATCHDOG ALERT</b>: Ollama not responding on GPU 1 "
             "— self-restart attempted"
         )
         subprocess.Popen(
             ["bash", "-c",
-             "CUDA_VISIBLE_DEVICES=2 OLLAMA_HOST=127.0.0.1:11435 "
+             "CUDA_VISIBLE_DEVICES=1 OLLAMA_HOST=127.0.0.1:11435 "
              "/usr/local/bin/ollama serve &"],
         )
         return
