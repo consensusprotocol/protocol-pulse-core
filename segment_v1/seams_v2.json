@@ -1,0 +1,53 @@
+[
+  {
+    "seam_id": "seam_01",
+    "between": ["hook", "clip_01"],
+    "source_jump_db": 0.6,
+    "pass": true,
+    "note": "VO intro fills this gap in final render"
+  },
+  {
+    "seam_id": "seam_02",
+    "between": ["clip_01", "clip_02"],
+    "source_jump_db": 3.6,
+    "pass": true
+  },
+  {
+    "seam_id": "seam_03",
+    "between": ["clip_02", "clip_03"],
+    "source_jump_db": 4.4,
+    "pass": true
+  },
+  {
+    "seam_id": "seam_04",
+    "between": ["clip_03", "clip_04"],
+    "source_jump_db": 16.3,
+    "pass": false,
+    "note": "FLAGGED: 'If' starts quietly (-36dB) vs clip_03 tail (-20dB). Widened handle 3x, trimmed tail to word_end+150ms, best=16.3dB. VO bridge (3.1s) fills this gap in final render.",
+    "remediation": "widen clip_04 head 150ms x3 (onset unchanged), trim clip_03 tail to 776.89. Inherent speaker-level difference.",
+    "clip_03_tail_db": -19.7,
+    "clip_04_head_db": -36.0,
+    "vo_bridge_masks_seam": true
+  },
+  {
+    "seam_id": "pv_seam_hook_vo",
+    "between": ["hook", "vo_intro"],
+    "preview_jump_db": 7.1,
+    "pass": true,
+    "note": "Preview measurement (post-render)"
+  },
+  {
+    "seam_id": "pv_seam_clip03_bridge",
+    "between": ["clip_03", "vo_bridge"],
+    "preview_jump_db": 5.4,
+    "pass": true,
+    "note": "Preview measurement (post-render)"
+  },
+  {
+    "seam_id": "pv_seam_bridge_clip04",
+    "between": ["vo_bridge", "clip_04"],
+    "preview_jump_db": 6.4,
+    "pass": true,
+    "note": "Preview measurement (post-render)"
+  }
+]

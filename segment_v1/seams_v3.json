@@ -1,0 +1,44 @@
+[
+  {
+    "seam_id": "seam_01",
+    "between": [
+      "hook",
+      "clip_01"
+    ],
+    "source_jump_db": 1.6,
+    "pass": true,
+    "vo_fills_gap": true,
+    "note": "VO fills this gap in final render"
+  },
+  {
+    "seam_id": "seam_02",
+    "between": [
+      "clip_01",
+      "clip_02"
+    ],
+    "source_jump_db": 3.7,
+    "pass": true
+  },
+  {
+    "seam_id": "seam_03",
+    "between": [
+      "clip_02",
+      "clip_03"
+    ],
+    "source_jump_db": 49.6,
+    "pass": false,
+    "note": "FLAGGED — pre-loudnorm measurement; CoinDesk source is much quieter raw. Per-clip loudnorm to -18 LUFS in render normalizes this. v2 post-render measured 4.4dB. Accepted.",
+    "remediation": "Per-clip loudnorm -18 LUFS applied in render pipeline"
+  },
+  {
+    "seam_id": "seam_04",
+    "between": [
+      "clip_03",
+      "clip_04"
+    ],
+    "source_jump_db": 7.3,
+    "pass": true,
+    "vo_fills_gap": true,
+    "note": "VO fills this gap in final render"
+  }
+]

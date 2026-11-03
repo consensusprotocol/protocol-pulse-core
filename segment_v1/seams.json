@@ -1,0 +1,62 @@
+[
+  {
+    "seam_id": "seam_01",
+    "between": [
+      "hook",
+      "clip_01"
+    ],
+    "peak_end_50ms_db": -54.6,
+    "peak_start_50ms_db": -9.1,
+    "boundary_jump_db": 3.5,
+    "pass": true,
+    "seam_wav": "/home/ultron/protocol_pulse/segment_v1/qa/seam_01.wav"
+  },
+  {
+    "seam_id": "seam_02",
+    "between": [
+      "clip_01",
+      "clip_02"
+    ],
+    "peak_end_50ms_db": -21.5,
+    "peak_start_50ms_db": -15.2,
+    "boundary_jump_db": 5.9,
+    "pass": true,
+    "seam_wav": "/home/ultron/protocol_pulse/segment_v1/qa/seam_02.wav"
+  },
+  {
+    "seam_id": "seam_03",
+    "between": [
+      "clip_02",
+      "clip_03"
+    ],
+    "peak_end_50ms_db": -11.7,
+    "peak_start_50ms_db": -8.5,
+    "boundary_jump_db": 2.7,
+    "pass": true,
+    "seam_wav": "/home/ultron/protocol_pulse/segment_v1/qa/seam_03.wav"
+  },
+  {
+    "seam_id": "seam_04",
+    "between": [
+      "clip_03",
+      "clip_04"
+    ],
+    "peak_end_50ms_db": -16.3,
+    "peak_start_50ms_db": -20.4,
+    "boundary_jump_db": 9.8,
+    "pass": false,
+    "seam_wav": "/home/ultron/protocol_pulse/segment_v1/qa/seam_04.wav"
+  },
+  {
+    "seam_id": "seam_05",
+    "between": [
+      "clip_04",
+      "clip_05"
+    ],
+    "peak_end_50ms_db": -19.6,
+    "peak_start_50ms_db": -18.1,
+    "boundary_jump_db": 15.1,
+    "pass": false,
+    "seam_wav": "/home/ultron/protocol_pulse/segment_v1/qa/seam_05.wav"
+  }
+]

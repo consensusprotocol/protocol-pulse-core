@@ -1,0 +1,95 @@
+{
+  "topic": "Binance $6.3B Hack: Self-Custody Is the Only Way",
+  "angle": "The largest crypto hack in history just proved what Bitcoiners have been saying all along.",
+  "hook": {
+    "video_id": "bSmFGoAKPBc",
+    "channel": "Simply Bitcoin",
+    "handle": "@SimplyBitcoin",
+    "video_title": "Why Bitcoin Is Holding Strong After a $6.3B Hack?",
+    "text": "What did tether freeze? Three, uh, 1.6 billion or something like that. It's like 3 billion total frozen on chain, uh, per Binance so far.",
+    "first_word": "What",
+    "last_word": "far.",
+    "word_start": 224.14,
+    "word_end": 233.88,
+    "duration": 9.74,
+    "reason": "Punchy question-and-answer about the freeze scale"
+  },
+  "vo": {
+    "intro": "the largest hack in crypto history just shook every exchange on earth. six point three billion gone from binance, and the debate over self-custody is louder than ever.",
+    "bridges": [
+      {
+        "after_clip": 3,
+        "text": "and that's exactly why self-custody matters."
+      }
+    ],
+    "total_words": 34
+  },
+  "clips": [
+    {
+      "index": 1,
+      "video_id": "Eojd18J_wuU",
+      "channel": "BTC Sessions",
+      "handle": "@BTCSessions",
+      "video_title": "Binance Just Proved Why Self-Custody Matters",
+      "url": "https://www.youtube.com/watch?v=Eojd18J_wuU",
+      "text": "Unauthorized transfers totaled approximately 6.4 bill, the largest theft in crypto history. And again, the largest heist of any kind ever. However, Chainalysis attributes the hack to Trader Trader, a North Korean cybercrime group.",
+      "first_word": "Unauthorized",
+      "last_word": "group.",
+      "word_start": 73.57,
+      "word_end": 89.39,
+      "duration": 15.82,
+      "role": "setup",
+      "reason": "Factual setup: $6.4B unauthorized transfers, largest theft ever, North Korea attribution"
+    },
+    {
+      "index": 2,
+      "video_id": "7QIB_zdKU9A",
+      "channel": "CoinDesk",
+      "handle": "@CoinDesk",
+      "video_title": "Bitcoin ETFs Hit by $643M Selloff as Binance Hack Shakes Crypto",
+      "url": "https://www.youtube.com/watch?v=7QIB_zdKU9A",
+      "text": "Just to put a sense of the scale, North Korea has a total economy of about $20-plus billion. This act was $6 billion in one night. What we are talking about is a magnitude of scale we have never seen before.",
+      "first_word": "JUST",
+      "last_word": "BEFORE.",
+      "word_start": 229.76,
+      "word_end": 248.50,
+      "duration": 18.74,
+      "role": "what_happened",
+      "reason": "Scale context: hack = 30% of North Korea's entire GDP in one night"
+    },
+    {
+      "index": 3,
+      "video_id": "bSmFGoAKPBc",
+      "channel": "Simply Bitcoin",
+      "handle": "@SimplyBitcoin",
+      "video_title": "Why Bitcoin Is Holding Strong After a $6.3B Hack?",
+      "url": "https://www.youtube.com/watch?v=bSmFGoAKPBc",
+      "text": "This hack here is obviously showing us what is the fundamental difference between Bitcoin and stable coins. And that is stable coins have an issuer. That is stable coins can freeze your account.",
+      "first_word": "This",
+      "last_word": "account.",
+      "word_start": 763.72,
+      "word_end": 776.74,
+      "duration": 13.02,
+      "role": "why_it_matters",
+      "reason": "Host explains the fundamental difference: stablecoins have issuers who can freeze accounts"
+    },
+    {
+      "index": 4,
+      "video_id": "Eojd18J_wuU",
+      "channel": "BTC Sessions",
+      "handle": "@BTCSessions",
+      "video_title": "Binance Just Proved Why Self-Custody Matters",
+      "url": "https://www.youtube.com/watch?v=Eojd18J_wuU",
+      "text": "If our entire hot wallet was drained, there would be zero customer Bitcoin lost. And that is the difference between a custodial exchange and a non-custodial exchange is that the hot wallet is not customer Bitcoin. The hot wallet is company Bitcoin.",
+      "first_word": "If",
+      "last_word": "Bitcoin.",
+      "word_start": 468.56,
+      "word_end": 486.18,
+      "duration": 17.62,
+      "role": "self_custody",
+      "reason": "Self-custody argument: non-custodial model means zero customer Bitcoin at risk"
+    }
+  ],
+  "total_clip_duration": 65.20,
+  "transcripts_used": ["bSmFGoAKPBc", "Eojd18J_wuU", "7QIB_zdKU9A"]
+}

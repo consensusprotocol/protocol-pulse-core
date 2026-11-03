@@ -1,0 +1,80 @@
+[
+  {
+    "clip_id": "hook",
+    "video_id": "bSmFGoAKPBc",
+    "word_start": 224.14,
+    "word_end": 233.88,
+    "handle_start": 223.64,
+    "handle_end": 234.58,
+    "onset_delta": 0.01,
+    "offset_delta": 0.12,
+    "cut_in": 223.89000000000001,
+    "cut_out": 234.2,
+    "cut_duration": 10.31
+  },
+  {
+    "clip_id": "clip_01",
+    "video_id": "Eojd18J_wuU",
+    "word_start": 0.0,
+    "word_end": 14.18,
+    "handle_start": 0,
+    "handle_end": 14.88,
+    "onset_delta": 0.0,
+    "offset_delta": 0.28,
+    "cut_in": 0,
+    "cut_out": 14.86,
+    "cut_duration": 14.86
+  },
+  {
+    "clip_id": "clip_02",
+    "video_id": "bSmFGoAKPBc",
+    "word_start": 224.14,
+    "word_end": 233.88,
+    "handle_start": 223.64,
+    "handle_end": 234.58,
+    "onset_delta": 0.01,
+    "offset_delta": 0.12,
+    "cut_in": 223.69000000000003,
+    "cut_out": 234.39999999999998,
+    "cut_duration": 10.71
+  },
+  {
+    "clip_id": "clip_03",
+    "video_id": "bSmFGoAKPBc",
+    "word_start": 39.1,
+    "word_end": 49.6,
+    "handle_start": 38.6,
+    "handle_end": 50.3,
+    "onset_delta": 0.01,
+    "offset_delta": 0.12,
+    "cut_in": 38.849999999999994,
+    "cut_out": 49.92,
+    "cut_duration": 11.07
+  },
+  {
+    "clip_id": "clip_04",
+    "video_id": "Eojd18J_wuU",
+    "word_start": 176.67,
+    "word_end": 196.49,
+    "handle_start": 176.17,
+    "handle_end": 197.19,
+    "onset_delta": 0.01,
+    "offset_delta": 0.12,
+    "cut_in": 176.02000000000004,
+    "cut_out": 197.20999999999998,
+    "cut_duration": 21.19
+  },
+  {
+    "clip_id": "clip_05",
+    "video_id": "7QIB_zdKU9A",
+    "word_start": 0.0,
+    "word_end": 12.6,
+    "handle_start": 0,
+    "handle_end": 13.3,
+    "onset_delta": 0.0,
+    "offset_delta": 0.12,
+    "cut_in": 0,
+    "cut_out": 13.319999999999999,
+    "cut_duration": 13.32
+  }
+]

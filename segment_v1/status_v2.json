@@ -1,0 +1,18 @@
+{
+  "status": "PREVIEW_READY_V2",
+  "preview": "/home/ultron/protocol_pulse/segment_v1/preview_v2.mp4",
+  "preview_duration_s": 90.6,
+  "preview_frames": 2718,
+  "preview_size_mb": 7.0,
+  "contact_sheet": "/home/ultron/protocol_pulse/segment_v1/contact_sheet_v2.png",
+  "cuts_file": "/home/ultron/protocol_pulse/segment_v1/cuts_v2.json",
+  "seams_file": "/home/ultron/protocol_pulse/segment_v1/seams_v2.json",
+  "edl_file": "/home/ultron/protocol_pulse/segment_v1/edl_v2.json",
+  "clips": 5,
+  "clip_duration_s": 75.8,
+  "seams": {
+    "clip_to_clip": "3/4 PASS, 1 FLAGGED (seam_04: 16.3dB, VO bridge masks it)",
+    "vo_edges": "3/3 PASS in preview (hook->VO 7.1dB, clip_03->bridge 5.4dB, bridge->clip_04 6.4dB)"
+  },
+  "pcie_note": "Both 4090s at PCIe gen1 (2.5 GT/s) — all GPU timings depressed ~6x pending BIOS fix"
+}

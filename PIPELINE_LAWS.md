@@ -64,6 +64,21 @@
 
 ---
 
+## LAW 14c: WHISPER TRAILING-SYLLABLE OUT POINT (ADDED 2026-11-03)
+
+A clip's OUT point is never the last word's whisper `word_end` timestamp.
+Whisper `word_end` runs 100-250ms early on trailing syllables ("account" → "acc-", "Bitcoin" → "bit-").
+
+**OUT = max(next_word_start - 60ms, waveform_decay_point)**
+
+Where:
+- `next_word_start` = the start timestamp of the word immediately following the last EDL word
+- `waveform_decay_point` = first 10ms window after the last word whose RMS stays below noise_floor+6dB for 120ms, plus 150ms room tone
+
+**Hard gate:** Transcribe the final 700ms of every cut clip with faster-whisper; confirm the final word matches the EDL `last_word` in full. Mismatch = FAIL → widen 100ms, retry up to 4×.
+
+---
+
 ## CYCLE LEARNINGS
 
 ---

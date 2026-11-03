@@ -1,0 +1,25 @@
+{
+  "status": "RENDERED",
+  "segment_v3": {
+    "path": "/home/ultron/protocol_pulse/segment_v1/out/segment_v3.mp4",
+    "voice": "Connery (e6gztcS9NPqChYKvXN6c)",
+    "duration_s": 95.17,
+    "size_mb": 39.5,
+    "loudness_lufs": -14.43,
+    "true_peak_dbtp": -1.66
+  },
+  "segment_v4": {
+    "path": "/home/ultron/protocol_pulse/segment_v1/out/segment_v4.mp4",
+    "voice": "PBX Clone (43nxoDRMpcLls4afQ9MK)",
+    "duration_s": 91.54,
+    "size_mb": 38.1,
+    "loudness_lufs": -14.53,
+    "true_peak_dbtp": -1.81
+  },
+  "preview": "/home/ultron/protocol_pulse/segment_v1/preview_v3.mp4",
+  "cuts_file": "/home/ultron/protocol_pulse/segment_v1/cuts_v3.json",
+  "seams_file": "/home/ultron/protocol_pulse/segment_v1/seams_v3.json",
+  "edl_file": "/home/ultron/protocol_pulse/segment_v1/edl_v2.json",
+  "voice_change": "Production voice changed to PBX Clone 2026-11-03",
+  "pcie_note": "Both 4090s at PCIe gen1 (2.5 GT/s) — all GPU timings depressed ~6x pending BIOS fix"
+}

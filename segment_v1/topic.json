@@ -1,0 +1,67 @@
+{
+  "ranked_topics": [
+    {
+      "rank": 1,
+      "topic": "Binance $6.3B Hack and Self-Custody Implications",
+      "channel_count": 4,
+      "channels": ["Simply Bitcoin", "BTC Sessions", "CoinDesk", "Bitcoin Magazine"],
+      "relevance": 10
+    },
+    {
+      "rank": 2,
+      "topic": "Bitcoin Fair Value and Institutional Adoption",
+      "channel_count": 3,
+      "channels": ["Bitcoin Magazine", "The Bitcoin Layer", "Natalie Brunell"],
+      "relevance": 7
+    },
+    {
+      "rank": 3,
+      "topic": "US Debt and Bitcoin as Macro Hedge",
+      "channel_count": 3,
+      "channels": ["Bitcoin Magazine", "TFTC", "Simply Bitcoin"],
+      "relevance": 6
+    }
+  ],
+  "chosen_topic": {
+    "topic": "Binance $6.3B Hack: Self-Custody Is the Only Way",
+    "angle": "The largest crypto hack in history just proved what Bitcoiners have been saying all along — not your keys, not your coins.",
+    "qualifies_3_channels": true,
+    "videos": [
+      {
+        "channel": "Simply Bitcoin",
+        "handle": "@SimplyBitcoin",
+        "title": "Why Bitcoin Is Holding Strong After a $6.3B Hack?",
+        "video_id": "bSmFGoAKPBc",
+        "url": "https://www.youtube.com/watch?v=bSmFGoAKPBc",
+        "duration_s": 2049
+      },
+      {
+        "channel": "Simply Bitcoin",
+        "handle": "@SimplyBitcoin",
+        "title": "Was The $6.3B Binance Heist an Inside Job?",
+        "video_id": "5ripuS9GDaM",
+        "url": "https://www.youtube.com/watch?v=5ripuS9GDaM",
+        "duration_s": 1246
+      },
+      {
+        "channel": "BTC Sessions",
+        "handle": "@BTCSessions",
+        "title": "Binance Just Proved Why Self-Custody Matters",
+        "video_id": "Eojd18J_wuU",
+        "url": "https://www.youtube.com/watch?v=Eojd18J_wuU",
+        "duration_s": 1707
+      },
+      {
+        "channel": "CoinDesk",
+        "handle": "@CoinDesk",
+        "title": "Bitcoin ETFs Hit by $643M Selloff as Binance Hack Shakes Crypto",
+        "video_id": "7QIB_zdKU9A",
+        "url": "https://www.youtube.com/watch?v=7QIB_zdKU9A",
+        "duration_s": 2179,
+        "extra_channel_reason": "CoinDesk: major crypto news outlet, established 2013, industry standard"
+      }
+    ]
+  },
+  "gemini_status": "SKIPPED — prepayment credits depleted; topic selected deterministically from scan data",
+  "selection_method": "Binance hack covered by 4 distinct channels. Relevance 10/10 — largest crypto hack in history."
+}

@@ -1,0 +1,110 @@
+{
+  "topic": "Binance $6.3B Hack: Self-Custody Is the Only Way",
+  "angle": "The largest crypto hack in history just proved what Bitcoiners have been saying all along.",
+  "hook": {
+    "video_id": "bSmFGoAKPBc",
+    "channel": "Simply Bitcoin",
+    "handle": "@SimplyBitcoin",
+    "video_title": "Why Bitcoin Is Holding Strong After a $6.3B Hack?",
+    "text": "What did tether freeze? Three, uh, 1.6 billion or something like that. It's like 3 billion total frozen on chain, uh, per Binance so far.",
+    "first_word": "What",
+    "last_word": "far.",
+    "word_start": 224.14,
+    "word_end": 233.88,
+    "duration": 9.74,
+    "reason": "Most impactful short statement on the hack"
+  },
+  "vo": {
+    "intro": "the largest hack in crypto history just shook every exchange on earth. six point three billion gone from binance, and the debate over self-custody is louder than ever.",
+    "bridges": [
+      {
+        "after_clip": 3,
+        "text": "and that's exactly why self-custody matters."
+      }
+    ],
+    "total_words": 34
+  },
+  "clips": [
+    {
+      "index": 1,
+      "video_id": "Eojd18J_wuU",
+      "channel": "BTC Sessions",
+      "handle": "@BTCSessions",
+      "video_title": "Binance Just Proved Why Self-Custody Matters",
+      "url": "https://www.youtube.com/watch?v=Eojd18J_wuU",
+      "text": "6.4 billion Binance hack tracing the North Korea link. The attacker swapped 325 million in stable coins for 285 million in ETH over nearly 20 minutes to stay ahead of freezes.",
+      "first_word": "6",
+      "last_word": "You're",
+      "word_start": 0.0,
+      "word_end": 14.18,
+      "duration": 13.92,
+      "role": "setup",
+      "reason": "setup"
+    },
+    {
+      "index": 2,
+      "video_id": "bSmFGoAKPBc",
+      "channel": "Simply Bitcoin",
+      "handle": "@SimplyBitcoin",
+      "video_title": "Why Bitcoin Is Holding Strong After a $6.3B Hack?",
+      "url": "https://www.youtube.com/watch?v=bSmFGoAKPBc",
+      "text": "What did tether freeze? Three, uh, 1.6 billion or something like that. It's like 3 billion total frozen on chain, uh, per Binance so far.",
+      "first_word": "What",
+      "last_word": "far.",
+      "word_start": 224.14,
+      "word_end": 233.88,
+      "duration": 9.74,
+      "role": "scale",
+      "reason": "scale"
+    },
+    {
+      "index": 3,
+      "video_id": "bSmFGoAKPBc",
+      "channel": "Simply Bitcoin",
+      "handle": "@SimplyBitcoin",
+      "video_title": "Why Bitcoin Is Holding Strong After a $6.3B Hack?",
+      "url": "https://www.youtube.com/watch?v=bSmFGoAKPBc",
+      "text": "a major hack on exchange, Bitcoin has soared to new highs. Will this time be different? Was the Binance hack an inside job?",
+      "first_word": "a",
+      "last_word": "job?",
+      "word_start": 39.1,
+      "word_end": 49.6,
+      "duration": 10.5,
+      "role": "analysis",
+      "reason": "analysis"
+    },
+    {
+      "index": 4,
+      "video_id": "Eojd18J_wuU",
+      "channel": "BTC Sessions",
+      "handle": "@BTCSessions",
+      "video_title": "Binance Just Proved Why Self-Custody Matters",
+      "url": "https://www.youtube.com/watch?v=Eojd18J_wuU",
+      "text": "too risky, a single exchange hack results in more losses than all self-custody failures this year or combined. Fair enough. And then River chiming in as well, in light of recent security events on other exchanges, we want to reassure clients of River. River is unaffected. All client Bitcoin",
+      "first_word": "too",
+      "last_word": "is",
+      "word_start": 176.67,
+      "word_end": 196.49,
+      "duration": 19.52,
+      "role": "lesson",
+      "reason": "lesson"
+    },
+    {
+      "index": 5,
+      "video_id": "7QIB_zdKU9A",
+      "channel": "CoinDesk",
+      "handle": "@CoinDesk",
+      "video_title": "Bitcoin ETFs Hit by $643M Selloff as Binance Hack Shakes Crypto",
+      "url": "https://www.youtube.com/watch?v=7QIB_zdKU9A",
+      "text": "On today's Public Keys from the New York Stock Exchange, Binance suffers the largest hack in crypto history. Bitcoin ETFs give back a strong week in a single Friday. And Google unveils a new way to lock down the private keys behind crypto's biggest hacks.",
+      "first_word": "On",
+      "last_word": "hacks.",
+      "word_start": 0.0,
+      "word_end": 12.6,
+      "duration": 12.6,
+      "role": "resilience",
+      "reason": "resilience"
+    }
+  ],
+  "total_clip_duration": 66.28
+}
