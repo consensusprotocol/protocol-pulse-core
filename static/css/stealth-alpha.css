@@ -4,11 +4,11 @@
  */
 
 :root {
-    --stealth-primary: #8b5cf6;
-    --stealth-secondary: #a78bfa;
-    --stealth-accent: #c4b5fd;
-    --stealth-dark: #0f0a1a;
-    --stealth-glow: rgba(139, 92, 246, 0.3);
+    --stealth-primary: #CC0000;
+    --stealth-secondary: #FF4444;
+    --stealth-accent: #FF6666;
+    --stealth-dark: #0a0000;
+    --stealth-glow: rgba(204, 0, 0, 0.3);
 }
 
 /* Elite Badge Glow */

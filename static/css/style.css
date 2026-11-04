@@ -80,9 +80,9 @@ i.fas, i.fab, i.far, i.fal, i.fad {
     --border-color: #333333;
     --accent-red: #ff0000;
     --gradient-red: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
-    --sovereign-purple: #6b21a8;
-    --sovereign-purple-electric: #a855f7;
-    --sovereign-purple-glow: rgba(168, 85, 247, 0.3);
+    --sovereign-purple: #880000;
+    --sovereign-purple-electric: #CC0000;
+    --sovereign-purple-glow: rgba(204, 0, 0, 0.3);
 }
 
 /* ============================================

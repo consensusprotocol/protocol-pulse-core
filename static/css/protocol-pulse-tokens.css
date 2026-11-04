@@ -11,15 +11,15 @@
     --pp-bg-glass: rgba(255,255,255,0.03);
     --pp-border-subtle: rgba(255,255,255,0.08);
     --pp-border-hover: rgba(255,255,255,0.15);
-    --pp-border-focus: rgba(0,212,170,0.6);
+    --pp-border-focus: rgba(220,38,38,0.6);
     --pp-text-primary: #f0f0f0;
     --pp-text-secondary: rgba(255,255,255,0.65);
     --pp-text-muted: rgba(255,255,255,0.4);
-    --pp-accent: #CC2222;
-    --pp-accent-soft: rgba(0,212,170,0.12);
-    --pp-accent-glow: rgba(0,212,170,0.18);
+    --pp-accent: #CC0000;
+    --pp-accent-soft: rgba(220,38,38,0.12);
+    --pp-accent-glow: rgba(220,38,38,0.18);
     --pp-bitcoin: #f7931a;
-    --pp-nostr: #a855f7;
+    --pp-nostr: #CC0000;
     --pp-success: #00e676;
     --pp-radius-sm: 8px;
     --pp-radius-md: 12px;
@@ -29,7 +29,7 @@
     --pp-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --pp-shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
     --pp-shadow-md: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
-    --pp-shadow-glow: 0 0 40px rgba(0,212,170,0.15);
+    --pp-shadow-glow: 0 0 40px rgba(220,38,38,0.15);
 }
 
 /* Apply to body when page uses PP dark layout */

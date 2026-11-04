@@ -1897,6 +1897,30 @@ def api_check_emergency_flash():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+@api_bp.route('/api/articles')
+def api_articles_public():
+    """Public articles JSON endpoint. GET /api/articles?limit=N returns published articles."""
+    limit = min(request.args.get('limit', 20, type=int), 100)
+    articles = models.Article.query.filter_by(published=True).order_by(
+        models.Article.created_at.desc()
+    ).limit(limit).all()
+    from datetime import timezone
+    return jsonify({'articles': [{
+        'id': a.id,
+        'title': a.title or '',
+        'slug': getattr(a, 'slug', None) or str(a.id),
+        'created_at': a.created_at.isoformat() if a.created_at else '',
+        'published_at': (a.published_at.isoformat() if getattr(a, 'published_at', None) else
+                         a.created_at.isoformat() if a.created_at else ''),
+        'cover_image_url': a.cover_image_url or a.header_image_url or '',
+    } for a in articles]})
+
+@api_bp.route('/api/articles/count')
+def api_articles_count():
+    """Returns count of published articles."""
+    count = models.Article.query.filter_by(published=True).count()
+    return jsonify({'count': count})
+
 @api_bp.route('/api/latest-articles')
 def latest_articles():
     articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(10).all()

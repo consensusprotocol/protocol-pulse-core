@@ -107,7 +107,7 @@
 }
 
 .pp-hero__title-accent {
-    background: linear-gradient(135deg, var(--pp-teal) 0%, #00f5c4 50%, var(--pp-amber) 100%);
+    background: linear-gradient(135deg, #CC0000 0%, #FF4444 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

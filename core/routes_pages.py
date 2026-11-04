@@ -116,7 +116,23 @@ def sitemap_xml():
 def index():
     """Homepage with featured articles, segment-based Bento-box ranking"""
     featured_articles = models.Article.query.filter_by(published=True, featured=True).order_by(models.Article.created_at.desc()).limit(3).all()
-    recent_articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(6).all()
+    # Fallback: if no featured articles, promote highest importance_score recent articles
+    if not featured_articles:
+        from datetime import timedelta
+        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        featured_articles = models.Article.query.filter(
+            models.Article.published == True,
+            models.Article.created_at >= thirty_days_ago
+        ).order_by(
+            models.Article.importance_score.desc().nullslast(),
+            models.Article.created_at.desc()
+        ).limit(3).all()
+        # Ultimate fallback: newest 3 if none in 30 days
+        if not featured_articles:
+            featured_articles = models.Article.query.filter_by(published=True).order_by(
+                models.Article.created_at.desc()
+            ).limit(3).all()
+    recent_articles = models.Article.query.filter_by(published=True).order_by(models.Article.created_at.desc()).limit(12).all()
     featured_podcasts = models.Podcast.query.filter_by(featured=True).order_by(models.Podcast.published_date.desc()).limit(3).all()
     
     # Fetch live cryptocurrency prices
@@ -178,10 +194,24 @@ def index():
         else:
             article_image_urls[a.id] = default_header_url
 
+    # Fetch latest Pulse Check episode for the homepage embed
+    latest_episode = None
+    try:
+        import json as _json
+        _ep_path = _os.path.join(_os.path.dirname(_os.path.dirname(__file__)), 'data', 'intelligence', 'latest_pulse_check.json')
+        if _os.path.exists(_ep_path):
+            with open(_ep_path) as _f:
+                latest_episode = _json.load(_f)
+                latest_episode['found'] = True
+    except Exception:
+        pass
+
     return render_template('index.html',
                          featured_articles=featured_articles,
+                         carousel_articles=featured_articles,
                          recent_articles=recent_articles,
                          featured_podcasts=featured_podcasts,
+                         latest_episode=latest_episode,
                          prices=prices,
                          price_service=price_service,
                          todays_signal=todays_signal,

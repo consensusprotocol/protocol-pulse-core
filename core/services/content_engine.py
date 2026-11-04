@@ -202,7 +202,10 @@ APPROVE if score >= 7, REJECT if score < 7.
             if review.get("decision") == "APPROVE":
                 # Save to DB (mark as approved)
                 article.published = True
-                
+                # Auto-feature high-importance articles so Top Stories fills itself
+                if getattr(article, 'importance_score', 0) and article.importance_score >= 70:
+                    article.featured = True
+
                 # No header images - user preference
                 image_path = None
                 
@@ -335,6 +338,8 @@ APPROVE if score >= 7, REJECT if score < 7.
                         if substack_url:
                             article.substack_url = substack_url
                             article.published = True
+                            if getattr(article, 'importance_score', 0) and article.importance_score >= 70:
+                                article.featured = True
                             db.session.commit()
                             
                             result["substack_url"] = substack_url
