@@ -456,15 +456,25 @@ _FACE_DETECTOR = None
 
 
 def _get_face_detector():
-    """Lazy-init singleton MediaPipe FaceDetector."""
+    """Lazy-init singleton MediaPipe FaceDetector with GPU delegate (fallback CPU)."""
     global _FACE_DETECTOR
     if _FACE_DETECTOR is None:
         import mediapipe as mp_lib
         from mediapipe.tasks.python import vision
         from mediapipe.tasks.python.core import base_options as mp_base_options
-        base_opts = mp_base_options.BaseOptions(model_asset_path=FACE_MODEL)
-        _FACE_DETECTOR = vision.FaceDetector.create_from_options(
-            vision.FaceDetectorOptions(base_options=base_opts, min_detection_confidence=FACE_MIN_CONFIDENCE))
+        # Try GPU delegate first
+        try:
+            base_opts = mp_base_options.BaseOptions(
+                model_asset_path=FACE_MODEL,
+                delegate=mp_base_options.BaseOptions.Delegate.GPU)
+            _FACE_DETECTOR = vision.FaceDetector.create_from_options(
+                vision.FaceDetectorOptions(base_options=base_opts, min_detection_confidence=FACE_MIN_CONFIDENCE))
+            print('  face detector: GPU delegate', flush=True)
+        except Exception:
+            base_opts = mp_base_options.BaseOptions(model_asset_path=FACE_MODEL)
+            _FACE_DETECTOR = vision.FaceDetector.create_from_options(
+                vision.FaceDetectorOptions(base_options=base_opts, min_detection_confidence=FACE_MIN_CONFIDENCE))
+            print('  face detector: CPU delegate (GPU unavailable)', flush=True)
     return _FACE_DETECTOR
 
 
@@ -479,21 +489,34 @@ def count_faces_in_crop(rgb_crop):
     return len(results.detections)
 
 
-def face_count_tiles(master, tiles, kf_frames, fps, W, H):
-    """For a shot's tiles, sample 3-5 keyframes at full resolution, crop each tile rect, count faces.
+def face_count_tiles(master, tiles, kf_frames, fps, W, H, frame_in=0, frame_out=0):
+    """Count faces per tile. Smart sampling: 1 detection at shot midpoint + every 2s for longer shots.
     Returns updated tiles list (with face_count per tile) and total_faces (median across samples)."""
     import cv2
-    n_samples = min(FACE_SAMPLE_COUNT, len(kf_frames))
-    if n_samples == 0:
+    # Build sample frames: midpoint + every 2s
+    if frame_in and frame_out:
+        mid = (frame_in + frame_out) // 2
+        dur_frames = frame_out - frame_in
+        step_2s = int(fps * 2)
+        if dur_frames > step_2s * 2:
+            # Sample at 2s intervals within the shot
+            sample_frames = list(range(frame_in + step_2s, frame_out, step_2s))
+            if mid not in sample_frames:
+                sample_frames.append(mid)
+            sample_frames.sort()
+        else:
+            sample_frames = [mid]
+    elif kf_frames:
+        n_samples = min(FACE_SAMPLE_COUNT, len(kf_frames))
+        if n_samples >= len(kf_frames):
+            sample_frames = list(kf_frames)
+        else:
+            step = len(kf_frames) / n_samples
+            sample_frames = [kf_frames[int(i * step)] for i in range(n_samples)]
+    else:
         for t in tiles:
             t['face_count'] = 0
         return tiles, 0
-    # Pick evenly spaced keyframes
-    if n_samples >= len(kf_frames):
-        sample_frames = list(kf_frames)
-    else:
-        step = len(kf_frames) / n_samples
-        sample_frames = [kf_frames[int(i * step)] for i in range(n_samples)]
     # Collect face counts per tile across samples
     tile_counts = [[] for _ in tiles]
     total_per_sample = []
@@ -675,7 +698,8 @@ def build(master_path_or_cfg, out_dir=None, stage='all'):
             total_faces = None
             if config_free:
                 try:
-                    tiles, total_faces = face_count_tiles(master, tiles, shot_kf_frames, fps, W, H)
+                    tiles, total_faces = face_count_tiles(master, tiles, shot_kf_frames, fps, W, H,
+                                                            frame_in=a, frame_out=b)
                 except (RuntimeError, ValueError, OSError) as e:
                     print(f'  WARN: face_count_tiles failed for shot {a}-{b}: {e}', flush=True)
                     total_faces = None

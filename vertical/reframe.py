@@ -75,23 +75,48 @@ def timed(label):
 # Stage 1: Shotmap
 # ================================================================
 
+HANDLE_SECS = 3  # extra seconds each side of EDL cut for shotmap
+
+
+def _extract_window(src, out_mp4, t_in, t_out):
+    """Extract a time window from source. Re-encodes to ensure clean keyframes."""
+    dur = t_out - t_in
+    subprocess.run([
+        "ffmpeg", "-y", "-ss", str(max(0, t_in)), "-i", str(src),
+        "-t", str(dur),
+        "-c:v", "libx264", "-crf", "17", "-preset", "fast",
+        "-c:a", "aac", "-b:a", "128k",
+        "-pix_fmt", "yuv420p", "-r", "30",
+        "-avoid_negative_ts", "make_zero",
+        str(out_mp4),
+    ], capture_output=True, timeout=120)
+    return os.path.exists(out_mp4) and os.path.getsize(out_mp4) > 0
+
+
 def stage_shotmap(sources_dir, edl_path):
-    """Run shotmap on each unique source video referenced by the EDL."""
+    """Run shotmap only on EDL windows (cut_in-3s to cut_out+3s), not full sources."""
     from vertical.shotmap import build as shotmap_build
 
     with open(edl_path) as f:
         edl = json.load(f)
 
-    # Collect unique source videos
-    video_ids = set()
+    # Group cuts by source video, merge overlapping windows
+    from collections import defaultdict
+    vid_windows = defaultdict(list)
     for cut in edl:
         vid = cut.get("video_id", "")
-        if vid:
-            video_ids.add(vid)
+        if not vid:
+            continue
+        t_in = cut.get("cut_in", 0) - HANDLE_SECS
+        t_out = cut.get("cut_out", 0) + HANDLE_SECS
+        vid_windows[vid].append((max(0, t_in), t_out, cut.get("clip_id", "unknown")))
 
     shot_maps = {}
-    for vid in sorted(video_ids):
-        # Find the source file (.mov preferred, then .mkv, then .mp4)
+    windows_dir = WORK / "edl_windows"
+    windows_dir.mkdir(parents=True, exist_ok=True)
+
+    for vid in sorted(vid_windows):
+        # Find the source file
         src = None
         for ext in (".mov", ".mkv", ".mp4"):
             candidate = os.path.join(sources_dir, vid + ext)
@@ -102,22 +127,58 @@ def stage_shotmap(sources_dir, edl_path):
             print(f"  WARNING: no source found for {vid} in {sources_dir}")
             continue
 
-        # Check cache
-        src_md5 = md5_file(src)
-        cache_path = CACHE / f"{src_md5}.json"
-        if cache_path.exists():
-            print(f"  {vid}: cached ({cache_path.name})")
-            shot_maps[vid] = json.loads(cache_path.read_text())
-            continue
+        # Merge overlapping windows for this source
+        windows = sorted(vid_windows[vid])
+        merged = [list(windows[0])]
+        for w_in, w_out, cid in windows[1:]:
+            if w_in <= merged[-1][1]:
+                merged[-1][1] = max(merged[-1][1], w_out)
+                merged[-1][2] += f"+{cid}"
+            else:
+                merged.append([w_in, w_out, cid])
 
-        out_dir = WORK / f"shotmap_{vid}"
-        out_dir.mkdir(parents=True, exist_ok=True)
-        result = shotmap_build(src, str(out_dir))
-        if result:
-            shot_maps[vid] = result
-            # Cache the result
-            CACHE.mkdir(parents=True, exist_ok=True)
-            cache_path.write_text(json.dumps(result, indent=1))
+        total_window_s = sum(w[1] - w[0] for w in merged)
+        print(f"  {vid}: {len(merged)} window(s), {total_window_s:.1f}s total", flush=True)
+
+        # Process each merged window
+        vid_results = {"shots": [], "video": None}
+        for w_in, w_out, label in merged:
+            # Cache key: source md5 + window range
+            cache_key = f"{md5_file(src)}_{w_in:.2f}_{w_out:.2f}"
+            cache_path = CACHE / f"{cache_key}.json"
+            if cache_path.exists():
+                cached = json.loads(cache_path.read_text())
+                vid_results["shots"].extend(cached.get("shots", []))
+                if cached.get("video"):
+                    vid_results["video"] = cached["video"]
+                print(f"    window {w_in:.1f}-{w_out:.1f}s: cached", flush=True)
+                continue
+
+            # Extract window to temp file
+            win_mp4 = str(windows_dir / f"{vid}_{w_in:.0f}_{w_out:.0f}.mp4")
+            if not _extract_window(src, win_mp4, w_in, w_out):
+                print(f"    WARNING: failed to extract window {w_in:.1f}-{w_out:.1f}s from {vid}")
+                continue
+
+            out_dir = WORK / f"shotmap_{vid}_{w_in:.0f}_{w_out:.0f}"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            result = shotmap_build(win_mp4, str(out_dir))
+            if result:
+                # Offset shot times back to source timeline
+                for s in result.get("shots", []):
+                    s["t_in"] = round(s["t_in"] + w_in, 3)
+                    s["t_out"] = round(s["t_out"] + w_in, 3)
+                    s["frame_in"] = int(s["frame_in"] + w_in * result.get("video", {}).get("fps", 30))
+                    s["frame_out"] = int(s["frame_out"] + w_in * result.get("video", {}).get("fps", 30))
+                vid_results["shots"].extend(result.get("shots", []))
+                if result.get("video"):
+                    vid_results["video"] = result["video"]
+                # Cache window result
+                CACHE.mkdir(parents=True, exist_ok=True)
+                cache_path.write_text(json.dumps(result, indent=1))
+
+        if vid_results["shots"]:
+            shot_maps[vid] = vid_results
 
     # Write combined shot map
     combined = {
@@ -135,14 +196,25 @@ def stage_shotmap(sources_dir, edl_path):
 # Stage 2: Compose
 # ================================================================
 
+def _adapt_shot(shot):
+    """Adapt shotmap shot dict to the fields compositor expects."""
+    adapted = dict(shot)
+    # Compositor checks 'face_count' and 'has_screenshare'
+    if "face_count" not in adapted and "total_faces" in adapted:
+        adapted["face_count"] = adapted["total_faces"] or 1
+    if "has_screenshare" not in adapted:
+        adapted["has_screenshare"] = adapted.get("screen_share", False)
+    return adapted
+
+
 def stage_compose(shot_map_data, sources_dir, edl_path):
-    """Compose each EDL cut to 9:16 using the shot map."""
-    from vertical.compositor import compose_shot
+    """Compose each EDL cut to 9:16 using compose_all from compositor."""
+    from vertical.compositor import compose_all
 
     with open(edl_path) as f:
         edl = json.load(f)
 
-    composed = []
+    all_compose_results = []
     compose_dir = WORK / "composed"
     compose_dir.mkdir(parents=True, exist_ok=True)
 
@@ -185,38 +257,44 @@ def stage_compose(shot_map_data, sources_dir, edl_path):
                 "t_in": cut_in,
                 "t_out": cut_out,
                 "layout": "single",
-                "total_faces": 1,
+                "face_count": 1,
+                "has_screenshare": False,
                 "tiles": [{"x0": 0, "x1": 1920, "face_count": 1}],
                 "seams": [],
-                "screen_share": False,
             }]
+        else:
+            # Clamp first/last shot to cut boundaries
+            relevant_shots = [_adapt_shot(s) for s in relevant_shots]
+            relevant_shots[0] = dict(relevant_shots[0])
+            relevant_shots[0]["frame_in"] = max(relevant_shots[0]["frame_in"], frame_in)
+            relevant_shots[-1] = dict(relevant_shots[-1])
+            relevant_shots[-1]["frame_out"] = min(relevant_shots[-1]["frame_out"], frame_out)
 
-        out_path = compose_dir / f"{clip_id}_vertical.mp4"
-        work_sub = WORK / f"compose_{clip_id}"
-        work_sub.mkdir(parents=True, exist_ok=True)
+        # Prefix shot IDs with clip_id for uniqueness
+        for s in relevant_shots:
+            s["id"] = f"{clip_id}_{s['id']}"
 
-        result = compose_shot(
-            shots=relevant_shots,
+        clip_compose_dir = str(compose_dir / clip_id)
+        work_sub = str(WORK / f"compose_{clip_id}")
+        os.makedirs(clip_compose_dir, exist_ok=True)
+        os.makedirs(work_sub, exist_ok=True)
+
+        results = compose_all(
+            shot_map=relevant_shots,
             master_path=src,
-            cut_in=cut_in,
-            cut_out=cut_out,
-            out_path=str(out_path),
-            work_dir=str(work_sub),
-            clip_id=clip_id,
+            out_dir=clip_compose_dir,
+            work_dir=work_sub,
         )
-        composed.append({
-            "clip_id": clip_id,
-            "path": str(out_path),
-            "duration": cut_out - cut_in,
-            "layout": result.get("layout", "unknown"),
-            "faces": result.get("total_faces", 0),
-        })
-        print(f"  {clip_id}: {result.get('layout')} -> {out_path.name}")
+        all_compose_results.extend(results)
+
+        n_ok = sum(1 for r in results if r["ok"])
+        layouts = set(r["layout"] for r in results)
+        print(f"  {clip_id}: {n_ok}/{len(results)} shots OK, layouts={layouts}")
 
     composed_manifest = WORK / "composed_manifest.json"
     with open(composed_manifest, "w") as f:
-        json.dump(composed, f, indent=2)
-    return composed
+        json.dump(all_compose_results, f, indent=2, default=str)
+    return all_compose_results
 
 
 # ================================================================
@@ -224,24 +302,20 @@ def stage_compose(shot_map_data, sources_dir, edl_path):
 # ================================================================
 
 def stage_assemble(composed, out_path, vo_manifest_path=None):
-    """Concatenate composed clips + VO + shoutout + outro into final vertical."""
+    """Concatenate composed clips into final vertical using compositor.assemble."""
     from vertical.compositor import assemble
 
-    parts = []
-    for c in composed:
-        if os.path.exists(c["path"]):
-            parts.append(c["path"])
-
-    if not parts:
+    if not composed:
         print("  ERROR: no composed parts to assemble")
         return None
 
-    assemble(parts, str(out_path), fps=FPS)
+    ok = assemble(composed, str(out_path), fps=FPS)
 
-    if os.path.exists(out_path):
+    if ok and os.path.exists(out_path):
         dur = get_duration(out_path)
         print(f"  Assembled: {out_path} ({dur:.2f}s)")
         return str(out_path)
+    print("  ASSEMBLE FAILED")
     return None
 
 
@@ -250,38 +324,164 @@ def stage_assemble(composed, out_path, vo_manifest_path=None):
 # ================================================================
 
 def stage_qa(final_mp4, manifest_path):
-    """Run qa_gates.py G1-G6."""
-    try:
-        from qa_gates import run_all_gates
-        qa_dir = str(WORK / "qa")
-        os.makedirs(qa_dir, exist_ok=True)
-        ok, results = run_all_gates(str(final_mp4), manifest_path, qa_dir=qa_dir)
-        # Write results
-        results_path = WORK / "gate_results_9x16.json"
-        with open(results_path, "w") as f:
-            json.dump(results, f, indent=2, default=str)
-        return ok, results
-    except ImportError:
-        print("  WARNING: qa_gates.py not importable, skipping")
-        return True, {}
+    """Run vertical-specific QA gates (G1-G6 adapted for 9:16)."""
+    results = {}
+    all_ok = True
+
+    # G1: Resolution must be 1080x1920
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "stream=width,height,codec_name,pix_fmt,r_frame_rate",
+         "-of", "json", str(final_mp4)],
+        capture_output=True, text=True, timeout=15)
+    vinfo = json.loads(probe.stdout).get("streams", [{}])[0]
+    w, h = vinfo.get("width", 0), vinfo.get("height", 0)
+    g1 = (w == VERT_W and h == VERT_H)
+    results["G1_resolution"] = {"pass": g1, "actual": f"{w}x{h}", "expected": f"{VERT_W}x{VERT_H}"}
+    if not g1:
+        all_ok = False
+    print(f"  G1 Resolution: {'PASS' if g1 else 'FAIL'} ({w}x{h})")
+
+    # G2: Codec must be h264/yuv420p
+    codec = vinfo.get("codec_name", "")
+    pix = vinfo.get("pix_fmt", "")
+    g2 = (codec == "h264" and pix == "yuv420p")
+    results["G2_codec"] = {"pass": g2, "codec": codec, "pix_fmt": pix}
+    if not g2:
+        all_ok = False
+    print(f"  G2 Codec: {'PASS' if g2 else 'FAIL'} ({codec}/{pix})")
+
+    # G3: Duration > 10s
+    dur = get_duration(final_mp4)
+    g3 = dur > 10.0
+    results["G3_duration"] = {"pass": g3, "duration": dur}
+    if not g3:
+        all_ok = False
+    print(f"  G3 Duration: {'PASS' if g3 else 'FAIL'} ({dur:.2f}s)")
+
+    # G4: Audio present (48kHz stereo)
+    aprobe = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a:0",
+         "-show_entries", "stream=sample_rate,channels",
+         "-of", "json", str(final_mp4)],
+        capture_output=True, text=True, timeout=15)
+    ainfo = json.loads(aprobe.stdout).get("streams", [{}])[0]
+    sr = int(ainfo.get("sample_rate", 0))
+    ch = int(ainfo.get("channels", 0))
+    g4 = (sr == 48000 and ch == 2)
+    results["G4_audio"] = {"pass": g4, "sample_rate": sr, "channels": ch}
+    if not g4:
+        all_ok = False
+    print(f"  G4 Audio: {'PASS' if g4 else 'FAIL'} ({sr}Hz, {ch}ch)")
+
+    # G5: File size > 1MB (not empty/corrupt)
+    fsize = os.path.getsize(final_mp4)
+    g5 = fsize > 1_000_000
+    results["G5_filesize"] = {"pass": g5, "bytes": fsize}
+    if not g5:
+        all_ok = False
+    print(f"  G5 Filesize: {'PASS' if g5 else 'FAIL'} ({fsize/1e6:.1f}MB)")
+
+    # G6: No black frames at start/end (sample first+last 0.5s)
+    g6 = True  # Assume pass unless we detect black
+    for pos, label in [("0.2", "start"), (str(max(0, dur - 0.5)), "end")]:
+        frame_path = str(WORK / f"qa_g6_{label}.png")
+        subprocess.run(
+            ["ffmpeg", "-y", "-ss", pos, "-i", str(final_mp4),
+             "-frames:v", "1", "-q:v", "2", frame_path],
+            capture_output=True, timeout=15)
+        if os.path.exists(frame_path):
+            import cv2
+            img = cv2.imread(frame_path)
+            if img is not None:
+                mean_luma = img.mean()
+                if mean_luma < 5.0:
+                    g6 = False
+                    print(f"  G6: black frame at {label} (luma={mean_luma:.1f})")
+    results["G6_no_black"] = {"pass": g6}
+    if not g6:
+        all_ok = False
+    print(f"  G6 No Black: {'PASS' if g6 else 'FAIL'}")
+
+    results_path = WORK / "gate_results_9x16.json"
+    with open(results_path, "w") as f:
+        json.dump(results, f, indent=2, default=str)
+    return all_ok, results
 
 
 # ================================================================
 # Stage 5: Critic
 # ================================================================
 
-def stage_critic(shot_map_data, composed_dir):
-    """Run Grok-4 vision critic on composed shots."""
+def stage_critic(composed, shot_map_data):
+    """Run Grok-4 vision critic on composed shots by extracting frames from MP4s."""
     try:
-        from vertical.critic import critique_all
-        sources = shot_map_data.get("sources", {})
-        all_shots = []
-        for vid, smap in sources.items():
-            all_shots.extend(smap.get("shots", []))
-        result = critique_all(all_shots, str(composed_dir), str(WORK))
-        return result
+        from vertical.critic import critique_shot
+        import logging
+        logger = logging.getLogger("vertical.critic")
+
+        critic_dir = WORK / "critic_frames"
+        critic_dir.mkdir(parents=True, exist_ok=True)
+
+        results = []
+        pass_count = 0
+        fail_count = 0
+
+        for entry in composed:
+            if not entry.get("ok"):
+                continue
+            mp4 = entry.get("out_path", "")
+            if not os.path.exists(mp4):
+                continue
+            shot_id = entry.get("id", "unknown")
+
+            # Extract frames at 25% and 75%
+            dur = get_duration(mp4)
+            if dur < 0.5:
+                continue
+            t1 = dur * 0.25
+            t2 = dur * 0.75
+            f1 = str(critic_dir / f"{shot_id}_25.png")
+            f2 = str(critic_dir / f"{shot_id}_75.png")
+            for t, fp in [(t1, f1), (t2, f2)]:
+                subprocess.run(
+                    ["ffmpeg", "-y", "-ss", str(t), "-i", mp4,
+                     "-frames:v", "1", "-q:v", "2", fp],
+                    capture_output=True, timeout=15)
+
+            if not os.path.exists(f1) or not os.path.exists(f2):
+                fail_count += 1
+                results.append({"shot_id": shot_id, "pass": False,
+                                "issues": ["frame extraction failed"]})
+                continue
+
+            # Build shot dict for critic
+            shot = {
+                "shot_id": shot_id,
+                "layout": entry.get("layout", "unknown"),
+                "face_count": entry.get("face_count", 1),
+                "tiles": [],
+            }
+            result = critique_shot(shot, f1, f2, str(WORK))
+            results.append(result)
+            if result.get("pass"):
+                pass_count += 1
+            else:
+                fail_count += 1
+
+        overall = fail_count == 0 and pass_count > 0
+        total = pass_count + fail_count
+        summary = f"{pass_count}/{total} shots passed" if total > 0 else "no shots evaluated"
+        print(f"  Critic: {summary} (overall={'PASS' if overall else 'FAIL'})")
+
+        critic_result = {"overall_pass": overall, "shots": results, "summary": summary}
+        with open(WORK / "critic_results.json", "w") as f:
+            json.dump(critic_result, f, indent=2, default=str)
+        return critic_result
     except Exception as e:
         print(f"  Critic error: {e}")
+        import traceback
+        traceback.print_exc()
         return {"overall_pass": False, "error": str(e)}
 
 
@@ -296,9 +496,10 @@ def stage_sheet(composed, out_png):
 
     frames = []
     for c in composed[:12]:
-        if not os.path.exists(c["path"]):
+        p = c.get("out_path") or c.get("path", "")
+        if not os.path.exists(p):
             continue
-        cap = cv2.VideoCapture(c["path"])
+        cap = cv2.VideoCapture(p)
         dur = cap.get(cv2.CAP_PROP_FRAME_COUNT) / max(cap.get(cv2.CAP_PROP_FPS), 1)
         cap.set(cv2.CAP_PROP_POS_MSEC, dur * 500)  # mid point
         ret, frame = cap.read()
@@ -329,6 +530,52 @@ def stage_sheet(composed, out_png):
 # ================================================================
 # Stage 7: Telegram Preview
 # ================================================================
+
+def _run_t1(final_mp4, shot_map_data):
+    """Run T1 face count test: rendered faces must match shot_map per shot."""
+    try:
+        from vertical.tests.test_face_count import count_faces_mediapipe, extract_frame
+        import tempfile
+        if not shot_map_data:
+            print("  T1: no shot_map data, SKIP")
+            return True
+        qa_dir = str(WORK / "qa_t1")
+        os.makedirs(qa_dir, exist_ok=True)
+        failures = []
+        all_shots = []
+        for vid, smap in shot_map_data.get("sources", {}).items():
+            for s in smap.get("shots", []):
+                s_copy = dict(s)
+                s_copy["_vid"] = vid
+                all_shots.append(s_copy)
+        # Sample up to 10 shots
+        import random
+        sample = random.sample(all_shots, min(10, len(all_shots)))
+        for shot in sample:
+            expected = shot.get("total_faces") or shot.get("face_count") or 0
+            if expected == 0:
+                continue
+            t_in = shot.get("t_in", 0)
+            t_out = shot.get("t_out", 0)
+            mid_t = (t_in + t_out) / 2
+            if mid_t <= 0:
+                continue
+            frame_path = os.path.join(qa_dir, f"t1_{shot.get('id', 'unk')}.png")
+            if extract_frame(str(final_mp4), mid_t, frame_path):
+                actual = count_faces_mediapipe(frame_path)
+                if actual != expected:
+                    failures.append(f"  shot {shot.get('id')}: expected {expected}, got {actual}")
+        if failures:
+            print(f"  T1 FAIL ({len(failures)} mismatches):")
+            for f in failures:
+                print(f)
+            return False
+        print(f"  T1 PASS ({len(sample)} shots sampled)")
+        return True
+    except Exception as e:
+        print(f"  T1 error: {e}")
+        return False
+
 
 def stage_tg(final_mp4, caption):
     """Send preview to Telegram via tg_preview.py."""
@@ -417,12 +664,18 @@ def main():
             fail_path.write_text(f"QA GATE FAILURE: {final_mp4}\n")
             print(f"  GATE FAILURE — {fail_path}")
 
+    # Stage 4b: T1 face count test
+    t1_ok = True
+    if args.stage in ("qa", "all") and final_mp4:
+        with timed("T1 FACE COUNT") as t:
+            t1_ok = _run_t1(final_mp4, shot_map_data)
+        timings["t1_face_count"] = t.elapsed
+
     # Stage 5: Critic
     critic_ok = True
     if args.stage in ("critic", "all") and not args.no_critic and composed:
         with timed("CRITIC") as t:
-            critic_result = stage_critic(
-                shot_map_data or {}, WORK / "composed")
+            critic_result = stage_critic(composed, shot_map_data or {})
             critic_ok = critic_result.get("overall_pass", False)
         timings["critic"] = t.elapsed
 
@@ -433,7 +686,7 @@ def main():
         timings["sheet"] = t.elapsed
 
     # Stage 7: Telegram
-    all_pass = qa_ok and critic_ok
+    all_pass = qa_ok and t1_ok and critic_ok
     if args.stage in ("tg", "all") and not args.no_tg and final_mp4 and all_pass:
         n_shots = sum(
             len(s.get("shots", []))
@@ -447,6 +700,7 @@ def main():
         timings["tg"] = t.elapsed
     elif not all_pass and final_mp4:
         print(f"\n  BLOCKED: QA={'PASS' if qa_ok else 'FAIL'}, "
+              f"T1={'PASS' if t1_ok else 'FAIL'}, "
               f"Critic={'PASS' if critic_ok else 'FAIL'} — no Telegram send")
 
     # Timing summary
