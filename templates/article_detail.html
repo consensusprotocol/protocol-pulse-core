@@ -24,6 +24,7 @@
 
 {% block head %}
 <meta name="keywords" content="{{ article.tags }}, Bitcoin, Protocol Pulse">
+{% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pp-article.css') }}">
 {% endblock %}
 

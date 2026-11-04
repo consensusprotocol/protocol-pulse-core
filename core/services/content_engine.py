@@ -1,11 +1,35 @@
 from __future__ import annotations
 import os
+import re
 import logging
 from typing import Dict, Optional, List
 from datetime import datetime
 from app import db
 import models
 from services.ai_service import AIService
+
+
+def _ensure_slug(article):
+    """Set a unique slug on an article if it doesn't have one. Call before commit."""
+    if article.slug and not article.slug.isdigit():
+        return  # already has a valid slug
+    title = article.title or ''
+    s = re.sub(r'[^\w\s-]', '', title.lower())
+    s = re.sub(r'[-\s]+', '-', s).strip('-')[:80]
+    if not s or s.isdigit():
+        s = f"article-{article.id or 0}"
+    base = s
+    counter = 2
+    while True:
+        existing = models.Article.query.filter(
+            models.Article.slug == s,
+            models.Article.id != article.id
+        ).first()
+        if not existing:
+            break
+        s = f"{base}-{counter}"
+        counter += 1
+    article.slug = s
 try:
     from services.substack_service import SubstackService
 except ModuleNotFoundError:
@@ -574,17 +598,21 @@ APPROVE if score >= 7, REJECT if score < 7.
             )
             
             db.session.add(article)
-            # IMAGE HOOK: assign cover image at creation time
+            db.session.flush()  # get article.id for slug dedup
+            _ensure_slug(article)
+            # IMAGE HOOK: assign cover image at creation time (via image_guard)
             if not article.cover_image_url or article.cover_image_url == '/static/images/default-header.png':
                 try:
                     from services.pexels_image import get_pexels_image as _gpx
-                    _img = _gpx(article.title or '', article.category or 'bitcoin', 0)
+                    _img, _phash = _gpx(article.title or '', article.category or 'bitcoin', article_id=article.id)
                     if _img and 'default-header' not in _img:
                         article.cover_image_url = _img
+                        if _phash and hasattr(article, 'image_phash'):
+                            article.image_phash = _phash
                 except Exception:
                     pass
             db.session.commit()
-            
+
             return article
             
         except Exception as e:

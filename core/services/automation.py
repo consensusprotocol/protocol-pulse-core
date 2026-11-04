@@ -134,12 +134,17 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                 cover_image_url="",
             )
             db.session.add(article)
+            db.session.flush()  # get article.id for slug dedup
+            from services.content_engine import _ensure_slug
+            _ensure_slug(article)
             if not article.cover_image_url:
                 try:
                     from services.pexels_image import get_pexels_image as _gpx
-                    _img = _gpx(article.title or '', article.category or 'bitcoin', 0)
+                    _img, _phash = _gpx(article.title or '', article.category or 'bitcoin', article_id=article.id)
                     if _img and 'default-header' not in _img:
                         article.cover_image_url = _img
+                        if _phash and hasattr(article, 'image_phash'):
+                            article.image_phash = _phash
                 except Exception:
                     pass
             db.session.commit()

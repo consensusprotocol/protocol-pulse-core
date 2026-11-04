@@ -1067,13 +1067,11 @@ def _article_key_takeaways(article):
     plain = re.sub(r"<[^>]+>", "", content).strip()
     return plain[:400] + ("…" if len(plain) > 400 else "") if plain else ""
 
-@pages_bp.route('/articles/<int:article_id>')
-def article_detail(article_id):
-    """Individual article page. Key Takeaways and body never duplicated."""
-    article = models.Article.query.get_or_404(article_id)
+def _render_article(article):
+    """Shared renderer for article detail — used by both int and slug routes."""
     try:
         related_articles = models.Article.query.filter(
-            models.Article.id != article_id,
+            models.Article.id != article.id,
             models.Article.published == True,
             models.Article.category == article.category
         ).limit(3).all()
@@ -1094,13 +1092,20 @@ def article_detail(article_id):
     if not header_image_url or header_image_url == "/static/images/default-header.png":
         try:
             from services.pexels_image import get_pexels_image
-            fetched = get_pexels_image(article.title or "", article.category or "bitcoin")
+            fetched, phash = get_pexels_image(article.title or "", article.category or "bitcoin", article_id=article.id)
             if fetched and fetched != "/static/images/default-header.png":
                 header_image_url = fetched
                 article.cover_image_url = fetched
+                if phash and hasattr(article, 'image_phash'):
+                    article.image_phash = phash
                 db.session.commit()
         except Exception:
             pass
+
+    # Canonical URL — always points to slug when available
+    canonical_url = None
+    if article.slug:
+        canonical_url = url_for('pages.article_detail_by_slug', slug=article.slug, _external=True)
 
     # P3 Affiliate CTA injection — contextual, AI-classified, privacy-first
     affiliate_cta = None
@@ -1127,8 +1132,26 @@ def article_detail(article_id):
         key_takeaways_bullets=key_takeaways_bullets,
         body_html=body_html,
         cover_image_url=header_image_url,
+        canonical_url=canonical_url,
         affiliate_cta=affiliate_cta,
     )
+
+@pages_bp.route('/articles/<int:article_id>')
+def article_detail(article_id):
+    """Integer ID route — 301 redirects to slug URL when article has a slug."""
+    article = models.Article.query.get_or_404(article_id)
+    if article.slug:
+        return redirect(url_for('pages.article_detail_by_slug', slug=article.slug), code=301)
+    return _render_article(article)
+
+@pages_bp.route('/articles/<slug>')
+def article_detail_by_slug(slug):
+    """Slug-based article route — primary URL for all articles with slugs."""
+    # Guard: if slug looks like an integer, defer to the int route
+    if slug.isdigit():
+        return redirect(url_for('pages.article_detail', article_id=int(slug)), code=301)
+    article = models.Article.query.filter_by(slug=slug, published=True).first_or_404()
+    return _render_article(article)
 
 @pages_bp.route('/category/<category>')
 def category_articles(category):
