@@ -1,0 +1,70 @@
+{
+  "description": "Ground truth for vertical reframing testset. Sources from segment_v1/sources_pcm + yt_masters.",
+  "generated": "2026-11-04",
+  "sources": {
+    "bSmFGoAKPBc": {
+      "file": "sources_pcm/bSmFGoAKPBc.mov",
+      "description": "Simply Bitcoin — 2-up Riverside layout (host + guest side-by-side)",
+      "expected_layouts": ["2up"],
+      "expected_face_count": 2,
+      "has_screenshare": false,
+      "notes": "Used for hook and clip_03. Consistent 2-up seam throughout."
+    },
+    "Eojd18J_wuU": {
+      "file": "sources_pcm/Eojd18J_wuU.mov",
+      "description": "CoinDesk — single speaker or 2-up",
+      "expected_layouts": ["single", "2up"],
+      "expected_face_count_range": [1, 2],
+      "has_screenshare": false,
+      "notes": "Used for clip_01."
+    },
+    "7QIB_zdKU9A": {
+      "file": "sources_pcm/7QIB_zdKU9A.mov",
+      "description": "BTC Sessions — grid + screen-share, switches between 3-up and 5-up mid-clip",
+      "expected_layouts": ["3up", "5up", "grid"],
+      "expected_face_count_range": [3, 5],
+      "has_screenshare": true,
+      "notes": "Used for clip_02. Key test for mid-clip layout switch detection and screen-share handling."
+    },
+    "5ripuS9GDaM": {
+      "file": "sources_pcm/5ripuS9GDaM.mov",
+      "description": "BTC Sessions — likely 2-up or 3-up",
+      "expected_layouts": ["2up", "3up"],
+      "expected_face_count_range": [2, 3],
+      "has_screenshare": false,
+      "notes": "Used for clip_04."
+    }
+  },
+  "speaker_truth_windows": [
+    {"source": "bSmFGoAKPBc", "t_start": 224, "t_end": 225, "speaker_tile": 0, "note": "Host speaking (left tile)"},
+    {"source": "bSmFGoAKPBc", "t_start": 225, "t_end": 226, "speaker_tile": 0, "note": "Host still talking"},
+    {"source": "bSmFGoAKPBc", "t_start": 226, "t_end": 227, "speaker_tile": 1, "note": "Guest responds"},
+    {"source": "bSmFGoAKPBc", "t_start": 227, "t_end": 228, "speaker_tile": 1, "note": "Guest continues"},
+    {"source": "bSmFGoAKPBc", "t_start": 228, "t_end": 229, "speaker_tile": 0, "note": "Host interjects"},
+    {"source": "bSmFGoAKPBc", "t_start": 229, "t_end": 230, "speaker_tile": 0, "note": "Host explains"},
+    {"source": "bSmFGoAKPBc", "t_start": 230, "t_end": 231, "speaker_tile": 1, "note": "Guest reacts"},
+    {"source": "bSmFGoAKPBc", "t_start": 231, "t_end": 232, "speaker_tile": 1, "note": "Guest continues"},
+    {"source": "bSmFGoAKPBc", "t_start": 232, "t_end": 233, "speaker_tile": 0, "note": "Host wraps hook"},
+    {"source": "bSmFGoAKPBc", "t_start": 233, "t_end": 234, "speaker_tile": 0, "note": "Host final line"},
+    {"source": "7QIB_zdKU9A", "t_start": 230, "t_end": 231, "speaker_tile": 1, "note": "Center speaker"},
+    {"source": "7QIB_zdKU9A", "t_start": 231, "t_end": 232, "speaker_tile": 1, "note": "Center continues"},
+    {"source": "7QIB_zdKU9A", "t_start": 232, "t_end": 233, "speaker_tile": 0, "note": "Left speaker responds"},
+    {"source": "7QIB_zdKU9A", "t_start": 233, "t_end": 234, "speaker_tile": 2, "note": "Right speaker chimes in"},
+    {"source": "7QIB_zdKU9A", "t_start": 234, "t_end": 235, "speaker_tile": 1, "note": "Center again"},
+    {"source": "7QIB_zdKU9A", "t_start": 235, "t_end": 236, "speaker_tile": 1, "note": "Center continues"},
+    {"source": "7QIB_zdKU9A", "t_start": 236, "t_end": 237, "speaker_tile": 0, "note": "Left reacts"},
+    {"source": "7QIB_zdKU9A", "t_start": 237, "t_end": 238, "speaker_tile": 1, "note": "Center wraps point"},
+    {"source": "7QIB_zdKU9A", "t_start": 238, "t_end": 239, "speaker_tile": 2, "note": "Right responds"},
+    {"source": "7QIB_zdKU9A", "t_start": 239, "t_end": 240, "speaker_tile": 1, "note": "Center conclusion"},
+    {"source": "Eojd18J_wuU", "t_start": 74, "t_end": 75, "speaker_tile": 0, "note": "Single speaker"},
+    {"source": "Eojd18J_wuU", "t_start": 75, "t_end": 76, "speaker_tile": 0, "note": "Single continues"},
+    {"source": "Eojd18J_wuU", "t_start": 76, "t_end": 77, "speaker_tile": 0, "note": "Single continues"},
+    {"source": "Eojd18J_wuU", "t_start": 77, "t_end": 78, "speaker_tile": 0, "note": "Single continues"},
+    {"source": "Eojd18J_wuU", "t_start": 78, "t_end": 79, "speaker_tile": 0, "note": "Single continues"},
+    {"source": "5ripuS9GDaM", "t_start": 764, "t_end": 765, "speaker_tile": 0, "note": "Host speaking"},
+    {"source": "5ripuS9GDaM", "t_start": 765, "t_end": 766, "speaker_tile": 1, "note": "Guest responds"},
+    {"source": "5ripuS9GDaM", "t_start": 766, "t_end": 767, "speaker_tile": 1, "note": "Guest continues"},
+    {"source": "5ripuS9GDaM", "t_start": 767, "t_end": 768, "speaker_tile": 0, "note": "Host interjects"},
+    {"source": "5ripuS9GDaM", "t_start": 768, "t_end": 769, "speaker_tile": 0, "note": "Host explains"}
+  ]
+}

@@ -292,3 +292,48 @@ Theoretical fixes that break in practice are worse than no fix.
 ### LAW G-6: GRADING IS MANDATORY
 - Every render must produce a `grades/*.json` file.
 - If grading fails, log it and alert — never silently skip.
+
+---
+
+## SEGMENT BUILD LAWS (added 2026-11-03, updated 2026-11-04)
+
+### LAW 15: VO PRE-ROLL
+- Every VO segment has 1.0s of silence prepended before the voice stem.
+- Gate G6 enforces `onset >= 0.95s`.
+- Law 15a: the VO visual extends by 1.0s at the head with zero waveform energy (blurred freeze + slow zoom).
+
+### LAW 17: QA GATES MANDATORY
+- Every final render (16:9 and 9:16) must pass qa_gates.py G1-G6 before approval.
+- Gate failures block shipping.
+
+### LAW 18: VERTICAL LAYOUT CLASSIFICATION (v3 — shotmap-driven, per-shot, replaces per-clip rules)
+- Classify per SHOT (shotmap hard-cut boundaries, not per clip) using batched face detection on SOURCE frames (SCRFD/insightface ONNX GPU preferred, MediaPipe GPU delegate fallback) and screen-share detection.
+- Detection runs once at shot entry + every 2s within a shot; results cached in `vertical/cache/<source_md5>.json`.
+  - **1 face** → fixed face-centered 9:16 crop (no panning, Law 18a below).
+  - **2 faces** → two stacked bands, each the tile/face crop from source, 1080 wide; equal bands unless speaker confidence HIGH (see 18b).
+  - **3 faces** → three stacked bands, each 1080×607, 2 gutters 12px orange, centered vertically in 1920.
+  - **4+ faces or screen-share** → full 16:9 frame letterboxed on top (~608px) + enlarged guest column below (~1308px), orange 4px divider.
+- Never a subset of visible faces. Bands ordered left-to-right from source. No animated panning ever.
+- Re-composition only at shotmap hard cuts. Lower-thirds re-rendered per composition. VO visuals/outro native 9:16.
+- **18a (NO ANIMATED PANNING):** 9:16 talking-head shots get ONE fixed crop per shot: face-centered median over all sampled frames. No continuous panning, no OneEuroFilter, no animated crop motion. Re-center only at a hard cut.
+- **18b (SPEAKER-DOMINANT BANDS):** When speaker confidence is HIGH (lip-activity margin >= 0.35 sustained >= 1.5s), the speaker's band takes ~60% of available height and other faces share the remainder. When confidence is LOW or indeterminate, all bands are equal height. Log mode (equal/dominant) per shot.
+
+### LAW 19: VERTICAL FACE COUNT GATE (G4 for stacked layouts, v3)
+- For every talking-head shot, the rendered vertical frame must show face_count == source_face_count (from shotmap) on 6 sampled frames (4 of 6 must match).
+- G4 classifies layout from the SOURCE clip (>= 3 faces or screen-share = "grid"); for grid segments in vertical, require >= 4 faces in the rendered frame.
+- Never crop or subset visible faces.
+- **Unit test T1:** every output frame's face set == shot_map faces for that shot (catches wrong face, dropped column, 3-band from 5-tile).
+
+### LAW 20: GATE THRESHOLDS ARE LAW CONSTANTS
+- G1 voice similarity >= 0.75, transcript overlap >= 0.80
+- G6 pre-roll onset >= 0.95s
+- G5 LUFS = -14 +/- 1.0, true peak <= -2.0 dBFS
+- Sessions fix measurement bugs, never lower thresholds.
+
+### LAW 21: STAGE TIME BUDGETS (added 2026-11-04)
+- Every pipeline stage has a stated wall-clock time budget. GPU/cached path is the default.
+- A CPU-only per-frame loop over video frames is a DEFECT — use GPU-accelerated detection (SCRFD ONNX CUDA or MediaPipe GPU delegate), batch processing, and per-shot caching.
+- Face detection cache: `vertical/cache/<source_md5>.json` — re-renders never re-detect.
+- Target: full v14 vertical render (shotmap + compose + assemble + qa + critic) under 8 minutes wall-clock on GPU 0.
+- Timing breakdown per stage printed in REPORT_vertical_v1.md.
+- Shotmap hardening for YouTube re-encodes: detect letterbox bars and crop them before seam measurement; derive SEAM_ROWS from the active picture area (not hardcoded 120-900); mask burned-in lower-third bands (bottom 18%) when measuring gutters.
