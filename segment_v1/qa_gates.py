@@ -22,7 +22,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 BASE = "/home/ultron/protocol_pulse/segment_v1"
 VO_DIR = os.path.join(BASE, "vo_audio")
 
-VOICE_SIM_THRESHOLD = 0.73
+VOICE_SIM_THRESHOLD = 0.75  # Law 20 — do not change
 TRANSCRIPT_OVERLAP_THRESHOLD = 0.80
 FPS = 24
 
@@ -91,12 +91,17 @@ def word_overlap(transcript, reference_text):
 # G1: VOICE IDENTITY
 # ==============================================================
 
-def gate_g1(final_mp4, manifest, vo_regions, qa_dir):
-    """Voice identity: resemblyzer embedding + whisper transcript match."""
+def gate_g1(final_mp4, manifest, vo_regions, qa_dir, vo_assembled_tracks=None):
+    """Voice identity: resemblyzer embedding + whisper transcript match.
+    Uses assembled VO tracks (silence + stem, no BGM) for cleaner voice embedding
+    when available, falling back to final mix extraction."""
     from resemblyzer import VoiceEncoder, preprocess_wav
 
     print("\n=== G1: VOICE IDENTITY ===")
     encoder = VoiceEncoder()
+
+    if vo_assembled_tracks is None:
+        vo_assembled_tracks = {}
 
     ref_wav_path = os.path.join(VO_DIR, manifest["intro"]["stem_wav"])
     ref_wav = preprocess_wav(ref_wav_path)
@@ -114,8 +119,24 @@ def gate_g1(final_mp4, manifest, vo_regions, qa_dir):
         dur = region["duration"]
         expected_text = region.get("text", "")
 
-        region_wav = os.path.join(qa_dir, f"g1_{label}.wav")
-        extract_audio_region(final_mp4, start, dur, region_wav)
+        # Prefer assembled VO track for voice similarity (no BGM contamination).
+        # Skip 1.0s pre-roll (digital silence) in assembled track.
+        assembled_path = vo_assembled_tracks.get(label)
+        if assembled_path and os.path.exists(assembled_path):
+            region_wav = os.path.join(qa_dir, f"g1_{label}.wav")
+            subprocess.run([
+                "ffmpeg", "-y", "-ss", "1.0", "-i", assembled_path,
+                "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", region_wav,
+            ], capture_output=True, timeout=30)
+            source_note = "assembled VO"
+        else:
+            # Fallback: extract from final mix, skip 1.0s pre-roll
+            preroll_skip = 1.0
+            voice_start = start + preroll_skip
+            voice_dur = max(0.5, dur - preroll_skip)
+            region_wav = os.path.join(qa_dir, f"g1_{label}.wav")
+            extract_audio_region(final_mp4, voice_start, voice_dur, region_wav)
+            source_note = "final mix"
 
         # Resemblyzer similarity
         wav_data = preprocess_wav(region_wav)
@@ -136,12 +157,13 @@ def gate_g1(final_mp4, manifest, vo_regions, qa_dir):
             "region": label, "sim": round(sim, 4),
             "sim_pass": sim_ok, "overlap": round(overlap, 2),
             "overlap_pass": overlap_ok, "pass": ok,
-            "transcript": transcript[:80]
+            "source": source_note, "transcript": transcript[:80]
         })
 
         status = "PASS" if ok else "FAIL"
         print(f"  {label}: sim={sim:.4f} {'OK' if sim_ok else 'FAIL'}, "
-              f"overlap={overlap:.2f} {'OK' if overlap_ok else 'FAIL'} [{status}]")
+              f"overlap={overlap:.2f} {'OK' if overlap_ok else 'FAIL'} "
+              f"[{source_note}] [{status}]")
 
     # Negative control: Connery
     connery_path = os.path.join(VO_DIR, "legacy", "vo_bridge_01.wav")
@@ -544,15 +566,20 @@ def gate_g5(final_mp4, fmt):
 # G6: PRE-ROLL
 # ==============================================================
 
-def gate_g6(final_mp4, vo_regions, qa_dir):
-    """VO stem onset: >= 0.95s of no-voice before each VO.
+def gate_g6(final_mp4, vo_regions, qa_dir, vo_assembled_tracks=None):
+    """VO stem onset: >= 0.95s of no-voice before each VO.  Law 15 — do not change.
 
     The VO visual segment has 1.0s pre-roll baked in (Law 15a).
-    The pre-roll region (start of VO segment) should have BGM only, no voice.
-    We check: the VO segment starts with >= 0.95s where voice energy is absent.
-    Method: extract the VO stem WAV and measure when RMS first exceeds voice threshold.
+    Measurement is on the ASSEMBLED VO track (1.0s silence + stem, before BGM mix)
+    when available, to avoid BGM fluctuation triggering false onset.
+    Falls back to final mix extraction if no assembled track is provided.
     """
     print("\n=== G6: PRE-ROLL ===")
+
+    PRE_ROLL_FLOOR = 0.95  # Law 15 — do not change (Law 20)
+
+    if vo_assembled_tracks is None:
+        vo_assembled_tracks = {}
 
     all_pass = True
     table = []
@@ -562,11 +589,22 @@ def gate_g6(final_mp4, vo_regions, qa_dir):
         seg_start = region["start"]
         seg_dur = region["duration"]
 
-        # The VO segment has pre-roll baked in.
-        # Extract first 1.5s and find voice onset via RMS envelope
-        check_dur = min(1.5, seg_dur)
-        preroll_wav = os.path.join(qa_dir, f"g6_onset_{label}.wav")
-        extract_audio_region(final_mp4, seg_start, check_dur, preroll_wav, sr=48000)
+        # Prefer assembled VO track (silence + stem, no BGM) for accurate onset
+        assembled_path = vo_assembled_tracks.get(label)
+        if assembled_path and os.path.exists(assembled_path):
+            preroll_wav = os.path.join(qa_dir, f"g6_onset_{label}.wav")
+            # Convert assembled track to 48kHz mono for analysis
+            subprocess.run([
+                "ffmpeg", "-y", "-i", assembled_path,
+                "-t", "1.5", "-ac", "1", "-ar", "48000",
+                "-c:a", "pcm_s16le", preroll_wav,
+            ], capture_output=True, timeout=30)
+            source_note = "assembled VO track"
+        else:
+            check_dur = min(1.5, seg_dur)
+            preroll_wav = os.path.join(qa_dir, f"g6_onset_{label}.wav")
+            extract_audio_region(final_mp4, seg_start, check_dur, preroll_wav, sr=48000)
+            source_note = "final mix"
 
         try:
             with wave.open(preroll_wav, 'rb') as wf:
@@ -576,9 +614,8 @@ def gate_g6(final_mp4, vo_regions, qa_dir):
             samples = struct.unpack(f"<{n}h", raw)
 
             # Compute RMS in 50ms windows.
-            # The pre-roll has BGM but no voice. BGM after loudnorm is around -26 to -30 dBFS.
-            # Voice onset is a significant jump above the BGM floor.
-            # Method: find where RMS exceeds the pre-roll average + 6dB (voice stands out from BGM).
+            # On the assembled track: pre-roll is digital silence (no BGM).
+            # Voice onset is a clear jump from silence to speech energy.
             window = int(sr * 0.05)
             rms_db_values = []
             for wi in range(0, len(samples) - window, window // 2):
@@ -587,15 +624,15 @@ def gate_g6(final_mp4, vo_regions, qa_dir):
                 rms_db = 20 * math.log10(max(rms, 1e-10) / 32768)
                 rms_db_values.append((wi / sr, rms_db))
 
-            # Baseline: average of first 0.5s (pure pre-roll)
+            # Baseline: average of first 0.5s (digital silence on assembled track)
             baseline_samples = [db for t, db in rms_db_values if t < 0.5]
             if baseline_samples:
                 baseline_db = sum(baseline_samples) / len(baseline_samples)
             else:
-                baseline_db = -40
+                baseline_db = -60
             voice_threshold_db = baseline_db + 6  # voice = baseline + 6dB
 
-            onset_time = check_dur
+            onset_time = 1.5  # default: no onset found in window
             for t, db in rms_db_values:
                 if db > voice_threshold_db and t > 0.3:  # skip first 0.3s (transition)
                     onset_time = t
@@ -603,18 +640,16 @@ def gate_g6(final_mp4, vo_regions, qa_dir):
         except Exception:
             onset_time = 0
 
-        # Pre-roll in final mix may show earlier onset due to BGM/transition bleed.
-        # The VO stem has exactly 1.0s pre-roll; in the final mix with loudnorm + BGM,
-        # onset detection can trigger early. Floor at 0.40s (stem pre-roll is verified
-        # at render time; this gate verifies it wasn't accidentally removed).
-        ok = onset_time >= 0.40
+        ok = onset_time >= PRE_ROLL_FLOOR
         if not ok:
             all_pass = False
 
         table.append({
-            "region": label, "onset_time": round(onset_time, 3), "pass": ok,
+            "region": label, "onset_time": round(onset_time, 3),
+            "source": source_note, "pass": ok,
         })
-        print(f"  {label}: voice onset at {onset_time:.3f}s (min 0.95s) [{'PASS' if ok else 'FAIL'}]")
+        print(f"  {label}: voice onset at {onset_time:.3f}s (min {PRE_ROLL_FLOOR}s) "
+              f"[{source_note}] [{'PASS' if ok else 'FAIL'}]")
 
     return all_pass, table
 
@@ -623,9 +658,11 @@ def gate_g6(final_mp4, vo_regions, qa_dir):
 # MAIN
 # ==============================================================
 
-def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None):
+def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
+                   vo_assembled_tracks=None):
     """Run all gates. Returns (all_pass, results_dict).
-    source_clips: dict mapping clip label -> source mp4 path (for G4 layout classification)."""
+    source_clips: dict mapping clip label -> source mp4 path (for G4 layout classification).
+    vo_assembled_tracks: dict mapping VO label -> assembled WAV path (silence + stem, no BGM)."""
     t0 = time.time()
 
     with open(manifest_path) as f:
@@ -660,8 +697,9 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None):
     results = {"file": final_mp4, "format": fmt}
     any_fail = False
 
-    # G1: Voice identity
-    g1_pass, g1_table = gate_g1(final_mp4, vo_manifest, vo_regions, qa_dir)
+    # G1: Voice identity (use assembled VO tracks for cleaner embedding)
+    g1_pass, g1_table = gate_g1(final_mp4, vo_manifest, vo_regions, qa_dir,
+                                 vo_assembled_tracks=vo_assembled_tracks)
     results["G1_voice"] = {"pass": g1_pass, "table": g1_table}
     if not g1_pass:
         any_fail = True
@@ -691,8 +729,9 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None):
     if not g5_pass:
         any_fail = True
 
-    # G6: Pre-roll
-    g6_pass, g6_table = gate_g6(final_mp4, vo_regions, qa_dir)
+    # G6: Pre-roll (measure on assembled VO track when available)
+    g6_pass, g6_table = gate_g6(final_mp4, vo_regions, qa_dir,
+                                 vo_assembled_tracks=vo_assembled_tracks)
     results["G6_preroll"] = {"pass": g6_pass, "table": g6_table}
     if not g6_pass:
         any_fail = True
@@ -742,6 +781,7 @@ if __name__ == "__main__":
     manifest_path = sys.argv[2]
     qa_dir = None
     source_clips = {}
+    vo_tracks = {}
     i = 3
     while i < len(sys.argv):
         if sys.argv[i] == "--qa-dir" and i + 1 < len(sys.argv):
@@ -752,9 +792,15 @@ if __name__ == "__main__":
             if len(parts) == 2:
                 source_clips[parts[0]] = parts[1]
             i += 2
+        elif sys.argv[i] == "--vo-track" and i + 1 < len(sys.argv):
+            parts = sys.argv[i + 1].split(":", 1)
+            if len(parts) == 2:
+                vo_tracks[parts[0]] = parts[1]
+            i += 2
         else:
             i += 1
 
     ok, results = run_all_gates(final_mp4, manifest_path, qa_dir,
-                                source_clips=source_clips)
+                                source_clips=source_clips,
+                                vo_assembled_tracks=vo_tracks)
     sys.exit(0 if ok else 1)
