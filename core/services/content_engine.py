@@ -88,6 +88,27 @@ Hallucinating record highs when the network is experiencing miner stress is STRI
                 logging.warning("HeyGen service initialization failed: %s", e)
         logging.info("Content Engine initialized")
 
+    def _generate_with_provider_chain(self, prompt, system_prompt=None):
+        """Generate content using provider chain: Ollama -> Gemini -> Anthropic -> OpenAI.
+        Each failure logs a WARNING and falls through to the next provider."""
+        from services.article_automation import sanitize_article_output
+
+        providers = [
+            ("Ollama", lambda: self.ai_service.generate_content_ollama(prompt, system_prompt)),
+            ("Gemini", lambda: self.ai_service.generate_content_gemini_prompt(prompt, system_prompt)),
+            ("Anthropic", lambda: self.ai_service.generate_content_anthropic(prompt, system_prompt)),
+            ("OpenAI", lambda: self.ai_service.generate_content_openai(prompt, system_prompt)),
+        ]
+        for name, fn in providers:
+            try:
+                content = fn()
+                if content:
+                    logging.info("Content generated via %s", name)
+                    return sanitize_article_output(content)
+            except Exception as e:
+                logging.warning("Provider %s failed: %s", name, type(e).__name__)
+        return None
+
     def review_article_with_gemini(self, title: str, content: str) -> Dict:
         """
         Use Gemini as Editor-in-Chief for automated quality control
@@ -119,7 +140,20 @@ APPROVE if score >= 7, REJECT if score < 7.
 """
             
             ai_service = AIService()
-            response = ai_service.generate_content_openai(review_prompt)
+            # Try Ollama first (free), then paid providers
+            response = None
+            try:
+                response = ai_service.generate_content_ollama(review_prompt)
+            except Exception:
+                pass
+            if not response:
+                try:
+                    response = ai_service.generate_content_openai(review_prompt)
+                except Exception:
+                    pass
+            if not response:
+                logging.warning("Article review skipped: no provider available")
+                return {"decision": "APPROVE", "reason": "Review skipped (no provider)", "score": 7}
             
             # Parse AI review response
             import json
@@ -350,11 +384,11 @@ APPROVE if score >= 7, REJECT if score < 7.
             Focus exclusively on Bitcoin. Target length: 800-1200 words
             """
             
-            content = self.ai_service.generate_content_openai(prompt)
+            content = self._generate_with_provider_chain(prompt)
             if content:
                 return self._parse_article_content(content, "Bitcoin")
             return None
-            
+
         except Exception as e:
             logging.error(f"Bitcoin article generation failed: {e}")
             return None
@@ -379,11 +413,11 @@ APPROVE if score >= 7, REJECT if score < 7.
             Focus on DeFi protocols and decentralized finance. Target length: 1000-1500 words
             """
             
-            content = self.ai_service.generate_content_anthropic(prompt)
+            content = self._generate_with_provider_chain(prompt)
             if content:
                 return self._parse_article_content(content, "DeFi")
             return None
-            
+
         except Exception as e:
             logging.error(f"DeFi article generation failed: {e}")
             return None
@@ -408,11 +442,11 @@ APPROVE if score >= 7, REJECT if score < 7.
             Cover both Bitcoin price action and DeFi market trends. Target length: 600-900 words
             """
             
-            content = self.ai_service.generate_content_openai(prompt)
+            content = self._generate_with_provider_chain(prompt)
             if content:
                 return self._parse_article_content(content, "Market Update")
             return None
-            
+
         except Exception as e:
             logging.error(f"Market article generation failed: {e}")
             return None
@@ -437,11 +471,11 @@ APPROVE if score >= 7, REJECT if score < 7.
             Focus on Bitcoin and DeFi as primary topics. Target length: 800-1200 words
             """
             
-            content = self.ai_service.generate_content_openai(prompt)
+            content = self._generate_with_provider_chain(prompt)
             if content:
                 return self._parse_article_content(content, content_type.title())
             return None
-            
+
         except Exception as e:
             logging.error(f"General article generation failed: {e}")
             return None

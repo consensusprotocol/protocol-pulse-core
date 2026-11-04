@@ -112,3 +112,17 @@ b913a40c fix(panopticon): wire signal data so counters show live values; fix(her
 df569b09 fix(hero): left-align stats strip inside hero container
 a06113cd fix(hero): align stats strip and New Here row to left hero container
 ```
+
+---
+
+## 2026-11-04 — Site Rescue Session
+**Branch:** site-fix-20261104
+**What broke:** LLM credit exhaustion killed article generation since Oct 22. 152 articles had title "```html", 147 had "TL;DR:" titles, 304 had placeholder sources.
+**Fixes applied:**
+- Provider chain: Ollama (qwen3-coder:30b, free) -> Gemini -> Anthropic -> OpenAI for all article generation
+- Centralized sanitize_article_output() strips fences, placeholder sources, empty elements
+- Title extraction: TITLE: > h1 > h2.article-header > Ollama-generated headline
+- 348 botched articles repaired via scripts/repair_botched_articles.py
+- Oracle/Satomi/Avatar removed from nav, homepage, routes (302 redirects)
+- Homepage dead data (UPDATING, Loading, N/A, recently) replaced with real data or hidden when unavailable
+- FTS index rebuilt

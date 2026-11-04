@@ -500,26 +500,30 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             max_retries = 2
             
             for attempt in range(max_retries + 1):
-                # Try OpenAI first (better at following structured output requirements)
+                # Provider chain: Ollama (free) -> Gemini -> Anthropic -> OpenAI
                 try:
-                    content = self.ai_service.generate_content_openai(formatted_prompt, system_prompt)
+                    content = self.ai_service.generate_content_ollama(formatted_prompt, system_prompt)
                 except Exception as e:
-                    logging.warning(f"OpenAI generation failed: {e}")
-                
-                # Fallback to Gemini if OpenAI fails
+                    logging.warning(f"Ollama generation failed: {e}")
+
                 if not content:
                     try:
                         content = self.gemini_service.generate_content(formatted_prompt, system_prompt)
                     except Exception as e:
                         logging.warning(f"Gemini generation failed: {e}")
-                
-                # Fallback to Anthropic if available
+
                 if not content:
                     try:
                         content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
                     except Exception as e:
                         logging.warning(f"Anthropic generation failed: {e}")
-                
+
+                if not content:
+                    try:
+                        content = self.ai_service.generate_content_openai(formatted_prompt, system_prompt)
+                    except Exception as e:
+                        logging.warning(f"OpenAI generation failed: {e}")
+
                 if not content:
                     raise Exception("Failed to generate content with any AI service")
                 
@@ -669,15 +673,22 @@ Examples of correct statement headlines:
 
 Return ONLY the new headline, nothing else."""
                 
-                new_title = self.ai_service.generate_content_openai(rewrite_prompt)
+                new_title = None
+                for _gen in (self.ai_service.generate_content_ollama, self.ai_service.generate_content_openai):
+                    try:
+                        new_title = _gen(rewrite_prompt)
+                        if new_title:
+                            break
+                    except Exception:
+                        continue
                 if new_title:
                     new_title = new_title.strip().strip('"').strip("'")
                     if not new_title.endswith('?'):
-                        logging.info(f"✅ Headline rewritten: '{new_title[:50]}...'")
+                        logging.info(f"Headline rewritten: '{new_title[:50]}...'")
                         return new_title
             except Exception as e:
                 logging.warning(f"Failed to rewrite headline: {e}")
-        
+
         elif headline_style == 'question' and not is_question:
             logging.info(f"🔄 Headline mismatch: Got statement '{title[:50]}...' but need question - rewriting")
             try:
@@ -700,11 +711,18 @@ Examples of correct question headlines:
 
 Return ONLY the new headline, nothing else."""
                 
-                new_title = self.ai_service.generate_content_openai(rewrite_prompt)
+                new_title = None
+                for _gen in (self.ai_service.generate_content_ollama, self.ai_service.generate_content_openai):
+                    try:
+                        new_title = _gen(rewrite_prompt)
+                        if new_title:
+                            break
+                    except Exception:
+                        continue
                 if new_title:
                     new_title = new_title.strip().strip('"').strip("'")
                     if new_title.endswith('?'):
-                        logging.info(f"✅ Headline rewritten: '{new_title[:50]}...'")
+                        logging.info(f"Headline rewritten: '{new_title[:50]}...'")
                         return new_title
             except Exception as e:
                 logging.warning(f"Failed to rewrite headline: {e}")
@@ -781,51 +799,70 @@ Return ONLY the new headline, nothing else."""
         }
     
     def _extract_or_generate_title(self, content, topic):
-        """Extract title from content or generate one using Conversational SEO"""
-        try:
-            # Try to extract title from the first line if it looks like a headline
-            first_line = content.split('\n')[0].strip()
-            if len(first_line) < 100 and len(first_line) > 10:
-                # Remove common article prefixes and any "Protocol Pulse" branding
-                title = first_line.replace('# ', '').replace('## ', '').strip()
-                title = title.replace('Protocol Pulse News:', '').replace('Protocol Pulse:', '').strip()
-                if title and not title.endswith('.'):
-                    return title
-            
-            # Generate title using AI with CONVERSATIONAL SEO (question-based logic)
-            title_prompt = f"""Create a compelling, SEO-friendly headline for an article about: {topic}. 
+        """Extract title from content or generate one.
 
-CONVERSATIONAL SEO MANDATE:
-- Use QUESTION-BASED headlines that AI assistants and voice search will surface
-- Examples of good question headlines:
-  * "How Will the January 22 Difficulty Rise Affect Miners?"
-  * "What Does 146.47 T Difficulty Mean for Network Security?"
-  * "Why Are Bitcoin Miners Accumulating Before the Halving?"
-  * "Is the Current Hashrate Sustainable for Small Miners?"
+        Priority:
+        1. Explicit TITLE: line in the content
+        2. First <h1> tag
+        3. First <h2 class="article-header"> tag
+        4. Ollama-generated 8-12 word headline from the content
+        Hard rules: never TL;DR, never ```, max 110 chars, no quotes.
+        """
+        import re
+
+        def _valid(t):
+            t = (t or "").strip().strip('"').strip("'").strip()
+            if not t or len(t) > 110:
+                return None
+            if t.lower().startswith("tl;dr"):
+                return None
+            if "```" in t:
+                return None
+            return t
+
+        # 1. Explicit TITLE: line
+        m = re.search(r'^TITLE:\s*(.+)', content, re.MULTILINE)
+        if m:
+            t = _valid(m.group(1))
+            if t:
+                return t
+
+        # 2. First <h1>
+        m = re.search(r'<h1[^>]*>([^<]+)</h1>', content, re.IGNORECASE)
+        if m:
+            t = _valid(m.group(1))
+            if t:
+                return t
+
+        # 3. First <h2 class="article-header">
+        m = re.search(r'<h2[^>]*class="article-header"[^>]*>([^<]+)</h2>', content, re.IGNORECASE)
+        if m:
+            t = _valid(m.group(1))
+            if t:
+                return t
+
+        # 4. AI-generated headline via Ollama (free) -> paid fallback
+        title_prompt = f"""Generate a compelling 8-12 word headline for an article about: {topic[:200]}
 
 RULES:
-- CRITICAL: Do NOT include 'Protocol Pulse' or any publication name
-- Prefer "How", "What", "Why", "Is", "Will" question starters
-- If a question doesn't fit naturally, use declarative headlines that answer implied questions
-- Keep under 70 characters
-- Focus on transactor concerns (network security, mining economics, sovereignty)"""
-            title = self.ai_service.generate_content_openai(title_prompt)
-            
-            if title:
-                # Clean up the title - remove any Protocol Pulse branding that slipped through
-                title = title.strip().replace('"', '').replace("'", '')
-                title = title.replace('Protocol Pulse News:', '').replace('Protocol Pulse:', '').strip()
-                return title[:100]  # Limit length
-            
-            # Fallback to topic-based title (no branding)
-            clean_topic = topic[:60].replace('Protocol Pulse', '').strip()
-            return clean_topic if clean_topic else topic[:60]
-            
-        except Exception as e:
-            logging.error(f"Error generating title: {str(e)}")
-            # Fallback without any branding - just use topic
-            clean_topic = topic[:60].replace('Protocol Pulse', '').strip()
-            return clean_topic if clean_topic else topic[:60]
+- Do NOT include 'Protocol Pulse' or any publication name
+- Keep under 110 characters
+- No quotes around the headline
+- Return ONLY the headline, nothing else"""
+
+        for gen in (self.ai_service.generate_content_ollama, self.ai_service.generate_content_openai):
+            try:
+                raw = gen(title_prompt)
+                if raw:
+                    t = _valid(raw.split('\n')[0])
+                    if t:
+                        return t
+            except Exception:
+                continue
+
+        # Fallback to topic-based title
+        clean_topic = topic[:60].replace('Protocol Pulse', '').strip()
+        return clean_topic if clean_topic else topic[:60]
     
     def _generate_tags(self, topic, content):
         """Generate relevant tags for the article"""
@@ -840,7 +877,14 @@ RULES:
             # Use AI to suggest relevant tags
             tag_prompt = f"Based on this topic '{topic}' and content preview '{content[:200]}...', suggest 5-7 relevant tags from Web3/crypto space. Return as comma-separated list."
             
-            ai_tags = self.ai_service.generate_content_openai(tag_prompt)
+            ai_tags = None
+            for _gen in (self.ai_service.generate_content_ollama, self.ai_service.generate_content_openai):
+                try:
+                    ai_tags = _gen(tag_prompt)
+                    if ai_tags:
+                        break
+                except Exception:
+                    continue
             
             if ai_tags:
                 # Clean and combine tags

@@ -55,7 +55,6 @@
     <link rel="stylesheet" href="{{ '/static/css/pp-style.css' }}?v=6.0">
     <link rel="stylesheet" href="{{ '/static/css/pp-coindesk.css' }}?v=6.0">
     <link rel="stylesheet" href="{{ '/static/css/pp-fixes.css' }}?v=9.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/oracle_widget.css') }}?v=14.0">
     {% if current_user.is_authenticated and ((current_user.operative_rank or 0)|int) >= 3 %}
     <link rel="stylesheet" href="{{ '/static/css/stealth-alpha.css' }}?v=3.0">
     {% endif %}
@@ -104,7 +103,7 @@
 <body class="pp-body{% if current_user.is_authenticated and current_user.operative_rank >= 3 %} rank-3-active{% endif %}{% block body_class %}{% endblock %}">
 
     <!-- Skip to main content (accessibility) -->
-    <a href="#ppMainContent" class="pp-sr-only" style="position:absolute;top:-40px;left:0;padding:8px 16px;background:var(--pp-teal);color:var(--pp-black);z-index:9999;transition:top 0.2s;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to main content</a>
+    <a href="#ppMainContent" class="pp-sr-only" style="position:absolute;top:-40px;left:0;padding:8px 16px;background:#CC0000;color:var(--pp-black);z-index:9999;transition:top 0.2s;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to main content</a>
 
     <!-- ═══════════════════════════════════════════════════════════════
          F6: MILESTONE BANNER — Auto-displays 48h after BTC milestone
@@ -147,11 +146,8 @@
             <div class="pp-nav__links">
                 <a href="/articles" class="pp-nav__link">Briefs</a>
                 <a href="/terminal" class="pp-nav__link" style="color:#00d68f;">Intelligence</a>
-                <a href="/oracle-live" class="pp-nav__link" style="color:#ff3b5f;font-weight:700;">Oracle</a>
-                
                 <a href="/panopticon" class="pp-nav__link" style="color:#dc2626;font-weight:700;">Panopticon</a>
                 <a href="/media" class="pp-nav__link">Media</a>
-                <a href="/stage" class="pp-nav__link" style="color:var(--pp-teal);">Stage</a>
                 <div class="nav-dropdown">
                     <a href="#" class="pp-nav__link" onclick="return false;">More ▾</a>
                     <div class="nav-dropdown-menu" style="min-width:230px;max-height:85vh;overflow-y:auto;">
@@ -230,10 +226,8 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:2px;">
             <a href="/articles" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><i class="fas fa-terminal" style="width:16px;color:#dc2626;"></i>Briefs</a>
             <a href="/panopticon" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(220,38,38,0.25);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#dc2626;font-weight:700;"><i class="fas fa-eye" style="width:16px;"></i>Panopticon</a>
-            <a href="/oracle-live" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#ff3b5f;font-weight:700;"><i class="fas fa-robot" style="width:16px;"></i>Oracle</a>
             <a href="/terminal" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#00d68f;"><i class="fas fa-signal" style="width:16px;"></i>Intelligence</a>
             <a href="/media" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><i class="fas fa-broadcast-tower" style="width:16px;"></i>Media</a>
-            <a href="/stage" class="pp-nav__link" style="padding:10px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--pp-teal,#00bcd4);"><i class="fas fa-bolt" style="width:16px;"></i>Stage ⚡</a>
         </div>
         <!-- Row 2: Tools (compact) -->
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;margin-top:6px;">
@@ -402,7 +396,6 @@
                         <li><a href="/podcasts" class="pp-footer__link">Podcasts</a></li>
                         <li></li>
                         <li></li>
-                        <li><a href="/stage" class="pp-footer__link" style="color:var(--pp-teal);">Avatar Stage ⚡</a></li>
                         <li></li>
                     </ul>
                 </div>
@@ -696,10 +689,6 @@
     </script>
 
 
-    <!-- Oracle Widget — site-wide floating Oracle bubble -->
-    <!-- Skips /oracle-live (standalone page). Zero GPU impact. -->
-    <script src="{{ url_for('static', filename='js/oracle_widget.js') }}" defer></script>
-
     {% block scripts %}{% endblock %}
     {% block extra_js %}{% endblock %}
 
@@ -707,8 +696,6 @@
     <div class="pp-mobile-commander-banner" id="ppMobileBanner">
         <div class="pp-mobile-commander-banner__info">
             <span style="color:#dc2626;">&#9679;</span>
-            <span>LIVE: Oracle active</span>
-            <span style="color:rgba(255,255,255,0.2);">|</span>
             <span id="mobileBannerBriefs">1,300+ briefs</span>
         </div>
             Join Commander &rarr;

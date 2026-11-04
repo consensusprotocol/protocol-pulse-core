@@ -853,8 +853,8 @@ def nostr_nip05():
 
 @pages_bp.route('/chat')
 def ask_alex_chat():
-    """Ask Alex Chat - LangGraph conversational agent for Bitcoin intelligence"""
-    from flask import redirect; return redirect('/oracle-live')  # replaced by Oracle
+    """Retired — redirects to homepage."""
+    return redirect('/', code=302)
 
 @pages_bp.route('/clips')
 def clips_gallery():
@@ -3224,8 +3224,8 @@ def digital_residency():
 
 @pages_bp.route('/stage')
 def stage_page():
-    """24/7 autonomous Bitcoin broadcast station."""
-    return render_template('stage.html')
+    """Retired — redirects to homepage."""
+    return redirect('/', code=302)
 
 def _next_briefing_utc_epoch():
     """Return UTC epoch of next 8am ET briefing."""
@@ -3487,11 +3487,18 @@ def search_page():
 
 @pages_bp.route('/oracle-live')
 def oracle_live():
-    return render_template('oracle_live.html')
+    """Retired — redirects to homepage."""
+    return redirect('/', code=302)
 
 @pages_bp.route('/oracle')
 def oracle_redirect():
-    return redirect('/oracle-live', code=301)
+    """Retired — redirects to homepage."""
+    return redirect('/', code=302)
+
+@pages_bp.route('/ask-satomi')
+def ask_satomi():
+    """Retired — redirects to homepage."""
+    return redirect('/', code=302)
 
 @pages_bp.route('/intel')
 def intel_redirect():
