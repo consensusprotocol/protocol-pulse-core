@@ -140,14 +140,16 @@ class ImageVerdict:
         return "ImageVerdict(ok=%r, reason=%r, phash=%r)" % (self.ok, self.reason, self.phash)
 
 
-def check_image_bytes(img_bytes, title_hint=""):
-    # type: (bytes, str) -> ImageVerdict
+def check_image_bytes(img_bytes, title_hint="", db_phashes=None, session_phashes=None):
+    # type: (bytes, str, Optional[set], Optional[set]) -> ImageVerdict
     """
     Run the full gauntlet on raw image bytes:
         1. Perceptual hash computation
         2. Banned-image check
-        3. Duplicate-image check (recent window)
-        4. Quality gate (entropy + variance)
+        3. DB phash duplicate check (caller passes set of existing phashes)
+        4. Session phash duplicate check (in-memory set for batch runs)
+        5. Recent-file duplicate check (flat-file cache)
+        6. Quality gate (entropy + variance)
 
     Returns ImageVerdict with .ok, .reason, .phash
     """
@@ -173,7 +175,31 @@ def check_image_bytes(img_bytes, title_hint=""):
             label = entry.get("label", "unknown")
             return ImageVerdict(False, "banned (label=%s, dist=%d)" % (label, dist), phash)
 
-    # --- Duplicate check ---
+    # --- DB phash duplicate check ---
+    if db_phashes:
+        for existing_phash in db_phashes:
+            if not existing_phash:
+                continue
+            try:
+                dist = _hamming(phash, existing_phash)
+            except Exception:
+                continue
+            if dist <= DUP_MAX_DIST:
+                return ImageVerdict(False, "dup_in_db (dist=%d)" % dist, phash)
+
+    # --- Session (in-memory) duplicate check ---
+    if session_phashes:
+        for sp in session_phashes:
+            if not sp:
+                continue
+            try:
+                dist = _hamming(phash, sp)
+            except Exception:
+                continue
+            if dist <= DUP_MAX_DIST:
+                return ImageVerdict(False, "dup_in_session (dist=%d)" % dist, phash)
+
+    # --- Recent-file duplicate check ---
     now_ts = time.time()
     cutoff = now_ts - RECENT_WINDOW_H * 3600
     recent_list = _load_json(RECENT_PATH)
