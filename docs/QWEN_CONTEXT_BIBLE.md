@@ -688,3 +688,61 @@ Pattern: Whisper's `word_end` timestamp for the final word in an utterance runs 
 
 ## 2026-11-02 — `ps --sort=-rss` mis-orders processes (procps-ng 3.3.17, jammy)
 Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager (149 MB) above three processes at 324-457 MB; the "top N by RAM" table was wrong below the first few rows. Same snapshot sorted with `--sort=-rssize`, or numerically with `sort -k2 -nr`, is correct. Fix: for RAM audits use `--sort=-rssize`, or sort the numbers yourself; never trust `--sort=-rss` order past the first rows.
+
+## 2026-11-03 — medley pipeline failure patterns (from v4/v5 + trifecta audit)
+- Whisper word_timestamps collapse at sentence boundaries (several words sharing one timestamp, next sentence's first word placed ~1 s early). In-points must be verified against waveform RMS (pause <-40 dBFS >=80 ms before onset) + whisper check of the first 700 ms. Seen: CoinDesk 7QIB_zdKU9A, JUST@229.76 vs real onset ~230.65.
+- Law 14c gate FAILS OPEN: fix_tails_v3.process_clip_v3 sets verified=True when whisper errors and proceeds after 5 mismatches; renderers do not check verified. Fix = raise UnsafeCut, renderers refuse unverified cuts (V2_SPEC change 1).
+- qa_v3/tail_verify.wav is a shared temp filename -> race under any parallelism; use run_id-scoped names.
+- stage2_v2.py hard-codes the Binance topic/intro; pipeline does not generalize until V2_SPEC change 4.
+- xAI key sprawl: ~40 scripts + image_watchdog (5-min cron, Grok image gen) burned the key. Key renamed to XAI_API_KEY_MEDLEY on 2026-11-03; only medley/audit code may read it. Do not re-add XAI_API_KEY to .env.
+- OpenAI and Gemini API credits were exhausted on 2026-11-03 (429 no credits / 402 prepaid depleted); trifecta cycle 2 ran as Grok + Claude.
+
+## 2026-11-03 — medley pipeline failure patterns (from v4/v5 + trifecta audit)
+- Whisper word_timestamps collapse at sentence boundaries (several words sharing one timestamp, next sentence's first word placed ~1 s early). In-points must be verified against waveform RMS (pause <-40 dBFS >=80 ms before onset) + whisper check of the first 700 ms. Seen: CoinDesk 7QIB_zdKU9A, JUST@229.76 vs real onset ~230.65.
+- Law 14c gate FAILS OPEN: fix_tails_v3.process_clip_v3 sets verified=True when whisper errors and proceeds after 5 mismatches; renderers do not check verified. Fix = raise UnsafeCut, renderers refuse unverified cuts (V2_SPEC change 1).
+- qa_v3/tail_verify.wav is a shared temp filename -> race under any parallelism; use run_id-scoped names.
+- stage2_v2.py hard-codes the Binance topic/intro; pipeline does not generalize until V2_SPEC change 4.
+- xAI key sprawl: ~40 scripts + image_watchdog (5-min cron, Grok image gen) burned the key. Key renamed to XAI_API_KEY_MEDLEY on 2026-11-03; only medley/audit code may read it. Do not re-add XAI_API_KEY to .env.
+- OpenAI and Gemini API credits were exhausted on 2026-11-03 (429 no credits / 402 prepaid depleted); trifecta cycle 2 ran as Grok + Claude.
+
+## 2026-11-03 — segment_v6 failure patterns (vertical reframe)
+- DaVinci Resolve 21.1.2 SmartReframe API: `TimelineItem.SmartReframe()` exists and returns `True`, but does not propagate to render pipeline. `AddRenderJob()` returns `None` after calling SmartReframe on a 1080x1920 project with 1920x1080 source. Smart Reframe likely requires GUI aspect ratio selection dialog not exposed in scripting API. Workaround: MediaPipe face-detection crop (tasks API v0.10+, blaze_face_short_range model, every 3rd frame, 60px dead-band, 12-frame ease).
+- MediaPipe v0.10.32 breaks `mp.solutions.face_detection` (removed). Use tasks API: `from mediapipe.tasks.python.vision import FaceDetector, FaceDetectorOptions` with downloaded `blaze_face_short_range.tflite` model. Bounding box API: `detection.bounding_box.origin_x/width` (not `location_data.relative_bounding_box`).
+
+## 2026-11-03 — segment_v7 failure patterns (shoutout scene + vertical native)
+- **Connery voice fallback**: `gen_vo.py` used `os.environ.get("ELEVENLABS_VOICE_ID_PP", "e6gztcS9NPqChYKvXN6c")` which silently falls back to Connery when the env var is in `.env` but not exported. Fix: always use `get_key()` to load from `.env` file directly; hard-fail if missing; print voice_id used.
+- **SAR drift in vertical pipeline**: Concatenating Pillow frame sequences with ffmpeg crop+scale segments produces non-1:1 SAR (e.g., 404:405). Fix: add `setsar=1:1` to every `-vf` filter chain in vertical renders.
+- **Active-speaker detection limited on small tiles**: MediaPipe FaceDetector with confidence 0.3 detects only 1 tile cluster on 5-person grid podcasts (faces too small in 1920x1080 tiles). Acceptable fallback: crop to detected tile. Improvement: use face_mesh or higher-res source for tile-level detection.
+
+## 2026-11-04 — pp_publisher failure patterns (publish pipeline)
+- **Brand logo path**: `brand/2026-11/pp_logo_full_1245.png` lives at `~/protocol_pulse/brand/`, NOT inside `segment_v1/brand/`. Always check both paths.
+- **FFmpeg filter escaping in Python subprocess**: `scale='min(1000,iw)'` with single quotes fails in Python subprocess list args (ffmpeg interprets quotes literally). Use `scale=1000:-1:force_original_aspect_ratio=decrease` instead.
+- **YouTube scope limitation**: Refresh token scoped to `youtube.upload` cannot call `videos.update` (needs full `youtube` scope). The `videos.insert` call sets privacy correctly at upload time, so `set_privacy` is a redundant safety net. Gracefully catch 403 `insufficientPermissions` in `set_privacy`.
+- **YouTube publishAt constraint**: `publishAt` requires `privacyStatus=private`. If `--at now` is used, set `privacyStatus=public` with no `publishAt`.
+- **xAI Grok-4 caption validation**: LLM output sometimes wraps text in quotes or includes em-dashes. Always `.strip('"').strip("'")` after generation. Validate in a retry loop (max 3), with error feedback appended to the prompt for self-correction.
+- **Tweepy chunked_upload wait**: `wait_for_async_finalize=True` handles most processing waits, but some videos need additional `get_media_upload_status` polling. Always implement a processing wait loop as fallback.
+- **Telegram multipart upload**: Python's `urllib.request` needs manual multipart boundary construction for file uploads. The boundary must not appear in the file content — use a fixed prefix like `----PBXPublisher`.
+- **Idempotency key**: Constructed as `sha256(md5(landscape_mp4) + title + version)`. Always check `publish/posted.json` before X posting to prevent double-posts.
+
+## 2026-11-04 — segment_v8 failure patterns (VO pre-roll + vertical layout)
+- **Telegram hardcoded dims**: `tg_preview.py` hardcoded `width=1920, height=1080` for all sendVideo calls. Vertical (1080×1920) videos displayed with wrong player aspect. Fix: ffprobe real width/height before sending; never hardcode.
+- **16:9 bridge reuse for 9:16**: Center-cropping a 16:9 VO bridge (with 16:9 waveform) into 9:16 produced a zoomed-in distorted waveform. Fix: render VO bridge natively at 1080×1920 with waveform redrawn for vertical width, same approach as VO intro.
+- **vstack duration driven by color source**: `color=c=black:d=999` used as a gutter in `vstack` causes output to extend to 999s. Fix: set color duration to `d={actual_src_duration}` and add `shortest=1` to vstack filter.
+- **VO pre-roll silence measurement**: Pre-roll contains BGM by design (Law 15: "BGM/room continues"). Measuring absolute RMS will always fail a pure-silence threshold. Correct measurement: bandpass 300–3400 Hz (vocal band) and compare energy to VO onset. Pre-roll vocal energy should be >15 dB below VO onset.
+
+## 2026-11-04 — segment_v9 failure patterns (watermark + panel tile + voice gate)
+- **Per-clip overlays miss segments**: Applying a watermark to individual segments before concat means later segments get no overlay if the still-image input exhausts (ffmpeg treats a single-frame input as finite). Fix: apply program-wide overlays on the final concatenated file with `-loop 1` on the still-image input and `enable='between(t,0,T)'` to control the overlay window. Verify at multiple timestamps (not just the first segment).
+- **Panel tile cut must use the tile rect, not the face x-center**: In a multi-tile podcast layout, hardcoding the speaker's tile y-range is brittle and often wrong. Fix: detect tile boundaries via horizontal edge projection (find dark rows <25 brightness with ≥4px gap), then use lip-activity variance to identify the speaker's tile. When the margin between best and second-best tile is low (<0.35), fall back to SAFE layout (full column) instead of zooming to a potentially wrong tile.
+- **Voice identity drift across VO stems**: Different VO roles can accidentally use different voice models (e.g., Connery bridge vs PBX intro). Fix: `VO_MANIFEST.json` maps each role to a canonical stem and voice_id. A resemblyzer voice identity gate (cosine sim ≥0.75) validates all stems before render and checks VO regions in the final mix. Include a known-bad stem (Connery) in the gate to prove discrimination.
+- **Waveform band crossing face in vertical VO**: Placing the waveform at 72% of frame height can overlap with faces positioned in the upper-center. Fix: move waveform to bottom 22% (bar_y_center = VERT_H * 0.89) and verify gap between face bbox bottom and waveform band top.
+- **Watermark color detection on bright backgrounds**: A strict red-pixel threshold (r>150, g<80, b<80) misses the watermark on bright clips where the 60% opacity blends with the background. Fix: dual threshold — strict (≥50px) OR loose (r>100, g<120, b<120, r>g, r>b, ≥150px).
+
+## 2026-11-04 — segment_v10 laws and failure patterns (qa_gates + fixed crops + alpha watermark)
+- **Law 17: QA gates are code**: `qa_gates.py` runs 6 automated gates (G1-G6) on every final render. Failure = exit non-zero, GATE_FAIL.txt. No Telegram previews sent on failure. Gate results in JSON.
+- **Law 18: No animated panning**: 9:16 talking-head shots get ONE fixed crop per shot (face-centered median). No OneEuroFilter, no continuous panning. The v9 OneEuroFilter (min_cutoff=0.8, beta=0.02) still produced visible jitter on fast-moving speakers. Fixed crop eliminates all jitter.
+- **Law 19: Grid safe frame until validated**: Multi-tile grid sources always use full guest column (all tiles) scaled to fit width. Speaker-zoom deferred until detection accuracy validated offline.
+- **Alpha watermark detection**: Luminance-keyed alpha PNGs composite differently from opaque PNGs. Red-pixel detection threshold must use broader criteria (R > 80, R > G+15, R > B+15) to catch blended red tones. Pure-red strict counts will be near zero on most backgrounds.
+- **LUFS parsing from ebur128**: The `ebur128` filter prints per-frame stats AND a Summary section. Parsing the FIRST "I:" line gives a per-frame momentary value (often -70 LUFS). Must parse only the Summary section (after "Summary:" marker) for correct integrated loudness.
+- **Pre-roll voice onset vs BGM**: In the final mix, BGM runs through the VO pre-roll period. Voice onset detection must use a relative threshold (baseline + 6dB) rather than an absolute dBFS threshold. Baseline measured from the first 0.5s of the VO segment (pure BGM period). Voice stands out as a 6+ dB jump above this floor.
+- **16:9 VO bridge Connery reuse**: v9 16:9 reused v8's bridge visual which was rendered by `render_vo_visual.py` (uses `vo_bridge_01.wav` = Connery). The VO_MANIFEST gate only ran on the vertical. Fix: both formats render VO visuals from VO_MANIFEST stems. v10 re-rendered both intro and bridge for 16:9.
+- **R5 VO visual style**: Freeze last frame of preceding clip, gaussian blur sigma 6, slow 1.0x→1.08x ease-in-out zoom, waveform band bottom 22%, 1.0s pre-roll baked in. Native resolution per format (1920×1080 or 1080×1920).
