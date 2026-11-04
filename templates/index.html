@@ -519,58 +519,14 @@
      ═══════════════════════════════════════════════════════════════ -->
 <section class="pp-section" style="background: var(--pp-surface); border-top: 1px solid var(--pp-border); border-bottom: 1px solid var(--pp-border);">
     <div class="pp-container">
-        <div class="pp-layout-sidebar pp-reveal">
-            <div>
-                <div class="pp-section__header">
-                    <span class="pp-badge pp-badge--live pp-mb-2">Daily</span>
-                    <h2 class="pp-section__title">Pulse Check</h2>
-                    <p class="pp-section__subtitle">Daily Bitcoin intelligence briefing</p>
-                </div>
-                <div id="pulseCheckEmbed" style="position:relative;width:100%;border-radius:8px;overflow:hidden;background:#000;">
-                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLQ4MjCv9OedqD_wCzKxCakoRPNUrEu2wq&index=0&rel=0&modestbranding=1&autoplay=0" style="width:100%;aspect-ratio:16/9;display:block;border:0;border-radius:8px;" allowfullscreen loading="lazy" title="Pulse Check - Daily Bitcoin Intelligence"></iframe>
-                </div>
+        <div class="pp-reveal">
+            <div class="pp-section__header">
+                <span class="pp-badge pp-badge--live pp-mb-2">Daily</span>
+                <h2 class="pp-section__title">Pulse Check</h2>
+                <p class="pp-section__subtitle">Daily Bitcoin intelligence briefing</p>
             </div>
-            <div>
-                <h3 class="pp-h5 pp-mb-3">Latest Episode</h3>
-                {% if latest_episode and latest_episode.found %}
-                    <a href="{{ latest_episode.video_url or '/articles' }}" target="_blank" rel="noopener" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;text-decoration:none;">
-                        <div style="flex-shrink:0;width:48px;height:48px;background:rgba(220,38,38,0.15);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;border:1px solid rgba(220,38,38,0.3);">
-                            <i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i>
-                        </div>
-                        <div style="min-width:0;">
-                            <div class="pp-small" style="font-weight:600;color:var(--pp-text);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ latest_episode.title }}</div>
-                            <div class="pp-tiny pp-text-muted">{{ latest_episode.date }} &middot; Pulse Check</div>
-                        </div>
-                    </a>
-                {% elif featured_podcasts %}
-                    {% for podcast in featured_podcasts[:3] %}
-                    <div class="pp-card pp-mb-2" style="padding:14px;">
-                        <div style="display:flex;gap:12px;">
-                            <div style="flex-shrink:0;width:48px;height:48px;background:var(--pp-teal-dim);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-microphone" style="color:var(--pp-red, #CC2222);"></i>
-                            </div>
-                            <div style="min-width:0;flex:1;">
-                                <div class="pp-small" style="font-weight:600;color:var(--pp-text);">{{ podcast.title }}</div>
-                                <div class="pp-tiny pp-text-muted">{{ podcast.published_date.strftime('%b %d') if podcast.published_date else '' }}</div>
-                            </div>
-                        </div>
-                        {% if podcast.audio_url %}
-                        <audio controls preload="none" style="width:100%;margin-top:8px;height:32px;">
-                            <source src="{{ podcast.audio_url }}" type="audio/mpeg">
-                        </audio>
-                        {% else %}
-                        <a href="{{ podcast.url or '/podcasts' }}" target="_blank" rel="noopener" class="pp-tiny" style="display:inline-block;margin-top:8px;color:var(--pp-red, #CC2222);">Listen on Spotify/Apple &rarr;</a>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="pp-card" style="padding:16px;text-align:center;">
-                        <div class="pp-text-muted pp-small">No episodes available yet.</div>
-                    </div>
-                {% endif %}
-                <a href="/podcasts" class="pp-btn pp-btn--outline-teal pp-btn--sm pp-btn--full pp-mt-2">
-                    All Episodes <i class="fas fa-arrow-right" style="margin-left:4px;font-size:0.7rem;"></i>
-                </a>
+            <div id="pulseCheckEmbed" style="position:relative;width:100%;max-width:960px;border-radius:8px;overflow:hidden;background:#000;">
+                <iframe src="https://www.youtube.com/embed/videoseries?list=PLQ4MjCv9OedqD_wCzKxCakoRPNUrEu2wq&index=0&rel=0&modestbranding=1&autoplay=0" style="width:100%;aspect-ratio:16/9;display:block;border:0;border-radius:8px;" allowfullscreen loading="lazy" title="Pulse Check - Daily Bitcoin Intelligence"></iframe>
             </div>
         </div>
     </div>

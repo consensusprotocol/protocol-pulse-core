@@ -989,7 +989,7 @@
 
 [data-theme="light"] .pp-hero__title { color: #000; }
 [data-theme="light"] .pp-hero__subtitle { color: #333; }
-[data-theme="light"] .pp-hero__title-accent { color: #CC2222; }
+[data-theme="light"] .pp-hero__title-accent { color: #CC0000; }
 [data-theme="light"] .pp-hero { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); }
 [data-theme="light"] .intel-strip { background: rgba(245,245,245,0.95); border-color: rgba(220,38,38,0.15); }
 
