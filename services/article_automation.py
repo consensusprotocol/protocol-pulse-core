@@ -22,17 +22,53 @@ from typing import Dict, Optional, List
 from openai import OpenAI
 
 def strip_html_fences(content):
-    """Remove ```html fences that Claude sometimes wraps around content."""
-    if not content:
-        return content
-    content = content.strip()
-    if content.startswith("```html"):
-        content = content[7:]
-    elif content.startswith("```"):
-        content = content[3:]
-    if content.endswith("```"):
-        content = content[:-3]
-    return content.strip()
+    """Remove ```html fences that Claude sometimes wraps around content.
+    DEPRECATED: use sanitize_article_output() instead — kept for backwards compat."""
+    return sanitize_article_output(content) if content else content
+
+
+def sanitize_article_output(text):
+    """Single source of truth for cleaning LLM article output.
+
+    Strips:
+    - ```html / ```json / ``` fences at start/end
+    - Leading/trailing whitespace
+    - Placeholder Sources sections (items matching /^source \\d+$/i or empty)
+    - Empty <p> elements
+    """
+    import re
+    if not text:
+        return text
+
+    text = text.strip()
+
+    # Strip opening code fences (```html, ```json, ```)
+    text = re.sub(r'^```(?:html|json)?\s*', '', text, flags=re.IGNORECASE)
+    # Strip trailing code fence
+    text = re.sub(r'```\s*$', '', text)
+    text = text.strip()
+
+    # Remove placeholder Sources section whose <li> items are empty or "source N"
+    def _is_placeholder_sources(m):
+        items = re.findall(r'<li[^>]*>(.*?)</li>', m.group(0), re.IGNORECASE | re.DOTALL)
+        if not items:
+            return True
+        return all(
+            re.match(r'^\s*(source\s*\d*\s*)?$', it, re.IGNORECASE)
+            for it in items
+        )
+
+    text = re.sub(
+        r'<h2[^>]*>\s*Sources?\s*</h2>\s*<ul[^>]*>.*?</ul>',
+        lambda m: '' if _is_placeholder_sources(m) else m.group(0),
+        text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # Remove empty <p> elements
+    text = re.sub(r'<p[^>]*>\s*</p>', '', text, flags=re.IGNORECASE)
+
+    return text.strip()
 
 
 
@@ -180,20 +216,23 @@ def _check_headline_diversity(hours=72):
 
 
 def _rewrite_headline_without_bitcoin(openai_client, title):
-    """Ask GPT to rewrite a headline so it doesn't start with 'Bitcoin'."""
-    try:
-        resp = openai_client.chat.completions.create(
-            model="grok-3",
-            messages=[{"role": "user", "content": f"""Rewrite this headline so it does NOT start with the word "Bitcoin". Keep the same meaning, same sharp tone, under 10 words. Return ONLY the new headline, nothing else.
+    """Rewrite a headline so it doesn't start with 'Bitcoin'. Uses Ollama first."""
+    rewrite_prompt = f"""Rewrite this headline so it does NOT start with the word "Bitcoin". Keep the same meaning, same sharp tone, under 10 words. Return ONLY the new headline, nothing else.
 
-Original: {title}"""}],
-            max_tokens=60,
-            temperature=0.7
-        )
-        new_title = resp.choices[0].message.content.strip().strip('"').strip("'")
-        if new_title and not new_title.lower().startswith("bitcoin"):
-            logger.info(f"HEADLINE REWRITE: '{title}' -> '{new_title}'")
-            return new_title
+Original: {title}"""
+    try:
+        from services.ai_service import AIService
+        ai = AIService()
+        for gen in (ai.generate_content_ollama, ai.generate_content_openai):
+            try:
+                new_title = gen(rewrite_prompt)
+                if new_title:
+                    new_title = new_title.strip().strip('"').strip("'").split('\n')[0]
+                    if new_title and not new_title.lower().startswith("bitcoin"):
+                        logger.info(f"HEADLINE REWRITE: '{title}' -> '{new_title}'")
+                        return new_title
+            except Exception:
+                continue
         return title
     except Exception as e:
         logger.warning(f"Headline rewrite failed: {e}")
@@ -202,7 +241,8 @@ Original: {title}"""}],
 
 class RealNewsArticleGenerator:
     def __init__(self):
-        self.openai = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        _key = os.getenv("OPENAI_API_KEY")
+        self.openai = OpenAI(api_key=_key) if _key and OpenAI else None
         self.used_urls = set()  # Track used sources to avoid duplicates
         self._load_used_urls()
 
@@ -584,47 +624,57 @@ Target: 450-650 words. No shorter than 400. Every sentence earns its place or ge
 Clean HTML only. No markdown. No backticks. No code fences.
 """
 
-        # 2026-09-19: Grok removed from article generation (cost: $0.96/day for
-        # a task Anthropic handles equally well). Primary: Anthropic direct.
+        # Provider chain: Ollama (free) -> Gemini -> Anthropic -> OpenAI
+        from services.ai_service import AIService
+        ai = AIService()
+        providers = [
+            ("Ollama", lambda: ai.generate_content_ollama(prompt)),
+            ("Gemini", lambda: ai.generate_content_gemini_prompt(prompt)),
+            ("Anthropic", lambda: ai.generate_content_anthropic(prompt)),
+            ("OpenAI", lambda: ai.generate_content_openai(prompt)),
+        ]
+
+        content = None
+        for name, fn in providers:
+            try:
+                content = fn()
+                if content:
+                    logger.info("Article generated via %s", name)
+                    break
+            except Exception as e:
+                logger.warning("Provider %s failed: %s", name, type(e).__name__)
+
+        if not content:
+            logger.error("All providers failed for article generation")
+            return None
+
+        import re
+        content = sanitize_article_output(content)
+
+        title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content) or re.search(r'<h2[^>]*>([^<]+)</h2>', content)
+        title = title_match.group(1) if title_match else source['title']
+
+        tldr_match2 = re.search(r'TL;DR:\s*([^<]+)', content)
+        fallback_summary = tldr_match2.group(1).strip()[:280] if tldr_match2 else source['summary'][:200]
+
+        # Inject real source URL into content
         try:
-            from services.ai_service import AIService
-            ai = AIService()
-            content = ai.generate_content_anthropic(prompt)
+            from urllib.parse import urlparse
+            src_domain = urlparse(source['url']).netloc.replace('www.', '')
+        except Exception:
+            src_domain = source['url'][:40]
+        content = content.replace(
+            '{source_url}', source['url']
+        ).replace('{source_domain}', src_domain)
 
-            if content:
-                import re
-                if content.strip().startswith('```'):
-                    content = re.sub(r'^```(?:html)?\s*', '', content.strip(), flags=re.IGNORECASE)
-                    content = re.sub(r'```\s*$', '', content).strip()
-                title_match = re.search(r'<h1[^>]*>([^<]+)</h1>', content) or re.search(r'<h2[^>]*>([^<]+)</h2>', content)
-                title = title_match.group(1) if title_match else source['title']
-
-                # Try to extract TL;DR from generated content first
-                tldr_match2 = re.search(r'TL;DR:\s*([^<]+)', content)
-                fallback_summary = tldr_match2.group(1).strip()[:280] if tldr_match2 else source['summary'][:200]
-
-                # Inject real source URL into content
-                try:
-                    from urllib.parse import urlparse
-                    src_domain = urlparse(source['url']).netloc.replace('www.', '')
-                except Exception:
-                    src_domain = source['url'][:40]
-                content = content.replace(
-                    '{source_url}', source['url']
-                ).replace('{source_domain}', src_domain)
-
-                return {
-                    'title': title,
-                    'content': content,
-                    'summary': fallback_summary,
-                    'source_url': source['url'],
-                    'source_type': source['type'],
-                    'source_name': source['source']
-                }
-        except Exception as e:
-            logger.error(f"Article generation failed: {e}")
-
-        return None
+        return {
+            'title': title,
+            'content': content,
+            'summary': fallback_summary,
+            'source_url': source['url'],
+            'source_type': source['type'],
+            'source_name': source['source']
+        }
 
 
 def run_article_generation_cycle() -> Dict:
