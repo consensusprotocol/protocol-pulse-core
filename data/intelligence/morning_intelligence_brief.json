@@ -1,55 +1,40 @@
 {
-  "generated_at": "2026-08-25T12:00:00Z",
-  "date": "Tuesday, August 25, 2026",
-  "btc_price": "$79,271",
-  "btc_change_24h": "-0.1%",
-  "fng": "Greed",
+  "generated_at": "2026-11-04T10:00:00Z",
+  "date": "Wednesday, November 04, 2026",
+  "btc_price": "$80,010",
+  "btc_change_24h": "+2.8%",
+  "fng": "Fear",
   "dominant_narratives": [
-    "Long-term legitimacy and adoption driven by regulatory clarity (Clarity Act) and institutional infrastructure.",
-    "Bitcoin's core strength derived from its technical resilience (PoW, advanced signatures).",
-    "Divergent views on near-term market conditions: whether current valuations are buying opportunities or if caution is warranted due to USD strength/outflows.",
-    "The ongoing debate about the true meaning of 'smart money' signals, particularly regarding ETF outflows."
+    "Bitcoin as a hedge against systemic financial instability and currency debasement",
+    "Self-custody and sovereignty as core tenets of Bitcoin adoption",
+    "Growing institutional and political interest in Bitcoin as a financial alternative"
   ],
   "trending_language": [
-    "regulatory clarity",
-    "Clarity Act",
-    "institutional infrastructure",
-    "technical resilience",
-    "PoW defenses",
-    "advanced signature schemes",
-    "buying opportunities",
-    "USD strength",
-    "extreme outflows",
-    "smart money",
-    "ETF outflows"
+    "Bitcoin ain't going nowhere",
+    "Buy Bitcoin",
+    "Self-custody superior to exchanges"
   ],
-  "sentiment": "uncertain",
-  "sentiment_reasoning": "While there's broad consensus on Bitcoin's long-term legitimacy and technical resilience, community leaders are sharply divided on near-term market conditions, accumulation strategies, and the interpretation of 'smart money' signals like ETF outflows.",
+  "sentiment": "bullish",
+  "sentiment_reasoning": "Bitcoin price is rising, key thought leaders emphasize long-term value and sovereignty, and there is strong consensus around Bitcoin as a hedge against macroeconomic risks.",
   "top_accounts_active": [
-    "@mempool_space",
-    "@deribit",
-    "@binance",
-    "@blockchain"
+    "@natbrunell",
+    "@BitcoinArchive",
+    "@PeterMcCormack"
   ],
   "recommended_tweet_angles": [
-    "Protocol Pulse observes a consensus among Bitcoin thought leaders: regulatory clarity via the #ClarityAct and robust institutional infrastructure are critical for long-term adoption. The signal is clear: build the rails.",
-    "While market sentiment splits, the bedrock of Bitcoin's #technicalresilience remains undisputed. PoW defenses and advanced signature schemes fortify the network against all headwinds. Focus on the fundamentals.",
-    "The 'smart money' debate rages. Are #ETFoutflows a contrarian signal for accumulation, or do they mask deeper acquisition timing? Protocol Pulse cuts through the noise: raw metrics often obscure true intelligence. What's your take?"
+    "Bitcoin as a hedge against unfunded liabilities and entitlement program insolvency",
+    "The role of self-custody in preserving wealth amid systemic financial risks",
+    "How midterms and political shifts are accelerating Bitcoin adoption"
   ],
   "topics_to_avoid": [
-    "Polymarket deceptive advertising/fraud schemes",
-    "Fake website domain spoofing (PollyMarket)",
-    "Fraudulent promotional content targeting college-age creators",
-    "Financial losses from fake bet simulations",
-    "Media industry conflicts of interest",
-    "Non-Bitcoin specific content (e.g., LEGO vigilante behavior)"
+    "Direct comparisons between Bitcoin and fiat monetary policy without context"
   ],
-  "engagement_patterns": "Content that articulates both consensus and divergence within the community, backed by specific data points, tends to resonate. A critical, analytical tone when dissecting market signals is also effective.",
-  "protocol_pulse_voice_guidance": "Maintain a cypherpunk voice: analytical, data-driven, and critical. Highlight the long-term, fundamental strengths of Bitcoin while dissecting short-term market noise and community divergences with a skeptical, intelligence-focused lens. Emphasize technical resilience and regulatory impacts, avoiding tangential or fraudulent topics.",
+  "engagement_patterns": "Tweets with direct quotes from high-conviction voices, personal testimonials, and references to macroeconomic crises are gaining traction. Video content and podcast interviews are driving engagement.",
+  "protocol_pulse_voice_guidance": "Speak with clarity and precision, anchoring narratives in data and historical precedent. Emphasize Bitcoin’s role as a sovereign financial tool against systemic risk. Avoid hyperbole, lean into the cypherpunk ethos of technical clarity and decentralized empowerment.",
   "key_stats_today": {
-    "tweets_analyzed": 4,
+    "tweets_analyzed": 45,
     "nostr_signals": 0,
-    "unique_handles": 4
+    "unique_handles": 31
   },
-  "generated_by": "gemini_fallback"
+  "generated_by": "local_llm"
 }

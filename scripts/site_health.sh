@@ -50,10 +50,12 @@ else
     fi
 fi
 
-# === Avatar Server (Satomi Oracle) ===
+# === Avatar Server (Satomi Oracle) === DISABLED 2026-11-02 by PBX: avatar wiped to free 48 GB RAM for Resolve. Re-enable by setting AVATAR_ENABLED=1.
+if [ "${AVATAR_ENABLED:-0}" = "1" ]; then
 if ! pgrep -f "avatar_server.py" > /dev/null 2>&1; then
     echo "[$(date)] Avatar server down — restarting"
     cd ~/protocol_pulse/oracle && CUDA_VISIBLE_DEVICES=0 nohup python3 avatar_server.py > /tmp/avatar_server.log 2>&1 &
     sleep 5
     echo "[$(date)] Avatar server restarted (PID: $!)"
+fi
 fi

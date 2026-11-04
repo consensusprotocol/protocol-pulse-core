@@ -201,6 +201,30 @@ def _get_mid_frame_pil(cap: cv2.VideoCapture, frame_in: int,
     return Image.new("RGB", (w, h), BG_DARK)
 
 
+def _resolve_time_range(shot: Dict[str, Any], src_fps: float) -> Tuple[int, int, float, float]:
+    """Derive frame_in, frame_out, t_in, duration from shot dict.
+
+    When edl_t_in/edl_t_out are set (injected by reframe.py from the EDL),
+    use them as the authoritative source of truth and convert to frame numbers
+    using the *actual* source fps.  This avoids the fps mismatch when shotmap
+    was run on a 30fps re-encoded window but the master source is 29.97fps.
+
+    Returns (frame_in, frame_out, t_in, duration).
+    """
+    if "edl_t_in" in shot and "edl_t_out" in shot:
+        t_in = shot["edl_t_in"]
+        t_out = shot["edl_t_out"]
+        duration = t_out - t_in
+        frame_in = int(t_in * src_fps)
+        frame_out = int(t_out * src_fps)
+    else:
+        frame_in = shot["frame_in"]
+        frame_out = shot["frame_out"]
+        t_in = frame_in / src_fps
+        duration = (frame_out - frame_in) / src_fps
+    return frame_in, frame_out, t_in, duration
+
+
 def _compute_face_crop(face_cx: int, face_cy: int, face_w: int, face_h: int,
                        target_aspect: float, src_w: int, src_h: int,
                        padding_mult: float = 1.5,
@@ -227,10 +251,15 @@ def _pipe_frames_to_ffmpeg(
     width: int,
     height: int,
     audio_src: Optional[str] = None,
+    duration: Optional[float] = None,
     timeout: int = 600,
 ) -> bool:
     """Pipe raw RGB24 frames from an iterator to ffmpeg via stdin.
-    Optionally mux audio from audio_src. Returns True on success."""
+    Optionally mux audio from audio_src. Returns True on success.
+
+    duration: if set, hard-limits the output to this many seconds via -t.
+              This replaces -shortest which overshoots with nvenc pipe input.
+    """
 
     cmd = [
         "ffmpeg", "-y",
@@ -245,7 +274,9 @@ def _pipe_frames_to_ffmpeg(
         "-vf", "setsar=1:1",
     ] + ENC_ARGS + AUDIO_ARGS
 
-    if audio_src:
+    if duration is not None:
+        cmd += ["-t", str(duration)]
+    elif audio_src:
         cmd += ["-shortest"]
     cmd += ["-movflags", "+faststart", out_path]
 
@@ -317,9 +348,7 @@ def compose_1face(
     then applies a single ffmpeg crop+scale for the entire shot duration.
     """
     label = shot.get("id", "1face")
-    frame_in = shot["frame_in"]
-    frame_out = shot["frame_out"]
-    log.info("compose_1face [%s]: frames %d-%d", label, frame_in, frame_out)
+    log.info("compose_1face [%s]", label)
 
     cap = cv2.VideoCapture(master_path)
     if not cap.isOpened():
@@ -329,6 +358,9 @@ def compose_1face(
     src_fps = cap.get(cv2.CAP_PROP_FPS) or FPS
     src_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     src_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    frame_in, frame_out, t_in, duration = _resolve_time_range(shot, src_fps)
+    log.info("  frames %d-%d, t=%.3f-%.3f (%.3fs)", frame_in, frame_out, t_in, t_in + duration, duration)
 
     # 9:16 crop width from source height: crop_w / src_h = VERT_W / VERT_H
     crop_w = int(src_h * VERT_W / VERT_H)
@@ -346,11 +378,6 @@ def compose_1face(
 
     crop_x = max(0, min(src_w - crop_w, face_cx - crop_w // 2))
 
-    # Time range in the master
-    t_in = frame_in / src_fps
-    t_out = frame_out / src_fps
-    duration = t_out - t_in
-
     log.info("  face_cx=%d crop_w=%d crop_x=%d (src %dx%d)", face_cx, crop_w, crop_x, src_w, src_h)
 
     ok = _run_ffmpeg([
@@ -359,6 +386,7 @@ def compose_1face(
                 f"scale={VERT_W}:{VERT_H}:flags=lanczos,setsar=1:1"),
         *ENC_ARGS, "-r", str(FPS),
         *AUDIO_ARGS,
+        "-t", str(duration),
         "-movflags", "+faststart", out_path,
     ], timeout=300, label=f"1face:{label}")
 
@@ -382,8 +410,6 @@ def compose_2face(
     Bands ordered left-to-right from source (leftmost face = top band).
     """
     label = shot.get("id", "2face")
-    frame_in = shot["frame_in"]
-    frame_out = shot["frame_out"]
     face_info = shot.get("faces", [])
 
     # Law 18b: speaker-dominant bands
@@ -396,8 +422,6 @@ def compose_2face(
     else:
         band_heights = [BAND_2_H, BAND_2_H]
         mode = "equal"
-    log.info("compose_2face [%s]: frames %d-%d, %d faces, mode=%s, bands=%s",
-             label, frame_in, frame_out, len(face_info), mode, band_heights)
 
     cap = cv2.VideoCapture(master_path)
     if not cap.isOpened():
@@ -407,6 +431,11 @@ def compose_2face(
     src_fps = cap.get(cv2.CAP_PROP_FPS) or FPS
     src_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     src_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    frame_in, frame_out, t_in, duration = _resolve_time_range(shot, src_fps)
+    log.info("compose_2face [%s]: frames %d-%d, t=%.3f-%.3f (%.3fs), %d faces, mode=%s, bands=%s",
+             label, frame_in, frame_out, t_in, t_in + duration, duration,
+             len(face_info), mode, band_heights)
 
     # If face_info not pre-populated, detect now
     if len(face_info) < 2:
@@ -502,9 +531,7 @@ def compose_2face(
             yield np.array(canvas)
         cap.release()
 
-    # Extract audio for the shot range
-    t_in = frame_in / src_fps
-    duration = (frame_out - frame_in) / src_fps
+    # Extract audio for the shot range (t_in/duration set by _resolve_time_range)
     audio_tmp = os.path.join(work_dir, f"{label}_audio.wav")
     _run_ffmpeg([
         "-ss", str(t_in), "-t", str(duration), "-i", master_path,
@@ -514,7 +541,7 @@ def compose_2face(
     audio_src = audio_tmp if os.path.isfile(audio_tmp) else None
     ok = _pipe_frames_to_ffmpeg(
         frame_generator(), out_path, VERT_W, VERT_H,
-        audio_src=audio_src, timeout=600,
+        audio_src=audio_src, duration=duration, timeout=600,
     )
 
     # Cleanup temp audio
@@ -537,11 +564,7 @@ def compose_3face(
     Blurred-fill sides for narrow tiles. Orange gutter between bands.
     """
     label = shot.get("id", "3face")
-    frame_in = shot["frame_in"]
-    frame_out = shot["frame_out"]
     face_info = shot.get("faces", [])
-    log.info("compose_3face [%s]: frames %d-%d, %d faces",
-             label, frame_in, frame_out, len(face_info))
 
     cap = cv2.VideoCapture(master_path)
     if not cap.isOpened():
@@ -551,6 +574,10 @@ def compose_3face(
     src_fps = cap.get(cv2.CAP_PROP_FPS) or FPS
     src_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     src_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    frame_in, frame_out, t_in, duration = _resolve_time_range(shot, src_fps)
+    log.info("compose_3face [%s]: frames %d-%d, t=%.3f-%.3f (%.3fs), %d faces",
+             label, frame_in, frame_out, t_in, t_in + duration, duration, len(face_info))
 
     # If face_info not pre-populated, detect now
     if len(face_info) < 3:
@@ -640,9 +667,7 @@ def compose_3face(
             yield np.array(canvas)
         cap.release()
 
-    # Extract audio
-    t_in = frame_in / src_fps
-    duration = (frame_out - frame_in) / src_fps
+    # Extract audio (t_in/duration set by _resolve_time_range)
     audio_tmp = os.path.join(work_dir, f"{label}_audio.wav")
     _run_ffmpeg([
         "-ss", str(t_in), "-t", str(duration), "-i", master_path,
@@ -652,7 +677,7 @@ def compose_3face(
     audio_src = audio_tmp if os.path.isfile(audio_tmp) else None
     ok = _pipe_frames_to_ffmpeg(
         frame_generator(), out_path, VERT_W, VERT_H,
-        audio_src=audio_src, timeout=600,
+        audio_src=audio_src, duration=duration, timeout=600,
     )
 
     if audio_src and os.path.isfile(audio_src):
@@ -676,11 +701,7 @@ def compose_grid(
     Blurred-fill for any gaps.
     """
     label = shot.get("id", "grid")
-    frame_in = shot["frame_in"]
-    frame_out = shot["frame_out"]
     face_info = shot.get("faces", [])
-    log.info("compose_grid [%s]: frames %d-%d, %d faces",
-             label, frame_in, frame_out, len(face_info))
 
     cap = cv2.VideoCapture(master_path)
     if not cap.isOpened():
@@ -690,6 +711,10 @@ def compose_grid(
     src_fps = cap.get(cv2.CAP_PROP_FPS) or FPS
     src_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     src_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    frame_in, frame_out, t_in, duration = _resolve_time_range(shot, src_fps)
+    log.info("compose_grid [%s]: frames %d-%d, t=%.3f-%.3f (%.3fs), %d faces",
+             label, frame_in, frame_out, t_in, t_in + duration, duration, len(face_info))
 
     # Detect faces if not provided
     if not face_info:
@@ -780,9 +805,7 @@ def compose_grid(
             yield np.array(canvas)
         cap.release()
 
-    # Extract audio
-    t_in = frame_in / src_fps
-    duration = (frame_out - frame_in) / src_fps
+    # Extract audio (t_in/duration set by _resolve_time_range)
     audio_tmp = os.path.join(work_dir, f"{label}_audio.wav")
     _run_ffmpeg([
         "-ss", str(t_in), "-t", str(duration), "-i", master_path,
@@ -792,7 +815,7 @@ def compose_grid(
     audio_src = audio_tmp if os.path.isfile(audio_tmp) else None
     ok = _pipe_frames_to_ffmpeg(
         frame_generator(), out_path, VERT_W, VERT_H,
-        audio_src=audio_src, timeout=600,
+        audio_src=audio_src, duration=duration, timeout=600,
     )
 
     if audio_src and os.path.isfile(audio_src):

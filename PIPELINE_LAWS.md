@@ -337,3 +337,11 @@ Theoretical fixes that break in practice are worse than no fix.
 - Target: full v14 vertical render (shotmap + compose + assemble + qa + critic) under 8 minutes wall-clock on GPU 0.
 - Timing breakdown per stage printed in REPORT_vertical_v1.md.
 - Shotmap hardening for YouTube re-encodes: detect letterbox bars and crop them before seam measurement; derive SEAM_ROWS from the active picture area (not hardcoded 120-900); mask burned-in lower-third bands (bottom 18%) when measuring gutters.
+
+### LAW 22: EDL IS THE SINGLE SOURCE OF TRUTH (added 2026-11-04)
+- The EDL file (`cuts_final.json`) is the **sole authority** for cut points (cut_in, cut_out, word_start, word_end).
+- Renderers (reframe.py, assembler, render_clip, etc.) **MUST read** cut points from the EDL. They **MUST NEVER** hardcode, override, or compute alternative cut points inside render scripts.
+- All cut point corrections go into the EDL file and nowhere else. Mark corrections with a `correction` field documenting what changed and why.
+- Every EDL entry carries `verified: true` once whisper-checked. Unverified cuts must be flagged.
+- `cuts_v3.json` is frozen history. Production uses `cuts_final.json`.
+- If a cut point must change, update `cuts_final.json`, invalidate the shotmap/compose cache for that clip, and re-render.

@@ -664,6 +664,197 @@ def gate_g6(final_mp4, vo_regions, qa_dir, vo_assembled_tracks=None):
 
 
 # ==============================================================
+# G8: SHARPNESS
+# ==============================================================
+
+def gate_g8(final_mp4, segments, qa_dir):
+    """Laplacian variance on centre 60% region, 5 frames per shot.
+    FAIL if any shot median < 60 (blurry upscale).  Law 20 — do not lower."""
+    import cv2
+
+    print("\n=== G8: SHARPNESS ===")
+
+    SHARPNESS_FLOOR = 60  # Law 20 — do not change
+
+    all_pass = True
+    table = []
+
+    for seg in segments:
+        if seg.get("type") not in ("talking_head", "shoutout"):
+            continue
+
+        label = seg["label"]
+        seg_start = seg["start"]
+        seg_end = seg["end"]
+        seg_dur = seg_end - seg_start
+
+        sample_times = [seg_start + seg_dur * (i + 0.5) / 5 for i in range(5)]
+        variances = []
+
+        for i, t in enumerate(sample_times):
+            frame_path = os.path.join(qa_dir, f"g8_{label}_{i}.png")
+            extract_frame(final_mp4, t, frame_path)
+            if not os.path.exists(frame_path):
+                continue
+
+            img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
+            if img is None:
+                continue
+
+            h, w = img.shape
+            # Centre 60%
+            x0 = int(w * 0.2)
+            x1 = int(w * 0.8)
+            y0 = int(h * 0.2)
+            y1 = int(h * 0.8)
+            roi = img[y0:y1, x0:x1]
+
+            lap_var = cv2.Laplacian(roi, cv2.CV_64F).var()
+            variances.append(round(lap_var, 2))
+
+        median_var = float(np.median(variances)) if variances else 0.0
+        ok = median_var >= SHARPNESS_FLOOR
+
+        if not ok:
+            all_pass = False
+
+        table.append({
+            "segment": label,
+            "variances": variances,
+            "median": round(median_var, 2),
+            "pass": ok,
+        })
+
+        status = "PASS" if ok else "FAIL"
+        print(f"  {label}: laplacian_vars={variances}, median={median_var:.1f} "
+              f"(min={SHARPNESS_FLOOR}) [{status}]")
+
+    return all_pass, table
+
+
+# ==============================================================
+# G9: TAIL (last 1.0s not black/silent)
+# ==============================================================
+
+def gate_g9(final_mp4, qa_dir):
+    """Last 1.0s of final file: mean luma > 20 AND audio not silent.
+    Law 20 — do not change thresholds."""
+    import cv2
+
+    print("\n=== G9: TAIL ===")
+
+    LUMA_FLOOR = 20  # Law 20 — do not change
+    AUDIO_FLOOR_DB = -50  # dBFS; below this = silent
+
+    dur = get_duration(final_mp4)
+    tail_start = max(0, dur - 1.0)
+
+    # Check luma on 3 frames from last 1.0s
+    luma_vals = []
+    for i in range(3):
+        t = tail_start + (1.0 * (i + 0.5) / 3)
+        frame_path = os.path.join(qa_dir, f"g9_tail_{i}.png")
+        extract_frame(final_mp4, t, frame_path)
+        if not os.path.exists(frame_path):
+            continue
+        img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
+        if img is not None:
+            luma_vals.append(float(img.mean()))
+
+    mean_luma = np.mean(luma_vals) if luma_vals else 0.0
+    luma_ok = mean_luma > LUMA_FLOOR
+
+    # Check audio: extract last 1.0s, compute RMS
+    tail_wav = os.path.join(qa_dir, "g9_tail.wav")
+    extract_audio_region(final_mp4, tail_start, 1.0, tail_wav)
+
+    audio_ok = False
+    rms_db = -999
+    try:
+        with wave.open(tail_wav, 'rb') as wf:
+            n = wf.getnframes()
+            raw = wf.readframes(n)
+        samples = struct.unpack(f"<{n}h", raw)
+        rms = (sum(s * s for s in samples) / max(len(samples), 1)) ** 0.5
+        rms_db = 20 * math.log10(max(rms, 1e-10) / 32768)
+        audio_ok = rms_db > AUDIO_FLOOR_DB
+    except Exception:
+        pass
+
+    ok = luma_ok and audio_ok
+
+    print(f"  Luma: {mean_luma:.1f} (min={LUMA_FLOOR}) [{'PASS' if luma_ok else 'FAIL'}]")
+    print(f"  Audio RMS: {rms_db:.1f} dBFS (min={AUDIO_FLOOR_DB}) [{'PASS' if audio_ok else 'FAIL'}]")
+    print(f"  TAIL: [{'PASS' if ok else 'FAIL'}]")
+
+    return ok, {
+        "mean_luma": round(mean_luma, 1),
+        "luma_ok": luma_ok,
+        "rms_db": round(rms_db, 1),
+        "audio_ok": audio_ok,
+        "pass": ok,
+    }
+
+
+# ==============================================================
+# G10: TEXT CROP (CoinDesk lower-third chyron protection)
+# ==============================================================
+
+def gate_g10(final_mp4, segments, crop_rects, qa_dir):
+    """For CoinDesk shots: crop must not slice lower-third chyron.
+    Bottom 110px of 1080 source must be excluded from the crop window.
+    crop_rects: dict mapping label -> 'crop_x,crop_y,crop_w,crop_h' string.
+    Law 20 — do not change threshold."""
+    print("\n=== G10: TEXT CROP ===")
+
+    CHYRON_BOTTOM_PX = 110  # bottom 110px of 1080p source = chyron zone
+
+    # Only applies to CoinDesk segments (clip_02)
+    coindesk_labels = [seg["label"] for seg in segments
+                       if seg.get("type") == "talking_head"
+                       and seg["label"] in crop_rects]
+
+    if not coindesk_labels:
+        print("  No CoinDesk shots with crop rects — SKIP (PASS)")
+        return True, {"skip": True, "pass": True}
+
+    all_pass = True
+    table = []
+
+    for label in coindesk_labels:
+        rect_str = crop_rects.get(label, "")
+        if not rect_str:
+            continue
+
+        parts = rect_str.split(",")
+        if len(parts) != 4:
+            continue
+
+        crop_x, crop_y, crop_w, crop_h = [int(p) for p in parts]
+        crop_bottom = crop_y + crop_h
+        source_chyron_top = 1080 - CHYRON_BOTTOM_PX  # 970
+
+        # The crop must not extend into chyron zone
+        ok = crop_bottom <= source_chyron_top
+
+        if not ok:
+            all_pass = False
+
+        table.append({
+            "segment": label,
+            "crop_rect": rect_str,
+            "crop_bottom": crop_bottom,
+            "chyron_top": source_chyron_top,
+            "pass": ok,
+        })
+
+        status = "PASS" if ok else "FAIL"
+        print(f"  {label}: crop_bottom={crop_bottom}, chyron_top={source_chyron_top} [{status}]")
+
+    return all_pass, table
+
+
+# ==============================================================
 # MAIN
 # ==============================================================
 

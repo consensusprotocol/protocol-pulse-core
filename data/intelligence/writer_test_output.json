@@ -1,25 +1,602 @@
 {
-  "generated_at": "2026-08-27T05:00:18.983503+00:00",
+  "generated_at": "2026-09-01T17:34:39.276748+00:00",
   "results": [
     {
-      "headline": "U.S. Army to build nuclear microreactors at 5 bases as U.S. seeks to ramp up nuclear power",
+      "story_id": "54cef801ff",
+      "headline": "Singapore\u2019s MAS Proposes Legislative Changes for Single-Currency Stablecoins",
+      "summary": "Singapore\u2019s Monetary Authority has proposed a dedicated framework requiring licensed stablecoin issuers to maintain full 100% reserve backing in safe, liquid assets, segregate reserves with approved custodians, and offer redemption at par within five business days. Public consultation is underway.",
       "editorial_type": "connection",
-      "verification_status": "INFERENCE_SUPPORTED",
+      "verification_status": "VERIFIED_SECONDARY",
+      "effective_tier": "VERIFIED_SECONDARY",
+      "edge": "NONE.",
+      "facts": [
+        "Singapore\u2019s MAS Proposes Legislative Changes for Single-Currency Stablecoins. [observed: MAS today published a consultation paper on proposed legislative amendments to t | https://www.mas.gov.sg/news/media-releases/2026/mas-consults-on-legislative-amendments-to-implement-stablecoin-regulatory-framework]"
+      ],
+      "inferences": [
+        "The proposal aims to enhance the stability and trust in stablecoins.",
+        "The requirement for 100% reserve backing suggests a move towards stricter regulation."
+      ],
+      "do_not_say": [
+        "The proposal will definitely lead to increased adoption of stablecoins in Singapore.",
+        "All stablecoin issuers in Singapore are currently unregulated.",
+        "Do not present as new: Singapore\u2019s Monetary Authority has proposed a dedicated framework requiring licensed stablecoin issuers to offer redemption at par within five business days. (event dated 2023-08-15)"
+      ],
+      "receipts": [
+        {
+          "source_url": "https://www.mas.gov.sg/news/media-releases/2026/mas-consults-on-legislative-amendments-to-implement-stablecoin-regulatory-framework",
+          "original_date": "2026-09-01",
+          "observed_value": "MAS today published a consultation paper on proposed legislative amendments to the Payment Services Act 2019 (PS Act) to implement MAS\u2019 regulatory framework for stablecoins.",
+          "nuance": "The framework is specifically for single-currency stablecoins.",
+          "observed_at": 1788282063.923872,
+          "title": "MAS Consults on Legislative Amendments to Implement Stablecoin Regulatory Framework",
+          "fetched": true,
+          "result": "VERIFIED",
+          "claim": "Singapore\u2019s MAS Proposes Legislative Changes for Single-Currency Stablecoins.",
+          "type": "official_document_claim",
+          "candidate_value": null
+        },
+        {
+          "source_url": "https://www.mas.gov.sg/news/media-releases/2023/mas-finalises-stablecoin-regulatory-framework",
+          "original_date": "2023-08-15",
+          "observed_value": "Issuers must return the par value of SCS to holders within five business days from a redemption request.",
+          "nuance": "Finalized framework (post-consultation) for MAS-regulated stablecoins; direct legal claim required.",
+          "observed_at": 1788282111.7337549,
+          "title": "MAS Finalises Stablecoin Regulatory Framework",
+          "fetched": true,
+          "result": "STALE",
+          "note": "event dated 2023-08-15",
+          "claim": "Singapore\u2019s Monetary Authority has proposed a dedicated framework requiring licensed stablecoin issuers to offer redemption at par within five business days.",
+          "type": "official_document_claim",
+          "candidate_value": null
+        }
+      ],
+      "sources": [
+        "https://x.com/Ayyappaz3/status/2094783468219891953"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "x.com"
+      ],
+      "event_age_hours": 26729.0,
+      "underlying_event_ts": 1692057600.0,
+      "discovered_at": "2026-09-01T17:34:21.835163+00:00",
+      "freshness_minutes": 200,
+      "presentation": "text",
       "variants": {
         "cold_forensic": "NO_POST",
         "native_deadpan": "NO_POST",
         "investigative": "NO_POST"
-      }
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
     },
     {
-      "headline": "Trump signs order banning some foreign equipment from US energy grid",
+      "story_id": "45e61a8c67",
+      "headline": "Metaplanet spent over $45M to lose $1B investing in bitcoin",
+      "summary": "Metaplanet has spent tens of millions of dollars operating a bitcoin treasury company that has an unrealized loss of more than $1 billion.\nThe post Metaplanet spent over $45M to lose $1B investing in bitcoin appeared first on Protos.",
+      "editorial_type": "anomaly",
+      "verification_status": "VERIFIED_PRIMARY",
+      "effective_tier": "VERIFIED_PRIMARY",
+      "edge": "NONE.",
+      "facts": [
+        "Metaplanet spent over $45M to lose $1B investing in bitcoin. [observed: Metaplanet has paid over $45 million to operate a bitcoin (BTC) treasury company | https://protos.com/metaplanet-spent-over-45m-to-lose-1b-investing-in-bitcoin/]",
+        "Metaplanet has spent tens of millions of dollars operating a bitcoin treasury company that has an unrealized loss of more than $1 billion. [observed: Metaplanet has paid over $45 million to operate a bitcoin (BTC) treasury company | https://protos.com/metaplanet-spent-over-45m-to-lose-1b-investing-in-bitcoin/]"
+      ],
+      "inferences": [
+        "The company has an unrealized loss of more than $1 billion."
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it",
+        "Metaplanet intentionally lost $1 billion.",
+        "The $1 billion loss is confirmed by multiple sources.",
+        "The financial figures are up-to-date and verified."
+      ],
+      "receipts": [
+        {
+          "source_url": "https://protos.com/metaplanet-spent-over-45m-to-lose-1b-investing-in-bitcoin/",
+          "observed_value": "Metaplanet has paid over $45 million to operate a bitcoin (BTC) treasury company that has a $1 billion unrealized loss from investing in BTC.",
+          "observed_at": 1788282139.7969933,
+          "original_date": "null",
+          "article_date": "2026-08-31",
+          "result": "VERIFIED",
+          "claim": "Metaplanet spent over $45M to lose $1B investing in bitcoin.",
+          "type": "reported_fact",
+          "candidate_value": null
+        },
+        {
+          "source_url": "https://protos.com/metaplanet-spent-over-45m-to-lose-1b-investing-in-bitcoin/",
+          "observed_value": "Metaplanet has paid over $45 million to operate a bitcoin (BTC) treasury company that has a $1 billion unrealized loss from investing in BTC.",
+          "observed_at": 1788282141.6254358,
+          "original_date": "2026-08-31",
+          "article_date": "2026-08-31",
+          "result": "VERIFIED",
+          "claim": "Metaplanet has spent tens of millions of dollars operating a bitcoin treasury company that has an unrealized loss of more than $1 billion.",
+          "type": "reported_fact",
+          "candidate_value": null
+        }
+      ],
+      "sources": [
+        "https://protos.com/metaplanet-spent-over-45m-to-lose-1b-investing-in-bitcoin/"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "protos.com"
+      ],
+      "event_age_hours": 41.0,
+      "underlying_event_ts": 1788134400.0,
+      "discovered_at": "2026-09-01T17:34:26.247690+00:00",
+      "freshness_minutes": 1537,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "Metaplanet spent over $45M operating a bitcoin treasury company, resulting in an unrealized loss of more than $1B.",
+        "native_deadpan": "Metaplanet spent $45M to run a bitcoin treasury and now has an unrealized $1B loss.",
+        "investigative": "Metaplanet spent over $45M to operate a bitcoin treasury company with an unrealized loss of more than $1B. Just another day in the world of Bitcoin, where volatility is a feature, not a bug."
+      },
+      "postable_count": 3,
+      "proposed": "Metaplanet spent over $45M operating a bitcoin treasury company, resulting in an unrealized loss of more than $1B.",
+      "proposed_register": "cold_forensic"
+    },
+    {
+      "story_id": "5eb4114021",
+      "headline": "Lazarus Group-linked addresses move $30M through Hyperliquid",
+      "summary": "Crypto wallets linked to the OFAC-sanctioned Lazarus Group moved $30 million in digital assets through Hyperliquid, weeks after regulators said they were working on a path to introduce the exchange into US markets.",
       "editorial_type": "connection",
-      "verification_status": "INFERENCE_SUPPORTED",
+      "verification_status": "VERIFIED_SECONDARY",
+      "effective_tier": "VERIFIED_SECONDARY",
+      "edge": "NONE.",
+      "facts": [
+        "Crypto wallets linked to the OFAC-sanctioned Lazarus Group moved $30 million in digital assets through Hyperliquid. [observed: Crypto wallets linked to the OFAC-sanctioned Lazarus Group moved $30 million in  | https://cointelegraph.com/news/lazarus-group-move-30m-hyperliquid?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound]"
+      ],
+      "inferences": [
+        "The movement of assets is linked to the Lazarus Group.",
+        "Regulators are working on a path to introduce Hyperliquid into US markets."
+      ],
+      "do_not_say": [
+        "The Lazarus Group is definitively responsible for the asset movement without further evidence.",
+        "Regulatory actions are directly influenced by the asset movement through Hyperliquid.",
+        "Do not present as new: Regulators said they were working on a path to introduce Hyperliquid into US markets. (original statement 2026-04-16; recent instance 2026-06-15 is a restatement)"
+      ],
+      "receipts": [
+        {
+          "source_url": "https://cointelegraph.com/news/lazarus-group-move-30m-hyperliquid?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "observed_value": "Crypto wallets linked to the OFAC-sanctioned Lazarus Group moved $30 million in digital assets through Hyperliquid",
+          "observed_at": 1788282147.9994538,
+          "original_date": "2026-09-01",
+          "article_date": "2026-09-01",
+          "result": "VERIFIED",
+          "claim": "Crypto wallets linked to the OFAC-sanctioned Lazarus Group moved $30 million in digital assets through Hyperliquid.",
+          "type": "reported_fact",
+          "candidate_value": "$30 million"
+        },
+        {
+          "result": "STALE",
+          "original_date": "2026-04-16",
+          "original_url": "https://www.theblock.co/news/regulation/2026-04-16-this-is-nuts-cftc-chair-selig-grilled-by-lawmakers-on-prediction-markets-hyperliquid-and-staffing-397800",
+          "search_debug": {
+            "pass1_n": 0,
+            "pass2_n": 2,
+            "pass2_head": "[\n  {\"date\":\"2026-04-16\",\"url\":\"https://www.theblock.co/news/regulation/2026-04-16-this-is-nuts-cftc-chair-selig-grilled-by-lawmakers-on-prediction-markets-hype",
+            "p2": "List every dated instance before 2026-08-02 where Regulators said this or its substance: \"Regulators said they were working on a path to introduce Hyperliquid into US markets.\" (interviews, hearings, X posts, press releases, one-pagers). Match the SUBSTANCE, not the exact wording: drop adjectives and framing. For example if the gist says \"structural demand for Treasuries\", an earlier instance saying \"increase demand for Treasuries\" or \"extend demand for U.S. Treasuries\" COUNTS. Return ONLY a JSON array [{\"date\":\"YYYY-MM-DD\",\"url\":\"...\",\"venue\":\"...\",\"quote\":\"<=25 words\"}].",
+            "cutoff": "2026-08-02"
+          },
+          "latest_date": "2026-06-15",
+          "latest_url": "https://www.bankless.com/podcast/perps-are-coming-onshore-cftc-chairman-mike-selig",
+          "instances": 2,
+          "observed_value": "goal is to onshore those markets... subject to our regulation here in the United States",
+          "observed_at": 1788282183.5275497,
+          "source_url": "https://www.theblock.co/news/regulation/2026-04-16-this-is-nuts-cftc-chair-selig-grilled-by-lawmakers-on-prediction-markets-hyperliquid-and-staffing-397800",
+          "note": "original statement 2026-04-16; recent instance 2026-06-15 is a restatement",
+          "claim": "Regulators said they were working on a path to introduce Hyperliquid into US markets.",
+          "type": "quoted_statement",
+          "candidate_value": null
+        }
+      ],
+      "sources": [
+        "https://cointelegraph.com/news/lazarus-group-move-30m-hyperliquid?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "cointelegraph.com"
+      ],
+      "event_age_hours": 3329.1,
+      "underlying_event_ts": 1776297600.0,
+      "discovered_at": "2026-09-01T17:34:29.195088+00:00",
+      "freshness_minutes": 304,
+      "presentation": "text",
       "variants": {
         "cold_forensic": "NO_POST",
         "native_deadpan": "NO_POST",
         "investigative": "NO_POST"
-      }
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
+    },
+    {
+      "story_id": "6b957c7e69",
+      "headline": "BofA, Citi, Goldman Sachs among 21 institutions planning stablecoin launch",
+      "summary": "The planned venture will initially focus on a US dollar stablecoin before expanding to other G7 currencies, with a euro-denominated offering next.",
+      "editorial_type": "connection",
+      "verification_status": "VERIFIED_SECONDARY",
+      "effective_tier": "VERIFIED_SECONDARY",
+      "edge": "NONE.",
+      "facts": [
+        "BofA, Citi, Goldman Sachs among 21 institutions planning stablecoin launch. [observed: BofA, Citi, Goldman Sachs among 21 institutions planning stablecoin launch | https://cointelegraph.com/news/21-financial-institutions-g7-stablecoin-venture?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound]"
+      ],
+      "inferences": [
+        "The expansion to other G7 currencies, with a euro-denominated offering next, is an inference based on the initial focus on a US dollar stablecoin."
+      ],
+      "do_not_say": [
+        "The stablecoin launch is confirmed by Bank of America, Citigroup, or Goldman Sachs.",
+        "The expansion to other G7 currencies is guaranteed.",
+        "Unverifiable: The planned venture will initially focus on a US dollar stablecoin.",
+        "Unverifiable: The venture plans to expand to other G7 currencies, with a euro-denominated offering next."
+      ],
+      "receipts": [
+        {
+          "source_url": "https://cointelegraph.com/news/21-financial-institutions-g7-stablecoin-venture?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "observed_value": "BofA, Citi, Goldman Sachs among 21 institutions planning stablecoin launch",
+          "observed_at": 1788282276.4684043,
+          "original_date": "2026-09-01",
+          "article_date": "2026-09-01",
+          "result": "VERIFIED",
+          "claim": "BofA, Citi, Goldman Sachs among 21 institutions planning stablecoin launch.",
+          "type": "reported_fact",
+          "candidate_value": null
+        }
+      ],
+      "sources": [
+        "https://cointelegraph.com/news/21-financial-institutions-g7-stablecoin-venture?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "cointelegraph.com"
+      ],
+      "event_age_hours": 17.1,
+      "underlying_event_ts": 1788220800.0,
+      "discovered_at": "2026-09-01T17:34:32.221399+00:00",
+      "freshness_minutes": 26,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "NO_POST",
+        "native_deadpan": "NO_POST",
+        "investigative": "NO_POST"
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
+    },
+    {
+      "story_id": "70088026aa",
+      "headline": "BlackRock\u2019s iShares Bitcoin Trust Is Beating Top S&P 500 ETF",
+      "summary": "Bitcoin Magazine\n\nBlackRock&#8217;s iShares Bitcoin Trust Is Beating Top S&amp;P 500 ETF\u00a0\nThe asset manager's flagship bitcoin fund is delivering better returns than Vanguard's S&#038;P 500 ETF. \nThis post BlackRock&#8217;s iShares Bitcoin Trust Is Beating Top S&amp;P 500 ETF\u00a0 first appeared on Bitc",
+      "editorial_type": "divergence",
+      "verification_status": "VERIFIED_PRIMARY",
+      "effective_tier": "VERIFIED_PRIMARY",
+      "edge": "ERROR: HTTP Error 429: Too Many Requests",
+      "facts": [
+        "BlackRock's iShares Bitcoin Trust is delivering better returns than Vanguard's S&P 500 ETF. [observed: BlackRock\u2019s iShares Bitcoin Trust exchange-traded fund has delivered better retu | https://bitcoinmagazine.com/news/blackrock-bitcoin-etf-is-beating-vanguard]",
+        "This post first appeared on Bitcoin Magazine and is written by Mathew Di Salvo. [observed: BlackRock\u2019s iShares Bitcoin Trust Is Beating Top S&P 500 ETF By Mathew Di Salvo  | https://bitcoinmagazine.com/news/blackrock-bitcoin-etf-is-beating-vanguard]"
+      ],
+      "inferences": [
+        "BlackRock's iShares Bitcoin Trust is delivering better returns than Vanguard's S&P 500 ETF."
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it",
+        "BlackRock's iShares Bitcoin Trust is definitively outperforming the S&P 500 ETF without further evidence.",
+        "The performance of these funds is indicative of future trends without additional context or data."
+      ],
+      "receipts": [
+        {
+          "source_url": "https://bitcoinmagazine.com/news/blackrock-bitcoin-etf-is-beating-vanguard",
+          "observed_value": "BlackRock\u2019s iShares Bitcoin Trust exchange-traded fund has delivered better returns since its 2024 launch than Vanguard\u2019s popular S&P 500 fund.",
+          "observed_at": 1788282296.8026512,
+          "original_date": "2026-09-01",
+          "article_date": "2026-09-01",
+          "result": "VERIFIED",
+          "claim": "BlackRock's iShares Bitcoin Trust is delivering better returns than Vanguard's S&P 500 ETF.",
+          "type": "reported_fact",
+          "candidate_value": null
+        },
+        {
+          "source_url": "https://bitcoinmagazine.com/news/blackrock-bitcoin-etf-is-beating-vanguard",
+          "observed_value": "BlackRock\u2019s iShares Bitcoin Trust Is Beating Top S&P 500 ETF By Mathew Di Salvo September 1, 2026",
+          "observed_at": 1788282298.9844851,
+          "original_date": "2026-09-01",
+          "article_date": "2026-09-01",
+          "result": "VERIFIED",
+          "claim": "This post first appeared on Bitcoin Magazine and is written by Mathew Di Salvo.",
+          "type": "reported_fact",
+          "candidate_value": null
+        }
+      ],
+      "sources": [
+        "https://bitcoinmagazine.com/news/blackrock-bitcoin-etf-is-beating-vanguard"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "bitcoinmagazine.com"
+      ],
+      "event_age_hours": 17.1,
+      "underlying_event_ts": 1788220800.0,
+      "discovered_at": "2026-09-01T17:34:33.165729+00:00",
+      "freshness_minutes": 30,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "ERROR: HTTP Error 429: Too Many Requests",
+        "native_deadpan": "ERROR: HTTP Error 429: Too Many Requests",
+        "investigative": "ERROR: HTTP Error 429: Too Many Requests"
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
+    },
+    {
+      "story_id": "682ba8361c",
+      "headline": "Cango shares plunge 20% after bitcoin miner reports $81.6 million Q2 loss",
+      "summary": "Cango scaled back its mining fleet in the second quarter as revenue fell and the company focused on efficiency.",
+      "editorial_type": "divergence",
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "effective_tier": "REPORTED_ATTRIBUTED",
+      "edge": "ERROR: HTTP Error 429: Too Many Requests",
+      "facts": [
+        "Cango shares plunged 20%.",
+        "Cango reported an $81.6 million Q2 loss.",
+        "Cango scaled back its mining fleet in the second quarter."
+      ],
+      "inferences": [
+        "The share plunge is directly caused by the reported Q2 loss.",
+        "The scaling back of the mining fleet is due to a focus on efficiency."
+      ],
+      "do_not_say": [
+        "The share plunge was solely due to the Q2 loss.",
+        "Cango's focus on efficiency is the only reason for scaling back its mining fleet."
+      ],
+      "receipts": [],
+      "sources": [
+        "https://www.theblock.co/news/markets/2026-09-01-cango-shares-plunge-20-after-bitcoin-miner-reports-81-6-million-q2-loss-413259"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "theblock.co"
+      ],
+      "event_age_hours": null,
+      "underlying_event_ts": null,
+      "discovered_at": "2026-09-01T17:34:34.150231+00:00",
+      "freshness_minutes": 77,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "ERROR: HTTP Error 429: Too Many Requests",
+        "native_deadpan": "ERROR: HTTP Error 429: Too Many Requests",
+        "investigative": "ERROR: HTTP Error 429: Too Many Requests"
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
+    },
+    {
+      "story_id": "609f10f968",
+      "headline": "Trump grid order likely to cause energy storage delays, cancellations: BloombergNEF",
+      "summary": "The Aug. 26 executive order, previous executive actions and the Treasury Department&rsquo;s Foreign Entity of Concern guidance are likely to hit battery and inverter supply chains particularly hard, an industry analyst tells Utility Dive.",
+      "editorial_type": "connection",
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "effective_tier": "REPORTED_ATTRIBUTED",
+      "edge": "ERROR: HTTP Error 429: Too Many Requests",
+      "facts": [
+        "The Aug. 26 executive order was issued.",
+        "The Treasury Department provided Foreign Entity of Concern guidance."
+      ],
+      "inferences": [
+        "The executive order and guidance are likely to hit battery and inverter supply chains particularly hard.",
+        "The executive order is likely to cause energy storage delays and cancellations."
+      ],
+      "do_not_say": [
+        "The executive order will definitely cause energy storage delays and cancellations.",
+        "The supply chain impacts are confirmed and unavoidable."
+      ],
+      "receipts": [],
+      "sources": [
+        "https://www.utilitydive.com/news/trump-grid-order-likely-to-cause-energy-storage-delays-cancellations-bloo/829306/"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "utilitydive.com"
+      ],
+      "event_age_hours": null,
+      "underlying_event_ts": null,
+      "discovered_at": "2026-09-01T17:34:35.174794+00:00",
+      "freshness_minutes": 117,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "ERROR: HTTP Error 429: Too Many Requests",
+        "native_deadpan": "ERROR: HTTP Error 429: Too Many Requests",
+        "investigative": "ERROR: HTTP Error 429: Too Many Requests"
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
+    },
+    {
+      "story_id": "bd4e7dd7d4",
+      "headline": "Big banks want a cut of lawyers\u2019 AI savings",
+      "summary": "Goldman Sachs, Morgan Stanley and Citi tell law firms their bills should fall because technology has made routine work faster",
+      "editorial_type": "tension",
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "effective_tier": "REPORTED_ATTRIBUTED",
+      "edge": "ERROR: HTTP Error 429: Too Many Requests",
+      "facts": [
+        "Goldman Sachs, Morgan Stanley, and Citi have communicated with law firms regarding their bills.",
+        "The communication is related to the impact of technology on routine legal work."
+      ],
+      "inferences": [
+        "The banks believe that technology has made routine legal work faster.",
+        "The banks expect that law firms' bills should decrease due to technological advancements."
+      ],
+      "do_not_say": [
+        "The banks have definitively demanded lower bills from law firms.",
+        "Technology has universally made all routine legal work faster."
+      ],
+      "receipts": [],
+      "sources": [
+        "https://www.ft.com/content/5240a6ac-b2e8-4897-a0a4-cbc7fc283bc9?syn-25a6b1a6=1"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "ft.com"
+      ],
+      "event_age_hours": null,
+      "underlying_event_ts": null,
+      "discovered_at": "2026-09-01T17:34:36.183521+00:00",
+      "freshness_minutes": 785,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "ERROR: HTTP Error 429: Too Many Requests",
+        "native_deadpan": "ERROR: HTTP Error 429: Too Many Requests",
+        "investigative": "ERROR: HTTP Error 429: Too Many Requests"
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
+    },
+    {
+      "story_id": "745c2e51a2",
+      "headline": "Strategy Opposes MSCI Proposal, Says Bitcoin Treasury Firms Are Being Targeted a Second Time",
+      "summary": "Bitcoin Magazine\n\nStrategy Opposes MSCI Proposal, Says Bitcoin Treasury Firms Are Being Targeted a Second Time\nBitcoin treasury Strategy has blasted Morgan Stanley Capital International&#8217;s proposal to exclude it from its Global Investable Market Indexes, calling it &#8220;misguided&#8221; and &",
+      "editorial_type": "divergence",
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "effective_tier": "REPORTED_ATTRIBUTED",
+      "edge": "ERROR: HTTP Error 429: Too Many Requests",
+      "facts": [
+        "Strategy has opposed MSCI's proposal to exclude it from the Global Investable Market Indexes.",
+        "Michael Saylor and Phong Le wrote a letter to MSCI expressing their opposition."
+      ],
+      "inferences": [
+        "The proposal is seen as targeting Bitcoin treasury firms.",
+        "The exclusion is perceived as discrimination against digital assets."
+      ],
+      "do_not_say": [
+        "MSCI is definitively targeting Bitcoin treasury firms.",
+        "The exclusion is definitively discriminatory."
+      ],
+      "receipts": [],
+      "sources": [
+        "https://bitcoinmagazine.com/news/bitcoin-treasury-strategy-opposes-msci"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "bitcoinmagazine.com"
+      ],
+      "event_age_hours": null,
+      "underlying_event_ts": null,
+      "discovered_at": "2026-09-01T17:34:37.046136+00:00",
+      "freshness_minutes": 1220,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "ERROR: HTTP Error 429: Too Many Requests",
+        "native_deadpan": "ERROR: HTTP Error 429: Too Many Requests",
+        "investigative": "ERROR: HTTP Error 429: Too Many Requests"
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
+    },
+    {
+      "story_id": "24fa9e905b",
+      "headline": "Bitcoin and gold move in lockstep as debasement trade gains more steam",
+      "summary": "Bitcoin's 90-day Pearson correlation coefficient with gold hits all-time high while the Fear and Greed Index sits at 68.",
+      "editorial_type": "connection",
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "effective_tier": "REPORTED_ATTRIBUTED",
+      "edge": "ERROR: HTTP Error 429: Too Many Requests",
+      "facts": [
+        "Bitcoin's 90-day Pearson correlation coefficient with gold has reached an all-time high.",
+        "The Fear and Greed Index is at 68."
+      ],
+      "inferences": [
+        "Bitcoin and gold are moving in lockstep.",
+        "The debasement trade is gaining more steam."
+      ],
+      "do_not_say": [
+        "Do not use \"all-time\" unless a primary source proves it",
+        "The correlation between Bitcoin and gold definitively indicates a debasement trade.",
+        "The Fear and Greed Index at 68 directly causes Bitcoin and gold to move in lockstep."
+      ],
+      "receipts": [],
+      "sources": [
+        "https://www.theblock.co/news/markets/2026-09-01-bitcoin-gold-move-lockstep-debasement-trade-gains-steam-413137"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "theblock.co"
+      ],
+      "event_age_hours": null,
+      "underlying_event_ts": null,
+      "discovered_at": "2026-09-01T17:34:37.923716+00:00",
+      "freshness_minutes": 159,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "ERROR: HTTP Error 429: Too Many Requests",
+        "native_deadpan": "ERROR: HTTP Error 429: Too Many Requests",
+        "investigative": "ERROR: HTTP Error 429: Too Many Requests"
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
+    },
+    {
+      "story_id": "2c570c3df3",
+      "headline": "Crypto.com-promoted Tectonic forces Cronos to halt, rewind",
+      "summary": "Crypto.com promoted Tectonic until it almost drained tens of millions of dollars from its Cronos blockchain.\nThe post Crypto.com-promoted Tectonic forces Cronos to halt, rewind appeared first on Protos.",
+      "editorial_type": "investigation",
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "effective_tier": "REPORTED_ATTRIBUTED",
+      "edge": "NONE.",
+      "facts": [
+        "Crypto.com promoted Tectonic.",
+        "Cronos blockchain experienced a halt."
+      ],
+      "inferences": [
+        "Tectonic almost drained tens of millions of dollars from Cronos.",
+        "The promotion by Crypto.com led to the halt and rewind of Cronos."
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it",
+        "Crypto.com is directly responsible for the Cronos halt.",
+        "Tectonic definitively drained tens of millions from Cronos."
+      ],
+      "receipts": [],
+      "sources": [
+        "https://protos.com/crypto-com-promoted-tectonic-forces-cronos-to-halt-rewind/"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [
+        "protos.com"
+      ],
+      "event_age_hours": null,
+      "underlying_event_ts": null,
+      "discovered_at": "2026-09-01T17:34:39.275831+00:00",
+      "freshness_minutes": 1333,
+      "presentation": "text",
+      "variants": {
+        "cold_forensic": "ERROR: HTTP Error 429: Too Many Requests",
+        "native_deadpan": "ERROR: HTTP Error 429: Too Many Requests",
+        "investigative": "ERROR: HTTP Error 429: Too Many Requests"
+      },
+      "postable_count": 0,
+      "proposed": "NO_POST",
+      "proposed_register": null
     }
   ]
 }

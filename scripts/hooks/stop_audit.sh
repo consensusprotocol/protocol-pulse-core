@@ -42,9 +42,6 @@ if ! pgrep -f "waitress.*5000" > /dev/null 2>&1; then
 fi
 
 # Check for RAM hogs that shouldn't be running
-if pgrep -f "avatar_server" > /dev/null 2>&1; then
-    ISSUES="$ISSUES | WARNING: avatar_server is running (should be DISABLED)"
-fi
 
 # Run regression tests if pipeline files were modified
 PIPELINE_CHANGED=$(git diff --name-only -- 'video_pipeline_v3/*.py' 2>/dev/null | wc -l)

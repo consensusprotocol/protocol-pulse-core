@@ -509,8 +509,128 @@
     "anchor_handle": "BitcoinMagazine",
     "hook": "53 percent is what happens when nobody wants to bet real size either way",
     "scheduled_at": "2026-08-25T18:02:23.530461+00:00",
-    "status": "pending",
+    "status": "post_failed",
     "posted_at": null,
     "created_at": "2026-08-25T18:02:23.530461+00:00"
+  },
+  {
+    "anchor_id": "2093002792977781055",
+    "anchor_text": "STRC back up to $98, basically in the par zone.",
+    "anchor_handle": "LynAldenContact",
+    "hook": "98 is par if the goal was to break even after the drop",
+    "scheduled_at": "2026-08-27T18:01:43.227687+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-08-27T18:01:43.227687+00:00"
+  },
+  {
+    "anchor_id": "2092878381268324795",
+    "anchor_text": "Ride the ₿ull.",
+    "anchor_handle": "saylor",
+    "hook": "riding works until the 80 percent drawdown makes you forget why you bought",
+    "scheduled_at": "2026-08-28T18:02:02.143988+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-08-28T18:02:02.143988+00:00"
+  },
+  {
+    "anchor_id": "2093424108276982066",
+    "anchor_text": "NEW: Bitcoin \"appears to have entered a new bull-market regime\", according to CryptoQuant. 👀\n\n\"Spot demand, ETF flows, and market momentum have turned decisively bullish\" 🐂",
+    "anchor_handle": "BitcoinMagazine",
+    "hook": "etf flows measure tradfi parking cash not actual bitcoin leaving exchanges",
+    "scheduled_at": "2026-08-29T18:02:00.087387+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-08-29T18:02:00.087387+00:00"
+  },
+  {
+    "anchor_id": "2093970108603371740",
+    "anchor_text": "₿usiness as usual.",
+    "anchor_handle": "saylor",
+    "hook": "usual until the balance sheet starts printing sats instead of earnings",
+    "scheduled_at": "2026-08-30T18:02:05.803065+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-08-30T18:02:05.803065+00:00"
+  },
+  {
+    "anchor_id": "2094395804962152885",
+    "anchor_text": "Strategy has acquired 4,603 BTC for $370M, increased USD Cash by $29M, and repurchased $152M of $STRC. As of 8/30/26, we hold 845,050 bitcoin:native and $6.71B of USD Assets, bringing Net Leverage to 0.0%. $MSTR https://www.strategy.com/press/strategy-acquires-4603-btc-increases-",
+    "anchor_handle": "saylor",
+    "hook": "they spent 370 million on bitcoin and called it deleveraging, which is the quiet part they want you to miss",
+    "scheduled_at": "2026-08-31T18:02:09.488297+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-08-31T18:02:09.488297+00:00"
+  },
+  {
+    "anchor_id": "2094738188291944615",
+    "anchor_text": "The EU has been forming the narrative for savings confiscation for years. It seems they are now preparing to put the plan into action.\n\nThis is incredibly despotic, yet it is the predictable end state of centralized government.\n\nThis is why bitcoin exists.\n\n\"The root problem with",
+    "anchor_handle": "MartyBent",
+    "hook": "centralized power always runs the same script, first the narrative then the hands in the accounts, bitcoin is the part they cant reach",
+    "scheduled_at": "2026-09-01T18:01:55.522752+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-09-01T18:01:55.522752+00:00"
+  },
+  {
+    "anchor_id": "2095047682913939676",
+    "anchor_text": "Game. Set. ₿itcoin.",
+    "anchor_handle": "saylor",
+    "hook": "saylor called the match while most of the world still hasnt opened a wallet or seen a single block",
+    "scheduled_at": "2026-09-02T18:02:07.286284+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-09-02T18:02:07.286284+00:00"
+  },
+  {
+    "anchor_id": "2095419991440891984",
+    "anchor_text": "Play the long game.",
+    "anchor_handle": "saylor",
+    "hook": "the long game is just not selling when it dips for the third time",
+    "scheduled_at": "2026-09-03T18:02:06.223796+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-09-03T18:02:06.223796+00:00"
+  },
+  {
+    "anchor_id": "2095622205216587991",
+    "anchor_text": "JUST IN: Bitcoin has experienced its shallowest bear market in its history, Galaxy Research reports 🚀",
+    "anchor_handle": "BitcoinMagazine",
+    "hook": "this wasnt a bear market it was a long consolidation with better custody",
+    "scheduled_at": "2026-09-04T18:02:14.776244+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-09-04T18:02:14.776244+00:00"
+  },
+  {
+    "anchor_id": "2095813271991333031",
+    "anchor_text": "America added 162,000 payroll jobs on a base of 159.1 million—0.10%. BLS puts the 90% confidence interval on the monthly change at roughly ±122,000. Yet trillions in assets reprice because economists guessed 56,000. We have turned statistical noise into monetary policy.",
+    "anchor_handle": "saylor",
+    "hook": "the error bar is bigger than the print so the fed is moving on noise by design",
+    "scheduled_at": "2026-09-05T18:02:09.382325+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-09-05T18:02:09.382325+00:00"
+  },
+  {
+    "anchor_id": "2096614979419902426",
+    "anchor_text": "Bitcoin will overtake:\n\n- The British pound at $214K\n- The Japanese yen at $499K\n- The Euro at $943K\n- The US dollar at $1.2M\n- Gold at $1.6M",
+    "anchor_handle": "River",
+    "hook": "these targets treat currency supplies as fixed while bitcoin grows into them. central banks print, so the finish lines move every year",
+    "scheduled_at": "2026-09-06T18:02:06.640600+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-09-06T18:02:06.640600+00:00"
+  },
+  {
+    "anchor_id": "2107144761555726484",
+    "anchor_text": "I was told there would be an elevator.",
+    "anchor_handle": "saylor",
+    "hook": "the elevator was the altcoin. bitcoin is the stairs. you're going to be tired and you're going to be early",
+    "scheduled_at": "2026-10-05T18:01:29.291292+00:00",
+    "status": "post_failed",
+    "posted_at": null,
+    "created_at": "2026-10-05T18:01:29.291292+00:00"
   }
 ]

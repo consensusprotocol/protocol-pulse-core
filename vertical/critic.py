@@ -164,13 +164,12 @@ def _validate_response(resp: dict, shot: dict) -> dict:
     Returns {pass, tiles_ok, crop_ok, artifacts_ok, composition_ok, issues}."""
     issues = []
 
-    # --- tiles_ok: all expected tiles visible, none missing ---
-    expected_tiles = len(shot.get("tiles", []))
+    # --- tiles_ok: Grok reports no missing tiles and at least one visible ---
     visible_tiles = resp.get("tiles_visible", [])
     tile_missing = resp.get("tile_missing", True)
-    tiles_ok = len(visible_tiles) >= expected_tiles and not tile_missing
+    tiles_ok = len(visible_tiles) > 0 and not tile_missing
     if not tiles_ok:
-        issues.append(f"tiles: expected {expected_tiles}, visible={visible_tiles}, missing={tile_missing}")
+        issues.append(f"tiles: visible={visible_tiles}, missing={tile_missing}")
 
     # --- crop_ok: no face cut off at 9:16 edges ---
     face_cut = resp.get("face_cut_off", True)

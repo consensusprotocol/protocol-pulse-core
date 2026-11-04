@@ -25,7 +25,7 @@ Fallback: qwen2.5-coder:32b (if qwen3 unavailable)
 Ollama (NOT vLLM) — reasons:
   - Already installed at /usr/local/bin/ollama
   - Simple REST API at localhost:11434
-  - Per-GPU CUDA device env: CUDA_VISIBLE_DEVICES=2 ollama serve
+  - Per-GPU CUDA device env: CUDA_VISIBLE_DEVICES=1 ollama serve
   - Hot model keeps loaded — sub-second cold start after first load
 
 ## WATCHDOG SERVICE
@@ -91,7 +91,7 @@ Service: ~/protocol_pulse/services/local_watchdog.py
 Config: ~/protocol_pulse/config/watchdog_config.json
 Log: ~/protocol_pulse/logs/watchdog_llm.log
 Patch history: ~/protocol_pulse/logs/watchdog_patches.jsonl
-Ollama service: CUDA_VISIBLE_DEVICES=2 ollama serve (started on boot via systemd)
+Ollama service: CUDA_VISIBLE_DEVICES=1 ollama serve (started on boot via systemd)
 
 ## WHAT WATCHDOG NEVER DOES
 - Never modifies PIPELINE_LAWS.md or any gospel doc

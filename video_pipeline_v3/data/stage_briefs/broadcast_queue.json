@@ -1,43 +1,52 @@
 [
   {
-    "id": "555d74a4-0b40-495a-ac67-33d9f0f0012c",
-    "type": "ORACLE_BRIEF",
-    "priority": 1,
-    "script": "Bitcoin's next halving will force miner revenue compression with no Fed backstop, as rate hikes remain locked out and the monetary base stops expanding by design. \n\nAt US close, Bitcoin trades at seventy-eight thousand nine hundred ninety-one, up point three percent on the day with support holding n",
-    "source_label": "\ud83c\udf99\ufe0f ORACLE EVENING",
-    "topic_preview": "Oracle Evening Brief \u2014 $78,991",
-    "generated_at": "2026-08-27T02:00:02.383557+00:00",
-    "expires_at": "2026-08-27T06:00:02.383557+00:00",
-    "video_url": "/data/stage_briefs/brief_20260827_0200.mp4"
+    "id": "c3dbc180-0d50-4585-82fa-0f868d4db28c",
+    "type": "THOUGHT_LEADER",
+    "priority": 2,
+    "script": "Bitcoin credit spreads tightening. STRC's BTC credit widened to 59 bps, reflecting 3.3-year USD duration. Market pricing 10% Bitcoin ARR, 40% volatility, $76,700 BTC. Watch for credit metric shifts at 60 bps threshold. Next signal: 100 bps credit spread move.",
+    "source_label": "\ud83e\udde0 @SAYLOR",
+    "topic_preview": "R to @saylor: USD Duration is 3.3 yrs and STRC's BTC Credit tightened to 59 bps ",
+    "generated_at": "2026-11-04T22:25:06.815999+00:00",
+    "expires_at": "2026-11-05T00:25:06.815999+00:00"
   },
   {
-    "id": "0d5d2197-7a2b-4d93-a76d-42d92c1e4eaa",
+    "id": "9961c461-b045-41c8-99c5-f55bfaf37c8d",
+    "type": "METRICS_PULSE",
+    "priority": 3,
+    "script": "Bitcoin trades at $80,440, up 3.41% in 24 hours. Current hashrate sits at 1,033.7 EH.\n\nFear and Greed index reads 34, solidly in fear territory.\n\nFastest fee remains at one satoshi per vbyte. Transaction volume up to 42,350.\n\nBlock 974,600 confirmed. Next halving cycle looms.\n\nWatch for mempool congestion patterns.",
+    "source_label": "\ud83d\udcca METRICS PULSE",
+    "topic_preview": "BTC $80,440 \u00b7 FNG 34 \u00b7 1033.7 EH/s",
+    "generated_at": "2026-11-04T23:25:09.262971+00:00",
+    "expires_at": "2026-11-05T03:25:09.262971+00:00"
+  },
+  {
+    "id": "d1bea5d6-609e-4171-9e3e-cfa16efb6498",
     "type": "NOSTR_SIGNAL",
     "priority": 4,
-    "script": "Bitcoin Nostr relays show zero dominant narrative emergence. Channels remain fragmented across technical discussions and ideological debates. Watch for coordinated messaging patterns in next 24 hours.\n\nForward signal: Monitor Bitcoin Core developer chat for consensus shifts on relay infrastructure.",
+    "script": "Bitcoin Nostr relays showing zero coordinated narrative emergence. Network remains fragmented across technical discussions and mining updates.\n\nWatch for any coordinated signal in the next 24 hours \u2014 particularly around block 819,000 relay activity.",
     "source_label": "\u26a1 NOSTR SIGNAL",
     "topic_preview": "unknown",
-    "generated_at": "2026-08-27T01:25:17.971215+00:00",
-    "expires_at": "2026-08-27T05:25:17.971215+00:00"
+    "generated_at": "2026-11-04T20:00:29.398038+00:00",
+    "expires_at": "2026-11-05T00:00:29.398038+00:00"
   },
   {
-    "id": "4857dfe3-a0a6-4961-a0f5-d12dda61c36d",
+    "id": "97326f74-d908-458e-b376-cc7a01acad47",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "Bitcoin script is intentionally limited. No Turing completeness, no complex smart contracts on the base layer. This constraint is a security feature \u2014 the monetary layer should be boring and bulletproof.",
-    "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "Bitcoin script is intentionally limited. No Turing completeness, no complex smar",
-    "generated_at": "2026-08-27T04:55:30.110810+00:00",
-    "expires_at": "2026-08-27T08:55:30.110810+00:00"
+    "script": "Bitcoin price surges 3.7% to $80,676 as mempool fee drops to 1 sat/vbyte. Hashrate stabilizes at 1034 EH/s. Fear & Greed index reads 34. Sovereign individuals accumulate while whales remain silent. Watch for next major price test above $82,000.",
+    "source_label": "\u26a1 LIVE INSIGHT",
+    "topic_preview": "Bitcoin price surges 3.7% to $80,676 as mempool fee drops to 1 sat/vbyte. Hashra",
+    "generated_at": "2026-11-04T23:00:38.963820+00:00",
+    "expires_at": "2026-11-05T01:00:38.963820+00:00"
   },
   {
-    "id": "f8d6afe4-c154-47ec-8278-e3a0ec435182",
+    "id": "b83fe5e6-15a1-4c17-aedc-ad745b0b8f1b",
     "type": "FILLER_INSIGHT",
     "priority": 5,
-    "script": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't just build software \u2014 they embedded a permanent protest against monetary manipulation into the first block ever mined.",
+    "script": "Coinjoin transactions are growing month over month. Privacy isn't optional in a sound money system \u2014 it's essential. Financial surveillance is incompatible with individual sovereignty.",
     "source_label": "\ud83d\udca1 INSIGHT",
-    "topic_preview": "The genesis block contains a Times headline about bank bailouts. Satoshi didn't ",
-    "generated_at": "2026-08-27T04:55:46.741535+00:00",
-    "expires_at": "2026-08-27T08:55:46.741535+00:00"
+    "topic_preview": "Coinjoin transactions are growing month over month. Privacy isn't optional in a ",
+    "generated_at": "2026-11-04T23:20:07.022604+00:00",
+    "expires_at": "2026-11-05T03:20:07.022604+00:00"
   }
 ]

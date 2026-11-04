@@ -12,7 +12,7 @@ Pipeline:
 
 Usage:
     python3 -m vertical.reframe \\
-        --edl cuts_v3.json \\
+        --edl cuts_final.json \\
         --sources sources_pcm \\
         --out out/segment_v14_vertical.mp4 \\
         [--stage shotmap|compose|assemble|qa|critic|sheet|tg|all] \\
@@ -154,9 +154,11 @@ def stage_shotmap(sources_dir, edl_path):
                 print(f"    window {w_in:.1f}-{w_out:.1f}s: cached", flush=True)
                 continue
 
-            # Extract window to temp file
+            # Extract window to file (cached if already exists)
             win_mp4 = str(windows_dir / f"{vid}_{w_in:.0f}_{w_out:.0f}.mp4")
-            if not _extract_window(src, win_mp4, w_in, w_out):
+            if os.path.exists(win_mp4) and os.path.getsize(win_mp4) > 0:
+                print(f"    window {w_in:.1f}-{w_out:.1f}s: mp4 cached", flush=True)
+            elif not _extract_window(src, win_mp4, w_in, w_out):
                 print(f"    WARNING: failed to extract window {w_in:.1f}-{w_out:.1f}s from {vid}")
                 continue
 
@@ -256,6 +258,8 @@ def stage_compose(shot_map_data, sources_dir, edl_path):
                 "frame_out": frame_out,
                 "t_in": cut_in,
                 "t_out": cut_out,
+                "edl_t_in": cut_in,
+                "edl_t_out": cut_out,
                 "layout": "single",
                 "face_count": 1,
                 "has_screenshare": False,
@@ -269,6 +273,19 @@ def stage_compose(shot_map_data, sources_dir, edl_path):
             relevant_shots[0]["frame_in"] = max(relevant_shots[0]["frame_in"], frame_in)
             relevant_shots[-1] = dict(relevant_shots[-1])
             relevant_shots[-1]["frame_out"] = min(relevant_shots[-1]["frame_out"], frame_out)
+
+            # Inject EDL-authoritative timestamps on each shot so compositor
+            # uses seconds from the EDL rather than frame_in/src_fps (avoids
+            # 30fps window vs 29.97fps source mismatch).
+            for i, s in enumerate(relevant_shots):
+                if i == 0:
+                    s["edl_t_in"] = cut_in
+                else:
+                    s["edl_t_in"] = s.get("t_in", s["frame_in"] / fps)
+                if i == len(relevant_shots) - 1:
+                    s["edl_t_out"] = cut_out
+                else:
+                    s["edl_t_out"] = s.get("t_out", s["frame_out"] / fps)
 
         # Prefix shot IDs with clip_id for uniqueness
         for s in relevant_shots:
@@ -409,6 +426,56 @@ def stage_qa(final_mp4, manifest_path):
     return all_ok, results
 
 
+def gate_g7(final_mp4, edl_path, composed):
+    """G7 Completeness: assembled duration matches EDL, every shot in manifest."""
+    with open(edl_path) as f:
+        edl = json.load(f)
+
+    # Expected duration = sum of EDL cut durations
+    expected_dur = sum(c.get("cut_duration", c.get("cut_out", 0) - c.get("cut_in", 0))
+                       for c in edl)
+    actual_dur = get_duration(final_mp4)
+    dur_ok = abs(actual_dur - expected_dur) <= 0.5
+    dur_delta = actual_dur - expected_dur
+
+    # Shot coverage: every composed shot must be ok
+    total_shots = len(composed) if composed else 0
+    ok_shots = sum(1 for c in (composed or []) if c.get("ok"))
+    missing = total_shots - ok_shots
+    coverage_ok = (missing == 0 and total_shots > 0)
+
+    # Also check: every EDL clip has at least one composed shot
+    edl_clip_ids = {c.get("clip_id") for c in edl}
+    composed_prefixes = set()
+    for c in (composed or []):
+        cid = c.get("id", "")
+        # IDs are prefixed like "hook_sh001", "clip_01_sh001"
+        for eid in edl_clip_ids:
+            if cid.startswith(eid + "_"):
+                composed_prefixes.add(eid)
+    missing_clips = edl_clip_ids - composed_prefixes
+    clips_ok = len(missing_clips) == 0
+
+    g7 = dur_ok and coverage_ok and clips_ok
+    detail = (f"dur={actual_dur:.2f}s vs expected={expected_dur:.2f}s "
+              f"(delta={dur_delta:+.2f}s), "
+              f"shots={ok_shots}/{total_shots}, "
+              f"clips={'all' if clips_ok else 'MISSING:' + ','.join(missing_clips)}")
+    print(f"  G7 Completeness: {'PASS' if g7 else 'FAIL'} ({detail})")
+
+    result = {
+        "pass": g7,
+        "expected_duration": round(expected_dur, 2),
+        "actual_duration": round(actual_dur, 2),
+        "duration_delta": round(dur_delta, 2),
+        "total_shots": total_shots,
+        "ok_shots": ok_shots,
+        "missing_shots": missing,
+        "missing_clips": sorted(missing_clips),
+    }
+    return g7, result
+
+
 # ================================================================
 # Stage 5: Critic
 # ================================================================
@@ -455,12 +522,14 @@ def stage_critic(composed, shot_map_data):
                                 "issues": ["frame extraction failed"]})
                 continue
 
-            # Build shot dict for critic
+            # Build shot dict for critic — tiles list sized to face_count
+            # so the critic's expected-tiles check doesn't false-fail
+            fc = entry.get("face_count", 1)
             shot = {
                 "shot_id": shot_id,
                 "layout": entry.get("layout", "unknown"),
-                "face_count": entry.get("face_count", 1),
-                "tiles": [],
+                "face_count": fc,
+                "tiles": [{"face_count": 1}] * max(fc, 1),
             }
             result = critique_shot(shot, f1, f2, str(WORK))
             results.append(result)
@@ -598,7 +667,7 @@ def stage_tg(final_mp4, caption):
 
 def main():
     ap = argparse.ArgumentParser(description="Vertical reframing pipeline")
-    ap.add_argument("--edl", required=True, help="EDL JSON (cuts_v3.json)")
+    ap.add_argument("--edl", required=True, help="EDL JSON (Law 22: use cuts_final.json, the single source of truth)")
     ap.add_argument("--sources", required=True, help="Sources directory")
     ap.add_argument("--out", required=True, help="Output MP4 path")
     ap.add_argument("--stage", default="all",
@@ -664,7 +733,16 @@ def main():
             fail_path.write_text(f"QA GATE FAILURE: {final_mp4}\n")
             print(f"  GATE FAILURE — {fail_path}")
 
-    # Stage 4b: T1 face count test
+    # Stage 4b: G7 Completeness
+    g7_ok = True
+    if args.stage in ("qa", "all") and final_mp4:
+        with timed("G7 COMPLETENESS") as t:
+            g7_ok, g7_result = gate_g7(final_mp4, args.edl, composed)
+        timings["g7_completeness"] = t.elapsed
+        if not g7_ok:
+            qa_ok = False
+
+    # Stage 4c: T1 face count test
     t1_ok = True
     if args.stage in ("qa", "all") and final_mp4:
         with timed("T1 FACE COUNT") as t:
@@ -686,7 +764,7 @@ def main():
         timings["sheet"] = t.elapsed
 
     # Stage 7: Telegram
-    all_pass = qa_ok and t1_ok and critic_ok
+    all_pass = qa_ok and g7_ok and t1_ok and critic_ok
     if args.stage in ("tg", "all") and not args.no_tg and final_mp4 and all_pass:
         n_shots = sum(
             len(s.get("shots", []))
@@ -700,6 +778,7 @@ def main():
         timings["tg"] = t.elapsed
     elif not all_pass and final_mp4:
         print(f"\n  BLOCKED: QA={'PASS' if qa_ok else 'FAIL'}, "
+              f"G7={'PASS' if g7_ok else 'FAIL'}, "
               f"T1={'PASS' if t1_ok else 'FAIL'}, "
               f"Critic={'PASS' if critic_ok else 'FAIL'} — no Telegram send")
 

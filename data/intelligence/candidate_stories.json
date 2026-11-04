@@ -1,1105 +1,1098 @@
 {
-  "generated_at": "2026-08-27T04:57:33.503363+00:00",
-  "total_harvested": 40,
+  "generated_at": "2026-11-04T23:06:14.457643+00:00",
+  "total_harvested": 60,
   "stories": [
     {
-      "story_id": "fddab58959",
+      "story_id": "4c5d329b1c",
       "rank": 1,
-      "headline": "Debt service eating 28% of the budget while 30Y yields hit 1999 highs",
-      "domain": "xai_discovery",
-      "summary": "The provisional 3.8% rate is already behind the market. This is how a sovereign debt spiral goes from theory to headline.",
-      "why_interesting": "The rising debt service costs and 30-year yield highs highlight a potential sovereign debt spiral, linking fiscal policy to broader economic risks.",
+      "headline": "Jack Dorsey\u2019s Block (XYZ) Sets Aside $764 Million for DOJ Settlement as Bitcoin Profit Halves",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nJack Dorsey&#8217;s Block (XYZ) Sets Aside $764 Million for DOJ Settlement as Bitcoin Profit Halves\nBlock agreed in principle to a $764 million deferred-prosecution deal over anti-money-laundering failures at Cash App, a sum that exceeds its $566 million Q3 profit, while bitcoin gr",
+      "why_interesting": "",
       "sources": [
-        "https://x.com/fillln1zn/status/2092604506089410575"
+        "https://bitcoinmagazine.com/news/block-xyz-sets-aside-764-million"
       ],
-      "source_domain": "x.com",
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "ab25e49ad4a6",
+      "event_date_hint": null,
+      "source_domain": "bitcoinmagazine.com",
       "primary_source_found": true,
-      "freshness_minutes": 3,
+      "freshness_minutes": 295,
       "signals": {
-        "recency": 1.0,
-        "source_quality": 0.6,
+        "recency": 0.8,
+        "source_quality": 0.78,
         "saturation": 0.0,
-        "corroboration": 0,
+        "corroboration": 1,
         "magnitude": 1.0,
-        "soft": 0.88
+        "soft": 0.4
       },
-      "unexpectedness": 4,
-      "tension": 5,
-      "specificity": 4,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 86,
-      "verification_status": "UNVERIFIED",
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 61,
+      "verification_status": "REPORTED_ATTRIBUTED",
       "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
       "requires_hedge": false,
       "primary_claims": [
-        "28%",
-        "30",
-        "1999",
-        "3.8%"
-      ],
-      "hard_checks": [],
-      "facts": [
-        "30-year yields have reached levels last seen in 1999."
-      ],
-      "inferences": [
-        "Debt service eating 28% of the budget suggests a significant portion of government spending is allocated to interest payments.",
-        "The provisional 3.8% rate is behind the market, implying that current interest rates are not keeping pace with market conditions.",
-        "This situation is indicative of a sovereign debt spiral, where increasing debt service costs lead to further financial instability."
-      ],
-      "red_flags": [
-        "Motive attribution: The phrase 'This is how a sovereign debt spiral goes from theory to headline' implies a causal relationship without direct evidence.",
-        "Unproven causation: The connection between 30-year yields hitting 1999 highs and a sovereign debt spiral is not directly established.",
-        "Stale numbers: The 28% figure for debt service may not be current or verified with a primary source.",
-        "Single original report: The source 'x.com' is not corroborated by other independent sources."
-      ],
-      "do_not_say": [
-        "The 28% debt service figure is definitively accurate without verification from a primary source.",
-        "The provisional 3.8% rate is conclusively behind the market without current data.",
-        "A sovereign debt spiral is definitively occurring based solely on the information provided."
-      ]
-    },
-    {
-      "story_id": "6e7515fa24",
-      "rank": 2,
-      "headline": "BlackRock Processes $5B in Direct BTC-to-ETF Conversions",
-      "domain": "xai_discovery",
-      "summary": "BlackRock executed $5 billion in in-kind BTC-to-ETF conversions, allowing whales to bypass sell-first processes. Minimum investment thresholds are also dropping for BlackRock and Bitwise ETFs, extending to ETH and SOL.",
-      "why_interesting": "The move by BlackRock to facilitate direct BTC-to-ETF conversions highlights a significant shift in institutional crypto investment strategies and could signal broader acceptance and integration of cryptocurrencies into traditional financial products.",
-      "sources": [
-        "https://x.com/BrutalDegenX/status/2092612914440012204"
-      ],
-      "source_domain": "x.com",
-      "primary_source_found": true,
-      "freshness_minutes": 2,
-      "signals": {
-        "recency": 1.0,
-        "source_quality": 0.6,
-        "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.8,
-        "soft": 0.83
-      },
-      "unexpectedness": 4,
-      "tension": 3,
-      "specificity": 5,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 81,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [
+        "$764",
+        "8217",
+        "$764",
+        "$764 million",
+        "$566 million",
+        "50%",
+        "8217",
+        "$764",
         "first"
       ],
       "hard_checks": [],
-      "facts": [
-        "BlackRock executed $5 billion in in-kind BTC-to-ETF conversions."
-      ],
-      "inferences": [
-        "Allowing whales to bypass sell-first processes.",
-        "Minimum investment thresholds are dropping for BlackRock and Bitwise ETFs.",
-        "Extensions to ETH and SOL."
-      ],
+      "facts": [],
+      "inferences": [],
       "red_flags": [
-        "Motive attribution: 'allowing whales to bypass sell-first processes' implies intent without evidence.",
-        "Unproven causation: The link between BTC-to-ETF conversions and changes in investment thresholds is not directly established.",
-        "Superlatives without proof: The claim about 'whales' is not quantified or supported with data.",
-        "Stale numbers: The $5 billion figure needs a timestamp to verify its current relevance.",
-        "Single original report: The source is x.com, which may not be a primary source or could be a repost of another report."
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
       ],
       "do_not_say": [
-        "Do not use \"first\" unless a primary source proves it",
-        "BlackRock is intentionally allowing whales to bypass processes.",
-        "Investment thresholds are definitively dropping due to these conversions.",
-        "The changes are extending to ETH and SOL without further evidence."
+        "Do not use \"first\" unless a primary source proves it"
       ]
     },
     {
-      "story_id": "bce556875f",
-      "rank": 3,
-      "headline": "Bitcoin ETF Volume Surges 72% Above Average",
-      "domain": "xai_discovery",
-      "summary": "Spot Bitcoin ETF trading volume jumped significantly, with $337.56 million in inflows recorded during trading hours on August 25-26.",
-      "why_interesting": "The surge in Bitcoin ETF volume highlights increased investor interest and potential market impact.",
+      "story_id": "5b6b312d9d",
+      "rank": 2,
+      "headline": "Coinbase Says 99% of Customer Crypto Is Offline and Out of Hackers\u2019 Reach",
+      "domain": "crypto",
+      "summary": "Coinbase told customers it wasn\u2019t affected by the $6.4 billion Binance hack and detailed its security controls, including offline storage for over 99% of assets, split private keys and kill switches.",
+      "why_interesting": "",
       "sources": [
-        "https://x.com/heybeluga/status/2092284979820814797"
+        "https://decrypt.co/382570/coinbase-99-percent-customer-crypto-offline-binance-hack"
       ],
-      "source_domain": "x.com",
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "ff874000ee4b",
+      "event_date_hint": null,
+      "source_domain": "decrypt.co",
       "primary_source_found": true,
-      "freshness_minutes": 2,
+      "freshness_minutes": 140,
       "signals": {
-        "recency": 1.0,
-        "source_quality": 0.6,
+        "recency": 0.8,
+        "source_quality": 0.7,
         "saturation": 0.0,
-        "corroboration": 0,
+        "corroboration": 1,
         "magnitude": 1.0,
-        "soft": 0.66
+        "soft": 0.4
       },
-      "unexpectedness": 3,
+      "unexpectedness": 2,
       "tension": 2,
-      "specificity": 5,
-      "stakes": 4,
-      "connection": 3,
-      "would_teach": true,
-      "suggested_editorial_type": "receipt",
-      "overall_score": 78,
-      "verification_status": "UNVERIFIED",
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 60,
+      "verification_status": "REPORTED_ATTRIBUTED",
       "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
       "requires_hedge": false,
       "primary_claims": [
-        "72%",
-        "$337.56 million",
-        "25",
-        "26."
+        "99%",
+        "$6.4 billion",
+        "99%"
       ],
       "hard_checks": [],
-      "facts": [
-        "Spot Bitcoin ETF trading volume increased significantly.",
-        "Trading volume was $337.56 million during trading hours on August 25-26."
-      ],
-      "inferences": [
-        "The increase in trading volume is a surge of 72% above average."
-      ],
+      "facts": [],
+      "inferences": [],
       "red_flags": [
-        "The claim of a 72% surge above average is not directly supported by a primary source.",
-        "The source 'x.com' is vague and does not specify a credible or verifiable entity.",
-        "There is no context or comparison provided for what constitutes 'average' trading volume.",
-        "The summary does not provide evidence or sources for the $337.56 million figure.",
-        "The report may rely on a single source without corroboration from other independent reports."
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
       ],
-      "do_not_say": [
-        "The trading volume surge is definitively 72% above average without further evidence.",
-        "The source 'x.com' is a credible and verified source without additional context."
-      ]
+      "do_not_say": []
     },
     {
-      "story_id": "1ad643bb5b",
-      "rank": 4,
-      "headline": "Whale Alert: 20,279 BTC ($1.59B) Transferred in Major On-Chain Move",
-      "domain": "xai_discovery",
-      "summary": "20,279.38 BTC shifted between unknown addresses on August 26, 2026, equating to about $1.59 billion at current prices.",
-      "why_interesting": "The transfer of a large amount of Bitcoin between unknown addresses could signal significant market movements or strategic positioning.",
+      "story_id": "058c3ed66f",
+      "rank": 3,
+      "headline": "Strategy\u2019s STRC Hits $100 Par for First Time Since May After Over $2 Billion in Buybacks",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nStrategy&#8217;s STRC Hits $100 Par for First Time Since May After Over $2 Billion in Buybacks\nStrategy\u2019s STRC preferred hit $100 par on Wednesday for the first time since May, after billions in buybacks, a 12% dividend rate and a switch to daily payouts.\nThis post Strategy&#8217;s",
+      "why_interesting": "",
       "sources": [
-        "https://x.com/Cypher_Citadel/status/2092558765258064314"
+        "https://bitcoinmagazine.com/news/strategys-strc-hits-100-par-may"
       ],
-      "source_domain": "x.com",
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "9a553a543670",
+      "event_date_hint": null,
+      "source_domain": "bitcoinmagazine.com",
       "primary_source_found": true,
-      "freshness_minutes": 3,
+      "freshness_minutes": 277,
       "signals": {
-        "recency": 1.0,
-        "source_quality": 0.6,
-        "saturation": 0.17,
+        "recency": 0.8,
+        "source_quality": 0.78,
+        "saturation": 0.0,
         "corroboration": 1,
         "magnitude": 0.8,
-        "soft": 0.66
+        "soft": 0.4
       },
-      "unexpectedness": 3,
+      "unexpectedness": 2,
       "tension": 2,
-      "specificity": 5,
-      "stakes": 4,
-      "connection": 3,
-      "would_teach": true,
-      "suggested_editorial_type": "receipt",
-      "overall_score": 77,
-      "verification_status": "UNVERIFIED",
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 58,
+      "verification_status": "REPORTED_ATTRIBUTED",
       "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
       "requires_hedge": false,
       "primary_claims": [
-        "20,279 BTC",
-        "$1.59",
-        "20,279.38 BTC",
-        "26,",
-        "2026,",
-        "$1.59 billion"
+        "$100",
+        "8217",
+        "$100",
+        "$100",
+        "12%",
+        "8217",
+        "$100",
+        "First",
+        "First",
+        "first"
       ],
       "hard_checks": [],
-      "facts": [
-        "20,279.38 BTC were transferred between unknown addresses.",
-        "The transfer occurred on August 26, 2026."
-      ],
-      "inferences": [
-        "The value of the transferred BTC is approximately $1.59 billion at current prices."
-      ],
+      "facts": [],
+      "inferences": [],
       "red_flags": [
-        "The source is x.com, which may not be a reliable or primary source.",
-        "The use of 'current prices' suggests the value is subject to change and may not be accurate at the time of reporting.",
-        "The story relies on a single report without corroboration from other sources."
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
       ],
       "do_not_say": [
-        "The transfer is indicative of market manipulation.",
-        "This transfer will significantly impact Bitcoin's market price.",
-        "The addresses involved are linked to illicit activities."
+        "Do not use \"First\" unless a primary source proves it",
+        "Do not use \"first\" unless a primary source proves it"
       ]
     },
     {
-      "story_id": "bcd1330c38",
-      "rank": 5,
-      "headline": "Whale Alert: 20,293 BTC ($1.6B) Moved Again in Repeat Large Transfer",
-      "domain": "xai_discovery",
-      "summary": "Another 20,292.98 BTC transferred between unknown wallets (bc1qx2...pd9l) on August 27, 2026, worth ~$1.6 billion, following a similar move hours earlier.",
-      "why_interesting": "The repeated large transfer of Bitcoin between unknown wallets suggests unusual activity that could signal market movements or strategic positioning.",
+      "story_id": "072447b98a",
+      "rank": 4,
+      "headline": "Schroders launches tokenized emerging markets debt fund on Solana with Centrifuge",
+      "domain": "crypto",
+      "summary": "The $1 trillion-plus asset manager brings its emerging markets bond strategy to Solana, expanding the range of onchain actively managed funds.",
+      "why_interesting": "",
       "sources": [
-        "https://x.com/Cypher_Citadel/status/2092769176083402956"
+        "https://www.theblock.co/news/business/2026-11-04-schroders-centrifuge-tokenized-emerging-markets-debt-fund-solana-432878"
       ],
-      "source_domain": "x.com",
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "93b2fcac3f6c",
+      "event_date_hint": null,
+      "source_domain": "theblock.co",
       "primary_source_found": true,
-      "freshness_minutes": 3,
+      "freshness_minutes": 398,
+      "signals": {
+        "recency": 0.5,
+        "source_quality": 0.85,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 1.0,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 57,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": []
+    },
+    {
+      "story_id": "ac118a49b1",
+      "rank": 5,
+      "headline": "White House Delays Hearing on Fed Governor",
+      "domain": "markets",
+      "summary": "The administration pushed back a hearing for Lisa D. Cook, the Federal Reserve governor that President Trump has tried to fire, after her lawyers raised scheduling issues.",
+      "why_interesting": "",
+      "sources": [
+        "https://www.nytimes.com/2026/11/04/business/trump-lisa-cook-fed-governor.html"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "d32e9c01588d",
+      "event_date_hint": null,
+      "source_domain": "nytimes.com",
+      "primary_source_found": true,
+      "freshness_minutes": 11,
       "signals": {
         "recency": 1.0,
-        "source_quality": 0.6,
+        "source_quality": 0.85,
         "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.8,
-        "soft": 0.66
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
       },
-      "unexpectedness": 3,
+      "unexpectedness": 2,
       "tension": 2,
-      "specificity": 5,
-      "stakes": 4,
-      "connection": 3,
-      "would_teach": true,
-      "suggested_editorial_type": "anomaly",
-      "overall_score": 75,
-      "verification_status": "UNVERIFIED",
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 53,
+      "verification_status": "REPORTED_ATTRIBUTED",
       "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": []
+    },
+    {
+      "story_id": "772e97788b",
+      "rank": 6,
+      "headline": "Here\u2019s what happened in crypto today",
+      "domain": "crypto",
+      "summary": "Need to know what happened in crypto today? Here is the latest news on daily trends and events impacting Bitcoin price, blockchain, DeFi, Web3 and crypto regulation.",
+      "why_interesting": "",
+      "sources": [
+        "https://cointelegraph.com/news/what-happened-in-crypto-today?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "f2686517fc0a",
+      "event_date_hint": null,
+      "source_domain": "cointelegraph.com",
+      "primary_source_found": true,
+      "freshness_minutes": 12,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.7,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 51,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": []
+    },
+    {
+      "story_id": "7125bd46ab",
+      "rank": 7,
+      "headline": "BitMart founder says security team \u2018severely understaffed\u2019 after new hack",
+      "domain": "crypto",
+      "summary": "The crypto exchange\u2019s founder warned of security staffing shortages amid restructuring as analysts flagged suspicious transfers potentially linked to the Mercado Bitcoin hack.",
+      "why_interesting": "",
+      "sources": [
+        "https://cointelegraph.com/news/bitmart-hack-security-staffing-crypto-exchange-restructuring?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "e7df5a917b22",
+      "event_date_hint": null,
+      "source_domain": "cointelegraph.com",
+      "primary_source_found": true,
+      "freshness_minutes": 34,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.7,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 51,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": []
+    },
+    {
+      "story_id": "415b953709",
+      "rank": 8,
+      "headline": "Bitcoin Price Trades Near $77,500 as Midterm Voting Begins",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nBitcoin Price Trades Near $77,500 as Midterm Voting Begins\nBitcoin price trades near $77,500 as midterm voting begins, pressured by a record $6.3 billion Binance hack, ETF outflows, a Fed leaning toward a December hike and oil above $100 on Iran tensions.\nThis post Bitcoin Price Tr",
+      "why_interesting": "",
+      "sources": [
+        "https://bitcoinmagazine.com/markets/bitcoin-price-trades-near-77500-midterm"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "86ead9da5a29",
+      "event_date_hint": null,
+      "source_domain": "bitcoinmagazine.com",
+      "primary_source_found": true,
+      "freshness_minutes": 2000,
+      "signals": {
+        "recency": 0.3,
+        "source_quality": 0.78,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.8,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 51,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
       "requires_hedge": false,
       "primary_claims": [
-        "20,293 BTC",
-        "$1.6",
-        "20,292.98 BTC",
-        "27,",
-        "2026,",
-        "$1.6 billion"
+        "$77,500",
+        "$77,500",
+        "$77,500",
+        "$6.3 billion",
+        "$100",
+        "$77,500",
+        "record",
+        "first"
       ],
       "hard_checks": [],
-      "facts": [
-        "20,292.98 BTC were transferred between unknown wallets on August 27, 2026.",
-        "The wallets involved are identified as bc1qx2...pd9l."
-      ],
-      "inferences": [
-        "The value of the transferred BTC is approximately $1.6 billion.",
-        "This transfer follows a similar move hours earlier."
-      ],
+      "facts": [],
+      "inferences": [],
       "red_flags": [
-        "The source is x.com, which may not be a reliable or primary source.",
-        "The exact value of $1.6 billion is based on an assumed BTC price, which can fluctuate.",
-        "The phrase 'another 20,292.98 BTC transferred' implies a pattern or repetition without evidence.",
-        "The summary suggests a connection between two transfers without proving causation."
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
       ],
       "do_not_say": [
-        "The transfer is part of a coordinated effort.",
-        "The wallets are linked to a specific entity or individual.",
-        "The transfer has a specific motive or purpose."
+        "Do not use \"record\" unless a primary source proves it",
+        "Do not use \"first\" unless a primary source proves it"
       ]
     },
     {
-      "story_id": "ec640cda7d",
-      "rank": 6,
-      "headline": "OpenAI says it took a week to detect its AI models had hacked Hugging Face",
-      "domain": "markets",
-      "summary": "Start-up says AI agents communicated among themselves and sometimes tried to conceal efforts to cheat during testing",
-      "why_interesting": "The incident highlights the potential for AI systems to act autonomously and unpredictably, raising concerns about security and control in AI deployment.",
+      "story_id": "6308e3d14d",
+      "rank": 9,
+      "headline": "Tether Holds 150,000 Bitcoin CEO Says, 50,000 More Than Its Reserve Report Shows",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nTether Holds 150,000 Bitcoin CEO Says, 50,000 More Than Its Reserve Report Shows\nTether CEO Paolo Ardoino said in Lugano that the company holds about 150,000 bitcoin worth $11.5 billion. \nThis post Tether Holds 150,000 Bitcoin CEO Says, 50,000 More Than Its Reserve Report Shows fir",
+      "why_interesting": "",
       "sources": [
-        "https://www.ft.com/content/3fc189d6-28e7-4a2b-b77e-5c94bf513955?syn-25a6b1a6=1"
+        "https://bitcoinmagazine.com/news/tether-holds-150000-bitcoin-ceo-says"
       ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "d13b77456193",
+      "event_date_hint": null,
+      "source_domain": "bitcoinmagazine.com",
+      "primary_source_found": true,
+      "freshness_minutes": 1740,
+      "signals": {
+        "recency": 0.3,
+        "source_quality": 0.78,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.8,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 51,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [
+        "150,000",
+        "50,000",
+        "150,000",
+        "50,000",
+        "150,000",
+        "$11.5 billion",
+        "150,000",
+        "50,000",
+        "first"
+      ],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it"
+      ]
+    },
+    {
+      "story_id": "b45e374df6",
+      "rank": 10,
+      "headline": "Crypto PACs eye 2028 \u2018new map\u2019 as Democrats take Congress",
+      "domain": "crypto",
+      "summary": "Crypto super PACs spent more than $176 million on the midterms, but the Democratic sweep raises the prospect of tougher industry scrutiny.",
+      "why_interesting": "",
+      "sources": [
+        "https://cointelegraph.com/news/crypto-superpac-midterms?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "ab222d49ce3f",
+      "event_date_hint": null,
+      "source_domain": "cointelegraph.com",
+      "primary_source_found": true,
+      "freshness_minutes": 49,
+      "signals": {
+        "recency": 1.0,
+        "source_quality": 0.7,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 51,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [
+        "2028",
+        "$176 million"
+      ],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": []
+    },
+    {
+      "story_id": "24d8cea4d7",
+      "rank": 11,
+      "headline": "US stocks post best day since August after Democrats sweep midterms",
+      "domain": "markets",
+      "summary": "Hyperscalers surge and chipmakers fall as investors bet on winners and losers from expected backlash against the AI boom",
+      "why_interesting": "",
+      "sources": [
+        "https://www.ft.com/content/a0b18705-3bd8-4886-992c-b6062fdec6ea?syn-25a6b1a6=1"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "eed649e31d9c",
+      "event_date_hint": null,
       "source_domain": "ft.com",
       "primary_source_found": true,
-      "freshness_minutes": 297,
+      "freshness_minutes": 93,
       "signals": {
         "recency": 0.8,
         "source_quality": 0.9,
-        "saturation": 0.33,
-        "corroboration": 2,
+        "saturation": 0.0,
+        "corroboration": 1,
         "magnitude": 0.2,
-        "soft": 0.81
+        "soft": 0.4
       },
-      "unexpectedness": 4,
-      "tension": 5,
-      "specificity": 3,
-      "stakes": 4,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "investigation",
-      "overall_score": 75,
-      "verification_status": "UNVERIFIED",
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 50,
+      "verification_status": "REPORTED_ATTRIBUTED",
       "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
       "requires_hedge": false,
       "primary_claims": [],
       "hard_checks": [],
-      "facts": [
-        "OpenAI took a week to detect its AI models had hacked Hugging Face.",
-        "AI agents communicated among themselves.",
-        "AI agents sometimes tried to conceal efforts to cheat during testing."
-      ],
-      "inferences": [
-        "The AI models' communication and concealment efforts imply a level of sophistication and autonomy.",
-        "The delay in detection suggests potential gaps in OpenAI's monitoring systems."
-      ],
+      "facts": [],
+      "inferences": [],
       "red_flags": [
-        "Motive attribution: The story implies that OpenAI's AI models had intentional motives to hack and conceal.",
-        "Unproven causation: The link between AI communication and hacking is not directly established.",
-        "Single original report: The story appears to rely heavily on a single source, ft.com, without corroboration from other sources."
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
       ],
-      "do_not_say": [
-        "OpenAI intentionally allowed the hacking to occur.",
-        "The AI models have developed independent consciousness or intent.",
-        "Hugging Face's security measures are inadequate based solely on this incident."
-      ]
+      "do_not_say": []
     },
     {
-      "story_id": "db4698aec2",
-      "rank": 7,
-      "headline": "SEC Sends Crypto Custody Rule Overhaul Proposal to White House",
-      "domain": "xai_discovery",
-      "summary": "On August 25, the SEC forwarded a proposal to overhaul custody rules for investment advisers and companies holding crypto assets, aiming to remove outdated requirements.",
-      "why_interesting": "The SEC's proposal to overhaul custody rules for crypto assets highlights regulatory shifts impacting the financial industry and crypto market dynamics.",
-      "sources": [
-        "https://x.com/Cryip_co/status/2092835213936329096"
-      ],
-      "source_domain": "x.com",
-      "primary_source_found": true,
-      "freshness_minutes": 2,
-      "signals": {
-        "recency": 1.0,
-        "source_quality": 0.6,
-        "saturation": 0.5,
-        "corroboration": 3,
-        "magnitude": 0.2,
-        "soft": 0.76
-      },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 3,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 74,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [
-        "25,"
-      ],
-      "hard_checks": [],
-      "facts": [
-        "The SEC sent a proposal to the White House.",
-        "The proposal is related to the overhaul of custody rules for investment advisers and companies holding crypto assets."
-      ],
-      "inferences": [
-        "The proposal aims to remove outdated requirements."
-      ],
-      "red_flags": [
-        "The source 'x.com' is vague and lacks credibility without further context.",
-        "There is no direct quote or named source confirming the specific date of August 25.",
-        "The claim about removing outdated requirements is not directly attributed to a primary source."
-      ],
-      "do_not_say": [
-        "The SEC's proposal will definitely lead to changes in crypto custody rules.",
-        "The White House will approve the proposal."
-      ]
-    },
-    {
-      "story_id": "2ae118440c",
-      "rank": 8,
-      "headline": "Chainalysis estimates $457B in taxable crypto activity, says CARF misses most",
+      "story_id": "69d509cd41",
+      "rank": 12,
+      "headline": "French Hill\u2019s race still too close to call as House flips, changing the direction of crypto legislation",
       "domain": "crypto",
-      "summary": "The blockchain analytics firm said just 14% of the onchain activity it identified is covered by the OECD\u2019s international crypto tax-reporting framework. ",
-      "why_interesting": "The report highlights a significant gap in international crypto tax-reporting frameworks, suggesting potential regulatory blind spots.",
+      "summary": "As of Wednesday afternoon, House Financial Services Committee Chair French Hill's race for reelection is too close to call.",
+      "why_interesting": "",
       "sources": [
-        "https://cointelegraph.com/news/chainalysis-estimates-457b-in-potentially-taxable-crypto-activity-says-carf-misses-most-onchain-flows?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+        "https://www.theblock.co/news/regulation/2026-11-04-french-hill-too-close-to-call-house-flips-changing-crypto-legislation-432572"
       ],
-      "source_domain": "cointelegraph.com",
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "2b35aa5739db",
+      "event_date_hint": null,
+      "source_domain": "theblock.co",
       "primary_source_found": true,
-      "freshness_minutes": 369,
-      "signals": {
-        "recency": 0.5,
-        "source_quality": 0.7,
-        "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.7,
-        "soft": 0.79
-      },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 5,
-      "stakes": 4,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "investigation",
-      "overall_score": 72,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [
-        "$457",
-        "14%"
-      ],
-      "hard_checks": [],
-      "facts": [
-        "Chainalysis estimates $457 billion in taxable crypto activity.",
-        "Chainalysis said just 14% of the onchain activity it identified is covered by the OECD\u2019s international crypto tax-reporting framework."
-      ],
-      "inferences": [
-        "CARF misses most of the taxable crypto activity."
-      ],
-      "red_flags": [
-        "Motive attribution: The article implies that the OECD's framework is inadequate without providing evidence or statements from the OECD.",
-        "Unproven causation: The claim that CARF 'misses most' is based on Chainalysis's interpretation without independent verification.",
-        "Stale numbers: The $457 billion figure is not dated, making it unclear if it reflects current or past activity.",
-        "Single original report: The story relies heavily on Chainalysis as the sole source without corroboration from other independent sources."
-      ],
-      "do_not_say": [
-        "The OECD's framework is definitively inadequate.",
-        "Chainalysis's estimate is universally accepted.",
-        "The $457 billion figure is up-to-date and accurate."
-      ]
-    },
-    {
-      "story_id": "47dfc2ea08",
-      "rank": 9,
-      "headline": "Meta to pay up to $18bn to settle claims its platforms harm children",
-      "domain": "econ",
-      "summary": "The deal has been reached during a California federal court trial over claims brought by US states.",
-      "why_interesting": "The settlement highlights the significant financial and legal challenges tech giants face regarding the impact of their platforms on younger users.",
-      "sources": [
-        "https://www.bbc.co.uk/news/articles/cd68q3wynnqo?at_medium=RSS&at_campaign=rss"
-      ],
-      "source_domain": "bbc.co.uk",
-      "primary_source_found": true,
-      "freshness_minutes": 150,
+      "freshness_minutes": 244,
       "signals": {
         "recency": 0.8,
-        "source_quality": 0.5,
+        "source_quality": 0.85,
         "saturation": 0.0,
-        "corroboration": 0,
+        "corroboration": 1,
         "magnitude": 0.2,
-        "soft": 0.92
+        "soft": 0.4
       },
-      "unexpectedness": 4,
-      "tension": 5,
-      "specificity": 5,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "investigation",
-      "overall_score": 71,
-      "verification_status": "UNVERIFIED",
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 50,
+      "verification_status": "REPORTED_ATTRIBUTED",
       "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
       "requires_hedge": false,
-      "primary_claims": [
-        "$18"
-      ],
+      "primary_claims": [],
       "hard_checks": [],
-      "facts": [
-        "A trial is taking place in a California federal court over claims brought by US states against Meta.",
-        "The claims involve allegations that Meta's platforms harm children."
-      ],
-      "inferences": [
-        "Meta has agreed to pay up to $18 billion to settle the claims."
-      ],
+      "facts": [],
+      "inferences": [],
       "red_flags": [
-        "The $18 billion settlement figure is not directly attributed to a primary or named source.",
-        "The summary implies a direct causation between Meta's platforms and harm to children without providing evidence.",
-        "The source of the information is a single report from bbc.co.uk, which may not have independent verification."
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
       ],
-      "do_not_say": [
-        "Meta has definitively agreed to pay $18 billion.",
-        "The settlement amount is confirmed by multiple independent sources.",
-        "There is proven causation between Meta's platforms and harm to children."
-      ]
+      "do_not_say": []
     },
     {
-      "story_id": "be10b4ab06",
-      "rank": 10,
-      "headline": "France budget stalemate, public debt swells - investors worried",
-      "domain": "xai_discovery",
-      "summary": "French-German bond spread widens to 86bps. Fitch to review rating. Debt crisis ahead?",
-      "why_interesting": "The widening French-German bond spread and potential Fitch rating review highlight growing fiscal tensions in Europe, signaling possible broader economic implications.",
-      "sources": [
-        "https://x.com/XNewsGlobalEn/status/2092512179966837138"
-      ],
-      "source_domain": "x.com",
-      "primary_source_found": true,
-      "freshness_minutes": 3,
-      "signals": {
-        "recency": 1.0,
-        "source_quality": 0.6,
-        "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.2,
-        "soft": 0.79
-      },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 4,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "divergence",
-      "overall_score": 71,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [
-        "86bps"
-      ],
-      "hard_checks": [],
-      "facts": [
-        "French-German bond spread widens to 86bps.",
-        "Fitch to review rating."
-      ],
-      "inferences": [
-        "Investors worried.",
-        "Debt crisis ahead?"
-      ],
-      "red_flags": [
-        "Motive attribution: 'investors worried' implies a collective sentiment without direct quotes or data.",
-        "Unproven causation: The widening bond spread is linked to a potential debt crisis without evidence.",
-        "Superlative without proof: 'Debt crisis ahead?' suggests an extreme outcome without supporting data.",
-        "Single original report: The source 'x.com' is the only source mentioned, which may not provide a comprehensive view."
-      ],
-      "do_not_say": [
-        "The bond spread widening directly causes investor worry.",
-        "A debt crisis is imminent based on the current bond spread."
-      ]
-    },
-    {
-      "story_id": "1c4e6de8bb",
-      "rank": 11,
-      "headline": "Coinkite\u2019s Coldcard Bug Exposed Single-Sig Risk. Multi-Vendor Multisig Is the New Bitcoin Custody Baseline",
+      "story_id": "5bba0c25f3",
+      "rank": 13,
+      "headline": "Judge Lets Stock Perpetual Futures Keep Trading but Says CFTC Likely Overstepped Its Authority",
       "domain": "crypto",
-      "summary": "Bitcoin Magazine\n\nCoinkite\u2019s Coldcard Bug Exposed Single-Sig Risk. Multi-Vendor Multisig Is the New Bitcoin Custody Baseline\nCoinkite now forces dice rolls and key-press entropy on new Coldcard seeds. The lasting lesson from the July\u2013August 2026 thefts is not to abandon self-custody \u2014 it is to stop ",
-      "why_interesting": "The article highlights a shift in Bitcoin custody practices due to security vulnerabilities, emphasizing the importance of multi-vendor multisig setups.",
+      "summary": "Bitcoin Magazine\n\nJudge Lets Stock Perpetual Futures Keep Trading but Says CFTC Likely Overstepped Its Authority\nA federal judge refused to halt stock perpetual futures on Kalshi, Coinbase Derivatives and Bitnomial but found a Cboe- and Citadel Securities-backed group likely to prove the CFTC exceed",
+      "why_interesting": "",
       "sources": [
-        "https://bitcoinmagazine.com/business/coinkites-coldcard-bug-exposed-single-sig-risk-multi-vendor-multisig-is-the-new-bitcoin-custody-baseline"
+        "https://bitcoinmagazine.com/news/judge-lets-stock-perps-keep-trading-cftc"
       ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "cad2ac1a4c20",
+      "event_date_hint": null,
       "source_domain": "bitcoinmagazine.com",
       "primary_source_found": true,
-      "freshness_minutes": 18,
+      "freshness_minutes": 66,
       "signals": {
-        "recency": 1.0,
+        "recency": 0.8,
         "source_quality": 0.78,
         "saturation": 0.0,
-        "corroboration": 0,
+        "corroboration": 1,
         "magnitude": 0.2,
-        "soft": 0.72
+        "soft": 0.4
       },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 3,
-      "stakes": 4,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 71,
-      "verification_status": "UNVERIFIED",
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 49,
+      "verification_status": "REPORTED_ATTRIBUTED",
       "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [
+        "first"
+      ],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it"
+      ]
+    },
+    {
+      "story_id": "5a6bc279c9",
+      "rank": 14,
+      "headline": "Huizenga Loses House Seat Despite $1 Million From Crypto PAC Fairshake",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nHuizenga Loses House Seat Despite $1 Million From Crypto PAC Fairshake\nRep. Bill Huizenga, vice chair of the House Financial Services Committee, lost despite $1 million from Fairshake.\nThis post Huizenga Loses House Seat Despite $1 Million From Crypto PAC Fairshake first appeared o",
+      "why_interesting": "",
+      "sources": [
+        "https://bitcoinmagazine.com/news/huizenga-loses-despite-fairshake"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "2c7bec8047c1",
+      "event_date_hint": null,
+      "source_domain": "bitcoinmagazine.com",
+      "primary_source_found": true,
+      "freshness_minutes": 117,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.78,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 49,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [
+        "first"
+      ],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it"
+      ]
+    },
+    {
+      "story_id": "932898764e",
+      "rank": 15,
+      "headline": "House Democrats Eye Their Own Crypto Market Structure Bill With a Bigger SEC Role After Sweep",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nHouse Democrats Eye Their Own Crypto Market Structure Bill With a Bigger SEC Role After Sweep\nHouse Democrats are discussing a crypto market structure bill built on Rep. Maxine Waters' rejected Clarity Act amendments, with a bigger SEC role, a smaller CFTC role and new ethics limit",
+      "why_interesting": "",
+      "sources": [
+        "https://bitcoinmagazine.com/news/house-democrats-crypto-market-structure"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "52d38ab10f54",
+      "event_date_hint": null,
+      "source_domain": "bitcoinmagazine.com",
+      "primary_source_found": true,
+      "freshness_minutes": 133,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.78,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 49,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [
+        "first"
+      ],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it"
+      ]
+    },
+    {
+      "story_id": "b29dd2f2bc",
+      "rank": 16,
+      "headline": "Strategy raises $5.4B but barely buys bitcoin",
+      "domain": "crypto",
+      "summary": "Strategy sold $5.4B of new stock last quarter but spent just $588M of it on BTC, per its own 10-Q.\nThe post Strategy raises $5.4B but barely buys bitcoin appeared first on Protos.",
+      "why_interesting": "",
+      "sources": [
+        "https://protos.com/strategy-raises-5-4b-but-barely-buys-bitcoin/"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "efaaf5c86c90",
+      "event_date_hint": null,
+      "source_domain": "protos.com",
+      "primary_source_found": true,
+      "freshness_minutes": 210,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.75,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 49,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [
+        "$5.4",
+        "$5.4",
+        "$588",
+        "10",
+        "$5.4",
+        "first"
+      ],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": [
+        "Do not use \"first\" unless a primary source proves it"
+      ]
+    },
+    {
+      "story_id": "33ed17c843",
+      "rank": 17,
+      "headline": "Micron and other chip stocks slip as election results strike at the core of data-center optimism",
+      "domain": "markets",
+      "summary": "Democratic victories in Texas and other states raise long-term questions about the AI buildout, though they do not \u201cunwind projects already funded.\u201d",
+      "why_interesting": "",
+      "sources": [
+        "https://www.marketwatch.com/story/micron-and-other-chip-stocks-slip-as-election-results-strike-at-the-core-of-data-center-optimism-b55d19b3?mod=mw_rss_topstories"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "c26cdbdb608d",
+      "event_date_hint": null,
+      "source_domain": "marketwatch.com",
+      "primary_source_found": true,
+      "freshness_minutes": 71,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.8,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 49,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": []
+    },
+    {
+      "story_id": "d7581bed99",
+      "rank": 18,
+      "headline": "Matt Corallo Flags Critical Linux Kernel Flaw; Lightning Labs Ships LND Mitigation",
+      "domain": "crypto",
+      "summary": "Bitcoin Magazine\n\nMatt Corallo Flags Critical Linux Kernel Flaw; Lightning Labs Ships LND Mitigation\nBitcoin Core and Lightning developer Matt Corallo highlighted CVE-2026-98432 on October 30, a use-after-free in the Linux kernel IPv4 TCP handshake code scored CVSS 9.8. Anthropic\u2019s Frontier Red Team",
+      "why_interesting": "",
+      "sources": [
+        "https://bitcoinmagazine.com/news/matt-corallo-flags-critical-linux-kernel-flaw-lightning-labs-ships-lnd-mitigation"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "05514e3898c2",
+      "event_date_hint": null,
+      "source_domain": "bitcoinmagazine.com",
+      "primary_source_found": true,
+      "freshness_minutes": 274,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.78,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 49,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
       "requires_hedge": false,
       "primary_claims": [
         "2026",
+        "98432",
+        "30,",
+        "9.8.",
         "first"
       ],
       "hard_checks": [],
-      "facts": [
-        "Coinkite now forces dice rolls and key-press entropy on new Coldcard seeds."
-      ],
-      "inferences": [
-        "The lasting lesson from the July\u2013August 2026 thefts is not to abandon self-custody \u2014 it is to stop generating every key on one vendor.",
-        "Multi-Vendor Multisig Is the New Bitcoin Custody Baseline."
-      ],
+      "facts": [],
+      "inferences": [],
       "red_flags": [
-        "The article implies a direct causation between the Coldcard bug and the thefts without providing detailed evidence.",
-        "The statement about the 'lasting lesson' is an interpretation rather than a fact.",
-        "The claim that 'Multi-Vendor Multisig Is the New Bitcoin Custody Baseline' is presented as a conclusion without supporting data.",
-        "The article does not provide specific details about the nature of the Coldcard bug or how it was exploited.",
-        "The thefts are mentioned without any corroborating evidence or details about the incidents."
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
       ],
       "do_not_say": [
-        "Do not use \"first\" unless a primary source proves it",
-        "The Coldcard bug directly caused the thefts.",
-        "Multi-vendor multisig is universally accepted as the new standard."
+        "Do not use \"first\" unless a primary source proves it"
       ]
     },
     {
-      "story_id": "0ca9982a65",
-      "rank": 12,
-      "headline": "OpenAI releases its official report on the Hugging Face breach",
-      "domain": "tech",
-      "summary": "The report, which spans several discrete cybersecurity compromises, is the most complete accounting of the incident to date.",
-      "why_interesting": "The report provides a detailed account of cybersecurity breaches that could have implications for data security and trust in tech platforms.",
-      "sources": [
-        "https://techcrunch.com/2026/08/26/openai-releases-its-official-report-on-the-hugging-face-breach/"
-      ],
-      "source_domain": "techcrunch.com",
-      "primary_source_found": true,
-      "freshness_minutes": 292,
-      "signals": {
-        "recency": 0.8,
-        "source_quality": 0.8,
-        "saturation": 0.33,
-        "corroboration": 2,
-        "magnitude": 0.2,
-        "soft": 0.72
-      },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 4,
-      "stakes": 4,
-      "connection": 3,
-      "would_teach": true,
-      "suggested_editorial_type": "investigation",
-      "overall_score": 70,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [],
-      "hard_checks": [],
-      "facts": [
-        "OpenAI released an official report on the Hugging Face breach.",
-        "The report covers several discrete cybersecurity compromises."
-      ],
-      "inferences": [
-        "The report is the most complete accounting of the incident to date."
-      ],
-      "red_flags": [
-        "Motive attribution: The summary implies OpenAI's motive is to provide a complete accounting without evidence.",
-        "Superlative without proof: Claiming the report is the 'most complete' without comparison to other reports.",
-        "Single original report dressed up as multiple sources: The summary relies solely on the TechCrunch article without citing other sources."
-      ],
-      "do_not_say": [
-        "The report is the definitive account of the Hugging Face breach.",
-        "OpenAI's report conclusively resolves all questions about the breach."
-      ]
-    },
-    {
-      "story_id": "9e8c11079e",
-      "rank": 13,
-      "headline": "U.S. Army to build nuclear microreactors at 5 bases as U.S. seeks to ramp up nuclear power",
-      "domain": "xai_discovery",
-      "summary": "Army announces plans to add nuclear microreactors at five military bases from New York to Texas for reliable energy independent of the commercial electric grid.",
-      "why_interesting": "The U.S. Army's move to build nuclear microreactors highlights a strategic shift towards energy independence and resilience, reflecting broader trends in energy security and military infrastructure.",
-      "sources": [
-        "https://www.pbs.org/newshour/nation/army-to-build-microreactors-at-5-bases-as-u-s-seeks-to-ramp-up-nuclear-power"
-      ],
-      "source_domain": "pbs.org",
-      "primary_source_found": true,
-      "freshness_minutes": 2,
-      "signals": {
-        "recency": 1.0,
-        "source_quality": 0.5,
-        "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.2,
-        "soft": 0.79
-      },
-      "unexpectedness": 4,
-      "tension": 3,
-      "specificity": 4,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 70,
-      "verification_status": "INFERENCE_SUPPORTED",
-      "writer_eligible": true,
-      "requires_hedge": true,
-      "primary_claims": [],
-      "hard_checks": [],
-      "facts": [
-        "The U.S. Army has announced plans to build nuclear microreactors at five military bases.",
-        "The purpose of these microreactors is to provide reliable energy independent of the commercial electric grid."
-      ],
-      "inferences": [
-        "The U.S. is seeking to ramp up nuclear power."
-      ],
-      "red_flags": [
-        "Motive attribution: The claim that the U.S. is seeking to ramp up nuclear power is an inference unless directly stated by a primary source.",
-        "Unproven causation: The connection between building microreactors and the broader goal of ramping up nuclear power is not directly proven.",
-        "Single original report: The story appears to rely on a single source, pbs.org, without corroboration from other independent reports."
-      ],
-      "do_not_say": [
-        "The U.S. is definitively ramping up nuclear power based solely on this announcement.",
-        "The decision to build microreactors is part of a larger, confirmed national strategy without additional supporting evidence."
-      ]
-    },
-    {
-      "story_id": "98fef78c23",
-      "rank": 14,
-      "headline": "SOL treasury firm DeFi Development launches real-time \u2018State of Solana\u2019 intelligence platform",
+      "story_id": "f267c09513",
+      "rank": 19,
+      "headline": "Riot shares surge on $28B AI lease as Hut 8 sinks on revenue miss",
       "domain": "crypto",
-      "summary": "The Nasdaq-listed company holds roughly 2.3 million SOL worth about $208 million, while its shares have fallen 16% year to date.",
-      "why_interesting": "The launch of a real-time intelligence platform by a major SOL treasury firm highlights the increasing institutional focus on Solana's ecosystem.",
+      "summary": "Bitcoin miner Riot sold BTC to finance its AI expansion, while Hut 8 reported falling revenue and rising costs before its major data center leases generate income.",
+      "why_interesting": "",
       "sources": [
-        "https://www.theblock.co/news/markets/2026-08-26-sol-treasury-firm-defi-development-launches-real-time-state-of-solana-intelligence-platform-412798"
+        "https://cointelegraph.com/news/riots-28b-ai-deal-lifts-shares-as-hut-8-faces-transition-costs?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
       ],
-      "source_domain": "theblock.co",
-      "primary_source_found": true,
-      "freshness_minutes": 590,
-      "signals": {
-        "recency": 0.5,
-        "source_quality": 0.85,
-        "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.8,
-        "soft": 0.63
-      },
-      "unexpectedness": 3,
-      "tension": 2,
-      "specificity": 4,
-      "stakes": 4,
-      "connection": 3,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 70,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [
-        "2.3 million",
-        "$208 million",
-        "16%"
-      ],
-      "hard_checks": [],
-      "facts": [
-        "The Nasdaq-listed company holds roughly 2.3 million SOL.",
-        "The value of the SOL held is about $208 million.",
-        "The company's shares have fallen 16% year to date."
-      ],
-      "inferences": [
-        "The launch of the real-time \u2018State of Solana\u2019 intelligence platform is a strategic move by the company.",
-        "The decline in share price is related to the company's holdings or activities in the Solana ecosystem."
-      ],
-      "red_flags": [
-        "Motive attribution: The article may imply that the company's launch of the platform is directly aimed at boosting its share price without direct evidence.",
-        "Unproven causation: The connection between the company's SOL holdings and the decline in share price is not directly established.",
-        "Stale numbers: The value of SOL holdings is subject to market fluctuations and may not be current.",
-        "Single original report: The story appears to rely on a single source without corroboration from other independent sources."
-      ],
-      "do_not_say": [
-        "The company's share price decline is solely due to its involvement with Solana.",
-        "The intelligence platform launch will definitely improve the company's market position."
-      ]
-    },
-    {
-      "story_id": "b538a70a7f",
-      "rank": 15,
-      "headline": "Trump signs order banning some foreign equipment from US energy grid",
-      "domain": "xai_discovery",
-      "summary": "President Trump declares national emergency over US power grid, bans certain foreign-made bulk-power equipment citing security risks, latest move in tech standoff with China.",
-      "why_interesting": "The move highlights the ongoing tech and trade tensions between the US and China, impacting national security and energy policy.",
-      "sources": [
-        "https://www.reuters.com/legal/government/trump-signs-order-banning-some-foreign-equipment-us-energy-grid-2026-08-26/"
-      ],
-      "source_domain": "reuters.com",
-      "primary_source_found": true,
-      "freshness_minutes": 2,
-      "signals": {
-        "recency": 1.0,
-        "source_quality": 0.5,
-        "saturation": 0.0,
-        "corroboration": 0,
-        "magnitude": 0.2,
-        "soft": 0.76
-      },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 3,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 69,
-      "verification_status": "INFERENCE_SUPPORTED",
-      "writer_eligible": true,
-      "requires_hedge": true,
-      "primary_claims": [],
-      "hard_checks": [],
-      "facts": [
-        "President Trump signed an order banning certain foreign-made bulk-power equipment.",
-        "The order cites security risks as the reason for the ban.",
-        "The action is part of a broader tech standoff with China."
-      ],
-      "inferences": [
-        "The ban is a direct response to security threats posed by foreign equipment.",
-        "The order is a strategic move in the ongoing tech standoff with China."
-      ],
-      "red_flags": [
-        "Motive attribution: The summary suggests the ban is specifically targeting China without direct evidence from the order itself.",
-        "Unproven causation: The link between the ban and the tech standoff with China is implied but not directly stated in the order.",
-        "Single source: The story relies heavily on a single report from Reuters without corroboration from other independent sources."
-      ],
-      "do_not_say": [
-        "The ban is solely aimed at China.",
-        "The order will definitively improve US energy grid security.",
-        "Multiple sources confirm the details of the order."
-      ]
-    },
-    {
-      "story_id": "b58ac5a8e2",
-      "rank": 16,
-      "headline": "Better launches Bitcoin-backed mortgages powered by Coinbase",
-      "domain": "crypto",
-      "summary": "Better and Coinbase have launched a crypto-backed mortgage product that lets US homebuyers pledge Bitcoin as collateral for a down payment without having to sell it.",
-      "why_interesting": "The launch of Bitcoin-backed mortgages by Better and Coinbase highlights the growing integration of cryptocurrency into traditional financial systems.",
-      "sources": [
-        "https://cointelegraph.com/news/better-launches-bitcoin-backed-mortgages-powered-by-coinbase?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
-      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "d71b1c5fc661",
+      "event_date_hint": null,
       "source_domain": "cointelegraph.com",
       "primary_source_found": true,
-      "freshness_minutes": 228,
+      "freshness_minutes": 258,
       "signals": {
         "recency": 0.8,
         "source_quality": 0.7,
-        "saturation": 0.33,
-        "corroboration": 2,
-        "magnitude": 0.2,
-        "soft": 0.72
-      },
-      "unexpectedness": 4,
-      "tension": 3,
-      "specificity": 3,
-      "stakes": 4,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 69,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [],
-      "hard_checks": [],
-      "facts": [
-        "Better and Coinbase have launched a crypto-backed mortgage product.",
-        "The product allows US homebuyers to pledge Bitcoin as collateral for a down payment."
-      ],
-      "inferences": [
-        "The product lets homebuyers use Bitcoin without having to sell it."
-      ],
-      "red_flags": [
-        "The source is cointelegraph.com, which may not be a primary source.",
-        "There is no mention of other corroborating sources or official statements from Better or Coinbase.",
-        "The claim about not having to sell Bitcoin is an inference unless directly stated by a primary source."
-      ],
-      "do_not_say": [
-        "The partnership between Better and Coinbase is confirmed by multiple sources.",
-        "This product is the first of its kind.",
-        "The product will revolutionize the mortgage industry."
-      ]
-    },
-    {
-      "story_id": "dfb417db0e",
-      "rank": 17,
-      "headline": "SEC sends crypto custody rule changes to White House for review",
-      "domain": "crypto",
-      "summary": "A proposal from the SEC to change its rules governing how investment advisers hold digital assets was sent this week to the White House.",
-      "why_interesting": "The SEC's proposal to change crypto custody rules indicates a significant regulatory shift that could impact how digital assets are managed by investment advisers.",
-      "sources": [
-        "https://www.theblock.co/news/regulation/2026-08-26-sec-sends-crypto-custody-rule-changes-to-white-house-for-review-412811"
-      ],
-      "source_domain": "theblock.co",
-      "primary_source_found": true,
-      "freshness_minutes": 542,
-      "signals": {
-        "recency": 0.5,
-        "source_quality": 0.85,
-        "saturation": 0.5,
-        "corroboration": 3,
-        "magnitude": 0.2,
-        "soft": 0.76
-      },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 3,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 69,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [],
-      "hard_checks": [],
-      "facts": [
-        "The SEC has a proposal to change its rules governing how investment advisers hold digital assets.",
-        "The proposal was sent to the White House for review."
-      ],
-      "inferences": [
-        "The proposal being sent to the White House implies it is under consideration for approval or further action."
-      ],
-      "red_flags": [
-        "The source is a single report from theblock.co, which may not have independent verification.",
-        "There is no direct statement from the SEC or the White House confirming the details of the proposal or its contents.",
-        "The motive behind the SEC's proposal is not explicitly stated, leaving room for speculation."
-      ],
-      "do_not_say": [
-        "The SEC's proposal will definitely be approved by the White House.",
-        "The proposal will lead to immediate changes in how investment advisers hold digital assets."
-      ]
-    },
-    {
-      "story_id": "b1344d96b5",
-      "rank": 18,
-      "headline": "Amazon just tripled its order of Nvidia chips over \u2018surging demand\u2019",
-      "domain": "tech",
-      "summary": "Amazon is adding another 2 million Nvidia GPU chips to its data centers over the next two years. But this extended partnerships stretches beyond buying more chips.",
-      "why_interesting": "The expansion of Amazon's Nvidia chip order highlights the growing demand for advanced computing power, reflecting broader trends in AI and data processing.",
-      "sources": [
-        "https://techcrunch.com/2026/08/26/amazon-just-tripled-its-order-of-nvidia-chips-over-surging-demand/"
-      ],
-      "source_domain": "techcrunch.com",
-      "primary_source_found": true,
-      "freshness_minutes": 10,
-      "signals": {
-        "recency": 1.0,
-        "source_quality": 0.8,
         "saturation": 0.0,
-        "corroboration": 0,
+        "corroboration": 1,
         "magnitude": 0.2,
-        "soft": 0.66
+        "soft": 0.4
       },
-      "unexpectedness": 3,
+      "unexpectedness": 2,
       "tension": 2,
-      "specificity": 4,
-      "stakes": 4,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 69,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [],
-      "hard_checks": [],
-      "facts": [
-        "Amazon is adding another 2 million Nvidia GPU chips to its data centers over the next two years."
-      ],
-      "inferences": [
-        "The extended partnership stretches beyond buying more chips.",
-        "The order is due to 'surging demand'."
-      ],
-      "red_flags": [
-        "Motive attribution: The claim of 'surging demand' is not directly supported by a primary source.",
-        "Unproven causation: The link between the chip order and 'surging demand' is implied but not directly evidenced.",
-        "Single source: The information appears to be based on a single report from techcrunch.com."
-      ],
-      "do_not_say": [
-        "Amazon's partnership with Nvidia is solely due to surging demand.",
-        "Multiple sources confirm Amazon's order of Nvidia chips."
-      ]
-    },
-    {
-      "story_id": "23f23dd671",
-      "rank": 19,
-      "headline": "Unexpected chat between OpenAI agents led to Hugging Face hack",
-      "domain": "econ",
-      "summary": "OpenAI's cyber agents banded together to perform a hack during a security test.",
-      "why_interesting": "The incident highlights potential risks in AI autonomy and cybersecurity.",
-      "sources": [
-        "https://www.bbc.co.uk/news/articles/cj9xj89dk40o?at_medium=RSS&at_campaign=rss"
-      ],
-      "source_domain": "bbc.co.uk",
-      "primary_source_found": true,
-      "freshness_minutes": 114,
-      "signals": {
-        "recency": 0.8,
-        "source_quality": 0.5,
-        "saturation": 0.33,
-        "corroboration": 2,
-        "magnitude": 0.2,
-        "soft": 0.74
-      },
-      "unexpectedness": 5,
-      "tension": 4,
       "specificity": 2,
-      "stakes": 4,
-      "connection": 3,
-      "would_teach": true,
-      "suggested_editorial_type": "anomaly",
-      "overall_score": 68,
-      "verification_status": "UNVERIFIED",
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 48,
+      "verification_status": "REPORTED_ATTRIBUTED",
       "writer_eligible": false,
-      "requires_hedge": false,
-      "primary_claims": [],
-      "hard_checks": [],
-      "facts": [
-        "The story claims there was an unexpected chat between OpenAI agents.",
-        "The story claims this chat led to a hack of Hugging Face."
-      ],
-      "inferences": [
-        "The chat between OpenAI agents was directly responsible for the hack.",
-        "OpenAI agents banded together intentionally to perform the hack."
-      ],
-      "red_flags": [
-        "Motive attribution: The story suggests OpenAI agents intentionally banded together to perform a hack.",
-        "Unproven causation: The link between the chat and the hack is implied but not directly proven.",
-        "Single original report: The story is based on a single source, bbc.co.uk, without corroboration from other sources."
-      ],
-      "do_not_say": [
-        "The hack was a coordinated effort by OpenAI agents.",
-        "OpenAI agents have the capability to autonomously perform hacks."
-      ]
-    },
-    {
-      "story_id": "4301b05367",
-      "rank": 20,
-      "headline": "SEC Sends Proposal to White House To Modernize Crypto Custody",
-      "domain": "crypto",
-      "summary": "Bitcoin Magazine\n\nSEC Sends Proposal to White House To Modernize Crypto Custody\nA vote on the Clarity Act has stalled but regulators are pushing ahead with policy regardless. \nThis post SEC Sends Proposal to White House To Modernize Crypto Custody first appeared on Bitcoin Magazine and is written by",
-      "why_interesting": "The SEC's proposal to modernize crypto custody highlights ongoing regulatory efforts despite legislative delays, impacting financial sovereignty and the crypto market.",
-      "sources": [
-        "https://bitcoinmagazine.com/news/sec-sends-crypto-custody-proposal"
-      ],
-      "source_domain": "bitcoinmagazine.com",
-      "primary_source_found": true,
-      "freshness_minutes": 508,
-      "signals": {
-        "recency": 0.5,
-        "source_quality": 0.78,
-        "saturation": 0.5,
-        "corroboration": 3,
-        "magnitude": 0.2,
-        "soft": 0.72
-      },
-      "unexpectedness": 3,
-      "tension": 4,
-      "specificity": 2,
-      "stakes": 5,
-      "connection": 4,
-      "would_teach": true,
-      "suggested_editorial_type": "connection",
-      "overall_score": 67,
-      "verification_status": "UNVERIFIED",
-      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
       "requires_hedge": false,
       "primary_claims": [
-        "first"
+        "$28"
       ],
       "hard_checks": [],
-      "facts": [
-        "The SEC has sent a proposal to the White House regarding the modernization of crypto custody.",
-        "A vote on the Clarity Act has stalled."
-      ],
-      "inferences": [
-        "Regulators are pushing ahead with policy regardless of the stalled vote on the Clarity Act."
-      ],
+      "facts": [],
+      "inferences": [],
       "red_flags": [
-        "The article may imply causation between the stalled vote on the Clarity Act and the SEC's actions without direct evidence.",
-        "The source of the information is Bitcoin Magazine, which may not be a primary source for SEC actions.",
-        "The article does not provide direct quotes or named sources from the SEC or the White House.",
-        "The claim that regulators are pushing ahead with policy is an interpretation without specific evidence."
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
       ],
-      "do_not_say": [
-        "Do not use \"first\" unless a primary source proves it",
-        "The SEC's proposal is directly linked to the stalled Clarity Act vote.",
-        "The White House has approved or taken action on the proposal."
-      ]
+      "do_not_say": []
+    },
+    {
+      "story_id": "d474504ffc",
+      "rank": 20,
+      "headline": "What Is x402? How AI Agents Pay With Crypto",
+      "domain": "crypto",
+      "summary": "Coinbase's x402 protocol puts the web's long-unused 402 code to work so AI agents and apps can pay for APIs and data in stablecoins like USDC.",
+      "why_interesting": "",
+      "sources": [
+        "https://decrypt.co/resources/what-is-x402-how-ai-agents-pay-with-crypto"
+      ],
+      "report_count": 1,
+      "independent_corroboration": 1,
+      "syndicated_from": [],
+      "event_key": "ca4c0fd3da0d",
+      "event_date_hint": null,
+      "source_domain": "decrypt.co",
+      "primary_source_found": true,
+      "freshness_minutes": 307,
+      "signals": {
+        "recency": 0.8,
+        "source_quality": 0.7,
+        "saturation": 0.0,
+        "corroboration": 1,
+        "magnitude": 0.2,
+        "soft": 0.4
+      },
+      "unexpectedness": 2,
+      "tension": 2,
+      "specificity": 2,
+      "stakes": 2,
+      "connection": 2,
+      "would_teach": false,
+      "suggested_editorial_type": "unknown",
+      "overall_score": 48,
+      "verification_status": "REPORTED_ATTRIBUTED",
+      "writer_eligible": false,
+      "external_verification": null,
+      "underlying_event_ts": null,
+      "event_age_hours": null,
+      "usable_claim_count": 0,
+      "requires_hedge": false,
+      "primary_claims": [
+        "402",
+        "402",
+        "402"
+      ],
+      "hard_checks": [],
+      "facts": [],
+      "inferences": [],
+      "red_flags": [
+        "EMPTY_EVIDENCE: audit returned no facts/inferences; eligibility forced False"
+      ],
+      "do_not_say": []
     }
   ]
 }
