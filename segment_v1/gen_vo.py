@@ -12,8 +12,14 @@ os.makedirs(VO_DIR, exist_ok=True)
 sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
 from relay import get_key
 
-# PBX clone is the production voice; Connery is fallback
-PBX_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID_PP", "e6gztcS9NPqChYKvXN6c")
+# PBX clone is the production voice — HARD FAIL if missing (no Connery fallback)
+PBX_VOICE_ID = get_key("ELEVENLABS_VOICE_ID_PP")
+if not PBX_VOICE_ID:
+    print("FATAL: ELEVENLABS_VOICE_ID_PP not found in .env (via get_key). "
+          "Expected 43nxoDRMpcLls4afQ9MK. Refusing to fall back to Connery.")
+    sys.exit(1)
+PBX_VOICE_ID = PBX_VOICE_ID.strip()
+print(f"voice_id: {PBX_VOICE_ID}")
 MODEL_ID = "eleven_multilingual_v2"
 VOICE_SETTINGS = {
     "stability": 0.60,

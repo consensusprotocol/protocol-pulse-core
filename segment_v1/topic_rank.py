@@ -119,7 +119,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 load_dotenv("/home/ultron/protocol_pulse/.env")
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+genai.configure(api_key=os.environ["GEMINI_API_KEY_MEDLEY"])
 model = genai.GenerativeModel("gemini-3.8-flash")
 response = model.generate_content(
     prompt,

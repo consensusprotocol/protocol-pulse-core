@@ -408,7 +408,16 @@ def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir, source_clips=None)
             face_counts.append(len(faces))
 
         # Rules
-        if fmt == "9x16" and layout == "grid":
+        source_faces = seg.get("source_faces", 0)
+        if layout == "screenshare":
+            # Screen-share or 4+: no face requirement (content is screen, not faces)
+            min_faces = 0
+            ok = True
+        elif fmt == "9x16" and layout in ("2face", "3face"):
+            # Law 19: rendered vertical must show same face count as source
+            min_faces = source_faces if source_faces >= 2 else 1
+            ok = sum(1 for fc in face_counts if fc >= min_faces) >= 4  # 4 of 6 samples
+        elif fmt == "9x16" and layout == "grid":
             # v11: grid segments in vertical must show >= 4 faces (enlarged column)
             min_faces = 4
             ok = sum(1 for fc in face_counts if fc >= min_faces) >= 4  # 4 of 6 samples

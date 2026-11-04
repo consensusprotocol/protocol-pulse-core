@@ -574,7 +574,7 @@ def diagnose_and_patch(log_tail, crash_class, pattern):
         f.write(json.dumps(patch_record) + "\n")
 
     # Restart render loop if it was dead
-    if not process_alive("overnight_render_loop"):
+    if render_loop_required() and not process_alive("overnight_render_loop"):
         logger.info("Render loop is dead — attempting restart")
         subprocess.Popen(
             ["bash", "-c",
@@ -774,7 +774,7 @@ def run_reactive_check():
 
     # Check render loop alive — auto-restart during active hours (8am-11pm ET)
     # WATCHDOG_ALWAYS_ON=1 overrides hours check for overnight renders
-    loop_alive = process_alive("overnight_render_loop")
+    loop_alive = process_alive("overnight_render_loop") if render_loop_required() else True
     if not loop_alive:
         # ET = UTC-4 (EDT) or UTC-5 (EST). Use UTC-4 for summer.
         et_hour = (datetime.now(timezone.utc) - timedelta(hours=4)).hour
@@ -859,6 +859,12 @@ def run_reactive_check():
 # LAYER 2 — PERIODIC HEALTH SCAN (every 15 min)
 # ===================================================================
 
+
+def render_loop_required():
+    """The legacy overnight_render_loop (ProRes overlay pipeline, retired 2026-11-03) is only
+    monitored when RENDER_LOOP_ENABLED=1. Default off: no alerts, no auto-restarts."""
+    return os.environ.get("RENDER_LOOP_ENABLED", "0") == "1"
+
 def run_health_scan():
     """Fresh system health check — reads everything from scratch."""
     logger.info("-- HEALTH SCAN --")
@@ -866,7 +872,7 @@ def run_health_scan():
     checks = {}
 
     # Render loop alive?
-    checks["render_loop"] = process_alive("overnight_render_loop")
+    checks["render_loop"] = process_alive("overnight_render_loop") if render_loop_required() else True
 
     # Flask alive?
     checks["flask"] = flask_alive()
@@ -1229,7 +1235,7 @@ def send_daily_briefing():
 
     # Determine status
     issues = []
-    if not process_alive("overnight_render_loop"):
+    if render_loop_required() and not process_alive("overnight_render_loop"):
         issues.append("render loop down")
     if not flask_alive():
         issues.append("Flask down")
