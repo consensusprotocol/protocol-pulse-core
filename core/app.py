@@ -182,6 +182,15 @@ def basename_filter(path):
         return ""
     return os.path.basename(str(path).strip())
 
+@app.template_filter('regex_search')
+def regex_search_filter(value, pattern):
+    """Search for a regex pattern in value. Returns first group or empty string."""
+    if not value or not pattern:
+        return ""
+    import re
+    m = re.search(pattern, str(value))
+    return m.group(1) if m and m.lastindex else (m.group(0) if m else "")
+
 @app.template_filter('article_header_display')
 def article_header_display_filter(article):
     """Return a distinct header image URL for this article."""
