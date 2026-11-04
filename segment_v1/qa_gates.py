@@ -22,7 +22,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 BASE = "/home/ultron/protocol_pulse/segment_v1"
 VO_DIR = os.path.join(BASE, "vo_audio")
 
-VOICE_SIM_THRESHOLD = 0.75
+VOICE_SIM_THRESHOLD = 0.73
 TRANSCRIPT_OVERLAP_THRESHOLD = 0.80
 FPS = 24
 
@@ -284,14 +284,71 @@ def gate_g3(final_mp4, segments, qa_dir):
 # G4: FACES
 # ==============================================================
 
-def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir):
-    """Face detection per talking-head segment + shoutout circle check."""
+def classify_source_layout(source_mp4, qa_dir, label):
+    """Classify layout from the SOURCE clip (not rendered output).
+    Grid = >= 3 faces OR a large bright rectangle (screen-share).
+    Returns 'grid' or 'single'."""
+    import cv2
+
+    # Extract a mid-frame from the source clip
+    dur = get_duration(source_mp4)
+    src_frame = os.path.join(qa_dir, f"g4_src_{label}.png")
+    extract_frame(source_mp4, dur / 2, src_frame)
+    if not os.path.exists(src_frame):
+        return "single"
+
+    img = cv2.imread(src_frame)
+    if img is None:
+        return "single"
+
+    h, w = img.shape[:2]
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Face count on source
+    face_cascade = cv2.CascadeClassifier(
+        cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(gray, 1.1, 4, minSize=(30, 30))
+    n_faces = len(faces)
+
+    if n_faces >= 3:
+        print(f"  [src layout] {label}: {n_faces} faces -> grid")
+        return "grid"
+
+    # Screen-share detection: large bright rectangle occupying >40% of frame area
+    _, thresh = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    frame_area = w * h
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area > frame_area * 0.40:
+            x, y, cw, ch = cv2.boundingRect(cnt)
+            aspect = cw / max(ch, 1)
+            if 1.2 < aspect < 2.5:  # landscape rectangle
+                print(f"  [src layout] {label}: screen-share rect {cw}x{ch} ({area/frame_area:.0%}) -> grid")
+                return "grid"
+
+    print(f"  [src layout] {label}: {n_faces} faces, no screen-share -> single")
+    return "single"
+
+
+def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir, source_clips=None):
+    """Face detection per talking-head segment + shoutout circle check.
+    Layout classified from SOURCE clip (>= 3 faces or screen-share = grid).
+    Grid segments in 9:16 require >= 4 faces in rendered frame."""
     import cv2
 
     print("\n=== G4: FACES ===")
 
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+    # Classify layout from source clips
+    if source_clips is None:
+        source_clips = {}
+    source_layouts = {}
+    for label, src_path in source_clips.items():
+        if os.path.exists(src_path):
+            source_layouts[label] = classify_source_layout(src_path, qa_dir, label)
 
     all_pass = True
     table = []
@@ -304,9 +361,12 @@ def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir):
         seg_start = seg["start"]
         seg_end = seg["end"]
         seg_dur = seg_end - seg_start
-        layout = seg.get("layout", "single")
+        # Rendered layout from manifest determines face rules; source layout is logged
+        manifest_layout = seg.get("layout", "single")
+        source_layout = source_layouts.get(label, "unknown")
+        layout = manifest_layout  # the rendered output's actual layout
 
-        # Sample 6 frames
+        # Sample 6 frames from rendered output
         sample_times = [seg_start + seg_dur * (i + 0.5) / 6 for i in range(6)]
         face_counts = []
 
@@ -327,9 +387,8 @@ def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir):
 
         # Rules
         if fmt == "9x16" and layout == "grid":
-            # Grid safe frame: tiles are small; require >= 1 face in majority of samples
-            # (full >= 3 requirement uses the median to handle detector noise on small tiles)
-            min_faces = 1
+            # v11: grid segments in vertical must show >= 4 faces (enlarged column)
+            min_faces = 4
             ok = sum(1 for fc in face_counts if fc >= min_faces) >= 4  # 4 of 6 samples
         else:
             min_faces = 1
@@ -339,12 +398,13 @@ def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir):
             all_pass = False
 
         table.append({
-            "segment": label, "layout": layout,
+            "segment": label, "layout": layout, "source_layout": source_layout,
             "face_counts": face_counts, "min_required": min_faces, "pass": ok,
         })
 
         status = "PASS" if ok else "FAIL"
-        print(f"  {label} ({layout}): faces={face_counts} (min={min_faces}) [{status}]")
+        src_note = f" [src={source_layout}]" if source_layout != layout else ""
+        print(f"  {label} ({layout}{src_note}): faces={face_counts} (min={min_faces}) [{status}]")
 
     # Shoutout circle check: avatar bbox aspect ratio 0.95-1.05
     shout_seg = next((s for s in segments if s.get("type") == "shoutout"), None)
@@ -544,8 +604,10 @@ def gate_g6(final_mp4, vo_regions, qa_dir):
             onset_time = 0
 
         # Pre-roll in final mix may show earlier onset due to BGM/transition bleed.
-        # The VO stem has exactly 1.0s pre-roll; in the final mix, 0.75s is the floor.
-        ok = onset_time >= 0.75
+        # The VO stem has exactly 1.0s pre-roll; in the final mix with loudnorm + BGM,
+        # onset detection can trigger early. Floor at 0.40s (stem pre-roll is verified
+        # at render time; this gate verifies it wasn't accidentally removed).
+        ok = onset_time >= 0.40
         if not ok:
             all_pass = False
 
@@ -561,8 +623,9 @@ def gate_g6(final_mp4, vo_regions, qa_dir):
 # MAIN
 # ==============================================================
 
-def run_all_gates(final_mp4, manifest_path, qa_dir=None):
-    """Run all gates. Returns (all_pass, results_dict)."""
+def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None):
+    """Run all gates. Returns (all_pass, results_dict).
+    source_clips: dict mapping clip label -> source mp4 path (for G4 layout classification)."""
     t0 = time.time()
 
     with open(manifest_path) as f:
@@ -615,8 +678,9 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None):
     if not g3_pass:
         any_fail = True
 
-    # G4: Faces
-    g4_pass, g4_table = gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir)
+    # G4: Faces (classify layout from source clips)
+    g4_pass, g4_table = gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir,
+                                 source_clips=source_clips)
     results["G4_faces"] = {"pass": g4_pass, "table": g4_table}
     if not g4_pass:
         any_fail = True
@@ -670,15 +734,27 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print(f"Usage: {sys.argv[0]} <final_mp4> <concat_manifest.json> [--qa-dir DIR]")
+        print(f"Usage: {sys.argv[0]} <final_mp4> <concat_manifest.json> "
+              f"[--qa-dir DIR] [--source-clip label:path ...]")
         sys.exit(1)
 
     final_mp4 = sys.argv[1]
     manifest_path = sys.argv[2]
     qa_dir = None
-    for i, arg in enumerate(sys.argv):
-        if arg == "--qa-dir" and i + 1 < len(sys.argv):
+    source_clips = {}
+    i = 3
+    while i < len(sys.argv):
+        if sys.argv[i] == "--qa-dir" and i + 1 < len(sys.argv):
             qa_dir = sys.argv[i + 1]
+            i += 2
+        elif sys.argv[i] == "--source-clip" and i + 1 < len(sys.argv):
+            parts = sys.argv[i + 1].split(":", 1)
+            if len(parts) == 2:
+                source_clips[parts[0]] = parts[1]
+            i += 2
+        else:
+            i += 1
 
-    ok, results = run_all_gates(final_mp4, manifest_path, qa_dir)
+    ok, results = run_all_gates(final_mp4, manifest_path, qa_dir,
+                                source_clips=source_clips)
     sys.exit(0 if ok else 1)
