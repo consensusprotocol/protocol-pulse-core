@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import requests
 try:
     from openai import OpenAI
 except ImportError:
@@ -100,6 +101,41 @@ class AIService:
             logging.error(f"Anthropic API error: {str(e)}")
             raise
     
+    def generate_content_ollama(self, prompt, system_prompt=None, model="deepseek-coder-v2:16b"):
+        """Generate content using local Ollama (Qwen). Free, no API key needed."""
+        ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+        try:
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
+
+            resp = requests.post(
+                f"{ollama_url}/api/chat",
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "stream": False,
+                    "options": {"temperature": 0.7, "num_predict": 2500},
+                },
+                timeout=180,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data.get("message", {}).get("content", "")
+            if not content:
+                raise ValueError("Empty response from Ollama")
+            return content
+        except Exception as e:
+            logging.error("Ollama API error: %s", e)
+            raise
+
+    def generate_content_gemini_prompt(self, prompt, system_prompt=None):
+        """Generate content using Gemini with a direct prompt (not topic-based)."""
+        if not self.gemini_available:
+            raise ValueError("Gemini API key required")
+        return gemini_service.generate_content(prompt, system_prompt)
+
     def generate_structured_content(self, prompt, system_prompt=None, provider="openai"):
         """Generate structured content with JSON response"""
         if provider == "openai" and self.openai_client:

@@ -23,7 +23,7 @@
     "@type": "WebApplication",
     "name": "Protocol Pulse",
     "url": "https://protocolpulse.io",
-    "description": "Real-time Bitcoin intelligence platform. Market signals, on-chain analytics, and sovereign AI oracle.",
+    "description": "Real-time Bitcoin intelligence platform. Market signals, on-chain analytics, and sovereign intelligence terminal.",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "Web",
     "offers": {
@@ -98,8 +98,8 @@
                 <a href="/articles" class="pp-btn pp-btn--ghost pp-btn--lg pp-cta-track" data-cta-id="hero-briefs" data-cta-page="home">
                     <i class="fas fa-terminal"></i> Read Intel Briefs
                 </a>
-                <a href="/oracle-live" class="pp-btn pp-btn--ghost pp-btn--lg pp-cta-track" data-cta-id="hero-oracle" data-cta-page="home" style="color:var(--pp-red,#CC2222);border-color:rgba(220,38,38,0.3);">
-                    ⚡ Consult The Oracle
+                <a href="/terminal" class="pp-btn pp-btn--ghost pp-btn--lg pp-cta-track" data-cta-id="hero-terminal" data-cta-page="home" style="color:var(--pp-red,#CC2222);border-color:rgba(220,38,38,0.3);">
+                    <i class="fas fa-chart-line"></i> Full Terminal
                 </a>
             </div>
 
@@ -107,7 +107,7 @@
             <div class="pp-hero__proof pp-animate-in pp-animate-in-delay-3" style="display:flex;align-items:center;gap:20px;flex-wrap:nowrap;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#888;letter-spacing:0.03em;">
                 <span style="white-space:nowrap;"><span style="color:#dc2626;">&#9679;</span> 1,300+ intelligence briefs</span>
                 <span style="color:#444;">|</span>
-                <span style="white-space:nowrap;">Live AI oracle</span>
+                <span style="white-space:nowrap;">24/7 signal engine</span>
                 <span style="color:#444;">|</span>
                 <span style="white-space:nowrap;">X Spaces monitoring</span>
                 <span style="color:#444;">|</span>
@@ -120,7 +120,7 @@
                 <span class="pp-hero__new-here-text">
                     Start with <a href="/dossier" class="pp-hero__new-here-link">The Dossier</a> — 32 intelligence briefs on why Bitcoin wins.&nbsp;&nbsp;
                     <span class="pp-hero__new-here-sep" style="margin:0 4px;">·</span>&nbsp;
-                    <a href="/oracle-live" class="pp-hero__new-here-link" style="color:var(--pp-red, #CC2222);opacity:0.8;">Consult The Oracle ⚡</a>
+                    <a href="/terminal" class="pp-hero__new-here-link" style="color:var(--pp-red, #CC2222);opacity:0.8;">Full Terminal</a>
                 </span>
             </div>
 
@@ -188,7 +188,7 @@
     </div>
     <div style="background:#111;border-left:1px solid #1F1F1F;border-right:1px solid #1F1F1F;padding:16px 16px 14px;display:flex;align-items:baseline;gap:12px;border-bottom:1px solid #1a1a1a;">
       <span id="hp-sig-score" style="font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:800;color:#fff;line-height:1;">—</span>
-      <div><div id="hp-sig-class" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;letter-spacing:.1em;color:#10B981;">—</div><div id="hp-sig-delta" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#888;margin-top:2px;">UPDATING...</div></div>
+      <div><div id="hp-sig-class" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;letter-spacing:.1em;color:#10B981;">—</div><div id="hp-sig-delta" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#888;margin-top:2px;"></div></div>
     </div>
     <div style="background:#111;border-left:1px solid #1F1F1F;border-right:1px solid #1F1F1F;padding:0 16px 14px;">
       <div style="height:3px;background:#1F1F1F;border-radius:2px;overflow:hidden;"><div id="hp-sig-bar" style="height:100%;width:0%;background:#10B981;transition:width .6s ease;border-radius:2px;"></div></div>
@@ -365,8 +365,6 @@
             <span>Last brief: <span id="proofStripLastArticle" style="color:rgba(255,255,255,0.8);">loading...</span></span>
             <span style="color:rgba(255,255,255,0.12);">|</span>
             <span><span id="proofStripArticleCount" style="color:#fff;font-weight:700;">1,300</span>+ intelligence briefs published</span>
-            <span style="color:rgba(255,255,255,0.12);">|</span>
-            <span>Oracle sessions today: <span id="proofStripOracleSessions" style="color:var(--pp-amber);font-weight:700;">—</span></span>
         </div>
     </div>
 </section>
@@ -495,12 +493,12 @@
                 <div>
                     <div class="intel-teaser__metric-label">Market Sentiment</div>
                     <div class="intel-teaser__metric-value" id="teaser-sentiment">
-                        <span class="bullish-text" id="teaser-bullish">—%</span> Bullish
+                        <span class="bullish-text" id="teaser-bullish"></span> <span id="teaser-bullish-label" style="display:none;">Bullish</span>
                     </div>
                 </div>
                 <div>
                     <div class="intel-teaser__metric-label">Dominant Narrative</div>
-                    <div class="intel-teaser__metric-value" id="teaser-narrative">Loading…</div>
+                    <div class="intel-teaser__metric-value" id="teaser-narrative"></div>
                 </div>
                 <div>
                     <div class="intel-teaser__metric-label">Signal Score</div>
@@ -514,123 +512,6 @@
     </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     THE ORACLE — AI INTELLIGENCE ANALYST
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="pp-section" style="padding-top:0;padding-bottom:48px;">
-    <div class="pp-container">
-        <div class="pp-reveal" style="
-            position:relative;
-            overflow:hidden;
-            border-radius:var(--pp-radius-lg);
-            border:1px solid rgba(245,166,35,0.2);
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(245,166,35,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 30%, rgba(220,38,38,0.06) 0%, transparent 50%),
-                linear-gradient(135deg, #0a0a0a 0%, #111 100%);
-        ">
-            <!-- Scan line overlay -->
-            <div style="
-                position:absolute;inset:0;pointer-events:none;
-                background:repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(245,166,35,0.015) 2px,
-                    rgba(245,166,35,0.015) 4px
-                );
-            "></div>
-
-            <div style="display:flex;align-items:center;gap:32px;padding:40px;flex-wrap:wrap;">
-                <!-- Avatar preview -->
-                <div style="
-                    flex-shrink:0;
-                    width:180px;height:180px;
-                    border-radius:50%;
-                    border:2px solid rgba(245,166,35,0.3);
-                    box-shadow:0 0 40px rgba(245,166,35,0.1), 0 0 80px rgba(220,38,38,0.05);
-                    overflow:hidden;
-                    background:#0a0a0a;
-                    position:relative;
-                ">
-                    <img src="{{ '/static/oracle_avatar.png' }}"
-                         alt="The Oracle"
-                         style="width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:50%;"
-                         loading="lazy">
-                    <div style="
-                        position:absolute;inset:-4px;
-                        border-radius:50%;
-                        border:2px solid rgba(245,166,35,0.15);
-                        animation:pp-oracle-pulse 3s ease-in-out infinite;
-                    "></div>
-                </div>
-
-                <!-- Text content -->
-                <div style="flex:1;min-width:260px;">
-                    <div style="
-                        display:inline-flex;align-items:center;gap:6px;
-                        padding:4px 12px;
-                        background:rgba(245,166,35,0.08);
-                        border:1px solid rgba(245,166,35,0.2);
-                        border-radius:20px;
-                        font-family:var(--pp-font-mono);
-                        font-size:0.625rem;
-                        font-weight:700;
-                        color:var(--pp-amber);
-                        text-transform:uppercase;
-                        letter-spacing:0.08em;
-                        margin-bottom:16px;
-                    ">
-                        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--pp-amber);animation:pp-pulse-dot-glow 2s infinite;"></span>
-                        AI INTELLIGENCE ANALYST
-                    </div>
-
-                    <h2 style="
-                        font-family:var(--pp-font-body);
-                        font-size:clamp(1.5rem,3vw,2rem);
-                        font-weight:700;
-                        color:var(--pp-text);
-                        line-height:1.2;
-                        margin-bottom:10px;
-                    ">
-                        Consult <span style="
-                            background:linear-gradient(135deg, var(--pp-amber) 0%, #ff6b35 50%, var(--pp-red, #CC2222) 100%);
-                            -webkit-background-clip:text;
-                            -webkit-text-fill-color:transparent;
-                            background-clip:text;
-                        ">The Oracle</span>
-                    </h2>
-
-                    <p style="
-                        font-size:0.9375rem;
-                        color:var(--pp-text-secondary);
-                        line-height:1.7;
-                        margin-bottom:20px;
-                        max-width:420px;
-                    ">
-                        Real-time Bitcoin intelligence from our AI analyst.
-                        Real-time market state, mining economics, protocol analysis.
-                        Lip-synced avatar delivers briefings in seconds.
-                    </p>
-
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <a href="/oracle-live" class="pp-btn pp-btn--primary pp-btn--lg" style="
-                            background:linear-gradient(135deg, var(--pp-amber), #ff6b35);
-                            border:none;
-                            color:#000;
-                            font-weight:700;
-                        ">
-                            <i class="fas fa-bolt"></i> Consult The Oracle
-                        </a>
-                        <a href="/stage" class="pp-btn pp-btn--ghost pp-btn--lg" style="border-color:rgba(245,166,35,0.3);color:var(--pp-amber);">
-                            <i class="fas fa-broadcast-tower"></i> Watch The Stage
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 
 <!-- ═══════════════════════════════════════════════════════════════
@@ -652,7 +533,7 @@
             <div>
                 <h3 class="pp-h5 pp-mb-3">Latest Episode</h3>
                 {% if latest_episode and latest_episode.found %}
-                    <a href="{{ latest_episode.video_url or '/stage' }}" target="_blank" rel="noopener" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;text-decoration:none;">
+                    <a href="{{ latest_episode.video_url or '/articles' }}" target="_blank" rel="noopener" class="pp-card pp-mb-2" style="display:flex;gap:12px;padding:14px;text-decoration:none;">
                         <div style="flex-shrink:0;width:48px;height:48px;background:rgba(220,38,38,0.15);border-radius:var(--pp-radius-sm);display:flex;align-items:center;justify-content:center;border:1px solid rgba(220,38,38,0.3);">
                             <i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i>
                         </div>
@@ -684,7 +565,7 @@
                     {% endfor %}
                 {% else %}
                     <div class="pp-card" style="padding:16px;text-align:center;">
-                        <div class="pp-text-muted pp-small">Loading latest episode...</div>
+                        <div class="pp-text-muted pp-small">No episodes available yet.</div>
                     </div>
                 {% endif %}
                 <a href="/podcasts" class="pp-btn pp-btn--outline-teal pp-btn--sm pp-btn--full pp-mt-2">
@@ -731,11 +612,6 @@
                 <h3 class="pp-h5 pp-mb-1">Value Stream</h3>
                 <p class="pp-small pp-text-secondary">Lightning Network value flows and micro-transaction intelligence. The speed layer, analyzed.</p>
             </a>
-            <a href="/chat" class="pp-card pp-card--stat pp-card--amber">
-                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-robot" style="color:var(--pp-amber);"></i></div>
-                <h3 class="pp-h5 pp-mb-1">Ask Satomi</h3>
-                <p class="pp-small pp-text-secondary">Ask anything about the protocol, market dynamics, or mining economics. Instant answers.</p>
-            </a>
             <a href="/nostr-signal" class="pp-card pp-card--stat" style="border-color:rgba(245,166,35,0.15);">
                 <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-satellite-dish" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">Nostr Signal Radar</h3>
@@ -750,11 +626,6 @@
                 <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-chart-line" style="color:var(--pp-amber);"></i></div>
                 <h3 class="pp-h5 pp-mb-1">BTC Charts</h3>
                 <p class="pp-small pp-text-secondary">Interactive price, hashrate, and fee charts with technical overlays. Deep history, clean UI.</p>
-            </a>
-            <a href="/stage" class="pp-card pp-card--stat" style="border-color:rgba(0,212,170,0.15);">
-                <div style="font-size:1.5rem;margin-bottom:8px;"><i class="fas fa-broadcast-tower" style="color:var(--pp-red, #CC2222);"></i></div>
-                <h3 class="pp-h5 pp-mb-1">Avatar Stage</h3>
-                <p class="pp-small pp-text-secondary">24/7 Bitcoin intelligence from the AI avatar. Live sentiment, real-time transcript, partner tracking.</p>
             </a>
         </div>
 
@@ -803,7 +674,7 @@
                 Stop trading on yesterday's news.
             </h2>
             <p style="font-size:0.9375rem;color:rgba(255,255,255,0.55);max-width:520px;margin:0 auto 24px;line-height:1.7;">
-                Commander operators get the signal engine, real-time alerts, API access, and priority Oracle — while everyone else reads the recap.
+                Commander operators get the signal engine, real-time alerts, API access, and priority alerts — while everyone else reads the recap.
             </p>
             <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
                 <a href="/commander" class="pp-btn pp-btn--primary pp-btn--lg pp-cta-track" data-cta-id="bottom-commander" data-cta-page="home" style="
@@ -833,53 +704,6 @@
                 <button type="submit" class="pp-btn pp-btn--primary pp-cta-track" data-cta-id="newsletter-subscribe" data-cta-page="home">Subscribe</button>
             </form>
             <p class="pp-tiny pp-text-muted pp-mt-2" id="nlMicrocopy">No spam. One daily brief. Unsubscribe anytime.</p>
-            <!-- Oracle Brief — Telegram/Discord delivery (Commander+) -->
-            <div style="margin-top:16px;padding:16px;border:1px solid rgba(220,38,38,0.15);border-radius:12px;background:rgba(220,38,38,0.03);max-width:420px;margin-left:auto;margin-right:auto;">
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#dc2626;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">
-                    &#9673; ORACLE DAILY BRIEF — 6:45 AM ET
-                </div>
-                <p style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#888;margin:0 0 12px 0;">
-                    90-second intelligence brief from Satomi. Real data, not news. Delivered via Telegram, Discord, or SMS.
-                </p>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-                    <a href="https://t.me/Proto_P_bot" target="_blank" rel="noopener"
-                       style="flex:1;min-width:110px;display:flex;align-items:center;justify-content:center;gap:6px;
-                              font-family:'JetBrains Mono',monospace;font-size:0.7rem;
-                              padding:8px 12px;background:#229ED9;color:#fff;border:none;
-                              border-radius:6px;cursor:pointer;text-decoration:none;letter-spacing:0.04em;white-space:nowrap;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.013 9.49c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.876.731z"/></svg>
-                        Telegram
-                    </a>
-                    <a href="https://discord.gg/protocolpulse" target="_blank" rel="noopener"
-                       style="flex:1;min-width:110px;display:flex;align-items:center;justify-content:center;gap:6px;
-                              font-family:'JetBrains Mono',monospace;font-size:0.7rem;
-                              padding:8px 12px;background:#5865F2;color:#fff;border:none;
-                              border-radius:6px;cursor:pointer;text-decoration:none;letter-spacing:0.04em;white-space:nowrap;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-                        Discord
-                    </a>
-                </div>
-                <!-- SMS option -->
-                <div id="smsForm" style="display:flex;gap:6px;align-items:center;">
-                    <input type="tel" name="phone" placeholder="+1 (555) 000-0000"
-                           style="flex:1;font-family:'JetBrains Mono',monospace;font-size:0.68rem;
-                                  background:#0d0d0d;border:1px solid rgba(255,255,255,0.12);color:#fff;
-                                  padding:8px 10px;border-radius:6px;outline:none;min-width:0;"
-                           onfocus="this.style.borderColor='rgba(204,0,0,0.5)'"
-                           onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
-                    <button onclick="smsSub(event)"
-                            style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;
-                                   letter-spacing:0.06em;padding:8px 14px;background:rgba(204,0,0,0.85);
-                                   color:#fff;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;"
-                            onmouseover="this.style.background='#CC0000'" onmouseout="this.style.background='rgba(204,0,0,0.85)'">
-                        TEXT ME
-                    </button>
-                </div>
-                <div id="smsMsg" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;margin-top:5px;color:#888;display:none;"></div>
-                <p style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:#555;margin:8px 0 0 0;">
-                    Commander tier unlocks the full brief. <a href="/join" style="color:#dc2626;">Upgrade here.</a>
-                </p>
-            </div>
 
         </div>
     </div>
@@ -1066,7 +890,7 @@ function updateIntelStrip() {
             var narList = ['Bitcoin fundamentals strong','Miner conviction holding','Accumulation active','Network health optimal','On-chain signals bullish'];
             var narrative = data.narrative || narList[Math.floor(Date.now()/3600000) % narList.length];
             var bEl = document.getElementById('teaser-bullish');
-            if (bEl) bEl.textContent = bullishPct + '%';
+            if (bEl) { bEl.textContent = bullishPct + '%'; var lbl2 = document.getElementById('teaser-bullish-label'); if(lbl2) lbl2.style.display=''; }
             var nEl = document.getElementById('teaser-narrative');
             if (nEl) nEl.textContent = narrative;
             var sEl = document.getElementById('teaser-score');
@@ -1138,6 +962,8 @@ setInterval(updateIntelStrip, 60000);
 
             if (bullishEl && d.bullish_pct != null) {
                 bullishEl.textContent = Math.round(d.bullish_pct) + '%';
+                var lbl = document.getElementById('teaser-bullish-label');
+                if (lbl) lbl.style.display = '';
             }
             if (narrativeEl && d.narrative) {
                 // Truncate long narrative to a pithy label
@@ -1218,7 +1044,7 @@ function ppLoadVideo(el) {
     if (videoUrl) {
         container.innerHTML = '<video src="' + videoUrl + '" controls autoplay style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;"></video>';
     } else {
-        container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-broadcast-tower" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/stage" style="color:var(--pp-red, #CC2222);">Stage</a> for the latest episode</div></div>';
+        container.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><i class="fas fa-broadcast-tower" style="font-size:2rem;color:var(--pp-red, #CC2222);"></i><div class="pp-small pp-text-muted">Visit <a href="/articles" style="color:var(--pp-red, #CC2222);">Intel Briefs</a> for the latest</div></div>';
     }
 }
 
@@ -1282,7 +1108,7 @@ function ppLoadVideo(el) {
                 el.textContent = count.toLocaleString('en-US');
                 if (pulse) pulse.style.display = 'inline';
             }
-        }).catch(function() { el.textContent = 'N/A'; });
+        }).catch(function() { if(el && el.closest) { var card = el.closest('.pp-card, .pp-card--stat, [class*="stat"]'); if(card) card.style.display='none'; else el.textContent=''; } });
 })();
 </script>
 <script>
@@ -1300,7 +1126,7 @@ function ppLoadVideo(el) {
                     if (pulse) pulse.style.display = 'inline';
                 }
             })
-            .catch(function() { el.textContent = 'N/A'; });
+            .catch(function() { if(el && el.closest) { var card = el.closest('.pp-card, .pp-card--stat, [class*="stat"]'); if(card) card.style.display='none'; else el.textContent=''; } });
     })();
 
     // Fast hero BTC price update on load
@@ -1339,20 +1165,26 @@ function ppLoadVideo(el) {
     updateProofPrice();
     setInterval(updateProofPrice, 30000);
 
-    // Last article published
+    // Last article published — show timestamp in ET
     fetch('/api/articles?limit=1', { signal: AbortSignal.timeout(5000) })
         .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
         .then(function(d) {
             var el = document.getElementById('proofStripLastArticle');
             if (el && d.articles && d.articles.length) {
                 var a = d.articles[0];
-                var title = (a.title || '').substring(0, 40);
-                if ((a.title || '').length > 40) title += '...';
-                el.textContent = title;
+                var dt = a.created_at || a.published_at;
+                if (dt) {
+                    try {
+                        var date = new Date(dt + (dt.indexOf('Z') < 0 && dt.indexOf('+') < 0 ? 'Z' : ''));
+                        el.textContent = date.toLocaleString('en-US', {timeZone:'America/New_York', hour:'numeric', minute:'2-digit', hour12:true}) + ' ET';
+                    } catch(e) { el.textContent = (a.title || '').substring(0, 35); }
+                } else {
+                    el.textContent = (a.title || '').substring(0, 35);
+                }
             }
         }).catch(function(){
             var el = document.getElementById('proofStripLastArticle');
-            if (el) el.textContent = 'recently';
+            if (el) el.parentNode.style.display = 'none';
         });
 
     // Article count
@@ -1363,16 +1195,6 @@ function ppLoadVideo(el) {
             if (el && d.count) el.textContent = d.count.toLocaleString();
         }).catch(function(){});
 
-    // Oracle sessions (best effort)
-    fetch('/api/oracle/sessions-today', { signal: AbortSignal.timeout(5000) })
-        .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
-        .then(function(d) {
-            var el = document.getElementById('proofStripOracleSessions');
-            if (el && d.count !== undefined) el.textContent = d.count;
-        }).catch(function(){
-            var el = document.getElementById('proofStripOracleSessions');
-            if (el) el.textContent = '—';
-        });
 })();
 
 /* ════════════════════════════════════════════════════════════
