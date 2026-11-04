@@ -259,6 +259,25 @@ def _pipe_frames_to_ffmpeg(
             proc.stdin.write(frame_rgb.tobytes())
         proc.stdin.close()
         _, stderr = proc.communicate(timeout=timeout)
+    except BrokenPipeError:
+        # -shortest causes ffmpeg to close stdin when the audio track ends.
+        # Source is 30fps but output is 24fps, so extra frames are expected.
+        # Let ffmpeg finish and check the output file.
+        try:
+            proc.stdin.close()
+        except Exception:
+            pass
+        try:
+            stdout_data, stderr = proc.stdout.read(), proc.stderr.read()
+        except Exception:
+            stdout_data, stderr = b"", b""
+        proc.wait(timeout=timeout)
+        if proc.returncode == 0:
+            log.info("pipe closed by -shortest (audio ended before all frames sent)")
+        else:
+            log.error("ffmpeg failed after -shortest pipe close (rc=%d): %s",
+                      proc.returncode, stderr.decode(errors="replace")[-500:])
+            return False
     except Exception as exc:
         proc.kill()
         log.error("pipe encode error: %s", exc)
