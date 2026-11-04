@@ -269,8 +269,11 @@ def _keyframe_chunk(master, W, H, fps, lg, chunk):
         profs.append(np.round(pr * 255).astype(np.uint8))
     extra = len(p.stdout.read()) // (W * H * bpp)
     p.wait()
-    if len(rows) != len(chunk) or extra:
-        raise RuntimeError(f'chunk {chunk[0]}..{chunk[-1]}: decoded {len(rows)} (+{extra}) frames for {len(chunk)} keyframes')
+    if extra:
+        print(f'  WARN: chunk {chunk[0]}..{chunk[-1]}: {extra} extra frames beyond {len(chunk)} keyframes', flush=True)
+    if len(rows) < len(chunk):
+        missing = len(chunk) - len(rows)
+        print(f'  WARN: chunk {chunk[0]}..{chunk[-1]}: decoded {len(rows)} of {len(chunk)} keyframes ({missing} missing, corrupt source?)', flush=True)
     return rows, thumbs, logos, profs, ss_results
 
 
@@ -629,10 +632,14 @@ def build(master_path_or_cfg, out_dir=None, stage='all'):
         if not rows:                       # shot without a keyframe: measure its middle frame directly
             reader = reader or Reader(master)
             mid_f = (f_in + f_out) // 2
-            g = grey(reader.rgb(mid_f))
-            pr = persistence(g)
-            raw_row = dict(frame=mid_f, seams=seams_in(g, pr), screen_share=False, screen_share_rect=None)
-            rows = [effective_row(raw_row, pr, fams)]
+            try:
+                g = grey(reader.rgb(mid_f))
+                pr = persistence(g)
+                raw_row = dict(frame=mid_f, seams=seams_in(g, pr), screen_share=False, screen_share_rect=None)
+                rows = [effective_row(raw_row, pr, fams)]
+            except (RuntimeError, ValueError) as e:
+                print(f'  WARN: shot {f_in}-{f_out}: cannot read mid-frame {mid_f}: {e}', flush=True)
+                rows = [dict(frame=mid_f, seams=[], screen_share=False, screen_share_rect=None, family=None)]
         pieces = []
         runs = split_runs(rows) if len(rows) >= 4 else [dict(sig=None, rows=rows)]
         start = f_in
@@ -667,7 +674,11 @@ def build(master_path_or_cfg, out_dir=None, stage='all'):
             shot_kf_frames = [r['frame'] for r in rws]
             total_faces = None
             if config_free:
-                tiles, total_faces = face_count_tiles(master, tiles, shot_kf_frames, fps, W, H)
+                try:
+                    tiles, total_faces = face_count_tiles(master, tiles, shot_kf_frames, fps, W, H)
+                except (RuntimeError, ValueError, OSError) as e:
+                    print(f'  WARN: face_count_tiles failed for shot {a}-{b}: {e}', flush=True)
+                    total_faces = None
 
             s = dict(id=f'sh{len(shots) + 1:03d}', frame_in=a, frame_out=b, t_in=round(a / fps, 3), t_out=round(b / fps, 3),
                      dur_s=round((b - a) / fps, 3), start=('cut' if a in bounds else ('soft' if a > 0 else 'start')),
