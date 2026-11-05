@@ -308,6 +308,90 @@ def gate_g3(final_mp4, segments, qa_dir):
 
 
 # ==============================================================
+# G3b: CUT_OUT_CLEAN
+# ==============================================================
+
+def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
+    """Whisper the last 1.0s of each cut clip in the final output.
+    The transcript must end with the EDL's declared last_word and must NOT
+    contain the source's next word (from EDL field 'next_source_word').
+    Constant thresholds, output-based."""
+    print("\n=== G3b: CUT_OUT_CLEAN ===")
+
+    # Load EDL for next_source_word lookup
+    edl_clips = {}
+    if edl_path and os.path.exists(edl_path):
+        with open(edl_path) as f:
+            edl = json.load(f)
+        hook = edl.get("hook", {})
+        if hook:
+            edl_clips["hook"] = hook
+        for clip in edl.get("clips", []):
+            edl_clips[f"clip_{clip['index']:02d}"] = clip
+
+    all_pass = True
+    table = []
+
+    for seg in segments:
+        if seg.get("type") != "talking_head":
+            continue
+
+        label = seg["label"]
+        seg_end = seg["end"]
+        seg_start = seg["start"]
+        edl_last = seg.get("last_word", "").lower().strip().rstrip(".,?!")
+
+        if not edl_last:
+            continue
+
+        # Whisper last 1.0s of this segment from the final output
+        tail_dur = min(1.0, seg_end - seg_start)
+        tail_start = seg_end - tail_dur
+        tail_wav = os.path.join(qa_dir, f"g3b_{label}_tail.wav")
+        extract_audio_region(final_mp4, tail_start, tail_dur, tail_wav)
+        tail_transcript = whisper_segment(tail_wav, qa_dir)
+        tail_words = tail_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()
+
+        # Check 1: EDL last_word must appear in the tail transcript
+        last_found = edl_last in tail_transcript
+        if not last_found:
+            # Also check individual words for stem match
+            for tw in tail_words:
+                if edl_last in tw or tw in edl_last:
+                    last_found = True
+                    break
+
+        # Check 2: next source word must NOT appear (if declared in EDL)
+        edl_entry = edl_clips.get(label, {})
+        next_word = edl_entry.get("next_source_word", "").lower().strip().rstrip(".,?!")
+        next_leaked = False
+        if next_word and len(next_word) >= 3:
+            # Check if the next source word appears in the tail
+            next_leaked = next_word in tail_transcript
+
+        ok = last_found and not next_leaked
+        if not ok:
+            all_pass = False
+
+        status = "PASS" if ok else "FAIL"
+        entry = {
+            "segment": label,
+            "edl_last": edl_last,
+            "tail_transcript": tail_transcript[:80],
+            "last_found": last_found,
+            "next_source_word": next_word if next_word else None,
+            "next_leaked": next_leaked,
+            "pass": ok,
+        }
+        table.append(entry)
+
+        leak_note = f", next='{next_word}' leaked!" if next_leaked else ""
+        print(f"  {label}: tail='{tail_transcript[:50]}' last_found={last_found}{leak_note} [{status}]")
+
+    return all_pass, table
+
+
+# ==============================================================
 # G4: FACES
 # ==============================================================
 
@@ -1098,6 +1182,12 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     if not g3_pass:
         any_fail = True
 
+    # G3b: Cut-out clean (last 1.0s must end with EDL last_word, no next word leak)
+    g3b_pass, g3b_table = gate_g3b(final_mp4, segments, qa_dir, edl_path=edl_path)
+    results["G3b_cut_out_clean"] = {"pass": g3b_pass, "table": g3b_table}
+    if not g3b_pass:
+        any_fail = True
+
     # G4: Faces (classify layout from source clips)
     g4_pass, g4_table = gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir,
                                  source_clips=source_clips)
@@ -1157,6 +1247,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     print(f"  G1 Voice:     {'PASS' if g1_pass else 'FAIL'}")
     print(f"  G2 Watermark: {'PASS' if g2_pass else 'FAIL'}")
     print(f"  G3 Cuts:      {'PASS' if g3_pass else 'FAIL'}")
+    print(f"  G3b OutClean: {'PASS' if g3b_pass else 'FAIL'}")
     print(f"  G4 Faces:     {'PASS' if g4_pass else 'FAIL'}")
     print(f"  G5 Tech:      {'PASS' if g5_pass else 'FAIL'}")
     print(f"  G6 Pre-roll:  {'PASS' if g6_pass else 'FAIL'}")
@@ -1175,7 +1266,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         fail_path = os.path.join(qa_dir, "GATE_FAIL.txt")
         with open(fail_path, "w") as f:
             f.write(f"QA GATE FAILURE: {final_mp4}\n")
-            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G4_faces", "G5_tech", "G6_preroll", "G10_chyron"]:
+            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G3b_cut_out_clean", "G4_faces", "G5_tech", "G6_preroll", "G10_chyron"]:
                 gate_data = results.get(gate_name, {})
                 if not gate_data.get("pass", True):
                     f.write(f"  FAILED: {gate_name}\n")

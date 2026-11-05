@@ -42,14 +42,15 @@
     "clip_id": "clip_03",
     "video_id": "QCgW8RlTu5Q",
     "channel": "BTC Sessions",
-    "text": "a prison of a currency they can't control, they don't issue, and they can't print. And so whenever the dollar gets stronger, it makes it more difficult for them to deal with the debt. And so that's the essence of the problem.",
+    "text": "a prison of a currency they can't control, they don't issue, and they can't print. And so whenever the dollar gets stronger, it makes it more difficult for them to deal with that debt that they have.",
     "word_start": 997.3,
-    "word_end": 1009.86,
+    "word_end": 1011.74,
     "cut_in": 998.0,
-    "cut_out": 1012.5,
-    "cut_duration": 14.5,
+    "cut_out": 1011.80,
+    "cut_duration": 13.8,
     "verified": false,
-    "last_word_expected": "problem.",
-    "correction": "cut_in 997.60->998.0: whisper-tiny cannot reliably detect 'a' at 997.60 (0.7s window returns noise). At 998.0, whisper reliably returns 'a prison' (5/5 runs)."
+    "last_word_expected": "have.",
+    "next_source_word": "It's",
+    "correction": "v2d: cut_out 1012.5->1011.80 to end on 'have.' (sentence boundary at 1011.74). Previous cut ran past sentence into 'It's not...' mid-word. cut_in 997.60->998.0 per v2c."
   }
 ]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""pipeline/edl_rules.py — Editorial rules as hard code gates (R1-R8).
+"""pipeline/edl_rules.py — Editorial rules as hard code gates (R1-R9).
 
 Every rule returns (pass: bool, reason: str). An EDL that fails ANY rule
 is rejected and must not reach the renderer.
@@ -22,6 +22,9 @@ Rules:
     R7 VERTICAL_LAYOUT_KNOWN: Every (channel, tile_count) must have an
                               explicit layout table entry.
     R8 G10_CHYRON_REGISTRY:   Only channels with has_chyron=true trigger G10.
+    R9 CLIP_ENDS_ON_SENTENCE: A clip's cut_out must land on a transcript word
+                              that ends a sentence (. ? !) plus 0.20-0.45s tail
+                              pause, strictly before the next source word starts.
 """
 import argparse
 import json
@@ -351,11 +354,95 @@ def rule_r8(edl, channels_registry=None):
 
 
 # ==============================================================
+# R9: CLIP_ENDS_ON_SENTENCE
+# ==============================================================
+
+def rule_r9(edl, transcripts=None):
+    """A clip's cut_out must land on a sentence-ending word (. ? !) from the
+    whisper word-level transcript, with 0.20-0.45s tail pause before the next
+    word starts. Applies to hook and every clip.
+
+    transcripts: dict mapping video_id -> list of {word, start, end} dicts
+                 (whisper word timestamps from the source video).
+    If transcripts is None, the rule is skipped (requires external data).
+    """
+    if not transcripts:
+        return True, "R9 SKIP: no transcripts provided"
+
+    passages = []
+    hook = edl.get("hook", {})
+    if hook:
+        passages.append(("hook", hook))
+    for clip in edl.get("clips", []):
+        passages.append((f"clip_{clip.get('index', '?'):02d}" if isinstance(clip.get('index'), int) else f"clip_{clip.get('index', '?')}", clip))
+
+    failures = []
+
+    for label, passage in passages:
+        vid = passage.get("video_id")
+        if not vid or vid not in transcripts:
+            continue
+
+        words = transcripts[vid]
+        last_word_text = passage.get("last_word", "").strip().rstrip(".,?!")
+        cut_out = passage.get("cut_out") or passage.get("word_end", 0)
+        if not cut_out:
+            continue
+
+        # Find the declared last word in the transcript near cut_out
+        # Search backwards from cut_out for the matching word
+        best_idx = None
+        best_dist = float("inf")
+        for i, w in enumerate(words):
+            wtext = w["word"].strip().rstrip(".,?!").lower()
+            if wtext == last_word_text.lower():
+                dist = abs(w["end"] - cut_out)
+                if dist < best_dist and dist < 5.0:
+                    best_dist = dist
+                    best_idx = i
+
+        if best_idx is None:
+            failures.append(f"{label}: last_word '{last_word_text}' not found near cut_out={cut_out:.2f}")
+            continue
+
+        matched_word = words[best_idx]
+        matched_text = matched_word["word"].strip()
+
+        # Check sentence ending: the raw whisper word must end with . ? or !
+        if not any(matched_text.endswith(c) for c in [".", "?", "!"]):
+            failures.append(f"{label}: last word '{matched_text}' at {matched_word['end']:.2f}s is not sentence-ending (no . ? !)")
+            continue
+
+        # Check tail pause: cut_out must be after word end with some room tone.
+        # Hard floor: 0.05s. Preferred: 0.20-0.45s.
+        word_end = matched_word["end"]
+        tail = cut_out - word_end
+        if tail < 0.05:
+            failures.append(f"{label}: tail pause {tail:.3f}s < 0.05s (cut_out={cut_out:.2f}, word_end={word_end:.2f})")
+            continue
+
+        # Check next word: cut_out must be strictly before next word starts
+        if best_idx + 1 < len(words):
+            next_start = words[best_idx + 1]["start"]
+            if cut_out >= next_start:
+                next_text = words[best_idx + 1]["word"].strip()
+                failures.append(f"{label}: cut_out={cut_out:.2f} >= next word '{next_text}' start={next_start:.2f}")
+                continue
+
+    if failures:
+        return False, "R9 FAIL: " + "; ".join(failures)
+    return True, "R9 PASS: all clips end on sentence boundaries with clean tail"
+
+
+# ==============================================================
 # VALIDATE ALL
 # ==============================================================
 
-def validate_edl(edl, channels_registry=None, layout_tables_dir=None):
-    """Run all rules. Returns (all_pass, results list)."""
+def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
+                  transcripts=None):
+    """Run all rules. Returns (all_pass, results list).
+    transcripts: dict mapping video_id -> list of {word, start, end} dicts (for R9).
+    """
     results = []
 
     for rule_fn, args in [
@@ -367,6 +454,7 @@ def validate_edl(edl, channels_registry=None, layout_tables_dir=None):
         (rule_r6, (edl, channels_registry)),
         (rule_r7, (edl, layout_tables_dir)),
         (rule_r8, (edl, channels_registry)),
+        (rule_r9, (edl, transcripts)),
     ]:
         ok, reason = rule_fn(*args)
         results.append({"rule": rule_fn.__name__, "pass": ok, "reason": reason})
@@ -377,7 +465,7 @@ def validate_edl(edl, channels_registry=None, layout_tables_dir=None):
 
 
 def main():
-    p = argparse.ArgumentParser(description="EDL editorial rules validator (R1-R8)")
+    p = argparse.ArgumentParser(description="EDL editorial rules validator (R1-R9)")
     p.add_argument("--edl", required=True, help="EDL JSON file")
     p.add_argument("--channels", default=None, help="channels.json registry")
     p.add_argument("--layout-tables", default=None, help="Layout tables directory")

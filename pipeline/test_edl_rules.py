@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for pipeline/edl_rules.py (R1-R6).
+"""Unit tests for pipeline/edl_rules.py (R1-R9).
 
 The v2 overnight EDL is the must-fail fixture:
 - R2 FAIL: hook == clip 1 (same video_id, 10.3s overlap)
@@ -12,7 +12,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
-                       validate_edl)
+                       rule_r9, validate_edl)
 
 # Load fixtures
 FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -283,6 +283,104 @@ class TestG4ShoutoutExclusion(unittest.TestCase):
         # which incorrectly included shoutout in face counting
         self.assertNotIn('not in ("talking_head", "shoutout")', src,
                          "G4 must NOT use tuple filter that includes shoutout in face counting")
+
+
+class TestR9ClipEndsOnSentence(unittest.TestCase):
+    """R9: cut_out must land on a sentence-ending word + tail pause before next word."""
+
+    def _make_transcript(self, words_data):
+        """Helper: build transcript dict keyed by video_id."""
+        return {"VID1": words_data}
+
+    def test_clean_sentence_end_passes(self):
+        """Cut ends on 'money.' with 0.30s tail, before next word."""
+        edl = {
+            "hook": {"video_id": "VID1", "last_word": "money.", "cut_out": 10.30, "word_end": 10.0},
+            "clips": []
+        }
+        words = [
+            {"word": "about", "start": 8.0, "end": 8.5},
+            {"word": "money.", "start": 9.5, "end": 10.0},
+            {"word": "Now", "start": 10.5, "end": 10.8},
+        ]
+        ok, reason = rule_r9(edl, self._make_transcript(words))
+        self.assertTrue(ok, reason)
+
+    def test_cut_into_next_word_fails(self):
+        """Cut runs past sentence into next word — must fail."""
+        edl = {
+            "hook": {},
+            "clips": [{"index": 1, "video_id": "VID1", "last_word": "have.",
+                        "cut_out": 1012.5, "word_end": 1011.74}]
+        }
+        words = [
+            {"word": "they", "start": 1011.28, "end": 1011.44},
+            {"word": "have.", "start": 1011.44, "end": 1011.74},
+            {"word": "It's", "start": 1011.84, "end": 1012.18},
+            {"word": "not", "start": 1012.18, "end": 1012.32},
+        ]
+        ok, reason = rule_r9(edl, self._make_transcript(words))
+        self.assertFalse(ok, reason)
+        self.assertIn("next word", reason)
+
+    def test_v2c_clip03_old_cutout_fails(self):
+        """The v2c clip_03 cut_out=1012.5 ran past 'have.' into 'It's not' — must fail R9."""
+        edl = {
+            "hook": {},
+            "clips": [{"index": 3, "video_id": "VID1", "last_word": "have.",
+                        "cut_out": 1012.5, "word_end": 1011.74}]
+        }
+        words = [
+            {"word": "debt", "start": 1010.02, "end": 1010.96},
+            {"word": "that", "start": 1010.96, "end": 1011.28},
+            {"word": "they", "start": 1011.28, "end": 1011.44},
+            {"word": "have.", "start": 1011.44, "end": 1011.74},
+            {"word": "It's", "start": 1011.84, "end": 1012.18},
+            {"word": "not", "start": 1012.18, "end": 1012.32},
+            {"word": "impossible.", "start": 1012.32, "end": 1012.76},
+        ]
+        ok, reason = rule_r9(edl, self._make_transcript(words))
+        self.assertFalse(ok, f"Old v2c clip_03 cut_out=1012.5 should fail R9: {reason}")
+
+    def test_v2d_clip03_fixed_cutout_passes(self):
+        """The v2d clip_03 cut_out=1011.80 ends cleanly on 'have.' — must pass."""
+        edl = {
+            "hook": {},
+            "clips": [{"index": 3, "video_id": "VID1", "last_word": "have.",
+                        "cut_out": 1011.80, "word_end": 1011.74}]
+        }
+        words = [
+            {"word": "debt", "start": 1010.02, "end": 1010.96},
+            {"word": "that", "start": 1010.96, "end": 1011.28},
+            {"word": "they", "start": 1011.28, "end": 1011.44},
+            {"word": "have.", "start": 1011.44, "end": 1011.74},
+            {"word": "It's", "start": 1011.84, "end": 1012.18},
+        ]
+        ok, reason = rule_r9(edl, self._make_transcript(words))
+        self.assertTrue(ok, reason)
+
+    def test_non_sentence_ending_fails(self):
+        """Last word without . ? ! fails R9."""
+        edl = {
+            "hook": {},
+            "clips": [{"index": 1, "video_id": "VID1", "last_word": "money",
+                        "cut_out": 10.30, "word_end": 10.0}]
+        }
+        words = [
+            {"word": "the", "start": 9.0, "end": 9.2},
+            {"word": "money", "start": 9.5, "end": 10.0},
+            {"word": "is", "start": 10.5, "end": 10.7},
+        ]
+        ok, reason = rule_r9(edl, self._make_transcript(words))
+        self.assertFalse(ok, reason)
+        self.assertIn("not sentence-ending", reason)
+
+    def test_no_transcripts_skips(self):
+        """Without transcripts, R9 skips (not a failure)."""
+        edl = {"hook": {}, "clips": []}
+        ok, reason = rule_r9(edl, None)
+        self.assertTrue(ok)
+        self.assertIn("SKIP", reason)
 
 
 class TestVOVisualSourceLaw23a(unittest.TestCase):
