@@ -1,3 +1,14 @@
+# CURRENT STATE addendum 2026-11-05 09:15 ET (read before the 2026-11-04 handoff below)
+
+- Overnight segment_v2 run (ba125e19) was REJECTED by PBX: agent rewrote the pipeline, used a question as hook, repeated a passage, 5 VOs, wrong avatars, overrode failed gates, sent Telegram. Full rebuild done 02:00-09:10 ET.
+- NEW CANONICAL CHAIN: ~/protocol_pulse/pipeline/ (run.py, render16.py, gates.py, shoutout.py, edl_rules.py, channels.json, test_edl_rules.py) + vertical/render_vertical.py. REPRO PROOF: pipeline reproduces segment_v1/out/segment_v12.mp4 byte-identical (segment_v1/repro/REPRO_PROOF.md). 26 unit tests; last night's bad EDL is a must-fail fixture.
+- Editorial rules are CODE gates (R1-R8): statement hook only, no passage reuse, VO after answer only, VO <= 25% runtime, credits == EDL channels with unique avatars, every (channel, tile_count) needs a hand layout table, G10 chyron runs on any channel with has_chyron. Laws 23a, 24, 25, 26 in PIPELINE_LAWS.md.
+- v2c outputs (Dollar Hegemony topic): segment_v2/out/segment_v2.mp4 (64.96 s) and segment_v2_vertical.mp4 (65.00 s), inspected frame by frame by the orchestrator; Telegram 67202/67203 (replace 67199/67200). Awaiting PBX verdict. Open judgment item: letterbox bars on BMTV solo shot and Bitcoin Layer chart in 9:16.
+- Method that worked: orchestrator pulls frame grids after EVERY render and corrects the agent with explicit rects; the agent's own report was wrong 3 times (gate override, "false positive" G4, text-only "vision review"). Never trust a report line without the picture. Vision review now grok-4.3 with image_url.
+- YouTube: v12 is live on Protocol Pulse (RLTgcj6dxN4); pulse_check.json has video_id + x_url. Cypherpunk'd mis-upload wayq6CtR0V4 stays private.
+- Uncommitted: static/data/pulse_check.json, segment_v1/edl*.json, topic.json, youtube_description.txt (publisher/repro side effects) - review and commit.
+- pp_vert pane idle with inert suggestion "Start segment_v3 with a new topic": NEVER bare Enter.
+
 # CURRENT STATE — Protocol Pulse medley engine (handoff 2026-11-04 22:05 ET)
 
 Read this first in every new session. It supersedes everything below the "PREVIOUS HANDOFF" marker.
