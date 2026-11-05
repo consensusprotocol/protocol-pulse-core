@@ -796,3 +796,5 @@ Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager
 
 ## 2026-11-04 — Image dedup final fix (root cause)
 - **image_service.generate_article_header_image was the unguarded source of duplicate covers; now guarded and returns file phash; never store a remote image URL in cover_image_url/header_image_url.**
+
+- 2026-11-04 tmux/CC trap: an idle Claude Code pane shows a dim prompt suggestion in its empty input box; a bare `send-keys Enter` accepts and EXECUTES it (here: 'do a real publish for v12'). Only press Enter after confirming your own pasted prompt is in the input box (capture-pane without stripping the arrow). Suggestions cannot be cleared with C-u/Escape/C-c; just never send a bare Enter.
