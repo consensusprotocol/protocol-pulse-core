@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-Batch regenerate ALL article images with Grok AI.
-Replaces every Pexels URL with a unique Grok-generated image.
+Batch regenerate article images that are broken (NULL/empty/default).
+Routes through image_guard (phash dedup) via get_pexels_image.
+
+Pexels URLs are VALID — this script does NOT replace them.
+
 Run: nohup python3 scripts/regenerate_all_images.py >> logs/image_regen.log 2>&1 &
 """
 import os, sys, time, logging
@@ -30,51 +33,62 @@ log = logging.getLogger("img_regen")
 
 from app import app, db
 from models import Article
-from image_service import ImageGenerationService
-
-svc = ImageGenerationService()
-log.info(f"Grok key: {bool(svc.xai_key)}, DALL-E key: {bool(svc.openai_key)}")
+from services.pexels_image import get_pexels_image
 
 with app.app_context():
-    # Get all articles with Pexels URLs (or duplicated images)
-    articles = Article.query.filter(
-        Article.cover_image_url.like("%pexels%")
-    ).order_by(Article.created_at.desc()).all()
-    
-    log.info(f"Found {len(articles)} articles with Pexels images to regenerate")
-    
+    # Only fix truly broken: NULL, empty, or default placeholder
+    articles = Article.query.filter(db.or_(
+        Article.cover_image_url == None,
+        Article.cover_image_url == '',
+        Article.cover_image_url.like('%default-header%'),
+    )).filter(Article.published == True).order_by(
+        Article.created_at.desc()
+    ).all()
+
+    log.info(f"Found {len(articles)} articles with missing/default images")
+
+    # Load DB phashes for dedup
+    ph_rows = db.session.execute(
+        db.text("SELECT image_phash FROM articles WHERE image_phash IS NOT NULL AND image_phash != ''")
+    ).fetchall()
+    db_phashes = {r[0] for r in ph_rows}
+    session_phashes = set()
+
     success = 0
     failed = 0
-    
+
     for i, art in enumerate(articles):
         try:
             log.info(f"[{i+1}/{len(articles)}] Generating image for: {art.title[:60]}")
-            
-            # Generate unique image
-            result = svc.generate_article_header_image(
-                title=art.title,
-                category=art.category or "Bitcoin",
+
+            url, phash = get_pexels_image(
+                art.title or "bitcoin",
+                art.category or "bitcoin",
+                article_id=art.id,
+                db_phashes=db_phashes,
+                session_phashes=session_phashes,
             )
-            
-            if result and "default-header" not in result:
-                art.cover_image_url = result
+
+            if url and "default-header" not in url:
+                art.cover_image_url = url
+                art.header_image_url = url
+                if phash and hasattr(art, 'image_phash'):
+                    art.image_phash = phash
                 db.session.commit()
                 success += 1
-                log.info(f"  OK: {result}")
+                log.info(f"  OK: {url[:60]}")
             else:
                 failed += 1
-                log.warning(f"  FAILED: got {result}")
-            
-            # Rate limit: 2 second delay between Grok calls
-            time.sleep(2)
-            
-            # Progress checkpoint every 20 articles
+                log.warning(f"  FAILED: got {url}")
+
+            time.sleep(3)
+
             if (i + 1) % 20 == 0:
                 log.info(f"=== PROGRESS: {i+1}/{len(articles)} done, {success} OK, {failed} failed ===")
-                
+
         except Exception as e:
             failed += 1
             log.error(f"  ERROR: {e}")
-            time.sleep(5)  # longer delay on error
-    
+            time.sleep(5)
+
     log.info(f"=== COMPLETE: {success} regenerated, {failed} failed out of {len(articles)} ===")
