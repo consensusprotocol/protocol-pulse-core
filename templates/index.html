@@ -526,8 +526,28 @@
                 <p class="pp-section__subtitle">Daily Bitcoin intelligence briefing</p>
             </div>
             <div id="pulseCheckEmbed" style="position:relative;width:100%;max-width:960px;border-radius:8px;overflow:hidden;background:#000;">
-                <iframe src="https://www.youtube.com/embed/videoseries?list=PLQ4MjCv9OedqD_wCzKxCakoRPNUrEu2wq&index=0&rel=0&modestbranding=1&autoplay=0" style="width:100%;aspect-ratio:16/9;display:block;border:0;border-radius:8px;" allowfullscreen loading="lazy" title="Pulse Check - Daily Bitcoin Intelligence"></iframe>
+                <iframe id="pulseCheckFrame" style="width:100%;aspect-ratio:16/9;display:block;border:0;border-radius:8px;" allowfullscreen loading="lazy" title="Pulse Check - Daily Bitcoin Intelligence"></iframe>
             </div>
+            <div id="pulseCheckCaption" style="display:none;max-width:960px;width:100%;margin-top:6px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:0.75rem;line-height:1.4;color:#CC2222;overflow-wrap:break-word;word-break:break-word;"></div>
+            <script>
+            (function(){
+              var PLAYLIST='https://www.youtube-nocookie.com/embed/videoseries?list=PLQ4MjCv9OedqD_wCzKxCakoRPNUrEu2wq&index=0&rel=0&modestbranding=1&playsinline=1';
+              var f=document.getElementById('pulse'+'CheckFrame');
+              fetch('/static/data/pulse_check.json?v='+Date.now()).then(function(r){return r.json()}).then(function(d){
+                if(d.video_id){
+                  f.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(d.video_id)+'?rel=0&modestbranding=1&playsinline=1';
+                }else{
+                  f.src=PLAYLIST;
+                }
+                if(d.title){
+                  var cap=document.getElementById('pulseCheckCaption');
+                  var txt=d.title;
+                  if(d.x_url){txt+=' &mdash; <a href="'+d.x_url+'" target="_blank" rel="noopener" style="color:#CC2222;text-decoration:underline;">watch the thread on x</a>';}
+                  cap.innerHTML=txt;cap.style.display='block';
+                }
+              }).catch(function(){f.src=PLAYLIST;});
+            })();
+            </script>
         </div>
     </div>
 </section>
