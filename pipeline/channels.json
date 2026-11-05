@@ -36,7 +36,7 @@
     "yt_handle": "@BitcoinMagazine",
     "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_magazine_512.png",
     "avatar_sha256_prefix": "24a0aef0dd039ad3",
-    "has_chyron": false,
+    "has_chyron": true,
     "layout_table_key": "bitcoin_magazine"
   },
   {

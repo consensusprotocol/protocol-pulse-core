@@ -263,6 +263,43 @@ def reframe_grid(seg_path, output_path, seg_label, layout_cfg):
 
 
 # ==============================================================
+# REFRAME: single — one person, crop rect to 9:16
+# ==============================================================
+
+def reframe_single(seg_path, output_path, seg_label, layout_cfg):
+    """Single: crop one rect from source, scale to 1080 wide, pad to 1920 tall (centred)."""
+    print(f"    Reframe single: {seg_label}")
+
+    rect = layout_cfg["rect"]  # [x, y, w, h]
+
+    vf = (
+        f"crop={rect[2]}:{rect[3]}:{rect[0]}:{rect[1]},"
+        f"scale={VERT_W}:{VERT_H}:force_original_aspect_ratio=decrease:flags=lanczos,"
+        f"pad={VERT_W}:{VERT_H}:(ow-iw)/2:(oh-ih)/2:black,"
+        f"setsar=1:1"
+    )
+
+    r = subprocess.run([
+        "ffmpeg", "-y", "-i", seg_path,
+        "-vf", vf,
+        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+        "-pix_fmt", "yuv420p", "-r", str(FPS),
+        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+        "-movflags", "+faststart", output_path,
+    ], capture_output=True, timeout=300)
+
+    if r.returncode != 0:
+        print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+
+    if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
+        dur = get_duration(output_path)
+        print(f"      Output: {dur:.2f}s")
+        return True, "single"
+    print(f"      ERROR: reframe_single failed")
+    return False, "single"
+
+
+# ==============================================================
 # VO VISUAL (native 9:16) — face-crop BG from preceding clip
 # ==============================================================
 
@@ -508,29 +545,87 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
         vert_path = os.path.join(qa_dir, f"vert_{clip_id}.mp4")
 
         override = vert_overrides.get(clip_id, {})
-        layout = override.get("layout", "crop")
 
-        if layout in ("stack2", "grid"):
-            # Custom layouts use the RAW source file (rects are in source coords),
-            # trimmed to the cut boundaries, not the QA-rendered 1920x1080 clip.
+        # Shot-level splitting: override may have "shots" array instead of a single layout
+        if "shots" in override:
+            shots = override["shots"]
             raw_src = os.path.join(paths["sources_dir"], f"{cut['video_id']}.mp4")
-            cut_in = cut.get("cut_in", 0)
-            cut_dur = cut.get("cut_duration", 15)
-            trimmed = os.path.join(qa_dir, f"raw_{clip_id}.mp4")
-            subprocess.run([
-                "ffmpeg", "-y", "-ss", str(cut_in), "-i", raw_src, "-t", str(cut_dur),
-                "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
-                "-pix_fmt", "yuv420p", "-r", str(FPS),
-                "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-                "-movflags", "+faststart", trimmed,
-            ], capture_output=True, timeout=300)
-            if layout == "stack2":
-                ok, crop_rect = reframe_stack2(trimmed, vert_path, clip_id, override)
+            shot_parts = []
+            all_shots_ok = True
+            for si, shot in enumerate(shots):
+                shot_trimmed = os.path.join(qa_dir, f"raw_{clip_id}_shot{si}.mp4")
+                shot_out = os.path.join(qa_dir, f"vert_{clip_id}_shot{si}.mp4")
+                s_start = shot["source_start"]
+                s_end = shot["source_end"]
+                s_dur = s_end - s_start
+                subprocess.run([
+                    "ffmpeg", "-y", "-ss", str(s_start), "-i", raw_src, "-t", str(s_dur),
+                    "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+                    "-pix_fmt", "yuv420p", "-r", str(FPS),
+                    "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                    "-movflags", "+faststart", shot_trimmed,
+                ], capture_output=True, timeout=300)
+                s_layout = shot.get("layout", "crop")
+                if s_layout == "stack2":
+                    s_ok, _ = reframe_stack2(shot_trimmed, shot_out, f"{clip_id}_shot{si}", shot)
+                elif s_layout == "grid":
+                    s_ok, _ = reframe_grid(shot_trimmed, shot_out, f"{clip_id}_shot{si}", shot)
+                elif s_layout == "single":
+                    s_ok, _ = reframe_single(shot_trimmed, shot_out, f"{clip_id}_shot{si}", shot)
+                else:
+                    s_ok, _ = reframe_fixed_crop(shot_trimmed, shot_out, f"{clip_id}_shot{si}")
+                if s_ok:
+                    shot_parts.append(shot_out)
+                else:
+                    all_shots_ok = False
+            # Concat shot parts
+            if all_shots_ok and len(shot_parts) > 1:
+                concat_list = os.path.join(qa_dir, f"concat_{clip_id}_shots.txt")
+                with open(concat_list, "w") as clf:
+                    for sp in shot_parts:
+                        clf.write(f"file '{sp}'\n")
+                subprocess.run([
+                    "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
+                    "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+                    "-pix_fmt", "yuv420p", "-r", str(FPS),
+                    "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                    "-movflags", "+faststart", vert_path,
+                ], capture_output=True, timeout=300)
+                ok = os.path.exists(vert_path) and os.path.getsize(vert_path) > 1000
+                crop_rect = "shots"
+            elif all_shots_ok and len(shot_parts) == 1:
+                import shutil
+                shutil.copy2(shot_parts[0], vert_path)
+                ok, crop_rect = True, "shots"
             else:
-                ok, crop_rect = reframe_grid(trimmed, vert_path, clip_id, override)
+                ok, crop_rect = False, "shots"
+
         else:
-            src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
-            ok, crop_rect = reframe_fixed_crop(src_clip, vert_path, clip_id)
+            layout = override.get("layout", "crop")
+
+            if layout in ("stack2", "grid", "single"):
+                # Custom layouts use the RAW source file (rects are in source coords),
+                # trimmed to the cut boundaries, not the QA-rendered 1920x1080 clip.
+                raw_src = os.path.join(paths["sources_dir"], f"{cut['video_id']}.mp4")
+                cut_in = cut.get("cut_in", 0)
+                cut_dur = cut.get("cut_duration", 15)
+                trimmed = os.path.join(qa_dir, f"raw_{clip_id}.mp4")
+                subprocess.run([
+                    "ffmpeg", "-y", "-ss", str(cut_in), "-i", raw_src, "-t", str(cut_dur),
+                    "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+                    "-pix_fmt", "yuv420p", "-r", str(FPS),
+                    "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                    "-movflags", "+faststart", trimmed,
+                ], capture_output=True, timeout=300)
+                if layout == "stack2":
+                    ok, crop_rect = reframe_stack2(trimmed, vert_path, clip_id, override)
+                elif layout == "grid":
+                    ok, crop_rect = reframe_grid(trimmed, vert_path, clip_id, override)
+                else:
+                    ok, crop_rect = reframe_single(trimmed, vert_path, clip_id, override)
+            else:
+                src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
+                ok, crop_rect = reframe_fixed_crop(src_clip, vert_path, clip_id)
 
         if ok:
             reframed[clip_id] = vert_path

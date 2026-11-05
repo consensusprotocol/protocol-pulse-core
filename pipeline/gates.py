@@ -39,10 +39,20 @@ def run_gates(segment_dir, final_mp4, manifest_path, qa_version=None,
             with open(vo_tracks_path) as f:
                 vo_assembled_tracks = json.load(f)
 
+    # Resolve EDL and channels registry for G10 chyron gate
+    edl_path = os.path.join(segment_dir, "edl.json")
+    channels_json_path = os.path.join(os.path.dirname(__file__), "channels.json")
+    if not os.path.exists(edl_path):
+        edl_path = None
+    if not os.path.exists(channels_json_path):
+        channels_json_path = None
+
     return qa_gates.run_all_gates(
         final_mp4, manifest_path, qa_dir,
         source_clips=source_clips,
         vo_assembled_tracks=vo_assembled_tracks,
+        edl_path=edl_path,
+        channels_json_path=channels_json_path,
     )
 
 

@@ -1,8 +1,20 @@
 {
   "clip_01": {
-    "layout": "stack2",
-    "speaker_rect": [960, 0, 960, 840],
-    "other_rect": [0, 0, 960, 840]
+    "shots": [
+      {
+        "source_start": 238.55,
+        "source_end": 248.8,
+        "layout": "stack2",
+        "speaker_rect": [960, 0, 960, 840],
+        "other_rect": [0, 0, 960, 840]
+      },
+      {
+        "source_start": 248.8,
+        "source_end": 249.80,
+        "layout": "single",
+        "rect": [480, 0, 960, 840]
+      }
+    ]
   },
   "clip_02": {
     "layout": "grid",

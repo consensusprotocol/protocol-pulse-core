@@ -817,9 +817,9 @@ def gate_g9(final_mp4, qa_dir):
 # G10: TEXT CROP (CoinDesk lower-third chyron protection)
 # ==============================================================
 
-def gate_g10(final_mp4, segments, crop_rects, qa_dir, coindesk_clip_ids=None):
+def gate_g10(final_mp4, segments, crop_rects, qa_dir, chyron_clip_ids=None):
     """IMAGE-BASED chyron check on the FINAL output picture.
-    Samples 5 frames inside each CoinDesk segment, takes the bottom 12% band,
+    Samples 5 frames inside each chyron-channel segment, takes the bottom 12% band,
     computes Canny edge density and near-white pixel fraction.
     FAIL if edge_density > 0.08 OR white_fraction > 0.25 (chyron text/banner).
     Saves band crops to qa_dir/g10_*.png.
@@ -833,21 +833,21 @@ def gate_g10(final_mp4, segments, crop_rects, qa_dir, coindesk_clip_ids=None):
     BAND_FRACTION = 0.12       # bottom 12% of output frame
     N_SAMPLES = 5
 
-    if coindesk_clip_ids is None:
-        coindesk_clip_ids = set()
+    if chyron_clip_ids is None:
+        chyron_clip_ids = set()
 
-    coindesk_segs = [seg for seg in segments
-                     if seg.get("type") == "talking_head"
-                     and seg["label"] in coindesk_clip_ids]
+    chyron_segs = [seg for seg in segments
+                   if seg.get("type") == "talking_head"
+                   and seg["label"] in chyron_clip_ids]
 
-    if not coindesk_segs:
-        print("  No CoinDesk shots — SKIP (PASS)")
+    if not chyron_segs:
+        print("  No chyron-channel shots — SKIP (PASS)")
         return True, {"skip": True, "pass": True}
 
     all_pass = True
     table = []
 
-    for seg in coindesk_segs:
+    for seg in chyron_segs:
         label = seg["label"]
         seg_start = seg["start"]
         seg_end = seg["end"]
@@ -1034,10 +1034,12 @@ def gate_g12(final_mp4, segments, expected_count, qa_dir):
 # ==============================================================
 
 def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
-                   vo_assembled_tracks=None):
+                   vo_assembled_tracks=None, edl_path=None, channels_json_path=None):
     """Run all gates. Returns (all_pass, results_dict).
     source_clips: dict mapping clip label -> source mp4 path (for G4 layout classification).
-    vo_assembled_tracks: dict mapping VO label -> assembled WAV path (silence + stem, no BGM)."""
+    vo_assembled_tracks: dict mapping VO label -> assembled WAV path (silence + stem, no BGM).
+    edl_path: path to edl.json (for G10 chyron channel lookup).
+    channels_json_path: path to channels.json registry (for G10 has_chyron)."""
     t0 = time.time()
 
     with open(manifest_path) as f:
@@ -1111,6 +1113,36 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     if not g6_pass:
         any_fail = True
 
+    # G10: Chyron (channels with has_chyron=true in registry)
+    chyron_clip_ids = set()
+    if edl_path and channels_json_path:
+        try:
+            with open(edl_path) as f:
+                edl = json.load(f)
+            with open(channels_json_path) as f:
+                ch_registry = json.load(f)
+            chyron_channels = {
+                entry["display_name"]
+                for entry in ch_registry
+                if entry.get("has_chyron", False)
+            }
+            # Map hook
+            hook = edl.get("hook", {})
+            if hook.get("channel") in chyron_channels:
+                chyron_clip_ids.add("hook")
+            # Map clips
+            for clip in edl.get("clips", []):
+                if clip.get("channel") in chyron_channels:
+                    chyron_clip_ids.add(f"clip_{clip['index']:02d}")
+        except Exception as e:
+            print(f"  G10 registry lookup error: {e}")
+
+    g10_pass, g10_table = gate_g10(final_mp4, segments, {}, qa_dir,
+                                    chyron_clip_ids=chyron_clip_ids)
+    results["G10_chyron"] = {"pass": g10_pass, "data": g10_table}
+    if not g10_pass:
+        any_fail = True
+
     elapsed = time.time() - t0
     results["elapsed_s"] = round(elapsed, 1)
     results["all_pass"] = not any_fail
@@ -1123,6 +1155,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     print(f"  G4 Faces:     {'PASS' if g4_pass else 'FAIL'}")
     print(f"  G5 Tech:      {'PASS' if g5_pass else 'FAIL'}")
     print(f"  G6 Pre-roll:  {'PASS' if g6_pass else 'FAIL'}")
+    print(f"  G10 Chyron:   {'PASS' if g10_pass else 'FAIL'}")
     print(f"  OVERALL:      {'PASS' if not any_fail else 'FAIL'}")
     print(f"  Elapsed:      {elapsed:.1f}s")
     print(f"{'='*50}")
@@ -1137,7 +1170,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         fail_path = os.path.join(qa_dir, "GATE_FAIL.txt")
         with open(fail_path, "w") as f:
             f.write(f"QA GATE FAILURE: {final_mp4}\n")
-            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G4_faces", "G5_tech", "G6_preroll"]:
+            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G4_faces", "G5_tech", "G6_preroll", "G10_chyron"]:
                 gate_data = results.get(gate_name, {})
                 if not gate_data.get("pass", True):
                     f.write(f"  FAILED: {gate_name}\n")
