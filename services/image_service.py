@@ -110,7 +110,8 @@ class ImageGenerationService:
     # ─── GUARD HELPER ──────────────────────────────────────────────
 
     def _guard_pil_image(self, image, title):
-        """Run image_guard on a PIL Image. Returns True if accepted, False if rejected."""
+        """Run image_guard on a PIL Image. Returns True if accepted, False if rejected.
+        On accept, adds phash to session set immediately."""
         if image is None:
             return False
         try:
@@ -125,6 +126,10 @@ class ImageGenerationService:
             if not verdict.ok:
                 logger.info("Guard rejected image for '%s': %s", title[:50], verdict.reason)
                 return False
+            # Add phash to session immediately
+            if verdict.phash:
+                with _session_lock:
+                    _session_phashes.add(verdict.phash)
             return True
         except Exception as e:
             logger.warning("Guard check error: %s", e)
@@ -258,8 +263,6 @@ class ImageGenerationService:
             unique_queries.append("financial technology dark background")
 
         db_ph = _load_db_phashes()
-        with _session_lock:
-            sp = set(_session_phashes)
 
         for query in unique_queries:
             try:
@@ -295,6 +298,7 @@ class ImageGenerationService:
                     continue
 
                 # Iterate ALL photos through guard — first accepted wins
+                # Re-read session phashes each iteration (other calls may have added)
                 for photo in photos:
                     img_url = photo.get("src", {}).get("landscape") or photo.get(
                         "src", {}).get("large2x")
@@ -309,12 +313,20 @@ class ImageGenerationService:
                     except Exception:
                         continue
 
-                    # Guard check
+                    # Guard check — use live session phashes
+                    with _session_lock:
+                        sp = set(_session_phashes)
                     verdict = check_image_bytes(img_bytes, title_hint=title,
                                                 db_phashes=db_ph, session_phashes=sp)
                     if not verdict.ok:
                         logger.info("Pexels photo %s rejected: %s", photo.get("id", "?"), verdict.reason)
                         continue
+
+                    # Accepted — add raw phash to session immediately so next
+                    # call in the same process won't pick the same photo
+                    if verdict.phash:
+                        with _session_lock:
+                            _session_phashes.add(verdict.phash)
 
                     img = Image.open(BytesIO(img_bytes)).convert("RGB")
                     logger.info(
