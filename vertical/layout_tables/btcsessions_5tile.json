@@ -1,0 +1,8 @@
+{
+  "_doc": "BTC Sessions 5-tile podcast grid. Guest column detected at x=1544-1920. Layout C: full frame top + enlarged guest column bottom.",
+  "channel": "BTC Sessions",
+  "tile_count": 5,
+  "layout": "grid",
+  "panel_x": [1544, 1920],
+  "chyron_safe": false
+}

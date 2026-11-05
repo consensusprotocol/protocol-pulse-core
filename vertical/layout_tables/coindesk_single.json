@@ -1,0 +1,9 @@
+{
+  "_doc": "CoinDesk single-presenter layout. Chyron-safe crop excludes bottom 200px of 1080 source.",
+  "channel": "CoinDesk",
+  "tile_count": 1,
+  "layout": "single",
+  "chyron_safe": true,
+  "chyron_exclude_px": 200,
+  "speaker_detection": "lip_activity"
+}

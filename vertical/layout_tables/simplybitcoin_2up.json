@@ -1,0 +1,12 @@
+{
+  "_doc": "Simply Bitcoin 2-up layout. Two hosts side by side, each 960x1080 in 1920x1080 source.",
+  "channel": "Simply Bitcoin",
+  "tile_count": 2,
+  "layout": "stack2",
+  "rects": {
+    "a": [0, 0, 960, 1080],
+    "b": [960, 0, 960, 1080]
+  },
+  "speaker_detection": "lip_activity",
+  "chyron_safe": false
+}

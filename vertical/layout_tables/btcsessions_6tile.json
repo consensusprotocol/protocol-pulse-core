@@ -1,0 +1,13 @@
+{
+  "_doc": "BTC Sessions 6-tile layout. Two rows of 3 tiles at 640x540 each. Speaker on top via fixed rect (verified from transcript).",
+  "channel": "BTC Sessions",
+  "tile_count": 6,
+  "layout": "stack2_unequal",
+  "tile_size": [640, 540],
+  "rects": {
+    "top": [1280, 0, 640, 540],
+    "bottom": [0, 0, 640, 540]
+  },
+  "speaker_detection": "fixed",
+  "chyron_safe": false
+}

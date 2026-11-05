@@ -345,3 +345,10 @@ Theoretical fixes that break in practice are worse than no fix.
 - Every EDL entry carries `verified: true` once whisper-checked. Unverified cuts must be flagged.
 - `cuts_v3.json` is frozen history. Production uses `cuts_final.json`.
 - If a cut point must change, update `cuts_final.json`, invalidate the shotmap/compose cache for that clip, and re-render.
+
+### LAW 23: VERTICAL PARITY LAW (added 2026-11-04)
+- The 9:16 mirrors the 16:9 shot-for-shot with the horizontal's mixed audio; layouts come from the hand table per source layout, never from a detector; gates G8-G12 measure the output picture, never input metadata; a vertical that fails parity never reaches Telegram.
+- Canonical renderer: `vertical/render_vertical.py` (v1.0 locked 2026-11-04, PBX A+).
+- Layout tables: `vertical/layout_tables/<channel>_<tile_count>.json`. Unknown channel/tile_count falls back to layout "single" on lip-activity face + WARN line.
+- G10 is IMAGE-BASED: Canny edge density + white fraction on bottom 12% band. G12 counts red-ring avatar circles via HoughCircles. G8 floor is per-segment: `60 * (crop_w/1080)^2`.
+- Audio is extracted from the horizontal final and muxed over the vertical picture — identical by construction.
