@@ -227,7 +227,10 @@ def main():
 
     db_path = DB_DEFAULT
     conn = sqlite3.connect(db_path, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL")
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+    except sqlite3.OperationalError:
+        logger.warning("Could not set WAL mode (DB locked by another process), continuing")
     conn.execute("PRAGMA busy_timeout=30000")
 
     logger.info("=== Phase 1: compute phash from local files ===")
