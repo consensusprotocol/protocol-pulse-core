@@ -96,17 +96,25 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
             bkey = f"bridge_{i+1:02d}"
             manifest[bkey] = _generate_stem(text, f"vo_{bkey}_{voice_key.split('_')[-1].lower()}_v1")
 
-    # Signoff
+    # Signoff — generate fresh via signoff.py (S2 law)
     signoff_text = vo_section.get("signoff", "")
-    if not signoff_text:
-        # Build signoff from channel list
-        channels = []
-        for clip in edl.get("clips", []):
-            ch = clip.get("channel", "")
-            if ch and ch not in channels:
-                channels.append(ch)
-        if channels:
-            signoff_text = f"Clips today from {', '.join(channels[:-1])}, and {channels[-1]}. Go follow them. Links are below." if len(channels) > 1 else f"Clips today from {channels[0]}. Go follow them. Links are below."
+    # Extract channel names and segment id for signoff generator
+    channels_list = []
+    for clip in edl.get("clips", []):
+        ch = clip.get("channel", "")
+        if ch and ch not in channels_list:
+            channels_list.append(ch)
+    segment_id = os.path.basename(os.path.normpath(segment_dir))
+    topic = edl.get("topic", "")
+
+    if channels_list:
+        try:
+            from signoff import generate_signoff
+            signoff_text = generate_signoff(topic, channels_list, segment_id)
+        except Exception as e:
+            print(f"  Signoff generation failed: {e}")
+            if not signoff_text:
+                signoff_text = f"Clips today from {', '.join(channels_list[:-1])}, and {channels_list[-1]}. Go follow them. Links are below." if len(channels_list) > 1 else f"Clips today from {channels_list[0]}. Go follow them. Links are below."
     if signoff_text:
         manifest["signoff"] = _generate_stem(signoff_text, f"vo_signoff_{voice_key.split('_')[-1].lower()}_v1")
 

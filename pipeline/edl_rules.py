@@ -13,7 +13,7 @@ Rules:
                               Hook may NOT be reused as clip 1 (same video_id + overlap).
     R3 VO_AFTER_ANSWER:       VO bridges only after clips ending on statements.
     R4 VO_BUDGET:             VO <= 25% of total runtime. Intro <= 30 words,
-                              bridge <= 20 words, signoff <= 18 words.
+                              bridge <= 20 words, signoff <= 28 words.
                               One bridge per channel transition.
     R5 CLIP_LENGTH:           8-25s continuous speech per clip. >= 2 distinct
                               channels. Every channel >= 8s screen time.
@@ -166,8 +166,8 @@ def rule_r4(edl):
 
     if intro_words > 30:
         failures.append(f"intro={intro_words} words (max 30)")
-    if signoff_words > 18:
-        failures.append(f"signoff={signoff_words} words (max 18)")
+    if signoff_words > 28:
+        failures.append(f"signoff={signoff_words} words (max 28)")
 
     for i, bridge in enumerate(bridges):
         btext = bridge.get("text", "")

@@ -383,6 +383,67 @@ class TestR9ClipEndsOnSentence(unittest.TestCase):
         self.assertIn("SKIP", reason)
 
 
+class TestSignoffValidation(unittest.TestCase):
+    """Signoff validator unit tests (no network calls)."""
+
+    def setUp(self):
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from signoff import validate_signoff
+        self.validate = validate_signoff
+        self.channels = ["Bitcoin Magazine", "The Bitcoin Layer", "BTC Sessions"]
+
+    def test_valid_signoff_passes(self):
+        text = "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for these clips today. Go follow all three of them, links below."
+        ok, reason = self.validate(text, self.channels, [])
+        self.assertTrue(ok, reason)
+
+    def test_missing_channel_fails(self):
+        text = "Big thanks to Bitcoin Magazine and BTC Sessions for the clips. Go follow them, links below in the description box."
+        ok, reason = self.validate(text, self.channels, [])
+        self.assertFalse(ok)
+        self.assertIn("The Bitcoin Layer", reason)
+
+    def test_no_follow_ask_fails(self):
+        text = "Clips today from Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions. Links are below in the description box for you."
+        ok, reason = self.validate(text, self.channels, [])
+        self.assertFalse(ok)
+        self.assertIn("follow", reason)
+
+    def test_too_short_fails(self):
+        text = "Thanks Bitcoin Magazine, The Bitcoin Layer, BTC Sessions. Follow them."
+        ok, reason = self.validate(text, self.channels, [])
+        self.assertFalse(ok)
+        self.assertIn("too short", reason)
+
+    def test_too_long_fails(self):
+        text = ("Massive thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions "
+                "for bringing these incredible clips to us today and every single day. "
+                "Go follow all of them right now, links are below.")
+        ok, reason = self.validate(text, self.channels, [])
+        self.assertFalse(ok)
+        self.assertIn("too long", reason)
+
+    def test_hashtag_fails(self):
+        text = "Thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions. Go follow them #Bitcoin links below in the description."
+        ok, reason = self.validate(text, self.channels, [])
+        self.assertFalse(ok)
+        self.assertIn("hashtag", reason)
+
+    def test_em_dash_fails(self):
+        text = "Thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions \u2014 go follow them all, links are below in the description."
+        ok, reason = self.validate(text, self.channels, [])
+        self.assertFalse(ok)
+        self.assertIn("em dash", reason)
+
+    def test_jaccard_overlap_fails(self):
+        prev = "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for the clips today. Go follow all three of them."
+        history = [{"text": prev, "segment_id": "v1"}]
+        text = "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for the clips today. Go follow all three of them."
+        ok, reason = self.validate(text, self.channels, history)
+        self.assertFalse(ok)
+        self.assertIn("Jaccard", reason)
+
+
 class TestVOVisualSourceLaw23a(unittest.TestCase):
     """Law 23a: VO visuals in 9:16 must use the vertical composited frame, never the 16:9 source."""
 
