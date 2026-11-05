@@ -153,76 +153,106 @@ class ImageGenerationService:
                                                   force_grok=False):
         """Generate a header image, returning (path, file_phash).
         The file_phash is computed from the SAVED file bytes on disk.
+        Post-save guard: if file phash collides with DB/session, retries up to 3 times.
         """
-        safe_title = _safe_filename(title)
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        filename = f"header_{safe_title}_{timestamp}.jpg"
-        filepath = HEADERS_DIR / filename
+        from articles.image_guard import _hamming, DUP_MAX_DIST
 
-        # Priority: Grok (if key) -> Pexels (reliable) -> DALL-E -> branded fallback
-        image = None
+        for _attempt in range(3):
+            safe_title = _safe_filename(title)
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            suffix = f"_{_attempt}" if _attempt > 0 else ""
+            filename = f"header_{safe_title}_{timestamp}{suffix}.jpg"
+            filepath = HEADERS_DIR / filename
 
-        # 1. Grok (primary — hyper-realistic, when xai_key available)
-        if self.xai_key:
-            logger.info(f"Generating Grok image for: {title[:50]}")
-            grok_img = self._generate_grok_image(title)
-            if self._guard_pil_image(grok_img, title):
-                image = grok_img
+            # Priority: Grok (if key) -> Pexels (reliable) -> DALL-E -> branded fallback
+            image = None
 
-        # 2. Pexels (reliable stock photo — guarded iteration)
-        if image is None and self.pexels_key:
-            logger.info(f"Using Pexels for: {title[:50]}")
-            image = self._fetch_pexels_image(title, category)
+            # 1. Grok (primary — hyper-realistic, when xai_key available)
+            if self.xai_key:
+                logger.info(f"Generating Grok image for: {title[:50]}")
+                grok_img = self._generate_grok_image(title)
+                if self._guard_pil_image(grok_img, title):
+                    image = grok_img
 
-        # 3. OpenAI DALL-E (tertiary fallback — guarded)
-        if image is None and self.openai_key:
-            logger.info(f"Using DALL-E for: {title[:50]}")
-            dalle_img = self._generate_openai_image(title)
-            if self._guard_pil_image(dalle_img, title):
-                image = dalle_img
+            # 2. Pexels (reliable stock photo — guarded iteration)
+            if image is None and self.pexels_key:
+                logger.info(f"Using Pexels for: {title[:50]}")
+                image = self._fetch_pexels_image(title, category)
 
-        # 4. Branded fallback (guarded)
-        if image is None:
-            logger.warning(f"All image sources failed for: {title[:50]}")
-            fb_img = self._generate_fallback_image(title)
-            if self._guard_pil_image(fb_img, title):
-                image = fb_img
-            else:
+            # 3. OpenAI DALL-E (tertiary fallback — guarded)
+            if image is None and self.openai_key:
+                logger.info(f"Using DALL-E for: {title[:50]}")
+                dalle_img = self._generate_openai_image(title)
+                if self._guard_pil_image(dalle_img, title):
+                    image = dalle_img
+
+            # 4. Branded fallback (guarded)
+            if image is None:
+                logger.warning(f"All image sources failed for: {title[:50]}")
+                fb_img = self._generate_fallback_image(title)
                 image = fb_img  # fallback always accepted
 
-        try:
-            # Apply brand overlay and save
-            image = _resize_and_crop(image, TARGET_WIDTH, TARGET_HEIGHT)
-            image = _apply_brand_overlay(image)
-            image.save(str(filepath), "JPEG", quality=85, optimize=True)
-            result_path = f"/static/images/headers/{filename}"
-            size_kb = filepath.stat().st_size // 1024
-            logger.info(f"Saved header image: {result_path} ({size_kb}KB)")
-
-            # Compute phash from SAVED file bytes
-            file_phash = None
             try:
-                with open(str(filepath), "rb") as fh:
-                    file_phash = compute_phash(fh.read())
-            except Exception as e:
-                logger.warning("Failed to compute file phash: %s", e)
+                # Apply brand overlay and save
+                image = _resize_and_crop(image, TARGET_WIDTH, TARGET_HEIGHT)
+                image = _apply_brand_overlay(image)
+                image.save(str(filepath), "JPEG", quality=85, optimize=True)
+                result_path = f"/static/images/headers/{filename}"
+                size_kb = filepath.stat().st_size // 1024
+                logger.info(f"Saved header image: {result_path} ({size_kb}KB)")
 
-            self.last_phash = file_phash
-
-            # Add to session set so two calls in one process cannot collide
-            if file_phash:
-                with _session_lock:
-                    _session_phashes.add(file_phash)
+                # Compute phash from SAVED file bytes
+                file_phash = None
                 try:
-                    remember_accepted(file_phash, title=title[:120])
-                except Exception:
-                    pass
+                    with open(str(filepath), "rb") as fh:
+                        file_phash = compute_phash(fh.read())
+                except Exception as e:
+                    logger.warning("Failed to compute file phash: %s", e)
 
-            return result_path, file_phash
-        except Exception as save_err:
-            logger.error(f"Image save failed: {save_err}")
-            self.last_phash = None
-            return "/static/images/default-header.png", None
+                # POST-SAVE GUARD: check file phash against DB + session
+                if file_phash:
+                    db_ph = _load_db_phashes()
+                    with _session_lock:
+                        sp = set(_session_phashes)
+                    collision = False
+                    for existing in (db_ph | sp):
+                        if not existing:
+                            continue
+                        try:
+                            if _hamming(file_phash, existing) <= DUP_MAX_DIST:
+                                collision = True
+                                break
+                        except Exception:
+                            pass
+                    if collision and _attempt < 2:
+                        logger.info("Post-save file phash %s collides, retrying (attempt %d)", file_phash, _attempt + 1)
+                        try:
+                            os.remove(str(filepath))
+                        except Exception:
+                            pass
+                        time.sleep(1)
+                        continue  # retry with different image
+
+                self.last_phash = file_phash
+
+                # Add to session set so two calls in one process cannot collide
+                if file_phash:
+                    with _session_lock:
+                        _session_phashes.add(file_phash)
+                    try:
+                        remember_accepted(file_phash, title=title[:120])
+                    except Exception:
+                        pass
+
+                return result_path, file_phash
+            except Exception as save_err:
+                logger.error(f"Image save failed: {save_err}")
+                self.last_phash = None
+                return "/static/images/default-header.png", None
+
+        # Exhausted retries — return last attempt
+        self.last_phash = None
+        return "/static/images/default-header.png", None
 
     # ─── PEXELS (PRIMARY — 90% of articles) ────────────────────────
 
