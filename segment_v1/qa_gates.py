@@ -667,20 +667,22 @@ def gate_g6(final_mp4, vo_regions, qa_dir, vo_assembled_tracks=None):
 # G8: SHARPNESS
 # ==============================================================
 
-def gate_g8(final_mp4, segments, qa_dir, upscaled_labels=None):
+def gate_g8(final_mp4, segments, qa_dir, upscaled_labels=None, crop_widths=None):
     """Laplacian variance on centre 60% region, 5 frames per shot.
     FAIL if any shot median < threshold.  Law 20 — do not lower base threshold.
-    R1 crops (607->1080 upscale) use proportionally reduced floor: 60 * (607/1080)^2 ≈ 19."""
+    R1 crops use proportionally reduced floor: 60 * (crop_w/1080)^2.
+    crop_widths: dict mapping label -> source crop width (for per-segment floor).
+    upscaled_labels: set of labels that are R1-upscaled (uses 607px default if not in crop_widths)."""
     import cv2
 
     print("\n=== G8: SHARPNESS ===")
 
     SHARPNESS_FLOOR = 60  # Law 20 — do not change (for native-res content)
-    # R1 crop upscales 607px -> 1080px; sharpness scales with resolution^2
-    UPSCALE_FLOOR = round(SHARPNESS_FLOOR * (607 / 1080) ** 2, 1)  # ~18.9
 
     if upscaled_labels is None:
         upscaled_labels = set()
+    if crop_widths is None:
+        crop_widths = {}
 
     all_pass = True
     table = []
@@ -719,7 +721,11 @@ def gate_g8(final_mp4, segments, qa_dir, upscaled_labels=None):
             variances.append(round(lap_var, 2))
 
         median_var = float(np.median(variances)) if variances else 0.0
-        floor = UPSCALE_FLOOR if label in upscaled_labels else SHARPNESS_FLOOR
+        if label in upscaled_labels:
+            cw = crop_widths.get(label, 607)  # default 607px if not specified
+            floor = round(SHARPNESS_FLOOR * (cw / 1080) ** 2, 1)
+        else:
+            floor = SHARPNESS_FLOOR
         ok = median_var >= floor
 
         if not ok:
@@ -810,60 +816,100 @@ def gate_g9(final_mp4, qa_dir):
 # ==============================================================
 
 def gate_g10(final_mp4, segments, crop_rects, qa_dir, coindesk_clip_ids=None):
-    """For CoinDesk shots: crop must not slice lower-third chyron.
-    Bottom 110px of 1080 source must be excluded from the crop window.
-    crop_rects: dict mapping label -> 'crop_x,crop_y,crop_w,crop_h' string.
-    coindesk_clip_ids: set/list of clip labels that are CoinDesk sourced.
-    Law 20 — do not change threshold."""
-    print("\n=== G10: TEXT CROP ===")
+    """IMAGE-BASED chyron check on the FINAL output picture.
+    Samples 5 frames inside each CoinDesk segment, takes the bottom 12% band,
+    computes Canny edge density and near-white pixel fraction.
+    FAIL if edge_density > 0.08 OR white_fraction > 0.25 (chyron text/banner).
+    Saves band crops to qa_dir/g10_*.png.
+    Law 20 — constants fixed, never tuned to pass."""
+    import cv2
 
-    CHYRON_BOTTOM_PX = 110  # bottom 110px of 1080p source = chyron zone
+    print("\n=== G10: TEXT CROP (IMAGE-BASED) ===")
+
+    EDGE_DENSITY_MAX = 0.08    # Law 20 — do not change
+    WHITE_FRACTION_MAX = 0.25  # Law 20 — do not change
+    BAND_FRACTION = 0.12       # bottom 12% of output frame
+    N_SAMPLES = 5
 
     if coindesk_clip_ids is None:
         coindesk_clip_ids = set()
 
-    # Only applies to CoinDesk segments
-    coindesk_labels = [seg["label"] for seg in segments
-                       if seg.get("type") == "talking_head"
-                       and seg["label"] in coindesk_clip_ids
-                       and seg["label"] in crop_rects]
+    coindesk_segs = [seg for seg in segments
+                     if seg.get("type") == "talking_head"
+                     and seg["label"] in coindesk_clip_ids]
 
-    if not coindesk_labels:
-        print("  No CoinDesk shots with crop rects — SKIP (PASS)")
+    if not coindesk_segs:
+        print("  No CoinDesk shots — SKIP (PASS)")
         return True, {"skip": True, "pass": True}
 
     all_pass = True
     table = []
 
-    for label in coindesk_labels:
-        rect_str = crop_rects.get(label, "")
-        if not rect_str:
-            continue
+    for seg in coindesk_segs:
+        label = seg["label"]
+        seg_start = seg["start"]
+        seg_end = seg["end"]
+        seg_dur = seg_end - seg_start
 
-        parts = rect_str.split(",")
-        if len(parts) != 4:
-            continue
+        sample_times = [seg_start + seg_dur * (i + 0.5) / N_SAMPLES for i in range(N_SAMPLES)]
+        edge_densities = []
+        white_fractions = []
 
-        crop_x, crop_y, crop_w, crop_h = [int(p) for p in parts]
-        crop_bottom = crop_y + crop_h
-        source_chyron_top = 1080 - CHYRON_BOTTOM_PX  # 970
+        for i, t in enumerate(sample_times):
+            frame_path = os.path.join(qa_dir, f"g10_{label}_{i}.png")
+            extract_frame(final_mp4, t, frame_path)
+            if not os.path.exists(frame_path):
+                continue
 
-        # The crop must not extend into chyron zone
-        ok = crop_bottom <= source_chyron_top
+            img = cv2.imread(frame_path)
+            if img is None:
+                continue
+
+            h, w = img.shape[:2]
+            band_h = int(h * BAND_FRACTION)
+            band = img[h - band_h:h, :, :]
+
+            # Save the band crop for audit
+            band_path = os.path.join(qa_dir, f"g10_{label}_{i}_band.png")
+            cv2.imwrite(band_path, band)
+
+            # Canny edge density
+            gray_band = cv2.cvtColor(band, cv2.COLOR_BGR2GRAY)
+            edges = cv2.Canny(gray_band, 50, 150)
+            edge_px = np.count_nonzero(edges)
+            total_px = band_h * w
+            edge_density = edge_px / max(total_px, 1)
+            edge_densities.append(round(edge_density, 4))
+
+            # Near-white pixel fraction (R>200, G>200, B>200)
+            white_mask = np.all(band > 200, axis=2)
+            white_frac = np.count_nonzero(white_mask) / max(total_px, 1)
+            white_fractions.append(round(white_frac, 4))
+
+        max_edge = max(edge_densities) if edge_densities else 0.0
+        max_white = max(white_fractions) if white_fractions else 0.0
+
+        edge_ok = max_edge <= EDGE_DENSITY_MAX
+        white_ok = max_white <= WHITE_FRACTION_MAX
+        ok = edge_ok and white_ok
 
         if not ok:
             all_pass = False
 
         table.append({
             "segment": label,
-            "crop_rect": rect_str,
-            "crop_bottom": crop_bottom,
-            "chyron_top": source_chyron_top,
+            "edge_densities": edge_densities,
+            "max_edge": max_edge,
+            "edge_ok": edge_ok,
+            "white_fractions": white_fractions,
+            "max_white": max_white,
+            "white_ok": white_ok,
             "pass": ok,
         })
 
         status = "PASS" if ok else "FAIL"
-        print(f"  {label}: crop_bottom={crop_bottom}, chyron_top={source_chyron_top} [{status}]")
+        print(f"  {label}: max_edge={max_edge:.4f} (max={EDGE_DENSITY_MAX}) "
+              f"max_white={max_white:.4f} (max={WHITE_FRACTION_MAX}) [{status}]")
 
     return all_pass, table
 
@@ -904,6 +950,79 @@ def gate_g11(vert_mp4, horiz_mp4, vert_segments, horiz_segments):
         "vert_segments": vert_n,
         "horiz_segments": horiz_n,
         "count_ok": count_ok,
+        "pass": ok,
+    }
+
+
+# ==============================================================
+# G12: CREDITS (red-ring avatar count in shoutout)
+# ==============================================================
+
+def gate_g12(final_mp4, segments, expected_count, qa_dir):
+    """Count red-ring avatar circles on a mid-scene frame of the shoutout segment.
+    Uses HoughCircles on the red-channel-dominant mask.
+    FAIL unless detected count == expected_count.
+    Law 20 — do not change thresholds."""
+    import cv2
+
+    print("\n=== G12: CREDITS ===")
+
+    shout_seg = next((s for s in segments if s.get("type") == "shoutout"), None)
+    if shout_seg is None:
+        print("  No shoutout segment — SKIP (PASS)")
+        return True, {"skip": True, "pass": True}
+
+    t_mid = (shout_seg["start"] + shout_seg["end"]) / 2
+    frame_path = os.path.join(qa_dir, "g12_credits.png")
+    extract_frame(final_mp4, t_mid, frame_path)
+
+    if not os.path.exists(frame_path):
+        print("  ERROR: cannot extract shoutout frame")
+        return False, {"error": "no frame", "pass": False}
+
+    img = cv2.imread(frame_path)
+    if img is None:
+        return False, {"error": "cannot read frame", "pass": False}
+
+    h, w = img.shape[:2]
+
+    # Build red-ring mask: pixels where R > 100, R > G+40, R > B+40
+    b, g, r = cv2.split(img)
+    red_mask = ((r > 100) & (r > g.astype(int) + 40) & (r > b.astype(int) + 40)).astype(np.uint8) * 255
+
+    # Save red mask for audit
+    mask_path = os.path.join(qa_dir, "g12_red_mask.png")
+    cv2.imwrite(mask_path, red_mask)
+
+    # HoughCircles on red mask
+    # Blur to smooth edges
+    blurred = cv2.GaussianBlur(red_mask, (9, 9), 2)
+    circles = cv2.HoughCircles(
+        blurred, cv2.HOUGH_GRADIENT, dp=1.2,
+        minDist=int(min(w, h) * 0.15),
+        param1=50, param2=30,
+        minRadius=int(min(w, h) * 0.08),
+        maxRadius=int(min(w, h) * 0.20),
+    )
+
+    detected = 0
+    if circles is not None:
+        detected = len(circles[0])
+        # Draw detected circles on frame for audit
+        debug_img = img.copy()
+        for c in circles[0]:
+            cx, cy, cr = int(c[0]), int(c[1]), int(c[2])
+            cv2.circle(debug_img, (cx, cy), cr, (0, 255, 0), 3)
+        debug_path = os.path.join(qa_dir, "g12_circles.png")
+        cv2.imwrite(debug_path, debug_img)
+
+    ok = detected == expected_count
+
+    print(f"  Detected circles: {detected} (expected: {expected_count}) [{'PASS' if ok else 'FAIL'}]")
+
+    return ok, {
+        "detected": detected,
+        "expected": expected_count,
         "pass": ok,
     }
 

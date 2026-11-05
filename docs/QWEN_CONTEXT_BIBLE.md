@@ -789,7 +789,10 @@ Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager
 - **Law: ALL image writes go through image_guard**. No path may write `cover_image_url` or `header_image_url` without computing phash via `check_image_bytes()` or routing through `get_pexels_image()`. Both columns must be set. The gate hashes the served file, not the DB column.
 
 ## 2026-11-04 — Vertical v16 full program parity
-- **vertical must mirror horizontal shot-for-shot; layout chosen by hand table, never by detector**. See `segment_v1/render_v16_vertical.py` and `vertical_overrides_v16.json`. Audio muxed from horizontal final (identical by construction). G11 parity gate enforces duration within 0.25s and segment count match.
+- **vertical must mirror horizontal shot-for-shot; layout chosen by hand table, never by detector**. See `segment_v1/render_v17_vertical.py` and `vertical_overrides_v17.json`. Audio muxed from horizontal final (identical by construction). G11 parity gate enforces duration within 0.25s and segment count match.
+
+## 2026-11-04 — Vertical v17 chyron fix + 3-channel shoutout
+- **gates must measure the output picture, never input metadata**. G10 (chyron) is IMAGE-BASED: Canny edge density + white fraction on bottom 12% band of final output. G12 (credits) counts red-ring circles via HoughCircles. Sharpness floor is per-segment: `60 * (crop_w/1080)^2`. CoinDesk chyron excluded by cropping bottom 200px of source (was 110px).
 
 ## 2026-11-04 — Image dedup final fix (root cause)
 - **image_service.generate_article_header_image was the unguarded source of duplicate covers; now guarded and returns file phash; never store a remote image URL in cover_image_url/header_image_url.**

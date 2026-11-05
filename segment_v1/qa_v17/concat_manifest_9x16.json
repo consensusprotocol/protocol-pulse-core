@@ -1,0 +1,77 @@
+{
+  "format": "9x16",
+  "segments": [
+    {
+      "label": "hook",
+      "start": 0.0,
+      "end": 10.0,
+      "type": "talking_head",
+      "first_word": "What",
+      "last_word": "far.",
+      "layout": "stack2"
+    },
+    {
+      "label": "vo_intro",
+      "start": 10.0,
+      "end": 22.084,
+      "type": "vo",
+      "text": "the largest hack in crypto history just shook every exchange on earth. six point three billion gone from binance, and the debate over self-custody is louder than ever."
+    },
+    {
+      "label": "clip_01",
+      "start": 22.084,
+      "end": 38.209,
+      "type": "talking_head",
+      "first_word": "Unauthorized",
+      "last_word": "group.",
+      "layout": "grid"
+    },
+    {
+      "label": "clip_02",
+      "start": 38.209,
+      "end": 56.376,
+      "type": "talking_head",
+      "first_word": "JUST",
+      "last_word": "BEFORE.",
+      "layout": "single"
+    },
+    {
+      "label": "clip_03",
+      "start": 56.376,
+      "end": 69.918,
+      "type": "talking_head",
+      "first_word": "This",
+      "last_word": "account.",
+      "layout": "stack2"
+    },
+    {
+      "label": "vo_bridge",
+      "start": 69.918,
+      "end": 73.877,
+      "type": "vo",
+      "text": "and that's exactly why self-custody matters."
+    },
+    {
+      "label": "clip_04",
+      "start": 73.877,
+      "end": 91.836,
+      "type": "talking_head",
+      "first_word": "If",
+      "last_word": "Bitcoin.",
+      "layout": "stack2"
+    },
+    {
+      "label": "shoutout",
+      "start": 91.836,
+      "end": 98.926,
+      "type": "shoutout"
+    },
+    {
+      "label": "outro",
+      "start": 98.926,
+      "end": 102.885,
+      "type": "outro"
+    }
+  ],
+  "shoutout_start": 91.83600000000001
+}
