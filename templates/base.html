@@ -9,10 +9,9 @@
     <meta name="apple-mobile-web-app-title" content="Protocol Pulse">
     <meta name="description" content="{% block meta_description %}World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.{% endblock %}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/icon-32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/icon-16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/brand/favicon_180.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/brand/favicon_32.png') }}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='img/brand/favicon_512.png') }}">
     <link rel="canonical" href="https://protocolpulse.io{{ request.path }}">
     <title>{% block title %}Protocol Pulse{% endblock %}</title>
 
@@ -26,10 +25,11 @@
     <meta property="og:description" content="World-class Bitcoin intelligence. Real-time analysis, market signals, and investigative reporting for transactors.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Protocol Pulse">
-    <meta property="og:image" content="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='img/brand/og_default.png', _external=True) }}">
     <meta property="og:url" content="{{ request.url }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@ProtocolPulse">
+    <meta name="twitter:image" content="{{ url_for('static', filename='img/brand/og_default.png', _external=True) }}">
     {% endblock %}
 
     <!-- DNS prefetch + preconnect for external resources -->
@@ -66,7 +66,7 @@
         "@type": "NewsMediaOrganization",
         "name": "Protocol Pulse",
         "url": "https://protocolpulse.io/",
-        "logo": "{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png', _external=True) }}",
+        "logo": "{{ url_for('static', filename='img/brand/og_default.png', _external=True) }}",
         "description": "World-class Bitcoin intelligence hub delivering peer-to-peer briefings for transactors.",
         "sameAs": ["https://twitter.com/ProtocolPulse"],
         "foundingDate": "2025",
@@ -128,7 +128,7 @@
         <div class="pp-nav__inner">
             <!-- Brand -->
             <a href="/" class="pp-nav__brand">
-                <img src="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png') }}" alt="Protocol Pulse" class="pp-nav__logo">
+                <img src="{{ url_for('static', filename='img/brand/pp_pulse_line_500.png') }}" alt="Protocol Pulse" class="pp-nav__logo" style="height:36px;">
                 <span class="pp-nav__brand-text">Protocol<span>Pulse</span></span>
             </a>
 
@@ -367,7 +367,7 @@
                 <!-- Brand -->
                 <div class="pp-footer__brand">
                     <a href="/" class="pp-nav__brand" style="display:inline-flex;">
-                        <img src="{{ url_for('static', filename='images/protocol-pulse-logo-transparent.png') }}" alt="Protocol Pulse" class="pp-footer__brand-logo">
+                        <img src="{{ url_for('static', filename='img/brand/pp_pulse_line_500.png') }}" alt="Protocol Pulse" class="pp-footer__brand-logo">
                         <span class="pp-nav__brand-text">Protocol<span>Pulse</span></span>
                     </a>
                     <p class="pp-footer__brand-text">

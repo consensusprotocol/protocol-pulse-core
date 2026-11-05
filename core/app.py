@@ -4,6 +4,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 # Load .env from the same directory as this file (core/) so it works from any cwd
 load_dotenv(Path(__file__).resolve().parent / ".env")
+# Also load parent ~/protocol_pulse/.env (override=False keeps core/.env values)
+load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
 
 import logging
 import json
