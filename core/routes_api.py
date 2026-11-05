@@ -2357,19 +2357,28 @@ def trigger_automation():
     result = generate_article_with_tracking(force=force)
     
     if result.get('success'):
-        # Generate Grok image if article has no cover image
+        # Generate image via guarded path if article has no cover image
         aid = result.get('article_id')
         if aid:
             try:
                 art = models.Article.query.get(aid)
-                if art and (not art.cover_image_url or 'unsplash' in (art.cover_image_url or '') or 'pexels' in (art.cover_image_url or '')):
-                    from services.image_service import ImageGenerationService
-                    img_svc = ImageGenerationService()
-                    img_url = img_svc.generate_article_header_image(title=art.title, category=art.category or 'Bitcoin')
+                if art and (not art.cover_image_url or 'default-header' in (art.cover_image_url or '')):
+                    from services.pexels_image import get_pexels_image
+                    # Load DB phashes for dedup
+                    _ph_rows = db.session.execute(
+                        db.text("SELECT image_phash FROM articles WHERE image_phash IS NOT NULL AND image_phash != ''")
+                    ).fetchall()
+                    _db_ph = {r[0] for r in _ph_rows}
+                    img_url, img_phash = get_pexels_image(
+                        art.title or 'bitcoin', art.category or 'bitcoin',
+                        article_id=art.id, db_phashes=_db_ph, session_phashes=set())
                     if img_url and 'default-header' not in img_url:
                         art.cover_image_url = img_url
+                        art.header_image_url = img_url
+                        if img_phash and hasattr(art, 'image_phash'):
+                            art.image_phash = img_phash
                         db.session.commit()
-                        logging.info(f"Generated Grok image for article {aid}: {img_url}")
+                        logging.info(f"Generated guarded image for article {aid}: {img_url}")
             except Exception as img_err:
                 logging.warning(f"Image gen for article {aid} failed: {img_err}")
         msg = f"Article generated: {result.get('title')}"
