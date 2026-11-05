@@ -1,0 +1,38 @@
+{
+  "hook": {
+    "persons": [
+      {
+        "cx": 1477,
+        "score": 0.865
+      },
+      {
+        "cx": 502,
+        "score": 0.0
+      }
+    ],
+    "chosen_cx": 1477,
+    "reason": "lip-activity"
+  },
+  "clip_04": {
+    "persons": [
+      {
+        "cx": 517,
+        "score": 1.5756
+      },
+      {
+        "cx": 1473,
+        "score": 0.0
+      },
+      {
+        "cx": 365,
+        "score": 0.0
+      },
+      {
+        "cx": 606,
+        "score": 0.0
+      }
+    ],
+    "chosen_cx": 517,
+    "reason": "lip-activity"
+  }
+}

@@ -1,3 +1,66 @@
+# CURRENT STATE — Protocol Pulse medley engine (handoff 2026-11-04 22:05 ET)
+
+Read this first in every new session. It supersedes everything below the "PREVIOUS HANDOFF" marker.
+PBX's Fable (Claude) usage is near its cap until 2026-11-07 18:00 ET; whichever model continues must follow the OPERATING PRINCIPLES section exactly. They are what made 2026-11-04 work.
+
+## 1. What is published / where things are
+
+| Item | State |
+|---|---|
+| First Pulse Check (Binance $6.4B hack) 16:9 | `~/protocol_pulse/segment_v1/out/segment_v12.mp4` (100.5 s). Approved FLAWLESS by PBX. Posted to X by PBX manually: https://x.com/protocolpulsehq/status/2118125593695072641 — retweeted by @BTCsessions (145k). |
+| 9:16 vertical | `segment_v1/out/segment_v17_vertical.mp4` (102.9 s). PBX: "A+". Telegram msg 67184. NOT yet posted anywhere. |
+| YouTube | NOT on Protocol Pulse yet. `wayq6CtR0V4` was uploaded by mistake to the **Cypherpunk'd** channel (token in `.env` belongs to it); it is now PRIVATE. Needs a token for the Protocol Pulse channel — see §4. |
+| Thumbnail | `segment_v1/publish/thumbnail_v12.jpg` = thumbs_v12/thumb_v12_2.jpg (Ben + Nico frame, headline "$6.4B BINANCE HACK", transparent pulse mark top-right). Approved style: real frames, third-party logos blurred, no black box behind the mark. |
+| X headline (analysis register) | `segment_v1/publish/captions_v12.json` (freshness=analysis). Reply credits @SimplyBitcoin @BTCsessions @CoinDesk. |
+| Homepage Pulse Check | `templates/index.html` reads `/static/data/pulse_check.json` {video_id,url,title,x_url,published_at}; falls back to playlist embed when video_id is null. The publisher must write this file after every YouTube upload (TODO, pp_thumb). |
+| Grok (xAI) | NEW key in `~/protocol_pulse/.env` as `XAI_API_KEY_MEDLEY` (new account; old account has ~$247 of failed invoices, no Ultron usage anymore). All Grok callers read that one var. |
+| X API (posting) | Old X developer account: 402 "credits depleted" on create_tweet. PBX created a new X developer account (logged in as Cypherpunk'd). To post as @ProtocolPulse: get the new app's API key + secret (app set to Read and Write), run the OAuth 1.0a PIN flow (tweepy OAuth1UserHandler, callback "oob") while PBX is logged in as @ProtocolPulse, store the 4 values in `.env` (X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_TOKEN_SECRET). Then: `cd ~/pp_publisher && python3 publish.py --segment ~/protocol_pulse/segment_v1 --version 12 --skip-youtube --no-gate --at now --freshness analysis --reply-delay 10` (dry-run first with --dry-run). |
+
+## 2. Code that is now law (do not re-litigate)
+
+- **Vertical renderer (canonical):** `~/protocol_pulse/vertical/render_vertical.py` (v1.0 locked 2026-11-04) = `segment_v1/render_v17_vertical.py`. Layout tables in `vertical/layout_tables/`. The old "intelligent" module (`vertical/reframe.py`, `compositor.py`, `shotmap.py`) is DEAD. Do not resurrect it.
+- **Three layouts only:** `single` (fixed face crop, chyron-safe = exclude bottom 200 px of source for CoinDesk), `stack2` (two source rects, speaker on TOP, each 1080x960 or 1080x911 with black bars), `grid` (BTC Sessions 5-tile screen-share: screen on top, enlarged column below; PBX-approved). Layout per shot comes from a hand table keyed by source channel + tile count. Unknown → `single` + WARN. Never a detector-chosen layout.
+- **Parity:** the 9:16 mirrors the 16:9 shot-for-shot, same order, and muxes the horizontal's finished audio (identical by construction). G11 fails if duration differs > 0.25 s or segment count differs.
+- **Gates (qa_gates.py), thresholds are constants (Law 20):** G2 watermark probe; G8 sharpness (Laplacian var on composited faces, floor per-shot); G9 tail (last 1 s not black, audio not silent); G10 chyron IMAGE-BASED (Canny edge density + white fraction on bottom 12% band of CoinDesk frames); G11 parity; G12 credits (count red-ring avatars == number of partner handles). Telegram send only on all-pass. Every gate measures the OUTPUT PICTURE, never input metadata (the old G10 read crop rects and passed a sliced chyron — that is the failure to remember).
+- **EDL:** `segment_v1/cuts_final.json` is the single source of truth (Law 22). CoinDesk 7QIB in=230.58. Renderers never patch cut points.
+- **Speaker attribution in copy:** manifest knows channel, not speaker. Headline credits a real name ONLY when `publish/partner_handles.json` has a verified `speaker` for that channel AND the clip is the host speaking. Clip_04's "if our entire hot wallet was drained" is Adam O'Brien (guest), not Ben Perrin. V2 gap: per-clip speaker ID.
+- **Publisher (`~/pp_publisher`):** `--freshness breaking|developing|analysis` (hook register by story age; validator rejects time markers outside breaking), channel-name validator (no Simply/Sessions/CoinDesk/@ in headline), `$` required on money figures, caption REUSE of a passing `captions_vN.json` (same freshness) so the reviewed copy is the posted copy; `--regen-captions` forces new; `--reply-delay` default 10 s. captions.py/publish.py changes are UNCOMMITTED in ~/pp_publisher (commit them).
+- **Laws added:** 20 (gate thresholds never lowered), 21 (time budgets, GPU path), 22 (EDL truth), 23 (vertical parity) in `~/boomers_pipeline/PIPELINE_LAWS.md`.
+
+## 3. Operating principles (the method — apply to every task)
+
+1. **Look at the picture.** Every claim about a render is verified by pulling a frame grid (`ffmpeg -vf fps=1/3,scale=192:-1,tile=10xN`) through the relay in 40 KB base64 chunks and reading it. Gates passing is not evidence; the image is.
+2. **Rebuild from the last approved version.** A regression is fixed by returning to the version PBX approved and changing the one thing he flagged. Never fix a regression by adding intelligence (detectors, critics, layouts). Tonight's spiral (v13–v14) came from doing the opposite; the recovery (v15–v17) came from this rule.
+3. **Hand tables beat detectors** for anything editorial (which face, which layout). Detection may measure; it may not decide.
+4. **Honest ETAs, no padding.** State the budget, stop when it's exceeded, report. "Tomorrow evening" pacing is rejected by PBX; so is pretending 4 h is 1 h.
+5. **One CC session per repo**: `pp_vert` = ~/protocol_pulse (vertical + site), `pp_thumb` = ~/pp_publisher. Prompts via base64 → /tmp/cc_prompt.txt → `tmux load-buffer` + `paste-buffer` + `send-keys Enter`. **Trap:** text pasted while CC is busy sits unsubmitted; after it goes idle, `tmux send-keys -t <s> Enter`. Check the pane tail before assuming a prompt ran. Compaction can also drop a queued prompt — re-send after compaction.
+6. **Relay** (`https://relay.protocolpulse.io/exec`, urllib, UA Mozilla/5.0): ~50 KB stdout cap (500 error above it); background processes die when the call returns — start daemons with `setsid nohup … < /dev/null &`. Never print .env values.
+7. **Copy voice:** lowercase social copy, no hashtags, no em dashes, credit people never channels in the headline, equal credit to all partners in the 🧡 reply.
+8. **Never clip reactions to other people's clips; never show a partner's video "unavailable"; red/black brand, orange only as subject accent.**
+9. **Bible law:** every new failure pattern → `~/protocol_pulse/docs/QWEN_CONTEXT_BIBLE.md` immediately.
+
+## 4. Open items, in priority order
+
+1. **YouTube channel token.** Find which Google account owns the Protocol Pulse channel (consensusprotocolhq@gmail.com only offered Cypherpunk'd). Auth link = Google OAuth with `redirect_uri=https://protocolpulse.io/oauth/youtube/callback`, scopes youtube + youtube.upload + youtube.force-ssl, `prompt=consent select_account`; the site callback writes `YOUTUBE_REFRESH_TOKEN` into `~/protocol_pulse/.env`. The site process must have the main `.env` exported (it loads `core/.env` only — permanent fix: add `load_dotenv(parent/.env)` in `core/app.py`; until then restart waitress with `set -a; . ~/protocol_pulse/.env; set +a`). After auth: verify `channels().list(mine=True)` == "Protocol Pulse", add a channel-identity assert in `youtube.py` (refuse upload unless channel title == config YOUTUBE_EXPECTED_CHANNEL), then publish v12 (`--skip-x --no-gate --at now --freshness analysis`), write `static/data/pulse_check.json` with video_id + x_url, verify homepage on phone width.
+2. **X posting as @ProtocolPulse** — §1 last row.
+3. **Publisher writes pulse_check.json** after each YouTube upload and adds x_url after X post (pp_thumb task). Commit pp_publisher.
+4. **Fresh-topic end-to-end run** (the real test): topic_rank → sources → EDL (cuts_final) → VO (PBX MAX voice, Law 15 1.0 s pad) → 16:9 render → `vertical/render_vertical.py` → gates → Telegram gate → publisher. Run unattended; Telegram is the only stop. Daily format: one program, 60–120 s, two aspect ratios from one EDL. 5–10 min weekly roundup is a later product.
+5. Hardware: GPU1 (Xid 79) pinned Gen1/quarantined pending physical reseat; `CUDA_VISIBLE_DEVICES=0`. Remove `/etc/sudoers.d/90-ultron-temp` when done.
+6. OpenAI + Gemini balances empty (trifecta audits run Grok + Claude until topped up).
+
+## 5. Fast commands
+
+```
+# frame grid of any render (then pull /tmp/g.jpg in 40 KB base64 chunks)
+ffmpeg -v error -y -i FILE -vf 'fps=1/3,scale=192:-1,tile=10x4' -frames:v 1 -q:v 6 /tmp/g.jpg
+# publisher dry run
+cd ~/pp_publisher && python3 publish.py --segment ~/protocol_pulse/segment_v1 --version 12 --dry-run --no-gate --at now --freshness analysis
+# site restart (CLAUDE.md)
+cd ~/protocol_pulse/core && pkill -f 'waitress --port=5000'; set -a; . ~/protocol_pulse/.env; set +a; setsid nohup python3 -m waitress --port=5000 --threads=4 --channel-timeout=300 app:app >> ~/protocol_pulse/logs/waitress.log 2>&1 < /dev/null &
+```
+
+---
+# PREVIOUS HANDOFF (kept for history)
 # Protocol Pulse — Current State
 **Generated:** 2026-03-27 12:33:37  
 **Git:** `8e1935c1` on `main`  

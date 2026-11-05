@@ -1,0 +1,28 @@
+{
+  "G1_resolution": {
+    "pass": true,
+    "actual": "1080x1920",
+    "expected": "1080x1920"
+  },
+  "G2_codec": {
+    "pass": true,
+    "codec": "h264",
+    "pix_fmt": "yuv420p"
+  },
+  "G3_duration": {
+    "pass": true,
+    "duration": 75.5
+  },
+  "G4_audio": {
+    "pass": true,
+    "sample_rate": 48000,
+    "channels": 2
+  },
+  "G5_filesize": {
+    "pass": true,
+    "bytes": 32368240
+  },
+  "G6_no_black": {
+    "pass": true
+  }
+}

@@ -1,0 +1,181 @@
+{
+ "schema": "vertical.shot_map/0.2",
+ "episode": "7QIB_zdKU9A_228_252",
+ "generated_at": "2026-11-04T18:09:54-0500",
+ "master": "/home/ultron/protocol_pulse/vertical/work/edl_windows/7QIB_zdKU9A_228_252.mp4",
+ "master_sha256_first16MB": "670d47f4cb60b4d84b9d6c344e2a35b5e03105601dd944ac4d7c34cf8aa8c902",
+ "video": {
+  "width": 1920,
+  "height": 1080,
+  "fps": 30.0,
+  "nb_frames": 723,
+  "start_time": 0.066016,
+  "duration_s": 24.167
+ },
+ "frames_analysed": 724,
+ "keyframes_analysed": 0,
+ "cuts_on_keyframes": "0/1",
+ "config_free": true,
+ "params": {
+  "lowres": [
+   192,
+   108
+  ],
+  "seam_rows": [
+   120,
+   900
+  ],
+  "seam_step": 18,
+  "seam_persist": 0.55,
+  "seam_cluster_px": 4,
+  "seam_present": 0.8,
+  "min_tile_frac": 0.22,
+  "cut_k": 4.0,
+  "cut_abs": 6.0,
+  "cut_win": 12,
+  "cut_hard_mad": 30.0,
+  "cut_hard_hist": 0.1,
+  "family_min_share": 0.02,
+  "family_seam_min": 0.4,
+  "ss_area_frac": 0.35,
+  "ss_bright_thresh": 140,
+  "ss_aspect_lo": 1.2,
+  "ss_aspect_hi": 3.0,
+  "face_model": "/home/ultron/protocol_pulse/segment_v1/qa_v6/blaze_face_short_range.tflite",
+  "face_min_confidence": 0.4
+ },
+ "layout_families": [],
+ "cuts": [
+  {
+   "frame": 683,
+   "mad": 40.49,
+   "local_median": 0.36,
+   "hist_dist": 0.243,
+   "kind": "cut",
+   "t": 22.767
+  }
+ ],
+ "frame_jumps": [],
+ "soft_layout_changes": [],
+ "shots": [
+  {
+   "id": "sh001",
+   "frame_in": 6827,
+   "frame_out": 7510,
+   "t_in": 227.58,
+   "t_out": 250.347,
+   "dur_s": 22.767,
+   "start": "cut",
+   "layout": "single",
+   "confidence": "high",
+   "seams": [],
+   "tiles": [
+    {
+     "x0": 0,
+     "x1": 1920,
+     "host": null,
+     "face_count": 1
+    }
+   ],
+   "family": null,
+   "keyframes": 1,
+   "stability": 1.0,
+   "screen_share": false,
+   "screen_share_rect": null,
+   "total_faces": 1
+  },
+  {
+   "id": "sh002",
+   "frame_in": 7510,
+   "frame_out": 7551,
+   "t_in": 250.347,
+   "t_out": 251.713,
+   "dur_s": 1.367,
+   "start": "cut",
+   "layout": "6up",
+   "confidence": "low",
+   "seams": [
+    {
+     "x0": 16,
+     "x1": 25,
+     "present": 1.0,
+     "persist_min": 0.976
+    },
+    {
+     "x0": 636,
+     "x1": 655,
+     "present": 1.0,
+     "persist_min": 0.976
+    },
+    {
+     "x0": 1266,
+     "x1": 1275,
+     "present": 1.0,
+     "persist_min": 0.976
+    },
+    {
+     "x0": 1282,
+     "x1": 1290,
+     "present": 1.0,
+     "persist_min": 0.976
+    },
+    {
+     "x0": 1901,
+     "x1": 1910,
+     "present": 1.0,
+     "persist_min": 0.976
+    }
+   ],
+   "tiles": [
+    {
+     "x0": 0,
+     "x1": 16,
+     "host": null,
+     "face_count": 0
+    },
+    {
+     "x0": 25,
+     "x1": 636,
+     "host": null,
+     "face_count": 1
+    },
+    {
+     "x0": 655,
+     "x1": 1266,
+     "host": null,
+     "face_count": 1
+    },
+    {
+     "x0": 1275,
+     "x1": 1282,
+     "host": null,
+     "face_count": 0
+    },
+    {
+     "x0": 1290,
+     "x1": 1901,
+     "host": null,
+     "face_count": 1
+    },
+    {
+     "x0": 1910,
+     "x1": 1920,
+     "host": null,
+     "face_count": 0
+    }
+   ],
+   "family": null,
+   "keyframes": 1,
+   "stability": 1.0,
+   "screen_share": false,
+   "screen_share_rect": null,
+   "total_faces": 3
+  }
+ ],
+ "layout_seconds": {
+  "6up": 1.4,
+  "single": 22.8
+ },
+ "screen_share_shots": 0,
+ "screen_share_seconds": 0
+}

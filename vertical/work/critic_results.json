@@ -1,0 +1,110 @@
+{
+  "overall_pass": true,
+  "shots": [
+    {
+      "shot_id": "hook_sh001",
+      "pass": true,
+      "tiles_ok": true,
+      "crop_ok": true,
+      "artifacts_ok": true,
+      "composition_ok": true,
+      "issues": [],
+      "model": "grok-4",
+      "raw_response": {
+        "tiles_visible": [
+          "tile_0",
+          "tile_1"
+        ],
+        "tile_missing": false,
+        "debug_artifacts": false,
+        "face_cut_off": false,
+        "layout_id": "b"
+      }
+    },
+    {
+      "shot_id": "clip_01_sh001",
+      "pass": true,
+      "tiles_ok": true,
+      "crop_ok": true,
+      "artifacts_ok": true,
+      "composition_ok": true,
+      "issues": [],
+      "model": "grok-4",
+      "raw_response": {
+        "tiles_visible": [
+          "Ben Sessions",
+          "Nathan",
+          "@adamobrien",
+          "I'M TIRED BOSS",
+          "Brandon Gentile"
+        ],
+        "tile_missing": false,
+        "debug_artifacts": false,
+        "face_cut_off": false,
+        "layout_id": "e"
+      }
+    },
+    {
+      "shot_id": "clip_02_sh001",
+      "pass": true,
+      "tiles_ok": true,
+      "crop_ok": true,
+      "artifacts_ok": true,
+      "composition_ok": true,
+      "issues": [],
+      "model": "grok-4",
+      "raw_response": {
+        "tiles_visible": [
+          "tile_0"
+        ],
+        "tile_missing": false,
+        "debug_artifacts": false,
+        "face_cut_off": false,
+        "layout_id": "a"
+      }
+    },
+    {
+      "shot_id": "clip_03_sh001",
+      "pass": true,
+      "tiles_ok": true,
+      "crop_ok": true,
+      "artifacts_ok": true,
+      "composition_ok": true,
+      "issues": [],
+      "model": "grok-4",
+      "raw_response": {
+        "tiles_visible": [
+          "tile_0"
+        ],
+        "tile_missing": false,
+        "debug_artifacts": false,
+        "face_cut_off": false,
+        "layout_id": "a"
+      }
+    },
+    {
+      "shot_id": "clip_04_sh001",
+      "pass": true,
+      "tiles_ok": true,
+      "crop_ok": true,
+      "artifacts_ok": true,
+      "composition_ok": true,
+      "issues": [],
+      "model": "grok-4",
+      "raw_response": {
+        "tiles_visible": [
+          "Ben Sessions",
+          "Nathan",
+          "@adamobrien",
+          "I'M TIRED BOSS",
+          "Brandon Gentile"
+        ],
+        "tile_missing": false,
+        "debug_artifacts": false,
+        "face_cut_off": false,
+        "layout_id": "b"
+      }
+    }
+  ],
+  "summary": "5/5 shots passed"
+}

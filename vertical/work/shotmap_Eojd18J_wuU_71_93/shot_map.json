@@ -1,0 +1,145 @@
+{
+ "schema": "vertical.shot_map/0.2",
+ "episode": "Eojd18J_wuU_71_93",
+ "generated_at": "2026-11-04T17:03:09-0500",
+ "master": "/home/ultron/protocol_pulse/vertical/work/edl_windows/Eojd18J_wuU_71_93.mp4",
+ "master_sha256_first16MB": "573aaf4d0b1ecccce10ff606538f440eab17af1c661418ad4c4ab914d89688ee",
+ "video": {
+  "width": 1920,
+  "height": 1080,
+  "fps": 30.0,
+  "nb_frames": 663,
+  "start_time": 0.066016,
+  "duration_s": 22.167
+ },
+ "frames_analysed": 664,
+ "keyframes_analysed": 0,
+ "cuts_on_keyframes": "0/0",
+ "config_free": true,
+ "params": {
+  "lowres": [
+   192,
+   108
+  ],
+  "seam_rows": [
+   120,
+   900
+  ],
+  "seam_step": 18,
+  "seam_persist": 0.55,
+  "seam_cluster_px": 4,
+  "seam_present": 0.8,
+  "min_tile_frac": 0.22,
+  "cut_k": 4.0,
+  "cut_abs": 6.0,
+  "cut_win": 12,
+  "cut_hard_mad": 30.0,
+  "cut_hard_hist": 0.1,
+  "family_min_share": 0.02,
+  "family_seam_min": 0.4,
+  "ss_area_frac": 0.35,
+  "ss_bright_thresh": 140,
+  "ss_aspect_lo": 1.2,
+  "ss_aspect_hi": 3.0,
+  "face_model": "/home/ultron/protocol_pulse/segment_v1/qa_v6/blaze_face_short_range.tflite",
+  "face_min_confidence": 0.4
+ },
+ "layout_families": [],
+ "cuts": [],
+ "frame_jumps": [],
+ "soft_layout_changes": [],
+ "shots": [
+  {
+   "id": "sh001",
+   "frame_in": 0,
+   "frame_out": 664,
+   "t_in": 0.0,
+   "t_out": 22.133,
+   "dur_s": 22.133,
+   "start": "cut",
+   "layout": "6up",
+   "confidence": "low",
+   "seams": [
+    {
+     "x0": 24,
+     "x1": 24,
+     "present": 1.0,
+     "persist_min": 0.938
+    },
+    {
+     "x0": 1531,
+     "x1": 1532,
+     "present": 1.0,
+     "persist_min": 0.833
+    },
+    {
+     "x0": 1543,
+     "x1": 1545,
+     "present": 1.0,
+     "persist_min": 0.986
+    },
+    {
+     "x0": 1570,
+     "x1": 1570,
+     "present": 1.0,
+     "persist_min": 0.659
+    },
+    {
+     "x0": 1896,
+     "x1": 1896,
+     "present": 1.0,
+     "persist_min": 0.66
+    }
+   ],
+   "tiles": [
+    {
+     "x0": 0,
+     "x1": 24,
+     "host": null,
+     "face_count": 0
+    },
+    {
+     "x0": 24,
+     "x1": 1531,
+     "host": null,
+     "face_count": 0
+    },
+    {
+     "x0": 1532,
+     "x1": 1543,
+     "host": null,
+     "face_count": 0
+    },
+    {
+     "x0": 1545,
+     "x1": 1570,
+     "host": null,
+     "face_count": 0
+    },
+    {
+     "x0": 1570,
+     "x1": 1896,
+     "host": null,
+     "face_count": 0
+    },
+    {
+     "x0": 1896,
+     "x1": 1920,
+     "host": null,
+     "face_count": 0
+    }
+   ],
+   "family": null,
+   "keyframes": 1,
+   "stability": 1.0,
+   "screen_share": false,
+   "screen_share_rect": null,
+   "total_faces": 0
+  }
+ ],
+ "layout_seconds": {
+  "6up": 22.1
+ },
+ "screen_share_shots": 0,
+ "screen_share_seconds": 0
+}

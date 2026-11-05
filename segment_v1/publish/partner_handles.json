@@ -1,0 +1,18 @@
+{
+ "Simply Bitcoin": {
+  "x": "SimplyBitcoin",
+  "youtube": "@SimplyBitcoin",
+  "speaker": null
+ },
+ "BTC Sessions": {
+  "x": "BTCsessions",
+  "youtube": "@BTCSessions",
+  "speaker": null
+ },
+ "CoinDesk": {
+  "x": "CoinDesk",
+  "youtube": "@CoinDesk",
+  "speaker": null
+ },
+ "_note": "speaker = verified host name only; clips with guests must be attributed per clip (V2: speaker diarization). null = no name attribution."
+}

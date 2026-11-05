@@ -1,0 +1,56 @@
+[
+  {
+    "id": "hook_sh001",
+    "layout": "3face",
+    "face_count": 3,
+    "out_path": "/home/ultron/protocol_pulse/vertical/work/composed/hook/hook_sh001_vert.mp4",
+    "duration": 9.933,
+    "ok": true,
+    "elapsed": 77.86
+  },
+  {
+    "id": "hook_sh002",
+    "layout": "1face",
+    "face_count": 1,
+    "out_path": "/home/ultron/protocol_pulse/vertical/work/composed/hook/hook_sh002_vert.mp4",
+    "duration": 0.042,
+    "ok": true,
+    "elapsed": 6.21
+  },
+  {
+    "id": "clip_01_sh001",
+    "layout": "1face",
+    "face_count": 1,
+    "out_path": "/home/ultron/protocol_pulse/vertical/work/composed/clip_01/clip_01_sh001_vert.mp4",
+    "duration": 16.084,
+    "ok": true,
+    "elapsed": 14.46
+  },
+  {
+    "id": "clip_02_sh001",
+    "layout": "1face",
+    "face_count": 1,
+    "out_path": "/home/ultron/protocol_pulse/vertical/work/composed/clip_02/clip_02_sh001_vert.mp4",
+    "duration": 18.084,
+    "ok": true,
+    "elapsed": 19.01
+  },
+  {
+    "id": "clip_03_sh001",
+    "layout": "1face",
+    "face_count": 1,
+    "out_path": "/home/ultron/protocol_pulse/vertical/work/composed/clip_03/clip_03_sh001_vert.mp4",
+    "duration": 13.5,
+    "ok": true,
+    "elapsed": 17.75
+  },
+  {
+    "id": "clip_04_sh001",
+    "layout": "grid",
+    "face_count": 5,
+    "out_path": "/home/ultron/protocol_pulse/vertical/work/composed/clip_04/clip_04_sh001_vert.mp4",
+    "duration": 17.89,
+    "ok": true,
+    "elapsed": 153.29
+  }
+]

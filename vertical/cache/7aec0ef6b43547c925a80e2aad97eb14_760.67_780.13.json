@@ -1,0 +1,109 @@
+{
+ "schema": "vertical.shot_map/0.2",
+ "episode": "bSmFGoAKPBc_761_780",
+ "generated_at": "2026-11-04T17:04:51-0500",
+ "master": "/home/ultron/protocol_pulse/vertical/work/edl_windows/bSmFGoAKPBc_761_780.mp4",
+ "master_sha256_first16MB": "177c6b7a5494118471568d45e41329375bfa02ccdc4f09e91db05b357152e171",
+ "video": {
+  "width": 1920,
+  "height": 1080,
+  "fps": 30.0,
+  "nb_frames": 584,
+  "start_time": 0.066016,
+  "duration_s": 19.534
+ },
+ "frames_analysed": 585,
+ "keyframes_analysed": 0,
+ "cuts_on_keyframes": "0/0",
+ "config_free": true,
+ "params": {
+  "lowres": [
+   192,
+   108
+  ],
+  "seam_rows": [
+   120,
+   900
+  ],
+  "seam_step": 18,
+  "seam_persist": 0.55,
+  "seam_cluster_px": 4,
+  "seam_present": 0.8,
+  "min_tile_frac": 0.22,
+  "cut_k": 4.0,
+  "cut_abs": 6.0,
+  "cut_win": 12,
+  "cut_hard_mad": 30.0,
+  "cut_hard_hist": 0.1,
+  "family_min_share": 0.02,
+  "family_seam_min": 0.4,
+  "ss_area_frac": 0.35,
+  "ss_bright_thresh": 140,
+  "ss_aspect_lo": 1.2,
+  "ss_aspect_hi": 3.0,
+  "face_model": "/home/ultron/protocol_pulse/segment_v1/qa_v6/blaze_face_short_range.tflite",
+  "face_min_confidence": 0.4
+ },
+ "layout_families": [],
+ "cuts": [],
+ "frame_jumps": [
+  {
+   "frame": 11,
+   "mad": 9.91,
+   "local_median": 1.66,
+   "hist_dist": 0.039,
+   "kind": "jump",
+   "t": 0.367
+  },
+  {
+   "frame": 445,
+   "mad": 8.03,
+   "local_median": 1.71,
+   "hist_dist": 0.064,
+   "kind": "jump",
+   "t": 14.833
+  },
+  {
+   "frame": 584,
+   "mad": 11.75,
+   "local_median": 0.67,
+   "hist_dist": 0.065,
+   "kind": "jump",
+   "t": 19.467
+  }
+ ],
+ "soft_layout_changes": [],
+ "shots": [
+  {
+   "id": "sh001",
+   "frame_in": 22820,
+   "frame_out": 23405,
+   "t_in": 760.67,
+   "t_out": 780.17,
+   "dur_s": 19.5,
+   "start": "cut",
+   "layout": "single",
+   "confidence": "high",
+   "seams": [],
+   "tiles": [
+    {
+     "x0": 0,
+     "x1": 1920,
+     "host": null,
+     "face_count": 1
+    }
+   ],
+   "family": null,
+   "keyframes": 1,
+   "stability": 1.0,
+   "screen_share": false,
+   "screen_share_rect": null,
+   "total_faces": 1
+  }
+ ],
+ "layout_seconds": {
+  "single": 19.5
+ },
+ "screen_share_shots": 0,
+ "screen_share_seconds": 0
+}
