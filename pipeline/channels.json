@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "simply_bitcoin",
+    "display_name": "Simply Bitcoin",
+    "x_handle": "@SimplyBitcoin",
+    "yt_handle": "@SimplyBitcoinTV",
+    "avatar_path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/simply_bitcoin.png",
+    "avatar_sha256_prefix": "9f96406915498bc2",
+    "has_chyron": false,
+    "layout_table_key": "simplybitcoin"
+  },
+  {
+    "slug": "btc_sessions",
+    "display_name": "BTC Sessions",
+    "x_handle": "@BTCSessions",
+    "yt_handle": "@BTCSessions",
+    "avatar_path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/btc_sessions.png",
+    "avatar_sha256_prefix": "a6a00e33517a07fe",
+    "has_chyron": false,
+    "layout_table_key": "btcsessions"
+  },
+  {
+    "slug": "coindesk",
+    "display_name": "CoinDesk",
+    "x_handle": "@CoinDesk",
+    "yt_handle": "@CoinDesk",
+    "avatar_path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/coindesk.png",
+    "avatar_sha256_prefix": "8b1b4c666cb6ce07",
+    "has_chyron": true,
+    "layout_table_key": "coindesk"
+  },
+  {
+    "slug": "bitcoin_magazine",
+    "display_name": "Bitcoin Magazine",
+    "x_handle": "@BitcoinMagazine",
+    "yt_handle": "@BitcoinMagazine",
+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_magazine_512.png",
+    "avatar_sha256_prefix": "24a0aef0dd039ad3",
+    "has_chyron": false,
+    "layout_table_key": "bitcoin_magazine"
+  },
+  {
+    "slug": "the_bitcoin_layer",
+    "display_name": "The Bitcoin Layer",
+    "x_handle": "@TheBitcoinLayer",
+    "yt_handle": "@TheBitcoinLayer",
+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/the_bitcoin_layer_512.png",
+    "avatar_sha256_prefix": "a3d3a5b629e25a2e",
+    "has_chyron": false,
+    "layout_table_key": "the_bitcoin_layer"
+  }
+]

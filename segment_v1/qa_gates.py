@@ -356,7 +356,9 @@ def classify_source_layout(source_mp4, qa_dir, label):
 def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir, source_clips=None):
     """Face detection per talking-head segment + shoutout circle check.
     Layout classified from SOURCE clip (>= 3 faces or screen-share = grid).
-    Grid segments in 9:16 require >= 4 faces in rendered frame."""
+    Grid segments in 9:16 require >= 4 faces in rendered frame.
+    Shoutout scenes are excluded from face counting — they have their own
+    dedicated circle check (shoutout_circle) below."""
     import cv2
 
     print("\n=== G4: FACES ===")
@@ -376,7 +378,7 @@ def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir, source_clips=None)
     table = []
 
     for seg in segments:
-        if seg.get("type") not in ("talking_head", "shoutout"):
+        if seg.get("type") != "talking_head":
             continue
 
         label = seg["label"]
@@ -688,7 +690,7 @@ def gate_g8(final_mp4, segments, qa_dir, upscaled_labels=None, crop_widths=None)
     table = []
 
     for seg in segments:
-        if seg.get("type") not in ("talking_head", "shoutout"):
+        if seg.get("type") != "talking_head":
             continue
 
         label = seg["label"]

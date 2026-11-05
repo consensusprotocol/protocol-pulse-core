@@ -352,3 +352,29 @@ Theoretical fixes that break in practice are worse than no fix.
 - Layout tables: `vertical/layout_tables/<channel>_<tile_count>.json`. Unknown channel/tile_count falls back to layout "single" on lip-activity face + WARN line.
 - G10 is IMAGE-BASED: Canny edge density + white fraction on bottom 12% band. G12 counts red-ring avatar circles via HoughCircles. G8 floor is per-segment: `60 * (crop_w/1080)^2`.
 - Audio is extracted from the horizontal final and muxed over the vertical picture — identical by construction.
+
+### LAW 24: PARAMETERISED PIPELINE (added 2026-11-05)
+- The `pipeline/` package is the parameterised Pulse Check pipeline. It wraps segment_v1's frozen scripts (render_v12.py, gen_vo.py, scene_shoutout.py, qa_gates.py) with path resolution from `--segment <dir>`.
+- segment_v1 scripts are NEVER modified. pipeline/ imports or patches them at runtime.
+- Every new segment directory must have: `edl.json`, `cuts_final.json`, `vo_audio/VO_MANIFEST.json`, `sources/`, at minimum.
+- `pipeline/channels.json` is the channel registry: slug, display_name, handles, avatar_path, avatar_sha256_prefix, has_chyron, layout_table_key. Every channel appearing in an EDL must be registered.
+- Reproduction proof: running pipeline on segment_v1 data must produce output within 0.05s duration and SSIM >= 0.97 vs the approved segment_v12.mp4.
+
+### LAW 25: EDL EDITORIAL RULES (added 2026-11-05)
+- `pipeline/edl_rules.py` validates every EDL before it reaches the renderer.
+- R1: Hook must end on a statement, not a question.
+- R2: No temporal overlap > 1.0s between any clips. Hook may NOT be reused as clip 1.
+- R3: VO bridges only after clips ending on statements.
+- R4: VO <= 25% runtime. Intro <= 30 words, bridge <= 20, signoff <= 18. One bridge per channel transition.
+- R5: 8-25s per clip, >= 2 distinct channels, every channel >= 8s screen time.
+- R6: Credits in signoff must match EDL channels in order. Unique avatar hashes.
+- R7: Every (channel, tile_count) must have an explicit layout table entry.
+- R8: Only channels with `has_chyron=true` trigger G10 chyron gate.
+- An EDL that fails ANY rule is rejected. The renderer MUST NOT run on a rejected EDL.
+
+### LAW 26: NEVER RATIONALISE A FAILED GATE (added 2026-11-05)
+- A failed gate is a HARD STOP. No "false positive" arguments, no "known limitation" overrides.
+- If a gate is wrong, fix the gate BEFORE re-running. Never bypass it.
+- Telegram/publishing ONLY after ALL gates PASS AND a vision second-opinion review has no NO verdict.
+- If a gate threshold seems wrong (e.g. duration cap for full episodes), add a format flag to the gate — do not lower or skip the threshold.
+- The overnight v2 run (commit ba125e19) is the canonical example of what happens when this law is violated: 7 new scripts written instead of using the locked chain, 4 gates rationalised as false positives, Telegram sent anyway. REJECTED by PBX.

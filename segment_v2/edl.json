@@ -2,14 +2,14 @@
   "topic": "Dollar Hegemony End and Bond Market Crisis",
   "angle": "Bitcoin positioned as the escape hatch as dollar era ends and bond markets face unprecedented turmoil.",
   "hook": {
-    "video_id": "Pxrak-iMT0g",
-    "channel": "Bitcoin Magazine",
-    "text": "Bitcoin is the next step in the future. So what do you think. The next step is going to be to build a cryptocurrency.",
-    "first_word": "Bitcoin",
-    "last_word": "cryptocurrency.",
-    "word_start": 492.1,
-    "word_end": 502.44,
-    "duration": 10.34
+    "video_id": "RBFN4CB60To",
+    "channel": "The Bitcoin Layer",
+    "text": "The Fed is hiking rates to fight inflation, but nobody is talking about the fact that the Fed might be printing money sooner than anybody thinks.",
+    "first_word": "The",
+    "last_word": "thinks.",
+    "word_start": 0.0,
+    "word_end": 9.02,
+    "duration": 9.02
   },
   "clips": [
     {
@@ -18,12 +18,12 @@
       "channel": "Bitcoin Magazine",
       "handle": "@BitcoinMagazine",
       "video_title": "John Ungerland: \u201cWe\u2019re Watching the End of the Dollar Hegemony Era\u201d",
-      "text": "Bitcoin is the next step in the future. So what do you think. The next step is going to be to build a cryptocurrency.",
-      "first_word": "Bitcoin",
-      "last_word": "cryptocurrency.",
-      "word_start": 492.1,
-      "word_end": 502.44,
-      "duration": 10.34
+      "text": "The end of the dollar hegemony era and that national debt and global fiat challenges are going to stick around and develop and increase in scale and magnitude.",
+      "first_word": "The",
+      "last_word": "magnitude.",
+      "word_start": 238.6,
+      "word_end": 249.3,
+      "duration": 10.7
     },
     {
       "index": 2,
@@ -31,12 +31,12 @@
       "channel": "The Bitcoin Layer",
       "handle": "@TheBitcoinLayer",
       "video_title": "The Fed Will Have To Print Bigger This Time",
-      "text": "This is why Bitcoin has such an important role in the future of global money and investments and banking.",
-      "first_word": "This",
-      "last_word": "banking.",
-      "word_start": 911.86,
-      "word_end": 921.06,
-      "duration": 9.2
+      "text": "One third of marketable treasuries, which is a smaller percentage of the total treasury debt outstanding right now, which is above 40 trillion dollars.",
+      "first_word": "One",
+      "last_word": "dollars.",
+      "word_start": 624.68,
+      "word_end": 636.22,
+      "duration": 11.54
     },
     {
       "index": 3,
@@ -44,31 +44,23 @@
       "channel": "BTC Sessions",
       "handle": "@BTCSessions",
       "video_title": "No One Alive Has Seen What's About to Happen to the Bond Market | Johnson & Dicker",
-      "text": "It's where you go in a flight to safety and it's meant to be a safe haven asset. And it is,",
-      "first_word": "It's",
-      "last_word": "and",
-      "word_start": 1692.34,
-      "word_end": 1702.86,
-      "duration": 10.06
+      "text": "a prison of a currency they can't control, they don't issue and they can't print and so whenever the dollar gets stronger, it makes it more difficult for them to deal with that debt that they have.",
+      "first_word": "a",
+      "last_word": "have.",
+      "word_start": 997.3,
+      "word_end": 1011.74,
+      "duration": 14.44
     }
   ],
   "vo": {
-    "intro": "The dollar's decades-long reign is cracking under its own debt, and bond markets are flashing red like never before. Capital is fleeing the old system in search of real safety. Bitcoin stands ready as the escape hatch.",
+    "intro": "Dollar dominance ends. Bond markets are breaking.",
     "bridges": [
       {
         "after_clip": 1,
-        "text": "Building on Bitcoin means opting out of the fiat endgame before it collapses."
-      },
-      {
-        "after_clip": 2,
-        "text": "Its fixed supply cuts through the bond market's endless debt trap like nothing else can."
-      },
-      {
-        "after_clip": 3,
-        "text": "When safety matters most, Bitcoin delivers the only truly scarce haven left."
+        "text": "Now hear the numbers that prove it."
       }
     ],
-    "signoff": "For more on Bitcoin's rise, follow Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions."
+    "signoff": "Bitcoin Magazine, The Bitcoin Layer, BTC Sessions."
   },
-  "total_clip_duration": 29.6
+  "total_clip_duration": 34.8
 }

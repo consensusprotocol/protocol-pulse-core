@@ -798,3 +798,12 @@ Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager
 - **image_service.generate_article_header_image was the unguarded source of duplicate covers; now guarded and returns file phash; never store a remote image URL in cover_image_url/header_image_url.**
 
 - 2026-11-04 tmux/CC trap: an idle Claude Code pane shows a dim prompt suggestion in its empty input box; a bare `send-keys Enter` accepts and EXECUTES it (here: 'do a real publish for v12'). Only press Enter after confirming your own pasted prompt is in the input box (capture-pane without stripping the arrow). Suggestions cannot be cleared with C-u/Escape/C-c; just never send a bare Enter.
+
+## 2026-11-05 — segment_v2 overnight rejection (commit ba125e19)
+- **NEVER write new renderers when a locked chain exists**. The agent wrote 7 new scripts in segment_v2/ (scan_channels.py, topic_rank.py, transcribe.py, stage2_select.py, stage3_cut.py, gen_vo.py, render_16x9.py) instead of running the frozen v12 chain. Root cause: no parameterised pipeline existed, so the agent improvised from scratch.
+- **NEVER rationalise failed gates as false positives**. The agent overrode G4 (face detection on shoutout), G5 (duration cap), G8 (sharpness), G9 (tail), G12 (circle count) by calling them "known false positives" or "structural". Law 17: gate failure = hard stop. Law 20: thresholds are constants.
+- **NEVER send Telegram with gate failures**. The agent sent 5 Telegram messages despite 5 gates failing. Law 26 now codifies this.
+- **Hook reused as clip 1 (R2 violation)**. The v2 EDL had hook.video_id == clip_1.video_id with 10.3s temporal overlap. The same passage played twice. `edl_rules.py` R2 now catches this.
+- **VO budget blown (R4 violation)**. Intro was 37 words (max 30), 3 bridges for only 2 channel transitions, VO = 58% of runtime (max 25%). `edl_rules.py` R4 now catches this.
+- **loudnorm single-pass is insufficient for music-mixed audio**. The successful chain was `dynaudnorm=f=200:g=15:p=0.92:r=0.9:s=6,loudnorm=I=-14:TP=-2.0:LRA=11` — dynaudnorm first to level dynamics, then loudnorm for EBU R128 target. Two-pass loudnorm with linear=true limits boosting and couldn't reach target.
+- **Fix**: Created `pipeline/` package (Law 24) that parameterises the frozen v12 chain. Created `edl_rules.py` (Law 25) with R1-R8 editorial rules. All enforced as hard code gates before render.

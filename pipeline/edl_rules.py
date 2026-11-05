@@ -1,0 +1,402 @@
+#!/usr/bin/env python3
+"""pipeline/edl_rules.py — Editorial rules as hard code gates (R1-R8).
+
+Every rule returns (pass: bool, reason: str). An EDL that fails ANY rule
+is rejected and must not reach the renderer.
+
+Usage:
+    python3 -m pipeline.edl_rules --edl <edl.json> [--channels channels.json] [--layout-tables <dir>]
+
+Rules:
+    R1 NO_QUESTION_HOOK:      Hook passage must be a statement, not a question.
+    R2 NO_DUPLICATE_PASSAGE:  No temporal overlap > 1.0s between any clips.
+                              Hook may NOT be reused as clip 1 (same video_id + overlap).
+    R3 VO_AFTER_ANSWER:       VO bridges only after clips ending on statements.
+    R4 VO_BUDGET:             VO <= 25% of total runtime. Intro <= 30 words,
+                              bridge <= 20 words, signoff <= 18 words.
+                              One bridge per channel transition.
+    R5 CLIP_LENGTH:           8-25s continuous speech per clip. >= 2 distinct
+                              channels. Every channel >= 8s screen time.
+    R6 CREDITS_MATCH:         Channels in shoutout/signoff/reply == channels
+                              in EDL, in EDL order. Unique avatar hashes.
+    R7 VERTICAL_LAYOUT_KNOWN: Every (channel, tile_count) must have an
+                              explicit layout table entry.
+    R8 G10_CHYRON_REGISTRY:   Only channels with has_chyron=true trigger G10.
+"""
+import argparse
+import json
+import os
+import re
+import sys
+
+
+def _word_count(text):
+    return len(text.strip().split()) if text else 0
+
+
+def _text_ends_with_question(text):
+    """Check if text ends with a question mark or question-word pattern."""
+    text = text.strip().rstrip(".")
+    if text.endswith("?"):
+        return True
+    # Common question-start patterns
+    q_words = ["what", "who", "where", "when", "why", "how", "do you", "is it",
+               "are we", "can we", "should we", "will it", "could it"]
+    lower = text.lower()
+    for qw in q_words:
+        if lower.startswith(qw + " "):
+            return True
+    return False
+
+
+def _passage_overlap(clip_a, clip_b):
+    """Compute temporal overlap between two clips (same video_id only)."""
+    if clip_a.get("video_id") != clip_b.get("video_id"):
+        return 0.0
+    a_start = clip_a.get("word_start", 0)
+    a_end = clip_a.get("word_end", 0)
+    b_start = clip_b.get("word_start", 0)
+    b_end = clip_b.get("word_end", 0)
+    overlap = max(0, min(a_end, b_end) - max(a_start, b_start))
+    return overlap
+
+
+# ==============================================================
+# R1: NO_QUESTION_HOOK
+# ==============================================================
+
+def rule_r1(edl):
+    """Hook passage must be a statement, not a question.
+    A passage that contains both a question AND an answer (ending on a statement)
+    is acceptable — the rule targets pure-question hooks only."""
+    hook = edl.get("hook", {})
+    text = hook.get("text", "")
+    if not text:
+        return False, "R1 FAIL: hook has no text"
+
+    # Split into sentences and check if the LAST sentence is a question
+    sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
+    last_sentence = sentences[-1] if sentences else text
+
+    # Check if the passage ENDS on a question (last meaningful sentence)
+    if text.rstrip().endswith("?"):
+        # Pure question ending — fail
+        return False, f"R1 FAIL: hook ends with question: '{text[:60]}...'"
+
+    return True, "R1 PASS: hook ends on a statement"
+
+
+# ==============================================================
+# R2: NO_DUPLICATE_PASSAGE
+# ==============================================================
+
+def rule_r2(edl):
+    """No temporal overlap > 1.0s between any clip pair.
+    Hook may NOT be reused as clip 1."""
+    hook = edl.get("hook", {})
+    clips = edl.get("clips", [])
+    all_passages = [hook] + clips if hook else clips
+    failures = []
+
+    for i in range(len(all_passages)):
+        for j in range(i + 1, len(all_passages)):
+            overlap = _passage_overlap(all_passages[i], all_passages[j])
+            if overlap > 1.0:
+                label_i = "hook" if i == 0 and hook else f"clip_{all_passages[i].get('index', i)}"
+                label_j = f"clip_{all_passages[j].get('index', j)}"
+                failures.append(f"{label_i} <-> {label_j}: {overlap:.1f}s overlap")
+
+    if failures:
+        return False, "R2 FAIL: " + "; ".join(failures)
+    return True, "R2 PASS: no duplicate passages"
+
+
+# ==============================================================
+# R3: VO_AFTER_ANSWER
+# ==============================================================
+
+def rule_r3(edl):
+    """VO bridges only after clips that end on statements (not questions)."""
+    clips = edl.get("clips", [])
+    vo = edl.get("vo", {})
+    bridges = vo.get("bridges", [])
+    failures = []
+
+    for bridge in bridges:
+        after_clip = bridge.get("after_clip")
+        if after_clip is None:
+            continue
+        # Find the clip that precedes this bridge
+        clip = next((c for c in clips if c.get("index") == after_clip), None)
+        if clip is None:
+            failures.append(f"bridge after clip {after_clip}: clip not found")
+            continue
+        text = clip.get("text", "")
+        if _text_ends_with_question(text):
+            failures.append(f"bridge after clip {after_clip}: clip ends with question")
+
+    if failures:
+        return False, "R3 FAIL: " + "; ".join(failures)
+    return True, "R3 PASS: all bridges follow statements"
+
+
+# ==============================================================
+# R4: VO_BUDGET
+# ==============================================================
+
+def rule_r4(edl):
+    """VO <= 25% of total runtime. Word limits enforced."""
+    vo = edl.get("vo", {})
+    clips = edl.get("clips", [])
+    total_clip_dur = edl.get("total_clip_duration", 0)
+    if total_clip_dur == 0:
+        total_clip_dur = sum(c.get("duration", 0) for c in clips)
+
+    # Word counts
+    intro_text = vo.get("intro", "")
+    intro_words = _word_count(intro_text)
+    signoff_text = vo.get("signoff", "")
+    signoff_words = _word_count(signoff_text)
+    bridges = vo.get("bridges", [])
+
+    failures = []
+
+    if intro_words > 30:
+        failures.append(f"intro={intro_words} words (max 30)")
+    if signoff_words > 18:
+        failures.append(f"signoff={signoff_words} words (max 18)")
+
+    for i, bridge in enumerate(bridges):
+        btext = bridge.get("text", "")
+        bwords = _word_count(btext)
+        if bwords > 20:
+            failures.append(f"bridge {i+1}={bwords} words (max 20)")
+
+    # One bridge per channel transition
+    if len(bridges) > 0 and len(clips) > 0:
+        transitions = 0
+        prev_channel = None
+        for clip in sorted(clips, key=lambda c: c.get("index", 0)):
+            ch = clip.get("channel", "")
+            if prev_channel and ch != prev_channel:
+                transitions += 1
+            prev_channel = ch
+        if len(bridges) > max(transitions, 1):
+            failures.append(f"{len(bridges)} bridges but only {transitions} channel transitions")
+
+    # VO budget: estimate VO duration from word count (avg 2.5 words/sec for TTS)
+    total_vo_words = intro_words + signoff_words + sum(_word_count(b.get("text", "")) for b in bridges)
+    estimated_vo_dur = total_vo_words / 2.5  # approximate seconds
+    # Add pre-roll per VO segment (1.0s each)
+    num_vo_segments = (1 if intro_text else 0) + len(bridges) + (1 if signoff_text else 0)
+    estimated_vo_dur += num_vo_segments * 1.0
+
+    if total_clip_dur > 0:
+        total_runtime = total_clip_dur + estimated_vo_dur
+        vo_fraction = estimated_vo_dur / total_runtime
+        if vo_fraction > 0.25:
+            failures.append(f"VO={vo_fraction:.0%} of runtime (max 25%)")
+
+    if failures:
+        return False, "R4 FAIL: " + "; ".join(failures)
+    return True, "R4 PASS: VO within budget"
+
+
+# ==============================================================
+# R5: CLIP_LENGTH
+# ==============================================================
+
+def rule_r5(edl):
+    """8-25s per clip, >= 2 distinct channels, every channel >= 8s."""
+    clips = edl.get("clips", [])
+    failures = []
+
+    if len(clips) < 2:
+        failures.append(f"only {len(clips)} clips (need >= 2)")
+
+    channels = {}
+    for clip in clips:
+        dur = clip.get("duration", 0)
+        ch = clip.get("channel", "unknown")
+        idx = clip.get("index", "?")
+
+        if dur < 8:
+            failures.append(f"clip {idx}: {dur:.1f}s (min 8s)")
+        if dur > 25:
+            failures.append(f"clip {idx}: {dur:.1f}s (max 25s)")
+
+        channels.setdefault(ch, 0)
+        channels[ch] += dur
+
+    if len(channels) < 2:
+        failures.append(f"only {len(channels)} channel(s) (need >= 2)")
+
+    for ch, total_dur in channels.items():
+        if total_dur < 8:
+            failures.append(f"channel '{ch}': {total_dur:.1f}s total (min 8s)")
+
+    if failures:
+        return False, "R5 FAIL: " + "; ".join(failures)
+    return True, "R5 PASS: clip lengths and channel diversity OK"
+
+
+# ==============================================================
+# R6: CREDITS_MATCH
+# ==============================================================
+
+def rule_r6(edl, channels_registry=None):
+    """Channels in signoff must match EDL channels in order. Unique avatar hashes."""
+    clips = edl.get("clips", [])
+
+    # Extract unique channels in EDL order
+    edl_channels = []
+    seen = set()
+    for clip in sorted(clips, key=lambda c: c.get("index", 0)):
+        ch = clip.get("channel", "")
+        if ch and ch not in seen:
+            edl_channels.append(ch)
+            seen.add(ch)
+
+    failures = []
+
+    # Check signoff mentions channels in order
+    vo = edl.get("vo", {})
+    signoff = vo.get("signoff", "")
+    if signoff:
+        for ch in edl_channels:
+            if ch.lower() not in signoff.lower():
+                failures.append(f"signoff missing channel '{ch}'")
+
+    # Check avatar uniqueness if registry provided
+    if channels_registry:
+        avatar_hashes = {}
+        for ch_name in edl_channels:
+            entry = next((e for e in channels_registry if e.get("display_name") == ch_name), None)
+            if entry:
+                h = entry.get("avatar_sha256_prefix", "")
+                if h in avatar_hashes:
+                    failures.append(f"duplicate avatar hash {h}: {ch_name} == {avatar_hashes[h]}")
+                avatar_hashes[h] = ch_name
+
+    if failures:
+        return False, "R6 FAIL: " + "; ".join(failures)
+    return True, "R6 PASS: credits match EDL channels"
+
+
+# ==============================================================
+# R7: VERTICAL_LAYOUT_KNOWN
+# ==============================================================
+
+def rule_r7(edl, layout_tables_dir=None):
+    """Every (channel, tile_count) must have explicit layout table entry."""
+    if not layout_tables_dir or not os.path.isdir(layout_tables_dir):
+        return True, "R7 SKIP: no layout tables dir provided"
+
+    # Load all layout tables
+    tables = {}
+    for fn in os.listdir(layout_tables_dir):
+        if fn.endswith(".json"):
+            with open(os.path.join(layout_tables_dir, fn)) as f:
+                table = json.load(f)
+            ch = table.get("channel", "").lower()
+            tc = table.get("tile_count", 0)
+            tables[(ch, tc)] = table
+
+    clips = edl.get("clips", [])
+    failures = []
+
+    # We can't determine tile_count from EDL alone — it requires frame analysis.
+    # R7 checks that channels appearing in EDL have at least one layout entry.
+    channels_in_edl = set()
+    for clip in clips:
+        ch = clip.get("channel", "")
+        if ch:
+            channels_in_edl.add(ch.lower())
+
+    channels_with_tables = set()
+    for (ch, tc) in tables.keys():
+        channels_with_tables.add(ch)
+
+    for ch in channels_in_edl:
+        if ch not in channels_with_tables:
+            failures.append(f"channel '{ch}' has no layout table")
+
+    if failures:
+        return False, "R7 FAIL: " + "; ".join(failures)
+    return True, "R7 PASS: all channels have layout tables"
+
+
+# ==============================================================
+# R8: G10_CHYRON_REGISTRY
+# ==============================================================
+
+def rule_r8(edl, channels_registry=None):
+    """Only channels with has_chyron=true should trigger G10 chyron gate."""
+    if not channels_registry:
+        return True, "R8 SKIP: no channels registry provided"
+
+    clips = edl.get("clips", [])
+    chyron_channels = set()
+
+    for clip in clips:
+        ch = clip.get("channel", "")
+        entry = next((e for e in channels_registry if e.get("display_name") == ch), None)
+        if entry and entry.get("has_chyron", False):
+            chyron_channels.add(ch)
+
+    # R8 is informational — it lists which clips need G10
+    if chyron_channels:
+        return True, f"R8 PASS: chyron channels = {chyron_channels}"
+    return True, "R8 PASS: no chyron channels in this EDL"
+
+
+# ==============================================================
+# VALIDATE ALL
+# ==============================================================
+
+def validate_edl(edl, channels_registry=None, layout_tables_dir=None):
+    """Run all rules. Returns (all_pass, results list)."""
+    results = []
+
+    for rule_fn, args in [
+        (rule_r1, (edl,)),
+        (rule_r2, (edl,)),
+        (rule_r3, (edl,)),
+        (rule_r4, (edl,)),
+        (rule_r5, (edl,)),
+        (rule_r6, (edl, channels_registry)),
+        (rule_r7, (edl, layout_tables_dir)),
+        (rule_r8, (edl, channels_registry)),
+    ]:
+        ok, reason = rule_fn(*args)
+        results.append({"rule": rule_fn.__name__, "pass": ok, "reason": reason})
+        print(f"  {reason}")
+
+    all_pass = all(r["pass"] for r in results)
+    return all_pass, results
+
+
+def main():
+    p = argparse.ArgumentParser(description="EDL editorial rules validator (R1-R8)")
+    p.add_argument("--edl", required=True, help="EDL JSON file")
+    p.add_argument("--channels", default=None, help="channels.json registry")
+    p.add_argument("--layout-tables", default=None, help="Layout tables directory")
+    args = p.parse_args()
+
+    with open(args.edl) as f:
+        edl = json.load(f)
+
+    channels_registry = None
+    if args.channels:
+        with open(args.channels) as f:
+            channels_registry = json.load(f)
+
+    print("=== EDL RULES VALIDATION ===")
+    all_pass, results = validate_edl(edl, channels_registry, args.layout_tables)
+
+    print(f"\n  OVERALL: {'PASS' if all_pass else 'FAIL'}")
+    sys.exit(0 if all_pass else 1)
+
+
+if __name__ == "__main__":
+    main()
