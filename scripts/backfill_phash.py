@@ -190,14 +190,22 @@ def phase2_fix(conn, limit):
                 title=title or "bitcoin", category=cat or "bitcoin")
 
             if new_url and new_url != "/static/images/default-header.png" and new_phash:
-                c.execute("""
-                    UPDATE articles SET cover_image_url = ?, header_image_url = ?, image_phash = ?
-                    WHERE id = ?
-                """, (new_url, new_url, new_phash, aid))
+                for _db_try in range(3):
+                    try:
+                        c.execute("""
+                            UPDATE articles SET cover_image_url = ?, header_image_url = ?, image_phash = ?
+                            WHERE id = ?
+                        """, (new_url, new_url, new_phash, aid))
+                        conn.commit()
+                        break
+                    except sqlite3.OperationalError as dbe:
+                        if "locked" in str(dbe) and _db_try < 2:
+                            logger.info("DB locked on ID %d, retry %d", aid, _db_try + 1)
+                            time.sleep(2)
+                        else:
+                            raise
                 regenerated += 1
                 logger.info("Regen %d/%d ID %d: phash=%s path=%s", idx + 1, total, aid, new_phash, new_url[:60])
-                if regenerated % 5 == 0:
-                    conn.commit()
             else:
                 logger.warning("Regen FAIL %d/%d ID %d: service returned default", idx + 1, total, aid)
         except Exception as e:
@@ -218,7 +226,9 @@ def main():
             limit = int(sys.argv[i + 1])
 
     db_path = DB_DEFAULT
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=30000")
 
     logger.info("=== Phase 1: compute phash from local files ===")
     phase1_compute(conn, limit)
