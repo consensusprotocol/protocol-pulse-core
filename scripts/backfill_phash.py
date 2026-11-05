@@ -166,6 +166,7 @@ def phase2_fix(conn, limit):
     try:
         sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'services'))
         from image_service import ImageGenerationService
+        import image_service as _img_mod
         img_svc = ImageGenerationService()
     except Exception as e:
         logger.error("Cannot import ImageGenerationService: %s", e)
@@ -175,6 +176,15 @@ def phase2_fix(conn, limit):
     total = len(needs_regen)
     for idx, aid in enumerate(sorted(needs_regen, reverse=True)):
         title, cat, old_url = id_to_row.get(aid, ("bitcoin", "bitcoin", ""))
+
+        # Clear session phashes before each regen so the pre-save guard only
+        # checks against DB (the post-save guard checks the actual file phash
+        # against DB+session, which is what matters for dedup).
+        # Also force DB cache refresh so we see phashes from prior regens.
+        with _img_mod._session_lock:
+            _img_mod._session_phashes.clear()
+        _img_mod._db_phashes_ts = 0  # force reload
+
         try:
             new_url, new_phash = img_svc.generate_article_header_image_with_phash(
                 title=title or "bitcoin", category=cat or "bitcoin")
