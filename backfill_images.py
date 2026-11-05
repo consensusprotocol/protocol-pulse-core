@@ -20,7 +20,7 @@ SLEEP_BETWEEN = 3
 
 from app import app, db
 from models import Article
-from services.pexels_image import get_pexels_image
+from services.image_service import ImageGenerationService
 
 def is_real_image(url):
     """Return True if the cover_image_url points to a real (non-placeholder) image."""
@@ -41,24 +41,15 @@ def main():
         to_fix = [a for a in articles if not is_real_image(a.cover_image_url)]
         logger.info(f"Articles needing real images: {len(to_fix)} / {len(articles)} total")
 
-        # Load DB phashes for dedup
-        ph_rows = db.session.execute(
-            db.text("SELECT image_phash FROM articles WHERE image_phash IS NOT NULL AND image_phash != ''")
-        ).fetchall()
-        db_phashes = {r[0] for r in ph_rows}
-        session_phashes = set()
-
+        img_svc = ImageGenerationService()
         success = 0
         failed = 0
         for i, article in enumerate(to_fix):
             logger.info(f"[{i+1}/{len(to_fix)}] id={article.id}: {article.title[:70]}")
             try:
-                url, phash = get_pexels_image(
-                    article.title or "bitcoin",
-                    article.category or "bitcoin",
-                    article_id=article.id,
-                    db_phashes=db_phashes,
-                    session_phashes=session_phashes,
+                url, phash = img_svc.generate_article_header_image_with_phash(
+                    title=article.title or "bitcoin",
+                    category=article.category or "bitcoin",
                 )
                 if url and "default-header" not in url:
                     article.cover_image_url = url

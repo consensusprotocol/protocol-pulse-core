@@ -429,8 +429,17 @@ Output clean HTML with these sections:
 
             final_title = review.get("revised_title") or title
 
-            from services.content_generator import resolve_header_image_url
-            header_img, src_url, src_type = resolve_header_image_url(final_title, content)
+            from services.image_service import ImageGenerationService
+            header_img = None
+            file_phash = None
+            try:
+                _aff_img_svc = ImageGenerationService()
+                header_img, file_phash = _aff_img_svc.generate_article_header_image_with_phash(
+                    title=final_title, category="education")
+            except Exception as _img_e:
+                logging.warning(f"Affiliate image generation failed: {_img_e}")
+            if not header_img or "default-header" in (header_img or ""):
+                header_img = "/static/images/default-header.png"
 
             with app.app_context():
                 from services.content_generator import auto_publish_enabled
@@ -442,6 +451,8 @@ Output clean HTML with these sections:
                     category="education",
                     source_type="affiliate_education",
                     cover_image_url=header_img,
+                    header_image_url=header_img,
+                    image_phash=file_phash,
                     published=should_publish,
                     tags=f"affiliate:{product['id']}",
                     seo_description=f"Affiliate: {product['name']}",

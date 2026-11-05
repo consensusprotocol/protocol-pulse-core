@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """
-backfill_phash.py — Compute image_phash for published articles, then fix collisions.
+backfill_phash.py — Compute image_phash from LOCAL files, then fix remotes + collisions.
 
-Phase 1: Compute phash for every published article (local files + URLs).
-Phase 2: Find collision groups (hamming dist <= 6), keep oldest, regenerate rest.
-
-Uses direct sqlite3 for persistence. image_guard for phash computation and distance.
+Phase 1: Compute phash from the LOCAL file at cover_image_url for every published article.
+         Skips/flags rows whose cover is remote (http) or file missing.
+Phase 2: Regenerates:
+         (a) Every published article whose cover or header is remote/missing.
+         (b) Every collision group (d<=6) among newest 300, keeping the oldest.
+         Uses generate_article_header_image_with_phash for local-only output.
+         4s throttle; on Pexels 429 back off 20s*attempt.
 
 Usage:
     python3 scripts/backfill_phash.py                      # full run
-    python3 scripts/backfill_phash.py --limit 200          # newest N only
+    python3 scripts/backfill_phash.py --limit 300          # newest N only
     python3 scripts/backfill_phash.py --phase1-only        # just compute, no regen
 """
-import os, sys, sqlite3, logging, io, time
+import os, sys, sqlite3, logging, time
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'services'))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 from dotenv import load_dotenv
 load_dotenv(os.path.expanduser('~/protocol_pulse/.env'))
@@ -24,115 +28,115 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 DB_DEFAULT = os.path.expanduser("~/protocol_pulse/instance/protocol_pulse.db")
+STATIC_ROOT = os.path.expanduser("~/protocol_pulse")
 
-from articles.image_guard import compute_phash, _hamming, check_image_bytes, remember_accepted
+from articles.image_guard import compute_phash, _hamming
 
 
-def get_image_bytes(url, static_root=None):
-    """Get image bytes from URL or local path. Returns bytes or None."""
+def _local_file_path(url):
+    """Convert a /static/... URL to an absolute path, or return None for remote/invalid."""
     if not url:
         return None
     if url.startswith('http'):
-        try:
-            import requests
-            r = requests.get(url, timeout=12)
-            r.raise_for_status()
-            return r.content
-        except Exception:
-            return None
-    elif url.startswith('/static/'):
-        # Try production static dir, then worktree
-        for base in [os.path.expanduser('~/protocol_pulse'),
-                     os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')]:
-            path = os.path.join(base, url.lstrip('/'))
-            if os.path.exists(path):
-                try:
-                    with open(path, 'rb') as f:
-                        return f.read()
-                except Exception:
-                    pass
+        return None  # remote — not local
+    if url.startswith('/static/'):
+        path = os.path.join(STATIC_ROOT, url.lstrip('/'))
+        if os.path.exists(path):
+            return path
     return None
 
 
 def phase1_compute(conn, limit):
-    """Compute phash for all published articles missing it."""
+    """Compute phash from the LOCAL file at cover_image_url. Skip remote/missing."""
     c = conn.cursor()
+    q = "SELECT id, cover_image_url, image_phash FROM articles WHERE published = 1 ORDER BY id DESC"
     if limit:
-        c.execute("""
-            SELECT id, cover_image_url, header_image_url, image_phash FROM articles
-            WHERE published = 1 ORDER BY id DESC LIMIT ?
-        """, (limit,))
-    else:
-        c.execute("""
-            SELECT id, cover_image_url, header_image_url, image_phash FROM articles
-            WHERE published = 1 ORDER BY id DESC
-        """)
+        q += f" LIMIT {int(limit)}"
+    c.execute(q)
     rows = c.fetchall()
 
     computed = 0
-    skipped = 0
-    failed = 0
+    skipped_has_phash = 0
+    skipped_remote = 0
+    skipped_missing = 0
+    recomputed = 0
 
-    for aid, cover_url, header_url, existing_phash in rows:
-        if existing_phash:
-            skipped += 1
+    for aid, cover_url, existing_phash in rows:
+        local_path = _local_file_path(cover_url)
+
+        if local_path is None:
+            if cover_url and cover_url.startswith('http'):
+                skipped_remote += 1
+                logger.debug("Phase 1 skip id=%d: remote URL", aid)
+            else:
+                skipped_missing += 1
+                logger.debug("Phase 1 skip id=%d: missing/invalid path", aid)
             continue
 
-        url = cover_url or header_url or ''
-        img_bytes = get_image_bytes(url)
-        if not img_bytes:
-            failed += 1
-            continue
-
-        phash = compute_phash(img_bytes)
-        if phash:
-            c.execute("UPDATE articles SET image_phash = ? WHERE id = ?", (phash, aid))
-            computed += 1
-        else:
-            failed += 1
+        # Always recompute from the file to ensure DB matches actual file
+        try:
+            with open(local_path, 'rb') as f:
+                img_bytes = f.read()
+            phash = compute_phash(img_bytes)
+            if phash:
+                if phash != existing_phash:
+                    c.execute("UPDATE articles SET image_phash = ? WHERE id = ?", (phash, aid))
+                    if existing_phash:
+                        recomputed += 1
+                    else:
+                        computed += 1
+                else:
+                    skipped_has_phash += 1
+            else:
+                skipped_missing += 1
+        except Exception as e:
+            logger.warning("Phase 1 error id=%d: %s", aid, e)
+            skipped_missing += 1
 
     conn.commit()
-    logger.info("Phase 1: computed=%d, skipped=%d (had phash), failed=%d", computed, skipped, failed)
-    return computed
+    logger.info("Phase 1: computed=%d, recomputed=%d, already_correct=%d, remote=%d, missing=%d",
+                computed, recomputed, skipped_has_phash, skipped_remote, skipped_missing)
+    return computed + recomputed
 
 
-def phase2_fix_collisions(conn, limit):
-    """Find collision groups, regenerate images for duplicates."""
-    import requests
-
+def phase2_fix(conn, limit):
+    """Regenerate: (a) remote/missing covers, (b) collision groups."""
     c = conn.cursor()
-    if limit:
-        c.execute("""
-            SELECT id, image_phash, title, category, cover_image_url FROM articles
-            WHERE published = 1 AND image_phash IS NOT NULL AND image_phash != ''
-            ORDER BY id DESC LIMIT ?
-        """, (limit,))
-    else:
-        c.execute("""
-            SELECT id, image_phash, title, category, cover_image_url FROM articles
-            WHERE published = 1 AND image_phash IS NOT NULL AND image_phash != ''
-            ORDER BY id DESC
-        """)
+    limit_val = limit or 300
+
+    # Load articles
+    c.execute("""
+        SELECT id, cover_image_url, header_image_url, image_phash, title, category
+        FROM articles WHERE published = 1 ORDER BY id DESC LIMIT ?
+    """, (limit_val,))
     rows = c.fetchall()
 
-    # Build collision groups: phash → [article_ids sorted ascending]
-    # Use exact match (dist 0) first since that's the main issue
-    phash_to_ids = {}
+    # Identify articles needing regeneration
+    needs_regen = set()
     id_to_row = {}
-    for aid, ph, title, cat, url in rows:
-        id_to_row[aid] = (title, cat, url)
-        phash_to_ids.setdefault(ph, []).append(aid)
+    for aid, cover, header, phash, title, cat in rows:
+        id_to_row[aid] = (title, cat, cover)
+        # (a) remote or missing cover/header
+        if cover and cover.startswith('http'):
+            needs_regen.add(aid)
+        elif not cover or cover == '/static/images/default-header.png':
+            needs_regen.add(aid)
+        elif not os.path.exists(os.path.join(STATIC_ROOT, cover.lstrip('/'))):
+            needs_regen.add(aid)
+        if header and header.startswith('http'):
+            needs_regen.add(aid)
 
-    # Also find near-duplicates (dist <= 6) not caught by exact match
+    # (b) Find collision groups (d<=6) among rows that have phashes
+    phash_rows = [(aid, phash) for aid, _, _, phash, _, _ in rows if phash]
     collision_groups = {}
     checked = set()
-    for i, (aid, aph, _, _, _) in enumerate(rows):
+    for i, (aid, aph) in enumerate(phash_rows):
         if aid in checked:
             continue
         group = [aid]
         checked.add(aid)
-        for j, (bid, bph, _, _, _) in enumerate(rows):
-            if bid in checked:
+        for j, (bid, bph) in enumerate(phash_rows):
+            if j <= i or bid in checked:
                 continue
             try:
                 if _hamming(aph, bph) <= 6:
@@ -141,79 +145,58 @@ def phase2_fix_collisions(conn, limit):
             except Exception:
                 pass
         if len(group) > 1:
-            group.sort()  # oldest first
+            group.sort()  # oldest first = keeper
             collision_groups[group[0]] = group
 
-    if not collision_groups:
-        logger.info("Phase 2: 0 collision groups found")
+    # Add collision victims (all except keeper) to regen set
+    for keeper_id, group in collision_groups.items():
+        for aid in group[1:]:
+            needs_regen.add(aid)
+
+    if not needs_regen:
+        logger.info("Phase 2: 0 articles need regeneration")
         return 0
 
-    total_collisions = sum(len(g) - 1 for g in collision_groups.values())
-    logger.info("Phase 2: %d collision groups, %d articles to regenerate",
-                len(collision_groups), total_collisions)
+    logger.info("Phase 2: %d articles to regenerate (%d remote/missing, %d collision groups)",
+                len(needs_regen),
+                sum(1 for aid in needs_regen if aid not in [g for gs in collision_groups.values() for g in gs[1:]]),
+                len(collision_groups))
 
-    # Load ALL existing phashes for the guard
-    c.execute("SELECT image_phash FROM articles WHERE image_phash IS NOT NULL AND image_phash != ''")
-    db_phashes = {r[0] for r in c.fetchall()}
-    session_phashes = set()
-
-    api_key = os.environ.get("PEXELS_API_KEY", "").strip()
-    if not api_key:
-        logger.error("PEXELS_API_KEY not set — cannot regenerate")
+    # Import image service for regeneration
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'services'))
+        from image_service import ImageGenerationService
+        img_svc = ImageGenerationService()
+    except Exception as e:
+        logger.error("Cannot import ImageGenerationService: %s", e)
         return 0
-
-    from services.pexels_image import get_pexels_image
 
     regenerated = 0
-    total_to_regen = sum(len(g) - 1 for g in collision_groups.values())
-    regen_idx = 0
-    for keeper_id, group in collision_groups.items():
-        # Keep the oldest (keeper_id), regenerate the rest
-        keeper_phash = None
-        c.execute("SELECT image_phash FROM articles WHERE id = ?", (keeper_id,))
-        row = c.fetchone()
-        if row and row[0]:
-            keeper_phash = row[0]
-            session_phashes.add(keeper_phash)
-
-        for aid in group[1:]:  # skip keeper
-            regen_idx += 1
-            title, cat, old_url = id_to_row.get(aid, ("bitcoin", "bitcoin", ""))
-
-            # Remove old phash from db_phashes so the new one can be different
-            old_ph_row = None
-            c.execute("SELECT image_phash FROM articles WHERE id = ?", (aid,))
-            r = c.fetchone()
-            if r and r[0]:
-                old_ph_row = r[0]
-                db_phashes.discard(old_ph_row)
-
-            new_url, new_phash = get_pexels_image(
-                title or "bitcoin", cat or "bitcoin", article_id=aid,
-                db_phashes=db_phashes, session_phashes=session_phashes)
+    total = len(needs_regen)
+    for idx, aid in enumerate(sorted(needs_regen, reverse=True)):
+        title, cat, old_url = id_to_row.get(aid, ("bitcoin", "bitcoin", ""))
+        try:
+            new_url, new_phash = img_svc.generate_article_header_image_with_phash(
+                title=title or "bitcoin", category=cat or "bitcoin")
 
             if new_url and new_url != "/static/images/default-header.png" and new_phash:
                 c.execute("""
                     UPDATE articles SET cover_image_url = ?, header_image_url = ?, image_phash = ?
                     WHERE id = ?
                 """, (new_url, new_url, new_phash, aid))
-                db_phashes.add(new_phash)
-                session_phashes.add(new_phash)
                 regenerated += 1
-                logger.info("Regen %d/%d ID %d: phash=%s url=%s", regen_idx, total_to_regen, aid, new_phash, new_url[:60])
-                # Commit progress and throttle to stay under Pexels rate limit
+                logger.info("Regen %d/%d ID %d: phash=%s path=%s", idx + 1, total, aid, new_phash, new_url[:60])
                 if regenerated % 5 == 0:
                     conn.commit()
-                time.sleep(3)
             else:
-                logger.warning("Regen FAIL %d/%d ID %d: Pexels returned default", regen_idx, total_to_regen, aid)
-                # Re-add old phash
-                if old_ph_row:
-                    db_phashes.add(old_ph_row)
-                time.sleep(2)  # back off after failure too
+                logger.warning("Regen FAIL %d/%d ID %d: service returned default", idx + 1, total, aid)
+        except Exception as e:
+            logger.error("Regen ERROR %d/%d ID %d: %s", idx + 1, total, aid, e)
+
+        time.sleep(4)  # 4s throttle
 
     conn.commit()
-    logger.info("Phase 2: regenerated %d articles", regenerated)
+    logger.info("Phase 2: regenerated %d / %d articles", regenerated, total)
     return regenerated
 
 
@@ -223,18 +206,23 @@ def main():
     for i, arg in enumerate(sys.argv):
         if arg == '--limit' and i + 1 < len(sys.argv):
             limit = int(sys.argv[i + 1])
-        if arg == '--db' and i + 1 < len(sys.argv):
-            DB_DEFAULT_override = sys.argv[i + 1]
 
     db_path = DB_DEFAULT
     conn = sqlite3.connect(db_path)
 
+    logger.info("=== Phase 1: compute phash from local files ===")
     phase1_compute(conn, limit)
 
     if not phase1_only:
-        phase2_fix_collisions(conn, limit or 200)
+        logger.info("=== Phase 2: regenerate remote/missing/collisions ===")
+        phase2_fix(conn, limit or 300)
+
+        # Re-run phase 1 over everything to update phashes for regenerated files
+        logger.info("=== Phase 1 (re-run): recompute all phashes ===")
+        phase1_compute(conn, None)
 
     conn.close()
+    logger.info("=== Done ===")
 
 
 if __name__ == '__main__':

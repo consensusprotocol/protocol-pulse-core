@@ -77,7 +77,8 @@ def main():
 
         logger.info("Processing %d articles (homepage_only=%s)", len(articles), homepage_only)
 
-        from services.pexels_image import get_pexels_image
+        from services.image_service import ImageGenerationService
+        img_svc = ImageGenerationService()
 
         repaired = 0
         skipped = 0
@@ -91,15 +92,12 @@ def main():
                 needs_regen = True
                 reason = "placeholder"
             else:
+                # Skip remote URLs — they need regeneration too
                 if old_url.startswith('http'):
-                    brightness = mean_brightness_url(old_url)
-                else:
-                    brightness = 255
-                if brightness < 30:
                     needs_regen = True
-                    reason = f"dark (brightness={brightness:.1f})"
+                    reason = "remote_url"
                 else:
-                    reason = f"ok (brightness={brightness:.1f})"
+                    reason = "ok (local)"
 
             if not needs_regen:
                 results.append({'id': a.id, 'title': a.title[:50], 'url': old_url[:60],
@@ -107,36 +105,27 @@ def main():
                 skipped += 1
                 continue
 
-            # get_pexels_image now returns (url, phash) and routes through image_guard
-            new_url, new_phash = get_pexels_image(a.title or 'bitcoin', a.category or 'bitcoin', article_id=a.id)
+            new_url, new_phash = img_svc.generate_article_header_image_with_phash(
+                title=a.title or 'bitcoin', category=a.category or 'bitcoin')
 
             if new_url and new_url != '/static/images/default-header.png':
-                new_brightness = mean_brightness_url(new_url)
-                if new_brightness < 40:
-                    new_url2, new_phash2 = get_pexels_image(
-                        a.title or 'bitcoin', a.category or 'bitcoin', article_id=a.id + 1000)
-                    if new_url2 and new_url2 != '/static/images/default-header.png':
-                        nb2 = mean_brightness_url(new_url2)
-                        if nb2 > new_brightness:
-                            new_url, new_phash, new_brightness = new_url2, new_phash2, nb2
-
                 if dry_run:
-                    logger.info("[DRY] ID %d: %s -> %s (brightness=%.1f, phash=%s)",
-                                a.id, reason, new_url[:60], new_brightness, new_phash or '?')
+                    logger.info("[DRY] ID %d: %s -> %s (phash=%s)",
+                                a.id, reason, new_url[:60], new_phash or '?')
                 else:
                     a.cover_image_url = new_url
                     a.header_image_url = new_url
                     if new_phash and hasattr(a, 'image_phash'):
                         a.image_phash = new_phash
                     db.session.commit()
-                    logger.info("OK ID %d: brightness=%.1f phash=%s %s",
-                                a.id, new_brightness, new_phash or '?', new_url[:70])
+                    logger.info("OK ID %d: phash=%s %s",
+                                a.id, new_phash or '?', new_url[:70])
                 results.append({'id': a.id, 'title': a.title[:50], 'url': new_url[:80],
-                                'brightness': f'{new_brightness:.1f}', 'action': 'regen',
+                                'brightness': 'n/a', 'action': 'regen',
                                 'phash': new_phash or ''})
                 repaired += 1
             else:
-                logger.warning("FAIL ID %d: Pexels returned default", a.id)
+                logger.warning("FAIL ID %d: image service returned default", a.id)
                 results.append({'id': a.id, 'title': a.title[:50], 'url': old_url[:60],
                                 'brightness': '?', 'action': 'fail', 'phash': ''})
 
