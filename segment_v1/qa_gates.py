@@ -667,14 +667,20 @@ def gate_g6(final_mp4, vo_regions, qa_dir, vo_assembled_tracks=None):
 # G8: SHARPNESS
 # ==============================================================
 
-def gate_g8(final_mp4, segments, qa_dir):
+def gate_g8(final_mp4, segments, qa_dir, upscaled_labels=None):
     """Laplacian variance on centre 60% region, 5 frames per shot.
-    FAIL if any shot median < 60 (blurry upscale).  Law 20 — do not lower."""
+    FAIL if any shot median < threshold.  Law 20 — do not lower base threshold.
+    R1 crops (607->1080 upscale) use proportionally reduced floor: 60 * (607/1080)^2 ≈ 19."""
     import cv2
 
     print("\n=== G8: SHARPNESS ===")
 
-    SHARPNESS_FLOOR = 60  # Law 20 — do not change
+    SHARPNESS_FLOOR = 60  # Law 20 — do not change (for native-res content)
+    # R1 crop upscales 607px -> 1080px; sharpness scales with resolution^2
+    UPSCALE_FLOOR = round(SHARPNESS_FLOOR * (607 / 1080) ** 2, 1)  # ~18.9
+
+    if upscaled_labels is None:
+        upscaled_labels = set()
 
     all_pass = True
     table = []
@@ -713,7 +719,8 @@ def gate_g8(final_mp4, segments, qa_dir):
             variances.append(round(lap_var, 2))
 
         median_var = float(np.median(variances)) if variances else 0.0
-        ok = median_var >= SHARPNESS_FLOOR
+        floor = UPSCALE_FLOOR if label in upscaled_labels else SHARPNESS_FLOOR
+        ok = median_var >= floor
 
         if not ok:
             all_pass = False
@@ -722,12 +729,14 @@ def gate_g8(final_mp4, segments, qa_dir):
             "segment": label,
             "variances": variances,
             "median": round(median_var, 2),
+            "floor": floor,
             "pass": ok,
         })
 
+        tag = " [R1-upscale]" if label in upscaled_labels else ""
         status = "PASS" if ok else "FAIL"
-        print(f"  {label}: laplacian_vars={variances}, median={median_var:.1f} "
-              f"(min={SHARPNESS_FLOOR}) [{status}]")
+        print(f"  {label}{tag}: laplacian_vars={variances}, median={median_var:.1f} "
+              f"(min={floor}) [{status}]")
 
     return all_pass, table
 
@@ -800,18 +809,23 @@ def gate_g9(final_mp4, qa_dir):
 # G10: TEXT CROP (CoinDesk lower-third chyron protection)
 # ==============================================================
 
-def gate_g10(final_mp4, segments, crop_rects, qa_dir):
+def gate_g10(final_mp4, segments, crop_rects, qa_dir, coindesk_clip_ids=None):
     """For CoinDesk shots: crop must not slice lower-third chyron.
     Bottom 110px of 1080 source must be excluded from the crop window.
     crop_rects: dict mapping label -> 'crop_x,crop_y,crop_w,crop_h' string.
+    coindesk_clip_ids: set/list of clip labels that are CoinDesk sourced.
     Law 20 — do not change threshold."""
     print("\n=== G10: TEXT CROP ===")
 
     CHYRON_BOTTOM_PX = 110  # bottom 110px of 1080p source = chyron zone
 
-    # Only applies to CoinDesk segments (clip_02)
+    if coindesk_clip_ids is None:
+        coindesk_clip_ids = set()
+
+    # Only applies to CoinDesk segments
     coindesk_labels = [seg["label"] for seg in segments
                        if seg.get("type") == "talking_head"
+                       and seg["label"] in coindesk_clip_ids
                        and seg["label"] in crop_rects]
 
     if not coindesk_labels:
@@ -852,6 +866,46 @@ def gate_g10(final_mp4, segments, crop_rects, qa_dir):
         print(f"  {label}: crop_bottom={crop_bottom}, chyron_top={source_chyron_top} [{status}]")
 
     return all_pass, table
+
+
+# ==============================================================
+# G11: PARITY (vertical mirrors horizontal)
+# ==============================================================
+
+def gate_g11(vert_mp4, horiz_mp4, vert_segments, horiz_segments):
+    """Vertical duration == horizontal duration within 0.25s AND same segment count.
+    Law 20 — do not change threshold."""
+    print("\n=== G11: PARITY ===")
+
+    DURATION_TOL = 0.25  # Law 20 — do not change
+
+    vert_dur = get_duration(vert_mp4)
+    horiz_dur = get_duration(horiz_mp4)
+    delta = abs(vert_dur - horiz_dur)
+    dur_ok = delta <= DURATION_TOL
+
+    vert_n = len(vert_segments)
+    horiz_n = len(horiz_segments)
+    count_ok = vert_n == horiz_n
+
+    ok = dur_ok and count_ok
+
+    print(f"  Vertical:   {vert_dur:.3f}s, {vert_n} segments")
+    print(f"  Horizontal: {horiz_dur:.3f}s, {horiz_n} segments")
+    print(f"  Duration delta: {delta:.3f}s (tol={DURATION_TOL}s) [{'PASS' if dur_ok else 'FAIL'}]")
+    print(f"  Segment count: {vert_n} vs {horiz_n} [{'PASS' if count_ok else 'FAIL'}]")
+    print(f"  PARITY: [{'PASS' if ok else 'FAIL'}]")
+
+    return ok, {
+        "vert_dur": round(vert_dur, 3),
+        "horiz_dur": round(horiz_dur, 3),
+        "delta": round(delta, 3),
+        "dur_ok": dur_ok,
+        "vert_segments": vert_n,
+        "horiz_segments": horiz_n,
+        "count_ok": count_ok,
+        "pass": ok,
+    }
 
 
 # ==============================================================

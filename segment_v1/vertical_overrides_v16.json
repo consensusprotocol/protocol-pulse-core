@@ -1,0 +1,65 @@
+{
+  "hook": {
+    "layout": "stack2",
+    "rect_a": [
+      0,
+      0,
+      960,
+      1080
+    ],
+    "rect_b": [
+      960,
+      0,
+      960,
+      1080
+    ],
+    "score_a": 0.0428,
+    "score_b": 0.0079,
+    "speaker_rect": "a"
+  },
+  "clip_02": {
+    "layout": "single",
+    "persons": [
+      {
+        "cx": 924,
+        "score": 0.0
+      }
+    ],
+    "chosen_cx": 924,
+    "reason": "lip-activity"
+  },
+  "clip_03": {
+    "layout": "stack2",
+    "rect_a": [
+      0,
+      0,
+      960,
+      1080
+    ],
+    "rect_b": [
+      960,
+      0,
+      960,
+      1080
+    ],
+    "score_a": 0.0398,
+    "score_b": 0.0761,
+    "speaker_rect": "b"
+  },
+  "clip_04": {
+    "layout": "stack2-unequal",
+    "rect_top": [
+      1280,
+      0,
+      640,
+      540
+    ],
+    "rect_bot": [
+      0,
+      0,
+      640,
+      540
+    ],
+    "speaker_rect": "top (Adam O'Brien \u2014 verified from transcript)"
+  }
+}
