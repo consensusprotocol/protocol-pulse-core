@@ -311,12 +311,17 @@ def generate_article_with_tracking(force: bool = False) -> dict:
             category = SLOT_CATEGORY.get(slot, article_data.get("category", "Bitcoin"))
 
             header_url = None
+            file_phash = None
             try:
                 from services.image_service import ImageGenerationService
                 img_svc = ImageGenerationService()
-                header_url = img_svc.generate_article_header_image(title=final_title, category=category)
+                header_url, file_phash = img_svc.generate_article_header_image_with_phash(title=final_title, category=category)
             except Exception as img_e:
                 logger.warning(f"Image generation failed: {img_e}")
+
+            # Never store remote URLs — use local path or default
+            if not header_url or "default-header" in (header_url or ""):
+                header_url = "/static/images/default-header.png"
 
             article = models.Article(
                 title=final_title,
@@ -327,7 +332,9 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                 source_type=(article_data.get("source_type") or "rss"),
                 author="Protocol Pulse",
                 published=publish_allowed,
-                cover_image_url=header_url if (header_url and "default-header" not in (header_url or "")) else __import__("random").choice(["https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800&q=80","https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80","https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80","https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=800&q=80","https://images.unsplash.com/photo-1516245834210-c4c142787335?w=800&q=80","https://images.unsplash.com/photo-1605792657660-596af9009e82?w=800&q=80"]),
+                cover_image_url=header_url,
+                header_image_url=header_url,
+                image_phash=file_phash,
             )
             db.session.add(article)
             db.session.commit()
@@ -416,9 +423,20 @@ def generate_breaking_article_with_tracking() -> dict:
 
             ok, errs = validate_article_for_publish(article_data)
             draft_by_words = should_article_be_draft_by_word_count(article_data.get("content") or "")
-            _rh = (article_data.get('header_image_url') or '').strip()
-            import random as _rnd
-            header_url = _rh if (_rh and 'default-header' not in _rh and _rh.startswith('http')) else _rnd.choice(['https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=1200&q=80', 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80', 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200&q=80', 'https://images.unsplash.com/photo-1605792657660-596af9009e82?w=1200&q=80', 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&q=80', 'https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=1200&q=80'])
+            # Generate local header image (guarded) — never store remote URLs
+            header_url = None
+            file_phash = None
+            try:
+                from services.image_service import ImageGenerationService
+                _img_svc = ImageGenerationService()
+                header_url, file_phash = _img_svc.generate_article_header_image_with_phash(
+                    title=article_data["title"],
+                    category=article_data.get("category", "Bitcoin"),
+                )
+            except Exception as _img_e:
+                logger.warning(f"Image generation failed: {_img_e}")
+            if not header_url or "default-header" in (header_url or ""):
+                header_url = "/static/images/default-header.png"
 
             article = models.Article(
                 title=article_data["title"],
@@ -432,6 +450,8 @@ def generate_breaking_article_with_tracking() -> dict:
                 source_url=(article_data.get("source_url") or "").strip() or None,
                 source_type=(article_data.get("source_type") or "ai_generated"),
                 cover_image_url=header_url,
+                header_image_url=header_url,
+                image_phash=file_phash,
                 published=(publish_allowed and ok and not draft_by_words),
                 featured=True,
             )

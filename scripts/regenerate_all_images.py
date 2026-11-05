@@ -33,7 +33,7 @@ log = logging.getLogger("img_regen")
 
 from app import app, db
 from models import Article
-from services.pexels_image import get_pexels_image
+from services.image_service import ImageGenerationService
 
 with app.app_context():
     # Only fix truly broken: NULL, empty, or default placeholder
@@ -47,13 +47,7 @@ with app.app_context():
 
     log.info(f"Found {len(articles)} articles with missing/default images")
 
-    # Load DB phashes for dedup
-    ph_rows = db.session.execute(
-        db.text("SELECT image_phash FROM articles WHERE image_phash IS NOT NULL AND image_phash != ''")
-    ).fetchall()
-    db_phashes = {r[0] for r in ph_rows}
-    session_phashes = set()
-
+    img_svc = ImageGenerationService()
     success = 0
     failed = 0
 
@@ -61,12 +55,9 @@ with app.app_context():
         try:
             log.info(f"[{i+1}/{len(articles)}] Generating image for: {art.title[:60]}")
 
-            url, phash = get_pexels_image(
-                art.title or "bitcoin",
-                art.category or "bitcoin",
-                article_id=art.id,
-                db_phashes=db_phashes,
-                session_phashes=session_phashes,
+            url, phash = img_svc.generate_article_header_image_with_phash(
+                title=art.title or "bitcoin",
+                category=art.category or "bitcoin",
             )
 
             if url and "default-header" not in url:

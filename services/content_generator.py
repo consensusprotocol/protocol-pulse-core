@@ -158,43 +158,25 @@ def _extract_og_image(source_url: str) -> str:
         return ""
 
 
-_FALLBACK_IMAGES = [
-    "https://images.pexels.com/photos/6771900/pexels-photo-6771900.jpeg",
-    "https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg",
-    "https://images.pexels.com/photos/7788009/pexels-photo-7788009.jpeg",
-    "https://images.pexels.com/photos/6780789/pexels-photo-6780789.jpeg",
-]
-
-
 def resolve_header_image_url(title: str, article_html: str) -> tuple[str, str, str]:
     """Return (header_image_url, source_url, source_type) for a generated article.
 
-    - First try AI-generated hyper-realistic header image via DALL-E.
-    - Then try allowlisted source URL og:image.
-    - Fall back to Pexels Bitcoin image pool so cards never render without images.
+    Uses the guarded image service — returns a LOCAL path, never a remote URL.
     """
-    import random as _rnd
-
     src_url = pick_primary_source_url(article_html)
     src_type = infer_source_type(src_url) if src_url else ""
 
     header = ""
     if getattr(image_service, 'openai_key', None) or getattr(image_service, 'xai_key', None) or getattr(image_service, 'pexels_key', None):
         try:
-            summary = image_service.extract_summary_from_content(article_html) if article_html else title
-            generated = image_service.generate_article_header_image(title, summary)
+            generated = image_service.generate_article_header_image(title)
             if generated and generated != "/static/images/default-header.png":
                 header = generated
         except Exception as e:
-            logging.warning(f"DALL-E image generation failed for '{title[:40]}': {e}")
+            logging.warning(f"Image generation failed for '{title[:40]}': {e}")
 
-    if not header:
-        og_img = _extract_og_image(src_url) if src_url else ""
-        header = (og_img or "").strip()
-
-    # Never return null/local-only fallback — always a real URL
-    if not header or header == "/static/images/default-header.png" or not header.startswith("http"):
-        header = _rnd.choice(_FALLBACK_IMAGES)
+    if not header or header == "/static/images/default-header.png":
+        header = "/static/images/default-header.png"
 
     return header, (src_url or ""), (src_type or "")
 

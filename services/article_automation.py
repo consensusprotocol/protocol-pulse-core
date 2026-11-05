@@ -790,16 +790,17 @@ def run_article_generation_cycle() -> Dict:
         from services.image_service import ImageGenerationService
 
         with app.app_context():
-            # Generate header image — Pexels→Grok→OpenAI→branded-fallback chain
+            # Generate header image — Pexels→Grok→OpenAI→branded-fallback chain (guarded)
             header_image = None
+            file_phash = None
             try:
                 img_service = ImageGenerationService()
-                header_image = img_service.generate_article_header_image(
+                header_image, file_phash = img_service.generate_article_header_image_with_phash(
                     title=final_title,
                     category=article_data.get('category', 'Bitcoin')
                 )
                 if header_image:
-                    logger.info(f"Header image generated: {header_image}")
+                    logger.info(f"Header image generated: {header_image} phash={file_phash}")
                 else:
                     logger.warning("Image service returned None — article will show branded fallback")
             except Exception as e:
@@ -821,7 +822,9 @@ def run_article_generation_cycle() -> Dict:
                 source_type=article_data['source_type'],
                 published=should_publish,
                 published_at=datetime.utcnow() if should_publish else None,
-                cover_image_url=header_image
+                cover_image_url=header_image,
+                header_image_url=header_image,
+                image_phash=file_phash,
             )
 
             db.session.add(article)
@@ -1058,11 +1061,12 @@ Target: 500-750 words. 80% education, 20% product. Clean HTML only. No markdown.
         tldr_match = re.search(r'TL;DR:\s*([^<]+)', content)
         summary = tldr_match.group(1).strip() if tldr_match else article_topic[:200]
 
-        # Generate editorial image
+        # Generate editorial image (guarded)
         header_image = None
+        file_phash = None
         try:
-            img_service = __import__("services.image_service", fromlist=["generate_article_header_image"])
-            header_image = img_service.generate_article_header_image(title)
+            img_service = __import__("services.image_service", fromlist=["generate_article_header_image_with_phash"])
+            header_image, file_phash = img_service.generate_article_header_image_with_phash(title)
         except Exception as e:
             logger.warning(f"Image generation failed: {e}")
 
@@ -1076,7 +1080,9 @@ Target: 500-750 words. 80% education, 20% product. Clean HTML only. No markdown.
             source_url=partner["url"],
             source_type="affiliate",
             published=True,
-            cover_image_url=header_image
+            cover_image_url=header_image,
+            header_image_url=header_image,
+            image_phash=file_phash,
         )
         db.session.add(article)
         db.session.commit()

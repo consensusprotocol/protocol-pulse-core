@@ -1,18 +1,58 @@
 # Protocol Pulse Editorial Image Service
 # 90% Pexels stock photos, 10% Grok hyper-realistic (top articles with named people/brands only)
 # Red/black brand overlay on all images for cohesive look
+# ALL image outputs are guarded via image_guard (phash dedup, ban list, quality).
 
 import os
 import re
+import sys
 import time
 import logging
+import sqlite3
 import requests
 import hashlib
+import threading
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 from io import BytesIO
 
 logger = logging.getLogger(__name__)
+
+# ── image_guard import ─────────────────────────────────────────────
+_repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_svc_path = os.path.join(_repo_root, "services")
+if _svc_path not in sys.path:
+    sys.path.insert(0, _svc_path)
+from articles.image_guard import check_image_bytes, compute_phash, remember_accepted
+
+# ── Module-level session phash set (prevents two calls in one process colliding) ─
+_session_phashes = set()
+_session_lock = threading.Lock()
+
+# ── DB phash cache (loaded once per process, refreshed every 60s) ─
+_db_phashes_cache = set()
+_db_phashes_ts = 0.0
+_DB_CACHE_TTL = 60  # seconds
+_DB_PATH = os.path.expanduser("~/protocol_pulse/instance/protocol_pulse.db")
+
+
+def _load_db_phashes():
+    """Load all published image_phash values from DB, cached for 60s."""
+    global _db_phashes_cache, _db_phashes_ts
+    now = time.time()
+    if now - _db_phashes_ts < _DB_CACHE_TTL and _db_phashes_cache:
+        return set(_db_phashes_cache)
+    try:
+        conn = sqlite3.connect(_DB_PATH)
+        rows = conn.execute(
+            "SELECT image_phash FROM articles WHERE published=1 AND image_phash IS NOT NULL AND image_phash != ''"
+        ).fetchall()
+        conn.close()
+        _db_phashes_cache = {r[0] for r in rows}
+        _db_phashes_ts = now
+    except Exception as e:
+        logger.warning("Failed to load DB phashes: %s", e)
+    return set(_db_phashes_cache)
 
 HEADERS_DIR = Path("static/images/headers")
 HEADERS_DIR.mkdir(parents=True, exist_ok=True)
@@ -45,12 +85,15 @@ TOP_ARTICLE_INDICATORS = [
 ]
 
 class ImageGenerationService:
-    """Pexels-first image service with Grok fallback for premium articles."""
+    """Pexels-first image service with Grok fallback for premium articles.
+    All outputs guarded via image_guard (phash dedup, ban list, quality).
+    """
 
     def __init__(self):
         self.pexels_key = os.environ.get("PEXELS_API_KEY", "")
         self.xai_key = os.environ.get("XAI_API_KEY", "")
         self.openai_key = os.environ.get("OPENAI_API_KEY", "")
+        self.last_phash = None  # phash of most recently saved file
 
         if self.pexels_key:
             logger.info("Image service initialized with Pexels (primary)")
@@ -64,6 +107,29 @@ class ImageGenerationService:
                 "Grok image generation available (secondary, top articles only)"
             )
 
+    # ─── GUARD HELPER ──────────────────────────────────────────────
+
+    def _guard_pil_image(self, image, title):
+        """Run image_guard on a PIL Image. Returns True if accepted, False if rejected."""
+        if image is None:
+            return False
+        try:
+            buf = BytesIO()
+            image.save(buf, "JPEG", quality=90)
+            img_bytes = buf.getvalue()
+            db_ph = _load_db_phashes()
+            with _session_lock:
+                sp = set(_session_phashes)
+            verdict = check_image_bytes(img_bytes, title_hint=title,
+                                        db_phashes=db_ph, session_phashes=sp)
+            if not verdict.ok:
+                logger.info("Guard rejected image for '%s': %s", title[:50], verdict.reason)
+                return False
+            return True
+        except Exception as e:
+            logger.warning("Guard check error: %s", e)
+            return True  # fail-open so we don't block production
+
     # ─── PUBLIC API ────────────────────────────────────────────────
 
     def generate_article_header_image(self,
@@ -72,6 +138,16 @@ class ImageGenerationService:
                                       force_grok=False):
         """Generate a header image for an article.
         Returns: path string like '/static/images/headers/header_xxx.jpg'
+        """
+        path, _ = self.generate_article_header_image_with_phash(title, category, force_grok)
+        return path
+
+    def generate_article_header_image_with_phash(self,
+                                                  title,
+                                                  category=None,
+                                                  force_grok=False):
+        """Generate a header image, returning (path, file_phash).
+        The file_phash is computed from the SAVED file bytes on disk.
         """
         safe_title = _safe_filename(title)
         timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -84,21 +160,30 @@ class ImageGenerationService:
         # 1. Grok (primary — hyper-realistic, when xai_key available)
         if self.xai_key:
             logger.info(f"Generating Grok image for: {title[:50]}")
-            image = self._generate_grok_image(title)
+            grok_img = self._generate_grok_image(title)
+            if self._guard_pil_image(grok_img, title):
+                image = grok_img
 
-        # 2. Pexels (reliable stock photo — always works when key set)
+        # 2. Pexels (reliable stock photo — guarded iteration)
         if image is None and self.pexels_key:
-            logger.info(f"Grok failed/unavailable, using Pexels for: {title[:50]}")
+            logger.info(f"Using Pexels for: {title[:50]}")
             image = self._fetch_pexels_image(title, category)
 
-        # 3. OpenAI DALL-E (tertiary fallback)
+        # 3. OpenAI DALL-E (tertiary fallback — guarded)
         if image is None and self.openai_key:
             logger.info(f"Using DALL-E for: {title[:50]}")
-            image = self._generate_openai_image(title)
+            dalle_img = self._generate_openai_image(title)
+            if self._guard_pil_image(dalle_img, title):
+                image = dalle_img
 
+        # 4. Branded fallback (guarded)
         if image is None:
             logger.warning(f"All image sources failed for: {title[:50]}")
-            image = self._generate_fallback_image(title)
+            fb_img = self._generate_fallback_image(title)
+            if self._guard_pil_image(fb_img, title):
+                image = fb_img
+            else:
+                image = fb_img  # fallback always accepted
 
         try:
             # Apply brand overlay and save
@@ -108,57 +193,130 @@ class ImageGenerationService:
             result_path = f"/static/images/headers/{filename}"
             size_kb = filepath.stat().st_size // 1024
             logger.info(f"Saved header image: {result_path} ({size_kb}KB)")
-            return result_path
+
+            # Compute phash from SAVED file bytes
+            file_phash = None
+            try:
+                with open(str(filepath), "rb") as fh:
+                    file_phash = compute_phash(fh.read())
+            except Exception as e:
+                logger.warning("Failed to compute file phash: %s", e)
+
+            self.last_phash = file_phash
+
+            # Add to session set so two calls in one process cannot collide
+            if file_phash:
+                with _session_lock:
+                    _session_phashes.add(file_phash)
+                try:
+                    remember_accepted(file_phash, title=title[:120])
+                except Exception:
+                    pass
+
+            return result_path, file_phash
         except Exception as save_err:
             logger.error(f"Image save failed: {save_err}")
-            return "/static/images/default-header.png"
+            self.last_phash = None
+            return "/static/images/default-header.png", None
 
     # ─── PEXELS (PRIMARY — 90% of articles) ────────────────────────
 
     def _fetch_pexels_image(self, title, category=None):
-        """Search Pexels for a relevant stock photo."""
-        # AI-powered query first for topic relevance
+        """Search Pexels for a relevant stock photo. Iterates ALL candidates
+        through image_guard, returning the first that passes."""
+        # Build query list: smart → title nouns → category → generic pool
         smart = _smart_pexels_query(title)
         base = _build_pexels_queries(title, category)
-        queries = ([smart] + base) if smart else base
 
-        for query in queries:
+        # Add a rotating generic pool (20 entries, rotated by hash(title))
+        _generic_pool = [
+            "bitcoin mining rig close up", "data center server room blue lights",
+            "city skyline night neon", "gold vault bars", "wall street trading floor",
+            "circuit board macro photography", "lightning storm dark sky",
+            "bank building architecture", "satellite earth orbit",
+            "financial chart screen", "computer hardware close up",
+            "stock exchange building", "technology abstract dark",
+            "server rack data center", "digital lock cybersecurity",
+            "gold coins wealth", "futuristic technology dark",
+            "sunrise mountain landscape", "clock gears mechanism",
+            "rocket launch space",
+        ]
+        pool_offset = int(hashlib.md5(title.encode()).hexdigest()[:8], 16) % len(_generic_pool)
+        pool_picks = [_generic_pool[(pool_offset + i) % len(_generic_pool)] for i in range(3)]
+
+        queries = ([smart] + base + pool_picks) if smart else (base + pool_picks)
+        # Deduplicate preserving order
+        seen_q = set()
+        unique_queries = []
+        for q in queries:
+            if q and q not in seen_q:
+                seen_q.add(q)
+                unique_queries.append(q)
+
+        # Ensure >= 3 queries
+        while len(unique_queries) < 3:
+            unique_queries.append("financial technology dark background")
+
+        db_ph = _load_db_phashes()
+        with _session_lock:
+            sp = set(_session_phashes)
+
+        for query in unique_queries:
             try:
-                resp = requests.get(
-                    "https://api.pexels.com/v1/search",
-                    headers={"Authorization": self.pexels_key},
-                    params={
-                        "query": query,
-                        "per_page": 10,
-                        "orientation": "landscape",
-                        "size": "large",
-                    },
-                    timeout=10,
-                )
+                for _attempt in range(3):
+                    resp = requests.get(
+                        "https://api.pexels.com/v1/search",
+                        headers={"Authorization": self.pexels_key},
+                        params={
+                            "query": query,
+                            "per_page": 15,
+                            "orientation": "landscape",
+                            "size": "large",
+                        },
+                        timeout=10,
+                    )
+                    if resp.status_code == 429:
+                        wait = max(int(resp.headers.get("Retry-After", 20)), 20)
+                        logger.info("Pexels 429 on '%s', waiting %ds (attempt %d/3)", query, wait, _attempt + 1)
+                        time.sleep(wait)
+                        continue
+                    break
+                else:
+                    logger.warning("Pexels 3x 429 on '%s', skipping query", query)
+                    continue
+
                 if resp.status_code != 200:
-                    logger.warning(
-                        f"Pexels returned {resp.status_code} for '{query}'")
+                    logger.warning(f"Pexels returned {resp.status_code} for '{query}'")
                     continue
 
                 photos = resp.json().get("photos", [])
                 if not photos:
-                    logger.info(
-                        f"No Pexels results for '{query}', trying next query")
+                    logger.info(f"No Pexels results for '{query}', trying next query")
                     continue
 
-                # Pick a photo deterministically based on title hash (avoids same photo)
-                idx = int(hashlib.md5(title.encode()).hexdigest()[:8],
-                          16) % len(photos)
-                photo = photos[idx]
-                img_url = photo.get("src", {}).get("landscape") or photo.get(
-                    "src", {}).get("large2x")
+                # Iterate ALL photos through guard — first accepted wins
+                for photo in photos:
+                    img_url = photo.get("src", {}).get("landscape") or photo.get(
+                        "src", {}).get("large2x")
+                    if not img_url:
+                        continue
 
-                if not img_url:
-                    continue
+                    try:
+                        img_resp = requests.get(img_url, timeout=15)
+                        if img_resp.status_code != 200:
+                            continue
+                        img_bytes = img_resp.content
+                    except Exception:
+                        continue
 
-                img_resp = requests.get(img_url, timeout=15)
-                if img_resp.status_code == 200:
-                    img = Image.open(BytesIO(img_resp.content)).convert("RGB")
+                    # Guard check
+                    verdict = check_image_bytes(img_bytes, title_hint=title,
+                                                db_phashes=db_ph, session_phashes=sp)
+                    if not verdict.ok:
+                        logger.info("Pexels photo %s rejected: %s", photo.get("id", "?"), verdict.reason)
+                        continue
+
+                    img = Image.open(BytesIO(img_bytes)).convert("RGB")
                     logger.info(
                         f"Pexels hit: '{query}' → {photo.get('photographer', 'unknown')}"
                     )
@@ -706,6 +864,9 @@ image_service = ImageGenerationService()
 # Standalone function aliases (imported by other modules)
 def generate_article_header_image(title, category=None):
     return image_service.generate_article_header_image(title, category)
+
+def generate_article_header_image_with_phash(title, category=None):
+    return image_service.generate_article_header_image_with_phash(title, category)
 
 def generate_opinion_header_image(title, category=None):
     return image_service.generate_article_header_image(title, category)

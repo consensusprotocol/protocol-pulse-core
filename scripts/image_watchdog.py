@@ -55,20 +55,18 @@ with app.app_context():
     session_phashes = set()
 
     try:
-        from services.pexels_image import get_pexels_image
+        from services.image_service import ImageGenerationService
     except ImportError:
-        log.error("Cannot import get_pexels_image — aborting")
+        log.error("Cannot import ImageGenerationService — aborting")
         sys.exit(1)
 
+    img_svc = ImageGenerationService()
     fixed = 0
     for a in broken:
         try:
-            url, phash = get_pexels_image(
-                a.title or "bitcoin",
-                a.category or "bitcoin",
-                article_id=a.id,
-                db_phashes=db_phashes,
-                session_phashes=session_phashes,
+            url, phash = img_svc.generate_article_header_image_with_phash(
+                title=a.title or "bitcoin",
+                category=a.category or "bitcoin",
             )
             if url and "default-header" not in url:
                 a.cover_image_url = url
