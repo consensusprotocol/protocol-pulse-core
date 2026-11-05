@@ -320,33 +320,37 @@ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4, 
 
     print(f"    VO: {vo_dur:.2f}s + {PRE_ROLL}s pre-roll = {total_dur:.2f}s ({total_frames} frames)")
 
-    # Extract BG frame from preceding clip source
+    # Extract BG frame from preceding clip (use the VERTICAL composited frame,
+    # chyron-safe by construction — Law 23 VO-visual rule)
     bg_png = os.path.join(qa_dir, f"vo_vert_bg_{label}.png")
-    frame_ts = preceding_cut_out - 0.1
+    frame_ts = max(0, preceding_cut_out - 0.1)
     subprocess.run([
         "ffmpeg", "-y", "-ss", str(frame_ts), "-i", preceding_src,
-        "-vframes", "1", "-vf", f"scale={WIDTH}:{HEIGHT}", "-q:v", "2", bg_png,
+        "-vframes", "1", "-q:v", "2", bg_png,
     ], capture_output=True, timeout=30)
 
     bg_full = Image.open(bg_png).convert("RGB")
-    bg_arr = np.array(bg_full)
+    src_w, src_h = bg_full.size
 
-    # Face detection on BG frame to find crop centre
-    base_opts = mp_base_options.BaseOptions(model_asset_path=BLAZE_FACE_MODEL)
-    detector = vision.FaceDetector.create_from_options(
-        vision.FaceDetectorOptions(base_options=base_opts, min_detection_confidence=0.4))
+    if src_h > src_w:
+        # Source is already 9:16 (vertical composited clip) — use directly
+        bg_vert = bg_full.resize((VERT_W, VERT_H), Image.LANCZOS)
+    else:
+        # Source is 16:9 — face-centred crop to 9:16 (legacy path)
+        bg_arr = np.array(bg_full)
+        base_opts = mp_base_options.BaseOptions(model_asset_path=BLAZE_FACE_MODEL)
+        detector = vision.FaceDetector.create_from_options(
+            vision.FaceDetectorOptions(base_options=base_opts, min_detection_confidence=0.4))
+        mp_image = mp_lib.Image(image_format=mp_lib.ImageFormat.SRGB, data=bg_arr)
+        results = detector.detect(mp_image)
+        face_cx = src_w // 2
+        if results.detections:
+            best = max(results.detections, key=lambda d: d.bounding_box.width * d.bounding_box.height)
+            face_cx = best.bounding_box.origin_x + best.bounding_box.width // 2
+        crop_x = max(0, min(src_w - CROP_W, face_cx - CROP_W // 2))
+        bg_crop = bg_full.crop((crop_x, 0, crop_x + CROP_W, src_h))
+        bg_vert = bg_crop.resize((VERT_W, VERT_H), Image.LANCZOS)
 
-    mp_image = mp_lib.Image(image_format=mp_lib.ImageFormat.SRGB, data=bg_arr)
-    results = detector.detect(mp_image)
-
-    face_cx = WIDTH // 2
-    if results.detections:
-        best = max(results.detections, key=lambda d: d.bounding_box.width * d.bounding_box.height)
-        face_cx = best.bounding_box.origin_x + best.bounding_box.width // 2
-
-    crop_x = max(0, min(WIDTH - CROP_W, face_cx - CROP_W // 2))
-    bg_crop = bg_full.crop((crop_x, 0, crop_x + CROP_W, CROP_H))
-    bg_vert = bg_crop.resize((VERT_W, VERT_H), Image.LANCZOS)
     bg_blurred = bg_vert.filter(ImageFilter.GaussianBlur(radius=6))
 
     # Audio RMS for waveform visualisation
@@ -642,19 +646,19 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
     vo_assembled_tracks = {}
     sources_dir = paths["sources_dir"]
 
-    # Render intro VO visual — BG from hook clip source
+    # Render intro VO visual — BG from the VERTICAL's own reframed hook (chyron-safe)
     if "intro" in vo_manifest and "stem_wav" in vo_manifest["intro"]:
-        hook_cut = next((c for c in cuts if c["clip_id"] == "hook"), None)
-        if hook_cut:
-            hook_src = os.path.join(sources_dir, f"{hook_cut['video_id']}.mp4")
+        hook_vert = reframed.get("hook")
+        if hook_vert:
+            hook_dur = get_duration(hook_vert)
             vo_intro_wav = os.path.join(paths["vo_dir"], vo_manifest["intro"]["stem_wav"])
             vo_intro_mp4 = os.path.join(qa_dir, "vo_vert_intro.mp4")
             assembled = render_vo_visual_vert(
-                vo_intro_wav, hook_src, hook_cut["cut_out"], vo_intro_mp4, "vo_intro", qa_dir)
+                vo_intro_wav, hook_vert, hook_dur, vo_intro_mp4, "vo_intro", qa_dir)
             if assembled:
                 vo_assembled_tracks["vo_intro"] = assembled
 
-    # Render bridge VO visuals — BG from EDL after_clip source
+    # Render bridge VO visuals — BG from the VERTICAL's own reframed preceding clip
     edl_bridges = edl.get("vo", {}).get("bridges", [])
     bridge_keys = sorted([k for k in vo_manifest if k.startswith("bridge_")])
     for bi, bkey in enumerate(bridge_keys):
@@ -668,15 +672,17 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
         else:
             after_clip_idx = int(bkey.split("_")[1])
         preceding_clip_id = f"clip_{after_clip_idx:02d}"
-        last_clip_cut = next((c for c in cuts if c["clip_id"] == preceding_clip_id), None)
-        if not last_clip_cut:
-            last_clip_cut = next((c for c in cuts if c["clip_id"] == "hook"), cuts[0])
 
-        clip_src = os.path.join(sources_dir, f"{last_clip_cut['video_id']}.mp4")
+        # Use the VERTICAL reframed clip (chyron-safe by construction)
+        preceding_vert = reframed.get(preceding_clip_id)
+        if not preceding_vert:
+            preceding_vert = reframed.get("hook", list(reframed.values())[0])
+        preceding_dur = get_duration(preceding_vert)
+
         vo_bridge_wav = os.path.join(paths["vo_dir"], bridge_data["stem_wav"])
         vo_bridge_mp4 = os.path.join(qa_dir, f"vo_vert_{bkey}.mp4")
         assembled = render_vo_visual_vert(
-            vo_bridge_wav, clip_src, last_clip_cut["cut_out"], vo_bridge_mp4, f"vo_{bkey}", qa_dir)
+            vo_bridge_wav, preceding_vert, preceding_dur, vo_bridge_mp4, f"vo_{bkey}", qa_dir)
         if assembled:
             vo_assembled_tracks[f"vo_{bkey}"] = assembled
 

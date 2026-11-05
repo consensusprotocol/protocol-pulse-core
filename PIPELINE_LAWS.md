@@ -346,12 +346,13 @@ Theoretical fixes that break in practice are worse than no fix.
 - `cuts_v3.json` is frozen history. Production uses `cuts_final.json`.
 - If a cut point must change, update `cuts_final.json`, invalidate the shotmap/compose cache for that clip, and re-render.
 
-### LAW 23: VERTICAL PARITY LAW (added 2026-11-04)
+### LAW 23: VERTICAL PARITY LAW (added 2026-11-04, updated 2026-11-05)
 - The 9:16 mirrors the 16:9 shot-for-shot with the horizontal's mixed audio; layouts come from the hand table per source layout, never from a detector; gates G8-G12 measure the output picture, never input metadata; a vertical that fails parity never reaches Telegram.
 - Canonical renderer: `vertical/render_vertical.py` (v1.0 locked 2026-11-04, PBX A+).
 - Layout tables: `vertical/layout_tables/<channel>_<tile_count>.json`. Unknown channel/tile_count falls back to layout "single" on lip-activity face + WARN line.
 - G10 is IMAGE-BASED: Canny edge density + white fraction on bottom 12% band. G12 counts red-ring avatar circles via HoughCircles. G8 floor is per-segment: `60 * (crop_w/1080)^2`.
 - Audio is extracted from the horizontal final and muxed over the vertical picture — identical by construction.
+- **23a (VO VISUAL SOURCE):** Every VO visual (intro, bridge, signoff) in the 9:16 render MUST use the vertical's own composited frame as background — never the raw 16:9 source frame. The vertical composited frame is chyron-safe by construction (chyrons cropped out during reframe). Using a 16:9 source frame leaks channel chyrons/tickers through the blur. Unit test T-VO-VIS enforces this.
 
 ### LAW 24: PARAMETERISED PIPELINE (added 2026-11-05)
 - The `pipeline/` package is the parameterised Pulse Check pipeline. It wraps segment_v1's frozen scripts (render_v12.py, gen_vo.py, scene_shoutout.py, qa_gates.py) with path resolution from `--segment <dir>`.

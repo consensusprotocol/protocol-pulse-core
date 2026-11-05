@@ -261,6 +261,11 @@ def gate_g3(final_mp4, segments, qa_dir):
         first_words = first_transcript.replace(".", "").replace(",", "").replace("?", "").split()
         first_word_found = first_words[0] if first_words else ""
 
+        # Also check first 2.0s for broader word search (whisper-tiny is noisy on 0.7s)
+        first2_wav = os.path.join(qa_dir, f"g3_{label}_first2.wav")
+        extract_audio_region(final_mp4, seg_start, min(2.0, seg_end - seg_start), first2_wav)
+        first2_transcript = whisper_segment(first2_wav, qa_dir)
+
         # Whisper last 0.7s (and also last 2.0s for broader word search)
         last_start = max(seg_start, seg_end - 0.7)
         last_wav = os.path.join(qa_dir, f"g3_{label}_last.wav")
@@ -280,7 +285,7 @@ def gate_g3(final_mp4, segments, qa_dir):
 
         # Fuzzy: also check if the word appears anywhere in the transcripts
         if not first_ok and edl_first:
-            first_ok = edl_first in first_transcript
+            first_ok = edl_first in first_transcript or edl_first in first2_transcript
         if not last_ok and edl_last:
             last_ok = edl_last in last_transcript or edl_last in last2_transcript
 

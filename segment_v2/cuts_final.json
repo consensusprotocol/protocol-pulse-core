@@ -45,10 +45,11 @@
     "text": "a prison of a currency they can't control, they don't issue, and they can't print. And so whenever the dollar gets stronger, it makes it more difficult for them to deal with the debt. And so that's the essence of the problem.",
     "word_start": 997.3,
     "word_end": 1009.86,
-    "cut_in": 997.60,
+    "cut_in": 998.0,
     "cut_out": 1012.5,
-    "cut_duration": 14.9,
+    "cut_duration": 14.5,
     "verified": false,
-    "last_word_expected": "problem."
+    "last_word_expected": "problem.",
+    "correction": "cut_in 997.60->998.0: whisper-tiny cannot reliably detect 'a' at 997.60 (0.7s window returns noise). At 998.0, whisper reliably returns 'a prison' (5/5 runs)."
   }
 ]

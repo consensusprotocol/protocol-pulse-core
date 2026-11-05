@@ -35,3 +35,9 @@ Known failure patterns and their root causes. Load into every Qwen/audit session
 **Root cause:** The hardcoded SEAM_ROWS=(120,900) from the boomers shotmap assumed a specific active picture area. YouTube re-encodes add letterbox bars and burned-in lower-thirds that shift the actual gutter positions. The seam measurement returned no seams, causing the compositor to treat a 3-up source as single.
 **Fix (pending calibration):** Law 21 mandates shotmap hardening: detect letterbox bars and crop before measurement, derive SEAM_ROWS from active picture area, mask bottom 18% for lower-third bands.
 **Detection:** Shotmap logs seam counts per shot. Zero seams on a known multi-tile source = measurement failure.
+
+### V-FAIL-006: VO visual leaks 16:9 chyron into vertical
+**Versions affected:** segment_v2 pre-v2c
+**Root cause:** `render_vo_visual_vert()` used the raw 16:9 source file as background for the blurred freeze frame. Channel chyrons and tickers (e.g. "GERLAND" name lower-third) remained visible under the Gaussian blur in the 9:16 output.
+**Fix:** VO visuals now use the vertical's own composited clip as BG source (`reframed.get("hook")` or `reframed.get(preceding_clip_id)`). The composited clip has chyrons cropped out during reframe, so the blurred freeze is clean by construction. Law 23a codifies this rule.
+**Detection:** Visual inspection of VO beats, or Grok vision critic checking for text artifacts under blur in VO segments.

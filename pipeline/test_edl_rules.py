@@ -285,5 +285,41 @@ class TestG4ShoutoutExclusion(unittest.TestCase):
                          "G4 must NOT use tuple filter that includes shoutout in face counting")
 
 
+class TestVOVisualSourceLaw23a(unittest.TestCase):
+    """Law 23a: VO visuals in 9:16 must use the vertical composited frame, never the 16:9 source."""
+
+    def test_vo_intro_uses_reframed_hook(self):
+        """Step 3 intro VO must pass reframed['hook'] (vertical), not raw source."""
+        render_vert_path = os.path.join(FIXTURE_DIR, "render_vertical.py")
+        if not os.path.exists(render_vert_path):
+            self.skipTest("render_vertical.py not found")
+        with open(render_vert_path) as f:
+            src = f.read()
+        # The intro VO must use reframed.get("hook") — not sources_dir or raw source
+        self.assertIn('reframed.get("hook")', src,
+                      "Intro VO visual must use reframed hook (vertical composited), not raw source")
+
+    def test_vo_bridge_uses_reframed_preceding(self):
+        """Step 3 bridge VO must pass reframed[preceding_clip_id] (vertical), not raw source."""
+        render_vert_path = os.path.join(FIXTURE_DIR, "render_vertical.py")
+        if not os.path.exists(render_vert_path):
+            self.skipTest("render_vertical.py not found")
+        with open(render_vert_path) as f:
+            src = f.read()
+        self.assertIn('reframed.get(preceding_clip_id)', src,
+                      "Bridge VO visual must use reframed preceding clip (vertical composited)")
+
+    def test_vo_visual_vert_detects_portrait_source(self):
+        """render_vo_visual_vert must detect 9:16 source and skip 16:9 crop."""
+        render_vert_path = os.path.join(FIXTURE_DIR, "render_vertical.py")
+        if not os.path.exists(render_vert_path):
+            self.skipTest("render_vertical.py not found")
+        with open(render_vert_path) as f:
+            src = f.read()
+        # The function must check if source is already portrait (h > w)
+        self.assertIn('src_h > src_w', src,
+                      "render_vo_visual_vert must detect portrait source and skip 16:9 crop")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
