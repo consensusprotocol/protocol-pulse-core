@@ -790,3 +790,6 @@ Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager
 
 ## 2026-11-04 — Vertical v16 full program parity
 - **vertical must mirror horizontal shot-for-shot; layout chosen by hand table, never by detector**. See `segment_v1/render_v16_vertical.py` and `vertical_overrides_v16.json`. Audio muxed from horizontal final (identical by construction). G11 parity gate enforces duration within 0.25s and segment count match.
+
+## 2026-11-04 — Image dedup final fix (root cause)
+- **image_service.generate_article_header_image was the unguarded source of duplicate covers; now guarded and returns file phash; never store a remote image URL in cover_image_url/header_image_url.**
