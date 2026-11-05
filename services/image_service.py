@@ -258,7 +258,8 @@ class ImageGenerationService:
 
     def _fetch_pexels_image(self, title, category=None):
         """Search Pexels for a relevant stock photo. Iterates ALL candidates
-        through image_guard, returning the first that passes."""
+        through image_guard, returning the first that passes.
+        Pages 1-10 are tried per query to maximize the candidate pool."""
         # Build query list: smart → title nouns → category → generic pool
         smart = _smart_pexels_query(title)
         base = _build_pexels_queries(title, category)
@@ -294,79 +295,87 @@ class ImageGenerationService:
 
         db_ph = _load_db_phashes()
 
+        # Page rotation: start page varies by title hash so different articles
+        # hit different pages; try up to 10 pages per query.
+        title_hash = int(hashlib.md5(title.encode()).hexdigest()[:8], 16)
+        _MAX_PAGES = 10
+
         for query in unique_queries:
-            try:
-                for _attempt in range(3):
-                    resp = requests.get(
-                        "https://api.pexels.com/v1/search",
-                        headers={"Authorization": self.pexels_key},
-                        params={
-                            "query": query,
-                            "per_page": 15,
-                            "orientation": "landscape",
-                            "size": "large",
-                        },
-                        timeout=10,
-                    )
-                    if resp.status_code == 429:
-                        wait = max(int(resp.headers.get("Retry-After", 20)), 20)
-                        logger.info("Pexels 429 on '%s', waiting %ds (attempt %d/3)", query, wait, _attempt + 1)
-                        time.sleep(wait)
-                        continue
-                    break
-                else:
-                    logger.warning("Pexels 3x 429 on '%s', skipping query", query)
-                    continue
-
-                if resp.status_code != 200:
-                    logger.warning(f"Pexels returned {resp.status_code} for '{query}'")
-                    continue
-
-                photos = resp.json().get("photos", [])
-                if not photos:
-                    logger.info(f"No Pexels results for '{query}', trying next query")
-                    continue
-
-                # Iterate ALL photos through guard — first accepted wins
-                # Re-read session phashes each iteration (other calls may have added)
-                for photo in photos:
-                    img_url = photo.get("src", {}).get("landscape") or photo.get(
-                        "src", {}).get("large2x")
-                    if not img_url:
-                        continue
-
-                    try:
-                        img_resp = requests.get(img_url, timeout=15)
-                        if img_resp.status_code != 200:
+            start_page = (title_hash % _MAX_PAGES) + 1
+            for page_offset in range(_MAX_PAGES):
+                page = ((start_page + page_offset - 1) % _MAX_PAGES) + 1
+                try:
+                    for _attempt in range(3):
+                        resp = requests.get(
+                            "https://api.pexels.com/v1/search",
+                            headers={"Authorization": self.pexels_key},
+                            params={
+                                "query": query,
+                                "per_page": 15,
+                                "page": page,
+                                "orientation": "landscape",
+                                "size": "large",
+                            },
+                            timeout=10,
+                        )
+                        if resp.status_code == 429:
+                            wait = max(int(resp.headers.get("Retry-After", 20)), 20)
+                            logger.info("Pexels 429 on '%s' p%d, waiting %ds (attempt %d/3)", query, page, wait, _attempt + 1)
+                            time.sleep(wait)
                             continue
-                        img_bytes = img_resp.content
-                    except Exception:
+                        break
+                    else:
+                        logger.warning("Pexels 3x 429 on '%s' p%d, skipping", query, page)
                         continue
 
-                    # Guard check — use live session phashes
-                    with _session_lock:
-                        sp = set(_session_phashes)
-                    verdict = check_image_bytes(img_bytes, title_hint=title,
-                                                db_phashes=db_ph, session_phashes=sp)
-                    if not verdict.ok:
-                        logger.info("Pexels photo %s rejected: %s", photo.get("id", "?"), verdict.reason)
+                    if resp.status_code != 200:
+                        logger.warning(f"Pexels returned {resp.status_code} for '{query}' p{page}")
                         continue
 
-                    # Accepted — add raw phash to session immediately so next
-                    # call in the same process won't pick the same photo
-                    if verdict.phash:
+                    photos = resp.json().get("photos", [])
+                    if not photos:
+                        logger.info(f"No Pexels results for '{query}' p{page}, next page")
+                        break  # no more pages for this query
+
+                    # Iterate ALL photos through guard — first accepted wins
+                    for photo in photos:
+                        img_url = photo.get("src", {}).get("landscape") or photo.get(
+                            "src", {}).get("large2x")
+                        if not img_url:
+                            continue
+
+                        try:
+                            img_resp = requests.get(img_url, timeout=15)
+                            if img_resp.status_code != 200:
+                                continue
+                            img_bytes = img_resp.content
+                        except Exception:
+                            continue
+
+                        # Guard check — use live session phashes
                         with _session_lock:
-                            _session_phashes.add(verdict.phash)
+                            sp = set(_session_phashes)
+                        verdict = check_image_bytes(img_bytes, title_hint=title,
+                                                    db_phashes=db_ph, session_phashes=sp)
+                        if not verdict.ok:
+                            logger.info("Pexels photo %s rejected (p%d): %s", photo.get("id", "?"), page, verdict.reason)
+                            continue
 
-                    img = Image.open(BytesIO(img_bytes)).convert("RGB")
-                    logger.info(
-                        f"Pexels hit: '{query}' → {photo.get('photographer', 'unknown')}"
-                    )
-                    return img
+                        # Accepted — add raw phash to session immediately so next
+                        # call in the same process won't pick the same photo
+                        if verdict.phash:
+                            with _session_lock:
+                                _session_phashes.add(verdict.phash)
 
-            except Exception as e:
-                logger.error(f"Pexels error for '{query}': {e}")
-                continue
+                        img = Image.open(BytesIO(img_bytes)).convert("RGB")
+                        logger.info(
+                            f"Pexels hit: '{query}' p{page} → {photo.get('photographer', 'unknown')}"
+                        )
+                        return img
+
+                except Exception as e:
+                    logger.error(f"Pexels error for '{query}' p{page}: {e}")
+                    continue
 
         return None
 
