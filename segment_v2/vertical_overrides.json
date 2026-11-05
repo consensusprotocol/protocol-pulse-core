@@ -1,0 +1,14 @@
+{
+  "clip_01": {
+    "layout": "stack2",
+    "speaker_rect": [960, 0, 960, 840],
+    "other_rect": [0, 0, 960, 840]
+  },
+  "clip_02": {
+    "layout": "grid",
+    "face_rect": [900, 0, 380, 280],
+    "chart_rect": [130, 100, 1020, 540],
+    "top_slot_h": 810,
+    "bottom_slot_h": 1110
+  }
+}

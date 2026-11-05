@@ -126,6 +126,143 @@ def reframe_fixed_crop(seg_path, output_path, seg_label):
 
 
 # ==============================================================
+# REFRAME: stack2 — two-person 2-up (e.g. BMTV podcast)
+# ==============================================================
+
+def reframe_stack2(seg_path, output_path, seg_label, layout_cfg):
+    """Stack2: speaker rect on TOP, other person rect on BOTTOM.
+    Each rect cropped from source, scaled to 1080 wide, placed in 1080x960 slot.
+    layout_cfg keys: speaker_rect (x,y,w,h), other_rect (x,y,w,h)."""
+    import cv2
+    print(f"    Reframe stack2: {seg_label}")
+
+    speaker = layout_cfg["speaker_rect"]  # [x, y, w, h]
+    other = layout_cfg["other_rect"]      # [x, y, w, h]
+    slot_h = VERT_H // 2  # 960
+
+    cap = cv2.VideoCapture(seg_path)
+    fps = cap.get(cv2.CAP_PROP_FPS) or FPS
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    src_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    src_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    cap.release()
+
+    # Scale rects to match actual source dimensions (rects may be for 1920x1080)
+    sx = src_w / 1920.0
+    sy = src_h / 1080.0
+
+    def scale_rect(r):
+        return [int(r[0]*sx), int(r[1]*sy), int(r[2]*sx), int(r[3]*sy)]
+
+    sp = scale_rect(speaker)
+    ot = scale_rect(other)
+
+    # Build ffmpeg filter: crop both rects, scale to 1080 wide maintaining AR,
+    # pad to 1080x960, then vstack
+    # Speaker on top, other on bottom
+    vf = (
+        f"split=2[a][b];"
+        f"[a]crop={sp[2]}:{sp[3]}:{sp[0]}:{sp[1]},"
+        f"scale={VERT_W}:{slot_h}:force_original_aspect_ratio=decrease:flags=lanczos,"
+        f"pad={VERT_W}:{slot_h}:(ow-iw)/2:(oh-ih)/2:black,"
+        f"setsar=1:1[top];"
+        f"[b]crop={ot[2]}:{ot[3]}:{ot[0]}:{ot[1]},"
+        f"scale={VERT_W}:{slot_h}:force_original_aspect_ratio=decrease:flags=lanczos,"
+        f"pad={VERT_W}:{slot_h}:(ow-iw)/2:(oh-ih)/2:black,"
+        f"setsar=1:1[bot];"
+        f"[top][bot]vstack=inputs=2"
+    )
+
+    r = subprocess.run([
+        "ffmpeg", "-y", "-i", seg_path,
+        "-vf", vf,
+        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+        "-pix_fmt", "yuv420p", "-r", str(FPS),
+        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+        "-movflags", "+faststart", output_path,
+    ], capture_output=True, timeout=300)
+
+    if r.returncode != 0:
+        print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+
+    if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
+        dur = get_duration(output_path)
+        print(f"      Output: {dur:.2f}s")
+        return True, "stack2"
+    print(f"      ERROR: reframe_stack2 failed")
+    return False, "stack2"
+
+
+# ==============================================================
+# REFRAME: grid — face-cam on top, chart on bottom (e.g. TBL)
+# ==============================================================
+
+def reframe_grid(seg_path, output_path, seg_label, layout_cfg):
+    """Grid: face rect on TOP slot, chart rect on BOTTOM slot.
+    layout_cfg keys: face_rect (x,y,w,h), chart_rect (x,y,w,h),
+                     top_slot_h (default 810), bottom_slot_h (default 1110)."""
+    import cv2
+    print(f"    Reframe grid: {seg_label}")
+
+    face = layout_cfg["face_rect"]    # [x, y, w, h]
+    chart = layout_cfg["chart_rect"]  # [x, y, w, h]
+    top_h = layout_cfg.get("top_slot_h", 810)
+    bot_h = VERT_H - top_h  # 1110
+
+    cap = cv2.VideoCapture(seg_path)
+    src_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    src_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    cap.release()
+
+    # Scale rects if source isn't 1920x1080
+    sx = src_w / 1920.0
+    sy = src_h / 1080.0
+    # If source is already at native res, check if rects are specified for that res
+    if src_w < 1920:
+        # Rects might already be in source coords — check if face_rect fits
+        if face[0] + face[2] <= src_w and face[1] + face[3] <= src_h:
+            sx, sy = 1.0, 1.0  # rects are in source coords
+
+    def scale_rect(r):
+        return [int(r[0]*sx), int(r[1]*sy), int(r[2]*sx), int(r[3]*sy)]
+
+    fc = scale_rect(face)
+    ch = scale_rect(chart)
+
+    vf = (
+        f"split=2[a][b];"
+        f"[a]crop={fc[2]}:{fc[3]}:{fc[0]}:{fc[1]},"
+        f"scale={VERT_W}:{top_h}:force_original_aspect_ratio=decrease:flags=lanczos,"
+        f"pad={VERT_W}:{top_h}:(ow-iw)/2:(oh-ih)/2:black,"
+        f"setsar=1:1[top];"
+        f"[b]crop={ch[2]}:{ch[3]}:{ch[0]}:{ch[1]},"
+        f"scale={VERT_W}:{bot_h}:force_original_aspect_ratio=decrease:flags=lanczos,"
+        f"pad={VERT_W}:{bot_h}:(ow-iw)/2:(oh-ih)/2:black,"
+        f"setsar=1:1[bot];"
+        f"[top][bot]vstack=inputs=2"
+    )
+
+    r = subprocess.run([
+        "ffmpeg", "-y", "-i", seg_path,
+        "-vf", vf,
+        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+        "-pix_fmt", "yuv420p", "-r", str(FPS),
+        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+        "-movflags", "+faststart", output_path,
+    ], capture_output=True, timeout=300)
+
+    if r.returncode != 0:
+        print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+
+    if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
+        dur = get_duration(output_path)
+        print(f"      Output: {dur:.2f}s")
+        return True, "grid"
+    print(f"      ERROR: reframe_grid failed")
+    return False, "grid"
+
+
+# ==============================================================
 # VO VISUAL (native 9:16) — face-crop BG from preceding clip
 # ==============================================================
 
@@ -355,14 +492,46 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
     # ========== STEP 2: Reframe clips to 9:16 ==========
     print("\n=== STEP 2: REFRAME CLIPS ===")
 
+    # Load vertical layout overrides if present
+    overrides_path = os.path.join(paths["segment_dir"], "vertical_overrides.json")
+    vert_overrides = {}
+    if os.path.exists(overrides_path):
+        with open(overrides_path) as f:
+            vert_overrides = json.load(f)
+        print(f"  Loaded {len(vert_overrides)} layout overrides")
+
     reframed = {}   # clip_id -> reframed_path
     crop_rects = {} # clip_id -> crop_rect string
 
     for cut in cuts:
         clip_id = cut["clip_id"]
-        src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
         vert_path = os.path.join(qa_dir, f"vert_{clip_id}.mp4")
-        ok, crop_rect = reframe_fixed_crop(src_clip, vert_path, clip_id)
+
+        override = vert_overrides.get(clip_id, {})
+        layout = override.get("layout", "crop")
+
+        if layout in ("stack2", "grid"):
+            # Custom layouts use the RAW source file (rects are in source coords),
+            # trimmed to the cut boundaries, not the QA-rendered 1920x1080 clip.
+            raw_src = os.path.join(paths["sources_dir"], f"{cut['video_id']}.mp4")
+            cut_in = cut.get("cut_in", 0)
+            cut_dur = cut.get("cut_duration", 15)
+            trimmed = os.path.join(qa_dir, f"raw_{clip_id}.mp4")
+            subprocess.run([
+                "ffmpeg", "-y", "-ss", str(cut_in), "-i", raw_src, "-t", str(cut_dur),
+                "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+                "-pix_fmt", "yuv420p", "-r", str(FPS),
+                "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                "-movflags", "+faststart", trimmed,
+            ], capture_output=True, timeout=300)
+            if layout == "stack2":
+                ok, crop_rect = reframe_stack2(trimmed, vert_path, clip_id, override)
+            else:
+                ok, crop_rect = reframe_grid(trimmed, vert_path, clip_id, override)
+        else:
+            src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
+            ok, crop_rect = reframe_fixed_crop(src_clip, vert_path, clip_id)
+
         if ok:
             reframed[clip_id] = vert_path
             crop_rects[clip_id] = crop_rect
