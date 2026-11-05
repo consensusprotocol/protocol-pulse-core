@@ -1,0 +1,54 @@
+[
+  {
+    "clip_id": "hook",
+    "video_id": "Pxrak-iMT0g",
+    "channel": "Bitcoin Magazine",
+    "text": "Bitcoin is the next step in the future. So what do you think. The next step is going to be to build a cryptocurrency.",
+    "word_start": 492.1,
+    "word_end": 502.44,
+    "cut_in": 492.05,
+    "cut_out": 503.31,
+    "cut_duration": 11.26,
+    "verified": false,
+    "last_word_expected": "cryptocurrency."
+  },
+  {
+    "clip_id": "clip_01",
+    "video_id": "Pxrak-iMT0g",
+    "channel": "Bitcoin Magazine",
+    "text": "Bitcoin is the next step in the future. So what do you think. The next step is going to be to build a cryptocurrency.",
+    "word_start": 492.1,
+    "word_end": 502.44,
+    "cut_in": 492.05,
+    "cut_out": 503.31,
+    "cut_duration": 11.26,
+    "verified": false,
+    "last_word_expected": "cryptocurrency."
+  },
+  {
+    "clip_id": "clip_02",
+    "video_id": "RBFN4CB60To",
+    "channel": "The Bitcoin Layer",
+    "text": "This is why Bitcoin has such an important role in the future of global money and investments and banking.",
+    "word_start": 911.86,
+    "word_end": 921.06,
+    "cut_in": 911.81,
+    "cut_out": 921.48,
+    "cut_duration": 9.67,
+    "verified": true,
+    "last_word_expected": "banking."
+  },
+  {
+    "clip_id": "clip_03",
+    "video_id": "QCgW8RlTu5Q",
+    "channel": "BTC Sessions",
+    "text": "It's where you go in a flight to safety and it's meant to be a safe haven asset. And it is,",
+    "word_start": 1692.34,
+    "word_end": 1702.86,
+    "cut_in": 1692.27,
+    "cut_out": 1703.4,
+    "cut_duration": 11.13,
+    "verified": false,
+    "last_word_expected": "and"
+  }
+]

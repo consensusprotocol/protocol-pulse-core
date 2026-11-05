@@ -1,0 +1,57 @@
+{
+  "hook": {
+    "layout": "single",
+    "persons": [
+      {
+        "cx": 1380,
+        "score": 0.0
+      },
+      {
+        "cx": 1510,
+        "score": 0.0
+      },
+      {
+        "cx": 407,
+        "score": 0.0
+      }
+    ],
+    "chosen_cx": 1380,
+    "reason": "lip-activity"
+  },
+  "clip_01": {
+    "layout": "single",
+    "persons": [
+      {
+        "cx": 1380,
+        "score": 0.0
+      },
+      {
+        "cx": 1510,
+        "score": 0.0
+      },
+      {
+        "cx": 407,
+        "score": 0.0
+      }
+    ],
+    "chosen_cx": 1380,
+    "reason": "lip-activity"
+  },
+  "clip_02": {
+    "layout": "single",
+    "persons": [],
+    "chosen_cx": 960,
+    "reason": "no-faces-center"
+  },
+  "clip_03": {
+    "layout": "single",
+    "persons": [
+      {
+        "cx": 940,
+        "score": 0.2495
+      }
+    ],
+    "chosen_cx": 940,
+    "reason": "lip-activity"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "ranked_topics": [
+    {
+      "rank": 1,
+      "topic": "Dollar Hegemony End and Bond Market Crisis",
+      "channel_count": 3,
+      "channels": [
+        "Bitcoin Magazine",
+        "The Bitcoin Layer",
+        "BTC Sessions"
+      ],
+      "relevance": 9
+    },
+    {
+      "rank": 2,
+      "topic": "US Midterms Impact on Bitcoin Policy and Price",
+      "channel_count": 2,
+      "channels": [
+        "Bitcoin Magazine",
+        "Simply Bitcoin"
+      ],
+      "relevance": 10
+    },
+    {
+      "rank": 3,
+      "topic": "Bitcoin Loans Replacing Traditional Mortgages",
+      "channel_count": 1,
+      "channels": [
+        "Anthony Pompliano"
+      ],
+      "relevance": 7
+    }
+  ],
+  "chosen_topic": {
+    "topic": "Dollar Hegemony End and Bond Market Crisis",
+    "angle": "Bitcoin positioned as the escape hatch as dollar era ends and bond markets face unprecedented turmoil.",
+    "qualifies_3_channels": true,
+    "videos": [
+      {
+        "channel": "Bitcoin Magazine",
+        "title": "John Ungerland: \u201cWe\u2019re Watching the End of the Dollar Hegemony Era\u201d",
+        "video_id": "Pxrak-iMT0g"
+      },
+      {
+        "channel": "The Bitcoin Layer",
+        "title": "The Fed Will Have To Print Bigger This Time",
+        "video_id": "RBFN4CB60To"
+      },
+      {
+        "channel": "BTC Sessions",
+        "title": "No One Alive Has Seen What's About to Happen to the Bond Market | Johnson & Dicker",
+        "video_id": "QCgW8RlTu5Q"
+      }
+    ]
+  }
+}
