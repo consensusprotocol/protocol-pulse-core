@@ -273,4 +273,26 @@ v12/v17 golden audio was processed by the v1 pipeline (BGM overlay, compression)
 
 ---
 
+## GLUE DIFF (e7617ac3..cccdab7b)
+
+Two new files, no edits to existing pipeline code:
+
+**pipeline/run_isolated.py** (229 lines) — orchestration glue:
+- `create_run_dir()`: `runs/v2f_<UTC>`, refuses if exists
+- `verify_and_link()`: sha256-checks 3 sources + 3 VO stems, symlinks in, copies edl/topic/transcripts/manifest
+- `run_cutter()`: calls `cut.compute_all_cuts()`, prints cut table vs v2e values
+- `abort_check()`: clip_01 in [249.62, 249.72], clip_02/clip_03 within 0.005 of v2e
+- `run_pipeline()`: shoutout → render16 → gates16 → render9 → gates9, stops before telegram
+- `main()`: create → verify → cut → abort check → render
+
+**pipeline/test_run_isolated.py** (81 lines) — 4 tests, all pass:
+1. `test_refuses_existing_dir` — FileExistsError on collision
+2. `test_refuses_hash_mismatch` — ValueError on bad source hash
+3. `test_abort_check_clip01_out_of_range` — catches stale v2e cut_out=249.37
+4. `test_abort_check_clip02_delta` — catches cutter 636.780 vs v2e 636.72
+
+**KNOWN**: abort check WILL trigger on clip_02 (delta 0.060) and clip_03 (cut_in delta 0.750, cut_out delta 0.330). The cutter produces acoustically correct values that differ from v2e. Orchestrator decides.
+
+---
+
 STOP. Waiting for orchestrator GO.
