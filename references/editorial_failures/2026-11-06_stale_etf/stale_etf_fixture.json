@@ -1,0 +1,1192 @@
+{
+ "what": "Real failure mode: current spot-ETF flow discussion clustered across channels and was labelled by gemma3:27b as the January 2024 SEC spot Bitcoin ETF approval, then promoted to the top current-story candidate.",
+ "run": "runs/fresh_20261106_174439 @ 27049908",
+ "run_start_utc": "2026-11-06T17:44:39+00:00",
+ "reconstruction": "offline, same cached transcripts (acquired before run start), same embeddings/clustering/prompts, temperature 0 seed 7; the run itself crashed before writing TOPIC_SELECTION.json",
+ "cluster": {
+  "channels": [
+   "UC7TghOL755nBk7HelHoi9LQ",
+   "UC9ijza42jVR3T6b8bColgvg",
+   "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "UCRqBu-grVX1p97WaX4d-OuQ",
+   "UCUbpAtpGwoRxD8GOpRL-_4g",
+   "UCbLhGKVY-bJPcawebgtNfbw",
+   "UCd6VYGFkZ3mFLPAyJwwTjMg",
+   "UCevXpeL8cNyAnww-NqJ4m2w",
+   "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "UCxIU1RFIdDpvA8VOITswQ1A"
+  ],
+  "n_chunks": 30,
+  "label": {
+   "is_specific_event": true,
+   "headline": "SEC Approves Spot Bitcoin ETFs",
+   "summary": "In early 2024, the U.S. Securities and Exchange Commission (SEC) approved several applications for spot Bitcoin exchange-traded funds (ETFs), marking a significant milestone for the cryptocurrency industry and opening the door for greater institutional investment. This approval followed years of anticipation and debate, and is expected to increase accessibility and liquidity for Bitcoin.",
+   "member_chunk_ids": [
+    "gof1NS_jGUo:1656269-1687499",
+    "0dyNRJyco1s:1060942-1091892",
+    "s9wC4VxzaAU:419599-449990",
+    "MJzWDJf4thg:2994720-3025349"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "XZ7lw0T7akk:434895-465165",
+    "gof1NS_jGUo:1656269-1687499",
+    "s9wC4VxzaAU:419599-449990",
+    "ThBSEd5PxF0:623258-654408",
+    "XNgnm5zjYf0:249174-280484",
+    "MJzWDJf4thg:2994720-3025349",
+    "0dyNRJyco1s:1060942-1091892",
+    "G_m6lLkcdDk:630320-661269"
+   ]
+  },
+  "member_chunks": [
+   {
+    "chunk_id": "-meUTTtD1Rw:220879-251350",
+    "video_id": "-meUTTtD1Rw",
+    "channel_name": "Scott Melker",
+    "exact_title": "Bitcoin's Short Squeeze Just Flipped The Market",
+    "canonical_url": "https://www.youtube.com/watch?v=-meUTTtD1Rw",
+    "published_at": "2026-11-05T14:45:07+00:00",
+    "transcript_sha256": "18c04aa7fd6c1a8fa34debd9af52cf6a0cbbd13804cd444f042efe8b7777bdc0",
+    "start": 220.879,
+    "end": 251.35,
+    "text": "bringing the entire stock market onchain and the second order effects I think of this is going to usher in kind of a new era uh of what we're seeing in crypto where it's no longer defi it's no longer TRDFI. It's like the entire financial systems uh respectively speaking are are converging in a one. Um and so what we've been doing is like one by one going through really on an event- driven basis and listing stocks on Salana. We've got about 88 today. Uh really kind of competing with the likes of Robin Hood, Kraken, Coinbase, uh and so on and"
+   },
+   {
+    "chunk_id": "-meUTTtD1Rw:1148880-1179430",
+    "video_id": "-meUTTtD1Rw",
+    "channel_name": "Scott Melker",
+    "exact_title": "Bitcoin's Short Squeeze Just Flipped The Market",
+    "canonical_url": "https://www.youtube.com/watch?v=-meUTTtD1Rw",
+    "published_at": "2026-11-05T14:45:07+00:00",
+    "transcript_sha256": "18c04aa7fd6c1a8fa34debd9af52cf6a0cbbd13804cd444f042efe8b7777bdc0",
+    "start": 1148.88,
+    "end": 1179.43,
+    "text": "so this is perhaps one of the most important stories to follow in the space right now because I think it's really going to define you know the next decade of crypto. &gt;&gt; Yeah. I mean, it feels like you got pers, tokenization of stocks. These are the most cryptonative things that are coming to every market everywhere. Is there anything else on that list that you're watching and you think that we should be paying attention to? &gt;&gt; I mean, I think the one thing is once you tokenize stocks, that's like a really hard problem. But once you do it, you basically can see"
+   },
+   {
+    "chunk_id": "-meUTTtD1Rw:1211840-1244789",
+    "video_id": "-meUTTtD1Rw",
+    "channel_name": "Scott Melker",
+    "exact_title": "Bitcoin's Short Squeeze Just Flipped The Market",
+    "canonical_url": "https://www.youtube.com/watch?v=-meUTTtD1Rw",
+    "published_at": "2026-11-05T14:45:07+00:00",
+    "transcript_sha256": "18c04aa7fd6c1a8fa34debd9af52cf6a0cbbd13804cd444f042efe8b7777bdc0",
+    "start": 1211.84,
+    "end": 1244.789,
+    "text": "I think those are the stories right now, but it's going to be kind of the thing that opens up Pandora's box and I would say like the most positive way possible. &gt;&gt; So crypto is kind of like the Trojan horse and uh equities are going to be the big test. E equities have to be the hardest, right? I mean, so to your point, like if you can get tokenized equities and that becomes the underlying functionality for this, everything else is relatively easy. I mean, that's what you're saying, right? I mean, there's nothing harder than equities, I would imagine. I mean, even bringing these systems on 24/7 365 period, much less if"
+   },
+   {
+    "chunk_id": "-meUTTtD1Rw:1747600-1778630",
+    "video_id": "-meUTTtD1Rw",
+    "channel_name": "Scott Melker",
+    "exact_title": "Bitcoin's Short Squeeze Just Flipped The Market",
+    "canonical_url": "https://www.youtube.com/watch?v=-meUTTtD1Rw",
+    "published_at": "2026-11-05T14:45:07+00:00",
+    "transcript_sha256": "18c04aa7fd6c1a8fa34debd9af52cf6a0cbbd13804cd444f042efe8b7777bdc0",
+    "start": 1747.6,
+    "end": 1778.63,
+    "text": "a big growth lever both for crypto uh but also for just uh uh retail trading in general. &gt;&gt; Awesome. Anything else on your end that you're excited about that I might have missed before I let you go? &gt;&gt; No, I mean I I think you know the big thing that we're working on right now is just you know getting to that next stage in tokenization. So going from 88 symbols to thousands of symbols. Um I think this is going to be one of the biggest kind of milestones kind of in you know over the past year in crypto. Uh and so I I'd say we're just very early here. Um but uh a ton is going to be happening in this space over the next"
+   },
+   {
+    "chunk_id": "0dyNRJyco1s:935821-967411",
+    "video_id": "0dyNRJyco1s",
+    "channel_name": "Anthony Pompliano",
+    "exact_title": "Bitcoin Is the Hedge Against a U.S. Default Nobody Sees Coming",
+    "canonical_url": "https://www.youtube.com/watch?v=0dyNRJyco1s",
+    "published_at": "2026-11-05T22:00:27+00:00",
+    "transcript_sha256": "37b34a4d0c5ef73dbbd80bf05e2f4449dc9342470a14c5e1af0aa57d27031fa3",
+    "start": 935.821,
+    "end": 967.411,
+    "text": "private Chinese investors. So, the world kind of sees that we're doing this, and they're like backing off. &gt;&gt; And when you're thinking about this in terms of gold or Bitcoin's price, you said maybe it will pay off. Do you have a probability that you would assign to either one of those? &gt;&gt; Listen, I'm a long-term bull. So, I definitely think it'll be higher in 10 years, significantly higher. I just I just don't know. I just can't imagine, you know, I ask people Anthony, um when is the United States not going to honor its obligations? Some people call that a"
+   },
+   {
+    "chunk_id": "0dyNRJyco1s:1060942-1091892",
+    "video_id": "0dyNRJyco1s",
+    "channel_name": "Anthony Pompliano",
+    "exact_title": "Bitcoin Is the Hedge Against a U.S. Default Nobody Sees Coming",
+    "canonical_url": "https://www.youtube.com/watch?v=0dyNRJyco1s",
+    "published_at": "2026-11-05T22:00:27+00:00",
+    "transcript_sha256": "37b34a4d0c5ef73dbbd80bf05e2f4449dc9342470a14c5e1af0aa57d27031fa3",
+    "start": 1060.942,
+    "end": 1091.892,
+    "text": "&gt;&gt; Let's talk about the crypto ETFs. You guys have the Bitcoin ETF, but you also have really pushed to uh kind of pioneer number of the other altcoin ETFs. What's kind of your analysis of that right now? &gt;&gt; Um It's We have and we have 13 uh crypto ETFs in Europe. So, before the US government allowed it, we got pretty aggressive. Um I I think the days of more crypto ETFs are basically over. Um what we What we have been pushing is active management. We have an actively"
+   },
+   {
+    "chunk_id": "0dyNRJyco1s:1123983-1156853",
+    "video_id": "0dyNRJyco1s",
+    "channel_name": "Anthony Pompliano",
+    "exact_title": "Bitcoin Is the Hedge Against a U.S. Default Nobody Sees Coming",
+    "canonical_url": "https://www.youtube.com/watch?v=0dyNRJyco1s",
+    "published_at": "2026-11-05T22:00:27+00:00",
+    "transcript_sha256": "37b34a4d0c5ef73dbbd80bf05e2f4449dc9342470a14c5e1af0aa57d27031fa3",
+    "start": 1123.983,
+    "end": 1156.853,
+    "text": "with an index or go with an actively managed fund. Um, &gt;&gt; Now, a lot of the promise of crypto is they're coming for you. You know, they're coming for Wall Street. Uh, they're going to tokenize things. Hyperliquid is going to use perps. There's all these kind of new variations. Do you see this stuff as a headwind for the ETF industry, or do you actually think the ETF industry can just embrace the new technology and figure out how to how to kind of stand on its shoulders? &gt;&gt; I think there are a couple of, uh, leading firms right now, like I'll I'll say Franklin, um, Fidelity,"
+   },
+   {
+    "chunk_id": "5767G4d1iEg:285360-316469",
+    "video_id": "5767G4d1iEg",
+    "channel_name": "CoinDesk",
+    "exact_title": "Robinhood's Crypto Chain Out-Earned Ethereum in Network Revenue Last Quarter, Exec Says",
+    "canonical_url": "https://www.youtube.com/watch?v=5767G4d1iEg",
+    "published_at": "2026-11-06T14:00:07+00:00",
+    "transcript_sha256": "c1bbfbf8969f4cdd2cedf9bbc55ddf7c66c1e960cab2999fdd53beab57513572",
+    "start": 285.36,
+    "end": 316.469,
+    "text": "the future. &gt;&gt; Yeah we we think it's just the beginning of tokenization. We think it's unstoppable. Um if you think about it we launch in July 1. We already have 200,000 uh people that are holding at least $1 worth of the stock uh of one of the stock tokens and right now we only have a few of the stock tokens available. We just minted uh new companies about eight new companies right now and so we're excited about that. Um and we think we don't want to just stop to US stocks and ETF. We want to expand to more exchanges across the world. Uh we want to expand to private"
+   },
+   {
+    "chunk_id": "B7rm7UUzqgA:2885359-2917270",
+    "video_id": "B7rm7UUzqgA",
+    "channel_name": "Kitco NEWS",
+    "exact_title": "Ted Oakley: This Cycle Is Ending, I’m 50% in Cash and Treasuries",
+    "canonical_url": "https://www.youtube.com/watch?v=B7rm7UUzqgA",
+    "published_at": "2026-11-05T14:00:10+00:00",
+    "transcript_sha256": "bea61bea113acf5ca306bd283d156a68d646cfed792b8b82abe7332e59366511",
+    "start": 2885.359,
+    "end": 2917.27,
+    "text": "think the I think the blockchain will be used in a big big way, but I don't know that Bitcoin will be as much. &gt;&gt; Yeah. in cash. I mean, you you said it still king in this market. Have some dry powder. I &gt;&gt; I think for right now it is. Yeah. if you you need some, you know, we've had good returns this year, even though we've had a lot of cash because we had the right industries, but you you have to continually watch in money management. You have to continually watch things because if you're coming into a period and the markets are"
+   },
+   {
+    "chunk_id": "G_m6lLkcdDk:630320-661269",
+    "video_id": "G_m6lLkcdDk",
+    "channel_name": "Altcoin Daily",
+    "exact_title": "Crypto Holders: Get Ready For A MASSIVE November!!",
+    "canonical_url": "https://www.youtube.com/watch?v=G_m6lLkcdDk",
+    "published_at": "2026-11-05T00:00:29+00:00",
+    "transcript_sha256": "c27e4277138b0ebaa02e0a2433d74f75e6b4dfaf02ae10766e8c806e766421db",
+    "start": 630.32,
+    "end": 661.269,
+    "text": "more assets coming onchain, coming into the crypto world because our cryptographers are are ahead of the curve. &gt;&gt; So, Bitcoin and Ethereum have now fully erased their losses. Huge sign of strength in crypto and all markets today. Very bullish on Ethereum. This thing is going to pump hard at a certain point. Just look at what's happening underneath the hood. More Ethereum is getting staked. Less Ethereum is available on exchanges. You see this? More Ethereum getting staked, less Ethereum available on exchanges. To me,"
+   },
+   {
+    "chunk_id": "MJzWDJf4thg:2585040-2616710",
+    "video_id": "MJzWDJf4thg",
+    "channel_name": "Bitcoin Magazine",
+    "exact_title": "Bitcoin and Election Day 2026 | BMTV Nov. 3, 2026",
+    "canonical_url": "https://www.youtube.com/watch?v=MJzWDJf4thg",
+    "published_at": "2026-11-04T06:09:20+00:00",
+    "transcript_sha256": "10f30ebc4c88ba66ed85245f53dea54ceb15e805f64b894b9ace2d5da9ed03b3",
+    "start": 2585.04,
+    "end": 2616.71,
+    "text": "&gt;&gt; Dave, someone uh sitting in your seat at Kraken, I think you have a front row seat to where we are at sentiment wise in terms of volumes, but also just how your customers are approaching uh Bitcoin and digital assets, both from the retail and institutional side. So, you know, I would say retail might be creeping back in here bit by bit, but you know, I want to hear from you. Where where are we at and um you know, what has this recent price action told you? &gt;&gt; Well, yeah, you know, thanks for having me on. I mean, look, as far as the four-year cycles go, we're we're right in the middle of a bare market, aren't we? Um, but it certainly doesn't feel"
+   },
+   {
+    "chunk_id": "MJzWDJf4thg:2647040-2678550",
+    "video_id": "MJzWDJf4thg",
+    "channel_name": "Bitcoin Magazine",
+    "exact_title": "Bitcoin and Election Day 2026 | BMTV Nov. 3, 2026",
+    "canonical_url": "https://www.youtube.com/watch?v=MJzWDJf4thg",
+    "published_at": "2026-11-04T06:09:20+00:00",
+    "transcript_sha256": "10f30ebc4c88ba66ed85245f53dea54ceb15e805f64b894b9ace2d5da9ed03b3",
+    "start": 2647.04,
+    "end": 2678.55,
+    "text": "which, you know, definitely makes it the, you know, the the softest bare market in in the history of Bitcoin. &gt;&gt; And thinking about how I know Kraken has been exploring an IPO. would love to hear a little bit more on how you guys are thinking about the timing there. But I think what you just described also brings to mind the idea of when we are tokenizing commodities, tokenizing equities, tokenizing non-strictly spot crypto assets. Um it's creating kind of this diversification towards the business model of someone like a Kraken."
+   },
+   {
+    "chunk_id": "MJzWDJf4thg:2994720-3025349",
+    "video_id": "MJzWDJf4thg",
+    "channel_name": "Bitcoin Magazine",
+    "exact_title": "Bitcoin and Election Day 2026 | BMTV Nov. 3, 2026",
+    "canonical_url": "https://www.youtube.com/watch?v=MJzWDJf4thg",
+    "published_at": "2026-11-04T06:09:20+00:00",
+    "transcript_sha256": "10f30ebc4c88ba66ed85245f53dea54ceb15e805f64b894b9ace2d5da9ed03b3",
+    "start": 2994.72,
+    "end": 3025.349,
+    "text": "same individuals years on from holding stable coins and business small businesses and so forth starting to use them for payments. &gt;&gt; That's what we're seeing with tokenized equities right now uh as far as adoption, which I think is uh really was kind of was was our our thesis going into this and and what's come to fruition. &gt;&gt; Yeah. And taking it back to Bitcoin for a bit, I guess from the the institutional side, what kinds of conversations are people having when it comes to Bitcoin. I think we've had folks like Amy Oldenberg of Morgan"
+   },
+   {
+    "chunk_id": "MJzWDJf4thg:7037840-7068629",
+    "video_id": "MJzWDJf4thg",
+    "channel_name": "Bitcoin Magazine",
+    "exact_title": "Bitcoin and Election Day 2026 | BMTV Nov. 3, 2026",
+    "canonical_url": "https://www.youtube.com/watch?v=MJzWDJf4thg",
+    "published_at": "2026-11-04T06:09:20+00:00",
+    "transcript_sha256": "10f30ebc4c88ba66ed85245f53dea54ceb15e805f64b894b9ace2d5da9ed03b3",
+    "start": 7037.84,
+    "end": 7068.629,
+    "text": "people generally from adopting Bitcoin? &gt;&gt; Well, most of the hesitancy comes from listening to FUD for the last 5 to 10 years. And I know you guys are well aware of what that term is, but I think it's becoming very clear as we look at what's happening here in Q4 with a lot of large banks announcing their Bitcoin custody, Bitcoin lending, Bitcoin acquisition products that they're rolling out for their banking customers that uh a lot of the FUD that we heard for the last 5 to 10 years coming from folks like JPM and you know large"
+   },
+   {
+    "chunk_id": "T8VdyLZcBas:1816390-1847422",
+    "video_id": "T8VdyLZcBas",
+    "channel_name": "Scott Melker",
+    "exact_title": "Bitcoin Should Be CRASHING After The Blue Wave",
+    "canonical_url": "https://www.youtube.com/watch?v=T8VdyLZcBas",
+    "published_at": "2026-11-04T14:54:56+00:00",
+    "transcript_sha256": "37055e9fdb9089fc4793037609d2ca2ad0599c303e52ad0af587a061bd4277ec",
+    "start": 1816.39,
+    "end": 1847.422,
+    "text": "said, like I think that considering the sell-off we had in tech on Friday and the Binance hack the same day, the fact that Bitcoin's only down a few percent to me is like so much more confidence or conviction in what I already had conviction in which is just that we're sort of, you know, preparing to cycle up. &gt;&gt; I agree with you. I was actually hoping we would get 75s this morning so I could buy some. But we didn't get the 75s. I woke up and &gt;&gt; even look. Like where did it hit this morning cuz I was asleep. So &gt;&gt; I think it was like 75 like just under 76 was the lowest."
+   },
+   {
+    "chunk_id": "ThBSEd5PxF0:469895-500007",
+    "video_id": "ThBSEd5PxF0",
+    "channel_name": "CoinDesk",
+    "exact_title": "Is the AI Boom Keeping Bitcoin from Its Next Bull Run?",
+    "canonical_url": "https://www.youtube.com/watch?v=ThBSEd5PxF0",
+    "published_at": "2026-11-04T21:26:37+00:00",
+    "transcript_sha256": "f707a3ac940f6c3beb27f2c4ea97a01c7d159f10175f447cce2438fde6d13ec0",
+    "start": 469.895,
+    "end": 500.007,
+    "text": "ever really come back because so much of the market has gone towards RWAs, AI, like all these other assets that are available to investors. So it's more of a truly diverse set of crypto assets now than than we had ever before. &gt;&gt; So you're saying $1 Doge and $5 XRP. It's not happening. &gt;&gt; I personally don't see it happening because there's so much other demand. I think there was a lot of capital that was in crypto and it would it would constantly be funneled toward these 10,"
+   },
+   {
+    "chunk_id": "ThBSEd5PxF0:623258-654408",
+    "video_id": "ThBSEd5PxF0",
+    "channel_name": "CoinDesk",
+    "exact_title": "Is the AI Boom Keeping Bitcoin from Its Next Bull Run?",
+    "canonical_url": "https://www.youtube.com/watch?v=ThBSEd5PxF0",
+    "published_at": "2026-11-04T21:26:37+00:00",
+    "transcript_sha256": "f707a3ac940f6c3beb27f2c4ea97a01c7d159f10175f447cce2438fde6d13ec0",
+    "start": 623.258,
+    "end": 654.408,
+    "text": "pivoting and kind of setting our platform up to kind of get ready for this next uh era of trading via agents. &gt;&gt; See, I remember when Bitcoin was a buzzword and blockchain was a buzzword and all these publicly listed companies found ways to inject blockchain into their name or into their, you know, their profile, the literature that they put out, and the stocks would react positively to that. And then now it seems like AI is the buzzword, which makes me wonder about, you know, what you've said about you see different"
+   },
+   {
+    "chunk_id": "XNgnm5zjYf0:186772-218402",
+    "video_id": "XNgnm5zjYf0",
+    "channel_name": "CoinDesk",
+    "exact_title": "Ripple CEO Says XRP Remains the \"North Star\" Even as RLUSD Expands",
+    "canonical_url": "https://www.youtube.com/watch?v=XNgnm5zjYf0",
+    "published_at": "2026-11-04T14:00:32+00:00",
+    "transcript_sha256": "8f46194284d878f4a8b1bd9d1d35ce4ee40bd27aad4cfbb0a31aa427bb151465",
+    "start": 186.772,
+    "end": 218.402,
+    "text": "know, we've talked about it Kate and I have talked about it like tokenization is like this obvious. I mean everyone's talking about it but it's like it's very real. &gt;&gt; It's finally happening. &gt;&gt; Yeah, talk a little bit about that. &gt;&gt; Well, I mean look I again I'll I'll give a shout out to your I think your next guest is Terry Duffy from CME. Five years ago the idea that Terry Duffy from CME was going to come to this conference or come to a crypto conference and speak &gt;&gt; Yeah. &gt;&gt; You know, it is a sign of how much momentum we have how far we have come and I mean look yesterday morning you were I'm sure aware we had Secretary of the Treasury Scott Bessent speaking and"
+   },
+   {
+    "chunk_id": "XNgnm5zjYf0:249174-280484",
+    "video_id": "XNgnm5zjYf0",
+    "channel_name": "CoinDesk",
+    "exact_title": "Ripple CEO Says XRP Remains the \"North Star\" Even as RLUSD Expands",
+    "canonical_url": "https://www.youtube.com/watch?v=XNgnm5zjYf0",
+    "published_at": "2026-11-04T14:00:32+00:00",
+    "transcript_sha256": "8f46194284d878f4a8b1bd9d1d35ce4ee40bd27aad4cfbb0a31aa427bb151465",
+    "start": 249.174,
+    "end": 280.484,
+    "text": "services financial infrastructure company. &gt;&gt; Yeah. &gt;&gt; Yeah, we use crypto and blockchain underneath the hood, but like in a few years we're not going to talk about it as these were crypto companies. &gt;&gt; Yeah, I totally agree. I also say in the context of, \"Oh, you're going to buy a tokenized version of the stock. You're going to buy the stock.\" Like just like right now if I put an order in to buy a public, you know, US public listed equity, I don't really care what exchange it routes to and where I get the execution from. I get the execution, it goes into my account, and I'm done. In the future, I think we're going to get on a platform, we're going to make, you know,"
+   },
+   {
+    "chunk_id": "XZ7lw0T7akk:434895-465165",
+    "video_id": "XZ7lw0T7akk",
+    "channel_name": "CoinDesk",
+    "exact_title": "Bullish CEO’s Outlook on Public Securities Moving Onchain",
+    "canonical_url": "https://www.youtube.com/watch?v=XZ7lw0T7akk",
+    "published_at": "2026-11-05T14:00:03+00:00",
+    "transcript_sha256": "6fa4ac220b94b0c09855cc3fc41fd988f59c751c440ff3fe54ffb2dee6b6d175",
+    "start": 434.895,
+    "end": 465.165,
+    "text": "Flintstones like abacus. This is in my career. I know I sound like I'm rambling. &gt;&gt; I know I know I know. It's bonkers. And now we're talking about blockchain. It's 24/7 trading. &gt;&gt; trading in the past 25 years in our market than the previous 150. So like it's super exciting to see it all change. You got to adopt it. &gt;&gt; But but uh I don't know what the the next big inflection point is going to be. Meaning I don't I don't know what's going to cause this like adoption of tokenized [snorts] securities um to to really jump. I could give you lots of scenarios, but I didn't know when we went electronic on the New York"
+   },
+   {
+    "chunk_id": "XZ7lw0T7akk:496537-518537",
+    "video_id": "XZ7lw0T7akk",
+    "channel_name": "CoinDesk",
+    "exact_title": "Bullish CEO’s Outlook on Public Securities Moving Onchain",
+    "canonical_url": "https://www.youtube.com/watch?v=XZ7lw0T7akk",
+    "published_at": "2026-11-05T14:00:03+00:00",
+    "transcript_sha256": "6fa4ac220b94b0c09855cc3fc41fd988f59c751c440ff3fe54ffb2dee6b6d175",
+    "start": 496.537,
+    "end": 518.537,
+    "text": "new token-based product that has tremendous demand, and then all of a sudden the whole thing flips. I just can't predict it. I don't know if it's tomorrow, a year from now. It might be 2 years from now. It's not 5 years from now. &gt;&gt; Yeah. Well, I think it's coming. So, it's great having you, Tom. Always good chatting. &gt;&gt; Yeah, thanks for joining us, Tom. &gt;&gt; Thanks for having me on. &gt;&gt; That was Tom Farley, the CEO of Block."
+   },
+   {
+    "chunk_id": "Zng5DkMO8e8:972639-1004470",
+    "video_id": "Zng5DkMO8e8",
+    "channel_name": "Bankless",
+    "exact_title": "Stocks Plunge After the Midterms. Can Bitcoin Survive the AI Selloff?",
+    "canonical_url": "https://www.youtube.com/watch?v=Zng5DkMO8e8",
+    "published_at": "2026-11-06T11:30:32+00:00",
+    "transcript_sha256": "c3147809756411b12204d375b4aa43102f024a6b405fe8c2372949763eeae31b",
+    "start": 972.639,
+    "end": 1004.47,
+    "text": "\"Hey, slow down, slow down, slow down till we have ETFs, till we figure out a path to tokenized securities.\" Now, I think they're on more on the side of like full steam ahead. &gt;&gt; Like they see the opportunity, Larry thinks sees opportunity in tokenization, right? and they're fully bought in on crypto and they're some of the Democrats funders as well. So, ironically, you have kind of like big asset manager Wall Street sort of on the side of crypto and that's different than it was in 2022, 2023. So, and like what we've seen so"
+   },
+   {
+    "chunk_id": "gES7BPlDwtQ:96320-126389",
+    "video_id": "gES7BPlDwtQ",
+    "channel_name": "Stacker News",
+    "exact_title": "The long road to bitcoin payments...",
+    "canonical_url": "https://www.youtube.com/watch?v=gES7BPlDwtQ",
+    "published_at": "2026-11-06T16:00:21+00:00",
+    "transcript_sha256": "d60eb9f84c68c2dd1e9ec10c4317fdb363639e6d7756ccc3f728d2f9ce28d0cc",
+    "start": 96.32,
+    "end": 126.389,
+    "text": "anyone have any ideas for where we should be trying to improve things such that this actually happens and that is people spend bitcoin bitcoin becomes a medium exchange In Jack's words, it becomes relevant. Um, and that's kind of, you know, if it's a store of value, Jack says it's not relevant. If it's a medium exchange, then it is relevant. And culturally, it's kind of important that something is kind of used frequently and is on people's minds. You know, Jack, who should know who created um Twitter X,"
+   },
+   {
+    "chunk_id": "gof1NS_jGUo:940221-970251",
+    "video_id": "gof1NS_jGUo",
+    "channel_name": "Anthony Pompliano",
+    "exact_title": "Bitcoin Loans Are Coming For Your Mortgage",
+    "canonical_url": "https://www.youtube.com/watch?v=gof1NS_jGUo",
+    "published_at": "2026-11-04T22:00:39+00:00",
+    "transcript_sha256": "5c8cfa28be4323e6b1cc18bea9d5b463634d60cfb1decff7d67e9b7d4f4f39f1",
+    "start": 940.221,
+    "end": 970.251,
+    "text": "little bit as to like the plumbing versus like the consumer pitch? &gt;&gt; I think one of the reasons Figure has been successful is we put things like tokenization and blockchain in the back, and let that be about the infrastructure and the piping to your point. If you go back to 2010, right? And and look at the cloud era. People weren't celebrating Excuse me, people weren't celebrating the fact that software was in the cloud. They were focused on what they could get from the cloud. Whereas, I think with crypto and"
+   },
+   {
+    "chunk_id": "gof1NS_jGUo:1656269-1687499",
+    "video_id": "gof1NS_jGUo",
+    "channel_name": "Anthony Pompliano",
+    "exact_title": "Bitcoin Loans Are Coming For Your Mortgage",
+    "canonical_url": "https://www.youtube.com/watch?v=gof1NS_jGUo",
+    "published_at": "2026-11-04T22:00:39+00:00",
+    "transcript_sha256": "5c8cfa28be4323e6b1cc18bea9d5b463634d60cfb1decff7d67e9b7d4f4f39f1",
+    "start": 1656.269,
+    "end": 1687.499,
+    "text": "for N27. &gt;&gt; And when you look at 27, is there any sort of headwinds you guys worry about? Crypto policy, you know, we start off conversation about you know, the blue wave, right? They aren't so excited about AI, they aren't so excited about crypto in some cases. There's you know, these generalizations, but I do think that people are like, hey, healthcare stocks should do really well. &gt;&gt; Right. &gt;&gt; Are the AI and crypto guys going to be okay? The truth is always kind of like somewhere in between and the extremes are usually not true, but how do you think about operating a business in really like less of one environment"
+   },
+   {
+    "chunk_id": "io8ACfpKBtU:496337-527567",
+    "video_id": "io8ACfpKBtU",
+    "channel_name": "Bitcoin Magazine",
+    "exact_title": "What the Midterms Mean for Bitcoin Policy",
+    "canonical_url": "https://www.youtube.com/watch?v=io8ACfpKBtU",
+    "published_at": "2026-11-04T21:00:36+00:00",
+    "transcript_sha256": "33f4610b32a019f2cdfc2c0d378da95c1e064dd1a46728c333fc697adff02cfe",
+    "start": 496.337,
+    "end": 527.567,
+    "text": "moving forward of bringing this industry uh into into a more established place? &gt;&gt; Yeah, look, I think um, you know, as is the case in in any conversation about Bitcoin, uh it depends on on the person's priors that you're talking to, right? If you're talking to someone who's uh really interested in in the financial system, who's interested in um, you know, what BlackRock is doing with Bitcoin and how it's sort of being integrated into their larger strategy, um, you know, you're going to look at it I I think obviously from the store of value perspective. And and I do think that has been persuasive for for certain"
+   },
+   {
+    "chunk_id": "nPoivW5fMzw:157920-190149",
+    "video_id": "nPoivW5fMzw",
+    "channel_name": "CoinTelegraph",
+    "exact_title": "How to Build and Protect Your Wealth in a Multipolar World | Simon Dixon",
+    "canonical_url": "https://www.youtube.com/watch?v=nPoivW5fMzw",
+    "published_at": "2026-11-05T14:30:30+00:00",
+    "transcript_sha256": "70ef4531ce5721b26eb1859374d115645ce6bcceb2f1490e1a36c034a247c455",
+    "start": 157.92,
+    "end": 190.149,
+    "text": "been involved in Bitcoin ever since. &gt;&gt; Did your Bitcoin investment and your Bitcoin DCing since then played a key role in uh solving this difficult situation you were in? &gt;&gt; I mean absolutely on two levels. Firstly, we pivoted the business to supporting Bitcoin companies. So um rather than trying to create a bank we supported we did early funding rounds in companies like Bit Pay, Coinbase, Kraken, Bitfinex, Bitstamp, Circle even Ripple Labs, various other um companies."
+   },
+   {
+    "chunk_id": "s9wC4VxzaAU:419599-449990",
+    "video_id": "s9wC4VxzaAU",
+    "channel_name": "Strategy (MicroStrategy)",
+    "exact_title": "The Rise of Bitcoin and Digital Credit - Phong Le with Teresa Goody Guillén at Money20/20",
+    "canonical_url": "https://www.youtube.com/watch?v=s9wC4VxzaAU",
+    "published_at": "2026-11-06T14:01:36+00:00",
+    "transcript_sha256": "2ff5d59e3b92c18e48c6e3ce0062bd6875995c4bbdef6d828838feea1ad4d19e",
+    "start": 419.599,
+    "end": 449.99,
+    "text": "products. &gt;&gt; Yeah. If you think about Bitcoin and again let's call that digital capital with a 40% uh volatility at 30% return. Some people can buy our equity, our common equity, MSTR, right? And those repeat for people who are looking for something that outperforms Bitcoin over time, right? So Bitcoin's been up 38% a year for the last 6 years. We've been up 49% a year for the last 6 years, right? So we outperform Bitcoin, but we're even more volatile. We have a ball of 70 or"
+   },
+   {
+    "chunk_id": "s9wC4VxzaAU:890720-922310",
+    "video_id": "s9wC4VxzaAU",
+    "channel_name": "Strategy (MicroStrategy)",
+    "exact_title": "The Rise of Bitcoin and Digital Credit - Phong Le with Teresa Goody Guillén at Money20/20",
+    "canonical_url": "https://www.youtube.com/watch?v=s9wC4VxzaAU",
+    "published_at": "2026-11-06T14:01:36+00:00",
+    "transcript_sha256": "2ff5d59e3b92c18e48c6e3ce0062bd6875995c4bbdef6d828838feea1ad4d19e",
+    "start": 890.72,
+    "end": 922.31,
+    "text": "liquidity, uh a massive options market, right? Uh and uh really a significant history of performance and a a history of execution. &gt;&gt; Yeah. And and I think a lot of that isn't getting enough. I'm not seeing enough of it. And and all the different types of it's really an entire architecture. It's a it's a new financial system on top of Bitcoin. So for all of those people who have believed in Bitcoin since the beginning,"
+   },
+   {
+    "chunk_id": "s9wC4VxzaAU:1207039-1238310",
+    "video_id": "s9wC4VxzaAU",
+    "channel_name": "Strategy (MicroStrategy)",
+    "exact_title": "The Rise of Bitcoin and Digital Credit - Phong Le with Teresa Goody Guillén at Money20/20",
+    "canonical_url": "https://www.youtube.com/watch?v=s9wC4VxzaAU",
+    "published_at": "2026-11-06T14:01:36+00:00",
+    "transcript_sha256": "2ff5d59e3b92c18e48c6e3ce0062bd6875995c4bbdef6d828838feea1ad4d19e",
+    "start": 1207.039,
+    "end": 1238.31,
+    "text": "what what do you want strategy to be known for? Is it getting investors more money? Uh I don't want to give you ideas here but I have so many &gt;&gt; strategy is going to be and continue to be the world's largest corporate holder of Bitcoin. will have created and engineered products that are used by 8 billion people around the world and we will be the Bitcoin bank of the world. &gt;&gt; I love it. Thank you so much. It's been such a privilege to talk to you and the granddaddy of DATs, you know, uh and"
+   }
+  ]
+ },
+ "derived_query": {
+  "short_label": "Bitcoin ETFs",
+  "underlying_event": "In early 2024, the U.S. Securities and Exchange Commission authorized the listing and trading of exchange-traded funds holding Bitcoin directly.",
+  "angle": "This news item highlights the SEC's approval of spot Bitcoin ETFs, a pivotal moment expected to broaden Bitcoin investment access and increase market liquidity.",
+  "entities": [
+   {
+    "name": "Securities and Exchange Commission",
+    "aliases": [
+     "SEC",
+     "the Commission"
+    ]
+   },
+   {
+    "name": "Bitcoin",
+    "aliases": [
+     "BTC",
+     "digital gold"
+    ]
+   },
+   {
+    "name": "Exchange Traded Funds",
+    "aliases": [
+     "ETFs"
+    ]
+   },
+   {
+    "name": "Institutional Investors",
+    "aliases": [
+     "funds",
+     "the institutions"
+    ]
+   }
+  ],
+  "action": "approval",
+  "affected_object": "spot Bitcoin ETFs",
+  "date_context": "early 2024 (reported 2026-11-06)",
+  "concepts": [
+   "institutional adoption",
+   "market liquidity",
+   "regulatory clarity",
+   "mainstream investment",
+   "price discovery",
+   "fund flows",
+   "access for retail investors",
+   "custodial solutions"
+  ],
+  "must_not_confuse_with": [
+   "Bitcoin futures ETFs",
+   "SEC rejections of ETF applications",
+   "Grayscale Bitcoin Trust (GBTC)",
+   "general crypto regulation"
+  ],
+  "bitcoin_relevance": 5,
+  "importance": 5,
+  "is_specific_event": true,
+  "rationale": "The approval of spot Bitcoin ETFs is a landmark event with profound implications for Bitcoin's future, making it a crucial topic for a sophisticated Bitcoin audience in 2026.",
+  "_prompt_sha": "c51d1d3846db7676",
+  "_model": "gemma3:27b"
+ },
+ "adjudications": [
+  {
+   "verdict": "SAME_EVENT",
+   "counted_as_same_event": true,
+   "quote_verified": true,
+   "supporting_chunk_ids": [
+    "spZdfbq_6eA:4616880-4648149"
+   ],
+   "evidence_quote": "It just launched two ETFs that take the dividends from big US companies and reinvest them into Bitcoin.",
+   "confidence": 0.95,
+   "reason": "The video explicitly mentions the launch of Bitcoin ETFs, directly relating to the SEC's authorization of Bitcoin ETFs in early 2024.",
+   "excerpt_chunk_ids": [
+    "spZdfbq_6eA:923519-953990",
+    "spZdfbq_6eA:954000-985590",
+    "spZdfbq_6eA:3110319-3141670",
+    "spZdfbq_6eA:4616880-4648149"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "spZdfbq_6eA",
+   "channel": "Bitcoin Magazine",
+   "title": "Election Recap, Franklin Crypto & Miners Pivoting to AI | BMTV Nov. 4, 2026",
+   "canonical_url": "https://www.youtube.com/watch?v=spZdfbq_6eA",
+   "layout_eligible": true,
+   "published_at": "2026-11-05T05:00:53+00:00",
+   "age_h": 36.7,
+   "transcript_sha256": "989aff016debf3a114d74bcc98f9f6e90c3db47876c0298c4fd5965c02011ee8",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "spZdfbq_6eA:923519-953990",
+     "start": 923.519,
+     "end": 953.99,
+     "text": "la Cruz. Morgan Stanley announces it is among the first banks to tokenize US stocks and treasuries, including the DTCC's new tokenization service, which launched October 28th. The tokens keep the same ownership rights as the original securities and [music] 20 firms including JP Morgan and City have signed up so far. Russia's largest stock exchange, the Moscow Exchange, plans to start trading Bitcoin and Tether's USDT stable coin on December 1st under a [music] new Russian crypto law. The US sanctioned the"
+    },
+    {
+     "chunk_id": "spZdfbq_6eA:954000-985590",
+     "start": 954.0,
+     "end": 985.59,
+     "text": "exchange in 2024 for supporting Russia's war economy, and everyday investors will be capped at 300,000 rubles a year, or about $3,700. Publicly traded crypto infrastructure company Bitcoin global markets, a new division offering institutions crypto trading, loans backed by digital assets, options, and swaps. It will be led by Pete [music] Janney, who joined from Bitcoin firm Naidig after Bitco bought Naidig's institutional and trading"
+    },
+    {
+     "chunk_id": "spZdfbq_6eA:3110319-3141670",
+     "start": 3110.319,
+     "end": 3141.67,
+     "text": "with tools like auto invest, roundups, paid in Bitcoin, and Lightning. Eligible Square sellers can accept Bitcoin over Lightning, settle in seconds, and pay 0% processing fees through the end of 2026. Bitkey gives you self-custody without a seed phrase or single point of failure with built-in recovery and inheritance tools and a screen on the second generation device. Buy, spend, save, all with the peace of mind for the future. The point is to make Bitcoin useful from the moment you get it to the moment you secure it yourself. To learn more about"
+    },
+    {
+     "chunk_id": "spZdfbq_6eA:4616880-4648149",
+     "start": 4616.88,
+     "end": 4648.149,
+     "text": "sure what's going to happen. Now they know. And that's why you're seeing um really a continuation of history where it's been a very very constructive setup. And I want to ask you about Franklin Templeton specifically. It just launched two ETFs that take the dividends from big US companies and reinvest them into Bitcoin. What gap in the market are these funds built to fill? &gt;&gt; Look, I I think many of us share the same vision that traditional finance, Bitcoin, and crypto markets were"
+    }
+   ]
+  },
+  {
+   "verdict": "SAME_EVENT",
+   "counted_as_same_event": true,
+   "quote_verified": true,
+   "supporting_chunk_ids": [
+    "u4csp-nKdm0:282094-313724",
+    "u4csp-nKdm0:313734-344964"
+   ],
+   "evidence_quote": "We had a Bitcoin ETF. We had institutional adoption. You've got BlackRock coming out, Larry Fink saying that Bitcoin is the greatest thing of all time",
+   "confidence": 0.95,
+   "reason": "The video explicitly discusses the approval of the Bitcoin ETF and increased institutional investment, directly referencing the key elements of the specified news event.",
+   "excerpt_chunk_ids": [
+    "u4csp-nKdm0:127732-158202",
+    "u4csp-nKdm0:282094-313724",
+    "u4csp-nKdm0:313734-344964",
+    "u4csp-nKdm0:786739-817129"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "u4csp-nKdm0",
+   "channel": "Digital Asset News",
+   "title": "NOT NFA LIVE: Bitcoin & Mid-Term GROWTH? Gold? A.I. Busted?",
+   "canonical_url": "https://www.youtube.com/watch?v=u4csp-nKdm0",
+   "layout_eligible": false,
+   "published_at": "2026-11-05T13:36:32+00:00",
+   "age_h": 28.1,
+   "transcript_sha256": "df9fc020320c20246d83c77bed0829cdb0a9f566560e55343ecba8cf2fc3f945",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "u4csp-nKdm0:127732-158202",
+     "start": 127.732,
+     "end": 158.202,
+     "text": "see. I remain cautiously optimistic, but again, taking a look at the last three, four midterms, uh usually Bitcoin finds its bottom afterwards. But, so far pretty good. Actually, altcoins are doing great. Ethereum 4%, XRP up great great great great. That's good for my portfolio over at uh I Trust as I'm using their their AI to uh make trades and sells and looking pretty good so far, actually. I like it. And we can just see across the board pretty good. Now, in the last hour, a"
+    },
+    {
+     "chunk_id": "u4csp-nKdm0:282094-313724",
+     "start": 282.094,
+     "end": 313.724,
+     "text": "tell you, I don't really Let's let them deal with it, you know. We'll see. It's all speculation anyhow. But I have to tell you what I think about is this is was there a better setup than what we had as far as for Bitcoin in 2024? Just hear me out. So, for Bitcoin, and it We only did a 2x from the all-time high to the all-time high. There is a diminishing returns. Now, if we were to go from the low to the high, you're looking at a clean 8x. But in 2024 moving forward, we had a Bitcoin ETF. We had institutional adoption. You've"
+    },
+    {
+     "chunk_id": "u4csp-nKdm0:313734-344964",
+     "start": 313.734,
+     "end": 344.964,
+     "text": "got BlackRock coming out, Larry Fink saying that Bitcoin is the greatest thing of all time, and doing other ETFs with other ones. Fidelity Digital Assets the same way. You had government support, which we didn't have before. And as a quick reminder, the ETF was approved under the Biden administration. And if it wasn't for Gary Gensler to cast a deciding vote, we wouldn't even have a Bitcoin spot ETF. So, something to think about. CFTC and SEC support. We also had the quote-unquote crypto presidents. Also a"
+    },
+    {
+     "chunk_id": "u4csp-nKdm0:786739-817129",
+     "start": 786.739,
+     "end": 817.129,
+     "text": "But then of course right here, a little bit more uncertainty in the midterms and what's going on with Iran. So I don't see it hitting all-time highs anytime soon unless we get massive massive wars or something else happens. So we'll see where it goes. I still have it in my portfolio. And the last question was Bitcoin rally to What is this? 81K even after the Binance hack thoughts. And this I think is the best use not the use case. The best thing noted for the markets themselves. We really grew up."
+    }
+   ]
+  },
+  {
+   "verdict": "RELATED_DIFFERENT_EVENT",
+   "counted_as_same_event": false,
+   "quote_verified": false,
+   "supporting_chunk_ids": [],
+   "evidence_quote": "",
+   "confidence": 0.6,
+   "reason": "The video discusses crypto regulation and venture funding, touching on Bitcoin but not the specific SEC approval of Bitcoin ETFs in early 2024.",
+   "excerpt_chunk_ids": [
+    "F4xicDR_tIs:63840-95590",
+    "F4xicDR_tIs:190480-220869",
+    "F4xicDR_tIs:252720-284550",
+    "F4xicDR_tIs:315600-347029"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "F4xicDR_tIs",
+   "channel": "Swan Bitcoin",
+   "title": "The Blue Tsunami Is Here. Your Bitcoin Strategy Shouldn't Change",
+   "canonical_url": "https://www.youtube.com/watch?v=F4xicDR_tIs",
+   "layout_eligible": false,
+   "published_at": "2026-11-05T15:00:26+00:00",
+   "age_h": 26.7,
+   "transcript_sha256": "5a9baab5dca342634619be8391a48c8192d4e5b4ecfa7307ded63e34562b349a",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "F4xicDR_tIs:63840-95590",
+     "start": 63.84,
+     "end": 95.59,
+     "text": "fights over funding. A bank doesn't have to wait for a new law to decide a crypto client is more trouble than it's worth. But Trump's appointees will still be running the SEC and CFTC, and he can veto legislation he opposes. Those agencies will probably keep moving in the same direction. The most immediate change I expect is more scrutiny of the relationship between political power and crypto money. On inauguration day in 2025, I published an essay titled The Age of"
+    },
+    {
+     "chunk_id": "F4xicDR_tIs:190480-220869",
+     "start": 190.48,
+     "end": 220.869,
+     "text": "enforcement [music] staff left during fiscal 2025 and the CFTC has also seen substantial staffing cuts. [music] I expect the friendly treatment to continue for the rest of Trump's term. And by the way, Bitcoiners really have no reason to oppose useful improvements to [music] payments, trading, or financial software. CryptoVCs deployed hundred billion dollars from 2017 to 2023, mostly funding altcoin launches, hoping to compete with Bitcoin in various [music] ways. A huge number of"
+    },
+    {
+     "chunk_id": "F4xicDR_tIs:252720-284550",
+     "start": 252.72,
+     "end": 284.55,
+     "text": "launched under Biden. In the third quarter of 2024, US companies received 56% of the crypto venture funding Galaxy tracked. There was plenty of money in America for crypto companies. They're allowed to create and [music] sell speculative tokens. They still have to follow applicable rules, provide proper disclosures, and be honest in their marketing, which seems fair. The crypto lobby wanted Bitcoiners help in passing its legislation, and the Strategic Reserve was part of the sales pitch."
+    },
+    {
+     "chunk_id": "F4xicDR_tIs:315600-347029",
+     "start": 315.6,
+     "end": 347.029,
+     "text": "up, but we don't know the second and third order effects of Washington [music] becoming a major economic participant in Bitcoin. My case for owning Bitcoin has never depended on [music] Washington buying it. The policy questions Bitcoiners should watch involve our ability to buy it, hold our own keys, and build software. [music] Elizabeth Warren's 2023 bill would have imposed anti-moneyaundering obligations on miners and wallet providers who never hold customer [music] funds. It had Republican sponsors, too. That's the"
+    }
+   ]
+  },
+  {
+   "verdict": "RELATED_DIFFERENT_EVENT",
+   "counted_as_same_event": false,
+   "quote_verified": false,
+   "supporting_chunk_ids": [
+    "y8dh_40-aV4:817599-849389",
+    "y8dh_40-aV4:849399-880391",
+    "y8dh_40-aV4:2125514-2155804"
+   ],
+   "evidence_quote": "major funds, exchanges, and institutions... securing billions of dollars of Bitcoin",
+   "confidence": 0.7,
+   "reason": "The video discusses Bitcoin and its use by institutions, which is related to the ETF approval but focuses on custody and security rather than the approval itself.",
+   "excerpt_chunk_ids": [
+    "y8dh_40-aV4:660998-691588",
+    "y8dh_40-aV4:817599-849389",
+    "y8dh_40-aV4:849399-880391",
+    "y8dh_40-aV4:2125514-2155804"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "y8dh_40-aV4",
+   "channel": "What Bitcoin Did",
+   "title": "The AI Demand Shock Nobody Is Ready For | Harry Sudock",
+   "canonical_url": "https://www.youtube.com/watch?v=y8dh_40-aV4",
+   "layout_eligible": false,
+   "published_at": "2026-11-04T17:00:33+00:00",
+   "age_h": 48.7,
+   "transcript_sha256": "b33548ce0643cc2949c27b30cdd648adf4bf2929c28f61f860ab68d2db64c6f5",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "y8dh_40-aV4:660998-691588",
+     "start": 660.998,
+     "end": 691.588,
+     "text": "and it pays off in 11 months, all of a sudden the answer might be overwhelmingly yes. And so not only is there a cost of goods sold, operating expense opportunity to more broadly distribute the Bitcoin network, there's also a pave the path regulatory aspect to it where the capital intensity of some of these other compute use cases is just too high to take on the geopolitical risk of certain"
+    },
+    {
+     "chunk_id": "y8dh_40-aV4:817599-849389",
+     "start": 817.599,
+     "end": 849.389,
+     "text": "reported. It's proof over promises. Hard assets, higher standards. Check your rate at ledn.io/wbd, which is ledn.io/wbd. Bitcoin backed loans involve risk. Do your own research before taking out a loan. APR eligibility and terms apply and may vary by jurisdiction. Every Bitcoiner eventually has to answer one question. If something happened to me, could my family access my Bitcoin? Would my children inherit what I spent years stacking? That why AnchorWatch builds Bitcoin custody solutions designed to protect"
+    },
+    {
+     "chunk_id": "y8dh_40-aV4:849399-880391",
+     "start": 849.399,
+     "end": 880.391,
+     "text": "you and your family against real life accidents, errors, kidnappings, and even death. Every solution includes inheritance protocol designed to help your Bitcoin reach the people you intended it for. And US-based customers can also add Bitcoin insurance backed by Lloyd's of London. Whether you're a self-custody expert or want multi-institutional support, your Bitcoin estate plan should not be an afterthought. Bitcoin is only generational wealth if it can be passed down. So make sure your family can access tomorrow what you've built today. Anchor Watch is your custody, your way. So"
+    },
+    {
+     "chunk_id": "y8dh_40-aV4:2125514-2155804",
+     "start": 2125.514,
+     "end": 2155.804,
+     "text": "For over a decade, BitGo have been the backbone of the entire industry, securing billions of dollars of Bitcoin for major funds, exchanges, and institutions. Following their 2026 public listing on the New York Stock Exchange under the ticker BTGO, BitGo are now bringing that exact same enterprise infrastructure to individual Bitcoiners. Self-custody is still the gold standard, but as your stack grows, it's worth thinking about whether diversifying your custody can make sense. BitGo pioneered commercial multisig, and their cold storage combines distributed keys, offline key generation, and geographically separated"
+    }
+   ]
+  },
+  {
+   "verdict": "RELATED_DIFFERENT_EVENT",
+   "counted_as_same_event": false,
+   "quote_verified": true,
+   "supporting_chunk_ids": [
+    "C7t53RtA2Uc:3393828-3425118",
+    "C7t53RtA2Uc:3425128-3458019",
+    "C7t53RtA2Uc:3519729-3551119",
+    "C7t53RtA2Uc:3581731-3612221"
+   ],
+   "evidence_quote": "US sanctioned Moscow Exchange will list Bitcoin on December 1st as Russia pools crypto trading home.",
+   "confidence": 0.7,
+   "reason": "The video discusses Bitcoin being listed on the Moscow Exchange, which is related to Bitcoin ETFs but is a different event than the SEC authorizing Bitcoin ETFs in the US.",
+   "excerpt_chunk_ids": [
+    "C7t53RtA2Uc:3393828-3425118",
+    "C7t53RtA2Uc:3425128-3458019",
+    "C7t53RtA2Uc:3519729-3551119",
+    "C7t53RtA2Uc:3581731-3612221"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "C7t53RtA2Uc",
+   "channel": "Simply Bitcoin",
+   "title": "Here is The REAL Reason The Markets Are CRASHING!!! | EP 1628",
+   "canonical_url": "https://www.youtube.com/watch?v=C7t53RtA2Uc",
+   "layout_eligible": true,
+   "published_at": "2026-11-05T19:08:41+00:00",
+   "age_h": 22.6,
+   "transcript_sha256": "138fe4a84a6317b0649c7a758a63311f45f8cd0101cb62528aff4da34e6ccb13",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "C7t53RtA2Uc:3393828-3425118",
+     "start": 3393.828,
+     "end": 3425.118,
+     "text": "process. Look, I'll I'll uh I'll I'll remind me of that in a minute. Let me cover this story real quick and then I'll you know, I'll do a little simply philosophical opti, okay? But this just dropped, okay guys? So hot off the presses, US sanctioned Moscow Exchange will list Bitcoin on December 1st as Russia pools crypto trading home. Now the headline arguably is a little I don't want to say misleading but but the sub headline tells you exactly what this"
+    },
+    {
+     "chunk_id": "C7t53RtA2Uc:3425128-3458019",
+     "start": 3425.128,
+     "end": 3458.019,
+     "text": "is and what's going on. So Russia's largest exchange, the Moscow Exchange, will open Bitcoin trading on December 1st under the country's new crypto law, with retail buyers tested and capped at 300,000 rubles a year. The 300,000 ruble part if you need me to touch on that if you're newer here, I've I've covered that multiple times on the show why this is happening. But what is interesting is it looks like at least my read of this that Russia is now opening up Bitcoin trading to everyone."
+    },
+    {
+     "chunk_id": "C7t53RtA2Uc:3519729-3551119",
+     "start": 3519.729,
+     "end": 3551.119,
+     "text": "Russia's first organized digital currency market operating under the recently adopted federal law number 282 FZ on digital currencies and digital rights, the main provisions of which entered into force on September 1st, 2026 and certain provisions in July and September 2027. The first stage is expected to involve pilot transactions pilot transactions with participants gradually joining the new market as they become ready. Caveat, caveat. Interest in new exchange operations is being expressed by both"
+    },
+    {
+     "chunk_id": "C7t53RtA2Uc:3581731-3612221",
+     "start": 3581.731,
+     "end": 3612.221,
+     "text": "They're only going to let you trade during market uh market open hours. Interesting. The list of tradable instruments will initially include Bitcoin, ETH, and Tether in both address based and address based models. I what? They repeated themselves. Whatever. The list of digital currencies and digital assets on the exchange will be expanded to include both international and Russian instruments starting December 1st. Clients will have access to digital currency transactions with T+0 or today and tomorrow settlements as well as"
+    }
+   ]
+  },
+  {
+   "verdict": "RELATED_DIFFERENT_EVENT",
+   "counted_as_same_event": false,
+   "quote_verified": false,
+   "supporting_chunk_ids": [],
+   "evidence_quote": "Bitcoin price holds near 80,000...215 million in Bitcoin shorts liquidated in just one hour.",
+   "confidence": 0.7,
+   "reason": "The video discusses Bitcoin price action and regulatory developments, but does not mention the SEC authorizing Bitcoin ETFs specifically.",
+   "excerpt_chunk_ids": [
+    "-meUTTtD1Rw:66080-97030",
+    "-meUTTtD1Rw:776000-807030",
+    "-meUTTtD1Rw:1621039-1652710",
+    "-meUTTtD1Rw:1874000-1904470"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "-meUTTtD1Rw",
+   "channel": "Scott Melker",
+   "title": "Bitcoin's Short Squeeze Just Flipped The Market",
+   "canonical_url": "https://www.youtube.com/watch?v=-meUTTtD1Rw",
+   "layout_eligible": false,
+   "published_at": "2026-11-05T14:45:07+00:00",
+   "age_h": 27.0,
+   "transcript_sha256": "18c04aa7fd6c1a8fa34debd9af52cf6a0cbbd13804cd444f042efe8b7777bdc0",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "-meUTTtD1Rw:66080-97030",
+     "start": 66.08,
+     "end": 97.03,
+     "text": "an announcement. I don't know if you saw, I'm sure I have the story pulled up somewhere, that the uh that the Democrats were already proposing a effectively new version of the Clarity Act. So, it took one hour for them to do it. But apparently they've been working on it all summer assuming that they might win. But there you go. Democrats eye their own crypto market structure bill with a bigger SEC role after sweep. Nothing in here was devastating to be honest. Basically the SEC uh would have a bit more power which right now doesn't seem like a big deal. But obviously if we go back to a Kendler type error that"
+    },
+    {
+     "chunk_id": "-meUTTtD1Rw:776000-807030",
+     "start": 776.0,
+     "end": 807.03,
+     "text": "Um and I think it's kind of going to be as simple as that. So for you, does any of this regulatory or legislative action matter at all? Right? I know like during the last administration before Trump came in and we got a new SEC into a CFDC, like effectively people didn't even want to operate in the United States at all. Right? And I think there was a renewed confidence when he came in that that would be possible. We got the Genius Act. We obviously have very pro- crypto regulation, but we still didn't get that clarity act. And as I kind of pointed"
+    },
+    {
+     "chunk_id": "-meUTTtD1Rw:1621039-1652710",
+     "start": 1621.039,
+     "end": 1652.71,
+     "text": "on them is obviously very difficult. So, I think it's going to create kind of um a boon or a boom uh of of and really like the return of the retail investor um to be able to actually make intelligent investment decisions um uh uh as all this stuff kind of uh uh comes onto crypto rails. Um, so I I think that's kind of uh the place I'm looking at. Um, where I think basically uh you know there's going to be as many tools for retail investors as there ever was for professional investors. As much you know uh information access uh as"
+    },
+    {
+     "chunk_id": "-meUTTtD1Rw:1874000-1904470",
+     "start": 1874.0,
+     "end": 1904.47,
+     "text": "and that's the primary way that things are being traded. Good luck stopping it. Right. It'll literally be impossible to stop it at all. So, since I've got you here, let's just cook through a few of the stories of the day. I didn't want to uh bore Armani, who you know is an absolute expert on tokenization with all these other topics. But, you know, Bitcoin price holds near 80,000. I think right now it's back below as Democratic spark sweep sparks short squeeze. You see right there, 215 million in Bitcoin shorts liquidated in just one hour."
+    }
+   ]
+  },
+  {
+   "verdict": "UNRELATED",
+   "counted_as_same_event": false,
+   "quote_verified": false,
+   "supporting_chunk_ids": [],
+   "evidence_quote": "",
+   "confidence": 0.95,
+   "reason": "The video focuses on Bitcoin's price fluctuations around the 2024 midterms and a Binance hack, with no mention of the SEC authorizing Bitcoin ETFs.",
+   "excerpt_chunk_ids": [
+    "n17v727G7FI:54960-92480",
+    "n17v727G7FI:112320-143600",
+    "n17v727G7FI:165040-199920",
+    "n17v727G7FI:245280-277280"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "n17v727G7FI",
+   "channel": "Coin Bureau",
+   "title": "The Midterms Couldn't Stop Bitcoin!",
+   "canonical_url": "https://www.youtube.com/watch?v=n17v727G7FI",
+   "layout_eligible": false,
+   "published_at": "2026-11-05T11:10:49+00:00",
+   "age_h": 30.6,
+   "transcript_sha256": "81397e36992f38a7070197876851bed40721cc22b556d5be110631e5ad7d90fd",
+   "transcript_method": "yt_manual:en",
+   "excerpts": [
+    {
+     "chunk_id": "n17v727G7FI:54960-92480",
+     "start": 54.96,
+     "end": 92.48,
+     "text": "Coin Bureau. For about a week from the 22nd of&nbsp;&nbsp; October, Bitcoin chopped around 80K and every dip&nbsp; got bought back up. Then came the 29th of October&nbsp;&nbsp; when the biggest theft in crypto history started&nbsp; unfolding at Binance. Bitcoin opened the day above&nbsp;&nbsp; 81K, but that $80,000 floor soon gave way and&nbsp; Bitcoin was trading just below 77K in no time.&nbsp;&nbsp; So 80K flipped from support to resistance and&nbsp;"
+    },
+    {
+     "chunk_id": "n17v727G7FI:112320-143600",
+     "start": 112.32,
+     "end": 143.6,
+     "text": "that gives the SEC a bigger role than the CFTC.&nbsp;&nbsp; The second is that proc crypto legislation stalls.&nbsp; The Clarity Act passed the House in July 2025,&nbsp;&nbsp; but it still hasn't cleared the Senate. If&nbsp; it doesn't get through before this Congress&nbsp;&nbsp; ends on the 3rd of January, it effectively has to&nbsp; start over. So, the market went into election day&nbsp;&nbsp; bracing for stricter rules and a much slower road&nbsp;"
+    },
+    {
+     "chunk_id": "n17v727G7FI:165040-199920",
+     "start": 165.04,
+     "end": 199.92,
+     "text": "to make it easier on yourself to navigate this&nbsp;&nbsp; madness, the link is in the description or you can&nbsp; scan the QR code that's on the screen right now.&nbsp;&nbsp; Okay, back to the midterms. So, what did Bitcoin&nbsp; actually do as America went to the polls? Well, it&nbsp;&nbsp; flinched early. For most of the 3rd of November,&nbsp; Bitcoin traded calmly between about 77 and 78K.&nbsp;&nbsp; Then from around 19 UTC, the selling started. At&nbsp;"
+    },
+    {
+     "chunk_id": "n17v727G7FI:245280-277280",
+     "start": 245.28,
+     "end": 277.28,
+     "text": "drop are forced to buy back as the price rises,&nbsp;&nbsp; pushing it even higher. According to Coin Glass&nbsp; data, around $950 million in positions were&nbsp;&nbsp; liquidated, more than $560 million of it from&nbsp; shorts. So, the market had already taken a hit&nbsp;&nbsp; before the results were final. Which brings us to&nbsp; the here and now. At least as I make this video,&nbsp;&nbsp; Bitcoin is continuing to trade just a smidge above&nbsp;"
+    }
+   ]
+  },
+  {
+   "verdict": "SAME_EVENT",
+   "counted_as_same_event": true,
+   "quote_verified": true,
+   "supporting_chunk_ids": [
+    "jTuJ8PXhRV4:3638000-3669666",
+    "jTuJ8PXhRV4:3669666-3704166"
+   ],
+   "evidence_quote": "So I think all the Bitcoin ETFs would also be the logically quite important, you know, buyers and also sellers.",
+   "confidence": 0.9,
+   "reason": "The video directly discusses Bitcoin ETFs and their potential impact on price, aligning with the SEC's approval of Bitcoin ETFs.",
+   "excerpt_chunk_ids": [
+    "jTuJ8PXhRV4:1267291-1298416",
+    "jTuJ8PXhRV4:3442375-3473125",
+    "jTuJ8PXhRV4:3638000-3669666",
+    "jTuJ8PXhRV4:3669666-3704166"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "jTuJ8PXhRV4",
+   "channel": "BTC Sessions",
+   "title": "Markets Just Realized How Wrong They Are | Lepard & Valek",
+   "canonical_url": "https://www.youtube.com/watch?v=jTuJ8PXhRV4",
+   "layout_eligible": true,
+   "published_at": "2026-11-05T16:00:38+00:00",
+   "age_h": 25.7,
+   "transcript_sha256": "95e907efdf78856d6f7aa627df2d1ceeac4568cf0de57feb93a8f11a69d67d49",
+   "transcript_method": "yt_manual:en",
+   "excerpts": [
+    {
+     "chunk_id": "jTuJ8PXhRV4:1267291-1298416",
+     "start": 1267.291,
+     "end": 1298.416,
+     "text": "ended mutual fund, real estate funds. It's not a read, but it's a fund which is marked by, by by the fund management company and typically exhibits no volatility. So everybody loves it when it doesn't go down. But when people pull the carpet capital, they need to gate it. And it was a huge problem. Obviously 2007, that was such a kind of a harbinger. And they were gated back then."
+    },
+    {
+     "chunk_id": "jTuJ8PXhRV4:3442375-3473125",
+     "start": 3442.375,
+     "end": 3473.125,
+     "text": "and then Bitcoin was kind of after. gold. Gold definitely smelled it I mean the minute Powell came in with all his money gold immediately shot from like 1300 to 2000. And Bitcoin paused for quite some time and didn't really get going until of that same year. As you recall, Covid broke in March. The big the big print march happened. But then, you know, Bitcoin took a hit down as did gold by the way, until Powell did his thing, Powell did his thing, came in"
+    },
+    {
+     "chunk_id": "jTuJ8PXhRV4:3638000-3669666",
+     "start": 3638.0,
+     "end": 3669.666,
+     "text": "from the ETF side during this bear market, which obviously I think one can interpret that is in a positive way. But but nevertheless, I mean, for instance, compare the figures, I think from total gold stock. Gold ETFs hold roughly, it's not even 1%. Whereas the total Bitcoin stock, it's five percentage points. so if and gold"
+    },
+    {
+     "chunk_id": "jTuJ8PXhRV4:3669666-3704166",
+     "start": 3669.666,
+     "end": 3704.166,
+     "text": "gold ETFs for quite a long period of time were the marginal buyers and sellers of gold, you could really have a nice correlation about over a the holdings of the gold ETFs and the gold price. So I think all the Bitcoin ETFs would also be the logically quite important, you know, buyers and also sellers. So if if one if one sees whatever deleveraging event and Bitcoin ETF holders get nervous this drawdown could could potentially that could become they could get a worse"
+    }
+   ]
+  },
+  {
+   "verdict": "UNRELATED",
+   "counted_as_same_event": false,
+   "quote_verified": false,
+   "supporting_chunk_ids": [],
+   "evidence_quote": "",
+   "confidence": 1.0,
+   "reason": "The video discusses retail and institutional trading activity and market reactions to AI, with no mention of Bitcoin ETFs or the SEC's approval of them.",
+   "excerpt_chunk_ids": [
+    "0WZ8zq77RkE:112075-143875"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "0WZ8zq77RkE",
+   "channel": "Bloomberg Television",
+   "title": "Markets Are Reevaluating AI 'Speed Limit,' Schwab's Sonders Says",
+   "canonical_url": "https://www.youtube.com/watch?v=0WZ8zq77RkE",
+   "layout_eligible": false,
+   "published_at": "2026-11-06T11:38:52+00:00",
+   "age_h": 6.1,
+   "transcript_sha256": "b71afb76b6c7a557223003b99fb165406f1c5db9aac33f621c74753c3611b89d",
+   "transcript_method": "yt_manual:en",
+   "excerpts": [
+    {
+     "chunk_id": "0WZ8zq77RkE:112075-143875",
+     "start": 112.075,
+     "end": 143.875,
+     "text": "the single stock level, and we did not see any retail participation on the buy side today. In fact, it was the most amount of net selling on the part of retail traders since the worst part of COVID in in March 2020. Mhmm. Now you've got many of the institutions, the systematic funds, the commodity trading advisers that you you wanna track on a day to day basis where their positioning is to get a sense of whether we"
+    }
+   ]
+  },
+  {
+   "verdict": "RELATED_DIFFERENT_EVENT",
+   "counted_as_same_event": false,
+   "quote_verified": false,
+   "supporting_chunk_ids": [],
+   "evidence_quote": "",
+   "confidence": 0.6,
+   "reason": "The video discusses Bitcoin price predictions and investment strategies, which relates to Bitcoin but does not mention the SEC approval of Bitcoin ETFs, the core of the specified event.",
+   "excerpt_chunk_ids": [
+    "L9tzgg6PXi8:207240-238090",
+    "L9tzgg6PXi8:324380-355470",
+    "L9tzgg6PXi8:886460-917380",
+    "L9tzgg6PXi8:1472370-1503290"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "L9tzgg6PXi8",
+   "channel": "CoinTelegraph",
+   "title": "Bitcoin to $1 MILLION by 2030? Mark Moss Reveals His Model",
+   "canonical_url": "https://www.youtube.com/watch?v=L9tzgg6PXi8",
+   "layout_eligible": false,
+   "published_at": "2026-11-06T14:30:20+00:00",
+   "age_h": 3.2,
+   "transcript_sha256": "02b9de95bac961456d75907abb8aa3d03dca5b1a8f88b7e37e43d5452d7118f7",
+   "transcript_method": "yt_manual:en",
+   "excerpts": [
+    {
+     "chunk_id": "L9tzgg6PXi8:207240-238090",
+     "start": 207.24,
+     "end": 238.09,
+     "text": "Now. Obviously Bitcoin hasn't been around that long, but we looked at the at the market cycle just in general. And then you know what we can see with Bitcoin cycles since 2014. And what we see is that in a midterm year, which is the year we're in right now, they're historically bad for um, all markets, including Bitcoin has always been really been really rough in, in the midterm year. Um, the average market gain in a midterm year is only 4%. The average gain. Um, in Bitcoin terms, it's it's typically down. Bitcoin is"
+    },
+    {
+     "chunk_id": "L9tzgg6PXi8:324380-355470",
+     "start": 324.38,
+     "end": 355.47,
+     "text": "of 19, 100% of the time for 70 years, 100% of the time the market is higher three, six and 12 months later, 100% of the time. And the average return on the market, the S&amp;P 500 is 15% 15% higher in 12 months. And for Bitcoin, again, we don't have that data. We can go back to 2014. But Bitcoin is up an average of 53% 12 months later,"
+    },
+    {
+     "chunk_id": "L9tzgg6PXi8:886460-917380",
+     "start": 886.46,
+     "end": 917.38,
+     "text": "2040. It's like 2.7 quadrillion. And by 2050, it's like 6.2 quadrillion. Okay, so now we have a market size. Then the question, this is a guess. It's a model. And anybody can put their own numbers in here, but what percentage of that basket do we think is realistic for Bitcoin to capture. So if Bitcoin can capture 1% of the basket by 2030, that puts it at $1 million per Bitcoin. 1%. It's actually 1.2"
+    },
+    {
+     "chunk_id": "L9tzgg6PXi8:1472370-1503290",
+     "start": 1472.37,
+     "end": 1503.29,
+     "text": "impossible for that to happen. Yeah. That's bullish to hear for Bitcoin viewers right now as well. Mark. So I guess you know you're you're a bitcoiner by heart, but you're also an investor as well. So you look at the, you know, the broad picture. And I guess for somebody that was looking at Bitcoin now as an investment and then saying, right, this is going to be my four year plan by 2030. But then they're also looking at Bitcoin treasury stocks, which are, you know, levered plays on, on Bitcoin. Um what would give them the most upside from your"
+    }
+   ]
+  },
+  {
+   "verdict": "RELATED_DIFFERENT_EVENT",
+   "counted_as_same_event": false,
+   "quote_verified": true,
+   "supporting_chunk_ids": [],
+   "evidence_quote": "The biggest negative of that, which I think will continue, and it's a very big positive for Bitcoin",
+   "confidence": 0.7,
+   "reason": "The video discusses Bitcoin's potential as an investment and its relationship to other markets, but does not mention the SEC's ETF approval.",
+   "excerpt_chunk_ids": [
+    "0kgPX0a3oFk:440960-472230",
+    "0kgPX0a3oFk:1285280-1317590",
+    "0kgPX0a3oFk:1757840-1789909",
+    "0kgPX0a3oFk:2226560-2257589"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "0kgPX0a3oFk",
+   "channel": "Natalie Brunell",
+   "title": "Jordi Visser: Why the S&P 500 Reign Is Officially Over",
+   "canonical_url": "https://www.youtube.com/watch?v=0kgPX0a3oFk",
+   "layout_eligible": false,
+   "published_at": "2026-11-05T16:01:57+00:00",
+   "age_h": 25.7,
+   "transcript_sha256": "9edc3c5fa03ea262a4fe252b6bfae0fdf3f8ef4602e02a13035c619097318abc",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "0kgPX0a3oFk:440960-472230",
+     "start": 440.96,
+     "end": 472.23,
+     "text": "eligibility and terms apply and may vary by jurisdiction. The future of AI and Bitcoin mining depends on energy. Bitier Technologies Group traded on NASDAQ as BTDR has secured a 3 gawatt global power portfolio. Bitier owns the entire stack from manufacturing their own mining hardware to building AI data centers. Learn more at bitier.com and don't miss the Bitier documentary on our YouTube page. The year end is approaching and if you're a business owner, now is the time to ask your CPA whether Bitcoin mining could fit into your tax strategy. Mining"
+    },
+    {
+     "chunk_id": "0kgPX0a3oFk:1285280-1317590",
+     "start": 1285.28,
+     "end": 1317.59,
+     "text": "this. And I think we're reaching a boiling point right now. And if if I'm right, I think next year is going to be the year this becomes a much bigger story. And actually, I think this month you're going to see that Besson is going to have to do something in the bond market. &gt;&gt; Coin Stories is powered by Bitco, the leading digital asset infrastructure company. Bitco now offers individuals free insured institutional-grade custody. Keep full control of your Bitcoin secured by a publicly traded, federally regulated digital asset bank. Sign up for free at bitco.com/natalie."
+    },
+    {
+     "chunk_id": "0kgPX0a3oFk:1757840-1789909",
+     "start": 1757.84,
+     "end": 1789.909,
+     "text": "and the AI midcycle slowdown is going to happen. Here's the difference. Um, I also when I said the fireworks show is over, the biggest negative of that, which I think will continue, and it's a very big positive for Bitcoin, there's no more easy money in the AI trade. And the first quarter of this year um the amount of hedge funds and mutual funds that played catch-up and then subsequently got caught in the deleveraging that happened from June was significant. Um every their job is to make money but again it's in a calendar year. AI makes a year seem like 5 years"
+    },
+    {
+     "chunk_id": "0kgPX0a3oFk:2226560-2257589",
+     "start": 2226.56,
+     "end": 2257.589,
+     "text": "about Bitcoin. The amount of people that I have met, police officers, firemen walking down the street in New York who come up to me like, \"Hey, I want to talk to you about Ripple. Hey, I want to come.\" It is not just Bitcoin. It is a variety of things that they've been invested in probably since 2021, 2022, the peak. But here's the thing. If I ask them about it, they know more about that than anyone on Wall Street. Everyone, including my son, knows more"
+    }
+   ]
+  },
+  {
+   "verdict": "RELATED_DIFFERENT_EVENT",
+   "counted_as_same_event": false,
+   "quote_verified": true,
+   "supporting_chunk_ids": [],
+   "evidence_quote": "Bitcoin specifically performs very well in the 12 months following the US midterm elections.",
+   "confidence": 0.6,
+   "reason": "The video discusses Bitcoin's performance following midterm elections, a related topic to financial regulation and institutional investment, but does not mention the SEC authorizing Bitcoin ETFs.",
+   "excerpt_chunk_ids": [
+    "G_m6lLkcdDk:2389-34549",
+    "G_m6lLkcdDk:66960-97749",
+    "G_m6lLkcdDk:286880-318310",
+    "G_m6lLkcdDk:443440-473990"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "G_m6lLkcdDk",
+   "channel": "Altcoin Daily",
+   "title": "Crypto Holders: Get Ready For A MASSIVE November!!",
+   "canonical_url": "https://www.youtube.com/watch?v=G_m6lLkcdDk",
+   "layout_eligible": false,
+   "published_at": "2026-11-05T00:00:29+00:00",
+   "age_h": 41.7,
+   "transcript_sha256": "c27e4277138b0ebaa02e0a2433d74f75e6b4dfaf02ae10766e8c806e766421db",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "G_m6lLkcdDk:2389-34549",
+     "start": 2.389,
+     "end": 34.549,
+     "text": "If the Democrats take the House and let's see if they even take the Senate, they're very likely to flip pro crypto. Uh-oh. What happens now? Attention crypto holders. Get ready for a massive end of 2026. Bitcoin pumps 10% today as Democrats win full control of Congress, the House, and the Senate. &gt;&gt; You're going to accept all these races, right? &gt;&gt; Yeah, sure. I'll accept them. Why wouldn't they? This is sure to be a big catalyst for the crypto market. One,"
+    },
+    {
+     "chunk_id": "G_m6lLkcdDk:66960-97749",
+     "start": 66.96,
+     "end": 97.749,
+     "text": "Bitcoin and crypto will have such a massive end of year. Crypto is not tied to any political party. A blue tsunami is not bad for crypto. We know that the stock market goes up no matter who's president and particularly does well after midterms. Bitcoin specifically performs very well in the 12 months following the US midterm elections. 1000% up, 20% up, 45, 93. I like this. I think this guy's putting out good"
+    },
+    {
+     "chunk_id": "G_m6lLkcdDk:286880-318310",
+     "start": 286.88,
+     "end": 318.31,
+     "text": "happy. Um this is a very constructive setup. If you if you look throughout history, markets have always responded very favorable post midterms and one of the reasons for that is that you're eliminating a degree of uncertainty. Markets aren't sure what's going to happen. Now they know and that's why you're seeing um really a continuation of history where it's been a very very constructive setup. I I think many of us share the same vision that traditional finance, Bitcoin and crypto markets, we're absolutely in this period of"
+    },
+    {
+     "chunk_id": "G_m6lLkcdDk:443440-473990",
+     "start": 443.44,
+     "end": 473.99,
+     "text": "will be better. Bitwise president Teddy Fuse says into Q4 of 2027, one year, be bullish, specifically on Ethereum, Salana, Chainlink, the tokens that are getting adopted by Wall Street and institutions that we show you on a daily basis because in one year, the headlines you're hearing today will be more built out than ever. He says, \"People won't know or care that the underlying infrastructure is blockchain. It'll be invisible to the user. It's just better"
+    }
+   ]
+  },
+  {
+   "verdict": "SAME_EVENT",
+   "counted_as_same_event": true,
+   "quote_verified": true,
+   "supporting_chunk_ids": [
+    "0dyNRJyco1s:1060942-1091892"
+   ],
+   "evidence_quote": "Let's talk about the crypto ETFs. You guys have the Bitcoin ETF, but you also have really pushed to uh kind of pioneer number of the other altcoin ETFs.",
+   "confidence": 0.9,
+   "reason": "The video directly references Bitcoin ETFs, which is the core of the specified news event about SEC authorization.",
+   "excerpt_chunk_ids": [
+    "0dyNRJyco1s:716658-747009",
+    "0dyNRJyco1s:778099-809849",
+    "0dyNRJyco1s:1060942-1091892",
+    "0dyNRJyco1s:1312105-1342335"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "0dyNRJyco1s",
+   "channel": "Anthony Pompliano",
+   "title": "Bitcoin Is the Hedge Against a U.S. Default Nobody Sees Coming",
+   "canonical_url": "https://www.youtube.com/watch?v=0dyNRJyco1s",
+   "layout_eligible": false,
+   "published_at": "2026-11-05T22:00:27+00:00",
+   "age_h": 19.7,
+   "transcript_sha256": "37b34a4d0c5ef73dbbd80bf05e2f4449dc9342470a14c5e1af0aa57d27031fa3",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "0dyNRJyco1s:716658-747009",
+     "start": 716.658,
+     "end": 747.009,
+     "text": "today or a way to pursue more Bitcoin over time. That's why Abra caught my attention. It offers two different ways to make your Bitcoin holdings work harder depending on what your goals are. If you need dollars without selling your Bitcoin, then you can explore Bitcoin backed loans with US dollars or USDC borrowing options. You can review the terms and compare rates at abra.com {forward slash} pomp. Thinking longer term, explore Abra's Bitcoin yield strategy managed by SEC registered investment advisor Abra Capital Management. It aims to generate yield denominated in Bitcoin, which can have a"
+    },
+    {
+     "chunk_id": "0dyNRJyco1s:778099-809849",
+     "start": 778.099,
+     "end": 809.849,
+     "text": "exchange. But there's a smaller group of business owners, family offices, and investors with sharp CPAs, and they're quietly getting theirs a very different way. They own the machines that make it, mining. Here's how it works. You buy the miners and Simple Mining hosts and runs them at their facilities in Iowa on industrial power rates that you could never get on your own. The Bitcoin they mine goes straight from your machine to your wallet. There's two reasons I find this interesting right now. One, the economics. Cheap power lets you convert electricity into Bitcoin at a discount to spot. You're acquiring the asset below the sticker price that everyone else pays. But second, and listen"
+    },
+    {
+     "chunk_id": "0dyNRJyco1s:1060942-1091892",
+     "start": 1060.942,
+     "end": 1091.892,
+     "text": "&gt;&gt; Let's talk about the crypto ETFs. You guys have the Bitcoin ETF, but you also have really pushed to uh kind of pioneer number of the other altcoin ETFs. What's kind of your analysis of that right now? &gt;&gt; Um It's We have and we have 13 uh crypto ETFs in Europe. So, before the US government allowed it, we got pretty aggressive. Um I I think the days of more crypto ETFs are basically over. Um what we What we have been pushing is active management. We have an actively"
+    },
+    {
+     "chunk_id": "0dyNRJyco1s:1312105-1342335",
+     "start": 1312.105,
+     "end": 1342.335,
+     "text": "letting them trade for them or make allocation decisions. The number one request we have at Silvia is people saying, \"Let the agent loose. I just want to give it some money, not my whole portfolio, but maybe 10%, and let it go trade for me.\" How does that change flows into these funds? Because let me give you the counter example. There's now talk of like an agentic bank run. If all the agents start moving from, you know, low-yielding uh uh kind of deposit accounts into high-yield savings, all of a sudden you could really have some pressure on some of these financial institutions. Is there an equivalent"
+    }
+   ]
+  },
+  {
+   "verdict": "RELATED_DIFFERENT_EVENT",
+   "counted_as_same_event": false,
+   "quote_verified": true,
+   "supporting_chunk_ids": [],
+   "evidence_quote": "The institutionalization of crypto and the tokenization of everything, plus the advances and capability of AI",
+   "confidence": 0.7,
+   "reason": "The video discusses the institutional adoption of crypto, which is related to the SEC authorizing Bitcoin ETFs, but focuses on broader institutional investment trends rather than the ETF approval itself.",
+   "excerpt_chunk_ids": [
+    "ThBSEd5PxF0:1430-32350",
+    "ThBSEd5PxF0:64000-94910",
+    "ThBSEd5PxF0:654418-686648",
+    "ThBSEd5PxF0:872701-904411"
+   ],
+   "_prompt_sha": "6f0f2a5cc3f0a466",
+   "_model": "gemma3:27b",
+   "video_id": "ThBSEd5PxF0",
+   "channel": "CoinDesk",
+   "title": "Is the AI Boom Keeping Bitcoin from Its Next Bull Run?",
+   "canonical_url": "https://www.youtube.com/watch?v=ThBSEd5PxF0",
+   "layout_eligible": true,
+   "published_at": "2026-11-04T21:26:37+00:00",
+   "age_h": 44.3,
+   "transcript_sha256": "f707a3ac940f6c3beb27f2c4ea97a01c7d159f10175f447cce2438fde6d13ec0",
+   "transcript_method": "yt_auto:en-orig",
+   "excerpts": [
+    {
+     "chunk_id": "ThBSEd5PxF0:1430-32350",
+     "start": 1.43,
+     "end": 32.35,
+     "text": "there's only a finite amount of capital in the markets and it's just rotating through different sectors. And crypto or Bitcoin had its time, you know, back in 2021, 22, even recently when we touched 120, but I think right now it's AI that has its cycle and it will come back eventually and I think crypto assets in particular Bitcoin will do well. It's just how long will this AI trade continue? &gt;&gt; Crypto markets move fast. You need research that keeps up. That's The"
+    },
+    {
+     "chunk_id": "ThBSEd5PxF0:64000-94910",
+     "start": 64.0,
+     "end": 94.91,
+     "text": "trusted by institutions for [music] more than a decade. CoinDesk data and indices build on the market standard. &gt;&gt; Welcome to Markets Outlook by CoinDesk. I'm Ray Salmond. So, Bitcoin is holding the low end of its range and back above 80,000 today. The largest exchange hack in crypto history has just hit Binance and the year is winding down on a note of fear in crypto, but optimism across the political stage as the Democrat driven blue wave swept the White House"
+    },
+    {
+     "chunk_id": "ThBSEd5PxF0:654418-686648",
+     "start": 654.418,
+     "end": 686.648,
+     "text": "types of investors now, and they're investing in different things. So, with the institutionalization of crypto and the tokenization of everything, plus the advances and capability of AI, do retail investors need to trade crypto anymore? I mean, I feel like crypto will be integrated at an institutional level into RIAs, into 401Ks, into pensions, and possibly auto invested. So, is there any point is is there a need for investors"
+    },
+    {
+     "chunk_id": "ThBSEd5PxF0:872701-904411",
+     "start": 872.701,
+     "end": 904.411,
+     "text": "but um all of the pro-crypto legislation happening across the house and through the White House seems very beneficial for stablecoin issuers. It seems very beneficial for DeFi companies and looking to like build a bridge between B2C and B2B. It seems good for RWA tokenization. It didn't necessarily seem like the greatest thing for Bitcoin itself, right? And for those who invest in Bitcoin, like, of course it is, but uh it wasn't as directly positive as it"
+    }
+   ]
+  }
+ ]
+}

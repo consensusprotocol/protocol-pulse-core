@@ -1,0 +1,305 @@
+[
+ {
+  "channels": [
+   "UC7TghOL755nBk7HelHoi9LQ",
+   "UC9ijza42jVR3T6b8bColgvg",
+   "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "UCDo6-SUypaXlTmH6AyrYBZA",
+   "UCJgHxpqfhWEEjYH9cLXqhIQ",
+   "UCRqBu-grVX1p97WaX4d-OuQ",
+   "UCbLhGKVY-bJPcawebgtNfbw",
+   "UCd6VYGFkZ3mFLPAyJwwTjMg",
+   "UChzLnWVsl3puKQwc5PoO6Zg",
+   "UCl4takhOQtiyprismCPsa2Q",
+   "UCqK_GSMbpiV8spgD3ZGloSw",
+   "UCru3nlhzHrbgK21x0MdB_eg",
+   "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "UCxIU1RFIdDpvA8VOITswQ1A"
+  ],
+  "n_chunks": 102,
+  "label": {
+   "is_specific_event": true,
+   "headline": "Democratic Sweep in US Elections Triggers Bitcoin Market Reaction",
+   "summary": "The US elections resulted in a Democratic majority in the Senate and House, and a Democratic governorship, leading to a short squeeze in Bitcoin futures and significant liquidations of short positions. Analysts are discussing whether this political shift is bullish or bearish for Bitcoin in the long term.",
+   "member_chunk_ids": [
+    "OFHhbjowhQc:68159-99670",
+    "l987bgGZjS0:937981-969291",
+    "9La50F_lmd0:400175-431805",
+    "-meUTTtD1Rw:1874000-1904470"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "C7t53RtA2Uc:1479908-1511398",
+    "jTuJ8PXhRV4:3523000-3553000",
+    "OFHhbjowhQc:68159-99670",
+    "l987bgGZjS0:937981-969291",
+    "9La50F_lmd0:400175-431805",
+    "T8VdyLZcBas:2717121-2748351",
+    "-meUTTtD1Rw:1874000-1904470",
+    "L9tzgg6PXi8:1472370-1503290"
+   ]
+  }
+ },
+ {
+  "channels": [
+   "UC7TghOL755nBk7HelHoi9LQ",
+   "UC9ijza42jVR3T6b8bColgvg",
+   "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "UCRqBu-grVX1p97WaX4d-OuQ",
+   "UCUbpAtpGwoRxD8GOpRL-_4g",
+   "UCbLhGKVY-bJPcawebgtNfbw",
+   "UCd6VYGFkZ3mFLPAyJwwTjMg",
+   "UCevXpeL8cNyAnww-NqJ4m2w",
+   "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "UCxIU1RFIdDpvA8VOITswQ1A"
+  ],
+  "n_chunks": 30,
+  "label": {
+   "is_specific_event": true,
+   "headline": "SEC Approves Spot Bitcoin ETFs",
+   "summary": "In early 2024, the U.S. Securities and Exchange Commission (SEC) approved several applications for spot Bitcoin exchange-traded funds (ETFs), marking a significant milestone for the cryptocurrency industry and opening the door for greater institutional investment. This approval followed years of anticipation and debate, and is expected to increase accessibility and liquidity for Bitcoin.",
+   "member_chunk_ids": [
+    "gof1NS_jGUo:1656269-1687499",
+    "0dyNRJyco1s:1060942-1091892",
+    "s9wC4VxzaAU:419599-449990",
+    "MJzWDJf4thg:2994720-3025349"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "XZ7lw0T7akk:434895-465165",
+    "gof1NS_jGUo:1656269-1687499",
+    "s9wC4VxzaAU:419599-449990",
+    "ThBSEd5PxF0:623258-654408",
+    "XNgnm5zjYf0:249174-280484",
+    "MJzWDJf4thg:2994720-3025349",
+    "0dyNRJyco1s:1060942-1091892",
+    "G_m6lLkcdDk:630320-661269"
+   ]
+  }
+ },
+ {
+  "channels": [
+   "UC9ijza42jVR3T6b8bColgvg",
+   "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "UCUbpAtpGwoRxD8GOpRL-_4g",
+   "UChzLnWVsl3puKQwc5PoO6Zg",
+   "UCru3nlhzHrbgK21x0MdB_eg",
+   "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "UCtdbWsnfA08KhSUO4amVLaQ",
+   "UCtvg5cXLY_tHDJeBoRySBtg",
+   "UCxIU1RFIdDpvA8VOITswQ1A"
+  ],
+  "n_chunks": 24,
+  "label": {
+   "is_specific_event": true,
+   "headline": "El Salvador's Bitcoin Adoption Faces Scrutiny",
+   "summary": "A documentary exploring the state of Bitcoin adoption in El Salvador has sparked debate, with some questioning its success and others criticizing the narrative presented. Concerns are raised about the practical implementation and overall impact of Bitcoin as legal tender within the country.",
+   "member_chunk_ids": [
+    "9La50F_lmd0:4103896-4134926"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "gES7BPlDwtQ:655279-687030",
+    "y8dh_40-aV4:317894-348784",
+    "spZdfbq_6eA:4464550-4496790",
+    "BniMosz45uU:1429-32470",
+    "0kgPX0a3oFk:3218559-3249670",
+    "9La50F_lmd0:4103896-4134926",
+    "B7rm7UUzqgA:2853119-2885349",
+    "Zng5DkMO8e8:2232400-2264150"
+   ]
+  }
+ },
+ {
+  "channels": [
+   "UC9ijza42jVR3T6b8bColgvg",
+   "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "UCevXpeL8cNyAnww-NqJ4m2w",
+   "UCp6aBHRM6ZS_kLeC57HV4kg",
+   "UCrp_UI8XtuYfpiqluWLD7Lw",
+   "UCru3nlhzHrbgK21x0MdB_eg",
+   "UCxIU1RFIdDpvA8VOITswQ1A"
+  ],
+  "n_chunks": 53,
+  "label": {
+   "is_specific_event": false,
+   "headline": "Market Volatility and Investment Strategy Discussions",
+   "summary": "These excerpts primarily discuss general market conditions, investment strategies in equities and overseas markets, and potential risks like AI bubbles. They focus on navigating corrections, identifying opportunities, and adjusting portfolios rather than a single, specific news event.",
+   "member_chunk_ids": [
+    "B7rm7UUzqgA:2035200-2066470",
+    "bvg_ra4oT1k:1245185-1276815",
+    "0kgPX0a3oFk:1727039-1757830",
+    "Lv0iAN6BnzE:1332705-1363176",
+    "btACwO5O9QA:379895-411785",
+    "liaQODwy8kU:0-33300",
+    "-meUTTtD1Rw:127600-158070",
+    "vIExeTdmowY:157292-189322"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "B7rm7UUzqgA:2035200-2066470",
+    "bvg_ra4oT1k:1245185-1276815",
+    "0kgPX0a3oFk:1727039-1757830",
+    "Lv0iAN6BnzE:1332705-1363176",
+    "btACwO5O9QA:379895-411785",
+    "liaQODwy8kU:0-33300",
+    "-meUTTtD1Rw:127600-158070",
+    "vIExeTdmowY:157292-189322"
+   ]
+  }
+ },
+ {
+  "channels": [
+   "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "UCDo6-SUypaXlTmH6AyrYBZA",
+   "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "UCJgHxpqfhWEEjYH9cLXqhIQ",
+   "UCRqBu-grVX1p97WaX4d-OuQ",
+   "UCp6aBHRM6ZS_kLeC57HV4kg",
+   "UCrp_UI8XtuYfpiqluWLD7Lw",
+   "UCxIU1RFIdDpvA8VOITswQ1A"
+  ],
+  "n_chunks": 15,
+  "label": {
+   "is_specific_event": true,
+   "headline": "US Stock Market Experiences Significant Volatility Following Midterm Elections",
+   "summary": "Several excerpts discuss a sharp downturn in the S&P 500 and Nasdaq, linked to the results of the midterm elections and subsequent market reactions. The market experienced substantial losses, with some commentators noting the scale of the decline in dollar value and comparing it to previous lows.",
+   "member_chunk_ids": [
+    "xMSz99yRpAY:65500-97990",
+    "y0SjcqQPdpA:456319-487029",
+    "btACwO5O9QA:70100-100790",
+    "IQxX-wI-5UM:193680-224229"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "OFHhbjowhQc:129840-161509",
+    "xMSz99yRpAY:65500-97990",
+    "y0SjcqQPdpA:456319-487029",
+    "u4csp-nKdm0:158212-189082",
+    "btACwO5O9QA:70100-100790",
+    "L9tzgg6PXi8:294660-327140",
+    "095_LCH0CQA:58058-89456",
+    "IQxX-wI-5UM:193680-224229"
+   ]
+  }
+ },
+ {
+  "channels": [
+   "UC9ijza42jVR3T6b8bColgvg",
+   "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "UCDo6-SUypaXlTmH6AyrYBZA",
+   "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "UCbLhGKVY-bJPcawebgtNfbw",
+   "UCxIU1RFIdDpvA8VOITswQ1A"
+  ],
+  "n_chunks": 37,
+  "label": {
+   "is_specific_event": true,
+   "headline": "Global Markets Experience Sharp Sell-Off Amid Chip and AI Stock Concerns",
+   "summary": "Global stock markets experienced a significant downturn, with major indices like the Dow, S&P 500, and Nasdaq falling sharply due to a sell-off in chip and AI stocks. The decline followed a period of gains and has sparked concerns about a broader market correction.",
+   "member_chunk_ids": [
+    "lre_r1SIMwA:1216982-1249248",
+    "4bnSM5aK0OY:36160-66950",
+    "f4lO3tW-ueQ:30-32310",
+    "MeBm8MPqCVA:0-30733",
+    "btACwO5O9QA:753299-784689",
+    "QBs3_dE8c9c:2310-32389",
+    "YG1zmLTT4eA:345894-377085",
+    "9ZsotTCcfEY:40340-71004"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "lre_r1SIMwA:1216982-1249248",
+    "4bnSM5aK0OY:36160-66950",
+    "f4lO3tW-ueQ:30-32310",
+    "MeBm8MPqCVA:0-30733",
+    "btACwO5O9QA:753299-784689",
+    "QBs3_dE8c9c:2310-32389",
+    "YG1zmLTT4eA:345894-377085",
+    "9ZsotTCcfEY:40340-71004"
+   ]
+  }
+ },
+ {
+  "channels": [
+   "UC9ijza42jVR3T6b8bColgvg",
+   "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "UChzLnWVsl3puKQwc5PoO6Zg",
+   "UCp6aBHRM6ZS_kLeC57HV4kg",
+   "UCxIU1RFIdDpvA8VOITswQ1A"
+  ],
+  "n_chunks": 28,
+  "label": {
+   "is_specific_event": true,
+   "headline": "AI Stock Sell-Off Triggers Market Concerns in November 2026",
+   "summary": "Several excerpts discuss a recent sell-off in AI-related stocks, with some characterizing it as a correction or adjustment rather than a burst bubble. The downturn occurred amidst broader market uncertainties and raised questions about the sustainability of the AI trade's momentum.",
+   "member_chunk_ids": [
+    "C7t53RtA2Uc:450795-481385",
+    "5_5NqBB4haM:81155-113990",
+    "lre_r1SIMwA:1554119-1587018",
+    "liaQODwy8kU:1118233-1150967",
+    "y0SjcqQPdpA:423919-456309",
+    "jTuJ8PXhRV4:4508125-4538375",
+    "btACwO5O9QA:473895-504687",
+    "4bnSM5aK0OY:129679-162229"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "C7t53RtA2Uc:450795-481385",
+    "5_5NqBB4haM:81155-113990",
+    "lre_r1SIMwA:1554119-1587018",
+    "liaQODwy8kU:1118233-1150967",
+    "y0SjcqQPdpA:423919-456309",
+    "jTuJ8PXhRV4:4508125-4538375",
+    "btACwO5O9QA:473895-504687",
+    "4bnSM5aK0OY:129679-162229"
+   ]
+  }
+ },
+ {
+  "channels": [
+   "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "UCJgHxpqfhWEEjYH9cLXqhIQ",
+   "UCp6aBHRM6ZS_kLeC57HV4kg",
+   "UCtOV5M-T3GcsJAq8QKaf0lg"
+  ],
+  "n_chunks": 18,
+  "label": {
+   "is_specific_event": true,
+   "headline": "2026 Midterm Elections Fuel Concerns Over AI Regulation and Market Impact",
+   "summary": "The 2026 midterm elections resulted in Democratic gains, sparking fears of increased scrutiny and potential regulation of AI data center construction. This has led to a downturn in stocks associated with AI, energy, Tesla, and SpaceX, as investors anticipate a slowdown in the AI buildout.",
+   "member_chunk_ids": [
+    "u4csp-nKdm0:189092-220202",
+    "0WZ8zq77RkE:0-31990",
+    "C7t53RtA2Uc:324694-357084",
+    "Zng5DkMO8e8:439520-471029",
+    "spZdfbq_6eA:2861760-2891990",
+    "9ZsotTCcfEY:66933-100767",
+    "l987bgGZjS0:157292-188882",
+    "liaQODwy8kU:419100-449567"
+   ],
+   "_prompt_sha": "9dacfd0fca581c49",
+   "excerpt_chunk_ids": [
+    "u4csp-nKdm0:189092-220202",
+    "0WZ8zq77RkE:0-31990",
+    "C7t53RtA2Uc:324694-357084",
+    "Zng5DkMO8e8:439520-471029",
+    "spZdfbq_6eA:2861760-2891990",
+    "9ZsotTCcfEY:66933-100767",
+    "l987bgGZjS0:157292-188882",
+    "liaQODwy8kU:419100-449567"
+   ]
+  }
+ }
+]
