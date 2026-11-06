@@ -16,7 +16,6 @@ Key rules (M19 / M19a):
   - 30 ms fade-out at every cut-out, 20 ms fade-in at every cut-in
 """
 import os
-import struct
 import subprocess
 import wave
 
