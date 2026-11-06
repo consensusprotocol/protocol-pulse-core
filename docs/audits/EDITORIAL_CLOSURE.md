@@ -40,3 +40,11 @@ Not reached. EDL, cut acceptance, clip contract, renders, postflight and gates d
 
 ### New infrastructure finding (not changed)
 After the 15:26 reboot the GPU0 Ollama on :11434 did not come back: the systemd unit is disabled (and configured for GPUs 0,1); the `*/10` cron guard `pgrep -f "ollama serve"` is satisfied by the GPU1-pinned :11435 instance; the `@reboot` line has a garbled redirect (`/tmp/ollama.log`: "accepts 0 arg(s), received 1"). Restored manually at 15:5x with `CUDA_VISIBLE_DEVICES=0 OLLAMA_HOST=127.0.0.1:11434` (the pre-reboot state). Boot config still needs a proper fix.
+
+### E9 — LLM event-date hallucination → false-stale rejection — OPEN (found in fresh run 3, 2026-11-06)
+- gemma3:27b assigned training-memory dates (2023-10, 2023-11) to two current Binance-hack follow-ups, both under 7 h old, and slipped the October jobs report to 2026-10-06. The E1 gate then rejected all three as stale.
+- Did not change run 3's verdict: the sibling Binance candidate passed and was evaluated on clips. It is still a real false negative.
+- Proposed fix: a fresh publish time cannot be overridden by an LLM date alone; a conflict goes to INCONCLUSIVE and transcript evidence decides. Regression fixture from the real run 3 records.
+
+### Run 3 note — clip-window region (observation, not yet a defect ruling)
+- For the Binance story, the BTC Sessions windows (±60 s around the supporting chunk) were rated off-topic (score 3.0, "doesn't mention the Binance event"). CoinDesk windows scored 3.0 for "starts mid-thought". Only Simply Bitcoin's overlapping windows reached ≥4. Result: 1 usable clip across 2 channels → HOLD. Under review: whether the window region and sentence-start rule waste the evidence that coverage verified.

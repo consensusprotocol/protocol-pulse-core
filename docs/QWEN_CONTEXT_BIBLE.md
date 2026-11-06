@@ -850,3 +850,16 @@ Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager
 - GEMMA + WHISPER ON ONE 24 GB CARD = OOM, silently turned into "no passages": one explicit GPU0 swap with proven free memory; CUDA/OOM = INFRA_HOLD, never an editorial rejection.
 - PROMPT INJECTION VIA PLANTED SENTENCES: "This video is about the Block DOJ settlement." passes verbatim + LLM support checks. Deterministic instruction/verdict-shape detector; flagged excerpts can never supply evidence.
 - OLLAMA :11434 DOES NOT SURVIVE REBOOT: disabled systemd unit (GPUs 0,1), `pgrep -f "ollama serve"` guard satisfied by the GPU1 :11435 instance, garbled @reboot redirect. Check `ss -ltnp | grep 11434` + /proc/<pid>/environ after any reboot.
+
+## E9 — LLM event-date hallucination causes false-stale rejection (found 2026-11-06, run fresh_20261106_213852 @ ac804978)
+
+**Pattern:** `derive_story_query` asks gemma3:27b for `event_date` / `event_recency`. When a current story resembles an event in the model's training data, the model writes the remembered date instead of the article's date. The E1 currentness gate then correctly rejects a story that is actually current.
+
+**Real evidence (run fresh_20261106_213852, TOPIC_SELECTION.json):**
+- "Elliptic says Binance hackers swapped stolen tokens for $124M in bitcoin…" (theblock.co, 3.0 h old) → derived `event_date='2023-10'`, `event_recency='historical'`, underlying_event "Hackers breached Binance exchange in late October 2023". The real hack is the current $6.3B Binance hack, covered the same day by 7 channels.
+- "Binance Hackers Swap About $50 Million of Stolen XRP…" (bitcoinmagazine.com, 6.3 h old) → `event_date='2023-11'`.
+- "US Bonds' Election Rally Skids to Halt After Strong Jobs Data" (bloomberg.com, 7.3 h old) → `event_date='2026-10-06'` for the October jobs report (released in November). That is a one-month slip that crossed the 7-day grace.
+
+**Impact in this run:** the verdict was unchanged. The sibling candidate "Fed and OCC Quiz U.S. Banks After $6.3 Billion Binance Hack" passed the gate and reached clip-quality scoring, and the jobs story was separately rejected on layout coverage. In another universe the same defect could discard the only producible story.
+
+**Rule for fixing (not applied yet, pending approval):** a story's own publish timestamp (`age_h` within the window) is primary evidence of currentness. An LLM-derived date that contradicts a fresh publish time must not reject the story on its own. Treat it as INCONCLUSIVE and decide currentness from transcript evidence (verified CURRENT_EVENT quotes from the coverage stage). Fixture: references/editorial_failures/2026-11-06_false_stale_binance/ (to be created with the fix).
