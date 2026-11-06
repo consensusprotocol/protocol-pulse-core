@@ -53,7 +53,7 @@ def build_shoutout(segment_dir, qa_version=None, fmt="16x9"):
 
     out_path = os.path.join(qa_dir, out_name)
 
-    # Get signoff VO if available
+    # Get signoff VO if available, ensure 48kHz stereo for concat compatibility
     vo_dir = paths["vo_dir"]
     manifest_path = os.path.join(vo_dir, "VO_MANIFEST.json")
     vo_wav = None
@@ -61,9 +61,17 @@ def build_shoutout(segment_dir, qa_version=None, fmt="16x9"):
         with open(manifest_path) as f:
             manifest = json.load(f)
         if "signoff" in manifest:
-            vo_wav = os.path.join(vo_dir, manifest["signoff"]["stem_wav"])
-            if not os.path.exists(vo_wav):
-                vo_wav = None
+            raw_wav = os.path.join(vo_dir, manifest["signoff"]["stem_wav"])
+            if os.path.exists(raw_wav):
+                # Resample to 48kHz stereo (ElevenLabs outputs 22050 mono)
+                import subprocess
+                vo_wav = os.path.join(qa_dir, "vo_signoff_48k.wav")
+                subprocess.run([
+                    "ffmpeg", "-y", "-i", raw_wav,
+                    "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", vo_wav,
+                ], capture_output=True, timeout=30)
+                if not os.path.exists(vo_wav):
+                    vo_wav = raw_wav  # fallback to original
 
     render_shoutout(channels, size=size, vo_wav=vo_wav, out_path=out_path)
 

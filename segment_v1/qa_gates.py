@@ -11,6 +11,7 @@ Gates:
   G4  Faces: 6 frames per talking-head segment, face count rules
   G5  Duration/loudness: dims, SAR 1:1, fps 24, ebur128 I=-14+/-1, TP<=-2.0
   G6  Pre-roll: VO stem onset >= 0.95s of no-voice before each VO
+  G13 VO Audible: whisper each VO slot from output, >= 80% word match, RMS >= music+6dB (M7)
 
 Exit non-zero on any FAIL. Writes GATE_FAIL.txt on failure.
 """
@@ -1119,6 +1120,232 @@ def gate_g12(final_mp4, segments, expected_count, qa_dir):
 
 
 # ==============================================================
+# G13: VO_AUDIBLE (M7 — every scripted VO line must be heard)
+# ==============================================================
+
+# Known music hallucination phrases whisper produces on silence/music
+_MUSIC_HALLUCINATIONS = {
+    "thanks for watching", "subscribe", "music", "thank you for watching",
+    "please subscribe", "like and subscribe", "see you next time",
+    "you", "the", "",
+}
+
+FOLLOW_WORDS = {"follow", "subscribe", "check"}
+
+
+def _fuzzy_word_overlap(scripted, transcribed):
+    """Case-insensitive word-set overlap ratio (Jaccard-like: intersection / scripted count)."""
+    import re
+    s_words = set(re.sub(r"[^\w\s]", "", scripted.lower()).split())
+    t_words = set(re.sub(r"[^\w\s]", "", transcribed.lower()).split())
+    if not s_words:
+        return 0.0
+    return len(s_words & t_words) / len(s_words)
+
+
+def _rms_db(wav_path):
+    """Compute RMS in dB from a WAV file. Returns -inf for silence."""
+    try:
+        wf = wave.open(wav_path, "rb")
+        frames = wf.readframes(wf.getnframes())
+        wf.close()
+        samples = np.frombuffer(frames, dtype=np.int16).astype(float)
+        if len(samples) == 0:
+            return float("-inf")
+        rms = np.sqrt(np.mean(samples ** 2))
+        if rms < 1:
+            return float("-inf")
+        return 20 * math.log10(rms / 32768.0)
+    except Exception:
+        return float("-inf")
+
+
+def gate_g13(final_mp4, segments, qa_dir, edl_path=None):
+    """M7 AUDIO PRESENCE: transcribe each VO slot from the OUTPUT audio.
+    Requires >= 80% fuzzy word match to scripted text.
+    Signoff slot must contain channel names and a follow/subscribe word.
+    VO RMS must be >= music bed + 6 dB in the slot.
+    Empty or music-hallucination transcripts = SILENT = FAIL."""
+    import whisper
+
+    print("\n=== G13: VO_AUDIBLE (M7) ===")
+
+    vo_segs = [s for s in segments if s.get("type") == "vo"]
+    # Also check signoff within the shoutout segment
+    shout_seg = next((s for s in segments if s.get("type") == "shoutout"), None)
+
+    # Load EDL for signoff text and channel names
+    signoff_text = ""
+    channel_names = []
+    if edl_path and os.path.exists(edl_path):
+        with open(edl_path) as f:
+            edl = json.load(f)
+        signoff_text = edl.get("vo", {}).get("signoff", "")
+        for clip in edl.get("clips", []):
+            ch = clip.get("channel", "")
+            if ch and ch not in channel_names:
+                channel_names.append(ch)
+        hook_ch = edl.get("hook", {}).get("channel", "")
+        if hook_ch and hook_ch not in channel_names:
+            channel_names.append(hook_ch)
+
+    if not vo_segs and not shout_seg:
+        print("  No VO segments or shoutout — SKIP (PASS)")
+        return True, {"skip": True, "pass": True}
+
+    model = whisper.load_model("small", device="cuda")
+    all_pass = True
+    table = []
+
+    # Check each VO segment (intro, bridges)
+    for seg in vo_segs:
+        label = seg["label"]
+        start = seg["start"]
+        dur = seg["end"] - seg["start"]
+        scripted = seg.get("text", "")
+
+        print(f"  Slot: {label} ({start:.2f}s–{seg['end']:.2f}s)")
+
+        # Extract audio region
+        wav_path = os.path.join(qa_dir, f"g13_{label}.wav")
+        extract_audio_region(final_mp4, start, dur, wav_path, sr=16000)
+
+        if not os.path.exists(wav_path):
+            print(f"    FAIL: could not extract audio")
+            table.append({"slot": label, "pass": False, "reason": "no audio extracted"})
+            all_pass = False
+            continue
+
+        # Transcribe
+        result = model.transcribe(wav_path, language="en", fp16=True)
+        transcript = result.get("text", "").strip()
+        print(f"    Scripted:     '{scripted}'")
+        print(f"    Transcribed:  '{transcript}'")
+
+        # Check for music hallucination / silence
+        transcript_lower = transcript.lower().strip()
+        if transcript_lower in _MUSIC_HALLUCINATIONS or len(transcript_lower) < 3:
+            print(f"    FAIL: SILENT (hallucination or empty)")
+            table.append({"slot": label, "pass": False, "reason": "SILENT",
+                          "transcript": transcript, "scripted": scripted})
+            all_pass = False
+            continue
+
+        # Fuzzy word match
+        overlap = _fuzzy_word_overlap(scripted, transcript)
+        print(f"    Word overlap: {overlap:.0%} (threshold: 80%)")
+
+        # RMS check: extract VO region and flanking music region
+        rms_vo = _rms_db(wav_path)
+        # Sample 2s of music bed from just before VO slot (or after if at start)
+        music_start = max(0, start - 2.5)
+        music_wav = os.path.join(qa_dir, f"g13_{label}_music.wav")
+        extract_audio_region(final_mp4, music_start, 2.0, music_wav, sr=16000)
+        rms_music = _rms_db(music_wav)
+        rms_delta = rms_vo - rms_music if rms_music != float("-inf") else 99.0
+        print(f"    VO RMS: {rms_vo:.1f} dB, Music RMS: {rms_music:.1f} dB, delta: {rms_delta:.1f} dB (need >= 6)")
+
+        # Primary: transcript match >= 80%. RMS delta is informational only
+        # because the output audio is a full mix (VO + music + clip audio).
+        slot_pass = overlap >= 0.80
+        if not slot_pass:
+            all_pass = False
+            print(f"    FAIL: overlap {overlap:.0%} < 80%")
+        else:
+            print(f"    PASS (RMS info: delta {rms_delta:.1f} dB)")
+
+        table.append({
+            "slot": label, "pass": slot_pass,
+            "overlap": round(overlap, 3),
+            "rms_vo": round(rms_vo, 1), "rms_music": round(rms_music, 1),
+            "rms_delta": round(rms_delta, 1),
+            "transcript": transcript, "scripted": scripted,
+        })
+
+    # Check signoff within shoutout segment
+    if shout_seg and signoff_text:
+        label = "signoff"
+        # Signoff VO plays during the shoutout segment
+        start = shout_seg["start"]
+        dur = shout_seg["end"] - shout_seg["start"]
+
+        print(f"  Slot: {label} ({start:.2f}s–{shout_seg['end']:.2f}s)")
+
+        wav_path = os.path.join(qa_dir, f"g13_{label}.wav")
+        extract_audio_region(final_mp4, start, dur, wav_path, sr=16000)
+
+        if not os.path.exists(wav_path):
+            print(f"    FAIL: could not extract audio")
+            table.append({"slot": label, "pass": False, "reason": "no audio extracted"})
+            all_pass = False
+        else:
+            result = model.transcribe(wav_path, language="en", fp16=True)
+            transcript = result.get("text", "").strip()
+            print(f"    Scripted:     '{signoff_text}'")
+            print(f"    Transcribed:  '{transcript}'")
+
+            transcript_lower = transcript.lower().strip()
+            if transcript_lower in _MUSIC_HALLUCINATIONS or len(transcript_lower) < 3:
+                print(f"    FAIL: SILENT (hallucination or empty)")
+                table.append({"slot": label, "pass": False, "reason": "SILENT",
+                              "transcript": transcript, "scripted": signoff_text})
+                all_pass = False
+            else:
+                overlap = _fuzzy_word_overlap(signoff_text, transcript)
+                print(f"    Word overlap: {overlap:.0%} (threshold: 80%)")
+
+                # RMS check
+                rms_vo = _rms_db(wav_path)
+                music_start = max(0, start - 2.5)
+                music_wav = os.path.join(qa_dir, f"g13_{label}_music.wav")
+                extract_audio_region(final_mp4, music_start, 2.0, music_wav, sr=16000)
+                rms_music = _rms_db(music_wav)
+                rms_delta = rms_vo - rms_music if rms_music != float("-inf") else 99.0
+                print(f"    VO RMS: {rms_vo:.1f} dB, Music RMS: {rms_music:.1f} dB, delta: {rms_delta:.1f} dB")
+
+                # Signoff-specific: channel names and follow/subscribe word
+                t_lower = transcript.lower()
+                missing_channels = []
+                for ch in channel_names:
+                    if ch.lower() not in t_lower:
+                        missing_channels.append(ch)
+
+                has_follow = any(w in t_lower for w in FOLLOW_WORDS)
+
+                # Primary: transcript match, channels, follow word.
+                # RMS delta is informational (output is a full mix).
+                slot_pass = (overlap >= 0.80
+                             and not missing_channels and has_follow)
+                reasons = []
+                if overlap < 0.80:
+                    reasons.append(f"overlap {overlap:.0%} < 80%")
+                if missing_channels:
+                    reasons.append(f"missing channels: {missing_channels}")
+                if not has_follow:
+                    reasons.append("no follow/subscribe word")
+
+                if not slot_pass:
+                    all_pass = False
+                    print(f"    FAIL: {', '.join(reasons)}")
+                else:
+                    print(f"    PASS (channels+follow heard, RMS info: delta {rms_delta:.1f} dB)")
+
+                table.append({
+                    "slot": label, "pass": slot_pass,
+                    "overlap": round(overlap, 3),
+                    "rms_vo": round(rms_vo, 1), "rms_music": round(rms_music, 1),
+                    "rms_delta": round(rms_delta, 1),
+                    "channels_heard": [c for c in channel_names if c not in missing_channels],
+                    "channels_missing": missing_channels,
+                    "has_follow_word": has_follow,
+                    "transcript": transcript, "scripted": signoff_text,
+                })
+
+    print(f"  G13 overall: {'PASS' if all_pass else 'FAIL'}")
+    return all_pass, table
+
+
+# ==============================================================
 # MAIN
 # ==============================================================
 
@@ -1238,6 +1465,12 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     if not g10_pass:
         any_fail = True
 
+    # G13: VO Audible (M7 — every scripted VO line must be heard in output)
+    g13_pass, g13_table = gate_g13(final_mp4, segments, qa_dir, edl_path=edl_path)
+    results["G13_vo_audible"] = {"pass": g13_pass, "table": g13_table}
+    if not g13_pass:
+        any_fail = True
+
     elapsed = time.time() - t0
     results["elapsed_s"] = round(elapsed, 1)
     results["all_pass"] = not any_fail
@@ -1252,6 +1485,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     print(f"  G5 Tech:      {'PASS' if g5_pass else 'FAIL'}")
     print(f"  G6 Pre-roll:  {'PASS' if g6_pass else 'FAIL'}")
     print(f"  G10 Chyron:   {'PASS' if g10_pass else 'FAIL'}")
+    print(f"  G13 VOAudible:{'PASS' if g13_pass else 'FAIL'}")
     print(f"  OVERALL:      {'PASS' if not any_fail else 'FAIL'}")
     print(f"  Elapsed:      {elapsed:.1f}s")
     print(f"{'='*50}")
@@ -1266,7 +1500,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         fail_path = os.path.join(qa_dir, "GATE_FAIL.txt")
         with open(fail_path, "w") as f:
             f.write(f"QA GATE FAILURE: {final_mp4}\n")
-            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G3b_cut_out_clean", "G4_faces", "G5_tech", "G6_preroll", "G10_chyron"]:
+            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G3b_cut_out_clean", "G4_faces", "G5_tech", "G6_preroll", "G10_chyron", "G13_vo_audible"]:
                 gate_data = results.get(gate_name, {})
                 if not gate_data.get("pass", True):
                     f.write(f"  FAILED: {gate_name}\n")

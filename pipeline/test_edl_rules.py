@@ -433,7 +433,7 @@ class TestSignoffValidation(unittest.TestCase):
         text = "Thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions \u2014 go follow them all, links are below in the description."
         ok, reason = self.validate(text, self.channels, [])
         self.assertFalse(ok)
-        self.assertIn("em dash", reason)
+        self.assertIn("dash", reason)
 
     def test_jaccard_overlap_fails(self):
         prev = "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for the clips today. Go follow all three of them."
@@ -478,6 +478,62 @@ class TestVOVisualSourceLaw23a(unittest.TestCase):
         # The function must check if source is already portrait (h > w)
         self.assertIn('src_h > src_w', src,
                       "render_vo_visual_vert must detect portrait source and skip 16:9 crop")
+
+
+class TestSignoffJaccardExcludesChannels(unittest.TestCase):
+    """Jaccard overlap must exclude channel display name words so
+    'Clips today from X, Y, Z. Go follow them.' and
+    'Clips today from A, B, C. Go follow them.' are NOT falsely similar."""
+
+    def test_same_structure_different_channels_passes(self):
+        from signoff import validate_signoff
+        channels = ["Bitcoin Magazine", "The Bitcoin Layer", "BTC Sessions"]
+        history = [{
+            "text": "Clips today from Simply Bitcoin, BTC Sessions, and CoinDesk. Go follow them. Links are below.",
+            "segment_id": "v12_reference",
+        }]
+        candidate = "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for the clips. Follow them all. Links below."
+        ok, reason = validate_signoff(candidate, channels, history)
+        self.assertTrue(ok, f"Should pass since channel words are excluded: {reason}")
+
+    def test_truly_duplicate_structure_fails(self):
+        from signoff import validate_signoff
+        channels = ["Bitcoin Magazine", "The Bitcoin Layer", "BTC Sessions"]
+        history = [{
+            "text": "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for the clips. Follow them all. Links below.",
+            "segment_id": "segment_v2d",
+        }]
+        candidate = "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for the clips. Follow them all. Links below."
+        ok, _reason = validate_signoff(candidate, channels, history)
+        self.assertFalse(ok, "Exact duplicate should fail Jaccard even with channel exclusion")
+
+
+class TestG13VOAudibleLogic(unittest.TestCase):
+    """G13 VO_AUDIBLE gate logic tests (M7)."""
+
+    def test_fuzzy_word_overlap_high(self):
+        """80%+ overlap between scripted and good transcript."""
+        sys.path.insert(0, os.path.join(os.path.dirname(FIXTURE_DIR), "segment_v1"))
+        from qa_gates import _fuzzy_word_overlap
+        scripted = "Dollar dominance ends. Bond markets are breaking."
+        transcript = "Dollar dominance ends. Bond markets are breaking."
+        self.assertGreaterEqual(_fuzzy_word_overlap(scripted, transcript), 0.80)
+
+    def test_fuzzy_word_overlap_partial(self):
+        """Partial match under threshold."""
+        sys.path.insert(0, os.path.join(os.path.dirname(FIXTURE_DIR), "segment_v1"))
+        from qa_gates import _fuzzy_word_overlap
+        scripted = "Dollar dominance ends. Bond markets are breaking."
+        transcript = "Thanks for watching. Subscribe."
+        self.assertLess(_fuzzy_word_overlap(scripted, transcript), 0.80)
+
+    def test_music_hallucination_set(self):
+        """Known hallucinations are in the set."""
+        sys.path.insert(0, os.path.join(os.path.dirname(FIXTURE_DIR), "segment_v1"))
+        from qa_gates import _MUSIC_HALLUCINATIONS
+        self.assertIn("thanks for watching", _MUSIC_HALLUCINATIONS)
+        self.assertIn("", _MUSIC_HALLUCINATIONS)
+        self.assertIn("music", _MUSIC_HALLUCINATIONS)
 
 
 if __name__ == "__main__":

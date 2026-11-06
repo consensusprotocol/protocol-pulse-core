@@ -1,0 +1,20 @@
+{
+  "intro": {
+    "stem_wav": "vo_intro_pp2_v1.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "Dollar dominance ends. Bond markets are breaking."
+  },
+  "bridge_01": {
+    "stem_wav": "vo_bridge_01_pp2_v1.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "Now hear the numbers that prove it."
+  },
+  "signoff": {
+    "stem_wav": "vo_signoff_pp2_v1.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for the clips. Follow them all. Links below."
+  }
+}
