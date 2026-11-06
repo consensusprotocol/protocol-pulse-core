@@ -26,6 +26,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE_DIR)
+from config import verify_vo_voice
 from config import (FPS, PRE_ROLL, WIDTH, HEIGHT, VERT_W, VERT_H,
                     ACCENT_COLOR, NVENC_QP_FINAL, NVENC_QP_INTERMEDIATE,
                     resolve_paths, resolve_brand, resolve_bgm,
@@ -606,9 +607,9 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
 
     # ========== STEP 1: Verify voice ==========
     print("=== STEP 1: VERIFY VOICE ===")
-    voice_id = vo_manifest["intro"]["voice_id"]
+    voice_id, model_id = verify_vo_voice(vo_manifest)
     print(f"  voice_id: {voice_id}")
-    print(f"  model: {vo_manifest['intro']['model_id']}")
+    print(f"  model: {model_id}")
 
     # ========== STEP 2: Reframe clips to 9:16 ==========
     print("\n=== STEP 2: REFRAME CLIPS ===")
@@ -782,11 +783,13 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
         raise RuntimeError("STOP: hook missing from reframed clips")
     segments.append(("hook", reframed["hook"], "talking_head"))
 
-    # Intro VO — fail-closed: intro is required
+    # Intro VO — fail-closed when the EDL has an intro (mirrors 16:9).
+    # A legitimately intro-less EDL (Law 27/M20) gets no intro segment.
     vo_intro_mp4 = os.path.join(qa_dir, "vo_vert_intro.mp4")
-    if not os.path.exists(vo_intro_mp4):
-        raise RuntimeError(f"STOP: intro VO missing: {vo_intro_mp4}")
-    segments.append(("vo_intro", vo_intro_mp4, "vo"))
+    if edl.get("vo", {}).get("intro"):
+        if not os.path.exists(vo_intro_mp4):
+            raise RuntimeError(f"STOP: intro VO missing: {vo_intro_mp4}")
+        segments.append(("vo_intro", vo_intro_mp4, "vo"))
 
     # Build bridge placement map: clip_index -> bridge manifest key
     bridge_after_map = {}

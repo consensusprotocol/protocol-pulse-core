@@ -31,6 +31,24 @@ WHITE_FRACTION_MAX = 0.25
 DURATION_TOL = 0.25
 PRE_ROLL_FLOOR = 0.95
 
+def verify_vo_voice(vo_manifest):
+    """Voice consistency over whichever VO entries actually exist.
+
+    Returns (voice_id, model_id). Raises RuntimeError if there are no VO
+    entries or if entries disagree on voice_id/model_id. An intro-less
+    manifest (Law 27/M20) is legitimate.
+    """
+    entries = {k: v for k, v in vo_manifest.items()
+               if isinstance(v, dict) and v.get("stem_wav")}
+    if not entries:
+        raise RuntimeError("STOP: VO manifest has no VO entries")
+    pairs = {(v.get("voice_id"), v.get("model_id")) for v in entries.values()}
+    if len(pairs) != 1 or None in next(iter(pairs)):
+        raise RuntimeError(f"STOP: VO voice/model mismatch across entries: "
+                           f"{ {k: (v.get('voice_id'), v.get('model_id')) for k, v in entries.items()} }")
+    return next(iter(pairs))
+
+
 # ── VO word caps (M18 — single source of truth) ──
 INTRO_WORD_CAP = 30
 BRIDGE_WORD_CAP = 20

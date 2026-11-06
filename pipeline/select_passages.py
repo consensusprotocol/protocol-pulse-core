@@ -264,9 +264,12 @@ def select_and_build_edl(keyword, niche, run_dir):
         if bounds is None:
             return None
         first_word, last_word, word_start, word_end = bounds
-        # Convert back to full-video coords for EDL
-        word_start_abs = word_start + offset
-        word_end_abs = word_end + offset
+        # EDL times stay in SOURCE-FILE coordinates (the downloaded window):
+        # cut.py and the clip pre-render seek into sources/<vid>.mp4, and the
+        # whisper words are measured on that same file. The window offset is
+        # recorded for provenance only (fresh-topic generalization B).
+        word_start_abs = word_start
+        word_end_abs = word_end
         channels_used.add(passage["channel"])
         return {
             "video_id": vid,
@@ -279,6 +282,8 @@ def select_and_build_edl(keyword, niche, run_dir):
             "word_start": round(word_start_abs, 3),
             "word_end": round(word_end_abs, 3),
             "duration": round(word_end - word_start, 2),
+            "time_coords": "source_file",
+            "source_window_offset_s": round(offset, 3),
         }
 
     hook_seg = _build_segment(hook, "hook")
