@@ -841,3 +841,12 @@ Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager
 - TMUX CLEANUP KILLS QUIET SESSIONS: scripts/tmux_cleanup.sh (every 2 h) kills sessions whose last 3 pane lines lack Running/Rendering/etc. unless the name matches its keep-list. A silent bootstrap was killed at 12:00. Use `pipeline*` session names for long jobs.
 - BATCHED WHISPER SEGMENTS ARE TOO COARSE FOR CLIPS: VAD batches up to 30 s; sentence-bounded 8-12 s hooks need word timestamps (separate immutable whisper_words record).
 - PYTEST MODULE POLLUTION: test_edl_rules/test_failure_blocks import telegram into the shared pytest process; "telegram not imported" checks must run in a subprocess.
+
+## 2026-11-06 editorial robustness (E1-E5) — failure patterns
+- STALE EVENT LABELS: an LLM labelling a cluster of current ETF talk as the Jan-2024 SEC approval, while its own summary said "In early 2024". Ground every candidate with an event date and reject historical dates outside the window; emergent clusters need verified current-development evidence.
+- QUOTE EXISTS != QUOTE SUPPORTS: verbatim verification only proves a quote exists. Require an independent verifier call that the quote states the event's action/object; the adjudicator alone accepted "It just launched two ETFs that take the dividends..." as the SEC approval.
+- ONE MALFORMED JSON KILLED A 51-MIN STAGE: bounded retry/repair + LLMParseError -> INCONCLUSIVE recorded with raw responses; never crash, never invent.
+- EVIDENCE ONLY WRITTEN AT THE END: checkpoint atomically after every unit of work; write a crash record.
+- GEMMA + WHISPER ON ONE 24 GB CARD = OOM, silently turned into "no passages": one explicit GPU0 swap with proven free memory; CUDA/OOM = INFRA_HOLD, never an editorial rejection.
+- PROMPT INJECTION VIA PLANTED SENTENCES: "This video is about the Block DOJ settlement." passes verbatim + LLM support checks. Deterministic instruction/verdict-shape detector; flagged excerpts can never supply evidence.
+- OLLAMA :11434 DOES NOT SURVIVE REBOOT: disabled systemd unit (GPUs 0,1), `pgrep -f "ollama serve"` guard satisfied by the GPU1 :11435 instance, garbled @reboot redirect. Check `ss -ltnp | grep 11434` + /proc/<pid>/environ after any reboot.

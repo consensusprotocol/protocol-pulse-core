@@ -279,6 +279,21 @@ def fetch_captions(meta, work_dir):
 # ── whisper ──
 
 _WHISPER = None
+LAST_ERROR = {}          # video_id -> last acquisition error string (infra vs editorial triage)
+
+
+def release_whisper():
+    """Drop the Whisper model and free its GPU memory (E5). Returns GPU0 used MiB after."""
+    global _WHISPER
+    _WHISPER = None
+    import gc
+    gc.collect()
+    try:
+        out = subprocess.run(["nvidia-smi", "-i", "0", "--query-gpu=memory.used",
+                              "--format=csv,noheader,nounits"], capture_output=True, text=True).stdout
+        return int(out.strip())
+    except Exception:
+        return None
 
 
 def _whisper():
@@ -362,6 +377,7 @@ def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=F
     try_captions=False skips the caption step (used for the Whisper pass after a caption pass
     already failed, so YouTube is not asked twice). prefer_words=True guarantees a
     word-timestamped Whisper record (clip-quality stage), created at most once per video."""
+    LAST_ERROR.pop(video_id, None)
     rec = canonical_transcript(video_id)
     if rec and (not prefer_words or rec["transcript_method"] == "whisper_words"):
         return rec, "cached"
@@ -385,7 +401,10 @@ def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=F
     try:
         wrec = whisper_transcribe(meta, transcribe_fn=transcribe_fn, words=prefer_words)
     except Exception as e:
+        LAST_ERROR[video_id] = f"{type(e).__name__}: {e}"[-400:]
         _log_attempt(video_id, step="whisper", status="error", error=str(e)[-300:])
+        if "out of memory" in str(e).lower():
+            release_whisper()          # never keep a half-initialised model around
         return rec, "whisper_failed"
     _store(wrec)
     _log_attempt(video_id, step="whisper", status="ok", model=wrec["transcript_model"])
