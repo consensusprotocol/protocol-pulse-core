@@ -65,16 +65,27 @@ class TestRunIsolated(unittest.TestCase):
         self.assertFalse(ok)
         self.assertTrue(any("clip_01" in m for m in msgs))
 
-    def test_abort_check_clip02_delta(self):
+    def test_abort_check_clip02_cut_out_delta(self):
         """abort_check fails when clip_02 cut_out diverges > 0.005 from v2e."""
         cuts = {
             "clip_01": {"cut_out": 249.670},
-            "clip_02": {"cut_out": 636.780, "cut_in": 624.63},  # delta 0.060
+            "clip_02": {"cut_out": 636.780, "cut_in": 624.63},  # cut_out delta 0.060
             "clip_03": {"cut_out": 1011.80, "cut_in": 998.0},
         }
         ok, msgs = abort_check(cuts)
         self.assertFalse(ok)
-        self.assertTrue(any("clip_02" in m for m in msgs))
+        self.assertTrue(any("clip_02" in m and "cut_out" in m for m in msgs))
+
+    def test_abort_check_clip02_cut_in_delta(self):
+        """abort_check fails when clip_02 cut_in diverges > 0.005 from v2e."""
+        cuts = {
+            "clip_01": {"cut_out": 249.670},
+            "clip_02": {"cut_out": 636.72, "cut_in": 624.70},  # cut_in delta 0.07
+            "clip_03": {"cut_out": 1011.80, "cut_in": 998.0},
+        }
+        ok, msgs = abort_check(cuts)
+        self.assertFalse(ok)
+        self.assertTrue(any("clip_02" in m and "cut_in" in m for m in msgs))
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ VO_HASHES = {
 # v2e reference values for abort check (orchestrator STEP 3)
 V2E_CUTS = {
     "clip_01": {"cut_out": 249.670, "range": (249.62, 249.72)},
-    "clip_02": {"cut_out": 636.72},
+    "clip_02": {"cut_in": 624.63, "cut_out": 636.72},
     "clip_03": {"cut_in": 998.0, "cut_out": 1011.80},
 }
 
@@ -144,50 +144,50 @@ def abort_check(cuts):
 
 
 def run_pipeline(run_dir):
-    """Run renderers + gates. Stops before telegram."""
-    from types import SimpleNamespace
-    args = SimpleNamespace(qa_version=None, output_name="segment.mp4",
-                           voice_key=None, model=None)
+    """Run renderers + gates. Never calls telegram.
 
-    # Shoutout (needs edl.json only)
+    Order (F2): shoutout both → render16 → render9 → gates16 → gates9.
+    Gate failure blocks DELIVERY, not the other render.
+    """
     from shoutout import build_shoutout
+    from render16 import render_16x9
+    from render_vertical import render_9x16
+    from gates import run_gates
+    from config import resolve_paths
+
+    # Shoutout both
     print("\n=== SHOUTOUT ===")
     build_shoutout(run_dir, None, "16x9")
     build_shoutout(run_dir, None, "9x16")
 
-    # Render 16:9
+    # Render both
     print("\n=== RENDER 16:9 ===")
-    from render16 import render_16x9
     render_16x9(run_dir, None, "segment.mp4")
 
-    # Gates 16:9
-    print("\n=== GATES 16:9 ===")
-    from gates import run_gates
-    from config import resolve_paths
+    print("\n=== RENDER 9:16 ===")
+    render_9x16(run_dir, None, "segment_vertical.mp4")
+
+    # Gates both (record results, don't short-circuit)
     paths = resolve_paths(run_dir)
+
+    print("\n=== GATES 16:9 ===")
     final_16 = os.path.join(paths["out_dir"], "segment.mp4")
     manifest_16 = os.path.join(paths["qa_dir"], "concat_manifest_16x9.json")
     ok16, _ = run_gates(run_dir, final_16, manifest_16)
-    if not ok16:
-        print("** GATE FAILURE 16:9 — HARD STOP **")
-        return False
 
-    # Render 9:16
-    print("\n=== RENDER 9:16 ===")
-    from render_vertical import render_9x16
-    render_9x16(run_dir, None, "segment_vertical.mp4")
-
-    # Gates 9:16
     print("\n=== GATES 9:16 ===")
     final_9 = os.path.join(paths["out_dir"], "segment_vertical.mp4")
     manifest_9 = os.path.join(paths["qa_dir"], "concat_manifest_9x16.json")
     ok9, _ = run_gates(run_dir, final_9, manifest_9)
-    if not ok9:
-        print("** GATE FAILURE 9:16 — HARD STOP **")
-        return False
 
-    print("\n=== PIPELINE COMPLETE (stopped before telegram) ===")
-    return True
+    if not ok16:
+        print("\n** GATE FAILURE 16:9 **")
+    if not ok9:
+        print("\n** GATE FAILURE 9:16 **")
+
+    print(f"\n=== PIPELINE COMPLETE — 16:9 {'PASS' if ok16 else 'FAIL'} / "
+          f"9:16 {'PASS' if ok9 else 'FAIL'} (no telegram) ===")
+    return ok16 and ok9
 
 
 def main():
