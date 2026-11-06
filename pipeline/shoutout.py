@@ -3,6 +3,7 @@
 
 FROZEN from segment_v1/scene_shoutout.py. Delegates to the original.
 Only difference: resolves channels from EDL and passes to the frozen renderer.
+M23: aspect-isolated temp dirs, exact frame-count validation, dimension check.
 
 Usage:
     python3 -m pipeline.shoutout --segment <segment_dir> [--qa-version N]
@@ -10,7 +11,10 @@ Usage:
 import argparse
 import json
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import resolve_paths
@@ -63,13 +67,12 @@ def build_shoutout(segment_dir, qa_version=None, fmt="16x9"):
         size = (1080, 1920)
         out_name = "shoutout_9x16.mp4"
 
-    out_path = os.path.join(qa_dir, out_name)
+    final_path = os.path.join(qa_dir, out_name)
 
     # Get signoff VO if available, ensure 48kHz stereo for concat compatibility
     vo_dir = paths["vo_dir"]
     manifest_path = os.path.join(vo_dir, "VO_MANIFEST.json")
     # M12: signoff WAV is REQUIRED — missing = STOP
-    import subprocess
     if not os.path.exists(manifest_path):
         raise FileNotFoundError(f"STOP: VO manifest missing: {manifest_path}")
     with open(manifest_path) as f:
@@ -86,12 +89,46 @@ def build_shoutout(segment_dir, qa_version=None, fmt="16x9"):
         "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", vo_wav,
     ], capture_output=True, timeout=30, check=True)
 
-    render_shoutout(channels, size=size, vo_wav=vo_wav, out_path=out_path)
+    # M23: Render in an aspect-isolated temp dir to prevent frame contamination.
+    # scene_shoutout.py places frames in <dirname(out_path)>/shoutout_frames_raw/
+    # so we set out_path inside an isolated subdir, then move the mp4 out.
+    build_dir = os.path.join(qa_dir, f"shoutout_build_{fmt.replace(':', 'x')}")
+    if os.path.exists(build_dir):
+        shutil.rmtree(build_dir)
+    os.makedirs(build_dir)
+    temp_out = os.path.join(build_dir, out_name)
 
-    if not os.path.exists(out_path):
-        raise RuntimeError(f"STOP: shoutout render failed: {out_path}")
-    print(f"  Output: {out_path}")
-    return out_path
+    render_shoutout(channels, size=size, vo_wav=vo_wav, out_path=temp_out)
+
+    if not os.path.exists(temp_out) or os.path.getsize(temp_out) < 1000:
+        raise RuntimeError(f"STOP: shoutout render failed: {temp_out}")
+
+    # M23: Validate frame dimensions in the rendered mp4
+    _validate_shoutout_frames(temp_out, size, fmt)
+
+    # Move to final location and clean up build dir
+    shutil.move(temp_out, final_path)
+    shutil.rmtree(build_dir, ignore_errors=True)
+
+    print(f"  Output: {final_path}")
+    return final_path
+
+
+def _validate_shoutout_frames(mp4_path, expected_size, fmt):
+    """M23: Verify every frame in the shoutout mp4 has the expected dimensions."""
+    r = subprocess.run([
+        "ffprobe", "-v", "error", "-select_streams", "v:0",
+        "-show_entries", "stream=width,height,nb_frames",
+        "-of", "csv=p=0", mp4_path,
+    ], capture_output=True, text=True, timeout=10)
+    parts = r.stdout.strip().split(",")
+    w, h = int(parts[0]), int(parts[1])
+    expected_w, expected_h = expected_size
+    if w != expected_w or h != expected_h:
+        raise RuntimeError(
+            f"STOP: shoutout {fmt} has wrong dimensions: {w}x{h}, "
+            f"expected {expected_w}x{expected_h} — likely cross-aspect contamination"
+        )
 
 
 def _find_avatar(segment_dir, channel_name):
