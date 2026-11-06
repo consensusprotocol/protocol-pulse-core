@@ -243,16 +243,6 @@ class TestClipContract(unittest.TestCase):
 # ── run_fresh orchestration rules ──
 
 class TestRunFreshRules(unittest.TestCase):
-    def test_topic_terms(self):
-        from run_fresh import topic_terms
-        t = topic_terms("Bitcoin erases post-election gains as Wall Street selloff triggers "
-                        "over $1 billion in crypto liquidations")
-        self.assertNotIn("bitcoin", t)
-        self.assertNotIn("billion", t)
-        self.assertNotIn("over", t)
-        self.assertIn("election", t)
-        self.assertNotIn("530m", topic_terms("ETFs post $530M outflows"))
-
     def test_verdict_rules(self):
         from run_fresh import verdict_for, VERDICT_CANDIDATE, VERDICT_HOLD
         ok_rows = {"G1_voice": "PASS", "G8_sharpness": "FLAG/LIMITED (x)",
@@ -267,9 +257,13 @@ class TestRunFreshRules(unittest.TestCase):
     def test_no_publishing_path(self):
         src = open(os.path.join(PIPELINE, "run_fresh.py")).read()
         self.assertNotRegex(src, r"^\s*(from|import)\s+telegram", )
-        import run_fresh  # noqa: F401
-        self.assertNotIn("telegram", sys.modules)
-        self.assertNotIn("telegram_drop", sys.modules)
+        # fresh interpreter: other test files import telegram into a shared pytest process
+        code = ("import sys; sys.path.insert(0, %r); import run_fresh, editorial_select, "
+                "story_semantics, transcript_store, transcript_ingest; "
+                "print([m for m in sys.modules if 'telegram' in m])" % PIPELINE)
+        out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
+                             cwd=PIPELINE).stdout.strip().splitlines()[-1]
+        self.assertEqual(out, "[]")
 
     def test_fallback_regex(self):
         from run_fresh import FALLBACK_RE

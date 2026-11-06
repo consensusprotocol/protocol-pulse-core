@@ -90,7 +90,8 @@
     "has_chyron": false,
     "layout_table_key": "",
     "layout_status": "pending",
-    "x_handle": ""
+    "x_handle": "",
+    "channel_id": "UClG-wqz-OuXfzbpqwJd3fVA"
   },
   {
     "slug": "bitcoin_explained",
@@ -152,7 +153,8 @@
     "has_chyron": false,
     "layout_table_key": "",
     "layout_status": "pending",
-    "x_handle": ""
+    "x_handle": "",
+    "channel_id": "UCGJejc8-Y_99ziZyQdE_T2g"
   },
   {
     "slug": "bitcoin_podcast",
@@ -438,7 +440,8 @@
     "has_chyron": false,
     "layout_table_key": "",
     "layout_status": "pending",
-    "x_handle": ""
+    "x_handle": "",
+    "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg"
   },
   {
     "slug": "coffeezilla",
@@ -580,7 +583,8 @@
     "has_chyron": false,
     "layout_table_key": "",
     "layout_status": "pending",
-    "x_handle": ""
+    "x_handle": "",
+    "channel_id": "UCWgDUd9-JpJlWVlPyEeeL8g"
   },
   {
     "slug": "coin_bureau",
@@ -863,7 +867,8 @@
     "has_chyron": false,
     "layout_table_key": "",
     "layout_status": "pending",
-    "x_handle": ""
+    "x_handle": "",
+    "channel_id": "UCGXWKlq1Oxr3ddEtmKhAkPg"
   },
   {
     "slug": "real_vision_finance",
@@ -980,8 +985,8 @@
   {
     "slug": "simply_bitcoin",
     "display_name": "Simply Bitcoin",
-    "yt_handle": "@SimplyBitcoinTV",
-    "url": "https://www.youtube.com/@SimplyBitcoinTV",
+    "yt_handle": "@SimplyBitcoin",
+    "url": "https://www.youtube.com/@SimplyBitcoin",
     "tier": 2,
     "priority": 3,
     "enabled": true,
@@ -990,7 +995,8 @@
     "has_chyron": false,
     "layout_table_key": "simplybitcoin",
     "layout_status": "approved",
-    "x_handle": "@SimplyBitcoin"
+    "x_handle": "@SimplyBitcoin",
+    "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
   },
   {
     "slug": "bankless",
@@ -1021,7 +1027,8 @@
     "has_chyron": false,
     "layout_table_key": "",
     "layout_status": "pending",
-    "x_handle": ""
+    "x_handle": "",
+    "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg"
   },
   {
     "slug": "cnbc",
@@ -1100,7 +1107,8 @@
     "has_chyron": false,
     "layout_table_key": "",
     "layout_status": "pending",
-    "x_handle": ""
+    "x_handle": "",
+    "channel_id": "UC9ijza42jVR3T6b8bColgvg"
   },
   {
     "slug": "kitco_news",

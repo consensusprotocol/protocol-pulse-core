@@ -829,3 +829,15 @@ Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager
 - SILENT GATE SKIP REPORTED AS PASS: run_gates never passes horiz_mp4, so G11 parity returns {pass: true, skip: true} on every 9:16 (v2f included). Guard: run_fresh runs G11 explicitly; any skipped gate is reported SKIPPED, never PASS.
 - UNTRACKED DEPENDENCY: pipeline/scan.py (imported by discover.py) was never committed. A revision without it cannot reproduce the keyword path.
 - STORY RANKING vs VIDEO DISCOVERY GAP: candidate_stories ranks article headlines; discover needs a keyword present in video titles. Headline tokens rarely appear in approved-channel titles (2026-11-06: no ranked Bitcoin story had >= 2 approved channels within 72 h). Editorial project, not a production fix.
+
+## 2026-11-06 transcript-first editorial layer — failure patterns
+- TITLE-SUBSTRING STORY MATCHING: "block" in "Fireblocks", "bull" in "Bullish", "crash" in "Crashed" produced false coverage, while the midterms story (3+ channels in transcripts) was invisible because titles used different words. Story identity must come from transcripts + semantic adjudication with verbatim evidence, never title substrings.
+- STORY ENGINE SILENTLY DEGRADED: GPT-4o clustering/soft scoring 429 since Sept 8 (last success Oct 22), xAI key absent; every story gets default soft scores, rank collapses to recency + source quality + "%/billion" regex. Detect and record it; never treat the degraded rank as equivalent.
+- LITERAL "bitcoin|btc" RELEVANCE FILTER dropped the one story with real video coverage ("post-midterm" headline). Bitcoin relevance is a semantic judgment.
+- EDITORIAL UNIVERSE COUPLED TO LAYOUT APPROVAL hid 53 of 57 scannable channels. Layout approval gates clips only.
+- YOUTUBE CAPTION 429 FROM ULTRON: bursts of caption downloads get HTTP 429 (with or without cookies); rank._fetch_subs turned that into "no subs" silently. Treat 429 as a path switch to Whisper with a circuit breaker.
+- WRONG REGISTRY HANDLE: Simply Bitcoin was @SimplyBitcoinTV (404) -> real @SimplyBitcoin UCB6Q0S1gUHXMe5-Jjx0_laQ; 18 channels had no channel_id and were never scanned.
+- "SYSTEMCTL SHOW" LIED ABOUT OLLAMA GPUS: unit says CUDA_VISIBLE_DEVICES=0,1 but the live :11434 process runs with 0; a separate :11435 instance is pinned to GPU1 (21 GB). Check /proc/<pid>/environ + nvidia-smi, not the unit file.
+- TMUX CLEANUP KILLS QUIET SESSIONS: scripts/tmux_cleanup.sh (every 2 h) kills sessions whose last 3 pane lines lack Running/Rendering/etc. unless the name matches its keep-list. A silent bootstrap was killed at 12:00. Use `pipeline*` session names for long jobs.
+- BATCHED WHISPER SEGMENTS ARE TOO COARSE FOR CLIPS: VAD batches up to 30 s; sentence-bounded 8-12 s hooks need word timestamps (separate immutable whisper_words record).
+- PYTEST MODULE POLLUTION: test_edl_rules/test_failure_blocks import telegram into the shared pytest process; "telegram not imported" checks must run in a subprocess.

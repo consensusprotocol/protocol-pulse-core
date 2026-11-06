@@ -8,24 +8,23 @@ derived assets. run_isolated.py is imported, never modified.
 
 Stages (any failure = HOLD; nothing is ever published; telegram is never imported):
   0 env        CUDA_VISIBLE_DEVICES=0, clean pipeline tree, code hashes recorded
-  1 topic      highest-ranked current Bitcoin story (data/intelligence/candidate_stories.json)
-               that has fresh video coverage from >= 2 approved-vertical-layout channels
-  2 discover   existing discover.discover_sources, then restricted to approved-layout channels
-  3 rank       existing rank.rank_passages
-  4 select     existing select_passages.select_and_build_edl
-  5 validate   existing edl_rules.validate_edl + layout compatibility (all channels approved, all 'crop')
-  6 cut        existing cut.compute_all_cuts, then cut acceptance (cut_accept.py)
-  7 voice      existing vo.generate_vo (same voice/model as v2f, asserted)
-  8 prepare    run_isolated.prerender_clips, clip contract (clip_contract.py), Law 14c edge words
-  9 render     shout-out 16x9+9x16, preflight, render 16:9, postflight, render 9:16, postflight,
+  1 editorial  TRANSCRIPT-FIRST story selection (editorial_select.py): editorial universe = all
+               enabled registry channels; story importance -> cross-source coverage (verified
+               SAME_EVENT transcript evidence) -> clip quality on layout-approved sources only;
+               writes TOPIC_SELECTION.json + passages.json (the select stage's input contract)
+  2 select     existing select_passages.select_and_build_edl            (unchanged from here on)
+  3 validate   existing edl_rules.validate_edl + layout compatibility (all channels approved, all 'crop')
+  4 cut        existing cut.compute_all_cuts, then cut acceptance (cut_accept.py)
+  5 voice      existing vo.generate_vo (same voice/model as v2f, asserted)
+  6 prepare    run_isolated.prerender_clips, clip contract (clip_contract.py), Law 14c edge words
+  7 render     shout-out 16x9+9x16, preflight, render 16:9, postflight, render 9:16, postflight,
                vertical silent-fallback detection
- 10 gates      run_gates both formats exactly as v2f, plus G11 (real), G14 both, G14c, G15 both,
+  8 gates      run_gates both formats exactly as v2f, plus G11 (real), G14 both, G14c, G15 both,
                G8 source-relative report, G9 outro-identity exception check
- 11 verdict    CANDIDATE FOR HUMAN REVIEW WITH FLAGS | HOLD   (per format and overall)
+  9 verdict    CANDIDATE FOR HUMAN REVIEW WITH FLAGS | HOLD   (per format and overall)
 
 Usage:
   cd ~/protocol_pulse/pipeline && CUDA_VISIBLE_DEVICES=0 python3 run_fresh.py
-  (optional, recorded as an explicit topic override:  --keyword K --freshness F --topic-reason TEXT)
 """
 import argparse
 import datetime
@@ -44,7 +43,6 @@ REPO = os.path.dirname(PIPELINE_DIR)
 sys.path.insert(0, PIPELINE_DIR)
 
 RUNS_DIR = os.path.join(REPO, "runs")
-STORIES_PATH = os.path.join(REPO, "data", "intelligence", "candidate_stories.json")
 CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
 REF_DIR = os.path.join(REPO, "references", "v2f_2026-11-06")
 REF_VO_MANIFEST = os.path.join(REF_DIR, "run", "vo_audio", "VO_MANIFEST.json")
@@ -64,18 +62,7 @@ APPROVED_OUTRO = {  # REFERENCE_v2f.md: master sha256, conformed sha256
 VOICE_KEY = "ELEVENLABS_VOICE_ID_PP2"
 VOICE_MODEL = "eleven_v4"
 NICHE = "bitcoin"
-FRESHNESS_TIERS = [("breaking", 24), ("developing", 72)]  # fresh = within 72 h
-G8_DEGRADATION_RATIO = 0.85  # qa_gates.gate_g8 constant, reported (not changed)
-
-# Topic-term extraction (mechanical; recorded in TOPIC_SELECTION.json)
-STOPWORDS = set("""a an the and or but of in on at to for from by with as is are was were be been
-being it its this that these those over under into onto than then after before about above below up
-down out off per via vs new first one two three four five year years month months week weeks day days
-today here what how why who when where which while says said set sets plans plan offers offer full more
-most less least big biggest report reports amid against""".split())
-GENERIC_TERMS = {"bitcoin", "btc", "crypto", "cryptocurrency", "cryptocurrencies"}
-MAGNITUDE_TERMS = {"hundred", "thousand", "million", "billion", "trillion", "percent"}
-V2F_TOPIC_MARKERS = ("hegemony", "dollar dominance", "de-dollar", "dedollar")
+# Editorial selection is transcript-first (editorial_select.py); see TOPIC_SELECTION.json.
 
 VERDICT_CANDIDATE = "CANDIDATE FOR HUMAN REVIEW WITH FLAGS"
 VERDICT_HOLD = "HOLD"
@@ -234,158 +221,28 @@ def stage_env(run):
 
 # ── stage 1: topic ──
 
-def approved_channels():
-    with open(CHANNELS_PATH) as f:
-        reg = json.load(f)
-    appr = [c for c in reg if c.get("layout_status") == "approved"]
-    scannable = [c for c in appr if c.get("channel_id") and c.get("enabled", True)]
-    return appr, scannable
-
-
-def topic_terms(headline):
-    terms = []
-    for t in re.split(r"[^a-z0-9]+", headline.lower()):
-        if (len(t) >= 3 and not any(ch.isdigit() for ch in t) and t not in STOPWORDS
-                and t not in GENERIC_TERMS and t not in MAGNITUDE_TERMS and t not in terms):
-            terms.append(t)
-    return terms
-
-
-def stage_topic(run, args):
-    from scan import fetch_rss, parse_iso_datetime
-    from discover import _expand_synonyms
-
-    appr, scannable = approved_channels()
-    sel = {"rule": {
-        "source": "data/intelligence/candidate_stories.json (existing story ranking, unchanged)",
-        "order": "rank ascending",
-        "bitcoin_story": "'bitcoin' or 'btc' appears in headline+summary",
-        "exclude_v2f_topic": list(V2F_TOPIC_MARKERS),
-        "topic_terms": "headline tokens >= 3 chars, minus stopwords, generic coin words, "
-                       "magnitude words and tokens containing digits; headline order",
-        "matching": "discover._expand_synonyms(term) substring in video title (same as discover_bitcoin)",
-        "compatible_sources": "approved vertical layout channels with RSS channel_id; no shorts; "
-                              "not v2f video ids",
-        "freshness_tiers": FRESHNESS_TIERS,
-        "winner": "first story (by rank) with a term whose matches span >= 2 distinct approved "
-                  "channels in the earliest freshness tier; term order = headline order",
-    }}
-    sel["approved_layout_channels"] = [c["display_name"] for c in appr]
-    sel["scannable_approved_channels"] = [c["display_name"] for c in scannable]
-    sel["unscannable_approved_channels"] = sorted(
-        set(sel["approved_layout_channels"]) - set(sel["scannable_approved_channels"]))
-
-    with open(STORIES_PATH) as f:
-        stories = json.load(f)
-    sel["stories_file"] = {"path": STORIES_PATH, "sha256": sha256(STORIES_PATH),
-                           "generated_at": stories.get("generated_at"),
-                           "n_stories": len(stories.get("stories", []))}
-
-    nowt = datetime.datetime.now(datetime.timezone.utc)
-    videos = []
-    for c in scannable:
-        for v in fetch_rss(c["channel_id"]):
-            p = parse_iso_datetime(v["published"])
-            if p is None or "/shorts/" in v.get("url", "") or v["video_id"] in V2F_VIDEO_IDS:
-                continue
-            videos.append({"channel": c["display_name"], "video_id": v["video_id"],
-                           "title": v["title"], "age_h": round((nowt - p).total_seconds() / 3600, 1)})
-    sel["approved_channel_videos_scanned"] = len(videos)
-
-    if args.keyword:
-        sel["mode"] = "EXPLICIT OVERRIDE"
-        sel["override"] = {"keyword": args.keyword, "freshness": args.freshness,
-                           "reason": args.topic_reason}
-        sel["winner"] = {"keyword": args.keyword, "freshness": args.freshness}
-        run.prov["topic"] = sel
-        jdump(os.path.join(run.dir, "TOPIC_SELECTION.json"), sel)
-        return args.keyword, args.freshness
-
-    table, winner = [], None
-    for s in stories.get("stories", []):
-        txt = (s.get("headline", "") + " " + s.get("summary", "")).lower()
-        row = {"rank": s.get("rank"), "score": s.get("overall_score"), "domain": s.get("domain"),
-               "headline": s.get("headline"), "story_id": s.get("story_id")}
-        if not re.search(r"\b(bitcoin|btc)\b", txt):
-            row["result"] = "skip: not a Bitcoin story"
-        elif any(m in txt for m in V2F_TOPIC_MARKERS):
-            row["result"] = "skip: v2f/Dollar-Hegemony topic"
-        else:
-            terms = topic_terms(s.get("headline", ""))
-            row["terms"] = terms
-            found = None
-            for tier, hours in FRESHNESS_TIERS:
-                for t in terms:
-                    syn = _expand_synonyms(t)
-                    m = [v for v in videos if v["age_h"] <= hours
-                         and any(x in v["title"].lower() for x in syn)]
-                    chans = sorted({v["channel"] for v in m})
-                    if len(chans) >= 2:
-                        found = {"keyword": t, "freshness": tier, "channels": chans,
-                                 "videos": [(v["channel"], v["video_id"], v["age_h"], v["title"])
-                                            for v in m]}
-                        break
-                    if m:
-                        row.setdefault("partial_matches", []).append(
-                            {"term": t, "tier": tier, "channels": chans})
-                if found:
-                    break
-            row["result"] = ("ELIGIBLE" if found else
-                             "skip: no term covered by >= 2 approved channels within 72 h")
-            if found:
-                row["match"] = found
-        table.append(row)
-        if winner is None and row["result"] == "ELIGIBLE":
-            winner = row
-    sel["candidates"] = table
-    sel["mode"] = "RULE"
-    if winner:
-        i = table.index(winner)
-        sel["winner"] = {"rank": winner["rank"], "headline": winner["headline"],
-                         **{k: winner["match"][k] for k in ("keyword", "freshness", "channels")}}
-        sel["ranked_around_winner"] = table[max(0, i - 3): i + 4]
-    run.prov["topic"] = sel
-    jdump(os.path.join(run.dir, "TOPIC_SELECTION.json"), sel)
-    if not winner:
-        raise Hold("no ranked Bitcoin story has fresh (<=72 h) coverage from >= 2 "
-                   "approved-vertical-layout channels; see TOPIC_SELECTION.json")
-    print(f"  TOPIC: rank {winner['rank']} '{winner['headline']}' -> keyword "
-          f"'{winner['match']['keyword']}' ({winner['match']['freshness']}), "
-          f"channels {winner['match']['channels']}")
-    return winner["match"]["keyword"], winner["match"]["freshness"]
-
-
-# ── stages 2-5: discover / rank / select / validate ──
-
-def stage_discover(run, keyword, freshness):
-    from discover import discover_sources
-    cands = discover_sources(keyword, NICHE, freshness, run.dir)
-    appr, _ = approved_channels()
-    names = {c["display_name"] for c in appr}
-    all_path = os.path.join(run.dir, "sources_all.json")
-    jdump(all_path, cands)
-    kept = [c for c in cands if c.get("channel") in names and c.get("video_id") not in V2F_VIDEO_IDS]
-    dropped = [c for c in cands if c not in kept]
-    jdump(os.path.join(run.dir, "sources.json"), kept)
-    run.prov["discover"] = {
-        "keyword": keyword, "freshness": freshness, "niche": NICHE,
-        "candidates_all": len(cands), "kept_approved_layout": len(kept),
-        "dropped": [(c.get("channel"), c.get("video_id"), c.get("title")) for c in dropped],
-        "filter": "production-compatibility: approved vertical layout channels only; v2f ids excluded"}
-    chans = {c["channel"] for c in kept}
-    if len(chans) < 2:
-        raise Hold(f"only {len(chans)} approved-layout channel(s) after discovery: {sorted(chans)}")
-
-
-def stage_rank(run, keyword):
-    from rank import rank_passages
-    ok = rank_passages(keyword, NICHE, run.dir)
-    if ok is False:
-        raise Hold("rank_passages returned False")
+def stage_editorial(run):
+    """Transcript-first story selection (editorial_select.py). Titles/metadata are discovery
+    hints only; transcripts establish story identity; layout approval gates clips only."""
+    from editorial_select import select_story, NoProducibleStory
+    try:
+        keyword, sel = select_story(run.dir, log=lambda s: print(s, flush=True))
+    except NoProducibleStory as e:
+        raise Hold(f"{e} — see TOPIC_SELECTION.json")
+    run.prov["editorial"] = {"selected": sel.get("selected"), "story_engine": sel.get("story_engine"),
+                             "universe_summary": sel.get("universe_summary"),
+                             "embedding_model": sel.get("embedding_model"), "llm": sel.get("llm")}
     with open(os.path.join(run.dir, "passages.json")) as f:
-        p = json.load(f)
-    if len({c["channel"] for c in p.get("chosen", [])}) < 2:
-        raise Hold("rank chose passages from fewer than 2 channels")
+        chosen = json.load(f)["chosen"]
+    appr = {c["display_name"] for c in json.load(open(CHANNELS_PATH))
+            if c.get("layout_status") == "approved"}
+    bad = [p["channel"] for p in chosen if p["channel"] not in appr]
+    if bad:
+        raise Hold(f"editorial chose clips from layout-ineligible channels {bad}")
+    if any(p["video_id"] in V2F_VIDEO_IDS for p in chosen):
+        raise Hold("editorial chose a v2f source video")
+    print(f"  SELECTED: {sel['selected']['headline']} -> label '{keyword}'")
+    return keyword
 
 
 def stage_select(run, keyword):
@@ -817,9 +674,12 @@ def write_report(run):
          f"**VERDICT: {s.get('verdict')}**", "",
          f"- revision: `{p.get('code', {}).get('git_head')}`",
          f"- started {s['started']} / ended {s.get('ended')}", ""]
-    t = p.get("topic", {})
-    if t.get("winner"):
-        L += ["## Topic", f"- {json.dumps(t['winner'])}", ""]
+    t = (p.get("editorial") or {}).get("selected")
+    if t:
+        L += ["## Story (transcript-first)", f"- {t.get('headline')}",
+              f"- importance: {json.dumps(t.get('importance'))}",
+              f"- coverage: {json.dumps(t.get('coverage'))}",
+              f"- clip quality: {json.dumps(t.get('clip_quality'))}", ""]
     if s["holds"]:
         L += ["## HOLD reasons"] + [f"- {h}" for h in s["holds"]] + [""]
     if p.get("verdicts"):
@@ -844,12 +704,7 @@ def write_report(run):
 
 def main():
     ap = argparse.ArgumentParser(description="Fresh-topic reproducibility run (no publishing)")
-    ap.add_argument("--keyword", default=None, help="explicit topic override (recorded)")
-    ap.add_argument("--freshness", default="developing", choices=[t for t, _ in FRESHNESS_TIERS])
-    ap.add_argument("--topic-reason", default=None, help="required with --keyword")
-    args = ap.parse_args()
-    if args.keyword and not args.topic_reason:
-        ap.error("--topic-reason is required with --keyword")
+    ap.parse_args()
 
     ts = time.strftime("%Y%m%d_%H%M%S", time.gmtime())
     run_dir = os.path.join(RUNS_DIR, f"fresh_{ts}")
@@ -866,9 +721,7 @@ def main():
     t0 = time.time()
     try:
         run.stage("env", lambda: stage_env(run))
-        keyword, freshness = run.stage("topic", lambda: stage_topic(run, args))
-        run.stage("discover", lambda: stage_discover(run, keyword, freshness))
-        run.stage("rank", lambda: stage_rank(run, keyword))
+        keyword = run.stage("editorial", lambda: stage_editorial(run))
         run.stage("select", lambda: stage_select(run, keyword))
         run.stage("validate", lambda: stage_validate(run))
         cuts = run.stage("cut", lambda: stage_cut(run))

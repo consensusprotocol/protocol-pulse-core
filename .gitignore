@@ -72,3 +72,6 @@ video_pipeline_v4/remotion/public/assets/
 # 170MB+ append-only log; exceeds GitHub 100MB limit (removed from index 2026-08-27)
 data/sovereign_context/history.jsonl
 references/
+
+# transcript-first editorial store (data, not code)
+data/editorial/
