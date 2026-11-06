@@ -807,3 +807,13 @@ Pattern: `ps -eo pid,rss,comm,args --sort=-rss | head -25` listed update-manager
 - **VO budget blown (R4 violation)**. Intro was 37 words (max 30), 3 bridges for only 2 channel transitions, VO = 58% of runtime (max 25%). `edl_rules.py` R4 now catches this.
 - **loudnorm single-pass is insufficient for music-mixed audio**. The successful chain was `dynaudnorm=f=200:g=15:p=0.92:r=0.9:s=6,loudnorm=I=-14:TP=-2.0:LRA=11` — dynaudnorm first to level dynamics, then loudnorm for EBU R128 target. Two-pass loudnorm with linear=true limits boosting and couldn't reach target.
 - **Fix**: Created `pipeline/` package (Law 24) that parameterises the frozen v12 chain. Created `edl_rules.py` (Law 25) with R1-R8 editorial rules. All enforced as hard code gates before render.
+
+## 2026-11-06 night failure patterns (v2e -> v2f)
+- PICTURE/AUDIO SCHEDULE DRIFT: 16:9 video items started 3.2-3.5 s after their audio (clip restarted at its head, previous shot held under VO). Gates checked words and loudness, never picture vs sound. Guard: G14 (source frame at the audio playhead), joins verified in both formats.
+- CROSS-ASPECT CONTAMINATION: shared shoutout_frames_raw dir let 9:16 frames into the 16:9 credits and replayed the 9:16 card. Guard: run/aspect-isolated temp dirs + G15 on decoded pixels.
+- WORKSPACE DEPENDENCE: earlier "good" renders relied on leftover clips, cut points in mutable JSON and old plates. A fresh-folder single command exposed each hidden dependency. Guard: isolated run dirs, hash-checked inputs, no reuse of rendered intermediates.
+- STALE CUT POINT RESURRECTION: an uncommitted fix (249.64) was overwritten by the git-tracked 249.37; the checkpoint printed it next to "no cut points changed". Guard: cuts printed and range-checked before any encode.
+- CUTTER INTERNAL DIP: the acoustic cutter treats a stop-consonant dip as a word boundary ('magnitude' 249.37, 'thinks' 9.13, 'themselves' 997.25). Guard: pre-encode abort on pinned/expected values; fix pending (closure item 2).
+- GLUE AS SECOND RENDERER: orchestration glue cut clips itself without scale/fades (720p hook) -> 27 s 1280x720 output reported COMPLETE; vertical reframe silently fell back to the original. Guard: clip contract preflight, output postflight, fail-closed renderer (closure items 3-5).
+- NO SILENCE AT A JOIN: some speakers run words together; no threshold settles the cut. Resolve by A/B listening excerpts with the exact fade, record the approval, never invent a new threshold.
+- REQUIRED GATE NOT WIRED: G14/G15 existed only in tests, not in the production gate runner. Guard: closure item 1.
