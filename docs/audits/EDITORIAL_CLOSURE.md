@@ -48,3 +48,8 @@ After the 15:26 reboot the GPU0 Ollama on :11434 did not come back: the systemd 
 
 ### Run 3 note — clip-window region (observation, not yet a defect ruling)
 - For the Binance story, the BTC Sessions windows (±60 s around the supporting chunk) were rated off-topic (score 3.0, "doesn't mention the Binance event"). CoinDesk windows scored 3.0 for "starts mid-thought". Only Simply Bitcoin's overlapping windows reached ≥4. Result: 1 usable clip across 2 channels → HOLD. Under review: whether the window region and sentence-start rule waste the evidence that coverage verified.
+
+### E9 status (2026-11-06 evening) — implemented on branch editorial-e9-anchored-wip @ f9b44064, NOT merged
+- Model date is a hint only. Currentness comes from transcript_currentness (missing/conflict → INCONCLUSIVE). The model date is removed from the judge prompt. Six mutants killed.
+- Blocking: stricter verifier fails test_editorial SemanticIdentity; the anchored windows' one-quote-per-video limit fails test_editorial LayoutGate; the midterms positive control sits at threshold. Needs a PBX decision (see QWEN bible E9 follow-up A/B/C).
+- Window fix: implemented on the same branch. The run-3 Binance rescore gives 2 channels with 2 clean clips (CoinDesk 5.0, Simply Bitcoin 4.0) but no non-overlapping hook ≥ 4, so still not producible.
