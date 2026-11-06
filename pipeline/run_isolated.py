@@ -19,7 +19,8 @@ import numpy as np
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE_DIR)
 
-from config import FPS, NVENC_QP_INTERMEDIATE
+from config import FPS, WIDTH, HEIGHT, VERT_W, VERT_H, NVENC_QP_INTERMEDIATE
+from acoustic import apply_fades
 
 SEGMENT_V2 = "/home/ultron/protocol_pulse/segment_v2"
 RUNS_DIR = "/home/ultron/protocol_pulse/runs"
@@ -281,15 +282,54 @@ def measure_onset_gap(source_path, cut_out, window_ms=10, run_length_ms=30,
     return (gap_ms, onset_time, speech_median_db, details)
 
 
+def _get_duration(path):
+    """Return duration in seconds via ffprobe."""
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True, timeout=10, check=True)
+    return float(r.stdout.strip())
+
+
+def _get_stream_info(path):
+    """Return (width, height, fps_num, fps_den, sample_rate, channels) via ffprobe."""
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "stream=width,height,r_frame_rate",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True, timeout=10, check=True)
+    parts = r.stdout.strip().split(",")
+    w, h = int(parts[0]), int(parts[1])
+    fps_parts = parts[2].split("/")
+    fps = int(fps_parts[0]) / int(fps_parts[1]) if len(fps_parts) == 2 else float(fps_parts[0])
+
+    r2 = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a:0",
+         "-show_entries", "stream=sample_rate,channels",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True, timeout=10, check=True)
+    aparts = r2.stdout.strip().split(",")
+    sr, ch = int(aparts[0]), int(aparts[1])
+    return w, h, fps, sr, ch
+
+
 def prerender_clips(run_dir, cuts_table):
-    """Pre-render clip segments from source+cuts into qa_dir as final_<clip_id>.mp4."""
+    """Pre-render clip segments from source+cuts into qa_dir as final_<clip_id>.mp4.
+
+    Matches segment_v2/qa_v1 finals: scale to 1920x1080 lanczos, setsar=1:1,
+    24fps, 48kHz stereo, then acoustic.apply_fades (20ms in, 30ms out).
+    """
     qa_dir = os.path.join(run_dir, "qa")
     sources_dir = os.path.join(run_dir, "sources")
+
+    VF = (f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=decrease:flags=lanczos,"
+          f"pad={WIDTH}:{HEIGHT}:(ow-iw)/2:(oh-ih)/2,setsar=1:1")
 
     for cut in cuts_table:
         clip_id = cut["clip_id"]
         src = os.path.join(sources_dir, f"{cut['video_id']}.mp4")
-        out = os.path.join(qa_dir, f"final_{clip_id}.mp4")
+        raw_out = os.path.join(qa_dir, f"raw_{clip_id}.mp4")
+        final_out = os.path.join(qa_dir, f"final_{clip_id}.mp4")
 
         cut_in = cut["cut_in"]
         dur = cut["cut_duration"]
@@ -298,20 +338,108 @@ def prerender_clips(run_dir, cuts_table):
         coarse = max(0, cut_in - 5)
         fine = cut_in - coarse
 
-        subprocess.run([
+        cmd = [
             "ffmpeg", "-y",
             "-ss", str(coarse), "-i", src, "-ss", str(fine), "-t", str(dur),
+            "-vf", VF,
+            "-r", str(FPS), "-vsync", "cfr",
             "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp",
             "-qp", str(NVENC_QP_INTERMEDIATE),
-            "-pix_fmt", "yuv420p", "-r", str(FPS),
+            "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-            "-movflags", "+faststart", out,
-        ], capture_output=True, timeout=120, check=True)
-        dur_actual = float(subprocess.run(
-            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-             "-of", "csv=p=0", out],
-            capture_output=True, text=True, timeout=10).stdout.strip())
-        print(f"  {clip_id}: {dur_actual:.2f}s ({out})")
+            "-movflags", "+faststart", raw_out,
+        ]
+        print(f"  {clip_id}: ffmpeg {' '.join(cmd[1:])}")
+        subprocess.run(cmd, capture_output=True, timeout=120, check=True)
+
+        # Apply M19 audio fades (20ms in, 30ms out) — matches acoustic.apply_fades defaults
+        apply_fades(raw_out, final_out)
+        os.unlink(raw_out)
+
+        dur_actual = _get_duration(final_out)
+        w, h, fps, sr, ch = _get_stream_info(final_out)
+        print(f"  {clip_id}: {dur_actual:.2f}s {w}x{h} {fps}fps {sr}Hz ({final_out})")
+
+
+def preflight_check(run_dir):
+    """Assert pre-rendered clips + shoutout are 1920x1080, 24fps, 48kHz.
+
+    Checks final_hook, final_clip_*, shoutout_16x9, shoutout_9x16.
+    These are the inputs produced by run_isolated.py before render16/render9.
+    (VO plates and reframed clips are produced by the renderers themselves.)
+    Aborts (sys.exit(1)) on any mismatch.
+    """
+    qa_dir = os.path.join(run_dir, "qa")
+    targets = [f for f in os.listdir(qa_dir)
+               if f.endswith(".mp4") and (f.startswith("final_") or f.startswith("shoutout_"))]
+
+    print(f"\n  Preflight: checking {len(targets)} pre-rendered inputs...")
+    errors = []
+    for fname in sorted(targets):
+        path = os.path.join(qa_dir, fname)
+        try:
+            w, h, fps, sr, ch = _get_stream_info(path)
+        except Exception as e:
+            errors.append(f"  {fname}: probe failed ({e})")
+            continue
+
+        # Determine expected resolution by filename
+        if "9x16" in fname:
+            exp_w, exp_h = VERT_W, VERT_H
+        else:
+            exp_w, exp_h = WIDTH, HEIGHT
+
+        if (w, h) != (exp_w, exp_h):
+            errors.append(f"  {fname}: {w}x{h} != {exp_w}x{exp_h}")
+        if round(fps) != FPS:
+            errors.append(f"  {fname}: {fps}fps != {FPS}fps")
+        if sr != 48000:
+            errors.append(f"  {fname}: {sr}Hz != 48000Hz")
+
+    if errors:
+        print(f"\n** PREFLIGHT ABORT **")
+        for e in errors:
+            print(e)
+        sys.exit(1)
+    print(f"  Preflight: PASS — all {len(targets)} inputs verified")
+
+
+def postflight_check(output_path, expected_dur, aspect, log_output=""):
+    """Abort if output duration, resolution, or reframe-fallback is wrong.
+
+    - Duration must be within 0.05s of expected.
+    - Resolution must match aspect (1920x1080 or 1080x1920).
+    - For 9:16: any 'reframe failed' + 'using original' in log is fatal.
+    """
+    errors = []
+
+    if not os.path.exists(output_path):
+        print(f"\n** POSTFLIGHT ABORT ({aspect}): output file missing: {output_path} **")
+        sys.exit(1)
+
+    dur = _get_duration(output_path)
+    w, h, fps, sr, ch = _get_stream_info(output_path)
+
+    if aspect == "16x9":
+        exp_w, exp_h = WIDTH, HEIGHT
+    else:
+        exp_w, exp_h = VERT_W, VERT_H
+
+    if abs(dur - expected_dur) > 0.05:
+        errors.append(f"duration {dur:.3f}s vs expected {expected_dur:.3f}s "
+                      f"(delta {abs(dur - expected_dur):.3f}s > 0.05s)")
+    if (w, h) != (exp_w, exp_h):
+        errors.append(f"resolution {w}x{h} != {exp_w}x{exp_h}")
+    if aspect == "9x16" and "reframe failed" in log_output and "using original" in log_output:
+        errors.append("9:16 reframe fallback detected — mixed resolution likely")
+
+    if errors:
+        print(f"\n** POSTFLIGHT ABORT ({aspect}) **")
+        for e in errors:
+            print(f"  {e}")
+        sys.exit(1)
+
+    print(f"  Postflight ({aspect}): PASS — {dur:.2f}s, {w}x{h}")
 
 
 def run_pipeline(run_dir):
@@ -319,6 +447,7 @@ def run_pipeline(run_dir):
 
     Order (F2): shoutout both → render16 → render9 → gates16 → gates9.
     Gate failure blocks DELIVERY, not the other render.
+    Preflight before each render; postflight after each render.
     """
     from shoutout import build_shoutout
     from render16 import render_16x9
@@ -331,25 +460,66 @@ def run_pipeline(run_dir):
     build_shoutout(run_dir, None, "16x9")
     build_shoutout(run_dir, None, "9x16")
 
-    # Render both
+    paths = resolve_paths(run_dir)
+
+    # ── Preflight: verify all pre-rendered inputs ──
+    print("\n=== PREFLIGHT ===")
+    preflight_check(run_dir)
+
     print("\n=== RENDER 16:9 ===")
     render_16x9(run_dir, None, "segment.mp4")
 
-    print("\n=== RENDER 9:16 ===")
-    render_9x16(run_dir, None, "segment_vertical.mp4")
-
-    # Gates both (record results, don't short-circuit)
-    paths = resolve_paths(run_dir)
-
-    print("\n=== GATES 16:9 ===")
     final_16 = os.path.join(paths["out_dir"], "segment.mp4")
     manifest_16 = os.path.join(paths["qa_dir"], "concat_manifest_16x9.json")
+    # Read segment-list total from manifest for postflight
+    with open(manifest_16) as f:
+        mfst = json.load(f)
+    segs = mfst.get("segments", [])
+    total_16 = max(seg.get("end", 0) for seg in segs) if segs else 0
+    postflight_check(final_16, total_16, "16x9")
+
+    # ── 9:16 ──
+    print("\n=== RENDER 9:16 ===")
+    # Capture stdout to detect "reframe failed ... using original"
+    import io
+    old_stdout = sys.stdout
+    tee_buf = io.StringIO()
+
+    class Tee:
+        """Write to both original stdout and capture buffer."""
+        def __init__(self, orig, buf):
+            self.orig = orig
+            self.buf = buf
+        def write(self, s):
+            self.orig.write(s)
+            self.buf.write(s)
+        def flush(self):
+            self.orig.flush()
+
+    sys.stdout = Tee(old_stdout, tee_buf)
+    try:
+        render_9x16(run_dir, None, "segment_vertical.mp4")
+    finally:
+        sys.stdout = old_stdout
+    render_log = tee_buf.getvalue()
+
+    final_9 = os.path.join(paths["out_dir"], "segment_vertical.mp4")
+    manifest_9_path = os.path.join(paths["qa_dir"], "concat_manifest_9x16.json")
+    if os.path.exists(manifest_9_path):
+        with open(manifest_9_path) as f:
+            mfst9 = json.load(f)
+        segs9 = mfst9.get("segments", [])
+        total_9 = max(seg.get("end", 0) for seg in segs9) if segs9 else total_16
+    else:
+        total_9 = total_16  # fallback: same segment count
+    postflight_check(final_9, total_9, "9x16", log_output=render_log)
+
+    # Gates both (record results, don't short-circuit)
+    print("\n=== GATES 16:9 ===")
     ok16, _ = run_gates(run_dir, final_16, manifest_16)
 
     print("\n=== GATES 9:16 ===")
-    final_9 = os.path.join(paths["out_dir"], "segment_vertical.mp4")
-    manifest_9 = os.path.join(paths["qa_dir"], "concat_manifest_9x16.json")
-    ok9, _ = run_gates(run_dir, final_9, manifest_9)
+    ok9, _ = run_gates(run_dir, final_9, manifest_9_path)
 
     if not ok16:
         print("\n** GATE FAILURE 16:9 **")
