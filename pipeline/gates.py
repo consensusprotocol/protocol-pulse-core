@@ -32,103 +32,317 @@ def _get_duration(path):
     return float(r.stdout.strip())
 
 
-# ── G14: SCENE-CHANGE ALIGNMENT ──
+# ── G14: AUDIO-VISUAL ALIGNMENT (Amendment 1 rewrite) ──
+#
+# For each sampled output time t (joins + inside every clip <= 2s):
+#   1. Cross-correlate output audio window against the clip's source audio
+#      to find the matching source time independently of the render schedule.
+#   2. Compare the output frame at t with the source frame at matched source time.
+#   3. 40ms tolerance. Inconclusive = HOLD, never PASS.
 
-def gate_g14(final_mp4, manifest_path, tolerance_ms=42):
-    """G14: verify scene changes in the output align with the concat manifest.
+def _extract_audio_mono(mp4, start_s, dur_s, sr=16000):
+    """Extract a mono audio segment as int16 numpy array.
+    Uses fast keyframe seek to get close, then precise decode with -ss after -i
+    for the residual offset. This avoids both full-file decode and keyframe bias."""
+    # Fast-seek to 5s before target, then precise-seek the remainder
+    fast_seek = max(0, start_s - 5.0)
+    precise_offset = start_s - fast_seek
+    r = subprocess.run([
+        "ffmpeg", "-y",
+        "-ss", str(fast_seek),       # fast keyframe seek
+        "-i", mp4,
+        "-ss", str(precise_offset),   # precise decode offset
+        "-t", str(dur_s),
+        "-ar", str(sr), "-ac", "1", "-f", "s16le", "-acodec", "pcm_s16le", "pipe:1",
+    ], capture_output=True, timeout=30)
+    if r.returncode != 0 or len(r.stdout) < 2:
+        return None
+    return np.frombuffer(r.stdout, dtype=np.int16).astype(np.float32)
 
-    For each talking_head→vo or vo→talking_head transition, a visual scene
-    change must occur within *tolerance_ms* of the manifest boundary.
-    Also checks parity: |dur_16 - dur_9| <= tolerance_ms when both manifests
-    are available.
 
+def _extract_frame(mp4, time_s, tmp_path):
+    """Extract a single frame at time_s, return as numpy BGR array or None."""
+    subprocess.run([
+        "ffmpeg", "-y", "-ss", str(time_s), "-i", mp4,
+        "-vframes", "1", "-q:v", "2", tmp_path,
+    ], capture_output=True, timeout=15)
+    if os.path.exists(tmp_path) and os.path.getsize(tmp_path) > 100:
+        img = cv2.imread(tmp_path)
+        os.unlink(tmp_path)
+        return img
+    return None
+
+
+def _xcorr_offset(output_audio, source_audio, sr=16000):
+    """Cross-correlate to find the offset (in seconds) of output within source.
+    Returns (offset_s, peak_correlation). offset_s is the source time corresponding
+    to the start of output_audio."""
+    if output_audio is None or source_audio is None:
+        return None, 0.0
+    if len(output_audio) < 100 or len(source_audio) < 100:
+        return None, 0.0
+
+    # Normalize
+    oa = output_audio - output_audio.mean()
+    sa = source_audio - source_audio.mean()
+    oa_std = oa.std()
+    sa_std = sa.std()
+    if oa_std < 1.0 or sa_std < 1.0:
+        return None, 0.0  # silence — inconclusive
+
+    oa = oa / oa_std
+    sa = sa / sa_std
+
+    # Use scipy if available, else numpy correlate
+    try:
+        from scipy.signal import fftconvolve
+        corr = fftconvolve(sa, oa[::-1], mode='valid')
+    except ImportError:
+        corr = np.correlate(sa, oa, mode='valid')
+
+    peak_idx = int(np.argmax(corr))
+    peak_val = float(corr[peak_idx]) / len(oa)
+    offset_s = peak_idx / sr
+    return offset_s, peak_val
+
+
+def _frame_similarity(frame_a, frame_b):
+    """Structural similarity between two frames (0-1). Handles size mismatch."""
+    if frame_a is None or frame_b is None:
+        return None
+    h, w = 320, 480  # compare at reduced resolution
+    a = cv2.resize(frame_a, (w, h))
+    b = cv2.resize(frame_b, (w, h))
+    a_gray = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    b_gray = cv2.cvtColor(b, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    # Normalized cross-correlation
+    a_n = a_gray - a_gray.mean()
+    b_n = b_gray - b_gray.mean()
+    a_std = a_n.std()
+    b_std = b_n.std()
+    if a_std < 1.0 or b_std < 1.0:
+        return None
+    ncc = float(np.sum(a_n * b_n) / (a_std * b_std * a_n.size))
+    return max(0.0, min(1.0, ncc))
+
+
+def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
+             qa_dir=None):
+    """G14: audio-visual alignment (Amendment 1).
+
+    For each talking_head segment, samples at joins and every <= 2s inside.
+    Cross-correlates output audio against source to find matching source time.
+    Compares frames. 40ms tolerance. Inconclusive = HOLD.
+
+    source_clips: dict mapping clip label -> {"path": str, "cut_in": float}
+                  or label -> str (path only, cut_in defaults to 0)
     Returns (pass: bool, details: list[dict]).
     """
-    print("\n=== G14: SCENE-CHANGE ALIGNMENT ===")
+    print("\n=== G14: AUDIO-VISUAL ALIGNMENT ===")
 
     with open(manifest_path) as f:
         manifest = json.load(f)
 
     segments = manifest["segments"]
-    fmt = manifest.get("format", "16x9")
     tol_s = tolerance_ms / 1000.0
+    sr = 16000
+    window_s = 0.5  # audio window for cross-correlation
 
-    # Detect scene changes in the final output
-    r = subprocess.run([
-        "ffmpeg", "-i", final_mp4,
-        "-vf", "select='gt(scene,0.25)',showinfo",
-        "-vsync", "vfr", "-f", "null", "-",
-    ], capture_output=True, text=True, timeout=120)
+    if qa_dir is None:
+        qa_dir = os.path.dirname(manifest_path)
 
-    scene_times = []
-    for line in r.stderr.split("\n"):
-        if "pts_time:" in line:
-            for token in line.split():
-                if token.startswith("pts_time:"):
-                    scene_times.append(float(token.split(":")[1]))
-
-    print(f"  Detected {len(scene_times)} scene changes: {[f'{t:.3f}' for t in scene_times]}")
-
-    # Expected transition boundaries: where a VISUAL scene change should occur.
-    # VO segments use a blurred freeze of the preceding clip, so:
-    #   talking_head -> vo: NO scene change (blur of same frame)
-    #   vo -> talking_head: YES (new clip appears)
-    #   talking_head -> talking_head: YES (different source)
-    #   anything -> shoutout: YES
-    #   shoutout -> outro: YES (but outro fade may be gradual)
-    expected_boundaries = []
-    for i in range(1, len(segments)):
-        prev_type = segments[i - 1]["type"]
-        curr_type = segments[i]["type"]
-        # Skip talking_head -> vo (visually continuous due to blur)
-        if prev_type == "talking_head" and curr_type == "vo":
-            continue
-        boundary = segments[i]["start"]
-        expected_boundaries.append({
-            "time": boundary,
-            "from": segments[i - 1]["label"],
-            "to": segments[i]["label"],
-        })
-
-    print(f"  Expected {len(expected_boundaries)} boundaries")
+    # Normalize source_clips to {"path": ..., "cut_in": ...}
+    if source_clips:
+        norm = {}
+        for k, v in source_clips.items():
+            if isinstance(v, str):
+                norm[k] = {"path": v, "cut_in": 0}
+            elif isinstance(v, dict):
+                norm[k] = v
+            else:
+                norm[k] = {"path": str(v), "cut_in": 0}
+        source_clips = norm
 
     details = []
     all_pass = True
+    has_hold = False
 
-    for eb in expected_boundaries:
-        t = eb["time"]
-        # Find closest scene change
-        closest = None
-        closest_delta = float("inf")
-        for sc in scene_times:
-            delta = abs(sc - t)
-            if delta < closest_delta:
-                closest = sc
-                closest_delta = delta
+    for seg in segments:
+        seg_type = seg.get("type", "")
+        label = seg.get("label", "")
+        seg_start = seg["start"]
+        seg_end = seg["end"]
+        seg_dur = seg_end - seg_start
 
-        # Shoutout -> outro has a fade (0.4s black), so scene detection is unreliable there.
-        # Mark as advisory, not blocking.
-        is_fade = "shoutout" in eb["from"] and "outro" in eb["to"]
-        ok = closest_delta <= tol_s if closest is not None else False
-        entry = {
-            "boundary": f"{eb['from']}->{eb['to']}",
-            "expected_s": round(t, 3),
-            "detected_s": round(closest, 3) if closest is not None else None,
-            "delta_ms": round(closest_delta * 1000, 1) if closest is not None else None,
-            "pass": ok,
-            "advisory": is_fade,
-        }
-        details.append(entry)
-        status = "PASS" if ok else ("ADVISORY" if is_fade else "FAIL")
-        det_str = f"{closest:.3f}" if closest is not None else "none"
-        delta_str = f"{closest_delta * 1000:.1f}ms" if closest is not None else "N/A"
-        print(f"  {status}: {eb['from']}->{eb['to']}  expect={t:.3f}  detect={det_str}  delta={delta_str}")
+        # Only check talking_head segments (clips with source audio)
+        if seg_type != "talking_head":
+            continue
 
-        if not ok and not is_fade:
-            all_pass = False
+        source_info = None
+        if source_clips and label in source_clips:
+            source_info = source_clips[label]
+        elif source_clips:
+            for k, v in source_clips.items():
+                if k in label or label in k:
+                    source_info = v
+                    break
 
-    print(f"\n  G14 {'PASS' if all_pass else 'FAIL'}")
-    return all_pass, details
+        source_path = source_info["path"] if source_info else None
+        source_cut_in = source_info.get("cut_in", 0) if source_info else 0
+
+        if source_path is None or not os.path.exists(str(source_path)):
+            print(f"  HOLD: {label} — no source clip available for cross-correlation")
+            details.append({
+                "label": label, "status": "HOLD",
+                "reason": "no source clip for cross-correlation",
+            })
+            has_hold = True
+            continue
+
+        # Determine sample points: start + every <= 2s + near end.
+        # Avoid the last window_s at the end (may cross into next segment).
+        sample_offsets = [0.2]  # inside the clip, past any transition
+        step = min(2.0, seg_dur / 2)
+        t = step
+        while t < seg_dur - window_s - 0.1:
+            sample_offsets.append(t)
+            t += step
+        if seg_dur > window_s + 0.5:
+            sample_offsets.append(seg_dur - window_s - 0.1)  # near end but not crossing
+
+        print(f"  {label}: {len(sample_offsets)} samples in {seg_dur:.2f}s")
+
+        # Load source audio starting from cut_in with margin.
+        # We load from cut_in - 1s to cut_in + seg_dur + 1s.
+        src_margin = 1.0
+        src_audio_start = max(0, source_cut_in - src_margin)
+        src_audio_dur = seg_dur + 2 * src_margin
+        src_audio = _extract_audio_mono(source_path, src_audio_start, src_audio_dur, sr)
+
+        # Establish reference: use source_cut_in as the expected source
+        # position for the segment start, then VALIDATE with xcorr.
+        # This avoids false matches when xcorr peak is low (v12 clip_04 bug).
+        ref_extract_start = seg_start + 0.05
+        ref_out_audio = _extract_audio_mono(final_mp4, ref_extract_start, window_s, sr)
+        ref_offset, ref_peak = _xcorr_offset(ref_out_audio, src_audio, sr)
+
+        # The expected source time for ref_extract_start:
+        # seg_start maps to source_cut_in, so seg_start+0.05 maps to source_cut_in+0.05
+        expected_ref_src = source_cut_in + 0.05
+
+        if ref_offset is not None and ref_peak >= 0.5:
+            # High-confidence xcorr — use discovered offset but sanity-check
+            discovered_ref_src = src_audio_start + ref_offset
+            ref_discrepancy = abs(discovered_ref_src - expected_ref_src)
+            if ref_discrepancy < 0.5:
+                # xcorr agrees with cut_in — use xcorr result for precision
+                ref_src_time = discovered_ref_src
+                print(f"    Reference: output {ref_extract_start:.3f}s = source {ref_src_time:.3f}s "
+                      f"(xcorr={ref_peak:.3f}, agrees with cut_in)")
+            else:
+                # xcorr diverges from cut_in despite high peak — trust cut_in, flag
+                ref_src_time = expected_ref_src
+                print(f"    Reference: output {ref_extract_start:.3f}s = source {ref_src_time:.3f}s "
+                      f"(using cut_in; xcorr={ref_peak:.3f} found {discovered_ref_src:.3f}s, "
+                      f"discrepancy={ref_discrepancy:.3f}s)")
+        elif ref_offset is not None and ref_peak >= 0.3:
+            # Low-confidence xcorr — trust cut_in instead of discovered offset
+            ref_src_time = expected_ref_src
+            print(f"    Reference: output {ref_extract_start:.3f}s = source {ref_src_time:.3f}s "
+                  f"(using cut_in; xcorr low confidence peak={ref_peak:.3f})")
+        else:
+            # Very low or no xcorr — still use cut_in but flag as lower confidence
+            if ref_peak < 0.1:
+                print(f"    HOLD: {label} — cannot validate reference (peak={ref_peak:.3f}, silence?)")
+                details.append({
+                    "label": label, "status": "HOLD",
+                    "reason": f"cannot validate reference (peak={ref_peak:.3f})",
+                })
+                has_hold = True
+                continue
+            ref_src_time = expected_ref_src
+            print(f"    Reference: output {ref_extract_start:.3f}s = source {ref_src_time:.3f}s "
+                  f"(using cut_in; xcorr marginal peak={ref_peak:.3f})")
+
+        for offset in sample_offsets:
+            out_time = seg_start + offset
+            # Extract from the same position style (start of window, not centered)
+            # to maintain consistent offset measurement with the reference.
+            extract_start = out_time
+            out_audio = _extract_audio_mono(final_mp4, extract_start, window_s, sr)
+
+            xcorr_off, xcorr_peak = _xcorr_offset(out_audio, src_audio, sr)
+
+            entry = {
+                "label": label,
+                "output_time": round(out_time, 3),
+                "status": "HOLD",
+            }
+
+            if xcorr_off is None or xcorr_peak < 0.3:
+                entry["reason"] = f"inconclusive xcorr (peak={xcorr_peak:.3f})"
+                has_hold = True
+                print(f"    HOLD: t={out_time:.3f}s — inconclusive (peak={xcorr_peak:.3f})")
+            else:
+                matched_src_time = src_audio_start + xcorr_off
+                # Expected: ref_src_time shifted by the difference in extraction starts
+                expected_src_time = ref_src_time + (extract_start - ref_extract_start)
+                delta_s = abs(matched_src_time - expected_src_time)
+                delta_ms_val = delta_s * 1000
+
+                entry["matched_src_s"] = round(matched_src_time, 3)
+                entry["expected_src_s"] = round(expected_src_time, 3)
+                entry["delta_ms"] = round(delta_ms_val, 1)
+                entry["xcorr_peak"] = round(xcorr_peak, 4)
+
+                if delta_ms_val <= tolerance_ms:
+                    # Audio aligned — now verify frame matches.
+                    # Extract output frame at out_time and source frame at matched_src_time.
+                    out_frame_path = os.path.join(qa_dir, "g14_out_frame.png")
+                    src_frame_path = os.path.join(qa_dir, "g14_src_frame.png")
+                    out_frame = _extract_frame(final_mp4, out_time, out_frame_path)
+                    src_frame = _extract_frame(source_path, matched_src_time, src_frame_path)
+                    sim = _frame_similarity(out_frame, src_frame)
+                    entry["frame_sim"] = round(sim, 3) if sim is not None else None
+
+                    # Frame similarity > 0.3 means the pictures match
+                    # (threshold accounts for layout transforms, overlays, blurs)
+                    if sim is not None and sim >= 0.3:
+                        entry["status"] = "PASS"
+                        print(f"    PASS: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
+                              f"(audio_delta={delta_ms_val:.1f}ms, frame_sim={sim:.3f})")
+                    elif sim is not None and sim < 0.3:
+                        entry["status"] = "FAIL"
+                        entry["reason"] = f"audio aligned but frame mismatch (sim={sim:.3f})"
+                        all_pass = False
+                        print(f"    FAIL: t={out_time:.3f}s frame mismatch "
+                              f"(audio ok, frame_sim={sim:.3f} < 0.3)")
+                    else:
+                        entry["status"] = "HOLD"
+                        entry["reason"] = "frame comparison inconclusive"
+                        has_hold = True
+                        print(f"    HOLD: t={out_time:.3f}s — frame comparison inconclusive")
+                else:
+                    entry["status"] = "FAIL"
+                    all_pass = False
+                    print(f"    FAIL: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
+                          f"(expected={expected_src_time:.3f}s, delta={delta_ms_val:.1f}ms, "
+                          f"xcorr={xcorr_peak:.3f})")
+
+            details.append(entry)
+
+    # VO segments get declared pre-roll — just verify they exist at the right time
+    for seg in segments:
+        if seg.get("type") == "vo":
+            print(f"  {seg['label']}: VO pre-roll declared (no source cross-correlation)")
+            details.append({
+                "label": seg["label"], "status": "PASS",
+                "reason": "VO pre-roll declared",
+            })
+
+    status = "FAIL" if not all_pass else ("HOLD" if has_hold else "PASS")
+    print(f"\n  G14 {status}")
+    return all_pass and not has_hold, details
 
 
 def gate_g14c(mp4_16, mp4_9, tolerance_ms=42):

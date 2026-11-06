@@ -28,7 +28,8 @@ PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE_DIR)
 from config import (FPS, PRE_ROLL, WIDTH, HEIGHT, VERT_W, VERT_H,
                     ACCENT_COLOR, NVENC_QP_FINAL, NVENC_QP_INTERMEDIATE,
-                    resolve_paths, resolve_brand, resolve_bgm)
+                    resolve_paths, resolve_brand, resolve_bgm,
+                    conform_outro)
 
 # Import shoutout builder from pipeline (parameterised)
 from shoutout import build_shoutout
@@ -383,8 +384,30 @@ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4, 
     src_w, src_h = bg_full.size
 
     if src_h > src_w:
-        # Source is already 9:16 (vertical composited clip) — use directly
-        bg_vert = bg_full.resize((VERT_W, VERT_H), Image.LANCZOS)
+        # Source is already 9:16 (vertical composited clip).
+        # S7: detect black-band letterbox (stack2/single/grid layouts leave bands).
+        # If >20% of rows are black at top or bottom, extract content region
+        # and scale to fill the full canvas before blurring.
+        bg_arr = np.array(bg_full)
+        row_means = bg_arr.mean(axis=(1, 2))
+        top_black = 0
+        for y in range(src_h):
+            if row_means[y] > 20:
+                top_black = y
+                break
+        bot_black = 0
+        for y in range(src_h - 1, -1, -1):
+            if row_means[y] > 20:
+                bot_black = src_h - 1 - y
+                break
+        black_frac = (top_black + bot_black) / src_h
+        if black_frac > 0.20:
+            # Crop to content region, then scale to fill full canvas
+            bg_content = bg_full.crop((0, top_black, src_w, src_h - bot_black))
+            bg_vert = bg_content.resize((VERT_W, VERT_H), Image.LANCZOS)
+            print(f"    S7: black bands detected ({black_frac:.0%}), cropped rows {top_black}-{src_h - bot_black} -> full-bleed")
+        else:
+            bg_vert = bg_full.resize((VERT_W, VERT_H), Image.LANCZOS)
     else:
         # Source is 16:9 — face-centred crop to 9:16 (legacy path)
         bg_arr = np.array(bg_full)
@@ -1046,39 +1069,20 @@ def _find_shoutout_vert(qa_dir, segment_dir=None):
 
 
 def _find_outro_vert(qa_dir, segment_dir=None):
-    """Find 9:16 outro in CURRENT qa_dir only (M12: no cross-qa scanning).
-    If only 16:9 exists in qa_dir, crop it to vertical."""
-    # Check for pre-rendered vertical outro
+    """Find 9:16 outro. Prefers PBX native 9:16 outro (Amendment 1 §2),
+    falls back to qa_dir pre-rendered versions."""
+    # Amendment 1 §2: each aspect gets ITS OWN native outro (no cross-aspect use)
+    try:
+        return conform_outro("9x16")
+    except (FileNotFoundError, subprocess.CalledProcessError) as e:
+        print(f"  PBX 9:16 outro conform failed ({e}), falling back to qa_dir")
+
+    # Fallback: pre-rendered vertical outro in qa_dir
     for name in ["final_outro_vert.mp4", "vert_outro.mp4", "vert_outro_from16x9.mp4"]:
         candidate = os.path.join(qa_dir, name)
         if os.path.exists(candidate):
             return candidate
-
-    # Crop from 16:9 outro in qa_dir
-    outro_16x9 = None
-    for name in ["final_outro.mp4", "outro.mp4"]:
-        candidate = os.path.join(qa_dir, name)
-        if os.path.exists(candidate):
-            outro_16x9 = candidate
-            break
-
-    if not outro_16x9:
-        raise FileNotFoundError(f"STOP: 9:16 outro not found in {qa_dir}")
-
-    vert_outro = os.path.join(qa_dir, "vert_outro_from16x9.mp4")
-    print(f"  Cropping outro from 16:9: {outro_16x9}")
-    vert_partial = vert_outro.replace(".mp4", ".partial.mp4")
-    subprocess.run([
-        "ffmpeg", "-y", "-i", outro_16x9,
-        "-vf", f"scale={VERT_W}:{VERT_H}:force_original_aspect_ratio=decrease,"
-               f"pad={VERT_W}:{VERT_H}:(ow-iw)/2:(oh-ih)/2:black,setsar=1:1",
-        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
-        "-pix_fmt", "yuv420p", "-r", str(FPS),
-        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-        "-movflags", "+faststart", vert_partial,
-    ], capture_output=True, timeout=120, check=True)
-    os.replace(vert_partial, vert_outro)
-    return vert_outro
+    raise FileNotFoundError(f"STOP: 9:16 outro not found in {qa_dir}")
 
 
 def main():

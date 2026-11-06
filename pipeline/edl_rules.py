@@ -538,7 +538,9 @@ def rule_r10(edl, transcripts=None):
             f"(prev='{prev_text}', pause={pause_ms:.0f}ms)")
 
     if failures:
-        return False, "R10 FAIL: " + "; ".join(failures)
+        # Amendment 1 S4: R10 is advisory (HOLD for PBX), not blocking.
+        # It flags but does not auto-recut or reject the EDL.
+        return True, "R10 HOLD (PBX): " + "; ".join(failures)
     return True, "R10 PASS: all clips begin at sentence starts"
 
 

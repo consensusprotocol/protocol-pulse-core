@@ -74,14 +74,14 @@ P6b (9:16 card replay): Same root cause. 9:16 directory had extra frames from pr
 | **Commit** | TBD |
 | **Test** | TBD |
 
-### Grok-2 / clip_02 9:16: garbled word at 28.0s
+### Grok-2 / clip_02 in-point: "There's only" claim
 
 | Field | Value |
 |---|---|
-| **Status** | open (S4 in order) |
-| **Cause** | cut_in 624.63 clips "There's only" — needs sentence-start rule. |
-| **Commit** | TBD |
-| **Test** | TBD |
+| **Status** | HOLD (PBX editorial list) |
+| **Cause** | Grok claimed "There's only" was clipped. Source-vs-output comparison (Amendment 1 S4): source at 624.0-626.0 = "or approximately one-third of market-". Output first 2.0s = "one third of marketable treasuries." Output starts cleanly at "one" — no truncated word. "There's only" is a whisper collapse, not present in source at this position. R10 flags as HOLD for PBX (sentence-start check), not auto-recut. Out-point "trillion." stays. |
+| **Commit** | 0c277198 (acoustic cut_in + R10 as HOLD) |
+| **Test** | Source whisper: "or approximately one-third of market-" (624.0-626.0), words: or@0.000, approximately@0.080, one@0.620, -third@1.020, of@1.300, market@1.560. Output whisper: "one third of marketable treasuries." (0.0-2.0), words: one@0.000, third@0.360, of@0.680, marketable@0.940, treasuries.@1.460. No truncation proven. cut_in/cut_out unchanged by 0c277198 (Amendment 2 6g confirmed). |
 
 ### Grok-3 / 51s silence gap: audible gap before sign-off
 
@@ -96,10 +96,10 @@ P6b (9:16 card replay): Same root cause. 9:16 directory had extra frames from pr
 
 | Field | Value |
 |---|---|
-| **Status** | open (S4 in order) |
-| **Cause** | cut_in 998.0 vs word_start 997.3 — misses the article "a". EDL first_word="pris" indicates mid-word entry. |
-| **Commit** | TBD |
-| **Test** | TBD |
+| **Status** | HOLD (PBX editorial list) |
+| **Cause** | EDL first_word="pris" metadata was inaccurate. Source-vs-output comparison (Amendment 1 S4): source 996.5-999.5 = "built themselves a prison of". "a" at abs 997.6, "prison" at abs 998.26. Output first 2.0s = "a prison of a currency" — starts cleanly at "a", full word present. No truncation of "prison" proven. The antecedent "they" issue goes to PBX's editorial list. R10 flags as HOLD. |
+| **Commit** | 0c277198 (acoustic cut_in + R10 as HOLD) |
+| **Test** | Source whisper at 996.5: "built themselves a prison of" — words: built@996.500, themselves@996.920, a@997.600, prison@998.260, of@998.720. Output whisper: "a prison of a currency" — words: a@0.000, prison@0.260, of@0.740, a@1.460, currency@1.520. Full first word "a" present, "prison" not truncated. cut_in/cut_out unchanged by 0c277198 (Amendment 2 6g confirmed). |
 
 ### S5: 9:16 face safety at 53.0s
 
@@ -123,22 +123,47 @@ P6b (9:16 card replay): Same root cause. 9:16 directory had extra frames from pr
 
 | Field | Value |
 |---|---|
-| **Status** | open |
-| **Cause** | Bridge at 24.33-28.04 is letterboxed 16:9 slit instead of full-bleed blur. |
-| **Commit** | TBD |
-| **Test** | TBD |
+| **Status** | fixed |
+| **Cause** | `render_vo_visual_vert()` extracted BG frame from preceding vertical clip (vert_clip_01). That clip uses stack2/single layout leaving 486+490 rows of black bands (51% letterboxed). BG was blurred with bands intact, creating a letterboxed slit instead of full-bleed. Confidence: HIGH |
+| **Commit** | pending (S7 edit in render_vertical.py) |
+| **Test** | `test_g14_g15.py::TestS7BlackBandDetection` — 3 tests: synthetic letterbox detected + cropped to full-bleed (0 black rows), full-bleed source unchanged, real bridge BG confirmed >20% black bands. All PASS. |
+| **Result** | Black band detection (threshold mean>20 per row) finds top_black=486, bot_black=504 (51%). Content region cropped and scaled to 1080x1920 before blur. After blur: row 0 mean=84.8, row 1919 mean=27.4 (comparable to intro BG which has row 1919=27.1). |
+| **Evidence** | Pixel analysis of `vo_vert_bg_vo_bridge_01.png` vs `vo_vert_bg_vo_intro.png` |
 
 ### S8: VO grounding (M20)
 
 | Field | Value |
 |---|---|
-| **Status** | open |
-| **Cause** | VO claims more certainty than clips establish ("prove", categorical claims). |
-| **Commit** | TBD |
-| **Test** | TBD |
+| **Status** | HOLD (PBX editorial list) |
+| **Cause** | VO claims more certainty than clips establish ("prove", categorical claims). Amendment 1 S8: flag only, agent writes no replacement VO lines. Sign-off stays as generated (approved register; signoff.py produces fresh per video). |
+| **Commit** | N/A (flag-only, no code change) |
+| **Test** | N/A |
+
+### V12 / GPT: Portrait credits replay at frame 1510 / 62.917s
+
+| Field | Value |
+|---|---|
+| **Status** | confirmed (independently verified by GPT, see GPT_APPROVED_BENCHMARK_ADDENDUM.md section 3) |
+| **Cause** | v2e 9:16 credits card fades out by frame 1509 (62.875s) then abruptly returns at frame 1510 (62.917s). Grayscale mean jumps 2.075 -> 12.382. Same root cause as V02: stale frames from shared build dir. |
+| **Commit** | 13b3319a (S2 aspect-isolated build dirs) |
+| **Test** | G15 must verify single exit with no return. |
+
+## Superseded (by Amendment 1 / new PBX outro)
+- V09: Portrait outro on black — approved portrait uses landscape stinger on black canvas (GPT retraction)
+- V10: Dark/quiet ending — approved reference also has dark/quiet terminal fade (reclassified as policy conflict)
+- V11: Flare/green glitch — approved reference includes same flare/glitch/streaks (GPT retraction)
+- All three close as "superseded by new PBX outro" (Amendment 1 section 2), no code change beyond the outro swap.
+
+### Credits entrance (~0.29s dark at 54.0)
+
+| Field | Value |
+|---|---|
+| **Status** | CLOSED (matches reference, Amendment 2 6e) |
+| **Cause** | Orchestrator measured signalstats YAVG (limited range) across guest-to-card join in all four files. v12: 84 then 17,18,19,19,20...26. v17: 71 then same 17...26 curve. v2e16: 116 then 17,18,18,19,19...26. v2e9: 109 then 17...26. Same card fade-in progression, no inserted black frames. |
+| **Commit** | N/A (no code change, no brightness rule added) |
+| **Test** | N/A |
 
 ## HOLD items (PBX decides)
-- Outro glitch/flare and dark silent tail (66.5-67.6)
-- 9:16 outro as 16:9 band in black
-- Shout-out card art and entrance (~0.29s dark at 54.0)
-- Sign-off wording
+- Sign-off wording (approved register, signoff.py produces fresh per video)
+- Clip 2 completeness and clip 3 "they" antecedent (PBX editorial list)
+- VO grounding / certainty claims (S8, flag only)

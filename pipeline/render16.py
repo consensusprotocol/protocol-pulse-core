@@ -27,7 +27,8 @@ PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE_DIR)
 from config import (FPS, PRE_ROLL, WIDTH, HEIGHT, ACCENT_COLOR,
                     NVENC_QP_FINAL, NVENC_QP_INTERMEDIATE,
-                    resolve_paths, resolve_brand, resolve_bgm)
+                    resolve_paths, resolve_brand, resolve_bgm,
+                    conform_outro)
 
 # Import shoutout renderer from segment_v1 (frozen)
 sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
@@ -582,7 +583,11 @@ def _find_shoutout(qa_dir, segment_dir=None):
 
 
 def _find_outro(qa_dir, segment_dir=None):
-    """Find outro in CURRENT qa_dir only (M12: no cross-qa scanning)."""
+    """Find 16:9 outro. Prefers PBX new outro (Amendment 1 §2), falls back to qa_dir."""
+    try:
+        return conform_outro("16x9")
+    except (FileNotFoundError, subprocess.CalledProcessError) as e:
+        print(f"  PBX outro conform failed ({e}), falling back to qa_dir")
     for name in ["final_outro.mp4", "outro.mp4"]:
         candidate = os.path.join(qa_dir, name)
         if os.path.exists(candidate):
