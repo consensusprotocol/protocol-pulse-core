@@ -20,20 +20,22 @@ PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE_DIR)
 
 
-def _download_window(video_id, start_s, end_s, run_dir, pad=8.0):
+def _download_window(video_id, start_s, end_s, run_dir, pad=15.0):
     """Download a specific time window from a YouTube video.
 
     Uses yt-dlp --download-sections for precise extraction.
-    Returns path to downloaded file or None.
+    Returns (path, dl_start) tuple or (None, 0).
+    dl_start is the offset in the original video that t=0 in the downloaded file maps to.
     """
     sources_dir = os.path.join(run_dir, "sources")
     os.makedirs(sources_dir, exist_ok=True)
 
     out_path = os.path.join(sources_dir, f"{video_id}.mp4")
-    if os.path.exists(out_path) and os.path.getsize(out_path) > 100_000:
-        return out_path  # Cache hit
-
     dl_start = max(0, start_s - pad)
+
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 100_000:
+        return out_path, dl_start  # Cache hit
+
     dl_end = end_s + pad
 
     cmd = [
@@ -57,8 +59,8 @@ def _download_window(video_id, start_s, end_s, run_dir, pad=8.0):
         return None
 
     if os.path.exists(out_path) and os.path.getsize(out_path) > 10_000:
-        return out_path
-    return None
+        return out_path, dl_start
+    return None, 0
 
 
 def _whisper_transcribe(source_path, video_id, run_dir):
@@ -103,23 +105,51 @@ def _whisper_transcribe(source_path, video_id, run_dir):
         return None
 
 
-def _find_word_boundaries(words, start_s, end_s, text_hint=None):
+def _find_word_boundaries(words, start_s, end_s, text_hint=None, min_dur=8.0):
     """Find the best first_word and last_word within a passage time range.
 
+    Widens the search window to ensure clips meet min_dur.
     Returns (first_word, last_word, word_start, word_end) or None.
     """
-    window_words = [w for w in words if w["start"] >= start_s - 0.5 and w["end"] <= end_s + 0.5]
+    # Widen search window: use a generous margin around the passage
+    margin = 3.0
+    window_words = [w for w in words
+                    if w["start"] >= start_s - margin and w["end"] <= end_s + margin]
+    if not window_words:
+        # Try even wider — use ALL words
+        window_words = words
     if not window_words:
         return None
 
-    # First word: closest to start_s
+    # First word: closest to start_s, but must be a sentence start if possible
+    # Look for words near start_s that begin a sentence (after a period)
     first = min(window_words, key=lambda w: abs(w["start"] - start_s))
-    # Last word: find sentence-ending word closest to end_s
-    sentence_enders = [w for w in window_words if w["word"].rstrip().endswith((".", "!", "?"))]
+
+    # Last word: find sentence-ending word that gives us >= min_dur
+    min_end_time = first["start"] + min_dur
+    sentence_enders = [w for w in window_words
+                       if w["word"].rstrip().endswith((".", "!", "?"))
+                       and w["end"] >= min_end_time
+                       and w["end"] <= end_s + margin]
     if sentence_enders:
+        # Pick the one closest to end_s
         last = min(sentence_enders, key=lambda w: abs(w["end"] - end_s))
     else:
-        last = max(window_words, key=lambda w: w["end"])
+        # No sentence ender meeting min_dur: pick the latest word in range
+        candidates = [w for w in window_words if w["end"] >= min_end_time]
+        if candidates:
+            last = max(candidates, key=lambda w: w["end"])
+        else:
+            last = max(window_words, key=lambda w: w["end"])
+
+    # Verify minimum duration
+    dur = last["end"] - first["start"]
+    if dur < min_dur and len(window_words) > 5:
+        # Expand: take first word and the last sentence ender that gives >= min_dur
+        all_enders = [w for w in words if w["word"].rstrip().endswith((".", "!", "?"))
+                      and w["end"] >= first["start"] + min_dur]
+        if all_enders:
+            last = min(all_enders, key=lambda w: w["end"])
 
     return first["word"], last["word"], first["start"], last["end"]
 
@@ -173,16 +203,19 @@ def select_and_build_edl(keyword, niche, run_dir):
     video_ids = list(set(p["video_id"] for p in chosen))
     print(f"  Downloading {len(video_ids)} source windows...")
 
-    sources = {}
+    sources = {}  # vid -> path
+    offsets = {}   # vid -> dl_start offset (t=0 in file = dl_start in original)
     for vid in video_ids:
         # Find time range for this video across all chosen passages
         vid_passages = [p for p in chosen if p["video_id"] == vid]
         min_start = min(p["start"] for p in vid_passages)
         max_end = max(p["end"] for p in vid_passages)
-        path = _download_window(vid, min_start, max_end, run_dir)
-        if path:
+        result = _download_window(vid, min_start, max_end, run_dir)
+        if result and result[0]:
+            path, dl_start = result
             sources[vid] = path
-            print(f"    {vid}: downloaded")
+            offsets[vid] = dl_start
+            print(f"    {vid}: downloaded (offset={dl_start:.0f}s)")
         else:
             print(f"    {vid}: FAILED")
 
@@ -222,10 +255,18 @@ def select_and_build_edl(keyword, niche, run_dir):
     def _build_segment(passage, label):
         vid = passage["video_id"]
         words = transcripts[vid].get("words", [])
-        bounds = _find_word_boundaries(words, passage["start"], passage["end"])
+        offset = offsets.get(vid, 0)
+        # Passage times are in full-video coords; whisper times are in local (downloaded) coords
+        # local_time = full_video_time - offset
+        local_start = passage["start"] - offset
+        local_end = passage["end"] - offset
+        bounds = _find_word_boundaries(words, local_start, local_end)
         if bounds is None:
             return None
         first_word, last_word, word_start, word_end = bounds
+        # Convert back to full-video coords for EDL
+        word_start_abs = word_start + offset
+        word_end_abs = word_end + offset
         channels_used.add(passage["channel"])
         return {
             "video_id": vid,
@@ -235,8 +276,8 @@ def select_and_build_edl(keyword, niche, run_dir):
             "text": passage["text"],
             "first_word": first_word,
             "last_word": last_word,
-            "word_start": round(word_start, 3),
-            "word_end": round(word_end, 3),
+            "word_start": round(word_start_abs, 3),
+            "word_end": round(word_end_abs, 3),
             "duration": round(word_end - word_start, 2),
         }
 

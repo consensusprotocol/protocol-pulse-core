@@ -136,7 +136,7 @@ def _score_passage(text, keyword_terms, is_statement=True):
     return score
 
 
-def _find_passages(sub_segments, keyword_terms, min_dur=8.0, max_dur=25.0):
+def _find_passages(sub_segments, keyword_terms, min_dur=10.0, max_dur=25.0):
     """Find candidate passages from subtitle segments.
 
     Returns list of {start, end, text, score, duration} dicts.
