@@ -300,6 +300,56 @@ def reframe_single(seg_path, output_path, seg_label, layout_cfg):
 
 
 # ==============================================================
+# LETTERBOX (M21): unapproved channels — full 16:9 on blurred bg
+# ==============================================================
+
+def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
+    """M21 Letterbox: full 16:9 frame scaled to 1080 wide, centred on a blurred,
+    darkened (-35%), 1.25x zoomed copy of the same frame. No crop.
+
+    Returns (success: bool, layout_name: str)."""
+    print(f"    Reframe letterbox: {seg_label}")
+
+    # Full 16:9 frame scaled to 1080 wide = 1080x608 (at 16:9 ratio)
+    # Centred on 1080x1920 canvas with blurred+darkened background
+    # Background: same video, scale to 1350 wide (1.25x of 1080), blur, darken
+    vf = (
+        # Split into two streams
+        "split[main][bg];"
+        # Background: scale up 1.25x to fill vertical canvas, blur heavily, darken
+        "[bg]scale=1350:-2:flags=lanczos,"
+        "crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
+        "boxblur=20:5,"
+        f"colorlevels=rimax=0.65:gimax=0.65:bimax=0.65"  # -35% brightness
+        "[bgout];"
+        # Main: scale full 16:9 to 1080 wide, maintain aspect
+        f"[main]scale={VERT_W}:-2:flags=lanczos[mainout];"
+        # Overlay main centred on bg
+        f"[bgout][mainout]overlay=(W-w)/2:(H-h)/2,"
+        f"setsar=1:1"
+    )
+
+    r = subprocess.run([
+        "ffmpeg", "-y", "-i", seg_path,
+        "-vf", vf,
+        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+        "-pix_fmt", "yuv420p", "-r", str(FPS),
+        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+        "-movflags", "+faststart", output_path,
+    ], capture_output=True, timeout=300)
+
+    if r.returncode != 0:
+        print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+
+    if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
+        dur = get_duration(output_path)
+        print(f"      Output: {dur:.2f}s (letterbox)")
+        return True, "letterbox"
+    print(f"      ERROR: reframe_letterbox failed")
+    return False, "letterbox"
+
+
+# ==============================================================
 # VO VISUAL (native 9:16) — face-crop BG from preceding clip
 # ==============================================================
 
@@ -627,6 +677,10 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
                     ok, crop_rect = reframe_grid(trimmed, vert_path, clip_id, override)
                 else:
                     ok, crop_rect = reframe_single(trimmed, vert_path, clip_id, override)
+            elif layout == "letterbox":
+                # M21: Full 16:9 letterbox for unapproved channels
+                src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
+                ok, crop_rect = reframe_letterbox(src_clip, vert_path, clip_id, override)
             else:
                 src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
                 ok, crop_rect = reframe_fixed_crop(src_clip, vert_path, clip_id)

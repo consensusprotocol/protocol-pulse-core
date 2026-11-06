@@ -373,6 +373,20 @@ Theoretical fixes that break in practice are worse than no fix.
 - R8: Only channels with `has_chyron=true` trigger G10 chyron gate.
 - An EDL that fails ANY rule is rejected. The renderer MUST NOT run on a rejected EDL.
 
+### LAW 27 (M20): COMMENTARY MUST EARN ITS PLACE (added 2026-11-06)
+- The LLM proposes VO lines; each line must carry a one-line justification.
+- Drop any VO line whose justification merely restates what a clip already says.
+- Zero bridges allowed. Intro only if the hook needs framing. Sign-off always (signoff.py).
+- If a keyword run's passages are self-explanatory, the intro is suppressed entirely.
+- Every VO word is a tax on the viewer. Fewer words = better episode.
+
+### LAW 28 (M21): LETTERBOX FOR UNAPPROVED CHANNELS (added 2026-11-06)
+- Channels with an approved hand table (layout_status=approved) use their table.
+- Every other channel uses layout "letterbox": the full 16:9 frame scaled to 1080 wide, centred on a blurred, darkened (-35%), 1.25x zoomed copy of the same frame. No crop.
+- This prevents face-crop artifacts on unknown layouts and preserves all on-screen information.
+- The letterbox layout is logged per shot in the vertical override file.
+- To promote a channel from letterbox to custom layout: build a hand table, verify via test render, set layout_status=approved in channels.json.
+
 ### LAW 26: NEVER RATIONALISE A FAILED GATE (added 2026-11-05)
 - A failed gate is a HARD STOP. No "false positive" arguments, no "known limitation" overrides.
 - If a gate is wrong, fix the gate BEFORE re-running. Never bypass it.

@@ -1636,6 +1636,18 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     if not g6_pass:
         any_fail = True
 
+    # G8: Sharpness
+    g8_pass, g8_table = gate_g8(final_mp4, segments, qa_dir)
+    results["G8_sharpness"] = {"pass": g8_pass, "table": g8_table}
+    if not g8_pass:
+        any_fail = True
+
+    # G9: Tail (last 1.0s not black/silent)
+    g9_pass, g9_data = gate_g9(final_mp4, qa_dir)
+    results["G9_tail"] = {"pass": g9_pass, "data": g9_data}
+    if not g9_pass:
+        any_fail = True
+
     # G10: Chyron (channels with has_chyron=true in registry)
     chyron_clip_ids = set()
     if edl_path and channels_json_path:
@@ -1673,6 +1685,30 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     if not g13_pass:
         any_fail = True
 
+    # G12: Credits (avatar circles in shoutout)
+    expected_channels = 0
+    if edl_path and os.path.exists(edl_path):
+        try:
+            with open(edl_path) as f:
+                edl_data = json.load(f)
+            channel_set = set()
+            if edl_data.get("hook", {}).get("channel"):
+                channel_set.add(edl_data["hook"]["channel"])
+            for clip in edl_data.get("clips", []):
+                if clip.get("channel"):
+                    channel_set.add(clip["channel"])
+            expected_channels = len(channel_set)
+        except Exception:
+            pass
+    if expected_channels > 0:
+        g12_pass, g12_data = gate_g12(final_mp4, segments, expected_channels, qa_dir)
+        results["G12_credits"] = {"pass": g12_pass, "data": g12_data}
+        if not g12_pass:
+            any_fail = True
+    else:
+        g12_pass = True
+        results["G12_credits"] = {"pass": True, "skip": True}
+
     elapsed = time.time() - t0
     results["elapsed_s"] = round(elapsed, 1)
     results["all_pass"] = not any_fail
@@ -1687,7 +1723,10 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     print(f"  G4 Faces:     {'PASS' if g4_pass else 'FAIL'}")
     print(f"  G5 Tech:      {'PASS' if g5_pass else 'FAIL'}")
     print(f"  G6 Pre-roll:  {'PASS' if g6_pass else 'FAIL'}")
+    print(f"  G8 Sharpness: {'PASS' if g8_pass else 'FAIL'}")
+    print(f"  G9 Tail:      {'PASS' if g9_pass else 'FAIL'}")
     print(f"  G10 Chyron:   {'PASS' if g10_pass else 'FAIL'}")
+    print(f"  G12 Credits:  {'PASS' if g12_pass else 'FAIL'}")
     print(f"  G13 VOAudible:{'PASS' if g13_pass else 'FAIL'}")
     print(f"  OVERALL:      {'PASS' if not any_fail else 'FAIL'}")
     print(f"  Elapsed:      {elapsed:.1f}s")
@@ -1703,7 +1742,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         fail_path = os.path.join(qa_dir, "GATE_FAIL.txt")
         with open(fail_path, "w") as f:
             f.write(f"QA GATE FAILURE: {final_mp4}\n")
-            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G3b_cut_out_clean", "G3c_acoustic_tail", "G4_faces", "G5_tech", "G6_preroll", "G10_chyron", "G13_vo_audible"]:
+            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G3b_cut_out_clean", "G3c_acoustic_tail", "G4_faces", "G5_tech", "G6_preroll", "G8_sharpness", "G9_tail", "G10_chyron", "G12_credits", "G13_vo_audible"]:
                 gate_data = results.get(gate_name, {})
                 if not gate_data.get("pass", True):
                     f.write(f"  FAILED: {gate_name}\n")
