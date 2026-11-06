@@ -344,6 +344,130 @@ def compute_acoustic_cut_out(source_mp4, whisper_word_end, window_s=1.5):
             os.unlink(tmp_wav)
 
 
+def compute_acoustic_cut_in(source_mp4, whisper_word_start, window_s=2.0):
+    """M24: Compute the acoustic cut-in point using the valley rule.
+
+    Algorithm (mirror of cut_out, searching backwards):
+      1. Speech median from first 2s of speech after whisper_word_start.
+      2. Acoustic onset = searching BACKWARDS from whisper_word_start + 0.05,
+         find the first frame where smoothed RMS drops below speech_median - 6 dB.
+         The onset is the frame after that drop.
+      3. Find the LAST qualifying valley (>= 60ms, >= 12dB deep) that ENDS
+         before the onset.
+      4. cut_in = valley_end - 0.020 s.
+      5. Assert cut_in <= onset - 0.020.
+
+    Args:
+        source_mp4: path to source video
+        whisper_word_start: whisper-reported start time of first word
+        window_s: seconds to look back before word_start
+
+    Returns:
+        dict with cut_in, onset, valley, speech_median_db, bed_db.
+
+    Raises:
+        UnsafeBoundaryError: if no valid valley or safety assertions fail.
+    """
+    import tempfile
+    extract_start = max(0, whisper_word_start - window_s)
+    extract_dur = window_s + 2.0  # window before + 2s of speech after
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        tmp_wav = tmp.name
+
+    try:
+        _extract_audio_mono(source_mp4, extract_start, extract_dur, tmp_wav)
+        samples, sr = _load_wav_samples(tmp_wav)
+        rms_db, times = rms_envelope(samples, sr)
+
+        # Adjust times to source-absolute
+        times = times + extract_start
+
+        window_frames = max(1, VALLEY_WINDOW_MS // HOP_MS)
+        smoothed = _smoothed_rms(rms_db, window_frames)
+
+        # Bed noise from quietest 20%
+        sorted_rms = np.sort(rms_db)
+        bed_db = float(np.median(sorted_rms[:max(1, len(sorted_rms) // 5)]))
+
+        # Speech median: first 2s of speech after word_start
+        speech_start_idx = int(np.searchsorted(times, whisper_word_start))
+        speech_end_idx = int(np.searchsorted(times, whisper_word_start + 2.0))
+        if speech_end_idx > speech_start_idx:
+            speech_median_db = float(np.median(rms_db[speech_start_idx:speech_end_idx]))
+        else:
+            speech_median_db = -20.0
+
+        onset_threshold = speech_median_db - ACOUSTIC_OFFSET_DB  # within 6 dB
+
+        # Step 1: Find acoustic onset by searching BACKWARDS from word_start + 0.05
+        search_from_idx = int(np.searchsorted(times, whisper_word_start + 0.05))
+        search_from_idx = min(search_from_idx, len(smoothed) - 1)
+        search_limit_idx = int(np.searchsorted(times, extract_start))
+
+        onset_idx = search_limit_idx  # fallback
+        for i in range(search_from_idx, search_limit_idx - 1, -1):
+            if smoothed[i] < onset_threshold:
+                onset_idx = i + 1
+                break
+
+        onset = float(times[min(onset_idx, len(times) - 1)])
+
+        # Step 2: Find LAST qualifying valley that ends BEFORE onset
+        valley_search_start = extract_start
+        valley_search_end = onset
+
+        # Collect all qualifying valleys, keep the LAST one
+        threshold = speech_median_db - VALLEY_DEPTH_DB
+        last_valley = None
+        i = int(np.searchsorted(times, valley_search_start))
+        end_idx = int(np.searchsorted(times, valley_search_end))
+        while i < end_idx:
+            if smoothed[i] < threshold:
+                j = i
+                while j < end_idx and smoothed[j] < threshold:
+                    j += 1
+                width_ms = (j - i) * HOP_MS
+                if width_ms >= VALLEY_MIN_WIDTH_MS:
+                    valley_slice = smoothed[i:j]
+                    deepest_idx = i + int(np.argmin(valley_slice))
+                    depth_db = speech_median_db - float(smoothed[deepest_idx])
+                    centre_time = float(times[(i + j) // 2]) if (i + j) // 2 < len(times) else float(times[-1])
+                    end_time = float(times[min(j, len(times) - 1)])
+                    last_valley = {
+                        "centre": round(centre_time, 3),
+                        "end": round(end_time, 3),
+                        "depth_db": round(depth_db, 1),
+                        "width_ms": round(width_ms, 1),
+                    }
+                i = j
+            else:
+                i += 1
+
+        if last_valley is None:
+            raise UnsafeBoundaryError(
+                f"No qualifying valley found before onset={onset:.3f} "
+                f"(whisper_word_start={whisper_word_start:.3f})")
+
+        # Step 3: cut_in = valley_end - 20ms
+        cut_in = last_valley["end"] - 0.020
+
+        # Step 4: Safety — cut_in must be before onset - 20ms
+        if cut_in > onset - 0.020:
+            cut_in = onset - 0.020
+
+        return {
+            "cut_in": round(cut_in, 3),
+            "safe": True,
+            "onset": round(onset, 3),
+            "valley": last_valley,
+            "speech_median_db": round(speech_median_db, 1),
+            "bed_db": round(bed_db, 1),
+        }
+    finally:
+        if os.path.exists(tmp_wav):
+            os.unlink(tmp_wav)
+
+
 def measure_output_tail(output_mp4, clip_end_time, duration_ms=120):
     """Gate G3c: measure the last `duration_ms` ms of a clip in the output.
 

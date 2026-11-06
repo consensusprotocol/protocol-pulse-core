@@ -437,6 +437,111 @@ def rule_r9(edl, transcripts=None):
     return True, "R9 PASS: all clips end on sentence boundaries with clean tail"
 
 
+SENTENCE_PAUSE_MS = 400  # C1b: pause >= 400ms before first word = sentence start
+
+
+def rule_r10(edl, transcripts=None):
+    """R10 SENTENCE_START (M24): Every clip must begin at a sentence start.
+
+    A word is a sentence start if:
+      - It is the first word in the transcript, OR
+      - The previous word ends with . ? !, OR
+      - There is a pause >= 400 ms between the previous word's end and
+        this word's start.
+
+    Also checks for fragments: first_word must not be a mid-word fragment
+    (detected by comparing first_word to the matched whisper word).
+
+    Returns (pass, reason). Skips if no transcripts provided.
+    """
+    if transcripts is None:
+        return True, "R10 SKIP: no transcripts provided"
+
+    passages = []
+    hook = edl.get("hook", {})
+    if hook:
+        passages.append({**hook, "label": "hook"})
+    for clip in edl.get("clips", []):
+        idx = clip.get("index", "?")
+        passages.append({**clip, "label": f"clip_{idx:02d}" if isinstance(idx, int) else f"clip_{idx}"})
+
+    failures = []
+    for passage in passages:
+        label = passage["label"]
+        first_word = passage.get("first_word", "")
+        word_start = passage.get("word_start", 0)
+        vid = passage.get("video_id", "")
+
+        if not vid or vid not in transcripts:
+            continue
+
+        words = transcripts[vid]
+        if not words:
+            continue
+
+        # Find the matching word near word_start
+        matched = None
+        matched_idx = None
+        for idx, w in enumerate(words):
+            if abs(w.get("start", 0) - word_start) < 0.3:
+                matched = w
+                matched_idx = idx
+                break
+
+        if matched is None:
+            # Try text match as fallback
+            for idx, w in enumerate(words):
+                wtext = w.get("word", "").strip().lower()
+                if wtext.startswith(first_word.lower()[:3]) and abs(w.get("start", 0) - word_start) < 1.0:
+                    matched = w
+                    matched_idx = idx
+                    break
+
+        if matched is None:
+            failures.append(f"{label}: first word '{first_word}' not found in transcript near {word_start:.2f}s")
+            continue
+
+        # Check for mid-word fragment
+        matched_text = matched.get("word", "").strip()
+        if first_word and len(first_word) > 1:
+            # If first_word doesn't match the start of the whisper word, it's a fragment
+            if not matched_text.lower().startswith(first_word.lower()[:2]):
+                # Could be a mid-word entry
+                if matched_idx > 0:
+                    prev_text = words[matched_idx - 1].get("word", "").strip()
+                    if prev_text.lower().endswith(first_word.lower()[:2]):
+                        failures.append(
+                            f"{label}: first_word '{first_word}' appears to be mid-word "
+                            f"(prev word '{prev_text}' + '{matched_text}')")
+                        continue
+
+        # Check sentence start conditions
+        if matched_idx == 0:
+            continue  # First word in transcript — always OK
+
+        prev_word = words[matched_idx - 1]
+        prev_text = prev_word.get("word", "").strip()
+
+        # Condition 1: previous word ends with sentence-ending punctuation
+        if any(prev_text.endswith(c) for c in [".", "?", "!"]):
+            continue
+
+        # Condition 2: pause >= 400ms between previous word end and this word start
+        prev_end = prev_word.get("end", 0)
+        pause_ms = (matched.get("start", 0) - prev_end) * 1000
+        if pause_ms >= SENTENCE_PAUSE_MS:
+            continue
+
+        # Neither condition met — not a sentence start
+        failures.append(
+            f"{label}: first word '{matched_text}' at {word_start:.2f}s is not a sentence start "
+            f"(prev='{prev_text}', pause={pause_ms:.0f}ms)")
+
+    if failures:
+        return False, "R10 FAIL: " + "; ".join(failures)
+    return True, "R10 PASS: all clips begin at sentence starts"
+
+
 # ==============================================================
 # VALIDATE ALL
 # ==============================================================
@@ -458,6 +563,7 @@ def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
         (rule_r7, (edl, layout_tables_dir)),
         (rule_r8, (edl, channels_registry)),
         (rule_r9, (edl, transcripts)),
+        (rule_r10, (edl, transcripts)),
     ]:
         ok, reason = rule_fn(*args)
         results.append({"rule": rule_fn.__name__, "pass": ok, "reason": reason})
