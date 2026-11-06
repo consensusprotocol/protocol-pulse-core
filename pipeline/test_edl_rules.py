@@ -783,7 +783,8 @@ class TestM19aValleyRule(unittest.TestCase):
         self.assertLess(v["centre"], 0.50, "Must pick the FIRST qualifying valley")
 
     def test_clip_01_source_valley(self):
-        """Integration: M19a finds valley ~249.64 on actual clip_01 source."""
+        """Integration: M19a finds first valley end after 'magnitude.' word end.
+        Cut at valley end (~249.37) to ensure G3c passes with 30ms fade."""
         source = "/home/ultron/protocol_pulse/segment_v2/sources/Pxrak-iMT0g.mp4"
         if not os.path.exists(source):
             self.skipTest("clip_01 source not available")
@@ -791,11 +792,13 @@ class TestM19aValleyRule(unittest.TestCase):
         result = compute_acoustic_cut_out(source, whisper_word_end=249.3)
         self.assertTrue(result["safe"], f"Boundary must be safe: {result}")
         self.assertIsNotNone(result["valley"])
-        # Valley centre should be ~249.64 (orchestrator expected ~249.66)
-        self.assertAlmostEqual(result["cut_out"], 249.64, delta=0.05,
-                               msg=f"cut_out should be ~249.64, got {result['cut_out']}")
+        # Cut at valley end ~249.37 (post-"magnitude" silence, before "So")
+        self.assertAlmostEqual(result["cut_out"], 249.37, delta=0.05,
+                               msg=f"cut_out should be ~249.37, got {result['cut_out']}")
         self.assertGreaterEqual(result["valley"]["depth_db"], 12.0)
         self.assertGreaterEqual(result["valley"]["width_ms"], 40)
+        # Valley must have "end" field
+        self.assertIn("end", result["valley"])
 
 
 if __name__ == "__main__":

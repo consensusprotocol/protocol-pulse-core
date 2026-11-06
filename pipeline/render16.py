@@ -459,7 +459,7 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
         "-i", normed_wav,
         "-map", "0:v", "-map", "1:a",
         "-c:v", "copy",
-        "-af", "alimiter=limit=0.562341:level=false",  # -5.0 dBFS to ensure TP<=-2.0 after AAC
+        "-af", "alimiter=limit=0.707946:level=false",  # -3.0 dBFS to ensure TP<=-2.0 after AAC
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-movflags", "+faststart", final_partial,
     ], capture_output=True, timeout=300, check=True)

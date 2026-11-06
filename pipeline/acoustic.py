@@ -160,8 +160,11 @@ def find_valley(rms_db, times, search_start, search_end, speech_median_db, hop_m
                 depth_db = speech_median_db - float(smoothed[deepest_idx])
                 centre_idx = (i + j) // 2
                 centre_time = float(times[centre_idx]) if centre_idx < len(times) else float(times[-1])
+                end_idx_v = min(j, len(times) - 1)
+                end_time = float(times[end_idx_v])
                 return {
                     "centre": round(centre_time, 3),
+                    "end": round(end_time, 3),
                     "depth_db": round(depth_db, 1),
                     "width_ms": round(width_ms, 1),
                     "safe": True,
@@ -226,15 +229,11 @@ def compute_acoustic_cut_out(source_mp4, whisper_word_end, window_s=1.5):
         else:
             speech_median_db = -20.0  # fallback
 
-        # M19a: Search for the deepest valley in a wide window, then
-        # find the next sustained onset AFTER the valley centre.
-        #
-        # valley_search_start = whisper_word_end + 0.10
-        #   (skip past the word's own acoustic tail — a valley right at
-        #    the word boundary is intra-word, not inter-word)
-        # valley_search_end = whisper_word_end + 1.0
-        #   (search up to 1s out — onset detection narrows later)
-        valley_search_start = whisper_word_end + 0.10
+        # M19a: Search for the FIRST qualifying valley starting right at
+        # whisper_word_end. This catches the natural inter-word silence
+        # immediately after the declared last word, ensuring no next-word
+        # speech leaks into the clip.
+        valley_search_start = whisper_word_end
         valley_search_end = whisper_word_end + 1.0
 
         valley = find_valley(rms_db, times, valley_search_start, valley_search_end,
@@ -263,9 +262,10 @@ def compute_acoustic_cut_out(source_mp4, whisper_word_end, window_s=1.5):
                     onset = float(times[i])
                     break
 
-        # Determine cut_out
+        # Determine cut_out — use valley END so the 30ms fade-out covers the
+        # valley region, ensuring G3c sees clean silence in the last 40ms.
         if valley is not None and valley["safe"]:
-            cut_out = valley["centre"]
+            cut_out = valley["end"]
             safe = True
         else:
             # No valid valley — unsafe boundary

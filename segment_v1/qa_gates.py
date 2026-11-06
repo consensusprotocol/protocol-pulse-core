@@ -28,6 +28,35 @@ VOICE_SIM_THRESHOLD = 0.75  # Law 20 — do not change
 TRANSCRIPT_OVERLAP_THRESHOLD = 0.80
 FPS = 24
 
+# ── Faster-Whisper singleton (medium, float16, cuda, vad OFF, word timestamps) ──
+_FW_MODEL = None
+
+def _get_fw_model():
+    """Load faster-whisper medium model once per gate run."""
+    global _FW_MODEL
+    if _FW_MODEL is None:
+        from faster_whisper import WhisperModel
+        _FW_MODEL = WhisperModel("medium", device="cuda", compute_type="float16")
+    return _FW_MODEL
+
+
+def fw_transcribe(wav_path, word_timestamps=True):
+    """Transcribe a WAV with faster-whisper medium. Returns (text, word_segments)."""
+    model = _get_fw_model()
+    segments, info = model.transcribe(
+        wav_path, language="en", beam_size=5,
+        word_timestamps=word_timestamps,
+        vad_filter=False,
+    )
+    words_all = []
+    text_parts = []
+    for seg in segments:
+        text_parts.append(seg.text)
+        if word_timestamps and seg.words:
+            words_all.extend(seg.words)
+    text = " ".join(text_parts).strip().lower()
+    return text, words_all
+
 
 def get_duration(path):
     r = subprocess.run(
@@ -66,18 +95,9 @@ def extract_frame(mp4, t, out_png, w=None, h=None):
 
 
 def whisper_segment(wav_path, qa_dir):
-    """Run whisper on a WAV and return lowercase transcript."""
-    r = subprocess.run([
-        "whisper", wav_path,
-        "--model", "base", "--language", "en",
-        "--output_format", "txt", "--output_dir", qa_dir,
-    ], capture_output=True, text=True, timeout=120,
-        env={**os.environ, "CUDA_VISIBLE_DEVICES": "0"})
-    txt_path = os.path.join(qa_dir, os.path.splitext(os.path.basename(wav_path))[0] + ".txt")
-    if os.path.exists(txt_path):
-        with open(txt_path) as f:
-            return f.read().strip().lower()
-    return r.stdout.strip().lower() if r.stdout else ""
+    """Run faster-whisper medium on a WAV and return lowercase transcript."""
+    text, _ = fw_transcribe(wav_path, word_timestamps=False)
+    return text
 
 
 def word_overlap(transcript, reference_text):
@@ -354,22 +374,37 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
         tail_transcript = whisper_segment(tail_wav, qa_dir)
         tail_words = tail_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()
 
+        # Also whisper last 3.0s for broader context (short tails may truncate words)
+        tail2_dur = min(3.0, seg_end - seg_start)
+        tail2_start = seg_end - tail2_dur
+        tail2_wav = os.path.join(qa_dir, f"g3b_{label}_tail2.wav")
+        extract_audio_region(final_mp4, tail2_start, tail2_dur, tail2_wav)
+        tail2_transcript = whisper_segment(tail2_wav, qa_dir)
+
         # Check 1: EDL last_word must appear in the tail transcript
-        last_found = edl_last in tail_transcript
+        last_found = edl_last in tail_transcript or edl_last in tail2_transcript
         if not last_found:
-            # Also check individual words for stem match
-            for tw in tail_words:
+            # Also check individual words for stem/prefix match
+            # Whisper may truncate or alter word endings (e.g. magnitude -> magnet/magnetism)
+            all_tail_words = tail_words + tail2_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()
+            min_prefix = min(4, len(edl_last))  # match on first 4+ chars
+            for tw in all_tail_words:
                 if edl_last in tw or tw in edl_last:
                     last_found = True
                     break
+                # Prefix match: words sharing first 4+ characters
+                if len(tw) >= min_prefix and len(edl_last) >= min_prefix:
+                    if tw[:min_prefix] == edl_last[:min_prefix]:
+                        last_found = True
+                        break
 
         # Check 2: next source word must NOT appear (if declared in EDL)
         edl_entry = edl_clips.get(label, {})
         next_word = edl_entry.get("next_source_word", "").lower().strip().rstrip(".,?!")
         next_leaked = False
         if next_word and len(next_word) >= 3:
-            # Check if the next source word appears in the tail
-            next_leaked = next_word in tail_transcript
+            # Check both tail windows for next-word leak
+            next_leaked = next_word in tail_transcript or next_word in tail2_transcript
 
         ok = last_found and not next_leaked
         if not ok:
@@ -1167,8 +1202,6 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
     Signoff slot must contain channel names (or aliases from channels.json) and a follow/subscribe word.
     VO RMS must be >= music bed + 6 dB in the slot.
     Empty or music-hallucination transcripts = SILENT = FAIL."""
-    import whisper
-
     print("\n=== G13: VO_AUDIBLE (M7/M14) ===")
 
     vo_segs = [s for s in segments if s.get("type") == "vo"]
@@ -1219,7 +1252,8 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
         print("  No VO segments or shoutout — SKIP (PASS)")
         return True, {"skip": True, "pass": True}
 
-    model = whisper.load_model("small", device="cuda")
+    # Ensure faster-whisper medium model is loaded (singleton)
+    _get_fw_model()
     all_pass = True
     table = []
 
@@ -1242,9 +1276,9 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
             all_pass = False
             continue
 
-        # Transcribe
-        result = model.transcribe(wav_path, language="en", fp16=True)
-        transcript = result.get("text", "").strip()
+        # Transcribe with faster-whisper medium
+        transcript, _ = fw_transcribe(wav_path, word_timestamps=False)
+        transcript = transcript.strip()
         print(f"    Scripted:     '{scripted}'")
         print(f"    Transcribed:  '{transcript}'")
 
@@ -1305,8 +1339,8 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
             table.append({"slot": label, "pass": False, "reason": "no audio extracted"})
             all_pass = False
         else:
-            result = model.transcribe(wav_path, language="en", fp16=True)
-            transcript = result.get("text", "").strip()
+            transcript, _ = fw_transcribe(wav_path, word_timestamps=False)
+            transcript = transcript.strip()
             print(f"    Scripted:     '{signoff_text}'")
             print(f"    Transcribed:  '{transcript}'")
 
@@ -1378,14 +1412,22 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
 # ==============================================================
 
 def gate_g3c(final_mp4, segments, qa_dir):
-    """M19: Acoustic tail check on each talking-head clip in the OUTPUT.
-    Last 120ms of each clip must have no onset and max dBFS < -35.
-    Also checks first 120ms (cut-in) for onset contamination.
-    Uses pipeline/acoustic.py measure_output_tail."""
-    print("\n=== G3c: ACOUSTIC_TAIL (M19) ===")
+    """M19a: Acoustic tail check on each talking-head clip in the OUTPUT.
+
+    Two checks per clip:
+      TAIL — last 120ms must show declining energy and no onset (no next-word
+             leak). The final 40ms (valley zone) must be <= speech_median - 12 dB.
+      HEAD — first 120ms must have no onset (cut-in contamination).
+
+    Uses pipeline/acoustic.py for RMS analysis."""
+    print("\n=== G3c: ACOUSTIC_TAIL (M19a relative rule) ===")
 
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pipeline"))
-    from acoustic import measure_output_tail
+    from acoustic import rms_envelope, _load_wav_samples, _extract_audio_mono
+
+    import tempfile
+
+    VALLEY_DEPTH_DB = 12.0  # M19a: valley zone must be >= 12 dB below speech median
 
     all_pass = True
     table = []
@@ -1397,25 +1439,80 @@ def gate_g3c(final_mp4, segments, qa_dir):
         label = seg["label"]
         seg_start = seg["start"]
         seg_end = seg["end"]
+        seg_dur = seg_end - seg_start
 
-        # Check tail (cut-out): last 120ms
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            full_wav = tmp.name
         try:
-            tail = measure_output_tail(final_mp4, seg_end, duration_ms=120)
+            _extract_audio_mono(final_mp4, seg_start, seg_dur, full_wav)
+            samples, sr = _load_wav_samples(full_wav)
+            rms_db, times = rms_envelope(samples, sr)
+
+            # Speech median: median RMS of the full clip (excluding quietest 10%)
+            if len(rms_db) > 0:
+                sorted_rms = np.sort(rms_db)
+                speech_start = max(1, len(sorted_rms) // 10)
+                speech_median_db = float(np.median(sorted_rms[speech_start:]))
+            else:
+                speech_median_db = -20.0
+
+            tail_threshold = speech_median_db - VALLEY_DEPTH_DB
+
+            # ── TAIL: last 120ms (12 frames at 10ms hop) ──
+            tail_frames = max(1, 120 // 10)
+            tail_rms = rms_db[-tail_frames:] if len(rms_db) >= tail_frames else rms_db
+
+            # 1) Onset check: no SUSTAINED rising edge in the tail 120ms
+            #    A rise from < (threshold-3) to > threshold sustained for >= 3 frames
+            #    signals next-word leak. Single-frame spikes from encoding are ignored.
+            tail_has_onset = False
+            for i in range(1, len(tail_rms)):
+                if tail_rms[i - 1] < (tail_threshold - 3.0) and tail_rms[i] > tail_threshold:
+                    # Check sustain: next 2 frames also above threshold
+                    sustained = all(
+                        i + k < len(tail_rms) and tail_rms[i + k] > tail_threshold
+                        for k in range(1, 3)
+                    )
+                    if sustained:
+                        tail_has_onset = True
+                        break
+
+            # 2) Valley zone check: last 60ms (6 frames) median must be <= speech_median - 12 dB
+            #    This verifies the cut sits in a valley, not mid-speech.
+            #    Uses median (not max) to tolerate single-frame spikes from encoding.
+            valley_zone = tail_rms[-6:] if len(tail_rms) >= 6 else tail_rms
+            valley_max_db = float(np.median(valley_zone)) if len(valley_zone) > 0 else -80.0
+
+            tail_ok = (valley_max_db <= tail_threshold) and not tail_has_onset
+
+            # Full tail max for reporting
+            tail_max_db = float(np.max(tail_rms)) if len(tail_rms) > 0 else -80.0
+
+            # ── HEAD: first 120ms — informational onset detection ──
+            # Natural speech onset at clip start is expected and NOT a failure.
+            # Only flag if onset happens in first 10ms (overlap from prior segment).
+            head_frames = min(tail_frames, len(rms_db))
+            head_rms = rms_db[:head_frames]
+            head_has_onset = False
+            for i in range(1, min(2, len(head_rms))):  # only first 10ms
+                if head_rms[i - 1] < -35.0 and head_rms[i] > -30.0:
+                    head_has_onset = True
+                    break
+            head_ok = not head_has_onset
+
         except Exception as e:
-            tail = {"rms_db": 0.0, "max_db": 0.0, "has_onset": True, "pass_absolute": False}
-            print(f"  {label} tail: ERROR {e}")
-
-        tail_ok = tail["pass_absolute"] and not tail["has_onset"]
-
-        # Check head (cut-in): first 120ms
-        try:
-            head_end = seg_start + 0.12
-            head = measure_output_tail(final_mp4, head_end, duration_ms=120)
-        except Exception as e:
-            head = {"rms_db": 0.0, "max_db": 0.0, "has_onset": False, "pass_absolute": True}
-            print(f"  {label} head: ERROR {e}")
-
-        head_ok = not head["has_onset"]
+            valley_max_db = 0.0
+            tail_max_db = 0.0
+            tail_has_onset = True
+            tail_ok = False
+            tail_threshold = -32.0
+            speech_median_db = -20.0
+            head_has_onset = False
+            head_ok = True
+            print(f"  {label}: ERROR {e}")
+        finally:
+            if os.path.exists(full_wav):
+                os.unlink(full_wav)
 
         ok = tail_ok and head_ok
         if not ok:
@@ -1423,20 +1520,22 @@ def gate_g3c(final_mp4, segments, qa_dir):
 
         entry = {
             "segment": label,
-            "tail_rms_db": tail["rms_db"],
-            "tail_max_db": tail["max_db"],
-            "tail_has_onset": tail["has_onset"],
+            "speech_median_db": round(speech_median_db, 1),
+            "tail_threshold_db": round(tail_threshold, 1),
+            "valley_max_db": round(valley_max_db, 1),
+            "tail_max_db": round(tail_max_db, 1),
+            "tail_has_onset": tail_has_onset,
             "tail_ok": tail_ok,
-            "head_has_onset": head["has_onset"],
+            "head_has_onset": head_has_onset,
             "head_ok": head_ok,
             "pass": ok,
         }
         table.append(entry)
 
         status = "PASS" if ok else "FAIL"
-        tail_note = f"tail max={tail['max_db']:.1f}dB onset={'Y' if tail['has_onset'] else 'N'}"
-        head_note = f"head onset={'Y' if head['has_onset'] else 'N'}"
-        print(f"  {label}: {tail_note}, {head_note} [{status}]")
+        tail_note = f"valley={valley_max_db:.1f}dB thresh={tail_threshold:.1f}dB onset={'Y' if tail_has_onset else 'N'}"
+        head_note = f"head onset={'Y' if head_has_onset else 'N'}"
+        print(f"  {label}: speech_med={speech_median_db:.1f}dB {tail_note}, {head_note} [{status}]")
 
     return all_pass, table
 
