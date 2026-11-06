@@ -125,7 +125,21 @@ def gate_g1(final_mp4, manifest, vo_regions, qa_dir, vo_assembled_tracks=None):
     if vo_assembled_tracks is None:
         vo_assembled_tracks = {}
 
-    ref_wav_path = os.path.join(VO_DIR, manifest["intro"]["stem_wav"])
+    # R2-07: handle M20 edits with no intro — use signoff or first available VO
+    if "intro" in manifest and manifest["intro"].get("stem_wav"):
+        ref_wav_path = os.path.join(VO_DIR, manifest["intro"]["stem_wav"])
+    elif "signoff" in manifest and manifest["signoff"].get("stem_wav"):
+        ref_wav_path = os.path.join(VO_DIR, manifest["signoff"]["stem_wav"])
+    else:
+        # Find any available VO stem
+        ref_wav_path = None
+        for key, val in manifest.items():
+            if isinstance(val, dict) and val.get("stem_wav"):
+                ref_wav_path = os.path.join(VO_DIR, val["stem_wav"])
+                break
+        if ref_wav_path is None:
+            print("  G1: No VO reference found in manifest")
+            return False, [{"region": "error", "pass": False, "reason": "no VO reference"}]
     ref_wav = preprocess_wav(ref_wav_path)
     ref_embed = encoder.embed_utterance(ref_wav)
 
@@ -188,14 +202,18 @@ def gate_g1(final_mp4, manifest, vo_regions, qa_dir, vo_assembled_tracks=None):
               f"[{source_note}] [{status}]")
 
     # Negative control: Connery
+    # R2-13: negative control failure must fail the gate
     connery_path = os.path.join(VO_DIR, "legacy", "vo_bridge_01.wav")
     if os.path.exists(connery_path):
         conn_wav = preprocess_wav(connery_path)
         conn_embed = encoder.embed_utterance(conn_wav)
         conn_sim = cosine_sim(conn_embed, ref_embed)
+        neg_pass = conn_sim < VOICE_SIM_THRESHOLD
         print(f"  [negative] Connery bridge: sim={conn_sim:.4f} (should be < {VOICE_SIM_THRESHOLD})")
         table.append({"region": "connery_negative", "sim": round(conn_sim, 4),
-                       "sim_pass": conn_sim < VOICE_SIM_THRESHOLD, "pass": conn_sim < VOICE_SIM_THRESHOLD})
+                       "sim_pass": neg_pass, "pass": neg_pass})
+        if not neg_pass:
+            all_pass = False
 
     return all_pass, table
 
@@ -302,14 +320,30 @@ def gate_g3(final_mp4, segments, qa_dir):
         extract_audio_region(final_mp4, last2_start, 2.0, last2_wav)
         last2_transcript = whisper_segment(last2_wav, qa_dir)
 
-        first_ok = edl_first in first_word_found or first_word_found in edl_first or not edl_first
-        last_ok = edl_last in last_word_found or last_word_found in edl_last or not edl_last
+        # R2-03: require non-empty transcripts — "" in "word" is always True
+        first_ok = False
+        last_ok = False
+        if not edl_first:
+            first_ok = True
+        elif first_word_found and (edl_first in first_word_found or first_word_found in edl_first):
+            first_ok = True
+        if not edl_last:
+            last_ok = True
+        elif last_word_found and (edl_last in last_word_found or last_word_found in edl_last):
+            last_ok = True
 
         # Fuzzy: also check if the word appears anywhere in the transcripts
+        # Require non-empty transcript to prevent "" in "" false passes
         if not first_ok and edl_first:
-            first_ok = edl_first in first_transcript or edl_first in first2_transcript
+            if first_transcript.strip():
+                first_ok = edl_first in first_transcript
+            if not first_ok and first2_transcript.strip():
+                first_ok = edl_first in first2_transcript
         if not last_ok and edl_last:
-            last_ok = edl_last in last_transcript or edl_last in last2_transcript
+            if last_transcript.strip():
+                last_ok = edl_last in last_transcript
+            if not last_ok and last2_transcript.strip():
+                last_ok = edl_last in last2_transcript
 
         ok = first_ok and last_ok
         if not ok:
@@ -381,28 +415,30 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
         extract_audio_region(final_mp4, tail2_start, tail2_dur, tail2_wav)
         tail2_transcript = whisper_segment(tail2_wav, qa_dir)
 
-        # Check 1: EDL last_word must appear in the tail transcript
-        last_found = edl_last in tail_transcript or edl_last in tail2_transcript
-        if not last_found:
-            # Also check individual words for stem/prefix match
-            # Whisper may truncate or alter word endings (e.g. magnitude -> magnet/magnetism)
-            all_tail_words = tail_words + tail2_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()
-            min_prefix = min(4, len(edl_last))  # match on first 4+ chars
+        # Check 1: EDL last_word must appear as complete word in tail transcript
+        # R2-03: require non-empty transcript and exact token match (not prefix)
+        last_found = False
+        if edl_last and tail_transcript.strip():
+            last_found = edl_last in tail_transcript
+        if not last_found and edl_last and tail2_transcript.strip():
+            last_found = edl_last in tail2_transcript
+        if not last_found and edl_last:
+            # Check individual words for exact match (case-insensitive, stripped)
+            all_tail_words = [w.lower() for w in
+                              tail_words + tail2_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()]
             for tw in all_tail_words:
-                if edl_last in tw or tw in edl_last:
+                # Require complete containment: edl_last in tw is ok (e.g. "magnitudes" contains "magnitude")
+                # But tw in edl_last with tw shorter is NOT ok (e.g. "magnet" in "magnitude" is prefix, not match)
+                if edl_last == tw or edl_last in tw:
                     last_found = True
                     break
-                # Prefix match: words sharing first 4+ characters
-                if len(tw) >= min_prefix and len(edl_last) >= min_prefix:
-                    if tw[:min_prefix] == edl_last[:min_prefix]:
-                        last_found = True
-                        break
 
         # Check 2: next source word must NOT appear (if declared in EDL)
+        # R2-03: check ALL next words including short ones like "So"
         edl_entry = edl_clips.get(label, {})
         next_word = edl_entry.get("next_source_word", "").lower().strip().rstrip(".,?!")
         next_leaked = False
-        if next_word and len(next_word) >= 3:
+        if next_word:
             # Check both tail windows for next-word leak
             next_leaked = next_word in tail_transcript or next_word in tail2_transcript
 
@@ -636,18 +672,15 @@ def gate_g5(final_mp4, fmt):
         print(f"  SAR: {sar} [{'PASS' if sar_ok else 'FAIL'}]")
         print(f"  FPS: {fps_val} [{'PASS' if fps_ok else 'FAIL'}]")
 
-    # Duration for vertical
-    if fmt == "9x16":
-        dur_ok = dur <= 75.0
-        results["duration"] = dur
-        results["dur_ok"] = dur_ok
-        if not dur_ok:
-            all_pass = False
-        print(f"  Duration: {dur:.2f}s (max 75s) [{'PASS' if dur_ok else 'FAIL'}]")
-    else:
-        results["duration"] = dur
-        results["dur_ok"] = True
-        print(f"  Duration: {dur:.2f}s")
+    # Duration window: 60-120s for both aspects (R2-14)
+    dur_min = 60.0
+    dur_max = 120.0
+    dur_ok = dur_min <= dur <= dur_max
+    results["duration"] = dur
+    results["dur_ok"] = dur_ok
+    if not dur_ok:
+        all_pass = False
+    print(f"  Duration: {dur:.2f}s ({dur_min:.0f}-{dur_max:.0f}s) [{'PASS' if dur_ok else 'FAIL'}]")
 
     # EBU R128
     r = subprocess.run([
@@ -1545,7 +1578,8 @@ def gate_g3c(final_mp4, segments, qa_dir):
 # ==============================================================
 
 def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
-                   vo_assembled_tracks=None, edl_path=None, channels_json_path=None):
+                   vo_assembled_tracks=None, edl_path=None, channels_json_path=None,
+                   horiz_mp4=None):
     """Run all gates. Returns (all_pass, results_dict).
     source_clips: dict mapping clip label -> source mp4 path (for G4 layout classification).
     vo_assembled_tracks: dict mapping VO label -> assembled WAV path (silence + stem, no BGM).
@@ -1648,6 +1682,15 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     if not g9_pass:
         any_fail = True
 
+    # G11: Parity (vertical mirrors horizontal) — R2-02
+    if horiz_mp4 and os.path.exists(horiz_mp4):
+        g11_pass, g11_data = gate_g11(final_mp4, horiz_mp4, segments, segments)
+        results["G11_parity"] = {"pass": g11_pass, "data": g11_data}
+        if not g11_pass:
+            any_fail = True
+    else:
+        results["G11_parity"] = {"pass": True, "skip": True, "reason": "no horiz_mp4"}
+
     # G10: Chyron (channels with has_chyron=true in registry)
     chyron_clip_ids = set()
     if edl_path and channels_json_path:
@@ -1747,6 +1790,12 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
                 if not gate_data.get("pass", True):
                     f.write(f"  FAILED: {gate_name}\n")
         print(f"  GATE_FAIL.txt written: {fail_path}")
+    else:
+        # R2-22: remove stale GATE_FAIL.txt on passing run
+        GATE_FAIL_PATH = os.path.join(qa_dir, "GATE_FAIL.txt")
+        if os.path.exists(GATE_FAIL_PATH):
+            os.remove(GATE_FAIL_PATH)
+            print(f"  Removed stale GATE_FAIL.txt: {GATE_FAIL_PATH}")
 
     return not any_fail, results
 

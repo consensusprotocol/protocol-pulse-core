@@ -754,14 +754,16 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
 
     segments = []
 
-    # Hook (reframed)
-    if "hook" in reframed:
-        segments.append(("hook", reframed["hook"], "talking_head"))
+    # Hook (reframed) — fail-closed: hook is required
+    if "hook" not in reframed:
+        raise RuntimeError("STOP: hook missing from reframed clips")
+    segments.append(("hook", reframed["hook"], "talking_head"))
 
-    # Intro VO
+    # Intro VO — fail-closed: intro is required
     vo_intro_mp4 = os.path.join(qa_dir, "vo_vert_intro.mp4")
-    if os.path.exists(vo_intro_mp4):
-        segments.append(("vo_intro", vo_intro_mp4, "vo"))
+    if not os.path.exists(vo_intro_mp4):
+        raise RuntimeError(f"STOP: intro VO missing: {vo_intro_mp4}")
+    segments.append(("vo_intro", vo_intro_mp4, "vo"))
 
     # Build bridge placement map: clip_index -> bridge manifest key
     bridge_after_map = {}
@@ -780,27 +782,30 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
             clip_file = _find_clip_file(qa_dir, clip_id, cuts, sources_dir)
             segments.append((clip_id, clip_file, "talking_head"))
 
-        # Check if a bridge follows this clip
+        # Check if a bridge follows this clip — fail-closed
         clip_idx = int(clip_id.split("_")[1])
         if clip_idx in bridge_after_map:
             bkey = bridge_after_map[clip_idx]
             vo_bridge_mp4 = os.path.join(qa_dir, f"vo_vert_{bkey}.mp4")
-            if os.path.exists(vo_bridge_mp4):
-                segments.append((f"vo_{bkey}", vo_bridge_mp4, "vo"))
+            if not os.path.exists(vo_bridge_mp4):
+                raise RuntimeError(f"STOP: bridge VO missing: {vo_bridge_mp4}")
+            segments.append((f"vo_{bkey}", vo_bridge_mp4, "vo"))
 
-    # Shoutout
+    # Shoutout — fail-closed: shoutout is required
     shoutout_path = _find_shoutout_vert(qa_dir, segment_dir)
     if not shoutout_path:
         # Render shoutout at 9:16 via pipeline shoutout builder
         print("  No 9:16 shoutout found, rendering...")
         shoutout_path = build_shoutout(segment_dir, qa_version, fmt="9x16")
-    if shoutout_path:
-        segments.append(("shoutout", shoutout_path, "shoutout"))
+    if not shoutout_path:
+        raise RuntimeError("STOP: shoutout not found and could not be rendered")
+    segments.append(("shoutout", shoutout_path, "shoutout"))
 
-    # Outro
+    # Outro — fail-closed: outro is required
     outro_path = _find_outro_vert(qa_dir, segment_dir)
-    if outro_path:
-        segments.append(("outro", outro_path, "outro"))
+    if not outro_path:
+        raise RuntimeError("STOP: outro not found")
+    segments.append(("outro", outro_path, "outro"))
 
     for label, path, _ in segments:
         assert os.path.exists(path), f"MISSING: {path}"

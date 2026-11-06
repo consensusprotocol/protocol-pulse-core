@@ -62,7 +62,7 @@ def send_telegram_preview(segment_dir, qa_version=None):
         from tg_preview import send_preview
         segment_name = os.path.basename(os.path.normpath(segment_dir))
         caption = f"Pulse Check {segment_name} — gates PASS"
-        send_preview(final_16, final_9, caption=caption)
+        send_preview(final_16, caption)
     except ImportError:
         # Fallback: use requests directly with proper dimensions
         _send_via_requests(final_16, final_9, segment_dir)

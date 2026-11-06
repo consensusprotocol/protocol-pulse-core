@@ -145,38 +145,39 @@ def _find_acoustic_offset(rms_db, times, whisper_word_end, speech_median_db,
         window_frames = max(1, VALLEY_WINDOW_MS // hop_ms)
         smoothed = _smoothed_rms(rms_db, window_frames)
 
-    # First find where the inter-word valley starts using the 12 dB threshold
-    # (the same threshold used for valley detection). This prevents extending
-    # the offset past the word boundary into the next word.
-    valley_threshold = speech_median_db - VALLEY_DEPTH_DB
+    # Find the last frame within 6 dB of speech median, but do not extend
+    # past a gap where RAW rms drops below the 6 dB threshold for >= 80ms.
+    # This distinguishes intra-word gaps (stop consonants, typically < 80ms
+    # even at 6 dB) from inter-word valleys (typically > 80ms at 6 dB).
     search_start = whisper_word_end - 0.05
     start_idx = int(np.searchsorted(times, search_start))
     end_limit = int(min(len(smoothed), np.searchsorted(times, whisper_word_end + 0.5)))
 
-    # Find where the first qualifying valley (>= 60ms at 12 dB) ends
-    # Speech before this point is still the current word
-    valley_start_idx = end_limit
+    offset_threshold = speech_median_db - ACOUSTIC_OFFSET_DB
+    gap_boundary_frames = 8  # 80ms at 10ms hop — gap boundary for offset scan
+
+    # First: find the boundary — first gap >= 80ms at 6 dB in raw RMS
+    boundary_idx = end_limit
     gap_count = 0
-    gap_limit = int(VALLEY_MIN_WIDTH_MS / hop_ms)
     for i in range(start_idx, end_limit):
-        if smoothed[i] < valley_threshold:
+        if rms_db[i] < offset_threshold:
             gap_count += 1
-            if gap_count >= gap_limit:
-                # Valley starts gap_limit frames before current position
-                valley_start_idx = i - gap_limit + 1
+            if gap_count >= gap_boundary_frames:
+                boundary_idx = i - gap_boundary_frames + 1
                 break
         else:
             gap_count = 0
 
-    # Now find the last frame within 6 dB of speech median,
-    # but only before the inter-word valley starts
-    offset_threshold = speech_median_db - ACOUSTIC_OFFSET_DB
+    # Then: last frame within 6 dB before that boundary
     last_above_idx = start_idx
-    for i in range(start_idx, valley_start_idx):
+    for i in range(start_idx, boundary_idx):
         if smoothed[i] >= offset_threshold:
             last_above_idx = i
 
     return float(times[min(last_above_idx, len(times) - 1)])
+
+
+RESUME_MIN_MS = 100  # speech resumption threshold for intra-word gap detection
 
 
 def find_valley(rms_db, times, search_start, search_end, speech_median_db, hop_ms=HOP_MS):
@@ -187,7 +188,6 @@ def find_valley(rms_db, times, search_start, search_end, speech_median_db, hop_m
     (60 ms — rejects stop-consonant closures which are typically 30-40 ms).
 
     Returns the FIRST qualifying valley after the search_start.
-    The 60ms minimum width rejects intra-word stop-consonant dips.
 
     Returns:
         dict with centre, end, depth_db, width_ms; or None if no valid valley.
@@ -294,16 +294,23 @@ def compute_acoustic_cut_out(source_mp4, whisper_word_end, window_s=1.5):
         acoustic_offset = _find_acoustic_offset(
             rms_db, times, whisper_word_end, speech_median_db, smoothed=smoothed)
 
-        # Step 2: Sustained onset after acoustic offset
+        # Step 2: FIRST qualifying valley after acoustic offset
+        valley_search_end = whisper_word_end + 1.5
+        valley = find_valley(rms_db, times, acoustic_offset, valley_search_end,
+                             speech_median_db)
+
+        if valley is None:
+            raise UnsafeBoundaryError(
+                f"No qualifying valley found after acoustic_offset={acoustic_offset:.3f} "
+                f"(whisper_word_end={whisper_word_end:.3f})")
+
+        # Step 3: Sustained onset AFTER the valley (next word start)
         onset_thresh = max(bed_db + BED_ONSET_DB, speech_median_db - 6.0)
         onset = None
-        onset_search_start = int(np.searchsorted(times, acoustic_offset + 0.02))
+        onset_search_start = int(np.searchsorted(times, valley["end"]))
         onset_search_end = int(min(len(rms_db), np.searchsorted(times, whisper_word_end + 1.5)))
-        in_dip = False
         for i in range(onset_search_start, onset_search_end):
-            if rms_db[i] < onset_thresh:
-                in_dip = True
-            elif in_dip and rms_db[i] > onset_thresh:
+            if rms_db[i] > onset_thresh:
                 sustained = True
                 for k in range(1, ONSET_SUSTAIN_FRAMES):
                     if i + k >= len(rms_db) or rms_db[i + k] < onset_thresh:
@@ -313,30 +320,19 @@ def compute_acoustic_cut_out(source_mp4, whisper_word_end, window_s=1.5):
                     onset = float(times[i])
                     break
 
-        # Step 3: FIRST qualifying valley in [acoustic_offset, onset]
-        valley_search_end = onset if onset is not None else whisper_word_end + 1.0
-        valley = find_valley(rms_db, times, acoustic_offset, valley_search_end,
-                             speech_median_db)
-
-        if valley is None:
-            raise UnsafeBoundaryError(
-                f"No qualifying valley found after acoustic_offset={acoustic_offset:.3f} "
-                f"(whisper_word_end={whisper_word_end:.3f})")
-
-        # Step 4: Cut at valley END
+        # Step 4: Cut at valley END, clamped to onset - 60ms if needed
         cut_out = valley["end"]
+        if onset is not None and cut_out > onset - 0.060:
+            cut_out = onset - 0.060
 
         # Step 5: Safety assertions — raise on failure, no fallback
         if cut_out < acoustic_offset:
             raise UnsafeBoundaryError(
                 f"cut_out={cut_out:.3f} < acoustic_offset={acoustic_offset:.3f}")
-        if onset is not None and cut_out > onset - 0.060:
-            raise UnsafeBoundaryError(
-                f"cut_out={cut_out:.3f} > onset-0.060={onset - 0.060:.3f} "
-                f"(onset={onset:.3f})")
 
         return {
             "cut_out": round(cut_out, 3),
+            "safe": True,
             "acoustic_offset": round(acoustic_offset, 3),
             "valley": valley,
             "onset": round(onset, 3) if onset is not None else None,
@@ -407,12 +403,18 @@ def apply_fades(input_mp4, output_mp4, cut_in_fade_ms=FADE_IN_MS, cut_out_fade_m
     dur = float(r.stdout.strip())
     fade_out_start = max(0, dur - fade_out_s)
 
-    partial = output_mp4 + ".partial"
-    subprocess.run([
-        "ffmpeg", "-y", "-i", input_mp4,
-        "-af", f"afade=t=in:d={fade_in_s},afade=t=out:st={fade_out_start}:d={fade_out_s}",
-        "-c:v", "copy",
-        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-        "-movflags", "+faststart", partial,
-    ], capture_output=True, timeout=120, check=True)
-    os.replace(partial, output_mp4)
+    # R2-21: Use .mp4 extension (not .partial) so FFmpeg auto-detects muxer
+    partial = output_mp4 + ".tmp.mp4"
+    try:
+        subprocess.run([
+            "ffmpeg", "-y", "-i", input_mp4,
+            "-af", f"afade=t=in:d={fade_in_s},afade=t=out:st={fade_out_start}:d={fade_out_s}",
+            "-c:v", "copy",
+            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+            "-movflags", "+faststart", partial,
+        ], capture_output=True, timeout=120, check=True)
+        os.replace(partial, output_mp4)
+    except Exception:
+        if os.path.exists(partial):
+            os.unlink(partial)
+        raise

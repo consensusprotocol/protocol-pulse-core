@@ -712,8 +712,7 @@ class TestM19aValleyRule(unittest.TestCase):
 
         v = find_valley(rms_db, times, 0.3, 0.8, speech_median_db)
         self.assertIsNotNone(v, "Valley must be found in synthetic gap")
-        self.assertTrue(v["safe"])
-        self.assertGreaterEqual(v["width_ms"], 40)
+        self.assertGreaterEqual(v["width_ms"], 60)
         self.assertGreaterEqual(v["depth_db"], 12)
         # Valley centre should be near 0.5s
         self.assertAlmostEqual(v["centre"], 0.5, delta=0.08)
@@ -783,21 +782,21 @@ class TestM19aValleyRule(unittest.TestCase):
         self.assertLess(v["centre"], 0.50, "Must pick the FIRST qualifying valley")
 
     def test_clip_01_source_valley(self):
-        """Integration: M19a finds first valley end after 'magnitude.' word end.
-        Cut at valley end (~249.37) to ensure G3c passes with 30ms fade."""
+        """Integration: M19a finds the inter-word valley after 'magnitude'.
+        Cut must land in [249.62, 249.72] — after the full word, before 'So'."""
         source = "/home/ultron/protocol_pulse/segment_v2/sources/Pxrak-iMT0g.mp4"
         if not os.path.exists(source):
             self.skipTest("clip_01 source not available")
         from acoustic import compute_acoustic_cut_out
         result = compute_acoustic_cut_out(source, whisper_word_end=249.3)
-        self.assertTrue(result["safe"], f"Boundary must be safe: {result}")
         self.assertIsNotNone(result["valley"])
-        # Cut at valley end ~249.37 (post-"magnitude" silence, before "So")
-        self.assertAlmostEqual(result["cut_out"], 249.37, delta=0.05,
-                               msg=f"cut_out should be ~249.37, got {result['cut_out']}")
+        # Cut at valley end in [249.62, 249.72] — past the stop-consonant dip
+        self.assertGreaterEqual(result["cut_out"], 249.62,
+                                msg=f"cut_out too early (inside word): {result['cut_out']}")
+        self.assertLessEqual(result["cut_out"], 249.72,
+                             msg=f"cut_out too late (into next word): {result['cut_out']}")
         self.assertGreaterEqual(result["valley"]["depth_db"], 12.0)
-        self.assertGreaterEqual(result["valley"]["width_ms"], 40)
-        # Valley must have "end" field
+        self.assertGreaterEqual(result["valley"]["width_ms"], 60)
         self.assertIn("end", result["valley"])
 
 
