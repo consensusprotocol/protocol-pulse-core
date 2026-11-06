@@ -56,30 +56,30 @@ def build_shoutout(segment_dir, qa_version=None, fmt="16x9"):
     # Get signoff VO if available, ensure 48kHz stereo for concat compatibility
     vo_dir = paths["vo_dir"]
     manifest_path = os.path.join(vo_dir, "VO_MANIFEST.json")
-    vo_wav = None
-    if os.path.exists(manifest_path):
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-        if "signoff" in manifest:
-            raw_wav = os.path.join(vo_dir, manifest["signoff"]["stem_wav"])
-            if os.path.exists(raw_wav):
-                # Resample to 48kHz stereo (ElevenLabs outputs 22050 mono)
-                import subprocess
-                vo_wav = os.path.join(qa_dir, "vo_signoff_48k.wav")
-                subprocess.run([
-                    "ffmpeg", "-y", "-i", raw_wav,
-                    "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", vo_wav,
-                ], capture_output=True, timeout=30)
-                if not os.path.exists(vo_wav):
-                    vo_wav = raw_wav  # fallback to original
+    # M12: signoff WAV is REQUIRED — missing = STOP
+    import subprocess
+    if not os.path.exists(manifest_path):
+        raise FileNotFoundError(f"STOP: VO manifest missing: {manifest_path}")
+    with open(manifest_path) as f:
+        manifest = json.load(f)
+    if "signoff" not in manifest:
+        raise RuntimeError("STOP: VO manifest has no 'signoff' entry")
+    raw_wav = os.path.join(vo_dir, manifest["signoff"]["stem_wav"])
+    if not os.path.exists(raw_wav):
+        raise FileNotFoundError(f"STOP: signoff WAV missing: {raw_wav}")
+    # Resample to 48kHz stereo (ElevenLabs outputs 22050 mono)
+    vo_wav = os.path.join(qa_dir, "vo_signoff_48k.wav")
+    subprocess.run([
+        "ffmpeg", "-y", "-i", raw_wav,
+        "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", vo_wav,
+    ], capture_output=True, timeout=30, check=True)
 
     render_shoutout(channels, size=size, vo_wav=vo_wav, out_path=out_path)
 
-    if os.path.exists(out_path):
-        print(f"  Output: {out_path}")
-        return out_path
-    print("  ERROR: shoutout render failed")
-    return None
+    if not os.path.exists(out_path):
+        raise RuntimeError(f"STOP: shoutout render failed: {out_path}")
+    print(f"  Output: {out_path}")
+    return out_path
 
 
 def _find_avatar(segment_dir, channel_name):
@@ -104,7 +104,7 @@ def _find_avatar(segment_dir, channel_name):
             if os.path.exists(candidate):
                 return candidate
 
-    return None
+    raise FileNotFoundError(f"STOP: avatar missing for channel '{channel_name}'")
 
 
 def main():

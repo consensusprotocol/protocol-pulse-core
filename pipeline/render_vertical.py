@@ -945,108 +945,74 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
 
 # ── Helpers for finding pre-rendered clip files ──
 
-def _find_clip_file(qa_dir, clip_id, cuts, sources_dir):
-    """Find the pre-rendered clip file. Prefers highest version suffix (e.g. _v5 > _v3 > bare).
-    Searches qa dirs in reverse-sorted order so the newest qa_vN wins."""
+def _find_clip_file(qa_dir, clip_id, cuts=None, sources_dir=None):
+    """Find the pre-rendered clip file in CURRENT qa_dir only (M12: no cross-qa, no raw fallback)."""
     import glob as _glob
-    segment_dir = os.path.dirname(qa_dir)
+    pattern = os.path.join(qa_dir, f"final_{clip_id}*.mp4")
     best = None
     best_version = -1
-    qa_dirs = sorted(
-        [d for d in os.listdir(segment_dir) if d.startswith("qa_")],
-        reverse=True,
-    )
-    for qa_sub in qa_dirs:
-        qa_path = os.path.join(segment_dir, qa_sub)
-        pattern = os.path.join(qa_path, f"final_{clip_id}*.mp4")
-        for hit in _glob.glob(pattern):
-            basename = os.path.basename(hit)
-            name_no_ext = basename.replace("final_", "").replace(".mp4", "")
-            if not name_no_ext.startswith(clip_id):
-                continue
-            rest = name_no_ext[len(clip_id):]
-            if rest == "":
-                version = 0
-            elif rest.startswith("_v") and rest[2:].isdigit():
-                version = int(rest[2:])
-            else:
-                continue
-            if version > best_version:
-                best = hit
-                best_version = version
+    for hit in _glob.glob(pattern):
+        basename = os.path.basename(hit)
+        name_no_ext = basename.replace("final_", "").replace(".mp4", "")
+        if not name_no_ext.startswith(clip_id):
+            continue
+        rest = name_no_ext[len(clip_id):]
+        if rest == "":
+            version = 0
+        elif rest.startswith("_v") and rest[2:].isdigit():
+            version = int(rest[2:])
+        else:
+            continue
+        if version > best_version:
+            best = hit
+            best_version = version
     if best:
         return best
-    # Fallback: source clip (raw, not cut)
-    cut = next((c for c in cuts if c["clip_id"] == clip_id), None)
-    if cut:
-        src = os.path.join(sources_dir, f"{cut['video_id']}.mp4")
-        if os.path.exists(src):
-            return src
-    raise FileNotFoundError(f"Cannot find clip file for {clip_id}")
+    raise FileNotFoundError(f"STOP: clip file for '{clip_id}' not found in {qa_dir}")
 
 
-def _find_shoutout_vert(qa_dir, segment_dir):
-    """Find 9:16 shoutout file in qa dirs. Returns absolute path or None."""
-    segment_dir = os.path.abspath(segment_dir)
-    for qa_sub in sorted(os.listdir(segment_dir)):
-        if qa_sub.startswith("qa_"):
-            for name in ["shoutout_9x16.mp4"]:
-                candidate = os.path.join(segment_dir, qa_sub, name)
-                if os.path.exists(candidate):
-                    return candidate
-    return None
+def _find_shoutout_vert(qa_dir, segment_dir=None):
+    """Find 9:16 shoutout in CURRENT qa_dir only (M12: no cross-qa scanning)."""
+    candidate = os.path.join(qa_dir, "shoutout_9x16.mp4")
+    if os.path.exists(candidate):
+        return candidate
+    raise FileNotFoundError(f"STOP: 9:16 shoutout not found in {qa_dir}")
 
 
-def _find_outro_vert(qa_dir, segment_dir):
-    """Find 9:16 outro file. If only 16:9 exists, crop it to vertical.
-    Returns absolute path or None."""
-    segment_dir = os.path.abspath(segment_dir)
+def _find_outro_vert(qa_dir, segment_dir=None):
+    """Find 9:16 outro in CURRENT qa_dir only (M12: no cross-qa scanning).
+    If only 16:9 exists in qa_dir, crop it to vertical."""
+    # Check for pre-rendered vertical outro
+    for name in ["final_outro_vert.mp4", "vert_outro.mp4", "vert_outro_from16x9.mp4"]:
+        candidate = os.path.join(qa_dir, name)
+        if os.path.exists(candidate):
+            return candidate
 
-    # First: look for pre-rendered vertical outro
-    for qa_sub in sorted(os.listdir(segment_dir)):
-        if qa_sub.startswith("qa_"):
-            for name in ["final_outro_vert.mp4", "vert_outro.mp4"]:
-                candidate = os.path.join(segment_dir, qa_sub, name)
-                if os.path.exists(candidate):
-                    return candidate
-
-    # Second: crop from 16:9 outro
+    # Crop from 16:9 outro in qa_dir
     outro_16x9 = None
-    for qa_sub in sorted(os.listdir(segment_dir)):
-        if qa_sub.startswith("qa_"):
-            for name in ["final_outro.mp4", "outro.mp4"]:
-                candidate = os.path.join(segment_dir, qa_sub, name)
-                if os.path.exists(candidate):
-                    outro_16x9 = candidate
-                    break
-        if outro_16x9:
+    for name in ["final_outro.mp4", "outro.mp4"]:
+        candidate = os.path.join(qa_dir, name)
+        if os.path.exists(candidate):
+            outro_16x9 = candidate
             break
 
     if not outro_16x9:
-        return None
+        raise FileNotFoundError(f"STOP: 9:16 outro not found in {qa_dir}")
 
-    # Crop 16:9 outro to vertical (pad/scale, no face detection needed)
     vert_outro = os.path.join(qa_dir, "vert_outro_from16x9.mp4")
-    if os.path.exists(vert_outro):
-        return vert_outro
-
     print(f"  Cropping outro from 16:9: {outro_16x9}")
-    r = subprocess.run([
+    vert_partial = vert_outro + ".partial"
+    subprocess.run([
         "ffmpeg", "-y", "-i", outro_16x9,
         "-vf", f"scale={VERT_W}:{VERT_H}:force_original_aspect_ratio=decrease,"
                f"pad={VERT_W}:{VERT_H}:(ow-iw)/2:(oh-ih)/2:black,setsar=1:1",
         "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
         "-pix_fmt", "yuv420p", "-r", str(FPS),
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-        "-movflags", "+faststart", vert_outro,
-    ], capture_output=True, timeout=120)
-
-    if r.returncode != 0:
-        print(f"    ffmpeg outro crop error: {r.stderr.decode()[-300:]}")
-
-    if os.path.exists(vert_outro) and os.path.getsize(vert_outro) > 1000:
-        return vert_outro
-    return None
+        "-movflags", "+faststart", vert_partial,
+    ], capture_output=True, timeout=120, check=True)
+    os.replace(vert_partial, vert_outro)
+    return vert_outro
 
 
 def main():

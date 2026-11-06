@@ -13,7 +13,7 @@ Rules:
                               Hook may NOT be reused as clip 1 (same video_id + overlap).
     R3 VO_AFTER_ANSWER:       VO bridges only after clips ending on statements.
     R4 VO_BUDGET:             VO <= 25% of total runtime. Intro <= 30 words,
-                              bridge <= 20 words, signoff <= 28 words.
+                              bridge <= 20 words, signoff <= 24 words.
                               One bridge per channel transition.
     R5 CLIP_LENGTH:           8-25s continuous speech per clip. >= 2 distinct
                               channels. Every channel >= 8s screen time.
@@ -31,6 +31,9 @@ import json
 import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from config import INTRO_WORD_CAP, BRIDGE_WORD_CAP, SIGNOFF_WORD_CAP
 
 
 def _word_count(text):
@@ -164,16 +167,16 @@ def rule_r4(edl):
 
     failures = []
 
-    if intro_words > 30:
-        failures.append(f"intro={intro_words} words (max 30)")
-    if signoff_words > 28:
-        failures.append(f"signoff={signoff_words} words (max 28)")
+    if intro_words > INTRO_WORD_CAP:
+        failures.append(f"intro={intro_words} words (max {INTRO_WORD_CAP})")
+    if signoff_words > SIGNOFF_WORD_CAP:
+        failures.append(f"signoff={signoff_words} words (max {SIGNOFF_WORD_CAP})")
 
     for i, bridge in enumerate(bridges):
         btext = bridge.get("text", "")
         bwords = _word_count(btext)
-        if bwords > 20:
-            failures.append(f"bridge {i+1}={bwords} words (max 20)")
+        if bwords > BRIDGE_WORD_CAP:
+            failures.append(f"bridge {i+1}={bwords} words (max {BRIDGE_WORD_CAP})")
 
     # One bridge per channel transition
     if len(bridges) > 0 and len(clips) > 0:

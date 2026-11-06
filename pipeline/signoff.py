@@ -20,6 +20,9 @@ import re
 import sys
 import datetime
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from config import SIGNOFF_WORD_CAP
+
 sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
 from relay import get_key
 
@@ -87,8 +90,8 @@ def validate_signoff(text, channel_names, history):
     # Word count: 18-24
     if word_count < 18:
         return False, f"too short: {word_count} words (min 18)"
-    if word_count > 24:
-        return False, f"too long: {word_count} words (max 24)"
+    if word_count > SIGNOFF_WORD_CAP:
+        return False, f"too long: {word_count} words (max {SIGNOFF_WORD_CAP})"
 
     lower = text.lower()
 
@@ -161,7 +164,7 @@ C) Call-to-action-first: "Go follow [channels]. Today's clips came from them. Li
 Rules:
 - Use EXACT channel display names: {', '.join(channel_names)}
 - Include "go follow", "follow", or "subscribe to"
-- 18-24 words, max 3 sentences
+- 18-{SIGNOFF_WORD_CAP} words, max 3 sentences
 - Must sound natural when spoken aloud, like a person talking to camera
 - NO hashtags, NO em dashes, NO "we"/"our team"
 - NO stiff/mechanical words: supplied, provided, video clips, content creators, using the links, each one, sourced from, courtesy of

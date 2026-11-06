@@ -296,9 +296,11 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
     # Hook
     segments.append(("hook", _find_clip_file(qa_dir, "hook", cuts, sources_dir), "talking_head"))
 
-    # Intro VO
+    # Intro VO (M12: required if EDL has intro text)
     vo_intro_mp4 = os.path.join(qa_dir, "vo_intro.mp4")
-    if os.path.exists(vo_intro_mp4):
+    if edl.get("vo", {}).get("intro"):
+        if not os.path.exists(vo_intro_mp4):
+            raise FileNotFoundError(f"STOP: intro VO missing: {vo_intro_mp4}")
         segments.append(("vo_intro", vo_intro_mp4, "vo"))
 
     # Build bridge placement map: clip_index -> bridge manifest key
@@ -320,18 +322,17 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
         if clip_idx in bridge_after_map:
             bkey = bridge_after_map[clip_idx]
             vo_bridge_mp4 = os.path.join(qa_dir, f"vo_{bkey}.mp4")
-            if os.path.exists(vo_bridge_mp4):
-                segments.append((f"vo_{bkey}", vo_bridge_mp4, "vo"))
+            if not os.path.exists(vo_bridge_mp4):
+                raise FileNotFoundError(f"STOP: bridge VO missing: {vo_bridge_mp4}")
+            segments.append((f"vo_{bkey}", vo_bridge_mp4, "vo"))
 
-    # Shoutout
-    shoutout_path = _find_shoutout(qa_dir, segment_dir)
-    if shoutout_path:
-        segments.append(("shoutout", shoutout_path, "shoutout"))
+    # Shoutout (M12: required)
+    shoutout_path = _find_shoutout(qa_dir)
+    segments.append(("shoutout", shoutout_path, "shoutout"))
 
-    # Outro
-    outro_path = _find_outro(qa_dir, segment_dir)
-    if outro_path:
-        segments.append(("outro", outro_path, "outro"))
+    # Outro (M12: required)
+    outro_path = _find_outro(qa_dir)
+    segments.append(("outro", outro_path, "outro"))
 
     for label, path, _ in segments:
         assert os.path.exists(path), f"MISSING: {path}"
@@ -350,17 +351,17 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
             f.write(f"file '{path}'\n")
 
     concat_raw = os.path.join(qa_dir, "concat_raw.mp4")
-    r = subprocess.run([
+    concat_partial = concat_raw + ".partial"
+    subprocess.run([
         "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
         "-vf", "setpts=PTS-STARTPTS",
         "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
         "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
         "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-        "-movflags", "+faststart", concat_raw,
-    ], capture_output=True, timeout=600)
-    if r.returncode != 0:
-        print(f"  ffmpeg stderr: {r.stderr.decode()[-500:]}")
+        "-movflags", "+faststart", concat_partial,
+    ], capture_output=True, timeout=600, check=True)
+    os.replace(concat_partial, concat_raw)
     concat_dur = get_duration(concat_raw)
     print(f"  Concat: {concat_dur:.2f}s")
 
@@ -394,6 +395,7 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
     wm_dur = get_duration(concat_wm)
     bgm_fade_out_start = wm_dur - 1.5
 
+    bgm_partial = bgm_path + ".partial"
     subprocess.run([
         "ffmpeg", "-y",
         "-i", concat_wm,
@@ -404,8 +406,9 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
         "-map", "0:v", "-map", "[aout]",
         "-c:v", "copy",
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-        "-movflags", "+faststart", bgm_path,
-    ], capture_output=True, timeout=300)
+        "-movflags", "+faststart", bgm_partial,
+    ], capture_output=True, timeout=300, check=True)
+    os.replace(bgm_partial, bgm_path)
     print(f"  BGM mix: {get_duration(bgm_path):.2f}s")
 
     # ========== STEP 7: Loudnorm 2-pass + alimiter ==========
@@ -449,6 +452,7 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
         ], capture_output=True, timeout=300)
 
     final_path = os.path.join(out_dir, output_name)
+    final_partial = final_path + ".partial"
     subprocess.run([
         "ffmpeg", "-y",
         "-i", bgm_path,
@@ -457,12 +461,9 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
         "-c:v", "copy",
         "-af", "alimiter=limit=0.562341:level=false",  # -5.0 dBFS to ensure TP<=-2.0 after AAC
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-        "-movflags", "+faststart", final_path,
-    ], capture_output=True, timeout=300)
-
-    if not os.path.exists(final_path) or os.path.getsize(final_path) < 10000:
-        print("FATAL: 16:9 render failed")
-        sys.exit(1)
+        "-movflags", "+faststart", final_partial,
+    ], capture_output=True, timeout=300, check=True)
+    os.replace(final_partial, final_path)
 
     # ========== STEP 8: Build concat manifest for qa_gates ==========
     print("\n=== STEP 8: CONCAT MANIFEST ===")
@@ -537,71 +538,48 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
 
 # ── Helpers for finding pre-rendered clip files ──
 
-def _find_clip_file(qa_dir, clip_id, cuts, sources_dir):
-    """Find the pre-rendered clip file. Prefers highest version suffix (e.g. _v5 > _v3 > bare).
-    Searches qa dirs in reverse-sorted order so the newest qa_vN wins."""
+def _find_clip_file(qa_dir, clip_id, cuts=None, sources_dir=None):
+    """Find the pre-rendered clip file in the CURRENT qa_dir only (M12: no cross-qa, no raw fallback)."""
     import glob as _glob
-    segment_dir = os.path.dirname(qa_dir)
+    pattern = os.path.join(qa_dir, f"final_{clip_id}*.mp4")
     best = None
     best_version = -1
-    # Scan all qa dirs (newest first so we prefer higher qa versions)
-    qa_dirs = sorted(
-        [d for d in os.listdir(segment_dir) if d.startswith("qa_")],
-        reverse=True,
-    )
-    for qa_sub in qa_dirs:
-        qa_path = os.path.join(segment_dir, qa_sub)
-        # Glob for all versions: final_clip_02.mp4, final_clip_02_v5.mp4, etc.
-        pattern = os.path.join(qa_path, f"final_{clip_id}*.mp4")
-        for hit in _glob.glob(pattern):
-            basename = os.path.basename(hit)
-            # Avoid matching clip_02 when searching for clip_0 (require exact clip_id)
-            name_no_ext = basename.replace("final_", "").replace(".mp4", "")
-            if not name_no_ext.startswith(clip_id):
-                continue
-            rest = name_no_ext[len(clip_id):]
-            if rest == "":
-                version = 0
-            elif rest.startswith("_v") and rest[2:].isdigit():
-                version = int(rest[2:])
-            else:
-                continue  # unrecognised suffix, skip
-            if version > best_version:
-                best = hit
-                best_version = version
+    for hit in _glob.glob(pattern):
+        basename = os.path.basename(hit)
+        name_no_ext = basename.replace("final_", "").replace(".mp4", "")
+        if not name_no_ext.startswith(clip_id):
+            continue
+        rest = name_no_ext[len(clip_id):]
+        if rest == "":
+            version = 0
+        elif rest.startswith("_v") and rest[2:].isdigit():
+            version = int(rest[2:])
+        else:
+            continue
+        if version > best_version:
+            best = hit
+            best_version = version
     if best:
         return best
-    # Fallback: source clip (raw, not cut)
-    cut = next((c for c in cuts if c["clip_id"] == clip_id), None)
-    if cut:
-        src = os.path.join(sources_dir, f"{cut['video_id']}.mp4")
-        if os.path.exists(src):
-            return src
-    raise FileNotFoundError(f"Cannot find clip file for {clip_id}")
+    raise FileNotFoundError(f"STOP: clip file for '{clip_id}' not found in {qa_dir}")
 
 
-def _find_shoutout(qa_dir, segment_dir):
-    """Find shoutout file in qa dirs. Returns absolute path."""
-    segment_dir = os.path.abspath(segment_dir)
-    for qa_sub in sorted(os.listdir(segment_dir)):
-        if qa_sub.startswith("qa_"):
-            for name in ["shoutout_16x9.mp4", "shoutout.mp4"]:
-                candidate = os.path.join(segment_dir, qa_sub, name)
-                if os.path.exists(candidate):
-                    return candidate
-    return None
+def _find_shoutout(qa_dir, segment_dir=None):
+    """Find shoutout in CURRENT qa_dir only (M12: no cross-qa scanning)."""
+    for name in ["shoutout_16x9.mp4", "shoutout.mp4"]:
+        candidate = os.path.join(qa_dir, name)
+        if os.path.exists(candidate):
+            return candidate
+    raise FileNotFoundError(f"STOP: shoutout not found in {qa_dir}")
 
 
-def _find_outro(qa_dir, segment_dir):
-    """Find outro file in qa dirs. Returns absolute path."""
-    segment_dir = os.path.abspath(segment_dir)
-    for qa_sub in sorted(os.listdir(segment_dir)):
-        if qa_sub.startswith("qa_"):
-            for name in ["final_outro.mp4", "outro.mp4"]:
-                candidate = os.path.join(segment_dir, qa_sub, name)
-                if os.path.exists(candidate):
-                    return candidate
-    return None
+def _find_outro(qa_dir, segment_dir=None):
+    """Find outro in CURRENT qa_dir only (M12: no cross-qa scanning)."""
+    for name in ["final_outro.mp4", "outro.mp4"]:
+        candidate = os.path.join(qa_dir, name)
+        if os.path.exists(candidate):
+            return candidate
+    raise FileNotFoundError(f"STOP: outro not found in {qa_dir}")
 
 
 def main():

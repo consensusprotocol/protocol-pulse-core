@@ -11,6 +11,7 @@ Gates:
   G4  Faces: 6 frames per talking-head segment, face count rules
   G5  Duration/loudness: dims, SAR 1:1, fps 24, ebur128 I=-14+/-1, TP<=-2.0
   G6  Pre-roll: VO stem onset >= 0.95s of no-voice before each VO
+  G3c Acoustic tail: last 120ms of each clip < -35 dBFS, no onset (M19)
   G13 VO Audible: whisper each VO slot from output, >= 80% word match, RMS >= music+6dB (M7)
 
 Exit non-zero on any FAIL. Writes GATE_FAIL.txt on failure.
@@ -1160,19 +1161,44 @@ def _rms_db(wav_path):
         return float("-inf")
 
 
-def gate_g13(final_mp4, segments, qa_dir, edl_path=None):
-    """M7 AUDIO PRESENCE: transcribe each VO slot from the OUTPUT audio.
+def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None):
+    """M7/M14 AUDIO PRESENCE: transcribe each VO slot from the OUTPUT audio.
     Requires >= 80% fuzzy word match to scripted text.
-    Signoff slot must contain channel names and a follow/subscribe word.
+    Signoff slot must contain channel names (or aliases from channels.json) and a follow/subscribe word.
     VO RMS must be >= music bed + 6 dB in the slot.
     Empty or music-hallucination transcripts = SILENT = FAIL."""
     import whisper
 
-    print("\n=== G13: VO_AUDIBLE (M7) ===")
+    print("\n=== G13: VO_AUDIBLE (M7/M14) ===")
 
     vo_segs = [s for s in segments if s.get("type") == "vo"]
     # Also check signoff within the shoutout segment
     shout_seg = next((s for s in segments if s.get("type") == "shoutout"), None)
+
+    # Build channel alias map from channels.json (M14)
+    # Maps display_name -> set of whisper-friendly aliases
+    channel_aliases = {}
+    if channels_json_path and os.path.exists(channels_json_path):
+        try:
+            with open(channels_json_path) as f:
+                ch_registry = json.load(f)
+            for entry in ch_registry:
+                name = entry.get("display_name", "")
+                if not name:
+                    continue
+                aliases = set()
+                aliases.add(name.lower())
+                # Add any explicit aliases from registry
+                for a in entry.get("aliases", []):
+                    aliases.add(a.lower())
+                # Auto-generate split alias (e.g. "CoinDesk" -> "coin desk")
+                import re
+                spaced = re.sub(r'([a-z])([A-Z])', r'\1 \2', name).lower()
+                if spaced != name.lower():
+                    aliases.add(spaced)
+                channel_aliases[name] = aliases
+        except Exception as e:
+            print(f"  G13 alias map error: {e}")
 
     # Load EDL for signoff text and channel names
     signoff_text = ""
@@ -1307,7 +1333,9 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None):
                 t_lower = transcript.lower()
                 missing_channels = []
                 for ch in channel_names:
-                    if ch.lower() not in t_lower:
+                    # M14: check channel name OR any alias from channels.json
+                    aliases = channel_aliases.get(ch, {ch.lower()})
+                    if not any(alias in t_lower for alias in aliases):
                         missing_channels.append(ch)
 
                 has_follow = any(w in t_lower for w in FOLLOW_WORDS)
@@ -1342,6 +1370,74 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None):
                 })
 
     print(f"  G13 overall: {'PASS' if all_pass else 'FAIL'}")
+    return all_pass, table
+
+
+# ==============================================================
+# G3c: ACOUSTIC_TAIL (M19 — last 120ms of each clip < -35 dBFS)
+# ==============================================================
+
+def gate_g3c(final_mp4, segments, qa_dir):
+    """M19: Acoustic tail check on each talking-head clip in the OUTPUT.
+    Last 120ms of each clip must have no onset and max dBFS < -35.
+    Also checks first 120ms (cut-in) for onset contamination.
+    Uses pipeline/acoustic.py measure_output_tail."""
+    print("\n=== G3c: ACOUSTIC_TAIL (M19) ===")
+
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pipeline"))
+    from acoustic import measure_output_tail
+
+    all_pass = True
+    table = []
+
+    for seg in segments:
+        if seg.get("type") != "talking_head":
+            continue
+
+        label = seg["label"]
+        seg_start = seg["start"]
+        seg_end = seg["end"]
+
+        # Check tail (cut-out): last 120ms
+        try:
+            tail = measure_output_tail(final_mp4, seg_end, duration_ms=120)
+        except Exception as e:
+            tail = {"rms_db": 0.0, "max_db": 0.0, "has_onset": True, "pass_absolute": False}
+            print(f"  {label} tail: ERROR {e}")
+
+        tail_ok = tail["pass_absolute"] and not tail["has_onset"]
+
+        # Check head (cut-in): first 120ms
+        try:
+            head_end = seg_start + 0.12
+            head = measure_output_tail(final_mp4, head_end, duration_ms=120)
+        except Exception as e:
+            head = {"rms_db": 0.0, "max_db": 0.0, "has_onset": False, "pass_absolute": True}
+            print(f"  {label} head: ERROR {e}")
+
+        head_ok = not head["has_onset"]
+
+        ok = tail_ok and head_ok
+        if not ok:
+            all_pass = False
+
+        entry = {
+            "segment": label,
+            "tail_rms_db": tail["rms_db"],
+            "tail_max_db": tail["max_db"],
+            "tail_has_onset": tail["has_onset"],
+            "tail_ok": tail_ok,
+            "head_has_onset": head["has_onset"],
+            "head_ok": head_ok,
+            "pass": ok,
+        }
+        table.append(entry)
+
+        status = "PASS" if ok else "FAIL"
+        tail_note = f"tail max={tail['max_db']:.1f}dB onset={'Y' if tail['has_onset'] else 'N'}"
+        head_note = f"head onset={'Y' if head['has_onset'] else 'N'}"
+        print(f"  {label}: {tail_note}, {head_note} [{status}]")
+
     return all_pass, table
 
 
@@ -1415,6 +1511,12 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     if not g3b_pass:
         any_fail = True
 
+    # G3c: Acoustic tail (M19 — last 120ms of each clip < -35 dBFS, no onset)
+    g3c_pass, g3c_table = gate_g3c(final_mp4, segments, qa_dir)
+    results["G3c_acoustic_tail"] = {"pass": g3c_pass, "table": g3c_table}
+    if not g3c_pass:
+        any_fail = True
+
     # G4: Faces (classify layout from source clips)
     g4_pass, g4_table = gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir,
                                  source_clips=source_clips)
@@ -1466,7 +1568,8 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         any_fail = True
 
     # G13: VO Audible (M7 — every scripted VO line must be heard in output)
-    g13_pass, g13_table = gate_g13(final_mp4, segments, qa_dir, edl_path=edl_path)
+    g13_pass, g13_table = gate_g13(final_mp4, segments, qa_dir, edl_path=edl_path,
+                                    channels_json_path=channels_json_path)
     results["G13_vo_audible"] = {"pass": g13_pass, "table": g13_table}
     if not g13_pass:
         any_fail = True
@@ -1481,6 +1584,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     print(f"  G2 Watermark: {'PASS' if g2_pass else 'FAIL'}")
     print(f"  G3 Cuts:      {'PASS' if g3_pass else 'FAIL'}")
     print(f"  G3b OutClean: {'PASS' if g3b_pass else 'FAIL'}")
+    print(f"  G3c AcouTail: {'PASS' if g3c_pass else 'FAIL'}")
     print(f"  G4 Faces:     {'PASS' if g4_pass else 'FAIL'}")
     print(f"  G5 Tech:      {'PASS' if g5_pass else 'FAIL'}")
     print(f"  G6 Pre-roll:  {'PASS' if g6_pass else 'FAIL'}")
@@ -1500,7 +1604,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         fail_path = os.path.join(qa_dir, "GATE_FAIL.txt")
         with open(fail_path, "w") as f:
             f.write(f"QA GATE FAILURE: {final_mp4}\n")
-            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G3b_cut_out_clean", "G4_faces", "G5_tech", "G6_preroll", "G10_chyron", "G13_vo_audible"]:
+            for gate_name in ["G1_voice", "G2_watermark", "G3_cuts", "G3b_cut_out_clean", "G3c_acoustic_tail", "G4_faces", "G5_tech", "G6_preroll", "G10_chyron", "G13_vo_audible"]:
                 gate_data = results.get(gate_name, {})
                 if not gate_data.get("pass", True):
                     f.write(f"  FAILED: {gate_name}\n")

@@ -29,6 +29,11 @@ WHITE_FRACTION_MAX = 0.25
 DURATION_TOL = 0.25
 PRE_ROLL_FLOOR = 0.95
 
+# ── VO word caps (M18 — single source of truth) ──
+INTRO_WORD_CAP = 30
+BRIDGE_WORD_CAP = 20
+SIGNOFF_WORD_CAP = 24
+
 
 def resolve_paths(segment_dir, qa_version=None):
     """Resolve all standard paths from a segment directory.

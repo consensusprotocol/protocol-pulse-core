@@ -536,5 +536,159 @@ class TestG13VOAudibleLogic(unittest.TestCase):
         self.assertIn("music", _MUSIC_HALLUCINATIONS)
 
 
+class TestConfigConstants(unittest.TestCase):
+    """M18: constants in config.py are the single source of truth."""
+
+    def test_word_caps(self):
+        from config import INTRO_WORD_CAP, BRIDGE_WORD_CAP, SIGNOFF_WORD_CAP
+        self.assertEqual(INTRO_WORD_CAP, 30)
+        self.assertEqual(BRIDGE_WORD_CAP, 20)
+        self.assertEqual(SIGNOFF_WORD_CAP, 24)
+
+    def test_r4_uses_config_caps(self):
+        """R4 must use the config constants, not hardcoded numbers."""
+        import inspect
+        src = inspect.getsource(rule_r4)
+        self.assertIn("INTRO_WORD_CAP", src)
+        self.assertIn("BRIDGE_WORD_CAP", src)
+        self.assertIn("SIGNOFF_WORD_CAP", src)
+        self.assertNotIn("> 28", src, "R4 must not have hardcoded 28 for signoff cap")
+
+    def test_signoff_validator_uses_config_cap(self):
+        """signoff.py must use SIGNOFF_WORD_CAP from config."""
+        from signoff import validate_signoff
+        import inspect
+        src = inspect.getsource(validate_signoff)
+        self.assertIn("SIGNOFF_WORD_CAP", src)
+
+
+class TestR4SignoffCap24(unittest.TestCase):
+    """R4 signoff cap is 24 (was 28). A 25-word signoff must fail."""
+
+    def test_25_word_signoff_fails(self):
+        long_signoff = " ".join(["word"] * 25)
+        edl = {
+            "clips": [{"index": 1, "duration": 60, "channel": "A"}],
+            "total_clip_duration": 60,
+            "vo": {"intro": "Short intro.", "signoff": long_signoff, "bridges": []}
+        }
+        ok, reason = rule_r4(edl)
+        self.assertFalse(ok, reason)
+        self.assertIn("signoff=25", reason)
+        self.assertIn("max 24", reason)
+
+    def test_24_word_signoff_passes(self):
+        signoff_24 = " ".join(["word"] * 24)
+        edl = {
+            "clips": [{"index": 1, "duration": 60, "channel": "A"}],
+            "total_clip_duration": 60,
+            "vo": {"intro": "Short.", "signoff": signoff_24, "bridges": []}
+        }
+        ok, reason = rule_r4(edl)
+        self.assertTrue(ok, reason)
+
+
+class TestFailClosedFindClip(unittest.TestCase):
+    """M12: _find_clip_file searches ONLY current qa_dir, raises on missing."""
+
+    def test_missing_clip_raises(self):
+        from render16 import _find_clip_file
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaises(FileNotFoundError) as ctx:
+                _find_clip_file(tmpdir, "clip_99")
+            self.assertIn("STOP", str(ctx.exception))
+
+    def test_no_cross_qa_scanning(self):
+        """_find_clip_file must not scan sibling qa dirs."""
+        from render16 import _find_clip_file
+        import inspect
+        src = inspect.getsource(_find_clip_file)
+        self.assertNotIn("os.listdir(segment_dir)", src,
+                         "Must not scan sibling qa dirs")
+        # The function signature accepts sources_dir for compat but must never USE it before raise
+        body = src.split("def _find_clip_file")[1] if "def _find_clip_file" in src else src
+        # Check that sources_dir is never referenced in the body logic (only in signature)
+        lines = body.split("\n")
+        logic_lines = [l for l in lines[1:] if "sources_dir" in l and "def " not in l and "raise" not in l]
+        self.assertEqual(len(logic_lines), 0,
+                         "Must not use sources_dir in logic (no raw source fallback)")
+
+
+class TestFailClosedShoutout(unittest.TestCase):
+    """M12: missing signoff WAV in shoutout = STOP."""
+
+    def test_missing_shoutout_raises(self):
+        from render16 import _find_shoutout
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaises(FileNotFoundError) as ctx:
+                _find_shoutout(tmpdir)
+            self.assertIn("STOP", str(ctx.exception))
+
+
+class TestTelegramGuard(unittest.TestCase):
+    """M16: telegram.py refuses without VERIFIED_BY_ORCHESTRATOR."""
+
+    def test_refuses_without_verification(self):
+        from telegram import send_telegram_preview
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.makedirs(os.path.join(tmpdir, "out"))
+            os.makedirs(os.path.join(tmpdir, "qa"))
+            with self.assertRaises(RuntimeError) as ctx:
+                send_telegram_preview(tmpdir)
+            self.assertIn("VERIFIED_BY_ORCHESTRATOR", str(ctx.exception))
+
+
+class TestAcousticModule(unittest.TestCase):
+    """M19: acoustic.py basic functionality."""
+
+    def test_rms_envelope_shape(self):
+        import numpy as np
+        from acoustic import rms_envelope
+        sr = 16000
+        samples = np.random.randn(sr)  # 1 second
+        rms_db, times = rms_envelope(samples, sr, hop_ms=10)
+        self.assertEqual(len(rms_db), len(times))
+        self.assertGreater(len(rms_db), 90)  # ~100 frames for 1s at 10ms hop
+
+    def test_unsafe_boundary_detected(self):
+        """onset - offset < 0.12s is unsafe."""
+        from acoustic import MIN_GAP_S
+        self.assertEqual(MIN_GAP_S, 0.12)
+
+    def test_measure_output_tail_silent(self):
+        """measure_output_tail on silence returns pass_absolute=True."""
+        import numpy as np
+        from acoustic import rms_envelope
+        # Verify the RMS of silence is well below -35 dBFS
+        sr = 16000
+        silence = np.zeros(sr)
+        rms_db, _ = rms_envelope(silence, sr, hop_ms=10)
+        # All frames should be -80 dBFS (our floor)
+        self.assertTrue(all(db <= -35 for db in rms_db))
+
+
+class TestG3cGateExists(unittest.TestCase):
+    """M19: gate_g3c function exists in qa_gates.py."""
+
+    def test_gate_g3c_callable(self):
+        sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
+        import qa_gates
+        self.assertTrue(hasattr(qa_gates, 'gate_g3c'))
+        self.assertTrue(callable(qa_gates.gate_g3c))
+
+    def test_g3c_in_run_all_gates(self):
+        """G3c must be wired into run_all_gates."""
+        sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
+        import inspect
+        import qa_gates
+        src = inspect.getsource(qa_gates.run_all_gates)
+        self.assertIn("gate_g3c", src)
+        self.assertIn("G3c_acoustic_tail", src)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+

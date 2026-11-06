@@ -11,10 +11,10 @@ Stages:
     shoutout  — Render shoutout scene
     render16  — Render 16:9 final
     render9   — Render 9:16 vertical
-    gates     — Run QA gates on 16:9 output
+    gates16   — Run QA gates on 16:9 output
     gates9    — Run QA gates on 9:16 output
     review    — Grok vision second-opinion review
-    telegram  — Send Telegram drop (requires all gates PASS)
+    telegram  — Send Telegram drop (requires all gates PASS + VERIFIED_BY_ORCHESTRATOR)
 """
 import argparse
 import json
@@ -45,35 +45,15 @@ def stage_render16(segment_dir, args):
 
 
 def stage_render9(segment_dir, args):
-    """Render 9:16 vertical using the canonical renderer."""
-    paths = resolve_paths(segment_dir, args.qa_version)
-
-    # Find 16:9 final
-    out_dir = paths["out_dir"]
-    horiz = os.path.join(out_dir, args.output_name or "segment.mp4")
-    if not os.path.exists(horiz):
-        print(f"ERROR: 16:9 output not found at {horiz}")
-        sys.exit(1)
-
-    cuts_json = paths["cuts_json"]
-    layout_table = args.layout_table or "/home/ultron/protocol_pulse/vertical/layout_tables"
-
-    cmd = [
-        sys.executable,
-        "/home/ultron/protocol_pulse/vertical/render_vertical.py",
-        "--segment", segment_dir,
-        "--version", str(args.qa_version or 1),
-        "--horizontal", horiz,
-        "--cuts", cuts_json,
-        "--layout-table", layout_table,
-    ]
-
-    import subprocess
-    r = subprocess.run(cmd, timeout=1800)
-    return r.returncode == 0
+    """Render 9:16 vertical using pipeline/render_vertical.py (M13: one renderer per aspect)."""
+    from render_vertical import render_9x16
+    return render_9x16(segment_dir, args.qa_version,
+                       args.output_name.replace("segment", "segment_vertical")
+                       if args.output_name else "segment_vertical.mp4")
 
 
-def stage_gates(segment_dir, args):
+def stage_gates16(segment_dir, args):
+    """Run QA gates on 16:9 output (M13: mandatory)."""
     from gates import run_gates
     paths = resolve_paths(segment_dir, args.qa_version)
     out_dir = paths["out_dir"]
@@ -84,9 +64,34 @@ def stage_gates(segment_dir, args):
 
     ok, results = run_gates(segment_dir, final_mp4, manifest, args.qa_version)
     if not ok:
-        print("\n** GATE FAILURE — HARD STOP (Law 17) **")
+        print("\n** GATE FAILURE 16:9 — HARD STOP (M2) **")
         sys.exit(1)
     return ok
+
+
+def stage_gates9(segment_dir, args):
+    """Run QA gates on 9:16 output (M13: mandatory)."""
+    from gates import run_gates
+    paths = resolve_paths(segment_dir, args.qa_version)
+    out_dir = paths["out_dir"]
+    qa_dir = paths["qa_dir"]
+
+    vert_name = (args.output_name.replace("segment", "segment_vertical")
+                 if args.output_name else "segment_vertical.mp4")
+    final_mp4 = os.path.join(out_dir, vert_name)
+    manifest = os.path.join(qa_dir, "concat_manifest_9x16.json")
+
+    ok, results = run_gates(segment_dir, final_mp4, manifest, args.qa_version)
+    if not ok:
+        print("\n** GATE FAILURE 9:16 — HARD STOP (M2) **")
+        sys.exit(1)
+    return ok
+
+
+def stage_telegram(segment_dir, args):
+    """Send Telegram preview (M16: requires VERIFIED_BY_ORCHESTRATOR)."""
+    from telegram import send_telegram_preview
+    send_telegram_preview(segment_dir, args.qa_version)
 
 
 def stage_all(segment_dir, args):
@@ -108,14 +113,23 @@ def stage_all(segment_dir, args):
 
     # Gates 16:9
     print("\n>>> Stage: GATES 16:9")
-    stage_gates(segment_dir, args)
+    stage_gates16(segment_dir, args)
 
     # Render 9:16
     print("\n>>> Stage: RENDER 9:16")
     stage_render9(segment_dir, args)
 
+    # Gates 9:16
+    print("\n>>> Stage: GATES 9:16")
+    stage_gates9(segment_dir, args)
+
     elapsed = time.time() - t0
     print(f"\n=== FULL PIPELINE COMPLETE: {elapsed:.0f}s ({elapsed/60:.1f}min) ===")
+
+
+# Backward compat: "gates" maps to gates16
+def stage_gates(segment_dir, args):
+    return stage_gates16(segment_dir, args)
 
 
 STAGES = {
@@ -125,6 +139,9 @@ STAGES = {
     "render16": stage_render16,
     "render9": stage_render9,
     "gates": stage_gates,
+    "gates16": stage_gates16,
+    "gates9": stage_gates9,
+    "telegram": stage_telegram,
 }
 
 
