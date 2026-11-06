@@ -87,12 +87,11 @@ def story_engine_status(stories, path=STORIES_PATH):
 
 # Quote-anchored windows (PBX 2026-11-06 18:03): code picks the cut, the model only scores it.
 #   anchor   = the verified evidence quote, aligned to word timestamps
-#   expand   = whole sentences around the anchor, within the duration limits
+#   window   = exactly the sentence(s) holding the quote; never expanded or padded
 #   boundary = a start must be a sentence boundary (else rejected, never trimmed or guessed)
 #   dedupe   = overlapping windows of the same kind in one video collapse to the first kept
 ANCHOR_MIN_RATIO = 0.85            # token-level match of quote vs aligned word span
 ANCHOR_PAD_S = 30.0                # search the supporting chunks' span +/- this
-MAX_EXPAND_SENTENCES = 6
 CONTINUATION_OPENERS = {"and", "but", "or", "so", "because", "cause", "which", "also", "plus", "then",
                         "though", "although", "whereas", "nor", "yet"}
 _TERMINAL = (".", "!", "?")
@@ -158,31 +157,29 @@ def start_is_boundary(words, sents, si):
 
 
 def anchored_window(words, sents, anchor, lo, hi):
-    """Smallest whole-sentence window containing the anchor, duration in [lo, hi], starting at a
-    boundary and ending on '.' or '!'. Prefers the start closest to the anchor, then the
-    shortest end. Returns (window, None) or (None, reason)."""
+    """PBX 2026-11-06 18:52: the window is EXACTLY the sentence(s) that hold the verified quote.
+    No expansion into any sentence that does not contain the quote, no padding. Invalid if the
+    duration is outside [lo, hi], the start is not a boundary, or it does not end on '.' or '!'.
+    Returns (window, None) or (None, reason); the span is always reported for audit."""
     sa = next(i for i, (a, b) in enumerate(sents) if a <= anchor["w0"] <= b)
     se = next(i for i, (a, b) in enumerate(sents) if a <= anchor["w1"] <= b)
-    if words[sents[se][1]]["end"] - words[sents[sa][0]]["start"] > hi:
-        return None, "anchor sentences exceed the duration limit"
-    reasons = set()
-    for i in range(sa, max(-1, sa - MAX_EXPAND_SENTENCES - 1), -1):
-        ok, why = start_is_boundary(words, sents, i)
-        if not ok:
-            reasons.add(f"start rejected: {why}")
-            continue
-        for j in range(se, min(len(sents), se + MAX_EXPAND_SENTENCES + 1)):
-            st, en = words[sents[i][0]]["start"], words[sents[j][1]]["end"]
-            d = en - st
-            if d > hi:
-                reasons.add("no boundary start/end fits the duration limit")
-                break
-            if d >= lo and words[sents[j][1]]["word"].rstrip().endswith((".", "!")):
-                text = " ".join(w["word"].strip() for w in words[sents[i][0]:sents[j][1] + 1])
-                return {"start": st, "end": en, "duration": round(d, 2), "text": text,
-                        "anchor_start": anchor["start"], "anchor_end": anchor["end"],
-                        "expanded_sentences": (sa - i) + (j - se)}, None
-    return None, "; ".join(sorted(reasons)) or "no valid window"
+    st, en = words[sents[sa][0]]["start"], words[sents[se][1]]["end"]
+    d = round(en - st, 2)
+    span = {"start": st, "end": en, "duration": d,
+            "first_sentence": " ".join(w["word"].strip() for w in words[sents[sa][0]:sents[sa][1] + 1]),
+            "last_sentence": " ".join(w["word"].strip() for w in words[sents[se][0]:sents[se][1] + 1]),
+            "n_sentences": se - sa + 1}
+    ok, why = start_is_boundary(words, sents, sa)
+    if not ok:
+        return None, f"start rejected: {why}", span
+    if d < lo:
+        return None, f"quote sentence(s) {d} s < minimum {lo} s (no padding)", span
+    if d > hi:
+        return None, f"quote sentence(s) {d} s > maximum {hi} s", span
+    if not words[sents[se][1]]["word"].rstrip().endswith((".", "!")):
+        return None, "does not end on '.' or '!'", span
+    text = " ".join(w["word"].strip() for w in words[sents[sa][0]:sents[se][1] + 1])
+    return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
 
 
 def _form_score(text):
@@ -565,7 +562,8 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
         a_rec.update(anchor_start=anc["start"], anchor_end=anc["end"], match_ratio=anc["ratio"], windows={})
         sents = _word_sentences(ws)
         for lo, hi, kind in ((HOOK_MIN_S, HOOK_MAX_S, "hook"), (CLIP_MIN_S, CLIP_MAX_S, "clip")):
-            w, why = anchored_window(ws, sents, anc, lo, hi)
+            w, why, span = anchored_window(ws, sents, anc, lo, hi)
+            a_rec.setdefault("spans", {})[kind] = {**span, "valid": w is not None, "why": why}
             if w is None:
                 a_rec["windows"][kind] = f"none: {why}"
                 continue

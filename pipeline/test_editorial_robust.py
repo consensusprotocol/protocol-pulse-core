@@ -129,7 +129,11 @@ class TestQuoteAnchoredWindows(unittest.TestCase):
             ws, a = self.anchor(v)
             sents = es._word_sentences(ws)
             for lo, hi in ((es.HOOK_MIN_S, es.HOOK_MAX_S), (es.CLIP_MIN_S, es.CLIP_MAX_S)):
-                w, why = es.anchored_window(ws, sents, a, lo, hi)
+                w, why, span = es.anchored_window(ws, sents, a, lo, hi)
+                # the span is exactly the quote-holding sentence(s), valid or not
+                s0 = next(i for i, (x, y) in enumerate(sents) if x <= a["w0"] <= y)
+                s1 = next(i for i, (x, y) in enumerate(sents) if x <= a["w1"] <= y)
+                self.assertEqual((span["start"], span["end"]), (ws[sents[s0][0]]["start"], ws[sents[s1][1]]["end"]))
                 if w is None:
                     continue
                 made += 1
@@ -139,7 +143,7 @@ class TestQuoteAnchoredWindows(unittest.TestCase):
                 si = next(i for i, (x, _) in enumerate(sents) if ws[x]["start"] == w["start"])
                 self.assertTrue(es.start_is_boundary(ws, sents, si)[0], w["text"][:60])
                 self.assertTrue(w["text"].rstrip().endswith((".", "!")), w["text"][-40:])
-        self.assertGreaterEqual(made, 3)
+        self.assertGreaterEqual(made, 1)
 
     def test_absent_quote_is_never_located(self):
         ws = RUN3["words"]["ThBSEd5PxF0"]["words"]
@@ -164,19 +168,27 @@ class TestQuoteAnchoredWindows(unittest.TestCase):
         ws = _w("We said that the exchange was hacked for billions today.")   # mid-sentence word is never a start
         self.assertEqual(len(es._word_sentences(ws)), 1)
 
-    def test_mid_sentence_quote_expands_to_the_sentence_start(self):
+    def test_window_is_only_the_quote_sentence_never_padded(self):
         es = self.es
         ws = _w("Markets were calm. Yesterday the largest exchange in the world lost six billion dollars to hackers "
-                "in one night. Nobody saw it coming at all.", step=0.5)
+                "in one night. Nobody saw it coming at all.", step=0.6)
+        sents = es._word_sentences(ws)
         a = es.align_quote("the largest exchange in the world lost six billion dollars", ws, 0, 100)
-        w, why = es.anchored_window(ws, es._word_sentences(ws), a, 8.0, 12.0)
+        w, why, span = es.anchored_window(ws, sents, a, 8.0, 12.0)
         self.assertIsNotNone(w, why)
         self.assertTrue(w["text"].startswith("Yesterday"), w["text"])
+        self.assertTrue(w["text"].endswith("in one night."), w["text"])     # no neighbouring sentence
+        # too short for a clip: invalid, never padded with the neighbours
+        w, why, span = es.anchored_window(ws, sents, a, 13.0, 25.0)
+        self.assertIsNone(w)
+        self.assertIn("no padding", why)
+        self.assertEqual(span["n_sentences"], 1)
 
     def test_overlaps_dedupe_and_the_model_only_scores(self):
         es = self.es
         reg = {c["channel_id"]: c for c in REG.values() if c.get("channel_id")}
-        same = self.counted + [dict(self.counted[0])]            # duplicate anchor in the same video
+        btc = [v for v in self.counted if v["channel"] == "BTC Sessions"][0]
+        same = self.counted + [dict(btc)]                        # duplicate anchor in the same video
         words = {vid: (w, "cached") for vid, w in RUN3["words"].items()}
 
         class Rater:
@@ -192,7 +204,10 @@ class TestQuoteAnchoredWindows(unittest.TestCase):
         cq = es._clip_quality(c, same, FakeEmbedder(), Rater(5), reg, words, log=lambda s: None)
         self.assertTrue(any("deduped" in str(x) for a in cq["anchors"] for x in a.get("windows", {}).values()), cq["anchors"])
         code_windows = {(p["video_id"], p["start"], p["end"]) for p in cq["candidates"]}
-        self.assertTrue(cq["producible"], cq["reason"])
+        for p in cq["candidates"]:                               # no window outside its quote sentences
+            a = [x for x in cq["anchors"] if x["video_id"] == p["video_id"]][0]
+            self.assertLessEqual(p["start"], a["anchor_start"])
+            self.assertGreaterEqual(p["end"], a["anchor_end"])
         for p in cq["chosen"]:
             self.assertIn((p["video_id"], p["start"], p["end"]),
                           {(v, round(s, 2), round(e, 2)) for v, s, e in code_windows})
