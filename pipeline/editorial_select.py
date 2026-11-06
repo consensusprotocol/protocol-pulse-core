@@ -85,23 +85,104 @@ def story_engine_status(stories, path=STORIES_PATH):
 
 # ── passages (clip quality inputs) ──
 
-def _sentence_windows(segs, lo, hi, region):
-    """Windows that start at a sentence start and end at a sentence end, within region."""
-    out = []
-    a0, a1 = region
-    starts = [i for i, s in enumerate(segs)
-              if a0 <= s["start"] <= a1 and (i == 0 or segs[i - 1]["text"].rstrip().endswith((".", "!", "?")))]
-    for i in starts:
-        text = []
-        for j in range(i, len(segs)):
-            text.append(segs[j]["text"])
-            d = segs[j]["end"] - segs[i]["start"]
-            if d > hi:
-                break
-            if d >= lo and segs[j]["text"].rstrip().endswith((".", "!")):
-                out.append({"start": segs[i]["start"], "end": segs[j]["end"],
-                            "duration": round(d, 2), "text": " ".join(text)})
+# Quote-anchored windows (PBX 2026-11-06 18:03): code picks the cut, the model only scores it.
+#   anchor   = the verified evidence quote, aligned to word timestamps
+#   expand   = whole sentences around the anchor, within the duration limits
+#   boundary = a start must be a sentence boundary (else rejected, never trimmed or guessed)
+#   dedupe   = overlapping windows of the same kind in one video collapse to the first kept
+ANCHOR_MIN_RATIO = 0.85            # token-level match of quote vs aligned word span
+ANCHOR_PAD_S = 30.0                # search the supporting chunks' span +/- this
+MAX_EXPAND_SENTENCES = 6
+CONTINUATION_OPENERS = {"and", "but", "or", "so", "because", "cause", "which", "also", "plus", "then",
+                        "though", "although", "whereas", "nor", "yet"}
+_TERMINAL = (".", "!", "?")
+
+
+def _tok(w):
+    return [t for t in re.split(r"[^a-z0-9]+", (w or "").lower().replace("’", "'").replace("'", "")) if t]
+
+
+def _word_sentences(words):
+    """Sentences as word-index ranges, split after terminal punctuation (same rule as
+    transcript_store.sentences_from_words)."""
+    out, s0 = [], 0
+    for i, w in enumerate(words):
+        if w["word"].rstrip().endswith(_TERMINAL):
+            out.append((s0, i))
+            s0 = i + 1
+    if s0 < len(words):
+        out.append((s0, len(words) - 1))
     return out
+
+
+def align_quote(quote, words, t0, t1):
+    """Locate a verified quote in word timestamps within [t0, t1]. Returns
+    {"w0", "w1", "start", "end", "ratio"} or None. Never fabricates a location."""
+    from difflib import SequenceMatcher
+    qt = [t for w in (quote or "").split() for t in _tok(w)]
+    toks = [(t, i) for i, w in enumerate(words) if t0 <= w["start"] <= t1 for t in _tok(w["word"])]
+    if len(qt) < 5 or not toks:
+        return None
+    seq = [t for t, _ in toks]
+    blk = max(SequenceMatcher(None, qt, seq, autojunk=False).get_matching_blocks(), key=lambda b: b.size)
+    if blk.size < 3:
+        return None
+    base, best = blk.b - blk.a, None
+    for s in range(max(0, base - 3), min(len(seq), base + 4)):
+        for n in range(max(1, len(qt) - 3), len(qt) + 4):
+            if s + n > len(seq):
+                break
+            r = SequenceMatcher(None, qt, seq[s:s + n], autojunk=False).ratio()
+            if best is None or r > best[0] + 1e-9:
+                best = (r, s, s + n - 1)
+    r, s, e = best
+    if r < ANCHOR_MIN_RATIO:
+        return None
+    w0, w1 = toks[s][1], toks[e][1]
+    return {"w0": w0, "w1": w1, "start": words[w0]["start"], "end": words[w1]["end"], "ratio": round(r, 3)}
+
+
+def start_is_boundary(words, sents, si):
+    """A window start is a boundary only if the previous sentence ended with terminal punctuation,
+    the first word opens a sentence (capital or digit) and is not a continuation conjunction."""
+    w0 = sents[si][0]
+    if si > 0 and not words[w0 - 1]["word"].rstrip().endswith(_TERMINAL):
+        return False, "previous word has no terminal punctuation"
+    first = re.sub(r"^[\"'(\[“‘$]+", "", words[w0]["word"].strip())
+    if not first or not (first[0].isupper() or first[0].isdigit()):
+        return False, f"starts lower-case ({words[w0]['word'].strip()!r})"
+    t = _tok(first)
+    if t and t[0] in CONTINUATION_OPENERS:
+        return False, f"starts with continuation {first!r}"
+    return True, "ok"
+
+
+def anchored_window(words, sents, anchor, lo, hi):
+    """Smallest whole-sentence window containing the anchor, duration in [lo, hi], starting at a
+    boundary and ending on '.' or '!'. Prefers the start closest to the anchor, then the
+    shortest end. Returns (window, None) or (None, reason)."""
+    sa = next(i for i, (a, b) in enumerate(sents) if a <= anchor["w0"] <= b)
+    se = next(i for i, (a, b) in enumerate(sents) if a <= anchor["w1"] <= b)
+    if words[sents[se][1]]["end"] - words[sents[sa][0]]["start"] > hi:
+        return None, "anchor sentences exceed the duration limit"
+    reasons = set()
+    for i in range(sa, max(-1, sa - MAX_EXPAND_SENTENCES - 1), -1):
+        ok, why = start_is_boundary(words, sents, i)
+        if not ok:
+            reasons.add(f"start rejected: {why}")
+            continue
+        for j in range(se, min(len(sents), se + MAX_EXPAND_SENTENCES + 1)):
+            st, en = words[sents[i][0]]["start"], words[sents[j][1]]["end"]
+            d = en - st
+            if d > hi:
+                reasons.add("no boundary start/end fits the duration limit")
+                break
+            if d >= lo and words[sents[j][1]]["word"].rstrip().endswith((".", "!")):
+                text = " ".join(w["word"].strip() for w in words[sents[i][0]:sents[j][1] + 1])
+                return {"start": st, "end": en, "duration": round(d, 2), "text": text,
+                        "anchor_start": anchor["start"], "anchor_end": anchor["end"],
+                        "expanded_sentences": (sa - i) + (j - se)}, None
+    return None, "; ".join(sorted(reasons)) or "no valid window"
 
 
 def _form_score(text):
@@ -282,7 +363,7 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
             gate.append(f"bitcoin_relevance {q.get('bitcoin_relevance')} < {BTC_RELEVANCE_MIN}")
         if not q.get("is_specific_event", True):
             gate.append("not a specific event")
-        gate += sm.currentness_gate(q, now, UNIVERSE_HOURS)
+        c["model_date_hint"] = sm.model_date_hint(q, now, UNIVERSE_HOURS)   # E9: hint only, never a gate
         c["importance_gate"] = gate
         ck("derive", candidate=ci, of=len(cands))
     live = [c for c in cands if "query" in c and not c["importance_gate"]]
@@ -348,9 +429,15 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
                              inconclusive=sum(1 for v in verdicts if v["verdict"] == "INCONCLUSIVE"),
                              channels=[by_cid.get(x, {}).get("display_name", x) for x in cov_ch],
                              layout_eligible_channels=[by_cid[x]["display_name"] for x in lay_ch])
+        cur = sm.transcript_currentness(verdicts)            # E1/E9: transcripts decide currentness
+        c["currentness"] = cur
+        if cur["status"] == "CURRENT" and c.get("model_date_hint", {}).get("older_than_window"):
+            c.setdefault("flags", []).append("model date hint contradicts transcript evidence (hint ignored)")
         log(f"  [{c['importance']['importance_score']:.2f}] {c['headline'][:70]} -> coverage "
-            f"{len(cov_ch)} ch ({len(lay_ch)} layout-eligible)")
-        if len(cov_ch) < MIN_COVERAGE_CHANNELS:
+            f"{len(cov_ch)} ch ({len(lay_ch)} layout-eligible), currentness {cur['status']}")
+        if cur["status"] != "CURRENT":
+            c["decision"] = f"inconclusive: currentness {cur['reason']}"
+        elif len(cov_ch) < MIN_COVERAGE_CHANNELS:
             c["decision"] = f"rejected: coverage {len(cov_ch)} < {MIN_COVERAGE_CHANNELS} independent channels"
         elif len(lay_ch) < MIN_LAYOUT_CHANNELS:
             c["decision"] = (f"rejected: only {len(lay_ch)} layout-eligible channel(s) with evidence "
@@ -420,7 +507,9 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
     rec["selected"] = {"headline": win["headline"], "origin": win["origin"],
                        "short_label": win["query"].get("short_label"),
                        "underlying_event": win["query"].get("underlying_event"),
-                       "event_date": win["query"].get("event_date"),
+                       "currentness": win["currentness"],
+                       "model_date_hint": win.get("model_date_hint"),
+                       "flags": win.get("flags", []),
                        "importance": win["importance"],
                        "coverage": {k: v for k, v in win["coverage"].items() if k != "verdicts"},
                        "clip_quality": {k: v for k, v in win["clip_quality"].items() if k != "candidates"},
@@ -451,7 +540,7 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
     import story_semantics as sm
     q = c["query"]
     qv = E.encode([q.get("underlying_event", c["headline"])], query=True)[0]
-    cands, infra, missing = [], [], []
+    cands, infra, missing, anchors = [], [], [], []
     for v in same:
         if not v["layout_eligible"]:
             continue                      # editorial evidence only; never a clip
@@ -460,25 +549,47 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
         if r is None:
             (infra if str(st).startswith("infra") else missing).append((v["video_id"], st))
             continue
-        spans = [s for x in v["supporting_chunk_ids"] for s in [ts.parse_chunk_id(x)[1:]]]
-        region = (max(0, min(a for a, _ in spans) - 60), max(b for _, b in spans) + 60)
+        a_rec = {"video_id": v["video_id"], "channel": ch["display_name"], "quote": v["evidence_quote"]}
+        anchors.append(a_rec)
+        ws = r.get("words") or []
+        if not ws:
+            a_rec["result"] = "no word timestamps in record"
+            missing.append((v["video_id"], "no word timestamps"))
+            continue
+        spans = [ts.parse_chunk_id(x)[1:] for x in v["supporting_chunk_ids"]]
+        anc = align_quote(v["evidence_quote"], ws, max(0, min(a for a, _ in spans) - ANCHOR_PAD_S),
+                          max(b for _, b in spans) + ANCHOR_PAD_S)
+        if anc is None:
+            a_rec["result"] = "verified quote not found in word timestamps (no window)"
+            continue
+        a_rec.update(anchor_start=anc["start"], anchor_end=anc["end"], match_ratio=anc["ratio"], windows={})
+        sents = _word_sentences(ws)
         for lo, hi, kind in ((HOOK_MIN_S, HOOK_MAX_S, "hook"), (CLIP_MIN_S, CLIP_MAX_S, "clip")):
-            for w in _sentence_windows(r["segments"], lo, hi, region):
-                if w["text"].rstrip().endswith("?"):
-                    continue
-                cands.append({**w, "kind": kind, "video_id": v["video_id"], "channel": ch["display_name"],
-                              "channel_id": ch["channel_id"], "handle": ch.get("yt_handle", ""),
-                              "tier": ch.get("tier", 9), "title": v["title"], "published_at": v["published_at"],
-                              "canonical_url": v["canonical_url"], "transcript_sha256": r["transcript_sha256"],
-                              "transcript_method": r["transcript_method"],
-                              "source_chunk_id": ts.chunk_id(v["video_id"], w["start"], w["end"])})
-    base = {"infra_failures": infra, "other_failures": missing}
+            w, why = anchored_window(ws, sents, anc, lo, hi)
+            if w is None:
+                a_rec["windows"][kind] = f"none: {why}"
+                continue
+            dup = next((p for p in cands if p["video_id"] == v["video_id"] and p["kind"] == kind and
+                        not (w["end"] <= p["start"] or w["start"] >= p["end"])), None)
+            if dup:
+                a_rec["windows"][kind] = f"deduped: overlaps {dup['source_chunk_id']}"
+                continue
+            a_rec["windows"][kind] = f"{w['start']:.2f}-{w['end']:.2f} ({w['duration']} s)"
+            cands.append({**w, "kind": kind, "video_id": v["video_id"], "channel": ch["display_name"],
+                          "channel_id": ch["channel_id"], "handle": ch.get("yt_handle", ""),
+                          "tier": ch.get("tier", 9), "title": v["title"], "published_at": v["published_at"],
+                          "canonical_url": v["canonical_url"], "transcript_sha256": r["transcript_sha256"],
+                          "transcript_method": r["transcript_method"],
+                          "anchor_quote": v["evidence_quote"],
+                          "source_chunk_id": ts.chunk_id(v["video_id"], w["start"], w["end"])})
+    base = {"infra_failures": infra, "other_failures": missing, "anchors": anchors,
+            "window_rule": "quote-anchored, whole sentences, boundary start, overlap-deduped (code picks the cut)"}
     if infra and len({p["channel"] for p in cands}) < MIN_LAYOUT_CHANNELS:
         return {**base, "producible": False, "infra": True, "candidates": cands, "chosen": [],
                 "mean_chosen_score": 0,
                 "reason": f"word-level transcription blocked by infrastructure for {[v for v, _ in infra]}"}
     if not cands:
-        return {**base, "producible": False, "reason": "no sentence-bounded passages in layout-eligible evidence",
+        return {**base, "producible": False, "reason": "no quote-anchored boundary window in layout-eligible evidence",
                 "candidates": [], "chosen": [], "mean_chosen_score": 0}
     pv = E.encode([p["text"] for p in cands])
     for p, vv in zip(cands, pv):
@@ -512,18 +623,26 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
         return {**base, "producible": False, "candidates": shortlist, "chosen": [], "mean_chosen_score": 0,
                 "reason": (f"no hook passage scored >= {HOOK_MIN_SCORE}" +
                            (" (clip ratings inconclusive: LLM output unparseable)" if rating_errors else ""))}
-    hook = hooks[0]
-    chosen = [hook]
+    def assemble(hook):
+        chosen = [hook]
+        for p in clips:
+            if len(chosen) >= 1 + N_CLIPS:
+                break
+            if any(x["video_id"] == p["video_id"] and not (p["end"] <= x["start"] or p["start"] >= x["end"])
+                   for x in chosen) or sum(1 for x in chosen[1:] if x["channel"] == p["channel"]) >= 2:
+                continue                                  # overlap dedupe / per-channel cap
+            chosen.append(p)
+        return chosen
 
-    def overlaps(p):
-        return any(x["video_id"] == p["video_id"] and not (p["end"] <= x["start"] or p["start"] >= x["end"])
-                   for x in chosen)
-    for p in clips:
-        if len(chosen) >= 1 + N_CLIPS:
+    # hooks in score order; the first whose non-overlapping set is producible wins (a hook must not
+    # consume the only qualifying clip of a channel). Falls back to the top hook for the record.
+    chosen = None
+    for h in hooks:
+        trial = assemble(h)
+        if len(trial) >= 3 and len({p["channel"] for p in trial}) >= MIN_LAYOUT_CHANNELS:
+            chosen = trial
             break
-        if overlaps(p) or sum(1 for x in chosen[1:] if x["channel"] == p["channel"]) >= 2:
-            continue
-        chosen.append(p)
+    chosen = chosen or assemble(hooks[0])
     chans = {p["channel"] for p in chosen}
     if len(chosen) < 3 or len(chans) < MIN_LAYOUT_CHANNELS:
         return {**base, "producible": False, "candidates": shortlist, "chosen": [], "mean_chosen_score": 0,
