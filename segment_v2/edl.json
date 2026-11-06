@@ -23,7 +23,16 @@
       "last_word": "magnitude.",
       "word_start": 238.6,
       "word_end": 249.3,
-      "duration": 10.7
+      "cut_out": 249.64,
+      "cut_out_note": "M19a: valley centre at 249.64 (17.4dB deep, 60ms wide). 30ms fade-out.",
+      "next_source_word": "So",
+      "acoustic_valley_centre": 249.64,
+      "acoustic_valley_depth_db": 17.4,
+      "acoustic_valley_width_ms": 60,
+      "acoustic_onset": 249.76,
+      "acoustic_safe": true,
+      "fade_out_ms": 350,
+      "duration": 11.09
     },
     {
       "index": 2,

@@ -7,8 +7,11 @@ to set precise cut_out/cut_in points independent of whisper timestamps.
 Usage:
     from pipeline.acoustic import compute_acoustic_cut_out, compute_acoustic_cut_in
 
-Key rules (M19):
-  - cut_out = min(offset + 0.30, onset - 0.06)
+Key rules (M19 / M19a):
+  - M19a valley rule: cut_out = centre of first qualifying RMS valley
+    after whisper_word_end + 0.10. Valley must be >= 12 dB below speech
+    median AND >= 40 ms wide.
+  - Fallback (no valley): cut_out = min(offset + 0.30, onset - 0.06)
   - onset - offset < 0.12 s → unsafe boundary (R9 fails)
   - 30 ms fade-out at every cut-out, 20 ms fade-in at every cut-in
 """
@@ -106,8 +109,82 @@ def find_speech_onset(rms_db, times, search_start, bed_rms_db=None):
     return None  # No onset in window
 
 
+VALLEY_DEPTH_DB = 12.0   # M19a: valley must be >= 12 dB below speech median
+VALLEY_MIN_WIDTH_MS = 40  # M19a: valley must be >= 40 ms wide
+VALLEY_WINDOW_MS = 30     # M19a: smoothing window for valley search
+
+
+def _smoothed_rms(rms_db, window_frames):
+    """Sliding-window mean of rms_db (in dB). Returns same-length array."""
+    if window_frames < 2 or len(rms_db) < window_frames:
+        return rms_db.copy()
+    kernel = np.ones(window_frames) / window_frames
+    # Pad to keep length
+    padded = np.pad(rms_db, (window_frames // 2, window_frames - 1 - window_frames // 2), mode='edge')
+    return np.convolve(padded, kernel, mode='valid')[:len(rms_db)]
+
+
+def find_valley(rms_db, times, search_start, search_end, speech_median_db, hop_ms=HOP_MS):
+    """M19a: find the FIRST qualifying RMS valley in [search_start, search_end].
+
+    A valley is a contiguous run of frames where the smoothed RMS is below
+    speech_median_db - VALLEY_DEPTH_DB. The valley must be >= VALLEY_MIN_WIDTH_MS wide.
+
+    Returns the FIRST qualifying valley (nearest to the word end), not the
+    deepest. This ensures we cut at the first inter-word gap rather than
+    in a longer silence further downstream.
+
+    Returns:
+        dict with centre, depth_db, width_ms, safe; or None if no valid valley.
+    """
+    window_frames = max(1, VALLEY_WINDOW_MS // hop_ms)
+    smoothed = _smoothed_rms(rms_db, window_frames)
+
+    start_idx = int(np.searchsorted(times, search_start))
+    end_idx = int(min(len(smoothed), np.searchsorted(times, search_end)))
+
+    threshold = speech_median_db - VALLEY_DEPTH_DB
+
+    # Return the FIRST qualifying valley
+    i = start_idx
+    while i < end_idx:
+        if smoothed[i] < threshold:
+            # Start of a valley
+            j = i
+            while j < end_idx and smoothed[j] < threshold:
+                j += 1
+            # Valley is frames [i, j)
+            width_ms = (j - i) * hop_ms
+            if width_ms >= VALLEY_MIN_WIDTH_MS:
+                valley_slice = smoothed[i:j]
+                deepest_idx = i + int(np.argmin(valley_slice))
+                depth_db = speech_median_db - float(smoothed[deepest_idx])
+                centre_idx = (i + j) // 2
+                centre_time = float(times[centre_idx]) if centre_idx < len(times) else float(times[-1])
+                return {
+                    "centre": round(centre_time, 3),
+                    "depth_db": round(depth_db, 1),
+                    "width_ms": round(width_ms, 1),
+                    "safe": True,
+                }
+            i = j
+        else:
+            i += 1
+
+    return None
+
+
+ONSET_SUSTAIN_FRAMES = 5  # M19a: onset must be sustained >= 5 frames (50ms) above threshold
+
+
 def compute_acoustic_cut_out(source_mp4, whisper_word_end, window_s=1.5):
-    """Compute the acoustic cut-out point for a clip from source video.
+    """M19a: Compute the acoustic cut-out point using the valley rule.
+
+    Searches the FULL window from (whisper_word_end - 0.15) to
+    (whisper_word_end + 1.0) for the deepest RMS valley that is:
+      - >= 12 dB below speech median of the preceding 2s
+      - >= 40 ms wide (contiguous frames below threshold)
+    Then finds the next sustained speech onset AFTER the chosen valley.
 
     Args:
         source_mp4: path to source video
@@ -116,17 +193,17 @@ def compute_acoustic_cut_out(source_mp4, whisper_word_end, window_s=1.5):
 
     Returns:
         dict with:
-            cut_out: float — the acoustic cut-out timestamp in source
-            offset: float — speech offset time
-            onset: float or None — next speech onset time
-            gap: float — gap between offset and onset (inf if no onset)
-            safe: bool — whether the boundary is safe (gap >= 0.12s)
+            cut_out: float — the acoustic cut-out timestamp in source (valley centre)
+            valley: dict or None — valley details (centre, depth_db, width_ms, safe)
+            onset: float or None — next sustained speech onset time
+            speech_median_db: float — median speech RMS of last 2s
             bed_db: float — estimated bed noise level
+            safe: bool — whether the boundary is safe
     """
     import tempfile
-    # Extract audio window around the word end
-    extract_start = max(0, whisper_word_end - 0.5)
-    extract_dur = window_s + 0.5
+    # Extract audio window: 2s before word_end to capture speech median, plus post-word
+    extract_start = max(0, whisper_word_end - 2.0)
+    extract_dur = window_s + 2.0
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         tmp_wav = tmp.name
 
@@ -142,33 +219,72 @@ def compute_acoustic_cut_out(source_mp4, whisper_word_end, window_s=1.5):
         sorted_rms = np.sort(rms_db)
         bed_db = float(np.median(sorted_rms[:max(1, len(sorted_rms) // 5)]))
 
-        # Find offset (silence after last word)
-        offset = find_speech_offset(rms_db, times, whisper_word_end)
-
-        # Find onset (next speech start)
-        onset = find_speech_onset(rms_db, times, offset, bed_db)
-
-        # Compute gap
-        if onset is not None:
-            gap = onset - offset
+        # Speech median: median RMS of last 2s before whisper_word_end
+        speech_start_idx = int(np.searchsorted(times, whisper_word_end - 2.0))
+        speech_end_idx = int(np.searchsorted(times, whisper_word_end))
+        if speech_end_idx > speech_start_idx:
+            speech_median_db = float(np.median(rms_db[speech_start_idx:speech_end_idx]))
         else:
-            gap = float('inf')
+            speech_median_db = -20.0  # fallback
 
-        safe = gap >= MIN_GAP_S
+        # M19a: Search for the deepest valley in a wide window, then
+        # find the next sustained onset AFTER the valley centre.
+        #
+        # valley_search_start = whisper_word_end + 0.10
+        #   (skip past the word's own acoustic tail — a valley right at
+        #    the word boundary is intra-word, not inter-word)
+        # valley_search_end = whisper_word_end + 1.0
+        #   (search up to 1s out — onset detection narrows later)
+        valley_search_start = whisper_word_end + 0.10
+        valley_search_end = whisper_word_end + 1.0
 
-        # Compute cut_out per M19
-        if onset is not None:
-            cut_out = min(offset + 0.30, onset - 0.06)
+        valley = find_valley(rms_db, times, valley_search_start, valley_search_end,
+                             speech_median_db)
+
+        # Find sustained onset AFTER the chosen valley (or after word_end).
+        # Requires ONSET_SUSTAIN_FRAMES consecutive frames above threshold
+        # to avoid mistaking brief plosives/breaths for speech onset.
+        onset_thresh = max(bed_db + BED_ONSET_DB, speech_median_db - 6.0)
+        onset = None
+        onset_after = valley["centre"] if valley is not None else whisper_word_end
+        onset_search_start = int(np.searchsorted(times, onset_after + 0.02))
+        onset_search_end = int(min(len(rms_db), np.searchsorted(times, whisper_word_end + 1.5)))
+        in_dip = False
+        for i in range(onset_search_start, onset_search_end):
+            if rms_db[i] < onset_thresh:
+                in_dip = True
+            elif in_dip and rms_db[i] > onset_thresh:
+                # Check sustain: next ONSET_SUSTAIN_FRAMES frames above threshold
+                sustained = True
+                for k in range(1, ONSET_SUSTAIN_FRAMES):
+                    if i + k >= len(rms_db) or rms_db[i + k] < onset_thresh:
+                        sustained = False
+                        break
+                if sustained:
+                    onset = float(times[i])
+                    break
+
+        # Determine cut_out
+        if valley is not None and valley["safe"]:
+            cut_out = valley["centre"]
+            safe = True
         else:
-            cut_out = offset + 0.30
+            # No valid valley — unsafe boundary
+            # Fall back to M19 formula but mark unsafe
+            offset = find_speech_offset(rms_db, times, whisper_word_end)
+            if onset is not None:
+                cut_out = min(offset + 0.30, onset - 0.06)
+            else:
+                cut_out = offset + 0.30
+            safe = False
 
         return {
             "cut_out": round(cut_out, 3),
-            "offset": round(offset, 3),
+            "valley": valley,
             "onset": round(onset, 3) if onset is not None else None,
-            "gap": round(gap, 3) if gap != float('inf') else float('inf'),
-            "safe": safe,
+            "speech_median_db": round(speech_median_db, 1),
             "bed_db": round(bed_db, 1),
+            "safe": safe,
         }
     finally:
         if os.path.exists(tmp_wav):

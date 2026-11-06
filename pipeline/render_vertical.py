@@ -1001,7 +1001,7 @@ def _find_outro_vert(qa_dir, segment_dir=None):
 
     vert_outro = os.path.join(qa_dir, "vert_outro_from16x9.mp4")
     print(f"  Cropping outro from 16:9: {outro_16x9}")
-    vert_partial = vert_outro + ".partial"
+    vert_partial = vert_outro.replace(".mp4", ".partial.mp4")
     subprocess.run([
         "ffmpeg", "-y", "-i", outro_16x9,
         "-vf", f"scale={VERT_W}:{VERT_H}:force_original_aspect_ratio=decrease,"

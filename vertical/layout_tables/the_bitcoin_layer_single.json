@@ -1,0 +1,8 @@
+{
+  "_doc": "The Bitcoin Layer single-presenter with screen-share. Source is 1280x720. Lip-activity picks the presenter face from the PiP corner.",
+  "channel": "The Bitcoin Layer",
+  "tile_count": 1,
+  "layout": "single",
+  "chyron_safe": false,
+  "speaker_detection": "lip_activity"
+}

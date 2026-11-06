@@ -351,7 +351,7 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
             f.write(f"file '{path}'\n")
 
     concat_raw = os.path.join(qa_dir, "concat_raw.mp4")
-    concat_partial = concat_raw + ".partial"
+    concat_partial = concat_raw.replace(".mp4", ".partial.mp4")
     subprocess.run([
         "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
         "-vf", "setpts=PTS-STARTPTS",
@@ -395,7 +395,7 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
     wm_dur = get_duration(concat_wm)
     bgm_fade_out_start = wm_dur - 1.5
 
-    bgm_partial = bgm_path + ".partial"
+    bgm_partial = bgm_path.replace(".mp4", ".partial.mp4")
     subprocess.run([
         "ffmpeg", "-y",
         "-i", concat_wm,
@@ -452,7 +452,7 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
         ], capture_output=True, timeout=300)
 
     final_path = os.path.join(out_dir, output_name)
-    final_partial = final_path + ".partial"
+    final_partial = final_path.replace(".mp4", ".partial.mp4")
     subprocess.run([
         "ffmpeg", "-y",
         "-i", bgm_path,

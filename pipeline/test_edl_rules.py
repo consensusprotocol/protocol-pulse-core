@@ -689,6 +689,115 @@ class TestG3cGateExists(unittest.TestCase):
         self.assertIn("G3c_acoustic_tail", src)
 
 
+class TestM19aValleyRule(unittest.TestCase):
+    """M19a: valley rule finds correct cut point."""
+
+    def test_valley_found_in_synthetic_signal(self):
+        """A synthetic signal with a clear valley must be detected."""
+        import numpy as np
+        from acoustic import find_valley, rms_envelope, _smoothed_rms
+        sr = 16000
+        # Build 1s signal: speech at -15 dBFS, valley at 0.5s (80ms of silence)
+        samples = np.zeros(sr, dtype=np.float64)
+        # Speech: 0-0.45s and 0.55-1.0s at amplitude ~0.18 (-15 dBFS)
+        amp = 10 ** (-15 / 20)  # ~0.178
+        speech1 = amp * np.random.randn(int(0.45 * sr))
+        speech2 = amp * np.random.randn(int(0.45 * sr))
+        samples[:len(speech1)] = speech1
+        samples[int(0.55 * sr):int(0.55 * sr) + len(speech2)] = speech2
+        # Valley region 0.45-0.55s stays at ~0 (silence = -80 dBFS)
+
+        rms_db, times = rms_envelope(samples, sr, hop_ms=10)
+        speech_median_db = float(np.median(rms_db[:45]))  # first 0.45s
+
+        v = find_valley(rms_db, times, 0.3, 0.8, speech_median_db)
+        self.assertIsNotNone(v, "Valley must be found in synthetic gap")
+        self.assertTrue(v["safe"])
+        self.assertGreaterEqual(v["width_ms"], 40)
+        self.assertGreaterEqual(v["depth_db"], 12)
+        # Valley centre should be near 0.5s
+        self.assertAlmostEqual(v["centre"], 0.5, delta=0.08)
+
+    def test_no_valley_when_shallow(self):
+        """A signal with < 12 dB dip must return None."""
+        import numpy as np
+        from acoustic import find_valley, rms_envelope
+        sr = 16000
+        # Constant speech at -15 dBFS with a 5 dB dip (too shallow)
+        amp_speech = 10 ** (-15 / 20)
+        amp_dip = 10 ** (-20 / 20)  # only 5 dB below speech
+        samples = amp_speech * np.random.randn(sr)
+        # Replace 0.45-0.55 with shallow dip
+        dip_len = int(0.10 * sr)
+        samples[int(0.45 * sr):int(0.45 * sr) + dip_len] = amp_dip * np.random.randn(dip_len)
+
+        rms_db, times = rms_envelope(samples, sr, hop_ms=10)
+        speech_median_db = float(np.median(rms_db[:45]))
+
+        v = find_valley(rms_db, times, 0.3, 0.8, speech_median_db)
+        self.assertIsNone(v, "Shallow dip (< 12 dB) must not qualify as valley")
+
+    def test_no_valley_when_narrow(self):
+        """A valley < 40ms wide must return None (before smoothing)."""
+        import numpy as np
+        from acoustic import find_valley, rms_envelope
+        sr = 16000
+        amp = 10 ** (-15 / 20)
+        samples = amp * np.random.randn(sr)
+        # Insert a 10ms gap (1 frame at 10ms hop) — too narrow even after smoothing
+        gap_start = int(0.50 * sr)
+        gap_end = gap_start + int(0.01 * sr)
+        samples[gap_start:gap_end] = 0.0
+
+        rms_db, times = rms_envelope(samples, sr, hop_ms=10)
+        speech_median_db = float(np.median(rms_db[:45]))
+
+        v = find_valley(rms_db, times, 0.3, 0.8, speech_median_db)
+        # A single-frame gap should not produce a >= 40ms valley
+        if v is not None:
+            self.assertLess(v["width_ms"], 40,
+                            "Single-frame gap must not produce a 40ms+ valley")
+
+    def test_first_valley_preferred(self):
+        """find_valley returns the FIRST qualifying valley, not the deepest."""
+        import numpy as np
+        from acoustic import find_valley, rms_envelope
+        sr = 16000
+        amp = 10 ** (-15 / 20)
+        samples = amp * np.random.randn(sr)
+        # Valley 1 at 0.3s (60ms silence)
+        v1_start = int(0.30 * sr)
+        v1_end = int(0.36 * sr)
+        samples[v1_start:v1_end] = 0.0
+        # Valley 2 at 0.7s (200ms silence — deeper/wider)
+        v2_start = int(0.70 * sr)
+        v2_end = int(0.90 * sr)
+        samples[v2_start:v2_end] = 0.0
+
+        rms_db, times = rms_envelope(samples, sr, hop_ms=10)
+        speech_median_db = float(np.median(rms_db[:25]))
+
+        v = find_valley(rms_db, times, 0.2, 0.95, speech_median_db)
+        self.assertIsNotNone(v)
+        # Must pick valley 1 (centre ~0.33), not valley 2 (centre ~0.80)
+        self.assertLess(v["centre"], 0.50, "Must pick the FIRST qualifying valley")
+
+    def test_clip_01_source_valley(self):
+        """Integration: M19a finds valley ~249.64 on actual clip_01 source."""
+        source = "/home/ultron/protocol_pulse/segment_v2/sources/Pxrak-iMT0g.mp4"
+        if not os.path.exists(source):
+            self.skipTest("clip_01 source not available")
+        from acoustic import compute_acoustic_cut_out
+        result = compute_acoustic_cut_out(source, whisper_word_end=249.3)
+        self.assertTrue(result["safe"], f"Boundary must be safe: {result}")
+        self.assertIsNotNone(result["valley"])
+        # Valley centre should be ~249.64 (orchestrator expected ~249.66)
+        self.assertAlmostEqual(result["cut_out"], 249.64, delta=0.05,
+                               msg=f"cut_out should be ~249.64, got {result['cut_out']}")
+        self.assertGreaterEqual(result["valley"]["depth_db"], 12.0)
+        self.assertGreaterEqual(result["valley"]["width_ms"], 40)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 
