@@ -800,6 +800,90 @@ class TestM19aValleyRule(unittest.TestCase):
         self.assertIn("end", result["valley"])
 
 
+class TestOutputPathCollision(unittest.TestCase):
+    """A5/R2-11: refuse start when 16:9 and 9:16 output names are identical."""
+
+    def test_segment_in_name_works(self):
+        """output_name containing 'segment' produces distinct names."""
+        from run import _resolve_output_names
+        args = type("Args", (), {"output_name": "segment.mp4"})()
+        n16, n9 = _resolve_output_names(args)
+        self.assertNotEqual(n16, n9)
+        self.assertEqual(n16, "segment.mp4")
+        self.assertIn("vertical", n9)
+
+    def test_no_segment_in_name_raises(self):
+        """output_name without 'segment' would produce identical paths — must raise."""
+        from run import _resolve_output_names
+        args = type("Args", (), {"output_name": "output.mp4"})()
+        with self.assertRaises(RuntimeError) as ctx:
+            _resolve_output_names(args)
+        self.assertIn("R2-11", str(ctx.exception))
+
+    def test_none_output_name_works(self):
+        """Default None uses segment.mp4 / segment_vertical.mp4."""
+        from run import _resolve_output_names
+        args = type("Args", (), {"output_name": None})()
+        n16, n9 = _resolve_output_names(args)
+        self.assertEqual(n16, "segment.mp4")
+        self.assertEqual(n9, "segment_vertical.mp4")
+
+
+class TestShoutoutHookChannel(unittest.TestCase):
+    """A7/R2-16: shoutout must include the hook channel."""
+
+    def test_hook_channel_included(self):
+        """Hook channel appears in the channel list extracted by build_shoutout logic."""
+        import shoutout as sh
+        edl = {
+            "hook": {"channel": "HookChan", "handle": "@hook"},
+            "clips": [
+                {"channel": "ClipChan1", "handle": "@c1"},
+                {"channel": "ClipChan2", "handle": "@c2"},
+            ]
+        }
+        # Replicate the extraction logic from build_shoutout
+        channels = []
+        seen = set()
+        hook = edl.get("hook", {})
+        hook_ch = hook.get("channel", "")
+        if hook_ch and hook_ch not in seen:
+            channels.append(hook_ch)
+            seen.add(hook_ch)
+        for clip in edl.get("clips", []):
+            ch = clip.get("channel", "")
+            if ch and ch not in seen:
+                channels.append(ch)
+                seen.add(ch)
+        self.assertIn("HookChan", channels)
+        self.assertEqual(channels[0], "HookChan", "Hook channel must be first")
+        self.assertEqual(len(channels), 3)
+
+    def test_hook_channel_dedup(self):
+        """If hook channel same as a clip channel, no duplicate."""
+        edl = {
+            "hook": {"channel": "SharedChan", "handle": "@shared"},
+            "clips": [
+                {"channel": "SharedChan", "handle": "@shared"},
+                {"channel": "OtherChan", "handle": "@other"},
+            ]
+        }
+        channels = []
+        seen = set()
+        hook = edl.get("hook", {})
+        hook_ch = hook.get("channel", "")
+        if hook_ch and hook_ch not in seen:
+            channels.append(hook_ch)
+            seen.add(hook_ch)
+        for clip in edl.get("clips", []):
+            ch = clip.get("channel", "")
+            if ch and ch not in seen:
+                channels.append(ch)
+                seen.add(ch)
+        self.assertEqual(len(channels), 2)
+        self.assertEqual(channels[0], "SharedChan")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 

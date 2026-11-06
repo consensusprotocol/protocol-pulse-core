@@ -828,22 +828,42 @@ def gate_g6(final_mp4, vo_regions, qa_dir, vo_assembled_tracks=None):
 # G8: SHARPNESS
 # ==============================================================
 
-def gate_g8(final_mp4, segments, qa_dir, upscaled_labels=None, crop_widths=None):
-    """Laplacian variance on centre 60% region, 5 frames per shot.
-    FAIL if any shot median < threshold.  Law 20 — do not lower base threshold.
-    R1 crops use proportionally reduced floor: 60 * (crop_w/1080)^2.
-    crop_widths: dict mapping label -> source crop width (for per-segment floor).
-    upscaled_labels: set of labels that are R1-upscaled (uses 607px default if not in crop_widths)."""
+def _laplacian_centre(img_gray):
+    """Laplacian variance on centre 60% region."""
+    import cv2
+    h, w = img_gray.shape
+    x0, x1 = int(w * 0.2), int(w * 0.8)
+    y0, y1 = int(h * 0.2), int(h * 0.8)
+    roi = img_gray[y0:y1, x0:x1]
+    return float(cv2.Laplacian(roi, cv2.CV_64F).var())
+
+
+def gate_g8(final_mp4, segments, qa_dir, upscaled_labels=None, crop_widths=None,
+            source_clips=None):
+    """Sharpness gate: absolute floor + source-relative degradation check (R2/A9).
+
+    Two independent checks per talking-head segment:
+      1. Source usability: source median Laplacian >= SHARPNESS_FLOOR (or scaled floor
+         for upscaled content). If source itself is too soft, report but do not blame
+         the pipeline.
+      2. Pipeline degradation: output median >= 0.85 * source median. Catches encode
+         quality loss, bad scaling, or accidental blur.
+
+    Both checks must pass. Missing source or missing frames => FAIL.
+    source_clips: dict mapping label -> source mp4 path."""
     import cv2
 
     print("\n=== G8: SHARPNESS ===")
 
-    SHARPNESS_FLOOR = 60  # Law 20 — do not change (for native-res content)
+    SHARPNESS_FLOOR = 60          # Law 20 — do not change (for native-res content)
+    DEGRADATION_RATIO = 0.85      # output must be >= 85% of source sharpness
 
     if upscaled_labels is None:
         upscaled_labels = set()
     if crop_widths is None:
         crop_widths = {}
+    if source_clips is None:
+        source_clips = {}
 
     all_pass = True
     table = []
@@ -858,52 +878,94 @@ def gate_g8(final_mp4, segments, qa_dir, upscaled_labels=None, crop_widths=None)
         seg_dur = seg_end - seg_start
 
         sample_times = [seg_start + seg_dur * (i + 0.5) / 5 for i in range(5)]
-        variances = []
+        # Relative offsets into the clip (for source frame extraction)
+        rel_offsets = [seg_dur * (i + 0.5) / 5 for i in range(5)]
+
+        out_variances = []
+        src_variances = []
+        src_path = source_clips.get(label, "")
+        has_source = bool(src_path) and os.path.exists(src_path)
 
         for i, t in enumerate(sample_times):
+            # Output frame
             frame_path = os.path.join(qa_dir, f"g8_{label}_{i}.png")
             extract_frame(final_mp4, t, frame_path)
             if not os.path.exists(frame_path):
                 continue
-
             img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
             if img is None:
                 continue
+            out_variances.append(round(_laplacian_centre(img), 2))
 
-            h, w = img.shape
-            # Centre 60%
-            x0 = int(w * 0.2)
-            x1 = int(w * 0.8)
-            y0 = int(h * 0.2)
-            y1 = int(h * 0.8)
-            roi = img[y0:y1, x0:x1]
+            # Source frame at matching relative offset
+            if has_source:
+                src_frame_path = os.path.join(qa_dir, f"g8_{label}_{i}_src.png")
+                extract_frame(src_path, rel_offsets[i], src_frame_path)
+                if os.path.exists(src_frame_path):
+                    src_img = cv2.imread(src_frame_path, cv2.IMREAD_GRAYSCALE)
+                    if src_img is not None:
+                        # Scale source to output dimensions for fair comparison
+                        out_h, out_w = img.shape
+                        if src_img.shape != img.shape:
+                            src_img = cv2.resize(src_img, (out_w, out_h),
+                                                 interpolation=cv2.INTER_AREA)
+                        src_variances.append(round(_laplacian_centre(src_img), 2))
 
-            lap_var = cv2.Laplacian(roi, cv2.CV_64F).var()
-            variances.append(round(lap_var, 2))
+        out_median = float(np.median(out_variances)) if out_variances else 0.0
+        src_median = float(np.median(src_variances)) if src_variances else 0.0
 
-        median_var = float(np.median(variances)) if variances else 0.0
+        # Floor for upscaled content
         if label in upscaled_labels:
-            cw = crop_widths.get(label, 607)  # default 607px if not specified
+            cw = crop_widths.get(label, 607)
             floor = round(SHARPNESS_FLOOR * (cw / 1080) ** 2, 1)
         else:
             floor = SHARPNESS_FLOOR
-        ok = median_var >= floor
 
+        # Check 1: absolute floor (output must meet minimum)
+        floor_ok = out_median >= floor
+
+        # Check 2: source-relative degradation
+        if not has_source:
+            # No source clip => cannot verify, FAIL
+            degrad_ok = False
+            degrad_reason = "no_source"
+        elif not src_variances:
+            degrad_ok = False
+            degrad_reason = "src_frames_missing"
+        elif src_median < floor:
+            # Source itself is soft — report usability issue but still check ratio
+            degrad_ok = out_median >= DEGRADATION_RATIO * src_median if src_median > 0 else False
+            degrad_reason = f"soft_source({src_median:.1f}<{floor})"
+        else:
+            degrad_ok = out_median >= DEGRADATION_RATIO * src_median
+            degrad_reason = None
+
+        ok = floor_ok and degrad_ok
         if not ok:
             all_pass = False
 
+        ratio = round(out_median / src_median, 3) if src_median > 0 else 0.0
+
         table.append({
             "segment": label,
-            "variances": variances,
-            "median": round(median_var, 2),
+            "out_variances": out_variances,
+            "src_variances": src_variances,
+            "out_median": round(out_median, 2),
+            "src_median": round(src_median, 2),
+            "ratio": ratio,
             "floor": floor,
+            "floor_pass": floor_ok,
+            "degradation_pass": degrad_ok,
+            "degradation_reason": degrad_reason,
             "pass": ok,
         })
 
         tag = " [R1-upscale]" if label in upscaled_labels else ""
         status = "PASS" if ok else "FAIL"
-        print(f"  {label}{tag}: laplacian_vars={variances}, median={median_var:.1f} "
-              f"(min={floor}) [{status}]")
+        ratio_str = f", ratio={ratio:.3f}" if src_median > 0 else ""
+        src_info = f", src_median={src_median:.1f}" if has_source else " [NO SOURCE]"
+        print(f"  {label}{tag}: out_median={out_median:.1f} (min={floor}){src_info}"
+              f"{ratio_str} [{status}]")
 
     return all_pass, table
 
@@ -1670,8 +1732,9 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     if not g6_pass:
         any_fail = True
 
-    # G8: Sharpness
-    g8_pass, g8_table = gate_g8(final_mp4, segments, qa_dir)
+    # G8: Sharpness (source-relative, R2/A9)
+    g8_pass, g8_table = gate_g8(final_mp4, segments, qa_dir,
+                                 source_clips=source_clips)
     results["G8_sharpness"] = {"pass": g8_pass, "table": g8_table}
     if not g8_pass:
         any_fail = True

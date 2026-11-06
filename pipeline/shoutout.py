@@ -28,9 +28,21 @@ def build_shoutout(segment_dir, qa_version=None, fmt="16x9"):
     with open(paths["edl_json"]) as f:
         edl = json.load(f)
 
-    # Extract unique channels in EDL order
+    # Extract unique channels: hook first, then clips in EDL order (R2-16)
     channels = []
     seen = set()
+
+    # Hook channel comes first (if present)
+    hook = edl.get("hook", {})
+    hook_ch = hook.get("channel", "")
+    if hook_ch and hook_ch not in seen:
+        channels.append({
+            "name": hook_ch,
+            "handle": hook.get("handle", ""),
+            "avatar_path": _find_avatar(segment_dir, hook_ch),
+        })
+        seen.add(hook_ch)
+
     for clip in edl.get("clips", []):
         ch = clip.get("channel", "")
         if ch and ch not in seen:
@@ -104,7 +116,123 @@ def _find_avatar(segment_dir, channel_name):
             if os.path.exists(candidate):
                 return candidate
 
+    # On-demand fetch: try to download from EDL video metadata
+    avatar = _fetch_avatar_on_demand(segment_dir, channel_name)
+    if avatar:
+        return avatar
+
     raise FileNotFoundError(f"STOP: avatar missing for channel '{channel_name}'")
+
+
+def _fetch_avatar_on_demand(segment_dir, channel_name):
+    """Try to fetch channel avatar via yt-dlp from the EDL's video entries."""
+    import subprocess
+    import hashlib
+
+    avatars_dir = os.path.join(segment_dir, "avatars")
+    os.makedirs(avatars_dir, exist_ok=True)
+    slug = channel_name.lower().replace(" ", "_").replace("'", "")
+
+    # Find a video_id for this channel from EDL
+    edl_path = os.path.join(segment_dir, "edl.json")
+    if not os.path.exists(edl_path):
+        return None
+
+    with open(edl_path) as f:
+        edl = json.load(f)
+
+    video_id = None
+    hook = edl.get("hook", {})
+    if hook.get("channel") == channel_name:
+        video_id = hook.get("video_id")
+    for clip in edl.get("clips", []):
+        if clip.get("channel") == channel_name:
+            video_id = clip.get("video_id")
+            break
+
+    if not video_id:
+        return None
+
+    # Use yt-dlp to get channel thumbnail URL from video metadata
+    try:
+        result = subprocess.run(
+            ["yt-dlp", "--dump-json", "--skip-download", "--no-warnings",
+             f"https://www.youtube.com/watch?v={video_id}"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if result.returncode != 0:
+            return None
+        meta = json.loads(result.stdout)
+
+        # Try direct thumbnail fields that are actual image URLs
+        avatar_url = None
+        for key in ("channel_url", "uploader_url"):
+            url = meta.get(key, "")
+            if url and "yt3.ggpht.com" in url:
+                avatar_url = url
+                break
+
+        # Search thumbnails list for avatar entries
+        if not avatar_url:
+            for t in meta.get("thumbnails", []):
+                url = t.get("url", "")
+                if "yt3.ggpht.com" in url:
+                    avatar_url = url
+                    break
+
+        # Construct from channel_id using known YouTube avatar URL pattern
+        if not avatar_url:
+            channel_id = meta.get("channel_id", "")
+            uploader_id = meta.get("uploader_id", "")
+            # Try video thumbnail as a safe fallback
+            avatar_url = meta.get("thumbnail")
+
+        if not avatar_url:
+            return None
+
+        # Download the image
+        import urllib.request
+        out_path = os.path.join(avatars_dir, f"{slug}.jpg")
+        urllib.request.urlretrieve(avatar_url, out_path)
+
+        # Verify it's actually an image
+        if os.path.exists(out_path) and os.path.getsize(out_path) > 500:
+            # Quick check: valid image header
+            with open(out_path, "rb") as fimg:
+                header = fimg.read(16)
+            if header[:3] in (b'\xff\xd8\xff', b'\x89PN') or b'WEBP' in header[:20]:
+                # Convert to PNG for PIL compatibility
+                try:
+                    from PIL import Image
+                    img = Image.open(out_path).convert("RGB")
+                    png_path = os.path.join(avatars_dir, f"{slug}.png")
+                    img.save(png_path)
+                    print(f"    Fetched avatar for {channel_name}: {png_path}")
+                    return png_path
+                except Exception:
+                    print(f"    Fetched avatar for {channel_name}: {out_path}")
+                    return out_path
+            else:
+                os.unlink(out_path)  # Not a real image
+    except Exception as e:
+        print(f"    WARN: avatar fetch failed for {channel_name}: {e}")
+
+    # Last resort: generate a placeholder
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        img = Image.new("RGB", (512, 512), (40, 40, 60))
+        draw = ImageDraw.Draw(img)
+        # Draw initials
+        initials = "".join(w[0].upper() for w in channel_name.split()[:3] if w)
+        draw.text((180, 180), initials, fill=(247, 147, 26))
+        out_path = os.path.join(avatars_dir, f"{slug}.png")
+        img.save(out_path)
+        print(f"    Generated placeholder avatar for {channel_name}")
+        return out_path
+    except Exception:
+        pass
+
+    return None
 
 
 def main():

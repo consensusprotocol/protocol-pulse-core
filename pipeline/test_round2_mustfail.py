@@ -316,5 +316,48 @@ class TestMagnitudeCut(unittest.TestCase):
         )
 
 
+class TestG8SourceRelative(unittest.TestCase):
+    """A9/Addendum 2 item 3: G8 compares output to source, not absolute only."""
+
+    def _make_frames(self, qa_dir, label, out_var, src_var, n=5):
+        """Create fake PNG frames with known Laplacian variance."""
+        import cv2
+        import numpy as np
+        os.makedirs(qa_dir, exist_ok=True)
+        for i in range(n):
+            # Output frame: use a pattern with controlled frequency
+            img = np.zeros((200, 200), dtype=np.uint8)
+            # Higher variance = sharper edges
+            step = max(1, int(200 / (out_var ** 0.5 + 1)))
+            for r in range(0, 200, step):
+                img[r:r+max(1, step//2), :] = 255
+            cv2.imwrite(os.path.join(qa_dir, f"g8_{label}_{i}.png"), img)
+
+            # Source frame
+            src_img = np.zeros((200, 200), dtype=np.uint8)
+            step_s = max(1, int(200 / (src_var ** 0.5 + 1)))
+            for r in range(0, 200, step_s):
+                src_img[r:r+max(1, step_s//2), :] = 255
+            cv2.imwrite(os.path.join(qa_dir, f"g8_{label}_{i}_src.png"), src_img)
+
+    def test_g8_requires_source_clips(self):
+        """G8 fails when no source_clips provided (fail-closed)."""
+        sys.path.insert(0, os.path.join(os.path.dirname(PIPELINE_DIR), "segment_v1"))
+        from qa_gates import gate_g8
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            segments = [{"label": "clip_01", "start": 0, "end": 10, "type": "talking_head"}]
+            ok, table = gate_g8("/dev/null", segments, td, source_clips=None)
+            self.assertFalse(ok, "G8 must fail when no source clips provided")
+
+    def test_g8_signature_has_source_clips(self):
+        """gate_g8 must accept source_clips kwarg."""
+        sys.path.insert(0, os.path.join(os.path.dirname(PIPELINE_DIR), "segment_v1"))
+        import qa_gates
+        sig = inspect.signature(qa_gates.gate_g8)
+        self.assertIn("source_clips", sig.parameters,
+                       "gate_g8 must accept source_clips parameter")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

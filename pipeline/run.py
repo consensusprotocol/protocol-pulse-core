@@ -134,11 +134,23 @@ def stage_render16(segment_dir, args):
     return render_16x9(segment_dir, args.qa_version, args.output_name or "segment.mp4")
 
 
+def _resolve_output_names(args):
+    """Return (name_16x9, name_9x16) and raise if they collide (R2-11)."""
+    name_16 = args.output_name or "segment.mp4"
+    name_9 = (args.output_name.replace("segment", "segment_vertical")
+              if args.output_name else "segment_vertical.mp4")
+    if name_16 == name_9:
+        raise RuntimeError(
+            f"STOP: 16:9 and 9:16 output names are identical ('{name_16}'). "
+            "output_name must contain 'segment' so the vertical rename works (R2-11)."
+        )
+    return name_16, name_9
+
+
 def stage_render9(segment_dir, args):
     from render_vertical import render_9x16
-    return render_9x16(segment_dir, args.qa_version,
-                       args.output_name.replace("segment", "segment_vertical")
-                       if args.output_name else "segment_vertical.mp4")
+    _, name_9 = _resolve_output_names(args)
+    return render_9x16(segment_dir, args.qa_version, name_9)
 
 
 def stage_gates16(segment_dir, args):
