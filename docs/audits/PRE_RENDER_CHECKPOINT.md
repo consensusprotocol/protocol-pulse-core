@@ -273,23 +273,23 @@ v12/v17 golden audio was processed by the v1 pipeline (BGM overlay, compression)
 
 ---
 
-## GLUE DIFF (e7617ac3..HEAD)
+## GLUE DIFF (e7617ac3..HEAD) — PINNED-CUT mode
 
 Two new files, no edits to existing pipeline code:
 
-**pipeline/run_isolated.py** — orchestration glue:
+**pipeline/run_isolated.py** — orchestration glue (PINNED-CUT):
 - `create_run_dir()`: `runs/v2f_<UTC>`, refuses if exists
 - `verify_and_link()`: sha256-checks 3 sources + 3 VO stems, symlinks in, copies edl/topic/transcripts/manifest
-- `run_cutter()`: calls `cut.compute_all_cuts()`, prints cut table vs v2e values
-- `abort_check()`: clip_01 in [249.62, 249.72]; clip_02 cut_in+cut_out and clip_03 cut_in+cut_out within 0.005 of v2e (F1: clip_02 cut_in=624.63 added)
+- `write_pinned_cuts()`: writes cuts_final.json + updates edl.json from pinned table (no cutter). hook 0.00-9.52, clip_01 238.55-`<--clip1-out>`, clip_02 624.63-636.72, clip_03 998.00-1011.80
+- `measure_onset_gap()`: 10ms RMS windows, onset = first 30ms run within 12dB of speech median after cut_out. Aborts if gap < 60ms (overridable with `--allow-clip1-gap-ms`)
+- `prerender_clips()`: ffmpeg double-seek extract from source into qa_dir as `final_<clip_id>.mp4`
 - `run_pipeline()` (F2): shoutout both → render16 → render9 → gates16 → gates9; gate failure blocks delivery, not the other render. Never calls telegram.
-- `main()`: create → verify → cut → abort check → render
+- Writes `CUTS_PINNED.md` in run dir with table, rationale, evidence, and gap measurement.
+- CLI: `--clip1-out FLOAT` (required), `--allow-clip1-gap-ms FLOAT` (optional)
 
 **pipeline/test_run_isolated.py** — 5 tests, all pass:
 1. `test_refuses_existing_dir` — FileExistsError on collision
 2. `test_refuses_hash_mismatch` — ValueError on bad source hash
-3. `test_abort_check_clip01_out_of_range` — catches stale v2e cut_out=249.37
-4. `test_abort_check_clip02_cut_out_delta` — catches cutter 636.780 vs v2e 636.72
-5. `test_abort_check_clip02_cut_in_delta` — catches cut_in 624.70 vs v2e 624.63 (F1)
-
-**KNOWN**: abort check WILL trigger on clip_02 (cut_out delta 0.060) and clip_03 (cut_in delta 0.750, cut_out delta 0.330). The cutter produces acoustically correct values that differ from v2e. Orchestrator decides.
+3. `test_pinned_cuts_writes_json` — cuts_final.json has correct clip_01 out + pinned=true
+4. `test_pinned_cuts_no_default_clip1` — PINNED_CUTS_TEMPLATE["clip_01"]["cut_out"] is None
+5. `test_onset_gap_measurement` — real source returns gap > 0 with speech_median in details
