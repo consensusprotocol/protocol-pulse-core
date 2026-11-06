@@ -147,18 +147,26 @@ def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label
     subprocess.run([
         "ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
         "-t", str(PRE_ROLL), "-c:a", "pcm_s16le", silence_wav,
-    ], capture_output=True, timeout=10)
+    ], capture_output=True, timeout=10, check=True)
+
+    # R2-06: Resample VO stem to 48000 Hz stereo BEFORE concat
+    # ElevenLabs outputs 22050 Hz mono; concat demuxer needs matching formats
+    resampled_wav = os.path.join(qa_dir, f"vo_stem_48k_{label}.wav")
+    subprocess.run([
+        "ffmpeg", "-y", "-i", os.path.abspath(vo_wav),
+        "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", resampled_wav,
+    ], capture_output=True, timeout=30, check=True)
 
     combined_wav = os.path.join(qa_dir, f"vo_assembled_{label}.wav")
     audio_list = os.path.join(qa_dir, f"vo_audio_list_{label}.txt")
     with open(audio_list, "w") as f:
         f.write(f"file '{silence_wav}'\n")
-        f.write(f"file '{os.path.abspath(vo_wav)}'\n")
+        f.write(f"file '{resampled_wav}'\n")
 
     subprocess.run([
         "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", audio_list,
         "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", combined_wav,
-    ], capture_output=True, timeout=30)
+    ], capture_output=True, timeout=30, check=True)
 
     subprocess.run([
         "ffmpeg", "-y",
