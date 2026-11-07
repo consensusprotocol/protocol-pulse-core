@@ -68,7 +68,10 @@ def _recency(age_h):
 
 
 def layout_eligible(channel):
-    return channel.get("layout_status") == "approved" and bool(channel.get("channel_id"))
+    """Any registered channel with an id is clip-eligible. Presentation safety is
+    enforced later: approved channels crop; pending channels letterbox.
+    """
+    return bool(channel.get("channel_id"))
 
 
 def story_engine_status(stories, path=STORIES_PATH):

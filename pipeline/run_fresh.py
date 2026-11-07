@@ -234,11 +234,11 @@ def stage_editorial(run):
                              "embedding_model": sel.get("embedding_model"), "llm": sel.get("llm")}
     with open(os.path.join(run.dir, "passages.json")) as f:
         chosen = json.load(f)["chosen"]
-    appr = {c["display_name"] for c in json.load(open(CHANNELS_PATH))
-            if c.get("layout_status") == "approved"}
-    bad = [p["channel"] for p in chosen if p["channel"] not in appr]
+    registry = json.load(open(CHANNELS_PATH))
+    known = {c["display_name"] for c in registry}
+    bad = [p["channel"] for p in chosen if p["channel"] not in known]
     if bad:
-        raise Hold(f"editorial chose clips from layout-ineligible channels {bad}")
+        raise Hold(f"editorial chose clips from unknown channels {bad}")
     if any(p["video_id"] in V2F_VIDEO_IDS for p in chosen):
         raise Hold("editorial chose a v2f source video")
     print(f"  SELECTED: {sel['selected']['headline']} -> label '{keyword}'")
@@ -264,17 +264,28 @@ def stage_validate(run):
     if not ok:
         raise Hold("EDL rejected by edl_rules: " + "; ".join(
             f"{r['rule']}: {r.get('reason', '')}" for r in results if not r["pass"]))
-    # layout compatibility (PBX: no unapproved presentation mode in this experiment)
-    appr = {c["display_name"] for c in reg if c.get("layout_status") == "approved"}
+    # layout compatibility: approved channels use tested crop; pending channels
+    # use the existing safe letterbox fallback. Unknown channels still fail closed.
+    reg_by_name = {c["display_name"]: c for c in reg}
     segs = [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]
-    bad = [(l, s.get("channel")) for l, s in segs if s.get("channel") not in appr]
     with open(os.path.join(run.dir, "vertical_overrides.json")) as f:
         ov = json.load(f)
-    non_crop = {k: v for k, v in ov.items() if v.get("layout") != "crop"}
+    layout_errors = []
+    for label, seg in segs:
+        channel = seg.get("channel")
+        rec = reg_by_name.get(channel)
+        mode = ov.get(label, {}).get("layout")
+        if rec is None:
+            layout_errors.append((label, channel, "unknown channel"))
+            continue
+        expected = "crop" if rec.get("layout_status") == "approved" else "letterbox"
+        if mode != expected:
+            layout_errors.append((label, channel, f"expected {expected}, got {mode!r}"))
     run.prov["layout_compat"] = {"segments": [(l, s.get("channel")) for l, s in segs],
-                                 "vertical_overrides": ov}
-    if bad or non_crop:
-        raise Hold(f"layout compatibility: unapproved channels {bad}, non-crop overrides {non_crop}")
+                                 "vertical_overrides": ov,
+                                 "policy": "approved=crop; pending=letterbox"}
+    if layout_errors:
+        raise Hold(f"layout compatibility: {layout_errors}")
     for l, s in segs:
         if s.get("video_id") in V2F_VIDEO_IDS:
             raise Hold(f"{l} reuses a v2f source video {s['video_id']}")

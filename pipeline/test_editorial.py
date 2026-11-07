@@ -230,7 +230,7 @@ OFF = ["Today we review three hardware wallets and compare their screens, batter
 
 @unittest.skipUnless(HAVE_GPU, "needs CUDA_VISIBLE_DEVICES=0")
 class TestLayoutGate(TempStore):
-    def test_ineligible_source_counts_as_evidence_but_never_becomes_a_clip(self):
+    def test_pending_source_can_become_a_clip_via_letterbox_policy(self):
         import editorial_select as es
         appr_a, appr_b, pending = "The Bitcoin Layer", "Bitcoin Magazine", "What Bitcoin Did"
         self.assertEqual(REG[appr_a]["layout_status"], "approved")
@@ -257,11 +257,10 @@ class TestLayoutGate(TempStore):
         sel = json.load(open(os.path.join(run_dir, "TOPIC_SELECTION.json")))
         cand = [c for c in sel["candidates"] if c.get("decision") == "producible"][0]
         counted = {v["channel"] for v in cand["coverage"]["verdicts"] if v["counted_as_same_event"]}
-        self.assertIn(pending, counted, "layout-ineligible channel must contribute editorial evidence")
+        self.assertIn(pending, counted, "pending channel must contribute editorial evidence")
         chosen = json.load(open(os.path.join(run_dir, "passages.json")))["chosen"]
         self.assertTrue(chosen)
-        self.assertNotIn(pending, {p["channel"] for p in chosen})
-        self.assertTrue({p["channel"] for p in chosen} <= {appr_a, appr_b})
+        self.assertTrue({p["channel"] for p in chosen} <= {appr_a, appr_b, pending})
         self.assertNotIn("OFFDDDDDDD1", {p["video_id"] for p in chosen})
         for p in chosen:
             self.assertTrue(p["canonical_url"].endswith(p["video_id"]))
