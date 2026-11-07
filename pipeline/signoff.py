@@ -26,7 +26,8 @@ from config import SIGNOFF_WORD_CAP
 sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
 from relay import get_key
 
-HISTORY_PATH = os.path.join(os.path.dirname(__file__), "signoff_history.json")
+LEGACY_HISTORY_PATH = os.path.join(os.path.dirname(__file__), "signoff_history.json")
+HISTORY_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "signoff_history.json")
 REFERENCE_PATH = os.path.join(os.path.dirname(__file__), "signoff_reference.txt")
 
 FOLLOW_PATTERNS = re.compile(
@@ -42,15 +43,19 @@ BANNED_PHRASES = [
 
 
 def _load_history():
-    if os.path.exists(HISTORY_PATH):
-        with open(HISTORY_PATH) as f:
+    path = HISTORY_PATH if os.path.exists(HISTORY_PATH) else LEGACY_HISTORY_PATH
+    if os.path.exists(path):
+        with open(path) as f:
             return json.load(f)
     return []
 
 
 def _save_history(history):
-    with open(HISTORY_PATH, "w") as f:
+    os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
+    tmp = HISTORY_PATH + ".tmp"
+    with open(tmp, "w") as f:
         json.dump(history, f, indent=2)
+    os.replace(tmp, HISTORY_PATH)
 
 
 def _jaccard(a_text, b_text, exclude_words=None):

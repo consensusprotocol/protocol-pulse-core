@@ -76,6 +76,7 @@ NICHE = "bitcoin"
 VERDICT_CANDIDATE = "CANDIDATE FOR HUMAN REVIEW WITH FLAGS"
 VERDICT_HOLD = "HOLD"
 RELEASE_STATE = "HOLD_FOR_HUMAN_APPROVAL"   # nothing leaves the factory without a human
+G8_DEGRADATION_RATIO = 0.85  # restored from 5409ccce; reporting threshold, not changed
 
 
 class Hold(Exception):
