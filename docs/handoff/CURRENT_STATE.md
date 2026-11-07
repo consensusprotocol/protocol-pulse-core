@@ -1,3 +1,16 @@
+# CURRENT STATE addendum 2026-11-07 ET — HeimdaLLM + kill evergreen
+
+## Article pipeline changes (site-fix-20261104 branch)
+- **HeimdaLLM is primary provider.** Env vars: HEIMDALL_API_KEY (in .env), HEIMDALL_BASE_URL (default https://api-staging.heimdallm.com/api/v1), HEIMDALL_MODEL (default deepseek/deepseek-v4.1-flash, fallback qwen/qwen3.8-27b).
+- **Provider chain everywhere:** HeimdaLLM → Ollama (gemma3:27b) → Gemini → Anthropic → OpenAI.
+- **Evergreen fallback KILLED.** automation.py PATH 2 (ContentEngine topic-only) and PATH 3 (stub) removed. Now retries up to 5 RSS/Reddit sources. No row created without a real source_url.
+- **title_guard.py** in services/articles/: derive_title() is the single title extraction/validation path. Rejects TL;DR starts, backticks, >110 chars, <15 chars.
+- **Date anchoring** in every article prompt: "Today is {date ET}. Never state or guess a date not in the source." Content matching "As (we approach|of) <Month> 20XX" rejected if not in source.
+- **13 slop articles unpublished** (3405, 3409, 3415, 3422, 3424, 3428, 3452, 3453, 3465, 3472, 3475, 3496, 3497).
+- verify_site_health.py check 7b: published rows after 2026-11-07 with TL;DR title, title>120 chars, or NULL source_url must be 0.
+
+---
+
 # CURRENT STATE addendum 2026-11-05 09:15 ET (read before the 2026-11-04 handoff below)
 
 - Overnight segment_v2 run (ba125e19) was REJECTED by PBX: agent rewrote the pipeline, used a question as hook, repeated a passage, 5 VOs, wrong avatars, overrode failed gates, sent Telegram. Full rebuild done 02:00-09:10 ET.

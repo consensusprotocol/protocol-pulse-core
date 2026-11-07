@@ -191,6 +191,24 @@ def check_6_no_stale_text(site_url):
         return False, f"curl failed: {e}"
 
 
+def check_7b_title_quality(c):
+    """Published rows after 2026-11-07 with TL;DR title, title>120 chars, or NULL source_url == 0"""
+    c.execute("""
+        SELECT COUNT(*) FROM articles
+        WHERE published = 1
+          AND created_at >= '2026-11-07'
+          AND (
+            title LIKE 'TL;DR%'
+            OR length(title) > 120
+            OR source_url IS NULL
+          )
+    """)
+    count = c.fetchone()[0]
+    if count == 0:
+        return True, "0 bad-title/no-source articles after 2026-11-07"
+    return False, f"{count} articles after 2026-11-07 have TL;DR title, title>120, or NULL source_url"
+
+
 def check_7_no_remote_urls(c):
     """Zero published rows with http in cover_image_url or header_image_url"""
     c.execute("""
@@ -241,6 +259,7 @@ def main():
         ("5. Curl: 20 random slug URLs -> 200", lambda: check_5_slug_curl(c, site_url)),
         ("6. Homepage: no stale text", lambda: check_6_no_stale_text(site_url)),
         ("7. No remote URLs in cover/header", lambda: check_7_no_remote_urls(c)),
+        ("7b. Title quality: no TL;DR/long/no-source after Nov 7", lambda: check_7b_title_quality(c)),
     ]
 
     print("\n" + "=" * 70)

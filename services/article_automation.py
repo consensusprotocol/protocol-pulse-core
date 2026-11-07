@@ -223,7 +223,7 @@ Original: {title}"""
     try:
         from services.ai_service import AIService
         ai = AIService()
-        for gen in (ai.generate_content_ollama, ai.generate_content_openai):
+        for gen in (ai.generate_content_heimdall, ai.generate_content_ollama, ai.generate_content_openai):
             try:
                 new_title = gen(rewrite_prompt)
                 if new_title:
@@ -624,10 +624,11 @@ Target: 450-650 words. No shorter than 400. Every sentence earns its place or ge
 Clean HTML only. No markdown. No backticks. No code fences.
 """
 
-        # Provider chain: Ollama (free) -> Gemini -> Anthropic -> OpenAI
+        # Provider chain: HeimdaLLM -> Ollama (free) -> Gemini -> Anthropic -> OpenAI
         from services.ai_service import AIService
         ai = AIService()
         providers = [
+            ("HeimdaLLM", lambda: ai.generate_content_heimdall(prompt)),
             ("Ollama", lambda: ai.generate_content_ollama(prompt)),
             ("Gemini", lambda: ai.generate_content_gemini_prompt(prompt)),
             ("Anthropic", lambda: ai.generate_content_anthropic(prompt)),

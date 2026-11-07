@@ -88,6 +88,21 @@ IF WRITING ABOUT BITCOIN NETWORK METRICS:
 Hallucinating record highs when the network is experiencing miner stress is STRICTLY PROHIBITED and will result in content rejection.
 """
     
+    @staticmethod
+    def _date_anchor():
+        """Return a date-anchoring instruction string for article prompts."""
+        from datetime import datetime as _dt
+        try:
+            from zoneinfo import ZoneInfo
+            now = _dt.now(ZoneInfo("America/New_York"))
+        except Exception:
+            now = _dt.now()
+        return (
+            f"Today is {now.strftime('%A, %B %d, %Y')}. "
+            "Write in present tense about events in the provided source. "
+            "Never state or guess a date that is not in the source."
+        )
+
     def __init__(self):
         self.ai_service = AIService()
         self.substack_service = None
@@ -113,11 +128,12 @@ Hallucinating record highs when the network is experiencing miner stress is STRI
         logging.info("Content Engine initialized")
 
     def _generate_with_provider_chain(self, prompt, system_prompt=None):
-        """Generate content using provider chain: Ollama -> Gemini -> Anthropic -> OpenAI.
+        """Generate content using provider chain: HeimdaLLM -> Ollama -> Gemini -> Anthropic -> OpenAI.
         Each failure logs a WARNING and falls through to the next provider."""
         from services.article_automation import sanitize_article_output
 
         providers = [
+            ("HeimdaLLM", lambda: self.ai_service.generate_content_heimdall(prompt, system_prompt)),
             ("Ollama", lambda: self.ai_service.generate_content_ollama(prompt, system_prompt)),
             ("Gemini", lambda: self.ai_service.generate_content_gemini_prompt(prompt, system_prompt)),
             ("Anthropic", lambda: self.ai_service.generate_content_anthropic(prompt, system_prompt)),
@@ -164,12 +180,17 @@ APPROVE if score >= 7, REJECT if score < 7.
 """
             
             ai_service = AIService()
-            # Try Ollama first (free), then paid providers
+            # Try HeimdaLLM first, then Ollama (free), then paid providers
             response = None
             try:
-                response = ai_service.generate_content_ollama(review_prompt)
+                response = ai_service.generate_content_heimdall(review_prompt)
             except Exception:
                 pass
+            if not response:
+                try:
+                    response = ai_service.generate_content_ollama(review_prompt)
+                except Exception:
+                    pass
             if not response:
                 try:
                     response = ai_service.generate_content_openai(review_prompt)
@@ -397,8 +418,10 @@ APPROVE if score >= 7, REJECT if score < 7.
         """Generate Bitcoin-focused news article"""
         try:
             prompt = f"""
+            {self._date_anchor()}
+
             {self.ACCURACY_MANDATE}
-            
+
             Write a high-value article blog post about: {topic} using the following content. The article must be written in the style of Walter Cronkite without mentioning him or using first-person language, maintaining an authoritative, thoughtful, and journalistic tone. Content should be uniquely rephrased with expanded commentary and added perspectives, weaving in subtle pro-decentralization and pro-Bitcoin philosophy. The article should conclude with a strong, principled statement about financial freedom and decentralization, but it must not be labeled as a closing statement nor reference cypherpunk by name.
             
             CRITICAL FORMATTING REQUIREMENTS - OUTPUT MUST BE CLEAN HTML:
@@ -426,8 +449,10 @@ APPROVE if score >= 7, REJECT if score < 7.
         """Generate DeFi analysis article"""
         try:
             prompt = f"""
+            {self._date_anchor()}
+
             {self.ACCURACY_MANDATE}
-            
+
             Write a high-value article blog post about: {topic} using the following content. The article must be written in the style of Walter Cronkite without mentioning him or using first-person language, maintaining an authoritative, thoughtful, and journalistic tone. Content should be uniquely rephrased with expanded commentary and added perspectives, weaving in subtle pro-decentralization and pro-Bitcoin philosophy. The article should conclude with a strong, principled statement about financial freedom and decentralization, but it must not be labeled as a closing statement nor reference cypherpunk by name.
             
             CRITICAL FORMATTING REQUIREMENTS - OUTPUT MUST BE CLEAN HTML:
@@ -455,8 +480,10 @@ APPROVE if score >= 7, REJECT if score < 7.
         """Generate market update article"""
         try:
             prompt = f"""
+            {self._date_anchor()}
+
             {self.ACCURACY_MANDATE}
-            
+
             Write a high-value article blog post about: {topic} using the following content. The article must be written in the style of Walter Cronkite without mentioning him or using first-person language, maintaining an authoritative, thoughtful, and journalistic tone. Content should be uniquely rephrased with expanded commentary and added perspectives, weaving in subtle pro-decentralization and pro-Bitcoin philosophy. The article should conclude with a strong, principled statement about financial freedom and decentralization, but it must not be labeled as a closing statement nor reference cypherpunk by name.
             
             CRITICAL FORMATTING REQUIREMENTS - OUTPUT MUST BE CLEAN HTML:
@@ -484,8 +511,10 @@ APPROVE if score >= 7, REJECT if score < 7.
         """Generate general Web3/crypto article"""
         try:
             prompt = f"""
+            {self._date_anchor()}
+
             {self.ACCURACY_MANDATE}
-            
+
             Write a high-value article blog post about: {topic} using the following content. The article must be written in the style of Walter Cronkite without mentioning him or using first-person language, maintaining an authoritative, thoughtful, and journalistic tone. Content should be uniquely rephrased with expanded commentary and added perspectives, weaving in subtle pro-decentralization and pro-Bitcoin philosophy. The article should conclude with a strong, principled statement about financial freedom and decentralization, but it must not be labeled as a closing statement nor reference cypherpunk by name.
             
             CRITICAL FORMATTING REQUIREMENTS - OUTPUT MUST BE CLEAN HTML:

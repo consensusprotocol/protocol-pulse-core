@@ -681,11 +681,18 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             max_retries = 2
 
             for attempt in range(max_retries + 1):
-                # Try Anthropic first (reliable, working key)
+                # Try HeimdaLLM first (cheapest, proven reliable)
                 try:
-                    content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
+                    content = self.ai_service.generate_content_heimdall(formatted_prompt, system_prompt)
                 except Exception as e:
-                    logging.warning(f"Anthropic generation failed: {e}")
+                    logging.warning(f"HeimdaLLM generation failed: {e}")
+
+                # Fallback to Ollama (free, local)
+                if not content:
+                    try:
+                        content = self.ai_service.generate_content_ollama(formatted_prompt, system_prompt)
+                    except Exception as e:
+                        logging.warning(f"Ollama generation failed: {e}")
 
                 # Fallback to Gemini
                 if not content:
@@ -693,6 +700,13 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
                         content = self.gemini_service.generate_content(formatted_prompt, system_prompt)
                     except Exception as e:
                         logging.warning(f"Gemini generation failed: {e}")
+
+                # Fallback to Anthropic
+                if not content:
+                    try:
+                        content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
+                    except Exception as e:
+                        logging.warning(f"Anthropic generation failed: {e}")
 
                 # Fallback to OpenAI as last resort
                 if not content:
@@ -850,18 +864,22 @@ Examples of correct statement headlines:
 - "Lightning Network Surpasses 5,000 BTC Capacity"
 
 Return ONLY the new headline, nothing else."""
-                
-                new_title = self.ai_service.generate_content_anthropic(rewrite_prompt)
-                if new_title:
-                    new_title = new_title.strip().strip('"').strip("'")
-                    if not new_title.endswith('?'):
-                        logging.info(f"✅ Headline rewritten: '{new_title[:50]}...'")
-                        return new_title
+
+                for _gen in (self.ai_service.generate_content_heimdall, self.ai_service.generate_content_ollama, self.ai_service.generate_content_anthropic):
+                    try:
+                        new_title = _gen(rewrite_prompt)
+                        if new_title:
+                            new_title = new_title.strip().strip('"').strip("'")
+                            if not new_title.endswith('?'):
+                                logging.info(f"Headline rewritten to statement: '{new_title[:50]}...'")
+                                return new_title
+                    except Exception:
+                        continue
             except Exception as e:
                 logging.warning(f"Failed to rewrite headline: {e}")
 
         elif headline_style == 'question' and not is_question:
-            logging.info(f"🔄 Headline mismatch: Got statement '{title[:50]}...' but need question - rewriting")
+            logging.info(f"Headline mismatch: Got statement '{title[:50]}...' but need question - rewriting")
             try:
                 rewrite_prompt = f"""Rewrite this headline as a thought-provoking QUESTION.
 
@@ -881,13 +899,17 @@ Examples of correct question headlines:
 - "Will Solar-Powered Mining Change the Industry?"
 
 Return ONLY the new headline, nothing else."""
-                
-                new_title = self.ai_service.generate_content_anthropic(rewrite_prompt)
-                if new_title:
-                    new_title = new_title.strip().strip('"').strip("'")
-                    if new_title.endswith('?'):
-                        logging.info(f"✅ Headline rewritten: '{new_title[:50]}...'")
-                        return new_title
+
+                for _gen in (self.ai_service.generate_content_heimdall, self.ai_service.generate_content_ollama, self.ai_service.generate_content_anthropic):
+                    try:
+                        new_title = _gen(rewrite_prompt)
+                        if new_title:
+                            new_title = new_title.strip().strip('"').strip("'")
+                            if new_title.endswith('?'):
+                                logging.info(f"Headline rewritten to question: '{new_title[:50]}...'")
+                                return new_title
+                    except Exception:
+                        continue
             except Exception as e:
                 logging.warning(f"Failed to rewrite headline: {e}")
         
@@ -1007,13 +1029,16 @@ RULES:
 - If a question doesn't fit naturally, use declarative headlines that answer implied questions
 - Keep under 70 characters
 - Focus on transactor concerns (network security, mining economics, sovereignty)"""
-            title = self.ai_service.generate_content_anthropic(title_prompt)
-            
-            if title:
-                # Clean up the title - remove any Protocol Pulse branding that slipped through
-                title = title.strip().replace('"', '').replace("'", '')
-                title = title.replace('Protocol Pulse News:', '').replace('Protocol Pulse:', '').strip()
-                return title[:100]  # Limit length
+            for _gen in (self.ai_service.generate_content_heimdall, self.ai_service.generate_content_ollama, self.ai_service.generate_content_anthropic):
+                try:
+                    title = _gen(title_prompt)
+                    if title:
+                        title = title.strip().replace('"', '').replace("'", '')
+                        title = title.replace('Protocol Pulse News:', '').replace('Protocol Pulse:', '').strip()
+                        if title:
+                            return title[:100]
+                except Exception:
+                    continue
             
             # Fallback to topic-based title (no branding)
             clean_topic = topic[:60].replace('Protocol Pulse', '').strip()
