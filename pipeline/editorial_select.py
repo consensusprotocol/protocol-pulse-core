@@ -189,8 +189,10 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
     """PBX 2026-11-06 23:45 (clips): verified adjacent expansion.
     Start on the verified quote sentence(s). While shorter than `lo`, consider the immediately next,
     then the immediately previous sentence; include one only if `on_event(text)` (the same event
-    checker, run independently on that sentence) returns True. The FIRST sentence that fails stops
-    expansion entirely. A sentence that would push the window past `hi` closes that direction.
+    checker, run independently on that sentence) returns True. A sentence that fails closes ITS
+    direction (expansion never jumps past it); the other direction is still offered to the checker
+    (PBX 2026-11-07 00:25). Expansion stops when both directions are closed. A sentence that would
+    push the window past `hi` also closes that direction.
     Accept only if lo <= duration <= hi, the start is a boundary and it ends on '.' or '!'.
     Returns (window, None, span) or (None, reason, span); span records every check for audit."""
     sa = next(i for i, (a, b) in enumerate(sents) if a <= anchor["w0"] <= b)
@@ -202,12 +204,12 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
     def dur(a, b):
         return words[sents[b][1]]["end"] - words[sents[a][0]]["start"]
 
-    a, b, checks, stop = sa, se, [], None
+    a, b, checks, stops = sa, se, [], []
     open_dirs = ["next", "prev"]
-    while dur(a, b) < lo and open_dirs and stop is None:
+    while dur(a, b) < lo and open_dirs:
         progressed = False
         for d in list(open_dirs):
-            if dur(a, b) >= lo or stop is not None:
+            if dur(a, b) >= lo:
                 break
             i = b + 1 if d == "next" else a - 1
             if i < 0 or i >= len(sents):
@@ -222,8 +224,9 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
             ok, detail = on_event(stext(i))
             checks.append({"direction": d, "sentence": stext(i), "on_event": bool(ok), "detail": detail})
             if not ok:
-                stop = f"expansion stopped: {d} sentence not verified on-event ({detail})"
-                break
+                open_dirs.remove(d)
+                stops.append(f"{d} sentence not verified on-event ({detail})")
+                continue
             a, b, progressed = na, nb, True
         if not progressed:
             break
@@ -236,7 +239,8 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
         return None, f"quote sentence(s) {d} s > maximum {hi} s", span
     if d < lo:
         return None, (f"{d} s < minimum {lo} s after verified expansion"
-                      + (f"; {stop}" if stop else "; no further verified adjacent sentence fits")), span
+                      + (f"; expansion stopped: {'; '.join(stops)}" if stops
+                         else "; no further verified adjacent sentence fits")), span
     ok, why = start_is_boundary(words, sents, a)
     if not ok:
         return None, f"start rejected: {why}", span
@@ -669,7 +673,7 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
                           "anchor_quote": v["evidence_quote"],
                           "source_chunk_id": ts.chunk_id(v["video_id"], w["start"], w["end"])})
     base = {"infra_failures": infra, "other_failures": missing, "anchors": anchors,
-            "window_rule": "hooks: quote sentence(s) only; clips: quote sentence(s) + verified adjacent expansion (stop at first non-verified sentence); boundary start; overlap-deduped; code picks the cut"}
+            "window_rule": "hooks: quote sentence(s) only; clips: quote sentence(s) + verified adjacent expansion, next then previous, a failed sentence closes its direction; boundary start; overlap-deduped; code picks the cut"}
     if infra and len({p["channel"] for p in cands}) < MIN_LAYOUT_CHANNELS:
         return {**base, "producible": False, "infra": True, "candidates": cands, "chosen": [],
                 "mean_chosen_score": 0,

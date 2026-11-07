@@ -75,7 +75,7 @@ class TestVerifiedAdjacentExpansion(unittest.TestCase):
         self.assertEqual(span["added_sentences"], len(seen))  # every added sentence was checked
         self.assertTrue(all(c["on_event"] for c in span["expansion"] if c["on_event"] is not None))
 
-    def test_first_failing_sentence_stops_expansion(self):
+    def test_failed_next_sentence_still_offers_previous_to_the_checker(self):
         ws, sents, a = setup_case()
         calls = []
 
@@ -83,11 +83,23 @@ class TestVerifiedAdjacentExpansion(unittest.TestCase):
             calls.append(t)
             return ("Regulators" not in t, "TOPIC_ONLY" if "Regulators" in t else "SUPPORTS")
         w, why, span = es.expanded_window(ws, sents, a, es.CLIP_MIN_S, es.CLIP_MAX_S, checker)
+        self.assertEqual(calls, [SENTS[2], SENTS[0]])         # next fails -> previous still offered
+        self.assertEqual(span["first_sentence"], SENTS[0])    # verified previous sentence included
+        self.assertNotIn("Regulators", span["last_sentence"])  # failed sentence never included
+        self.assertEqual(span["added_sentences"], 1)
+        self.assertIsNone(w)                                  # still short: explicit HOLD reason
+        self.assertIn("next sentence not verified", why)
+
+    def test_both_directions_failing_stops_and_nothing_beyond_is_checked(self):
+        ws, sents, a = setup_case()
+        calls = []
+        w, why, span = es.expanded_window(ws, sents, a, es.CLIP_MIN_S, es.CLIP_MAX_S,
+                                          lambda t: (calls.append(t) or False, "UNRELATED"))
         self.assertIsNone(w)
-        self.assertIn("expansion stopped", why)
-        self.assertEqual(len(calls), 1, calls)               # nothing is checked after the first failure
-        self.assertNotIn("Regulators", span["last_sentence"])
+        self.assertEqual(calls, [SENTS[2], SENTS[0]])         # never jumps past a failed sentence
         self.assertEqual(span["added_sentences"], 0)
+        self.assertIn("next sentence not verified", why)
+        self.assertIn("prev sentence not verified", why)
 
     def test_never_exceeds_maximum_and_never_pads_off_event(self):
         ws, sents, a = setup_case()
