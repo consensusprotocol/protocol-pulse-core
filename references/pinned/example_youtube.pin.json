@@ -1,0 +1,33 @@
+{
+  "schema": "protocol_pulse.pinned_story.v1",
+  "story_id": "example-youtube-pin",
+  "label": "example label",
+  "headline": "Example: what a human pin from YouTube timestamps looks like",
+  "approved_by": "PBX",
+  "approved_at": "2026-11-06T21:00:00-05:00",
+  "approval_ref": "where the decision is recorded",
+  "segments": [
+    {
+      "role": "hook",
+      "video_id": "AAAAAAAAAAA",
+      "channel": "CoinDesk",
+      "start": 74.32,
+      "end": 83.5,
+      "time_coords": "youtube",
+      "source": {
+        "kind": "youtube"
+      }
+    },
+    {
+      "role": "clip",
+      "video_id": "BBBBBBBBBBB",
+      "channel": "Simply Bitcoin",
+      "start": 872.56,
+      "end": 890.83,
+      "time_coords": "youtube",
+      "source": {
+        "kind": "youtube"
+      }
+    }
+  ]
+}

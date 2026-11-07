@@ -1,0 +1,73 @@
+{
+  "schema": "protocol_pulse.pinned_story.v1",
+  "label": "dollar hegemony",
+  "headline": "Dollar Hegemony End and Bond Market Crisis",
+  "approved_by": "PBX",
+  "approved_at": "2026-11-06T05:22:00-05:00",
+  "approval_ref": "references/v2f_2026-11-06/run/CUTS_PINNED.md (PBX listening approval 05:22 ET)",
+  "reuses_v2f_material": true,
+  "story_id": "v2f-full-4seg-mustfail",
+  "note": "All four v2f ranges; must HOLD at the shared cut acceptance (clip_01 249.63).",
+  "segments": [
+    {
+      "role": "hook",
+      "video_id": "RBFN4CB60To",
+      "channel": "The Bitcoin Layer",
+      "start": 0.0,
+      "end": 9.52,
+      "time_coords": "source_file",
+      "source": {
+        "kind": "local_file",
+        "path": "references/v2f_2026-11-06/run/sources/RBFN4CB60To.mp4",
+        "sha256": "cfb2c57aebbfd9d41fb98694fa8adbfa5011bf880c9364ababd9dd49b2125460",
+        "transcript_path": "references/v2f_2026-11-06/run/transcripts/RBFN4CB60To.json",
+        "transcript_sha256": "19e69cf6be22d0766f41ba34dc7edcd164712615801d34de3feca10cb228f55a"
+      }
+    },
+    {
+      "role": "clip",
+      "video_id": "Pxrak-iMT0g",
+      "channel": "Bitcoin Magazine",
+      "start": 238.55,
+      "end": 249.63,
+      "time_coords": "source_file",
+      "source": {
+        "kind": "local_file",
+        "path": "references/v2f_2026-11-06/run/sources/Pxrak-iMT0g.mp4",
+        "sha256": "57ba9c51544bbbe0449c3914c95b83448886db6d35cf400bf55ecce7d0f1354a",
+        "transcript_path": "references/v2f_2026-11-06/run/transcripts/Pxrak-iMT0g.json",
+        "transcript_sha256": "29f0b1807d71eed85ff05cb68bc9ff62dfcbc95704e6048b1ddece2e9e4e31a1"
+      }
+    },
+    {
+      "role": "clip",
+      "video_id": "RBFN4CB60To",
+      "channel": "The Bitcoin Layer",
+      "start": 624.63,
+      "end": 636.72,
+      "time_coords": "source_file",
+      "source": {
+        "kind": "local_file",
+        "path": "references/v2f_2026-11-06/run/sources/RBFN4CB60To.mp4",
+        "sha256": "cfb2c57aebbfd9d41fb98694fa8adbfa5011bf880c9364ababd9dd49b2125460",
+        "transcript_path": "references/v2f_2026-11-06/run/transcripts/RBFN4CB60To.json",
+        "transcript_sha256": "19e69cf6be22d0766f41ba34dc7edcd164712615801d34de3feca10cb228f55a"
+      }
+    },
+    {
+      "role": "clip",
+      "video_id": "QCgW8RlTu5Q",
+      "channel": "BTC Sessions",
+      "start": 998.0,
+      "end": 1011.8,
+      "time_coords": "source_file",
+      "source": {
+        "kind": "local_file",
+        "path": "references/v2f_2026-11-06/run/sources/QCgW8RlTu5Q.mp4",
+        "sha256": "a1f760077bf02cf1725f9bf68ef1ee7f23dfa192868a71b1cd73fdedb5b65bd4",
+        "transcript_path": "references/v2f_2026-11-06/run/transcripts/QCgW8RlTu5Q.json",
+        "transcript_sha256": "3c0d10dd72473b2c81b5a446ae8e82ae5645322d02a04c4ddfa4bb07694417bf"
+      }
+    }
+  ]
+}
