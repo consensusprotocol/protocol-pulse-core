@@ -22,7 +22,8 @@
         "sha256": "cfb2c57aebbfd9d41fb98694fa8adbfa5011bf880c9364ababd9dd49b2125460",
         "transcript_path": "references/v2f_2026-11-06/run/transcripts/RBFN4CB60To.json",
         "transcript_sha256": "19e69cf6be22d0766f41ba34dc7edcd164712615801d34de3feca10cb228f55a"
-      }
+      },
+      "approved_text": "The Fed is hiking rates to fight inflation, but nobody is talking about the fact that the Fed might be printing money sooner than anybody thinks."
     },
     {
       "role": "clip",
@@ -37,7 +38,8 @@
         "sha256": "cfb2c57aebbfd9d41fb98694fa8adbfa5011bf880c9364ababd9dd49b2125460",
         "transcript_path": "references/v2f_2026-11-06/run/transcripts/RBFN4CB60To.json",
         "transcript_sha256": "19e69cf6be22d0766f41ba34dc7edcd164712615801d34de3feca10cb228f55a"
-      }
+      },
+      "approved_text": "One third of marketable treasuries, which is a smaller percentage of the total treasury debt outstanding right now, which is above 40 trillion dollars."
     },
     {
       "role": "clip",
@@ -52,7 +54,9 @@
         "sha256": "a1f760077bf02cf1725f9bf68ef1ee7f23dfa192868a71b1cd73fdedb5b65bd4",
         "transcript_path": "references/v2f_2026-11-06/run/transcripts/QCgW8RlTu5Q.json",
         "transcript_sha256": "3c0d10dd72473b2c81b5a446ae8e82ae5645322d02a04c4ddfa4bb07694417bf"
-      }
+      },
+      "approved_text": "a prison of a currency they can't control, they don't issue and they can't print and so whenever the dollar gets stronger, it makes it more difficult for them to deal with that debt that they have."
     }
-  ]
+  ],
+  "approved_text_source": "references/v2f_2026-11-06/run/edl.json (text fields, verbatim)"
 }
