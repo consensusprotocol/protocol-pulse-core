@@ -493,6 +493,9 @@ def _status(ok):
 
 
 def stage_gates(run, final16, man16, final9, man9):
+    # Keep the source-relative sharpness threshold local to this stage so QA does not
+    # depend on module-global lookup state during long production runs. Threshold unchanged.
+    g8_degradation_ratio = 0.85
     import gates as G
     from gates import run_gates
     from config import resolve_paths, conform_outro
@@ -565,7 +568,7 @@ def stage_gates(run, final16, man16, final9, man9):
     rel_src = {c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4") for c in cuts}
     _, g8rel = qa_gates.gate_g8(final16, segs16, g8dir, source_clips=rel_src)
     ratios = {r["segment"]: r["ratio"] for r in g8rel}
-    degraded = {k: v for k, v in ratios.items() if v < G8_DEGRADATION_RATIO}
+    degraded = {k: v for k, v in ratios.items() if v < g8_degradation_ratio}
     g8_report = {"production_result_16x9": r16["G8_sharpness"]["pass"],
                  "production_result_9x16": r9["G8_sharpness"]["pass"],
                  "relative_reference": "prepared 1920x1080 clip (source camera, scaled) at the "

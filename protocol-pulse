@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+cd "$ROOT"
+export CUDA_VISIBLE_DEVICES=0
+usage() {
+  echo "Usage: ./protocol-pulse produce --auto | ./protocol-pulse produce --pin PATH" >&2
+  exit 2
+}
+[ "${1:-}" = "produce" ] || usage
+case "${2:-}" in
+  --auto)
+    [ "$#" -eq 2 ] || usage
+    exec python3 pipeline/run_fresh.py
+    ;;
+  --pin)
+    [ "$#" -eq 3 ] || usage
+    exec python3 pipeline/run_fresh.py --pinned "$3"
+    ;;
+  *) usage ;;
+esac
