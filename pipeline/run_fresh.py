@@ -286,6 +286,7 @@ def stage_select(run, keyword):
 
 def stage_validate(run):
     from edl_rules import validate_edl
+    from editorial_gate import run_gate
     with open(os.path.join(run.dir, "edl.json")) as f:
         edl = json.load(f)
     with open(CHANNELS_PATH) as f:
@@ -297,6 +298,18 @@ def stage_validate(run):
     if not ok:
         raise Hold("EDL rejected by edl_rules: " + "; ".join(
             f"{r['rule']}: {r.get('reason', '')}" for r in results if not r["pass"]))
+
+    # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
+    # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
+    # and fails closed when review judgments are absent or any law fails.
+    gate = run_gate(run.dir, edl)
+    run.prov["editorial_gate"] = gate
+    for name, rec in gate.get("laws", {}).items():
+        print(f"  {name}: [{'PASS' if rec.get('pass') else 'FAIL'}] " + "; ".join(rec.get("reasons") or []))
+    if gate.get("verdict") != "READY_FOR_RENDER":
+        failed = [name for name, rec in gate.get("laws", {}).items() if not rec.get("pass")]
+        raise Hold("editorial law gate HOLD: " + ", ".join(failed))
+
     # layout compatibility: approved channels use tested crop; pending channels
     # use the existing safe letterbox fallback. Unknown channels still fail closed.
     reg_by_name = {c["display_name"]: c for c in reg}

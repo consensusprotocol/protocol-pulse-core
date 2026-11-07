@@ -322,6 +322,11 @@ def prepare(pin_path, run_dir, log=print):
         json.dump(edl, f, indent=2)
     with open(os.path.join(run_dir, "vertical_overrides.json"), "w") as f:
         json.dump(overrides, f, indent=2)
+    # Optional human/model editorial judgment travels with the PIN but is kept
+    # separate from the canonical EDL. stage_validate applies the shared gate.
+    if isinstance(pin.get("editorial_review"), dict):
+        with open(os.path.join(run_dir, "EDITORIAL_REVIEW.json"), "w") as f:
+            json.dump(pin["editorial_review"], f, indent=2)
     rec = {"mode": "pinned", "pin_path": os.path.abspath(pin_path),
            "pin_sha256": hashlib.sha256(raw).hexdigest(), "pin": pin, "validation": report,
            "rule": "ranges are used exactly as supplied: never extended, trimmed, snapped or improved"}

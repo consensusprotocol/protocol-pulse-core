@@ -1,0 +1,153 @@
+{
+  "schema": "protocol_pulse_editorial_gate_real_cases_v1",
+  "provenance": "Derived verbatim from saved Ultron EDLs on 2026-11-06/07; reviews encode PBX's observed editorial judgment for regression testing.",
+  "cases": [
+    {
+      "id": "bad_pinned_proof",
+      "source_path": "runs/pinned_20261107_024229/edl.json",
+      "expected_verdict": "HOLD",
+      "expected_failed_laws": [
+        "LAW_2_VO_HAS_A_JOB",
+        "LAW_4_SEQUENCE_PROGRESSES"
+      ],
+      "edl": {
+        "topic": "dollar hegemony",
+        "hook": {
+          "text": "The Fed is hiking rates to fight inflation, but nobody is talking about the fact that the Fed might be printing money sooner than anybody thinks."
+        },
+        "clips": [
+          {
+            "index": 1,
+            "channel": "The Bitcoin Layer",
+            "text": "One third of marketable treasuries, which is a smaller percentage of the total treasury debt outstanding right now, which is above 40 trillion dollars."
+          },
+          {
+            "index": 2,
+            "channel": "BTC Sessions",
+            "text": "a prison of a currency they can't control, they don't issue and they can't print and so whenever the dollar gets stronger, it makes it more difficult for them to deal with that debt that they have."
+          }
+        ],
+        "vo": {
+          "intro": "This story is unfolding right now.",
+          "bridges": []
+        }
+      },
+      "review": {
+        "reviewed_by": "PBX",
+        "review_type": "human",
+        "clips": [
+          {
+            "index": 1,
+            "adds_type": "number",
+            "adds": "Treasury scale: one third of marketable Treasuries, against total Treasury debt above $40 trillion.",
+            "adds_new_information": true
+          },
+          {
+            "index": 2,
+            "adds_type": "consequence",
+            "adds": "A stronger dollar makes dollar-denominated debt harder for foreign borrowers to service.",
+            "adds_new_information": true
+          }
+        ],
+        "vo_jobs": {},
+        "takeaway": {
+          "text": "U.S. Treasury debt is above $40 trillion, and a stronger dollar increases the burden on borrowers trapped in dollar-denominated debt.",
+          "concrete": true,
+          "supported": true
+        },
+        "sequence": {
+          "hook": "Raises the possibility that the Fed may print sooner than expected.",
+          "development": "Adds Treasury scale with a hard debt number.",
+          "payoff": "Explains the burden a stronger dollar creates for dollar debtors.",
+          "progresses": false
+        }
+      }
+    },
+    {
+      "id": "saved_v2f_progressive_story",
+      "source_path": "runs/v2f_20261106_171328/edl.json",
+      "expected_verdict": "READY_FOR_RENDER",
+      "expected_failed_laws": [],
+      "edl": {
+        "topic": "Dollar Hegemony End and Bond Market Crisis",
+        "hook": {
+          "text": "The Fed is hiking rates to fight inflation, but nobody is talking about the fact that the Fed might be printing money sooner than anybody thinks."
+        },
+        "clips": [
+          {
+            "index": 1,
+            "channel": "Bitcoin Magazine",
+            "text": "The end of the dollar hegemony era and that national debt and global fiat challenges are going to stick around and develop and increase in scale and magnitude."
+          },
+          {
+            "index": 2,
+            "channel": "The Bitcoin Layer",
+            "text": "One third of marketable treasuries, which is a smaller percentage of the total treasury debt outstanding right now, which is above 40 trillion dollars."
+          },
+          {
+            "index": 3,
+            "channel": "BTC Sessions",
+            "text": "a prison of a currency they can't control, they don't issue and they can't print and so whenever the dollar gets stronger, it makes it more difficult for them to deal with that debt that they have."
+          }
+        ],
+        "vo": {
+          "intro": "Dollar dominance ends. Bond markets are breaking.",
+          "bridges": [
+            {
+              "after_clip": 1,
+              "text": "Now hear the numbers that prove it."
+            }
+          ],
+          "signoff": "Big thanks to Bitcoin Magazine, The Bitcoin Layer, and BTC Sessions for the clips. Follow them all. Links below."
+        }
+      },
+      "review": {
+        "reviewed_by": "PBX",
+        "review_type": "human",
+        "clips": [
+          {
+            "index": 1,
+            "adds_type": "interpretation",
+            "adds": "Frames the development as the end of dollar hegemony with debt and fiat stress increasing in scale.",
+            "adds_new_information": true
+          },
+          {
+            "index": 2,
+            "adds_type": "number",
+            "adds": "Quantifies the scale: one third of marketable Treasuries and total Treasury debt above $40 trillion.",
+            "adds_new_information": true
+          },
+          {
+            "index": 3,
+            "adds_type": "consequence",
+            "adds": "Shows the consequence of dollar strength: foreign dollar debt becomes harder to service.",
+            "adds_new_information": true
+          }
+        ],
+        "vo_jobs": {
+          "intro": {
+            "job": "context",
+            "why": "States the editorial frame before the sourced progression begins.",
+            "earned": true
+          },
+          "bridge_1": {
+            "job": "connection",
+            "why": "Moves from the thesis to the hard-number evidence.",
+            "earned": true
+          }
+        },
+        "takeaway": {
+          "text": "Dollar-system stress is not just a thesis: U.S. debt is above $40 trillion, and dollar strength makes that debt system more painful for borrowers who cannot issue dollars.",
+          "concrete": true,
+          "supported": true
+        },
+        "sequence": {
+          "hook": "Raises the contradiction between rate hikes and the possibility of renewed money creation.",
+          "development": "Broadens that tension into a dollar-hegemony and sovereign-debt thesis, then quantifies the scale.",
+          "payoff": "Ends on the real-world consequence: dollar strength worsens the debt burden for borrowers who cannot print dollars.",
+          "progresses": true
+        }
+      }
+    }
+  ]
+}
