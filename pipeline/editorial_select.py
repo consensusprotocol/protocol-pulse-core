@@ -185,6 +185,86 @@ def anchored_window(words, sents, anchor, lo, hi):
     return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
 
 
+def expanded_window(words, sents, anchor, lo, hi, on_event):
+    """PBX 2026-11-06 23:45 (clips): verified adjacent expansion.
+    Start on the verified quote sentence(s). While shorter than `lo`, consider the immediately next,
+    then the immediately previous sentence; include one only if `on_event(text)` (the same event
+    checker, run independently on that sentence) returns True. The FIRST sentence that fails stops
+    expansion entirely. A sentence that would push the window past `hi` closes that direction.
+    Accept only if lo <= duration <= hi, the start is a boundary and it ends on '.' or '!'.
+    Returns (window, None, span) or (None, reason, span); span records every check for audit."""
+    sa = next(i for i, (a, b) in enumerate(sents) if a <= anchor["w0"] <= b)
+    se = next(i for i, (a, b) in enumerate(sents) if a <= anchor["w1"] <= b)
+
+    def stext(i):
+        return " ".join(w["word"].strip() for w in words[sents[i][0]:sents[i][1] + 1])
+
+    def dur(a, b):
+        return words[sents[b][1]]["end"] - words[sents[a][0]]["start"]
+
+    a, b, checks, stop = sa, se, [], None
+    open_dirs = ["next", "prev"]
+    while dur(a, b) < lo and open_dirs and stop is None:
+        progressed = False
+        for d in list(open_dirs):
+            if dur(a, b) >= lo or stop is not None:
+                break
+            i = b + 1 if d == "next" else a - 1
+            if i < 0 or i >= len(sents):
+                open_dirs.remove(d)
+                continue
+            na, nb = (a, i) if d == "next" else (i, b)
+            if dur(na, nb) > hi:
+                open_dirs.remove(d)
+                checks.append({"direction": d, "sentence": stext(i), "on_event": None,
+                               "detail": f"would exceed {hi} s; direction closed"})
+                continue
+            ok, detail = on_event(stext(i))
+            checks.append({"direction": d, "sentence": stext(i), "on_event": bool(ok), "detail": detail})
+            if not ok:
+                stop = f"expansion stopped: {d} sentence not verified on-event ({detail})"
+                break
+            a, b, progressed = na, nb, True
+        if not progressed:
+            break
+    st, en = words[sents[a][0]]["start"], words[sents[b][1]]["end"]
+    d = round(en - st, 2)
+    span = {"start": st, "end": en, "duration": d, "first_sentence": stext(a), "last_sentence": stext(b),
+            "n_sentences": b - a + 1, "quote_sentences": [sa, se], "added_sentences": (sa - a) + (b - se),
+            "expansion": checks}
+    if d > hi:
+        return None, f"quote sentence(s) {d} s > maximum {hi} s", span
+    if d < lo:
+        return None, (f"{d} s < minimum {lo} s after verified expansion"
+                      + (f"; {stop}" if stop else "; no further verified adjacent sentence fits")), span
+    ok, why = start_is_boundary(words, sents, a)
+    if not ok:
+        return None, f"start rejected: {why}", span
+    if not words[sents[b][1]]["word"].rstrip().endswith((".", "!")):
+        return None, "does not end on '.' or '!'", span
+    text = " ".join(w["word"].strip() for w in words[sents[a][0]:sents[b][1] + 1])
+    return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
+
+
+def sentence_on_event(llm, q, text, cache=None):
+    """The same event checker used for evidence (story_semantics.verify_support), run independently
+    on one adjacent sentence. On-event only if SUPPORTS and free of injection markers."""
+    import story_semantics as sm
+    if cache is not None and text in cache:
+        return cache[text]
+    if sm.injection_markers(text):
+        res = (False, "injection markers")
+    else:
+        try:
+            s = sm.verify_support(llm, q, text)
+            res = (s.get("support") == "SUPPORTS", f"{s.get('support')}: {s.get('reason', '')}"[:200])
+        except (sm.LLMParseError, KeyError, TypeError, AttributeError) as e:
+            res = (False, f"checker inconclusive: {type(e).__name__}: {e}")
+    if cache is not None:
+        cache[text] = res
+    return res
+
+
 def _form_score(text):
     from rank import _score_passage
     return _score_passage(text, [])
@@ -541,6 +621,7 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
     q = c["query"]
     qv = E.encode([q.get("underlying_event", c["headline"])], query=True)[0]
     cands, infra, missing, anchors = [], [], [], []
+    on_event_cache = {}
     for v in same:
         if not v["layout_eligible"]:
             continue                      # editorial evidence only; never a clip
@@ -565,7 +646,11 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
         a_rec.update(anchor_start=anc["start"], anchor_end=anc["end"], match_ratio=anc["ratio"], windows={})
         sents = _word_sentences(ws)
         for lo, hi, kind in ((HOOK_MIN_S, HOOK_MAX_S, "hook"), (CLIP_MIN_S, CLIP_MAX_S, "clip")):
-            w, why, span = anchored_window(ws, sents, anc, lo, hi)
+            if kind == "clip":     # verified adjacent expansion (hooks stay quote-only)
+                w, why, span = expanded_window(ws, sents, anc, lo, hi,
+                                               lambda t: sentence_on_event(L, c["query"], t, on_event_cache))
+            else:
+                w, why, span = anchored_window(ws, sents, anc, lo, hi)
             a_rec.setdefault("spans", {})[kind] = {**span, "valid": w is not None, "why": why}
             if w is None:
                 a_rec["windows"][kind] = f"none: {why}"
@@ -584,7 +669,7 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
                           "anchor_quote": v["evidence_quote"],
                           "source_chunk_id": ts.chunk_id(v["video_id"], w["start"], w["end"])})
     base = {"infra_failures": infra, "other_failures": missing, "anchors": anchors,
-            "window_rule": "quote-anchored, whole sentences, boundary start, overlap-deduped (code picks the cut)"}
+            "window_rule": "hooks: quote sentence(s) only; clips: quote sentence(s) + verified adjacent expansion (stop at first non-verified sentence); boundary start; overlap-deduped; code picks the cut"}
     if infra and len({p["channel"] for p in cands}) < MIN_LAYOUT_CHANNELS:
         return {**base, "producible": False, "infra": True, "candidates": cands, "chosen": [],
                 "mean_chosen_score": 0,

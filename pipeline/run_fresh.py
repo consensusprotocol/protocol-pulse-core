@@ -284,6 +284,25 @@ def stage_select(run, keyword):
         raise Hold("select_and_build_edl did not succeed")
 
 
+def stage_review(run):
+    """AUTO only: local model writes EDITORIAL_REVIEW.json for the four-law gate in stage_validate.
+    No external model. Missing/inconclusive review -> the gate HOLDs (this stage never approves)."""
+    import story_semantics as sm
+    from editorial_review import write_review
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        edl = json.load(f)
+    story = ((run.prov.get("editorial") or {}).get("selected") or {}).get("headline")
+    llm = sm.LocalLLM().start()
+    try:
+        review = write_review(llm, edl, run.dir, story)
+    finally:
+        llm.stop()
+    run.prov["editorial_review"] = {k: review.get(k) for k in ("reviewed_by", "review_type", "generated_at",
+                                                               "prompt_sha256", "inconclusive",
+                                                               "inconclusive_reason", "external_model_used")}
+    print(f"  review by {review['reviewed_by']}: inconclusive={review.get('inconclusive')}")
+
+
 def stage_validate(run):
     from edl_rules import validate_edl
     from editorial_gate import run_gate
@@ -803,6 +822,7 @@ def main():
         else:
             keyword = run.stage("editorial", lambda: stage_editorial(run))
             run.stage("select", lambda: stage_select(run, keyword))
+            run.stage("review", lambda: stage_review(run))
         run.stage("validate", lambda: stage_validate(run))
         cuts = run.stage("cut", lambda: stage_cut(run))
         run.stage("voice", lambda: stage_voice(run))
