@@ -5,6 +5,7 @@ import tempfile
 import unittest
 
 from editorial_gate import evaluate_editorial_gate, run_gate
+from select_passages import _generate_vo_script
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FIXTURE = os.path.join(HERE, "fixtures", "editorial_gate_real_cases.json")
@@ -60,6 +61,25 @@ class TestEditorialGateRealMaterial(unittest.TestCase):
         self.assertEqual(gate["verdict"], case["expected_verdict"])
         failed = [name for name, rec in gate["laws"].items() if not rec["pass"]]
         self.assertEqual(failed, case["expected_failed_laws"])
+
+    def test_shared_auto_pin_generator_emits_no_body_vo_by_default(self):
+        case = _cases()["saved_v2f_progressive_story"]
+        edl = json.loads(json.dumps(case["edl"]))
+        edl["vo"] = _generate_vo_script(
+            edl["topic"], edl["hook"]["text"], edl["clips"],
+            [c["channel"] for c in edl["clips"]],
+        )
+        self.assertIsNone(edl["vo"]["intro"])
+        self.assertEqual(edl["vo"]["bridges"], [])
+
+        # Same real progressive material with the shared AUTO/PIN default body-VO
+        # must satisfy Law 2 and retain the human-affirmed Law 4 progression.
+        review = json.loads(json.dumps(case["review"]))
+        review["vo_jobs"] = {}
+        gate = evaluate_editorial_gate(edl, review)
+        self.assertTrue(gate["laws"]["LAW_2_VO_HAS_A_JOB"]["pass"], gate)
+        self.assertTrue(gate["laws"]["LAW_4_SEQUENCE_PROGRESSES"]["pass"], gate)
+        self.assertEqual(gate["verdict"], "READY_FOR_RENDER")
 
     def test_each_post_hook_clip_requires_new_information_judgment(self):
         case = _cases()["saved_v2f_progressive_story"]

@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "bad_pinned_proof",
-      "source_path": "runs/pinned_20261107_024229/edl.json",
+      "source_path": "runs/pinned_20261107_021222/edl.json",
       "expected_verdict": "HOLD",
       "expected_failed_laws": [
         "LAW_2_VO_HAS_A_JOB",
