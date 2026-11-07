@@ -1,7 +1,25 @@
 # QWEN AUTONOMOUS REPAIR CONTEXT BIBLE
 # Protocol Pulse — Ultron Server — Auto-injected into every watchdog repair session
-# Last updated: 2026-03-22
+# Last updated: 2026-11-07
 # DO NOT EDIT MANUALLY — updated by watchdog after every successful repair
+
+# 2026-11-07: ARTICLE PIPELINE OVERHAUL
+# - RealNewsArticleGenerator returning None used to fall through to a topic-only
+#   evergreen path in ContentEngine that produced dated slop with TL;DR titles,
+#   NULL source_url, and hallucinated "As we approach January 2026..." phrasing.
+# - The evergreen fallback is REMOVED. automation.py now tries up to 5 RSS/Reddit
+#   sources before giving up. If nothing qualifies, it logs "no qualifying source
+#   this tick" and creates NO row. An article is never published without a real
+#   news source.
+# - title_guard.py (services/articles/title_guard.py) is the single title
+#   validation path. derive_title() extracts from TITLE:/h1/h2, rejects TL;DR,
+#   backticks, >110 chars, <15 chars. Called from every save path.
+# - HeimdaLLM is the PRIMARY provider. Provider chain everywhere:
+#   HeimdaLLM → Ollama (gemma3:27b) → Gemini → Anthropic → OpenAI.
+# - Date anchoring: every article system prompt includes today's ET date and
+#   "Never state or guess a date not in the source." Content matching
+#   "As (we approach|of) <Month> 20XX" is rejected if not in source text.
+# - 13 bad articles unpublished (ids 3405-3497 range).
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SECTION 1: ARCHITECTURE MAP

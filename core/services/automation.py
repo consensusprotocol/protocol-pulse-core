@@ -90,12 +90,16 @@ def generate_article_with_tracking(force: bool = False) -> dict:
         )
         db.session.add(run)
         db.session.commit()
-        content_engine_error = None
-        fallback_error = None
+        # ── REAL NEWS ONLY — no evergreen/topic-only fallback ────────────
+        # Rule: an article is never published without a real news source.
+        # Try up to 5 RSS/Reddit candidates before giving up.
+        import re as _re
 
-        # ── PATH 1: RealNewsArticleGenerator (RSS + Claude/GPT-4o rewrite) ────
         try:
-            from services.article_automation import RealNewsArticleGenerator, _sanitize_title, _is_banned_template
+            from services.article_automation import (
+                RealNewsArticleGenerator, _sanitize_title, _is_banned_template,
+            )
+            from services.articles.title_guard import derive_title, validate_title
 
             auto_publish_enabled = lambda: True
             try:
@@ -104,138 +108,128 @@ def generate_article_with_tracking(force: bool = False) -> dict:
                 pass
 
             generator = RealNewsArticleGenerator()
-            source = generator.select_best_source()
-            if not source:
-                raise ValueError("No RSS sources available")
-            article_data = generator.generate_article_from_source(source)
-            if not article_data:
-                raise ValueError("generate_article_from_source returned None")
 
-            raw_title = article_data.get("title", "")
-            final_title = _sanitize_title(raw_title)
-            if _is_banned_template(final_title):
-                raise ValueError(f"Banned template: {final_title[:80]}")
-
-            publish_allowed = True
-            try:
-                publish_allowed = auto_publish_enabled()
-            except Exception:
-                pass
-
-            article = models.Article(
-                title=final_title,
-                content=article_data["content"],
-                summary=article_data.get("summary", ""),
-                category=article_data.get("category", "Bitcoin"),
-                source_url=(article_data.get("source_url") or "").strip() or None,
-                source_type=(article_data.get("source_type") or "rss"),
-                author="Protocol Pulse",
-                published=publish_allowed,
-                cover_image_url="",
+            # Date-slop rejection pattern
+            _DATE_SLOP_RE = _re.compile(
+                r"As (?:we approach|of) "
+                r"(?:January|February|March|April|May|June|July|August|September|October|November|December)"
+                r" 20\d{2}"
             )
-            db.session.add(article)
-            db.session.flush()  # get article.id for slug dedup
-            from services.content_engine import _ensure_slug
-            _ensure_slug(article)
-            if not article.cover_image_url:
+
+            MAX_SOURCE_ATTEMPTS = 5
+            last_err = None
+            for attempt_idx in range(MAX_SOURCE_ATTEMPTS):
                 try:
-                    from services.pexels_image import get_pexels_image as _gpx
-                    _img, _phash = _gpx(article.title or '', article.category or 'bitcoin', article_id=article.id)
-                    if _img and 'default-header' not in _img:
-                        article.cover_image_url = _img
-                        if _phash and hasattr(article, 'image_phash'):
-                            article.image_phash = _phash
-                except Exception:
-                    pass
-            db.session.commit()
+                    source = generator.select_best_source()
+                    if not source:
+                        last_err = "No RSS sources available"
+                        break  # no point retrying — feed queue is empty
 
-            run.finished_at = datetime.utcnow()
-            run.status = "completed"
-            run.error = None
-            db.session.commit()
-            logger.info(f"[RSS] Published id={article.id}: {final_title[:70]}")
-            return {"success": True, "title": final_title, "article_id": article.id}
+                    article_data = generator.generate_article_from_source(source)
+                    if not article_data:
+                        last_err = f"generate_article_from_source returned None (source: {source.get('title','')[:60]})"
+                        logger.warning("Attempt %d/%d: %s", attempt_idx + 1, MAX_SOURCE_ATTEMPTS, last_err)
+                        continue
 
-        except Exception as e:
-            content_engine_error = str(e)
-            logger.warning("RealNewsArticleGenerator failed: %s", e)
+                    # ── Title guard ──
+                    raw_title = article_data.get("title", "")
+                    final_title = _sanitize_title(raw_title)
+                    if _is_banned_template(final_title):
+                        last_err = f"Banned template: {final_title[:80]}"
+                        logger.warning("Attempt %d/%d: %s", attempt_idx + 1, MAX_SOURCE_ATTEMPTS, last_err)
+                        continue
 
-        # ── PATH 2: Fallback to ContentEngine (OpenAI gpt-4o generic) ─────────
-        topic = "Bitcoin network and market update"
-        try:
-            from services.content_engine import ContentEngine
-            engine = ContentEngine()
-            result = engine.generate_and_publish_article(
-                topic, content_type="bitcoin_news", auto_publish=False
-            )
-            if result.get("success") and result.get("article_id"):
-                article = models.Article.query.get(result["article_id"])
-                if article:
-                    article.published = True
+                    # Apply title_guard as extra gate
+                    guarded = derive_title(raw_title, article_data.get("content", ""))
+                    if guarded:
+                        final_title = guarded
+                    if not validate_title(final_title):
+                        last_err = f"Title guard rejected: {final_title[:80]}"
+                        logger.warning("Attempt %d/%d: %s", attempt_idx + 1, MAX_SOURCE_ATTEMPTS, last_err)
+                        continue
+
+                    # ── Date anchoring: reject stale-date slop ──
+                    content_text = article_data.get("content", "")
+                    source_text = source.get("summary", "")
+                    if _DATE_SLOP_RE.search(content_text):
+                        # Only reject if the phrase is NOT in the source material
+                        if not _DATE_SLOP_RE.search(source_text):
+                            last_err = "Date slop detected (stale month reference not in source)"
+                            logger.warning("Attempt %d/%d: %s", attempt_idx + 1, MAX_SOURCE_ATTEMPTS, last_err)
+                            continue
+
+                    # ── Source URL is mandatory ──
+                    source_url = (article_data.get("source_url") or source.get("url") or "").strip()
+                    if not source_url:
+                        last_err = "No source_url — cannot publish without real news source"
+                        logger.warning("Attempt %d/%d: %s", attempt_idx + 1, MAX_SOURCE_ATTEMPTS, last_err)
+                        continue
+
+                    publish_allowed = True
+                    try:
+                        publish_allowed = auto_publish_enabled()
+                    except Exception:
+                        pass
+
+                    article = models.Article(
+                        title=final_title,
+                        content=content_text,
+                        summary=article_data.get("summary", ""),
+                        category=article_data.get("category", "Bitcoin"),
+                        source_url=source_url,
+                        source_type=(article_data.get("source_type") or "rss"),
+                        author="Protocol Pulse",
+                        published=publish_allowed,
+                        cover_image_url="",
+                    )
+                    db.session.add(article)
+                    db.session.flush()
+                    from services.content_engine import _ensure_slug
+                    _ensure_slug(article)
+                    if not article.cover_image_url:
+                        try:
+                            from services.pexels_image import get_pexels_image as _gpx
+                            _img, _phash = _gpx(article.title or '', article.category or 'bitcoin', article_id=article.id)
+                            if _img and 'default-header' not in _img:
+                                article.cover_image_url = _img
+                                if _phash and hasattr(article, 'image_phash'):
+                                    article.image_phash = _phash
+                        except Exception:
+                            pass
                     db.session.commit()
-                run.finished_at = datetime.utcnow()
-                run.status = "completed"
-                run.error = None
-                db.session.commit()
-                return {
-                    "success": True,
-                    "title": article.title if article else topic,
-                    "article_id": result["article_id"],
-                }
-            fallback_error = "; ".join(result.get("errors") or ["No article_id returned"])
-        except Exception as e:
-            fallback_error = str(e)
-            logger.warning("ContentEngine fallback failed: %s", e)
 
-        # 3) All paths failed — if no published articles yet, create one stub so the site has something
-        err_parts = []
-        if content_engine_error:
-            err_parts.append("RSS: " + (content_engine_error[:200] if isinstance(content_engine_error, str) else str(content_engine_error)[:200]))
-        if fallback_error:
-            err_parts.append("ContentEngine: " + (fallback_error[:200] if isinstance(fallback_error, str) else str(fallback_error)[:200]))
-        full_error = " | ".join(err_parts) if err_parts else "No article generated"
-        published_count = models.Article.query.filter_by(published=True).count()
-        if published_count == 0:
-            try:
-                stub = models.Article(
-                    title="Protocol Pulse Intel — Enable Auto-Drafting",
-                    content="""<div class="tldr-section"><em><strong>TL;DR:</strong> This is a placeholder. Article drafting needs at least one AI API key (OPENAI_API_KEY, GEMINI_API_KEY, or ANTHROPIC_API_KEY in .env). Reddit-sourced drafts also need REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT.</em></div>
-<h2 class="article-header">Getting started</h2>
-<p class="article-paragraph">Once your keys are set, use Admin → Dashboard → "Draft articles now" or run: <code>python -m core.scripts.draft_articles_now</code></p>
-<h2 class="article-header">Sources</h2>
-<ul class="sources-list"><li>Protocol Pulse ops</li></ul>""",
-                    summary="Placeholder until drafting is configured.",
-                    category="Bitcoin",
-                    source_type="ai_generated",
-                    author="Protocol Pulse",
-                    published=True,
-                )
-                db.session.add(stub)
-                db.session.commit()
-                run.finished_at = datetime.utcnow()
-                run.status = "completed"
-                run.error = full_error[:500]
-                db.session.commit()
-                return {
-                    "success": True,
-                    "title": stub.title,
-                    "article_id": stub.id,
-                    "stub": True,
-                    "error": full_error,
-                }
-            except Exception as e:
-                logger.exception("Stub article creation failed: %s", e)
-                run.finished_at = datetime.utcnow()
-                run.status = "failed"
-                run.error = full_error[:500]
-                db.session.commit()
-                return {"success": False, "error": run.error}
-        # Already have articles; just report failure
-        run.finished_at = datetime.utcnow()
-        run.status = "failed"
-        run.error = full_error[:500]
-        db.session.commit()
-        return {"success": False, "error": run.error}
+                    run.finished_at = datetime.utcnow()
+                    run.status = "completed"
+                    run.error = None
+                    db.session.commit()
+                    logger.info("[RSS] Published id=%d: %s", article.id, final_title[:70])
+                    return {"success": True, "title": final_title, "article_id": article.id}
+
+                except Exception as inner_e:
+                    last_err = str(inner_e)
+                    logger.warning("Attempt %d/%d failed: %s", attempt_idx + 1, MAX_SOURCE_ATTEMPTS, last_err)
+                    try:
+                        db.session.rollback()
+                    except Exception:
+                        pass
+
+            # All attempts exhausted — no qualifying source this tick
+            full_error = f"no qualifying source this tick ({last_err})"
+            logger.info(full_error)
+            run.finished_at = datetime.utcnow()
+            run.status = "failed"
+            run.error = full_error[:500]
+            db.session.commit()
+            return {"success": False, "error": full_error}
+
+        except Exception as e:
+            full_error = f"RealNewsArticleGenerator init failed: {e}"
+            logger.warning(full_error)
+            run.finished_at = datetime.utcnow()
+            run.status = "failed"
+            run.error = full_error[:500]
+            db.session.commit()
+            return {"success": False, "error": full_error}
 
 
 def generate_from_trending_reddit() -> dict:
