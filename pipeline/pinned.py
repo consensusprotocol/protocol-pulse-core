@@ -33,6 +33,9 @@ Pin JSON schema (protocol_pulse.pinned_story.v1):
      "video_id": "11-char YouTube id",
      "channel": "display_name in pipeline/channels.json",
      "start": seconds, "end": seconds,
+     "approved_text": "optional: the exact approved words of this range; if given it must match the
+                       transcript (>= 0.8 token similarity) and sets the expected first/last words
+                       that the shared edge-word check verifies",
      "time_coords": "youtube"      # seconds in the full YouTube video (source fetched as a window)
                   | "source_file", # seconds in the local source file given in "source"
      "source": {"kind": "youtube"}
@@ -58,6 +61,7 @@ SCHEMA = "protocol_pulse.pinned_story.v1"
 ROLES = ("hook", "clip")
 COORDS = ("youtube", "source_file")
 MIN_WORDS_IN_RANGE = 3
+APPROVED_TEXT_MIN_RATIO = 0.8              # approved_text vs transcript words touching the range
 FADE_IN_MS, FADE_OUT_MS = 20, 30           # the factory's M19 fades (cut.py / run_isolated)
 _VID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 
@@ -217,14 +221,31 @@ def validate_range(seg, acq):
         raise PinError(f"{tag}: range outside the source file (file covers 0-{dur:.3f} s, "
                        f"window offset {acq['offset']} s)")
     words = acq["transcript"].get("words") or []
-    inside = [w for w in words if start <= (w["start"] + w["end"]) / 2 <= end]
+    # words lying entirely inside the range (a word in the boundary tail never counts)
+    inside = [w for w in words if w["start"] >= start and w["end"] <= end]
+    touching = [w for w in words if w["end"] > start and w["start"] < end]
     if len(inside) < MIN_WORDS_IN_RANGE:
         raise PinError(f"{tag}: transcript has {len(inside)} word(s) inside the range (need >= {MIN_WORDS_IN_RANGE})")
     straddle = [w for w in words if (w["start"] < start < w["end"]) or (w["start"] < end < w["end"])]
-    return {"start_file": round(start, 3), "end_file": round(end, 3), "source_duration": round(dur, 3),
-            "words": inside, "text": " ".join(w["word"].strip() for w in inside),
-            "first_word": inside[0]["word"].strip(), "last_word": inside[-1]["word"].strip(),
-            "transcript_word_straddles_boundary": [w["word"].strip() for w in straddle]}
+    out = {"start_file": round(start, 3), "end_file": round(end, 3), "source_duration": round(dur, 3),
+           "words": inside, "text": " ".join(w["word"].strip() for w in inside),
+           "first_word": inside[0]["word"].strip(), "last_word": inside[-1]["word"].strip(),
+           "transcript_word_straddles_boundary": [w["word"].strip() for w in straddle],
+           "edge_words_from": "transcript words entirely inside the range"}
+    approved = str(seg.get("approved_text") or "").strip()
+    if approved:
+        # the human-approved words for this exact range: must correspond to the source transcript
+        from difflib import SequenceMatcher
+        norm = lambda t: [x for x in re.split(r"[^a-z0-9]+", t.lower()) if x]
+        a, t = norm(approved), norm(" ".join(w["word"] for w in touching))
+        ratio = SequenceMatcher(None, a, t, autojunk=False).ratio()
+        if ratio < APPROVED_TEXT_MIN_RATIO:
+            raise PinError(f"{tag}: approved_text does not correspond to the transcript in this range "
+                           f"(token similarity {ratio:.2f} < {APPROVED_TEXT_MIN_RATIO})")
+        toks = approved.split()
+        out.update(text=approved, first_word=toks[0], last_word=toks[-1], approved_text_similarity=round(ratio, 3),
+                   edge_words_from="approved_text (verified against the transcript)")
+    return out
 
 
 # ── 4. canonical EDL (same shape as select_passages.select_and_build_edl) ──
@@ -266,6 +287,8 @@ def build_edl(pin, acq, registry=None, log=print):
                        "source_duration": v["source_duration"], "words_in_range": len(v["words"]),
                        "first_word": v["first_word"], "last_word": v["last_word"],
                        "transcript_word_straddles_boundary": v["transcript_word_straddles_boundary"],
+                       "edge_words_from": v["edge_words_from"],
+                       "approved_text_similarity": v.get("approved_text_similarity"),
                        "provenance": a["provenance"]})
     hook, clips = segs[0], segs[1:]
     for i, c in enumerate(clips, 1):

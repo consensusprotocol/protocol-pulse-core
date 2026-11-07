@@ -132,9 +132,25 @@ class TestNeverModified(Fixture):
         self.assertTrue(all(c["pinned"] and c["fade_in_ms"] == 20 and c["fade_out_ms"] == 30 for c in cuts))
         # the text is only what the transcript says inside the range — no neighbouring sentence
         tr = json.load(open(self.src["BBBBBBBBBB2"]["transcript_path"]))["words"]
-        inside = [w["word"] for w in tr if 3.17 <= (w["start"] + w["end"]) / 2 <= 17.49]
+        inside = [w["word"] for w in tr if w["start"] >= 3.17 and w["end"] <= 17.49]
         self.assertEqual(edl["clips"][0]["text"], " ".join(inside))
+        # a word in the boundary tail (11.5-11.9 against end 11.71) is never an expected edge word
+        self.assertEqual(edl["hook"]["last_word"], "word20")
         self.assertEqual(rec["pin"], p)
+
+    def test_approved_text_sets_edge_words_and_must_match_transcript(self):
+        p = self.pin()
+        tr = json.load(open(self.src["BBBBBBBBBB2"]["transcript_path"]))["words"]
+        words = [w["word"] for w in tr if w["end"] > 3.17 and w["start"] < 17.49]
+        p["segments"][1]["approved_text"] = " ".join(words)
+        pinned.prepare(self.write(p), self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual((edl["clips"][0]["first_word"], edl["clips"][0]["last_word"]), (words[0], words[-1]))
+        self.assertEqual(edl["clips"][0]["pinned"]["start"], 3.17)             # range itself unchanged
+        p["segments"][1]["approved_text"] = "the federal reserve raised rates again in a surprise move today"
+        with self.assertRaises(pinned.PinError) as cm:
+            pinned.prepare(self.write(p), self.run_dir, log=lambda s: None)
+        self.assertIn("does not correspond", str(cm.exception))
 
     def test_out_of_source_range_rejected(self):
         p = self.pin()
@@ -254,6 +270,9 @@ class TestV2fProofPins(unittest.TestCase):
         pinned.prepare(path, self.tmp, log=lambda s: None)
         cuts = pinned.write_pinned_cut_table(self.tmp)
         self.assertEqual([(c["cut_in"], c["cut_out"]) for c in cuts], [(0.0, 9.52), (624.63, 636.72), (998.0, 1011.8)])
+        # expected edge words are the approved v2f words, not the next word in the silent tail
+        self.assertEqual([(c["first_word_expected"], c["last_word_expected"]) for c in cuts],
+                         [("The", "thinks."), ("One", "dollars."), ("a", "have.")])
         for c in cuts:
             ok, d = check_cut_acoustics(os.path.join(self.tmp, "sources", f"{c['video_id']}.mp4"), c["cut_in"], c["cut_out"])
             self.assertTrue(ok, (c["clip_id"], d))
