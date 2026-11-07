@@ -650,11 +650,10 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
         a_rec.update(anchor_start=anc["start"], anchor_end=anc["end"], match_ratio=anc["ratio"], windows={})
         sents = _word_sentences(ws)
         for lo, hi, kind in ((HOOK_MIN_S, HOOK_MAX_S, "hook"), (CLIP_MIN_S, CLIP_MAX_S, "clip")):
-            if kind == "clip":     # verified adjacent expansion (hooks stay quote-only)
-                w, why, span = expanded_window(ws, sents, anc, lo, hi,
-                                               lambda t: sentence_on_event(L, c["query"], t, on_event_cache))
-            else:
-                w, why, span = anchored_window(ws, sents, anc, lo, hi)
+            # verified adjacent expansion for hooks (8-12 s) and clips (13-25 s) alike
+            # (PBX 2026-11-07 03:01: hooks use the same rule and checker as clips)
+            w, why, span = expanded_window(ws, sents, anc, lo, hi,
+                                           lambda t: sentence_on_event(L, c["query"], t, on_event_cache))
             a_rec.setdefault("spans", {})[kind] = {**span, "valid": w is not None, "why": why}
             if w is None:
                 a_rec["windows"][kind] = f"none: {why}"
@@ -673,7 +672,7 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
                           "anchor_quote": v["evidence_quote"],
                           "source_chunk_id": ts.chunk_id(v["video_id"], w["start"], w["end"])})
     base = {"infra_failures": infra, "other_failures": missing, "anchors": anchors,
-            "window_rule": "hooks: quote sentence(s) only; clips: quote sentence(s) + verified adjacent expansion, next then previous, a failed sentence closes its direction; boundary start; overlap-deduped; code picks the cut"}
+            "window_rule": "hooks and clips: quote sentence(s) + verified adjacent expansion, next then previous, a failed sentence closes its direction; boundary start; overlap-deduped; code picks the cut"}
     if infra and len({p["channel"] for p in cands}) < MIN_LAYOUT_CHANNELS:
         return {**base, "producible": False, "infra": True, "candidates": cands, "chosen": [],
                 "mean_chosen_score": 0,

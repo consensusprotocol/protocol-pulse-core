@@ -120,6 +120,49 @@ class TestVerifiedAdjacentExpansion(unittest.TestCase):
         self.assertIn("start rejected", why)
 
 
+class TestHooksUseVerifiedExpansion(unittest.TestCase):
+    @unittest.skipUnless(os.path.exists(FIX), "run-3 fixture required")
+    def test_hooks_and_clips_both_use_verified_adjacent_expansion(self):
+        import re
+        import test_editorial_robust as ter
+        F = json.load(open(FIX))
+        reg = {c["channel_id"]: c for c in ter.REG.values() if c.get("channel_id")}
+        same = [v for v in F["binance_verdicts"] if v["counted_as_same_event"] and v["layout_eligible"]]
+        words = {vid: (w, "cached") for vid, w in F["words"].items()}
+
+        class Rater:
+            model = "fake"
+
+            def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
+                return {"ratings": [{"id": i, "score": 3, "reason": "x"}
+                                    for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]}
+        seen = []
+        orig_e, orig_a = es.expanded_window, es.anchored_window
+
+        def rec(ws, sents, anc, lo, hi, on_event):
+            seen.append(lo)
+            return orig_e(ws, sents, anc, lo, hi, lambda t: (False, "test: not on-event"))
+        es.expanded_window = rec
+        es.anchored_window = lambda *a, **k: (_ for _ in ()).throw(AssertionError("quote-only path used"))
+        try:
+            es._clip_quality({"query": F["binance"]["query"], "headline": F["binance"]["headline"]}, same,
+                             ter.FakeEmbedder(), Rater(), reg, words, log=lambda s: None)
+        finally:
+            es.expanded_window, es.anchored_window = orig_e, orig_a
+        self.assertIn(es.HOOK_MIN_S, seen)
+        self.assertIn(es.CLIP_MIN_S, seen)
+
+    def test_short_hook_quote_becomes_legal_with_a_verified_adjacent_sentence(self):
+        ws, sents, a = setup_case()
+        old, why, _ = es.anchored_window(ws, sents, a, es.HOOK_MIN_S, es.HOOK_MAX_S)
+        self.assertIsNone(old)
+        self.assertIn("minimum", why)
+        w, why, span = es.expanded_window(ws, sents, a, es.HOOK_MIN_S, es.HOOK_MAX_S, lambda t: (True, "SUPPORTS"))
+        self.assertIsNotNone(w, why)
+        self.assertTrue(es.HOOK_MIN_S <= w["duration"] <= es.HOOK_MAX_S, w["duration"])
+        self.assertIn("lost six billion dollars", w["text"])
+
+
 class FakeReviewer:
     model = "gemma3:27b"
 
