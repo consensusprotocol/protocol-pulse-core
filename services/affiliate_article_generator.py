@@ -379,9 +379,21 @@ Output clean HTML with these sections:
             )
 
             ai = self._get_ai_service()
-            content = ai.generate_content_anthropic(prompt)
+            content = None
+            try:
+                content = ai.generate_content_heimdall(prompt)
+            except Exception:
+                pass
             if not content or len(content) < 500:
-                content = ai.generate_content_openai(prompt)
+                try:
+                    content = ai.generate_content_anthropic(prompt)
+                except Exception:
+                    pass
+            if not content or len(content) < 500:
+                try:
+                    content = ai.generate_content_openai(prompt)
+                except Exception:
+                    pass
             if not content or len(content) < 500:
                 logger.error("AI generation failed for affiliate article")
                 return None

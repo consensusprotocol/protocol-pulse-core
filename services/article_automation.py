@@ -223,7 +223,7 @@ Original: {title}"""
     try:
         from services.ai_service import AIService
         ai = AIService()
-        for gen in (ai.generate_content_ollama, ai.generate_content_openai):
+        for gen in (ai.generate_content_heimdall, ai.generate_content_ollama, ai.generate_content_openai):
             try:
                 new_title = gen(rewrite_prompt)
                 if new_title:
@@ -462,7 +462,19 @@ HEADLINE CONSTRAINT (MANDATORY): {diversity['bitcoin_starts']}/{diversity['total
             except Exception as ft_err:
                 logger.error("Freedom tech prompt failed: %s", ft_err)
 
+        from datetime import datetime as _dt
+        _now_et = _dt.now()
+        try:
+            from zoneinfo import ZoneInfo
+            _now_et = _dt.now(ZoneInfo("America/New_York"))
+        except Exception:
+            pass
+        _today_str = _now_et.strftime("%A, %B %d, %Y")
+
         prompt = f"""You are the senior editor at Protocol Pulse, a Bitcoin-native intelligence outlet. Your voice: Matt Taibbi's edge, Lyn Alden's precision, Michael Lewis's storytelling instinct. You write articles people screenshot and send to friends.
+
+Today is {_today_str}. Write in present tense about events in the provided source. Never state or guess a date that is not in the source.
+
 {headline_constraint}
 
 SOURCE MATERIAL (verified, factual — invent nothing beyond this):
@@ -624,10 +636,11 @@ Target: 450-650 words. No shorter than 400. Every sentence earns its place or ge
 Clean HTML only. No markdown. No backticks. No code fences.
 """
 
-        # Provider chain: Ollama (free) -> Gemini -> Anthropic -> OpenAI
+        # Provider chain: HeimdaLLM -> Ollama (free) -> Gemini -> Anthropic -> OpenAI
         from services.ai_service import AIService
         ai = AIService()
         providers = [
+            ("HeimdaLLM", lambda: ai.generate_content_heimdall(prompt)),
             ("Ollama", lambda: ai.generate_content_ollama(prompt)),
             ("Gemini", lambda: ai.generate_content_gemini_prompt(prompt)),
             ("Anthropic", lambda: ai.generate_content_anthropic(prompt)),

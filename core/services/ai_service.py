@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import time
 import requests
 try:
     from openai import OpenAI
@@ -13,6 +14,17 @@ except ImportError:
 from .grok_service import grok_service
 from .gemini_service import gemini_service
 
+# HeimdaLLM defaults
+_HEIMDALL_BASE_URL = os.environ.get(
+    "HEIMDALL_BASE_URL", "https://api-staging.heimdallm.com/api/v1"
+)
+_HEIMDALL_API_KEY = os.environ.get("HEIMDALL_API_KEY", "")
+_HEIMDALL_DEFAULT_MODEL = os.environ.get(
+    "HEIMDALL_MODEL", "deepseek/deepseek-v4.1-flash"
+)
+_HEIMDALL_FALLBACK_MODEL = "qwen/qwen3.8-27b"
+
+
 class AIService:
     def __init__(self):
         # Initialize OpenAI client (optional if openai package missing or old)
@@ -24,7 +36,7 @@ class AIService:
                 self.openai_client = None
         else:
             self.openai_client = None
-        
+
         # Initialize Anthropic client (optional if anthropic package missing)
         anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
         if anthropic_key and Anthropic is not None:
@@ -34,21 +46,92 @@ class AIService:
                 self.anthropic_client = None
         else:
             self.anthropic_client = None
-        
+
+        # Initialize HeimdaLLM client (OpenAI-compatible)
+        if _HEIMDALL_API_KEY and OpenAI is not None:
+            try:
+                self.heimdall_client = OpenAI(
+                    base_url=_HEIMDALL_BASE_URL,
+                    api_key=_HEIMDALL_API_KEY,
+                    timeout=120.0,
+                    max_retries=0,
+                )
+            except Exception:
+                self.heimdall_client = None
+        else:
+            self.heimdall_client = None
+
         self.default_openai_model = "gpt-4o"
         self.default_anthropic_model = "claude-sonnet-4-6"
-        
+
         # AI service integrations - check availability
         try:
             self.grok_available = grok_service.test_connection()
         except:
             self.grok_available = False
-        
+
         try:
             self.gemini_available = gemini_service.test_connection()
         except:
             self.gemini_available = False
     
+    def generate_content_heimdall(self, prompt, system_prompt=None, model=None,
+                                   max_tokens=3000, temperature=0.7, timeout=120):
+        """Generate content via HeimdaLLM (OpenAI-compatible).
+
+        Model order: primary (env HEIMDALL_MODEL, default deepseek/deepseek-v4.1-flash),
+        on any error retry once with qwen/qwen3.8-27b. Never uses minimax.
+        Logs one line per call: model, latency, usage.cost.
+        Returns text or None.
+        """
+        if not self.heimdall_client:
+            raise ValueError("HeimdaLLM API key required")
+
+        chosen_model = model or _HEIMDALL_DEFAULT_MODEL
+        models_to_try = [chosen_model]
+        if chosen_model != _HEIMDALL_FALLBACK_MODEL:
+            models_to_try.append(_HEIMDALL_FALLBACK_MODEL)
+
+        last_err = None
+        for mdl in models_to_try:
+            try:
+                messages = []
+                if system_prompt:
+                    messages.append({"role": "system", "content": system_prompt})
+                messages.append({"role": "user", "content": prompt})
+
+                t0 = time.time()
+                response = self.heimdall_client.chat.completions.create(
+                    model=mdl,
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                )
+                latency = time.time() - t0
+
+                text = response.choices[0].message.content if response.choices else ""
+                # Extract cost from response metadata if available
+                cost = None
+                if hasattr(response, 'usage') and response.usage:
+                    cost = getattr(response.usage, 'cost', None)
+
+                logging.info(
+                    "HeimdaLLM call: model=%s latency=%.2fs cost=%s",
+                    mdl, latency, cost,
+                )
+
+                if not text:
+                    raise ValueError("Empty response from HeimdaLLM")
+                return text
+
+            except Exception as e:
+                last_err = e
+                logging.warning("HeimdaLLM model %s failed: %s", mdl, e)
+                continue
+
+        # Both models failed
+        raise last_err or ValueError("HeimdaLLM generation failed")
+
     def generate_content_openai(self, prompt, system_prompt=None):
         """Generate content using OpenAI GPT-4o"""
         if not self.openai_client:

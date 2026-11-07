@@ -192,12 +192,12 @@ def is_topic_duplicate_via_gemini(proposed_topic):
             recent_articles = Article.query.filter_by(published=True).order_by(
                 Article.created_at.desc()
             ).limit(10).all()
-            
+
             if not recent_articles:
                 return False  # No articles to compare, proceed
-            
+
             headlines_list = "\n".join([f"- {a.title}" for a in recent_articles])
-            
+
             prompt = f"""You are a senior news editor preventing duplicate coverage.
 
 PROPOSED NEW TOPIC: "{proposed_topic}"
@@ -232,7 +232,7 @@ class ContentGenerator:
         self.ai_service = AIService()
         self.reddit_service = RedditService()
         self.gemini_service = gemini_service
-        
+
         # EDITORIAL ACCURACY MANDATE - Applied to all content types
         self.accuracy_mandate = """
 === EDITORIAL ACCURACY MANDATE - ZERO TOLERANCE FOR FABRICATION ===
@@ -301,7 +301,7 @@ Examples:
 - "Bitcoin Mining Hashrate Redistributes Following China Exodus"
 - "BlackRock ETF Accumulates 250,000 Bitcoin in Six Months"
 
-SELECTION RULE: 
+SELECTION RULE:
 Generate a random number 1-10 mentally. If odd, use STYLE A (Question). If even, use STYLE B (Statement).
 
 BOTH STYLES MUST:
@@ -326,32 +326,32 @@ YOU ARE FORBIDDEN FROM RETURNING AN ARTICLE UNLESS IT CONTAINS ALL SIX SECTIONS:
 1. <div class="tldr-section">: A punchy, 3-sentence summary of why today's specific metrics matter for sovereignty.
    - Use the ground truth data as FOUNDATION, then BUILD A NARRATIVE around it
    - Do NOT just repeat the numbers - explain their SIGNIFICANCE
-   
+
 2. <h2 class="article-header">The Report</h2>: Factual account (350+ words)
    - Network status with verified metrics
    - Recent global events affecting Bitcoin
    - Mining economics and fee market conditions
-   
+
 3. <h2 class="article-header">Exclusive Data Analysis</h2>: Deep on-chain intelligence (300+ words)
    - UNIQUE on-chain metrics not found in mainstream coverage (UTXO age bands, realized cap, SOPR, MVRV)
    - Historical comparison: how do current metrics compare to previous cycles?
    - Pattern recognition: what do the data patterns suggest about market structure?
    - Include specific numbers and percentages that provide EXCLUSIVE value
-   
+
 4. <h2 class="article-header">The Bitcoin Lens</h2>: Philosophical analysis + Expert Perspectives (400+ words)
    - Deep analysis on network resilience vs fiat debasement
    - Connect current metrics to long-term monetary sovereignty
    - Include perspectives from Bitcoin thought leaders (Saifedean Ammous, Michael Saylor, Lyn Alden, etc.)
    - Quote or reference specific expert viewpoints that reinforce the narrative
    - Second-order thinking: what do these numbers MEAN for the future?
-   
+
 5. <h2 class="article-header">Transactor Intelligence</h2>: Actionable advice (250+ words)
    - Specific guidance for miners based on current difficulty/fees
    - Recommendations for high-value users regarding fee optimization
    - Timing considerations for transactions based on mempool conditions
    - CONCRETE ACTIONS readers can take today (not vague suggestions)
    - Risk/reward analysis for specific strategies
-   
+
 6. <h2 class="article-header">Sources</h2>: Formatted list of data sources
    - Include at least 5 credible sources (mempool.space, Glassnode, Bitcoin Magazine, etc.)
 
@@ -386,7 +386,7 @@ MINIMUM LENGTH REQUIREMENT:
 - The TL;DR is NOT the article - it's a summary. BUILD THE FULL NARRATIVE.
 
 NARRATIVE BRIDGE:
-Use the ground truth metrics as the FOUNDATION, but you MUST build a 1,500-word deep-dive 
+Use the ground truth metrics as the FOUNDATION, but you MUST build a 1,500-word deep-dive
 around them. The numbers are the starting point, not the entire article.
 """
 
@@ -394,9 +394,9 @@ around them. The numbers are the starting point, not the entire article.
         self.default_prompts = {
             'news_article': """
             Write an EXCEPTIONALLY HIGH-VALUE intelligence briefing about {topic} for TRANSACTORS (active Bitcoin users who self-custody). Your goal is to create content SO valuable that readers cannot find equivalent analysis anywhere else.
-            
+
             HEADLINE STYLE: {headline_style}
-            
+
             MANDATORY SECTIONS (in order):
             1. TL;DR - 3 punchy sentences on why this matters for sovereignty
             2. The Report - Factual news with verified metrics (350+ words)
@@ -409,30 +409,30 @@ around them. The numbers are the starting point, not the entire article.
             - Each source must be a FULL https:// URL (not just a publication name)
             - Prefer mainstream/major outlets; do not invent sources
             - Use only high-quality outlets (CoinDesk, Reuters, FT, Bloomberg, WSJ, etc.)
-            
+
             HIGH-VALUE REQUIREMENTS:
             - Include ON-CHAIN METRICS not covered by mainstream (UTXO age, realized cap, SOPR, MVRV)
             - Reference expert perspectives (Saifedean Ammous, Michael Saylor, Lyn Alden, Parker Lewis)
             - Provide SPECIFIC NUMBERS and percentages, not vague claims
             - Every section must answer: "What can the reader DO with this information?"
             - Connect to historical precedents with specific dates
-            
+
             """ + """CRITICAL FORMATTING REQUIREMENTS - OUTPUT MUST BE CLEAN HTML:
             - Start with TL;DR using: <div class="tldr-section"><em><strong>TL;DR: [summary here]</strong></em></div>
             - Use <h2 class="article-header"> for main section headers
-            - Use <h3 class="article-subheader"> for sub-section headers  
+            - Use <h3 class="article-subheader"> for sub-section headers
             - Use <p class="article-paragraph"> for all paragraphs
             - End with Sources section: <h2 class="article-header">Sources</h2> followed by <ul class="sources-list"><li>https://example.com/article</li><li>https://example.com/article2</li></ul>
             - NO MARKDOWN SYNTAX - ONLY CLEAN HTML
-            
+
             Target length: 1200-1800 words
             """,
-            
+
             'analysis_piece': """
             Write a PREMIUM-TIER expert analysis about {topic} that delivers insights worth $1000+ from paid research services. Target audience: sophisticated Bitcoin holders who want EXCLUSIVE intelligence.
-            
+
             HEADLINE STYLE: {headline_style}
-            
+
             MANDATORY SECTIONS (in order):
             1. TL;DR - Executive summary for busy transactors
             2. The Report - Comprehensive factual foundation (400+ words)
@@ -444,29 +444,29 @@ around them. The numbers are the starting point, not the entire article.
             SOURCES REQUIREMENTS (CRITICAL):
             - Each source must be a FULL https:// URL (not just a publication name)
             - Include at least 1 on-chain data provider URL (Glassnode, CryptoQuant, etc.) if mentioned
-            
+
             EXCLUSIVE VALUE REQUIREMENTS:
             - Reference specific on-chain data (Glassnode, CryptoQuant metrics)
             - Include contrarian perspectives and counter-arguments
             - Connect macro trends to Bitcoin thesis
             - Provide the "expert friend" perspective readers don't have access to
-            
+
             """ + """CRITICAL FORMATTING REQUIREMENTS - OUTPUT MUST BE CLEAN HTML:
             - Start with TL;DR using: <div class="tldr-section"><em><strong>TL;DR: [summary here]</strong></em></div>
             - Use <h2 class="article-header"> for main section headers
-            - Use <h3 class="article-subheader"> for sub-section headers  
+            - Use <h3 class="article-subheader"> for sub-section headers
             - Use <p class="article-paragraph"> for all paragraphs
             - End with Sources section: <h2 class="article-header">Sources</h2> followed by <ul class="sources-list"><li>https://example.com/article</li><li>https://example.com/article2</li></ul>
             - NO MARKDOWN SYNTAX - ONLY CLEAN HTML
-            
+
             Target length: 1500-2500 words
             """,
-            
+
             'breaking_news': """
             Write an URGENT high-value intelligence briefing about {topic}. Breaking news that transactors need NOW, but still with exclusive analysis they cannot find elsewhere.
-            
+
             HEADLINE STYLE: {headline_style}
-            
+
             MANDATORY SECTIONS:
             1. TL;DR - Urgent summary with immediate action items
             2. The Report - What happened, verified facts only (300+ words)
@@ -478,46 +478,46 @@ around them. The numbers are the starting point, not the entire article.
             SOURCES REQUIREMENTS (CRITICAL):
             - Each source must be a FULL https:// URL (not just a publication name)
             - Prefer mainstream/major outlets; do not invent sources
-            
+
             """ + """CRITICAL FORMATTING - CLEAN HTML ONLY:
             - Start with TL;DR: <div class="tldr-section"><em><strong>TL;DR: [summary]</strong></em></div>
             - Use <h2 class="article-header"> for section headers
             - Use <p class="article-paragraph"> for paragraphs
             - End with Sources: <ul class="sources-list"><li>https://example.com/article</li></ul>
-            
+
             Target length: 800-1000 words
             """
         }
-    
+
     def generate_article(self, topic, prompt_id=None, content_type='news_article', source_type='ai_generated', headline_style=None):
         """
         Generate a complete article based on topic and prompt
-        
+
         Args:
             topic: Article topic or source content
             prompt_id: Optional custom prompt ID
             content_type: Type of content (news_article, analysis_piece, breaking_news)
             source_type: Source type (ai_generated, reddit, x)
-            headline_style: 'question' for question headlines, 'statement' for fact-forward headlines, 
+            headline_style: 'question' for question headlines, 'statement' for fact-forward headlines,
                            None for random selection (default behavior)
         """
         import random
-        
+
         # Determine headline style if not specified
         if headline_style is None:
             headline_style = random.choice(['question', 'statement'])
-        
+
         # Map headline style to prompt instructions - VERY EXPLICIT to override AI tendencies
         headline_instructions = {
             'question': 'HEADLINE FORMAT: Use a QUESTION-STYLE headline that provokes thought. Example: "Is Bitcoin Mining Becoming More Decentralized?" The headline MUST end with a question mark (?).',
             'statement': '''HEADLINE FORMAT: MANDATORY STATEMENT-STYLE HEADLINE - NO QUESTIONS ALLOWED.
 
-DO NOT use a question for the headline. DO NOT end with "?" 
+DO NOT use a question for the headline. DO NOT end with "?"
 Your headline MUST be a declarative statement of fact.
 
 WRONG FORMATS (DO NOT USE):
 - "How Does X Impact Y?" ❌
-- "Is Bitcoin X?" ❌  
+- "Is Bitcoin X?" ❌
 - "Why Are Y?" ❌
 - "Will Z Happen?" ❌
 
@@ -530,7 +530,7 @@ CORRECT FORMATS (USE THESE):
 Your headline MUST be a factual statement. Start with a noun (Bitcoin, Lightning, Protocol, Company name, etc.), NOT with "How", "Why", "Is", "Are", "Will", "Does", or "Can".'''
         }
         headline_prompt = headline_instructions.get(headline_style, headline_instructions['statement'])
-        
+
         try:
             # AI GATEKEEPER: Check for duplicates before generating
             if is_topic_duplicate_via_gemini(topic):
@@ -540,7 +540,7 @@ Your headline MUST be a factual statement. Start with a noun (Bitcoin, Lightning
                     'error': 'Duplicate topic detected by AI gatekeeper',
                     'skipped': True
                 }
-            
+
             # Integrate Reddit if source_type is reddit
             if source_type == 'reddit':
                 try:
@@ -551,7 +551,7 @@ Your headline MUST be a factual statement. Start with a noun (Bitcoin, Lightning
                             topic = f"{topic}. {reddit_context}"
                 except Exception as e:
                     logging.warning(f"Failed to fetch Reddit trends: {str(e)}")
-            
+
             # Integrate X (Twitter) social feedback for nuance
             if source_type == 'x' or source_type == 'twitter':
                 try:
@@ -562,33 +562,33 @@ Your headline MUST be a factual statement. Start with a noun (Bitcoin, Lightning
                             logging.info(f"Added X feedback for topic: {topic[:50]}...")
                 except Exception as e:
                     logging.warning(f"Failed to fetch X feedback: {str(e)}")
-            
+
             # Get custom prompt if provided
             prompt_template = self._get_prompt_template(prompt_id, content_type)
-            
+
             # Format the prompt with the topic
             # Enhanced prompt with new editorial guidelines AND headline directive
             enhanced_prompt = f"""
             Write a comprehensive news article about: {topic}
-            
+
             === HEADLINE STYLE REQUIREMENT ===
             {headline_prompt}
             YOUR HEADLINE MUST FOLLOW THIS STYLE. This is not optional.
-            
-            Apply the Protocol Pulse editorial mandate: Begin with clear factual reporting, 
-            then provide thoughtful context connecting to history, economics, and society. 
-            Include unique analysis with data and credible sources. Write through a Bitcoin-first 
-            lens where Bitcoin is money, the only truly decentralized currency, and foundation 
+
+            Apply the Protocol Pulse editorial mandate: Begin with clear factual reporting,
+            then provide thoughtful context connecting to history, economics, and society.
+            Include unique analysis with data and credible sources. Write through a Bitcoin-first
+            lens where Bitcoin is money, the only truly decentralized currency, and foundation
             of freedom and sovereignty.
-            
+
             Structure as two distinct sections:
             1. 'The Report' - Factual news account with context and analysis
             2. 'The Bitcoin Lens' - Bitcoin-focused commentary and philosophical perspective
-            
-            Make it engaging, authoritative, and educational while orange-pilling readers 
+
+            Make it engaging, authoritative, and educational while orange-pilling readers
             about Bitcoin's unique importance to humanity.
             """
-            
+
             logging.info(f"📝 Generating article with {headline_style.upper()} headline style")
             # Format the prompt, handling missing placeholders gracefully
             try:
@@ -596,7 +596,7 @@ Your headline MUST be a factual statement. Start with a noun (Bitcoin, Lightning
             except KeyError:
                 # If template doesn't have headline_style placeholder, just format topic
                 formatted_prompt = prompt_template.format(topic=enhanced_prompt)
-            
+
             # GROUND TRUTH VERIFICATION: Fetch real-time Bitcoin metrics before generating
             network_stats = None
             try:
@@ -604,7 +604,7 @@ Your headline MUST be a factual statement. Start with a noun (Bitcoin, Lightning
                 logging.info(f"Ground truth metrics fetched: Height={network_stats.get('height')}, Hashrate={network_stats.get('hashrate')}")
             except Exception as e:
                 logging.warning(f"Failed to fetch network stats for ground truth: {e}")
-            
+
             # Build real-time metrics context for the AI
             metrics_context = ""
             if network_stats:
@@ -622,70 +622,77 @@ If difficulty progress indicates an upcoming DECREASE, report that accurately.
 """
             else:
                 metrics_context = """
-WARNING: Real-time network data unavailable. 
+WARNING: Real-time network data unavailable.
 DO NOT report specific Bitcoin metrics (hashrate, difficulty, price) in this article.
 Focus on qualitative analysis only. No fabricated numbers allowed.
 """
-            
+
             # Add system prompt for consistency - New Editorial Guidelines + Accuracy Mandate + Locked Structure + Headline Variety
             system_prompt = f"""
-            You are a world-class journalist writing for Protocol Pulse with the trust and authority 
-            of Walter Cronkite but in a natural, human style that feels engaging and real. 
-            
+            You are a world-class journalist writing for Protocol Pulse with the trust and authority
+            of Walter Cronkite but in a natural, human style that feels engaging and real.
+
             {metrics_context}
-            
+
             {self.accuracy_mandate}
-            
+
             {self.headline_style_mandate}
-            
+
             === HEADLINE DIRECTIVE FOR THIS ARTICLE ===
             {headline_prompt}
             THIS IS A MANDATORY REQUIREMENT. Your headline MUST follow this style.
-            
+
             {self.locked_structure_mandate}
-            
-            EDITORIAL MANDATE: Write every article like a world-class journalist with the trust and 
-            authority of Walter Cronkite but in a natural, human style that feels engaging and real. 
-            Begin with a clear and factual account of the news, then provide thoughtful context that 
-            connects events to history, economics, and society. Always deliver unique analysis that 
-            uncovers deeper meaning, using data, historical parallels, and quotes from credible sources 
-            to establish authority. Avoid jargon where a simpler, clearer explanation will do. 
-            
-            Every piece must be written through a Bitcoin-first lens: reinforce that Bitcoin is money, 
-            the only truly decentralized currency, and the foundation of freedom, privacy, and sovereignty. 
-            When other crypto projects are mentioned, they should be framed as secondary, never rivaling 
-            Bitcoin's role. 
-            
+
+            EDITORIAL MANDATE: Write every article like a world-class journalist with the trust and
+            authority of Walter Cronkite but in a natural, human style that feels engaging and real.
+            Begin with a clear and factual account of the news, then provide thoughtful context that
+            connects events to history, economics, and society. Always deliver unique analysis that
+            uncovers deeper meaning, using data, historical parallels, and quotes from credible sources
+            to establish authority. Avoid jargon where a simpler, clearer explanation will do.
+
+            Every piece must be written through a Bitcoin-first lens: reinforce that Bitcoin is money,
+            the only truly decentralized currency, and the foundation of freedom, privacy, and sovereignty.
+            When other crypto projects are mentioned, they should be framed as secondary, never rivaling
+            Bitcoin's role.
+
             MANDATORY 5-SECTION STRUCTURE:
             1. TL;DR (punchy 3-sentence summary)
             2. 'The Report' (factual news reporting - 300+ words)
             3. 'The Bitcoin Lens' (philosophical analysis - 300+ words)
             4. 'Transactor Intelligence' (actionable advice for miners and users - 200+ words)
             5. 'Sources' (formatted list of data sources)
-            
+
             This reinforces the separation between unbiased news, philosophical commentary, and actionable intelligence.
-            
+
             CRITICAL: OUTPUT ONLY CLEAN HTML - NO MARKDOWN SYNTAX ALLOWED.
             Use <div class="tldr-section"><em><strong>TL;DR: content</strong></em></div> for summaries.
             Use <h2 class="article-header"> for all main sections.
             Use <h3 class="article-subheader"> for sub-sections within each main section.
             Use <p class="article-paragraph"> for all paragraphs.
             Never use **, ***, ##, ### or any markdown syntax - only HTML tags.
-            
+
             MINIMUM: 800 words total. Build the full narrative around the ground truth metrics.
             """
-            
+
             # Generate the main content using Anthropic (primary) with fallbacks
             # With auto-retry for validation failures
             content = None
             max_retries = 2
 
             for attempt in range(max_retries + 1):
-                # Try Anthropic first (reliable, working key)
+                # Try HeimdaLLM first (cheapest, proven reliable)
                 try:
-                    content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
+                    content = self.ai_service.generate_content_heimdall(formatted_prompt, system_prompt)
                 except Exception as e:
-                    logging.warning(f"Anthropic generation failed: {e}")
+                    logging.warning(f"HeimdaLLM generation failed: {e}")
+
+                # Fallback to Ollama (free, local)
+                if not content:
+                    try:
+                        content = self.ai_service.generate_content_ollama(formatted_prompt, system_prompt)
+                    except Exception as e:
+                        logging.warning(f"Ollama generation failed: {e}")
 
                 # Fallback to Gemini
                 if not content:
@@ -694,19 +701,26 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
                     except Exception as e:
                         logging.warning(f"Gemini generation failed: {e}")
 
+                # Fallback to Anthropic
+                if not content:
+                    try:
+                        content = self.ai_service.generate_content_anthropic(formatted_prompt, system_prompt)
+                    except Exception as e:
+                        logging.warning(f"Anthropic generation failed: {e}")
+
                 # Fallback to OpenAI as last resort
                 if not content:
                     try:
                         content = self.ai_service.generate_content_openai(formatted_prompt, system_prompt)
                     except Exception as e:
                         logging.warning(f"OpenAI generation failed: {e}")
-                
+
                 if not content:
                     raise Exception("Failed to generate content with any AI service")
-                
+
                 # VALIDATION: Check for mandatory 5-section structure and minimum length
                 validation_result = self._validate_article_structure(content)
-                
+
                 if validation_result['valid']:
                     logging.info(f"Article validation passed: {validation_result['word_count']} words, all sections present")
                     break
@@ -718,40 +732,40 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
                         content = None  # Reset for retry
                     else:
                         logging.warning(f"Article validation failed after {max_retries + 1} attempts: {validation_result['errors']}")
-            
+
             # Extract title from content or generate separately
             title = self._extract_or_generate_title(content, topic)
-            
+
             # Clean up title - remove markdown and common prefixes
             title = self._clean_title(title)
-            
+
             # No summary - TL;DR is embedded in content
             summary = ""
-            
+
             # Generate SEO metadata
             seo_data = self.ai_service.generate_seo_metadata(title, content) or {}
-            
+
             # Generate tags
             tags = self._generate_tags(topic, content)
-            
+
             # Determine category
             category = self._determine_category(topic, content)
-            
+
             # Header image + structured source:
             # - Prefer allowlisted sources cited in the article's Sources section
             # - Use that publisher page's OG image if available
             header_image_url, source_url, source_label = resolve_header_image_url(title, content)
-            
+
             # POST-PROCESSING: Verify headline matches requested style
             title = self._enforce_headline_style(title, headline_style, topic)
-            
+
             # FACT-CHECK VERIFICATION: Verify claims before returning article
             fact_check_result = None
             fact_check_warnings = []
             try:
                 is_verified, verification_report = verify_article_before_publish(content)
                 fact_check_result = verification_report
-                
+
                 if not is_verified:
                     fact_check_warnings = verification_report.get('errors', [])
                     logging.warning(f"FACT-CHECK WARNINGS for article '{title[:50]}': {fact_check_warnings}")
@@ -759,7 +773,7 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
                     logging.info(f"FACT-CHECK PASSED for article '{title[:50]}': {verification_report.get('claims_verified', 0)} claims verified")
             except Exception as e:
                 logging.warning(f"Fact-check failed to run: {e}")
-            
+
             return {
                 'title': title,
                 'content': content,
@@ -776,11 +790,11 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
                 'fact_check_warnings': fact_check_warnings,
                 'fact_check_passed': len(fact_check_warnings) == 0
             }
-            
+
         except Exception as e:
             logging.error(f"Error generating article: {str(e)}")
             return None
-    
+
     def generate_from_reddit_trend(self, reddit_post):
         """Generate article based on Reddit trending post"""
         try:
@@ -788,22 +802,22 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
             context = f"Title: {reddit_post.get('title', '')}\n"
             if reddit_post.get('selftext'):
                 context += f"Content: {reddit_post.get('selftext', '')}\n"
-            
+
             # Add comments for additional context
             if reddit_post.get('comments'):
                 context += "Top comments:\n"
                 for comment in reddit_post.get('comments', [])[:3]:
                     context += f"- {comment.get('body', '')}\n"
-            
+
             topic = f"Based on this Reddit discussion: {context}"
-            
+
             # Generate article with news format
             return self.generate_article(topic, content_type='news_article', source_type='reddit')
-            
+
         except Exception as e:
             logging.error(f"Error generating article from Reddit trend: {str(e)}")
             return None
-    
+
     def _get_prompt_template(self, prompt_id, content_type):
         """Get prompt template from database or use default"""
         if prompt_id:
@@ -814,9 +828,9 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
                         return custom_prompt.prompt_text
             except Exception as e:
                 logging.warning(f"Failed to get custom prompt {prompt_id}: {str(e)}")
-        
+
         return self.default_prompts.get(content_type, self.default_prompts['news_article'])
-    
+
     def _enforce_headline_style(self, title: str, headline_style: str, topic: str) -> str:
         """
         Post-process headline to ensure it matches the requested style.
@@ -824,9 +838,9 @@ Focus on qualitative analysis only. No fabricated numbers allowed.
         """
         if not title or not headline_style:
             return title
-        
+
         is_question = title.strip().endswith('?')
-        
+
         # Check if headline matches requested style
         if headline_style == 'statement' and is_question:
             logging.info(f"🔄 Headline mismatch: Got question '{title[:50]}...' but need statement - rewriting")
@@ -850,18 +864,22 @@ Examples of correct statement headlines:
 - "Lightning Network Surpasses 5,000 BTC Capacity"
 
 Return ONLY the new headline, nothing else."""
-                
-                new_title = self.ai_service.generate_content_anthropic(rewrite_prompt)
-                if new_title:
-                    new_title = new_title.strip().strip('"').strip("'")
-                    if not new_title.endswith('?'):
-                        logging.info(f"✅ Headline rewritten: '{new_title[:50]}...'")
-                        return new_title
+
+                for _gen in (self.ai_service.generate_content_heimdall, self.ai_service.generate_content_ollama, self.ai_service.generate_content_anthropic):
+                    try:
+                        new_title = _gen(rewrite_prompt)
+                        if new_title:
+                            new_title = new_title.strip().strip('"').strip("'")
+                            if not new_title.endswith('?'):
+                                logging.info(f"Headline rewritten to statement: '{new_title[:50]}...'")
+                                return new_title
+                    except Exception:
+                        continue
             except Exception as e:
                 logging.warning(f"Failed to rewrite headline: {e}")
 
         elif headline_style == 'question' and not is_question:
-            logging.info(f"🔄 Headline mismatch: Got statement '{title[:50]}...' but need question - rewriting")
+            logging.info(f"Headline mismatch: Got statement '{title[:50]}...' but need question - rewriting")
             try:
                 rewrite_prompt = f"""Rewrite this headline as a thought-provoking QUESTION.
 
@@ -881,34 +899,38 @@ Examples of correct question headlines:
 - "Will Solar-Powered Mining Change the Industry?"
 
 Return ONLY the new headline, nothing else."""
-                
-                new_title = self.ai_service.generate_content_anthropic(rewrite_prompt)
-                if new_title:
-                    new_title = new_title.strip().strip('"').strip("'")
-                    if new_title.endswith('?'):
-                        logging.info(f"✅ Headline rewritten: '{new_title[:50]}...'")
-                        return new_title
+
+                for _gen in (self.ai_service.generate_content_heimdall, self.ai_service.generate_content_ollama, self.ai_service.generate_content_anthropic):
+                    try:
+                        new_title = _gen(rewrite_prompt)
+                        if new_title:
+                            new_title = new_title.strip().strip('"').strip("'")
+                            if new_title.endswith('?'):
+                                logging.info(f"Headline rewritten to question: '{new_title[:50]}...'")
+                                return new_title
+                    except Exception:
+                        continue
             except Exception as e:
                 logging.warning(f"Failed to rewrite headline: {e}")
-        
+
         return title
-    
+
     def _clean_title(self, title: str) -> str:
         """Clean up title - remove markdown formatting, HTML tags, and common prefixes"""
         if not title:
             return title
-        
+
         import re
-        
+
         # Remove ALL HTML/XML tags (including <h1>, <headline>, </headline>, etc.)
         title = re.sub(r'<[^>]+>', '', title)
-        
+
         # Remove markdown bold markers
         title = re.sub(r'\*\*', '', title)
-        
+
         # Remove markdown headers (with or without space after #)
         title = re.sub(r'^#{1,6}\s*', '', title)
-        
+
         # Remove common prefixes
         prefixes_to_remove = [
             'Headline:',
@@ -919,21 +941,21 @@ Return ONLY the new headline, nothing else."""
         for prefix in prefixes_to_remove:
             if title.strip().startswith(prefix):
                 title = title.strip()[len(prefix):].strip()
-        
+
         # Remove quotes at start/end
         title = title.strip().strip('"').strip("'").strip()
-        
+
         return title
-    
+
     def _validate_article_structure(self, content):
         """
         Validate article has all 6 mandatory sections and meets minimum word count.
         Returns dict with 'valid' boolean, 'errors' list, and 'word_count'.
         """
         import re
-        
+
         errors = []
-        
+
         # Check for mandatory sections (6 sections for high-value articles)
         required_sections = [
             ('tldr-section', 'TL;DR section'),
@@ -943,25 +965,25 @@ Return ONLY the new headline, nothing else."""
             ('Transactor Intelligence', 'Transactor Intelligence section'),
             ('Sources', 'Sources section')
         ]
-        
+
         for marker, name in required_sections:
             if marker not in content:
                 errors.append(f"Missing {name}")
-        
+
         # Count words (strip HTML tags first)
         clean_text = re.sub(r'<[^>]+>', ' ', content)
         clean_text = re.sub(r'\s+', ' ', clean_text).strip()
         word_count = len(clean_text.split())
-        
+
         if word_count < 1200:
             errors.append(f"Only {word_count} words (minimum 1200 required for high-value articles)")
-        
+
         return {
             'valid': len(errors) == 0,
             'errors': errors,
             'word_count': word_count
         }
-    
+
     _BAD_TITLE_PREFIXES = (
         'This article', 'This update', 'This report', 'As Bitcoin', 'While Bitcoin',
         'Amidst', 'As the volatility', 'A detailed look', 'Recent fluctuations',
@@ -983,7 +1005,7 @@ Return ONLY the new headline, nothing else."""
                     logging.info("Rejected bad title pattern: '%s' — regenerating", title[:60])
                 elif title and not title.endswith('.'):
                     return title
-            
+
             # Generate title using AI with CONVERSATIONAL SEO (question-based logic)
             title_prompt = f"""Create a compelling, SEO-friendly headline for an article about: {topic}.
 
@@ -1007,24 +1029,27 @@ RULES:
 - If a question doesn't fit naturally, use declarative headlines that answer implied questions
 - Keep under 70 characters
 - Focus on transactor concerns (network security, mining economics, sovereignty)"""
-            title = self.ai_service.generate_content_anthropic(title_prompt)
-            
-            if title:
-                # Clean up the title - remove any Protocol Pulse branding that slipped through
-                title = title.strip().replace('"', '').replace("'", '')
-                title = title.replace('Protocol Pulse News:', '').replace('Protocol Pulse:', '').strip()
-                return title[:100]  # Limit length
-            
+            for _gen in (self.ai_service.generate_content_heimdall, self.ai_service.generate_content_ollama, self.ai_service.generate_content_anthropic):
+                try:
+                    title = _gen(title_prompt)
+                    if title:
+                        title = title.strip().replace('"', '').replace("'", '')
+                        title = title.replace('Protocol Pulse News:', '').replace('Protocol Pulse:', '').strip()
+                        if title:
+                            return title[:100]
+                except Exception:
+                    continue
+
             # Fallback to topic-based title (no branding)
             clean_topic = topic[:60].replace('Protocol Pulse', '').strip()
             return clean_topic if clean_topic else topic[:60]
-            
+
         except Exception as e:
             logging.error(f"Error generating title: {str(e)}")
             # Fallback without any branding - just use topic
             clean_topic = topic[:60].replace('Protocol Pulse', '').strip()
             return clean_topic if clean_topic else topic[:60]
-    
+
     def _generate_tags(self, topic, content):
         """Generate relevant tags for the article"""
         try:
@@ -1034,25 +1059,25 @@ RULES:
                 'Decentralized Finance', 'Lightning Network', 'Yield Farming', 'Mining', 'Staking',
                 'Privacy', 'Regulation', 'Innovation', 'Technology'
             ]
-            
+
             # Use AI to suggest relevant tags
             tag_prompt = f"Based on this topic '{topic}' and content preview '{content[:200]}...', suggest 5-7 relevant tags from Web3/crypto space. Return as comma-separated list."
-            
+
             ai_tags = self.ai_service.generate_content_anthropic(tag_prompt)
-            
+
             if ai_tags:
                 # Clean and combine tags
                 suggested_tags = [tag.strip() for tag in ai_tags.split(',')]
                 # Combine with common tags and remove duplicates
                 all_tags = list(set(suggested_tags + common_tags))
                 return ', '.join(all_tags[:8])  # Limit to 8 tags
-            
+
             return ', '.join(common_tags[:5])
-            
+
         except Exception as e:
             logging.error(f"Error generating tags: {str(e)}")
             return 'Web3, Cryptocurrency, Blockchain, Technology, News'
-    
+
     def _determine_category(self, topic, content):
         """Determine the most appropriate category for the article"""
         categories = {
@@ -1062,22 +1087,22 @@ RULES:
             'Privacy': ['privacy', 'anonymous', 'surveillance', 'encryption'],
             'Innovation': ['innovation', 'development', 'technology', 'breakthrough']
         }
-        
+
         topic_lower = topic.lower()
         content_lower = content[:500].lower()
         combined_text = f"{topic_lower} {content_lower}"
-        
+
         # Score each category
         category_scores = {}
         for category, keywords in categories.items():
             score = sum(1 for keyword in keywords if keyword in combined_text)
             if score > 0:
                 category_scores[category] = score
-        
+
         # Return category with highest score, default to Web3
         if category_scores:
             return max(category_scores.keys(), key=lambda x: category_scores[x])
-        
+
         return 'Web3'
 
 
