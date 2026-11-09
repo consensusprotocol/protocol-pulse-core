@@ -42,14 +42,14 @@ def fetch_rss(channel_id, timeout=15):
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             xml_data = resp.read()
     except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
-        print(f"    WARN: RSS fetch failed for {channel_id}: {e}")
-        return []
+        print(f"    WARN: RSS fetch failed for {channel_id}: {e} -> yt-dlp listing fallback")
+        return fetch_uploads_ytdlp(channel_id)
 
     try:
         root = ElementTree.fromstring(xml_data)
     except ElementTree.ParseError as e:
-        print(f"    WARN: RSS parse failed for {channel_id}: {e}")
-        return []
+        print(f"    WARN: RSS parse failed for {channel_id}: {e} -> yt-dlp listing fallback")
+        return fetch_uploads_ytdlp(channel_id)
 
     videos = []
     for entry in root.findall(f"{{{ATOM_NS}}}entry"):
@@ -73,6 +73,41 @@ def fetch_rss(channel_id, timeout=15):
             "url": url or f"https://www.youtube.com/watch?v={video_id}",
         })
 
+    return videos
+
+
+YTDLP_LIST_N = 12
+
+
+def fetch_uploads_ytdlp(channel_id, n=YTDLP_LIST_N, timeout=120):
+    """Fallback when YouTube's RSS endpoint fails (2026-11-07: feeds/videos.xml returned 404/500
+    for all 65 registered channels). Lists the channel's latest uploads with yt-dlp; publish times
+    come from yt-dlp's approximate_date (hour-level for recent uploads). Same dict shape as
+    fetch_rss, plus published_source. Returns [] on failure (never raises)."""
+    import subprocess
+    cmd = ["yt-dlp", "--flat-playlist", "--playlist-end", str(n), "--extractor-args",
+           "youtubetab:approximate_date", "--print", "%(id)s\t%(timestamp)s\t%(title)s",
+           f"https://www.youtube.com/channel/{channel_id}/videos"]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        print(f"    WARN: yt-dlp listing failed for {channel_id}: {e}")
+        return []
+    videos = []
+    for line in r.stdout.splitlines():
+        parts = line.split("\t", 2)
+        if len(parts) != 3 or not parts[1].isdigit():
+            continue
+        vid, ts, title = parts
+        videos.append({
+            "video_id": vid.strip(),
+            "title": title.strip(),
+            "published": datetime.fromtimestamp(int(ts), timezone.utc).isoformat(),
+            "url": f"https://www.youtube.com/watch?v={vid.strip()}",
+            "published_source": "yt-dlp approximate_date",
+        })
+    if not videos:
+        print(f"    WARN: yt-dlp listing returned nothing for {channel_id} (rc={r.returncode})")
     return videos
 
 

@@ -155,30 +155,40 @@ def _find_word_boundaries(words, start_s, end_s, text_hint=None, min_dur=8.0):
 
 
 def _generate_vo_script(keyword, hook_text, clips, channels):
-    """Generate VO script following M20 rules.
+    """Generate the default body-VO shape under M20 / Editorial Law 2.
 
-    M20: Commentary must earn its place.
-    - Zero bridges allowed
-    - Intro only if the hook needs framing
-    - Sign-off always via signoff.py
+    Commentary must earn its place. AUTO/PIN therefore create no body VO by
+    default: no intro and no bridges. A future human/model editorial review may
+    explicitly supply body VO with a declared allowed job, which the shared
+    pre-render editorial gate must approve. Credits/signoff remain independent
+    and are always generated later by signoff.py in the voice stage.
     """
-    # Intro: brief framing only if needed (< 15 words)
-    intro = None
-    hook_lower = hook_text.lower()
-    # If the hook is self-explanatory (mentions the keyword), skip intro
-    keyword_terms = [t.lower() for t in keyword.split() if len(t) >= 3]
-    hook_has_keyword = any(t in hook_lower for t in keyword_terms)
-    if not hook_has_keyword:
-        intro = f"This story is unfolding right now."
+    return {"intro": None, "bridges": []}
 
-    # No bridges per M20
-    bridges = []
 
-    # Sign-off: generated via signoff.py at voice stage
-    channel_names = [c for c in channels]
+def build_vertical_overrides(hook_seg, clip_segs, registry=None):
+    """vertical_overrides.json content — default letterbox for all (M21).
+    Channels with approved hand tables use those ('crop'); others get letterbox.
+    Shared by AUTO (select_and_build_edl) and PINNED (pinned.build_edl)."""
+    if registry is None:
+        registry = []
+        channels_path = os.path.join(PIPELINE_DIR, "channels.json")
+        if os.path.exists(channels_path):
+            with open(channels_path) as f:
+                registry = json.load(f)
+    approved_channels = set()
+    for ch in registry:
+        if ch.get("layout_status") == "approved":
+            approved_channels.add(ch.get("display_name", ""))
 
-    vo = {"intro": intro, "bridges": bridges}
-    return vo
+    overrides = {}
+    for seg in [hook_seg] + clip_segs:
+        label = "hook" if seg is hook_seg else f"clip_{seg['index']:02d}"
+        if seg["channel"] in approved_channels:
+            overrides[label] = {"layout": "crop"}  # Use approved layout
+        else:
+            overrides[label] = {"layout": "letterbox"}  # M21
+    return overrides
 
 
 def select_and_build_edl(keyword, niche, run_dir):
@@ -320,24 +330,7 @@ def select_and_build_edl(keyword, niche, run_dir):
     with open(edl_path, "w") as f:
         json.dump(edl, f, indent=2)
 
-    # Build vertical_overrides.json — default letterbox for all (M21)
-    # Channels with approved hand tables use those; others get letterbox
-    channels_path = os.path.join(PIPELINE_DIR, "channels.json")
-    approved_channels = set()
-    if os.path.exists(channels_path):
-        with open(channels_path) as f:
-            registry = json.load(f)
-        for ch in registry:
-            if ch.get("layout_status") == "approved":
-                approved_channels.add(ch.get("display_name", ""))
-
-    overrides = {}
-    for seg in [hook_seg] + clip_segs:
-        label = "hook" if seg is hook_seg else f"clip_{seg['index']:02d}"
-        if seg["channel"] in approved_channels:
-            overrides[label] = {"layout": "crop"}  # Use approved layout
-        else:
-            overrides[label] = {"layout": "letterbox"}  # M21
+    overrides = build_vertical_overrides(hook_seg, clip_segs)
 
     overrides_path = os.path.join(run_dir, "vertical_overrides.json")
     with open(overrides_path, "w") as f:

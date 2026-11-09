@@ -23,8 +23,17 @@ Stages (any failure = HOLD; nothing is ever published; telegram is never importe
                G8 source-relative report, G9 outro-identity exception check
   9 verdict    CANDIDATE FOR HUMAN REVIEW WITH FLAGS | HOLD   (per format and overall)
 
+PINNED mode (pinned.py): when AUTO cannot make a legal editorial decision, a human supplies it.
+  --pinned PIN.json replaces stages 1-2 (editorial + select) with ONE stage that validates the pin
+  and writes the same canonical edl.json / vertical_overrides.json; stage 4 writes the exact pinned
+  cut table instead of running the acoustic cutter, then applies the SAME cut acceptance. Every
+  other stage, gate and verdict rule is shared and unchanged.
+
+Release state: every run ends HOLD_FOR_HUMAN_APPROVAL. Publishing is not reachable from here.
+
 Usage:
   cd ~/protocol_pulse/pipeline && CUDA_VISIBLE_DEVICES=0 python3 run_fresh.py
+  cd ~/protocol_pulse/pipeline && CUDA_VISIBLE_DEVICES=0 python3 run_fresh.py --pinned PIN.json
 """
 import argparse
 import datetime
@@ -66,6 +75,8 @@ NICHE = "bitcoin"
 
 VERDICT_CANDIDATE = "CANDIDATE FOR HUMAN REVIEW WITH FLAGS"
 VERDICT_HOLD = "HOLD"
+RELEASE_STATE = "HOLD_FOR_HUMAN_APPROVAL"   # nothing leaves the factory without a human
+G8_DEGRADATION_RATIO = 0.85  # restored from 5409ccce; reporting threshold, not changed
 
 
 class Hold(Exception):
@@ -150,6 +161,8 @@ class Run:
         self.status = {"run_dir": run_dir, "started": now_iso(), "stages": [], "holds": [],
                        "verdict": None}
         self.prov = {"run_dir": run_dir, "created": now_iso()}
+        self.mode = "auto"                  # "auto" | "pinned"
+        self.allow_v2f_material = False     # True only for a pin declaring reuses_v2f_material
 
     def stage(self, name, fn):
         rec = {"name": name, "started": now_iso(), "status": "running"}
@@ -234,15 +247,35 @@ def stage_editorial(run):
                              "embedding_model": sel.get("embedding_model"), "llm": sel.get("llm")}
     with open(os.path.join(run.dir, "passages.json")) as f:
         chosen = json.load(f)["chosen"]
-    appr = {c["display_name"] for c in json.load(open(CHANNELS_PATH))
-            if c.get("layout_status") == "approved"}
-    bad = [p["channel"] for p in chosen if p["channel"] not in appr]
+    registry = json.load(open(CHANNELS_PATH))
+    known = {c["display_name"] for c in registry}
+    bad = [p["channel"] for p in chosen if p["channel"] not in known]
     if bad:
-        raise Hold(f"editorial chose clips from layout-ineligible channels {bad}")
+        raise Hold(f"editorial chose clips from unknown channels {bad}")
     if any(p["video_id"] in V2F_VIDEO_IDS for p in chosen):
         raise Hold("editorial chose a v2f source video")
     print(f"  SELECTED: {sel['selected']['headline']} -> label '{keyword}'")
     return keyword
+
+
+def stage_pinned(run, pin_path):
+    """PINNED entry point: validate the human decision and write the canonical EDL. Replaces
+    stage_editorial + stage_select only; everything downstream is shared."""
+    from pinned import prepare, PinError
+    try:
+        rec = prepare(pin_path, run.dir, log=lambda s: print(s, flush=True))
+    except PinError as e:
+        raise Hold(f"pinned decision rejected: {e}")
+    pin = rec["pin"]
+    run.allow_v2f_material = bool(pin.get("reuses_v2f_material"))
+    run.prov["mode"] = "pinned"
+    run.prov["editorial"] = {"mode": "pinned", "story_id": pin["story_id"], "label": pin["label"],
+                             "headline": pin.get("headline"), "approved_by": pin["approved_by"],
+                             "approved_at": pin["approved_at"], "approval_ref": pin.get("approval_ref"),
+                             "pin_sha256": rec["pin_sha256"], "validation": rec["validation"],
+                             "reuses_v2f_material": run.allow_v2f_material}
+    print(f"  PINNED: {pin['story_id']} -> label '{pin['label']}' (approved by {pin['approved_by']})")
+    return pin["label"]
 
 
 def stage_select(run, keyword):
@@ -251,8 +284,28 @@ def stage_select(run, keyword):
         raise Hold("select_and_build_edl did not succeed")
 
 
+def stage_review(run):
+    """AUTO only: local model writes EDITORIAL_REVIEW.json for the four-law gate in stage_validate.
+    No external model. Missing/inconclusive review -> the gate HOLDs (this stage never approves)."""
+    import story_semantics as sm
+    from editorial_review import write_review
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        edl = json.load(f)
+    story = ((run.prov.get("editorial") or {}).get("selected") or {}).get("headline")
+    llm = sm.LocalLLM().start()
+    try:
+        review = write_review(llm, edl, run.dir, story)
+    finally:
+        llm.stop()
+    run.prov["editorial_review"] = {k: review.get(k) for k in ("reviewed_by", "review_type", "generated_at",
+                                                               "prompt_sha256", "inconclusive",
+                                                               "inconclusive_reason", "external_model_used")}
+    print(f"  review by {review['reviewed_by']}: inconclusive={review.get('inconclusive')}")
+
+
 def stage_validate(run):
     from edl_rules import validate_edl
+    from editorial_gate import run_gate
     with open(os.path.join(run.dir, "edl.json")) as f:
         edl = json.load(f)
     with open(CHANNELS_PATH) as f:
@@ -264,19 +317,42 @@ def stage_validate(run):
     if not ok:
         raise Hold("EDL rejected by edl_rules: " + "; ".join(
             f"{r['rule']}: {r.get('reason', '')}" for r in results if not r["pass"]))
-    # layout compatibility (PBX: no unapproved presentation mode in this experiment)
-    appr = {c["display_name"] for c in reg if c.get("layout_status") == "approved"}
+
+    # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
+    # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
+    # and fails closed when review judgments are absent or any law fails.
+    gate = run_gate(run.dir, edl)
+    run.prov["editorial_gate"] = gate
+    for name, rec in gate.get("laws", {}).items():
+        print(f"  {name}: [{'PASS' if rec.get('pass') else 'FAIL'}] " + "; ".join(rec.get("reasons") or []))
+    if gate.get("verdict") != "READY_FOR_RENDER":
+        failed = [name for name, rec in gate.get("laws", {}).items() if not rec.get("pass")]
+        raise Hold("editorial law gate HOLD: " + ", ".join(failed))
+
+    # layout compatibility: approved channels use tested crop; pending channels
+    # use the existing safe letterbox fallback. Unknown channels still fail closed.
+    reg_by_name = {c["display_name"]: c for c in reg}
     segs = [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]
-    bad = [(l, s.get("channel")) for l, s in segs if s.get("channel") not in appr]
     with open(os.path.join(run.dir, "vertical_overrides.json")) as f:
         ov = json.load(f)
-    non_crop = {k: v for k, v in ov.items() if v.get("layout") != "crop"}
+    layout_errors = []
+    for label, seg in segs:
+        channel = seg.get("channel")
+        rec = reg_by_name.get(channel)
+        mode = ov.get(label, {}).get("layout")
+        if rec is None:
+            layout_errors.append((label, channel, "unknown channel"))
+            continue
+        expected = "crop" if rec.get("layout_status") == "approved" else "letterbox"
+        if mode != expected:
+            layout_errors.append((label, channel, f"expected {expected}, got {mode!r}"))
     run.prov["layout_compat"] = {"segments": [(l, s.get("channel")) for l, s in segs],
-                                 "vertical_overrides": ov}
-    if bad or non_crop:
-        raise Hold(f"layout compatibility: unapproved channels {bad}, non-crop overrides {non_crop}")
+                                 "vertical_overrides": ov,
+                                 "policy": "approved=crop; pending=letterbox"}
+    if layout_errors:
+        raise Hold(f"layout compatibility: {layout_errors}")
     for l, s in segs:
-        if s.get("video_id") in V2F_VIDEO_IDS:
+        if s.get("video_id") in V2F_VIDEO_IDS and not run.allow_v2f_material:
             raise Hold(f"{l} reuses a v2f source video {s['video_id']}")
         if s.get("time_coords") != "source_file":
             raise Hold(f"{l} EDL times not in source-file coordinates")
@@ -287,7 +363,10 @@ def stage_validate(run):
 def stage_cut(run):
     from cut import compute_all_cuts
     from cut_accept import check_cut_acoustics
-    if compute_all_cuts(run.dir) is not True:
+    if run.mode == "pinned":
+        from pinned import write_pinned_cut_table      # exact human ranges, no acoustic search
+        write_pinned_cut_table(run.dir)
+    elif compute_all_cuts(run.dir) is not True:
         raise Hold("compute_all_cuts did not succeed")
     with open(os.path.join(run.dir, "cuts_final.json")) as f:
         cuts = json.load(f)
@@ -340,7 +419,7 @@ def stage_voice(run):
     for k, v in manifest.items():
         p = os.path.join(vo_dir, v["stem_wav"])
         h = sha256(p)
-        if h in V2F_VO_SHA:
+        if h in V2F_VO_SHA and not run.allow_v2f_material:
             raise Hold(f"VO stem {k} is byte-identical to a v2f stem")
         stems[k] = {"file": v["stem_wav"], "sha256": h, "text": v.get("text")}
     with open(os.path.join(run.dir, "edl.json")) as f:
@@ -446,6 +525,9 @@ def _status(ok):
 
 
 def stage_gates(run, final16, man16, final9, man9):
+    # Keep the source-relative sharpness threshold local to this stage so QA does not
+    # depend on module-global lookup state during long production runs. Threshold unchanged.
+    g8_degradation_ratio = 0.85
     import gates as G
     from gates import run_gates
     from config import resolve_paths, conform_outro
@@ -518,7 +600,7 @@ def stage_gates(run, final16, man16, final9, man9):
     rel_src = {c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4") for c in cuts}
     _, g8rel = qa_gates.gate_g8(final16, segs16, g8dir, source_clips=rel_src)
     ratios = {r["segment"]: r["ratio"] for r in g8rel}
-    degraded = {k: v for k, v in ratios.items() if v < G8_DEGRADATION_RATIO}
+    degraded = {k: v for k, v in ratios.items() if v < g8_degradation_ratio}
     g8_report = {"production_result_16x9": r16["G8_sharpness"]["pass"],
                  "production_result_9x16": r9["G8_sharpness"]["pass"],
                  "relative_reference": "prepared 1920x1080 clip (source camera, scaled) at the "
@@ -672,9 +754,17 @@ def write_report(run):
     s, p = run.status, run.prov
     L = [f"# FRESH-TOPIC REPRODUCIBILITY RUN — {os.path.basename(run.dir)}", "",
          f"**VERDICT: {s.get('verdict')}**", "",
+         f"**RELEASE STATE: {s.get('release_state', RELEASE_STATE)}** (mode: {s.get('mode', 'auto')})", "",
          f"- revision: `{p.get('code', {}).get('git_head')}`",
          f"- started {s['started']} / ended {s.get('ended')}", ""]
     t = (p.get("editorial") or {}).get("selected")
+    pe = p.get("editorial") or {}
+    if pe.get("mode") == "pinned":
+        L += ["## Story (PINNED human decision)", f"- {pe.get('story_id')}: {pe.get('headline') or pe.get('label')}",
+              f"- approved by {pe.get('approved_by')} at {pe.get('approved_at')} ({pe.get('approval_ref')})",
+              f"- pin sha256 {pe.get('pin_sha256')}"] + \
+             [f"- {v['role']} {v['video_id']} {v['source_file_range']} '{v['first_word']}' ... '{v['last_word']}'"
+              for v in pe.get("validation", [])] + [""]
     if t:
         L += ["## Story (transcript-first)", f"- {t.get('headline')}",
               f"- importance: {json.dumps(t.get('importance'))}",
@@ -704,10 +794,13 @@ def write_report(run):
 
 def main():
     ap = argparse.ArgumentParser(description="Fresh-topic reproducibility run (no publishing)")
-    ap.parse_args()
+    ap.add_argument("--pinned", metavar="PIN.json",
+                    help="PINNED mode: human-supplied editorial decision (see pinned.py)")
+    args = ap.parse_args()
+    pin_path = os.path.abspath(args.pinned) if args.pinned else None
 
     ts = time.strftime("%Y%m%d_%H%M%S", time.gmtime())
-    run_dir = os.path.join(RUNS_DIR, f"fresh_{ts}")
+    run_dir = os.path.join(RUNS_DIR, f"{'pinned' if pin_path else 'fresh'}_{ts}")
     if os.path.exists(run_dir):
         sys.exit(f"ABORT: run dir exists: {run_dir}")
     for sub in ("sources", "transcripts", "vo_audio", "out", "qa"):
@@ -717,12 +810,19 @@ def main():
     sys.stderr = Tee(sys.__stderr__, logf)
     print(f"=== FRESH-TOPIC RUN {run_dir} ===")
     run = Run(run_dir)
+    run.mode = "pinned" if pin_path else "auto"
+    run.status["mode"] = run.mode
+    run.status["release_state"] = RELEASE_STATE
     run.save()
     t0 = time.time()
     try:
         run.stage("env", lambda: stage_env(run))
-        keyword = run.stage("editorial", lambda: stage_editorial(run))
-        run.stage("select", lambda: stage_select(run, keyword))
+        if run.mode == "pinned":
+            run.stage("pinned", lambda: stage_pinned(run, pin_path))
+        else:
+            keyword = run.stage("editorial", lambda: stage_editorial(run))
+            run.stage("select", lambda: stage_select(run, keyword))
+            run.stage("review", lambda: stage_review(run))
         run.stage("validate", lambda: stage_validate(run))
         cuts = run.stage("cut", lambda: stage_cut(run))
         run.stage("voice", lambda: stage_voice(run))
@@ -754,7 +854,7 @@ def main():
         write_report(run)
         with open(os.path.join(run_dir, "VERDICT.txt"), "w") as f:
             f.write(run.status["verdict"] + "\n")
-        print(f"\n=== VERDICT: {run.status['verdict']} ===")
+        print(f"\n=== VERDICT: {run.status['verdict']} | RELEASE STATE: {RELEASE_STATE} ===")
         for h in run.status["holds"]:
             print(f"  HOLD: {h}")
         print(f"  report: {os.path.join(run_dir, 'REPORT.md')}  (no publishing)")

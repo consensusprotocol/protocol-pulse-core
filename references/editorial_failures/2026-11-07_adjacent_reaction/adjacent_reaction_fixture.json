@@ -1,0 +1,5205 @@
+{
+ "source_run": "runs/fresh_20261107_080503",
+ "topic_selection_sha256": "b4fcd5fc5bbe47543eb412b3e3ed5a13637bebe6827369077aee08f60382f514",
+ "candidate": "Elliptic says Binance hackers swapped stolen tokens for $124M in bitcoin, exchange plans more withdrawal reopenings",
+ "query": {
+  "short_label": "Binance Hack",
+  "underlying_event": "Hackers breached Binance exchange in late October 2023 and stole approximately $124 million worth of cryptocurrency, which they are now laundering.",
+  "angle": "Blockchain analytics firm Elliptic reports that the hackers are primarily converting stolen funds into Bitcoin, with a significant portion remaining frozen and little converted to fiat currency.",
+  "event_date": "2023-10",
+  "event_recency": "historical",
+  "entities": [
+   {
+    "name": "Binance",
+    "aliases": [
+     "BNB",
+     "Changpeng Zhao"
+    ]
+   },
+   {
+    "name": "Elliptic",
+    "aliases": []
+   }
+  ],
+  "action": "hacking/laundering",
+  "affected_object": "cryptocurrency",
+  "date_context": "2023-10 to 2026-11",
+  "concepts": [
+   "crypto laundering",
+   "stolen funds",
+   "on-chain analysis",
+   "exchange security",
+   "frozen assets",
+   "Bitcoin conversion",
+   "regulatory response",
+   "proof of funds"
+  ],
+  "must_not_confuse_with": [
+   "Binance.US",
+   "other exchange hacks",
+   "general crypto volatility"
+  ],
+  "bitcoin_relevance": 5,
+  "importance": 4,
+  "is_specific_event": true,
+  "rationale": "This event directly involves Bitcoin as the destination for stolen funds and highlights the role of on-chain analysis in tracking illicit activity, making it highly relevant to a Bitcoin audience.",
+  "_prompt_sha": "a43a15ca0fc058e6",
+  "_model": "gemma3:27b"
+ },
+ "cases": {
+  "9La50F_lmd0": {
+   "purpose": "positive candidate: Binance anchor + host reaction 'That's like a pittance ... chump change.'",
+   "channel": "BTC Sessions",
+   "evidence_quote": "CZ's the stolen stuff from Binance is also in there now.",
+   "verdict": "CURRENT_EVENT",
+   "support": "SUPPORTS",
+   "supporting_chunk_ids": [
+    "9La50F_lmd0:127420-157800",
+    "9La50F_lmd0:1713850-1756430"
+   ],
+   "transcript_sha256": "441f478ab3b63465e5e52bf8d174949c60dd57cb6ef7b428d1a1fc32db58e027",
+   "transcript_method": "whisper_words",
+   "transcript_model": "faster-whisper 1.2.1 distil-large-v3 float16 batched16 lang=en word_timestamps",
+   "words": [
+    {
+     "word": "Happy",
+     "start": 82.92,
+     "end": 83.4
+    },
+    {
+     "word": "Wednesday,",
+     "start": 83.4,
+     "end": 84.6
+    },
+    {
+     "word": "gentlemen.",
+     "start": 85.22,
+     "end": 85.22
+    },
+    {
+     "word": "Blue",
+     "start": 87.0,
+     "end": 87.38
+    },
+    {
+     "word": "wave",
+     "start": 87.38,
+     "end": 87.78
+    },
+    {
+     "word": "indeed",
+     "start": 87.78,
+     "end": 88.14
+    },
+    {
+     "word": "and",
+     "start": 88.14,
+     "end": 88.46
+    },
+    {
+     "word": "apparently",
+     "start": 88.46,
+     "end": 88.98
+    },
+    {
+     "word": "the",
+     "start": 88.98,
+     "end": 90.4
+    },
+    {
+     "word": "price",
+     "start": 90.4,
+     "end": 90.8
+    },
+    {
+     "word": "liked",
+     "start": 90.8,
+     "end": 91.24
+    },
+    {
+     "word": "it.",
+     "start": 91.24,
+     "end": 92.06
+    },
+    {
+     "word": "Interesting,",
+     "start": 93.08,
+     "end": 93.72
+    },
+    {
+     "word": "interesting.",
+     "start": 94.14,
+     "end": 94.2
+    },
+    {
+     "word": "I",
+     "start": 95.62,
+     "end": 95.74
+    },
+    {
+     "word": "was,",
+     "start": 95.74,
+     "end": 97.7
+    },
+    {
+     "word": "we",
+     "start": 98.02,
+     "end": 98.2
+    },
+    {
+     "word": "were",
+     "start": 98.2,
+     "end": 98.36
+    },
+    {
+     "word": "kind",
+     "start": 98.36,
+     "end": 98.56
+    },
+    {
+     "word": "of",
+     "start": 98.56,
+     "end": 98.7
+    },
+    {
+     "word": "chirping",
+     "start": 98.7,
+     "end": 98.9
+    },
+    {
+     "word": "about",
+     "start": 98.9,
+     "end": 99.18
+    },
+    {
+     "word": "this",
+     "start": 99.18,
+     "end": 99.4
+    },
+    {
+     "word": "in",
+     "start": 99.4,
+     "end": 99.5
+    },
+    {
+     "word": "the",
+     "start": 99.5,
+     "end": 99.58
+    },
+    {
+     "word": "back",
+     "start": 99.58,
+     "end": 99.86
+    },
+    {
+     "word": "chat",
+     "start": 99.86,
+     "end": 100.14
+    },
+    {
+     "word": "for",
+     "start": 100.14,
+     "end": 100.32
+    },
+    {
+     "word": "a",
+     "start": 100.32,
+     "end": 100.44
+    },
+    {
+     "word": "little",
+     "start": 100.44,
+     "end": 100.54
+    },
+    {
+     "word": "bit,",
+     "start": 100.54,
+     "end": 100.82
+    },
+    {
+     "word": "but",
+     "start": 101.14,
+     "end": 101.14
+    },
+    {
+     "word": "I",
+     "start": 101.14,
+     "end": 101.9
+    },
+    {
+     "word": "initially",
+     "start": 101.9,
+     "end": 102.4
+    },
+    {
+     "word": "was",
+     "start": 102.4,
+     "end": 102.74
+    },
+    {
+     "word": "saying",
+     "start": 102.74,
+     "end": 103.08
+    },
+    {
+     "word": "similar.",
+     "start": 103.08,
+     "end": 103.66
+    },
+    {
+     "word": "to",
+     "start": 104.14,
+     "end": 104.42
+    },
+    {
+     "word": "Mr.",
+     "start": 104.42,
+     "end": 105.34
+    },
+    {
+     "word": "Schiff",
+     "start": 105.48,
+     "end": 105.76
+    },
+    {
+     "word": "here",
+     "start": 105.76,
+     "end": 106.02
+    },
+    {
+     "word": "on",
+     "start": 106.02,
+     "end": 107.12
+    },
+    {
+     "word": "all",
+     "start": 107.12,
+     "end": 107.72
+    },
+    {
+     "word": "of",
+     "start": 107.72,
+     "end": 108.42
+    },
+    {
+     "word": "all",
+     "start": 108.42,
+     "end": 108.58
+    },
+    {
+     "word": "the",
+     "start": 108.58,
+     "end": 108.72
+    },
+    {
+     "word": "market",
+     "start": 108.72,
+     "end": 109.02
+    },
+    {
+     "word": "reactions",
+     "start": 109.02,
+     "end": 109.74
+    },
+    {
+     "word": "to",
+     "start": 109.74,
+     "end": 110.16
+    },
+    {
+     "word": "the",
+     "start": 110.16,
+     "end": 110.3
+    },
+    {
+     "word": "democratic",
+     "start": 110.3,
+     "end": 110.78
+    },
+    {
+     "word": "landslide.",
+     "start": 110.78,
+     "end": 111.42
+    },
+    {
+     "word": "The",
+     "start": 111.6,
+     "end": 111.6
+    },
+    {
+     "word": "Bitcoin",
+     "start": 111.6,
+     "end": 111.92
+    },
+    {
+     "word": "rally",
+     "start": 111.92,
+     "end": 112.2
+    },
+    {
+     "word": "is",
+     "start": 112.2,
+     "end": 112.42
+    },
+    {
+     "word": "the",
+     "start": 112.42,
+     "end": 112.58
+    },
+    {
+     "word": "most",
+     "start": 112.58,
+     "end": 112.86
+    },
+    {
+     "word": "irrational.",
+     "start": 112.86,
+     "end": 113.58
+    },
+    {
+     "word": "Democratic",
+     "start": 114.06,
+     "end": 114.36
+    },
+    {
+     "word": "Congress",
+     "start": 114.36,
+     "end": 114.92
+    },
+    {
+     "word": "will",
+     "start": 114.92,
+     "end": 115.48
+    },
+    {
+     "word": "take",
+     "start": 115.48,
+     "end": 115.66
+    },
+    {
+     "word": "a",
+     "start": 115.66,
+     "end": 115.82
+    },
+    {
+     "word": "hostile",
+     "start": 115.82,
+     "end": 116.26
+    },
+    {
+     "word": "stance",
+     "start": 116.26,
+     "end": 116.78
+    },
+    {
+     "word": "against",
+     "start": 116.78,
+     "end": 117.14
+    },
+    {
+     "word": "crypto,",
+     "start": 117.14,
+     "end": 117.6
+    },
+    {
+     "word": "which",
+     "start": 118.14,
+     "end": 118.2
+    },
+    {
+     "word": "will",
+     "start": 118.2,
+     "end": 118.44
+    },
+    {
+     "word": "get",
+     "start": 118.44,
+     "end": 118.62
+    },
+    {
+     "word": "worse",
+     "start": 118.62,
+     "end": 118.88
+    },
+    {
+     "word": "in",
+     "start": 118.88,
+     "end": 119.06
+    },
+    {
+     "word": "2028",
+     "start": 119.06,
+     "end": 119.72
+    },
+    {
+     "word": "when",
+     "start": 119.72,
+     "end": 119.96
+    },
+    {
+     "word": "they",
+     "start": 119.96,
+     "end": 120.14
+    },
+    {
+     "word": "have",
+     "start": 120.14,
+     "end": 120.52
+    },
+    {
+     "word": "the",
+     "start": 120.52,
+     "end": 120.72
+    },
+    {
+     "word": "White",
+     "start": 120.72,
+     "end": 120.9
+    },
+    {
+     "word": "House",
+     "start": 120.9,
+     "end": 121.36
+    },
+    {
+     "word": "and",
+     "start": 121.36,
+     "end": 121.88
+    },
+    {
+     "word": "all",
+     "start": 121.88,
+     "end": 122.42
+    },
+    {
+     "word": "the",
+     "start": 122.42,
+     "end": 122.7
+    },
+    {
+     "word": "Bitcoin",
+     "start": 122.7,
+     "end": 123.1
+    },
+    {
+     "word": "in",
+     "start": 123.1,
+     "end": 123.38
+    },
+    {
+     "word": "the",
+     "start": 123.38,
+     "end": 123.52
+    },
+    {
+     "word": "Strategic",
+     "start": 123.52,
+     "end": 123.94
+    },
+    {
+     "word": "Reserve",
+     "start": 123.94,
+     "end": 124.56
+    },
+    {
+     "word": "gets",
+     "start": 124.56,
+     "end": 125.08
+    },
+    {
+     "word": "sold.",
+     "start": 125.08,
+     "end": 125.96
+    },
+    {
+     "word": "Could",
+     "start": 127.42,
+     "end": 127.76
+    },
+    {
+     "word": "it",
+     "start": 127.76,
+     "end": 127.88
+    },
+    {
+     "word": "be",
+     "start": 127.88,
+     "end": 127.9
+    },
+    {
+     "word": "returned?",
+     "start": 127.9,
+     "end": 128.26
+    },
+    {
+     "word": "Can",
+     "start": 128.54,
+     "end": 128.54
+    },
+    {
+     "word": "we",
+     "start": 128.54,
+     "end": 128.6
+    },
+    {
+     "word": "give",
+     "start": 128.6,
+     "end": 128.7
+    },
+    {
+     "word": "it",
+     "start": 128.7,
+     "end": 128.8
+    },
+    {
+     "word": "back?",
+     "start": 128.8,
+     "end": 129.02
+    },
+    {
+     "word": "The",
+     "start": 129.16,
+     "end": 129.16
+    },
+    {
+     "word": "stuff",
+     "start": 129.16,
+     "end": 129.32
+    },
+    {
+     "word": "that",
+     "start": 129.32,
+     "end": 129.42
+    },
+    {
+     "word": "was",
+     "start": 129.42,
+     "end": 129.54
+    },
+    {
+     "word": "sold?",
+     "start": 129.54,
+     "end": 129.78
+    },
+    {
+     "word": "Return",
+     "start": 129.88,
+     "end": 130.28
+    },
+    {
+     "word": "might",
+     "start": 130.28,
+     "end": 130.72
+    },
+    {
+     "word": "be",
+     "start": 130.72,
+     "end": 130.82
+    },
+    {
+     "word": "a",
+     "start": 130.82,
+     "end": 130.94
+    },
+    {
+     "word": "better",
+     "start": 130.94,
+     "end": 131.04
+    },
+    {
+     "word": "way",
+     "start": 131.04,
+     "end": 131.14
+    },
+    {
+     "word": "to",
+     "start": 131.14,
+     "end": 131.22
+    },
+    {
+     "word": "go.",
+     "start": 131.22,
+     "end": 131.4
+    },
+    {
+     "word": "Most",
+     "start": 132.98,
+     "end": 133.38
+    },
+    {
+     "word": "of",
+     "start": 133.38,
+     "end": 133.88
+    },
+    {
+     "word": "it",
+     "start": 133.88,
+     "end": 133.98
+    },
+    {
+     "word": "is",
+     "start": 133.98,
+     "end": 134.12
+    },
+    {
+     "word": "Bitfenexes",
+     "start": 134.12,
+     "end": 134.78
+    },
+    {
+     "word": "anyway.",
+     "start": 134.78,
+     "end": 135.08
+    },
+    {
+     "word": "Yeah.",
+     "start": 135.74,
+     "end": 135.78
+    },
+    {
+     "word": "Let's",
+     "start": 136.1,
+     "end": 136.14
+    },
+    {
+     "word": "be",
+     "start": 136.14,
+     "end": 136.48
+    },
+    {
+     "word": "honest.",
+     "start": 136.48,
+     "end": 136.72
+    },
+    {
+     "word": "They",
+     "start": 136.94,
+     "end": 136.96
+    },
+    {
+     "word": "should",
+     "start": 136.96,
+     "end": 137.12
+    },
+    {
+     "word": "probably",
+     "start": 137.12,
+     "end": 137.38
+    },
+    {
+     "word": "get",
+     "start": 137.38,
+     "end": 137.6
+    },
+    {
+     "word": "that",
+     "start": 137.6,
+     "end": 137.86
+    },
+    {
+     "word": "back.",
+     "start": 137.86,
+     "end": 138.42
+    },
+    {
+     "word": "CZ's",
+     "start": 139.02,
+     "end": 139.42
+    },
+    {
+     "word": "the",
+     "start": 139.42,
+     "end": 139.56
+    },
+    {
+     "word": "stolen",
+     "start": 139.56,
+     "end": 139.8
+    },
+    {
+     "word": "stuff",
+     "start": 139.8,
+     "end": 140.4
+    },
+    {
+     "word": "from",
+     "start": 140.4,
+     "end": 140.56
+    },
+    {
+     "word": "Binance",
+     "start": 140.56,
+     "end": 140.96
+    },
+    {
+     "word": "is",
+     "start": 140.96,
+     "end": 141.06
+    },
+    {
+     "word": "also",
+     "start": 141.06,
+     "end": 141.26
+    },
+    {
+     "word": "in",
+     "start": 141.26,
+     "end": 141.44
+    },
+    {
+     "word": "there",
+     "start": 141.44,
+     "end": 141.56
+    },
+    {
+     "word": "now.",
+     "start": 141.56,
+     "end": 141.82
+    },
+    {
+     "word": "Oh.",
+     "start": 142.08,
+     "end": 142.08
+    },
+    {
+     "word": "That's",
+     "start": 143.18,
+     "end": 143.58
+    },
+    {
+     "word": "like",
+     "start": 143.58,
+     "end": 143.7
+    },
+    {
+     "word": "a",
+     "start": 143.7,
+     "end": 143.84
+    },
+    {
+     "word": "pittance,",
+     "start": 143.84,
+     "end": 144.3
+    },
+    {
+     "word": "though,",
+     "start": 144.5,
+     "end": 144.5
+    },
+    {
+     "word": "compared",
+     "start": 144.64,
+     "end": 144.82
+    },
+    {
+     "word": "to",
+     "start": 144.82,
+     "end": 144.98
+    },
+    {
+     "word": "like",
+     "start": 144.98,
+     "end": 145.22
+    },
+    {
+     "word": "the,",
+     "start": 145.22,
+     "end": 145.42
+    },
+    {
+     "word": "you",
+     "start": 145.54,
+     "end": 145.64
+    },
+    {
+     "word": "know,",
+     "start": 145.64,
+     "end": 145.76
+    },
+    {
+     "word": "that's",
+     "start": 145.88,
+     "end": 146.08
+    },
+    {
+     "word": "like",
+     "start": 146.08,
+     "end": 146.22
+    },
+    {
+     "word": "chump",
+     "start": 146.22,
+     "end": 146.76
+    },
+    {
+     "word": "change.",
+     "start": 146.76,
+     "end": 147.22
+    },
+    {
+     "word": "Yeah.",
+     "start": 148.22,
+     "end": 148.38
+    },
+    {
+     "word": "Yeah.",
+     "start": 148.84,
+     "end": 148.84
+    },
+    {
+     "word": "So,",
+     "start": 149.6,
+     "end": 149.84
+    },
+    {
+     "word": "I",
+     "start": 149.84,
+     "end": 150.04
+    },
+    {
+     "word": "mean,",
+     "start": 150.04,
+     "end": 150.16
+    },
+    {
+     "word": "there's",
+     "start": 150.2,
+     "end": 150.38
+    },
+    {
+     "word": "there's",
+     "start": 150.38,
+     "end": 150.68
+    },
+    {
+     "word": "kind",
+     "start": 150.68,
+     "end": 150.88
+    },
+    {
+     "word": "of",
+     "start": 150.88,
+     "end": 151.02
+    },
+    {
+     "word": "two",
+     "start": 151.02,
+     "end": 151.28
+    },
+    {
+     "word": "things",
+     "start": 151.28,
+     "end": 151.74
+    },
+    {
+     "word": "that",
+     "start": 151.74,
+     "end": 152.22
+    },
+    {
+     "word": "I",
+     "start": 152.22,
+     "end": 152.32
+    },
+    {
+     "word": "was",
+     "start": 152.32,
+     "end": 152.44
+    },
+    {
+     "word": "thinking",
+     "start": 152.44,
+     "end": 152.66
+    },
+    {
+     "word": "about",
+     "start": 152.66,
+     "end": 152.94
+    },
+    {
+     "word": "in",
+     "start": 152.94,
+     "end": 153.1
+    },
+    {
+     "word": "regards",
+     "start": 153.1,
+     "end": 153.42
+    },
+    {
+     "word": "to",
+     "start": 153.42,
+     "end": 153.64
+    },
+    {
+     "word": "this.",
+     "start": 153.64,
+     "end": 153.88
+    },
+    {
+     "word": "One",
+     "start": 154.62,
+     "end": 155.02
+    },
+    {
+     "word": "is.",
+     "start": 155.02,
+     "end": 155.62
+    },
+    {
+     "word": "I",
+     "start": 156.14,
+     "end": 156.58
+    },
+    {
+     "word": "think",
+     "start": 156.58,
+     "end": 157.04
+    },
+    {
+     "word": "Schiff",
+     "start": 157.04,
+     "end": 157.5
+    },
+    {
+     "word": "is",
+     "start": 157.5,
+     "end": 157.64
+    },
+    {
+     "word": "right.",
+     "start": 157.64,
+     "end": 157.8
+    },
+    {
+     "word": "There's",
+     "start": 157.94,
+     "end": 158.38
+    },
+    {
+     "word": "going",
+     "start": 158.38,
+     "end": 158.52
+    },
+    {
+     "word": "to",
+     "start": 158.52,
+     "end": 159.1
+    },
+    {
+     "word": "be...",
+     "start": 159.1,
+     "end": 159.74
+    },
+    {
+     "word": "Excuse",
+     "start": 159.74,
+     "end": 159.96
+    },
+    {
+     "word": "me.",
+     "start": 159.96,
+     "end": 160.16
+    },
+    {
+     "word": "What",
+     "start": 160.3,
+     "end": 160.3
+    },
+    {
+     "word": "did",
+     "start": 160.3,
+     "end": 160.42
+    },
+    {
+     "word": "you",
+     "start": 160.42,
+     "end": 160.54
+    },
+    {
+     "word": "say?",
+     "start": 160.54,
+     "end": 160.68
+    },
+    {
+     "word": "Schiff,",
+     "start": 161.84,
+     "end": 162.12
+    },
+    {
+     "word": "you",
+     "start": 163.2,
+     "end": 163.2
+    },
+    {
+     "word": "know",
+     "start": 163.2,
+     "end": 163.42
+    },
+    {
+     "word": "what?",
+     "start": 163.42,
+     "end": 163.66
+    },
+    {
+     "word": "Other",
+     "start": 164.82,
+     "end": 164.82
+    },
+    {
+     "word": "than",
+     "start": 164.82,
+     "end": 165.12
+    },
+    {
+     "word": "about",
+     "start": 165.12,
+     "end": 165.5
+    },
+    {
+     "word": "Bitcoin",
+     "start": 165.5,
+     "end": 165.86
+    },
+    {
+     "word": "specifically,",
+     "start": 165.86,
+     "end": 167.0
+    },
+    {
+     "word": "Schiff,",
+     "start": 167.46,
+     "end": 167.74
+    },
+    {
+     "word": "I",
+     "start": 167.92,
+     "end": 167.94
+    },
+    {
+     "word": "think,",
+     "start": 167.94,
+     "end": 168.3
+    },
+    {
+     "word": "is",
+     "start": 168.52,
+     "end": 168.52
+    },
+    {
+     "word": "correct",
+     "start": 168.52,
+     "end": 168.94
+    },
+    {
+     "word": "about",
+     "start": 168.94,
+     "end": 169.24
+    },
+    {
+     "word": "a",
+     "start": 169.24,
+     "end": 169.44
+    },
+    {
+     "word": "lot",
+     "start": 169.44,
+     "end": 169.64
+    },
+    {
+     "word": "of",
+     "start": 169.64,
+     "end": 169.82
+    },
+    {
+     "word": "things,",
+     "start": 169.82,
+     "end": 170.18
+    },
+    {
+     "word": "to",
+     "start": 170.9,
+     "end": 170.98
+    },
+    {
+     "word": "be",
+     "start": 170.98,
+     "end": 171.12
+    },
+    {
+     "word": "fair.",
+     "start": 171.12,
+     "end": 171.36
+    },
+    {
+     "word": "I",
+     "start": 171.52,
+     "end": 171.54
+    },
+    {
+     "word": "think",
+     "start": 171.54,
+     "end": 171.72
+    },
+    {
+     "word": "he's",
+     "start": 171.72,
+     "end": 171.94
+    },
+    {
+     "word": "got",
+     "start": 171.94,
+     "end": 172.1
+    },
+    {
+     "word": "good",
+     "start": 172.1,
+     "end": 172.38
+    },
+    {
+     "word": "takes",
+     "start": 172.38,
+     "end": 172.7
+    },
+    {
+     "word": "on",
+     "start": 172.7,
+     "end": 173.26
+    },
+    {
+     "word": "a",
+     "start": 173.26,
+     "end": 173.42
+    },
+    {
+     "word": "lot",
+     "start": 173.42,
+     "end": 173.64
+    },
+    {
+     "word": "of",
+     "start": 173.64,
+     "end": 173.78
+    },
+    {
+     "word": "other",
+     "start": 173.78,
+     "end": 173.98
+    },
+    {
+     "word": "shit",
+     "start": 173.98,
+     "end": 174.26
+    },
+    {
+     "word": "other",
+     "start": 174.26,
+     "end": 174.58
+    },
+    {
+     "word": "than",
+     "start": 174.58,
+     "end": 174.78
+    },
+    {
+     "word": "the",
+     "start": 174.78,
+     "end": 175.24
+    },
+    {
+     "word": "solution.",
+     "start": 175.24,
+     "end": 175.76
+    },
+    {
+     "word": "But",
+     "start": 177.08,
+     "end": 177.64
+    },
+    {
+     "word": "nonetheless,",
+     "start": 177.64,
+     "end": 178.0
+    },
+    {
+     "word": "I",
+     "start": 178.54,
+     "end": 178.56
+    },
+    {
+     "word": "do",
+     "start": 178.56,
+     "end": 178.74
+    },
+    {
+     "word": "think,",
+     "start": 178.74,
+     "end": 179.08
+    },
+    {
+     "word": "obviously,",
+     "start": 179.66,
+     "end": 179.66
+    },
+    {
+     "word": "more",
+     "start": 180.6,
+     "end": 180.6
+    },
+    {
+     "word": "Democrats",
+     "start": 180.6,
+     "end": 181.24
+    },
+    {
+     "word": "in",
+     "start": 181.24,
+     "end": 181.48
+    },
+    {
+     "word": "power,",
+     "start": 181.48,
+     "end": 181.84
+    },
+    {
+     "word": "more",
+     "start": 182.5,
+     "end": 182.74
+    },
+    {
+     "word": "crackdowns",
+     "start": 182.74,
+     "end": 183.66
+    },
+    {
+     "word": "on...",
+     "start": 183.66,
+     "end": 184.42
+    },
+    {
+     "word": "uh,",
+     "start": 184.48,
+     "end": 184.72
+    },
+    {
+     "word": "we'll",
+     "start": 184.98,
+     "end": 185.14
+    },
+    {
+     "word": "say",
+     "start": 185.14,
+     "end": 185.3
+    },
+    {
+     "word": "the",
+     "start": 185.3,
+     "end": 185.46
+    },
+    {
+     "word": "broader",
+     "start": 185.46,
+     "end": 185.9
+    },
+    {
+     "word": "crypto",
+     "start": 185.9,
+     "end": 186.3
+    },
+    {
+     "word": "ecosystem,",
+     "start": 186.3,
+     "end": 186.86
+    },
+    {
+     "word": "which",
+     "start": 187.12,
+     "end": 187.16
+    },
+    {
+     "word": "could",
+     "start": 187.16,
+     "end": 187.52
+    },
+    {
+     "word": "go",
+     "start": 187.52,
+     "end": 187.9
+    },
+    {
+     "word": "one",
+     "start": 187.9,
+     "end": 188.8
+    },
+    {
+     "word": "of",
+     "start": 188.8,
+     "end": 188.94
+    },
+    {
+     "word": "two",
+     "start": 188.94,
+     "end": 189.14
+    },
+    {
+     "word": "ways.",
+     "start": 189.14,
+     "end": 189.4
+    },
+    {
+     "word": "One",
+     "start": 189.58,
+     "end": 189.76
+    },
+    {
+     "word": "is,",
+     "start": 189.76,
+     "end": 190.14
+    },
+    {
+     "word": "um,",
+     "start": 191.0,
+     "end": 191.22
+    },
+    {
+     "word": "all",
+     "start": 191.52,
+     "end": 191.64
+    },
+    {
+     "word": "the",
+     "start": 191.64,
+     "end": 191.8
+    },
+    {
+     "word": "distractions,",
+     "start": 191.8,
+     "end": 192.48
+    },
+    {
+     "word": "all",
+     "start": 193.4,
+     "end": 193.5
+    },
+    {
+     "word": "the",
+     "start": 193.5,
+     "end": 193.7
+    },
+    {
+     "word": "gambly,",
+     "start": 193.7,
+     "end": 194.38
+    },
+    {
+     "word": "shit",
+     "start": 194.7,
+     "end": 194.86
+    },
+    {
+     "word": "coiny,",
+     "start": 194.86,
+     "end": 195.26
+    },
+    {
+     "word": "even",
+     "start": 195.74,
+     "end": 195.9
+    },
+    {
+     "word": "like",
+     "start": 195.9,
+     "end": 196.16
+    },
+    {
+     "word": "online",
+     "start": 196.16,
+     "end": 196.56
+    },
+    {
+     "word": "gambling",
+     "start": 196.56,
+     "end": 197.02
+    },
+    {
+     "word": "kind",
+     "start": 197.02,
+     "end": 197.34
+    },
+    {
+     "word": "of,",
+     "start": 197.34,
+     "end": 197.96
+    },
+    {
+     "word": "um,",
+     "start": 198.12,
+     "end": 198.22
+    },
+    {
+     "word": "you",
+     "start": 198.82,
+     "end": 198.86
+    },
+    {
+     "word": "know,",
+     "start": 198.86,
+     "end": 199.04
+    },
+    {
+     "word": "betting",
+     "start": 199.32,
+     "end": 199.5
+    },
+    {
+     "word": "markets,",
+     "start": 199.5,
+     "end": 199.86
+    },
+    {
+     "word": "stuff",
+     "start": 200.06,
+     "end": 200.12
+    },
+    {
+     "word": "like",
+     "start": 200.12,
+     "end": 200.26
+    },
+    {
+     "word": "that,",
+     "start": 200.26,
+     "end": 200.5
+    },
+    {
+     "word": "that",
+     "start": 200.82,
+     "end": 201.4
+    },
+    {
+     "word": "may",
+     "start": 201.4,
+     "end": 201.62
+    },
+    {
+     "word": "be",
+     "start": 201.62,
+     "end": 201.84
+    }
+   ]
+  },
+  "y0SjcqQPdpA": {
+   "purpose": "negative 3: 'that CFDC perp story' refers back lexically but is a different news item",
+   "channel": "Scott Melker",
+   "evidence_quote": "Binance was hacked and the United States banking regulators taking it very seriously",
+   "verdict": "CURRENT_EVENT",
+   "support": "SUPPORTS",
+   "supporting_chunk_ids": [
+    "y0SjcqQPdpA:771440-802150",
+    "y0SjcqQPdpA:1148559-1179510",
+    "y0SjcqQPdpA:1306080-1337750",
+    "y0SjcqQPdpA:1373510-1404230"
+   ],
+   "transcript_sha256": "a9a11418a3e0526ce90d37ac297c93970c70998e122b1f6f19fcae7d3222a08f",
+   "transcript_method": "whisper_words",
+   "transcript_model": "faster-whisper 1.2.1 distil-large-v3 float16 batched16 lang=en word_timestamps",
+   "words": [
+    {
+     "word": "with",
+     "start": 1264.96,
+     "end": 1265.08
+    },
+    {
+     "word": "a",
+     "start": 1265.08,
+     "end": 1265.14
+    },
+    {
+     "word": "bigger",
+     "start": 1265.14,
+     "end": 1265.32
+    },
+    {
+     "word": "SEC",
+     "start": 1265.32,
+     "end": 1265.68
+    },
+    {
+     "word": "roll",
+     "start": 1265.68,
+     "end": 1265.94
+    },
+    {
+     "word": "after",
+     "start": 1265.94,
+     "end": 1266.18
+    },
+    {
+     "word": "sweep.",
+     "start": 1266.18,
+     "end": 1266.42
+    },
+    {
+     "word": "So",
+     "start": 1266.54,
+     "end": 1266.6
+    },
+    {
+     "word": "listen,",
+     "start": 1266.6,
+     "end": 1266.76
+    },
+    {
+     "word": "I",
+     "start": 1266.9,
+     "end": 1266.98
+    },
+    {
+     "word": "took",
+     "start": 1266.98,
+     "end": 1267.16
+    },
+    {
+     "word": "a",
+     "start": 1267.16,
+     "end": 1267.28
+    },
+    {
+     "word": "look",
+     "start": 1267.28,
+     "end": 1267.4
+    },
+    {
+     "word": "at",
+     "start": 1267.4,
+     "end": 1267.54
+    },
+    {
+     "word": "this.",
+     "start": 1267.54,
+     "end": 1267.72
+    },
+    {
+     "word": "This",
+     "start": 1267.78,
+     "end": 1267.86
+    },
+    {
+     "word": "is",
+     "start": 1267.86,
+     "end": 1267.94
+    },
+    {
+     "word": "coming",
+     "start": 1267.94,
+     "end": 1268.14
+    },
+    {
+     "word": "from",
+     "start": 1268.14,
+     "end": 1268.38
+    },
+    {
+     "word": "Maxine",
+     "start": 1268.38,
+     "end": 1268.76
+    },
+    {
+     "word": "Waters.",
+     "start": 1268.76,
+     "end": 1269.08
+    },
+    {
+     "word": "the",
+     "start": 1269.59,
+     "end": 1269.97
+    },
+    {
+     "word": "bill",
+     "start": 1269.97,
+     "end": 1270.15
+    },
+    {
+     "word": "of",
+     "start": 1270.15,
+     "end": 1270.31
+    },
+    {
+     "word": "rights",
+     "start": 1270.31,
+     "end": 1270.65
+    },
+    {
+     "word": "that",
+     "start": 1270.65,
+     "end": 1270.83
+    },
+    {
+     "word": "she",
+     "start": 1270.83,
+     "end": 1270.97
+    },
+    {
+     "word": "had",
+     "start": 1270.97,
+     "end": 1271.11
+    },
+    {
+     "word": "proposed",
+     "start": 1271.11,
+     "end": 1271.45
+    },
+    {
+     "word": "that",
+     "start": 1271.45,
+     "end": 1271.63
+    },
+    {
+     "word": "was",
+     "start": 1271.63,
+     "end": 1271.77
+    },
+    {
+     "word": "rejected",
+     "start": 1271.77,
+     "end": 1272.17
+    },
+    {
+     "word": "in",
+     "start": 1272.17,
+     "end": 1272.41
+    },
+    {
+     "word": "the",
+     "start": 1272.41,
+     "end": 1272.51
+    },
+    {
+     "word": "House",
+     "start": 1272.51,
+     "end": 1272.85
+    },
+    {
+     "word": "version",
+     "start": 1272.85,
+     "end": 1273.33
+    },
+    {
+     "word": "of",
+     "start": 1273.33,
+     "end": 1273.53
+    },
+    {
+     "word": "the",
+     "start": 1273.53,
+     "end": 1273.63
+    },
+    {
+     "word": "Clarity",
+     "start": 1273.63,
+     "end": 1273.93
+    },
+    {
+     "word": "Act,",
+     "start": 1273.93,
+     "end": 1274.31
+    },
+    {
+     "word": "a",
+     "start": 1274.79,
+     "end": 1274.79
+    },
+    {
+     "word": "number",
+     "start": 1274.79,
+     "end": 1274.97
+    },
+    {
+     "word": "of",
+     "start": 1274.97,
+     "end": 1275.07
+    },
+    {
+     "word": "other",
+     "start": 1275.07,
+     "end": 1275.23
+    },
+    {
+     "word": "things",
+     "start": 1275.23,
+     "end": 1275.51
+    },
+    {
+     "word": "that",
+     "start": 1275.51,
+     "end": 1275.63
+    },
+    {
+     "word": "were",
+     "start": 1275.63,
+     "end": 1275.73
+    },
+    {
+     "word": "rejected",
+     "start": 1275.73,
+     "end": 1276.03
+    },
+    {
+     "word": "she's",
+     "start": 1276.03,
+     "end": 1276.35
+    },
+    {
+     "word": "proposing.",
+     "start": 1276.35,
+     "end": 1276.75
+    },
+    {
+     "word": "More",
+     "start": 1277.51,
+     "end": 1277.91
+    },
+    {
+     "word": "power",
+     "start": 1277.91,
+     "end": 1278.25
+    },
+    {
+     "word": "to",
+     "start": 1278.25,
+     "end": 1278.37
+    },
+    {
+     "word": "the",
+     "start": 1278.37,
+     "end": 1278.51
+    },
+    {
+     "word": "SEC",
+     "start": 1278.51,
+     "end": 1278.77
+    },
+    {
+     "word": "over",
+     "start": 1278.77,
+     "end": 1279.01
+    },
+    {
+     "word": "the",
+     "start": 1279.01,
+     "end": 1279.21
+    },
+    {
+     "word": "CFDC",
+     "start": 1279.21,
+     "end": 1279.83
+    },
+    {
+     "word": "doesn't",
+     "start": 1279.83,
+     "end": 1280.29
+    },
+    {
+     "word": "matter",
+     "start": 1280.29,
+     "end": 1280.49
+    },
+    {
+     "word": "much",
+     "start": 1280.49,
+     "end": 1280.79
+    },
+    {
+     "word": "right",
+     "start": 1280.79,
+     "end": 1281.13
+    },
+    {
+     "word": "now,",
+     "start": 1281.13,
+     "end": 1281.45
+    },
+    {
+     "word": "but",
+     "start": 1281.61,
+     "end": 1281.75
+    },
+    {
+     "word": "in",
+     "start": 1281.75,
+     "end": 1281.97
+    },
+    {
+     "word": "another",
+     "start": 1281.97,
+     "end": 1282.35
+    },
+    {
+     "word": "administration,",
+     "start": 1282.35,
+     "end": 1282.93
+    },
+    {
+     "word": "if",
+     "start": 1283.15,
+     "end": 1283.15
+    },
+    {
+     "word": "we",
+     "start": 1283.15,
+     "end": 1283.23
+    },
+    {
+     "word": "get",
+     "start": 1283.23,
+     "end": 1283.37
+    },
+    {
+     "word": "a",
+     "start": 1283.37,
+     "end": 1283.43
+    },
+    {
+     "word": "Gensler",
+     "start": 1283.43,
+     "end": 1283.77
+    },
+    {
+     "word": "like",
+     "start": 1283.77,
+     "end": 1283.99
+    },
+    {
+     "word": "SEC,",
+     "start": 1283.99,
+     "end": 1284.33
+    },
+    {
+     "word": "obviously",
+     "start": 1284.63,
+     "end": 1284.79
+    },
+    {
+     "word": "that",
+     "start": 1284.79,
+     "end": 1285.05
+    },
+    {
+     "word": "could",
+     "start": 1285.05,
+     "end": 1285.17
+    },
+    {
+     "word": "be",
+     "start": 1285.17,
+     "end": 1285.31
+    },
+    {
+     "word": "a",
+     "start": 1285.31,
+     "end": 1285.43
+    },
+    {
+     "word": "very",
+     "start": 1285.43,
+     "end": 1285.69
+    },
+    {
+     "word": "big",
+     "start": 1285.69,
+     "end": 1285.93
+    },
+    {
+     "word": "deal.",
+     "start": 1285.93,
+     "end": 1286.25
+    },
+    {
+     "word": "So",
+     "start": 1286.41,
+     "end": 1286.49
+    },
+    {
+     "word": "I",
+     "start": 1286.49,
+     "end": 1286.61
+    },
+    {
+     "word": "think",
+     "start": 1286.61,
+     "end": 1286.81
+    },
+    {
+     "word": "they're",
+     "start": 1286.81,
+     "end": 1287.07
+    },
+    {
+     "word": "getting",
+     "start": 1287.07,
+     "end": 1287.25
+    },
+    {
+     "word": "ahead",
+     "start": 1287.25,
+     "end": 1287.55
+    },
+    {
+     "word": "of",
+     "start": 1287.55,
+     "end": 1287.67
+    },
+    {
+     "word": "what",
+     "start": 1287.67,
+     "end": 1287.77
+    },
+    {
+     "word": "they",
+     "start": 1287.77,
+     "end": 1287.91
+    },
+    {
+     "word": "think",
+     "start": 1287.91,
+     "end": 1288.11
+    },
+    {
+     "word": "could",
+     "start": 1288.11,
+     "end": 1288.35
+    },
+    {
+     "word": "be",
+     "start": 1288.35,
+     "end": 1288.53
+    },
+    {
+     "word": "a",
+     "start": 1288.53,
+     "end": 1288.69
+    },
+    {
+     "word": "bigger",
+     "start": 1288.69,
+     "end": 1288.95
+    },
+    {
+     "word": "blue",
+     "start": 1288.95,
+     "end": 1289.19
+    },
+    {
+     "word": "sweep",
+     "start": 1289.19,
+     "end": 1289.49
+    },
+    {
+     "word": "in",
+     "start": 1289.49,
+     "end": 1289.65
+    },
+    {
+     "word": "the",
+     "start": 1289.65,
+     "end": 1289.75
+    },
+    {
+     "word": "next",
+     "start": 1289.75,
+     "end": 1289.97
+    },
+    {
+     "word": "election.",
+     "start": 1289.97,
+     "end": 1290.49
+    },
+    {
+     "word": "So",
+     "start": 1291.03,
+     "end": 1291.11
+    },
+    {
+     "word": "that",
+     "start": 1291.11,
+     "end": 1291.45
+    },
+    {
+     "word": "part",
+     "start": 1291.45,
+     "end": 1291.79
+    },
+    {
+     "word": "of",
+     "start": 1291.79,
+     "end": 1291.99
+    },
+    {
+     "word": "it",
+     "start": 1291.99,
+     "end": 1292.13
+    },
+    {
+     "word": "is",
+     "start": 1292.13,
+     "end": 1292.41
+    },
+    {
+     "word": "bad.",
+     "start": 1292.41,
+     "end": 1292.79
+    },
+    {
+     "word": "But",
+     "start": 1292.93,
+     "end": 1292.99
+    },
+    {
+     "word": "the",
+     "start": 1292.99,
+     "end": 1293.11
+    },
+    {
+     "word": "rest",
+     "start": 1293.11,
+     "end": 1293.31
+    },
+    {
+     "word": "of",
+     "start": 1293.31,
+     "end": 1293.45
+    },
+    {
+     "word": "it,",
+     "start": 1293.45,
+     "end": 1293.57
+    },
+    {
+     "word": "you",
+     "start": 1293.73,
+     "end": 1293.79
+    },
+    {
+     "word": "know,",
+     "start": 1293.79,
+     "end": 1293.99
+    },
+    {
+     "word": "more...",
+     "start": 1295.46,
+     "end": 1295.98
+    },
+    {
+     "word": "strict",
+     "start": 1296.07,
+     "end": 1296.53
+    },
+    {
+     "word": "rules",
+     "start": 1296.53,
+     "end": 1296.91
+    },
+    {
+     "word": "around",
+     "start": 1296.91,
+     "end": 1297.17
+    },
+    {
+     "word": "what",
+     "start": 1297.17,
+     "end": 1297.35
+    },
+    {
+     "word": "exchanges",
+     "start": 1297.35,
+     "end": 1297.81
+    },
+    {
+     "word": "can",
+     "start": 1297.81,
+     "end": 1298.13
+    },
+    {
+     "word": "do",
+     "start": 1298.13,
+     "end": 1298.33
+    },
+    {
+     "word": "and",
+     "start": 1298.33,
+     "end": 1298.55
+    },
+    {
+     "word": "how",
+     "start": 1298.55,
+     "end": 1298.67
+    },
+    {
+     "word": "withdrawals",
+     "start": 1298.67,
+     "end": 1299.31
+    },
+    {
+     "word": "work,",
+     "start": 1299.31,
+     "end": 1299.63
+    },
+    {
+     "word": "and",
+     "start": 1300.33,
+     "end": 1300.33
+    },
+    {
+     "word": "then",
+     "start": 1300.33,
+     "end": 1300.49
+    },
+    {
+     "word": "adding",
+     "start": 1300.49,
+     "end": 1301.03
+    },
+    {
+     "word": "language",
+     "start": 1301.03,
+     "end": 1301.53
+    },
+    {
+     "word": "that",
+     "start": 1301.53,
+     "end": 1301.69
+    },
+    {
+     "word": "Senate",
+     "start": 1301.69,
+     "end": 1302.03
+    },
+    {
+     "word": "Democrats",
+     "start": 1302.03,
+     "end": 1302.51
+    },
+    {
+     "word": "already",
+     "start": 1302.51,
+     "end": 1303.01
+    },
+    {
+     "word": "agreed",
+     "start": 1303.01,
+     "end": 1303.37
+    },
+    {
+     "word": "to,",
+     "start": 1303.37,
+     "end": 1303.59
+    },
+    {
+     "word": "really",
+     "start": 1303.97,
+     "end": 1304.13
+    },
+    {
+     "word": "not",
+     "start": 1304.13,
+     "end": 1304.37
+    },
+    {
+     "word": "that",
+     "start": 1304.37,
+     "end": 1304.55
+    },
+    {
+     "word": "bad.",
+     "start": 1304.55,
+     "end": 1304.77
+    },
+    {
+     "word": "So",
+     "start": 1304.97,
+     "end": 1304.97
+    },
+    {
+     "word": "I",
+     "start": 1304.97,
+     "end": 1305.07
+    },
+    {
+     "word": "think",
+     "start": 1305.07,
+     "end": 1305.27
+    },
+    {
+     "word": "that,",
+     "start": 1305.27,
+     "end": 1305.43
+    },
+    {
+     "word": "listen,",
+     "start": 1305.55,
+     "end": 1305.65
+    },
+    {
+     "word": "we're",
+     "start": 1305.75,
+     "end": 1305.81
+    },
+    {
+     "word": "going",
+     "start": 1305.81,
+     "end": 1305.87
+    },
+    {
+     "word": "to",
+     "start": 1305.87,
+     "end": 1305.93
+    },
+    {
+     "word": "see",
+     "start": 1305.93,
+     "end": 1306.03
+    },
+    {
+     "word": "what",
+     "start": 1306.03,
+     "end": 1306.15
+    },
+    {
+     "word": "happens",
+     "start": 1306.15,
+     "end": 1306.51
+    },
+    {
+     "word": "with",
+     "start": 1306.51,
+     "end": 1306.75
+    },
+    {
+     "word": "the",
+     "start": 1306.75,
+     "end": 1306.85
+    },
+    {
+     "word": "Clarity",
+     "start": 1306.85,
+     "end": 1307.15
+    },
+    {
+     "word": "Act",
+     "start": 1307.15,
+     "end": 1307.43
+    },
+    {
+     "word": "or",
+     "start": 1307.43,
+     "end": 1307.65
+    },
+    {
+     "word": "what's",
+     "start": 1307.65,
+     "end": 1308.05
+    },
+    {
+     "word": "proposed.",
+     "start": 1308.05,
+     "end": 1308.25
+    },
+    {
+     "word": "We",
+     "start": 1308.53,
+     "end": 1308.53
+    },
+    {
+     "word": "know",
+     "start": 1308.53,
+     "end": 1308.69
+    },
+    {
+     "word": "that",
+     "start": 1308.69,
+     "end": 1308.83
+    },
+    {
+     "word": "Trump",
+     "start": 1308.83,
+     "end": 1309.03
+    },
+    {
+     "word": "still",
+     "start": 1309.03,
+     "end": 1309.27
+    },
+    {
+     "word": "has",
+     "start": 1309.27,
+     "end": 1309.43
+    },
+    {
+     "word": "veto",
+     "start": 1309.43,
+     "end": 1309.65
+    },
+    {
+     "word": "power.",
+     "start": 1309.65,
+     "end": 1310.05
+    },
+    {
+     "word": "So",
+     "start": 1310.29,
+     "end": 1310.39
+    },
+    {
+     "word": "interesting",
+     "start": 1310.39,
+     "end": 1312.03
+    },
+    {
+     "word": "story",
+     "start": 1312.03,
+     "end": 1312.81
+    },
+    {
+     "word": "is",
+     "start": 1312.81,
+     "end": 1313.05
+    },
+    {
+     "word": "that",
+     "start": 1313.05,
+     "end": 1313.19
+    },
+    {
+     "word": "they",
+     "start": 1313.19,
+     "end": 1313.41
+    },
+    {
+     "word": "so",
+     "start": 1313.41,
+     "end": 1313.71
+    },
+    {
+     "word": "quickly",
+     "start": 1313.71,
+     "end": 1314.23
+    },
+    {
+     "word": "started",
+     "start": 1314.23,
+     "end": 1315.09
+    },
+    {
+     "word": "talking",
+     "start": 1315.09,
+     "end": 1315.39
+    },
+    {
+     "word": "about",
+     "start": 1315.39,
+     "end": 1315.63
+    },
+    {
+     "word": "this",
+     "start": 1315.63,
+     "end": 1315.81
+    },
+    {
+     "word": "right",
+     "start": 1315.81,
+     "end": 1315.97
+    },
+    {
+     "word": "after",
+     "start": 1315.97,
+     "end": 1316.23
+    },
+    {
+     "word": "winning.",
+     "start": 1316.23,
+     "end": 1316.51
+    },
+    {
+     "word": "Apparently",
+     "start": 1316.65,
+     "end": 1316.85
+    },
+    {
+     "word": "we're",
+     "start": 1316.85,
+     "end": 1317.07
+    },
+    {
+     "word": "working",
+     "start": 1317.07,
+     "end": 1317.31
+    },
+    {
+     "word": "on",
+     "start": 1317.31,
+     "end": 1317.47
+    },
+    {
+     "word": "it",
+     "start": 1317.47,
+     "end": 1317.61
+    },
+    {
+     "word": "all",
+     "start": 1317.61,
+     "end": 1317.73
+    },
+    {
+     "word": "summer,",
+     "start": 1317.73,
+     "end": 1318.13
+    },
+    {
+     "word": "but",
+     "start": 1318.95,
+     "end": 1319.03
+    },
+    {
+     "word": "less",
+     "start": 1319.03,
+     "end": 1319.25
+    },
+    {
+     "word": "of",
+     "start": 1319.25,
+     "end": 1319.37
+    },
+    {
+     "word": "a",
+     "start": 1319.37,
+     "end": 1319.49
+    },
+    {
+     "word": "story,",
+     "start": 1319.49,
+     "end": 1319.71
+    },
+    {
+     "word": "I",
+     "start": 1319.87,
+     "end": 1319.87
+    },
+    {
+     "word": "think,",
+     "start": 1319.87,
+     "end": 1320.07
+    },
+    {
+     "word": "what's",
+     "start": 1320.15,
+     "end": 1320.29
+    },
+    {
+     "word": "actually",
+     "start": 1320.29,
+     "end": 1320.55
+    },
+    {
+     "word": "in",
+     "start": 1320.55,
+     "end": 1320.71
+    },
+    {
+     "word": "it.",
+     "start": 1320.71,
+     "end": 1320.83
+    },
+    {
+     "word": "We",
+     "start": 1321.02,
+     "end": 1321.24
+    },
+    {
+     "word": "already",
+     "start": 1321.24,
+     "end": 1321.38
+    },
+    {
+     "word": "talked",
+     "start": 1321.38,
+     "end": 1321.62
+    },
+    {
+     "word": "about",
+     "start": 1321.62,
+     "end": 1321.8
+    },
+    {
+     "word": "this",
+     "start": 1321.8,
+     "end": 1322.0
+    },
+    {
+     "word": "earlier.",
+     "start": 1322.0,
+     "end": 1322.3
+    },
+    {
+     "word": "Fed",
+     "start": 1322.44,
+     "end": 1322.54
+    },
+    {
+     "word": "and",
+     "start": 1322.54,
+     "end": 1322.66
+    },
+    {
+     "word": "OCC",
+     "start": 1322.66,
+     "end": 1322.96
+    },
+    {
+     "word": "quiz",
+     "start": 1322.96,
+     "end": 1323.24
+    },
+    {
+     "word": "U",
+     "start": 1323.24,
+     "end": 1323.4
+    },
+    {
+     "word": ".S.",
+     "start": 1323.4,
+     "end": 1323.5
+    },
+    {
+     "word": "banks",
+     "start": 1323.72,
+     "end": 1323.74
+    },
+    {
+     "word": "after",
+     "start": 1323.74,
+     "end": 1324.0
+    },
+    {
+     "word": "6",
+     "start": 1324.0,
+     "end": 1324.22
+    },
+    {
+     "word": ".3",
+     "start": 1324.22,
+     "end": 1324.52
+    },
+    {
+     "word": "billion",
+     "start": 1324.52,
+     "end": 1324.84
+    },
+    {
+     "word": "Binance",
+     "start": 1324.84,
+     "end": 1325.22
+    },
+    {
+     "word": "was",
+     "start": 1325.22,
+     "end": 1325.92
+    },
+    {
+     "word": "hacked,",
+     "start": 1325.92,
+     "end": 1326.18
+    },
+    {
+     "word": "and",
+     "start": 1326.7,
+     "end": 1326.7
+    },
+    {
+     "word": "the",
+     "start": 1326.7,
+     "end": 1326.86
+    },
+    {
+     "word": "United",
+     "start": 1326.86,
+     "end": 1327.06
+    },
+    {
+     "word": "States",
+     "start": 1327.06,
+     "end": 1327.4
+    },
+    {
+     "word": "banking",
+     "start": 1327.4,
+     "end": 1327.72
+    },
+    {
+     "word": "regulators",
+     "start": 1327.72,
+     "end": 1328.22
+    },
+    {
+     "word": "taking",
+     "start": 1328.22,
+     "end": 1328.6
+    },
+    {
+     "word": "it",
+     "start": 1328.6,
+     "end": 1328.76
+    },
+    {
+     "word": "very",
+     "start": 1328.76,
+     "end": 1328.98
+    },
+    {
+     "word": "seriously",
+     "start": 1328.98,
+     "end": 1329.46
+    },
+    {
+     "word": "trying",
+     "start": 1329.46,
+     "end": 1329.78
+    },
+    {
+     "word": "to",
+     "start": 1329.78,
+     "end": 1329.9
+    },
+    {
+     "word": "get",
+     "start": 1329.9,
+     "end": 1330.02
+    },
+    {
+     "word": "ahead",
+     "start": 1330.02,
+     "end": 1330.24
+    },
+    {
+     "word": "of",
+     "start": 1330.24,
+     "end": 1330.34
+    },
+    {
+     "word": "it",
+     "start": 1330.34,
+     "end": 1330.42
+    },
+    {
+     "word": "because",
+     "start": 1330.42,
+     "end": 1330.6
+    },
+    {
+     "word": "we",
+     "start": 1330.6,
+     "end": 1330.74
+    },
+    {
+     "word": "know",
+     "start": 1330.74,
+     "end": 1330.88
+    },
+    {
+     "word": "that",
+     "start": 1330.88,
+     "end": 1331.0
+    },
+    {
+     "word": "banks",
+     "start": 1331.0,
+     "end": 1331.28
+    },
+    {
+     "word": "will",
+     "start": 1331.28,
+     "end": 1331.52
+    },
+    {
+     "word": "be",
+     "start": 1331.52,
+     "end": 1331.68
+    },
+    {
+     "word": "hacked",
+     "start": 1331.68,
+     "end": 1331.96
+    },
+    {
+     "word": "next.",
+     "start": 1331.96,
+     "end": 1332.46
+    },
+    {
+     "word": "And",
+     "start": 1332.58,
+     "end": 1332.9
+    },
+    {
+     "word": "then",
+     "start": 1332.9,
+     "end": 1332.92
+    },
+    {
+     "word": "we",
+     "start": 1332.92,
+     "end": 1332.98
+    },
+    {
+     "word": "got",
+     "start": 1332.98,
+     "end": 1333.08
+    },
+    {
+     "word": "an",
+     "start": 1333.08,
+     "end": 1333.2
+    },
+    {
+     "word": "update",
+     "start": 1333.2,
+     "end": 1333.44
+    },
+    {
+     "word": "on",
+     "start": 1333.44,
+     "end": 1333.58
+    },
+    {
+     "word": "that",
+     "start": 1333.58,
+     "end": 1333.72
+    },
+    {
+     "word": "CFDC",
+     "start": 1333.72,
+     "end": 1334.32
+    },
+    {
+     "word": "perp",
+     "start": 1334.32,
+     "end": 1335.66
+    },
+    {
+     "word": "story.",
+     "start": 1335.66,
+     "end": 1335.94
+    },
+    {
+     "word": "Right",
+     "start": 1336.14,
+     "end": 1336.24
+    },
+    {
+     "word": "after",
+     "start": 1336.24,
+     "end": 1336.68
+    },
+    {
+     "word": "the",
+     "start": 1336.68,
+     "end": 1337.0
+    },
+    {
+     "word": "perps",
+     "start": 1337.0,
+     "end": 1337.38
+    },
+    {
+     "word": "were",
+     "start": 1337.38,
+     "end": 1337.58
+    },
+    {
+     "word": "approved",
+     "start": 1337.58,
+     "end": 1338.2
+    },
+    {
+     "word": "by",
+     "start": 1338.2,
+     "end": 1338.42
+    },
+    {
+     "word": "the",
+     "start": 1338.42,
+     "end": 1338.6
+    },
+    {
+     "word": "CFDC,",
+     "start": 1338.6,
+     "end": 1339.14
+    },
+    {
+     "word": "we",
+     "start": 1339.7,
+     "end": 1340.06
+    },
+    {
+     "word": "saw",
+     "start": 1340.06,
+     "end": 1340.5
+    },
+    {
+     "word": "a",
+     "start": 1340.5,
+     "end": 1341.18
+    },
+    {
+     "word": "few",
+     "start": 1341.18,
+     "end": 1341.7
+    },
+    {
+     "word": "organizations",
+     "start": 1341.7,
+     "end": 1342.48
+    },
+    {
+     "word": "come",
+     "start": 1342.48,
+     "end": 1342.88
+    },
+    {
+     "word": "together",
+     "start": 1342.88,
+     "end": 1343.28
+    },
+    {
+     "word": "to",
+     "start": 1343.28,
+     "end": 1343.48
+    },
+    {
+     "word": "try",
+     "start": 1343.48,
+     "end": 1343.68
+    },
+    {
+     "word": "to",
+     "start": 1343.68,
+     "end": 1343.78
+    },
+    {
+     "word": "stop",
+     "start": 1343.78,
+     "end": 1344.1
+    },
+    {
+     "word": "them.",
+     "start": 1344.1,
+     "end": 1344.32
+    },
+    {
+     "word": "Well,",
+     "start": 1344.38,
+     "end": 1344.48
+    },
+    {
+     "word": "the",
+     "start": 1344.6,
+     "end": 1344.6
+    },
+    {
+     "word": "judge",
+     "start": 1344.6,
+     "end": 1344.92
+    },
+    {
+     "word": "let",
+     "start": 1344.92,
+     "end": 1345.16
+    },
+    {
+     "word": "stock",
+     "start": 1345.16,
+     "end": 1345.48
+    },
+    {
+     "word": "perpetual",
+     "start": 1345.48,
+     "end": 1345.86
+    },
+    {
+     "word": "futures",
+     "start": 1345.86,
+     "end": 1346.18
+    },
+    {
+     "word": "keep",
+     "start": 1346.18,
+     "end": 1346.36
+    },
+    {
+     "word": "trading,",
+     "start": 1346.36,
+     "end": 1346.62
+    },
+    {
+     "word": "but",
+     "start": 1346.74,
+     "end": 1346.78
+    },
+    {
+     "word": "says",
+     "start": 1346.78,
+     "end": 1347.0
+    },
+    {
+     "word": "CFDC",
+     "start": 1347.0,
+     "end": 1347.5
+    },
+    {
+     "word": "likely",
+     "start": 1347.5,
+     "end": 1347.82
+    },
+    {
+     "word": "overstepped",
+     "start": 1347.82,
+     "end": 1348.32
+    },
+    {
+     "word": "its",
+     "start": 1348.32,
+     "end": 1348.5
+    },
+    {
+     "word": "authority.",
+     "start": 1348.5,
+     "end": 1348.76
+    },
+    {
+     "word": "So",
+     "start": 1349.31,
+     "end": 1349.65
+    },
+    {
+     "word": "the",
+     "start": 1349.65,
+     "end": 1349.79
+    },
+    {
+     "word": "judge",
+     "start": 1349.79,
+     "end": 1350.01
+    },
+    {
+     "word": "did",
+     "start": 1350.01,
+     "end": 1350.21
+    },
+    {
+     "word": "not",
+     "start": 1350.21,
+     "end": 1350.41
+    },
+    {
+     "word": "halt",
+     "start": 1350.41,
+     "end": 1350.79
+    },
+    {
+     "word": "them",
+     "start": 1350.79,
+     "end": 1351.09
+    },
+    {
+     "word": "from",
+     "start": 1351.09,
+     "end": 1351.43
+    },
+    {
+     "word": "happening,",
+     "start": 1351.43,
+     "end": 1352.07
+    },
+    {
+     "word": "but",
+     "start": 1352.79,
+     "end": 1352.81
+    },
+    {
+     "word": "said",
+     "start": 1352.81,
+     "end": 1353.13
+    },
+    {
+     "word": "that",
+     "start": 1353.13,
+     "end": 1353.55
+    },
+    {
+     "word": "the",
+     "start": 1353.55,
+     "end": 1354.23
+    },
+    {
+     "word": "Citadel",
+     "start": 1354.23,
+     "end": 1354.49
+    },
+    {
+     "word": "Security's",
+     "start": 1354.49,
+     "end": 1354.95
+    },
+    {
+     "word": "back",
+     "start": 1354.95,
+     "end": 1355.11
+    },
+    {
+     "word": "group",
+     "start": 1355.11,
+     "end": 1355.29
+    },
+    {
+     "word": "is",
+     "start": 1355.29,
+     "end": 1355.43
+    },
+    {
+     "word": "likely",
+     "start": 1355.43,
+     "end": 1355.75
+    },
+    {
+     "word": "to",
+     "start": 1355.75,
+     "end": 1355.91
+    },
+    {
+     "word": "prove",
+     "start": 1355.91,
+     "end": 1356.11
+    },
+    {
+     "word": "the",
+     "start": 1356.11,
+     "end": 1356.29
+    },
+    {
+     "word": "CFDC",
+     "start": 1356.29,
+     "end": 1356.91
+    },
+    {
+     "word": "exceeded",
+     "start": 1356.91,
+     "end": 1357.43
+    },
+    {
+     "word": "its",
+     "start": 1357.43,
+     "end": 1357.69
+    },
+    {
+     "word": "authority.",
+     "start": 1357.69,
+     "end": 1358.03
+    },
+    {
+     "word": "So",
+     "start": 1358.21,
+     "end": 1358.23
+    },
+    {
+     "word": "this",
+     "start": 1358.23,
+     "end": 1358.37
+    },
+    {
+     "word": "will",
+     "start": 1358.37,
+     "end": 1358.47
+    },
+    {
+     "word": "be",
+     "start": 1358.47,
+     "end": 1358.57
+    },
+    {
+     "word": "an",
+     "start": 1358.57,
+     "end": 1358.73
+    },
+    {
+     "word": "ongoing",
+     "start": 1358.73,
+     "end": 1359.29
+    },
+    {
+     "word": "situation.",
+     "start": 1359.29,
+     "end": 1359.91
+    },
+    {
+     "word": "And",
+     "start": 1360.21,
+     "end": 1360.21
+    },
+    {
+     "word": "meanwhile,",
+     "start": 1360.21,
+     "end": 1360.63
+    },
+    {
+     "word": "we",
+     "start": 1360.83,
+     "end": 1360.83
+    },
+    {
+     "word": "talk",
+     "start": 1360.83,
+     "end": 1361.01
+    },
+    {
+     "word": "about",
+     "start": 1361.01,
+     "end": 1361.19
+    },
+    {
+     "word": "banks",
+     "start": 1361.19,
+     "end": 1361.47
+    },
+    {
+     "word": "might",
+     "start": 1361.47,
+     "end": 1361.63
+    },
+    {
+     "word": "get",
+     "start": 1361.63,
+     "end": 1361.83
+    },
+    {
+     "word": "hacked.",
+     "start": 1361.83,
+     "end": 1362.15
+    },
+    {
+     "word": "Banks",
+     "start": 1362.69,
+     "end": 1362.77
+    },
+    {
+     "word": "are",
+     "start": 1362.77,
+     "end": 1362.89
+    },
+    {
+     "word": "getting",
+     "start": 1362.89,
+     "end": 1363.03
+    },
+    {
+     "word": "hacked.",
+     "start": 1363.03,
+     "end": 1363.37
+    },
+    {
+     "word": "Credit",
+     "start": 1364.26,
+     "end": 1364.32
+    },
+    {
+     "word": "mutual",
+     "start": 1364.32,
+     "end": 1364.74
+    },
+    {
+     "word": "archie.",
+     "start": 1364.74,
+     "end": 1365.24
+    },
+    {
+     "word": "Do",
+     "start": 1366.22,
+     "end": 1366.44
+    },
+    {
+     "word": "you",
+     "start": 1366.44,
+     "end": 1367.44
+    },
+    {
+     "word": "guys",
+     "start": 1367.95,
+     "end": 1368.07
+    },
+    {
+     "word": "speak",
+     "start": 1368.07,
+     "end": 1368.33
+    },
+    {
+     "word": "French?",
+     "start": 1368.33,
+     "end": 1368.73
+    },
+    {
+     "word": "Credit",
+     "start": 1369.59,
+     "end": 1369.77
+    },
+    {
+     "word": "mutual",
+     "start": 1369.77,
+     "end": 1370.89
+    },
+    {
+     "word": "archier.",
+     "start": 1370.89,
+     "end": 1371.97
+    },
+    {
+     "word": "Say",
+     "start": 1373.43,
+     "end": 1373.69
+    },
+    {
+     "word": "it",
+     "start": 1373.69,
+     "end": 1373.81
+    },
+    {
+     "word": "like",
+     "start": 1373.81,
+     "end": 1373.91
+    },
+    {
+     "word": "a",
+     "start": 1373.91,
+     "end": 1373.99
+    },
+    {
+     "word": "real",
+     "start": 1373.99,
+     "end": 1374.11
+    },
+    {
+     "word": "American.",
+     "start": 1374.11,
+     "end": 1374.45
+    },
+    {
+     "word": "Confirmed",
+     "start": 1374.99,
+     "end": 1375.43
+    },
+    {
+     "word": "cyber",
+     "start": 1375.43,
+     "end": 1375.73
+    },
+    {
+     "word": "attack",
+     "start": 1375.73,
+     "end": 1376.07
+    },
+    {
+     "word": "actor",
+     "start": 1376.07,
+     "end": 1376.43
+    },
+    {
+     "word": "Zach",
+     "start": 1376.43,
+     "end": 1376.75
+    },
+    {
+     "word": "XPT",
+     "start": 1376.75,
+     "end": 1377.23
+    },
+    {
+     "word": "ties",
+     "start": 1377.23,
+     "end": 1377.53
+    },
+    {
+     "word": "it",
+     "start": 1377.53,
+     "end": 1377.69
+    },
+    {
+     "word": "to",
+     "start": 1377.69,
+     "end": 1377.81
+    },
+    {
+     "word": "$133",
+     "start": 1377.81,
+     "end": 1378.73
+    },
+    {
+     "word": "million",
+     "start": 1378.73,
+     "end": 1379.01
+    },
+    {
+     "word": "crypto",
+     "start": 1379.01,
+     "end": 1379.45
+    },
+    {
+     "word": "theft.",
+     "start": 1379.45,
+     "end": 1379.85
+    },
+    {
+     "word": "So",
+     "start": 1380.03,
+     "end": 1380.03
+    },
+    {
+     "word": "there",
+     "start": 1380.03,
+     "end": 1380.15
+    },
+    {
+     "word": "was",
+     "start": 1380.15,
+     "end": 1380.31
+    },
+    {
+     "word": "$133",
+     "start": 1380.31,
+     "end": 1381.55
+    },
+    {
+     "word": "million",
+     "start": 1381.55,
+     "end": 1381.89
+    },
+    {
+     "word": "in",
+     "start": 1381.89,
+     "end": 1382.49
+    },
+    {
+     "word": "crypto",
+     "start": 1382.49,
+     "end": 1382.81
+    },
+    {
+     "word": "that",
+     "start": 1382.81,
+     "end": 1383.03
+    },
+    {
+     "word": "was",
+     "start": 1383.03,
+     "end": 1383.13
+    },
+    {
+     "word": "moving",
+     "start": 1383.13,
+     "end": 1383.35
+    },
+    {
+     "word": "and",
+     "start": 1383.35,
+     "end": 1383.51
+    },
+    {
+     "word": "being",
+     "start": 1383.51,
+     "end": 1383.67
+    },
+    {
+     "word": "laundered",
+     "start": 1383.67,
+     "end": 1384.13
+    },
+    {
+     "word": "and",
+     "start": 1384.13,
+     "end": 1384.39
+    },
+    {
+     "word": "was",
+     "start": 1384.39,
+     "end": 1385.27
+    },
+    {
+     "word": "identified",
+     "start": 1385.27,
+     "end": 1385.77
+    },
+    {
+     "word": "as",
+     "start": 1385.77,
+     "end": 1386.33
+    },
+    {
+     "word": "money",
+     "start": 1386.33,
+     "end": 1386.59
+    },
+    {
+     "word": "hacked",
+     "start": 1386.59,
+     "end": 1387.03
+    },
+    {
+     "word": "in",
+     "start": 1387.51,
+     "end": 1388.67
+    },
+    {
+     "word": "a",
+     "start": 1388.67,
+     "end": 1388.77
+    },
+    {
+     "word": "cyber",
+     "start": 1388.77,
+     "end": 1389.03
+    },
+    {
+     "word": "attack",
+     "start": 1389.03,
+     "end": 1389.29
+    },
+    {
+     "word": "from",
+     "start": 1389.29,
+     "end": 1389.43
+    },
+    {
+     "word": "an",
+     "start": 1389.43,
+     "end": 1389.51
+    }
+   ]
+  },
+  "L9tzgg6PXi8": {
+   "purpose": "negative 2: neighbours are market commentary / another item with no backward reference",
+   "channel": "CoinTelegraph",
+   "evidence_quote": "We've just had the Binance hack last week.",
+   "verdict": "CURRENT_EVENT",
+   "support": "SUPPORTS",
+   "supporting_chunk_ids": [
+    "L9tzgg6PXi8:36810-72980"
+   ],
+   "transcript_sha256": "5c244de9971d27951241c11368174f9a1f68ff55548bf1e46e22094cee937eac",
+   "transcript_method": "whisper_words",
+   "transcript_model": "faster-whisper 1.2.1 distil-large-v3 float16 batched16 lang=en word_timestamps",
+   "words": [
+    {
+     "word": "Markets",
+     "start": 0.0,
+     "end": 0.58
+    },
+    {
+     "word": "stop",
+     "start": 0.58,
+     "end": 0.88
+    },
+    {
+     "word": "going",
+     "start": 0.88,
+     "end": 1.18
+    },
+    {
+     "word": "up",
+     "start": 1.18,
+     "end": 1.54
+    },
+    {
+     "word": "when",
+     "start": 1.54,
+     "end": 2.34
+    },
+    {
+     "word": "there's",
+     "start": 2.34,
+     "end": 2.52
+    },
+    {
+     "word": "no",
+     "start": 2.52,
+     "end": 2.64
+    },
+    {
+     "word": "more",
+     "start": 2.64,
+     "end": 2.8
+    },
+    {
+     "word": "buyers.",
+     "start": 2.8,
+     "end": 3.18
+    },
+    {
+     "word": "And",
+     "start": 3.98,
+     "end": 3.98
+    },
+    {
+     "word": "markets",
+     "start": 3.98,
+     "end": 4.2
+    },
+    {
+     "word": "stop",
+     "start": 4.2,
+     "end": 4.48
+    },
+    {
+     "word": "going",
+     "start": 4.48,
+     "end": 4.7
+    },
+    {
+     "word": "down",
+     "start": 4.7,
+     "end": 5.1
+    },
+    {
+     "word": "when",
+     "start": 5.1,
+     "end": 5.62
+    },
+    {
+     "word": "there's",
+     "start": 5.62,
+     "end": 5.76
+    },
+    {
+     "word": "no",
+     "start": 5.76,
+     "end": 5.86
+    },
+    {
+     "word": "more",
+     "start": 5.86,
+     "end": 6.02
+    },
+    {
+     "word": "sellers.",
+     "start": 6.02,
+     "end": 6.36
+    },
+    {
+     "word": "I",
+     "start": 6.74,
+     "end": 6.74
+    },
+    {
+     "word": "mean,",
+     "start": 6.74,
+     "end": 6.88
+    },
+    {
+     "word": "the",
+     "start": 7.2,
+     "end": 7.2
+    },
+    {
+     "word": "largest",
+     "start": 7.2,
+     "end": 7.62
+    },
+    {
+     "word": "in",
+     "start": 7.62,
+     "end": 7.78
+    },
+    {
+     "word": "history,",
+     "start": 7.78,
+     "end": 8.12
+    },
+    {
+     "word": "devastating",
+     "start": 8.28,
+     "end": 8.62
+    },
+    {
+     "word": "news",
+     "start": 8.62,
+     "end": 8.94
+    },
+    {
+     "word": "happened",
+     "start": 8.94,
+     "end": 9.3
+    },
+    {
+     "word": "and",
+     "start": 9.3,
+     "end": 9.46
+    },
+    {
+     "word": "the",
+     "start": 9.46,
+     "end": 9.5
+    },
+    {
+     "word": "price",
+     "start": 9.5,
+     "end": 9.68
+    },
+    {
+     "word": "doesn't",
+     "start": 9.68,
+     "end": 9.86
+    },
+    {
+     "word": "go",
+     "start": 9.86,
+     "end": 9.94
+    },
+    {
+     "word": "down.",
+     "start": 9.94,
+     "end": 10.16
+    },
+    {
+     "word": "But",
+     "start": 10.36,
+     "end": 10.52
+    },
+    {
+     "word": "most",
+     "start": 10.52,
+     "end": 11.28
+    },
+    {
+     "word": "people",
+     "start": 11.28,
+     "end": 11.92
+    },
+    {
+     "word": "still",
+     "start": 11.92,
+     "end": 12.48
+    },
+    {
+     "word": "think",
+     "start": 12.48,
+     "end": 12.66
+    },
+    {
+     "word": "it's",
+     "start": 12.66,
+     "end": 12.78
+    },
+    {
+     "word": "a",
+     "start": 12.78,
+     "end": 12.88
+    },
+    {
+     "word": "scam.",
+     "start": 12.88,
+     "end": 13.16
+    },
+    {
+     "word": "So",
+     "start": 13.92,
+     "end": 13.98
+    },
+    {
+     "word": "I",
+     "start": 13.98,
+     "end": 14.2
+    },
+    {
+     "word": "think",
+     "start": 14.2,
+     "end": 14.3
+    },
+    {
+     "word": "it's",
+     "start": 14.3,
+     "end": 14.48
+    },
+    {
+     "word": "this",
+     "start": 14.48,
+     "end": 14.68
+    },
+    {
+     "word": "is",
+     "start": 14.68,
+     "end": 15.16
+    },
+    {
+     "word": "like",
+     "start": 15.16,
+     "end": 15.5
+    },
+    {
+     "word": "the",
+     "start": 15.5,
+     "end": 15.96
+    },
+    {
+     "word": "best",
+     "start": 15.96,
+     "end": 16.12
+    },
+    {
+     "word": "buying",
+     "start": 16.12,
+     "end": 16.3
+    },
+    {
+     "word": "opportunity",
+     "start": 16.3,
+     "end": 16.62
+    },
+    {
+     "word": "ever.",
+     "start": 16.62,
+     "end": 16.92
+    },
+    {
+     "word": "I",
+     "start": 17.1,
+     "end": 17.1
+    },
+    {
+     "word": "said,",
+     "start": 17.1,
+     "end": 17.2
+    },
+    {
+     "word": "Bitcoin",
+     "start": 17.48,
+     "end": 17.48
+    },
+    {
+     "word": "will",
+     "start": 17.48,
+     "end": 17.66
+    },
+    {
+     "word": "keep",
+     "start": 17.66,
+     "end": 17.84
+    },
+    {
+     "word": "going,",
+     "start": 17.84,
+     "end": 18.1
+    },
+    {
+     "word": "but",
+     "start": 18.26,
+     "end": 18.28
+    },
+    {
+     "word": "crypto's",
+     "start": 18.28,
+     "end": 18.84
+    },
+    {
+     "word": "dead.",
+     "start": 18.84,
+     "end": 19.12
+    },
+    {
+     "word": "And",
+     "start": 19.82,
+     "end": 19.84
+    },
+    {
+     "word": "people",
+     "start": 19.84,
+     "end": 20.04
+    },
+    {
+     "word": "hated",
+     "start": 20.04,
+     "end": 20.44
+    },
+    {
+     "word": "me",
+     "start": 20.44,
+     "end": 20.6
+    },
+    {
+     "word": "for",
+     "start": 20.6,
+     "end": 20.74
+    },
+    {
+     "word": "that.",
+     "start": 20.74,
+     "end": 20.98
+    },
+    {
+     "word": "The",
+     "start": 21.26,
+     "end": 21.5
+    },
+    {
+     "word": "reward",
+     "start": 21.5,
+     "end": 22.12
+    },
+    {
+     "word": "of",
+     "start": 22.12,
+     "end": 22.38
+    },
+    {
+     "word": "being",
+     "start": 22.38,
+     "end": 22.64
+    },
+    {
+     "word": "right",
+     "start": 22.64,
+     "end": 23.06
+    },
+    {
+     "word": "is",
+     "start": 23.06,
+     "end": 23.34
+    },
+    {
+     "word": "not",
+     "start": 23.34,
+     "end": 23.58
+    },
+    {
+     "word": "worth",
+     "start": 23.58,
+     "end": 23.84
+    },
+    {
+     "word": "the",
+     "start": 23.84,
+     "end": 24.02
+    },
+    {
+     "word": "risk",
+     "start": 24.02,
+     "end": 24.24
+    },
+    {
+     "word": "of",
+     "start": 24.24,
+     "end": 24.4
+    },
+    {
+     "word": "getting",
+     "start": 24.4,
+     "end": 24.56
+    },
+    {
+     "word": "it",
+     "start": 24.56,
+     "end": 24.74
+    },
+    {
+     "word": "wrong.",
+     "start": 24.74,
+     "end": 24.92
+    },
+    {
+     "word": "Hello,",
+     "start": 30.97,
+     "end": 31.51
+    },
+    {
+     "word": "welcome",
+     "start": 31.81,
+     "end": 31.89
+    },
+    {
+     "word": "back",
+     "start": 31.89,
+     "end": 32.13
+    },
+    {
+     "word": "to",
+     "start": 32.13,
+     "end": 32.31
+    },
+    {
+     "word": "Coin",
+     "start": 32.31,
+     "end": 32.65
+    },
+    {
+     "word": "Telegraphs,",
+     "start": 32.65,
+     "end": 33.49
+    },
+    {
+     "word": "Trade",
+     "start": 33.65,
+     "end": 33.79
+    },
+    {
+     "word": "Secrets,",
+     "start": 33.79,
+     "end": 34.27
+    },
+    {
+     "word": "our",
+     "start": 34.67,
+     "end": 34.71
+    },
+    {
+     "word": "very",
+     "start": 34.71,
+     "end": 34.91
+    },
+    {
+     "word": "own",
+     "start": 34.91,
+     "end": 35.29
+    },
+    {
+     "word": "Crypto",
+     "start": 35.29,
+     "end": 35.87
+    },
+    {
+     "word": "Markets",
+     "start": 35.87,
+     "end": 36.27
+    },
+    {
+     "word": "show.",
+     "start": 36.27,
+     "end": 36.55
+    },
+    {
+     "word": "My",
+     "start": 36.81,
+     "end": 36.91
+    },
+    {
+     "word": "name's",
+     "start": 36.91,
+     "end": 37.17
+    },
+    {
+     "word": "Kieran.",
+     "start": 37.17,
+     "end": 37.43
+    },
+    {
+     "word": "I'm",
+     "start": 37.61,
+     "end": 37.67
+    },
+    {
+     "word": "your",
+     "start": 37.67,
+     "end": 37.79
+    },
+    {
+     "word": "host.",
+     "start": 37.79,
+     "end": 38.15
+    },
+    {
+     "word": "And",
+     "start": 38.85,
+     "end": 38.89
+    },
+    {
+     "word": "today",
+     "start": 38.89,
+     "end": 39.19
+    },
+    {
+     "word": "I'm",
+     "start": 39.19,
+     "end": 39.47
+    },
+    {
+     "word": "joined",
+     "start": 39.47,
+     "end": 39.83
+    },
+    {
+     "word": "by",
+     "start": 39.83,
+     "end": 40.21
+    },
+    {
+     "word": "Mark",
+     "start": 40.21,
+     "end": 40.71
+    },
+    {
+     "word": "Moss.",
+     "start": 40.71,
+     "end": 41.37
+    },
+    {
+     "word": "Mark,",
+     "start": 41.77,
+     "end": 41.93
+    },
+    {
+     "word": "how",
+     "start": 42.11,
+     "end": 42.11
+    },
+    {
+     "word": "you",
+     "start": 42.11,
+     "end": 42.21
+    },
+    {
+     "word": "doing?",
+     "start": 42.21,
+     "end": 42.41
+    },
+    {
+     "word": "Yeah,",
+     "start": 43.23,
+     "end": 43.35
+    },
+    {
+     "word": "I'm",
+     "start": 43.47,
+     "end": 43.59
+    },
+    {
+     "word": "doing",
+     "start": 43.59,
+     "end": 43.71
+    },
+    {
+     "word": "amazing.",
+     "start": 43.71,
+     "end": 44.13
+    },
+    {
+     "word": "Thanks",
+     "start": 44.51,
+     "end": 44.59
+    },
+    {
+     "word": "for",
+     "start": 44.59,
+     "end": 44.73
+    },
+    {
+     "word": "having",
+     "start": 44.73,
+     "end": 44.83
+    },
+    {
+     "word": "me",
+     "start": 44.83,
+     "end": 44.95
+    },
+    {
+     "word": "on.",
+     "start": 44.95,
+     "end": 45.15
+    },
+    {
+     "word": "Thanks",
+     "start": 46.0,
+     "end": 46.12
+    },
+    {
+     "word": "for",
+     "start": 46.12,
+     "end": 46.26
+    },
+    {
+     "word": "joining",
+     "start": 46.26,
+     "end": 46.52
+    },
+    {
+     "word": "us.",
+     "start": 46.52,
+     "end": 46.84
+    },
+    {
+     "word": "Look,",
+     "start": 47.14,
+     "end": 47.14
+    },
+    {
+     "word": "Bitcoin",
+     "start": 48.12,
+     "end": 48.12
+    },
+    {
+     "word": "holding",
+     "start": 48.12,
+     "end": 48.52
+    },
+    {
+     "word": "around",
+     "start": 48.52,
+     "end": 48.78
+    },
+    {
+     "word": "$80",
+     "start": 48.78,
+     "end": 49.12
+    },
+    {
+     "word": ",000.",
+     "start": 49.12,
+     "end": 49.6
+    },
+    {
+     "word": "We've",
+     "start": 50.14,
+     "end": 50.24
+    },
+    {
+     "word": "just",
+     "start": 50.24,
+     "end": 50.42
+    },
+    {
+     "word": "had",
+     "start": 50.42,
+     "end": 51.0
+    },
+    {
+     "word": "the",
+     "start": 51.0,
+     "end": 51.14
+    },
+    {
+     "word": "Binance",
+     "start": 51.14,
+     "end": 51.62
+    },
+    {
+     "word": "hack",
+     "start": 51.62,
+     "end": 52.02
+    },
+    {
+     "word": "last",
+     "start": 52.02,
+     "end": 53.22
+    },
+    {
+     "word": "week.",
+     "start": 53.22,
+     "end": 53.68
+    },
+    {
+     "word": "We've",
+     "start": 53.84,
+     "end": 53.96
+    },
+    {
+     "word": "had",
+     "start": 53.96,
+     "end": 54.06
+    },
+    {
+     "word": "the",
+     "start": 54.06,
+     "end": 54.2
+    },
+    {
+     "word": "midterm",
+     "start": 54.2,
+     "end": 54.68
+    },
+    {
+     "word": "elections",
+     "start": 54.68,
+     "end": 55.62
+    },
+    {
+     "word": "today.",
+     "start": 55.62,
+     "end": 56.54
+    },
+    {
+     "word": "Are",
+     "start": 58.14,
+     "end": 58.32
+    },
+    {
+     "word": "we,",
+     "start": 58.32,
+     "end": 58.54
+    },
+    {
+     "word": "is",
+     "start": 58.82,
+     "end": 58.92
+    },
+    {
+     "word": "the",
+     "start": 58.92,
+     "end": 59.06
+    },
+    {
+     "word": "bottom",
+     "start": 59.06,
+     "end": 59.24
+    },
+    {
+     "word": "behind",
+     "start": 59.24,
+     "end": 59.66
+    },
+    {
+     "word": "us?",
+     "start": 59.66,
+     "end": 59.94
+    },
+    {
+     "word": "Where",
+     "start": 60.04,
+     "end": 60.14
+    },
+    {
+     "word": "are",
+     "start": 60.14,
+     "end": 60.28
+    },
+    {
+     "word": "we",
+     "start": 60.28,
+     "end": 60.4
+    },
+    {
+     "word": "in",
+     "start": 60.4,
+     "end": 60.52
+    },
+    {
+     "word": "the",
+     "start": 60.52,
+     "end": 60.6
+    },
+    {
+     "word": "market",
+     "start": 60.6,
+     "end": 60.88
+    },
+    {
+     "word": "right",
+     "start": 60.88,
+     "end": 61.12
+    },
+    {
+     "word": "now,",
+     "start": 61.12,
+     "end": 61.32
+    },
+    {
+     "word": "Mark?",
+     "start": 61.38,
+     "end": 61.58
+    },
+    {
+     "word": "Yeah,",
+     "start": 62.18,
+     "end": 62.34
+    },
+    {
+     "word": "that's",
+     "start": 62.6,
+     "end": 62.82
+    },
+    {
+     "word": "a",
+     "start": 62.82,
+     "end": 62.9
+    },
+    {
+     "word": "great",
+     "start": 62.9,
+     "end": 63.04
+    },
+    {
+     "word": "question.",
+     "start": 63.04,
+     "end": 63.4
+    },
+    {
+     "word": "I",
+     "start": 63.64,
+     "end": 63.64
+    },
+    {
+     "word": "think",
+     "start": 63.64,
+     "end": 63.86
+    },
+    {
+     "word": "a",
+     "start": 63.86,
+     "end": 64.24
+    },
+    {
+     "word": "couple",
+     "start": 64.24,
+     "end": 64.34
+    },
+    {
+     "word": "things.",
+     "start": 64.34,
+     "end": 64.62
+    },
+    {
+     "word": "You",
+     "start": 65.42,
+     "end": 65.42
+    },
+    {
+     "word": "know,",
+     "start": 65.42,
+     "end": 65.48
+    },
+    {
+     "word": "sometimes",
+     "start": 65.58,
+     "end": 65.7
+    },
+    {
+     "word": "we",
+     "start": 65.7,
+     "end": 65.9
+    },
+    {
+     "word": "can",
+     "start": 65.9,
+     "end": 66.0
+    },
+    {
+     "word": "overcomplicate",
+     "start": 66.0,
+     "end": 66.72
+    },
+    {
+     "word": "markets",
+     "start": 66.72,
+     "end": 66.98
+    },
+    {
+     "word": "and",
+     "start": 66.98,
+     "end": 67.18
+    },
+    {
+     "word": "we",
+     "start": 67.18,
+     "end": 67.28
+    },
+    {
+     "word": "can",
+     "start": 67.28,
+     "end": 67.38
+    },
+    {
+     "word": "certainly",
+     "start": 67.38,
+     "end": 67.6
+    },
+    {
+     "word": "dive",
+     "start": 67.6,
+     "end": 67.92
+    },
+    {
+     "word": "into",
+     "start": 67.92,
+     "end": 68.12
+    },
+    {
+     "word": "the",
+     "start": 68.12,
+     "end": 68.4
+    },
+    {
+     "word": "deep,",
+     "start": 68.4,
+     "end": 68.68
+    },
+    {
+     "word": "deep",
+     "start": 69.1,
+     "end": 69.26
+    },
+    {
+     "word": "macro",
+     "start": 69.26,
+     "end": 70.02
+    },
+    {
+     "word": "world",
+     "start": 70.02,
+     "end": 70.36
+    },
+    {
+     "word": "and",
+     "start": 70.36,
+     "end": 70.54
+    },
+    {
+     "word": "talk",
+     "start": 70.54,
+     "end": 70.76
+    },
+    {
+     "word": "about",
+     "start": 70.76,
+     "end": 70.94
+    },
+    {
+     "word": "liquidity",
+     "start": 70.94,
+     "end": 71.26
+    },
+    {
+     "word": "and",
+     "start": 71.26,
+     "end": 71.66
+    },
+    {
+     "word": "cycles",
+     "start": 71.66,
+     "end": 72.14
+    },
+    {
+     "word": "and",
+     "start": 72.14,
+     "end": 72.28
+    },
+    {
+     "word": "all",
+     "start": 72.28,
+     "end": 72.38
+    },
+    {
+     "word": "those",
+     "start": 72.38,
+     "end": 72.52
+    },
+    {
+     "word": "types",
+     "start": 72.52,
+     "end": 72.66
+    },
+    {
+     "word": "of",
+     "start": 72.66,
+     "end": 72.76
+    },
+    {
+     "word": "things.",
+     "start": 72.76,
+     "end": 72.98
+    },
+    {
+     "word": "But",
+     "start": 73.12,
+     "end": 73.16
+    },
+    {
+     "word": "I",
+     "start": 73.16,
+     "end": 73.24
+    },
+    {
+     "word": "think",
+     "start": 73.24,
+     "end": 73.46
+    },
+    {
+     "word": "if",
+     "start": 73.46,
+     "end": 73.88
+    },
+    {
+     "word": "we",
+     "start": 73.88,
+     "end": 73.96
+    },
+    {
+     "word": "make",
+     "start": 73.96,
+     "end": 74.12
+    },
+    {
+     "word": "it",
+     "start": 74.12,
+     "end": 74.22
+    },
+    {
+     "word": "more",
+     "start": 74.22,
+     "end": 74.36
+    },
+    {
+     "word": "simple,",
+     "start": 74.36,
+     "end": 74.9
+    },
+    {
+     "word": "markets",
+     "start": 75.46,
+     "end": 75.74
+    },
+    {
+     "word": "stop",
+     "start": 75.74,
+     "end": 76.2
+    },
+    {
+     "word": "going",
+     "start": 76.2,
+     "end": 76.5
+    },
+    {
+     "word": "up",
+     "start": 76.5,
+     "end": 76.86
+    },
+    {
+     "word": "when",
+     "start": 76.86,
+     "end": 77.66
+    },
+    {
+     "word": "there's",
+     "start": 77.66,
+     "end": 77.84
+    },
+    {
+     "word": "no",
+     "start": 77.84,
+     "end": 77.94
+    },
+    {
+     "word": "more",
+     "start": 77.94,
+     "end": 78.12
+    },
+    {
+     "word": "buyers",
+     "start": 78.12,
+     "end": 78.46
+    },
+    {
+     "word": "and",
+     "start": 78.46,
+     "end": 79.3
+    },
+    {
+     "word": "markets",
+     "start": 79.3,
+     "end": 79.52
+    },
+    {
+     "word": "stop",
+     "start": 79.52,
+     "end": 79.8
+    },
+    {
+     "word": "going",
+     "start": 79.8,
+     "end": 80.04
+    },
+    {
+     "word": "down",
+     "start": 80.04,
+     "end": 80.42
+    },
+    {
+     "word": "when",
+     "start": 80.42,
+     "end": 80.94
+    },
+    {
+     "word": "there's",
+     "start": 80.94,
+     "end": 81.08
+    },
+    {
+     "word": "no",
+     "start": 81.08,
+     "end": 81.18
+    },
+    {
+     "word": "more",
+     "start": 81.18,
+     "end": 81.38
+    },
+    {
+     "word": "sellers.",
+     "start": 81.38,
+     "end": 81.74
+    },
+    {
+     "word": "Pretty",
+     "start": 82.02,
+     "end": 82.36
+    },
+    {
+     "word": "simple.",
+     "start": 82.36,
+     "end": 82.66
+    },
+    {
+     "word": "And",
+     "start": 83.18,
+     "end": 83.38
+    },
+    {
+     "word": "so",
+     "start": 83.38,
+     "end": 83.62
+    },
+    {
+     "word": "typically",
+     "start": 83.62,
+     "end": 84.08
+    },
+    {
+     "word": "you",
+     "start": 84.08,
+     "end": 84.34
+    },
+    {
+     "word": "look",
+     "start": 84.34,
+     "end": 84.44
+    },
+    {
+     "word": "at",
+     "start": 84.44,
+     "end": 84.52
+    },
+    {
+     "word": "a",
+     "start": 84.52,
+     "end": 84.6
+    },
+    {
+     "word": "market",
+     "start": 84.6,
+     "end": 84.76
+    },
+    {
+     "word": "cycle",
+     "start": 84.76,
+     "end": 85.12
+    },
+    {
+     "word": "hitting",
+     "start": 85.12,
+     "end": 85.5
+    },
+    {
+     "word": "the",
+     "start": 85.5,
+     "end": 85.62
+    },
+    {
+     "word": "bottom",
+     "start": 85.62,
+     "end": 85.82
+    },
+    {
+     "word": "when",
+     "start": 85.82,
+     "end": 86.02
+    },
+    {
+     "word": "you",
+     "start": 86.02,
+     "end": 86.14
+    },
+    {
+     "word": "sort",
+     "start": 86.14,
+     "end": 86.3
+    },
+    {
+     "word": "of",
+     "start": 86.3,
+     "end": 86.38
+    },
+    {
+     "word": "have",
+     "start": 86.38,
+     "end": 86.46
+    },
+    {
+     "word": "like",
+     "start": 86.46,
+     "end": 86.62
+    },
+    {
+     "word": "this",
+     "start": 86.62,
+     "end": 86.74
+    },
+    {
+     "word": "capitulation",
+     "start": 86.74,
+     "end": 87.44
+    },
+    {
+     "word": "moment,",
+     "start": 87.44,
+     "end": 87.7
+    },
+    {
+     "word": "when",
+     "start": 87.84,
+     "end": 87.94
+    },
+    {
+     "word": "the",
+     "start": 87.94,
+     "end": 88.1
+    },
+    {
+     "word": "final",
+     "start": 88.1,
+     "end": 88.58
+    },
+    {
+     "word": "people",
+     "start": 88.58,
+     "end": 88.9
+    },
+    {
+     "word": "just",
+     "start": 88.9,
+     "end": 89.14
+    },
+    {
+     "word": "give",
+     "start": 89.14,
+     "end": 89.36
+    },
+    {
+     "word": "up",
+     "start": 89.36,
+     "end": 89.54
+    },
+    {
+     "word": "and",
+     "start": 89.54,
+     "end": 89.64
+    },
+    {
+     "word": "say,",
+     "start": 89.64,
+     "end": 89.78
+    },
+    {
+     "word": "I'm",
+     "start": 89.86,
+     "end": 89.94
+    },
+    {
+     "word": "out,",
+     "start": 89.94,
+     "end": 90.22
+    },
+    {
+     "word": "they're",
+     "start": 90.56,
+     "end": 90.96
+    },
+    {
+     "word": "the",
+     "start": 90.96,
+     "end": 91.06
+    },
+    {
+     "word": "last",
+     "start": 91.06,
+     "end": 91.3
+    },
+    {
+     "word": "sellers.",
+     "start": 91.3,
+     "end": 91.68
+    },
+    {
+     "word": "And",
+     "start": 92.3,
+     "end": 92.62
+    },
+    {
+     "word": "then",
+     "start": 92.62,
+     "end": 92.66
+    },
+    {
+     "word": "we",
+     "start": 92.66,
+     "end": 92.68
+    },
+    {
+     "word": "start",
+     "start": 92.68,
+     "end": 92.8
+    },
+    {
+     "word": "going",
+     "start": 92.8,
+     "end": 92.9
+    },
+    {
+     "word": "back",
+     "start": 92.9,
+     "end": 93.06
+    },
+    {
+     "word": "up.",
+     "start": 93.06,
+     "end": 93.22
+    },
+    {
+     "word": "And",
+     "start": 93.3,
+     "end": 93.32
+    },
+    {
+     "word": "I",
+     "start": 93.32,
+     "end": 93.4
+    },
+    {
+     "word": "think",
+     "start": 93.4,
+     "end": 93.52
+    },
+    {
+     "word": "we've",
+     "start": 93.52,
+     "end": 94.2
+    },
+    {
+     "word": "gone",
+     "start": 94.2,
+     "end": 94.42
+    },
+    {
+     "word": "past",
+     "start": 94.42,
+     "end": 94.74
+    },
+    {
+     "word": "that",
+     "start": 94.74,
+     "end": 94.9
+    },
+    {
+     "word": "point.",
+     "start": 94.9,
+     "end": 95.1
+    },
+    {
+     "word": "We've",
+     "start": 95.22,
+     "end": 95.34
+    },
+    {
+     "word": "seen",
+     "start": 95.34,
+     "end": 95.48
+    },
+    {
+     "word": "that",
+     "start": 95.48,
+     "end": 95.7
+    },
+    {
+     "word": "the",
+     "start": 95.7,
+     "end": 95.94
+    },
+    {
+     "word": "sellers",
+     "start": 95.94,
+     "end": 96.42
+    },
+    {
+     "word": "have",
+     "start": 96.42,
+     "end": 96.86
+    },
+    {
+     "word": "been",
+     "start": 96.86,
+     "end": 96.98
+    },
+    {
+     "word": "exhausted.",
+     "start": 96.98,
+     "end": 97.48
+    },
+    {
+     "word": "We",
+     "start": 98.75,
+     "end": 99.23
+    },
+    {
+     "word": "saw",
+     "start": 99.23,
+     "end": 99.47
+    },
+    {
+     "word": "over",
+     "start": 99.47,
+     "end": 99.85
+    },
+    {
+     "word": "the",
+     "start": 99.85,
+     "end": 99.97
+    },
+    {
+     "word": "last",
+     "start": 99.97,
+     "end": 100.25
+    },
+    {
+     "word": "about",
+     "start": 100.25,
+     "end": 100.75
+    },
+    {
+     "word": "seven",
+     "start": 100.75,
+     "end": 101.03
+    },
+    {
+     "word": "or",
+     "start": 101.03,
+     "end": 101.13
+    },
+    {
+     "word": "eight",
+     "start": 101.13,
+     "end": 101.23
+    },
+    {
+     "word": "months,",
+     "start": 101.23,
+     "end": 101.61
+    },
+    {
+     "word": "we",
+     "start": 102.15,
+     "end": 102.25
+    },
+    {
+     "word": "saw",
+     "start": 102.25,
+     "end": 102.41
+    },
+    {
+     "word": "the",
+     "start": 102.41,
+     "end": 102.57
+    },
+    {
+     "word": "institutions",
+     "start": 102.57,
+     "end": 103.07
+    },
+    {
+     "word": "coming",
+     "start": 103.07,
+     "end": 103.37
+    },
+    {
+     "word": "in",
+     "start": 103.37,
+     "end": 103.53
+    },
+    {
+     "word": "and",
+     "start": 103.53,
+     "end": 103.65
+    },
+    {
+     "word": "buying",
+     "start": 103.65,
+     "end": 103.91
+    },
+    {
+     "word": "over",
+     "start": 103.91,
+     "end": 104.39
+    },
+    {
+     "word": "$3",
+     "start": 104.39,
+     "end": 104.67
+    },
+    {
+     "word": "billion",
+     "start": 104.67,
+     "end": 104.99
+    },
+    {
+     "word": "of",
+     "start": 104.99,
+     "end": 105.39
+    },
+    {
+     "word": "Bitcoin",
+     "start": 105.39,
+     "end": 105.73
+    },
+    {
+     "word": "while",
+     "start": 105.73,
+     "end": 106.21
+    },
+    {
+     "word": "the",
+     "start": 106.21,
+     "end": 106.55
+    },
+    {
+     "word": "small",
+     "start": 106.55,
+     "end": 107.01
+    },
+    {
+     "word": "weekends,",
+     "start": 107.01,
+     "end": 107.71
+    },
+    {
+     "word": "the",
+     "start": 107.85,
+     "end": 107.89
+    },
+    {
+     "word": "small",
+     "start": 107.89,
+     "end": 108.15
+    },
+    {
+     "word": "wallets",
+     "start": 108.15,
+     "end": 108.49
+    },
+    {
+     "word": "holding",
+     "start": 108.49,
+     "end": 108.71
+    },
+    {
+     "word": "less",
+     "start": 108.71,
+     "end": 108.93
+    },
+    {
+     "word": "than",
+     "start": 108.93,
+     "end": 109.09
+    },
+    {
+     "word": "$10",
+     "start": 109.09,
+     "end": 109.27
+    },
+    {
+     "word": "Bitcoin",
+     "start": 109.27,
+     "end": 109.63
+    },
+    {
+     "word": "sold",
+     "start": 109.63,
+     "end": 110.45
+    },
+    {
+     "word": "almost",
+     "start": 110.45,
+     "end": 110.71
+    },
+    {
+     "word": "$5",
+     "start": 110.71,
+     "end": 110.97
+    },
+    {
+     "word": ",000",
+     "start": 110.97,
+     "end": 111.31
+    },
+    {
+     "word": "Bitcoin.",
+     "start": 111.31,
+     "end": 111.63
+    },
+    {
+     "word": "And",
+     "start": 112.05,
+     "end": 112.11
+    },
+    {
+     "word": "so",
+     "start": 112.11,
+     "end": 112.19
+    },
+    {
+     "word": "we",
+     "start": 112.19,
+     "end": 112.29
+    },
+    {
+     "word": "can",
+     "start": 112.29,
+     "end": 112.41
+    },
+    {
+     "word": "see",
+     "start": 112.41,
+     "end": 112.67
+    },
+    {
+     "word": "that",
+     "start": 112.67,
+     "end": 112.85
+    },
+    {
+     "word": "that",
+     "start": 112.85,
+     "end": 113.01
+    },
+    {
+     "word": "capitulation",
+     "start": 113.01,
+     "end": 113.59
+    },
+    {
+     "word": "happened.",
+     "start": 113.59,
+     "end": 113.97
+    }
+   ]
+  }
+ }
+}
