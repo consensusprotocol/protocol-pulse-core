@@ -443,6 +443,61 @@ def call_nvidia_nim(prompt: str) -> dict:
         return {}
 
 
+def _archive_brief_to_db(brief: dict, db_path: str = None):
+    """Write brief to daily_brief DB table. Never raises — logs on failure.
+
+    Deduplicates: skips insert if a row with identical body exists for the same UTC date.
+    """
+    try:
+        if not db_path:
+            db_path = str(BASE / "instance" / "protocol_pulse.db")
+
+        body = json.dumps(brief, indent=2, ensure_ascii=False)
+        headline = ""
+        # Extract headline from dominant_narratives or sentiment
+        narratives = brief.get("dominant_narratives", [])
+        if narratives and isinstance(narratives[0], str):
+            headline = narratives[0][:500]
+        elif brief.get("sentiment"):
+            headline = f"Sentiment: {brief['sentiment']}"[:500]
+
+        # Signals JSON: extract key_stats_today + sentiment + trending_language
+        signals = {}
+        for key in ("key_stats_today", "sentiment", "sentiment_reasoning",
+                     "trending_language", "generated_by"):
+            if key in brief:
+                signals[key] = brief[key]
+        signals_json = json.dumps(signals) if signals else None
+
+        now_utc = datetime.now(timezone.utc)
+        today_str = now_utc.strftime("%Y-%m-%d")
+        created_at = now_utc.strftime("%Y-%m-%d %H:%M:%S")
+
+        conn = sqlite3.connect(db_path)
+
+        # Dedupe: check if identical body already exists for today
+        existing = conn.execute(
+            "SELECT id FROM daily_brief WHERE date(created_at) = ? AND body = ?",
+            (today_str, body),
+        ).fetchone()
+        if existing:
+            logger.info(f"Brief already archived for {today_str} (row {existing[0]}), skipping")
+            conn.close()
+            return
+
+        conn.execute(
+            "INSERT INTO daily_brief (headline, body, signals_json, status, created_at) "
+            "VALUES (?, ?, ?, 'generated', ?)",
+            (headline, body, signals_json, created_at),
+        )
+        conn.commit()
+        row_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        conn.close()
+        logger.info(f"Brief archived to daily_brief row {row_id}")
+    except Exception as e:
+        logger.error(f"Failed to archive brief to DB: {e}")
+
+
 def main():
     logger.info("=" * 60)
     logger.info("Morning Intelligence Brief generating")
@@ -540,6 +595,9 @@ def main():
     logger.info(f"Brief written to {OUTPUT_PATH}")
     logger.info(f"Sentiment: {brief.get('sentiment', '?')}")
     logger.info(f"Narratives: {brief.get('dominant_narratives', [])}")
+
+    # Archive to daily_brief DB table
+    _archive_brief_to_db(brief)
 
 
 if __name__ == "__main__":
