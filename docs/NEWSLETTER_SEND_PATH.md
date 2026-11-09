@@ -191,4 +191,71 @@ Multiple code paths write or read `data/intelligence/morning_intelligence_brief.
 
 ## Session log 2026-11-09
 
-*(Will be appended after all commits)*
+### Commits
+| # | Hash | Description |
+|---|------|-------------|
+| 1 | `2d5a6c98` | docs: NEWSLETTER_SEND_PATH.md — full send path trace + module inventory |
+| 2 | `0a0945df` | feat: record every newsletter send to newsletter_sends DB |
+| 3 | `22b3534f` | feat: newsletter_stats_poller.py — poll Resend for opens/clicks |
+| 4 | `98f63387` | feat: archive morning briefs to daily_brief DB table |
+
+All merged to origin/main via fast-forward push.
+
+### Test outputs
+
+**newsletter_sends row (Step 2):**
+```
+subject       = Test Subject $99,999
+resend_batch_id = 80c702a8-adcc-4376-b8bb-91de7ee2e6e9
+resend_message_id = ["test-msg-0", "test-msg-1", "test-msg-2"]
+recipient_count = 3
+open_count = 0, click_count = 0
+sent_at = 2026-11-09 23:30:17
+article_ids = [101, 202, 303]
+```
+
+**daily_brief row (Step 4):**
+```
+id        = 2
+headline  = Institutional accumulation deepens
+body      = (full brief JSON, 528 chars)
+signals   = {"key_stats_today": ..., "sentiment": "bullish", "generated_by": "test"}
+status    = generated
+created_at = 2026-11-09 23:32:53
+```
+
+**Poller dry-run (Step 3):**
+```
+Found 1 sends to poll
+Send 1 (Test Subject $99,999...): polling 3 message IDs
+[dry-run] Would GET https://api.resend.com/emails/test-msg-0
+[dry-run] Would GET https://api.resend.com/emails/test-msg-1
+[dry-run] Would GET https://api.resend.com/emails/test-msg-2
+[dry-run] Send 1: 3 messages, no updates
+```
+
+### Resend domain tracking status
+```
+protocolpulse.io:  open_tracking=OFF, click_tracking=ON,  status=verified
+yespbx.com:        open_tracking=OFF, click_tracking=OFF, status=verified
+thebtcboomers.com: open_tracking=OFF, click_tracking=OFF, status=failed
+```
+**Action required:** Enable open_tracking on protocolpulse.io in Resend dashboard for open counts to work.
+
+### What remains for deploy
+
+1. **Production checkout** `/home/ultron/protocol_pulse` is on branch `combo-letterbox-quoteonly-v2`, not `main`. Deploy = cherry-pick these 4 commits (or `git pull origin main`) into that checkout once the `pipeline_pp_vert` tmux session is closed.
+2. **newsletter_engine.py changes go live** on the next 07:00 EST dispatch with no Waitress restart (importlib re-imports from disk each run).
+3. **morning_brief.py changes** require no restart — it runs from cron each time.
+4. **newsletter_stats_poller.py** needs its cron line installed after deploy.
+
+### Proposed cron line for poller (do NOT install yet)
+```
+0 * * * * flock -n /tmp/nl_stats_poller.lock python3 /home/ultron/protocol_pulse/services/newsletter_stats_poller.py >> /home/ultron/protocol_pulse/logs/newsletter_stats.log 2>&1
+```
+
+### Regression
+- `py_compile` PASS on all 3 changed Python files
+- Test scripts: 4/4 assertions PASS (2 send tests, 2 brief tests)
+- No existing files modified except `services/newsletter_engine.py` and `services/morning_brief.py`
+- `regression_test.sh` not run (paths hardcoded to `~/protocol_pulse`, cannot run from worktree)
