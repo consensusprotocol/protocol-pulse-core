@@ -66,6 +66,7 @@ class NewsletterEngine:
         self.resend_key = os.environ.get("RESEND_API_KEY", "")
         self.from_email = os.environ.get("NEWSLETTER_FROM_EMAIL", "Protocol Pulse <pulse@protocolpulse.io>")
         self.site_url = os.environ.get("SITE_URL", "https://protocolpulse.io")
+        self._last_article_ids = []  # Tracks article IDs from most recent get_todays_articles()
 
         if self.resend_key:
             logger.info("Newsletter Engine initialized with Resend")
@@ -137,7 +138,7 @@ class NewsletterEngine:
                         if a not in selected:
                             selected.append(a)
 
-                return [{
+                articles_out = [{
                     "id": a.id,
                     "title": a.title,
                     "summary": a.summary or "",
@@ -145,6 +146,8 @@ class NewsletterEngine:
                     "image": a.header_image_url or "",
                     "category": a.category or "Bitcoin"
                 } for a in selected]
+                self._last_article_ids = [a["id"] for a in articles_out]
+                return articles_out
 
         except Exception as e:
             logger.error(f"Error getting articles: {e}")
@@ -675,13 +678,26 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
 </html>'''
         return html
 
-    def send_newsletter(self, to_emails: List[str], subject: str = None, html: str = None) -> Dict:
-        """Send newsletter via Resend"""
+    def send_newsletter(self, to_emails: List[str], subject: str = None, html: str = None,
+                        article_ids: List[int] = None, db_path: str = None) -> Dict:
+        """Send newsletter via Resend. Captures message IDs and records to newsletter_sends.
+
+        Args:
+            to_emails: List of recipient emails.
+            subject: Email subject (auto-generated if None).
+            html: Email HTML body (auto-generated if None).
+            article_ids: Article IDs included in this email (for DB tracking).
+            db_path: Override DB path (for testing). Default: auto-detect from project layout.
+        """
         if not self.resend_key:
             return {"success": False, "error": "Resend not configured"}
 
         if not to_emails:
             return {"success": False, "error": "No recipients"}
+
+        # Use remembered article IDs if caller didn't pass them
+        if article_ids is None and self._last_article_ids:
+            article_ids = self._last_article_ids
 
         # Generate content if not provided
         if not html:
@@ -701,6 +717,7 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
         try:
             sent = 0
             errors = []
+            all_message_ids = []
 
             # Send in batches of 50
             for i in range(0, len(to_emails), 50):
@@ -736,6 +753,17 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
 
                     if response.status_code in (200, 201):
                         sent += len(batch)
+                        # Parse response to capture per-email message IDs
+                        try:
+                            resp_data = response.json()
+                            # Resend batch returns {"data":[{"id":"..."},...]}}
+                            data_list = resp_data.get("data", [])
+                            for item in data_list:
+                                mid = item.get("id")
+                                if mid:
+                                    all_message_ids.append(mid)
+                        except Exception as parse_err:
+                            logger.warning(f"Could not parse Resend response IDs: {parse_err}")
                     else:
                         err_msg = f"Batch {i}: HTTP {response.status_code} — {response.text[:200]}"
                         errors.append(err_msg)
@@ -745,16 +773,71 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
                     errors.append(err_msg)
                     logger.error(f"Newsletter batch exception: {err_msg}")
 
-            return {
+            result = {
                 "success": sent > 0,
                 "sent": sent,
                 "total": len(to_emails),
-                "errors": errors if errors else None
+                "errors": errors if errors else None,
+                "message_ids": all_message_ids,
             }
+
+            # Record the send to newsletter_sends DB table
+            if sent > 0:
+                self._record_send(
+                    subject=subject,
+                    recipient_count=sent,
+                    message_ids=all_message_ids,
+                    article_ids=article_ids,
+                    db_path=db_path,
+                )
+
+            return result
 
         except Exception as e:
             logger.error(f"Newsletter send failed completely: {e}")
             return {"success": False, "error": str(e)}
+
+    def _record_send(self, subject: str, recipient_count: int,
+                     message_ids: List[str], article_ids: List[int] = None,
+                     db_path: str = None):
+        """Write one newsletter_sends row. Never raises — logs on failure."""
+        import sqlite3
+        import uuid
+        try:
+            if not db_path:
+                # Auto-detect: project_root/instance/protocol_pulse.db
+                db_path = str(Path(__file__).resolve().parent.parent / "instance" / "protocol_pulse.db")
+
+            batch_id = str(uuid.uuid4())
+            message_ids_json = json.dumps(message_ids) if message_ids else "[]"
+            article_ids_json = json.dumps(article_ids) if article_ids else "[]"
+            sent_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+            conn = sqlite3.connect(db_path)
+            conn.execute(
+                "INSERT INTO newsletter_sends "
+                "(subject, resend_batch_id, resend_message_id, recipient_count, "
+                " open_count, click_count, sent_at, article_ids) "
+                "VALUES (?, ?, ?, ?, 0, 0, ?, ?)",
+                (subject, batch_id, message_ids_json, recipient_count,
+                 sent_at, article_ids_json),
+            )
+            conn.commit()
+            conn.close()
+            logger.info(f"Recorded newsletter send: {recipient_count} recipients, "
+                        f"{len(message_ids)} message IDs, batch {batch_id}")
+        except Exception as e:
+            logger.error(f"Failed to record newsletter send to DB: {e}")
+            # Also write to dispatch log as backup
+            try:
+                _log_file = str(Path(__file__).resolve().parent.parent / "logs" / "newsletter_dispatch.log")
+                os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+                with open(_log_file, "a") as lf:
+                    lf.write(f"[{datetime.utcnow().isoformat()}] DB WRITE FAILED: {e} | "
+                             f"subject={subject} recipients={recipient_count} "
+                             f"message_ids={message_ids}\n")
+            except Exception:
+                pass
 
     def get_subscribers(self) -> List[str]:
         """Get subscriber emails from newsletter_subscribers table (source of truth).
