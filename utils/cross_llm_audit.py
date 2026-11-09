@@ -89,10 +89,14 @@ FEATURE_MAP = {
     "join-page": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "value-stream-mvp": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "value-stream-post-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+    "track-a-d1-d3": ("TRACK_A_EDITORIAL_GOSPEL.md", "combo-letterbox-quoteonly-v2"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
 EXPLICIT_FILES = {
+    "track-a-d1-d3": ["docs/audits/track-a-d1-d3/D1_D3.diff", "pipeline/editorial_select.py",
+                      "pipeline/story_semantics.py", "pipeline/test_window_review.py",
+                      "pipeline/test_editorial_robust.py", "pipeline/test_editorial.py"],
     "fix-freeze-frames": ["video_pipeline_v3/assembler.py"],
     "fix-silence-gaps":  ["video_pipeline_v3/tts_engine.py"],
     "x-spaces-pipeline": ["x_spaces_scraper/scraper.py","x_spaces_scraper/transcript_fetcher.py","x_spaces_scraper/whisper_worker.py","x_spaces_scraper/diarizer.py","x_spaces_scraper/spaces_state.py","x_spaces_scraper/run_scraper.py","x_spaces_scraper/article_generator.py","x_spaces_pipeline/monitor.py","x_spaces_pipeline/recorder.py","x_spaces_pipeline/transcriber.py","x_spaces_pipeline/curator.py","video_pipeline_v3/utils/spaces_pipeline.py","video_pipeline_v3/utils/spaces_monitor.py","video_pipeline_v3/assembler_v2/segments/x_spaces_segment.py"],
@@ -300,6 +304,41 @@ ROUTE_EXTRACTS = {
 }
 
 CUSTOM_REVIEW_TASKS = {
+    "track-a-d1-d3": """## YOUR REVIEW TASK: EDITORIAL DECISIONS D1-D3 (Python pipeline code, no UI, no DB)
+
+The first file is the exact diff under review; the full modules and tests follow for context.
+Only state what you can verify from the code shown. If uncertain, say so. Cite line numbers.
+
+### Q1: D1 CURRENTNESS SOURCE
+Does grounded_event_date() make source publish metadata the authority, use the model date ONLY when
+no metadata date exists, and discard a model date older than the publish date? Is the 72 h + 7 d
+window unchanged? Can a missing or unparseable metadata field silently become "fresh"? Can D1 let a
+genuinely stale story through (transcript_currentness must still find verified current evidence)?
+
+### Q2: D2 TWO VERIFIED WINDOWS PER VIDEO
+Does the second quote pass exactly the first quote's verification (CURRENT_EVENT, verbatim quote from
+a non-flagged excerpt, valid chunk id, independent SUPPORTS)? Can a second window reuse the first
+passage (R2)? Can more than two windows per video be chosen? Is anything counted when adjudication
+fails or the model output is malformed?
+
+### Q3: D3 BOUNDARY REPAIR
+Is repair limited to windows below their floor whose ONLY fault is starts/ends mid-thought? Are the
+floors (hook 4.0, clip 3.5) and duration limits (8-12 s, 13-25 s) unchanged? Does each added sentence
+pass the same event checker, does a failed sentence end the repair, is the window re-rated once and
+rejected if it still fails? Can an off_topic, other or unspecified fault ever be repaired?
+
+### Q4: FAIL-CLOSED + REGRESSIONS
+Any path where an exception, empty input or malformed LLM output produces a window, a count or a
+pass instead of a recorded rejection? Any behaviour change outside D1-D3?
+
+### Q5: TESTS
+Do the new tests prove each decision (positive + negative) and would they fail if the decision were
+reverted? Name any untested branch.
+
+### OUTPUT FORMAT
+Wrap findings in <critical>, <high>, <medium> and <low> tags, each with file:line, the defect, a
+concrete failing scenario and a minimal fix. End with SCORE: N/100 and VERDICT: MERGE or HOLD.
+""",
     "oracle-speed": """## YOUR REVIEW TASK — ORACLE MAXIMUM SPEED AUDIT (8 CRITICAL QUESTIONS)
 
 You are auditing the Oracle avatar system for LATENCY. Every millisecond matters.
@@ -1375,7 +1414,7 @@ def extract_routes_from_file(filepath: Path, route_prefixes: list[str]) -> str:
     return "\n\n# ... (other routes omitted) ...\n\n".join(sections)
 
 # High-stakes features get full 2-cycle audit. Others can use 1-cycle if score > 85.
-HIGH_STAKES = {"f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2", "live-terminal-design", "friday-demo", "oracle-fix", "oracle-external"}
+HIGH_STAKES = {"track-a-d1-d3", "f1-avatar-oracle", "assembler-v2-rebuild", "x-spaces-pipeline", "v30-terminal-api", "v22-multi-format", "f2-briefing-room", "render-improvement-loop", "oracle-speed", "oracle-phase2", "live-terminal-design", "friday-demo", "oracle-fix", "oracle-external"}
 
 # ─── AUDIT PACKAGE BUILDER ───────────────────────────────────────────────────
 

@@ -388,23 +388,48 @@ def parse_event_date(s):
         return None
 
 
-def model_date_hint(q, now, window_hours):
-    """E9: the derivation model's event_date / date_context / event_recency is a HINT, never
-    authority (models write training-memory dates onto current stories). Recorded for review;
-    it can never reject a story or make one inconclusive. Currentness is decided only by
-    transcript_currentness()."""
+def grounded_event_date(q, source_published, now, window_hours):
+    """D1 (PBX 2026-11-09): the event date comes from source publish metadata (article publish
+    time, video upload time); transcript evidence is checked after coverage by
+    transcript_currentness(). The derivation model's date is only a tiebreaker when no metadata
+    date exists. A model date older than the source's publish date is discarded as hallucinated
+    (E9: models write training-memory dates onto current stories) and recorded for the run log.
+    Stale = event date before now - window - grace (72 h + 7 d, unchanged)."""
     start = now - timedelta(hours=window_hours) - timedelta(days=STALE_GRACE_DAYS)
-    hint = {"authority": "none (model hint; transcripts decide currentness)",
-            "event_date": q.get("event_date"), "date_context": q.get("date_context"),
-            "event_recency": q.get("event_recency"), "older_than_window": False}
-    for field in ("event_date", "date_context"):   # first field that parses
-        d = parse_event_date(str(q.get(field) or ""))
+    model_d, field = None, None
+    for f in ("event_date", "date_context"):   # first field that parses (latest plausible reading)
+        d = parse_event_date(str(q.get(f) or ""))
         if d is not None:
-            hint["parsed_from"], hint["older_than_window"] = field, d < start
+            model_d, field = d, f
             break
-    if str(q.get("event_recency", "")).lower() == "historical":
-        hint["older_than_window"] = True
-    return hint
+    historical = str(q.get("event_recency", "")).lower() == "historical"
+    out = {"window_start": start.isoformat(),
+           "source_published": source_published.isoformat() if source_published else None,
+           "model_date": {"event_date": q.get("event_date"), "date_context": q.get("date_context"),
+                          "event_recency": q.get("event_recency"), "parsed_from": field},
+           "model_date_discarded": False}
+    if source_published is not None:
+        out.update(authority="source publish metadata", event_date=source_published.isoformat())
+        if model_d is not None and model_d < source_published:
+            out["model_date_discarded"] = True
+            out["model_date"]["status"] = (f"discarded as hallucinated: {field}={q.get(field)!r} is older "
+                                           f"than the source's publish date {source_published.date()}")
+        else:
+            out["model_date"]["status"] = "recorded only (a metadata date exists)"
+        stale = source_published < start
+        why = f"source published {source_published.date()}"
+    else:
+        out.update(authority="model date (tiebreaker: no metadata date)" if (model_d or historical)
+                   else "none (no metadata date, no model date)",
+                   event_date=model_d.isoformat() if model_d else None)
+        out["model_date"]["status"] = "tiebreaker (no metadata date)"
+        stale = (model_d is not None and model_d < start) or historical
+        why = (f"model {field}={q.get(field)!r}" if model_d is not None and model_d < start
+               else "model labels the event historical")
+    out["stale"] = bool(stale)
+    out["stale_reason"] = (f"stale event: {why} is before {start.date()} (window {window_hours} h + "
+                           f"{STALE_GRACE_DAYS} d grace)") if stale else None
+    return out
 
 
 def transcript_currentness(verdicts):
@@ -525,6 +550,41 @@ def _entities_str(q):
         if isinstance(e, dict):
             ents.append(e.get("name", "") + (f" ({', '.join(e.get('aliases') or [])})" if e.get("aliases") else ""))
     return "; ".join(ents) or "-"
+
+
+# D4 (PBX 2026-11-09 01:34): the adjacent-sentence verifier asks exactly one question. It is not a
+# restatement check (verify_support) and not a relatedness/similarity check.
+REACTION_QUESTION = "is this sentence a reaction to or consequence of the same verified event?"
+REACTION_OK = "SAME_EVENT_REACTION_OR_CONSEQUENCE"
+REACTION_LABELS = (REACTION_OK, "NEW_SUBJECT", "OTHER_EVENT")
+REACTION_PROMPT = """You check ONE SENTENCE spoken right next to a verified statement of a news event.
+
+VERIFIED EVENT: {event}
+{note}
+VERIFIED STATEMENT: <excerpt id="anchor">{anchor}</excerpt>
+SENTENCE: <excerpt id="sentence">{sentence}</excerpt>
+
+Answer exactly this question: """ + REACTION_QUESTION + """
+The sentence does not need to repeat the event. Talking about the same kind of thing without reacting
+to THIS event, or stating a consequence of THIS event, does not count.
+- "SAME_EVENT_REACTION_OR_CONSEQUENCE": the sentence reacts to THIS verified event (an opinion,
+  judgement or emotion about it) or states a consequence of it (an effect, what happens next because of it).
+- "NEW_SUBJECT": the sentence moves to a new primary subject (market commentary, a different subject,
+  an ad, small talk, a question to a guest).
+- "OTHER_EVENT": the sentence is about a different news item.
+Return ONLY JSON: {{"label": one of the three, "reason": one sentence}}"""
+
+
+def _v_react(o):
+    if o.get("label") not in REACTION_LABELS:
+        raise ValueError(f"label {o.get('label')!r} not in {REACTION_LABELS}")
+
+
+def verify_reaction(llm, q, anchor, sentence):
+    """D4 (c): independent call on one adjacent sentence. Returns {"label", "reason"}."""
+    p = REACTION_PROMPT.format(event=q.get("underlying_event", ""), note=UNTRUSTED_NOTE,
+                               anchor=quote_data(anchor, 600), sentence=quote_data(sentence, 600))
+    return llm.chat_json(p, max_tokens=200, validate=_v_react)
 
 
 def verify_support(llm, q, quote):
@@ -682,8 +742,13 @@ Rate each candidate passage 1-5 for use as a standalone clip:
 5 = complete, strong, specific statement about this event that makes sense on its own;
 3 = relevant but weak, partial or dependent on missing context;
 1 = off-topic, a question, filler, an ad, or starts/ends mid-thought.
+Also name each passage's main fault: "none"; "starts_mid_thought" or "ends_mid_thought" ONLY when
+the passage states this event and its only problem is that it begins or ends in the middle of a
+thought; "off_topic" when it does not state this event; "other" for anything else.
 {passages}
-Return ONLY JSON: {{"ratings": [{{"id": passage id, "score": 1-5, "reason": short}}]}}"""
+Return ONLY JSON: {{"ratings": [{{"id": passage id, "score": 1-5, "fault": one of the five, "reason": short}}]}}"""
+
+BOUNDARY_FAULTS = ("starts_mid_thought", "ends_mid_thought")   # D3: the only faults a repair may address
 
 
 def _v_rate(o):
@@ -692,7 +757,8 @@ def _v_rate(o):
 
 
 def rate_passages(llm, q, passages):
-    """Returns ({pid: (score, reason)}, error_or_None). Unparseable -> no ratings (never invented)."""
+    """Returns ({pid: (score, reason, fault)}, error_or_None). Unparseable -> no ratings (never
+    invented). A missing or unknown fault is recorded as "unspecified" and is never repaired."""
     ex = "\n".join(f'<excerpt id="{p["pid"]}" channel="{p["channel"]}" seconds="{p["duration"]:.0f}">'
                    f'{quote_data(p["text"], 700)}</excerpt>' for p in passages)
     try:
@@ -706,7 +772,9 @@ def rate_passages(llm, q, passages):
         try:
             pid = str(x["id"])
             if pid in valid:
-                out[pid] = (max(1.0, min(5.0, float(x["score"]))), x.get("reason", ""))
+                fault = x.get("fault") if x.get("fault") in BOUNDARY_FAULTS + ("none", "off_topic", "other") \
+                    else "unspecified"
+                out[pid] = (max(1.0, min(5.0, float(x["score"]))), x.get("reason", ""), fault)
         except Exception:
             pass
     return out, None

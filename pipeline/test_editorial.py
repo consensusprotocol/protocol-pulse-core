@@ -145,10 +145,15 @@ class TestSemanticIdentity(unittest.TestCase):
         cls.sm = sm
         cls.E = sm.Embedder()
         cls.L = sm.LocalLLM().start()
+        # The transcripts below state the midterm RESULT, so the story under test is the result. Under the
+        # current verifier (D2 names it: the quote itself must state the event's actor/action/object) the
+        # same quotes are TOPIC_ONLY for an "ETF outflows amid post-midterm market" story; that headline
+        # encoded the old topic-level verifier (2026-11-09 baseline: 'Republicans lost both chambers...'
+        # -> TOPIC_ONLY because it does not state ETF outflows).
         cls.q_mid = sm.derive_story_query(cls.L, {
-            "headline": "Crypto ETFs see over half a billion dollars in outflows amid post-midterm market",
-            "summary": "Spot bitcoin ETFs saw outflows as markets digested the U.S. midterm election results.",
-            "source_domain": "theblock.co"}, "2026-11-06")
+            "headline": "Democrats win control of both the House and Senate in the 2026 midterm elections",
+            "summary": "The Nov. 3 2026 US midterms flipped Congress; Bitcoin and crypto markets reacted.",
+            "source_domain": "apnews.com"}, "2026-11-06")
         cls.q_block = sm.derive_story_query(cls.L, {
             "headline": "Jack Dorsey's Block (XYZ) Sets Aside $764 Million for DOJ Settlement",
             "summary": "Block disclosed a reserve for a settlement with the Department of Justice.",

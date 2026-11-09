@@ -15,7 +15,7 @@ import shutil
 import sys
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE)
@@ -45,23 +45,54 @@ def V(verdict="CURRENT_EVENT", counted=True, quote_ok=True, quote="a verified qu
             "evidence_quote": quote, "video_id": "X", "channel": "c", "supporting_chunk_ids": ["X:0-1000"]}
 
 
-# ── E1/E9: currentness comes only from transcripts; a model date is a hint (deterministic) ──
+# ── E1/E9/D1: publish metadata dates the event; transcripts decide currentness; the model date is a
+#    tiebreaker only without metadata (deterministic) ──
 
 class TestE9TranscriptCurrentness(unittest.TestCase):
-    def test_model_date_hint_is_informational_only(self):
+    def test_d1_without_metadata_the_model_date_is_the_tiebreaker(self):
+        """D1 negative: no metadata date -> the model date decides, and the real stale-ETF query
+        ("early 2024") is still rejected by the unchanged 72 h + 7 d rule."""
         q = load("stale_etf_fixture.json")["derived_query"]       # date_context "early 2024 (...)"
-        h = sm.model_date_hint(q, NOW, 72)
-        self.assertTrue(h["older_than_window"])
-        self.assertIn("transcripts decide", h["authority"])
-        self.assertFalse(hasattr(sm, "currentness_gate"), "the model-date gate must not exist")
+        g = sm.grounded_event_date(q, None, NOW, 72)
+        self.assertTrue(g["stale"], g)
+        self.assertIn("tiebreaker", g["authority"])
+        self.assertIn("before 2026-10-27", g["stale_reason"])     # 72 h + 7 d before NOW, unchanged
+        self.assertFalse(g["model_date_discarded"])
 
-    def test_real_run3_false_stale_queries_are_hints_not_rejections(self):
+    def test_d1_real_run3_hallucinated_dates_are_discarded(self):
+        """D1 positive (real run-3 records): article publish time dates the event; the model's
+        training-memory dates (2023-10, 2023-11, 2026-10-06) are older than the publish date and are
+        discarded, so none of the three current stories is rejected as stale."""
         self.assertEqual(len(RUN3["false_stale_candidates"]), 3)
         cur = sm.transcript_currentness(RUN3["binance_verdicts"])
         self.assertEqual(cur["status"], "CURRENT", cur)
         for c in RUN3["false_stale_candidates"]:
-            h = sm.model_date_hint(c["query"], NOW3, 72)
-            self.assertTrue(h["older_than_window"], c["headline"])   # the model's wrong date is still recorded
+            published = NOW3 - timedelta(hours=c["age_h"])
+            g = sm.grounded_event_date(c["query"], published, NOW3, 72)
+            self.assertFalse(g["stale"], (c["headline"], g))
+            self.assertTrue(g["model_date_discarded"], (c["headline"], g))
+            self.assertEqual(g["authority"], "source publish metadata")
+            self.assertEqual(g["event_date"], published.isoformat())
+            self.assertIn("discarded as hallucinated", g["model_date"]["status"])
+
+    def test_d1_article_publish_time_needs_both_metadata_fields(self):
+        """D1: publish time = story-engine generated_at - freshness; a missing freshness is no
+        metadata date (never 'just published'), so the model date becomes the tiebreaker."""
+        import editorial_select as es
+        self.assertEqual(es._story_published("2026-11-06T17:00:00+00:00", 90), "2026-11-06T15:30:00+00:00")
+        self.assertEqual(es._story_published("2026-11-06T17:00:00Z", 0), "2026-11-06T17:00:00+00:00")
+        for gen, fresh in (("2026-11-06T17:00:00+00:00", None), (None, 60), ("x", 60)):
+            self.assertIsNone(es._story_published(gen, fresh), (gen, fresh))
+
+    def test_d1_old_metadata_is_stale_whatever_the_model_says(self):
+        """D1 negative: the window and grace are unchanged and apply to the metadata date."""
+        q = {"event_date": "2026-11-05", "event_recency": "current"}
+        g = sm.grounded_event_date(q, NOW - timedelta(days=11), NOW, 72)
+        self.assertTrue(g["stale"], g)
+        self.assertEqual(g["authority"], "source publish metadata")
+        g = sm.grounded_event_date(q, NOW - timedelta(days=9), NOW, 72)     # inside 72 h + 7 d
+        self.assertFalse(g["stale"], g)
+        self.assertFalse(g["model_date_discarded"])                          # 2026-11-05 is not older
 
     def test_missing_transcript_evidence_is_inconclusive(self):
         for vs in ([], [V(counted=False)], [V("SAME_TOPIC_DIFFERENT_EVENT", counted=False)]):
@@ -204,8 +235,8 @@ class TestQuoteAnchoredWindows(unittest.TestCase):
         cq = es._clip_quality(c, same, FakeEmbedder(), Rater(5), reg, words, log=lambda s: None)
         self.assertTrue(any("deduped" in str(x) for a in cq["anchors"] for x in a.get("windows", {}).values()), cq["anchors"])
         code_windows = {(p["video_id"], p["start"], p["end"]) for p in cq["candidates"]}
-        for p in cq["candidates"]:                               # no window outside its quote sentences
-            a = [x for x in cq["anchors"] if x["video_id"] == p["video_id"]][0]
+        for p in cq["candidates"]:                               # no window outside ITS quote's sentences (D2)
+            a = [x for x in cq["anchors"] if x["video_id"] == p["video_id"] and x["quote"] == p["anchor_quote"]][0]
             self.assertLessEqual(p["start"], a["anchor_start"])
             self.assertGreaterEqual(p["end"], a["anchor_end"])
         for p in cq["chosen"]:
@@ -365,7 +396,7 @@ class Orchestration(unittest.TestCase):
             self.uni.append({"video_id": vid, "rss": {"title": f"{ch} show",
                              "published": "2026-11-06T00:00:00+00:00"}, "channel": c, "age_h": 6.0})
         self.stories = os.path.join(self.tmp, "stories.json")
-        json.dump({"generated_at": "x", "stories": [
+        json.dump({"generated_at": "2026-11-06T17:00:00+00:00", "stories": [      # D1: publish metadata exists
             {"rank": 1, "overall_score": 50, "headline": "PARSEFAIL story one", "freshness_minutes": 60},
             {"rank": 2, "overall_score": 49, "headline": "Democrats win Congress in midterms", "freshness_minutes": 60}]},
             open(self.stories, "w"))
@@ -431,15 +462,33 @@ def _no_release(llm, **kw):
 
 class TestE9Orchestration(Orchestration):
     def test_stale_model_date_cannot_reject_a_transcript_current_story(self):
+        """D1 positive: with an article publish date, a hallucinated model date is discarded."""
         import editorial_select as es
         with self.assertRaises(es.NoProducibleStory):
             self.select(FakeLLM(model_date="2023-10", model_recency="historical"), release_gpu0_for_whisper=_no_release)
         c2 = [c for c in self.topic()["candidates"] if c["headline"].startswith("Democrats")][0]
         self.assertEqual(c2["importance_gate"], [])
-        self.assertTrue(c2["model_date_hint"]["older_than_window"])
+        g = c2["event_date_grounding"]
+        self.assertEqual(g["authority"], "source publish metadata")
+        self.assertEqual(g["event_date"], "2026-11-06T16:00:00+00:00")          # generated_at - 60 min
+        self.assertTrue(g["model_date_discarded"])
         self.assertEqual(c2["currentness"]["status"], "CURRENT")
-        self.assertIn("model date hint contradicts transcript evidence (hint ignored)", c2["flags"])
+        self.assertIn("model date discarded as hallucinated (D1/E9)", c2["flags"])
         self.assertFalse(c2["decision"].startswith(("rejected", "inconclusive")), c2["decision"])
+
+    def test_without_metadata_a_stale_model_date_still_rejects(self):
+        """D1 negative: no publish metadata -> the model date is the tiebreaker (72 h + 7 d unchanged)."""
+        import editorial_select as es
+        d = json.load(open(self.stories))
+        d.pop("generated_at")
+        json.dump(d, open(self.stories, "w"))
+        with self.assertRaises(es.NoProducibleStory):
+            self.select(FakeLLM(model_date="2023-10", model_recency="historical"), release_gpu0_for_whisper=_no_release)
+        c2 = [c for c in self.topic()["candidates"] if c["headline"].startswith("Democrats")][0]
+        self.assertIsNone(c2["source_published"])
+        self.assertIn("tiebreaker", c2["event_date_grounding"]["authority"])
+        self.assertTrue(any(r.startswith("stale event") for r in c2["importance_gate"]), c2["importance_gate"])
+        self.assertNotIn("coverage", c2)                                         # never evaluated further
 
     def test_historical_transcripts_are_inconclusive_not_current(self):
         import editorial_select as es

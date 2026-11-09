@@ -1,0 +1,1258 @@
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index bc3a547c..0be1f722 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -24,7 +24,7 @@ import os
+ import re
+ import sys
+ import time
+-from datetime import datetime, timezone
++from datetime import datetime, timedelta, timezone
+ 
+ import numpy as np
+ 
+@@ -49,6 +49,7 @@ HOOK_MIN_S, HOOK_MAX_S = 8.0, 12.0
+ CLIP_MIN_S, CLIP_MAX_S = 13.0, 25.0
+ HOOK_MIN_SCORE, CLIP_MIN_SCORE = 4.0, 3.5
+ N_CLIPS = 3                        # v2f format: hook + 3 clips
++MAX_VERIFIED_QUOTES_PER_VIDEO = 2  # D2 (PBX 2026-11-09): up to two verified windows per source video
+ DEDUPE_SIM = 0.88
+ V2F_VIDEO_IDS = {"RBFN4CB60To", "Pxrak-iMT0g", "QCgW8RlTu5Q"}
+ 
+@@ -67,6 +68,24 @@ def _recency(age_h):
+     return 1.0 if age_h <= 24 else 0.7 if age_h <= 48 else 0.4 if age_h <= 72 else 0.1
+ 
+ 
++def _parse_ts(s):
++    """ISO-8601 timestamp -> aware UTC datetime, or None."""
++    try:
++        d = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
++    except (TypeError, ValueError):
++        return None
++    return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
++
++
++def _story_published(generated_at, freshness_minutes):
++    """D1: article publish time = story-engine generation time - freshness. None when either is
++    missing; a missing freshness is never read as 'just published'."""
++    g = _parse_ts(generated_at)
++    if g is None or freshness_minutes is None:
++        return None
++    return (g - timedelta(minutes=float(freshness_minutes))).isoformat()
++
++
+ def layout_eligible(channel):
+     """Any registered channel with an id is clip-eligible. Presentation safety is
+     enforced later: approved channels crop; pending channels letterbox.
+@@ -193,6 +212,9 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+     direction (expansion never jumps past it); the other direction is still offered to the checker
+     (PBX 2026-11-07 00:25). Expansion stops when both directions are closed. A sentence that would
+     push the window past `hi` also closes that direction.
++    D4 (PBX 2026-11-09 01:34): `on_event` is adjacent_admissible() in production; a sentence that
++    starts more than 8 s from the anchor boundary it extends, or a third sentence in one direction,
++    closes that direction without a checker call.
+     Accept only if lo <= duration <= hi, the start is a boundary and it ends on '.' or '!'.
+     Returns (window, None, span) or (None, reason, span); span records every check for audit."""
+     sa = next(i for i, (a, b) in enumerate(sents) if a <= anchor["w0"] <= b)
+@@ -205,6 +227,7 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+         return words[sents[b][1]]["end"] - words[sents[a][0]]["start"]
+ 
+     a, b, checks, stops = sa, se, [], []
++    admitted = {"next": 0, "prev": 0}
+     open_dirs = ["next", "prev"]
+     while dur(a, b) < lo and open_dirs:
+         progressed = False
+@@ -221,13 +244,35 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+                 checks.append({"direction": d, "sentence": stext(i), "on_event": None,
+                                "detail": f"would exceed {hi} s; direction closed"})
+                 continue
+-            ok, detail = on_event(stext(i))
+-            checks.append({"direction": d, "sentence": stext(i), "on_event": bool(ok), "detail": detail})
++            # D4a (PBX 2026-11-09 ~02:05): content-free interjections are transparent — included in
++            # the window but skipped for the (a) check, not counted toward the two-sentence cap, and
++            # they do not close the direction.  The 8 s bound (b) still applies to them.
++            txt_i = stext(i)
++            lw_i = _lc_words(txt_i)
++            if lw_i and set(lw_i) <= INTERJECTIONS:
++                closed = _adjacent_gate(words, sents, sa, se, i, d, admitted)  # (b) 8 s still applies
++                if closed:
++                    open_dirs.remove(d)
++                    checks.append({"direction": d, "sentence": txt_i, "on_event": None, "detail": closed})
++                    continue
++                checks.append({"direction": d, "sentence": txt_i, "on_event": None,
++                               "detail": "interjection: transparent (D4a); not counted toward cap"})
++                a, b, progressed = na, nb, True
++                # admitted[d] NOT incremented (transparent to cap)
++                continue
++            closed = _adjacent_gate(words, sents, sa, se, i, d, admitted)      # D4 (b) + cap
++            if closed:
++                open_dirs.remove(d)
++                checks.append({"direction": d, "sentence": txt_i, "on_event": None, "detail": closed})
++                continue
++            ok, detail = on_event(txt_i)
++            checks.append({"direction": d, "sentence": txt_i, "on_event": bool(ok), "detail": detail})
+             if not ok:
+                 open_dirs.remove(d)
+                 stops.append(f"{d} sentence not verified on-event ({detail})")
+                 continue
+             a, b, progressed = na, nb, True
++            admitted[d] += 1
+         if not progressed:
+             break
+     st, en = words[sents[a][0]]["start"], words[sents[b][1]]["end"]
+@@ -269,6 +314,195 @@ def sentence_on_event(llm, q, text, cache=None):
+     return res
+ 
+ 
++# D4 (PBX 2026-11-09 01:34): what may join a window next to the verified anchor sentence.
++ADJ_MAX_START_S = 8.0            # (b) an admitted sentence starts within 8 s of the anchor boundary it extends
++ADJ_MAX_PER_DIRECTION = 2        # at most two admitted adjacent sentences per direction
++BACKREF_WORDS = {"this", "that", "these", "those", "it", "its", "they", "them", "their"}   # deictic / pronoun
++BACKREF_PHRASES = ("what just happened", "what happened", "the hack", "the breach")        # definite reference
++# PBX ruling 2026-11-09 ~02:05: a sentence made ONLY of these interjections skips (a); (b), (c), cap still apply
++INTERJECTIONS = {"oh", "ah", "wow", "yeah", "yes", "right", "okay", "mhm", "hmm", "huh", "wait", "sure",
++                 "exactly", "true"}
++_NOT_ENTITY = {"I", "The", "This", "That", "These", "Those", "It", "And", "But", "So", "We", "You", "They",
++               "He", "She", "A", "An", "In", "On", "Of", "To", "Yeah", "Oh", "Okay", "Well", "Now", "Look"}
++
++
++def _lc_words(text):
++    return re.findall(r"[a-z0-9]+", (text or "").lower().replace("’", "'"))
++
++
++def _numbers(text):
++    t = re.sub(r"(\d)\s+([.,])\s*(\d)", r"\1\2\3", text or "")      # whisper writes '6 .3' and '80 ,000'
++    return {n.replace(",", "") for n in re.findall(r"\d[\d,]*(?:\.\d+)?", t)}
++
++
++def _anchor_entities(anchor, q):
++    names = set()
++    for e in q.get("entities") or []:
++        if isinstance(e, dict):
++            names |= {n for n in [e.get("name", "")] + list(e.get("aliases") or [])
++                      if isinstance(n, str) and len(n.strip()) >= 2}
++    found = {n for n in names if re.search(r"(?<![A-Za-z0-9])" + re.escape(n) + r"(?![A-Za-z0-9])", anchor, re.I)}
++    toks = re.findall(r"[A-Za-z][A-Za-z0-9]*", anchor)
++    return found | {t for i, t in enumerate(toks) if i > 0 and t[0].isupper() and t not in _NOT_ENTITY}
++
++
++def backward_reference(text, anchor, q):
++    """D4 (a), deterministic: the sentence refers back to the verified event (deictic / pronoun /
++    definite reference) or shares a named entity or number with the anchor. Returns what was found
++    (for the audit record) or None."""
++    lw = _lc_words(text)
++    low = " ".join(lw)
++    found = sorted(BACKREF_WORDS & set(lw))
++    found += [p for p in BACKREF_PHRASES if re.search(r"\b" + re.escape(p) + r"\b", low)]
++    event_nouns = {w for w in _lc_words(f"{q.get('action') or ''} {q.get('affected_object') or ''}") if len(w) >= 4}
++    found += [f"the {w}" for w in sorted(event_nouns) if f"the {w}" not in found and re.search(rf"\bthe {w}\b", low)]
++    found += [f"entity {e}" for e in sorted(_anchor_entities(anchor, q))
++              if re.search(r"(?<![A-Za-z0-9])" + re.escape(e) + r"(?![A-Za-z0-9])", text or "", re.I)]
++    found += [f"number {n}" for n in sorted(_numbers(anchor) & _numbers(text))]
++    return ", ".join(found) or None
++
++
++def adjacent_admissible(llm, q, anchor, text, cache=None):
++    """D4: an adjacent sentence joins a window only if (a) backward_reference() finds a reference to
++    the verified event or a shared entity/number (a sentence made only of INTERJECTIONS is exempt
++    from (a), PBX ruling 2026-11-09) AND (c) an independent verifier answers
++    story_semantics.REACTION_QUESTION with SAME_EVENT_REACTION_OR_CONSEQUENCE. NEW_SUBJECT and
++    OTHER_EVENT are hard rejects. (b) (start within 8 s) and the per-direction cap are enforced by
++    the window builders. Returns (admitted, detail)."""
++    import story_semantics as sm
++    if cache is not None and (anchor, text) in cache:
++        return cache[(anchor, text)]
++    if sm.injection_markers(text):
++        res = (False, "injection markers")
++    else:
++        ref = backward_reference(text, anchor, q)
++        lw = _lc_words(text)
++        if not ref and lw and set(lw) <= INTERJECTIONS:
++            ref = "interjection only (exempt from (a), PBX ruling 2026-11-09)"
++        if not ref:
++            res = (False, "no backward reference, shared entity or shared number with the anchor")
++        else:
++            try:
++                r = sm.verify_reaction(llm, q, anchor, text)
++                res = (r["label"] == sm.REACTION_OK, f"{r['label']} [{ref}]: {r.get('reason', '')}"[:240])
++            except (sm.LLMParseError, KeyError, TypeError, AttributeError) as e:
++                res = (False, f"checker inconclusive: {type(e).__name__}: {e}")
++    if cache is not None:
++        cache[(anchor, text)] = res
++    return res
++
++
++def _adjacent_gate(words, sents, sa, se, i, d, admitted):
++    """D4 (b) + cap for candidate sentence i in direction d; returns a closing reason or None."""
++    if admitted[d] >= ADJ_MAX_PER_DIRECTION:
++        return f"cap: {ADJ_MAX_PER_DIRECTION} sentences already admitted {d}; direction closed"
++    gap = (words[sents[i][0]]["start"] - words[sents[se][1]]["end"] if d == "next"
++           else words[sents[sa][0]]["start"] - words[sents[i][0]]["start"])
++    if gap > ADJ_MAX_START_S:
++        return f"starts {gap:.2f} s from the anchor boundary (> {ADJ_MAX_START_S} s); direction closed"
++    return None
++
++
++def _anchor_text(words, sents, w0, w1):
++    """Text of the verified anchor sentence(s) holding words w0..w1."""
++    sa = next(i for i, (a, b) in enumerate(sents) if a <= w0 <= b)
++    se = next(i for i, (a, b) in enumerate(sents) if a <= w1 <= b)
++    return " ".join(w["word"].strip() for w in words[sents[sa][0]:sents[se][1] + 1])
++
++
++def second_verified_quote(llm, q, v, today=""):
++    """D2 (PBX 2026-11-09): a second window from the same source video needs its own verified quote.
++    The same adjudication (story_semantics.adjudicate) runs independently on the video's other
++    retrieved excerpts; the excerpt holding the first quote is left out, so the second quote comes
++    from a different passage. It counts only under the first quote's rule: CURRENT_EVENT, verbatim
++    quote from a non-flagged excerpt, valid chunk id, independent SUPPORTS.
++    Returns (verdict, None) or (None, reason)."""
++    import story_semantics as sm
++    first = v.get("evidence_quote") or ""
++    rest = [x for x in (v.get("excerpts") or []) if not sm.quote_in(first, [x.get("text", "")])]
++    if not rest:
++        return None, "no other retrieved excerpt"
++    try:
++        r = sm.adjudicate(llm, q, {"title": v.get("title", ""), "channel": v.get("channel", ""),
++                                   "published_at": v.get("published_at", "-")}, rest, today=today)
++    except (sm.LLMParseError, KeyError, TypeError, AttributeError, ValueError) as e:
++        return None, f"second adjudication inconclusive: {type(e).__name__}: {e}"
++    if not r.get("counted_as_same_event"):
++        return None, (f"second quote not verified (verdict {r.get('verdict')}, support {r.get('support')}, "
++                      f"quote_verified {r.get('quote_verified')})")
++    return r, None
++
++
++def repair_window(words, sents, win, fault, lo, hi, on_event):
++    """D3 (PBX 2026-11-09): a window rated below its floor ONLY for a boundary fault is repaired once
++    with the verified adjacent expansion in that direction (starts_mid_thought -> previous sentence,
++    ends_mid_thought -> next sentence). Every added sentence must pass the same event checker on its
++    own; a failing sentence closes the direction, which ends the repair; never past `hi`. At least
++    one sentence is added, more only while that edge is still not a boundary. The repaired window
++    must pass the same window rules. Returns (window, None, span) or (None, reason, span)."""
++    a = next((i for i, (x, _) in enumerate(sents) if words[x]["start"] == win["start"]), None)
++    b = next((i for i, (_, y) in enumerate(sents) if words[y]["end"] == win["end"]), None)
++    span = {"fault": fault, "from": [win["start"], win["end"]], "expansion": []}
++    if a is None or b is None:
++        return None, "window is not on sentence boundaries", span
++    d = "prev" if fault == "starts_mid_thought" else "next"
++    sa, se = (win.get("quote_sentences") or [a, b])[:2]      # the verified anchor sentence(s)
++    admitted = {"prev": sa - a, "next": b - se}              # D4 cap counts what the window already has
++
++    def stext(i):
++        return " ".join(w["word"].strip() for w in words[sents[i][0]:sents[i][1] + 1])
++
++    def edge_ok(a, b):
++        return start_is_boundary(words, sents, a)[0] if d == "prev" else \
++            words[sents[b][1]]["word"].rstrip().endswith((".", "!"))
++
++    added = 0
++    while added == 0 or not edge_ok(a, b):
++        i = a - 1 if d == "prev" else b + 1
++        if i < 0 or i >= len(sents):
++            return None, f"boundary repair: no {d} sentence", span
++        na, nb = (i, b) if d == "prev" else (a, i)
++        if words[sents[nb][1]]["end"] - words[sents[na][0]]["start"] > hi:
++            span["expansion"].append({"direction": d, "sentence": stext(i), "on_event": None,
++                                      "detail": f"would exceed {hi} s; direction closed"})
++            return None, f"boundary repair: {d} sentence would exceed {hi} s", span
++        # D4a: interjections are transparent in repair too
++        txt_i = stext(i)
++        lw_i = _lc_words(txt_i)
++        if lw_i and set(lw_i) <= INTERJECTIONS:
++            closed = _adjacent_gate(words, sents, sa, se, i, d, admitted)  # (b) still applies
++            if closed:
++                span["expansion"].append({"direction": d, "sentence": txt_i, "on_event": None, "detail": closed})
++                return None, f"boundary repair: {closed}", span
++            span["expansion"].append({"direction": d, "sentence": txt_i, "on_event": None,
++                                      "detail": "interjection: transparent (D4a); not counted toward cap"})
++            a, b = na, nb
++            continue
++        closed = _adjacent_gate(words, sents, sa, se, i, d, admitted)          # D4 (b) + cap
++        if closed:
++            span["expansion"].append({"direction": d, "sentence": txt_i, "on_event": None, "detail": closed})
++            return None, f"boundary repair: {closed}", span
++        ok, detail = on_event(txt_i)
++        span["expansion"].append({"direction": d, "sentence": txt_i, "on_event": bool(ok), "detail": detail})
++        if not ok:
++            return None, f"boundary repair: {d} sentence not verified on-event ({detail})", span
++        a, b, added = na, nb, added + 1
++        admitted[d] += 1
++    st, en = words[sents[a][0]]["start"], words[sents[b][1]]["end"]
++    dd = round(en - st, 2)
++    span.update(start=st, end=en, duration=dd, added_sentences=added)
++    if not lo <= dd <= hi:
++        return None, f"repaired window {dd} s outside {lo}-{hi} s", span
++    ok, why = start_is_boundary(words, sents, a)
++    if not ok:
++        return None, f"repaired start rejected: {why}", span
++    if not words[sents[b][1]]["word"].rstrip().endswith((".", "!")):
++        return None, "repaired window does not end on '.' or '!'", span
++    return {"start": st, "end": en, "duration": dd, "first_sentence": stext(a), "last_sentence": stext(b),
++            "n_sentences": b - a + 1, "text": " ".join(w["word"].strip() for w in words[sents[a][0]:sents[b][1] + 1]),
++            "anchor_start": win.get("anchor_start"), "anchor_end": win.get("anchor_end")}, None, span
++
++
+ def _form_score(text):
+     from rank import _score_passage
+     return _score_passage(text, [])
+@@ -393,7 +627,9 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+         cands.append({"origin": "story_engine", "engine_rank": s.get("rank"),
+                       "engine_score": s.get("overall_score"), "headline": s.get("headline"),
+                       "summary": s.get("summary"), "source_domain": s.get("source_domain"),
+-                      "age_h": (s.get("freshness_minutes") or 0) / 60})
++                      "age_h": (s.get("freshness_minutes") or 0) / 60,
++                      "source_published": _story_published(stories.get("generated_at"),
++                                                           s.get("freshness_minutes"))})
+     emergent = []
+     rec["emergent_clusters"] = emergent
+     for gi, g in enumerate(sm.emergent_clusters(chunks, vecs)):
+@@ -414,7 +650,9 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+                           "summary": lab.get("summary", ""), "source_domain": "transcript cluster",
+                           "cluster_channels": g["channels"], "cluster_chunk_ids": lab.get("excerpt_chunk_ids"),
+                           "current_development_evidence": entry["current_development_evidence"],
+-                          "age_h": min(ages) if ages else None})
++                          "age_h": min(ages) if ages else None,
++                          # D1: upload time of the video holding the verified current-development quote
++                          "source_published": by_chunk.get(cdq, {}).get("published_at")})
+         emergent.append(entry)
+         ck("emergent", cluster=gi)
+     log(f"  candidates: {len(cands)} ({sum(c['origin'] == 'transcript_cluster' for c in cands)} emergent, "
+@@ -431,8 +669,8 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+             continue
+         c["query"] = q
+         imp = {"llm_importance": q.get("importance"), "llm_bitcoin_relevance": q.get("bitcoin_relevance"),
+-               "is_specific_event": q.get("is_specific_event"), "event_date": q.get("event_date"),
+-               "event_recency": q.get("event_recency"), "recency": _recency(c.get("age_h")),
++               "is_specific_event": q.get("is_specific_event"), "model_event_date": q.get("event_date"),
++               "model_event_recency": q.get("event_recency"), "recency": _recency(c.get("age_h")),
+                "engine_score": c.get("engine_score"),
+                "engine_score_note": rec["story_engine"]["llm_legs"] if c["origin"] == "story_engine" else None}
+         try:
+@@ -447,7 +685,13 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+             gate.append(f"bitcoin_relevance {q.get('bitcoin_relevance')} < {BTC_RELEVANCE_MIN}")
+         if not q.get("is_specific_event", True):
+             gate.append("not a specific event")
+-        c["model_date_hint"] = sm.model_date_hint(q, now, UNIVERSE_HOURS)   # E9: hint only, never a gate
++        # D1: publish metadata dates the event; the model date is a tiebreaker only without it
++        g = sm.grounded_event_date(q, _parse_ts(c.get("source_published")), now, UNIVERSE_HOURS)
++        c["event_date_grounding"] = g
++        if g["model_date_discarded"]:
++            log(f"  D1/E9 model date discarded ({g['model_date']['status']}): {c['headline'][:70]}")
++        if g["stale"]:
++            gate.append(g["stale_reason"])
+         c["importance_gate"] = gate
+         ck("derive", candidate=ci, of=len(cands))
+     live = [c for c in cands if "query" in c and not c["importance_gate"]]
+@@ -515,8 +759,8 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+                              layout_eligible_channels=[by_cid[x]["display_name"] for x in lay_ch])
+         cur = sm.transcript_currentness(verdicts)            # E1/E9: transcripts decide currentness
+         c["currentness"] = cur
+-        if cur["status"] == "CURRENT" and c.get("model_date_hint", {}).get("older_than_window"):
+-            c.setdefault("flags", []).append("model date hint contradicts transcript evidence (hint ignored)")
++        if c.get("event_date_grounding", {}).get("model_date_discarded"):
++            c.setdefault("flags", []).append("model date discarded as hallucinated (D1/E9)")
+         log(f"  [{c['importance']['importance_score']:.2f}] {c['headline'][:70]} -> coverage "
+             f"{len(cov_ch)} ch ({len(lay_ch)} layout-eligible), currentness {cur['status']}")
+         if cur["status"] != "CURRENT":
+@@ -567,7 +811,7 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+     # 7. CLIP QUALITY
+     for oi, c in enumerate(qualified):
+         cq = _clip_quality(c, [v for v in c["coverage"]["verdicts"] if v["counted_as_same_event"]],
+-                           E, L, by_cid, words, log)
++                           E, L, by_cid, words, log, today=today)
+         c["clip_quality"] = cq
+         c["decision"] = "producible" if cq["producible"] else (
+             ("INFRA_HOLD: " if cq.get("infra") else "rejected: ") + cq["reason"])
+@@ -592,7 +836,7 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+                        "short_label": win["query"].get("short_label"),
+                        "underlying_event": win["query"].get("underlying_event"),
+                        "currentness": win["currentness"],
+-                       "model_date_hint": win.get("model_date_hint"),
++                       "event_date_grounding": win.get("event_date_grounding"),
+                        "flags": win.get("flags", []),
+                        "importance": win["importance"],
+                        "coverage": {k: v for k, v in win["coverage"].items() if k != "verdicts"},
+@@ -620,7 +864,7 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+     return win["query"].get("short_label") or win["headline"], rec
+ 
+ 
+-def _clip_quality(c, same, E, L, by_cid, words, log):
++def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
+     import story_semantics as sm
+     q = c["query"]
+     qv = E.encode([q.get("underlying_event", c["headline"])], query=True)[0]
+@@ -634,45 +878,55 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
+         if r is None:
+             (infra if str(st).startswith("infra") else missing).append((v["video_id"], st))
+             continue
+-        a_rec = {"video_id": v["video_id"], "channel": ch["display_name"], "quote": v["evidence_quote"]}
+-        anchors.append(a_rec)
+         ws = r.get("words") or []
+         if not ws:
+-            a_rec["result"] = "no word timestamps in record"
++            anchors.append({"video_id": v["video_id"], "channel": ch["display_name"], "quote": v["evidence_quote"],
++                            "result": "no word timestamps in record"})
+             missing.append((v["video_id"], "no word timestamps"))
+             continue
+-        spans = [ts.parse_chunk_id(x)[1:] for x in v["supporting_chunk_ids"]]
+-        anc = align_quote(v["evidence_quote"], ws, max(0, min(a for a, _ in spans) - ANCHOR_PAD_S),
+-                          max(b for _, b in spans) + ANCHOR_PAD_S)
+-        if anc is None:
+-            a_rec["result"] = "verified quote not found in word timestamps (no window)"
+-            continue
+-        a_rec.update(anchor_start=anc["start"], anchor_end=anc["end"], match_ratio=anc["ratio"], windows={})
+         sents = _word_sentences(ws)
+-        for lo, hi, kind in ((HOOK_MIN_S, HOOK_MAX_S, "hook"), (CLIP_MIN_S, CLIP_MAX_S, "clip")):
+-            # verified adjacent expansion for hooks (8-12 s) and clips (13-25 s) alike
+-            # (PBX 2026-11-07 03:01: hooks use the same rule and checker as clips)
+-            w, why, span = expanded_window(ws, sents, anc, lo, hi,
+-                                           lambda t: sentence_on_event(L, c["query"], t, on_event_cache))
+-            a_rec.setdefault("spans", {})[kind] = {**span, "valid": w is not None, "why": why}
+-            if w is None:
+-                a_rec["windows"][kind] = f"none: {why}"
+-                continue
+-            dup = next((p for p in cands if p["video_id"] == v["video_id"] and p["kind"] == kind and
+-                        not (w["end"] <= p["start"] or w["start"] >= p["end"])), None)
+-            if dup:
+-                a_rec["windows"][kind] = f"deduped: overlaps {dup['source_chunk_id']}"
++        v2, why2 = second_verified_quote(L, q, v, today)          # D2: up to two verified quotes per video
++        for qi, ev in enumerate([v] + ([v2] if v2 else []), 1):
++            a_rec = {"video_id": v["video_id"], "channel": ch["display_name"], "quote": ev["evidence_quote"],
++                     "quote_index": qi}
++            if qi == 1:
++                a_rec["second_quote"] = "verified" if v2 else why2
++            anchors.append(a_rec)
++            spans = [ts.parse_chunk_id(x)[1:] for x in ev["supporting_chunk_ids"]]
++            anc = align_quote(ev["evidence_quote"], ws, max(0, min(a for a, _ in spans) - ANCHOR_PAD_S),
++                              max(b for _, b in spans) + ANCHOR_PAD_S)
++            if anc is None:
++                a_rec["result"] = "verified quote not found in word timestamps (no window)"
+                 continue
+-            a_rec["windows"][kind] = f"{w['start']:.2f}-{w['end']:.2f} ({w['duration']} s)"
+-            cands.append({**w, "kind": kind, "video_id": v["video_id"], "channel": ch["display_name"],
+-                          "channel_id": ch["channel_id"], "handle": ch.get("yt_handle", ""),
+-                          "tier": ch.get("tier", 9), "title": v["title"], "published_at": v["published_at"],
+-                          "canonical_url": v["canonical_url"], "transcript_sha256": r["transcript_sha256"],
+-                          "transcript_method": r["transcript_method"],
+-                          "anchor_quote": v["evidence_quote"],
+-                          "source_chunk_id": ts.chunk_id(v["video_id"], w["start"], w["end"])})
++            a_rec.update(anchor_start=anc["start"], anchor_end=anc["end"], match_ratio=anc["ratio"], windows={})
++            anchor_text = _anchor_text(ws, sents, anc["w0"], anc["w1"])
++            for lo, hi, kind in ((HOOK_MIN_S, HOOK_MAX_S, "hook"), (CLIP_MIN_S, CLIP_MAX_S, "clip")):
++                # verified adjacent expansion for hooks (8-12 s) and clips (13-25 s) alike
++                # (PBX 2026-11-07 03:01: hooks use the same rule and checker as clips);
++                # D4: an adjacent sentence must be a reaction to / consequence of the verified event
++                w, why, span = expanded_window(ws, sents, anc, lo, hi,
++                                               lambda t: adjacent_admissible(L, c["query"], anchor_text, t, on_event_cache))
++                a_rec.setdefault("spans", {})[kind] = {**span, "valid": w is not None, "why": why}
++                if w is None:
++                    a_rec["windows"][kind] = f"none: {why}"
++                    continue
++                dup = next((p for p in cands if p["video_id"] == v["video_id"] and p["kind"] == kind and
++                            not (w["end"] <= p["start"] or w["start"] >= p["end"])), None)
++                if dup:
++                    a_rec["windows"][kind] = f"deduped: overlaps {dup['source_chunk_id']}"
++                    continue
++                a_rec["windows"][kind] = f"{w['start']:.2f}-{w['end']:.2f} ({w['duration']} s)"
++                cands.append({**w, "kind": kind, "video_id": v["video_id"], "channel": ch["display_name"],
++                              "channel_id": ch["channel_id"], "handle": ch.get("yt_handle", ""),
++                              "tier": ch.get("tier", 9), "title": v["title"], "published_at": v["published_at"],
++                              "canonical_url": v["canonical_url"], "transcript_sha256": r["transcript_sha256"],
++                              "transcript_method": r["transcript_method"],
++                              "anchor_quote": ev["evidence_quote"], "quote_index": qi,
++                              "source_chunk_id": ts.chunk_id(v["video_id"], w["start"], w["end"])})
+     base = {"infra_failures": infra, "other_failures": missing, "anchors": anchors,
+-            "window_rule": "hooks and clips: quote sentence(s) + verified adjacent expansion, next then previous, a failed sentence closes its direction; boundary start; overlap-deduped; code picks the cut"}
++            "window_rule": "hooks and clips: quote sentence(s) + verified adjacent expansion, next then previous, a failed sentence closes its direction; boundary start; overlap-deduped; code picks the cut; "
++                           "D2: up to 2 independently verified quotes per video, never overlapping; "
++                           "D3: a window below its floor only for a boundary fault is repaired once in that direction and re-rated"}
+     if infra and len({p["channel"] for p in cands}) < MIN_LAYOUT_CHANNELS:
+         return {**base, "producible": False, "infra": True, "candidates": cands, "chosen": [],
+                 "mean_chosen_score": 0,
+@@ -701,9 +955,44 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
+         if err:
+             rating_errors.append(err)
+         for p in shortlist[b:b + 8]:
+-            s, why = ratings.get(p["pid"], (0.0, "unrated"))
+-            p["clip_score"], p["clip_reason"] = s, why
++            p["clip_score"], p["clip_reason"], p["clip_fault"] = ratings.get(p["pid"], (0.0, "unrated", "unspecified"))
++    # D3 (PBX 2026-11-09): below its floor ONLY for a boundary fault -> one verified repair in that
++    # direction, then re-rated once. Floors unchanged; off_topic / other / unspecified never repaired.
++    repairs, fixed = [], []
++    for p in list(shortlist):
++        floor, lo, hi = ((HOOK_MIN_SCORE, HOOK_MIN_S, HOOK_MAX_S) if p["kind"] == "hook"
++                         else (CLIP_MIN_SCORE, CLIP_MIN_S, CLIP_MAX_S))
++        if p["clip_score"] >= floor or p["clip_fault"] not in sm.BOUNDARY_FAULTS:
++            continue
++        ws = words[p["video_id"]][0]["words"]
++        sents_p = _word_sentences(ws)
++        qs = p.get("quote_sentences") or [None, None]
++        anchor_text = (" ".join(w["word"].strip() for w in ws[sents_p[qs[0]][0]:sents_p[qs[1]][1] + 1])
++                       if None not in qs else p.get("anchor_quote", ""))
++        w, why, span = repair_window(ws, sents_p, p, p["clip_fault"], lo, hi,
++                                     lambda t: adjacent_admissible(L, q, anchor_text, t, on_event_cache))
++        rep = {"pid": p["pid"], "kind": p["kind"], "channel": p["channel"], "fault": p["clip_fault"],
++               "score_before": p["clip_score"], "reason_before": p["clip_reason"], "span": span,
++               "result": why or "repaired; re-rated"}
++        repairs.append(rep)
++        if w:
++            fixed.append(({**p, **w, "pid": p["pid"] + "r",
++                           "repaired_from": {"pid": p["pid"], "start": p["start"], "end": p["end"],
++                                             "score": p["clip_score"], "fault": p["clip_fault"]},
++                           "source_chunk_id": ts.chunk_id(p["video_id"], w["start"], w["end"])}, rep))
++    if fixed:
++        fv = E.encode([x["text"] for x, _ in fixed])
++        for (x, _), vv in zip(fixed, fv):
++            x["relevance"], x["form"] = round(float(vv @ qv), 3), _form_score(x["text"])
++        ratings, err = sm.rate_passages(L, q, [x for x, _ in fixed])
++        if err:
++            rating_errors.append(err)
++        for x, rep in fixed:
++            x["clip_score"], x["clip_reason"], x["clip_fault"] = ratings.get(x["pid"], (0.0, "unrated", "unspecified"))
++            rep.update(score_after=x["clip_score"], reason_after=x["clip_reason"], fault_after=x["clip_fault"])
++            shortlist.append(x)
+     base["rating_errors"] = rating_errors
++    base["boundary_repairs"] = repairs
+     hooks = sorted([p for p in shortlist if p["kind"] == "hook" and p["clip_score"] >= HOOK_MIN_SCORE],
+                    key=lambda p: (-p["clip_score"], -p["relevance"]))
+     clips = sorted([p for p in shortlist if p["kind"] == "clip" and p["clip_score"] >= CLIP_MIN_SCORE],
+@@ -718,8 +1007,9 @@ def _clip_quality(c, same, E, L, by_cid, words, log):
+             if len(chosen) >= 1 + N_CLIPS:
+                 break
+             if any(x["video_id"] == p["video_id"] and not (p["end"] <= x["start"] or p["start"] >= x["end"])
+-                   for x in chosen) or sum(1 for x in chosen[1:] if x["channel"] == p["channel"]) >= 2:
+-                continue                                  # overlap dedupe / per-channel cap
++                   for x in chosen) or sum(1 for x in chosen[1:] if x["channel"] == p["channel"]) >= 2 \
++                    or sum(1 for x in chosen if x["video_id"] == p["video_id"]) >= MAX_VERIFIED_QUOTES_PER_VIDEO:
++                continue                                  # overlap (R2) / per-channel cap / D2 per-video cap
+             chosen.append(p)
+         return chosen
+ 
+diff --git a/pipeline/story_semantics.py b/pipeline/story_semantics.py
+index 5e0c1963..121b53d1 100644
+--- a/pipeline/story_semantics.py
++++ b/pipeline/story_semantics.py
+@@ -388,23 +388,48 @@ def parse_event_date(s):
+         return None
+ 
+ 
+-def model_date_hint(q, now, window_hours):
+-    """E9: the derivation model's event_date / date_context / event_recency is a HINT, never
+-    authority (models write training-memory dates onto current stories). Recorded for review;
+-    it can never reject a story or make one inconclusive. Currentness is decided only by
+-    transcript_currentness()."""
++def grounded_event_date(q, source_published, now, window_hours):
++    """D1 (PBX 2026-11-09): the event date comes from source publish metadata (article publish
++    time, video upload time); transcript evidence is checked after coverage by
++    transcript_currentness(). The derivation model's date is only a tiebreaker when no metadata
++    date exists. A model date older than the source's publish date is discarded as hallucinated
++    (E9: models write training-memory dates onto current stories) and recorded for the run log.
++    Stale = event date before now - window - grace (72 h + 7 d, unchanged)."""
+     start = now - timedelta(hours=window_hours) - timedelta(days=STALE_GRACE_DAYS)
+-    hint = {"authority": "none (model hint; transcripts decide currentness)",
+-            "event_date": q.get("event_date"), "date_context": q.get("date_context"),
+-            "event_recency": q.get("event_recency"), "older_than_window": False}
+-    for field in ("event_date", "date_context"):   # first field that parses
+-        d = parse_event_date(str(q.get(field) or ""))
++    model_d, field = None, None
++    for f in ("event_date", "date_context"):   # first field that parses (latest plausible reading)
++        d = parse_event_date(str(q.get(f) or ""))
+         if d is not None:
+-            hint["parsed_from"], hint["older_than_window"] = field, d < start
++            model_d, field = d, f
+             break
+-    if str(q.get("event_recency", "")).lower() == "historical":
+-        hint["older_than_window"] = True
+-    return hint
++    historical = str(q.get("event_recency", "")).lower() == "historical"
++    out = {"window_start": start.isoformat(),
++           "source_published": source_published.isoformat() if source_published else None,
++           "model_date": {"event_date": q.get("event_date"), "date_context": q.get("date_context"),
++                          "event_recency": q.get("event_recency"), "parsed_from": field},
++           "model_date_discarded": False}
++    if source_published is not None:
++        out.update(authority="source publish metadata", event_date=source_published.isoformat())
++        if model_d is not None and model_d < source_published:
++            out["model_date_discarded"] = True
++            out["model_date"]["status"] = (f"discarded as hallucinated: {field}={q.get(field)!r} is older "
++                                           f"than the source's publish date {source_published.date()}")
++        else:
++            out["model_date"]["status"] = "recorded only (a metadata date exists)"
++        stale = source_published < start
++        why = f"source published {source_published.date()}"
++    else:
++        out.update(authority="model date (tiebreaker: no metadata date)" if (model_d or historical)
++                   else "none (no metadata date, no model date)",
++                   event_date=model_d.isoformat() if model_d else None)
++        out["model_date"]["status"] = "tiebreaker (no metadata date)"
++        stale = (model_d is not None and model_d < start) or historical
++        why = (f"model {field}={q.get(field)!r}" if model_d is not None and model_d < start
++               else "model labels the event historical")
++    out["stale"] = bool(stale)
++    out["stale_reason"] = (f"stale event: {why} is before {start.date()} (window {window_hours} h + "
++                           f"{STALE_GRACE_DAYS} d grace)") if stale else None
++    return out
+ 
+ 
+ def transcript_currentness(verdicts):
+@@ -527,6 +552,41 @@ def _entities_str(q):
+     return "; ".join(ents) or "-"
+ 
+ 
++# D4 (PBX 2026-11-09 01:34): the adjacent-sentence verifier asks exactly one question. It is not a
++# restatement check (verify_support) and not a relatedness/similarity check.
++REACTION_QUESTION = "is this sentence a reaction to or consequence of the same verified event?"
++REACTION_OK = "SAME_EVENT_REACTION_OR_CONSEQUENCE"
++REACTION_LABELS = (REACTION_OK, "NEW_SUBJECT", "OTHER_EVENT")
++REACTION_PROMPT = """You check ONE SENTENCE spoken right next to a verified statement of a news event.
++
++VERIFIED EVENT: {event}
++{note}
++VERIFIED STATEMENT: <excerpt id="anchor">{anchor}</excerpt>
++SENTENCE: <excerpt id="sentence">{sentence}</excerpt>
++
++Answer exactly this question: """ + REACTION_QUESTION + """
++The sentence does not need to repeat the event. Talking about the same kind of thing without reacting
++to THIS event, or stating a consequence of THIS event, does not count.
++- "SAME_EVENT_REACTION_OR_CONSEQUENCE": the sentence reacts to THIS verified event (an opinion,
++  judgement or emotion about it) or states a consequence of it (an effect, what happens next because of it).
++- "NEW_SUBJECT": the sentence moves to a new primary subject (market commentary, a different subject,
++  an ad, small talk, a question to a guest).
++- "OTHER_EVENT": the sentence is about a different news item.
++Return ONLY JSON: {{"label": one of the three, "reason": one sentence}}"""
++
++
++def _v_react(o):
++    if o.get("label") not in REACTION_LABELS:
++        raise ValueError(f"label {o.get('label')!r} not in {REACTION_LABELS}")
++
++
++def verify_reaction(llm, q, anchor, sentence):
++    """D4 (c): independent call on one adjacent sentence. Returns {"label", "reason"}."""
++    p = REACTION_PROMPT.format(event=q.get("underlying_event", ""), note=UNTRUSTED_NOTE,
++                               anchor=quote_data(anchor, 600), sentence=quote_data(sentence, 600))
++    return llm.chat_json(p, max_tokens=200, validate=_v_react)
++
++
+ def verify_support(llm, q, quote):
+     """Independent call: does the quote itself state the event? (E2)"""
+     p = SUPPORT_PROMPT.format(event=q.get("underlying_event", ""), action=q.get("action", "-"),
+@@ -682,8 +742,13 @@ Rate each candidate passage 1-5 for use as a standalone clip:
+ 5 = complete, strong, specific statement about this event that makes sense on its own;
+ 3 = relevant but weak, partial or dependent on missing context;
+ 1 = off-topic, a question, filler, an ad, or starts/ends mid-thought.
++Also name each passage's main fault: "none"; "starts_mid_thought" or "ends_mid_thought" ONLY when
++the passage states this event and its only problem is that it begins or ends in the middle of a
++thought; "off_topic" when it does not state this event; "other" for anything else.
+ {passages}
+-Return ONLY JSON: {{"ratings": [{{"id": passage id, "score": 1-5, "reason": short}}]}}"""
++Return ONLY JSON: {{"ratings": [{{"id": passage id, "score": 1-5, "fault": one of the five, "reason": short}}]}}"""
++
++BOUNDARY_FAULTS = ("starts_mid_thought", "ends_mid_thought")   # D3: the only faults a repair may address
+ 
+ 
+ def _v_rate(o):
+@@ -692,7 +757,8 @@ def _v_rate(o):
+ 
+ 
+ def rate_passages(llm, q, passages):
+-    """Returns ({pid: (score, reason)}, error_or_None). Unparseable -> no ratings (never invented)."""
++    """Returns ({pid: (score, reason, fault)}, error_or_None). Unparseable -> no ratings (never
++    invented). A missing or unknown fault is recorded as "unspecified" and is never repaired."""
+     ex = "\n".join(f'<excerpt id="{p["pid"]}" channel="{p["channel"]}" seconds="{p["duration"]:.0f}">'
+                    f'{quote_data(p["text"], 700)}</excerpt>' for p in passages)
+     try:
+@@ -706,7 +772,9 @@ def rate_passages(llm, q, passages):
+         try:
+             pid = str(x["id"])
+             if pid in valid:
+-                out[pid] = (max(1.0, min(5.0, float(x["score"]))), x.get("reason", ""))
++                fault = x.get("fault") if x.get("fault") in BOUNDARY_FAULTS + ("none", "off_topic", "other") \
++                    else "unspecified"
++                out[pid] = (max(1.0, min(5.0, float(x["score"]))), x.get("reason", ""), fault)
+         except Exception:
+             pass
+     return out, None
+diff --git a/pipeline/test_editorial.py b/pipeline/test_editorial.py
+index 38426070..03c43834 100644
+--- a/pipeline/test_editorial.py
++++ b/pipeline/test_editorial.py
+@@ -145,10 +145,15 @@ class TestSemanticIdentity(unittest.TestCase):
+         cls.sm = sm
+         cls.E = sm.Embedder()
+         cls.L = sm.LocalLLM().start()
++        # The transcripts below state the midterm RESULT, so the story under test is the result. Under the
++        # current verifier (D2 names it: the quote itself must state the event's actor/action/object) the
++        # same quotes are TOPIC_ONLY for an "ETF outflows amid post-midterm market" story; that headline
++        # encoded the old topic-level verifier (2026-11-09 baseline: 'Republicans lost both chambers...'
++        # -> TOPIC_ONLY because it does not state ETF outflows).
+         cls.q_mid = sm.derive_story_query(cls.L, {
+-            "headline": "Crypto ETFs see over half a billion dollars in outflows amid post-midterm market",
+-            "summary": "Spot bitcoin ETFs saw outflows as markets digested the U.S. midterm election results.",
+-            "source_domain": "theblock.co"}, "2026-11-06")
++            "headline": "Democrats win control of both the House and Senate in the 2026 midterm elections",
++            "summary": "The Nov. 3 2026 US midterms flipped Congress; Bitcoin and crypto markets reacted.",
++            "source_domain": "apnews.com"}, "2026-11-06")
+         cls.q_block = sm.derive_story_query(cls.L, {
+             "headline": "Jack Dorsey's Block (XYZ) Sets Aside $764 Million for DOJ Settlement",
+             "summary": "Block disclosed a reserve for a settlement with the Department of Justice.",
+diff --git a/pipeline/test_editorial_robust.py b/pipeline/test_editorial_robust.py
+index dc19c8b4..59a1c282 100644
+--- a/pipeline/test_editorial_robust.py
++++ b/pipeline/test_editorial_robust.py
+@@ -15,7 +15,7 @@ import shutil
+ import sys
+ import tempfile
+ import unittest
+-from datetime import datetime, timezone
++from datetime import datetime, timedelta, timezone
+ 
+ PIPELINE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(PIPELINE)
+@@ -45,23 +45,54 @@ def V(verdict="CURRENT_EVENT", counted=True, quote_ok=True, quote="a verified qu
+             "evidence_quote": quote, "video_id": "X", "channel": "c", "supporting_chunk_ids": ["X:0-1000"]}
+ 
+ 
+-# ── E1/E9: currentness comes only from transcripts; a model date is a hint (deterministic) ──
++# ── E1/E9/D1: publish metadata dates the event; transcripts decide currentness; the model date is a
++#    tiebreaker only without metadata (deterministic) ──
+ 
+ class TestE9TranscriptCurrentness(unittest.TestCase):
+-    def test_model_date_hint_is_informational_only(self):
++    def test_d1_without_metadata_the_model_date_is_the_tiebreaker(self):
++        """D1 negative: no metadata date -> the model date decides, and the real stale-ETF query
++        ("early 2024") is still rejected by the unchanged 72 h + 7 d rule."""
+         q = load("stale_etf_fixture.json")["derived_query"]       # date_context "early 2024 (...)"
+-        h = sm.model_date_hint(q, NOW, 72)
+-        self.assertTrue(h["older_than_window"])
+-        self.assertIn("transcripts decide", h["authority"])
+-        self.assertFalse(hasattr(sm, "currentness_gate"), "the model-date gate must not exist")
+-
+-    def test_real_run3_false_stale_queries_are_hints_not_rejections(self):
++        g = sm.grounded_event_date(q, None, NOW, 72)
++        self.assertTrue(g["stale"], g)
++        self.assertIn("tiebreaker", g["authority"])
++        self.assertIn("before 2026-10-27", g["stale_reason"])     # 72 h + 7 d before NOW, unchanged
++        self.assertFalse(g["model_date_discarded"])
++
++    def test_d1_real_run3_hallucinated_dates_are_discarded(self):
++        """D1 positive (real run-3 records): article publish time dates the event; the model's
++        training-memory dates (2023-10, 2023-11, 2026-10-06) are older than the publish date and are
++        discarded, so none of the three current stories is rejected as stale."""
+         self.assertEqual(len(RUN3["false_stale_candidates"]), 3)
+         cur = sm.transcript_currentness(RUN3["binance_verdicts"])
+         self.assertEqual(cur["status"], "CURRENT", cur)
+         for c in RUN3["false_stale_candidates"]:
+-            h = sm.model_date_hint(c["query"], NOW3, 72)
+-            self.assertTrue(h["older_than_window"], c["headline"])   # the model's wrong date is still recorded
++            published = NOW3 - timedelta(hours=c["age_h"])
++            g = sm.grounded_event_date(c["query"], published, NOW3, 72)
++            self.assertFalse(g["stale"], (c["headline"], g))
++            self.assertTrue(g["model_date_discarded"], (c["headline"], g))
++            self.assertEqual(g["authority"], "source publish metadata")
++            self.assertEqual(g["event_date"], published.isoformat())
++            self.assertIn("discarded as hallucinated", g["model_date"]["status"])
++
++    def test_d1_article_publish_time_needs_both_metadata_fields(self):
++        """D1: publish time = story-engine generated_at - freshness; a missing freshness is no
++        metadata date (never 'just published'), so the model date becomes the tiebreaker."""
++        import editorial_select as es
++        self.assertEqual(es._story_published("2026-11-06T17:00:00+00:00", 90), "2026-11-06T15:30:00+00:00")
++        self.assertEqual(es._story_published("2026-11-06T17:00:00Z", 0), "2026-11-06T17:00:00+00:00")
++        for gen, fresh in (("2026-11-06T17:00:00+00:00", None), (None, 60), ("x", 60)):
++            self.assertIsNone(es._story_published(gen, fresh), (gen, fresh))
++
++    def test_d1_old_metadata_is_stale_whatever_the_model_says(self):
++        """D1 negative: the window and grace are unchanged and apply to the metadata date."""
++        q = {"event_date": "2026-11-05", "event_recency": "current"}
++        g = sm.grounded_event_date(q, NOW - timedelta(days=11), NOW, 72)
++        self.assertTrue(g["stale"], g)
++        self.assertEqual(g["authority"], "source publish metadata")
++        g = sm.grounded_event_date(q, NOW - timedelta(days=9), NOW, 72)     # inside 72 h + 7 d
++        self.assertFalse(g["stale"], g)
++        self.assertFalse(g["model_date_discarded"])                          # 2026-11-05 is not older
+ 
+     def test_missing_transcript_evidence_is_inconclusive(self):
+         for vs in ([], [V(counted=False)], [V("SAME_TOPIC_DIFFERENT_EVENT", counted=False)]):
+@@ -204,8 +235,8 @@ class TestQuoteAnchoredWindows(unittest.TestCase):
+         cq = es._clip_quality(c, same, FakeEmbedder(), Rater(5), reg, words, log=lambda s: None)
+         self.assertTrue(any("deduped" in str(x) for a in cq["anchors"] for x in a.get("windows", {}).values()), cq["anchors"])
+         code_windows = {(p["video_id"], p["start"], p["end"]) for p in cq["candidates"]}
+-        for p in cq["candidates"]:                               # no window outside its quote sentences
+-            a = [x for x in cq["anchors"] if x["video_id"] == p["video_id"]][0]
++        for p in cq["candidates"]:                               # no window outside ITS quote's sentences (D2)
++            a = [x for x in cq["anchors"] if x["video_id"] == p["video_id"] and x["quote"] == p["anchor_quote"]][0]
+             self.assertLessEqual(p["start"], a["anchor_start"])
+             self.assertGreaterEqual(p["end"], a["anchor_end"])
+         for p in cq["chosen"]:
+@@ -365,7 +396,7 @@ class Orchestration(unittest.TestCase):
+             self.uni.append({"video_id": vid, "rss": {"title": f"{ch} show",
+                              "published": "2026-11-06T00:00:00+00:00"}, "channel": c, "age_h": 6.0})
+         self.stories = os.path.join(self.tmp, "stories.json")
+-        json.dump({"generated_at": "x", "stories": [
++        json.dump({"generated_at": "2026-11-06T17:00:00+00:00", "stories": [      # D1: publish metadata exists
+             {"rank": 1, "overall_score": 50, "headline": "PARSEFAIL story one", "freshness_minutes": 60},
+             {"rank": 2, "overall_score": 49, "headline": "Democrats win Congress in midterms", "freshness_minutes": 60}]},
+             open(self.stories, "w"))
+@@ -431,16 +462,34 @@ def _no_release(llm, **kw):
+ 
+ class TestE9Orchestration(Orchestration):
+     def test_stale_model_date_cannot_reject_a_transcript_current_story(self):
++        """D1 positive: with an article publish date, a hallucinated model date is discarded."""
+         import editorial_select as es
+         with self.assertRaises(es.NoProducibleStory):
+             self.select(FakeLLM(model_date="2023-10", model_recency="historical"), release_gpu0_for_whisper=_no_release)
+         c2 = [c for c in self.topic()["candidates"] if c["headline"].startswith("Democrats")][0]
+         self.assertEqual(c2["importance_gate"], [])
+-        self.assertTrue(c2["model_date_hint"]["older_than_window"])
++        g = c2["event_date_grounding"]
++        self.assertEqual(g["authority"], "source publish metadata")
++        self.assertEqual(g["event_date"], "2026-11-06T16:00:00+00:00")          # generated_at - 60 min
++        self.assertTrue(g["model_date_discarded"])
+         self.assertEqual(c2["currentness"]["status"], "CURRENT")
+-        self.assertIn("model date hint contradicts transcript evidence (hint ignored)", c2["flags"])
++        self.assertIn("model date discarded as hallucinated (D1/E9)", c2["flags"])
+         self.assertFalse(c2["decision"].startswith(("rejected", "inconclusive")), c2["decision"])
+ 
++    def test_without_metadata_a_stale_model_date_still_rejects(self):
++        """D1 negative: no publish metadata -> the model date is the tiebreaker (72 h + 7 d unchanged)."""
++        import editorial_select as es
++        d = json.load(open(self.stories))
++        d.pop("generated_at")
++        json.dump(d, open(self.stories, "w"))
++        with self.assertRaises(es.NoProducibleStory):
++            self.select(FakeLLM(model_date="2023-10", model_recency="historical"), release_gpu0_for_whisper=_no_release)
++        c2 = [c for c in self.topic()["candidates"] if c["headline"].startswith("Democrats")][0]
++        self.assertIsNone(c2["source_published"])
++        self.assertIn("tiebreaker", c2["event_date_grounding"]["authority"])
++        self.assertTrue(any(r.startswith("stale event") for r in c2["importance_gate"]), c2["importance_gate"])
++        self.assertNotIn("coverage", c2)                                         # never evaluated further
++
+     def test_historical_transcripts_are_inconclusive_not_current(self):
+         import editorial_select as es
+         with self.assertRaises(es.NoProducibleStory):
+diff --git a/pipeline/test_window_review.py b/pipeline/test_window_review.py
+index 03a2ad80..af2be03e 100644
+--- a/pipeline/test_window_review.py
++++ b/pipeline/test_window_review.py
+@@ -14,6 +14,7 @@ Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_window_review.py
+ import copy
+ import json
+ import os
++import re
+ import shutil
+ import sys
+ import tempfile
+@@ -249,6 +250,411 @@ class TestLocalReviewAndGate(unittest.TestCase):
+         self.assertEqual(eg.run_gate(self.tmp, v2f_edl())["verdict"], "HOLD")
+ 
+ 
++# ── D2 / D3 (PBX 2026-11-09), deterministic: prompt-routed fake model, synthetic word timestamps ──
++
++class RoutedLLM:
++    """Adjudication returns `second_quote` if it is inside a shown excerpt; the verifier (also the
++    adjacent-sentence checker) says SUPPORTS only for `on_event` sentences; the rater scores each
++    passage with rate(text) -> (score, fault)."""
++    model = "fake"
++
++    def __init__(self, on_event, second_quote=None, rate=None, reactions=None):
++        import story_semantics as sm
++        self.sm, self.on_event = sm, {sm._norm(s) for s in on_event}
++        self.reactions = self.on_event if reactions is None else {sm._norm(s) for s in reactions}
++        self.second_quote, self.rate, self.prompts = second_quote, rate or (lambda t: (5, "none")), []
++
++    def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
++        sm = self.sm
++        self.prompts.append(prompt)
++        if prompt.startswith("You verify whether"):
++            hit = [i for i, t in re.findall(r'<excerpt id="([^"]+)">(.*?)</excerpt>', prompt, re.S)
++                   if self.second_quote and sm._norm(self.second_quote) in sm._norm(t)]
++            if not hit:
++                return {"verdict": "UNRELATED", "supporting_chunk_ids": [], "evidence_quote": "", "reason": "fake"}
++            return {"verdict": "CURRENT_EVENT", "supporting_chunk_ids": hit[:1],
++                    "evidence_quote": self.second_quote, "confidence": 0.9, "reason": "fake"}
++        if prompt.startswith("Decide whether a QUOTE"):
++            q = re.search(r'<excerpt id="quote">(.*?)</excerpt>', prompt, re.S).group(1)
++            return {"support": "SUPPORTS" if sm._norm(q) in self.on_event else "TOPIC_ONLY", "reason": "fake"}
++        if prompt.startswith("You check ONE SENTENCE"):                 # D4 reaction / consequence verifier
++            t = re.search(r'<excerpt id="sentence">(.*?)</excerpt>', prompt, re.S).group(1)
++            return {"label": sm.REACTION_OK if sm._norm(t) in self.reactions else "NEW_SUBJECT", "reason": "fake"}
++        if prompt.startswith("You pick clips"):
++            out = []
++            for pid, text in re.findall(r'<excerpt id="(p\d+r?)"[^>]*>(.*?)</excerpt>', prompt, re.S):
++                s, f = self.rate(text)
++                out.append({"id": pid, "score": s, "fault": f, "reason": "fake"})
++            return {"ratings": out}
++        raise AssertionError("unexpected prompt: " + prompt[:60])
++
++    def verified_texts(self):
++        return ([m.group(1) for p in self.prompts if p.startswith("Decide whether a QUOTE")
++                 for m in [re.search(r'<excerpt id="quote">(.*?)</excerpt>', p, re.S)]] +
++                [m.group(1) for p in self.prompts if p.startswith("You check ONE SENTENCE")
++                 for m in [re.search(r'<excerpt id="sentence">(.*?)</excerpt>', p, re.S)]])
++
++
++def _source(vid, channel, sentences, quote_idx, chunk_bounds):
++    """One counted verdict + word record for a synthetic video. chunk_bounds = [(s0, s1), ...] sentence
++    index ranges per retrieved excerpt; the quote is sentence `quote_idx` without its full stop."""
++    import test_editorial_robust as ter
++    ws = words_for(sentences)
++    sents = es._word_sentences(ws)
++    ex = []
++    for s0, s1 in chunk_bounds:
++        t0, t1 = ws[sents[s0][0]]["start"], ws[sents[s1][1]]["end"]
++        ex.append({"chunk_id": ts.chunk_id(vid, t0, t1), "start": t0, "end": t1,
++                   "text": " ".join(sentences[s0:s1 + 1])})
++    q = sentences[quote_idx].rstrip(".")
++    cid = next(x["chunk_id"] for x in ex if q in x["text"])
++    v = {"video_id": vid, "channel": channel, "channel_id": ter.REG[channel]["channel_id"],
++         "layout_eligible": True, "counted_as_same_event": True, "evidence_quote": q,
++         "supporting_chunk_ids": [cid], "excerpts": ex, "title": f"{channel} show",
++         "published_at": "2026-11-08T12:00:00+00:00", "canonical_url": ts.canonical_url(vid)}
++    return v, ({"words": ws, "transcript_sha256": "sha-" + vid, "transcript_method": "whisper_words"}, "cached")
++
++
++A = ["Good morning everyone and welcome back to the show.",                                                  # 0
++     "Binance lost six billion dollars to hackers overnight in the largest exchange theft anyone has ever recorded.",  # 1 q1
++     "Anyway our sponsor this week makes great hardware wallets for everyone listening at home.",            # 2
++     "Let me also tell you about the weather here because it has been really nice lately.",                 # 3
++     "We had a great barbecue with the family and the kids loved every minute of it.",                      # 4
++     "Okay back to the news now and the bigger picture for the market this week.",                          # 5
++     "Regulators ordered every American bank to report its exposure to the Binance hack before Friday morning arrives.",  # 6 q2
++     "The exchange says customer withdrawals will resume within forty eight hours once the audit of the hot wallets ends.",  # 7
++     "Thanks for watching and do not forget to subscribe to the channel for more."]                          # 8
++B = ["Welcome back to the program everyone.",
++     "The Binance hack drained six billion dollars from hot wallets and nobody saw it coming at all.",       # q
++     "Federal regulators are now asking banks how much exposure they have to the exchange after the theft.",
++     "That is all for today so thanks for tuning in."]
++ON_EVENT = [A[1], A[6], A[7], B[1], B[2]]
++QUERY = {"query": {"underlying_event": "Hackers stole six billion dollars from the Binance exchange",
++                   "action": "hack", "affected_object": "Binance exchange",
++                   "entities": [{"name": "Binance", "aliases": []}]},
++         "headline": "Binance hacked for six billion dollars"}
++
++
++class TestD2TwoVerifiedWindowsPerVideo(unittest.TestCase):
++    def setUp(self):
++        import test_editorial_robust as ter
++        self.ter = ter
++        self.reg = {c["channel_id"]: c for c in ter.REG.values() if c.get("channel_id")}
++        self.va, wa = _source("VIDAAAAAAA1", "The Bitcoin Layer", A, 1, [(0, 3), (4, 6), (7, 8)])
++        self.vb, wb = _source("VIDBBBBBBB1", "Bitcoin Magazine", B, 1, [(0, 3)])
++        self.words = {"VIDAAAAAAA1": wa, "VIDBBBBBBB1": wb}
++
++    def cq(self, llm):
++        return es._clip_quality(QUERY, [self.va, self.vb], self.ter.FakeEmbedder(), llm, self.reg,
++                                self.words, log=lambda s: None, today="2026-11-09")
++
++    def test_two_window_source_makes_a_two_video_story_producible(self):
++        """Positive: video A carries two independently verified quotes far apart -> two windows."""
++        cq = self.cq(RoutedLLM(ON_EVENT, second_quote=A[6].rstrip(".")))
++        a1 = [x for x in cq["anchors"] if x["video_id"] == "VIDAAAAAAA1"]
++        self.assertEqual([x["quote_index"] for x in a1], [1, 2])
++        self.assertEqual(a1[0]["second_quote"], "verified")
++        self.assertTrue(cq["producible"], cq["reason"])
++        chosen_a = sorted((p["start"], p["end"]) for p in cq["chosen"] if p["video_id"] == "VIDAAAAAAA1")
++        self.assertEqual(len(chosen_a), 2, cq["chosen"])
++        self.assertLessEqual(chosen_a[0][1], chosen_a[1][0])          # R2: no passage reuse
++        self.assertTrue(any(A[1][:20] in p["text"] for p in cq["chosen"]))
++        self.assertTrue(any(A[6][:20] in p["text"] for p in cq["chosen"]))
++
++    def test_second_quote_must_pass_the_same_verification(self):
++        """Negative: the second quote is CURRENT_EVENT and verbatim, but the independent verifier says
++        TOPIC_ONLY -> no second window; one window per video cannot make hook + 2 clips here."""
++        cq = self.cq(RoutedLLM([s for s in ON_EVENT if s != A[6]], second_quote=A[6].rstrip(".")))
++        a1 = [x for x in cq["anchors"] if x["video_id"] == "VIDAAAAAAA1"]
++        self.assertEqual([x["quote_index"] for x in a1], [1])
++        self.assertTrue(a1[0]["second_quote"].startswith("second quote not verified"), a1[0]["second_quote"])
++        self.assertFalse(cq["producible"])
++
++    def test_r2_hook_and_clip_never_share_a_passage(self):
++        """Negative (R2): each video has one verified quote whose hook and clip windows overlap;
++        hook + 2 clips would need a passage twice, so the story is not producible."""
++        self.va, _ = _source("VIDAAAAAAA1", "The Bitcoin Layer", A, 6, [(0, 3), (4, 6), (7, 8)])
++        cq = self.cq(RoutedLLM(ON_EVENT))                               # no second quote anywhere
++        kinds = sorted(p["kind"] for p in cq["candidates"] if p["video_id"] == "VIDAAAAAAA1")
++        self.assertEqual(kinds, ["clip", "hook"])                       # both windows exist ...
++        self.assertFalse(cq["producible"], cq.get("chosen"))            # ... but never both in one video
++
++    def test_second_window_never_reuses_the_first_passage(self):
++        """Negative (R2): a second 'verified' quote on the first quote's passage yields no new window."""
++        orig = es.second_verified_quote
++        es.second_verified_quote = lambda llm, q, v, today="": (
++            (dict(v), None) if v["video_id"] == "VIDAAAAAAA1" else (None, "none"))
++        try:
++            cq = self.cq(RoutedLLM(ON_EVENT))
++        finally:
++            es.second_verified_quote = orig
++        a2 = [x for x in cq["anchors"] if x["video_id"] == "VIDAAAAAAA1" and x["quote_index"] == 2][0]
++        self.assertTrue(all(str(w).startswith("deduped") or str(w).startswith("none")
++                            for w in a2["windows"].values()), a2["windows"])
++        self.assertFalse(cq["producible"])
++        for i, p in enumerate(cq["chosen"]):
++            for o in cq["chosen"][i + 1:]:
++                self.assertFalse(p["video_id"] == o["video_id"] and not (p["end"] <= o["start"] or p["start"] >= o["end"]))
++
++
++C = ["Binance confirmed the hack this morning in a short statement posted on its own website.",            # 0
++     "It means six billion dollars of customer money left the exchange in one night and nobody stopped it.",  # 1 quote
++     "Withdrawals stayed frozen for hours while the exchange tried to find the hole.",                       # 2
++     "Thanks for watching and see you all tomorrow on the stream."]                                          # 3
++
++
++class TestD3BoundaryRepair(unittest.TestCase):
++    def setUp(self):
++        import test_editorial_robust as ter
++        self.ter = ter
++        self.reg = {c["channel_id"]: c for c in ter.REG.values() if c.get("channel_id")}
++        self.vc, wc = _source("VIDCCCCCCC1", "The Bitcoin Layer", C, 1, [(0, 3)])
++        self.words = {"VIDCCCCCCC1": wc}
++
++    def cq(self, llm):
++        return es._clip_quality(QUERY, [self.vc], self.ter.FakeEmbedder(), llm, self.reg, self.words,
++                                log=lambda s: None, today="2026-11-09")
++
++    @staticmethod
++    def rate(fault):
++        return lambda t: ((3, fault) if t.startswith("It means") else
++                          (4.5, "none") if t.startswith("Binance confirmed") else (5, "none"))
++
++    def test_mid_thought_window_passes_after_verified_repair(self):
++        """Positive: the clip 'It means ... hole.' is rated 3 for starting mid-thought; the previous
++        sentence is verified on-event, so it is added (24.5 s <= 25) and the re-rated window (4.5)
++        clears the unchanged 3.5 floor. The hook version cannot grow past 12 s and stays rejected."""
++        llm = RoutedLLM([C[0], C[1], C[2]], rate=self.rate("starts_mid_thought"))
++        cq = self.cq(llm)
++        reps = {r["kind"]: r for r in cq["boundary_repairs"]}
++        self.assertEqual(reps["clip"]["result"], "repaired; re-rated")
++        self.assertEqual((reps["clip"]["score_before"], reps["clip"]["score_after"]), (3, 4.5))
++        self.assertEqual(reps["clip"]["span"]["added_sentences"], 1)
++        self.assertEqual(reps["clip"]["span"]["expansion"][0]["sentence"], C[0])
++        self.assertIn("would exceed 12.0 s", reps["hook"]["result"])
++        fixed = [p for p in cq["candidates"] if p.get("repaired_from")]
++        self.assertEqual(len(fixed), 1)
++        self.assertEqual((fixed[0]["kind"], fixed[0]["start"]), ("clip", 0.0))
++        self.assertGreaterEqual(fixed[0]["clip_score"], es.CLIP_MIN_SCORE)
++        self.assertTrue(fixed[0]["text"].startswith("Binance confirmed") and fixed[0]["text"].endswith("hole."))
++
++    def test_off_topic_window_is_never_repaired(self):
++        """Negative: the same window rated 3 as off_topic stays rejected; nothing is added or re-rated."""
++        llm = RoutedLLM([C[0], C[1], C[2]], rate=self.rate("off_topic"))
++        cq = self.cq(llm)
++        self.assertEqual(cq["boundary_repairs"], [])
++        self.assertFalse([p for p in cq["candidates"] if p.get("repaired_from")])
++        self.assertNotIn(C[0], llm.verified_texts())                   # the checker never saw C0
++        self.assertFalse(cq["producible"])
++
++    def test_repaired_window_still_below_the_floor_stays_rejected(self):
++        """D3: 'rejected only if it still fails after repair' - one repair, one re-rating, no second try."""
++        llm = RoutedLLM([C[0], C[1], C[2]],
++                        rate=lambda t: (3, "starts_mid_thought") if t.startswith(("It means", "Binance confirmed"))
++                        else (5, "none"))
++        cq = self.cq(llm)
++        fixed = [p for p in cq["candidates"] if p.get("repaired_from")]
++        self.assertEqual(len(fixed), 1)
++        self.assertLess(fixed[0]["clip_score"], es.CLIP_MIN_SCORE)
++        self.assertEqual(sorted(r["kind"] for r in cq["boundary_repairs"]), ["clip", "hook"])   # no repair of a repair
++        self.assertFalse(cq["producible"])
++
++    def test_failed_checker_closes_the_repair(self):
++        """Negative: boundary fault, but the previous sentence is not verified on-event -> rejected."""
++        llm = RoutedLLM([C[1], C[2]], rate=self.rate("starts_mid_thought"))
++        cq = self.cq(llm)
++        reps = {r["kind"]: r for r in cq["boundary_repairs"]}
++        self.assertTrue(reps["clip"]["result"].startswith("boundary repair: prev sentence not verified on-event"),
++                        reps["clip"]["result"])
++        self.assertFalse([p for p in cq["candidates"] if p.get("repaired_from")])
++
++
++FIX4 = os.path.join(REPO, "references", "editorial_failures", "2026-11-07_adjacent_reaction",
++                    "adjacent_reaction_fixture.json")
++
++
++def _fixture_case(vid):
++    """Real words + verified anchor of one fresh_20261107_080503 Binance case (build_fixture.py)."""
++    F = json.load(open(FIX4))
++    c = F["cases"][vid]
++    ws = c["words"]
++    sents = es._word_sentences(ws)
++    spans = [ts.parse_chunk_id(x)[1:] for x in c["supporting_chunk_ids"]]
++    a = es.align_quote(c["evidence_quote"], ws, max(0, min(s for s, _ in spans) - 30), max(e for _, e in spans) + 30)
++    si = next(i for i, (x, y) in enumerate(sents) if x <= a["w1"] <= y)
++    nxt = " ".join(w["word"].strip() for w in ws[sents[si + 1][0]:sents[si + 1][1] + 1])
++    return F["query"], ws, sents, a, es._anchor_text(ws, sents, a["w0"], a["w1"]), nxt
++
++
++class TestD4AdjacentReaction(unittest.TestCase):
++    """D4 (PBX 2026-11-09 01:34): an adjacent sentence joins a window only if (a) it refers back to the
++    verified event or shares an entity/number with the anchor, (b) it starts within 8 s of the anchor
++    boundary it extends, (c) an independent verifier returns SAME_EVENT_REACTION_OR_CONSEQUENCE;
++    NEW_SUBJECT / OTHER_EVENT are hard rejects; at most two per direction."""
++
++    def test_verifier_prompt_is_pinned_to_the_d4_question(self):
++        import story_semantics as sm
++        self.assertEqual(sm.REACTION_QUESTION,
++                         "is this sentence a reaction to or consequence of the same verified event?")
++        self.assertEqual(sm.REACTION_LABELS, ("SAME_EVENT_REACTION_OR_CONSEQUENCE", "NEW_SUBJECT", "OTHER_EVENT"))
++        self.assertEqual(sm.REACTION_OK, sm.REACTION_LABELS[0])
++        p = sm.REACTION_PROMPT
++        self.assertIn("Answer exactly this question: " + sm.REACTION_QUESTION, p)
++        for lab in sm.REACTION_LABELS:
++            self.assertIn(f'"{lab}"', p)
++        for w in ("related", "relevant", "similar", "topic", "restate", "supports"):
++            self.assertNotIn(w, p.lower(), f"verifier prompt drifted toward a similarity/restatement gate: {w!r}")
++        llm = RoutedLLM([])
++        sm.verify_reaction(llm, {"underlying_event": "E"}, "Anchor sentence here.", "Some sentence here.")
++        self.assertIn(sm.REACTION_QUESTION, llm.prompts[-1])
++        self.assertIn('<excerpt id="sentence">Some sentence here.</excerpt>', llm.prompts[-1])
++
++    def test_at_most_two_admitted_sentences_per_direction(self):
++        txt = ["It hurt.", "It hurt more.", "It hurt again.", SENTS[1], "This is bad.", "This is worse.", "This is the worst."]
++        ws = words_for(txt)
++        a = es.align_quote(SENTS[1].rstrip("."), ws, 0, 1000)
++        calls = []
++        w, why, span = es.expanded_window(ws, es._word_sentences(ws), a, 60.0, 80.0, lambda t: (calls.append(t) or True, "ok"))
++        self.assertEqual(sorted(c["direction"] for c in span["expansion"] if c["on_event"]), ["next", "next", "prev", "prev"])
++        self.assertEqual(sum(c["detail"].startswith("cap:") for c in span["expansion"]), 2)
++        self.assertNotIn(txt[0], calls)
++        self.assertNotIn(txt[6], calls)
++
++    def test_sentence_starting_more_than_8_s_from_the_anchor_is_never_checked(self):
++        txt = [SENTS[1], "This is a long reaction sentence that keeps going and going and going for a while.",
++               "And that hurts everyone."]
++        ws = words_for(txt)
++        a = es.align_quote(SENTS[1].rstrip("."), ws, 0, 1000)
++        calls = []
++        w, why, span = es.expanded_window(ws, es._word_sentences(ws), a, 60.0, 80.0, lambda t: (calls.append(t) or True, "ok"))
++        self.assertEqual(calls, [txt[1]])
++        self.assertTrue(any("from the anchor boundary" in c["detail"] for c in span["expansion"]), span["expansion"])
++
++    def test_reaction_extends_the_window_where_the_restatement_checker_could_not(self):
++        """The host states the event in one short sentence, then reacts. The reaction is not a
++        restatement (verify_support says TOPIC_ONLY) but it is a reaction to the same event, so D4
++        admits it and the hook reaches a legal 8-12 s."""
++        import test_editorial_robust as ter
++        R = ["Welcome back to the show everyone.",
++             "Binance lost six billion dollars to hackers overnight.",
++             "That is a disaster for every customer who kept their coins on that exchange.",
++             "Anyway our sponsor this week makes great hardware wallets."]
++        v, wr = _source("VIDRRRRRRR1", "The Bitcoin Layer", R, 1, [(0, 3)])
++        reg = {c["channel_id"]: c for c in ter.REG.values() if c.get("channel_id")}
++        llm = RoutedLLM([R[1]], reactions=[R[2]])
++        cq = es._clip_quality(QUERY, [v], ter.FakeEmbedder(), llm, reg, {"VIDRRRRRRR1": wr},
++                              log=lambda s: None, today="2026-11-09")
++        hooks = [p for p in cq["candidates"] if p["kind"] == "hook"]
++        self.assertEqual(len(hooks), 1, cq["anchors"])
++        self.assertTrue(hooks[0]["text"].startswith("Binance lost") and hooks[0]["text"].endswith("exchange."))
++        self.assertTrue(es.HOOK_MIN_S <= hooks[0]["duration"] <= es.HOOK_MAX_S, hooks[0]["duration"])
++        self.assertFalse(es.sentence_on_event(llm, QUERY["query"], R[2])[0])   # the old checker rejects it
++
++    @unittest.skipUnless(os.path.exists(FIX4), "D4 fixture required")
++    def test_negative_market_commentary_without_reference_still_fails(self):
++        """Negative (2), real CoinTelegraph L9tzgg6PXi8: anchor 'We've just had the Binance hack last week.';
++        neighbours 'Look, Bitcoin holding around $80,000.' and 'We've had the midterm elections today.'
++        have no backward reference, shared entity or number: rejected at (a), no verifier call."""
++        q, ws, sents, a, at, nxt = _fixture_case("L9tzgg6PXi8")
++        llm = RoutedLLM([])
++        for lo, hi in ((es.HOOK_MIN_S, es.HOOK_MAX_S), (es.CLIP_MIN_S, es.CLIP_MAX_S)):
++            w, why, span = es.expanded_window(ws, sents, a, lo, hi, lambda t: es.adjacent_admissible(llm, q, at, t))
++            self.assertIsNone(w)
++            checked = [c for c in span["expansion"] if c["on_event"] is not None]
++            self.assertTrue(checked)
++            self.assertTrue(all(not c["on_event"] and c["detail"].startswith("no backward reference") for c in checked), checked)
++            self.assertIn("Bitcoin holding around", " | ".join(c["sentence"] for c in checked))
++        self.assertEqual(llm.prompts, [])
++
++    @unittest.skipUnless(os.path.exists(FIX4), "D4 fixture required")
++    def test_negative_different_news_item_is_a_hard_reject(self):
++        """Negative (3), real Scott Melker y0SjcqQPdpA: after the Binance / Fed-OCC anchor the host says
++        'And then we got an update on that CFDC perp story.' It passes (a) only lexically ('that');
++        the verifier's NEW_SUBJECT is a hard reject."""
++        q, ws, sents, a, at, nxt = _fixture_case("y0SjcqQPdpA")
++        self.assertIn("CFDC perp story", nxt)
++        self.assertIn("that", es.backward_reference(nxt, at, q))
++        llm = RoutedLLM([])                       # the fake verifier answers NEW_SUBJECT for this sentence
++        ok, detail = es.adjacent_admissible(llm, q, at, nxt)
++        self.assertFalse(ok)
++        self.assertTrue(detail.startswith("NEW_SUBJECT"), detail)
++        self.assertEqual(sum(p.startswith("You check ONE SENTENCE") for p in llm.prompts), 1)
++
++
++class TestD4aInterjectionTransparency(unittest.TestCase):
++    """D4a (PBX 2026-11-09 ~02:05): content-free interjections are transparent to rule (a): skipped
++    for the deictic/entity/number check, not counted toward the two-sentence cap, and they do not
++    close the direction. The 8 s bound and the independent SAME_EVENT verifier still apply to whatever
++    window results."""
++
++    @unittest.skipUnless(os.path.exists(FIX4), "D4 fixture required")
++    def test_positive_080503_btc_sessions_interjection_then_reaction_assembles_hook(self):
++        """The BTC Sessions 9La50F_lmd0 case from fresh_20261107_080503: anchor 'CZ's the stolen
++        stuff from Binance is also in there now.' (2.80 s) is followed by 'Oh.' (interjection) then
++        'That's like a pittance ... chump change.' (reaction with 'that' backward ref). With D4a the
++        interjection is transparent and the reaction produces a legal 8-12 s hook."""
++        q, ws, sents, a, at, _ = _fixture_case("9La50F_lmd0")
++        # The mock verifier accepts reactions (sentences with "that" backward ref to the event)
++        si = next(i for i, (x, y) in enumerate(sents) if x <= a["w1"] <= y)
++        oh_text = " ".join(w["word"].strip() for w in ws[sents[si + 1][0]:sents[si + 1][1] + 1])
++        self.assertIn(oh_text.strip().lower().rstrip("."), es.INTERJECTIONS)
++        # "That's like a pittance..." has a backward reference via "that"
++        pittance = " ".join(w["word"].strip() for w in ws[sents[si + 2][0]:sents[si + 2][1] + 1])
++        self.assertIsNotNone(es.backward_reference(pittance, at, q))
++        calls = []
++
++        def checker(text):
++            calls.append(text)
++            return (True, "SAME_EVENT_REACTION_OR_CONSEQUENCE: mock")
++        w, why, span = es.expanded_window(ws, sents, a, es.HOOK_MIN_S, es.HOOK_MAX_S, checker)
++        self.assertIsNotNone(w, f"hook should be legal; got: {why}")
++        self.assertTrue(es.HOOK_MIN_S <= w["duration"] <= es.HOOK_MAX_S, w["duration"])
++        # "Oh." was NOT sent to the checker (transparent)
++        self.assertNotIn(oh_text, calls, "interjection must not be sent to the verifier")
++        # The interjection is in the expansion log as transparent
++        intj_entries = [c for c in span["expansion"] if "interjection" in (c.get("detail") or "")]
++        self.assertTrue(intj_entries, "interjection must be logged as transparent")
++
++    def test_interjection_does_not_count_toward_cap_and_does_not_close_direction(self):
++        """An interjection 'Oh.' between the anchor and a real reaction does not consume a cap slot.
++        With cap=2, anchor + Oh + reaction1 + reaction2 should admit both reactions (2 real sentences)
++        plus the transparent interjection."""
++        txt = [SENTS[1],             # 0: anchor
++               "Oh.",                 # 1: interjection (transparent)
++               "That is terrible.",   # 2: reaction 1
++               "It hurts everyone.",  # 3: reaction 2
++               "And now for something completely different."]   # 4: would be cap=3
++        ws = words_for(txt)
++        sents_l = es._word_sentences(ws)
++        a = es.align_quote(SENTS[1].rstrip("."), ws, 0, 1000)
++        calls = []
++        w, why, span = es.expanded_window(ws, sents_l, a, 60.0, 80.0,
++                                          lambda t: (calls.append(t) or True, "ok"))
++        # "Oh." was NOT sent to the checker
++        self.assertNotIn("Oh.", calls, "interjection must not be sent to the verifier")
++        # Both real reactions were checked
++        self.assertIn(txt[2], calls)
++        self.assertIn(txt[3], calls)
++        # The cap stops at 2 real sentences per direction: txt[4] hits the cap
++        real_next = [c for c in span["expansion"] if c["direction"] == "next" and c["on_event"] is True]
++        self.assertEqual(len(real_next), 2)
++        cap_entries = [c for c in span["expansion"] if c["detail"].startswith("cap:")]
++        self.assertTrue(cap_entries, "a cap entry must appear for the 3rd real sentence")
++
++    def test_interjection_alone_does_not_make_a_window_legal(self):
++        """An interjection next to a short anchor does not, by itself, make the window long enough."""
++        txt = ["Oh.", SENTS[1], "Wow."]
++        ws = words_for(txt, step=0.5)
++        sents_l = es._word_sentences(ws)
++        a = es.align_quote(SENTS[1].rstrip("."), ws, 0, 1000)
++        calls = []
++        w, why, span = es.expanded_window(ws, sents_l, a, 20.0, 25.0,
++                                          lambda t: (calls.append(t) or True, "ok"))
++        self.assertIsNone(w)
++        self.assertNotIn("Oh.", calls)
++        self.assertNotIn("Wow.", calls)
++
++
+ @unittest.skipUnless(GPU and os.path.exists(FIX), "GPU_TESTS=1 and the run-3 fixture required")
+ class TestRealMaterialGPU(unittest.TestCase):
+     @classmethod
