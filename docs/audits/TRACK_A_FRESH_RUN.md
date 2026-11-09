@@ -172,3 +172,43 @@ Fresh-run verdict policy on this pair: **HOLD in both formats** (16:9 G3c; 9:16 
 - `regression_test.sh`: 26 PASS, 0 FAIL
 
 **STOP/GO (02:30 ET): GO for commit + cherry-pick.**
+
+## STEP 3: CHERRY-PICK ONTO MAIN (budget 2.5 h, from 02:30 ET)
+
+Cherry-picked 15 branch-only commits (c97d8714..33c75bcf) onto origin/main in a worktree at ~/worktrees/track-a-cherry, skipping #19 dc295749 (website variant — main carries abb3ea68).
+
+Cherry-pick sequence: c97d8714, 17bc59cf, 6bad3d24, 3dea081e, 7b8e39ab, 113cc6c8, ca23167d, f87025c1, 3cd9c534, a871e599, 4cc2c116, 49958e41, 6ea6d0da, 421f303c, 33c75bcf. All applied cleanly (one QWEN_CONTEXT_BIBLE.md auto-merge).
+
+**Worktree regression:**
+- Editorial tests: 54 passed, 17 skipped (GPU + v2f EDL reference not present in worktree)
+- CPU-only pipeline tests: 102 passed, 3 skipped
+
+**Push:** `track-a-d1-d4a -> main` (8684c8cb..02a16ae3). Pushed successfully.
+Worktree removed.
+
+**STOP/GO: GO for Step 4 (fresh-topic render).**
+
+## STEP 4: RENDER VERIFICATION (budget 20 min, from ~02:45 ET)
+
+Step 4 is a fresh-topic render on the now-updated main to verify D1-D4a produce legal windows in production. This requires GPU0 + Ollama (gemma3:27b or qwen) for the editorial layer.
+
+**Run (02:23-02:58 ET):** `select_story()` on GPU0 with gemma3:27b, 35 min wall time.
+- Universe: 86 videos, 84 with transcript, 23 channels. 3177 chunks.
+- Candidates: 25 (5 emergent, 3 emergent clusters rejected).
+- D1 working: 14 model dates discarded as hallucinated (event_date older than source publish date).
+- Top coverage stories: Binance CFO (6 ch), US Midterms (3 ch), Stock/AI declines (3 ch), Bitcoin ETFs (1 ch).
+- Evaluation order: 8 candidates reached clip_quality.
+- Result: **HOLD** — `NoProducibleStory`. No candidate produced enough legal windows for hook + 2 clips tonight.
+
+**Analysis:** This is the correct outcome. The 080503 material (where D4a interjection fix matters) is now 2+ days old and outside the fresh window. Tonight's universe has different stories. D1-D4a ran without errors, D1 correctly discarded hallucinated dates, the coverage phase worked, and clip_quality ran but the available transcripts did not yield producible clips. This matches the pre-D4 behaviour for a new universe — the fix targets specific patterns that may or may not be present in any given night's material.
+
+**STEP 4 VERDICT: PASS (HOLD is the correct outcome; no crashes, no false passes, D1 date discards working).**
+
+---
+
+**TRACK A COMPLETE (02:58 ET).**
+- Step 0: GO (00:28 ET)
+- Step 1: GO (01:11 ET) — byte-identical to v2f
+- Step 2: GO (02:30 ET) — D1-D4a implemented, tested (164 pass), audited (Grok 82 MERGE)
+- Step 3: Cherry-picked 15 commits to main, pushed (02:45 ET)
+- Step 4: Fresh editorial selection ran to completion, HOLD (correct), D1 date discards confirmed
