@@ -394,6 +394,27 @@ def _recompute_edge_words(transcript_path, cut_in, cut_out):
     return first, last
 
 
+def _sync_edl_edge_words(run_dir, cuts):
+    """Update edl.json first_word/last_word to match cuts_final after snapping."""
+    edl_path = os.path.join(run_dir, "edl.json")
+    if not os.path.isfile(edl_path):
+        return
+    with open(edl_path) as f:
+        edl = json.load(f)
+    lookup = {c["clip_id"]: c for c in cuts}
+    # Update hook
+    if "hook" in lookup and "hook" in edl:
+        edl["hook"]["first_word"] = lookup["hook"].get("first_word_expected", edl["hook"].get("first_word", ""))
+        edl["hook"]["last_word"] = lookup["hook"].get("last_word_expected", edl["hook"].get("last_word", ""))
+    # Update clips
+    for i, clip in enumerate(edl.get("clips", [])):
+        cid = f"clip_{i + 1:02d}"
+        if cid in lookup:
+            clip["first_word"] = lookup[cid].get("first_word_expected", clip.get("first_word", ""))
+            clip["last_word"] = lookup[cid].get("last_word_expected", clip.get("last_word", ""))
+    jdump(edl_path, edl)
+
+
 # ── stage 6: cut + acceptance ──
 
 def _snap_candidates(src, cut_in, cut_out, dur, check_fn, max_shift=2.0, step=0.02):
@@ -498,6 +519,7 @@ def stage_cut(run):
               f"[{'ACCEPT' if rec['pass'] else 'REJECT'}] {rec.get('reason', '')}")
     # Write the (possibly snapped) cuts back
     jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
+    _sync_edl_edge_words(run.dir, cuts)
     run.prov["cut_acceptance"] = report
     jdump(os.path.join(run.dir, "CUT_ACCEPTANCE.json"), report)
     if fails:
@@ -581,6 +603,7 @@ def stage_prepare(run, cuts, snap_alternatives=None):
                     break
             if found:
                 jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
+                _sync_edl_edge_words(run.dir, cuts)
             else:
                 # Restore original values — no alternative passed
                 c["cut_in"], c["cut_out"] = orig_in, orig_out
