@@ -361,48 +361,72 @@ def stage_validate(run):
             raise Hold(f"{l} EDL times not in source-file coordinates")
 
 
+# ── helpers: edge-word recomputation from word-timestamp transcript ──
+
+def _recompute_edge_words(transcript_path, cut_in, cut_out):
+    """Look up first/last words from a word-timestamp transcript at given cut times.
+
+    Returns (first_word, last_word). If no transcript or no words found,
+    returns ("", "").
+    """
+    if not os.path.isfile(transcript_path):
+        return "", ""
+    with open(transcript_path) as f:
+        t = json.load(f)
+    words = t.get("words", [])
+    if not words:
+        return "", ""
+    first, last = "", ""
+    for w in words:
+        if w["end"] > cut_in + 0.05:
+            first = w["word"]
+            break
+    for w in words:
+        if w["start"] < cut_out - 0.05:
+            last = w["word"]
+    return first, last
+
+
 # ── stage 6: cut + acceptance ──
 
-def _snap_cut(src, cut_in, cut_out, dur, check_fn, max_shift=2.0, step=0.02):
-    """Try shifting cut_in/cut_out to find a position accepted by check_fn.
+def _snap_candidates(src, cut_in, cut_out, dur, check_fn, max_shift=2.0, step=0.02):
+    """Yield ALL (cut_in, cut_out, details) tuples that pass check_fn.
 
-    Phase 1: find a cut_out that passes the OUT check (bidirectional).
-    Phase 2: find a cut_in that passes the IN check with the snapped out.
-    Both phases search in small steps, interleaving backward/forward.
-    Returns (ok, cut_in, cut_out, details).
+    Phase 1: collect all cut_out positions that pass the OUT check (bidirectional,
+    nearest-first).  Phase 2: for each accepted OUT, find a cut_in that passes IN.
+    Yields results nearest-first so the caller can stop at the first that also
+    satisfies the clip contract.
     """
     n = int(max_shift / step)
-    # Phase 1: find an OUT-passing cut_out
-    best_out = None
-    offsets = [0]  # try original first
+    offsets = [0]
     for i in range(1, n + 1):
         offsets.append(-i * step)
         offsets.append(i * step)
+    # Phase 1: collect all OUT-passing positions (nearest-first order preserved)
+    accepted_outs = []
     for delta_out in offsets:
         trial_out = round(cut_out + delta_out, 3)
         if trial_out <= cut_in + 1.0 or trial_out > dur:
             continue
         ok, d = check_fn(src, cut_in, trial_out)
         if d.get("out", {}).get("pass"):
-            best_out = trial_out
-            if ok:
-                return True, cut_in, trial_out, {**d, "snapped_out_by": round(delta_out, 3)}
-            break
-    if best_out is None:
-        ok, d = check_fn(src, cut_in, cut_out)
-        return False, cut_in, cut_out, d
-    # Phase 2: fix cut_in with the good out
-    for delta_in in offsets:
-        trial_in = round(cut_in + delta_in, 3)
-        if trial_in < 0 or trial_in >= best_out - 1.0:
-            continue
-        ok, d = check_fn(src, trial_in, best_out)
-        if ok:
-            return True, trial_in, best_out, {**d,
-                                               "snapped_in_by": round(delta_in, 3),
-                                               "snapped_out_by": round(best_out - cut_out, 3)}
-    ok, d = check_fn(src, cut_in, cut_out)
-    return False, cut_in, cut_out, d
+            accepted_outs.append((trial_out, delta_out, ok, d))
+    # Phase 2: for each accepted OUT, fix cut_in and yield
+    for trial_out, delta_out, full_ok, d_out in accepted_outs:
+        if full_ok:
+            yield (cut_in, trial_out,
+                   {**d_out, "snapped_out_by": round(delta_out, 3)})
+        else:
+            for delta_in in offsets:
+                trial_in = round(cut_in + delta_in, 3)
+                if trial_in < 0 or trial_in >= trial_out - 1.0:
+                    continue
+                ok, d = check_fn(src, trial_in, trial_out)
+                if ok:
+                    yield (trial_in, trial_out,
+                           {**d, "snapped_in_by": round(delta_in, 3),
+                            "snapped_out_by": round(delta_out, 3)})
+                    break  # one IN solution per OUT is enough
 
 
 def stage_cut(run):
@@ -413,6 +437,7 @@ def stage_cut(run):
     with open(os.path.join(run.dir, "cuts_final.json")) as f:
         cuts = json.load(f)
     report, fails = [], []
+    snap_alternatives = {}  # clip_id -> list of remaining (in, out, d) candidates
     for c in cuts:
         src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
         rec = {"clip_id": c["clip_id"], "video_id": c["video_id"], "cut_in": c.get("cut_in"),
@@ -429,15 +454,25 @@ def stage_cut(run):
             else:
                 ok, d = check_cut_acoustics(src, c["cut_in"], c["cut_out"])
                 if not ok:
-                    # Auto-snap: search nearby positions for an accepted cut
-                    ok2, new_in, new_out, d2 = _snap_cut(
-                        src, c["cut_in"], c["cut_out"], dur, check_cut_acoustics)
-                    if ok2:
+                    candidates = list(_snap_candidates(
+                        src, c["cut_in"], c["cut_out"], dur, check_cut_acoustics))
+                    if candidates:
+                        new_in, new_out, d2 = candidates[0]
                         print(f"    snap: {c['cut_in']:.3f}-{c['cut_out']:.3f} -> "
                               f"{new_in:.3f}-{new_out:.3f}")
                         c["cut_in"], c["cut_out"] = new_in, new_out
                         c["cut_duration"] = round(new_out - new_in, 3)
-                        ok, d = ok2, d2
+                        c["snapped"] = True
+                        ok, d = True, d2
+                        # Store remaining candidates for contract retry
+                        if len(candidates) > 1:
+                            snap_alternatives[c["clip_id"]] = candidates[1:]
+                        # Recompute edge words from word-timestamp transcript
+                        tx = os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")
+                        fw, lw = _recompute_edge_words(tx, new_in, new_out)
+                        c["first_word_expected"] = fw
+                        c["last_word_expected"] = lw
+                        print(f"    edge words recomputed: first='{fw}' last='{lw}'")
                 rec.update(pass_=ok, **d)
                 rec["pass"] = rec.pop("pass_")
         if not rec["pass"]:
@@ -451,7 +486,7 @@ def stage_cut(run):
     jdump(os.path.join(run.dir, "CUT_ACCEPTANCE.json"), report)
     if fails:
         raise Hold(f"cut acceptance rejected {fails} (see CUT_ACCEPTANCE.json)")
-    return cuts
+    return cuts, snap_alternatives
 
 
 # ── stage 7: voice ──
@@ -486,10 +521,11 @@ def stage_voice(run):
 
 # ── stage 8: prepare clips + contract + edge words ──
 
-def stage_prepare(run, cuts):
+def stage_prepare(run, cuts, snap_alternatives=None):
     from run_isolated import prerender_clips
     from clip_contract import check_clip
     from cut_accept import check_edge_words
+    snap_alternatives = snap_alternatives or {}
     prerender_clips(run.dir, cuts)
     qa = os.path.join(run.dir, "qa")
     work = os.path.join(qa, "edge_words")
@@ -500,6 +536,30 @@ def stage_prepare(run, cuts):
         ok1, d1 = check_clip(clip, c["cut_duration"])
         ok2, d2 = check_edge_words(clip, c.get("first_word_expected", ""),
                                    c.get("last_word_expected", ""), work, c["clip_id"])
+        # If contract fails on a snapped clip, try alternative snap candidates
+        if not ok1 and c.get("snapped") and c["clip_id"] in snap_alternatives:
+            alts = snap_alternatives[c["clip_id"]]
+            print(f"  {c['clip_id']}: contract FAIL at {c['cut_in']:.3f}-{c['cut_out']:.3f}, "
+                  f"trying {len(alts)} alternative snap positions...")
+            for alt_in, alt_out, alt_d in alts:
+                c["cut_in"], c["cut_out"] = alt_in, alt_out
+                c["cut_duration"] = round(alt_out - alt_in, 3)
+                # Recompute edge words for the new position
+                tx = os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")
+                fw, lw = _recompute_edge_words(tx, alt_in, alt_out)
+                c["first_word_expected"], c["last_word_expected"] = fw, lw
+                # Re-render this clip at the new position
+                prerender_clips(run.dir, [c])
+                ok1, d1 = check_clip(clip, c["cut_duration"])
+                ok2, d2 = check_edge_words(clip, fw, lw, work, c["clip_id"])
+                print(f"    retry snap {alt_in:.3f}-{alt_out:.3f}: "
+                      f"contract {'PASS' if ok1 else 'FAIL'} edges {'PASS' if ok2 else 'FAIL'}")
+                if ok1 and ok2:
+                    print(f"    snap: -> {alt_in:.3f}-{alt_out:.3f} "
+                          f"(edge words: '{fw}'/'{lw}')")
+                    break
+            # Update cuts_final after retry
+            jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
                "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2}
         report.append(rec)
@@ -507,7 +567,8 @@ def stage_prepare(run, cuts):
             fails.append(c["clip_id"])
         print(f"  {c['clip_id']}: contract {'PASS' if ok1 else 'FAIL'} {d1.get('errors')} | "
               f"edges first '{d2['heard_first']}'/'{d2['expected_first']}' "
-              f"last '{d2['heard_last']}'/'{d2['expected_last']}' {'PASS' if ok2 else 'FAIL'}")
+              f"last '{d2['heard_last']}'/'{d2['expected_last']}' "
+              f"{'PASS' if ok2 else 'FAIL'}{' (snapped)' if c.get('snapped') else ''}")
     run.prov["prepared_clips"] = report
     jdump(os.path.join(run.dir, "CLIP_CONTRACT.json"), report)
     if fails:
@@ -878,9 +939,9 @@ def main():
             run.stage("select", lambda: stage_select(run, keyword))
         run.stage("review", lambda: stage_review(run))
         run.stage("validate", lambda: stage_validate(run))
-        cuts = run.stage("cut", lambda: stage_cut(run))
+        cuts, snap_alts = run.stage("cut", lambda: stage_cut(run))
         run.stage("voice", lambda: stage_voice(run))
-        run.stage("prepare", lambda: stage_prepare(run, cuts))
+        run.stage("prepare", lambda: stage_prepare(run, cuts, snap_alts))
         final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
         rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16,
                                                                       final9, man9))

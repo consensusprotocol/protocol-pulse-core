@@ -314,12 +314,13 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
 
     # Full 16:9 frame scaled to 1080 wide = 1080x608 (at 16:9 ratio)
     # Centred on 1080x1920 canvas with blurred+darkened background
-    # Background: same video, scale to 1350 wide (1.25x of 1080), blur, darken
+    # Background: scale so height >= 1920*1.25 = 2400, then crop 1080x1920
+    # (16:9 source is wider than tall — scale by HEIGHT to fill vertical canvas)
     vf = (
         # Split into two streams
         "split[main][bg];"
-        # Background: scale up 1.25x to fill vertical canvas, blur heavily, darken
-        "[bg]scale=1350:-2:flags=lanczos,"
+        # Background: scale up so height=2400 (1.25x of 1920), blur heavily, darken
+        "[bg]scale=-2:2400:flags=lanczos,"
         "crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
         "boxblur=20:5,"
         f"colorlevels=rimax=0.65:gimax=0.65:bimax=0.65"  # -35% brightness
