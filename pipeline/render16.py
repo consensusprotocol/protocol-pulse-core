@@ -220,7 +220,8 @@ def apply_watermark_alpha(input_mp4, output_mp4, mark_path, mark_px, margin,
     return os.path.exists(output_mp4) and os.path.getsize(output_mp4) > 10000
 
 
-def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
+def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
+                alimiter_dbfs=-3.0):
     """Full 16:9 render pipeline. Returns (final_path, manifest_path, vo_assembled_tracks) or raises."""
     t0 = time.time()
     print("=== RENDER 16:9 ===\n")
@@ -469,7 +470,7 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4"):
         "-i", normed_wav,
         "-map", "0:v", "-map", "1:a",
         "-c:v", "copy",
-        "-af", "alimiter=limit=0.668344:level=false",  # -3.5 dBFS to ensure TP<=-2.0 after AAC encode
+        "-af", f"alimiter=limit={10 ** (alimiter_dbfs / 20):.6f}:level=false",  # {alimiter_dbfs} dBFS
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-movflags", "+faststart", final_partial,
     ], capture_output=True, timeout=300, check=True)

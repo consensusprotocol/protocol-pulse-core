@@ -650,8 +650,9 @@ def stage_render(run):
     build_shoutout(run.dir, None, "9x16")
     preflight_check(run.dir)
 
+    limiter = -3.5 if run.machine_cuts else -3.0
     with Capture() as cap16:
-        render_16x9(run.dir, None, "segment.mp4")
+        render_16x9(run.dir, None, "segment.mp4", alimiter_dbfs=limiter)
     final16 = os.path.join(paths["out_dir"], "segment.mp4")
     man16 = os.path.join(paths["qa_dir"], "concat_manifest_16x9.json")
     with open(man16) as f:
@@ -659,7 +660,7 @@ def stage_render(run):
     postflight_check(final16, tot16, "16x9")
 
     with Capture() as cap9:
-        render_9x16(run.dir, None, "segment_vertical.mp4")
+        render_9x16(run.dir, None, "segment_vertical.mp4", alimiter_dbfs=limiter)
     final9 = os.path.join(paths["out_dir"], "segment_vertical.mp4")
     man9 = os.path.join(paths["qa_dir"], "concat_manifest_9x16.json")
     with open(man9) as f:

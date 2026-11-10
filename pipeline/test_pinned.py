@@ -221,7 +221,7 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
         try:
             run = rf.Run(self.run_dir)
             run.mode = "pinned"
-            cuts = rf.stage_cut(run)
+            cuts, _snap_alts = rf.stage_cut(run)
             self.assertEqual(calls, [(f"{s['video_id']}.mp4", s["start"], s["end"]) for s in p["segments"]])
             self.assertEqual([(c["cut_in"], c["cut_out"]) for c in cuts], [(s["start"], s["end"]) for s in p["segments"]])
             # acceptance rejection still holds the run (no auto-widen)

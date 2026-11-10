@@ -20,10 +20,10 @@ Revision: `06e2182f` (edge word fix) + `4cf5a31a` (EDL sync)
 | G9_tail | FAIL | FAIL | approved known exception |
 | G10_chyron | PASS | PASS | — |
 | G11_parity | PASS | PASS | — |
-| G12_credits | FAIL | FAIL | (R) render bug |
+| G12_credits | FAIL | FAIL | (D) detector design assumption |
 | G13_vo_audible | PASS | PASS | — |
 | G14_av_alignment | PASS | PASS | — |
-| G15_credits | FAIL | PASS (9:16) | (R) render bug |
+| G15_credits | FAIL | PASS (9:16) | (D) same as G12 |
 
 ## Per-Gate Detail
 
@@ -51,7 +51,7 @@ Revision: `06e2182f` (edge word fix) + `4cf5a31a` (EDL sync)
 **Segment:** hook, both formats.
 **Root cause:** The DataDash hook source has continuous background music/ambient audio. At the snapped cut point (9.33s), the speaker has finished the word "take." but the background track continues. The tail energy (-35.5 dB) is above the speech-relative threshold.
 
-**Potential fix:** The acoustic snapper could search for a deeper valley within the hook clip. The current snap at 9.33 is the nearest accepted position; a later position (e.g., 9.40-9.50, where the valley centre is 9.46) might have lower tail energy. However, extending the hook risks including the onset of the next sentence ("Over the weekend..."). This needs testing.
+**Investigation (11:10 ET order, item 3):** Transcript shows "take." ends at 9.100s; "Over" starts at 9.320s. The current snap at 9.33s already sits 10ms past the onset of "Over". The valley centre at 9.46s is **inside** the word "Over" (9.32-9.92s). Moving the cut deeper would capture more of the next sentence, not less. Moving earlier (toward 9.10s) would tighten the gap after "take." below clip contract minimums. The current 9.33s is the best accepted boundary the snapper found. **Leaving G3c failing for hook.** Root cause is continuous background music in the DataDash source, not a cut placement defect.
 
 ---
 
@@ -107,26 +107,32 @@ Revision: `06e2182f` (edge word fix) + `4cf5a31a` (EDL sync)
 
 ---
 
-### G12_credits — FAIL → (R) render bug
+### G12_credits — FAIL → (D) detector design assumption
 
-**What it checks:** Counts the number of channel credit circles in the shoutout segment. Expected count should match the number of channels in the EDL (3: DataDash, Natalie Brunell, Yahoo Finance).
+**What it checks:** Counts the number of channel credit circles in the shoutout segment via Hough circle detection. Expected count should match the number of channels in the EDL (3: DataDash, Natalie Brunell, Yahoo Finance).
 
 **Measured vs threshold:**
 - 16:9: detected=5, expected=3. FAIL.
 - 9:16: detected=6, expected=3. FAIL.
 
 **Segment:** shoutout, both formats.
-**Root cause:** The circle detector (Hough circles) picks up false positives from round UI elements in the frame (e.g., avatar borders, glow rings, rounded corners). The shoutout renderer draws 3 channels with circular avatar crops, but the detector also finds the decorative glow rings and border elements.
+**Root cause:** The drawn avatars are genuinely round — no aspect squish, no render bug. Visual inspection of both formats confirms 3 properly rendered circular avatar crops with red glow rings. The Hough circle detector picks up false positives from the decorative glow rings around the avatars and from round elements inside the YouTube thumbnails (coin graphics, etc.). The debug overlay (`g12_circles.png`) shows the Natalie Brunell card triggering 2 overlapping detections (inner avatar + outer glow ring).
 
-**Fix:** The shoutout renderer's circle detector needs tuning (min/max radius, accumulator threshold) to match the actual avatar circle size and reject decorative elements. Alternatively, the gate could validate by counting distinct labelled channel names rather than raw circle counts.
+**PBX decision:** The circle detector was tuned for the v2f shoutout card layout (simple circular crops without glow rings). The current 3-channel cards have richer border styling. Options: (a) tune Hough parameters (min/max radius, accumulator) to reject glow rings, (b) validate by counting labelled channel text instead of raw circles, (c) accept current styling and adjust expected range.
+
+**Frame crops for PBX review:**
+- `docs/audits/g12_credits_16x9_crop.png` — 16:9 shoutout at t=5s
+- `docs/audits/g12_credits_9x16_crop.png` — 9:16 shoutout at t=5s
 
 ---
 
-### G15_credits — FAIL (16:9 only) → (R) same as G12
+### G15_credits — FAIL (16:9 only) → (D) same as G12
 
 **What it checks:** Alternative credit verification using text detection or layout analysis in the shoutout segment.
 
 **Measured:** 16:9 FAIL (same false positive issue as G12). 9:16 PASS.
+
+**PBX decision:** Same root cause as G12 — detector assumption, not render defect.
 
 ---
 
@@ -134,9 +140,9 @@ Revision: `06e2182f` (edge word fix) + `4cf5a31a` (EDL sync)
 
 | Code | Meaning | Gates | Action |
 |------|---------|-------|--------|
-| (R) | Real defect, fixable without touching gate | G3, G3c, G12, G15 | Fix in code |
+| (R) | Real defect, fixable without touching gate | G3 (fixed), G3c | Fix in code |
 | (S) | Source limitation | G8 (clip_01) | Select sharper source |
-| (D) | Design assumption (v2f layout specific) | G4, G8 (9:16 config) | PBX decision |
+| (D) | Design assumption (v2f layout specific) | G4, G8 (9:16 config), G12, G15 | PBX decision |
 | — | Known exception | G9 | No action needed |
 
 ## Telegram Delivery
