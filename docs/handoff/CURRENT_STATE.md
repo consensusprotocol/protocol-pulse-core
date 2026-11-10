@@ -1,3 +1,52 @@
+# CURRENT STATE — 2026-11-10 11:00 ET
+
+## What exists
+
+- **First fresh-topic Pulse Check render** (Bitcoin price dip, ~$74k) produced by the pipeline with no editorial waivers.
+- Branch: `combo-letterbox-quoteonly-v2` at commit `3c71c149` (7 commits since `e015bbe3`).
+- Run: `pinned_20261110_150345` (v3, with EDL sync fix). Previous: `pinned_20261110_142152` (same content, pre-EDL-sync).
+- Both formats rendered: 16:9 (61.8s, 1920x1080) and 9:16 (61.8s, 1080x1920, letterbox reframe).
+- Sources: DataDash (hook), Natalie Brunell (clip_01), Yahoo Finance (clip_02).
+- Editorial stages all PASS: R1-R10, Laws 1-4, review (gemma3:27b), clip contract, edge words.
+- Telegram delivered with "REVIEW ONLY — QA HOLD" banner: msg 67444 (16:9), msg 67445 (9:16).
+
+## What is held and why
+
+Final QA gates: HOLD. Detailed analysis in `docs/audits/QA_GATE_HOLD_2026-11-10.md`.
+
+| Gate | Issue | Classification |
+|------|-------|----------------|
+| G3c_acoustic_tail | Hook tail -35.5 dB vs -42.6 dB limit (background music in DataDash source) | (R) may be fixable by deeper snap position |
+| G4_faces | Hook first frame has 0 faces (chart-screen layout with small face cam) | (D) gate assumes talking-head |
+| G5_tech | True peak -1.9 dBTP vs -2.0 limit (AAC overshoot) | (R) fixed: alimiter tightened -3.0→-3.5 dBFS |
+| G8_sharpness | clip_01 source camera Laplacian 35 vs min 60 | (S) Natalie Brunell camera is soft |
+| G9_tail | Outro luma 14.3 (ends on black) | Approved known exception |
+| G12/G15 | Credit circle detector false positives (5-6 vs expected 3) | (R) Hough circle params need tuning |
+
+Classifications: **(R)** real defect, fixable without touching gate; **(S)** source limitation, needs different clip; **(D)** design assumption, PBX decision required.
+
+## (D) decisions waiting on PBX
+
+1. **G4_faces on chart-screen hooks**: The face gate requires 1+ face in every sampled frame. Chart-screen sources (common in crypto YouTube) have a small face-cam overlay that is missed at some sample points. Options: (a) add a "chart_overlay" layout mode with 4/6 threshold, (b) add a source-layout classifier, (c) accept chart-screen hooks with relaxed face requirements. PBX to decide.
+
+2. **G8_sharpness on soft sources**: The Natalie Brunell source camera produces Laplacian variance ~35 (below the 60 floor). No degradation occurred (output/source ratio 1.04). Options: (a) prefer sharper sources when alternatives exist, (b) lower the absolute floor for known-soft cameras. PBX to decide.
+
+3. **G14 frame similarity on letterbox vertical**: The 9:16 format compares letterboxed frames against 16:9 source frames. The crop/blur transforms mean frame_sim is structurally low (0.24-0.54 on correct frames). Currently only the audio-offset part is scored. PBX to decide whether to formalize this exemption.
+
+## What auto mode needs to do this path unattended
+
+1. **Same-event merge**: When multiple channels cover the same story, the pipeline must detect overlapping topics and merge them into a single editorial decision (e.g., the "Bitcoin price dip" story came from 3 separate channel scans). Currently requires manual PIN with `machine_cuts: true`.
+
+2. **Word-timestamp transcription**: Every covering channel's clip window must be transcribed at the word level (Whisper) before the cutter runs, so `_recompute_edge_words` has data to work with. Currently transcripts are generated during the pinned stage but only for the selected clips.
+
+3. **Machine_cuts snapping**: The acoustic snap system (`_snap_candidates` + retry) works correctly. Auto mode needs to enable `machine_cuts: true` by default so the cutter can adjust boundaries to pass all contracts without human intervention.
+
+4. **D1 fix + UTC normalisation**: The D1 time-range query in the candidate scanner needs to respect UTC boundaries (currently uses local ET, causing split-day mismatches). Candidate story timestamps need ISO-8601 UTC normalisation before dedup.
+
+5. **G3c / G12 / G15 fixes**: The (R) items above need code fixes before auto mode can clear gates: hook snap position selection, shoutout circle detector tuning.
+
+---
+
 # CURRENT STATE addendum 2026-11-05 09:15 ET (read before the 2026-11-04 handoff below)
 
 - Overnight segment_v2 run (ba125e19) was REJECTED by PBX: agent rewrote the pipeline, used a question as hook, repeated a passage, 5 VOs, wrong avatars, overrode failed gates, sent Telegram. Full rebuild done 02:00-09:10 ET.
