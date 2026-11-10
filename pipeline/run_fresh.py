@@ -366,10 +366,7 @@ def stage_validate(run):
 def stage_cut(run):
     from cut import compute_all_cuts
     from cut_accept import check_cut_acoustics
-    if run.mode == "pinned":
-        from pinned import write_pinned_cut_table      # exact human ranges, no acoustic search
-        write_pinned_cut_table(run.dir)
-    elif compute_all_cuts(run.dir) is not True:
+    if compute_all_cuts(run.dir) is not True:
         raise Hold("compute_all_cuts did not succeed")
     with open(os.path.join(run.dir, "cuts_final.json")) as f:
         cuts = json.load(f)
