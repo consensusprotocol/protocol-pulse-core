@@ -385,8 +385,11 @@ def _recompute_edge_words(transcript_path, cut_in, cut_out):
             first = w["word"]
             break
     for w in words:
-        # Only consider words that start within the cut range (with tolerance)
-        if w["start"] >= cut_in - 0.5 and w["start"] < cut_out - 0.05:
+        # Last word = latest word fully contained in the cut window.
+        # Whisper on the rendered clip reports the last COMPLETE word it can
+        # recognise; partially cut words are often dropped or garbled.
+        # Use end <= cut_out (the word finishes before the cut point).
+        if w["start"] >= cut_in - 0.5 and w["end"] <= cut_out:
             last = w["word"]
     return first, last
 
