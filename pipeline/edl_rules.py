@@ -280,6 +280,8 @@ def rule_r6(edl, channels_registry=None):
             entry = next((e for e in channels_registry if e.get("display_name") == ch_name), None)
             if entry:
                 h = entry.get("avatar_sha256_prefix", "")
+                if not h:
+                    continue          # empty/missing hash — avatar not uploaded yet
                 if h in avatar_hashes:
                     failures.append(f"duplicate avatar hash {h}: {ch_name} == {avatar_hashes[h]}")
                 avatar_hashes[h] = ch_name

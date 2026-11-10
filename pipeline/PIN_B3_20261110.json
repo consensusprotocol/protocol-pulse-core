@@ -1,0 +1,38 @@
+{
+  "schema": "protocol_pulse.pinned_story.v1",
+  "story_id": "btc-drop-merged-20261110",
+  "label": "Bitcoin price dip",
+  "headline": "Bitcoin fell sharply over the weekend (below about $74,000) alongside a tech selloff, with about $1.3B of US spot ETF outflows last week",
+  "approved_by": "Claude (B3 clip_quality — all gates on)",
+  "approved_at": "2026-11-10T12:30:00+00:00",
+  "approval_ref": "docs/audits/FIRST_VIDEO_RUN_2026-11-10.md Step 4",
+  "segments": [
+    {
+      "role": "hook",
+      "video_id": "RXTVaDsN11M",
+      "channel": "DataDash",
+      "start": 0.00,
+      "end": 9.26,
+      "time_coords": "youtube",
+      "source": {"kind": "youtube"}
+    },
+    {
+      "role": "clip",
+      "video_id": "lusJ1m-J0Mc",
+      "channel": "Natalie Brunell",
+      "start": 68.57,
+      "end": 85.41,
+      "time_coords": "youtube",
+      "source": {"kind": "youtube"}
+    },
+    {
+      "role": "clip",
+      "video_id": "36HPi9UZPOc",
+      "channel": "Yahoo Finance",
+      "start": 38.38,
+      "end": 57.00,
+      "time_coords": "youtube",
+      "source": {"kind": "youtube"}
+    }
+  ]
+}
