@@ -162,6 +162,7 @@ class Run:
                        "verdict": None}
         self.prov = {"run_dir": run_dir, "created": now_iso()}
         self.mode = "auto"                  # "auto" | "pinned"
+        self.machine_cuts = False          # True only for machine-built PINs (enables snap)
         self.allow_v2f_material = False     # True only for a pin declaring reuses_v2f_material
 
     def stage(self, name, fn):
@@ -367,14 +368,16 @@ def _recompute_edge_words(transcript_path, cut_in, cut_out):
     """Look up first/last words from a word-timestamp transcript at given cut times.
 
     Returns (first_word, last_word). If no transcript or no words found,
-    returns ("", "").
+    returns ("", "") and logs a warning.
     """
     if not os.path.isfile(transcript_path):
+        print(f"    WARN: no transcript at {transcript_path} — edge words unavailable")
         return "", ""
     with open(transcript_path) as f:
         t = json.load(f)
     words = t.get("words", [])
     if not words:
+        print(f"    WARN: empty word list in {transcript_path} — edge words unavailable")
         return "", ""
     first, last = "", ""
     for w in words:
@@ -382,7 +385,8 @@ def _recompute_edge_words(transcript_path, cut_in, cut_out):
             first = w["word"]
             break
     for w in words:
-        if w["start"] < cut_out - 0.05:
+        # Only consider words that start within the cut range (with tolerance)
+        if w["start"] >= cut_in - 0.5 and w["start"] < cut_out - 0.05:
             last = w["word"]
     return first, last
 
@@ -430,9 +434,16 @@ def _snap_candidates(src, cut_in, cut_out, dur, check_fn, max_shift=2.0, step=0.
 
 
 def stage_cut(run):
+    import itertools
     from cut import compute_all_cuts
     from cut_accept import check_cut_acoustics
-    if compute_all_cuts(run.dir) is not True:
+    # Human-approved PINs use exact pinned ranges (no acoustic cutter, no snapping).
+    # Machine-built PINs (machine_cuts=true) use the acoustic cutter + snapping.
+    use_pinned_table = (run.mode == "pinned" and not run.machine_cuts)
+    if use_pinned_table:
+        from pinned import write_pinned_cut_table
+        write_pinned_cut_table(run.dir)
+    elif compute_all_cuts(run.dir) is not True:
         raise Hold("compute_all_cuts did not succeed")
     with open(os.path.join(run.dir, "cuts_final.json")) as f:
         cuts = json.load(f)
@@ -453,20 +464,22 @@ def stage_cut(run):
                 rec["reason"] = f"cut range outside source file (duration {dur:.2f})"
             else:
                 ok, d = check_cut_acoustics(src, c["cut_in"], c["cut_out"])
-                if not ok:
-                    candidates = list(_snap_candidates(
-                        src, c["cut_in"], c["cut_out"], dur, check_cut_acoustics))
-                    if candidates:
-                        new_in, new_out, d2 = candidates[0]
+                if not ok and not use_pinned_table:
+                    it = _snap_candidates(
+                        src, c["cut_in"], c["cut_out"], dur, check_cut_acoustics)
+                    first = next(it, None)
+                    if first:
+                        new_in, new_out, d2 = first
                         print(f"    snap: {c['cut_in']:.3f}-{c['cut_out']:.3f} -> "
                               f"{new_in:.3f}-{new_out:.3f}")
                         c["cut_in"], c["cut_out"] = new_in, new_out
                         c["cut_duration"] = round(new_out - new_in, 3)
                         c["snapped"] = True
                         ok, d = True, d2
-                        # Store remaining candidates for contract retry
-                        if len(candidates) > 1:
-                            snap_alternatives[c["clip_id"]] = candidates[1:]
+                        # Store up to 20 remaining candidates for contract retry
+                        remaining = list(itertools.islice(it, 20))
+                        if remaining:
+                            snap_alternatives[c["clip_id"]] = remaining
                         # Recompute edge words from word-timestamp transcript
                         tx = os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")
                         fw, lw = _recompute_edge_words(tx, new_in, new_out)
@@ -539,16 +552,20 @@ def stage_prepare(run, cuts, snap_alternatives=None):
         # If contract fails on a snapped clip, try alternative snap candidates
         if not ok1 and c.get("snapped") and c["clip_id"] in snap_alternatives:
             alts = snap_alternatives[c["clip_id"]]
+            # Save original values to restore on total failure
+            orig_in, orig_out = c["cut_in"], c["cut_out"]
+            orig_dur = c["cut_duration"]
+            orig_fw = c.get("first_word_expected", "")
+            orig_lw = c.get("last_word_expected", "")
             print(f"  {c['clip_id']}: contract FAIL at {c['cut_in']:.3f}-{c['cut_out']:.3f}, "
                   f"trying {len(alts)} alternative snap positions...")
+            found = False
             for alt_in, alt_out, alt_d in alts:
                 c["cut_in"], c["cut_out"] = alt_in, alt_out
                 c["cut_duration"] = round(alt_out - alt_in, 3)
-                # Recompute edge words for the new position
                 tx = os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")
                 fw, lw = _recompute_edge_words(tx, alt_in, alt_out)
                 c["first_word_expected"], c["last_word_expected"] = fw, lw
-                # Re-render this clip at the new position
                 prerender_clips(run.dir, [c])
                 ok1, d1 = check_clip(clip, c["cut_duration"])
                 ok2, d2 = check_edge_words(clip, fw, lw, work, c["clip_id"])
@@ -557,9 +574,20 @@ def stage_prepare(run, cuts, snap_alternatives=None):
                 if ok1 and ok2:
                     print(f"    snap: -> {alt_in:.3f}-{alt_out:.3f} "
                           f"(edge words: '{fw}'/'{lw}')")
+                    found = True
                     break
-            # Update cuts_final after retry
-            jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
+            if found:
+                jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
+            else:
+                # Restore original values — no alternative passed
+                c["cut_in"], c["cut_out"] = orig_in, orig_out
+                c["cut_duration"] = orig_dur
+                c["first_word_expected"] = orig_fw
+                c["last_word_expected"] = orig_lw
+                # Re-render at original position for consistent state
+                prerender_clips(run.dir, [c])
+                ok1, d1 = check_clip(clip, c["cut_duration"])
+                ok2, d2 = check_edge_words(clip, orig_fw, orig_lw, work, c["clip_id"])
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
                "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2}
         report.append(rec)
@@ -926,6 +954,10 @@ def main():
     print(f"=== FRESH-TOPIC RUN {run_dir} ===")
     run = Run(run_dir)
     run.mode = "pinned" if pin_path else "auto"
+    if pin_path:
+        with open(pin_path) as f:
+            pin_data = json.load(f)
+        run.machine_cuts = pin_data.get("machine_cuts", False)
     run.status["mode"] = run.mode
     run.status["release_state"] = RELEASE_STATE
     run.save()

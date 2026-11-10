@@ -1,5 +1,6 @@
 {
   "schema": "protocol_pulse.pinned_story.v1",
+  "machine_cuts": true,
   "story_id": "btc-drop-merged-20261110",
   "label": "Bitcoin price dip",
   "headline": "Bitcoin fell sharply over the weekend (below about $74,000) alongside a tech selloff, with about $1.3B of US spot ETF outflows last week",
