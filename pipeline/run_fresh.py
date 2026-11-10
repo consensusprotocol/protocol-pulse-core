@@ -291,7 +291,10 @@ def stage_review(run):
     from editorial_review import write_review
     with open(os.path.join(run.dir, "edl.json")) as f:
         edl = json.load(f)
-    story = ((run.prov.get("editorial") or {}).get("selected") or {}).get("headline")
+    ed = run.prov.get("editorial") or {}
+    story = ((ed.get("selected") or {}).get("headline")  # AUTO mode
+             or ed.get("headline")                        # pinned mode
+             or edl.get("topic"))
     llm = sm.LocalLLM().start()
     try:
         review = write_review(llm, edl, run.dir, story)
@@ -822,7 +825,7 @@ def main():
         else:
             keyword = run.stage("editorial", lambda: stage_editorial(run))
             run.stage("select", lambda: stage_select(run, keyword))
-            run.stage("review", lambda: stage_review(run))
+        run.stage("review", lambda: stage_review(run))
         run.stage("validate", lambda: stage_validate(run))
         cuts = run.stage("cut", lambda: stage_cut(run))
         run.stage("voice", lambda: stage_voice(run))
