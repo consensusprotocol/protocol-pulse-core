@@ -407,11 +407,15 @@ def _sync_edl_edge_words(run_dir, cuts):
         edl["hook"]["first_word"] = lookup["hook"].get("first_word_expected", edl["hook"].get("first_word", ""))
         edl["hook"]["last_word"] = lookup["hook"].get("last_word_expected", edl["hook"].get("last_word", ""))
     # Update clips
+    synced = 0
     for i, clip in enumerate(edl.get("clips", [])):
         cid = f"clip_{i + 1:02d}"
         if cid in lookup:
             clip["first_word"] = lookup[cid].get("first_word_expected", clip.get("first_word", ""))
             clip["last_word"] = lookup[cid].get("last_word_expected", clip.get("last_word", ""))
+            synced += 1
+        else:
+            print(f"    WARN: EDL clip index {i} ({cid}) not in cuts_final — edge words not synced")
     jdump(edl_path, edl)
 
 
