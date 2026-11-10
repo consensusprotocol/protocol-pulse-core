@@ -504,8 +504,7 @@ def stage_prepare(run, cuts):
         clip = os.path.join(qa, f"final_{c['clip_id']}.mp4")
         ok1, d1 = check_clip(clip, c["cut_duration"])
         fw, lw = c.get("first_word_expected", ""), c.get("last_word_expected", "")
-        snapped = c.get("snapped", False)
-        if snapped and not (fw and lw):
+        if c.get("snapped") and not (fw and lw):
             # Edge words invalid after snap; run whisper to report what is heard
             # but do not fail (the acoustic acceptance already validated the cut)
             ok2, d2 = check_edge_words(clip, "", "", work, c["clip_id"])
@@ -514,16 +513,6 @@ def stage_prepare(run, cuts):
             ok2 = True
         else:
             ok2, d2 = check_edge_words(clip, fw, lw, work, c["clip_id"])
-        if snapped and not ok1:
-            # Snapped cuts may fail the fade check because the prerender's 30ms
-            # fade does not always match the contract's 9dB threshold at a pause
-            # boundary. The acoustic acceptance already validated the cut; demote
-            # fade-only failures to warnings.
-            fade_only = all("fade" in e.lower() for e in d1.get("errors", []))
-            if fade_only:
-                d1["snapped_fade_warning"] = d1.pop("errors")
-                d1["errors"] = []
-                ok1 = True
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
                "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2}
         report.append(rec)
