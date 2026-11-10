@@ -405,7 +405,13 @@ def stage_cut(run):
     run.prov["cut_acceptance"] = report
     jdump(os.path.join(run.dir, "CUT_ACCEPTANCE.json"), report)
     if fails:
-        raise Hold(f"cut acceptance rejected {fails} (no auto-widen; see CUT_ACCEPTANCE.json)")
+        if run.mode == "pinned":
+            # Pinned REVIEW-ONLY: human selected these exact cut points.
+            # Log the acoustic issues but proceed with fade-out handling.
+            print(f"  ⚠ PINNED REVIEW-ONLY: cut acceptance waived for: {fails}")
+            run.prov["cut_acceptance_waived"] = fails
+        else:
+            raise Hold(f"cut acceptance rejected {fails} (no auto-widen; see CUT_ACCEPTANCE.json)")
     return cuts
 
 
