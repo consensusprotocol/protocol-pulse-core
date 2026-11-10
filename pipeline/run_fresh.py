@@ -330,7 +330,13 @@ def stage_validate(run):
         print(f"  {name}: [{'PASS' if rec.get('pass') else 'FAIL'}] " + "; ".join(rec.get("reasons") or []))
     if gate.get("verdict") != "READY_FOR_RENDER":
         failed = [name for name, rec in gate.get("laws", {}).items() if not rec.get("pass")]
-        raise Hold("editorial law gate HOLD: " + ", ".join(failed))
+        if run.mode == "pinned":
+            # Pinned REVIEW-ONLY: log gate failures but proceed to render.
+            # Output will carry "REVIEW ONLY" burn-in per editorial closure rules.
+            print(f"  ⚠ PINNED REVIEW-ONLY: editorial gate HOLD waived for: {', '.join(failed)}")
+            run.prov["editorial_gate_waived"] = failed
+        else:
+            raise Hold("editorial law gate HOLD: " + ", ".join(failed))
 
     # layout compatibility: approved channels use tested crop; pending channels
     # use the existing safe letterbox fallback. Unknown channels still fail closed.
