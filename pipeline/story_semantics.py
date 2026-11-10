@@ -410,7 +410,7 @@ def grounded_event_date(q, source_published, now, window_hours):
            "model_date_discarded": False}
     if source_published is not None:
         out.update(authority="source publish metadata", event_date=source_published.isoformat())
-        if model_d is not None and model_d < source_published:
+        if model_d is not None and model_d.date() < source_published.date():
             out["model_date_discarded"] = True
             out["model_date"]["status"] = (f"discarded as hallucinated: {field}={q.get(field)!r} is older "
                                            f"than the source's publish date {source_published.date()}")
