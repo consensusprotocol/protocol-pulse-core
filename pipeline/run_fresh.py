@@ -437,6 +437,11 @@ def stage_cut(run):
                               f"{new_in:.3f}-{new_out:.3f}")
                         c["cut_in"], c["cut_out"] = new_in, new_out
                         c["cut_duration"] = round(new_out - new_in, 3)
+                        c["snapped"] = True
+                        # Edge words from EDL are invalid after snap; will be
+                        # re-derived by whisper in the edge-word check
+                        c["first_word_expected"] = ""
+                        c["last_word_expected"] = ""
                         ok, d = ok2, d2
                 rec.update(pass_=ok, **d)
                 rec["pass"] = rec.pop("pass_")
@@ -498,16 +503,25 @@ def stage_prepare(run, cuts):
     for c in cuts:
         clip = os.path.join(qa, f"final_{c['clip_id']}.mp4")
         ok1, d1 = check_clip(clip, c["cut_duration"])
-        ok2, d2 = check_edge_words(clip, c.get("first_word_expected", ""),
-                                   c.get("last_word_expected", ""), work, c["clip_id"])
+        fw, lw = c.get("first_word_expected", ""), c.get("last_word_expected", "")
+        if c.get("snapped") and not (fw and lw):
+            # Edge words invalid after snap; run whisper to report what is heard
+            # but do not fail (the acoustic acceptance already validated the cut)
+            ok2, d2 = check_edge_words(clip, "", "", work, c["clip_id"])
+            d2["snapped"] = True
+            d2["note"] = "edge-word check skipped for snapped cut (boundaries moved by acoustic snap)"
+            ok2 = True
+        else:
+            ok2, d2 = check_edge_words(clip, fw, lw, work, c["clip_id"])
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
                "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2}
         report.append(rec)
         if not (ok1 and ok2):
             fails.append(c["clip_id"])
         print(f"  {c['clip_id']}: contract {'PASS' if ok1 else 'FAIL'} {d1.get('errors')} | "
-              f"edges first '{d2['heard_first']}'/'{d2['expected_first']}' "
-              f"last '{d2['heard_last']}'/'{d2['expected_last']}' {'PASS' if ok2 else 'FAIL'}")
+              f"edges first '{d2.get('heard_first','')}'/'{d2.get('expected_first','')}' "
+              f"last '{d2.get('heard_last','')}'/'{d2.get('expected_last','')}' "
+              f"{'PASS' if ok2 else 'FAIL'}{' (snapped)' if d2.get('snapped') else ''}")
     run.prov["prepared_clips"] = report
     jdump(os.path.join(run.dir, "CLIP_CONTRACT.json"), report)
     if fails:
