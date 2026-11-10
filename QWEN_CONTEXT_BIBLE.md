@@ -41,3 +41,15 @@ Known failure patterns and their root causes. Load into every Qwen/audit session
 **Root cause:** `render_vo_visual_vert()` used the raw 16:9 source file as background for the blurred freeze frame. Channel chyrons and tickers (e.g. "GERLAND" name lower-third) remained visible under the Gaussian blur in the 9:16 output.
 **Fix:** VO visuals now use the vertical's own composited clip as BG source (`reframed.get("hook")` or `reframed.get(preceding_clip_id)`). The composited clip has chyrons cropped out during reframe, so the blurred freeze is clean by construction. Law 23a codifies this rule.
 **Detection:** Visual inspection of VO beats, or Grok vision critic checking for text artifacts under blur in VO segments.
+
+### V-FAIL-007: Review-only renders must never add waiver switches to pipeline stages
+**Versions affected:** combo-letterbox-quoteonly-v2, 2026-11-10 session
+**Root cause:** To produce a REVIEW-ONLY render (pinned mode, editorial gates not passing), waiver switches were added to `stage_validate`, `stage_cut`, and `stage_prepare` in `run_fresh.py` that skipped `raise Hold` when `run.mode == "pinned"`. These switches sat in the production pipeline tree that the daily automated run uses, creating a bypass path with no `review_only` flag guard, no REPORT.md visibility, and no burn-in verification. Heimdall audit flagged as HIGH.
+**Fix:** Waivers were reverted immediately. Review-only renders must be produced by: (a) post-processing a copy of the final output from a normal (gated) run, or (b) running in a throwaway branch that is never merged. Never add `if run.mode == "pinned": skip gate` switches to production pipeline code.
+**Detection:** `git grep -n -i 'review.only\|REVIEW_ONLY\|waive' pipeline/` must return empty. Pre-commit hook or regression test can enforce this.
+
+### D1-FIX-001: Same-day event dates wrongly discarded as hallucinated
+**Versions affected:** All versions before f8d5c225
+**Root cause:** `grounded_event_date()` in `story_semantics.py` compared `model_d < source_published` using datetime objects. `parse_event_date("2026-11-09")` returns midnight UTC, which is `<` than a source published at 14:30 UTC on the same day, causing same-day events to be discarded as "hallucinated" model dates.
+**Fix:** Compare `.date()` objects instead of datetimes: `model_d.date() < source_published.date()`. Same calendar day is never discarded.
+**Detection:** `pipeline/test_d1_sameday.py` — 7 tests covering same-day, previous-day, future-date, and edge cases.
