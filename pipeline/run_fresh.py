@@ -363,42 +363,44 @@ def stage_validate(run):
 
 # ── stage 6: cut + acceptance ──
 
-def _snap_cut(src, cut_in, cut_out, dur, check_fn, max_shift=0.5, step=0.02):
-    """Try shifting cut_in/cut_out in small steps to find an accepted position.
+def _snap_cut(src, cut_in, cut_out, dur, check_fn, max_shift=2.0, step=0.02):
+    """Try shifting cut_in/cut_out to find a position accepted by check_fn.
 
-    Searches cut_out in both directions (backward first, then forward) since
-    the cutter may overshoot a pause, and cut_in backward to find a boundary.
-    Returns (ok, cut_in, cut_out, details) with the first accepted pair,
-    or the original pair with failure details if no snap succeeds.
+    Phase 1: find a cut_out that passes the OUT check (bidirectional).
+    Phase 2: find a cut_in that passes the IN check with the snapped out.
+    Both phases search in small steps, interleaving backward/forward.
+    Returns (ok, cut_in, cut_out, details).
     """
     n = int(max_shift / step)
-    # Interleave backward/forward search for cut_out: -step, +step, -2step, ...
-    offsets = []
+    # Phase 1: find an OUT-passing cut_out
+    best_out = None
+    offsets = [0]  # try original first
     for i in range(1, n + 1):
         offsets.append(-i * step)
         offsets.append(i * step)
-
-    best_out = cut_out
     for delta_out in offsets:
         trial_out = round(cut_out + delta_out, 3)
-        if trial_out <= cut_in or trial_out > dur:
+        if trial_out <= cut_in + 1.0 or trial_out > dur:
             continue
         ok, d = check_fn(src, cut_in, trial_out)
-        if ok:
-            return True, cut_in, trial_out, {**d, "snapped_out_by": round(delta_out, 3)}
         if d.get("out", {}).get("pass"):
             best_out = trial_out
-            break  # out is good, now fix in
-    # Try snapping cut_in backward to find a speech boundary
-    for i in range(n + 1):
-        trial_in = round(cut_in - i * step, 3)
-        if trial_in < 0:
+            if ok:
+                return True, cut_in, trial_out, {**d, "snapped_out_by": round(delta_out, 3)}
             break
+    if best_out is None:
+        ok, d = check_fn(src, cut_in, cut_out)
+        return False, cut_in, cut_out, d
+    # Phase 2: fix cut_in with the good out
+    for delta_in in offsets:
+        trial_in = round(cut_in + delta_in, 3)
+        if trial_in < 0 or trial_in >= best_out - 1.0:
+            continue
         ok, d = check_fn(src, trial_in, best_out)
         if ok:
-            return True, trial_in, best_out, {**d, "snapped_in_by": round(-i * step, 3),
+            return True, trial_in, best_out, {**d,
+                                               "snapped_in_by": round(delta_in, 3),
                                                "snapped_out_by": round(best_out - cut_out, 3)}
-    # Nothing worked
     ok, d = check_fn(src, cut_in, cut_out)
     return False, cut_in, cut_out, d
 
