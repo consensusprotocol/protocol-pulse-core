@@ -159,102 +159,181 @@ def test_failure():
         ne._resend_post = original
 
 
-def test_stale_article_ids():
-    """Test: article IDs from a prior get_todays_articles() do NOT leak into
-    a subsequent send_newsletter(html=...) call without article_ids.
-    This is the real dispatcher path: engine.get_todays_articles(5) ->
-    engine.generate_html(...) -> engine.send_newsletter(subscribers, html=html).
-    """
-    print("\n=== TEST 3: Stale article IDs do not leak ===")
-
+def _get_ne():
+    """Fresh import of newsletter_engine with dummy key."""
     os.environ["RESEND_API_KEY"] = "re_test_dummy_key_for_monkeypatch"
     if "services.newsletter_engine" in sys.modules:
         del sys.modules["services.newsletter_engine"]
     import services.newsletter_engine as ne
+    return ne
 
-    def fake_resend_post_ok(url, key, payload, timeout=30):
-        ids = [{"id": f"stale-test-{i}"} for i in range(len(payload))]
-        return FakeResponse(200, {"data": ids})
 
+def _fake_resend_ok(url, key, payload, timeout=30):
+    ids = [{"id": f"ok-{i}"} for i in range(len(payload))]
+    return FakeResponse(200, {"data": ids})
+
+
+def _last_article_ids_in_db():
+    conn = sqlite3.connect(TEST_DB)
+    row = conn.execute(
+        "SELECT article_ids FROM newsletter_sends ORDER BY id DESC LIMIT 1"
+    ).fetchone()
+    conn.close()
+    return json.loads(row[0]) if row else None
+
+
+def test_dispatcher_path():
+    """TEST 3a — DISPATCHER PATH: get_todays_articles -> generate_html -> send_newsletter(html=...)
+    records the correct article IDs (the ones that went into that HTML).
+    This is the exact sequence core/app.py _newsletter_daily_dispatch runs.
+    """
+    print("\n=== TEST 3a: Dispatcher path records correct article IDs ===")
+    ne = _get_ne()
     original = ne._resend_post
-    ne._resend_post = fake_resend_post_ok
-
+    ne._resend_post = _fake_resend_ok
     try:
         engine = ne.NewsletterEngine()
 
-        # Simulate the real dispatcher: get_todays_articles sets _last_article_ids
-        engine._last_article_ids = [10, 20, 30]  # as if get_todays_articles() ran
-
-        # Call 1: dispatcher path — html provided, no article_ids arg.
-        # _last_article_ids should be captured because get_todays_articles ran
-        # on THIS instance (simulated by setting it above, then calling send).
-        # But the FIX resets it at the top, so it should be empty for pre-existing
-        # IDs. The REAL path is: get_todays_articles() THEN send_newsletter().
-        # Let's test the full path properly:
-
-        # Step A: fresh engine, get_todays_articles sets IDs, then send picks them up
-        engine2 = ne.NewsletterEngine()
-        engine2._last_article_ids = []  # clean state
-        # Simulate get_todays_articles populating IDs
-        engine2._last_article_ids = [100, 200, 300]
-        # Now send with html — the IDs should be picked up from this invocation
-        result1 = engine2.send_newsletter(
-            to_emails=["a@test.io"],
-            subject="Dispatcher Path",
-            html="<h1>Real path</h1>",
+        # Simulate the dispatcher: get_todays_articles returns article dicts with IDs
+        fake_articles = [
+            {"id": 3544, "title": "A", "summary": "a", "url": "u", "image": "", "category": "Bitcoin"},
+            {"id": 3543, "title": "B", "summary": "b", "url": "u", "image": "", "category": "Bitcoin"},
+            {"id": 3542, "title": "C", "summary": "c", "url": "u", "image": "", "category": "Bitcoin"},
+        ]
+        # Call the exact dispatcher sequence:
+        html = engine.generate_html(fake_articles, "Test summary sentence one.", {"price": 87000, "change": 1.5})
+        result = engine.send_newsletter(
+            to_emails=["dispatcher@test.io"],
+            subject="Dispatcher",
+            html=html,
             db_path=TEST_DB,
         )
-        print(f"[result1] {json.dumps(result1, indent=2)}")
-        # Check the DB row — BUT _last_article_ids was set BEFORE send_newsletter,
-        # and send_newsletter resets it at the top. So the IDs should be empty
-        # because the reset clears them before the fallback check.
-        # The CORRECT behavior: if html is provided and get_todays_articles was NOT
-        # called within send_newsletter, article_ids should be empty.
-        conn = sqlite3.connect(TEST_DB)
-        row1 = conn.execute(
-            "SELECT article_ids FROM newsletter_sends ORDER BY id DESC LIMIT 1"
-        ).fetchone()
-        conn.close()
-        art1 = json.loads(row1[0])
-        print(f"[DB row1] article_ids={art1}")
-        assert art1 == [], f"Expected empty (stale IDs cleared), got {art1}"
-        print("[PASS] pre-existing _last_article_ids do NOT leak")
-
-        # Step B: full dispatcher simulation — get_todays_articles inside send_newsletter
-        # When html is NOT provided, send_newsletter calls get_todays_articles internally
-        # and should record those IDs. We can't easily test this without the DB/ORM,
-        # but we CAN test that explicit article_ids still works:
-        result2 = engine2.send_newsletter(
-            to_emails=["b@test.io"],
-            subject="Explicit IDs",
-            html="<h1>Explicit</h1>",
-            article_ids=[501, 502],
-            db_path=TEST_DB,
-        )
-        conn = sqlite3.connect(TEST_DB)
-        row2 = conn.execute(
-            "SELECT article_ids FROM newsletter_sends ORDER BY id DESC LIMIT 1"
-        ).fetchone()
-        conn.close()
-        art2 = json.loads(row2[0])
-        print(f"[DB row2] article_ids={art2}")
-        assert art2 == [501, 502], f"Explicit IDs mismatch: {art2}"
-        print("[PASS] explicit article_ids still recorded correctly")
-
-        print("[PASS] test_stale_article_ids")
+        print(f"[result] success={result['success']}, sent={result['sent']}")
+        ids = _last_article_ids_in_db()
+        print(f"[DB] article_ids={ids}")
+        assert ids == [3544, 3543, 3542], f"Expected [3544,3543,3542], got {ids}"
+        print("[PASS] test_dispatcher_path")
         return True
     finally:
         ne._resend_post = original
 
 
+def test_stale_render():
+    """TEST 3b — STALE: render A, then send_newsletter(html=different html) records []."""
+    print("\n=== TEST 3b: Stale render records [] ===")
+    ne = _get_ne()
+    original = ne._resend_post
+    ne._resend_post = _fake_resend_ok
+    try:
+        engine = ne.NewsletterEngine()
+
+        # Render HTML A with articles
+        fake_articles = [
+            {"id": 999, "title": "Old", "summary": "old", "url": "u", "image": "", "category": "Bitcoin"},
+        ]
+        _html_a = engine.generate_html(fake_articles, "Old summary.", {"price": 80000, "change": -1})
+
+        # Send with DIFFERENT html — IDs should be []
+        result = engine.send_newsletter(
+            to_emails=["stale@test.io"],
+            subject="Stale",
+            html="<h1>Completely different HTML</h1>",
+            db_path=TEST_DB,
+        )
+        print(f"[result] success={result['success']}, sent={result['sent']}")
+        ids = _last_article_ids_in_db()
+        print(f"[DB] article_ids={ids}")
+        assert ids == [], f"Expected [], got {ids}"
+        print("[PASS] test_stale_render")
+        return True
+    finally:
+        ne._resend_post = original
+
+
+def test_explicit_ids_win():
+    """TEST 3c — Explicit article_ids arg always wins over rendered IDs."""
+    print("\n=== TEST 3c: Explicit article_ids wins ===")
+    ne = _get_ne()
+    original = ne._resend_post
+    ne._resend_post = _fake_resend_ok
+    try:
+        engine = ne.NewsletterEngine()
+
+        # Render with articles [10,20]
+        fake_articles = [
+            {"id": 10, "title": "X", "summary": "x", "url": "u", "image": "", "category": "Bitcoin"},
+            {"id": 20, "title": "Y", "summary": "y", "url": "u", "image": "", "category": "Bitcoin"},
+        ]
+        html = engine.generate_html(fake_articles, "Summary.", {"price": 90000, "change": 0})
+
+        # Send with that html BUT explicit article_ids override
+        result = engine.send_newsletter(
+            to_emails=["explicit@test.io"],
+            subject="Explicit",
+            html=html,
+            article_ids=[777, 888],
+            db_path=TEST_DB,
+        )
+        print(f"[result] success={result['success']}, sent={result['sent']}")
+        ids = _last_article_ids_in_db()
+        print(f"[DB] article_ids={ids}")
+        assert ids == [777, 888], f"Expected [777,888], got {ids}"
+        print("[PASS] test_explicit_ids_win")
+        return True
+    finally:
+        ne._resend_post = original
+
+
+def test_no_html_path():
+    """TEST 3d — No-html path: send_newsletter with no html calls get_todays_articles
+    internally, which calls generate_html, so IDs are captured.
+    We mock get_todays_articles to avoid needing the ORM.
+    """
+    print("\n=== TEST 3d: No-html path records fetched IDs ===")
+    ne = _get_ne()
+    original_resend = ne._resend_post
+    ne._resend_post = _fake_resend_ok
+    try:
+        engine = ne.NewsletterEngine()
+
+        fake_articles = [
+            {"id": 401, "title": "A", "summary": "a", "url": "u", "image": "", "category": "Bitcoin"},
+            {"id": 402, "title": "B", "summary": "b", "url": "u", "image": "", "category": "Bitcoin"},
+        ]
+        # Mock get_todays_articles and generate_ai_summary to avoid DB/LLM
+        engine.get_todays_articles = lambda *a, **kw: fake_articles
+        engine.generate_ai_summary = lambda *a, **kw: "Mock summary sentence."
+        engine.get_btc_price = lambda: {"price": 85000, "change": 0.5}
+
+        result = engine.send_newsletter(
+            to_emails=["nohtml@test.io"],
+            subject="No-HTML Path",
+            db_path=TEST_DB,
+        )
+        print(f"[result] success={result['success']}, sent={result['sent']}")
+        ids = _last_article_ids_in_db()
+        print(f"[DB] article_ids={ids}")
+        assert ids == [401, 402], f"Expected [401,402], got {ids}"
+        print("[PASS] test_no_html_path")
+        return True
+    finally:
+        ne._resend_post = original_resend
+
+
 if __name__ == "__main__":
     setup()
-    ok1 = test_success()
-    ok2 = test_failure()
-    ok3 = test_stale_article_ids()
+    results = []
+    results.append(("test_success", test_success()))
+    results.append(("test_failure", test_failure()))
+    results.append(("test_dispatcher_path", test_dispatcher_path()))
+    results.append(("test_stale_render", test_stale_render()))
+    results.append(("test_explicit_ids_win", test_explicit_ids_win()))
+    results.append(("test_no_html_path", test_no_html_path()))
     print(f"\n{'='*40}")
-    if ok1 and ok2 and ok3:
-        print("ALL TESTS PASSED")
+    for name, ok in results:
+        print(f"  {name}: {'PASS' if ok else 'FAIL'}")
+    if all(ok for _, ok in results):
+        print(f"ALL {len(results)} TESTS PASSED")
     else:
         print("SOME TESTS FAILED")
         sys.exit(1)

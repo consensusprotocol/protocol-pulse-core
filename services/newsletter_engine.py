@@ -67,6 +67,8 @@ class NewsletterEngine:
         self.from_email = os.environ.get("NEWSLETTER_FROM_EMAIL", "Protocol Pulse <pulse@protocolpulse.io>")
         self.site_url = os.environ.get("SITE_URL", "https://protocolpulse.io")
         self._last_article_ids = []  # Tracks article IDs from most recent get_todays_articles()
+        self._rendered_html = None       # HTML output of most recent generate_html()
+        self._rendered_article_ids = []  # Article IDs that went into that HTML
 
         if self.resend_key:
             logger.info("Newsletter Engine initialized with Resend")
@@ -676,6 +678,9 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
 
 </body>
 </html>'''
+        # Remember which article IDs this HTML was rendered from
+        self._rendered_html = html
+        self._rendered_article_ids = [a.get("id") for a in articles if a.get("id") is not None]
         return html
 
     def send_newsletter(self, to_emails: List[str], subject: str = None, html: str = None,
@@ -695,10 +700,6 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
         if not to_emails:
             return {"success": False, "error": "No recipients"}
 
-        # Reset _last_article_ids so we only record IDs from THIS invocation's
-        # get_todays_articles(), never a stale prior call.
-        self._last_article_ids = []
-
         # Generate content if not provided
         if not html:
             articles = self.get_todays_articles()
@@ -709,9 +710,14 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
             btc_data = self.get_btc_price()
             html = self.generate_html(articles, summary, btc_data)
 
-        # Resolve article_ids: explicit arg > fresh get_todays_articles() > empty
+        # Resolve article_ids for DB recording.
+        # Priority: explicit arg > IDs tied to the html we rendered > empty.
+        # A stale render (html != self._rendered_html) records [].
         if article_ids is None:
-            article_ids = self._last_article_ids if self._last_article_ids else []
+            if html is not None and html == self._rendered_html:
+                article_ids = self._rendered_article_ids
+            else:
+                article_ids = []
 
         if not subject:
             btc_data = self.get_btc_price()

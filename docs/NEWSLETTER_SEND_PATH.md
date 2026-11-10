@@ -278,3 +278,14 @@ Panel: deepseek, qwen27b, glm. 1 consensus finding:
 1. [low] Dead variable `remembered_ids` — removed.
 
 No other findings. All 4 original findings confirmed fixed.
+
+**Round 3:** `/home/ultron/audits/newsletter_tracking_20261109_r3/audit.md`
+Panel: deepseek, qwen27b, glm. **0 consensus findings.** No issues raised by any panelist.
+
+Fix for R2 regression (6aaa953c reset wiped dispatcher-path IDs):
+- `generate_html()` now stores `self._rendered_html` and `self._rendered_article_ids`
+  (the article IDs that were baked into that specific HTML).
+- `send_newsletter()` resolution: explicit `article_ids` arg > html matches
+  `_rendered_html` -> use `_rendered_article_ids` > else `[]`.
+- Stale renders (different html) correctly record `[]`.
+- 6 tests PASS: success, failure, dispatcher path, stale render, explicit IDs, no-html path.
