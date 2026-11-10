@@ -259,3 +259,22 @@ thebtcboomers.com: open_tracking=OFF, click_tracking=OFF, status=failed
 - Test scripts: 4/4 assertions PASS (2 send tests, 2 brief tests)
 - No existing files modified except `services/newsletter_engine.py` and `services/morning_brief.py`
 - `regression_test.sh` not run (paths hardcoded to `~/protocol_pulse`, cannot run from worktree)
+
+### Audit round 2026-11-09
+
+**Round 1:** `/home/ultron/audits/newsletter_tracking_20261109/audit.md`
+Panel: deepseek, qwen27b, glm. 4 consensus findings:
+1. [medium] Stale article IDs leak when html provided without article_ids
+2. [medium] NULL subject crash in poller `subject[:40]`
+3. [low] morning_brief _archive_brief_to_db: connection not closed on exception
+4. [low] poller poll(): connection not closed on exception
+
+Non-consensus (noted, not implemented):
+- deepseek F1: _record_send exceptions could escape before inner try, flipping result to success=False. Mitigated by _record_send's own try/except wrapping all logic including imports; the outer try would only catch truly unexpected failures.
+- qwen partial-batch: `sent += len(batch)` counts full batch on HTTP 200, but Resend may later reject individuals. The count reflects API acceptance, not delivery — matches existing semantics. True delivery count comes from the poller.
+
+**Round 2:** `/home/ultron/audits/newsletter_tracking_20261109_r2/audit.md`
+Panel: deepseek, qwen27b, glm. 1 consensus finding:
+1. [low] Dead variable `remembered_ids` — removed.
+
+No other findings. All 4 original findings confirmed fixed.

@@ -695,9 +695,9 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
         if not to_emails:
             return {"success": False, "error": "No recipients"}
 
-        # Use remembered article IDs if caller didn't pass them
-        if article_ids is None and self._last_article_ids:
-            article_ids = self._last_article_ids
+        # Reset _last_article_ids so we only record IDs from THIS invocation's
+        # get_todays_articles(), never a stale prior call.
+        self._last_article_ids = []
 
         # Generate content if not provided
         if not html:
@@ -708,6 +708,10 @@ The bad example has: generic verbs, vague references, no specifics, AI filler.""
             summary = self.generate_ai_summary(articles)
             btc_data = self.get_btc_price()
             html = self.generate_html(articles, summary, btc_data)
+
+        # Resolve article_ids: explicit arg > fresh get_todays_articles() > empty
+        if article_ids is None:
+            article_ids = self._last_article_ids if self._last_article_ids else []
 
         if not subject:
             btc_data = self.get_btc_price()

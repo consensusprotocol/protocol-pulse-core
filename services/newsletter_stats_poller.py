@@ -143,89 +143,90 @@ def poll(db_path: str = None, dry_run: bool = False, days: int = 14):
 
     db_path = db_path or _default_db_path()
     conn = sqlite3.connect(db_path)
-    _ensure_events_table(conn)
+    try:
+        _ensure_events_table(conn)
 
-    sends = _get_recent_sends(conn, days)
-    if not sends:
-        logger.info("No newsletter_sends rows in last %d days", days)
-        conn.close()
-        return
+        sends = _get_recent_sends(conn, days)
+        if not sends:
+            logger.info("No newsletter_sends rows in last %d days", days)
+            return
 
-    logger.info("Found %d sends to poll", len(sends))
+        logger.info("Found %d sends to poll", len(sends))
 
-    for send_id, subject, msg_ids_json, recipient_count, old_opens, old_clicks in sends:
-        if not msg_ids_json:
-            continue
-
-        try:
-            message_ids = json.loads(msg_ids_json)
-        except (json.JSONDecodeError, TypeError):
-            logger.warning(f"Send {send_id}: invalid message_ids JSON, skipping")
-            continue
-
-        if not message_ids:
-            continue
-
-        opens = 0
-        clicks = 0
-        delivered = 0
-        bounced = 0
-        complained = 0
-        now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-
-        logger.info(f"Send {send_id} ({subject[:40]}...): polling {len(message_ids)} message IDs")
-
-        for mid in message_ids:
-            if dry_run:
-                print(f"  [dry-run] Would GET https://api.resend.com/emails/{mid}")
+        for send_id, subject, msg_ids_json, recipient_count, old_opens, old_clicks in sends:
+            if not msg_ids_json:
                 continue
 
-            status = _get_message_status(mid)
-            time.sleep(RATE_LIMIT_DELAY)
-
-            last_event = status.get("last_event", "")
-
-            if last_event in ("opened", "clicked"):
-                opens += 1
-            if last_event == "clicked":
-                clicks += 1
-            if last_event == "delivered":
-                delivered += 1
-            if last_event == "bounced":
-                bounced += 1
-            if last_event == "complained":
-                complained += 1
-
-            # Upsert event record
             try:
-                conn.execute(
-                    "INSERT INTO newsletter_send_events (send_id, message_id, last_event, checked_at) "
-                    "VALUES (?, ?, ?, ?) "
-                    "ON CONFLICT(send_id, message_id) DO UPDATE SET "
-                    "last_event=excluded.last_event, checked_at=excluded.checked_at",
-                    (send_id, mid, last_event, now_str),
-                )
-            except Exception as e:
-                logger.warning(f"Event upsert failed for {mid}: {e}")
+                message_ids = json.loads(msg_ids_json)
+            except (json.JSONDecodeError, TypeError):
+                logger.warning(f"Send {send_id}: invalid message_ids JSON, skipping")
+                continue
 
-        if dry_run:
-            print(f"  [dry-run] Send {send_id}: {len(message_ids)} messages, no updates")
-            continue
+            if not message_ids:
+                continue
 
-        # Update counts on newsletter_sends row
-        conn.execute(
-            "UPDATE newsletter_sends SET open_count=?, click_count=? WHERE id=?",
-            (opens, clicks, send_id),
-        )
-        conn.commit()
+            opens = 0
+            clicks = 0
+            delivered = 0
+            bounced = 0
+            complained = 0
+            now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-        logger.info(
-            f"Send {send_id}: opens={opens} clicks={clicks} "
-            f"delivered={delivered} bounced={bounced} complained={complained}"
-        )
+            logger.info(f"Send {send_id} ({(subject or '')[:40]}...): polling {len(message_ids)} message IDs")
 
-    conn.close()
-    logger.info("Poll complete")
+            for mid in message_ids:
+                if dry_run:
+                    print(f"  [dry-run] Would GET https://api.resend.com/emails/{mid}")
+                    continue
+
+                status = _get_message_status(mid)
+                time.sleep(RATE_LIMIT_DELAY)
+
+                last_event = status.get("last_event", "")
+
+                if last_event in ("opened", "clicked"):
+                    opens += 1
+                if last_event == "clicked":
+                    clicks += 1
+                if last_event == "delivered":
+                    delivered += 1
+                if last_event == "bounced":
+                    bounced += 1
+                if last_event == "complained":
+                    complained += 1
+
+                # Upsert event record
+                try:
+                    conn.execute(
+                        "INSERT INTO newsletter_send_events (send_id, message_id, last_event, checked_at) "
+                        "VALUES (?, ?, ?, ?) "
+                        "ON CONFLICT(send_id, message_id) DO UPDATE SET "
+                        "last_event=excluded.last_event, checked_at=excluded.checked_at",
+                        (send_id, mid, last_event, now_str),
+                    )
+                except Exception as e:
+                    logger.warning(f"Event upsert failed for {mid}: {e}")
+
+            if dry_run:
+                print(f"  [dry-run] Send {send_id}: {len(message_ids)} messages, no updates")
+                continue
+
+            # Update counts on newsletter_sends row
+            conn.execute(
+                "UPDATE newsletter_sends SET open_count=?, click_count=? WHERE id=?",
+                (opens, clicks, send_id),
+            )
+            conn.commit()
+
+            logger.info(
+                f"Send {send_id}: opens={opens} clicks={clicks} "
+                f"delivered={delivered} bounced={bounced} complained={complained}"
+            )
+
+        logger.info("Poll complete")
+    finally:
+        conn.close()
 
 
 def main():

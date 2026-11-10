@@ -448,6 +448,7 @@ def _archive_brief_to_db(brief: dict, db_path: str = None):
 
     Deduplicates: skips insert if a row with identical body exists for the same UTC date.
     """
+    conn = None
     try:
         if not db_path:
             db_path = str(BASE / "instance" / "protocol_pulse.db")
@@ -482,7 +483,6 @@ def _archive_brief_to_db(brief: dict, db_path: str = None):
         ).fetchone()
         if existing:
             logger.info(f"Brief already archived for {today_str} (row {existing[0]}), skipping")
-            conn.close()
             return
 
         conn.execute(
@@ -492,10 +492,12 @@ def _archive_brief_to_db(brief: dict, db_path: str = None):
         )
         conn.commit()
         row_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-        conn.close()
         logger.info(f"Brief archived to daily_brief row {row_id}")
     except Exception as e:
         logger.error(f"Failed to archive brief to DB: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 def main():
