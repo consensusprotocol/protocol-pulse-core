@@ -363,6 +363,40 @@ def stage_validate(run):
 
 # ── stage 6: cut + acceptance ──
 
+def _snap_cut(src, cut_in, cut_out, dur, check_fn, max_shift=0.5, step=0.02):
+    """Try shifting cut_in/cut_out in small steps to find an accepted position.
+
+    Searches cut_out from original to +max_shift (finding a later pause),
+    and cut_in from original to -max_shift (finding an earlier boundary).
+    Returns (ok, cut_in, cut_out, details) with the first accepted pair,
+    or the original pair with failure details if no snap succeeds.
+    """
+    # Try snapping cut_out first (most common failure: no pause at exit)
+    best_out = cut_out
+    for delta_out in [i * step for i in range(int(max_shift / step) + 1)]:
+        trial_out = round(cut_out + delta_out, 3)
+        if trial_out > dur:
+            break
+        ok, d = check_fn(src, cut_in, trial_out)
+        if ok or d.get("out", {}).get("pass"):
+            best_out = trial_out
+            if ok:
+                return True, cut_in, trial_out, {**d, "snapped_out_by": delta_out}
+            break
+    # Try snapping cut_in (failure: inside continuous speech)
+    for delta_in in [i * step for i in range(int(max_shift / step) + 1)]:
+        trial_in = round(cut_in - delta_in, 3)
+        if trial_in < 0:
+            break
+        ok, d = check_fn(src, trial_in, best_out)
+        if ok:
+            return True, trial_in, best_out, {**d, "snapped_in_by": -delta_in,
+                                               "snapped_out_by": round(best_out - cut_out, 3)}
+    # Nothing worked
+    ok, d = check_fn(src, cut_in, cut_out)
+    return False, cut_in, cut_out, d
+
+
 def stage_cut(run):
     from cut import compute_all_cuts
     from cut_accept import check_cut_acoustics
@@ -386,6 +420,16 @@ def stage_cut(run):
                 rec["reason"] = f"cut range outside source file (duration {dur:.2f})"
             else:
                 ok, d = check_cut_acoustics(src, c["cut_in"], c["cut_out"])
+                if not ok:
+                    # Auto-snap: search nearby positions for an accepted cut
+                    ok2, new_in, new_out, d2 = _snap_cut(
+                        src, c["cut_in"], c["cut_out"], dur, check_cut_acoustics)
+                    if ok2:
+                        print(f"    snap: {c['cut_in']:.3f}-{c['cut_out']:.3f} -> "
+                              f"{new_in:.3f}-{new_out:.3f}")
+                        c["cut_in"], c["cut_out"] = new_in, new_out
+                        c["cut_duration"] = round(new_out - new_in, 3)
+                        ok, d = ok2, d2
                 rec.update(pass_=ok, **d)
                 rec["pass"] = rec.pop("pass_")
         if not rec["pass"]:
@@ -393,10 +437,12 @@ def stage_cut(run):
         report.append(rec)
         print(f"  {c['clip_id']}: in={c.get('cut_in')} out={c.get('cut_out')} "
               f"[{'ACCEPT' if rec['pass'] else 'REJECT'}] {rec.get('reason', '')}")
+    # Write the (possibly snapped) cuts back
+    jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
     run.prov["cut_acceptance"] = report
     jdump(os.path.join(run.dir, "CUT_ACCEPTANCE.json"), report)
     if fails:
-        raise Hold(f"cut acceptance rejected {fails} (no auto-widen; see CUT_ACCEPTANCE.json)")
+        raise Hold(f"cut acceptance rejected {fails} (see CUT_ACCEPTANCE.json)")
     return cuts
 
 
