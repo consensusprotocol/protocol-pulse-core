@@ -205,8 +205,9 @@ class LocalLLM:
         LLMParseError carrying every raw response and error; never invents a result."""
         log = []
         for i in range(attempts):
+            why = f" ({log[-1]['error'][:200]})" if log else ""
             p = prompt if i == 0 else (prompt + "\n\nYour previous reply was not valid JSON matching the "
-                                       "required keys. Reply with ONLY the JSON object.")
+                                       f"required keys{why}. Reply with ONLY the JSON object.")
             raw = None
             try:
                 raw = self._post(p, max_tokens, seed=7 + i)

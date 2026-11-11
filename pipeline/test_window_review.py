@@ -176,10 +176,11 @@ class FakeReviewer:
         self.prompts.append(prompt)
         if self.raise_parse:
             raise sm.LLMParseError("bad json", ["{"])
-        if validate:
-            err = validate(self.out)
-            if err:
-                raise sm.LLMParseError(err, [json.dumps(self.out)])
+        if validate:                       # the real chat_json contract: validate RAISES on a bad reply
+            try:
+                validate(self.out)
+            except Exception as e:
+                raise sm.LLMParseError(str(e), [json.dumps(self.out)])
         return copy.deepcopy(self.out)
 
 
@@ -200,6 +201,57 @@ def v2f_edl(intro=None):
     if intro:
         e["vo"]["intro"] = intro
     return e
+
+
+class TestReviewValidatorContract(unittest.TestCase):
+    """Nov 11 recut: gemma3 judged the clips as 0/1 while the EDL numbers them 1/2; the validator RETURNED its
+    error and LocalLLM.chat_json (which only reacts to an exception) accepted it, so LAW_1 found clip 2
+    unjudged. The real chat_json loop, with only the HTTP call faked:"""
+
+    EDL = {"hook": {"channel": "Yahoo Finance", "text": "It bounced at a key level."},
+           "clips": [{"index": 1, "channel": "DataDash", "text": "Bitcoin fell 16 % so far."},
+                     {"index": 2, "channel": "Natalie Brunell", "text": "The NASDAQ entered a correction."}],
+           "vo": {"intro": None, "bridges": []}, "topic": "Bitcoin price dip"}
+
+    def reply(self, indices):
+        return json.dumps({"clips": [{"index": i, "adds_type": "fact", "adds": "new", "adds_new_information": True}
+                                     for i in indices], "vo_jobs": {},
+                           "takeaway": {"text": "t", "concrete": True, "supported": True},
+                           "sequence": {"hook": "h", "development": "d", "payoff": "p", "progresses": True},
+                           "inconclusive": False})
+
+    def llm(self, replies):
+        import story_semantics as sm
+        llm = sm.LocalLLM.__new__(sm.LocalLLM)       # no server, no GPU: only the HTTP call is replaced
+        llm.model = sm.LLM_MODEL
+        prompts = []
+
+        def post(prompt, max_tokens, seed):
+            prompts.append(prompt)
+            return replies[min(len(prompts), len(replies)) - 1]
+        llm._post = post
+        return llm, prompts
+
+    def test_validator_raises_on_wrong_clip_numbers(self):
+        with self.assertRaises(ValueError):
+            er._validator(self.EDL)(json.loads(self.reply([0, 1])))
+        er._validator(self.EDL)(json.loads(self.reply([1, 2])))            # valid: no exception
+
+    def test_wrong_numbers_are_retried_with_the_reason(self):
+        llm, prompts = self.llm([self.reply([0, 1]), self.reply([1, 2])])
+        r = er.generate_review(llm, self.EDL)
+        self.assertFalse(r["inconclusive"], r)
+        self.assertEqual([c["index"] for c in r["clips"]], [1, 2])
+        self.assertIn("CLIP numbers [1, 2], got [0, 1]", prompts[1])
+
+    def test_wrong_numbers_every_time_is_inconclusive_and_holds(self):
+        llm, _ = self.llm([self.reply([0, 1])])
+        r = er.generate_review(llm, self.EDL)
+        self.assertTrue(r["inconclusive"], r)
+        tmp = tempfile.mkdtemp(prefix="review_v_")
+        self.addCleanup(shutil.rmtree, tmp, True)
+        json.dump(r, open(os.path.join(tmp, "EDITORIAL_REVIEW.json"), "w"))
+        self.assertEqual(eg.run_gate(tmp, self.EDL)["verdict"], "HOLD")
 
 
 @unittest.skipUnless(os.path.exists(V2F_EDL), "v2f reference EDL not present")

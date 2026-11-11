@@ -47,7 +47,7 @@ Answer four questions.
 If you cannot judge, set "inconclusive": true and say why.
 
 Return ONLY JSON:
-{{"clips": [{{"index": n, "adds_type": "...", "adds": "one sentence", "adds_new_information": true/false}}],
+{{"clips": [{{"index": <the CLIP number shown above, e.g. 1>, "adds_type": "...", "adds": "one sentence", "adds_new_information": true/false}}],
  "vo_jobs": {{"<vo key>": {{"job": "...", "why": "one sentence", "earned": true/false}}}},
  "takeaway": {{"text": "one sentence", "concrete": true/false, "supported": true/false}},
  "sequence": {{"hook": "...", "development": "...", "payoff": "...", "progresses": true/false}},
@@ -83,18 +83,20 @@ def _validator(edl):
     vo_keys = {k for k, _ in body_vo(edl)}
 
     def v(d):
+        # LocalLLM.chat_json's contract: validate RAISES on an invalid reply (its return value is ignored).
+        # Returning the message instead accepted every reply (Nov 11 recut: clips judged as 0/1 for 1/2).
         if not isinstance(d, dict):
-            return "not an object"
+            raise ValueError("not an object")
         if d.get("inconclusive") is True:
-            return None
-        if sorted(j.get("index") for j in d.get("clips") or [] if isinstance(j, dict)) != want:
-            return f"clips must judge exactly indices {want}"
+            return
+        got = sorted(j.get("index") for j in d.get("clips") or [] if isinstance(j, dict))
+        if got != want:
+            raise ValueError(f"clips must judge exactly the CLIP numbers {want}, got {got}")
         if not vo_keys <= set((d.get("vo_jobs") or {}).keys()):
-            return f"vo_jobs must cover {sorted(vo_keys)}"
+            raise ValueError(f"vo_jobs must cover {sorted(vo_keys)}")
         for k in ("takeaway", "sequence"):
             if not isinstance(d.get(k), dict):
-                return f"{k} must be an object"
-        return None
+                raise ValueError(f"{k} must be an object")
     return v
 
 
