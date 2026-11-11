@@ -777,29 +777,26 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
             verdicts.append(v)
             c["coverage"]["videos_evaluated"] = len(verdicts)
             ck("adjudicate", candidate=oi, of=len(order), video=vi, of_videos=len(picked))
-        same = [v for v in verdicts if v["counted_as_same_event"]]
-        cov_ch = sorted({v["channel_id"] for v in same})
-        lay_ch = sorted({v["channel_id"] for v in same if v["layout_eligible"]})
-        c["coverage"].update(status="done", same_event_videos=len(same), independent_channels=len(cov_ch),
-                             inconclusive=sum(1 for v in verdicts if v["verdict"] == "INCONCLUSIVE"),
-                             channels=[by_cid.get(x, {}).get("display_name", x) for x in cov_ch],
-                             layout_eligible_channels=[by_cid[x]["display_name"] for x in lay_ch])
-        cur = sm.transcript_currentness(verdicts)            # E1/E9: transcripts decide currentness
-        c["currentness"] = cur
-        if c.get("event_date_grounding", {}).get("model_date_discarded"):
-            c.setdefault("flags", []).append("model date discarded as hallucinated (D1/E9)")
-        log(f"  [{c['importance']['importance_score']:.2f}] {c['headline'][:70]} -> coverage "
-            f"{len(cov_ch)} ch ({len(lay_ch)} layout-eligible), currentness {cur['status']}")
-        if cur["status"] != "CURRENT":
-            c["decision"] = f"inconclusive: currentness {cur['reason']}"
-        elif len(cov_ch) < MIN_COVERAGE_CHANNELS:
-            c["decision"] = f"rejected: coverage {len(cov_ch)} < {MIN_COVERAGE_CHANNELS} independent channels"
-        elif len(lay_ch) < MIN_LAYOUT_CHANNELS:
-            c["decision"] = (f"rejected: only {len(lay_ch)} layout-eligible channel(s) with evidence "
-                             f"(clips need >= {MIN_LAYOUT_CHANNELS}); editorial coverage {len(cov_ch)}")
-        else:
-            c["decision"] = "coverage_qualified"
+        _decide_coverage(c, verdicts, by_cid, log)
         ck("coverage", candidate=oi, of=len(order))
+
+    # 5b. SAME-EVENT MERGE (mission 4b): candidates resting on the same counted passage are one event
+    for group in _same_event_groups(order):
+        merged = _merge_event([order[i] for i in group], L, uni, by_cid, today, log)
+        cands.append(merged)
+        order.append(merged)
+        ck("merge", members=len(group), decision=merged["decision"])
+
+    # 5c. DEC-9: an event already delivered to the approval chat is never selected again (same identity)
+    import story_ledger
+    ledger = story_ledger.entries()
+    excluded = []
+    for c in order:
+        hit = story_ledger.delivered_match(c, ledger) if c.get("decision") == "coverage_qualified" else None
+        if hit:
+            c["decision"] = f"already delivered (story ledger: {hit['run']}, '{hit['headline'][:60]}')"
+            excluded.append({"headline": c["headline"], "ledger_run": hit["run"]})
+    rec["story_ledger"] = {"entries": len(ledger), "excluded": excluded}
 
     # 6. E5: one GPU0 swap -> word-level transcripts for every coverage-qualified candidate
     qualified = [c for c in order if c.get("decision") == "coverage_qualified"]
@@ -870,6 +867,10 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
                        "clip_quality": {k: v for k, v in win["clip_quality"].items() if k != "candidates"},
                        "why": ("highest story importance among producible candidates; ties broken by "
                                "coverage then clip quality"),
+                       "evidence": [{"video_id": v["video_id"], "chunk_ids": v.get("supporting_chunk_ids") or [],
+                                     "quote": v.get("evidence_quote"),
+                                     "quote_tokens": sm._norm(v.get("evidence_quote")).split()}
+                                    for v in win["coverage"]["verdicts"] if v.get("counted_as_same_event")],
                        "other_producible": [c["headline"] for c in producible if c is not win],
                        "infra_held": [c["headline"] for c in infra]}
     rec["decision"] = "SELECTED"
@@ -889,6 +890,130 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
     _write(run_dir, "sources.json", srcs)
     ck("done")
     return win["query"].get("short_label") or win["headline"], rec
+
+
+def _decide_coverage(c, verdicts, by_cid, log):
+    """Coverage, currentness and the coverage decision of one candidate (single or merged alike)."""
+    import story_semantics as sm
+    same = [v for v in verdicts if v["counted_as_same_event"]]
+    cov_ch = sorted({v["channel_id"] for v in same})
+    lay_ch = sorted({v["channel_id"] for v in same if v["layout_eligible"]})
+    c["coverage"].update(status="done", same_event_videos=len(same), independent_channels=len(cov_ch),
+                         inconclusive=sum(1 for v in verdicts if v["verdict"] == "INCONCLUSIVE"),
+                         channels=[by_cid.get(x, {}).get("display_name", x) for x in cov_ch],
+                         layout_eligible_channels=[by_cid[x]["display_name"] for x in lay_ch])
+    cur = sm.transcript_currentness(verdicts)            # E1/E9: transcripts decide currentness
+    c["currentness"] = cur
+    if c.get("event_date_grounding", {}).get("model_date_discarded"):
+        c.setdefault("flags", []).append("model date discarded as hallucinated (D1/E9)")
+    log(f"  [{c['importance']['importance_score']:.2f}] {c['headline'][:70]} -> coverage "
+        f"{len(cov_ch)} ch ({len(lay_ch)} layout-eligible), currentness {cur['status']}")
+    if cur["status"] != "CURRENT":
+        c["decision"] = f"inconclusive: currentness {cur['reason']}"
+    elif len(cov_ch) < MIN_COVERAGE_CHANNELS:
+        c["decision"] = f"rejected: coverage {len(cov_ch)} < {MIN_COVERAGE_CHANNELS} independent channels"
+    elif len(lay_ch) < MIN_LAYOUT_CHANNELS:
+        c["decision"] = (f"rejected: only {len(lay_ch)} layout-eligible channel(s) with evidence "
+                         f"(clips need >= {MIN_LAYOUT_CHANNELS}); editorial coverage {len(cov_ch)}")
+    else:
+        c["decision"] = "coverage_qualified"
+
+
+SAME_STATEMENT_RUN = 5          # shared consecutive words that make two evidence quotes one statement
+
+
+def _evidence(c):
+    """[(video_id, chunk_ids, quote tokens)] of the COUNTED verdicts this candidate rests on."""
+    import story_semantics as sm
+    return [(v["video_id"], set(v.get("supporting_chunk_ids") or []), sm._norm(v.get("evidence_quote")).split())
+            for v in (c.get("coverage") or {}).get("verdicts", []) if v.get("counted_as_same_event")]
+
+
+def _same_statement(a, b):
+    """Two quotes are one statement when they share a run of SAME_STATEMENT_RUN consecutive words (or one
+    quote, shorter than that, lies wholly inside the other)."""
+    from difflib import SequenceMatcher
+    if not a or not b:
+        return False
+    run = max(m.size for m in SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks())
+    return run >= min(SAME_STATEMENT_RUN, len(a), len(b))
+
+
+def _same_event_groups(order):
+    """Index groups (>= 2) of candidates whose counted evidence includes THE SAME STATEMENT: same video, a
+    shared supporting chunk and a shared run of words in the evidence quotes. Nov 10: 'Bitcoin ETFs shed
+    $1.3B' and 'Bitcoin falls amid tech selloff' were split by the story engine but both counted Yahoo
+    Finance's "Bitcoin dropped pretty massively over the weekend alongside the tech selloff"; the second
+    reached one channel ("coverage 1 < 2"), the first failed on hook quality. A shared chunk alone is not
+    enough (a roundup show can state two events in one chunk). Deterministic: no model is asked whether two
+    headlines are the same event (E-FAIL-013)."""
+    ev = [_evidence(c) for c in order]
+    parent = list(range(len(order)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+    for i in range(len(order)):
+        for j in range(i + 1, len(order)):
+            if any(vi == vj and ci & cj and _same_statement(qi, qj)
+                   for vi, ci, qi in ev[i] for vj, cj, qj in ev[j]):
+                parent[find(j)] = find(i)
+    groups = {}
+    for i in range(len(order)):
+        groups.setdefault(find(i), []).append(i)
+    return [g for g in groups.values() if len(g) > 1]
+
+
+def _merge_event(members, L, uni, by_cid, today, log):
+    """One candidate for one event. The members' headlines and summaries give one derived query; their
+    verdicts are pooled (one per video, a counted one kept); every NOT-counted pooled verdict is re-judged
+    against the merged query on its stored excerpts (bounded); then the same coverage decision as any
+    candidate. The members are marked merged (their evidence lives on in the merged candidate)."""
+    import story_semantics as sm
+    members = sorted(members, key=lambda c: -c["importance"]["importance_score"])
+    top = members[0]
+    item = {"headline": top["headline"], "source_domain": top.get("source_domain", ""),
+            "summary": " | ".join(dict.fromkeys(f"{m['headline']}. {m.get('summary') or ''}".strip(" .")
+                                                for m in members))}
+    try:
+        q, q_from = sm.derive_story_query(L, item, today), "merged headlines + summaries"
+    except sm.LLMParseError as e:
+        q, q_from = top["query"], f"top member's query (merged derivation failed: {e})"
+    pooled = {}
+    for m in members:
+        for v in m["coverage"]["verdicts"]:
+            cur = pooled.get(v["video_id"])
+            if cur is None or (v["counted_as_same_event"] and not cur["counted_as_same_event"]):
+                pooled[v["video_id"]] = v
+    verdicts, rejudged = [], 0
+    meta_keys = ("video_id", "canonical_url", "channel", "channel_id", "title", "published_at", "layout_eligible",
+                 "transcript_sha256", "transcript_method", "excerpts", "retrieval_score")
+    for vid, v in sorted(pooled.items(), key=lambda kv: (kv[1]["counted_as_same_event"] is False,
+                                                       -(kv[1].get("retrieval_score") or 0), kv[0])):
+        u = next((x for x in uni if x["video_id"] == vid), None)
+        if not v["counted_as_same_event"] and v.get("excerpts") and u and rejudged < MAX_ADJUDICATE_PER_STORY:
+            nv = sm.adjudicate(L, q, {"title": u["title"], "channel": u["channel"], "published_at": u["published_at"]},
+                               v["excerpts"], today=today)
+            nv.update({k: v[k] for k in meta_keys if k in v}, rejudged_for_merge=True, prior_verdict=v["verdict"])
+            v, rejudged = nv, rejudged + 1
+        verdicts.append(v)
+    merged = {"origin": "same_event_merge", "members": [m["headline"] for m in members], "query_from": q_from,
+              "engine_rank": min((m.get("engine_rank") or 999) for m in members),
+              "engine_score": max((m.get("engine_score") or 0) for m in members),
+              "headline": top["headline"], "summary": item["summary"], "source_domain": top.get("source_domain"),
+              "age_h": min((m.get("age_h") or 0) for m in members), "source_published": top.get("source_published"),
+              "query": q, "importance": dict(top["importance"]), "importance_gate": [],
+              "event_date_grounding": top.get("event_date_grounding"),
+              "coverage": {"videos_evaluated": len(verdicts), "verdicts": verdicts, "status": "in_progress",
+                           "rejudged_for_merge": rejudged}}
+    log(f"  same-event merge of {len(members)}: " + " | ".join(m["headline"][:50] for m in members))
+    _decide_coverage(merged, verdicts, by_cid, log)
+    for m in members:
+        m["same_event_merge"] = top["headline"]
+        m["decision"] = f"merged into the same-event candidate '{top['headline'][:80]}' (shared evidence)"
+    return merged
 
 
 def _clip_quality(c, same, E, L, by_cid, words, log, today=""):

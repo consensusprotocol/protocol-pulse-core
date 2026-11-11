@@ -120,8 +120,21 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
             except Exception as e:
                 pack["visual"][fmt] = {"ok": False, "error": f"vision route: {type(e).__name__}: {e}"}
         v = pack["visual"][fmt]
+        if fmt == "9x16" and "error" not in pack["contact_sheets"][fmt]:
+            try:                                        # letterbox asked ONE frame per shot (E-FAIL-022)
+                lp = os.path.join(run_dir, "VERTICAL_LAYOUT.json")
+                layout = json.load(open(lp)) if os.path.exists(lp) else {}
+                lb_ok, lb_rows = VC.letterbox_check(VC.shot_frames(
+                    os.path.join(run_dir, "out", final), segs, layout, os.path.join(run_dir, "VERIFY", "shots_9x16")))
+            except Exception as e:
+                lb_ok, lb_rows = False, [{"error": f"{type(e).__name__}: {e}"}]
+            v["letterbox_per_shot"] = {"ok": lb_ok, "shots": lb_rows}
+            v["ok"] = v["ok"] and lb_ok
         nos = sorted({k for d in (v.get("per_model") or {}).values() for k, r in (d.get("rows") or {}).items()
                       if not r.get("ok")})
+        if not (v.get("letterbox_per_shot") or {"ok": True})["ok"]:
+            bad = [f"{r.get('label')}#{r.get('shot')}" for r in v["letterbox_per_shot"]["shots"] if not r.get("ok")]
+            nos.append(f"letterbox per shot: {', '.join(bad)}")
         rep.setdefault("rows", {}).setdefault(fmt, {})["V1_visual_checklist"] = \
             "PASS" if v["ok"] else f"FAIL ({v.get('error') or 'no/missing: ' + ', '.join(nos)})"
     if vision:

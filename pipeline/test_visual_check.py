@@ -99,6 +99,44 @@ class TestContactSheet(unittest.TestCase):
         self.assertEqual((w, h), tuple(r["size"]))
 
 
+class TestLetterboxPerShot(unittest.TestCase):
+    """E-FAIL-022 follow-up: the letterbox line is asked ONE frame per shot; any 'yes' / no answer on a non-screen
+    shot fails; a screen shot (DEC-2: letterbox by design) is not asked."""
+
+    def check(self, answers, frames):
+        from unittest import mock
+        it = iter(answers)
+        with mock.patch.object(V, "ask_letterbox", side_effect=lambda path, model: next(it)):
+            return V.letterbox_check(frames)
+
+    def test_rules(self):
+        th = {"label": "clip_01", "shot": 0, "class": "single", "path": "f.jpg"}
+        scr = {"label": "hook", "shot": 0, "class": "screen", "path": "s.jpg"}
+        self.assertTrue(self.check(["no", "no"], [scr, th])[0])                 # screen never asked
+        self.assertFalse(self.check(["no", "yes"], [th])[0])                    # one model says letterboxed
+        self.assertFalse(self.check([None, "no"], [th])[0])                     # no clear answer
+        self.assertFalse(self.check([], [{**th, "path": None}])[0])             # no frame
+        ok, rows = self.check(["no", "no", "yes", "no"], [th, {**th, "shot": 1}])
+        self.assertEqual((ok, [r["ok"] for r in rows]), (False, [True, False]))
+
+    def test_one_frame_per_shot_outside_any_dissolve(self):
+        tmp = tempfile.mkdtemp(prefix="shots_")
+        self.addCleanup(shutil.rmtree, tmp, True)
+        final = os.path.join(tmp, "v.mp4")
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=1080x1920:r=24:d=10",
+                        "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", final], check=True)
+        segs = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 4.0},
+                {"label": "clip_01", "type": "talking_head", "start": 3.75, "end": 8.0},
+                {"label": "shoutout", "type": "shoutout", "start": 8.0, "end": 10.0}]
+        layout = {"hook": {"shots": [{"start": 0.0, "end": 3.5, "class": "single"},
+                                     {"start": 3.5, "end": 4.25, "class": "screen"}]}}
+        fr = V.shot_frames(final, segs, layout, os.path.join(tmp, "w"))
+        self.assertEqual([(f["label"], f["shot"], f["class"]) for f in fr],
+                         [("hook", 0, "single"), ("hook", 1, "screen"), ("clip_01", 0, "unknown")])
+        self.assertEqual([f["t"] for f in fr], [1.75, round(3.75 - 1 / 24, 3), 5.875])   # mid 3.875: in the dissolve
+        self.assertTrue(all(f["path"] and os.path.exists(f["path"]) for f in fr))
+
+
 class TestSheetWiring(unittest.TestCase):
     """Heimdall batch 3 (verify_pack): a run copied for a transition option carries the previous render's
     qa/contact_sheet_*.jpg. If the new sheet cannot be built, the panel must not read the old one: the old
@@ -148,6 +186,25 @@ class TestVisionMustFail(unittest.TestCase):
         named = {k for d in per.values() for k, r in d["rows"].items() if r["answer"] == "no"}
         self.assertTrue(named & {"credits_round_and_match", "no_letterbox_on_talking_heads"},
                         f"held, but not for D4/D5: {json.dumps(per, default=str)[:2000]}")
+
+
+    def test_yesterdays_letterboxed_talking_head_fails_and_a_reframed_one_passes(self):
+        """D5 must-fail on the fixture's full-resolution clip_02 panel (Scott Melker in a band, blurred copy above
+        and below); control: the same speaker cropped to fill the frame (what DEC-5's reframe produces)."""
+        from PIL import Image
+        self.assertTrue(os.path.exists(SHEET_NOV10), f"must-fail fixture missing: {SHEET_NOV10}")
+        tmp = tempfile.mkdtemp(prefix="lbox_")
+        self.addCleanup(shutil.rmtree, tmp, True)
+        sheet = Image.open(SHEET_NOV10)
+        W, H = sheet.size
+        panel = sheet.crop((W - 1080, H - 1920, W, H))                 # the last full-res panel: clip_02
+        lb, rf = os.path.join(tmp, "melker_letterbox.jpg"), os.path.join(tmp, "melker_reframed.jpg")
+        panel.save(lb, quality=92)
+        panel.crop((540 - 172, 655, 540 + 171, 1265)).resize((1080, 1920)).save(rf, quality=92)
+        ok, rows = V.letterbox_check([{"label": "clip_02", "shot": 0, "class": "single", "path": lb}])
+        self.assertFalse(ok, rows)
+        ok, rows = V.letterbox_check([{"label": "clip_02", "shot": 0, "class": "single", "path": rf}])
+        self.assertTrue(ok, rows)
 
 
 if __name__ == "__main__":

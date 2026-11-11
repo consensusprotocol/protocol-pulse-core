@@ -143,41 +143,56 @@ def _key():
         raise RuntimeError("vision route not configured: HEIMDALL_API_KEY not found in the repo .env") from None
 
 
-def _parse(content):
-    """The first JSON object in the reply that carries "answers" (prose or more braces around it are
-    ignored); None when there is none."""
+def _first_json(content, key):
+    """The first JSON object in a reply that carries `key` (prose or more braces around it are ignored)."""
     dec, s = json.JSONDecoder(), content or ""
     for m in re.finditer(r"\{", s):
         try:
             obj, _ = dec.raw_decode(s, m.start())
         except json.JSONDecodeError:
             continue
-        if isinstance(obj, dict) and "answers" in obj:
-            return obj["answers"]
+        if isinstance(obj, dict) and key in obj:
+            return obj
     return None
 
 
-def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2):
-    """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
-    unparseable reply is retried once, then answers = {} (every line missing = HOLD, never a crash)."""
+def _parse(content):
+    """The checklist answers of a reply; None when there are none."""
+    return (_first_json(content, "answers") or {}).get("answers")
+
+
+def _request(image_path, text, model):
+    """One Heimdall vision request: a JPEG and a question."""
     import urllib.request
-    img = base64.b64encode(open(sheet_path, "rb").read()).decode()
-    qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
-    text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", questions=qs, keys=[k for k, _ in CHECKLIST])
+    img = base64.b64encode(open(image_path, "rb").read()).decode()
     body = {"model": model, "temperature": 0, "max_tokens": 16000, "reasoning": {"effort": "low"},
             "messages": [{"role": "user", "content": [{"type": "text", "text": text},
                                                       {"type": "image_url",
                                                        "image_url": {"url": f"data:image/jpeg;base64,{img}"}}]}]}
-    req = urllib.request.Request(f"{VISION_BASE}/chat/completions", data=json.dumps(body).encode(),
-                                 headers={"Authorization": f"Bearer {_key()}", "Content-Type": "application/json"})
+    return urllib.request.Request(f"{VISION_BASE}/chat/completions", data=json.dumps(body).encode(),
+                                  headers={"Authorization": f"Bearer {_key()}", "Content-Type": "application/json"})
+
+
+def _call(req, timeout):
+    """(content, raw) of one vision call; raises on a route error (callers retry, then HOLD)."""
+    import urllib.request
+    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+    return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
+
+
+def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2):
+    """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
+    unparseable reply or a route error is retried, then answers = {} (every line missing = HOLD, never a crash)."""
+    qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
+    text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", questions=qs, keys=[k for k, _ in CHECKLIST])
+    req = _request(sheet_path, text, model)
     tries = []
     for _ in range(attempts):
         try:
-            raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+            content, raw = _call(req, timeout)
         except Exception as e:                      # network / HTTP / bad body: retried, then no answer = HOLD
             tries.append({"error": f"{type(e).__name__}: {e}"[:500]})
             continue
-        content = (raw.get("choices") or [{}])[0].get("message", {}).get("content") or ""
         tries.append({"finish_reason": (raw.get("choices") or [{}])[0].get("finish_reason"), "content": content[:4000]})
         answers = _parse(content)
         if isinstance(answers, dict):
@@ -202,3 +217,68 @@ def verdict(answers, fmt):
         rows[k] = {"answer": a or "missing", "why": val.get("why", ""),
                    "ok": a == "yes" or (a == "n/a" and allowed_na)}
     return all(r["ok"] for r in rows.values()), rows
+
+
+# ── letterbox, ONE frame per shot (06:50 ET: asked about the whole sheet, both models missed yesterday's
+#    letterboxed talking heads; asked about one frame, both answered right; E-FAIL-022) ──
+
+LETTERBOX_PROMPT = """This is ONE frame of a vertical (9:16) news video. Look at how the picture is laid out from top to
+bottom. Question: is the SHARP picture only a horizontal band across the middle of the frame, with a BLURRED (or
+black) enlarged copy of the image filling the areas above and below that band? (This is called a letterbox.)
+Reply with JSON only: {"letterboxed": "yes|no", "why": "..."}"""
+
+
+def shot_frames(final, segments, layout, work_dir):
+    """One full-resolution frame from the middle of every shot of every 9:16 talking-head segment, with the
+    shot's class from VERTICAL_LAYOUT.json (shot times are relative to the segment's prepared clip, whose first
+    frame is the segment's start in the final); a frame inside a dissolve is moved out of it. A segment without
+    a measured layout is one shot of class 'unknown' (asked like a talking head)."""
+    os.makedirs(work_dir, exist_ok=True)
+    out = []
+    for i, s in enumerate(segments):
+        if s.get("type") != "talking_head":
+            continue
+        lo = max(s["start"], segments[i - 1]["end"] if i else s["start"]) + 1.0 / FPS
+        hi = min(s["end"], segments[i + 1]["start"] if i + 1 < len(segments) else s["end"]) - 1.0 / FPS
+        shots = (layout.get(s["label"]) or {}).get("shots") or \
+            [{"start": 0.0, "end": s["end"] - s["start"], "class": "unknown"}]
+        for k, sh in enumerate(shots):
+            t = min(max(s["start"] + (sh["start"] + sh["end"]) / 2, lo), hi)
+            out.append({"label": s["label"], "shot": k, "t": round(t, 3), "class": sh.get("class", "unknown"),
+                        "path": _grab(final, t, os.path.join(work_dir, f"shot_{s['label']}_{k}.jpg"))})
+    return out
+
+
+def ask_letterbox(path, model, timeout=600, attempts=2):
+    """'yes' / 'no' from one model about one frame, or None (no clear answer after the retries)."""
+    req = _request(path, LETTERBOX_PROMPT, model)
+    for _ in range(attempts):
+        try:
+            content, _raw = _call(req, timeout)
+        except Exception:                           # route error: retried, then no answer
+            continue
+        a = str((_first_json(content, "letterboxed") or {}).get("letterboxed", "")).strip().lower()
+        if a in ("yes", "no"):
+            return a
+    return None
+
+
+def letterbox_check(frames):
+    """Every non-screen shot asked of every VISION_MODEL. Letterboxed 'yes', no answer, a missing frame or an
+    error from ANY model fails the line (fail closed). A screen shot is letterboxed by design (DEC-2) and is
+    not asked."""
+    rows, ok = [], True
+    for f in frames:
+        if f["class"] == "screen":
+            rows.append({**f, "asked": False, "ok": True, "why": "layout=screen: letterbox by design (DEC-2)"})
+            continue
+        ans, err = {}, None
+        for m in VISION_MODELS:
+            try:
+                ans[m] = ask_letterbox(f["path"], m) if f["path"] else None
+            except Exception as e:                  # e.g. the route is not configured
+                ans[m], err = None, f"{type(e).__name__}: {e}"
+        good = all(a == "no" for a in ans.values())
+        ok = ok and good
+        rows.append({**f, "asked": True, "answers": ans, "ok": good, **({"error": err} if err else {})})
+    return ok, rows
