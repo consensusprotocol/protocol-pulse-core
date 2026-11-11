@@ -28,6 +28,15 @@ ffmpeg -i "$RUN/out/segment.mp4" $A "$OUT/audio/out_16x9.flac"
 ffmpeg -i "$RUN/out/segment_vertical.mp4" $A "$OUT/audio/out_9x16.flac"
 cp "$RUN/qa/shoutout_16x9.mp4" "$RUN/qa/shoutout_9x16.mp4" "$OUT/video/"
 cp "$RUN"/avatars/*.jpg "$OUT/video/" 2>/dev/null || true
+# Yahoo Finance's window transcript is unpunctuated (whisper no-punctuation mode). The sentence law reads
+# it the way today's pipeline produces it: pipeline/punctuation.py (GPU0, faster-whisper large-v3).
+mkdir -p "$OUT/selection/transcripts_punctuated"
+( cd "$(dirname "$0")/../../../pipeline" && CUDA_VISIBLE_DEVICES=0 python3 -c "
+import json, sys, punctuation as P
+from faster_whisper import WhisperModel
+rec = json.load(open('$RUN/transcripts/36HPi9UZPOc.json'))
+out = P.ensure(rec, '$RUN/sources/36HPi9UZPOc.mp4', WhisperModel('large-v3', device='cuda', compute_type='float16'))
+json.dump(out, open('$OUT/selection/transcripts_punctuated/36HPi9UZPOc.json', 'w'), indent=2)" )
 ( cd "$RUN" && sha256sum cuts_final.json edl.json transcripts/*.json sources/*.mp4 qa/final_*.mp4 \
     out/segment.mp4 out/segment_vertical.mp4 qa/shoutout_16x9.mp4 qa/shoutout_9x16.mp4 ) > "$OUT/ORIGINALS.sha256"
 ( cd "$OUT" && find . -type f ! -name FIXTURE.sha256 ! -name build_fixture.sh -print0 | sort -z | xargs -0 sha256sum ) > "$OUT/FIXTURE.sha256"

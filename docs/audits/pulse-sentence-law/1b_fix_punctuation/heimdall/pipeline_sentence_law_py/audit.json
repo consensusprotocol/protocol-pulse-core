@@ -1,0 +1,87 @@
+{
+ "question": "Sentence-law fix. The per-gap local-model adjudicator for unpunctuated transcripts was found to be a rubber stamp (gemma3:27b called 19 of 19 Yahoo Finance gaps sentence ends, including 'the | Wolf', 'of | all', 'is | up'). It is removed: sentence_law.boundary now returns invalid for any gap in an unpunctuated stretch (fail closed), and the adj parameter is gone from boundary, edge_plan, write_lock_cut_table, gate_g16 and their callers. Punctuation now comes from the ASR: select_passages._whisper_transcribe keeps the verbatim decode's words and, only where the transcript is unpunctuated, runs pipeline/punctuation.ensure, which decodes the same audio again with a neutral punctuated initial_prompt and copies trailing punctuation onto verbatim words in difflib equal blocks only (word keys asserted unchanged). Verify from the diff: (1) no path lets a gap without terminal punctuation become a sentence boundary; (2) transfer can never change, add or drop a word, and never puts a mark on a word the two decodes disagree on; (3) cached transcripts are re-punctuated or returned unchanged correctly; (4) no caller still passes the removed argument; (5) the must-fail tests (D3b's new reason, the rejected false ends, the reproduced fixture) are meaningful, not vacuous. Only state what you can verify; if uncertain, say so. (this chunk: pipeline/sentence_law.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 148.0,
+   "cost": 0.0014663744,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 55.5,
+   "cost": 0.00381734,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 410.1,
+   "cost": 0.00213373,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 62.3,
+   "cost": 0.000745054,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 76.5,
+   "cost": 0.0024033928,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 591.4,
+   "cost": 0.002142782,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/sentence_law.py",
+   "line": 0,
+   "issue": "External callers of boundary/edge_plan/write_lock_cut_table/gate_g16 that still pass the removed adj or context arguments (positionally or by keyword) will raise TypeError. This chunk only shows internal callers updated; the audit question (4) cannot be fully confirmed without seeing all call sites in other modules.",
+   "evidence": "def boundary(sa, words, k):  # was: def boundary(sa, words, k, adj=None, context=\"\")\ndef edge_plan(sa, words, i0, i1):  # was: def edge_plan(sa, words, i0, i1, adj=None, context=\"\")\ndef write_lock_cut_table(run_dir):  # was: def write_lock_cut_table(run_dir, adj=None)\ndef gate_g16(run_dir, source_path_fn=None):  # was: def gate_g16(run_dir, adj=None, source_path_fn=None)",
+   "fix": "Grep the repository for calls to these four functions with the old signatures (e.g. 'adj=' or a third positional arg to boundary/edge_plan) and update or remove them. Add a smoke test that imports and calls each public function with the new signature.",
+   "agree": [],
+   "disagree": [
+    "deepseek",
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0127086732,
+ "out_dir": "docs/audits/pulse-sentence-law/1b_fix_punctuation/heimdall/pipeline_sentence_law_py"
+}

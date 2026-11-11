@@ -1,0 +1,106 @@
+2026-11-11 05:15:20,232 google_genai.models INFO AFC is enabled with max remote calls: 10.
+2026-11-11 05:15:27,757 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 05:16:18,893 httpx INFO HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-11-11 05:17:46,681 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-11-11 05:17:47,105 google_genai.models INFO AFC is enabled with max remote calls: 10.
+2026-11-11 05:17:52,269 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 05:18:39,024 httpx INFO HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-11-11 05:19:51,718 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-11-11 05:20:06,642 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+
+============================================================
+PROTOCOL PULSE CROSS-LLM AUDIT — PULSE-SENTENCE-LAW
+Started: 2026-11-11 05:15:10
+============================================================
+
+✅ All API keys present
+
+── CYCLE 1: BUILDING AUDIT PACKAGE ────────────────────────────
+  [PACKAGE] Pulling code diff for combo-letterbox-quoteonly-v2...
+  [PACKAGE] Using explicit file list: ['docs/audits/pulse-sentence-law/CURRENT.diff']
+  Package written: 39,719 chars
+
+── CYCLE 1: FIRING 3 LLMs IN PARALLEL ─────────────────────────
+  [GROK]   ✅ Done (via gateway)
+  [GPT-4o] ✅ Done
+  [GEMINI] ✅ Done — ?
+
+  Cycle 1 complete: ['grok', 'gpt4o', 'gemini'] succeeded, [] failed
+
+── CYCLE 1: SYNTHESIZING CONSENSUS ─────────────────────────────
+  Consensus written
+
+  Average Cycle 1 score: 0/100 — Running Cycle 2
+
+── CYCLE 2: BUILDING CROSS-REVIEW PROMPT ───────────────────────
+── CYCLE 2: FIRING 3 LLMs WITH CROSS-VISIBILITY ────────────────
+  [GPT-4o] ✅ Done
+  [GROK]   ✅ Done (via gateway)
+  [GEMINI] ✅ Done — ?
+
+  Cycle 2 complete: ['gpt4o', 'grok', 'gemini'] succeeded
+
+── CYCLE 2: FINAL CONSENSUS + WINNER ───────────────────────────
+
+============================================================
+AUDIT COMPLETE — PULSE-SENTENCE-LAW
+============================================================
+
+Outputs at: /home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/
+  AUDIT_PACKAGE.md    — code package sent to LLMs
+  C1_*.md             — Cycle 1 individual outputs
+  C1_CONSENSUS.md     — Cycle 1 synthesis
+  C2_*.md             — Cycle 2 individual outputs
+  FINAL_CONSENSUS.md  — final action plan + second-pass prompt
+
+NEXT: Fire the second-pass Claude Code session using the prompt
+      in FINAL_CONSENSUS.md → '## SECOND PASS PROMPT' section
+
+============================================================
+
+READY TO FIRE — SECOND PASS PROMPT:
+----------------------------------------
+## SECOND PASS PROMPT (ready to fire into Claude Code)
+
+```
+Read ~/protocol_pulse/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md.
+Read ~/protocol_pulse/docs/audits/pulse-sentence-law_CONSENSUS_C2.md.
+
+This is the FINAL PASS for pulse-sentence-law.
+The first build was reviewed by 3 independent AI models across 2 cycles.
+There are NO P0 or P1 items. Implement the P2 items below using judgment.
+
+PRIORITY ACTION PLAN:
+
+P2 MEDIUM | Add isolated unit test for `_key()` normalization contract
+  File: pipeline/punctuation.py (line 30) + existing or new test file
+  Models: all 3 models in agreement
+  What to assert:
+    - _key("Hello,") == _key("hello")
+    - _key("Mr.") == _key("mr")
+    - _key("it's") == _key("its")
+    - _key("naïve") == _key("naive")  # only if Unicode normalization is in scope
+    - _key("") handles empty string without error
+    - _key("...") handles all-punctuation string gracefully
+    - _key("don't") == _key("dont")  # apostrophe stripping
+  Why: _key() is load-bearing for difflib alignment in transfer(). Its
+  contract is currently implicit. A silent change would degrade punctuation
+  restoration quality without triggering any existing assertion.
+
+P2 MEDIUM (optional, use judgment) | Add brief comment block above
+  _whisper_transcribe branching logic to narrate the cached/punctuated
+  control flow for future readers.
+  File: pipeline/select_passages.py lines 139–143
+  Models: Gemini only
+  Why: Readability only. Not a defect. Skip if the diff would be noisy.
+
+VALIDATED (do NOT touch — all 3 models confirmed excellent):
+  - transfer() logic and SequenceMatcher alignment (punctuation.py:39–51)
+  - Line-67 assertion (assert [_key(w["word"])…]) — do not remove or weaken
+  - boundary() fail-closed rule (sentence_law.py:342–344)
+  - Removal of the Adjudicator class — do not re-introduce
+  - ensure() fast-path (punctuation.py:61–70)
+  - TestUnpunctuatedTranscript (lines 483–513) — do not alter
+  - TestPunctuationLayer (lines 528–567) — do not alter
+  - All law 
+[registry] AUDIT_REGISTRY.json updated for pulse-sentence-law

@@ -11,9 +11,11 @@ causes, then requires three clean fresh videos in a row with no code edits betwe
 
 ## THE LAWS
 - SENTENCE LAW: a clip's first word is the first word of a sentence and its last word the last word of
-  a sentence. Boundary = transcript punctuation (or a cached, logged local-model adjudication when the
-  transcript has no punctuation) AND an acoustic pause >= 80 ms between the two words
-  (pipeline/sentence_law.py states every constant).
+  a sentence. Boundary = transcript punctuation AND an acoustic pause >= 80 ms between the two words
+  (pipeline/sentence_law.py states every constant). An unpunctuated transcript stretch has NO boundary
+  (fail closed). Punctuation is added at transcription time only from a second, prompted ASR decode of
+  the same audio, onto aligned verbatim words; the words never change (pipeline/punctuation.py). No
+  language model decides a boundary (the per-gap adjudicator called 19/19 gaps sentence ends; removed).
 - SELECTION LOCK: the words a clip must contain are fixed at selection time (selection_lock in edl.json,
   sha256-sealed). No later stage may recompute expected first/last words from a moved cut.
 - SNAP LIMIT: a cut may move only inside the silence between the chosen sentence and its neighbour; it

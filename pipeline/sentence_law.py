@@ -10,9 +10,12 @@ BOUNDARY RULE (law constants, stated once, used by selection, cutting and gate G
   A sentence boundary exists between transcript word k and word k+1 iff BOTH
   (L) LEXICAL   punctuated transcript: word k ends in '.', '!' or '?' and is not an abbreviation
                 (U.S., Mr., a.m., ...) or a trailing '...';
-                unpunctuated transcript (fewer than 1 terminal mark per 60 words within +-60 words):
-                a local-model adjudication says the sentence ends after word k (content-addressed
-                cache data/editorial/sentence_adjudication.json, every decision logged).
+                a transcript stretch with fewer than 1 terminal mark per 60 words (within +-60 words) is
+                UNPUNCTUATED: no gap in it is a sentence boundary (fail closed). Transcripts get their
+                punctuation at transcription time (pipeline/punctuation.py: marks from a second,
+                prompted decode of the same audio, onto aligned verbatim words only). The per-gap
+                local-model adjudicator was removed 2026-11-11: it called 19 of 19 Yahoo Finance gaps
+                sentence ends, 'the | Wolf' included (E-FAIL-013).
   (A) ACOUSTIC  the source audio holds a PAUSE between them: a run of >= PAUSE_MIN_S (80 ms, Law
                 14c) of 10 ms RMS frames below the QUIET LINE, inside [start(k), end(k+1)] (whisper
                 word edges are estimates and collapse at sentence boundaries, Law 14/14c, so the
@@ -34,7 +37,6 @@ import json
 import os
 import re
 import subprocess
-import time
 from difflib import SequenceMatcher
 
 import numpy as np
@@ -63,8 +65,6 @@ PUNCT_WINDOW_WORDS = 60
 WORD_DURATION_RATIO_MIN = 0.85  # G17: rendered edge word keeps >= 85 % of its duration
 _TERMINAL = (".", "!", "?")
 _ABBREV = {"mr", "mrs", "ms", "dr", "st", "vs", "etc", "jr", "sr", "inc", "ltd", "corp", "prof", "approx"}
-ADJ_CACHE = os.path.join(REPO, "data", "editorial", "sentence_adjudication.json")
-ADJ_LOG = os.path.join(REPO, "data", "editorial", "sentence_adjudication_log.jsonl")
 
 
 class LawError(Exception):
@@ -188,72 +188,9 @@ def find_pause(sa, a, b):
 
 # ── lexical adjudication for unpunctuated transcripts ──
 
-class Adjudicator:
-    """'Does a sentence end after word k?' for unpunctuated transcripts. Content-addressed cache,
-    every decision (cached or fresh) logged. allow_model=False = cache only (tests, gates replay)."""
-
-    def __init__(self, cache_path=ADJ_CACHE, log_path=ADJ_LOG, allow_model=True, model=None):
-        self.cache_path, self.log_path, self.allow_model = cache_path, log_path, allow_model
-        self.model = model
-        self._llm = None
-        try:
-            with open(cache_path) as f:
-                self.cache = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            self.cache = {}
-
-    def _llm_start(self):
-        if self._llm is None:
-            import story_semantics as sm
-            self._llm = sm.LocalLLM(model=self.model or sm.LLM_MODEL).start()
-        return self._llm
-
-    def close(self):
-        if self._llm is not None:
-            self._llm.stop()
-            self._llm = None
-
-    def decide(self, words, k, context=""):
-        left = " ".join(w["word"].strip() for w in words[max(0, k - 39):k + 1])
-        right = " ".join(w["word"].strip() for w in words[k + 1:k + 21])
-        model = self.model or "gemma3:27b"
-        key = hashlib.sha256(f"{model}|{left}|<GAP>|{right}".encode()).hexdigest()[:24]
-        rec = self.cache.get(key)
-        fresh = False
-        if rec is None:
-            if not self.allow_model:
-                raise LawError(f"sentence adjudication not cached for gap after '{words[k]['word']}' "
-                               f"(cache-only mode)")
-            prompt = (
-                "A speech transcript has no punctuation. Decide whether a sentence ENDS exactly at the "
-                "marker <GAP> (the next word begins a new sentence), judging grammar and meaning only.\n"
-                f"TEXT: ...{left} <GAP> {right}...\n"
-                'Answer JSON only: {"sentence_end": true or false, "reason": "<= 20 words"}')
-            out = self._llm_start().chat_json(
-                prompt, max_tokens=120,
-                validate=lambda o: isinstance(o, dict) and isinstance(o.get("sentence_end"), bool))
-            rec = {"sentence_end": bool(out["sentence_end"]), "reason": str(out.get("reason", ""))[:160],
-                   "left_tail": left[-80:], "right_head": right[:60], "model": model,
-                   "decided_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
-            self.cache[key] = rec
-            os.makedirs(os.path.dirname(self.cache_path), exist_ok=True)
-            tmp = self.cache_path + ".tmp"
-            with open(tmp, "w") as f:
-                json.dump(self.cache, f, indent=1, sort_keys=True)
-            os.replace(tmp, self.cache_path)
-            fresh = True
-        if self.log_path:
-            os.makedirs(os.path.dirname(self.log_path), exist_ok=True)
-            with open(self.log_path, "a") as f:
-                f.write(json.dumps({"at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "key": key,
-                                    "fresh": fresh, "context": context, "after_word": words[k]["word"],
-                                    "sentence_end": rec["sentence_end"], "reason": rec["reason"]}) + "\n")
-        return rec["sentence_end"], f"model:{rec['model']} ({'fresh' if fresh else 'cached'} {key}): {rec['reason']}"
-
-
 # ── boundaries ──
 
-def boundary(sa, words, k, adj=None, context=""):
+def boundary(sa, words, k):
     """Sentence boundary between word k and k+1 (k = -1: file head; k = len-1: file end)."""
     n = len(words)
     rec = {"after_word": words[k]["word"] if k >= 0 else "<file head>",
@@ -282,29 +219,19 @@ def boundary(sa, words, k, adj=None, context=""):
     rec.update(levels=lv, pause=pause)
     if pause is None:
         return {**rec, "valid": False, "reason": f"no pause >= {int(PAUSE_MIN_S * 1000)} ms between the words"}
-    if is_punctuated(words, k):
-        lex = is_terminal(words[k]["word"])
-        rec["lexical"] = "punctuation"
-        if not lex:
-            return {**rec, "valid": False, "reason": f"'{words[k]['word']}' does not end a sentence"}
-    else:
-        if adj is None:
-            return {**rec, "valid": False, "lexical": "unpunctuated",
-                    "reason": "unpunctuated transcript and no adjudicator"}
-        try:
-            lex, why = adj.decide(words, k, context=context)
-        except LawError as e:
-            return {**rec, "valid": False, "lexical": "unpunctuated", "reason": str(e)}
-        rec["lexical"] = why
-        if not lex:
-            return {**rec, "valid": False, "reason": f"adjudicated: no sentence end after '{words[k]['word']}'"}
+    if not is_punctuated(words, k):
+        return {**rec, "valid": False, "lexical": "unpunctuated",
+                "reason": "unpunctuated transcript stretch: no sentence evidence (fail closed)"}
+    rec["lexical"] = "punctuation"
+    if not is_terminal(words[k]["word"]):
+        return {**rec, "valid": False, "reason": f"'{words[k]['word']}' does not end a sentence"}
     return {**rec, "valid": True}
 
 
-def edge_plan(sa, words, i0, i1, adj=None, context=""):
+def edge_plan(sa, words, i0, i1):
     """Boundaries around words[i0..i1] and the legal cut ranges they allow."""
-    bin_ = boundary(sa, words, i0 - 1, adj, context=f"{context} in")
-    bout = boundary(sa, words, i1, adj, context=f"{context} out")
+    bin_ = boundary(sa, words, i0 - 1)
+    bout = boundary(sa, words, i1)
     plan = {"in": bin_, "out": bout}
     if bin_["valid"]:
         p = bin_["pause"]
@@ -420,7 +347,7 @@ def _accepted_cut_pair(src, plan, step=HOP_S):
     return (in_ok, out_ok) if check_cut_acoustics(src, in_ok, out_ok)[0] else None
 
 
-def write_lock_cut_table(run_dir, adj=None):
+def write_lock_cut_table(run_dir):
     """cuts_final.json with every cut placed inside the pause that bounds its LOCKED sentence(s):
     the cut can never add or drop a word. A segment whose locked edges are not cuttable is written
     verified=false with the reason (acceptance then HOLDs; no search outside the pause)."""
@@ -439,7 +366,7 @@ def write_lock_cut_table(run_dir, adj=None):
         with open(tpath) as f:
             words = json.load(f)["words"]
         plan = edge_plan(SourceAudio(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4")), words,
-                         lock["i0"], lock["i1"], adj, context=f"cut {label}")
+                         lock["i0"], lock["i1"])
         entry.update(first_word_expected=lock["first_word"], last_word_expected=lock["last_word"],
                      selection_lock_sha256=lock["sha256"],
                      pause_in=plan["in"].get("pause"), pause_out=plan["out"].get("pause"))
@@ -465,7 +392,7 @@ def write_lock_cut_table(run_dir, adj=None):
 # ── G16 SENTENCE_BOUNDARY (pre-render and final gate) ──
 
 
-def gate_g16(run_dir, adj=None, source_path_fn=None):
+def gate_g16(run_dir, source_path_fn=None):
     """Every clip's cut must hold exactly its locked sentence(s): lock intact, expected words equal the
     lock (never recomputed), both edges legal sentence boundaries, cut points inside those pauses
     (or a declared room-tone pad at a file head without lead-in). Returns (ok, table)."""
@@ -493,7 +420,7 @@ def gate_g16(run_dir, adj=None, source_path_fn=None):
                 words = json.load(f)["words"]
             src = (source_path_fn or (lambda v: os.path.join(run_dir, "sources", f"{v}.mp4")))(seg["video_id"])
             sa = SourceAudio(src)
-            plan = edge_plan(sa, words, lock["i0"], lock["i1"], adj, context=f"G16 {label}")
+            plan = edge_plan(sa, words, lock["i0"], lock["i1"])
             row["in"] = _edge_row(plan["in"], cut["cut_in"], "in", cut)
             row["out"] = _edge_row(plan["out"], cut["cut_out"], "out", cut)
             row["errors"] += [f"IN: {row['in']['why']}"] if not row["in"]["pass"] else []

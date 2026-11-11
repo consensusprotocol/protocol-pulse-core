@@ -52,14 +52,15 @@ Evidence: docs/audits/pulse-sentence-law/dec1_calibration/HEIMDALL_RUN_FRESH_RES
 
 | PBX rule | Enforcing check (code) | Must-fail proof | State |
 |---|---|---|---|
-| Clip starts on the first word of a sentence | G16 SENTENCE_BOUNDARY IN edge (pipeline/sentence_law.py gate_g16, pre-render stage `sentence_law` + final gate row) | T pulse_20261110: D3a clip_01 '81', D3b clip_02 'days' | landing (1b/1c) |
-| Clip ends on the last word of a sentence | G16 OUT edge | T pulse_20261110: D2 clip_01 runs into "All right…" | landing (1b/1c) |
-| Expected words fixed at selection, never recomputed | G16 selection-lock check (sha-sealed lock in edl.json vs cuts_final expected words) | T pulse_20261110: TestTautology | landing (1b/1c) |
-| A cut never adds/drops a word; snapping only inside the gap | sentence_law.write_lock_cut_table (cuts placed only in the locked pauses ∩ unchanged cut_accept); ±2 s snap + recompute removed | T: test_run_fresh_has_no_recompute_sync_or_wide_snap | landing (1b/1c) |
-| No clipped onsets (≥ 80 ms genuine lead-in) | G17a on prepared clips; G16 file-head pad rule | T pulse_20261110: D1 hook (60 ms genuine lead-in) | landing (1b/1c) |
-| No clipped tails (≥ 80 ms genuine tail) | G17a tail | T: D3c control (clean tail passes) | landing (1b/1c) |
-| Edge words keep ≥ 85 % in the render | G17b on both finals | T: TestG17bRenderedEdges (muted onset fails, 20 ms fade passes) | landing (1b/1c) |
-| Round credit avatars of the channels actually used | G12 (count), G15 (ring aspect, continuity), R6 (credits == EDL channels, unique avatar hashes), shoutout.validate_avatar + registry-only avatars | T: TestD4Credits (yesterday's card fails G12/G15; thumbnail refused; v2f passes) | landing (1e) |
+| Clip starts on the first word of a sentence | G16 SENTENCE_BOUNDARY IN edge (pipeline/sentence_law.py gate_g16, pre-render stage `sentence_law` + final gate row) | T pulse_20261110: D3a clip_01 '81', D3b clip_02 'days' | enforced (99add647) |
+| Clip ends on the last word of a sentence | G16 OUT edge | T pulse_20261110: D2 clip_01 runs into "All right…" | enforced (99add647) |
+| Expected words fixed at selection, never recomputed | G16 selection-lock check (sha-sealed lock in edl.json vs cuts_final expected words) | T pulse_20261110: TestTautology | enforced (99add647) |
+| A sentence boundary needs evidence: punctuation from the audio, never a model's opinion of one gap | sentence_law.boundary (an unpunctuated stretch has no boundary, fail closed); pipeline/punctuation.py (marks from a second, prompted ASR decode of the same audio onto aligned verbatim words) | T pulse_20261110: TestUnpunctuatedTranscript (the 19/19 'sentence ends' of the removed adjudicator, 'the | Wolf' etc., are rejected), TestPunctuationLayer | enforced (1b fix) |
+| A cut never adds/drops a word; snapping only inside the gap | sentence_law.write_lock_cut_table (cuts placed only in the locked pauses ∩ unchanged cut_accept); ±2 s snap + recompute removed | T: test_run_fresh_has_no_recompute_sync_or_wide_snap | enforced (99add647) |
+| No clipped onsets (≥ 80 ms genuine lead-in) | G17a on prepared clips; G16 file-head pad rule | T pulse_20261110: D1 hook (60 ms genuine lead-in) | enforced (99add647) |
+| No clipped tails (≥ 80 ms genuine tail) | G17a tail | T: D3c control (clean tail passes) | enforced (99add647) |
+| Edge words keep ≥ 85 % in the render | G17b on both finals | T: TestG17bRenderedEdges (muted onset fails, 20 ms fade passes) | enforced (99add647) |
+| Round credit avatars of the channels actually used | G12 (count), G15 (ring aspect, continuity), R6 (credits == EDL channels, unique avatar hashes), shoutout.validate_avatar + registry-only avatars | T: TestD4Credits (yesterday's card fails G12/G15; thumbnail refused; v2f passes) | enforced (3641440f) |
 | On-brand transitions between channels only | — | — | **UNENFORCED** (Phase 3) |
 | Speaker-centred vertical; safe frame only for screen / unidentifiable speaker, flagged | — | — | **UNENFORCED** (Phase 2) |
 | Sparse VO with 1 s lead-in | G6 pre-roll (onset ≥ 0.95 s), R4 VO ≤ 25 %, M20 editorial gate | existing tests (test_round2_mustfail, test_editorial_gate) | enforced (pre-existing) |
@@ -69,6 +70,7 @@ Evidence: docs/audits/pulse-sentence-law/dec1_calibration/HEIMDALL_RUN_FRESH_RES
 
 ## Findings recorded so far (evidence, 2026-11-11)
 
+- **The 1b per-gap model adjudicator was a rubber stamp** (found 2026-11-11 while enumerating the Nov 10 recut windows): gemma3:27b called 19 of 19 Yahoo Finance gaps sentence ends ('the | Wolf', 'of | all', 'is | up'), each with a real 90-770 ms pause, so G16 would have passed mid-sentence cuts in any unpunctuated source. Removed; punctuation now comes from the ASR (E-FAIL-013). With it, Yahoo's window has exactly two cuttable sentence ends ('hack.' 770 ms, 'times.' 350 ms), and the Nov 10 clip_02 start ('of course' | 'of course') is not a sentence start at all.
 - D3's third edge (clip_02 out 34.36) is **not** a defect: pause 34.08-34.43 (75 dB deep), the 'I' onset
   is at 34.44; whisper on the prepared clip ends "...many times." The transcript word 'i' 33.92-34.46 is
   a whisper timestamp error. 4 of 6 edges broke the sentence law, not 5.

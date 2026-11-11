@@ -1,0 +1,116 @@
+{
+ "question": "Sentence-law fix. The per-gap local-model adjudicator for unpunctuated transcripts was found to be a rubber stamp (gemma3:27b called 19 of 19 Yahoo Finance gaps sentence ends, including 'the | Wolf', 'of | all', 'is | up'). It is removed: sentence_law.boundary now returns invalid for any gap in an unpunctuated stretch (fail closed), and the adj parameter is gone from boundary, edge_plan, write_lock_cut_table, gate_g16 and their callers. Punctuation now comes from the ASR: select_passages._whisper_transcribe keeps the verbatim decode's words and, only where the transcript is unpunctuated, runs pipeline/punctuation.ensure, which decodes the same audio again with a neutral punctuated initial_prompt and copies trailing punctuation onto verbatim words in difflib equal blocks only (word keys asserted unchanged). Verify from the diff: (1) no path lets a gap without terminal punctuation become a sentence boundary; (2) transfer can never change, add or drop a word, and never puts a mark on a word the two decodes disagree on; (3) cached transcripts are re-punctuated or returned unchanged correctly; (4) no caller still passes the removed argument; (5) the must-fail tests (D3b's new reason, the rejected false ends, the reproduced fixture) are meaningful, not vacuous. Only state what you can verify; if uncertain, say so. (this chunk: pipeline/punctuation.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 265.7,
+   "cost": 0.003140176,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 125.0,
+   "cost": 0.0041262643,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 654.4,
+   "cost": 0.00207514,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 189.0,
+   "cost": 0.001754228,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 9.5,
+   "cost": 0.0006216895,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 13.6,
+   "cost": 0.000134168,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/punctuation.py",
+   "line": 63,
+   "issue": "Hardcoded model name in metadata does not reflect the actual model passed to reference_decode. If a caller passes a model other than 'large-v3', the recorded metadata will be incorrect.",
+   "evidence": "\"model\": \"large-v3\", \"prompt\": PROMPT, \"marks_transferred\": moved,",
+   "fix": "Capture the model identifier from the `model` parameter (e.g., `getattr(model, 'model_size', 'unknown')` or pass the name explicitly) and use it in the metadata dict instead of the literal string.",
+   "agree": [
+    "deepseek",
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "medium",
+   "file": "pipeline/punctuation.py",
+   "line": 57,
+   "issue": "Failed punctuation attempts are cached as successful, preventing re-punctuation.",
+   "evidence": "ensure() returns early whenever record.get('punctuation') is truthy, but it sets punctuation metadata even when still_unpunctuated is True (line 64). A later call will therefore return the still-unpunctuated record unchanged instead of retrying or rejecting it.",
+   "fix": "Only return early if punctuation exists and not record['punctuation'].get('still_unpunctuated'); or do not set the punctuation key when still_unpunctuated is True."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/punctuation.py",
+   "line": 52,
+   "issue": "reference_decode hardcodes language=\"en\" while the verbatim decode's language is not shown here; a non-English transcript would get an English-prompted reference decode and likely few matching blocks (harmless \u2014 transfer just moves 0 marks and still_unpunctuated stays true, failing closed).",
+   "evidence": "segs, _ = model.transcribe(source_path, language=\"en\", beam_size=5, ...)",
+   "fix": "Pass the verbatim decode's language (or detected language) through to reference_decode, or document the English-only assumption."
+  },
+  {
+   "by": "glm",
+   "severity": "info",
+   "file": "pipeline/punctuation.py",
+   "line": 63,
+   "issue": "ensure() records still_unpunctuated in metadata but does not itself fail when restoration is incomplete; the fail-closed behavior presumably lives in sentence_law.boundary (not in this chunk), so I cannot verify from this diff that an unpunctuated gap after transfer is actually rejected rather than silently treated as a boundary.",
+   "evidence": "\"still_unpunctuated\": needs_restoration(words) \u2014 recorded, never acted on here",
+   "fix": "Confirm in the sentence_law.boundary diff that is_punctuated gates every boundary; if so, no change needed."
+  }
+ ],
+ "total_cost": 0.0118516658,
+ "out_dir": "docs/audits/pulse-sentence-law/1b_fix_punctuation/heimdall/pipeline_punctuation_py"
+}

@@ -1,0 +1,43 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 179e56a7..5265476b 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -379,11 +379,7 @@ def stage_cut(run):
+         from pinned import write_pinned_cut_table
+         write_pinned_cut_table(run.dir)
+     else:
+-        adj = L.Adjudicator()
+-        try:
+-            L.write_lock_cut_table(run.dir, adj)
+-        finally:
+-            adj.close()
++        L.write_lock_cut_table(run.dir)
+     with open(os.path.join(run.dir, "cuts_final.json")) as f:
+         cuts = json.load(f)
+     report, fails = [], []
+@@ -419,11 +415,7 @@ def stage_cut(run):
+ def stage_sentence_law(run):
+     """G16 SENTENCE_BOUNDARY before anything is rendered: every cut holds exactly its locked
+     sentence(s), both edges are legal sentence boundaries and the cuts sit inside those pauses."""
+-    adj = L.Adjudicator()
+-    try:
+-        ok, table = L.gate_g16(run.dir, adj)
+-    finally:
+-        adj.close()
++    ok, table = L.gate_g16(run.dir)
+     run.prov["G16_pre_render"] = table
+     jdump(os.path.join(run.dir, "SENTENCE_LAW.json"), {"pass": ok, "segments": table})
+     for r in table:
+@@ -695,11 +687,7 @@ def stage_gates(run, final16, man16, final9, man9):
+         rows[fmt].update(tail_rows(res["G9_tail"]["pass"], fallback))
+ 
+     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
+-    adj = L.Adjudicator()
+-    try:
+-        g16_ok, g16 = L.gate_g16(run.dir, adj)
+-    finally:
+-        adj.close()
++    g16_ok, g16 = L.gate_g16(run.dir)
+     for fmt in ("16x9", "9x16"):
+         rows[fmt]["G16_sentence_boundary"] = _status(g16_ok)
+ 

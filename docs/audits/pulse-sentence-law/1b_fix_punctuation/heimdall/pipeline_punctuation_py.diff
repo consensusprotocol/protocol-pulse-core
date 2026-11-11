@@ -1,0 +1,70 @@
+diff --git a/pipeline/punctuation.py b/pipeline/punctuation.py
+new file mode 100644
+index 00000000..6166ef14
+--- /dev/null
++++ b/pipeline/punctuation.py
+@@ -0,0 +1,64 @@
++#!/usr/bin/env python3
++"""pipeline/punctuation.py — sentence punctuation for VERBATIM transcripts (sentence law, 2026-11-11).
++
++Whisper sometimes decodes a whole window without punctuation (Yahoo Finance, Nov 10: 140 lowercase words,
++no mark). The sentence law needs to know where sentences end. The verbatim decode's WORDS stay exactly
++as they are (selection locks, edge-word timings and G18 need every spoken word; a prompted decode drops
++disfluent repetitions such as Yahoo's "of course of course"). Only punctuation is taken from a second
++decode of the same audio steered by a neutral punctuated prompt, and only onto words both decodes agree
++on (difflib alignment of normalised word keys). Words the decodes disagree on get no punctuation, so no
++sentence boundary can come from them (fail closed: the window is rejected, the next-ranked one is tried).
++
++Replaces the per-gap language-model adjudicator, which called 19 of 19 Yahoo gaps sentence ends,
++'the | Wolf' and 'of | all' included (E-FAIL-013).
++"""
++import difflib
++import re
++
++import sentence_law as L
++
++PROMPT = "Hello, and welcome. Here is the next part of the conversation."
++TRAIL = re.compile(r"[.,!?;:]+$")
++
++
++def _key(word):
++    return re.sub(r"[^a-z0-9']", "", (word or "").lower().replace("’", "'"))
++
++
++def needs_restoration(words):
++    """True when any word sits in a stretch the sentence law reads as unpunctuated."""
++    return any(not L.is_punctuated(words, k) for k in range(len(words)))
++
++
++def transfer(words, ref):
++    """Copy each reference word's trailing punctuation onto the aligned verbatim word (equal blocks
++    only; a verbatim word keeps its own punctuation). Returns (new words, marks moved)."""
++    a, b = [_key(w["word"]) for w in words], [_key(w["word"]) for w in ref]
++    out, moved = [dict(w) for w in words], 0
++    for blk in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
++        for j in range(blk.size):
++            w, r = out[blk.a + j], ref[blk.b + j]
++            m = TRAIL.search(r["word"].strip())
++            if a[blk.a + j] and m and not TRAIL.search(w["word"].strip()):
++                w["word"] = w["word"].strip() + m.group(0)
++                moved += 1
++    return out, moved
++
++
++def reference_decode(source_path, model):
++    """The punctuation reference: the same ASR settings as the verbatim decode, plus PROMPT."""
++    segs, _ = model.transcribe(source_path, language="en", beam_size=5, word_timestamps=True,
++                               vad_filter=False, initial_prompt=PROMPT)
++    return [{"word": w.word.strip()} for s in segs for w in (s.words or [])]
++
++
++def ensure(record, source_path, model):
++    """The transcript record with sentence punctuation. Verbatim word keys never change."""
++    if record.get("punctuation") or not needs_restoration(record["words"]):
++        return record
++    ref = reference_decode(source_path, model)
++    words, moved = transfer(record["words"], ref)
++    assert [_key(w["word"]) for w in words] == [_key(w["word"]) for w in record["words"]]
++    return dict(record, words=words, punctuation={
++        "source": "asr_reference", "model": "large-v3", "prompt": PROMPT, "marks_transferred": moved,
++        "still_unpunctuated": needs_restoration(words), "reference_text": " ".join(w["word"] for w in ref)})

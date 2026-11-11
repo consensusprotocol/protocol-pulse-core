@@ -69,38 +69,44 @@ def _download_window(video_id, start_s, end_s, run_dir, pad=15.0):
 
 
 def _whisper_transcribe(source_path, video_id, run_dir):
-    """Run faster-whisper on a source file for word-level timestamps.
+    """Run faster-whisper on a source file for word-level timestamps (verbatim decode). Where that
+    decode has no punctuation, sentence punctuation is added from a prompted reference decode of the
+    same audio, onto aligned words only (pipeline/punctuation.py; the words never change).
 
     Returns dict with 'words' list or None on failure.
     """
+    import punctuation
     transcript_path = os.path.join(run_dir, "transcripts", f"{video_id}.json")
-    if os.path.exists(transcript_path):
-        with open(transcript_path) as f:
-            return json.load(f)
-
     os.makedirs(os.path.join(run_dir, "transcripts"), exist_ok=True)
 
     try:
+        result = None
+        if os.path.exists(transcript_path):
+            with open(transcript_path) as f:
+                result = json.load(f)
+            if result.get("punctuation") or not punctuation.needs_restoration(result.get("words", [])):
+                return result
+
         from faster_whisper import WhisperModel
         model = WhisperModel("large-v3", device="cuda", compute_type="float16")
-        segments, info = model.transcribe(
-            source_path, language="en", beam_size=5,
-            word_timestamps=True, vad_filter=False,
-        )
-
-        words = []
-        for seg in segments:
-            if seg.words:
-                for w in seg.words:
-                    words.append({
-                        "word": w.word.strip(),
-                        "start": round(w.start, 3),
-                        "end": round(w.end, 3),
-                        "probability": round(w.probability, 3),
-                    })
-
-        result = {"words": words, "language": info.language,
-                  "duration": info.duration}
+        if result is None:
+            segments, info = model.transcribe(
+                source_path, language="en", beam_size=5,
+                word_timestamps=True, vad_filter=False,
+            )
+            words = []
+            for seg in segments:
+                if seg.words:
+                    for w in seg.words:
+                        words.append({
+                            "word": w.word.strip(),
+                            "start": round(w.start, 3),
+                            "end": round(w.end, 3),
+                            "probability": round(w.probability, 3),
+                        })
+            result = {"words": words, "language": info.language,
+                      "duration": info.duration}
+        result = punctuation.ensure(result, source_path, model, model_name="large-v3")
         with open(transcript_path, "w") as f:
             json.dump(result, f, indent=2)
         return result
@@ -224,7 +230,6 @@ def select_and_build_edl(keyword, niche, run_dir):
     # cuttable sentence boundaries in this file's audio. Nothing is ever picked by nearest word.
     channels_used = set()
     boundary_report = []
-    adj = L.Adjudicator()
 
     def _build_segment(passage, label):
         vid = passage["video_id"]
@@ -242,7 +247,7 @@ def select_and_build_edl(keyword, niche, run_dir):
         i0, i1, ratio = a
         lock = L.make_lock(vid, words, i0, i1, L.sha256_file(tpath), passage["text"],
                            [passage["start"], passage["end"]], ratio, "select_passages")
-        plan = L.edge_plan(L.SourceAudio(sources[vid]), words, i0, i1, adj, context=f"select {label}")
+        plan = L.edge_plan(L.SourceAudio(sources[vid]), words, i0, i1)
         rec.update(locked=f"'{lock['first_word']}' ... '{lock['last_word']}'", align_ratio=ratio,
                    **{f"{s}_edge": {k: plan[s].get(k) for k in ("valid", "cuttable", "pause", "lexical", "reason",
                                                                  "cut_lo", "cut_hi", "lead_in_pad_s")}
@@ -356,7 +361,6 @@ def select_and_build_edl(keyword, niche, run_dir):
                     seg["index"] = len(clip_segs) + 1
                     clip_segs.append(seg)
     finally:
-        adj.close()
         with open(os.path.join(run_dir, "SELECT_BOUNDARIES.json"), "w") as f:
             json.dump(boundary_report, f, indent=2)
     for r in boundary_report:
