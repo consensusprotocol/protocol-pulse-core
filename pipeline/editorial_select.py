@@ -54,6 +54,9 @@ HOOK_MIN_SCORE, CLIP_MIN_SCORE = 4.0, 3.5
 N_CLIPS = 3                        # v2f format: hook + 3 clips
 MAX_VERIFIED_QUOTES_PER_VIDEO = 2  # D2 (PBX 2026-11-09): up to two verified windows per source video
 DEDUPE_SIM = 0.88
+CLUSTER_HOURS = (48, UNIVERSE_HOURS)   # DEC-13 a: clusters whose >= 2 channels speak within 48 h first, then 72 h max
+TIERS = tuple(f"{h}h" for h in CLUSTER_HOURS)
+BITCOIN_TERMS = re.compile(r"\b(bitcoins?|btcs?)\b", re.I)   # DEC-13 c: the free Bitcoin screen, before any model call
 V2F_VIDEO_IDS = {"RBFN4CB60To", "Pxrak-iMT0g", "QCgW8RlTu5Q"}
 
 
@@ -676,188 +679,237 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
                                                            s.get("freshness_minutes"))})
     emergent = []
     rec["emergent_clusters"] = emergent
-    for gi, g in enumerate(sm.emergent_clusters(chunks, vecs)):
-        lab = sm.label_cluster(L, chunks, vecs, g, today)
-        ages = [chunks[i]["age_h"] for i in g["chunk_idx"]]
-        entry = {"channels": g["channels"], "n_chunks": len(g["chunk_idx"]), "label": lab}
-        if not lab.get("current_ok"):
-            entry["rejected"] = ("no verified current-development evidence"
-                                 if lab.get("is_specific_event") else
-                                 lab.get("error") or "not a specific current event")
-        else:
-            cdq = lab.get("current_development_chunk_id")
-            entry["current_development_evidence"] = {
-                "chunk_id": cdq, "quote": lab.get("current_development_quote"),
-                "channel": by_chunk.get(cdq, {}).get("channel_name"),
-                "canonical_url": by_chunk.get(cdq, {}).get("canonical_url")}
-            cands.append({"origin": "transcript_cluster", "headline": lab["headline"],
-                          "summary": lab.get("summary", ""), "source_domain": "transcript cluster",
-                          "cluster_channels": g["channels"], "cluster_chunk_ids": lab.get("excerpt_chunk_ids"),
-                          "current_development_evidence": entry["current_development_evidence"],
-                          "age_h": min(ages) if ages else None,
-                          # D1: upload time of the video holding the verified current-development quote
-                          "source_published": by_chunk.get(cdq, {}).get("published_at")})
-        emergent.append(entry)
-        ck("emergent", cluster=gi)
-    log(f"  candidates: {len(cands)} ({sum(c['origin'] == 'transcript_cluster' for c in cands)} emergent, "
-        f"{sum(1 for e in emergent if e.get('rejected'))} emergent clusters rejected)")
+    groups = sm.emergent_clusters(chunks, vecs, min_channels=MIN_COVERAGE_CHANNELS, max_clusters=None)
+    for g in groups:
+        emergent.append(cluster_entry(chunks, vecs, g))   # DEC-13 c / d: screened before any model call
+        if emergent[-1]["screen"] not in TIERS:
+            emergent[-1]["gate"] = emergent[-1]["screen"]
+    log(f"  clusters: {len(groups)} with >= {MIN_COVERAGE_CHANNELS} channels; Bitcoin screen: "
+        + ", ".join(f"{sum(e['screen'] == t for e in emergent)} {t}" for t in TIERS)
+        + f", {sum(e['screen'] not in TIERS for e in emergent)} stopped (no model call)")
 
-    # 4. STORY IMPORTANCE (+ E1 currentness gate)
-    for ci, c in enumerate(cands[:MAX_CANDIDATES + len(emergent)]):
-        try:
-            q = sm.derive_story_query(L, c, today)
-        except sm.LLMParseError as e:
-            c["importance_gate"] = ["inconclusive: story-query derivation failed (LLM output unparseable)"]
-            c["llm_error"] = {"error": str(e), "llm_attempts": e.attempts}
-            ck("derive", candidate=ci, of=len(cands))
+    def label_clusters(tier):
+        """DEC-13 a: the candidates of one recency tier; model calls start here (label + verified quote)."""
+        out = []
+        for gi, (g, entry) in enumerate(zip(groups, emergent)):
+            if entry["screen"] != tier:
+                continue
+            lab = sm.label_cluster(L, chunks, vecs, g, today)
+            ages = [chunks[i]["age_h"] for i in g["chunk_idx"]]
+            entry.update(label=lab, claim=lab.get("headline"))
+            if not lab.get("current_ok"):
+                entry["rejected"] = ("no verified current-development evidence"
+                                     if lab.get("is_specific_event") else
+                                     lab.get("error") or "not a specific current event")
+                entry["gate"] = f"label: {entry['rejected']}"
+            else:
+                cdq = lab.get("current_development_chunk_id")
+                entry["current_development_evidence"] = {
+                    "chunk_id": cdq, "quote": lab.get("current_development_quote"),
+                    "channel": by_chunk.get(cdq, {}).get("channel_name"),
+                    "canonical_url": by_chunk.get(cdq, {}).get("canonical_url")}
+                out.append({"origin": "transcript_cluster", "headline": lab["headline"],
+                            "summary": lab.get("summary", ""), "source_domain": "transcript cluster",
+                            "cluster_channels": g["channels"], "cluster_chunk_ids": lab.get("excerpt_chunk_ids"),
+                            "cluster_index": gi, "cluster_tier": tier,
+                            "cluster_member_chunk_ids": entry["member_chunk_ids"],
+                            "current_development_evidence": entry["current_development_evidence"],
+                            "age_h": min(ages) if ages else None,
+                            # D1: upload time of the video holding the verified current-development quote
+                            "source_published": by_chunk.get(cdq, {}).get("published_at")})
+                cands.append(out[-1])                    # in the record at once (forensic checkpoints)
+            ck("emergent", tier=tier, cluster=gi)
+        log(f"  {tier} clusters: {sum(e['screen'] == tier for e in emergent)} labelled, {len(out)} candidate(s)")
+        return out
+
+    def evaluate(pname, pool):
+        """Steps 4-7 on one pool of candidates; returns the pool's evaluation order (merged candidates included)."""
+        # 4. STORY IMPORTANCE (+ E1 currentness gate)
+        for ci, c in enumerate(pool):
+            try:
+                q = sm.derive_story_query(L, c, today)
+            except sm.LLMParseError as e:
+                c["importance_gate"] = ["inconclusive: story-query derivation failed (LLM output unparseable)"]
+                c["llm_error"] = {"error": str(e), "llm_attempts": e.attempts}
+                ck("derive", pool=pname, candidate=ci, of=len(pool))
+                continue
+            c["query"] = q
+            imp = {"llm_importance": q.get("importance"), "llm_bitcoin_relevance": q.get("bitcoin_relevance"),
+                   "is_specific_event": q.get("is_specific_event"), "model_event_date": q.get("event_date"),
+                   "model_event_recency": q.get("event_recency"), "recency": _recency(c.get("age_h")),
+                   "engine_score": c.get("engine_score"),
+                   "engine_score_note": rec["story_engine"]["llm_legs"] if c["origin"] == "story_engine" else None}
+            try:
+                imp["importance_score"] = round(0.45 * float(q.get("importance", 0)) / 5 +
+                                                0.35 * float(q.get("bitcoin_relevance", 0)) / 5 +
+                                                0.20 * imp["recency"], 3)
+            except Exception:
+                imp["importance_score"] = 0.0
+            c["importance"] = imp
+            gate = []
+            if (q.get("bitcoin_relevance") or 0) < BTC_RELEVANCE_MIN:
+                gate.append(f"bitcoin_relevance {q.get('bitcoin_relevance')} < {BTC_RELEVANCE_MIN}")
+            if not q.get("is_specific_event", True):
+                gate.append("not a specific event")
+            # D1: publish metadata dates the event; the model date is a tiebreaker only without it
+            g = sm.grounded_event_date(q, _parse_ts(c.get("source_published")), now, UNIVERSE_HOURS)
+            c["event_date_grounding"] = g
+            if g["model_date_discarded"]:
+                log(f"  D1/E9 model date discarded ({g['model_date']['status']}): {c['headline'][:70]}")
+            if g["stale"]:
+                gate.append(g["stale_reason"])
+            c["importance_gate"] = gate
+            ck("derive", pool=pname, candidate=ci, of=len(pool))
+        live = [c for c in pool if "query" in c and not c["importance_gate"]]
+        if live:
+            ev = E.encode([c["query"].get("underlying_event", c["headline"]) for c in live])
+            for i, c in enumerate(live):
+                for j in range(i):
+                    if not live[j].get("merged_into") and float(ev[i] @ ev[j]) >= DEDUPE_SIM:
+                        keep, drop = (live[j], c) if live[j]["importance"]["importance_score"] >= \
+                            c["importance"]["importance_score"] else (c, live[j])
+                        drop["merged_into"] = keep["headline"]
+        order = sorted([c for c in live if not c.get("merged_into")],
+                       key=lambda c: -c["importance"]["importance_score"])
+        rec.setdefault("evaluation_order", []).extend(c["headline"] for c in order)
+        ck("importance")
+
+        # 5. CROSS-SOURCE COVERAGE (all candidates first)
+        for oi, c in enumerate(order):
+            q = c["query"]
+            qv = E.encode(sm.query_texts(q), query=True)
+            sims = (vecs @ qv.T).max(axis=1) if len(chunks) else np.zeros(0)
+            pats = sm.alias_patterns(q)
+            members = set(c.get("cluster_member_chunk_ids") or ())   # DEC-13 a: a cluster's evidence = its statements
+            per_vid = {}
+            for i, ch in enumerate(chunks):
+                if members and ch["chunk_id"] not in members:
+                    continue
+                hits = sum(1 for p in pats if p.search(ch["text"]))
+                if members or sims[i] >= RETRIEVAL_MIN_SIM or hits >= 2:
+                    per_vid.setdefault(ch["video_id"], []).append((float(sims[i]) + 0.03 * min(hits, 3), i))
+            ranked_v = sorted(per_vid.items(), key=lambda kv: -max(s for s, _ in kv[1]))
+            picked, seen_ch = [], set()
+            for vid, lst in ranked_v:                       # channel diversity first
+                ch0 = chunks[lst[0][1]]["channel_id"]
+                if ch0 not in seen_ch:
+                    picked.append((vid, lst))
+                    seen_ch.add(ch0)
+            for vid, lst in ranked_v:
+                if len(picked) >= MAX_ADJUDICATE_PER_STORY:
+                    break
+                if (vid, lst) not in picked:
+                    picked.append((vid, lst))
+            picked = picked[:MAX_ADJUDICATE_PER_STORY]
+            verdicts = []
+            c["coverage"] = {"videos_evaluated": 0, "verdicts": verdicts, "status": "in_progress"}
+            for vi, (vid, lst) in enumerate(picked):
+                idx = [i for _, i in sorted(lst, reverse=True)[:4]]
+                ex = [chunks[i] for i in sorted(idx, key=lambda i: chunks[i]["start"])]
+                u = next(x for x in uni if x["video_id"] == vid)
+                v = sm.adjudicate(L, q, {"title": u["title"], "channel": u["channel"],
+                                         "published_at": u["published_at"]}, ex, today=today)
+                v.update(video_id=vid, canonical_url=u["canonical_url"], channel=u["channel"],
+                         channel_id=u["channel_id"], title=u["title"], published_at=u["published_at"],
+                         layout_eligible=u["layout_eligible"], transcript_sha256=u["transcript_sha256"],
+                         transcript_method=u["transcript_method"],
+                         excerpts=[{"chunk_id": x["chunk_id"], "start": x["start"], "end": x["end"],
+                                    "text": x["text"]} for x in ex],
+                         retrieval_score=round(max(s for s, _ in lst), 3))
+                verdicts.append(v)
+                c["coverage"]["videos_evaluated"] = len(verdicts)
+                ck("adjudicate", candidate=oi, of=len(order), video=vi, of_videos=len(picked))
+            _decide_coverage(c, verdicts, by_cid, log)
+            ck("coverage", candidate=oi, of=len(order))
+
+        # 5b. SAME-EVENT MERGE (mission 4b): candidates resting on the same counted passage are one event
+        for group in _same_event_groups(order):
+            merged = _merge_event([order[i] for i in group], L, uni, by_cid, today, log)
+            cands.append(merged)
+            order.append(merged)
+            ck("merge", members=len(group), decision=merged["decision"])
+
+        # 5c. DEC-9: an event already delivered to the approval chat is never selected again (same identity)
+        import story_ledger
+        ledger = story_ledger.entries()
+        excluded = []
+        for c in order:
+            hit = story_ledger.delivered_match(c, ledger) if c.get("decision") == "coverage_qualified" else None
+            if hit:
+                c["decision"] = f"already delivered (story ledger: {hit['run']}, '{hit['headline'][:60]}')"
+                excluded.append({"headline": c["headline"], "ledger_run": hit["run"]})
+        rec.setdefault("story_ledger", {"entries": len(ledger), "excluded": []})["excluded"] += excluded
+
+        # 6. E5: one GPU0 swap -> word-level transcripts for every coverage-qualified candidate
+        qualified = [c for c in order if c.get("decision") == "coverage_qualified"]
+        need = {}
+        for c in qualified:
+            for v in c["coverage"]["verdicts"]:
+                if v["counted_as_same_event"] and v["layout_eligible"]:
+                    need[v["video_id"]] = v["channel_id"]
+        words, arb = {}, {"videos": sorted(need)}
+        rec.setdefault("gpu_arbitration", {})[pname] = arb
+        todo = [vid for vid in need if not ts.sentence_ready(ts.canonical_transcript(vid))]
+        for vid in need:
+            if vid not in todo:
+                words[vid] = (ts.canonical_transcript(vid), "cached")
+        if todo:
+            try:
+                arb["release"] = sm.release_gpu0_for_whisper(L, log=log)
+            except RuntimeError as e:
+                arb["release_error"] = str(e)
+                for vid in todo:
+                    words[vid] = (None, f"infra: {e}")
+            else:
+                for vid in todo:
+                    r, st = ts.acquire(vid, channel=by_cid[need[vid]], allow_whisper=True, prefer_words=True)
+                    err = ts.LAST_ERROR.get(vid, "")
+                    if r is None or not ts.sentence_ready(r):
+                        words[vid] = (None, f"infra: {err}" if _infra_error(err) else f"failed: {st} {err}")
+                    else:
+                        words[vid] = (r, st)
+                    ck("word_transcripts", video=vid)
+                ts.release_whisper()
+                arb["after_whisper"] = sm.gpu0_memory()
+        arb["results"] = {vid: st for vid, (r, st) in words.items()}
+        ck("word_transcripts_done")
+
+        # 7. CLIP QUALITY
+        for oi, c in enumerate(qualified):
+            cq = _clip_quality(c, [v for v in c["coverage"]["verdicts"] if v["counted_as_same_event"]],
+                               E, L, by_cid, words, log, today=today)
+            c["clip_quality"] = cq
+            c["decision"] = "producible" if cq["producible"] else (
+                ("INFRA_HOLD: " if cq.get("infra") else "rejected: ") + cq["reason"])
+            ck("clip_quality", candidate=oi, of=len(qualified))
+
+        return order
+
+    # DEC-13 a: candidates come from the channels' own conversation first; wire / story-engine headlines are
+    # evaluated only after every channel cluster is exhausted (none producible)
+    pools = [(f"channel_clusters_{t}", lambda t=t: label_clusters(t)) for t in TIERS] + [
+        ("wire_headlines", lambda: [c for c in cands if c["origin"] == "story_engine"][:MAX_CANDIDATES])]
+    rec["pools"], order = [], []
+    for pname, make in pools:
+        done = next((p["pool"] for p in rec["pools"] if p.get("producible")), None)
+        if done:
+            why = f"not evaluated: the {done} pool produced a story (DEC-13 a)"
+            for e in emergent:
+                if pname.endswith(e["screen"]):
+                    e["gate"] = why
+            for c in (cands if pname == "wire_headlines" else []):
+                if c["origin"] == "story_engine":
+                    c["decision"] = why
+            rec["pools"].append({"pool": pname, "evaluated": False})
             continue
-        c["query"] = q
-        imp = {"llm_importance": q.get("importance"), "llm_bitcoin_relevance": q.get("bitcoin_relevance"),
-               "is_specific_event": q.get("is_specific_event"), "model_event_date": q.get("event_date"),
-               "model_event_recency": q.get("event_recency"), "recency": _recency(c.get("age_h")),
-               "engine_score": c.get("engine_score"),
-               "engine_score_note": rec["story_engine"]["llm_legs"] if c["origin"] == "story_engine" else None}
-        try:
-            imp["importance_score"] = round(0.45 * float(q.get("importance", 0)) / 5 +
-                                            0.35 * float(q.get("bitcoin_relevance", 0)) / 5 +
-                                            0.20 * imp["recency"], 3)
-        except Exception:
-            imp["importance_score"] = 0.0
-        c["importance"] = imp
-        gate = []
-        if (q.get("bitcoin_relevance") or 0) < BTC_RELEVANCE_MIN:
-            gate.append(f"bitcoin_relevance {q.get('bitcoin_relevance')} < {BTC_RELEVANCE_MIN}")
-        if not q.get("is_specific_event", True):
-            gate.append("not a specific event")
-        # D1: publish metadata dates the event; the model date is a tiebreaker only without it
-        g = sm.grounded_event_date(q, _parse_ts(c.get("source_published")), now, UNIVERSE_HOURS)
-        c["event_date_grounding"] = g
-        if g["model_date_discarded"]:
-            log(f"  D1/E9 model date discarded ({g['model_date']['status']}): {c['headline'][:70]}")
-        if g["stale"]:
-            gate.append(g["stale_reason"])
-        c["importance_gate"] = gate
-        ck("derive", candidate=ci, of=len(cands))
-    live = [c for c in cands if "query" in c and not c["importance_gate"]]
-    if live:
-        ev = E.encode([c["query"].get("underlying_event", c["headline"]) for c in live])
-        for i, c in enumerate(live):
-            for j in range(i):
-                if not live[j].get("merged_into") and float(ev[i] @ ev[j]) >= DEDUPE_SIM:
-                    keep, drop = (live[j], c) if live[j]["importance"]["importance_score"] >= \
-                        c["importance"]["importance_score"] else (c, live[j])
-                    drop["merged_into"] = keep["headline"]
-    order = sorted([c for c in live if not c.get("merged_into")],
-                   key=lambda c: -c["importance"]["importance_score"])
-    rec["evaluation_order"] = [c["headline"] for c in order]
-    ck("importance")
-
-    # 5. CROSS-SOURCE COVERAGE (all candidates first)
-    for oi, c in enumerate(order):
-        q = c["query"]
-        qv = E.encode(sm.query_texts(q), query=True)
-        sims = (vecs @ qv.T).max(axis=1) if len(chunks) else np.zeros(0)
-        pats = sm.alias_patterns(q)
-        per_vid = {}
-        for i, ch in enumerate(chunks):
-            hits = sum(1 for p in pats if p.search(ch["text"]))
-            if sims[i] >= RETRIEVAL_MIN_SIM or hits >= 2:
-                per_vid.setdefault(ch["video_id"], []).append((float(sims[i]) + 0.03 * min(hits, 3), i))
-        ranked_v = sorted(per_vid.items(), key=lambda kv: -max(s for s, _ in kv[1]))
-        picked, seen_ch = [], set()
-        for vid, lst in ranked_v:                       # channel diversity first
-            ch0 = chunks[lst[0][1]]["channel_id"]
-            if ch0 not in seen_ch:
-                picked.append((vid, lst))
-                seen_ch.add(ch0)
-        for vid, lst in ranked_v:
-            if len(picked) >= MAX_ADJUDICATE_PER_STORY:
-                break
-            if (vid, lst) not in picked:
-                picked.append((vid, lst))
-        picked = picked[:MAX_ADJUDICATE_PER_STORY]
-        verdicts = []
-        c["coverage"] = {"videos_evaluated": 0, "verdicts": verdicts, "status": "in_progress"}
-        for vi, (vid, lst) in enumerate(picked):
-            idx = [i for _, i in sorted(lst, reverse=True)[:4]]
-            ex = [chunks[i] for i in sorted(idx, key=lambda i: chunks[i]["start"])]
-            u = next(x for x in uni if x["video_id"] == vid)
-            v = sm.adjudicate(L, q, {"title": u["title"], "channel": u["channel"],
-                                     "published_at": u["published_at"]}, ex, today=today)
-            v.update(video_id=vid, canonical_url=u["canonical_url"], channel=u["channel"],
-                     channel_id=u["channel_id"], title=u["title"], published_at=u["published_at"],
-                     layout_eligible=u["layout_eligible"], transcript_sha256=u["transcript_sha256"],
-                     transcript_method=u["transcript_method"],
-                     excerpts=[{"chunk_id": x["chunk_id"], "start": x["start"], "end": x["end"],
-                                "text": x["text"]} for x in ex],
-                     retrieval_score=round(max(s for s, _ in lst), 3))
-            verdicts.append(v)
-            c["coverage"]["videos_evaluated"] = len(verdicts)
-            ck("adjudicate", candidate=oi, of=len(order), video=vi, of_videos=len(picked))
-        _decide_coverage(c, verdicts, by_cid, log)
-        ck("coverage", candidate=oi, of=len(order))
-
-    # 5b. SAME-EVENT MERGE (mission 4b): candidates resting on the same counted passage are one event
-    for group in _same_event_groups(order):
-        merged = _merge_event([order[i] for i in group], L, uni, by_cid, today, log)
-        cands.append(merged)
-        order.append(merged)
-        ck("merge", members=len(group), decision=merged["decision"])
-
-    # 5c. DEC-9: an event already delivered to the approval chat is never selected again (same identity)
-    import story_ledger
-    ledger = story_ledger.entries()
-    excluded = []
-    for c in order:
-        hit = story_ledger.delivered_match(c, ledger) if c.get("decision") == "coverage_qualified" else None
-        if hit:
-            c["decision"] = f"already delivered (story ledger: {hit['run']}, '{hit['headline'][:60]}')"
-            excluded.append({"headline": c["headline"], "ledger_run": hit["run"]})
-    rec["story_ledger"] = {"entries": len(ledger), "excluded": excluded}
-
-    # 6. E5: one GPU0 swap -> word-level transcripts for every coverage-qualified candidate
-    qualified = [c for c in order if c.get("decision") == "coverage_qualified"]
-    need = {}
-    for c in qualified:
-        for v in c["coverage"]["verdicts"]:
-            if v["counted_as_same_event"] and v["layout_eligible"]:
-                need[v["video_id"]] = v["channel_id"]
-    words, arb = {}, {"videos": sorted(need)}
-    rec["gpu_arbitration"] = arb
-    todo = [vid for vid in need if (ts.canonical_transcript(vid) or {}).get("transcript_method") != "whisper_words"]
-    for vid in need:
-        if vid not in todo:
-            words[vid] = (ts.canonical_transcript(vid), "cached")
-    if todo:
-        try:
-            arb["release"] = sm.release_gpu0_for_whisper(L, log=log)
-        except RuntimeError as e:
-            arb["release_error"] = str(e)
-            for vid in todo:
-                words[vid] = (None, f"infra: {e}")
-        else:
-            for vid in todo:
-                r, st = ts.acquire(vid, channel=by_cid[need[vid]], allow_whisper=True, prefer_words=True)
-                err = ts.LAST_ERROR.get(vid, "")
-                if r is None or r.get("transcript_method") != "whisper_words":
-                    words[vid] = (None, f"infra: {err}" if _infra_error(err) else f"failed: {st} {err}")
-                else:
-                    words[vid] = (r, st)
-                ck("word_transcripts", video=vid)
-            ts.release_whisper()
-            arb["after_whisper"] = sm.gpu0_memory()
-    arb["results"] = {vid: st for vid, (r, st) in words.items()}
-    ck("word_transcripts_done")
-
-    # 7. CLIP QUALITY
-    for oi, c in enumerate(qualified):
-        cq = _clip_quality(c, [v for v in c["coverage"]["verdicts"] if v["counted_as_same_event"]],
-                           E, L, by_cid, words, log, today=today)
-        c["clip_quality"] = cq
-        c["decision"] = "producible" if cq["producible"] else (
-            ("INFRA_HOLD: " if cq.get("infra") else "rejected: ") + cq["reason"])
-        ck("clip_quality", candidate=oi, of=len(qualified))
-
+        pool = make()
+        got = evaluate(pname, pool)
+        order += got
+        rec["pools"].append({"pool": pname, "candidates": len(pool), "evaluated": True,
+                             "producible": any(c.get("decision") == "producible" for c in got)})
+    _close_cluster_ledger(emergent, cands)
+    rec["llm"].update(calls=getattr(L, "calls", None), cache_hits=getattr(L, "cache_hits", None),
+                      digest=getattr(L, "digest", None))
     producible = [c for c in order if c.get("decision") == "producible"]
     infra = [c for c in order if str(c.get("decision", "")).startswith("INFRA_HOLD")]
     L.stop()
@@ -907,6 +959,45 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
     _write(run_dir, "sources.json", srcs)
     ck("done")
     return win["query"].get("short_label") or win["headline"], rec
+
+
+def cluster_entry(chunks, vecs, g):
+    """DEC-13 c / d: a cluster's ledger entry before any model call: its channels, one statement per channel (the
+    member nearest the centroid) and the free Bitcoin screen: >= MIN_COVERAGE_CHANNELS independent channels with a
+    Bitcoin statement; tier '48h' when they speak within 48 h, '72h' when only within 72 h (DEC-13 a: 48 h, 72 h
+    max), otherwise the gate text. BTC_RELEVANCE_MIN still applies after derivation."""
+    idx = g["chunk_idx"]
+    cen = vecs[idx].mean(axis=0)
+    first = {}
+    for i in sorted(idx, key=lambda i: -float(vecs[i] @ cen)):
+        first.setdefault(chunks[i]["channel_id"], i)
+    btc = {h: {chunks[i]["channel_id"]: chunks[i]["channel_name"] for i in idx
+               if chunks[i].get("age_h") is not None and chunks[i]["age_h"] <= h
+               and BITCOIN_TERMS.search(chunks[i]["text"])} for h in CLUSTER_HOURS}
+    tier = next((t for t, h in zip(TIERS, CLUSTER_HOURS) if len(btc[h]) >= MIN_COVERAGE_CHANNELS), None)
+    names = {chunks[i]["channel_id"]: chunks[i]["channel_name"] for i in idx}      # independent = channel_id
+    return {"channels": sorted(names.values()), "n_chunks": len(idx),
+            "statements": [{"channel": chunks[i]["channel_name"], "video_id": chunks[i]["video_id"],
+                            "chunk_id": chunks[i]["chunk_id"], "age_h": chunks[i].get("age_h"),
+                            "text": chunks[i]["text"][:240]} for i in first.values()],
+            "bitcoin_channels": {t: sorted(btc[h].values()) for t, h in zip(TIERS, CLUSTER_HOURS)},
+            "member_chunk_ids": [chunks[i]["chunk_id"] for i in idx],
+            "screen": tier or (f"Bitcoin screen: Bitcoin statements from {len(btc[CLUSTER_HOURS[-1]])} channel(s) "
+                               f"in the last {CLUSTER_HOURS[-1]} h < {MIN_COVERAGE_CHANNELS} (no model call)")}
+
+
+def _close_cluster_ledger(emergent, cands):
+    """DEC-13 d: every labelled cluster's entry names the exact gate that stopped it (or 'producible') and the
+    quotes its coverage counted."""
+    for c in cands:
+        if c.get("cluster_index") is None:
+            continue
+        e = emergent[c["cluster_index"]]
+        e["candidate"] = c["headline"]
+        e["gate"] = (c.get("decision") or "; ".join(c.get("importance_gate") or []) or
+                     (f"merged into '{c['merged_into']}' (DEDUPE_SIM)" if c.get("merged_into") else "not evaluated"))
+        e["counted_quotes"] = [{"channel": v["channel"], "video_id": v["video_id"], "quote": v.get("evidence_quote")}
+                               for v in (c.get("coverage") or {}).get("verdicts", []) if v.get("counted_as_same_event")]
 
 
 def _decide_coverage(c, verdicts, by_cid, log):

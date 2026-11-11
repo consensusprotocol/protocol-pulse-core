@@ -62,7 +62,9 @@ class TestDec1(unittest.TestCase):
         self.assertEqual(q.G3C_VALLEY_DEPTH_DB, {"16x9": 11.63, "9x16": 11.65})
         self.assertEqual(q.G5_TRUE_PEAK_MAX_DBFS, {"16x9": -2.0, "9x16": -1.3})
         self.assertEqual(q.G8_SHARPNESS_FLOOR, {"16x9": 27.56, "9x16": 10.84})
-        self.assertEqual(q.G9_LUMA_FLOOR, {"16x9": 14.33, "9x16": 14.77})
+        # DEC-12a (orchestrator 2026-11-11 14:45) replaced DEC-1's G9 floors (14.33 / 14.77): v2f's measured tail
+        # luma minus the MEASURED re-encode spread of the locked outro (test_g9_floor.py proves the derivation)
+        self.assertEqual(q.G9_LUMA_FLOOR, {"16x9": 14.2857, "9x16": 14.7315})
 
     def test_reference_passes_every_calibrated_gate(self):
         q = Q()

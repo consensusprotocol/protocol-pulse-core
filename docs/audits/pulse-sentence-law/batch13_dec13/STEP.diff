@@ -1,0 +1,1184 @@
+diff --git a/PIPELINE_LAWS.md b/PIPELINE_LAWS.md
+index 8add14c8..19b8f3c2 100644
+--- a/PIPELINE_LAWS.md
++++ b/PIPELINE_LAWS.md
+@@ -376,6 +376,8 @@ Theoretical fixes that break in practice are worse than no fix.
+ - L-b EDGE WORDS WHOLE: a fade never overlaps an edge word: the first and last word of every clip are heard whole, at full level, with their natural decay. CHECK: sentence_law.edge_fades places each machine-cut fade (2 frames, shortened down to 10 ms) inside the gap next to the cut, measured from the cut point's level; G17c (sentence_law.gate_g17_edges) requires every frame of both edge words within 1 dB of the unfaded source. Must-fail: the preview's Natalie Brunell tail ('...participated in the Monday rally.'). Must-pass: the L-b re-cut of it; v2f's edges except its two recorded legacy edges.
+ - L-c DISSENT IS RIGHT UNTIL DISPROVED: a check that disagrees with the others on an edge word is treated as right until an acoustic comparison against the source proves otherwise. CHECK: run_fresh.stage_gates: a dissenting G3b reading (DEC-12f) or a G3c head / tail failure on an edge stands (HOLD / FAIL) unless G17c and G16's neighbour_clear both pass for that edge.
+ - L-d PROTECTED PREVIEW: the PBX-approved preview of 2026-11-11 is a protected reference. CHECK: pipeline/regression.sh step 6 (pipeline/check_preview_reference.py): its selection locks, cut points and 9:16 layout must reproduce with the current code; tag ref-pulse-preview-2026-11-11; references/pulse_preview_2026-11-11 (read-only, SHA256SUMS).
++- L-e PUNCTUATED BEFORE READ: every word transcript the sentence law reads, the editorial word pass included, has its sentence punctuation restored from a prompted second decode of the same audio before any sentence is read. CHECK: transcript_store.acquire(prefer_words) returns only a sentence_ready record: the verbatim decode where no stretch reads unpunctuated, else a whisper_words_punct record (marks from a large-v3 batched reference decode with punctuation.PROMPT, onto aligned words only; words and timings unchanged; the verbatim record kept); editorial_select's word pass treats any other record as failed. Must-fail: Altcoin Daily Ov5jg52HqIY's verbatim record (its quote read as one 35.28 s sentence). Must-pass: its restored record (the quote's sentence 161.14-170.08). Test: pipeline/test_punct_word_pass.py.
++- L-f CHANNELS FIRST (DEC-13): story candidates come from the channels' own conversation first: clusters of statements by at least two independent channels, screened for Bitcoin before any model call, with the claim written from their shared statements and their quotes attached; wire headlines are evaluated only after every cluster is exhausted. CHECK: editorial_select pools channel_clusters_48h -> channel_clusters_72h -> wire_headlines (a pool runs only when every earlier one produced nothing); cluster_entry (>= 2 channels with a Bitcoin statement, 48 h tier then 72 h max, else stopped with no model call; one statement per channel); a cluster's coverage adjudicates its own statements; every cluster's ledger entry names its channels, claim, statements, counted quotes and the gate that stopped it; a validated model reply is cached by sha256(model, context, max_tokens, prompt). MIN_COVERAGE_CHANNELS 2, hook >= 4.0, stand-alone, topic and sentence laws unchanged. Must-produce: today's $74K-pullback statements (4 channels) and ETF-outflow statements (2 channels) reach the model (under the old rule they were in no cluster). Must-not: Bloomberg's Fed-hike and Natalie Brunell's ETF-outflow statements never share a cluster. Test: pipeline/test_dec13_clusters.py.
+ - R8: Only channels with `has_chyron=true` trigger G10 chyron gate.
+ - An EDL that fails ANY rule is rejected. The renderer MUST NOT run on a rejected EDL.
+ 
+diff --git a/docs/QWEN_CONTEXT_BIBLE.md b/docs/QWEN_CONTEXT_BIBLE.md
+index 6090f2c3..67e7000b 100644
+--- a/docs/QWEN_CONTEXT_BIBLE.md
++++ b/docs/QWEN_CONTEXT_BIBLE.md
+@@ -184,5 +184,19 @@ Known failure patterns and their root causes. Load into every Qwen/audit session
+ **Evidence:** same preview, Natalie Brunell "...Bitcoin really hasn't participated in the Monday rally.": the 83 ms DEC-12b fade ending at the envelope minimum 80.84 started at 80.757, inside the decay of 'rally'. A context-free G3b decode heard 'route' and was treated as a flaky decode (DEC-12f); PBX heard the clipped word.
+ **Fix:** laws L-b and L-c. A fade never overlaps an edge word: it sits in the gap next to the cut (2 frames, down to 10 ms), measured from the cut point's own level; G17c compares both edge words with the unfaded source (1 dB); a dissenting G3b reading or a G3c edge failure stands unless G17c and G16's neighbour_clear prove the edge. **Detection:** `test_edge_words.py` (the preview's tail fails; the L-b re-cut passes; v2f's edges pass except its two recorded legacy edges).
+ 
++### E-FAIL-033: The editorial word pass read sentences from an unpunctuated decode
++**Evidence:** fresh run 2026-11-11 21:39 UTC (runs/fresh_20261111_213954, 4ca4b426): Altcoin Daily Ov5jg52HqIY's stored whisper_words record (distil-large-v3 batched) has 373 words with no sentence mark, so the verified quote "there's been a scare after the blue wave of the midterms" sat in one 35.28 s 'sentence' (134.80-170.08) and the US-midterms candidate had no window from it. 29 of the store's 44 word records had such stretches. pipeline/punctuation.py (the gospel's restoration) ran only in select_passages, never in transcript_store's word pass. A prompted distil reference decode did not restore that stretch; a prompted large-v3 batched decode did (22.8 s).
++**Fix:** law L-e. acquire(prefer_words) returns only a sentence_ready record; a verbatim record that needs restoration gets a whisper_words_punct record (large-v3 batched reference + punctuation.PROMPT, marks onto aligned words only; the verbatim record kept, immutable). OPEN: case is not transferred, so a sentence start inside a restored stretch stays lower-case and start_is_boundary still rejects it. **Detection:** `test_punct_word_pass.py`.
++
++### E-FAIL-034: Headline-shaped candidates split the channels' one conversation; the real development never reached the model
++**Evidence:** same run: 24 candidates, none producible. 13 wire headlines (MARA, Canaan, HIVE, BitGo, Deutsche Bank...) ended 'currentness missing' because no channel read them aloud; the conversation the channels were having (Bitcoin pinned near $74K, ETF money leaving, midterms) fell short as separate headlines (BlackRock outflows coverage 1, $74K coverage 1). The emergent-cluster step kept only clusters of >= 3 channels and the 8 widest, all evergreen or off-brand topic clusters; the $74K-pullback cluster (Coin Bureau, Altcoin Daily, Bitcoin Magazine, Marty Bent) and the ETF-outflow cluster (Coin Bureau, Bitcoin Magazine) were in no cluster at all. The same-event merge did run (zero groups: no two candidates shared a counted statement). Selection took 3,282 s with no reply cache.
++**Fix:** law L-f (DEC-13): clusters of >= 2 channels first (Bitcoin screen before any model call, 48 h then 72 h tiers), the claim from the shared statements, coverage from the cluster's own statements, wire headlines only after every cluster is exhausted, a ledger entry per cluster, a validated-reply cache. **Detection:** `test_dec13_clusters.py`.
++
+ ### L-d: the PBX-approved preview of 2026-11-11 is a protected reference
+ Tag ref-pulse-preview-2026-11-11, references/pulse_preview_2026-11-11 (read-only), docs/references/REFERENCE_PULSE_PREVIEW_2026-11-11.md; pipeline/regression.sh step 6 re-derives its locks, cuts and layout. What PBX approved in it: one story told by a numbers hook and three clips from other channels, whole-sentence clips, the four-avatar credits card, speaker-centred vertical, dissolves between channels.
++
++### L-e PUNCTUATED BEFORE READ: every word transcript the sentence law reads, the editorial word pass included, has its sentence punctuation restored from a prompted second decode of the same audio before any sentence is read
++Check: transcript_store.acquire(prefer_words) returns only a sentence_ready record (verbatim where no stretch reads unpunctuated, else whisper_words_punct from a large-v3 batched reference decode, marks onto aligned words only); editorial_select's word pass treats any other record as failed. Test: test_punct_word_pass.py (E-FAIL-033).
++
++### L-f CHANNELS FIRST (DEC-13): story candidates come from the channels' own conversation first: clusters of statements by at least two independent channels, screened for Bitcoin before any model call, with the claim written from their shared statements and their quotes attached; wire headlines are evaluated only after every cluster is exhausted
++Check: editorial_select pools channel_clusters_48h -> channel_clusters_72h -> wire_headlines; cluster_entry screen; a cluster's coverage adjudicates its own statements; a ledger entry per cluster with the gate that stopped it; validated model replies cached by sha256(model, context, max_tokens, prompt). Test: test_dec13_clusters.py (E-FAIL-034).
+diff --git a/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md b/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md
+index 151c124c..6271dcdb 100644
+--- a/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md
++++ b/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md
+@@ -43,6 +43,10 @@ causes, then requires three clean fresh videos in a row with no code edits betwe
+   Check: run_fresh.stage_gates: a dissenting G3b reading (DEC-12f) or a G3c head / tail failure on an edge stands (HOLD / FAIL) unless G17c and G16's neighbour_clear both pass for that edge.
+ - L-d PROTECTED PREVIEW (PBX, 2026-11-11): the PBX-approved preview of 2026-11-11 is a protected reference.
+   Check: pipeline/regression.sh step 6 (pipeline/check_preview_reference.py): its selection locks, cut points and 9:16 layout must reproduce with the current code; tag ref-pulse-preview-2026-11-11; references/pulse_preview_2026-11-11 (read-only, SHA256SUMS).
++- L-e PUNCTUATED BEFORE READ (2026-11-11): Every word transcript the sentence law reads, the editorial word pass included, has its sentence punctuation restored from a prompted second decode of the same audio before any sentence is read.
++  Check: transcript_store.acquire(prefer_words) returns only a sentence_ready record: the verbatim decode where no stretch reads unpunctuated, else a whisper_words_punct record (marks from a large-v3 batched reference decode with punctuation.PROMPT, onto aligned words only; words and timings unchanged; the verbatim record kept); editorial_select's word pass treats any other record as failed. Must-fail: Altcoin Daily Ov5jg52HqIY's verbatim record (its quote read as one 35.28 s sentence). Must-pass: its restored record (the quote's sentence 161.14-170.08). Test: pipeline/test_punct_word_pass.py.
++- L-f CHANNELS FIRST (DEC-13, orchestrator 2026-11-11 18:00): Story candidates come from the channels' own conversation first: clusters of statements by at least two independent channels, screened for Bitcoin before any model call, with the claim written from their shared statements and their quotes attached; wire headlines are evaluated only after every cluster is exhausted.
++  Check: editorial_select pools channel_clusters_48h -> channel_clusters_72h -> wire_headlines (a pool runs only when every earlier one produced nothing); cluster_entry (>= 2 channels with a Bitcoin statement, 48 h tier then 72 h max, else stopped with no model call; one statement per channel); a cluster's coverage adjudicates its own statements; every cluster's ledger entry names its channels, claim, statements, counted quotes and the gate that stopped it; a validated model reply is cached by sha256(model, context, max_tokens, prompt). MIN_COVERAGE_CHANNELS 2, hook >= 4.0, stand-alone, topic and sentence laws unchanged. Must-produce: today's $74K-pullback statements (4 channels) and ETF-outflow statements (2 channels) reach the model (under the old rule they were in no cluster). Must-not: Bloomberg's Fed-hike and Natalie Brunell's ETF-outflow statements never share a cluster. Test: pipeline/test_dec13_clusters.py.
+ - LAW 20 / M2: gate thresholds are constants; a failed gate is a hard stop; never change what a check
+   accepts to make a render pass; never reclassify a failing gate as a false positive.
+ - M12 FAIL CLOSED: missing data, model failure or an exception rejects; it never produces a pass.
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index 95afc5c4..17ebfac9 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -54,6 +54,9 @@ HOOK_MIN_SCORE, CLIP_MIN_SCORE = 4.0, 3.5
+ N_CLIPS = 3                        # v2f format: hook + 3 clips
+ MAX_VERIFIED_QUOTES_PER_VIDEO = 2  # D2 (PBX 2026-11-09): up to two verified windows per source video
+ DEDUPE_SIM = 0.88
++CLUSTER_HOURS = (48, UNIVERSE_HOURS)   # DEC-13 a: clusters whose >= 2 channels speak within 48 h first, then 72 h max
++TIERS = tuple(f"{h}h" for h in CLUSTER_HOURS)
++BITCOIN_TERMS = re.compile(r"\b(bitcoin|btc)\b", re.I)   # DEC-13 c: the free Bitcoin screen, before any model call
+ V2F_VIDEO_IDS = {"RBFN4CB60To", "Pxrak-iMT0g", "QCgW8RlTu5Q"}
+ 
+ 
+@@ -676,188 +679,236 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+                                                            s.get("freshness_minutes"))})
+     emergent = []
+     rec["emergent_clusters"] = emergent
+-    for gi, g in enumerate(sm.emergent_clusters(chunks, vecs)):
+-        lab = sm.label_cluster(L, chunks, vecs, g, today)
+-        ages = [chunks[i]["age_h"] for i in g["chunk_idx"]]
+-        entry = {"channels": g["channels"], "n_chunks": len(g["chunk_idx"]), "label": lab}
+-        if not lab.get("current_ok"):
+-            entry["rejected"] = ("no verified current-development evidence"
+-                                 if lab.get("is_specific_event") else
+-                                 lab.get("error") or "not a specific current event")
+-        else:
+-            cdq = lab.get("current_development_chunk_id")
+-            entry["current_development_evidence"] = {
+-                "chunk_id": cdq, "quote": lab.get("current_development_quote"),
+-                "channel": by_chunk.get(cdq, {}).get("channel_name"),
+-                "canonical_url": by_chunk.get(cdq, {}).get("canonical_url")}
+-            cands.append({"origin": "transcript_cluster", "headline": lab["headline"],
+-                          "summary": lab.get("summary", ""), "source_domain": "transcript cluster",
+-                          "cluster_channels": g["channels"], "cluster_chunk_ids": lab.get("excerpt_chunk_ids"),
+-                          "current_development_evidence": entry["current_development_evidence"],
+-                          "age_h": min(ages) if ages else None,
+-                          # D1: upload time of the video holding the verified current-development quote
+-                          "source_published": by_chunk.get(cdq, {}).get("published_at")})
+-        emergent.append(entry)
+-        ck("emergent", cluster=gi)
+-    log(f"  candidates: {len(cands)} ({sum(c['origin'] == 'transcript_cluster' for c in cands)} emergent, "
+-        f"{sum(1 for e in emergent if e.get('rejected'))} emergent clusters rejected)")
+-
+-    # 4. STORY IMPORTANCE (+ E1 currentness gate)
+-    for ci, c in enumerate(cands[:MAX_CANDIDATES + len(emergent)]):
+-        try:
+-            q = sm.derive_story_query(L, c, today)
+-        except sm.LLMParseError as e:
+-            c["importance_gate"] = ["inconclusive: story-query derivation failed (LLM output unparseable)"]
+-            c["llm_error"] = {"error": str(e), "llm_attempts": e.attempts}
+-            ck("derive", candidate=ci, of=len(cands))
++    groups = sm.emergent_clusters(chunks, vecs, min_channels=MIN_COVERAGE_CHANNELS, max_clusters=None)
++    for g in groups:
++        emergent.append(cluster_entry(chunks, vecs, g))   # DEC-13 c / d: screened before any model call
++        if emergent[-1]["screen"] not in TIERS:
++            emergent[-1]["gate"] = emergent[-1]["screen"]
++    log(f"  clusters: {len(groups)} with >= {MIN_COVERAGE_CHANNELS} channels; Bitcoin screen: "
++        + ", ".join(f"{sum(e['screen'] == t for e in emergent)} {t}" for t in TIERS)
++        + f", {sum(e['screen'] not in TIERS for e in emergent)} stopped (no model call)")
++
++    def label_clusters(tier):
++        """DEC-13 a: the candidates of one recency tier; model calls start here (label + verified quote)."""
++        out = []
++        for gi, (g, entry) in enumerate(zip(groups, emergent)):
++            if entry["screen"] != tier:
++                continue
++            lab = sm.label_cluster(L, chunks, vecs, g, today)
++            ages = [chunks[i]["age_h"] for i in g["chunk_idx"]]
++            entry.update(label=lab, claim=lab.get("headline"))
++            if not lab.get("current_ok"):
++                entry["rejected"] = ("no verified current-development evidence"
++                                     if lab.get("is_specific_event") else
++                                     lab.get("error") or "not a specific current event")
++                entry["gate"] = f"label: {entry['rejected']}"
++            else:
++                cdq = lab.get("current_development_chunk_id")
++                entry["current_development_evidence"] = {
++                    "chunk_id": cdq, "quote": lab.get("current_development_quote"),
++                    "channel": by_chunk.get(cdq, {}).get("channel_name"),
++                    "canonical_url": by_chunk.get(cdq, {}).get("canonical_url")}
++                out.append({"origin": "transcript_cluster", "headline": lab["headline"],
++                            "summary": lab.get("summary", ""), "source_domain": "transcript cluster",
++                            "cluster_channels": g["channels"], "cluster_chunk_ids": lab.get("excerpt_chunk_ids"),
++                            "cluster_index": gi, "cluster_tier": tier,
++                            "cluster_member_chunk_ids": entry["member_chunk_ids"],
++                            "current_development_evidence": entry["current_development_evidence"],
++                            "age_h": min(ages) if ages else None,
++                            # D1: upload time of the video holding the verified current-development quote
++                            "source_published": by_chunk.get(cdq, {}).get("published_at")})
++            ck("emergent", tier=tier, cluster=gi)
++        cands.extend(out)
++        log(f"  {tier} clusters: {sum(e['screen'] == tier for e in emergent)} labelled, {len(out)} candidate(s)")
++        return out
++
++    def evaluate(pname, pool):
++        """Steps 4-7 on one pool of candidates; returns the pool's evaluation order (merged candidates included)."""
++        # 4. STORY IMPORTANCE (+ E1 currentness gate)
++        for ci, c in enumerate(pool):
++            try:
++                q = sm.derive_story_query(L, c, today)
++            except sm.LLMParseError as e:
++                c["importance_gate"] = ["inconclusive: story-query derivation failed (LLM output unparseable)"]
++                c["llm_error"] = {"error": str(e), "llm_attempts": e.attempts}
++                ck("derive", pool=pname, candidate=ci, of=len(pool))
++                continue
++            c["query"] = q
++            imp = {"llm_importance": q.get("importance"), "llm_bitcoin_relevance": q.get("bitcoin_relevance"),
++                   "is_specific_event": q.get("is_specific_event"), "model_event_date": q.get("event_date"),
++                   "model_event_recency": q.get("event_recency"), "recency": _recency(c.get("age_h")),
++                   "engine_score": c.get("engine_score"),
++                   "engine_score_note": rec["story_engine"]["llm_legs"] if c["origin"] == "story_engine" else None}
++            try:
++                imp["importance_score"] = round(0.45 * float(q.get("importance", 0)) / 5 +
++                                                0.35 * float(q.get("bitcoin_relevance", 0)) / 5 +
++                                                0.20 * imp["recency"], 3)
++            except Exception:
++                imp["importance_score"] = 0.0
++            c["importance"] = imp
++            gate = []
++            if (q.get("bitcoin_relevance") or 0) < BTC_RELEVANCE_MIN:
++                gate.append(f"bitcoin_relevance {q.get('bitcoin_relevance')} < {BTC_RELEVANCE_MIN}")
++            if not q.get("is_specific_event", True):
++                gate.append("not a specific event")
++            # D1: publish metadata dates the event; the model date is a tiebreaker only without it
++            g = sm.grounded_event_date(q, _parse_ts(c.get("source_published")), now, UNIVERSE_HOURS)
++            c["event_date_grounding"] = g
++            if g["model_date_discarded"]:
++                log(f"  D1/E9 model date discarded ({g['model_date']['status']}): {c['headline'][:70]}")
++            if g["stale"]:
++                gate.append(g["stale_reason"])
++            c["importance_gate"] = gate
++            ck("derive", pool=pname, candidate=ci, of=len(pool))
++        live = [c for c in pool if "query" in c and not c["importance_gate"]]
++        if live:
++            ev = E.encode([c["query"].get("underlying_event", c["headline"]) for c in live])
++            for i, c in enumerate(live):
++                for j in range(i):
++                    if not live[j].get("merged_into") and float(ev[i] @ ev[j]) >= DEDUPE_SIM:
++                        keep, drop = (live[j], c) if live[j]["importance"]["importance_score"] >= \
++                            c["importance"]["importance_score"] else (c, live[j])
++                        drop["merged_into"] = keep["headline"]
++        order = sorted([c for c in live if not c.get("merged_into")],
++                       key=lambda c: -c["importance"]["importance_score"])
++        rec.setdefault("evaluation_order", []).extend(c["headline"] for c in order)
++        ck("importance")
++
++        # 5. CROSS-SOURCE COVERAGE (all candidates first)
++        for oi, c in enumerate(order):
++            q = c["query"]
++            qv = E.encode(sm.query_texts(q), query=True)
++            sims = (vecs @ qv.T).max(axis=1) if len(chunks) else np.zeros(0)
++            pats = sm.alias_patterns(q)
++            members = set(c.get("cluster_member_chunk_ids") or ())   # DEC-13 a: a cluster's evidence = its statements
++            per_vid = {}
++            for i, ch in enumerate(chunks):
++                if members and ch["chunk_id"] not in members:
++                    continue
++                hits = sum(1 for p in pats if p.search(ch["text"]))
++                if members or sims[i] >= RETRIEVAL_MIN_SIM or hits >= 2:
++                    per_vid.setdefault(ch["video_id"], []).append((float(sims[i]) + 0.03 * min(hits, 3), i))
++            ranked_v = sorted(per_vid.items(), key=lambda kv: -max(s for s, _ in kv[1]))
++            picked, seen_ch = [], set()
++            for vid, lst in ranked_v:                       # channel diversity first
++                ch0 = chunks[lst[0][1]]["channel_id"]
++                if ch0 not in seen_ch:
++                    picked.append((vid, lst))
++                    seen_ch.add(ch0)
++            for vid, lst in ranked_v:
++                if len(picked) >= MAX_ADJUDICATE_PER_STORY:
++                    break
++                if (vid, lst) not in picked:
++                    picked.append((vid, lst))
++            picked = picked[:MAX_ADJUDICATE_PER_STORY]
++            verdicts = []
++            c["coverage"] = {"videos_evaluated": 0, "verdicts": verdicts, "status": "in_progress"}
++            for vi, (vid, lst) in enumerate(picked):
++                idx = [i for _, i in sorted(lst, reverse=True)[:4]]
++                ex = [chunks[i] for i in sorted(idx, key=lambda i: chunks[i]["start"])]
++                u = next(x for x in uni if x["video_id"] == vid)
++                v = sm.adjudicate(L, q, {"title": u["title"], "channel": u["channel"],
++                                         "published_at": u["published_at"]}, ex, today=today)
++                v.update(video_id=vid, canonical_url=u["canonical_url"], channel=u["channel"],
++                         channel_id=u["channel_id"], title=u["title"], published_at=u["published_at"],
++                         layout_eligible=u["layout_eligible"], transcript_sha256=u["transcript_sha256"],
++                         transcript_method=u["transcript_method"],
++                         excerpts=[{"chunk_id": x["chunk_id"], "start": x["start"], "end": x["end"],
++                                    "text": x["text"]} for x in ex],
++                         retrieval_score=round(max(s for s, _ in lst), 3))
++                verdicts.append(v)
++                c["coverage"]["videos_evaluated"] = len(verdicts)
++                ck("adjudicate", candidate=oi, of=len(order), video=vi, of_videos=len(picked))
++            _decide_coverage(c, verdicts, by_cid, log)
++            ck("coverage", candidate=oi, of=len(order))
++
++        # 5b. SAME-EVENT MERGE (mission 4b): candidates resting on the same counted passage are one event
++        for group in _same_event_groups(order):
++            merged = _merge_event([order[i] for i in group], L, uni, by_cid, today, log)
++            cands.append(merged)
++            order.append(merged)
++            ck("merge", members=len(group), decision=merged["decision"])
++
++        # 5c. DEC-9: an event already delivered to the approval chat is never selected again (same identity)
++        import story_ledger
++        ledger = story_ledger.entries()
++        excluded = []
++        for c in order:
++            hit = story_ledger.delivered_match(c, ledger) if c.get("decision") == "coverage_qualified" else None
++            if hit:
++                c["decision"] = f"already delivered (story ledger: {hit['run']}, '{hit['headline'][:60]}')"
++                excluded.append({"headline": c["headline"], "ledger_run": hit["run"]})
++        rec.setdefault("story_ledger", {"entries": len(ledger), "excluded": []})["excluded"] += excluded
++
++        # 6. E5: one GPU0 swap -> word-level transcripts for every coverage-qualified candidate
++        qualified = [c for c in order if c.get("decision") == "coverage_qualified"]
++        need = {}
++        for c in qualified:
++            for v in c["coverage"]["verdicts"]:
++                if v["counted_as_same_event"] and v["layout_eligible"]:
++                    need[v["video_id"]] = v["channel_id"]
++        words, arb = {}, {"videos": sorted(need)}
++        rec.setdefault("gpu_arbitration", {})[pname] = arb
++        todo = [vid for vid in need if not ts.sentence_ready(ts.canonical_transcript(vid))]
++        for vid in need:
++            if vid not in todo:
++                words[vid] = (ts.canonical_transcript(vid), "cached")
++        if todo:
++            try:
++                arb["release"] = sm.release_gpu0_for_whisper(L, log=log)
++            except RuntimeError as e:
++                arb["release_error"] = str(e)
++                for vid in todo:
++                    words[vid] = (None, f"infra: {e}")
++            else:
++                for vid in todo:
++                    r, st = ts.acquire(vid, channel=by_cid[need[vid]], allow_whisper=True, prefer_words=True)
++                    err = ts.LAST_ERROR.get(vid, "")
++                    if r is None or not ts.sentence_ready(r):
++                        words[vid] = (None, f"infra: {err}" if _infra_error(err) else f"failed: {st} {err}")
++                    else:
++                        words[vid] = (r, st)
++                    ck("word_transcripts", video=vid)
++                ts.release_whisper()
++                arb["after_whisper"] = sm.gpu0_memory()
++        arb["results"] = {vid: st for vid, (r, st) in words.items()}
++        ck("word_transcripts_done")
++
++        # 7. CLIP QUALITY
++        for oi, c in enumerate(qualified):
++            cq = _clip_quality(c, [v for v in c["coverage"]["verdicts"] if v["counted_as_same_event"]],
++                               E, L, by_cid, words, log, today=today)
++            c["clip_quality"] = cq
++            c["decision"] = "producible" if cq["producible"] else (
++                ("INFRA_HOLD: " if cq.get("infra") else "rejected: ") + cq["reason"])
++            ck("clip_quality", candidate=oi, of=len(qualified))
++
++        return order
++
++    # DEC-13 a: candidates come from the channels' own conversation first; wire / story-engine headlines are
++    # evaluated only after every channel cluster is exhausted (none producible)
++    pools = [(f"channel_clusters_{t}", lambda t=t: label_clusters(t)) for t in TIERS] + [
++        ("wire_headlines", lambda: [c for c in cands if c["origin"] == "story_engine"][:MAX_CANDIDATES])]
++    rec["pools"], order = [], []
++    for pname, make in pools:
++        done = next((p["pool"] for p in rec["pools"] if p.get("producible")), None)
++        if done:
++            why = f"not evaluated: the {done} pool produced a story (DEC-13 a)"
++            for e in emergent:
++                if pname.endswith(e["screen"]):
++                    e["gate"] = why
++            for c in (cands if pname == "wire_headlines" else []):
++                if c["origin"] == "story_engine":
++                    c["decision"] = why
++            rec["pools"].append({"pool": pname, "evaluated": False})
+             continue
+-        c["query"] = q
+-        imp = {"llm_importance": q.get("importance"), "llm_bitcoin_relevance": q.get("bitcoin_relevance"),
+-               "is_specific_event": q.get("is_specific_event"), "model_event_date": q.get("event_date"),
+-               "model_event_recency": q.get("event_recency"), "recency": _recency(c.get("age_h")),
+-               "engine_score": c.get("engine_score"),
+-               "engine_score_note": rec["story_engine"]["llm_legs"] if c["origin"] == "story_engine" else None}
+-        try:
+-            imp["importance_score"] = round(0.45 * float(q.get("importance", 0)) / 5 +
+-                                            0.35 * float(q.get("bitcoin_relevance", 0)) / 5 +
+-                                            0.20 * imp["recency"], 3)
+-        except Exception:
+-            imp["importance_score"] = 0.0
+-        c["importance"] = imp
+-        gate = []
+-        if (q.get("bitcoin_relevance") or 0) < BTC_RELEVANCE_MIN:
+-            gate.append(f"bitcoin_relevance {q.get('bitcoin_relevance')} < {BTC_RELEVANCE_MIN}")
+-        if not q.get("is_specific_event", True):
+-            gate.append("not a specific event")
+-        # D1: publish metadata dates the event; the model date is a tiebreaker only without it
+-        g = sm.grounded_event_date(q, _parse_ts(c.get("source_published")), now, UNIVERSE_HOURS)
+-        c["event_date_grounding"] = g
+-        if g["model_date_discarded"]:
+-            log(f"  D1/E9 model date discarded ({g['model_date']['status']}): {c['headline'][:70]}")
+-        if g["stale"]:
+-            gate.append(g["stale_reason"])
+-        c["importance_gate"] = gate
+-        ck("derive", candidate=ci, of=len(cands))
+-    live = [c for c in cands if "query" in c and not c["importance_gate"]]
+-    if live:
+-        ev = E.encode([c["query"].get("underlying_event", c["headline"]) for c in live])
+-        for i, c in enumerate(live):
+-            for j in range(i):
+-                if not live[j].get("merged_into") and float(ev[i] @ ev[j]) >= DEDUPE_SIM:
+-                    keep, drop = (live[j], c) if live[j]["importance"]["importance_score"] >= \
+-                        c["importance"]["importance_score"] else (c, live[j])
+-                    drop["merged_into"] = keep["headline"]
+-    order = sorted([c for c in live if not c.get("merged_into")],
+-                   key=lambda c: -c["importance"]["importance_score"])
+-    rec["evaluation_order"] = [c["headline"] for c in order]
+-    ck("importance")
+-
+-    # 5. CROSS-SOURCE COVERAGE (all candidates first)
+-    for oi, c in enumerate(order):
+-        q = c["query"]
+-        qv = E.encode(sm.query_texts(q), query=True)
+-        sims = (vecs @ qv.T).max(axis=1) if len(chunks) else np.zeros(0)
+-        pats = sm.alias_patterns(q)
+-        per_vid = {}
+-        for i, ch in enumerate(chunks):
+-            hits = sum(1 for p in pats if p.search(ch["text"]))
+-            if sims[i] >= RETRIEVAL_MIN_SIM or hits >= 2:
+-                per_vid.setdefault(ch["video_id"], []).append((float(sims[i]) + 0.03 * min(hits, 3), i))
+-        ranked_v = sorted(per_vid.items(), key=lambda kv: -max(s for s, _ in kv[1]))
+-        picked, seen_ch = [], set()
+-        for vid, lst in ranked_v:                       # channel diversity first
+-            ch0 = chunks[lst[0][1]]["channel_id"]
+-            if ch0 not in seen_ch:
+-                picked.append((vid, lst))
+-                seen_ch.add(ch0)
+-        for vid, lst in ranked_v:
+-            if len(picked) >= MAX_ADJUDICATE_PER_STORY:
+-                break
+-            if (vid, lst) not in picked:
+-                picked.append((vid, lst))
+-        picked = picked[:MAX_ADJUDICATE_PER_STORY]
+-        verdicts = []
+-        c["coverage"] = {"videos_evaluated": 0, "verdicts": verdicts, "status": "in_progress"}
+-        for vi, (vid, lst) in enumerate(picked):
+-            idx = [i for _, i in sorted(lst, reverse=True)[:4]]
+-            ex = [chunks[i] for i in sorted(idx, key=lambda i: chunks[i]["start"])]
+-            u = next(x for x in uni if x["video_id"] == vid)
+-            v = sm.adjudicate(L, q, {"title": u["title"], "channel": u["channel"],
+-                                     "published_at": u["published_at"]}, ex, today=today)
+-            v.update(video_id=vid, canonical_url=u["canonical_url"], channel=u["channel"],
+-                     channel_id=u["channel_id"], title=u["title"], published_at=u["published_at"],
+-                     layout_eligible=u["layout_eligible"], transcript_sha256=u["transcript_sha256"],
+-                     transcript_method=u["transcript_method"],
+-                     excerpts=[{"chunk_id": x["chunk_id"], "start": x["start"], "end": x["end"],
+-                                "text": x["text"]} for x in ex],
+-                     retrieval_score=round(max(s for s, _ in lst), 3))
+-            verdicts.append(v)
+-            c["coverage"]["videos_evaluated"] = len(verdicts)
+-            ck("adjudicate", candidate=oi, of=len(order), video=vi, of_videos=len(picked))
+-        _decide_coverage(c, verdicts, by_cid, log)
+-        ck("coverage", candidate=oi, of=len(order))
+-
+-    # 5b. SAME-EVENT MERGE (mission 4b): candidates resting on the same counted passage are one event
+-    for group in _same_event_groups(order):
+-        merged = _merge_event([order[i] for i in group], L, uni, by_cid, today, log)
+-        cands.append(merged)
+-        order.append(merged)
+-        ck("merge", members=len(group), decision=merged["decision"])
+-
+-    # 5c. DEC-9: an event already delivered to the approval chat is never selected again (same identity)
+-    import story_ledger
+-    ledger = story_ledger.entries()
+-    excluded = []
+-    for c in order:
+-        hit = story_ledger.delivered_match(c, ledger) if c.get("decision") == "coverage_qualified" else None
+-        if hit:
+-            c["decision"] = f"already delivered (story ledger: {hit['run']}, '{hit['headline'][:60]}')"
+-            excluded.append({"headline": c["headline"], "ledger_run": hit["run"]})
+-    rec["story_ledger"] = {"entries": len(ledger), "excluded": excluded}
+-
+-    # 6. E5: one GPU0 swap -> word-level transcripts for every coverage-qualified candidate
+-    qualified = [c for c in order if c.get("decision") == "coverage_qualified"]
+-    need = {}
+-    for c in qualified:
+-        for v in c["coverage"]["verdicts"]:
+-            if v["counted_as_same_event"] and v["layout_eligible"]:
+-                need[v["video_id"]] = v["channel_id"]
+-    words, arb = {}, {"videos": sorted(need)}
+-    rec["gpu_arbitration"] = arb
+-    todo = [vid for vid in need if (ts.canonical_transcript(vid) or {}).get("transcript_method") != "whisper_words"]
+-    for vid in need:
+-        if vid not in todo:
+-            words[vid] = (ts.canonical_transcript(vid), "cached")
+-    if todo:
+-        try:
+-            arb["release"] = sm.release_gpu0_for_whisper(L, log=log)
+-        except RuntimeError as e:
+-            arb["release_error"] = str(e)
+-            for vid in todo:
+-                words[vid] = (None, f"infra: {e}")
+-        else:
+-            for vid in todo:
+-                r, st = ts.acquire(vid, channel=by_cid[need[vid]], allow_whisper=True, prefer_words=True)
+-                err = ts.LAST_ERROR.get(vid, "")
+-                if r is None or r.get("transcript_method") != "whisper_words":
+-                    words[vid] = (None, f"infra: {err}" if _infra_error(err) else f"failed: {st} {err}")
+-                else:
+-                    words[vid] = (r, st)
+-                ck("word_transcripts", video=vid)
+-            ts.release_whisper()
+-            arb["after_whisper"] = sm.gpu0_memory()
+-    arb["results"] = {vid: st for vid, (r, st) in words.items()}
+-    ck("word_transcripts_done")
+-
+-    # 7. CLIP QUALITY
+-    for oi, c in enumerate(qualified):
+-        cq = _clip_quality(c, [v for v in c["coverage"]["verdicts"] if v["counted_as_same_event"]],
+-                           E, L, by_cid, words, log, today=today)
+-        c["clip_quality"] = cq
+-        c["decision"] = "producible" if cq["producible"] else (
+-            ("INFRA_HOLD: " if cq.get("infra") else "rejected: ") + cq["reason"])
+-        ck("clip_quality", candidate=oi, of=len(qualified))
+-
++        pool = make()
++        got = evaluate(pname, pool)
++        order += got
++        rec["pools"].append({"pool": pname, "candidates": len(pool), "evaluated": True,
++                             "producible": any(c.get("decision") == "producible" for c in got)})
++    _close_cluster_ledger(emergent, cands)
++    rec["llm"].update(calls=getattr(L, "calls", None), cache_hits=getattr(L, "cache_hits", None))
+     producible = [c for c in order if c.get("decision") == "producible"]
+     infra = [c for c in order if str(c.get("decision", "")).startswith("INFRA_HOLD")]
+     L.stop()
+@@ -909,6 +960,44 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+     return win["query"].get("short_label") or win["headline"], rec
+ 
+ 
++def cluster_entry(chunks, vecs, g):
++    """DEC-13 c / d: a cluster's ledger entry before any model call: its channels, one statement per channel (the
++    member nearest the centroid) and the free Bitcoin screen: >= MIN_COVERAGE_CHANNELS independent channels with a
++    Bitcoin statement; tier '48h' when they speak within 48 h, '72h' when only within 72 h (DEC-13 a: 48 h, 72 h
++    max), otherwise the gate text. BTC_RELEVANCE_MIN still applies after derivation."""
++    idx = g["chunk_idx"]
++    cen = vecs[idx].mean(axis=0)
++    first = {}
++    for i in sorted(idx, key=lambda i: -float(vecs[i] @ cen)):
++        first.setdefault(chunks[i]["channel_id"], i)
++    btc = {h: {chunks[i]["channel_id"]: chunks[i]["channel_name"] for i in idx
++               if chunks[i].get("age_h") is not None and chunks[i]["age_h"] <= h
++               and BITCOIN_TERMS.search(chunks[i]["text"])} for h in CLUSTER_HOURS}
++    tier = next((t for t, h in zip(TIERS, CLUSTER_HOURS) if len(btc[h]) >= MIN_COVERAGE_CHANNELS), None)
++    return {"channels": sorted({chunks[i]["channel_name"] for i in idx}), "n_chunks": len(idx),
++            "statements": [{"channel": chunks[i]["channel_name"], "video_id": chunks[i]["video_id"],
++                            "chunk_id": chunks[i]["chunk_id"], "age_h": chunks[i].get("age_h"),
++                            "text": chunks[i]["text"][:240]} for i in first.values()],
++            "bitcoin_channels": {t: sorted(btc[h].values()) for t, h in zip(TIERS, CLUSTER_HOURS)},
++            "member_chunk_ids": [chunks[i]["chunk_id"] for i in idx],
++            "screen": tier or (f"Bitcoin screen: Bitcoin statements from {len(btc[CLUSTER_HOURS[-1]])} channel(s) "
++                               f"in the last {CLUSTER_HOURS[-1]} h < {MIN_COVERAGE_CHANNELS} (no model call)")}
++
++
++def _close_cluster_ledger(emergent, cands):
++    """DEC-13 d: every labelled cluster's entry names the exact gate that stopped it (or 'producible') and the
++    quotes its coverage counted."""
++    for c in cands:
++        if c.get("cluster_index") is None:
++            continue
++        e = emergent[c["cluster_index"]]
++        e["candidate"] = c["headline"]
++        e["gate"] = (c.get("decision") or "; ".join(c.get("importance_gate") or []) or
++                     (f"merged into '{c['merged_into']}' (DEDUPE_SIM)" if c.get("merged_into") else "not evaluated"))
++        e["counted_quotes"] = [{"channel": v["channel"], "video_id": v["video_id"], "quote": v.get("evidence_quote")}
++                               for v in (c.get("coverage") or {}).get("verdicts", []) if v.get("counted_as_same_event")]
++
++
+ def _decide_coverage(c, verdicts, by_cid, log):
+     """Coverage, currentness and the coverage decision of one candidate (single or merged alike)."""
+     import story_semantics as sm
+diff --git a/pipeline/punctuation.py b/pipeline/punctuation.py
+index 1bbb0198..6d6cfc99 100644
+--- a/pipeline/punctuation.py
++++ b/pipeline/punctuation.py
+@@ -45,19 +45,23 @@ def transfer(words, ref):
+     return out, moved
+ 
+ 
+-def reference_decode(source_path, model):
+-    """The punctuation reference: the same ASR settings as the verbatim decode, plus PROMPT."""
+-    segs, _ = model.transcribe(source_path, language="en", beam_size=5, word_timestamps=True,
+-                               vad_filter=False, initial_prompt=PROMPT)
++VERBATIM = {"beam_size": 5, "vad_filter": False}     # select_passages' verbatim decode (large-v3)
++
++
++def reference_decode(source_path, model, settings=None):
++    """The punctuation reference: the same ASR settings as the verbatim decode, plus PROMPT. settings = the
++    caller's verbatim decode settings (default VERBATIM; the editorial word pass passes its batched ones)."""
++    segs, _ = model.transcribe(source_path, language="en", word_timestamps=True, initial_prompt=PROMPT,
++                               **(settings or VERBATIM))
+     return [{"word": w.word.strip()} for s in segs for w in (s.words or [])]
+ 
+ 
+-def ensure(record, source_path, model, model_name="large-v3"):
++def ensure(record, source_path, model, model_name="large-v3", settings=None):
+     """The transcript record with sentence punctuation. Verbatim word keys never change. model_name is the
+-    caller's name for `model` (recorded as provenance)."""
++    caller's name for `model` (recorded as provenance); settings as in reference_decode."""
+     if record.get("punctuation") or not needs_restoration(record["words"]):
+         return record
+-    ref = reference_decode(source_path, model)
++    ref = reference_decode(source_path, model, settings)
+     words, moved = transfer(record["words"], ref)
+     assert [_key(w["word"]) for w in words] == [_key(w["word"]) for w in record["words"]]
+     return dict(record, words=words, punctuation={
+diff --git a/pipeline/story_semantics.py b/pipeline/story_semantics.py
+index 2fd79a75..9808f5a8 100644
+--- a/pipeline/story_semantics.py
++++ b/pipeline/story_semantics.py
+@@ -44,6 +44,7 @@ LLM_MODEL = "gemma3:27b"
+ LLM_HOST = "127.0.0.1:11434"
+ LLM_CTX = 16384
+ LLM_ATTEMPTS = 3
++LLM_CACHE_DIR = os.path.join(STORE_DIR, "llm_cache")   # DEC-13 e: validated replies, one per exact request
+ 
+ VERDICTS = ("CURRENT_EVENT", "HISTORICAL_BACKGROUND", "SAME_TOPIC_DIFFERENT_EVENT", "UNRELATED")
+ SUPPORT = ("SUPPORTS", "BACKGROUND", "TOPIC_ONLY", "UNRELATED")
+@@ -141,6 +142,7 @@ class LocalLLM:
+         _gpu_guard()
+         self.model, self.host = model, host
+         self.calls = 0
++        self.cache_hits = 0
+         self.serve_pid = None
+         self.placement_checked = False
+ 
+@@ -202,7 +204,21 @@ class LocalLLM:
+ 
+     def chat_json(self, prompt, max_tokens=700, validate=None, attempts=LLM_ATTEMPTS):
+         """Bounded attempts. Each attempt: request -> lenient parse -> validate. Raises
+-        LLMParseError carrying every raw response and error; never invents a result."""
++        LLMParseError carrying every raw response and error; never invents a result.
++        DEC-13 e: a validated reply is cached by sha256(model, context, max_tokens, prompt) (temperature 0,
++        fixed seeds), so a re-run on the same universe re-asks nothing; a cached reply is re-validated."""
++        key = hashlib.sha256(json.dumps([self.model, LLM_CTX, max_tokens, prompt]).encode()).hexdigest()
++        path = os.path.join(LLM_CACHE_DIR, key[:2], key + ".json")
++        if os.path.exists(path):
++            try:
++                with open(path) as f:
++                    obj = json.load(f)["reply"]
++                if validate:
++                    validate(obj)
++                self.cache_hits += 1
++                return obj
++            except Exception:
++                pass                                  # unreadable or no longer valid: ask again
+         log = []
+         for i in range(attempts):
+             why = f" ({log[-1]['error'][:200]})" if log else ""
+@@ -214,6 +230,14 @@ class LocalLLM:
+                 obj = parse_json_lenient(raw)
+                 if validate:
+                     validate(obj)
++                try:
++                    os.makedirs(os.path.dirname(path), exist_ok=True)
++                    with open(path + ".tmp", "w") as f:
++                        json.dump({"model": self.model, "max_tokens": max_tokens, "attempt": i + 1,
++                                   "reply": obj}, f)
++                    os.replace(path + ".tmp", path)
++                except OSError:
++                    pass                              # a cache that cannot be written never fails the call
+                 return obj
+             except RuntimeError as e:
+                 if "not on GPU0" in str(e):
+@@ -657,8 +681,9 @@ Is there ONE specific real-world news event that most of these excerpts discuss
+ DEVELOPMENT (something that happened or materially changed in the last few days)? Historical events
+ mentioned only as background, evergreen themes, generic market talk, ad reads and small talk do
+ not qualify.
+-Return ONLY JSON: {{"is_specific_event": true/false, "headline": a neutral news headline for the
+-CURRENT development, "summary": two sentences, "event_date": "YYYY-MM-DD" / "YYYY-MM" / "YYYY" /
++Return ONLY JSON: {{"is_specific_event": true/false, "headline": ONE neutral sentence stating the
++CURRENT development itself, as these excerpts state it in common (not one channel's angle or opinion),
++"summary": two sentences, "event_date": "YYYY-MM-DD" / "YYYY-MM" / "YYYY" /
+ "unknown", "current_development_quote": an exact verbatim quote (8-30 words) copied from inside the
+ excerpts that shows the development is current, "current_development_chunk_id": the excerpt id it
+ comes from, "member_chunk_ids": [ids of the excerpts that discuss it]}}"""
+diff --git a/pipeline/test_dec13_clusters.py b/pipeline/test_dec13_clusters.py
+new file mode 100644
+index 00000000..d18fd21c
+--- /dev/null
++++ b/pipeline/test_dec13_clusters.py
+@@ -0,0 +1,242 @@
++#!/usr/bin/env python3
++"""DEC-13 (orchestrator 2026-11-11 18:00): candidates come from the channels' own conversation FIRST.
++must-produce  today's saved universe (tests/fixtures/dec13_20261111: the fresh run of 21:39 UTC, 4,284 chunks,
++              rebuilt from the store by transcript sha): the $74K pullback statements (Coin Bureau "Bitcoin's
++              recent drop stalled ...", Altcoin Daily, Bitcoin Magazine; with Marty Bent) form ONE cluster of 4
++              channels that passes the free Bitcoin screen in the 48 h tier and reaches the model; the ETF-outflow
++              statements (Coin Bureau, Bitcoin Magazine) form one 2-channel cluster in the 72 h tier. The old rule
++              (>= 3 channels, the 8 widest clusters) put neither in any cluster.
++must-not      two channels on different events never form one cluster: Bloomberg's Fed-hike statement and Natalie
++              Brunell's ETF-outflow statement (real); disjoint statements (synthetic)
++order         clusters are evaluated first; wire headlines only after every cluster tier is exhausted; a producible
++              cluster leaves the wire headlines unevaluated (no model call)
++screen        an off-brand cluster (no Bitcoin statement) costs no model call
++cache         a validated reply is reused for the identical request; another request asks again
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_dec13_clusters.py"""
++import json
++import os
++import re
++import sys
++import unittest
++
++import numpy as np
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import editorial_select as es  # noqa: E402
++import story_semantics as sm  # noqa: E402
++import transcript_store as ts  # noqa: E402
++from test_editorial_robust import FakeLLM, Orchestration, TXT  # noqa: E402
++
++FIX = os.path.join(REPO, "tests", "fixtures", "dec13_20261111", "universe.json")
++S74 = {"UJFQBaMh3yg:3190-33590", "R-iKNbc7-zk:572160-603509", "jbDqdLytkNM:233170-264260"}
++SETF = {"UJFQBaMh3yg:222640-253830", "jbDqdLytkNM:199870-232940"}
++FED, NATALIE_ETF = "HRIjtvWogyE:6021215-6054081", "lusJ1m-J0Mc:66350-96350"
++
++
++def _today():
++    """The fresh run's exact chunks + vectors, or None when the store is not on this machine."""
++    fx = json.load(open(FIX))
++    chunks, vecs = [], []
++    for u in fx["universe"]:
++        if not u["transcript_sha256"]:
++            continue
++        try:
++            rec = next((r for r in ts.transcript_records(u["video_id"])
++                        if r["transcript_sha256"] == u["transcript_sha256"]), None)
++        except (OSError, ValueError):
++            return None
++        p = rec and os.path.join(sm.EMB_DIR, u["video_id"],
++                                 f"{u['transcript_sha256'][:16]}.{sm.EMBED_REVISION[:12]}.npz")
++        if rec is None or not os.path.exists(p):
++            return None
++        cs = ts.chunks(rec)
++        z = np.load(p, allow_pickle=False)
++        if list(z["ids"]) != [c["chunk_id"] for c in cs]:
++            return None
++        for c in cs:
++            c["age_h"], c["layout_eligible"] = u["age_h"], u["layout_eligible"]
++        chunks += cs
++        vecs.append(z["vecs"])
++    return (chunks, np.vstack(vecs)) if len(chunks) == fx["n_chunks"] else None
++
++
++class TestTodaysUniverse(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        got = _today()
++        if got is None:
++            raise unittest.SkipTest("today's editorial store (transcripts + embeddings) is not on this machine")
++        cls.chunks, cls.vecs = got
++        cls.groups = sm.emergent_clusters(cls.chunks, cls.vecs, min_channels=es.MIN_COVERAGE_CHANNELS,
++                                          max_clusters=None)
++
++    def _ids(self, g):
++        return {self.chunks[i]["chunk_id"] for i in g["chunk_idx"]}
++
++    def _holding(self, ids):
++        return [g for g in self.groups if ids <= self._ids(g)]
++
++    def test_the_74k_pullback_statements_form_one_cluster_that_reaches_the_model(self):
++        (g,) = self._holding(S74)
++        e = es.cluster_entry(self.chunks, self.vecs, g)
++        self.assertEqual(e["channels"], ["Altcoin Daily", "Bitcoin Magazine", "Coin Bureau",
++                                         "Marty Bent (Rabbit Hole Recap)"])
++        self.assertEqual(e["screen"], "48h")
++        self.assertEqual(e["bitcoin_channels"]["48h"], ["Altcoin Daily", "Coin Bureau"])
++        self.assertEqual(len(e["statements"]), 4)                      # one statement per channel, in the ledger
++
++    def test_the_etf_outflow_statements_form_a_72h_cluster(self):
++        (g,) = self._holding(SETF)
++        e = es.cluster_entry(self.chunks, self.vecs, g)
++        self.assertEqual(e["channels"], ["Bitcoin Magazine", "Coin Bureau"])
++        self.assertEqual(e["screen"], "72h")                           # Bitcoin Magazine's statement is 50 h old
++
++    def test_the_old_rule_let_neither_reach_the_model(self):
++        old = sm.emergent_clusters(self.chunks, self.vecs)              # >= 3 channels, the 8 widest
++        self.assertFalse([g for g in old if (S74 | SETF) & self._ids(g)])
++
++    def test_two_channels_on_different_events_never_form_one_cluster(self):
++        self.assertFalse([g for g in self.groups if {FED, NATALIE_ETF} <= self._ids(g)])
++
++
++def _chunk(cid, ch, text, age_h=6.0):
++    return {"chunk_id": cid, "video_id": cid.split(":")[0], "channel_id": f"UC{ch}", "channel_name": ch,
++            "text": text, "age_h": age_h, "layout_eligible": True}
++
++
++class TestScreenSynthetic(unittest.TestCase):
++    def test_disjoint_statements_never_cluster(self):
++        chunks = [_chunk(f"VIDAAAAAAA{i}:0-30000", "A", "MARA sold bitcoin") for i in range(3)] + \
++                 [_chunk(f"VIDBBBBBBB{i}:0-30000", "B", "ECB rate judgment") for i in range(3)]
++        vecs = np.array([[1.0, 0.0]] * 3 + [[0.0, 1.0]] * 3, np.float32)
++        self.assertEqual(sm.emergent_clusters(chunks, vecs, min_channels=2, max_clusters=None), [])
++
++    def test_the_screen_counts_bitcoin_statements_by_tier(self):
++        chunks = [_chunk("VIDAAAAAAA1:0-30000", "A", "Bitcoin fell to 74 thousand", 10.0),
++                  _chunk("VIDBBBBBBB1:0-30000", "B", "BTC slid again today", 60.0),
++                  _chunk("VIDCCCCCCC1:0-30000", "C", "markets fell today", 5.0)]
++        vecs = np.ones((3, 2), np.float32)
++        g = {"chunk_idx": [0, 1, 2], "channels": ["UCA", "UCB", "UCC"]}
++        e = es.cluster_entry(chunks, vecs, g)
++        self.assertEqual((e["screen"], e["bitcoin_channels"]["48h"], e["bitcoin_channels"]["72h"]), ("72h", ["A"], ["A", "B"]))
++        chunks[1]["age_h"] = 80.0                                      # beyond the 72 h universe: stopped
++        self.assertTrue(es.cluster_entry(chunks, vecs, g)["screen"].startswith("Bitcoin screen:"))
++
++
++class ClusterLLM(FakeLLM):
++    """Labels any cluster as the verified current development (its quote is verbatim in the first excerpt)."""
++    def __init__(self, **kw):
++        super().__init__(**kw)
++        self.prompts = []
++
++    def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
++        self.prompts.append(prompt[:200])
++        if prompt.startswith("These transcript excerpts"):
++            cid = re.search(r'<excerpt id="([^"]+)"', prompt).group(1)
++            return {"is_specific_event": True, "headline": "Democrats took the House and the Senate in the midterms.",
++                    "summary": "Congress flipped.", "event_date": "2026-11-04",
++                    "current_development_quote": " ".join(TXT.split()[:12]), "current_development_chunk_id": cid,
++                    "member_chunk_ids": [cid]}
++        return super().chat_json(prompt, max_tokens, validate, attempts)
++
++
++def _refuse(llm, **kw):
++    raise RuntimeError("GPU0 release not proven: test")
++
++
++class TestPoolOrder(Orchestration):
++    def test_clusters_are_evaluated_first_then_the_wire_headlines(self):
++        with self.assertRaises(es.NoProducibleStory):
++            self.select(ClusterLLM(), release_gpu0_for_whisper=_refuse)
++        t = self.topic()
++        self.assertEqual([(p["pool"], p["evaluated"]) for p in t["pools"]],
++                         [("channel_clusters_48h", True), ("channel_clusters_72h", True), ("wire_headlines", True)])
++        cl = [c for c in t["candidates"] if c["origin"] == "transcript_cluster"]
++        self.assertEqual(len(cl), 1)
++        self.assertTrue(cl[0]["decision"].startswith("INFRA_HOLD"), cl[0]["decision"])
++        self.assertEqual(t["evaluation_order"][0], cl[0]["headline"])          # before any wire headline
++        wire = [c for c in t["candidates"] if c["headline"].startswith("Democrats win")][0]
++        self.assertEqual(wire["coverage"]["status"], "done")
++        (e,) = [e for e in t["emergent_clusters"] if e.get("candidate")]
++        self.assertEqual((e["screen"], e["claim"], e["gate"]), ("48h", cl[0]["headline"], cl[0]["decision"]))
++        counted = {v["video_id"] for v in cl[0]["coverage"]["verdicts"] if v["counted_as_same_event"]}
++        self.assertTrue(counted <= {c.split(":")[0] for c in cl[0]["cluster_member_chunk_ids"]})   # own statements
++
++    def test_a_producible_cluster_leaves_the_wire_headlines_unasked(self):
++        llm = ClusterLLM()
++        saved = (es._clip_quality, ts.acquire)
++
++        def acquire(vid, **kw):
++            return {"transcript_method": "whisper_words_punct", "words": [{"word": "x.", "start": 0, "end": 1}],
++                    "transcript_sha256": "x"}, "cached"
++        es._clip_quality = lambda c, *a, **k: {"producible": True, "chosen": [], "candidates": [],
++                                                "mean_chosen_score": 5.0}
++        ts.acquire = acquire
++        try:
++            label, rec = self.select(llm, release_gpu0_for_whisper=lambda llm, **kw: {"free_mib": 20000})
++        finally:
++            es._clip_quality, ts.acquire = saved
++        t = self.topic()
++        self.assertEqual(t["selected"]["origin"], "transcript_cluster")
++        self.assertEqual([(p["pool"], p["evaluated"]) for p in t["pools"]],
++                         [("channel_clusters_48h", True), ("channel_clusters_72h", False), ("wire_headlines", False)])
++        for c in t["candidates"]:
++            if c["origin"] == "story_engine":
++                self.assertEqual(c["decision"], "not evaluated: the channel_clusters_48h pool produced a story (DEC-13 a)")
++                self.assertNotIn("query", c)
++        self.assertFalse([p for p in llm.prompts if "PARSEFAIL" in p or "Democrats win Congress" in p])
++
++    def test_an_off_brand_cluster_costs_no_model_call(self):
++        for rec in self.uni:                                        # the same three channels, no Bitcoin statement
++            vid = rec["video_id"]
++            m = json.load(open(os.path.join(ts._vdir(vid), "meta.json")))
++            os.unlink(ts.canonical_transcript(vid)["_path"])
++            segs = [{"start": i * 6.0, "end": i * 6.0 + 5.8,
++                     "text": "Our sponsor makes the best coffee grinder and the battery lasts all week. "}
++                    for i in range(30)]
++            ts._store(ts._make_record(m, "yt_auto:en-orig", "fake", segs))
++        llm = ClusterLLM()
++        with self.assertRaises(es.NoProducibleStory):
++            self.select(llm, release_gpu0_for_whisper=_refuse)
++        t = self.topic()
++        self.assertTrue(t["emergent_clusters"])
++        self.assertTrue(all(e["gate"].startswith("Bitcoin screen:") for e in t["emergent_clusters"]))
++        self.assertFalse([p for p in llm.prompts if p.startswith("These transcript excerpts")])
++
++
++class TestLLMCache(unittest.TestCase):
++    def test_a_validated_reply_is_reused_for_the_identical_request_only(self):
++        import tempfile
++        import shutil
++        tmp = tempfile.mkdtemp(prefix="llmcache_")
++        saved = sm.LLM_CACHE_DIR
++        sm.LLM_CACHE_DIR = tmp
++        try:
++            L = sm.LocalLLM.__new__(sm.LocalLLM)
++            L.model, L.calls, L.cache_hits = "fake-model", 0, 0
++            posts = []
++
++            def post(prompt, max_tokens, seed):
++                posts.append(prompt)
++                return '{"verdict": "CURRENT_EVENT"}'
++            L._post = post
++            self.assertEqual(L.chat_json("prompt A"), {"verdict": "CURRENT_EVENT"})
++            self.assertEqual(L.chat_json("prompt A"), {"verdict": "CURRENT_EVENT"})
++            self.assertEqual((len(posts), L.cache_hits), (1, 1))
++            L.chat_json("prompt B")
++            L.chat_json("prompt A", max_tokens=99)
++            self.assertEqual(len(posts), 3)
++
++            def strict(o):
++                raise ValueError("no longer valid")
++            with self.assertRaises(sm.LLMParseError):                  # a cached reply is re-validated
++                L.chat_json("prompt A", validate=strict)
++        finally:
++            sm.LLM_CACHE_DIR = saved
++            shutil.rmtree(tmp, ignore_errors=True)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_punct_word_pass.py b/pipeline/test_punct_word_pass.py
+new file mode 100644
+index 00000000..1a9bccb1
+--- /dev/null
++++ b/pipeline/test_punct_word_pass.py
+@@ -0,0 +1,152 @@
++#!/usr/bin/env python3
++"""Law L-e (2026-11-11, gospel SENTENCE LAW "punctuation is added at transcription time"): the editorial word pass
++(transcript_store.acquire prefer_words) reads sentences only from a sentence-ready record: the verbatim
++whisper_words decode where it needs no restoration, else a whisper_words_punct record whose marks come from a
++prompted large-v3 reference decode of the same audio, onto aligned words only (pipeline/punctuation.py).
++must-fail  Altcoin Daily Ov5jg52HqIY's stored verbatim record (fresh run 2026-11-11 21:39 UTC): 373 words with no
++           sentence mark, so its verified quote read as one 35.28 s 'sentence' (134.80-170.08) and no window existed
++must-pass  the same words after restoration (fixture frozen from the real reference decode): identical words and
++           timings, the quote's sentence is 161.14-170.08 (now rejected for the right reason: a lower-case start)
++unit       acquire upgrades a stored raw record once (the raw record stays), a failed restoration is not
++           sentence-ready, select_passages' reference decode keeps its own settings
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_punct_word_pass.py"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import editorial_select as E  # noqa: E402
++import punctuation as P  # noqa: E402
++import transcript_store as ts  # noqa: E402
++
++FIX = os.path.join(REPO, "tests", "fixtures", "punct_20261111")
++QUOTE = "there's been a scare after the blue wave of the midterms. The market is bearish."
++
++
++def _fixture(name):
++    return json.load(open(os.path.join(FIX, f"Ov5jg52HqIY.{name}.json")))
++
++
++def _quote_window(words, lo=E.HOOK_MIN_S, hi=E.HOOK_MAX_S):
++    """The production window rule (expanded_window), no adjacent sentence admitted."""
++    sents = E._word_sentences(words)
++    anc = E.align_quote(QUOTE, words, 130, 200)
++    return E.expanded_window(words, sents, anc, lo, hi, lambda t: (False, "test: no adjacent sentence"))
++
++
++class TestAltcoinDailyFixture(unittest.TestCase):
++    def test_the_verbatim_record_reads_a_35_s_run_on_sentence(self):
++        raw = _fixture("whisper_words")
++        self.assertFalse(ts.sentence_ready(raw))
++        for lo, hi in ((E.HOOK_MIN_S, E.HOOK_MAX_S), (E.CLIP_MIN_S, E.CLIP_MAX_S)):   # the fresh run's ledger
++            w, why, span = _quote_window(raw["words"], lo, hi)
++            self.assertIsNone(w)
++            self.assertEqual((span["start"], span["end"], span["duration"]), (134.8, 170.08, 35.28))
++            self.assertEqual(why, f"quote sentence(s) 35.28 s > maximum {hi} s")
++
++    def test_the_restored_record_ends_its_sentences(self):
++        raw, pun = _fixture("whisper_words"), _fixture("whisper_words_punct")
++        self.assertTrue(ts.sentence_ready(pun))
++        self.assertEqual([(P._key(a["word"]), a["start"], a["end"]) for a in raw["words"]],
++                         [(P._key(b["word"]), b["start"], b["end"]) for b in pun["words"]])   # words never change
++        self.assertEqual(pun["punctuation"]["verbatim_transcript_sha256"], raw["transcript_sha256"])
++        self.assertIn("large-v3", pun["punctuation"]["model"])
++        self.assertNotIn("distil", pun["punctuation"]["model"])
++        w, why, span = _quote_window(pun["words"])
++        self.assertEqual((span["start"], span["end"]), (161.14, 170.08))
++        self.assertIn("lower-case", why)                      # OPEN (DoD 17:45): case is not transferred
++
++
++class FakeRef:
++    """A reference decode: the same words with sentence punctuation."""
++    def __init__(self, words):
++        self.words, self.calls, self.kwargs = words, 0, None
++
++    def transcribe(self, path, **kw):
++        self.calls += 1
++        self.kwargs = kw
++
++        class W:
++            def __init__(self, w):
++                self.word = w
++
++        class S:
++            def __init__(self, ws):
++                self.words = ws
++        return [S([W(w) for w in self.words])], None
++
++
++class TestAcquireUpgrade(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="punctwp_")
++        self.saved = (ts.STORE_DIR, ts.TRANSCRIPTS_DIR, ts.STATE_DIR, ts.MEDIA_DIR, ts.download_audio, ts._reference)
++        ts.STORE_DIR = self.tmp
++        ts.TRANSCRIPTS_DIR = os.path.join(self.tmp, "transcripts")
++        ts.STATE_DIR = os.path.join(self.tmp, "state")
++        ts.MEDIA_DIR = os.path.join(self.tmp, "media")
++        self.vid = "PUNCTAAAAA1"
++        self.meta = {"schema": 1, "video_id": self.vid, "canonical_url": ts.canonical_url(self.vid),
++                     "channel_id": "UCfakefakefakefakefake01", "channel_name": "Fake Channel",
++                     "exact_title": "show", "published_at": "2026-11-11T00:00:00+00:00", "duration": 600}
++        os.makedirs(ts._vdir(self.vid))
++        ts._write_once(os.path.join(ts._vdir(self.vid), "meta.json"), self.meta)
++        self.plain = [f"word{i}" for i in range(130)]                 # 130 words, no mark: needs restoration
++        words = [{"word": w, "start": i * 0.3, "end": i * 0.3 + 0.25} for i, w in enumerate(self.plain)]
++        ts._store(ts._make_record(self.meta, "whisper_words", "fake distil", ts.sentences_from_words(words),
++                                  extra={"words": words}))
++        audio = os.path.join(self.tmp, "a.m4a")
++        open(audio, "wb").write(b"fake audio")
++
++        def fake_download(video_id):
++            p = os.path.join(self.tmp, f"{video_id}.m4a")
++            shutil.copy(audio, p)
++            return p
++        ts.download_audio = fake_download
++        self.ref = FakeRef([w + ("." if i % 10 == 9 else "") for i, w in enumerate(self.plain)])
++
++    def tearDown(self):
++        (ts.STORE_DIR, ts.TRANSCRIPTS_DIR, ts.STATE_DIR, ts.MEDIA_DIR, ts.download_audio, ts._reference) = self.saved
++        shutil.rmtree(self.tmp, ignore_errors=True)
++
++    def test_a_stored_raw_record_is_restored_once_and_kept(self):
++        ts._reference = lambda: self.ref
++        raw = ts.canonical_transcript(self.vid)
++        self.assertFalse(ts.sentence_ready(raw))
++        r, st = ts.acquire(self.vid, prefer_words=True)
++        self.assertEqual((st, r["transcript_method"]), ("cached+punctuation", "whisper_words_punct"))
++        self.assertTrue(ts.sentence_ready(r))
++        self.assertEqual(r["punctuation"]["marks_transferred"], 13)
++        self.assertEqual(r["punctuation"]["verbatim_transcript_sha256"], raw["transcript_sha256"])
++        self.assertEqual(len(E._word_sentences(r["words"])), 13)
++        self.assertEqual(self.ref.kwargs, {"language": "en", "word_timestamps": True, "initial_prompt": P.PROMPT,
++                                           "batch_size": ts.WHISPER_BATCH})
++        methods = sorted(x["transcript_method"] for x in ts.transcript_records(self.vid))
++        self.assertEqual(methods, ["whisper_words", "whisper_words_punct"])        # the verbatim record stays
++        r2, st2 = ts.acquire(self.vid, prefer_words=True)
++        self.assertEqual((st2, r2["transcript_method"], self.ref.calls), ("cached", "whisper_words_punct", 1))
++
++    def test_a_failed_restoration_is_not_sentence_ready(self):
++        def boom():
++            raise RuntimeError("CUDA out of memory (simulated)")
++        ts._reference = boom
++        r, st = ts.acquire(self.vid, prefer_words=True)
++        self.assertEqual((st, r["transcript_method"]), ("punctuation_failed", "whisper_words"))
++        self.assertFalse(ts.sentence_ready(r))                 # editorial_select treats it as a failure
++        self.assertIn("out of memory", ts.LAST_ERROR[self.vid])
++
++
++class TestSelectPassagesReferenceUnchanged(unittest.TestCase):
++    def test_default_settings_are_select_passages_verbatim_decode(self):
++        ref = FakeRef(["Hello."])
++        P.reference_decode("x.wav", ref)
++        self.assertEqual(ref.kwargs, {"language": "en", "word_timestamps": True, "initial_prompt": P.PROMPT,
++                                      "beam_size": 5, "vad_filter": False})
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/transcript_store.py b/pipeline/transcript_store.py
+index 5460968a..6b2d0601 100644
+--- a/pipeline/transcript_store.py
++++ b/pipeline/transcript_store.py
+@@ -43,12 +43,14 @@ COOKIES = os.path.join(REPO, "data", "yt_cookies.txt")
+ SCHEMA = 1
+ WHISPER_MODEL = "distil-large-v3"           # editorial understanding (49x realtime batched)
+ WHISPER_BATCH = 16
++REFERENCE_MODEL = "large-v3"                # punctuation reference (punctuate): distil + prompt left Altcoin
++                                            # Daily's 373-word stretch unpunctuated; large-v3 batched restored it
+ MAX_DURATION_S = 3 * 3600                   # same VOD ceiling as scan.py
+ CAPTION_BACKOFF_S = (0, 8, 20)
+ CIRCUIT_MINUTES = 30
+ CHUNK_MIN_S, CHUNK_MAX_S = 30.0, 60.0
+ 
+-METHOD_RANK = {"whisper_words": 4, "whisper": 3, "yt_manual": 2, "yt_auto": 1}
++METHOD_RANK = {"whisper_words_punct": 5, "whisper_words": 4, "whisper": 3, "yt_manual": 2, "yt_auto": 1}
+ PROVENANCE_FIELDS = ("video_id", "canonical_url", "channel_id", "channel_name", "exact_title",
+                      "published_at", "duration", "transcript_method", "transcript_model",
+                      "transcript_sha256")
+@@ -281,13 +283,14 @@ def fetch_captions(meta, work_dir):
+ # ── whisper ──
+ 
+ _WHISPER = None
++_REFERENCE = None
+ LAST_ERROR = {}          # video_id -> last acquisition error string (infra vs editorial triage)
+ 
+ 
+ def release_whisper():
+-    """Drop the Whisper model and free its GPU memory (E5). Returns GPU0 used MiB after."""
+-    global _WHISPER
+-    _WHISPER = None
++    """Drop the Whisper models and free their GPU memory (E5). Returns GPU0 used MiB after."""
++    global _WHISPER, _REFERENCE
++    _WHISPER = _REFERENCE = None
+     import gc
+     gc.collect()
+     try:
+@@ -309,6 +312,17 @@ def _whisper():
+     return _WHISPER
+ 
+ 
++def _reference():
++    global _REFERENCE
++    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
++        raise AcquisitionError("Whisper requires CUDA_VISIBLE_DEVICES=0 (GPU1 quarantined)")
++    if _REFERENCE is None:
++        from faster_whisper import WhisperModel, BatchedInferencePipeline
++        _REFERENCE = BatchedInferencePipeline(
++            model=WhisperModel(REFERENCE_MODEL, device="cuda", compute_type="float16"))
++    return _REFERENCE
++
++
+ def whisper_model_id():
+     import faster_whisper
+     return (f"faster-whisper {faster_whisper.__version__} {WHISPER_MODEL} float16 "
+@@ -371,17 +385,50 @@ def whisper_transcribe(meta, transcribe_fn=None, words=False):
+             pass
+ 
+ 
++def sentence_ready(rec):
++    """A word record the sentence law can read: punctuation restored (whisper_words_punct), or a verbatim
++    decode whose words need none (pipeline/punctuation.py; stretches still unpunctuated fail closed)."""
++    import punctuation
++    method = (rec or {}).get("transcript_method")
++    return method == "whisper_words_punct" or (
++        method == "whisper_words" and not punctuation.needs_restoration(rec.get("words") or []))
++
++
++def punctuate(rec, meta):
++    """Gospel SENTENCE LAW (punctuation at transcription time): the whisper_words_punct record for a verbatim
++    whisper_words record that needs it: marks from a second decode of the same audio (REFERENCE_MODEL, the
++    same batched settings, plus punctuation.PROMPT), onto aligned words only. Words and timings never change;
++    the verbatim record stays."""
++    import punctuation
++    audio = download_audio(rec["video_id"])
++    try:
++        out = punctuation.ensure({"words": rec["words"]}, audio, _reference(),
++                                 model_name=whisper_model_id().replace(WHISPER_MODEL, REFERENCE_MODEL)
++                                 + " word_timestamps", settings={"batch_size": WHISPER_BATCH})
++        pun = dict(out.get("punctuation") or {}, verbatim_transcript_sha256=rec["transcript_sha256"],
++                   reference_media_sha256=sha256_file(audio))
++    finally:
++        try:
++            os.unlink(audio)
++        except OSError:
++            pass
++    return _make_record(meta, "whisper_words_punct", rec["transcript_model"] + " + punctuation reference",
++                        sentences_from_words(out["words"]), media_sha256=rec.get("media_sha256"),
++                        extra={"words": out["words"], "punctuation": pun})
++
++
+ # ── policy ──
+ 
+ def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=False,
+             transcribe_fn=None, caption_fn=None, try_captions=True):
+     """Acquisition policy. Returns (record_or_None, status). Never re-transcribes.
+     try_captions=False skips the caption step (used for the Whisper pass after a caption pass
+-    already failed, so YouTube is not asked twice). prefer_words=True guarantees a
+-    word-timestamped Whisper record (clip-quality stage), created at most once per video."""
++    already failed, so YouTube is not asked twice). prefer_words=True guarantees a sentence-ready
++    word-timestamped Whisper record (clip-quality stage): the verbatim decode at most once per video,
++    plus one punctuation record where its words need it (punctuate)."""
+     LAST_ERROR.pop(video_id, None)
+     rec = canonical_transcript(video_id)
+-    if rec and (not prefer_words or rec["transcript_method"] == "whisper_words"):
++    if rec and (not prefer_words or sentence_ready(rec)):
+         return rec, "cached"
+     prefer_whisper = prefer_words
+     meta = ensure_meta(video_id, rss=rss, channel=channel)
+@@ -400,17 +447,27 @@ def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=F
+         # unavailable / throttled / error -> path switch to Whisper
+     if not allow_whisper:
+         return rec, "pending_whisper"
++    step, status = "whisper", "cached"
+     try:
+-        wrec = whisper_transcribe(meta, transcribe_fn=transcribe_fn, words=prefer_words)
++        if not (prefer_words and (rec or {}).get("transcript_method") == "whisper_words"):
++            rec = whisper_transcribe(meta, transcribe_fn=transcribe_fn, words=prefer_words)
++            _store(rec)
++            _log_attempt(video_id, step="whisper", status="ok", model=rec["transcript_model"])
++            status = "whisper"
++        if prefer_words and not sentence_ready(rec):
++            step = "punctuation"
++            prec = punctuate(rec, meta)
++            _store(prec)
++            _log_attempt(video_id, step="punctuation", status="ok",
++                         marks=prec["punctuation"].get("marks_transferred"))
++            status += "+punctuation"
+     except Exception as e:
+         LAST_ERROR[video_id] = f"{type(e).__name__}: {e}"[-400:]
+-        _log_attempt(video_id, step="whisper", status="error", error=str(e)[-300:])
++        _log_attempt(video_id, step=step, status="error", error=str(e)[-300:])
+         if "out of memory" in str(e).lower():
+             release_whisper()          # never keep a half-initialised model around
+-        return rec, "whisper_failed"
+-    _store(wrec)
+-    _log_attempt(video_id, step="whisper", status="ok", model=wrec["transcript_model"])
+-    return canonical_transcript(video_id), "whisper"
++        return canonical_transcript(video_id), f"{step}_failed"
++    return canonical_transcript(video_id), status
+ 
+ 
+ # ── chunks ──

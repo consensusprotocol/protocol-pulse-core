@@ -43,12 +43,14 @@ COOKIES = os.path.join(REPO, "data", "yt_cookies.txt")
 SCHEMA = 1
 WHISPER_MODEL = "distil-large-v3"           # editorial understanding (49x realtime batched)
 WHISPER_BATCH = 16
+REFERENCE_MODEL = "large-v3"                # punctuation reference (punctuate): distil + prompt left Altcoin
+                                            # Daily's 373-word stretch unpunctuated; large-v3 batched restored it
 MAX_DURATION_S = 3 * 3600                   # same VOD ceiling as scan.py
 CAPTION_BACKOFF_S = (0, 8, 20)
 CIRCUIT_MINUTES = 30
 CHUNK_MIN_S, CHUNK_MAX_S = 30.0, 60.0
 
-METHOD_RANK = {"whisper_words": 4, "whisper": 3, "yt_manual": 2, "yt_auto": 1}
+METHOD_RANK = {"whisper_words_punct": 5, "whisper_words": 4, "whisper": 3, "yt_manual": 2, "yt_auto": 1}
 PROVENANCE_FIELDS = ("video_id", "canonical_url", "channel_id", "channel_name", "exact_title",
                      "published_at", "duration", "transcript_method", "transcript_model",
                      "transcript_sha256")
@@ -281,13 +283,14 @@ def fetch_captions(meta, work_dir):
 # ── whisper ──
 
 _WHISPER = None
+_REFERENCE = None
 LAST_ERROR = {}          # video_id -> last acquisition error string (infra vs editorial triage)
 
 
 def release_whisper():
-    """Drop the Whisper model and free its GPU memory (E5). Returns GPU0 used MiB after."""
-    global _WHISPER
-    _WHISPER = None
+    """Drop the Whisper models and free their GPU memory (E5). Returns GPU0 used MiB after."""
+    global _WHISPER, _REFERENCE
+    _WHISPER = _REFERENCE = None
     import gc
     gc.collect()
     try:
@@ -298,15 +301,31 @@ def release_whisper():
         return None
 
 
-def _whisper():
-    global _WHISPER
+def _load(name):
+    """One Whisper model on GPU0 at a time (the word pass's arbitration proves 7 GB free, not two models' worth;
+    Heimdall batch13): loading one drops the other first."""
+    global _WHISPER, _REFERENCE
     if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
         raise AcquisitionError("Whisper requires CUDA_VISIBLE_DEVICES=0 (GPU1 quarantined)")
-    if _WHISPER is None:
+    if (_WHISPER if name == WHISPER_MODEL else _REFERENCE) is None:
+        import gc
+        _WHISPER = _REFERENCE = None
+        gc.collect()
         from faster_whisper import WhisperModel, BatchedInferencePipeline
-        _WHISPER = BatchedInferencePipeline(
-            model=WhisperModel(WHISPER_MODEL, device="cuda", compute_type="float16"))
-    return _WHISPER
+        m = BatchedInferencePipeline(model=WhisperModel(name, device="cuda", compute_type="float16"))
+        if name == WHISPER_MODEL:
+            _WHISPER = m
+        else:
+            _REFERENCE = m
+    return _WHISPER if name == WHISPER_MODEL else _REFERENCE
+
+
+def _whisper():
+    return _load(WHISPER_MODEL)
+
+
+def _reference():
+    return _load(REFERENCE_MODEL)
 
 
 def whisper_model_id():
@@ -371,17 +390,50 @@ def whisper_transcribe(meta, transcribe_fn=None, words=False):
             pass
 
 
+def sentence_ready(rec):
+    """A word record the sentence law can read: punctuation restored (whisper_words_punct), or a verbatim
+    decode whose words need none (pipeline/punctuation.py; stretches still unpunctuated fail closed)."""
+    import punctuation
+    method = (rec or {}).get("transcript_method")
+    return method == "whisper_words_punct" or (
+        method == "whisper_words" and not punctuation.needs_restoration(rec.get("words") or []))
+
+
+def punctuate(rec, meta):
+    """Gospel SENTENCE LAW (punctuation at transcription time): the whisper_words_punct record for a verbatim
+    whisper_words record that needs it: marks from a second decode of the same audio (REFERENCE_MODEL, the
+    same batched settings, plus punctuation.PROMPT), onto aligned words only. Words and timings never change;
+    the verbatim record stays."""
+    import punctuation
+    audio = download_audio(rec["video_id"])
+    try:
+        out = punctuation.ensure({"words": rec["words"]}, audio, _reference(),
+                                 model_name=whisper_model_id().replace(WHISPER_MODEL, REFERENCE_MODEL)
+                                 + " word_timestamps", settings={"batch_size": WHISPER_BATCH}, case=True)
+        pun = dict(out.get("punctuation") or {}, verbatim_transcript_sha256=rec["transcript_sha256"],
+                   reference_media_sha256=sha256_file(audio))
+    finally:
+        try:
+            os.unlink(audio)
+        except OSError:
+            pass
+    return _make_record(meta, "whisper_words_punct", rec["transcript_model"] + " + punctuation reference",
+                        sentences_from_words(out["words"]), media_sha256=rec.get("media_sha256"),
+                        extra={"words": out["words"], "punctuation": pun})
+
+
 # ── policy ──
 
 def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=False,
             transcribe_fn=None, caption_fn=None, try_captions=True):
     """Acquisition policy. Returns (record_or_None, status). Never re-transcribes.
     try_captions=False skips the caption step (used for the Whisper pass after a caption pass
-    already failed, so YouTube is not asked twice). prefer_words=True guarantees a
-    word-timestamped Whisper record (clip-quality stage), created at most once per video."""
+    already failed, so YouTube is not asked twice). prefer_words=True guarantees a sentence-ready
+    word-timestamped Whisper record (clip-quality stage): the verbatim decode at most once per video,
+    plus one punctuation record where its words need it (punctuate)."""
     LAST_ERROR.pop(video_id, None)
     rec = canonical_transcript(video_id)
-    if rec and (not prefer_words or rec["transcript_method"] == "whisper_words"):
+    if rec and (not prefer_words or sentence_ready(rec)):
         return rec, "cached"
     prefer_whisper = prefer_words
     meta = ensure_meta(video_id, rss=rss, channel=channel)
@@ -400,17 +452,27 @@ def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=F
         # unavailable / throttled / error -> path switch to Whisper
     if not allow_whisper:
         return rec, "pending_whisper"
+    step, status = "whisper", "cached"
     try:
-        wrec = whisper_transcribe(meta, transcribe_fn=transcribe_fn, words=prefer_words)
+        if not (prefer_words and (rec or {}).get("transcript_method") == "whisper_words"):
+            rec = whisper_transcribe(meta, transcribe_fn=transcribe_fn, words=prefer_words)
+            _store(rec)
+            _log_attempt(video_id, step="whisper", status="ok", model=rec["transcript_model"])
+            status = "whisper"
+        if prefer_words and not sentence_ready(rec):
+            step = "punctuation"
+            prec = punctuate(rec, meta)
+            _store(prec)
+            _log_attempt(video_id, step="punctuation", status="ok",
+                         marks=prec["punctuation"].get("marks_transferred"))
+            status += "+punctuation"
     except Exception as e:
         LAST_ERROR[video_id] = f"{type(e).__name__}: {e}"[-400:]
-        _log_attempt(video_id, step="whisper", status="error", error=str(e)[-300:])
+        _log_attempt(video_id, step=step, status="error", error=str(e)[-300:])
         if "out of memory" in str(e).lower():
             release_whisper()          # never keep a half-initialised model around
-        return rec, "whisper_failed"
-    _store(wrec)
-    _log_attempt(video_id, step="whisper", status="ok", model=wrec["transcript_model"])
-    return canonical_transcript(video_id), "whisper"
+        return canonical_transcript(video_id), f"{step}_failed"
+    return canonical_transcript(video_id), status
 
 
 # ── chunks ──

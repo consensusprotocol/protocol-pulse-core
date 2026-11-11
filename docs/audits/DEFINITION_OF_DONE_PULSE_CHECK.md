@@ -6,7 +6,87 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 15:38 ET; newest first)
+## LIVE STATE (updated 2026-11-11 18:56 ET; newest first)
+
+- 18:56 BATCH 13 COMMITTED (see git log; pushed): DEC-13 + laws L-e / L-f + the validated-reply cache, audit
+  dispositions in docs/audits/pulse-sentence-law/batch13_dec13/AUDIT_RESPONSE.md (implemented: case transfer
+  where both decodes end a sentence, plural Bitcoin terms, one Whisper model on GPU0 at a time, the model digest
+  in the cache key, per-process cache temp files, ledger channels by id; rejected with evidence: U-2 and the
+  rest). Verified at commit: batch suites 102 passed / 12 GPU-skipped; regression_test.sh 26 PASS / 0 FAIL;
+  pipeline/regression.sh PASS incl. step 6 PULSE PREVIEW REFERENCE: REPRODUCED. Also fixed two stale tests red
+  since 4ca4b426 / ae965c95 (DEC-12a G9 floors; run_isolated.py pinned to the tag or the audited DEC-10
+  version): both were among the six 15:55 batch-12 failures I reported as CUDA out-of-memory; that report was
+  wrong for these two. STILL RUNNING at commit: Law 22 v2f re-render (GPU0, started 18:27), the full CPU suite,
+  three Heimdall cross-examination rounds; then the GPU-gated tests alone on GPU0; then the wrapper.
+
+- 18:30 DEC-13 BATCH BUILT (uncommitted; audits + regressions running): (b) ANSWERED: the same-event merge DID
+  run inside the wrapper (editorial step 5b, all 19 evaluated candidates) and made zero groups, because no two
+  candidates shared a counted statement (BlackRock outflows rested only on Stephan Livera, the $74K headline
+  only on Bloomberg, Tavi Costa only on Altcoin Daily); not a defect. Measured on today's universe (4,284
+  chunks): the old cluster rule (>= 3 channels, the 8 widest) kept 8 evergreen / off-brand topic clusters and
+  put NONE of the $74K-pullback or ETF-outflow statements in any cluster; with >= 2 channels there are 252
+  clusters, 58 pass a free Bitcoin screen (43 inside 48 h); the $74K-pullback statements form one 4-channel
+  cluster (Coin Bureau "Bitcoin's recent drop stalled just above the line traders use to separate a pullback
+  from a bear market", Altcoin Daily, Bitcoin Magazine, Marty Bent; 48 h tier) and the ETF-outflow statements a
+  2-channel cluster (Coin Bureau, Bitcoin Magazine; 72 h tier: Bitcoin Magazine's is 50 h old). They are two
+  clusters, not one, at the unchanged clustering threshold (0.22). No LLM verdict cache existed ("as now"):
+  added. Built: pools channel_clusters_48h -> channel_clusters_72h -> wire_headlines (lazy, a pool runs only
+  if no earlier pool produced); cluster_entry screen before any model call; a cluster's coverage adjudicates
+  its own statements; per-cluster ledger (channels, statements, claim, counted quotes, gate); label = one
+  sentence from the shared statements; validated-reply cache sha256(model, ctx, max_tokens, prompt). Plus law
+  L-e (word pass punctuation: whisper_words_punct from a large-v3 batched prompted reference; Altcoin 373 ->
+  112 unpunctuated words, quote sentence 35.28 s -> 8.94 s). Laws L-e, L-f in the gospel, PIPELINE_LAWS LAW
+  26, this doc, the bible (E-FAIL-033 / 034). Tests: test_dec13_clusters.py (10, real fixture
+  tests/fixtures/dec13_20261111), test_punct_word_pass.py (5, fixture tests/fixtures/punct_20261111);
+  editorial suites 87 passed. Audit: docs/audits/pulse-sentence-law/batch13_dec13 (cross-LLM + Heimdall).
+  Law 22 (v2f identity) re-render running alone on GPU0 (also owed from 4ca4b426).
+
+- 18:02 DEC-13 RECEIVED (orchestrator 18:00, binding): candidates come from the channels' own conversation
+  FIRST. a) primary candidates = emergent clusters over the last 48 h (72 h max) of transcripts, >= 2
+  independent approved channels on the same development, the claim written from the shared statements (one
+  sentence, the event itself), supporting quotes attached; wire / story-engine headlines only name, date or
+  enrich a cluster, or stand alone after every cluster is exhausted. b) the same-event merge runs BEFORE the
+  coverage count on every run (auto since 55eb579b): confirm it executed in runs/fresh_20261111_213954 and on
+  which candidates; if it did not run inside the wrapper, that is the defect; merge rule, MIN_COVERAGE_CHANNELS
+  2, hook >= 4.0, stand-alone, topic and sentence laws unchanged. c) the Bitcoin-only screen (BTC_RELEVANCE_MIN
+  as is) applies to clusters before any model call. d) the ledger names, per cluster, the channels, the shared
+  claim, the quotes and the exact gate that stopped it. e) reuse this run's universe, transcripts, embeddings
+  and verdict cache (keyed by prompt sha): minutes, not an hour. Tests: a fixture from today's saved universe in
+  which the BlackRock-outflow / $74K / midterms statements form one cluster with >= 2 channels (must produce a
+  candidate); two channels on different events must NOT merge. Audit, regressions, both references, commit +
+  push (the 3-in-a-row count restarts there). Then the wrapper on today's universe; first clean pass to
+  Telegram as ordered at 15:30; else the three nearest misses and what each lacked. Still owed after the
+  fresh video: the B/C verification render (Natalie 'rally' whole) alone on GPU0.
+- 17:34 FRESH RUN HELD (ledger-backed): runs/fresh_20261111_213954 at 4ca4b426 (16:39-17:34, selection
+  3,282 s): "HOLD: no candidate is producible". 24 candidates: 13 currentness inconclusive (11 missing, 2
+  conflict), 3 coverage 1 < 2 (BlackRock ETF outflows, OKX / ICE, Bitcoin near $74K), 5 importance gate
+  (bitcoin_relevance < 3), 3 window stage: the Fed (Bloomberg's caption quote is not in the Whisper words;
+  Natalie 7.15 s; TheStreet a question / 11.79 s), the AI sell-off (no hook >= 4.0), US midterms (Bloomberg's
+  caption quote is not in the Whisper words; Altcoin Daily's quote 'sentence' 35.28 s).
+- 17:45 DEFECT FOUND (gospel SENTENCE LAW, "punctuation is added at transcription time"): the editorial word
+  pass (transcript_store.acquire prefer_words -> distil-large-v3 batched) never applies pipeline/punctuation.py;
+  only select_passages does. 29 of the 44 stored word records have unpunctuated stretches; Altcoin Daily
+  Ov5jg52HqIY: 373 words, so its quote sentence read 134.80-170.08 (35.28 s). Not outcome-changing today (US
+  midterms' second channel, Bloomberg, cannot anchor at all: its manual captions paraphrase the speech, fail
+  closed by design), but a law gap. Fix (uncommitted, joins the DEC-13 batch): a whisper_words_punct record
+  (immutable; the verbatim record is kept), punctuation from a prompted reference decode onto aligned words
+  only. Measured on Altcoin: distil batched + prompt moved 39 marks but NOT into the quote stretch; large-v3
+  sequential + prompt restored it (169 s); large-v3 batched + prompt restored it in 22.8 s (92 marks, 373 ->
+  112 unpunctuated words) -> the reference is large-v3 batched. (Then OPEN: transfer copied punctuation only, so
+  a sentence start inside a restored stretch stayed lower-case and the editorial start_is_boundary rejected it;
+  CLOSED 18:33 by the batch-13 audit's unanimous U-1: the sentence-initial capital is transferred with the
+  mark in the editorial word pass only; start_is_boundary itself is unchanged.)
+
+- 16:40 BATCH IN: 4ca4b426 pushed (DEC-12 a/c/d/e/f + B + C + laws L-a..L-d + delivery kit; audits batch12_dec12,
+  batch12b_dec12_final, heimdall_telegram; suites green, GPU set re-run alone 26 passed; regression_test.sh 26/0;
+  pipeline/regression.sh PASS incl. step 6 REPRODUCED). E STARTED: the wrapper (auto) on a fresh story at
+  4ca4b426: runs/fresh_20261111_213954 (log logs/pulse_check/run_20261111_213954.log). 4b count: 1 of 3 if
+  HEAD stays 4ca4b426 (no commits until the third run; this doc stays uncommitted meanwhile).
+  B/C verification replay of the Nov 10 cut (runs/pinned_20261111_172202_replay_verifybc): the voice stage
+  generated "Big thanks to DataDash, Natalie Brunell, Yahoo Finance, and Bitcoin Magazine for the clips
+  today. Follow them all, links below." (all four, passed the L-a pre-render check); its render then HELD on
+  NVENC CUDA_ERROR_OUT_OF_MEMORY (GPU0 shared with the test suite at the time): to be re-run alone after the
+  fresh run. Law 22 re-proof at 4ca4b426: after the fresh run (GPU0 one job at a time).
 
 - 15:38 FULL STATE (handoff-grade; CURRENT_STATE.md top mirrors it).
   LOCK (A) DONE: annotated tag ref-pulse-preview-2026-11-11 on 5c17e9b3 (pushed); side branch
@@ -512,6 +592,8 @@ class as OD-6 (G3 on one word). Decision as OD-6.
 | L-b EDGE WORDS WHOLE: a fade never overlaps an edge word: the first and last word of every clip are heard whole, at full level, with their natural decay. | sentence_law.edge_fades places each machine-cut fade (2 frames, shortened down to 10 ms) inside the gap next to the cut, measured from the cut point's level; G17c (sentence_law.gate_g17_edges) requires every frame of both edge words within 1 dB of the unfaded source. Must-fail: the preview's Natalie Brunell tail ('...participated in the Monday rally.'). Must-pass: the L-b re-cut of it; v2f's edges except its two recorded legacy edges. | see Check | enforced (DEC-12 batch, 2026-11-11) |
 | L-c DISSENT IS RIGHT UNTIL DISPROVED: a check that disagrees with the others on an edge word is treated as right until an acoustic comparison against the source proves otherwise. | run_fresh.stage_gates: a dissenting G3b reading (DEC-12f) or a G3c head / tail failure on an edge stands (HOLD / FAIL) unless G17c and G16's neighbour_clear both pass for that edge. | see Check | enforced (DEC-12 batch, 2026-11-11) |
 | L-d PROTECTED PREVIEW: the PBX-approved preview of 2026-11-11 is a protected reference. | pipeline/regression.sh step 6 (pipeline/check_preview_reference.py): its selection locks, cut points and 9:16 layout must reproduce with the current code; tag ref-pulse-preview-2026-11-11; references/pulse_preview_2026-11-11 (read-only, SHA256SUMS). | see Check | enforced (DEC-12 batch, 2026-11-11) |
+| L-e PUNCTUATED BEFORE READ: every word transcript the sentence law reads, the editorial word pass included, has its sentence punctuation restored from a prompted second decode of the same audio before any sentence is read. | transcript_store.acquire(prefer_words) returns only a sentence_ready record: the verbatim decode where no stretch reads unpunctuated, else a whisper_words_punct record (marks from a large-v3 batched reference decode with punctuation.PROMPT, onto aligned words only, plus a sentence-initial capital where both decodes end a sentence right before the word, so editorial start_is_boundary reads the reference's own evidence; word keys and timings unchanged; the verbatim record kept; one Whisper model on GPU0 at a time); editorial_select's word pass treats any other record as failed. Must-fail: Altcoin Daily Ov5jg52HqIY's verbatim record (its quote read as one 35.28 s sentence). Must-pass: its restored record (the quote's sentence 161.14-170.08, "Even thinking about the seasonality, ... the midterms.", a valid 8.94 s hook window). Test: pipeline/test_punct_word_pass.py. | see Check | enforced (DEC-13 batch, 2026-11-11) |
+| L-f CHANNELS FIRST (DEC-13): story candidates come from the channels' own conversation first: clusters of statements by at least two independent channels, screened for Bitcoin before any model call, with the claim written from their shared statements and their quotes attached; wire headlines are evaluated only after every cluster is exhausted. | editorial_select pools channel_clusters_48h -> channel_clusters_72h -> wire_headlines (a pool runs only when every earlier one produced nothing); cluster_entry (>= 2 channels with a Bitcoin statement, 48 h tier then 72 h max, else stopped with no model call; one statement per channel); a cluster's coverage adjudicates its own statements; every cluster's ledger entry names its channels, claim, statements, counted quotes and the gate that stopped it; a validated model reply is cached by sha256(model, its Ollama digest, context, max_tokens, prompt). MIN_COVERAGE_CHANNELS 2, hook >= 4.0, stand-alone, topic and sentence laws unchanged. Must-produce: today's $74K-pullback statements (4 channels) and ETF-outflow statements (2 channels) reach the model (under the old rule they were in no cluster). Must-not: Bloomberg's Fed-hike and Natalie Brunell's ETF-outflow statements never share a cluster. Test: pipeline/test_dec13_clusters.py. | see Check | enforced (DEC-13 batch, 2026-11-11) |
 | Round credit avatars of the channels actually used | G12 (count), G15 (ring aspect, continuity), R6 (credits == EDL channels, unique avatar hashes), shoutout.validate_avatar + registry-only avatars | T: TestD4Credits (yesterday's card fails G12/G15; thumbnail refused; v2f passes) | enforced (3641440f) |
 | On-brand transitions between channels only | pipeline/pulse_transitions.plan (different channels only, never at the open, overlap only inside measured non-speech) + concat (frame-locked xfade/acrossfade); G14/G11/loudness gates on the final | T: test_transitions (planner rules; dissolve over silence only; picture and sound of the dissolved-into clip start together; C insert 8 frames < 0.35 s, red line on black) | enforced (Phase 3) |
 | Speaker-centred vertical; safe frame only for screen / unidentifiable speaker, flagged | stage `layout` (vertical_layout.classify: SCRFD-10G, sha-pinned; per-shot classes) -> render_vertical.reframe_auto; G4s LAYOUT TRUTH (each shot label = the re-measured majority class; a 9:16 shot is the safe frame iff labelled screen/uncertain, band correlation >= 0.90); G4 per shot (unchanged gate_g4 rules); EDL `vertical_layout`; caption `vertical_layout.layout_note` | T: TestSafeFrameTruth (D5: Yahoo's talking head as safe frame fails), TestLayoutTruth (talking head mislabelled as screen fails, DEC-2), TestCaptionNote, TestStackGeometry, test_pinned auto for every channel status | enforced (Phase 2); caption wired in 4a |
@@ -631,6 +713,15 @@ Received 02:50 ET. Recorded verbatim in substance; implementation status tracked
   L-b EDGE WORDS WHOLE: a fade never overlaps an edge word: the first and last word of every clip are heard whole, at full level, with their natural decay.
   L-c DISSENT IS RIGHT UNTIL DISPROVED: a check that disagrees with the others on an edge word is treated as right until an acoustic comparison against the source proves otherwise.
   L-d PROTECTED PREVIEW: the PBX-approved preview of 2026-11-11 is a protected reference.
+
+- **DEC-13 (orchestrator 2026-11-11 18:00).** Candidates come from the channels' own conversation first
+  (emergent clusters, >= 2 independent channels, last 48 h, 72 h max; the claim from the shared statements,
+  quotes attached); wire headlines only name / date / enrich or stand after every cluster is exhausted; the
+  same-event merge before the coverage count every run; a Bitcoin screen before any model call; a per-cluster
+  ledger; reuse of universe, transcripts, embeddings and verdicts. Rule unchanged: the same-event verifier,
+  MIN_COVERAGE_CHANNELS 2, hook >= 4.0, stand-alone, topic and sentence laws. Laws added with it:
+  L-e PUNCTUATED BEFORE READ: every word transcript the sentence law reads, the editorial word pass included, has its sentence punctuation restored from a prompted second decode of the same audio before any sentence is read.
+  L-f CHANNELS FIRST (DEC-13): story candidates come from the channels' own conversation first: clusters of statements by at least two independent channels, screened for Bitcoin before any model call, with the claim written from their shared statements and their quotes attached; wire headlines are evaluated only after every cluster is exhausted.
 
 ### DEC-10a — v2f edge timing, measured (2026-11-11 10:45, sentence_law's own level/onset functions)
 

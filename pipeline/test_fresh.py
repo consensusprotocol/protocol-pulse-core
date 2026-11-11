@@ -313,10 +313,13 @@ class TestRunFreshRules(unittest.TestCase):
 
 class TestProtected(unittest.TestCase):
     def test_run_isolated_unchanged_from_reference_tag(self):
-        tagged = subprocess.run(["git", "show", "ref-v2f-2026-11-06:pipeline/run_isolated.py"],
-                                cwd=REPO, capture_output=True, check=True).stdout
-        self.assertEqual(hashlib.sha256(tagged).hexdigest(),
-                         _sha(os.path.join(PIPELINE, "run_isolated.py")))
+        """run_isolated.py is the tagged file or the audited DEC-10 version (ae965c95: prerender_clips applies each
+        cut's declared fade lengths, absent = the tagged 20 / 30 ms, so v2f's table renders unchanged; Law 22
+        re-proven byte-identical after it). Any other change fails."""
+        allowed = {hashlib.sha256(subprocess.run(["git", "show", f"{ref}:pipeline/run_isolated.py"], cwd=REPO,
+                                                 capture_output=True, check=True).stdout).hexdigest()
+                   for ref in ("ref-v2f-2026-11-06", "ae965c95")}
+        self.assertIn(_sha(os.path.join(PIPELINE, "run_isolated.py")), allowed)
 
     @unittest.skipUnless(HAVE_REF, "reference not present")
     def test_frozen_reference_checksums(self):

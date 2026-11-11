@@ -44,6 +44,7 @@ LLM_MODEL = "gemma3:27b"
 LLM_HOST = "127.0.0.1:11434"
 LLM_CTX = 16384
 LLM_ATTEMPTS = 3
+LLM_CACHE_DIR = os.path.join(STORE_DIR, "llm_cache")   # DEC-13 e: validated replies, one per exact request
 
 VERDICTS = ("CURRENT_EVENT", "HISTORICAL_BACKGROUND", "SAME_TOPIC_DIFFERENT_EVENT", "UNRELATED")
 SUPPORT = ("SUPPORTS", "BACKGROUND", "TOPIC_ONLY", "UNRELATED")
@@ -141,6 +142,7 @@ class LocalLLM:
         _gpu_guard()
         self.model, self.host = model, host
         self.calls = 0
+        self.cache_hits = 0
         self.serve_pid = None
         self.placement_checked = False
 
@@ -165,6 +167,7 @@ class LocalLLM:
                                f"CUDA_VISIBLE_DEVICES={env.get('CUDA_VISIBLE_DEVICES')}")
         self.serve_pid = pid
         self.serve_env = {k: env.get(k) for k in ("CUDA_VISIBLE_DEVICES", "OLLAMA_HOST")}
+        self.digest = model_digest(self.host, self.model)       # the reply cache is keyed by the weights too
         return self
 
     def runner_pids(self):
@@ -202,7 +205,23 @@ class LocalLLM:
 
     def chat_json(self, prompt, max_tokens=700, validate=None, attempts=LLM_ATTEMPTS):
         """Bounded attempts. Each attempt: request -> lenient parse -> validate. Raises
-        LLMParseError carrying every raw response and error; never invents a result."""
+        LLMParseError carrying every raw response and error; never invents a result.
+        DEC-13 e: a validated reply is cached by sha256(model, its Ollama digest, context, max_tokens, prompt)
+        (temperature 0, fixed seeds), so a re-run on the same universe re-asks nothing; a cached reply is
+        re-validated; without a known digest nothing is cached (re-pulled weights never meet old replies)."""
+        digest = getattr(self, "digest", None)                  # unknown weights: no cache at all
+        key = hashlib.sha256(json.dumps([self.model, digest, LLM_CTX, max_tokens, prompt]).encode()).hexdigest()
+        path = os.path.join(LLM_CACHE_DIR, key[:2], key + ".json") if digest else None
+        if path and os.path.exists(path):
+            try:
+                with open(path) as f:
+                    obj = json.load(f)["reply"]
+                if validate:
+                    validate(obj)
+                self.cache_hits += 1
+                return obj
+            except Exception:
+                pass                                  # unreadable or no longer valid: ask again
         log = []
         for i in range(attempts):
             why = f" ({log[-1]['error'][:200]})" if log else ""
@@ -214,6 +233,16 @@ class LocalLLM:
                 obj = parse_json_lenient(raw)
                 if validate:
                     validate(obj)
+                try:
+                    if path:
+                        os.makedirs(os.path.dirname(path), exist_ok=True)
+                        tmp = f"{path}.{os.getpid()}.tmp"     # concurrent writers never share a temp file
+                        with open(tmp, "w") as f:
+                            json.dump({"model": self.model, "digest": digest, "max_tokens": max_tokens,
+                                       "attempt": i + 1, "reply": obj}, f)
+                        os.replace(tmp, path)
+                except OSError:
+                    pass                              # a cache that cannot be written never fails the call
                 return obj
             except RuntimeError as e:
                 if "not on GPU0" in str(e):
@@ -247,6 +276,15 @@ def gpu0_memory():
                           "--format=csv,noheader,nounits"], capture_output=True, text=True).stdout
     u, t = [int(x) for x in out.strip().split(",")]
     return u, t
+
+
+def model_digest(host, model):
+    """The Ollama digest of `model` (its weights), or None when it cannot be read."""
+    try:
+        r = json.loads(urllib.request.urlopen(f"http://{host}/api/tags", timeout=10).read())
+        return next((m.get("digest") for m in r.get("models", []) if m.get("name") == model), None) or None
+    except Exception:
+        return None
 
 
 def loaded_models(host=LLM_HOST):
@@ -657,8 +695,9 @@ Is there ONE specific real-world news event that most of these excerpts discuss 
 DEVELOPMENT (something that happened or materially changed in the last few days)? Historical events
 mentioned only as background, evergreen themes, generic market talk, ad reads and small talk do
 not qualify.
-Return ONLY JSON: {{"is_specific_event": true/false, "headline": a neutral news headline for the
-CURRENT development, "summary": two sentences, "event_date": "YYYY-MM-DD" / "YYYY-MM" / "YYYY" /
+Return ONLY JSON: {{"is_specific_event": true/false, "headline": ONE neutral sentence stating the
+CURRENT development itself, as these excerpts state it in common (not one channel's angle or opinion),
+"summary": two sentences, "event_date": "YYYY-MM-DD" / "YYYY-MM" / "YYYY" /
 "unknown", "current_development_quote": an exact verbatim quote (8-30 words) copied from inside the
 excerpts that shows the development is current, "current_development_chunk_id": the excerpt id it
 comes from, "member_chunk_ids": [ids of the excerpts that discuss it]}}"""

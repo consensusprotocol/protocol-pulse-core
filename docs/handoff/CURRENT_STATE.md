@@ -1,35 +1,37 @@
-# CURRENT STATE — 2026-11-11 15:38 ET (Pulse Check mission; CC session in tmux pipeline_pp_dod)
+# CURRENT STATE — 2026-11-11 18:42 ET (Pulse Check mission; CC session in tmux pipeline_pp_dod)
 
-Read docs/audits/DEFINITION_OF_DONE_PULSE_CHECK.md first: LIVE STATE (newest first; the 15:38 entry is the
-full state), DEC-1..DEC-12, OD-1..OD-10. Then docs/RUNBOOK_PULSE_CHECK.md and
-docs/references/REFERENCE_PULSE_PREVIEW_2026-11-11.md. Branch `combo-letterbox-quoteonly-v2`; last pushed
-commit 5c17e9b3; the DEC-12 + B + C batch is UNCOMMITTED in the working tree (list in the DoD 15:38 entry).
-Nothing is published; Telegram (the approval chat, pipeline/telegram.py) gets a run only when every gate
-passed. Publishing and installing the schedule wait for PBX; every other obvious correction is applied and
-written into the laws in the same batch (PBX standing rule, 15:35).
+Read docs/audits/DEFINITION_OF_DONE_PULSE_CHECK.md first: LIVE STATE (newest first), DEC-1..DEC-13, the
+15:30 order and laws L-a..L-f, OD-1..OD-10. Then docs/RUNBOOK_PULSE_CHECK.md and
+docs/references/REFERENCE_PULSE_PREVIEW_2026-11-11.md. Branch `combo-letterbox-quoteonly-v2`. Nothing is
+published; Telegram (the approval chat, pipeline/telegram.py) gets a run only when every gate passed, plus the
+publishing kit (title, description with every source linked, "credits:" line + orange heart). Publishing and
+installing the schedule wait for PBX; every other obvious correction is applied and written into the laws in
+the same batch.
 
 ## Where things stand
-- PBX approved the 2026-11-11 PREVIEW (Telegram 67640 / 67641): "nearly perfect ... I would publish it right
-  now". Locked: tag ref-pulse-preview-2026-11-11 (5c17e9b3), side branch ref-pulse-preview-2026-11-11-replay-state,
-  references/pulse_preview_2026-11-11/ (read-only), regression.sh step 6 (pipeline/check_preview_reference.py).
-- Two defects PBX named in it, being fixed in the current batch: (B) the sign-off VO named 3 of the 4
-  credited channels (the generator lists the clips' channels, not the hook's); (C) Natalie Brunell's last word
-  'rally' is clipped by the 83 ms edge fade at 80.84 (the fade starts inside the word's decay).
-- Orchestrator decisions in force: DEC-10 (edge timing calibrated to v2f; valley cuts), DEC-11 (credits rings
-  measured on the drawn ring + registered-avatar discs), DEC-12 a/c/d/e/f (G9 floor from a measured spread,
-  head-onset fallbacks, has_chyron channels never supply clips, G14 speech sampling, G3b majority) with 12b
-  AMENDED by C (fades never overlap edge words). Laws L-a..L-d (15:35) go into the gospel, the PIPELINE_LAWS
-  Pulse Check section, the DoD and the bible in this batch.
+- PBX approved the 2026-11-11 PREVIEW (Telegram 67640 / 67641) and it is locked (tag
+  ref-pulse-preview-2026-11-11, references/pulse_preview_2026-11-11/, regression.sh step 6). Its two named
+  defects are fixed and law (4ca4b426: L-a sign-off names all, L-b edge words whole, L-c dissent stands, L-d).
+- Today's fresh auto run at 4ca4b426 (runs/fresh_20261111_213954) HELD with a full ledger: 24 headline-shaped
+  candidates, none producible. Orchestrator DEC-13 (18:00): candidates come from the channels' own conversation
+  first. Found in the same run: the editorial word pass never restored punctuation (law L-e).
+- BATCH 13 (DEC-13 + L-e + L-f + a validated LLM reply cache): built, tested, audited
+  (docs/audits/pulse-sentence-law/batch13_dec13, AUDIT_RESPONSE.md), regressions green, committed + pushed
+  18:56; Law 22, the full CPU suite and the GPU-gated tests were still running at commit time.
+  Pools: channel_clusters_48h -> channel_clusters_72h -> wire_headlines (a later pool runs only when no earlier
+  one produced); a free Bitcoin screen before any model call; per-cluster ledger; the word pass makes a
+  whisper_words_punct record (large-v3 batched reference, marks + the sentence-initial capital where both
+  decodes end a sentence; one Whisper model on GPU0 at a time).
 
 ## Next actions, in order
-1. Finish B and C (code, must-fail tests on the preview, gates G20 and the G17 edge-word comparison), write
-   L-a..L-d into the four law documents.
-2. One audit (scratchpad audit_wt.sh: cross-LLM + Heimdall deepseek,qwen27b), suites, regression_test.sh,
-   pipeline/regression.sh (incl. step 6), Law 22 v2f identity (pipeline/run_isolated.py --clip1-out 249.63
-   --allow-clip1-gap-ms 20; sha 472938134157b649 / 5545a261feedd8c1), commit + push.
-3. `bash scripts/pulse_check_run.sh` (auto, no PIN) on a FRESH Bitcoin story from today's universe; on a clean
-   pass the wrapper delivers; add the title / description / first-comment credit line to the caption thread.
-   This run is 1 of 3 for 4b if HEAD stays unchanged for the next two.
+1. Finish batch 13: remaining audit passes, the CPU suite, the GPU tests (CUDA_VISIBLE_DEVICES=0 alone),
+   Law 22 v2f identity (pipeline/run_isolated.py --clip1-out 249.63 --allow-clip1-gap-ms 20; sha
+   472938134157b649 / 5545a261feedd8c1), commit + push (the 3-in-a-row count restarts there).
+2. `bash scripts/pulse_check_run.sh` (auto, no PIN) on today's universe. A clean pass: the wrapper delivers
+   (HOLD FOR APPROVAL, both formats, contact sheets, title, description with credited links, first-comment
+   credit line). Clusters exhausted: report the three nearest misses and what each lacked.
+3. After the fresh video: the B/C verification render of the Nov 10 cut alone on GPU0 (Natalie's 'rally' whole;
+   scratchpad dec12/replay_verify_bc.py on runs/pinned_20261111_172202).
 
 ## Tooling notes (this machine)
 - Bash commands that contain ".env" or "--force" are blocked by a hook (use python; `git worktree remove`

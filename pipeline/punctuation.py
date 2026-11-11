@@ -45,21 +45,49 @@ def transfer(words, ref):
     return out, moved
 
 
-def reference_decode(source_path, model):
-    """The punctuation reference: the same ASR settings as the verbatim decode, plus PROMPT."""
-    segs, _ = model.transcribe(source_path, language="en", beam_size=5, word_timestamps=True,
-                               vad_filter=False, initial_prompt=PROMPT)
+VERBATIM = {"beam_size": 5, "vad_filter": False}     # select_passages' verbatim decode (large-v3)
+
+
+def transfer_case(words, ref):
+    """Editorial word pass only (law L-e; audit batch13 U-1): copy a reference word's sentence-initial capital onto
+    the aligned verbatim word when BOTH decodes end a sentence right before it (the result's previous word and the
+    reference's previous word are terminal, sentence_law.is_terminal) and the reference capitalises it, so
+    editorial_select.start_is_boundary reads the same evidence the mark came from. Never the first word (no sentence
+    end before it), never lower-cases; only that first letter changes, word keys never do.
+    Returns (new words, words recased)."""
+    a, b = [_key(w["word"]) for w in words], [_key(w["word"]) for w in ref]
+    out, cased = [dict(w) for w in words], 0
+    for blk in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
+        for j in range(blk.size):
+            i, k = blk.a + j, blk.b + j
+            w, r, v = out[i], ref[k]["word"].strip(), out[i]["word"].strip()
+            if (i and k and a[i] and r[:1].isupper() and v[:1].islower() and L.is_terminal(out[i - 1]["word"])
+                    and L.is_terminal(ref[k - 1]["word"])):
+                w["word"] = w["word"].replace(v, v[0].upper() + v[1:], 1)
+                cased += 1
+    return out, cased
+
+
+def reference_decode(source_path, model, settings=None):
+    """The punctuation reference: the same ASR settings as the verbatim decode, plus PROMPT. settings = the
+    caller's verbatim decode settings (default VERBATIM; the editorial word pass passes its batched ones)."""
+    segs, _ = model.transcribe(source_path, language="en", word_timestamps=True, initial_prompt=PROMPT,
+                               **(settings or VERBATIM))
     return [{"word": w.word.strip()} for s in segs for w in (s.words or [])]
 
 
-def ensure(record, source_path, model, model_name="large-v3"):
+def ensure(record, source_path, model, model_name="large-v3", settings=None, case=False):
     """The transcript record with sentence punctuation. Verbatim word keys never change. model_name is the
-    caller's name for `model` (recorded as provenance)."""
+    caller's name for `model` (recorded as provenance); settings as in reference_decode; case=True (the editorial
+    word pass) also transfers sentence-initial capitals (transfer_case)."""
     if record.get("punctuation") or not needs_restoration(record["words"]):
         return record
-    ref = reference_decode(source_path, model)
+    ref = reference_decode(source_path, model, settings)
     words, moved = transfer(record["words"], ref)
+    extra = {}
+    if case:
+        words, extra["cases_transferred"] = transfer_case(words, ref)
     assert [_key(w["word"]) for w in words] == [_key(w["word"]) for w in record["words"]]
     return dict(record, words=words, punctuation={
-        "source": "asr_reference", "model": model_name, "prompt": PROMPT, "marks_transferred": moved,
+        "source": "asr_reference", "model": model_name, "prompt": PROMPT, "marks_transferred": moved, **extra,
         "still_unpunctuated": needs_restoration(words), "reference_text": " ".join(w["word"] for w in ref)})
