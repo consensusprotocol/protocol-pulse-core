@@ -6,7 +6,25 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 06:45 ET; newest first)
+## LIVE STATE (updated 2026-11-11 07:27 ET; newest first)
+
+- 07:23 recut run 5 (runs/pinned_20261111_120910, HEAD b74c3b6c) HELD at render after 642 s:
+  env..layout PASS (clip_02 fade retry 37.86 PASS; all six edges PASS). ffmpeg refused the transition
+  graph: "First input link main timebase (1/1000000) do not match ... xfade timebase (1/24)": no room
+  for a dissolve at hook->clip_01 (hard cut = concat filter), dissolve at clip_01->clip_02 (2 frames,
+  bounded by measured non-speech) took the concat output as its first input. Phase 3 tests only dissolved
+  at the first junction. Fix: settb=1/24 on xfade's running input; reproduced on the real graph (1290
+  frames = 53.75 s, A/V equal) and by a new A,A,B test that fails on the old code with the production
+  message (E-FAIL-025). Audit (batch5_xfade_timebase) + regressions running; then commit, push, run 6.
+  Nothing delivered for run 5 (no finals).
+
+- 07:15 4b on branch pulse-4b-wip (a2b56e53, worktree ~/worktrees/pulse-4b, pushed): same-event merge,
+  DEC-9 story ledger (+ wrapper hook), letterbox one frame per shot, runbook, bible E-FAIL-023/024. Batch
+  audit 4 (b74c3b6c..pulse-4b-wip) running; lands on this branch after run 5 + options, then Law 22
+  re-proof at that HEAD, then the three fresh runs.
+- 07:09 recut run 5 at HEAD b74c3b6c (pushed): runs/pinned_20261111_120910 via scripts/pulse_check_run.sh
+  (foreground: this session lives in tmux pipeline_pp_dod). env..prepare PASS (clip_02 fade retry ->
+  37.86 PASS; all edges PASS), layout done, render in progress.
 
 - 07:05 batch 3 audit answered (AUDIT_RESPONSE.md): 9 fixes, each with a test failing on the audited code
   (review index `true`, vacuous second-edge move in the fade retry, stale contact sheet in copied runs,

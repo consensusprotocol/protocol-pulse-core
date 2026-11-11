@@ -208,7 +208,11 @@ def concat(segments, junctions, out_path, qp, w, h, work_dir):
             # frame: offset=t-dd put B's frame k at t-dd+(k+1)/fps, one frame (41.7 ms) behind B's own
             # audio for the whole clip (measured 2026-11-11, test_transitions TestConcat). One frame
             # earlier lands B's first frame exactly at t-dd, where acrossfade starts B's audio.
-            graph.append(f"[{vcur}][v{i}]xfade=transition=fade:duration={dd:.6f}:"
+            # xfade needs both inputs on one timebase; after a hard cut the running picture is a concat
+            # output (1/1000000) while [v{i}] is 1/FPS (recut run 5 HELD: "First input link main timebase
+            # (1/1000000) do not match ... (1/24)"). settb is a no-op on 1/FPS and exact on frame times.
+            graph.append(f"[{vcur}]settb=1/{FPS}[vt{i}]")
+            graph.append(f"[vt{i}][v{i}]xfade=transition=fade:duration={dd:.6f}:"
                          f"offset={t - dd - 1 / FPS:.6f}[vx{i}]")
             graph.append(f"[{acur}][a{i}]acrossfade=d={dd:.6f}:c1=tri:c2=tri[ax{i}]")
             start = t - dd

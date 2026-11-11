@@ -174,6 +174,29 @@ class TestConcat(unittest.TestCase):
         onset = _onset(out, tl[1]["start"] + 0.2, tl[1]["start"] + 0.6)
         self.assertAlmostEqual(onset - tl[1]["start"], 0.4, delta=0.012)
 
+    def test_dissolve_after_a_hard_cut_renders_frame_locked(self):
+        """Recut run 5 (Yahoo, DataDash, Natalie; no room for a dissolve at hook->clip_01): the clip_01->clip_02
+        dissolve's first input was a concat output (timebase 1/1000000) and ffmpeg refused the graph. Channels
+        A, A, B reproduce it: hard cut, then a dissolve into a ramp whose frames are identifiable."""
+        segs = [("hook", _seg(os.path.join(self.tmp, "h.mp4"), "red", 440, 3, (0.4, 2.6)), "talking_head"),
+                ("clip_01", _seg(os.path.join(self.tmp, "g.mp4"), "green", 660, 3, (0.4, 2.6)), "talking_head"),
+                ("clip_02", _seg(os.path.join(self.tmp, "r.mp4"), "ramp", 880, 3, (0.4, 2.6)), "talking_head")]
+        j = TR.plan(segs, {"hook": "A", "clip_01": "A", "clip_02": "B"}, self.lt, "crossfade")
+        self.assertEqual([(x["after"], x["frames"]) for x in j], [(1, 6)])
+        out = os.path.join(self.tmp, "aab.mp4")
+        tl = TR.concat(segs, j, out, 23, 320, 180, self.tmp)
+        self.assertAlmostEqual(tl[2]["start"], tl[1]["end"] - 6 / 24, places=3)
+        p = _probe(out)
+        n_frames = int(p["video"]["nb_read_packets"])
+        self.assertEqual(n_frames, 3 * 72 - 6)
+        self.assertAlmostEqual(float(p["audio"]["duration"]), n_frames / 24, delta=0.03)
+        b, x = _lumas(segs[2][1]), _lumas(out)
+        s0 = int(round(tl[2]["start"] * 24))
+        k = np.arange(6, 72)
+        self.assertLess(float(np.max(np.abs(x[s0 + k] - b[k]))), 1.5)            # picture on its own frames
+        onset = _onset(out, tl[2]["start"] + 0.2, tl[2]["start"] + 0.6)
+        self.assertAlmostEqual(onset - tl[2]["start"], 0.4, delta=0.012)         # and on its own sound
+
     def test_C_inserts_one_wipe_between_channels_only(self):
         out, j, tl = self.run_style("C")
         self.assertEqual([e["label"] for e in tl], ["hook", "transition_C", "clip_01", "clip_02"])
