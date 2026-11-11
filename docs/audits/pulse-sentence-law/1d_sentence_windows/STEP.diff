@@ -1,0 +1,450 @@
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index 0be1f722..e791acf5 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -46,7 +46,8 @@ MAX_ADJUDICATE_PER_STORY = 14
+ MIN_COVERAGE_CHANNELS = 2
+ MIN_LAYOUT_CHANNELS = 2            # R5: clips from >= 2 distinct channels
+ HOOK_MIN_S, HOOK_MAX_S = 8.0, 12.0
+-CLIP_MIN_S, CLIP_MAX_S = 13.0, 25.0
++CLIP_MIN_S, CLIP_MAX_S = 12.0, 20.0     # 1d (2026-11-11): whole sentences within the 12-20 s clip budget
++MAX_WINDOW_SENTENCES = 3                 # 1d: a window is one to three whole sentences
+ HOOK_MIN_SCORE, CLIP_MIN_SCORE = 4.0, 3.5
+ N_CLIPS = 3                        # v2f format: hook + 3 clips
+ MAX_VERIFIED_QUOTES_PER_VIDEO = 2  # D2 (PBX 2026-11-09): up to two verified windows per source video
+@@ -123,12 +124,27 @@ def _tok(w):
+     return [t for t in re.split(r"[^a-z0-9]+", (w or "").lower().replace("’", "'").replace("'", "")) if t]
+ 
+ 
++def _ends_statement(word):
++    """A window may end only on a statement end: '.' or '!' that is not an abbreviation (U.S.)."""
++    import sentence_law
++    return sentence_law.is_terminal(word) and not word.rstrip().rstrip("\"')]”’").endswith("?")
++
++
++def _n_sentences(words, sents, a, b):
++    """Sentences a..b counted toward MAX_WINDOW_SENTENCES; an interjection-only sentence ('Oh.',
++    'Yeah.') is transparent, as in PBX's D4a ruling (2026-11-09) for the per-direction cap."""
++    return sum(1 for i in range(a, b + 1)
++               if not (set(_lc_words(" ".join(w["word"] for w in words[sents[i][0]:sents[i][1] + 1])))
++                       <= INTERJECTIONS))
++
++
+ def _word_sentences(words):
+-    """Sentences as word-index ranges, split after terminal punctuation (same rule as
+-    transcript_store.sentences_from_words)."""
++    """Sentences as word-index ranges, split after terminal punctuation; abbreviations such as
++    'U.S.' and trailing '...' never end a sentence (sentence_law.is_terminal, the one rule)."""
++    import sentence_law
+     out, s0 = [], 0
+     for i, w in enumerate(words):
+-        if w["word"].rstrip().endswith(_TERMINAL):
++        if sentence_law.is_terminal(w["word"]):
+             out.append((s0, i))
+             s0 = i + 1
+     if s0 < len(words):
+@@ -167,7 +183,8 @@ def start_is_boundary(words, sents, si):
+     """A window start is a boundary only if the previous sentence ended with terminal punctuation,
+     the first word opens a sentence (capital or digit) and is not a continuation conjunction."""
+     w0 = sents[si][0]
+-    if si > 0 and not words[w0 - 1]["word"].rstrip().endswith(_TERMINAL):
++    import sentence_law
++    if si > 0 and not sentence_law.is_terminal(words[w0 - 1]["word"]):
+         return False, "previous word has no terminal punctuation"
+     first = re.sub(r"^[\"'(\[“‘$]+", "", words[w0]["word"].strip())
+     if not first or not (first[0].isupper() or first[0].isdigit()):
+@@ -194,11 +211,13 @@ def anchored_window(words, sents, anchor, lo, hi):
+     ok, why = start_is_boundary(words, sents, sa)
+     if not ok:
+         return None, f"start rejected: {why}", span
++    if _n_sentences(words, sents, sa, se) > MAX_WINDOW_SENTENCES:
++        return None, f"quote spans {_n_sentences(words, sents, sa, se)} sentences > {MAX_WINDOW_SENTENCES}", span
+     if d < lo:
+         return None, f"quote sentence(s) {d} s < minimum {lo} s (no padding)", span
+     if d > hi:
+         return None, f"quote sentence(s) {d} s > maximum {hi} s", span
+-    if not words[sents[se][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[se][1]]["word"]):
+         return None, "does not end on '.' or '!'", span
+     text = " ".join(w["word"].strip() for w in words[sents[sa][0]:sents[se][1] + 1])
+     return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
+@@ -244,6 +263,11 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+                 checks.append({"direction": d, "sentence": stext(i), "on_event": None,
+                                "detail": f"would exceed {hi} s; direction closed"})
+                 continue
++            if _n_sentences(words, sents, na, nb) > MAX_WINDOW_SENTENCES:
++                open_dirs.remove(d)
++                checks.append({"direction": d, "sentence": stext(i), "on_event": None,
++                               "detail": f"would exceed {MAX_WINDOW_SENTENCES} sentences; direction closed"})
++                continue
+             # D4a (PBX 2026-11-09 ~02:05): content-free interjections are transparent — included in
+             # the window but skipped for the (a) check, not counted toward the two-sentence cap, and
+             # they do not close the direction.  The 8 s bound (b) still applies to them.
+@@ -282,6 +306,8 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+             "expansion": checks}
+     if d > hi:
+         return None, f"quote sentence(s) {d} s > maximum {hi} s", span
++    if _n_sentences(words, sents, a, b) > MAX_WINDOW_SENTENCES:
++        return None, f"window spans {_n_sentences(words, sents, a, b)} sentences > {MAX_WINDOW_SENTENCES}", span
+     if d < lo:
+         return None, (f"{d} s < minimum {lo} s after verified expansion"
+                       + (f"; expansion stopped: {'; '.join(stops)}" if stops
+@@ -289,7 +315,7 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+     ok, why = start_is_boundary(words, sents, a)
+     if not ok:
+         return None, f"start rejected: {why}", span
+-    if not words[sents[b][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[b][1]]["word"]):
+         return None, "does not end on '.' or '!'", span
+     text = " ".join(w["word"].strip() for w in words[sents[a][0]:sents[b][1] + 1])
+     return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
+@@ -454,7 +480,7 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+ 
+     def edge_ok(a, b):
+         return start_is_boundary(words, sents, a)[0] if d == "prev" else \
+-            words[sents[b][1]]["word"].rstrip().endswith((".", "!"))
++            _ends_statement(words[sents[b][1]]["word"])
+ 
+     added = 0
+     while added == 0 or not edge_ok(a, b):
+@@ -462,6 +488,8 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+         if i < 0 or i >= len(sents):
+             return None, f"boundary repair: no {d} sentence", span
+         na, nb = (i, b) if d == "prev" else (a, i)
++        if _n_sentences(words, sents, na, nb) > MAX_WINDOW_SENTENCES:
++            return None, f"boundary repair: would exceed {MAX_WINDOW_SENTENCES} sentences", span
+         if words[sents[nb][1]]["end"] - words[sents[na][0]]["start"] > hi:
+             span["expansion"].append({"direction": d, "sentence": stext(i), "on_event": None,
+                                       "detail": f"would exceed {hi} s; direction closed"})
+@@ -496,7 +524,7 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+     ok, why = start_is_boundary(words, sents, a)
+     if not ok:
+         return None, f"repaired start rejected: {why}", span
+-    if not words[sents[b][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[b][1]]["word"]):
+         return None, "repaired window does not end on '.' or '!'", span
+     return {"start": st, "end": en, "duration": dd, "first_sentence": stext(a), "last_sentence": stext(b),
+             "n_sentences": b - a + 1, "text": " ".join(w["word"].strip() for w in words[sents[a][0]:sents[b][1] + 1]),
+@@ -1030,7 +1058,7 @@ def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
+                           (f"; infrastructure-blocked videos {[v for v, _ in infra]}" if infra else "")}
+     out = []
+     for p in chosen:   # select_passages input contract (full-video seconds)
+-        out.append({"video_id": p["video_id"], "channel": p["channel"], "handle": p["handle"],
++        out.append({"kind": p["kind"], "video_id": p["video_id"], "channel": p["channel"], "handle": p["handle"],
+                     "title": p["title"], "tier": p["tier"], "start": round(p["start"], 2),
+                     "end": round(p["end"], 2), "text": p["text"], "duration": p["duration"],
+                     "score": round(p["clip_score"] * 20 + p["relevance"], 2),
+diff --git a/pipeline/select_passages.py b/pipeline/select_passages.py
+index 752a8032..91bdf81f 100644
+--- a/pipeline/select_passages.py
++++ b/pipeline/select_passages.py
+@@ -205,14 +205,18 @@ def select_and_build_edl(keyword, niche, run_dir):
+         print("  Not enough valid passages — STOP")
+         return False
+ 
+-    # Pick hook: shortest passage with highest score, must be a statement
+-    hook_candidates = [p for p in valid if p["duration"] <= 12.0 and
+-                       not p["text"].rstrip().endswith("?")]
+-    if not hook_candidates:
+-        hook_candidates = sorted(valid, key=lambda p: p["duration"])[:1]
+-
+-    hook = max(hook_candidates, key=lambda p: p["score"]) if hook_candidates else valid[0]
+-    clips = [p for p in valid if p is not hook][:5]  # Max 5 clips
++    if all(p.get("kind") in ("hook", "clip") for p in valid):
++        # 1d (2026-11-11): the editor's slots are kept; a rejected slot is refilled from the ranking
++        hook = next((p for p in valid if p["kind"] == "hook"), None)
++        clips = [p for p in valid if p["kind"] == "clip"]
++    else:
++        # legacy passages.json without slot kinds: shortest statement with the highest score
++        hook_candidates = [p for p in valid if p["duration"] <= 12.0 and
++                           not p["text"].rstrip().endswith("?")]
++        if not hook_candidates:
++            hook_candidates = sorted(valid, key=lambda p: p["duration"])[:1]
++        hook = max(hook_candidates, key=lambda p: p["score"]) if hook_candidates else valid[0]
++        clips = [p for p in valid if p is not hook][:5]  # Max 5 clips
+ 
+     # SENTENCE LAW (sentence_law.py): the editor's chosen sentences are located in the downloaded
+     # file's own transcript by TEXT, sealed in a selection lock, and both edges must be legal,
+@@ -267,12 +271,71 @@ def select_and_build_edl(keyword, niche, run_dir):
+             "selection_lock": lock,
+         }
+ 
++    # Next-ranked fallback (mission 1b/1d): a window the sentence law rejects is replaced by the
++    # best-ranked legal candidate of the same kind from the editor's shortlist (score floor, duration
++    # budget, no overlap, <= 2 clips per channel, <= 2 windows per video), never by moving a cut.
++    from editorial_select import (HOOK_MIN_S, HOOK_MAX_S, CLIP_MIN_S, CLIP_MAX_S, HOOK_MIN_SCORE,
++                                  CLIP_MIN_SCORE, MAX_VERIFIED_QUOTES_PER_VIDEO)
++    pool = [p for p in data.get("passages", []) if p.get("kind") in ("hook", "clip")]
++    used, tried = [], set()
++
++    def _key(p):
++        return (p["video_id"], round(p["start"], 2), round(p["end"], 2))
++
++    def _eligible(p, kind):
++        lo, hi, floor = ((HOOK_MIN_S, HOOK_MAX_S, HOOK_MIN_SCORE) if kind == "hook"
++                         else (CLIP_MIN_S, CLIP_MAX_S, CLIP_MIN_SCORE))
++        if p.get("kind") != kind or _key(p) in tried or (p.get("clip_score") or 0) < floor:
++            return False
++        if not lo <= p["end"] - p["start"] <= hi:
++            return False
++        if any(u["video_id"] == p["video_id"] and not (p["end"] <= u["start"] or p["start"] >= u["end"]) for u in used):
++            return False
++        if sum(1 for u in used if u["video_id"] == p["video_id"]) >= MAX_VERIFIED_QUOTES_PER_VIDEO:
++            return False
++        return kind == "hook" or sum(1 for u in used[1:] if u["channel"] == p["channel"]) < 2
++
++    def _source_for(p):
++        vid = p["video_id"]
++        if vid not in sources:
++            res = _download_window(vid, p["start"], p["end"], run_dir)
++            if not res or not res[0]:
++                return "download failed"
++            sources[vid], offsets[vid] = res
++            tr = _whisper_transcribe(sources[vid], vid, run_dir)
++            if not tr:
++                return "transcription failed"
++            transcripts[vid] = tr
++        span = transcripts[vid].get("duration") or 0
++        if span and not (offsets[vid] + 1.0 <= p["start"] and p["end"] <= offsets[vid] + span - 1.0):
++            return "outside the downloaded window"
++        return None
++
++    def _fill(first, label, kind):
++        for p in [first] + sorted([q for q in pool if q is not first],
++                                  key=lambda q: (-(q.get("clip_score") or 0), -(q.get("relevance") or 0))):
++            if p is None or (p is not first and not _eligible(p, kind)):
++                continue
++            tried.add(_key(p))
++            why = _source_for(p)
++            if why:
++                boundary_report.append({"segment": label, "video_id": p["video_id"], "channel": p["channel"],
++                                        "window_full_video_s": [p["start"], p["end"]],
++                                        "result": f"rejected: {why}", "fallback": p is not first})
++                continue
++            seg = _build_segment(p, label)
++            boundary_report[-1]["fallback"] = p is not first
++            if seg is not None:
++                used.append(p)
++                return seg
++        return None
++
+     try:
+-        hook_seg = _build_segment(hook, "hook")
++        hook_seg = _fill(hook, "hook", "hook")
+         clip_segs = []
+         if hook_seg is not None:
+-            for i, clip in enumerate(clips):
+-                seg = _build_segment(clip, f"clip_{i+1:02d}")
++            for clip in clips:
++                seg = _fill(clip, f"clip_{len(clip_segs) + 1:02d}", "clip")
+                 if seg:
+                     seg["index"] = len(clip_segs) + 1
+                     clip_segs.append(seg)
+diff --git a/pipeline/test_sentence_windows.py b/pipeline/test_sentence_windows.py
+new file mode 100644
+index 00000000..bf913061
+--- /dev/null
++++ b/pipeline/test_sentence_windows.py
+@@ -0,0 +1,134 @@
++#!/usr/bin/env python3
++"""1d (PBX review 2026-11-11): selection proposes SENTENCE-ALIGNED windows of one to three whole
++sentences within the 8-12 s hook / 12-20 s clip budgets, and a window the sentence law rejects is
++replaced by the next-ranked legal window, never by moving a cut.
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_sentence_windows.py"""
++import json
++import os
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++import editorial_select as es  # noqa: E402
++
++
++def _w(word, t, d=0.3):
++    return {"word": word, "start": round(t, 2), "end": round(t + d, 2)}
++
++
++class TestSentenceSplitting(unittest.TestCase):
++    def test_abbreviation_is_not_a_sentence_end(self):
++        # whisper writes "U .S." as two tokens; the Nov 10 Natalie window was counted as 4 sentences
++        ws = [_w(x, i * 0.4) for i, x in enumerate(
++            ["By", "the", "weekend.", "U", ".S.", "Bitcoin", "ETFs", "had", "outflows.", "And", "then."])]
++        self.assertEqual(es._word_sentences(ws), [(0, 2), (3, 8), (9, 10)])
++
++    def test_trailing_ellipsis_is_not_a_sentence_end(self):
++        ws = [_w(x, i * 0.4) for i, x in enumerate(["So", "anyway...", "it", "fell."])]
++        self.assertEqual(es._word_sentences(ws), [(0, 3)])
++
++    def test_question_never_ends_a_window(self):
++        self.assertFalse(es._ends_statement("really?"))
++        self.assertTrue(es._ends_statement("week."))
++        self.assertFalse(es._ends_statement("U.S."))
++
++
++class TestBudgets(unittest.TestCase):
++    def test_budget_constants(self):
++        self.assertEqual((es.HOOK_MIN_S, es.HOOK_MAX_S), (8.0, 12.0))
++        self.assertEqual((es.CLIP_MIN_S, es.CLIP_MAX_S), (12.0, 20.0))
++        self.assertEqual(es.MAX_WINDOW_SENTENCES, 3)
++
++    def test_expansion_stops_at_three_sentences(self):
++        # five short sentences (2.0 s each); anchor = sentence 2; a 9-12 s window would need 5 sentences
++        ws, t = [], 0.0
++        for s in range(5):
++            for k in range(4):
++                ws.append(_w(f"S{s}w{k}" if k == 0 else f"s{s}w{k}" + ("." if k == 3 else ""), t))
++                t += 0.5
++            t += 0.3
++        sents = es._word_sentences(ws)
++        anchor = {"w0": 8, "w1": 11, "start": ws[8]["start"], "end": ws[11]["end"]}
++        win, why, span = es.expanded_window(ws, sents, anchor, 9.0, 12.0, lambda txt: (True, "ok"))
++        self.assertIsNone(win)
++        self.assertLessEqual(span["n_sentences"], 3, span)
++        self.assertTrue(any("sentences; direction closed" in c["detail"] for c in span["expansion"]), span)
++
++
++def _synth(path, words, dur=45.0, sr=16000):
++    import numpy as np
++    import wave
++    x = np.random.default_rng(3).normal(0, 0.0005, int(dur * sr))
++    for w in words:
++        a, b = int(w["start"] * sr), int(w["end"] * sr)
++        x[a:b] += 0.1 * np.sin(2 * np.pi * 300 * np.arange(b - a) / sr)
++    with wave.open(path, "wb") as f:
++        f.setnchannels(1)
++        f.setsampwidth(2)
++        f.setframerate(sr)
++        f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
++
++
++def _sentences(tag, t, gaps):
++    """Sentences of 6 words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i."""
++    ws = []
++    for si, gap in enumerate(gaps):
++        for wi in range(6):
++            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == 5 else ""), "start": round(t, 2),
++                       "end": round(t + 0.30, 2)})
++            t += 0.35
++        t += gap - 0.05
++    return ws
++
++
++class TestNextRankedFallback(unittest.TestCase):
++    def test_rejected_clip_is_replaced_by_the_next_legal_window(self):
++        import select_passages as sp
++        # BBB sentence 6 runs straight into sentence 7 (no pause): a clip ending there is not cuttable
++        words = {"AAA": _sentences("a", 2.0, [0.5] * 8), "BBB": _sentences("b", 2.0, [0.5] * 6 + [0.05, 0.5])}
++
++        def text(vid, s0, s1):
++            return " ".join(w["word"] for w in words[vid]
++                            if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1)
++
++        with tempfile.TemporaryDirectory() as rd:
++            os.makedirs(os.path.join(rd, "sources"))
++            os.makedirs(os.path.join(rd, "transcripts"))
++            hook = {"kind": "hook", "video_id": "AAA", "channel": "The Bitcoin Layer", "start": 110.0, "end": 119.0,
++                    "duration": 9.0, "score": 90, "clip_score": 4.5, "text": text("AAA", 5, 6)}
++            bad = {"kind": "clip", "video_id": "BBB", "channel": "BTC Sessions", "start": 510.0, "end": 524.0,
++                   "duration": 14.0, "score": 80, "clip_score": 4.0, "text": text("BBB", 4, 6)}
++            alt = {"kind": "clip", "video_id": "BBB", "channel": "BTC Sessions", "start": 497.5, "end": 510.0,
++                   "duration": 12.5, "score": 70, "clip_score": 3.8, "text": text("BBB", 0, 2)}
++            json.dump({"chosen": [hook, bad], "passages": [hook, bad, alt]},
++                      open(os.path.join(rd, "passages.json"), "w"))
++
++            def fake_dl(vid, start, end, run_dir, pad=15.0):
++                path = os.path.join(run_dir, "sources", f"{vid}.wav")
++                _synth(path, words[vid])
++                return (path, 95.0 if vid == "AAA" else 495.0)
++
++            def fake_tx(path, vid, run_dir):
++                rec = {"words": words[vid]}
++                json.dump(rec, open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w"))
++                return rec
++            orig = (sp._download_window, sp._whisper_transcribe)
++            sp._download_window, sp._whisper_transcribe = fake_dl, fake_tx
++            try:
++                self.assertTrue(sp.select_and_build_edl("test", "bitcoin", rd))
++            finally:
++                sp._download_window, sp._whisper_transcribe = orig
++            edl = json.load(open(os.path.join(rd, "edl.json")))
++            report = json.load(open(os.path.join(rd, "SELECT_BOUNDARIES.json")))
++            clip = edl["clips"][0]
++            self.assertEqual((clip["first_word"], clip["last_word"]), ("bs0w0", "bs2w5."), clip)
++            rejected = [r for r in report if r["result"].startswith("rejected")]
++            self.assertTrue(rejected and "OUT" in rejected[0]["result"], report)
++            self.assertTrue(any(r.get("fallback") and r["result"] == "accepted" for r in report), report)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_window_review.py b/pipeline/test_window_review.py
+index af2be03e..31996e55 100644
+--- a/pipeline/test_window_review.py
++++ b/pipeline/test_window_review.py
+@@ -116,7 +116,8 @@ class TestVerifiedAdjacentExpansion(unittest.TestCase):
+         ws = words_for(sents_txt)
+         sents = es._word_sentences(ws)
+         a = es.align_quote("The exchange lost six billion dollars to hackers overnight", ws, 0, 1000)
+-        w, why, span = es.expanded_window(ws, sents, a, 18.0, 25.0, lambda t: (True, "SUPPORTS"))
++        # 1d: three sentences reach 12 s; the lower-case 'and' start is still rejected
++        w, why, span = es.expanded_window(ws, sents, a, 12.0, 25.0, lambda t: (True, "SUPPORTS"))
+         self.assertIsNone(w)
+         self.assertIn("start rejected", why)
+ 
+@@ -397,7 +398,7 @@ class TestD2TwoVerifiedWindowsPerVideo(unittest.TestCase):
+                 self.assertFalse(p["video_id"] == o["video_id"] and not (p["end"] <= o["start"] or p["start"] >= o["end"]))
+ 
+ 
+-C = ["Binance confirmed the hack this morning in a short statement posted on its own website.",            # 0
++C = ["Binance confirmed the hack this morning.",                                                       # 0 (1d: fits 20 s)
+      "It means six billion dollars of customer money left the exchange in one night and nobody stopped it.",  # 1 quote
+      "Withdrawals stayed frozen for hours while the exchange tried to find the hole.",                       # 2
+      "Thanks for watching and see you all tomorrow on the stream."]                                          # 3
+@@ -422,7 +423,7 @@ class TestD3BoundaryRepair(unittest.TestCase):
+ 
+     def test_mid_thought_window_passes_after_verified_repair(self):
+         """Positive: the clip 'It means ... hole.' is rated 3 for starting mid-thought; the previous
+-        sentence is verified on-event, so it is added (24.5 s <= 25) and the re-rated window (4.5)
++        sentence is verified on-event, so it is added (19.2 s <= 20, 1d budget) and the re-rated window (4.5)
+         clears the unchanged 3.5 floor. The hook version cannot grow past 12 s and stays rejected."""
+         llm = RoutedLLM([C[0], C[1], C[2]], rate=self.rate("starts_mid_thought"))
+         cq = self.cq(llm)
+@@ -509,14 +510,16 @@ class TestD4AdjacentReaction(unittest.TestCase):
+         self.assertIn(sm.REACTION_QUESTION, llm.prompts[-1])
+         self.assertIn('<excerpt id="sentence">Some sentence here.</excerpt>', llm.prompts[-1])
+ 
+-    def test_at_most_two_admitted_sentences_per_direction(self):
++    def test_window_never_exceeds_three_sentences(self):
++        # 1d (2026-11-11): one to three whole sentences; the total binds before the D4 per-direction cap
+         txt = ["It hurt.", "It hurt more.", "It hurt again.", SENTS[1], "This is bad.", "This is worse.", "This is the worst."]
+         ws = words_for(txt)
+         a = es.align_quote(SENTS[1].rstrip("."), ws, 0, 1000)
+         calls = []
+         w, why, span = es.expanded_window(ws, es._word_sentences(ws), a, 60.0, 80.0, lambda t: (calls.append(t) or True, "ok"))
+-        self.assertEqual(sorted(c["direction"] for c in span["expansion"] if c["on_event"]), ["next", "next", "prev", "prev"])
+-        self.assertEqual(sum(c["detail"].startswith("cap:") for c in span["expansion"]), 2)
++        self.assertEqual(sorted(c["direction"] for c in span["expansion"] if c["on_event"]), ["next", "prev"])
++        self.assertEqual(sum("sentences; direction closed" in c["detail"] for c in span["expansion"]), 2)
++        self.assertLessEqual(span["n_sentences"], 3)
+         self.assertNotIn(txt[0], calls)
+         self.assertNotIn(txt[6], calls)
+ 
+@@ -635,11 +638,12 @@ class TestD4aInterjectionTransparency(unittest.TestCase):
+         # Both real reactions were checked
+         self.assertIn(txt[2], calls)
+         self.assertIn(txt[3], calls)
+-        # The cap stops at 2 real sentences per direction: txt[4] hits the cap
++        # 1d: anchor + 2 real reactions = 3 counted sentences (the interjection is transparent);
++        # txt[4] would be a 4th counted sentence and closes the direction
+         real_next = [c for c in span["expansion"] if c["direction"] == "next" and c["on_event"] is True]
+         self.assertEqual(len(real_next), 2)
+-        cap_entries = [c for c in span["expansion"] if c["detail"].startswith("cap:")]
+-        self.assertTrue(cap_entries, "a cap entry must appear for the 3rd real sentence")
++        cap_entries = [c for c in span["expansion"] if "sentences; direction closed" in c["detail"]]
++        self.assertTrue(cap_entries, "a closing entry must appear for the 4th counted sentence")
+ 
+     def test_interjection_alone_does_not_make_a_window_legal(self):
+         """An interjection next to a short anchor does not, by itself, make the window long enough."""

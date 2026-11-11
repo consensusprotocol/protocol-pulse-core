@@ -1,0 +1,106 @@
+diff --git a/pipeline/select_passages.py b/pipeline/select_passages.py
+index 752a8032..91bdf81f 100644
+--- a/pipeline/select_passages.py
++++ b/pipeline/select_passages.py
+@@ -205,14 +205,18 @@ def select_and_build_edl(keyword, niche, run_dir):
+         print("  Not enough valid passages — STOP")
+         return False
+ 
+-    # Pick hook: shortest passage with highest score, must be a statement
+-    hook_candidates = [p for p in valid if p["duration"] <= 12.0 and
+-                       not p["text"].rstrip().endswith("?")]
+-    if not hook_candidates:
+-        hook_candidates = sorted(valid, key=lambda p: p["duration"])[:1]
+-
+-    hook = max(hook_candidates, key=lambda p: p["score"]) if hook_candidates else valid[0]
+-    clips = [p for p in valid if p is not hook][:5]  # Max 5 clips
++    if all(p.get("kind") in ("hook", "clip") for p in valid):
++        # 1d (2026-11-11): the editor's slots are kept; a rejected slot is refilled from the ranking
++        hook = next((p for p in valid if p["kind"] == "hook"), None)
++        clips = [p for p in valid if p["kind"] == "clip"]
++    else:
++        # legacy passages.json without slot kinds: shortest statement with the highest score
++        hook_candidates = [p for p in valid if p["duration"] <= 12.0 and
++                           not p["text"].rstrip().endswith("?")]
++        if not hook_candidates:
++            hook_candidates = sorted(valid, key=lambda p: p["duration"])[:1]
++        hook = max(hook_candidates, key=lambda p: p["score"]) if hook_candidates else valid[0]
++        clips = [p for p in valid if p is not hook][:5]  # Max 5 clips
+ 
+     # SENTENCE LAW (sentence_law.py): the editor's chosen sentences are located in the downloaded
+     # file's own transcript by TEXT, sealed in a selection lock, and both edges must be legal,
+@@ -267,12 +271,71 @@ def select_and_build_edl(keyword, niche, run_dir):
+             "selection_lock": lock,
+         }
+ 
++    # Next-ranked fallback (mission 1b/1d): a window the sentence law rejects is replaced by the
++    # best-ranked legal candidate of the same kind from the editor's shortlist (score floor, duration
++    # budget, no overlap, <= 2 clips per channel, <= 2 windows per video), never by moving a cut.
++    from editorial_select import (HOOK_MIN_S, HOOK_MAX_S, CLIP_MIN_S, CLIP_MAX_S, HOOK_MIN_SCORE,
++                                  CLIP_MIN_SCORE, MAX_VERIFIED_QUOTES_PER_VIDEO)
++    pool = [p for p in data.get("passages", []) if p.get("kind") in ("hook", "clip")]
++    used, tried = [], set()
++
++    def _key(p):
++        return (p["video_id"], round(p["start"], 2), round(p["end"], 2))
++
++    def _eligible(p, kind):
++        lo, hi, floor = ((HOOK_MIN_S, HOOK_MAX_S, HOOK_MIN_SCORE) if kind == "hook"
++                         else (CLIP_MIN_S, CLIP_MAX_S, CLIP_MIN_SCORE))
++        if p.get("kind") != kind or _key(p) in tried or (p.get("clip_score") or 0) < floor:
++            return False
++        if not lo <= p["end"] - p["start"] <= hi:
++            return False
++        if any(u["video_id"] == p["video_id"] and not (p["end"] <= u["start"] or p["start"] >= u["end"]) for u in used):
++            return False
++        if sum(1 for u in used if u["video_id"] == p["video_id"]) >= MAX_VERIFIED_QUOTES_PER_VIDEO:
++            return False
++        return kind == "hook" or sum(1 for u in used[1:] if u["channel"] == p["channel"]) < 2
++
++    def _source_for(p):
++        vid = p["video_id"]
++        if vid not in sources:
++            res = _download_window(vid, p["start"], p["end"], run_dir)
++            if not res or not res[0]:
++                return "download failed"
++            sources[vid], offsets[vid] = res
++            tr = _whisper_transcribe(sources[vid], vid, run_dir)
++            if not tr:
++                return "transcription failed"
++            transcripts[vid] = tr
++        span = transcripts[vid].get("duration") or 0
++        if span and not (offsets[vid] + 1.0 <= p["start"] and p["end"] <= offsets[vid] + span - 1.0):
++            return "outside the downloaded window"
++        return None
++
++    def _fill(first, label, kind):
++        for p in [first] + sorted([q for q in pool if q is not first],
++                                  key=lambda q: (-(q.get("clip_score") or 0), -(q.get("relevance") or 0))):
++            if p is None or (p is not first and not _eligible(p, kind)):
++                continue
++            tried.add(_key(p))
++            why = _source_for(p)
++            if why:
++                boundary_report.append({"segment": label, "video_id": p["video_id"], "channel": p["channel"],
++                                        "window_full_video_s": [p["start"], p["end"]],
++                                        "result": f"rejected: {why}", "fallback": p is not first})
++                continue
++            seg = _build_segment(p, label)
++            boundary_report[-1]["fallback"] = p is not first
++            if seg is not None:
++                used.append(p)
++                return seg
++        return None
++
+     try:
+-        hook_seg = _build_segment(hook, "hook")
++        hook_seg = _fill(hook, "hook", "hook")
+         clip_segs = []
+         if hook_seg is not None:
+-            for i, clip in enumerate(clips):
+-                seg = _build_segment(clip, f"clip_{i+1:02d}")
++            for clip in clips:
++                seg = _fill(clip, f"clip_{len(clip_segs) + 1:02d}", "clip")
+                 if seg:
+                     seg["index"] = len(clip_segs) + 1
+                     clip_segs.append(seg)

@@ -1,0 +1,68 @@
+diff --git a/pipeline/test_window_review.py b/pipeline/test_window_review.py
+index af2be03e..31996e55 100644
+--- a/pipeline/test_window_review.py
++++ b/pipeline/test_window_review.py
+@@ -116,7 +116,8 @@ class TestVerifiedAdjacentExpansion(unittest.TestCase):
+         ws = words_for(sents_txt)
+         sents = es._word_sentences(ws)
+         a = es.align_quote("The exchange lost six billion dollars to hackers overnight", ws, 0, 1000)
+-        w, why, span = es.expanded_window(ws, sents, a, 18.0, 25.0, lambda t: (True, "SUPPORTS"))
++        # 1d: three sentences reach 12 s; the lower-case 'and' start is still rejected
++        w, why, span = es.expanded_window(ws, sents, a, 12.0, 25.0, lambda t: (True, "SUPPORTS"))
+         self.assertIsNone(w)
+         self.assertIn("start rejected", why)
+ 
+@@ -397,7 +398,7 @@ class TestD2TwoVerifiedWindowsPerVideo(unittest.TestCase):
+                 self.assertFalse(p["video_id"] == o["video_id"] and not (p["end"] <= o["start"] or p["start"] >= o["end"]))
+ 
+ 
+-C = ["Binance confirmed the hack this morning in a short statement posted on its own website.",            # 0
++C = ["Binance confirmed the hack this morning.",                                                       # 0 (1d: fits 20 s)
+      "It means six billion dollars of customer money left the exchange in one night and nobody stopped it.",  # 1 quote
+      "Withdrawals stayed frozen for hours while the exchange tried to find the hole.",                       # 2
+      "Thanks for watching and see you all tomorrow on the stream."]                                          # 3
+@@ -422,7 +423,7 @@ class TestD3BoundaryRepair(unittest.TestCase):
+ 
+     def test_mid_thought_window_passes_after_verified_repair(self):
+         """Positive: the clip 'It means ... hole.' is rated 3 for starting mid-thought; the previous
+-        sentence is verified on-event, so it is added (24.5 s <= 25) and the re-rated window (4.5)
++        sentence is verified on-event, so it is added (19.2 s <= 20, 1d budget) and the re-rated window (4.5)
+         clears the unchanged 3.5 floor. The hook version cannot grow past 12 s and stays rejected."""
+         llm = RoutedLLM([C[0], C[1], C[2]], rate=self.rate("starts_mid_thought"))
+         cq = self.cq(llm)
+@@ -509,14 +510,16 @@ class TestD4AdjacentReaction(unittest.TestCase):
+         self.assertIn(sm.REACTION_QUESTION, llm.prompts[-1])
+         self.assertIn('<excerpt id="sentence">Some sentence here.</excerpt>', llm.prompts[-1])
+ 
+-    def test_at_most_two_admitted_sentences_per_direction(self):
++    def test_window_never_exceeds_three_sentences(self):
++        # 1d (2026-11-11): one to three whole sentences; the total binds before the D4 per-direction cap
+         txt = ["It hurt.", "It hurt more.", "It hurt again.", SENTS[1], "This is bad.", "This is worse.", "This is the worst."]
+         ws = words_for(txt)
+         a = es.align_quote(SENTS[1].rstrip("."), ws, 0, 1000)
+         calls = []
+         w, why, span = es.expanded_window(ws, es._word_sentences(ws), a, 60.0, 80.0, lambda t: (calls.append(t) or True, "ok"))
+-        self.assertEqual(sorted(c["direction"] for c in span["expansion"] if c["on_event"]), ["next", "next", "prev", "prev"])
+-        self.assertEqual(sum(c["detail"].startswith("cap:") for c in span["expansion"]), 2)
++        self.assertEqual(sorted(c["direction"] for c in span["expansion"] if c["on_event"]), ["next", "prev"])
++        self.assertEqual(sum("sentences; direction closed" in c["detail"] for c in span["expansion"]), 2)
++        self.assertLessEqual(span["n_sentences"], 3)
+         self.assertNotIn(txt[0], calls)
+         self.assertNotIn(txt[6], calls)
+ 
+@@ -635,11 +638,12 @@ class TestD4aInterjectionTransparency(unittest.TestCase):
+         # Both real reactions were checked
+         self.assertIn(txt[2], calls)
+         self.assertIn(txt[3], calls)
+-        # The cap stops at 2 real sentences per direction: txt[4] hits the cap
++        # 1d: anchor + 2 real reactions = 3 counted sentences (the interjection is transparent);
++        # txt[4] would be a 4th counted sentence and closes the direction
+         real_next = [c for c in span["expansion"] if c["direction"] == "next" and c["on_event"] is True]
+         self.assertEqual(len(real_next), 2)
+-        cap_entries = [c for c in span["expansion"] if c["detail"].startswith("cap:")]
+-        self.assertTrue(cap_entries, "a cap entry must appear for the 3rd real sentence")
++        cap_entries = [c for c in span["expansion"] if "sentences; direction closed" in c["detail"]]
++        self.assertTrue(cap_entries, "a closing entry must appear for the 4th counted sentence")
+ 
+     def test_interjection_alone_does_not_make_a_window_legal(self):
+         """An interjection next to a short anchor does not, by itself, make the window long enough."""

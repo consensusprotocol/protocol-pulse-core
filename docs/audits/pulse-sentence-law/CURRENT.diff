@@ -1,990 +1,450 @@
-diff --git a/pipeline/avatar_onboard.py b/pipeline/avatar_onboard.py
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index 0be1f722..e791acf5 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -46,7 +46,8 @@ MAX_ADJUDICATE_PER_STORY = 14
+ MIN_COVERAGE_CHANNELS = 2
+ MIN_LAYOUT_CHANNELS = 2            # R5: clips from >= 2 distinct channels
+ HOOK_MIN_S, HOOK_MAX_S = 8.0, 12.0
+-CLIP_MIN_S, CLIP_MAX_S = 13.0, 25.0
++CLIP_MIN_S, CLIP_MAX_S = 12.0, 20.0     # 1d (2026-11-11): whole sentences within the 12-20 s clip budget
++MAX_WINDOW_SENTENCES = 3                 # 1d: a window is one to three whole sentences
+ HOOK_MIN_SCORE, CLIP_MIN_SCORE = 4.0, 3.5
+ N_CLIPS = 3                        # v2f format: hook + 3 clips
+ MAX_VERIFIED_QUOTES_PER_VIDEO = 2  # D2 (PBX 2026-11-09): up to two verified windows per source video
+@@ -123,12 +124,27 @@ def _tok(w):
+     return [t for t in re.split(r"[^a-z0-9]+", (w or "").lower().replace("’", "'").replace("'", "")) if t]
+ 
+ 
++def _ends_statement(word):
++    """A window may end only on a statement end: '.' or '!' that is not an abbreviation (U.S.)."""
++    import sentence_law
++    return sentence_law.is_terminal(word) and not word.rstrip().rstrip("\"')]”’").endswith("?")
++
++
++def _n_sentences(words, sents, a, b):
++    """Sentences a..b counted toward MAX_WINDOW_SENTENCES; an interjection-only sentence ('Oh.',
++    'Yeah.') is transparent, as in PBX's D4a ruling (2026-11-09) for the per-direction cap."""
++    return sum(1 for i in range(a, b + 1)
++               if not (set(_lc_words(" ".join(w["word"] for w in words[sents[i][0]:sents[i][1] + 1])))
++                       <= INTERJECTIONS))
++
++
+ def _word_sentences(words):
+-    """Sentences as word-index ranges, split after terminal punctuation (same rule as
+-    transcript_store.sentences_from_words)."""
++    """Sentences as word-index ranges, split after terminal punctuation; abbreviations such as
++    'U.S.' and trailing '...' never end a sentence (sentence_law.is_terminal, the one rule)."""
++    import sentence_law
+     out, s0 = [], 0
+     for i, w in enumerate(words):
+-        if w["word"].rstrip().endswith(_TERMINAL):
++        if sentence_law.is_terminal(w["word"]):
+             out.append((s0, i))
+             s0 = i + 1
+     if s0 < len(words):
+@@ -167,7 +183,8 @@ def start_is_boundary(words, sents, si):
+     """A window start is a boundary only if the previous sentence ended with terminal punctuation,
+     the first word opens a sentence (capital or digit) and is not a continuation conjunction."""
+     w0 = sents[si][0]
+-    if si > 0 and not words[w0 - 1]["word"].rstrip().endswith(_TERMINAL):
++    import sentence_law
++    if si > 0 and not sentence_law.is_terminal(words[w0 - 1]["word"]):
+         return False, "previous word has no terminal punctuation"
+     first = re.sub(r"^[\"'(\[“‘$]+", "", words[w0]["word"].strip())
+     if not first or not (first[0].isupper() or first[0].isdigit()):
+@@ -194,11 +211,13 @@ def anchored_window(words, sents, anchor, lo, hi):
+     ok, why = start_is_boundary(words, sents, sa)
+     if not ok:
+         return None, f"start rejected: {why}", span
++    if _n_sentences(words, sents, sa, se) > MAX_WINDOW_SENTENCES:
++        return None, f"quote spans {_n_sentences(words, sents, sa, se)} sentences > {MAX_WINDOW_SENTENCES}", span
+     if d < lo:
+         return None, f"quote sentence(s) {d} s < minimum {lo} s (no padding)", span
+     if d > hi:
+         return None, f"quote sentence(s) {d} s > maximum {hi} s", span
+-    if not words[sents[se][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[se][1]]["word"]):
+         return None, "does not end on '.' or '!'", span
+     text = " ".join(w["word"].strip() for w in words[sents[sa][0]:sents[se][1] + 1])
+     return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
+@@ -244,6 +263,11 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+                 checks.append({"direction": d, "sentence": stext(i), "on_event": None,
+                                "detail": f"would exceed {hi} s; direction closed"})
+                 continue
++            if _n_sentences(words, sents, na, nb) > MAX_WINDOW_SENTENCES:
++                open_dirs.remove(d)
++                checks.append({"direction": d, "sentence": stext(i), "on_event": None,
++                               "detail": f"would exceed {MAX_WINDOW_SENTENCES} sentences; direction closed"})
++                continue
+             # D4a (PBX 2026-11-09 ~02:05): content-free interjections are transparent — included in
+             # the window but skipped for the (a) check, not counted toward the two-sentence cap, and
+             # they do not close the direction.  The 8 s bound (b) still applies to them.
+@@ -282,6 +306,8 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+             "expansion": checks}
+     if d > hi:
+         return None, f"quote sentence(s) {d} s > maximum {hi} s", span
++    if _n_sentences(words, sents, a, b) > MAX_WINDOW_SENTENCES:
++        return None, f"window spans {_n_sentences(words, sents, a, b)} sentences > {MAX_WINDOW_SENTENCES}", span
+     if d < lo:
+         return None, (f"{d} s < minimum {lo} s after verified expansion"
+                       + (f"; expansion stopped: {'; '.join(stops)}" if stops
+@@ -289,7 +315,7 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+     ok, why = start_is_boundary(words, sents, a)
+     if not ok:
+         return None, f"start rejected: {why}", span
+-    if not words[sents[b][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[b][1]]["word"]):
+         return None, "does not end on '.' or '!'", span
+     text = " ".join(w["word"].strip() for w in words[sents[a][0]:sents[b][1] + 1])
+     return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
+@@ -454,7 +480,7 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+ 
+     def edge_ok(a, b):
+         return start_is_boundary(words, sents, a)[0] if d == "prev" else \
+-            words[sents[b][1]]["word"].rstrip().endswith((".", "!"))
++            _ends_statement(words[sents[b][1]]["word"])
+ 
+     added = 0
+     while added == 0 or not edge_ok(a, b):
+@@ -462,6 +488,8 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+         if i < 0 or i >= len(sents):
+             return None, f"boundary repair: no {d} sentence", span
+         na, nb = (i, b) if d == "prev" else (a, i)
++        if _n_sentences(words, sents, na, nb) > MAX_WINDOW_SENTENCES:
++            return None, f"boundary repair: would exceed {MAX_WINDOW_SENTENCES} sentences", span
+         if words[sents[nb][1]]["end"] - words[sents[na][0]]["start"] > hi:
+             span["expansion"].append({"direction": d, "sentence": stext(i), "on_event": None,
+                                       "detail": f"would exceed {hi} s; direction closed"})
+@@ -496,7 +524,7 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+     ok, why = start_is_boundary(words, sents, a)
+     if not ok:
+         return None, f"repaired start rejected: {why}", span
+-    if not words[sents[b][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[b][1]]["word"]):
+         return None, "repaired window does not end on '.' or '!'", span
+     return {"start": st, "end": en, "duration": dd, "first_sentence": stext(a), "last_sentence": stext(b),
+             "n_sentences": b - a + 1, "text": " ".join(w["word"].strip() for w in words[sents[a][0]:sents[b][1] + 1]),
+@@ -1030,7 +1058,7 @@ def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
+                           (f"; infrastructure-blocked videos {[v for v, _ in infra]}" if infra else "")}
+     out = []
+     for p in chosen:   # select_passages input contract (full-video seconds)
+-        out.append({"video_id": p["video_id"], "channel": p["channel"], "handle": p["handle"],
++        out.append({"kind": p["kind"], "video_id": p["video_id"], "channel": p["channel"], "handle": p["handle"],
+                     "title": p["title"], "tier": p["tier"], "start": round(p["start"], 2),
+                     "end": round(p["end"], 2), "text": p["text"], "duration": p["duration"],
+                     "score": round(p["clip_score"] * 20 + p["relevance"], 2),
+diff --git a/pipeline/select_passages.py b/pipeline/select_passages.py
+index 752a8032..91bdf81f 100644
+--- a/pipeline/select_passages.py
++++ b/pipeline/select_passages.py
+@@ -205,14 +205,18 @@ def select_and_build_edl(keyword, niche, run_dir):
+         print("  Not enough valid passages — STOP")
+         return False
+ 
+-    # Pick hook: shortest passage with highest score, must be a statement
+-    hook_candidates = [p for p in valid if p["duration"] <= 12.0 and
+-                       not p["text"].rstrip().endswith("?")]
+-    if not hook_candidates:
+-        hook_candidates = sorted(valid, key=lambda p: p["duration"])[:1]
+-
+-    hook = max(hook_candidates, key=lambda p: p["score"]) if hook_candidates else valid[0]
+-    clips = [p for p in valid if p is not hook][:5]  # Max 5 clips
++    if all(p.get("kind") in ("hook", "clip") for p in valid):
++        # 1d (2026-11-11): the editor's slots are kept; a rejected slot is refilled from the ranking
++        hook = next((p for p in valid if p["kind"] == "hook"), None)
++        clips = [p for p in valid if p["kind"] == "clip"]
++    else:
++        # legacy passages.json without slot kinds: shortest statement with the highest score
++        hook_candidates = [p for p in valid if p["duration"] <= 12.0 and
++                           not p["text"].rstrip().endswith("?")]
++        if not hook_candidates:
++            hook_candidates = sorted(valid, key=lambda p: p["duration"])[:1]
++        hook = max(hook_candidates, key=lambda p: p["score"]) if hook_candidates else valid[0]
++        clips = [p for p in valid if p is not hook][:5]  # Max 5 clips
+ 
+     # SENTENCE LAW (sentence_law.py): the editor's chosen sentences are located in the downloaded
+     # file's own transcript by TEXT, sealed in a selection lock, and both edges must be legal,
+@@ -267,12 +271,71 @@ def select_and_build_edl(keyword, niche, run_dir):
+             "selection_lock": lock,
+         }
+ 
++    # Next-ranked fallback (mission 1b/1d): a window the sentence law rejects is replaced by the
++    # best-ranked legal candidate of the same kind from the editor's shortlist (score floor, duration
++    # budget, no overlap, <= 2 clips per channel, <= 2 windows per video), never by moving a cut.
++    from editorial_select import (HOOK_MIN_S, HOOK_MAX_S, CLIP_MIN_S, CLIP_MAX_S, HOOK_MIN_SCORE,
++                                  CLIP_MIN_SCORE, MAX_VERIFIED_QUOTES_PER_VIDEO)
++    pool = [p for p in data.get("passages", []) if p.get("kind") in ("hook", "clip")]
++    used, tried = [], set()
++
++    def _key(p):
++        return (p["video_id"], round(p["start"], 2), round(p["end"], 2))
++
++    def _eligible(p, kind):
++        lo, hi, floor = ((HOOK_MIN_S, HOOK_MAX_S, HOOK_MIN_SCORE) if kind == "hook"
++                         else (CLIP_MIN_S, CLIP_MAX_S, CLIP_MIN_SCORE))
++        if p.get("kind") != kind or _key(p) in tried or (p.get("clip_score") or 0) < floor:
++            return False
++        if not lo <= p["end"] - p["start"] <= hi:
++            return False
++        if any(u["video_id"] == p["video_id"] and not (p["end"] <= u["start"] or p["start"] >= u["end"]) for u in used):
++            return False
++        if sum(1 for u in used if u["video_id"] == p["video_id"]) >= MAX_VERIFIED_QUOTES_PER_VIDEO:
++            return False
++        return kind == "hook" or sum(1 for u in used[1:] if u["channel"] == p["channel"]) < 2
++
++    def _source_for(p):
++        vid = p["video_id"]
++        if vid not in sources:
++            res = _download_window(vid, p["start"], p["end"], run_dir)
++            if not res or not res[0]:
++                return "download failed"
++            sources[vid], offsets[vid] = res
++            tr = _whisper_transcribe(sources[vid], vid, run_dir)
++            if not tr:
++                return "transcription failed"
++            transcripts[vid] = tr
++        span = transcripts[vid].get("duration") or 0
++        if span and not (offsets[vid] + 1.0 <= p["start"] and p["end"] <= offsets[vid] + span - 1.0):
++            return "outside the downloaded window"
++        return None
++
++    def _fill(first, label, kind):
++        for p in [first] + sorted([q for q in pool if q is not first],
++                                  key=lambda q: (-(q.get("clip_score") or 0), -(q.get("relevance") or 0))):
++            if p is None or (p is not first and not _eligible(p, kind)):
++                continue
++            tried.add(_key(p))
++            why = _source_for(p)
++            if why:
++                boundary_report.append({"segment": label, "video_id": p["video_id"], "channel": p["channel"],
++                                        "window_full_video_s": [p["start"], p["end"]],
++                                        "result": f"rejected: {why}", "fallback": p is not first})
++                continue
++            seg = _build_segment(p, label)
++            boundary_report[-1]["fallback"] = p is not first
++            if seg is not None:
++                used.append(p)
++                return seg
++        return None
++
+     try:
+-        hook_seg = _build_segment(hook, "hook")
++        hook_seg = _fill(hook, "hook", "hook")
+         clip_segs = []
+         if hook_seg is not None:
+-            for i, clip in enumerate(clips):
+-                seg = _build_segment(clip, f"clip_{i+1:02d}")
++            for clip in clips:
++                seg = _fill(clip, f"clip_{len(clip_segs) + 1:02d}", "clip")
+                 if seg:
+                     seg["index"] = len(clip_segs) + 1
+                     clip_segs.append(seg)
+diff --git a/pipeline/test_sentence_windows.py b/pipeline/test_sentence_windows.py
 new file mode 100644
-index 00000000..075e235c
+index 00000000..bf913061
 --- /dev/null
-+++ b/pipeline/avatar_onboard.py
-@@ -0,0 +1,141 @@
++++ b/pipeline/test_sentence_windows.py
+@@ -0,0 +1,134 @@
 +#!/usr/bin/env python3
-+"""pipeline/avatar_onboard.py — real channel avatars for the credits card (M6, D4 2026-11-11).
-+
-+The shout-out card shows each credited channel's REAL YouTube avatar: the square channel picture
-+from the channel page metadata (yt-dlp), never a video thumbnail and never a generated placeholder.
-+D4: on 2026-11-10 the card showed 1280x720 video thumbnails squashed into circles.
-+
-+  fetch    python3 pipeline/avatar_onboard.py fetch [--all]   -> pipeline/avatars/<slug>_512.png +
-+           avatars/ONBOARD_REPORT.json + avatars/CONTACT_SHEET.png (for visual verification)
-+  register python3 pipeline/avatar_onboard.py register          -> channels.json avatar_path +
-+           avatar_sha256_prefix for every fetched avatar listed in ONBOARD_REPORT.json as ok
-+Only `register` writes the registry, and only after the contact sheet was looked at (M6).
-+"""
-+import hashlib
-+import io
++"""1d (PBX review 2026-11-11): selection proposes SENTENCE-ALIGNED windows of one to three whole
++sentences within the 8-12 s hook / 12-20 s clip budgets, and a window the sentence law rejects is
++replaced by the next-ranked legal window, never by moving a cut.
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_sentence_windows.py"""
 +import json
 +import os
-+import subprocess
 +import sys
-+import urllib.request
++import tempfile
++import unittest
 +
-+PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
-+CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
-+AVATAR_DIR = os.path.join(PIPELINE_DIR, "avatars")
-+REPORT = os.path.join(AVATAR_DIR, "ONBOARD_REPORT.json")
-+SHEET = os.path.join(AVATAR_DIR, "CONTACT_SHEET.png")
-+SIZE = 512
-+MIN_SOURCE_PX = 176
-+SQUARE_TOL = 0.01
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++import editorial_select as es  # noqa: E402
 +
 +
-+def _sha(path):
-+    return hashlib.sha256(open(path, "rb").read()).hexdigest()
++def _w(word, t, d=0.3):
++    return {"word": word, "start": round(t, 2), "end": round(t + d, 2)}
 +
 +
-+def avatar_url(channel_id):
-+    """(URL of the channel's square avatar, channel title, follower count) from yt-dlp channel
-+    metadata. Raises if none is square. Title/followers are for the identity check (E-FAIL-010)."""
-+    r = subprocess.run(["yt-dlp", "--flat-playlist", "--dump-single-json", "--playlist-items", "0",
-+                        "--no-warnings", f"https://www.youtube.com/channel/{channel_id}"],
-+                       capture_output=True, text=True, timeout=120)
-+    if r.returncode != 0 or not r.stdout.strip():
-+        raise RuntimeError(f"yt-dlp channel metadata failed: {r.stderr.strip()[-200:]}")
-+    meta = json.loads(r.stdout)
-+    thumbs = meta.get("thumbnails") or []
-+    sq = [t for t in thumbs if t.get("width") and t.get("width") == t.get("height")
-+          and t["width"] >= MIN_SOURCE_PX and t.get("url")]
-+    if not sq:
-+        raise RuntimeError("channel metadata has no square avatar")
-+    return max(sq, key=lambda t: t["width"])["url"], meta.get("channel"), meta.get("channel_follower_count")
++class TestSentenceSplitting(unittest.TestCase):
++    def test_abbreviation_is_not_a_sentence_end(self):
++        # whisper writes "U .S." as two tokens; the Nov 10 Natalie window was counted as 4 sentences
++        ws = [_w(x, i * 0.4) for i, x in enumerate(
++            ["By", "the", "weekend.", "U", ".S.", "Bitcoin", "ETFs", "had", "outflows.", "And", "then."])]
++        self.assertEqual(es._word_sentences(ws), [(0, 2), (3, 8), (9, 10)])
++
++    def test_trailing_ellipsis_is_not_a_sentence_end(self):
++        ws = [_w(x, i * 0.4) for i, x in enumerate(["So", "anyway...", "it", "fell."])]
++        self.assertEqual(es._word_sentences(ws), [(0, 3)])
++
++    def test_question_never_ends_a_window(self):
++        self.assertFalse(es._ends_statement("really?"))
++        self.assertTrue(es._ends_statement("week."))
++        self.assertFalse(es._ends_statement("U.S."))
 +
 +
-+def fetch_one(ch):
-+    from PIL import Image
-+    url, title, followers = avatar_url(ch["channel_id"])
-+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-+    img = Image.open(io.BytesIO(urllib.request.urlopen(req, timeout=60).read())).convert("RGB")
-+    w, h = img.size
-+    if abs(w - h) > SQUARE_TOL * max(w, h) or min(w, h) < MIN_SOURCE_PX:
-+        raise RuntimeError(f"avatar is not a square >= {MIN_SOURCE_PX} px: {w}x{h}")
-+    path = os.path.join(AVATAR_DIR, f"{ch['slug']}_{SIZE}.png")
-+    img.resize((SIZE, SIZE), Image.LANCZOS).save(path)
-+    return {"slug": ch["slug"], "display_name": ch["display_name"], "youtube_title": title,
-+            "followers": followers, "source_px": [w, h],
-+            "path": path, "sha256": _sha(path), "ok": True}
++class TestBudgets(unittest.TestCase):
++    def test_budget_constants(self):
++        self.assertEqual((es.HOOK_MIN_S, es.HOOK_MAX_S), (8.0, 12.0))
++        self.assertEqual((es.CLIP_MIN_S, es.CLIP_MAX_S), (12.0, 20.0))
++        self.assertEqual(es.MAX_WINDOW_SENTENCES, 3)
++
++    def test_expansion_stops_at_three_sentences(self):
++        # five short sentences (2.0 s each); anchor = sentence 2; a 9-12 s window would need 5 sentences
++        ws, t = [], 0.0
++        for s in range(5):
++            for k in range(4):
++                ws.append(_w(f"S{s}w{k}" if k == 0 else f"s{s}w{k}" + ("." if k == 3 else ""), t))
++                t += 0.5
++            t += 0.3
++        sents = es._word_sentences(ws)
++        anchor = {"w0": 8, "w1": 11, "start": ws[8]["start"], "end": ws[11]["end"]}
++        win, why, span = es.expanded_window(ws, sents, anchor, 9.0, 12.0, lambda txt: (True, "ok"))
++        self.assertIsNone(win)
++        self.assertLessEqual(span["n_sentences"], 3, span)
++        self.assertTrue(any("sentences; direction closed" in c["detail"] for c in span["expansion"]), span)
 +
 +
-+def contact_sheet(rows):
-+    from PIL import Image, ImageDraw
-+    cell, cols = 160, 10
-+    n = len(rows)
-+    sheet = Image.new("RGB", (cols * cell, ((n + cols - 1) // cols) * (cell + 24)), (20, 20, 20))
-+    d = ImageDraw.Draw(sheet)
-+    for i, r in enumerate(rows):
-+        x, y = (i % cols) * cell, (i // cols) * (cell + 24)
-+        if r.get("ok"):
-+            sheet.paste(Image.open(r["path"]).resize((cell - 8, cell - 8)), (x + 4, y + 4))
-+        d.text((x + 4, y + cell), r["display_name"][:22], fill=(255, 255, 255) if r.get("ok") else (255, 80, 80))
-+    sheet.save(SHEET)
++def _synth(path, words, dur=45.0, sr=16000):
++    import numpy as np
++    import wave
++    x = np.random.default_rng(3).normal(0, 0.0005, int(dur * sr))
++    for w in words:
++        a, b = int(w["start"] * sr), int(w["end"] * sr)
++        x[a:b] += 0.1 * np.sin(2 * np.pi * 300 * np.arange(b - a) / sr)
++    with wave.open(path, "wb") as f:
++        f.setnchannels(1)
++        f.setsampwidth(2)
++        f.setframerate(sr)
++        f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
 +
 +
-+def cmd_fetch(all_channels=False):
-+    os.makedirs(AVATAR_DIR, exist_ok=True)
-+    reg = json.load(open(CHANNELS_PATH))
-+    rows = []
-+    for ch in reg:
-+        if not ch.get("channel_id"):
-+            continue
-+        if ch.get("avatar_path") and os.path.exists(ch["avatar_path"]) and not all_channels:
-+            continue
-+        try:
-+            rows.append(fetch_one(ch))
-+        except Exception as e:
-+            rows.append({"slug": ch["slug"], "display_name": ch["display_name"], "ok": False,
-+                         "error": f"{type(e).__name__}: {e}"[:300]})
-+        r = rows[-1]
-+        print(f"  {ch['display_name']}: " + (f"ok (youtube: {r['youtube_title']!r}, {r['followers']} followers)"
-+                                             if r["ok"] else r["error"]), flush=True)
-+    shas = [r["sha256"] for r in rows if r.get("ok")] + \
-+           [_sha(c["avatar_path"]) for c in reg if c.get("avatar_path") and os.path.exists(c["avatar_path"])
-+            and not any(r["slug"] == c["slug"] for r in rows)]
-+    dup = {h for h in shas if shas.count(h) > 1}
-+    for r in rows:
-+        if r.get("ok") and r["sha256"] in dup:
-+            r.update(ok=False, error="avatar sha256 not unique (R6)")
-+    json.dump(rows, open(REPORT, "w"), indent=1)
-+    contact_sheet(rows)
-+    print(f"fetched {sum(r['ok'] for r in rows)}/{len(rows)}; sheet {SHEET}")
++def _sentences(tag, t, gaps):
++    """Sentences of 6 words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i."""
++    ws = []
++    for si, gap in enumerate(gaps):
++        for wi in range(6):
++            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == 5 else ""), "start": round(t, 2),
++                       "end": round(t + 0.30, 2)})
++            t += 0.35
++        t += gap - 0.05
++    return ws
 +
 +
-+def cmd_register():
-+    """In-place text edit of each channel's avatar_path / avatar_sha256_prefix (minimal registry diff)."""
-+    import re
-+    rows = {r["slug"]: r for r in json.load(open(REPORT)) if r.get("ok")}
-+    text = open(CHANNELS_PATH).read()
-+    n = 0
-+    for slug, r in rows.items():
-+        if not (os.path.exists(r["path"]) and _sha(r["path"]) == r["sha256"]):
-+            continue
-+        for m in reversed(list(re.finditer(re.escape(f'"slug": "{slug}",'), text))):   # every entry
-+            i = m.start()
-+            j = text.find('"slug": "', i + 1)
-+            j = len(text) if j < 0 else j
-+            block = text[i:j]
-+            block = re.sub(r'"avatar_path": "[^"]*"', f'"avatar_path": "{r["path"]}"', block, count=1)
-+            block = re.sub(r'"avatar_sha256_prefix": "[^"]*"', f'"avatar_sha256_prefix": "{r["sha256"][:16]}"',
-+                           block, count=1)
-+            text = text[:i] + block + text[j:]
-+            n += 1
-+    json.loads(text)                       # still valid JSON
-+    with open(CHANNELS_PATH + ".tmp", "w") as f:
-+        f.write(text)
-+    os.replace(CHANNELS_PATH + ".tmp", CHANNELS_PATH)
-+    print(f"registered {n} avatars")
++class TestNextRankedFallback(unittest.TestCase):
++    def test_rejected_clip_is_replaced_by_the_next_legal_window(self):
++        import select_passages as sp
++        # BBB sentence 6 runs straight into sentence 7 (no pause): a clip ending there is not cuttable
++        words = {"AAA": _sentences("a", 2.0, [0.5] * 8), "BBB": _sentences("b", 2.0, [0.5] * 6 + [0.05, 0.5])}
++
++        def text(vid, s0, s1):
++            return " ".join(w["word"] for w in words[vid]
++                            if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1)
++
++        with tempfile.TemporaryDirectory() as rd:
++            os.makedirs(os.path.join(rd, "sources"))
++            os.makedirs(os.path.join(rd, "transcripts"))
++            hook = {"kind": "hook", "video_id": "AAA", "channel": "The Bitcoin Layer", "start": 110.0, "end": 119.0,
++                    "duration": 9.0, "score": 90, "clip_score": 4.5, "text": text("AAA", 5, 6)}
++            bad = {"kind": "clip", "video_id": "BBB", "channel": "BTC Sessions", "start": 510.0, "end": 524.0,
++                   "duration": 14.0, "score": 80, "clip_score": 4.0, "text": text("BBB", 4, 6)}
++            alt = {"kind": "clip", "video_id": "BBB", "channel": "BTC Sessions", "start": 497.5, "end": 510.0,
++                   "duration": 12.5, "score": 70, "clip_score": 3.8, "text": text("BBB", 0, 2)}
++            json.dump({"chosen": [hook, bad], "passages": [hook, bad, alt]},
++                      open(os.path.join(rd, "passages.json"), "w"))
++
++            def fake_dl(vid, start, end, run_dir, pad=15.0):
++                path = os.path.join(run_dir, "sources", f"{vid}.wav")
++                _synth(path, words[vid])
++                return (path, 95.0 if vid == "AAA" else 495.0)
++
++            def fake_tx(path, vid, run_dir):
++                rec = {"words": words[vid]}
++                json.dump(rec, open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w"))
++                return rec
++            orig = (sp._download_window, sp._whisper_transcribe)
++            sp._download_window, sp._whisper_transcribe = fake_dl, fake_tx
++            try:
++                self.assertTrue(sp.select_and_build_edl("test", "bitcoin", rd))
++            finally:
++                sp._download_window, sp._whisper_transcribe = orig
++            edl = json.load(open(os.path.join(rd, "edl.json")))
++            report = json.load(open(os.path.join(rd, "SELECT_BOUNDARIES.json")))
++            clip = edl["clips"][0]
++            self.assertEqual((clip["first_word"], clip["last_word"]), ("bs0w0", "bs2w5."), clip)
++            rejected = [r for r in report if r["result"].startswith("rejected")]
++            self.assertTrue(rejected and "OUT" in rejected[0]["result"], report)
++            self.assertTrue(any(r.get("fallback") and r["result"] == "accepted" for r in report), report)
 +
 +
 +if __name__ == "__main__":
-+    if len(sys.argv) > 1 and sys.argv[1] == "register":
-+        cmd_register()
-+    else:
-+        cmd_fetch(all_channels="--all" in sys.argv)
-diff --git a/pipeline/channels.json b/pipeline/channels.json
-index e6d2f966..9edd0a4e 100644
---- a/pipeline/channels.json
-+++ b/pipeline/channels.json
-@@ -7,8 +7,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/andreas_antonopoulos_512.png",
-+    "avatar_sha256_prefix": "f072d69be091e377",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -69,8 +69,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/base58_512.png",
-+    "avatar_sha256_prefix": "2846a569c15fd8c0",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -85,8 +85,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_audible_512.png",
-+    "avatar_sha256_prefix": "09e2ad1369cea88c",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -101,8 +101,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_explained_512.png",
-+    "avatar_sha256_prefix": "591d5c523f214e24",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -148,8 +148,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_mechanic_512.png",
-+    "avatar_sha256_prefix": "b2e10dd548bb5e48",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -164,8 +164,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_podcast_512.png",
-+    "avatar_sha256_prefix": "727b01b70ca03e88",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -195,8 +195,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/guy_swann_512.png",
-+    "avatar_sha256_prefix": "09e2ad1369cea88c",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -211,8 +211,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/jameson_lopp_512.png",
-+    "avatar_sha256_prefix": "8a3487566357e238",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -227,8 +227,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/natalie_brunell_512.png",
-+    "avatar_sha256_prefix": "bbf0deab624f81f2",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -243,8 +243,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/nathaniel_whittemore_512.png",
-+    "avatar_sha256_prefix": "35faa925cf36b745",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -259,8 +259,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/preston_pysh_512.png",
-+    "avatar_sha256_prefix": "c64701c89e93ef29",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -275,8 +275,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/robert_breedlove_512.png",
-+    "avatar_sha256_prefix": "bcbbe9d4f695a167",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -291,8 +291,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/saifedean_ammous_512.png",
-+    "avatar_sha256_prefix": "5e362ed141f6bab9",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -307,8 +307,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/stephan_livera_512.png",
-+    "avatar_sha256_prefix": "7ac6f1eb5491b3d2",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -323,8 +323,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/swan_bitcoin_512.png",
-+    "avatar_sha256_prefix": "b2aec803987197a1",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -339,8 +339,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/tftc_512.png",
-+    "avatar_sha256_prefix": "9bbc5bb05758e0ef",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -372,8 +372,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/the_bitcoin_podcast_512.png",
-+    "avatar_sha256_prefix": "26d0d939973d2480",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -403,8 +403,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/tone_vays_512.png",
-+    "avatar_sha256_prefix": "c0b5f4f1653fb479",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -419,8 +419,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/unchained_512.png",
-+    "avatar_sha256_prefix": "d5a105de2fff62f0",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -435,8 +435,8 @@
-     "tier": 1,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/what_bitcoin_did_512.png",
-+    "avatar_sha256_prefix": "9cfe2b209f99b6c4",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -451,8 +451,8 @@
-     "tier": 2,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/coffeezilla_512.png",
-+    "avatar_sha256_prefix": "cab8eba765603cc7",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -467,8 +467,8 @@
-     "tier": 2,
-     "priority": 1,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/coffeezilla_extras_512.png",
-+    "avatar_sha256_prefix": "be7a2ec4baac7950",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -483,8 +483,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/altcoin_daily_512.png",
-+    "avatar_sha256_prefix": "7a9a97aed3ea56c5",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -499,8 +499,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/anthony_pompliano_512.png",
-+    "avatar_sha256_prefix": "1650105990ecc92f",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -530,8 +530,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitfarms_512.png",
-+    "avatar_sha256_prefix": "10f775a47f3e9ba9",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -546,8 +546,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitstamp_512.png",
-+    "avatar_sha256_prefix": "9074a6e2b49610a4",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -562,8 +562,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/blockware_solutions_512.png",
-+    "avatar_sha256_prefix": "484e59b698db28a4",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -578,8 +578,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/clark_moody_512.png",
-+    "avatar_sha256_prefix": "4667b979a3920bee",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -594,8 +594,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/coin_bureau_512.png",
-+    "avatar_sha256_prefix": "efb85001521bdfc8",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -626,8 +626,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/coingecko_512.png",
-+    "avatar_sha256_prefix": "6882363d604f98c2",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -642,8 +642,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/cointelegraph_512.png",
-+    "avatar_sha256_prefix": "a60039b5908afcb1",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -658,8 +658,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/compass_mining_512.png",
-+    "avatar_sha256_prefix": "1a4dba0fe1a44bb6",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -674,8 +674,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/datadash_512.png",
-+    "avatar_sha256_prefix": "4796d4ffab615084",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -690,8 +690,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/digital_asset_news_512.png",
-+    "avatar_sha256_prefix": "fe95098be5293b0e",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -736,8 +736,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/george_gammon_512.png",
-+    "avatar_sha256_prefix": "21b0a7e411158f20",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -767,8 +767,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/investing_with_tom_512.png",
-+    "avatar_sha256_prefix": "0033e0dd65096d96",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -798,8 +798,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/marty_bent_rabbit_hole_recap_512.png",
-+    "avatar_sha256_prefix": "9f268c5748705340",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -814,8 +814,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/max_keiser_512.png",
-+    "avatar_sha256_prefix": "5338b28baabb9ccf",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -829,7 +829,7 @@
-     "url": "https://www.youtube.com/@Saylor",
-     "tier": 2,
-     "priority": 2,
--    "enabled": true,
-+    "enabled": false,
-     "avatar_path": "",
-     "avatar_sha256_prefix": "",
-     "has_chyron": false,
-@@ -846,8 +846,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/once_bitten_512.png",
-+    "avatar_sha256_prefix": "84a80347f18b90d5",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -862,8 +862,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/real_vision_512.png",
-+    "avatar_sha256_prefix": "377b400995639233",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -878,8 +878,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/real_vision_finance_512.png",
-+    "avatar_sha256_prefix": "377b400995639233",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -894,8 +894,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/riot_platforms_512.png",
-+    "avatar_sha256_prefix": "9e1558ff41572226",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -910,8 +910,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/scott_melker_512.png",
-+    "avatar_sha256_prefix": "05322977b211e582",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -926,8 +926,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/stacker_news_512.png",
-+    "avatar_sha256_prefix": "f2faeba669ff26cf",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -942,8 +942,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/strategy_microstrategy_512.png",
-+    "avatar_sha256_prefix": "18794b982b2d8254",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -958,8 +958,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/strike_512.png",
-+    "avatar_sha256_prefix": "8423c1e7a3c4d48a",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -974,8 +974,8 @@
-     "tier": 2,
-     "priority": 2,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/wolf_of_all_streets_512.png",
-+    "avatar_sha256_prefix": "8c24c60747900f27",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1006,8 +1006,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bankless_512.png",
-+    "avatar_sha256_prefix": "2c0af7a099ed21aa",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1022,8 +1022,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bloomberg_television_512.png",
-+    "avatar_sha256_prefix": "9c05313421b1579c",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1038,8 +1038,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/cnbc_512.png",
-+    "avatar_sha256_prefix": "8c316fd3ebac3e45",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1054,8 +1054,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/cnbc_television_512.png",
-+    "avatar_sha256_prefix": "c5a4e1bcd38ce01a",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1070,8 +1070,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/financial_times_512.png",
-+    "avatar_sha256_prefix": "8ad6e0ebc69f92ad",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1086,8 +1086,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/fox_business_512.png",
-+    "avatar_sha256_prefix": "37f4a1b05d3cf6d0",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1102,8 +1102,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/kitco_news_512.png",
-+    "avatar_sha256_prefix": "593e433193520f23",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1118,8 +1118,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/kitco_news_512.png",
-+    "avatar_sha256_prefix": "593e433193520f23",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1134,8 +1134,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/the_block_512.png",
-+    "avatar_sha256_prefix": "6d1dc24fbd156e10",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1150,8 +1150,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/thestreet_512.png",
-+    "avatar_sha256_prefix": "936433bc72dd1ee3",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1166,8 +1166,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/wall_street_journal_512.png",
-+    "avatar_sha256_prefix": "19711b0010b4d0ba",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-@@ -1182,8 +1182,8 @@
-     "tier": 3,
-     "priority": 3,
-     "enabled": true,
--    "avatar_path": "",
--    "avatar_sha256_prefix": "",
-+    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/yahoo_finance_512.png",
-+    "avatar_sha256_prefix": "8665ccb20e94f2d4",
-     "has_chyron": false,
-     "layout_table_key": "",
-     "layout_status": "pending",
-diff --git a/pipeline/shoutout.py b/pipeline/shoutout.py
-index 8202bdd1..b9663c40 100644
---- a/pipeline/shoutout.py
-+++ b/pipeline/shoutout.py
-@@ -131,145 +131,41 @@ def _validate_shoutout_frames(mp4_path, expected_size, fmt):
-         )
++    unittest.main()
+diff --git a/pipeline/test_window_review.py b/pipeline/test_window_review.py
+index af2be03e..31996e55 100644
+--- a/pipeline/test_window_review.py
++++ b/pipeline/test_window_review.py
+@@ -116,7 +116,8 @@ class TestVerifiedAdjacentExpansion(unittest.TestCase):
+         ws = words_for(sents_txt)
+         sents = es._word_sentences(ws)
+         a = es.align_quote("The exchange lost six billion dollars to hackers overnight", ws, 0, 1000)
+-        w, why, span = es.expanded_window(ws, sents, a, 18.0, 25.0, lambda t: (True, "SUPPORTS"))
++        # 1d: three sentences reach 12 s; the lower-case 'and' start is still rejected
++        w, why, span = es.expanded_window(ws, sents, a, 12.0, 25.0, lambda t: (True, "SUPPORTS"))
+         self.assertIsNone(w)
+         self.assertIn("start rejected", why)
+ 
+@@ -397,7 +398,7 @@ class TestD2TwoVerifiedWindowsPerVideo(unittest.TestCase):
+                 self.assertFalse(p["video_id"] == o["video_id"] and not (p["end"] <= o["start"] or p["start"] >= o["end"]))
  
  
--def _find_avatar(segment_dir, channel_name):
--    """Find avatar for a channel. Looks in channels.json registry, then local avatars/."""
--    # Try channels.json registry
--    channels_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")
--    if os.path.exists(channels_json):
--        with open(channels_json) as f:
--            registry = json.load(f)
--        for entry in registry:
--            if entry.get("display_name") == channel_name:
--                avatar = entry.get("avatar_path", "")
--                if avatar and os.path.exists(avatar):
--                    return avatar
--
--    # Try local avatars dir
--    avatars_dir = os.path.join(segment_dir, "avatars")
--    if os.path.exists(avatars_dir):
--        slug = channel_name.lower().replace(" ", "_")
--        for ext in [".jpg", ".png", ".webp"]:
--            candidate = os.path.join(avatars_dir, f"{slug}{ext}")
--            if os.path.exists(candidate):
--                return candidate
--
--    # On-demand fetch: try to download from EDL video metadata
--    avatar = _fetch_avatar_on_demand(segment_dir, channel_name)
--    if avatar:
--        return avatar
--
--    raise FileNotFoundError(f"STOP: avatar missing for channel '{channel_name}'")
--
--
--def _fetch_avatar_on_demand(segment_dir, channel_name):
--    """Try to fetch channel avatar via yt-dlp from the EDL's video entries."""
--    import subprocess
--    import hashlib
-+AVATAR_SQUARE_TOL = 0.01      # D4: the frozen renderer resizes to a square; a non-square image squashes
-+AVATAR_MIN_PX = 128
+-C = ["Binance confirmed the hack this morning in a short statement posted on its own website.",            # 0
++C = ["Binance confirmed the hack this morning.",                                                       # 0 (1d: fits 20 s)
+      "It means six billion dollars of customer money left the exchange in one night and nobody stopped it.",  # 1 quote
+      "Withdrawals stayed frozen for hours while the exchange tried to find the hole.",                       # 2
+      "Thanks for watching and see you all tomorrow on the stream."]                                          # 3
+@@ -422,7 +423,7 @@ class TestD3BoundaryRepair(unittest.TestCase):
  
--    avatars_dir = os.path.join(segment_dir, "avatars")
--    os.makedirs(avatars_dir, exist_ok=True)
--    slug = channel_name.lower().replace(" ", "_").replace("'", "")
+     def test_mid_thought_window_passes_after_verified_repair(self):
+         """Positive: the clip 'It means ... hole.' is rated 3 for starting mid-thought; the previous
+-        sentence is verified on-event, so it is added (24.5 s <= 25) and the re-rated window (4.5)
++        sentence is verified on-event, so it is added (19.2 s <= 20, 1d budget) and the re-rated window (4.5)
+         clears the unchanged 3.5 floor. The hook version cannot grow past 12 s and stays rejected."""
+         llm = RoutedLLM([C[0], C[1], C[2]], rate=self.rate("starts_mid_thought"))
+         cq = self.cq(llm)
+@@ -509,14 +510,16 @@ class TestD4AdjacentReaction(unittest.TestCase):
+         self.assertIn(sm.REACTION_QUESTION, llm.prompts[-1])
+         self.assertIn('<excerpt id="sentence">Some sentence here.</excerpt>', llm.prompts[-1])
  
--    # Find a video_id for this channel from EDL
--    edl_path = os.path.join(segment_dir, "edl.json")
--    if not os.path.exists(edl_path):
--        return None
-+def validate_avatar(path):
-+    """D4 (2026-11-11): a credit avatar must be the channel's square picture. A 16:9 video thumbnail
-+    is refused (the frozen scene_shoutout resizes every avatar to a square and would squash it)."""
-+    from PIL import Image
-+    with Image.open(path) as im:
-+        w, h = im.size
-+    if abs(w - h) > AVATAR_SQUARE_TOL * max(w, h):
-+        raise ValueError(f"avatar must be square, got {w}x{h} (a video thumbnail?): {path}")
-+    if min(w, h) < AVATAR_MIN_PX:
-+        raise ValueError(f"avatar too small ({w}x{h} < {AVATAR_MIN_PX} px square): {path}")
-+    return w
+-    def test_at_most_two_admitted_sentences_per_direction(self):
++    def test_window_never_exceeds_three_sentences(self):
++        # 1d (2026-11-11): one to three whole sentences; the total binds before the D4 per-direction cap
+         txt = ["It hurt.", "It hurt more.", "It hurt again.", SENTS[1], "This is bad.", "This is worse.", "This is the worst."]
+         ws = words_for(txt)
+         a = es.align_quote(SENTS[1].rstrip("."), ws, 0, 1000)
+         calls = []
+         w, why, span = es.expanded_window(ws, es._word_sentences(ws), a, 60.0, 80.0, lambda t: (calls.append(t) or True, "ok"))
+-        self.assertEqual(sorted(c["direction"] for c in span["expansion"] if c["on_event"]), ["next", "next", "prev", "prev"])
+-        self.assertEqual(sum(c["detail"].startswith("cap:") for c in span["expansion"]), 2)
++        self.assertEqual(sorted(c["direction"] for c in span["expansion"] if c["on_event"]), ["next", "prev"])
++        self.assertEqual(sum("sentences; direction closed" in c["detail"] for c in span["expansion"]), 2)
++        self.assertLessEqual(span["n_sentences"], 3)
+         self.assertNotIn(txt[0], calls)
+         self.assertNotIn(txt[6], calls)
  
--    with open(edl_path) as f:
--        edl = json.load(f)
+@@ -635,11 +638,12 @@ class TestD4aInterjectionTransparency(unittest.TestCase):
+         # Both real reactions were checked
+         self.assertIn(txt[2], calls)
+         self.assertIn(txt[3], calls)
+-        # The cap stops at 2 real sentences per direction: txt[4] hits the cap
++        # 1d: anchor + 2 real reactions = 3 counted sentences (the interjection is transparent);
++        # txt[4] would be a 4th counted sentence and closes the direction
+         real_next = [c for c in span["expansion"] if c["direction"] == "next" and c["on_event"] is True]
+         self.assertEqual(len(real_next), 2)
+-        cap_entries = [c for c in span["expansion"] if c["detail"].startswith("cap:")]
+-        self.assertTrue(cap_entries, "a cap entry must appear for the 3rd real sentence")
++        cap_entries = [c for c in span["expansion"] if "sentences; direction closed" in c["detail"]]
++        self.assertTrue(cap_entries, "a closing entry must appear for the 4th counted sentence")
  
--    video_id = None
--    hook = edl.get("hook", {})
--    if hook.get("channel") == channel_name:
--        video_id = hook.get("video_id")
--    for clip in edl.get("clips", []):
--        if clip.get("channel") == channel_name:
--            video_id = clip.get("video_id")
--            break
--
--    if not video_id:
--        return None
--
--    # Use yt-dlp to get channel thumbnail URL from video metadata
--    try:
--        result = subprocess.run(
--            ["yt-dlp", "--dump-json", "--skip-download", "--no-warnings",
--             f"https://www.youtube.com/watch?v={video_id}"],
--            capture_output=True, text=True, timeout=30,
--        )
--        if result.returncode != 0:
--            return None
--        meta = json.loads(result.stdout)
--
--        # Try direct thumbnail fields that are actual image URLs
--        avatar_url = None
--        for key in ("channel_url", "uploader_url"):
--            url = meta.get(key, "")
--            if url and "yt3.ggpht.com" in url:
--                avatar_url = url
--                break
--
--        # Search thumbnails list for avatar entries
--        if not avatar_url:
--            for t in meta.get("thumbnails", []):
--                url = t.get("url", "")
--                if "yt3.ggpht.com" in url:
--                    avatar_url = url
--                    break
--
--        # Construct from channel_id using known YouTube avatar URL pattern
--        if not avatar_url:
--            channel_id = meta.get("channel_id", "")
--            uploader_id = meta.get("uploader_id", "")
--            # Try video thumbnail as a safe fallback
--            avatar_url = meta.get("thumbnail")
--
--        if not avatar_url:
--            return None
--
--        # Download the image
--        import urllib.request
--        out_path = os.path.join(avatars_dir, f"{slug}.jpg")
--        urllib.request.urlretrieve(avatar_url, out_path)
--
--        # Verify it's actually an image
--        if os.path.exists(out_path) and os.path.getsize(out_path) > 500:
--            # Quick check: valid image header
--            with open(out_path, "rb") as fimg:
--                header = fimg.read(16)
--            if header[:3] in (b'\xff\xd8\xff', b'\x89PN') or b'WEBP' in header[:20]:
--                # Convert to PNG for PIL compatibility
--                try:
--                    from PIL import Image
--                    img = Image.open(out_path).convert("RGB")
--                    png_path = os.path.join(avatars_dir, f"{slug}.png")
--                    img.save(png_path)
--                    print(f"    Fetched avatar for {channel_name}: {png_path}")
--                    return png_path
--                except Exception:
--                    print(f"    Fetched avatar for {channel_name}: {out_path}")
--                    return out_path
--            else:
--                os.unlink(out_path)  # Not a real image
--    except Exception as e:
--        print(f"    WARN: avatar fetch failed for {channel_name}: {e}")
--
--    # Last resort: generate a placeholder
--    try:
--        from PIL import Image, ImageDraw, ImageFont
--        img = Image.new("RGB", (512, 512), (40, 40, 60))
--        draw = ImageDraw.Draw(img)
--        # Draw initials
--        initials = "".join(w[0].upper() for w in channel_name.split()[:3] if w)
--        draw.text((180, 180), initials, fill=(247, 147, 26))
--        out_path = os.path.join(avatars_dir, f"{slug}.png")
--        img.save(out_path)
--        print(f"    Generated placeholder avatar for {channel_name}")
--        return out_path
--    except Exception:
--        pass
--
--    return None
-+def _find_avatar(segment_dir, channel_name):
-+    """The channel's REAL avatar from pipeline/channels.json only (fetched + visually verified by
-+    pipeline/avatar_onboard.py, M6), sha256-prefix checked and square. No on-demand fetch, no video
-+    thumbnail, no generated stand-in (M12 fail closed)."""
-+    import hashlib
-+    channels_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")
-+    with open(channels_json) as f:
-+        registry = json.load(f)
-+    entry = next((e for e in registry if e.get("display_name") == channel_name), None)
-+    avatar = (entry or {}).get("avatar_path", "")
-+    if not avatar or not os.path.exists(avatar):
-+        raise FileNotFoundError(f"STOP: no verified avatar for channel '{channel_name}' in channels.json "
-+                                f"(pipeline/avatar_onboard.py fetch, verify the contact sheet, register)")
-+    prefix = entry.get("avatar_sha256_prefix", "")
-+    if prefix and not hashlib.sha256(open(avatar, "rb").read()).hexdigest().startswith(prefix):
-+        raise RuntimeError(f"STOP: avatar for '{channel_name}' does not match its registered sha256 prefix")
-+    validate_avatar(avatar)
-+    return avatar
- 
- 
- def main():
+     def test_interjection_alone_does_not_make_a_window_legal(self):
+         """An interjection next to a short anchor does not, by itself, make the window long enough."""

@@ -1,0 +1,50 @@
+{
+ "question": "Commit 1d makes selection propose sentence-aligned windows: abbreviation-aware sentence splitting (sentence_law.is_terminal), windows of one to three whole sentences (interjection-only sentences transparent per PBX D4a), clip budget 12-20 s, the editor's hook/clip slots honoured, and a window the sentence law rejects replaced by the next-ranked legal candidate of the same kind (score floor, budget, overlap, per-channel and per-video caps) instead of moving a cut. Find defects: a path that can pick an illegal/overlapping window, a cap or floor bypass, wrong window bookkeeping, a fallback that can loop or silently drop the hook. (this chunk: pipeline/test_window_review.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 282.0,
+   "cost": 0.003152266,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 217.7,
+   "cost": 0.0062222425,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 507.6,
+   "cost": 0.002080565,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0114550735,
+ "out_dir": "docs/audits/pulse-sentence-law/1d_sentence_windows/heimdall/pipeline_test_window_review_py"
+}

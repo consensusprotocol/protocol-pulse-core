@@ -1,0 +1,136 @@
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index 0be1f722..e791acf5 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -46,7 +46,8 @@ MAX_ADJUDICATE_PER_STORY = 14
+ MIN_COVERAGE_CHANNELS = 2
+ MIN_LAYOUT_CHANNELS = 2            # R5: clips from >= 2 distinct channels
+ HOOK_MIN_S, HOOK_MAX_S = 8.0, 12.0
+-CLIP_MIN_S, CLIP_MAX_S = 13.0, 25.0
++CLIP_MIN_S, CLIP_MAX_S = 12.0, 20.0     # 1d (2026-11-11): whole sentences within the 12-20 s clip budget
++MAX_WINDOW_SENTENCES = 3                 # 1d: a window is one to three whole sentences
+ HOOK_MIN_SCORE, CLIP_MIN_SCORE = 4.0, 3.5
+ N_CLIPS = 3                        # v2f format: hook + 3 clips
+ MAX_VERIFIED_QUOTES_PER_VIDEO = 2  # D2 (PBX 2026-11-09): up to two verified windows per source video
+@@ -123,12 +124,27 @@ def _tok(w):
+     return [t for t in re.split(r"[^a-z0-9]+", (w or "").lower().replace("’", "'").replace("'", "")) if t]
+ 
+ 
++def _ends_statement(word):
++    """A window may end only on a statement end: '.' or '!' that is not an abbreviation (U.S.)."""
++    import sentence_law
++    return sentence_law.is_terminal(word) and not word.rstrip().rstrip("\"')]”’").endswith("?")
++
++
++def _n_sentences(words, sents, a, b):
++    """Sentences a..b counted toward MAX_WINDOW_SENTENCES; an interjection-only sentence ('Oh.',
++    'Yeah.') is transparent, as in PBX's D4a ruling (2026-11-09) for the per-direction cap."""
++    return sum(1 for i in range(a, b + 1)
++               if not (set(_lc_words(" ".join(w["word"] for w in words[sents[i][0]:sents[i][1] + 1])))
++                       <= INTERJECTIONS))
++
++
+ def _word_sentences(words):
+-    """Sentences as word-index ranges, split after terminal punctuation (same rule as
+-    transcript_store.sentences_from_words)."""
++    """Sentences as word-index ranges, split after terminal punctuation; abbreviations such as
++    'U.S.' and trailing '...' never end a sentence (sentence_law.is_terminal, the one rule)."""
++    import sentence_law
+     out, s0 = [], 0
+     for i, w in enumerate(words):
+-        if w["word"].rstrip().endswith(_TERMINAL):
++        if sentence_law.is_terminal(w["word"]):
+             out.append((s0, i))
+             s0 = i + 1
+     if s0 < len(words):
+@@ -167,7 +183,8 @@ def start_is_boundary(words, sents, si):
+     """A window start is a boundary only if the previous sentence ended with terminal punctuation,
+     the first word opens a sentence (capital or digit) and is not a continuation conjunction."""
+     w0 = sents[si][0]
+-    if si > 0 and not words[w0 - 1]["word"].rstrip().endswith(_TERMINAL):
++    import sentence_law
++    if si > 0 and not sentence_law.is_terminal(words[w0 - 1]["word"]):
+         return False, "previous word has no terminal punctuation"
+     first = re.sub(r"^[\"'(\[“‘$]+", "", words[w0]["word"].strip())
+     if not first or not (first[0].isupper() or first[0].isdigit()):
+@@ -194,11 +211,13 @@ def anchored_window(words, sents, anchor, lo, hi):
+     ok, why = start_is_boundary(words, sents, sa)
+     if not ok:
+         return None, f"start rejected: {why}", span
++    if _n_sentences(words, sents, sa, se) > MAX_WINDOW_SENTENCES:
++        return None, f"quote spans {_n_sentences(words, sents, sa, se)} sentences > {MAX_WINDOW_SENTENCES}", span
+     if d < lo:
+         return None, f"quote sentence(s) {d} s < minimum {lo} s (no padding)", span
+     if d > hi:
+         return None, f"quote sentence(s) {d} s > maximum {hi} s", span
+-    if not words[sents[se][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[se][1]]["word"]):
+         return None, "does not end on '.' or '!'", span
+     text = " ".join(w["word"].strip() for w in words[sents[sa][0]:sents[se][1] + 1])
+     return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
+@@ -244,6 +263,11 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+                 checks.append({"direction": d, "sentence": stext(i), "on_event": None,
+                                "detail": f"would exceed {hi} s; direction closed"})
+                 continue
++            if _n_sentences(words, sents, na, nb) > MAX_WINDOW_SENTENCES:
++                open_dirs.remove(d)
++                checks.append({"direction": d, "sentence": stext(i), "on_event": None,
++                               "detail": f"would exceed {MAX_WINDOW_SENTENCES} sentences; direction closed"})
++                continue
+             # D4a (PBX 2026-11-09 ~02:05): content-free interjections are transparent — included in
+             # the window but skipped for the (a) check, not counted toward the two-sentence cap, and
+             # they do not close the direction.  The 8 s bound (b) still applies to them.
+@@ -282,6 +306,8 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+             "expansion": checks}
+     if d > hi:
+         return None, f"quote sentence(s) {d} s > maximum {hi} s", span
++    if _n_sentences(words, sents, a, b) > MAX_WINDOW_SENTENCES:
++        return None, f"window spans {_n_sentences(words, sents, a, b)} sentences > {MAX_WINDOW_SENTENCES}", span
+     if d < lo:
+         return None, (f"{d} s < minimum {lo} s after verified expansion"
+                       + (f"; expansion stopped: {'; '.join(stops)}" if stops
+@@ -289,7 +315,7 @@ def expanded_window(words, sents, anchor, lo, hi, on_event):
+     ok, why = start_is_boundary(words, sents, a)
+     if not ok:
+         return None, f"start rejected: {why}", span
+-    if not words[sents[b][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[b][1]]["word"]):
+         return None, "does not end on '.' or '!'", span
+     text = " ".join(w["word"].strip() for w in words[sents[a][0]:sents[b][1] + 1])
+     return {**span, "text": text, "anchor_start": anchor["start"], "anchor_end": anchor["end"]}, None, span
+@@ -454,7 +480,7 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+ 
+     def edge_ok(a, b):
+         return start_is_boundary(words, sents, a)[0] if d == "prev" else \
+-            words[sents[b][1]]["word"].rstrip().endswith((".", "!"))
++            _ends_statement(words[sents[b][1]]["word"])
+ 
+     added = 0
+     while added == 0 or not edge_ok(a, b):
+@@ -462,6 +488,8 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+         if i < 0 or i >= len(sents):
+             return None, f"boundary repair: no {d} sentence", span
+         na, nb = (i, b) if d == "prev" else (a, i)
++        if _n_sentences(words, sents, na, nb) > MAX_WINDOW_SENTENCES:
++            return None, f"boundary repair: would exceed {MAX_WINDOW_SENTENCES} sentences", span
+         if words[sents[nb][1]]["end"] - words[sents[na][0]]["start"] > hi:
+             span["expansion"].append({"direction": d, "sentence": stext(i), "on_event": None,
+                                       "detail": f"would exceed {hi} s; direction closed"})
+@@ -496,7 +524,7 @@ def repair_window(words, sents, win, fault, lo, hi, on_event):
+     ok, why = start_is_boundary(words, sents, a)
+     if not ok:
+         return None, f"repaired start rejected: {why}", span
+-    if not words[sents[b][1]]["word"].rstrip().endswith((".", "!")):
++    if not _ends_statement(words[sents[b][1]]["word"]):
+         return None, "repaired window does not end on '.' or '!'", span
+     return {"start": st, "end": en, "duration": dd, "first_sentence": stext(a), "last_sentence": stext(b),
+             "n_sentences": b - a + 1, "text": " ".join(w["word"].strip() for w in words[sents[a][0]:sents[b][1] + 1]),
+@@ -1030,7 +1058,7 @@ def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
+                           (f"; infrastructure-blocked videos {[v for v, _ in infra]}" if infra else "")}
+     out = []
+     for p in chosen:   # select_passages input contract (full-video seconds)
+-        out.append({"video_id": p["video_id"], "channel": p["channel"], "handle": p["handle"],
++        out.append({"kind": p["kind"], "video_id": p["video_id"], "channel": p["channel"], "handle": p["handle"],
+                     "title": p["title"], "tier": p["tier"], "start": round(p["start"], 2),
+                     "end": round(p["end"], 2), "text": p["text"], "duration": p["duration"],
+                     "score": round(p["clip_score"] * 20 + p["relevance"], 2),
