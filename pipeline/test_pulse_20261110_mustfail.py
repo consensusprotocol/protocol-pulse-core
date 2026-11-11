@@ -329,25 +329,68 @@ class TestD4Credits(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.S, ignore_errors=True)
 
-    def _gates(self, mp4, segs):
+    NOV10 = ["DataDash", "Natalie Brunell", "Yahoo Finance"]
+    V2F_CH = ["The Bitcoin Layer", "Bitcoin Magazine", "BTC Sessions"]
+
+    def _gates(self, mp4, segs, channels):
         import gates as G
         import qa_gates as Q
-        ok15, _ = G.gate_g15(mp4, segs, self.S)
-        ok12, _ = Q.gate_g12(mp4, segs, 3, self.S)
-        return ok15, ok12
+        ok15, d15 = G.gate_g15(mp4, segs, self.S, channels=channels)
+        ok12, d12 = Q.gate_g12(mp4, segs, len(channels), self.S)
+        return ok15, ok12, d15, d12
 
-    def test_yesterdays_card_fails_g15_and_g12(self):
+    def _card(self, p):
+        return [{"label": "shoutout", "type": "shoutout", "start": 0.0, "end": _dur(p)}]
+
+    def test_yesterdays_card_fails_g15_on_the_squashed_avatars_inside_round_rings(self):
+        # DEC-11 measured: yesterday's RINGS are round and where the layout puts them (G12 now counts 3 of 3);
+        # the D4 defect is the 1280x720 video thumbnail squashed into each disc, which G15 fails
         for fmt in ("16x9", "9x16"):
             p = os.path.join(FIX, "video", f"shoutout_{fmt}.mp4")
-            ok15, ok12 = self._gates(p, [{"label": "shoutout", "type": "shoutout", "start": 0.0, "end": _dur(p)}])
+            ok15, ok12, d15, d12 = self._gates(p, self._card(p), self.NOV10)
             self.assertFalse(ok15, f"G15 passed yesterday's {fmt} card")
-            self.assertFalse(ok12, f"G12 passed yesterday's {fmt} card")
+            self.assertTrue(d15["ring_aspect_ok"], d15["rings"][:3])
+            self.assertFalse(d15["avatar_ok"], d15["avatars"][:3])
+            self.assertTrue(ok12, d12)
 
     def test_v2f_finals_pass_g15_and_g12(self):
         for out, man in (("segment.mp4", "concat_manifest_16x9.json"), ("segment_vertical.mp4", "concat_manifest_9x16.json")):
             segs = json.load(open(os.path.join(V2F, "qa", man)))["segments"]
-            ok15, ok12 = self._gates(os.path.join(V2F, "out", out), segs)
-            self.assertTrue(ok15 and ok12, f"v2f {out}: G15 {ok15} G12 {ok12}")
+            ok15, ok12, d15, d12 = self._gates(os.path.join(V2F, "out", out), segs, self.V2F_CH)
+            self.assertTrue(ok15 and ok12, f"v2f {out}: G15 {ok15} G12 {ok12} {d15.get('avatars', [])[:3]}")
+
+    def test_a_squeezed_card_fails_g15_on_ring_aspect(self):
+        p = os.path.join(FIX, "video", "shoutout_16x9.mp4")
+        sq = os.path.join(self.S, "squeezed_16x9.mp4")       # rings drawn 80 % wide: a warped card
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", p, "-vf", "scale=iw*0.8:ih,pad=1920:1080:(ow-iw)/2:0",
+                        "-c:v", "libx264", "-crf", "18", "-an", sq], check=True)
+        ok15, _, d15, _ = self._gates(sq, self._card(sq), self.NOV10)
+        self.assertFalse(ok15)
+        self.assertFalse(d15["ring_aspect_ok"], d15["rings"][:3])
+
+    def test_g15_fails_closed_without_the_credited_channels(self):
+        import gates as G
+        p = os.path.join(FIX, "video", "shoutout_16x9.mp4")
+        for channels in (None, []):
+            ok15, d15 = G.gate_g15(p, self._card(p), self.S, channels=channels)
+            self.assertFalse(ok15, channels)
+            self.assertFalse(d15["avatar_ok"], channels)
+
+    def test_three_rings_for_four_credited_channels_fail_g12(self):
+        import qa_gates as Q
+        p = os.path.join(FIX, "video", "shoutout_16x9.mp4")
+        ok12, d12 = Q.gate_g12(p, self._card(p), 4, self.S)
+        self.assertFalse(ok12, d12)
+
+    @unittest.skipUnless(all(os.path.isfile(os.path.join(REPO, "runs", "pinned_20261111_172202", f)) for f in
+                             ("out/segment.mp4", "out/segment_vertical.mp4", "qa/transitions_timeline.json")),
+                         "Nov 11 DEC-10 recut not on this machine")
+    def test_todays_four_avatar_card_passes_g15_and_g12(self):
+        run = os.path.join(REPO, "runs", "pinned_20261111_172202")
+        tl = json.load(open(os.path.join(run, "qa", "transitions_timeline.json")))["timeline"]
+        for out in ("segment.mp4", "segment_vertical.mp4"):
+            ok15, ok12, d15, d12 = self._gates(os.path.join(run, "out", out), tl, self.NOV10 + ["Bitcoin Magazine"])
+            self.assertTrue(ok15 and ok12, f"today {out}: G15 {ok15} {d15.get('avatars', [])[:4]} G12 {d12}")
 
     def test_shoutout_refuses_a_thumbnail_avatar(self):
         import shoutout

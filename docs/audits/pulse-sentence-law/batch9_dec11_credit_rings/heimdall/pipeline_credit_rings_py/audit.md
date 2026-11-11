@@ -1,0 +1,22 @@
+# Heimdall audit
+
+**Question:** DEC-11 (orchestrator 2026-11-11 13:15, decided): G12/G15 measure the credits ring by what the renderer draws (segment_v1/scene_shoutout.render_shoutout: brand-red #FF1A1A ring of radius avatar_diam//2 + ring_gap around each node at a fixed card-layout position), not by a generic circle/contour search over avatar artwork (OD-1: the capital N of 'Natalie Brunell' and an orange avatar background misfired). New pipeline/credit_rings.py: card_layout mirrors the renderer; a ring = an external contour of G12's unchanged brand-red mask (R>100, R>G+40, R>B+40) with a ring-sized bounding box; ellipse fitted to that contour; G15 aspect tolerance unchanged (>= 0.95); G12 count == channels in the EDL, unchanged, plus each ring at its layout position. DEC-11's must-fail is yesterday's card, but measured its RINGS are round (0.999-1.000): its D4 defect was the 1280x720 thumbnail squashed into each disc; so G15 also checks each disc correlates (r >= 0.90) with the credited channel's registered avatar (measured 0.999-1.000 on v2f and today's cards; yesterday's 0.297 / -0.030 / -0.142). run_fresh passes the credited channels (hook first, then clips, each once, as shoutout.build_shoutout). Tests: yesterday's card fails G15 on the avatars with round rings; v2f and today's cards pass G12 + G15; a card squeezed to 80 % width fails G15 on ring aspect; 3 rings for 4 channels fails G12. Find real defects only: misfires on correct cards, a warped or wrong card that passes, fail-open paths (missing frame, missing avatar, channels None), layout formula drift from the renderer. (this chunk: pipeline/credit_rings.py)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0170
+## Consensus findings (majority of panel agrees)
+- **[high] pipeline/credit_rings.py:10** AVATAR_R_MIN is defined but never referenced by any function. check_card does not call disc_matches nor compare any correlation to the 0.90 threshold, so the G15 avatar-correlation check (the primary purpose of DEC-11: catching yesterday's card whose rings are round but whose discs are wrong) is not enforced by the module's main entry point. Yesterday's card (r = 0.297 / -0.030 / -0.142) would pass check_card because aspect_ok and at_layout are both True.
+  - evidence: `AVATAR_R_MIN = 0.90           # the disc inside ring i correlates with channel i's registered avatar (grey,
+                              # inner 118 px radius): measured 0.999-1.000 on every node of `
+  - fix: Add an avatar_ok parameter to check_card (or a separate g15_avatar_check function) that calls disc_matches(img_bgr, channels) and returns all(d["r"] is not None and d["r"] >= AVATAR_R_MIN for d in results). Wire it into the return tuple so the caller's G15 gate actually rejects wrong-avatar cards.
+  - raised by qwen27b:F1; agree: deepseek, qwen27b
+- **[medium] pipeline/credit_rings.py:89** disc_matches crashes with TypeError when channels is None: len(None) is evaluated inside the card_layout call before the zip loop. A caller that passes the result of credit_channels (which could be an empty list) is safe, but any path that passes None (e.g. a missing EDL upstream) will raise an unhandled exception.
+  - evidence: `lay = card_layout(w, h, len(channels))`
+  - fix: Add a guard: if not channels: return []. Place it before the card_layout call.
+  - raised by qwen27b:F3; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- qwen27b:F2 [medium] credit_channels crashes with AttributeError when edl is None. The spec lists 'channels None' as a fail-open path to guard against; a missing or null EDL should yield an empty channel list (or a clear error), not an unhandled exception that could be swallowed by a broad except in the caller and treated as pass. (agree: 1)
+- qwen27b:F4 [low] The inner correlation-mask radius uses a fixed 12-px inset (r_in = r_av - 12) that does not scale with the card resolution. At 1080p this yields 118 px (matching the spec's measured value), but at 720p it yields 74 px instead of the proportionally-correct ~79 px. The mask is ~6% smaller than intended at lower resolutions, which could shift the correlation value enough to affect borderline cases near the 0.90 threshold. (agree: 0)
+
+## Added in cross-examination (not voted on)
+- deepseek: [high] Missing frame (img_bgr None) is not guarded. find_rings, disc_matches, and check_card all call img_bgr.shape[:2] and will raise AttributeError. If the caller catches exceptions and treats them as pass, a missing frame passes G12/G15.

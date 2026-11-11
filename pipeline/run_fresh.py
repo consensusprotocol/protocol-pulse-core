@@ -856,8 +856,11 @@ def stage_gates(run, final16, man16, final9, man9):
     rows["9x16"]["G14c_duration_parity"] = _status(g14c_ok)
     for sub in ("g15_16x9", "g15_9x16"):
         os.makedirs(os.path.join(qa, sub), exist_ok=True)
-    g15_16_ok, g15_16 = G.gate_g15(final16, segs16, os.path.join(qa, "g15_16x9"))
-    g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"))
+    import credit_rings                             # DEC-11: G15 also checks each disc is the credited avatar
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        credited = credit_rings.credit_channels(json.load(f))
+    g15_16_ok, g15_16 = G.gate_g15(final16, segs16, os.path.join(qa, "g15_16x9"), channels=credited)
+    g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"), channels=credited)
     rows["16x9"]["G15_credits"] = _status(g15_16_ok)
     rows["9x16"]["G15_credits"] = _status(g15_9_ok)
 

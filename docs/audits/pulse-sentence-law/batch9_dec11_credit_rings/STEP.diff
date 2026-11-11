@@ -1,0 +1,419 @@
+diff --git a/pipeline/credit_rings.py b/pipeline/credit_rings.py
+new file mode 100644
+index 00000000..67353c57
+--- /dev/null
++++ b/pipeline/credit_rings.py
+@@ -0,0 +1,123 @@
++#!/usr/bin/env python3
++"""pipeline/credit_rings.py — DEC-11 (orchestrator 2026-11-11 13:15 ET): G12 / G15 measure the credits ring by
++what the renderer draws, not by a generic circle search over the avatar artwork (OD-1: the capital N of
++"Natalie Brunell" passed the old size filter as a "squished ring").
++
++The renderer (segment_v1/scene_shoutout.render_shoutout) draws each channel's ring as a brand-red (#FF1A1A)
++outline of radius avatar_diam // 2 + ring_gap around a node at a position fixed by the card layout. A ring
++here is the brand-red mask (G12's rule, unchanged: R > 100, R > G + 40, R > B + 40) taken as ONE external
++contour: its outer boundary is the ring (plus its glow) whatever avatar artwork sits inside, and the ellipse
++is fitted to that boundary, never to a circle assumed in advance. A contour is a ring when its bounding box
++has a ring's size (from the layout scale); G15's aspect tolerance (>= 0.95) and G12's count rule (== the
++channels in the EDL) are unchanged. G12 also requires each ring at its layout position for that count."""
++import cv2
++import numpy as np
++
++ASPECT_MIN = 0.95             # G15's tolerance, unchanged (aspect < 0.95 = squished)
++AVATAR_R_MIN = 0.90           # the disc inside ring i correlates with channel i's registered avatar (grey,
++                              # inner 118 px radius): measured 0.999-1.000 on every node of the v2f and Nov 11
++                              # cards (both formats); yesterday's squashed video thumbnails 0.297 / -0.030 / -0.142.
++                              # Yesterday's RINGS are round (0.999-1.000): the D4 defect was the content inside.
++SIZE_RANGE = (0.80, 1.30)     # ring bbox side / expected outer diameter (core ring + glow); a warped ring
++                              # keeps its long axis, so this filters glyphs and rays, not warps
++POS_TOL = 0.25                # a ring sits at its layout position: centre within 0.25 ring radii (35 px)
++
++
++def card_layout(w, h, n):
++    """The node centres and ring radius scene_shoutout.render_shoutout uses for n channels (its lines 141-206)."""
++    scale = min(w, h) / 1080.0
++    avatar_diam = int(260 * scale)
++    ring_r = avatar_diam // 2 + int(8 * scale)
++    if h > w:                                      # 9:16: stacked in the middle
++        node_h = avatar_diam + 10 + int(46 * scale) + 5 + int(32 * scale)
++        sp = int(80 * scale)
++        y0 = (h - (n * node_h + (n - 1) * sp)) // 2
++        pos = [(w // 2, y0 + i * (node_h + sp) + avatar_diam // 2) for i in range(n)]
++    else:                                          # 16:9: one row
++        gap = int(200 * scale)
++        x0 = (w - (n * avatar_diam + (n - 1) * gap)) // 2 + avatar_diam // 2
++        pos = [(x0 + i * (avatar_diam + gap), h // 2 - int(30 * scale)) for i in range(n)]
++    return {"ring_r": ring_r, "outer_d": 2 * (ring_r + int(12 * scale)), "positions": pos}
++
++
++def red_mask(img_bgr):
++    b, g, r = (c.astype(np.int16) for c in cv2.split(img_bgr))
++    return ((r > 100) & (r > g + 40) & (r > b + 40)).astype(np.uint8) * 255
++
++
++def find_rings(img_bgr):
++    """Every ring-sized brand-red contour: centre, bbox, fitted ellipse axes, aspect."""
++    h, w = img_bgr.shape[:2]
++    exp_d = card_layout(w, h, 1)["outer_d"]
++    contours, _ = cv2.findContours(red_mask(img_bgr), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
++    rings = []
++    for c in contours:
++        x, y, bw, bh = cv2.boundingRect(c)
++        if not (SIZE_RANGE[0] * exp_d <= max(bw, bh) <= SIZE_RANGE[1] * exp_d) or len(c) < 20:
++            continue
++        (cx, cy), (a1, a2), ang = cv2.fitEllipse(c)
++        lo, hi = min(a1, a2), max(a1, a2)
++        rings.append({"cx": round(cx, 1), "cy": round(cy, 1), "bbox": [x, y, bw, bh],
++                      "axes": [round(lo, 1), round(hi, 1)], "aspect": round(lo / hi, 3) if hi else 0.0})
++    return sorted(rings, key=lambda r: (r["cy"], r["cx"]))
++
++
++def credit_channels(edl):
++    """The credited channels in card order, as pipeline/shoutout.build_shoutout builds them: the hook's
++    channel first, then each clip's in EDL order, each once."""
++    out = []
++    for seg in [edl.get("hook") or {}] + list(edl.get("clips") or []):
++        ch = seg.get("channel", "")
++        if ch and ch not in out:
++            out.append(ch)
++    return out
++
++
++def registered_avatar(channel):
++    """The channel's avatar from pipeline/channels.json (the only avatars the renderer may draw)."""
++    import json
++    import os
++    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")) as f:
++        entry = next((e for e in json.load(f) if e.get("display_name") == channel), None)
++    path = (entry or {}).get("avatar_path", "")
++    return path if path and os.path.exists(path) else None
++
++
++def disc_matches(img_bgr, channels):
++    """Correlation of the disc the renderer drew at node i with channel i's registered avatar, resized and
++    masked the way render_shoutout draws it. None for a channel with no registered avatar (= no match)."""
++    from PIL import Image
++    h, w = img_bgr.shape[:2]
++    lay = card_layout(w, h, len(channels))
++    r_av = lay["ring_r"] - int(8 * min(w, h) / 1080.0)
++    r_in = r_av - 12
++    yy, xx = np.mgrid[0:2 * r_av, 0:2 * r_av]
++    m = (yy - r_av + 0.5) ** 2 + (xx - r_av + 0.5) ** 2 <= r_in ** 2
++    out = []
++    for (cx, cy), ch in zip(lay["positions"], channels):
++        path = registered_avatar(ch)
++        crop = img_bgr[cy - r_av:cy + r_av, cx - r_av:cx + r_av]
++        if path is None or crop.shape[:2] != (2 * r_av, 2 * r_av):
++            out.append({"channel": ch, "r": None})
++            continue
++        ref = Image.open(path).convert("RGB").resize((2 * r_av, 2 * r_av), Image.LANCZOS)
++        a = cv2.cvtColor(np.array(ref), cv2.COLOR_RGB2GRAY).astype(float)[m]
++        b = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY).astype(float)[m]
++        r = float(np.corrcoef(a, b)[0, 1]) if a.std() > 0 and b.std() > 0 else 0.0
++        out.append({"channel": ch, "r": round(r, 3)})
++    return out
++
++
++def check_card(img_bgr, n_expected=None):
++    """Returns (count, aspect_ok, at_layout, rings). at_layout: every layout node for n_expected has one
++    ring within POS_TOL ring radii (None when n_expected is not given)."""
++    rings = find_rings(img_bgr)
++    aspect_ok = bool(rings) and all(r["aspect"] >= ASPECT_MIN for r in rings)
++    at_layout = None
++    if n_expected:
++        h, w = img_bgr.shape[:2]
++        lay = card_layout(w, h, n_expected)
++        tol = POS_TOL * lay["ring_r"]
++        at_layout = all(any(np.hypot(r["cx"] - px, r["cy"] - py) <= tol for r in rings)
++                        for px, py in lay["positions"])
++    return len(rings), aspect_ok, at_layout, rings
+diff --git a/pipeline/gates.py b/pipeline/gates.py
+index 5ff8214f..aa8adb45 100644
+--- a/pipeline/gates.py
++++ b/pipeline/gates.py
+@@ -359,9 +359,11 @@ def gate_g14c(mp4_16, mp4_9, tolerance_ms=42):
+ 
+ # ── G15: CREDITS CONTINUOUS + RING ASPECT ──
+ 
+-def gate_g15(final_mp4, segments, qa_dir):
++def gate_g15(final_mp4, segments, qa_dir, channels=None):
+     """G15: the shoutout card must play once (no mid-card scene change)
+     and visible avatar rings must have aspect ratio 0.95-1.05 (catches squished cards).
++    DEC-11: rings measured on the brand-red ring mask; `channels` (the credited channels in card order)
++    also checks that each disc is that channel's registered avatar.
+ 
+     Returns (pass: bool, details: dict).
+     """
+@@ -412,10 +414,15 @@ def gate_g15(final_mp4, segments, qa_dir):
+     else:
+         print(f"  Card continuous: OK (no mid-card scene changes)")
+ 
+-    # Part 2: Check avatar ring aspect ratios
+-    # Sample 3 frames from the shoutout at 25%, 50%, 75%
++    # Part 2 (DEC-11, 2026-11-11): the rings the renderer draws, not a circle search over avatar artwork.
++    # Each ring = the brand-red mask's external contour of ring size (pipeline/credit_rings.py); the ellipse
++    # is fitted to that mask, aspect tolerance unchanged (>= 0.95). With the credited channels known, each
++    # disc inside a ring must be that channel's registered avatar (D4: yesterday's rings were round, the
++    # squashed thumbnails inside them were the defect). No ring found = FAIL (fail closed).
++    import credit_rings as CR
+     ring_aspect_ok = True
+-    ring_details = []
++    avatar_ok = True
++    ring_details, avatar_details = [], []
+ 
+     for pct in [0.25, 0.50, 0.75, 0.90]:
+         ts = start + dur * pct
+@@ -426,61 +433,45 @@ def gate_g15(final_mp4, segments, qa_dir):
+         ], capture_output=True, timeout=15)
+ 
+         if not os.path.exists(frame_path):
++            ring_aspect_ok = False
++            print(f"  FAIL: no frame at {ts:.2f}s")
+             continue
+-
+-        # Detect circles using HoughCircles on grayscale
+         img = cv2.imread(frame_path)
++        os.unlink(frame_path)
+         if img is None:
++            ring_aspect_ok = False
+             continue
+ 
+-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+-        h_img, w_img = gray.shape
+-
+-        # Edge detect for ellipse finding
+-        edges = cv2.Canny(gray, 50, 150)
+-
+-        # Find contours that could be avatar rings
+-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+-
+-        for cnt in contours:
+-            if len(cnt) < 30:
+-                continue
+-            # Fit ellipse
+-            ellipse = cv2.fitEllipse(cnt)
+-            (cx, cy), (axis_a, axis_b), angle = ellipse
+-
+-            # Filter: must be reasonably large (avatar-sized) and roughly circular
+-            min_axis = min(axis_a, axis_b)
+-            max_axis = max(axis_a, axis_b)
+-            if min_axis < 40 or max_axis > h_img * 0.6:
+-                continue
+-
+-            aspect = min_axis / max_axis if max_axis > 0 else 0
+-            # Only check ellipses that are roughly avatar-ring-sized
+-            if max_axis > 80 and min_axis > 60:
+-                ring_details.append({
+-                    "pct": pct, "cx": round(cx), "cy": round(cy),
+-                    "axes": (round(axis_a, 1), round(axis_b, 1)),
+-                    "aspect": round(aspect, 3),
+-                })
+-                if aspect < 0.95:
+-                    ring_aspect_ok = False
+-                    print(f"  FAIL: ring at ({cx:.0f},{cy:.0f}) aspect={aspect:.3f} "
+-                          f"(axes {axis_a:.0f}x{axis_b:.0f}) — squished")
+-
+-        # Clean up frame
+-        os.unlink(frame_path)
++        count, aspect_ok, _, rings = CR.check_card(img)
++        for r in rings:
++            ring_details.append({"pct": pct, **r})
++        if not aspect_ok:
++            ring_aspect_ok = False
++            bad = [r for r in rings if r["aspect"] < CR.ASPECT_MIN]
++            print(f"  FAIL at {pct:.0%}: " + ("no brand-red ring found" if not rings else
++                  "; ".join(f"ring at ({r['cx']:.0f},{r['cy']:.0f}) aspect={r['aspect']:.3f} axes {r['axes']}"
++                            for r in bad)))
++        if channels:
++            for d in CR.disc_matches(img, channels):
++                avatar_details.append({"pct": pct, **d})
++                if d["r"] is None or d["r"] < CR.AVATAR_R_MIN:
++                    avatar_ok = False
++                    print(f"  FAIL at {pct:.0%}: the disc for {d['channel']} is not its registered avatar "
++                          f"(r={d['r']}, min {CR.AVATAR_R_MIN})")
+ 
+     if ring_aspect_ok:
+         print(f"  Ring aspects: OK ({len(ring_details)} rings checked)")
+ 
+-    all_pass = card_continuous and ring_aspect_ok
++    all_pass = card_continuous and ring_aspect_ok and avatar_ok
+     print(f"\n  G15 {'PASS' if all_pass else 'FAIL'}")
+     return all_pass, {
+         "card_continuous": card_continuous,
+         "mid_scene_changes": mid_scene_changes,
+         "ring_aspect_ok": ring_aspect_ok,
+         "rings": ring_details,
++        "avatar_ok": avatar_ok,
++        "avatars": avatar_details,
++        "method": "DEC-11 ring mask + registered-avatar disc",
+     }
+ 
+ 
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 47256987..85f77a5e 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -856,8 +856,11 @@ def stage_gates(run, final16, man16, final9, man9):
+     rows["9x16"]["G14c_duration_parity"] = _status(g14c_ok)
+     for sub in ("g15_16x9", "g15_9x16"):
+         os.makedirs(os.path.join(qa, sub), exist_ok=True)
+-    g15_16_ok, g15_16 = G.gate_g15(final16, segs16, os.path.join(qa, "g15_16x9"))
+-    g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"))
++    import credit_rings                             # DEC-11: G15 also checks each disc is the credited avatar
++    with open(os.path.join(run.dir, "edl.json")) as f:
++        credited = credit_rings.credit_channels(json.load(f))
++    g15_16_ok, g15_16 = G.gate_g15(final16, segs16, os.path.join(qa, "g15_16x9"), channels=credited)
++    g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"), channels=credited)
+     rows["16x9"]["G15_credits"] = _status(g15_16_ok)
+     rows["9x16"]["G15_credits"] = _status(g15_9_ok)
+ 
+diff --git a/pipeline/test_pulse_20261110_mustfail.py b/pipeline/test_pulse_20261110_mustfail.py
+index aa00d7cd..fc7c9cdc 100644
+--- a/pipeline/test_pulse_20261110_mustfail.py
++++ b/pipeline/test_pulse_20261110_mustfail.py
+@@ -329,25 +329,59 @@ class TestD4Credits(unittest.TestCase):
+     def tearDownClass(cls):
+         shutil.rmtree(cls.S, ignore_errors=True)
+ 
+-    def _gates(self, mp4, segs):
++    NOV10 = ["DataDash", "Natalie Brunell", "Yahoo Finance"]
++    V2F_CH = ["The Bitcoin Layer", "Bitcoin Magazine", "BTC Sessions"]
++
++    def _gates(self, mp4, segs, channels):
+         import gates as G
+         import qa_gates as Q
+-        ok15, _ = G.gate_g15(mp4, segs, self.S)
+-        ok12, _ = Q.gate_g12(mp4, segs, 3, self.S)
+-        return ok15, ok12
++        ok15, d15 = G.gate_g15(mp4, segs, self.S, channels=channels)
++        ok12, d12 = Q.gate_g12(mp4, segs, len(channels), self.S)
++        return ok15, ok12, d15, d12
++
++    def _card(self, p):
++        return [{"label": "shoutout", "type": "shoutout", "start": 0.0, "end": _dur(p)}]
+ 
+-    def test_yesterdays_card_fails_g15_and_g12(self):
++    def test_yesterdays_card_fails_g15_on_the_squashed_avatars_inside_round_rings(self):
++        # DEC-11 measured: yesterday's RINGS are round and where the layout puts them (G12 now counts 3 of 3);
++        # the D4 defect is the 1280x720 video thumbnail squashed into each disc, which G15 fails
+         for fmt in ("16x9", "9x16"):
+             p = os.path.join(FIX, "video", f"shoutout_{fmt}.mp4")
+-            ok15, ok12 = self._gates(p, [{"label": "shoutout", "type": "shoutout", "start": 0.0, "end": _dur(p)}])
++            ok15, ok12, d15, d12 = self._gates(p, self._card(p), self.NOV10)
+             self.assertFalse(ok15, f"G15 passed yesterday's {fmt} card")
+-            self.assertFalse(ok12, f"G12 passed yesterday's {fmt} card")
++            self.assertTrue(d15["ring_aspect_ok"], d15["rings"][:3])
++            self.assertFalse(d15["avatar_ok"], d15["avatars"][:3])
++            self.assertTrue(ok12, d12)
+ 
+     def test_v2f_finals_pass_g15_and_g12(self):
+         for out, man in (("segment.mp4", "concat_manifest_16x9.json"), ("segment_vertical.mp4", "concat_manifest_9x16.json")):
+             segs = json.load(open(os.path.join(V2F, "qa", man)))["segments"]
+-            ok15, ok12 = self._gates(os.path.join(V2F, "out", out), segs)
+-            self.assertTrue(ok15 and ok12, f"v2f {out}: G15 {ok15} G12 {ok12}")
++            ok15, ok12, d15, d12 = self._gates(os.path.join(V2F, "out", out), segs, self.V2F_CH)
++            self.assertTrue(ok15 and ok12, f"v2f {out}: G15 {ok15} G12 {ok12} {d15.get('avatars', [])[:3]}")
++
++    def test_a_squeezed_card_fails_g15_on_ring_aspect(self):
++        p = os.path.join(FIX, "video", "shoutout_16x9.mp4")
++        sq = os.path.join(self.S, "squeezed_16x9.mp4")       # rings drawn 80 % wide: a warped card
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", p, "-vf", "scale=iw*0.8:ih,pad=1920:1080:(ow-iw)/2:0",
++                        "-c:v", "libx264", "-crf", "18", "-an", sq], check=True)
++        ok15, _, d15, _ = self._gates(sq, self._card(sq), self.NOV10)
++        self.assertFalse(ok15)
++        self.assertFalse(d15["ring_aspect_ok"], d15["rings"][:3])
++
++    def test_three_rings_for_four_credited_channels_fail_g12(self):
++        import qa_gates as Q
++        p = os.path.join(FIX, "video", "shoutout_16x9.mp4")
++        ok12, d12 = Q.gate_g12(p, self._card(p), 4, self.S)
++        self.assertFalse(ok12, d12)
++
++    @unittest.skipUnless(os.path.isfile(os.path.join(REPO, "runs", "pinned_20261111_172202", "out", "segment.mp4")),
++                         "Nov 11 DEC-10 recut not on this machine")
++    def test_todays_four_avatar_card_passes_g15_and_g12(self):
++        run = os.path.join(REPO, "runs", "pinned_20261111_172202")
++        tl = json.load(open(os.path.join(run, "qa", "transitions_timeline.json")))["timeline"]
++        for out in ("segment.mp4", "segment_vertical.mp4"):
++            ok15, ok12, d15, d12 = self._gates(os.path.join(run, "out", out), tl, self.NOV10 + ["Bitcoin Magazine"])
++            self.assertTrue(ok15 and ok12, f"today {out}: G15 {ok15} {d15.get('avatars', [])[:4]} G12 {d12}")
+ 
+     def test_shoutout_refuses_a_thumbnail_avatar(self):
+         import shoutout
+diff --git a/segment_v1/qa_gates.py b/segment_v1/qa_gates.py
+index 23586d51..4f819ddc 100644
+--- a/segment_v1/qa_gates.py
++++ b/segment_v1/qa_gates.py
+@@ -1202,7 +1202,7 @@ def gate_g11(vert_mp4, horiz_mp4, vert_segments, horiz_segments):
+ 
+ def gate_g12(final_mp4, segments, expected_count, qa_dir):
+     """Count red-ring avatar circles on a mid-scene frame of the shoutout segment.
+-    Uses HoughCircles on the red-channel-dominant mask.
++    DEC-11: the brand-red ring masks the renderer draws, at the card layout (pipeline/credit_rings.py).
+     FAIL unless detected count == expected_count.
+     Law 20 — do not change thresholds."""
+     import cv2
+@@ -1228,43 +1228,32 @@ def gate_g12(final_mp4, segments, expected_count, qa_dir):
+ 
+     h, w = img.shape[:2]
+ 
+-    # Build red-ring mask: pixels where R > 100, R > G+40, R > B+40
+-    b, g, r = cv2.split(img)
+-    red_mask = ((r > 100) & (r > g.astype(int) + 40) & (r > b.astype(int) + 40)).astype(np.uint8) * 255
+-
+-    # Save red mask for audit
+-    mask_path = os.path.join(qa_dir, "g12_red_mask.png")
+-    cv2.imwrite(mask_path, red_mask)
+-
+-    # HoughCircles on red mask
+-    # Blur to smooth edges
+-    blurred = cv2.GaussianBlur(red_mask, (9, 9), 2)
+-    circles = cv2.HoughCircles(
+-        blurred, cv2.HOUGH_GRADIENT, dp=1.2,
+-        minDist=int(min(w, h) * 0.15),
+-        param1=50, param2=30,
+-        minRadius=int(min(w, h) * 0.08),
+-        maxRadius=int(min(w, h) * 0.20),
+-    )
+-
+-    detected = 0
+-    if circles is not None:
+-        detected = len(circles[0])
+-        # Draw detected circles on frame for audit
+-        debug_img = img.copy()
+-        for c in circles[0]:
+-            cx, cy, cr = int(c[0]), int(c[1]), int(c[2])
+-            cv2.circle(debug_img, (cx, cy), cr, (0, 255, 0), 3)
+-        debug_path = os.path.join(qa_dir, "g12_circles.png")
+-        cv2.imwrite(debug_path, debug_img)
+-
+-    ok = detected == expected_count
++    # DEC-11 (2026-11-11): count the rings the renderer draws: brand-red (R > 100, R > G+40, R > B+40,
++    # unchanged) external contours of ring size, each at its card-layout position for expected_count
++    # channels (pipeline/credit_rings.py). A HoughCircles search also counted circles in avatar artwork
++    # (OD-1: Natalie Brunell's orange background).
++    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pipeline"))
++    import credit_rings as CR
++    cv2.imwrite(os.path.join(qa_dir, "g12_red_mask.png"), CR.red_mask(img))
++    detected, _, at_layout, rings = CR.check_card(img, expected_count)
++    debug_img = img.copy()
++    for r in rings:
++        cv2.ellipse(debug_img, (int(r["cx"]), int(r["cy"])), (int(r["axes"][1] / 2), int(r["axes"][0] / 2)),
++                    0, 0, 360, (0, 255, 0), 3)
++    cv2.imwrite(os.path.join(qa_dir, "g12_circles.png"), debug_img)
++
++    ok = detected == expected_count and bool(at_layout)
++    if detected == expected_count and not at_layout:
++        print(f"  {detected} rings, but not at the card layout's positions for {expected_count} channels")
+ 
+     print(f"  Detected circles: {detected} (expected: {expected_count}) [{'PASS' if ok else 'FAIL'}]")
+ 
+     return ok, {
+         "detected": detected,
+         "expected": expected_count,
++        "at_layout": at_layout,
++        "rings": rings,
++        "method": "DEC-11 ring mask",
+         "pass": ok,
+     }
+ 

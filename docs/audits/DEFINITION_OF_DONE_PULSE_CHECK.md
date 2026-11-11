@@ -6,7 +6,54 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 12:08 ET; newest first)
+## LIVE STATE (updated 2026-11-11 13:32 ET; newest first)
+
+- 13:32 ORCHESTRATOR NOTE 13:15 (time box 14:30) on recut #2 runs/pinned_20261111_172202 (HEAD 29299ea5,
+  71.17 s both formats, not delivered). Gate rows: G16 / G17 / G18 / G19 PASS both formats; NOT PASS: 16:9
+  G3c, G9, G10, G14 (inconclusive), G15; 9:16 G3c, G9, G14 (inconclusive), G15. Per item:
+  1a G9 (not a rounding / equality failure; the reference passes its own floor): sampled at identical offsets
+     from the end, ours 16:9 14.3021 (14.1194 / 14.3162 / 14.4707) vs floor 14.33 (v2f 14.3357); 9:16 14.4652 vs
+     14.77 (v2f 14.7715). Two causes: (i) RENDER DEFECT found: our 9:16 final carries color_space=unknown (v2f's
+     9:16 and both 16:9 files: bt709), so the decoder converts with BT.601: decoded as bt709 our 9:16 reads
+     14.7418, and v2f decoded as BT.601 reads 14.4971; the vertical path loses the tag when the first segment
+     is a safe-frame layout (fix pending, Law 22 re-proof needed). (ii) the remaining ~0.03 in BOTH formats
+     (14.3021 vs 14.3357; 14.7418 vs 14.7715) is the same locked outro (12.69 decoded directly) lifted
+     differently by the final re-encode = OD-4 (floor 0.006 under v2f, encode-to-encode spread 0.03). No
+     constant changed: G9 cannot pass on this render until OD-4 is decided.
+  1b G3c (limit = segment speech median - 11.63 dB in the last 60 ms; head = no 10 ms jump from < -35 to
+     > -30 dBFS): hook tail -42.7 vs -43.9 (DataDash's room tone after 'take.' is only 10.4 dB under his
+     quiet speech, -32.3; the tail holds no next word: 340 ms pause before it); clip_01 tail -22.4 vs -31.7 =
+     a REAL defect: the cut at 80.93 kept 'Bu' of 'But' (fixed in 9b459ec6, batch 8d: the minimum search left
+     the transcript gap by 80 ms; the true minimum is 80.84, -22 dB); clip_02 head onset (the 83 ms DEC-10 fade
+     from the shallow minimum between abutting 'days.' | 'Of' at 38.20, -20 dB vs speech -13.2, crosses
+     -35 -> -30 dBFS inside 10 ms in the final). Replay from the cut with the 8d fix running for the exact
+     clip_01 number. Expected conflict (to confirm): G3c's 11.6 dB-deep 60 ms tail and its head rule cannot be
+     met by a 2-frame fade at a minimum only 2-7 dB under speech (abutting words): OD-8 below if confirmed.
+  2  G14 inconclusive at t=24.167 (clip_02 +2.0 s = source 40.195-40.695): NOT a transition (the only dissolve
+     is after clip_02, ~41.2 s) and NOT a VO freeze (no body VO). The window is a 0.6 s PAUSE inside Yahoo's
+     sentence (source -44 .. -84 dB after a syllable ending 40.17; 'massively' starts 40.90; Whisper stretches
+     'pretty' over it), so the final holds only the music bed (-38 .. -45 dB) there: xcorr peak 0.154 < 0.3.
+     Conclusive needs source speech in the 0.5 s window. The authorised sampling skip (declared transition /
+     VO-freeze intervals) does not cover it; nothing changed (same class as OD-7).
+  3  DEC-11 implemented (pipeline/credit_rings.py; G12 in segment_v1/qa_gates.py, G15 in pipeline/gates.py;
+     run_fresh passes the credited channels): ring = brand-red mask contour of ring size, ellipse fitted to it,
+     aspect >= 0.95 unchanged, count == EDL channels at the layout positions. MEASURED: yesterday's card's RINGS
+     are round (0.999-1.000, at the layout positions); its D4 defect was the 1280x720 thumbnail squashed into
+     each disc. To keep DEC-11's must-fail, G15 also requires each disc to be the credited channel's registered
+     avatar (correlation r >= 0.90; measured 0.999-1.000 on every v2f and Nov 11 node, yesterday 0.297 / -0.030
+     / -0.142). Tests: yesterday fails G15 (avatars) with round rings; v2f + today's card pass G12 + G15 both
+     formats; a card squeezed to 80 % fails on ring aspect; 3 rings for 4 channels fails G12. Audit batch 9
+     running.
+  4  clip_03 sentence start confirmed: lock first word 'Last' (word 45; previous 'Bitcoin.' 14.18-14.38, heard
+     until 14.67); silence 14.68-14.88, breath 14.89-15.13 (-35 .. -46 dB), 'Last' 15.20-15.37, 'night' from
+     15.42. The cut 14.94 sits in the breath, 260 ms before 'Last'; G3 heard 'last'; G16 / G18 PASS. No fix.
+  NOT in the 13:15 list: G10 16:9 clip_03 FAIL is REAL: the 16:9 frame shows Bitcoin Magazine's burned-in
+     lower third (sponsor bar, stock + BTC tickers, 'ORACLE REMINGTON ... | BMTV' name chyron); bottom-12 %
+     edge density 0.0846-0.0854 vs 0.08, 0.084 even without the watermark strip. The 16:9 path has no chyron
+     crop (has_chyron only routes the channel to G10); the 9:16 safe frame blurs it (PASS). Needs a decision:
+     a 16:9 framing for has_chyron channels (crop / safe frame) or a BM window without the lower third.
+  Verdict: no clean pass is possible on this story before OD-4 (G9) and the G10 framing are decided; nothing
+  sent. After batch 9 + the replay numbers: 4b.
 
 - 12:03 DEC-10 recut #1 (wrapper, HEAD ae965c95; runs/pinned_20261111_170153) HELD at stage cut, before any
   render: run_fresh.stage_cut's M19-era cut acceptance (cut_accept) rejected exactly the two edges the
