@@ -359,9 +359,11 @@ def gate_g14c(mp4_16, mp4_9, tolerance_ms=42):
 
 # ── G15: CREDITS CONTINUOUS + RING ASPECT ──
 
-def gate_g15(final_mp4, segments, qa_dir):
+def gate_g15(final_mp4, segments, qa_dir, channels=None):
     """G15: the shoutout card must play once (no mid-card scene change)
     and visible avatar rings must have aspect ratio 0.95-1.05 (catches squished cards).
+    DEC-11: rings measured on the brand-red ring mask; `channels` (the credited channels in card order)
+    also checks that each disc is that channel's registered avatar.
 
     Returns (pass: bool, details: dict).
     """
@@ -412,10 +414,15 @@ def gate_g15(final_mp4, segments, qa_dir):
     else:
         print(f"  Card continuous: OK (no mid-card scene changes)")
 
-    # Part 2: Check avatar ring aspect ratios
-    # Sample 3 frames from the shoutout at 25%, 50%, 75%
+    # Part 2 (DEC-11, 2026-11-11): the rings the renderer draws, not a circle search over avatar artwork.
+    # Each ring = the brand-red mask's external contour of ring size (pipeline/credit_rings.py); the ellipse
+    # is fitted to that mask, aspect tolerance unchanged (>= 0.95). With the credited channels known, each
+    # disc inside a ring must be that channel's registered avatar (D4: yesterday's rings were round, the
+    # squashed thumbnails inside them were the defect). No ring found = FAIL (fail closed).
+    import credit_rings as CR
     ring_aspect_ok = True
-    ring_details = []
+    avatar_ok = True
+    ring_details, avatar_details = [], []
 
     for pct in [0.25, 0.50, 0.75, 0.90]:
         ts = start + dur * pct
@@ -426,61 +433,45 @@ def gate_g15(final_mp4, segments, qa_dir):
         ], capture_output=True, timeout=15)
 
         if not os.path.exists(frame_path):
+            ring_aspect_ok = False
+            print(f"  FAIL: no frame at {ts:.2f}s")
             continue
-
-        # Detect circles using HoughCircles on grayscale
         img = cv2.imread(frame_path)
+        os.unlink(frame_path)
         if img is None:
+            ring_aspect_ok = False
             continue
 
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        h_img, w_img = gray.shape
-
-        # Edge detect for ellipse finding
-        edges = cv2.Canny(gray, 50, 150)
-
-        # Find contours that could be avatar rings
-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        for cnt in contours:
-            if len(cnt) < 30:
-                continue
-            # Fit ellipse
-            ellipse = cv2.fitEllipse(cnt)
-            (cx, cy), (axis_a, axis_b), angle = ellipse
-
-            # Filter: must be reasonably large (avatar-sized) and roughly circular
-            min_axis = min(axis_a, axis_b)
-            max_axis = max(axis_a, axis_b)
-            if min_axis < 40 or max_axis > h_img * 0.6:
-                continue
-
-            aspect = min_axis / max_axis if max_axis > 0 else 0
-            # Only check ellipses that are roughly avatar-ring-sized
-            if max_axis > 80 and min_axis > 60:
-                ring_details.append({
-                    "pct": pct, "cx": round(cx), "cy": round(cy),
-                    "axes": (round(axis_a, 1), round(axis_b, 1)),
-                    "aspect": round(aspect, 3),
-                })
-                if aspect < 0.95:
-                    ring_aspect_ok = False
-                    print(f"  FAIL: ring at ({cx:.0f},{cy:.0f}) aspect={aspect:.3f} "
-                          f"(axes {axis_a:.0f}x{axis_b:.0f}) — squished")
-
-        # Clean up frame
-        os.unlink(frame_path)
+        count, aspect_ok, _, rings = CR.check_card(img)
+        for r in rings:
+            ring_details.append({"pct": pct, **r})
+        if not aspect_ok:
+            ring_aspect_ok = False
+            bad = [r for r in rings if r["aspect"] < CR.ASPECT_MIN]
+            print(f"  FAIL at {pct:.0%}: " + ("no brand-red ring found" if not rings else
+                  "; ".join(f"ring at ({r['cx']:.0f},{r['cy']:.0f}) aspect={r['aspect']:.3f} axes {r['axes']}"
+                            for r in bad)))
+        if channels:
+            for d in CR.disc_matches(img, channels):
+                avatar_details.append({"pct": pct, **d})
+                if d["r"] is None or d["r"] < CR.AVATAR_R_MIN:
+                    avatar_ok = False
+                    print(f"  FAIL at {pct:.0%}: the disc for {d['channel']} is not its registered avatar "
+                          f"(r={d['r']}, min {CR.AVATAR_R_MIN})")
 
     if ring_aspect_ok:
         print(f"  Ring aspects: OK ({len(ring_details)} rings checked)")
 
-    all_pass = card_continuous and ring_aspect_ok
+    all_pass = card_continuous and ring_aspect_ok and avatar_ok
     print(f"\n  G15 {'PASS' if all_pass else 'FAIL'}")
     return all_pass, {
         "card_continuous": card_continuous,
         "mid_scene_changes": mid_scene_changes,
         "ring_aspect_ok": ring_aspect_ok,
         "rings": ring_details,
+        "avatar_ok": avatar_ok,
+        "avatars": avatar_details,
+        "method": "DEC-11 ring mask + registered-avatar disc",
     }
 
 

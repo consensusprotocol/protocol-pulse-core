@@ -1202,7 +1202,7 @@ def gate_g11(vert_mp4, horiz_mp4, vert_segments, horiz_segments):
 
 def gate_g12(final_mp4, segments, expected_count, qa_dir):
     """Count red-ring avatar circles on a mid-scene frame of the shoutout segment.
-    Uses HoughCircles on the red-channel-dominant mask.
+    DEC-11: the brand-red ring masks the renderer draws, at the card layout (pipeline/credit_rings.py).
     FAIL unless detected count == expected_count.
     Law 20 — do not change thresholds."""
     import cv2
@@ -1228,43 +1228,32 @@ def gate_g12(final_mp4, segments, expected_count, qa_dir):
 
     h, w = img.shape[:2]
 
-    # Build red-ring mask: pixels where R > 100, R > G+40, R > B+40
-    b, g, r = cv2.split(img)
-    red_mask = ((r > 100) & (r > g.astype(int) + 40) & (r > b.astype(int) + 40)).astype(np.uint8) * 255
+    # DEC-11 (2026-11-11): count the rings the renderer draws: brand-red (R > 100, R > G+40, R > B+40,
+    # unchanged) external contours of ring size, each at its card-layout position for expected_count
+    # channels (pipeline/credit_rings.py). A HoughCircles search also counted circles in avatar artwork
+    # (OD-1: Natalie Brunell's orange background).
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pipeline"))
+    import credit_rings as CR
+    cv2.imwrite(os.path.join(qa_dir, "g12_red_mask.png"), CR.red_mask(img))
+    detected, _, at_layout, rings = CR.check_card(img, expected_count)
+    debug_img = img.copy()
+    for r in rings:
+        cv2.ellipse(debug_img, (int(r["cx"]), int(r["cy"])), (int(r["axes"][1] / 2), int(r["axes"][0] / 2)),
+                    0, 0, 360, (0, 255, 0), 3)
+    cv2.imwrite(os.path.join(qa_dir, "g12_circles.png"), debug_img)
 
-    # Save red mask for audit
-    mask_path = os.path.join(qa_dir, "g12_red_mask.png")
-    cv2.imwrite(mask_path, red_mask)
-
-    # HoughCircles on red mask
-    # Blur to smooth edges
-    blurred = cv2.GaussianBlur(red_mask, (9, 9), 2)
-    circles = cv2.HoughCircles(
-        blurred, cv2.HOUGH_GRADIENT, dp=1.2,
-        minDist=int(min(w, h) * 0.15),
-        param1=50, param2=30,
-        minRadius=int(min(w, h) * 0.08),
-        maxRadius=int(min(w, h) * 0.20),
-    )
-
-    detected = 0
-    if circles is not None:
-        detected = len(circles[0])
-        # Draw detected circles on frame for audit
-        debug_img = img.copy()
-        for c in circles[0]:
-            cx, cy, cr = int(c[0]), int(c[1]), int(c[2])
-            cv2.circle(debug_img, (cx, cy), cr, (0, 255, 0), 3)
-        debug_path = os.path.join(qa_dir, "g12_circles.png")
-        cv2.imwrite(debug_path, debug_img)
-
-    ok = detected == expected_count
+    ok = detected == expected_count and bool(at_layout)
+    if detected == expected_count and not at_layout:
+        print(f"  {detected} rings, but not at the card layout's positions for {expected_count} channels")
 
     print(f"  Detected circles: {detected} (expected: {expected_count}) [{'PASS' if ok else 'FAIL'}]")
 
     return ok, {
         "detected": detected,
         "expected": expected_count,
+        "at_layout": at_layout,
+        "rings": rings,
+        "method": "DEC-11 ring mask",
         "pass": ok,
     }
 
