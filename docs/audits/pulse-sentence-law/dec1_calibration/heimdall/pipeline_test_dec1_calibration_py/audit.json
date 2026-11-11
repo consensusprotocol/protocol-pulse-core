@@ -1,0 +1,103 @@
+{
+ "question": "DEC-1 commit: per-format named constants calibrated to the approved v2f reference's measured worst value for exactly the four gates it failed (G3c valley depth, G5 9:16 true peak, G8 sharpness floor, G9 tail luma), with tests that the reference passes and a fixture just beyond fails; G8 now receives its source clips in production (it never did and always failed no_source); DEC-3: a source already below the floor is judged by the render/source ratio >= 0.85 alone; G8/G9 waiver rows removed. Find: any threshold changed beyond the stated values, any gate other than these four changed, a comparison that lets the reference fail its own value, a test that passes vacuously, a wiring error in source_clips. (this chunk: pipeline/test_dec1_calibration.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 274.6,
+   "cost": 0.002613734,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 116.7,
+   "cost": 0.008042547,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 1102.1,
+   "cost": 0.002097026,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 124.4,
+   "cost": 0.001240434,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 125.0,
+   "cost": 0.003523212,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 790.5,
+   "cost": 0.00210924,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "deepseek:F2",
+   "severity": "medium",
+   "file": "pipeline/test_dec1_calibration.py",
+   "line": 112,
+   "issue": "The G9 failure assertion is too weak and can pass vacuously. It only rejects True and the string \"True\"; any other value (None, \"False\", 0, etc.) makes the assertion pass, so the test does not actually verify that luma_ok is False.",
+   "evidence": "self.assertFalse(d[\"luma_ok\"] in (True, \"True\"), d)",
+   "fix": "Assert the boolean directly, e.g. self.assertFalse(d[\"luma_ok\"], d) or self.assertIs(d[\"luma_ok\"], False).",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "high",
+   "file": "pipeline/test_dec1_calibration.py",
+   "line": 41,
+   "issue": "g8_sources uses the wrong filename prefixes for source clips, contradicting the production wiring described in its own docstring. The docstring says 16:9 uses 'prepared' clips and 9:16 uses 'vertical' clips, but the code builds paths with 'final' and 'vert'. This makes source_clips point to non-existent files, so G8 will fail with no_source instead of testing the calibrated sharpness floor.",
+   "evidence": "\"\"\"Production wiring (run_fresh.stage_gates): 16:9 -> prepared clips, 9:16 -> vertical clips.\"\"\"\n    pre = \"final\" if fmt == \"16x9\" else \"vert\"",
+   "fix": "Use the correct production prefixes, e.g. pre = \"prepared\" if fmt == \"16x9\" else \"vertical\" (or whatever the actual filenames are).",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.019626193,
+ "out_dir": "docs/audits/pulse-sentence-law/dec1_calibration/heimdall/pipeline_test_dec1_calibration_py"
+}

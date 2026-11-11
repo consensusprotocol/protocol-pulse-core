@@ -568,6 +568,13 @@ def _status(ok):
     return "PASS" if ok else "FAIL"
 
 
+def tail_rows(g9_pass, conform_fallback):
+    """G9_tail is the DEC-1 calibrated gate alone (no exception path). outro_locked: the luma floor is
+    the approved reference's LOCKED outro tail, so a conform fallback (some other outro) fails closed
+    on its own row even when its tail clears the floor (Heimdall DEC-1 audit: keep the two apart)."""
+    return {"G9_tail": _status(g9_pass), "outro_locked": _status(not conform_fallback)}
+
+
 def stage_gates(run, final16, man16, final9, man9):
     # Keep the source-relative sharpness threshold local to this stage so QA does not
     # depend on module-global lookup state during long production runs. Threshold unchanged.
@@ -685,8 +692,7 @@ def stage_gates(run, final16, man16, final9, man9):
         g9_report[fmt] = {"gate": d, "outro_master_sha256": msha, "outro_conformed_sha256": csha,
                           "hash_identical_to_locked_outro": identical,
                           "last_segment": last.get("label"), "conform_fallback": fallback}
-        # DEC-1 calibrated the luma floor to the approved reference's locked outro; no exception path
-        rows[fmt]["G9_tail"] = _status(res["G9_tail"]["pass"] and (identical or not fallback))
+        rows[fmt].update(tail_rows(res["G9_tail"]["pass"], fallback))
 
     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
     adj = L.Adjudicator()

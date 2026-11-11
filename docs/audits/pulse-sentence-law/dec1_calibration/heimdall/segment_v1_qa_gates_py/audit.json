@@ -1,0 +1,50 @@
+{
+ "question": "DEC-1 commit: per-format named constants calibrated to the approved v2f reference's measured worst value for exactly the four gates it failed (G3c valley depth, G5 9:16 true peak, G8 sharpness floor, G9 tail luma), with tests that the reference passes and a fixture just beyond fails; G8 now receives its source clips in production (it never did and always failed no_source); DEC-3: a source already below the floor is judged by the render/source ratio >= 0.85 alone; G8/G9 waiver rows removed. Find: any threshold changed beyond the stated values, any gate other than these four changed, a comparison that lets the reference fail its own value, a test that passes vacuously, a wiring error in source_clips. (this chunk: segment_v1/qa_gates.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 280.4,
+   "cost": 0.003211538,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 64.8,
+   "cost": 0.004458141,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 806.9,
+   "cost": 0.00210831,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.009777988999999999,
+ "out_dir": "docs/audits/pulse-sentence-law/dec1_calibration/heimdall/segment_v1_qa_gates_py"
+}

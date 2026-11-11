@@ -1,0 +1,16 @@
+# Heimdall audit
+
+**Question:** DEC-1 follow-up to late Heimdall findings. (1) The G9 row is split: G9_tail is now the calibrated gate result alone; a new row outro_locked is FAIL on an outro conform fallback. Before, the same condition was hidden inside G9 as (identical or not fallback), and identical already contained 'and not fallback', so the term was 'not fallback'. Verify there is no acceptance change: the run must still HOLD on a conform fallback and on a luma failure (verdict_for holds on any FAIL row), and nothing else changed. (2) Tests: TestTailRows; the G9 must-fail assertion checks the boolean strictly and the measured luma against the floor constant; sys.path gains the pipeline dir (no module name is shared with segment_v1). Find any way this loosens acceptance or any test that passes vacuously. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/test_dec1_calibration.py)
+
+**Panel:** deepseek, qwen27b, glm  |  **Cost:** $0.0125
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/test_dec1_calibration.py:149** No explicit verdict_for assertion for the luma-failure HOLD path. test_rows_follow_their_own_inputs checks the row dict for tail_rows(False, False) → {G9_tail: FAIL, outro_locked: PASS} but does not assert verdict_for on that result equals VERDICT_HOLD. The fallback HOLD is covered (line 143), and the all-PASS → CANDIDATE is covered (line 151), but the luma-failure → HOLD path relies solely on the stated invariant 'verdict_for holds on any FAIL row' rather than a direct assertion in this test class.
+  - evidence: `self.assertEqual(rf.tail_rows(False, False), {"G9_tail": "FAIL", "outro_locked": "PASS"})`
+  - fix: Add: self.assertEqual(rf.verdict_for(rf.tail_rows(False, False))[0], rf.VERDICT_HOLD) to close the gap and make the luma-failure HOLD contract explicit in TestTailRows.
+  - raised by qwen27b:F1; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

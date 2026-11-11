@@ -25,6 +25,16 @@ and admit mid-sentence starts, i.e. re-admit D1-D3; PBX's own v2f record calls c
 ONE-TIME exception with "the 60 ms rule unchanged". New renders must meet the law; v2f stays the
 approved legacy reference for everything else.
 
+**OD-3 Prepare-stage picture fidelity is ungated (late Heimdall finding on DEC-1, measured).** G8
+compares the final against the PREPARED clip (its pre-DEC-1 approved "relative reference"), so it
+measures the render stage only. Measured at G8's own sample instants: on the approved v2f, prepare
+(lanczos to 1920x1080, NVENC QP 20) keeps only 0.696 (clip_02) / 0.760 (hook) of the original
+download's Laplacian variance (largely grain removal); Nov 10 keeps 0.985-1.040. With the original
+download as G8's source the APPROVED reference would fail the unchanged 0.85 ratio (0.689 / 0.770), so
+that wiring would need a ratio calibration (an acceptance change) — not taken. Decision for the
+orchestrator: gate prepare fidelity (and against what), or accept it as part of the approved look.
+Evidence: docs/audits/pulse-sentence-law/dec1_calibration/HEIMDALL_RUN_FRESH_RESPONSE.md.
+
 ## 1f — the gate suite on the frozen v2f reference (2026-11-11, scratch copy, production stage_gates)
 
 | gate | format | v2f measured | threshold | approved video shows the defect, or gate stricter than approved? |

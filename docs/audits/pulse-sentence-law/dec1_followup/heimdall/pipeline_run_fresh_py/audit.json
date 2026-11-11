@@ -1,0 +1,50 @@
+{
+ "question": "DEC-1 follow-up to late Heimdall findings. (1) The G9 row is split: G9_tail is now the calibrated gate result alone; a new row outro_locked is FAIL on an outro conform fallback. Before, the same condition was hidden inside G9 as (identical or not fallback), and identical already contained 'and not fallback', so the term was 'not fallback'. Verify there is no acceptance change: the run must still HOLD on a conform fallback and on a luma failure (verdict_for holds on any FAIL row), and nothing else changed. (2) Tests: TestTailRows; the G9 must-fail assertion checks the boolean strictly and the measured luma against the floor constant; sys.path gains the pipeline dir (no module name is shared with segment_v1). Find any way this loosens acceptance or any test that passes vacuously. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/run_fresh.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 63.6,
+   "cost": 0.00062558,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 53.1,
+   "cost": 0.001934059,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 576.8,
+   "cost": 0.002056726,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.004616365,
+ "out_dir": "docs/audits/pulse-sentence-law/dec1_followup/heimdall/pipeline_run_fresh_py"
+}

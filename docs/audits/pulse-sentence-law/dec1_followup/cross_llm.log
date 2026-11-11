@@ -1,0 +1,103 @@
+2026-11-11 04:35:55,810 google_genai.models INFO AFC is enabled with max remote calls: 10.
+2026-11-11 04:36:04,361 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 04:36:40,649 httpx INFO HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-11-11 04:38:15,770 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-11-11 04:38:16,196 google_genai.models INFO AFC is enabled with max remote calls: 10.
+2026-11-11 04:38:21,191 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 04:38:43,983 httpx INFO HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-11-11 04:40:09,441 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-11-11 04:40:29,409 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+
+============================================================
+PROTOCOL PULSE CROSS-LLM AUDIT — PULSE-SENTENCE-LAW
+Started: 2026-11-11 04:35:46
+============================================================
+
+✅ All API keys present
+
+── CYCLE 1: BUILDING AUDIT PACKAGE ────────────────────────────
+  [PACKAGE] Pulling code diff for combo-letterbox-quoteonly-v2...
+  [PACKAGE] Using explicit file list: ['docs/audits/pulse-sentence-law/CURRENT.diff']
+  Package written: 8,955 chars
+
+── CYCLE 1: FIRING 3 LLMs IN PARALLEL ─────────────────────────
+  [GROK]   ✅ Done (via gateway)
+  [GPT-4o] ✅ Done
+  [GEMINI] ✅ Done — ?
+
+  Cycle 1 complete: ['grok', 'gpt4o', 'gemini'] succeeded, [] failed
+
+── CYCLE 1: SYNTHESIZING CONSENSUS ─────────────────────────────
+  Consensus written
+
+  Average Cycle 1 score: 0/100 — Running Cycle 2
+
+── CYCLE 2: BUILDING CROSS-REVIEW PROMPT ───────────────────────
+── CYCLE 2: FIRING 3 LLMs WITH CROSS-VISIBILITY ────────────────
+  [GPT-4o] ✅ Done
+  [GROK]   ✅ Done (via gateway)
+  [GEMINI] ✅ Done — ?
+
+  Cycle 2 complete: ['gpt4o', 'grok', 'gemini'] succeeded
+
+── CYCLE 2: FINAL CONSENSUS + WINNER ───────────────────────────
+
+============================================================
+AUDIT COMPLETE — PULSE-SENTENCE-LAW
+============================================================
+
+Outputs at: /home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/
+  AUDIT_PACKAGE.md    — code package sent to LLMs
+  C1_*.md             — Cycle 1 individual outputs
+  C1_CONSENSUS.md     — Cycle 1 synthesis
+  C2_*.md             — Cycle 2 individual outputs
+  FINAL_CONSENSUS.md  — final action plan + second-pass prompt
+
+NEXT: Fire the second-pass Claude Code session using the prompt
+      in FINAL_CONSENSUS.md → '## SECOND PASS PROMPT' section
+
+============================================================
+
+READY TO FIRE — SECOND PASS PROMPT:
+----------------------------------------
+## SECOND PASS PROMPT (ready to fire into Claude Code)
+
+```
+Read ~/protocol_pulse/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md.
+Read ~/protocol_pulse/docs/audits/pulse-sentence-law_CONSENSUS_C2.md.
+
+This is the FINAL PASS for pulse-sentence-law.
+The first build was reviewed by 3 independent AI models across 2 cycles.
+Implement every P0 and P1 item from the consensus. Use judgment on P2.
+
+PRIORITY ACTION PLAN:
+
+P0 CRITICAL | Implement full pulse-sentence-law feature (SENTENCE LAW, ONSET/TAIL,
+             | SELECTION LOCK, SNAP LIMIT, CREDITS) or split this refactor into its
+             | own correctly-named branch before any merge.
+             | Target: new files TBD per gospel spec.
+             | The G9 tail_rows refactor is already correct — do not regress it.
+
+P0 CRITICAL | Reclassify all law compliance statuses in the audit template.
+             | COMPLIANT = diff examined and satisfies law.
+             | VIOLATED = diff examined and breaks law.
+             | UNVERIFIABLE = law not in scope of this diff; no determination possible.
+             | Update audit tooling to enforce this 3-state model going forward.
+
+P1 HIGH     | Add definition or stable import reference for `verdict_for` to the diff
+             | so the test file is self-contained for review.
+             | File: test_dec1_calibration.py lines 58, 64.
+
+P2 MEDIUM   | Add a scoped commit message for the G9 sub-change:
+             |   refactor(g9-tail): extract tail_rows, tighten conform_fallback gate
+             | File: commit metadata / branch history.
+
+P2 MEDIUM   | Open a technical debt ticket: migrate pipeline directory to installable
+             | Python package to remove sys.path.insert fragility.
+             | File: test_dec1_calibration.py line 37.
+
+VALIDATED (do NOT touch — all 3 models confirmed excellent):
+- tail_rows(g9_pass, conform_fallback) logic — correct, do not modify.
+- stage_gates call-site substitution at run_fresh.py line 25 — correct, do not modify.
+- TestTailRows test s
+[registry] AUDIT_REGISTRY.json updated for pulse-sentence-law

@@ -1,0 +1,16 @@
+# Heimdall audit
+
+**Question:** DEC-1 commit: per-format named constants calibrated to the approved v2f reference's measured worst value for exactly the four gates it failed (G3c valley depth, G5 9:16 true peak, G8 sharpness floor, G9 tail luma), with tests that the reference passes and a fixture just beyond fails; G8 now receives its source clips in production (it never did and always failed no_source); DEC-3: a source already below the floor is judged by the render/source ratio >= 0.85 alone; G8/G9 waiver rows removed. Find: any threshold changed beyond the stated values, any gate other than these four changed, a comparison that lets the reference fail its own value, a test that passes vacuously, a wiring error in source_clips. (this chunk: segment_v1/qa_gates.py)
+
+**Panel:** deepseek, qwen27b, glm  |  **Cost:** $0.0098
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: docs/audits/pulse-sentence-law/dec1_calibration/heimdall/segment_v1_qa_gates_py

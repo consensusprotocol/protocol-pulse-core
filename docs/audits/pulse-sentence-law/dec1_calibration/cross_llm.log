@@ -1,0 +1,105 @@
+2026-11-11 03:45:33,506 google_genai.models INFO AFC is enabled with max remote calls: 10.
+2026-11-11 03:45:42,198 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 03:46:23,536 httpx INFO HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-11-11 03:48:25,132 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-11-11 03:48:25,530 google_genai.models INFO AFC is enabled with max remote calls: 10.
+2026-11-11 03:48:40,742 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 03:49:14,617 httpx INFO HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-11-11 03:51:01,912 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-11-11 03:51:23,998 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+
+============================================================
+PROTOCOL PULSE CROSS-LLM AUDIT — PULSE-SENTENCE-LAW
+Started: 2026-11-11 03:45:22
+============================================================
+
+✅ All API keys present
+
+── CYCLE 1: BUILDING AUDIT PACKAGE ────────────────────────────
+  [PACKAGE] Pulling code diff for combo-letterbox-quoteonly-v2...
+  [PACKAGE] Using explicit file list: ['docs/audits/pulse-sentence-law/CURRENT.diff']
+  Package written: 21,854 chars
+
+── CYCLE 1: FIRING 3 LLMs IN PARALLEL ─────────────────────────
+  [GPT-4o] ✅ Done
+  [GROK]   ✅ Done (via gateway)
+  [GEMINI] ✅ Done — ?
+
+  Cycle 1 complete: ['gpt4o', 'grok', 'gemini'] succeeded, [] failed
+
+── CYCLE 1: SYNTHESIZING CONSENSUS ─────────────────────────────
+  Consensus written
+
+  Average Cycle 1 score: 0/100 — Running Cycle 2
+
+── CYCLE 2: BUILDING CROSS-REVIEW PROMPT ───────────────────────
+── CYCLE 2: FIRING 3 LLMs WITH CROSS-VISIBILITY ────────────────
+  [GPT-4o] ✅ Done
+  [GROK]   ✅ Done (via gateway)
+  [GEMINI] ✅ Done — ?
+
+  Cycle 2 complete: ['gpt4o', 'grok', 'gemini'] succeeded
+
+── CYCLE 2: FINAL CONSENSUS + WINNER ───────────────────────────
+
+============================================================
+AUDIT COMPLETE — PULSE-SENTENCE-LAW
+============================================================
+
+Outputs at: /home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/
+  AUDIT_PACKAGE.md    — code package sent to LLMs
+  C1_*.md             — Cycle 1 individual outputs
+  C1_CONSENSUS.md     — Cycle 1 synthesis
+  C2_*.md             — Cycle 2 individual outputs
+  FINAL_CONSENSUS.md  — final action plan + second-pass prompt
+
+NEXT: Fire the second-pass Claude Code session using the prompt
+      in FINAL_CONSENSUS.md → '## SECOND PASS PROMPT' section
+
+============================================================
+
+READY TO FIRE — SECOND PASS PROMPT:
+----------------------------------------
+## SECOND PASS PROMPT (ready to fire into Claude Code)
+
+```
+Read ~/protocol_pulse/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md.
+Read ~/protocol_pulse/docs/audits/pulse-sentence-law_CONSENSUS_C2.md.
+
+This is the FINAL PASS for pulse-sentence-law.
+The first build was reviewed by 3 independent AI models across 2 cycles.
+Implement every P0 and P1 item from the consensus. Use judgment on P2.
+
+PRIORITY ACTION PLAN:
+
+P0 CRITICAL | Implement actual Sentence Law: sentence boundary detection,
+onset/tail ≥80 ms guard, mid-sentence cut rejection, D1/D2/D3 defect
+prevention | pipeline/sentence_law.py (missing) | The named feature is
+0% implemented; this is the entire stated purpose of the branch.
+
+P0 CRITICAL | Create sentence law test suite covering: sentence boundary
+enforcement, onset ≥80 ms, tail ≥80 ms, mid-sentence cut rejection,
+D4 credits warp prevention, selection lock (no recomputation of expected
+words after selection) | test_sentence_law.py (missing) | Zero test
+coverage for the feature's actual requirements.
+
+P1 HIGH | Revert G3C_VALLEY_DEPTH_DB, G5_TRUE_PEAK_MAX_DBFS,
+G8_SHARPNESS_FLOOR, G9_LUMA_FLOOR to the original fixed constants.
+Do NOT introduce DEC-1 calibration in this branch. LAW 20 / M2 prohibits
+threshold changes without formal amendment. These constants must be
+restored to their pre-diff values | segment_v1/qa_gates.py:190-193,
+203, 231, 261, 279.
+
+P1 HIGH | Revert G8 soft-source acceptance logic to the original
+`floor_ok and degrad_ok` rule. The DEC-3 policy change requires
+ratification before it may ship. Remove lines 240-244 and restore
+the prior single-condition check | segment_v1/qa_gates.py:240-244.
+
+P2 MEDIUM | Retain the G8 source-clip wiring fix (run_fresh.py:13-16)
+and the removal of the waiver logic (lines 33, 50) — these are correct
+bug fixes that belong in this branch as supporting infrastructure for
+the Sentence Law work. Keep them exactly as written.
+
+VALIDATED — do NOT touch these, all models confirmed excellent:
+- G8 source-clip wiring fix:
+[registry] AUDIT_REGISTRY.json updated for pulse-sentence-law

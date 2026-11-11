@@ -1,271 +1,67 @@
-diff --git a/pipeline/select_passages.py b/pipeline/select_passages.py
-index af1e33c1..baa80856 100644
---- a/pipeline/select_passages.py
-+++ b/pipeline/select_passages.py
-@@ -282,18 +282,26 @@ def select_and_build_edl(keyword, niche, run_dir):
-     def _key(p):
-         return (p["video_id"], round(p["start"], 2), round(p["end"], 2))
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 12a50b7d..179e56a7 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -568,6 +568,13 @@ def _status(ok):
+     return "PASS" if ok else "FAIL"
  
--    def _eligible(p, kind):
--        lo, hi, floor = ((HOOK_MIN_S, HOOK_MAX_S, HOOK_MIN_SCORE) if kind == "hook"
--                         else (CLIP_MIN_S, CLIP_MAX_S, CLIP_MIN_SCORE))
--        if p.get("kind") != kind or _key(p) in tried or (p.get("clip_score") or 0) < floor:
--            return False
--        if not lo <= p["end"] - p["start"] <= hi:
--            return False
-+    def _budget(kind):
-+        return (HOOK_MIN_S, HOOK_MAX_S) if kind == "hook" else (CLIP_MIN_S, CLIP_MAX_S)
+ 
++def tail_rows(g9_pass, conform_fallback):
++    """G9_tail is the DEC-1 calibrated gate alone (no exception path). outro_locked: the luma floor is
++    the approved reference's LOCKED outro tail, so a conform fallback (some other outro) fails closed
++    on its own row even when its tail clears the floor (Heimdall DEC-1 audit: keep the two apart)."""
++    return {"G9_tail": _status(g9_pass), "outro_locked": _status(not conform_fallback)}
 +
-+    def _conflicts(p, kind):
-+        """Overlap / per-video / per-channel conflicts with windows already used (also applied to the
-+        editor's own candidate: an earlier fallback may have taken its window, 1d audit)."""
-+        if _key(p) in tried:
-+            return True
-         if any(u["video_id"] == p["video_id"] and not (p["end"] <= u["start"] or p["start"] >= u["end"]) for u in used):
--            return False
-+            return True
-         if sum(1 for u in used if u["video_id"] == p["video_id"]) >= MAX_VERIFIED_QUOTES_PER_VIDEO:
-+            return True
-+        return kind != "hook" and sum(1 for u in used[1:] if u["channel"] == p["channel"]) >= 2
 +
-+    def _eligible(p, kind):
-+        lo, hi = _budget(kind)
-+        floor = HOOK_MIN_SCORE if kind == "hook" else CLIP_MIN_SCORE
-+        if p.get("kind") != kind or (p.get("clip_score") or 0) < floor:
-             return False
--        return kind == "hook" or sum(1 for u in used[1:] if u["channel"] == p["channel"]) < 2
-+        return lo <= p["end"] - p["start"] <= hi and not _conflicts(p, kind)
+ def stage_gates(run, final16, man16, final9, man9):
+     # Keep the source-relative sharpness threshold local to this stage so QA does not
+     # depend on module-global lookup state during long production runs. Threshold unchanged.
+@@ -685,8 +692,7 @@ def stage_gates(run, final16, man16, final9, man9):
+         g9_report[fmt] = {"gate": d, "outro_master_sha256": msha, "outro_conformed_sha256": csha,
+                           "hash_identical_to_locked_outro": identical,
+                           "last_segment": last.get("label"), "conform_fallback": fallback}
+-        # DEC-1 calibrated the luma floor to the approved reference's locked outro; no exception path
+-        rows[fmt]["G9_tail"] = _status(res["G9_tail"]["pass"] and (identical or not fallback))
++        rows[fmt].update(tail_rows(res["G9_tail"]["pass"], fallback))
  
-     def _source_for(p):
-         vid = p["video_id"]
-@@ -314,7 +322,7 @@ def select_and_build_edl(keyword, niche, run_dir):
-     def _fill(first, label, kind, slot):
-         for p in [first] + sorted([q for q in pool if q is not first],
-                                   key=lambda q: (-(q.get("clip_score") or 0), -(q.get("relevance") or 0))):
--            if p is None or (p is not first and not _eligible(p, kind)):
-+            if p is None or (p is first and _conflicts(p, kind)) or (p is not first and not _eligible(p, kind)):
-                 continue
-             tried.add(_key(p))
-             why = _source_for(p)
-@@ -325,6 +333,12 @@ def select_and_build_edl(keyword, niche, run_dir):
-                 continue
-             seg = _build_segment(p, label)
-             boundary_report[-1].update(fallback=p is not first, slot=slot)
-+            lo, hi = _budget(kind)
-+            if seg is not None and not lo <= seg["duration"] <= hi:
-+                # the budget holds for the clip actually cut (this file's words), not the declared window
-+                boundary_report[-1]["result"] = (f"rejected: locked words span {seg['duration']} s, outside the "
-+                                                 f"{kind} budget {lo}-{hi} s")
-+                seg = None
-             if seg is not None:
-                 used.append(p)
-                 return seg
-diff --git a/pipeline/test_fresh.py b/pipeline/test_fresh.py
-index a3f019c5..d3d7cd2f 100644
---- a/pipeline/test_fresh.py
-+++ b/pipeline/test_fresh.py
-@@ -45,8 +45,9 @@ def _synth_window(path, words, dur=45.0, sr=16000):
-         f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
- 
- 
--def _sentences(tag, t, n_sent=8, per=6):
--    """Sentence-structured word timestamps: 0.30 s words, 0.05 s word gaps, 0.50 s sentence gaps."""
-+def _sentences(tag, t, n_sent=8, per=12):
-+    """Sentence-structured word timestamps: 0.30 s words, 0.05 s word gaps, 0.50 s sentence gaps.
-+    12 words a sentence, so 2 sentences = 8.8 s (hook budget 8-12) and 3 = 13.45 s (clip budget 12-20)."""
-     ws = []
-     for si in range(n_sent):
-         for wi in range(per):
-@@ -61,23 +62,24 @@ class TestSelectCoords(unittest.TestCase):
-     def test_edl_times_are_source_file_coords(self):
-         import select_passages as sp
-         words = {"AAA": _sentences("a", 2.0), "BBB": _sentences("b", 2.0)}
-+        win_off = {"AAA": 95.0, "BBB": 495.0}   # where each downloaded window starts in the full video
- 
--        def text(vid, s0, s1):  # sentences s0..s1 as the editor selected them
--            return " ".join(w["word"] for w in words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1)
-+        def window(vid, channel, s0, s1, score):  # sentences s0..s1, declared where their text is
-+            ws = [w for w in words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1]
-+            st, en = round(ws[0]["start"] + win_off[vid], 2), round(ws[-1]["end"] + win_off[vid], 2)
-+            return {"video_id": vid, "channel": channel, "start": st, "end": en, "duration": round(en - st, 2),
-+                    "score": score, "text": " ".join(w["word"] for w in ws)}
-         with tempfile.TemporaryDirectory() as rd:
-             os.makedirs(os.path.join(rd, "sources"))
-             os.makedirs(os.path.join(rd, "transcripts"))
--            passages = {"chosen": [
--                {"video_id": "AAA", "channel": "The Bitcoin Layer", "start": 110.0, "end": 121.0,
--                 "duration": 11.0, "score": 9, "text": text("AAA", 5, 6)},
--                {"video_id": "BBB", "channel": "BTC Sessions", "start": 510.0, "end": 524.0,
--                 "duration": 14.0, "score": 5, "text": text("BBB", 5, 7)}]}
-+            passages = {"chosen": [window("AAA", "The Bitcoin Layer", 5, 6, 9),
-+                                   window("BBB", "BTC Sessions", 5, 7, 5)]}
-             json.dump(passages, open(os.path.join(rd, "passages.json"), "w"))
- 
-             def fake_dl(vid, start, end, run_dir, pad=15.0):
-                 path = os.path.join(run_dir, "sources", f"{vid}.wav")
-                 _synth_window(path, words[vid])
--                return (path, start - pad)
-+                return (path, win_off[vid])
- 
-             def fake_tx(path, vid, run_dir):
-                 rec = {"words": words[vid]}
-@@ -95,13 +97,13 @@ class TestSelectCoords(unittest.TestCase):
-                 self.assertEqual(seg["time_coords"], "source_file")
-                 off = seg["source_window_offset_s"]
-                 self.assertIn(off, (95.0, 495.0))
--                # source-file coords: well inside the ~40 s downloaded window, never full-video
-+                # source-file coords: inside the ~45 s downloaded window, never full-video
-                 self.assertLess(seg["word_start"], 60.0, seg)
-                 self.assertLess(seg["word_end"], 60.0, seg)
-                 # the editor's sentences, sealed at selection (sentence law)
-                 lock = seg["selection_lock"]
-                 self.assertEqual((lock["first_word"], lock["last_word"]), (seg["first_word"], seg["last_word"]))
--                self.assertTrue(lock["first_word"].endswith("s5w0") and lock["last_word"].endswith("w5."), lock)
-+                self.assertTrue(lock["first_word"].endswith("s5w0") and lock["last_word"].endswith("w11."), lock)
- 
- 
- # ── intro-optional renderer support (shared helper) ──
-diff --git a/pipeline/test_sentence_windows.py b/pipeline/test_sentence_windows.py
-index bf913061..93058185 100644
---- a/pipeline/test_sentence_windows.py
-+++ b/pipeline/test_sentence_windows.py
-@@ -72,12 +72,12 @@ def _synth(path, words, dur=45.0, sr=16000):
-         f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
- 
- 
--def _sentences(tag, t, gaps):
--    """Sentences of 6 words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i."""
-+def _sentences(tag, t, gaps, per=12):
-+    """Sentences of `per` words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i."""
-     ws = []
-     for si, gap in enumerate(gaps):
--        for wi in range(6):
--            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == 5 else ""), "start": round(t, 2),
-+        for wi in range(per):
-+            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == per - 1 else ""), "start": round(t, 2),
-                        "end": round(t + 0.30, 2)})
-             t += 0.35
-         t += gap - 0.05
-@@ -85,49 +85,80 @@ def _sentences(tag, t, gaps):
- 
- 
- class TestNextRankedFallback(unittest.TestCase):
--    def test_rejected_clip_is_replaced_by_the_next_legal_window(self):
-+    """Windows are declared exactly where their text is (12-word sentences: 2 = 8.8 s hook, 3 = 13.45 s
-+    clip). BBB sentence 4 runs straight into sentence 5 (no pause): no window may end or start there."""
-+    OFF = {"AAA": 95.0, "BBB": 495.0}
+     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
+     adj = L.Adjudicator()
+diff --git a/pipeline/test_dec1_calibration.py b/pipeline/test_dec1_calibration.py
+index e20b4bd5..2b6ed47a 100644
+--- a/pipeline/test_dec1_calibration.py
++++ b/pipeline/test_dec1_calibration.py
+@@ -16,6 +16,7 @@ import unittest
+ PIPELINE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(PIPELINE)
+ sys.path.insert(0, os.path.join(REPO, "segment_v1"))
++sys.path.insert(0, PIPELINE)                      # run_fresh (no module name is shared with segment_v1)
+ REF = os.path.join(REPO, "references", "v2f_2026-11-06", "run")
+ OUT = {"16x9": os.path.join(REF, "out", "segment.mp4"), "9x16": os.path.join(REF, "out", "segment_vertical.mp4")}
+ MAN = {f: os.path.join(REF, "qa", f"concat_manifest_{f}.json") for f in OUT}
+@@ -131,7 +132,25 @@ class TestDec1(unittest.TestCase):
+         ffmpeg("-sseof", "-3", "-i", OUT["16x9"], "-vf", "eq=brightness=-0.006", "-c:v", "libx264", "-crf", "12",
+                "-preset", "veryfast", "-c:a", "copy", p)
+         ok, d = quiet(q.gate_g9, p, self.tmp, fmt="16x9")
+-        self.assertFalse(d["luma_ok"] in (True, "True"), d)
++        self.assertFalse(ok, d)
++        self.assertEqual(str(d["luma_ok"]), "False", d)          # numpy bool or bool; None/0 fail
++        self.assertLess(d["mean_luma"], q.G9_LUMA_FLOOR["16x9"], d)
 +
-+    def setUp(self):
-+        self.words = {"AAA": _sentences("a", 2.0, [0.5] * 8),
-+                      "BBB": _sentences("b", 2.0, [0.5, 0.5, 0.5, 0.5, 0.05, 0.5, 0.5, 0.5, 0.5, 0.5])}
 +
-+    def window(self, vid, s0, s1, kind, score):
-+        ws = [w for w in self.words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1]
-+        st, en = ws[0]["start"] + self.OFF[vid], ws[-1]["end"] + self.OFF[vid]
-+        return {"kind": kind, "video_id": vid, "channel": {"AAA": "The Bitcoin Layer", "BBB": "BTC Sessions"}[vid],
-+                "start": round(st, 2), "end": round(en, 2), "duration": round(en - st, 2), "score": score * 20,
-+                "clip_score": score, "text": " ".join(w["word"] for w in ws)}
++class TestTailRows(unittest.TestCase):
++    """Heimdall DEC-1 audit: G9_tail is the calibrated gate alone; a conform fallback (not the locked
++    outro the floor was measured on) fails its own row, so the run still holds."""
 +
-+    def run_select(self, chosen, pool):
-         import select_passages as sp
--        # BBB sentence 6 runs straight into sentence 7 (no pause): a clip ending there is not cuttable
--        words = {"AAA": _sentences("a", 2.0, [0.5] * 8), "BBB": _sentences("b", 2.0, [0.5] * 6 + [0.05, 0.5])}
--
--        def text(vid, s0, s1):
--            return " ".join(w["word"] for w in words[vid]
--                            if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1)
--
--        with tempfile.TemporaryDirectory() as rd:
--            os.makedirs(os.path.join(rd, "sources"))
--            os.makedirs(os.path.join(rd, "transcripts"))
--            hook = {"kind": "hook", "video_id": "AAA", "channel": "The Bitcoin Layer", "start": 110.0, "end": 119.0,
--                    "duration": 9.0, "score": 90, "clip_score": 4.5, "text": text("AAA", 5, 6)}
--            bad = {"kind": "clip", "video_id": "BBB", "channel": "BTC Sessions", "start": 510.0, "end": 524.0,
--                   "duration": 14.0, "score": 80, "clip_score": 4.0, "text": text("BBB", 4, 6)}
--            alt = {"kind": "clip", "video_id": "BBB", "channel": "BTC Sessions", "start": 497.5, "end": 510.0,
--                   "duration": 12.5, "score": 70, "clip_score": 3.8, "text": text("BBB", 0, 2)}
--            json.dump({"chosen": [hook, bad], "passages": [hook, bad, alt]},
--                      open(os.path.join(rd, "passages.json"), "w"))
--
--            def fake_dl(vid, start, end, run_dir, pad=15.0):
--                path = os.path.join(run_dir, "sources", f"{vid}.wav")
--                _synth(path, words[vid])
--                return (path, 95.0 if vid == "AAA" else 495.0)
--
--            def fake_tx(path, vid, run_dir):
--                rec = {"words": words[vid]}
--                json.dump(rec, open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w"))
--                return rec
--            orig = (sp._download_window, sp._whisper_transcribe)
--            sp._download_window, sp._whisper_transcribe = fake_dl, fake_tx
--            try:
--                self.assertTrue(sp.select_and_build_edl("test", "bitcoin", rd))
--            finally:
--                sp._download_window, sp._whisper_transcribe = orig
--            edl = json.load(open(os.path.join(rd, "edl.json")))
--            report = json.load(open(os.path.join(rd, "SELECT_BOUNDARIES.json")))
--            clip = edl["clips"][0]
--            self.assertEqual((clip["first_word"], clip["last_word"]), ("bs0w0", "bs2w5."), clip)
--            rejected = [r for r in report if r["result"].startswith("rejected")]
--            self.assertTrue(rejected and "OUT" in rejected[0]["result"], report)
--            self.assertTrue(any(r.get("fallback") and r["result"] == "accepted" for r in report), report)
-+        rd = tempfile.mkdtemp(prefix="fb_")
-+        os.makedirs(os.path.join(rd, "sources"))
-+        os.makedirs(os.path.join(rd, "transcripts"))
-+        json.dump({"chosen": chosen, "passages": pool}, open(os.path.join(rd, "passages.json"), "w"))
++    def test_luma_pass_on_a_fallback_outro_fails_outro_locked(self):
++        import run_fresh as rf
++        self.assertEqual(rf.tail_rows(True, True), {"G9_tail": "PASS", "outro_locked": "FAIL"})
++        self.assertEqual(rf.verdict_for(rf.tail_rows(True, True))[0], rf.VERDICT_HOLD)
 +
-+        def fake_dl(vid, start, end, run_dir, pad=15.0):
-+            path = os.path.join(run_dir, "sources", f"{vid}.wav")
-+            _synth(path, self.words[vid], dur=self.words[vid][-1]["end"] + 5.0)
-+            return (path, self.OFF[vid])
-+
-+        def fake_tx(path, vid, run_dir):
-+            rec = {"words": self.words[vid]}
-+            json.dump(rec, open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w"))
-+            return rec
-+        orig = (sp._download_window, sp._whisper_transcribe)
-+        sp._download_window, sp._whisper_transcribe = fake_dl, fake_tx
-+        try:
-+            ok = sp.select_and_build_edl("test", "bitcoin", rd)
-+        finally:
-+            sp._download_window, sp._whisper_transcribe = orig
-+        edl = json.load(open(os.path.join(rd, "edl.json"))) if ok else None
-+        return ok, edl, json.load(open(os.path.join(rd, "SELECT_BOUNDARIES.json")))
-+
-+    def test_rejected_clip_is_replaced_by_the_next_legal_window(self):
-+        hook, bad, short, alt = (self.window("AAA", 5, 6, "hook", 4.5), self.window("BBB", 2, 4, "clip", 4.0),
-+                                 self.window("BBB", 0, 1, "clip", 3.9), self.window("BBB", 6, 8, "clip", 3.8))
-+        ok, edl, report = self.run_select([hook, bad], [hook, bad, short, alt])
-+        self.assertTrue(ok, report)
-+        self.assertEqual((edl["hook"]["first_word"], edl["hook"]["last_word"]), ("as5w0", "as6w11."))
-+        clip = edl["clips"][0]
-+        self.assertEqual((clip["first_word"], clip["last_word"]), ("bs6w0", "bs8w11."), report)
-+        rej = next(r for r in report if r.get("video_id") == "BBB" and r["result"].startswith("rejected"))
-+        self.assertIn("OUT", rej["result"], report)          # rejected for its missing pause, nothing else
-+        self.assertTrue(any(r.get("fallback") and r["result"] == "accepted" for r in report), report)
-+        # the higher-ranked 8.8 s window is below the 12 s clip budget: never tried
-+        self.assertFalse(any(r["window_full_video_s"][0] == short["start"] for r in report), report)
-+
-+    def test_a_window_taken_by_a_fallback_is_never_used_twice(self):
-+        # slot 1 (bad) falls back to 'alt'; slot 2 is the editor's own choice of that same window -> skipped
-+        hook, bad, alt = (self.window("AAA", 5, 6, "hook", 4.5), self.window("BBB", 2, 4, "clip", 4.0),
-+                          self.window("BBB", 6, 8, "clip", 3.8))
-+        ok, edl, report = self.run_select([hook, bad, alt], [hook, bad, alt])
-+        self.assertTrue(ok, report)
-+        keys = [(c["video_id"], c["word_start"]) for c in edl["clips"]]
-+        self.assertEqual(keys, [("BBB", self.words["BBB"][6 * 12]["start"])], report)
-+
-+    def test_budget_holds_for_the_locked_words_not_the_declared_window(self):
-+        # declared as 13.5 s, but its text is two sentences (8.8 s): the cut clip would be under budget
-+        hook, liar, alt = (self.window("AAA", 5, 6, "hook", 4.5), self.window("BBB", 6, 7, "clip", 4.0),
-+                           self.window("BBB", 6, 8, "clip", 3.8))
-+        liar["end"] = round(liar["start"] + 13.5, 2)
-+        liar["duration"] = 13.5
-+        ok, edl, report = self.run_select([hook, liar], [hook, liar, alt])
-+        self.assertTrue(ok, report)
-+        rej = next(r for r in report if r.get("slot") == 1 and r["result"].startswith("rejected"))
-+        self.assertIn("locked words span 8.8 s, outside the clip budget", rej["result"], report)
-+        self.assertEqual(edl["clips"][0]["last_word"], "bs8w11.", report)
++    def test_rows_follow_their_own_inputs(self):
++        import run_fresh as rf
++        self.assertEqual(rf.tail_rows(True, False), {"G9_tail": "PASS", "outro_locked": "PASS"})
++        self.assertEqual(rf.tail_rows(False, False), {"G9_tail": "FAIL", "outro_locked": "PASS"})
++        self.assertEqual(rf.verdict_for(rf.tail_rows(True, False))[0], rf.VERDICT_CANDIDATE)
  
  
  if __name__ == "__main__":

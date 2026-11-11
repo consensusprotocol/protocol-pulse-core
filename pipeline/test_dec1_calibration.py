@@ -16,6 +16,7 @@ import unittest
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE)
 sys.path.insert(0, os.path.join(REPO, "segment_v1"))
+sys.path.insert(0, PIPELINE)                      # run_fresh (no module name is shared with segment_v1)
 REF = os.path.join(REPO, "references", "v2f_2026-11-06", "run")
 OUT = {"16x9": os.path.join(REF, "out", "segment.mp4"), "9x16": os.path.join(REF, "out", "segment_vertical.mp4")}
 MAN = {f: os.path.join(REF, "qa", f"concat_manifest_{f}.json") for f in OUT}
@@ -131,7 +132,26 @@ class TestDec1(unittest.TestCase):
         ffmpeg("-sseof", "-3", "-i", OUT["16x9"], "-vf", "eq=brightness=-0.006", "-c:v", "libx264", "-crf", "12",
                "-preset", "veryfast", "-c:a", "copy", p)
         ok, d = quiet(q.gate_g9, p, self.tmp, fmt="16x9")
-        self.assertFalse(d["luma_ok"] in (True, "True"), d)
+        self.assertFalse(ok, d)
+        self.assertEqual(str(d["luma_ok"]), "False", d)          # numpy bool or bool; None/0 fail
+        self.assertLess(d["mean_luma"], q.G9_LUMA_FLOOR["16x9"], d)
+
+
+class TestTailRows(unittest.TestCase):
+    """Heimdall DEC-1 audit: G9_tail is the calibrated gate alone; a conform fallback (not the locked
+    outro the floor was measured on) fails its own row, so the run still holds."""
+
+    def test_luma_pass_on_a_fallback_outro_fails_outro_locked(self):
+        import run_fresh as rf          # verdict_for: run_fresh's existing verdict (HOLD on any FAIL row)
+        self.assertEqual(rf.tail_rows(True, True), {"G9_tail": "PASS", "outro_locked": "FAIL"})
+        self.assertEqual(rf.verdict_for(rf.tail_rows(True, True))[0], rf.VERDICT_HOLD)
+
+    def test_rows_follow_their_own_inputs(self):
+        import run_fresh as rf
+        self.assertEqual(rf.tail_rows(True, False), {"G9_tail": "PASS", "outro_locked": "PASS"})
+        self.assertEqual(rf.tail_rows(False, False), {"G9_tail": "FAIL", "outro_locked": "PASS"})
+        self.assertEqual(rf.verdict_for(rf.tail_rows(False, False))[0], rf.VERDICT_HOLD)   # luma fail holds
+        self.assertEqual(rf.verdict_for(rf.tail_rows(True, False))[0], rf.VERDICT_CANDIDATE)
 
 
 if __name__ == "__main__":
