@@ -60,7 +60,9 @@ VALLEY_FADE_S = 2 / 24      # DEC-10 d: a cut at an envelope minimum gets a 2-fr
                             # at 24 fps = 83 ms (not 2 audio hops)
 WORD_BELOW_SPEECH_DB = 6.0  # DEC-10: a word is heard from/to where it is within 6 dB of local speech
 DEFAULT_FADE_IN_S, DEFAULT_FADE_OUT_S = 0.020, 0.030   # M19 fades of every other cut (unchanged)
-VALLEY_MARGIN_S = 0.080     # the minimum is searched between the two words' transcript edges +- this
+VALLEY_MARGIN_S = 0.010     # with no quiet run, the minimum is searched in the transcript gap between the two words
+                            # +- one hop; 80 ms let the Nov 10 recut (12:22) cut at a closure INSIDE the next word
+                            # (Natalie 'rally.' | 'But': minimum at 80.93, kept 'Bu' at -13 dB; G3c caught it)
 SHORT_IN_S, SHORT_OUT_S = 0.080, 0.140   # DEC-10 d: a gap shorter than these (the 01:50 numbers, now choosing
                                          # only the METHOD, never legality) is cut at its envelope minimum
 LEAD_TARGET_S = 0.250       # preferred lead-in kept before the first onset (Law 14: breath kept)
@@ -228,7 +230,8 @@ def boundary_geometry(sa, words, k, lv, quiet):
 def find_valley(sa, end_a, start_b):
     """DEC-10 d: no quiet frame between two words (they abut): the boundary is the envelope MINIMUM between
     the first word's transcript end and the second's start (+- VALLEY_MARGIN_S). A zero-length pause there."""
-    t, d = sa.sl(max(0.0, min(end_a, start_b) - VALLEY_MARGIN_S), min(sa.dur, max(end_a, start_b) + VALLEY_MARGIN_S))
+    t, d = sa.sl(max(0.0, min(end_a, start_b) - VALLEY_MARGIN_S),            # sl is half-open: + HOP_S so
+                 min(sa.dur, max(end_a, start_b) + VALLEY_MARGIN_S + HOP_S))  # the window's end frame is in
     if len(d) == 0:
         return None
     tm = float(t[int(np.argmin(d))])
@@ -265,7 +268,8 @@ def boundary(sa, words, k):
                 "levels": lv, "pause": {"start": round(off, 3), "end": round(sa.dur, 3),
                                         "ms": int(round((sa.dur - off) * 1000))}}
     # the quiet run is searched between the two words' MIDPOINTS: the full extents also cover the junctions
-    # with the words before / after them, which can win a tie (DEC-10 audit: abutting-word fixture)
+    # with the words before / after them, which can win a tie (DEC-10 audit: abutting-word fixture). Not the
+    # transcript gap: Whisper's word edges can sit 100+ ms off the real pause (v2f hook OUT, Nov 10 D3c)
     mid = lambda w: (w["start"] + w["end"]) / 2
     quiet, lv = find_pause(sa, mid(words[k]), mid(words[k + 1]))
     point, gap, pause = boundary_geometry(sa, words, k, lv, quiet)     # DEC-10

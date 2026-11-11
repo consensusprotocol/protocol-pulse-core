@@ -90,6 +90,41 @@ class TestV2fEdgesPass(unittest.TestCase):
         self.assertEqual(float(c.get("lead_in_pad_s") or 0), 0.0)
 
 
+NOV10 = os.path.join(REPO, "runs", "recut_sources_20261111")
+
+
+@unittest.skipUnless(all(os.path.isfile(os.path.join(NOV10, d, f"lusJ1m-J0Mc.{x}")) for d, x in (("sources", "mp4"), ("transcripts", "json"))),
+                     "frozen Nov 10 source + transcript not here")
+class TestBoundaryStaysBetweenTheWords(unittest.TestCase):
+    """DEC-10 recut 12:22 (runs/pinned_20261111_172202): Natalie 'rally.' (80.40-80.78) | 'But' (80.86-81.02).
+    A +-80 ms search put the 'minimum' at 80.93, the stop closure INSIDE 'But', so the cut kept 'Bu' (80.85-80.89
+    at -13 / -14 dB) and the render's G3c tail read -22.4 dB. The boundary is searched in the transcript gap."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.src = os.path.join(NOV10, "sources", "lusJ1m-J0Mc.mp4")
+        cls.words = json.load(open(os.path.join(NOV10, "transcripts", "lusJ1m-J0Mc.json")))["words"]
+        cls.sa = L.SourceAudio(cls.src)
+        cls.k = next(i for i, w in enumerate(cls.words) if w["word"] == "rally." and 80.3 < w["start"] < 80.5)
+        cls.i0 = next(i for i, w in enumerate(cls.words) if w["word"] == "It" and 68.3 < w["start"] < 68.6)
+
+    def test_the_boundary_and_the_cut_sit_before_the_next_word(self):
+        nxt = self.words[self.k + 1]
+        self.assertEqual(nxt["word"], "But")
+        b = L.boundary(self.sa, self.words, self.k)
+        self.assertLess(b["point"], nxt["start"], b)
+        cut = L.accepted_cut(self.src, L.edge_plan(self.sa, self.words, self.i0, self.k), sa=self.sa)
+        self.assertIsNotNone(cut)
+        self.assertLess(cut["cut_out"], 80.85, cut)          # 'But' bursts from 80.85 (-15 .. -13 dB)
+
+    def test_the_old_80_ms_margin_lands_inside_the_next_word(self):
+        from unittest import mock
+        with mock.patch.object(L, "VALLEY_MARGIN_S", 0.080):
+            b = L.boundary(self.sa, self.words, self.k)
+        nxt = self.words[self.k + 1]
+        self.assertTrue(nxt["start"] < b["point"] < nxt["end"], b)   # the defect, reproduced: inside 'But'
+
+
 class TestValleyCut(unittest.TestCase):
     """Two sentences whose words ABUT (no gap at all; each word has a smooth sin^2 envelope, so the junction
     is a dip without a quiet run): before DEC-10 no boundary at all; now cut at that minimum, 2-frame fade."""

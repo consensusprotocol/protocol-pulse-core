@@ -1,0 +1,79 @@
+diff --git a/pipeline/sentence_law.py b/pipeline/sentence_law.py
+index 43da719a..5b0fb72d 100644
+--- a/pipeline/sentence_law.py
++++ b/pipeline/sentence_law.py
+@@ -60,7 +60,9 @@ VALLEY_FADE_S = 2 / 24      # DEC-10 d: a cut at an envelope minimum gets a 2-fr
+                             # at 24 fps = 83 ms (not 2 audio hops)
+ WORD_BELOW_SPEECH_DB = 6.0  # DEC-10: a word is heard from/to where it is within 6 dB of local speech
+ DEFAULT_FADE_IN_S, DEFAULT_FADE_OUT_S = 0.020, 0.030   # M19 fades of every other cut (unchanged)
+-VALLEY_MARGIN_S = 0.080     # the minimum is searched between the two words' transcript edges +- this
++VALLEY_MARGIN_S = 0.010     # with no quiet run, the minimum is searched in the transcript gap between the two words
++                            # +- one hop; 80 ms let the Nov 10 recut (12:22) cut at a closure INSIDE the next word
++                            # (Natalie 'rally.' | 'But': minimum at 80.93, kept 'Bu' at -13 dB; G3c caught it)
+ SHORT_IN_S, SHORT_OUT_S = 0.080, 0.140   # DEC-10 d: a gap shorter than these (the 01:50 numbers, now choosing
+                                          # only the METHOD, never legality) is cut at its envelope minimum
+ LEAD_TARGET_S = 0.250       # preferred lead-in kept before the first onset (Law 14: breath kept)
+@@ -228,7 +230,8 @@ def boundary_geometry(sa, words, k, lv, quiet):
+ def find_valley(sa, end_a, start_b):
+     """DEC-10 d: no quiet frame between two words (they abut): the boundary is the envelope MINIMUM between
+     the first word's transcript end and the second's start (+- VALLEY_MARGIN_S). A zero-length pause there."""
+-    t, d = sa.sl(max(0.0, min(end_a, start_b) - VALLEY_MARGIN_S), min(sa.dur, max(end_a, start_b) + VALLEY_MARGIN_S))
++    t, d = sa.sl(max(0.0, min(end_a, start_b) - VALLEY_MARGIN_S),            # both ends inclusive (sl is
++                 min(sa.dur, max(end_a, start_b) + VALLEY_MARGIN_S + HOP_S))  # half-open)
+     if len(d) == 0:
+         return None
+     tm = float(t[int(np.argmin(d))])
+@@ -265,7 +268,8 @@ def boundary(sa, words, k):
+                 "levels": lv, "pause": {"start": round(off, 3), "end": round(sa.dur, 3),
+                                         "ms": int(round((sa.dur - off) * 1000))}}
+     # the quiet run is searched between the two words' MIDPOINTS: the full extents also cover the junctions
+-    # with the words before / after them, which can win a tie (DEC-10 audit: abutting-word fixture)
++    # with the words before / after them, which can win a tie (DEC-10 audit: abutting-word fixture). Not the
++    # transcript gap: Whisper's word edges can sit 100+ ms off the real pause (v2f hook OUT, Nov 10 D3c)
+     mid = lambda w: (w["start"] + w["end"]) / 2
+     quiet, lv = find_pause(sa, mid(words[k]), mid(words[k + 1]))
+     point, gap, pause = boundary_geometry(sa, words, k, lv, quiet)     # DEC-10
+diff --git a/pipeline/test_dec10_edges.py b/pipeline/test_dec10_edges.py
+index ddbda0c6..9700bc36 100644
+--- a/pipeline/test_dec10_edges.py
++++ b/pipeline/test_dec10_edges.py
+@@ -90,6 +90,39 @@ class TestV2fEdgesPass(unittest.TestCase):
+         self.assertEqual(float(c.get("lead_in_pad_s") or 0), 0.0)
+ 
+ 
++NOV10 = os.path.join(REPO, "runs", "recut_sources_20261111")
++
++
++@unittest.skipUnless(os.path.isfile(os.path.join(NOV10, "sources", "lusJ1m-J0Mc.mp4")), "frozen Nov 10 sources not here")
++class TestBoundaryStaysBetweenTheWords(unittest.TestCase):
++    """DEC-10 recut 12:22 (runs/pinned_20261111_172202): Natalie 'rally.' (80.40-80.78) | 'But' (80.86-81.02).
++    A +-80 ms search put the 'minimum' at 80.93, the stop closure INSIDE 'But', so the cut kept 'Bu' (80.85-80.89
++    at -13 / -14 dB) and the render's G3c tail read -22.4 dB. The boundary is searched in the transcript gap."""
++
++    @classmethod
++    def setUpClass(cls):
++        cls.src = os.path.join(NOV10, "sources", "lusJ1m-J0Mc.mp4")
++        cls.words = json.load(open(os.path.join(NOV10, "transcripts", "lusJ1m-J0Mc.json")))["words"]
++        cls.sa = L.SourceAudio(cls.src)
++        cls.k = next(i for i, w in enumerate(cls.words) if w["word"] == "rally." and 80.3 < w["start"] < 80.5)
++        cls.i0 = next(i for i, w in enumerate(cls.words) if w["word"] == "It" and 68.3 < w["start"] < 68.6)
++
++    def test_the_boundary_and_the_cut_sit_before_the_next_word(self):
++        nxt = self.words[self.k + 1]
++        self.assertEqual(nxt["word"], "But")
++        b = L.boundary(self.sa, self.words, self.k)
++        self.assertLessEqual(b["point"], nxt["start"], b)
++        cut = L.accepted_cut(self.src, L.edge_plan(self.sa, self.words, self.i0, self.k), sa=self.sa)
++        self.assertIsNotNone(cut)
++        self.assertLess(cut["cut_out"], 80.85, cut)          # 'But' bursts from 80.85 (-15 .. -13 dB)
++
++    def test_the_old_80_ms_margin_lands_inside_the_next_word(self):
++        from unittest import mock
++        with mock.patch.object(L, "VALLEY_MARGIN_S", 0.080):
++            b = L.boundary(self.sa, self.words, self.k)
++        self.assertGreater(b["point"], self.words[self.k + 1]["start"], b)   # the defect, reproduced
++
++
+ class TestValleyCut(unittest.TestCase):
+     """Two sentences whose words ABUT (no gap at all; each word has a smooth sin^2 envelope, so the junction
+     is a dip without a quiet run): before DEC-10 no boundary at all; now cut at that minimum, 2-frame fade."""
