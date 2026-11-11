@@ -1,0 +1,19 @@
+# Heimdall audit
+
+**Question:** 1d follow-up to the late Heimdall consensus on select_passages.py. Verify from the diff only: (1) the editor's own candidate for a slot is now subject to the same tried/overlap/per-video/per-channel checks as fallbacks, so a window a fallback already took is never cut twice; (2) the hook/clip duration budget is enforced on the span of the words actually locked from the file transcript, not only on the declared start/end; (3) the synthetic test fixtures declare windows exactly where their text is and each new test fails without the fix. If uncertain, say so; do not guess. (this chunk: pipeline/select_passages.py)
+
+**Panel:** deepseek, qwen27b, glm  |  **Cost:** $0.0133
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/select_passages.py:322** Claim 3 (synthetic test fixtures declare windows exactly where their text is; each new test fails without the fix) cannot be verified from this diff. The diff contains only changes to pipeline/select_passages.py and no test files, fixtures, or test assertions. I cannot confirm or deny that tests exist, that their windows match their text spans, or that they fail without the fix.
+  - evidence: `The diff header is 'diff --git a/pipeline/select_passages.py b/pipeline/select_passages.py' and no other file is included in the provided chunk.`
+  - fix: Provide the test-file diff (e.g., tests/test_select_passages.py or equivalent) to verify claim 3.
+  - raised by qwen27b:F1; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: docs/audits/pulse-sentence-law/1d_followup/heimdall/pipeline_select_passages_py

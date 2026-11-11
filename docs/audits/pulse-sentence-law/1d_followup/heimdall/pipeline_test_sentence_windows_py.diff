@@ -1,0 +1,144 @@
+diff --git a/pipeline/test_sentence_windows.py b/pipeline/test_sentence_windows.py
+index bf913061..93058185 100644
+--- a/pipeline/test_sentence_windows.py
++++ b/pipeline/test_sentence_windows.py
+@@ -72,12 +72,12 @@ def _synth(path, words, dur=45.0, sr=16000):
+         f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
+ 
+ 
+-def _sentences(tag, t, gaps):
+-    """Sentences of 6 words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i."""
++def _sentences(tag, t, gaps, per=12):
++    """Sentences of `per` words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i."""
+     ws = []
+     for si, gap in enumerate(gaps):
+-        for wi in range(6):
+-            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == 5 else ""), "start": round(t, 2),
++        for wi in range(per):
++            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == per - 1 else ""), "start": round(t, 2),
+                        "end": round(t + 0.30, 2)})
+             t += 0.35
+         t += gap - 0.05
+@@ -85,49 +85,80 @@ def _sentences(tag, t, gaps):
+ 
+ 
+ class TestNextRankedFallback(unittest.TestCase):
+-    def test_rejected_clip_is_replaced_by_the_next_legal_window(self):
++    """Windows are declared exactly where their text is (12-word sentences: 2 = 8.8 s hook, 3 = 13.45 s
++    clip). BBB sentence 4 runs straight into sentence 5 (no pause): no window may end or start there."""
++    OFF = {"AAA": 95.0, "BBB": 495.0}
++
++    def setUp(self):
++        self.words = {"AAA": _sentences("a", 2.0, [0.5] * 8),
++                      "BBB": _sentences("b", 2.0, [0.5, 0.5, 0.5, 0.5, 0.05, 0.5, 0.5, 0.5, 0.5, 0.5])}
++
++    def window(self, vid, s0, s1, kind, score):
++        ws = [w for w in self.words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1]
++        st, en = ws[0]["start"] + self.OFF[vid], ws[-1]["end"] + self.OFF[vid]
++        return {"kind": kind, "video_id": vid, "channel": {"AAA": "The Bitcoin Layer", "BBB": "BTC Sessions"}[vid],
++                "start": round(st, 2), "end": round(en, 2), "duration": round(en - st, 2), "score": score * 20,
++                "clip_score": score, "text": " ".join(w["word"] for w in ws)}
++
++    def run_select(self, chosen, pool):
+         import select_passages as sp
+-        # BBB sentence 6 runs straight into sentence 7 (no pause): a clip ending there is not cuttable
+-        words = {"AAA": _sentences("a", 2.0, [0.5] * 8), "BBB": _sentences("b", 2.0, [0.5] * 6 + [0.05, 0.5])}
+-
+-        def text(vid, s0, s1):
+-            return " ".join(w["word"] for w in words[vid]
+-                            if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1)
+-
+-        with tempfile.TemporaryDirectory() as rd:
+-            os.makedirs(os.path.join(rd, "sources"))
+-            os.makedirs(os.path.join(rd, "transcripts"))
+-            hook = {"kind": "hook", "video_id": "AAA", "channel": "The Bitcoin Layer", "start": 110.0, "end": 119.0,
+-                    "duration": 9.0, "score": 90, "clip_score": 4.5, "text": text("AAA", 5, 6)}
+-            bad = {"kind": "clip", "video_id": "BBB", "channel": "BTC Sessions", "start": 510.0, "end": 524.0,
+-                   "duration": 14.0, "score": 80, "clip_score": 4.0, "text": text("BBB", 4, 6)}
+-            alt = {"kind": "clip", "video_id": "BBB", "channel": "BTC Sessions", "start": 497.5, "end": 510.0,
+-                   "duration": 12.5, "score": 70, "clip_score": 3.8, "text": text("BBB", 0, 2)}
+-            json.dump({"chosen": [hook, bad], "passages": [hook, bad, alt]},
+-                      open(os.path.join(rd, "passages.json"), "w"))
+-
+-            def fake_dl(vid, start, end, run_dir, pad=15.0):
+-                path = os.path.join(run_dir, "sources", f"{vid}.wav")
+-                _synth(path, words[vid])
+-                return (path, 95.0 if vid == "AAA" else 495.0)
+-
+-            def fake_tx(path, vid, run_dir):
+-                rec = {"words": words[vid]}
+-                json.dump(rec, open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w"))
+-                return rec
+-            orig = (sp._download_window, sp._whisper_transcribe)
+-            sp._download_window, sp._whisper_transcribe = fake_dl, fake_tx
+-            try:
+-                self.assertTrue(sp.select_and_build_edl("test", "bitcoin", rd))
+-            finally:
+-                sp._download_window, sp._whisper_transcribe = orig
+-            edl = json.load(open(os.path.join(rd, "edl.json")))
+-            report = json.load(open(os.path.join(rd, "SELECT_BOUNDARIES.json")))
+-            clip = edl["clips"][0]
+-            self.assertEqual((clip["first_word"], clip["last_word"]), ("bs0w0", "bs2w5."), clip)
+-            rejected = [r for r in report if r["result"].startswith("rejected")]
+-            self.assertTrue(rejected and "OUT" in rejected[0]["result"], report)
+-            self.assertTrue(any(r.get("fallback") and r["result"] == "accepted" for r in report), report)
++        rd = tempfile.mkdtemp(prefix="fb_")
++        os.makedirs(os.path.join(rd, "sources"))
++        os.makedirs(os.path.join(rd, "transcripts"))
++        json.dump({"chosen": chosen, "passages": pool}, open(os.path.join(rd, "passages.json"), "w"))
++
++        def fake_dl(vid, start, end, run_dir, pad=15.0):
++            path = os.path.join(run_dir, "sources", f"{vid}.wav")
++            _synth(path, self.words[vid], dur=self.words[vid][-1]["end"] + 5.0)
++            return (path, self.OFF[vid])
++
++        def fake_tx(path, vid, run_dir):
++            rec = {"words": self.words[vid]}
++            json.dump(rec, open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w"))
++            return rec
++        orig = (sp._download_window, sp._whisper_transcribe)
++        sp._download_window, sp._whisper_transcribe = fake_dl, fake_tx
++        try:
++            ok = sp.select_and_build_edl("test", "bitcoin", rd)
++        finally:
++            sp._download_window, sp._whisper_transcribe = orig
++        edl = json.load(open(os.path.join(rd, "edl.json"))) if ok else None
++        return ok, edl, json.load(open(os.path.join(rd, "SELECT_BOUNDARIES.json")))
++
++    def test_rejected_clip_is_replaced_by_the_next_legal_window(self):
++        hook, bad, short, alt = (self.window("AAA", 5, 6, "hook", 4.5), self.window("BBB", 2, 4, "clip", 4.0),
++                                 self.window("BBB", 0, 1, "clip", 3.9), self.window("BBB", 6, 8, "clip", 3.8))
++        ok, edl, report = self.run_select([hook, bad], [hook, bad, short, alt])
++        self.assertTrue(ok, report)
++        self.assertEqual((edl["hook"]["first_word"], edl["hook"]["last_word"]), ("as5w0", "as6w11."))
++        clip = edl["clips"][0]
++        self.assertEqual((clip["first_word"], clip["last_word"]), ("bs6w0", "bs8w11."), report)
++        rej = next(r for r in report if r.get("video_id") == "BBB" and r["result"].startswith("rejected"))
++        self.assertIn("OUT", rej["result"], report)          # rejected for its missing pause, nothing else
++        self.assertTrue(any(r.get("fallback") and r["result"] == "accepted" for r in report), report)
++        # the higher-ranked 8.8 s window is below the 12 s clip budget: never tried
++        self.assertFalse(any(r["window_full_video_s"][0] == short["start"] for r in report), report)
++
++    def test_a_window_taken_by_a_fallback_is_never_used_twice(self):
++        # slot 1 (bad) falls back to 'alt'; slot 2 is the editor's own choice of that same window -> skipped
++        hook, bad, alt = (self.window("AAA", 5, 6, "hook", 4.5), self.window("BBB", 2, 4, "clip", 4.0),
++                          self.window("BBB", 6, 8, "clip", 3.8))
++        ok, edl, report = self.run_select([hook, bad, alt], [hook, bad, alt])
++        self.assertTrue(ok, report)
++        keys = [(c["video_id"], c["word_start"]) for c in edl["clips"]]
++        self.assertEqual(keys, [("BBB", self.words["BBB"][6 * 12]["start"])], report)
++
++    def test_budget_holds_for_the_locked_words_not_the_declared_window(self):
++        # declared as 13.5 s, but its text is two sentences (8.8 s): the cut clip would be under budget
++        hook, liar, alt = (self.window("AAA", 5, 6, "hook", 4.5), self.window("BBB", 6, 7, "clip", 4.0),
++                           self.window("BBB", 6, 8, "clip", 3.8))
++        liar["end"] = round(liar["start"] + 13.5, 2)
++        liar["duration"] = 13.5
++        ok, edl, report = self.run_select([hook, liar], [hook, liar, alt])
++        self.assertTrue(ok, report)
++        rej = next(r for r in report if r.get("slot") == 1 and r["result"].startswith("rejected"))
++        self.assertIn("locked words span 8.8 s, outside the clip budget", rej["result"], report)
++        self.assertEqual(edl["clips"][0]["last_word"], "bs8w11.", report)
+ 
+ 
+ if __name__ == "__main__":

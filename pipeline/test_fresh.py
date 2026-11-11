@@ -45,8 +45,9 @@ def _synth_window(path, words, dur=45.0, sr=16000):
         f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
 
 
-def _sentences(tag, t, n_sent=8, per=6):
-    """Sentence-structured word timestamps: 0.30 s words, 0.05 s word gaps, 0.50 s sentence gaps."""
+def _sentences(tag, t, n_sent=8, per=12):
+    """Sentence-structured word timestamps: 0.30 s words, 0.05 s word gaps, 0.50 s sentence gaps.
+    12 words a sentence, so 2 sentences = 8.8 s (hook budget 8-12) and 3 = 13.45 s (clip budget 12-20)."""
     ws = []
     for si in range(n_sent):
         for wi in range(per):
@@ -61,23 +62,24 @@ class TestSelectCoords(unittest.TestCase):
     def test_edl_times_are_source_file_coords(self):
         import select_passages as sp
         words = {"AAA": _sentences("a", 2.0), "BBB": _sentences("b", 2.0)}
+        win_off = {"AAA": 95.0, "BBB": 495.0}   # where each downloaded window starts in the full video
 
-        def text(vid, s0, s1):  # sentences s0..s1 as the editor selected them
-            return " ".join(w["word"] for w in words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1)
+        def window(vid, channel, s0, s1, score):  # sentences s0..s1, declared where their text is
+            ws = [w for w in words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1]
+            st, en = round(ws[0]["start"] + win_off[vid], 2), round(ws[-1]["end"] + win_off[vid], 2)
+            return {"video_id": vid, "channel": channel, "start": st, "end": en, "duration": round(en - st, 2),
+                    "score": score, "text": " ".join(w["word"] for w in ws)}
         with tempfile.TemporaryDirectory() as rd:
             os.makedirs(os.path.join(rd, "sources"))
             os.makedirs(os.path.join(rd, "transcripts"))
-            passages = {"chosen": [
-                {"video_id": "AAA", "channel": "The Bitcoin Layer", "start": 110.0, "end": 121.0,
-                 "duration": 11.0, "score": 9, "text": text("AAA", 5, 6)},
-                {"video_id": "BBB", "channel": "BTC Sessions", "start": 510.0, "end": 524.0,
-                 "duration": 14.0, "score": 5, "text": text("BBB", 5, 7)}]}
+            passages = {"chosen": [window("AAA", "The Bitcoin Layer", 5, 6, 9),
+                                   window("BBB", "BTC Sessions", 5, 7, 5)]}
             json.dump(passages, open(os.path.join(rd, "passages.json"), "w"))
 
             def fake_dl(vid, start, end, run_dir, pad=15.0):
                 path = os.path.join(run_dir, "sources", f"{vid}.wav")
                 _synth_window(path, words[vid])
-                return (path, start - pad)
+                return (path, win_off[vid])
 
             def fake_tx(path, vid, run_dir):
                 rec = {"words": words[vid]}
@@ -95,13 +97,13 @@ class TestSelectCoords(unittest.TestCase):
                 self.assertEqual(seg["time_coords"], "source_file")
                 off = seg["source_window_offset_s"]
                 self.assertIn(off, (95.0, 495.0))
-                # source-file coords: well inside the ~40 s downloaded window, never full-video
+                # source-file coords: inside the ~45 s downloaded window, never full-video
                 self.assertLess(seg["word_start"], 60.0, seg)
                 self.assertLess(seg["word_end"], 60.0, seg)
                 # the editor's sentences, sealed at selection (sentence law)
                 lock = seg["selection_lock"]
                 self.assertEqual((lock["first_word"], lock["last_word"]), (seg["first_word"], seg["last_word"]))
-                self.assertTrue(lock["first_word"].endswith("s5w0") and lock["last_word"].endswith("w5."), lock)
+                self.assertTrue(lock["first_word"].endswith("s5w0") and lock["last_word"].endswith("w11."), lock)
 
 
 # ── intro-optional renderer support (shared helper) ──

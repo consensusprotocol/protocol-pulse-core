@@ -1,0 +1,87 @@
+{
+ "question": "1d follow-up to the late Heimdall consensus on select_passages.py. Verify from the diff only: (1) the editor's own candidate for a slot is now subject to the same tried/overlap/per-video/per-channel checks as fallbacks, so a window a fallback already took is never cut twice; (2) the hook/clip duration budget is enforced on the span of the words actually locked from the file transcript, not only on the declared start/end; (3) the synthetic test fixtures declare windows exactly where their text is and each new test fails without the fix. If uncertain, say so; do not guess. (this chunk: pipeline/select_passages.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 266.2,
+   "cost": 0.003126412,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 137.3,
+   "cost": 0.004278992,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 795.5,
+   "cost": 0.002069126,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 56.9,
+   "cost": 0.000514476,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 33.6,
+   "cost": 0.0011984538,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 709.7,
+   "cost": 0.00207514,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/select_passages.py",
+   "line": 322,
+   "issue": "Claim 3 (synthetic test fixtures declare windows exactly where their text is; each new test fails without the fix) cannot be verified from this diff. The diff contains only changes to pipeline/select_passages.py and no test files, fixtures, or test assertions. I cannot confirm or deny that tests exist, that their windows match their text spans, or that they fail without the fix.",
+   "evidence": "The diff header is 'diff --git a/pipeline/select_passages.py b/pipeline/select_passages.py' and no other file is included in the provided chunk.",
+   "fix": "Provide the test-file diff (e.g., tests/test_select_passages.py or equivalent) to verify claim 3.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.013262599799999998,
+ "out_dir": "docs/audits/pulse-sentence-law/1d_followup/heimdall/pipeline_select_passages_py"
+}

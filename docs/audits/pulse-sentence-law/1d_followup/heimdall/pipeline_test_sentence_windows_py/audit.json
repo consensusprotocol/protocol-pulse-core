@@ -1,0 +1,132 @@
+{
+ "question": "1d follow-up to the late Heimdall consensus on select_passages.py. Verify from the diff only: (1) the editor's own candidate for a slot is now subject to the same tried/overlap/per-video/per-channel checks as fallbacks, so a window a fallback already took is never cut twice; (2) the hook/clip duration budget is enforced on the span of the words actually locked from the file transcript, not only on the declared start/end; (3) the synthetic test fixtures declare windows exactly where their text is and each new test fails without the fix. If uncertain, say so; do not guess. (this chunk: pipeline/test_sentence_windows.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 300.7,
+   "cost": 0.00290222,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 122.1,
+   "cost": 0.008251487,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 803.2,
+   "cost": 0.002126135,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 198.5,
+   "cost": 0.001902098,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 196.8,
+   "cost": 0.0053791758,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 505.0,
+   "cost": 0.002149943,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "high",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 0,
+   "issue": "The test expects the EDL clip's `word_start` to be the local transcript time, but the `window()` helper defines the window's start as the full video time by adding `self.OFF[vid]`. This inconsistency means the test will fail if the implementation correctly stores full video times, or it will pass while checking an incorrect value.",
+   "evidence": "self.assertEqual(keys, [(\"BBB\", self.words[\"BBB\"][6 * 12][\"start\"])], report)  // window() helper: st, en = ws[0][\"start\"] + self.OFF[vid], ws[-1][\"end\"] + self.OFF[vid]",
+   "fix": "Add the offset to the expected value: self.assertEqual(keys, [(\"BBB\", self.words[\"BBB\"][6 * 12][\"start\"] + self.OFF[\"BBB\"])], report)",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 97,
+   "issue": "Temp directory created with tempfile.mkdtemp is never cleaned up. The pre-diff code used tempfile.TemporaryDirectory() as a context manager which auto-removes the directory. Every call to run_select leaks a directory under /tmp.",
+   "evidence": "rd = tempfile.mkdtemp(prefix=\"fb_\")",
+   "fix": "Use `with tempfile.TemporaryDirectory(prefix=\"fb_\") as rd:` (wrapping the body of run_select) or add `shutil.rmtree(rd, ignore_errors=True)` in a finally block after the select_and_build_edl call.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F2",
+   "severity": "low",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 99,
+   "issue": "Multiple file handles opened via bare open() are never explicitly closed (passages.json write, transcript json write, edl.json read, SELECT_BOUNDARIES.json read). In CPython the GC will close them, but under PyPy or with many test runs this can exhaust file descriptors.",
+   "evidence": "json.dump({\"chosen\": chosen, \"passages\": pool}, open(os.path.join(rd, \"passages.json\"), \"w\"))",
+   "fix": "Wrap each open() in a `with` statement, e.g. `with open(os.path.join(rd, \"passages.json\"), \"w\") as f: json.dump(..., f)`.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "low",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 117,
+   "issue": "run_select unconditionally reads SELECT_BOUNDARIES.json even when select_and_build_edl returns False. If the implementation does not write the report file on the failure path, this raises FileNotFoundError before the caller's assertTrue(ok) can produce a clean test failure.",
+   "evidence": "return ok, edl, json.load(open(os.path.join(rd, \"SELECT_BOUNDARIES.json\")))",
+   "fix": "Guard the report read: `report = json.load(open(...)) if os.path.exists(os.path.join(rd, \"SELECT_BOUNDARIES.json\")) else None` and return it, or move the read into the caller behind the ok check.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": [
+    "deepseek"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.022711058800000003,
+ "out_dir": "docs/audits/pulse-sentence-law/1d_followup/heimdall/pipeline_test_sentence_windows_py"
+}

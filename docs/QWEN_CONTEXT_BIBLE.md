@@ -95,3 +95,11 @@ Known failure patterns and their root causes. Load into every Qwen/audit session
 
 ### E-FAIL-010: Registry identity must be verified, not assumed
 **Evidence:** registry "Michael Saylor" -> @Saylor = "旗-Saylor" (956 followers), not his channel. Disabled 2026-11-11. Avatar onboarding prints channel title/followers; look before registering.
+
+### E-FAIL-011: A fallback must never take a window another slot owns
+**Evidence:** 1d first version: the editor's own pick for a slot skipped the overlap / per-video / per-channel / already-tried checks that fallbacks pass; when slot 1's fallback was slot 2's own window, slot 2 cut the same window again (duplicate clip). Late Heimdall consensus, 2026-11-11.
+**Fix:** the conflict checks run on every candidate, the editor's included. **Detection:** `test_sentence_windows.py::test_a_window_taken_by_a_fallback_is_never_used_twice`.
+
+### E-FAIL-012: A budget holds for the words actually cut, not the declared window
+**Evidence:** a passage declared 13.5 s whose text is two sentences (8.8 s) passed the 12-20 s clip budget on its declared times. Two synthetic test fixtures had the same flaw (windows declared 11-14 s around 4.6-7.2 s of text) and passed only because the locked span was never checked.
+**Fix:** after locking, the locked words' span must fit the hook/clip budget, else the next-ranked window. Fixtures declare windows exactly where their text is. **Detection:** `test_budget_holds_for_the_locked_words_not_the_declared_window`.

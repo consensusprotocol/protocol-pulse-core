@@ -1,0 +1,105 @@
+2026-11-11 04:03:18,324 google_genai.models INFO AFC is enabled with max remote calls: 10.
+2026-11-11 04:03:28,846 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 04:04:01,042 httpx INFO HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-11-11 04:05:26,720 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-11-11 04:05:27,395 google_genai.models INFO AFC is enabled with max remote calls: 10.
+2026-11-11 04:05:35,221 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-11-11 04:05:59,486 httpx INFO HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent "HTTP/1.1 200 OK"
+2026-11-11 04:07:23,245 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-11-11 04:07:47,962 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+
+============================================================
+PROTOCOL PULSE CROSS-LLM AUDIT — PULSE-SENTENCE-LAW
+Started: 2026-11-11 04:03:08
+============================================================
+
+✅ All API keys present
+
+── CYCLE 1: BUILDING AUDIT PACKAGE ────────────────────────────
+  [PACKAGE] Pulling code diff for combo-letterbox-quoteonly-v2...
+  [PACKAGE] Using explicit file list: ['docs/audits/pulse-sentence-law/CURRENT.diff']
+  Package written: 22,644 chars
+
+── CYCLE 1: FIRING 3 LLMs IN PARALLEL ─────────────────────────
+  [GROK]   ✅ Done (via gateway)
+  [GPT-4o] ✅ Done
+  [GEMINI] ✅ Done — ?
+
+  Cycle 1 complete: ['grok', 'gpt4o', 'gemini'] succeeded, [] failed
+
+── CYCLE 1: SYNTHESIZING CONSENSUS ─────────────────────────────
+  Consensus written
+
+  Average Cycle 1 score: 0/100 — Running Cycle 2
+
+── CYCLE 2: BUILDING CROSS-REVIEW PROMPT ───────────────────────
+── CYCLE 2: FIRING 3 LLMs WITH CROSS-VISIBILITY ────────────────
+  [GPT-4o] ✅ Done
+  [GROK]   ✅ Done (via gateway)
+  [GEMINI] ✅ Done — ?
+
+  Cycle 2 complete: ['gpt4o', 'grok', 'gemini'] succeeded
+
+── CYCLE 2: FINAL CONSENSUS + WINNER ───────────────────────────
+
+============================================================
+AUDIT COMPLETE — PULSE-SENTENCE-LAW
+============================================================
+
+Outputs at: /home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/
+  AUDIT_PACKAGE.md    — code package sent to LLMs
+  C1_*.md             — Cycle 1 individual outputs
+  C1_CONSENSUS.md     — Cycle 1 synthesis
+  C2_*.md             — Cycle 2 individual outputs
+  FINAL_CONSENSUS.md  — final action plan + second-pass prompt
+
+NEXT: Fire the second-pass Claude Code session using the prompt
+      in FINAL_CONSENSUS.md → '## SECOND PASS PROMPT' section
+
+============================================================
+
+READY TO FIRE — SECOND PASS PROMPT:
+----------------------------------------
+## SECOND PASS PROMPT (ready to fire into Claude Code)
+
+```
+Read ~/protocol_pulse/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md.
+Read ~/protocol_pulse/docs/audits/pulse-sentence-law_CONSENSUS_C2.md.
+
+This is the FINAL PASS for pulse-sentence-law.
+The first build was reviewed by 3 independent AI models across 2 cycles.
+Implement every P0 and P1 item from the consensus (there are none — the
+code is clean). Implement the P2 items below using your judgment.
+
+PRIORITY ACTION PLAN:
+
+P2 MEDIUM — Add inline comment above select_passages.py:46 naming the
+slot-ordering hazard that this guard prevents. Suggested text:
+  # guard: an earlier slot's fallback may have already claimed
+  # this window; check the editor's primary choice too.
+File: pipeline/select_passages.py, line 46.
+
+P2 MEDIUM — Verify that ONSET/TAIL law enforcement exists somewhere in
+the pipeline (rendering or pre-selection layer). If a test already exists,
+note its location in a comment or in the audit doc. If no test exists,
+create pipeline/test_law_compliance_system.py with at least one synthetic
+end-to-end clip that asserts ONSET/TAIL is respected in the final output.
+This is the only shipping condition remaining.
+
+P2 MEDIUM — If CREDITS and LAW 22/v2f enforcement is similarly unverified,
+apply the same treatment: locate existing tests or create a minimal
+integration assertion. These are lower urgency but should be resolved in
+this pass if possible.
+
+VALIDATED — do NOT touch any of the following (all models confirmed excellent):
+- The refactored _budget / _conflicts / _eligible functions
+  (pipeline/select_passages.py lines 16-37)
+- The post-_build_segment duration check
+  (pipeline/select_passages.py lines 54-59)
+- The line 46 conflict check on the editor's primary candidate
+  (pipeline/select_passages.py line 46) — only add the comment, do not
+  alter logic
+- All tests in test_sentence_windows.py lines 235-268
+- All tests in test_fresh.py lines 83-124
+- M12 FAIL CLOSED failure paths throughout select_passages.
+[registry] AUDIT_REGISTRY.json updated for pulse-sentence-law

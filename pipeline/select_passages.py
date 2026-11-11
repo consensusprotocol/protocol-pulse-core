@@ -282,18 +282,26 @@ def select_and_build_edl(keyword, niche, run_dir):
     def _key(p):
         return (p["video_id"], round(p["start"], 2), round(p["end"], 2))
 
-    def _eligible(p, kind):
-        lo, hi, floor = ((HOOK_MIN_S, HOOK_MAX_S, HOOK_MIN_SCORE) if kind == "hook"
-                         else (CLIP_MIN_S, CLIP_MAX_S, CLIP_MIN_SCORE))
-        if p.get("kind") != kind or _key(p) in tried or (p.get("clip_score") or 0) < floor:
-            return False
-        if not lo <= p["end"] - p["start"] <= hi:
-            return False
+    def _budget(kind):
+        return (HOOK_MIN_S, HOOK_MAX_S) if kind == "hook" else (CLIP_MIN_S, CLIP_MAX_S)
+
+    def _conflicts(p, kind):
+        """Overlap / per-video / per-channel conflicts with windows already used (also applied to the
+        editor's own candidate: an earlier fallback may have taken its window, 1d audit)."""
+        if _key(p) in tried:
+            return True
         if any(u["video_id"] == p["video_id"] and not (p["end"] <= u["start"] or p["start"] >= u["end"]) for u in used):
-            return False
+            return True
         if sum(1 for u in used if u["video_id"] == p["video_id"]) >= MAX_VERIFIED_QUOTES_PER_VIDEO:
+            return True
+        return kind != "hook" and sum(1 for u in used[1:] if u["channel"] == p["channel"]) >= 2
+
+    def _eligible(p, kind):
+        lo, hi = _budget(kind)
+        floor = HOOK_MIN_SCORE if kind == "hook" else CLIP_MIN_SCORE
+        if p.get("kind") != kind or (p.get("clip_score") or 0) < floor:
             return False
-        return kind == "hook" or sum(1 for u in used[1:] if u["channel"] == p["channel"]) < 2
+        return lo <= p["end"] - p["start"] <= hi and not _conflicts(p, kind)
 
     def _source_for(p):
         vid = p["video_id"]
@@ -314,7 +322,9 @@ def select_and_build_edl(keyword, niche, run_dir):
     def _fill(first, label, kind, slot):
         for p in [first] + sorted([q for q in pool if q is not first],
                                   key=lambda q: (-(q.get("clip_score") or 0), -(q.get("relevance") or 0))):
-            if p is None or (p is not first and not _eligible(p, kind)):
+            # the editor's own pick is checked too: an earlier slot's fallback may already have taken
+            # this window (it would be cut twice); fallbacks also pass the score and budget filters
+            if p is None or (p is first and _conflicts(p, kind)) or (p is not first and not _eligible(p, kind)):
                 continue
             tried.add(_key(p))
             why = _source_for(p)
@@ -325,6 +335,12 @@ def select_and_build_edl(keyword, niche, run_dir):
                 continue
             seg = _build_segment(p, label)
             boundary_report[-1].update(fallback=p is not first, slot=slot)
+            lo, hi = _budget(kind)
+            if seg is not None and not lo <= seg["duration"] <= hi:
+                # the budget holds for the clip actually cut (this file's words), not the declared window
+                boundary_report[-1]["result"] = (f"rejected: locked words span {seg['duration']} s, outside the "
+                                                 f"{kind} budget {lo}-{hi} s")
+                seg = None
             if seg is not None:
                 used.append(p)
                 return seg
