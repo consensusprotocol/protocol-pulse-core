@@ -6,7 +6,51 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 07:27 ET; newest first)
+## LIVE STATE (updated 2026-11-11 08:38 ET; newest first)
+
+- 08:38 4b landed on this branch (55eb579b + 376c4127, audited: batch4 AUDIT_RESPONSE.md). Suites 166
+  passed; the one failure is the documented pre-existing live-LLM test (test_editorial_robust
+  positive_control_real_midterms: story_semantics only, byte-identical before/after 4b);
+  regression_test.sh 26 PASS / 0 FAIL; regression.sh PASS (0.041 s).
+- 08:30 ORCHESTRATOR NOTE (do not send failing cuts; four directions). Run 6 had ALREADY been delivered
+  at 08:20 as REVIEW ONLY by the wrapper (msgs 67570/67571 videos, 67572/67573 contact sheets), before the
+  note: the wrapper sent REVIEW ONLY drops by design. Changing: Telegram only on a clean pass.
+  Evidence so far (verified, not assumed):
+  * G9: tail = the hash-identical locked outro; luma run 6 16:9 14.3058 / v2f 14.3357 (floor 14.33),
+    9:16 14.7430 / 14.7715 (floor 14.77); the conformed outro itself 12.69. Encode-level 0.03 on a
+    black-ending card vs a floor 0.006 under the reference: calibration margin question (OD-4), gate kept.
+  * G5: duration 54.83 s < 60 (hook 10.1 + clips 18.1 + 13.3 = 41.4 s of content); loudness -15.6 LUFS
+    (target -14 +- 1): per segment hook -13.3, clip_01 DataDash -21.6, clip_02 -15.0, shoutout -15.3,
+    outro -13.1; v2f whole -14.6. The DataDash segment is 8 LU under the rest.
+  * G14: NOT the dissolve offset: 16:9 frame_sim >= 0.99 on every sample incl. all of clip_02 after the
+    dissolve (reference 28.133 s = source 24.695 s = cut_in + 45 ms); the 0.00-0.04 values are the 9:16
+    crop-vs-source comparison, which the gate itself marks LIMITED (unscored). The one scored failure is a
+    0.5 s audio window in DataDash's clip (t = 12.08 s): speech at -39 dB median (quieter than his -28..-32)
+    matched 4.6 s away at xcorr 0.42 (>= 0.3, so not "inconclusive").
+  * G15 (OD-1 evidence, docs/audits/pulse-sentence-law/od1_g15_evidence/): the three avatar rings measure
+    round; the only "squished ring" is the capital N of "Natalie Brunell" (contour bbox 31 x 36 px; its
+    fitted ellipse 122 x 212 passes G15's size filter, which tests the ellipse, not the contour). G15 kept.
+  * G17a clip_01 lead 60 ms: DataDash's source is noise-gated: the 320 ms before "But" is mostly below
+    the -100 dBFS digital floor, which G17a does not count as genuine quiet; only 60 ms is above it.
+    Moving the in-point or the room-tone pad cannot change that measurement (OD question, gate kept).
+  * G3: heard 'bye!' / 'no' for 'But' (hook, clip_01); G18 edges (first two words, full-context ASR)
+    and G17b first_word_ratio 0.98 / 0.95 say the words are intact.
+  * G18: one real comparator hole found while fixing it: '5.5 %' became tokens '5 5' and the
+    repeat-collapser merged them to '5', so 5.5 % and 5 % compared EQUAL. Fix: a decimal is one token;
+    'one point three' / 'five and a half' map to it; tests both directions.
+  * V1 next shot: real defect: Natalie's source cuts to an NVIDIA/AMD/MICRON graphic inside the pause
+    before "Nvidia" (37.94); our out-point 37.86 keeps those frames.
+  * Lineup (direction 1): the better windows are excluded by MEASURED audio under the unchanged law, not
+    by a bug or a budget: DataDash 0.00-9.08 hook: file-head in-edge fine (0.25 s pad declared), but after
+    "give or take." the genuine quiet run is 9.30-9.39 before a breath, so the law's tail (pause start +
+    80 ms = 9.37) and cut_accept's run (9.33 with its 60 ms margin) never meet. Natalie "Bitcoin also
+    wasn't spared ... last week." (3 sentences, 11.78 s): out-pause 120 ms < 80 ms tail + 60 ms guard;
+    her 5-sentence window breaks the 1-3 sentence law and "rally." has no pause. Yahoo "Of course, Bitcoin
+    dropped ...": no >= 80 ms pause before it (nor before the two sentences ahead of it). Under the
+    stand-alone + topic rule, the frozen 5-min sources hold NO legal lineup for this story: Natalie has no
+    legal Bitcoin window; DataDash no legal topical hook. Decision (logged): widen the search (full-length
+    sources of the three videos + the approved channels that quoted the same price drop on Nov 10, e.g.
+    Marty Bent, Bitcoin Magazine), never relax the law.
 
 - 07:23 recut run 5 (runs/pinned_20261111_120910, HEAD b74c3b6c) HELD at render after 642 s:
   env..layout PASS (clip_02 fade retry 37.86 PASS; all six edges PASS). ffmpeg refused the transition

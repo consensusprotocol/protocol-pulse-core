@@ -1,0 +1,820 @@
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index 8f09f72c..be083fa8 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -777,30 +777,27 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+             verdicts.append(v)
+             c["coverage"]["videos_evaluated"] = len(verdicts)
+             ck("adjudicate", candidate=oi, of=len(order), video=vi, of_videos=len(picked))
+-        same = [v for v in verdicts if v["counted_as_same_event"]]
+-        cov_ch = sorted({v["channel_id"] for v in same})
+-        lay_ch = sorted({v["channel_id"] for v in same if v["layout_eligible"]})
+-        c["coverage"].update(status="done", same_event_videos=len(same), independent_channels=len(cov_ch),
+-                             inconclusive=sum(1 for v in verdicts if v["verdict"] == "INCONCLUSIVE"),
+-                             channels=[by_cid.get(x, {}).get("display_name", x) for x in cov_ch],
+-                             layout_eligible_channels=[by_cid[x]["display_name"] for x in lay_ch])
+-        cur = sm.transcript_currentness(verdicts)            # E1/E9: transcripts decide currentness
+-        c["currentness"] = cur
+-        if c.get("event_date_grounding", {}).get("model_date_discarded"):
+-            c.setdefault("flags", []).append("model date discarded as hallucinated (D1/E9)")
+-        log(f"  [{c['importance']['importance_score']:.2f}] {c['headline'][:70]} -> coverage "
+-            f"{len(cov_ch)} ch ({len(lay_ch)} layout-eligible), currentness {cur['status']}")
+-        if cur["status"] != "CURRENT":
+-            c["decision"] = f"inconclusive: currentness {cur['reason']}"
+-        elif len(cov_ch) < MIN_COVERAGE_CHANNELS:
+-            c["decision"] = f"rejected: coverage {len(cov_ch)} < {MIN_COVERAGE_CHANNELS} independent channels"
+-        elif len(lay_ch) < MIN_LAYOUT_CHANNELS:
+-            c["decision"] = (f"rejected: only {len(lay_ch)} layout-eligible channel(s) with evidence "
+-                             f"(clips need >= {MIN_LAYOUT_CHANNELS}); editorial coverage {len(cov_ch)}")
+-        else:
+-            c["decision"] = "coverage_qualified"
++        _decide_coverage(c, verdicts, by_cid, log)
+         ck("coverage", candidate=oi, of=len(order))
+ 
++    # 5b. SAME-EVENT MERGE (mission 4b): candidates resting on the same counted passage are one event
++    for group in _same_event_groups(order):
++        merged = _merge_event([order[i] for i in group], L, uni, by_cid, today, log)
++        cands.append(merged)
++        order.append(merged)
++        ck("merge", members=len(group), decision=merged["decision"])
++
++    # 5c. DEC-9: an event already delivered to the approval chat is never selected again (same identity)
++    import story_ledger
++    ledger = story_ledger.entries()
++    excluded = []
++    for c in order:
++        hit = story_ledger.delivered_match(c, ledger) if c.get("decision") == "coverage_qualified" else None
++        if hit:
++            c["decision"] = f"already delivered (story ledger: {hit['run']}, '{hit['headline'][:60]}')"
++            excluded.append({"headline": c["headline"], "ledger_run": hit["run"]})
++    rec["story_ledger"] = {"entries": len(ledger), "excluded": excluded}
++
+     # 6. E5: one GPU0 swap -> word-level transcripts for every coverage-qualified candidate
+     qualified = [c for c in order if c.get("decision") == "coverage_qualified"]
+     need = {}
+@@ -870,6 +867,10 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+                        "clip_quality": {k: v for k, v in win["clip_quality"].items() if k != "candidates"},
+                        "why": ("highest story importance among producible candidates; ties broken by "
+                                "coverage then clip quality"),
++                       "evidence": [{"video_id": v["video_id"], "chunk_ids": v.get("supporting_chunk_ids") or [],
++                                     "quote": v.get("evidence_quote"),
++                                     "quote_tokens": sm._norm(v.get("evidence_quote")).split()}
++                                    for v in win["coverage"]["verdicts"] if v.get("counted_as_same_event")],
+                        "other_producible": [c["headline"] for c in producible if c is not win],
+                        "infra_held": [c["headline"] for c in infra]}
+     rec["decision"] = "SELECTED"
+@@ -891,6 +892,130 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+     return win["query"].get("short_label") or win["headline"], rec
+ 
+ 
++def _decide_coverage(c, verdicts, by_cid, log):
++    """Coverage, currentness and the coverage decision of one candidate (single or merged alike)."""
++    import story_semantics as sm
++    same = [v for v in verdicts if v["counted_as_same_event"]]
++    cov_ch = sorted({v["channel_id"] for v in same})
++    lay_ch = sorted({v["channel_id"] for v in same if v["layout_eligible"]})
++    c["coverage"].update(status="done", same_event_videos=len(same), independent_channels=len(cov_ch),
++                         inconclusive=sum(1 for v in verdicts if v["verdict"] == "INCONCLUSIVE"),
++                         channels=[by_cid.get(x, {}).get("display_name", x) for x in cov_ch],
++                         layout_eligible_channels=[by_cid[x]["display_name"] for x in lay_ch])
++    cur = sm.transcript_currentness(verdicts)            # E1/E9: transcripts decide currentness
++    c["currentness"] = cur
++    if c.get("event_date_grounding", {}).get("model_date_discarded"):
++        c.setdefault("flags", []).append("model date discarded as hallucinated (D1/E9)")
++    log(f"  [{c['importance']['importance_score']:.2f}] {c['headline'][:70]} -> coverage "
++        f"{len(cov_ch)} ch ({len(lay_ch)} layout-eligible), currentness {cur['status']}")
++    if cur["status"] != "CURRENT":
++        c["decision"] = f"inconclusive: currentness {cur['reason']}"
++    elif len(cov_ch) < MIN_COVERAGE_CHANNELS:
++        c["decision"] = f"rejected: coverage {len(cov_ch)} < {MIN_COVERAGE_CHANNELS} independent channels"
++    elif len(lay_ch) < MIN_LAYOUT_CHANNELS:
++        c["decision"] = (f"rejected: only {len(lay_ch)} layout-eligible channel(s) with evidence "
++                         f"(clips need >= {MIN_LAYOUT_CHANNELS}); editorial coverage {len(cov_ch)}")
++    else:
++        c["decision"] = "coverage_qualified"
++
++
++SAME_STATEMENT_RUN = 5          # shared consecutive words that make two evidence quotes one statement
++
++
++def _evidence(c):
++    """[(video_id, chunk_ids, quote tokens)] of the COUNTED verdicts this candidate rests on."""
++    import story_semantics as sm
++    return [(v["video_id"], set(v.get("supporting_chunk_ids") or []), sm._norm(v.get("evidence_quote")).split())
++            for v in (c.get("coverage") or {}).get("verdicts", []) if v.get("counted_as_same_event")]
++
++
++def _same_statement(a, b):
++    """Two quotes are one statement when they share a run of SAME_STATEMENT_RUN consecutive words (or one
++    quote, shorter than that, lies wholly inside the other)."""
++    from difflib import SequenceMatcher
++    if not a or not b:
++        return False
++    run = max(m.size for m in SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks())
++    return run >= min(SAME_STATEMENT_RUN, len(a), len(b))
++
++
++def _same_event_groups(order):
++    """Index groups (>= 2) of candidates whose counted evidence includes THE SAME STATEMENT: same video, a
++    shared supporting chunk and a shared run of words in the evidence quotes. Nov 10: 'Bitcoin ETFs shed
++    $1.3B' and 'Bitcoin falls amid tech selloff' were split by the story engine but both counted Yahoo
++    Finance's "Bitcoin dropped pretty massively over the weekend alongside the tech selloff"; the second
++    reached one channel ("coverage 1 < 2"), the first failed on hook quality. A shared chunk alone is not
++    enough (a roundup show can state two events in one chunk). Deterministic: no model is asked whether two
++    headlines are the same event (E-FAIL-013)."""
++    ev = [_evidence(c) for c in order]
++    parent = list(range(len(order)))
++
++    def find(i):
++        while parent[i] != i:
++            parent[i] = parent[parent[i]]
++            i = parent[i]
++        return i
++    for i in range(len(order)):
++        for j in range(i + 1, len(order)):
++            if any(vi == vj and ci & cj and _same_statement(qi, qj)
++                   for vi, ci, qi in ev[i] for vj, cj, qj in ev[j]):
++                parent[find(j)] = find(i)
++    groups = {}
++    for i in range(len(order)):
++        groups.setdefault(find(i), []).append(i)
++    return [g for g in groups.values() if len(g) > 1]
++
++
++def _merge_event(members, L, uni, by_cid, today, log):
++    """One candidate for one event. The members' headlines and summaries give one derived query; their
++    verdicts are pooled (one per video, a counted one kept); every NOT-counted pooled verdict is re-judged
++    against the merged query on its stored excerpts (bounded); then the same coverage decision as any
++    candidate. The members are marked merged (their evidence lives on in the merged candidate)."""
++    import story_semantics as sm
++    members = sorted(members, key=lambda c: -c["importance"]["importance_score"])
++    top = members[0]
++    item = {"headline": top["headline"], "source_domain": top.get("source_domain", ""),
++            "summary": " | ".join(dict.fromkeys(f"{m['headline']}. {m.get('summary') or ''}".strip(" .")
++                                                for m in members))}
++    try:
++        q, q_from = sm.derive_story_query(L, item, today), "merged headlines + summaries"
++    except sm.LLMParseError as e:
++        q, q_from = top["query"], f"top member's query (merged derivation failed: {e})"
++    pooled = {}
++    for m in members:
++        for v in m["coverage"]["verdicts"]:
++            cur = pooled.get(v["video_id"])
++            if cur is None or (v["counted_as_same_event"] and not cur["counted_as_same_event"]):
++                pooled[v["video_id"]] = v
++    verdicts, rejudged = [], 0
++    meta_keys = ("video_id", "canonical_url", "channel", "channel_id", "title", "published_at", "layout_eligible",
++                 "transcript_sha256", "transcript_method", "excerpts", "retrieval_score")
++    for vid, v in sorted(pooled.items(), key=lambda kv: (kv[1]["counted_as_same_event"] is False,
++                                                       -(kv[1].get("retrieval_score") or 0), kv[0])):
++        u = next((x for x in uni if x["video_id"] == vid), None)
++        if not v["counted_as_same_event"] and v.get("excerpts") and u and rejudged < MAX_ADJUDICATE_PER_STORY:
++            nv = sm.adjudicate(L, q, {"title": u["title"], "channel": u["channel"], "published_at": u["published_at"]},
++                               v["excerpts"], today=today)
++            nv.update({k: v[k] for k in meta_keys if k in v}, rejudged_for_merge=True, prior_verdict=v["verdict"])
++            v, rejudged = nv, rejudged + 1
++        verdicts.append(v)
++    merged = {"origin": "same_event_merge", "members": [m["headline"] for m in members], "query_from": q_from,
++              "engine_rank": min((m.get("engine_rank") or 999) for m in members),
++              "engine_score": max((m.get("engine_score") or 0) for m in members),
++              "headline": top["headline"], "summary": item["summary"], "source_domain": top.get("source_domain"),
++              "age_h": min((m.get("age_h") or 0) for m in members), "source_published": top.get("source_published"),
++              "query": q, "importance": dict(top["importance"]), "importance_gate": [],
++              "event_date_grounding": top.get("event_date_grounding"),
++              "coverage": {"videos_evaluated": len(verdicts), "verdicts": verdicts, "status": "in_progress",
++                           "rejudged_for_merge": rejudged}}
++    log(f"  same-event merge of {len(members)}: " + " | ".join(m["headline"][:50] for m in members))
++    _decide_coverage(merged, verdicts, by_cid, log)
++    for m in members:
++        m["same_event_merge"] = top["headline"]
++        m["decision"] = f"merged into the same-event candidate '{top['headline'][:80]}' (shared evidence)"
++    return merged
++
++
+ def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
+     import story_semantics as sm
+     q = c["query"]
+diff --git a/pipeline/story_ledger.py b/pipeline/story_ledger.py
+new file mode 100644
+index 00000000..849e9ca9
+--- /dev/null
++++ b/pipeline/story_ledger.py
+@@ -0,0 +1,68 @@
++#!/usr/bin/env python3
++"""pipeline/story_ledger.py — DEC-9: every fresh (auto-mode) story delivered to the approval chat is recorded
++once, by its counted evidence statements; the next auto run never selects an event that rests on one of them.
++
++Identity is the same as the same-event merge (editorial_select._same_statement): the same video, a shared
++supporting chunk and a shared run of words in the evidence quotes. A headline match is never used (the story
++engine rewords one event many ways, Nov 10). Ledger: data/pulse_check/story_ledger.jsonl (append-only)."""
++import json
++import os
++from datetime import datetime, timezone
++
++REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++LEDGER = os.path.join(REPO, "data", "pulse_check", "story_ledger.jsonl")
++
++
++def entries(path=None):
++    path = path or LEDGER                 # read at call time (a default arg would freeze it)
++    if not os.path.exists(path):
++        return []
++    with open(path) as f:
++        return [json.loads(line) for line in f if line.strip()]
++
++
++def delivered_match(candidate, ledger):
++    """The ledger entry whose evidence shares a statement with this candidate's counted evidence, or None."""
++    import editorial_select as es
++    ev = es._evidence(candidate)
++    for e in ledger:
++        for vid, chunks, quote in ((x["video_id"], set(x["chunk_ids"]), x["quote_tokens"]) for x in e["evidence"]):
++            if any(vid == v and chunks & c and es._same_statement(quote, q) for v, c, q in ev):
++                return e
++    return None
++
++
++def record(run_dir, path=None):
++    """Append the delivered run's selected story (auto mode only). Idempotent per run directory."""
++    path = path or LEDGER
++    with open(os.path.join(run_dir, "TOPIC_SELECTION.json")) as f:
++        sel = json.load(f)["selected"]
++    run_id = os.path.basename(os.path.normpath(run_dir))
++    if any(e["run"] == run_id for e in entries(path)):
++        return None
++    if not sel.get("evidence"):
++        raise ValueError(f"{run_id}: selected story carries no counted evidence; nothing identifies it")
++    e = {"run": run_id, "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
++         "headline": sel["headline"], "short_label": sel.get("short_label"),
++         "underlying_event": sel.get("underlying_event"), "evidence": sel["evidence"]}
++    os.makedirs(os.path.dirname(path), exist_ok=True)
++    with open(path, "a") as f:
++        f.write(json.dumps(e) + "\n")
++    return e
++
++
++def record_if_approved(run_dir, delivery, mode, path=None):
++    """Called by scripts/pulse_check_run.sh after a delivery: an AUTO run whose BOTH finals went out as
++    "HOLD FOR APPROVAL - all gates passed, no waivers" is recorded; anything else (pinned, review-only, an
++    option) is not, so a story held for a defect is free to be produced again once the defect is fixed."""
++    import telegram
++    finals = [m for m in delivery["messages"] if "format" in m]
++    if mode != "auto" or delivery.get("option") or len(finals) != 2 or \
++            not all(m["caption"].startswith(telegram.HOLD_OK) for m in finals):
++        return None
++    return record(run_dir, path)
++
++
++if __name__ == "__main__":
++    import sys
++    print(json.dumps(record(sys.argv[1]), indent=1))
+diff --git a/pipeline/test_same_event_merge.py b/pipeline/test_same_event_merge.py
+new file mode 100644
+index 00000000..966ebae6
+--- /dev/null
++++ b/pipeline/test_same_event_merge.py
+@@ -0,0 +1,142 @@
++#!/usr/bin/env python3
++"""Mission 4b: SAME-EVENT MERGE in AUTO mode. Nov 10 (runs/fresh_20261110_093150/TOPIC_SELECTION.json): the
++story engine split one event into 'Bitcoin ETFs shed $1.3B' (#13) and 'Bitcoin Falls Amid Tech Selloff' (#20).
++Both counted the SAME Yahoo Finance statement; #20 reached one channel ("coverage 1 < 2") and #13 failed on
++hook quality. The hand fix re-judged the not-counted quotes against ONE merged event and DataDash counted.
++Here: candidates whose counted evidence includes the same statement (same video, shared chunk, shared run of
++words) are grouped deterministically (no model asked 'same event?'), their verdicts pooled, the not-counted
++ones re-judged against one merged query, and the coverage decision recomputed.
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_same_event_merge.py"""
++import os
++import sys
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++import editorial_select as es  # noqa: E402
++import story_semantics as sm  # noqa: E402
++from test_window_review import RoutedLLM  # noqa: E402
++
++
++def verdict(vid, channel_id, chunk, counted, quote="", verdict_="CURRENT_EVENT"):
++    return {"video_id": vid, "channel": channel_id, "channel_id": channel_id, "layout_eligible": True,
++            "counted_as_same_event": counted, "verdict": verdict_, "evidence_quote": quote,
++            "supporting_chunk_ids": [chunk] if counted else [], "title": f"{vid} show",
++            "published_at": "2026-11-09T12:00:00+00:00", "canonical_url": f"https://youtu.be/{vid}",
++            "transcript_sha256": "x", "transcript_method": "whisper_words", "retrieval_score": 0.7,
++            "excerpts": [{"chunk_id": chunk, "start": 0.0, "end": 30.0, "text": quote or "unrelated words here"}]}
++
++
++def cand(headline, verdicts, importance):
++    return {"origin": "story_engine", "engine_rank": 1, "engine_score": 50, "headline": headline,
++            "summary": headline, "source_domain": "x.com", "age_h": 5.0, "source_published": "2026-11-09T10:00:00+00:00",
++            "query": {"underlying_event": headline, "short_label": headline[:20], "event_recency": "current"},
++            "importance": {"importance_score": importance}, "importance_gate": [], "event_date_grounding": {},
++            "coverage": {"verdicts": verdicts}}
++
++
++Q_YAHOO = "Bitcoin dropped pretty massively over the weekend alongside the tech selloff"
++Q_NAT = "It went from above 81,000 after the election to below 75,000 by the weekend"
++Q_DD = "But we've seen a really nice decline here on Bitcoin, 16 percent so far"
++
++
++class MergeLLM(RoutedLLM):
++    """RoutedLLM + the story-query derivation prompt."""
++
++    def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
++        if prompt.startswith(sm.DERIVE_PROMPT.split("{")[0][:40]):
++            self.prompts.append(prompt)
++            return {"underlying_event": "Bitcoin fell below $75k over the weekend amid a tech selloff and ETF outflows",
++                    "short_label": "Bitcoin price dip", "bitcoin_relevance": 5, "importance": 4, "event_recency": "current"}
++        return super().chat_json(prompt, max_tokens, validate, attempts)
++
++
++class TestSameEventGroups(unittest.TestCase):
++    def test_candidates_sharing_a_counted_passage_are_one_event(self):
++        etf = cand("ETFs shed $1.3B", [verdict("YAH", "yahoo", "YAH:1-2", True, Q_YAHOO)], 0.85)
++        drop = cand("Bitcoin drops below $74K", [verdict("NAT", "natalie", "NAT:3-4", True, Q_NAT)], 0.91)
++        tech = cand("Bitcoin falls amid tech selloff", [verdict("YAH", "yahoo", "YAH:1-2", True, Q_YAHOO),
++                                                         verdict("NAT", "natalie", "NAT:3-4", True, Q_NAT)], 0.91)
++        other = cand("Coinbase gets a bank charter", [verdict("COI", "coin", "COI:9-9", True, "charter")], 0.7)
++        self.assertEqual(es._same_event_groups([etf, drop, tech, other]), [[0, 1, 2]])
++
++    def test_shared_video_but_different_passage_is_not_enough(self):
++        a = cand("A", [verdict("YAH", "yahoo", "YAH:1-2", True, Q_YAHOO)], 0.8)
++        b = cand("B", [verdict("YAH", "yahoo", "YAH:5-6", True, "something else entirely")], 0.8)
++        self.assertEqual(es._same_event_groups([a, b]), [])
++
++    def test_not_counted_evidence_never_links(self):
++        a = cand("A", [verdict("YAH", "yahoo", "YAH:1-2", False, Q_YAHOO, "TOPIC_ONLY")], 0.8)
++        b = cand("B", [verdict("YAH", "yahoo", "YAH:1-2", False, Q_YAHOO, "TOPIC_ONLY")], 0.8)
++        self.assertEqual(es._same_event_groups([a, b]), [])
++
++
++    def test_same_chunk_but_different_statements_is_not_enough(self):
++        """A roundup show can state two events inside one chunk; only a shared STATEMENT links them."""
++        a = cand("A", [verdict("YAH", "yahoo", "YAH:1-2", True, "Strategy purchased 1,036 Bitcoin this week")], 0.8)
++        b = cand("B", [verdict("YAH", "yahoo", "YAH:1-2", True, Q_YAHOO)], 0.8)
++        self.assertEqual(es._same_event_groups([a, b]), [])
++
++    def test_nov10_real_counted_evidence_groups_exactly_the_split_story(self):
++        """The real counted verdicts of every Nov 10 candidate that had any (#11, #13, #19, #20)."""
++        real = {
++            11: [("xZz4ikZmHEU", ["xZz4ikZmHEU:637900-694990", "xZz4ikZmHEU:744560-795090"],
++                  "The investors reassessed the durability of the entire AI theme."),
++                 ("vqFt75tN3AI", ["vqFt75tN3AI:388510-418940"], "the number is what, like $13 trillion have been "
++                  "wiped out of the AI kind of build out stocks right now"),
++                 ("lusJ1m-J0Mc", ["lusJ1m-J0Mc:33490-67150", "lusJ1m-J0Mc:146350-200300"], "investors are getting "
++                  "nervous about how much these companies are spending on AI compared with what they're actually earning."),
++                 ("W2LIxB2kAH0", ["W2LIxB2kAH0:2494720-2525589"], "if those higher interest rates continue to bite "
++                  "into the AI into AI's capability to continue financing")],
++            13: [("36HPi9UZPOc", ["36HPi9UZPOc:32719-64149", "36HPi9UZPOc:64159-94310"], Q_YAHOO),
++                 ("lusJ1m-J0Mc", ["lusJ1m-J0Mc:67150-105440"],
++                  "U.S. Bitcoin ETFs had about $1.3 billion in net outflows just last week.")],
++            19: [("_cGepHL1Rf0", ["_cGepHL1Rf0:60210-95730"], "Strategy purchased 1,036 Bitcoin, taking them over 850,000 Bitcoin.")],
++            20: [("36HPi9UZPOc", ["36HPi9UZPOc:32719-64149", "36HPi9UZPOc:64159-94310"], Q_YAHOO)]}
++        order = []
++        for i in range(23):
++            vs = []
++            for vid, chunks, q in real.get(i, []):
++                v = verdict(vid, vid, chunks[0], True, q)
++                v["supporting_chunk_ids"] = chunks
++                vs.append(v)
++            order.append(cand(f"c{i}", vs, 0.5))
++        self.assertEqual(es._same_event_groups(order), [[13, 20]])
++
++
++class TestMergeEvent(unittest.TestCase):
++    """Nov 10 in miniature: each story alone counts ONE channel; merged and re-judged, DataDash counts too."""
++
++    def setUp(self):
++        self.by_cid = {c: {"display_name": c.title(), "channel_id": c} for c in ("yahoo", "natalie", "datadash")}
++        self.uni = [{"video_id": v, "title": f"{v} show", "channel": c, "published_at": "2026-11-09T12:00:00+00:00"}
++                    for v, c in (("YAH", "yahoo"), ("NAT", "natalie"), ("DD", "datadash"))]
++        self.etf = cand("ETFs shed $1.3B", [verdict("YAH", "yahoo", "YAH:1-2", True, Q_YAHOO)], 0.85)
++        self.drop = cand("Bitcoin drops below $74K", [verdict("NAT", "natalie", "NAT:3-4", True, Q_NAT),
++                                                       verdict("YAH", "yahoo", "YAH:1-2", True, Q_YAHOO),
++                                                       verdict("DD", "datadash", "DD:5-6", False, Q_DD, "CURRENT_EVENT")], 0.91)
++
++    def test_merged_candidate_counts_the_rejudged_channel_and_qualifies(self):
++        llm = MergeLLM(on_event=[Q_YAHOO, Q_NAT, Q_DD], second_quote=Q_DD)
++        merged = es._merge_event([self.etf, self.drop], llm, self.uni, self.by_cid, "2026-11-10", lambda s: None)
++        self.assertEqual(merged["origin"], "same_event_merge")
++        self.assertEqual(merged["headline"], "Bitcoin drops below $74K")               # the most important member
++        self.assertEqual(merged["query"]["short_label"], "Bitcoin price dip")         # one derived query
++        self.assertEqual(merged["coverage"]["rejudged_for_merge"], 1)                 # only the not-counted verdict
++        self.assertEqual(sorted(merged["coverage"]["channels"]), ["Datadash", "Natalie", "Yahoo"])
++        self.assertEqual(merged["decision"], "coverage_qualified")
++        for m in (self.etf, self.drop):
++            self.assertTrue(m["decision"].startswith("merged into the same-event candidate"), m["decision"])
++
++    def test_one_verdict_per_video_and_counted_ones_are_kept_without_a_new_call(self):
++        llm = MergeLLM(on_event=[], second_quote=None)                                # the re-judge says UNRELATED
++        merged = es._merge_event([self.etf, self.drop], llm, self.uni, self.by_cid, "2026-11-10", lambda s: None)
++        vids = [v["video_id"] for v in merged["coverage"]["verdicts"]]
++        self.assertEqual(sorted(vids), ["DD", "NAT", "YAH"])                           # pooled, deduplicated
++        self.assertEqual(sorted(merged["coverage"]["channels"]), ["Natalie", "Yahoo"])  # DataDash did not count
++        self.assertEqual(sum(p.startswith("You verify whether") for p in llm.prompts), 1)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_story_ledger.py b/pipeline/test_story_ledger.py
+new file mode 100644
+index 00000000..228357e0
+--- /dev/null
++++ b/pipeline/test_story_ledger.py
+@@ -0,0 +1,111 @@
++#!/usr/bin/env python3
++"""DEC-9: three fresh runs must be three genuinely different stories. A story delivered to the approval chat is
++recorded by its counted evidence statements (pipeline/story_ledger.py); the next auto run never selects an event
++resting on one of them, whatever the story engine calls it this time.
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_story_ledger.py"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++import story_ledger  # noqa: E402
++from test_editorial_robust import FakeLLM, Orchestration, _no_release  # noqa: E402
++from test_same_event_merge import Q_YAHOO, cand, verdict  # noqa: E402
++
++
++def _entry(run, vid, chunks, quote, headline="h"):
++    import story_semantics as sm
++    return {"run": run, "headline": headline, "evidence": [{"video_id": vid, "chunk_ids": chunks, "quote": quote,
++                                                             "quote_tokens": sm._norm(quote).split()}]}
++
++
++class TestDeliveredMatch(unittest.TestCase):
++    def test_same_statement_reworded_headline_is_the_delivered_story(self):
++        led = [_entry("fresh_1", "YAH", ["YAH:1-2"], Q_YAHOO, "Bitcoin ETFs shed $1.3B")]
++        c = cand("Bitcoin falls amid tech selloff", [verdict("YAH", "yahoo", "YAH:1-2", True, Q_YAHOO)], 0.9)
++        self.assertEqual(story_ledger.delivered_match(c, led)["run"], "fresh_1")
++
++    def test_other_statement_or_not_counted_is_not(self):
++        led = [_entry("fresh_1", "YAH", ["YAH:1-2"], Q_YAHOO)]
++        other = cand("Strategy buys", [verdict("YAH", "yahoo", "YAH:1-2", True, "Strategy purchased 1,036 Bitcoin")], 0.9)
++        topic = cand("T", [verdict("YAH", "yahoo", "YAH:1-2", False, Q_YAHOO, "TOPIC_ONLY")], 0.9)
++        self.assertIsNone(story_ledger.delivered_match(other, led))
++        self.assertIsNone(story_ledger.delivered_match(topic, led))
++
++
++class TestRecord(unittest.TestCase):
++    def test_record_is_idempotent_per_run_and_needs_evidence(self):
++        tmp = tempfile.mkdtemp(prefix="ledger_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        run = os.path.join(tmp, "fresh_20261111_120000")
++        os.makedirs(run)
++        ev = _entry("x", "YAH", ["YAH:1-2"], Q_YAHOO)["evidence"]
++        json.dump({"selected": {"headline": "H", "short_label": "s", "underlying_event": "u", "evidence": ev}},
++                  open(os.path.join(run, "TOPIC_SELECTION.json"), "w"))
++        path = os.path.join(tmp, "ledger.jsonl")
++        self.assertEqual(story_ledger.record(run, path)["run"], "fresh_20261111_120000")
++        self.assertIsNone(story_ledger.record(run, path))                      # second call: no new line
++        self.assertEqual(len(story_ledger.entries(path)), 1)
++        json.dump({"selected": {"headline": "H", "evidence": []}}, open(os.path.join(run, "TOPIC_SELECTION.json"), "w"))
++        os.rename(run, run + "b")
++        with self.assertRaises(ValueError):
++            story_ledger.record(run + "b", path)
++
++
++class TestRecordIfApproved(unittest.TestCase):
++    def test_only_an_auto_run_delivered_hold_for_approval_in_both_formats(self):
++        import telegram
++        tmp = tempfile.mkdtemp(prefix="ledger_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        run = os.path.join(tmp, "fresh_20261111_130000")
++        os.makedirs(run)
++        ev = _entry("x", "YAH", ["YAH:1-2"], Q_YAHOO)["evidence"]
++        json.dump({"selected": {"headline": "H", "evidence": ev}}, open(os.path.join(run, "TOPIC_SELECTION.json"), "w"))
++        path = os.path.join(tmp, "ledger.jsonl")
++
++        def dlv(c16, c9, option=None):
++            return {"option": option, "messages": [{"format": "16x9", "caption": c16}, {"format": "9x16", "caption": c9},
++                                                   {"sheet": "contact_sheet_16x9.jpg"}]}
++        ok = telegram.HOLD_OK + " | details"
++        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok), "pinned", path))
++        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, telegram.REVIEW + " - 1 failing"), "auto", path))
++        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok, option="A"), "auto", path))
++        self.assertEqual(story_ledger.entries(path), [])
++        self.assertEqual(story_ledger.record_if_approved(run, dlv(ok, ok), "auto", path)["run"], "fresh_20261111_130000")
++
++
++class TestLedgerInSelection(Orchestration):
++    """The selection harness's 'Democrats win Congress' story qualifies on coverage; once its evidence is in the
++    ledger, the same universe yields no producible story and the record says why."""
++
++    def test_delivered_event_is_excluded_with_its_ledger_run(self):
++        import editorial_select as es
++        path = os.path.join(self.tmp, "ledger.jsonl")
++        with mock.patch.object(story_ledger, "LEDGER", path):
++            with self.assertRaises(es.NoProducibleStory):                     # first pass: qualifies, infra hold
++                self.select(FakeLLM(), release_gpu0_for_whisper=_no_release)
++            c = [c for c in self.topic()["candidates"] if c["headline"].startswith("Democrats")][0]
++            self.assertTrue(c["decision"].startswith("INFRA_HOLD"), c["decision"])
++            import story_semantics as sm
++            ev = [{"video_id": v["video_id"], "chunk_ids": v["supporting_chunk_ids"], "quote": v["evidence_quote"],
++                   "quote_tokens": sm._norm(v["evidence_quote"]).split()}
++                  for v in c["coverage"]["verdicts"] if v["counted_as_same_event"]][:1]
++            with open(path, "w") as f:
++                f.write(json.dumps({"run": "fresh_prev", "headline": "Democrats took Congress", "evidence": ev}) + "\n")
++            with self.assertRaises(es.NoProducibleStory) as cm:
++                self.select(FakeLLM(), release_gpu0_for_whisper=_no_release)
++            self.assertNotIn("infrastructure", str(cm.exception))             # nothing left to transcribe
++            t = self.topic()
++            c = [c for c in t["candidates"] if c["headline"].startswith("Democrats")][0]
++            self.assertTrue(c["decision"].startswith("already delivered (story ledger: fresh_prev"), c["decision"])
++            self.assertEqual(t["story_ledger"]["excluded"][0]["ledger_run"], "fresh_prev")
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_visual_check.py b/pipeline/test_visual_check.py
+index ed08a78d..0f3df23d 100644
+--- a/pipeline/test_visual_check.py
++++ b/pipeline/test_visual_check.py
+@@ -99,6 +99,44 @@ class TestContactSheet(unittest.TestCase):
+         self.assertEqual((w, h), tuple(r["size"]))
+ 
+ 
++class TestLetterboxPerShot(unittest.TestCase):
++    """E-FAIL-022 follow-up: the letterbox line is asked ONE frame per shot; any 'yes' / no answer on a non-screen
++    shot fails; a screen shot (DEC-2: letterbox by design) is not asked."""
++
++    def check(self, answers, frames):
++        from unittest import mock
++        it = iter(answers)
++        with mock.patch.object(V, "ask_letterbox", side_effect=lambda path, model: next(it)):
++            return V.letterbox_check(frames)
++
++    def test_rules(self):
++        th = {"label": "clip_01", "shot": 0, "class": "single", "path": "f.jpg"}
++        scr = {"label": "hook", "shot": 0, "class": "screen", "path": "s.jpg"}
++        self.assertTrue(self.check(["no", "no"], [scr, th])[0])                 # screen never asked
++        self.assertFalse(self.check(["no", "yes"], [th])[0])                    # one model says letterboxed
++        self.assertFalse(self.check([None, "no"], [th])[0])                     # no clear answer
++        self.assertFalse(self.check([], [{**th, "path": None}])[0])             # no frame
++        ok, rows = self.check(["no", "no", "yes", "no"], [th, {**th, "shot": 1}])
++        self.assertEqual((ok, [r["ok"] for r in rows]), (False, [True, False]))
++
++    def test_one_frame_per_shot_outside_any_dissolve(self):
++        tmp = tempfile.mkdtemp(prefix="shots_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        final = os.path.join(tmp, "v.mp4")
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=1080x1920:r=24:d=10",
++                        "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", final], check=True)
++        segs = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 4.0},
++                {"label": "clip_01", "type": "talking_head", "start": 3.75, "end": 8.0},
++                {"label": "shoutout", "type": "shoutout", "start": 8.0, "end": 10.0}]
++        layout = {"hook": {"shots": [{"start": 0.0, "end": 3.5, "class": "single"},
++                                     {"start": 3.5, "end": 4.25, "class": "screen"}]}}
++        fr = V.shot_frames(final, segs, layout, os.path.join(tmp, "w"))
++        self.assertEqual([(f["label"], f["shot"], f["class"]) for f in fr],
++                         [("hook", 0, "single"), ("hook", 1, "screen"), ("clip_01", 0, "unknown")])
++        self.assertEqual([f["t"] for f in fr], [1.75, round(3.75 - 1 / 24, 3), 5.875])   # mid 3.875: in the dissolve
++        self.assertTrue(all(f["path"] and os.path.exists(f["path"]) for f in fr))
++
++
+ class TestSheetWiring(unittest.TestCase):
+     """Heimdall batch 3 (verify_pack): a run copied for a transition option carries the previous render's
+     qa/contact_sheet_*.jpg. If the new sheet cannot be built, the panel must not read the old one: the old
+@@ -150,5 +188,24 @@ class TestVisionMustFail(unittest.TestCase):
+                         f"held, but not for D4/D5: {json.dumps(per, default=str)[:2000]}")
+ 
+ 
++    def test_yesterdays_letterboxed_talking_head_fails_and_a_reframed_one_passes(self):
++        """D5 must-fail on the fixture's full-resolution clip_02 panel (Scott Melker in a band, blurred copy above
++        and below); control: the same speaker cropped to fill the frame (what DEC-5's reframe produces)."""
++        from PIL import Image
++        self.assertTrue(os.path.exists(SHEET_NOV10), f"must-fail fixture missing: {SHEET_NOV10}")
++        tmp = tempfile.mkdtemp(prefix="lbox_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        sheet = Image.open(SHEET_NOV10)
++        W, H = sheet.size
++        panel = sheet.crop((W - 1080, H - 1920, W, H))                 # the last full-res panel: clip_02
++        lb, rf = os.path.join(tmp, "melker_letterbox.jpg"), os.path.join(tmp, "melker_reframed.jpg")
++        panel.save(lb, quality=92)
++        panel.crop((540 - 172, 655, 540 + 171, 1265)).resize((1080, 1920)).save(rf, quality=92)
++        ok, rows = V.letterbox_check([{"label": "clip_02", "shot": 0, "class": "single", "path": lb}])
++        self.assertFalse(ok, rows)
++        ok, rows = V.letterbox_check([{"label": "clip_02", "shot": 0, "class": "single", "path": rf}])
++        self.assertTrue(ok, rows)
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/pipeline/verify_pack.py b/pipeline/verify_pack.py
+index ab389d0d..c7fdc98d 100644
+--- a/pipeline/verify_pack.py
++++ b/pipeline/verify_pack.py
+@@ -120,8 +120,21 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
+             except Exception as e:
+                 pack["visual"][fmt] = {"ok": False, "error": f"vision route: {type(e).__name__}: {e}"}
+         v = pack["visual"][fmt]
++        if fmt == "9x16" and "error" not in pack["contact_sheets"][fmt]:
++            try:                                        # letterbox asked ONE frame per shot (E-FAIL-022)
++                lp = os.path.join(run_dir, "VERTICAL_LAYOUT.json")
++                layout = json.load(open(lp)) if os.path.exists(lp) else {}
++                lb_ok, lb_rows = VC.letterbox_check(VC.shot_frames(
++                    os.path.join(run_dir, "out", final), segs, layout, os.path.join(run_dir, "VERIFY", "shots_9x16")))
++            except Exception as e:
++                lb_ok, lb_rows = False, [{"error": f"{type(e).__name__}: {e}"}]
++            v["letterbox_per_shot"] = {"ok": lb_ok, "shots": lb_rows}
++            v["ok"] = v["ok"] and lb_ok
+         nos = sorted({k for d in (v.get("per_model") or {}).values() for k, r in (d.get("rows") or {}).items()
+                       if not r.get("ok")})
++        if not (v.get("letterbox_per_shot") or {"ok": True})["ok"]:
++            bad = [f"{r.get('label')}#{r.get('shot')}" for r in v["letterbox_per_shot"]["shots"] if not r.get("ok")]
++            nos.append(f"letterbox per shot: {', '.join(bad)}")
+         rep.setdefault("rows", {}).setdefault(fmt, {})["V1_visual_checklist"] = \
+             "PASS" if v["ok"] else f"FAIL ({v.get('error') or 'no/missing: ' + ', '.join(nos)})"
+     if vision:
+diff --git a/pipeline/visual_check.py b/pipeline/visual_check.py
+index b6d1eea9..1d260a57 100644
+--- a/pipeline/visual_check.py
++++ b/pipeline/visual_check.py
+@@ -143,41 +143,56 @@ def _key():
+         raise RuntimeError("vision route not configured: HEIMDALL_API_KEY not found in the repo .env") from None
+ 
+ 
+-def _parse(content):
+-    """The first JSON object in the reply that carries "answers" (prose or more braces around it are
+-    ignored); None when there is none."""
++def _first_json(content, key):
++    """The first JSON object in a reply that carries `key` (prose or more braces around it are ignored)."""
+     dec, s = json.JSONDecoder(), content or ""
+     for m in re.finditer(r"\{", s):
+         try:
+             obj, _ = dec.raw_decode(s, m.start())
+         except json.JSONDecodeError:
+             continue
+-        if isinstance(obj, dict) and "answers" in obj:
+-            return obj["answers"]
++        if isinstance(obj, dict) and key in obj:
++            return obj
+     return None
+ 
+ 
+-def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2):
+-    """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
+-    unparseable reply is retried once, then answers = {} (every line missing = HOLD, never a crash)."""
++def _parse(content):
++    """The checklist answers of a reply; None when there are none."""
++    return (_first_json(content, "answers") or {}).get("answers")
++
++
++def _request(image_path, text, model):
++    """One Heimdall vision request: a JPEG and a question."""
+     import urllib.request
+-    img = base64.b64encode(open(sheet_path, "rb").read()).decode()
+-    qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
+-    text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", questions=qs, keys=[k for k, _ in CHECKLIST])
++    img = base64.b64encode(open(image_path, "rb").read()).decode()
+     body = {"model": model, "temperature": 0, "max_tokens": 16000, "reasoning": {"effort": "low"},
+             "messages": [{"role": "user", "content": [{"type": "text", "text": text},
+                                                       {"type": "image_url",
+                                                        "image_url": {"url": f"data:image/jpeg;base64,{img}"}}]}]}
+-    req = urllib.request.Request(f"{VISION_BASE}/chat/completions", data=json.dumps(body).encode(),
+-                                 headers={"Authorization": f"Bearer {_key()}", "Content-Type": "application/json"})
++    return urllib.request.Request(f"{VISION_BASE}/chat/completions", data=json.dumps(body).encode(),
++                                  headers={"Authorization": f"Bearer {_key()}", "Content-Type": "application/json"})
++
++
++def _call(req, timeout):
++    """(content, raw) of one vision call; raises on a route error (callers retry, then HOLD)."""
++    import urllib.request
++    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
++    return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
++
++
++def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2):
++    """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
++    unparseable reply or a route error is retried, then answers = {} (every line missing = HOLD, never a crash)."""
++    qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
++    text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", questions=qs, keys=[k for k, _ in CHECKLIST])
++    req = _request(sheet_path, text, model)
+     tries = []
+     for _ in range(attempts):
+         try:
+-            raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
++            content, raw = _call(req, timeout)
+         except Exception as e:                      # network / HTTP / bad body: retried, then no answer = HOLD
+             tries.append({"error": f"{type(e).__name__}: {e}"[:500]})
+             continue
+-        content = (raw.get("choices") or [{}])[0].get("message", {}).get("content") or ""
+         tries.append({"finish_reason": (raw.get("choices") or [{}])[0].get("finish_reason"), "content": content[:4000]})
+         answers = _parse(content)
+         if isinstance(answers, dict):
+@@ -202,3 +217,68 @@ def verdict(answers, fmt):
+         rows[k] = {"answer": a or "missing", "why": val.get("why", ""),
+                    "ok": a == "yes" or (a == "n/a" and allowed_na)}
+     return all(r["ok"] for r in rows.values()), rows
++
++
++# ── letterbox, ONE frame per shot (06:50 ET: asked about the whole sheet, both models missed yesterday's
++#    letterboxed talking heads; asked about one frame, both answered right; E-FAIL-022) ──
++
++LETTERBOX_PROMPT = """This is ONE frame of a vertical (9:16) news video. Look at how the picture is laid out from top to
++bottom. Question: is the SHARP picture only a horizontal band across the middle of the frame, with a BLURRED (or
++black) enlarged copy of the image filling the areas above and below that band? (This is called a letterbox.)
++Reply with JSON only: {"letterboxed": "yes|no", "why": "..."}"""
++
++
++def shot_frames(final, segments, layout, work_dir):
++    """One full-resolution frame from the middle of every shot of every 9:16 talking-head segment, with the
++    shot's class from VERTICAL_LAYOUT.json (shot times are relative to the segment's prepared clip, whose first
++    frame is the segment's start in the final); a frame inside a dissolve is moved out of it. A segment without
++    a measured layout is one shot of class 'unknown' (asked like a talking head)."""
++    os.makedirs(work_dir, exist_ok=True)
++    out = []
++    for i, s in enumerate(segments):
++        if s.get("type") != "talking_head":
++            continue
++        lo = max(s["start"], segments[i - 1]["end"] if i else s["start"]) + 1.0 / FPS
++        hi = min(s["end"], segments[i + 1]["start"] if i + 1 < len(segments) else s["end"]) - 1.0 / FPS
++        shots = (layout.get(s["label"]) or {}).get("shots") or \
++            [{"start": 0.0, "end": s["end"] - s["start"], "class": "unknown"}]
++        for k, sh in enumerate(shots):
++            t = min(max(s["start"] + (sh["start"] + sh["end"]) / 2, lo), hi)
++            out.append({"label": s["label"], "shot": k, "t": round(t, 3), "class": sh.get("class", "unknown"),
++                        "path": _grab(final, t, os.path.join(work_dir, f"shot_{s['label']}_{k}.jpg"))})
++    return out
++
++
++def ask_letterbox(path, model, timeout=600, attempts=2):
++    """'yes' / 'no' from one model about one frame, or None (no clear answer after the retries)."""
++    req = _request(path, LETTERBOX_PROMPT, model)
++    for _ in range(attempts):
++        try:
++            content, _raw = _call(req, timeout)
++        except Exception:                           # route error: retried, then no answer
++            continue
++        a = str((_first_json(content, "letterboxed") or {}).get("letterboxed", "")).strip().lower()
++        if a in ("yes", "no"):
++            return a
++    return None
++
++
++def letterbox_check(frames):
++    """Every non-screen shot asked of every VISION_MODEL. Letterboxed 'yes', no answer, a missing frame or an
++    error from ANY model fails the line (fail closed). A screen shot is letterboxed by design (DEC-2) and is
++    not asked."""
++    rows, ok = [], True
++    for f in frames:
++        if f["class"] == "screen":
++            rows.append({**f, "asked": False, "ok": True, "why": "layout=screen: letterbox by design (DEC-2)"})
++            continue
++        ans, err = {}, None
++        for m in VISION_MODELS:
++            try:
++                ans[m] = ask_letterbox(f["path"], m) if f["path"] else None
++            except Exception as e:                  # e.g. the route is not configured
++                ans[m], err = None, f"{type(e).__name__}: {e}"
++        good = all(a == "no" for a in ans.values())
++        ok = ok and good
++        rows.append({**f, "asked": True, "answers": ans, "ok": good, **({"error": err} if err else {})})
++    return ok, rows
+diff --git a/scripts/pulse_check_run.sh b/scripts/pulse_check_run.sh
+index 08f06e23..526d1964 100755
+--- a/scripts/pulse_check_run.sh
++++ b/scripts/pulse_check_run.sh
+@@ -14,6 +14,9 @@
+ #   only (pipeline/telegram.deliver_run): "HOLD FOR APPROVAL - all gates passed, no waivers" or
+ #   "REVIEW ONLY" with the failing list.
+ # - log: logs/pulse_check/run_<stamp>.log (git HEAD, run dir, exit code, delivery message ids)
++# - DEC-9 story ledger: an AUTO run whose two finals went out as HOLD FOR APPROVAL is recorded in
++#   data/pulse_check/story_ledger.jsonl (its counted evidence statements); later auto runs never select an
++#   event resting on one of them (pipeline/story_ledger.py)
+ # Exit (--foreground, and in the log): run_fresh's code (0 = every gate passed, 3 = HOLD), 70 = the run
+ # rendered but the Telegram drop failed, 75 = locked, 64 = usage. The detached launcher exits 0 once the
+ # tmux session is up (1 if tmux failed, 75 if a run already holds the lock); the run's code is in the log.
+@@ -24,12 +27,13 @@ STAMP="$(date -u +%Y%m%d_%H%M%S)"
+ 
+ FOREGROUND=0
+ TELEGRAM=1
++MODE=auto                     # DEC-9: only an AUTO run delivered HOLD FOR APPROVAL enters the story ledger
+ ARGS=()
+ ORIG=("$@")
+ while [ $# -gt 0 ]; do
+   case "$1" in
+     --pinned) [ $# -ge 2 ] && [ -f "$2" ] || { echo "usage: --pinned PIN.json (file must exist)" >&2; exit 64; }
+-              ARGS+=(--pinned "$(realpath "$2")"); shift 2 ;;
++              ARGS+=(--pinned "$(realpath "$2")"); MODE=pinned; shift 2 ;;
+     --no-telegram) TELEGRAM=0; shift ;;
+     --foreground) FOREGROUND=1; shift ;;
+     *) echo "unknown argument: $1" >&2; exit 64 ;;
+@@ -70,8 +74,8 @@ RUN_DIR="$(grep -m1 -oP '(?<==== FRESH-TOPIC RUN ).*(?= ===)' "$LOG" || true)"
+ echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
+ 
+ if [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
+-  python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
+-    "$RUN_DIR" 2>&1 | tee -a "$LOG"
++  python3 -c "import sys, telegram, story_ledger; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']]); e = story_ledger.record_if_approved(sys.argv[1], r, sys.argv[2]); print('story ledger:', 'recorded ' + e['run'] if e else 'not recorded (pinned, review-only or option)')" \
++    "$RUN_DIR" "$MODE" 2>&1 | tee -a "$LOG"
+   if [ "${PIPESTATUS[0]}" != 0 ]; then
+     echo "pulse_check_run: Telegram delivery FAILED (see above); run dir $RUN_DIR" | tee -a "$LOG"
+     exit 70
