@@ -43,7 +43,7 @@ def record(run_dir, path=None):
     if not sel.get("evidence"):
         raise ValueError(f"{run_id}: selected story carries no counted evidence; nothing identifies it")
     e = {"run": run_id, "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-         "headline": sel["headline"], "short_label": sel.get("short_label"),
+         "headline": sel.get("headline"), "short_label": sel.get("short_label"),
          "underlying_event": sel.get("underlying_event"), "evidence": sel["evidence"]}
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "a") as f:

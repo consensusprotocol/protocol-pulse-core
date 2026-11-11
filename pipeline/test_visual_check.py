@@ -106,7 +106,7 @@ class TestLetterboxPerShot(unittest.TestCase):
     def check(self, answers, frames):
         from unittest import mock
         it = iter(answers)
-        with mock.patch.object(V, "ask_letterbox", side_effect=lambda path, model: next(it)):
+        with mock.patch.object(V, "ask_letterbox", side_effect=lambda path, model, **kw: next(it)):
             return V.letterbox_check(frames)
 
     def test_rules(self):
@@ -118,6 +118,25 @@ class TestLetterboxPerShot(unittest.TestCase):
         self.assertFalse(self.check([], [{**th, "path": None}])[0])             # no frame
         ok, rows = self.check(["no", "no", "yes", "no"], [th, {**th, "shot": 1}])
         self.assertEqual((ok, [r["ok"] for r in rows]), (False, [True, False]))
+        from unittest import mock
+        with mock.patch.object(V, "VISION_MODELS", ()):                     # audit 4: no model = no answer
+            self.assertFalse(self.check([], [th])[0])
+
+    def test_retries_exhausted_is_no_answer_with_the_trail(self):
+        """Audit 4 (cross-LLM 7): every attempt fails or is unclear -> None (= FAIL), each attempt recorded."""
+        from unittest import mock
+        import urllib.error
+        replies = iter([urllib.error.URLError("down"), ("I think it might be", {})])
+
+        def call(req, timeout):
+            r = next(replies)
+            if isinstance(r, Exception):
+                raise r
+            return r
+        trail = []
+        with mock.patch.object(V, "_request", return_value=None), mock.patch.object(V, "_call", side_effect=call):
+            self.assertIsNone(V.ask_letterbox("f.jpg", "m", trail=trail))
+        self.assertEqual([("error" in t, t.get("answer")) for t in trail], [(True, None), (False, "unparseable")])
 
     def test_one_frame_per_shot_outside_any_dissolve(self):
         tmp = tempfile.mkdtemp(prefix="shots_")
