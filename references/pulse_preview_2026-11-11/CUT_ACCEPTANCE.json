@@ -1,0 +1,97 @@
+[
+  {
+    "clip_id": "hook",
+    "video_id": "RXTVaDsN11M",
+    "cut_in": 0.03,
+    "cut_out": 9.33,
+    "cut_duration": 9.3,
+    "verified": true,
+    "speech_median_db": -29.1,
+    "out": {
+      "pass": true,
+      "pause_start": 9.3,
+      "pause_end": 9.39,
+      "gap_after_ms": 60,
+      "quiet_db": -54.1
+    },
+    "in": {
+      "pass": true,
+      "note": "cut_in at file start"
+    },
+    "pass": true
+  },
+  {
+    "clip_id": "clip_01",
+    "video_id": "lusJ1m-J0Mc",
+    "cut_in": 68.38,
+    "cut_out": 80.84,
+    "cut_duration": 12.46,
+    "verified": true,
+    "speech_median_db": -19.7,
+    "out": {
+      "pass": null,
+      "m19": {
+        "pass": false,
+        "reason": "cut_out not inside a genuine pause with >=60 ms ahead",
+        "quiet_db": -44.7,
+        "nearby_pauses": []
+      },
+      "deferred_to": "G16 neighbour_clear (DEC-10 c-ii)"
+    },
+    "in": {
+      "pass": true,
+      "lookback_min_db": -34.9,
+      "loud_db": -31.7
+    },
+    "pass": true
+  },
+  {
+    "clip_id": "clip_02",
+    "video_id": "36HPi9UZPOc",
+    "cut_in": 38.2,
+    "cut_out": 57.37,
+    "cut_duration": 19.17,
+    "verified": true,
+    "speech_median_db": -13.6,
+    "out": {
+      "pass": true,
+      "pause_start": 57.08,
+      "pause_end": 57.43,
+      "gap_after_ms": 60,
+      "quiet_db": -38.6
+    },
+    "in": {
+      "pass": null,
+      "m19": {
+        "pass": false,
+        "lookback_min_db": -18.4,
+        "loud_db": -25.6,
+        "reason": "cut_in inside continuous speech (no boundary dip in prior 100 ms)"
+      },
+      "deferred_to": "G16 neighbour_clear (DEC-10 c-ii)"
+    },
+    "pass": true
+  },
+  {
+    "clip_id": "clip_03",
+    "video_id": "jbDqdLytkNM",
+    "cut_in": 14.94,
+    "cut_out": 31.79,
+    "cut_duration": 16.85,
+    "verified": true,
+    "speech_median_db": -14.0,
+    "out": {
+      "pass": true,
+      "pause_start": 31.82,
+      "pause_end": 32.01,
+      "gap_after_ms": 220,
+      "quiet_db": -39.0
+    },
+    "in": {
+      "pass": true,
+      "lookback_min_db": -60.3,
+      "loud_db": -26.0
+    },
+    "pass": true
+  }
+]

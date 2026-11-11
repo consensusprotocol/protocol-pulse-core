@@ -1,0 +1,234 @@
+{
+  "topic": "Bitcoin price dip",
+  "angle": "Pinned: Bitcoin fell sharply over the weekend (below about $74,000) alongside a tech selloff",
+  "hook": {
+    "video_id": "RXTVaDsN11M",
+    "channel": "DataDash",
+    "handle": "@DataDash",
+    "video_title": "",
+    "text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.",
+    "first_word": "Bitcoin",
+    "last_word": "take.",
+    "word_start": 0.0,
+    "word_end": 9.08,
+    "duration": 9.08,
+    "time_coords": "source_file",
+    "source_window_offset_s": 0.0,
+    "pinned": {
+      "start": 0.0,
+      "end": 9.08,
+      "input_start": 0.0,
+      "input_end": 9.08,
+      "input_time_coords": "source_file"
+    },
+    "cut_out": 9.08,
+    "fade_out_ms": 30,
+    "selection_lock": {
+      "schema": "pulse.selection_lock.v1",
+      "video_id": "RXTVaDsN11M",
+      "transcript_sha256": "1664491b3bb3b096c04c1187fa5f266d61f3e7a305da27597a63c03eb66f9665",
+      "i0": 0,
+      "i1": 24,
+      "first_word": "Bitcoin",
+      "last_word": "take.",
+      "text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.",
+      "n_words": 25,
+      "selected_text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.",
+      "selected_window": [
+        0.0,
+        9.08
+      ],
+      "align_ratio": 1.0,
+      "created_by": "pinned approved_text",
+      "sha256": "19e4fde8f1708338fce34e7dc432d5b4b5935adcf3c6516078dd4c62182613b3"
+    },
+    "vertical_layout": {
+      "shots": [
+        {
+          "start": 0.0,
+          "end": 9.584,
+          "class": "screen",
+          "flagged": true
+        }
+      ],
+      "flagged": true
+    }
+  },
+  "clips": [
+    {
+      "video_id": "lusJ1m-J0Mc",
+      "channel": "Natalie Brunell",
+      "handle": "@nataliebrunell",
+      "video_title": "",
+      "text": "It went from above $81 ,000 after the election to below $75 ,000 by the weekend. U .S. Bitcoin ETFs had about $1 .3 billion in net outflows just last week. And Bitcoin really hasn't participated in the Monday rally.",
+      "first_word": "It",
+      "last_word": "rally.",
+      "word_start": 68.44,
+      "word_end": 80.78,
+      "duration": 12.34,
+      "time_coords": "source_file",
+      "source_window_offset_s": 0.0,
+      "pinned": {
+        "start": 68.44,
+        "end": 80.78,
+        "input_start": 68.44,
+        "input_end": 80.78,
+        "input_time_coords": "source_file"
+      },
+      "cut_out": 80.78,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "lusJ1m-J0Mc",
+        "transcript_sha256": "9517b615f6b5a5ed9ce23ba3539aa75a0de7822640ee4bb0642cf47987cb75df",
+        "i0": 212,
+        "i1": 251,
+        "first_word": "It",
+        "last_word": "rally.",
+        "text": "It went from above $81 ,000 after the election to below $75 ,000 by the weekend. U .S. Bitcoin ETFs had about $1 .3 billion in net outflows just last week. And Bitcoin really hasn't participated in the Monday rally.",
+        "n_words": 40,
+        "selected_text": "It went from above $81 ,000 after the election to below $75 ,000 by the weekend. U .S. Bitcoin ETFs had about $1 .3 billion in net outflows just last week. And Bitcoin really hasn't participated in the Monday rally.",
+        "selected_window": [
+          68.44,
+          80.78
+        ],
+        "align_ratio": 1.0,
+        "created_by": "pinned approved_text",
+        "sha256": "f6315d31078688347440abf5c270a207eec0cff6d1f17fa44b965c14cd3891bd"
+      },
+      "index": 1,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 5.125,
+            "class": "screen",
+            "flagged": true
+          },
+          {
+            "start": 5.125,
+            "end": 12.5,
+            "class": "single",
+            "flagged": false
+          }
+        ],
+        "flagged": true
+      }
+    },
+    {
+      "video_id": "36HPi9UZPOc",
+      "channel": "Yahoo Finance",
+      "handle": "@YahooFinance",
+      "video_title": "",
+      "text": "Of course, Bitcoin dropped pretty massively over the weekend alongside the tech sell -off that we saw, the Democrat blue wave, the Binance hack. But I don't check it on an hourly basis. It seemed to have bounced very nicely at a very key level around $74 ,000, around the 50 -weekly MA, which we've talked about many times.",
+      "first_word": "Of",
+      "last_word": "times.",
+      "word_start": 38.2,
+      "word_end": 56.9,
+      "duration": 18.7,
+      "time_coords": "source_file",
+      "source_window_offset_s": 0.0,
+      "pinned": {
+        "start": 38.2,
+        "end": 56.9,
+        "input_start": 38.2,
+        "input_end": 56.9,
+        "input_time_coords": "source_file"
+      },
+      "cut_out": 56.9,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "36HPi9UZPOc",
+        "transcript_sha256": "6bf209441926b4100c6fb72adecbc1319fcfb4f225639b9fc73be1c0b65a3c15",
+        "i0": 76,
+        "i1": 134,
+        "first_word": "Of",
+        "last_word": "times.",
+        "text": "Of course, Bitcoin dropped pretty massively over the weekend alongside the tech sell -off that we saw, the Democrat blue wave, the Binance hack. But I don't check it on an hourly basis. It seemed to have bounced very nicely at a very key level around $74 ,000, around the 50 -weekly MA, which we've talked about many times.",
+        "n_words": 59,
+        "selected_text": "Of course, Bitcoin dropped pretty massively over the weekend alongside the tech sell -off that we saw, the Democrat blue wave, the Binance hack. But I don't check it on an hourly basis. It seemed to have bounced very nicely at a very key level around $74 ,000, around the 50 -weekly MA, which we've talked about many times.",
+        "selected_window": [
+          38.2,
+          56.9
+        ],
+        "align_ratio": 1.0,
+        "created_by": "pinned approved_text",
+        "sha256": "d72b46e107b5a08700f41c87463f6dca1d77bc791f6fa66deba62f9494fa7b05"
+      },
+      "index": 2,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 19.209,
+            "class": "single",
+            "flagged": false
+          }
+        ],
+        "flagged": false
+      }
+    },
+    {
+      "video_id": "jbDqdLytkNM",
+      "channel": "Bitcoin Magazine",
+      "handle": "@BitcoinMagazine",
+      "video_title": "",
+      "text": "Last night was Bitcoin's first weekly close below the 50 -week moving average since September. The 50 -week was around $75 ,500, and Bitcoin closed around $74 ,700, just 1 % below the line. But one percent is still a miss.",
+      "first_word": "Last",
+      "last_word": "miss.",
+      "word_start": 14.68,
+      "word_end": 31.34,
+      "duration": 16.66,
+      "time_coords": "source_file",
+      "source_window_offset_s": 0.0,
+      "pinned": {
+        "start": 14.68,
+        "end": 31.34,
+        "input_start": 14.68,
+        "input_end": 31.34,
+        "input_time_coords": "source_file"
+      },
+      "cut_out": 31.34,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "jbDqdLytkNM",
+        "transcript_sha256": "3a0d34bf4bed9348abcec6cdcbf1c5cf926ddfba58d748985e4ecf042645c578",
+        "i0": 45,
+        "i1": 85,
+        "first_word": "Last",
+        "last_word": "miss.",
+        "text": "Last night was Bitcoin's first weekly close below the 50 -week moving average since September. The 50 -week was around $75 ,500, and Bitcoin closed around $74 ,700, just 1 % below the line. But one percent is still a miss.",
+        "n_words": 41,
+        "selected_text": "Last night was Bitcoin's first weekly close below the 50 -week moving average since September. The 50 -week was around $75 ,500, and Bitcoin closed around $74 ,700, just 1 % below the line. But one percent is still a miss.",
+        "selected_window": [
+          14.68,
+          31.34
+        ],
+        "align_ratio": 1.0,
+        "created_by": "pinned approved_text",
+        "sha256": "1a32857fc017c7747f013fc53b56dd0e2a78aa7630e3d11dd71ccdb70b656d4f"
+      },
+      "index": 3,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 16.875,
+            "class": "screen",
+            "flagged": true
+          }
+        ],
+        "flagged": true
+      }
+    }
+  ],
+  "vo": {
+    "intro": null,
+    "bridges": []
+  },
+  "total_clip_duration": 56.78,
+  "mode": "pinned",
+  "pinned_story_id": "nov10_recut_dec10_20261111"
+}

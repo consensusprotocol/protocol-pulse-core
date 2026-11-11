@@ -1,0 +1,262 @@
+{
+  "16x9": {
+    "outro": "/home/ultron/protocol_pulse/brand/2026-11/conformed/outro_16x9_7c2cc7ae6efa9b27.mp4",
+    "gop_phase_runs": [
+      {
+        "phase_frames": 0,
+        "luma": 14.292,
+        "frames": [
+          14.1101,
+          14.2986,
+          14.4674
+        ]
+      },
+      {
+        "phase_frames": 50,
+        "luma": 14.3251,
+        "frames": [
+          14.1471,
+          14.3404,
+          14.4877
+        ]
+      },
+      {
+        "phase_frames": 100,
+        "luma": 14.311,
+        "frames": [
+          14.1214,
+          14.3172,
+          14.4943
+        ]
+      },
+      {
+        "phase_frames": 150,
+        "luma": 14.3188,
+        "frames": [
+          14.1471,
+          14.3404,
+          14.4688
+        ]
+      },
+      {
+        "phase_frames": 200,
+        "luma": 14.3358,
+        "frames": [
+          14.1574,
+          14.3531,
+          14.4969
+        ]
+      }
+    ],
+    "gop_phase_spread": 0.0438,
+    "card_runs": [
+      {
+        "card": "references/v2f_2026-11-06/run/qa",
+        "luma": 14.308,
+        "frames": [
+          14.1196,
+          14.3154,
+          14.4889
+        ]
+      },
+      {
+        "card": "runs/pinned_20261111_172202/qa",
+        "luma": 14.3342,
+        "frames": [
+          14.1507,
+          14.3411,
+          14.5107
+        ]
+      },
+      {
+        "card": "runs/pinned_20261111_172202_replay_cut1329/qa",
+        "luma": 14.3342,
+        "frames": [
+          14.1507,
+          14.3411,
+          14.5107
+        ]
+      },
+      {
+        "card": "runs/pinned_20261111_123750/qa",
+        "luma": 14.3326,
+        "frames": [
+          14.1471,
+          14.3441,
+          14.5065
+        ]
+      },
+      {
+        "card": "tests/fixtures/pulse_20261110/video",
+        "luma": 14.3278,
+        "frames": [
+          14.1482,
+          14.3416,
+          14.4937
+        ]
+      }
+    ],
+    "card_spread": 0.0262,
+    "real_finals": [
+      {
+        "final": "references/v2f_2026-11-06/run/out/segment.mp4",
+        "luma": 14.3357,
+        "frames": [
+          14.1598,
+          14.3499,
+          14.4973
+        ]
+      },
+      {
+        "final": "runs/pinned_20261111_172202/out/segment.mp4",
+        "luma": 14.3021,
+        "frames": [
+          14.1194,
+          14.3162,
+          14.4707
+        ]
+      },
+      {
+        "final": "runs/pinned_20261111_172202_replay_cut1329_replay_preview/out/segment.mp4",
+        "luma": 14.3002,
+        "frames": [
+          14.1229,
+          14.3106,
+          14.4669
+        ]
+      }
+    ],
+    "spread": 0.0438,
+    "spread_rounded": 0.05
+  },
+  "9x16": {
+    "outro": "/home/ultron/protocol_pulse/brand/2026-11/conformed/outro_9x16_48d114daab327aa9.mp4",
+    "gop_phase_runs": [
+      {
+        "phase_frames": 0,
+        "luma": 14.7683,
+        "frames": [
+          14.7526,
+          14.7747,
+          14.7777
+        ]
+      },
+      {
+        "phase_frames": 50,
+        "luma": 14.7707,
+        "frames": [
+          14.7583,
+          14.776,
+          14.7777
+        ]
+      },
+      {
+        "phase_frames": 100,
+        "luma": 14.7709,
+        "frames": [
+          14.7563,
+          14.7772,
+          14.7791
+        ]
+      },
+      {
+        "phase_frames": 150,
+        "luma": 14.7753,
+        "frames": [
+          14.7583,
+          14.776,
+          14.7914
+        ]
+      },
+      {
+        "phase_frames": 200,
+        "luma": 14.7715,
+        "frames": [
+          14.7585,
+          14.7765,
+          14.7796
+        ]
+      }
+    ],
+    "gop_phase_spread": 0.007,
+    "card_runs": [
+      {
+        "card": "references/v2f_2026-11-06/run/qa",
+        "luma": 14.77,
+        "frames": [
+          14.7548,
+          14.7766,
+          14.7784
+        ]
+      },
+      {
+        "card": "runs/pinned_20261111_172202/qa",
+        "luma": 14.7701,
+        "frames": [
+          14.7572,
+          14.775,
+          14.7782
+        ]
+      },
+      {
+        "card": "runs/pinned_20261111_172202_replay_cut1329/qa",
+        "luma": 14.7701,
+        "frames": [
+          14.7572,
+          14.775,
+          14.7782
+        ]
+      },
+      {
+        "card": "runs/pinned_20261111_123750/qa",
+        "luma": 14.7709,
+        "frames": [
+          14.7587,
+          14.7768,
+          14.7771
+        ]
+      },
+      {
+        "card": "tests/fixtures/pulse_20261110/video",
+        "luma": 14.7698,
+        "frames": [
+          14.7572,
+          14.7754,
+          14.777
+        ]
+      }
+    ],
+    "card_spread": 0.0011,
+    "real_finals": [
+      {
+        "final": "references/v2f_2026-11-06/run/out/segment_vertical.mp4",
+        "luma": 14.7715,
+        "frames": [
+          14.7592,
+          14.7768,
+          14.7787
+        ]
+      },
+      {
+        "final": "runs/pinned_20261111_172202/out/segment_vertical.mp4",
+        "luma": 14.7418,
+        "frames": [
+          14.7287,
+          14.7472,
+          14.7496
+        ]
+      },
+      {
+        "final": "runs/pinned_20261111_172202_replay_cut1329_replay_preview/out/segment_vertical.mp4",
+        "luma": 14.7435,
+        "frames": [
+          14.7312,
+          14.7491,
+          14.75
+        ]
+      }
+    ],
+    "spread": 0.0335,
+    "spread_rounded": 0.04
+  }
+}

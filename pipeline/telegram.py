@@ -139,7 +139,7 @@ def gate_status(run_dir):
     return not failing, failing
 
 
-def build_caption(run_dir, fmt, option=None):
+def build_caption(run_dir, fmt, option=None, duration=None):
     """Verdict line first: HOLD FOR APPROVAL only when every gate passed with no waiver AND the
     automated verification pack is complete; otherwise REVIEW ONLY with the failing list."""
     import vertical_layout
@@ -153,7 +153,8 @@ def build_caption(run_dir, fmt, option=None):
     head = HOLD_OK if (ok and pack_ok) else f"{REVIEW} - {len(failing)} failing"
     if option:
         head = f"OPTION {option} (transition choice, not a release candidate) | {head}"
-    lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}",
+    lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}"
+             + (f" | {duration:.1f} s" if duration else ""),
              f"Story: {edl.get('topic', '')}",
              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
     note = vertical_layout.layout_note(edl) if fmt == "9x16" else ""
@@ -190,7 +191,7 @@ def deliver_run(run_dir, option=None, send=None, sheets=True):
         w, h, dur = _dims(path)
         if (w, h) != DIMS[fmt]:
             raise RuntimeError(f"STOP: {fmt} final is {w}x{h}, expected {DIMS[fmt][0]}x{DIMS[fmt][1]}")
-        cap = build_caption(run_dir, fmt, option)
+        cap = build_caption(run_dir, fmt, option, duration=dur)
         mid = send("video", path, {"caption": cap, "width": w, "height": h, "duration": int(round(dur)),
                                    "supports_streaming": "true"})
         record["messages"].append({"format": fmt, "message_id": mid, "caption": cap,
@@ -202,9 +203,44 @@ def deliver_run(run_dir, option=None, send=None, sheets=True):
             mid = send(kind, p, {"caption": f"contact sheet {fmt}: 2 s stills, +-3 frames at every boundary, "
                                             f"full-resolution credits" + (" and segment first frames" if fmt == "9x16" else "")})
             record["messages"].append({"sheet": os.path.basename(p), "message_id": mid, "as": kind})
+    if not option:                          # the publishing kit (orchestrator 2026-11-11 15:30), same thread
+        kit = publish_kit(run_dir)
+        mid = send("message", "", {"text": kit})
+        record["messages"].append({"publish_kit": kit, "message_id": mid})
     with open(os.path.join(run_dir, f"TELEGRAM_DELIVERY{'_' + option if option else ''}.json"), "w") as f:
         json.dump(record, f, indent=2)
     return record
+
+
+ORANGE_HEART = "\U0001F9E1"
+
+
+def publish_kit(run_dir):
+    """Suggested title, a description crediting and linking every source channel (its channel page and the exact
+    video the clip came from), and the first-comment credit line in PBX's fixed format: "credits:" then every
+    creator's @handle, a line break, then the orange heart on its own line. Nothing is published."""
+    import credit_rings
+    with open(os.path.join(run_dir, "edl.json")) as f:
+        edl = json.load(f)
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")) as f:
+        reg = {e.get("display_name"): e for e in json.load(f)}
+    credited = credit_rings.credit_channels(edl)
+    vids = {}
+    for seg in [edl.get("hook") or {}] + list(edl.get("clips") or []):
+        if seg.get("channel") and seg.get("video_id"):
+            vids.setdefault(seg["channel"], [])
+            if seg["video_id"] not in vids[seg["channel"]]:
+                vids[seg["channel"]].append(seg["video_id"])
+    headline = (edl.get("headline") or edl.get("topic") or "").strip().rstrip(".")
+    lines = [f"SUGGESTED TITLE: {headline} | Pulse Check", "", "DESCRIPTION:",
+             f"{headline}. Every clip in this Pulse Check is a creator's own words; go follow them:"]
+    for ch in credited:
+        e = reg.get(ch, {})
+        src = ", ".join(f"https://www.youtube.com/watch?v={v}" for v in vids.get(ch, []))
+        lines.append(f"- {ch} {e.get('yt_handle', '')}: {e.get('url', '')} (clip from {src})")
+    handles = " ".join(reg.get(ch, {}).get("yt_handle") or ch for ch in credited)
+    lines += ["", "FIRST COMMENT:", f"credits: {handles}", ORANGE_HEART]
+    return "\n".join(lines)
 
 
 PHOTO_MAX_BYTES = 9_500_000     # Telegram sendPhoto takes <= 10 MB; the margin keeps a near-limit sheet from a
@@ -230,6 +266,13 @@ def _send_bot_api(kind, path, fields):
     tok, chat = get_key("TELEGRAM_BOT_TOKEN"), get_key("TELEGRAM_CHAT_ID")
     if not tok or not chat:
         raise RuntimeError("STOP: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set")
+    if kind == "message":                   # plain text in the same chat (the publishing kit)
+        resp = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage", data={"chat_id": chat, **fields},
+                             timeout=60)
+        data = resp.json()
+        if not data.get("ok"):
+            raise RuntimeError(f"STOP: Telegram sendMessage failed: {data.get('description')}")
+        return data["result"]["message_id"]
     method, field = {"video": ("sendVideo", "video"), "photo": ("sendPhoto", "photo"),
                      "document": ("sendDocument", "document")}[kind]
     with open(path, "rb") as fh:

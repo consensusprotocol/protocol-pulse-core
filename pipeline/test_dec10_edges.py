@@ -165,7 +165,10 @@ class TestValleyCut(unittest.TestCase):
         cut = L.accepted_cut(self.src, plan, sa=self.sa)
         self.assertIsNotNone(cut)
         self.assertTrue(cut["valley_in"], cut)                # unconditionally the valley path ...
-        self.assertEqual(cut["fade_in_ms"], int(round(L.VALLEY_FADE_S * 1000)))   # ... with the 2-frame fade
+        # ... with a fade that never overlaps the first word (law L-b): 10 ms .. 2 frames, ending by its onset
+        self.assertTrue(10 <= cut["fade_in_ms"] <= int(round(L.VALLEY_FADE_S * 1000)), cut)
+        wb = L.edge_word_bounds(self.sa, plan, cut["cut_in"], cut["cut_out"])
+        self.assertLessEqual(cut["cut_in"] + cut["fade_in_ms"] / 1000, wb["onset"] + 1e-6, (cut, wb))
         self.assertLessEqual(abs(cut["cut_in"] - self.junction), L.HOP_S + 1e-9, (cut["cut_in"], self.junction))
 
     def test_a_given_cut_inside_the_neighbour_word_is_audible(self):
@@ -187,6 +190,7 @@ class TestMixedEdgeAcoustics(unittest.TestCase):
         det = {"in": {"pass": in_pass}, "out": {"pass": out_pass}}
         with mock.patch.object(L, "cut_candidates", return_value=cand), \
                 mock.patch("cut_accept.check_cut_acoustics", return_value=(in_pass and out_pass, det)), \
+                mock.patch.object(L, "edge_fades", return_value=(0.083, 0.083, {})), \
                 mock.patch.object(L, "neighbour_clear", return_value=(True, {})):
             return L.accepted_cut("unused.wav", plan, sa=object())
 
@@ -197,7 +201,7 @@ class TestMixedEdgeAcoustics(unittest.TestCase):
         c = self._accepted(in_pass=False, out_pass=True)
         self.assertIsNotNone(c)
         self.assertEqual((c["valley_in"], c["valley_out"], c["cut_in"], c["cut_out"]), (True, False, 1.0, 5.1))
-        self.assertEqual((c["fade_in_ms"], c["fade_out_ms"]), (83, 30))
+        self.assertEqual((c["fade_in_ms"], c["fade_out_ms"]), (83, 83))   # DEC-12b: every machine edge
 
 
 class TestCutStageValleyEdges(unittest.TestCase):

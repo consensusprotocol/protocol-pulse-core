@@ -126,8 +126,54 @@ def _frame_similarity(frame_a, frame_b):
     return max(0.0, min(1.0, ncc))
 
 
+G14_MIN_CONCLUSIVE = 3      # DEC-12e: conclusive matching samples a segment needs
+
+
+def _g14_measure(final_mp4, source_path, label, out_time, window_s, sr, src_audio, src_audio_start,
+                 ref_src_time, ref_extract_start, tolerance_ms, qa_dir, frames=True):
+    """One G14 sample (the gate's original measurement): PASS / FAIL / HOLD entry."""
+    extract_start = out_time
+    out_audio = _extract_audio_mono(final_mp4, extract_start, window_s, sr)
+    xcorr_off, xcorr_peak = _xcorr_offset(out_audio, src_audio, sr)
+    entry = {"label": label, "output_time": round(out_time, 3), "status": "HOLD"}
+    if xcorr_off is None or xcorr_peak < 0.3:
+        entry["reason"] = f"inconclusive xcorr (peak={xcorr_peak:.3f})"
+        print(f"    HOLD: t={out_time:.3f}s — inconclusive (peak={xcorr_peak:.3f})")
+        return entry
+    matched_src_time = src_audio_start + xcorr_off
+    expected_src_time = ref_src_time + (extract_start - ref_extract_start)
+    delta_ms_val = abs(matched_src_time - expected_src_time) * 1000
+    entry.update(matched_src_s=round(matched_src_time, 3), expected_src_s=round(expected_src_time, 3),
+                 delta_ms=round(delta_ms_val, 1), xcorr_peak=round(xcorr_peak, 4))
+    if delta_ms_val > tolerance_ms:
+        entry["status"] = "FAIL"
+        print(f"    FAIL: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
+              f"(expected={expected_src_time:.3f}s, delta={delta_ms_val:.1f}ms, xcorr={xcorr_peak:.3f})")
+        return entry
+    if not frames:
+        entry["status"] = "PASS"
+        print(f"    PASS: t={out_time:.3f}s -> src={matched_src_time:.3f}s (audio_delta={delta_ms_val:.1f}ms)")
+        return entry
+    out_frame = _extract_frame(final_mp4, out_time, os.path.join(qa_dir, "g14_out_frame.png"))
+    src_frame = _extract_frame(source_path, matched_src_time, os.path.join(qa_dir, "g14_src_frame.png"))
+    sim = _frame_similarity(out_frame, src_frame)
+    entry["frame_sim"] = round(sim, 3) if sim is not None else None
+    if sim is not None and sim >= 0.3:
+        entry["status"] = "PASS"
+        print(f"    PASS: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
+              f"(audio_delta={delta_ms_val:.1f}ms, frame_sim={sim:.3f})")
+    elif sim is not None:
+        entry["status"] = "FAIL"
+        entry["reason"] = f"audio aligned but frame mismatch (sim={sim:.3f})"
+        print(f"    FAIL: t={out_time:.3f}s frame mismatch (audio ok, frame_sim={sim:.3f} < 0.3)")
+    else:
+        entry["reason"] = "frame comparison inconclusive"
+        print(f"    HOLD: t={out_time:.3f}s — frame comparison inconclusive")
+    return entry
+
+
 def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
-             qa_dir=None):
+             qa_dir=None, frames=True):
     """G14: audio-visual alignment (Amendment 1).
 
     For each talking_head segment, samples at joins and every <= 2s inside.
@@ -144,6 +190,10 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
         manifest = json.load(f)
 
     segments = manifest["segments"]
+    # DEC-12e: declared intervals where AV similarity is undefined by design: transition overlaps between
+    # consecutive segments of the timeline map, and VO segments
+    excluded = [(b["start"], a["end"]) for a, b in zip(segments, segments[1:]) if b["start"] < a["end"]] + \
+               [(sg["start"], sg["end"]) for sg in segments if sg.get("type") == "vo"]
     tol_s = tolerance_ms / 1000.0
     sr = 16000
     window_s = 0.5  # audio window for cross-correlation
@@ -195,6 +245,7 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
             details.append({
                 "label": label, "status": "HOLD",
                 "reason": "no source clip for cross-correlation",
+                "segment_verdict": "HOLD", "conclusive_matches": 0, "conclusive_mismatches": 0,
             })
             has_hold = True
             continue
@@ -257,6 +308,7 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
                 details.append({
                     "label": label, "status": "HOLD",
                     "reason": f"cannot validate reference (peak={ref_peak:.3f})",
+                    "segment_verdict": "HOLD", "conclusive_matches": 0, "conclusive_mismatches": 0,
                 })
                 has_hold = True
                 continue
@@ -264,72 +316,53 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
             print(f"    Reference: output {ref_extract_start:.3f}s = source {ref_src_time:.3f}s "
                   f"(using cut_in; xcorr marginal peak={ref_peak:.3f})")
 
-        for offset in sample_offsets:
-            out_time = seg_start + offset
-            # Extract from the same position style (start of window, not centered)
-            # to maintain consistent offset measurement with the reference.
-            extract_start = out_time
-            out_audio = _extract_audio_mono(final_mp4, extract_start, window_s, sr)
+        # DEC-12e (2026-11-11): sample only where the transcript has speech (a word in the 0.5 s window) and
+        # outside declared transition / VO intervals of the timeline map; an inconclusive sample is re-taken
+        # once at the nearest speech point; the segment passes with >= 3 conclusive matching samples and zero
+        # conclusive mismatches, < 3 = HOLD. The xcorr bar (0.3) and the tolerance are unchanged.
+        words = (source_info or {}).get("words")
+        src_at = lambda t: ref_src_time + (t - ref_extract_start)          # output time -> source time
+        out_at = lambda sv: ref_extract_start + (sv - ref_src_time)
 
-            xcorr_off, xcorr_peak = _xcorr_offset(out_audio, src_audio, sr)
+        def speech(t):
+            a = src_at(t)
+            return words is None or any(w["start"] < a + window_s and w["end"] > a for w in words)
 
-            entry = {
-                "label": label,
-                "output_time": round(out_time, 3),
-                "status": "HOLD",
-            }
+        def clear(t):
+            return all(t + window_s <= x0 or t >= x1 for x0, x1 in excluded)
 
-            if xcorr_off is None or xcorr_peak < 0.3:
-                entry["reason"] = f"inconclusive xcorr (peak={xcorr_peak:.3f})"
-                has_hold = True
-                print(f"    HOLD: t={out_time:.3f}s — inconclusive (peak={xcorr_peak:.3f})")
-            else:
-                matched_src_time = src_audio_start + xcorr_off
-                # Expected: ref_src_time shifted by the difference in extraction starts
-                expected_src_time = ref_src_time + (extract_start - ref_extract_start)
-                delta_s = abs(matched_src_time - expected_src_time)
-                delta_ms_val = delta_s * 1000
-
-                entry["matched_src_s"] = round(matched_src_time, 3)
-                entry["expected_src_s"] = round(expected_src_time, 3)
-                entry["delta_ms"] = round(delta_ms_val, 1)
-                entry["xcorr_peak"] = round(xcorr_peak, 4)
-
-                if delta_ms_val <= tolerance_ms:
-                    # Audio aligned — now verify frame matches.
-                    # Extract output frame at out_time and source frame at matched_src_time.
-                    out_frame_path = os.path.join(qa_dir, "g14_out_frame.png")
-                    src_frame_path = os.path.join(qa_dir, "g14_src_frame.png")
-                    out_frame = _extract_frame(final_mp4, out_time, out_frame_path)
-                    src_frame = _extract_frame(source_path, matched_src_time, src_frame_path)
-                    sim = _frame_similarity(out_frame, src_frame)
-                    entry["frame_sim"] = round(sim, 3) if sim is not None else None
-
-                    # Frame similarity > 0.3 means the pictures match
-                    # (threshold accounts for layout transforms, overlays, blurs)
-                    if sim is not None and sim >= 0.3:
-                        entry["status"] = "PASS"
-                        print(f"    PASS: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
-                              f"(audio_delta={delta_ms_val:.1f}ms, frame_sim={sim:.3f})")
-                    elif sim is not None and sim < 0.3:
-                        entry["status"] = "FAIL"
-                        entry["reason"] = f"audio aligned but frame mismatch (sim={sim:.3f})"
-                        all_pass = False
-                        print(f"    FAIL: t={out_time:.3f}s frame mismatch "
-                              f"(audio ok, frame_sim={sim:.3f} < 0.3)")
-                    else:
-                        entry["status"] = "HOLD"
-                        entry["reason"] = "frame comparison inconclusive"
-                        has_hold = True
-                        print(f"    HOLD: t={out_time:.3f}s — frame comparison inconclusive")
-                else:
-                    entry["status"] = "FAIL"
-                    all_pass = False
-                    print(f"    FAIL: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
-                          f"(expected={expected_src_time:.3f}s, delta={delta_ms_val:.1f}ms, "
-                          f"xcorr={xcorr_peak:.3f})")
-
+        lo, hi = seg_start + 0.05, seg_end - window_s - 0.1
+        times = [seg_start + o for o in sample_offsets if speech(seg_start + o) and clear(seg_start + o)]
+        spoken = sorted({round(out_at(w["start"]), 3) for w in (words or []) if lo <= out_at(w["start"]) <= hi})
+        used = list(times)
+        seg_entries = []
+        for out_time in times:
+            entry = _g14_measure(final_mp4, source_path, label, out_time, window_s, sr, src_audio, src_audio_start,
+                                 ref_src_time, ref_extract_start, tolerance_ms, qa_dir, frames)
+            if entry["status"] == "HOLD":
+                alt = [t for t in spoken if clear(t) and all(abs(t - u) >= window_s / 2 for u in used)]
+                if alt:
+                    t2 = min(alt, key=lambda t: abs(t - out_time))
+                    used.append(t2)
+                    entry["superseded_by"] = t2
+                    details.append(entry)
+                    entry = _g14_measure(final_mp4, source_path, label, t2, window_s, sr, src_audio,
+                                         src_audio_start, ref_src_time, ref_extract_start, tolerance_ms, qa_dir,
+                                         frames)
+                    entry["retake_of"] = round(out_time, 3)
+            seg_entries.append(entry)
             details.append(entry)
+        matches = sum(1 for e in seg_entries if e["status"] == "PASS")
+        mismatches = sum(1 for e in seg_entries if e["status"] == "FAIL")
+        verdict = "FAIL" if mismatches else ("PASS" if matches >= G14_MIN_CONCLUSIVE else "HOLD")
+        if verdict == "FAIL":
+            all_pass = False
+        elif verdict == "HOLD":
+            has_hold = True
+        details.append({"label": label, "segment_verdict": verdict, "conclusive_matches": matches,
+                        "conclusive_mismatches": mismatches, "samples": len(seg_entries),
+                        "status": verdict})
+        print(f"    {label}: {matches} conclusive matching, {mismatches} mismatching -> {verdict}")
 
     # VO segments get declared pre-roll — just verify they exist at the right time
     for seg in segments:
@@ -549,3 +582,73 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ── G20: SIGNOFF_NAMES_ALL (law L-a, orchestrator 2026-11-11 15:30) ──
+
+G20_NAME_RATIO = 0.85       # a spoken name matches when a same-length stretch of the transcript (spaces and
+                            # punctuation removed) is this similar to the name or one of its registry aliases
+
+
+def _g20_norm(s):
+    import re
+    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
+
+
+def spoken_channels(transcript, registry, credited=()):
+    """The registry channels whose display name or an alias is heard in `transcript` (spaces and punctuation
+    ignored). A CREDITED channel may match fuzzily (a mis-heard letter or two: 'Natalie Brunel'); any OTHER
+    channel only by an exact match that does not overlap a credited name ('Bitcoin Magazine Pro' is not heard
+    in '... Bitcoin Magazine, go follow ...')."""
+    from difflib import SequenceMatcher
+    t = _g20_norm(transcript)
+    cred = set(credited)
+    heard, spans = set(), []
+    for e in sorted(registry, key=lambda e: e.get("display_name") not in cred):
+        is_cred = e.get("display_name") in cred
+        for name in [e.get("display_name")] + list(e.get("aliases") or []):
+            n = _g20_norm(name)
+            if len(n) < 4:
+                continue
+            i, span = t.find(n), None
+            if i >= 0:
+                span = (i, i + len(n))
+            elif is_cred:
+                best = max(((SequenceMatcher(None, n, t[j:j + len(n)]).ratio(), j)
+                            for j in range(0, max(1, len(t) - len(n) + 1))), default=(0, 0))
+                if best[0] >= G20_NAME_RATIO:
+                    span = (best[1], best[1] + len(n))
+            if span is None or (not is_cred and any(span[0] < b and a < span[1] for a, b in spans)):
+                continue
+            heard.add(e["display_name"])
+            spans.append(span)
+            break
+    return heard
+
+
+def gate_g20(final_mp4, segments, credited, qa_dir, registry=None):
+    """G20 SIGNOFF_NAMES_ALL: transcribe the rendered sign-off (the shoutout segment of the final) and require
+    the spoken set of channel names == the credited set (the card = the EDL's channels, hook first). Fails
+    closed: no shoutout segment, an empty transcript or no credited channels = FAIL."""
+    import json as _json
+    print("\n=== G20: SIGNOFF_NAMES_ALL ===")
+    if registry is None:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")) as f:
+            registry = _json.load(f)
+    sh = next((s for s in segments if s.get("type") == "shoutout" or s.get("label") == "shoutout"), None)
+    if sh is None or not credited:
+        print("  FAIL: no shoutout segment or no credited channels")
+        return False, {"error": "no shoutout segment or no credited channels"}
+    wav = os.path.join(qa_dir, "g20_signoff.wav")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{sh['start']:.3f}", "-t", f"{sh['end'] - sh['start']:.3f}",
+                    "-i", final_mp4, "-ac", "1", "-ar", "16000", wav], check=True, timeout=120)
+    sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
+    import qa_gates
+    text = qa_gates.whisper_segment(wav, qa_dir)
+    heard = spoken_channels(text, registry, credited)
+    want = set(credited)
+    ok = bool(text.strip()) and heard == want
+    print(f"  transcript: {text.strip()[:160]}")
+    print(f"  credited {sorted(want)} | spoken {sorted(heard)} [{'PASS' if ok else 'FAIL'}]")
+    return ok, {"transcript": text.strip(), "credited": sorted(want), "spoken": sorted(heard),
+                "missing": sorted(want - heard), "extra": sorted(heard - want), "pass": ok}

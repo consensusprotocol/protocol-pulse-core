@@ -350,7 +350,7 @@ Theoretical fixes that break in practice are worse than no fix.
 - The 9:16 mirrors the 16:9 shot-for-shot with the horizontal's mixed audio; layouts come from the hand table per source layout, never from a detector; gates G8-G12 measure the output picture, never input metadata; a vertical that fails parity never reaches Telegram.
 - Canonical renderer: `vertical/render_vertical.py` (v1.0 locked 2026-11-04, PBX A+).
 - Layout tables: `vertical/layout_tables/<channel>_<tile_count>.json`. Unknown channel/tile_count falls back to layout "single" on lip-activity face + WARN line.
-- G10 is IMAGE-BASED: Canny edge density + white fraction on bottom 12% band. G12 counts red-ring avatar circles via HoughCircles. G8 floor is per-segment: `60 * (crop_w/1080)^2`.
+- G10 is IMAGE-BASED: Canny edge density + white fraction on bottom 12% band. G12 counts the brand-red ring masks at the card layout positions (DEC-11, pipeline/credit_rings.py). G8 floor is per-segment: `60 * (crop_w/1080)^2`.
 - Audio is extracted from the horizontal final and muxed over the vertical picture — identical by construction.
 - **23a (VO VISUAL SOURCE):** Every VO visual (intro, bridge, signoff) in the 9:16 render MUST use the vertical's own composited frame as background — never the raw 16:9 source frame. The vertical composited frame is chyron-safe by construction (chyrons cropped out during reframe). Using a 16:9 source frame leaks channel chyrons/tickers through the blur. Unit test T-VO-VIS enforces this.
 
@@ -370,6 +370,12 @@ Theoretical fixes that break in practice are worse than no fix.
 - R5: 8-25s per clip, >= 2 distinct channels, every channel >= 8s screen time.
 - R6: Credits in signoff must match EDL channels in order. Unique avatar hashes.
 - R7: Every (channel, tile_count) must have an explicit layout table entry.
+
+### LAW 26: PULSE CHECK STANDING LAWS (added 2026-11-11, PBX: obvious corrections are applied and written here at once)
+- L-a SIGN-OFF NAMES ALL: the sign-off voiceover names every channel on the credits card, and the spoken set, the card set and the clips used are identical. CHECK: run_fresh.stage_voice HOLDs before render unless the script names exactly credit_rings.credit_channels(edl) (hook first, then clips); G20 SIGNOFF_NAMES_ALL transcribes the rendered sign-off and requires spoken == credited (registry names + aliases); VO stems are keyed by hash(text, voice, model). Must-fail: the 2026-11-11 preview (DataDash missing). Must-pass: v2f.
+- L-b EDGE WORDS WHOLE: a fade never overlaps an edge word: the first and last word of every clip are heard whole, at full level, with their natural decay. CHECK: sentence_law.edge_fades places each machine-cut fade (2 frames, shortened down to 10 ms) inside the gap next to the cut, measured from the cut point's level; G17c (sentence_law.gate_g17_edges) requires every frame of both edge words within 1 dB of the unfaded source. Must-fail: the preview's Natalie Brunell tail ('...participated in the Monday rally.'). Must-pass: the L-b re-cut of it; v2f's edges except its two recorded legacy edges.
+- L-c DISSENT IS RIGHT UNTIL DISPROVED: a check that disagrees with the others on an edge word is treated as right until an acoustic comparison against the source proves otherwise. CHECK: run_fresh.stage_gates: a dissenting G3b reading (DEC-12f) or a G3c head / tail failure on an edge stands (HOLD / FAIL) unless G17c and G16's neighbour_clear both pass for that edge.
+- L-d PROTECTED PREVIEW: the PBX-approved preview of 2026-11-11 is a protected reference. CHECK: pipeline/regression.sh step 6 (pipeline/check_preview_reference.py): its selection locks, cut points and 9:16 layout must reproduce with the current code; tag ref-pulse-preview-2026-11-11; references/pulse_preview_2026-11-11 (read-only, SHA256SUMS).
 - R8: Only channels with `has_chyron=true` trigger G10 chyron gate.
 - An EDL that fails ANY rule is rejected. The renderer MUST NOT run on a rejected EDL.
 

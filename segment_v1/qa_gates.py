@@ -39,7 +39,13 @@ FPS = 24
 G3C_VALLEY_DEPTH_DB = {"16x9": 11.63, "9x16": 11.65}    # was 12.0: strictest depth at which the v2f hook tail passes (11.6301 / 11.6543)
 G5_TRUE_PEAK_MAX_DBFS = {"16x9": -2.0, "9x16": -1.3}    # 9x16 was -2.0: v2f segment_vertical.mp4 true peak -1.3 dBFS (16x9 -2.2 passed)
 G8_SHARPNESS_FLOOR = {"16x9": 27.56, "9x16": 10.84}     # was 60: v2f worst segment medians (16x9 hook 27.56, 9x16 clip_03 10.84)
-G9_LUMA_FLOOR = {"16x9": 14.33, "9x16": 14.77}          # was 20: v2f tail luma 14.3357 / 14.7715 (locked outro ends on black)
+G9_V2F_LUMA = {"16x9": 14.3357, "9x16": 14.7715}       # DEC-1: v2f's own tail luma (the locked outro ends on black)
+G9_REENCODE_SPREAD = {"16x9": 0.05, "9x16": 0.04}      # DEC-12a: MEASURED spread (the outro's encode depends on its GOP
+    # phase and on the credits card before it) of the same locked outro through the
+    # final-encode path (5 GOP phases, 5 real credits cards before it, the real finals): 0.0438 / 0.0335, rounded up
+    # to 0.01, at most 0.05 (docs/audits/pulse-sentence-law/dec12a_g9_spread/spread.json). DEC-1's zero margin
+    # made a correct render pass or fail by encoder state (OD-4).
+G9_LUMA_FLOOR = {k: round(G9_V2F_LUMA[k] - G9_REENCODE_SPREAD[k], 4) for k in G9_V2F_LUMA}   # 14.2857 / 14.7315
 
 # ── Faster-Whisper singleton (medium, float16, cuda, vad OFF, word timestamps) ──
 _FW_MODEL = None
@@ -380,9 +386,22 @@ def gate_g3(final_mp4, segments, qa_dir):
 # G3b: CUT_OUT_CLEAN
 # ==============================================================
 
+G3B_READS, G3B_CONTEXT_S, G3B_TAIL_S = 3, 1.5, 1.0     # DEC-12f
+
+
+def _g3b_words(text):
+    return [w for w in text.lower().replace(".", " ").replace(",", " ").replace("?", " ").replace("!", " ").split()]
+
+
+def _g3b_match(expected, heard):
+    """The old rule, unchanged: the same word, or the expected word inside the heard one ('magnitude' in
+    'magnitudes'); a heard prefix of it ('magnet' for 'magnitude') does not match."""
+    return heard == expected or expected in heard
+
+
 def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
-    """Whisper the last 1.0s of each cut clip in the final output.
-    The transcript must end with the EDL's declared last_word and must NOT
+    """Whisper the tail of each cut clip in the final output (DEC-12f: 3 readings with 1.5 s of context,
+    majority). The transcript must end with the EDL's declared last_word and must NOT
     contain the source's next word (from EDL field 'next_source_word').
     Constant thresholds, output-based."""
     print("\n=== G3b: CUT_OUT_CLEAN ===")
@@ -413,47 +432,31 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
         if not edl_last:
             continue
 
-        # Whisper last 1.0s of this segment from the final output
-        tail_dur = min(1.0, seg_end - seg_start)
-        tail_start = seg_end - tail_dur
-        tail_wav = os.path.join(qa_dir, f"g3b_{label}_tail.wav")
-        extract_audio_region(final_mp4, tail_start, tail_dur, tail_wav)
-        tail_transcript = whisper_segment(tail_wav, qa_dir)
-        tail_words = tail_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()
-
-        # Also whisper last 3.0s for broader context (short tails may truncate words)
-        tail2_dur = min(3.0, seg_end - seg_start)
-        tail2_start = seg_end - tail2_dur
-        tail2_wav = os.path.join(qa_dir, f"g3b_{label}_tail2.wav")
-        extract_audio_region(final_mp4, tail2_start, tail2_dur, tail2_wav)
-        tail2_transcript = whisper_segment(tail2_wav, qa_dir)
-
-        # Check 1: EDL last_word must appear as complete word in tail transcript
-        # R2-03: require non-empty transcript and exact token match (not prefix)
-        last_found = False
-        if edl_last and tail_transcript.strip():
-            last_found = edl_last in tail_transcript
-        if not last_found and edl_last and tail2_transcript.strip():
-            last_found = edl_last in tail2_transcript
-        if not last_found and edl_last:
-            # Check individual words for exact match (case-insensitive, stripped)
-            all_tail_words = [w.lower() for w in
-                              tail_words + tail2_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()]
-            for tw in all_tail_words:
-                # Require complete containment: edl_last in tw is ok (e.g. "magnitudes" contains "magnitude")
-                # But tw in edl_last with tw shorter is NOT ok (e.g. "magnet" in "magnitude" is prefix, not match)
-                if edl_last == tw or edl_last in tw:
-                    last_found = True
-                    break
+        # DEC-12f (2026-11-11): three readings of the tail with 1.5 s of leading context, majority vote. The
+        # window start is jittered by 0 / 1 / 2 video frames so they are three readings, not one decode three
+        # times. The expected last word must be one of the last two words heard in >= 2 of 3 readings. (One
+        # decode heard Nov 10's '... rally.' as 'route.' while G17b, G18 and the 9:16 decode passed.)
+        reads = []
+        for j in range(G3B_READS):
+            w0 = max(seg_start, seg_end - G3B_TAIL_S - G3B_CONTEXT_S + j / FPS)
+            wav = os.path.join(qa_dir, f"g3b_{label}_read{j}.wav")
+            extract_audio_region(final_mp4, w0, seg_end - w0, wav)
+            reads.append(_g3b_words(whisper_segment(wav, qa_dir)))
+        tail_transcript = " | ".join(" ".join(ws[-4:]) for ws in reads)
+        votes = sum(1 for ws in reads if any(_g3b_match(edl_last, w) for w in ws[-2:]))
+        last_found = votes * 2 > len(reads)
+        dissent = votes < len(reads)        # law L-c: one dissenting reading sends the edge to the acoustic check
 
         # Check 2: next source word must NOT appear (if declared in EDL)
         # R2-03: check ALL next words including short ones like "So"
         edl_entry = edl_clips.get(label, {})
         next_word = edl_entry.get("next_source_word", "").lower().strip().rstrip(".,?!")
         next_leaked = False
-        if next_word:
-            # Check both tail windows for next-word leak
-            next_leaked = next_word in tail_transcript or next_word in tail2_transcript
+        if next_word:                     # heard AFTER the expected last word (or at the very end) in a majority
+            def _leak(ws):
+                idx = max((i for i, w in enumerate(ws) if _g3b_match(edl_last, w)), default=None)
+                return next_word in (ws[idx + 1:] if idx is not None else ws[-2:])
+            next_leaked = sum(1 for ws in reads if _leak(ws)) * 2 > len(reads)
 
         ok = last_found and not next_leaked
         if not ok:
@@ -465,6 +468,8 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
             "edl_last": edl_last,
             "tail_transcript": tail_transcript[:80],
             "last_found": last_found,
+            "votes": f"{votes}/{len(reads)}",
+            "dissent": dissent,
             "next_source_word": next_word if next_word else None,
             "next_leaked": next_leaked,
             "pass": ok,

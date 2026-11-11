@@ -1,0 +1,120 @@
+[
+  {
+    "clip_id": "hook",
+    "video_id": "RXTVaDsN11M",
+    "channel": "DataDash",
+    "fade_out_ms": 30,
+    "fade_in_ms": 20,
+    "verified": true,
+    "first_word_expected": "Bitcoin",
+    "last_word_expected": "take.",
+    "selection_lock_sha256": "19e4fde8f1708338fce34e7dc432d5b4b5935adcf3c6516078dd4c62182613b3",
+    "pause_in": {
+      "start": 0.03,
+      "end": 0.09,
+      "ms": 60
+    },
+    "pause_out": {
+      "start": 9.29,
+      "end": 9.63,
+      "ms": 340
+    },
+    "cut_in": 0.03,
+    "cut_out": 9.33,
+    "cut_duration": 9.3,
+    "valley_in": false,
+    "valley_out": false,
+    "lead_in_pad_s": 0.25
+  },
+  {
+    "clip_id": "clip_01",
+    "video_id": "lusJ1m-J0Mc",
+    "channel": "Natalie Brunell",
+    "fade_out_ms": 83,
+    "fade_in_ms": 20,
+    "verified": true,
+    "first_word_expected": "It",
+    "last_word_expected": "rally.",
+    "selection_lock_sha256": "f6315d31078688347440abf5c270a207eec0cff6d1f17fa44b965c14cd3891bd",
+    "pause_in": {
+      "start": 68.38,
+      "end": 68.5,
+      "ms": 120
+    },
+    "pause_out": {
+      "start": 80.84,
+      "end": 80.84,
+      "ms": 0,
+      "valley": true,
+      "valley_db": -22.5
+    },
+    "cut_in": 68.38,
+    "cut_out": 80.84,
+    "cut_duration": 12.46,
+    "valley_in": false,
+    "valley_out": true,
+    "lead_in_pad_s": 0.0
+  },
+  {
+    "clip_id": "clip_02",
+    "video_id": "36HPi9UZPOc",
+    "channel": "Yahoo Finance",
+    "fade_out_ms": 30,
+    "fade_in_ms": 83,
+    "verified": true,
+    "first_word_expected": "Of",
+    "last_word_expected": "times.",
+    "selection_lock_sha256": "d72b46e107b5a08700f41c87463f6dca1d77bc791f6fa66deba62f9494fa7b05",
+    "pause_in": {
+      "start": 38.2,
+      "end": 38.2,
+      "ms": 0,
+      "valley": true,
+      "valley_db": -19.5
+    },
+    "pause_out": {
+      "start": 57.08,
+      "end": 57.43,
+      "ms": 350
+    },
+    "cut_in": 38.2,
+    "cut_out": 57.37,
+    "cut_duration": 19.17,
+    "valley_in": true,
+    "valley_out": false,
+    "lead_in_pad_s": 0.0
+  },
+  {
+    "clip_id": "clip_03",
+    "video_id": "jbDqdLytkNM",
+    "channel": "Bitcoin Magazine",
+    "fade_out_ms": 30,
+    "fade_in_ms": 20,
+    "verified": true,
+    "first_word_expected": "Last",
+    "last_word_expected": "miss.",
+    "selection_lock_sha256": "1a32857fc017c7747f013fc53b56dd0e2a78aa7630e3d11dd71ccdb70b656d4f",
+    "pause_in": {
+      "start": 14.68,
+      "end": 15.19,
+      "ms": 510
+    },
+    "pause_out": {
+      "start": 31.61,
+      "end": 31.75,
+      "ms": 140
+    },
+    "cut_in": 14.94,
+    "cut_out": 31.8,
+    "cut_duration": 16.86,
+    "valley_in": false,
+    "valley_out": false,
+    "lead_in_pad_s": 0.0,
+    "contract_retries": [
+      {
+        "cut_out": 31.8,
+        "result": "PASS"
+      }
+    ]
+  }
+]

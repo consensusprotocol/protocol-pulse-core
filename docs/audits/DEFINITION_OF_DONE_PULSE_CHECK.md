@@ -6,7 +6,65 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 14:09 ET; newest first)
+## LIVE STATE (updated 2026-11-11 15:38 ET; newest first)
+
+- 15:38 FULL STATE (handoff-grade; CURRENT_STATE.md top mirrors it).
+  LOCK (A) DONE: annotated tag ref-pulse-preview-2026-11-11 on 5c17e9b3 (pushed); side branch
+  ref-pulse-preview-2026-11-11-replay-state = 33fb77e1 (the replay's exact dirty start tree: 9b459ec6 + DEC-11
+  v1 gate edits); references/pulse_preview_2026-11-11/ read-only, 62 files + SHA256SUMS (finals without the
+  PREVIEW label, decisions, PIN, prepared clips, sign-off VO, frozen sources + transcripts, contact sheets);
+  docs/references/REFERENCE_PULSE_PREVIEW_2026-11-11.md; pipeline/check_preview_reference.py + regression.sh
+  step 6 (selection locks, cut points +-1 hop, 9:16 layout must reproduce): REPRODUCED on the current tree.
+  Defect B cause FOUND: the sign-off text lists the CLIPS' channels only ("Clips today from Natalie Brunell,
+  Yahoo Finance, and Bitcoin Magazine...") and leaves out DataDash, whose only segment is the hook; the card
+  lists hook + clips. Not a stale cache.
+  UNCOMMITTED (the one batch, audit not yet run on its final form): DEC-12 a (segment_v1/qa_gates.py G9 floors
+  from docs/audits/pulse-sentence-law/dec12a_g9_spread/spread.json; test_g9_floor.py), b (sentence_law: 83 ms on
+  every machine edge, TO BE AMENDED per C / law L-b), d (editorial_select.layout_eligible: has_chyron never
+  supplies a clip; test_editorial TestChyronChannels), e (gates.gate_g14 speech sampling, retake, >= 3
+  conclusive; run_fresh passes words, 9:16 frames=False; test_g14_sampling.py), f (qa_gates.gate_g3b 3
+  readings + 1.5 s context; test_g3b_majority.py), test_g14_g15 G15 channel fix (DEC-11 follow-up), the
+  lock's check script + regression step. TODO in this batch: B (sign-off from the FINAL EDL incl. the hook's
+  channel; VO cache keyed by text + voice + model; gate G20 SIGNOFF_NAMES_ALL; must-fail: the preview), C
+  (fades never overlap edge words, >= 10 ms inside the gap; G17 edge-word comparison with the source within
+  1 dB; a dissenting G3b reading triggers it, HOLD unless it passes; must-fail: the preview's 'rally'), laws
+  L-a..L-d written into the gospel, PIPELINE_LAWS Pulse Check section, this doc and the bible; then one audit
+  (cross-LLM + Heimdall), suites, regression_test.sh, pipeline/regression.sh, Law 22 (v2f identity),
+  commit + push; then E: the wrapper (auto) on a fresh story from today's universe; Telegram only on a clean
+  pass (+ title, description with every source credited and linked, first-comment credit line: "credits:",
+  every creator's @handle, a line break, the orange heart on its own line). Publishing and the schedule wait
+  for PBX. Batch-12 audit of the pre-B/C diff ran at 15:22 (docs/audits/pulse-sentence-law/batch12_dec12):
+  read it, then audit the final diff.
+
+- 15:32 ORCHESTRATOR ORDER 15:30: PBX watched the preview (67640 / 67641): "genuinely blown away ... amazing
+  video ... nearly perfect ... I would publish it right now". Order: A lock the preview's logic (tag
+  ref-pulse-preview-2026-11-11, references/pulse_preview_2026-11-11/, reference doc, second protected
+  reference in pipeline/regression.sh); F full state to this doc + CURRENT_STATE.md; then ONE audited batch:
+  DEC-12 a / c / d / e (kept) + B (sign-off VO named 3 channels, card showed 4: fix generation / caching, new
+  gate G20 SIGNOFF_NAMES_ALL) + C (Natalie's last word 'rally' clipped by the edge fade: DEC-12b AMENDED, an
+  edge fade never overlaps the edge word, shortens down to 10 ms inside the gap; G17 last / first word 100 %
+  at full level within 1 dB of the source; a dissenting G3b decode triggers that comparison, HOLD unless it
+  passes; DEC-12f stands); then E: the wrapper (auto, no PIN) on a FRESH Bitcoin story from today's universe,
+  Telegram only on a clean pass (+ title, description crediting every source with links, first-comment
+  credit line). In progress when the order came (uncommitted, part of the batch): DEC-12 a (G9 floors from
+  the measured spread 0.0438 / 0.0335 -> 14.2857 / 14.7315), b (83 ms on every machine edge: to be AMENDED
+  per C), d (has_chyron channels never supply a clip), e (G14 speech sampling + retake + >= 3 conclusive),
+  f (G3b 3 readings with 1.5 s context); a DataDash replacement for Bitcoin Magazine in the Nov 10 PIN was
+  dropped (the Nov 10 story is stale; it is only the verification replay now).
+
+- 14:47 PBX PREVIEW SENT (DEC-12, orchestrator's caption verbatim, approval chat via pipeline/telegram.py's
+  sender): Telegram message ids 67640 (16:9 video), 67641 (9:16 video), 67642 (16:9 contact sheet, photo),
+  67643 (9:16 contact sheet, photo). Source: runs/pinned_20261111_172202_replay_cut1329 (the corrected Nov 10
+  cut, Natalie out at 80.84); its 9:16 predated the colour fix, so only the vertical was re-rendered from the
+  prepared clips in runs/pinned_20261111_172202_replay_cut1329_replay_preview (both finals bt709, 71.08 s);
+  small top-left "PREVIEW" label burned on copies (PREVIEW/preview_*.mp4); record TELEGRAM_PREVIEW.json.
+  Not a release candidate. Next: the DEC-12 batch.
+
+- 14:37 DEC-12 received (stamped 14:45): appended to the decisions above. The restarted 4b run 1 (5c17e9b3,
+  runs/fresh_20261111_192645, still in editorial) and the Law 22 run at 5c17e9b3 are stopped: DEC-12 changes
+  the HEAD, so neither can count. Order now: PBX preview of the corrected Nov 10 cut -> DEC-12 batch (one
+  audit, regressions, v2f identity) -> one replay of the Nov 10 cut -> 4b. OD-8 / OD-9 / OD-10 (written 14:31)
+  are decided by DEC-12 b / d / f; OD-4 by 12a; OD-7's addendum by 12e.
 
 - 14:04 4b RUN 1 HELD (pipeline defect, DEC-8: fix, audit, the count restarts): editorial crashed in
   story_semantics.emergent_clusters on sorted({None, ...}): four whisper_words records hand-made 2026-11-10
@@ -400,6 +458,29 @@ DataDash's quiet passage (speech -39 dB median vs his -28..-32 elsewhere) matche
 0.42 (>= the 0.3 'conclusive' bar); every other sample of the 16:9 matched exactly. A quiet source under
 the bed weakens the correlation. Not changed; G5 loudness work (segment levels) would also raise the
 speech-to-bed ratio there.
+Addendum (recut #2, 2026-11-11 13:30): one G14 sample at clip_02 +2.0 s lands in a 0.6 s PAUSE inside
+Yahoo's sentence (source -44 .. -84 dB from 40.17 to 40.90; the final holds only the bed there, -38 .. -45
+dB): xcorr 0.154 / 0.174 < 0.3 = HOLD(inconclusive). Not a transition or VO freeze, so the authorised
+sampling skip does not apply. Decision: may a sample whose SOURCE window is below the source's quiet level
+move to the nearest window with source speech (threshold unchanged; must-fail: a 2-frame slip elsewhere)?
+
+**OD-8 G3c on a quiet source's room tone.** After the 8d fix G3c fails only the DataDash hook tail: the
+last 60 ms (room tone in a 340 ms pause, no next word) read -42.7 dB vs the limit speech - 11.63 = -43.9;
+DataDash speaks at -32.3 dB over a -42.7 dB room: 10.4 dB, so any cut in that pause with the 30 ms fade
+fails it. An envelope-minimum cut with the 2-frame fade (DEC-10 d's method) would pass but is a cutter-wide
+change for long pauses. Decision: apply DEC-10 d's method to every out edge, or treat a tail with no
+neighbour word by its neighbour rule (c-ii) only.
+
+**OD-9 G10 in 16:9 for has_chyron channels.** Recut #2's 16:9 shows Bitcoin Magazine's burned-in lower
+third (sponsor bar, stock + BTC tickers, speaker chyron): bottom-12 % edge density 0.0846-0.0854 vs 0.08,
+0.084 without the watermark strip. The 16:9 path has no chyron framing (has_chyron only routes the channel
+to G10); the 9:16 safe frame blurs it. Decision: a 16:9 framing for has_chyron channels (crop above the
+lower third / safe frame), or selection avoids windows with a lower third.
+
+**OD-10 G3b single-word ASR under the bed.** Replay of recut #2: the 16:9 final's context-free tail decode
+heard 'in the monday route.' for '... rally.' (the 83 ms DEC-10 fade ends 35 ms after the word at the true
+minimum); 9:16 G3b, prepare's edge check ('rally.'), G17b (>= 85 %) and G18 word-for-word all pass. Same
+class as OD-6 (G3 on one word). Decision as OD-6.
 
 ## 1f — the gate suite on the frozen v2f reference (2026-11-11, scratch copy, production stage_gates)
 
@@ -427,6 +508,10 @@ speech-to-bed ratio there.
 | Edge timing inside the video calibrated to the approved v2f, not a silence quota (DEC-10 a-b) | LEAD_MIN_S / TAIL_MIN_S / PAUSE_MIN_S / GUARD_S = 0 ms (v2f's measured worst, DEC-10a table); G16 legal range = the heard gap | T test_dec10_edges: every v2f edge passes (3 recorded by measurement must fail) | enforced (ae965c95) |
 | No audible part of the neighbouring word (DEC-10 c-ii); a short gap is cut at the envelope minimum with a 2-frame fade (DEC-10 d) | sentence_law.neighbour_clear in accepted_cut and in G16 with the cut's own fades; run_fresh.stage_cut defers an edge cut at the minimum to G16 instead of cut_accept's M19 quota | T test_dec10_edges: a cut inside a word is audible; v2f clip_01 OUT / clip_02 IN fail; valley fixture; stage_cut deferral; T pulse_20261110 D2 (Natalie run-in) fails | enforced (ae965c95, 29299ea5) |
 | Edge words keep ≥ 85 % in the render | G17b on both finals | T: TestG17bRenderedEdges (muted onset fails, 20 ms fade passes) | enforced (99add647) |
+| L-a SIGN-OFF NAMES ALL: the sign-off voiceover names every channel on the credits card, and the spoken set, the card set and the clips used are identical. | run_fresh.stage_voice HOLDs before render unless the script names exactly credit_rings.credit_channels(edl) (hook first, then clips); G20 SIGNOFF_NAMES_ALL transcribes the rendered sign-off and requires spoken == credited (registry names + aliases); VO stems are keyed by hash(text, voice, model). Must-fail: the 2026-11-11 preview (DataDash missing). Must-pass: v2f. | see Check | enforced (DEC-12 batch, 2026-11-11) |
+| L-b EDGE WORDS WHOLE: a fade never overlaps an edge word: the first and last word of every clip are heard whole, at full level, with their natural decay. | sentence_law.edge_fades places each machine-cut fade (2 frames, shortened down to 10 ms) inside the gap next to the cut, measured from the cut point's level; G17c (sentence_law.gate_g17_edges) requires every frame of both edge words within 1 dB of the unfaded source. Must-fail: the preview's Natalie Brunell tail ('...participated in the Monday rally.'). Must-pass: the L-b re-cut of it; v2f's edges except its two recorded legacy edges. | see Check | enforced (DEC-12 batch, 2026-11-11) |
+| L-c DISSENT IS RIGHT UNTIL DISPROVED: a check that disagrees with the others on an edge word is treated as right until an acoustic comparison against the source proves otherwise. | run_fresh.stage_gates: a dissenting G3b reading (DEC-12f) or a G3c head / tail failure on an edge stands (HOLD / FAIL) unless G17c and G16's neighbour_clear both pass for that edge. | see Check | enforced (DEC-12 batch, 2026-11-11) |
+| L-d PROTECTED PREVIEW: the PBX-approved preview of 2026-11-11 is a protected reference. | pipeline/regression.sh step 6 (pipeline/check_preview_reference.py): its selection locks, cut points and 9:16 layout must reproduce with the current code; tag ref-pulse-preview-2026-11-11; references/pulse_preview_2026-11-11 (read-only, SHA256SUMS). | see Check | enforced (DEC-12 batch, 2026-11-11) |
 | Round credit avatars of the channels actually used | G12 (count), G15 (ring aspect, continuity), R6 (credits == EDL channels, unique avatar hashes), shoutout.validate_avatar + registry-only avatars | T: TestD4Credits (yesterday's card fails G12/G15; thumbnail refused; v2f passes) | enforced (3641440f) |
 | On-brand transitions between channels only | pipeline/pulse_transitions.plan (different channels only, never at the open, overlap only inside measured non-speech) + concat (frame-locked xfade/acrossfade); G14/G11/loudness gates on the final | T: test_transitions (planner rules; dissolve over silence only; picture and sound of the dissolved-into clip start together; C insert 8 frames < 0.35 s, red line on black) | enforced (Phase 3) |
 | Speaker-centred vertical; safe frame only for screen / unidentifiable speaker, flagged | stage `layout` (vertical_layout.classify: SCRFD-10G, sha-pinned; per-shot classes) -> render_vertical.reframe_auto; G4s LAYOUT TRUTH (each shot label = the re-measured majority class; a 9:16 shot is the safe frame iff labelled screen/uncertain, band correlation >= 0.90); G4 per shot (unchanged gate_g4 rules); EDL `vertical_layout`; caption `vertical_layout.layout_note` | T: TestSafeFrameTruth (D5: Yahoo's talking head as safe frame fails), TestLayoutTruth (talking head mislabelled as screen fails, DEC-2), TestCaptionNote, TestStackGeometry, test_pinned auto for every channel status | enforced (Phase 2); caption wired in 4a |
@@ -509,6 +594,43 @@ Received 02:50 ET. Recorded verbatim in substance; implementation status tracked
   times."; report the exact failing measurement for any that still fails. (f) Render, all gates, sheets,
   Telegram ONLY on a clean pass, plus options A/B/C. TIME BOX 13:00 ET: then write what blocked it and go to
   4b on a fresh story with the same code.
+
+- **DEC-11 Credits rings (orchestrator 13:15 ET).** G12 / G15 measure the ring the renderer draws (brand-red
+  mask at the card layout; ellipse fitted to that mask; aspect tolerance and count rule unchanged). Must-fail
+  yesterday's card; must-pass v2f and the Nov 11 four-avatar card. Implemented af5447c6 (+ registered-avatar
+  disc check, because yesterday's rings are round and its defect was the squashed avatars).
+- **DEC-12 (orchestrator 14:45 ET): the parked gate items decided; one audited batch with tests, then 4b.**
+  In every case the gate keeps its purpose and its must-fail tests; what changes is an instrument error or
+  the render. (a) G9 floor per format = v2f's measured value minus the MEASURED re-encode spread (encode the
+  locked outro through the final-encode path 5 times, max - min, rounded up, 0.05 at most); named constants
+  citing both; outro_locked stays the hard row; must-fail: a tail that is not the locked outro, a tail 1.0
+  luma away. (b) Every MACHINE-cut segment gets a 2-frame (83 ms) fade-out ending at cut_out and a 2-frame
+  fade-in from cut_in, inside the kept lead / tail so the edge words keep >= 85 % (G17); human-approved PINs
+  untouched (Law 22: prove v2f identical); a tail still failing G3c with the fade is reported with numbers.
+  (c) G3c head onset on abutting words: try the 12b fade, then a sentence-legal earlier / later start for the
+  same statement, then the next-ranked legal window; never ship a failing head. (d) G10: a segment failing G10
+  is replaced by the next-ranked legal window (a 4th segment is optional: dropping it is allowed); record
+  has_chyron per channel in the registry so selection knows before render. (e) G14 samples only where the
+  transcript has speech (a word within +-0.25 s) and outside declared transition / VO-freeze intervals; an
+  inconclusive sample is re-taken at the nearest speech point in the same segment; a segment passes with >= 3
+  conclusive matching samples and zero conclusive mismatches; must-fail: a real 2-frame AV slip; < 3
+  conclusive samples = HOLD; threshold unchanged. (f) G3b decodes the tail three times with 1.5 s of leading
+  context and takes the majority; the expected last word must be in the majority; must-fail: yesterday's
+  Natalie tail ("...celebrating") and a tail cut mid-word. The 9:16 colour-tag fix (36e769d0) stands.
+  Before the batch: send PBX a PREVIEW of runs/pinned_20261111_172202_replay_cut1329 (small top-left
+  "PREVIEW" tag on copies; both formats + both contact sheets; the given caption); log message ids here.
+  After the batch: replay the Nov 10 cut once; if clean send "HOLD FOR APPROVAL - all gates passed, no
+  waivers" with transition options A/B/C; then 4b.
+
+- **ORDER 15:30 + PBX ADDENDUM 15:35 (2026-11-11).** PBX approved the preview; lock it (L-d); fix the two
+  defects he named (sign-off named 3 of 4 channels -> L-a + G20; Natalie's 'rally' clipped by the fade ->
+  DEC-12b AMENDED: L-b, G17c, L-c); then a fresh story today. PBX standing rule: an obvious correction is
+  applied and written into the laws (gospel, PIPELINE_LAWS LAW 26, this doc, the bible) in the same batch,
+  each law one plain sentence plus its check; only publishing and installing the schedule wait for him.
+  L-a SIGN-OFF NAMES ALL: the sign-off voiceover names every channel on the credits card, and the spoken set, the card set and the clips used are identical.
+  L-b EDGE WORDS WHOLE: a fade never overlaps an edge word: the first and last word of every clip are heard whole, at full level, with their natural decay.
+  L-c DISSENT IS RIGHT UNTIL DISPROVED: a check that disagrees with the others on an edge word is treated as right until an acoustic comparison against the source proves otherwise.
+  L-d PROTECTED PREVIEW: the PBX-approved preview of 2026-11-11 is a protected reference.
 
 ### DEC-10a — v2f edge timing, measured (2026-11-11 10:45, sentence_law's own level/onset functions)
 

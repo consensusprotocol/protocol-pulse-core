@@ -1,0 +1,1563 @@
+diff --git a/docs/audits/pulse-sentence-law/dec12a_g9_spread/measure_g9_spread.py b/docs/audits/pulse-sentence-law/dec12a_g9_spread/measure_g9_spread.py
+new file mode 100644
+index 00000000..102122f5
+--- /dev/null
++++ b/docs/audits/pulse-sentence-law/dec12a_g9_spread/measure_g9_spread.py
+@@ -0,0 +1,128 @@
++#!/usr/bin/env python3
++"""DEC-12a: G9's re-encode spread, MEASURED. The locked outro (config.conform_outro, both formats) goes through
++the final-encode path 5 times: render16 / render_vertical's concat pass (h264_nvenc p4 constqp QP 18) and the
++watermark pass (same settings, no overlay over the outro region); the final's later steps copy the video.
++Identical input encodes identically (NVENC constqp is deterministic), so the five runs differ only where the
++outro sits in the GOP: 0 / 50 / 100 / 150 / 200 frames of black before it; and (the final's real context) the
++outro after each of five REAL credits cards; plus the real finals of that outro (v2f, the Nov 11 recut, its
++preview). spread = max - min over all of them, rounded up to 0.01, at most 0.05 (DEC-12a).
++Each result is measured exactly as qa_gates.gate_g9 does (mean grey of 3 frames in the last 1.0 s), on
++encodes tagged bt709 / tv like every final (the conformed outro is untagged: decoded alone it reads BT.601).
++Writes spread.json next to this script. Usage: python3 measure_g9_spread.py"""
++import json
++import math
++import os
++import subprocess
++import sys
++import tempfile
++
++import cv2
++import numpy as np
++
++REPO = os.path.expanduser("~/protocol_pulse")
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++from config import conform_outro, NVENC_QP_FINAL, FPS  # noqa: E402
++
++PHASES = (0, 50, 100, 150, 200)
++HERE = os.path.dirname(os.path.abspath(__file__))
++
++
++def nvenc(args, out):
++    # tagged like every final (bt709, limited range: inherited from its first segment); the conformed outro
++    # itself is untagged, and G9 decodes the FINAL, so the measurement decodes the same YUV the same way
++    subprocess.run(["ffmpeg", "-v", "error", "-y", *args, "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp",
++                    "-qp", str(NVENC_QP_FINAL), "-pix_fmt", "yuv420p", "-r", str(FPS), "-colorspace", "bt709",
++                    "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv", "-an", out], check=True)
++
++
++def g9_luma(path, force_bt709=False):
++    dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
++                               capture_output=True, text=True).stdout)
++    vals = []
++    for i in range(3):
++        t = max(0, dur - 1.0) + (i + 0.5) / 3
++        f = tempfile.mktemp(suffix=".png")
++        vf = ["-vf", "setparams=colorspace=bt709"] if force_bt709 else []
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{t:.4f}", "-i", path, *vf, "-frames:v", "1", f], check=True)
++        vals.append(float(cv2.imread(f, cv2.IMREAD_GRAYSCALE).mean()))
++        os.unlink(f)
++    return float(np.mean(vals)), vals
++
++
++CARDS = ("references/v2f_2026-11-06/run/qa", "runs/pinned_20261111_172202/qa", "runs/pinned_20261111_172202_replay_cut1329/qa",
++         "runs/pinned_20261111_123750/qa", "tests/fixtures/pulse_20261110/video")
++
++
++def cards(fmt, tmp):
++    """In a final the outro follows a credits card, so its frames are predicted from that card: the second
++    measurement puts five REAL cards before it (their different lengths also vary the GOP phase)."""
++    rows = []
++    outro = conform_outro(fmt)
++    for i, d in enumerate(CARDS):
++        card = os.path.join(REPO, d, f"shoutout_{fmt}.mp4")
++        concat, final = os.path.join(tmp, f"{fmt}_card{i}_concat.mp4"), os.path.join(tmp, f"{fmt}_card{i}_final.mp4")
++        nvenc(["-i", card, "-i", outro, "-filter_complex",
++               "[0:v]setsar=1[a];[1:v]setsar=1[b];[a][b]concat=n=2:v=1:a=0,setpts=PTS-STARTPTS"], concat)
++        nvenc(["-i", concat], final)
++        m, vals = g9_luma(final)
++        rows.append({"card": d, "luma": round(m, 4), "frames": [round(v, 4) for v in vals]})
++        print(fmt, "card", d, round(m, 4))
++    return rows
++
++
++FINALS = {  # real outputs of the final-encode path ending on the same locked outro, decoded as bt709 (as tagged)
++    "16x9": ("references/v2f_2026-11-06/run/out/segment.mp4", "runs/pinned_20261111_172202/out/segment.mp4",
++             "runs/pinned_20261111_172202_replay_cut1329_replay_preview/out/segment.mp4"),
++    "9x16": ("references/v2f_2026-11-06/run/out/segment_vertical.mp4",
++             "runs/pinned_20261111_172202/out/segment_vertical.mp4",          # untagged (pre-36e769d0): decoded bt709
++             "runs/pinned_20261111_172202_replay_cut1329_replay_preview/out/segment_vertical.mp4")}
++
++
++def finals(fmt):
++    rows = []
++    for d in FINALS[fmt]:
++        p = os.path.join(REPO, d)
++        if not os.path.exists(p):                       # never a silent skip: a missing final would shrink
++            raise SystemExit(f"STOP: real final missing: {d}")   # the measured spread
++        m, vals = g9_luma(p, force_bt709=True)
++        rows.append({"final": d, "luma": round(m, 4), "frames": [round(v, 4) for v in vals]})
++        print(fmt, "final", d, round(m, 4))
++    return rows
++
++
++def main():
++    res = {}
++    tmp = tempfile.mkdtemp(prefix="g9spread_")
++    for fmt, (w, h) in (("16x9", (1920, 1080)), ("9x16", (1080, 1920))):
++        outro = conform_outro(fmt)
++        rows = []
++        for k in PHASES:
++            concat = os.path.join(tmp, f"{fmt}_{k}_concat.mp4")
++            final = os.path.join(tmp, f"{fmt}_{k}_final.mp4")
++            if k:
++                nvenc(["-f", "lavfi", "-i", f"color=black:s={w}x{h}:r={FPS}:d={k / FPS}", "-i", outro,
++                       "-filter_complex", "[0:v][1:v]concat=n=2:v=1:a=0,setpts=PTS-STARTPTS"], concat)
++            else:
++                nvenc(["-i", outro, "-vf", "setpts=PTS-STARTPTS"], concat)
++            nvenc(["-i", concat], final)                       # the watermark pass re-encode
++            m, vals = g9_luma(final)
++            rows.append({"phase_frames": k, "luma": round(m, 4), "frames": [round(v, 4) for v in vals]})
++            print(fmt, k, round(m, 4))
++        lum = [r["luma"] for r in rows]
++        crow = cards(fmt, tmp)
++        clum = [r["luma"] for r in crow]
++        frow = finals(fmt)
++        flum = [r["luma"] for r in frow]
++        allv = lum + clum + flum
++        spread = round(max(allv) - min(allv), 4)
++        res[fmt] = {"outro": outro, "gop_phase_runs": rows, "gop_phase_spread": round(max(lum) - min(lum), 4),
++                    "card_runs": crow, "card_spread": round(max(clum) - min(clum), 4),
++                    "real_finals": frow, "spread": spread,
++                    "spread_rounded": min(0.05, math.ceil(spread * 100 - 1e-9) / 100)}
++    with open(os.path.join(HERE, "spread.json"), "w") as f:
++        json.dump(res, f, indent=2)
++    print(json.dumps({k: v["spread"] for k, v in res.items()}))
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/pipeline/check_preview_reference.py b/pipeline/check_preview_reference.py
+new file mode 100644
+index 00000000..589430b3
+--- /dev/null
++++ b/pipeline/check_preview_reference.py
+@@ -0,0 +1,71 @@
++#!/usr/bin/env python3
++"""Law L-d: the PBX-approved preview of 2026-11-11 is a protected reference (references/pulse_preview_2026-11-11,
++docs/references/REFERENCE_PULSE_PREVIEW_2026-11-11.md). With the CURRENT code and the reference's own frozen
++sources, its decisions must reproduce:
++  selection  every segment's selection lock (first / last word, i0 / i1) from the PIN's approved text, the way
++             pinned.py anchors it (sentence_law.anchor, start - 3 s .. end + 3 s)
++  cut        every segment's accepted cut_in / cut_out (sentence_law.edge_plan + accepted_cut) within one 10 ms hop
++  layout     every prepared clip's 9:16 shot classes and boundaries (vertical_layout.classify), on the
++             reference's prepared clips
++Edge FADES are not compared: the reference's named defect 2 (Natalie's 'rally' under the fade) is corrected
++by law L-b, which changes them by design. Exit 0 = reproduced, 1 = a decision changed, 2 = reference missing.
++Usage: python3 pipeline/check_preview_reference.py [--no-layout]"""
++import json
++import os
++import sys
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++REF = os.path.join(REPO, "references", "pulse_preview_2026-11-11")
++TOL_S = 0.0101
++
++
++def main(layout=True):
++    if not os.path.isfile(os.path.join(REF, "PIN.json")):
++        print(f"SKIP: protected reference missing: {REF}")
++        return 2
++    import sentence_law as L
++    pin = json.load(open(os.path.join(REF, "PIN.json")))
++    edl = json.load(open(os.path.join(REF, "edl.json")))
++    cuts = {c["clip_id"]: c for c in json.load(open(os.path.join(REF, "cuts_final.json")))}
++    segs = [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl["clips"]]
++    bad = []
++    for (label, seg), ps in zip(segs, pin["segments"]):
++        vid = ps["video_id"]
++        words = json.load(open(os.path.join(REF, "transcripts", f"{vid}.json")))["words"]
++        a = L.anchor(words, ps["approved_text"], t0=ps["start"] - 3.0, t1=ps["end"] + 3.0)
++        lock = seg["selection_lock"]
++        if a is None or (a[0], a[1]) != (lock["i0"], lock["i1"]):
++            bad.append(f"{label}: selection lock {a} != reference ({lock['i0']}, {lock['i1']})")
++            continue
++        src = os.path.join(REF, "sources", f"{vid}.mp4")
++        sa = L.SourceAudio(src)
++        pick = L.accepted_cut(src, L.edge_plan(sa, words, a[0], a[1]), sa=sa)
++        ref = cuts[label]
++        if pick is None:
++            bad.append(f"{label}: no accepted cut (reference {ref['cut_in']}-{ref['cut_out']})")
++            continue
++        for k in ("cut_in", "cut_out"):
++            if abs(pick[k] - ref[k]) > TOL_S:
++                bad.append(f"{label}: {k} {pick[k]} != reference {ref[k]}")
++        print(f"  {label}: '{lock['first_word']}' ... '{lock['last_word']}' cut {pick['cut_in']}-{pick['cut_out']} "
++              f"(reference {ref['cut_in']}-{ref['cut_out']})")
++    if layout:
++        import vertical_layout as V
++        ref_plans = json.load(open(os.path.join(REF, "VERTICAL_LAYOUT.json")))
++        for cid, rp in ref_plans.items():
++            plan = V.classify(os.path.join(REF, "qa", f"final_{cid}.mp4"))
++            got = [(s["class"], round(s["start"], 2), round(s["end"], 2)) for s in plan["shots"]]
++            want = [(s["class"], round(s["start"], 2), round(s["end"], 2)) for s in rp["shots"]]
++            if got != want:
++                bad.append(f"{cid}: layout {got} != reference {want}")
++            print(f"  {cid}: layout {got}")
++    for b in bad:
++        print("  CHANGED:", b)
++    print("PULSE PREVIEW REFERENCE:", "REPRODUCED" if not bad else f"{len(bad)} DECISION(S) CHANGED")
++    return 0 if not bad else 1
++
++
++if __name__ == "__main__":
++    sys.exit(main(layout="--no-layout" not in sys.argv))
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index 7c3d3268..95afc5c4 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -92,8 +92,12 @@ def _story_published(generated_at, freshness_minutes):
+ def layout_eligible(channel):
+     """Any registered channel with an id is clip-eligible. Presentation safety is
+     enforced later: approved channels crop; pending channels letterbox.
++    DEC-12d (2026-11-11): a channel the registry marks has_chyron burns a lower third into its picture, which
++    the 16:9 shows uncropped and G10 fails (Nov 11 recut: Bitcoin Magazine's ticker, 0.0854 vs 0.08); its
++    videos still count as coverage evidence, but selection never takes a clip from it: the next-ranked legal
++    window takes the slot (the 4th segment is optional).
+     """
+-    return bool(channel.get("channel_id"))
++    return bool(channel.get("channel_id")) and not channel.get("has_chyron")
+ 
+ 
+ def story_engine_status(stories, path=STORIES_PATH):
+diff --git a/pipeline/gates.py b/pipeline/gates.py
+index 15dc8310..aa41b151 100644
+--- a/pipeline/gates.py
++++ b/pipeline/gates.py
+@@ -126,8 +126,54 @@ def _frame_similarity(frame_a, frame_b):
+     return max(0.0, min(1.0, ncc))
+ 
+ 
++G14_MIN_CONCLUSIVE = 3      # DEC-12e: conclusive matching samples a segment needs
++
++
++def _g14_measure(final_mp4, source_path, label, out_time, window_s, sr, src_audio, src_audio_start,
++                 ref_src_time, ref_extract_start, tolerance_ms, qa_dir, frames=True):
++    """One G14 sample (the gate's original measurement): PASS / FAIL / HOLD entry."""
++    extract_start = out_time
++    out_audio = _extract_audio_mono(final_mp4, extract_start, window_s, sr)
++    xcorr_off, xcorr_peak = _xcorr_offset(out_audio, src_audio, sr)
++    entry = {"label": label, "output_time": round(out_time, 3), "status": "HOLD"}
++    if xcorr_off is None or xcorr_peak < 0.3:
++        entry["reason"] = f"inconclusive xcorr (peak={xcorr_peak:.3f})"
++        print(f"    HOLD: t={out_time:.3f}s — inconclusive (peak={xcorr_peak:.3f})")
++        return entry
++    matched_src_time = src_audio_start + xcorr_off
++    expected_src_time = ref_src_time + (extract_start - ref_extract_start)
++    delta_ms_val = abs(matched_src_time - expected_src_time) * 1000
++    entry.update(matched_src_s=round(matched_src_time, 3), expected_src_s=round(expected_src_time, 3),
++                 delta_ms=round(delta_ms_val, 1), xcorr_peak=round(xcorr_peak, 4))
++    if delta_ms_val > tolerance_ms:
++        entry["status"] = "FAIL"
++        print(f"    FAIL: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
++              f"(expected={expected_src_time:.3f}s, delta={delta_ms_val:.1f}ms, xcorr={xcorr_peak:.3f})")
++        return entry
++    if not frames:
++        entry["status"] = "PASS"
++        print(f"    PASS: t={out_time:.3f}s -> src={matched_src_time:.3f}s (audio_delta={delta_ms_val:.1f}ms)")
++        return entry
++    out_frame = _extract_frame(final_mp4, out_time, os.path.join(qa_dir, "g14_out_frame.png"))
++    src_frame = _extract_frame(source_path, matched_src_time, os.path.join(qa_dir, "g14_src_frame.png"))
++    sim = _frame_similarity(out_frame, src_frame)
++    entry["frame_sim"] = round(sim, 3) if sim is not None else None
++    if sim is not None and sim >= 0.3:
++        entry["status"] = "PASS"
++        print(f"    PASS: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
++              f"(audio_delta={delta_ms_val:.1f}ms, frame_sim={sim:.3f})")
++    elif sim is not None:
++        entry["status"] = "FAIL"
++        entry["reason"] = f"audio aligned but frame mismatch (sim={sim:.3f})"
++        print(f"    FAIL: t={out_time:.3f}s frame mismatch (audio ok, frame_sim={sim:.3f} < 0.3)")
++    else:
++        entry["reason"] = "frame comparison inconclusive"
++        print(f"    HOLD: t={out_time:.3f}s — frame comparison inconclusive")
++    return entry
++
++
+ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
+-             qa_dir=None):
++             qa_dir=None, frames=True):
+     """G14: audio-visual alignment (Amendment 1).
+ 
+     For each talking_head segment, samples at joins and every <= 2s inside.
+@@ -144,6 +190,10 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
+         manifest = json.load(f)
+ 
+     segments = manifest["segments"]
++    # DEC-12e: declared intervals where AV similarity is undefined by design: transition overlaps between
++    # consecutive segments of the timeline map, and VO segments
++    excluded = [(b["start"], a["end"]) for a, b in zip(segments, segments[1:]) if b["start"] < a["end"]] + \
++               [(sg["start"], sg["end"]) for sg in segments if sg.get("type") == "vo"]
+     tol_s = tolerance_ms / 1000.0
+     sr = 16000
+     window_s = 0.5  # audio window for cross-correlation
+@@ -195,6 +245,7 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
+             details.append({
+                 "label": label, "status": "HOLD",
+                 "reason": "no source clip for cross-correlation",
++                "segment_verdict": "HOLD", "conclusive_matches": 0, "conclusive_mismatches": 0,
+             })
+             has_hold = True
+             continue
+@@ -257,6 +308,7 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
+                 details.append({
+                     "label": label, "status": "HOLD",
+                     "reason": f"cannot validate reference (peak={ref_peak:.3f})",
++                    "segment_verdict": "HOLD", "conclusive_matches": 0, "conclusive_mismatches": 0,
+                 })
+                 has_hold = True
+                 continue
+@@ -264,72 +316,53 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
+             print(f"    Reference: output {ref_extract_start:.3f}s = source {ref_src_time:.3f}s "
+                   f"(using cut_in; xcorr marginal peak={ref_peak:.3f})")
+ 
+-        for offset in sample_offsets:
+-            out_time = seg_start + offset
+-            # Extract from the same position style (start of window, not centered)
+-            # to maintain consistent offset measurement with the reference.
+-            extract_start = out_time
+-            out_audio = _extract_audio_mono(final_mp4, extract_start, window_s, sr)
+-
+-            xcorr_off, xcorr_peak = _xcorr_offset(out_audio, src_audio, sr)
+-
+-            entry = {
+-                "label": label,
+-                "output_time": round(out_time, 3),
+-                "status": "HOLD",
+-            }
+-
+-            if xcorr_off is None or xcorr_peak < 0.3:
+-                entry["reason"] = f"inconclusive xcorr (peak={xcorr_peak:.3f})"
+-                has_hold = True
+-                print(f"    HOLD: t={out_time:.3f}s — inconclusive (peak={xcorr_peak:.3f})")
+-            else:
+-                matched_src_time = src_audio_start + xcorr_off
+-                # Expected: ref_src_time shifted by the difference in extraction starts
+-                expected_src_time = ref_src_time + (extract_start - ref_extract_start)
+-                delta_s = abs(matched_src_time - expected_src_time)
+-                delta_ms_val = delta_s * 1000
+-
+-                entry["matched_src_s"] = round(matched_src_time, 3)
+-                entry["expected_src_s"] = round(expected_src_time, 3)
+-                entry["delta_ms"] = round(delta_ms_val, 1)
+-                entry["xcorr_peak"] = round(xcorr_peak, 4)
+-
+-                if delta_ms_val <= tolerance_ms:
+-                    # Audio aligned — now verify frame matches.
+-                    # Extract output frame at out_time and source frame at matched_src_time.
+-                    out_frame_path = os.path.join(qa_dir, "g14_out_frame.png")
+-                    src_frame_path = os.path.join(qa_dir, "g14_src_frame.png")
+-                    out_frame = _extract_frame(final_mp4, out_time, out_frame_path)
+-                    src_frame = _extract_frame(source_path, matched_src_time, src_frame_path)
+-                    sim = _frame_similarity(out_frame, src_frame)
+-                    entry["frame_sim"] = round(sim, 3) if sim is not None else None
+-
+-                    # Frame similarity > 0.3 means the pictures match
+-                    # (threshold accounts for layout transforms, overlays, blurs)
+-                    if sim is not None and sim >= 0.3:
+-                        entry["status"] = "PASS"
+-                        print(f"    PASS: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
+-                              f"(audio_delta={delta_ms_val:.1f}ms, frame_sim={sim:.3f})")
+-                    elif sim is not None and sim < 0.3:
+-                        entry["status"] = "FAIL"
+-                        entry["reason"] = f"audio aligned but frame mismatch (sim={sim:.3f})"
+-                        all_pass = False
+-                        print(f"    FAIL: t={out_time:.3f}s frame mismatch "
+-                              f"(audio ok, frame_sim={sim:.3f} < 0.3)")
+-                    else:
+-                        entry["status"] = "HOLD"
+-                        entry["reason"] = "frame comparison inconclusive"
+-                        has_hold = True
+-                        print(f"    HOLD: t={out_time:.3f}s — frame comparison inconclusive")
+-                else:
+-                    entry["status"] = "FAIL"
+-                    all_pass = False
+-                    print(f"    FAIL: t={out_time:.3f}s -> src={matched_src_time:.3f}s "
+-                          f"(expected={expected_src_time:.3f}s, delta={delta_ms_val:.1f}ms, "
+-                          f"xcorr={xcorr_peak:.3f})")
+-
++        # DEC-12e (2026-11-11): sample only where the transcript has speech (a word in the 0.5 s window) and
++        # outside declared transition / VO intervals of the timeline map; an inconclusive sample is re-taken
++        # once at the nearest speech point; the segment passes with >= 3 conclusive matching samples and zero
++        # conclusive mismatches, < 3 = HOLD. The xcorr bar (0.3) and the tolerance are unchanged.
++        words = (source_info or {}).get("words")
++        src_at = lambda t: ref_src_time + (t - ref_extract_start)          # output time -> source time
++        out_at = lambda sv: ref_extract_start + (sv - ref_src_time)
++
++        def speech(t):
++            a = src_at(t)
++            return words is None or any(w["start"] < a + window_s and w["end"] > a for w in words)
++
++        def clear(t):
++            return all(t + window_s <= x0 or t >= x1 for x0, x1 in excluded)
++
++        lo, hi = seg_start + 0.05, seg_end - window_s - 0.1
++        times = [seg_start + o for o in sample_offsets if speech(seg_start + o) and clear(seg_start + o)]
++        spoken = sorted({round(out_at(w["start"]), 3) for w in (words or []) if lo <= out_at(w["start"]) <= hi})
++        used = list(times)
++        seg_entries = []
++        for out_time in times:
++            entry = _g14_measure(final_mp4, source_path, label, out_time, window_s, sr, src_audio, src_audio_start,
++                                 ref_src_time, ref_extract_start, tolerance_ms, qa_dir, frames)
++            if entry["status"] == "HOLD":
++                alt = [t for t in spoken if clear(t) and all(abs(t - u) >= window_s / 2 for u in used)]
++                if alt:
++                    t2 = min(alt, key=lambda t: abs(t - out_time))
++                    used.append(t2)
++                    entry["superseded_by"] = t2
++                    details.append(entry)
++                    entry = _g14_measure(final_mp4, source_path, label, t2, window_s, sr, src_audio,
++                                         src_audio_start, ref_src_time, ref_extract_start, tolerance_ms, qa_dir,
++                                         frames)
++                    entry["retake_of"] = round(out_time, 3)
++            seg_entries.append(entry)
+             details.append(entry)
++        matches = sum(1 for e in seg_entries if e["status"] == "PASS")
++        mismatches = sum(1 for e in seg_entries if e["status"] == "FAIL")
++        verdict = "FAIL" if mismatches else ("PASS" if matches >= G14_MIN_CONCLUSIVE else "HOLD")
++        if verdict == "FAIL":
++            all_pass = False
++        elif verdict == "HOLD":
++            has_hold = True
++        details.append({"label": label, "segment_verdict": verdict, "conclusive_matches": matches,
++                        "conclusive_mismatches": mismatches, "samples": len(seg_entries),
++                        "status": verdict})
++        print(f"    {label}: {matches} conclusive matching, {mismatches} mismatching -> {verdict}")
+ 
+     # VO segments get declared pre-roll — just verify they exist at the right time
+     for seg in segments:
+@@ -549,3 +582,73 @@ def main():
+ 
+ if __name__ == "__main__":
+     main()
++
++
++# ── G20: SIGNOFF_NAMES_ALL (law L-a, orchestrator 2026-11-11 15:30) ──
++
++G20_NAME_RATIO = 0.85       # a spoken name matches when a same-length stretch of the transcript (spaces and
++                            # punctuation removed) is this similar to the name or one of its registry aliases
++
++
++def _g20_norm(s):
++    import re
++    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
++
++
++def spoken_channels(transcript, registry, credited=()):
++    """The registry channels whose display name or an alias is heard in `transcript` (spaces and punctuation
++    ignored). A CREDITED channel may match fuzzily (a mis-heard letter or two: 'Natalie Brunel'); any OTHER
++    channel only by an exact match that does not overlap a credited name ('Bitcoin Magazine Pro' is not heard
++    in '... Bitcoin Magazine, go follow ...')."""
++    from difflib import SequenceMatcher
++    t = _g20_norm(transcript)
++    cred = set(credited)
++    heard, spans = set(), []
++    for e in sorted(registry, key=lambda e: e.get("display_name") not in cred):
++        is_cred = e.get("display_name") in cred
++        for name in [e.get("display_name")] + list(e.get("aliases") or []):
++            n = _g20_norm(name)
++            if len(n) < 4:
++                continue
++            i, span = t.find(n), None
++            if i >= 0:
++                span = (i, i + len(n))
++            elif is_cred:
++                best = max(((SequenceMatcher(None, n, t[j:j + len(n)]).ratio(), j)
++                            for j in range(0, max(1, len(t) - len(n) + 1))), default=(0, 0))
++                if best[0] >= G20_NAME_RATIO:
++                    span = (best[1], best[1] + len(n))
++            if span is None or (not is_cred and any(span[0] < b and a < span[1] for a, b in spans)):
++                continue
++            heard.add(e["display_name"])
++            spans.append(span)
++            break
++    return heard
++
++
++def gate_g20(final_mp4, segments, credited, qa_dir, registry=None):
++    """G20 SIGNOFF_NAMES_ALL: transcribe the rendered sign-off (the shoutout segment of the final) and require
++    the spoken set of channel names == the credited set (the card = the EDL's channels, hook first). Fails
++    closed: no shoutout segment, an empty transcript or no credited channels = FAIL."""
++    import json as _json
++    print("\n=== G20: SIGNOFF_NAMES_ALL ===")
++    if registry is None:
++        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")) as f:
++            registry = _json.load(f)
++    sh = next((s for s in segments if s.get("type") == "shoutout" or s.get("label") == "shoutout"), None)
++    if sh is None or not credited:
++        print("  FAIL: no shoutout segment or no credited channels")
++        return False, {"error": "no shoutout segment or no credited channels"}
++    wav = os.path.join(qa_dir, "g20_signoff.wav")
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{sh['start']:.3f}", "-t", f"{sh['end'] - sh['start']:.3f}",
++                    "-i", final_mp4, "-ac", "1", "-ar", "16000", wav], check=True, timeout=120)
++    sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
++    import qa_gates
++    text = qa_gates.whisper_segment(wav, qa_dir)
++    heard = spoken_channels(text, registry, credited)
++    want = set(credited)
++    ok = bool(text.strip()) and heard == want
++    print(f"  transcript: {text.strip()[:160]}")
++    print(f"  credited {sorted(want)} | spoken {sorted(heard)} [{'PASS' if ok else 'FAIL'}]")
++    return ok, {"transcript": text.strip(), "credited": sorted(want), "spoken": sorted(heard),
++                "missing": sorted(want - heard), "extra": sorted(heard - want), "pass": ok}
+diff --git a/pipeline/regression.sh b/pipeline/regression.sh
+index d1984f8f..134b34a5 100755
+--- a/pipeline/regression.sh
++++ b/pipeline/regression.sh
+@@ -84,4 +84,16 @@ print(f'  Parity: {delta:.3f}s (threshold 0.25s) {\"PASS\" if delta < 0.25 else
+ fi
+ echo ""
+ 
++# ── Step 6: second protected reference (law L-d) ──
++echo "--- STEP 6: PROTECTED REFERENCE pulse_preview_2026-11-11 (selection + cut + layout must reproduce) ---"
++set +e
++python3 pipeline/check_preview_reference.py
++PREVIEW_RC=$?
++set -e
++if [ "$PREVIEW_RC" -eq 1 ]; then
++    echo "  FAIL: the PBX-approved preview's decisions changed (docs/references/REFERENCE_PULSE_PREVIEW_2026-11-11.md)"
++    exit 1
++fi
++echo ""
++
+ echo "=== REGRESSION COMPLETE ==="
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 85f77a5e..ae5f149a 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -475,6 +475,16 @@ def stage_voice(run):
+         raise Hold(f"VO voice/model {voice_id}/{model_id} != v2f {ref_voice}/{ref_model}")
+     if "signoff" not in manifest:
+         raise Hold("no signoff VO generated")
++    # law L-a, before anything is rendered: the sign-off script names exactly the credited channels (the
++    # card's list: the hook's channel first, then the clips'); G20 checks the rendered voice after render
++    import credit_rings
++    import gates as G
++    with open(os.path.join(run.dir, "edl.json")) as f:
++        credited = credit_rings.credit_channels(json.load(f))
++    with open(os.path.join(PIPELINE_DIR, "channels.json")) as f:
++        named = G.spoken_channels(manifest["signoff"].get("text", ""), json.load(f), credited)
++    if named != set(credited):
++        raise Hold(f"law L-a: the sign-off script names {sorted(named)}, the card credits {credited}")
+     vo_dir = os.path.join(run.dir, "vo_audio")
+     stems = {}
+     for k, v in manifest.items():
+@@ -816,8 +826,12 @@ def stage_gates(run, final16, man16, final9, man9):
+     rows["9x16"]["G11_parity"] = _status(g11_ok)
+ 
+     # G14 / G14c / G15
++    def _words(vid):                                  # DEC-12e: G14 samples where the transcript has speech
++        tp = os.path.join(run.dir, "transcripts", f"{vid}.json")
++        with open(tp) as f:
++            return [{"start": float(w["start"]), "end": float(w["end"])} for w in json.load(f)["words"]]
+     src_clips = {c["clip_id"]: {"path": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
+-                                "cut_in": c["cut_in"]} for c in cuts}
++                                "cut_in": c["cut_in"], "words": _words(c["video_id"])} for c in cuts}
+     g14dir16 = os.path.join(qa, "g14_16x9")
+     g14dir9 = os.path.join(qa, "g14_9x16")
+     os.makedirs(g14dir16, exist_ok=True)
+@@ -842,12 +856,11 @@ def stage_gates(run, final16, man16, final9, man9):
+     limits["16x9"].append("G14: static talking-head temporal slips can pass frame_sim "
+                           "(v2e 18.0-24.0 s precedent); VO sections are auto-PASS (pre-roll "
+                           "declared), plate correctness not verified")
+-    g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9)
+-    # audio part: the gate's own conclusive xcorr measurement (peak >= 0.3) and 40 ms tolerance
+-    audio_bad = [d for d in g14_9 if d.get("delta_ms") is not None and d["delta_ms"] > 40]
+-    inconclusive9 = [d for d in g14_9 if d.get("status") == "HOLD" and d.get("delta_ms") is None]
+-    rows["9x16"]["G14_audio_offset"] = ("FAIL" if audio_bad else
+-                                        "HOLD(inconclusive)" if inconclusive9 else "PASS")
++    # 9:16: the audio-offset part only (frame similarity of a 9:16 crop against the 16:9 source is not valid);
++    # the gate's own per-segment verdict (DEC-12e): >= 3 conclusive matching samples, zero mismatches
++    g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9, frames=False)
++    fails9 = [d for d in g14_9 if d.get("status") == "FAIL"]
++    rows["9x16"]["G14_audio_offset"] = ("PASS" if g14_9_ok else "FAIL" if fails9 else "HOLD(inconclusive)")
+     rows["9x16"]["G14_frame_similarity"] = "LIMITED (not valid for 9:16 crop vs 16:9 source)"
+     limits["9x16"].append("G14 frame_sim compares a 9:16 crop with the 16:9 source (v2e positive "
+                           "control: 0.24-0.54 on correct frames); only the audio-offset part is "
+@@ -863,6 +876,13 @@ def stage_gates(run, final16, man16, final9, man9):
+     g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"), channels=credited)
+     rows["16x9"]["G15_credits"] = _status(g15_16_ok)
+     rows["9x16"]["G15_credits"] = _status(g15_9_ok)
++    # G20 SIGNOFF_NAMES_ALL (law L-a): the rendered sign-off names exactly the credited channels
++    for sub in ("g20_16x9", "g20_9x16"):
++        os.makedirs(os.path.join(qa, sub), exist_ok=True)
++    g20_16_ok, g20_16 = G.gate_g20(final16, segs16, credited, os.path.join(qa, "g20_16x9"))
++    g20_9_ok, g20_9 = G.gate_g20(final9, segs9, credited, os.path.join(qa, "g20_9x16"))
++    rows["16x9"]["G20_signoff_names_all"] = _status(g20_16_ok)
++    rows["9x16"]["G20_signoff_names_all"] = _status(g20_9_ok)
+ 
+     # G8 — production result + source-relative report (threshold untouched)
+     g8dir = os.path.join(qa, "g8_relative")
+@@ -923,8 +943,32 @@ def stage_gates(run, final16, man16, final9, man9):
+                                           for c in cuts})
+     g17b16_ok, g17b16 = L.gate_g17_output(final16, segs16, cuts, run.dir)
+     g17b9_ok, g17b9 = L.gate_g17_output(final9, segs9, cuts, run.dir)
+-    rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok)
+-    rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok)
++    # G17c (law L-b): the first and last word of every prepared clip, with their decay, at full level
++    # (within 1 dB of the unfaded source); format-independent, part of the G17 row in both formats
++    g17c_ok, g17c = L.gate_g17_edges(run.dir)
++    rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok and g17c_ok)
++    rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok and g17c_ok)
++
++    # law L-c: a check that disagrees with the others on an EDGE WORD is right until an acoustic comparison
++    # with the source proves otherwise: G17c (the kept word and decay equal the unfaded source) and G16 (no
++    # audible part of the neighbour word, neighbour_clear). A dissenting G3b reading needs that proof, else
++    # HOLD; a G3c head / tail failure on an edge is overruled only by it, else it stands.
++    def _edge_proved(seg, side):
++        return g16_ok and bool((g17c.get(seg) or {}).get(side, {}).get("ok"))
++    lc = {}
++    for fmt, res in (("16x9", r16), ("9x16", r9)):
++        g3b = (res.get("G3b_cut_out_clean") or {}).get("table") or []
++        dissent = [e["segment"] for e in g3b if isinstance(e, dict) and e.get("dissent") and e.get("last_found")]
++        unproved = [sg for sg in dissent if not _edge_proved(sg, "out")]
++        if rows[fmt].get("G3b_cut_out_clean") == "PASS" and unproved:
++            rows[fmt]["G3b_cut_out_clean"] = f"HOLD(dissent unproved: {', '.join(unproved)})"
++        g3c = (res.get("G3c_acoustic_tail") or {}).get("table") or []
++        failed = [(e["segment"], side) for e in g3c if isinstance(e, dict)
++                  for side, key in (("out", "tail_ok"), ("in", "head_ok")) if e.get(key) is False]
++        if rows[fmt].get("G3c_acoustic_tail") == "FAIL" and failed and all(_edge_proved(sg, sd) for sg, sd in failed):
++            rows[fmt]["G3c_acoustic_tail"] = "PASS(L-c: " + ", ".join(f"{sg} {sd}" for sg, sd in failed) + \
++                " proved by the source comparison)"
++        lc[fmt] = {"g3b_dissent": dissent, "g3b_unproved": unproved, "g3c_failed_edges": failed}
+ 
+     # G18 WORD-FOR-WORD (mission 4a): every clip's first/last words are its locked sentences' and its
+     # words are exactly those of the source span it was cut from (both finals; whisper on GPU0)
+@@ -963,7 +1007,7 @@ def stage_gates(run, final16, man16, final9, man9):
+ 
+     gates_out = {"rows": rows, "flags": flags, "limitations": limits,
+                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
+-                 "G15_16x9": g15_16, "G15_9x16": g15_9, "G8": g8_report, "G9": g9_report, "G16": g16,
++                 "G15_16x9": g15_16, "G15_9x16": g15_9, "G20_16x9": g20_16, "G20_9x16": g20_9, "G17c": g17c, "L-c": lc, "G8": g8_report, "G9": g9_report, "G16": g16,
+                  "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18, "G19": g19,
+                  "G4_per_shot": g4_shots, "G4s": g4s,
+                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
+diff --git a/pipeline/sentence_law.py b/pipeline/sentence_law.py
+index 924e7310..b8b94e3e 100644
+--- a/pipeline/sentence_law.py
++++ b/pipeline/sentence_law.py
+@@ -56,11 +56,10 @@ TAIL_MIN_S = 0.000          # v2f clip_03 prepared tail 0 ms (10 ms in the sourc
+ GUARD_S = 0.000             # v2f clip_01 in sits 10 ms inside "Yeah."'s decay; neighbour_clear replaces the guard
+ HEAD_LEAD_MIN_S = 0.080     # UNCHANGED D1 rule ("half Bitcoin"): the start of a source file, and the hook (the
+                             # first thing heard at playback), need 80 ms of genuine quiet or the room-tone pad
+-VALLEY_FADE_S = 2 / 24      # DEC-10 d: a cut at an envelope minimum gets a 2-frame audio fade: 2 VIDEO frames
+-                            # at 24 fps = 83 ms (not 2 audio hops)
++VALLEY_FADE_S = 2 / 24      # DEC-10 d / DEC-12b: every machine-cut edge gets a 2-frame audio fade: 2 VIDEO
++                            # frames at 24 fps = 83 ms (not 2 audio hops)
+ WORD_BELOW_SPEECH_DB = 6.0  # DEC-10: a word is heard from/to where it is within 6 dB of local speech
+-DEFAULT_FADE_IN_S, DEFAULT_FADE_OUT_S = 0.020, 0.030   # M19 fades of every other cut (unchanged)
+-VALLEY_MARGIN_S = 0.010     # with no quiet run, the minimum is searched in the transcript gap between the two words
++VALLEY_MARGIN_S = 0.010     # (a TIGHTENING) with no quiet run, the minimum is searched in the transcript gap between the two words
+                             # +- one hop; 80 ms let the Nov 10 recut (12:22) cut at a closure INSIDE the next word
+                             # (Natalie 'rally.' | 'But': minimum at 80.93, kept 'Bu' at -13 dB; G3c caught it)
+ SHORT_IN_S, SHORT_OUT_S = 0.080, 0.140   # DEC-10 d: a gap shorter than these (the 01:50 numbers, now choosing
+@@ -435,12 +434,86 @@ def neighbour_clear(sa, plan, cut_in, cut_out, fade_in_s, fade_out_s):
+     return all(v["ok"] for v in det.values()), det
+ 
+ 
++FADE_MIN_S = 0.010          # law L-b: an edge fade shortens down to 10 ms to stay out of the edge word
++FLOOR_PLUS_DB = 3.0         # law L-b: a word has ended (not yet begun) where its envelope is within 3 dB of the
++                            # level at the cut point (the valley minimum or the room tone the cut sits in)
++EDGE_WORD_MAX_DB = 1.0      # G17c: every frame of an edge word (and its decay) within 1 dB of the unfaded source
++
++
++def edge_word_bounds(sa, plan, cut_in, cut_out):
++    """Law L-b: where the first word acoustically begins and the last word (with its natural decay) ends,
++    measured from the cut point's own level (the valley minimum or the room tone the cut sits in): the gap is
++    the run of frames within FLOOR_PLUS_DB of that level next to the cut; the word is everything beyond it.
++    Not from transcript timestamps. Returns {"onset", "end", "lim_in", "lim_out"}."""
++    out = {"onset": None, "end": None, "lim_in": None, "lim_out": None}
++    t, d = sa.sl(max(0.0, cut_out - 1.0), cut_out + 1e-6)
++    if len(d):
++        lim = float(d[-1]) + FLOOR_PLUS_DB
++        k = len(d) - 1
++        while k > 0 and d[k - 1] <= lim:
++            k -= 1
++        out["end"], out["lim_out"] = float(t[k]), round(lim, 2)
++    t, d = sa.sl(cut_in, cut_in + 1.0)
++    if len(d):
++        lim = float(d[0]) + FLOOR_PLUS_DB
++        k = 0
++        while k + 1 < len(d) and d[k + 1] <= lim:
++            k += 1
++        out["onset"], out["lim_in"] = float(t[k]) + HOP_S, round(lim, 2)
++    return out
++
++
++def edge_fades(sa, plan, cut_in, cut_out):
++    """Law L-b (DEC-12b amended, orchestrator 2026-11-11 15:30): an edge fade never overlaps an edge word. The
++    fade-out starts at or after the last word's acoustic end, the fade-in ends at or before the first word's
++    acoustic onset; 2 frames (83 ms) when the gap allows, shorter down to 10 ms when it does not."""
++    wb = edge_word_bounds(sa, plan, cut_in, cut_out)
++    fi = VALLEY_FADE_S if wb["onset"] is None else min(VALLEY_FADE_S, max(FADE_MIN_S, wb["onset"] - cut_in))
++    fo = VALLEY_FADE_S if wb["end"] is None else min(VALLEY_FADE_S, max(FADE_MIN_S, cut_out - wb["end"]))
++    return round(fi, 3), round(fo, 3), wb
++
++
++def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa=None):
++    """G17c (law L-b): the first and the last word of a prepared clip, with their natural decay, at full level:
++    every 10 ms frame of the source over [first onset, + 0.3 s] and [last end - 0.3 s, last end] that is above
++    the gap level next to the cut is matched in the clip within EDGE_WORD_MAX_DB (best alignment within +-2
++    hops absorbs the codec's delay). Returns (ok, detail)."""
++    sa = sa or SourceAudio(src_path)
++    ca = SourceAudio(clip_path)
++    wb = edge_word_bounds(sa, plan, cut_in, cut_out)
++    det = {}
++    for side, (a, b) in (("in", (wb["onset"], None)), ("out", (None, wb["end"]))):
++        if (a if side == "in" else b) is None:
++            det[side] = {"ok": False, "why": "edge word not measurable"}
++            continue
++        t0, t1 = (a, min(a + 0.3, cut_out)) if side == "in" else (max(b - 0.3, cut_in), b)
++        ts, ds = sa.sl(t0, t1)
++        keep = ds > wb["lim_in" if side == "in" else "lim_out"]       # the word, not the gap it sits next to
++        best = None
++        for k in range(-2, 3):
++            tc, dc = ca.sl(t0 - cut_in + pad_s + k * HOP_S, t1 - cut_in + pad_s + k * HOP_S)
++            n = min(len(dc), len(ds))
++            if n == 0:
++                continue
++            diff = np.abs(dc[:n] - ds[:n])[keep[:n]]
++            worst = float(np.max(diff)) if len(diff) else 0.0
++            if best is None or worst < best[0]:
++                best = (worst, k)
++        ok = best is not None and best[0] <= EDGE_WORD_MAX_DB
++        det[side] = {"ok": ok, "span": [round(t0, 3), round(t1, 3)], "worst_db": None if best is None else round(best[0], 2),
++                     "shift_hops": None if best is None else best[1],
++                     "why": "edge word at full level" if ok else
++                     f"edge word up to {best[0] if best else float('nan'):.1f} dB off the source (max {EDGE_WORD_MAX_DB})"}
++    return all(v["ok"] for v in det.values()), det
++
++
+ def accepted_cut(src, plan, step=HOP_S, sa=None):
+     """The cut nearest the plan's targets. Both edges clear of cut_accept: its unchanged acoustics check on the
+     pair (20 / 30 ms fades). An edge only reachable at the envelope minimum (DEC-10 d) gets a 2-frame fade and
+     must pass neighbour_clear. Returns a dict or None (rejected only by c-ii, or no acoustic pair)."""
+     from cut_accept import check_cut_acoustics
+     cand = cut_candidates(src, plan, step)
++    sa = sa or SourceAudio(src)
+ 
+     def short(side):                                # DEC-10 d: short gaps are cut at their minimum
+         b = plan[side]
+@@ -452,13 +525,14 @@ def accepted_cut(src, plan, step=HOP_S, sa=None):
+     # valley when cut_accept clears none of its candidates; it keeps the plan's cut there
+     cut_in = plan["in"]["point"] if v["in"] and plan["in"].get("point") is not None else cand["in"][0]
+     cut_out = plan["out"]["point"] if v["out"] and plan["out"].get("point") is not None else cand["out"][0]
+-    fi = VALLEY_FADE_S if v["in"] else DEFAULT_FADE_IN_S
+-    fo = VALLEY_FADE_S if v["out"] else DEFAULT_FADE_OUT_S
++    # DEC-12b amended / law L-b: every machine-cut edge gets a fade that never overlaps its edge word: 2 frames
++    # (83 ms) inside the gap when it fits, shorter down to 10 ms when it does not (human PIN tables keep 20 / 30)
++    fi, fo, _ = edge_fades(sa, plan, cut_in, cut_out)
+     if not (v["in"] and v["out"]):                  # cut_accept's unchanged checks on every edge NOT cut at a
+         acou = check_cut_acoustics(src, cut_in, cut_out)[1]          # minimum, also when the other one is
+         if not all(acou[s]["pass"] for s in ("in", "out") if not v[s]):   # (batch-8 Heimdall F2)
+             return None
+-    ok, det = neighbour_clear(sa or SourceAudio(src), plan, cut_in, cut_out, fi, fo)
++    ok, det = neighbour_clear(sa, plan, cut_in, cut_out, fi, fo)
+     if not ok:
+         return None
+     return {"cut_in": cut_in, "cut_out": cut_out, "valley_in": v["in"], "valley_out": v["out"],
+@@ -642,6 +716,34 @@ def apply_lead_in_pad(run_dir, cut, fps, qp):
+     return {"pad_s": pad, "room_tone_source_s": info, "wav": os.path.basename(wav)}
+ 
+ 
++def gate_g17_edges(run_dir, source_path_fn=None):
++    """G17c (law L-b): every machine-cut segment's prepared clip keeps its first and last word, with their
++    natural decay, at full level against the source (edge_word_fidelity). Human PIN tables are measured too.
++    Returns (ok, {clip_id: detail})."""
++    with open(os.path.join(run_dir, "edl.json")) as f:
++        edl = json.load(f)
++    with open(os.path.join(run_dir, "cuts_final.json")) as f:
++        cuts = {c["clip_id"]: c for c in json.load(f)}
++    table, ok_all = {}, True
++    for label, seg in _segments(edl):
++        lock, cut = seg.get("selection_lock"), cuts.get(label)
++        clip = os.path.join(run_dir, "qa", f"final_{label}.mp4")
++        if not lock or not cut or not os.path.exists(clip):
++            table[label] = {"ok": False, "why": "no lock / cut / prepared clip"}
++            ok_all = False
++            continue
++        with open(os.path.join(run_dir, "transcripts", f"{seg['video_id']}.json")) as f:
++            words = json.load(f)["words"]
++        src = (source_path_fn or (lambda v: os.path.join(run_dir, "sources", f"{v}.mp4")))(seg["video_id"])
++        sa = SourceAudio(src)
++        plan = edge_plan(sa, words, lock["i0"], lock["i1"])
++        ok, det = edge_word_fidelity(src, clip, plan, cut["cut_in"], cut["cut_out"],
++                                     float(cut.get("lead_in_pad_s") or 0), sa=sa)
++        table[label] = {"ok": ok, **det}
++        ok_all &= ok
++    return ok_all, table
++
++
+ # ── G17 ONSET/TAIL INTEGRITY (rendered audio) ──
+ 
+ def head_tail(sa):
+diff --git a/pipeline/test_dec10_edges.py b/pipeline/test_dec10_edges.py
+index b1adbfea..a30dfcb0 100644
+--- a/pipeline/test_dec10_edges.py
++++ b/pipeline/test_dec10_edges.py
+@@ -165,7 +165,10 @@ class TestValleyCut(unittest.TestCase):
+         cut = L.accepted_cut(self.src, plan, sa=self.sa)
+         self.assertIsNotNone(cut)
+         self.assertTrue(cut["valley_in"], cut)                # unconditionally the valley path ...
+-        self.assertEqual(cut["fade_in_ms"], int(round(L.VALLEY_FADE_S * 1000)))   # ... with the 2-frame fade
++        # ... with a fade that never overlaps the first word (law L-b): 10 ms .. 2 frames, ending by its onset
++        self.assertTrue(10 <= cut["fade_in_ms"] <= int(round(L.VALLEY_FADE_S * 1000)), cut)
++        wb = L.edge_word_bounds(self.sa, plan, cut["cut_in"], cut["cut_out"])
++        self.assertLessEqual(cut["cut_in"] + cut["fade_in_ms"] / 1000, wb["onset"] + 1e-6, (cut, wb))
+         self.assertLessEqual(abs(cut["cut_in"] - self.junction), L.HOP_S + 1e-9, (cut["cut_in"], self.junction))
+ 
+     def test_a_given_cut_inside_the_neighbour_word_is_audible(self):
+@@ -187,6 +190,7 @@ class TestMixedEdgeAcoustics(unittest.TestCase):
+         det = {"in": {"pass": in_pass}, "out": {"pass": out_pass}}
+         with mock.patch.object(L, "cut_candidates", return_value=cand), \
+                 mock.patch("cut_accept.check_cut_acoustics", return_value=(in_pass and out_pass, det)), \
++                mock.patch.object(L, "edge_fades", return_value=(0.083, 0.083, {})), \
+                 mock.patch.object(L, "neighbour_clear", return_value=(True, {})):
+             return L.accepted_cut("unused.wav", plan, sa=object())
+ 
+@@ -197,7 +201,7 @@ class TestMixedEdgeAcoustics(unittest.TestCase):
+         c = self._accepted(in_pass=False, out_pass=True)
+         self.assertIsNotNone(c)
+         self.assertEqual((c["valley_in"], c["valley_out"], c["cut_in"], c["cut_out"]), (True, False, 1.0, 5.1))
+-        self.assertEqual((c["fade_in_ms"], c["fade_out_ms"]), (83, 30))
++        self.assertEqual((c["fade_in_ms"], c["fade_out_ms"]), (83, 83))   # DEC-12b: every machine edge
+ 
+ 
+ class TestCutStageValleyEdges(unittest.TestCase):
+diff --git a/pipeline/test_edge_words.py b/pipeline/test_edge_words.py
+new file mode 100644
+index 00000000..d8db7237
+--- /dev/null
++++ b/pipeline/test_edge_words.py
+@@ -0,0 +1,103 @@
++#!/usr/bin/env python3
++"""Law L-b (PBX, orchestrator 2026-11-11 15:30 / 15:35): a fade never overlaps an edge word; the first and the
++last word of every clip are heard whole, at full level, with their natural decay (G17c: within 1 dB of the
++unfaded source). The fade shortens down to 10 ms to stay in the gap.
++must-fail  the approved preview's Natalie Brunell tail: "...Bitcoin really hasn't participated in the Monday
++           rally." - the 83 ms fade ending at 80.84 started inside the decay of 'rally'
++must-pass  the same cut prepared with the L-b fades; every v2f edge (its own 20 / 30 ms fades) except two
++           legacy edges recorded since DEC-10 (clip_01 OUT, clip_03 IN), which must keep failing
++Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_edge_words.py"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import sentence_law as L  # noqa: E402
++
++PREVIEW = os.path.join(REPO, "references", "pulse_preview_2026-11-11")
++V2F = os.path.join(REPO, "references", "v2f_2026-11-06", "run")
++
++
++def _natalie():
++    edl = json.load(open(os.path.join(PREVIEW, "edl.json")))
++    seg = next(c for c in edl["clips"] if c["channel"] == "Natalie Brunell")
++    words = json.load(open(os.path.join(PREVIEW, "transcripts", f"{seg['video_id']}.json")))["words"]
++    cut = next(c for c in json.load(open(os.path.join(PREVIEW, "cuts_final.json"))) if c["video_id"] == seg["video_id"])
++    return seg, words, cut
++
++
++@unittest.skipUnless(os.path.isdir(PREVIEW), "protected preview reference not on this machine")
++class TestNatalieTail(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.seg, cls.words, cls.cut = _natalie()
++        cls.src = os.path.join(PREVIEW, "sources", f"{cls.seg['video_id']}.mp4")
++        cls.sa = L.SourceAudio(cls.src)
++        lock = cls.seg["selection_lock"]
++        cls.plan = L.edge_plan(cls.sa, cls.words, lock["i0"], lock["i1"])
++
++    def test_the_sentence_is_the_one_pbx_named(self):
++        tail = " ".join(w["word"] for w in self.words[self.seg["selection_lock"]["i1"] - 5:
++                                                      self.seg["selection_lock"]["i1"] + 1])
++        self.assertTrue(tail.endswith("participated in the Monday rally."), tail)
++
++    def test_the_preview_clip_cuts_into_rally(self):
++        ok, det = L.edge_word_fidelity(self.src, os.path.join(PREVIEW, "qa", "final_clip_01.mp4"), self.plan,
++                                       self.cut["cut_in"], self.cut["cut_out"], sa=self.sa)
++        self.assertFalse(det["out"]["ok"], det)
++        self.assertEqual(self.cut["fade_out_ms"], 83)                   # the delivered fade
++
++    def test_the_l_b_fade_stays_out_of_rally_and_keeps_it_whole(self):
++        fi, fo, wb = L.edge_fades(self.sa, self.plan, self.cut["cut_in"], self.cut["cut_out"])
++        self.assertLessEqual(self.cut["cut_out"] - fo, self.cut["cut_out"])
++        self.assertGreaterEqual(round(self.cut["cut_out"] - fo, 3), round(wb["end"], 3) - 1e-9)   # fade after the word
++        from run_isolated import prerender_clips
++        tmp = tempfile.mkdtemp(prefix="lb_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        os.makedirs(os.path.join(tmp, "sources"))
++        os.makedirs(os.path.join(tmp, "qa"))
++        os.symlink(self.src, os.path.join(tmp, "sources", os.path.basename(self.src)))
++        c = {**self.cut, "fade_in_ms": int(round(fi * 1000)), "fade_out_ms": int(round(fo * 1000))}
++        prerender_clips(tmp, [c])
++        ok, det = L.edge_word_fidelity(self.src, os.path.join(tmp, "qa", f"final_{c['clip_id']}.mp4"), self.plan,
++                                       c["cut_in"], c["cut_out"], sa=self.sa)
++        self.assertTrue(ok, det)
++
++
++@unittest.skipUnless(os.path.isdir(V2F), "frozen v2f reference not on this machine")
++class TestV2fEdgesWhole(unittest.TestCase):
++    """Every v2f edge word is at full level except two legacy edges recorded since DEC-10, which G17c rightly
++    fails and must keep failing: clip_01 OUT (PBX's documented one-time exception: cut 20 ms after
++    'magnitude.', the 30 ms fade reaches its decay: 2.63 dB) and clip_03 IN (v2f's clip_03 starts mid-sentence
++    on 'a', pre-law: the 20 ms fade-in falls on the word: 1.93 dB)."""
++    RECORDED = {("clip_01", "out"), ("clip_03", "in")}
++
++    def test_every_v2f_edge_word_is_at_full_level(self):
++        cuts = json.load(open(os.path.join(V2F, "cuts_final.json")))
++        cuts = cuts if isinstance(cuts, list) else cuts["cuts"]
++        bad = []
++        for c in cuts:
++            words = json.load(open(os.path.join(V2F, "transcripts", f"{c['video_id']}.json")))["words"]
++            src = os.path.join(V2F, "sources", f"{c['video_id']}.mp4")
++            sa = L.SourceAudio(src)
++            mid = lambda w: (w["start"] + w["end"]) / 2
++            i0 = next(i for i, w in enumerate(words) if mid(w) > c["cut_in"])
++            i1 = max(i for i, w in enumerate(words) if mid(w) < c["cut_out"])
++            plan = L.edge_plan(sa, words, i0, i1)
++            ok, det = L.edge_word_fidelity(src, os.path.join(V2F, "qa", f"final_{c['clip_id']}.mp4"), plan,
++                                           c["cut_in"], c["cut_out"], float(c.get("lead_in_pad_s") or 0), sa=sa)
++            for side, v in det.items():
++                if (c["clip_id"], side) in self.RECORDED:
++                    self.assertFalse(v["ok"], (c["clip_id"], side, v))       # the legacy edge keeps failing
++                elif not v["ok"]:
++                    bad.append((c["clip_id"], side, v))
++        self.assertEqual(bad, [])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_editorial.py b/pipeline/test_editorial.py
+index 063296b6..8dc50544 100644
+--- a/pipeline/test_editorial.py
++++ b/pipeline/test_editorial.py
+@@ -102,6 +102,23 @@ class TestCaption429SwitchesToWhisper(TempStore):
+ 
+ # ── 4. provenance ──
+ 
++class TestChyronChannels(unittest.TestCase):
++    """DEC-12d: has_chyron is recorded for every registry channel; selection knows it before render."""
++
++    def test_every_registry_channel_records_has_chyron(self):
++        reg = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")))
++        self.assertTrue(reg)
++        for e in reg:
++            self.assertIsInstance(e.get("has_chyron"), bool, e.get("display_name"))
++
++    def test_a_chyron_channel_never_supplies_a_clip(self):
++        import editorial_select as es
++        self.assertFalse(es.layout_eligible(REG["Bitcoin Magazine"]))
++        self.assertTrue(REG["Bitcoin Magazine"]["has_chyron"])
++        self.assertTrue(es.layout_eligible(REG["The Bitcoin Layer"]))
++        self.assertFalse(es.layout_eligible({"display_name": "x", "has_chyron": False}))   # no channel id
++
++
+ class TestChunkProvenance(TempStore):
+     SEGS = [{"start": i * 5.0, "end": i * 5.0 + 4.8, "text": f"sentence {i}."} for i in range(40)]
+ 
+diff --git a/pipeline/test_g14_g15.py b/pipeline/test_g14_g15.py
+index 038aa8b4..0106677d 100644
+--- a/pipeline/test_g14_g15.py
++++ b/pipeline/test_g14_g15.py
+@@ -114,7 +114,10 @@ class TestG15Credits(unittest.TestCase):
+     def test_current_16x9_passes_g15(self):
+         """Current 16:9 should pass G15."""
+         segs = _load_manifest_segments(MANIFEST_16)
+-        ok, details = gate_g15(CUR_16, segs, QA_DIR)
++        # DEC-11: G15 also checks each disc against the credited channels, in the card's order. This Nov 5 render
++        # predates R2-16's hook-first credit order: its card reads Bitcoin Magazine, The Bitcoin Layer, BTC Sessions
++        channels = ["Bitcoin Magazine", "The Bitcoin Layer", "BTC Sessions"]
++        ok, details = gate_g15(CUR_16, segs, QA_DIR, channels=channels)
+         self.assertTrue(ok, f"Current 16:9 should PASS G15. Details: {details}")
+ 
+ 
+diff --git a/pipeline/test_g14_sampling.py b/pipeline/test_g14_sampling.py
+new file mode 100644
+index 00000000..535343f5
+--- /dev/null
++++ b/pipeline/test_g14_sampling.py
+@@ -0,0 +1,91 @@
++#!/usr/bin/env python3
++"""DEC-12e (orchestrator 2026-11-11 14:45): G14 samples only where the transcript has speech, outside declared
++transition / VO intervals; an inconclusive sample is re-taken at the nearest speech point; a segment passes
++with >= 3 conclusive matching samples and zero conclusive mismatches. Threshold unchanged.
++must-pass  the corrected Nov 10 cut (its one inconclusive sample sat in a 0.6 s pause of Yahoo's speech)
++must-fail  a real 2-frame (83 ms) AV slip inside a segment
++HOLD       a segment with fewer than 3 conclusive samples (its audio silenced)
++Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_g14_sampling.py"""
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import gates as G  # noqa: E402
++
++RUN = os.path.join(REPO, "runs", "pinned_20261111_172202_replay_cut1329")
++NEEDED = ("out/segment.mp4", "qa/g14_manifest_16x9.json", "cuts_final.json")
++
++
++@unittest.skipUnless(all(os.path.exists(os.path.join(RUN, p)) for p in NEEDED), "Nov 11 replay run not on this machine")
++class TestG14Sampling(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.tmp = tempfile.mkdtemp(prefix="g14s_")
++        cuts = json.load(open(os.path.join(RUN, "cuts_final.json")))
++
++        def words(vid):
++            return [{"start": float(w["start"]), "end": float(w["end"])}
++                    for w in json.load(open(os.path.join(RUN, "transcripts", f"{vid}.json")))["words"]]
++        cls.src = {c["clip_id"]: {"path": os.path.join(RUN, "sources", f"{c['video_id']}.mp4"),
++                                  "cut_in": c["cut_in"], "words": words(c["video_id"])} for c in cuts}
++        cls.man = os.path.join(RUN, "qa", "g14_manifest_16x9.json")
++        cls.segs = {s["label"]: s for s in json.load(open(cls.man))["segments"]}
++        cls.final = os.path.join(RUN, "out", "segment.mp4")
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.tmp, ignore_errors=True)
++
++    def _audio_variant(self, name, afilter):
++        out = os.path.join(self.tmp, name)
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.final, "-filter_complex", afilter, "-map", "0:v",
++                        "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", out], check=True)
++        return out
++
++    def _gate(self, path):
++        return G.gate_g14(path, self.man, source_clips=self.src, qa_dir=self.tmp)
++
++    def _verdicts(self, det):
++        return {d["label"]: d["segment_verdict"] for d in det if "segment_verdict" in d}
++
++    def test_the_corrected_cut_passes_with_its_pause_sample_retaken(self):
++        ok, det = self._gate(self.final)
++        self.assertTrue(ok, self._verdicts(det))
++        self.assertTrue(any(d.get("retake_of") for d in det))          # the pause sample was re-taken
++        for d in det:
++            if "segment_verdict" in d:
++                self.assertGreaterEqual(d["conclusive_matches"], G.G14_MIN_CONCLUSIVE)
++
++    def test_a_two_frame_av_slip_inside_a_segment_fails(self):
++        c2 = self.segs["clip_02"]
++        t = round((c2["start"] + c2["end"]) / 2, 3)                      # slip mid clip_02: audio 83 ms late
++        dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
++                                    self.final], capture_output=True, text=True).stdout)
++        slipped = self._audio_variant("slip.mp4", f"[0:a]atrim=0:{t},asetpts=N/SR/TB[a1];"
++                                                   f"[0:a]atrim={t},asetpts=N/SR/TB[a2];"
++                                                   f"aevalsrc=0|0:d={2 / 24:.6f}:s=48000[z];"
++                                                   f"[a1][z][a2]concat=n=3:v=0:a=1,atrim=0:{dur}[a]")
++        ok, det = self._gate(slipped)
++        self.assertFalse(ok)
++        self.assertEqual(self._verdicts(det).get("clip_02"), "FAIL", self._verdicts(det))
++
++    def test_a_segment_with_fewer_than_three_conclusive_samples_holds(self):
++        c1 = self.segs["clip_01"]
++        silenced = self._audio_variant("silenced.mp4", f"[0:a]volume=enable='between(t,{c1['start']},{c1['end']})':"
++                                                       f"volume=0[a]")
++        ok, det = self._gate(silenced)
++        self.assertFalse(ok)
++        v = self._verdicts(det)
++        self.assertEqual(v.get("clip_01"), "HOLD", v)
++        self.assertFalse(any(d.get("status") == "FAIL" for d in det if d.get("label") == "clip_01"), det)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_g20_signoff.py b/pipeline/test_g20_signoff.py
+new file mode 100644
+index 00000000..2a22d2df
+--- /dev/null
++++ b/pipeline/test_g20_signoff.py
+@@ -0,0 +1,107 @@
++#!/usr/bin/env python3
++"""Law L-a (orchestrator 2026-11-11 15:30 / PBX): the sign-off voiceover names every channel on the credits card;
++the spoken set, the card set and the clips used are identical. Gate G20 SIGNOFF_NAMES_ALL.
++must-fail  the PBX-approved preview (references/pulse_preview_2026-11-11): its sign-off names Natalie Brunell,
++           Yahoo Finance and Bitcoin Magazine, the card also credits DataDash (the hook)
++must-pass  the frozen v2f reference (its sign-off names all three credited channels)
++generator  vo.generate_vo passes the card's channel list (hook first) to the sign-off; a stem is keyed by
++           (text, voice, model), so a different channel list never reuses it
++Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_g20_signoff.py"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import credit_rings as CR  # noqa: E402
++import gates as G  # noqa: E402
++
++PREVIEW = os.path.join(REPO, "references", "pulse_preview_2026-11-11")
++V2F = os.path.join(REPO, "references", "v2f_2026-11-06", "run")
++
++
++def _segs(run_dir):
++    return json.load(open(os.path.join(run_dir, "qa", "concat_manifest_16x9.json")))["segments"]
++
++
++class TestG20(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.tmp = tempfile.mkdtemp(prefix="g20_")
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.tmp, ignore_errors=True)
++
++    @unittest.skipUnless(os.path.isdir(PREVIEW), "protected preview reference not on this machine")
++    def test_the_preview_sign_off_misses_the_hook_channel(self):
++        credited = CR.credit_channels(json.load(open(os.path.join(PREVIEW, "edl.json"))))
++        self.assertEqual(credited, ["DataDash", "Natalie Brunell", "Yahoo Finance", "Bitcoin Magazine"])
++        ok, d = G.gate_g20(os.path.join(PREVIEW, "out", "segment.mp4"), _segs(PREVIEW), credited, self.tmp)
++        self.assertFalse(ok, d)
++        self.assertEqual((d["missing"], d["extra"]), (["DataDash"], []), d)
++
++    @unittest.skipUnless(os.path.isdir(V2F), "frozen v2f reference not on this machine")
++    def test_v2f_sign_off_names_every_credited_channel(self):
++        credited = CR.credit_channels(json.load(open(os.path.join(V2F, "edl.json"))))
++        ok, d = G.gate_g20(os.path.join(V2F, "out", "segment.mp4"), _segs(V2F), credited, self.tmp)
++        self.assertTrue(ok, d)
++
++    def test_matching_is_space_insensitive_and_tolerates_one_misheard_letter(self):
++        reg = [{"display_name": "DataDash"}, {"display_name": "Natalie Brunell"}, {"display_name": "Yahoo Finance"},
++               {"display_name": "The Bitcoin Layer", "aliases": ["bitcoin lair"]}]
++        credited = ["DataDash", "Natalie Brunell", "The Bitcoin Layer"]
++        heard = G.spoken_channels("Thanks to Data Dash, Natalie Brunel and the Bitcoin Lair. Follow them.", reg, credited)
++        self.assertEqual(heard, set(credited))
++        reg2 = reg + [{"display_name": "Bitcoin Magazine"}, {"display_name": "Bitcoin Magazine Pro"}]
++        self.assertEqual(G.spoken_channels("Clips from Bitcoin Magazine, go follow them.", reg2, ["Bitcoin Magazine"]),
++                         {"Bitcoin Magazine"})                     # a similar non-credited name is not heard
++        self.assertEqual(G.spoken_channels("Thanks to Yahoo Finance.", reg, ["DataDash"]), {"Yahoo Finance"})
++
++    def test_no_shoutout_or_no_credited_channels_fails_closed(self):
++        ok, _ = G.gate_g20("unused.mp4", [{"label": "hook", "type": "talking_head", "start": 0, "end": 1}],
++                           ["DataDash"], self.tmp)
++        self.assertFalse(ok)
++        ok, _ = G.gate_g20("unused.mp4", [{"label": "shoutout", "type": "shoutout", "start": 0, "end": 1}], [], self.tmp)
++        self.assertFalse(ok)
++
++
++class TestSignoffGenerator(unittest.TestCase):
++    """vo.generate_vo: the sign-off generator gets the card's channels, hook first; stems keyed by the script."""
++
++    def test_the_hook_channel_is_named_and_a_new_list_gets_a_new_stem(self):
++        import vo
++        tmp = tempfile.mkdtemp(prefix="vo_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        os.makedirs(os.path.join(tmp, "vo_audio"))
++        edl = {"topic": "t", "hook": {"channel": "DataDash"}, "vo": {},
++               "clips": [{"index": 1, "channel": "Natalie Brunell"}, {"index": 2, "channel": "Yahoo Finance"}]}
++        json.dump(edl, open(os.path.join(tmp, "edl.json"), "w"))
++        seen = []
++
++        def fake_signoff(topic, names, segment_id):
++            seen.append(list(names))
++            return "Thanks to " + ", ".join(names) + ". Go follow them for more, links below."
++        client = mock.MagicMock()
++        client.text_to_speech.convert.return_value = [b"\x00\x00" * 2205]
++        with mock.patch.object(vo, "get_key", lambda k: "x"), \
++                mock.patch.dict(sys.modules, {"elevenlabs": mock.MagicMock(ElevenLabs=lambda api_key: client)}), \
++                mock.patch("signoff.generate_signoff", fake_signoff), \
++                mock.patch.object(vo, "resolve_paths", lambda d: {"vo_dir": os.path.join(d, "vo_audio"),
++                                                                  "edl_json": os.path.join(d, "edl.json")}):
++            m1 = vo.generate_vo(tmp)
++            edl["clips"].append({"index": 3, "channel": "Bitcoin Magazine"})
++            json.dump(edl, open(os.path.join(tmp, "edl.json"), "w"))
++            m2 = vo.generate_vo(tmp)
++        self.assertEqual(seen[0], ["DataDash", "Natalie Brunell", "Yahoo Finance"])
++        self.assertEqual(seen[1], ["DataDash", "Natalie Brunell", "Yahoo Finance", "Bitcoin Magazine"])
++        self.assertNotEqual(m1["signoff"]["stem_wav"], m2["signoff"]["stem_wav"])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_g3b_majority.py b/pipeline/test_g3b_majority.py
+new file mode 100644
+index 00000000..d7a12973
+--- /dev/null
++++ b/pipeline/test_g3b_majority.py
+@@ -0,0 +1,73 @@
++#!/usr/bin/env python3
++"""DEC-12f (orchestrator 2026-11-11 14:45): G3b reads each tail three times with 1.5 s of leading context and
++takes the majority; the expected last word must be heard in the majority (one context-free decode heard the
++corrected Nov 10 cut's '... rally.' as 'route.' while G17b, G18 and the 9:16 decode passed).
++must-pass  the corrected cut's tails (runs/pinned_20261111_172202_replay_cut1329, 16:9)
++must-fail  yesterday's Natalie tail, which ran on into '... people celebrating', against its locked last word
++           'week.'; a tail cut 250 ms into its last word
++Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_g3b_majority.py"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++sys.path.insert(0, os.path.join(REPO, "segment_v1"))
++import qa_gates as Q  # noqa: E402
++
++FIX = os.path.join(REPO, "tests", "fixtures", "pulse_20261110")
++RUN = os.path.join(REPO, "runs", "pinned_20261111_172202_replay_cut1329")
++
++
++def _segs(manifest, **override):
++    out = []
++    for s in json.load(open(manifest))["segments"]:
++        if s.get("type") == "talking_head":
++            out.append({**s, **override.get(s["label"], {})})
++    return out
++
++
++class TestG3bMajority(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.tmp = tempfile.mkdtemp(prefix="g3b_")
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.tmp, ignore_errors=True)
++
++    def test_three_readings_with_context(self):
++        self.assertEqual((Q.G3B_READS, Q.G3B_CONTEXT_S), (3, 1.5))
++
++    @unittest.skipUnless(os.path.exists(os.path.join(FIX, "audio", "out_16x9.flac")), "Nov 10 fixture missing")
++    def test_yesterdays_natalie_tail_fails_against_its_locked_last_word(self):
++        segs = [s for s in _segs(os.path.join(FIX, "run", "concat_manifest_16x9.json"),
++                                 clip_01={"last_word": "week."}) if s["label"] == "clip_01"]
++        ok, table = Q.gate_g3b(os.path.join(FIX, "audio", "out_16x9.flac"), segs, self.tmp)
++        self.assertFalse(ok, table)
++        self.assertFalse(table[0]["last_found"], table)
++
++    @unittest.skipUnless(os.path.exists(os.path.join(RUN, "out", "segment.mp4")), "Nov 11 replay run missing")
++    def test_the_corrected_cut_passes(self):
++        segs = _segs(os.path.join(RUN, "qa", "concat_manifest_16x9.json"))
++        ok, table = Q.gate_g3b(os.path.join(RUN, "out", "segment.mp4"), segs, self.tmp)
++        self.assertTrue(ok, table)
++        self.assertEqual(len(table), len(segs))
++        for e in table:
++            self.assertTrue(e["last_found"] and not e["next_leaked"], e)
++
++    @unittest.skipUnless(os.path.exists(os.path.join(RUN, "out", "segment.mp4")), "Nov 11 replay run missing")
++    def test_a_tail_cut_inside_its_last_word_fails(self):
++        segs = _segs(os.path.join(RUN, "qa", "concat_manifest_16x9.json"))
++        c1 = next(s for s in segs if s["label"] == "clip_01")
++        cut = {**c1, "end": round(c1["end"] - 0.25, 3)}          # 250 ms into 'rally.' (80.84 -> 80.59)
++        ok, table = Q.gate_g3b(os.path.join(RUN, "out", "segment.mp4"), [cut], self.tmp)
++        self.assertFalse(ok, table)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_g9_floor.py b/pipeline/test_g9_floor.py
+new file mode 100644
+index 00000000..893ea28b
+--- /dev/null
++++ b/pipeline/test_g9_floor.py
+@@ -0,0 +1,87 @@
++#!/usr/bin/env python3
++"""DEC-12a (orchestrator 2026-11-11 14:45): G9's floor per format = v2f's measured tail luma minus the MEASURED
++re-encode spread of the same locked outro (docs/audits/pulse-sentence-law/dec12a_g9_spread/spread.json);
++outro_locked (the locked brand asset was used) stays the hard row.
++must-pass  v2f's finals; the Nov 11 recut preview's finals (the same locked outro, another encode)
++must-fail  a tail 1.0 luma code darker than v2f's; a tail that is not the locked outro (black); a conform
++           fallback fails outro_locked even when its luma clears the floor
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_g9_floor.py"""
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++sys.path.insert(0, os.path.join(REPO, "segment_v1"))
++import qa_gates as Q  # noqa: E402
++
++V2F = os.path.join(REPO, "references", "v2f_2026-11-06", "run", "out")
++PREVIEW = os.path.join(REPO, "runs", "pinned_20261111_172202_replay_cut1329_replay_preview", "out")
++FINALS = {"16x9": "segment.mp4", "9x16": "segment_vertical.mp4"}
++
++
++def _tail_variant(src, dst, vf):
++    """The last 3 s of a final, picture changed by `vf`, tagged like the finals, audio kept."""
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-sseof", "-3", "-i", src, "-vf", vf, "-c:v", "libx264", "-crf", "10",
++                    "-pix_fmt", "yuv420p", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
++                    "-color_range", "tv", "-c:a", "aac", "-b:a", "192k", dst], check=True)
++
++
++class TestG9Floor(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.tmp = tempfile.mkdtemp(prefix="g9floor_")
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.tmp, ignore_errors=True)
++
++    def test_floor_is_v2f_minus_the_measured_spread(self):
++        spread = json.load(open(os.path.join(REPO, "docs", "audits", "pulse-sentence-law", "dec12a_g9_spread",
++                                             "spread.json")))
++        for fmt in ("16x9", "9x16"):
++            self.assertLessEqual(Q.G9_REENCODE_SPREAD[fmt], 0.05)
++            self.assertGreaterEqual(Q.G9_REENCODE_SPREAD[fmt], spread[fmt]["spread"])
++            self.assertAlmostEqual(Q.G9_LUMA_FLOOR[fmt], Q.G9_V2F_LUMA[fmt] - Q.G9_REENCODE_SPREAD[fmt], places=4)
++
++    @unittest.skipUnless(os.path.isdir(V2F), "frozen v2f reference not on this machine")
++    def test_v2f_finals_pass(self):
++        for fmt, name in FINALS.items():
++            ok, d = Q.gate_g9(os.path.join(V2F, name), self.tmp, fmt=fmt)
++            self.assertTrue(ok, (fmt, d))
++
++    @unittest.skipUnless(all(os.path.exists(os.path.join(PREVIEW, n)) for n in FINALS.values()),
++                         "Nov 11 preview finals not on this machine")
++    def test_another_encode_of_the_same_locked_outro_passes(self):
++        for fmt, name in FINALS.items():
++            ok, d = Q.gate_g9(os.path.join(PREVIEW, name), self.tmp, fmt=fmt)
++            self.assertTrue(ok, (fmt, d))
++
++    @unittest.skipUnless(os.path.isdir(V2F), "frozen v2f reference not on this machine")
++    def test_a_tail_one_luma_code_darker_fails(self):
++        for fmt, name in FINALS.items():
++            out = os.path.join(self.tmp, f"darker_{fmt}.mp4")
++            _tail_variant(os.path.join(V2F, name), out, "lutyuv=y=val-1")
++            ok, d = Q.gate_g9(out, self.tmp, fmt=fmt)
++            self.assertFalse(ok, (fmt, d))
++
++    @unittest.skipUnless(os.path.isdir(V2F), "frozen v2f reference not on this machine")
++    def test_a_tail_that_is_not_the_locked_outro_fails(self):
++        out = os.path.join(self.tmp, "black_16x9.mp4")
++        _tail_variant(os.path.join(V2F, FINALS["16x9"]), out, "lutyuv=y=16:u=128:v=128")
++        ok, d = Q.gate_g9(out, self.tmp, fmt="16x9")
++        self.assertFalse(ok, d)
++
++    def test_a_conform_fallback_fails_outro_locked_even_when_g9_passes(self):
++        import run_fresh as rf
++        self.assertEqual(rf.tail_rows(True, True), {"G9_tail": "PASS", "outro_locked": "FAIL"})
++        self.assertEqual(rf.tail_rows(True, False), {"G9_tail": "PASS", "outro_locked": "PASS"})
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/vo.py b/pipeline/vo.py
+index b1734041..da39c841 100644
+--- a/pipeline/vo.py
++++ b/pipeline/vo.py
+@@ -37,7 +37,7 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
+     voice_id = voice_id.strip()
+ 
+     print(f"=== VO GENERATION ===")
+-    print(f"  Voice: {voice_key} = {voice_id}")
++    print(f"  Voice: {voice_key} (id from .env, not printed)")
+     print(f"  Model: {model_id}")
+ 
+     from elevenlabs import ElevenLabs
+@@ -54,8 +54,17 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
+     manifest = {}
+ 
+     def _generate_stem(text, stem_name):
+-        print(f"  Generating: {stem_name} ({len(text.split())} words)")
++        # law L-a: a stem is keyed by the hash of (text, voice id, model): a stem is reused only for the exact
++        # same script, never for a different channel list (the stem name used to be fixed per role)
++        import hashlib
++        key = hashlib.sha256(f"{text}\x1f{voice_id}\x1f{model_id}".encode()).hexdigest()[:12]
++        stem_name = f"{stem_name}_{key}"
+         wav_path = os.path.join(vo_dir, f"{stem_name}.wav")
++        if os.path.exists(wav_path) and os.path.getsize(wav_path) > 44:
++            print(f"  Reusing: {stem_name} (same text, voice and model)")
++            return {"stem_wav": os.path.basename(wav_path), "voice_id": voice_id, "model_id": model_id,
++                    "text": text, "key": key}
++        print(f"  Generating: {stem_name} ({len(text.split())} words)")
+ 
+         audio_gen = client.text_to_speech.convert(
+             voice_id=voice_id,
+@@ -80,6 +89,7 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
+             "voice_id": voice_id,
+             "model_id": model_id,
+             "text": text,
++            "key": key,
+         }
+ 
+     # Intro
+@@ -98,12 +108,11 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
+ 
+     # Signoff — generate fresh via signoff.py (S2 law)
+     signoff_text = vo_section.get("signoff", "")
+-    # Extract channel names and segment id for signoff generator
+-    channels_list = []
+-    for clip in edl.get("clips", []):
+-        ch = clip.get("channel", "")
+-        if ch and ch not in channels_list:
+-            channels_list.append(ch)
++    # Law L-a: the sign-off names EVERY credited channel, in the credits card's order (the hook's channel
++    # first, then each clip's, each once), from the final EDL. It used to list the clips' channels only, so
++    # the hook's channel was never spoken (2026-11-11 preview: DataDash on the card, not in the sign-off).
++    from credit_rings import credit_channels
++    channels_list = credit_channels(edl)
+     segment_id = os.path.basename(os.path.normpath(segment_dir))
+     topic = edl.get("topic", "")
+ 
+@@ -113,8 +122,14 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
+             signoff_text = generate_signoff(topic, channels_list, segment_id)
+         except Exception as e:
+             print(f"  Signoff generation failed: {e}")
+-            if not signoff_text:
+-                signoff_text = f"Clips today from {', '.join(channels_list[:-1])}, and {channels_list[-1]}. Go follow them. Links are below." if len(channels_list) > 1 else f"Clips today from {channels_list[0]}. Go follow them. Links are below."
++            if not signoff_text:          # fresh phrasing per video even without the generator: rotate the
++                import hashlib            # generator's three registers by run (credit / thanks / follow first)
++                names = (f"{', '.join(channels_list[:-1])}, and {channels_list[-1]}" if len(channels_list) > 1
++                         else channels_list[0])
++                signoff_text = [f"Clips today from {names}. Go follow them for more. Links are below.",
++                                f"Big thanks to {names} for today's clips. Follow them all, links are below.",
++                                f"Go follow {names}. Today's clips came from them. Links are below."][
++                    int(hashlib.sha256(segment_id.encode()).hexdigest(), 16) % 3]
+     if signoff_text:
+         manifest["signoff"] = _generate_stem(signoff_text, f"vo_signoff_{voice_key.split('_')[-1].lower()}_v1")
+ 
+diff --git a/segment_v1/qa_gates.py b/segment_v1/qa_gates.py
+index 4f819ddc..ed5847fe 100644
+--- a/segment_v1/qa_gates.py
++++ b/segment_v1/qa_gates.py
+@@ -39,7 +39,13 @@ FPS = 24
+ G3C_VALLEY_DEPTH_DB = {"16x9": 11.63, "9x16": 11.65}    # was 12.0: strictest depth at which the v2f hook tail passes (11.6301 / 11.6543)
+ G5_TRUE_PEAK_MAX_DBFS = {"16x9": -2.0, "9x16": -1.3}    # 9x16 was -2.0: v2f segment_vertical.mp4 true peak -1.3 dBFS (16x9 -2.2 passed)
+ G8_SHARPNESS_FLOOR = {"16x9": 27.56, "9x16": 10.84}     # was 60: v2f worst segment medians (16x9 hook 27.56, 9x16 clip_03 10.84)
+-G9_LUMA_FLOOR = {"16x9": 14.33, "9x16": 14.77}          # was 20: v2f tail luma 14.3357 / 14.7715 (locked outro ends on black)
++G9_V2F_LUMA = {"16x9": 14.3357, "9x16": 14.7715}       # DEC-1: v2f's own tail luma (the locked outro ends on black)
++G9_REENCODE_SPREAD = {"16x9": 0.05, "9x16": 0.04}      # DEC-12a: MEASURED spread (the outro's encode depends on its GOP
++    # phase and on the credits card before it) of the same locked outro through the
++    # final-encode path (5 GOP phases, 5 real credits cards before it, the real finals): 0.0438 / 0.0335, rounded up
++    # to 0.01, at most 0.05 (docs/audits/pulse-sentence-law/dec12a_g9_spread/spread.json). DEC-1's zero margin
++    # made a correct render pass or fail by encoder state (OD-4).
++G9_LUMA_FLOOR = {k: round(G9_V2F_LUMA[k] - G9_REENCODE_SPREAD[k], 4) for k in G9_V2F_LUMA}   # 14.2857 / 14.7315
+ 
+ # ── Faster-Whisper singleton (medium, float16, cuda, vad OFF, word timestamps) ──
+ _FW_MODEL = None
+@@ -380,9 +386,22 @@ def gate_g3(final_mp4, segments, qa_dir):
+ # G3b: CUT_OUT_CLEAN
+ # ==============================================================
+ 
++G3B_READS, G3B_CONTEXT_S, G3B_TAIL_S = 3, 1.5, 1.0     # DEC-12f
++
++
++def _g3b_words(text):
++    return [w for w in text.lower().replace(".", " ").replace(",", " ").replace("?", " ").replace("!", " ").split()]
++
++
++def _g3b_match(expected, heard):
++    """The old rule, unchanged: the same word, or the expected word inside the heard one ('magnitude' in
++    'magnitudes'); a heard prefix of it ('magnet' for 'magnitude') does not match."""
++    return heard == expected or expected in heard
++
++
+ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
+-    """Whisper the last 1.0s of each cut clip in the final output.
+-    The transcript must end with the EDL's declared last_word and must NOT
++    """Whisper the tail of each cut clip in the final output (DEC-12f: 3 readings with 1.5 s of context,
++    majority). The transcript must end with the EDL's declared last_word and must NOT
+     contain the source's next word (from EDL field 'next_source_word').
+     Constant thresholds, output-based."""
+     print("\n=== G3b: CUT_OUT_CLEAN ===")
+@@ -413,47 +432,31 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
+         if not edl_last:
+             continue
+ 
+-        # Whisper last 1.0s of this segment from the final output
+-        tail_dur = min(1.0, seg_end - seg_start)
+-        tail_start = seg_end - tail_dur
+-        tail_wav = os.path.join(qa_dir, f"g3b_{label}_tail.wav")
+-        extract_audio_region(final_mp4, tail_start, tail_dur, tail_wav)
+-        tail_transcript = whisper_segment(tail_wav, qa_dir)
+-        tail_words = tail_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()
+-
+-        # Also whisper last 3.0s for broader context (short tails may truncate words)
+-        tail2_dur = min(3.0, seg_end - seg_start)
+-        tail2_start = seg_end - tail2_dur
+-        tail2_wav = os.path.join(qa_dir, f"g3b_{label}_tail2.wav")
+-        extract_audio_region(final_mp4, tail2_start, tail2_dur, tail2_wav)
+-        tail2_transcript = whisper_segment(tail2_wav, qa_dir)
+-
+-        # Check 1: EDL last_word must appear as complete word in tail transcript
+-        # R2-03: require non-empty transcript and exact token match (not prefix)
+-        last_found = False
+-        if edl_last and tail_transcript.strip():
+-            last_found = edl_last in tail_transcript
+-        if not last_found and edl_last and tail2_transcript.strip():
+-            last_found = edl_last in tail2_transcript
+-        if not last_found and edl_last:
+-            # Check individual words for exact match (case-insensitive, stripped)
+-            all_tail_words = [w.lower() for w in
+-                              tail_words + tail2_transcript.replace(".", "").replace(",", "").replace("?", "").replace("!", "").split()]
+-            for tw in all_tail_words:
+-                # Require complete containment: edl_last in tw is ok (e.g. "magnitudes" contains "magnitude")
+-                # But tw in edl_last with tw shorter is NOT ok (e.g. "magnet" in "magnitude" is prefix, not match)
+-                if edl_last == tw or edl_last in tw:
+-                    last_found = True
+-                    break
++        # DEC-12f (2026-11-11): three readings of the tail with 1.5 s of leading context, majority vote. The
++        # window start is jittered by 0 / 1 / 2 video frames so they are three readings, not one decode three
++        # times. The expected last word must be one of the last two words heard in >= 2 of 3 readings. (One
++        # decode heard Nov 10's '... rally.' as 'route.' while G17b, G18 and the 9:16 decode passed.)
++        reads = []
++        for j in range(G3B_READS):
++            w0 = max(seg_start, seg_end - G3B_TAIL_S - G3B_CONTEXT_S + j / FPS)
++            wav = os.path.join(qa_dir, f"g3b_{label}_read{j}.wav")
++            extract_audio_region(final_mp4, w0, seg_end - w0, wav)
++            reads.append(_g3b_words(whisper_segment(wav, qa_dir)))
++        tail_transcript = " | ".join(" ".join(ws[-4:]) for ws in reads)
++        votes = sum(1 for ws in reads if any(_g3b_match(edl_last, w) for w in ws[-2:]))
++        last_found = votes * 2 > len(reads)
++        dissent = votes < len(reads)        # law L-c: one dissenting reading sends the edge to the acoustic check
+ 
+         # Check 2: next source word must NOT appear (if declared in EDL)
+         # R2-03: check ALL next words including short ones like "So"
+         edl_entry = edl_clips.get(label, {})
+         next_word = edl_entry.get("next_source_word", "").lower().strip().rstrip(".,?!")
+         next_leaked = False
+-        if next_word:
+-            # Check both tail windows for next-word leak
+-            next_leaked = next_word in tail_transcript or next_word in tail2_transcript
++        if next_word:                     # heard AFTER the expected last word (or at the very end) in a majority
++            def _leak(ws):
++                idx = max((i for i, w in enumerate(ws) if _g3b_match(edl_last, w)), default=None)
++                return next_word in (ws[idx + 1:] if idx is not None else ws[-2:])
++            next_leaked = sum(1 for ws in reads if _leak(ws)) * 2 > len(reads)
+ 
+         ok = last_found and not next_leaked
+         if not ok:
+@@ -465,6 +468,8 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
+             "edl_last": edl_last,
+             "tail_transcript": tail_transcript[:80],
+             "last_found": last_found,
++            "votes": f"{votes}/{len(reads)}",
++            "dissent": dissent,
+             "next_source_word": next_word if next_word else None,
+             "next_leaked": next_leaked,
+             "pass": ok,

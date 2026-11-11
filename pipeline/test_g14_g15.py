@@ -114,7 +114,10 @@ class TestG15Credits(unittest.TestCase):
     def test_current_16x9_passes_g15(self):
         """Current 16:9 should pass G15."""
         segs = _load_manifest_segments(MANIFEST_16)
-        ok, details = gate_g15(CUR_16, segs, QA_DIR)
+        # DEC-11: G15 also checks each disc against the credited channels, in the card's order. This Nov 5 render
+        # predates R2-16's hook-first credit order: its card reads Bitcoin Magazine, The Bitcoin Layer, BTC Sessions
+        channels = ["Bitcoin Magazine", "The Bitcoin Layer", "BTC Sessions"]
+        ok, details = gate_g15(CUR_16, segs, QA_DIR, channels=channels)
         self.assertTrue(ok, f"Current 16:9 should PASS G15. Details: {details}")
 
 

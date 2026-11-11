@@ -108,11 +108,30 @@ class TestDelivery(unittest.TestCase):
         Image.new("RGB", (1920, 2600)).save(os.path.join(rd, "qa", "contact_sheet_16x9.jpg"))
         Image.new("RGB", (6000, 4500)).save(os.path.join(rd, "qa", "contact_sheet_9x16.jpg"))   # too big for a photo
         _, sent = self.deliver(rd)
-        self.assertEqual([(s[0], s[1]) for s in sent if s[0] != "video"],
+        self.assertEqual([(s[0], s[1]) for s in sent if s[0] not in ("video", "message")],
                          [("photo", "contact_sheet_16x9.jpg"), ("document", "contact_sheet_9x16.jpg")])
         sent2 = []
         TG.deliver_run(rd, option="A", sheets=False, send=lambda k, p, f: sent2.append(k) or 1)
         self.assertEqual(sent2, ["video", "video"])
+
+    def test_the_release_drop_ends_with_the_publishing_kit(self):
+        # orchestrator 2026-11-11 15:30: a suggested title, a description crediting and linking every source,
+        # and the first-comment line "credits:" + every creator's @handle, a line break, the orange heart alone
+        rd = self.run_dir()
+        _, sent = self.deliver(rd)
+        self.assertEqual(sent[-1][0], "message")
+        kit = sent[-1][2]["text"]
+        self.assertIn("SUGGESTED TITLE: Bitcoin price dip", kit)
+        self.assertIn("- Yahoo Finance @YahooFinance: https://www.youtube.com/@YahooFinance", kit)
+        self.assertIn("- Natalie Brunell @nataliebrunell: https://www.youtube.com/@nataliebrunell", kit)
+        self.assertTrue(kit.endswith("credits: @YahooFinance @nataliebrunell\n\U0001F9E1"), kit[-80:])
+        _, sent_opt = self.deliver(rd, option="B")
+        self.assertNotIn("message", [s[0] for s in sent_opt])         # transition options carry no kit
+
+    def test_the_caption_carries_the_duration(self):
+        rd = self.run_dir()
+        _, sent = self.deliver(rd)
+        self.assertIn(" s", sent[0][2]["caption"].split("\n")[1])
 
     def test_photo_limits_at_their_boundaries(self):
         """Audit M1: size (PHOTO_MAX_BYTES), width + height (10000) and aspect ratio (20) boundaries."""

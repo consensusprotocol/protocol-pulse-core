@@ -1,0 +1,26 @@
+{
+  "caption": "PREVIEW - not final. Bitcoin's weekend drop. DataDash, Natalie Brunell, Yahoo Finance, Bitcoin Magazine. Every clip is a whole sentence; credits and vertical fixed. Still open: 5 technical checks (tail fades, one lower-third crop, outro luma tolerance, sync sampling, one ASR re-check). Tell Claude what you see.",
+  "source_run": "/home/ultron/protocol_pulse/runs/pinned_20261111_172202_replay_cut1329",
+  "messages": [
+    {
+      "format": "16x9",
+      "message_id": 67640,
+      "file": "runs/pinned_20261111_172202_replay_cut1329_replay_preview/PREVIEW/preview_16x9.mp4"
+    },
+    {
+      "format": "9x16",
+      "message_id": 67641,
+      "file": "runs/pinned_20261111_172202_replay_cut1329_replay_preview/PREVIEW/preview_9x16.mp4"
+    },
+    {
+      "sheet": "16x9",
+      "message_id": 67642,
+      "as": "photo"
+    },
+    {
+      "sheet": "9x16",
+      "message_id": 67643,
+      "as": "photo"
+    }
+  ]
+}

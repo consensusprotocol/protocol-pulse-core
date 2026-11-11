@@ -56,11 +56,10 @@ TAIL_MIN_S = 0.000          # v2f clip_03 prepared tail 0 ms (10 ms in the sourc
 GUARD_S = 0.000             # v2f clip_01 in sits 10 ms inside "Yeah."'s decay; neighbour_clear replaces the guard
 HEAD_LEAD_MIN_S = 0.080     # UNCHANGED D1 rule ("half Bitcoin"): the start of a source file, and the hook (the
                             # first thing heard at playback), need 80 ms of genuine quiet or the room-tone pad
-VALLEY_FADE_S = 2 / 24      # DEC-10 d: a cut at an envelope minimum gets a 2-frame audio fade: 2 VIDEO frames
-                            # at 24 fps = 83 ms (not 2 audio hops)
+VALLEY_FADE_S = 2 / 24      # DEC-10 d / DEC-12b: every machine-cut edge gets a 2-frame audio fade: 2 VIDEO
+                            # frames at 24 fps = 83 ms (not 2 audio hops)
 WORD_BELOW_SPEECH_DB = 6.0  # DEC-10: a word is heard from/to where it is within 6 dB of local speech
-DEFAULT_FADE_IN_S, DEFAULT_FADE_OUT_S = 0.020, 0.030   # M19 fades of every other cut (unchanged)
-VALLEY_MARGIN_S = 0.010     # with no quiet run, the minimum is searched in the transcript gap between the two words
+VALLEY_MARGIN_S = 0.010     # (a TIGHTENING) with no quiet run, the minimum is searched in the transcript gap between the two words
                             # +- one hop; 80 ms let the Nov 10 recut (12:22) cut at a closure INSIDE the next word
                             # (Natalie 'rally.' | 'But': minimum at 80.93, kept 'Bu' at -13 dB; G3c caught it)
 SHORT_IN_S, SHORT_OUT_S = 0.080, 0.140   # DEC-10 d: a gap shorter than these (the 01:50 numbers, now choosing
@@ -435,12 +434,89 @@ def neighbour_clear(sa, plan, cut_in, cut_out, fade_in_s, fade_out_s):
     return all(v["ok"] for v in det.values()), det
 
 
+FADE_MIN_S = 0.010          # law L-b: an edge fade shortens down to 10 ms to stay out of the edge word
+FLOOR_PLUS_DB = 3.0         # law L-b: a word has ended (not yet begun) where its envelope is within 3 dB of the
+                            # level at the cut point (the valley minimum or the room tone the cut sits in)
+EDGE_WORD_MAX_DB = 1.0      # G17c: every frame of an edge word (and its decay) within 1 dB of the unfaded source
+
+
+def edge_word_bounds(sa, plan, cut_in, cut_out):
+    """Law L-b: where the first word acoustically begins and the last word (with its natural decay) ends,
+    measured from the cut point's own level (the valley minimum or the room tone the cut sits in): the gap is
+    the run of frames within FLOOR_PLUS_DB of that level next to the cut; the word is everything beyond it.
+    Not from transcript timestamps. Returns {"onset", "end", "lim_in", "lim_out"}."""
+    out = {"onset": None, "end": None, "lim_in": None, "lim_out": None}
+    t, d = sa.sl(max(0.0, cut_out - 1.0), cut_out + 1e-6)
+    if len(d):
+        lim = float(d[-1]) + FLOOR_PLUS_DB
+        k = len(d) - 1
+        while k > 0 and d[k - 1] <= lim:
+            k -= 1
+        out["end"], out["lim_out"] = float(t[k]), round(lim, 2)
+    t, d = sa.sl(cut_in, cut_in + 1.0)
+    if len(d):
+        lim = float(d[0]) + FLOOR_PLUS_DB
+        k = 0
+        while k + 1 < len(d) and d[k + 1] <= lim:
+            k += 1
+        out["onset"], out["lim_in"] = float(t[k]) + HOP_S, round(lim, 2)
+    return out
+
+
+def edge_fades(sa, plan, cut_in, cut_out):
+    """Law L-b (DEC-12b amended, orchestrator 2026-11-11 15:30): an edge fade never overlaps an edge word. The
+    fade-out starts at or after the last word's acoustic end, the fade-in ends at or before the first word's
+    acoustic onset; 2 frames (83 ms) when the gap allows, shorter down to 10 ms when it does not."""
+    wb = edge_word_bounds(sa, plan, cut_in, cut_out)
+    fi = VALLEY_FADE_S if wb["onset"] is None else min(VALLEY_FADE_S, max(FADE_MIN_S, wb["onset"] - cut_in))
+    fo = VALLEY_FADE_S if wb["end"] is None else min(VALLEY_FADE_S, max(FADE_MIN_S, cut_out - wb["end"]))
+    return round(fi, 3), round(fo, 3), wb
+
+
+def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa=None):
+    """G17c (law L-b): the first and the last word of a prepared clip, with their natural decay, at full level:
+    every 10 ms frame of the source over [first onset, + 0.3 s] and [last end - 0.3 s, last end] that is above
+    the gap level next to the cut is matched in the clip within EDGE_WORD_MAX_DB (best alignment within +-2
+    hops absorbs the codec's delay). Returns (ok, detail)."""
+    sa = sa or SourceAudio(src_path)
+    ca = SourceAudio(clip_path)
+    wb = edge_word_bounds(sa, plan, cut_in, cut_out)
+    det = {}
+    for side, (a, b) in (("in", (wb["onset"], None)), ("out", (None, wb["end"]))):
+        if (a if side == "in" else b) is None:
+            det[side] = {"ok": False, "why": "edge word not measurable"}
+            continue
+        t0, t1 = (a, min(a + 0.3, cut_out)) if side == "in" else (max(b - 0.3, cut_in), b)
+        ts, ds = sa.sl(t0, t1)
+        keep = ds > wb["lim_in" if side == "in" else "lim_out"]       # the word, not the gap it sits next to
+        if not keep.any():                                           # fail closed: no word frames to compare
+            det[side] = {"ok": False, "why": "no frames of the edge word in the measured window"}
+            continue
+        best = None
+        for k in range(-2, 3):
+            tc, dc = ca.sl(t0 - cut_in + pad_s + k * HOP_S, t1 - cut_in + pad_s + k * HOP_S)
+            n = min(len(dc), len(ds))
+            if n == 0:
+                continue
+            diff = np.abs(dc[:n] - ds[:n])[keep[:n]]
+            worst = float(np.max(diff)) if len(diff) else 0.0
+            if best is None or worst < best[0]:
+                best = (worst, k)
+        ok = best is not None and best[0] <= EDGE_WORD_MAX_DB
+        det[side] = {"ok": ok, "span": [round(t0, 3), round(t1, 3)], "worst_db": None if best is None else round(best[0], 2),
+                     "shift_hops": None if best is None else best[1],
+                     "why": "edge word at full level" if ok else
+                     f"edge word up to {best[0] if best else float('nan'):.1f} dB off the source (max {EDGE_WORD_MAX_DB})"}
+    return all(v["ok"] for v in det.values()), det
+
+
 def accepted_cut(src, plan, step=HOP_S, sa=None):
     """The cut nearest the plan's targets. Both edges clear of cut_accept: its unchanged acoustics check on the
     pair (20 / 30 ms fades). An edge only reachable at the envelope minimum (DEC-10 d) gets a 2-frame fade and
     must pass neighbour_clear. Returns a dict or None (rejected only by c-ii, or no acoustic pair)."""
     from cut_accept import check_cut_acoustics
     cand = cut_candidates(src, plan, step)
+    sa = sa or SourceAudio(src)
 
     def short(side):                                # DEC-10 d: short gaps are cut at their minimum
         b = plan[side]
@@ -452,13 +528,14 @@ def accepted_cut(src, plan, step=HOP_S, sa=None):
     # valley when cut_accept clears none of its candidates; it keeps the plan's cut there
     cut_in = plan["in"]["point"] if v["in"] and plan["in"].get("point") is not None else cand["in"][0]
     cut_out = plan["out"]["point"] if v["out"] and plan["out"].get("point") is not None else cand["out"][0]
-    fi = VALLEY_FADE_S if v["in"] else DEFAULT_FADE_IN_S
-    fo = VALLEY_FADE_S if v["out"] else DEFAULT_FADE_OUT_S
+    # DEC-12b amended / law L-b: every machine-cut edge gets a fade that never overlaps its edge word: 2 frames
+    # (83 ms) inside the gap when it fits, shorter down to 10 ms when it does not (human PIN tables keep 20 / 30)
+    fi, fo, _ = edge_fades(sa, plan, cut_in, cut_out)
     if not (v["in"] and v["out"]):                  # cut_accept's unchanged checks on every edge NOT cut at a
         acou = check_cut_acoustics(src, cut_in, cut_out)[1]          # minimum, also when the other one is
         if not all(acou[s]["pass"] for s in ("in", "out") if not v[s]):   # (batch-8 Heimdall F2)
             return None
-    ok, det = neighbour_clear(sa or SourceAudio(src), plan, cut_in, cut_out, fi, fo)
+    ok, det = neighbour_clear(sa, plan, cut_in, cut_out, fi, fo)
     if not ok:
         return None
     return {"cut_in": cut_in, "cut_out": cut_out, "valley_in": v["in"], "valley_out": v["out"],
@@ -640,6 +717,34 @@ def apply_lead_in_pad(run_dir, cut, fps, qp):
                    check=True, capture_output=True, timeout=300)
     os.replace(part, clip)
     return {"pad_s": pad, "room_tone_source_s": info, "wav": os.path.basename(wav)}
+
+
+def gate_g17_edges(run_dir, source_path_fn=None):
+    """G17c (law L-b): every machine-cut segment's prepared clip keeps its first and last word, with their
+    natural decay, at full level against the source (edge_word_fidelity). Human PIN tables are measured too.
+    Returns (ok, {clip_id: detail})."""
+    with open(os.path.join(run_dir, "edl.json")) as f:
+        edl = json.load(f)
+    with open(os.path.join(run_dir, "cuts_final.json")) as f:
+        cuts = {c["clip_id"]: c for c in json.load(f)}
+    table, ok_all = {}, True
+    for label, seg in _segments(edl):
+        lock, cut = seg.get("selection_lock"), cuts.get(label)
+        clip = os.path.join(run_dir, "qa", f"final_{label}.mp4")
+        if not lock or not cut or not os.path.exists(clip):
+            table[label] = {"ok": False, "why": "no lock / cut / prepared clip"}
+            ok_all = False
+            continue
+        with open(os.path.join(run_dir, "transcripts", f"{seg['video_id']}.json")) as f:
+            words = json.load(f)["words"]
+        src = (source_path_fn or (lambda v: os.path.join(run_dir, "sources", f"{v}.mp4")))(seg["video_id"])
+        sa = SourceAudio(src)
+        plan = edge_plan(sa, words, lock["i0"], lock["i1"])
+        ok, det = edge_word_fidelity(src, clip, plan, cut["cut_in"], cut["cut_out"],
+                                     float(cut.get("lead_in_pad_s") or 0), sa=sa)
+        table[label] = {"ok": ok, **det}
+        ok_all &= ok
+    return ok_all, table
 
 
 # ── G17 ONSET/TAIL INTEGRITY (rendered audio) ──

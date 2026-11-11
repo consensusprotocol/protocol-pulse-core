@@ -102,6 +102,25 @@ class TestCaption429SwitchesToWhisper(TempStore):
 
 # ── 4. provenance ──
 
+class TestChyronChannels(unittest.TestCase):
+    """DEC-12d: has_chyron is recorded for every registry channel; selection knows it before render."""
+
+    def test_every_registry_channel_records_has_chyron(self):
+        reg = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")))
+        self.assertTrue(reg)
+        for e in reg:
+            self.assertIsInstance(e.get("has_chyron"), bool, e.get("display_name"))
+
+    def test_a_chyron_channel_never_supplies_a_clip(self):
+        import editorial_select as es
+        chyron = [e for e in REG.values() if e.get("has_chyron")]
+        self.assertIn("Bitcoin Magazine", [e["display_name"] for e in chyron])
+        for e in chyron:                                    # every chyron channel, not one example
+            self.assertFalse(es.layout_eligible(e), e["display_name"])
+        self.assertTrue(es.layout_eligible(REG["The Bitcoin Layer"]))
+        self.assertFalse(es.layout_eligible({"display_name": "x", "has_chyron": False}))   # no channel id
+
+
 class TestChunkProvenance(TempStore):
     SEGS = [{"start": i * 5.0, "end": i * 5.0 + 4.8, "text": f"sentence {i}."} for i in range(40)]
 

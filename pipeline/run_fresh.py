@@ -475,6 +475,16 @@ def stage_voice(run):
         raise Hold(f"VO voice/model {voice_id}/{model_id} != v2f {ref_voice}/{ref_model}")
     if "signoff" not in manifest:
         raise Hold("no signoff VO generated")
+    # law L-a, before anything is rendered: the sign-off script names exactly the credited channels (the
+    # card's list: the hook's channel first, then the clips'); G20 checks the rendered voice after render
+    import credit_rings
+    import gates as G
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        credited = credit_rings.credit_channels(json.load(f))
+    with open(os.path.join(PIPELINE_DIR, "channels.json")) as f:
+        named = G.spoken_channels(manifest["signoff"].get("text", ""), json.load(f), credited)
+    if named != set(credited):
+        raise Hold(f"law L-a: the sign-off script names {sorted(named)}, the card credits {credited}")
     vo_dir = os.path.join(run.dir, "vo_audio")
     stems = {}
     for k, v in manifest.items():
@@ -816,8 +826,12 @@ def stage_gates(run, final16, man16, final9, man9):
     rows["9x16"]["G11_parity"] = _status(g11_ok)
 
     # G14 / G14c / G15
+    def _words(vid):                                  # DEC-12e: G14 samples where the transcript has speech
+        tp = os.path.join(run.dir, "transcripts", f"{vid}.json")
+        with open(tp) as f:
+            return [{"start": float(w["start"]), "end": float(w["end"])} for w in json.load(f)["words"]]
     src_clips = {c["clip_id"]: {"path": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
-                                "cut_in": c["cut_in"]} for c in cuts}
+                                "cut_in": c["cut_in"], "words": _words(c["video_id"])} for c in cuts}
     g14dir16 = os.path.join(qa, "g14_16x9")
     g14dir9 = os.path.join(qa, "g14_9x16")
     os.makedirs(g14dir16, exist_ok=True)
@@ -842,12 +856,11 @@ def stage_gates(run, final16, man16, final9, man9):
     limits["16x9"].append("G14: static talking-head temporal slips can pass frame_sim "
                           "(v2e 18.0-24.0 s precedent); VO sections are auto-PASS (pre-roll "
                           "declared), plate correctness not verified")
-    g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9)
-    # audio part: the gate's own conclusive xcorr measurement (peak >= 0.3) and 40 ms tolerance
-    audio_bad = [d for d in g14_9 if d.get("delta_ms") is not None and d["delta_ms"] > 40]
-    inconclusive9 = [d for d in g14_9 if d.get("status") == "HOLD" and d.get("delta_ms") is None]
-    rows["9x16"]["G14_audio_offset"] = ("FAIL" if audio_bad else
-                                        "HOLD(inconclusive)" if inconclusive9 else "PASS")
+    # 9:16: the audio-offset part only (frame similarity of a 9:16 crop against the 16:9 source is not valid);
+    # the gate's own per-segment verdict (DEC-12e): >= 3 conclusive matching samples, zero mismatches
+    g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9, frames=False)
+    fails9 = [d for d in g14_9 if d.get("status") == "FAIL"]
+    rows["9x16"]["G14_audio_offset"] = ("PASS" if g14_9_ok else "FAIL" if fails9 else "HOLD(inconclusive)")
     rows["9x16"]["G14_frame_similarity"] = "LIMITED (not valid for 9:16 crop vs 16:9 source)"
     limits["9x16"].append("G14 frame_sim compares a 9:16 crop with the 16:9 source (v2e positive "
                           "control: 0.24-0.54 on correct frames); only the audio-offset part is "
@@ -863,6 +876,13 @@ def stage_gates(run, final16, man16, final9, man9):
     g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"), channels=credited)
     rows["16x9"]["G15_credits"] = _status(g15_16_ok)
     rows["9x16"]["G15_credits"] = _status(g15_9_ok)
+    # G20 SIGNOFF_NAMES_ALL (law L-a): the rendered sign-off names exactly the credited channels
+    for sub in ("g20_16x9", "g20_9x16"):
+        os.makedirs(os.path.join(qa, sub), exist_ok=True)
+    g20_16_ok, g20_16 = G.gate_g20(final16, segs16, credited, os.path.join(qa, "g20_16x9"))
+    g20_9_ok, g20_9 = G.gate_g20(final9, segs9, credited, os.path.join(qa, "g20_9x16"))
+    rows["16x9"]["G20_signoff_names_all"] = _status(g20_16_ok)
+    rows["9x16"]["G20_signoff_names_all"] = _status(g20_9_ok)
 
     # G8 — production result + source-relative report (threshold untouched)
     g8dir = os.path.join(qa, "g8_relative")
@@ -923,8 +943,32 @@ def stage_gates(run, final16, man16, final9, man9):
                                           for c in cuts})
     g17b16_ok, g17b16 = L.gate_g17_output(final16, segs16, cuts, run.dir)
     g17b9_ok, g17b9 = L.gate_g17_output(final9, segs9, cuts, run.dir)
-    rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok)
-    rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok)
+    # G17c (law L-b): the first and last word of every prepared clip, with their decay, at full level
+    # (within 1 dB of the unfaded source); format-independent, part of the G17 row in both formats
+    g17c_ok, g17c = L.gate_g17_edges(run.dir)
+    rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok and g17c_ok)
+    rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok and g17c_ok)
+
+    # law L-c: a check that disagrees with the others on an EDGE WORD is right until an acoustic comparison
+    # with the source proves otherwise: G17c (the kept word and decay equal the unfaded source) and G16 (no
+    # audible part of the neighbour word, neighbour_clear). A dissenting G3b reading needs that proof, else
+    # HOLD; a G3c head / tail failure on an edge is overruled only by it, else it stands.
+    def _edge_proved(seg, side):
+        return g16_ok and bool((g17c.get(seg) or {}).get(side, {}).get("ok"))
+    lc = {}
+    for fmt, res in (("16x9", r16), ("9x16", r9)):
+        g3b = (res.get("G3b_cut_out_clean") or {}).get("table") or []
+        dissent = [e["segment"] for e in g3b if isinstance(e, dict) and e.get("dissent") and e.get("last_found")]
+        unproved = [sg for sg in dissent if not _edge_proved(sg, "out")]
+        if rows[fmt].get("G3b_cut_out_clean") == "PASS" and unproved:
+            rows[fmt]["G3b_cut_out_clean"] = f"HOLD(dissent unproved: {', '.join(unproved)})"
+        g3c = (res.get("G3c_acoustic_tail") or {}).get("table") or []
+        failed = [(e["segment"], side) for e in g3c if isinstance(e, dict)
+                  for side, key in (("out", "tail_ok"), ("in", "head_ok")) if e.get(key) is False]
+        if rows[fmt].get("G3c_acoustic_tail") == "FAIL" and failed and all(_edge_proved(sg, sd) for sg, sd in failed):
+            rows[fmt]["G3c_acoustic_tail"] = "PASS(L-c: " + ", ".join(f"{sg} {sd}" for sg, sd in failed) + \
+                " proved by the source comparison)"
+        lc[fmt] = {"g3b_dissent": dissent, "g3b_unproved": unproved, "g3c_failed_edges": failed}
 
     # G18 WORD-FOR-WORD (mission 4a): every clip's first/last words are its locked sentences' and its
     # words are exactly those of the source span it was cut from (both finals; whisper on GPU0)
@@ -963,7 +1007,7 @@ def stage_gates(run, final16, man16, final9, man9):
 
     gates_out = {"rows": rows, "flags": flags, "limitations": limits,
                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
-                 "G15_16x9": g15_16, "G15_9x16": g15_9, "G8": g8_report, "G9": g9_report, "G16": g16,
+                 "G15_16x9": g15_16, "G15_9x16": g15_9, "G20_16x9": g20_16, "G20_9x16": g20_9, "G17c": g17c, "L-c": lc, "G8": g8_report, "G9": g9_report, "G16": g16,
                  "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18, "G19": g19,
                  "G4_per_shot": g4_shots, "G4s": g4s,
                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}

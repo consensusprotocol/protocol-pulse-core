@@ -84,4 +84,16 @@ print(f'  Parity: {delta:.3f}s (threshold 0.25s) {\"PASS\" if delta < 0.25 else 
 fi
 echo ""
 
+# ── Step 6: second protected reference (law L-d) ──
+echo "--- STEP 6: PROTECTED REFERENCE pulse_preview_2026-11-11 (selection + cut + layout must reproduce) ---"
+set +e
+python3 pipeline/check_preview_reference.py
+PREVIEW_RC=$?
+set -e
+if [ "$PREVIEW_RC" -ne 0 ] && [ "$PREVIEW_RC" -ne 2 ]; then      # 2 = reference not on this machine (SKIP)
+    echo "  FAIL: the PBX-approved preview's decisions changed (docs/references/REFERENCE_PULSE_PREVIEW_2026-11-11.md)"
+    exit 1
+fi
+echo ""
+
 echo "=== REGRESSION COMPLETE ==="

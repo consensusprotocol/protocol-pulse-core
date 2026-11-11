@@ -1,0 +1,221 @@
+{
+  "pass": true,
+  "segments": [
+    {
+      "segment": "hook",
+      "video_id": "RXTVaDsN11M",
+      "errors": [],
+      "in": {
+        "cut": 0.03,
+        "boundary_valid": true,
+        "pause": {
+          "start": 0.03,
+          "end": 0.09,
+          "ms": 60
+        },
+        "lexical": "file head",
+        "after_word": "<file head>",
+        "before_word": "Bitcoin",
+        "cut_lo": 0.0,
+        "cut_hi": 0.03,
+        "pass": true,
+        "genuine_lead_ms": 60,
+        "pad_needed_s": 0.25,
+        "pad_declared_s": 0.25,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 9.33,
+        "boundary_valid": true,
+        "pause": {
+          "start": 9.29,
+          "end": 9.63,
+          "ms": 340
+        },
+        "lexical": "punctuation",
+        "after_word": "take.",
+        "before_word": "Over",
+        "cut_lo": 9.22,
+        "cut_hi": 9.65,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "why": "no neighbour word"
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'Bitcoin' ... 'take.' (25 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_01",
+      "video_id": "lusJ1m-J0Mc",
+      "errors": [],
+      "in": {
+        "cut": 68.38,
+        "boundary_valid": true,
+        "pause": {
+          "start": 68.38,
+          "end": 68.5,
+          "ms": 120
+        },
+        "lexical": "punctuation",
+        "after_word": "-off.",
+        "before_word": "It",
+        "cut_lo": 68.32,
+        "cut_hi": 68.51,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 80.84,
+        "boundary_valid": true,
+        "pause": {
+          "start": 80.84,
+          "end": 80.84,
+          "ms": 0,
+          "valley": true,
+          "valley_db": -22.5
+        },
+        "lexical": "punctuation",
+        "after_word": "rally.",
+        "before_word": "But",
+        "cut_lo": 80.84,
+        "cut_hi": 80.84,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 90,
+          "worst_db_after_fade": -41.3,
+          "valley_db": -30.7,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'It' ... 'rally.' (40 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_02",
+      "video_id": "36HPi9UZPOc",
+      "errors": [],
+      "in": {
+        "cut": 38.2,
+        "boundary_valid": true,
+        "pause": {
+          "start": 38.2,
+          "end": 38.2,
+          "ms": 0,
+          "valley": true,
+          "valley_db": -19.5
+        },
+        "lexical": "punctuation",
+        "after_word": "days.",
+        "before_word": "Of",
+        "cut_lo": 38.2,
+        "cut_hi": 38.21,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 57.37,
+        "boundary_valid": true,
+        "pause": {
+          "start": 57.08,
+          "end": 57.43,
+          "ms": 350
+        },
+        "lexical": "punctuation",
+        "after_word": "times.",
+        "before_word": "I",
+        "cut_lo": 57.04,
+        "cut_hi": 57.44,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'Of' ... 'times.' (59 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_03",
+      "video_id": "jbDqdLytkNM",
+      "errors": [],
+      "in": {
+        "cut": 14.94,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.68,
+          "end": 15.19,
+          "ms": 510
+        },
+        "lexical": "punctuation",
+        "after_word": "Bitcoin.",
+        "before_word": "Last",
+        "cut_lo": 14.62,
+        "cut_hi": 15.2,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 31.79,
+        "boundary_valid": true,
+        "pause": {
+          "start": 31.61,
+          "end": 31.75,
+          "ms": 140
+        },
+        "lexical": "punctuation",
+        "after_word": "miss.",
+        "before_word": "That",
+        "cut_lo": 31.59,
+        "cut_hi": 32.04,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 230,
+          "worst_db_after_fade": -34.9,
+          "valley_db": -25.4,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "neighbour_kept_ms": 160,
+          "worst_db_after_fade": -38.7,
+          "valley_db": -25.7,
+          "why": "below the valley threshold after the fade"
+        }
+      },
+      "locked": "'Last' ... 'miss.' (41 words)",
+      "pass": true
+    }
+  ]
+}

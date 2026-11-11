@@ -1,0 +1,27 @@
+{
+  "style": "crossfade",
+  "lead_tail": {
+    "hook": [
+      0.31,
+      0.04
+    ],
+    "clip_01": [
+      0.12,
+      0.01
+    ],
+    "clip_02": [
+      0.01,
+      0.29
+    ],
+    "clip_03": [
+      0.21,
+      0.14
+    ]
+  },
+  "channels": {
+    "hook": "DataDash",
+    "clip_01": "Natalie Brunell",
+    "clip_02": "Yahoo Finance",
+    "clip_03": "Bitcoin Magazine"
+  }
+}

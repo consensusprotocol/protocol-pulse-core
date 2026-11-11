@@ -1,0 +1,21 @@
+# Heimdall audit
+
+**Question:** DEC-12 (orchestrator 2026-11-11 14:45, decided): the parked gate items as ONE batch; every gate keeps its purpose and its must-fail tests; what changes is an instrument error or the render. (a) G9 floor per format = v2f's measured tail luma minus the MEASURED re-encode spread of the same locked outro through the final-encode path (5 GOP phases, 5 real credits cards before it, the real finals; tagged bt709 like the finals): 0.0438 / 0.0335 rounded up to 0.01, at most 0.05 -> floors 14.2857 / 14.7315; outro_locked stays the hard row; tests: v2f + another encode pass, a tail 1 luma code darker and a black tail fail, a conform fallback fails outro_locked. (b) every MACHINE-cut edge gets the 2-frame (83 ms) fade in accepted_cut; human PIN tables keep 20/30 (Law 22). (d) has_chyron channels (registry) never supply a clip in auto selection (layout_eligible); coverage evidence unchanged. (e) G14 samples only where the source transcript has a word in the 0.5 s window and outside declared transition overlaps / VO segments of the timeline map; an inconclusive sample is re-taken once at the nearest word onset; a segment passes with >= 3 conclusive matching samples and zero conclusive mismatches, else FAIL (any mismatch) / HOLD; xcorr bar and tolerance unchanged; 9:16 runs audio-only (frames=False) under the same rule; tests: the corrected Nov 10 cut passes (its pause sample re-taken), a mid-segment 2-frame AV slip FAILS, a silenced segment HOLDS. (f) G3b reads each tail 3 times (window starts jittered by 0/1/2 frames) with 1.5 s of leading context; the expected last word must be among the last two words heard in a majority; the next word must not follow it in a majority; tests: the corrected cut passes, yesterday's Natalie tail fails against its locked last word, a tail cut 250 ms into its last word fails. Find real defects only: anything that loosens a must-fail, a fail-open path, wrong time mapping in G14, a G9 floor not derived from the measurement, Law 22 risk. (this chunk: pipeline/test_g3b_majority.py)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0097
+## Consensus findings (majority of panel agrees)
+- **[medium] pipeline/test_g3b_majority.py:46** Must-fail tests are conditionally skipped when fixtures are missing, allowing the test suite to pass without ever running the must-fail checks. This loosens the must-fail requirement.
+  - evidence: `@unittest.skipUnless(os.path.exists(os.path.join(FIX, "audio", "out_16x9.flac")), "Nov 10 fixture missing")`
+  - fix: Replace skipUnless with a hard failure (e.g. self.fail) when required fixtures are missing, or ensure fixtures are always present in CI.
+  - raised by deepseek:F2; agree: deepseek, qwen27b
+- **[medium] pipeline/test_g3b_majority.py:58** The must-pass test only asserts that gate_g3b returns ok=True. It does not verify that the expected last word was actually found or that the next word did not follow. If gate_g3b fails open (e.g. returns True when no last_word is set), this test still passes.
+  - evidence: `self.assertTrue(ok, table)`
+  - fix: Assert that the table shows the expected last word found and the next word not found, e.g. assertTrue(table[0]["last_found"], table) and assertFalse(table[0]["next_found"], table).
+  - raised by deepseek:F3; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- deepseek:F1 [high] The must-fail test for yesterday's Natalie tail asserts that the locked last word was NOT found, but DEC-12f says the tail ran on into '... people celebrating', meaning the locked last word 'week.' is heard and the failure should be because the next word follows. This assertion contradicts the specification and would fail a correct implementation. (agree: 1)
+- deepseek:F4 [low] The must-fail test for a tail cut 250 ms into its last word only asserts that gate_g3b returns ok=False. It does not verify that the failure is due to the cut last word, so it could pass for unrelated reasons (e.g. a missing file or another gate error). (agree: 1)
+
+## Added in cross-examination (not voted on)
+- deepseek: [medium] The must-pass test is conditionally skipped if the replay run is missing, so the suite can pass without verifying the corrected cut passes. This is a fail-open path for a must-pass check.
