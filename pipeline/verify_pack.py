@@ -135,8 +135,9 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
         if not (v.get("letterbox_per_shot") or {"ok": True})["ok"]:
             bad = [f"{r.get('label')}#{r.get('shot')}" for r in v["letterbox_per_shot"]["shots"] if not r.get("ok")]
             nos.append(f"letterbox per shot: {', '.join(bad)}")
+        why = "; ".join(x for x in (v.get("error"), ("no/missing: " + ", ".join(nos)) if nos else None) if x)
         rep.setdefault("rows", {}).setdefault(fmt, {})["V1_visual_checklist"] = \
-            "PASS" if v["ok"] else f"FAIL ({v.get('error') or 'no/missing: ' + ', '.join(nos)})"
+            "PASS" if v["ok"] else f"FAIL ({why or 'no answer'})"
     if vision:
         rep["V1"] = pack["visual"]
         with open(os.path.join(run_dir, "GATE_REPORT.json"), "w") as f:

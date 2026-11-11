@@ -234,7 +234,7 @@ def shot_frames(final, segments, layout, work_dir):
     frame is the segment's start in the final); a frame inside a dissolve is moved out of it. A segment without
     a measured layout is one shot of class 'unknown' (asked like a talking head)."""
     os.makedirs(work_dir, exist_ok=True)
-    out = []
+    layout, out = layout or {}, []
     for i, s in enumerate(segments):
         if s.get("type") != "talking_head":
             continue
@@ -243,21 +243,27 @@ def shot_frames(final, segments, layout, work_dir):
         shots = (layout.get(s["label"]) or {}).get("shots") or \
             [{"start": 0.0, "end": s["end"] - s["start"], "class": "unknown"}]
         for k, sh in enumerate(shots):
-            t = min(max(s["start"] + (sh["start"] + sh["end"]) / 2, lo), hi)
+            t = min(max(s["start"] + (sh["start"] + sh["end"]) / 2, lo), hi) if lo <= hi else \
+                (s["start"] + s["end"]) / 2                     # (a segment shorter than two frames)
             out.append({"label": s["label"], "shot": k, "t": round(t, 3), "class": sh.get("class", "unknown"),
                         "path": _grab(final, t, os.path.join(work_dir, f"shot_{s['label']}_{k}.jpg"))})
     return out
 
 
-def ask_letterbox(path, model, timeout=600, attempts=2):
-    """'yes' / 'no' from one model about one frame, or None (no clear answer after the retries)."""
+def ask_letterbox(path, model, timeout=600, attempts=2, trail=None):
+    """'yes' / 'no' from one model about one frame, or None (no clear answer after the retries). Every attempt
+    (error, or the reply's answer and reason) is appended to `trail` when given (it lands in GATE_REPORT)."""
+    trail = [] if trail is None else trail
     req = _request(path, LETTERBOX_PROMPT, model)
     for _ in range(attempts):
         try:
             content, _raw = _call(req, timeout)
-        except Exception:                           # route error: retried, then no answer
+        except Exception as e:                      # route error: retried, then no answer
+            trail.append({"error": f"{type(e).__name__}: {e}"[:300]})
             continue
-        a = str((_first_json(content, "letterboxed") or {}).get("letterboxed", "")).strip().lower()
+        obj = _first_json(content, "letterboxed") or {}
+        a = str(obj.get("letterboxed", "")).strip().lower()
+        trail.append({"answer": a or "unparseable", "why": str(obj.get("why", content))[:300]})
         if a in ("yes", "no"):
             return a
     return None
@@ -272,13 +278,14 @@ def letterbox_check(frames):
         if f["class"] == "screen":
             rows.append({**f, "asked": False, "ok": True, "why": "layout=screen: letterbox by design (DEC-2)"})
             continue
-        ans, err = {}, None
+        ans, trails, err = {}, {}, None
         for m in VISION_MODELS:
+            trails[m] = []
             try:
-                ans[m] = ask_letterbox(f["path"], m) if f["path"] else None
+                ans[m] = ask_letterbox(f["path"], m, trail=trails[m]) if f["path"] else None
             except Exception as e:                  # e.g. the route is not configured
                 ans[m], err = None, f"{type(e).__name__}: {e}"
-        good = all(a == "no" for a in ans.values())
+        good = bool(ans) and all(a == "no" for a in ans.values())     # no model asked = no answer = FAIL
         ok = ok and good
-        rows.append({**f, "asked": True, "answers": ans, "ok": good, **({"error": err} if err else {})})
+        rows.append({**f, "asked": True, "answers": ans, "trail": trails, "ok": good, **({"error": err} if err else {})})
     return ok, rows

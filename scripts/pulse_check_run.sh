@@ -18,7 +18,8 @@
 #   data/pulse_check/story_ledger.jsonl (its counted evidence statements); later auto runs never select an
 #   event resting on one of them (pipeline/story_ledger.py)
 # Exit (--foreground, and in the log): run_fresh's code (0 = every gate passed, 3 = HOLD), 70 = the run
-# rendered but the Telegram drop failed, 75 = locked, 64 = usage. The detached launcher exits 0 once the
+# rendered but the Telegram drop failed, 71 = delivered but the DEC-9 story ledger write failed,
+# 75 = locked, 64 = usage. The detached launcher exits 0 once the
 # tmux session is up (1 if tmux failed, 75 if a run already holds the lock); the run's code is in the log.
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -74,11 +75,19 @@ RUN_DIR="$(grep -m1 -oP '(?<==== FRESH-TOPIC RUN ).*(?= ===)' "$LOG" || true)"
 echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
 
 if [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
-  python3 -c "import sys, telegram, story_ledger; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']]); e = story_ledger.record_if_approved(sys.argv[1], r, sys.argv[2]); print('story ledger:', 'recorded ' + e['run'] if e else 'not recorded (pinned, review-only or option)')" \
-    "$RUN_DIR" "$MODE" 2>&1 | tee -a "$LOG"
+  python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
+    "$RUN_DIR" 2>&1 | tee -a "$LOG"
   if [ "${PIPESTATUS[0]}" != 0 ]; then
     echo "pulse_check_run: Telegram delivery FAILED (see above); run dir $RUN_DIR" | tee -a "$LOG"
     exit 70
+  fi
+  # DEC-9 ledger, from the delivery record just written (a separate step: a ledger fault never reads as a
+  # failed drop, and is never silent: the next auto run could select this story again)
+  python3 -c "import json, os, sys, story_ledger; r = json.load(open(os.path.join(sys.argv[1], 'TELEGRAM_DELIVERY.json'))); e = story_ledger.record_if_approved(sys.argv[1], r, sys.argv[2]); print('story ledger:', 'recorded ' + e['run'] if e else 'not recorded (pinned, review-only or option)')" \
+    "$RUN_DIR" "$MODE" 2>&1 | tee -a "$LOG"
+  if [ "${PIPESTATUS[0]}" != 0 ]; then
+    echo "pulse_check_run: delivered, but the story ledger was NOT recorded (see above): the next auto run may select this story again; run dir $RUN_DIR" | tee -a "$LOG"
+    exit 71
   fi
 elif [ "$TELEGRAM" = 1 ]; then
   echo "no finals rendered: nothing delivered (the run's REPORT.md and status.json are the ledger)" | tee -a "$LOG"
