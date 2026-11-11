@@ -1,41 +1,44 @@
-# CURRENT STATE — 2026-11-11 10:40 ET (Pulse Check mission; CC session in tmux pipeline_pp_dod)
+# CURRENT STATE — 2026-11-11 14:27 ET (Pulse Check mission; CC session in tmux pipeline_pp_dod)
 
-Read docs/audits/DEFINITION_OF_DONE_PULSE_CHECK.md first (LIVE STATE newest first, DEC-1..DEC-10, OD-1..OD-7),
-then docs/RUNBOOK_PULSE_CHECK.md. Branch `combo-letterbox-quoteonly-v2`. Nothing is published; Telegram (the
-approval chat) gets a run ONLY when every gate passed (orchestrator 08:30).
+Read docs/audits/DEFINITION_OF_DONE_PULSE_CHECK.md first (LIVE STATE newest first; DEC-1..DEC-11; OD-1..OD-7),
+then docs/RUNBOOK_PULSE_CHECK.md. Branch `combo-letterbox-quoteonly-v2` (HEAD: see git log; batch 11 on top of 36e769d0). Nothing is
+published; Telegram (the approval chat) gets a run ONLY when every gate passed (orchestrator 08:30).
 
 ## What exists (all audited, committed, pushed)
 - One command: `scripts/pulse_check_run.sh` (auto) / `--pinned PIN.json`; flock, logs/pulse_check/, tmux-safe,
-  NOT in cron; delivers only on a clean pass; DEC-9 story ledger for auto runs (data/pulse_check/story_ledger.jsonl).
-- Stages: env, editorial (auto: story engine + same-event merge + ledger) or pinned, review, validate (edl_rules,
-  editorial laws, NEW stand-alone + topic rule: pipeline/stand_alone.py), cut, sentence_law (G16), voice, prepare
-  (fade retry; NEW shot_snap: no neighbouring shot outside the speech), layout (SCRFD per shot), render (16:9 +
-  9:16, transitions; xfade timebase fix), gates (G1..G18, NEW G19 edge shots, G4s), verify (contact sheets, V1:
-  six questions on the sheet + per-shot letterbox + per-cut next-shot check, two Heimdall vision models).
-- `pipeline/replay.py RUN_DIR --from prepare|layout|render|gates`: re-runs the tail on a copy with the
-  production functions (no download / transcription), for checking a fix in minutes.
-- Law 22: the frozen v2f reference re-renders byte-identical (re-prove at the HEAD of the next fresh runs).
+  NOT in cron; delivers only on a clean pass; DEC-9 story ledger for auto runs.
+- Stages: env, editorial (auto) or pinned, review, validate (edl_rules, editorial laws, stand-alone + topic
+  rule), cut (sentence law), sentence_law (G16), voice, prepare (fade retry, shot snap), layout, render
+  (16:9 + 9:16, transitions), gates (G1..G19, G4s), verify (contact sheets, V1 vision checks).
+- `pipeline/replay.py RUN_DIR --from prepare|layout|render|gates` re-runs the tail on a copy.
+- DEC-10 sentence law (ae965c95, 29299ea5, 9b459ec6): edge timing calibrated to v2f's measured worst (0 ms;
+  D1 head rule 80 ms unchanged); the legal range is the heard gap; a short gap is cut at the envelope minimum
+  (searched inside the transcript gap +- one hop) with a 2-frame (83 ms) fade; neighbour_clear (no audible
+  neighbour word) in the cutter and G16; stage_cut defers a minimum-cut edge to G16 instead of M19.
+- DEC-11 credits gates (af5447c6): G12 / G15 measure the brand-red rings the renderer draws (count, layout
+  position, aspect >= 0.95 unchanged) and G15 checks each disc is the credited channel's registered avatar;
+  fails closed without the channel list.
+- 9:16 safe frame keeps its input's colour matrix (36e769d0; the recut's vertical was color_space=unknown).
 
-## Phase 4a (corrected Nov 10 story): NOT yet passing
-- Run 6 (runs/pinned_20261111_123750) rendered end to end with the sentence law; HELD on G3, G5, G9, G14, G15,
-  G17, G18, V1. Root causes in the DoD: G18 = comparator gap (fixed, plus a decimal hole it hid); V1 next shot =
-  real (fixed: shot_snap + G19); G5 = lineup too short + loudness chain; G9/G15/G17a/G3/G14 = what the gate
-  measures (OD-1, OD-4..OD-7, gates unchanged). Run 6 was delivered REVIEW ONLY at 08:20 (msgs 67570-67573),
-  before the 08:30 rule; nothing since.
-- Replay of run 6 with the fixes: G18 PASS everywhere; 9:16 V1 PASS.
-- Lineup: under the 80 ms law the better windows are not cuttable (measured pauses); the best legal lineup
-  is ~59 s with a weak hook. DEC-10 (10:35): recalibrate the edge TIMING constants to v2f's measured worst
-  (DEC-1 mechanism), keep the listener-facing checks strict, cut short gaps at the envelope minimum with a
-  2-frame fade; then re-cut the Nov 10 story (DataDash 0.00-9.10 hook, Natalie "It went from above 81,000 ...",
-  Yahoo "...Bitcoin dropped pretty massively ... many times."). TIME BOX 13:00 ET, then 4b.
-- Wider frozen sources for the search: runs/recut_sources_20261111b (full audio + transcripts for Bitcoin
-  Magazine jbDqdLytkNM, DataDash, Yahoo, CoinTelegraph; full mp4 for jbDqdLytkNM, Yahoo, DataDash).
+## Phase 4a (Nov 10 story): NOT passing; time box over; nothing sent
+- Recut #2 runs/pinned_20261111_172202 (DataDash hook, Natalie Brunell, Yahoo Finance, Bitcoin Magazine;
+  71.17 s; orchestrator 13:15: "the right video"). G16 / G17 / G18 / G19 PASS both formats.
+- Blockers (exact numbers in the DoD 13:32 / 14:03): G9 = OD-4 residual (same locked outro re-encoded ~0.03
+  darker than v2f: 16:9 14.3021 vs 14.33; 9:16 14.7418 vs 14.77 once tagged); G10 16:9 = Bitcoin Magazine's
+  real burned-in lower third (no 16:9 chyron framing exists for has_chyron channels); G14 = one sample in a
+  0.6 s pause of Yahoo's speech under the music bed (xcorr 0.154; not a transition / VO freeze); G3c = hook
+  tail only after 8d (DataDash's room tone 10.4 dB under his speech, limit 11.63).
 
-## Phase 4b (three fresh stories in a row at one HEAD): code ready, runs not started
-- Same-event merge, DEC-9 ledger, stand-alone rule in auto selection; run via the wrapper after 4a or 13:00.
+## Phase 4b (three fresh stories in a row at one HEAD): RESTARTING
+- Run 1 at 36e769d0 (14:03, runs/fresh_20261111_190259) HELD in editorial on a pipeline defect (hand-made
+  transcript records without channel identity crashed clustering; bible E-FAIL-030); fixed in batch 11, the
+  count restarts at the batch-11 HEAD with a Law 22 re-proof there. Do not commit between the three runs
+  (identical HEAD). Every run is expected to hit G9 (OD-4) until the orchestrator decides it.
 
-## Open decisions (DoD): OD-1 G15 glyphs, OD-2/OD-3, OD-4 G9 on a black-ending outro, OD-5 G17a gated silence,
-## OD-6 G3 single word, OD-7 G14 window under the bed.
+## Open decisions for the orchestrator
+OD-4 G9 on a black-ending locked outro (blocks every render by encoder state); G10 16:9 framing for
+has_chyron channels; G14 sampling in source pauses under the bed (OD-7 class); G3c on a quiet source's room
+tone (OD-5 class); OD-1 superseded by DEC-11; OD-2 / OD-3 / OD-6 as written.
 
 ---
 

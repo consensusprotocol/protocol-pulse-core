@@ -177,6 +177,8 @@ def _make_record(meta, method, model, segments, language="en", media_sha256=None
              "text": s["text"].strip()} for s in segments if s["text"].strip()]
     if not segs:
         raise AcquisitionError("empty transcript")
+    if not (meta.get("channel_id") and meta.get("channel_name")):  # every record carries its source identity
+        raise AcquisitionError(f"no channel identity for {meta.get('video_id')}: pass the video's meta.json")
     rec = {"schema": SCHEMA}
     for k in ("video_id", "canonical_url", "channel_id", "channel_name", "exact_title",
               "published_at", "duration"):
@@ -418,8 +420,24 @@ def chunk_id(video_id, start, end):
 
 
 def chunks(rec):
-    """Deterministic ~30-60 s chunks; every chunk carries the full source identity."""
+    """Deterministic ~30-60 s chunks; every chunk carries the full source identity. A record written without
+    its channel identity (four hand-made whisper_words records of 2026-11-10 crashed 4b run 1's clustering
+    on a None channel) takes the missing fields from the video's meta.json, its identity record (never overriding
+    a field the record has); without BOTH channel fields after that, or with an unreadable meta.json, the record
+    yields no chunks (fail closed: unidentified text is no channel's evidence)."""
+    if not rec.get("video_id"):
+        return []                                   # no video identity at all: fail closed
     prov = {k: rec.get(k) for k in PROVENANCE_FIELDS}
+    if any(v is None for v in prov.values()):       # fill only what the record lacks, never override it
+        try:
+            with open(os.path.join(_vdir(rec["video_id"]), "meta.json")) as f:
+                m = json.load(f)
+        except (OSError, ValueError):               # absent / unreadable / corrupt: nothing to fill from
+            m = {}
+        if isinstance(m, dict):
+            prov.update({k: m[k] for k in PROVENANCE_FIELDS if prov.get(k) is None and m.get(k) is not None})
+    if not (prov.get("channel_id") and prov.get("channel_name")):
+        return []                                   # fail closed: every chunk carries BOTH channel fields
     out, cur = [], []
     def flush():
         if cur:

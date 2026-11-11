@@ -103,6 +103,67 @@ class TestCaption429SwitchesToWhisper(TempStore):
 # ── 4. provenance ──
 
 class TestChunkProvenance(TempStore):
+    SEGS = [{"start": i * 5.0, "end": i * 5.0 + 4.8, "text": f"sentence {i}."} for i in range(40)]
+
+    def _plant_bare(self, vid, method, **fields):
+        """A record written OUTSIDE the pipeline's writer, identity fields None (as the Nov 10 hand-made ones)."""
+        rec = {"schema": 1, "video_id": vid, "canonical_url": ts.canonical_url(vid), "channel_id": None,
+               "channel_name": None, "exact_title": None, "published_at": None, "duration": None, **fields,
+               "transcript_method": method, "transcript_model": "fw", "language": "en",
+               "acquired_at": "2026-11-10T10:28:14+00:00", "media_sha256": None, "segments": self.SEGS,
+               "transcript_sha256": ts.segments_sha256(self.SEGS)}
+        with open(os.path.join(ts._vdir(vid), f"transcript.{method}.json"), "w") as f:
+            json.dump(rec, f)
+
+    def test_the_writer_refuses_a_record_without_full_channel_identity(self):
+        vid = "GGGGGGGGGGG"
+        base = {"schema": 1, "video_id": vid, "canonical_url": ts.canonical_url(vid)}
+        for meta in (base, {**base, "channel_id": None, "channel_name": None, "exact_title": None},
+                     {**base, "channel_id": REG["The Bitcoin Layer"]["channel_id"], "channel_name": None}):
+            with self.assertRaisesRegex(ts.AcquisitionError, "no channel identity"):
+                ts._make_record(meta, "whisper_words", "fw", self.SEGS)
+
+    def test_a_partial_record_is_completed_and_never_overridden_by_meta_json(self):
+        vid = "HHHHHHHHHHH"
+        m = self.meta(vid, channel="The Bitcoin Layer", title="from meta")
+        os.makedirs(ts._vdir(vid), exist_ok=True)
+        with open(os.path.join(ts._vdir(vid), "meta.json"), "w") as f:
+            json.dump(m, f)
+        self._plant_bare(vid, "whisper", exact_title="from record", channel_id=m["channel_id"])
+        cs = ts.chunks(ts.canonical_transcript(vid))
+        self.assertTrue(cs)
+        self.assertEqual({(c["channel_id"], c["channel_name"], c["exact_title"]) for c in cs},
+                         {(m["channel_id"], "The Bitcoin Layer", "from record")})
+
+    def test_a_corrupt_meta_json_yields_no_chunks_not_a_crash(self):
+        vid = "JJJJJJJJJJJ"
+        os.makedirs(ts._vdir(vid), exist_ok=True)
+        with open(os.path.join(ts._vdir(vid), "meta.json"), "w") as f:
+            f.write('{"channel_id": "UC')                       # truncated
+        self._plant_bare(vid, "whisper")
+        self.assertEqual(ts.chunks(ts.canonical_transcript(vid)), [])
+
+    def test_a_record_without_channel_identity_takes_it_from_meta_json(self):
+        # 4b run 1 (2026-11-11 14:03) crashed clustering on a None channel: four hand-made whisper_words
+        # records of 2026-11-10 carry channel_id / channel_name None while their meta.json has both
+        vid = "EEEEEEEEEEE"
+        m = self.meta(vid, channel="The Bitcoin Layer", title="T")
+        os.makedirs(ts._vdir(vid), exist_ok=True)
+        with open(os.path.join(ts._vdir(vid), "meta.json"), "w") as f:
+            json.dump(m, f)
+        self._plant_bare(vid, "whisper_words")
+        cs = ts.chunks(ts.canonical_transcript(vid))
+        self.assertTrue(cs)
+        for c in cs:
+            self.assertEqual((c["channel_id"], c["channel_name"], c["exact_title"]),
+                             (REG["The Bitcoin Layer"]["channel_id"], "The Bitcoin Layer", "T"))
+
+    def test_a_record_with_no_channel_identity_anywhere_yields_no_chunks(self):
+        vid = "FFFFFFFFFFF"
+        os.makedirs(ts._vdir(vid), exist_ok=True)                  # no meta.json written
+        self._plant_bare(vid, "whisper")
+        self.assertEqual(ts.chunks(ts.canonical_transcript(vid)), [])
+
     def test_chunks_carry_source_identity(self):
         m = self.meta("DDDDDDDDDDD", channel="The Bitcoin Layer", title="Why Stocks Really Crashed Today")
         segs = [{"start": i * 5.0, "end": i * 5.0 + 4.8, "text": f"sentence {i}."} for i in range(40)]

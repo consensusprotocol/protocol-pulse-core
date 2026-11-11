@@ -6,7 +6,37 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 13:32 ET; newest first)
+## LIVE STATE (updated 2026-11-11 14:09 ET; newest first)
+
+- 14:04 4b RUN 1 HELD (pipeline defect, DEC-8: fix, audit, the count restarts): editorial crashed in
+  story_semantics.emergent_clusters on sorted({None, ...}): four whisper_words records hand-made 2026-11-10
+  ~05:28 ET outside the writer (qo8rDU3bbMo Simply Bitcoin, jbDqdLytkNM Bitcoin Magazine, eEB0nt6jvEw Marty
+  Bent, RXTVaDsN11M DataDash) carry channel_id / channel_name None; their meta.json has both. Fix (batch 11,
+  audit running): chunks take missing identity from meta.json, none anywhere = no chunks; the writer refuses
+  an identity-less meta. The four records now chunk with their channels (22 / 34 / 32 / 69 chunks). Bible
+  E-FAIL-030. The Law 22 run at 36e769d0 was stopped (superseded); 4b restarts at the batch-11 HEAD with a
+  Law 22 re-proof there.
+  Replay of recut #2 finished (runs/pinned_20261111_172202_replay_cut1329): G12 / G15 PASS both formats
+  (DEC-11); G3c clip_01 PASS; still not passing: G9 both, G10 16:9, G14 (t=24.083, peak 0.174, same pause),
+  G3c hook, and NEW 16:9 G3b clip_01: the final's context-free tail ASR heard 'in the monday route.' for
+  '... rally.' (9:16 G3b PASS; prepare's edge check heard 'rally.'; G17b and G18 PASS): the 83 ms DEC-10 fade
+  at the true minimum 80.84 ends 35 ms after the word, and one ASR decode under the bed misheard it (OD-6
+  class: single-word ASR; nothing changed).
+
+- 14:03 4b STARTED at HEAD 36e769d0 (pushed): run 1 via the wrapper (auto), runs/fresh_20261111_190259;
+  Law 22 re-proof at the same HEAD running alongside. Commits since the 13:15 note, each audited: 9b459ec6
+  (8d valley search inside the transcript gap), af5447c6 (DEC-11 credit rings + registered-avatar discs;
+  G15 fails closed), 36e769d0 (batch 10: the 9:16 safe frame keeps its input's colour matrix).
+  Replay of recut #2 from the cut with 8d (runs/pinned_20261111_172202_replay_cut1329; scratch driver: the
+  replay harness's copy + production stage_cut / stage_sentence_law, then run_tail; vision off): Natalie cut
+  68.38-80.84; G3c clip_01 tail -33.7 vs limit -31.7 PASS (was -22.4: the kept 'Bu'), clip_02 head onset N
+  PASS, clip_03 PASS; G3c still FAILS only on the HOOK tail -42.7 vs -43.9 (16:9) / -42.8 vs -44.1 (9:16):
+  the 340 ms pause after 'take.' holds no next word; DataDash's room tone sits 10.4 dB under his quiet speech
+  (-32.3), G3c asks 11.63: the gate measures the source's ratio, not a cut into a neighbour (OD-5 class; an
+  envelope-minimum cut with the 2-frame fade would pass it but is a cutter-wide change: not made during 4b).
+  G9 in the replay: 16:9 14.3 / 9:16 14.5 (its vertical render predates batch 10). Nov 10 story: NOT sent;
+  blockers G9 (OD-4 residual 0.03 both formats), G10 (16:9 BM lower third: needs a 16:9 framing decision for
+  has_chyron channels), G14 (pause under the bed), G3c hook (source ratio).
 
 - 13:32 ORCHESTRATOR NOTE 13:15 (time box 14:30) on recut #2 runs/pinned_20261111_172202 (HEAD 29299ea5,
   71.17 s both formats, not delivered). Gate rows: G16 / G17 / G18 / G19 PASS both formats; NOT PASS: 16:9

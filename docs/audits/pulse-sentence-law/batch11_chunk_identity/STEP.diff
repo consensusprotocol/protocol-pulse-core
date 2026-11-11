@@ -1,0 +1,83 @@
+diff --git a/pipeline/test_editorial.py b/pipeline/test_editorial.py
+index 03c43834..a7fd4225 100644
+--- a/pipeline/test_editorial.py
++++ b/pipeline/test_editorial.py
+@@ -103,6 +103,44 @@ class TestCaption429SwitchesToWhisper(TempStore):
+ # ── 4. provenance ──
+ 
+ class TestChunkProvenance(TempStore):
++    SEGS = [{"start": i * 5.0, "end": i * 5.0 + 4.8, "text": f"sentence {i}."} for i in range(40)]
++
++    def _plant_bare(self, vid, method):
++        """A record written OUTSIDE the pipeline's writer, identity fields None (as the Nov 10 hand-made ones)."""
++        rec = {"schema": 1, "video_id": vid, "canonical_url": ts.canonical_url(vid), "channel_id": None,
++               "channel_name": None, "exact_title": None, "published_at": None, "duration": None,
++               "transcript_method": method, "transcript_model": "fw", "language": "en",
++               "acquired_at": "2026-11-10T10:28:14+00:00", "media_sha256": None, "segments": self.SEGS,
++               "transcript_sha256": ts.segments_sha256(self.SEGS)}
++        with open(os.path.join(ts._vdir(vid), f"transcript.{method}.json"), "w") as f:
++            json.dump(rec, f)
++
++    def test_the_writer_refuses_a_record_without_channel_identity(self):
++        bare = {"schema": 1, "video_id": "GGGGGGGGGGG", "canonical_url": ts.canonical_url("GGGGGGGGGGG")}
++        with self.assertRaisesRegex(ts.AcquisitionError, "no channel identity"):
++            ts._make_record(bare, "whisper_words", "fw", self.SEGS)
++
++    def test_a_record_without_channel_identity_takes_it_from_meta_json(self):
++        # 4b run 1 (2026-11-11 14:03) crashed clustering on a None channel: four hand-made whisper_words
++        # records of 2026-11-10 carry channel_id / channel_name None while their meta.json has both
++        vid = "EEEEEEEEEEE"
++        m = self.meta(vid, channel="The Bitcoin Layer", title="T")
++        os.makedirs(ts._vdir(vid), exist_ok=True)
++        with open(os.path.join(ts._vdir(vid), "meta.json"), "w") as f:
++            json.dump(m, f)
++        self._plant_bare(vid, "whisper_words")
++        cs = ts.chunks(ts.canonical_transcript(vid))
++        self.assertTrue(cs)
++        for c in cs:
++            self.assertEqual((c["channel_id"], c["channel_name"], c["exact_title"]),
++                             (REG["The Bitcoin Layer"]["channel_id"], "The Bitcoin Layer", "T"))
++
++    def test_a_record_with_no_channel_identity_anywhere_yields_no_chunks(self):
++        vid = "FFFFFFFFFFF"
++        os.makedirs(ts._vdir(vid), exist_ok=True)                  # no meta.json written
++        self._plant_bare(vid, "whisper")
++        self.assertEqual(ts.chunks(ts.canonical_transcript(vid)), [])
++
+     def test_chunks_carry_source_identity(self):
+         m = self.meta("DDDDDDDDDDD", channel="The Bitcoin Layer", title="Why Stocks Really Crashed Today")
+         segs = [{"start": i * 5.0, "end": i * 5.0 + 4.8, "text": f"sentence {i}."} for i in range(40)]
+diff --git a/pipeline/transcript_store.py b/pipeline/transcript_store.py
+index 6cc4aee3..0eb3bf46 100644
+--- a/pipeline/transcript_store.py
++++ b/pipeline/transcript_store.py
+@@ -177,6 +177,8 @@ def _make_record(meta, method, model, segments, language="en", media_sha256=None
+              "text": s["text"].strip()} for s in segments if s["text"].strip()]
+     if not segs:
+         raise AcquisitionError("empty transcript")
++    if not (meta.get("channel_id") or meta.get("channel_name")):   # every record carries its source identity
++        raise AcquisitionError(f"no channel identity for {meta.get('video_id')}: pass the video's meta.json")
+     rec = {"schema": SCHEMA}
+     for k in ("video_id", "canonical_url", "channel_id", "channel_name", "exact_title",
+               "published_at", "duration"):
+@@ -418,8 +420,19 @@ def chunk_id(video_id, start, end):
+ 
+ 
+ def chunks(rec):
+-    """Deterministic ~30-60 s chunks; every chunk carries the full source identity."""
++    """Deterministic ~30-60 s chunks; every chunk carries the full source identity. A record written without
++    its channel identity (four hand-made whisper_words records of 2026-11-10 crashed 4b run 1's clustering
++    on a None channel) takes the missing fields from the video's meta.json, its identity record; with no
++    channel there either, the record yields no chunks (fail closed: unidentified text is no channel's evidence)."""
+     prov = {k: rec.get(k) for k in PROVENANCE_FIELDS}
++    if not (prov.get("channel_id") or prov.get("channel_name")):
++        mp = os.path.join(_vdir(rec["video_id"]), "meta.json")
++        if os.path.exists(mp):
++            with open(mp) as f:
++                m = json.load(f)
++            prov.update({k: m[k] for k in PROVENANCE_FIELDS if prov.get(k) is None and m.get(k) is not None})
++        if not (prov.get("channel_id") or prov.get("channel_name")):
++            return []
+     out, cur = [], []
+     def flush():
+         if cur:
