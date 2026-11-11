@@ -1,0 +1,17 @@
+diff --git a/pipeline/render_vertical.py b/pipeline/render_vertical.py
+index fd9b6b00..b7856fd7 100644
+--- a/pipeline/render_vertical.py
++++ b/pipeline/render_vertical.py
+@@ -358,7 +358,11 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
+ 
+ LETTERBOX_VF = ("split[main][bg];[bg]scale=-2:2400:flags=lanczos,crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
+                 "boxblur=20:5,colorlevels=rimax=0.65:gimax=0.65:bimax=0.65[bgout];"
+-                f"[main]scale={VERT_W}:-2:flags=lanczos[mainout];[bgout][mainout]overlay=(W-w)/2:(H-h)/2")
++                f"[main]scale={VERT_W}:-2:flags=lanczos[mainout];[bgout][mainout]overlay=(W-w)/2:(H-h)/2,"
++                # colorlevels runs in RGB: ffmpeg 4.4's round trip keeps the bt709 YUV values but drops the
++                # matrix tag; a run whose 9:16 opens on a safe frame then came out color_space=unknown
++                # (Nov 11 recut: decoders read it as BT.601, G9 luma 14.47 instead of 14.74)
++                "setparams=colorspace=bt709")
+ 
+ 
+ def _shot_vf(shot, src_w, src_h):

@@ -359,6 +359,17 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
 LETTERBOX_VF = ("split[main][bg];[bg]scale=-2:2400:flags=lanczos,crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
                 "boxblur=20:5,colorlevels=rimax=0.65:gimax=0.65:bimax=0.65[bgout];"
                 f"[main]scale={VERT_W}:-2:flags=lanczos[mainout];[bgout][mainout]overlay=(W-w)/2:(H-h)/2")
+# colorlevels runs in RGB: ffmpeg 4.4's round trip keeps the YUV values but drops the matrix tag, so a 9:16 part
+# opening on a safe frame came out color_space=unknown (Nov 11 recut: decoders read it as BT.601, G9 luma 14.47
+# instead of 14.74). reframe_auto re-declares the input's own matrix after the safe frame (metadata only).
+_KNOWN_MATRICES = {"bt709", "bt470bg", "smpte170m", "bt2020nc", "bt2020c", "smpte240m", "fcc"}
+
+
+def _input_matrix(path):
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_space",
+                        "-of", "csv=p=0", path], capture_output=True, text=True)
+    m = r.stdout.strip()
+    return m if m in _KNOWN_MATRICES else None
 
 
 def _shot_vf(shot, src_w, src_h):
@@ -386,10 +397,14 @@ def reframe_auto(seg_path, output_path, seg_label, plan):
     re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
     fps = plan["fps"]
     graph, labels = [], []
+    matrix = _input_matrix(seg_path)
     for k, shot in enumerate(plan["shots"]):
         a, b = int(round(shot["start"] * fps)), int(round(shot["end"] * fps))
+        vf = _shot_vf(shot, plan["width"], plan["height"])
+        if vf == LETTERBOX_VF and matrix:              # keep the input's declared matrix through the safe frame
+            vf += f",setparams=colorspace={matrix}"
         graph.append(f"[0:v]trim=start_frame={a}:end_frame={b},setpts=PTS-STARTPTS,"
-                     f"{_shot_vf(shot, plan['width'], plan['height'])},setsar=1:1[v{k}]")
+                     f"{vf},setsar=1:1[v{k}]")
         labels.append(f"[v{k}]")
     graph.append("".join(labels) + f"concat=n={len(labels)}:v=1:a=0[vout]")
     r = subprocess.run([
