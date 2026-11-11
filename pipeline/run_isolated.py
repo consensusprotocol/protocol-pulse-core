@@ -317,7 +317,9 @@ def prerender_clips(run_dir, cuts_table):
     """Pre-render clip segments from source+cuts into qa_dir as final_<clip_id>.mp4.
 
     Matches segment_v2/qa_v1 finals: scale to 1920x1080 lanczos, setsar=1:1,
-    24fps, 48kHz stereo, then acoustic.apply_fades (20ms in, 30ms out).
+    24fps, 48kHz stereo, then acoustic.apply_fades with each cut's own fade lengths in milliseconds
+    (cut["fade_in_ms"], cut["fade_out_ms"]; absent = 20 in / 30 out, the M19 defaults). DEC-10: a cut at an
+    envelope minimum declares 83 ms (2 video frames); v2f's table declares 20 / 30, so its render is unchanged.
     """
     qa_dir = os.path.join(run_dir, "qa")
     sources_dir = os.path.join(run_dir, "sources")
@@ -352,8 +354,9 @@ def prerender_clips(run_dir, cuts_table):
         print(f"  {clip_id}: ffmpeg {' '.join(cmd[1:])}")
         subprocess.run(cmd, capture_output=True, timeout=120, check=True)
 
-        # Apply M19 audio fades (20ms in, 30ms out) — matches acoustic.apply_fades defaults
-        apply_fades(raw_out, final_out)
+        # Apply M19 audio fades (20ms in, 30ms out) — matches acoustic.apply_fades defaults; a DEC-10 cut at an
+        # envelope minimum declares its 2-frame fade in the cut table (v2f's table declares 20 / 30: unchanged)
+        apply_fades(raw_out, final_out, cut_in_fade_ms=cut.get("fade_in_ms", 20), cut_out_fade_ms=cut.get("fade_out_ms", 30))
         os.unlink(raw_out)
 
         dur_actual = _get_duration(final_out)

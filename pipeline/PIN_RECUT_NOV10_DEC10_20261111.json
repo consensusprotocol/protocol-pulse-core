@@ -1,0 +1,76 @@
+{
+ "schema": "protocol_pulse.pinned_story.v1",
+ "story_id": "nov10_recut_dec10_20261111",
+ "label": "Bitcoin price dip",
+ "headline": "Bitcoin fell sharply over the weekend (below about $74,000) alongside a tech selloff",
+ "approved_by": "orchestrator DEC-10e lineup (hook DataDash, Natalie, Yahoo) + Bitcoin Magazine clip added by the CC session for G5 (>= 60 s); Natalie's window cut to its first 3 sentences (sentence-count law 1-3)",
+ "approved_at": "2026-11-11T11:10:00-05:00",
+ "approval_ref": "docs/audits/DEFINITION_OF_DONE_PULSE_CHECK.md (DEC-10, LIVE STATE 11:10)",
+ "machine_cuts": true,
+ "segments": [
+  {
+   "role": "hook",
+   "video_id": "RXTVaDsN11M",
+   "channel": "DataDash",
+   "start": 0.0,
+   "end": 9.08,
+   "approved_text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.",
+   "time_coords": "source_file",
+   "source": {
+    "kind": "local_file",
+    "path": "runs/recut_sources_20261111/sources/RXTVaDsN11M.mp4",
+    "sha256": "49270bf5857cd2dad83ea0f30bd21677401b04d9f94b678f1e8bf363f89f5f0e",
+    "transcript_path": "runs/recut_sources_20261111/transcripts/RXTVaDsN11M.json",
+    "transcript_sha256": "1664491b3bb3b096c04c1187fa5f266d61f3e7a305da27597a63c03eb66f9665"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "lusJ1m-J0Mc",
+   "channel": "Natalie Brunell",
+   "start": 68.44,
+   "end": 80.78,
+   "approved_text": "It went from above $81 ,000 after the election to below $75 ,000 by the weekend. U .S. Bitcoin ETFs had about $1 .3 billion in net outflows just last week. And Bitcoin really hasn't participated in the Monday rally.",
+   "time_coords": "source_file",
+   "source": {
+    "kind": "local_file",
+    "path": "runs/recut_sources_20261111/sources/lusJ1m-J0Mc.mp4",
+    "sha256": "ad30d285aeea91c5e2649cfbf7da883d9eaee502e43e52b5523d414544c69047",
+    "transcript_path": "runs/recut_sources_20261111/transcripts/lusJ1m-J0Mc.json",
+    "transcript_sha256": "9517b615f6b5a5ed9ce23ba3539aa75a0de7822640ee4bb0642cf47987cb75df"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "36HPi9UZPOc",
+   "channel": "Yahoo Finance",
+   "start": 38.2,
+   "end": 56.9,
+   "approved_text": "Of course, Bitcoin dropped pretty massively over the weekend alongside the tech sell -off that we saw, the Democrat blue wave, the Binance hack. But I don't check it on an hourly basis. It seemed to have bounced very nicely at a very key level around $74 ,000, around the 50 -weekly MA, which we've talked about many times.",
+   "time_coords": "source_file",
+   "source": {
+    "kind": "local_file",
+    "path": "runs/recut_sources_20261111/sources/36HPi9UZPOc.mp4",
+    "sha256": "da61aba57685062b1ea965b7468126f66ae63d0a187edcd95be6a47738835bde",
+    "transcript_path": "runs/recut_sources_20261111/transcripts/36HPi9UZPOc.json",
+    "transcript_sha256": "6bf209441926b4100c6fb72adecbc1319fcfb4f225639b9fc73be1c0b65a3c15"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "jbDqdLytkNM",
+   "channel": "Bitcoin Magazine",
+   "start": 14.68,
+   "end": 31.34,
+   "approved_text": "Last night was Bitcoin's first weekly close below the 50 -week moving average since September. The 50 -week was around $75 ,500, and Bitcoin closed around $74 ,700, just 1 % below the line. But one percent is still a miss.",
+   "time_coords": "source_file",
+   "source": {
+    "kind": "local_file",
+    "path": "runs/recut_sources_20261111b/sources/jbDqdLytkNM.mp4",
+    "sha256": "e8709443f474c6f53415437ad9db49628528147b612f79b959d32a9c1e8fced4",
+    "transcript_path": "runs/recut_sources_20261111b/transcripts/jbDqdLytkNM.json",
+    "transcript_sha256": "3a0d34bf4bed9348abcec6cdcbf1c5cf926ddfba58d748985e4ecf042645c578"
+   }
+  }
+ ]
+}

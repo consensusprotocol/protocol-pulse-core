@@ -11,19 +11,26 @@ causes, then requires three clean fresh videos in a row with no code edits betwe
 
 ## THE LAWS
 - SENTENCE LAW: a clip's first word is the first word of a sentence and its last word the last word of
-  a sentence. Boundary = transcript punctuation AND an acoustic pause >= 80 ms between the two words
-  (pipeline/sentence_law.py states every constant). An unpunctuated transcript stretch has NO boundary
+  a sentence. Boundary = transcript punctuation at a place a listener hears as the break between the two
+  words (DEC-10, 2026-11-11: no minimum pause; the 01:50 order's 80 ms is recalibrated to the approved v2f
+  reference, whose edges measure 0-10 ms; pipeline/sentence_law.py states every constant with its
+  measurement). An unpunctuated transcript stretch has NO boundary
   (fail closed). Punctuation is added at transcription time only from a second, prompted ASR decode of
   the same audio, onto aligned verbatim words; the words never change (pipeline/punctuation.py). No
   language model decides a boundary (the per-gap adjudicator called 19/19 gaps sentence ends; removed).
 - SELECTION LOCK: the words a clip must contain are fixed at selection time (selection_lock in edl.json,
   sha256-sealed). No later stage may recompute expected first/last words from a moved cut.
-- SNAP LIMIT: a cut may move only inside the silence between the chosen sentence and its neighbour; it
-  may never add or drop a word. No legal boundary in that gap = the window is rejected.
-- ONSET/TAIL: every rendered segment keeps >= 80 ms of genuine sub-speech audio before its first onset
-  and after its last offset; codec zero/padding is not room tone; a source that starts speaking at its
-  file head without lead-in needs a declared room-tone lead-in pad. Edge words keep >= 85 % of their
-  duration in the render.
+- SNAP LIMIT: a cut may move only inside the heard gap between the chosen sentence and its neighbour
+  (the previous word's offset .. the next word's onset, at speech - 6 dB); it may never add or drop a word.
+  A short gap is cut at the envelope minimum between the two words with a 2-frame (2 video frames at
+  24 fps = 83 ms) audio fade, never rejected for its length (DEC-10 d).
+- NEIGHBOUR (DEC-10 c-ii): NO audible part of the neighbouring word: every frame the cut keeps on the
+  neighbour's side of that minimum stays below the valley threshold (local speech - 12 dB) after the fade.
+  A window is rejected for its edges only if this, the 85 % edge-word rule or sentence-completeness fails.
+- ONSET/TAIL: edge words keep >= 85 % of their duration in the render. The START OF PLAYBACK keeps the D1
+  rule unchanged: a source that starts speaking at its file head, and the hook, need >= 80 ms of genuine
+  sub-speech audio before the first onset or a declared room-tone lead-in pad; codec zero/padding is not
+  room tone. Inside the video there is no lead / tail minimum (DEC-10: v2f's approved edges: 0 ms).
 - CREDITS: round avatars of the channels actually used; the avatar is the channel's real square avatar,
   never a video thumbnail, never a generated placeholder; G12/G15 unchanged.
 - LAW 20 / M2: gate thresholds are constants; a failed gate is a hard stop; never change what a check

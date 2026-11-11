@@ -105,9 +105,11 @@ class TestD2Clip01Out(_G16Fixture):
     def test_g16_out_fails(self):
         r = self.rows["clip_01"]["out"]
         self.assertFalse(r["pass"], f"D2: clip_01 out 33.71 runs into the next sentence: {r}")
-        # for the right reason: the locked sentence ends at 'week.' and that edge is not a legal cut there
+        # for the right reason: the locked sentence ends at 'week.' and yesterday's cut runs past it into
+        # "All right, you've probably seen ..." (DEC-10: the 120 ms pause after 'week.' is now a legal cut, so
+        # the failure is the cut lying 2.3 s outside it, no longer "not cuttable")
         self.assertEqual(r["after_word"], "week.", r)
-        self.assertIn("not cuttable", r["why"], r)
+        self.assertIn("outside the legal range", r["why"], r)
 
 
 class TestD3Edges(_G16Fixture):
@@ -116,7 +118,8 @@ class TestD3Edges(_G16Fixture):
         self.assertFalse(r["pass"], f"D3a: clip_01 in 15.13 starts on '81', not 'It': {r}")
         self.assertEqual(r["before_word"], "It", r)
         self.assertIn("outside the legal range", r["why"], r)
-        self.assertFalse(self.g17["clip_01"]["lead_ok"], f"D3a: G17a lead-in: {self.g17['clip_01']}")
+        # DEC-10: the mid-video lead quota is calibrated to v2f (0 ms), so G17a no longer judges this clip's
+        # 10 ms lead; the defect fails on the sentence boundary (above), which is what PBX heard ("81")
 
     def test_d3b_clip02_in_fails(self):
         # The speaker says "...past few days. Of course, of course, Bitcoin dropped ..."; the editor's text
@@ -127,7 +130,7 @@ class TestD3Edges(_G16Fixture):
         self.assertFalse(r["pass"], f"D3b: clip_02 in 14.93 lands inside 'days': {r}")
         self.assertEqual((r["after_word"], r["before_word"]), ("course", "of"), r)
         self.assertIn("does not end a sentence", r["why"], r)
-        self.assertFalse(self.g17["clip_02"]["lead_ok"], f"D3b: G17a lead-in: {self.g17['clip_02']}")
+        # DEC-10: G17a no longer judges a mid-video lead (v2f: 0 ms); the defect fails on the boundary above
 
     def test_d3c_clip02_out_control_passes(self):
         self.assertTrue(self.rows["clip_02"]["out"]["pass"], f"CONTROL D3c: clean out edge must pass G16: {self.rows['clip_02']['out']}")

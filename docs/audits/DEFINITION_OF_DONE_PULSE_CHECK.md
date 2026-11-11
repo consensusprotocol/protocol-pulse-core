@@ -6,7 +6,48 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 10:29 ET; newest first)
+## LIVE STATE (updated 2026-11-11 11:36 ET; newest first)
+
+- 11:36 DEC-10 batch 8 answered (docs/audits/pulse-sentence-law/batch8_dec10_edge_timing/AUDIT_RESPONSE.md):
+  gospel + docstrings ratify the recalibration; VALLEY_FADE_S = 2 video frames at 24 fps = 83 ms; valley test
+  rewritten (was vacuous). Follow-up 8b (audit running on its own diff): (1) the quiet run is searched between
+  the two words' midpoints (the rewritten fixture caught a tie with the neighbouring junction); (2) DEC-10 d
+  made explicit: an edge whose quiet run is < 80 ms (in) / < 140 ms (out) (the 01:50 legality minimums, now
+  choosing only the METHOD) is cut at its envelope minimum with the 83 ms fade; (3) Heimdall F2: an edge NOT
+  at a minimum must pass cut_accept's unchanged checks also when the other edge is at one (mocked tests both
+  ways). Lineup re-measured with (1)-(3), unchanged: hook 0.03-9.33 (+0.25 s pad, 20/30), Natalie
+  68.38-80.93 (in 20 ms; out at the minimum, 83 ms), Yahoo 38.20-57.37 (in at the minimum, 83 ms; out 30),
+  Bitcoin Magazine 14.94-31.79 (20/30, quiet run out exactly 140 ms -> standard). 58.1 s of clips; every
+  neighbour_clear row below the valley threshold (worst -34.9 dB vs -25.4).
+  Law 22 re-proof with batch 8 in the tree: runs/v2f_20261111_160348 byte-identical (472938134157b649 /
+  5545a261feedd8c1). Next: suites + regressions, commit + push, then the DEC-10 recut via the wrapper.
+- 11:05 DEC-10 implemented (sentence_law: timing minimums 0 = v2f worst; legal cut range = the HEARD gap
+  (previous word's offset .. next word's onset at speech - 6 dB); neighbour side ends at the envelope
+  minimum; abutting words cut at that minimum with a 2-frame fade; NEW neighbour_clear (c-ii): no frame of
+  the neighbour above speech - 12 dB after the fade; D1 file-head / hook rule unchanged at 80 ms; per-cut
+  fades through prerender, v2f's 20 / 30 unchanged). Tests: v2f must-pass on 5 of its 8 edges; 3 recorded,
+  each by measurement: hook head (D1 head rule: 70 ms, no pad, same side as yesterday's D1), clip_01 OUT
+  (PBX's own one-time exception; cut at 249.63 inside the soft "So"), clip_02 IN (cut at 624.63 inside a
+  110 ms voiced stretch at speech level, -20..-26 dB): (c-ii) fails them, so (c-ii) is not loosened.
+  Yesterday's D1 / D2 / D3a / D3b still FAIL (D2 now "outside the legal range": the 120 ms pause after
+  'week.' became legal, yesterday's cut is 2.3 s past it). Audit batch8 + Law 22 re-proof running.
+- 11:08 DEC-10e lineup on the PIN's frozen sources, exact measurements:
+    hook DataDash 0.00-9.08 "Bitcoin has now seen a 16 % decline ... give or take." LEGAL: cut 0.03-9.33 +
+      the 0.25 s D1 pad (60 ms genuine lead at the file head), fades 20/30; scorer 4.0.
+    Natalie as written "It went ... how the market shapes up this week." CUTTABLE (68.38-85.41) but 5
+      sentences > the 1-3 sentence law -> REJECTED by that measure. Its first 3 sentences "It went ...
+      Monday rally." LEGAL: cut 68.38-80.93 (12.55 s; out at the envelope minimum after 'rally.', 83 ms
+      fade); scorer 5.0. ("Bitcoin also wasn't spared ... last week." is legal too but 11.78 s < the 12 s
+      clip minimum.)
+    Yahoo "Of course, Bitcoin dropped ... many times." LEGAL: cut 38.20-57.37 (19.17 s; in at the envelope
+      minimum between abutting 'days.' | 'Of', 83 ms fade); scorer 5.0.
+    G5: those three = 41.3 s of content + ~9 s credits + 4.46 s outro = ~54.7 s < 60 (G5 FAIL by ~5 s).
+    Decision (logged): a 4th segment from a 4th channel, as v2f had: Bitcoin Magazine 14.68-31.34 "Last
+      night was Bitcoin's first weekly close below the 50-week moving average since September. The 50-week
+      was around $75,500, and Bitcoin closed around $74,700, just 1 % below the line. But one percent is
+      still a miss." (legal; scorer 4.0 in one batch, 3.0 in the lineup batch: the scorer moves with its
+      batch). PIN: pipeline/PIN_RECUT_NOV10_DEC10_20261111.json (~72 s).
+  Still expected to fail by construction: G9 (OD-4), G15 with "Natalie Brunell" on the card (OD-1).
 
 - 10:25 LINEUP SEARCH RESULT for the Nov 10 story (direction 1), every rule unchanged. Sources searched:
   full Bitcoin Magazine "Bitcoin Loses Key Moving Average" (104/130 budget windows legal), full DataDash
@@ -374,6 +415,30 @@ Received 02:50 ET. Recorded verbatim in substance; implementation status tracked
   times."; report the exact failing measurement for any that still fails. (f) Render, all gates, sheets,
   Telegram ONLY on a clean pass, plus options A/B/C. TIME BOX 13:00 ET: then write what blocked it and go to
   4b on a fresh story with the same code.
+
+### DEC-10a — v2f edge timing, measured (2026-11-11 10:45, sentence_law's own level/onset functions)
+
+Source (runs/v2f_20261111_103004 sources/transcripts/cuts; valley threshold = local speech - 12 dB):
+| segment | edge | kept word / neighbour | acoustic gap | longest quiet run | kept (lead / tail) | cut to neighbour |
+|---|---|---|---|---|---|---|
+| hook | in (file head) | "The" | - | 70 ms | 70 ms | - |
+| hook | out | "Today," / "I'm" | 240 ms | 10 ms | 160 ms | 80 ms |
+| clip_01 | in | "The" / "Yeah." | 30 ms | 30 ms | 40 ms | -10 ms (cut inside "Yeah."'s decay) |
+| clip_01 | out | "magnitude." / "So" | 60 ms | 10 ms | 20 ms | 40 ms |
+| clip_02 | in | "One" / "approximately." | -10 ms (abutting) | 0 ms | 0 ms | -10 ms |
+| clip_02 | out | "Now," / "10" | 330 ms | 300 ms | 210 ms | 120 ms |
+| clip_03 | in | "prison" / "a" (mid-sentence) | 280 ms | 230 ms | 190 ms | 90 ms |
+| clip_03 | out | "have." / "It's" | 440 ms | 360 ms | 10 ms | 430 ms |
+Prepared clips (G17a): lead 40 / 40 / 0 / 190 ms, tail 150 / 40 / 190 / 0 ms. Edge-word ratio (G17b): PASS
+(>= 0.85) on every edge (1f). => worst: pause 0 ms, lead 0 ms, tail 0-10 ms, gap -10 ms: the timing
+minimums calibrate to 0; DEC-10 (c)(i)-(iv) carry the protection.
+Conflict recorded: v2f's hook (file head, 70 ms genuine quiet in the source, 40 ms in the prepared clip, no
+pad) and yesterday's D1 hook (file head, 60 ms, no pad: "half Bitcoin") are on the same side of any lead
+threshold, and G17b passes yesterday's render; so D1 keeps failing on the FILE-HEAD pad rule
+(HEAD_LEAD_MIN_S = 80 ms, separate constant; the D1 fix PBX heard) and v2f's hook head is the one approved
+edge that rule fails (as recorded in 1f / OD-2). Every other v2f edge must pass.
+G5 note for DEC-10e: hook 9.08 s + 0.25 s pad + Natalie (as written: 5 sentences, 16.76 s) + Yahoo 18.70 s
+= 44.8 s of content; with the credits card (~9.0 s) and the outro (4.46 s) ~58.3 s < G5's 60 s.
 
 ### Calibrated gates (DEC-1)
 

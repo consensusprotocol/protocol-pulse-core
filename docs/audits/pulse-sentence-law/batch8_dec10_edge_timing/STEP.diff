@@ -1,0 +1,490 @@
+diff --git a/pipeline/run_isolated.py b/pipeline/run_isolated.py
+index d84928ed..b0580de0 100644
+--- a/pipeline/run_isolated.py
++++ b/pipeline/run_isolated.py
+@@ -352,8 +352,9 @@ def prerender_clips(run_dir, cuts_table):
+         print(f"  {clip_id}: ffmpeg {' '.join(cmd[1:])}")
+         subprocess.run(cmd, capture_output=True, timeout=120, check=True)
+ 
+-        # Apply M19 audio fades (20ms in, 30ms out) — matches acoustic.apply_fades defaults
+-        apply_fades(raw_out, final_out)
++        # Apply M19 audio fades (20ms in, 30ms out) — matches acoustic.apply_fades defaults; a DEC-10 cut at an
++        # envelope minimum declares its 2-frame fade in the cut table (v2f's table declares 20 / 30: unchanged)
++        apply_fades(raw_out, final_out, cut_in_fade_ms=cut.get("fade_in_ms", 20), cut_out_fade_ms=cut.get("fade_out_ms", 30))
+         os.unlink(raw_out)
+ 
+         dur_actual = _get_duration(final_out)
+diff --git a/pipeline/sentence_law.py b/pipeline/sentence_law.py
+index 63e634ad..c52a5b74 100644
+--- a/pipeline/sentence_law.py
++++ b/pipeline/sentence_law.py
+@@ -46,10 +46,19 @@ REPO = os.path.dirname(PIPELINE_DIR)
+ 
+ HOP_S = 0.010
+ SR = 16000
+-PAUSE_MIN_S = 0.080
+-LEAD_MIN_S = 0.080
+-TAIL_MIN_S = 0.080
+-GUARD_S = 0.060
++# DEC-10 (orchestrator 2026-11-11 10:35): edge TIMING is calibrated to the approved v2f reference, measured
++# 10:45 on runs/v2f_20261111_103004 (table in the DoD, "DEC-10a"); the 80 / 80 / 80 / 60 ms of the 01:50 order
++# had no evidence. What a listener hears stays strict elsewhere: edge words >= 85 % (G17b), no audible part of
++# the neighbour word (neighbour_clear), sentence-complete locked words, G18 word for word.
++PAUSE_MIN_S = 0.000         # v2f clip_02 in: "approximately." | "One" abut (longest quiet run 0 ms)
++LEAD_MIN_S = 0.000          # v2f clip_02 prepared lead 0 ms
++TAIL_MIN_S = 0.000          # v2f clip_03 prepared tail 0 ms (10 ms in the source)
++GUARD_S = 0.000             # v2f clip_01 in sits 10 ms inside "Yeah."'s decay; neighbour_clear replaces the guard
++HEAD_LEAD_MIN_S = 0.080     # UNCHANGED D1 rule ("half Bitcoin"): the start of a source file, and the hook (the
++                            # first thing heard at playback), need 80 ms of genuine quiet or the room-tone pad
++VALLEY_FADE_S = 2 / 24      # DEC-10 d: a cut at an envelope minimum gets a 2-frame audio fade
++WORD_BELOW_SPEECH_DB = 6.0  # DEC-10: a word is heard from/to where it is within 6 dB of local speech
++VALLEY_MARGIN_S = 0.080     # the minimum is searched between the two words' transcript edges +- this
+ LEAD_TARGET_S = 0.250       # preferred lead-in kept before the first onset (Law 14: breath kept)
+ TAIL_TARGET_S = 0.300       # M19: cut_out = min(offset + 0.30, onset - 0.06)
+ LEAD_PAD_S = 0.250          # D1 room-tone pad (6 frames at 24 fps)
+@@ -186,6 +195,42 @@ def find_pause(sa, a, b):
+     return {"start": round(s, 3), "end": round(e, 3), "ms": int(round((e - s) * 1000))}, lv
+ 
+ 
++def boundary_geometry(sa, words, k, lv, quiet):
++    """DEC-10: the boundary between word k and k+1 as a listener hears it.
++      point   the envelope minimum between the two words (inside the quiet run when there is one, else
++              between their transcript edges): the neighbour's side ends there
++      gap     word k's last offset .. word k+1's first onset at speech - WORD_BELOW_SPEECH_DB (sustained):
++              a cut must lie in it (it never cuts into either word); breath and room tone may be kept
++      pause   the quiet run (the machine's preferred place to cut) or, with none, the point itself."""
++    if quiet:
++        t, d = sa.sl(quiet["start"], max(quiet["end"], quiet["start"] + HOP_S))
++        point = float(t[int(np.argmin(d))]) if len(d) else quiet["start"]
++        pause = dict(quiet)
++    else:
++        v = find_valley(sa, words[k]["end"], words[k + 1]["start"])
++        if v is None:
++            return None, None, None
++        point, pause = v["start"], v
++    word_db = lv["speech_db"] - WORD_BELOW_SPEECH_DB
++    t, d = sa.sl(max(0.0, words[k]["start"] - 0.3), min(sa.dur, words[k + 1]["end"] + 0.3))
++    off = last_offset(t, d, word_db, end=point)
++    on = first_onset(t, d, word_db, start=point)
++    gap = {"start": round(off if off is not None else point, 3), "end": round(on if on is not None else point, 3)}
++    if gap["end"] < gap["start"]:
++        gap = {"start": round(point, 3), "end": round(point, 3)}
++    return round(point, 3), gap, pause
++
++
++def find_valley(sa, end_a, start_b):
++    """DEC-10 d: no quiet frame between two words (they abut): the boundary is the envelope MINIMUM between
++    the first word's transcript end and the second's start (+- VALLEY_MARGIN_S). A zero-length pause there."""
++    t, d = sa.sl(max(0.0, min(end_a, start_b) - VALLEY_MARGIN_S), min(sa.dur, max(end_a, start_b) + VALLEY_MARGIN_S))
++    if len(d) == 0:
++        return None
++    tm = float(t[int(np.argmin(d))])
++    return {"start": round(tm, 3), "end": round(tm, 3), "ms": 0, "valley": True, "valley_db": round(float(np.min(d)), 1)}
++
++
+ # ── lexical adjudication for unpunctuated transcripts ──
+ 
+ # ── boundaries ──
+@@ -215,10 +260,11 @@ def boundary(sa, words, k):
+         return {**rec, "valid": is_terminal(words[k]["word"]), "lexical": "punctuation", "file_end": True,
+                 "levels": lv, "pause": {"start": round(off, 3), "end": round(sa.dur, 3),
+                                         "ms": int(round((sa.dur - off) * 1000))}}
+-    pause, lv = find_pause(sa, words[k]["start"], words[k + 1]["end"])
+-    rec.update(levels=lv, pause=pause)
++    quiet, lv = find_pause(sa, words[k]["start"], words[k + 1]["end"])
++    point, gap, pause = boundary_geometry(sa, words, k, lv, quiet)     # DEC-10
++    rec.update(levels=lv, pause=pause, quiet_run=quiet, point=point, word_gap=gap)
+     if pause is None:
+-        return {**rec, "valid": False, "reason": f"no pause >= {int(PAUSE_MIN_S * 1000)} ms between the words"}
++        return {**rec, "valid": False, "reason": "no audio between the words"}
+     if not is_punctuated(words, k):
+         return {**rec, "valid": False, "lexical": "unpunctuated",
+                 "reason": "unpunctuated transcript stretch: no sentence evidence (fail closed)"}
+@@ -238,22 +284,24 @@ def edge_plan(sa, words, i0, i1):
+         if bin_.get("file_head"):
+             # keep every genuine sample before the onset; codec zeros before it are not room tone
+             # (the cut drops them and the declared pad replaces them when the lead is < 80 ms)
+-            pad = 0.0 if bin_["genuine_lead_ms"] >= LEAD_MIN_S * 1000 else LEAD_PAD_S
++            pad = 0.0 if bin_["genuine_lead_ms"] >= HEAD_LEAD_MIN_S * 1000 else LEAD_PAD_S
+             bin_.update(cut_lo=0.0, cut_hi=p["start"], cut=p["start"], lead_in_pad_s=pad, cuttable=True)
+-        elif p["end"] - p["start"] >= LEAD_MIN_S - 1e-9:
+-            bin_.update(cut_lo=p["start"], cut_hi=round(p["end"] - LEAD_MIN_S, 3), cuttable=True,
+-                        cut=round(max(p["start"], p["end"] - LEAD_TARGET_S), 3), lead_in_pad_s=0.0)
+-        else:
+-            bin_.update(cuttable=False, reason=f"pause {p['ms']} ms < lead-in {int(LEAD_MIN_S * 1000)} ms")
++        else:                                             # DEC-10: anywhere in the heard gap; aim at the pause
++            g = bin_.get("word_gap") or {"start": p["start"], "end": p["end"]}
++            hi = round(g["end"] - LEAD_MIN_S, 3)
++            target = max(p["start"], p["end"] - LEAD_TARGET_S) if p.get("ms", 0) > 0 else bin_.get("point", p["start"])
++            bin_.update(cut_lo=g["start"], cut_hi=hi, cuttable=hi >= g["start"] - 1e-9,
++                        cut=round(min(max(target, g["start"]), hi), 3), lead_in_pad_s=0.0,
++                        reason=None if hi >= g["start"] - 1e-9 else "no room before the first word")
+     if bout["valid"]:
+         p = bout["pause"]
+         guard = 0.0 if bout.get("file_end") else GUARD_S
+-        if p["end"] - p["start"] >= TAIL_MIN_S + guard - 1e-9:
+-            bout.update(cut_lo=round(p["start"] + TAIL_MIN_S, 3), cut_hi=round(p["end"] - guard, 3),
+-                        cut=round(min(p["start"] + TAIL_TARGET_S, p["end"] - guard), 3), cuttable=True)
+-        else:
+-            bout.update(cuttable=False, reason=f"pause {p['ms']} ms < tail {int(TAIL_MIN_S * 1000)} ms + "
+-                                               f"guard {int(guard * 1000)} ms")
++        g = bout.get("word_gap") or {"start": p["start"], "end": p["end"]}   # DEC-10: the heard gap
++        lo, hi = round(g["start"] + TAIL_MIN_S, 3), round(g["end"] - guard, 3)
++        target = min(p["start"] + TAIL_TARGET_S, p["end"] - guard) if p.get("ms", 0) > 0 else bout.get("point", p["start"])
++        ok = hi >= lo - 1e-9
++        bout.update(cut_lo=lo, cut_hi=hi, cut=round(min(max(target, lo), hi), 3), cuttable=ok,
++                    reason=None if ok else "no room after the last word")
+     plan["ok"] = bool(bin_.get("cuttable") and bout.get("cuttable"))
+     return plan
+ 
+@@ -339,21 +387,67 @@ def cut_candidates(src, plan, step=HOP_S):
+         return sorted(pts, key=lambda x: (abs(x - target), x))
+     t, db = envelope(src, pi["cut_lo"] - 1.0, po["cut_hi"] + 1.0)
+     med = speech_median_db(t, db, pi["cut"], po["cut"])
+-    return {"out": [x for x in grid(po["cut_lo"], po["cut_hi"], po["cut"]) if check_cut_out(t, db, x, med)[0]],
+-            "in": [x for x in grid(pi["cut_lo"], pi["cut_hi"], pi["cut"]) if check_cut_in(t, db, x, med)[0]]}
+-
+-
+-def _accepted_cut_pair(src, plan, step=HOP_S):
+-    """The cut pair nearest the plan's targets that cut_candidates allows; None if an edge has none. The
+-    whole pair must also pass cut_accept's acoustics check. Further candidates are tried by
+-    run_fresh.stage_prepare when a prepared clip fails the clip contract's fade check (a click or breath
+-    at the cut point; Nov 11 recut clip_02: 37.87)."""
++    out_c = [x for x in grid(po["cut_lo"], po["cut_hi"], po["cut"]) if check_cut_out(t, db, x, med)[0]]
++    in_c = [x for x in grid(pi["cut_lo"], pi["cut_hi"], pi["cut"]) if check_cut_in(t, db, x, med)[0]]
++    # DEC-10 d: a short gap that cut_accept cannot clear is cut at the plan's point (the envelope minimum for a
++    # valley) with a 2-frame fade, never rejected for timing; neighbour_clear (c-ii) then decides
++    return {"out": out_c or [po["cut"]], "in": in_c or [pi["cut"]], "valley": {"out": not out_c, "in": not in_c}}
++
++
++def neighbour_clear(sa, plan, cut_in, cut_out, fade_in_s, fade_out_s):
++    """DEC-10 c-ii: NO audible part of a neighbouring word. The frames the cut keeps on the neighbour's side of
++    the boundary (in: from cut_in to the pause start, where the previous word's energy ends; out: from the
++    pause end, where the next word's energy begins, to cut_out), after the clip's linear fade, must all stay
++    below the valley threshold (local speech - VALLEY_BELOW_SPEECH_DB). Returns (ok, detail)."""
++    det = {}
++    for side, b, cut, fade in (("in", plan["in"], cut_in, fade_in_s), ("out", plan["out"], cut_out, fade_out_s)):
++        p, lv = b.get("pause"), b.get("levels") or {}
++        if not p or b.get("file_head") or b.get("file_end"):
++            det[side] = {"ok": True, "why": "no neighbour word"}
++            continue
++        loud = lv.get("speech_db", 0.0) - VALLEY_BELOW_SPEECH_DB
++        pt = b.get("point", p["start"] if side == "in" else p["end"])
++        a, z = (cut, pt) if side == "in" else (pt, cut)
++        if z <= a + 1e-9:
++            det[side] = {"ok": True, "why": "the cut keeps nothing of the neighbour", "neighbour_kept_ms": 0}
++            continue
++        t, d = sa.sl(a, z)
++        x = (t - cut) if side == "in" else (cut - t - HOP_S)
++        gain = 20 * np.log10(np.clip(x / max(fade, 1e-6), 1e-6, 1.0))
++        heard = d + gain
++        worst = float(np.max(heard)) if len(heard) else -200.0
++        ok = worst < loud
++        det[side] = {"ok": ok, "neighbour_kept_ms": int(round((z - a) * 1000)), "worst_db_after_fade": round(worst, 1),
++                     "valley_db": round(loud, 1), "why": "below the valley threshold after the fade" if ok else
++                     f"{int(round((z - a) * 1000))} ms of the neighbour word kept at {worst:.1f} dB after the fade "
++                     f"(valley threshold {loud:.1f} dB): audible"}
++    return all(v["ok"] for v in det.values()), det
++
++
++def accepted_cut(src, plan, step=HOP_S, sa=None):
++    """The cut nearest the plan's targets. Both edges clear of cut_accept: its unchanged acoustics check on the
++    pair (20 / 30 ms fades). An edge only reachable at the envelope minimum (DEC-10 d) gets a 2-frame fade and
++    must pass neighbour_clear. Returns a dict or None (rejected only by c-ii, or no acoustic pair)."""
+     from cut_accept import check_cut_acoustics
+     cand = cut_candidates(src, plan, step)
+-    if not cand["out"] or not cand["in"]:
++    cut_in, cut_out = cand["in"][0], cand["out"][0]
++    v = cand["valley"]
++    fi = VALLEY_FADE_S if v["in"] else 0.020
++    fo = VALLEY_FADE_S if v["out"] else 0.030
++    if not (v["in"] or v["out"]) and not check_cut_acoustics(src, cut_in, cut_out)[0]:
++        return None
++    ok, det = neighbour_clear(sa or SourceAudio(src), plan, cut_in, cut_out, fi, fo)
++    if not ok:
+         return None
+-    pair = (cand["in"][0], cand["out"][0])
+-    return pair if check_cut_acoustics(src, *pair)[0] else None
++    return {"cut_in": cut_in, "cut_out": cut_out, "valley_in": v["in"], "valley_out": v["out"],
++            "fade_in_ms": int(round(fi * 1000)), "fade_out_ms": int(round(fo * 1000)), "neighbour": det}
++
++
++def _accepted_cut_pair(src, plan, step=HOP_S):
++    """(cut_in, cut_out) of accepted_cut, or None. Further candidates are tried by run_fresh.stage_prepare when
++    a prepared clip fails the clip contract's fade check (Nov 11 recut clip_02: 37.87)."""
++    c = accepted_cut(src, plan, step)
++    return (c["cut_in"], c["cut_out"]) if c else None
+ 
+ 
+ def write_lock_cut_table(run_dir):
+@@ -384,14 +478,16 @@ def write_lock_cut_table(run_dir):
+                    if not plan[s].get("cuttable")]
+             cuts.append({**entry, "error": "locked sentence edges not cuttable: " + "; ".join(why)})
+             continue
+-        pick = _accepted_cut_pair(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), plan)
++        pick = accepted_cut(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), plan)
+         if pick is None:
+             cuts.append({**entry, "error": (
+-                f"no point inside the locked pauses passes cut_accept (IN {plan['in']['cut_lo']}-"
++                f"no cut inside the locked pauses keeps the neighbour words inaudible (IN {plan['in']['cut_lo']}-"
+                 f"{plan['in']['cut_hi']}, OUT {plan['out']['cut_lo']}-{plan['out']['cut_hi']})")})
+             continue
+-        cut_in, cut_out = pick
++        cut_in, cut_out = pick["cut_in"], pick["cut_out"]
+         cuts.append({**entry, "cut_in": cut_in, "cut_out": cut_out, "cut_duration": round(cut_out - cut_in, 3),
++                     "fade_in_ms": pick["fade_in_ms"], "fade_out_ms": pick["fade_out_ms"],
++                     "valley_in": pick["valley_in"], "valley_out": pick["valley_out"],
+                      "lead_in_pad_s": plan["in"]["lead_in_pad_s"], "verified": True})
+     with open(os.path.join(run_dir, "cuts_final.json"), "w") as f:
+         json.dump(cuts, f, indent=2)
+@@ -434,6 +530,11 @@ def gate_g16(run_dir, source_path_fn=None):
+             row["out"] = _edge_row(plan["out"], cut["cut_out"], "out", cut)
+             row["errors"] += [f"IN: {row['in']['why']}"] if not row["in"]["pass"] else []
+             row["errors"] += [f"OUT: {row['out']['why']}"] if not row["out"]["pass"] else []
++            if row["in"]["pass"] and row["out"]["pass"]:           # DEC-10 c-ii on the cut actually made
++                clear, det = neighbour_clear(sa, plan, cut["cut_in"], cut["cut_out"],
++                                             float(cut.get("fade_in_ms", 20)) / 1000, float(cut.get("fade_out_ms", 30)) / 1000)
++                row["neighbour"] = det
++                row["errors"] += [f"{k.upper()}: {v['why']}" for k, v in det.items() if not v["ok"]]
+             row["locked"] = f"'{lock['first_word']}' ... '{lock['last_word']}' ({lock['n_words']} words)"
+         row["pass"] = not row["errors"]
+         ok_all &= row["pass"]
+@@ -456,7 +557,7 @@ def _edge_row(b, cut_t, side, cut):
+         ok = in_range and have + 1e-9 >= need
+         return {**r, "pass": ok, "genuine_lead_ms": b["genuine_lead_ms"], "pad_needed_s": need, "pad_declared_s": have,
+                 "why": "ok" if ok else (f"source starts speaking {b['genuine_lead_ms']} ms after its genuine audio "
+-                                        f"begins (< {int(LEAD_MIN_S * 1000)} ms) and no {need:.2f} s lead-in pad is declared"
++                                        f"begins (< {int(HEAD_LEAD_MIN_S * 1000)} ms) and no {need:.2f} s lead-in pad is declared"
+                                         if in_range else f"cut_in {cut_t:.3f} cuts into the source's first words")}
+     ok = b["cut_lo"] - EDGE_EPS_S <= cut_t <= b["cut_hi"] + EDGE_EPS_S
+     return {**r, "pass": ok, "why": "ok" if ok else
+@@ -543,7 +644,8 @@ def gate_g17_prepared(clip_paths):
+     table, ok_all = [], True
+     for cid, p in clip_paths.items():
+         ht = head_tail(SourceAudio(p))
+-        lead_ok, tail_ok = ht["lead_ms"] >= LEAD_MIN_S * 1000, ht["tail_ms"] >= TAIL_MIN_S * 1000
++        lead_min = HEAD_LEAD_MIN_S if cid == "hook" else LEAD_MIN_S     # D1: the hook starts playback
++        lead_ok, tail_ok = ht["lead_ms"] >= lead_min * 1000, ht["tail_ms"] >= TAIL_MIN_S * 1000
+         row = {"segment": cid, **{k: ht[k] for k in ("onset", "offset", "lead_ms", "tail_ms")},
+                "quiet_db": {k: v["quiet_db"] for k, v in ht["levels"].items()},
+                "lead_ok": lead_ok, "tail_ok": tail_ok, "pass": lead_ok and tail_ok}
+diff --git a/pipeline/test_dec10_edges.py b/pipeline/test_dec10_edges.py
+new file mode 100644
+index 00000000..6b354fee
+--- /dev/null
++++ b/pipeline/test_dec10_edges.py
+@@ -0,0 +1,138 @@
++#!/usr/bin/env python3
++"""DEC-10 (orchestrator 2026-11-11 10:35): the sentence law's TIMING constants are calibrated to the approved
++v2f reference (measured 10:45, DoD "DEC-10a"); what a listener hears stays strict.
++  must-pass  every v2f edge: its cut lies in the timing-legal range of its pause (or envelope-minimum valley)
++             and keeps no audible part of the neighbour word with v2f's own 20 / 30 ms fades. (Lexical
++             sentence-completeness is not part of this: v2f predates the law: hook ends on 'Today,', clip_03
++             starts mid-sentence; DEC-10 keeps that rule strict for new cuts.)
++  recorded   v2f's hook head (file head, 70 ms genuine quiet, no pad) fails ONLY the unchanged D1 head rule,
++             the one rule that keeps yesterday's 'half Bitcoin' (60 ms, no pad) failing; and v2f clip_01's OUT
++             edge is PBX's own documented ONE-TIME exception (cut with --allow-clip1-gap-ms 20, "the 60 ms rule
++             unchanged"): the envelope shows its cut at 249.63 inside the soft "So" whisper places at
++             249.54-249.76, so it is not a baseline and must keep failing; and v2f clip_02's IN edge cuts at
++             624.63 inside a 110 ms voiced stretch at speech level (-20..-26 dB, 624.56-624.67) between the dips
++             at 624.54 and 624.69: it keeps an audible part of a word, so the strict neighbour rule fails it.
++  new rules  an abutting sentence boundary is cut at the envelope minimum with a 2-frame fade; a given cut that
++             keeps the neighbour audible fails neighbour_clear.
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_dec10_edges.py"""
++import json
++import os
++import sys
++import unittest
++
++import numpy as np
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import sentence_law as L  # noqa: E402
++from test_sentence_windows import _sentences  # noqa: E402
++
++V2F = os.path.join(REPO, "references", "v2f_2026-11-06", "run")
++
++
++def _edges(run):
++    cuts = json.load(open(os.path.join(run, "cuts_final.json")))
++    out = []
++    for c in (cuts if isinstance(cuts, list) else cuts["cuts"]):
++        words = json.load(open(os.path.join(run, "transcripts", f"{c['video_id']}.json")))["words"]
++        sa = L.SourceAudio(os.path.join(run, "sources", f"{c['video_id']}.mp4"))
++        mid = lambda w: (w["start"] + w["end"]) / 2
++        i0 = next(i for i, w in enumerate(words) if mid(w) > c["cut_in"])
++        i1 = max(i for i, w in enumerate(words) if mid(w) < c["cut_out"])
++        out.append((c, sa, L.boundary(sa, words, i0 - 1), L.boundary(sa, words, i1)))
++    return out
++
++
++@unittest.skipUnless(os.path.isdir(V2F), "frozen v2f reference not on this machine")
++class TestV2fEdgesPass(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.edges = _edges(V2F)
++
++    def test_every_v2f_edge_is_timing_legal_and_keeps_no_audible_neighbour(self):
++        rows = []
++        for c, sa, bin_, bout in self.edges:
++            for side, b, cut in (("in", bin_, c["cut_in"]), ("out", bout, c["cut_out"])):
++                if b.get("file_head") or (c["clip_id"], side) in (("clip_01", "out"), ("clip_02", "in")):
++                    continue                                  # recorded below
++                p, g = b["pause"], b["word_gap"]                  # the heard gap (DEC-10)
++                lo, hi = (g["start"], g["end"] - L.LEAD_MIN_S) if side == "in" else \
++                    (g["start"] + L.TAIL_MIN_S, g["end"] - (0.0 if b.get("file_end") else L.GUARD_S))
++                in_range = lo - L.EDGE_EPS_S <= cut <= hi + L.EDGE_EPS_S
++                plan = {"in": bin_ if side == "in" else {"file_head": True},
++                        "out": bout if side == "out" else {"file_end": True}}
++                clear, det = L.neighbour_clear(sa, plan, c["cut_in"], c["cut_out"],
++                                               c.get("fade_in_ms", 20) / 1000, c.get("fade_out_ms", 30) / 1000)
++                rows.append((c["clip_id"], side, in_range, clear, cut, g, b.get("point"), det.get(side)))
++        self.assertEqual(len(rows), 5)
++        for r in rows:
++            self.assertTrue(r[2] and r[3], r)
++
++    def test_v2f_clip01_out_one_time_exception_keeps_failing(self):
++        c, sa, bin_, bout = self.edges[1]
++        self.assertEqual(c["clip_id"], "clip_01")
++        plan = {"in": {"file_head": True}, "out": bout}
++        clear, det = L.neighbour_clear(sa, plan, c["cut_in"], c["cut_out"], 0.020, 0.030)
++        self.assertFalse(clear, det)                          # it keeps part of the next word
++
++    def test_v2f_clip02_in_keeps_a_voiced_stretch_and_fails_the_neighbour_rule(self):
++        c, sa, bin_, bout = self.edges[2]
++        self.assertEqual(c["clip_id"], "clip_02")
++        clear, det = L.neighbour_clear(sa, {"in": bin_, "out": {"file_end": True}}, c["cut_in"], c["cut_out"], 0.020, 0.030)
++        self.assertFalse(clear, det)
++
++    def test_v2f_hook_head_fails_only_the_d1_head_rule(self):
++        c, sa, bin_, bout = self.edges[0]
++        self.assertEqual(c["clip_id"], "hook")
++        self.assertTrue(bin_["file_head"])
++        self.assertLess(bin_["genuine_lead_ms"], L.HEAD_LEAD_MIN_S * 1000)
++        self.assertEqual(float(c.get("lead_in_pad_s") or 0), 0.0)
++
++
++class TestValleyCut(unittest.TestCase):
++    """Two sentences with NO pause between them (0.05 s word gap only): before DEC-10 not a boundary at all."""
++
++    def setUp(self):
++        import tempfile
++        import shutil
++        import subprocess
++        self.tmp = tempfile.mkdtemp(prefix="valley_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++        self.words = _sentences("v", 1.0, [0.05, 0.5, 0.5], per=10)
++        sr, dur = 48000, 16.0
++        x = np.random.default_rng(5).normal(0, 0.0005, int(dur * sr))
++        for w in self.words:
++            a, b = int(w["start"] * sr), int(w["end"] * sr)
++            x[a:b] += 0.1 * np.sin(2 * np.pi * 300 * np.arange(b - a) / sr)
++        self.src = os.path.join(self.tmp, "s.wav")
++        raw = (np.clip(x, -1, 1) * 32767).astype("<i2").tobytes()
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "s16le", "-ar", str(sr), "-ac", "1", "-i", "-", self.src],
++                       input=raw, check=True)
++        self.sa = L.SourceAudio(self.src)
++
++    def test_abutting_sentences_cut_at_the_minimum_with_a_two_frame_fade(self):
++        k = 9                                                 # 'vs0w9.' | 'vs1w0' with a 50 ms gap
++        b = L.boundary(self.sa, self.words, k)
++        self.assertTrue(b["valid"], b)
++        plan = L.edge_plan(self.sa, self.words, k + 1, 19)
++        self.assertTrue(plan["ok"], plan)
++        cut = L.accepted_cut(self.src, plan, sa=self.sa)
++        self.assertIsNotNone(cut)
++        self.assertTrue(cut["valley_in"] or b["pause"]["ms"] < 80, (cut, b["pause"]))
++        if cut["valley_in"]:
++            self.assertEqual(cut["fade_in_ms"], int(round(L.VALLEY_FADE_S * 1000)))
++        self.assertLessEqual(self.words[k]["end"] - 0.02, cut["cut_in"])     # never inside the previous word
++        self.assertLessEqual(cut["cut_in"], self.words[k + 1]["start"] + 0.02)
++
++    def test_a_given_cut_inside_the_neighbour_word_is_audible(self):
++        k = 9
++        plan = L.edge_plan(self.sa, self.words, k + 1, 19)
++        inside = self.words[k]["end"] - 0.12                  # 120 ms inside 'vs0w9.' (full level)
++        ok, det = L.neighbour_clear(self.sa, plan, inside, plan["out"]["cut"], 0.020, 0.030)
++        self.assertFalse(ok, det)
++        self.assertIn("audible", det["in"]["why"])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_pulse_20261110_mustfail.py b/pipeline/test_pulse_20261110_mustfail.py
+index 32d021ce..aa00d7cd 100644
+--- a/pipeline/test_pulse_20261110_mustfail.py
++++ b/pipeline/test_pulse_20261110_mustfail.py
+@@ -105,9 +105,11 @@ class TestD2Clip01Out(_G16Fixture):
+     def test_g16_out_fails(self):
+         r = self.rows["clip_01"]["out"]
+         self.assertFalse(r["pass"], f"D2: clip_01 out 33.71 runs into the next sentence: {r}")
+-        # for the right reason: the locked sentence ends at 'week.' and that edge is not a legal cut there
++        # for the right reason: the locked sentence ends at 'week.' and yesterday's cut runs past it into
++        # "All right, you've probably seen ..." (DEC-10: the 120 ms pause after 'week.' is now a legal cut, so
++        # the failure is the cut lying 2.3 s outside it, no longer "not cuttable")
+         self.assertEqual(r["after_word"], "week.", r)
+-        self.assertIn("not cuttable", r["why"], r)
++        self.assertIn("outside the legal range", r["why"], r)
+ 
+ 
+ class TestD3Edges(_G16Fixture):
+@@ -116,7 +118,8 @@ class TestD3Edges(_G16Fixture):
+         self.assertFalse(r["pass"], f"D3a: clip_01 in 15.13 starts on '81', not 'It': {r}")
+         self.assertEqual(r["before_word"], "It", r)
+         self.assertIn("outside the legal range", r["why"], r)
+-        self.assertFalse(self.g17["clip_01"]["lead_ok"], f"D3a: G17a lead-in: {self.g17['clip_01']}")
++        # DEC-10: the mid-video lead quota is calibrated to v2f (0 ms), so G17a no longer judges this clip's
++        # 10 ms lead; the defect fails on the sentence boundary (above), which is what PBX heard ("81")
+ 
+     def test_d3b_clip02_in_fails(self):
+         # The speaker says "...past few days. Of course, of course, Bitcoin dropped ..."; the editor's text
+@@ -127,7 +130,7 @@ class TestD3Edges(_G16Fixture):
+         self.assertFalse(r["pass"], f"D3b: clip_02 in 14.93 lands inside 'days': {r}")
+         self.assertEqual((r["after_word"], r["before_word"]), ("course", "of"), r)
+         self.assertIn("does not end a sentence", r["why"], r)
+-        self.assertFalse(self.g17["clip_02"]["lead_ok"], f"D3b: G17a lead-in: {self.g17['clip_02']}")
++        # DEC-10: G17a no longer judges a mid-video lead (v2f: 0 ms); the defect fails on the boundary above
+ 
+     def test_d3c_clip02_out_control_passes(self):
+         self.assertTrue(self.rows["clip_02"]["out"]["pass"], f"CONTROL D3c: clean out edge must pass G16: {self.rows['clip_02']['out']}")
+diff --git a/pipeline/test_sentence_windows.py b/pipeline/test_sentence_windows.py
+index 9469bf8e..21e340b4 100644
+--- a/pipeline/test_sentence_windows.py
++++ b/pipeline/test_sentence_windows.py
+@@ -83,12 +83,14 @@ def _load(path):
+         return json.load(f)
+ 
+ 
+-def _sentences(tag, t, gaps, per=12):
+-    """Sentences of `per` words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i."""
++def _sentences(tag, t, gaps, per=12, no_full_stop=()):
++    """Sentences of `per` words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i; a
++    sentence in `no_full_stop` ends without punctuation (it runs on into the next one)."""
+     ws = []
+     for si, gap in enumerate(gaps):
+         for wi in range(per):
+-            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == per - 1 else ""), "start": round(t, 2),
++            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == per - 1 and si not in no_full_stop else ""),
++                       "start": round(t, 2),
+                        "end": round(t + 0.30, 2)})
+             t += 0.35
+         t += gap - 0.05
+@@ -97,12 +99,14 @@ def _sentences(tag, t, gaps, per=12):
+ 
+ class TestNextRankedFallback(unittest.TestCase):
+     """Windows are declared exactly where their text is (12-word sentences: 2 = 8.8 s hook, 3 = 13.45 s
+-    clip). BBB sentence 4 runs straight into sentence 5 (no pause): no window may end or start there."""
++    clip). BBB sentence 4 runs straight into sentence 5 (no pause and no full stop): no window may end or start
++    there. DEC-10: a short pause alone no longer blocks a boundary (v2f has abutting edges); the missing sentence
++    end does (sentence-completeness stays strict)."""
+     OFF = {"AAA": 95.0, "BBB": 495.0}
+ 
+     def setUp(self):
+         self.words = {"AAA": _sentences("a", 2.0, [0.5] * 8),
+-                      "BBB": _sentences("b", 2.0, [0.5, 0.5, 0.5, 0.5, 0.05, 0.5, 0.5, 0.5, 0.5, 0.5])}
++                      "BBB": _sentences("b", 2.0, [0.5, 0.5, 0.5, 0.5, 0.05, 0.5, 0.5, 0.5, 0.5, 0.5], no_full_stop={4})}
+ 
+     def window(self, vid, s0, s1, kind, score):
+         ws = [w for w in self.words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1]

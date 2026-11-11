@@ -46,10 +46,23 @@ REPO = os.path.dirname(PIPELINE_DIR)
 
 HOP_S = 0.010
 SR = 16000
-PAUSE_MIN_S = 0.080
-LEAD_MIN_S = 0.080
-TAIL_MIN_S = 0.080
-GUARD_S = 0.060
+# DEC-10 (orchestrator 2026-11-11 10:35): edge TIMING is calibrated to the approved v2f reference, measured
+# 10:45 on runs/v2f_20261111_103004 (table in the DoD, "DEC-10a"); the 80 / 80 / 80 / 60 ms of the 01:50 order
+# had no evidence. What a listener hears stays strict elsewhere: edge words >= 85 % (G17b), no audible part of
+# the neighbour word (neighbour_clear), sentence-complete locked words, G18 word for word.
+PAUSE_MIN_S = 0.000         # v2f clip_02 in: "approximately." | "One" abut (longest quiet run 0 ms)
+LEAD_MIN_S = 0.000          # v2f clip_02 prepared lead 0 ms
+TAIL_MIN_S = 0.000          # v2f clip_03 prepared tail 0 ms (10 ms in the source)
+GUARD_S = 0.000             # v2f clip_01 in sits 10 ms inside "Yeah."'s decay; neighbour_clear replaces the guard
+HEAD_LEAD_MIN_S = 0.080     # UNCHANGED D1 rule ("half Bitcoin"): the start of a source file, and the hook (the
+                            # first thing heard at playback), need 80 ms of genuine quiet or the room-tone pad
+VALLEY_FADE_S = 2 / 24      # DEC-10 d: a cut at an envelope minimum gets a 2-frame audio fade: 2 VIDEO frames
+                            # at 24 fps = 83 ms (not 2 audio hops)
+WORD_BELOW_SPEECH_DB = 6.0  # DEC-10: a word is heard from/to where it is within 6 dB of local speech
+DEFAULT_FADE_IN_S, DEFAULT_FADE_OUT_S = 0.020, 0.030   # M19 fades of every other cut (unchanged)
+VALLEY_MARGIN_S = 0.080     # the minimum is searched between the two words' transcript edges +- this
+SHORT_IN_S, SHORT_OUT_S = 0.080, 0.140   # DEC-10 d: a gap shorter than these (the 01:50 numbers, now choosing
+                                         # only the METHOD, never legality) is cut at its envelope minimum
 LEAD_TARGET_S = 0.250       # preferred lead-in kept before the first onset (Law 14: breath kept)
 TAIL_TARGET_S = 0.300       # M19: cut_out = min(offset + 0.30, onset - 0.06)
 LEAD_PAD_S = 0.250          # D1 room-tone pad (6 frames at 24 fps)
@@ -186,6 +199,42 @@ def find_pause(sa, a, b):
     return {"start": round(s, 3), "end": round(e, 3), "ms": int(round((e - s) * 1000))}, lv
 
 
+def boundary_geometry(sa, words, k, lv, quiet):
+    """DEC-10: the boundary between word k and k+1 as a listener hears it.
+      point   the envelope minimum between the two words (inside the quiet run when there is one, else
+              between their transcript edges): the neighbour's side ends there
+      gap     word k's last offset .. word k+1's first onset at speech - WORD_BELOW_SPEECH_DB (sustained):
+              a cut must lie in it (it never cuts into either word); breath and room tone may be kept
+      pause   the quiet run (the machine's preferred place to cut) or, with none, the point itself."""
+    if quiet:
+        t, d = sa.sl(quiet["start"], max(quiet["end"], quiet["start"] + HOP_S))
+        point = float(t[int(np.argmin(d))]) if len(d) else quiet["start"]
+        pause = dict(quiet)
+    else:
+        v = find_valley(sa, words[k]["end"], words[k + 1]["start"])
+        if v is None:
+            return None, None, None
+        point, pause = v["start"], v
+    word_db = lv["speech_db"] - WORD_BELOW_SPEECH_DB
+    t, d = sa.sl(max(0.0, words[k]["start"] - 0.3), min(sa.dur, words[k + 1]["end"] + 0.3))
+    off = last_offset(t, d, word_db, end=point)
+    on = first_onset(t, d, word_db, start=point)
+    gap = {"start": round(off if off is not None else point, 3), "end": round(on if on is not None else point, 3)}
+    if gap["end"] < gap["start"]:
+        gap = {"start": round(point, 3), "end": round(point, 3)}
+    return round(point, 3), gap, pause
+
+
+def find_valley(sa, end_a, start_b):
+    """DEC-10 d: no quiet frame between two words (they abut): the boundary is the envelope MINIMUM between
+    the first word's transcript end and the second's start (+- VALLEY_MARGIN_S). A zero-length pause there."""
+    t, d = sa.sl(max(0.0, min(end_a, start_b) - VALLEY_MARGIN_S), min(sa.dur, max(end_a, start_b) + VALLEY_MARGIN_S))
+    if len(d) == 0:
+        return None
+    tm = float(t[int(np.argmin(d))])
+    return {"start": round(tm, 3), "end": round(tm, 3), "ms": 0, "valley": True, "valley_db": round(float(np.min(d)), 1)}
+
+
 # ── lexical adjudication for unpunctuated transcripts ──
 
 # ── boundaries ──
@@ -215,10 +264,14 @@ def boundary(sa, words, k):
         return {**rec, "valid": is_terminal(words[k]["word"]), "lexical": "punctuation", "file_end": True,
                 "levels": lv, "pause": {"start": round(off, 3), "end": round(sa.dur, 3),
                                         "ms": int(round((sa.dur - off) * 1000))}}
-    pause, lv = find_pause(sa, words[k]["start"], words[k + 1]["end"])
-    rec.update(levels=lv, pause=pause)
+    # the quiet run is searched between the two words' MIDPOINTS: the full extents also cover the junctions
+    # with the words before / after them, which can win a tie (DEC-10 audit: abutting-word fixture)
+    mid = lambda w: (w["start"] + w["end"]) / 2
+    quiet, lv = find_pause(sa, mid(words[k]), mid(words[k + 1]))
+    point, gap, pause = boundary_geometry(sa, words, k, lv, quiet)     # DEC-10
+    rec.update(levels=lv, pause=pause, quiet_run=quiet, point=point, word_gap=gap)
     if pause is None:
-        return {**rec, "valid": False, "reason": f"no pause >= {int(PAUSE_MIN_S * 1000)} ms between the words"}
+        return {**rec, "valid": False, "reason": "no audio between the words"}
     if not is_punctuated(words, k):
         return {**rec, "valid": False, "lexical": "unpunctuated",
                 "reason": "unpunctuated transcript stretch: no sentence evidence (fail closed)"}
@@ -238,22 +291,24 @@ def edge_plan(sa, words, i0, i1):
         if bin_.get("file_head"):
             # keep every genuine sample before the onset; codec zeros before it are not room tone
             # (the cut drops them and the declared pad replaces them when the lead is < 80 ms)
-            pad = 0.0 if bin_["genuine_lead_ms"] >= LEAD_MIN_S * 1000 else LEAD_PAD_S
+            pad = 0.0 if bin_["genuine_lead_ms"] >= HEAD_LEAD_MIN_S * 1000 else LEAD_PAD_S
             bin_.update(cut_lo=0.0, cut_hi=p["start"], cut=p["start"], lead_in_pad_s=pad, cuttable=True)
-        elif p["end"] - p["start"] >= LEAD_MIN_S - 1e-9:
-            bin_.update(cut_lo=p["start"], cut_hi=round(p["end"] - LEAD_MIN_S, 3), cuttable=True,
-                        cut=round(max(p["start"], p["end"] - LEAD_TARGET_S), 3), lead_in_pad_s=0.0)
-        else:
-            bin_.update(cuttable=False, reason=f"pause {p['ms']} ms < lead-in {int(LEAD_MIN_S * 1000)} ms")
+        else:                                             # DEC-10: anywhere in the heard gap; aim at the pause
+            g = bin_.get("word_gap") or {"start": p["start"], "end": p["end"]}
+            hi = round(g["end"] - LEAD_MIN_S, 3)
+            target = max(p["start"], p["end"] - LEAD_TARGET_S) if p.get("ms", 0) > 0 else bin_.get("point", p["start"])
+            bin_.update(cut_lo=g["start"], cut_hi=hi, cuttable=hi >= g["start"] - 1e-9,
+                        cut=round(min(max(target, g["start"]), hi), 3), lead_in_pad_s=0.0,
+                        reason=None if hi >= g["start"] - 1e-9 else "no room before the first word")
     if bout["valid"]:
         p = bout["pause"]
         guard = 0.0 if bout.get("file_end") else GUARD_S
-        if p["end"] - p["start"] >= TAIL_MIN_S + guard - 1e-9:
-            bout.update(cut_lo=round(p["start"] + TAIL_MIN_S, 3), cut_hi=round(p["end"] - guard, 3),
-                        cut=round(min(p["start"] + TAIL_TARGET_S, p["end"] - guard), 3), cuttable=True)
-        else:
-            bout.update(cuttable=False, reason=f"pause {p['ms']} ms < tail {int(TAIL_MIN_S * 1000)} ms + "
-                                               f"guard {int(guard * 1000)} ms")
+        g = bout.get("word_gap") or {"start": p["start"], "end": p["end"]}   # DEC-10: the heard gap
+        lo, hi = round(g["start"] + TAIL_MIN_S, 3), round(g["end"] - guard, 3)
+        target = min(p["start"] + TAIL_TARGET_S, p["end"] - guard) if p.get("ms", 0) > 0 else bout.get("point", p["start"])
+        ok = hi >= lo - 1e-9
+        bout.update(cut_lo=lo, cut_hi=hi, cut=round(min(max(target, lo), hi), 3), cuttable=ok,
+                    reason=None if ok else "no room after the last word")
     plan["ok"] = bool(bin_.get("cuttable") and bout.get("cuttable"))
     return plan
 
@@ -339,21 +394,78 @@ def cut_candidates(src, plan, step=HOP_S):
         return sorted(pts, key=lambda x: (abs(x - target), x))
     t, db = envelope(src, pi["cut_lo"] - 1.0, po["cut_hi"] + 1.0)
     med = speech_median_db(t, db, pi["cut"], po["cut"])
-    return {"out": [x for x in grid(po["cut_lo"], po["cut_hi"], po["cut"]) if check_cut_out(t, db, x, med)[0]],
-            "in": [x for x in grid(pi["cut_lo"], pi["cut_hi"], pi["cut"]) if check_cut_in(t, db, x, med)[0]]}
+    out_c = [x for x in grid(po["cut_lo"], po["cut_hi"], po["cut"]) if check_cut_out(t, db, x, med)[0]]
+    in_c = [x for x in grid(pi["cut_lo"], pi["cut_hi"], pi["cut"]) if check_cut_in(t, db, x, med)[0]]
+    # DEC-10 d: a short gap that cut_accept cannot clear is cut at the plan's point (the envelope minimum for a
+    # valley) with a 2-frame fade, never rejected for timing; neighbour_clear (c-ii) then decides
+    return {"out": out_c or [po["cut"]], "in": in_c or [pi["cut"]], "valley": {"out": not out_c, "in": not in_c}}
+
+
+def neighbour_clear(sa, plan, cut_in, cut_out, fade_in_s, fade_out_s):
+    """DEC-10 c-ii: NO audible part of a neighbouring word. The frames the cut keeps on the neighbour's side of
+    the boundary (in: from cut_in to the pause start, where the previous word's energy ends; out: from the
+    pause end, where the next word's energy begins, to cut_out), after the clip's linear fade, must all stay
+    below the valley threshold (local speech - VALLEY_BELOW_SPEECH_DB). Returns (ok, detail)."""
+    det = {}
+    for side, b, cut, fade in (("in", plan["in"], cut_in, fade_in_s), ("out", plan["out"], cut_out, fade_out_s)):
+        p, lv = b.get("pause"), b.get("levels") or {}
+        if not p or b.get("file_head") or b.get("file_end"):
+            det[side] = {"ok": True, "why": "no neighbour word"}
+            continue
+        loud = lv.get("speech_db", 0.0) - VALLEY_BELOW_SPEECH_DB
+        pt = b.get("point", p["start"] if side == "in" else p["end"])
+        a, z = (cut, pt) if side == "in" else (pt, cut)
+        if z <= a + 1e-9:
+            det[side] = {"ok": True, "why": "the cut keeps nothing of the neighbour", "neighbour_kept_ms": 0}
+            continue
+        t, d = sa.sl(a, z)
+        x = (t - cut) if side == "in" else (cut - t - HOP_S)
+        gain = 20 * np.log10(np.clip(x / max(fade, 1e-6), 1e-6, 1.0))
+        heard = d + gain
+        worst = float(np.max(heard)) if len(heard) else -200.0
+        ok = worst < loud
+        det[side] = {"ok": ok, "neighbour_kept_ms": int(round((z - a) * 1000)), "worst_db_after_fade": round(worst, 1),
+                     "valley_db": round(loud, 1), "why": "below the valley threshold after the fade" if ok else
+                     f"{int(round((z - a) * 1000))} ms of the neighbour word kept at {worst:.1f} dB after the fade "
+                     f"(valley threshold {loud:.1f} dB): audible"}
+    return all(v["ok"] for v in det.values()), det
+
+
+def accepted_cut(src, plan, step=HOP_S, sa=None):
+    """The cut nearest the plan's targets. Both edges clear of cut_accept: its unchanged acoustics check on the
+    pair (20 / 30 ms fades). An edge only reachable at the envelope minimum (DEC-10 d) gets a 2-frame fade and
+    must pass neighbour_clear. Returns a dict or None (rejected only by c-ii, or no acoustic pair)."""
+    from cut_accept import check_cut_acoustics
+    cand = cut_candidates(src, plan, step)
+
+    def short(side):                                # DEC-10 d: short gaps are cut at their minimum
+        b = plan[side]
+        if b.get("file_head") or b.get("file_end") or b.get("point") is None:
+            return False
+        return (b.get("pause") or {}).get("ms", 0) < (SHORT_IN_S if side == "in" else SHORT_OUT_S) * 1000 - 1e-6
+    v = {side: cand["valley"][side] or short(side) for side in ("in", "out")}
+    # the point guard is reachable: a file head / file end edge has no point, and cut_candidates marks it a
+    # valley when cut_accept clears none of its candidates; it keeps the plan's cut there
+    cut_in = plan["in"]["point"] if v["in"] and plan["in"].get("point") is not None else cand["in"][0]
+    cut_out = plan["out"]["point"] if v["out"] and plan["out"].get("point") is not None else cand["out"][0]
+    fi = VALLEY_FADE_S if v["in"] else DEFAULT_FADE_IN_S
+    fo = VALLEY_FADE_S if v["out"] else DEFAULT_FADE_OUT_S
+    if not (v["in"] and v["out"]):                  # cut_accept's unchanged checks on every edge NOT cut at a
+        acou = check_cut_acoustics(src, cut_in, cut_out)[1]          # minimum, also when the other one is
+        if not all(acou[s]["pass"] for s in ("in", "out") if not v[s]):   # (batch-8 Heimdall F2)
+            return None
+    ok, det = neighbour_clear(sa or SourceAudio(src), plan, cut_in, cut_out, fi, fo)
+    if not ok:
+        return None
+    return {"cut_in": cut_in, "cut_out": cut_out, "valley_in": v["in"], "valley_out": v["out"],
+            "fade_in_ms": int(round(fi * 1000)), "fade_out_ms": int(round(fo * 1000)), "neighbour": det}
 
 
 def _accepted_cut_pair(src, plan, step=HOP_S):
-    """The cut pair nearest the plan's targets that cut_candidates allows; None if an edge has none. The
-    whole pair must also pass cut_accept's acoustics check. Further candidates are tried by
-    run_fresh.stage_prepare when a prepared clip fails the clip contract's fade check (a click or breath
-    at the cut point; Nov 11 recut clip_02: 37.87)."""
-    from cut_accept import check_cut_acoustics
-    cand = cut_candidates(src, plan, step)
-    if not cand["out"] or not cand["in"]:
-        return None
-    pair = (cand["in"][0], cand["out"][0])
-    return pair if check_cut_acoustics(src, *pair)[0] else None
+    """(cut_in, cut_out) of accepted_cut, or None. Further candidates are tried by run_fresh.stage_prepare when
+    a prepared clip fails the clip contract's fade check (Nov 11 recut clip_02: 37.87)."""
+    c = accepted_cut(src, plan, step)
+    return (c["cut_in"], c["cut_out"]) if c else None
 
 
 def write_lock_cut_table(run_dir):
@@ -384,14 +496,16 @@ def write_lock_cut_table(run_dir):
                    if not plan[s].get("cuttable")]
             cuts.append({**entry, "error": "locked sentence edges not cuttable: " + "; ".join(why)})
             continue
-        pick = _accepted_cut_pair(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), plan)
+        pick = accepted_cut(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), plan)
         if pick is None:
             cuts.append({**entry, "error": (
-                f"no point inside the locked pauses passes cut_accept (IN {plan['in']['cut_lo']}-"
+                f"no cut inside the locked pauses keeps the neighbour words inaudible (IN {plan['in']['cut_lo']}-"
                 f"{plan['in']['cut_hi']}, OUT {plan['out']['cut_lo']}-{plan['out']['cut_hi']})")})
             continue
-        cut_in, cut_out = pick
+        cut_in, cut_out = pick["cut_in"], pick["cut_out"]
         cuts.append({**entry, "cut_in": cut_in, "cut_out": cut_out, "cut_duration": round(cut_out - cut_in, 3),
+                     "fade_in_ms": pick["fade_in_ms"], "fade_out_ms": pick["fade_out_ms"],
+                     "valley_in": pick["valley_in"], "valley_out": pick["valley_out"],
                      "lead_in_pad_s": plan["in"]["lead_in_pad_s"], "verified": True})
     with open(os.path.join(run_dir, "cuts_final.json"), "w") as f:
         json.dump(cuts, f, indent=2)
@@ -434,6 +548,11 @@ def gate_g16(run_dir, source_path_fn=None):
             row["out"] = _edge_row(plan["out"], cut["cut_out"], "out", cut)
             row["errors"] += [f"IN: {row['in']['why']}"] if not row["in"]["pass"] else []
             row["errors"] += [f"OUT: {row['out']['why']}"] if not row["out"]["pass"] else []
+            if row["in"]["pass"] and row["out"]["pass"]:           # DEC-10 c-ii on the cut actually made
+                clear, det = neighbour_clear(sa, plan, cut["cut_in"], cut["cut_out"],
+                                             float(cut.get("fade_in_ms", 20)) / 1000, float(cut.get("fade_out_ms", 30)) / 1000)
+                row["neighbour"] = det
+                row["errors"] += [f"{k.upper()}: {v['why']}" for k, v in det.items() if not v["ok"]]
             row["locked"] = f"'{lock['first_word']}' ... '{lock['last_word']}' ({lock['n_words']} words)"
         row["pass"] = not row["errors"]
         ok_all &= row["pass"]
@@ -456,7 +575,7 @@ def _edge_row(b, cut_t, side, cut):
         ok = in_range and have + 1e-9 >= need
         return {**r, "pass": ok, "genuine_lead_ms": b["genuine_lead_ms"], "pad_needed_s": need, "pad_declared_s": have,
                 "why": "ok" if ok else (f"source starts speaking {b['genuine_lead_ms']} ms after its genuine audio "
-                                        f"begins (< {int(LEAD_MIN_S * 1000)} ms) and no {need:.2f} s lead-in pad is declared"
+                                        f"begins (< {int(HEAD_LEAD_MIN_S * 1000)} ms) and no {need:.2f} s lead-in pad is declared"
                                         if in_range else f"cut_in {cut_t:.3f} cuts into the source's first words")}
     ok = b["cut_lo"] - EDGE_EPS_S <= cut_t <= b["cut_hi"] + EDGE_EPS_S
     return {**r, "pass": ok, "why": "ok" if ok else
@@ -539,11 +658,14 @@ def head_tail(sa):
 
 def gate_g17_prepared(clip_paths):
     """G17a on each prepared clip {clip_id: path} (qa/final_<clip>.mp4: the rendered segment audio
-    before the music bed): >= 80 ms genuine quiet before the first onset and after the last offset."""
+    before the music bed): the hook keeps >= HEAD_LEAD_MIN_S (80 ms, D1: it starts playback) of genuine quiet
+    before its first onset; every other lead and every tail >= LEAD_MIN_S / TAIL_MIN_S (DEC-10: v2f's measured
+    worst, 0 ms). What a listener hears stays strict elsewhere: neighbour_clear (c-ii) and G17b (85 %)."""
     table, ok_all = [], True
     for cid, p in clip_paths.items():
         ht = head_tail(SourceAudio(p))
-        lead_ok, tail_ok = ht["lead_ms"] >= LEAD_MIN_S * 1000, ht["tail_ms"] >= TAIL_MIN_S * 1000
+        lead_min = HEAD_LEAD_MIN_S if cid == "hook" else LEAD_MIN_S     # D1: the hook starts playback
+        lead_ok, tail_ok = ht["lead_ms"] >= lead_min * 1000, ht["tail_ms"] >= TAIL_MIN_S * 1000
         row = {"segment": cid, **{k: ht[k] for k in ("onset", "offset", "lead_ms", "tail_ms")},
                "quiet_db": {k: v["quiet_db"] for k, v in ht["levels"].items()},
                "lead_ok": lead_ok, "tail_ok": tail_ok, "pass": lead_ok and tail_ok}

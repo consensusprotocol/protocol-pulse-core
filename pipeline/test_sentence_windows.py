@@ -83,12 +83,14 @@ def _load(path):
         return json.load(f)
 
 
-def _sentences(tag, t, gaps, per=12):
-    """Sentences of `per` words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i."""
+def _sentences(tag, t, gaps, per=12, no_full_stop=()):
+    """Sentences of `per` words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i; a
+    sentence in `no_full_stop` ends without punctuation (it runs on into the next one)."""
     ws = []
     for si, gap in enumerate(gaps):
         for wi in range(per):
-            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == per - 1 else ""), "start": round(t, 2),
+            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == per - 1 and si not in no_full_stop else ""),
+                       "start": round(t, 2),
                        "end": round(t + 0.30, 2)})
             t += 0.35
         t += gap - 0.05
@@ -97,12 +99,14 @@ def _sentences(tag, t, gaps, per=12):
 
 class TestNextRankedFallback(unittest.TestCase):
     """Windows are declared exactly where their text is (12-word sentences: 2 = 8.8 s hook, 3 = 13.45 s
-    clip). BBB sentence 4 runs straight into sentence 5 (no pause): no window may end or start there."""
+    clip). BBB sentence 4 runs straight into sentence 5 (no pause and no full stop): no window may end or start
+    there. DEC-10: a short pause alone no longer blocks a boundary (v2f has abutting edges); the missing sentence
+    end does (sentence-completeness stays strict)."""
     OFF = {"AAA": 95.0, "BBB": 495.0}
 
     def setUp(self):
         self.words = {"AAA": _sentences("a", 2.0, [0.5] * 8),
-                      "BBB": _sentences("b", 2.0, [0.5, 0.5, 0.5, 0.5, 0.05, 0.5, 0.5, 0.5, 0.5, 0.5])}
+                      "BBB": _sentences("b", 2.0, [0.5, 0.5, 0.5, 0.5, 0.05, 0.5, 0.5, 0.5, 0.5, 0.5], no_full_stop={4})}
 
     def window(self, vid, s0, s1, kind, score):
         ws = [w for w in self.words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1]
