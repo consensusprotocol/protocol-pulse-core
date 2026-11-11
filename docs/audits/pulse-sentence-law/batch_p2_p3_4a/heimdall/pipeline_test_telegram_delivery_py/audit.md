@@ -1,0 +1,25 @@
+# Heimdall audit
+
+**Question:** Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/test_telegram_delivery.py)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0104
+## Consensus findings (majority of panel agrees)
+- **[high] pipeline/test_telegram_delivery.py:19** The shared ROWS fixture contains a non-PASS row in both formats, but the HOLD test expects HOLD_OK. This contradicts the contract that HOLD FOR APPROVAL requires every row of both formats to be PASS; the test is either failing or passing only because the implementation ignores non-PASS rows.
+  - evidence: `"G11_parity(run_gates)": "NOT RUN BY run_gates (no horiz) — see G11 below" ... self.assertTrue(s[2]["caption"].startswith(TG.HOLD_OK), s[2]["caption"])`
+  - fix: Set the fixture to all PASS for the HOLD test (or remove the note row) and add a separate test that a NOT RUN row yields REVIEW ONLY.
+  - raised by deepseek:F1; agree: deepseek, qwen27b
+- **[high] pipeline/test_telegram_delivery.py:80** The test expects exactly one failing row after setting G4s_layout_truth to FAIL, but the fixture already contains non-PASS rows. If the implementation correctly counts non-PASS as failing, the count is >1 and the test fails; if it ignores them, the test passes but the contract is violated.
+  - evidence: `self.assertTrue(cap.startswith("REVIEW ONLY - 1 failing"), cap)`
+  - fix: Make the fixture all PASS except the one FAIL, or assert the failing list contains the FAIL without hard-coding the count.
+  - raised by deepseek:F2; agree: deepseek, qwen27b
+- **[low] pipeline/test_telegram_delivery.py:87** The waiver test only checks that the caption starts with REVIEW ONLY; it does not assert that the waiver appears in the failing list, so it would pass even if the caption omitted the failing row.
+  - evidence: `self.assertTrue(sent[0][2]["caption"].startswith("REVIEW ONLY"), sent[0][2]["caption"])`
+  - fix: Assert the waiver string is present in the caption's failing list.
+  - raised by deepseek:F3; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- deepseek: [medium] No test that the safe frame is omitted for non-screen/uncertain shots; the 'only for screen/uncertain' part of the contract is untested.
+- deepseek: [low] The failing-row test only checks the first video's caption; it does not verify the second video's caption also becomes REVIEW ONLY with the failing list.

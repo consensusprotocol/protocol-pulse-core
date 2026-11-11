@@ -1,0 +1,129 @@
+{
+ "question": "Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/telegram.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 253.7,
+   "cost": 0.003200874,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 70.3,
+   "cost": 0.0037681275,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 5,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 264.0,
+   "cost": 0.00325872,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 49.2,
+   "cost": 0.002793007,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "medium",
+   "file": "pipeline/telegram.py",
+   "line": 168,
+   "issue": "Caption truncation off-by-2: the suffix string is 22 characters but the code subtracts only 20 from CAPTION_MAX, so the truncated caption is 1026 chars, exceeding Telegram's 1024 limit and causing the API to reject the message.",
+   "evidence": "return cap if len(cap) <= CAPTION_MAX else cap[:CAPTION_MAX - 20] + \" ...(see GATE_REPORT)\"",
+   "fix": "Change CAPTION_MAX - 20 to CAPTION_MAX - 22 (or compute len of the suffix dynamically): cap[:CAPTION_MAX - len(\" ...(see GATE_REPORT)\")] + \" ...(see GATE_REPORT)\"",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/telegram.py",
+   "line": 163,
+   "issue": "Inconsistent key access: edl[\"hook\"] uses direct indexing (raises KeyError if absent) while edl.get(\"clips\", []) uses safe access. An EDL missing the \"hook\" key will crash build_caption with an unhandled KeyError instead of degrading gracefully.",
+   "evidence": "\"Clips: \" + \", \".join([edl[\"hook\"].get(\"channel\", \"?\")] + [c.get(\"channel\", \"?\") for c in edl.get(\"clips\", [])])]",
+   "fix": "Use edl.get(\"hook\", {}).get(\"channel\", \"?\") to match the defensive pattern used for clips.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 148,
+   "issue": "File handle leak: open(vpath) is not wrapped in a context manager; the handle is only released by CPython's reference-counting GC. Under CPython this is usually immediate, but under PyPy or in a long-lived process it can accumulate.",
+   "evidence": "pack_ok = os.path.exists(vpath) and json.load(open(vpath)).get(\"complete\") is True",
+   "fix": "Use a with-block: with open(vpath) as vf: pack_ok = json.load(vf).get(\"complete\") is True",
+   "agree": [],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F4",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 193,
+   "issue": "File handle leak in sha256 computation: open(path, \"rb\") is not in a context manager. For large video files the handle stays open until GC, and the entire file is read into memory at once.",
+   "evidence": "\"sha256\": hashlib.sha256(open(path, \"rb\").read()).hexdigest()",
+   "fix": "Use a with-block and chunked hashing: with open(path, 'rb') as fh: h = hashlib.sha256(); h.update(fh.read()); ... or read in chunks.",
+   "agree": [],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F5",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 219,
+   "issue": "No HTTP status check before calling resp.json(). If the Telegram API (or a proxy) returns a 502/503 with an HTML body, resp.json() raises an unhandled json.JSONDecodeError instead of a clear RuntimeError.",
+   "evidence": "resp = requests.post(f\"https://api.telegram.org/bot{tok}/{method}\", data={\"chat_id\": chat, **fields},\n                             files={field: fh}, timeout=600)\n    data = resp.json()",
+   "fix": "Add resp.raise_for_status() (or check resp.status_code) before resp.json(), wrapping in a try/except to produce a clear RuntimeError.",
+   "agree": [],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "pipeline/telegram.py",
+   "line": 139,
+   "issue": "gate_status treats any value starting with 'PASS' as a clean pass, but HOLD_OK explicitly promises 'no waivers'. If the gate report encodes a waived gate as e.g. 'PASS (waiver: G14)', startswith('PASS') matches and the caption will say HOLD FOR APPROVAL despite a waiver being present, violating the stated invariant.",
+   "evidence": "failing = [... if not k.endswith(\"(run_gates)\") and not str(v).startswith(\"PASS\")]  # 'PASS (waiver: G14)' passes this check\nHOLD_OK = \"HOLD FOR APPROVAL - all gates passed, no waivers\"",
+   "fix": "Tighten the check to require an exact 'PASS' match (or 'PASS' with no parenthetical): str(v).strip() == 'PASS', or explicitly reject values containing 'waiver'/'WAIVER'."
+  }
+ ],
+ "total_cost": 0.0130207285,
+ "out_dir": "docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_telegram_py"
+}

@@ -31,22 +31,36 @@ _AFTER_NUMBER = {"dollars", "dollar", "percent", "per", "cent"}
 
 
 def _spelled_numbers(tokens):
+    """'seventy four thousand' -> '74000', 'one hundred and twenty' -> '120'. Only a well-formed phrase is
+    joined: a unit after a unit or after a teen ('one two', 'eleven three') starts a new number, so a
+    count like 'one two three' stays three tokens (Heimdall: additive joining hid differences)."""
     out, i = [], 0
     while i < len(tokens):
         if tokens[i] in _UNITS or tokens[i] in _TENS:
-            total, cur, j = 0, 0, i
-            while j < len(tokens) and (tokens[j] in _UNITS or tokens[j] in _TENS or tokens[j] in _SCALES
-                                       or (tokens[j] == "and" and j + 1 < len(tokens) and tokens[j + 1] in _UNITS)):
+            total, cur, j, last = 0, 0, i, None
+            while j < len(tokens):
                 t = tokens[j]
                 if t in _UNITS:
+                    if last in ("unit",) or (last == "tens" and _UNITS[t] >= 10):
+                        break
                     cur += _UNITS[t]
+                    last = "unit"
                 elif t in _TENS:
+                    if last in ("unit", "tens"):
+                        break
                     cur += _TENS[t]
-                elif t == "hundred":
+                    last = "tens"
+                elif t == "hundred" and last in ("unit",):
                     cur *= 100
-                elif t in _SCALES:
+                    last = "hundred"
+                elif t in _SCALES and t != "hundred" and last is not None:
                     total += max(cur, 1) * _SCALES[t]
-                    cur = 0
+                    cur, last = 0, "scale"
+                elif (t == "and" and last in ("hundred", "scale") and j + 1 < len(tokens)
+                      and (tokens[j + 1] in _UNITS or tokens[j + 1] in _TENS)):
+                    last = "and"
+                else:
+                    break
                 j += 1
             out.append(str(total + cur))
             i = j
@@ -112,6 +126,8 @@ class Transcriber:
         self.model = WhisperModel(ASR["model"], device="cuda", compute_type="float16")
 
     def span(self, media, t0, t1):
+        if t1 - t0 < 0.05:
+            return ""
         with tempfile.TemporaryDirectory(prefix="g18_") as tmp:
             wav = os.path.join(tmp, "span.wav")
             subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0:.3f}", "-t", f"{t1 - t0:.3f}", "-i", media,
@@ -127,6 +143,10 @@ def gate_g18(final_path, segments, clips, transcriber=None):
     tr = transcriber or Transcriber()
     by_label = {s["label"]: s for s in segments}
     rows, ok_all = [], True
+    for s in segments:                       # every talking head in the final must be a checked clip
+        if s.get("type") == "talking_head" and s["label"] not in clips:
+            rows.append({"segment": s["label"], "pass": False, "error": "talking head without a selection lock"})
+            ok_all = False
     for label, c in clips.items():
         seg = by_label.get(label)
         if seg is None:

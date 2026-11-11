@@ -112,7 +112,10 @@ def classify(clip_path, detect=None):
         cap.set(cv2.CAP_PROP_POS_FRAMES, min(n_frames - 1, int(t * fps)))
         ok, frame = cap.read()
         label, fr = sample_label(detect(frame), w, h) if ok else ("uncertain", [])
-        samples.append({"t": round(float(t), 3), "class": label, "faces": [[round(a, 4), round(x), round(y)] for a, x, y in fr[:4]]})
+        if not ok:      # never silent (cross-LLM UF-1): counted in the plan, printed in the run log
+            print(f"  WARNING vertical_layout: frame unreadable in {os.path.basename(clip_path)} at {t:.2f} s -> uncertain")
+        samples.append({"t": round(float(t), 3), "class": label, "read_ok": bool(ok),
+                        "faces": [[round(a, 4), round(x), round(y)] for a, x, y in fr[:4]]})
     cap.release()
     if not samples:
         raise RuntimeError(f"no frames sampled from {clip_path}")
@@ -155,7 +158,7 @@ def classify(clip_path, detect=None):
     return {"clip": os.path.basename(clip_path), "width": w, "height": h, "fps": fps, "duration": round(dur, 4),
             "rules": {"SAMPLE_S": SAMPLE_S, "SCREEN_FACE_FRAC": SCREEN_FACE_FRAC, "PROMINENT_FRAC": PROMINENT_FRAC,
                       "MIN_BAND_RATIO": MIN_BAND_RATIO, "MIN_SHOT_S": MIN_SHOT_S},
-            "shots": shots, "samples": samples,
+            "shots": shots, "samples": samples, "unreadable_samples": sum(1 for s in samples if not s["read_ok"]),
             "flagged": any(s["flagged"] for s in shots)}
 
 

@@ -1,0 +1,23 @@
+# Heimdall audit
+
+**Question:** Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/test_transitions.py)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0156
+## Consensus findings (majority of panel agrees)
+- **[medium] pipeline/test_transitions.py:131** The critical frame-locking and speech-avoidance integration tests (TestConcat) are gated behind CUDA_VISIBLE_DEVICES=0, meaning the regression test for the ffmpeg 4.4.2 xfade offset bug and the A/V frame-lock verification will not execute in any CPU-only CI environment. The planning-logic tests (TestPlan) verify the correct frame counts and positions but cannot catch a rendering-level misalignment.
+  - evidence: `@unittest.skipUnless(os.environ.get("CUDA_VISIBLE_DEVICES") == "0", "NVENC concat needs GPU0")`
+  - fix: Add a CPU-fallback path (e.g., use libx264 concat with a manual crossfade filter) or at minimum document in CI config that a GPU runner is required for full coverage of requirement (c).
+  - raised by qwen27b:F1; agree: deepseek, qwen27b
+- **[low] pipeline/test_transitions.py:163** The assertion failure message in test_dissolved_clip_picture_and_sound_start_together prints frames 4-9 of B (x[s0+4:s0+10], b[4:10]) but the actual check is on frames 6-71 (k = np.arange(6, 72)). When the test fails, the debug output shows the wrong region, making diagnosis harder.
+  - evidence: `self.assertLess(float(np.max(np.abs(x[s0 + k] - b[k]))), 1.5, (x[s0 + 4:s0 + 10], b[4:10]))`
+  - fix: Change the message to show the actual mismatching region, e.g. (x[s0+k[np.argmax(np.abs(x[s0+k]-b[k]))]:s0+k[np.argmax(np.abs(x[s0+k]-b[k]))]+3], b[same slice]).
+  - raised by qwen27b:F3; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- qwen27b:F2 [low] _lumas() never releases the cv2.VideoCapture object, leaking a file descriptor and decoder context per call. In a test that calls it twice (once for the segment, once for the output) this is minor, but it can cause flaky failures on systems with limited open-file limits when many tests run in parallel. (agree: 1)
+
+## Added in cross-examination (not voted on)
+- deepseek: [medium] run_style calls TR.concat(..., 23, ...) passing 23 fps, but the synthetic segments are created at 24 fps and all subsequent frame math (dd = 6/24, n_frames = 3*72 - 6, s0 = ... * 24, etc.) assumes 24 fps. This mismatch will cause the integration tests to fail or test the wrong frame timing.
+
+
+saved: docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_test_transitions_py

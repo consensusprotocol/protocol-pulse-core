@@ -14,7 +14,9 @@
 #   only (pipeline/telegram.deliver_run): "HOLD FOR APPROVAL - all gates passed, no waivers" or
 #   "REVIEW ONLY" with the failing list.
 # - log: logs/pulse_check/run_<stamp>.log (git HEAD, run dir, exit code, delivery message ids)
-# Exit: run_fresh's code (0 = every gate passed, 3 = HOLD), 75 = locked, 64 = usage.
+# Exit (--foreground, and in the log): run_fresh's code (0 = every gate passed, 3 = HOLD), 70 = the run
+# rendered but the Telegram drop failed, 75 = locked, 64 = usage. The detached launcher exits 0 once the
+# tmux session is up (1 if tmux failed, 75 if a run already holds the lock); the run's code is in the log.
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 SELF="$REPO/scripts/pulse_check_run.sh"
@@ -26,8 +28,8 @@ ARGS=()
 ORIG=("$@")
 while [ $# -gt 0 ]; do
   case "$1" in
-    --pinned) [ $# -ge 2 ] || { echo "usage: --pinned PIN.json" >&2; exit 64; }
-              ARGS+=(--pinned "$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"); shift 2 ;;
+    --pinned) [ $# -ge 2 ] && [ -f "$2" ] || { echo "usage: --pinned PIN.json (file must exist)" >&2; exit 64; }
+              ARGS+=(--pinned "$(realpath "$2")"); shift 2 ;;
     --no-telegram) TELEGRAM=0; shift ;;
     --foreground) FOREGROUND=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 64 ;;
@@ -37,8 +39,15 @@ done
 CUR_SESSION=""
 [ -n "${TMUX:-}" ] && CUR_SESSION="$(tmux display-message -p '#S' 2>/dev/null || true)"
 if [ "$FOREGROUND" = 0 ] && [[ "$CUR_SESSION" != pipeline_* ]]; then
+  if ! ( exec 9>/tmp/pulse_check_run.lock; flock -n 9 ); then
+    echo "pulse_check_run: another run holds /tmp/pulse_check_run.lock" >&2; exit 75
+  fi
   NAME="pipeline_pulse_check_$STAMP"
-  tmux new-session -d -s "$NAME" "bash '$SELF' --foreground ${ORIG[*]}"
+  CMD="bash $(printf '%q' "$SELF") --foreground"
+  for a in "${ORIG[@]}"; do CMD+=" $(printf '%q' "$a")"; done
+  if ! tmux new-session -d -s "$NAME" "$CMD"; then
+    echo "pulse_check_run: tmux could not start session $NAME" >&2; exit 1
+  fi
   echo "started in tmux session $NAME (attach: tmux attach -t $NAME); log: $REPO/logs/pulse_check/"
   exit 0
 fi
@@ -63,6 +72,10 @@ echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
 if [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
   python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
     "$RUN_DIR" 2>&1 | tee -a "$LOG"
+  if [ "${PIPESTATUS[0]}" != 0 ]; then
+    echo "pulse_check_run: Telegram delivery FAILED (see above); run dir $RUN_DIR" | tee -a "$LOG"
+    exit 70
+  fi
 elif [ "$TELEGRAM" = 1 ]; then
   echo "no finals rendered: nothing delivered (the run's REPORT.md and status.json are the ledger)" | tee -a "$LOG"
 fi

@@ -73,5 +73,31 @@ class TestFadeRetry(unittest.TestCase):
         self.assertEqual(self.prepared, [])
 
 
+class TestGpu0Release(unittest.TestCase):
+    """Nov 11 recut run 3 OOM'd in prepare: another session had loaded a 22 GB model on the shared GPU0
+    Ollama. Whisper stages now release GPU0 first, like the editorial stage."""
+
+    def run_(self):
+        r = rf.Run(tempfile.mkdtemp(prefix="gpu0_"))
+        self.addCleanup(shutil.rmtree, r.dir, True)
+        return r
+
+    def test_unprovable_release_is_an_infrastructure_hold(self):
+        import story_semantics as sm
+        with mock.patch.object(sm, "LocalLLM", return_value=object()), \
+                mock.patch.object(sm, "release_gpu0_for_whisper", side_effect=RuntimeError("GPU0 release not proven")):
+            with self.assertRaises(rf.Hold) as cm:
+                rf.free_gpu0_for_whisper(self.run_(), "prepare")
+        self.assertIn("infrastructure: prepare", str(cm.exception))
+
+    def test_release_is_recorded(self):
+        import story_semantics as sm
+        run = self.run_()
+        with mock.patch.object(sm, "LocalLLM", return_value=object()), \
+                mock.patch.object(sm, "release_gpu0_for_whisper", return_value={"free_mib": 20000}):
+            rf.free_gpu0_for_whisper(run, "gates")
+        self.assertEqual(run.prov["gpu0_release"]["gates"], {"free_mib": 20000})
+
+
 if __name__ == "__main__":
     unittest.main()

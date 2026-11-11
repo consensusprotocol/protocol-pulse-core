@@ -1,0 +1,59 @@
+# Heimdall audit
+
+**Question:** Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: scripts/pulse_check_run.sh)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0117
+## Consensus findings (majority of panel agrees)
+- **[critical] scripts/pulse_check_run.sh:43** Default (non-foreground) path exits 0 before acquiring the lock, so a second invocation does not exit 75 and the script never returns run_fresh's exit code.
+  - evidence: `tmux new-session -d -s "$NAME" "bash '$SELF' --foreground ${ORIG[*]}"
+  echo "started in tmux session $NAME (attach: tmux attach -t $NAME); log: $REPO/logs/pulse_check/"
+  exit 0
+...
+exec 9>/tmp/pulse`
+  - fix: Acquire the lock before relaunching, or have the parent wait for the child and propagate its exit code; ensure a second invocation exits 75.
+  - raised by deepseek:F1; agree: deepseek, qwen27b
+- **[high] scripts/pulse_check_run.sh:41** Unquoted ${ORIG[*]} inside the tmux command string allows word splitting and shell metacharacter injection when original arguments contain spaces or special characters.
+  - evidence: `tmux new-session -d -s "$NAME" "bash '$SELF' --foreground ${ORIG[*]}"`
+  - fix: Build the command with printf '%q ' for each argument, or use tmux's command argument passing safely.
+  - raised by deepseek:F2; agree: deepseek, qwen27b
+- **[medium] scripts/pulse_check_run.sh:41** tmux new-session exit status is not checked; the script prints 'started' and exits 0 even if tmux fails to create the session.
+  - evidence: `tmux new-session -d -s "$NAME" "bash '$SELF' --foreground ${ORIG[*]}"
+  echo "started in tmux session $NAME (attach: tmux attach -t $NAME); log: $REPO/logs/pulse_check/"
+  exit 0`
+  - fix: Check the exit status of tmux new-session and exit non-zero on failure.
+  - raised by deepseek:F3; agree: deepseek, qwen27b
+- **[medium] scripts/pulse_check_run.sh:64** Telegram delivery failure is not checked; the script exits with run_fresh's code even if telegram.deliver_run fails, so a failed send is reported as success.
+  - evidence: `python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
+    "$RUN_DIR" 2>&1 | tee -a "$LOG"
+...
+exit "$RC"`
+  - fix: Capture the delivery command's exit status and exit non-zero (or at least log and fail) if delivery fails.
+  - raised by deepseek:F4; agree: deepseek, qwen27b
+- **[low] scripts/pulse_check_run.sh:30** If the directory of the --pinned path does not exist, the command substitution yields an empty string and the path becomes /basename, silently pointing to the filesystem root.
+  - evidence: `ARGS+=(--pinned "$(cd "$(dirname "$2")" && pwd)/$(basename "$2")")`
+  - fix: Check that cd succeeds before using the result, or use realpath/readlink -f.
+  - raised by deepseek:F5; agree: deepseek, qwen27b
+- **[medium] scripts/pulse_check_run.sh:44** Unquoted ${ORIG[*]} in the tmux relaunch command causes word-splitting of any argument containing spaces (e.g. a --pinned file path). The inner invocation receives a corrupted argument list and fails or mis-parses.
+  - evidence: `tmux new-session -d -s "$NAME" "bash '$SELF' --foreground ${ORIG[*]}"`
+  - fix: Build a properly-quoted command string, e.g. map ORIG elements through printf '%q ' and embed the result: CMD="bash '$SELF' --foreground $(printf '%q ' "${ORIG[@]}")"; tmux new-session -d -s "$NAME" "$CMD"
+  - raised by qwen27b:F1; agree: deepseek, qwen27b
+- **[medium] scripts/pulse_check_run.sh:44** No exit-status check on the tmux new-session call. If tmux is absent, the session name collides, or the command string is malformed, the script still prints 'started in tmux session …' and exits 0, giving the operator a false success signal while no run actually starts.
+  - evidence: `tmux new-session -d -s "$NAME" "bash '$SELF' --foreground ${ORIG[*]}"
+  echo "started in tmux session $NAME (attach: tmux attach -t $NAME); log: $REPO/logs/pulse_check/"
+  exit 0`
+  - fix: Capture the return code: if ! tmux new-session -d -s "$NAME" "$CMD" 2>/dev/null; then echo "ERROR: failed to start tmux session $NAME" >&2; exit 1; fi; then print the success message and exit 0.
+  - raised by qwen27b:F2; agree: deepseek, qwen27b
+- **[low] scripts/pulse_check_run.sh:43** The flock is acquired only after the tmux relaunch block (line 43-47). Two invocations in the same second both spawn a tmux session and print 'started' before either inner process reaches the lock; the second inner process then exits 75 silently inside the tmux pane. The operator sees two 'started' messages but only one run proceeds.
+  - evidence: `if [ "$FOREGROUND" = 0 ] && [[ "$CUR_SESSION" != pipeline_* ]]; then
+  NAME="pipeline_pulse_check_$STAMP"
+  tmux new-session -d -s "$NAME" "bash '$SELF' --foreground ${ORIG[*]}"
+  echo "started in tmu`
+  - fix: Acquire the lock before the tmux relaunch (move exec 9>/tmp/pulse_check_run.lock and the flock check above the if-block), or at minimum check flock in the outer path and only spawn tmux if the lock is free. Alternatively, have the outer invocation pass --foreground and let the single tmux session handle locking, eliminating the double-spawn window.
+  - raised by qwen27b:F3; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- deepseek: [high] The tmux relaunch does not set the working directory, so the inner invocation re-parses the original relative --pinned path relative to tmux's default cwd, not the caller's cwd. This can cause the wrong file to be used or the run to fail.
+- qwen27b: [medium] The python3 -c command imports 'telegram' as a top-level module. If the 'python-telegram-bot' package (which also installs a 'telegram' module) is present in the environment, the import may resolve to the wrong module, causing an AttributeError or silent mis-delivery. The script cd's into $REPO/pipeline first, so a local telegram.py would be found via sys.path[0]='', but a site-packages telegram/ package could shadow it depending on Python version and install method.

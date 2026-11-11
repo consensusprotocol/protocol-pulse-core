@@ -21,7 +21,10 @@ sys.path.insert(0, PIPELINE)
 
 def render_option(run_dir, style):
     import run_fresh as rf
+    import time
     import verify_pack
+    if style not in ("A", "B", "C"):
+        raise SystemExit(f"STOP: unknown option {style!r} (A, B or C)")
     dst = f"{run_dir.rstrip('/')}_option{style}"
     if os.path.exists(dst):
         raise SystemExit(f"STOP: {dst} exists")
@@ -39,9 +42,13 @@ def render_option(run_dir, style):
     with open(os.path.join(dst, "cuts_final.json")) as f:
         cuts = json.load(f)
     rf.TRANSITION_STYLE = style                     # the option, on the same cut
-    final16, man16, final9, man9 = rf.stage_render(run)
-    rows, flags, limits = rf.stage_gates(run, final16, man16, final9, man9)
-    verify_pack.build(dst)
+    try:
+        final16, man16, final9, man9 = rf.stage_render(run)
+        rows, flags, limits = rf.stage_gates(run, final16, man16, final9, man9)
+        verify_pack.build(dst)
+    except Exception:
+        os.rename(dst, f"{dst}_failed_{time.strftime('%H%M%S')}")    # kept for diagnosis; a retry can run
+        raise
     run.save()
     print(f"option {style}: {dst} | " + ", ".join(f"{fmt}: {rf.verdict_for(rows[fmt])[0]}" for fmt in rows))
     return dst, cuts

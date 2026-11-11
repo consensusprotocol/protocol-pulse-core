@@ -1,0 +1,83 @@
+{
+ "question": "Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/select_passages.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 86.3,
+   "cost": 0.000757454,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 35.9,
+   "cost": 0.0017931485,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 77.2,
+   "cost": 0.000701468,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 54.6,
+   "cost": 0.002376429,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "high",
+   "file": "pipeline/select_passages.py",
+   "line": 140,
+   "issue": "build_vertical_overrides now unconditionally sets layout 'auto' for every segment, ignoring the registry and approved hand layouts. Previously approved channels received 'crop' from their hand table; now they get 'auto', so the frozen v2f render path is altered when TRANSITIONS.json is absent and hand overrides exist (Law 22).",
+   "evidence": "overrides[label] = {\"layout\": \"auto\"}",
+   "fix": "Restore the approved-channel branch: if seg['channel'] in approved_channels: overrides[label] = {'layout': 'crop'} else: overrides[label] = {'layout': 'auto'}, or otherwise preserve hand overrides.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": [
+    "deepseek"
+   ]
+  },
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/select_passages.py",
+   "line": 132,
+   "issue": "The `registry` parameter is accepted but never read; the old code that loaded `channels.json` and built `approved_channels` is removed. This is explicitly documented as intentional ('kept for call compatibility'), so it is not a bug, but any caller that previously relied on passing a custom `registry` to influence layout selection will now silently get 'auto' for every segment with no warning or deprecation notice.",
+   "evidence": "def build_vertical_overrides(hook_seg, clip_segs, registry=None):",
+   "fix": "Optional: add a one-time deprecation log (e.g. `if registry is not None: logger.warning('registry param is no longer used; all layouts are now auto')`) so callers that still pass a non-None registry are aware the parameter is inert.",
+   "agree": [],
+   "disagree": [
+    "deepseek",
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0056284995,
+ "out_dir": "docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_select_passages_py"
+}

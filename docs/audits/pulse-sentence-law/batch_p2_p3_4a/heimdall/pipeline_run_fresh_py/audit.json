@@ -1,0 +1,230 @@
+{
+ "question": "Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/run_fresh.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 259.6,
+   "cost": 0.002912016,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 5,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 211.7,
+   "cost": 0.0070899046,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 6,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 193.5,
+   "cost": 0.001916296,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 196.7,
+   "cost": 0.0064000368,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "critical",
+   "file": "pipeline/run_fresh.py",
+   "line": 354,
+   "issue": "stage_validate now rejects any layout override that is not 'auto', so hand overrides such as 'crop' or 'letterbox' are no longer accepted. This changes what the existing validation accepts and breaks Law 22 / the frozen v2f path when layouts are hand overrides.",
+   "evidence": "if mode != \"auto\":                    # DEC-5: per-shot plan measured after prepare\n            layout_errors.append((label, channel, f\"expected auto, got {mode!r}\"))",
+   "fix": "Accept hand overrides (e.g., allow 'auto', 'crop', 'letterbox') or only enforce 'auto' when no explicit override is present.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F2",
+   "severity": "critical",
+   "file": "pipeline/run_fresh.py",
+   "line": 538,
+   "issue": "stage_layout reads vertical_overrides.json but then unconditionally overwrites every clip's entry with {'layout': 'auto', ...}, discarding any existing hand override. This violates Law 22 and the claim that hand overrides leave the frozen render path untouched.",
+   "evidence": "ov[cid] = {\"layout\": \"auto\", \"plan\": {k: v for k, v in plan.items() if k != \"samples\"}}",
+   "fix": "Only set ov[cid] if there is no existing hand override, or preserve the existing override and store the measured plan separately.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F3",
+   "severity": "high",
+   "file": "pipeline/run_fresh.py",
+   "line": 564,
+   "issue": "stage_render unconditionally calls write_transitions, so TRANSITIONS.json is always created. The frozen v2f render path is therefore not untouched when TRANSITIONS.json is absent; the code changes the render inputs even for hand-override runs.",
+   "evidence": "write_transitions(run, TRANSITION_STYLE)",
+   "fix": "Only call write_transitions when transitions are enabled (e.g., when a flag is set or when TRANSITIONS.json already exists), or gate it behind the same condition that enables the transition renderer.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F5",
+   "severity": "medium",
+   "file": "pipeline/run_fresh.py",
+   "line": 621,
+   "issue": "The code maps any class set that is not a single class to 'mixed', then maps 'mixed' to 'screenshare' via the default. A clip with mixed single and stack2 shots (no screen/uncertain) will be labelled screenshare, contradicting the comment that only screen/uncertain shots get the screenshare rule.",
+   "evidence": "cls = classes.pop() if len(classes) == 1 else \"mixed\"\n                sg[\"layout\"] = {\"single\": \"single\", \"stack2\": \"2face\", \"stack3\": \"3face\"}.get(cls, \"screenshare\")",
+   "fix": "Explicitly check whether any shot is screen/uncertain before defaulting to screenshare; otherwise handle mixed face layouts appropriately.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/run_fresh.py",
+   "line": 354,
+   "issue": "stage_validate layout-compatibility check changed what it accepts: previously it validated mode against 'crop' (approved) or 'letterbox' (pending); now it only accepts 'auto'. Any segment still carrying a legacy 'crop' or 'letterbox' mode will now raise Hold, breaking existing runs that predate DEC-5.",
+   "evidence": "if mode != \"auto\":                    # DEC-5: per-shot plan measured after prepare\n            layout_errors.append((label, channel, f\"expected auto, got {mode!r}\"))",
+   "fix": "Either migrate all existing segment definitions to 'auto' before deploying, or add a transitional branch that still accepts 'crop'/'letterbox' with a deprecation warning so in-flight runs are not broken.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/run_fresh.py",
+   "line": 564,
+   "issue": "write_transitions is called unconditionally at the top of stage_render, so TRANSITIONS.json is always written. If the frozen v2f render path (Law 22) keys off the *absence* of TRANSITIONS.json to skip transition logic, this call breaks the frozen path by making the file present on every run.",
+   "evidence": "write_transitions(run, TRANSITION_STYLE)",
+   "fix": "Guard the call: only write TRANSITIONS.json when the run is not on the frozen v2f path (e.g., check a run flag or the absence of hand-override markers). Alternatively, have the renderer treat an empty/absent lead_tail as 'no transitions' rather than relying on file absence.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "high",
+   "file": "pipeline/run_fresh.py",
+   "line": 529,
+   "issue": "stage_layout unconditionally overwrites every entry in vertical_overrides.json with {\"layout\": \"auto\", ...}, destroying any hand-set crop/letterbox overrides. If the frozen v2f path (Law 22) relies on hand overrides in that file, they are silently replaced before render.",
+   "evidence": "ov[cid] = {\"layout\": \"auto\", \"plan\": {k: v for k, v in plan.items() if k != \"samples\"}}",
+   "fix": "Skip the overwrite when the run is on the frozen v2f path, or merge: only set 'auto' for clips that do not already have an explicit hand override (e.g., check if ov[cid] already has a non-auto layout and preserve it).",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F4",
+   "severity": "medium",
+   "file": "pipeline/run_fresh.py",
+   "line": 575,
+   "issue": "In the G4-input block of stage_render, a talking_head segment whose plan has zero shots (empty 'shots' list) yields an empty 'classes' set, so cls becomes 'mixed', layout becomes 'screenshare', and source_faces becomes 1. A talking-head with no detected faces is mislabelled as a single-face screenshare rather than being flagged as an error.",
+   "evidence": "classes = {sh[\"class\"] for sh in plan[\"shots\"]}\n                cls = classes.pop() if len(classes) == 1 else \"mixed\"\n                sg[\"layout\"] = {\"single\": \"single\", \"stack2\": \"2face\", \"stack3\": \"3face\"}.get(cls, \"screenshare\")\n                sg[\"source_faces\"] = int(cls[-1]) if cls.startswith(\"stack\") else 1",
+   "fix": "Add a guard: if not classes (i.e., no shots detected), set layout to 'error' or raise a Hold so the gate catches it, rather than silently defaulting to 'screenshare' with source_faces=1.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F4",
+   "severity": "high",
+   "file": "pipeline/run_fresh.py",
+   "line": 773,
+   "issue": "G4s is supposed to check every label against the re-measured picture, but the call only passes plans (measured layout) and prepared (video files). It does not pass the manifests (man16/man9) or the segment labels, so it cannot compare labels to the picture. The gate is therefore not performing its stated function.",
+   "evidence": "ok, g4s[fmt] = V.gate_g4s(plans, prepared, vert_final=final9 if fmt == \"9x16\" else None,\n                                  vert_segments=segs9 if fmt == \"9x16\" else None)",
+   "fix": "Pass the relevant manifest or segment labels to gate_g4s so it can compare the labelled layout against the measured plan.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F5",
+   "severity": "medium",
+   "file": "pipeline/run_fresh.py",
+   "line": 770,
+   "issue": "G4s for the 16x9 format is called with vert_final=None and vert_segments=None, so it cannot verify that the actual 16x9 output uses the full-frame safe frame for screen/uncertain shots. The gate only checks the plan metadata, not the rendered picture, leaving a gap in the 'safe frame only for screen/uncertain' guarantee for 16x9.",
+   "evidence": "ok, g4s[fmt] = V.gate_g4s(plans, prepared, vert_final=final9 if fmt == \"9x16\" else None,\n                                  vert_segments=segs9 if fmt == \"9x16\" else None)",
+   "fix": "Pass vert_final=final16 and vert_segments=segs16 for the 16x9 case so G4s can verify the rendered 16x9 picture matches the plan (full frame for screen/uncertain, crop for single/stack).",
+   "agree": [],
+   "disagree": [
+    "deepseek",
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F6",
+   "severity": "low",
+   "file": "pipeline/run_fresh.py",
+   "line": 503,
+   "issue": "write_transitions writes lead_tail and channels for every clip including the first (open) and last (credits-adjacent). There is no marker or exclusion for boundary clips. If the renderer naively applies a transition at every clip boundary, it will crossfade at the open or into the credits, violating the 'never at the open or into the credits' requirement.",
+   "evidence": "for c in cuts:\n        ht = L.head_tail(L.SourceAudio(os.path.join(run.dir, \"qa\", f\"final_{c['clip_id']}.mp4\")))\n        lead_tail[c[\"clip_id\"]] = [ht[\"lead_ms\"] / 1000.0, ht[\"tail_ms\"] / 1000.0]",
+   "fix": "Either omit the first and last clip from lead_tail (or set their values to 0) and add a 'boundaries' field marking which clip indices are open/credits, or document that the renderer must ignore transitions at index 0 and the last index.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": [
+    "deepseek"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "critical",
+   "file": "pipeline/run_fresh.py",
+   "line": 795,
+   "issue": "stage_gates uses the variable cuts in the new G18 block, but cuts is not a parameter of stage_gates and is not defined locally, so this will raise NameError at runtime.",
+   "evidence": "g18_clips = {c[\"clip_id\"]: ... for c in cuts} inside stage_gates(run, final16, man16, final9, man9), where cuts is not in scope.",
+   "fix": "Pass cuts into stage_gates (e.g., stage_gates(run, cuts, final16, man16, final9, man9)) or derive the needed clip data from edl_now inside stage_gates."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "pipeline/run_fresh.py",
+   "line": 530,
+   "issue": "Key mismatch between segs dictionary and clip_id: segs is keyed by f\"clip_{c['index']:02d}\" (e.g. 'clip_01'), but stage_layout looks up segs[cid] where cid = c['clip_id']. If clip_id is not in 'clip_NN' format (e.g. a video ID or hash), this raises KeyError. The same mismatch exists in write_transitions where lead_tail is keyed by clip_id but channels is keyed by the segs keys ('clip_01' format), making the two sub-dicts in TRANSITIONS.json unmatchable by the renderer.",
+   "evidence": "segs = {\"hook\": edl[\"hook\"], **{f\"clip_{c['index']:02d}\": c for c in edl.get(\"clips\", [])}}\n...\nfor c in cuts:\n    cid = c[\"clip_id\"]\n    ...\n    segs[cid][\"vertical_layout\"] = ...",
+   "fix": "Use a consistent key: either key segs by clip_id (segs = {c['clip_id']: c for c in edl.get('clips', [])}) or look up by the formatted index. Ensure lead_tail and channels in TRANSITIONS.json use the same key space."
+  }
+ ],
+ "total_cost": 0.018318253399999998,
+ "out_dir": "docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_run_fresh_py"
+}

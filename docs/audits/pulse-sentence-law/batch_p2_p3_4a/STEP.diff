@@ -1,0 +1,2186 @@
+diff --git a/pipeline/face_scrfd.py b/pipeline/face_scrfd.py
+new file mode 100644
+index 00000000..a5184ed4
+--- /dev/null
++++ b/pipeline/face_scrfd.py
+@@ -0,0 +1,76 @@
++#!/usr/bin/env python3
++"""pipeline/face_scrfd.py — SCRFD-10G face detector (insightface buffalo_l det_10g.onnx) via
++onnxruntime (CPU). Used to MEASURE faces for the vertical layout class (DEC-2/DEC-5): the
++BlazeFace short-range model misses medium/small faces (Yahoo Finance's standing host, 2026-11-11) and
++the Haar cascade over-counts (2-4 'faces' on a single talking head). Detection measures; the layout
++rules in vertical_layout.py decide, deterministically."""
++import os
++
++import cv2
++import numpy as np
++
++MODEL = os.path.expanduser("~/.insightface/models/buffalo_l/det_10g.onnx")
++MODEL_SHA256 = "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91"   # pinned 2026-11-11
++INPUT = 640
++SCORE_MIN = 0.5
++NMS_IOU = 0.4
++_SESSION = None
++
++
++def _session():
++    global _SESSION
++    if _SESSION is None:
++        import hashlib
++        import onnxruntime as ort
++        # the layout classes are only reproducible with this exact model: fail closed on any other
++        if not os.path.exists(MODEL):
++            raise FileNotFoundError(f"STOP: SCRFD model missing: {MODEL}")
++        with open(MODEL, "rb") as f:
++            digest = hashlib.sha256(f.read()).hexdigest()
++        if digest != MODEL_SHA256:
++            raise RuntimeError(f"STOP: SCRFD model sha256 {digest[:12]}... is not the pinned {MODEL_SHA256[:12]}...")
++        # CPU on purpose: this host's onnxruntime CUDA provider lacks cuDNN 8, and ~12 frames per clip
++        # need no GPU (GPU1 must never be touched; GPU0 stays free for whisper/NVENC)
++        _SESSION = ort.InferenceSession(MODEL, providers=["CPUExecutionProvider"])
++    return _SESSION
++
++
++def _nms(boxes, scores):
++    order, keep = scores.argsort()[::-1], []
++    while order.size:
++        i = order[0]
++        keep.append(i)
++        xx1, yy1 = np.maximum(boxes[i, 0], boxes[order[1:], 0]), np.maximum(boxes[i, 1], boxes[order[1:], 1])
++        xx2, yy2 = np.minimum(boxes[i, 2], boxes[order[1:], 2]), np.minimum(boxes[i, 3], boxes[order[1:], 3])
++        inter = np.maximum(0, xx2 - xx1) * np.maximum(0, yy2 - yy1)
++        area = lambda b: (b[..., 2] - b[..., 0]) * (b[..., 3] - b[..., 1])
++        iou = inter / (area(boxes[i]) + area(boxes[order[1:]]) - inter + 1e-9)
++        order = order[1:][iou <= NMS_IOU]
++    return keep
++
++
++def detect(bgr):
++    """Faces in a BGR frame as [(x0, y0, x1, y1, score)] in frame pixels, largest first."""
++    h, w = bgr.shape[:2]
++    scale = INPUT / max(h, w)
++    nh, nw = int(round(h * scale)), int(round(w * scale))
++    canvas = np.zeros((INPUT, INPUT, 3), np.uint8)
++    canvas[:nh, :nw] = cv2.resize(bgr, (nw, nh))
++    blob = cv2.dnn.blobFromImage(canvas, 1.0 / 128, (INPUT, INPUT), (127.5, 127.5, 127.5), swapRB=True)
++    sess = _session()
++    outs = sess.run(None, {sess.get_inputs()[0].name: blob})
++    boxes, scores = [], []
++    for idx, stride in enumerate((8, 16, 32)):
++        sc, bb = outs[idx].reshape(-1), outs[idx + 3].reshape(-1, 4) * stride
++        g = INPUT // stride
++        centers = (np.stack(np.mgrid[:g, :g][::-1], axis=-1).reshape(-1, 2) * stride).astype(np.float32)
++        centers = np.repeat(centers, 2, axis=0)                     # two anchors per location
++        keep = sc >= SCORE_MIN
++        c, d = centers[keep], bb[keep]
++        boxes.append(np.stack([c[:, 0] - d[:, 0], c[:, 1] - d[:, 1], c[:, 0] + d[:, 2], c[:, 1] + d[:, 3]], 1))
++        scores.append(sc[keep])
++    boxes, scores = np.concatenate(boxes) / scale, np.concatenate(scores)
++    if not len(scores):
++        return []
++    out = [(*boxes[i].tolist(), float(scores[i])) for i in _nms(boxes, scores)]
++    return sorted(out, key=lambda f: -(f[2] - f[0]) * (f[3] - f[1]))
+diff --git a/pipeline/render16.py b/pipeline/render16.py
+index e001edf3..1561a39f 100644
+--- a/pipeline/render16.py
++++ b/pipeline/render16.py
+@@ -363,15 +363,17 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
+ 
+     concat_raw = os.path.join(qa_dir, "concat_raw.mp4")
+     concat_partial = concat_raw.replace(".mp4", ".partial.mp4")
+-    subprocess.run([
+-        "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
+-        "-vf", "setpts=PTS-STARTPTS",
+-        "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+-        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
+-        "-pix_fmt", "yuv420p",
+-        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+-        "-movflags", "+faststart", concat_partial,
+-    ], capture_output=True, timeout=600, check=True)
++    timeline = _transition_concat(segment_dir, segments, concat_partial, WIDTH, HEIGHT, qa_dir)
++    if timeline is None:                     # no TRANSITIONS.json: the frozen hard-cut concat (v2f)
++        subprocess.run([
++            "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
++            "-vf", "setpts=PTS-STARTPTS",
++            "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
++            "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
++            "-pix_fmt", "yuv420p",
++            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
++            "-movflags", "+faststart", concat_partial,
++        ], capture_output=True, timeout=600, check=True)
+     os.replace(concat_partial, concat_raw)
+     concat_dur = get_duration(concat_raw)
+     print(f"  Concat: {concat_dur:.2f}s")
+@@ -387,6 +389,8 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
+             shoutout_start = cumulative
+             break
+         cumulative += dur
++    if timeline is not None:
++        shoutout_start = next(e["start"] for e in timeline if e["label"] == "shoutout")
+ 
+     print(f"  Watermark: 0 -> {shoutout_start:.2f}s")
+ 
+@@ -496,12 +500,15 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
+ 
+     cumul = 0.0
+     manifest_segments = []
+-    for label, path, seg_type in segments:
+-        dur = get_duration(path)
++    tl = {e["label"]: e for e in timeline} if timeline is not None else {}
++    for label, path, seg_type in (segments if timeline is None else
++                                  [(e["label"], None, e["type"]) for e in timeline]):
++        dur = get_duration(path) if timeline is None else tl[label]["end"] - tl[label]["start"]
++        start = cumul if timeline is None else tl[label]["start"]
+         seg_entry = {
+             "label": label,
+-            "start": round(cumul, 3),
+-            "end": round(cumul + dur, 3),
++            "start": round(start, 3),
++            "end": round(start + dur, 3),
+             "type": seg_type,
+         }
+ 
+@@ -547,6 +554,21 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
+     return final_path, manifest_path, vo_assembled_tracks
+ 
+ 
++def _transition_concat(segment_dir, segments, out_path, w, h, qa_dir):
++    """Phase 3 / DEC-4: when the run declares TRANSITIONS.json, concatenate with transitions between
++    segments of different channels (pipeline/transitions.py) and return the timeline; else None."""
++    tr_path = os.path.join(segment_dir, "TRANSITIONS.json")
++    if not os.path.exists(tr_path):
++        return None
++    import transitions as TR
++    with open(tr_path) as f:
++        tr = json.load(f)
++    junctions = TR.plan(segments, tr["channels"], {k: tuple(v) for k, v in tr["lead_tail"].items()},
++                        tr["style"])
++    print(f"  Transitions ({tr['style']}): {[(j['after'], j['frames'], j['kind']) for j in junctions]}")
++    return TR.concat(segments, junctions, out_path, NVENC_QP_FINAL, w, h, qa_dir)
++
++
+ # ── Helpers for finding pre-rendered clip files ──
+ 
+ def _find_clip_file(qa_dir, clip_id, cuts=None, sources_dir=None):
+diff --git a/pipeline/render_vertical.py b/pipeline/render_vertical.py
+index 57e9408d..19fa58eb 100644
+--- a/pipeline/render_vertical.py
++++ b/pipeline/render_vertical.py
+@@ -352,6 +352,60 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
+     return False, "letterbox"
+ 
+ 
++# ==============================================================
++# AUTO (DEC-2/DEC-5, 2026-11-11): per-shot plan from vertical_layout.classify
++# ==============================================================
++
++LETTERBOX_VF = ("split[main][bg];[bg]scale=-2:2400:flags=lanczos,crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
++                "boxblur=20:5,colorlevels=rimax=0.65:gimax=0.65:bimax=0.65[bgout];"
++                f"[main]scale={VERT_W}:-2:flags=lanczos[mainout];[bgout][mainout]overlay=(W-w)/2:(H-h)/2")
++
++
++def _shot_vf(shot, src_w, src_h):
++    """Filter for one shot of a 1920x1080 prepared clip -> 1080x1920 (approved filters reused)."""
++    cls = shot["class"]
++    if cls == "single":                                   # v2f fixed speaker-centred crop (Law 18a)
++        x = max(0, min(src_w - CROP_W, int(shot["face_cx"]) - CROP_W // 2))
++        return f"crop={CROP_W}:{CROP_H}:{x}:0,scale={VERT_W}:{VERT_H}:flags=lanczos"
++    if cls in ("stack2", "stack3"):                       # equal bands, left to right (Law 18b equal mode)
++        n = int(cls[-1])
++        bh = VERT_H // n
++        cw = src_w // n
++        ch = int(round(cw * bh / VERT_W))
++        parts = [f"split={n}" + "".join(f"[b{i}]" for i in range(n)) + ";"]
++        for i, (cx, cy) in enumerate(zip(shot["band_cx"], shot["band_cy"])):   # each face at 40 % of its band
++            x = max(0, min(src_w - cw, int(cx) - cw // 2))
++            y = max(0, min(src_h - ch, int(cy) - int(ch * 0.4)))
++            parts.append(f"[b{i}]crop={cw}:{ch}:{x}:{y},scale={VERT_W}:{bh}:flags=lanczos[s{i}];")
++        return "".join(parts) + "".join(f"[s{i}]" for i in range(n)) + f"vstack=inputs={n},pad={VERT_W}:{VERT_H}"
++    return LETTERBOX_VF                                   # screen / uncertain: safe frame (flagged)
++
++
++def reframe_auto(seg_path, output_path, seg_label, plan):
++    """Per-shot 9:16 from the PREPARED clip (lead-in pad and fades identical to 16:9). Video only is
++    re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
++    fps = plan["fps"]
++    graph, labels = [], []
++    for k, shot in enumerate(plan["shots"]):
++        a, b = int(round(shot["start"] * fps)), int(round(shot["end"] * fps))
++        graph.append(f"[0:v]trim=start_frame={a}:end_frame={b},setpts=PTS-STARTPTS,"
++                     f"{_shot_vf(shot, plan['width'], plan['height'])},setsar=1:1[v{k}]")
++        labels.append(f"[v{k}]")
++    graph.append("".join(labels) + f"concat=n={len(labels)}:v=1:a=0[vout]")
++    r = subprocess.run([
++        "ffmpeg", "-y", "-i", seg_path, "-filter_complex", ";".join(graph),
++        "-map", "[vout]", "-map", "0:a", "-r", str(FPS),
++        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
++        "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", output_path,
++    ], capture_output=True, timeout=600)
++    if r.returncode != 0:
++        print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
++        return False, "auto"
++    summary = "+".join(f"{s['class']}[{s['start']:.2f}-{s['end']:.2f}]" for s in plan["shots"])
++    print(f"    Reframe auto {seg_label}: {summary}")
++    return True, f"auto:{summary}"
++
++
+ # ==============================================================
+ # VO VISUAL (native 9:16) — face-crop BG from preceding clip
+ # ==============================================================
+@@ -710,6 +764,10 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+                     ok, crop_rect = reframe_grid(trimmed, vert_path, clip_id, override)
+                 else:
+                     ok, crop_rect = reframe_single(trimmed, vert_path, clip_id, override)
++            elif layout == "auto":
++                # DEC-2/DEC-5: per-shot plan measured on the prepared clip (vertical_layout.classify)
++                src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
++                ok, crop_rect = reframe_auto(src_clip, vert_path, clip_id, override["plan"])
+             elif layout == "letterbox":
+                 # M21: Full 16:9 letterbox for unapproved channels
+                 src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
+@@ -718,12 +776,11 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+                 src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
+                 ok, crop_rect = reframe_fixed_crop(src_clip, vert_path, clip_id)
+ 
+-        if ok:
+-            reframed[clip_id] = vert_path
+-            crop_rects[clip_id] = crop_rect
+-        else:
+-            print(f"  WARNING: reframe failed for {clip_id}, using original")
+-            reframed[clip_id] = src_clip
++        if not ok:
++            # M12 fail closed (2026-11-11): never drop a 16:9 clip into the 9:16 timeline
++            raise RuntimeError(f"STOP: vertical reframe failed for {clip_id} (layout {crop_rect})")
++        reframed[clip_id] = vert_path
++        crop_rects[clip_id] = crop_rect
+ 
+     print(f"\n  Reframed: {list(reframed.keys())}")
+ 
+@@ -852,17 +909,20 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+             f.write(f"file '{path}'\n")
+ 
+     concat_raw = os.path.join(qa_dir, "concat_raw_vert.mp4")
+-    r = subprocess.run([
+-        "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
+-        "-vf", "setpts=PTS-STARTPTS",
+-        "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+-        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
+-        "-pix_fmt", "yuv420p",
+-        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+-        "-movflags", "+faststart", concat_raw,
+-    ], capture_output=True, timeout=600)
+-    if r.returncode != 0:
+-        print(f"  ffmpeg stderr: {r.stderr.decode()[-500:]}")
++    from render16 import _transition_concat
++    timeline = _transition_concat(segment_dir, segments, concat_raw, VERT_W, VERT_H, qa_dir)
++    if timeline is None:                     # no TRANSITIONS.json: the frozen hard-cut concat (v2f)
++        r = subprocess.run([
++            "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
++            "-vf", "setpts=PTS-STARTPTS",
++            "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
++            "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
++            "-pix_fmt", "yuv420p",
++            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
++            "-movflags", "+faststart", concat_raw,
++        ], capture_output=True, timeout=600)
++        if r.returncode != 0:
++            print(f"  ffmpeg stderr: {r.stderr.decode()[-500:]}")
+     concat_dur = get_duration(concat_raw)
+     print(f"  Concat: {concat_dur:.2f}s")
+ 
+@@ -877,6 +937,8 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+             shoutout_start = cumulative
+             break
+         cumulative += dur
++    if timeline is not None:
++        shoutout_start = next(e["start"] for e in timeline if e["label"] == "shoutout")
+ 
+     print(f"  Watermark: 0 -> {shoutout_start:.2f}s")
+ 
+@@ -986,12 +1048,15 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+ 
+     cumul = 0.0
+     manifest_segments = []
+-    for label, path, seg_type in segments:
+-        dur = get_duration(path)
++    tl = {e["label"]: e for e in timeline} if timeline is not None else {}
++    for label, path, seg_type in (segments if timeline is None else
++                                  [(e["label"], None, e["type"]) for e in timeline]):
++        dur = get_duration(path) if timeline is None else tl[label]["end"] - tl[label]["start"]
++        start = cumul if timeline is None else tl[label]["start"]
+         seg_entry = {
+             "label": label,
+-            "start": round(cumul, 3),
+-            "end": round(cumul + dur, 3),
++            "start": round(start, 3),
++            "end": round(start + dur, 3),
+             "type": seg_type,
+         }
+ 
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 5265476b..9018ec19 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -351,12 +351,11 @@ def stage_validate(run):
+         if rec is None:
+             layout_errors.append((label, channel, "unknown channel"))
+             continue
+-        expected = "crop" if rec.get("layout_status") == "approved" else "letterbox"
+-        if mode != expected:
+-            layout_errors.append((label, channel, f"expected {expected}, got {mode!r}"))
++        if mode != "auto":                    # DEC-5: per-shot plan measured after prepare
++            layout_errors.append((label, channel, f"expected auto, got {mode!r}"))
+     run.prov["layout_compat"] = {"segments": [(l, s.get("channel")) for l, s in segs],
+                                  "vertical_overrides": ov,
+-                                 "policy": "approved=crop; pending=letterbox"}
++                                 "policy": "DEC-5: auto (per-shot plan after prepare)"}
+     if layout_errors:
+         raise Hold(f"layout compatibility: {layout_errors}")
+     for l, s in segs:
+@@ -495,6 +494,60 @@ def stage_prepare(run, cuts):
+         raise Hold(f"clip-preparation contract / edge-word check failed for {fails}")
+ 
+ 
++# ── transitions (Phase 3, DEC-4) ──
++
++TRANSITION_STYLE = "crossfade"   # DEC-4 production default: 6-frame dissolve + audio crossfade
++
++
++def write_transitions(run, style):
++    """TRANSITIONS.json for both renderers: style, each clip's measured genuine lead-in / tail (the
++    only time a transition may overlap) and channel (transitions only between different channels)."""
++    with open(os.path.join(run.dir, "cuts_final.json")) as f:
++        cuts = json.load(f)
++    with open(os.path.join(run.dir, "edl.json")) as f:
++        edl = json.load(f)
++    segs = {"hook": edl["hook"], **{f"clip_{c['index']:02d}": c for c in edl.get("clips", [])}}
++    lead_tail = {}
++    for c in cuts:
++        ht = L.head_tail(L.SourceAudio(os.path.join(run.dir, "qa", f"final_{c['clip_id']}.mp4")))
++        lead_tail[c["clip_id"]] = [ht["lead_ms"] / 1000.0, ht["tail_ms"] / 1000.0]
++    rec = {"style": style, "lead_tail": lead_tail,
++           "channels": {cid: seg.get("channel") for cid, seg in segs.items()}}
++    jdump(os.path.join(run.dir, "TRANSITIONS.json"), rec)
++    run.prov["transitions"] = rec
++
++
++# ── stage 8b: vertical layout (DEC-2 / DEC-5) ──
++
++def stage_layout(run, cuts):
++    """Measure every prepared clip per shot (vertical_layout.classify: SCRFD faces, fixed rules) and
++    record the plan: vertical_overrides.json (renderer input), VERTICAL_LAYOUT.json (all samples) and
++    edl.json segment 'vertical_layout' (shot classes, flagged safe frames) for gates and the caption."""
++    import vertical_layout as V
++    qa = os.path.join(run.dir, "qa")
++    with open(os.path.join(run.dir, "vertical_overrides.json")) as f:
++        ov = json.load(f)
++    with open(os.path.join(run.dir, "edl.json")) as f:
++        edl = json.load(f)
++    segs = {"hook": edl["hook"], **{f"clip_{c['index']:02d}": c for c in edl.get("clips", [])}}
++    plans = {}
++    for c in cuts:
++        cid = c["clip_id"]
++        plan = V.classify(os.path.join(qa, f"final_{cid}.mp4"))
++        plans[cid] = plan
++        ov[cid] = {"layout": "auto", "plan": {k: v for k, v in plan.items() if k != "samples"}}
++        segs[cid]["vertical_layout"] = {"shots": [{k: sh[k] for k in ("start", "end", "class", "flagged")}
++                                                  for sh in plan["shots"]], "flagged": plan["flagged"]}
++        print(f"  {cid}: " + " | ".join(f"{sh['class']} {sh['start']:.2f}-{sh['end']:.2f}"
++                                        + (" (SAFE FRAME, flagged)" if sh["flagged"] else "")
++                                        for sh in plan["shots"]))
++    jdump(os.path.join(run.dir, "vertical_overrides.json"), ov)
++    jdump(os.path.join(run.dir, "VERTICAL_LAYOUT.json"), plans)
++    jdump(os.path.join(run.dir, "edl.json"), edl)
++    run.prov["vertical_layout"] = {cid: [(sh["class"], sh["start"], sh["end"]) for sh in p["shots"]]
++                                   for cid, p in plans.items()}
++
++
+ # ── stage 9: render ──
+ 
+ FALLBACK_RE = re.compile(r"reframe failed for (\S+), using original")
+@@ -508,6 +561,7 @@ def stage_render(run):
+     from config import resolve_paths
+ 
+     paths = resolve_paths(run.dir)
++    write_transitions(run, TRANSITION_STYLE)
+     build_shoutout(run.dir, None, "16x9")
+     build_shoutout(run.dir, None, "9x16")
+     preflight_check(run.dir)
+@@ -551,6 +605,23 @@ def stage_render(run):
+         "outro conform failed" in log9.lower()
+     fb["fallback_occurred"] = bool(fb["log_hits"] or fb["structural"])
+     run.prov["vertical_fallback_check"] = fb
++
++    # G4 input (DEC-2/DEC-5): each talking-head entry carries its clip-level layout. A clip with any
++    # screen/uncertain shot gets G4's existing 'screenshare' rule here; the per-shot G4 in stage_gates
++    # applies the face rules to every talking-head shot, and G4s checks every label against the picture.
++    with open(os.path.join(run.dir, "VERTICAL_LAYOUT.json")) as f:
++        plans = json.load(f)
++    for man in (man16, man9):
++        with open(man) as f:
++            m = json.load(f)
++        for sg in m["segments"]:
++            plan = plans.get(sg["label"]) if sg.get("type") == "talking_head" else None
++            if plan:
++                classes = {sh["class"] for sh in plan["shots"]}
++                cls = classes.pop() if len(classes) == 1 else "mixed"
++                sg["layout"] = {"single": "single", "stack2": "2face", "stack3": "3face"}.get(cls, "screenshare")
++                sg["source_faces"] = int(cls[-1]) if cls.startswith("stack") else 1
++        jdump(man, m)
+     return final16, man16, final9, man9
+ 
+ 
+@@ -686,6 +757,23 @@ def stage_gates(run, final16, man16, final9, man9):
+                           "last_segment": last.get("label"), "conform_fallback": fallback}
+         rows[fmt].update(tail_rows(res["G9_tail"]["pass"], fallback))
+ 
++    # G4 per shot + G4s layout truth (DEC-2 / DEC-5)
++    import vertical_layout as V
++    with open(os.path.join(run.dir, "VERTICAL_LAYOUT.json")) as f:
++        plans = json.load(f)
++    prepared = {cid: os.path.join(qa, f"final_{cid}.mp4") for cid in plans}
++    g4_shots, g4s = {}, {}
++    for fmt, final, man, sgs in (("16x9", final16, man16, segs16), ("9x16", final9, man9, segs9)):
++        g4dir = os.path.join(qa, f"g4_shots_{fmt}")
++        os.makedirs(g4dir, exist_ok=True)
++        with open(man) as f:
++            shout = json.load(f).get("shoutout_start", 0)
++        ok, g4_shots[fmt] = qa_gates.gate_g4(final, V.per_shot_manifest(sgs, plans), fmt, shout, g4dir)
++        rows[fmt]["G4_faces_per_shot"] = _status(ok)
++        ok, g4s[fmt] = V.gate_g4s(plans, prepared, vert_final=final9 if fmt == "9x16" else None,
++                                  vert_segments=segs9 if fmt == "9x16" else None)
++        rows[fmt]["G4s_layout_truth"] = _status(ok)
++
+     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
+     g16_ok, g16 = L.gate_g16(run.dir)
+     for fmt in ("16x9", "9x16"):
+@@ -699,6 +787,26 @@ def stage_gates(run, final16, man16, final9, man9):
+     rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok)
+     rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok)
+ 
++    # G18 WORD-FOR-WORD (mission 4a): every clip's first/last words are its locked sentences' and its
++    # words are exactly those of the source span it was cut from (both finals; whisper on GPU0)
++    import word_diff as WD
++    with open(os.path.join(run.dir, "edl.json")) as f:
++        edl_now = json.load(f)
++    locks = {"hook": edl_now["hook"].get("selection_lock"),
++             **{f"clip_{c['index']:02d}": c.get("selection_lock") for c in edl_now.get("clips", [])}}
++    g18_clips = {c["clip_id"]: {"lock_text": (locks.get(c["clip_id"]) or {}).get("text", ""),
++                                "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
++                                "cut_in": c["cut_in"], "cut_out": c["cut_out"]} for c in cuts}
++    missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
++    tr = WD.Transcriber()
++    g18 = {}
++    for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
++        ok, g18[fmt] = WD.gate_g18(final, sgs, g18_clips, transcriber=tr)
++        rows[fmt]["G18_word_for_word"] = _status(ok and not missing)
++    del tr
++    if missing:
++        g18["missing_selection_lock"] = missing
++
+     fb = run.prov["vertical_fallback_check"]
+     rows["9x16"]["vertical_silent_fallback"] = "FAIL (fallback occurred)" if fb["fallback_occurred"] \
+         else "PASS (no fallback)"
+@@ -706,7 +814,8 @@ def stage_gates(run, final16, man16, final9, man9):
+     gates_out = {"rows": rows, "flags": flags, "limitations": limits,
+                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
+                  "G15_16x9": g15_16, "G15_9x16": g15_9, "G8": g8_report, "G9": g9_report, "G16": g16,
+-                 "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9},
++                 "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18,
++                 "G4_per_shot": g4_shots, "G4s": g4s,
+                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
+     jdump(os.path.join(run.dir, "GATE_REPORT.json"), gates_out)
+     run.prov["gates"] = {"rows": rows, "flags": flags, "limitations": limits}
+@@ -893,9 +1002,13 @@ def main():
+         run.stage("sentence_law", lambda: stage_sentence_law(run))
+         run.stage("voice", lambda: stage_voice(run))
+         run.stage("prepare", lambda: stage_prepare(run, cuts))
++        run.stage("layout", lambda: stage_layout(run, cuts))
+         final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
+         rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16,
+                                                                       final9, man9))
++        # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
++        import verify_pack
++        run.stage("verify", lambda: verify_pack.build(run.dir))
+         v16, bad16 = verdict_for(rows["16x9"])
+         v9, bad9 = verdict_for(rows["9x16"])
+         run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
+diff --git a/pipeline/select_passages.py b/pipeline/select_passages.py
+index df63a787..e1dcb327 100644
+--- a/pipeline/select_passages.py
++++ b/pipeline/select_passages.py
+@@ -129,27 +129,16 @@ def _generate_vo_script(keyword, hook_text, clips, channels):
+ 
+ 
+ def build_vertical_overrides(hook_seg, clip_segs, registry=None):
+-    """vertical_overrides.json content — default letterbox for all (M21).
+-    Channels with approved hand tables use those ('crop'); others get letterbox.
+-    Shared by AUTO (select_and_build_edl) and PINNED (pinned.build_edl)."""
+-    if registry is None:
+-        registry = []
+-        channels_path = os.path.join(PIPELINE_DIR, "channels.json")
+-        if os.path.exists(channels_path):
+-            with open(channels_path) as f:
+-                registry = json.load(f)
+-    approved_channels = set()
+-    for ch in registry:
+-        if ch.get("layout_status") == "approved":
+-            approved_channels.add(ch.get("display_name", ""))
+-
++    """vertical_overrides.json content. DEC-5 (orchestrator, delegated by PBX, 2026-11-11): every
++    segment, approved or pending channel, gets layout 'auto' - the approved speaker-centred reframe,
++    stacked bands for 2-3 people, the safe frame only for a shared screen or an unidentifiable speaker
++    (flagged). The per-shot plan is measured on the prepared clip in run_fresh's 'layout' stage
++    (vertical_layout.py). M21's letterbox-by-registry-status default is retired. `registry` is kept
++    for call compatibility. Shared by AUTO (select_and_build_edl) and PINNED (pinned.build_edl)."""
+     overrides = {}
+     for seg in [hook_seg] + clip_segs:
+         label = "hook" if seg is hook_seg else f"clip_{seg['index']:02d}"
+-        if seg["channel"] in approved_channels:
+-            overrides[label] = {"layout": "crop"}  # Use approved layout
+-        else:
+-            overrides[label] = {"layout": "letterbox"}  # M21
++        overrides[label] = {"layout": "auto"}
+     return overrides
+ 
+ 
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index 93e755b6..22d85afd 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -115,3 +115,109 @@ def _send_via_requests(final_16, final_9, segment_dir):
+             print(f"  Telegram {label}: message_id={data['result']['message_id']}")
+         else:
+             raise RuntimeError(f"STOP: Telegram send failed ({label}): {data}")
++
++
++# ==============================================================
++# run_fresh drops (mission 4a / DEC-8, 2026-11-11): both aspects, the verdict in the caption
++# ==============================================================
++
++HOLD_OK = "HOLD FOR APPROVAL - all gates passed, no waivers"
++REVIEW = "REVIEW ONLY"
++CAPTION_MAX = 1024                       # Telegram caption limit
++DIMS = {"16x9": (1920, 1080), "9x16": (1080, 1920)}
++
++
++def gate_status(run_dir):
++    """(all_pass, failing) from GATE_REPORT.json: every row of both formats must read PASS. Placeholder rows
++    '<gate>(run_gates)' point to the real row (G11 parity in 9x16) and are not results themselves."""
++    with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
++        rows = json.load(f)["rows"]
++    failing = [f"{k} ({fmt}): {v[:60]}" for fmt in ("16x9", "9x16") for k, v in rows.get(fmt, {}).items()
++               if not k.endswith("(run_gates)") and not str(v).startswith("PASS")]
++    if not rows.get("16x9") or not rows.get("9x16"):
++        failing.append("gate rows missing for a format")
++    return not failing, failing
++
++
++def build_caption(run_dir, fmt, option=None):
++    """Verdict line first: HOLD FOR APPROVAL only when every gate passed with no waiver AND the
++    automated verification pack is complete; otherwise REVIEW ONLY with the failing list."""
++    import vertical_layout
++    ok, failing = gate_status(run_dir)
++    vpath = os.path.join(run_dir, "VERIFY", "VERIFICATION.json")
++    pack_ok = os.path.exists(vpath) and json.load(open(vpath)).get("complete") is True
++    if not pack_ok:
++        failing.append("verification pack missing or incomplete")
++    with open(os.path.join(run_dir, "edl.json")) as f:
++        edl = json.load(f)
++    head = HOLD_OK if (ok and pack_ok) else f"{REVIEW} - {len(failing)} failing"
++    if option:
++        head = f"OPTION {option} (transition choice, not a release candidate) | {head}"
++    lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}",
++             f"Story: {edl.get('topic', '')}",
++             "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
++    note = vertical_layout.layout_note(edl) if fmt == "9x16" else ""
++    if note:
++        lines.append(note)
++    if failing:
++        lines.append("Failing: " + "; ".join(failing))
++    cap = "\n".join(lines)
++    return cap if len(cap) <= CAPTION_MAX else cap[:CAPTION_MAX - 20] + " ...(see GATE_REPORT)"
++
++
++def _dims(path):
++    import subprocess
++    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
++                        "stream=width,height:format=duration", "-of", "json", path],
++                       capture_output=True, text=True, check=True, timeout=30)
++    j = json.loads(r.stdout)
++    return int(j["streams"][0]["width"]), int(j["streams"][0]["height"]), float(j["format"]["duration"])
++
++
++def deliver_run(run_dir, option=None, send=None, sheets=True):
++    """Send a run_fresh run's two finals to the approval chat (never publishing), each with its caption,
++    plus (sheets=True) the verification pack's contact sheets; transition options send the two finals only.
++    send(kind, path, fields) -> message_id (tests inject it).
++    Writes TELEGRAM_DELIVERY.json. Raises on a missing/misdimensioned final (fail closed)."""
++    import hashlib
++    send = send or _send_bot_api
++    finals = {"16x9": os.path.join(run_dir, "out", "segment.mp4"),
++              "9x16": os.path.join(run_dir, "out", "segment_vertical.mp4")}
++    record = {"option": option, "messages": []}
++    for fmt, path in finals.items():
++        if not os.path.exists(path):
++            raise FileNotFoundError(f"STOP: final output missing: {path}")
++        w, h, dur = _dims(path)
++        if (w, h) != DIMS[fmt]:
++            raise RuntimeError(f"STOP: {fmt} final is {w}x{h}, expected {DIMS[fmt][0]}x{DIMS[fmt][1]}")
++        cap = build_caption(run_dir, fmt, option)
++        mid = send("video", path, {"caption": cap, "width": w, "height": h, "duration": int(round(dur)),
++                                   "supports_streaming": "true"})
++        record["messages"].append({"format": fmt, "message_id": mid, "caption": cap,
++                                   "sha256": hashlib.sha256(open(path, "rb").read()).hexdigest()})
++    for sheet in (("joins_16x9.jpg", "joins_9x16.jpg", "credits_16x9.jpg", "credits_9x16.jpg") if sheets else ()):
++        p = os.path.join(run_dir, "VERIFY", sheet)
++        if os.path.exists(p):
++            mid = send("photo", p, {"caption": f"verification pack: {sheet[:-4]}"})
++            record["messages"].append({"sheet": sheet, "message_id": mid})
++    with open(os.path.join(run_dir, f"TELEGRAM_DELIVERY{'_' + option if option else ''}.json"), "w") as f:
++        json.dump(record, f, indent=2)
++    return record
++
++
++def _send_bot_api(kind, path, fields):
++    """One sendVideo / sendPhoto to the approval chat (M16 path; credentials never printed)."""
++    import requests
++    sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
++    from relay import get_key
++    tok, chat = get_key("TELEGRAM_BOT_TOKEN"), get_key("TELEGRAM_CHAT_ID")
++    if not tok or not chat:
++        raise RuntimeError("STOP: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set")
++    method, field = ("sendVideo", "video") if kind == "video" else ("sendPhoto", "photo")
++    with open(path, "rb") as fh:
++        resp = requests.post(f"https://api.telegram.org/bot{tok}/{method}", data={"chat_id": chat, **fields},
++                             files={field: fh}, timeout=600)
++    data = resp.json()
++    if not data.get("ok"):
++        raise RuntimeError(f"STOP: Telegram {method} failed: {data.get('description')}")
++    return data["result"]["message_id"]
+diff --git a/pipeline/test_telegram_delivery.py b/pipeline/test_telegram_delivery.py
+new file mode 100644
+index 00000000..17fb245e
+--- /dev/null
++++ b/pipeline/test_telegram_delivery.py
+@@ -0,0 +1,121 @@
++#!/usr/bin/env python3
++"""Mission 4a / DEC-8 delivery contract: 'HOLD FOR APPROVAL - all gates passed, no waivers' only when every
++gate row of both formats is PASS and the automated verification pack is complete; otherwise 'REVIEW ONLY'
++with the failing list. Both aspects, real dimensions; safe frames named in the 9:16 caption. No network:
++the sender is injected. Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_telegram_delivery.py"""
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++import telegram as TG  # noqa: E402
++
++ROWS = {"16x9": {"G1_voice": "PASS", "G11_parity(run_gates)": "NOT RUN BY run_gates (no horiz) — see G11 below",
++                 "G16_sentence_boundary": "PASS", "G18_word_for_word": "PASS"},
++        "9x16": {"G1_voice": "PASS", "G11_parity(run_gates)": "NOT RUN BY run_gates (no horiz) — see G11 below",
++                 "G11_parity": "PASS", "G4s_layout_truth": "PASS", "G18_word_for_word": "PASS"}}
++
++
++class TestDelivery(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.media = tempfile.mkdtemp(prefix="tgm_")
++        for name, (w, h) in (("segment.mp4", (1920, 1080)), ("segment_vertical.mp4", (1080, 1920)),
++                             ("wrong.mp4", (1280, 720))):
++            subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=c=black:s={w}x{h}:r=24:d=1",
++                            "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
++                            os.path.join(cls.media, name)], check=True)
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.media, ignore_errors=True)
++
++    def run_dir(self, rows=ROWS, pack_complete=True, flagged=False):
++        rd = tempfile.mkdtemp(prefix="tgr_")
++        self.addCleanup(shutil.rmtree, rd, True)
++        os.makedirs(os.path.join(rd, "out"))
++        os.makedirs(os.path.join(rd, "VERIFY"))
++        for name in ("segment.mp4", "segment_vertical.mp4"):
++            shutil.copy(os.path.join(self.media, name), os.path.join(rd, "out", name))
++        json.dump({"rows": rows}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
++        json.dump({"complete": pack_complete}, open(os.path.join(rd, "VERIFY", "VERIFICATION.json"), "w"))
++        shot = {"start": 0.0, "end": 9.4, "class": "screen" if flagged else "single", "flagged": flagged}
++        json.dump({"topic": "Bitcoin price dip",
++                   "hook": {"channel": "Yahoo Finance", "vertical_layout": {"shots": [shot], "flagged": flagged}},
++                   "clips": [{"index": 1, "channel": "Natalie Brunell",
++                              "vertical_layout": {"shots": [dict(shot, **{"class": "single", "flagged": False})],
++                                                  "flagged": False}}]},
++                  open(os.path.join(rd, "edl.json"), "w"))
++        return rd
++
++    def deliver(self, rd, option=None):
++        sent = []
++        rec = TG.deliver_run(rd, option=option, send=lambda kind, path, fields: sent.append(
++            (kind, os.path.basename(path), fields)) or len(sent))
++        return rec, sent
++
++    def test_all_pass_with_complete_pack_is_hold_for_approval_in_both_aspects(self):
++        rd = self.run_dir()
++        rec, sent = self.deliver(rd)
++        vids = [s for s in sent if s[0] == "video"]
++        self.assertEqual([(s[1], s[2]["width"], s[2]["height"]) for s in vids],
++                         [("segment.mp4", 1920, 1080), ("segment_vertical.mp4", 1080, 1920)])
++        for s in vids:
++            self.assertTrue(s[2]["caption"].startswith(TG.HOLD_OK), s[2]["caption"])
++            self.assertNotIn("Failing", s[2]["caption"])
++        written = json.load(open(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
++        self.assertEqual([m["format"] for m in written["messages"] if "format" in m], ["16x9", "9x16"])
++
++    def test_any_failing_row_is_review_only_with_the_list(self):
++        rows = json.loads(json.dumps(ROWS))
++        rows["9x16"]["G4s_layout_truth"] = "FAIL"
++        _, sent = self.deliver(self.run_dir(rows))
++        cap = sent[0][2]["caption"]
++        self.assertTrue(cap.startswith("REVIEW ONLY - 1 failing"), cap)
++        self.assertIn("G4s_layout_truth (9x16): FAIL", cap)
++
++    def test_a_waiver_is_not_a_pass(self):
++        rows = json.loads(json.dumps(ROWS))
++        rows["16x9"]["G8_sharpness"] = "FLAG/LIMITED (absolute floor vs soft source)"
++        _, sent = self.deliver(self.run_dir(rows))
++        self.assertTrue(sent[0][2]["caption"].startswith("REVIEW ONLY"), sent[0][2]["caption"])
++
++    def test_incomplete_verification_pack_is_review_only(self):
++        _, sent = self.deliver(self.run_dir(pack_complete=False))
++        self.assertIn("verification pack missing or incomplete", sent[0][2]["caption"])
++        self.assertTrue(sent[0][2]["caption"].startswith("REVIEW ONLY"))
++
++    def test_safe_frame_is_named_in_the_vertical_caption(self):
++        _, sent = self.deliver(self.run_dir(flagged=True))
++        vert = [s for s in sent if s[1] == "segment_vertical.mp4"][0][2]["caption"]
++        self.assertIn("9:16 SAFE FRAME hook (Yahoo Finance): layout=screen 0.00-9.40 s", vert)
++
++    def test_option_label_comes_first(self):
++        _, sent = self.deliver(self.run_dir(), option="B")
++        self.assertTrue(sent[0][2]["caption"].startswith("OPTION B (transition choice"), sent[0][2]["caption"])
++
++    def test_sheets_are_sent_with_the_main_drop_only(self):
++        rd = self.run_dir()
++        for name in ("joins_16x9.jpg", "credits_9x16.jpg"):
++            open(os.path.join(rd, "VERIFY", name), "wb").write(b"\xff\xd8\xff\xd9")
++        _, sent = self.deliver(rd)
++        self.assertEqual([s[1] for s in sent if s[0] == "photo"], ["joins_16x9.jpg", "credits_9x16.jpg"])
++        sent2 = []
++        TG.deliver_run(rd, option="A", sheets=False, send=lambda k, p, f: sent2.append(k) or 1)
++        self.assertEqual(sent2, ["video", "video"])
++
++    def test_wrong_dimensions_stop(self):
++        rd = self.run_dir()
++        shutil.copy(os.path.join(self.media, "wrong.mp4"), os.path.join(rd, "out", "segment.mp4"))
++        with self.assertRaises(RuntimeError):
++            self.deliver(rd)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_transitions.py b/pipeline/test_transitions.py
+new file mode 100644
+index 00000000..a7a5c527
+--- /dev/null
++++ b/pipeline/test_transitions.py
+@@ -0,0 +1,194 @@
++#!/usr/bin/env python3
++"""Phase 3 / DEC-4 (2026-11-11): transitions only between DIFFERENT channels, never at the open, never
++over speech (bounded by the measured tail of A and lead-in of B), picture and sound frame-locked, sound
++design below speech. Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_transitions.py"""
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++
++import numpy as np
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++import transitions as TR  # noqa: E402
++
++SEGS = [("hook", "h.mp4", "talking_head"), ("clip_01", "c1.mp4", "talking_head"),
++        ("clip_02", "c2.mp4", "talking_head"), ("shoutout", "s.mp4", "shoutout"), ("outro", "o.mp4", "outro")]
++CH = {"hook": "DataDash", "clip_01": "Natalie Brunell", "clip_02": "Yahoo Finance"}
++LT = {"hook": (0.30, 0.40), "clip_01": (0.35, 0.50), "clip_02": (0.30, 0.45)}   # (lead_s, tail_s)
++
++
++class TestPlan(unittest.TestCase):
++    def test_dissolves_only_between_different_channels_and_talking_heads(self):
++        j = TR.plan(SEGS, CH, LT, "crossfade")
++        self.assertEqual([(x["after"], x["frames"], x["kind"]) for x in j], [(0, 6, "dissolve"), (1, 6, "dissolve")])
++        same = dict(CH, clip_01="DataDash")
++        self.assertEqual([x["after"] for x in TR.plan(SEGS, same, LT, "crossfade")], [1])
++        self.assertTrue(all(x["after"] < 2 for x in j))          # never into credits / outro
++
++    def test_never_over_speech(self):
++        # clip_01 has only 0.10 s of genuine lead-in: the dissolve shrinks to 2 frames (0.083 s)
++        lt = dict(LT, clip_01=(0.10, 0.50))
++        j = TR.plan(SEGS, CH, lt, "crossfade")
++        self.assertEqual(j[0]["frames"], 2)
++        self.assertLessEqual(j[0]["frames"] / TR.FPS, min(LT["hook"][1], 0.10))
++        # under 2 frames of non-speech: a hard cut, never a transition over a word
++        lt = dict(LT, clip_01=(0.05, 0.50))
++        self.assertEqual([x["after"] for x in TR.plan(SEGS, CH, lt, "crossfade")], [1])
++
++    def test_A_splits_the_dip_across_the_cut(self):
++        lt = dict(LT, clip_01=(0.10, 0.50))                     # each side fades at most its own silence
++        j = TR.plan(SEGS, CH, lt, "A")[0]
++        self.assertEqual((j["kind"], j["frames"]), ("dip", 4))
++        self.assertLessEqual(j["frames"] / 2 / TR.FPS, 0.10)
++
++    def test_C_is_a_short_insert(self):
++        j = TR.plan(SEGS, CH, LT, "C")
++        self.assertEqual([(x["after"], x["kind"]) for x in j], [(0, "insert"), (1, "insert")])
++        self.assertLess(TR.WIPE_FRAMES / TR.FPS, 0.35)
++
++    def test_unknown_style_refused(self):
++        with self.assertRaises(ValueError):
++            TR.plan(SEGS, CH, LT, "D")
++
++
++class TestSoundDesign(unittest.TestCase):
++    def test_thumps_peak_at_the_declared_level_with_micro_fades(self):
++        tmp = tempfile.mkdtemp(prefix="thump_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        for name, x in (("t.wav", TR.thump()), ("dt.wav", TR.double_thump())):
++            p = os.path.join(tmp, name)
++            TR.write_wav(p, x, TR.THUMP_PEAK_DBFS)
++            import wave
++            with wave.open(p) as f:
++                a = np.frombuffer(f.readframes(f.getnframes()), np.int16).astype(np.float64) / 32767
++            self.assertAlmostEqual(20 * np.log10(np.max(np.abs(a))), TR.THUMP_PEAK_DBFS, delta=0.1)
++            self.assertLess(abs(a[0]), 1e-3)
++            self.assertLess(abs(a[-1]), 1e-3)
++
++    def test_wipe_is_a_red_line_sweeping_on_black(self):
++        # measured 2026-11-11 at the render sizes: 94.5 % (16:9) / 95.7 % (9:16) black, median pixel 0
++        for w, h in ((1920, 1080), (1080, 1920)):
++            frames = [np.asarray(f).astype(int) for f in TR.wipe_frames(w, h)]
++            self.assertEqual(len(frames), TR.WIPE_FRAMES)
++            last = frames[-1]
++            self.assertEqual(int(np.median(last.max(axis=2))), 0)                 # on black
++            self.assertGreater((last.max(axis=2) < 40).mean(), 0.90)
++            red = [((f[..., 0] > 150) & (f[..., 1] < 90)).mean() for f in frames]
++            self.assertGreater(red[-1], 0.003)                                    # the red ECG line
++            self.assertTrue(all(a < b for a, b in zip(red, red[1:])), red)        # sweeping in
++
++
++RAMP = "nullsrc=s=320x180:r=24:d={dur},format=gray,geq=lum='16+3*N'"   # luma identifies every frame
++
++
++def _seg(path, colour, freq, dur, speech):
++    """Synthetic segment: a solid colour (or RAMP), a tone only inside `speech` (start, end), silence else."""
++    video = RAMP.format(dur=dur) if colour == "ramp" else f"color=c={colour}:s=320x180:r=24:d={dur}"
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", video,
++                    "-f", "lavfi", "-i", f"sine=f={freq}:r=48000:d={dur}",
++                    "-filter_complex", f"[1:a]volume='between(t,{speech[0]},{speech[1]})':eval=frame,"
++                                       "aformat=channel_layouts=stereo[a]",
++                    "-map", "0:v", "-map", "[a]", "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
++                    "-c:a", "aac", "-b:a", "192k", "-shortest", path], check=True)
++    return path
++
++
++def _lumas(path):
++    import cv2
++    cap, out = cv2.VideoCapture(path), []
++    while True:
++        ok, f = cap.read()
++        if not ok:
++            return np.array(out)
++        out.append(cv2.cvtColor(f, cv2.COLOR_BGR2GRAY).mean())
++
++
++def _onset(path, t0, t1):
++    """First 10 ms window in [t0, t1] whose RMS rises above -40 dBFS (the tone's start)."""
++    r = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{t0:.3f}", "-t", f"{t1 - t0:.3f}", "-i", path, "-f", "f32le",
++                        "-ac", "1", "-ar", "48000", "-"], capture_output=True, check=True)
++    a = np.frombuffer(r.stdout, np.float32)
++    for k in range(0, len(a) - 480, 480):
++        if 20 * np.log10(np.sqrt(np.mean(a[k:k + 480] ** 2)) + 1e-12) > -40:
++            return t0 + k / 48000
++    return None
++
++
++def _probe(path):
++    r = subprocess.run(["ffprobe", "-v", "error", "-count_packets", "-show_entries",
++                        "stream=codec_type,nb_read_packets,duration", "-of", "json", path],
++                       capture_output=True, text=True, check=True)
++    return {s["codec_type"]: s for s in json.loads(r.stdout)["streams"]}
++
++
++@unittest.skipUnless(os.environ.get("CUDA_VISIBLE_DEVICES") == "0", "NVENC concat needs GPU0")
++class TestConcat(unittest.TestCase):
++    """Three 3 s segments, channels A, B, B: one dissolve (A->B), one hard cut (B->B)."""
++
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="trc_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++        self.segs = [("hook", _seg(os.path.join(self.tmp, "a.mp4"), "red", 440, 3, (0.4, 2.6)), "talking_head"),
++                     ("clip_01", _seg(os.path.join(self.tmp, "b.mp4"), "ramp", 660, 3, (0.4, 2.6)), "talking_head"),
++                     ("clip_02", _seg(os.path.join(self.tmp, "c.mp4"), "green", 880, 3, (0.4, 2.6)), "talking_head")]
++        self.ch = {"hook": "A", "clip_01": "B", "clip_02": "B"}
++        self.lt = {k: (0.4, 0.4) for k in self.ch}
++
++    def run_style(self, style):
++        out = os.path.join(self.tmp, f"{style}.mp4")
++        j = TR.plan(self.segs, self.ch, self.lt, style)
++        tl = TR.concat(self.segs, j, out, 23, 320, 180, self.tmp)
++        return out, j, tl
++
++    def test_dissolve_overlaps_only_silence_and_stays_frame_locked(self):
++        out, j, tl = self.run_style("crossfade")
++        self.assertEqual([(x["after"], x["frames"]) for x in j], [(0, 6)])
++        dd = 6 / 24
++        self.assertAlmostEqual(tl[1]["start"], tl[0]["end"] - dd, places=3)   # overlap = the dissolve
++        self.assertAlmostEqual(tl[2]["start"], tl[1]["end"], places=3)        # same channel: hard cut
++        p = _probe(out)
++        n_frames = int(p["video"]["nb_read_packets"])
++        self.assertEqual(n_frames, 3 * 72 - 6)
++        self.assertAlmostEqual(float(p["audio"]["duration"]), n_frames / 24, delta=0.03)   # A/V locked
++        # the overlap region holds no tone from either side (both are in their silences)
++        r = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{tl[1]['start']:.3f}", "-t", f"{dd:.3f}", "-i", out,
++                            "-f", "f32le", "-ac", "1", "-ar", "48000", "-"], capture_output=True, check=True)
++        a = np.frombuffer(r.stdout, np.float32)
++        self.assertLess(20 * np.log10(np.sqrt(np.mean(a ** 2)) + 1e-12), -50)
++
++    def test_dissolved_clip_picture_and_sound_start_together(self):
++        # B = a luma ramp (frame k is identifiable): after the dissolve, output frame (start*24 + k) must be
++        # B's frame k, and B's tone (0.4 s into B) must start 0.4 s after the same start. ffmpeg 4.4.2's
++        # xfade with offset = start put every B frame one frame late (41.7 ms behind its sound).
++        out, j, tl = self.run_style("crossfade")
++        b, x = _lumas(self.segs[1][1]), _lumas(out)
++        s0 = int(round(tl[1]["start"] * 24))
++        k = np.arange(6, 72)
++        self.assertLess(float(np.max(np.abs(x[s0 + k] - b[k]))), 1.5, (x[s0 + 4:s0 + 10], b[4:10]))
++        onset = _onset(out, tl[1]["start"] + 0.2, tl[1]["start"] + 0.6)
++        self.assertAlmostEqual(onset - tl[1]["start"], 0.4, delta=0.012)
++
++    def test_C_inserts_one_wipe_between_channels_only(self):
++        out, j, tl = self.run_style("C")
++        self.assertEqual([e["label"] for e in tl], ["hook", "transition_C", "clip_01", "clip_02"])
++        self.assertEqual(tl[0]["start"], 0.0)                                 # nothing at the open
++        p = _probe(out)
++        self.assertEqual(int(p["video"]["nb_read_packets"]), 3 * 72 + TR.WIPE_FRAMES)
++
++
++class TestFrozenPath(unittest.TestCase):
++    def test_no_transitions_file_keeps_the_frozen_concat(self):
++        import render16
++        tmp = tempfile.mkdtemp(prefix="trf_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        self.assertIsNone(render16._transition_concat(tmp, SEGS, os.path.join(tmp, "x.mp4"), 1920, 1080, tmp))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_vertical_layout.py b/pipeline/test_vertical_layout.py
+new file mode 100644
+index 00000000..89e7f213
+--- /dev/null
++++ b/pipeline/test_vertical_layout.py
+@@ -0,0 +1,193 @@
++#!/usr/bin/env python3
++"""DEC-2 / DEC-5 (orchestrator, delegated by PBX, 2026-11-11): the 9:16 is a speaker-centred reframe by
++default; 2-3 people get stacked bands; the safe frame only for a shared screen ('screen') or an
++unidentifiable speaker, flagged. Layouts are per SHOT. Fixture: the Nov 10 prepared clips at 360p
++(face-area rules are fractions of the frame, so they are scale-invariant).
++Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_vertical_layout.py"""
++import copy
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++FIX = os.path.join(REPO, "tests", "fixtures", "pulse_20261110", "video")
++CLIP = {c: os.path.join(FIX, f"prepared_{c}_360p.mp4") for c in ("hook", "clip_01", "clip_02")}
++
++
++def V():
++    import vertical_layout
++    return vertical_layout
++
++
++class TestClassifier(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.plans = {c: V().classify(p) for c, p in CLIP.items()}
++
++    def classes(self, c):
++        return [s["class"] for s in self.plans[c]["shots"]]
++
++    def test_chart_with_face_cam_is_screen(self):           # DataDash hook (face-cam 0.4 % of frame)
++        self.assertEqual(self.classes("hook"), ["screen"])
++        self.assertTrue(self.plans["hook"]["flagged"])
++
++    def test_standing_host_is_single(self):                  # Yahoo Finance (face 1.6 % of frame)
++        self.assertEqual(self.classes("clip_02"), ["single"])
++        self.assertFalse(self.plans["clip_02"]["flagged"])
++
++    def test_cutaways_are_their_own_shots(self):             # Natalie: chart | talking head | Capitol
++        self.assertEqual(self.classes("clip_01"), ["screen", "single", "screen"])
++        sh = self.plans["clip_01"]["shots"]
++        self.assertAlmostEqual(sh[1]["start"], 105 / 24, places=3)    # the cut frame, not a sample time
++        self.assertAlmostEqual(sh[2]["start"], 393 / 24, places=3)
++
++
++class TestLayoutTruth(unittest.TestCase):
++    """G4s: a label must match the re-measured picture (never the label itself)."""
++
++    @classmethod
++    def setUpClass(cls):
++        cls.plans = {c: V().classify(p) for c, p in CLIP.items()}
++
++    def test_correct_labels_pass(self):
++        ok, table = V().gate_g4s(self.plans, CLIP)
++        self.assertTrue(ok, [r for r in table if not r["pass"]])
++
++    def test_talking_head_mislabelled_as_screen_fails(self):           # DEC-2 must-fail
++        bad = copy.deepcopy(self.plans)
++        for sh in bad["clip_02"]["shots"]:
++            sh["class"] = "screen"
++        ok, table = V().gate_g4s(bad, CLIP)
++        self.assertFalse(ok)
++        self.assertFalse(next(r for r in table if r["segment"] == "clip_02")["label_ok"])
++
++    def test_screen_mislabelled_as_single_fails(self):
++        bad = copy.deepcopy(self.plans)
++        bad["hook"]["shots"][0].update({"class": "single", "face_cx": 320})
++        ok, table = V().gate_g4s(bad, CLIP)
++        self.assertFalse(next(r for r in table if r["segment"] == "hook")["label_ok"])
++
++
++class TestStackGeometry(unittest.TestCase):
++    """Stacked bands: every face lies inside its own band, at 40 % of the band height unless the frame
++    edge clamps it (band positions are measured per face, never a fixed height)."""
++
++    def crops(self, vf):
++        import re
++        return [tuple(int(v) for v in m) for m in re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", vf)]
++
++    def test_each_face_inside_its_band(self):
++        import render_vertical as RV
++        for cls, cxs, cys in (("stack2", [500, 1400], [380, 520]), ("stack3", [300, 960, 1650], [300, 650, 120])):
++            crops = self.crops(RV._shot_vf({"class": cls, "band_cx": cxs, "band_cy": cys}, 1920, 1080))
++            self.assertEqual(len(crops), int(cls[-1]))
++            for (w, h, x, y), cx, cy in zip(crops, cxs, cys):
++                self.assertTrue(x <= cx <= x + w and y <= cy <= y + h, (cls, (w, h, x, y), cx, cy))
++                if 0 < y and y + h < 1080:
++                    self.assertAlmostEqual((cy - y) / h, 0.4, delta=0.01)
++
++
++class TestCaptionNote(unittest.TestCase):
++    """DEC-2/DEC-5: a safe frame is flagged in the caption with its layout, never silent."""
++
++    def edl(self, hook_shots, clip_shots):
++        mk = lambda shots: {"shots": shots, "flagged": any(s["flagged"] for s in shots)}
++        return {"hook": {"channel": "DataDash", "vertical_layout": mk(hook_shots)},
++                "clips": [{"index": 1, "channel": "Natalie Brunell", "vertical_layout": mk(clip_shots)}]}
++
++    def shot(self, cls, a, b):
++        return {"start": a, "end": b, "class": cls, "flagged": cls in ("screen", "uncertain")}
++
++    def test_every_safe_frame_shot_is_named_with_its_layout(self):
++        note = V().layout_note(self.edl([self.shot("screen", 0, 9.4)],
++                                        [self.shot("screen", 0, 4.375), self.shot("single", 4.375, 16.375),
++                                         self.shot("uncertain", 16.375, 17.2)]))
++        self.assertIn("9:16 SAFE FRAME hook (DataDash): layout=screen 0.00-9.40 s", note)
++        self.assertIn("clip_01 (Natalie Brunell): layout=screen 0.00-4.38 s; "
++                      "layout=uncertain (speaker unidentified) 16.38-17.20 s", note)
++        self.assertNotIn("single", note)
++
++    def test_all_reframed_is_silent_and_unmeasured_is_reported(self):
++        self.assertEqual(V().layout_note(self.edl([self.shot("single", 0, 9)], [self.shot("stack2", 0, 15)])), "")
++        e = self.edl([self.shot("single", 0, 9)], [])
++        del e["clips"][0]["vertical_layout"]
++        self.assertIn("clip_01 (Natalie Brunell): layout NOT MEASURED", V().layout_note(e))
++
++
++class TestSafeFrameTruth(unittest.TestCase):
++    """G4s on the 9:16 picture (CPU encode). D5 must-fail: Yahoo Finance's standing host (single) shown
++    as the letterbox safe frame, as the Nov 10 9:16 did; must-pass: the same shot as a speaker crop."""
++
++    @classmethod
++    def setUpClass(cls):
++        cls.tmp = tempfile.mkdtemp(prefix="g4s_")
++        cls.src = os.path.join(cls.tmp, "clip_02.mp4")
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", CLIP["clip_02"], "-t", "4", "-vf", "scale=1920:1080",
++                        "-r", "24", "-c:v", "libx264", "-crf", "18", "-preset", "veryfast", "-an", cls.src],
++                       check=True)
++        cls.plan = V().classify(cls.src)
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.tmp, ignore_errors=True)
++
++    def render(self, vf, name):
++        out = os.path.join(self.tmp, name)
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.src, "-vf", vf, "-c:v", "libx264", "-crf", "20",
++                        "-preset", "veryfast", "-pix_fmt", "yuv420p", out], check=True)
++        return out
++
++    def g4s(self, vert):
++        return V().gate_g4s({"clip_02": self.plan}, {"clip_02": self.src}, vert_final=vert,
++                            vert_segments=[{"label": "clip_02", "start": 0.0}])
++
++    def test_talking_head_shown_as_safe_frame_fails(self):        # D5 must-fail
++        import render_vertical as RV
++        self.assertEqual([s["class"] for s in self.plan["shots"]], ["single"])
++        ok, table = self.g4s(self.render(RV.LETTERBOX_VF, "letterbox.mp4"))
++        self.assertFalse(ok, table)
++        self.assertTrue(table[0]["vertical_safe_frame"], table)
++
++    def test_talking_head_cropped_passes(self):
++        import render_vertical as RV
++        ok, table = self.g4s(self.render(RV._shot_vf(self.plan["shots"][0], 1920, 1080), "crop.mp4"))
++        self.assertTrue(ok, table)
++        self.assertFalse(table[0]["vertical_safe_frame"], table)
++
++
++@unittest.skipUnless(os.environ.get("CUDA_VISIBLE_DEVICES") == "0", "NVENC render needs GPU0")
++class TestReframeAuto(unittest.TestCase):
++    """End to end on a 1080p copy of Natalie's clip: 1080x1920, same duration, the chart and Capitol
++    shots are safe frames, the talking-head shot is a crop (no blurred bands)."""
++
++    def test_per_shot_render(self):
++        import cv2
++        import render_vertical as RV
++        tmp = tempfile.mkdtemp(prefix="reframe_")
++        try:
++            src = os.path.join(tmp, "clip_01.mp4")
++            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", CLIP["clip_01"], "-f", "lavfi", "-i",
++                            "anullsrc=r=48000:cl=stereo", "-shortest", "-vf", "scale=1920:1080", "-r", "24",
++                            "-c:v", "libx264", "-crf", "18", "-preset", "veryfast", "-c:a", "aac", src], check=True)
++            plan = V().classify(src)
++            out = os.path.join(tmp, "vert.mp4")
++            ok, summary = RV.reframe_auto(src, out, "clip_01", plan)
++            self.assertTrue(ok, summary)
++            w, h, fps, dur = V()._probe(out)
++            self.assertEqual((w, h), (1080, 1920))
++            self.assertAlmostEqual(dur, plan["duration"], delta=1 / 24 + 0.03)
++            for sh in plan["shots"]:
++                tm = (sh["start"] + sh["end"]) / 2
++                safe, m = V().is_safe_frame(V()._frame(out, tm), V()._frame(src, tm))
++                self.assertEqual(safe, sh["class"] in V().SAFE_FRAME, (sh, m))
++        finally:
++            shutil.rmtree(tmp, ignore_errors=True)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_word_diff.py b/pipeline/test_word_diff.py
+new file mode 100644
+index 00000000..dac2eac2
+--- /dev/null
++++ b/pipeline/test_word_diff.py
+@@ -0,0 +1,106 @@
++#!/usr/bin/env python3
++"""G18 WORD-FOR-WORD (mission 4a): the final says exactly the locked sentences. Must-fail: yesterday's
++final (PBX review of pinned_20261110_150345): clip_01 starts on a clipped "above 81,000" and runs into
++"All right, you've probably seen people celebrating" (D2/D3a); clip_02 starts on "days of course" (D3b).
++Run (GPU parts): cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_word_diff.py"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++FIX = os.path.join(REPO, "tests", "fixtures", "pulse_20261110")
++
++import word_diff as W  # noqa: E402
++
++
++class TestCanonical(unittest.TestCase):
++    """Two whisper passes over the SAME audio render numbers and disfluent repeats differently (measured on
++    the Nov 10 fixture); both sides are canonicalised alike, real word changes still count."""
++
++    def test_asr_renderings_of_the_same_words_are_equal(self):
++        for a, b in (("It went from above $81 ,000 after the election.", "it went from above 81,000 after the election"),
++                     ("U .S. Bitcoin ETFs had about $1 .3 billion", "US Bitcoin ETFs had about one point three billion dollars"),
++                     ("around $74 000, around the 50 weekly MA", "around seventy four thousand dollars around the fifty weekly MA"),
++                     ("241 House winners and 50 senators", "two hundred forty one house winners and fifty senators"),
++                     ("up still 25 % off the lows", "up still twenty five percent off the lows"),
++                     ("days. Of course, of course, Bitcoin dropped", "days of course bitcoin dropped")):
++            self.assertEqual(W.diff(a, b), [], (a, b))
++
++    def test_missing_added_and_changed_words_count(self):
++        d = W.diff("It went from above $81,000 after the election. That was the week.",
++                   "81,000 after the election. That was the week. All right, you've probably seen")
++        self.assertIn(("delete", "it went from above", ""), d)
++        self.assertIn(("insert", "", "all right you've probably seen"), d)
++        self.assertEqual(W.diff("the market fell", "the market rose"), [("replace", "fell", "rose")])
++        self.assertEqual(W.diff("bitcoin fell", "bitcoin fell fell sharply"), [("insert", "", "sharply")])
++
++    def test_edges_compare_the_first_and_last_two_words(self):
++        self.assertEqual(W.edges("But I don't check it. Many times.", "but i don't check it many times"), [])
++        self.assertEqual(W.edges("It went from above $81,000. Just last week.",
++                                 "above 81,000. Just last week. All right, people celebrating"),
++                         [("start", "it went", "above 81000"), ("end", "last week", "people celebrating")])
++
++
++def _clips():
++    """Yesterday's three clips: the editor's sentences locked on today's transcripts (as the G16 fixture),
++    and the source span each was cut from."""
++    import sentence_law as L
++    tmp = tempfile.mkdtemp(prefix="g18_")
++    try:
++        shutil.copytree(os.path.join(FIX, "run", "transcripts"), os.path.join(tmp, "t"))
++        for f in os.listdir(os.path.join(FIX, "selection", "transcripts_punctuated")):
++            shutil.copy(os.path.join(FIX, "selection", "transcripts_punctuated", f), os.path.join(tmp, "t"))
++        edl = json.load(open(os.path.join(FIX, "run", "edl.json")))
++        sel = {p["video_id"]: p for p in json.load(open(os.path.join(FIX, "selection", "B3_chosen.json")))["chosen"]}
++        cuts = {c["clip_id"]: c for c in json.load(open(os.path.join(FIX, "run", "cuts_final.json")))}
++        out = {}
++        for label, seg in [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl["clips"]]:
++            words = json.load(open(os.path.join(tmp, "t", f"{seg['video_id']}.json")))["words"]
++            i0, i1, _ = L.anchor(words, sel[seg["video_id"]]["text"])
++            out[label] = {"lock_text": " ".join(w["word"] for w in words[i0:i1 + 1]),
++                          "source": os.path.join(FIX, "audio", f"src_{seg['video_id']}.flac"),
++                          "cut_in": cuts[label]["cut_in"], "cut_out": cuts[label]["cut_out"]}
++        return out
++    finally:
++        shutil.rmtree(tmp, ignore_errors=True)
++
++
++@unittest.skipUnless(os.path.exists("/dev/nvidia0"), "whisper large-v3 needs a GPU")
++class TestYesterdaysFinal(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        segs = json.load(open(os.path.join(FIX, "run", "concat_manifest_16x9.json")))["segments"]
++        cls.ok, rows = W.gate_g18(os.path.join(FIX, "audio", "out_16x9.flac"), segs, _clips())
++        cls.rows = {r["segment"]: r for r in rows}
++
++    def test_gate_fails(self):
++        self.assertFalse(self.ok, self.rows)
++
++    def test_clip01_clipped_start_and_run_on_fail(self):            # D3a + D2
++        r = self.rows["clip_01"]
++        self.assertFalse(r["pass"], r)
++        self.assertEqual([e[0] for e in r["edges"]], ["start", "end"], r)
++        self.assertIn("celebrating", r["edges"][1][2], r)
++        self.assertIn(("insert", "", "above"), r["identity"], r)    # the clipped fragment is in the final only
++
++    def test_clip02_start_inside_days_fails(self):                  # D3b
++        r = self.rows["clip_02"]
++        self.assertFalse(r["pass"], r)
++        self.assertEqual(r["edges"][0][:2], ("start", "of course"), r)
++        self.assertTrue(r["edges"][0][2].startswith("days"), r)
++
++    def test_hook_words_are_intact(self):
++        # D1 (the hook's onset) is acoustic and caught by G16/G17; its words are all there. The lock's own
++        # ASR rendering of the fast "73,400, 500" differs from the final's: reported, not gated.
++        r = self.rows["hook"]
++        self.assertTrue(r["pass"], r)
++        self.assertTrue(r["lock_diff_reported"], r)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/transition_options.py b/pipeline/transition_options.py
+new file mode 100644
+index 00000000..b04f688c
+--- /dev/null
++++ b/pipeline/transition_options.py
+@@ -0,0 +1,53 @@
++#!/usr/bin/env python3
++"""pipeline/transition_options.py — the labelled transition options on one finished cut (Phase 3, DEC-4).
++
++The production run renders the DEC-4 default (6-frame cross-dissolve + matching audio crossfade). For PBX's
++choice, the SAME cut (same cuts, same prepared clips, same layout plan) is rendered again per option in a
++copy of the run dir, and every option is gated and packed like a production render:
++  A  clean cut; 6-frame audio dip-crossfade across the cut
++  B  6-frame cross-dissolve + matching audio crossfade + a soft synthesized pulse thump
++  C  brand ECG line sweep, 8 frames on black, double thump (no logo, no text, nothing at the open)
++Usage: CUDA_VISIBLE_DEVICES=0 python3 transition_options.py RUN_DIR [A B C]
++Delivery is separate: telegram.deliver_run(<copy>, option="A") (labelled, never a release candidate).
++"""
++import json
++import os
++import shutil
++import sys
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++
++def render_option(run_dir, style):
++    import run_fresh as rf
++    import verify_pack
++    dst = f"{run_dir.rstrip('/')}_option{style}"
++    if os.path.exists(dst):
++        raise SystemExit(f"STOP: {dst} exists")
++    shutil.copytree(run_dir, dst, ignore=shutil.ignore_patterns("TELEGRAM_DELIVERY*.json", "VERIFY"))
++    for p in ("out/segment.mp4", "out/segment_vertical.mp4", "GATE_REPORT.json"):
++        if os.path.exists(os.path.join(dst, p)):
++            os.remove(os.path.join(dst, p))
++    run = rf.Run(dst)
++    with open(os.path.join(dst, "status.json")) as f:
++        run.mode = json.load(f).get("mode", "auto")
++    pin = os.path.join(dst, "PINNED_DECISION.json")
++    if run.mode == "pinned" and os.path.exists(pin):        # same limiter as the original render
++        with open(pin) as f:
++            run.machine_cuts = bool(json.load(f).get("pin", {}).get("machine_cuts", False))
++    with open(os.path.join(dst, "cuts_final.json")) as f:
++        cuts = json.load(f)
++    rf.TRANSITION_STYLE = style                     # the option, on the same cut
++    final16, man16, final9, man9 = rf.stage_render(run)
++    rows, flags, limits = rf.stage_gates(run, final16, man16, final9, man9)
++    verify_pack.build(dst)
++    run.save()
++    print(f"option {style}: {dst} | " + ", ".join(f"{fmt}: {rf.verdict_for(rows[fmt])[0]}" for fmt in rows))
++    return dst, cuts
++
++
++if __name__ == "__main__":
++    rd = os.path.abspath(sys.argv[1])
++    for st in (sys.argv[2:] or ["A", "B", "C"]):
++        render_option(rd, st)
+diff --git a/pipeline/transitions.py b/pipeline/transitions.py
+new file mode 100644
+index 00000000..088b4622
+--- /dev/null
++++ b/pipeline/transitions.py
+@@ -0,0 +1,250 @@
++#!/usr/bin/env python3
++"""pipeline/transitions.py — transitions between segments from DIFFERENT channels only (Phase 3, DEC-4).
++
++Styles (run-level, TRANSITIONS.json written by run_fresh before rendering; no file = hard cuts, the
++frozen v2f path, Law 22):
++  crossfade  DEC-4 production default: 6-frame cross-dissolve + matching audio crossfade (= B without
++             the thump).
++  A          clean cut; 6-frame audio dip-crossfade centred on the cut (A fades over its last 3 frames,
++             B rises over its first 3) - no picture effect, no overlap, picture and sound frame-locked.
++  B          6-frame cross-dissolve + matching audio crossfade + a soft low pulse thump (sub sine + short
++             click) at the dissolve's centre.
++  C          brand pulse wipe: an 8-frame insert (0.333 s) on black in which the brand ECG line
++             (brand/2026-11/pp_pulse_glossy.svg path) sweeps left to right, with a heartbeat double thump.
++Overlaps (crossfade/B) and fades (A) only ever cover non-speech: each junction is bounded by the
++measured genuine tail of A and lead-in of B (sentence_law.head_tail on the prepared clips); a junction
++that cannot hold >= 2 frames of non-speech stays a hard cut. Sound design peaks at THUMP_PEAK_DBFS
++(-24 dBFS before the music bed and loudnorm, Law 13 range) and sits only where nobody speaks.
++Nothing is ever added at the open of the video (the first junction is after the hook).
++"""
++import json
++import math
++import os
++import subprocess
++import wave
++
++import numpy as np
++
++FPS = 24
++SR = 48000
++DISSOLVE_FRAMES = 6
++WIPE_FRAMES = 8
++MIN_FRAMES = 2
++THUMP_PEAK_DBFS = -24.0
++STYLES = ("crossfade", "A", "B", "C")
++PULSE_PATH = ("M38 278 L84 278 C109 278 115 220 136 220 C158 220 164 330 180 330 C196 330 242 98 252 98 "
++              "C262 98 306 384 316 384 C329 384 342 220 364 220 C385 220 391 278 416 278 L462 278")
++
++
++def plan(segments, channels, lead_tail, style):
++    """Junction list [{"after": i, "frames": n, "kind": ...}] for the concat of `segments` (manifest
++    order: (label, path, type)). channels {label: channel}; lead_tail {label: (lead_s, tail_s)}."""
++    if style not in STYLES:
++        raise ValueError(f"unknown transition style {style!r}")
++    out = []
++    for i in range(len(segments) - 1):
++        (la, _, ta), (lb, _, tb) = segments[i], segments[i + 1]
++        if ta != "talking_head" or tb != "talking_head" or channels.get(la) == channels.get(lb):
++            continue                                            # only between different channels
++        want = WIPE_FRAMES if style == "C" else DISSOLVE_FRAMES
++        if style == "C":
++            out.append({"after": i, "frames": want, "kind": "insert", "style": style})
++            continue
++        tail_a, lead_b = lead_tail[la][1], lead_tail[lb][0]
++        half = style == "A"                                     # A: each side fades over half
++        room = min(tail_a, lead_b) * (2 if half else 1)
++        n = min(want, int(math.floor(room * FPS + 1e-9)))
++        if n >= MIN_FRAMES:
++            out.append({"after": i, "frames": n, "kind": "dip" if half else "dissolve", "style": style,
++                        "bounded_by_ms": [int(tail_a * 1000), int(lead_b * 1000)]})
++    return out
++
++
++# ── sound design (generated in code; no stock packs) ──
++
++def thump(sub_hz=52.0, dur=0.32, click_ms=4.0):
++    t = np.arange(int(dur * SR)) / SR
++    body = np.sin(2 * np.pi * sub_hz * t) * np.exp(-t / 0.075) * (1 - np.exp(-t / 0.004))
++    k = int(click_ms / 1000 * SR)
++    click = np.zeros_like(t)
++    click[:k] = np.random.default_rng(11).normal(0, 1, k) * np.hanning(2 * k)[k:] * 0.35
++    x = body + np.convolve(click, np.ones(24) / 24, mode="same")
++    return x / np.max(np.abs(x))
++
++
++def double_thump():
++    a, b = thump(), thump(sub_hz=46.0) * 0.6
++    gap = int(0.17 * SR)
++    out = np.zeros(gap + len(b))
++    out[:len(a)] += a
++    out[gap:gap + len(b)] += b
++    return out / np.max(np.abs(out))
++
++
++def write_wav(path, mono, peak_dbfs):
++    x = mono * (10 ** (peak_dbfs / 20))
++    k = int(0.005 * SR)                                         # Law 13: 5 ms micro-fades at both ends
++    x[:k] *= np.linspace(0, 1, k)
++    x[-k:] *= np.linspace(1, 0, k)
++    st = np.stack([x, x], 1)
++    with wave.open(path, "wb") as f:
++        f.setnchannels(2)
++        f.setsampwidth(2)
++        f.setframerate(SR)
++        f.writeframes((np.clip(st, -1, 1) * 32767).astype(np.int16).tobytes())
++
++
++# ── C: brand pulse wipe insert ──
++
++def _bezier_points(path=PULSE_PATH, steps=24):
++    import re
++    toks = re.findall(r"[MLC]|-?\d+(?:\.\d+)?", path)
++    pts, cur, i = [], None, 0
++    while i < len(toks):
++        cmd = toks[i]
++        if cmd in ("M", "L"):
++            cur = (float(toks[i + 1]), float(toks[i + 2]))
++            pts.append(cur)
++            i += 3
++        elif cmd == "C":
++            p1, p2, p3 = [(float(toks[i + 1 + 2 * k]), float(toks[i + 2 + 2 * k])) for k in range(3)]
++            for s in range(1, steps + 1):
++                u = s / steps
++                pts.append(tuple((1 - u) ** 3 * cur[d] + 3 * (1 - u) ** 2 * u * p1[d] + 3 * (1 - u) * u ** 2 * p2[d]
++                                 + u ** 3 * p3[d] for d in range(2)))
++            cur = p3
++            i += 7
++        else:
++            raise ValueError(f"unsupported path command {cmd}")
++    return pts
++
++
++def wipe_frames(w, h, n=WIPE_FRAMES):
++    """n RGB frames on black: the brand ECG line (thin neon: dark under-stroke, red glow, hot core)
++    drawn left to right across the frame's middle, fully drawn on the last frame."""
++    from PIL import Image, ImageDraw, ImageFilter
++    pts = _bezier_points()
++    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
++    sx = w / (max(xs) - min(xs))
++    sy = sx * 0.55 if w > h else sx * 0.9
++    cy = h / 2
++    line = [((x - min(xs)) * sx, cy + (y - 278) * sy) for x, y in pts]
++    scale = max(1.0, w / 1920)
++    frames = []
++    for k in range(n):
++        upto = (k + 1) / n * w
++        vis = [p for p in line if p[0] <= upto]
++        if len(vis) < 2:
++            vis = line[:2]
++        glow = Image.new("RGB", (w, h), (0, 0, 0))
++        ImageDraw.Draw(glow).line(vis, fill=(225, 6, 0), width=int(16 * scale), joint="curve")
++        glow = glow.filter(ImageFilter.GaussianBlur(10 * scale))
++        img = Image.new("RGB", (w, h), (0, 0, 0))
++        d = ImageDraw.Draw(img)
++        d.line(vis, fill=(26, 0, 0), width=int(12 * scale), joint="curve")
++        img = Image.fromarray(np.maximum(np.asarray(img), np.asarray(glow)))
++        d = ImageDraw.Draw(img)
++        d.line(vis, fill=(255, 42, 26), width=int(5 * scale), joint="curve")
++        d.line(vis, fill=(255, 210, 204), width=max(1, int(1.5 * scale)), joint="curve")
++        frames.append(img)
++    return frames
++
++
++def render_wipe(path, w, h, qp):
++    import tempfile
++    tmp = tempfile.mkdtemp(prefix="wipe_")
++    for k, f in enumerate(wipe_frames(w, h)):
++        f.save(os.path.join(tmp, f"f{k:02d}.png"))
++    wav = os.path.join(tmp, "dt.wav")
++    dur = WIPE_FRAMES / FPS
++    x = double_thump()
++    pad = np.zeros(int(dur * SR))
++    pad[:min(len(pad), len(x))] = x[:len(pad)]
++    write_wav(wav, pad, THUMP_PEAK_DBFS)
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(tmp, "f%02d.png"),
++                    "-i", wav, "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(qp),
++                    "-pix_fmt", "yuv420p", "-r", str(FPS), "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
++                    "-t", f"{dur:.4f}", "-movflags", "+faststart", path], check=True, capture_output=True, timeout=120)
++    return path
++
++
++# ── concat with transitions ──
++
++def _frames(path):
++    r = subprocess.run(["ffprobe", "-v", "error", "-count_packets", "-select_streams", "v:0", "-show_entries",
++                        "stream=nb_read_packets", "-of", "csv=p=0", path], capture_output=True, text=True,
++                       check=True, timeout=60)
++    return int(r.stdout.strip().split(",")[0])
++
++
++def concat(segments, junctions, out_path, qp, w, h, work_dir):
++    """Concatenate (label, path, type) segments with the planned junctions. Every input is normalised
++    to its exact video frame count (audio padded/trimmed to it) so picture and sound stay locked.
++    Returns the timeline [{"label","type","start","end"}] (overlapping entries at dissolves)."""
++    style_c = [j for j in junctions if j["kind"] == "insert"]
++    segs = list(segments)
++    if style_c:
++        wipe = render_wipe(os.path.join(work_dir, "transition_wipe_C.mp4"), w, h, qp)
++        for j in sorted(style_c, key=lambda j: -j["after"]):
++            segs.insert(j["after"] + 1, ("transition_C", wipe, "transition"))
++        junctions = [j for j in junctions if j["kind"] != "insert"]
++    jmap = {segs.index(segments[j["after"]]): j for j in junctions}
++    frames = [_frames(p) for _, p, _ in segs]
++    graph, tl = [], []
++    for i, (_, p, _) in enumerate(segs):
++        d = frames[i] / FPS
++        graph.append(f"[{i}:v]setpts=PTS-STARTPTS,fps={FPS},trim=end_frame={frames[i]},setsar=1[v{i}]")
++        graph.append(f"[{i}:a]asetpts=PTS-STARTPTS,aresample=async=1,apad,atrim=end={d:.6f},"
++                     f"aformat=sample_fmts=fltp:sample_rates={SR}:channel_layouts=stereo[a{i}]")
++    vcur, acur, t = "v0", "a0", frames[0] / FPS
++    tl.append({"label": segs[0][0], "type": segs[0][2], "start": 0.0, "end": round(t, 4)})
++    thumps = []
++    for i in range(1, len(segs)):
++        j = jmap.get(i - 1)
++        di = frames[i] / FPS
++        if j and j["kind"] == "dissolve":
++            dd = j["frames"] / FPS
++            # ffmpeg 4.4.2 xfade keeps A through the frame at round(offset*fps) and starts B on the NEXT
++            # frame: offset=t-dd put B's frame k at t-dd+(k+1)/fps, one frame (41.7 ms) behind B's own
++            # audio for the whole clip (measured 2026-11-11, test_transitions TestConcat). One frame
++            # earlier lands B's first frame exactly at t-dd, where acrossfade starts B's audio.
++            graph.append(f"[{vcur}][v{i}]xfade=transition=fade:duration={dd:.6f}:"
++                         f"offset={t - dd - 1 / FPS:.6f}[vx{i}]")
++            graph.append(f"[{acur}][a{i}]acrossfade=d={dd:.6f}:c1=tri:c2=tri[ax{i}]")
++            start = t - dd
++            if j["style"] == "B":
++                thumps.append(start + dd / 2)
++        else:
++            if j and j["kind"] == "dip":
++                dd = j["frames"] / FPS / 2
++                graph.append(f"[{acur}]afade=t=out:st={t - dd:.6f}:d={dd:.6f}[ad{i}]")
++                graph.append(f"[a{i}]afade=t=in:st=0:d={dd:.6f}[ai{i}]")
++                acur, ain = f"ad{i}", f"ai{i}"
++            else:
++                ain = f"a{i}"
++            graph.append(f"[{vcur}][{acur}][v{i}][{ain}]concat=n=2:v=1:a=1[vx{i}][ax{i}]")
++            start = t
++        vcur, acur, t = f"vx{i}", f"ax{i}", start + di
++        tl.append({"label": segs[i][0], "type": segs[i][2], "start": round(start, 4), "end": round(t, 4)})
++    inputs = []
++    for _, p, _ in segs:
++        inputs += ["-i", p]
++    if thumps:
++        x = np.zeros(int((t + 1) * SR))
++        th = thump()
++        for c in thumps:
++            k = int((c - 0.02) * SR)
++            x[k:k + len(th)] += th[:len(x) - k]
++        tw = os.path.join(work_dir, "transition_thumps_B.wav")
++        write_wav(tw, x / max(1e-9, np.max(np.abs(x))), THUMP_PEAK_DBFS)
++        inputs += ["-i", tw]
++        graph.append(f"[{acur}][{len(segs)}:a]amix=inputs=2:duration=first:normalize=0[amx]")
++        acur = "amx"
++    subprocess.run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(graph),
++                    "-map", f"[{vcur}]", "-map", f"[{acur}]", "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp",
++                    "-qp", str(qp), "-pix_fmt", "yuv420p", "-r", str(FPS), "-c:a", "aac", "-b:a", "192k",
++                    "-ar", "48000", "-ac", "2", "-movflags", "+faststart", out_path],
++                   check=True, capture_output=True, timeout=1200)
++    with open(os.path.join(work_dir, "transitions_timeline.json"), "w") as f:
++        json.dump({"junctions": junctions + style_c, "timeline": tl, "thumps_s": thumps}, f, indent=2)
++    return tl
+diff --git a/pipeline/verify_pack.py b/pipeline/verify_pack.py
+new file mode 100644
+index 00000000..1d1d6a04
+--- /dev/null
++++ b/pipeline/verify_pack.py
+@@ -0,0 +1,79 @@
++#!/usr/bin/env python3
++"""pipeline/verify_pack.py — the automated verification pack (mission 4a; DEC-8 'no hand step').
++
++What a reviewer checks by eye, produced for every run before any delivery and attached to the drop:
++  1. words   G18 word-for-word rows from GATE_REPORT.json (edges + identity per clip, both finals)
++  2. joins   frames at every segment boundary of both finals (last frame before, first after, and the
++             middle of a dissolve), one labelled contact sheet per format
++  3. credits the credits card: three frames per format and the measured G12/G15 rows
++VERIFY/VERIFICATION.json records every artefact; `complete` is True only when all of them exist.
++"""
++import json
++import os
++import subprocess
++
++FPS = 24
++
++
++def _frame(video, t, out):
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{max(0.0, t):.3f}", "-i", video, "-frames:v", "1",
++                    "-q:v", "3", out], check=True, timeout=60)
++    return out if os.path.exists(out) else None
++
++
++def _sheet(items, out, tile_w):
++    """items: [(label, path)] -> one labelled grid image (3 per row)."""
++    from PIL import Image, ImageDraw
++    ims = [(lab, Image.open(p).convert("RGB")) for lab, p in items if p]
++    if not ims:
++        return None
++    th = int(round(ims[0][1].height * tile_w / ims[0][1].width))
++    cols = 3
++    rows = (len(ims) + cols - 1) // cols
++    sheet = Image.new("RGB", (cols * tile_w, rows * (th + 28)), (0, 0, 0))
++    d = ImageDraw.Draw(sheet)
++    for k, (lab, im) in enumerate(ims):
++        x, y = (k % cols) * tile_w, (k // cols) * (th + 28)
++        sheet.paste(im.resize((tile_w, th)), (x, y + 28))
++        d.text((x + 6, y + 6), lab, fill=(255, 255, 255))
++    sheet.save(out, quality=88)
++    return out
++
++
++def build(run_dir):
++    vdir = os.path.join(run_dir, "VERIFY")
++    os.makedirs(vdir, exist_ok=True)
++    with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
++        rep = json.load(f)
++    pack = {"words": rep.get("G18"), "joins": {}, "credits": {"G12": {}, "G15": {}}}
++    for fmt, final, tile in (("16x9", "segment.mp4", 480), ("9x16", "segment_vertical.mp4", 270)):
++        final = os.path.join(run_dir, "out", final)
++        with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
++            segs = json.load(f)["segments"]
++        items = []
++        for a, b in zip(segs, segs[1:]):
++            tag = f"{a['label']}->{b['label']}"
++            overlap = a["end"] - b["start"]
++            pts = [("last", b["start"] - 1.0 / FPS if overlap <= 1e-3 else a["end"] - 1.0 / FPS),
++                   ("first", (b["start"] if overlap <= 1e-3 else a["end"]) + 0.5 / FPS)]
++            if overlap > 1e-3:
++                pts.insert(1, ("mid-dissolve", b["start"] + overlap / 2))
++            for name, t in pts:
++                items.append((f"{fmt} {tag} {name} {t:.2f}s",
++                              _frame(final, t, os.path.join(vdir, f"join_{fmt}_{tag}_{name}.jpg"))))
++        pack["joins"][fmt] = {"frames": [p for _, p in items], "sheet": _sheet(
++            items, os.path.join(vdir, f"joins_{fmt}.jpg"), tile)}
++        sh = next((s for s in segs if s["label"] == "shoutout"), None)
++        if sh:
++            c_items = [(f"{fmt} credits {t:.2f}s", _frame(final, t, os.path.join(vdir, f"credits_{fmt}_{k}.jpg")))
++                       for k, t in enumerate((sh["start"] + 1.0, (sh["start"] + sh["end"]) / 2, sh["end"] - 0.5))]
++            pack["credits"][fmt] = {"frames": [p for _, p in c_items],
++                                    "sheet": _sheet(c_items, os.path.join(vdir, f"credits_{fmt}.jpg"), tile)}
++        pack["credits"]["G12"][fmt] = rep.get("rows", {}).get(fmt, {}).get("G12_credits")
++        pack["credits"]["G15"][fmt] = rep.get(f"G15_{fmt}")
++    files = [pack["joins"][f]["sheet"] for f in ("16x9", "9x16")] + \
++            [pack["credits"].get(f, {}).get("sheet") for f in ("16x9", "9x16")]
++    pack["complete"] = bool(pack["words"]) and all(p and os.path.exists(p) for p in files)
++    with open(os.path.join(vdir, "VERIFICATION.json"), "w") as f:
++        json.dump(pack, f, indent=2, default=str)
++    return pack
+diff --git a/pipeline/vertical_layout.py b/pipeline/vertical_layout.py
+new file mode 100644
+index 00000000..aeb39d2a
+--- /dev/null
++++ b/pipeline/vertical_layout.py
+@@ -0,0 +1,257 @@
++#!/usr/bin/env python3
++"""pipeline/vertical_layout.py — deterministic per-shot vertical layout class (DEC-2, DEC-5, M5).
++
++PBX 2026-11-11: the 9:16 is a speaker-centred reframe by default; 2-3 people get stacked bands; the
++wide safe frame (letterbox) only for a shared screen or when the speaker cannot be identified, and then
++flagged in the EDL and the Telegram caption. Detection MEASURES (SCRFD faces, face_scrfd.py); these
++fixed rules DECIDE. Layouts are per SHOT: a clip is sampled every SAMPLE_S and split where the class of
++the picture changes (Natalie Brunell's Nov 10 clip = chart graphic -> talking head -> Capitol B-roll).
++
++Per sample (face area = bbox area / frame area):
++  screen   largest face < SCREEN_FACE_FRAC (1.0 %) or no face: a shared screen / chart / B-roll with at
++           most a small face-cam (DataDash face-cam 0.4 %; Yahoo Finance standing host 1.6 %; Natalie
++           Brunell 7.7-13 %: SCRFD measurements 2026-11-11)
++  single   exactly one face >= PROMINENT_FRAC (1.0 %)
++  stack2 / stack3   two / three faces >= 1.0 %, the smallest >= MIN_BAND_RATIO of the largest
++  uncertain  anything else (4+ faces, one dominant face plus small ones of unclear role)
++Shots: runs of equal sample class; runs shorter than MIN_SHOT_S are merged into the longer neighbour.
++Rendering per shot class: single -> fixed speaker-centred 9:16 crop at the shot's median face centre
++(no animated panning, Law 18a); stack2/3 -> equal bands left-to-right; screen/uncertain -> safe frame
++(letterbox), always reported in the plan as flagged.
++"""
++import json
++import os
++import subprocess
++
++import numpy as np
++
++SAMPLE_S = 0.5
++SCREEN_FACE_FRAC = 0.010
++PROMINENT_FRAC = 0.010
++MIN_BAND_RATIO = 0.35
++MIN_SHOT_S = 1.0
++SAFE_FRAME = ("screen", "uncertain")
++G4_LAYOUT = {"single": "single", "stack2": "2face", "stack3": "3face", "screen": "screenshare",
++             "uncertain": "single"}
++
++
++def _probe(path):
++    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
++                        "stream=width,height,nb_frames,r_frame_rate:format=duration", "-of", "json", path],
++                       capture_output=True, text=True, check=True, timeout=30)
++    j = json.loads(r.stdout)
++    s = j["streams"][0]
++    num, den = (int(x) for x in s["r_frame_rate"].split("/"))
++    return int(s["width"]), int(s["height"]), num / den, float(j["format"]["duration"])
++
++
++def sample_label(faces, w, h):
++    """Class of one sampled frame from its SCRFD faces [(x0, y0, x1, y1, score)]."""
++    fr = [((x1 - x0) * (y1 - y0) / float(w * h), (x0 + x1) / 2.0, (y0 + y1) / 2.0) for x0, y0, x1, y1, _ in faces]
++    fr.sort(key=lambda f: -f[0])
++    if not fr or fr[0][0] < SCREEN_FACE_FRAC:
++        return "screen", fr
++    prom = [f for f in fr if f[0] >= PROMINENT_FRAC]
++    if len(prom) == 1:
++        return "single", fr
++    if len(prom) in (2, 3) and prom[-1][0] >= MIN_BAND_RATIO * prom[0][0]:
++        return f"stack{len(prom)}", fr
++    return "uncertain", fr
++
++
++def _runs(labels):
++    runs, i = [], 0
++    while i < len(labels):
++        j = i
++        while j < len(labels) and labels[j] == labels[i]:
++            j += 1
++        runs.append([labels[i], i, j])
++        i = j
++    return runs
++
++
++CUT_PEAK_RATIO = 3.0   # a frame difference >= 3x the window median is a picture cut
++
++
++def _cut_frame(clip_path, mid, half, n_frames):
++    """First frame of the new shot near `mid`: the largest consecutive-frame difference (64x36 grey)
++    within +-half frames when it is a clear peak, else `mid` (sample-accurate)."""
++    import cv2
++    a, b = max(1, mid - half), min(n_frames - 1, mid + half)
++    cap = cv2.VideoCapture(clip_path)
++    cap.set(cv2.CAP_PROP_POS_FRAMES, a - 1)
++    prev, diffs = None, []
++    for f in range(a - 1, b + 1):
++        ok, fr = cap.read()
++        if not ok:
++            break
++        g = cv2.resize(cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY), (64, 36)).astype(np.float32)
++        if prev is not None:
++            diffs.append((float(np.mean(np.abs(g - prev))), f))
++        prev = g
++    cap.release()
++    if len(diffs) < 3:
++        return mid
++    vals = np.array([d for d, _ in diffs])
++    k = int(np.argmax(vals))
++    return diffs[k][1] if vals[k] >= CUT_PEAK_RATIO * max(np.median(vals), 1e-3) else mid
++
++
++def classify(clip_path, detect=None):
++    """Per-shot plan for a prepared clip: {"shots": [{"start", "end", "class", "faces", ...}], ...}.
++    Times are clip-relative seconds, shot edges on frame boundaries."""
++    import cv2
++    if detect is None:
++        from face_scrfd import detect
++    w, h, fps, dur = _probe(clip_path)
++    cap = cv2.VideoCapture(clip_path)
++    n_frames = int(round(dur * fps))
++    times = np.arange(SAMPLE_S / 2, dur, SAMPLE_S)
++    samples = []
++    for t in times:
++        cap.set(cv2.CAP_PROP_POS_FRAMES, min(n_frames - 1, int(t * fps)))
++        ok, frame = cap.read()
++        label, fr = sample_label(detect(frame), w, h) if ok else ("uncertain", [])
++        samples.append({"t": round(float(t), 3), "class": label, "faces": [[round(a, 4), round(x), round(y)] for a, x, y in fr[:4]]})
++    cap.release()
++    if not samples:
++        raise RuntimeError(f"no frames sampled from {clip_path}")
++    labels = [s["class"] for s in samples]
++    runs = _runs(labels)
++    min_n = max(1, int(round(MIN_SHOT_S / SAMPLE_S)))
++    changed = True
++    while changed and len(runs) > 1:                      # absorb short runs into the longer neighbour
++        changed = False
++        for k, (lab, a, b) in enumerate(runs):
++            if b - a < min_n:
++                left = runs[k - 1] if k > 0 else None
++                right = runs[k + 1] if k + 1 < len(runs) else None
++                tgt = max([r for r in (left, right) if r], key=lambda r: r[2] - r[1])
++                for i in range(a, b):
++                    labels[i] = tgt[0]
++                runs = _runs(labels)
++                changed = True
++                break
++    edges = {}
++    for _, a, _b in runs[1:]:                             # refine each internal edge to the cut frame
++        mid = int(round((times[a - 1] + times[a]) / 2 * fps))
++        edges[a] = _cut_frame(clip_path, mid, int(round(SAMPLE_S * fps)), n_frames)
++    shots = []
++    for lab, a, b in runs:
++        start = 0.0 if a == 0 else round(edges[a] / fps, 4)
++        end = round(dur, 4) if b == len(times) else round(edges[b] / fps, 4)
++        faces = [s["faces"] for s in samples[a:b] if s["class"] == lab]
++        shot = {"start": start, "end": end, "class": lab, "flagged": lab in SAFE_FRAME,
++                "g4_layout": G4_LAYOUT[lab], "n_samples": b - a}
++        if lab == "single":
++            shot["face_cx"] = int(np.median([f[0][1] for f in faces]))
++            shot["face_cy"] = int(np.median([f[0][2] for f in faces]))
++        elif lab in ("stack2", "stack3"):
++            n = int(lab[-1])
++            per = [sorted(f[:n], key=lambda c: c[1]) for f in faces]    # each sample's n faces, left to right
++            shot["band_cx"] = [int(x) for x in np.median([[c[1] for c in p] for p in per], axis=0)]
++            shot["band_cy"] = [int(y) for y in np.median([[c[2] for c in p] for p in per], axis=0)]
++        shots.append(shot)
++    return {"clip": os.path.basename(clip_path), "width": w, "height": h, "fps": fps, "duration": round(dur, 4),
++            "rules": {"SAMPLE_S": SAMPLE_S, "SCREEN_FACE_FRAC": SCREEN_FACE_FRAC, "PROMINENT_FRAC": PROMINENT_FRAC,
++                      "MIN_BAND_RATIO": MIN_BAND_RATIO, "MIN_SHOT_S": MIN_SHOT_S},
++            "shots": shots, "samples": samples,
++            "flagged": any(s["flagged"] for s in shots)}
++
++
++# ── G4s LAYOUT TRUTH (DEC-2): a label must match the picture; safe frame only where labelled ──
++
++SAFE_FRAME_BAND = (656, 1264)   # render_vertical.LETTERBOX_VF: the 16:9 frame scaled to 1080x608, centred
++SAFE_FRAME_MIN_CORR = 0.90      # band vs the prepared frame, 64x36 grey, measured 2026-11-11: letterbox
++                                # 0.998-1.000 (Nov 10 9:16, 18 frames); v2f speaker crops <= 0.448 (24 frames)
++
++
++def _frame(path, t):
++    import cv2
++    cap = cv2.VideoCapture(path)
++    cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000.0)
++    ok, f = cap.read()
++    cap.release()
++    return f if ok else None
++
++
++def _thumb(bgr):
++    import cv2
++    g = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
++    return cv2.resize(g, (64, 36), interpolation=cv2.INTER_AREA).astype(np.float64)
++
++
++def is_safe_frame(vert_bgr, src_bgr):
++    """True when a 1080x1920 frame is the safe frame: its centre band reproduces the WHOLE 16:9 source
++    frame of the same instant (normalised correlation >= SAFE_FRAME_MIN_CORR). A speaker crop or
++    stacked bands show part of the picture, never all of it; a plain or soft background cannot pass."""
++    if vert_bgr.shape[:2] != (1920, 1080):
++        return False, {"band_corr": None, "shape": list(vert_bgr.shape[:2])}
++    a, b = _thumb(vert_bgr[SAFE_FRAME_BAND[0]:SAFE_FRAME_BAND[1]]), _thumb(src_bgr)
++    a, b = a - a.mean(), b - b.mean()
++    d = float(np.sqrt((a * a).sum() * (b * b).sum()))
++    r = float((a * b).sum() / d) if d > 0 else 0.0
++    return r >= SAFE_FRAME_MIN_CORR, {"band_corr": round(r, 3)}
++
++
++def gate_g4s(plans, prepared, vert_final=None, vert_segments=None, detect=None):
++    """plans {clip_id: plan}, prepared {clip_id: prepared clip path}. Each shot's label must equal the
++    majority class re-measured on that shot's own frames (never the label itself); in the 9:16 final the
++    shot must be a safe frame iff it is labelled screen/uncertain. Returns (ok, table)."""
++    if detect is None:
++        from face_scrfd import detect
++    import cv2
++    seg_start = {s["label"]: s["start"] for s in (vert_segments or [])}
++    table, ok_all = [], True
++    for cid, plan in plans.items():
++        for k, shot in enumerate(plan["shots"]):
++            times = [shot["start"] + (shot["end"] - shot["start"]) * (i + 0.5) / 5 for i in range(5)]
++            meas = []
++            for t in times:
++                f = _frame(prepared[cid], t)
++                meas.append(sample_label(detect(f), f.shape[1], f.shape[0])[0] if f is not None else "uncertain")
++            majority = max(set(meas), key=meas.count)
++            row = {"segment": cid, "shot": k, "label": shot["class"], "measured": meas, "label_ok": majority == shot["class"]}
++            if vert_final and cid in seg_start:
++                tm = (shot["start"] + shot["end"]) / 2
++                vf, sf = _frame(vert_final, seg_start[cid] + tm), _frame(prepared[cid], tm)
++                safe, m = is_safe_frame(vf, sf) if vf is not None and sf is not None else (None, {})
++                row.update(vertical_safe_frame=safe, **m,
++                           vertical_ok=safe is not None and safe == (shot["class"] in SAFE_FRAME))
++            row["pass"] = row["label_ok"] and row.get("vertical_ok", True)
++            ok_all &= row["pass"]
++            table.append(row)
++    return ok_all, table
++
++
++def layout_note(edl):
++    """Caption lines for the Telegram drop (DEC-2/DEC-5): every safe-frame shot named with its layout,
++    never silent; a segment without a measured layout is reported too. '' when every shot is reframed."""
++    lines = []
++    for label, seg in [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]:
++        vl = seg.get("vertical_layout")
++        if not vl:
++            lines.append(f"9:16 {label} ({seg.get('channel')}): layout NOT MEASURED")
++            continue
++        spans = [f"layout={sh['class']}" + (" (speaker unidentified)" if sh["class"] == "uncertain" else "")
++                 + f" {sh['start']:.2f}-{sh['end']:.2f} s" for sh in vl["shots"] if sh["flagged"]]
++        if spans:
++            lines.append(f"9:16 SAFE FRAME {label} ({seg.get('channel')}): " + "; ".join(spans))
++    return "\n".join(lines)
++
++
++def per_shot_manifest(segments, plans):
++    """Manifest with each clip split into its shots (type talking_head, G4 layout per shot) so the
++    UNCHANGED gate_g4 applies the right face rule to every shot. Shot times are measured on the
++    prepared clip, lead-in pad included, so they map onto the timeline by the segment start alone."""
++    out = []
++    for s in segments:
++        plan = plans.get(s["label"]) if s.get("type") == "talking_head" else None
++        if not plan:
++            out.append(s)
++            continue
++        for k, sh in enumerate(plan["shots"]):
++            out.append({"label": f"{s['label']}#{k}", "type": "talking_head", "layout": sh["g4_layout"],
++                        "source_faces": int(sh["class"][-1]) if sh["class"].startswith("stack") else 1,
++                        "start": round(s["start"] + sh["start"], 3), "end": round(s["start"] + sh["end"], 3)})
++    return out
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+new file mode 100644
+index 00000000..c37d367b
+--- /dev/null
++++ b/pipeline/word_diff.py
+@@ -0,0 +1,144 @@
++#!/usr/bin/env python3
++"""pipeline/word_diff.py — G18 WORD-FOR-WORD (PBX 2026-11-11, mission 4a).
++
++Every clip in the final is transcribed (faster-whisper large-v3, en, beam 5, word timestamps, no VAD, NO
++prompt: a prompt would bias the ASR towards the expected words and hide a clipped edge) and must say:
++  (a) EDGES: its first and last two words are the first and last two words of its selection lock
++      (a clipped start, a lost ending or a run-on into the next sentence fails here: D1-D3);
++  (b) IDENTITY: exactly the words of the source span it was cut from [cut_in, cut_out], transcribed
++      the same way in isolation (a transition, concat or render that eats, repeats or adds a word fails).
++The middle of a clip cannot differ from its lock except by ASR rendering (the cut only places its two
++edges), so the full diff against the lock is REPORTED for the human, not gated: two whisper passes over the
++same audio render numbers ('$74,000' / '74 000' / 'seventy four thousand dollars') and disfluent repeats
++('of course of course' / 'of course') differently (measured on the Nov 10 fixture, 2026-11-11).
++Both sides are canonicalised alike: case, punctuation, number fragments ('88 ,000'), spelled numbers,
++currency/percent words after a number, immediate repeats of 1-3 words.
++"""
++import difflib
++import os
++import re
++import subprocess
++import tempfile
++
++ASR = {"model": "large-v3", "language": "en", "beam_size": 5, "word_timestamps": True, "vad_filter": False}
++EDGE_WORDS = 2
++
++_UNITS = {w: i for i, w in enumerate("zero one two three four five six seven eight nine ten eleven twelve thirteen "
++                                     "fourteen fifteen sixteen seventeen eighteen nineteen".split())}
++_TENS = {w: 10 * i for i, w in enumerate("_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()) if w != "_"}
++_SCALES = {"hundred": 100, "thousand": 1000}   # whisper writes '74,000' but keeps '1.3 billion' as words
++_AFTER_NUMBER = {"dollars", "dollar", "percent", "per", "cent"}
++
++
++def _spelled_numbers(tokens):
++    out, i = [], 0
++    while i < len(tokens):
++        if tokens[i] in _UNITS or tokens[i] in _TENS:
++            total, cur, j = 0, 0, i
++            while j < len(tokens) and (tokens[j] in _UNITS or tokens[j] in _TENS or tokens[j] in _SCALES
++                                       or (tokens[j] == "and" and j + 1 < len(tokens) and tokens[j + 1] in _UNITS)):
++                t = tokens[j]
++                if t in _UNITS:
++                    cur += _UNITS[t]
++                elif t in _TENS:
++                    cur += _TENS[t]
++                elif t == "hundred":
++                    cur *= 100
++                elif t in _SCALES:
++                    total += max(cur, 1) * _SCALES[t]
++                    cur = 0
++                j += 1
++            out.append(str(total + cur))
++            i = j
++        else:
++            out.append(tokens[i])
++            i += 1
++    return out
++
++
++def norm(text):
++    t = (text or "").lower().replace("’", "'")
++    t = re.sub(r"(\d)\s+([.,]\d)", r"\1\2", t)            # '88 ,000' -> '88,000', '1 .3' -> '1.3'
++    t = re.sub(r"(\d)\s+(?=\d{3}\b)", r"\1", t)             # '74 000' -> '74000'
++    t = re.sub(r"\$\s+(\d)", r"$\1", t)
++    t = re.sub(r"\b(\w)\s+\.(?=\w)", r"\1.", t)              # 'u .s.' -> 'u.s.'
++    t = re.sub(r"\b([a-z])\.(?=[a-z]\b)", r"\1", t)            # 'u.s.' -> 'us.' (single-letter abbreviations)
++    t = re.sub(r"(?<=\d)[,](?=\d{3}\b)", "", t)             # '74,000' -> '74000'
++    t = re.sub(r"[^\w\s']", " ", t)                         # punctuation, '$', '%' (both sides alike)
++    t = re.sub(r"(?<!\w)'|'(?!\w)", "", t)                  # quote marks, not apostrophes
++    tokens = _spelled_numbers(t.split())
++    tokens = [w for k, w in enumerate(tokens)                # 'one point three' -> '1 3', like '1.3' -> '1 3'
++              if not (w == "point" and 0 < k < len(tokens) - 1 and tokens[k - 1].isdigit() and tokens[k + 1].isdigit())]
++    tokens = [w for k, w in enumerate(tokens) if not (w in _AFTER_NUMBER and k and (
++        tokens[k - 1].isdigit() or tokens[k - 1] in ("million", "billion", "trillion")))]
++    return _collapse_repeats(tokens)
++
++
++def _collapse_repeats(tokens):
++    out = []
++    for w in tokens:
++        out.append(w)
++        for n in (3, 2, 1):
++            if len(out) >= 2 * n and out[-n:] == out[-2 * n:-n]:
++                del out[-n:]
++                break
++    return out
++
++
++def diff(expected, heard):
++    """Word-level differences [(op, expected_words, heard_words)] after canonicalisation; [] if equal."""
++    e, h = norm(expected), norm(heard)
++    out = []
++    for op, a0, a1, b0, b1 in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes():
++        if op != "equal":
++            out.append((op, " ".join(e[a0:a1]), " ".join(h[b0:b1])))
++    return out
++
++
++def edges(lock_text, heard, n=EDGE_WORDS):
++    """[] when the heard text starts and ends with the lock's first/last n canonical words."""
++    e, h = norm(lock_text), norm(heard)
++    out = []
++    if h[:n] != e[:n]:
++        out.append(("start", " ".join(e[:n]), " ".join(h[:n])))
++    if h[-n:] != e[-n:]:
++        out.append(("end", " ".join(e[-n:]), " ".join(h[-n:])))
++    return out
++
++
++class Transcriber:
++    def __init__(self):
++        from faster_whisper import WhisperModel
++        self.model = WhisperModel(ASR["model"], device="cuda", compute_type="float16")
++
++    def span(self, media, t0, t1):
++        with tempfile.TemporaryDirectory(prefix="g18_") as tmp:
++            wav = os.path.join(tmp, "span.wav")
++            subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0:.3f}", "-t", f"{t1 - t0:.3f}", "-i", media,
++                            "-vn", "-ac", "1", "-ar", "16000", wav], check=True, timeout=120)
++            segs, _ = self.model.transcribe(wav, language=ASR["language"], beam_size=ASR["beam_size"],
++                                            word_timestamps=ASR["word_timestamps"], vad_filter=ASR["vad_filter"])
++            return " ".join(w.word.strip() for s in segs for w in (s.words or []))
++
++
++def gate_g18(final_path, segments, clips, transcriber=None):
++    """segments: the final's manifest entries. clips: {label: {"lock_text", "source", "cut_in", "cut_out"}}.
++    Returns (ok, rows); each row carries the gated edge + identity diffs and the reported lock diff."""
++    tr = transcriber or Transcriber()
++    by_label = {s["label"]: s for s in segments}
++    rows, ok_all = [], True
++    for label, c in clips.items():
++        seg = by_label.get(label)
++        if seg is None:
++            rows.append({"segment": label, "pass": False, "error": "segment missing from the manifest"})
++            ok_all = False
++            continue
++        heard = tr.span(final_path, seg["start"], seg["end"])
++        src = tr.span(c["source"], c["cut_in"], c["cut_out"])
++        row = {"segment": label, "heard": heard, "source_span_heard": src, "lock_text": c["lock_text"],
++               "edges": edges(c["lock_text"], heard), "identity": diff(src, heard),
++               "lock_diff_reported": diff(c["lock_text"], heard)}
++        row["pass"] = not row["edges"] and not row["identity"]
++        ok_all &= row["pass"]
++        rows.append(row)
++    return ok_all, rows
+diff --git a/scripts/pulse_check_run.sh b/scripts/pulse_check_run.sh
+new file mode 100755
+index 00000000..9584528d
+--- /dev/null
++++ b/scripts/pulse_check_run.sh
+@@ -0,0 +1,69 @@
++#!/usr/bin/env bash
++# scripts/pulse_check_run.sh — ONE command for a Pulse Check run (DEC-8 d, 2026-11-11). NOT installed in cron.
++#
++#   scripts/pulse_check_run.sh                    # AUTO: the engine's own top Bitcoin story (run_fresh.py)
++#   scripts/pulse_check_run.sh --pinned PIN.json  # PINNED (e.g. the corrected Nov 10 recut)
++#   options: --no-telegram   render + gates + verification pack only
++#            --foreground    run in this shell (default: a detached tmux session, see below)
++#
++# - one run at a time: flock on /tmp/pulse_check_run.lock (a second invocation exits 75 at once)
++# - tmux-safe: unless already inside a pipeline_* session (or --foreground), relaunches itself in a NEW
++#   detached session pipeline_pulse_check_<UTC stamp>; scripts/tmux_cleanup.sh (cron) keeps 'pipeline'
++#   sessions, so a long render is never reaped as idle. No other session is touched.
++# - GPU0 only (CUDA_VISIBLE_DEVICES=0); nothing is published: drops go to the Telegram approval chat
++#   only (pipeline/telegram.deliver_run): "HOLD FOR APPROVAL - all gates passed, no waivers" or
++#   "REVIEW ONLY" with the failing list.
++# - log: logs/pulse_check/run_<stamp>.log (git HEAD, run dir, exit code, delivery message ids)
++# Exit: run_fresh's code (0 = every gate passed, 3 = HOLD), 75 = locked, 64 = usage.
++set -uo pipefail
++REPO="$(cd "$(dirname "$0")/.." && pwd)"
++SELF="$REPO/scripts/pulse_check_run.sh"
++STAMP="$(date -u +%Y%m%d_%H%M%S)"
++
++FOREGROUND=0
++TELEGRAM=1
++ARGS=()
++ORIG=("$@")
++while [ $# -gt 0 ]; do
++  case "$1" in
++    --pinned) [ $# -ge 2 ] || { echo "usage: --pinned PIN.json" >&2; exit 64; }
++              ARGS+=(--pinned "$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"); shift 2 ;;
++    --no-telegram) TELEGRAM=0; shift ;;
++    --foreground) FOREGROUND=1; shift ;;
++    *) echo "unknown argument: $1" >&2; exit 64 ;;
++  esac
++done
++
++CUR_SESSION=""
++[ -n "${TMUX:-}" ] && CUR_SESSION="$(tmux display-message -p '#S' 2>/dev/null || true)"
++if [ "$FOREGROUND" = 0 ] && [[ "$CUR_SESSION" != pipeline_* ]]; then
++  NAME="pipeline_pulse_check_$STAMP"
++  tmux new-session -d -s "$NAME" "bash '$SELF' --foreground ${ORIG[*]}"
++  echo "started in tmux session $NAME (attach: tmux attach -t $NAME); log: $REPO/logs/pulse_check/"
++  exit 0
++fi
++
++LOG_DIR="$REPO/logs/pulse_check"
++mkdir -p "$LOG_DIR"
++LOG="$LOG_DIR/run_$STAMP.log"
++exec 9>/tmp/pulse_check_run.lock
++if ! flock -n 9; then
++  echo "pulse_check_run: another run holds /tmp/pulse_check_run.lock" | tee -a "$LOG" >&2
++  exit 75
++fi
++
++export CUDA_VISIBLE_DEVICES=0
++cd "$REPO/pipeline" || exit 1
++echo "=== pulse_check_run $STAMP | HEAD $(git -C "$REPO" rev-parse HEAD) | args: ${ARGS[*]:-auto} ===" | tee -a "$LOG"
++python3 run_fresh.py "${ARGS[@]}" 2>&1 | tee -a "$LOG"
++RC=${PIPESTATUS[0]}
++RUN_DIR="$(grep -m1 -oP '(?<==== FRESH-TOPIC RUN ).*(?= ===)' "$LOG" || true)"
++echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
++
++if [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
++  python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
++    "$RUN_DIR" 2>&1 | tee -a "$LOG"
++elif [ "$TELEGRAM" = 1 ]; then
++  echo "no finals rendered: nothing delivered (the run's REPORT.md and status.json are the ledger)" | tee -a "$LOG"
++fi
++exit "$RC"

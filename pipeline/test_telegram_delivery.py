@@ -85,6 +85,7 @@ class TestDelivery(unittest.TestCase):
         rows["16x9"]["G8_sharpness"] = "FLAG/LIMITED (absolute floor vs soft source)"
         _, sent = self.deliver(self.run_dir(rows))
         self.assertTrue(sent[0][2]["caption"].startswith("REVIEW ONLY"), sent[0][2]["caption"])
+        self.assertIn("G8_sharpness (16x9): FLAG/LIMITED", sent[0][2]["caption"])
 
     def test_incomplete_verification_pack_is_review_only(self):
         _, sent = self.deliver(self.run_dir(pack_complete=False))

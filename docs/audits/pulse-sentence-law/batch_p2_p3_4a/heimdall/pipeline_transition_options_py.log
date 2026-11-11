@@ -1,0 +1,27 @@
+# Heimdall audit
+
+**Question:** Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/transition_options.py)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0080
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/transition_options.py:41** The style argument is not validated. Any string is accepted and assigned to `rf.TRANSITION_STYLE`, which can lead to an unsupported render path or a confusing failure.
+  - evidence: `rf.TRANSITION_STYLE = style                     # the option, on the same cut`
+  - fix: Validate `style` against the supported set {'A','B','C'} and raise a clear error for anything else.
+  - raised by deepseek:F2; agree: deepseek, qwen27b
+- **[low] pipeline/transition_options.py:24** The `style` argument is interpolated directly into a filesystem path and a module global without validation. A caller passing a value other than A/B/C (e.g. a path-traversal string or a multi-word string from a single argv token) produces an uncontrolled destination path and an undefined `rf.TRANSITION_STYLE` value.
+  - evidence: `dst = f"{run_dir.rstrip('/')}_option{style}"`
+  - fix: Validate `style` against an allow-list (e.g. `if style not in ("A","B","C"): raise SystemExit(...)`) at the top of `render_option` or in the `__main__` loop before calling it.
+  - raised by qwen27b:F1; agree: deepseek, qwen27b
+- **[low] pipeline/transition_options.py:40** If `rf.stage_render` or `rf.stage_gates` raises, the partially-populated `dst` directory is left on disk. The guard at line 25 (`if os.path.exists(dst): raise SystemExit`) then blocks any retry until the operator manually deletes the directory, with no log of what failed.
+  - evidence: `final16, man16, final9, man9 = rf.stage_render(run)`
+  - fix: Wrap the render/gate/verify block in a try/except that logs the exception to a file inside `dst` (e.g. `OPTION_RENDER_ERROR.log`) before re-raising, so the operator can diagnose without deleting the directory.
+  - raised by qwen27b:F2; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- deepseek:F1 [high] Gate verdicts are not enforced before building the verification pack. `stage_gates` returns rows/flags/limits, but `verify_pack.build(dst)` is called unconditionally. A failed option is still packed and reported as a valid option, contrary to 'gated and packed like a production render'. (agree: 0)
+
+## Added in cross-examination (not voted on)
+- deepseek: [medium] verify_pack.build(dst) is called before run.save(), so any run state changes made by stage_render/stage_gates (e.g., mode, machine_cuts, or other fields) are not persisted to status.json before the verification pack is built. If verify_pack.build reads status.json, it will see stale state from the copied run_dir.
+
+
+saved: docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_transition_options_py

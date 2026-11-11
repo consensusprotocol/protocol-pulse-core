@@ -16,8 +16,11 @@ FPS = 24
 
 
 def _frame(video, t, out):
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{max(0.0, t):.3f}", "-i", video, "-frames:v", "1",
-                    "-q:v", "3", out], check=True, timeout=60)
+    try:
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{max(0.0, t):.3f}", "-i", video, "-frames:v", "1",
+                        "-q:v", "3", out], check=True, timeout=60)
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return None                                  # the pack is then incomplete, never a crash
     return out if os.path.exists(out) else None
 
 
@@ -54,7 +57,7 @@ def build(run_dir):
         for a, b in zip(segs, segs[1:]):
             tag = f"{a['label']}->{b['label']}"
             overlap = a["end"] - b["start"]
-            pts = [("last", b["start"] - 1.0 / FPS if overlap <= 1e-3 else a["end"] - 1.0 / FPS),
+            pts = [("last", b["start"] - 1.0 / FPS),          # A's last clean frame (before any dissolve)
                    ("first", (b["start"] if overlap <= 1e-3 else a["end"]) + 0.5 / FPS)]
             if overlap > 1e-3:
                 pts.insert(1, ("mid-dissolve", b["start"] + overlap / 2))
@@ -73,7 +76,9 @@ def build(run_dir):
         pack["credits"]["G15"][fmt] = rep.get(f"G15_{fmt}")
     files = [pack["joins"][f]["sheet"] for f in ("16x9", "9x16")] + \
             [pack["credits"].get(f, {}).get("sheet") for f in ("16x9", "9x16")]
-    pack["complete"] = bool(pack["words"]) and all(p and os.path.exists(p) for p in files)
+    credits_rows = [pack["credits"][g].get(f) for g in ("G12", "G15") for f in ("16x9", "9x16")]
+    pack["complete"] = bool(pack["words"]) and all(p and os.path.exists(p) for p in files) \
+        and all(r is not None for r in credits_rows)
     with open(os.path.join(vdir, "VERIFICATION.json"), "w") as f:
         json.dump(pack, f, indent=2, default=str)
     return pack

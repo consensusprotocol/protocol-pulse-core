@@ -1,0 +1,52 @@
+# Heimdall audit
+
+**Question:** Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/run_fresh.py)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0183
+## Consensus findings (majority of panel agrees)
+- **[critical] pipeline/run_fresh.py:354** stage_validate now rejects any layout override that is not 'auto', so hand overrides such as 'crop' or 'letterbox' are no longer accepted. This changes what the existing validation accepts and breaks Law 22 / the frozen v2f path when layouts are hand overrides.
+  - evidence: `if mode != "auto":                    # DEC-5: per-shot plan measured after prepare
+            layout_errors.append((label, channel, f"expected auto, got {mode!r}"))`
+  - fix: Accept hand overrides (e.g., allow 'auto', 'crop', 'letterbox') or only enforce 'auto' when no explicit override is present.
+  - raised by deepseek:F1; agree: deepseek, qwen27b
+- **[critical] pipeline/run_fresh.py:538** stage_layout reads vertical_overrides.json but then unconditionally overwrites every clip's entry with {'layout': 'auto', ...}, discarding any existing hand override. This violates Law 22 and the claim that hand overrides leave the frozen render path untouched.
+  - evidence: `ov[cid] = {"layout": "auto", "plan": {k: v for k, v in plan.items() if k != "samples"}}`
+  - fix: Only set ov[cid] if there is no existing hand override, or preserve the existing override and store the measured plan separately.
+  - raised by deepseek:F2; agree: deepseek, qwen27b
+- **[high] pipeline/run_fresh.py:564** stage_render unconditionally calls write_transitions, so TRANSITIONS.json is always created. The frozen v2f render path is therefore not untouched when TRANSITIONS.json is absent; the code changes the render inputs even for hand-override runs.
+  - evidence: `write_transitions(run, TRANSITION_STYLE)`
+  - fix: Only call write_transitions when transitions are enabled (e.g., when a flag is set or when TRANSITIONS.json already exists), or gate it behind the same condition that enables the transition renderer.
+  - raised by deepseek:F3; agree: deepseek, qwen27b
+- **[medium] pipeline/run_fresh.py:621** The code maps any class set that is not a single class to 'mixed', then maps 'mixed' to 'screenshare' via the default. A clip with mixed single and stack2 shots (no screen/uncertain) will be labelled screenshare, contradicting the comment that only screen/uncertain shots get the screenshare rule.
+  - evidence: `cls = classes.pop() if len(classes) == 1 else "mixed"
+                sg["layout"] = {"single": "single", "stack2": "2face", "stack3": "3face"}.get(cls, "screenshare")`
+  - fix: Explicitly check whether any shot is screen/uncertain before defaulting to screenshare; otherwise handle mixed face layouts appropriately.
+  - raised by deepseek:F5; agree: deepseek, qwen27b
+- **[high] pipeline/run_fresh.py:354** stage_validate layout-compatibility check changed what it accepts: previously it validated mode against 'crop' (approved) or 'letterbox' (pending); now it only accepts 'auto'. Any segment still carrying a legacy 'crop' or 'letterbox' mode will now raise Hold, breaking existing runs that predate DEC-5.
+  - evidence: `if mode != "auto":                    # DEC-5: per-shot plan measured after prepare
+            layout_errors.append((label, channel, f"expected auto, got {mode!r}"))`
+  - fix: Either migrate all existing segment definitions to 'auto' before deploying, or add a transitional branch that still accepts 'crop'/'letterbox' with a deprecation warning so in-flight runs are not broken.
+  - raised by qwen27b:F1; agree: deepseek, qwen27b
+- **[high] pipeline/run_fresh.py:564** write_transitions is called unconditionally at the top of stage_render, so TRANSITIONS.json is always written. If the frozen v2f render path (Law 22) keys off the *absence* of TRANSITIONS.json to skip transition logic, this call breaks the frozen path by making the file present on every run.
+  - evidence: `write_transitions(run, TRANSITION_STYLE)`
+  - fix: Guard the call: only write TRANSITIONS.json when the run is not on the frozen v2f path (e.g., check a run flag or the absence of hand-override markers). Alternatively, have the renderer treat an empty/absent lead_tail as 'no transitions' rather than relying on file absence.
+  - raised by qwen27b:F2; agree: deepseek, qwen27b
+- **[high] pipeline/run_fresh.py:529** stage_layout unconditionally overwrites every entry in vertical_overrides.json with {"layout": "auto", ...}, destroying any hand-set crop/letterbox overrides. If the frozen v2f path (Law 22) relies on hand overrides in that file, they are silently replaced before render.
+  - evidence: `ov[cid] = {"layout": "auto", "plan": {k: v for k, v in plan.items() if k != "samples"}}`
+  - fix: Skip the overwrite when the run is on the frozen v2f path, or merge: only set 'auto' for clips that do not already have an explicit hand override (e.g., check if ov[cid] already has a non-auto layout and preserve it).
+  - raised by qwen27b:F3; agree: deepseek, qwen27b
+- **[medium] pipeline/run_fresh.py:575** In the G4-input block of stage_render, a talking_head segment whose plan has zero shots (empty 'shots' list) yields an empty 'classes' set, so cls becomes 'mixed', layout becomes 'screenshare', and source_faces becomes 1. A talking-head with no detected faces is mislabelled as a single-face screenshare rather than being flagged as an error.
+  - evidence: `classes = {sh["class"] for sh in plan["shots"]}
+                cls = classes.pop() if len(classes) == 1 else "mixed"
+                sg["layout"] = {"single": "single", "stack2": "2face", "stack3": "`
+  - fix: Add a guard: if not classes (i.e., no shots detected), set layout to 'error' or raise a Hold so the gate catches it, rather than silently defaulting to 'screenshare' with source_faces=1.
+  - raised by qwen27b:F4; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- deepseek:F4 [high] G4s is supposed to check every label against the re-measured picture, but the call only passes plans (measured layout) and prepared (video files). It does not pass the manifests (man16/man9) or the segment labels, so it cannot compare labels to the picture. The gate is therefore not performing its stated function. (agree: 1)
+- qwen27b:F5 [medium] G4s for the 16x9 format is called with vert_final=None and vert_segments=None, so it cannot verify that the actual 16x9 output uses the full-frame safe frame for screen/uncertain shots. The gate only checks the plan metadata, not the rendered picture, leaving a gap in the 'safe frame only for screen/uncertain' guarantee for 16x9. (agree: 0)
+- qwen27b:F6 [low] write_transitions writes lead_tail and channels for every clip including the first (open) and last (credits-adjacent). There is no marker or exclusion for boundary clips. If the renderer naively applies a transition at every clip boundary, it will crossfade at the open or into the credits, violating the 'never at the open or into the credits' requirement. (agree: 1)
+
+## Added in cross-examination (not voted on)
+- deepseek: [critical] stage_gates uses the variable cuts in the new G18 block, but cuts is not a parameter of stage_gates and is not defined locally, so this will raise NameError at runtime.
+- qwen27b: [medium] Key mismatch between segs dictionary and clip_id: segs is keyed by f"clip_{c['index']:02d}" (e.g. 'clip_01'), but stage_layout looks up segs[cid] where cid = c['clip_id']. If clip_id is not in 'clip_NN' format (e.g. a video ID or hash), this raises KeyError. The same mismatch exists in write_transitions where lead_tail is keyed by clip_id but channels is keyed by the segs keys ('clip_01' format), making the two sub-dicts in TRANSITIONS.json unmatchable by the renderer.

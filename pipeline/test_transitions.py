@@ -170,7 +170,7 @@ class TestConcat(unittest.TestCase):
         b, x = _lumas(self.segs[1][1]), _lumas(out)
         s0 = int(round(tl[1]["start"] * 24))
         k = np.arange(6, 72)
-        self.assertLess(float(np.max(np.abs(x[s0 + k] - b[k]))), 1.5, (x[s0 + 4:s0 + 10], b[4:10]))
+        self.assertLess(float(np.max(np.abs(x[s0 + k] - b[k]))), 1.5, (x[s0 + 6:s0 + 12], b[6:12]))
         onset = _onset(out, tl[1]["start"] + 0.2, tl[1]["start"] + 0.6)
         self.assertAlmostEqual(onset - tl[1]["start"], 0.4, delta=0.012)
 

@@ -1,0 +1,19 @@
+# Heimdall audit
+
+**Question:** Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/transitions.py)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0223
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- qwen27b:F1 [high] Fail-open channel check: when a segment label is missing from the `channels` dict, `channels.get(lb)` returns `None`, and the comparison `channels.get(la) == channels.get(lb)` is `False` (e.g. "interview" != None). The `or` chain evaluates to False, so the junction is NOT skipped and a transition is planned between a known channel and an unknown one. If the unknown segment actually shares the same channel, a same-channel transition is silently allowed, violating the 'only between different channels' invariant. (agree: 1)
+- qwen27b:F2 [medium] Unguarded dict access on `lead_tail`: if a segment label is absent from the `lead_tail` mapping, `lead_tail[la][1]` raises an unhandled KeyError, crashing the entire plan/concat pipeline. The docstring specifies `lead_tail {label: (lead_s, tail_s)}` but does not guarantee every label is present; a missing entry (e.g. a newly added segment type) is a hard crash rather than a safe skip to hard-cut. (agree: 1)
+- qwen27b:F3 [low] In `render_wipe`, the `double_thump()` signal is 0.49 s long (gap 0.17 s + second thump 0.32 s) but is truncated to the wipe duration of 0.333 s (8 frames / 24 fps). The second thump is cut at ~0.16 s into its 0.32 s envelope. Although exponential decay (τ=75 ms) reduces the second thump to ~11 % amplitude at the cut point and `write_wav` applies 5 ms micro-fades, the abrupt truncation of a still-audible signal can produce a perceptible click in the wipe audio. (agree: 1)
+- qwen27b:F4 [low] In `double_thump`, the variable `gap` (0.17 s) is shorter than the first thump's duration (0.32 s), so the two thumps overlap by 0.15 s rather than being separated. The name `gap` implies non-overlap. While the overlap may be intentional for a 'lub-dub' heartbeat timbre, it makes the function's contract ambiguous and the `out` buffer length (`gap + len(b)`) does not reflect the true temporal extent of the first thump. (agree: 0)
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_transitions_py

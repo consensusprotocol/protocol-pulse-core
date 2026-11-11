@@ -1,0 +1,42 @@
+# Heimdall audit
+
+**Question:** Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/word_diff.py)
+
+**Panel:** deepseek, qwen27b  |  **Cost:** $0.0211
+## Consensus findings (majority of panel agrees)
+- **[critical] pipeline/word_diff.py:130** gate_g18 iterates over clips instead of segments, so any segment missing from clips is never checked, allowing the gate to pass without verifying all clips.
+  - evidence: `for label, c in clips.items():`
+  - fix: Iterate over segments and look up clips, or assert set(clips) == set(by_label) before the loop.
+  - raised by deepseek:F1; agree: deepseek, qwen27b
+- **[high] pipeline/word_diff.py:42** _spelled_numbers combines arbitrary consecutive number words additively, e.g. 'one two' -> '3', causing false passes.
+  - evidence: `cur += _UNITS[t]`
+  - fix: Only combine valid number phrases (e.g. tens followed by units, hundreds, thousands) or use a proper number parser.
+  - raised by deepseek:F2; agree: deepseek, qwen27b
+- **[medium] pipeline/word_diff.py:39** _spelled_numbers fails to handle 'and' before tens, e.g. 'one hundred and twenty' -> '100 and 20' instead of '120', causing false failures.
+  - evidence: `or (tokens[j] == "and" and j + 1 < len(tokens) and tokens[j + 1] in _UNITS)):`
+  - fix: Include _TENS in the condition: tokens[j + 1] in _UNITS or tokens[j + 1] in _TENS.
+  - raised by deepseek:F3; agree: deepseek, qwen27b
+- **[low] pipeline/word_diff.py:68** The 'point' normalisation only removes the word 'point' between two single-digit tokens, so a multi-digit decimal spoken as words (e.g. 'one point three five' for 1.35) normalises to ['1','3','5'] while the same value written as '1.35' normalises to ['1','35']. The two forms do not match.
+  - evidence: `tokens = [w for k, w in enumerate(tokens)
+              if not (w == "point" and 0 < k < len(tokens) - 1 and tokens[k - 1].isdigit() and tokens[k + 1].isdigit())]`
+  - fix: After removing 'point', join the subsequent digit tokens into a single token (e.g. '1 3 5' → '1 35') so that spoken and written decimals canonicalise identically. In practice both sides use the same ASR model so this is unlikely to trigger a false gate failure, but it is a normalisation inconsistency.
+  - raised by qwen27b:F1; agree: deepseek, qwen27b
+- **[low] pipeline/word_diff.py:30** _SCALES contains only 'hundred' and 'thousand'. Spoken values at or above one million (e.g. 'one million', 'two billion') are not collapsed to their numeric form; 'one million' becomes ['1','million'] while '1000000' stays ['1000000']. The docstring acknowledges this ('keeps 1.3 billion as words') but the two representations will not match in diff().
+  - evidence: `_SCALES = {"hundred": 100, "thousand": 1000}   # whisper writes '74,000' but keeps '1.3 billion' as words`
+  - fix: Add 'million': 1_000_000, 'billion': 1_000_000_000, 'trillion': 1_000_000_000_000 to _SCALES so that spelled-out large numbers are collapsed to the same integer form as their numeric counterparts. Both sides go through the same ASR so this is a low-probability mismatch, but it would cause a false identity failure if one pass renders the number and the other spells it.
+  - raised by qwen27b:F2; agree: deepseek, qwen27b
+- **[low] pipeline/word_diff.py:109** Transcriber.span does not validate that t1 > t0 before invoking ffmpeg. If a degenerate segment (end ≤ start) is passed, the -t argument is zero or negative; ffmpeg will either produce an empty WAV (zero duration) or raise, and check=True will propagate a CalledProcessError that crashes gate_g18 rather than recording a failure row.
+  - evidence: `subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0:.3f}", "-t", f"{t1 - t0:.3f}", "-i", media,
+                            "-vn", "-ac", "1", "-ar", "16000", wav], check=True, timeout=120)`
+  - fix: Add a guard at the top of span(): if t1 <= t0: raise ValueError(f"non-positive duration {t1 - t0}") or return '' so the caller can record a clean failure row instead of an unhandled exception.
+  - raised by qwen27b:F3; agree: deepseek, qwen27b
+
+## Raised but not agreed
+- deepseek:F4 [low] _spelled_numbers with 'hundred' alone yields '0' because cur starts at 0 and cur *= 100 keeps it 0. (agree: 0)
+
+## Added in cross-examination (not voted on)
+- deepseek: [low] _spelled_numbers mishandles 'hundred' when cur is 0 after a scale word, e.g. 'one thousand hundred' normalises to '1000' instead of failing or a correct value, because cur *= 100 leaves 0.
+- deepseek: [medium] gate_g18 does not catch exceptions from Transcriber.span (ffmpeg/ASR failures), so a single bad segment or media error crashes the entire gate instead of recording a failure row.
+
+
+saved: docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_word_diff_py

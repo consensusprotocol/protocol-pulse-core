@@ -1,0 +1,106 @@
+{
+ "question": "Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/transitions.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 331.4,
+   "cost": 0.0033455944,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 202.0,
+   "cost": 0.0115102535,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 4,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 348.8,
+   "cost": 0.003422028,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 147.2,
+   "cost": 0.0039817082,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/transitions.py",
+   "line": 53,
+   "issue": "Fail-open channel check: when a segment label is missing from the `channels` dict, `channels.get(lb)` returns `None`, and the comparison `channels.get(la) == channels.get(lb)` is `False` (e.g. \"interview\" != None). The `or` chain evaluates to False, so the junction is NOT skipped and a transition is planned between a known channel and an unknown one. If the unknown segment actually shares the same channel, a same-channel transition is silently allowed, violating the 'only between different channels' invariant.",
+   "evidence": "if ta != \"talking_head\" or tb != \"talking_head\" or channels.get(la) == channels.get(lb):\n            continue",
+   "fix": "Require both channels to be present and different: `if ta != \"talking_head\" or tb != \"talking_head\" or la not in channels or lb not in channels or channels[la] == channels[lb]: continue`",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/transitions.py",
+   "line": 60,
+   "issue": "Unguarded dict access on `lead_tail`: if a segment label is absent from the `lead_tail` mapping, `lead_tail[la][1]` raises an unhandled KeyError, crashing the entire plan/concat pipeline. The docstring specifies `lead_tail {label: (lead_s, tail_s)}` but does not guarantee every label is present; a missing entry (e.g. a newly added segment type) is a hard crash rather than a safe skip to hard-cut.",
+   "evidence": "tail_a, lead_b = lead_tail[la][1], lead_tail[lb][0]",
+   "fix": "Use `.get()` and fall back to a hard cut when either label is missing: `lt_a = lead_tail.get(la); lt_b = lead_tail.get(lb); if lt_a is None or lt_b is None: continue; tail_a, lead_b = lt_a[1], lt_b[0]`",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "low",
+   "file": "pipeline/transitions.py",
+   "line": 148,
+   "issue": "In `render_wipe`, the `double_thump()` signal is 0.49 s long (gap 0.17 s + second thump 0.32 s) but is truncated to the wipe duration of 0.333 s (8 frames / 24 fps). The second thump is cut at ~0.16 s into its 0.32 s envelope. Although exponential decay (\u03c4=75 ms) reduces the second thump to ~11 % amplitude at the cut point and `write_wav` applies 5 ms micro-fades, the abrupt truncation of a still-audible signal can produce a perceptible click in the wipe audio.",
+   "evidence": "dur = WIPE_FRAMES / FPS\n    x = double_thump()\n    pad = np.zeros(int(dur * SR))\n    pad[:min(len(pad), len(x))] = x[:len(pad)]",
+   "fix": "Either extend the wipe to accommodate the full double-thump duration (e.g. 12 frames = 0.5 s) or apply a longer release fade (\u2265 30 ms) to the tail of `pad` before calling `write_wav` to avoid the click.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F4",
+   "severity": "low",
+   "file": "pipeline/transitions.py",
+   "line": 82,
+   "issue": "In `double_thump`, the variable `gap` (0.17 s) is shorter than the first thump's duration (0.32 s), so the two thumps overlap by 0.15 s rather than being separated. The name `gap` implies non-overlap. While the overlap may be intentional for a 'lub-dub' heartbeat timbre, it makes the function's contract ambiguous and the `out` buffer length (`gap + len(b)`) does not reflect the true temporal extent of the first thump.",
+   "evidence": "gap = int(0.17 * SR)\n    out = np.zeros(gap + len(b))\n    out[:len(a)] += a\n    out[gap:gap + len(b)] += b",
+   "fix": "Rename `gap` to `offset` (or `onset_b`) to accurately describe the start position of the second thump, and add a comment noting the intentional overlap for the heartbeat effect. Alternatively, if non-overlap is desired, set `gap = len(a)` and size `out` to `len(a) + gap + len(b)`.",
+   "agree": [],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0222595841,
+ "out_dir": "docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_transitions_py"
+}

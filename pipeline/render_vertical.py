@@ -938,7 +938,7 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
             break
         cumulative += dur
     if timeline is not None:
-        shoutout_start = next(e["start"] for e in timeline if e["label"] == "shoutout")
+        shoutout_start = next((e["start"] for e in timeline if e["label"] == "shoutout"), shoutout_start)
 
     print(f"  Watermark: 0 -> {shoutout_start:.2f}s")
 

@@ -1,0 +1,101 @@
+{
+ "question": "Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/vertical_layout.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 307.6,
+   "cost": 0.0033396424,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 393.9,
+   "cost": 0.0094907058,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 168.4,
+   "cost": 0.00178064,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 149.7,
+   "cost": 0.004113824,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/vertical_layout.py",
+   "line": 195,
+   "issue": "In gate_g4s, if a frame read fails (vf or sf is None), vertical_ok is set to False, causing the gate to fail-closed. This is safe but means a transient I/O error on a single frame in a 5-frame sample window will fail the entire shot's gate row, even though the other 4 measurements may be valid. The label_ok check (which uses the same _frame helper) has the same issue: a single None frame contributes 'uncertain' to meas, which could flip the majority vote.",
+   "evidence": "safe, m = is_safe_frame(vf, sf) if vf is not None and sf is not None else (None, {})\nrow.update(vertical_safe_frame=safe, **m,\n           vertical_ok=safe is not None and safe == (shot[\"class\"] in SAFE_FRAME))",
+   "fix": "Consider requiring a minimum number of successful reads (e.g., 4 of 5) before declaring failure, or retrying the read once. As-is the behaviour is fail-closed which is acceptable for a gate, but worth documenting that a single I/O blip fails the row.",
+   "agree": [],
+   "disagree": [
+    "deepseek",
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "low",
+   "file": "pipeline/vertical_layout.py",
+   "line": 30,
+   "issue": "G4_LAYOUT maps 'uncertain' to 'single'. The unchanged gate_g4 will apply its 'single' face rule to uncertain shots. If gate_g4's 'single' rule requires exactly one prominent face, an uncertain shot (4+ faces, or one dominant + small ones) will fail gate_g4 even though G4s correctly validates the label. This is likely intentional (uncertain shots use the safe frame so the face-count rule is relaxed), but the interaction is not self-documenting in this file and depends on gate_g4's tolerance for extra faces under the 'single' layout.",
+   "evidence": "G4_LAYOUT = {\"single\": \"single\", \"stack2\": \"2face\", \"stack3\": \"3face\", \"screen\": \"screenshare\",\n             \"uncertain\": \"single\"}",
+   "fix": "Add a comment clarifying that gate_g4's 'single' rule is expected to tolerate extra small faces (i.e., it checks for a dominant face, not exactly one), or introduce a dedicated 'uncertain' layout key if gate_g4 needs a distinct rule.",
+   "agree": [],
+   "disagree": [
+    "deepseek",
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "medium",
+   "file": "pipeline/vertical_layout.py",
+   "line": 195,
+   "issue": "Non-deterministic majority vote in gate_g4s when measured classes tie.",
+   "evidence": "majority = max(set(meas), key=meas.count) \u2014 if two classes have equal counts (e.g., 2 single, 2 stack2, 1 uncertain), max returns the first element encountered in set iteration, which is hash-order dependent and can vary across runs.",
+   "fix": "Use a deterministic tie-break (e.g., prefer the shot's declared class, or fail the row on a tie) so the gate result is stable."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "low",
+   "file": "pipeline/vertical_layout.py",
+   "line": 148,
+   "issue": "After short-run absorption, the `faces` list for a shot is built by filtering samples on their ORIGINAL class (`s['class'] == lab`), but the shot's range now includes absorbed samples whose original class differs. Those samples are silently excluded from the median face-centre / band-centre computation, reducing the effective sample count and potentially biasing the median toward the non-absorbed portion of the shot.",
+   "evidence": "faces = [s[\"faces\"] for s in samples[a:b] if s[\"class\"] == lab]  # line 148\n# but `samples` was never updated after absorption modified `labels`",
+   "fix": "Either update `samples[i]['class'] = tgt[0]` alongside `labels[i] = tgt[0]` during absorption, or drop the class filter and use all samples in the range: `faces = [s['faces'] for s in samples[a:b]]`. The latter is simpler and correct because the shot now spans the full range."
+  }
+ ],
+ "total_cost": 0.018724812200000003,
+ "out_dir": "docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_vertical_layout_py"
+}

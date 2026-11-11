@@ -1,0 +1,172 @@
+{
+ "question": "Batched audit (orchestrator note 05:40 ET) of two commits. (1) Phase 2: the 9:16 is a per-shot speaker-centred reframe measured with SCRFD (vertical_layout.classify; screen / single / stack2 / stack3 / uncertain by fixed face-area rules), safe frame (whole 16:9) only for screen/uncertain and flagged; new gate G4s (labels vs re-measured picture; safe frame iff labelled screen/uncertain, by band correlation); the unchanged gate_g4 applied per shot. (2) Phase 3 + 4a: transitions only between different channels over measured non-speech (xfade offset corrected for ffmpeg 4.4.2), G18 word-for-word (edges vs the selection lock + identity vs the source span, canonicalised), the verification pack, telegram.deliver_run captions, the one-command runner. Verify from the diff: (a) no existing gate changed what it accepts (gate_g4, G14, G12/G15, G16/G17 untouched; G4s and G18 are new and only add failures); (b) the frozen v2f render path is untouched when TRANSITIONS.json is absent and layouts are hand overrides (Law 22); (c) transitions never overlap speech, never occur at the open or into the credits, and picture and sound stay frame-locked; (d) the safe frame appears only for screen/uncertain shots and is always named in the 9:16 caption; (e) the caption says HOLD FOR APPROVAL only when every row of both formats is PASS and the pack is complete, the only send path is the approval chat, and credentials are never printed; (f) the runner holds a lock, logs, and never touches other tmux sessions; (g) tests are meaningful, not vacuous. Only state what you can verify from the diff; if uncertain, say so. (this chunk: pipeline/word_diff.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 263.3,
+   "cost": 0.0026137216,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 4,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 185.8,
+   "cost": 0.010473939,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 332.0,
+   "cost": 0.002783862,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 88.4,
+   "cost": 0.005186362,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "critical",
+   "file": "pipeline/word_diff.py",
+   "line": 130,
+   "issue": "gate_g18 iterates over clips instead of segments, so any segment missing from clips is never checked, allowing the gate to pass without verifying all clips.",
+   "evidence": "for label, c in clips.items():",
+   "fix": "Iterate over segments and look up clips, or assert set(clips) == set(by_label) before the loop.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F2",
+   "severity": "high",
+   "file": "pipeline/word_diff.py",
+   "line": 42,
+   "issue": "_spelled_numbers combines arbitrary consecutive number words additively, e.g. 'one two' -> '3', causing false passes.",
+   "evidence": "cur += _UNITS[t]",
+   "fix": "Only combine valid number phrases (e.g. tens followed by units, hundreds, thousands) or use a proper number parser.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F3",
+   "severity": "medium",
+   "file": "pipeline/word_diff.py",
+   "line": 39,
+   "issue": "_spelled_numbers fails to handle 'and' before tens, e.g. 'one hundred and twenty' -> '100 and 20' instead of '120', causing false failures.",
+   "evidence": "or (tokens[j] == \"and\" and j + 1 < len(tokens) and tokens[j + 1] in _UNITS)):",
+   "fix": "Include _TENS in the condition: tokens[j + 1] in _UNITS or tokens[j + 1] in _TENS.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/word_diff.py",
+   "line": 68,
+   "issue": "The 'point' normalisation only removes the word 'point' between two single-digit tokens, so a multi-digit decimal spoken as words (e.g. 'one point three five' for 1.35) normalises to ['1','3','5'] while the same value written as '1.35' normalises to ['1','35']. The two forms do not match.",
+   "evidence": "tokens = [w for k, w in enumerate(tokens)\n              if not (w == \"point\" and 0 < k < len(tokens) - 1 and tokens[k - 1].isdigit() and tokens[k + 1].isdigit())]",
+   "fix": "After removing 'point', join the subsequent digit tokens into a single token (e.g. '1 3 5' \u2192 '1 35') so that spoken and written decimals canonicalise identically. In practice both sides use the same ASR model so this is unlikely to trigger a false gate failure, but it is a normalisation inconsistency.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "low",
+   "file": "pipeline/word_diff.py",
+   "line": 30,
+   "issue": "_SCALES contains only 'hundred' and 'thousand'. Spoken values at or above one million (e.g. 'one million', 'two billion') are not collapsed to their numeric form; 'one million' becomes ['1','million'] while '1000000' stays ['1000000']. The docstring acknowledges this ('keeps 1.3 billion as words') but the two representations will not match in diff().",
+   "evidence": "_SCALES = {\"hundred\": 100, \"thousand\": 1000}   # whisper writes '74,000' but keeps '1.3 billion' as words",
+   "fix": "Add 'million': 1_000_000, 'billion': 1_000_000_000, 'trillion': 1_000_000_000_000 to _SCALES so that spelled-out large numbers are collapsed to the same integer form as their numeric counterparts. Both sides go through the same ASR so this is a low-probability mismatch, but it would cause a false identity failure if one pass renders the number and the other spells it.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "low",
+   "file": "pipeline/word_diff.py",
+   "line": 109,
+   "issue": "Transcriber.span does not validate that t1 > t0 before invoking ffmpeg. If a degenerate segment (end \u2264 start) is passed, the -t argument is zero or negative; ffmpeg will either produce an empty WAV (zero duration) or raise, and check=True will propagate a CalledProcessError that crashes gate_g18 rather than recording a failure row.",
+   "evidence": "subprocess.run([\"ffmpeg\", \"-v\", \"error\", \"-y\", \"-ss\", f\"{t0:.3f}\", \"-t\", f\"{t1 - t0:.3f}\", \"-i\", media,\n                            \"-vn\", \"-ac\", \"1\", \"-ar\", \"16000\", wav], check=True, timeout=120)",
+   "fix": "Add a guard at the top of span(): if t1 <= t0: raise ValueError(f\"non-positive duration {t1 - t0}\") or return '' so the caller can record a clean failure row instead of an unhandled exception.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F4",
+   "severity": "low",
+   "file": "pipeline/word_diff.py",
+   "line": 46,
+   "issue": "_spelled_numbers with 'hundred' alone yields '0' because cur starts at 0 and cur *= 100 keeps it 0.",
+   "evidence": "elif t == \"hundred\":\n                    cur *= 100",
+   "fix": "Use max(cur, 1) * 100 or handle standalone hundred explicitly.",
+   "agree": [],
+   "disagree": [
+    "deepseek",
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "low",
+   "file": "pipeline/word_diff.py",
+   "line": 46,
+   "issue": "_spelled_numbers mishandles 'hundred' when cur is 0 after a scale word, e.g. 'one thousand hundred' normalises to '1000' instead of failing or a correct value, because cur *= 100 leaves 0.",
+   "evidence": "elif t == \"hundred\":\n                    cur *= 100",
+   "fix": "Use max(cur, 1) * 100 or reset cur appropriately when a scale word follows another scale word."
+  },
+  {
+   "by": "deepseek",
+   "severity": "medium",
+   "file": "pipeline/word_diff.py",
+   "line": 130,
+   "issue": "gate_g18 does not catch exceptions from Transcriber.span (ffmpeg/ASR failures), so a single bad segment or media error crashes the entire gate instead of recording a failure row.",
+   "evidence": "heard = tr.span(final_path, seg[\"start\"], seg[\"end\"])\nsrc = tr.span(c[\"source\"], c[\"cut_in\"], c[\"cut_out\"])",
+   "fix": "Wrap each span call in try/except and append a failure row with the error, setting ok_all=False."
+  }
+ ],
+ "total_cost": 0.0210578846,
+ "out_dir": "docs/audits/pulse-sentence-law/batch_p2_p3_4a/heimdall/pipeline_word_diff_py"
+}

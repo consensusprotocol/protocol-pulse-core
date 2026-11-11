@@ -457,6 +457,19 @@ def stage_voice(run):
 
 # ── stage 8: prepare clips + contract + edge words ──
 
+def free_gpu0_for_whisper(run, stage, need_free_mib=6000):
+    """GPU0 is shared (other sessions load Ollama models on :11434, e.g. a 22 GB qwen3-coder at 06:02 on
+    Nov 11, which OOM'd the recut's prepare). Before a Whisper stage, unload the GPU0 Ollama models and
+    wait for room, exactly as the editorial stage does (story_semantics.release_gpu0_for_whisper); a
+    release that cannot be proven is an infrastructure HOLD, never an OOM mid-stage."""
+    import story_semantics as sm
+    try:
+        ev = sm.release_gpu0_for_whisper(sm.LocalLLM(), need_free_mib=need_free_mib, wait_s=180)
+    except RuntimeError as e:
+        raise Hold(f"infrastructure: {stage}: {e}")
+    run.prov.setdefault("gpu0_release", {})[stage] = ev
+
+
 FADE_RETRY_MAX = 6   # further legal cut points tried per failing edge (machine-placed cuts only)
 
 
@@ -525,6 +538,7 @@ def stage_prepare(run, cuts):
     qa = os.path.join(run.dir, "qa")
     work = os.path.join(qa, "edge_words")
     os.makedirs(work, exist_ok=True)
+    free_gpu0_for_whisper(run, "prepare")          # the edge-word check loads Whisper on GPU0
     report, fails = [], []
     moved = False
     for c in cuts:
@@ -665,9 +679,10 @@ def stage_render(run):
     fb["fallback_occurred"] = bool(fb["log_hits"] or fb["structural"])
     run.prov["vertical_fallback_check"] = fb
 
-    # G4 input (DEC-2/DEC-5): each talking-head entry carries its clip-level layout. A clip with any
-    # screen/uncertain shot gets G4's existing 'screenshare' rule here; the per-shot G4 in stage_gates
-    # applies the face rules to every talking-head shot, and G4s checks every label against the picture.
+    # G4 input (DEC-2/DEC-5): each talking-head entry carries its clip-level layout. A clip whose shots are
+    # all one class gets that class's rule; a clip mixing classes gets G4's 'screenshare' rule at clip
+    # level, and the per-shot G4 in stage_gates applies the face rule of EVERY shot (the binding check);
+    # G4s checks every label against the picture.
     with open(os.path.join(run.dir, "VERTICAL_LAYOUT.json")) as f:
         plans = json.load(f)
     for man in (man16, man9):
@@ -698,6 +713,7 @@ def tail_rows(g9_pass, conform_fallback):
 
 
 def stage_gates(run, final16, man16, final9, man9):
+    free_gpu0_for_whisper(run, "gates")            # G17b / G18 load Whisper on GPU0
     # Keep the source-relative sharpness threshold local to this stage so QA does not
     # depend on module-global lookup state during long production runs. Threshold unchanged.
     g8_degradation_ratio = 0.85
