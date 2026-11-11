@@ -1,0 +1,218 @@
+{
+ "question": "Commit 1d makes selection propose sentence-aligned windows: abbreviation-aware sentence splitting (sentence_law.is_terminal), windows of one to three whole sentences (interjection-only sentences transparent per PBX D4a), clip budget 12-20 s, the editor's hook/clip slots honoured, and a window the sentence law rejects replaced by the next-ranked legal candidate of the same kind (score floor, budget, overlap, per-channel and per-video caps) instead of moving a cut. Find defects: a path that can pick an illegal/overlapping window, a cap or floor bypass, wrong window bookkeeping, a fallback that can loop or silently drop the hook. (this chunk: pipeline/select_passages.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 226.6,
+   "cost": 0.0022336244,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 5,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 86.0,
+   "cost": 0.005218943,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 4,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 535.4,
+   "cost": 0.002087633,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 191.1,
+   "cost": 0.002093306,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 146.9,
+   "cost": 0.005579256,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 532.6,
+   "cost": 0.002136923,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "critical",
+   "file": "pipeline/select_passages.py",
+   "line": 0,
+   "issue": "The first candidate (the editor's hook or clip) bypasses _eligible entirely, so it can violate the score floor, duration budget, overlap, per-channel cap, and per-video cap.",
+   "evidence": "if p is None or (p is not first and not _eligible(p, kind)): continue",
+   "fix": "Apply _eligible to the first candidate as well, or validate the first candidate before calling _fill.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F2",
+   "severity": "critical",
+   "file": "pipeline/select_passages.py",
+   "line": 0,
+   "issue": "A fallback can select a later clip that is still in the clips list; that clip is then processed again as first in the outer loop, bypassing _eligible and tried, causing a duplicate/overlapping window and cap/floor bypass.",
+   "evidence": "for clip in clips:\n                seg = _fill(clip, f\"clip_{len(clip_segs) + 1:02d}\", \"clip\") ... if p is None or (p is not first and not _eligible(p, kind)): continue",
+   "fix": "Remove fallback-selected candidates from clips, or check tried/used for the first candidate, or mark fallback-selected clips so they are not processed again.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F3",
+   "severity": "medium",
+   "file": "pipeline/select_passages.py",
+   "line": 0,
+   "issue": "After _build_segment returns None, the code still writes to boundary_report[-1], which can raise IndexError if no report entry exists or mutate the wrong entry.",
+   "evidence": "seg = _build_segment(p, label)\n            boundary_report[-1][\"fallback\"] = p is not first",
+   "fix": "Only set fallback when seg is not None and a boundary_report entry was appended for this candidate.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F4",
+   "severity": "medium",
+   "file": "pipeline/select_passages.py",
+   "line": 0,
+   "issue": "If the hook cannot be filled, hook_seg is None and the guard skips all clips, silently dropping the hook and every clip slot.",
+   "evidence": "hook_seg = _fill(hook, \"hook\", \"hook\") ... if hook_seg is not None:",
+   "fix": "Handle hook failure explicitly or still attempt clip slots when the hook is unavailable.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F5",
+   "severity": "low",
+   "file": "pipeline/select_passages.py",
+   "line": 0,
+   "issue": "_source_for skips the downloaded-window boundary check when span is 0 or None, allowing a window outside the downloaded source.",
+   "evidence": "if span and not (offsets[vid] + 1.0 <= p[\"start\"] and p[\"end\"] <= offsets[vid] + span - 1.0):",
+   "fix": "Require a valid span and always enforce the boundary check.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "pipeline/select_passages.py",
+   "line": 310,
+   "issue": "boundary_report[-1] raises IndexError when the list is empty, or silently mutates a stale entry from a prior _source_for failure. When _source_for succeeds (returns None) nothing is appended, so on the very first successful candidate the list may be empty (crash) or the last element belongs to an earlier rejected candidate (wrong bookkeeping).",
+   "evidence": "seg = _build_segment(p, label)\n            boundary_report[-1][\"fallback\"] = p is not first",
+   "fix": "Append a new boundary_report entry for the successful candidate before setting its 'fallback' field, e.g. entry = {\"segment\": label, \"video_id\": p[\"video_id\"], \"channel\": p[\"channel\"], \"window_full_video_s\": [p[\"start\"], p[\"end\"]], \"result\": \"accepted\", \"fallback\": p is not first}; boundary_report.append(entry).",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/select_passages.py",
+   "line": 303,
+   "issue": "The editor's first candidate (p is first) bypasses every _eligible check: score floor, duration budget (12-20 s), overlap with already-used windows, per-video cap, and per-channel cap. A window that overlaps the hook or exceeds the clip budget can therefore be selected and sealed into the EDL.",
+   "evidence": "if p is None or (p is not first and not _eligible(p, kind)):\n            continue",
+   "fix": "Apply _eligible to the first candidate as well, or at minimum check overlap and duration budget for the first candidate before calling _build_segment. If the first candidate fails those checks, treat it as rejected and proceed to the sorted fallback list.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "high",
+   "file": "pipeline/select_passages.py",
+   "line": 290,
+   "issue": "_source_for caches the downloaded window per video_id. If the hook already downloaded video X for window [10,20], a fallback clip from the same video at [50,60] finds vid in sources, skips the download, and then fails the bounds check (offsets[vid]+1.0 <= 50 is false). The fallback is permanently blocked for any same-video passage outside the originally downloaded window.",
+   "evidence": "if vid not in sources:\n            res = _download_window(vid, p[\"start\"], p[\"end\"], run_dir)\n            if not res or not res[0]:\n                return \"download failed\"\n            sources[vid], offsets[vid] = res",
+   "fix": "Before the bounds check, verify that p's window is actually contained in the already-downloaded span. If it is not, re-download (or extend) the window for that video_id and update sources/offsets/transcripts accordingly, rather than returning 'outside the downloaded window'.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F4",
+   "severity": "medium",
+   "file": "pipeline/select_passages.py",
+   "line": 311,
+   "issue": "When _build_segment returns None (sentence law rejects the window) no entry is appended to boundary_report. The rejection is invisible in the audit trail, and the loop simply continues to the next candidate. If all candidates are rejected by the sentence law, _fill returns None and the slot is silently dropped with no diagnostic record.",
+   "evidence": "seg = _build_segment(p, label)\n            boundary_report[-1][\"fallback\"] = p is not first\n            if seg is not None:\n                used.append(p)\n                return seg",
+   "fix": "When seg is None, append a boundary_report entry recording the sentence-law rejection (segment label, video_id, channel, window, result='rejected: sentence law', fallback flag) before continuing the loop.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "high",
+   "file": "pipeline/select_passages.py",
+   "line": 0,
+   "issue": "If _whisper_transcribe fails, _source_for returns 'transcription failed' after already setting sources[vid] and offsets[vid] but before setting transcripts[vid]. A later candidate from the same video then skips the download/transcribe block and crashes with KeyError on transcripts[vid].",
+   "evidence": "sources[vid], offsets[vid] = res\ntr = _whisper_transcribe(sources[vid], vid, run_dir)\nif not tr:\n    return \"transcription failed\"\ntranscripts[vid] = tr\n...\nspan = transcripts[vid].get(\"duration\") or 0",
+   "fix": "Only set sources[vid]/offsets[vid] after successful transcription, or clear sources[vid] on transcription failure, or check for transcripts[vid] and retry transcription before using it."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "high",
+   "file": "pipeline/select_passages.py",
+   "line": 0,
+   "issue": "KeyError on transcripts[vid] when transcription fails but download succeeded: sources[vid] and offsets[vid] are set before the transcription check, so a subsequent _source_for call for the same video_id skips the download block (vid in sources is True) and then executes `transcripts[vid].get(\"duration\")` on a key that was never assigned, raising an unhandled KeyError that crashes the entire selection pass.",
+   "evidence": "sources[vid], offsets[vid] = res\ntr = _whisper_transcribe(sources[vid], vid, run_dir)\nif not tr:\n    return \"transcription failed\"\ntranscripts[vid] = tr\n# --- next call for same vid ---\nif vid not in sources:  # False, skip\n    ...\nspan = transcripts[vid].get(\"duration\") or 0  # KeyError: vid",
+   "fix": "Either (a) only assign sources[vid]/offsets[vid] after successful transcription, or (b) guard the span lookup with `transcripts.get(vid, {}).get(\"duration\") or 0`, or (c) on a subsequent call, if vid is in sources but not in transcripts, re-attempt transcription before the bounds check."
+  }
+ ],
+ "total_cost": 0.0193496854,
+ "out_dir": "docs/audits/pulse-sentence-law/1d_sentence_windows/heimdall/pipeline_select_passages_py"
+}

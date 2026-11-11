@@ -1,0 +1,53 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index ba081a07..12a50b7d 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -585,8 +585,12 @@ def stage_gates(run, final16, man16, final9, man9):
+         segs9 = json.load(f)["segments"]
+ 
+     # Production gate runner — invoked exactly as in the v2f run.
+-    ok16, r16 = run_gates(run.dir, final16, man16)
+-    ok9, r9 = run_gates(run.dir, final9, man9)
++    # G8 needs its sources (2026-11-11: it was never given any, so it always failed "no_source" and was
++    # waived): 16:9 = the prepared clips (source camera, 1920x1080), 9:16 = the reframed vertical clips.
++    src16 = {c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4") for c in cuts}
++    src9 = {c["clip_id"]: os.path.join(qa, f"vert_{c['clip_id']}.mp4") for c in cuts}
++    ok16, r16 = run_gates(run.dir, final16, man16, source_clips=src16)
++    ok9, r9 = run_gates(run.dir, final9, man9, source_clips=src9)
+     import qa_gates  # patched by run_gates (BASE/VO_DIR) — same module instance
+ 
+     rows = {"16x9": {}, "9x16": {}}
+@@ -664,14 +668,8 @@ def stage_gates(run, final16, man16, final9, man9):
+                                        "same relative offset",
+                  "relative_16x9": g8rel, "degraded_below_0.85": degraded}
+     for fmt, res in (("16x9", r16), ("9x16", r9)):
+-        if res["G8_sharpness"]["pass"]:
+-            rows[fmt]["G8_sharpness"] = "PASS"
+-        elif fmt == "16x9" and degraded:
+-            rows[fmt]["G8_sharpness"] = f"FAIL (pipeline degradation ratio < 0.85: {degraded})"
+-        else:
+-            rows[fmt]["G8_sharpness"] = "FLAG/LIMITED (absolute floor vs soft source; " \
+-                                        "source-relative G8 rule not yet approved)"
+-            flags[fmt].append("G8")
++        # DEC-1 floor + DEC-3 soft-source rule live in the gate itself; no waiver (DEC-8)
++        rows[fmt]["G8_sharpness"] = _status(res["G8_sharpness"]["pass"])
+ 
+     # G9 — approved known exception only if the outro is hash-identical to the locked outro
+     g9_report = {}
+@@ -687,14 +685,8 @@ def stage_gates(run, final16, man16, final9, man9):
+         g9_report[fmt] = {"gate": d, "outro_master_sha256": msha, "outro_conformed_sha256": csha,
+                           "hash_identical_to_locked_outro": identical,
+                           "last_segment": last.get("label"), "conform_fallback": fallback}
+-        if res["G9_tail"]["pass"]:
+-            rows[fmt]["G9_tail"] = "PASS"
+-        elif identical and last.get("label") == "outro" and d.get("audio_ok") and not d.get("luma_ok"):
+-            rows[fmt]["G9_tail"] = ("FLAG (APPROVED KNOWN EXCEPTION: locked outro ends on black; "
+-                                    f"tail luma {d.get('mean_luma')})")
+-            flags[fmt].append("G9")
+-        else:
+-            rows[fmt]["G9_tail"] = "FAIL"
++        # DEC-1 calibrated the luma floor to the approved reference's locked outro; no exception path
++        rows[fmt]["G9_tail"] = _status(res["G9_tail"]["pass"] and (identical or not fallback))
+ 
+     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
+     adj = L.Adjudicator()

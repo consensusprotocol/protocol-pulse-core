@@ -1,0 +1,203 @@
+{
+ "question": "Commit 1d makes selection propose sentence-aligned windows: abbreviation-aware sentence splitting (sentence_law.is_terminal), windows of one to three whole sentences (interjection-only sentences transparent per PBX D4a), clip budget 12-20 s, the editor's hook/clip slots honoured, and a window the sentence law rejects replaced by the next-ranked legal candidate of the same kind (score floor, budget, overlap, per-channel and per-video caps) instead of moving a cut. Find defects: a path that can pick an illegal/overlapping window, a cap or floor bypass, wrong window bookkeeping, a fallback that can loop or silently drop the hook. (this chunk: pipeline/test_sentence_windows.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 256.9,
+   "cost": 0.00310775,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 4,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 122.1,
+   "cost": 0.0077311675,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 494.2,
+   "cost": 0.00210552,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 237.3,
+   "cost": 0.00193533,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 93.2,
+   "cost": 0.005769813,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 54.5,
+   "cost": 0.000470673,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "high",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 102,
+   "issue": "The bad clip's end time 524.0 does not correspond to the end of its text. The text is text(\"BBB\", 4, 6), which includes sentences 4-6. In _sentences, sentence 6 ends at relative time 19.35, absolute 495.0 + 19.35 = 514.35. The bad clip ends at 524.0, 9.65 s later. This means the test may reject the clip for being out of bounds rather than for the intended no-pause boundary.",
+   "evidence": "bad = {\"kind\": \"clip\", \"video_id\": \"BBB\", \"channel\": \"BTC Sessions\", \"start\": 510.0, \"end\": 524.0,\n                   \"duration\": 14.0, \"score\": 80, \"clip_score\": 4.0, \"text\": text(\"BBB\", 4, 6)}\n...\ndef _sentences(tag, t, gaps):\n    \"\"\"Sentences of 6 words (0.30 s words, 0.05 s word gaps); gaps[i] = silence after sentence i.\"\"\"\n    ws = []\n    for si, gap in enumerate(gaps):\n        for wi in range(6):\n            ws.append({\"word\": f\"{tag}s{si}w{wi}\" + (\".\" if wi == 5 else \"\"), \"start\": round(t, 2),\n                       \"end\": round(t + 0.30, 2)})\n            t += 0.35\n        t += gap - 0.05\n    return ws",
+   "fix": "Set the passage start/end to match the actual word times, e.g., end at 514.35 for the bad clip, and similarly align the hook and alt passages.",
+   "agree": [
+    "deepseek",
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F3",
+   "severity": "high",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 126,
+   "issue": "The test only checks edl[\"clips\"][0] and never asserts that the hook is present in the EDL. A fallback that silently drops the hook would still pass.",
+   "evidence": "clip = edl[\"clips\"][0]\nself.assertEqual((clip[\"first_word\"], clip[\"last_word\"]), (\"bs0w0\", \"bs2w5.\"), clip)",
+   "fix": "Add an assertion that the hook is present in the EDL, e.g., self.assertIn(\"hook\", edl) or check edl[\"hook\"].",
+   "agree": [
+    "deepseek",
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F4",
+   "severity": "high",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 127,
+   "issue": "The test only checks the first and last words of the selected clip, not its start, end, or duration. It cannot detect an illegal/overlapping window or budget bypass.",
+   "evidence": "self.assertEqual((clip[\"first_word\"], clip[\"last_word\"]), (\"bs0w0\", \"bs2w5.\"), clip)",
+   "fix": "Add assertions that the clip's start/end are within the alt passage's bounds and duration is within 12-20 s, and that it does not overlap the hook.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": [
+    "glm"
+   ]
+  },
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 121,
+   "issue": "The test never asserts that the hook survives in the EDL output. The audit requirement explicitly calls out 'a fallback that can loop or silently drop the hook,' yet the test only inspects edl[\"clips\"][0]. If select_and_build_edl's fallback path for the rejected clip corrupts or omits the hook entry, this test still passes.",
+   "evidence": "clip = edl[\"clips\"][0]\n            self.assertEqual((clip[\"first_word\"], clip[\"last_word\"]), (\"bs0w0\", \"bs2w5.\"), clip)",
+   "fix": "After the clip assertion, add: hooks = edl.get(\"hooks\", []); self.assertTrue(hooks, f\"hook missing from EDL: {edl}\"); self.assertEqual(hooks[0][\"video_id\"], \"AAA\"); self.assertEqual(hooks[0][\"kind\"], \"hook\")",
+   "agree": [
+    "deepseek",
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 121,
+   "issue": "The test only checks edl[\"clips\"][0] but never verifies that the rejected 'bad' clip is absent from the clips list. If the production code appends the fallback without removing the rejected entry, the EDL would contain both the illegal and the legal clip, and the test would still pass because index 0 happens to be the correct one (or the bad one, depending on ordering).",
+   "evidence": "clip = edl[\"clips\"][0]\n            self.assertEqual((clip[\"first_word\"], clip[\"last_word\"]), (\"bs0w0\", \"bs2w5.\"), clip)",
+   "fix": "Add: self.assertEqual(len(edl[\"clips\"]), 1, f\"expected exactly one clip, got {len(edl['clips'])}: {edl['clips']}\") to ensure the rejected clip was removed, not merely reordered.",
+   "agree": [
+    "deepseek",
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F2",
+   "severity": "medium",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 109,
+   "issue": "The fake download function ignores the requested start, end, and pad, so it does not simulate the download window. This means the test cannot detect bugs where the selection picks a window outside the downloaded window or overlapping with other passages.",
+   "evidence": "def fake_dl(vid, start, end, run_dir, pad=15.0):\n    path = os.path.join(run_dir, \"sources\", f\"{vid}.wav\")\n    _synth(path, words[vid])\n    return (path, 95.0 if vid == \"AAA\" else 495.0)",
+   "fix": "Use start/end to slice the words or generate only the requested window, and return the correct offset.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "high",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 102,
+   "issue": "All three passages have start/end times that do not match their text. For example, alt text is sentences 0-2 (ends at 504.15 absolute) but its end is 510.0; hook text is sentences 5-6 (ends at 114.35) but its end is 119.0. This means the test does not actually provide sentence-aligned passages, and the production code may be selecting windows based on text rather than the passage boundaries, so the test does not validate sentence-aligned window selection or boundary handling.",
+   "evidence": "hook end 119.0 vs text end 114.35; alt end 510.0 vs text end 504.15; bad end 524.0 vs text end 514.35",
+   "fix": "Align passage start/end with the actual word times for the intended sentences."
+  },
+  {
+   "by": "deepseek",
+   "severity": "medium",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 121,
+   "issue": "The test does not assert per-channel or per-video caps or the score floor, so a cap bypass or floor bypass would not be caught.",
+   "evidence": "No assertions on caps or score floor in the test.",
+   "fix": "Add assertions that the selected clip respects per-channel/per-video caps and the score floor."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "high",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 113,
+   "issue": "The alt passage (the expected fallback) has text covering sentences 0-2 of BBB, which spans only ~7.05 s (relative 2.0 to 9.05). This is well below the 12 s clip minimum (CLIP_MIN_S). If the production code correctly enforces the 12-20 s budget, the alt window would also be rejected, and the test's expectation that it is 'accepted' is wrong. The test either encodes an incorrect expectation or the production code has a budget-bypass bug that the test inadvertently validates.",
+   "evidence": "alt = {\"kind\": \"clip\", \"video_id\": \"BBB\", ..., \"start\": 497.5, \"end\": 510.0, \"duration\": 12.5, ...}\n# But text(\"BBB\", 0, 2) covers sentences 0-2:\n# _sentences(\"b\", 2.0, ...): sent0 starts at t=2.0, sent2 last word ends at t=9.05\n# Actual content span: 7.05 s << CLIP_MIN_S (12.0 s)\nself.assertEqual((clip[\"first_word\"], clip[\"last_word\"]), (\"bs0w0\", \"bs2w5.\"), clip)\n# Test expects this 7 s window to be the accepted clip",
+   "fix": "Either extend the alt passage to cover enough sentences to reach 12 s (e.g., text(\"BBB\", 0, 4) giving ~14 s), or adjust the test to use a hook-kind passage (8-12 s budget) for the fallback. Additionally, assert the resulting clip duration is within [CLIP_MIN_S, CLIP_MAX_S] to catch budget violations."
+  },
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/test_sentence_windows.py",
+   "line": 100,
+   "issue": "All three fixture passages' start/end/duration fields disagree with the synthesized word timings, so the 8-12s hook and 12-20s clip budgets are never actually exercised against real word times.",
+   "evidence": "AAA sentences 5-6 span ~109.75-114.4s but the hook passage claims 110.0-119.0 (9.0s, ending 4.6s after the last word); BBB sentences 0-2 span ~497.0-504.2s but 'alt' claims 497.5-510.0 with duration 12.5. The 12.5s/9.0s durations are fictional fields, not derived from words, so a budget bug (e.g. window exceeding 20s once word-aligned) would not be caught.",
+   "fix": "Derive passage start/end/duration from the _sentences() word times (or assert the EDL clip's word-derived duration lies within CLIP_MIN_S..CLIP_MAX_S) instead of hard-coding inconsistent times."
+  }
+ ],
+ "total_cost": 0.021120253500000002,
+ "out_dir": "docs/audits/pulse-sentence-law/1d_sentence_windows/heimdall/pipeline_test_sentence_windows_py"
+}

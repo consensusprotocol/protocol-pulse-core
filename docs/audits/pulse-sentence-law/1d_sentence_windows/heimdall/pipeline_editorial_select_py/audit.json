@@ -1,0 +1,97 @@
+{
+ "question": "Commit 1d makes selection propose sentence-aligned windows: abbreviation-aware sentence splitting (sentence_law.is_terminal), windows of one to three whole sentences (interjection-only sentences transparent per PBX D4a), clip budget 12-20 s, the editor's hook/clip slots honoured, and a window the sentence law rejects replaced by the next-ranked legal candidate of the same kind (score floor, budget, overlap, per-channel and per-video caps) instead of moving a cut. Find defects: a path that can pick an illegal/overlapping window, a cap or floor bypass, wrong window bookkeeping, a fallback that can loop or silently drop the hook. (this chunk: pipeline/editorial_select.py)",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 312.5,
+   "cost": 0.003228402,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 366.5,
+   "cost": 0.0110404051,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 533.0,
+   "cost": 0.002117393,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 171.8,
+   "cost": 0.001682866,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 21.2,
+   "cost": 0.001076382,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 502.0,
+   "cost": 0.002124833,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/editorial_select.py",
+   "line": 527,
+   "issue": "n_sentences bookkeeping uses raw sentence count (b - a + 1) while the new cap logic uses _n_sentences which excludes interjection-only sentences. A legal window of 4 sentences (3 content + 1 interjection) reports n_sentences=4, exceeding MAX_WINDOW_SENTENCES=3. Any downstream consumer that validates n_sentences against MAX_WINDOW_SENTENCES will incorrectly reject a legal window.",
+   "evidence": "\"n_sentences\": b - a + 1, \"text\": \" \".join(w[\"word\"].strip() for w in words[sents[a][0]:sents[b][1] + 1]),",
+   "fix": "Change to \"n_sentences\": _n_sentences(words, sents, a, b) to match the cap semantics, or add a separate field (e.g. \"n_content_sentences\") so the raw count and the cap-relevant count are both available without ambiguity.",
+   "agree": [
+    "deepseek",
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "low",
+   "file": "pipeline/editorial_select.py",
+   "line": 130,
+   "issue": "_ends_statement allows a window to end on a question if the word ends with '!' after '?', e.g., 'What?!', because it only checks endswith('?') after stripping quotes. This violates the statement-end rule.",
+   "evidence": "The check only tests endswith('?') after stripping quotes, so 'What?!' passes.",
+   "fix": "Check for any question mark before the final terminal punctuation, or use a more robust statement-end predicate that rejects '?' anywhere in the terminal punctuation sequence."
+  }
+ ],
+ "total_cost": 0.0212702811,
+ "out_dir": "docs/audits/pulse-sentence-law/1d_sentence_windows/heimdall/pipeline_editorial_select_py"
+}

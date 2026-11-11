@@ -114,6 +114,15 @@ Received 02:50 ET. Recorded verbatim in substance; implementation status tracked
 
 ### Calibrated gates (DEC-1)
 
-| gate | constant | old value | new value (= v2f measured worst) | reference measurement | commit |
+| gate | constant (segment_v1/qa_gates.py) | old value | new value (= v2f measured worst, per format) | reference measurement | commit |
 |---|---|---|---|---|---|
-| (pending 1f measurement) | | | | | |
+| G3c acoustic tail | G3C_VALLEY_DEPTH_DB | 12.0 dB | 16:9 11.63, 9:16 11.65 | strictest depth at which the v2f hook tail passes: 11.6301 / 11.6543 | DEC-1 commit |
+| G5 true peak | G5_TRUE_PEAK_MAX_DBFS | -2.0 dBFS | 16:9 -2.0 (unchanged, passed at -2.2), 9:16 -1.3 | segment_vertical.mp4 ebur128 true peak -1.3 | DEC-1 commit |
+| G8 sharpness floor | G8_SHARPNESS_FLOOR | 60 | 16:9 27.56, 9:16 10.84 | worst segment medians: 16:9 hook 27.56, 9:16 clip_03 10.84 | DEC-1 commit |
+| G9 tail luma | G9_LUMA_FLOOR | 20 (strict >) | 16:9 14.33, 9:16 14.77 (strict > kept) | 14.3357 / 14.7715 (locked outro ends on black) | DEC-1 commit |
+
+Also in the DEC-1 commit (measurement wiring, not acceptance): G8 was never given source clips in
+production, so it ALWAYS failed "no_source" and was waived as FLAG. It now gets the prepared clips
+(16:9) and the reframed vertical clips (9:16) - the reference then fails only the floor, which is what
+was calibrated. DEC-3 (soft source judged by render/source ratio >= 0.85 alone) is inside gate_g8.
+The G8 FLAG and the G9 "approved known exception" rows are gone (DEC-8: no waivers).
