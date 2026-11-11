@@ -237,6 +237,13 @@ class TestReviewValidatorContract(unittest.TestCase):
             er._validator(self.EDL)(json.loads(self.reply([0, 1])))
         er._validator(self.EDL)(json.loads(self.reply([1, 2])))            # valid: no exception
 
+    def test_boolean_index_is_not_a_clip_number(self):
+        """Heimdall batch 3: bool is an int subclass; {"index": true} must not stand in for CLIP 1."""
+        d = json.loads(self.reply([1, 2]))
+        d["clips"][0]["index"] = True
+        with self.assertRaises(ValueError):
+            er._validator(self.EDL)(d)
+
     def test_wrong_numbers_are_retried_with_the_reason(self):
         llm, prompts = self.llm([self.reply([0, 1]), self.reply([1, 2])])
         r = er.generate_review(llm, self.EDL)

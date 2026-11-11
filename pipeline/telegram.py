@@ -195,14 +195,31 @@ def deliver_run(run_dir, option=None, send=None, sheets=True):
                                    "supports_streaming": "true"})
         record["messages"].append({"format": fmt, "message_id": mid, "caption": cap,
                                    "sha256": hashlib.sha256(open(path, "rb").read()).hexdigest()})
-    for sheet in (("joins_16x9.jpg", "joins_9x16.jpg", "credits_16x9.jpg", "credits_9x16.jpg") if sheets else ()):
-        p = os.path.join(run_dir, "VERIFY", sheet)
+    for fmt in (("16x9", "9x16") if sheets else ()):        # one contact sheet of the finished video per format
+        p = os.path.join(run_dir, "qa", f"contact_sheet_{fmt}.jpg")
         if os.path.exists(p):
-            mid = send("photo", p, {"caption": f"verification pack: {sheet[:-4]}"})
-            record["messages"].append({"sheet": sheet, "message_id": mid})
+            kind = "photo" if _photo_ok(p) else "document"
+            mid = send(kind, p, {"caption": f"contact sheet {fmt}: 2 s stills, +-3 frames at every boundary, "
+                                            f"full-resolution credits" + (" and segment first frames" if fmt == "9x16" else "")})
+            record["messages"].append({"sheet": os.path.basename(p), "message_id": mid, "as": kind})
     with open(os.path.join(run_dir, f"TELEGRAM_DELIVERY{'_' + option if option else ''}.json"), "w") as f:
         json.dump(record, f, indent=2)
     return record
+
+
+PHOTO_MAX_BYTES = 9_500_000     # Telegram sendPhoto takes <= 10 MB; the margin keeps a near-limit sheet from a
+                                # rejected send. Above it the sheet goes as a document: it still arrives, full size.
+
+
+def _photo_ok(path):
+    """Telegram sendPhoto limits: <= 10 MB (PHOTO_MAX_BYTES, with margin), width + height <= 10000,
+    aspect ratio <= 20."""
+    from PIL import Image
+    try:
+        w, h = Image.open(path).size
+    except Exception:                       # unreadable image: send it as a document (never lose the delivery record)
+        return False
+    return os.path.getsize(path) <= PHOTO_MAX_BYTES and w + h <= 10000 and max(w, h) / max(1, min(w, h)) <= 20
 
 
 def _send_bot_api(kind, path, fields):
@@ -213,7 +230,8 @@ def _send_bot_api(kind, path, fields):
     tok, chat = get_key("TELEGRAM_BOT_TOKEN"), get_key("TELEGRAM_CHAT_ID")
     if not tok or not chat:
         raise RuntimeError("STOP: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set")
-    method, field = ("sendVideo", "video") if kind == "video" else ("sendPhoto", "photo")
+    method, field = {"video": ("sendVideo", "video"), "photo": ("sendPhoto", "photo"),
+                     "document": ("sendDocument", "document")}[kind]
     with open(path, "rb") as fh:
         resp = requests.post(f"https://api.telegram.org/bot{tok}/{method}", data={"chat_id": chat, **fields},
                              files={field: fh}, timeout=600)

@@ -47,7 +47,10 @@ def render_option(run_dir, style):
         rows, flags, limits = rf.stage_gates(run, final16, man16, final9, man9)
         verify_pack.build(dst)
     except Exception:
-        os.rename(dst, f"{dst}_failed_{time.strftime('%H%M%S')}")    # kept for diagnosis; a retry can run
+        try:
+            os.rename(dst, f"{dst}_failed_{time.strftime('%H%M%S')}")    # kept for diagnosis; a retry can run
+        except OSError as e:
+            print(f"  could not set {dst} aside: {e}")                   # never masks the real failure
         raise
     run.save()
     print(f"option {style}: {dst} | " + ", ".join(f"{fmt}: {rf.verdict_for(rows[fmt])[0]}" for fmt in rows))

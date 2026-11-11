@@ -373,7 +373,7 @@ def stage_cut(run):
     silence and never adds or drops a word (2026-11-11: the +-2 s snap and the edge-word recompute of
     ad7295ea/4cf5a31a are gone). The SAME acceptance check runs on every cut; a rejection HOLDs."""
     from cut_accept import check_cut_acoustics
-    use_pinned_table = (run.mode == "pinned" and not run.machine_cuts)
+    use_pinned_table = not machine_placed_cuts(run)
     if use_pinned_table:
         from pinned import write_pinned_cut_table
         write_pinned_cut_table(run.dir)
@@ -473,21 +473,31 @@ def free_gpu0_for_whisper(run, stage, need_free_mib=6000):
 FADE_RETRY_MAX = 6   # further legal cut points tried per failing edge (machine-placed cuts only)
 
 
+def machine_placed_cuts(run):
+    """True when every cut of this run is placed by the sentence law (AUTO or a machine_cuts PIN); False for
+    a human PIN's exact cut table. The ONE rule shared by stage_cut and the fade retry."""
+    return not (run.mode == "pinned" and not run.machine_cuts)
+
+
 def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
     """The clip contract failed ONLY on a fade edge of a MACHINE-placed cut (a click or breath at the cut
-    point: Nov 11 recut clip_02, cut_out 37.87 on a tick): move only that edge to the next legal point of
-    the same locked pause (sentence_law.cut_candidates: inside the range, cut_accept-clean, nearest the
-    target first), re-prepare, re-check. The contract and G16 are unchanged (the final G16 re-checks the
-    moved cut). Returns (ok, d1); every attempt is recorded on the cut."""
+    point: Nov 11 recut clip_02, cut_out 37.87 on a tick): try the next legal points of the same locked pause
+    for the failing edge(s) (sentence_law.cut_candidates: inside the range, cut_accept-clean, nearest the
+    target first), re-preparing and re-checking with the real contract. Transactional: the cut is changed
+    only if the re-prepared clip passes the WHOLE contract; otherwise the original cut and clip are restored.
+    The contract and G16 are unchanged. Returns (ok, d1); every attempt is recorded on the cut."""
     errs = d1.get("errors") or []
     sides = {"out" if e.startswith("fade-out missing") else "in" if e.startswith("fade-in missing") else None
              for e in errs}
-    if not errs or None in sides or not (run.mode == "auto" or run.machine_cuts):
+    if not errs or None in sides or not machine_placed_cuts(run):
         return False, d1
     with open(os.path.join(run.dir, "edl.json")) as f:
         edl = json.load(f)
     seg = edl["hook"] if c["clip_id"] == "hook" else \
-        next(x for x in edl["clips"] if f"clip_{x['index']:02d}" == c["clip_id"])
+        next((x for x in edl.get("clips", []) if f"clip_{x['index']:02d}" == c["clip_id"]), None)
+    if not seg or not seg.get("selection_lock"):
+        c.setdefault("contract_retries", []).append({"result": "no selection lock for this clip: not retried"})
+        return False, d1
     lock = seg["selection_lock"]
     with open(os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")) as f:
         words = json.load(f)["words"]
@@ -496,30 +506,39 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
     from cut_accept import check_cut_acoustics
     pad = float(c.get("lead_in_pad_s") or 0)
     tried = c.setdefault("contract_retries", [])
+    clip = os.path.join(run.dir, "qa", f"final_{c['clip_id']}.mp4")
+    trial = dict(c)
+    d = d1
     for side in sorted(sides):
+        if not any(e.startswith(f"fade-{side}") for e in d.get("errors") or []):
+            continue                                # the other edge's accepted trial cleared this one: keep it
         key = "cut_out" if side == "out" else "cut_in"
+        fixed = False
         for x in [v for v in cand[side] if abs(v - c[key]) > 1e-6][:FADE_RETRY_MAX]:
-            trial = dict(c, **{key: x})
-            trial["cut_duration"] = round(trial["cut_out"] - trial["cut_in"], 3)
-            if not check_cut_acoustics(src, trial["cut_in"], trial["cut_out"])[0]:
+            t2 = dict(trial, **{key: x})
+            t2["cut_duration"] = round(t2["cut_out"] - t2["cut_in"], 3)
+            if not check_cut_acoustics(src, t2["cut_in"], t2["cut_out"])[0]:
                 tried.append({key: x, "result": "cut_accept rejected the pair"})
                 continue
-            prerender_clips(run.dir, [trial])
+            prerender_clips(run.dir, [t2])
             if pad > 0:
-                L.apply_lead_in_pad(run.dir, trial, fps, qp)
-            ok, d = check_clip(os.path.join(run.dir, "qa", f"final_{c['clip_id']}.mp4"), trial["cut_duration"] + pad)
+                L.apply_lead_in_pad(run.dir, t2, fps, qp)
+            ok, d = check_clip(clip, t2["cut_duration"] + pad)
             tried.append({key: x, "result": "PASS" if ok else d.get("errors")})
             print(f"  {c['clip_id']}: fade retry {key} {x}: {'PASS' if ok else d.get('errors')}")
-            if ok or not any(e.startswith(f"fade-{side}") for e in d.get("errors") or []):
-                c.update({key: x, "cut_duration": trial["cut_duration"]})
-                d1 = d
+            if not any(e.startswith(f"fade-{side}") for e in d.get("errors") or []):
+                trial, fixed = t2, True
                 break
-        else:                                   # no legal point clears this edge: restore the original clip
-            prerender_clips(run.dir, [c])
-            if pad > 0:
-                L.apply_lead_in_pad(run.dir, c, fps, qp)
-            return False, d1
-    return not (d1.get("errors") or []), d1
+        if not fixed:
+            break
+    if not (d.get("errors") or []) and (trial["cut_in"], trial["cut_out"]) != (c["cut_in"], c["cut_out"]):
+        c.update(cut_in=trial["cut_in"], cut_out=trial["cut_out"], cut_duration=trial["cut_duration"])
+        return True, d
+    prerender_clips(run.dir, [c])                   # not fully clean: restore the original cut and clip
+    if pad > 0:
+        L.apply_lead_in_pad(run.dir, c, fps, qp)
+    tried.append({"result": "no legal point clears the contract: original cut and clip restored"})
+    return False, d1
 
 
 def stage_prepare(run, cuts):
@@ -1029,6 +1048,14 @@ def write_report(run):
     L += ["## Stages", "| stage | status | s | reason |", "|---|---|---|---|"]
     L += [f"| {r['name']} | {r['status']} | {r.get('seconds')} | {r.get('reason', '')[:200]} |"
           for r in s["stages"]]
+    vc = p.get("visual_checklist") or {}
+    if vc:
+        L += ["", "## Visual checklist (answered FROM the contact sheets qa/contact_sheet_<fmt>.jpg; any no = HOLD)"]
+        for fmt, v in vc.items():
+            L.append(f"- {fmt}: {'PASS' if v.get('ok') else 'FAIL'}" + (f" ({v['error']})" if v.get("error") else ""))
+            for model, rows in (v.get("answers") or {}).items():
+                for k, r in rows.items():
+                    L.append(f"  - {model} | {k}: **{r['answer']}** {r.get('why', '')[:160]}")
     L += ["", "Publishing: NONE (telegram never imported). External audit legs (GPT-4o/Gemini via "
           "cross_llm_audit.py): UNAVAILABLE for this run (OpenAI credits exhausted; Gemini removed)."]
     with open(os.path.join(run.dir, "REPORT.md"), "w") as f:
@@ -1083,7 +1110,15 @@ def main():
                                                                       final9, man9))
         # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
         import verify_pack
-        run.stage("verify", lambda: verify_pack.build(run.dir))
+        pack = run.stage("verify", lambda: verify_pack.build(run.dir))
+        with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:     # V1 (visual checklist) joins the rows
+            for fmt, frows in json.load(f).get("rows", {}).items():
+                if "V1_visual_checklist" in frows:
+                    rows[fmt]["V1_visual_checklist"] = frows["V1_visual_checklist"]
+        run.prov["visual_checklist"] = {fmt: {"ok": v.get("ok"), "error": v.get("error"),
+                                              "answers": {m: d["rows"] for m, d in (v.get("per_model") or {}).items()}}
+                                        for fmt, v in (pack.get("visual") or {}).items()}
+        run.prov["contact_sheets"] = pack.get("contact_sheets")
         v16, bad16 = verdict_for(rows["16x9"])
         v9, bad9 = verdict_for(rows["9x16"])
         run.prov["verdicts"] = {"16x9": v16, "9x16": v9}

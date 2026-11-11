@@ -556,11 +556,11 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
 
 def _transition_concat(segment_dir, segments, out_path, w, h, qa_dir):
     """Phase 3 / DEC-4: when the run declares TRANSITIONS.json, concatenate with transitions between
-    segments of different channels (pipeline/transitions.py) and return the timeline; else None."""
+    segments of different channels (pipeline/pulse_transitions.py) and return the timeline; else None."""
     tr_path = os.path.join(segment_dir, "TRANSITIONS.json")
     if not os.path.exists(tr_path):
         return None
-    import transitions as TR
+    import pulse_transitions as TR      # NOT 'transitions': video_pipeline_v3/transitions.py shadows it (E-FAIL-021)
     with open(tr_path) as f:
         tr = json.load(f)
     junctions = TR.plan(segments, tr["channels"], {k: tuple(v) for k, v in tr["lead_tail"].items()},

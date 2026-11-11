@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""pipeline/transitions.py — transitions between segments from DIFFERENT channels only (Phase 3, DEC-4).
+"""pipeline/pulse_transitions.py — transitions between segments from DIFFERENT channels only (Phase 3, DEC-4).
 
 Styles (run-level, TRANSITIONS.json written by run_fresh before rendering; no file = hard cuts, the
 frozen v2f path, Law 22):

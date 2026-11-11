@@ -15,7 +15,7 @@ import numpy as np
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE)
 
-import transitions as TR  # noqa: E402
+import pulse_transitions as TR  # noqa: E402
 
 SEGS = [("hook", "h.mp4", "talking_head"), ("clip_01", "c1.mp4", "talking_head"),
         ("clip_02", "c2.mp4", "talking_head"), ("shoutout", "s.mp4", "shoutout"), ("outro", "o.mp4", "outro")]
@@ -180,6 +180,23 @@ class TestConcat(unittest.TestCase):
         self.assertEqual(tl[0]["start"], 0.0)                                 # nothing at the open
         p = _probe(out)
         self.assertEqual(int(p["video"]["nb_read_packets"]), 3 * 72 + TR.WIPE_FRAMES)
+
+
+class TestProductionImportOrder(unittest.TestCase):
+    """Recut run 4 HELD at render: render16 puts video_pipeline_v3/ first on sys.path, and that folder has
+    its own transitions.py, so `import transitions` inside render16 got the OLD module ('no attribute plan').
+    The unit tests imported ours first and never saw it. In a fresh interpreter, import render16 FIRST (as
+    production does) and resolve exactly the module render16 uses."""
+
+    def test_render16_resolves_the_pipeline_module(self):
+        code = ("import sys; sys.path.insert(0, %r); import render16, importlib, inspect, re; "
+                "name = re.search(r'import (\\w+) as TR', inspect.getsource(render16._transition_concat)).group(1); "
+                "m = importlib.import_module(name); print(m.__file__); assert hasattr(m, 'plan') and hasattr(m, 'concat')"
+                % PIPELINE)
+        r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=PIPELINE, timeout=120)
+        self.assertEqual(r.returncode, 0, r.stderr[-800:])
+        self.assertEqual(os.path.realpath(r.stdout.strip().splitlines()[-1]),
+                         os.path.realpath(os.path.join(PIPELINE, "pulse_transitions.py")))
 
 
 class TestFrozenPath(unittest.TestCase):

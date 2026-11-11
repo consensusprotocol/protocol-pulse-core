@@ -6,11 +6,61 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 05:52 ET; newest first)
+## LIVE STATE (updated 2026-11-11 06:45 ET; newest first)
 
-- 05:49 recut re-run at HEAD 99d20fb5 (runs/pinned_20261111_104922): the 05:48 run HELD at the editorial gate
-  (LAW_1 "clip 2 missing") because editorial_review._validator returned instead of raising (E-FAIL-019,
-  fixed 99d20fb5); now all four laws PASS and it is rendering. Batched audit a1e732e1..497d8224 running.
+- 07:05 batch 3 audit answered (AUDIT_RESPONSE.md): 9 fixes, each with a test failing on the audited code
+  (review index `true`, vacuous second-edge move in the fade retry, stale contact sheet in copied runs,
+  vision route retries, malformed answer line, key error, `_parse`, photo limits); rejections with evidence.
+- 06:38 batch 3 (render fix + 06:20 contact sheet/visual checklist + batch-2 consensus) staged for ONE audit
+  (deepseek,qwen27b + cross-LLM), then commit + push + recut run 5 via scripts/pulse_check_run.sh.
+  Run 4 (runs/pinned_20261111_111252) passed env..layout and HELD at render: `module 'transitions' has no
+  attribute 'plan'` = pipeline/transitions.py shadowed by video_pipeline_v3/transitions.py (render16 puts
+  that folder first on sys.path) -> renamed pipeline/pulse_transitions.py + fresh-interpreter import-order
+  test (E-FAIL-021). Suites 111 pass; regression_test.sh 26 PASS / 0 FAIL; regression.sh PASS (0.041 s).
+- 06:40 vision panel (qwen3.8-27b + nemotron-3.5-super-vl) on yesterday's 9:16 sheet: HOLD, both name the
+  credits thumbnails (D4); BOTH miss the letterboxed Melker/Brunell talking heads (D5) although the sheet
+  shows them plainly (I read it). The vision line is an extra check; letterbox is caught by G4s, not by
+  vision (E-FAIL-022 "still open").
+- 06:50 vision follow-up (NOT in batch 3; lands before the 4b runs): asked ONE frame at a time ("is the
+  sharp picture only a band with a blurred copy above and below?"), both models answer correctly on
+  yesterday's frames: Melker clip_02 yes, DataDash chart hook yes (a screen: allowed), credits no. Plan:
+  one full-res frame per SHOT of every 9:16 talking-head segment (VERTICAL_LAYOUT.json classes), any
+  non-screen shot called letterboxed by either model (or unanswered) = V1 FAIL; must-fail on the
+  fixture's Melker panel.
+- 06:48 4b same-event merge (scratch copy, 7 tests pass; lands after run 5): link = the same counted
+  STATEMENT (same video, shared supporting chunk, >= 5 consecutive shared words in the evidence quotes);
+  a shared chunk alone is not enough (roundup shows). Real Nov 10 record: links exactly #13 "ETFs shed
+  $1.3B" + #20 "Falls amid tech selloff" (identical Yahoo quote); #4 "below $74K" had NO counted verdict,
+  #13 alone already had 2 channels and failed on hook quality (my earlier "each fell short on coverage"
+  was wrong). Re-judge budget goes to not-counted verdicts by retrieval score. The tests caught a real
+  NameError (`_decide_coverage` lost its local story_semantics import when moved out).
+- DEC-9 decision (logged, not asked): the 72 h universe means runs 3 h apart still share most stories,
+  so "genuinely different" is enforced by a delivered-story LEDGER (same event identity as the merge);
+  each run takes the engine's top story not already delivered. A "no producible story" HOLD (with its
+  rejection ledger) neither counts nor resets; then the next run waits for new stories.
+- ORCHESTRATOR NOTE 06:45: after run 5 renders, REPORT.md gets the full text of every segment and the
+  clip scorer's stand-alone score + reason (hook opens "I don't check it", clips open "But"/"And");
+  selection is NOT changed now.
+- 06:42 the production scorer (story_semantics.rate_passages, gemma3:27b, one batch as auto mode calls it)
+  on the PIN text: hook Yahoo 3.0 "starts_mid_thought" (HOOK_MIN_SCORE 4.0: BELOW the auto floor);
+  clip_01 DataDash 5.0 none; clip_02 Natalie 4.0 none (CLIP_MIN_SCORE 3.5). The auto window-start rule
+  (editorial_select.start_is_boundary, CONTINUATION_OPENERS) rejects ALL THREE starts ("But", "But",
+  "And"). The PIN path checks neither: I chose its windows by the sentence law alone. Not changed (06:45
+  note); reported in run 5's REPORT.md. Evidence: scratchpad recut/standalone_scores.json.
+
+- 06:12 recut run 4 at HEAD 8d10fcb7 (runs/pinned_20261111_111252) in progress, delivery to the approval
+  chat by scripts/pulse_check_run.sh; then A/B/C (pipeline/transition_options.py) on the same cut.
+- Recut runs so far, each HOLD fixed at the root cause, gates unchanged:
+  run 1 05:45 (HEAD 497d8224) editorial gate LAW_1 "clip 2 missing": the review validator RETURNED its error
+  (chat_json only reacts to exceptions) -> 99d20fb5 (E-FAIL-019);
+  run 2 05:49 (99d20fb5) prepare: clip_02 fade-out (cut 37.87 on a tick inside the legal pause; real
+  prepare at 37.84/37.80 passes) -> 9a0307c8 retry the failing edge at the next legal point (E-FAIL-020);
+  run 3 06:03 (9a0307c8) prepare: CUDA OOM (another session's 22 GB model on the shared GPU0 Ollama) ->
+  8d10fcb7 Whisper stages release GPU0 first (editorial-stage convention).
+- Batched audit 1 (a1e732e1..497d8224) answered in 8d10fcb7 (AUDIT_RESPONSE.md); batched audit 2
+  (497d8224..8d10fcb7) running. Its Grok call tripped the shared xAI $1/day ceiling at 05:49 and the gateway
+  posted one "[xAI BUDGET]" alert to Telegram; audit wrappers now blank TELEGRAM_*; Grok blocked today.
+- Law 22 re-proven with Phase 2+3+4a in the tree (runs/v2f_20261111_103004 byte-identical).
 - 4b plan (read-only map, 05:47): (A) same-event MERGE after the coverage loop in editorial_select
   (~:802, before the word pass): group candidates of one event, one merged query (derive_story_query),
   pool verdicts deduped by video, RE-JUDGE the uncounted CURRENT_EVENT verdicts on their stored excerpts
@@ -93,12 +143,13 @@ Evidence: docs/audits/pulse-sentence-law/dec1_calibration/HEIMDALL_RUN_FRESH_RES
 | No clipped tails (≥ 80 ms genuine tail) | G17a tail | T: D3c control (clean tail passes) | enforced (99add647) |
 | Edge words keep ≥ 85 % in the render | G17b on both finals | T: TestG17bRenderedEdges (muted onset fails, 20 ms fade passes) | enforced (99add647) |
 | Round credit avatars of the channels actually used | G12 (count), G15 (ring aspect, continuity), R6 (credits == EDL channels, unique avatar hashes), shoutout.validate_avatar + registry-only avatars | T: TestD4Credits (yesterday's card fails G12/G15; thumbnail refused; v2f passes) | enforced (3641440f) |
-| On-brand transitions between channels only | pipeline/transitions.plan (different channels only, never at the open, overlap only inside measured non-speech) + concat (frame-locked xfade/acrossfade); G14/G11/loudness gates on the final | T: test_transitions (planner rules; dissolve over silence only; picture and sound of the dissolved-into clip start together; C insert 8 frames < 0.35 s, red line on black) | enforced (Phase 3) |
+| On-brand transitions between channels only | pipeline/pulse_transitions.plan (different channels only, never at the open, overlap only inside measured non-speech) + concat (frame-locked xfade/acrossfade); G14/G11/loudness gates on the final | T: test_transitions (planner rules; dissolve over silence only; picture and sound of the dissolved-into clip start together; C insert 8 frames < 0.35 s, red line on black) | enforced (Phase 3) |
 | Speaker-centred vertical; safe frame only for screen / unidentifiable speaker, flagged | stage `layout` (vertical_layout.classify: SCRFD-10G, sha-pinned; per-shot classes) -> render_vertical.reframe_auto; G4s LAYOUT TRUTH (each shot label = the re-measured majority class; a 9:16 shot is the safe frame iff labelled screen/uncertain, band correlation >= 0.90); G4 per shot (unchanged gate_g4 rules); EDL `vertical_layout`; caption `vertical_layout.layout_note` | T: TestSafeFrameTruth (D5: Yahoo's talking head as safe frame fails), TestLayoutTruth (talking head mislabelled as screen fails, DEC-2), TestCaptionNote, TestStackGeometry, test_pinned auto for every channel status | enforced (Phase 2); caption wired in 4a |
 | Sparse VO with 1 s lead-in | G6 pre-roll (onset ≥ 0.95 s), R4 VO ≤ 25 %, M20 editorial gate | existing tests (test_round2_mustfail, test_editorial_gate) | enforced (pre-existing) |
-| No brand sting at the open | transitions.plan never adds anything before the first segment; C is an insert BETWEEN channels only | T: test_transitions TestConcat C timeline starts with the hook at 0.0 | enforced (Phase 3) |
+| No brand sting at the open | pulse_transitions.plan never adds anything before the first segment; C is an insert BETWEEN channels only | T: test_transitions TestConcat C timeline starts with the hook at 0.0 | enforced (Phase 3) |
 | 1080p (1920x1080 / 1080x1920) | G5 tech (dims, SAR, fps), clip_contract | test_round2_mustfail G5 | enforced (pre-existing) |
 | Transcript of the final == intended sentences, word for word | G18 (pipeline/word_diff.py): each clip's first/last two words == its lock's, and its words == the source span's (same ASR, canonicalised numbers/repeats); full diff vs the lock reported | T: test_word_diff (yesterday's clip_01 fails edges + identity, clip_02 fails the start edge) | enforced (4a) |
+| The finished video LOOKS right: credits avatars round and the channels used; speakers centred or layout=screen flagged; no letterbox on talking heads; no frozen/black/duplicate frames at joins; watermark present; nothing of the next shot before a transition | verify stage: qa/contact_sheet_<fmt>.jpg (2 s stills, +-3 frames at every boundary, full-resolution credits and 9:16 first frames) + the fixed checklist answered FROM the sheet by the Heimdall vision panel (qwen3.8-27b + nemotron-3.5-super-vl; any no or missing = V1_visual_checklist FAIL = HOLD); supervised sessions also read the sheet themselves (REPORT.md) | T: test_visual_check (verdict rules, sheet contents, live must-fail on yesterday's vertical sheet) | enforced (orchestrator note 06:20) |
 
 ## Findings recorded so far (evidence, 2026-11-11)
 

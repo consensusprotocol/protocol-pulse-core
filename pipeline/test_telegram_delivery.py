@@ -101,15 +101,42 @@ class TestDelivery(unittest.TestCase):
         _, sent = self.deliver(self.run_dir(), option="B")
         self.assertTrue(sent[0][2]["caption"].startswith("OPTION B (transition choice"), sent[0][2]["caption"])
 
-    def test_sheets_are_sent_with_the_main_drop_only(self):
+    def test_one_contact_sheet_per_format_with_the_main_drop_only(self):
+        from PIL import Image
         rd = self.run_dir()
-        for name in ("joins_16x9.jpg", "credits_9x16.jpg"):
-            open(os.path.join(rd, "VERIFY", name), "wb").write(b"\xff\xd8\xff\xd9")
+        os.makedirs(os.path.join(rd, "qa"), exist_ok=True)
+        Image.new("RGB", (1920, 2600)).save(os.path.join(rd, "qa", "contact_sheet_16x9.jpg"))
+        Image.new("RGB", (6000, 4500)).save(os.path.join(rd, "qa", "contact_sheet_9x16.jpg"))   # too big for a photo
         _, sent = self.deliver(rd)
-        self.assertEqual([s[1] for s in sent if s[0] == "photo"], ["joins_16x9.jpg", "credits_9x16.jpg"])
+        self.assertEqual([(s[0], s[1]) for s in sent if s[0] != "video"],
+                         [("photo", "contact_sheet_16x9.jpg"), ("document", "contact_sheet_9x16.jpg")])
         sent2 = []
         TG.deliver_run(rd, option="A", sheets=False, send=lambda k, p, f: sent2.append(k) or 1)
         self.assertEqual(sent2, ["video", "video"])
+
+    def test_photo_limits_at_their_boundaries(self):
+        """Audit M1: size (PHOTO_MAX_BYTES), width + height (10000) and aspect ratio (20) boundaries."""
+        from unittest import mock
+        from PIL import Image
+        tmp = tempfile.mkdtemp(prefix="photo_")
+        self.addCleanup(shutil.rmtree, tmp, True)
+
+        def img(w, h):
+            p = os.path.join(tmp, f"{w}x{h}.jpg")
+            Image.new("RGB", (w, h)).save(p)
+            return p
+        self.assertTrue(TG._photo_ok(img(5000, 5000)))                      # w + h == 10000
+        self.assertFalse(TG._photo_ok(img(5000, 5001)))
+        self.assertTrue(TG._photo_ok(img(4000, 200)))                       # ratio == 20
+        self.assertFalse(TG._photo_ok(img(4001, 200)))
+        p = img(100, 100)
+        with mock.patch("os.path.getsize", return_value=TG.PHOTO_MAX_BYTES):
+            self.assertTrue(TG._photo_ok(p))
+        with mock.patch("os.path.getsize", return_value=TG.PHOTO_MAX_BYTES + 1):
+            self.assertFalse(TG._photo_ok(p))
+        bad = os.path.join(tmp, "truncated.jpg")
+        open(bad, "wb").write(b"\xff\xd8\xff")                          # not an image: document, not a crash
+        self.assertFalse(TG._photo_ok(bad))
 
     def test_wrong_dimensions_stop(self):
         rd = self.run_dir()

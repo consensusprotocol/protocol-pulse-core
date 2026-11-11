@@ -89,7 +89,10 @@ def _validator(edl):
             raise ValueError("not an object")
         if d.get("inconclusive") is True:
             return
-        got = sorted(j.get("index") for j in d.get("clips") or [] if isinstance(j, dict))
+        clips = d.get("clips") or []
+        if not all(isinstance(j, dict) and type(j.get("index")) is int for j in clips):   # JSON true is not 1
+            raise ValueError("every clip judgment needs an integer index (the CLIP number)")
+        got = sorted(j["index"] for j in clips)
         if got != want:
             raise ValueError(f"clips must judge exactly the CLIP numbers {want}, got {got}")
         if not vo_keys <= set((d.get("vo_jobs") or {}).keys()):
