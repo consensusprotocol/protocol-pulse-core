@@ -14,6 +14,9 @@
 #   only (pipeline/telegram.deliver_run): "HOLD FOR APPROVAL - all gates passed, no waivers" or
 #   "REVIEW ONLY" with the failing list.
 # - log: logs/pulse_check/run_<stamp>.log (git HEAD, run dir, exit code, delivery message ids)
+# - DEC-9 story ledger: an AUTO run whose two finals went out as HOLD FOR APPROVAL is recorded in
+#   data/pulse_check/story_ledger.jsonl (its counted evidence statements); later auto runs never select an
+#   event resting on one of them (pipeline/story_ledger.py)
 # Exit (--foreground, and in the log): run_fresh's code (0 = every gate passed, 3 = HOLD), 70 = the run
 # rendered but the Telegram drop failed, 75 = locked, 64 = usage. The detached launcher exits 0 once the
 # tmux session is up (1 if tmux failed, 75 if a run already holds the lock); the run's code is in the log.
@@ -24,12 +27,13 @@ STAMP="$(date -u +%Y%m%d_%H%M%S)"
 
 FOREGROUND=0
 TELEGRAM=1
+MODE=auto                     # DEC-9: only an AUTO run delivered HOLD FOR APPROVAL enters the story ledger
 ARGS=()
 ORIG=("$@")
 while [ $# -gt 0 ]; do
   case "$1" in
     --pinned) [ $# -ge 2 ] && [ -f "$2" ] || { echo "usage: --pinned PIN.json (file must exist)" >&2; exit 64; }
-              ARGS+=(--pinned "$(realpath "$2")"); shift 2 ;;
+              ARGS+=(--pinned "$(realpath "$2")"); MODE=pinned; shift 2 ;;
     --no-telegram) TELEGRAM=0; shift ;;
     --foreground) FOREGROUND=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 64 ;;
@@ -70,8 +74,8 @@ RUN_DIR="$(grep -m1 -oP '(?<==== FRESH-TOPIC RUN ).*(?= ===)' "$LOG" || true)"
 echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
 
 if [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
-  python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
-    "$RUN_DIR" 2>&1 | tee -a "$LOG"
+  python3 -c "import sys, telegram, story_ledger; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']]); e = story_ledger.record_if_approved(sys.argv[1], r, sys.argv[2]); print('story ledger:', 'recorded ' + e['run'] if e else 'not recorded (pinned, review-only or option)')" \
+    "$RUN_DIR" "$MODE" 2>&1 | tee -a "$LOG"
   if [ "${PIPESTATUS[0]}" != 0 ]; then
     echo "pulse_check_run: Telegram delivery FAILED (see above); run dir $RUN_DIR" | tee -a "$LOG"
     exit 70
