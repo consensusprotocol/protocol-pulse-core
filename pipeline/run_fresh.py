@@ -428,6 +428,11 @@ def stage_cut(run):
                 rec["reason"] = f"cut range outside source file (duration {dur:.2f})"
             else:
                 ok, d = check_cut_acoustics(src, c["cut_in"], c["cut_out"])
+                for s in ("in", "out"):     # DEC-10 d: an edge the cutter placed at its envelope minimum is
+                    if c.get(f"valley_{s}"):    # rejected only by (i)-(iii): G16 (next stage, HOLD) judges it by
+                        d[s] = {"pass": None, "m19": d[s],      # neighbour_clear with the cut's own fades, not
+                                "deferred_to": "G16 neighbour_clear (DEC-10 c-ii)"}   # cut_accept's M19 quota
+                ok = all(c.get(f"valley_{s}") or bool(d[s].get("pass")) for s in ("in", "out"))
                 rec.update(pass_=ok, **d)
                 rec["pass"] = rec.pop("pass_")
         if not rec["pass"]:

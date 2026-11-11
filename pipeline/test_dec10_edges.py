@@ -165,5 +165,59 @@ class TestMixedEdgeAcoustics(unittest.TestCase):
         self.assertEqual((c["fade_in_ms"], c["fade_out_ms"]), (83, 30))
 
 
+class TestCutStageValleyEdges(unittest.TestCase):
+    """DEC-10 d in run_fresh.stage_cut (recut 12:03 HELD there: Natalie OUT 'no >= 60 ms ahead', Yahoo IN 'no
+    dip in the prior 100 ms'): an edge the cutter placed at its envelope minimum (valley_in / valley_out) is
+    judged by G16's neighbour_clear in the next stage, not by cut_accept's M19 quota; every other edge as before."""
+
+    def _stage_cut(self, flags, m19):
+        import shutil
+        import tempfile
+        from unittest import mock
+        import run_fresh as rf
+        tmp = tempfile.mkdtemp(prefix="cutstage_")
+        self.addCleanup(shutil.rmtree, tmp, True)
+        cut = {"clip_id": "clip_01", "video_id": "VID", "cut_in": 10.0, "cut_out": 20.0, "cut_duration": 10.0,
+               "verified": True, **flags}
+        write = lambda run_dir: json.dump([cut], open(os.path.join(run_dir, "cuts_final.json"), "w"))
+        det = {"in": {"pass": m19["in"]}, "out": {"pass": m19["out"]}}
+        run = rf.Run(tmp)
+        self.assertTrue(rf.machine_placed_cuts(run))
+        held = None
+        with mock.patch.object(L, "write_lock_cut_table", write), \
+                mock.patch.object(rf, "media_summary", return_value={"duration": 100.0}), \
+                mock.patch("cut_accept.check_cut_acoustics", return_value=(m19["in"] and m19["out"], det)) as acc:
+            try:
+                rf.stage_cut(run)
+            except rf.Hold as e:
+                held = str(e)
+        self.assertEqual(acc.call_count, 1)                   # cut_accept still measures every cut
+        return held, json.load(open(os.path.join(tmp, "CUT_ACCEPTANCE.json")))[0]
+
+    def test_a_valley_edge_is_deferred_to_g16_with_its_m19_reading_kept(self):
+        for side, other in (("in", "out"), ("out", "in")):
+            held, rep = self._stage_cut({f"valley_{side}": True}, {side: False, other: True})
+            self.assertIsNone(held, side)
+            self.assertTrue(rep["pass"], side)
+            self.assertIsNone(rep[side]["pass"], side)        # deferred, never recorded as passed
+            self.assertEqual(rep[side]["m19"], {"pass": False}, side)
+            self.assertIn("G16 neighbour_clear", rep[side]["deferred_to"], side)
+
+    def test_a_normal_edge_failing_m19_still_holds(self):
+        held, rep = self._stage_cut({"valley_in": True}, {"in": True, "out": False})
+        self.assertIn("cut acceptance rejected", held or "")
+        self.assertFalse(rep["pass"])
+
+    def test_without_a_valley_flag_nothing_changes(self):
+        held, _ = self._stage_cut({}, {"in": False, "out": True})
+        self.assertIn("cut acceptance rejected", held or "")
+
+    def test_g16_is_the_very_next_stage_after_cut(self):
+        import re
+        import run_fresh as rf
+        stages = re.findall(r'run\.stage\("(\w+)"', open(rf.__file__).read())
+        self.assertEqual(stages[stages.index("cut") + 1], "sentence_law")
+
+
 if __name__ == "__main__":
     unittest.main()

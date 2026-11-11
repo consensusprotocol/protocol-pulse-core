@@ -6,7 +6,23 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 11:36 ET; newest first)
+## LIVE STATE (updated 2026-11-11 12:08 ET; newest first)
+
+- 12:03 DEC-10 recut #1 (wrapper, HEAD ae965c95; runs/pinned_20261111_170153) HELD at stage cut, before any
+  render: run_fresh.stage_cut's M19-era cut acceptance (cut_accept) rejected exactly the two edges the
+  sentence-law cutter placed at the envelope minimum: clip_01 Natalie OUT 80.93 "cut_out not inside a
+  genuine pause with >= 60 ms ahead" (the old 60 ms guard; DEC-10 b: 0 ms) and clip_02 Yahoo IN 38.20
+  "inside continuous speech (no boundary dip in prior 100 ms)", lookback min -18.4 dB vs loud -25.6 (the
+  words 'days.' | 'Of' abut; the minimum between them is -19.5 dB). hook and clip_03 ACCEPT. Not delivered.
+  Root cause: my DEC-10 implementation changed the cutter but missed this second edge check. DEC-10 d: "a
+  clip is rejected for edges only if (i), (ii) or (iii) cannot be met"; the M19 quotas are none of them.
+  Change (batch 8c, audit running): for an edge flagged valley_in / valley_out in cuts_final.json (set only
+  by sentence_law.accepted_cut; a human PIN's table never carries it), stage_cut keeps the M19 reading in
+  CUT_ACCEPTANCE.json (as "m19") and leaves the verdict to the next stage, G16 (legal range +
+  neighbour_clear with the cut's own fades, HOLD before any render). Every other edge unchanged. Tests:
+  valley edge left to G16 with its M19 reading kept; a normal edge failing M19 still holds; no flag = no
+  change. The prepare clip contract (first 5 ms >= 9 dB under 25-45 ms) is expected to pass an 83 ms
+  linear fade (~20 dB).
 
 - 11:36 DEC-10 batch 8 answered (docs/audits/pulse-sentence-law/batch8_dec10_edge_timing/AUDIT_RESPONSE.md):
   gospel + docstrings ratify the recalibration; VALLEY_FADE_S = 2 video frames at 24 fps = 83 ms; valley test

@@ -1,0 +1,71 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 472c02ad..27b3f15b 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -428,6 +428,11 @@ def stage_cut(run):
+                 rec["reason"] = f"cut range outside source file (duration {dur:.2f})"
+             else:
+                 ok, d = check_cut_acoustics(src, c["cut_in"], c["cut_out"])
++                for s in ("in", "out"):     # DEC-10 d: an edge the cutter placed at its envelope minimum is
++                    if c.get(f"valley_{s}"):    # rejected only by (i)-(iii): G16 (next stage, HOLD) judges it by
++                        d[s] = {"pass": True, "m19": d[s],      # neighbour_clear with the cut's own fades, not
++                                "judged_by": "G16 neighbour_clear (DEC-10 c-ii)"}   # cut_accept's M19 quota
++                ok = d["in"]["pass"] and d["out"]["pass"]
+                 rec.update(pass_=ok, **d)
+                 rec["pass"] = rec.pop("pass_")
+         if not rec["pass"]:
+diff --git a/pipeline/test_dec10_edges.py b/pipeline/test_dec10_edges.py
+index aafad28b..091d4959 100644
+--- a/pipeline/test_dec10_edges.py
++++ b/pipeline/test_dec10_edges.py
+@@ -165,5 +165,50 @@ class TestMixedEdgeAcoustics(unittest.TestCase):
+         self.assertEqual((c["fade_in_ms"], c["fade_out_ms"]), (83, 30))
+ 
+ 
++class TestCutStageValleyEdges(unittest.TestCase):
++    """DEC-10 d in run_fresh.stage_cut (recut 12:03 HELD there: Natalie OUT 'no >= 60 ms ahead', Yahoo IN 'no
++    dip in the prior 100 ms'): an edge the cutter placed at its envelope minimum (valley_in / valley_out) is
++    judged by G16's neighbour_clear in the next stage, not by cut_accept's M19 quota; every other edge as before."""
++
++    def _stage_cut(self, flags, m19):
++        import shutil
++        import tempfile
++        from unittest import mock
++        import run_fresh as rf
++        tmp = tempfile.mkdtemp(prefix="cutstage_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        cut = {"clip_id": "clip_01", "video_id": "VID", "cut_in": 10.0, "cut_out": 20.0, "cut_duration": 10.0,
++               "verified": True, **flags}
++        write = lambda run_dir: json.dump([cut], open(os.path.join(run_dir, "cuts_final.json"), "w"))
++        det = {"in": {"pass": m19["in"]}, "out": {"pass": m19["out"]}}
++        run = rf.Run(tmp)
++        self.assertTrue(rf.machine_placed_cuts(run))
++        held = None
++        with mock.patch.object(L, "write_lock_cut_table", write), \
++                mock.patch.object(rf, "media_summary", return_value={"duration": 100.0}), \
++                mock.patch("cut_accept.check_cut_acoustics", return_value=(m19["in"] and m19["out"], det)):
++            try:
++                rf.stage_cut(run)
++            except rf.Hold as e:
++                held = str(e)
++        return held, json.load(open(os.path.join(tmp, "CUT_ACCEPTANCE.json")))[0]
++
++    def test_a_valley_edge_is_left_to_g16_with_its_m19_reading_kept(self):
++        held, rep = self._stage_cut({"valley_in": True}, {"in": False, "out": True})
++        self.assertIsNone(held)
++        self.assertTrue(rep["pass"])
++        self.assertEqual(rep["in"]["m19"], {"pass": False})
++        self.assertIn("G16 neighbour_clear", rep["in"]["judged_by"])
++
++    def test_a_normal_edge_failing_m19_still_holds(self):
++        held, rep = self._stage_cut({"valley_in": True}, {"in": True, "out": False})
++        self.assertIn("cut acceptance rejected", held or "")
++        self.assertFalse(rep["pass"])
++
++    def test_without_a_valley_flag_nothing_changes(self):
++        held, _ = self._stage_cut({}, {"in": False, "out": True})
++        self.assertIn("cut acceptance rejected", held or "")
++
++
+ if __name__ == "__main__":
+     unittest.main()
