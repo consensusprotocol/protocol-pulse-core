@@ -28,6 +28,10 @@ ffmpeg -i "$RUN/out/segment.mp4" $A "$OUT/audio/out_16x9.flac"
 ffmpeg -i "$RUN/out/segment_vertical.mp4" $A "$OUT/audio/out_9x16.flac"
 cp "$RUN/qa/shoutout_16x9.mp4" "$RUN/qa/shoutout_9x16.mp4" "$OUT/video/"
 cp "$RUN"/avatars/*.jpg "$OUT/video/" 2>/dev/null || true
+# 360p copies of the prepared clips for the vertical-layout tests (2026-11-11 03:39; 640x360 h264, 24 fps;
+# face-area rules are fractions of the frame, so the classes are scale-invariant). Same source and size:
+for c in hook clip_01 clip_02; do ffmpeg -i "$RUN/qa/final_$c.mp4" -an -vf scale=640:360 -c:v libx264 -crf 23 \
+  "$OUT/video/prepared_${c}_360p.mp4"; done
 # Yahoo Finance's window transcript is unpunctuated (whisper no-punctuation mode). The sentence law reads
 # it the way today's pipeline produces it: pipeline/punctuation.py (GPU0, faster-whisper large-v3).
 mkdir -p "$OUT/selection/transcripts_punctuated"

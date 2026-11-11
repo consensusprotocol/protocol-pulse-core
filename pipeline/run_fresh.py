@@ -351,12 +351,11 @@ def stage_validate(run):
         if rec is None:
             layout_errors.append((label, channel, "unknown channel"))
             continue
-        expected = "crop" if rec.get("layout_status") == "approved" else "letterbox"
-        if mode != expected:
-            layout_errors.append((label, channel, f"expected {expected}, got {mode!r}"))
+        if mode != "auto":                    # DEC-5: per-shot plan measured after prepare
+            layout_errors.append((label, channel, f"expected auto, got {mode!r}"))
     run.prov["layout_compat"] = {"segments": [(l, s.get("channel")) for l, s in segs],
                                  "vertical_overrides": ov,
-                                 "policy": "approved=crop; pending=letterbox"}
+                                 "policy": "DEC-5: auto (per-shot plan after prepare)"}
     if layout_errors:
         raise Hold(f"layout compatibility: {layout_errors}")
     for l, s in segs:
@@ -495,6 +494,37 @@ def stage_prepare(run, cuts):
         raise Hold(f"clip-preparation contract / edge-word check failed for {fails}")
 
 
+# ── stage 8b: vertical layout (DEC-2 / DEC-5) ──
+
+def stage_layout(run, cuts):
+    """Measure every prepared clip per shot (vertical_layout.classify: SCRFD faces, fixed rules) and
+    record the plan: vertical_overrides.json (renderer input), VERTICAL_LAYOUT.json (all samples) and
+    edl.json segment 'vertical_layout' (shot classes, flagged safe frames) for gates and the caption."""
+    import vertical_layout as V
+    qa = os.path.join(run.dir, "qa")
+    with open(os.path.join(run.dir, "vertical_overrides.json")) as f:
+        ov = json.load(f)
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        edl = json.load(f)
+    segs = {"hook": edl["hook"], **{f"clip_{c['index']:02d}": c for c in edl.get("clips", [])}}
+    plans = {}
+    for c in cuts:
+        cid = c["clip_id"]
+        plan = V.classify(os.path.join(qa, f"final_{cid}.mp4"))
+        plans[cid] = plan
+        ov[cid] = {"layout": "auto", "plan": {k: v for k, v in plan.items() if k != "samples"}}
+        segs[cid]["vertical_layout"] = {"shots": [{k: sh[k] for k in ("start", "end", "class", "flagged")}
+                                                  for sh in plan["shots"]], "flagged": plan["flagged"]}
+        print(f"  {cid}: " + " | ".join(f"{sh['class']} {sh['start']:.2f}-{sh['end']:.2f}"
+                                        + (" (SAFE FRAME, flagged)" if sh["flagged"] else "")
+                                        for sh in plan["shots"]))
+    jdump(os.path.join(run.dir, "vertical_overrides.json"), ov)
+    jdump(os.path.join(run.dir, "VERTICAL_LAYOUT.json"), plans)
+    jdump(os.path.join(run.dir, "edl.json"), edl)
+    run.prov["vertical_layout"] = {cid: [(sh["class"], sh["start"], sh["end"]) for sh in p["shots"]]
+                                   for cid, p in plans.items()}
+
+
 # ── stage 9: render ──
 
 FALLBACK_RE = re.compile(r"reframe failed for (\S+), using original")
@@ -551,6 +581,23 @@ def stage_render(run):
         "outro conform failed" in log9.lower()
     fb["fallback_occurred"] = bool(fb["log_hits"] or fb["structural"])
     run.prov["vertical_fallback_check"] = fb
+
+    # G4 input (DEC-2/DEC-5): each talking-head entry carries its clip-level layout. A clip with any
+    # screen/uncertain shot gets G4's existing 'screenshare' rule here; the per-shot G4 in stage_gates
+    # applies the face rules to every talking-head shot, and G4s checks every label against the picture.
+    with open(os.path.join(run.dir, "VERTICAL_LAYOUT.json")) as f:
+        plans = json.load(f)
+    for man in (man16, man9):
+        with open(man) as f:
+            m = json.load(f)
+        for sg in m["segments"]:
+            plan = plans.get(sg["label"]) if sg.get("type") == "talking_head" else None
+            if plan:
+                classes = {sh["class"] for sh in plan["shots"]}
+                cls = classes.pop() if len(classes) == 1 else "mixed"
+                sg["layout"] = {"single": "single", "stack2": "2face", "stack3": "3face"}.get(cls, "screenshare")
+                sg["source_faces"] = int(cls[-1]) if cls.startswith("stack") else 1
+        jdump(man, m)
     return final16, man16, final9, man9
 
 
@@ -686,6 +733,23 @@ def stage_gates(run, final16, man16, final9, man9):
                           "last_segment": last.get("label"), "conform_fallback": fallback}
         rows[fmt].update(tail_rows(res["G9_tail"]["pass"], fallback))
 
+    # G4 per shot + G4s layout truth (DEC-2 / DEC-5)
+    import vertical_layout as V
+    with open(os.path.join(run.dir, "VERTICAL_LAYOUT.json")) as f:
+        plans = json.load(f)
+    prepared = {cid: os.path.join(qa, f"final_{cid}.mp4") for cid in plans}
+    g4_shots, g4s = {}, {}
+    for fmt, final, man, sgs in (("16x9", final16, man16, segs16), ("9x16", final9, man9, segs9)):
+        g4dir = os.path.join(qa, f"g4_shots_{fmt}")
+        os.makedirs(g4dir, exist_ok=True)
+        with open(man) as f:
+            shout = json.load(f).get("shoutout_start", 0)
+        ok, g4_shots[fmt] = qa_gates.gate_g4(final, V.per_shot_manifest(sgs, plans), fmt, shout, g4dir)
+        rows[fmt]["G4_faces_per_shot"] = _status(ok)
+        ok, g4s[fmt] = V.gate_g4s(plans, prepared, vert_final=final9 if fmt == "9x16" else None,
+                                  vert_segments=segs9 if fmt == "9x16" else None)
+        rows[fmt]["G4s_layout_truth"] = _status(ok)
+
     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
     g16_ok, g16 = L.gate_g16(run.dir)
     for fmt in ("16x9", "9x16"):
@@ -707,6 +771,7 @@ def stage_gates(run, final16, man16, final9, man9):
                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
                  "G15_16x9": g15_16, "G15_9x16": g15_9, "G8": g8_report, "G9": g9_report, "G16": g16,
                  "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9},
+                 "G4_per_shot": g4_shots, "G4s": g4s,
                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
     jdump(os.path.join(run.dir, "GATE_REPORT.json"), gates_out)
     run.prov["gates"] = {"rows": rows, "flags": flags, "limitations": limits}
@@ -893,6 +958,7 @@ def main():
         run.stage("sentence_law", lambda: stage_sentence_law(run))
         run.stage("voice", lambda: stage_voice(run))
         run.stage("prepare", lambda: stage_prepare(run, cuts))
+        run.stage("layout", lambda: stage_layout(run, cuts))
         final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
         rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16,
                                                                       final9, man9))

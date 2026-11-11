@@ -353,6 +353,60 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
 
 
 # ==============================================================
+# AUTO (DEC-2/DEC-5, 2026-11-11): per-shot plan from vertical_layout.classify
+# ==============================================================
+
+LETTERBOX_VF = ("split[main][bg];[bg]scale=-2:2400:flags=lanczos,crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
+                "boxblur=20:5,colorlevels=rimax=0.65:gimax=0.65:bimax=0.65[bgout];"
+                f"[main]scale={VERT_W}:-2:flags=lanczos[mainout];[bgout][mainout]overlay=(W-w)/2:(H-h)/2")
+
+
+def _shot_vf(shot, src_w, src_h):
+    """Filter for one shot of a 1920x1080 prepared clip -> 1080x1920 (approved filters reused)."""
+    cls = shot["class"]
+    if cls == "single":                                   # v2f fixed speaker-centred crop (Law 18a)
+        x = max(0, min(src_w - CROP_W, int(shot["face_cx"]) - CROP_W // 2))
+        return f"crop={CROP_W}:{CROP_H}:{x}:0,scale={VERT_W}:{VERT_H}:flags=lanczos"
+    if cls in ("stack2", "stack3"):                       # equal bands, left to right (Law 18b equal mode)
+        n = int(cls[-1])
+        bh = VERT_H // n
+        cw = src_w // n
+        ch = int(round(cw * bh / VERT_W))
+        parts = [f"split={n}" + "".join(f"[b{i}]" for i in range(n)) + ";"]
+        for i, (cx, cy) in enumerate(zip(shot["band_cx"], shot["band_cy"])):   # each face at 40 % of its band
+            x = max(0, min(src_w - cw, int(cx) - cw // 2))
+            y = max(0, min(src_h - ch, int(cy) - int(ch * 0.4)))
+            parts.append(f"[b{i}]crop={cw}:{ch}:{x}:{y},scale={VERT_W}:{bh}:flags=lanczos[s{i}];")
+        return "".join(parts) + "".join(f"[s{i}]" for i in range(n)) + f"vstack=inputs={n},pad={VERT_W}:{VERT_H}"
+    return LETTERBOX_VF                                   # screen / uncertain: safe frame (flagged)
+
+
+def reframe_auto(seg_path, output_path, seg_label, plan):
+    """Per-shot 9:16 from the PREPARED clip (lead-in pad and fades identical to 16:9). Video only is
+    re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
+    fps = plan["fps"]
+    graph, labels = [], []
+    for k, shot in enumerate(plan["shots"]):
+        a, b = int(round(shot["start"] * fps)), int(round(shot["end"] * fps))
+        graph.append(f"[0:v]trim=start_frame={a}:end_frame={b},setpts=PTS-STARTPTS,"
+                     f"{_shot_vf(shot, plan['width'], plan['height'])},setsar=1:1[v{k}]")
+        labels.append(f"[v{k}]")
+    graph.append("".join(labels) + f"concat=n={len(labels)}:v=1:a=0[vout]")
+    r = subprocess.run([
+        "ffmpeg", "-y", "-i", seg_path, "-filter_complex", ";".join(graph),
+        "-map", "[vout]", "-map", "0:a", "-r", str(FPS),
+        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+        "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", output_path,
+    ], capture_output=True, timeout=600)
+    if r.returncode != 0:
+        print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+        return False, "auto"
+    summary = "+".join(f"{s['class']}[{s['start']:.2f}-{s['end']:.2f}]" for s in plan["shots"])
+    print(f"    Reframe auto {seg_label}: {summary}")
+    return True, f"auto:{summary}"
+
+
+# ==============================================================
 # VO VISUAL (native 9:16) — face-crop BG from preceding clip
 # ==============================================================
 
@@ -710,6 +764,10 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
                     ok, crop_rect = reframe_grid(trimmed, vert_path, clip_id, override)
                 else:
                     ok, crop_rect = reframe_single(trimmed, vert_path, clip_id, override)
+            elif layout == "auto":
+                # DEC-2/DEC-5: per-shot plan measured on the prepared clip (vertical_layout.classify)
+                src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
+                ok, crop_rect = reframe_auto(src_clip, vert_path, clip_id, override["plan"])
             elif layout == "letterbox":
                 # M21: Full 16:9 letterbox for unapproved channels
                 src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
@@ -718,12 +776,11 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
                 src_clip = _find_clip_file(qa_dir, clip_id, cuts, paths["sources_dir"])
                 ok, crop_rect = reframe_fixed_crop(src_clip, vert_path, clip_id)
 
-        if ok:
-            reframed[clip_id] = vert_path
-            crop_rects[clip_id] = crop_rect
-        else:
-            print(f"  WARNING: reframe failed for {clip_id}, using original")
-            reframed[clip_id] = src_clip
+        if not ok:
+            # M12 fail closed (2026-11-11): never drop a 16:9 clip into the 9:16 timeline
+            raise RuntimeError(f"STOP: vertical reframe failed for {clip_id} (layout {crop_rect})")
+        reframed[clip_id] = vert_path
+        crop_rects[clip_id] = crop_rect
 
     print(f"\n  Reframed: {list(reframed.keys())}")
 

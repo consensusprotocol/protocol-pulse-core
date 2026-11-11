@@ -107,3 +107,16 @@ Known failure patterns and their root causes. Load into every Qwen/audit session
 ### E-FAIL-013: A model asked one yes/no question per gap says yes to everything
 **Evidence:** the 1b per-gap adjudicator (gemma3:27b, "does a sentence end at <GAP>?") called 19 of 19 Yahoo Finance gaps sentence ends, 'the | Wolf', 'of | all', 'is | up', 'pretty | massively' included. Every one had a real pause (90-770 ms), so G16 would have passed mid-sentence cuts in any unpunctuated source (docs/audits/pulse-sentence-law/1b_fix_punctuation/ADJUDICATOR_EVIDENCE_yahoo_sweep.jsonl). One of the two decisions cached for the Nov 10 fixture was such a false start ('course | of' inside "of course, of course").
 **Fix:** no model decides a boundary. Root cause: whisper's no-punctuation mode. A second decode of the same audio with a neutral punctuated prompt supplies punctuation, transferred onto aligned verbatim words only (pipeline/punctuation.py; the words never change); an unpunctuated stretch has no boundary (fail closed). data/editorial/sentence_adjudication.json is no longer read. **Detection:** `test_pulse_20261110_mustfail.py::TestUnpunctuatedTranscript`, `TestPunctuationLayer`.
+
+### E-FAIL-014: A layout default keyed on registry status letterboxes every new channel (D5)
+**Root cause:** M21's `build_vertical_overrides` gave 'crop' only to channels with hand-approved crop tables ('approved'); all three Nov 10 channels were 'pending', so every machine-chosen clip was letterboxed. There was no machine reframe path, and a failed reframe silently used the 16:9 clip in the 9:16 timeline.
+**Fix:** DEC-5 'auto' for every segment: a per-shot plan measured on the prepared clip (vertical_layout.classify: SCRFD faces every 0.5 s, fixed area rules) -> speaker-centred crop / stacked bands / flagged safe frame; a failed reframe raises STOP. **Detection:** G4s; `test_vertical_layout.py::TestSafeFrameTruth` (Yahoo's talking head shown as safe frame fails), `test_pinned.py::test_vertical_overrides_are_auto_for_every_channel_status`.
+
+### E-FAIL-015: Measure the defining property, not a side effect
+**Evidence:** the first safe-frame test inferred letterbox from a blurred top band; right on the Nov 10 and v2f frames, but the soft v2f hook read 5.0/6.2 (rule < 0.25) and a plain wall above a sharp face also reads as blur. A safe frame is defined by showing the WHOLE 16:9 picture: the centre band's correlation with the prepared frame is 0.998-1.000 (letterbox) vs <= 0.448 (v2f crops).
+
+### E-FAIL-016: Choose a detector by measurement, then pin it
+**Evidence:** BlazeFace short-range missed Yahoo Finance's standing host (1.6 % of frame); the Haar cascade counted 2-4 'faces' on one talking head. SCRFD-10G (insightface det_10g.onnx) measured 0.4 % / 1.6 % / 7.7-13 % correctly. Its sha256 is pinned (face_scrfd.MODEL_SHA256) and checked before use: another model would silently change every layout class.
+
+### E-FAIL-017: Never place a crop at a fixed height
+**Evidence:** the first stacked-band renderer read `band_cy` but classify never measured it, so every band sat at 45 % of frame height; a 379 px stack3 band would cut off a face at 28 % height. Bands are placed from each face's measured centre. **Detection:** `TestStackGeometry`.

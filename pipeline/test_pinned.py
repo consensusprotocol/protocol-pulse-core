@@ -190,18 +190,21 @@ class TestCanonicalShape(Fixture):
         self.assertEqual(edl["vo"], sp._generate_vo_script(p["label"], edl["hook"]["text"], edl["clips"],
                                                            sorted({APPROVED, PENDING})))
         ov = json.load(open(os.path.join(self.run_dir, "vertical_overrides.json")))
-        self.assertEqual(ov, {"hook": {"layout": "crop"}, "clip_01": {"layout": "letterbox"},
-                              "clip_02": {"layout": "crop"}})
+        # DEC-5: speaker-centred reframe ('auto') for every segment, approved or pending channel
+        self.assertEqual(ov, {"hook": {"layout": "auto"}, "clip_01": {"layout": "auto"},
+                              "clip_02": {"layout": "auto"}})
         ok, res = edl_rules.validate_edl(edl, channels_registry=REG)
         self.assertTrue(ok, [r for r in res if not r["pass"]])
 
-    def test_vertical_overrides_extraction_is_behaviour_identical(self):
+    def test_vertical_overrides_are_auto_for_every_channel_status(self):
+        # DEC-5 (2026-11-11) retires M21's letterbox-by-registry-status default: the Nov 10 cut fell to
+        # letterbox only because its channels were 'pending' (D5). No status yields crop or letterbox.
         import select_passages as sp
         hook = {"channel": APPROVED}
         clips = [{"channel": PENDING, "index": 1}, {"channel": APPROVED, "index": 2}, {"channel": "Unknown", "index": 3}]
         self.assertEqual(sp.build_vertical_overrides(hook, clips),
-                         {"hook": {"layout": "crop"}, "clip_01": {"layout": "letterbox"},
-                          "clip_02": {"layout": "crop"}, "clip_03": {"layout": "letterbox"}})
+                         {"hook": {"layout": "auto"}, "clip_01": {"layout": "auto"},
+                          "clip_02": {"layout": "auto"}, "clip_03": {"layout": "auto"}})
 
 
 class TestRunFreshUsesSharedCutAcceptance(Fixture):

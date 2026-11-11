@@ -129,27 +129,16 @@ def _generate_vo_script(keyword, hook_text, clips, channels):
 
 
 def build_vertical_overrides(hook_seg, clip_segs, registry=None):
-    """vertical_overrides.json content — default letterbox for all (M21).
-    Channels with approved hand tables use those ('crop'); others get letterbox.
-    Shared by AUTO (select_and_build_edl) and PINNED (pinned.build_edl)."""
-    if registry is None:
-        registry = []
-        channels_path = os.path.join(PIPELINE_DIR, "channels.json")
-        if os.path.exists(channels_path):
-            with open(channels_path) as f:
-                registry = json.load(f)
-    approved_channels = set()
-    for ch in registry:
-        if ch.get("layout_status") == "approved":
-            approved_channels.add(ch.get("display_name", ""))
-
+    """vertical_overrides.json content. DEC-5 (orchestrator, delegated by PBX, 2026-11-11): every
+    segment, approved or pending channel, gets layout 'auto' - the approved speaker-centred reframe,
+    stacked bands for 2-3 people, the safe frame only for a shared screen or an unidentifiable speaker
+    (flagged). The per-shot plan is measured on the prepared clip in run_fresh's 'layout' stage
+    (vertical_layout.py). M21's letterbox-by-registry-status default is retired. `registry` is kept
+    for call compatibility. Shared by AUTO (select_and_build_edl) and PINNED (pinned.build_edl)."""
     overrides = {}
     for seg in [hook_seg] + clip_segs:
         label = "hook" if seg is hook_seg else f"clip_{seg['index']:02d}"
-        if seg["channel"] in approved_channels:
-            overrides[label] = {"layout": "crop"}  # Use approved layout
-        else:
-            overrides[label] = {"layout": "letterbox"}  # M21
+        overrides[label] = {"layout": "auto"}
     return overrides
 
 
