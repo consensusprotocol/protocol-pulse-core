@@ -6,6 +6,38 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## OPEN DECISIONS FOR THE ORCHESTRATOR (evidence; work continues meanwhile)
+
+**OD-1 G12/G15 misfire on correct credit cards (DEC-7).** With the render fixed (real square
+avatars from the registry; rings measured 0.999), the UNCHANGED gates still fail the rebuilt Nov 10
+card: 16:9 G12 counts 5 "circles" — the extra ones sit on Natalie Brunell's real avatar's ORANGE
+background (G12's red mask R>100, R>G+40, R>B+40 includes orange); 9:16 G15 fits a 0.457 ellipse at
+(481, 1076) = the middle channel's NAME LABEL text, not a ring. Yesterday's 9:16 G15 failure was the
+same label contour. So G12/G15 are content-sensitive; a story crediting such a channel cannot pass
+them unchanged. Not changed (mission 1e, DEC-7, M2). If re-specified, the rings-only measurement
+would no longer see warped avatar CONTENT, so D4 is now guarded deterministically before render
+(shoutout.validate_avatar: square + registry sha prefix; tests in pipeline/test_pulse_20261110_mustfail.py).
+Evidence: scratch renders of the rebuilt card, g12_circles overlay (circles on the orange background).
+
+**OD-2 G16/G17 not calibrated to v2f (DEC-1 applied to G3c/G5/G8/G9 only).** v2f predates the
+sentence law and fails it on all four segments (table below). Calibrating would set lead/tail to 0 ms
+and admit mid-sentence starts, i.e. re-admit D1-D3; PBX's own v2f record calls clip_01's out edge a
+ONE-TIME exception with "the 60 ms rule unchanged". New renders must meet the law; v2f stays the
+approved legacy reference for everything else.
+
+## 1f — the gate suite on the frozen v2f reference (2026-11-11, scratch copy, production stage_gates)
+
+| gate | format | v2f measured | threshold | approved video shows the defect, or gate stricter than approved? |
+|---|---|---|---|---|
+| G3c acoustic tail | both | hook: tail rise to −31.4 dB vs speech −21.7 dB → "onset"; passes at depth ≤ 11.63 dB (16:9) / 11.65 dB (9:16) | valley ≤ speech−12 dB, no sustained rise | stricter than approved (REFERENCE_v2f: output fades to −87 dB at 9.52, next word 9.60) → DEC-1 |
+| G5 true peak | 9:16 | −1.3 dBFS | ≤ −2.0 | stricter (REFERENCE: "9:16 peak −1.3 dB, approved as reviewed") → DEC-1 |
+| G8 sharpness floor | 16:9 / 9:16 | worst segment medians 27.56 (hook) / 10.84 (clip_03) | ≥ 60 | stricter (soft source cameras, approved) → DEC-1 |
+| G9 tail luma | 16:9 / 9:16 | 14.3357 / 14.7715 | > 20 | stricter (locked PBX outro ends on black, approved) → DEC-1 |
+| G16 sentence boundary | both | hook lead 40 ms genuine, no pad; clip_01 in 238.55 is 80 ms after the pause before 'The', out has no ≥80 ms pause before 'So'; clip_02 no pause before 'One'; clip_03 starts mid-sentence ('of \| a prison'), out 20 ms after 'have.' | sentence law (2026-11-11) | approved video SHOWS the defects the new law prohibits → not calibrated (OD-2) |
+| G17a onset/tail | — | leads 40/40/0/190 ms, tails 150/40/190/0 ms | ≥ 80 ms | same → not calibrated (OD-2) |
+| G17b edge words | both | PASS (render faithful) | ≥ 85 % | — |
+| G1-G2, G3, G3b, G4, G6, G10-G15 | both | PASS | unchanged | — |
+
 ## Rule → check → proof
 
 | PBX rule | Enforcing check (code) | Must-fail proof | State |

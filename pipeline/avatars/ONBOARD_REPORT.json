@@ -1,0 +1,675 @@
+[
+ {
+  "slug": "andreas_antonopoulos",
+  "display_name": "Andreas Antonopoulos",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/andreas_antonopoulos_512.png",
+  "sha256": "f072d69be091e377e5cc268f849ddb24492416944fc4184bd732dbc82ecbfdaf",
+  "ok": true
+ },
+ {
+  "slug": "base58",
+  "display_name": "Base58",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/base58_512.png",
+  "sha256": "2846a569c15fd8c0320cac693d7d68ab3ddac2f14cbf033794a41c20abb3cc97",
+  "ok": true
+ },
+ {
+  "slug": "bitcoin_audible",
+  "display_name": "Bitcoin Audible",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_audible_512.png",
+  "sha256": "09e2ad1369cea88c4405b9d1e7bf246a1f5ede10a313197cd9190aef9eaf506a",
+  "ok": true,
+  "error": "avatar sha256 not unique (R6)",
+  "note": "duplicate registry entries for one channel UClG-wqz-OuXfzbpqwJd3fVA: same verified avatar"
+ },
+ {
+  "slug": "bitcoin_explained",
+  "display_name": "Bitcoin Explained",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_explained_512.png",
+  "sha256": "591d5c523f214e24429a53c6b0cb3488bdecca102b5a95094bae94f4c6952650",
+  "ok": true
+ },
+ {
+  "slug": "bitcoin_mechanic",
+  "display_name": "Bitcoin Mechanic",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_mechanic_512.png",
+  "sha256": "b2e10dd548bb5e489b547603bea97194d02a280abe841824673f18983d6d976f",
+  "ok": true
+ },
+ {
+  "slug": "bitcoin_podcast",
+  "display_name": "Bitcoin Podcast",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_podcast_512.png",
+  "sha256": "727b01b70ca03e88102c1122d3e98b1d188026cdc7681084146ea5364bfe5767",
+  "ok": true
+ },
+ {
+  "slug": "guy_swann",
+  "display_name": "Guy Swann",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/guy_swann_512.png",
+  "sha256": "09e2ad1369cea88c4405b9d1e7bf246a1f5ede10a313197cd9190aef9eaf506a",
+  "ok": true,
+  "error": "avatar sha256 not unique (R6)",
+  "note": "duplicate registry entries for one channel UClG-wqz-OuXfzbpqwJd3fVA: same verified avatar"
+ },
+ {
+  "slug": "jameson_lopp",
+  "display_name": "Jameson Lopp",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/jameson_lopp_512.png",
+  "sha256": "8a3487566357e238b5ea8d782fbc3f8306603f80fcf0e7488761aefbffe50d9e",
+  "ok": true
+ },
+ {
+  "slug": "natalie_brunell",
+  "display_name": "Natalie Brunell",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/natalie_brunell_512.png",
+  "sha256": "bbf0deab624f81f29301e7d157fc4891581b2a2762846f07fc09fb15cf92aa2f",
+  "ok": true
+ },
+ {
+  "slug": "nathaniel_whittemore",
+  "display_name": "Nathaniel Whittemore",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/nathaniel_whittemore_512.png",
+  "sha256": "35faa925cf36b7457a652683e797d24d4279c1b4a3f4fc5734c42e3785f8960b",
+  "ok": true
+ },
+ {
+  "slug": "preston_pysh",
+  "display_name": "Preston Pysh",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/preston_pysh_512.png",
+  "sha256": "c64701c89e93ef29da3a986145cd96f12453585f36e0839233db814cdf54135f",
+  "ok": true
+ },
+ {
+  "slug": "robert_breedlove",
+  "display_name": "Robert Breedlove",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/robert_breedlove_512.png",
+  "sha256": "bcbbe9d4f695a1672609302c4758714fd89346497edd35bf469b02bf2f7a4f15",
+  "ok": true
+ },
+ {
+  "slug": "saifedean_ammous",
+  "display_name": "Saifedean Ammous",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/saifedean_ammous_512.png",
+  "sha256": "5e362ed141f6bab915ce3663dd7ffda8299b49eeb0b5eaeea04c0d5f769be6a6",
+  "ok": true
+ },
+ {
+  "slug": "stephan_livera",
+  "display_name": "Stephan Livera",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/stephan_livera_512.png",
+  "sha256": "7ac6f1eb5491b3d26fb5e5bf5ae1f0fd8115c35fc3d27006437701ffe8b9d51f",
+  "ok": true
+ },
+ {
+  "slug": "swan_bitcoin",
+  "display_name": "Swan Bitcoin",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/swan_bitcoin_512.png",
+  "sha256": "b2aec803987197a17b8f67f794cb59037faca61294883542ed7d6ae9351de77e",
+  "ok": true
+ },
+ {
+  "slug": "tftc",
+  "display_name": "TFTC",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/tftc_512.png",
+  "sha256": "9bbc5bb05758e0ef7805172e93042a700bd3df4113ff9e1ae4c93b27f9def08c",
+  "ok": true
+ },
+ {
+  "slug": "the_bitcoin_podcast",
+  "display_name": "The Bitcoin Podcast",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/the_bitcoin_podcast_512.png",
+  "sha256": "26d0d939973d2480e434ff931ead7648f46ed14ec998f685ec23327e7e301822",
+  "ok": true
+ },
+ {
+  "slug": "tone_vays",
+  "display_name": "Tone Vays",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/tone_vays_512.png",
+  "sha256": "c0b5f4f1653fb479285febe5259f6c993b3d8ca5ff00490bfdaec32b45f8c980",
+  "ok": true
+ },
+ {
+  "slug": "unchained",
+  "display_name": "Unchained",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/unchained_512.png",
+  "sha256": "d5a105de2fff62f0633933bc6c0cc1eef55a81ffff91b194bf599fb8ad32cd76",
+  "ok": true
+ },
+ {
+  "slug": "what_bitcoin_did",
+  "display_name": "What Bitcoin Did",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/what_bitcoin_did_512.png",
+  "sha256": "9cfe2b209f99b6c493805a5a8f6177bf169e8ba3f4419d61c60742071281b754",
+  "ok": true
+ },
+ {
+  "slug": "coffeezilla",
+  "display_name": "Coffeezilla",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/coffeezilla_512.png",
+  "sha256": "cab8eba765603cc7138c85d14226ef4e5fbc49236b4cf8f2cc0db56c9cebbe10",
+  "ok": true
+ },
+ {
+  "slug": "coffeezilla_extras",
+  "display_name": "Coffeezilla Extras",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/coffeezilla_extras_512.png",
+  "sha256": "be7a2ec4baac7950e13bd3411ad12765ac52fdce85ca053dfba605c8195b1bfd",
+  "ok": true
+ },
+ {
+  "slug": "altcoin_daily",
+  "display_name": "Altcoin Daily",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/altcoin_daily_512.png",
+  "sha256": "7a9a97aed3ea56c589acb033a7f8007aea0ff163b977435adecab0101d06eea5",
+  "ok": true
+ },
+ {
+  "slug": "anthony_pompliano",
+  "display_name": "Anthony Pompliano",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/anthony_pompliano_512.png",
+  "sha256": "1650105990ecc92fc50c3f0a7e8b6465e2a2f43ff2ed65cc1a836507fc038b0f",
+  "ok": true
+ },
+ {
+  "slug": "bitfarms",
+  "display_name": "Bitfarms",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/bitfarms_512.png",
+  "sha256": "10f775a47f3e9ba9bef78e8248441fa131067d3bedca2c99a69317e324d60fbc",
+  "ok": true
+ },
+ {
+  "slug": "bitstamp",
+  "display_name": "Bitstamp",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/bitstamp_512.png",
+  "sha256": "9074a6e2b49610a44c9691e639dda6315a74d07f2d2074b1d99f81d8296547ee",
+  "ok": true
+ },
+ {
+  "slug": "blockware_solutions",
+  "display_name": "Blockware Solutions",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/blockware_solutions_512.png",
+  "sha256": "484e59b698db28a4d07f49b40d5eccf584fe094ceaabed6123af6d4ef40e57cd",
+  "ok": true
+ },
+ {
+  "slug": "clark_moody",
+  "display_name": "Clark Moody",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/clark_moody_512.png",
+  "sha256": "4667b979a3920beeafe4044b9719bf9596ff1dc9c0db85227b211cff45b2038a",
+  "ok": true
+ },
+ {
+  "slug": "coin_bureau",
+  "display_name": "Coin Bureau",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/coin_bureau_512.png",
+  "sha256": "efb85001521bdfc85ada58656226b56c7927a27a75c801c4cf0d67a0d679ab05",
+  "ok": true
+ },
+ {
+  "slug": "coingecko",
+  "display_name": "CoinGecko",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/coingecko_512.png",
+  "sha256": "6882363d604f98c20d96083be86285b80cbe7b612e9d852c54a5c5cd6c5e4834",
+  "ok": true
+ },
+ {
+  "slug": "cointelegraph",
+  "display_name": "CoinTelegraph",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/cointelegraph_512.png",
+  "sha256": "a60039b5908afcb18910736e5158ac87012ac2c41b78b9a73a4141b4ab09cbfb",
+  "ok": true
+ },
+ {
+  "slug": "compass_mining",
+  "display_name": "Compass Mining",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/compass_mining_512.png",
+  "sha256": "1a4dba0fe1a44bb643d3e4be7e523da1ae8d4ae76e88445e70de2a3be40db3e3",
+  "ok": true
+ },
+ {
+  "slug": "datadash",
+  "display_name": "DataDash",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/datadash_512.png",
+  "sha256": "4796d4ffab615084d418a7ab141c625ffac4747f618681baa4ed7dcdb8a9dded",
+  "ok": true
+ },
+ {
+  "slug": "digital_asset_news",
+  "display_name": "Digital Asset News",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/digital_asset_news_512.png",
+  "sha256": "fe95098be5293b0e795a2f28805fce1e455e029b315a0281b7bcd6e259a0b42b",
+  "ok": true
+ },
+ {
+  "slug": "george_gammon",
+  "display_name": "George Gammon",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/george_gammon_512.png",
+  "sha256": "21b0a7e411158f204b83ecbde9d8acbdb00f257fa576e32ea31b57329a112405",
+  "ok": true
+ },
+ {
+  "slug": "investing_with_tom",
+  "display_name": "Investing With Tom",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/investing_with_tom_512.png",
+  "sha256": "0033e0dd65096d9617d1772c0266142776b92539b321aba6922037b091fa1cf8",
+  "ok": true
+ },
+ {
+  "slug": "marty_bent_rabbit_hole_recap",
+  "display_name": "Marty Bent (Rabbit Hole Recap)",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/marty_bent_rabbit_hole_recap_512.png",
+  "sha256": "9f268c57487053405f14c4b32799bbc0e3402ff6bccc7ccc388a03aca06e8a17",
+  "ok": true
+ },
+ {
+  "slug": "max_keiser",
+  "display_name": "Max Keiser",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/max_keiser_512.png",
+  "sha256": "5338b28baabb9ccf9905a66f0c3e4fb25cb1c9b7c56a015b3c1e23cca9ed3b20",
+  "ok": true
+ },
+ {
+  "slug": "michael_saylor",
+  "display_name": "Michael Saylor",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/michael_saylor_512.png",
+  "sha256": "d98969fd19e8b595d36b075dfba0c7e1ba5310c30d69961f58e26a50328fae87",
+  "ok": false,
+  "error": "identity mismatch: @Saylor is '\u65d7-Saylor' (956 followers), not Michael Saylor's channel; registry entry disabled"
+ },
+ {
+  "slug": "once_bitten",
+  "display_name": "Once Bitten",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/once_bitten_512.png",
+  "sha256": "84a80347f18b90d563119d3a55aa591dd29e86c460486fadb9e3236582906c17",
+  "ok": true
+ },
+ {
+  "slug": "real_vision",
+  "display_name": "Real Vision",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/real_vision_512.png",
+  "sha256": "377b4009956392334c54011bce089b4dd67414281798b3e16747e7b23ae3ed91",
+  "ok": true,
+  "error": "avatar sha256 not unique (R6)",
+  "note": "duplicate registry entries for one channel UCGXWKlq1Oxr3ddEtmKhAkPg: same verified avatar"
+ },
+ {
+  "slug": "real_vision_finance",
+  "display_name": "Real Vision Finance",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/real_vision_finance_512.png",
+  "sha256": "377b4009956392334c54011bce089b4dd67414281798b3e16747e7b23ae3ed91",
+  "ok": true,
+  "error": "avatar sha256 not unique (R6)",
+  "note": "duplicate registry entries for one channel UCGXWKlq1Oxr3ddEtmKhAkPg: same verified avatar"
+ },
+ {
+  "slug": "riot_platforms",
+  "display_name": "Riot Platforms",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/riot_platforms_512.png",
+  "sha256": "9e1558ff41572226da44d3eecd0817f6f5c045b0b91ec6315c56b4558fbd0704",
+  "ok": true
+ },
+ {
+  "slug": "scott_melker",
+  "display_name": "Scott Melker",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/scott_melker_512.png",
+  "sha256": "05322977b211e58253aaa43cc9060bdec8a261dfb6761d25fe0060272a8a3742",
+  "ok": true
+ },
+ {
+  "slug": "stacker_news",
+  "display_name": "Stacker News",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/stacker_news_512.png",
+  "sha256": "f2faeba669ff26cf4df18ffe13ac6f1d05499f97a932ca0a00db31334c69a2e6",
+  "ok": true
+ },
+ {
+  "slug": "strategy_microstrategy",
+  "display_name": "Strategy (MicroStrategy)",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/strategy_microstrategy_512.png",
+  "sha256": "18794b982b2d8254e590f6f45d3ab78ec9648f706883995b00ebeaa1a8bcff4f",
+  "ok": true
+ },
+ {
+  "slug": "strike",
+  "display_name": "Strike",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/strike_512.png",
+  "sha256": "8423c1e7a3c4d48ae44361fd182c188d018976f173f804f4bf36f78e99368b8e",
+  "ok": true
+ },
+ {
+  "slug": "wolf_of_all_streets",
+  "display_name": "Wolf Of All Streets",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/wolf_of_all_streets_512.png",
+  "sha256": "8c24c60747900f272ebd67d36e57defcbc43981cd7b50da87ffcae3727ce0109",
+  "ok": true
+ },
+ {
+  "slug": "bankless",
+  "display_name": "Bankless",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/bankless_512.png",
+  "sha256": "2c0af7a099ed21aa3cbdaaf0ecdf23a04ed7bec0100b95b33f99a1e2f5ceefdd",
+  "ok": true
+ },
+ {
+  "slug": "bloomberg_television",
+  "display_name": "Bloomberg Television",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/bloomberg_television_512.png",
+  "sha256": "9c05313421b1579c6ba0890a0eda61359f5a033563b7a293d96eb8736ec13767",
+  "ok": true
+ },
+ {
+  "slug": "cnbc",
+  "display_name": "CNBC",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/cnbc_512.png",
+  "sha256": "8c316fd3ebac3e454ee84326e9e391ef0b8574421eedc6f4efb33bedd03e3d80",
+  "ok": true
+ },
+ {
+  "slug": "cnbc_television",
+  "display_name": "CNBC Television",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/cnbc_television_512.png",
+  "sha256": "c5a4e1bcd38ce01a53d924d434e2762dca2a1785c42ee46c347e46c40474be93",
+  "ok": true
+ },
+ {
+  "slug": "financial_times",
+  "display_name": "Financial Times",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/financial_times_512.png",
+  "sha256": "8ad6e0ebc69f92ad3ea2d7d30d99ff1fa552351d8659ce120a9d201acd0c6e8a",
+  "ok": true
+ },
+ {
+  "slug": "fox_business",
+  "display_name": "Fox Business",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/fox_business_512.png",
+  "sha256": "37f4a1b05d3cf6d04a350b17319d50410720a0f9623d31efb65a16da30b5daca",
+  "ok": true
+ },
+ {
+  "slug": "kitco_news",
+  "display_name": "Kitco NEWS",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/kitco_news_512.png",
+  "sha256": "593e433193520f238916d2a0566457ed18baf93876eb2bff9b6bfaee89910056",
+  "ok": true,
+  "error": "avatar sha256 not unique (R6)",
+  "note": "duplicate registry entries for one channel UC9ijza42jVR3T6b8bColgvg: same verified avatar"
+ },
+ {
+  "slug": "kitco_news",
+  "display_name": "Kitco News",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/kitco_news_512.png",
+  "sha256": "593e433193520f238916d2a0566457ed18baf93876eb2bff9b6bfaee89910056",
+  "ok": true,
+  "error": "avatar sha256 not unique (R6)",
+  "note": "duplicate registry entries for one channel UC9ijza42jVR3T6b8bColgvg: same verified avatar"
+ },
+ {
+  "slug": "the_block",
+  "display_name": "The Block",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/the_block_512.png",
+  "sha256": "6d1dc24fbd156e10e98c94a9906b32fd885dd99d8285c34ac298ffe00197a3f1",
+  "ok": true
+ },
+ {
+  "slug": "thestreet",
+  "display_name": "TheStreet",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/thestreet_512.png",
+  "sha256": "936433bc72dd1ee3072ebdac931e37088826541fdce7603e62d73ebaee5b2252",
+  "ok": true
+ },
+ {
+  "slug": "wall_street_journal",
+  "display_name": "Wall Street Journal",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/wall_street_journal_512.png",
+  "sha256": "19711b0010b4d0ba1c03eb65498c021b644a5874f93073d05bdb5c512f0339d3",
+  "ok": true
+ },
+ {
+  "slug": "yahoo_finance",
+  "display_name": "Yahoo Finance",
+  "source_px": [
+   900,
+   900
+  ],
+  "path": "/home/ultron/protocol_pulse/pipeline/avatars/yahoo_finance_512.png",
+  "sha256": "8665ccb20e94f2d469a5929679e9e754de6e55fe295d40ab2801bad99b91bba2",
+  "ok": true
+ }
+]

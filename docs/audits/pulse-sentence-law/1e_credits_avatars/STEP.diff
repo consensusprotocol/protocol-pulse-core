@@ -1,0 +1,990 @@
+diff --git a/pipeline/avatar_onboard.py b/pipeline/avatar_onboard.py
+new file mode 100644
+index 00000000..075e235c
+--- /dev/null
++++ b/pipeline/avatar_onboard.py
+@@ -0,0 +1,141 @@
++#!/usr/bin/env python3
++"""pipeline/avatar_onboard.py — real channel avatars for the credits card (M6, D4 2026-11-11).
++
++The shout-out card shows each credited channel's REAL YouTube avatar: the square channel picture
++from the channel page metadata (yt-dlp), never a video thumbnail and never a generated placeholder.
++D4: on 2026-11-10 the card showed 1280x720 video thumbnails squashed into circles.
++
++  fetch    python3 pipeline/avatar_onboard.py fetch [--all]   -> pipeline/avatars/<slug>_512.png +
++           avatars/ONBOARD_REPORT.json + avatars/CONTACT_SHEET.png (for visual verification)
++  register python3 pipeline/avatar_onboard.py register          -> channels.json avatar_path +
++           avatar_sha256_prefix for every fetched avatar listed in ONBOARD_REPORT.json as ok
++Only `register` writes the registry, and only after the contact sheet was looked at (M6).
++"""
++import hashlib
++import io
++import json
++import os
++import subprocess
++import sys
++import urllib.request
++
++PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
++CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
++AVATAR_DIR = os.path.join(PIPELINE_DIR, "avatars")
++REPORT = os.path.join(AVATAR_DIR, "ONBOARD_REPORT.json")
++SHEET = os.path.join(AVATAR_DIR, "CONTACT_SHEET.png")
++SIZE = 512
++MIN_SOURCE_PX = 176
++SQUARE_TOL = 0.01
++
++
++def _sha(path):
++    return hashlib.sha256(open(path, "rb").read()).hexdigest()
++
++
++def avatar_url(channel_id):
++    """(URL of the channel's square avatar, channel title, follower count) from yt-dlp channel
++    metadata. Raises if none is square. Title/followers are for the identity check (E-FAIL-010)."""
++    r = subprocess.run(["yt-dlp", "--flat-playlist", "--dump-single-json", "--playlist-items", "0",
++                        "--no-warnings", f"https://www.youtube.com/channel/{channel_id}"],
++                       capture_output=True, text=True, timeout=120)
++    if r.returncode != 0 or not r.stdout.strip():
++        raise RuntimeError(f"yt-dlp channel metadata failed: {r.stderr.strip()[-200:]}")
++    meta = json.loads(r.stdout)
++    thumbs = meta.get("thumbnails") or []
++    sq = [t for t in thumbs if t.get("width") and t.get("width") == t.get("height")
++          and t["width"] >= MIN_SOURCE_PX and t.get("url")]
++    if not sq:
++        raise RuntimeError("channel metadata has no square avatar")
++    return max(sq, key=lambda t: t["width"])["url"], meta.get("channel"), meta.get("channel_follower_count")
++
++
++def fetch_one(ch):
++    from PIL import Image
++    url, title, followers = avatar_url(ch["channel_id"])
++    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
++    img = Image.open(io.BytesIO(urllib.request.urlopen(req, timeout=60).read())).convert("RGB")
++    w, h = img.size
++    if abs(w - h) > SQUARE_TOL * max(w, h) or min(w, h) < MIN_SOURCE_PX:
++        raise RuntimeError(f"avatar is not a square >= {MIN_SOURCE_PX} px: {w}x{h}")
++    path = os.path.join(AVATAR_DIR, f"{ch['slug']}_{SIZE}.png")
++    img.resize((SIZE, SIZE), Image.LANCZOS).save(path)
++    return {"slug": ch["slug"], "display_name": ch["display_name"], "youtube_title": title,
++            "followers": followers, "source_px": [w, h],
++            "path": path, "sha256": _sha(path), "ok": True}
++
++
++def contact_sheet(rows):
++    from PIL import Image, ImageDraw
++    cell, cols = 160, 10
++    n = len(rows)
++    sheet = Image.new("RGB", (cols * cell, ((n + cols - 1) // cols) * (cell + 24)), (20, 20, 20))
++    d = ImageDraw.Draw(sheet)
++    for i, r in enumerate(rows):
++        x, y = (i % cols) * cell, (i // cols) * (cell + 24)
++        if r.get("ok"):
++            sheet.paste(Image.open(r["path"]).resize((cell - 8, cell - 8)), (x + 4, y + 4))
++        d.text((x + 4, y + cell), r["display_name"][:22], fill=(255, 255, 255) if r.get("ok") else (255, 80, 80))
++    sheet.save(SHEET)
++
++
++def cmd_fetch(all_channels=False):
++    os.makedirs(AVATAR_DIR, exist_ok=True)
++    reg = json.load(open(CHANNELS_PATH))
++    rows = []
++    for ch in reg:
++        if not ch.get("channel_id"):
++            continue
++        if ch.get("avatar_path") and os.path.exists(ch["avatar_path"]) and not all_channels:
++            continue
++        try:
++            rows.append(fetch_one(ch))
++        except Exception as e:
++            rows.append({"slug": ch["slug"], "display_name": ch["display_name"], "ok": False,
++                         "error": f"{type(e).__name__}: {e}"[:300]})
++        r = rows[-1]
++        print(f"  {ch['display_name']}: " + (f"ok (youtube: {r['youtube_title']!r}, {r['followers']} followers)"
++                                             if r["ok"] else r["error"]), flush=True)
++    shas = [r["sha256"] for r in rows if r.get("ok")] + \
++           [_sha(c["avatar_path"]) for c in reg if c.get("avatar_path") and os.path.exists(c["avatar_path"])
++            and not any(r["slug"] == c["slug"] for r in rows)]
++    dup = {h for h in shas if shas.count(h) > 1}
++    for r in rows:
++        if r.get("ok") and r["sha256"] in dup:
++            r.update(ok=False, error="avatar sha256 not unique (R6)")
++    json.dump(rows, open(REPORT, "w"), indent=1)
++    contact_sheet(rows)
++    print(f"fetched {sum(r['ok'] for r in rows)}/{len(rows)}; sheet {SHEET}")
++
++
++def cmd_register():
++    """In-place text edit of each channel's avatar_path / avatar_sha256_prefix (minimal registry diff)."""
++    import re
++    rows = {r["slug"]: r for r in json.load(open(REPORT)) if r.get("ok")}
++    text = open(CHANNELS_PATH).read()
++    n = 0
++    for slug, r in rows.items():
++        if not (os.path.exists(r["path"]) and _sha(r["path"]) == r["sha256"]):
++            continue
++        for m in reversed(list(re.finditer(re.escape(f'"slug": "{slug}",'), text))):   # every entry
++            i = m.start()
++            j = text.find('"slug": "', i + 1)
++            j = len(text) if j < 0 else j
++            block = text[i:j]
++            block = re.sub(r'"avatar_path": "[^"]*"', f'"avatar_path": "{r["path"]}"', block, count=1)
++            block = re.sub(r'"avatar_sha256_prefix": "[^"]*"', f'"avatar_sha256_prefix": "{r["sha256"][:16]}"',
++                           block, count=1)
++            text = text[:i] + block + text[j:]
++            n += 1
++    json.loads(text)                       # still valid JSON
++    with open(CHANNELS_PATH + ".tmp", "w") as f:
++        f.write(text)
++    os.replace(CHANNELS_PATH + ".tmp", CHANNELS_PATH)
++    print(f"registered {n} avatars")
++
++
++if __name__ == "__main__":
++    if len(sys.argv) > 1 and sys.argv[1] == "register":
++        cmd_register()
++    else:
++        cmd_fetch(all_channels="--all" in sys.argv)
+diff --git a/pipeline/channels.json b/pipeline/channels.json
+index e6d2f966..9edd0a4e 100644
+--- a/pipeline/channels.json
++++ b/pipeline/channels.json
+@@ -7,8 +7,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/andreas_antonopoulos_512.png",
++    "avatar_sha256_prefix": "f072d69be091e377",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -69,8 +69,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/base58_512.png",
++    "avatar_sha256_prefix": "2846a569c15fd8c0",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -85,8 +85,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_audible_512.png",
++    "avatar_sha256_prefix": "09e2ad1369cea88c",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -101,8 +101,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_explained_512.png",
++    "avatar_sha256_prefix": "591d5c523f214e24",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -148,8 +148,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_mechanic_512.png",
++    "avatar_sha256_prefix": "b2e10dd548bb5e48",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -164,8 +164,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitcoin_podcast_512.png",
++    "avatar_sha256_prefix": "727b01b70ca03e88",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -195,8 +195,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/guy_swann_512.png",
++    "avatar_sha256_prefix": "09e2ad1369cea88c",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -211,8 +211,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/jameson_lopp_512.png",
++    "avatar_sha256_prefix": "8a3487566357e238",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -227,8 +227,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/natalie_brunell_512.png",
++    "avatar_sha256_prefix": "bbf0deab624f81f2",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -243,8 +243,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/nathaniel_whittemore_512.png",
++    "avatar_sha256_prefix": "35faa925cf36b745",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -259,8 +259,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/preston_pysh_512.png",
++    "avatar_sha256_prefix": "c64701c89e93ef29",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -275,8 +275,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/robert_breedlove_512.png",
++    "avatar_sha256_prefix": "bcbbe9d4f695a167",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -291,8 +291,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/saifedean_ammous_512.png",
++    "avatar_sha256_prefix": "5e362ed141f6bab9",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -307,8 +307,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/stephan_livera_512.png",
++    "avatar_sha256_prefix": "7ac6f1eb5491b3d2",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -323,8 +323,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/swan_bitcoin_512.png",
++    "avatar_sha256_prefix": "b2aec803987197a1",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -339,8 +339,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/tftc_512.png",
++    "avatar_sha256_prefix": "9bbc5bb05758e0ef",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -372,8 +372,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/the_bitcoin_podcast_512.png",
++    "avatar_sha256_prefix": "26d0d939973d2480",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -403,8 +403,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/tone_vays_512.png",
++    "avatar_sha256_prefix": "c0b5f4f1653fb479",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -419,8 +419,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/unchained_512.png",
++    "avatar_sha256_prefix": "d5a105de2fff62f0",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -435,8 +435,8 @@
+     "tier": 1,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/what_bitcoin_did_512.png",
++    "avatar_sha256_prefix": "9cfe2b209f99b6c4",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -451,8 +451,8 @@
+     "tier": 2,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/coffeezilla_512.png",
++    "avatar_sha256_prefix": "cab8eba765603cc7",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -467,8 +467,8 @@
+     "tier": 2,
+     "priority": 1,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/coffeezilla_extras_512.png",
++    "avatar_sha256_prefix": "be7a2ec4baac7950",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -483,8 +483,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/altcoin_daily_512.png",
++    "avatar_sha256_prefix": "7a9a97aed3ea56c5",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -499,8 +499,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/anthony_pompliano_512.png",
++    "avatar_sha256_prefix": "1650105990ecc92f",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -530,8 +530,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitfarms_512.png",
++    "avatar_sha256_prefix": "10f775a47f3e9ba9",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -546,8 +546,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bitstamp_512.png",
++    "avatar_sha256_prefix": "9074a6e2b49610a4",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -562,8 +562,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/blockware_solutions_512.png",
++    "avatar_sha256_prefix": "484e59b698db28a4",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -578,8 +578,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/clark_moody_512.png",
++    "avatar_sha256_prefix": "4667b979a3920bee",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -594,8 +594,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/coin_bureau_512.png",
++    "avatar_sha256_prefix": "efb85001521bdfc8",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -626,8 +626,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/coingecko_512.png",
++    "avatar_sha256_prefix": "6882363d604f98c2",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -642,8 +642,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/cointelegraph_512.png",
++    "avatar_sha256_prefix": "a60039b5908afcb1",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -658,8 +658,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/compass_mining_512.png",
++    "avatar_sha256_prefix": "1a4dba0fe1a44bb6",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -674,8 +674,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/datadash_512.png",
++    "avatar_sha256_prefix": "4796d4ffab615084",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -690,8 +690,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/digital_asset_news_512.png",
++    "avatar_sha256_prefix": "fe95098be5293b0e",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -736,8 +736,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/george_gammon_512.png",
++    "avatar_sha256_prefix": "21b0a7e411158f20",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -767,8 +767,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/investing_with_tom_512.png",
++    "avatar_sha256_prefix": "0033e0dd65096d96",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -798,8 +798,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/marty_bent_rabbit_hole_recap_512.png",
++    "avatar_sha256_prefix": "9f268c5748705340",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -814,8 +814,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/max_keiser_512.png",
++    "avatar_sha256_prefix": "5338b28baabb9ccf",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -829,7 +829,7 @@
+     "url": "https://www.youtube.com/@Saylor",
+     "tier": 2,
+     "priority": 2,
+-    "enabled": true,
++    "enabled": false,
+     "avatar_path": "",
+     "avatar_sha256_prefix": "",
+     "has_chyron": false,
+@@ -846,8 +846,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/once_bitten_512.png",
++    "avatar_sha256_prefix": "84a80347f18b90d5",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -862,8 +862,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/real_vision_512.png",
++    "avatar_sha256_prefix": "377b400995639233",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -878,8 +878,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/real_vision_finance_512.png",
++    "avatar_sha256_prefix": "377b400995639233",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -894,8 +894,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/riot_platforms_512.png",
++    "avatar_sha256_prefix": "9e1558ff41572226",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -910,8 +910,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/scott_melker_512.png",
++    "avatar_sha256_prefix": "05322977b211e582",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -926,8 +926,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/stacker_news_512.png",
++    "avatar_sha256_prefix": "f2faeba669ff26cf",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -942,8 +942,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/strategy_microstrategy_512.png",
++    "avatar_sha256_prefix": "18794b982b2d8254",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -958,8 +958,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/strike_512.png",
++    "avatar_sha256_prefix": "8423c1e7a3c4d48a",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -974,8 +974,8 @@
+     "tier": 2,
+     "priority": 2,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/wolf_of_all_streets_512.png",
++    "avatar_sha256_prefix": "8c24c60747900f27",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1006,8 +1006,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bankless_512.png",
++    "avatar_sha256_prefix": "2c0af7a099ed21aa",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1022,8 +1022,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/bloomberg_television_512.png",
++    "avatar_sha256_prefix": "9c05313421b1579c",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1038,8 +1038,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/cnbc_512.png",
++    "avatar_sha256_prefix": "8c316fd3ebac3e45",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1054,8 +1054,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/cnbc_television_512.png",
++    "avatar_sha256_prefix": "c5a4e1bcd38ce01a",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1070,8 +1070,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/financial_times_512.png",
++    "avatar_sha256_prefix": "8ad6e0ebc69f92ad",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1086,8 +1086,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/fox_business_512.png",
++    "avatar_sha256_prefix": "37f4a1b05d3cf6d0",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1102,8 +1102,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/kitco_news_512.png",
++    "avatar_sha256_prefix": "593e433193520f23",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1118,8 +1118,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/kitco_news_512.png",
++    "avatar_sha256_prefix": "593e433193520f23",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1134,8 +1134,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/the_block_512.png",
++    "avatar_sha256_prefix": "6d1dc24fbd156e10",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1150,8 +1150,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/thestreet_512.png",
++    "avatar_sha256_prefix": "936433bc72dd1ee3",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1166,8 +1166,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/wall_street_journal_512.png",
++    "avatar_sha256_prefix": "19711b0010b4d0ba",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+@@ -1182,8 +1182,8 @@
+     "tier": 3,
+     "priority": 3,
+     "enabled": true,
+-    "avatar_path": "",
+-    "avatar_sha256_prefix": "",
++    "avatar_path": "/home/ultron/protocol_pulse/pipeline/avatars/yahoo_finance_512.png",
++    "avatar_sha256_prefix": "8665ccb20e94f2d4",
+     "has_chyron": false,
+     "layout_table_key": "",
+     "layout_status": "pending",
+diff --git a/pipeline/shoutout.py b/pipeline/shoutout.py
+index 8202bdd1..b9663c40 100644
+--- a/pipeline/shoutout.py
++++ b/pipeline/shoutout.py
+@@ -131,145 +131,41 @@ def _validate_shoutout_frames(mp4_path, expected_size, fmt):
+         )
+ 
+ 
+-def _find_avatar(segment_dir, channel_name):
+-    """Find avatar for a channel. Looks in channels.json registry, then local avatars/."""
+-    # Try channels.json registry
+-    channels_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")
+-    if os.path.exists(channels_json):
+-        with open(channels_json) as f:
+-            registry = json.load(f)
+-        for entry in registry:
+-            if entry.get("display_name") == channel_name:
+-                avatar = entry.get("avatar_path", "")
+-                if avatar and os.path.exists(avatar):
+-                    return avatar
+-
+-    # Try local avatars dir
+-    avatars_dir = os.path.join(segment_dir, "avatars")
+-    if os.path.exists(avatars_dir):
+-        slug = channel_name.lower().replace(" ", "_")
+-        for ext in [".jpg", ".png", ".webp"]:
+-            candidate = os.path.join(avatars_dir, f"{slug}{ext}")
+-            if os.path.exists(candidate):
+-                return candidate
+-
+-    # On-demand fetch: try to download from EDL video metadata
+-    avatar = _fetch_avatar_on_demand(segment_dir, channel_name)
+-    if avatar:
+-        return avatar
+-
+-    raise FileNotFoundError(f"STOP: avatar missing for channel '{channel_name}'")
+-
+-
+-def _fetch_avatar_on_demand(segment_dir, channel_name):
+-    """Try to fetch channel avatar via yt-dlp from the EDL's video entries."""
+-    import subprocess
+-    import hashlib
++AVATAR_SQUARE_TOL = 0.01      # D4: the frozen renderer resizes to a square; a non-square image squashes
++AVATAR_MIN_PX = 128
+ 
+-    avatars_dir = os.path.join(segment_dir, "avatars")
+-    os.makedirs(avatars_dir, exist_ok=True)
+-    slug = channel_name.lower().replace(" ", "_").replace("'", "")
+ 
+-    # Find a video_id for this channel from EDL
+-    edl_path = os.path.join(segment_dir, "edl.json")
+-    if not os.path.exists(edl_path):
+-        return None
++def validate_avatar(path):
++    """D4 (2026-11-11): a credit avatar must be the channel's square picture. A 16:9 video thumbnail
++    is refused (the frozen scene_shoutout resizes every avatar to a square and would squash it)."""
++    from PIL import Image
++    with Image.open(path) as im:
++        w, h = im.size
++    if abs(w - h) > AVATAR_SQUARE_TOL * max(w, h):
++        raise ValueError(f"avatar must be square, got {w}x{h} (a video thumbnail?): {path}")
++    if min(w, h) < AVATAR_MIN_PX:
++        raise ValueError(f"avatar too small ({w}x{h} < {AVATAR_MIN_PX} px square): {path}")
++    return w
+ 
+-    with open(edl_path) as f:
+-        edl = json.load(f)
+ 
+-    video_id = None
+-    hook = edl.get("hook", {})
+-    if hook.get("channel") == channel_name:
+-        video_id = hook.get("video_id")
+-    for clip in edl.get("clips", []):
+-        if clip.get("channel") == channel_name:
+-            video_id = clip.get("video_id")
+-            break
+-
+-    if not video_id:
+-        return None
+-
+-    # Use yt-dlp to get channel thumbnail URL from video metadata
+-    try:
+-        result = subprocess.run(
+-            ["yt-dlp", "--dump-json", "--skip-download", "--no-warnings",
+-             f"https://www.youtube.com/watch?v={video_id}"],
+-            capture_output=True, text=True, timeout=30,
+-        )
+-        if result.returncode != 0:
+-            return None
+-        meta = json.loads(result.stdout)
+-
+-        # Try direct thumbnail fields that are actual image URLs
+-        avatar_url = None
+-        for key in ("channel_url", "uploader_url"):
+-            url = meta.get(key, "")
+-            if url and "yt3.ggpht.com" in url:
+-                avatar_url = url
+-                break
+-
+-        # Search thumbnails list for avatar entries
+-        if not avatar_url:
+-            for t in meta.get("thumbnails", []):
+-                url = t.get("url", "")
+-                if "yt3.ggpht.com" in url:
+-                    avatar_url = url
+-                    break
+-
+-        # Construct from channel_id using known YouTube avatar URL pattern
+-        if not avatar_url:
+-            channel_id = meta.get("channel_id", "")
+-            uploader_id = meta.get("uploader_id", "")
+-            # Try video thumbnail as a safe fallback
+-            avatar_url = meta.get("thumbnail")
+-
+-        if not avatar_url:
+-            return None
+-
+-        # Download the image
+-        import urllib.request
+-        out_path = os.path.join(avatars_dir, f"{slug}.jpg")
+-        urllib.request.urlretrieve(avatar_url, out_path)
+-
+-        # Verify it's actually an image
+-        if os.path.exists(out_path) and os.path.getsize(out_path) > 500:
+-            # Quick check: valid image header
+-            with open(out_path, "rb") as fimg:
+-                header = fimg.read(16)
+-            if header[:3] in (b'\xff\xd8\xff', b'\x89PN') or b'WEBP' in header[:20]:
+-                # Convert to PNG for PIL compatibility
+-                try:
+-                    from PIL import Image
+-                    img = Image.open(out_path).convert("RGB")
+-                    png_path = os.path.join(avatars_dir, f"{slug}.png")
+-                    img.save(png_path)
+-                    print(f"    Fetched avatar for {channel_name}: {png_path}")
+-                    return png_path
+-                except Exception:
+-                    print(f"    Fetched avatar for {channel_name}: {out_path}")
+-                    return out_path
+-            else:
+-                os.unlink(out_path)  # Not a real image
+-    except Exception as e:
+-        print(f"    WARN: avatar fetch failed for {channel_name}: {e}")
+-
+-    # Last resort: generate a placeholder
+-    try:
+-        from PIL import Image, ImageDraw, ImageFont
+-        img = Image.new("RGB", (512, 512), (40, 40, 60))
+-        draw = ImageDraw.Draw(img)
+-        # Draw initials
+-        initials = "".join(w[0].upper() for w in channel_name.split()[:3] if w)
+-        draw.text((180, 180), initials, fill=(247, 147, 26))
+-        out_path = os.path.join(avatars_dir, f"{slug}.png")
+-        img.save(out_path)
+-        print(f"    Generated placeholder avatar for {channel_name}")
+-        return out_path
+-    except Exception:
+-        pass
+-
+-    return None
++def _find_avatar(segment_dir, channel_name):
++    """The channel's REAL avatar from pipeline/channels.json only (fetched + visually verified by
++    pipeline/avatar_onboard.py, M6), sha256-prefix checked and square. No on-demand fetch, no video
++    thumbnail, no generated stand-in (M12 fail closed)."""
++    import hashlib
++    channels_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")
++    with open(channels_json) as f:
++        registry = json.load(f)
++    entry = next((e for e in registry if e.get("display_name") == channel_name), None)
++    avatar = (entry or {}).get("avatar_path", "")
++    if not avatar or not os.path.exists(avatar):
++        raise FileNotFoundError(f"STOP: no verified avatar for channel '{channel_name}' in channels.json "
++                                f"(pipeline/avatar_onboard.py fetch, verify the contact sheet, register)")
++    prefix = entry.get("avatar_sha256_prefix", "")
++    if prefix and not hashlib.sha256(open(avatar, "rb").read()).hexdigest().startswith(prefix):
++        raise RuntimeError(f"STOP: avatar for '{channel_name}' does not match its registered sha256 prefix")
++    validate_avatar(avatar)
++    return avatar
+ 
+ 
+ def main():

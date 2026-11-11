@@ -263,6 +263,22 @@ class TestD4Credits(unittest.TestCase):
         reg = {c["display_name"]: c for c in json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))}
         shoutout.validate_avatar(reg["BTC Sessions"]["avatar_path"])
 
+    def test_unregistered_channel_stops(self):
+        import shoutout
+        with self.assertRaisesRegex(FileNotFoundError, "no verified avatar"):
+            shoutout._find_avatar("/nonexistent", "Not A Registered Channel")
+
+    def test_avatar_sha_mismatch_stops(self):
+        import shoutout
+        reg = json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))
+        bad = [dict(c) for c in reg]
+        e = next(c for c in bad if c["display_name"] == "Natalie Brunell")
+        e["avatar_sha256_prefix"] = "0" * 16
+        orig = json.load
+        with mock.patch.object(shoutout.json, "load", side_effect=lambda f: bad if f.name.endswith("channels.json") else orig(f)):
+            with self.assertRaisesRegex(RuntimeError, "sha256 prefix"):
+                shoutout._find_avatar("/nonexistent", "Natalie Brunell")
+
     def test_no_thumbnail_or_placeholder_fallback(self):
         import shoutout
         src = inspect.getsource(shoutout)

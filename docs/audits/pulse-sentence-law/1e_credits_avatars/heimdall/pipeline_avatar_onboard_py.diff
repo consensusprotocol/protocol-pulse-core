@@ -1,0 +1,147 @@
+diff --git a/pipeline/avatar_onboard.py b/pipeline/avatar_onboard.py
+new file mode 100644
+index 00000000..075e235c
+--- /dev/null
++++ b/pipeline/avatar_onboard.py
+@@ -0,0 +1,141 @@
++#!/usr/bin/env python3
++"""pipeline/avatar_onboard.py — real channel avatars for the credits card (M6, D4 2026-11-11).
++
++The shout-out card shows each credited channel's REAL YouTube avatar: the square channel picture
++from the channel page metadata (yt-dlp), never a video thumbnail and never a generated placeholder.
++D4: on 2026-11-10 the card showed 1280x720 video thumbnails squashed into circles.
++
++  fetch    python3 pipeline/avatar_onboard.py fetch [--all]   -> pipeline/avatars/<slug>_512.png +
++           avatars/ONBOARD_REPORT.json + avatars/CONTACT_SHEET.png (for visual verification)
++  register python3 pipeline/avatar_onboard.py register          -> channels.json avatar_path +
++           avatar_sha256_prefix for every fetched avatar listed in ONBOARD_REPORT.json as ok
++Only `register` writes the registry, and only after the contact sheet was looked at (M6).
++"""
++import hashlib
++import io
++import json
++import os
++import subprocess
++import sys
++import urllib.request
++
++PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
++CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
++AVATAR_DIR = os.path.join(PIPELINE_DIR, "avatars")
++REPORT = os.path.join(AVATAR_DIR, "ONBOARD_REPORT.json")
++SHEET = os.path.join(AVATAR_DIR, "CONTACT_SHEET.png")
++SIZE = 512
++MIN_SOURCE_PX = 176
++SQUARE_TOL = 0.01
++
++
++def _sha(path):
++    return hashlib.sha256(open(path, "rb").read()).hexdigest()
++
++
++def avatar_url(channel_id):
++    """(URL of the channel's square avatar, channel title, follower count) from yt-dlp channel
++    metadata. Raises if none is square. Title/followers are for the identity check (E-FAIL-010)."""
++    r = subprocess.run(["yt-dlp", "--flat-playlist", "--dump-single-json", "--playlist-items", "0",
++                        "--no-warnings", f"https://www.youtube.com/channel/{channel_id}"],
++                       capture_output=True, text=True, timeout=120)
++    if r.returncode != 0 or not r.stdout.strip():
++        raise RuntimeError(f"yt-dlp channel metadata failed: {r.stderr.strip()[-200:]}")
++    meta = json.loads(r.stdout)
++    thumbs = meta.get("thumbnails") or []
++    sq = [t for t in thumbs if t.get("width") and t.get("width") == t.get("height")
++          and t["width"] >= MIN_SOURCE_PX and t.get("url")]
++    if not sq:
++        raise RuntimeError("channel metadata has no square avatar")
++    return max(sq, key=lambda t: t["width"])["url"], meta.get("channel"), meta.get("channel_follower_count")
++
++
++def fetch_one(ch):
++    from PIL import Image
++    url, title, followers = avatar_url(ch["channel_id"])
++    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
++    img = Image.open(io.BytesIO(urllib.request.urlopen(req, timeout=60).read())).convert("RGB")
++    w, h = img.size
++    if abs(w - h) > SQUARE_TOL * max(w, h) or min(w, h) < MIN_SOURCE_PX:
++        raise RuntimeError(f"avatar is not a square >= {MIN_SOURCE_PX} px: {w}x{h}")
++    path = os.path.join(AVATAR_DIR, f"{ch['slug']}_{SIZE}.png")
++    img.resize((SIZE, SIZE), Image.LANCZOS).save(path)
++    return {"slug": ch["slug"], "display_name": ch["display_name"], "youtube_title": title,
++            "followers": followers, "source_px": [w, h],
++            "path": path, "sha256": _sha(path), "ok": True}
++
++
++def contact_sheet(rows):
++    from PIL import Image, ImageDraw
++    cell, cols = 160, 10
++    n = len(rows)
++    sheet = Image.new("RGB", (cols * cell, ((n + cols - 1) // cols) * (cell + 24)), (20, 20, 20))
++    d = ImageDraw.Draw(sheet)
++    for i, r in enumerate(rows):
++        x, y = (i % cols) * cell, (i // cols) * (cell + 24)
++        if r.get("ok"):
++            sheet.paste(Image.open(r["path"]).resize((cell - 8, cell - 8)), (x + 4, y + 4))
++        d.text((x + 4, y + cell), r["display_name"][:22], fill=(255, 255, 255) if r.get("ok") else (255, 80, 80))
++    sheet.save(SHEET)
++
++
++def cmd_fetch(all_channels=False):
++    os.makedirs(AVATAR_DIR, exist_ok=True)
++    reg = json.load(open(CHANNELS_PATH))
++    rows = []
++    for ch in reg:
++        if not ch.get("channel_id"):
++            continue
++        if ch.get("avatar_path") and os.path.exists(ch["avatar_path"]) and not all_channels:
++            continue
++        try:
++            rows.append(fetch_one(ch))
++        except Exception as e:
++            rows.append({"slug": ch["slug"], "display_name": ch["display_name"], "ok": False,
++                         "error": f"{type(e).__name__}: {e}"[:300]})
++        r = rows[-1]
++        print(f"  {ch['display_name']}: " + (f"ok (youtube: {r['youtube_title']!r}, {r['followers']} followers)"
++                                             if r["ok"] else r["error"]), flush=True)
++    shas = [r["sha256"] for r in rows if r.get("ok")] + \
++           [_sha(c["avatar_path"]) for c in reg if c.get("avatar_path") and os.path.exists(c["avatar_path"])
++            and not any(r["slug"] == c["slug"] for r in rows)]
++    dup = {h for h in shas if shas.count(h) > 1}
++    for r in rows:
++        if r.get("ok") and r["sha256"] in dup:
++            r.update(ok=False, error="avatar sha256 not unique (R6)")
++    json.dump(rows, open(REPORT, "w"), indent=1)
++    contact_sheet(rows)
++    print(f"fetched {sum(r['ok'] for r in rows)}/{len(rows)}; sheet {SHEET}")
++
++
++def cmd_register():
++    """In-place text edit of each channel's avatar_path / avatar_sha256_prefix (minimal registry diff)."""
++    import re
++    rows = {r["slug"]: r for r in json.load(open(REPORT)) if r.get("ok")}
++    text = open(CHANNELS_PATH).read()
++    n = 0
++    for slug, r in rows.items():
++        if not (os.path.exists(r["path"]) and _sha(r["path"]) == r["sha256"]):
++            continue
++        for m in reversed(list(re.finditer(re.escape(f'"slug": "{slug}",'), text))):   # every entry
++            i = m.start()
++            j = text.find('"slug": "', i + 1)
++            j = len(text) if j < 0 else j
++            block = text[i:j]
++            block = re.sub(r'"avatar_path": "[^"]*"', f'"avatar_path": "{r["path"]}"', block, count=1)
++            block = re.sub(r'"avatar_sha256_prefix": "[^"]*"', f'"avatar_sha256_prefix": "{r["sha256"][:16]}"',
++                           block, count=1)
++            text = text[:i] + block + text[j:]
++            n += 1
++    json.loads(text)                       # still valid JSON
++    with open(CHANNELS_PATH + ".tmp", "w") as f:
++        f.write(text)
++    os.replace(CHANNELS_PATH + ".tmp", CHANNELS_PATH)
++    print(f"registered {n} avatars")
++
++
++if __name__ == "__main__":
++    if len(sys.argv) > 1 and sys.argv[1] == "register":
++        cmd_register()
++    else:
++        cmd_fetch(all_channels="--all" in sys.argv)
