@@ -221,7 +221,7 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
         try:
             run = rf.Run(self.run_dir)
             run.mode = "pinned"
-            cuts, _snap_alts = rf.stage_cut(run)
+            cuts = rf.stage_cut(run)
             self.assertEqual(calls, [(f"{s['video_id']}.mp4", s["start"], s["end"]) for s in p["segments"]])
             self.assertEqual([(c["cut_in"], c["cut_out"]) for c in cuts], [(s["start"], s["end"]) for s in p["segments"]])
             # acceptance rejection still holds the run (no auto-widen)
@@ -232,18 +232,22 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
         finally:
             cut.compute_all_cuts, cut_accept.check_cut_acoustics = orig_cut, orig_acc
 
-    def test_auto_mode_still_uses_the_acoustic_cutter(self):
+    def test_auto_mode_places_cuts_from_the_selection_locks(self):
+        # 2026-11-11 sentence law: AUTO cuts come from the locked sentences' pauses
+        # (sentence_law.write_lock_cut_table); the free acoustic cutter is never used by run_fresh.
         import run_fresh as rf
         import cut
-        orig = cut.compute_all_cuts
-        cut.compute_all_cuts = lambda run_dir: (_ for _ in ()).throw(RuntimeError("cutter called"))
+        import sentence_law
+        orig_cut, orig_lock = cut.compute_all_cuts, sentence_law.write_lock_cut_table
+        cut.compute_all_cuts = lambda *a, **k: (_ for _ in ()).throw(AssertionError("free acoustic cutter used"))
+        sentence_law.write_lock_cut_table = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("lock placement"))
         try:
             run = rf.Run(self.run_dir)
             self.assertEqual(run.mode, "auto")
-            with self.assertRaises(RuntimeError):
+            with self.assertRaisesRegex(RuntimeError, "lock placement"):
                 rf.stage_cut(run)
         finally:
-            cut.compute_all_cuts = orig
+            cut.compute_all_cuts, sentence_law.write_lock_cut_table = orig_cut, orig_lock
 
     def test_v2f_material_guard_only_lifted_by_explicit_pin_flag(self):
         import run_fresh as rf

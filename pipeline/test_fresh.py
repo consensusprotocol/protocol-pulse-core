@@ -28,29 +28,61 @@ def _sha(p):
 
 # ── B: select_passages keeps EDL times in source-file coordinates ──
 
+def _synth_window(path, words, dur=45.0, sr=16000):
+    """WAV with a 300 Hz tone (~-23 dBFS) under every word and -69 dBFS noise elsewhere, so sentence
+    gaps are real pauses and word gaps (50 ms) are not."""
+    import numpy as np
+    import wave
+    rng = np.random.default_rng(7)
+    x = rng.normal(0, 0.0005, int(dur * sr))
+    for w in words:
+        i0, i1 = int(w["start"] * sr), int(w["end"] * sr)
+        x[i0:i1] += 0.1 * np.sin(2 * np.pi * 300 * np.arange(i1 - i0) / sr)
+    with wave.open(path, "wb") as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(sr)
+        f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
+
+
+def _sentences(tag, t, n_sent=8, per=6):
+    """Sentence-structured word timestamps: 0.30 s words, 0.05 s word gaps, 0.50 s sentence gaps."""
+    ws = []
+    for si in range(n_sent):
+        for wi in range(per):
+            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == per - 1 else ""),
+                       "start": round(t, 2), "end": round(t + 0.30, 2)})
+            t += 0.35
+        t += 0.45
+    return ws
+
+
 class TestSelectCoords(unittest.TestCase):
     def test_edl_times_are_source_file_coords(self):
         import select_passages as sp
+        words = {"AAA": _sentences("a", 2.0), "BBB": _sentences("b", 2.0)}
+
+        def text(vid, s0, s1):  # sentences s0..s1 as the editor selected them
+            return " ".join(w["word"] for w in words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1)
         with tempfile.TemporaryDirectory() as rd:
+            os.makedirs(os.path.join(rd, "sources"))
+            os.makedirs(os.path.join(rd, "transcripts"))
             passages = {"chosen": [
                 {"video_id": "AAA", "channel": "The Bitcoin Layer", "start": 110.0, "end": 121.0,
-                 "duration": 11.0, "score": 9, "text": "Statement one."},
+                 "duration": 11.0, "score": 9, "text": text("AAA", 5, 6)},
                 {"video_id": "BBB", "channel": "BTC Sessions", "start": 510.0, "end": 524.0,
-                 "duration": 14.0, "score": 5, "text": "Statement two."}]}
+                 "duration": 14.0, "score": 5, "text": text("BBB", 5, 7)}]}
             json.dump(passages, open(os.path.join(rd, "passages.json"), "w"))
 
             def fake_dl(vid, start, end, run_dir, pad=15.0):
-                return (os.path.join(run_dir, "sources", f"{vid}.mp4"), start - pad)
+                path = os.path.join(run_dir, "sources", f"{vid}.wav")
+                _synth_window(path, words[vid])
+                return (path, start - pad)
 
             def fake_tx(path, vid, run_dir):
-                # whisper words in LOCAL (downloaded file) seconds: both windows start
-                # 15 s before the passage, so the passage begins near local t=15
-                ws, t = [], 14.0
-                for i in range(60):
-                    w = "word." if i % 6 == 5 else "word"
-                    ws.append({"word": w, "start": round(t, 2), "end": round(t + 0.3, 2)})
-                    t += 0.35
-                return {"words": ws}
+                rec = {"words": words[vid]}
+                json.dump(rec, open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w"))
+                return rec
 
             orig = (sp._download_window, sp._whisper_transcribe)
             sp._download_window, sp._whisper_transcribe = fake_dl, fake_tx
@@ -66,6 +98,10 @@ class TestSelectCoords(unittest.TestCase):
                 # source-file coords: well inside the ~40 s downloaded window, never full-video
                 self.assertLess(seg["word_start"], 60.0, seg)
                 self.assertLess(seg["word_end"], 60.0, seg)
+                # the editor's sentences, sealed at selection (sentence law)
+                lock = seg["selection_lock"]
+                self.assertEqual((lock["first_word"], lock["last_word"]), (seg["first_word"], seg["last_word"]))
+                self.assertTrue(lock["first_word"].endswith("s5w0") and lock["last_word"].endswith("w5."), lock)
 
 
 # ── intro-optional renderer support (shared helper) ──

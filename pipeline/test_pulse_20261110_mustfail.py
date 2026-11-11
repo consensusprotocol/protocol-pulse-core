@@ -93,30 +93,72 @@ class TestSelectionLockEdges(_G16Fixture):
 class TestD1HookOnset(_G16Fixture):
     def test_g16_in_fails_without_lead_in_pad(self):
         r = self.rows["hook"]["in"]
-        self.assertFalse(r["pass"], r)
-        self.assertLess(r["genuine_lead_ms"], 80)
+        self.assertFalse(r["pass"], f"D1: G16 must reject a file-head hook with <80 ms genuine lead-in and no pad: {r}")
+        self.assertLess(r["genuine_lead_ms"], 80, r)
 
     def test_g17a_head_fails(self):
-        self.assertFalse(self.g17["hook"]["lead_ok"], self.g17["hook"])
+        self.assertFalse(self.g17["hook"]["lead_ok"], f"D1: G17a must see <80 ms genuine lead-in: {self.g17['hook']}")
 
 
 class TestD2Clip01Out(_G16Fixture):
     def test_g16_out_fails(self):
-        self.assertFalse(self.rows["clip_01"]["out"]["pass"], self.rows["clip_01"]["out"])
+        r = self.rows["clip_01"]["out"]
+        self.assertFalse(r["pass"], f"D2: clip_01 out 33.71 runs into the next sentence: {r}")
+        # for the right reason: the locked sentence ends at 'week.' and that edge is not a legal cut there
+        self.assertEqual(r["after_word"], "week.", r)
+        self.assertIn("not cuttable", r["why"], r)
 
 
 class TestD3Edges(_G16Fixture):
     def test_d3a_clip01_in_fails(self):
-        self.assertFalse(self.rows["clip_01"]["in"]["pass"], self.rows["clip_01"]["in"])
-        self.assertFalse(self.g17["clip_01"]["lead_ok"], self.g17["clip_01"])
+        r = self.rows["clip_01"]["in"]
+        self.assertFalse(r["pass"], f"D3a: clip_01 in 15.13 starts on '81', not 'It': {r}")
+        self.assertEqual(r["before_word"], "It", r)
+        self.assertIn("outside the legal range", r["why"], r)
+        self.assertFalse(self.g17["clip_01"]["lead_ok"], f"D3a: G17a lead-in: {self.g17['clip_01']}")
 
     def test_d3b_clip02_in_fails(self):
-        self.assertFalse(self.rows["clip_02"]["in"]["pass"], self.rows["clip_02"]["in"])
-        self.assertFalse(self.g17["clip_02"]["lead_ok"], self.g17["clip_02"])
+        r = self.rows["clip_02"]["in"]
+        self.assertFalse(r["pass"], f"D3b: clip_02 in 14.93 lands inside 'days': {r}")
+        self.assertIn("outside the legal range", r["why"], r)
+        self.assertFalse(self.g17["clip_02"]["lead_ok"], f"D3b: G17a lead-in: {self.g17['clip_02']}")
 
     def test_d3c_clip02_out_control_passes(self):
-        self.assertTrue(self.rows["clip_02"]["out"]["pass"], self.rows["clip_02"]["out"])
-        self.assertTrue(self.g17["clip_02"]["tail_ok"], self.g17["clip_02"])
+        self.assertTrue(self.rows["clip_02"]["out"]["pass"], f"CONTROL D3c: clean out edge must pass G16: {self.rows['clip_02']['out']}")
+        self.assertTrue(self.g17["clip_02"]["tail_ok"], f"CONTROL D3c: clean tail must pass G17a: {self.g17['clip_02']}")
+
+
+class TestG17bRenderedEdges(_G16Fixture):
+    """G17b: the render may add silence but must not eat a word. Yesterday's render was faithful to its
+    (wrong) cuts, so G17b PASSES on it (D1 is a source lead-in problem: G16 + G17a). A render whose
+    fade eats the hook's opening word must FAIL."""
+
+    def _run(self, audio):
+        L = _law()
+        segs = json.load(open(os.path.join(FIX, "run", "concat_manifest_16x9.json")))["segments"]
+        cuts = json.load(open(os.path.join(FIX, "run", "cuts_final.json")))
+        ok, table = L.gate_g17_output(audio, segs, cuts, self.tmp,
+                                      source_path_fn=lambda v: os.path.join(FIX, "audio", f"src_{v}.flac"))
+        return ok, {r["segment"]: r for r in table}
+
+    def test_faithful_render_passes(self):
+        ok, rows = self._run(os.path.join(FIX, "audio", "out_16x9.flac"))
+        self.assertTrue(rows["hook"]["head_ok"], rows["hook"])
+
+    def _variant(self, name, af):
+        out = os.path.join(self.tmp, name)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", os.path.join(FIX, "audio", "out_16x9.flac"),
+                        "-af", af, out], check=True)
+        return self._run(out)[1]["hook"]
+
+    def test_render_that_eats_the_opening_word_fails(self):
+        # the first 160 ms muted: ~70 ms of 'Bitcoin' (onset ~0.09 s) lost, < 85 % of the word left
+        row = self._variant("eaten.flac", "volume=enable='between(t,0,0.16)':volume=0")
+        self.assertFalse(row["head_ok"], row)
+
+    def test_standard_20ms_fade_passes(self):
+        row = self._variant("fade20.flac", "afade=t=in:st=0:d=0.02")
+        self.assertTrue(row["head_ok"], row)
 
 
 class TestTautology(_G16Fixture):
@@ -138,6 +180,26 @@ class TestTautology(_G16Fixture):
         src = inspect.getsource(run_fresh.stage_gates)
         self.assertIn("G16_sentence_boundary", src)
         self.assertIn("G17_onset_tail", src)
+
+
+class TestAdjudicatorReplay(unittest.TestCase):
+    """M12: in cache-only (gate) mode a missing adjudication is a LawError, and the unpunctuated
+    boundary it guards comes back invalid -- never a pass, never a silent model call."""
+
+    def test_cache_miss_fails_closed(self):
+        L = _law()
+        tmp = tempfile.mkdtemp(prefix="adj_")
+        try:
+            adj = L.Adjudicator(cache_path=os.path.join(tmp, "empty.json"), log_path=None, allow_model=False)
+            words = json.load(open(os.path.join(FIX, "run", "transcripts", "36HPi9UZPOc.json")))["words"]
+            k = next(i for i, w in enumerate(words) if w["word"] == "times")
+            with self.assertRaises(L.LawError):
+                adj.decide(words, k)
+            b = L.boundary(L.SourceAudio(os.path.join(FIX, "audio", "src_36HPi9UZPOc.flac")), words, k, adj)
+            self.assertFalse(b["valid"], b)
+            self.assertIn("not cached", b["reason"], b)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 class TestWindowOffset(unittest.TestCase):
@@ -162,7 +224,13 @@ class TestWindowOffset(unittest.TestCase):
 
 
 class TestD4Credits(unittest.TestCase):
-    S = tempfile.mkdtemp(prefix="g15_")
+    @classmethod
+    def setUpClass(cls):
+        cls.S = tempfile.mkdtemp(prefix="g15_")
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.S, ignore_errors=True)
 
     def _gates(self, mp4, segs):
         import gates as G
@@ -186,8 +254,14 @@ class TestD4Credits(unittest.TestCase):
 
     def test_shoutout_refuses_a_thumbnail_avatar(self):
         import shoutout
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, "square"):
             shoutout.validate_avatar(os.path.join(FIX, "video", "natalie_brunell.jpg"))
+
+    def test_shoutout_accepts_a_registered_square_avatar(self):
+        # positive control: the v2f BTC Sessions avatar (approved, square) must be accepted
+        import shoutout
+        reg = {c["display_name"]: c for c in json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))}
+        shoutout.validate_avatar(reg["BTC Sessions"]["avatar_path"])
 
     def test_no_thumbnail_or_placeholder_fallback(self):
         import shoutout

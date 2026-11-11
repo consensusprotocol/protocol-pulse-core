@@ -1,0 +1,50 @@
+{
+ "question": "Commit 1b+1c implements the sentence-boundary law (pipeline/sentence_law.py): selection locks (anchor selected text in the file transcript, sha-sealed), boundary rule (punctuation or cached model adjudication + >=80 ms acoustic pause), cut placement only inside the locked pauses intersected with the unchanged cut_accept checks (replacing the +-2 s snap and the edge-word recompute tautology), G16 pre-render + final gate, G17 onset/tail integrity (prepared clips: >=80 ms genuine lead-in/tail; outputs: edge words keep >=85%), D1 room-tone lead-in pad. Find correctness bugs: wrong time/units, any path where missing data or a model failure yields a PASS/cut/lock, any way a cut can include a word outside the lock, any loosened acceptance, and any change to the frozen v2f path.",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 299.3,
+   "cost": 0.004642808,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 487.2,
+   "cost": 0.0160304162,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 477.4,
+   "cost": 0.002785567,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0234587912,
+ "out_dir": "docs/audits/pulse-sentence-law/1bc_sentence_law/heimdall"
+}

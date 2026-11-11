@@ -1,0 +1,50 @@
+{
+ "question": "One part of commit 1b+1c (sentence-boundary law for clip cuts: selection lock, boundary rule = punctuation/cached adjudication + >=80 ms pause, cuts only inside locked pauses intersected with unchanged cut_accept, G16/G17 gates, D1 room-tone pad). Report only real defects you can quote: wrong units/time math, a path where missing data or a model failure yields a PASS/cut/lock, a cut that can include a word outside the lock, loosened acceptance. Be concise.",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 327.6,
+   "cost": 0.003305406,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 131.3,
+   "cost": 0.0070271265,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 514.1,
+   "cost": 0.002152671,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0124852035,
+ "out_dir": "docs/audits/pulse-sentence-law/1bc_sentence_law/heimdall_chunks/C_tests"
+}

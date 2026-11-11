@@ -14,9 +14,12 @@ Stages (any failure = HOLD; nothing is ever published; telegram is never importe
                writes TOPIC_SELECTION.json + passages.json (the select stage's input contract)
   2 select     existing select_passages.select_and_build_edl            (unchanged from here on)
   3 validate   existing edl_rules.validate_edl + layout compatibility (all channels approved, all 'crop')
-  4 cut        existing cut.compute_all_cuts, then cut acceptance (cut_accept.py)
+  4 cut        cuts placed inside the pauses bounding each LOCKED sentence (sentence_law.py; human
+               PINs: the exact pinned table), then cut acceptance (cut_accept.py); no snapping
+  4b sentence_law  G16 SENTENCE_BOUNDARY before rendering (hard stop)
   5 voice      existing vo.generate_vo (same voice/model as v2f, asserted)
   6 prepare    run_isolated.prerender_clips, clip contract (clip_contract.py), Law 14c edge words
+               (expected words = the selection lock, never recomputed)
   7 render     shout-out 16x9+9x16, preflight, render 16:9, postflight, render 9:16, postflight,
                vertical silent-fallback detection
   8 gates      run_gates both formats exactly as v2f, plus G11 (real), G14 both, G14c, G15 both,
@@ -50,6 +53,7 @@ import traceback
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE_DIR)
 sys.path.insert(0, PIPELINE_DIR)
+import sentence_law as L  # noqa: E402  (sentence law: selection locks, G16/G17)
 
 RUNS_DIR = os.path.join(REPO, "runs")
 CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
@@ -362,121 +366,27 @@ def stage_validate(run):
             raise Hold(f"{l} EDL times not in source-file coordinates")
 
 
-# ── helpers: edge-word recomputation from word-timestamp transcript ──
-
-def _recompute_edge_words(transcript_path, cut_in, cut_out):
-    """Look up first/last words from a word-timestamp transcript at given cut times.
-
-    Returns (first_word, last_word). If no transcript or no words found,
-    returns ("", "") and logs a warning.
-    """
-    if not os.path.isfile(transcript_path):
-        print(f"    WARN: no transcript at {transcript_path} — edge words unavailable")
-        return "", ""
-    with open(transcript_path) as f:
-        t = json.load(f)
-    words = t.get("words", [])
-    if not words:
-        print(f"    WARN: empty word list in {transcript_path} — edge words unavailable")
-        return "", ""
-    first, last = "", ""
-    for w in words:
-        if w["end"] > cut_in + 0.05:
-            first = w["word"]
-            break
-    for w in words:
-        # Last word = latest word fully contained in the cut window.
-        # Whisper on the rendered clip reports the last COMPLETE word it can
-        # recognise; partially cut words are often dropped or garbled.
-        # Use end <= cut_out (the word finishes before the cut point).
-        if w["start"] >= cut_in - 0.5 and w["end"] <= cut_out:
-            last = w["word"]
-    return first, last
-
-
-def _sync_edl_edge_words(run_dir, cuts):
-    """Update edl.json first_word/last_word to match cuts_final after snapping."""
-    edl_path = os.path.join(run_dir, "edl.json")
-    if not os.path.isfile(edl_path):
-        return
-    with open(edl_path) as f:
-        edl = json.load(f)
-    lookup = {c["clip_id"]: c for c in cuts}
-    # Update hook
-    if "hook" in lookup and "hook" in edl:
-        edl["hook"]["first_word"] = lookup["hook"].get("first_word_expected", edl["hook"].get("first_word", ""))
-        edl["hook"]["last_word"] = lookup["hook"].get("last_word_expected", edl["hook"].get("last_word", ""))
-    # Update clips
-    synced = 0
-    for i, clip in enumerate(edl.get("clips", [])):
-        cid = f"clip_{i + 1:02d}"
-        if cid in lookup:
-            clip["first_word"] = lookup[cid].get("first_word_expected", clip.get("first_word", ""))
-            clip["last_word"] = lookup[cid].get("last_word_expected", clip.get("last_word", ""))
-            synced += 1
-        else:
-            print(f"    WARN: EDL clip index {i} ({cid}) not in cuts_final — edge words not synced")
-    jdump(edl_path, edl)
-
-
 # ── stage 6: cut + acceptance ──
 
-def _snap_candidates(src, cut_in, cut_out, dur, check_fn, max_shift=2.0, step=0.02):
-    """Yield ALL (cut_in, cut_out, details) tuples that pass check_fn.
-
-    Phase 1: collect all cut_out positions that pass the OUT check (bidirectional,
-    nearest-first).  Phase 2: for each accepted OUT, find a cut_in that passes IN.
-    Yields results nearest-first so the caller can stop at the first that also
-    satisfies the clip contract.
-    """
-    n = int(max_shift / step)
-    offsets = [0]
-    for i in range(1, n + 1):
-        offsets.append(-i * step)
-        offsets.append(i * step)
-    # Phase 1: collect all OUT-passing positions (nearest-first order preserved)
-    accepted_outs = []
-    for delta_out in offsets:
-        trial_out = round(cut_out + delta_out, 3)
-        if trial_out <= cut_in + 1.0 or trial_out > dur:
-            continue
-        ok, d = check_fn(src, cut_in, trial_out)
-        if d.get("out", {}).get("pass"):
-            accepted_outs.append((trial_out, delta_out, ok, d))
-    # Phase 2: for each accepted OUT, fix cut_in and yield
-    for trial_out, delta_out, full_ok, d_out in accepted_outs:
-        if full_ok:
-            yield (cut_in, trial_out,
-                   {**d_out, "snapped_out_by": round(delta_out, 3)})
-        else:
-            for delta_in in offsets:
-                trial_in = round(cut_in + delta_in, 3)
-                if trial_in < 0 or trial_in >= trial_out - 1.0:
-                    continue
-                ok, d = check_fn(src, trial_in, trial_out)
-                if ok:
-                    yield (trial_in, trial_out,
-                           {**d, "snapped_in_by": round(delta_in, 3),
-                            "snapped_out_by": round(delta_out, 3)})
-                    break  # one IN solution per OUT is enough
-
-
 def stage_cut(run):
-    import itertools
-    from cut import compute_all_cuts
+    """Human PINs: the exact pinned table. Everything else: cuts placed inside the pauses that bound
+    each LOCKED sentence (sentence_law.write_lock_cut_table) -- a cut never moves outside that
+    silence and never adds or drops a word (2026-11-11: the +-2 s snap and the edge-word recompute of
+    ad7295ea/4cf5a31a are gone). The SAME acceptance check runs on every cut; a rejection HOLDs."""
     from cut_accept import check_cut_acoustics
-    # Human-approved PINs use exact pinned ranges (no acoustic cutter, no snapping).
-    # Machine-built PINs (machine_cuts=true) use the acoustic cutter + snapping.
     use_pinned_table = (run.mode == "pinned" and not run.machine_cuts)
     if use_pinned_table:
         from pinned import write_pinned_cut_table
         write_pinned_cut_table(run.dir)
-    elif compute_all_cuts(run.dir) is not True:
-        raise Hold("compute_all_cuts did not succeed")
+    else:
+        adj = L.Adjudicator()
+        try:
+            L.write_lock_cut_table(run.dir, adj)
+        finally:
+            adj.close()
     with open(os.path.join(run.dir, "cuts_final.json")) as f:
         cuts = json.load(f)
     report, fails = [], []
-    snap_alternatives = {}  # clip_id -> list of remaining (in, out, d) candidates
     for c in cuts:
         src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
         rec = {"clip_id": c["clip_id"], "video_id": c["video_id"], "cut_in": c.get("cut_in"),
@@ -492,28 +402,6 @@ def stage_cut(run):
                 rec["reason"] = f"cut range outside source file (duration {dur:.2f})"
             else:
                 ok, d = check_cut_acoustics(src, c["cut_in"], c["cut_out"])
-                if not ok and not use_pinned_table:
-                    it = _snap_candidates(
-                        src, c["cut_in"], c["cut_out"], dur, check_cut_acoustics)
-                    first = next(it, None)
-                    if first:
-                        new_in, new_out, d2 = first
-                        print(f"    snap: {c['cut_in']:.3f}-{c['cut_out']:.3f} -> "
-                              f"{new_in:.3f}-{new_out:.3f}")
-                        c["cut_in"], c["cut_out"] = new_in, new_out
-                        c["cut_duration"] = round(new_out - new_in, 3)
-                        c["snapped"] = True
-                        ok, d = True, d2
-                        # Store up to 20 remaining candidates for contract retry
-                        remaining = list(itertools.islice(it, 20))
-                        if remaining:
-                            snap_alternatives[c["clip_id"]] = remaining
-                        # Recompute edge words from word-timestamp transcript
-                        tx = os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")
-                        fw, lw = _recompute_edge_words(tx, new_in, new_out)
-                        c["first_word_expected"] = fw
-                        c["last_word_expected"] = lw
-                        print(f"    edge words recomputed: first='{fw}' last='{lw}'")
                 rec.update(pass_=ok, **d)
                 rec["pass"] = rec.pop("pass_")
         if not rec["pass"]:
@@ -521,14 +409,29 @@ def stage_cut(run):
         report.append(rec)
         print(f"  {c['clip_id']}: in={c.get('cut_in')} out={c.get('cut_out')} "
               f"[{'ACCEPT' if rec['pass'] else 'REJECT'}] {rec.get('reason', '')}")
-    # Write the (possibly snapped) cuts back
-    jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
-    _sync_edl_edge_words(run.dir, cuts)
     run.prov["cut_acceptance"] = report
     jdump(os.path.join(run.dir, "CUT_ACCEPTANCE.json"), report)
     if fails:
         raise Hold(f"cut acceptance rejected {fails} (see CUT_ACCEPTANCE.json)")
-    return cuts, snap_alternatives
+    return cuts
+
+
+def stage_sentence_law(run):
+    """G16 SENTENCE_BOUNDARY before anything is rendered: every cut holds exactly its locked
+    sentence(s), both edges are legal sentence boundaries and the cuts sit inside those pauses."""
+    adj = L.Adjudicator()
+    try:
+        ok, table = L.gate_g16(run.dir, adj)
+    finally:
+        adj.close()
+    run.prov["G16_pre_render"] = table
+    jdump(os.path.join(run.dir, "SENTENCE_LAW.json"), {"pass": ok, "segments": table})
+    for r in table:
+        print(f"  {r['segment']}: {r.get('locked', '')} [{'PASS' if r['pass'] else 'FAIL'}] "
+              + "; ".join(r["errors"]))
+    if not ok:
+        raise Hold("G16 sentence law: " + "; ".join(
+            f"{r['segment']}: {', '.join(r['errors'])}" for r in table if not r["pass"]))
 
 
 # ── stage 7: voice ──
@@ -563,61 +466,29 @@ def stage_voice(run):
 
 # ── stage 8: prepare clips + contract + edge words ──
 
-def stage_prepare(run, cuts, snap_alternatives=None):
+def stage_prepare(run, cuts):
     from run_isolated import prerender_clips
     from clip_contract import check_clip
     from cut_accept import check_edge_words
-    snap_alternatives = snap_alternatives or {}
+    from config import FPS, NVENC_QP_INTERMEDIATE
     prerender_clips(run.dir, cuts)
+    pads = {}
+    for c in cuts:
+        if float(c.get("lead_in_pad_s") or 0) > 0:
+            # D1: a file-head sentence without 80 ms of genuine lead-in gets the declared room-tone pad
+            pads[c["clip_id"]] = L.apply_lead_in_pad(run.dir, c, FPS, NVENC_QP_INTERMEDIATE)
+            print(f"  {c['clip_id']}: lead-in pad {pads[c['clip_id']]}")
+    run.prov["lead_in_pads"] = pads
     qa = os.path.join(run.dir, "qa")
     work = os.path.join(qa, "edge_words")
     os.makedirs(work, exist_ok=True)
     report, fails = [], []
     for c in cuts:
         clip = os.path.join(qa, f"final_{c['clip_id']}.mp4")
-        ok1, d1 = check_clip(clip, c["cut_duration"])
+        ok1, d1 = check_clip(clip, c["cut_duration"] + float(c.get("lead_in_pad_s") or 0))
+        # expected words come from the selection lock (cuts_final), never from the cut position
         ok2, d2 = check_edge_words(clip, c.get("first_word_expected", ""),
                                    c.get("last_word_expected", ""), work, c["clip_id"])
-        # If contract fails on a snapped clip, try alternative snap candidates
-        if not ok1 and c.get("snapped") and c["clip_id"] in snap_alternatives:
-            alts = snap_alternatives[c["clip_id"]]
-            # Save original values to restore on total failure
-            orig_in, orig_out = c["cut_in"], c["cut_out"]
-            orig_dur = c["cut_duration"]
-            orig_fw = c.get("first_word_expected", "")
-            orig_lw = c.get("last_word_expected", "")
-            print(f"  {c['clip_id']}: contract FAIL at {c['cut_in']:.3f}-{c['cut_out']:.3f}, "
-                  f"trying {len(alts)} alternative snap positions...")
-            found = False
-            for alt_in, alt_out, alt_d in alts:
-                c["cut_in"], c["cut_out"] = alt_in, alt_out
-                c["cut_duration"] = round(alt_out - alt_in, 3)
-                tx = os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")
-                fw, lw = _recompute_edge_words(tx, alt_in, alt_out)
-                c["first_word_expected"], c["last_word_expected"] = fw, lw
-                prerender_clips(run.dir, [c])
-                ok1, d1 = check_clip(clip, c["cut_duration"])
-                ok2, d2 = check_edge_words(clip, fw, lw, work, c["clip_id"])
-                print(f"    retry snap {alt_in:.3f}-{alt_out:.3f}: "
-                      f"contract {'PASS' if ok1 else 'FAIL'} edges {'PASS' if ok2 else 'FAIL'}")
-                if ok1 and ok2:
-                    print(f"    snap: -> {alt_in:.3f}-{alt_out:.3f} "
-                          f"(edge words: '{fw}'/'{lw}')")
-                    found = True
-                    break
-            if found:
-                jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
-                _sync_edl_edge_words(run.dir, cuts)
-            else:
-                # Restore original values — no alternative passed
-                c["cut_in"], c["cut_out"] = orig_in, orig_out
-                c["cut_duration"] = orig_dur
-                c["first_word_expected"] = orig_fw
-                c["last_word_expected"] = orig_lw
-                # Re-render at original position for consistent state
-                prerender_clips(run.dir, [c])
-                ok1, d1 = check_clip(clip, c["cut_duration"])
-                ok2, d2 = check_edge_words(clip, orig_fw, orig_lw, work, c["clip_id"])
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
                "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2}
         report.append(rec)
@@ -625,8 +496,7 @@ def stage_prepare(run, cuts, snap_alternatives=None):
             fails.append(c["clip_id"])
         print(f"  {c['clip_id']}: contract {'PASS' if ok1 else 'FAIL'} {d1.get('errors')} | "
               f"edges first '{d2['heard_first']}'/'{d2['expected_first']}' "
-              f"last '{d2['heard_last']}'/'{d2['expected_last']}' "
-              f"{'PASS' if ok2 else 'FAIL'}{' (snapped)' if c.get('snapped') else ''}")
+              f"last '{d2['heard_last']}'/'{d2['expected_last']}' {'PASS' if ok2 else 'FAIL'}")
     run.prov["prepared_clips"] = report
     jdump(os.path.join(run.dir, "CLIP_CONTRACT.json"), report)
     if fails:
@@ -742,14 +612,27 @@ def stage_gates(run, final16, man16, final9, man9):
     g14dir9 = os.path.join(qa, "g14_9x16")
     os.makedirs(g14dir16, exist_ok=True)
     os.makedirs(g14dir9, exist_ok=True)
-    g14_16_ok, g14_16 = G.gate_g14(final16, man16, source_clips=src_clips, qa_dir=g14dir16)
+    # a declared lead-in pad is room tone, not source material: G14 measures from the pad's end
+    pads = {c["clip_id"]: float(c.get("lead_in_pad_s") or 0) for c in cuts}
+
+    def _g14_manifest(man, tag):
+        with open(man) as f:
+            m = json.load(f)
+        for sg in m["segments"]:
+            if sg.get("type") == "talking_head" and pads.get(sg["label"]):
+                sg["start"] = round(sg["start"] + pads[sg["label"]], 3)
+        path = os.path.join(qa, f"g14_manifest_{tag}.json")
+        jdump(path, m)
+        return path
+    man16_g14, man9_g14 = _g14_manifest(man16, "16x9"), _g14_manifest(man9, "9x16")
+    g14_16_ok, g14_16 = G.gate_g14(final16, man16_g14, source_clips=src_clips, qa_dir=g14dir16)
     fails16 = [d for d in g14_16 if d.get("status") == "FAIL"]
     rows["16x9"]["G14_av_alignment"] = ("PASS" if g14_16_ok else
                                         "FAIL" if fails16 else "HOLD(inconclusive)")
     limits["16x9"].append("G14: static talking-head temporal slips can pass frame_sim "
                           "(v2e 18.0-24.0 s precedent); VO sections are auto-PASS (pre-roll "
                           "declared), plate correctness not verified")
-    g14_9_ok, g14_9 = G.gate_g14(final9, man9, source_clips=src_clips, qa_dir=g14dir9)
+    g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9)
     # audio part: the gate's own conclusive xcorr measurement (peak >= 0.3) and 40 ms tolerance
     audio_bad = [d for d in g14_9 if d.get("delta_ms") is not None and d["delta_ms"] > 40]
     inconclusive9 = [d for d in g14_9 if d.get("status") == "HOLD" and d.get("delta_ms") is None]
@@ -813,13 +696,31 @@ def stage_gates(run, final16, man16, final9, man9):
         else:
             rows[fmt]["G9_tail"] = "FAIL"
 
+    # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
+    adj = L.Adjudicator()
+    try:
+        g16_ok, g16 = L.gate_g16(run.dir, adj)
+    finally:
+        adj.close()
+    for fmt in ("16x9", "9x16"):
+        rows[fmt]["G16_sentence_boundary"] = _status(g16_ok)
+
+    # G17 ONSET/TAIL: prepared clips (>= 80 ms genuine lead-in/tail) + each final (edge words >= 85 %)
+    g17a_ok, g17a = L.gate_g17_prepared({c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4")
+                                          for c in cuts})
+    g17b16_ok, g17b16 = L.gate_g17_output(final16, segs16, cuts, run.dir)
+    g17b9_ok, g17b9 = L.gate_g17_output(final9, segs9, cuts, run.dir)
+    rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok)
+    rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok)
+
     fb = run.prov["vertical_fallback_check"]
     rows["9x16"]["vertical_silent_fallback"] = "FAIL (fallback occurred)" if fb["fallback_occurred"] \
         else "PASS (no fallback)"
 
     gates_out = {"rows": rows, "flags": flags, "limitations": limits,
                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
-                 "G15_16x9": g15_16, "G15_9x16": g15_9, "G8": g8_report, "G9": g9_report,
+                 "G15_16x9": g15_16, "G15_9x16": g15_9, "G8": g8_report, "G9": g9_report, "G16": g16,
+                 "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9},
                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
     jdump(os.path.join(run.dir, "GATE_REPORT.json"), gates_out)
     run.prov["gates"] = {"rows": rows, "flags": flags, "limitations": limits}
@@ -1002,9 +903,10 @@ def main():
             run.stage("select", lambda: stage_select(run, keyword))
         run.stage("review", lambda: stage_review(run))
         run.stage("validate", lambda: stage_validate(run))
-        cuts, snap_alts = run.stage("cut", lambda: stage_cut(run))
+        cuts = run.stage("cut", lambda: stage_cut(run))
+        run.stage("sentence_law", lambda: stage_sentence_law(run))
         run.stage("voice", lambda: stage_voice(run))
-        run.stage("prepare", lambda: stage_prepare(run, cuts, snap_alts))
+        run.stage("prepare", lambda: stage_prepare(run, cuts))
         final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
         rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16,
                                                                       final9, man9))

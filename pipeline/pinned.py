@@ -55,6 +55,7 @@ import sys
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE_DIR)
 sys.path.insert(0, PIPELINE_DIR)
+import sentence_law as L  # noqa: E402  (sentence law: selection locks, G16/G17)
 CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
 
 SCHEMA = "protocol_pulse.pinned_story.v1"
@@ -115,6 +116,10 @@ def validate_schema(pin, registry=None):
         errs.append("at least one clip required")
     if roles and roles[0] != "hook":
         errs.append("the hook must be the first segment")
+    if pin.get("machine_cuts") and not all(str(s.get("approved_text") or "").strip() for s in segs):
+        # sentence law: a machine-built PIN carries the editor's selected sentences; the words are
+        # located by text in the acquired transcript, never by window-offset arithmetic
+        errs.append("machine_cuts PIN: every segment needs approved_text (the selected sentences)")
     recs = []
     for i, s in enumerate(segs):
         tag = f"segment {i} ({s.get('role')} {s.get('video_id')})"
@@ -204,6 +209,7 @@ def acquire(pin, run_dir, log=print):
             out[vid] = {"path": path, "offset": float(offset), "transcript": tr,
                         "provenance": {"kind": "youtube_window", "window_offset_s": offset}}
         out[vid]["provenance"]["source_file_sha256"] = _sha256(out[vid]["path"])
+        out[vid]["transcript_path"] = os.path.join(run_dir, "transcripts", f"{vid}.json")
         log(f"  {vid}: acquired ({out[vid]['provenance']['kind']})")
     return out
 
@@ -230,6 +236,7 @@ def validate_range(seg, acq):
     out = {"start_file": round(start, 3), "end_file": round(end, 3), "source_duration": round(dur, 3),
            "words": inside, "text": " ".join(w["word"].strip() for w in inside),
            "first_word": inside[0]["word"].strip(), "last_word": inside[-1]["word"].strip(),
+           "i0": words.index(inside[0]), "i1": words.index(inside[-1]),
            "transcript_word_straddles_boundary": [w["word"].strip() for w in straddle],
            "edge_words_from": "transcript words entirely inside the range"}
     approved = str(seg.get("approved_text") or "").strip()
@@ -242,9 +249,13 @@ def validate_range(seg, acq):
         if ratio < APPROVED_TEXT_MIN_RATIO:
             raise PinError(f"{tag}: approved_text does not correspond to the transcript in this range "
                            f"(token similarity {ratio:.2f} < {APPROVED_TEXT_MIN_RATIO})")
-        toks = approved.split()
-        out.update(text=approved, first_word=toks[0], last_word=toks[-1], approved_text_similarity=round(ratio, 3),
-                   edge_words_from="approved_text (verified against the transcript)")
+        a = L.anchor(words, approved, t0=start - 3.0, t1=end + 3.0)
+        if a is None:
+            raise PinError(f"{tag}: approved_text edges not found as words in the transcript near the range")
+        i0, i1, _ = a
+        out.update(text=approved, first_word=words[i0]["word"].strip(), last_word=words[i1]["word"].strip(),
+                   i0=i0, i1=i1, approved_text_similarity=round(ratio, 3),
+                   edge_words_from="approved_text located by text in the transcript (sentence_law.anchor)")
     return out
 
 
@@ -261,6 +272,10 @@ def build_edl(pin, acq, registry=None, log=print):
         a = acq[s["video_id"]]
         v = validate_range(s, a)
         ch = by_name[s["channel"]]
+        lock = L.make_lock(s["video_id"], a["transcript"]["words"], v["i0"], v["i1"],
+                           L.sha256_file(a["transcript_path"]), v["text"], [s["start"], s["end"]],
+                           v.get("approved_text_similarity"),
+                           "pinned approved_text" if s.get("approved_text") else "pinned exact range")
         seg = {
             "video_id": s["video_id"],
             "channel": s["channel"],
@@ -269,9 +284,9 @@ def build_edl(pin, acq, registry=None, log=print):
             "text": v["text"],
             "first_word": v["first_word"],
             "last_word": v["last_word"],
-            "word_start": round(v["words"][0]["start"], 3),
-            "word_end": round(v["words"][-1]["end"], 3),
-            "duration": round(v["words"][-1]["end"] - v["words"][0]["start"], 2),
+            "word_start": round(a["transcript"]["words"][v["i0"]]["start"], 3),
+            "word_end": round(a["transcript"]["words"][v["i1"]]["end"], 3),
+            "duration": round(a["transcript"]["words"][v["i1"]]["end"] - a["transcript"]["words"][v["i0"]]["start"], 2),
             "time_coords": "source_file",
             "source_window_offset_s": round(a["offset"], 3),
             # the human decision, exact; the cut table is taken from here, never recomputed
@@ -279,6 +294,7 @@ def build_edl(pin, acq, registry=None, log=print):
                        "input_end": s["end"], "input_time_coords": s["time_coords"]},
             "cut_out": v["end_file"],
             "fade_out_ms": FADE_OUT_MS,
+            "selection_lock": lock,
         }
         segs.append(seg)
         report.append({"role": s["role"], "video_id": s["video_id"], "channel": s["channel"],

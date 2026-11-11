@@ -53,3 +53,45 @@ Known failure patterns and their root causes. Load into every Qwen/audit session
 **Root cause:** `grounded_event_date()` in `story_semantics.py` compared `model_d < source_published` using datetime objects. `parse_event_date("2026-11-09")` returns midnight UTC, which is `<` than a source published at 14:30 UTC on the same day, causing same-day events to be discarded as "hallucinated" model dates.
 **Fix:** Compare `.date()` objects instead of datetimes: `model_d.date() < source_published.date()`. Same calendar day is never discarded.
 **Detection:** `pipeline/test_d1_sameday.py` — 7 tests covering same-day, previous-day, future-date, and edge cases.
+
+---
+
+## EDITORIAL CUT FAILURES (PBX review of pinned_20261110_150345, 2026-11-11)
+
+### E-FAIL-001: A check that recomputes its own expectation from the thing it checks is a tautology
+**Root cause:** ad7295ea/4cf5a31a recomputed `first/last_word_expected` from the SNAPPED cut window and synced them into edl.json; G3/edge-words then "verified" that the clip contained whatever it contained. clip_01 shipped "...this week. All right, you've probably seen people celebrating" (D2).
+**Fix:** selection lock (sentence_law.make_lock): the editor's sentences are sealed with sha256 at selection; every later stage reads them; G16 fails if cuts_final's expected words differ from the lock.
+**Detection:** `pipeline/test_pulse_20261110_mustfail.py::TestTautology`.
+
+### E-FAIL-002: Window offset recorded != window offset requested
+**Root cause:** `_download_window` asked yt-dlp for `*54-100` (`.0f`) but recorded 53.57; every canonical->file time was shifted 0.38-0.52 s, so windows chosen on sentence starts landed mid-word (D3: "81", "days").
+**Fix:** record the requested whole-second start; never place cuts by offset arithmetic: the selected text is located in the downloaded file's own transcript (sentence_law.anchor).
+**Detection:** `TestWindowOffset`.
+
+### E-FAIL-003: Nearest-word heuristics pick fragments
+**Root cause:** `select_passages._find_word_boundaries` took the word nearest the window start and the nearest sentence-ender (or the latest word) as the end. Removed.
+
+### E-FAIL-004: A rule that never runs is not a rule
+**Root cause:** R9/R10 (sentence end/start) skip when no transcripts are passed; `run_fresh.stage_validate` never passed them, and R10 always returns True ("advisory"). Both read PASS in reports. G16 now enforces the law in its own stage and in the final gate table.
+**Detection:** DEFINITION_OF_DONE_PULSE_CHECK.md lists every rule with the check that runs it in production.
+
+### E-FAIL-005: Whisper word timestamps are not boundaries
+**Evidence:** 'Over' whisper 9.32 vs acoustic onset 9.65; 'I' 33.92 vs 34.44; 'what' 33.22 vs 33.93. Whisper starts the next word inside the pause.
+**Rule:** word identity from the transcript, boundary position from the audio (pause >= 80 ms between the two words), lexical sentence end from punctuation or a cached, logged model adjudication when the transcript is unpunctuated (Yahoo Finance's large-v3 window transcript had none).
+
+### E-FAIL-006: Digital zero is not room tone (D1)
+**Evidence:** DataDash's file starts with 33 ms of codec zero then ~50 ms of room tone before 'Bitcoin'. The render was faithful; the source had no lead-in. Counting zeros as lead-in passes it.
+**Fix:** genuine lead-in excludes frames below -100 dBFS; a file-head sentence with < 80 ms genuine lead-in needs the declared 0.25 s room-tone pad (held first frame).
+
+### E-FAIL-007: Never fall back to a video thumbnail for an avatar (D4)
+**Root cause:** `shoutout._fetch_avatar_on_demand` used `meta.get("thumbnail")` (1280x720) and the frozen renderer resized it to a square: squashed faces/text. G12/G15 FAILED correctly; QA_GATE_HOLD then reclassified them as detector false positives. A gate that fails is evidence first.
+**Fix:** real square channel avatars onboarded once (pipeline/avatar_onboard.py, contact sheet looked at), registry-only lookup with sha256 prefix + square check; no on-demand fetch, no placeholder.
+
+### E-FAIL-008: Removing a check's input to get past it
+**Evidence:** 2026-11-10 R2: "approved_text mismatch (0.66 < 0.8) -> removed approved_text from PIN". The mismatch was the offset bug (E-FAIL-002) showing itself. Machine PINs now must carry approved_text.
+
+### E-FAIL-009: Fixed quiet lines read a music bed as speech
+**Evidence:** cut_accept's speech-25 dB line (-54.2 dB) sits inside DataDash's music bed (~-53 dB, 24 dB under speech): its "pause" after 'take.' ends at 9.39 where only music rises. The Nov 10 hook's out edge cannot meet both the 80 ms tail rule and cut_accept -> the window is rejected, never forced. Re-specifying cut_accept is a gate change (needs authority + audit).
+
+### E-FAIL-010: Registry identity must be verified, not assumed
+**Evidence:** registry "Michael Saylor" -> @Saylor = "旗-Saylor" (956 followers), not his channel. Disabled 2026-11-11. Avatar onboarding prints channel title/followers; look before registering.

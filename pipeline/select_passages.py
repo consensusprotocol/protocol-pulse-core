@@ -31,7 +31,11 @@ def _download_window(video_id, start_s, end_s, run_dir, pad=15.0):
     os.makedirs(sources_dir, exist_ok=True)
 
     out_path = os.path.join(sources_dir, f"{video_id}.mp4")
-    dl_start = max(0, start_s - pad)
+    # The section start actually requested from yt-dlp (whole seconds) IS the recorded offset
+    # (2026-11-11: '*54-100' was requested while 53.57 was recorded). Keyframe/priming can still
+    # move the file start by ~0.1 s, so cut words are located by text (sentence_law.anchor), never
+    # by offset arithmetic; the offset is provenance only.
+    dl_start = float(round(max(0, start_s - pad)))
 
     if os.path.exists(out_path) and os.path.getsize(out_path) > 100_000:
         return out_path, dl_start  # Cache hit
@@ -103,55 +107,6 @@ def _whisper_transcribe(source_path, video_id, run_dir):
     except Exception as e:
         print(f"    WARN: whisper failed for {video_id}: {e}")
         return None
-
-
-def _find_word_boundaries(words, start_s, end_s, text_hint=None, min_dur=8.0):
-    """Find the best first_word and last_word within a passage time range.
-
-    Widens the search window to ensure clips meet min_dur.
-    Returns (first_word, last_word, word_start, word_end) or None.
-    """
-    # Widen search window: use a generous margin around the passage
-    margin = 3.0
-    window_words = [w for w in words
-                    if w["start"] >= start_s - margin and w["end"] <= end_s + margin]
-    if not window_words:
-        # Try even wider — use ALL words
-        window_words = words
-    if not window_words:
-        return None
-
-    # First word: closest to start_s, but must be a sentence start if possible
-    # Look for words near start_s that begin a sentence (after a period)
-    first = min(window_words, key=lambda w: abs(w["start"] - start_s))
-
-    # Last word: find sentence-ending word that gives us >= min_dur
-    min_end_time = first["start"] + min_dur
-    sentence_enders = [w for w in window_words
-                       if w["word"].rstrip().endswith((".", "!", "?"))
-                       and w["end"] >= min_end_time
-                       and w["end"] <= end_s + margin]
-    if sentence_enders:
-        # Pick the one closest to end_s
-        last = min(sentence_enders, key=lambda w: abs(w["end"] - end_s))
-    else:
-        # No sentence ender meeting min_dur: pick the latest word in range
-        candidates = [w for w in window_words if w["end"] >= min_end_time]
-        if candidates:
-            last = max(candidates, key=lambda w: w["end"])
-        else:
-            last = max(window_words, key=lambda w: w["end"])
-
-    # Verify minimum duration
-    dur = last["end"] - first["start"]
-    if dur < min_dur and len(window_words) > 5:
-        # Expand: take first word and the last sentence ender that gives >= min_dur
-        all_enders = [w for w in words if w["word"].rstrip().endswith((".", "!", "?"))
-                      and w["end"] >= first["start"] + min_dur]
-        if all_enders:
-            last = min(all_enders, key=lambda w: w["end"])
-
-    return first["word"], last["word"], first["start"], last["end"]
 
 
 def _generate_vo_script(keyword, hook_text, clips, channels):
@@ -259,57 +214,79 @@ def select_and_build_edl(keyword, niche, run_dir):
     hook = max(hook_candidates, key=lambda p: p["score"]) if hook_candidates else valid[0]
     clips = [p for p in valid if p is not hook][:5]  # Max 5 clips
 
-    # Build word boundaries from transcripts
+    # SENTENCE LAW (sentence_law.py): the editor's chosen sentences are located in the downloaded
+    # file's own transcript by TEXT, sealed in a selection lock, and both edges must be legal,
+    # cuttable sentence boundaries in this file's audio. Nothing is ever picked by nearest word.
+    import sentence_law as L
     channels_used = set()
+    boundary_report = []
+    adj = L.Adjudicator()
 
     def _build_segment(passage, label):
         vid = passage["video_id"]
         words = transcripts[vid].get("words", [])
         offset = offsets.get(vid, 0)
-        # Passage times are in full-video coords; whisper times are in local (downloaded) coords
-        # local_time = full_video_time - offset
-        local_start = passage["start"] - offset
-        local_end = passage["end"] - offset
-        bounds = _find_word_boundaries(words, local_start, local_end)
-        if bounds is None:
+        tpath = os.path.join(run_dir, "transcripts", f"{vid}.json")
+        rec = {"segment": label, "video_id": vid, "channel": passage["channel"],
+               "window_full_video_s": [passage["start"], passage["end"]], "selected_text": passage["text"]}
+        boundary_report.append(rec)
+        a = L.anchor(words, passage["text"], t0=passage["start"] - offset - 5.0,
+                     t1=passage["end"] - offset + 5.0)
+        if a is None:
+            rec["result"] = "rejected: selected text not found in this file's transcript"
             return None
-        first_word, last_word, word_start, word_end = bounds
-        # EDL times stay in SOURCE-FILE coordinates (the downloaded window):
-        # cut.py and the clip pre-render seek into sources/<vid>.mp4, and the
-        # whisper words are measured on that same file. The window offset is
-        # recorded for provenance only (fresh-topic generalization B).
-        word_start_abs = word_start
-        word_end_abs = word_end
+        i0, i1, ratio = a
+        lock = L.make_lock(vid, words, i0, i1, L.sha256_file(tpath), passage["text"],
+                           [passage["start"], passage["end"]], ratio, "select_passages")
+        plan = L.edge_plan(L.SourceAudio(sources[vid]), words, i0, i1, adj, context=f"select {label}")
+        rec.update(locked=f"'{lock['first_word']}' ... '{lock['last_word']}'", align_ratio=ratio,
+                   **{f"{s}_edge": {k: plan[s].get(k) for k in ("valid", "cuttable", "pause", "lexical", "reason",
+                                                                 "cut_lo", "cut_hi", "lead_in_pad_s")}
+                      for s in ("in", "out")})
+        if not plan["ok"]:
+            rec["result"] = "rejected: " + "; ".join(
+                f"{s.upper()} {plan[s].get('reason') or 'not cuttable'}" for s in ("in", "out")
+                if not plan[s].get("cuttable"))
+            return None
+        rec["result"] = "accepted"
         channels_used.add(passage["channel"])
+        # EDL times are SOURCE-FILE coordinates (sources/<vid>.mp4); the offset is provenance only.
         return {
             "video_id": vid,
             "channel": passage["channel"],
             "handle": passage.get("handle", ""),
             "video_title": passage.get("title", ""),
             "text": passage["text"],
-            "first_word": first_word,
-            "last_word": last_word,
-            "word_start": round(word_start_abs, 3),
-            "word_end": round(word_end_abs, 3),
-            "duration": round(word_end - word_start, 2),
+            "first_word": lock["first_word"],
+            "last_word": lock["last_word"],
+            "word_start": round(words[i0]["start"], 3),
+            "word_end": round(words[i1]["end"], 3),
+            "duration": round(words[i1]["end"] - words[i0]["start"], 2),
             "time_coords": "source_file",
             "source_window_offset_s": round(offset, 3),
+            "selection_lock": lock,
         }
 
-    hook_seg = _build_segment(hook, "hook")
+    try:
+        hook_seg = _build_segment(hook, "hook")
+        clip_segs = []
+        if hook_seg is not None:
+            for i, clip in enumerate(clips):
+                seg = _build_segment(clip, f"clip_{i+1:02d}")
+                if seg:
+                    seg["index"] = len(clip_segs) + 1
+                    clip_segs.append(seg)
+    finally:
+        adj.close()
+        with open(os.path.join(run_dir, "SELECT_BOUNDARIES.json"), "w") as f:
+            json.dump(boundary_report, f, indent=2)
+    for r in boundary_report:
+        print(f"    {r['segment']} {r['channel']}: {r['result']}")
     if hook_seg is None:
-        print("  Cannot build hook segment — STOP")
+        print("  Cannot build hook segment (sentence law) — STOP")
         return False
-
-    clip_segs = []
-    for i, clip in enumerate(clips):
-        seg = _build_segment(clip, f"clip_{i+1:02d}")
-        if seg:
-            seg["index"] = i + 1
-            clip_segs.append(seg)
-
     if len(clip_segs) < 1:
-        print("  No valid clip segments — STOP")
+        print("  No valid clip segments (sentence law) — STOP")
         return False
 
     # Generate VO script (M20 rules)

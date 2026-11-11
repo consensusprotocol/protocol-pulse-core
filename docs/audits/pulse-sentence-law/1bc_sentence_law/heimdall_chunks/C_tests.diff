@@ -1,0 +1,248 @@
+diff --git a/pipeline/test_fresh.py b/pipeline/test_fresh.py
+index 98a895cf..a3f019c5 100644
+--- a/pipeline/test_fresh.py
++++ b/pipeline/test_fresh.py
+@@ -28,29 +28,61 @@ def _sha(p):
+ 
+ # ── B: select_passages keeps EDL times in source-file coordinates ──
+ 
++def _synth_window(path, words, dur=45.0, sr=16000):
++    """WAV with a 300 Hz tone (~-23 dBFS) under every word and -69 dBFS noise elsewhere, so sentence
++    gaps are real pauses and word gaps (50 ms) are not."""
++    import numpy as np
++    import wave
++    rng = np.random.default_rng(7)
++    x = rng.normal(0, 0.0005, int(dur * sr))
++    for w in words:
++        i0, i1 = int(w["start"] * sr), int(w["end"] * sr)
++        x[i0:i1] += 0.1 * np.sin(2 * np.pi * 300 * np.arange(i1 - i0) / sr)
++    with wave.open(path, "wb") as f:
++        f.setnchannels(1)
++        f.setsampwidth(2)
++        f.setframerate(sr)
++        f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
++
++
++def _sentences(tag, t, n_sent=8, per=6):
++    """Sentence-structured word timestamps: 0.30 s words, 0.05 s word gaps, 0.50 s sentence gaps."""
++    ws = []
++    for si in range(n_sent):
++        for wi in range(per):
++            ws.append({"word": f"{tag}s{si}w{wi}" + ("." if wi == per - 1 else ""),
++                       "start": round(t, 2), "end": round(t + 0.30, 2)})
++            t += 0.35
++        t += 0.45
++    return ws
++
++
+ class TestSelectCoords(unittest.TestCase):
+     def test_edl_times_are_source_file_coords(self):
+         import select_passages as sp
++        words = {"AAA": _sentences("a", 2.0), "BBB": _sentences("b", 2.0)}
++
++        def text(vid, s0, s1):  # sentences s0..s1 as the editor selected them
++            return " ".join(w["word"] for w in words[vid] if s0 <= int(w["word"][1:].split("s")[1].split("w")[0]) <= s1)
+         with tempfile.TemporaryDirectory() as rd:
++            os.makedirs(os.path.join(rd, "sources"))
++            os.makedirs(os.path.join(rd, "transcripts"))
+             passages = {"chosen": [
+                 {"video_id": "AAA", "channel": "The Bitcoin Layer", "start": 110.0, "end": 121.0,
+-                 "duration": 11.0, "score": 9, "text": "Statement one."},
++                 "duration": 11.0, "score": 9, "text": text("AAA", 5, 6)},
+                 {"video_id": "BBB", "channel": "BTC Sessions", "start": 510.0, "end": 524.0,
+-                 "duration": 14.0, "score": 5, "text": "Statement two."}]}
++                 "duration": 14.0, "score": 5, "text": text("BBB", 5, 7)}]}
+             json.dump(passages, open(os.path.join(rd, "passages.json"), "w"))
+ 
+             def fake_dl(vid, start, end, run_dir, pad=15.0):
+-                return (os.path.join(run_dir, "sources", f"{vid}.mp4"), start - pad)
++                path = os.path.join(run_dir, "sources", f"{vid}.wav")
++                _synth_window(path, words[vid])
++                return (path, start - pad)
+ 
+             def fake_tx(path, vid, run_dir):
+-                # whisper words in LOCAL (downloaded file) seconds: both windows start
+-                # 15 s before the passage, so the passage begins near local t=15
+-                ws, t = [], 14.0
+-                for i in range(60):
+-                    w = "word." if i % 6 == 5 else "word"
+-                    ws.append({"word": w, "start": round(t, 2), "end": round(t + 0.3, 2)})
+-                    t += 0.35
+-                return {"words": ws}
++                rec = {"words": words[vid]}
++                json.dump(rec, open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w"))
++                return rec
+ 
+             orig = (sp._download_window, sp._whisper_transcribe)
+             sp._download_window, sp._whisper_transcribe = fake_dl, fake_tx
+@@ -66,6 +98,10 @@ class TestSelectCoords(unittest.TestCase):
+                 # source-file coords: well inside the ~40 s downloaded window, never full-video
+                 self.assertLess(seg["word_start"], 60.0, seg)
+                 self.assertLess(seg["word_end"], 60.0, seg)
++                # the editor's sentences, sealed at selection (sentence law)
++                lock = seg["selection_lock"]
++                self.assertEqual((lock["first_word"], lock["last_word"]), (seg["first_word"], seg["last_word"]))
++                self.assertTrue(lock["first_word"].endswith("s5w0") and lock["last_word"].endswith("w5."), lock)
+ 
+ 
+ # ── intro-optional renderer support (shared helper) ──
+diff --git a/pipeline/test_pinned.py b/pipeline/test_pinned.py
+index 9a067353..9c88166f 100644
+--- a/pipeline/test_pinned.py
++++ b/pipeline/test_pinned.py
+@@ -221,7 +221,7 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
+         try:
+             run = rf.Run(self.run_dir)
+             run.mode = "pinned"
+-            cuts, _snap_alts = rf.stage_cut(run)
++            cuts = rf.stage_cut(run)
+             self.assertEqual(calls, [(f"{s['video_id']}.mp4", s["start"], s["end"]) for s in p["segments"]])
+             self.assertEqual([(c["cut_in"], c["cut_out"]) for c in cuts], [(s["start"], s["end"]) for s in p["segments"]])
+             # acceptance rejection still holds the run (no auto-widen)
+@@ -232,18 +232,22 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
+         finally:
+             cut.compute_all_cuts, cut_accept.check_cut_acoustics = orig_cut, orig_acc
+ 
+-    def test_auto_mode_still_uses_the_acoustic_cutter(self):
++    def test_auto_mode_places_cuts_from_the_selection_locks(self):
++        # 2026-11-11 sentence law: AUTO cuts come from the locked sentences' pauses
++        # (sentence_law.write_lock_cut_table); the free acoustic cutter is never used by run_fresh.
+         import run_fresh as rf
+         import cut
+-        orig = cut.compute_all_cuts
+-        cut.compute_all_cuts = lambda run_dir: (_ for _ in ()).throw(RuntimeError("cutter called"))
++        import sentence_law
++        orig_cut, orig_lock = cut.compute_all_cuts, sentence_law.write_lock_cut_table
++        cut.compute_all_cuts = lambda *a, **k: (_ for _ in ()).throw(AssertionError("free acoustic cutter used"))
++        sentence_law.write_lock_cut_table = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("lock placement"))
+         try:
+             run = rf.Run(self.run_dir)
+             self.assertEqual(run.mode, "auto")
+-            with self.assertRaises(RuntimeError):
++            with self.assertRaisesRegex(RuntimeError, "lock placement"):
+                 rf.stage_cut(run)
+         finally:
+-            cut.compute_all_cuts = orig
++            cut.compute_all_cuts, sentence_law.write_lock_cut_table = orig_cut, orig_lock
+ 
+     def test_v2f_material_guard_only_lifted_by_explicit_pin_flag(self):
+         import run_fresh as rf
+diff --git a/pipeline/test_pulse_20261110_mustfail.py b/pipeline/test_pulse_20261110_mustfail.py
+index 38f64690..4fe1dfd8 100644
+--- a/pipeline/test_pulse_20261110_mustfail.py
++++ b/pipeline/test_pulse_20261110_mustfail.py
+@@ -93,30 +93,72 @@ class TestSelectionLockEdges(_G16Fixture):
+ class TestD1HookOnset(_G16Fixture):
+     def test_g16_in_fails_without_lead_in_pad(self):
+         r = self.rows["hook"]["in"]
+-        self.assertFalse(r["pass"], r)
+-        self.assertLess(r["genuine_lead_ms"], 80)
++        self.assertFalse(r["pass"], f"D1: G16 must reject a file-head hook with <80 ms genuine lead-in and no pad: {r}")
++        self.assertLess(r["genuine_lead_ms"], 80, r)
+ 
+     def test_g17a_head_fails(self):
+-        self.assertFalse(self.g17["hook"]["lead_ok"], self.g17["hook"])
++        self.assertFalse(self.g17["hook"]["lead_ok"], f"D1: G17a must see <80 ms genuine lead-in: {self.g17['hook']}")
+ 
+ 
+ class TestD2Clip01Out(_G16Fixture):
+     def test_g16_out_fails(self):
+-        self.assertFalse(self.rows["clip_01"]["out"]["pass"], self.rows["clip_01"]["out"])
++        r = self.rows["clip_01"]["out"]
++        self.assertFalse(r["pass"], f"D2: clip_01 out 33.71 runs into the next sentence: {r}")
++        # for the right reason: the locked sentence ends at 'week.' and that edge is not a legal cut there
++        self.assertEqual(r["after_word"], "week.", r)
++        self.assertIn("not cuttable", r["why"], r)
+ 
+ 
+ class TestD3Edges(_G16Fixture):
+     def test_d3a_clip01_in_fails(self):
+-        self.assertFalse(self.rows["clip_01"]["in"]["pass"], self.rows["clip_01"]["in"])
+-        self.assertFalse(self.g17["clip_01"]["lead_ok"], self.g17["clip_01"])
++        r = self.rows["clip_01"]["in"]
++        self.assertFalse(r["pass"], f"D3a: clip_01 in 15.13 starts on '81', not 'It': {r}")
++        self.assertEqual(r["before_word"], "It", r)
++        self.assertIn("outside the legal range", r["why"], r)
++        self.assertFalse(self.g17["clip_01"]["lead_ok"], f"D3a: G17a lead-in: {self.g17['clip_01']}")
+ 
+     def test_d3b_clip02_in_fails(self):
+-        self.assertFalse(self.rows["clip_02"]["in"]["pass"], self.rows["clip_02"]["in"])
+-        self.assertFalse(self.g17["clip_02"]["lead_ok"], self.g17["clip_02"])
++        r = self.rows["clip_02"]["in"]
++        self.assertFalse(r["pass"], f"D3b: clip_02 in 14.93 lands inside 'days': {r}")
++        self.assertIn("outside the legal range", r["why"], r)
++        self.assertFalse(self.g17["clip_02"]["lead_ok"], f"D3b: G17a lead-in: {self.g17['clip_02']}")
+ 
+     def test_d3c_clip02_out_control_passes(self):
+-        self.assertTrue(self.rows["clip_02"]["out"]["pass"], self.rows["clip_02"]["out"])
+-        self.assertTrue(self.g17["clip_02"]["tail_ok"], self.g17["clip_02"])
++        self.assertTrue(self.rows["clip_02"]["out"]["pass"], f"CONTROL D3c: clean out edge must pass G16: {self.rows['clip_02']['out']}")
++        self.assertTrue(self.g17["clip_02"]["tail_ok"], f"CONTROL D3c: clean tail must pass G17a: {self.g17['clip_02']}")
++
++
++class TestG17bRenderedEdges(_G16Fixture):
++    """G17b: the render may add silence but must not eat a word. Yesterday's render was faithful to its
++    (wrong) cuts, so G17b PASSES on it (D1 is a source lead-in problem: G16 + G17a). A render whose
++    fade eats the hook's opening word must FAIL."""
++
++    def _run(self, audio):
++        L = _law()
++        segs = json.load(open(os.path.join(FIX, "run", "concat_manifest_16x9.json")))["segments"]
++        cuts = json.load(open(os.path.join(FIX, "run", "cuts_final.json")))
++        ok, table = L.gate_g17_output(audio, segs, cuts, self.tmp,
++                                      source_path_fn=lambda v: os.path.join(FIX, "audio", f"src_{v}.flac"))
++        return ok, {r["segment"]: r for r in table}
++
++    def test_faithful_render_passes(self):
++        ok, rows = self._run(os.path.join(FIX, "audio", "out_16x9.flac"))
++        self.assertTrue(rows["hook"]["head_ok"], rows["hook"])
++
++    def _variant(self, name, af):
++        out = os.path.join(self.tmp, name)
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", os.path.join(FIX, "audio", "out_16x9.flac"),
++                        "-af", af, out], check=True)
++        return self._run(out)[1]["hook"]
++
++    def test_render_that_eats_the_opening_word_fails(self):
++        # the first 160 ms muted: ~70 ms of 'Bitcoin' (onset ~0.09 s) lost, < 85 % of the word left
++        row = self._variant("eaten.flac", "volume=enable='between(t,0,0.16)':volume=0")
++        self.assertFalse(row["head_ok"], row)
++
++    def test_standard_20ms_fade_passes(self):
++        row = self._variant("fade20.flac", "afade=t=in:st=0:d=0.02")
++        self.assertTrue(row["head_ok"], row)
+ 
+ 
+ class TestTautology(_G16Fixture):
+@@ -162,7 +204,13 @@ class TestWindowOffset(unittest.TestCase):
+ 
+ 
+ class TestD4Credits(unittest.TestCase):
+-    S = tempfile.mkdtemp(prefix="g15_")
++    @classmethod
++    def setUpClass(cls):
++        cls.S = tempfile.mkdtemp(prefix="g15_")
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.S, ignore_errors=True)
+ 
+     def _gates(self, mp4, segs):
+         import gates as G
+@@ -186,9 +234,15 @@ class TestD4Credits(unittest.TestCase):
+ 
+     def test_shoutout_refuses_a_thumbnail_avatar(self):
+         import shoutout
+-        with self.assertRaises(ValueError):
++        with self.assertRaisesRegex(ValueError, "square"):
+             shoutout.validate_avatar(os.path.join(FIX, "video", "natalie_brunell.jpg"))
+ 
++    def test_shoutout_accepts_a_registered_square_avatar(self):
++        # positive control: the v2f BTC Sessions avatar (approved, square) must be accepted
++        import shoutout
++        reg = {c["display_name"]: c for c in json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))}
++        shoutout.validate_avatar(reg["BTC Sessions"]["avatar_path"])
++
+     def test_no_thumbnail_or_placeholder_fallback(self):
+         import shoutout
+         src = inspect.getsource(shoutout)
