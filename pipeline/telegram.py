@@ -115,3 +115,109 @@ def _send_via_requests(final_16, final_9, segment_dir):
             print(f"  Telegram {label}: message_id={data['result']['message_id']}")
         else:
             raise RuntimeError(f"STOP: Telegram send failed ({label}): {data}")
+
+
+# ==============================================================
+# run_fresh drops (mission 4a / DEC-8, 2026-11-11): both aspects, the verdict in the caption
+# ==============================================================
+
+HOLD_OK = "HOLD FOR APPROVAL - all gates passed, no waivers"
+REVIEW = "REVIEW ONLY"
+CAPTION_MAX = 1024                       # Telegram caption limit
+DIMS = {"16x9": (1920, 1080), "9x16": (1080, 1920)}
+
+
+def gate_status(run_dir):
+    """(all_pass, failing) from GATE_REPORT.json: every row of both formats must read PASS. Placeholder rows
+    '<gate>(run_gates)' point to the real row (G11 parity in 9x16) and are not results themselves."""
+    with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
+        rows = json.load(f)["rows"]
+    failing = [f"{k} ({fmt}): {v[:60]}" for fmt in ("16x9", "9x16") for k, v in rows.get(fmt, {}).items()
+               if not k.endswith("(run_gates)") and not str(v).startswith("PASS")]
+    if not rows.get("16x9") or not rows.get("9x16"):
+        failing.append("gate rows missing for a format")
+    return not failing, failing
+
+
+def build_caption(run_dir, fmt, option=None):
+    """Verdict line first: HOLD FOR APPROVAL only when every gate passed with no waiver AND the
+    automated verification pack is complete; otherwise REVIEW ONLY with the failing list."""
+    import vertical_layout
+    ok, failing = gate_status(run_dir)
+    vpath = os.path.join(run_dir, "VERIFY", "VERIFICATION.json")
+    pack_ok = os.path.exists(vpath) and json.load(open(vpath)).get("complete") is True
+    if not pack_ok:
+        failing.append("verification pack missing or incomplete")
+    with open(os.path.join(run_dir, "edl.json")) as f:
+        edl = json.load(f)
+    head = HOLD_OK if (ok and pack_ok) else f"{REVIEW} - {len(failing)} failing"
+    if option:
+        head = f"OPTION {option} (transition choice, not a release candidate) | {head}"
+    lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}",
+             f"Story: {edl.get('topic', '')}",
+             "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
+    note = vertical_layout.layout_note(edl) if fmt == "9x16" else ""
+    if note:
+        lines.append(note)
+    if failing:
+        lines.append("Failing: " + "; ".join(failing))
+    cap = "\n".join(lines)
+    return cap if len(cap) <= CAPTION_MAX else cap[:CAPTION_MAX - 20] + " ...(see GATE_REPORT)"
+
+
+def _dims(path):
+    import subprocess
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                        "stream=width,height:format=duration", "-of", "json", path],
+                       capture_output=True, text=True, check=True, timeout=30)
+    j = json.loads(r.stdout)
+    return int(j["streams"][0]["width"]), int(j["streams"][0]["height"]), float(j["format"]["duration"])
+
+
+def deliver_run(run_dir, option=None, send=None, sheets=True):
+    """Send a run_fresh run's two finals to the approval chat (never publishing), each with its caption,
+    plus (sheets=True) the verification pack's contact sheets; transition options send the two finals only.
+    send(kind, path, fields) -> message_id (tests inject it).
+    Writes TELEGRAM_DELIVERY.json. Raises on a missing/misdimensioned final (fail closed)."""
+    import hashlib
+    send = send or _send_bot_api
+    finals = {"16x9": os.path.join(run_dir, "out", "segment.mp4"),
+              "9x16": os.path.join(run_dir, "out", "segment_vertical.mp4")}
+    record = {"option": option, "messages": []}
+    for fmt, path in finals.items():
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"STOP: final output missing: {path}")
+        w, h, dur = _dims(path)
+        if (w, h) != DIMS[fmt]:
+            raise RuntimeError(f"STOP: {fmt} final is {w}x{h}, expected {DIMS[fmt][0]}x{DIMS[fmt][1]}")
+        cap = build_caption(run_dir, fmt, option)
+        mid = send("video", path, {"caption": cap, "width": w, "height": h, "duration": int(round(dur)),
+                                   "supports_streaming": "true"})
+        record["messages"].append({"format": fmt, "message_id": mid, "caption": cap,
+                                   "sha256": hashlib.sha256(open(path, "rb").read()).hexdigest()})
+    for sheet in (("joins_16x9.jpg", "joins_9x16.jpg", "credits_16x9.jpg", "credits_9x16.jpg") if sheets else ()):
+        p = os.path.join(run_dir, "VERIFY", sheet)
+        if os.path.exists(p):
+            mid = send("photo", p, {"caption": f"verification pack: {sheet[:-4]}"})
+            record["messages"].append({"sheet": sheet, "message_id": mid})
+    with open(os.path.join(run_dir, f"TELEGRAM_DELIVERY{'_' + option if option else ''}.json"), "w") as f:
+        json.dump(record, f, indent=2)
+    return record
+
+
+def _send_bot_api(kind, path, fields):
+    """One sendVideo / sendPhoto to the approval chat (M16 path; credentials never printed)."""
+    import requests
+    sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
+    from relay import get_key
+    tok, chat = get_key("TELEGRAM_BOT_TOKEN"), get_key("TELEGRAM_CHAT_ID")
+    if not tok or not chat:
+        raise RuntimeError("STOP: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set")
+    method, field = ("sendVideo", "video") if kind == "video" else ("sendPhoto", "photo")
+    with open(path, "rb") as fh:
+        resp = requests.post(f"https://api.telegram.org/bot{tok}/{method}", data={"chat_id": chat, **fields},
+                             files={field: fh}, timeout=600)
+    data = resp.json()
+    if not data.get("ok"):
+        raise RuntimeError(f"STOP: Telegram {method} failed: {data.get('description')}")
+    return data["result"]["message_id"]

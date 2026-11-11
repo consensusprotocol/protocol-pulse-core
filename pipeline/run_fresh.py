@@ -494,6 +494,29 @@ def stage_prepare(run, cuts):
         raise Hold(f"clip-preparation contract / edge-word check failed for {fails}")
 
 
+# ── transitions (Phase 3, DEC-4) ──
+
+TRANSITION_STYLE = "crossfade"   # DEC-4 production default: 6-frame dissolve + audio crossfade
+
+
+def write_transitions(run, style):
+    """TRANSITIONS.json for both renderers: style, each clip's measured genuine lead-in / tail (the
+    only time a transition may overlap) and channel (transitions only between different channels)."""
+    with open(os.path.join(run.dir, "cuts_final.json")) as f:
+        cuts = json.load(f)
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        edl = json.load(f)
+    segs = {"hook": edl["hook"], **{f"clip_{c['index']:02d}": c for c in edl.get("clips", [])}}
+    lead_tail = {}
+    for c in cuts:
+        ht = L.head_tail(L.SourceAudio(os.path.join(run.dir, "qa", f"final_{c['clip_id']}.mp4")))
+        lead_tail[c["clip_id"]] = [ht["lead_ms"] / 1000.0, ht["tail_ms"] / 1000.0]
+    rec = {"style": style, "lead_tail": lead_tail,
+           "channels": {cid: seg.get("channel") for cid, seg in segs.items()}}
+    jdump(os.path.join(run.dir, "TRANSITIONS.json"), rec)
+    run.prov["transitions"] = rec
+
+
 # ── stage 8b: vertical layout (DEC-2 / DEC-5) ──
 
 def stage_layout(run, cuts):
@@ -538,6 +561,7 @@ def stage_render(run):
     from config import resolve_paths
 
     paths = resolve_paths(run.dir)
+    write_transitions(run, TRANSITION_STYLE)
     build_shoutout(run.dir, None, "16x9")
     build_shoutout(run.dir, None, "9x16")
     preflight_check(run.dir)
@@ -763,6 +787,26 @@ def stage_gates(run, final16, man16, final9, man9):
     rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok)
     rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok)
 
+    # G18 WORD-FOR-WORD (mission 4a): every clip's first/last words are its locked sentences' and its
+    # words are exactly those of the source span it was cut from (both finals; whisper on GPU0)
+    import word_diff as WD
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        edl_now = json.load(f)
+    locks = {"hook": edl_now["hook"].get("selection_lock"),
+             **{f"clip_{c['index']:02d}": c.get("selection_lock") for c in edl_now.get("clips", [])}}
+    g18_clips = {c["clip_id"]: {"lock_text": (locks.get(c["clip_id"]) or {}).get("text", ""),
+                                "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
+                                "cut_in": c["cut_in"], "cut_out": c["cut_out"]} for c in cuts}
+    missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
+    tr = WD.Transcriber()
+    g18 = {}
+    for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
+        ok, g18[fmt] = WD.gate_g18(final, sgs, g18_clips, transcriber=tr)
+        rows[fmt]["G18_word_for_word"] = _status(ok and not missing)
+    del tr
+    if missing:
+        g18["missing_selection_lock"] = missing
+
     fb = run.prov["vertical_fallback_check"]
     rows["9x16"]["vertical_silent_fallback"] = "FAIL (fallback occurred)" if fb["fallback_occurred"] \
         else "PASS (no fallback)"
@@ -770,7 +814,7 @@ def stage_gates(run, final16, man16, final9, man9):
     gates_out = {"rows": rows, "flags": flags, "limitations": limits,
                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
                  "G15_16x9": g15_16, "G15_9x16": g15_9, "G8": g8_report, "G9": g9_report, "G16": g16,
-                 "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9},
+                 "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18,
                  "G4_per_shot": g4_shots, "G4s": g4s,
                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
     jdump(os.path.join(run.dir, "GATE_REPORT.json"), gates_out)
@@ -962,6 +1006,9 @@ def main():
         final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
         rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16,
                                                                       final9, man9))
+        # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
+        import verify_pack
+        run.stage("verify", lambda: verify_pack.build(run.dir))
         v16, bad16 = verdict_for(rows["16x9"])
         v9, bad9 = verdict_for(rows["9x16"])
         run.prov["verdicts"] = {"16x9": v16, "9x16": v9}

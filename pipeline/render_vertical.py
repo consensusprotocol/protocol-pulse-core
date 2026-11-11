@@ -909,17 +909,20 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
             f.write(f"file '{path}'\n")
 
     concat_raw = os.path.join(qa_dir, "concat_raw_vert.mp4")
-    r = subprocess.run([
-        "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
-        "-vf", "setpts=PTS-STARTPTS",
-        "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
-        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
-        "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-        "-movflags", "+faststart", concat_raw,
-    ], capture_output=True, timeout=600)
-    if r.returncode != 0:
-        print(f"  ffmpeg stderr: {r.stderr.decode()[-500:]}")
+    from render16 import _transition_concat
+    timeline = _transition_concat(segment_dir, segments, concat_raw, VERT_W, VERT_H, qa_dir)
+    if timeline is None:                     # no TRANSITIONS.json: the frozen hard-cut concat (v2f)
+        r = subprocess.run([
+            "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
+            "-vf", "setpts=PTS-STARTPTS",
+            "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+            "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
+            "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+            "-movflags", "+faststart", concat_raw,
+        ], capture_output=True, timeout=600)
+        if r.returncode != 0:
+            print(f"  ffmpeg stderr: {r.stderr.decode()[-500:]}")
     concat_dur = get_duration(concat_raw)
     print(f"  Concat: {concat_dur:.2f}s")
 
@@ -934,6 +937,8 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
             shoutout_start = cumulative
             break
         cumulative += dur
+    if timeline is not None:
+        shoutout_start = next(e["start"] for e in timeline if e["label"] == "shoutout")
 
     print(f"  Watermark: 0 -> {shoutout_start:.2f}s")
 
@@ -1043,12 +1048,15 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
 
     cumul = 0.0
     manifest_segments = []
-    for label, path, seg_type in segments:
-        dur = get_duration(path)
+    tl = {e["label"]: e for e in timeline} if timeline is not None else {}
+    for label, path, seg_type in (segments if timeline is None else
+                                  [(e["label"], None, e["type"]) for e in timeline]):
+        dur = get_duration(path) if timeline is None else tl[label]["end"] - tl[label]["start"]
+        start = cumul if timeline is None else tl[label]["start"]
         seg_entry = {
             "label": label,
-            "start": round(cumul, 3),
-            "end": round(cumul + dur, 3),
+            "start": round(start, 3),
+            "end": round(start + dur, 3),
             "type": seg_type,
         }
 

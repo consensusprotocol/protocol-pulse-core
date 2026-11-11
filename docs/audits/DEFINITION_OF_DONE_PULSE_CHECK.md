@@ -6,6 +6,27 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## LIVE STATE (updated 2026-11-11 05:50 ET; newest first)
+
+- ORCHESTRATOR NOTE 05:40: deliver the corrected Nov 10 re-cut (gated + Telegram) and the A/B/C options
+  before any further Phase 1 refinement; heimdall panel = deepseek + qwen27b (+ Grok via cross-LLM);
+  batch related diffs into one audit. In progress: Phase 2 + Phase 3 + 4a code audited as ONE batch
+  while the 4a PIN run renders; then 2 commits (Phase 2 vertical; Phase 3 + 4a).
+- 4a PIN (frozen local 5-min windows, runs/recut_sources_20261111, sha-pinned, machine cuts by the law):
+  hook Yahoo 47.31-57.37 ("...bounced very nicely ... around $74,000 ... 50-weekly MA ..."),
+  clip_01 DataDash 143.62-161.67 ("...really nice decline here on Bitcoin, okay? 16 % so far ..."),
+  clip_02 Natalie 24.65-37.87 ("...NASDAQ fell even harder, dropping 5.5 % ... concentrated in AI.").
+  Her ETF/price sentences have no >= 140 ms pause anywhere in her first 5 min (not cuttable).
+- Committed + pushed: 1a b6e7d436, 1b+1c 99add647, 1e 3641440f, 1d 9ad93344, DEC-1 9aa4fdb2,
+  1d follow-up 0449a3ce, DEC-1 follow-up d10832cb, 1b fix a1e732e1 (model adjudicator removed: it
+  rubber-stamped 19/19 Yahoo gaps; punctuation from a second ASR decode, E-FAIL-013).
+- Working tree, uncommitted: Phase 2 (vertical auto layout, SCRFD pinned, G4s band-correlation safe-frame
+  test, stack band_cy, caption note), Phase 3 (transitions; ffmpeg 4.4.2 xfade put the dissolved-into
+  clip's picture 1 frame behind its sound; fixed + content test), 4a (G18 word_diff edges+identity,
+  verify_pack stage, telegram.deliver_run, transition_options, scripts/pulse_check_run.sh, RUNBOOK).
+- Law 22 re-render with all of the above in the tree: running (runs/v2f_20261111_103004).
+- Full suite: 284 passed; 2 failures pre-existing LLM editorial tests (same failure at 3641440f).
+
 ## OPEN DECISIONS FOR THE ORCHESTRATOR (evidence; work continues meanwhile)
 
 **OD-1 G12/G15 misfire on correct credit cards (DEC-7).** With the render fixed (real square
@@ -61,12 +82,12 @@ Evidence: docs/audits/pulse-sentence-law/dec1_calibration/HEIMDALL_RUN_FRESH_RES
 | No clipped tails (≥ 80 ms genuine tail) | G17a tail | T: D3c control (clean tail passes) | enforced (99add647) |
 | Edge words keep ≥ 85 % in the render | G17b on both finals | T: TestG17bRenderedEdges (muted onset fails, 20 ms fade passes) | enforced (99add647) |
 | Round credit avatars of the channels actually used | G12 (count), G15 (ring aspect, continuity), R6 (credits == EDL channels, unique avatar hashes), shoutout.validate_avatar + registry-only avatars | T: TestD4Credits (yesterday's card fails G12/G15; thumbnail refused; v2f passes) | enforced (3641440f) |
-| On-brand transitions between channels only | — | — | **UNENFORCED** (Phase 3) |
-| Speaker-centred vertical; safe frame only for screen / unidentifiable speaker, flagged | — | — | **UNENFORCED** (Phase 2) |
+| On-brand transitions between channels only | pipeline/transitions.plan (different channels only, never at the open, overlap only inside measured non-speech) + concat (frame-locked xfade/acrossfade); G14/G11/loudness gates on the final | T: test_transitions (planner rules; dissolve over silence only; picture and sound of the dissolved-into clip start together; C insert 8 frames < 0.35 s, red line on black) | enforced (Phase 3) |
+| Speaker-centred vertical; safe frame only for screen / unidentifiable speaker, flagged | stage `layout` (vertical_layout.classify: SCRFD-10G, sha-pinned; per-shot classes) -> render_vertical.reframe_auto; G4s LAYOUT TRUTH (each shot label = the re-measured majority class; a 9:16 shot is the safe frame iff labelled screen/uncertain, band correlation >= 0.90); G4 per shot (unchanged gate_g4 rules); EDL `vertical_layout`; caption `vertical_layout.layout_note` | T: TestSafeFrameTruth (D5: Yahoo's talking head as safe frame fails), TestLayoutTruth (talking head mislabelled as screen fails, DEC-2), TestCaptionNote, TestStackGeometry, test_pinned auto for every channel status | enforced (Phase 2); caption wired in 4a |
 | Sparse VO with 1 s lead-in | G6 pre-roll (onset ≥ 0.95 s), R4 VO ≤ 25 %, M20 editorial gate | existing tests (test_round2_mustfail, test_editorial_gate) | enforced (pre-existing) |
-| No brand sting at the open | — | — | **UNENFORCED** (Phase 3) |
+| No brand sting at the open | transitions.plan never adds anything before the first segment; C is an insert BETWEEN channels only | T: test_transitions TestConcat C timeline starts with the hook at 0.0 | enforced (Phase 3) |
 | 1080p (1920x1080 / 1080x1920) | G5 tech (dims, SAR, fps), clip_contract | test_round2_mustfail G5 | enforced (pre-existing) |
-| Transcript of the final == intended sentences, word for word | — | — | **UNENFORCED** (Phase 4a, G18) |
+| Transcript of the final == intended sentences, word for word | G18 (pipeline/word_diff.py): each clip's first/last two words == its lock's, and its words == the source span's (same ASR, canonicalised numbers/repeats); full diff vs the lock reported | T: test_word_diff (yesterday's clip_01 fails edges + identity, clip_02 fails the start edge) | enforced (4a) |
 
 ## Findings recorded so far (evidence, 2026-11-11)
 

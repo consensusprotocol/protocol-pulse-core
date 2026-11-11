@@ -363,15 +363,17 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
 
     concat_raw = os.path.join(qa_dir, "concat_raw.mp4")
     concat_partial = concat_raw.replace(".mp4", ".partial.mp4")
-    subprocess.run([
-        "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
-        "-vf", "setpts=PTS-STARTPTS",
-        "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
-        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
-        "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-        "-movflags", "+faststart", concat_partial,
-    ], capture_output=True, timeout=600, check=True)
+    timeline = _transition_concat(segment_dir, segments, concat_partial, WIDTH, HEIGHT, qa_dir)
+    if timeline is None:                     # no TRANSITIONS.json: the frozen hard-cut concat (v2f)
+        subprocess.run([
+            "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", filelist,
+            "-vf", "setpts=PTS-STARTPTS",
+            "-af", "asetpts=PTS-STARTPTS,aresample=async=1",
+            "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_FINAL),
+            "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+            "-movflags", "+faststart", concat_partial,
+        ], capture_output=True, timeout=600, check=True)
     os.replace(concat_partial, concat_raw)
     concat_dur = get_duration(concat_raw)
     print(f"  Concat: {concat_dur:.2f}s")
@@ -387,6 +389,8 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
             shoutout_start = cumulative
             break
         cumulative += dur
+    if timeline is not None:
+        shoutout_start = next(e["start"] for e in timeline if e["label"] == "shoutout")
 
     print(f"  Watermark: 0 -> {shoutout_start:.2f}s")
 
@@ -496,12 +500,15 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
 
     cumul = 0.0
     manifest_segments = []
-    for label, path, seg_type in segments:
-        dur = get_duration(path)
+    tl = {e["label"]: e for e in timeline} if timeline is not None else {}
+    for label, path, seg_type in (segments if timeline is None else
+                                  [(e["label"], None, e["type"]) for e in timeline]):
+        dur = get_duration(path) if timeline is None else tl[label]["end"] - tl[label]["start"]
+        start = cumul if timeline is None else tl[label]["start"]
         seg_entry = {
             "label": label,
-            "start": round(cumul, 3),
-            "end": round(cumul + dur, 3),
+            "start": round(start, 3),
+            "end": round(start + dur, 3),
             "type": seg_type,
         }
 
@@ -545,6 +552,21 @@ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
     print(f"  Render time: {elapsed:.0f}s ({elapsed / 60:.1f}min)")
 
     return final_path, manifest_path, vo_assembled_tracks
+
+
+def _transition_concat(segment_dir, segments, out_path, w, h, qa_dir):
+    """Phase 3 / DEC-4: when the run declares TRANSITIONS.json, concatenate with transitions between
+    segments of different channels (pipeline/transitions.py) and return the timeline; else None."""
+    tr_path = os.path.join(segment_dir, "TRANSITIONS.json")
+    if not os.path.exists(tr_path):
+        return None
+    import transitions as TR
+    with open(tr_path) as f:
+        tr = json.load(f)
+    junctions = TR.plan(segments, tr["channels"], {k: tuple(v) for k, v in tr["lead_tail"].items()},
+                        tr["style"])
+    print(f"  Transitions ({tr['style']}): {[(j['after'], j['frames'], j['kind']) for j in junctions]}")
+    return TR.concat(segments, junctions, out_path, NVENC_QP_FINAL, w, h, qa_dir)
 
 
 # ── Helpers for finding pre-rendered clip files ──

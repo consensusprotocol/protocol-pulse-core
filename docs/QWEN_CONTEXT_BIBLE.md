@@ -120,3 +120,7 @@ Known failure patterns and their root causes. Load into every Qwen/audit session
 
 ### E-FAIL-017: Never place a crop at a fixed height
 **Evidence:** the first stacked-band renderer read `band_cy` but classify never measured it, so every band sat at 45 % of frame height; a 379 px stack3 band would cut off a face at 28 % height. Bands are placed from each face's measured centre. **Detection:** `TestStackGeometry`.
+
+### E-FAIL-018: A filter's documented parameter is not its measured behaviour (ffmpeg 4.4.2 xfade)
+**Evidence:** `xfade=offset=t-dd` kept A through the frame at round(offset*fps) and started B one frame later: 211 frames instead of 210, and every dissolved-into clip's picture 41.7 ms behind its own sound (acrossfade places B's audio exactly at t-dd). A frame count alone can't prove alignment; a luma-ramp clip whose frames identify themselves did.
+**Fix:** offset = t - dd - 1/fps (lands on a frame boundary, no rounding ambiguity). **Detection:** `test_transitions.py::TestConcat::test_dissolved_clip_picture_and_sound_start_together` (fails on the old offset: max luma error 4.0 = one ramp step).
