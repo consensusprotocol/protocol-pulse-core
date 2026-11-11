@@ -89,6 +89,9 @@ def build(run_dir, vision=True):
     return pack
 
 
+NEXT_SHOT = "no_next_shot_before_transition"
+
+
 def _sheets_and_checklist(run_dir, rep, pack, vision):
     """Contact sheet per format (qa/) and the visual checklist answered from it; V1 rows written into
     GATE_REPORT.json (a new check on top of the gates: any "no", missing answer or route error = FAIL)."""
@@ -97,6 +100,9 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
     with open(os.path.join(run_dir, "edl.json")) as f:
         edl = json.load(f)
     note = vertical_layout.layout_note(edl)
+    segs_edl = [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]
+    channels_note = ("Channels whose clips appear in this video (from the edit decision list): " +
+                     ", ".join(f"{s.get('channel')} ({label})" for label, s in segs_edl) + ".")
     pack["contact_sheets"], pack["visual"] = {}, {}
     for fmt, final in (("16x9", "segment.mp4"), ("9x16", "segment_vertical.mp4")):
         with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
@@ -115,8 +121,13 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
             pack["visual"][fmt] = {"ok": False, "error": f"no contact sheet: {pack['contact_sheets'][fmt]['error']}"}
         else:
             try:
-                ok, per = VC.ask_panel(sheet, fmt, layout_note=note if fmt == "9x16" else "")
-                pack["visual"][fmt] = {"ok": ok, "per_model": per}
+                ok, per = VC.ask_panel(sheet, fmt, layout_note=note if fmt == "9x16" else "",
+                                       channels_note=channels_note)
+                # the next-shot line is answered one cut at a time (below); the whole-sheet answer stays as
+                # advisory text (run 6: it misread tile labels and missed the real defect)
+                ok = bool(per) and all(r["ok"] for d in per.values() for k, r in d["rows"].items() if k != NEXT_SHOT)
+                pack["visual"][fmt] = {"ok": ok, "per_model": per,
+                                       "sheet_next_shot_advisory": {m: d["rows"].get(NEXT_SHOT) for m, d in per.items()}}
             except Exception as e:
                 pack["visual"][fmt] = {"ok": False, "error": f"vision route: {type(e).__name__}: {e}"}
         v = pack["visual"][fmt]
@@ -130,8 +141,19 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
                 lb_ok, lb_rows = False, [{"error": f"{type(e).__name__}: {e}"}]
             v["letterbox_per_shot"] = {"ok": lb_ok, "shots": lb_rows}
             v["ok"] = v["ok"] and lb_ok
+        if "error" not in pack["contact_sheets"][fmt]:
+            try:                                        # next shot before a cut: ONE pair of frames per cut
+                bd_ok, bd_rows = VC.boundary_check(VC.boundary_pairs(
+                    os.path.join(run_dir, "out", final), segs, os.path.join(run_dir, "VERIFY", f"cuts_{fmt}")))
+            except Exception as e:
+                bd_ok, bd_rows = False, [{"error": f"{type(e).__name__}: {e}"}]
+            v["boundaries"] = {"ok": bd_ok, "cuts": bd_rows}
+            v["ok"] = v["ok"] and bd_ok
         nos = sorted({k for d in (v.get("per_model") or {}).values() for k, r in (d.get("rows") or {}).items()
-                      if not r.get("ok")})
+                      if not r.get("ok") and k != NEXT_SHOT})
+        if not (v.get("boundaries") or {"ok": True})["ok"]:
+            bad = [r.get("boundary", "?") for r in v["boundaries"]["cuts"] if not r.get("ok")]
+            nos.append(f"next shot before the cut: {', '.join(bad)}")
         if not (v.get("letterbox_per_shot") or {"ok": True})["ok"]:
             bad = [f"{r.get('label')}#{r.get('shot')}" for r in v["letterbox_per_shot"]["shots"] if not r.get("ok")]
             nos.append(f"letterbox per shot: {', '.join(bad)}")

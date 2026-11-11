@@ -11,8 +11,8 @@
 #   detached session pipeline_pulse_check_<UTC stamp>; scripts/tmux_cleanup.sh (cron) keeps 'pipeline'
 #   sessions, so a long render is never reaped as idle. No other session is touched.
 # - GPU0 only (CUDA_VISIBLE_DEVICES=0); nothing is published: drops go to the Telegram approval chat
-#   only (pipeline/telegram.deliver_run): "HOLD FOR APPROVAL - all gates passed, no waivers" or
-#   "REVIEW ONLY" with the failing list.
+#   only (pipeline/telegram.deliver_run), and ONLY when every gate passed: "HOLD FOR APPROVAL - all gates
+#   passed, no waivers" (orchestrator 2026-11-11 08:30: a HOLD is never sent; its run dir is the record).
 # - log: logs/pulse_check/run_<stamp>.log (git HEAD, run dir, exit code, delivery message ids)
 # - DEC-9 story ledger: an AUTO run whose two finals went out as HOLD FOR APPROVAL is recorded in
 #   data/pulse_check/story_ledger.jsonl (its counted evidence statements); later auto runs never select an
@@ -74,7 +74,11 @@ RC=${PIPESTATUS[0]}
 RUN_DIR="$(grep -m1 -oP '(?<==== FRESH-TOPIC RUN ).*(?= ===)' "$LOG" || true)"
 echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
 
-if [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
+if [ "$TELEGRAM" = 1 ] && [ "$RC" != 0 ]; then
+  # orchestrator 2026-11-11 08:30: PBX gets a run only when it passes; a HOLD is never sent (its REPORT.md,
+  # GATE_REPORT.json and contact sheets in the run dir are the record)
+  echo "HOLD (run_fresh exit $RC): not delivered; see $RUN_DIR/REPORT.md" | tee -a "$LOG"
+elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
   python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
     "$RUN_DIR" 2>&1 | tee -a "$LOG"
   if [ "${PIPESTATUS[0]}" != 0 ]; then

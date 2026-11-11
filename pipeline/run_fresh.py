@@ -337,6 +337,37 @@ def stage_validate(run):
         failed = [name for name, rec in gate.get("laws", {}).items() if not rec.get("pass")]
         raise Hold("editorial law gate HOLD: " + ", ".join(failed))
 
+    # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
+    # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
+    import stand_alone
+
+    def rate(passages):
+        import story_semantics as sm
+        llm = sm.LocalLLM().start()
+        try:
+            ratings, err = sm.rate_passages(llm, {"underlying_event": edl.get("angle") or edl.get("topic", "")},
+                                            passages)
+        finally:
+            llm.stop()
+        if err:
+            raise RuntimeError(f"clip scorer reply unparseable: {err}")
+        return ratings
+    story = {}
+    if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
+        with open(os.path.join(run.dir, "passages.json")) as f:
+            story = json.load(f).get("story") or {}
+    subject = stand_alone.subject_terms(story.get("affected_object", ""),
+                                        story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
+    sa = stand_alone.check_edl(edl, rate=rate, subject=subject)
+    run.prov["stand_alone"] = sa
+    for r in sa["rows"]:
+        print(f"  STAND_ALONE {r['segment']}: [{'PASS' if r['pass'] else 'FAIL'}] opener: {r['opener']['why']} | "
+              f"topic: {r['topic']['why']}")
+    if not sa["ok"]:
+        raise Hold("stand-alone/topic: " + "; ".join(
+            f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
+            for r in sa["rows"] if not r["pass"]) + (f" (scorer: {sa['rate_error']})" if sa["rate_error"] else ""))
+
     # layout compatibility: approved channels use tested crop; pending channels
     # use the existing safe letterbox fallback. Unknown channels still fail closed.
     reg_by_name = {c["display_name"]: c for c in reg}
@@ -570,8 +601,14 @@ def stage_prepare(run, cuts):
         # expected words come from the selection lock (cuts_final), never from the cut position
         ok2, d2 = check_edge_words(clip, c.get("first_word_expected", ""),
                                    c.get("last_word_expected", ""), work, c["clip_id"])
+        snap = None
+        if ok1 and ok2:                         # V1 (run 6): no frame of a neighbouring shot outside the speech
+            import shot_snap
+            snap = shot_snap.apply(clip, c, FPS, NVENC_QP_INTERMEDIATE)
+            if snap["snapped"]:
+                print(f"  {c['clip_id']}: shot snap: {snap['why']}")
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
-               "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2}
+               "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2, "shot_snap": snap}
         report.append(rec)
         if not (ok1 and ok2):
             fails.append(c["clip_id"])
@@ -901,6 +938,17 @@ def stage_gates(run, final16, man16, final9, man9):
     if missing:
         g18["missing_selection_lock"] = missing
 
+    # G19 EDGE SHOTS (recut run 6 V1): no hard shot change inside a talking head outside its speech, on the
+    # finished video (the guard behind prepare's shot_snap); speech times are prepare's own record
+    import edge_shots
+    from config import FPS
+    with open(os.path.join(run.dir, "CLIP_CONTRACT.json")) as f:
+        snap_rec = {r["clip_id"]: (r.get("shot_snap") or {}) for r in json.load(f)}
+    g19 = {}
+    for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
+        ok, g19[fmt] = edge_shots.gate_g19(final, sgs, snap_rec, FPS)
+        rows[fmt]["G19_edge_shots"] = _status(ok)
+
     fb = run.prov["vertical_fallback_check"]
     rows["9x16"]["vertical_silent_fallback"] = "FAIL (fallback occurred)" if fb["fallback_occurred"] \
         else "PASS (no fallback)"
@@ -908,7 +956,7 @@ def stage_gates(run, final16, man16, final9, man9):
     gates_out = {"rows": rows, "flags": flags, "limitations": limits,
                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
                  "G15_16x9": g15_16, "G15_9x16": g15_9, "G8": g8_report, "G9": g9_report, "G16": g16,
-                 "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18,
+                 "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18, "G19": g19,
                  "G4_per_shot": g4_shots, "G4s": g4s,
                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
     jdump(os.path.join(run.dir, "GATE_REPORT.json"), gates_out)
@@ -1064,6 +1112,44 @@ def write_report(run):
 
 # ── main ──
 
+TAIL_STAGES = ("prepare", "layout", "render", "gates")
+
+
+def run_tail(run, cuts, start="prepare", vision=True):
+    """prepare -> layout -> render -> gates -> verify -> verdict, from `start`. main runs all of it;
+    replay.py re-runs a COPY of an existing run from any of these stages with the same functions, so a fix
+    is checked by the production code without a download, a transcription or the editorial stages."""
+    k = TAIL_STAGES.index(start)
+    if k <= 0:
+        run.stage("prepare", lambda: stage_prepare(run, cuts))
+    if k <= 1:
+        run.stage("layout", lambda: stage_layout(run, cuts))
+    if k <= 2:
+        final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
+    else:
+        final16, final9 = (os.path.join(run.dir, "out", n) for n in ("segment.mp4", "segment_vertical.mp4"))
+        man16, man9 = (os.path.join(run.dir, "qa", f"concat_manifest_{f}.json") for f in ("16x9", "9x16"))
+    rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16, final9, man9))
+    # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
+    import verify_pack
+    pack = run.stage("verify", lambda: verify_pack.build(run.dir, vision=vision))
+    with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:     # V1 (visual checklist) joins the rows
+        for fmt, frows in json.load(f).get("rows", {}).items():
+            if "V1_visual_checklist" in frows:
+                rows[fmt]["V1_visual_checklist"] = frows["V1_visual_checklist"]
+    run.prov["visual_checklist"] = {fmt: {"ok": v.get("ok"), "error": v.get("error"),
+                                          "answers": {m: d["rows"] for m, d in (v.get("per_model") or {}).items()}}
+                                    for fmt, v in (pack.get("visual") or {}).items()}
+    run.prov["contact_sheets"] = pack.get("contact_sheets")
+    v16, bad16 = verdict_for(rows["16x9"])
+    v9, bad9 = verdict_for(rows["9x16"])
+    run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
+    run.prov["verdict_blockers"] = {"16x9": bad16, "9x16": bad9}
+    run.status["verdict"] = VERDICT_CANDIDATE if v16 == v9 == VERDICT_CANDIDATE else VERDICT_HOLD
+    if run.status["verdict"] == VERDICT_HOLD:
+        run.status["holds"] += [f"gates {k}: {v}" for k, v in {**bad16, **bad9}.items()]
+
+
 def main():
     ap = argparse.ArgumentParser(description="Fresh-topic reproducibility run (no publishing)")
     ap.add_argument("--pinned", metavar="PIN.json",
@@ -1103,29 +1189,7 @@ def main():
         cuts = run.stage("cut", lambda: stage_cut(run))
         run.stage("sentence_law", lambda: stage_sentence_law(run))
         run.stage("voice", lambda: stage_voice(run))
-        run.stage("prepare", lambda: stage_prepare(run, cuts))
-        run.stage("layout", lambda: stage_layout(run, cuts))
-        final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
-        rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16,
-                                                                      final9, man9))
-        # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
-        import verify_pack
-        pack = run.stage("verify", lambda: verify_pack.build(run.dir))
-        with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:     # V1 (visual checklist) joins the rows
-            for fmt, frows in json.load(f).get("rows", {}).items():
-                if "V1_visual_checklist" in frows:
-                    rows[fmt]["V1_visual_checklist"] = frows["V1_visual_checklist"]
-        run.prov["visual_checklist"] = {fmt: {"ok": v.get("ok"), "error": v.get("error"),
-                                              "answers": {m: d["rows"] for m, d in (v.get("per_model") or {}).items()}}
-                                        for fmt, v in (pack.get("visual") or {}).items()}
-        run.prov["contact_sheets"] = pack.get("contact_sheets")
-        v16, bad16 = verdict_for(rows["16x9"])
-        v9, bad9 = verdict_for(rows["9x16"])
-        run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
-        run.prov["verdict_blockers"] = {"16x9": bad16, "9x16": bad9}
-        run.status["verdict"] = VERDICT_CANDIDATE if v16 == v9 == VERDICT_CANDIDATE else VERDICT_HOLD
-        if run.status["verdict"] == VERDICT_HOLD:
-            run.status["holds"] += [f"gates {k}: {v}" for k, v in {**bad16, **bad9}.items()]
+        run_tail(run, cuts)
     except Hold:
         run.status["verdict"] = VERDICT_HOLD
     except Exception as e:  # defensive: anything unexpected is HOLD

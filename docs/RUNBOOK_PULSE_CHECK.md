@@ -50,7 +50,13 @@ delivers to Telegram. The run dir is `runs/fresh_<UTC stamp>/` (or `pinned_...`)
 
 - `HOLD FOR APPROVAL - all gates passed, no waivers`: every gate row of BOTH formats is PASS and the
   verification pack is complete. Review and approve or reject; nothing else happens automatically.
-- `REVIEW ONLY - N failing`: the caption lists every failing row; the video is for diagnosis only.
+- A HOLD (any failing row) is NOT sent (orchestrator 2026-11-11 08:30: PBX gets a run only when it
+  passes). Its REPORT.md, GATE_REPORT.json and qa/contact_sheet_*.jpg in the run dir are the record.
+  `telegram.deliver_run` can still caption a run `REVIEW ONLY - N failing` when called by hand for
+  diagnosis; the wrapper never does.
+- Iterating on a fix: `cd pipeline && CUDA_VISIBLE_DEVICES=0 python3 replay.py ../runs/<run> --from
+  prepare|layout|render|gates [--no-vision]` re-runs that tail on a copy (`<run>_replay_<stamp>`) with the
+  production functions: no download, no transcription, nothing delivered.
 - The verification pack (VERIFY/ in the run dir): frames at every join (last / mid dissolve / first), the
   credits card frames, G18's word-for-word rows, and ONE contact sheet per format (qa/contact_sheet_*.jpg,
   sent with the drop): a still every 2 s, +-3 frames at every boundary, full-resolution credits and 9:16

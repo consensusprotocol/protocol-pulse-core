@@ -156,6 +156,46 @@ class TestLetterboxPerShot(unittest.TestCase):
         self.assertTrue(all(f["path"] and os.path.exists(f["path"]) for f in fr))
 
 
+QWEN_REPLAY_REPLY = ("\n\n{\"answers\": {\"credits_round_and_match\": {\"answer\": \"yes\", \"why\": \"round\"}, "
+                     "\"vertical_speaker_centred\": {\"answer\": \"n/a\", \"why\": \"16:9\"}, "
+                     "\"no_letterbox_on_talking_heads\": {\"answer\": \"n/a\", \"why\": \"16:9\"}, "
+                     "\"no_bad_boundary_frames\": {\"answer\": \"yes\", \"why\": \"ok\"}, "
+                     "\"watermark_present\": {\"answer\": \"yes\", \"why\": \"ok\"}, "
+                     "\"no_next_shot_before_transition\": {\"answer\": \"yes\", \"why\": \"ok\"}}")
+
+
+class TestV1Robustness(unittest.TestCase):
+    def test_a_reply_missing_only_its_final_brace_is_read(self):
+        """Replay of run 6, 16:9: qwen gave all six answers and stopped before the last '}' (6 x 'missing')."""
+        a = V._parse(QWEN_REPLAY_REPLY)
+        self.assertEqual(len(a), 6)
+        self.assertTrue(V.verdict(a, "16x9")[0])
+        self.assertIsNone(V._parse('{"answers": {"credits_round_and_match": {"answer": "yes", "why": "cut off'))
+        two = QWEN_REPLAY_REPLY[:-1]                            # two closing braces missing: still closed
+        self.assertEqual(len(V._parse(two)), 6)
+        part = V._parse('{"answers": {"credits_round_and_match": {"answer": "yes"')   # closed, but ONE answer:
+        self.assertFalse(V.verdict(part, "16x9")[0])                                    # the rest are missing
+
+    def test_the_channel_list_reaches_the_prompt(self):
+        from unittest import mock
+        seen = {}
+        with mock.patch.object(V, "_request", side_effect=lambda img, text, model: seen.setdefault("text", text)), \
+                mock.patch.object(V, "_call", return_value=('{"answers": {}}', {})):
+            V.ask_vision("sheet.jpg", "9x16", model="m", channels_note="Channels: Yahoo Finance (hook).")
+        self.assertIn("Channels: Yahoo Finance (hook).", seen["text"])
+
+    def test_cut_rules(self):
+        from unittest import mock
+        p = {"boundary": "clip_02|shoutout", "before_s": 41.2, "after_s": 41.5, "path": "pair.jpg"}
+        for answers, ok in ((["no", "no"], True), (["no", "yes"], False), ([None, "no"], False)):
+            it = iter(answers)
+            with mock.patch.object(V, "ask_boundary", side_effect=lambda path, model, trail=None: next(it)):
+                self.assertEqual(V.boundary_check([p])[0], ok, answers)
+        with mock.patch.object(V, "VISION_MODELS", ()):
+            self.assertFalse(V.boundary_check([p])[0])                 # nobody asked = no answer
+        self.assertFalse(V.boundary_check([{**p, "path": None}])[0])   # no pair image
+
+
 class TestSheetWiring(unittest.TestCase):
     """Heimdall batch 3 (verify_pack): a run copied for a transition option carries the previous render's
     qa/contact_sheet_*.jpg. If the new sheet cannot be built, the panel must not read the old one: the old
@@ -175,13 +215,47 @@ class TestSheetWiring(unittest.TestCase):
             open(os.path.join(rd, "qa", f"contact_sheet_{fmt}.jpg"), "wb").write(b"stale sheet of another render")
         json.dump({"rows": {}}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
         rep, pack = {"rows": {}}, {}
-        with mock.patch.object(V, "ask_panel", side_effect=AssertionError("panel asked")) as ask:
+        with mock.patch.object(V, "ask_panel", side_effect=AssertionError("panel asked")) as ask, \
+                mock.patch.object(V, "boundary_check", side_effect=AssertionError("cuts asked")):
             verify_pack._sheets_and_checklist(rd, rep, pack, vision=True)     # out/ finals do not exist
         ask.assert_not_called()
         for fmt in ("16x9", "9x16"):
             self.assertFalse(os.path.exists(os.path.join(rd, "qa", f"contact_sheet_{fmt}.jpg")))
             self.assertTrue(rep["rows"][fmt]["V1_visual_checklist"].startswith("FAIL (no contact sheet"),
                             rep["rows"][fmt]["V1_visual_checklist"])
+
+
+class TestCutWiring(unittest.TestCase):
+    """The next-shot line is answered one cut at a time; the whole-sheet answer is advisory."""
+
+    def wire(self, sheet_next, cuts_ok):
+        from unittest import mock
+        import verify_pack
+        rd = tempfile.mkdtemp(prefix="cutwire_")
+        self.addCleanup(shutil.rmtree, rd, True)
+        os.makedirs(os.path.join(rd, "qa"))
+        json.dump({"hook": {"channel": "A", "vertical_layout": {"shots": [], "flagged": False}}, "clips": []},
+                  open(os.path.join(rd, "edl.json"), "w"))
+        for fmt in ("16x9", "9x16"):
+            json.dump({"segments": [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 4.0}]},
+                      open(os.path.join(rd, "qa", f"concat_manifest_{fmt}.json"), "w"))
+        rows = {k: {"answer": "yes", "why": "w", "ok": True} for k, _ in V.CHECKLIST}
+        rows[verify_pack.NEXT_SHOT] = {"answer": sheet_next, "why": "w", "ok": sheet_next == "yes"}
+        rep, pack = {"rows": {}}, {}
+        with mock.patch.object(V, "contact_sheet", return_value={"path": "s.jpg"}), \
+                mock.patch.object(V, "ask_panel", return_value=(sheet_next == "yes", {"m": {"rows": rows, "raw": {}}})), \
+                mock.patch.object(V, "shot_frames", return_value=[]), \
+                mock.patch.object(V, "letterbox_check", return_value=(True, [])), \
+                mock.patch.object(V, "boundary_pairs", return_value=[]), \
+                mock.patch.object(V, "boundary_check",
+                                  return_value=(cuts_ok, [] if cuts_ok else [{"boundary": "hook|clip_01", "ok": False}])):
+            verify_pack._sheets_and_checklist(rd, rep, pack, vision=True)
+        return rep["rows"]
+
+    def test_the_cut_check_decides_the_next_shot_line(self):
+        self.assertEqual(self.wire("no", True)["16x9"]["V1_visual_checklist"], "PASS")     # sheet answer advisory
+        r = self.wire("yes", False)["9x16"]["V1_visual_checklist"]
+        self.assertTrue(r.startswith("FAIL") and "next shot before the cut: hook|clip_01" in r, r)
 
 
 def _has_vision_key():

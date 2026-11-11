@@ -70,6 +70,29 @@ def _spelled_numbers(tokens):
     return out
 
 
+_NUM = re.compile(r"\d+(p\d+)?")
+
+
+def _decimals(tokens):
+    """Spoken decimals as the written form's single token: 'one point three' -> '1p3' (like '1.3'), and
+    'five and a half' -> '5p5' (like '5.5'; recut run 6 G18: '5 .5%' vs 'five and a half percent', the same
+    audio). Only after a number: 'a year and a half' stays words. Before 2026-11-11 a decimal split into
+    two digit tokens and the repeat-collapser then merged '5 5' into '5', so 5.5 % and 5 % compared equal."""
+    out, k = [], 0
+    while k < len(tokens):
+        w = tokens[k]
+        if w.isdigit() and tokens[k + 1:k + 2] == ["point"] and k + 2 < len(tokens) and tokens[k + 2].isdigit():
+            out.append(f"{w}p{tokens[k + 2]}")
+            k += 3
+        elif w.isdigit() and tokens[k + 1:k + 4] == ["and", "a", "half"]:
+            out.append(f"{w}p5")
+            k += 4
+        else:
+            out.append(w)
+            k += 1
+    return out
+
+
 def norm(text):
     t = (text or "").lower().replace("’", "'")
     t = re.sub(r"(\d)\s+([.,]\d)", r"\1\2", t)            # '88 ,000' -> '88,000', '1 .3' -> '1.3'
@@ -78,13 +101,12 @@ def norm(text):
     t = re.sub(r"\b(\w)\s+\.(?=\w)", r"\1.", t)              # 'u .s.' -> 'u.s.'
     t = re.sub(r"\b([a-z])\.(?=[a-z]\b)", r"\1", t)            # 'u.s.' -> 'us.' (single-letter abbreviations)
     t = re.sub(r"(?<=\d)[,](?=\d{3}\b)", "", t)             # '74,000' -> '74000'
+    t = re.sub(r"(?<=\d)\.(?=\d)", "p", t)                   # '5.5' -> '5p5': a decimal stays ONE token
     t = re.sub(r"[^\w\s']", " ", t)                         # punctuation, '$', '%' (both sides alike)
     t = re.sub(r"(?<!\w)'|'(?!\w)", "", t)                  # quote marks, not apostrophes
-    tokens = _spelled_numbers(t.split())
-    tokens = [w for k, w in enumerate(tokens)                # 'one point three' -> '1 3', like '1.3' -> '1 3'
-              if not (w == "point" and 0 < k < len(tokens) - 1 and tokens[k - 1].isdigit() and tokens[k + 1].isdigit())]
+    tokens = _decimals(_spelled_numbers(t.split()))          # 'one point three' / 'five and a half' -> '1p3' / '5p5'
     tokens = [w for k, w in enumerate(tokens) if not (w in _AFTER_NUMBER and k and (
-        tokens[k - 1].isdigit() or tokens[k - 1] in ("million", "billion", "trillion")))]
+        _NUM.fullmatch(tokens[k - 1]) or tokens[k - 1] in ("million", "billion", "trillion")))]
     return _collapse_repeats(tokens)
 
 

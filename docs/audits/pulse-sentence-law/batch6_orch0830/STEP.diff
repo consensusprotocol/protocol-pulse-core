@@ -1,0 +1,899 @@
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index be083fa8..36cd683a 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -194,6 +194,19 @@ def start_is_boundary(words, sents, si):
+     return True, "ok"
+ 
+ 
++def _stand_alone_ok(kind, text, subject):
++    """Orchestrator 08:30 ET (direction 2) at selection time (the validate stage applies the full rule to the
++    final sequence): a hook passes the opener screen (no pronoun / conjunction / reply fragment) and mentions
++    Bitcoin; a clip mentions Bitcoin (a clip that only completes the previous segment's claim needs the final
++    sequence, so auto selection never relies on it)."""
++    import stand_alone as SA
++    if kind == "hook":
++        ok, why = SA.opener("hook", text)
++        if not ok:
++            return ok, why
++    return SA.topical(kind, text, subject=subject)
++
++
+ def anchored_window(words, sents, anchor, lo, hi):
+     """PBX 2026-11-06 18:52: the window is EXACTLY the sentence(s) that hold the verified quote.
+     No expansion into any sentence that does not contain the quote, no padding. Invalid if the
+@@ -1019,6 +1032,8 @@ def _merge_event(members, L, uni, by_cid, today, log):
+ def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
+     import story_semantics as sm
+     q = c["query"]
++    import stand_alone as SA
++    subject = SA.subject_terms(q.get("affected_object", ""), c.get("headline", ""))   # 08:30 direction 2
+     qv = E.encode([q.get("underlying_event", c["headline"])], query=True)[0]
+     cands, infra, missing, anchors = [], [], [], []
+     on_event_cache = {}
+@@ -1145,10 +1160,12 @@ def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
+             shortlist.append(x)
+     base["rating_errors"] = rating_errors
+     base["boundary_repairs"] = repairs
+-    hooks = sorted([p for p in shortlist if p["kind"] == "hook" and p["clip_score"] >= HOOK_MIN_SCORE],
+-                   key=lambda p: (-p["clip_score"], -p["relevance"]))
+-    clips = sorted([p for p in shortlist if p["kind"] == "clip" and p["clip_score"] >= CLIP_MIN_SCORE],
+-                   key=lambda p: (-p["clip_score"], -p["relevance"]))
++    for p in shortlist:                    # 08:30 direction 2, on the final (scored, repaired) windows
++        p["stand_alone"] = dict(zip(("pass", "why"), _stand_alone_ok(p["kind"], p["text"], subject)))
++    hooks = sorted([p for p in shortlist if p["kind"] == "hook" and p["clip_score"] >= HOOK_MIN_SCORE
++                    and p["stand_alone"]["pass"]], key=lambda p: (-p["clip_score"], -p["relevance"]))
++    clips = sorted([p for p in shortlist if p["kind"] == "clip" and p["clip_score"] >= CLIP_MIN_SCORE
++                    and p["stand_alone"]["pass"]], key=lambda p: (-p["clip_score"], -p["relevance"]))
+     if not hooks:
+         return {**base, "producible": False, "candidates": shortlist, "chosen": [], "mean_chosen_score": 0,
+                 "reason": (f"no hook passage scored >= {HOOK_MIN_SCORE}" +
+diff --git a/pipeline/replay.py b/pipeline/replay.py
+new file mode 100644
+index 00000000..3c69f0ef
+--- /dev/null
++++ b/pipeline/replay.py
+@@ -0,0 +1,99 @@
++#!/usr/bin/env python3
++"""pipeline/replay.py — re-run the tail of an existing run on a COPY of its directory with the current code.
++
++Orchestrator note 2026-11-11 08:30 ET (direction 4): "re-runs gates+verify on an existing run dir and
++re-renders from prepared clips without re-downloading or re-transcribing, so each fix is checked in a minute
++or two, not a full pipeline pass." The copy keeps sources/ (hard links: never written), transcripts/, the EDL,
++the selection locks, the cut table and the VO; run_fresh.run_tail then runs the SAME functions main runs,
++from the chosen stage. Nothing is delivered: a replay is diagnostic (deliver a run only from a full pass).
++  CUDA_VISIBLE_DEVICES=0 python3 replay.py RUN_DIR [--from prepare|layout|render|gates] [--no-vision]
++Exit: 0 = every gate passed, 3 = HOLD. The copy is RUN_DIR_replay_<UTC stamp>."""
++import argparse
++import json
++import os
++import shutil
++import subprocess
++import sys
++import time
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++DROP = ("TELEGRAM_DELIVERY*.json", "VERIFY", "*_replay_*")
++
++
++def make_copy(run_dir, start, stamp=None):
++    """The replay directory: a copy whose sources are hard links (read-only inputs); the outputs the
++    replayed stages rebuild are removed so nothing stale can be measured."""
++    import run_fresh as rf
++    src = os.path.abspath(run_dir.rstrip("/"))
++    dst = f"{src}_replay_{stamp or time.strftime('%Y%m%d_%H%M%S', time.gmtime())}"
++    if os.path.exists(dst):
++        raise SystemExit(f"STOP: {dst} exists")
++    shutil.copytree(src, dst, ignore=shutil.ignore_patterns(*DROP, "sources"))
++    os.makedirs(os.path.join(dst, "sources"))
++    for name in os.listdir(os.path.join(src, "sources")):
++        os.link(os.path.join(src, "sources", name), os.path.join(dst, "sources", name))
++    k = rf.TAIL_STAGES.index(start)
++    stale = ["GATE_REPORT.json", "VERDICT.txt"]
++    if k <= 2:
++        stale += ["out/segment.mp4", "out/segment_vertical.mp4"]
++    for p in stale:
++        if os.path.exists(os.path.join(dst, p)):
++            os.remove(os.path.join(dst, p))
++    return dst
++
++
++def replay(run_dir, start="prepare", vision=True, stamp=None):
++    import run_fresh as rf
++    dst = make_copy(run_dir, start, stamp)
++    run = rf.Run(dst)
++    with open(os.path.join(dst, "status.json")) as f:
++        old = json.load(f)
++    with open(os.path.join(dst, "PROVENANCE.json")) as f:
++        run.prov = {**json.load(f), "run_dir": dst}
++    run.mode = old.get("mode", "auto")
++    pin = os.path.join(dst, "PINNED_DECISION.json")
++    if run.mode == "pinned" and os.path.exists(pin):             # same rules (limiter, retries) as the original
++        with open(pin) as f:
++            run.machine_cuts = bool(json.load(f).get("pin", {}).get("machine_cuts", False))
++    run.status.update(mode=run.mode, replay_of=os.path.abspath(run_dir), replay_from=start, vision=vision,
++                      release_state=rf.RELEASE_STATE)
++    head = subprocess.run(["git", "-C", PIPELINE, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
++    dirty = subprocess.run(["git", "-C", PIPELINE, "status", "--porcelain", "--", "."], capture_output=True,
++                           text=True).stdout.strip()
++    run.prov["replay"] = {"of": os.path.abspath(run_dir), "from": start, "vision": vision, "head": head,
++                          "pipeline_tree_dirty": bool(dirty)}
++    with open(os.path.join(dst, "cuts_final.json")) as f:
++        cuts = json.load(f)
++    t0 = time.time()
++    try:
++        rf.run_tail(run, cuts, start=start, vision=vision)
++    except rf.Hold:
++        run.status["verdict"] = rf.VERDICT_HOLD
++    finally:
++        run.status["elapsed_s"] = round(time.time() - t0, 1)
++        run.status["ended"] = rf.now_iso()
++        run.save()
++        rf.write_report(run)
++        with open(os.path.join(dst, "VERDICT.txt"), "w") as f:
++            f.write(str(run.status["verdict"]) + "\n")
++    print(f"\n=== REPLAY {dst} (from {start}, vision {'on' if vision else 'OFF'}): {run.status['verdict']} ===")
++    for h in run.status["holds"]:
++        print(f"  HOLD: {h}")
++    return dst, run.status["verdict"]
++
++
++def main():
++    import run_fresh as rf
++    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    ap.add_argument("run_dir")
++    ap.add_argument("--from", dest="start", default="prepare", choices=rf.TAIL_STAGES)
++    ap.add_argument("--no-vision", action="store_true", help="skip the Heimdall vision checklist (V1 not scored)")
++    a = ap.parse_args()
++    dst, verdict = replay(a.run_dir, a.start, vision=not a.no_vision)
++    sys.exit(0 if verdict == rf.VERDICT_CANDIDATE else 3)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 7d500642..645ffe31 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -337,6 +337,37 @@ def stage_validate(run):
+         failed = [name for name, rec in gate.get("laws", {}).items() if not rec.get("pass")]
+         raise Hold("editorial law gate HOLD: " + ", ".join(failed))
+ 
++    # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
++    # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
++    import stand_alone
++
++    def rate(passages):
++        import story_semantics as sm
++        llm = sm.LocalLLM().start()
++        try:
++            ratings, err = sm.rate_passages(llm, {"underlying_event": edl.get("angle") or edl.get("topic", "")},
++                                            passages)
++        finally:
++            llm.stop()
++        if err:
++            raise RuntimeError(f"clip scorer reply unparseable: {err}")
++        return ratings
++    story = {}
++    if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
++        with open(os.path.join(run.dir, "passages.json")) as f:
++            story = json.load(f).get("story") or {}
++    subject = stand_alone.subject_terms(story.get("affected_object", ""),
++                                        story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
++    sa = stand_alone.check_edl(edl, rate=rate, subject=subject)
++    run.prov["stand_alone"] = sa
++    for r in sa["rows"]:
++        print(f"  STAND_ALONE {r['segment']}: [{'PASS' if r['pass'] else 'FAIL'}] opener: {r['opener']['why']} | "
++              f"topic: {r['topic']['why']}")
++    if not sa["ok"]:
++        raise Hold("stand-alone/topic: " + "; ".join(
++            f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
++            for r in sa["rows"] if not r["pass"]) + (f" (scorer: {sa['rate_error']})" if sa["rate_error"] else ""))
++
+     # layout compatibility: approved channels use tested crop; pending channels
+     # use the existing safe letterbox fallback. Unknown channels still fail closed.
+     reg_by_name = {c["display_name"]: c for c in reg}
+@@ -570,8 +601,14 @@ def stage_prepare(run, cuts):
+         # expected words come from the selection lock (cuts_final), never from the cut position
+         ok2, d2 = check_edge_words(clip, c.get("first_word_expected", ""),
+                                    c.get("last_word_expected", ""), work, c["clip_id"])
++        snap = None
++        if ok1 and ok2:                         # V1 (run 6): no frame of a neighbouring shot outside the speech
++            import shot_snap
++            snap = shot_snap.apply(clip, c, FPS, NVENC_QP_INTERMEDIATE)
++            if snap["snapped"]:
++                print(f"  {c['clip_id']}: shot snap: {snap['why']}")
+         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
+-               "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2}
++               "contract_pass": ok1, "edge_words": d2, "edge_words_pass": ok2, "shot_snap": snap}
+         report.append(rec)
+         if not (ok1 and ok2):
+             fails.append(c["clip_id"])
+@@ -1064,6 +1101,44 @@ def write_report(run):
+ 
+ # ── main ──
+ 
++TAIL_STAGES = ("prepare", "layout", "render", "gates")
++
++
++def run_tail(run, cuts, start="prepare", vision=True):
++    """prepare -> layout -> render -> gates -> verify -> verdict, from `start`. main runs all of it;
++    replay.py re-runs a COPY of an existing run from any of these stages with the same functions, so a fix
++    is checked by the production code without a download, a transcription or the editorial stages."""
++    k = TAIL_STAGES.index(start)
++    if k <= 0:
++        run.stage("prepare", lambda: stage_prepare(run, cuts))
++    if k <= 1:
++        run.stage("layout", lambda: stage_layout(run, cuts))
++    if k <= 2:
++        final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
++    else:
++        final16, final9 = (os.path.join(run.dir, "out", n) for n in ("segment.mp4", "segment_vertical.mp4"))
++        man16, man9 = (os.path.join(run.dir, "qa", f"concat_manifest_{f}.json") for f in ("16x9", "9x16"))
++    rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16, final9, man9))
++    # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
++    import verify_pack
++    pack = run.stage("verify", lambda: verify_pack.build(run.dir, vision=vision))
++    with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:     # V1 (visual checklist) joins the rows
++        for fmt, frows in json.load(f).get("rows", {}).items():
++            if "V1_visual_checklist" in frows:
++                rows[fmt]["V1_visual_checklist"] = frows["V1_visual_checklist"]
++    run.prov["visual_checklist"] = {fmt: {"ok": v.get("ok"), "error": v.get("error"),
++                                          "answers": {m: d["rows"] for m, d in (v.get("per_model") or {}).items()}}
++                                    for fmt, v in (pack.get("visual") or {}).items()}
++    run.prov["contact_sheets"] = pack.get("contact_sheets")
++    v16, bad16 = verdict_for(rows["16x9"])
++    v9, bad9 = verdict_for(rows["9x16"])
++    run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
++    run.prov["verdict_blockers"] = {"16x9": bad16, "9x16": bad9}
++    run.status["verdict"] = VERDICT_CANDIDATE if v16 == v9 == VERDICT_CANDIDATE else VERDICT_HOLD
++    if run.status["verdict"] == VERDICT_HOLD:
++        run.status["holds"] += [f"gates {k}: {v}" for k, v in {**bad16, **bad9}.items()]
++
++
+ def main():
+     ap = argparse.ArgumentParser(description="Fresh-topic reproducibility run (no publishing)")
+     ap.add_argument("--pinned", metavar="PIN.json",
+@@ -1103,29 +1178,7 @@ def main():
+         cuts = run.stage("cut", lambda: stage_cut(run))
+         run.stage("sentence_law", lambda: stage_sentence_law(run))
+         run.stage("voice", lambda: stage_voice(run))
+-        run.stage("prepare", lambda: stage_prepare(run, cuts))
+-        run.stage("layout", lambda: stage_layout(run, cuts))
+-        final16, man16, final9, man9 = run.stage("render", lambda: stage_render(run))
+-        rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16,
+-                                                                      final9, man9))
+-        # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
+-        import verify_pack
+-        pack = run.stage("verify", lambda: verify_pack.build(run.dir))
+-        with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:     # V1 (visual checklist) joins the rows
+-            for fmt, frows in json.load(f).get("rows", {}).items():
+-                if "V1_visual_checklist" in frows:
+-                    rows[fmt]["V1_visual_checklist"] = frows["V1_visual_checklist"]
+-        run.prov["visual_checklist"] = {fmt: {"ok": v.get("ok"), "error": v.get("error"),
+-                                              "answers": {m: d["rows"] for m, d in (v.get("per_model") or {}).items()}}
+-                                        for fmt, v in (pack.get("visual") or {}).items()}
+-        run.prov["contact_sheets"] = pack.get("contact_sheets")
+-        v16, bad16 = verdict_for(rows["16x9"])
+-        v9, bad9 = verdict_for(rows["9x16"])
+-        run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
+-        run.prov["verdict_blockers"] = {"16x9": bad16, "9x16": bad9}
+-        run.status["verdict"] = VERDICT_CANDIDATE if v16 == v9 == VERDICT_CANDIDATE else VERDICT_HOLD
+-        if run.status["verdict"] == VERDICT_HOLD:
+-            run.status["holds"] += [f"gates {k}: {v}" for k, v in {**bad16, **bad9}.items()]
++        run_tail(run, cuts)
+     except Hold:
+         run.status["verdict"] = VERDICT_HOLD
+     except Exception as e:  # defensive: anything unexpected is HOLD
+diff --git a/pipeline/shot_snap.py b/pipeline/shot_snap.py
+new file mode 100644
+index 00000000..8898b9b4
+--- /dev/null
++++ b/pipeline/shot_snap.py
+@@ -0,0 +1,75 @@
++#!/usr/bin/env python3
++"""pipeline/shot_snap.py — a prepared clip never shows a frame of a neighbouring shot outside its speech.
++
++Recut run 6 (V1 "next shot visible before the transition"): Natalie Brunell's source cuts to an
++NVIDIA / AMD / MICRON graphic inside the pause before her next sentence ("Nvidia ..." at 37.94 s); the
++sentence-law out-point 37.86 s keeps that pause, so the clip's last 3 frames (frame 315 of 318, scene score
++0.53) showed the next shot. Orchestrator 08:30: "the visual out-point must not include a frame of the next
++shot; snap the visual end to the last frame of the current shot ... audio stays on the sentence."
++Rule: a hard shot change (scene score >= SCENE_CUT) AFTER the last word ends (pause_out.start) holds the
++last frame before it to the end of the clip; one BEFORE the first word starts (pause_in.end) holds the
++first frame after it from the start of the clip. Changes inside the speech are content and untouched.
++The audio stream is copied unchanged and the frame count is unchanged, so every cut time, G16/G17/G18
++measurement and the A/V lock stay as they were."""
++import os
++import re
++import subprocess
++
++SCENE_CUT = 0.3          # run 6 clip_02: hard cuts 0.525-0.584, on-screen graphic animation 0.055-0.058
++
++
++def scene_changes(path):
++    """[(frame_index, scene_score)] of every frame whose scene score is >= SCENE_CUT."""
++    r = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-an", "-vf",
++                        "select='gte(scene,0)',metadata=print:key=lavfi.scene_score:file=-", "-f", "null", "-"],
++                       capture_output=True, text=True, check=True, timeout=600)
++    out = re.findall(r"frame:(\d+)\s+pts:\S+\s+pts_time:\S+\s+lavfi\.scene_score=([0-9.]+)", r.stdout)
++    return [(int(f), float(s)) for f, s in out if float(s) >= SCENE_CUT]
++
++
++def frame_count(path):
++    r = subprocess.run(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0", "-show_entries",
++                        "stream=nb_read_frames", "-of", "csv=p=0", path], capture_output=True, text=True,
++                       check=True, timeout=300)
++    return int(r.stdout.strip().split(",")[0])
++
++
++def plan(changes, n_frames, fps, speech_on_s, speech_off_s):
++    """(head_frames, tail_frame): frames [0, head_frames) take frame head_frames; frames [tail_frame, n)
++    take frame tail_frame - 1. head_frames = 0 / tail_frame = n_frames when nothing is snapped."""
++    head = max([f for f, _ in changes if speech_on_s is not None and f / fps < speech_on_s] or [0])
++    tails = [f for f, _ in changes if speech_off_s is not None and f / fps > speech_off_s]
++    tail = min(tails) if tails else n_frames
++    if head >= tail:                              # never empty a clip: no snap is safer than a broken clip
++        return 0, n_frames
++    return head, tail
++
++
++def apply(clip, cut, fps, qp):
++    """Snap qa/final_<clip>.mp4 in place when a neighbouring shot shows outside the speech. Returns a record
++    (always), {"snapped": False, ...} when nothing changed."""
++    pad = float(cut.get("lead_in_pad_s") or 0.0)
++    pin, pout = cut.get("pause_in") or {}, cut.get("pause_out") or {}
++    on = (pin["end"] - cut["cut_in"] + pad) if "end" in pin else None
++    off = (pout["start"] - cut["cut_in"] + pad) if "start" in pout else None
++    changes = scene_changes(clip)
++    n = frame_count(clip)
++    head, tail = plan(changes, n, fps, on, off)
++    rec = {"speech_on_s": None if on is None else round(on, 3), "speech_off_s": None if off is None else round(off, 3),
++           "hard_cuts": [(f, round(s, 3)) for f, s in changes], "frames": n, "snapped": False}
++    if head == 0 and tail == n:
++        return rec
++    vf = f"trim=start_frame={head}:end_frame={tail},setpts=PTS-STARTPTS,tpad=start_mode=clone:start={head}:" \
++         f"stop_mode=clone:stop={n - tail}"
++    part = clip + ".snap.mp4"
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", clip, "-map", "0:v:0", "-map", "0:a:0", "-vf", vf,
++                    "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(qp), "-pix_fmt", "yuv420p",
++                    "-r", str(fps), "-c:a", "copy", "-movflags", "+faststart", part], check=True, timeout=600)
++    if frame_count(part) != n:
++        os.remove(part)
++        raise RuntimeError(f"shot snap changed the frame count of {clip}")
++    os.replace(part, clip)
++    rec.update(snapped=True, held_head_frames=head, held_tail_frames=n - tail,
++               why=(f"head: frames 0-{head - 1} were the previous shot, held on frame {head}; " if head else "") +
++                   (f"tail: frames {tail}-{n - 1} were the next shot, held on frame {tail - 1}" if tail < n else ""))
++    return rec
+diff --git a/pipeline/stand_alone.py b/pipeline/stand_alone.py
+new file mode 100644
+index 00000000..05e4b431
+--- /dev/null
++++ b/pipeline/stand_alone.py
+@@ -0,0 +1,125 @@
++#!/usr/bin/env python3
++"""pipeline/stand_alone.py — every segment must stand alone and belong to a Bitcoin story.
++
++Orchestrator note 2026-11-11 08:30 ET (direction 2), after recut run 6 opened on "But I don't check it on an
++hourly basis" (a hook whose pronoun has no referent) and closed on "And the NASDAQ fell even harder ...
++concentrated in AI" (a Nasdaq/AI statement, context rather than a clip):
++  OPENER  a hook (heard first, so nothing before it can give a pronoun its referent) may not open on a
++          pronoun, a conjunction or a reply fragment. A clip may open on a conjunction or a reply fragment
++          only if the clip scorer (story_semantics.rate_passages, the same criterion selection uses)
++          affirms it stands alone: score >= CLIP_MIN_SCORE and no "starts_mid_thought" fault.
++  TOPIC   every segment names the story's subject itself, or (a clip only) completes the previous segment's
++          claim: after any leading conjunction its subject is a back-referring pronoun ("It went from above
++          $81,000 ...") and it carries a price/market figure. For a Bitcoin story (its subject or headline
++          names Bitcoin) the subject is Bitcoin/BTC: "And the NASDAQ fell 5.5 %" has a new subject, context
++          not a clip (Bitcoin-only editorial line). For another subject (Nov 4's approved Binance hack) the
++          subject's own words count too, and Bitcoin always does.
++Deterministic first-token screen plus the existing scorer; no model decides a pass by itself."""
++import re
++
++CONJUNCTIONS = {"and", "but", "or", "so", "because", "cause", "which", "also", "plus", "then", "though",
++                "although", "whereas", "nor", "yet"}          # = editorial_select.CONTINUATION_OPENERS
++PRONOUNS = {"i", "me", "my", "it", "its", "this", "that", "these", "those", "they", "them", "their", "he", "him",
++            "his", "she", "her", "we", "us", "our", "you", "your", "there"}
++REPLY_FRAGMENTS = {"yeah", "yes", "yep", "no", "nope", "right", "exactly", "absolutely", "totally", "sure", "okay",
++                   "ok", "oh", "well", "um", "uh", "agreed", "true", "correct", "indeed", "anyway", "anyways"}
++BACKREF = {"it", "its", "this", "that", "these", "those", "they"}
++BITCOIN = re.compile(r"\b(bitcoin|btc)\b", re.I)
++FIGURE = re.compile(r"\$\s?\d|\d\s?%|\bpercent\b|\b\d{1,3}(?:\s?,\s?\d{3})+\b|\b\d+(?:\s?\.\s?\d+)?\s?(?:k|thousand|million|billion)\b",
++                    re.I)
++CLIP_MIN_SCORE = 3.5                                           # = editorial_select.CLIP_MIN_SCORE
++FILLERS = {"you", "know", "like", "i", "mean"}
++
++
++def _words(text):
++    """Lower-case word tokens; a contraction is reduced to its head ("we've" -> "we", "it's" -> "it")."""
++    out = []
++    for w in (text or "").split():
++        w = re.sub(r"^[^a-z0-9$]+|[^a-z0-9']+$", "", w.lower().replace("’", "'"))
++        if w:
++            out.append(w.split("'")[0] or w)
++    return out
++
++
++def opener(kind, text, score=None, fault=None):
++    """(ok, reason) for the first word of a hook or a clip."""
++    ws = _words(text)
++    if not ws:
++        return False, "empty segment"
++    w = ws[0]
++    if kind == "hook":
++        for group, name in ((PRONOUNS, "pronoun"), (CONJUNCTIONS, "conjunction"), (REPLY_FRAGMENTS, "reply fragment")):
++            if w in group:
++                return False, f"hook opens on the {name} {w!r}: nothing is heard before a hook"
++        return True, f"opens on {w!r}"
++    if w in CONJUNCTIONS or w in REPLY_FRAGMENTS:
++        if score is None:
++            return False, f"clip opens on {w!r} and no clip-scorer verdict is available (fail closed)"
++        if score >= CLIP_MIN_SCORE and fault != "starts_mid_thought":
++            return True, f"clip opens on {w!r}; the clip scorer affirms it stands alone ({score}, fault {fault})"
++        return False, f"clip opens on {w!r}; the clip scorer does not affirm it stands alone ({score}, fault {fault})"
++    return True, f"opens on {w!r}"
++
++
++STOP = {"the", "and", "for", "with", "from", "into", "over", "under", "after", "about", "their", "this", "that",
++        "spot", "price", "prices", "market", "markets", "shares", "stock", "stocks", "news", "week", "weekend"}
++
++
++def subject_terms(affected_object="", headline=""):
++    """The words a segment must use to be about the story. A Bitcoin story (its subject or headline names
++    Bitcoin): Bitcoin/BTC only. Otherwise the subject's own content words, and Bitcoin/BTC."""
++    if BITCOIN.search(f"{affected_object} {headline}"):
++        return {"bitcoin", "btc"}
++    words = {w for w in _words(affected_object) if len(w) >= 4 and w not in STOP and not w.isdigit()}
++    return words | {"bitcoin", "btc"}
++
++
++def _mentions(text, subject):
++    ws = set(_words(text))
++    return sorted(w for w in subject if w in ws or (w.endswith("s") and w[:-1] in ws) or f"{w}s" in ws)
++
++
++def topical(kind, text, prev_text=None, subject=("bitcoin", "btc")):
++    """(ok, reason): the segment names the story subject, or a clip completes the previous segment's claim."""
++    subject = set(subject)
++    hit = _mentions(text, subject)
++    if hit:
++        return True, f"names the subject ({', '.join(hit)})"
++    if kind == "hook":
++        return False, f"the hook does not name the story subject ({', '.join(sorted(subject))})"
++    ws = _words(text)
++    k = 0
++    while k < len(ws) and (ws[k] in CONJUNCTIONS or ws[k] in FILLERS - {"i"}):
++        k += 1
++    first = ws[k] if k < len(ws) else ""
++    if prev_text and _mentions(prev_text, subject) and first in BACKREF and FIGURE.search(text or ""):
++        return True, f"completes the previous segment's claim ({first!r} + a figure)"
++    return False, (f"does not name the story subject ({', '.join(sorted(subject))}) and does not complete the "
++                   f"previous segment's claim (it opens on {first!r}): context, not a clip")
++
++
++def check_edl(edl, rate=None, subject=("bitcoin", "btc")):
++    """Every segment of an EDL in order. rate(passages) -> {pid: (score, reason, fault)} is called only for
++    clips opening on a conjunction / reply fragment (the clip scorer); without it they fail closed."""
++    segs = [("hook", "hook", edl["hook"])] + [(f"clip_{c['index']:02d}", "clip", c) for c in edl.get("clips", [])]
++    need = [(label, s) for label, kind, s in segs if kind == "clip" and _words(s.get("text"))[:1]
++            and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS)]
++    scores, rate_error = {}, None
++    if need and rate is not None:
++        try:
++            scores = rate([{"pid": label, "channel": s.get("channel", ""), "text": s["text"],
++                            "duration": float(s.get("duration") or 0)} for label, s in need]) or {}
++        except Exception as e:                                  # an unavailable scorer is no verdict
++            rate_error = f"{type(e).__name__}: {e}"
++    rows, prev = [], None
++    for label, kind, s in segs:
++        sc = scores.get(label)
++        score, fault = (sc[0], sc[2]) if sc else (None, None)
++        o_ok, o_why = opener(kind, s.get("text"), score, fault)
++        t_ok, t_why = topical(kind, s.get("text"), prev, subject)
++        rows.append({"segment": label, "channel": s.get("channel"), "first_words": " ".join((s.get("text") or "").split()[:6]),
++                     "opener": {"pass": o_ok, "why": o_why}, "topic": {"pass": t_ok, "why": t_why},
++                     **({"scorer": {"score": sc[0], "reason": sc[1], "fault": sc[2]}} if sc else {}),
++                     "pass": o_ok and t_ok})
++        prev = s.get("text")
++    return {"ok": all(r["pass"] for r in rows), "rows": rows, "rate_error": rate_error, "subject": sorted(subject)}
+diff --git a/pipeline/test_replay.py b/pipeline/test_replay.py
+new file mode 100644
+index 00000000..fae1d269
+--- /dev/null
++++ b/pipeline/test_replay.py
+@@ -0,0 +1,84 @@
++#!/usr/bin/env python3
++"""Orchestrator 08:30 ET (direction 4): replay an existing run's tail on a copy with the production functions.
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_replay.py"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++import replay  # noqa: E402
++import run_fresh as rf  # noqa: E402
++
++
++def _fake_run(root):
++    rd = os.path.join(root, "pinned_20261111_000000")
++    for sub in ("sources", "transcripts", "out", "qa", "VERIFY"):
++        os.makedirs(os.path.join(rd, sub))
++    for p, body in (("sources/VID.mp4", "source bytes"), ("transcripts/VID.json", "{}"), ("out/segment.mp4", "old"),
++                    ("out/segment_vertical.mp4", "old"), ("qa/final_hook.mp4", "prepared"),
++                    ("GATE_REPORT.json", "{}"), ("TELEGRAM_DELIVERY.json", "{}"), ("VERIFY/x.jpg", "v")):
++        open(os.path.join(rd, p), "w").write(body)
++    json.dump([{"clip_id": "hook"}], open(os.path.join(rd, "cuts_final.json"), "w"))
++    json.dump({"mode": "pinned"}, open(os.path.join(rd, "status.json"), "w"))
++    json.dump({"run_dir": rd}, open(os.path.join(rd, "PROVENANCE.json"), "w"))
++    json.dump({"pin": {"machine_cuts": True}}, open(os.path.join(rd, "PINNED_DECISION.json"), "w"))
++    return rd
++
++
++class TestCopy(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="replay_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++        self.rd = _fake_run(self.tmp)
++
++    def test_sources_are_linked_outputs_are_fresh_deliveries_never_copied(self):
++        dst = replay.make_copy(self.rd, "render", stamp="T1")
++        same = lambda p: os.stat(os.path.join(self.rd, p)).st_ino == os.stat(os.path.join(dst, p)).st_ino
++        self.assertTrue(same("sources/VID.mp4"))                       # read-only input: hard link
++        self.assertFalse(same("qa/final_hook.mp4"))                    # rebuilt by prepare: a real copy
++        for gone in ("out/segment.mp4", "out/segment_vertical.mp4", "GATE_REPORT.json", "TELEGRAM_DELIVERY.json", "VERIFY"):
++            self.assertFalse(os.path.exists(os.path.join(dst, gone)), gone)
++        dst2 = replay.make_copy(self.rd, "gates", stamp="T2")          # gates measure the existing finals
++        self.assertTrue(os.path.exists(os.path.join(dst2, "out/segment.mp4")))
++        with self.assertRaises(SystemExit):
++            replay.make_copy(self.rd, "gates", stamp="T2")             # never overwrite a replay
++
++
++class TestRunTail(unittest.TestCase):
++    """main and replay share run_fresh.run_tail: a replay from `start` runs exactly the later stages."""
++
++    def run_tail(self, start):
++        tmp = tempfile.mkdtemp(prefix="tail_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        run = rf.Run(tmp)
++        calls = []
++        rows = {"16x9": {"G1": "PASS"}, "9x16": {"G1": "PASS"}}
++
++        def gates(run_, *a):
++            calls.append("gates")
++            json.dump({"rows": rows}, open(os.path.join(tmp, "GATE_REPORT.json"), "w"))
++            return rows, {}, {}
++        with mock.patch.object(rf, "stage_prepare", lambda r, c: calls.append("prepare")), \
++                mock.patch.object(rf, "stage_layout", lambda r, c: calls.append("layout")), \
++                mock.patch.object(rf, "stage_render", lambda r: calls.append("render") or ("f16", "m16", "f9", "m9")), \
++                mock.patch.object(rf, "stage_gates", gates), \
++                mock.patch("verify_pack.build", lambda d, vision=True: calls.append(f"verify:{vision}") or {}):
++            rf.run_tail(run, [], start=start, vision=(start != "gates"))
++        return calls, run
++
++    def test_each_start_runs_only_the_later_stages(self):
++        self.assertEqual(self.run_tail("prepare")[0], ["prepare", "layout", "render", "gates", "verify:True"])
++        self.assertEqual(self.run_tail("render")[0], ["render", "gates", "verify:True"])
++        calls, run = self.run_tail("gates")
++        self.assertEqual(calls, ["gates", "verify:False"])
++        self.assertEqual(run.status["verdict"], rf.VERDICT_CANDIDATE)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_shot_snap.py b/pipeline/test_shot_snap.py
+new file mode 100644
+index 00000000..438ff997
+--- /dev/null
++++ b/pipeline/test_shot_snap.py
+@@ -0,0 +1,86 @@
++#!/usr/bin/env python3
++"""Recut run 6 V1: the last 3 frames of clip_02 showed the NEXT shot (Natalie's NVIDIA/AMD/MICRON graphic) in
++the pause after her sentence. shot_snap holds the speaker's shot outside the speech; audio untouched.
++Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_shot_snap.py"""
++import hashlib
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++
++import numpy as np
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import shot_snap as SS  # noqa: E402
++
++
++def _clip(path, shots, speech=(0.3, 2.2), dur=3.0):
++    """Solid-colour shots [(colour, first_frame)] at 24 fps with a tone only during `speech`."""
++    parts, n = [], int(dur * 24)
++    bounds = [f for _, f in shots] + [n]
++    for (colour, f0), f1 in zip(shots, bounds[1:]):
++        parts.append(f"color=c={colour}:s=160x90:r=24:d={(f1 - f0) / 24}")
++    inputs = sum((["-f", "lavfi", "-i", p] for p in parts), [])
++    k = len(parts)
++    graph = "".join(f"[{i}:v]" for i in range(k)) + f"concat=n={k}:v=1:a=0[v];" \
++        f"[{k}:a]volume='between(t,{speech[0]},{speech[1]})':eval=frame,aformat=channel_layouts=stereo[a]"
++    subprocess.run(["ffmpeg", "-v", "error", "-y", *inputs, "-f", "lavfi", "-i", f"sine=f=440:r=48000:d={dur}",
++                    "-filter_complex", graph, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "ultrafast",
++                    "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest", path], check=True)
++    return path
++
++
++def _lumas(path):
++    import cv2
++    cap, out = cv2.VideoCapture(path), []
++    while True:
++        ok, f = cap.read()
++        if not ok:
++            return np.array(out)
++        out.append(cv2.cvtColor(f, cv2.COLOR_BGR2GRAY).mean())
++
++
++def _pcm(path):
++    return subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-f", "s16le", "-"], capture_output=True, check=True).stdout
++
++
++class TestPlan(unittest.TestCase):
++    def test_only_changes_outside_the_speech_are_snapped(self):
++        self.assertEqual(SS.plan([(5, .6), (30, .6), (60, .6)], 72, 24, 0.3, 2.2), (5, 60))
++        self.assertEqual(SS.plan([(30, .6)], 72, 24, 0.3, 2.2), (0, 72))          # inside the speech: content
++        self.assertEqual(SS.plan([(60, .6), (66, .6)], 72, 24, 0.3, 2.2), (0, 60))  # first change after the speech
++        self.assertEqual(SS.plan([(60, .6)], 72, 24, None, None), (0, 72))         # no pause data: untouched
++
++
++@unittest.skipUnless(os.environ.get("CUDA_VISIBLE_DEVICES") == "0", "NVENC needs GPU0")
++class TestApply(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="snap_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++        self.cut = {"cut_in": 10.0, "lead_in_pad_s": 0.0, "pause_in": {"start": 9.9, "end": 10.3},
++                    "pause_out": {"start": 12.2, "end": 12.6}}
++
++    def test_neighbouring_shots_are_held_on_the_speakers_shot_audio_untouched(self):
++        clip = _clip(os.path.join(self.tmp, "c.mp4"), [("blue", 0), ("red", 5), ("blue", 60)])
++        pcm = _pcm(clip)
++        rec = SS.apply(clip, self.cut, 24, 18)
++        self.assertTrue(rec["snapped"], rec)
++        self.assertEqual((rec["held_head_frames"], rec["held_tail_frames"], rec["frames"]), (5, 12, 72))
++        lum = _lumas(clip)
++        self.assertEqual(len(lum), 72)
++        self.assertLess(float(np.ptp(lum)), 3.0)               # every frame now shows the red (speaker's) shot
++        self.assertEqual(hashlib.sha256(_pcm(clip)).hexdigest(), hashlib.sha256(pcm).hexdigest())
++
++    def test_a_change_inside_the_speech_leaves_the_file_untouched(self):
++        clip = _clip(os.path.join(self.tmp, "d.mp4"), [("red", 0), ("blue", 30)])
++        before = hashlib.sha256(open(clip, "rb").read()).hexdigest()
++        rec = SS.apply(clip, self.cut, 24, 18)
++        self.assertFalse(rec["snapped"])
++        self.assertEqual(hashlib.sha256(open(clip, "rb").read()).hexdigest(), before)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_stand_alone.py b/pipeline/test_stand_alone.py
+new file mode 100644
+index 00000000..f10ef8a6
+--- /dev/null
++++ b/pipeline/test_stand_alone.py
+@@ -0,0 +1,106 @@
++#!/usr/bin/env python3
++"""Orchestrator 08:30 ET (direction 2): a segment must stand alone and belong to a Bitcoin story. Must-fail
++fixtures are recut run 6's own segments (runs/pinned_20261111_123750): the hook "But I don't check it on an
++hourly basis..." and clip_02 "And the NASDAQ fell even harder ... concentrated in AI."
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_stand_alone.py"""
++import os
++import sys
++import unittest
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++import stand_alone as S  # noqa: E402
++
++RUN6_HOOK = ("But I don't check it on an hourly basis. It seemed to have bounced very nicely at a very key level "
++             "around $74 ,000, around the 50 -weekly MA, which we've talked about many times.")
++RUN6_CLIP01 = ("But we've seen a really nice decline here on Bitcoin, okay? 16 % so far. And, you know, really just "
++               "looking to see if we hold in this region, even if we don't get back towards these highs.")
++RUN6_CLIP02 = ("And the NASDAQ fell even harder, dropping 5 .5%, pushing it into correction territory, which means it "
++               "fell more than 10 % from its October high. And let's take a look at where the selling hit because it "
++               "was concentrated in AI.")
++DATADASH = ("Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about "
++            "$73 ,400, $500, give or take.")
++
++
++class TestOpener(unittest.TestCase):
++    def test_hook_must_fail(self):
++        for text in (RUN6_HOOK, "I don't check it on an hourly basis. It seemed to have bounced.",
++                     "It seemed to have bounced very nicely at $74,000.", "Yeah, Bitcoin is down 16 %.",
++                     "So Bitcoin is down.", "We've seen Bitcoin lose 16 %."):
++            ok, why = S.opener("hook", text)
++            self.assertFalse(ok, (text, why))
++
++    def test_hook_must_pass(self):
++        for text in (DATADASH, "Michael Saylor is back. Strategy purchased 1 ,036 Bitcoin."):
++            self.assertTrue(S.opener("hook", text)[0], text)
++
++    def test_clip_conjunction_needs_the_scorer(self):
++        self.assertTrue(S.opener("clip", RUN6_CLIP01, 5.0, "none")[0])
++        self.assertFalse(S.opener("clip", RUN6_CLIP01, 3.0, "starts_mid_thought")[0])
++        self.assertFalse(S.opener("clip", RUN6_CLIP01, 5.0, "starts_mid_thought")[0])
++        self.assertFalse(S.opener("clip", RUN6_CLIP01, None, None)[0])          # no verdict: fail closed
++        self.assertTrue(S.opener("clip", "It went from above $81 ,000 after the election.")[0])   # topic decides
++
++
++class TestTopic(unittest.TestCase):
++    def test_nasdaq_statement_is_context_not_a_clip(self):
++        ok, why = S.topical("clip", RUN6_CLIP02, prev_text=RUN6_CLIP01)
++        self.assertFalse(ok, why)
++
++    def test_subject_of_a_non_bitcoin_story_counts(self):
++        """Nov 4's approved Binance-hack video: its segments name Binance / the exchange, not Bitcoin."""
++        subj = S.subject_terms("Binance exchange", "Binance hacked for six billion dollars")
++        self.assertEqual(subj, {"binance", "exchange", "bitcoin", "btc"})
++        self.assertTrue(S.topical("clip", "The exchange says withdrawals resume in 48 hours.", subject=subj)[0])
++        self.assertFalse(S.topical("clip", "The NASDAQ fell 5.5 % on Thursday.", subject=subj)[0])
++        self.assertEqual(S.subject_terms("Bitcoin / US spot Bitcoin ETFs"), {"bitcoin", "btc"})
++
++    def test_bitcoin_segments_and_completions(self):
++        self.assertTrue(S.topical("hook", DATADASH)[0])
++        self.assertFalse(S.topical("hook", "The NASDAQ fell 5.5 % on Thursday.")[0])
++        it = "It went from above $81 ,000 after the election to below $75 ,000 by the weekend."
++        self.assertTrue(S.topical("clip", it, prev_text="Bitcoin also wasn't spared in the sell -off.")[0])
++        self.assertFalse(S.topical("clip", it, prev_text="The S &P 500 rallied 1 .6 % on Wednesday.")[0])
++        self.assertFalse(S.topical("clip", "It was a strange week for everyone.", prev_text=DATADASH)[0])  # no figure
++        self.assertTrue(S.topical("clip", "And it touched $73 ,400 on Sunday.", prev_text=DATADASH)[0])
++
++
++class TestEDL(unittest.TestCase):
++    def edl(self, hook, *clips):
++        return {"hook": {"channel": "H", "text": hook},
++                "clips": [{"index": i + 1, "channel": f"C{i}", "text": t, "duration": 15.0} for i, t in enumerate(clips)]}
++
++    def test_run6_lineup_fails_on_the_hook_and_clip_02(self):
++        calls = []
++
++        def rate(passages):
++            calls.append([p["pid"] for p in passages])
++            return {p["pid"]: (5.0, "fake", "none") for p in passages}
++        r = S.check_edl(self.edl(RUN6_HOOK, RUN6_CLIP01, RUN6_CLIP02), rate=rate)
++        self.assertFalse(r["ok"])
++        self.assertEqual({x["segment"]: x["pass"] for x in r["rows"]}, {"hook": False, "clip_01": True, "clip_02": False})
++        self.assertEqual(calls, [["clip_01", "clip_02"]])                  # the scorer only for conjunction openers
++
++    def test_a_clean_lineup_passes_and_an_unavailable_scorer_fails_closed(self):
++        lineup = self.edl(DATADASH, "It went from above $81 ,000 after the election to below $75 ,000 by the weekend.",
++                          RUN6_CLIP01)
++        self.assertTrue(S.check_edl(lineup, rate=lambda ps: {p["pid"]: (4.0, "fake", "none") for p in ps})["ok"])
++        r = S.check_edl(lineup, rate=lambda ps: (_ for _ in ()).throw(RuntimeError("no GPU")))
++        self.assertFalse(r["ok"])
++        self.assertIn("RuntimeError", r["rate_error"])
++
++
++class TestAutoSelectionScreen(unittest.TestCase):
++    """editorial_select applies the same screen to the final (scored, repaired) windows: a pronoun-opening
++    hook is ineligible, its D3 repair (the previous sentence prepended) is eligible."""
++
++    def test_selection_uses_the_same_rule(self):
++        import editorial_select as es
++        subj = S.subject_terms("Binance exchange", "Binance hacked for six billion dollars")
++        self.assertFalse(es._stand_alone_ok("hook", "We just had, of course, Binance with $6 .3 billion in hacks.", subj)[0])
++        self.assertTrue(es._stand_alone_ok("hook", "Binance confirmed the hack this morning. It means six billion "
++                                                   "dollars of customer money left the exchange.", subj)[0])
++        self.assertFalse(es._stand_alone_ok("clip", RUN6_CLIP02, S.subject_terms("Bitcoin / US spot Bitcoin ETFs"))[0])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_word_diff.py b/pipeline/test_word_diff.py
+index dac2eac2..90c0c055 100644
+--- a/pipeline/test_word_diff.py
++++ b/pipeline/test_word_diff.py
+@@ -31,6 +31,20 @@ class TestCanonical(unittest.TestCase):
+                      ("days. Of course, of course, Bitcoin dropped", "days of course bitcoin dropped")):
+             self.assertEqual(W.diff(a, b), [], (a, b))
+ 
++    def test_a_half_written_or_spoken_is_the_same_number(self):
++        """Recut run 6 G18 clip_02: the final was heard as 'five and a half percent', the source span as
++        '5 .5%' (the same audio). Equal both ways; any real difference in the number still counts."""
++        for a, b in (("dropping 5 .5%, pushing it", "dropping five and a half percent pushing it"),
++                     ("dropping five and a half percent, pushing it", "dropping 5.5% pushing it"),
++                     ("up two and a half percent", "up 2.5 percent")):
++            self.assertEqual(W.diff(a, b), [], (a, b))
++        for a, b in (("dropping 5.5%", "dropping five percent"),            # the half is missing
++                     ("dropping 5%", "dropping five and a half percent"),   # a half was added
++                     ("dropping 6.5%", "dropping five and a half percent"),
++                     ("a year and a half ago", "a year ago")):              # not after a number: words count
++            self.assertNotEqual(W.diff(a, b), [], (a, b))
++        self.assertEqual(W.norm("a year and a half"), ["a", "year", "and", "a", "half"])
++
+     def test_missing_added_and_changed_words_count(self):
+         d = W.diff("It went from above $81,000 after the election. That was the week.",
+                    "81,000 after the election. That was the week. All right, you've probably seen")
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+index 1d4d0137..dad11755 100644
+--- a/pipeline/word_diff.py
++++ b/pipeline/word_diff.py
+@@ -70,6 +70,29 @@ def _spelled_numbers(tokens):
+     return out
+ 
+ 
++_NUM = re.compile(r"\d+(p\d+)?")
++
++
++def _decimals(tokens):
++    """Spoken decimals as the written form's single token: 'one point three' -> '1p3' (like '1.3'), and
++    'five and a half' -> '5p5' (like '5.5'; recut run 6 G18: '5 .5%' vs 'five and a half percent', the same
++    audio). Only after a number: 'a year and a half' stays words. Before 2026-11-11 a decimal split into
++    two digit tokens and the repeat-collapser then merged '5 5' into '5', so 5.5 % and 5 % compared equal."""
++    out, k = [], 0
++    while k < len(tokens):
++        w = tokens[k]
++        if w.isdigit() and tokens[k + 1:k + 2] == ["point"] and k + 2 < len(tokens) and tokens[k + 2].isdigit():
++            out.append(f"{w}p{tokens[k + 2]}")
++            k += 3
++        elif w.isdigit() and tokens[k + 1:k + 4] == ["and", "a", "half"]:
++            out.append(f"{w}p5")
++            k += 4
++        else:
++            out.append(w)
++            k += 1
++    return out
++
++
+ def norm(text):
+     t = (text or "").lower().replace("’", "'")
+     t = re.sub(r"(\d)\s+([.,]\d)", r"\1\2", t)            # '88 ,000' -> '88,000', '1 .3' -> '1.3'
+@@ -78,13 +101,12 @@ def norm(text):
+     t = re.sub(r"\b(\w)\s+\.(?=\w)", r"\1.", t)              # 'u .s.' -> 'u.s.'
+     t = re.sub(r"\b([a-z])\.(?=[a-z]\b)", r"\1", t)            # 'u.s.' -> 'us.' (single-letter abbreviations)
+     t = re.sub(r"(?<=\d)[,](?=\d{3}\b)", "", t)             # '74,000' -> '74000'
++    t = re.sub(r"(?<=\d)\.(?=\d)", "p", t)                   # '5.5' -> '5p5': a decimal stays ONE token
+     t = re.sub(r"[^\w\s']", " ", t)                         # punctuation, '$', '%' (both sides alike)
+     t = re.sub(r"(?<!\w)'|'(?!\w)", "", t)                  # quote marks, not apostrophes
+-    tokens = _spelled_numbers(t.split())
+-    tokens = [w for k, w in enumerate(tokens)                # 'one point three' -> '1 3', like '1.3' -> '1 3'
+-              if not (w == "point" and 0 < k < len(tokens) - 1 and tokens[k - 1].isdigit() and tokens[k + 1].isdigit())]
++    tokens = _decimals(_spelled_numbers(t.split()))          # 'one point three' / 'five and a half' -> '1p3' / '5p5'
+     tokens = [w for k, w in enumerate(tokens) if not (w in _AFTER_NUMBER and k and (
+-        tokens[k - 1].isdigit() or tokens[k - 1] in ("million", "billion", "trillion")))]
++        _NUM.fullmatch(tokens[k - 1]) or tokens[k - 1] in ("million", "billion", "trillion")))]
+     return _collapse_repeats(tokens)
+ 
+ 
+diff --git a/scripts/pulse_check_run.sh b/scripts/pulse_check_run.sh
+index cb6c5fe6..0346fae3 100755
+--- a/scripts/pulse_check_run.sh
++++ b/scripts/pulse_check_run.sh
+@@ -11,8 +11,8 @@
+ #   detached session pipeline_pulse_check_<UTC stamp>; scripts/tmux_cleanup.sh (cron) keeps 'pipeline'
+ #   sessions, so a long render is never reaped as idle. No other session is touched.
+ # - GPU0 only (CUDA_VISIBLE_DEVICES=0); nothing is published: drops go to the Telegram approval chat
+-#   only (pipeline/telegram.deliver_run): "HOLD FOR APPROVAL - all gates passed, no waivers" or
+-#   "REVIEW ONLY" with the failing list.
++#   only (pipeline/telegram.deliver_run), and ONLY when every gate passed: "HOLD FOR APPROVAL - all gates
++#   passed, no waivers" (orchestrator 2026-11-11 08:30: a HOLD is never sent; its run dir is the record).
+ # - log: logs/pulse_check/run_<stamp>.log (git HEAD, run dir, exit code, delivery message ids)
+ # - DEC-9 story ledger: an AUTO run whose two finals went out as HOLD FOR APPROVAL is recorded in
+ #   data/pulse_check/story_ledger.jsonl (its counted evidence statements); later auto runs never select an
+@@ -74,7 +74,11 @@ RC=${PIPESTATUS[0]}
+ RUN_DIR="$(grep -m1 -oP '(?<==== FRESH-TOPIC RUN ).*(?= ===)' "$LOG" || true)"
+ echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
+ 
+-if [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
++if [ "$TELEGRAM" = 1 ] && [ "$RC" != 0 ]; then
++  # orchestrator 2026-11-11 08:30: PBX gets a run only when it passes; a HOLD is never sent (its REPORT.md,
++  # GATE_REPORT.json and contact sheets in the run dir are the record)
++  echo "HOLD (run_fresh exit $RC): not delivered; see $RUN_DIR/REPORT.md" | tee -a "$LOG"
++elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
+   python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
+     "$RUN_DIR" 2>&1 | tee -a "$LOG"
+   if [ "${PIPESTATUS[0]}" != 0 ]; then

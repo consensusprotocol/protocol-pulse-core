@@ -6,7 +6,64 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 08:38 ET; newest first)
+## LIVE STATE (updated 2026-11-11 10:29 ET; newest first)
+
+- 10:25 LINEUP SEARCH RESULT for the Nov 10 story (direction 1), every rule unchanged. Sources searched:
+  full Bitcoin Magazine "Bitcoin Loses Key Moving Average" (104/130 budget windows legal), full DataDash
+  (89/218), full Yahoo (133/158), CoinTelegraph (118/140), Marty Bent 0-7 min (22/30; his 50-week sentence
+  is later in a 44-min show, not fetched), Natalie (no legal Bitcoin window). Production scorer on the event
+  "Bitcoin fell sharply ... losing its 50-week moving average ... below about $74,000 ... tech selloff":
+    hooks >= 4.0 that pass the stand-alone/topic rule: ONE: Bitcoin Magazine 269.45-281.38 "From the COVID
+      era, the continued outflows and broad spot sellers pushing our closes down week by week has us
+      rhyming with 2012. We want to see Bitcoin reclaim the 50-week urgently." (4.0) - its first sentence is
+      a punctuation split (the audio reads "...eventual bailout from the COVID era." as the previous
+      sentence's end), so to a listener it starts mid-thought. Every other legal hook scores 1-3 (history,
+      Saylor's purchase, Scaramucci's $200K).
+    clips >= 3.5: Bitcoin Magazine 14.94-31.95 "Last night was Bitcoin's first weekly close below the
+      50-week moving average since September. The 50-week was around $75,500, and Bitcoin closed around
+      $74,700, just 1 % below the line. But one percent is still a miss." (4.0; 16.66 s: no legal boundary
+      after its first two sentences, so it cannot be the 8-12 s hook) and DataDash 143.62-161.67 "But we've
+      seen a really nice decline here on Bitcoin, okay? 16 % so far ..." (5.0). Every other legal clip <= 3.0.
+    best legal lineup: 11.20 + 16.66 + 17.64 = 45.5 s of content + ~9 s credits + 4.46 s outro = ~59 s:
+      G5 duration (60-120 s) fails by ~1 s; body VO is off by default (Editorial Law 2 / M20); and gates
+      in the open decisions would still fail a correct render (OD-4 G9 always; OD-1 G15 with some names;
+      OD-5 G17a and OD-6 G3 on DataDash's gated "But").
+  => A clean pass of the Nov 10 story is not reachable with the current laws and gates. Decisions that
+  would unblock it (orchestrator / PBX): OD-4 (G9 on a locked black-ending outro), OD-1 (G15 on glyphs),
+  OD-5/OD-6 (G17a gated silence, G3 single word), and either a VO intro with a declared job or a hook
+  budget > 12 s for a story whose event sentence runs 16.7 s. Meanwhile: land batches 6-7, then 4b
+  (fresh stories search every channel and story, where the same laws may find cleaner material).
+- 10:20 V1 batch (batch 7) audited; consensus implemented (stand-alone empty subject fails closed, vacuous
+  panel verdict, test strengthening); G19 rows in both formats.
+
+- 09:45 replay of run 6 from prepare (runs/pinned_20261111_123750_replay_20261111_134458, batch-6 code)
+  proved on real data: G18 PASS on every segment, both formats (decimal canonicaliser); prepare's shot snap
+  held clip_02's last 3 frames on Natalie's own shot; 9:16 V1 PASS (incl. next shot, credits, per-shot
+  letterbox). 16:9 V1 FAIL only because qwen's reply lacked its final '}' (all six answers present: 6 x
+  "missing"). Remaining rows are the diagnosed set: G3, G5, G9, G14, G15, G17 (OD-1, OD-4..OD-7 below).
+- 09:45 V1 batch (in the working tree, audit next): the credits question gets the EDL's channel list (a
+  9:16 crop can hide a show's branding: qwen called Yahoo "absent" on run 6); the next-shot line is answered
+  ONE CUT AT A TIME from the cut's -3f/+3f frames side by side (on run 6 the whole-sheet answer misread tile
+  labels and neither model saw the real defect), the sheet answer kept as advisory; a reply missing only
+  its final braces is closed (max 3, nothing else repaired); NEW deterministic G19 EDGE SHOTS on both finals
+  (no hard shot change inside a talking head outside its speech): must-fail on run 6's own final (clip_02
+  at 41.1-41.3 s), must-pass on the snapped replay.
+- 09:30 wider sources transcribed: Bitcoin Magazine "Bitcoin Loses Key Moving Average" (104 of 130 budget
+  windows legal: clean pauses), DataDash full (89), Yahoo full (133), CoinTelegraph; Marty Bent's crashed on
+  CUDA OOM (GPU0 shared by three of my jobs: my error, serialised since). Full videos fetched natively;
+  the mp4 audio is bit-identical to the transcribed m4a (PCM sha). Lineup search (65 windows pass the
+  opener/topic screen) is being scored by the production scorer now.
+
+- 08:53 batch for the 08:30 note staged + in audit (batch6_orch0830): replay harness (run_fresh.run_tail +
+  pipeline/replay.py), stand-alone + topic rule (pipeline/stand_alone.py at validate for every run, and at
+  auto selection on final windows), G18 canonicaliser (decimal = one token), shot_snap (V1 next shot),
+  wrapper sends Telegram only on a clean pass. Replay of run 6 from prepare running with these: prepare
+  snapped clip_02 "tail: frames 315-317 were the next shot, held on frame 314" (audio untouched).
+- 08:50 lineup search widened (direction 1, decision above): full audio of Bitcoin Magazine jbDqdLytkNM
+  ("Bitcoin Loses Key Moving Average"), Marty Bent eEB0nt6jvEw, DataDash RXTVaDsN11M, Yahoo 36HPi9UZPOc,
+  CoinTelegraph LGzfQjA2SHA in runs/recut_sources_20261111b (whisper large-v3 words + punctuation running);
+  video only for the chosen windows afterwards. Run 6 REPORT.md has the six-window table (proposed windows
+  score 4.0 / 4.0 / 5.0 and pass stand-alone; each is blocked by a measured edge pause under the law).
 
 - 08:38 4b landed on this branch (55eb579b + 376c4127, audited: batch4 AUDIT_RESPONSE.md). Suites 166
   passed; the one failure is the documented pre-existing live-LLM test (test_editorial_robust
@@ -179,6 +236,37 @@ that wiring would need a ratio calibration (an acceptance change) — not taken.
 orchestrator: gate prepare fidelity (and against what), or accept it as part of the approved look.
 Evidence: docs/audits/pulse-sentence-law/dec1_calibration/HEIMDALL_RUN_FRESH_RESPONSE.md.
 
+**OD-1 (addendum, run 6, 2026-11-11 08:40).** Same class again: 16:9 G15's only "squished ring" is the
+capital N of "Natalie Brunell" (contour bbox 31 x 36 px; fitted ellipse 122 x 212 passes the size filter,
+which tests the ellipse not the contour); 9:16 at (324,1515) the same glyph. Overlays:
+docs/audits/pulse-sentence-law/od1_g15_evidence/. Any card crediting "Natalie Brunell" fails G15 unchanged.
+
+**OD-4 G9 tail luma measures encoder lift on a black-ending card, not the content.** The tail is the
+hash-identical locked outro. Decoded directly, its last second has luma 12.69; finals measure 14.31
+(run 6) / 14.34 (v2f) / 14.74 / 14.77 (9:16) because the final re-encode lifts near-black. DEC-1 set the
+floor 0.006 under v2f's own value (14.33 / 14.77), smaller than the 0.03 encode-to-encode difference, so a
+correct render passes or fails by encoder state; a lossless outro would fail outright (12.69). Decision:
+what G9 should measure on a locked black-ending outro (e.g. hash/identity of the outro region, or the
+floor with an encode margin). Not changed.
+
+**OD-5 G17a counts noise-gated digital silence as "not genuine".** DataDash's source pauses sit below the
+-100 dBFS digital floor (noise gate). Run 6 clip_01 has 320 ms of silence before "But", of which 60 ms is
+above -100 dBFS, so G17a reads lead 60 ms < 80. Moving the in-point or the room-tone pad cannot change
+that reading. Decision: is gated digital silence inside a source pause (not at a file head, where D1
+lives) genuine quiet for G17a? Not changed; selection avoids such edges meanwhile.
+
+**OD-6 G3 judges ONE first word from a context-free ASR of the clip head.** Run 6: 'bye!' / 'no' for
+"But" (hook, clip_01) while G18's word-for-word edges (full-context ASR) and G17b's first-word acoustic
+ratio (0.98 / 0.95) show the word intact. Short function words fail G3 by ASR, not by render. Decision:
+keep G3 as is (selection then avoids conjunction-opening clips), or measure the first word with context.
+Not changed.
+
+**OD-7 G14 0.5 s audio windows under the music bed.** Run 6's one scored G14 miss is a window in
+DataDash's quiet passage (speech -39 dB median vs his -28..-32 elsewhere) matched 4.6 s away at xcorr
+0.42 (>= the 0.3 'conclusive' bar); every other sample of the 16:9 matched exactly. A quiet source under
+the bed weakens the correlation. Not changed; G5 loudness work (segment levels) would also raise the
+speech-to-bed ratio there.
+
 ## 1f — the gate suite on the frozen v2f reference (2026-11-11, scratch copy, production stage_gates)
 
 | gate | format | v2f measured | threshold | approved video shows the defect, or gate stricter than approved? |
@@ -268,6 +356,24 @@ Received 02:50 ET. Recorded verbatim in substance; implementation status tracked
   HOLD from a pipeline defect: fix, audit, the count restarts.
 - **DEC-9 Stories.** The engine's own top Bitcoin story each time, runs >= 3 hours apart or on different
   story universes so they are genuinely different stories.
+- **DEC-10 Edge timing (orchestrator 10:35 ET).** The sentence law's TIMING constants are calibrated to the
+  approved v2f reference and to what a listener hears, not to a silence quota (the 80 ms lead / tail /
+  pause minimums of the 01:50 order were picked without evidence). (a) Measure on frozen v2f, both formats,
+  every segment edge: the source gap between the kept edge word and its neighbour, the rendered lead before
+  the first onset and tail after the last offset, the edge-word duration ratio; table here. (b) PAUSE_MIN_S,
+  LEAD_MIN_S, TAIL_MIN_S = the reference's measured worst (named constants citing the measurement), DEC-1
+  mechanism + audit; must-pass: every v2f edge. (c) Stays strict: (i) first/last word >= 85 % of its
+  transcript duration in the render; (ii) NO audible part of the neighbour word in the kept lead/tail
+  (neighbour energy below the valley threshold; the cut at the envelope minimum between the two words);
+  (iii) sentence-complete first/last word locked at selection; (iv) G18 word-for-word. Yesterday's three
+  defects (half "Bitcoin", Natalie into "All right, you've probably seen people celebrating", a clip
+  starting on "81") must still FAIL. (d) A short inter-sentence gap: cut at the envelope minimum with a
+  2-frame audio fade in/out instead of rejecting; reject for edges only if (i)-(iii) cannot be met. (e)
+  Re-run the Nov 10 lineup: expected hook DataDash 0.00-9.10, clip Natalie "It went from above 81,000 ...
+  this week.", clip Yahoo from the true start of the "bitcoin dropped pretty massively" sentence to "...many
+  times."; report the exact failing measurement for any that still fails. (f) Render, all gates, sheets,
+  Telegram ONLY on a clean pass, plus options A/B/C. TIME BOX 13:00 ET: then write what blocked it and go to
+  4b on a fresh story with the same code.
 
 ### Calibrated gates (DEC-1)
 

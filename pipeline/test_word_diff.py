@@ -31,6 +31,20 @@ class TestCanonical(unittest.TestCase):
                      ("days. Of course, of course, Bitcoin dropped", "days of course bitcoin dropped")):
             self.assertEqual(W.diff(a, b), [], (a, b))
 
+    def test_a_half_written_or_spoken_is_the_same_number(self):
+        """Recut run 6 G18 clip_02: the final was heard as 'five and a half percent', the source span as
+        '5 .5%' (the same audio). Equal both ways; any real difference in the number still counts."""
+        for a, b in (("dropping 5 .5%, pushing it", "dropping five and a half percent pushing it"),
+                     ("dropping five and a half percent, pushing it", "dropping 5.5% pushing it"),
+                     ("up two and a half percent", "up 2.5 percent")):
+            self.assertEqual(W.diff(a, b), [], (a, b))
+        for a, b in (("dropping 5.5%", "dropping five percent"),            # the half is missing
+                     ("dropping 5%", "dropping five and a half percent"),   # a half was added
+                     ("dropping 6.5%", "dropping five and a half percent"),
+                     ("a year and a half ago", "a year ago")):              # not after a number: words count
+            self.assertNotEqual(W.diff(a, b), [], (a, b))
+        self.assertEqual(W.norm("a year and a half"), ["a", "year", "and", "a", "half"])
+
     def test_missing_added_and_changed_words_count(self):
         d = W.diff("It went from above $81,000 after the election. That was the week.",
                    "81,000 after the election. That was the week. All right, you've probably seen")

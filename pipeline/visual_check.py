@@ -28,7 +28,8 @@ CHECKLIST = [
     ("credits_round_and_match", "On the credits card (full-resolution panel) every channel avatar is the channel's "
                                 "own round PROFILE picture: not a video thumbnail (no headline text or title words "
                                 "inside the circle), not squashed or stretched, and the names under the circles are "
-                                "the channels whose clips appear in the video."),
+                                "the channels whose clips appear in the video (use the channel list given above: "
+                                "a 9:16 crop can hide a show's own branding)."),
     ("vertical_speaker_centred", "On a 9:16 sheet: every talking-head segment shows its speaker centred in the "
                                  "frame, or the segment is a shared screen / chart (layout=screen). On a 16:9 sheet: n/a."),
     ("no_letterbox_on_talking_heads", "Look at the full-resolution first-frame panels and the stills of every "
@@ -128,6 +129,7 @@ def contact_sheet(final, segments, fmt, out_path, work_dir):
 PROMPT = """You are checking a finished news video from its CONTACT SHEET (stills of the final video, each labelled
 with its time; boundary stills labelled -3f / +3f; full-resolution panels at the bottom). Judge ONLY what you
 can SEE on the sheet. Format of this sheet: {fmt}. {layout_note}
+{channels_note}
 Answer every question with "yes", "no" or (only where the question allows it) "n/a", and a short reason:
 {questions}
 Reply with JSON only: {{"answers": {{"<key>": {{"answer": "yes|no|n/a", "why": "..."}}, ...}}}} using exactly the keys
@@ -144,15 +146,18 @@ def _key():
 
 
 def _first_json(content, key):
-    """The first JSON object in a reply that carries `key` (prose or more braces around it are ignored)."""
+    """The first JSON object in a reply that carries `key` (prose or more braces around it are ignored). A reply
+    whose only fault is up to 3 missing closing braces at its very end is closed (replay of run 6: qwen gave all
+    six answers and stopped before the last '}'); nothing else is repaired, and every answer is still judged."""
     dec, s = json.JSONDecoder(), content or ""
-    for m in re.finditer(r"\{", s):
-        try:
-            obj, _ = dec.raw_decode(s, m.start())
-        except json.JSONDecodeError:
-            continue
-        if isinstance(obj, dict) and key in obj:
-            return obj
+    for text in [s] + [s.rstrip() + "}" * k for k in (1, 2, 3)]:
+        for m in re.finditer(r"\{", text):
+            try:
+                obj, _ = dec.raw_decode(text, m.start())
+            except json.JSONDecodeError:
+                continue
+            if isinstance(obj, dict) and key in obj:
+                return obj
     return None
 
 
@@ -180,11 +185,12 @@ def _call(req, timeout):
     return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
 
 
-def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2):
+def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2, channels_note=""):
     """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
     unparseable reply or a route error is retried, then answers = {} (every line missing = HOLD, never a crash)."""
     qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
-    text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", questions=qs, keys=[k for k, _ in CHECKLIST])
+    text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", channels_note=channels_note or "", questions=qs,
+                         keys=[k for k, _ in CHECKLIST])
     req = _request(sheet_path, text, model)
     tries = []
     for _ in range(attempts):
@@ -200,9 +206,9 @@ def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=
     return {}, {"model": model, "unparseable": tries}
 
 
-def ask_panel(sheet_path, fmt, layout_note=""):
+def ask_panel(sheet_path, fmt, layout_note="", channels_note=""):
     """Every VISION_MODEL answers; a line passes only if no model says no (fail closed)."""
-    per = {m: ask_vision(sheet_path, fmt, layout_note, model=m) for m in VISION_MODELS}
+    per = {m: ask_vision(sheet_path, fmt, layout_note, model=m, channels_note=channels_note) for m in VISION_MODELS}
     oks = {m: verdict(a, fmt) for m, (a, _) in per.items()}
     return all(ok for ok, _ in oks.values()), {m: {"rows": rows, "raw": per[m][1]} for m, (ok, rows) in oks.items()}
 
@@ -288,4 +294,74 @@ def letterbox_check(frames):
         good = bool(ans) and all(a == "no" for a in ans.values())     # no model asked = no answer = FAIL
         ok = ok and good
         rows.append({**f, "asked": True, "answers": ans, "trail": trails, "ok": good, **({"error": err} if err else {})})
+    return ok, rows
+
+
+# ── boundaries, ONE pair of frames per cut (recut run 6: on the whole sheet one model read the +3f tiles as
+#    -3f and called two clean cuts "next shot visible", and neither model saw the real defect: Natalie's
+#    NVIDIA/AMD/MICRON graphic in the last frames of clip_02, which a person reading the sheet did) ──
+
+BOUNDARY_PROMPT = """These are two frames of a finished news video, side by side. LEFT: 3 frames BEFORE a cut from one
+segment to the next. RIGHT: 3 frames AFTER that cut. Question: does the LEFT frame already show the next segment,
+i.e. the RIGHT frame's picture or shot (fully, or mixed in as a dissolve / double exposure)? Answer "no" when the
+left frame is clearly its own segment's picture.
+Reply with JSON only: {"next_shot_in_left": "yes|no", "why": "..."}"""
+
+
+def boundary_pairs(final, segments, work_dir):
+    """[{"boundary", "before_s", "after_s", "path"}]: for every cut, the full-resolution frame BOUNDARY_FRAMES
+    before it (before any dissolve) and after it (after any dissolve), side by side in one image."""
+    from PIL import Image
+    os.makedirs(work_dir, exist_ok=True)
+    out = []
+    for a, b in zip(segments, segments[1:]):
+        before, after = b["start"] - BOUNDARY_FRAMES / FPS, a["end"] + BOUNDARY_FRAMES / FPS
+        tag = f"{a['label']}|{b['label']}"
+        pa = _grab(final, before, os.path.join(work_dir, f"bd_{a['label']}_{b['label']}_before.jpg"))
+        pb = _grab(final, after, os.path.join(work_dir, f"bd_{a['label']}_{b['label']}_after.jpg"))
+        path = None
+        if pa and pb:
+            ia, ib = Image.open(pa).convert("RGB"), Image.open(pb).convert("RGB")
+            pair = Image.new("RGB", (ia.width + ib.width + 20, max(ia.height, ib.height)), (255, 255, 255))
+            pair.paste(ia, (0, 0))
+            pair.paste(ib, (ia.width + 20, 0))
+            path = os.path.join(work_dir, f"bd_{a['label']}_{b['label']}_pair.jpg")
+            pair.save(path, quality=90)
+        out.append({"boundary": tag, "before_s": round(before, 3), "after_s": round(after, 3), "path": path})
+    return out
+
+
+def ask_boundary(path, model, timeout=600, attempts=2, trail=None):
+    """'yes' (the left frame shows the next segment) / 'no', or None (no clear answer after the retries)."""
+    trail = [] if trail is None else trail
+    req = _request(path, BOUNDARY_PROMPT, model)
+    for _ in range(attempts):
+        try:
+            content, _raw = _call(req, timeout)
+        except Exception as e:
+            trail.append({"error": f"{type(e).__name__}: {e}"[:300]})
+            continue
+        obj = _first_json(content, "next_shot_in_left") or {}
+        a = str(obj.get("next_shot_in_left", "")).strip().lower()
+        trail.append({"answer": a or "unparseable", "why": str(obj.get("why", content))[:300]})
+        if a in ("yes", "no"):
+            return a
+    return None
+
+
+def boundary_check(pairs):
+    """Every cut asked of every VISION_MODEL: 'yes', no answer, a missing pair image or an error fails (fail
+    closed)."""
+    rows, ok = [], True
+    for p in pairs:
+        ans, trails, err = {}, {}, None
+        for m in VISION_MODELS:
+            trails[m] = []
+            try:
+                ans[m] = ask_boundary(p["path"], m, trail=trails[m]) if p["path"] else None
+            except Exception as e:
+                ans[m], err = None, f"{type(e).__name__}: {e}"
+        good = bool(ans) and all(a == "no" for a in ans.values())
+        ok = ok and good
+        rows.append({**p, "answers": ans, "trail": trails, "ok": good, **({"error": err} if err else {})})
     return ok, rows

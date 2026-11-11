@@ -1,52 +1,41 @@
-# CURRENT STATE — 2026-11-10 16:10 ET
+# CURRENT STATE — 2026-11-11 10:40 ET (Pulse Check mission; CC session in tmux pipeline_pp_dod)
 
-## What exists
+Read docs/audits/DEFINITION_OF_DONE_PULSE_CHECK.md first (LIVE STATE newest first, DEC-1..DEC-10, OD-1..OD-7),
+then docs/RUNBOOK_PULSE_CHECK.md. Branch `combo-letterbox-quoteonly-v2`. Nothing is published; Telegram (the
+approval chat) gets a run ONLY when every gate passed (orchestrator 08:30).
 
-- **First fresh-topic Pulse Check render** (Bitcoin price dip, ~$74k) produced by the pipeline with no editorial waivers.
-- Branch: `combo-letterbox-quoteonly-v2` (pending commit with alimiter per-run parameter + QA doc updates).
-- Run: `pinned_20261110_150345` (v3, with EDL sync fix). Previous: `pinned_20261110_142152` (same content, pre-EDL-sync).
-- Both formats rendered: 16:9 (61.8s, 1920x1080) and 9:16 (61.8s, 1080x1920, letterbox reframe).
-- Sources: DataDash (hook), Natalie Brunell (clip_01), Yahoo Finance (clip_02).
-- Editorial stages all PASS: R1-R10, Laws 1-4, review (gemma3:27b), clip contract, edge words.
-- Telegram delivered with "REVIEW ONLY — QA HOLD" banner: msg 67444 (16:9), msg 67445 (9:16).
-- Alimiter ceiling is now a per-run parameter: default -3.0 dBFS (v2f/human PINs), -3.5 dBFS only for machine_cuts=true PINs. v2f parity preserved.
+## What exists (all audited, committed, pushed)
+- One command: `scripts/pulse_check_run.sh` (auto) / `--pinned PIN.json`; flock, logs/pulse_check/, tmux-safe,
+  NOT in cron; delivers only on a clean pass; DEC-9 story ledger for auto runs (data/pulse_check/story_ledger.jsonl).
+- Stages: env, editorial (auto: story engine + same-event merge + ledger) or pinned, review, validate (edl_rules,
+  editorial laws, NEW stand-alone + topic rule: pipeline/stand_alone.py), cut, sentence_law (G16), voice, prepare
+  (fade retry; NEW shot_snap: no neighbouring shot outside the speech), layout (SCRFD per shot), render (16:9 +
+  9:16, transitions; xfade timebase fix), gates (G1..G18, NEW G19 edge shots, G4s), verify (contact sheets, V1:
+  six questions on the sheet + per-shot letterbox + per-cut next-shot check, two Heimdall vision models).
+- `pipeline/replay.py RUN_DIR --from prepare|layout|render|gates`: re-runs the tail on a copy with the
+  production functions (no download / transcription), for checking a fix in minutes.
+- Law 22: the frozen v2f reference re-renders byte-identical (re-prove at the HEAD of the next fresh runs).
 
-## What is held and why
+## Phase 4a (corrected Nov 10 story): NOT yet passing
+- Run 6 (runs/pinned_20261111_123750) rendered end to end with the sentence law; HELD on G3, G5, G9, G14, G15,
+  G17, G18, V1. Root causes in the DoD: G18 = comparator gap (fixed, plus a decimal hole it hid); V1 next shot =
+  real (fixed: shot_snap + G19); G5 = lineup too short + loudness chain; G9/G15/G17a/G3/G14 = what the gate
+  measures (OD-1, OD-4..OD-7, gates unchanged). Run 6 was delivered REVIEW ONLY at 08:20 (msgs 67570-67573),
+  before the 08:30 rule; nothing since.
+- Replay of run 6 with the fixes: G18 PASS everywhere; 9:16 V1 PASS.
+- Lineup: under the 80 ms law the better windows are not cuttable (measured pauses); the best legal lineup
+  is ~59 s with a weak hook. DEC-10 (10:35): recalibrate the edge TIMING constants to v2f's measured worst
+  (DEC-1 mechanism), keep the listener-facing checks strict, cut short gaps at the envelope minimum with a
+  2-frame fade; then re-cut the Nov 10 story (DataDash 0.00-9.10 hook, Natalie "It went from above 81,000 ...",
+  Yahoo "...Bitcoin dropped pretty massively ... many times."). TIME BOX 13:00 ET, then 4b.
+- Wider frozen sources for the search: runs/recut_sources_20261111b (full audio + transcripts for Bitcoin
+  Magazine jbDqdLytkNM, DataDash, Yahoo, CoinTelegraph; full mp4 for jbDqdLytkNM, Yahoo, DataDash).
 
-Final QA gates: HOLD. Detailed analysis in `docs/audits/QA_GATE_HOLD_2026-11-10.md`.
+## Phase 4b (three fresh stories in a row at one HEAD): code ready, runs not started
+- Same-event merge, DEC-9 ledger, stand-alone rule in auto selection; run via the wrapper after 4a or 13:00.
 
-| Gate | Issue | Classification |
-|------|-------|----------------|
-| G3c_acoustic_tail | Hook tail -35.5 dB vs -42.6 dB limit (continuous background music in DataDash source) | (R) investigated — best accepted boundary already chosen, deeper snap would capture "Over the weekend..." onset |
-| G4_faces | Hook first frame has 0 faces (chart-screen layout with small face cam) | (D) gate assumes talking-head |
-| G5_tech | True peak -1.9 dBTP vs -2.0 limit (AAC overshoot) | (R) fixed: alimiter -3.5 dBFS for machine_cuts PINs only |
-| G8_sharpness | clip_01 source camera Laplacian 35 vs min 60 | (S) Natalie Brunell camera is soft |
-| G9_tail | Outro luma 14.3 (ends on black) | Approved known exception |
-| G12/G15 | Credit circle detector false positives (5-6 vs expected 3) | (D) detector design assumption — avatars are round, glow rings cause false positives |
-
-Classifications: **(R)** real defect, fixable without touching gate; **(S)** source limitation, needs different clip; **(D)** design assumption, PBX decision required.
-
-## (D) decisions waiting on PBX
-
-1. **G4_faces on chart/screen hooks with small face cam**: The face gate requires 1+ face in every sampled frame. Chart-screen sources (common in crypto YouTube) have a small face-cam overlay that is missed at some sample points. DataDash hook: face_counts [0,1,1,1,1,1] (16:9), [0,1,0,1,1,1] (9:16). Options: (a) add a "chart_overlay" layout mode with 4/6 threshold, (b) add a source-layout classifier, (c) accept chart-screen hooks with relaxed face requirements.
-
-2. **G8_sharpness on soft-camera sources below sharpness floor**: The Natalie Brunell source camera produces Laplacian variance ~35 (below the 60 floor). No degradation occurred (output/source ratio 1.04). Options: (a) prefer sharper sources when alternatives exist, (b) lower the absolute floor for known-soft cameras, (c) accept and document as known limitation.
-
-3. **G12/G15 credits-card detector on 3-channel cards with glow rings**: The Hough circle detector finds 5-6 circles vs expected 3. Visual inspection confirms 3 correctly rendered round avatars — the extra detections come from decorative red glow rings and circular elements in YouTube thumbnails. Frame crops in `docs/audits/g12_credits_16x9_crop.png` and `docs/audits/g12_credits_9x16_crop.png`. Options: (a) tune Hough parameters (min/max radius, accumulator) to reject glow rings, (b) count labelled channel text instead of circles, (c) accept current styling and adjust expected range.
-
-4. **Letterboxed vertical acceptable or not**: The 9:16 format uses letterbox reframe (scale by height + blur background + center crop). G14 frame similarity is structurally low (0.24-0.54) due to the crop/blur transform. Currently only audio-offset part is scored. PBX to decide whether this visual treatment is acceptable for production.
-
-## What auto mode needs to do this path unattended
-
-1. **Same-event merge**: When multiple channels cover the same story, the pipeline must detect overlapping topics and merge into a single editorial decision. Currently requires manual PIN.
-
-2. **Word-timestamp transcription**: Every covering channel's clip window must be transcribed at word level (Whisper) before the cutter runs.
-
-3. **Machine_cuts snapping**: The acoustic snap system works correctly. Auto mode enables `machine_cuts: true` by default.
-
-4. **D1 fix + UTC normalisation**: The D1 time-range query needs UTC boundary respect.
-
-5. **G3c hook tail**: Continuous background music in DataDash source causes tail energy above threshold. The current snap at 9.33s is the best accepted boundary — "take." ends at 9.10s, "Over" starts at 9.32s. Deeper snaps would include next-sentence onset. Fix requires either a source with cleaner inter-sentence silence or a background-music-aware tail energy calculation.
+## Open decisions (DoD): OD-1 G15 glyphs, OD-2/OD-3, OD-4 G9 on a black-ending outro, OD-5 G17a gated silence,
+## OD-6 G3 single word, OD-7 G14 window under the bed.
 
 ---
 

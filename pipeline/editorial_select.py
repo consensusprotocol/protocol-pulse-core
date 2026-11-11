@@ -194,6 +194,19 @@ def start_is_boundary(words, sents, si):
     return True, "ok"
 
 
+def _stand_alone_ok(kind, text, subject):
+    """Orchestrator 08:30 ET (direction 2) at selection time (the validate stage applies the full rule to the
+    final sequence): a hook passes the opener screen (no pronoun / conjunction / reply fragment) and mentions
+    Bitcoin; a clip mentions Bitcoin (a clip that only completes the previous segment's claim needs the final
+    sequence, so auto selection never relies on it)."""
+    import stand_alone as SA
+    if kind == "hook":
+        ok, why = SA.opener("hook", text)
+        if not ok:
+            return ok, why
+    return SA.topical(kind, text, subject=subject)
+
+
 def anchored_window(words, sents, anchor, lo, hi):
     """PBX 2026-11-06 18:52: the window is EXACTLY the sentence(s) that hold the verified quote.
     No expansion into any sentence that does not contain the quote, no padding. Invalid if the
@@ -1019,6 +1032,8 @@ def _merge_event(members, L, uni, by_cid, today, log):
 def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
     import story_semantics as sm
     q = c["query"]
+    import stand_alone as SA
+    subject = SA.subject_terms(q.get("affected_object", ""), c.get("headline", ""))   # 08:30 direction 2
     qv = E.encode([q.get("underlying_event", c["headline"])], query=True)[0]
     cands, infra, missing, anchors = [], [], [], []
     on_event_cache = {}
@@ -1145,13 +1160,17 @@ def _clip_quality(c, same, E, L, by_cid, words, log, today=""):
             shortlist.append(x)
     base["rating_errors"] = rating_errors
     base["boundary_repairs"] = repairs
-    hooks = sorted([p for p in shortlist if p["kind"] == "hook" and p["clip_score"] >= HOOK_MIN_SCORE],
-                   key=lambda p: (-p["clip_score"], -p["relevance"]))
-    clips = sorted([p for p in shortlist if p["kind"] == "clip" and p["clip_score"] >= CLIP_MIN_SCORE],
-                   key=lambda p: (-p["clip_score"], -p["relevance"]))
+    for p in shortlist:                    # 08:30 direction 2, on the final (scored, repaired) windows
+        p["stand_alone"] = dict(zip(("pass", "why"), _stand_alone_ok(p["kind"], p["text"], subject)))
+    hooks = sorted([p for p in shortlist if p["kind"] == "hook" and p["clip_score"] >= HOOK_MIN_SCORE
+                    and p["stand_alone"]["pass"]], key=lambda p: (-p["clip_score"], -p["relevance"]))
+    clips = sorted([p for p in shortlist if p["kind"] == "clip" and p["clip_score"] >= CLIP_MIN_SCORE
+                    and p["stand_alone"]["pass"]], key=lambda p: (-p["clip_score"], -p["relevance"]))
     if not hooks:
         return {**base, "producible": False, "candidates": shortlist, "chosen": [], "mean_chosen_score": 0,
-                "reason": (f"no hook passage scored >= {HOOK_MIN_SCORE}" +
+                "reason": ((f"no hook passage scored >= {HOOK_MIN_SCORE}" if not any(
+                    p["kind"] == "hook" and p["clip_score"] >= HOOK_MIN_SCORE for p in shortlist) else
+                    f"every hook scoring >= {HOOK_MIN_SCORE} failed the stand-alone/topic rule") +
                            (" (clip ratings inconclusive: LLM output unparseable)" if rating_errors else ""))}
     def assemble(hook):
         chosen = [hook]
