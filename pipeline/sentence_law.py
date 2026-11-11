@@ -327,9 +327,9 @@ def _segments(edl):
         yield f"clip_{c['index']:02d}", c
 
 
-def _accepted_cut_pair(src, plan, step=HOP_S):
-    """The cut pair nearest the plan's targets, searched ONLY inside the legal (locked-pause) ranges,
-    that also passes cut_accept's unchanged OUT-pause and IN-speech checks. None if no pair does."""
+def cut_candidates(src, plan, step=HOP_S):
+    """Every legal cut point per edge, nearest the plan's target first: ONLY inside the locked-pause ranges,
+    and passing cut_accept's unchanged OUT-pause / IN-speech checks. {"in": [...], "out": [...]}."""
     from cut_accept import envelope, speech_median_db, check_cut_out, check_cut_in
     pi, po = plan["in"], plan["out"]
 
@@ -339,12 +339,21 @@ def _accepted_cut_pair(src, plan, step=HOP_S):
         return sorted(pts, key=lambda x: (abs(x - target), x))
     t, db = envelope(src, pi["cut_lo"] - 1.0, po["cut_hi"] + 1.0)
     med = speech_median_db(t, db, pi["cut"], po["cut"])
-    out_ok = next((x for x in grid(po["cut_lo"], po["cut_hi"], po["cut"]) if check_cut_out(t, db, x, med)[0]), None)
-    in_ok = next((x for x in grid(pi["cut_lo"], pi["cut_hi"], pi["cut"]) if check_cut_in(t, db, x, med)[0]), None)
-    if out_ok is None or in_ok is None:
-        return None
+    return {"out": [x for x in grid(po["cut_lo"], po["cut_hi"], po["cut"]) if check_cut_out(t, db, x, med)[0]],
+            "in": [x for x in grid(pi["cut_lo"], pi["cut_hi"], pi["cut"]) if check_cut_in(t, db, x, med)[0]]}
+
+
+def _accepted_cut_pair(src, plan, step=HOP_S):
+    """The cut pair nearest the plan's targets that cut_candidates allows; None if an edge has none. The
+    whole pair must also pass cut_accept's acoustics check. Further candidates are tried by
+    run_fresh.stage_prepare when a prepared clip fails the clip contract's fade check (a click or breath
+    at the cut point; Nov 11 recut clip_02: 37.87)."""
     from cut_accept import check_cut_acoustics
-    return (in_ok, out_ok) if check_cut_acoustics(src, in_ok, out_ok)[0] else None
+    cand = cut_candidates(src, plan, step)
+    if not cand["out"] or not cand["in"]:
+        return None
+    pair = (cand["in"][0], cand["out"][0])
+    return pair if check_cut_acoustics(src, *pair)[0] else None
 
 
 def write_lock_cut_table(run_dir):

@@ -6,8 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 05:50 ET; newest first)
+## LIVE STATE (updated 2026-11-11 05:52 ET; newest first)
 
+- 05:49 recut re-run at HEAD 99d20fb5 (runs/pinned_20261111_104922): the 05:48 run HELD at the editorial gate
+  (LAW_1 "clip 2 missing") because editorial_review._validator returned instead of raising (E-FAIL-019,
+  fixed 99d20fb5); now all four laws PASS and it is rendering. Batched audit a1e732e1..497d8224 running.
+- 4b plan (read-only map, 05:47): (A) same-event MERGE after the coverage loop in editorial_select
+  (~:802, before the word pass): group candidates of one event, one merged query (derive_story_query),
+  pool verdicts deduped by video, RE-JUDGE the uncounted CURRENT_EVENT verdicts on their stored excerpts
+  against the merged event (pooling alone would not have rescued Nov 10: only Yahoo + Natalie counted;
+  the hand fix upgraded DataDash by re-judging), recompute coverage/currentness/decision. (B) widen the
+  word-timestamp pass (`need`, ~:805-810) to every newly counted layout-eligible video, inside the one GPU0
+  swap. Tests: test_window_review RoutedLLM + test_editorial_robust Orchestration fakes; a Nov 10
+  story-split fixture from runs/fresh_20261110_093150. DEC-9 story ledger uses the same event identity.
 - ORCHESTRATOR NOTE 05:40: deliver the corrected Nov 10 re-cut (gated + Telegram) and the A/B/C options
   before any further Phase 1 refinement; heimdall panel = deepseek + qwen27b (+ Grok via cross-LLM);
   batch related diffs into one audit. In progress: Phase 2 + Phase 3 + 4a code audited as ONE batch

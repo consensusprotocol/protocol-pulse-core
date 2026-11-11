@@ -457,6 +457,58 @@ def stage_voice(run):
 
 # ── stage 8: prepare clips + contract + edge words ──
 
+FADE_RETRY_MAX = 6   # further legal cut points tried per failing edge (machine-placed cuts only)
+
+
+def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
+    """The clip contract failed ONLY on a fade edge of a MACHINE-placed cut (a click or breath at the cut
+    point: Nov 11 recut clip_02, cut_out 37.87 on a tick): move only that edge to the next legal point of
+    the same locked pause (sentence_law.cut_candidates: inside the range, cut_accept-clean, nearest the
+    target first), re-prepare, re-check. The contract and G16 are unchanged (the final G16 re-checks the
+    moved cut). Returns (ok, d1); every attempt is recorded on the cut."""
+    errs = d1.get("errors") or []
+    sides = {"out" if e.startswith("fade-out missing") else "in" if e.startswith("fade-in missing") else None
+             for e in errs}
+    if not errs or None in sides or not (run.mode == "auto" or run.machine_cuts):
+        return False, d1
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        edl = json.load(f)
+    seg = edl["hook"] if c["clip_id"] == "hook" else \
+        next(x for x in edl["clips"] if f"clip_{x['index']:02d}" == c["clip_id"])
+    lock = seg["selection_lock"]
+    with open(os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")) as f:
+        words = json.load(f)["words"]
+    src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
+    cand = L.cut_candidates(src, L.edge_plan(L.SourceAudio(src), words, lock["i0"], lock["i1"]))
+    from cut_accept import check_cut_acoustics
+    pad = float(c.get("lead_in_pad_s") or 0)
+    tried = c.setdefault("contract_retries", [])
+    for side in sorted(sides):
+        key = "cut_out" if side == "out" else "cut_in"
+        for x in [v for v in cand[side] if abs(v - c[key]) > 1e-6][:FADE_RETRY_MAX]:
+            trial = dict(c, **{key: x})
+            trial["cut_duration"] = round(trial["cut_out"] - trial["cut_in"], 3)
+            if not check_cut_acoustics(src, trial["cut_in"], trial["cut_out"])[0]:
+                tried.append({key: x, "result": "cut_accept rejected the pair"})
+                continue
+            prerender_clips(run.dir, [trial])
+            if pad > 0:
+                L.apply_lead_in_pad(run.dir, trial, fps, qp)
+            ok, d = check_clip(os.path.join(run.dir, "qa", f"final_{c['clip_id']}.mp4"), trial["cut_duration"] + pad)
+            tried.append({key: x, "result": "PASS" if ok else d.get("errors")})
+            print(f"  {c['clip_id']}: fade retry {key} {x}: {'PASS' if ok else d.get('errors')}")
+            if ok or not any(e.startswith(f"fade-{side}") for e in d.get("errors") or []):
+                c.update({key: x, "cut_duration": trial["cut_duration"]})
+                d1 = d
+                break
+        else:                                   # no legal point clears this edge: restore the original clip
+            prerender_clips(run.dir, [c])
+            if pad > 0:
+                L.apply_lead_in_pad(run.dir, c, fps, qp)
+            return False, d1
+    return not (d1.get("errors") or []), d1
+
+
 def stage_prepare(run, cuts):
     from run_isolated import prerender_clips
     from clip_contract import check_clip
@@ -474,9 +526,14 @@ def stage_prepare(run, cuts):
     work = os.path.join(qa, "edge_words")
     os.makedirs(work, exist_ok=True)
     report, fails = [], []
+    moved = False
     for c in cuts:
         clip = os.path.join(qa, f"final_{c['clip_id']}.mp4")
         ok1, d1 = check_clip(clip, c["cut_duration"] + float(c.get("lead_in_pad_s") or 0))
+        if not ok1:
+            before = (c["cut_in"], c["cut_out"])
+            ok1, d1 = _retry_fade_edges(run, c, d1, prerender_clips, check_clip, FPS, NVENC_QP_INTERMEDIATE)
+            moved |= (c["cut_in"], c["cut_out"]) != before
         # expected words come from the selection lock (cuts_final), never from the cut position
         ok2, d2 = check_edge_words(clip, c.get("first_word_expected", ""),
                                    c.get("last_word_expected", ""), work, c["clip_id"])
@@ -490,6 +547,8 @@ def stage_prepare(run, cuts):
               f"last '{d2['heard_last']}'/'{d2['expected_last']}' {'PASS' if ok2 else 'FAIL'}")
     run.prov["prepared_clips"] = report
     jdump(os.path.join(run.dir, "CLIP_CONTRACT.json"), report)
+    if moved:                                   # the final G16 and every later stage read the moved cut
+        jdump(os.path.join(run.dir, "cuts_final.json"), cuts)
     if fails:
         raise Hold(f"clip-preparation contract / edge-word check failed for {fails}")
 
