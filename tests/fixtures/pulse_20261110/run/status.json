@@ -1,0 +1,81 @@
+{
+  "run_dir": "/home/ultron/protocol_pulse/runs/pinned_20261110_150345",
+  "started": "2026-11-10T15:03:45.429623+00:00",
+  "stages": [
+    {
+      "name": "env",
+      "started": "2026-11-10T15:03:45.430395+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:03:46.728462+00:00",
+      "seconds": 1.3
+    },
+    {
+      "name": "pinned",
+      "started": "2026-11-10T15:03:46.729898+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:06:16.542508+00:00",
+      "seconds": 149.8
+    },
+    {
+      "name": "review",
+      "started": "2026-11-10T15:06:16.544749+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:06:49.527056+00:00",
+      "seconds": 33.0
+    },
+    {
+      "name": "validate",
+      "started": "2026-11-10T15:06:49.529143+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:06:49.537808+00:00",
+      "seconds": 0.0
+    },
+    {
+      "name": "cut",
+      "started": "2026-11-10T15:06:49.540241+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:12:09.019003+00:00",
+      "seconds": 319.5
+    },
+    {
+      "name": "voice",
+      "started": "2026-11-10T15:12:09.024807+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:12:29.891105+00:00",
+      "seconds": 20.9
+    },
+    {
+      "name": "prepare",
+      "started": "2026-11-10T15:12:29.894289+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:13:16.305513+00:00",
+      "seconds": 46.4
+    },
+    {
+      "name": "render",
+      "started": "2026-11-10T15:13:16.309477+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:33:29.772706+00:00",
+      "seconds": 1213.5
+    },
+    {
+      "name": "gates",
+      "started": "2026-11-10T15:33:29.777747+00:00",
+      "status": "passed",
+      "ended": "2026-11-10T15:41:22.446273+00:00",
+      "seconds": 472.7
+    }
+  ],
+  "holds": [
+    "gates G3c_acoustic_tail: FAIL",
+    "gates G4_faces: FAIL",
+    "gates G5_tech: FAIL",
+    "gates G12_credits: FAIL",
+    "gates G15_credits: FAIL"
+  ],
+  "verdict": "HOLD",
+  "mode": "pinned",
+  "release_state": "HOLD_FOR_HUMAN_APPROVAL",
+  "ended": "2026-11-10T15:41:51.875414+00:00",
+  "elapsed_s": 2286.4
+}

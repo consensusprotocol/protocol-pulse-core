@@ -1,0 +1,11 @@
+{
+  "hook": {
+    "layout": "letterbox"
+  },
+  "clip_01": {
+    "layout": "letterbox"
+  },
+  "clip_02": {
+    "layout": "letterbox"
+  }
+}

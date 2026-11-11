@@ -1,0 +1,94 @@
+{
+  "topic": "Bitcoin price dip",
+  "angle": "Pinned: Bitcoin fell sharply over the weekend (below about $74,000) alongside a tech selloff, with about $1.3B of US spot ETF outflows last week",
+  "hook": {
+    "video_id": "RXTVaDsN11M",
+    "channel": "DataDash",
+    "handle": "@DataDash",
+    "video_title": "",
+    "text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $700 ,000, give or take.",
+    "first_word": "Bitcoin",
+    "last_word": "take.",
+    "word_start": 0.0,
+    "word_end": 9.1,
+    "duration": 9.1,
+    "time_coords": "source_file",
+    "source_window_offset_s": 0.0,
+    "pinned": {
+      "start": 0.0,
+      "end": 9.26,
+      "input_start": 0.0,
+      "input_end": 9.26,
+      "input_time_coords": "youtube"
+    },
+    "cut_out": 9.59,
+    "fade_out_ms": 30
+  },
+  "clips": [
+    {
+      "video_id": "lusJ1m-J0Mc",
+      "channel": "Natalie Brunell",
+      "handle": "@nataliebrunell",
+      "video_title": "",
+      "text": "81 ,000 after the election to below 75 ,000 by the weekend. US Bitcoin ETFs had about 1 .3 billion in net outflows just last week. And Bitcoin really hasn't participated in the Monday rally, but of course things can change quickly. So we'll see how the market shapes up this week. All right,",
+      "first_word": "81",
+      "last_word": "celebrating",
+      "word_start": 15.16,
+      "word_end": 31.76,
+      "duration": 16.6,
+      "time_coords": "source_file",
+      "source_window_offset_s": 53.57,
+      "pinned": {
+        "start": 15.0,
+        "end": 31.84,
+        "input_start": 68.57,
+        "input_end": 85.41,
+        "input_time_coords": "youtube"
+      },
+      "cut_out": 31.99,
+      "fade_out_ms": 30,
+      "index": 1,
+      "acoustic_valley_centre": 31.99,
+      "acoustic_valley_end": 32.02,
+      "acoustic_valley_depth_db": 15.3,
+      "acoustic_valley_width_ms": 60,
+      "acoustic_onset": 32.05
+    },
+    {
+      "video_id": "36HPi9UZPOc",
+      "channel": "Yahoo Finance",
+      "handle": "@YahooFinance",
+      "video_title": "",
+      "text": "of course of course bitcoin dropped pretty massively over the weekend alongside the tech sell -off that we saw the democrat blue wave the binance hack but i don't check it on an hourly basis it seemed to have bounced very nicely at a very key level around 74 000 around the 50 weekly ma which we've talked about many",
+      "first_word": "days",
+      "last_word": "times",
+      "word_start": 15.1,
+      "word_end": 33.52,
+      "duration": 18.42,
+      "time_coords": "source_file",
+      "source_window_offset_s": 23.38,
+      "pinned": {
+        "start": 15.0,
+        "end": 33.62,
+        "input_start": 38.38,
+        "input_end": 57.0,
+        "input_time_coords": "youtube"
+      },
+      "cut_out": 34.38,
+      "fade_out_ms": 30,
+      "index": 2,
+      "acoustic_valley_centre": 34.25,
+      "acoustic_valley_end": 34.43,
+      "acoustic_valley_depth_db": 61.1,
+      "acoustic_valley_width_ms": 360,
+      "acoustic_onset": 34.44
+    }
+  ],
+  "vo": {
+    "intro": null,
+    "bridges": []
+  },
+  "total_clip_duration": 44.12,
+  "mode": "pinned",
+  "pinned_story_id": "btc-drop-merged-20261110"
+}

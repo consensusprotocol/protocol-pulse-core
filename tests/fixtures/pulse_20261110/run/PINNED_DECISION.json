@@ -1,0 +1,137 @@
+{
+  "mode": "pinned",
+  "pin_path": "/home/ultron/protocol_pulse/pipeline/PIN_B3_20261110.json",
+  "pin_sha256": "584991d994854612f78abe6b7a0ec7cc7f1f56e3698008538a65bea9b5871dd7",
+  "pin": {
+    "schema": "protocol_pulse.pinned_story.v1",
+    "machine_cuts": true,
+    "story_id": "btc-drop-merged-20261110",
+    "label": "Bitcoin price dip",
+    "headline": "Bitcoin fell sharply over the weekend (below about $74,000) alongside a tech selloff, with about $1.3B of US spot ETF outflows last week",
+    "approved_by": "Claude (B3 clip_quality \u2014 all gates on)",
+    "approved_at": "2026-11-10T12:30:00+00:00",
+    "approval_ref": "docs/audits/FIRST_VIDEO_RUN_2026-11-10.md Step 4",
+    "segments": [
+      {
+        "role": "hook",
+        "video_id": "RXTVaDsN11M",
+        "channel": "DataDash",
+        "start": 0.0,
+        "end": 9.26,
+        "time_coords": "youtube",
+        "source": {
+          "kind": "youtube"
+        }
+      },
+      {
+        "role": "clip",
+        "video_id": "lusJ1m-J0Mc",
+        "channel": "Natalie Brunell",
+        "start": 68.57,
+        "end": 85.41,
+        "time_coords": "youtube",
+        "source": {
+          "kind": "youtube"
+        }
+      },
+      {
+        "role": "clip",
+        "video_id": "36HPi9UZPOc",
+        "channel": "Yahoo Finance",
+        "start": 38.38,
+        "end": 57.0,
+        "time_coords": "youtube",
+        "source": {
+          "kind": "youtube"
+        }
+      }
+    ]
+  },
+  "validation": [
+    {
+      "role": "hook",
+      "video_id": "RXTVaDsN11M",
+      "channel": "DataDash",
+      "input": [
+        0.0,
+        9.26,
+        "youtube"
+      ],
+      "source_file_range": [
+        0.0,
+        9.26
+      ],
+      "source_duration": 24.034,
+      "words_in_range": 26,
+      "first_word": "Bitcoin",
+      "last_word": "take.",
+      "transcript_word_straddles_boundary": [],
+      "edge_words_from": "transcript words entirely inside the range",
+      "approved_text_similarity": null,
+      "provenance": {
+        "kind": "youtube_window",
+        "window_offset_s": 0,
+        "source_file_sha256": "8b8d1b536c5dc4f662ffab1f1bf3de0dd1a8e1044e3bcbbd13b9807c1c82c902"
+      }
+    },
+    {
+      "role": "clip",
+      "video_id": "lusJ1m-J0Mc",
+      "channel": "Natalie Brunell",
+      "input": [
+        68.57,
+        85.41,
+        "youtube"
+      ],
+      "source_file_range": [
+        15.0,
+        31.84
+      ],
+      "source_duration": 46.084,
+      "words_in_range": 54,
+      "first_word": "81",
+      "last_word": "right,",
+      "transcript_word_straddles_boundary": [
+        "above",
+        "you've"
+      ],
+      "edge_words_from": "transcript words entirely inside the range",
+      "approved_text_similarity": null,
+      "provenance": {
+        "kind": "youtube_window",
+        "window_offset_s": 53.56999999999999,
+        "source_file_sha256": "4ec963b54e202d6552cb749b5a4dc2d36a7e9a7a7547b249e467a2a637523ff7"
+      }
+    },
+    {
+      "role": "clip",
+      "video_id": "36HPi9UZPOc",
+      "channel": "Yahoo Finance",
+      "input": [
+        38.38,
+        57.0,
+        "youtube"
+      ],
+      "source_file_range": [
+        15.0,
+        33.62
+      ],
+      "source_duration": 49.084,
+      "words_in_range": 60,
+      "first_word": "of",
+      "last_word": "many",
+      "transcript_word_straddles_boundary": [
+        "days",
+        "times"
+      ],
+      "edge_words_from": "transcript words entirely inside the range",
+      "approved_text_similarity": null,
+      "provenance": {
+        "kind": "youtube_window",
+        "window_offset_s": 23.380000000000003,
+        "source_file_sha256": "e613099a6e97bbbaa28ad1acdc751ad40043e6f5bc0a6f3e7733647cc51e3dde"
+      }
+    }
+  ],
+  "rule": "ranges are used exactly as supplied: never extended, trimmed, snapped or improved"
+}

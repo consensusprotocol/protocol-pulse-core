@@ -1,0 +1,289 @@
+diff --git a/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md b/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md
+new file mode 100644
+index 00000000..665fd49d
+--- /dev/null
++++ b/docs/gospels/PULSE_SENTENCE_LAW_GOSPEL.md
+@@ -0,0 +1,31 @@
++# PULSE CHECK SENTENCE LAW GOSPEL (PBX review of run pinned_20261110_150345, 2026-11-11)
++
++## WHAT THIS FEATURE IS
++The automated Protocol Pulse "Pulse Check" medley (pipeline/run_fresh.py) cuts hooks and clips from
++partner YouTube videos, renders 16:9 and 9:16, and runs QA gates. PBX watched the 2026-11-10 cut and
++found editorial errors every gate had passed: the opening word sounded clipped (D1), clips started or
++ended mid-sentence (D2/D3), credit avatars were warped (D4), the vertical was letterboxed (D5) and
++channel changes were abrupt (D6). This work makes the gates catch what a human caught, proves it on
++yesterday's files (tests/fixtures/pulse_20261110, pipeline/test_pulse_20261110_mustfail.py), fixes the
++causes, then requires three clean fresh videos in a row with no code edits between them.
++
++## THE LAWS
++- SENTENCE LAW: a clip's first word is the first word of a sentence and its last word the last word of
++  a sentence. Boundary = transcript punctuation (or a cached, logged local-model adjudication when the
++  transcript has no punctuation) AND an acoustic pause >= 80 ms between the two words
++  (pipeline/sentence_law.py states every constant).
++- SELECTION LOCK: the words a clip must contain are fixed at selection time (selection_lock in edl.json,
++  sha256-sealed). No later stage may recompute expected first/last words from a moved cut.
++- SNAP LIMIT: a cut may move only inside the silence between the chosen sentence and its neighbour; it
++  may never add or drop a word. No legal boundary in that gap = the window is rejected.
++- ONSET/TAIL: every rendered segment keeps >= 80 ms of genuine sub-speech audio before its first onset
++  and after its last offset; codec zero/padding is not room tone; a source that starts speaking at its
++  file head without lead-in needs a declared room-tone lead-in pad. Edge words keep >= 85 % of their
++  duration in the render.
++- CREDITS: round avatars of the channels actually used; the avatar is the channel's real square avatar,
++  never a video thumbnail, never a generated placeholder; G12/G15 unchanged.
++- LAW 20 / M2: gate thresholds are constants; a failed gate is a hard stop; never change what a check
++  accepts to make a render pass; never reclassify a failing gate as a false positive.
++- M12 FAIL CLOSED: missing data, model failure or an exception rejects; it never produces a pass.
++- LAW 22: the frozen v2f reference (references/v2f_2026-11-06) must keep re-rendering byte-identically.
++- Smallest diff; no new renderer, compositor or selector (M1); GPU0 only; no publishing.
+diff --git a/pipeline/test_pulse_20261110_mustfail.py b/pipeline/test_pulse_20261110_mustfail.py
+new file mode 100644
+index 00000000..38f64690
+--- /dev/null
++++ b/pipeline/test_pulse_20261110_mustfail.py
+@@ -0,0 +1,200 @@
++#!/usr/bin/env python3
++"""MUST-FAIL fixture: PBX's review of runs/pinned_20261110_150345 (Telegram 67444/67445, 2026-11-11).
++
++EXPECTED ON HEAD 7a76a5c5 (before the checks land): every DEFECT test FAILS, because no check exists
++that catches the defect or the existing path accepts it; the CONTROL tests (v2f card passes G12/G15,
++clip_02 out edge is clean) document what must keep passing. A green run means the checks landed.
++Never invert an assertion to make it pass. Fixture: tests/fixtures/pulse_20261110 (copies; the run dir
++is never modified). No GPU, no model calls: the unpunctuated-transcript adjudications are cached.
++
++D1  hook opens on "Bitcoin" at source 0.000 with 60 ms of genuine room tone before the onset (30 ms of
++    codec zero first) and no lead-in pad              -> G16 IN and G17a head FAIL
++D2  clip_01 out 33.71 runs 2.4 s into the next sentence ("All right, you've probably seen people
++    celebrating"); the sentence ends at 'week.'       -> G16 OUT FAIL
++D3a clip_01 in 15.13 starts on "81" (sentence: "It went from above $81,000 ...") -> G16 IN + G17a FAIL
++D3b clip_02 in 14.93 lands inside "days" (sentence: "Of course, Bitcoin dropped ...") -> G16 IN + G17a FAIL
++D3c clip_02 out 34.36 is a CONTROL and must PASS: acoustically clean (pause 34.08-34.43, the 'I' onset
++    is 34.44; whisper on the prepared clip ends "...many times."). The transcript word 'i' 33.92-34.46
++    is a whisper timestamp error, not a defect.
++T   ad7295ea/4cf5a31a tautology: expected words recomputed from the moved cut -> G16 lock FAIL
++OFF window offset: yt-dlp is asked for '*54-100' but the offset recorded is 53.57 (source of D3)
++D4  credits: the 'avatars' are 1280x720 video thumbnails squashed into circles -> G15 and G12 FAIL on
++    yesterday's card and PASS on the frozen v2f finals; the shout-out builder must refuse a non-square
++    avatar and must not fall back to a video thumbnail or a generated placeholder.
++"""
++import inspect
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE_DIR)
++sys.path.insert(0, PIPELINE_DIR)
++sys.path.insert(0, os.path.join(REPO, "segment_v1"))
++FIX = os.path.join(REPO, "tests", "fixtures", "pulse_20261110")
++V2F = os.path.join(REPO, "references", "v2f_2026-11-06", "run")
++
++
++def _law():
++    import sentence_law
++    return sentence_law
++
++
++def _dur(p):
++    return float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", p],
++                                capture_output=True, text=True, check=True).stdout)
++
++
++class _G16Fixture(unittest.TestCase):
++    """Yesterday's cuts against selection locks built from the editor's B3 decision."""
++
++    @classmethod
++    def setUpClass(cls):
++        L = _law()
++        cls.tmp = tempfile.mkdtemp(prefix="pulse_20261110_")
++        shutil.copytree(os.path.join(FIX, "run", "transcripts"), os.path.join(cls.tmp, "transcripts"))
++        shutil.copy(os.path.join(FIX, "run", "cuts_final.json"), cls.tmp)
++        edl = json.load(open(os.path.join(FIX, "run", "edl.json")))
++        sel = {p["video_id"]: p for p in json.load(open(os.path.join(FIX, "selection", "B3_chosen.json")))["chosen"]}
++        cls.locks = {}
++        for label, seg in [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl["clips"]]:
++            tpath = os.path.join(cls.tmp, "transcripts", f"{seg['video_id']}.json")
++            words = json.load(open(tpath))["words"]
++            p = sel[seg["video_id"]]
++            i0, i1, r = L.anchor(words, p["text"])
++            seg["selection_lock"] = L.make_lock(seg["video_id"], words, i0, i1, L.sha256_file(tpath), p["text"],
++                                                [p["start"], p["end"]], r, "B3 (fixture)")
++            cls.locks[label] = seg["selection_lock"]
++        json.dump(edl, open(os.path.join(cls.tmp, "edl.json"), "w"), indent=1)
++        adj = L.Adjudicator(cache_path=os.path.join(FIX, "selection", "sentence_adjudication.json"),
++                            log_path=None, allow_model=False)
++        cls.ok, table = L.gate_g16(cls.tmp, adj, source_path_fn=lambda v: os.path.join(FIX, "audio", f"src_{v}.flac"))
++        cls.rows = {r["segment"]: r for r in table}
++        cls.g17_ok, t17 = L.gate_g17_prepared(
++            {c: os.path.join(FIX, "audio", f"prepared_{c}.flac") for c in ("hook", "clip_01", "clip_02")})
++        cls.g17 = {r["segment"]: r for r in t17}
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.tmp, ignore_errors=True)
++
++
++class TestSelectionLockEdges(_G16Fixture):
++    def test_locks_hold_the_editors_sentences(self):
++        got = {k: (v["first_word"], v["last_word"]) for k, v in self.locks.items()}
++        self.assertEqual(got, {"hook": ("Bitcoin", "take."), "clip_01": ("It", "week."), "clip_02": ("of", "times")})
++
++
++class TestD1HookOnset(_G16Fixture):
++    def test_g16_in_fails_without_lead_in_pad(self):
++        r = self.rows["hook"]["in"]
++        self.assertFalse(r["pass"], r)
++        self.assertLess(r["genuine_lead_ms"], 80)
++
++    def test_g17a_head_fails(self):
++        self.assertFalse(self.g17["hook"]["lead_ok"], self.g17["hook"])
++
++
++class TestD2Clip01Out(_G16Fixture):
++    def test_g16_out_fails(self):
++        self.assertFalse(self.rows["clip_01"]["out"]["pass"], self.rows["clip_01"]["out"])
++
++
++class TestD3Edges(_G16Fixture):
++    def test_d3a_clip01_in_fails(self):
++        self.assertFalse(self.rows["clip_01"]["in"]["pass"], self.rows["clip_01"]["in"])
++        self.assertFalse(self.g17["clip_01"]["lead_ok"], self.g17["clip_01"])
++
++    def test_d3b_clip02_in_fails(self):
++        self.assertFalse(self.rows["clip_02"]["in"]["pass"], self.rows["clip_02"]["in"])
++        self.assertFalse(self.g17["clip_02"]["lead_ok"], self.g17["clip_02"])
++
++    def test_d3c_clip02_out_control_passes(self):
++        self.assertTrue(self.rows["clip_02"]["out"]["pass"], self.rows["clip_02"]["out"])
++        self.assertTrue(self.g17["clip_02"]["tail_ok"], self.g17["clip_02"])
++
++
++class TestTautology(_G16Fixture):
++    def test_recomputed_expected_words_fail_the_lock(self):
++        for c in ("clip_01", "clip_02"):
++            self.assertTrue(any("recomputed" in e for e in self.rows[c]["errors"]), self.rows[c]["errors"])
++
++    def test_gate_fails_overall(self):
++        self.assertFalse(self.ok)
++
++    def test_run_fresh_has_no_recompute_sync_or_wide_snap(self):
++        import run_fresh
++        src = inspect.getsource(run_fresh)
++        for name in ("_recompute_edge_words", "_sync_edl_edge_words", "_snap_candidates"):
++            self.assertNotIn(f"def {name}", src, f"{name} still present")
++
++    def test_gates_stage_runs_g16_and_g17(self):
++        import run_fresh
++        src = inspect.getsource(run_fresh.stage_gates)
++        self.assertIn("G16_sentence_boundary", src)
++        self.assertIn("G17_onset_tail", src)
++
++
++class TestWindowOffset(unittest.TestCase):
++    def test_recorded_offset_equals_requested_section_start(self):
++        import select_passages as sp
++        tmp = tempfile.mkdtemp(prefix="dlwin_")
++        seen = {}
++
++        def fake_run(cmd, **kw):
++            seen["section"] = cmd[cmd.index("--download-sections") + 1]
++            out = cmd[cmd.index("-o") + 1]
++            with open(out, "wb") as f:
++                f.write(b"\0" * 200_000)
++            return subprocess.CompletedProcess(cmd, 0, "", "")
++        try:
++            with mock.patch.object(sp.subprocess, "run", side_effect=fake_run):
++                path, off = sp._download_window("lusJ1m-J0Mc", 68.57, 85.41, tmp)
++            start = float(seen["section"].lstrip("*").split("-")[0])
++            self.assertAlmostEqual(off, start, places=3, msg=f"requested {seen['section']} recorded {off}")
++        finally:
++            shutil.rmtree(tmp, ignore_errors=True)
++
++
++class TestD4Credits(unittest.TestCase):
++    S = tempfile.mkdtemp(prefix="g15_")
++
++    def _gates(self, mp4, segs):
++        import gates as G
++        import qa_gates as Q
++        ok15, _ = G.gate_g15(mp4, segs, self.S)
++        ok12, _ = Q.gate_g12(mp4, segs, 3, self.S)
++        return ok15, ok12
++
++    def test_yesterdays_card_fails_g15_and_g12(self):
++        for fmt in ("16x9", "9x16"):
++            p = os.path.join(FIX, "video", f"shoutout_{fmt}.mp4")
++            ok15, ok12 = self._gates(p, [{"label": "shoutout", "type": "shoutout", "start": 0.0, "end": _dur(p)}])
++            self.assertFalse(ok15, f"G15 passed yesterday's {fmt} card")
++            self.assertFalse(ok12, f"G12 passed yesterday's {fmt} card")
++
++    def test_v2f_finals_pass_g15_and_g12(self):
++        for out, man in (("segment.mp4", "concat_manifest_16x9.json"), ("segment_vertical.mp4", "concat_manifest_9x16.json")):
++            segs = json.load(open(os.path.join(V2F, "qa", man)))["segments"]
++            ok15, ok12 = self._gates(os.path.join(V2F, "out", out), segs)
++            self.assertTrue(ok15 and ok12, f"v2f {out}: G15 {ok15} G12 {ok12}")
++
++    def test_shoutout_refuses_a_thumbnail_avatar(self):
++        import shoutout
++        with self.assertRaises(ValueError):
++            shoutout.validate_avatar(os.path.join(FIX, "video", "natalie_brunell.jpg"))
++
++    def test_no_thumbnail_or_placeholder_fallback(self):
++        import shoutout
++        src = inspect.getsource(shoutout)
++        self.assertFalse('meta.get("thumbnail")' in src, "video-thumbnail fallback still in shoutout.py")
++        self.assertFalse("placeholder" in src.lower(), "generated placeholder avatar still in shoutout.py")
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/utils/cross_llm_audit.py b/utils/cross_llm_audit.py
+index 562fdf3a..3f4be510 100755
+--- a/utils/cross_llm_audit.py
++++ b/utils/cross_llm_audit.py
+@@ -90,10 +90,12 @@ FEATURE_MAP = {
+     "value-stream-mvp": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+     "value-stream-post-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
+     "track-a-d1-d3": ("TRACK_A_EDITORIAL_GOSPEL.md", "combo-letterbox-quoteonly-v2"),
++    "pulse-sentence-law": ("PULSE_SENTENCE_LAW_GOSPEL.md", "combo-letterbox-quoteonly-v2"),
+ }
+ 
+ # Explicit file lists for features already merged to main (no branch diff available)
+ EXPLICIT_FILES = {
++    "pulse-sentence-law": ["docs/audits/pulse-sentence-law/CURRENT.diff"],
+     "track-a-d1-d3": ["docs/audits/track-a-d1-d3/D1_D3.diff", "pipeline/editorial_select.py",
+                       "pipeline/story_semantics.py", "pipeline/test_window_review.py",
+                       "pipeline/test_editorial_robust.py", "pipeline/test_editorial.py"],
+@@ -304,6 +306,28 @@ ROUTE_EXTRACTS = {
+ }
+ 
+ CUSTOM_REVIEW_TASKS = {
++    "pulse-sentence-law": """## YOUR REVIEW TASK: PULSE CHECK SENTENCE LAW / ONSET / CREDITS (Python pipeline, no UI, no DB)
++
++The only file is the exact staged diff of ONE commit. Review that diff, nothing else.
++Only state what you can verify from the diff shown. If uncertain, say so. Do not guess. Cite diff lines.
++
++### Q1: CORRECTNESS
++Does each changed function do what its docstring and the laws above say? Off-by-one in time/index
++handling, wrong units (seconds vs ms), wrong comparisons, silent exceptions, state that leaks between
++clips. Can any path produce a PASS (or a cut, a lock, a window) when data is missing or a model failed?
++
++### Q2: LAW COMPLIANCE
++For each law above: COMPLIANT / VIOLATION / PARTIAL with the diff line. In particular: can a cut move
++outside the locked sentence's silence, can expected words be recomputed after selection, can a gate
++threshold have been loosened, can the v2f reference path behave differently?
++
++### Q3: TESTS
++Do the tests prove the claim (must-fail fixtures FAIL for the right reason; controls PASS for the right
++reason)? Any assertion that could pass vacuously?
++
++### Q4: VERDICT
++List every defect as: SEVERITY | diff line | issue | fix. End with READY or NOT READY.
++""",
+     "track-a-d1-d3": """## YOUR REVIEW TASK: EDITORIAL DECISIONS D1-D3 (Python pipeline code, no UI, no DB)
+ 
+ The first file is the exact diff under review; the full modules and tests follow for context.

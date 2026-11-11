@@ -1,0 +1,270 @@
+{
+ "question": "Commit 1a adds must-fail tests + fixtures for PBX's D1-D4 defects (clipped opening word, non-sentence clip edges, recomputed expected words, warped credit avatars). Do the tests fail/pass for the right reason, can any assertion pass vacuously, is the fixture copy-only, and is the audit-tool registration correct?",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 250.5,
+   "cost": 0.002849396,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 7,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 105.4,
+   "cost": 0.0069131085,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 6,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 816.1,
+   "cost": 0.002173472,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 288.7,
+   "cost": 0.003507526,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 102.9,
+   "cost": 0.0066549095,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 480.8,
+   "cost": 0.00224781,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "high",
+   "file": "utils/cross_llm_audit.py",
+   "line": 98,
+   "issue": "pulse-sentence-law is added to EXPLICIT_FILES, which the comment says is for features already merged to main, but this feature is not merged and the actual diff is STEP.diff, not CURRENT.diff. This can make the audit tool review the wrong or missing file.",
+   "evidence": "\"pulse-sentence-law\": [\"docs/audits/pulse-sentence-law/CURRENT.diff\"],",
+   "fix": "Remove from EXPLICIT_FILES or point to the correct staged diff file (e.g., docs/audits/pulse-sentence-law/1a_mustfail/STEP.diff).",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F2",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 139,
+   "issue": "assertIn on source text can pass vacuously if the strings appear in comments or docstrings rather than actual gate calls.",
+   "evidence": "self.assertIn(\"G16_sentence_boundary\", src)",
+   "fix": "Assert actual calls, e.g., mock gate functions and check they are invoked.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F3",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 134,
+   "issue": "assertNotIn on exact function definitions can pass vacuously if recompute logic is renamed, imported, or implemented differently.",
+   "evidence": "self.assertNotIn(f\"def {name}\", src, f\"{name} still present\")",
+   "fix": "Test behavior, e.g., ensure no recomputation occurs by mocking or checking outputs.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F4",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 195,
+   "issue": "Source-text absence checks can pass vacuously if fallback is implemented with different strings, and can fail if the word appears in a comment.",
+   "evidence": "self.assertFalse('meta.get(\"thumbnail\")' in src, \"video-thumbnail fallback still in shoutout.py\")",
+   "fix": "Test behavior with mock inputs.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F5",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 189,
+   "issue": "No positive control: validate_avatar could always raise ValueError and the test would still pass.",
+   "evidence": "with self.assertRaises(ValueError): shoutout.validate_avatar(os.path.join(FIX, \"video\", \"natalie_brunell.jpg\"))",
+   "fix": "Add a test that a valid square avatar is accepted.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F6",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 178,
+   "issue": "Only asserts gates return False, not that they fail for the avatar defect; could pass for unrelated failures.",
+   "evidence": "self.assertFalse(ok15, f\"G15 passed yesterday's {fmt} card\")",
+   "fix": "Assert the failure reason is the warped avatar, e.g., check error message.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F7",
+   "severity": "low",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 165,
+   "issue": "Class-level tempdir is never cleaned up.",
+   "evidence": "S = tempfile.mkdtemp(prefix=\"g15_\")",
+   "fix": "Use tearDownClass or addCleanup to remove it.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F1",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 139,
+   "issue": "Control test test_d3c_clip02_out_control_passes is in TestD3Edges(_G16Fixture) whose setUpClass calls L.gate_g16(...). Pre-fix (when gate_g16 does not yet exist), setUpClass raises AttributeError/ImportError, causing the control to ERROR rather than PASS. The module docstring states controls 'document what must keep passing' but the control cannot pass if the gate function it depends on is absent. The control is structurally coupled to the very check it is meant to verify independently.",
+   "evidence": "def test_d3c_clip02_out_control_passes(self):\n        self.assertTrue(self.rows[\"clip_02\"][\"out\"][\"pass\"], self.rows[\"clip_02\"][\"out\"])\n        self.assertTrue(self.g17[\"clip_02\"][\"tail_ok\"], self.g17[\"clip_02\"])",
+   "fix": "Move the clip_02-out control assertion into a standalone TestCase (like TestD4Credits) that does not inherit from _G16Fixture, or guard setUpClass so that a missing gate_g16 produces a clean skip for the control while still failing the defect tests. Alternatively, split _G16Fixture into a base that only sets up data (transcripts, locks) and a subclass that calls gate_g16, so the control can run against the data without requiring the gate to exist.",
+   "agree": [],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 155,
+   "issue": "test_gate_fails_overall asserts self.ok is False, but self.ok (the overall G16 result) would be False due to D1, D2, D3a, or D3b regardless of whether the tautology/recomputed-words defect is present. The test does not isolate the tautology-specific failure; it passes for the wrong reason if any other defect triggers the overall gate failure.",
+   "evidence": "def test_gate_fails_overall(self):\n        self.assertFalse(self.ok)",
+   "fix": "Assert that the tautology-specific error is present in the per-segment rows (e.g., check that rows['clip_01']['errors'] contains a 'recomputed' or 'lock_mismatch' entry) rather than relying on the aggregate self.ok which is already False from D1-D3. Or add a dedicated check: self.assertTrue(any('lock' in e or 'recomputed' in e for e in self.rows['clip_01']['errors'] + self.rows['clip_02']['errors'])).",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 170,
+   "issue": "In TestWindowOffset, fake_run unconditionally executes cmd.index('--download-sections'). If _download_window makes any subprocess.run call that does not include that flag (e.g., ffprobe to read duration, or a second yt-dlp invocation with different args), fake_run raises ValueError and the test ERRORS rather than failing cleanly. The mock is not defensive against non-download subprocess calls.",
+   "evidence": "def fake_run(cmd, **kw):\n            seen[\"section\"] = cmd[cmd.index(\"--download-sections\") + 1]\n            out = cmd[cmd.index(\"-o\") + 1]",
+   "fix": "Guard fake_run: if '--download-sections' not in cmd: return subprocess.CompletedProcess(cmd, 0, '', ''). Only capture the section and write the output file when the download flag is present. This prevents a crash if _download_window probes the file with ffprobe or makes auxiliary calls.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F4",
+   "severity": "low",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 131,
+   "issue": "test_g16_out_fails (D2) asserts only that pass is False without a secondary assertion verifying the specific failure reason (e.g., that the out-edge word is not a sentence-final word, or that the boundary falls mid-sentence). If gate_g16 fails for an unrelated reason (I/O error, missing transcript, exception caught internally), the test still passes, masking a false-positive gate failure.",
+   "evidence": "def test_g16_out_fails(self):\n        self.assertFalse(self.rows[\"clip_01\"][\"out\"][\"pass\"], self.rows[\"clip_01\"][\"out\"])",
+   "fix": "Add a secondary assertion on the specific failure metric, e.g., self.assertIn('sentence', self.rows['clip_01']['out'].get('reason','').lower()) or check that the reported boundary word is not a sentence-final word per the lock. This ensures the gate fails for the right reason (mid-sentence out-edge) rather than any arbitrary error.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F5",
+   "severity": "low",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 183,
+   "issue": "TestD4Credits.S is a class-level tempfile.mkdtemp created at class-definition time with no corresponding tearDownClass to remove it. Every test run leaks a directory under /tmp.",
+   "evidence": "class TestD4Credits(unittest.TestCase):\n    S = tempfile.mkdtemp(prefix=\"g15_\")",
+   "fix": "Move S creation into a setUpClass/tearDownClass pair: in setUpClass do cls.S = tempfile.mkdtemp(prefix='g15_'); in tearDownClass do shutil.rmtree(cls.S, ignore_errors=True).",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F6",
+   "severity": "low",
+   "file": "utils/cross_llm_audit.py",
+   "line": 97,
+   "issue": "EXPLICIT_FILES for pulse-sentence-law lists only 'docs/audits/pulse-sentence-law/CURRENT.diff', but the diff under review is at 'docs/audits/pulse-sentence-law/1a_mustfail/STEP.diff'. If CURRENT.diff is not a symlink or copy updated to the current step before the audit runs, the tool reviews a stale or missing file. Unlike track-a-d1-d3 (which lists all concrete files), this entry relies on an implicit CURRENT.diff convention that is not visible in the diff.",
+   "evidence": "\"pulse-sentence-law\": [\"docs/audits/pulse-sentence-law/CURRENT.diff\"],",
+   "fix": "Either (a) add a step in the audit runner that copies/symlinks 1a_mustfail/STEP.diff to CURRENT.diff before invoking the tool, or (b) list the concrete file path 'docs/audits/pulse-sentence-law/1a_mustfail/STEP.diff' in EXPLICIT_FILES to match the pattern used by track-a-d1-d3.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 134,
+   "issue": "The 'no recompute' test only inspects run_fresh.py source. If the recompute/sync/snap logic is implemented in sentence_law.py, a utility module, or inlined as a lambda, the assertNotIn passes vacuously while the defect persists.",
+   "evidence": "src = inspect.getsource(run_fresh)\\nfor name in (\"_recompute_edge_words\", \"_sync_edl_edge_words\", \"_snap_candidates\"):\\n    self.assertNotIn(f\"def {name}\", src)",
+   "fix": "Also inspect sentence_law and any imported helper modules, or better, test behavior: construct a scenario where the cut moves and assert the lock's expected words are unchanged (not recomputed)."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 128,
+   "issue": "test_recomputed_expected_words_fail_the_lock couples to the exact substring 'recomputed' in the errors list. If the gate reports the tautology as 'lock_mismatch', 'expected_words_changed', or 'selection_lock_violation', the assertion fails even though the gate correctly caught the defect.",
+   "evidence": "self.assertTrue(any(\"recomputed\" in e for e in self.rows[c][\"errors\"]), self.rows[c][\"errors\"])",
+   "fix": "Assert on a stable error code or category (e.g., any('lock' in e or 'recomputed' in e or 'mismatch' in e for e in ...)) or check a structured field like r['error_type'] == 'SELECTION_LOCK_VIOLATED'."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "low",
+   "file": "pipeline/test_pulse_20261110_mustfail.py",
+   "line": 49,
+   "issue": "_dur() uses subprocess.run(..., check=True) to call ffprobe. If a fixture video file is missing or corrupt, this raises CalledProcessError, causing the test to ERROR (not FAIL). For a must-fail test, an ERROR in setup obscures whether the assertion logic is correct.",
+   "evidence": "return float(subprocess.run([\"ffprobe\", ...], capture_output=True, text=True, check=True).stdout)",
+   "fix": "Wrap in try/except and call self.fail(f'fixture video missing or unreadable: {p}') to produce a clean assertion failure with a diagnostic message."
+  }
+ ],
+ "total_cost": 0.024346222,
+ "out_dir": "docs/audits/pulse-sentence-law/1a_mustfail/heimdall"
+}

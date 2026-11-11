@@ -1,0 +1,864 @@
+{
+  "words": [
+    {
+      "word": "the",
+      "start": 0.0,
+      "end": 0.04,
+      "probability": 0.941
+    },
+    {
+      "word": "election",
+      "start": 0.04,
+      "end": 0.44,
+      "probability": 1.0
+    },
+    {
+      "word": "outcome",
+      "start": 0.44,
+      "end": 0.82,
+      "probability": 1.0
+    },
+    {
+      "word": "added",
+      "start": 0.82,
+      "end": 1.38,
+      "probability": 1.0
+    },
+    {
+      "word": "a",
+      "start": 1.38,
+      "end": 1.72,
+      "probability": 1.0
+    },
+    {
+      "word": "whole",
+      "start": 1.72,
+      "end": 1.96,
+      "probability": 1.0
+    },
+    {
+      "word": "nother",
+      "start": 1.96,
+      "end": 2.26,
+      "probability": 0.975
+    },
+    {
+      "word": "worry.",
+      "start": 2.26,
+      "end": 2.52,
+      "probability": 1.0
+    },
+    {
+      "word": "Democrats",
+      "start": 2.64,
+      "end": 3.0,
+      "probability": 1.0
+    },
+    {
+      "word": "won",
+      "start": 3.0,
+      "end": 3.26,
+      "probability": 1.0
+    },
+    {
+      "word": "both",
+      "start": 3.26,
+      "end": 3.56,
+      "probability": 1.0
+    },
+    {
+      "word": "chambers",
+      "start": 3.56,
+      "end": 3.92,
+      "probability": 0.996
+    },
+    {
+      "word": "of",
+      "start": 3.92,
+      "end": 4.24,
+      "probability": 1.0
+    },
+    {
+      "word": "Congress",
+      "start": 4.24,
+      "end": 4.6,
+      "probability": 1.0
+    },
+    {
+      "word": "and",
+      "start": 4.6,
+      "end": 4.92,
+      "probability": 0.731
+    },
+    {
+      "word": "incoming",
+      "start": 4.92,
+      "end": 5.28,
+      "probability": 1.0
+    },
+    {
+      "word": "governors,",
+      "start": 5.28,
+      "end": 5.78,
+      "probability": 1.0
+    },
+    {
+      "word": "including",
+      "start": 5.98,
+      "end": 6.24,
+      "probability": 1.0
+    },
+    {
+      "word": "those",
+      "start": 6.24,
+      "end": 6.58,
+      "probability": 1.0
+    },
+    {
+      "word": "in",
+      "start": 6.58,
+      "end": 6.9,
+      "probability": 1.0
+    },
+    {
+      "word": "Texas",
+      "start": 6.9,
+      "end": 7.24,
+      "probability": 1.0
+    },
+    {
+      "word": "and",
+      "start": 7.24,
+      "end": 7.46,
+      "probability": 1.0
+    },
+    {
+      "word": "Ohio,",
+      "start": 7.46,
+      "end": 7.68,
+      "probability": 1.0
+    },
+    {
+      "word": "want",
+      "start": 7.9,
+      "end": 8.2,
+      "probability": 0.999
+    },
+    {
+      "word": "tougher",
+      "start": 8.2,
+      "end": 8.54,
+      "probability": 1.0
+    },
+    {
+      "word": "rules",
+      "start": 8.54,
+      "end": 8.96,
+      "probability": 1.0
+    },
+    {
+      "word": "on",
+      "start": 8.96,
+      "end": 9.3,
+      "probability": 1.0
+    },
+    {
+      "word": "AI",
+      "start": 9.3,
+      "end": 9.54,
+      "probability": 0.999
+    },
+    {
+      "word": "data",
+      "start": 9.54,
+      "end": 9.8,
+      "probability": 0.999
+    },
+    {
+      "word": "centers,",
+      "start": 9.8,
+      "end": 10.16,
+      "probability": 1.0
+    },
+    {
+      "word": "which",
+      "start": 10.3,
+      "end": 10.46,
+      "probability": 1.0
+    },
+    {
+      "word": "of",
+      "start": 10.46,
+      "end": 10.54,
+      "probability": 0.935
+    },
+    {
+      "word": "course",
+      "start": 10.54,
+      "end": 10.86,
+      "probability": 1.0
+    },
+    {
+      "word": "could",
+      "start": 10.86,
+      "end": 11.06,
+      "probability": 0.998
+    },
+    {
+      "word": "delay",
+      "start": 11.06,
+      "end": 11.26,
+      "probability": 1.0
+    },
+    {
+      "word": "new",
+      "start": 11.26,
+      "end": 11.46,
+      "probability": 1.0
+    },
+    {
+      "word": "projects.",
+      "start": 11.46,
+      "end": 11.88,
+      "probability": 1.0
+    },
+    {
+      "word": "Bitcoin",
+      "start": 12.24,
+      "end": 12.5,
+      "probability": 1.0
+    },
+    {
+      "word": "also",
+      "start": 12.5,
+      "end": 12.98,
+      "probability": 1.0
+    },
+    {
+      "word": "wasn't",
+      "start": 12.98,
+      "end": 13.4,
+      "probability": 1.0
+    },
+    {
+      "word": "spared",
+      "start": 13.4,
+      "end": 13.62,
+      "probability": 1.0
+    },
+    {
+      "word": "in",
+      "start": 13.62,
+      "end": 13.8,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 13.8,
+      "end": 13.86,
+      "probability": 1.0
+    },
+    {
+      "word": "sell",
+      "start": 13.86,
+      "end": 14.12,
+      "probability": 0.948
+    },
+    {
+      "word": "-off.",
+      "start": 14.12,
+      "end": 14.36,
+      "probability": 0.983
+    },
+    {
+      "word": "It",
+      "start": 14.44,
+      "end": 14.54,
+      "probability": 1.0
+    },
+    {
+      "word": "went",
+      "start": 14.54,
+      "end": 14.7,
+      "probability": 1.0
+    },
+    {
+      "word": "from",
+      "start": 14.7,
+      "end": 14.88,
+      "probability": 1.0
+    },
+    {
+      "word": "above",
+      "start": 14.88,
+      "end": 15.16,
+      "probability": 1.0
+    },
+    {
+      "word": "81",
+      "start": 15.16,
+      "end": 15.62,
+      "probability": 0.866
+    },
+    {
+      "word": ",000",
+      "start": 15.62,
+      "end": 16.08,
+      "probability": 1.0
+    },
+    {
+      "word": "after",
+      "start": 16.08,
+      "end": 16.28,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 16.28,
+      "end": 16.46,
+      "probability": 1.0
+    },
+    {
+      "word": "election",
+      "start": 16.46,
+      "end": 16.72,
+      "probability": 1.0
+    },
+    {
+      "word": "to",
+      "start": 16.72,
+      "end": 17.08,
+      "probability": 1.0
+    },
+    {
+      "word": "below",
+      "start": 17.08,
+      "end": 17.34,
+      "probability": 1.0
+    },
+    {
+      "word": "75",
+      "start": 17.34,
+      "end": 17.84,
+      "probability": 1.0
+    },
+    {
+      "word": ",000",
+      "start": 17.84,
+      "end": 18.56,
+      "probability": 1.0
+    },
+    {
+      "word": "by",
+      "start": 18.56,
+      "end": 18.72,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 18.72,
+      "end": 18.82,
+      "probability": 1.0
+    },
+    {
+      "word": "weekend.",
+      "start": 18.82,
+      "end": 19.18,
+      "probability": 1.0
+    },
+    {
+      "word": "US",
+      "start": 19.5,
+      "end": 19.7,
+      "probability": 0.569
+    },
+    {
+      "word": "Bitcoin",
+      "start": 19.7,
+      "end": 19.96,
+      "probability": 0.999
+    },
+    {
+      "word": "ETFs",
+      "start": 19.96,
+      "end": 20.68,
+      "probability": 1.0
+    },
+    {
+      "word": "had",
+      "start": 20.68,
+      "end": 20.8,
+      "probability": 1.0
+    },
+    {
+      "word": "about",
+      "start": 20.8,
+      "end": 20.96,
+      "probability": 1.0
+    },
+    {
+      "word": "1",
+      "start": 20.96,
+      "end": 21.22,
+      "probability": 0.991
+    },
+    {
+      "word": ".3",
+      "start": 21.22,
+      "end": 21.74,
+      "probability": 1.0
+    },
+    {
+      "word": "billion",
+      "start": 21.74,
+      "end": 22.14,
+      "probability": 1.0
+    },
+    {
+      "word": "in",
+      "start": 22.14,
+      "end": 22.46,
+      "probability": 1.0
+    },
+    {
+      "word": "net",
+      "start": 22.46,
+      "end": 22.62,
+      "probability": 1.0
+    },
+    {
+      "word": "outflows",
+      "start": 22.62,
+      "end": 23.1,
+      "probability": 0.999
+    },
+    {
+      "word": "just",
+      "start": 23.1,
+      "end": 23.44,
+      "probability": 1.0
+    },
+    {
+      "word": "last",
+      "start": 23.44,
+      "end": 23.68,
+      "probability": 1.0
+    },
+    {
+      "word": "week.",
+      "start": 23.68,
+      "end": 24.02,
+      "probability": 1.0
+    },
+    {
+      "word": "And",
+      "start": 24.2,
+      "end": 24.38,
+      "probability": 0.998
+    },
+    {
+      "word": "Bitcoin",
+      "start": 24.38,
+      "end": 24.6,
+      "probability": 1.0
+    },
+    {
+      "word": "really",
+      "start": 24.6,
+      "end": 24.84,
+      "probability": 1.0
+    },
+    {
+      "word": "hasn't",
+      "start": 24.84,
+      "end": 25.22,
+      "probability": 1.0
+    },
+    {
+      "word": "participated",
+      "start": 25.22,
+      "end": 25.64,
+      "probability": 1.0
+    },
+    {
+      "word": "in",
+      "start": 25.64,
+      "end": 26.08,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 26.08,
+      "end": 26.22,
+      "probability": 1.0
+    },
+    {
+      "word": "Monday",
+      "start": 26.22,
+      "end": 26.4,
+      "probability": 1.0
+    },
+    {
+      "word": "rally,",
+      "start": 26.4,
+      "end": 26.76,
+      "probability": 1.0
+    },
+    {
+      "word": "but",
+      "start": 26.86,
+      "end": 27.02,
+      "probability": 1.0
+    },
+    {
+      "word": "of",
+      "start": 27.02,
+      "end": 27.1,
+      "probability": 1.0
+    },
+    {
+      "word": "course",
+      "start": 27.1,
+      "end": 27.38,
+      "probability": 1.0
+    },
+    {
+      "word": "things",
+      "start": 27.38,
+      "end": 27.82,
+      "probability": 0.461
+    },
+    {
+      "word": "can",
+      "start": 27.82,
+      "end": 28.12,
+      "probability": 1.0
+    },
+    {
+      "word": "change",
+      "start": 28.12,
+      "end": 28.42,
+      "probability": 1.0
+    },
+    {
+      "word": "quickly.",
+      "start": 28.42,
+      "end": 28.78,
+      "probability": 1.0
+    },
+    {
+      "word": "So",
+      "start": 28.78,
+      "end": 29.1,
+      "probability": 0.481
+    },
+    {
+      "word": "we'll",
+      "start": 29.1,
+      "end": 29.42,
+      "probability": 0.994
+    },
+    {
+      "word": "see",
+      "start": 29.42,
+      "end": 29.6,
+      "probability": 1.0
+    },
+    {
+      "word": "how",
+      "start": 29.6,
+      "end": 29.82,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 29.82,
+      "end": 30.02,
+      "probability": 1.0
+    },
+    {
+      "word": "market",
+      "start": 30.02,
+      "end": 30.36,
+      "probability": 1.0
+    },
+    {
+      "word": "shapes",
+      "start": 30.36,
+      "end": 30.6,
+      "probability": 1.0
+    },
+    {
+      "word": "up",
+      "start": 30.6,
+      "end": 30.86,
+      "probability": 1.0
+    },
+    {
+      "word": "this",
+      "start": 30.86,
+      "end": 31.04,
+      "probability": 1.0
+    },
+    {
+      "word": "week.",
+      "start": 31.04,
+      "end": 31.28,
+      "probability": 1.0
+    },
+    {
+      "word": "All",
+      "start": 31.44,
+      "end": 31.64,
+      "probability": 0.978
+    },
+    {
+      "word": "right,",
+      "start": 31.64,
+      "end": 31.76,
+      "probability": 1.0
+    },
+    {
+      "word": "you've",
+      "start": 31.78,
+      "end": 31.92,
+      "probability": 1.0
+    },
+    {
+      "word": "probably",
+      "start": 31.92,
+      "end": 32.16,
+      "probability": 1.0
+    },
+    {
+      "word": "seen",
+      "start": 32.16,
+      "end": 32.5,
+      "probability": 1.0
+    },
+    {
+      "word": "people",
+      "start": 32.5,
+      "end": 32.74,
+      "probability": 1.0
+    },
+    {
+      "word": "celebrating",
+      "start": 32.74,
+      "end": 33.22,
+      "probability": 1.0
+    },
+    {
+      "word": "what",
+      "start": 33.22,
+      "end": 33.86,
+      "probability": 0.999
+    },
+    {
+      "word": "they're",
+      "start": 33.86,
+      "end": 34.04,
+      "probability": 1.0
+    },
+    {
+      "word": "calling",
+      "start": 34.04,
+      "end": 34.3,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 34.3,
+      "end": 34.52,
+      "probability": 0.999
+    },
+    {
+      "word": "most",
+      "start": 34.52,
+      "end": 34.7,
+      "probability": 0.999
+    },
+    {
+      "word": "pro",
+      "start": 34.7,
+      "end": 35.14,
+      "probability": 0.998
+    },
+    {
+      "word": "-crypto",
+      "start": 35.14,
+      "end": 35.62,
+      "probability": 0.971
+    },
+    {
+      "word": "Congress",
+      "start": 35.62,
+      "end": 35.84,
+      "probability": 0.95
+    },
+    {
+      "word": "ever.",
+      "start": 35.84,
+      "end": 36.36,
+      "probability": 1.0
+    },
+    {
+      "word": "Stand",
+      "start": 36.58,
+      "end": 37.0,
+      "probability": 0.98
+    },
+    {
+      "word": "with",
+      "start": 37.0,
+      "end": 37.14,
+      "probability": 0.808
+    },
+    {
+      "word": "Crypto",
+      "start": 37.14,
+      "end": 37.64,
+      "probability": 0.821
+    },
+    {
+      "word": "now",
+      "start": 37.64,
+      "end": 37.8,
+      "probability": 1.0
+    },
+    {
+      "word": "rates",
+      "start": 37.8,
+      "end": 38.1,
+      "probability": 0.999
+    },
+    {
+      "word": "241",
+      "start": 38.1,
+      "end": 39.14,
+      "probability": 0.999
+    },
+    {
+      "word": "house",
+      "start": 39.14,
+      "end": 39.4,
+      "probability": 0.197
+    },
+    {
+      "word": "winners",
+      "start": 39.4,
+      "end": 39.7,
+      "probability": 0.985
+    },
+    {
+      "word": "and",
+      "start": 39.7,
+      "end": 40.14,
+      "probability": 1.0
+    },
+    {
+      "word": "50",
+      "start": 40.14,
+      "end": 40.44,
+      "probability": 1.0
+    },
+    {
+      "word": "senators",
+      "start": 40.44,
+      "end": 40.98,
+      "probability": 0.999
+    },
+    {
+      "word": "as",
+      "start": 40.98,
+      "end": 41.6,
+      "probability": 1.0
+    },
+    {
+      "word": "pro",
+      "start": 41.6,
+      "end": 41.98,
+      "probability": 1.0
+    },
+    {
+      "word": "-crypto,",
+      "start": 41.98,
+      "end": 42.58,
+      "probability": 1.0
+    },
+    {
+      "word": "including",
+      "start": 42.58,
+      "end": 43.02,
+      "probability": 1.0
+    },
+    {
+      "word": "Democrats.",
+      "start": 43.02,
+      "end": 43.5,
+      "probability": 1.0
+    },
+    {
+      "word": "But",
+      "start": 43.86,
+      "end": 44.1,
+      "probability": 0.999
+    },
+    {
+      "word": "I",
+      "start": 44.1,
+      "end": 44.2,
+      "probability": 1.0
+    },
+    {
+      "word": "would",
+      "start": 44.2,
+      "end": 44.32,
+      "probability": 1.0
+    },
+    {
+      "word": "actually",
+      "start": 44.32,
+      "end": 44.54,
+      "probability": 1.0
+    },
+    {
+      "word": "hold",
+      "start": 44.54,
+      "end": 44.78,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 44.78,
+      "end": 44.92,
+      "probability": 1.0
+    },
+    {
+      "word": "celebration",
+      "start": 44.92,
+      "end": 45.2,
+      "probability": 1.0
+    },
+    {
+      "word": "because",
+      "start": 45.2,
+      "end": 45.78,
+      "probability": 0.996
+    },
+    {
+      "word": "the",
+      "start": 45.78,
+      "end": 45.94,
+      "probability": 0.406
+    },
+    {
+      "word": "-",
+      "start": 45.94,
+      "end": 45.98,
+      "probability": 0.538
+    }
+  ],
+  "language": "en",
+  "duration": 46.008375
+}

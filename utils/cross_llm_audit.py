@@ -90,10 +90,12 @@ FEATURE_MAP = {
     "value-stream-mvp": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "value-stream-post-audit": ("VISUAL_DESIGN_SYSTEM.md", "main"),
     "track-a-d1-d3": ("TRACK_A_EDITORIAL_GOSPEL.md", "combo-letterbox-quoteonly-v2"),
+    "pulse-sentence-law": ("PULSE_SENTENCE_LAW_GOSPEL.md", "combo-letterbox-quoteonly-v2"),
 }
 
 # Explicit file lists for features already merged to main (no branch diff available)
 EXPLICIT_FILES = {
+    "pulse-sentence-law": ["docs/audits/pulse-sentence-law/CURRENT.diff"],
     "track-a-d1-d3": ["docs/audits/track-a-d1-d3/D1_D3.diff", "pipeline/editorial_select.py",
                       "pipeline/story_semantics.py", "pipeline/test_window_review.py",
                       "pipeline/test_editorial_robust.py", "pipeline/test_editorial.py"],
@@ -304,6 +306,28 @@ ROUTE_EXTRACTS = {
 }
 
 CUSTOM_REVIEW_TASKS = {
+    "pulse-sentence-law": """## YOUR REVIEW TASK: PULSE CHECK SENTENCE LAW / ONSET / CREDITS (Python pipeline, no UI, no DB)
+
+The only file is the exact staged diff of ONE commit. Review that diff, nothing else.
+Only state what you can verify from the diff shown. If uncertain, say so. Do not guess. Cite diff lines.
+
+### Q1: CORRECTNESS
+Does each changed function do what its docstring and the laws above say? Off-by-one in time/index
+handling, wrong units (seconds vs ms), wrong comparisons, silent exceptions, state that leaks between
+clips. Can any path produce a PASS (or a cut, a lock, a window) when data is missing or a model failed?
+
+### Q2: LAW COMPLIANCE
+For each law above: COMPLIANT / VIOLATION / PARTIAL with the diff line. In particular: can a cut move
+outside the locked sentence's silence, can expected words be recomputed after selection, can a gate
+threshold have been loosened, can the v2f reference path behave differently?
+
+### Q3: TESTS
+Do the tests prove the claim (must-fail fixtures FAIL for the right reason; controls PASS for the right
+reason)? Any assertion that could pass vacuously?
+
+### Q4: VERDICT
+List every defect as: SEVERITY | diff line | issue | fix. End with READY or NOT READY.
+""",
     "track-a-d1-d3": """## YOUR REVIEW TASK: EDITORIAL DECISIONS D1-D3 (Python pipeline code, no UI, no DB)
 
 The first file is the exact diff under review; the full modules and tests follow for context.

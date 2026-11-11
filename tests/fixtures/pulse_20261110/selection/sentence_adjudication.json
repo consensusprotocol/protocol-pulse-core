@@ -1,0 +1,18 @@
+{
+ "7f685935f5bd132aa5ed8d44": {
+  "decided_at": "2026-11-11T07:02:28Z",
+  "left_tail": "all streets a lot has been happening in markets over the past few days of course",
+  "model": "gemma3:27b",
+  "reason": "Complete thought expressed; 'of course' starts a new, related idea.",
+  "right_head": "of course bitcoin dropped pretty massively over the weekend ",
+  "sentence_end": true
+ },
+ "bf57998f1b0f79733dc373fd": {
+  "decided_at": "2026-11-11T07:02:38Z",
+  "left_tail": " level around 74 000 around the 50 weekly ma which we've talked about many times",
+  "model": "gemma3:27b",
+  "reason": "Complete thought expressed; 'many times' signals end, new topic begins ('i actually').",
+  "right_head": "i actually take the silver lining view that bitcoin has perf",
+  "sentence_end": true
+ }
+}

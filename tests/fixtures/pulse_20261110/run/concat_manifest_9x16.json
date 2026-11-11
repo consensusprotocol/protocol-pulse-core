@@ -1,0 +1,42 @@
+{
+  "format": "9x16",
+  "segments": [
+    {
+      "label": "hook",
+      "start": 0.0,
+      "end": 9.344,
+      "type": "talking_head",
+      "first_word": "Bitcoin",
+      "last_word": "take."
+    },
+    {
+      "label": "clip_01",
+      "start": 9.344,
+      "end": 27.928,
+      "type": "talking_head",
+      "first_word": "81",
+      "last_word": "celebrating"
+    },
+    {
+      "label": "clip_02",
+      "start": 27.928,
+      "end": 47.387,
+      "type": "talking_head",
+      "first_word": "days",
+      "last_word": "times"
+    },
+    {
+      "label": "shoutout",
+      "start": 47.387,
+      "end": 57.347,
+      "type": "shoutout"
+    },
+    {
+      "label": "outro",
+      "start": 57.347,
+      "end": 61.827,
+      "type": "outro"
+    }
+  ],
+  "shoutout_start": 47.387
+}

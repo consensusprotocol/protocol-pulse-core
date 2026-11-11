@@ -1,0 +1,179 @@
+[
+  {
+    "clip_id": "hook",
+    "sha256": "4bce47035f33f316de04b29c48463f72b37c56e6aec9703f9e85456f513b6334",
+    "contract": {
+      "file": "/home/ultron/protocol_pulse/runs/pinned_20261110_150345/qa/final_hook.mp4",
+      "expected_duration": 9.33,
+      "width": 1920,
+      "height": 1080,
+      "r_frame_rate": "24/1",
+      "avg_frame_rate": "24/1",
+      "sar": "1:1",
+      "sample_rate": 48000,
+      "channels": 2,
+      "durations": {
+        "container": 9.344,
+        "video": 9.3333,
+        "audio": 9.344
+      },
+      "fade_in": {
+        "edge_db": -128.1,
+        "ref_db": -76.6,
+        "result": "silent-edge",
+        "codec_zero_pad_ms": 0.6
+      },
+      "fade_out": {
+        "edge_db": -109.6,
+        "ref_db": -51.6,
+        "result": "silent-edge",
+        "codec_zero_pad_ms": 0.0
+      },
+      "errors": []
+    },
+    "contract_pass": true,
+    "edge_words": {
+      "expected_first": "Bitcoin",
+      "heard_first": "Bitcoin",
+      "first_pass": true,
+      "expected_last": "take.",
+      "heard_last": "take.",
+      "last_pass": true,
+      "head_words": [
+        "Bitcoin",
+        "is",
+        "now",
+        "seeing",
+        "a",
+        "16"
+      ],
+      "tail_words": [
+        "73",
+        ",400,",
+        "500,",
+        "give",
+        "or",
+        "take."
+      ]
+    },
+    "edge_words_pass": true
+  },
+  {
+    "clip_id": "clip_01",
+    "sha256": "592d805c3ada0a6c7517eb505fe70012c6fbc4e83a42fbf9d0fd3fc0853e5151",
+    "contract": {
+      "file": "/home/ultron/protocol_pulse/runs/pinned_20261110_150345/qa/final_clip_01.mp4",
+      "expected_duration": 18.58,
+      "width": 1920,
+      "height": 1080,
+      "r_frame_rate": "24/1",
+      "avg_frame_rate": "24/1",
+      "sar": "1:1",
+      "sample_rate": 48000,
+      "channels": 2,
+      "durations": {
+        "container": 18.584,
+        "video": 18.5833,
+        "audio": 18.581
+      },
+      "fade_in": {
+        "edge_db": -56.6,
+        "ref_db": -10.9,
+        "result": "faded",
+        "codec_zero_pad_ms": 0.0
+      },
+      "fade_out": {
+        "edge_db": -59.0,
+        "ref_db": -41.4,
+        "result": "faded",
+        "codec_zero_pad_ms": 0.0
+      },
+      "errors": []
+    },
+    "contract_pass": true,
+    "edge_words": {
+      "expected_first": "81",
+      "heard_first": "81",
+      "first_pass": true,
+      "expected_last": "celebrating",
+      "heard_last": "celebrating.",
+      "last_pass": true,
+      "head_words": [
+        "81",
+        ",000",
+        "after",
+        "the",
+        "election",
+        "to"
+      ],
+      "tail_words": [
+        "right.",
+        "You've",
+        "probably",
+        "seen",
+        "people",
+        "celebrating."
+      ]
+    },
+    "edge_words_pass": true
+  },
+  {
+    "clip_id": "clip_02",
+    "sha256": "3c0147f13ecb17f22c5cc04bb61a4f456c519bd73a75f53a05f1d77c7fdde938",
+    "contract": {
+      "file": "/home/ultron/protocol_pulse/runs/pinned_20261110_150345/qa/final_clip_02.mp4",
+      "expected_duration": 19.43,
+      "width": 1920,
+      "height": 1080,
+      "r_frame_rate": "24/1",
+      "avg_frame_rate": "24/1",
+      "sar": "1:1",
+      "sample_rate": 48000,
+      "channels": 2,
+      "durations": {
+        "container": 19.459,
+        "video": 19.4583,
+        "audio": 19.434
+      },
+      "fade_in": {
+        "edge_db": -34.6,
+        "ref_db": -18.0,
+        "result": "faded",
+        "codec_zero_pad_ms": 0.0
+      },
+      "fade_out": {
+        "edge_db": -82.4,
+        "ref_db": -57.1,
+        "result": "silent-edge",
+        "codec_zero_pad_ms": 0.0
+      },
+      "errors": []
+    },
+    "contract_pass": true,
+    "edge_words": {
+      "expected_first": "days",
+      "heard_first": "days.",
+      "first_pass": true,
+      "expected_last": "times",
+      "heard_last": "times.",
+      "last_pass": true,
+      "head_words": [
+        "days.",
+        "Of",
+        "course,",
+        "of",
+        "course,",
+        "Bitcoin"
+      ],
+      "tail_words": [
+        "which",
+        "we've",
+        "talked",
+        "about",
+        "many",
+        "times."
+      ]
+    },
+    "edge_words_pass": true
+  }
+]

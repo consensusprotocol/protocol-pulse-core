@@ -1,0 +1,36 @@
+{
+  "source": "runs/fresh_20261110_093150/B3_CLIP_QUALITY.json (chosen)",
+  "note": "the editor's selection-time decision (canonical store transcript, full-video seconds)",
+  "chosen": [
+    {
+      "video_id": "RXTVaDsN11M",
+      "channel": "DataDash",
+      "start": 0.0,
+      "end": 9.26,
+      "duration": 9.26,
+      "text": "Bitcoin has now seen a 16 % decline from the overall high from 88 ,000, touching down towards about 73 ,400, 500, give or take.",
+      "clip_score": 4.0,
+      "source_chunk_id": "RXTVaDsN11M:0-9260"
+    },
+    {
+      "video_id": "lusJ1m-J0Mc",
+      "channel": "Natalie Brunell",
+      "start": 68.57,
+      "end": 85.41,
+      "duration": 16.84,
+      "text": "It went from above $81 ,000 after the election to below $75 ,000 by the weekend. U .S. Bitcoin ETFs had about $1 .3 billion in net outflows just last week. And Bitcoin really hasn't participated in the Monday rally, but of course, things can change quickly, so we'll see how the market shapes up this week.",
+      "clip_score": 5.0,
+      "source_chunk_id": "lusJ1m-J0Mc:68570-85410"
+    },
+    {
+      "video_id": "36HPi9UZPOc",
+      "channel": "Yahoo Finance",
+      "start": 38.38,
+      "end": 57.0,
+      "duration": 18.62,
+      "text": "Of course, Bitcoin dropped pretty massively over the weekend alongside the tech selloff that we saw, the Democrat blue wave, the Binance hack, but I don't check it on an hourly basis. It seemed to have bounced very nicely at a very key level around $74 ,000, around the 50 weekly MA, which we've talked about many times.",
+      "clip_score": 4.0,
+      "source_chunk_id": "36HPi9UZPOc:38380-57000"
+    }
+  ]
+}

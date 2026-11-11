@@ -1,0 +1,444 @@
+{
+  "words": [
+    {
+      "word": "Bitcoin",
+      "start": 0.0,
+      "end": 0.28,
+      "probability": 0.97
+    },
+    {
+      "word": "has",
+      "start": 0.28,
+      "end": 0.42,
+      "probability": 0.734
+    },
+    {
+      "word": "now",
+      "start": 0.42,
+      "end": 0.58,
+      "probability": 1.0
+    },
+    {
+      "word": "seen",
+      "start": 0.58,
+      "end": 0.76,
+      "probability": 1.0
+    },
+    {
+      "word": "a",
+      "start": 0.76,
+      "end": 0.86,
+      "probability": 1.0
+    },
+    {
+      "word": "16",
+      "start": 0.86,
+      "end": 1.18,
+      "probability": 0.999
+    },
+    {
+      "word": "%",
+      "start": 1.18,
+      "end": 1.76,
+      "probability": 0.928
+    },
+    {
+      "word": "decline",
+      "start": 1.76,
+      "end": 2.36,
+      "probability": 1.0
+    },
+    {
+      "word": "from",
+      "start": 2.36,
+      "end": 2.88,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 2.88,
+      "end": 3.0,
+      "probability": 1.0
+    },
+    {
+      "word": "overall",
+      "start": 3.0,
+      "end": 3.3,
+      "probability": 1.0
+    },
+    {
+      "word": "high",
+      "start": 3.3,
+      "end": 3.62,
+      "probability": 1.0
+    },
+    {
+      "word": "from",
+      "start": 3.62,
+      "end": 3.88,
+      "probability": 0.994
+    },
+    {
+      "word": "$88",
+      "start": 3.88,
+      "end": 4.18,
+      "probability": 0.958
+    },
+    {
+      "word": ",000,",
+      "start": 4.18,
+      "end": 4.72,
+      "probability": 0.991
+    },
+    {
+      "word": "touching",
+      "start": 4.72,
+      "end": 5.24,
+      "probability": 0.999
+    },
+    {
+      "word": "down",
+      "start": 5.24,
+      "end": 5.62,
+      "probability": 1.0
+    },
+    {
+      "word": "towards",
+      "start": 5.62,
+      "end": 5.92,
+      "probability": 0.999
+    },
+    {
+      "word": "about",
+      "start": 5.92,
+      "end": 6.14,
+      "probability": 0.996
+    },
+    {
+      "word": "$73",
+      "start": 6.14,
+      "end": 6.76,
+      "probability": 0.999
+    },
+    {
+      "word": ",400,",
+      "start": 6.76,
+      "end": 7.68,
+      "probability": 0.999
+    },
+    {
+      "word": "$700",
+      "start": 8.1,
+      "end": 8.46,
+      "probability": 0.438
+    },
+    {
+      "word": ",000,",
+      "start": 8.46,
+      "end": 8.64,
+      "probability": 0.854
+    },
+    {
+      "word": "give",
+      "start": 8.64,
+      "end": 8.78,
+      "probability": 0.998
+    },
+    {
+      "word": "or",
+      "start": 8.78,
+      "end": 8.88,
+      "probability": 1.0
+    },
+    {
+      "word": "take.",
+      "start": 8.88,
+      "end": 9.1,
+      "probability": 1.0
+    },
+    {
+      "word": "Over",
+      "start": 9.32,
+      "end": 9.92,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 9.92,
+      "end": 10.1,
+      "probability": 1.0
+    },
+    {
+      "word": "weekend",
+      "start": 10.1,
+      "end": 10.42,
+      "probability": 1.0
+    },
+    {
+      "word": "here,",
+      "start": 10.42,
+      "end": 10.72,
+      "probability": 0.999
+    },
+    {
+      "word": "we",
+      "start": 10.78,
+      "end": 10.9,
+      "probability": 1.0
+    },
+    {
+      "word": "had",
+      "start": 10.9,
+      "end": 11.08,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 11.08,
+      "end": 11.2,
+      "probability": 1.0
+    },
+    {
+      "word": "stock",
+      "start": 11.2,
+      "end": 11.44,
+      "probability": 1.0
+    },
+    {
+      "word": "market",
+      "start": 11.44,
+      "end": 11.76,
+      "probability": 1.0
+    },
+    {
+      "word": "closing",
+      "start": 11.76,
+      "end": 12.08,
+      "probability": 1.0
+    },
+    {
+      "word": "pretty",
+      "start": 12.08,
+      "end": 12.42,
+      "probability": 1.0
+    },
+    {
+      "word": "red",
+      "start": 12.42,
+      "end": 12.74,
+      "probability": 1.0
+    },
+    {
+      "word": "on",
+      "start": 12.74,
+      "end": 12.92,
+      "probability": 1.0
+    },
+    {
+      "word": "Friday,",
+      "start": 12.92,
+      "end": 13.3,
+      "probability": 1.0
+    },
+    {
+      "word": "opening",
+      "start": 13.36,
+      "end": 13.62,
+      "probability": 1.0
+    },
+    {
+      "word": "pretty",
+      "start": 13.62,
+      "end": 13.96,
+      "probability": 1.0
+    },
+    {
+      "word": "green",
+      "start": 13.96,
+      "end": 14.34,
+      "probability": 1.0
+    },
+    {
+      "word": "today.",
+      "start": 14.34,
+      "end": 14.7,
+      "probability": 0.999
+    },
+    {
+      "word": "We",
+      "start": 14.82,
+      "end": 15.32,
+      "probability": 1.0
+    },
+    {
+      "word": "have",
+      "start": 15.32,
+      "end": 15.46,
+      "probability": 1.0
+    },
+    {
+      "word": "news",
+      "start": 15.46,
+      "end": 15.8,
+      "probability": 1.0
+    },
+    {
+      "word": "of",
+      "start": 15.8,
+      "end": 16.02,
+      "probability": 1.0
+    },
+    {
+      "word": "multiple",
+      "start": 16.02,
+      "end": 16.34,
+      "probability": 1.0
+    },
+    {
+      "word": "coins",
+      "start": 16.34,
+      "end": 16.86,
+      "probability": 0.995
+    },
+    {
+      "word": "such",
+      "start": 16.86,
+      "end": 17.1,
+      "probability": 0.89
+    },
+    {
+      "word": "as",
+      "start": 17.1,
+      "end": 17.26,
+      "probability": 1.0
+    },
+    {
+      "word": "Solana",
+      "start": 17.26,
+      "end": 17.7,
+      "probability": 0.998
+    },
+    {
+      "word": "and",
+      "start": 17.7,
+      "end": 17.84,
+      "probability": 1.0
+    },
+    {
+      "word": "Avalanche",
+      "start": 17.84,
+      "end": 18.58,
+      "probability": 1.0
+    },
+    {
+      "word": "going",
+      "start": 18.58,
+      "end": 18.84,
+      "probability": 1.0
+    },
+    {
+      "word": "now",
+      "start": 18.84,
+      "end": 19.2,
+      "probability": 1.0
+    },
+    {
+      "word": "into",
+      "start": 19.2,
+      "end": 19.52,
+      "probability": 1.0
+    },
+    {
+      "word": "the",
+      "start": 19.52,
+      "end": 19.8,
+      "probability": 1.0
+    },
+    {
+      "word": "Charles",
+      "start": 19.8,
+      "end": 20.06,
+      "probability": 1.0
+    },
+    {
+      "word": "Schwab",
+      "start": 20.06,
+      "end": 20.72,
+      "probability": 0.986
+    },
+    {
+      "word": "digital",
+      "start": 20.72,
+      "end": 20.98,
+      "probability": 0.99
+    },
+    {
+      "word": "asset",
+      "start": 20.98,
+      "end": 21.28,
+      "probability": 1.0
+    },
+    {
+      "word": "offerings",
+      "start": 21.28,
+      "end": 21.84,
+      "probability": 1.0
+    },
+    {
+      "word": "to",
+      "start": 21.84,
+      "end": 22.14,
+      "probability": 1.0
+    },
+    {
+      "word": "their",
+      "start": 22.14,
+      "end": 22.26,
+      "probability": 1.0
+    },
+    {
+      "word": "clients,",
+      "start": 22.26,
+      "end": 22.74,
+      "probability": 1.0
+    },
+    {
+      "word": "which",
+      "start": 22.92,
+      "end": 23.14,
+      "probability": 1.0
+    },
+    {
+      "word": "has",
+      "start": 23.14,
+      "end": 23.22,
+      "probability": 1.0
+    },
+    {
+      "word": "led",
+      "start": 23.22,
+      "end": 23.34,
+      "probability": 1.0
+    },
+    {
+      "word": "to",
+      "start": 23.34,
+      "end": 23.48,
+      "probability": 1.0
+    },
+    {
+      "word": "some",
+      "start": 23.48,
+      "end": 23.6,
+      "probability": 1.0
+    },
+    {
+      "word": "pretty...",
+      "start": 23.6,
+      "end": 23.92,
+      "probability": 0.888
+    }
+  ],
+  "language": "en",
+  "duration": 24.0094375
+}
