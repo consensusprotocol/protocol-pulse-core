@@ -725,6 +725,19 @@ encoding of the gate.
   - clip_02's original OUT ("secure," with "and that's what emer-" after it);
   - clip_01's original IN ("not," before "it's not Bitcoin").
 
+## R11 (07:25 item 2) the cut geometry at clip_02's new OUT "does.": what the builder measured, what the integrator's pre-render check decides
+
+- **Measured** (CPU, read-only copies of the main tree's cut_accept.py, on runs/pinned_20261112_120225/sources/wdk5JZ9hPzs.mp4
+  and transcripts/wdk5JZ9hPzs.json):
+  - "does." spans 28.88-29.30 and "But" starts at 30.38;
+  - the speech median over the clip is -22.3 dB, so quiet means below -47.3 dB;
+  - quiet runs >= 80 ms: 29.13-29.23 and 29.64-29.89;
+  - check_cut_out accepts cut_out 29.62-29.83 (the pause 29.64-29.89, >= 60 ms ahead);
+  - the next sound rises at about 29.89.
+- **Not measured here (the GPU):** the prepared clip's edge-word check (Whisper on the last 3 s must hear "does." last)
+  and sentence_law's accepted_cut / neighbour_clear with the run's own fades. That is the integrator's pre-render check
+  on the window it already holds (orchestrator 07:25, INTEGRATOR).
+
 ## R5 BIBLE
 
 Fold docs/audits/parallel/pp-selectid_BIBLE_ADDITIONS.md (E-FAIL-PS1..PS4, NOTE-PS5, NOTE-PS6) into

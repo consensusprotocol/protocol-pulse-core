@@ -130,11 +130,19 @@ def main(argv=None):
     ap.add_argument("--intro-text", help="a line fix for VO 1 (the intro)")
     ap.add_argument("--takeaway-text", help="a line fix for VO 3 (the takeaway)")
     ap.add_argument("--tag", default="", help="suffix of the output file")
+    ap.add_argument("--to-does", action="store_true", help="07:25: clip_02 through 'does.'")
+    ap.add_argument("--xai-heimdall", action="store_true", help="07:25: Anthropic and OpenAI are out of credit")
     a = ap.parse_args(argv)
     t_start = time.time()
     led0 = json.load(open(PM.SPEND))["usd_estimate"]
+    chains = CHAINS
+    if a.xai_heimdall:                          # orchestrator 07:25: xAI, Heimdall and local only
+        chains = {r: [b for b in c if not b.startswith(("anthropic:", "openai:"))] for r, c in CHAINS.items()}
+        chains = {r: (c + ["heimdall:deepseek/deepseek-v4.1-flash"] if len(c) < 2 and r != "transcribe" else c)
+                  for r, c in chains.items()}
     router = P.Router(env_path=P.ENV_PATH, record_dir=REPLIES, spend_path=PM.SPEND, limit_usd=PM.LIMIT_USD,
-                      chains=CHAINS)
+                      chains=chains)
+    say_chains = {r: c for r, c in chains.items()}
     rec_m = json.load(open(os.path.join(PM.OUT, RUN, "moments.json")))
     by_id = {m["moment_id"]: m for m in rec_m["moments"]}
     words, captions, ctx, saved = PM.universe_sources(RUN)
@@ -148,8 +156,14 @@ def main(argv=None):
         wbd = recut(by_id, sources, WBD2, 7325, w_us, 464, 464,
                     "clip_01 replaced (06:45 B): the store's sentence 464 cut at 'U.S.': the independent recogniser "
                     "ends a sentence there ('in the US. Um, you know')")
-        nat = recut(by_id, sources, NATALIE, 1417, 1447, 108, 110,
-                    "clip_02 extended to 'emerges.' (06:45 A): the speaker runs on 'secure, and that's what emerges.'")
+        if a.to_does:                           # orchestrator 07:25: 'emerges' runs into 'And' with no pause
+            nat = recut(by_id, sources, NATALIE, 1417, 1456, 108, 111,
+                        "clip_02 extended to 'does.' (07:25): the cutter found no pause after 'emerges.'; the "
+                        "recognisers and the cutter's own M19 pause test end it at 'does.'")
+        else:
+            nat = recut(by_id, sources, NATALIE, 1417, 1447, 108, 110,
+                        "clip_02 extended to 'emerges.' (06:45 A): the speaker runs on 'secure, and that's what "
+                        "emerges.'")
         by_id[wbd["moment_id"]], by_id[nat["moment_id"]] = wbd, nat
         swap = {"WBD2_RECUT": wbd["moment_id"], "NATALIE_EXT": nat["moment_id"]}
         f["order"] = [swap.get(x, x) for x in f["order"]]
@@ -166,6 +180,7 @@ def main(argv=None):
     log = []
     say = lambda s: (log.append(s), print(s, flush=True))
     say(f"PACKAGE {a.variant}: runtime estimate {pk['runtime_s_estimate']} s ({pk['runtime_note']})")
+    say(f"CHAINS: {json.dumps(say_chains)}")
     r4_ok, r4_why = PK.r4(pk)
     say(f"R4: {r4_why}")
     say(f"VO: intro {len(pk['vo']['intro'].split())} words; bridges {[len(b.split()) for b in pk['vo']['bridges']]} "

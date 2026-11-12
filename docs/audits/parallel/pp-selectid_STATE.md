@@ -1,5 +1,49 @@
-READY TO RENDER: /home/ultron/worktrees/pp-selectid/tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json (branch pp-selectid, same path; story moments-fresh_20261112_050611-f409e9d9; package_sha256 f409e9d94fe944f415538314da1722405b49a266df632962f5a055ab762fe714)
-VARIANCE FLAG for the orchestrator (your veto): VO 2 ("Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?") FAILED speaker_view at 07:13 (attempts 0700 / 0700b, the old caption) and PASSED at 07:30 (0700c). Its text is unchanged; only the caption changed (fix 1), which made a new verdict call. This pin is the 0700c package, every gate exactly PASS.
+NOT READY (07:58 ET): the 07:25 package (clip_02 through "does.") passes every gate but ONE: the verdict reads the thesis line "Nobody is in charge of Bitcoin." (VO 1 + TITLE) as UNCERTAIN. Your wording call; the options are below. The pin f409e9d9 (ending "emerges.") is SUPERSEDED by the 07:25 ruling.
+
+## 07:58 ET: the 07:25 re-gate (attempt 0725: tests/package/proof/fresh_20261112_050611/given_v0700_0725.json / .log; 189 s, $0.89)
+
+**What changed.** clip_02 now runs through "does." (store words 1417-1456, wdk5JZ9hPzs 529.05-543.54, 14.49 s): "Bitcoin
+is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay
+decentralized and secure. And that's what emerges. And it doesn't matter what the other system does."
+
+**Judges** (07:25 item 3: Anthropic and OpenAI are out of credit): every verdict ran on xai:grok-4.20-0309-reasoning
+(heimdall deepseek as fallback); transcription on elevenlabs scribe_v1. The writer is the orchestrator's text, so no
+judge shares its vendor.
+
+**PASS:**
+- context integrity A / B / C on all three clips. The added sentence changes neither the guest's assertion nor adds an
+  outside referent: C entails yes, nothing dropped, nothing added.
+- CUTTABLE 6/6. clip_02's OUT is "does." on the independent recogniser.
+- **The cutter's own geometry at "does."** (07:25 item 2): cut_accept.check_cut_out (M19) from a read-only copy, on the
+  integrator's ACQUIRED audio and decode (runs/pinned_20261112_120225).
+  - "does." 28.88-29.30, the next word "But" at 30.38.
+  - Quiet runs >= 80 ms after it: 29.13-29.23 and 29.64-29.89. M19 accepts 22 cut_out points, 29.62-29.83, inside the
+    pause 29.64-29.89 with >= 60 ms ahead.
+  - The next sound rises only at about 29.89, so a cut there keeps nothing of the neighbour.
+  - The prepared clip's edge-word check (Whisper on the GPU) is the integrator's pre-render check (REQUESTS R11).
+- L-v 2 x3, exclusion x3, DUPLICATE.
+- Runtime 63.33 s (by the integrator's R4 formula about 66.6 s): <= 70, so VO 2 is NOT shortened.
+- R4 (VO 31.3 % of the runtime).
+- Coherence 5 / 4 / 5, VO point 5: "Nobody is in charge of Bitcoin and that is by design rather than a flaw."
+
+**FAIL, verbatim:**
+- `intro: VERDICT_UNCERTAIN: Nobody is in charge of Bitcoin.`
+- `title: VERDICT_UNCERTAIN: Nobody is in charge of Bitcoin.`
+- The SAME line passed at 07:30 (attempt 0700c), supported by the hook's "Bitcoin does not have any authority" and
+  clip_01's "its success is not dependent upon who's in the White House ...".
+- The judge reads it as a FACT drawn from the two clips, and it is unstable on that inference.
+- I have not re-asked (no verdict shopping).
+
+**Your options:**
+- (1) **Rule the thesis line host commentary (class D):** the host's own takeaway, attributed to nobody. Then its five
+  tests decide, not clip support. This is the 05:25 doctrine's call to make, not mine.
+- (2) **Reword VO 1 and the title to what the clips state verbatim.** For example VO 1: "No one has the authority to
+  take your Bitcoin. That's not a flaw. That's the design." and TITLE: "No one has the authority over your Bitcoin."
+  (the hook: "Bitcoin does not have any authority that allows people to take the wealth of others"). VO 1 has 1 of its
+  2 fixes left; the title has 2.
+- Either costs one more gate run, about $0.40. $1.11 of the $2 is left.
+- The renderer's geometry at "does." already holds, so after this line the pin can be sealed at once.
+
 
 ## 07:31 ET: the 06:45 package, re-sealed. Every one of 13 gates exactly PASS (attempt 0700c: 140 s, $0.56)
 

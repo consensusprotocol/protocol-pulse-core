@@ -1,0 +1,1070 @@
+{
+ "schema": "pp.package/1",
+ "type": "moments",
+ "angle": "Nobody is in charge of Bitcoin, and that is the point.",
+ "vo_kind": "written by the orchestrator, variant v0700",
+ "style": null,
+ "segments": [
+  {
+   "label": "hook",
+   "moment_id": "3b3050f4afd6f3c011e7",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel": "Saifedean Ammous",
+   "k0": 1179,
+   "k1": 1180,
+   "words": [
+    16659,
+    16688
+   ],
+   "start": 5144.99,
+   "end": 5153.37,
+   "duration_s": 8.38,
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+   "published_at": "2026-11-11T00:00:00+00:00",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "url_30s_before": "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s"
+  },
+  {
+   "label": "clip_01",
+   "moment_id": "ad7c65485ce13e455dda",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel": "What Bitcoin Did",
+   "k0": 464,
+   "k1": 464,
+   "words": [
+    7325,
+    7361
+   ],
+   "start": 2403.23,
+   "end": 2412.85,
+   "duration_s": 9.62,
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s"
+  },
+  {
+   "label": "clip_02",
+   "moment_id": "53dc5ff1f9df5f2ed82a",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel": "Natalie Brunell",
+   "k0": 108,
+   "k1": 111,
+   "words": [
+    1417,
+    1456
+   ],
+   "start": 529.05,
+   "end": 543.54,
+   "duration_s": 14.49,
+   "text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure. And that's what emerges. And it doesn't matter what the other system does.",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "url_30s_before": "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=499s"
+  }
+ ],
+ "vo": {
+  "intro": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
+  "bridges": [
+   "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
+   "No ruler. Just rules nobody gets to bend. That's the idea."
+  ],
+  "bridges_after_clip": [
+   1,
+   2
+  ],
+  "signoff": "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below."
+ },
+ "title": "Nobody is in charge of Bitcoin.",
+ "caption": "no authority. no ruler. three clips, links below.",
+ "hook_first_words": "Bitcoin does not have any authority that allows",
+ "lines": [
+  {
+   "text": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "ad7c65485ce13e455dda"
+   ],
+   "slot": "intro"
+  },
+  {
+   "text": "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
+   "cites": [
+    "53dc5ff1f9df5f2ed82a"
+   ],
+   "slot": "bridge_1"
+  },
+  {
+   "text": "No ruler. Just rules nobody gets to bend. That's the idea.",
+   "cites": [],
+   "slot": "bridge_2"
+  },
+  {
+   "text": "Nobody is in charge of Bitcoin.",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "ad7c65485ce13e455dda",
+    "53dc5ff1f9df5f2ed82a"
+   ],
+   "slot": "title"
+  },
+  {
+   "text": "no authority. no ruler. three clips, links below.",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "ad7c65485ce13e455dda",
+    "53dc5ff1f9df5f2ed82a"
+   ],
+   "slot": "caption"
+  }
+ ],
+ "runtime_s_estimate": 63.33,
+ "runtime_note": "segments 32.49 s (word timing) + VO 42 words + sign-off 19 words at 2.6 w/s (assumed) + fixed 7.38 s (credits card, outro, transitions); the render measures the final",
+ "gates": {
+  "vo_fidelity_deterministic": {
+   "status": "PASS",
+   "by": "code (vo_fidelity.check_deterministic)",
+   "replayed": false,
+   "n": 1
+  },
+  "vo_fidelity_verdict": {
+   "status": "FAIL",
+   "by": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "n": 1
+  },
+  "duplicate": {
+   "status": "PASS",
+   "by": "code (package.duplicates)",
+   "replayed": false,
+   "n": 1
+  },
+  "price_now": {
+   "status": "PASS",
+   "by": "code (vo_fidelity.price_now)",
+   "replayed": false,
+   "n": 1
+  },
+  "runtime": {
+   "status": "PASS",
+   "by": "code (estimate at 2.6 w/s)",
+   "replayed": false,
+   "n": 1
+  },
+  "r4": {
+   "status": "PASS",
+   "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+   "replayed": false,
+   "n": 1
+  },
+  "context_a": {
+   "status": "PASS",
+   "by": [
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "replayed": false,
+   "n": 3
+  },
+  "context_b": {
+   "status": "PASS",
+   "by": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "n": 1
+  },
+  "context_c": {
+   "status": "PASS",
+   "by": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "n": 1
+  },
+  "exclusion": {
+   "status": "PASS",
+   "by": [
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "replayed": false,
+   "n": 3
+  },
+  "second_pass": {
+   "status": "PASS",
+   "by": [
+    "elevenlabs_stt:scribe_v1"
+   ],
+   "replayed": false,
+   "n": 3
+  },
+  "cuttable": {
+   "status": "PASS",
+   "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+   "replayed": false,
+   "n": 3
+  },
+  "coherence": {
+   "status": "PASS",
+   "by": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "n": 1
+  }
+ },
+ "cut_evidence": {
+  "hook": {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "model": "elevenlabs_stt:scribe_v1",
+   "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+   "in": {
+    "ok": true,
+    "word": "Bitcoin",
+    "before": "fundamental.",
+    "why": "a sentence ends before the clip"
+   },
+   "out": {
+    "ok": true,
+    "word": "that.",
+    "after": "Your",
+    "why": "a sentence ends at the clip's last word"
+   }
+  },
+  "clip_01": {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "model": "elevenlabs_stt:scribe_v1",
+   "audio": "c1JGheQBPH4_2401730_2423570.wav",
+   "in": {
+    "ok": true,
+    "word": "I",
+    "before": "Mm-hmm.",
+    "why": "a sentence ends before the clip"
+   },
+   "out": {
+    "ok": true,
+    "word": "US.",
+    "after": "Um,",
+    "why": "a sentence ends at the clip's last word"
+   }
+  },
+  "clip_02": {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 529.05,
+   "end": 543.54,
+   "model": "elevenlabs_stt:scribe_v1",
+   "audio": "wdk5JZ9hPzs_527550_545040.wav",
+   "in": {
+    "ok": true,
+    "word": "Bitcoin",
+    "before": "now.",
+    "why": "a sentence ends before the clip"
+   },
+   "out": {
+    "ok": true,
+    "word": "does.",
+    "after": "Hmm.",
+    "why": "a sentence ends at the clip's last word"
+   }
+  }
+ },
+ "checks_given": {
+  "fidelity": {
+   "deterministic": {
+    "ok": true,
+    "violations": [],
+    "price_now_measured": true
+   },
+   "verdict": {
+    "ok": false,
+    "claims": [
+     {
+      "line": "intro",
+      "words": "Nobody is in charge of Bitcoin.",
+      "class": "fact",
+      "claim": "Nobody is in charge of Bitcoin.",
+      "supported": "uncertain",
+      "support": [
+       {
+        "segment": "3b3050f4afd6f3c011e7",
+        "words": "Bitcoin does not have any authority that allows people to take the wealth of others."
+       },
+       {
+        "segment": "ad7c65485ce13e455dda",
+        "words": "its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S."
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "intro",
+      "words": "That's not a flaw.",
+      "class": "commentary",
+      "claim": "That's not a flaw.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "intro",
+      "words": "That's the design.",
+      "class": "commentary",
+      "claim": "That's the design.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "bridge_1",
+      "words": "Next, from Natalie Brunell's show:",
+      "class": "production",
+      "claim": "Next, from Natalie Brunell's show:",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "manifest",
+        "words": "contains clips from Saifedean Ammous, What Bitcoin Did, Natalie Brunell. There are 3 clips. Links to every source are below."
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "bridge_1",
+      "words": "what does a system with no one in charge have to get right?",
+      "class": "commentary",
+      "claim": "what does a system with no one in charge have to get right?",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "bridge_2",
+      "words": "No ruler.",
+      "class": "commentary",
+      "claim": "No ruler.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "bridge_2",
+      "words": "Just rules nobody gets to bend.",
+      "class": "commentary",
+      "claim": "Just rules nobody gets to bend.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "bridge_2",
+      "words": "That's the idea.",
+      "class": "commentary",
+      "claim": "That's the idea.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "title",
+      "words": "Nobody is in charge of Bitcoin.",
+      "class": "fact",
+      "claim": "Nobody is in charge of Bitcoin.",
+      "supported": "uncertain",
+      "support": [
+       {
+        "segment": "3b3050f4afd6f3c011e7",
+        "words": "Bitcoin does not have any authority that allows people to take the wealth of others."
+       },
+       {
+        "segment": "ad7c65485ce13e455dda",
+        "words": "its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S."
+       },
+       {
+        "segment": "53dc5ff1f9df5f2ed82a",
+        "words": "And it doesn't matter what the other system does."
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "caption",
+      "words": "no authority.",
+      "class": "fact",
+      "claim": "no authority.",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "3b3050f4afd6f3c011e7",
+        "words": "Bitcoin does not have any authority that allows people to take the wealth of others."
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "caption",
+      "words": "no ruler.",
+      "class": "commentary",
+      "claim": "no ruler.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "caption",
+      "words": "three clips, links below.",
+      "class": "production",
+      "claim": "three clips, links below.",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "manifest",
+        "words": "There are 3 clips. Links to every source are below."
+       }
+      ],
+      "tests": {}
+     }
+    ],
+    "violations": [
+     {
+      "slot": "intro",
+      "rule": "VERDICT_UNCERTAIN",
+      "detail": "Nobody is in charge of Bitcoin."
+     },
+     {
+      "slot": "title",
+      "rule": "VERDICT_UNCERTAIN",
+      "detail": "Nobody is in charge of Bitcoin."
+     }
+    ],
+    "classes": {
+     "intro": [
+      "fact",
+      "commentary",
+      "commentary"
+     ],
+     "bridge_1": [
+      "production",
+      "commentary"
+     ],
+     "bridge_2": [
+      "commentary",
+      "commentary",
+      "commentary"
+     ],
+     "title": [
+      "fact"
+     ],
+     "caption": [
+      "fact",
+      "commentary",
+      "production"
+     ]
+    }
+   },
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false,
+   "violations": [
+    {
+     "slot": "intro",
+     "rule": "VERDICT_UNCERTAIN",
+     "detail": "Nobody is in charge of Bitcoin."
+    },
+    {
+     "slot": "title",
+     "rule": "VERDICT_UNCERTAIN",
+     "detail": "Nobody is in charge of Bitcoin."
+    }
+   ],
+   "ok": false
+  },
+  "context": {
+   "segments": {
+    "hook": {
+     "A": {
+      "label": "hook",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "that",
+        "refers_to": "some people ending up with more Bitcoin",
+        "inside": true,
+        "changes_assertion": "no"
+       },
+       {
+        "word": "that",
+        "refers_to": "acquiring/accumulating more Bitcoin",
+        "inside": true,
+        "changes_assertion": "no"
+       }
+      ],
+      "conditions": [
+       {
+        "text": "If some people end up with more Bitcoin",
+        "inside": true
+       }
+      ],
+      "retraction": "none",
+      "time_ok": "yes",
+      "proposition": "Bitcoin has no authority allowing seizure of others' wealth, so any unequal holdings result from voluntary individual choices rather than systemic theft.",
+      "certainty": "certain",
+      "speaker_is": "host",
+      "speaker_evidence": "I chose to buy Bitcoin. I don't have that problem.",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "replayed": false,
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "hook",
+      "asserts": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "B0": {
+      "label": "hook",
+      "asserts": "Bitcoin has no authority allowing seizure of others' wealth, and unequal holdings result from voluntary choice.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "hook",
+      "entails": "yes",
+      "dropped_limit": "",
+      "added_by": "",
+      "same_polarity": "yes",
+      "stronger_certainty": "no",
+      "raising_words": ""
+     },
+     "window": [
+      1157,
+      1200
+     ]
+    },
+    "clip_01": {
+     "A": {
+      "label": "clip_01",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "it",
+        "refers_to": "Bitcoin",
+        "inside": true,
+        "changes_assertion": "no"
+       },
+       {
+        "word": "its",
+        "refers_to": "Bitcoin's",
+        "inside": true,
+        "changes_assertion": "no"
+       }
+      ],
+      "conditions": [],
+      "retraction": "none",
+      "time_ok": "yes",
+      "proposition": "Bitcoin's success is not dependent on which political party or figures control the White House, Senate, or House of Representatives.",
+      "certainty": "certain",
+      "speaker_is": "guest",
+      "speaker_evidence": "But I guess the thing I'm nervous about is because Trump has been supportive of Bitcoin, does that mean that any of these sort of future Democrat Party is automatically going to be against Bitcoin? Is Bitcoin going to get caught up in the politicking of it all? Mm -hmm.",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "replayed": false,
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "clip_01",
+      "asserts": "The good news about Bitcoin is that its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "B0": {
+      "label": "clip_01",
+      "asserts": "Bitcoin's success is independent of U.S. political control including the White House, Senate, or House.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "clip_01",
+      "entails": "yes",
+      "dropped_limit": "",
+      "added_by": "",
+      "same_polarity": "yes",
+      "stronger_certainty": "no",
+      "raising_words": ""
+     },
+     "window": [
+      446,
+      473
+     ]
+    },
+    "clip_02": {
+     "A": {
+      "label": "clip_02",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "that",
+        "refers_to": "new system of measure",
+        "inside": true,
+        "changes_assertion": "no"
+       },
+       {
+        "word": "it",
+        "refers_to": "Bitcoin or the new system of measure",
+        "inside": true,
+        "changes_assertion": "no"
+       },
+       {
+        "word": "that",
+        "refers_to": "what emerges from Bitcoin staying decentralized and secure",
+        "inside": true,
+        "changes_assertion": "no"
+       },
+       {
+        "word": "it",
+        "refers_to": "Bitcoin or the new system",
+        "inside": true,
+        "changes_assertion": "no"
+       }
+      ],
+      "conditions": [
+       {
+        "text": "all it has to do is stay decentralized and secure",
+        "inside": true
+       }
+      ],
+      "retraction": "none",
+      "time_ok": "yes",
+      "proposition": "Bitcoin is a new measuring system for the first free market ever, and positive outcomes will emerge if it stays decentralized and secure regardless of actions by the existing debt-based system.",
+      "certainty": "certain",
+      "speaker_is": "guest",
+      "speaker_evidence": "And why that's interesting for this conversation to your initial question is how could we superimpose those two thoughts on what's going on right now?",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "replayed": false,
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "clip_02",
+      "asserts": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure. And that's what emerges. And it doesn't matter what the other system does.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "B0": {
+      "label": "clip_02",
+      "asserts": "Bitcoin is the measure of the first free market, only needs to remain decentralized and secure, and is unaffected by other systems.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "clip_02",
+      "entails": "yes",
+      "dropped_limit": "",
+      "added_by": "",
+      "same_polarity": "yes",
+      "stronger_certainty": "no",
+      "raising_words": ""
+     },
+     "window": [
+      88,
+      123
+     ]
+    }
+   },
+   "relations": [
+    {
+     "labels": [
+      "hook",
+      "clip_01"
+     ],
+     "relation": "none"
+    },
+    {
+     "labels": [
+      "hook",
+      "clip_02"
+     ],
+     "relation": "none"
+    },
+    {
+     "labels": [
+      "clip_01",
+      "clip_02"
+     ],
+     "relation": "none"
+    }
+   ],
+   "violations": [],
+   "backends": {
+    "A": {
+     "hook": "xai:grok-4.20-0309-reasoning",
+     "clip_01": "xai:grok-4.20-0309-reasoning",
+     "clip_02": "xai:grok-4.20-0309-reasoning"
+    },
+    "B0": "xai:grok-4.20-0309-reasoning",
+    "B": "xai:grok-4.20-0309-reasoning",
+    "C": "xai:grok-4.20-0309-reasoning"
+   },
+   "measured": true,
+   "replayed": false,
+   "judged": [
+    "hook",
+    "clip_01",
+    "clip_02"
+   ],
+   "ok": true
+  },
+  "duplicates": [],
+  "exclusion": {
+   "hook": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Explains Bitcoin has no authority to seize wealth; more BTC results from voluntary choice",
+    "risks": [],
+    "backend": "xai:grok-4.20-0309-reasoning"
+   },
+   "clip_01": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Speaker states Bitcoin success not tied to US political control",
+    "risks": [],
+    "backend": "xai:grok-4.20-0309-reasoning"
+   },
+   "clip_02": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Moment philosophically frames Bitcoin as decentralized free-market measure independent of legacy systems",
+    "risks": [],
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "truth": {
+   "hook": {
+    "video_id": "vgsSZ4mAHfQ",
+    "start": 5144.99,
+    "end": 5153.37,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+    "transcript_ok": true,
+    "disagree": {
+     "numbers": [],
+     "negations": [],
+     "names": []
+    },
+    "critical": {
+     "numbers": [],
+     "negations": [
+      "not"
+     ],
+     "names": []
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+    "edges": {
+     "in": {
+      "ok": true,
+      "word": "Bitcoin",
+      "before": "fundamental.",
+      "why": "a sentence ends before the clip"
+     },
+     "out": {
+      "ok": true,
+      "word": "that.",
+      "after": "Your",
+      "why": "a sentence ends at the clip's last word"
+     },
+     "cuttable": true
+    },
+    "ok": true
+   },
+   "clip_01": {
+    "video_id": "c1JGheQBPH4",
+    "start": 2403.23,
+    "end": 2412.85,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "I mean, the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US.",
+    "transcript_ok": true,
+    "disagree": {
+     "numbers": [],
+     "negations": [],
+     "names": []
+    },
+    "critical": {
+     "numbers": [],
+     "negations": [
+      "not",
+      "not"
+     ],
+     "names": []
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "c1JGheQBPH4_2401730_2423570.wav",
+    "edges": {
+     "in": {
+      "ok": true,
+      "word": "I",
+      "before": "Mm-hmm.",
+      "why": "a sentence ends before the clip"
+     },
+     "out": {
+      "ok": true,
+      "word": "US.",
+      "after": "Um,",
+      "why": "a sentence ends at the clip's last word"
+     },
+     "cuttable": true
+    },
+    "ok": true
+   },
+   "clip_02": {
+    "video_id": "wdk5JZ9hPzs",
+    "start": 529.05,
+    "end": 543.54,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And it, all it has to do is stay decentralized and secure, and that's what emerges. And it doesn't matter what the other system does.",
+    "transcript_ok": true,
+    "disagree": {
+     "numbers": [],
+     "negations": [],
+     "names": []
+    },
+    "critical": {
+     "numbers": [],
+     "negations": [
+      "doesn't"
+     ],
+     "names": []
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "wdk5JZ9hPzs_527550_545040.wav",
+    "edges": {
+     "in": {
+      "ok": true,
+      "word": "Bitcoin",
+      "before": "now.",
+      "why": "a sentence ends before the clip"
+     },
+     "out": {
+      "ok": true,
+      "word": "does.",
+      "after": "Hmm.",
+      "why": "a sentence ends at the clip's last word"
+     },
+     "cuttable": true
+    },
+    "ok": true
+   }
+  },
+  "coherence": {
+   "through_line": "Nobody is in charge of Bitcoin and that is by design rather than a flaw.",
+   "clips": {
+    "hook": 5,
+    "clip_01": 4,
+    "clip_02": 5
+   },
+   "vo_point": 5,
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false
+  },
+  "r4": [
+   true,
+   "R4 (moments-first, 06:00) PASS | VO 19.8 s = 31.3% of the 63.33 s runtime (37.9% of clips + VO)"
+  ],
+  "runtime_ok": true,
+  "gates": {
+   "vo_fidelity_deterministic": true,
+   "vo_fidelity_verdict": false,
+   "price_now_measured": true,
+   "duplicate": true,
+   "runtime": true,
+   "r4": true,
+   "context": true,
+   "exclusion": true,
+   "second_pass": true,
+   "cuttable": true,
+   "coherence": true
+  },
+  "step_a": {
+   "hook": {
+    "label": "hook",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "that",
+      "refers_to": "some people ending up with more Bitcoin",
+      "inside": true,
+      "changes_assertion": "no"
+     },
+     {
+      "word": "that",
+      "refers_to": "acquiring/accumulating more Bitcoin",
+      "inside": true,
+      "changes_assertion": "no"
+     }
+    ],
+    "conditions": [
+     {
+      "text": "If some people end up with more Bitcoin",
+      "inside": true
+     }
+    ],
+    "retraction": "none",
+    "time_ok": "yes",
+    "proposition": "Bitcoin has no authority allowing seizure of others' wealth, so any unequal holdings result from voluntary individual choices rather than systemic theft.",
+    "certainty": "certain",
+    "speaker_is": "host",
+    "speaker_evidence": "I chose to buy Bitcoin. I don't have that problem.",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "speaker_verified": false
+   },
+   "clip_01": {
+    "label": "clip_01",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "it",
+      "refers_to": "Bitcoin",
+      "inside": true,
+      "changes_assertion": "no"
+     },
+     {
+      "word": "its",
+      "refers_to": "Bitcoin's",
+      "inside": true,
+      "changes_assertion": "no"
+     }
+    ],
+    "conditions": [],
+    "retraction": "none",
+    "time_ok": "yes",
+    "proposition": "Bitcoin's success is not dependent on which political party or figures control the White House, Senate, or House of Representatives.",
+    "certainty": "certain",
+    "speaker_is": "guest",
+    "speaker_evidence": "But I guess the thing I'm nervous about is because Trump has been supportive of Bitcoin, does that mean that any of these sort of future Democrat Party is automatically going to be against Bitcoin? Is Bitcoin going to get caught up in the politicking of it all? Mm -hmm.",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "speaker_verified": false
+   },
+   "clip_02": {
+    "label": "clip_02",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "that",
+      "refers_to": "new system of measure",
+      "inside": true,
+      "changes_assertion": "no"
+     },
+     {
+      "word": "it",
+      "refers_to": "Bitcoin or the new system of measure",
+      "inside": true,
+      "changes_assertion": "no"
+     },
+     {
+      "word": "that",
+      "refers_to": "what emerges from Bitcoin staying decentralized and secure",
+      "inside": true,
+      "changes_assertion": "no"
+     },
+     {
+      "word": "it",
+      "refers_to": "Bitcoin or the new system",
+      "inside": true,
+      "changes_assertion": "no"
+     }
+    ],
+    "conditions": [
+     {
+      "text": "all it has to do is stay decentralized and secure",
+      "inside": true
+     }
+    ],
+    "retraction": "none",
+    "time_ok": "yes",
+    "proposition": "Bitcoin is a new measuring system for the first free market ever, and positive outcomes will emerge if it stays decentralized and secure regardless of actions by the existing debt-based system.",
+    "certainty": "certain",
+    "speaker_is": "guest",
+    "speaker_evidence": "And why that's interesting for this conversation to your initial question is how could we superimpose those two thoughts on what's going on right now?",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "speaker_verified": false
+   }
+  },
+  "current_levels": [],
+  "author": {
+   "vendor": "anthropic",
+   "family": "claude"
+  },
+  "wall_s": 189.2,
+  "usd": 0.8884
+ }
+}
