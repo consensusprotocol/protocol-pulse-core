@@ -6,7 +6,195 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## LIVE STATE (updated 2026-11-11 20:14 ET; newest first)
+## LIVE STATE (updated 2026-11-11 23:16 ET; newest first)
+
+- 23:16 PLAN (recorded for continuity; order of work unchanged): batch 16 commits when its final CPU suite, its GPU-gated
+  suite and the live vision fixtures are green (running). Then, each audited + committed separately: B (strict model
+  schemas: patch staged), C (gates reject vacuous input before any model: patch staged incl. G1 against a FIXED
+  enrolled sample of the approved voice = v2f's three cbQ4bUP6OYwI7yEUTYaM stems; pass fixture the preview's sign-off,
+  fail fixture the legacy 'Connery' bridge), E (cache section metadata: done, tests staged), D (anchors never change a
+  negation / number / sign / unit / name; SELECT = hook + >= 2 clips + the required channels; one eligibility
+  predicate incl. the hook's 80 ms lead; merged candidates re-adjudicated), the GPU0 lease wired into run_fresh / the
+  backtest / GPU test sessions / preflight, the backtest's supply export (item 1: runs_backtest/<day>/
+  BITCOIN_STATEMENTS.jsonl before selection decides) and its availability / recall / precision columns. Item 3
+  (constrained selection) design: label_cluster and adjudicate see their excerpts as NUMBERED sentences and return
+  sentence IDs (the cluster's claim = the chosen sentence verbatim; the evidence = the chosen sentences verbatim, their
+  chunk bound by construction); a wire item's event text = its headline verbatim (the model's derivation kept as
+  labels); free model text only as labels. Prompt changes invalidate the cached replies: the backtest re-runs cold on
+  the final code.
+
+- 23:12 COLD BACKTEST STOPPED by me (exit 143) after Nov 10 (0 producible: the 22:20 entry below) and part of
+  fresh_20261112_013452: it ran the OLD selection code (394ffe5a) and held GPU0, which the GPU-gated checks of batch 16's
+  changed REQUIRED gates (G18 / G3b on the real Nov 10 fixtures) need (they ran out of memory beside it: 'one owner
+  for GPU0'); hardening B / D change validators and prompts, so the backtest is re-run on the final code. GPU0's model
+  unloaded (18 MiB used). Batch 16's GPU-gated suites and its final CPU suite are running before the commit.
+
+- 22:51 ADDENDUM '22:15' ITEM 2 (ONE OWNER FOR GPU0), first parts: pipeline/gpu0.py (new; test_gpu0.py 3 pass): the
+  GPU0 lease = an exclusive flock on /tmp/pulse_gpu0.lease, re-entrant in a process, the holder written into it so a
+  refusal names it, released when the holder dies; wiring into run_fresh (the whole run), the backtest, GPU test
+  sessions and preflight (refuse while another process holds it) lands after batch 16 is committed. CONFIRMED (code):
+  editorial model calls cannot land on the GPU1 Ollama: story_semantics.LocalLLM checks its runner's GPU placement on
+  the first call and raises 'LLM runner not on GPU0 only' (gpu_placement via the GPU0 instance's listener pid).
+  Wall time per stage, all saved runs (status.json, passed stages; editorial from the auto runs, all HOLD):
+  | stage | n | P50 s | P95 s |
+  |---|---|---|---|
+  | editorial (auto) | 8 | ~2,900 | ~3,450 |
+  | pinned | 29 | 148 | 159 |
+  | review | 23 | 33 | 45 |
+  | cut | 17 | 12 | 322 |
+  | sentence_law | 6 | 8 | 12 |
+  | voice | 17 | 22 | 29 |
+  | prepare | 10 | 47 | 81 |
+  | layout | 4 | 58 | 70 |
+  | render | 5 | 1,071 | 1,208 |
+  | gates | 4 | 618 | 910 |
+  | verify | 2 | 661 | 791 |
+  A full successful auto run therefore needs ~50-58 min of selection (cold) + ~45-50 min of render / gates / verify.
+
+- 22:40 BATCH 16 (red-team A + the 21:10 canonical form / backtest / preflight) AUDITED on its actual diff:
+  gpt-6.1-sol 8 HIGH and claude-fable-5-2 8 findings (docs/audits/pulse-sentence-law/batch16_redteam_A/
+  AUDIT_RESPONSE.md), every one confirmed and fixed except fable #3's 'anchor lost its edge-word equality' (the window
+  search enforces it); Grok + Heimdall per chunk (the whole-diff Grok run saw NO code: cross_llm_audit.py drops a
+  diff >= 220,000 bytes; recorded, re-run per chunk). Fixes include: evidence required (absent = blocker), the
+  exact hashed bytes uploaded, a durable in-flight checkpoint before every send, canonical tokens spanning their
+  words (a lock on 'seventy four thousand' ends on 'thousand'), 'one and two' != 'one two', every sign layout kept,
+  ordinals their own token, the headline's numbers checked with sign + unit against G18's readings of the FINAL,
+  pipeline modules identified by name. REQUIRED / MONITORING after the fixtures landed: V1_visual_checklist
+  REQUIRED (TestVisionMustPass GREEN: the PBX-approved preview passes V1 in both formats with the current code,
+  22:34), vertical_silent_fallback REQUIRED, G14_audio_offset (9:16) REQUIRED with its new fixtures
+  (TestG14AudioOffsetVertical GREEN 22:43: the corrected cut's vertical passes, a real 2-frame slip fails, < 3 conclusive samples HOLD). Still MONITORING: G1, G2, G3, G4, G4 per shot, G6, G10, G13, G11, G14c
+  (the table below is updated). The drop's first caption line names any MONITORING row that did not pass.
+  regression_test.sh 26 PASS / 0 FAIL, pipeline/regression.sh PASS incl. the protected preview REPRODUCED (before
+  the span fix; re-checking after it).
+
+- 22:20 BACKTEST (cold, worktree backtest-run = 394ffe5a + harness) Nov 10 DONE: 3,224 s (54 min cold), 427 LLM
+  calls (now cached). Universe 95 videos / 87 transcripts, 214 clusters, Bitcoin screen 24 (48 h) / 13 (72 h),
+  4 coverage-qualified, 0 PRODUCIBLE. The protected preview's story (Bitcoin below $74,000: DataDash / Natalie
+  Brunell / Yahoo Finance) came only as the wire headline 'Bitcoin Price Drops Below $74,000 as Nvidia Probe ...'
+  and stopped at 'inconclusive: currentness missing: no verified transcript evidence of a current development';
+  the best channel cluster (institutional allocation, 3 channels) stopped at 'only 1 layout-eligible channel'.
+  => the go-live bar's Nov 10 condition is NOT met at 394ffe5a: a selector-recall miss on a day with a known legal
+  lineup (the PBX-approved preview). D work. The pass continues on fresh_20261112_013452.
+  Claude-gates #5 ANSWERED (measured, docs/audits/pulse-sentence-law/batch16_redteam_A/g8_v2f_production_wiring.json):
+  through the production wiring (run_fresh.stage_gates: 16:9 sources = prepared clips, 9:16 = reframed vertical
+  clips) the approved v2f PASSES G8 in both formats: 16:9 ratios hook 1.012 / clip_01 0.963 / clip_02 0.990 /
+  clip_03 0.980; 9:16 1.057 / 1.016 / 1.038 / 1.080, and 9:16 clip_03's median is 10.84 = the calibrated floor
+  (zero margin: Claude-gates A5). The 'long-recorded 9:16 G8 fail' is the Law 22 re-render harness's own QA
+  (runs/v2f_20261111_232758 qa/gate_results_*.json): it calls the gates WITHOUT G8 source clips (src_median 0.0,
+  ratio 0.0), so G8 reads FAIL in BOTH formats there; Law 22 asserts byte identity, not that QA. Not a release
+  blocker; the harness wiring is recorded (run_isolated is pinned, untouched).
+
+- 22:01 ORCHESTRATOR ADDENDUM '22:15' RECEIVED (forecast review by gpt-6.1-sol, grok-4.7, grok-4.20 in
+  /home/ultron/heimdall_probe/pp_redteam/assess/). Order of work unchanged; four additions to the hardening phase:
+  1 SUPPLY VS SELECTOR: for every saved day the backtest exports, BEFORE selection decides anything,
+    runs_backtest/<day>/BITCOIN_STATEMENTS.jsonl: every Bitcoin-screened, sentence-complete statement in the 72 h
+    window (channel, video id, start/end, text, layout eligibility). An independent frontier model builds a lineup
+    (or declares none) from that file alone, blind to the selector. The table reports per day: availability (an
+    independent lineup exists), selector recall (selector found one when one exists), precision (the selector's
+    lineup is legal). Go-live bar = recall and precision; availability is reported to PBX as a fact of the format.
+  2 ONE OWNER FOR GPU0: one queue / lock every pipeline GPU job goes through (editorial model, Whisper, face
+    detection, NVENC render, test suites), explicit load / unload between stages; preflight refuses to start if
+    anything else holds GPU0 memory; confirm editorial calls never land on the GPU1 Ollama; record P50 / P95 wall
+    time per stage of a full run.
+  3 CONSTRAINED SELECTION: where a model picks a story claim, a hook or a clip it chooses among numbered,
+    source-backed statements and returns IDs; it never writes claim text that is later matched back to
+    transcripts. Model free text is for labels only (removes the class behind E-FAIL-038 and the fuzzy-alignment
+    findings).
+  4 A gate stays in the REQUIRED (release-deciding) inventory only with (a) a real passing fixture, (b) a realistic
+    failing fixture, (c) a defined answer to missing evidence. Gates without all three are listed here as
+    MONITORING (reported, not release-deciding) until they have them. No gate is deleted.
+  Effect on A: release_auth's inventory becomes REQUIRED + MONITORING per this rule; the per-gate table (fixture
+  pass / fixture fail / missing-evidence answer) is written into this doc when A lands.
+
+- 21:53 ORCHESTRATOR ADDENDUM '22:00' RECEIVED (same hardening batch): openai_r2_cut.md (gpt-6.1-sol, F01-F31) and
+  anthropic_r2_gates.md (claude-fable-5-2, T/D/M/C/X/A/V/P/S) read in full and added to REDTEAM_2026-11-11.md
+  (anthropic_r2_select.md stopped after one finding, anthropic_r2_cut.md empty: thinking took the budget). Three models
+  put first: "all gates passed" does not require that the gates ran, ran unwaived, or ran on these bytes = item A.
+  Named answers owed in the ledger: GPT-cut F03 (L-c / DEC-12f: the override proof must be measured on the FINAL
+  rendered audio of the exact approved file, never the prepared clip; else the dissent stands and the run HOLDS),
+  F07 (G17c zero compared samples = perfect), F04 (G18 canonicaliser erases units / signs: 5% vs $5 vs +5%), F05
+  (repetition removal hides concat repeats), F06 (approximate anchor loses a negation), F08 (critical lock mismatch
+  report-only), F12 (hook eligibility vs the later 80 ms G17a lead); Claude-gates #2 (voice / VO gates tautological
+  or empty: the voice reference must be a FIXED enrolled sample of the PBX voice), #3 (substring + one-word
+  tolerance in cut checks), #4 (a fade satisfies G3c; G14 forgives 0.5 s), #5 (does the approved reference still
+  fail 9:16 G8 through the public entry point? measured numbers, before the next run), #8 (stale / teaser /
+  third-party content, unvalidated headline), #9 (wrong checkout's code, stale artefacts). Both 'five cheapest
+  tests' lists adopted into F.
+  EVIDENCE ALREADY IN HAND (Claude-gates V1-V3 / GPT-gates F05, F06, F19 CONFIRMED on a real run): in
+  runs/pinned_20261111_172202_replay_cut1329 qa/gate_results_16x9.json, G1_voice PASS with 0 table rows, G6_preroll
+  PASS with 0 rows, G13_vo_audible PASS with 0 rows: this format's only VO is the sign-off inside the 'shoutout'
+  segment, so vo_regions is empty, and G13's sign-off block needs edl['vo']['signoff'], which the EDL does not carry
+  (the text is in vo_audio/VO_MANIFEST.json). Under A every required row needs samples >= 1, so these three rows
+  block release until C makes them measure the sign-off (G1 against a fixed enrolled PBX-voice sample).
+  WORK ORDER NOW: A (pipeline/release_auth.py written: exact inventory v1, verdicts PASS/FAIL/HOLD/SKIPPED/LIMITED,
+  evidence per row, ATTESTATION.json binding the sha256 of both finals, EDL, both manifests, GATE_REPORT,
+  VERIFICATION, both contact sheets; authorise() re-derives and re-hashes before the first send) -> wire run_fresh
+  (exact verdicts + notes + evidence, measured digests at gate start, attestation after provenance so holds =>
+  HOLD), verify_pack (strict panel inventory, vision required, every frame present), telegram (authorise or nothing
+  is sent; no REVIEW ONLY sends; checkpointed, resumable, no duplicates; payload limits checked before the first
+  send; legacy send_telegram_preview removed), the L-c final-audio rule, the wrapper exit codes -> B -> C.
+
+- 21:41 ORCHESTRATOR ORDER '21:55' (RED-TEAM FINDINGS) RECEIVED: joins the 21:10 order as ONE HARDENING PHASE that
+  finishes before the next unattended run. Read in full: /home/ultron/heimdall_probe/pp_redteam/frontier/
+  openai_select.md (F01-F36), openai_gates.md (F01-F38), xai_select.md, xai_cut.md, xai_gates.md, and as they appear
+  anthropic_r2_*.md, openai_r2_cut.md, panel_*/audit.md, pi_*.md (audit read 394ffe5a; mark FIXED with commit).
+  Orchestrator verified five as real: (1) story_semantics ~649-654 support verifier fails open (only False / 'past'
+  downgrade); (2) telegram.gate_status: 'PASS...' prefix passes, '(run_gates)' rows exempt, no gate inventory,
+  legacy truthy all_pass; (3) verify_pack ~124-128 recomputes ok over rows, zero rows = True, {"ok": "false"}
+  truthy; (4) select_passages cached sources/<id>.mp4 returned with a NEW dl_start; (5) qa_gates ~1705 empty /
+  unknown-type manifest makes gates no-ops. PRINCIPLE: FAIL CLOSED; one authorisation function for "may this exact
+  file be sent as passing", used by every send path. A: versioned exact gate inventory per format, enumerated
+  verdicts, rows record execution + sample counts, sha256 of both finals / EDL / manifests bound into the
+  attestation, delivery verifies digests before the first send, legacy paths removed or routed, no waiver strings.
+  B: strict schemas for every model call feeding a decision (missing / mistyped field = failed call -> retry ->
+  HOLD). C: gates reject empty manifests, unknown segment types, zero-sample checks, empty expected values before
+  any model loads. D: ONE eligibility predicate for primary pick and every fallback; SELECT success = hook + >= 2
+  clips + required channels after replacements; merged candidates re-adjudicate inherited verdicts; alignment
+  preserves negation / numbers / names / dates exactly. E: cached media carries + checks its section metadata;
+  reply caches keyed by everything that affects the answer. F: the 'five cheapest test families' of both GPT
+  reports + the backtest = the regression suite. One line per finding in docs/audits/REDTEAM_2026-11-11.md
+  (CONFIRMED-FIXED / CONFIRMED-DEFERRED / NOT REPRODUCED). Audit panel may add gpt-6.1-sol and claude-fable-5-2.
+  ORDER: A, B, C first; then canonicaliser + fuzz, D, E, backtest, preflight; then the backtest bar; then live.
+  STATE OF THE 21:10 WORK AT THIS POINT (uncommitted in the main tree): pipeline/backtest.py + select_story hooks
+  (transcript_fn, words_fn) + test_backtest.py (4 pass); the cold backtest pass runs from worktree backtest-run
+  (394ffe5a + harness) since 21:07, still on fresh_20261110_093150 (cold LLM); pipeline/preflight.py + wrapper call
+  + test_preflight.py (6 pass; found nothing broken; Michael Saylor avatar missing but the channel is disabled);
+  pipeline/canon.py + test_canon.py (16 pass incl. 200-sentence fuzz; apostrophes kept: "it's" != "its", cross-LLM
+  M1) routed into story_semantics._norm, gates._g20_norm, editorial_gate._norm, qa_gates G3 / G3b (expected word
+  read in its lock context), word_diff.norm (G18 keeps its two tolerances), cut_accept, stand_alone (contraction
+  heads), editorial_select (_tok, align_quote via canon_aligned, _lc_words heads, _numbers), punctuation._key
+  (+ the '$74,000' = '74,000' alignment tolerance), sentence_law.tokens / anchor (canon_aligned; lock boundaries by
+  token ownership). Protected preview REPRODUCED after the anchor change. GPU-gated G18 tests pending a free GPU0.
+
+- 21:04 ORCHESTRATOR ORDER '21:10' (PBX, direct: "stop finding problems the hard way") RECEIVED. Batch 15 is landed
+  (394ffe5a, pushed 20:34). The rerun at 394ffe5a (runs/fresh_20261112_013452) was STOPPED by me at 21:03 in its
+  48 h pool coverage (4 coverage-qualified so far: financial advisers' Bitcoin allocation, tax treatment, price
+  volatility, public enthusiasm); its validated replies are cached, so the backtest of its universe recovers it.
+  Order, in this sequence: (1) BACKTEST HARNESS pipeline/backtest.py + test: every saved universe (runs/fresh_*
+  with a universe / transcripts) through editorial selection only (clusters -> coverage -> clip quality ->
+  stand-alone -> sentence law on the chosen windows; no download, no render), cached transcripts / embeddings /
+  validated replies, 'today' pinned to that run's date; one table (day, universe, clusters, Bitcoin-screened,
+  coverage-qualified, producible lineups or the gate that stopped each of the top 5); < 20 min warm; from now on
+  the selection regression suite (fewer producible days = HOLD on the change). Bar for live again: >= 4 saved days
+  produce a legal lineup AND Nov 10 produces the DataDash / Natalie Brunell / Yahoo Finance style lineup of the
+  protected preview. (2) TEXT-EQUIVALENCE: one canonicaliser for EVERY comparison (quote verification, edge words,
+  G3b, G18, sign-off names, text cache keys), property tests on 200 real sentences x mutations (entities, unicode
+  quotes / dashes / ellipsis / nbsp, split tokens, currency / percent, digits vs number words to trillions,
+  decimals, ordinals, k/M/B, casing, trailing punctuation, hyphenation, apostrophes) = equal; real differences
+  (number, dropped word, name) = unequal; a grep test fails any comparison site not using it. (3) PREFLIGHT in the
+  wrapper (seconds; a failure is a HOLD with the reason): GPU0 free / no other job, Ollama model loadable, yt-dlp on
+  one known video, ElevenLabs reachable with quota, Telegram bot reachable, disk, clean git tree at a pushed commit,
+  no other run (flock), brand assets + registry. A hostile read-only audit runs in parallel (orchestrator); do not
+  wait. Then a live run only after the backtest bar is met; keep HEAD stable after that for the three-in-a-row.
+
+- 20:34 BATCH 15 IN (394ffe5a, pushed): laws L-h (text read as spoken: caption entities decoded, split Whisper
+  tokens joined, for chunks and quote checks; embedding cache t2) and L-i (a cluster's claim is its event: derived
+  from the claim alone, underlying_event = the claim); E-FAIL-036 / 037 / 038. Audit: cross-LLM all three models
+  READY, zero defects; Heimdall 0 consensus (one qwen27b point taken: _norm joins split tokens too). Suites 106
+  passed / 12 GPU-skipped; regression_test.sh 26 / 0; pipeline/regression.sh PASS incl. preview REPRODUCED. Real
+  model: TestLayoutGate still fails 'no hook >= 4.0' = the pre-existing failure recorded in batch 8b, reproduced at
+  4ca4b426 and with its date pinned (the cluster path ran end to end in it). RERUN STARTED 20:34 at 394ffe5a:
+  runs/fresh_20261112_013452 (log logs/pulse_check/run_20261112_013452.log).
 
 - 20:13 FRESH RUN STOPPED BY ME (runs/fresh_20261112_001448, 5dde8179): both cluster pools were evaluated to the
   end and HELD with full ledgers (48 h: 18 candidates, 72 h: 12; one coverage-qualified, BitGo custody, rejected
@@ -520,7 +708,59 @@ Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fa
 - Law 22 re-render with all of the above in the tree: running (runs/v2f_20261111_103004).
 - Full suite: 284 passed; 2 failures pre-existing LLM editorial tests (same failure at 3641440f).
 
+## REQUIRED / MONITORING gate inventory (addendum '22:15' item 4; pipeline/release_auth.py inventory v1, 2026-11-11 22:12)
+
+A row DECIDES release (REQUIRED) only with a real passing fixture, a realistic failing fixture and a defined answer
+to missing evidence. Release-level answer to missing evidence for every REQUIRED row: no execution evidence
+(executed True and samples >= 1, written by run_fresh / verify_pack into GATE_REPORT.json) = blocker. MONITORING
+rows must be present with an exact verdict (they are reported in the drop's caption) but do not decide release.
+No gate is deleted; a row moves to REQUIRED when its missing fixtures land (test named in the row).
+
+| row | real passing fixture | realistic failing fixture | missing evidence (gate level) | class |
+|---|---|---|---|---|
+| G1_voice | none for this format: its only VO is the sign-off inside 'shoutout', so 0 regions are measured (pinned_20261111_172202_replay_cut1329: 0 rows, PASS) | none | 0 regions = PASS (vacuous; C fixes) | MONITORING |
+| G2_watermark | none | none | - | MONITORING |
+| G3_cuts | none real (synthetic 'magnitude' only) | synthetic only | empty transcript = FAIL (test_round2) | MONITORING |
+| G3b_cut_out_clean | corrected Nov 10 cut tails, v2f vertical '$' tail (test_g3b_majority) | Nov 10 Natalie tail, a cut inside the last word | (C: no reading / no last word = FAIL) | REQUIRED |
+| G3c_acoustic_tail | v2f finals (test_dec1_calibration) | v2f tail made just shallower (test_dec1) | - | REQUIRED |
+| G4_faces | none (source-inspection test only) | none | - | MONITORING |
+| G4_faces_per_shot | none | none | - | MONITORING |
+| G4s_layout_truth | Nov 10 prepared clips, correct labels (test_vertical_layout) | mislabelled talking head / screen | unmeasured shot reported | REQUIRED |
+| G5_tech | v2f (test_dec1), approved 102 s vertical (test_round2) | just beyond (test_dec1), 50 s / 130 s (test_round2) | - | REQUIRED |
+| G6_preroll | none | none | 0 regions = PASS (vacuous; C fixes) | MONITORING |
+| G8_sharpness | v2f (test_dec1) | just beyond (test_dec1) | no source clips = FAIL (test_round2) | REQUIRED (Claude-gates #5 being measured) |
+| G9_tail | v2f finals, another encode of the locked outro (test_g9_floor) | a tail one luma code darker | - | REQUIRED |
+| outro_locked | v2f | a conform fallback, an outro that is not the locked one (test_g9_floor, test_dec1) | - | REQUIRED |
+| G10_chyron | none | none | - | MONITORING |
+| G11_parity | none | none (its segment count compares the manifest with itself, GPT-gates F31) | - | MONITORING |
+| G12_credits | v2f card, today's four-avatar card (test_pulse_20261110_mustfail) | three rings for four channels | - | REQUIRED |
+| G13_vo_audible | none | none | empty sign-off text = PASS (vacuous; C fixes) | MONITORING |
+| G14_av_alignment (16:9) | current 16:9, corrected Nov 10 cut (test_g14_g15, test_g14_sampling) | v2e 3.5 s lag, a two-frame slip | < 3 conclusive samples = HOLD | REQUIRED |
+| G14_audio_offset (9:16) | the corrected Nov 10 cut's vertical (test_g14_sampling TestG14AudioOffsetVertical) | a real 2-frame audio slip | < 3 conclusive samples = HOLD | REQUIRED |
+| G14c_duration_parity | current parity (test_g14_g15) | none | - | MONITORING |
+| G15_credits | v2f card, today's card | Nov 10 squashed avatars, a squeezed card | no credited channels = FAIL | REQUIRED |
+| G16_sentence_boundary | Nov 10 control edges (test_pulse_20261110_mustfail) | Nov 10 D1 / D3 defects | - | REQUIRED |
+| G17_onset_tail | a faithful render | a render that eats the opening word, a head without lead | - | REQUIRED |
+| G18_word_for_word | Nov 10 hook words intact (test_word_diff) | Nov 10 clip_01 / clip_02 | missing selection lock = FAIL | REQUIRED |
+| G19_edge_shots | run 6 snapped replay (test_edge_shots) | run 6 final (next shot in clip_02) | no speech record = FAIL | REQUIRED |
+| G20_signoff_names_all | v2f sign-off (test_g20_signoff) | the preview's sign-off misses the hook channel | no shoutout / no credits = FAIL | REQUIRED |
+| V1_visual_checklist | TestVisionMustPass: the PBX-approved preview passes V1 in both formats (green 22:34) | Nov 10 vertical sheet, a letterboxed talking head (TestVisionMustFail) | no sheet / empty or partial panel = FAIL, vision off = SKIPPED | REQUIRED |
+| vertical_silent_fallback | every real run's render log + vertical dimensions (no fallback) | the real reframe-failure log line (test_fresh test_fallback_regex) | no provenance record = KeyError = HOLD; samples = the vertical clips checked | REQUIRED |
+| G14_frame_similarity (9:16) | - | - | - | NONBLOCKING: LIMITED only (not valid for a crop) |
+
 ## OPEN DECISIONS FOR THE ORCHESTRATOR (evidence; work continues meanwhile)
+
+**OD-L-c (2026-11-11 23:06, batch 16) The amended L-c proof cannot be made on real finals; the approved preview would
+HOLD on G3c.** Measured on runs/pinned_20261111_172202_replay_cut1329 and references/pulse_preview_2026-11-11 (both
+formats): the final's gain against the source drifts along a clip (loudnorm + the music bed; 1 s windows 1.65-2.03 dB
+on the hook, 2.23-7.25 dB on clip_01), so the gain next to an edge is not steady (IQR > 1 dB) for hook / clip_01 /
+clip_02, and clip_03's first word is 9.1 / 9.2 dB below the source in the final (it sits inside the clip_02 -> clip_03
+dissolve: a possible real L-b defect in the approved preview, which the prepared-clip proof could not see). With
+G17c's unchanged 1 dB criterion no edge of either run can be proved on the final, so every G3c edge failure and every
+G3b dissent now stands. The corrected cut fails G3c on the hook's tail (REQUIRED) => it would HOLD. Options (none
+taken: each changes what a check accepts): (a) G3c to MONITORING; (b) a final-audio proof criterion calibrated on real
+finals (like DEC-12a's measured G9 spread); (c) keep (fail closed: such runs HOLD). The dissolve-over-the-first-word
+finding on clip_03 is evidence either way.
 
 **OD-1 G12/G15 misfire on correct credit cards (DEC-7).** With the render fixed (real square
 avatars from the registry; rings measured 0.999), the UNCHANGED gates still fail the rebuilt Nov 10
@@ -631,13 +871,15 @@ class as OD-6 (G3 on one word). Decision as OD-6.
 | Edge words keep ≥ 85 % in the render | G17b on both finals | T: TestG17bRenderedEdges (muted onset fails, 20 ms fade passes) | enforced (99add647) |
 | L-a SIGN-OFF NAMES ALL: the sign-off voiceover names every channel on the credits card, and the spoken set, the card set and the clips used are identical. | run_fresh.stage_voice HOLDs before render unless the script names exactly credit_rings.credit_channels(edl) (hook first, then clips); G20 SIGNOFF_NAMES_ALL transcribes the rendered sign-off and requires spoken == credited (registry names + aliases); VO stems are keyed by hash(text, voice, model). Must-fail: the 2026-11-11 preview (DataDash missing). Must-pass: v2f. | see Check | enforced (DEC-12 batch, 2026-11-11) |
 | L-b EDGE WORDS WHOLE: a fade never overlaps an edge word: the first and last word of every clip are heard whole, at full level, with their natural decay. | sentence_law.edge_fades places each machine-cut fade (2 frames, shortened down to 10 ms) inside the gap next to the cut, measured from the cut point's level; G17c (sentence_law.gate_g17_edges) requires every frame of both edge words within 1 dB of the unfaded source. Must-fail: the preview's Natalie Brunell tail ('...participated in the Monday rally.'). Must-pass: the L-b re-cut of it; v2f's edges except its two recorded legacy edges. | see Check | enforced (DEC-12 batch, 2026-11-11) |
-| L-c DISSENT IS RIGHT UNTIL DISPROVED: a check that disagrees with the others on an edge word is treated as right until an acoustic comparison against the source proves otherwise. | run_fresh.stage_gates: a dissenting G3b reading (DEC-12f) or a G3c head / tail failure on an edge stands (HOLD / FAIL) unless G17c and G16's neighbour_clear both pass for that edge. | see Check | enforced (DEC-12 batch, 2026-11-11) |
+| L-c DISSENT IS RIGHT UNTIL DISPROVED: a check that disagrees with the others on an edge word is treated as right until an acoustic comparison against the source proves otherwise. | run_fresh.stage_gates: a dissenting G3b reading (DEC-12f) or a G3c head / tail failure on an edge stands (HOLD / FAIL) unless G16's neighbour_clear passes and G17c, MEASURED ON THE FINAL FILE OF THAT FORMAT (sentence_law.edges_on_final: the bytes being approved, their constant gain removed, every frame of the edge word compared), passes for that edge; a proof from the prepared clip is never accepted (amended by the orchestrator addendum 2026-11-11 '22:00', GPT-cut F03). Test: test_release_auth / test_word_diff TestSpanMatches; sentence_law.edge_word_fidelity refuses an alignment that leaves a word frame uncompared (GPT-cut F07). | see Check | enforced (DEC-12 batch; amended batch 16, 2026-11-11) |
 | L-d PROTECTED PREVIEW: the PBX-approved preview of 2026-11-11 is a protected reference. | pipeline/regression.sh step 6 (pipeline/check_preview_reference.py): its selection locks, cut points and 9:16 layout must reproduce with the current code; tag ref-pulse-preview-2026-11-11; references/pulse_preview_2026-11-11 (read-only, SHA256SUMS). | see Check | enforced (DEC-12 batch, 2026-11-11) |
 | L-e PUNCTUATED BEFORE READ: every word transcript the sentence law reads, the editorial word pass included, has its sentence punctuation restored from a prompted second decode of the same audio before any sentence is read. | transcript_store.acquire(prefer_words) returns only a sentence_ready record: the verbatim decode where no stretch reads unpunctuated, else a whisper_words_punct record (marks from a large-v3 batched reference decode with punctuation.PROMPT, onto aligned words only, plus a sentence-initial capital where both decodes end a sentence right before the word, so editorial start_is_boundary reads the reference's own evidence; word keys and timings unchanged; the verbatim record kept; one Whisper model on GPU0 at a time); editorial_select's word pass treats any other record as failed. Must-fail: Altcoin Daily Ov5jg52HqIY's verbatim record (its quote read as one 35.28 s sentence). Must-pass: its restored record (the quote's sentence 161.14-170.08, "Even thinking about the seasonality, ... the midterms.", a valid 8.94 s hook window). Test: pipeline/test_punct_word_pass.py. | see Check | enforced (DEC-13 batch, 2026-11-11) |
 | L-f CHANNELS FIRST (DEC-13): story candidates come from the channels' own conversation first: clusters of statements by at least two independent channels, screened for Bitcoin before any model call, with the claim written from their shared statements and their quotes attached; wire headlines are evaluated only after every cluster is exhausted. | editorial_select pools channel_clusters_48h -> channel_clusters_72h -> wire_headlines (a pool runs only when every earlier one produced nothing); cluster_entry (>= 2 channels with a Bitcoin statement, 48 h tier then 72 h max, else stopped with no model call; one statement per channel); a cluster's coverage adjudicates its own statements; every cluster's ledger entry names its channels, claim, statements, counted quotes and the gate that stopped it; a validated model reply is cached by sha256(model, its Ollama digest, context, max_tokens, prompt). MIN_COVERAGE_CHANNELS 2, hook >= 4.0, stand-alone, topic and sentence laws unchanged. Must-produce: today's $74K-pullback statements (4 channels) and ETF-outflow statements (2 channels) reach the model (under the old rule they were in no cluster). Must-not: Bloomberg's Fed-hike and Natalie Brunell's ETF-outflow statements never share a cluster. Test: pipeline/test_dec13_clusters.py. | see Check | enforced (DEC-13 batch, 2026-11-11) |
 | L-g WRITTEN FORMS: a check that reads speech counts a word the ASR wrote as a symbol as the spoken word ('$40 trillion' = '40 trillion dollars', '50%' = '50 percent'), and reads the expected word the same way. | segment_v1/qa_gates._g3b_words: G3b's readings, the EDL's last word and its next word are read with the same rules (symbols spelled out in spoken order, abbreviated scales too ('$40M' = '40 million dollars'), a 'dollars' the ASR also wrote never doubled; thousands separators and trailing full stops dropped, other commas split words, decimals kept; a leak is any word of the next source word heard after the last word); vote rule and thresholds unchanged; G17c still compares every edge word with the source. Must-pass: the approved v2f's 9:16 clip_02 '... above 40 trillion dollars.' (read 'above $40 trillion' twice). Must-fail unchanged: Nov 10's Natalie tail against 'week.'; a cut 250 ms into 'rally'. Test: pipeline/test_g3b_majority.py. | see Check | enforced (batch 14, 2026-11-11) |
 | L-h TEXT READ AS SPOKEN: transcript text is read as the words it stands for before any chunk, quote check or model sees it: caption HTML entities are decoded ('S&amp;P' = 'S&P') and a Whisper word split into tokens is read whole ('$81 ,000' = '$81,000'); the stored record is never rewritten. | transcript_store.read_text builds every chunk's text; story_semantics._norm decodes entities and joins split tokens for quote checks; the embedding cache is versioned (t2) so vectors match the read text. Must-fail / must-pass: Altcoin Daily's 'S&P 500' quote and Natalie Brunell's '$81,000' quote against their real excerpts (pipeline/test_caption_entities.py). | see Check | enforced (batch 15, 2026-11-11) |
 | L-i THE CLAIM IS THE EVENT (DEC-13 a): a channel cluster's claim is the event its coverage is judged against: its query is derived from the claim alone and the model never re-reads it as another event. | story_semantics.derive_story_query: a transcript_cluster item is derived from the claim with CLUSTER_NOTE (no label summary) and its underlying_event is the claim verbatim (the model's reading kept as underlying_event_derived); wire items byte-identical. Test: test_caption_entities TestClusterClaimIsTheEvent; real model (DoD 20:13): Natalie Brunell and Coin Bureau then both count for the election sell-off / ETF-outflow claim. | see Check | enforced (batch 15, 2026-11-11) |
+| L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent. | pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py. | see Check | enforced (batch 16, 2026-11-11) |
+| L-k ONE CANONICAL FORM (orchestrator 2026-11-11 '21:10'): every text comparison in the pipeline uses pipeline/canon.py; two strings a listener hears as the same words compare equal, and a different number, unit, sign, name, negation or dropped word never does. | canon.canon_tokens / canon_aligned / same (entities, unicode, split tokens, numbers as values, currency and percent spoken order, signs, apostrophes kept); routed into quote verification, selection anchors, edge words, G3 / G3b, G18 (word_diff keeps units and signs; a repeat-only difference is decided by the audio, sentence_law.span_matches: GPT-cut F04 / F05), G20, G1 / G13 (token runs, never substrings), PIN approved text. Tests: test_canon.py (200 real sentences x mutations equal; real differences unequal; TestSites fails any ad-hoc normaliser outside canon.py). | see Check | enforced (batch 16, 2026-11-11) |
 | Round credit avatars of the channels actually used | G12 (count), G15 (ring aspect, continuity), R6 (credits == EDL channels, unique avatar hashes), shoutout.validate_avatar + registry-only avatars | T: TestD4Credits (yesterday's card fails G12/G15; thumbnail refused; v2f passes) | enforced (3641440f) |
 | On-brand transitions between channels only | pipeline/pulse_transitions.plan (different channels only, never at the open, overlap only inside measured non-speech) + concat (frame-locked xfade/acrossfade); G14/G11/loudness gates on the final | T: test_transitions (planner rules; dissolve over silence only; picture and sound of the dissolved-into clip start together; C insert 8 frames < 0.35 s, red line on black) | enforced (Phase 3) |
 | Speaker-centred vertical; safe frame only for screen / unidentifiable speaker, flagged | stage `layout` (vertical_layout.classify: SCRFD-10G, sha-pinned; per-shot classes) -> render_vertical.reframe_auto; G4s LAYOUT TRUTH (each shot label = the re-measured majority class; a 9:16 shot is the safe frame iff labelled screen/uncertain, band correlation >= 0.90); G4 per shot (unchanged gate_g4 rules); EDL `vertical_layout`; caption `vertical_layout.layout_note` | T: TestSafeFrameTruth (D5: Yahoo's talking head as safe frame fails), TestLayoutTruth (talking head mislabelled as screen fails, DEC-2), TestCaptionNote, TestStackGeometry, test_pinned auto for every channel status | enforced (Phase 2); caption wired in 4a |

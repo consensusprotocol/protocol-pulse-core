@@ -735,7 +735,7 @@ def stage_render(run):
     # Vertical silent-fallback detection (PBX item 6): log evidence + structural evidence
     with open(paths["cuts_json"]) as f:
         cuts = json.load(f)
-    fb = {"log_hits": FALLBACK_RE.findall(log9), "structural": []}
+    fb = {"log_hits": FALLBACK_RE.findall(log9), "structural": [], "checked": []}
     for c in cuts:
         vp = os.path.join(paths["qa_dir"], f"vert_{c['clip_id']}.mp4")
         if not os.path.exists(vp):
@@ -744,6 +744,7 @@ def stage_render(run):
         m = media_summary(vp)
         if (m["width"], m["height"]) != (1080, 1920):
             fb["structural"].append(f"{c['clip_id']}: vert file {m['width']}x{m['height']}")
+        fb["checked"].append(c["clip_id"])          # counted only once its file was probed (cycle 2 F1)
     fb["outro_conform_fallback_16x9"] = "PBX outro conform failed" in cap16.text()
     fb["outro_conform_fallback_9x16"] = "PBX outro conform failed" in log9 or \
         "outro conform failed" in log9.lower()
@@ -776,11 +777,27 @@ def _status(ok):
     return "PASS" if ok else "FAIL"
 
 
-def tail_rows(g9_pass, conform_fallback):
+def _samples(x):
+    """How many things a gate measured (release_auth requires >= 1 for every REQUIRED row: red-team A, 'the gates
+    ran'): a list = its entries; a dict = its MEASUREMENTS only (numbers, non-empty lists / objects), never its
+    labels, hashes or flags (claude-fable audit batch 16 #2: a six-key report literal is not six samples); a
+    skipped or empty result measured nothing."""
+    def measured(v):
+        return (type(v) in (int, float)) or (isinstance(v, (list, dict)) and bool(v)) or \
+            (isinstance(v, str) and bool(v.strip()))
+    if isinstance(x, list):                          # entries that carry something (never None / empty)
+        return sum(1 for v in x if measured(v))
+    if not isinstance(x, dict) or x.get("skip"):
+        return 0
+    return sum(1 for v in x.values() if (type(v) in (int, float)) or (isinstance(v, (list, dict)) and v))
+
+
+def tail_rows(g9_pass, conform_fallback, identical=True):
     """G9_tail is the DEC-1 calibrated gate alone (no exception path). outro_locked: the luma floor is
     the approved reference's LOCKED outro tail, so a conform fallback (some other outro) fails closed
-    on its own row even when its tail clears the floor (Heimdall DEC-1 audit: keep the two apart)."""
-    return {"G9_tail": _status(g9_pass), "outro_locked": _status(not conform_fallback)}
+    on its own row even when its tail clears the floor (Heimdall DEC-1 audit: keep the two apart), and so
+    does an outro whose master or conformed file is not hash-identical to the locked one (GPT-cut F09)."""
+    return {"G9_tail": _status(g9_pass), "outro_locked": _status(identical and not conform_fallback)}
 
 
 def stage_gates(run, final16, man16, final9, man9):
@@ -799,6 +816,8 @@ def stage_gates(run, final16, man16, final9, man9):
         segs16 = json.load(f)["segments"]
     with open(man9) as f:
         segs9 = json.load(f)["segments"]
+    # the bytes every gate below measures (release_auth: the attested files must be these files)
+    measured = {os.path.relpath(p, run.dir): sha256(p) for p in (final16, final9, man16, man9)}
 
     # Production gate runner — invoked exactly as in the v2f run.
     # G8 needs its sources (2026-11-11: it was never given any, so it always failed "no_source" and was
@@ -812,18 +831,33 @@ def stage_gates(run, final16, man16, final9, man9):
     rows = {"16x9": {}, "9x16": {}}
     flags = {"16x9": [], "9x16": []}
     limits = {"16x9": [], "9x16": []}
+    notes = {"16x9": {}, "9x16": {}}          # why a row reads what it reads (rows hold exact verdicts only)
+    evidence = {"16x9": {}, "9x16": {}}       # that the gate ran, and on how many samples
+
+    def put(fmt, row, verdict, data, note=None):
+        """One gate row: an exact verdict (release_auth.VERDICTS, no prefixes, no waiver text), what it measured,
+        and the reason in notes."""
+        rows[fmt][row] = verdict
+        evidence[fmt][row] = {"executed": verdict != "SKIPPED", "samples": _samples(data)}
+        if note:
+            notes[fmt][row] = note
+        elif row in notes[fmt]:
+            del notes[fmt][row]
+
     for fmt, res in (("16x9", r16), ("9x16", r9)):
         for k, v in res.items():
             if isinstance(v, dict) and "pass" in v and k not in ("G8_sharpness", "G9_tail",
                                                                    "G11_parity"):
                 # a skipped gate is never reported as a PASS (fail-closed)
-                rows[fmt][k] = (f"SKIPPED ({v.get('reason', 'skip')})" if v.get("skip")
-                                else _status(v["pass"]))
-        rows[fmt]["G11_parity(run_gates)"] = "NOT RUN BY run_gates (no horiz) — see G11 below"
+                if v.get("skip"):
+                    put(fmt, k, "SKIPPED", None, v.get("reason", "skip"))
+                else:
+                    put(fmt, k, _status(v["pass"] is True), v.get("table", v.get("data")))
+        # G11 inside run_gates has no horizontal final (it skips); the real G11 is the 9x16 row below
 
     # G11 for real (vertical vs horizontal)
     g11_ok, g11 = qa_gates.gate_g11(final9, final16, segs9, segs16)
-    rows["9x16"]["G11_parity"] = _status(g11_ok)
+    put("9x16", "G11_parity", _status(g11_ok), g11)
 
     # G14 / G14c / G15
     def _words(vid):                                  # DEC-12e: G14 samples where the transcript has speech
@@ -851,8 +885,8 @@ def stage_gates(run, final16, man16, final9, man9):
     man16_g14, man9_g14 = _g14_manifest(man16, "16x9"), _g14_manifest(man9, "9x16")
     g14_16_ok, g14_16 = G.gate_g14(final16, man16_g14, source_clips=src_clips, qa_dir=g14dir16)
     fails16 = [d for d in g14_16 if d.get("status") == "FAIL"]
-    rows["16x9"]["G14_av_alignment"] = ("PASS" if g14_16_ok else
-                                        "FAIL" if fails16 else "HOLD(inconclusive)")
+    put("16x9", "G14_av_alignment", "PASS" if g14_16_ok else "FAIL" if fails16 else "HOLD", g14_16,
+        None if g14_16_ok or fails16 else "inconclusive")
     limits["16x9"].append("G14: static talking-head temporal slips can pass frame_sim "
                           "(v2e 18.0-24.0 s precedent); VO sections are auto-PASS (pre-roll "
                           "declared), plate correctness not verified")
@@ -860,13 +894,14 @@ def stage_gates(run, final16, man16, final9, man9):
     # the gate's own per-segment verdict (DEC-12e): >= 3 conclusive matching samples, zero mismatches
     g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9, frames=False)
     fails9 = [d for d in g14_9 if d.get("status") == "FAIL"]
-    rows["9x16"]["G14_audio_offset"] = ("PASS" if g14_9_ok else "FAIL" if fails9 else "HOLD(inconclusive)")
-    rows["9x16"]["G14_frame_similarity"] = "LIMITED (not valid for 9:16 crop vs 16:9 source)"
+    put("9x16", "G14_audio_offset", "PASS" if g14_9_ok else "FAIL" if fails9 else "HOLD", g14_9,
+        None if g14_9_ok or fails9 else "inconclusive")
+    put("9x16", "G14_frame_similarity", "LIMITED", None, "not valid for 9:16 crop vs 16:9 source")
     limits["9x16"].append("G14 frame_sim compares a 9:16 crop with the 16:9 source (v2e positive "
                           "control: 0.24-0.54 on correct frames); only the audio-offset part is "
                           "scored; VO sections auto-PASS")
     g14c_ok, g14c = G.gate_g14c(final16, final9, tolerance_ms=42)
-    rows["9x16"]["G14c_duration_parity"] = _status(g14c_ok)
+    put("9x16", "G14c_duration_parity", _status(g14c_ok), g14c)
     for sub in ("g15_16x9", "g15_9x16"):
         os.makedirs(os.path.join(qa, sub), exist_ok=True)
     import credit_rings                             # DEC-11: G15 also checks each disc is the credited avatar
@@ -874,15 +909,15 @@ def stage_gates(run, final16, man16, final9, man9):
         credited = credit_rings.credit_channels(json.load(f))
     g15_16_ok, g15_16 = G.gate_g15(final16, segs16, os.path.join(qa, "g15_16x9"), channels=credited)
     g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"), channels=credited)
-    rows["16x9"]["G15_credits"] = _status(g15_16_ok)
-    rows["9x16"]["G15_credits"] = _status(g15_9_ok)
+    put("16x9", "G15_credits", _status(g15_16_ok), g15_16)
+    put("9x16", "G15_credits", _status(g15_9_ok), g15_9)
     # G20 SIGNOFF_NAMES_ALL (law L-a): the rendered sign-off names exactly the credited channels
     for sub in ("g20_16x9", "g20_9x16"):
         os.makedirs(os.path.join(qa, sub), exist_ok=True)
     g20_16_ok, g20_16 = G.gate_g20(final16, segs16, credited, os.path.join(qa, "g20_16x9"))
     g20_9_ok, g20_9 = G.gate_g20(final9, segs9, credited, os.path.join(qa, "g20_9x16"))
-    rows["16x9"]["G20_signoff_names_all"] = _status(g20_16_ok)
-    rows["9x16"]["G20_signoff_names_all"] = _status(g20_9_ok)
+    put("16x9", "G20_signoff_names_all", _status(g20_16_ok), g20_16)
+    put("9x16", "G20_signoff_names_all", _status(g20_9_ok), g20_9)
 
     # G8 — production result + source-relative report (threshold untouched)
     g8dir = os.path.join(qa, "g8_relative")
@@ -898,7 +933,7 @@ def stage_gates(run, final16, man16, final9, man9):
                  "relative_16x9": g8rel, "degraded_below_0.85": degraded}
     for fmt, res in (("16x9", r16), ("9x16", r9)):
         # DEC-1 floor + DEC-3 soft-source rule live in the gate itself; no waiver (DEC-8)
-        rows[fmt]["G8_sharpness"] = _status(res["G8_sharpness"]["pass"])
+        put(fmt, "G8_sharpness", _status(res["G8_sharpness"]["pass"] is True), res["G8_sharpness"].get("table"))
 
     # G9 — approved known exception only if the outro is hash-identical to the locked outro
     g9_report = {}
@@ -914,7 +949,9 @@ def stage_gates(run, final16, man16, final9, man9):
         g9_report[fmt] = {"gate": d, "outro_master_sha256": msha, "outro_conformed_sha256": csha,
                           "hash_identical_to_locked_outro": identical,
                           "last_segment": last.get("label"), "conform_fallback": fallback}
-        rows[fmt].update(tail_rows(res["G9_tail"]["pass"], fallback))
+        for row, verdict in tail_rows(res["G9_tail"]["pass"] is True, fallback, identical).items():
+            put(fmt, row, verdict, d if row == "G9_tail" else      # outro: the two hashes that were computed
+                [h for h in (msha, csha) if isinstance(h, str) and len(h) == 64])
 
     # G4 per shot + G4s layout truth (DEC-2 / DEC-5)
     import vertical_layout as V
@@ -928,15 +965,15 @@ def stage_gates(run, final16, man16, final9, man9):
         with open(man) as f:
             shout = json.load(f).get("shoutout_start", 0)
         ok, g4_shots[fmt] = qa_gates.gate_g4(final, V.per_shot_manifest(sgs, plans), fmt, shout, g4dir)
-        rows[fmt]["G4_faces_per_shot"] = _status(ok)
+        put(fmt, "G4_faces_per_shot", _status(ok), g4_shots[fmt])
         ok, g4s[fmt] = V.gate_g4s(plans, prepared, vert_final=final9 if fmt == "9x16" else None,
                                   vert_segments=segs9 if fmt == "9x16" else None)
-        rows[fmt]["G4s_layout_truth"] = _status(ok)
+        put(fmt, "G4s_layout_truth", _status(ok), g4s[fmt])
 
     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
     g16_ok, g16 = L.gate_g16(run.dir)
     for fmt in ("16x9", "9x16"):
-        rows[fmt]["G16_sentence_boundary"] = _status(g16_ok)
+        put(fmt, "G16_sentence_boundary", _status(g16_ok), g16)
 
     # G17 ONSET/TAIL: prepared clips (>= 80 ms genuine lead-in/tail) + each final (edge words >= 85 %)
     g17a_ok, g17a = L.gate_g17_prepared({c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4")
@@ -946,29 +983,39 @@ def stage_gates(run, final16, man16, final9, man9):
     # G17c (law L-b): the first and last word of every prepared clip, with their decay, at full level
     # (within 1 dB of the unfaded source); format-independent, part of the G17 row in both formats
     g17c_ok, g17c = L.gate_g17_edges(run.dir)
-    rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok and g17c_ok)
-    rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok and g17c_ok)
+    for fmt, b_ok, b in (("16x9", g17b16_ok, g17b16), ("9x16", g17b9_ok, g17b9)):
+        put(fmt, "G17_onset_tail", _status(g17a_ok and b_ok and g17c_ok), None)
+        evidence[fmt]["G17_onset_tail"]["samples"] = min(_samples(g17a), _samples(b), _samples(g17c))
 
     # law L-c: a check that disagrees with the others on an EDGE WORD is right until an acoustic comparison
     # with the source proves otherwise: G17c (the kept word and decay equal the unfaded source) and G16 (no
     # audible part of the neighbour word, neighbour_clear). A dissenting G3b reading needs that proof, else
     # HOLD; a G3c head / tail failure on an edge is overruled only by it, else it stands.
-    def _edge_proved(seg, side):
-        return g16_ok and bool((g17c.get(seg) or {}).get(side, {}).get("ok"))
+    # Amended (orchestrator addendum 2026-11-11 '22:00', GPT-cut F03): the G17c comparison that proves an edge
+    # is measured on the FINAL of that format (the bytes being approved, sentence_law.edges_on_final), never on
+    # the prepared clip; when it cannot prove the edge, the dissent / the failure stands and the run HOLDS.
     lc = {}
-    for fmt, res in (("16x9", r16), ("9x16", r9)):
+    for fmt, res, final, sgs in (("16x9", r16, final16, segs16), ("9x16", r9, final9, segs9)):
         g3b = (res.get("G3b_cut_out_clean") or {}).get("table") or []
         dissent = [e["segment"] for e in g3b if isinstance(e, dict) and e.get("dissent") and e.get("last_found")]
-        unproved = [sg for sg in dissent if not _edge_proved(sg, "out")]
-        if rows[fmt].get("G3b_cut_out_clean") == "PASS" and unproved:
-            rows[fmt]["G3b_cut_out_clean"] = f"HOLD(dissent unproved: {', '.join(unproved)})"
         g3c = (res.get("G3c_acoustic_tail") or {}).get("table") or []
         failed = [(e["segment"], side) for e in g3c if isinstance(e, dict)
                   for side, key in (("out", "tail_ok"), ("in", "head_ok")) if e.get(key) is False]
-        if rows[fmt].get("G3c_acoustic_tail") == "FAIL" and failed and all(_edge_proved(sg, sd) for sg, sd in failed):
-            rows[fmt]["G3c_acoustic_tail"] = "PASS(L-c: " + ", ".join(f"{sg} {sd}" for sg, sd in failed) + \
-                " proved by the source comparison)"
-        lc[fmt] = {"g3b_dissent": dissent, "g3b_unproved": unproved, "g3c_failed_edges": failed}
+        proof = L.edges_on_final(final, sgs, run.dir) if (dissent or failed) else {}
+
+        def _edge_proved(seg, side, proof=proof):
+            return g16_ok and ((proof.get(seg) or {}).get(side) or {}).get("ok") is True
+        unproved = [sg for sg in dissent if not _edge_proved(sg, "out")]
+        if rows[fmt].get("G3b_cut_out_clean") == "PASS" and unproved:
+            put(fmt, "G3b_cut_out_clean", "HOLD", g3b, f"dissent unproved on the final: {', '.join(unproved)}")
+        explained = all(isinstance(e, dict) and (e.get("pass") is True or any(e.get(k) is False for k in ("tail_ok", "head_ok")))
+                        for e in g3c) and bool(g3c)    # every failing entry fails ONLY by edge flags (cycle 2 F5)
+        if rows[fmt].get("G3c_acoustic_tail") == "FAIL" and failed and explained and \
+                all(_edge_proved(sg, sd) for sg, sd in failed):
+            put(fmt, "G3c_acoustic_tail", "PASS", g3c, "L-c: " + ", ".join(f"{sg} {sd}" for sg, sd in failed) +
+                " proved by the comparison of the final's audio with the source")
+        lc[fmt] = {"g3b_dissent": dissent, "g3b_unproved": unproved, "g3c_failed_edges": failed,
+                   "final_proof": proof}
 
     # G18 WORD-FOR-WORD (mission 4a): every clip's first/last words are its locked sentences' and its
     # words are exactly those of the source span it was cut from (both finals; whisper on GPU0)
@@ -979,13 +1026,15 @@ def stage_gates(run, final16, man16, final9, man9):
              **{f"clip_{c['index']:02d}": c.get("selection_lock") for c in edl_now.get("clips", [])}}
     g18_clips = {c["clip_id"]: {"lock_text": (locks.get(c["clip_id"]) or {}).get("text", ""),
                                 "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
-                                "cut_in": c["cut_in"], "cut_out": c["cut_out"]} for c in cuts}
+                                "cut_in": c["cut_in"], "cut_out": c["cut_out"],
+                                "pad_s": float(c.get("lead_in_pad_s") or 0.0)} for c in cuts}
     missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
     tr = WD.Transcriber()
     g18 = {}
     for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
         ok, g18[fmt] = WD.gate_g18(final, sgs, g18_clips, transcriber=tr)
-        rows[fmt]["G18_word_for_word"] = _status(ok and not missing)
+        put(fmt, "G18_word_for_word", _status(ok and not missing), g18[fmt],
+            f"no selection lock: {missing}" if missing else None)
     del tr
     if missing:
         g18["missing_selection_lock"] = missing
@@ -999,31 +1048,71 @@ def stage_gates(run, final16, man16, final9, man9):
     g19 = {}
     for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
         ok, g19[fmt] = edge_shots.gate_g19(final, sgs, snap_rec, FPS)
-        rows[fmt]["G19_edge_shots"] = _status(ok)
+        put(fmt, "G19_edge_shots", _status(ok), g19[fmt])
 
     fb = run.prov["vertical_fallback_check"]
-    rows["9x16"]["vertical_silent_fallback"] = "FAIL (fallback occurred)" if fb["fallback_occurred"] \
-        else "PASS (no fallback)"
+    put("9x16", "vertical_silent_fallback", _status(fb["fallback_occurred"] is False),
+        fb.get("checked") or [],                     # the vertical clips checked (render log + dimensions)
+        "fallback occurred" if fb["fallback_occurred"] else "no fallback")
 
-    gates_out = {"rows": rows, "flags": flags, "limitations": limits,
+    import release_auth
+    gates_out = {"inventory_version": release_auth.INVENTORY_VERSION, "rows": rows, "notes": notes,
+                 "evidence": evidence, "measured_files": measured, "flags": flags, "limitations": limits,
                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
                  "G15_16x9": g15_16, "G15_9x16": g15_9, "G20_16x9": g20_16, "G20_9x16": g20_9, "G17c": g17c, "L-c": lc, "G8": g8_report, "G9": g9_report, "G16": g16,
                  "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18, "G19": g19,
                  "G4_per_shot": g4_shots, "G4s": g4s,
                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
     jdump(os.path.join(run.dir, "GATE_REPORT.json"), gates_out)
-    run.prov["gates"] = {"rows": rows, "flags": flags, "limitations": limits}
+    run.prov["gates"] = {"rows": rows, "notes": notes, "flags": flags, "limitations": limits}
     return rows, flags, limits
 
 
-def verdict_for(rows):
-    bad = {k: v for k, v in rows.items()
-           if not (v.startswith("PASS") or v.startswith("FLAG") or v.startswith("LIMITED")
-                   or v.startswith("NOT RUN BY run_gates"))}
+def verdict_for(rows, fmt, evidence):
+    """(verdict, {row: why}) by release_auth's exact inventory for that format: a missing, unknown, skipped,
+    inconclusive or unexecuted row is a blocker (red-team A; no prefix rules). evidence is required (None or a
+    malformed mapping = no evidence); release_auth.NO_EVIDENCE_CHECK asks the rows-only question."""
+    import release_auth
+    bad = release_auth.blockers(fmt, rows, evidence)
     return (VERDICT_HOLD if bad else VERDICT_CANDIDATE), bad
 
 
 # ── provenance helpers ──
+
+def executed_code(launch, modules=None, repo=None):
+    """({rel path: sha256} of every loaded module of this checkout, [why not at the launch revision]). A module whose
+    NAME is a pipeline module (any *.py of pipeline/, segment_v1/, video_pipeline_v3/) but whose file is outside
+    this checkout, a module under another protocol_pulse / worktrees checkout, HEAD moved since launch, and a
+    module untracked or modified against the launch revision are all reasons."""
+    repo = repo or REPO
+    modules = sys.modules if modules is None else modules
+    first_party = {os.path.splitext(fn)[0] for d in ("pipeline", "segment_v1", "video_pipeline_v3")
+                   if os.path.isdir(os.path.join(repo, d)) for fn in os.listdir(os.path.join(repo, d)) if fn.endswith(".py")}
+    mods, why = {}, []
+    for name, m in list(modules.items()):
+        f = getattr(m, "__file__", None)
+        if not f or not os.path.exists(f):
+            continue
+        f = os.path.realpath(f)
+        if f.startswith(repo + os.sep) and "/venv/" not in f:
+            mods[os.path.relpath(f, repo)] = sha256(f)
+        elif name in first_party:                 # a pipeline module (imported top-level) from anywhere else, even
+            why.append(f"{name} from {f} (outside this checkout {repo})")   # under site-packages / venv (cycle-2 #7)
+        elif re.search(r"/(protocol_pulse|worktrees)/", f) and \
+                not any(x in f for x in ("site-packages", "dist-packages", "/venv/")):
+            why.append(f"{name} from {f} (outside this checkout {repo})")
+    head_now = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout.strip()
+    if launch != "HEAD" and head_now != launch:
+        why.append(f"HEAD moved during the run: {launch} -> {head_now}")
+    for rel in sorted(mods):
+        tracked = subprocess.run(["git", "ls-files", "--error-unmatch", rel], cwd=repo,
+                                 capture_output=True).returncode == 0
+        modified = subprocess.run(["git", "diff", "--quiet", launch, "--", rel], cwd=repo,
+                                  capture_output=True).returncode != 0
+        if not tracked or modified:
+            why.append(f"{rel} ({'untracked' if not tracked else 'modified vs the launch revision'})")
+    return dict(sorted(mods.items())), why
+
 
 def record_assets(run):
     rd = run.dir
@@ -1074,21 +1163,14 @@ def record_assets(run):
     run.prov["v2f_reuse_check"] = {"links_into_v2f_material": leaks,
                                    "source_ids_overlap": sorted(
                                        {s["video_id"] for s in srcs} & V2F_VIDEO_IDS)}
-    # executed code hashes
-    mods = {}
-    for name, m in list(sys.modules.items()):
-        f = getattr(m, "__file__", None)
-        if f and f.startswith(REPO) and "/venv/" not in f and os.path.exists(f):
-            mods[os.path.relpath(f, REPO)] = sha256(f)
-    run.prov["executed_code_sha256"] = dict(sorted(mods.items()))
-    not_clean = []
-    for rel in mods:
-        tracked = subprocess.run(["git", "ls-files", "--error-unmatch", rel], cwd=REPO,
-                                 capture_output=True).returncode == 0
-        modified = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", rel], cwd=REPO,
-                                  capture_output=True).returncode != 0
-        if not tracked or modified:
-            not_clean.append(f"{rel} ({'untracked' if not tracked else 'modified vs HEAD'})")
+    # executed code hashes: every loaded module of THIS checkout, compared with the LAUNCH revision (not
+    # whatever HEAD is now: GPT-cut F24); a pipeline module loaded from anywhere else is code that did not come
+    # from this run's revision (Claude-gates C4; by module NAME, not path spelling: GPT audit batch 16 #8)
+    launch = (run.prov.get("code") or {}).get("git_head")
+    mods, not_clean = executed_code(launch or "HEAD")
+    if not launch:                                   # no recorded launch revision: nothing to compare with (F6)
+        not_clean.append("no launch revision recorded")
+    run.prov["executed_code_sha256"] = mods
     run.prov["executed_code_not_at_revision"] = not_clean
     if not_clean:
         run.status["holds"].append(f"executed code not at the recorded revision: {not_clean}")
@@ -1154,12 +1236,43 @@ def write_report(run):
         for fmt, v in vc.items():
             L.append(f"- {fmt}: {'PASS' if v.get('ok') else 'FAIL'}" + (f" ({v['error']})" if v.get("error") else ""))
             for model, rows in (v.get("answers") or {}).items():
-                for k, r in rows.items():
-                    L.append(f"  - {model} | {k}: **{r['answer']}** {r.get('why', '')[:160]}")
+                for k, r in (rows or {}).items():
+                    r = r if isinstance(r, dict) else {"answer": repr(r)}
+                    L.append(f"  - {model} | {k}: **{r.get('answer')}** {str(r.get('why', ''))[:160]}")
     L += ["", "Publishing: NONE (telegram never imported). External audit legs (GPT-4o/Gemini via "
           "cross_llm_audit.py): UNAVAILABLE for this run (OpenAI credits exhausted; Gemini removed)."]
     with open(os.path.join(run.dir, "REPORT.md"), "w") as f:
         f.write("\n".join(L) + "\n")
+
+
+# ── release attestation ──
+
+def attest_run(run, deliverable=True, why_not=None, code_checked=True):
+    """ATTESTATION.json (release_auth.attest), written last: holds anywhere => HOLD (GPT-cut F10), and the run is
+    ok only when it ended a candidate with no hold, its tree was clean at launch and every executed module is at
+    the launch revision (GPT-cut F24, Claude-gates C4). A replay (code_checked=False) has no provenance pass of its
+    own: it is attested for its verdict and is never deliverable."""
+    import release_auth
+    if run.status.get("holds"):
+        run.status["verdict"] = VERDICT_HOLD
+    code = run.prov.get("code") or {}
+    why = list(run.status.get("holds") or [])
+    if run.status.get("verdict") != VERDICT_CANDIDATE:
+        why.append(f"verdict {run.status.get('verdict')}")
+    if code_checked and code.get("pipeline_tree_clean_at_launch") is not True:
+        why.append("tree not recorded clean at launch")
+    if code_checked and run.prov.get("executed_code_not_at_revision") != []:
+        why.append(f"executed code not at the launch revision: {run.prov.get('executed_code_not_at_revision')}")
+    state = {"ok": not why, "why": why, "verdict": run.status.get("verdict"), "mode": run.mode,
+             "git_head": code.get("git_head"), "ended": run.status.get("ended")}
+    att = release_auth.attest(run.dir, state, deliverable=deliverable, why_not=why_not)
+    run.status["attestation"] = {"verdict": att["verdict"], "deliverable": att["deliverable"]}
+    if att["verdict"] != "ALL_PASS" and run.status.get("verdict") == VERDICT_CANDIDATE:
+        run.status["verdict"] = VERDICT_HOLD          # the attestation is the release truth; never two answers
+        run.status["holds"].append("attestation: " + "; ".join(
+            [f"{fmt} {k}: {v}" for fmt, b in att["blockers"].items() for k, v in b.items()]
+            + att["verification"]["why"] + att["other_blockers"] + [f"missing {m}" for m in att["missing_files"]]))
+    return att
 
 
 # ── main ──
@@ -1185,16 +1298,17 @@ def run_tail(run, cuts, start="prepare", vision=True):
     # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
     import verify_pack
     pack = run.stage("verify", lambda: verify_pack.build(run.dir, vision=vision))
-    with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:     # V1 (visual checklist) joins the rows
-        for fmt, frows in json.load(f).get("rows", {}).items():
-            if "V1_visual_checklist" in frows:
-                rows[fmt]["V1_visual_checklist"] = frows["V1_visual_checklist"]
+    # the verdict is computed from the report ON DISK (the file the attestation binds); the pack wrote the V1 rows
+    # into it, and a pack that wrote none (or no evidence) leaves V1 missing = a blocker (GPT-cut F02)
+    with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:
+        rep = json.load(f)
+    rows, evidence = rep.get("rows") or {}, rep.get("evidence") or {}
     run.prov["visual_checklist"] = {fmt: {"ok": v.get("ok"), "error": v.get("error"),
-                                          "answers": {m: d["rows"] for m, d in (v.get("per_model") or {}).items()}}
+                                          "answers": {m: (d or {}).get("rows") for m, d in (v.get("per_model") or {}).items()}}
                                     for fmt, v in (pack.get("visual") or {}).items()}
     run.prov["contact_sheets"] = pack.get("contact_sheets")
-    v16, bad16 = verdict_for(rows["16x9"])
-    v9, bad9 = verdict_for(rows["9x16"])
+    v16, bad16 = verdict_for(rows.get("16x9"), "16x9", evidence)
+    v9, bad9 = verdict_for(rows.get("9x16"), "9x16", evidence)
     run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
     run.prov["verdict_blockers"] = {"16x9": bad16, "9x16": bad9}
     run.status["verdict"] = VERDICT_CANDIDATE if v16 == v9 == VERDICT_CANDIDATE else VERDICT_HOLD
@@ -1255,6 +1369,11 @@ def main():
             run.status["holds"].append(f"provenance: {type(e).__name__}: {e}")
         run.status["ended"] = now_iso()
         run.status["elapsed_s"] = round(time.time() - t0, 1)
+        try:                                   # LAST: the terminal state, any hold included (release_auth)
+            attest_run(run)
+        except Exception as e:
+            run.status["verdict"] = VERDICT_HOLD
+            run.status["holds"].append(f"attestation: {type(e).__name__}: {e}")
         run.save()
         write_report(run)
         with open(os.path.join(run_dir, "VERDICT.txt"), "w") as f:

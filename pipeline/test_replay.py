@@ -67,16 +67,18 @@ class TestReplayVerdict(unittest.TestCase):
 class TestRunTail(unittest.TestCase):
     """main and replay share run_fresh.run_tail: a replay from `start` runs exactly the later stages."""
 
-    def run_tail(self, start):
+    def run_tail(self, start, rows=None):
+        from test_release_auth import passing_rows
         tmp = tempfile.mkdtemp(prefix="tail_")
         self.addCleanup(shutil.rmtree, tmp, True)
         run = rf.Run(tmp)
         calls = []
-        rows = {"16x9": {"G1": "PASS"}, "9x16": {"G1": "PASS"}}
+        rows = rows or passing_rows()
+        evidence = {fmt: {k: {"executed": True, "samples": 2} for k in r} for fmt, r in rows.items()}
 
         def gates(run_, *a):
             calls.append("gates")
-            json.dump({"rows": rows}, open(os.path.join(tmp, "GATE_REPORT.json"), "w"))
+            json.dump({"rows": rows, "evidence": evidence}, open(os.path.join(tmp, "GATE_REPORT.json"), "w"))
             return rows, {}, {}
         with mock.patch.object(rf, "stage_prepare", lambda r, c: calls.append("prepare")), \
                 mock.patch.object(rf, "stage_layout", lambda r, c: calls.append("layout")), \
@@ -91,7 +93,9 @@ class TestRunTail(unittest.TestCase):
         self.assertEqual(self.run_tail("render")[0], ["render", "gates", "verify:True"])
         calls, run = self.run_tail("gates")
         self.assertEqual(calls, ["gates", "verify:False"])
-        self.assertEqual(run.status["verdict"], rf.VERDICT_CANDIDATE)
+        self.assertEqual(run.status["verdict"], rf.VERDICT_CANDIDATE)       # the report on disk decides
+        _, run = self.run_tail("gates", rows={"16x9": {"G1_voice": "PASS"}, "9x16": {"G1_voice": "PASS"}})
+        self.assertEqual(run.status["verdict"], rf.VERDICT_HOLD)            # one PASS row is not all gates
 
 
 if __name__ == "__main__":

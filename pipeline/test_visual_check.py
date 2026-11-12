@@ -219,16 +219,38 @@ class TestSheetWiring(unittest.TestCase):
                 mock.patch.object(V, "boundary_check", side_effect=AssertionError("cuts asked")):
             verify_pack._sheets_and_checklist(rd, rep, pack, vision=True)     # out/ finals do not exist
         ask.assert_not_called()
+        out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))       # V1 lands in the report ON DISK
         for fmt in ("16x9", "9x16"):
             self.assertFalse(os.path.exists(os.path.join(rd, "qa", f"contact_sheet_{fmt}.jpg")))
-            self.assertTrue(rep["rows"][fmt]["V1_visual_checklist"].startswith("FAIL (no contact sheet"),
-                            rep["rows"][fmt]["V1_visual_checklist"])
+            self.assertEqual(out["rows"][fmt]["V1_visual_checklist"], "FAIL")       # exact verdict, reason in notes
+            self.assertTrue(out["notes"][fmt]["V1_visual_checklist"].startswith("no contact sheet"),
+                            out["notes"][fmt]["V1_visual_checklist"])
+
+
+class TestPackArtefacts(unittest.TestCase):
+    def test_a_sheet_with_any_missing_frame_is_no_sheet_and_a_failed_frame_never_reuses_an_old_file(self):
+        """GPT-gates F09 / F10: a partial sheet is not a sheet; a frame ffmpeg could not grab is None, even when a
+        file of that name is left from an earlier render."""
+        import verify_pack
+        from PIL import Image
+        tmp = tempfile.mkdtemp(prefix="pack_")
+        self.addCleanup(shutil.rmtree, tmp, True)
+        p = os.path.join(tmp, "a.jpg")
+        Image.new("RGB", (64, 36)).save(p)
+        self.assertIsNone(verify_pack._sheet([("a", p), ("b", None)], os.path.join(tmp, "s.jpg"), 64))
+        self.assertIsNone(verify_pack._sheet([], os.path.join(tmp, "s.jpg"), 64))
+        self.assertTrue(verify_pack._sheet([("a", p)], os.path.join(tmp, "s.jpg"), 64))
+        stale = os.path.join(tmp, "stale.jpg")
+        Image.new("RGB", (64, 36)).save(stale)
+        self.assertIsNone(verify_pack._frame(os.path.join(tmp, "missing.mp4"), 1.0, stale))
+        self.assertFalse(os.path.exists(stale))
 
 
 class TestCutWiring(unittest.TestCase):
     """The next-shot line is answered one cut at a time; the whole-sheet answer is advisory."""
 
-    def wire(self, sheet_next, cuts_ok):
+    def wire(self, sheet_next, cuts_ok, per=None, shots=None, vision=True):
+        """V1 rows + notes as written into GATE_REPORT.json, with the panel / shots / cuts injected."""
         from unittest import mock
         import verify_pack
         rd = tempfile.mkdtemp(prefix="cutwire_")
@@ -237,25 +259,60 @@ class TestCutWiring(unittest.TestCase):
         json.dump({"hook": {"channel": "A", "vertical_layout": {"shots": [], "flagged": False}}, "clips": []},
                   open(os.path.join(rd, "edl.json"), "w"))
         for fmt in ("16x9", "9x16"):
-            json.dump({"segments": [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 4.0}]},
+            json.dump({"segments": [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 4.0},
+                                    {"label": "outro", "type": "outro", "start": 4.0, "end": 8.0}]},
                       open(os.path.join(rd, "qa", f"concat_manifest_{fmt}.json"), "w"))
+        json.dump({"rows": {}}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
         rows = {k: {"answer": "yes", "why": "w", "ok": True} for k, _ in V.CHECKLIST}
         rows[verify_pack.NEXT_SHOT] = {"answer": sheet_next, "why": "w", "ok": sheet_next == "yes"}
+        per = per if per is not None else {m: {"rows": dict(rows), "raw": {}} for m in V.VISION_MODELS}
+        shots = shots if shots is not None else [{"label": "hook", "shot": 0, "ok": True}]
+        cut = {"boundary": "hook|outro", "ok": cuts_ok}
         rep, pack = {"rows": {}}, {}
         with mock.patch.object(V, "contact_sheet", return_value={"path": "s.jpg"}), \
-                mock.patch.object(V, "ask_panel", return_value=(sheet_next == "yes", {"m": {"rows": rows, "raw": {}}})), \
+                mock.patch.object(V, "ask_panel", return_value=(sheet_next == "yes", per)), \
                 mock.patch.object(V, "shot_frames", return_value=[]), \
-                mock.patch.object(V, "letterbox_check", return_value=(True, [])), \
+                mock.patch.object(V, "letterbox_check", return_value=(all(x["ok"] for x in shots), shots)), \
                 mock.patch.object(V, "boundary_pairs", return_value=[]), \
-                mock.patch.object(V, "boundary_check",
-                                  return_value=(cuts_ok, [] if cuts_ok else [{"boundary": "hook|clip_01", "ok": False}])):
-            verify_pack._sheets_and_checklist(rd, rep, pack, vision=True)
-        return rep["rows"]
+                mock.patch.object(V, "boundary_check", return_value=(cuts_ok, [cut])):
+            verify_pack._sheets_and_checklist(rd, rep, pack, vision=vision)
+        out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))
+        return out["rows"], out.get("notes", {}), out.get("evidence", {})
 
     def test_the_cut_check_decides_the_next_shot_line(self):
-        self.assertEqual(self.wire("no", True)["16x9"]["V1_visual_checklist"], "PASS")     # sheet answer advisory
-        r = self.wire("yes", False)["9x16"]["V1_visual_checklist"]
-        self.assertTrue(r.startswith("FAIL") and "next shot before the cut: hook|clip_01" in r, r)
+        rows, _, ev = self.wire("no", True)
+        self.assertEqual(rows["16x9"]["V1_visual_checklist"], "PASS")     # sheet answer advisory
+        self.assertGreaterEqual(ev["16x9"]["V1_visual_checklist"]["samples"], 1)
+        rows, notes, _ = self.wire("yes", False)
+        self.assertEqual(rows["9x16"]["V1_visual_checklist"], "FAIL")
+        self.assertIn("next shot before the cut: hook|outro", notes["9x16"]["V1_visual_checklist"])
+
+    def test_an_empty_or_partial_panel_is_never_a_pass(self):
+        """GPT-gates F07 / Claude-gates M1: one model missing, a model that answered nothing, a line missing,
+        a truthy string for ok: each FAILS V1."""
+        import verify_pack
+        full = {k: {"answer": "yes", "why": "w", "ok": True} for k, _ in V.CHECKLIST}
+        one = V.VISION_MODELS[0]
+        cases = {"one model only": {one: {"rows": full}},
+                 "a model answered nothing": {m: {"rows": full if m == one else {}} for m in V.VISION_MODELS},
+                 "a line missing": {m: {"rows": {k: r for k, r in full.items() if k != "watermark_present"}}
+                                    for m in V.VISION_MODELS},
+                 "ok is a string": {m: {"rows": {**full, "watermark_present": {"answer": "yes", "ok": "true"}}}
+                                    for m in V.VISION_MODELS},
+                 "no panel": {}}
+        for name, per in cases.items():
+            self.assertFalse(verify_pack.panel_ok(per), name)
+            rows, _, _ = self.wire("no", True, per=per)
+            self.assertEqual(rows["16x9"]["V1_visual_checklist"], "FAIL", name)
+        self.assertTrue(verify_pack.panel_ok({m: {"rows": full} for m in V.VISION_MODELS}))
+
+    def test_no_shots_asked_and_vision_off_are_never_a_pass(self):
+        rows, _, _ = self.wire("no", True, shots=[])                     # zero letterbox frames (Claude-gates M2)
+        self.assertEqual(rows["9x16"]["V1_visual_checklist"], "FAIL")
+        rows, notes, ev = self.wire("no", True, vision=False)            # GPT-gates F08: a waiver switch leaves a trace
+        for fmt in ("16x9", "9x16"):
+            self.assertEqual(rows[fmt]["V1_visual_checklist"], "SKIPPED")
+            self.assertEqual(ev[fmt]["V1_visual_checklist"], {"executed": False, "samples": 0})
 
 
 def _has_vision_key():
@@ -298,6 +355,35 @@ class TestVisionMustFail(unittest.TestCase):
         self.assertFalse(ok, rows)
         ok, rows = V.letterbox_check([{"label": "clip_02", "shot": 0, "class": "single", "path": rf}])
         self.assertTrue(ok, rows)
+
+
+
+@unittest.skipUnless(_has_vision_key(), "Heimdall vision route key not available")
+class TestVisionMustPass(unittest.TestCase):
+    """Addendum '22:15' item 4: V1's REAL PASSING fixture. The PBX-approved preview (references/
+    pulse_preview_2026-11-11, read only) passes the whole V1 row in both formats with the current code: the sheet
+    checklist from every vision model, the letterbox per shot (9:16) and the next shot per cut. Its failing
+    fixtures are TestVisionMustFail; its missing-evidence answer is TestCutWiring / TestSheetWiring."""
+
+    def test_the_approved_preview_passes_v1_in_both_formats(self):
+        import verify_pack
+        ref = os.path.join(REPO, "references", "pulse_preview_2026-11-11")
+        self.assertTrue(os.path.isfile(os.path.join(ref, "out", "segment.mp4")), f"must-pass fixture missing: {ref}")
+        rd = tempfile.mkdtemp(prefix="v1pass_")
+        self.addCleanup(shutil.rmtree, rd, True)
+        for sub in ("out", "qa"):
+            os.makedirs(os.path.join(rd, sub))
+        for rel in ("out/segment.mp4", "out/segment_vertical.mp4"):
+            os.symlink(os.path.join(ref, rel), os.path.join(rd, rel))           # read only: ffmpeg reads them
+        for rel in ("edl.json", "VERTICAL_LAYOUT.json", "qa/concat_manifest_16x9.json", "qa/concat_manifest_9x16.json"):
+            shutil.copy(os.path.join(ref, rel), os.path.join(rd, rel))
+        json.dump({"rows": {}}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
+        pack = {}
+        verify_pack._sheets_and_checklist(rd, {}, pack, vision=True)
+        out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))
+        for fmt in ("16x9", "9x16"):
+            self.assertEqual(out["rows"][fmt]["V1_visual_checklist"], "PASS",
+                             f"{fmt}: {out.get('notes', {}).get(fmt)} | " + json.dumps(pack["visual"].get(fmt), default=str)[:3000])
 
 
 if __name__ == "__main__":

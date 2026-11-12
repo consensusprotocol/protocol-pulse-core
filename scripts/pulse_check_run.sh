@@ -11,14 +11,19 @@
 #   detached session pipeline_pulse_check_<UTC stamp>; scripts/tmux_cleanup.sh (cron) keeps 'pipeline'
 #   sessions, so a long render is never reaped as idle. No other session is touched.
 # - GPU0 only (CUDA_VISIBLE_DEVICES=0); nothing is published: drops go to the Telegram approval chat
-#   only (pipeline/telegram.deliver_run), and ONLY when every gate passed: "HOLD FOR APPROVAL - all gates
-#   passed, no waivers" (orchestrator 2026-11-11 08:30: a HOLD is never sent; its run dir is the record).
+#   only (pipeline/telegram.deliver_run), and ONLY for a run release_auth.authorise passes (its attestation is
+#   ALL_PASS and every bound file has its attested sha256): "HOLD FOR APPROVAL - all release gates passed, no
+#   waivers" (orchestrator 2026-11-11 08:30: a HOLD is never sent; its run dir is the record). Children never
+#   inherit the lock fd (9>&-), so an orphaned child cannot keep the next run out.
 # - log: logs/pulse_check/run_<stamp>.log (git HEAD, run dir, exit code, delivery message ids)
 # - DEC-9 story ledger: an AUTO run whose two finals went out as HOLD FOR APPROVAL is recorded in
 #   data/pulse_check/story_ledger.jsonl (its counted evidence statements); later auto runs never select an
 #   event resting on one of them (pipeline/story_ledger.py)
-# Exit (--foreground, and in the log): run_fresh's code (0 = every gate passed, 3 = HOLD), 70 = the run
-# rendered but the Telegram drop failed, 71 = delivered but the DEC-9 story ledger write failed,
+# - preflight first (pipeline/preflight.py: GPU0, Ollama, yt-dlp, ElevenLabs quota, Telegram, disk, a clean pushed
+#   HEAD, no other run, brand assets + registry): a failure exits 3 (HOLD) before run_fresh starts
+# Exit (--foreground, and in the log): run_fresh's code (0 = every release gate passed, 3 = HOLD), 70 = the run
+# passed but was not delivered (the drop failed or was refused by release_auth, or no finals were found), 71 =
+# delivered but the DEC-9 story ledger write failed,
 # 75 = locked, 64 = usage. The detached launcher exits 0 once the
 # tmux session is up (1 if tmux failed, 75 if a run already holds the lock); the run's code is in the log.
 set -uo pipefail
@@ -49,7 +54,9 @@ if [ "$FOREGROUND" = 0 ] && [[ "$CUR_SESSION" != pipeline_* ]]; then
   fi
   NAME="pipeline_pulse_check_$STAMP"
   CMD="bash $(printf '%q' "$SELF") --foreground"
-  for a in "${ORIG[@]}"; do CMD+=" $(printf '%q' "$a")"; done
+  # the RESOLVED arguments (a relative PIN path is not re-resolved inside the new session: GPT-gates F39)
+  for a in "${ARGS[@]}"; do CMD+=" $(printf '%q' "$a")"; done
+  [ "$TELEGRAM" = 0 ] && CMD+=" --no-telegram"
   if ! tmux new-session -d -s "$NAME" "$CMD"; then
     echo "pulse_check_run: tmux could not start session $NAME" >&2; exit 1
   fi
@@ -69,7 +76,13 @@ fi
 export CUDA_VISIBLE_DEVICES=0
 cd "$REPO/pipeline" || exit 1
 echo "=== pulse_check_run $STAMP | HEAD $(git -C "$REPO" rev-parse HEAD) | args: ${ARGS[*]:-auto} ===" | tee -a "$LOG"
-python3 run_fresh.py "${ARGS[@]}" 2>&1 | tee -a "$LOG"
+# preflight (orchestrator 2026-11-11 '21:10'): seconds, before any hour is spent; a failure is a HOLD with the reason
+python3 preflight.py 9>&- 2>&1 | tee -a "$LOG" 9>&-
+if [ "${PIPESTATUS[0]}" != 0 ]; then
+  echo "run_fresh exit 3 | run dir none (preflight HOLD: run_fresh not started)" | tee -a "$LOG"
+  exit 3
+fi
+python3 run_fresh.py "${ARGS[@]}" 9>&- 2>&1 | tee -a "$LOG" 9>&-
 RC=${PIPESTATUS[0]}
 RUN_DIR="$(grep -m1 -oP '(?<==== FRESH-TOPIC RUN ).*(?= ===)' "$LOG" || true)"
 echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
@@ -80,7 +93,7 @@ if [ "$TELEGRAM" = 1 ] && [ "$RC" != 0 ]; then
   echo "HOLD (run_fresh exit $RC): not delivered; see $RUN_DIR/REPORT.md" | tee -a "$LOG"
 elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
   python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
-    "$RUN_DIR" 2>&1 | tee -a "$LOG"
+    "$RUN_DIR" 9>&- 2>&1 | tee -a "$LOG" 9>&-
   if [ "${PIPESTATUS[0]}" != 0 ]; then
     echo "pulse_check_run: Telegram delivery FAILED (see above); run dir $RUN_DIR" | tee -a "$LOG"
     exit 70
@@ -88,12 +101,15 @@ elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4"
   # DEC-9 ledger, from the delivery record just written (a separate step: a ledger fault never reads as a
   # failed drop, and is never silent: the next auto run could select this story again)
   python3 -c "import json, os, sys, story_ledger; r = json.load(open(os.path.join(sys.argv[1], 'TELEGRAM_DELIVERY.json'))); e = story_ledger.record_if_approved(sys.argv[1], r, sys.argv[2]); print('story ledger:', 'recorded ' + e['run'] if e else 'not recorded (pinned, review-only or option)')" \
-    "$RUN_DIR" "$MODE" 2>&1 | tee -a "$LOG"
+    "$RUN_DIR" "$MODE" 9>&- 2>&1 | tee -a "$LOG" 9>&-
   if [ "${PIPESTATUS[0]}" != 0 ]; then
     echo "pulse_check_run: delivered, but the story ledger was NOT recorded (see above): the next auto run may select this story again; run dir $RUN_DIR" | tee -a "$LOG"
     exit 71
   fi
 elif [ "$TELEGRAM" = 1 ]; then
-  echo "no finals rendered: nothing delivered (the run's REPORT.md and status.json are the ledger)" | tee -a "$LOG"
+  # run_fresh exited 0 (every release gate passed) but no run dir / finals were found: nothing was delivered,
+  # and that is never a success (GPT-gates F38, Claude-gates P2)
+  echo "pulse_check_run: run_fresh exit 0 but run dir '${RUN_DIR:-none}' has no finals: NOT delivered" | tee -a "$LOG"
+  exit 70
 fi
 exit "$RC"

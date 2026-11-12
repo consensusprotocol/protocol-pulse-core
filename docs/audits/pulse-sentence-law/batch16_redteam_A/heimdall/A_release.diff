@@ -1,0 +1,1032 @@
+diff --git a/pipeline/replay.py b/pipeline/replay.py
+index 275f1d9c..b7522fab 100644
+--- a/pipeline/replay.py
++++ b/pipeline/replay.py
+@@ -42,7 +42,7 @@ def make_copy(run_dir, start, stamp=None):
+         else:
+             shutil.copytree(a, b)
+     k = rf.TAIL_STAGES.index(start)
+-    stale = ["GATE_REPORT.json", "VERDICT.txt"]
++    stale = ["GATE_REPORT.json", "VERDICT.txt", "ATTESTATION.json"]
+     if k <= 2:
+         stale += ["out/segment.mp4", "out/segment_vertical.mp4"]
+     for p in stale:
+@@ -86,6 +86,12 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
+     finally:
+         run.status["elapsed_s"] = round(time.time() - t0, 1)
+         run.status["ended"] = rf.now_iso()
++        try:                                            # attested for its verdict, never deliverable
++            rf.attest_run(run, deliverable=False, why_not="replay: diagnostic, deliver only a full run",
++                          code_checked=False)
++        except Exception as e:
++            run.status["verdict"] = rf.VERDICT_HOLD
++            run.status["holds"].append(f"attestation: {type(e).__name__}: {e}")
+         run.save()
+         rf.write_report(run)
+         with open(os.path.join(dst, "VERDICT.txt"), "w") as f:
+diff --git a/pipeline/run.py b/pipeline/run.py
+index bbd42573..a6157957 100644
+--- a/pipeline/run.py
++++ b/pipeline/run.py
+@@ -180,8 +180,9 @@ def stage_gates9(segment_dir, args):
+ 
+ 
+ def stage_telegram(segment_dir, args):
+-    from telegram_drop import send_telegram_preview
+-    send_telegram_preview(segment_dir, args.qa_version)
++    """Removed (red-team A): this legacy path imported a module that does not exist (telegram_drop) and trusted
++    VERIFIED_BY_ORCHESTRATOR. The only send path is telegram.deliver_run on an authorised run_fresh run."""
++    raise RuntimeError("STOP: run.py telegram stage removed; deliver with telegram.deliver_run (release_auth)")
+ 
+ 
+ # ── Legacy stage_all (fail-closed fix: check return values) ──
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index ae5f149a..81b81061 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -776,11 +776,20 @@ def _status(ok):
+     return "PASS" if ok else "FAIL"
+ 
+ 
+-def tail_rows(g9_pass, conform_fallback):
++def _samples(x):
++    """How many things a gate measured (list / dict entries); a skipped or empty result measured nothing
++    (release_auth requires >= 1 for every required row: red-team A, 'the gates ran')."""
++    if isinstance(x, dict) and x.get("skip"):
++        return 0
++    return len(x) if isinstance(x, (list, dict)) else 0
++
++
++def tail_rows(g9_pass, conform_fallback, identical=True):
+     """G9_tail is the DEC-1 calibrated gate alone (no exception path). outro_locked: the luma floor is
+     the approved reference's LOCKED outro tail, so a conform fallback (some other outro) fails closed
+-    on its own row even when its tail clears the floor (Heimdall DEC-1 audit: keep the two apart)."""
+-    return {"G9_tail": _status(g9_pass), "outro_locked": _status(not conform_fallback)}
++    on its own row even when its tail clears the floor (Heimdall DEC-1 audit: keep the two apart), and so
++    does an outro whose master or conformed file is not hash-identical to the locked one (GPT-cut F09)."""
++    return {"G9_tail": _status(g9_pass), "outro_locked": _status(identical and not conform_fallback)}
+ 
+ 
+ def stage_gates(run, final16, man16, final9, man9):
+@@ -799,6 +808,8 @@ def stage_gates(run, final16, man16, final9, man9):
+         segs16 = json.load(f)["segments"]
+     with open(man9) as f:
+         segs9 = json.load(f)["segments"]
++    # the bytes every gate below measures (release_auth: the attested files must be these files)
++    measured = {os.path.relpath(p, run.dir): sha256(p) for p in (final16, final9, man16, man9)}
+ 
+     # Production gate runner — invoked exactly as in the v2f run.
+     # G8 needs its sources (2026-11-11: it was never given any, so it always failed "no_source" and was
+@@ -812,18 +823,33 @@ def stage_gates(run, final16, man16, final9, man9):
+     rows = {"16x9": {}, "9x16": {}}
+     flags = {"16x9": [], "9x16": []}
+     limits = {"16x9": [], "9x16": []}
++    notes = {"16x9": {}, "9x16": {}}          # why a row reads what it reads (rows hold exact verdicts only)
++    evidence = {"16x9": {}, "9x16": {}}       # that the gate ran, and on how many samples
++
++    def put(fmt, row, verdict, data, note=None):
++        """One gate row: an exact verdict (release_auth.VERDICTS, no prefixes, no waiver text), what it measured,
++        and the reason in notes."""
++        rows[fmt][row] = verdict
++        evidence[fmt][row] = {"executed": verdict != "SKIPPED", "samples": _samples(data)}
++        if note:
++            notes[fmt][row] = note
++        elif row in notes[fmt]:
++            del notes[fmt][row]
++
+     for fmt, res in (("16x9", r16), ("9x16", r9)):
+         for k, v in res.items():
+             if isinstance(v, dict) and "pass" in v and k not in ("G8_sharpness", "G9_tail",
+                                                                    "G11_parity"):
+                 # a skipped gate is never reported as a PASS (fail-closed)
+-                rows[fmt][k] = (f"SKIPPED ({v.get('reason', 'skip')})" if v.get("skip")
+-                                else _status(v["pass"]))
+-        rows[fmt]["G11_parity(run_gates)"] = "NOT RUN BY run_gates (no horiz) — see G11 below"
++                if v.get("skip"):
++                    put(fmt, k, "SKIPPED", None, v.get("reason", "skip"))
++                else:
++                    put(fmt, k, _status(v["pass"] is True), v.get("table", v.get("data")))
++        # G11 inside run_gates has no horizontal final (it skips); the real G11 is the 9x16 row below
+ 
+     # G11 for real (vertical vs horizontal)
+     g11_ok, g11 = qa_gates.gate_g11(final9, final16, segs9, segs16)
+-    rows["9x16"]["G11_parity"] = _status(g11_ok)
++    put("9x16", "G11_parity", _status(g11_ok), g11)
+ 
+     # G14 / G14c / G15
+     def _words(vid):                                  # DEC-12e: G14 samples where the transcript has speech
+@@ -851,8 +877,8 @@ def stage_gates(run, final16, man16, final9, man9):
+     man16_g14, man9_g14 = _g14_manifest(man16, "16x9"), _g14_manifest(man9, "9x16")
+     g14_16_ok, g14_16 = G.gate_g14(final16, man16_g14, source_clips=src_clips, qa_dir=g14dir16)
+     fails16 = [d for d in g14_16 if d.get("status") == "FAIL"]
+-    rows["16x9"]["G14_av_alignment"] = ("PASS" if g14_16_ok else
+-                                        "FAIL" if fails16 else "HOLD(inconclusive)")
++    put("16x9", "G14_av_alignment", "PASS" if g14_16_ok else "FAIL" if fails16 else "HOLD", g14_16,
++        None if g14_16_ok or fails16 else "inconclusive")
+     limits["16x9"].append("G14: static talking-head temporal slips can pass frame_sim "
+                           "(v2e 18.0-24.0 s precedent); VO sections are auto-PASS (pre-roll "
+                           "declared), plate correctness not verified")
+@@ -860,13 +886,14 @@ def stage_gates(run, final16, man16, final9, man9):
+     # the gate's own per-segment verdict (DEC-12e): >= 3 conclusive matching samples, zero mismatches
+     g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9, frames=False)
+     fails9 = [d for d in g14_9 if d.get("status") == "FAIL"]
+-    rows["9x16"]["G14_audio_offset"] = ("PASS" if g14_9_ok else "FAIL" if fails9 else "HOLD(inconclusive)")
+-    rows["9x16"]["G14_frame_similarity"] = "LIMITED (not valid for 9:16 crop vs 16:9 source)"
++    put("9x16", "G14_audio_offset", "PASS" if g14_9_ok else "FAIL" if fails9 else "HOLD", g14_9,
++        None if g14_9_ok or fails9 else "inconclusive")
++    put("9x16", "G14_frame_similarity", "LIMITED", None, "not valid for 9:16 crop vs 16:9 source")
+     limits["9x16"].append("G14 frame_sim compares a 9:16 crop with the 16:9 source (v2e positive "
+                           "control: 0.24-0.54 on correct frames); only the audio-offset part is "
+                           "scored; VO sections auto-PASS")
+     g14c_ok, g14c = G.gate_g14c(final16, final9, tolerance_ms=42)
+-    rows["9x16"]["G14c_duration_parity"] = _status(g14c_ok)
++    put("9x16", "G14c_duration_parity", _status(g14c_ok), g14c)
+     for sub in ("g15_16x9", "g15_9x16"):
+         os.makedirs(os.path.join(qa, sub), exist_ok=True)
+     import credit_rings                             # DEC-11: G15 also checks each disc is the credited avatar
+@@ -874,15 +901,15 @@ def stage_gates(run, final16, man16, final9, man9):
+         credited = credit_rings.credit_channels(json.load(f))
+     g15_16_ok, g15_16 = G.gate_g15(final16, segs16, os.path.join(qa, "g15_16x9"), channels=credited)
+     g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"), channels=credited)
+-    rows["16x9"]["G15_credits"] = _status(g15_16_ok)
+-    rows["9x16"]["G15_credits"] = _status(g15_9_ok)
++    put("16x9", "G15_credits", _status(g15_16_ok), g15_16)
++    put("9x16", "G15_credits", _status(g15_9_ok), g15_9)
+     # G20 SIGNOFF_NAMES_ALL (law L-a): the rendered sign-off names exactly the credited channels
+     for sub in ("g20_16x9", "g20_9x16"):
+         os.makedirs(os.path.join(qa, sub), exist_ok=True)
+     g20_16_ok, g20_16 = G.gate_g20(final16, segs16, credited, os.path.join(qa, "g20_16x9"))
+     g20_9_ok, g20_9 = G.gate_g20(final9, segs9, credited, os.path.join(qa, "g20_9x16"))
+-    rows["16x9"]["G20_signoff_names_all"] = _status(g20_16_ok)
+-    rows["9x16"]["G20_signoff_names_all"] = _status(g20_9_ok)
++    put("16x9", "G20_signoff_names_all", _status(g20_16_ok), g20_16)
++    put("9x16", "G20_signoff_names_all", _status(g20_9_ok), g20_9)
+ 
+     # G8 — production result + source-relative report (threshold untouched)
+     g8dir = os.path.join(qa, "g8_relative")
+@@ -898,7 +925,7 @@ def stage_gates(run, final16, man16, final9, man9):
+                  "relative_16x9": g8rel, "degraded_below_0.85": degraded}
+     for fmt, res in (("16x9", r16), ("9x16", r9)):
+         # DEC-1 floor + DEC-3 soft-source rule live in the gate itself; no waiver (DEC-8)
+-        rows[fmt]["G8_sharpness"] = _status(res["G8_sharpness"]["pass"])
++        put(fmt, "G8_sharpness", _status(res["G8_sharpness"]["pass"] is True), res["G8_sharpness"].get("table"))
+ 
+     # G9 — approved known exception only if the outro is hash-identical to the locked outro
+     g9_report = {}
+@@ -914,7 +941,8 @@ def stage_gates(run, final16, man16, final9, man9):
+         g9_report[fmt] = {"gate": d, "outro_master_sha256": msha, "outro_conformed_sha256": csha,
+                           "hash_identical_to_locked_outro": identical,
+                           "last_segment": last.get("label"), "conform_fallback": fallback}
+-        rows[fmt].update(tail_rows(res["G9_tail"]["pass"], fallback))
++        for row, verdict in tail_rows(res["G9_tail"]["pass"] is True, fallback, identical).items():
++            put(fmt, row, verdict, d if row == "G9_tail" else g9_report[fmt])
+ 
+     # G4 per shot + G4s layout truth (DEC-2 / DEC-5)
+     import vertical_layout as V
+@@ -928,15 +956,15 @@ def stage_gates(run, final16, man16, final9, man9):
+         with open(man) as f:
+             shout = json.load(f).get("shoutout_start", 0)
+         ok, g4_shots[fmt] = qa_gates.gate_g4(final, V.per_shot_manifest(sgs, plans), fmt, shout, g4dir)
+-        rows[fmt]["G4_faces_per_shot"] = _status(ok)
++        put(fmt, "G4_faces_per_shot", _status(ok), g4_shots[fmt])
+         ok, g4s[fmt] = V.gate_g4s(plans, prepared, vert_final=final9 if fmt == "9x16" else None,
+                                   vert_segments=segs9 if fmt == "9x16" else None)
+-        rows[fmt]["G4s_layout_truth"] = _status(ok)
++        put(fmt, "G4s_layout_truth", _status(ok), g4s[fmt])
+ 
+     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
+     g16_ok, g16 = L.gate_g16(run.dir)
+     for fmt in ("16x9", "9x16"):
+-        rows[fmt]["G16_sentence_boundary"] = _status(g16_ok)
++        put(fmt, "G16_sentence_boundary", _status(g16_ok), g16)
+ 
+     # G17 ONSET/TAIL: prepared clips (>= 80 ms genuine lead-in/tail) + each final (edge words >= 85 %)
+     g17a_ok, g17a = L.gate_g17_prepared({c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4")
+@@ -946,29 +974,36 @@ def stage_gates(run, final16, man16, final9, man9):
+     # G17c (law L-b): the first and last word of every prepared clip, with their decay, at full level
+     # (within 1 dB of the unfaded source); format-independent, part of the G17 row in both formats
+     g17c_ok, g17c = L.gate_g17_edges(run.dir)
+-    rows["16x9"]["G17_onset_tail"] = _status(g17a_ok and g17b16_ok and g17c_ok)
+-    rows["9x16"]["G17_onset_tail"] = _status(g17a_ok and g17b9_ok and g17c_ok)
++    for fmt, b_ok, b in (("16x9", g17b16_ok, g17b16), ("9x16", g17b9_ok, g17b9)):
++        put(fmt, "G17_onset_tail", _status(g17a_ok and b_ok and g17c_ok), None)
++        evidence[fmt]["G17_onset_tail"]["samples"] = min(_samples(g17a), _samples(b), _samples(g17c))
+ 
+     # law L-c: a check that disagrees with the others on an EDGE WORD is right until an acoustic comparison
+     # with the source proves otherwise: G17c (the kept word and decay equal the unfaded source) and G16 (no
+     # audible part of the neighbour word, neighbour_clear). A dissenting G3b reading needs that proof, else
+     # HOLD; a G3c head / tail failure on an edge is overruled only by it, else it stands.
+-    def _edge_proved(seg, side):
+-        return g16_ok and bool((g17c.get(seg) or {}).get(side, {}).get("ok"))
++    # Amended (orchestrator addendum 2026-11-11 '22:00', GPT-cut F03): the G17c comparison that proves an edge
++    # is measured on the FINAL of that format (the bytes being approved, sentence_law.edges_on_final), never on
++    # the prepared clip; when it cannot prove the edge, the dissent / the failure stands and the run HOLDS.
+     lc = {}
+-    for fmt, res in (("16x9", r16), ("9x16", r9)):
++    for fmt, res, final, sgs in (("16x9", r16, final16, segs16), ("9x16", r9, final9, segs9)):
+         g3b = (res.get("G3b_cut_out_clean") or {}).get("table") or []
+         dissent = [e["segment"] for e in g3b if isinstance(e, dict) and e.get("dissent") and e.get("last_found")]
+-        unproved = [sg for sg in dissent if not _edge_proved(sg, "out")]
+-        if rows[fmt].get("G3b_cut_out_clean") == "PASS" and unproved:
+-            rows[fmt]["G3b_cut_out_clean"] = f"HOLD(dissent unproved: {', '.join(unproved)})"
+         g3c = (res.get("G3c_acoustic_tail") or {}).get("table") or []
+         failed = [(e["segment"], side) for e in g3c if isinstance(e, dict)
+                   for side, key in (("out", "tail_ok"), ("in", "head_ok")) if e.get(key) is False]
++        proof = L.edges_on_final(final, sgs, run.dir) if (dissent or failed) else {}
++
++        def _edge_proved(seg, side, proof=proof):
++            return g16_ok and ((proof.get(seg) or {}).get(side) or {}).get("ok") is True
++        unproved = [sg for sg in dissent if not _edge_proved(sg, "out")]
++        if rows[fmt].get("G3b_cut_out_clean") == "PASS" and unproved:
++            put(fmt, "G3b_cut_out_clean", "HOLD", g3b, f"dissent unproved on the final: {', '.join(unproved)}")
+         if rows[fmt].get("G3c_acoustic_tail") == "FAIL" and failed and all(_edge_proved(sg, sd) for sg, sd in failed):
+-            rows[fmt]["G3c_acoustic_tail"] = "PASS(L-c: " + ", ".join(f"{sg} {sd}" for sg, sd in failed) + \
+-                " proved by the source comparison)"
+-        lc[fmt] = {"g3b_dissent": dissent, "g3b_unproved": unproved, "g3c_failed_edges": failed}
++            put(fmt, "G3c_acoustic_tail", "PASS", g3c, "L-c: " + ", ".join(f"{sg} {sd}" for sg, sd in failed) +
++                " proved by the comparison of the final's audio with the source")
++        lc[fmt] = {"g3b_dissent": dissent, "g3b_unproved": unproved, "g3c_failed_edges": failed,
++                   "final_proof": proof}
+ 
+     # G18 WORD-FOR-WORD (mission 4a): every clip's first/last words are its locked sentences' and its
+     # words are exactly those of the source span it was cut from (both finals; whisper on GPU0)
+@@ -979,13 +1014,15 @@ def stage_gates(run, final16, man16, final9, man9):
+              **{f"clip_{c['index']:02d}": c.get("selection_lock") for c in edl_now.get("clips", [])}}
+     g18_clips = {c["clip_id"]: {"lock_text": (locks.get(c["clip_id"]) or {}).get("text", ""),
+                                 "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
+-                                "cut_in": c["cut_in"], "cut_out": c["cut_out"]} for c in cuts}
++                                "cut_in": c["cut_in"], "cut_out": c["cut_out"],
++                                "pad_s": float(c.get("lead_in_pad_s") or 0.0)} for c in cuts}
+     missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
+     tr = WD.Transcriber()
+     g18 = {}
+     for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
+         ok, g18[fmt] = WD.gate_g18(final, sgs, g18_clips, transcriber=tr)
+-        rows[fmt]["G18_word_for_word"] = _status(ok and not missing)
++        put(fmt, "G18_word_for_word", _status(ok and not missing), g18[fmt],
++            f"no selection lock: {missing}" if missing else None)
+     del tr
+     if missing:
+         g18["missing_selection_lock"] = missing
+@@ -999,27 +1036,30 @@ def stage_gates(run, final16, man16, final9, man9):
+     g19 = {}
+     for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
+         ok, g19[fmt] = edge_shots.gate_g19(final, sgs, snap_rec, FPS)
+-        rows[fmt]["G19_edge_shots"] = _status(ok)
++        put(fmt, "G19_edge_shots", _status(ok), g19[fmt])
+ 
+     fb = run.prov["vertical_fallback_check"]
+-    rows["9x16"]["vertical_silent_fallback"] = "FAIL (fallback occurred)" if fb["fallback_occurred"] \
+-        else "PASS (no fallback)"
++    put("9x16", "vertical_silent_fallback", _status(fb["fallback_occurred"] is False), fb,
++        "fallback occurred" if fb["fallback_occurred"] else "no fallback")
+ 
+-    gates_out = {"rows": rows, "flags": flags, "limitations": limits,
++    import release_auth
++    gates_out = {"inventory_version": release_auth.INVENTORY_VERSION, "rows": rows, "notes": notes,
++                 "evidence": evidence, "measured_files": measured, "flags": flags, "limitations": limits,
+                  "G11": g11, "G14_16x9": g14_16, "G14_9x16": g14_9, "G14c": g14c,
+                  "G15_16x9": g15_16, "G15_9x16": g15_9, "G20_16x9": g20_16, "G20_9x16": g20_9, "G17c": g17c, "L-c": lc, "G8": g8_report, "G9": g9_report, "G16": g16,
+                  "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18, "G19": g19,
+                  "G4_per_shot": g4_shots, "G4s": g4s,
+                  "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
+     jdump(os.path.join(run.dir, "GATE_REPORT.json"), gates_out)
+-    run.prov["gates"] = {"rows": rows, "flags": flags, "limitations": limits}
++    run.prov["gates"] = {"rows": rows, "notes": notes, "flags": flags, "limitations": limits}
+     return rows, flags, limits
+ 
+ 
+-def verdict_for(rows):
+-    bad = {k: v for k, v in rows.items()
+-           if not (v.startswith("PASS") or v.startswith("FLAG") or v.startswith("LIMITED")
+-                   or v.startswith("NOT RUN BY run_gates"))}
++def verdict_for(rows, fmt, evidence=None):
++    """(verdict, {row: why}) by release_auth's exact inventory for that format: a missing, unknown, skipped,
++    inconclusive or unexecuted row is a blocker (red-team A; no prefix rules)."""
++    import release_auth
++    bad = release_auth.blockers(fmt, rows, evidence)
+     return (VERDICT_HOLD if bad else VERDICT_CANDIDATE), bad
+ 
+ 
+@@ -1074,21 +1114,33 @@ def record_assets(run):
+     run.prov["v2f_reuse_check"] = {"links_into_v2f_material": leaks,
+                                    "source_ids_overlap": sorted(
+                                        {s["video_id"] for s in srcs} & V2F_VIDEO_IDS)}
+-    # executed code hashes
+-    mods = {}
++    # executed code hashes: every loaded module of THIS checkout, compared with the LAUNCH revision (not
++    # whatever HEAD is now: GPT-cut F24); a module loaded from another checkout of the pipeline (a hard-coded
++    # path, a worktree run importing the main tree) is code that did not come from this run's revision
++    # (Claude-gates C4)
++    launch = (run.prov.get("code") or {}).get("git_head") or "HEAD"
++    mods, foreign = {}, []
+     for name, m in list(sys.modules.items()):
+         f = getattr(m, "__file__", None)
+-        if f and f.startswith(REPO) and "/venv/" not in f and os.path.exists(f):
++        if not f or not os.path.exists(f) or "/venv/" in f or "site-packages" in f or "dist-packages" in f:
++            continue
++        f = os.path.realpath(f)
++        if f.startswith(REPO + os.sep):
+             mods[os.path.relpath(f, REPO)] = sha256(f)
++        elif re.search(r"/(protocol_pulse|worktrees)/", f):
++            foreign.append(f)
+     run.prov["executed_code_sha256"] = dict(sorted(mods.items()))
+-    not_clean = []
++    not_clean = [f"{f} (outside this checkout {REPO})" for f in sorted(foreign)]
++    head_now = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True).stdout.strip()
++    if launch != "HEAD" and head_now != launch:
++        not_clean.append(f"HEAD moved during the run: {launch} -> {head_now}")
+     for rel in mods:
+         tracked = subprocess.run(["git", "ls-files", "--error-unmatch", rel], cwd=REPO,
+                                  capture_output=True).returncode == 0
+-        modified = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", rel], cwd=REPO,
++        modified = subprocess.run(["git", "diff", "--quiet", launch, "--", rel], cwd=REPO,
+                                   capture_output=True).returncode != 0
+         if not tracked or modified:
+-            not_clean.append(f"{rel} ({'untracked' if not tracked else 'modified vs HEAD'})")
++            not_clean.append(f"{rel} ({'untracked' if not tracked else 'modified vs the launch revision'})")
+     run.prov["executed_code_not_at_revision"] = not_clean
+     if not_clean:
+         run.status["holds"].append(f"executed code not at the recorded revision: {not_clean}")
+@@ -1162,6 +1214,36 @@ def write_report(run):
+         f.write("\n".join(L) + "\n")
+ 
+ 
++# ── release attestation ──
++
++def attest_run(run, deliverable=True, why_not=None, code_checked=True):
++    """ATTESTATION.json (release_auth.attest), written last: holds anywhere => HOLD (GPT-cut F10), and the run is
++    ok only when it ended a candidate with no hold, its tree was clean at launch and every executed module is at
++    the launch revision (GPT-cut F24, Claude-gates C4). A replay (code_checked=False) has no provenance pass of its
++    own: it is attested for its verdict and is never deliverable."""
++    import release_auth
++    if run.status.get("holds"):
++        run.status["verdict"] = VERDICT_HOLD
++    code = run.prov.get("code") or {}
++    why = list(run.status.get("holds") or [])
++    if run.status.get("verdict") != VERDICT_CANDIDATE:
++        why.append(f"verdict {run.status.get('verdict')}")
++    if code_checked and code.get("pipeline_tree_clean_at_launch") is not True:
++        why.append("tree not recorded clean at launch")
++    if code_checked and run.prov.get("executed_code_not_at_revision") != []:
++        why.append(f"executed code not at the launch revision: {run.prov.get('executed_code_not_at_revision')}")
++    state = {"ok": not why, "why": why, "verdict": run.status.get("verdict"), "mode": run.mode,
++             "git_head": code.get("git_head"), "ended": run.status.get("ended")}
++    att = release_auth.attest(run.dir, state, deliverable=deliverable, why_not=why_not)
++    run.status["attestation"] = {"verdict": att["verdict"], "deliverable": att["deliverable"]}
++    if att["verdict"] != "ALL_PASS" and run.status.get("verdict") == VERDICT_CANDIDATE:
++        run.status["verdict"] = VERDICT_HOLD          # the attestation is the release truth; never two answers
++        run.status["holds"].append("attestation: " + "; ".join(
++            [f"{fmt} {k}: {v}" for fmt, b in att["blockers"].items() for k, v in b.items()]
++            + att["verification"]["why"] + att["other_blockers"] + [f"missing {m}" for m in att["missing_files"]]))
++    return att
++
++
+ # ── main ──
+ 
+ TAIL_STAGES = ("prepare", "layout", "render", "gates")
+@@ -1185,16 +1267,17 @@ def run_tail(run, cuts, start="prepare", vision=True):
+     # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
+     import verify_pack
+     pack = run.stage("verify", lambda: verify_pack.build(run.dir, vision=vision))
+-    with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:     # V1 (visual checklist) joins the rows
+-        for fmt, frows in json.load(f).get("rows", {}).items():
+-            if "V1_visual_checklist" in frows:
+-                rows[fmt]["V1_visual_checklist"] = frows["V1_visual_checklist"]
++    # the verdict is computed from the report ON DISK (the file the attestation binds); the pack wrote the V1 rows
++    # into it, and a pack that wrote none (or no evidence) leaves V1 missing = a blocker (GPT-cut F02)
++    with open(os.path.join(run.dir, "GATE_REPORT.json")) as f:
++        rep = json.load(f)
++    rows, evidence = rep.get("rows") or {}, rep.get("evidence") or {}
+     run.prov["visual_checklist"] = {fmt: {"ok": v.get("ok"), "error": v.get("error"),
+                                           "answers": {m: d["rows"] for m, d in (v.get("per_model") or {}).items()}}
+                                     for fmt, v in (pack.get("visual") or {}).items()}
+     run.prov["contact_sheets"] = pack.get("contact_sheets")
+-    v16, bad16 = verdict_for(rows["16x9"])
+-    v9, bad9 = verdict_for(rows["9x16"])
++    v16, bad16 = verdict_for(rows.get("16x9"), "16x9", evidence)
++    v9, bad9 = verdict_for(rows.get("9x16"), "9x16", evidence)
+     run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
+     run.prov["verdict_blockers"] = {"16x9": bad16, "9x16": bad9}
+     run.status["verdict"] = VERDICT_CANDIDATE if v16 == v9 == VERDICT_CANDIDATE else VERDICT_HOLD
+@@ -1255,6 +1338,11 @@ def main():
+             run.status["holds"].append(f"provenance: {type(e).__name__}: {e}")
+         run.status["ended"] = now_iso()
+         run.status["elapsed_s"] = round(time.time() - t0, 1)
++        try:                                   # LAST: the terminal state, any hold included (release_auth)
++            attest_run(run)
++        except Exception as e:
++            run.status["verdict"] = VERDICT_HOLD
++            run.status["holds"].append(f"attestation: {type(e).__name__}: {e}")
+         run.save()
+         write_report(run)
+         with open(os.path.join(run_dir, "VERDICT.txt"), "w") as f:
+diff --git a/pipeline/story_ledger.py b/pipeline/story_ledger.py
+index 0f888278..8f910a95 100644
+--- a/pipeline/story_ledger.py
++++ b/pipeline/story_ledger.py
+@@ -52,13 +52,14 @@ def record(run_dir, path=None):
+ 
+ 
+ def record_if_approved(run_dir, delivery, mode, path=None):
+-    """Called by scripts/pulse_check_run.sh after a delivery: an AUTO run whose BOTH finals went out as
+-    "HOLD FOR APPROVAL - all gates passed, no waivers" is recorded; anything else (pinned, review-only, an
+-    option) is not, so a story held for a defect is free to be produced again once the defect is fixed."""
++    """Called by scripts/pulse_check_run.sh after a delivery: an AUTO run whose drop was authorised
++    (release_auth) and completed, with BOTH finals captioned telegram.HOLD_OK, is recorded; anything else
++    (pinned, an option, a partial drop) is not, so a story held for a defect is free to be produced again once
++    the defect is fixed."""
+     import telegram
+     finals = [m for m in delivery["messages"] if "format" in m]
+-    if mode != "auto" or delivery.get("option") or len(finals) != 2 or \
+-            not all(m["caption"].startswith(telegram.HOLD_OK) for m in finals):
++    if mode != "auto" or delivery.get("option") or len(finals) != 2 or delivery.get("authorised") is not True or \
++            delivery.get("status") != "complete" or not all(m["caption"].startswith(telegram.HOLD_OK) for m in finals):
+         return None
+     return record(run_dir, path)
+ 
+diff --git a/pipeline/test_story_ledger.py b/pipeline/test_story_ledger.py
+index 228357e0..8b9ec579 100644
+--- a/pipeline/test_story_ledger.py
++++ b/pipeline/test_story_ledger.py
+@@ -69,13 +69,16 @@ class TestRecordIfApproved(unittest.TestCase):
+         json.dump({"selected": {"headline": "H", "evidence": ev}}, open(os.path.join(run, "TOPIC_SELECTION.json"), "w"))
+         path = os.path.join(tmp, "ledger.jsonl")
+ 
+-        def dlv(c16, c9, option=None):
+-            return {"option": option, "messages": [{"format": "16x9", "caption": c16}, {"format": "9x16", "caption": c9},
+-                                                   {"sheet": "contact_sheet_16x9.jpg"}]}
++        def dlv(c16, c9, option=None, authorised=True, status="complete"):
++            return {"option": option, "authorised": authorised, "status": status,
++                    "messages": [{"format": "16x9", "caption": c16}, {"format": "9x16", "caption": c9},
++                                 {"sheet": "contact_sheet_16x9.jpg"}]}
+         ok = telegram.HOLD_OK + " | details"
+         self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok), "pinned", path))
+-        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, telegram.REVIEW + " - 1 failing"), "auto", path))
++        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, "REVIEW ONLY - 1 failing"), "auto", path))
+         self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok, option="A"), "auto", path))
++        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok, authorised=False), "auto", path))
++        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok, status="in_progress"), "auto", path))
+         self.assertEqual(story_ledger.entries(path), [])
+         self.assertEqual(story_ledger.record_if_approved(run, dlv(ok, ok), "auto", path)["run"], "fresh_20261111_130000")
+ 
+diff --git a/pipeline/transition_options.py b/pipeline/transition_options.py
+index 20d0ee5c..550c2e1f 100644
+--- a/pipeline/transition_options.py
++++ b/pipeline/transition_options.py
+@@ -28,7 +28,7 @@ def render_option(run_dir, style):
+     dst = f"{run_dir.rstrip('/')}_option{style}"
+     if os.path.exists(dst):
+         raise SystemExit(f"STOP: {dst} exists")
+-    shutil.copytree(run_dir, dst, ignore=shutil.ignore_patterns("TELEGRAM_DELIVERY*.json", "VERIFY"))
++    shutil.copytree(run_dir, dst, ignore=shutil.ignore_patterns("TELEGRAM_DELIVERY*.json", "VERIFY", "ATTESTATION.json"))
+     for p in ("out/segment.mp4", "out/segment_vertical.mp4", "GATE_REPORT.json"):
+         if os.path.exists(os.path.join(dst, p)):
+             os.remove(os.path.join(dst, p))
+@@ -43,9 +43,18 @@ def render_option(run_dir, style):
+         cuts = json.load(f)
+     rf.TRANSITION_STYLE = style                     # the option, on the same cut
+     try:
++        rf.stage_env(run)                           # clean tree, launch revision recorded (an option is deliverable)
+         final16, man16, final9, man9 = rf.stage_render(run)
+-        rows, flags, limits = rf.stage_gates(run, final16, man16, final9, man9)
++        rf.stage_gates(run, final16, man16, final9, man9)
+         verify_pack.build(dst)
++        with open(os.path.join(dst, "GATE_REPORT.json")) as f:      # the verdict from the report on disk
++            rep = json.load(f)
++        verdicts = {fmt: rf.verdict_for((rep.get("rows") or {}).get(fmt), fmt, rep.get("evidence"))
++                    for fmt in ("16x9", "9x16")}
++        run.status["verdict"] = rf.VERDICT_CANDIDATE if all(v == rf.VERDICT_CANDIDATE for v, _ in verdicts.values()) \
++            else rf.VERDICT_HOLD
++        rf.record_assets(run)                       # executed code at the launch revision (release_auth)
++        rf.attest_run(run)
+     except Exception:
+         try:
+             os.rename(dst, f"{dst}_failed_{time.strftime('%H%M%S')}")    # kept for diagnosis; a retry can run
+@@ -53,7 +62,7 @@ def render_option(run_dir, style):
+             print(f"  could not set {dst} aside: {e}")                   # never masks the real failure
+         raise
+     run.save()
+-    print(f"option {style}: {dst} | " + ", ".join(f"{fmt}: {rf.verdict_for(rows[fmt])[0]}" for fmt in rows))
++    print(f"option {style}: {dst} | " + ", ".join(f"{fmt}: {v}" for fmt, (v, _) in verdicts.items()))
+     return dst, cuts
+ 
+ 
+diff --git a/pipeline/release_auth.py b/pipeline/release_auth.py
+new file mode 100644
+index 00000000..012af843
+--- /dev/null
++++ b/pipeline/release_auth.py
+@@ -0,0 +1,213 @@
++#!/usr/bin/env python3
++"""pipeline/release_auth.py — the ONE answer to "may this exact file be sent as passing" (red-team 2026-11-11, A).
++
++FAIL CLOSED: absent, empty, malformed, mistyped or unexpected evidence is never a pass.
++  inventory   a versioned, exact set of gate rows per format: REQUIRED rows (INVENTORY) decide release and pass only
++              when their verdict is exactly "PASS" (no prefixes, no waiver strings); MONITORING rows (gates without
++              a passing fixture, a failing fixture and a missing-evidence answer: addendum '22:15' item 4) must be
++              present with an exact verdict and are reported, not deciding; the few known non-blocking rows are
++              enumerated with their allowed verdicts (NONBLOCKING); any other row, a missing row, or a verdict
++              outside VERDICTS is a failure
++  evidence    every row records that it executed and on how many samples (>= 1)
++  attestation run_fresh writes ATTESTATION.json LAST (after the verification pack and provenance) from what is on
++              disk: the rows, the evidence, the pack's strict result, the run's terminal state (any hold, code
++              not at the launch revision = not ok), and the sha256 of both finals, the EDL, both manifests,
++              GATE_REPORT.json, VERIFICATION.json and both contact sheets; the finals and manifests must be the
++              bytes the gates measured (GATE_REPORT measured_files). A replay is attested but never deliverable.
++  authorise   re-derives the verdict from the attested rows, re-reads GATE_REPORT.json and VERIFICATION.json, and
++              recomputes every digest NOW; delivery calls it before the first send and checks each file's digest
++              again immediately before sending it (telegram.deliver_run). Every send path goes through here; a run
++              without an attestation (killed, crashed, older code) is never authorised.
++"""
++import hashlib
++import json
++import os
++from datetime import datetime, timezone
++
++SCHEMA = "pulse.attestation.v1"
++INVENTORY_VERSION = 1
++VERDICTS = ("PASS", "FAIL", "HOLD", "SKIPPED", "LIMITED")
++# Orchestrator addendum '22:15' item 4: a gate DECIDES release (REQUIRED) only with a real passing fixture, a
++# realistic failing fixture and a defined answer to missing evidence (here: no executed sample = blocker). Every
++# other gate is MONITORING: it must be present with an exact verdict (it is reported), but its verdict does not
++# decide release until it has all three. The per-gate fixture table is in docs/audits/DEFINITION_OF_DONE_PULSE_CHECK.md
++# ("REQUIRED / MONITORING"). No gate is deleted.
++_REQUIRED = ("G3b_cut_out_clean", "G3c_acoustic_tail", "G4s_layout_truth", "G5_tech", "G8_sharpness", "G9_tail",
++             "outro_locked", "G12_credits", "G15_credits", "G16_sentence_boundary", "G17_onset_tail",
++             "G18_word_for_word", "G19_edge_shots", "G20_signoff_names_all")
++_MONITORING = ("G1_voice", "G2_watermark", "G3_cuts", "G4_faces", "G4_faces_per_shot", "G6_preroll", "G10_chyron",
++               "G13_vo_audible", "V1_visual_checklist")
++INVENTORY = {"16x9": frozenset(_REQUIRED + ("G14_av_alignment",)),
++             "9x16": frozenset(_REQUIRED)}
++MONITORING = {"16x9": frozenset(_MONITORING),
++              "9x16": frozenset(_MONITORING + ("G11_parity", "G14_audio_offset", "G14c_duration_parity",
++                                               "vertical_silent_fallback"))}
++NONBLOCKING = {"16x9": {}, "9x16": {"G14_frame_similarity": frozenset({"LIMITED"})}}   # known limitation, not a pass
++FORMATS = ("16x9", "9x16")
++BOUND = ("out/segment.mp4", "out/segment_vertical.mp4", "edl.json", "qa/concat_manifest_16x9.json",
++         "qa/concat_manifest_9x16.json", "GATE_REPORT.json", "VERIFY/VERIFICATION.json",
++         "qa/contact_sheet_16x9.jpg", "qa/contact_sheet_9x16.jpg")
++
++
++def sha256(path):
++    h = hashlib.sha256()
++    with open(path, "rb") as f:
++        for b in iter(lambda: f.read(1 << 20), b""):
++            h.update(b)
++    return h.hexdigest()
++
++
++def blockers(fmt, rows, evidence=None):
++    """{row: why} for one format; empty only when the rows satisfy the inventory exactly: every REQUIRED row is
++    exactly "PASS" with execution evidence, every MONITORING row is present with an exact verdict (reported, not
++    deciding), the enumerated non-blocking rows carry their allowed verdict, and no other row exists."""
++    if fmt not in INVENTORY or not isinstance(rows, dict):
++        return {"format": f"unknown format {fmt!r} or rows not a mapping"}
++    bad = {}
++    allowed = INVENTORY[fmt] | MONITORING[fmt] | set(NONBLOCKING[fmt])
++    for k in sorted(set(rows) - allowed):
++        bad[k] = f"unexpected gate row (not in inventory v{INVENTORY_VERSION})"
++    for k in sorted(INVENTORY[fmt]):
++        v = rows.get(k)
++        if v is None:
++            bad[k] = "required gate row missing"
++        elif v not in VERDICTS:
++            bad[k] = f"verdict {v!r} is not one of {VERDICTS}"
++        elif v != "PASS":
++            bad[k] = v
++    for k in sorted(MONITORING[fmt]):
++        if rows.get(k) not in VERDICTS:
++            bad[k] = f"monitoring row must be reported with one of {VERDICTS}, got {rows.get(k)!r}"
++    for k, ok in NONBLOCKING[fmt].items():
++        if rows.get(k) not in ok:
++            bad[k] = f"non-blocking row must be one of {sorted(ok)}, got {rows.get(k)!r}"
++    if evidence is not None:
++        ev = evidence.get(fmt) if isinstance(evidence, dict) else None
++        for k in sorted(INVENTORY[fmt]):
++            e = (ev or {}).get(k)
++            if not (isinstance(e, dict) and e.get("executed") is True and type(e.get("samples")) is int
++                    and e["samples"] >= 1):
++                bad.setdefault(k, f"no execution evidence (executed True, samples >= 1): {e!r}")
++    return bad
++
++
++def monitoring_report(rows):
++    """{fmt: {row: verdict}} of the MONITORING rows that did not pass (shown with a delivery, never deciding)."""
++    return {fmt: {k: (rows.get(fmt) or {}).get(k) for k in sorted(MONITORING[fmt])
++                  if (rows.get(fmt) or {}).get(k) != "PASS"} for fmt in FORMATS}
++
++
++def verification_ok(pack):
++    """The verification pack is complete (every frame, sheet, credits row and both G18 tables) and was built WITH
++    the vision check (a pack without it is a waiver switch: GPT-gates F08, Claude-gates V9). The visual verdict
++    itself is the V1 row, which decides release only when V1 is in the REQUIRED inventory."""
++    if not isinstance(pack, dict):
++        return False, ["verification pack missing or not a mapping"]
++    why = []
++    if pack.get("vision") is not True:
++        why.append("pack built without the vision check")
++    if pack.get("complete") is not True:
++        why.append("pack incomplete")
++    return not why, why
++
++
++def _gate_report(run_dir):
++    return json.load(open(os.path.join(run_dir, "GATE_REPORT.json")))
++
++
++def attest(run_dir, run_state, deliverable=True, why_not=None):
++    """Write ATTESTATION.json (atomically) from what is ON DISK: GATE_REPORT.json (rows, evidence, the digests
++    the gates measured), VERIFY/VERIFICATION.json and the digests of every bound file now. verdict ALL_PASS
++    only when both formats satisfy the inventory, the pack passed, the files the gates measured are unchanged,
++    every bound file exists and the run itself ended clean (run_state["ok"] is True: no hold anywhere, code at
++    the launch revision). A run that is not deliverable (a replay is diagnostic) is recorded with why_not and is
++    never authorised, whatever its verdict."""
++    why = []
++    try:
++        rep = _gate_report(run_dir)
++    except (OSError, ValueError) as e:
++        rep = {}
++        why.append(f"GATE_REPORT.json unreadable: {type(e).__name__}")
++    rows, evidence = rep.get("rows") or {}, rep.get("evidence")
++    bad = {fmt: blockers(fmt, rows.get(fmt), evidence) for fmt in FORMATS}
++    try:
++        pack = json.load(open(os.path.join(run_dir, "VERIFY", "VERIFICATION.json")))
++    except (OSError, ValueError):
++        pack = None
++    v_ok, v_why = verification_ok(pack)
++    files = {rel: (sha256(os.path.join(run_dir, rel)) if os.path.isfile(os.path.join(run_dir, rel)) else None)
++             for rel in BOUND}
++    missing = [rel for rel, d in files.items() if d is None]
++    measured = rep.get("measured_files") or {}
++    for rel in ("out/segment.mp4", "out/segment_vertical.mp4", "qa/concat_manifest_16x9.json",
++                "qa/concat_manifest_9x16.json"):
++        if measured.get(rel) is None or measured.get(rel) != files.get(rel):
++            why.append(f"{rel}: not the bytes the gates measured")
++    if rep.get("inventory_version") != INVENTORY_VERSION:
++        why.append(f"gate report inventory version {rep.get('inventory_version')!r} != {INVENTORY_VERSION}")
++    if not (isinstance(run_state, dict) and run_state.get("ok") is True):
++        why.append("run did not end clean: " + "; ".join(map(str, (run_state or {}).get("why") or ["no state"])))
++    ok = not any(bad.values()) and v_ok and not missing and not why
++    att = {"schema": SCHEMA, "inventory_version": INVENTORY_VERSION, "verdict": "ALL_PASS" if ok else "HOLD",
++           "deliverable": bool(deliverable), "why_not_deliverable": why_not, "run_state": run_state,
++           "rows": rows, "evidence": evidence, "notes": rep.get("notes") or {}, "blockers": bad,
++           "verification": {"ok": v_ok, "why": v_why}, "other_blockers": why, "missing_files": missing,
++           "files": files, "created_at": datetime.now(timezone.utc).isoformat()}
++    tmp = os.path.join(run_dir, "ATTESTATION.json.tmp")
++    with open(tmp, "w") as f:
++        json.dump(att, f, indent=2, default=str)
++    os.replace(tmp, os.path.join(run_dir, "ATTESTATION.json"))
++    return att
++
++
++def authorise(run_dir):
++    """(ok, reasons, attestation). ok only when ATTESTATION.json is ALL_PASS and deliverable, its rows re-check
++    clean here, GATE_REPORT.json still carries exactly those rows and evidence, the verification pack still
++    passes, the run ended clean, and every bound file's sha256 equals the attested digest NOW."""
++    p = os.path.join(run_dir, "ATTESTATION.json")
++    try:
++        att = json.load(open(p))
++    except (OSError, ValueError) as e:
++        return False, [f"no readable attestation: {type(e).__name__}"], None
++    if not isinstance(att, dict) or att.get("schema") != SCHEMA or att.get("inventory_version") != INVENTORY_VERSION:
++        return False, ["attestation schema / inventory version mismatch"], att
++    why = []
++    if att.get("verdict") != "ALL_PASS":
++        why.append(f"attestation verdict {att.get('verdict')!r}")
++    if att.get("deliverable") is not True:
++        why.append(f"not deliverable: {att.get('why_not_deliverable')}")
++    if not (isinstance(att.get("run_state"), dict) and att["run_state"].get("ok") is True):
++        why.append("the run did not end clean")
++    rows, evidence = att.get("rows") or {}, att.get("evidence")
++    for fmt in FORMATS:
++        for k, v in blockers(fmt, rows.get(fmt), evidence).items():
++            why.append(f"{fmt} {k}: {v}")
++    try:
++        rep = _gate_report(run_dir)
++        if rep.get("rows") != rows or rep.get("evidence") != evidence:
++            why.append("GATE_REPORT.json rows / evidence differ from the attested ones")
++    except (OSError, ValueError):
++        why.append("GATE_REPORT.json unreadable")
++    try:
++        v_ok, v_why = verification_ok(json.load(open(os.path.join(run_dir, "VERIFY", "VERIFICATION.json"))))
++        why += [] if v_ok else v_why
++    except (OSError, ValueError):
++        why.append("VERIFICATION.json unreadable")
++    files = att.get("files") or {}
++    if set(files) != set(BOUND):
++        why.append("attested file set differs from the bound set")
++    for rel in BOUND:
++        path = os.path.join(run_dir, rel)
++        if not files.get(rel):
++            why.append(f"{rel}: no attested digest")
++        elif not os.path.isfile(path):
++            why.append(f"{rel}: missing")
++        elif sha256(path) != files[rel]:
++            why.append(f"{rel}: changed since it was attested")
++    return not why, why, att
++
++
++def check_file(run_dir, att, rel):
++    """True when `rel` still has its attested digest (delivery checks this immediately before each send)."""
++    path = os.path.join(run_dir, rel)
++    return bool(att and att.get("files", {}).get(rel)) and os.path.isfile(path) and sha256(path) == att["files"][rel]
+diff --git a/pipeline/test_release_auth.py b/pipeline/test_release_auth.py
+new file mode 100644
+index 00000000..b0dcdb67
+--- /dev/null
++++ b/pipeline/test_release_auth.py
+@@ -0,0 +1,293 @@
++#!/usr/bin/env python3
++"""pipeline/release_auth.py: the fail-closed release contract (red-team 2026-11-11 A; GPT 'five cheapest tests' #2,
++Claude 'five cheapest tests' #3). One complete passing run directory is built; every mutation of it must HOLD:
++  inventory   a REQUIRED row deleted, any non-PASS verdict, a prefixed 'PASS (...)', an unknown row, a MONITORING
++              row missing (it must be reported) -- while a MONITORING row that FAILS does not decide (addendum
++              '22:15' item 4)
++  evidence    missing, executed False, zero samples, a sample count that is not an int
++  bytes       a final / manifest that is not what the gates measured; a bound file changed after the attestation;
++              GATE_REPORT rows edited after the attestation
++  pack        built without vision, incomplete, missing
++  run         holds present (the run did not end clean), not deliverable (a replay), no / corrupt attestation
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_release_auth.py"""
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import release_auth as RA  # noqa: E402
++
++_MEDIA = {}
++
++
++def _media():
++    """Two one-second black finals at the release dimensions (made once per process)."""
++    if not _MEDIA:
++        d = tempfile.mkdtemp(prefix="ra_media_")
++        for name, (w, h) in (("segment.mp4", (1920, 1080)), ("segment_vertical.mp4", (1080, 1920))):
++            subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=c=black:s={w}x{h}:r=24:d=1",
++                            "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", os.path.join(d, name)],
++                           check=True)
++        _MEDIA["dir"] = d
++    return _MEDIA["dir"]
++
++
++def passing_rows():
++    rows = {fmt: {k: "PASS" for k in RA.INVENTORY[fmt] | RA.MONITORING[fmt]} for fmt in RA.FORMATS}
++    rows["9x16"]["G14_frame_similarity"] = "LIMITED"
++    return rows
++
++
++def make_run(parent, rows=None, attest=True, run_state=None, edl=None):
++    """A complete run directory that release_auth authorises (unless the caller mutates it)."""
++    from PIL import Image
++    rd = tempfile.mkdtemp(prefix="fresh_", dir=parent)
++    for sub in ("out", "qa", "VERIFY"):
++        os.makedirs(os.path.join(rd, sub))
++    for name in ("segment.mp4", "segment_vertical.mp4"):
++        shutil.copy(os.path.join(_media(), name), os.path.join(rd, "out", name))
++    shot = {"start": 0.0, "end": 9.4, "class": "single", "flagged": False}
++    json.dump(edl or {"topic": "Bitcoin price dip", "headline": "Bitcoin price dip",
++                      "hook": {"channel": "Yahoo Finance", "video_id": "YAH0000000a",
++                               "selection_lock": {"text": "Bitcoin fell to 74,000 dollars today."},
++                               "vertical_layout": {"shots": [shot], "flagged": False}},
++                      "clips": [{"index": 1, "channel": "Natalie Brunell", "video_id": "NAT0000000b",
++                                 "selection_lock": {"text": "It is a bear market rally."},
++                                 "vertical_layout": {"shots": [shot], "flagged": False}}]},
++              open(os.path.join(rd, "edl.json"), "w"))
++    for fmt in RA.FORMATS:
++        json.dump({"format": fmt, "segments": [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 0.5},
++                                               {"label": "outro", "type": "outro", "start": 0.5, "end": 1.0}]},
++                  open(os.path.join(rd, "qa", f"concat_manifest_{fmt}.json"), "w"))
++        Image.new("RGB", (120, 80)).save(os.path.join(rd, "qa", f"contact_sheet_{fmt}.jpg"))
++    rows = rows or passing_rows()
++    measured = {rel: RA.sha256(os.path.join(rd, rel)) for rel in
++                ("out/segment.mp4", "out/segment_vertical.mp4", "qa/concat_manifest_16x9.json",
++                 "qa/concat_manifest_9x16.json")}
++    json.dump({"inventory_version": RA.INVENTORY_VERSION, "rows": rows,
++               "evidence": {fmt: {k: {"executed": True, "samples": 3} for k in r} for fmt, r in rows.items()},
++               "notes": {}, "measured_files": measured}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
++    json.dump({"complete": True, "vision": True, "passed": True,
++               "visual": {f: {"ok": True} for f in RA.FORMATS}}, open(os.path.join(rd, "VERIFY", "VERIFICATION.json"), "w"))
++    if attest:
++        RA.attest(rd, run_state or {"ok": True, "why": []})
++    return rd
++
++
++def edit_json(path, fn):
++    d = json.load(open(path))
++    fn(d)
++    json.dump(d, open(path, "w"))
++
++
++class Base(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="ra_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++
++    def holds(self, rd, label):
++        """attest from the (mutated) disk state, then authorise: both must refuse."""
++        att = RA.attest(rd, {"ok": True, "why": []})
++        ok, why, _ = RA.authorise(rd)
++        self.assertEqual(att["verdict"], "HOLD", label)
++        self.assertFalse(ok, label)
++        return att
++
++
++class TestPassingRun(Base):
++    def test_the_complete_run_is_authorised(self):
++        rd = make_run(self.tmp)
++        ok, why, att = RA.authorise(rd)
++        self.assertTrue(ok, why)
++        self.assertEqual(att["verdict"], "ALL_PASS")
++        self.assertEqual(set(att["files"]), set(RA.BOUND))
++
++
++class TestInventory(Base):
++    def mutate_rows(self, fn, label):
++        rd = make_run(self.tmp, attest=False)
++        edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: fn(d["rows"]))
++        return self.holds(rd, label)
++
++    def test_every_required_row_deleted_holds(self):
++        for fmt in RA.FORMATS:
++            for k in sorted(RA.INVENTORY[fmt]):
++                self.mutate_rows(lambda r, f=fmt, k=k: r[f].pop(k), f"{fmt} {k} deleted")
++
++    def test_every_non_pass_verdict_and_a_prefixed_pass_hold(self):
++        for v in ("FAIL", "HOLD", "SKIPPED", "LIMITED", "PASS (no fallback)", "PASS(L-c: x)", "pass", True, None, ""):
++            self.mutate_rows(lambda r, v=v: r["16x9"].__setitem__("G18_word_for_word", v), f"G18 = {v!r}")
++
++    def test_an_unknown_row_holds(self):
++        self.mutate_rows(lambda r: r["9x16"].__setitem__("G11_parity(run_gates)", "NOT RUN BY run_gates"),
++                         "legacy placeholder row")
++        self.mutate_rows(lambda r: r["16x9"].__setitem__("G99_new", "PASS"), "unlisted row")
++
++    def test_a_monitoring_row_must_be_reported_but_does_not_decide(self):
++        for fmt in RA.FORMATS:
++            for k in sorted(RA.MONITORING[fmt]):
++                self.mutate_rows(lambda r, f=fmt, k=k: r[f].pop(k), f"{fmt} monitoring {k} missing")
++        rows = passing_rows()
++        rows["16x9"]["G1_voice"] = "FAIL"
++        rows["9x16"]["G13_vo_audible"] = "SKIPPED"
++        rd = make_run(self.tmp, rows=rows)
++        ok, why, _ = RA.authorise(rd)
++        self.assertTrue(ok, why)
++        self.assertEqual(RA.monitoring_report(rows), {"16x9": {"G1_voice": "FAIL"}, "9x16": {"G13_vo_audible": "SKIPPED"}})
++
++    def test_the_known_limitation_row_carries_only_its_verdict(self):
++        self.mutate_rows(lambda r: r["9x16"].__setitem__("G14_frame_similarity", "PASS"), "LIMITED row reads PASS")
++        self.mutate_rows(lambda r: r["9x16"].pop("G14_frame_similarity"), "LIMITED row missing")
++
++    def test_a_format_missing_holds(self):
++        self.mutate_rows(lambda r: r.pop("9x16"), "9x16 rows missing")
++
++
++class TestEvidence(Base):
++    def test_a_required_row_without_execution_evidence_holds(self):
++        for bad in (None, {}, {"executed": False, "samples": 3}, {"executed": True, "samples": 0},
++                    {"executed": True, "samples": "3"}, {"executed": True, "samples": True},
++                    {"executed": "true", "samples": 3}):
++            rd = make_run(self.tmp, attest=False)
++
++            def fn(d, bad=bad):
++                if bad is None:
++                    d["evidence"]["16x9"].pop("G16_sentence_boundary")
++                else:
++                    d["evidence"]["16x9"]["G16_sentence_boundary"] = bad
++            edit_json(os.path.join(rd, "GATE_REPORT.json"), fn)
++            self.holds(rd, f"evidence {bad!r}")
++
++    def test_a_report_of_another_inventory_version_holds(self):
++        rd = make_run(self.tmp, attest=False)
++        edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: d.__setitem__("inventory_version", 0))
++        self.holds(rd, "old report")
++
++
++class TestBytes(Base):
++    def test_a_final_that_is_not_what_the_gates_measured_holds(self):
++        rd = make_run(self.tmp, attest=False)
++        with open(os.path.join(rd, "out", "segment.mp4"), "ab") as f:
++            f.write(b"\0")                                # re-rendered after the gates ran
++        att = self.holds(rd, "final changed between gates and attestation")
++        self.assertIn("out/segment.mp4: not the bytes the gates measured", att["other_blockers"])
++
++    def test_a_bound_file_changed_after_the_attestation_is_refused(self):
++        for rel in RA.BOUND:
++            rd = make_run(self.tmp)
++            with open(os.path.join(rd, rel), "ab") as f:
++                f.write(b" ")
++            ok, why, _ = RA.authorise(rd)
++            self.assertFalse(ok, rel)
++            self.assertTrue(any(rel in w for w in why), (rel, why))
++
++    def test_a_bound_file_deleted_after_the_attestation_is_refused(self):
++        rd = make_run(self.tmp)
++        os.remove(os.path.join(rd, "out", "segment_vertical.mp4"))
++        self.assertFalse(RA.authorise(rd)[0])
++
++    def test_check_file_before_each_send(self):
++        rd = make_run(self.tmp)
++        ok, _, att = RA.authorise(rd)
++        self.assertTrue(ok)
++        self.assertTrue(RA.check_file(rd, att, "out/segment.mp4"))
++        with open(os.path.join(rd, "out", "segment.mp4"), "ab") as f:
++            f.write(b"\0")
++        self.assertFalse(RA.check_file(rd, att, "out/segment.mp4"))
++        self.assertFalse(RA.check_file(rd, att, "out/not_bound.mp4"))
++
++
++class TestPackAndRun(Base):
++    def test_a_pack_without_vision_or_incomplete_or_missing_holds(self):
++        for fn, label in ((lambda d: d.__setitem__("vision", False), "vision off"),
++                          (lambda d: d.__setitem__("complete", "true"), "complete is a string"),
++                          (lambda d: d.pop("complete"), "complete missing")):
++            rd = make_run(self.tmp, attest=False)
++            edit_json(os.path.join(rd, "VERIFY", "VERIFICATION.json"), fn)
++            self.holds(rd, label)
++        rd = make_run(self.tmp, attest=False)
++        os.remove(os.path.join(rd, "VERIFY", "VERIFICATION.json"))
++        self.holds(rd, "pack missing")
++
++    def test_a_run_that_did_not_end_clean_is_never_authorised(self):
++        rd = make_run(self.tmp, run_state={"ok": False, "why": ["provenance: FileNotFoundError"]})
++        ok, why, att = RA.authorise(rd)
++        self.assertEqual(att["verdict"], "HOLD")
++        self.assertFalse(ok)
++        rd = make_run(self.tmp, attest=False)
++        RA.attest(rd, {"ok": "yes"})                     # a truthy non-bool is not ok
++        self.assertFalse(RA.authorise(rd)[0])
++
++    def test_a_replay_is_attested_but_never_deliverable(self):
++        rd = make_run(self.tmp, attest=False)
++        att = RA.attest(rd, {"ok": True, "why": []}, deliverable=False, why_not="replay")
++        self.assertEqual(att["verdict"], "ALL_PASS")
++        ok, why, _ = RA.authorise(rd)
++        self.assertFalse(ok)
++        self.assertTrue(any("not deliverable" in w for w in why), why)
++
++    def test_no_or_corrupt_attestation_is_refused(self):
++        rd = make_run(self.tmp, attest=False)
++        self.assertFalse(RA.authorise(rd)[0])
++        open(os.path.join(rd, "ATTESTATION.json"), "w").write("{not json")
++        self.assertFalse(RA.authorise(rd)[0])
++        rd = make_run(self.tmp)
++        edit_json(os.path.join(rd, "ATTESTATION.json"), lambda d: d.__setitem__("schema", "pulse.attestation.v0"))
++        self.assertFalse(RA.authorise(rd)[0])
++
++    def test_an_attestation_edited_to_all_pass_is_refused(self):
++        rows = passing_rows()
++        rows["16x9"]["G3c_acoustic_tail"] = "FAIL"
++        rd = make_run(self.tmp, rows=rows)
++        edit_json(os.path.join(rd, "ATTESTATION.json"), lambda d: d.__setitem__("verdict", "ALL_PASS"))
++        ok, why, _ = RA.authorise(rd)                   # the rows are re-checked, not the verdict trusted
++        self.assertFalse(ok)
++        self.assertTrue(any("G3c_acoustic_tail" in w for w in why), why)
++
++
++class TestRunFreshWiring(Base):
++    """run_fresh writes the attestation LAST and never gives two answers: holds anywhere => HOLD (GPT-cut F10)."""
++
++    def run_obj(self, rd, holds=(), verdict=None, not_at_rev=()):
++        import run_fresh as rf
++        run = rf.Run(rd)
++        run.status["verdict"] = verdict or rf.VERDICT_CANDIDATE
++        run.status["holds"] = list(holds)
++        run.prov["code"] = {"git_head": "abc", "pipeline_tree_clean_at_launch": True}
++        run.prov["executed_code_not_at_revision"] = list(not_at_rev)
++        return run
++
++    def test_a_clean_candidate_is_attested_all_pass(self):
++        import run_fresh as rf
++        rd = make_run(self.tmp, attest=False)
++        att = rf.attest_run(self.run_obj(rd))
++        self.assertEqual(att["verdict"], "ALL_PASS", att["other_blockers"])
++        self.assertTrue(RA.authorise(rd)[0])
++
++    def test_a_hold_reason_makes_the_run_hold(self):
++        import run_fresh as rf
++        for kw in ({"holds": ["provenance: OSError: disk full"]}, {"not_at_rev": ["pipeline/gates.py (modified)"]}):
++            rd = make_run(self.tmp, attest=False)
++            run = self.run_obj(rd, **kw)
++            att = rf.attest_run(run)
++            self.assertEqual(att["verdict"], "HOLD", kw)
++            self.assertEqual(run.status["verdict"], rf.VERDICT_HOLD, kw)
++            self.assertFalse(RA.authorise(rd)[0], kw)
++
++    def test_the_verdict_follows_the_inventory_not_prefixes(self):
++        import run_fresh as rf
++        rows = passing_rows()
++        self.assertEqual(rf.verdict_for(rows["16x9"], "16x9")[0], rf.VERDICT_CANDIDATE)
++        rows["16x9"]["G17_onset_tail"] = "PASS (looks fine)"
++        v, bad = rf.verdict_for(rows["16x9"], "16x9")
++        self.assertEqual(v, rf.VERDICT_HOLD)
++        self.assertIn("G17_onset_tail", bad)
++
++
++if __name__ == "__main__":
++    unittest.main()

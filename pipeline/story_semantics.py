@@ -360,11 +360,10 @@ def prompt_sha(p):
 
 
 def _norm(s):
-    """Quote-check normal form: entities decoded and split Whisper tokens joined (law L-h, as
-    transcript_store.read_text), lower-case, letters / digits / spaces only."""
-    import html
-    t = re.sub(r"\s+(?=[.,][0-9a-z])", "", html.unescape(s or "").lower())
-    return re.sub(r"[^a-z0-9 ]+", "", re.sub(r"\s+", " ", t)).strip()
+    """Quote-check normal form = the pipeline's one canonical form (pipeline/canon.py: entities, unicode, split
+    tokens, numbers, currency / percent, case, punctuation)."""
+    import canon
+    return canon.canon(s)
 
 
 def quote_in(quote, texts):

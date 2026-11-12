@@ -517,7 +517,7 @@ def run_gates(segment_dir, final_mp4, manifest_path, qa_version=None,
     paths = resolve_paths(segment_dir, qa_version)
 
     # Dynamically patch the frozen qa_gates module's BASE and VO_DIR
-    sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
     import qa_gates
     qa_gates.BASE = segment_dir
     qa_gates.VO_DIR = paths["vo_dir"]
@@ -591,8 +591,8 @@ G20_NAME_RATIO = 0.85       # a spoken name matches when a same-length stretch o
 
 
 def _g20_norm(s):
-    import re
-    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
+    import canon                                      # the one canonical form, spaces removed for name matching
+    return "".join(canon.canon_tokens(s))
 
 
 def spoken_channels(transcript, registry, credited=()):
@@ -642,7 +642,7 @@ def gate_g20(final_mp4, segments, credited, qa_dir, registry=None):
     wav = os.path.join(qa_dir, "g20_signoff.wav")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{sh['start']:.3f}", "-t", f"{sh['end'] - sh['start']:.3f}",
                     "-i", final_mp4, "-ac", "1", "-ar", "16000", wav], check=True, timeout=120)
-    sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
     import qa_gates
     text = qa_gates.whisper_segment(wav, qa_dir)
     heard = spoken_channels(text, registry, credited)

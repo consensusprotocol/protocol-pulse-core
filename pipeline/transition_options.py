@@ -28,7 +28,7 @@ def render_option(run_dir, style):
     dst = f"{run_dir.rstrip('/')}_option{style}"
     if os.path.exists(dst):
         raise SystemExit(f"STOP: {dst} exists")
-    shutil.copytree(run_dir, dst, ignore=shutil.ignore_patterns("TELEGRAM_DELIVERY*.json", "VERIFY"))
+    shutil.copytree(run_dir, dst, ignore=shutil.ignore_patterns("TELEGRAM_DELIVERY*.json", "VERIFY", "ATTESTATION.json"))
     for p in ("out/segment.mp4", "out/segment_vertical.mp4", "GATE_REPORT.json"):
         if os.path.exists(os.path.join(dst, p)):
             os.remove(os.path.join(dst, p))
@@ -43,9 +43,18 @@ def render_option(run_dir, style):
         cuts = json.load(f)
     rf.TRANSITION_STYLE = style                     # the option, on the same cut
     try:
+        rf.stage_env(run)                           # clean tree, launch revision recorded (an option is deliverable)
         final16, man16, final9, man9 = rf.stage_render(run)
-        rows, flags, limits = rf.stage_gates(run, final16, man16, final9, man9)
+        rf.stage_gates(run, final16, man16, final9, man9)
         verify_pack.build(dst)
+        with open(os.path.join(dst, "GATE_REPORT.json")) as f:      # the verdict from the report on disk
+            rep = json.load(f)
+        verdicts = {fmt: rf.verdict_for((rep.get("rows") or {}).get(fmt), fmt, rep.get("evidence"))
+                    for fmt in ("16x9", "9x16")}
+        run.status["verdict"] = rf.VERDICT_CANDIDATE if all(v == rf.VERDICT_CANDIDATE for v, _ in verdicts.values()) \
+            else rf.VERDICT_HOLD
+        rf.record_assets(run)                       # executed code at the launch revision (release_auth)
+        rf.attest_run(run)
     except Exception:
         try:
             os.rename(dst, f"{dst}_failed_{time.strftime('%H%M%S')}")    # kept for diagnosis; a retry can run
@@ -53,7 +62,7 @@ def render_option(run_dir, style):
             print(f"  could not set {dst} aside: {e}")                   # never masks the real failure
         raise
     run.save()
-    print(f"option {style}: {dst} | " + ", ".join(f"{fmt}: {rf.verdict_for(rows[fmt])[0]}" for fmt in rows))
+    print(f"option {style}: {dst} | " + ", ".join(f"{fmt}: {v}" for fmt, (v, _) in verdicts.items()))
     return dst, cuts
 
 

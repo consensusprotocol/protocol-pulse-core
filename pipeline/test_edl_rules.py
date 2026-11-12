@@ -628,17 +628,24 @@ class TestFailClosedShoutout(unittest.TestCase):
 
 
 class TestTelegramGuard(unittest.TestCase):
-    """M16: telegram.py refuses without VERIFIED_BY_ORCHESTRATOR."""
+    """M16 on the release contract (red-team A): the legacy entry point is removed, and deliver_run refuses a run
+    without an attestation before anything is sent."""
 
     def test_refuses_without_verification(self):
-        from telegram import send_telegram_preview
         import tempfile
+        import telegram
+        from telegram import send_telegram_preview
         with tempfile.TemporaryDirectory() as tmpdir:
             os.makedirs(os.path.join(tmpdir, "out"))
             os.makedirs(os.path.join(tmpdir, "qa"))
             with self.assertRaises(RuntimeError) as ctx:
                 send_telegram_preview(tmpdir)
-            self.assertIn("VERIFIED_BY_ORCHESTRATOR", str(ctx.exception))
+            self.assertIn("removed", str(ctx.exception))
+            sent = []
+            with self.assertRaises(RuntimeError) as ctx:
+                telegram.deliver_run(tmpdir, send=lambda k, p, f, data=None: sent.append(k) or 1)
+            self.assertIn("not authorised", str(ctx.exception))
+            self.assertEqual(sent, [])
 
 
 class TestAcousticModule(unittest.TestCase):

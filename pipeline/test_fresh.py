@@ -282,15 +282,18 @@ class TestClipContract(unittest.TestCase):
 
 class TestRunFreshRules(unittest.TestCase):
     def test_verdict_rules(self):
+        """Red-team 2026-11-11 A: the verdict is release_auth's exact inventory. The old prefix rules ('FLAG...',
+        'LIMITED...' and the '(run_gates)' placeholder passing) are gone: each of them now HOLDS."""
         from run_fresh import verdict_for, VERDICT_CANDIDATE, VERDICT_HOLD
-        ok_rows = {"G1_voice": "PASS", "G8_sharpness": "FLAG/LIMITED (x)",
-                   "G9_tail": "FLAG (APPROVED KNOWN EXCEPTION ...)",
-                   "G14_frame_similarity": "LIMITED (not valid)",
-                   "G11_parity(run_gates)": "NOT RUN BY run_gates (no horiz) — see G11 below"}
-        self.assertEqual(verdict_for(ok_rows)[0], VERDICT_CANDIDATE)
-        for bad in ("FAIL", "HOLD(inconclusive)", "SKIPPED (no horiz_mp4)",
-                    "FAIL (fallback occurred)"):
-            self.assertEqual(verdict_for({**ok_rows, "Gx": bad})[0], VERDICT_HOLD, bad)
+        from test_release_auth import passing_rows
+        import release_auth as RA
+        for fmt in ("16x9", "9x16"):
+            self.assertEqual(verdict_for(passing_rows()[fmt], fmt, RA.NO_EVIDENCE_CHECK)[0], VERDICT_CANDIDATE, fmt)
+        for row, bad in (("G8_sharpness", "FLAG/LIMITED (x)"), ("G9_tail", "FLAG (APPROVED KNOWN EXCEPTION ...)"),
+                         ("G18_word_for_word", "FAIL"), ("G16_sentence_boundary", "HOLD(inconclusive)"),
+                         ("G20_signoff_names_all", "SKIPPED (no horiz_mp4)"), ("G11_parity(run_gates)", "NOT RUN BY run_gates")):
+            rows = {**passing_rows()["9x16"], row: bad}
+            self.assertEqual(verdict_for(rows, "9x16", RA.NO_EVIDENCE_CHECK)[0], VERDICT_HOLD, (row, bad))
 
     def test_no_publishing_path(self):
         src = open(os.path.join(PIPELINE, "run_fresh.py")).read()

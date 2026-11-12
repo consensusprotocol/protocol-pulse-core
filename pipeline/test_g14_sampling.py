@@ -88,5 +88,32 @@ class TestG14Sampling(unittest.TestCase):
         self.assertFalse(any(d.get("status") == "FAIL" for d in det if d.get("label") == "clip_01"), det)
 
 
+
+@unittest.skipUnless(all(os.path.exists(os.path.join(RUN, p)) for p in ("out/segment_vertical.mp4", "qa/g14_manifest_9x16.json",
+                                                                        "cuts_final.json"))
+                     and os.path.isdir(os.path.join(RUN, "sources")), "Nov 11 replay run not on this machine")
+class TestG14AudioOffsetVertical(TestG14Sampling):
+    """Addendum '22:15' item 4: G14_audio_offset (the 9:16 final, frames=False, run_fresh.stage_gates) gets its own
+    fixtures: must-pass the corrected Nov 10 cut's vertical; must-fail the same real 2-frame audio slip; HOLD on a
+    segment with fewer than 3 conclusive samples (its audio silenced)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.man = os.path.join(RUN, "qa", "g14_manifest_9x16.json")
+        cls.segs = {s["label"]: s for s in json.load(open(cls.man))["segments"]}
+        cls.final = os.path.join(RUN, "out", "segment_vertical.mp4")
+
+    def _gate(self, path):
+        return G.gate_g14(path, self.man, source_clips=self.src, qa_dir=self.tmp, frames=False)
+
+    def test_the_corrected_cut_passes_with_its_pause_sample_retaken(self):
+        ok, det = self._gate(self.final)
+        self.assertTrue(ok, self._verdicts(det))
+        for d in det:
+            if "segment_verdict" in d:
+                self.assertGreaterEqual(d["conclusive_matches"], G.G14_MIN_CONCLUSIVE)
+
+
 if __name__ == "__main__":
     unittest.main()

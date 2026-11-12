@@ -129,7 +129,9 @@ def check_cut_acoustics(source_path, cut_in, cut_out):
 # ── Law 14c edge-word check on the prepared clip ──
 
 def norm_word(w):
-    return re.sub(r"[^a-z0-9']", "", (w or "").lower().replace("’", "'"))
+    """A word in the pipeline's one canonical form (pipeline/canon.py), spaces removed."""
+    import canon
+    return "".join(canon.canon_tokens(w))
 
 
 def words_match(heard, expected):
@@ -143,29 +145,11 @@ def words_match(heard, expected):
     return len(a) >= 3 and len(b) >= 3 and (a.startswith(b) or b.startswith(a))
 
 
-_MAGNITUDES = {"hundred", "thousand", "million", "billion", "trillion"}
-
-
 def spoken_tokens(words):
-    """Expand whisper's written currency/percent forms into spoken order so they
-    compare with EDL words: '$40 trillion.' -> 40 trillion dollars ; '5%' -> 5 percent."""
-    toks = [w for w in words]
-    out = []
-    i = 0
-    while i < len(toks):
-        w = toks[i]
-        if w.startswith("$") and len(w) > 1:
-            out.append(w[1:])
-            if i + 1 < len(toks) and norm_word(toks[i + 1]) in _MAGNITUDES:
-                out.append(toks[i + 1])
-                i += 1
-            out.append("dollars")
-        elif w.endswith("%") and len(w) > 1:
-            out.extend([w[:-1], "percent"])
-        else:
-            out.append(w)
-        i += 1
-    return out
+    """Whisper's words in the one canonical form, spoken order (pipeline/canon.py): '$40 trillion.' ->
+    40000000000000 dollars ; '5%' -> 5 percent."""
+    import canon
+    return canon.canon_tokens(" ".join(words))
 
 
 _MODEL = None

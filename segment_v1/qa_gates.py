@@ -120,12 +120,19 @@ def whisper_segment(wav_path, qa_dir):
 
 
 def word_overlap(transcript, reference_text):
-    """Fraction of reference words found in transcript."""
-    ref_words = set(reference_text.lower().replace(".", "").replace(",", "").replace("?", "").split())
-    trans_words = set(transcript.lower().replace(".", "").replace(",", "").replace("?", "").split())
+    """Fraction of reference words found in transcript, in the pipeline's one canonical form (pipeline/canon.py).
+    No reference words = 0.0: an empty expected text never scores a match (Claude-gates V1)."""
+    ref_words = set(_canon_tokens(reference_text))
+    trans_words = set(_canon_tokens(transcript))
     if not ref_words:
-        return 1.0
+        return 0.0
     return len(ref_words & trans_words) / len(ref_words)
+
+
+def _canon_tokens(text):
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pipeline"))
+    import canon
+    return canon.canon_tokens(text or "")
 
 
 # ==============================================================
@@ -307,8 +314,8 @@ def gate_g3(final_mp4, segments, qa_dir):
         label = seg["label"]
         seg_start = seg["start"]
         seg_end = seg["end"]
-        edl_first = seg.get("first_word", "").lower().strip().rstrip(".,?!").lstrip()
-        edl_last = seg.get("last_word", "").lower().strip().rstrip(".,?!").lstrip()
+        cf, cl = _canon().canon_tokens(seg.get("first_word", "")), _canon().canon_tokens(seg.get("last_word", ""))
+        edl_first, edl_last = (cf[0] if cf else ""), (cl[-1] if cl else "")      # the one canonical form
 
         if not edl_first and not edl_last:
             continue
@@ -317,7 +324,7 @@ def gate_g3(final_mp4, segments, qa_dir):
         first_wav = os.path.join(qa_dir, f"g3_{label}_first.wav")
         extract_audio_region(final_mp4, seg_start, 0.7, first_wav)
         first_transcript = whisper_segment(first_wav, qa_dir)
-        first_words = first_transcript.replace(".", "").replace(",", "").replace("?", "").split()
+        first_words = _canon().canon_tokens(first_transcript)
         first_word_found = first_words[0] if first_words else ""
 
         # Also check first 2.0s for broader word search (whisper-tiny is noisy on 0.7s)
@@ -330,7 +337,7 @@ def gate_g3(final_mp4, segments, qa_dir):
         last_wav = os.path.join(qa_dir, f"g3_{label}_last.wav")
         extract_audio_region(final_mp4, last_start, 0.7, last_wav)
         last_transcript = whisper_segment(last_wav, qa_dir)
-        last_words = last_transcript.replace(".", "").replace(",", "").replace("?", "").split()
+        last_words = _canon().canon_tokens(last_transcript)
         last_word_found = last_words[-1] if last_words else ""
 
         # Also check last 2.0s for the EDL word (clips may have post-speech tail)
@@ -355,14 +362,14 @@ def gate_g3(final_mp4, segments, qa_dir):
         # Require non-empty transcript to prevent "" in "" false passes
         if not first_ok and edl_first:
             if first_transcript.strip():
-                first_ok = edl_first in first_transcript
+                first_ok = edl_first in _canon().canon(first_transcript)
             if not first_ok and first2_transcript.strip():
-                first_ok = edl_first in first2_transcript
+                first_ok = edl_first in _canon().canon(first2_transcript)
         if not last_ok and edl_last:
             if last_transcript.strip():
-                last_ok = edl_last in last_transcript
+                last_ok = edl_last in _canon().canon(last_transcript)
             if not last_ok and last2_transcript.strip():
-                last_ok = edl_last in last2_transcript
+                last_ok = edl_last in _canon().canon(last2_transcript)
 
         ok = first_ok and last_ok
         if not ok:
@@ -389,42 +396,18 @@ def gate_g3(final_mp4, segments, qa_dir):
 G3B_READS, G3B_CONTEXT_S, G3B_TAIL_S = 3, 1.5, 1.0     # DEC-12f
 
 
-_G3B_SCALE = {"hundred", "thousand", "million", "billion", "trillion"}
-_G3B_SUFFIX = {"k": "thousand", "m": "million", "mn": "million", "b": "billion", "bn": "billion", "t": "trillion",
-               "tn": "trillion"}
-_G3B_NUM_SUFFIX = re.compile(r"^(\d+(?:\.\d+)?)(k|mn|m|bn|b|tn|t)$")
+def _canon():
+    """The pipeline's one canonical form for every text comparison (pipeline/canon.py)."""
+    if os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline") not in sys.path:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline"))
+    import canon
+    return canon
 
 
 def _g3b_words(text):
-    """Reading words, lower-case, punctuation dropped. Law L-g (2026-11-11): a word the ASR wrote as a symbol is
-    read as the spoken word, in spoken order: '$40 trillion' = '40 trillion dollars', '$40M' = '40 million
-    dollars', '50%' = '50 percent'; a 'dollars' the ASR also wrote is not doubled; thousands separators are
-    dropped ('74,000' = '74000'), other commas split words, decimals stay whole ('1.66'). (v2f's approved clip_02
-    tail '... above 40 trillion dollars.' was read 'above $40 trillion' twice.)"""
-    text = re.sub(r"(?<=\d),(?=\d)", "", (text or "").lower())
-    seq = []                                                  # (word, starts a '$' amount)
-    for t in text.replace(",", " ").replace("?", " ").replace("!", " ").split():
-        t = t.rstrip(".")
-        cash = t.startswith("$") and len(t) > 1
-        t = t[1:] if cash else t
-        m = _G3B_NUM_SUFFIX.match(t)
-        if m:
-            seq += [(m.group(1), cash), (_G3B_SUFFIX[m.group(2)], False)]
-        elif t.endswith("%") and len(t) > 1:
-            seq += [(t[:-1], False), ("percent", False)]      # a percentage is not a dollar amount
-        elif t:
-            seq.append((t, cash))
-    out, owed = [], False                                     # owed: an amount still owes its spoken 'dollars'
-    for w, cash in seq:
-        if owed and (cash or w not in _G3B_SCALE):
-            owed = False
-            if w != "dollars":
-                out.append("dollars")
-        out.append(w)
-        owed = owed or cash
-    if owed:
-        out.append("dollars")
-    return out
+    """Reading words in the one canonical form (law L-g: '$40 trillion' = '40 trillion dollars', '50%' = '50
+    percent'; pipeline/canon.py)."""
+    return _canon().canon_tokens(text)
 
 
 def _g3b_match(expected, heard):
@@ -461,7 +444,9 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
         label = seg["label"]
         seg_end = seg["end"]
         seg_start = seg["start"]
-        ew = _g3b_words(seg.get("last_word", ""))         # the same reading rules as the heard words (L-g)
+        lock = (edl_clips.get(label, {}).get("selection_lock") or {}).get("text") or ""
+        tail = " ".join(lock.split()[-5:]) if lock else seg.get("last_word", "")
+        ew = _g3b_words(tail)                              # the expected last word read in its own context (canon)
         edl_last = ew[-1] if ew else ""
 
         if not edl_last:
@@ -1315,13 +1300,27 @@ FOLLOW_WORDS = {"follow", "subscribe", "check"}
 
 
 def _fuzzy_word_overlap(scripted, transcribed):
-    """Case-insensitive word-set overlap ratio (Jaccard-like: intersection / scripted count)."""
-    import re
-    s_words = set(re.sub(r"[^\w\s]", "", scripted.lower()).split())
-    t_words = set(re.sub(r"[^\w\s]", "", transcribed.lower()).split())
+    """Word-set overlap ratio (intersection / scripted count) in the one canonical form (pipeline/canon.py)."""
+    s_words = set(_canon_tokens(scripted))
+    t_words = set(_canon_tokens(transcribed))
     if not s_words:
         return 0.0
     return len(s_words & t_words) / len(s_words)
+
+
+def _is_silent_reading(transcript):
+    """An empty reading, or one that is only a known music / outro hallucination, in canonical form (Claude-gates
+    V3: the raw set never matched a transcript that carries punctuation)."""
+    t = _canon_tokens(transcript)
+    return len(" ".join(t)) < 3 or t in [_canon_tokens(h) for h in _MUSIC_HALLUCINATIONS]
+
+
+def _says(transcript_tokens, phrase):
+    """True when the canonical words of `phrase` occur as a contiguous run in the transcript's canonical words
+    (token equality, never a substring: Claude-gates T1 / T8)."""
+    p = _canon_tokens(phrase)
+    n = len(p)
+    return n > 0 and any(transcript_tokens[i:i + n] == p for i in range(len(transcript_tokens) - n + 1))
 
 
 def _rms_db(wav_path):
@@ -1427,9 +1426,8 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
         print(f"    Scripted:     '{scripted}'")
         print(f"    Transcribed:  '{transcript}'")
 
-        # Check for music hallucination / silence
-        transcript_lower = transcript.lower().strip()
-        if transcript_lower in _MUSIC_HALLUCINATIONS or len(transcript_lower) < 3:
+        # Check for music hallucination / silence (canonical form)
+        if _is_silent_reading(transcript):
             print(f"    FAIL: SILENT (hallucination or empty)")
             table.append({"slot": label, "pass": False, "reason": "SILENT",
                           "transcript": transcript, "scripted": scripted})
@@ -1489,8 +1487,7 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
             print(f"    Scripted:     '{signoff_text}'")
             print(f"    Transcribed:  '{transcript}'")
 
-            transcript_lower = transcript.lower().strip()
-            if transcript_lower in _MUSIC_HALLUCINATIONS or len(transcript_lower) < 3:
+            if _is_silent_reading(transcript):
                 print(f"    FAIL: SILENT (hallucination or empty)")
                 table.append({"slot": label, "pass": False, "reason": "SILENT",
                               "transcript": transcript, "scripted": signoff_text})
@@ -1508,16 +1505,16 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
                 rms_delta = rms_vo - rms_music if rms_music != float("-inf") else 99.0
                 print(f"    VO RMS: {rms_vo:.1f} dB, Music RMS: {rms_music:.1f} dB, delta: {rms_delta:.1f} dB")
 
-                # Signoff-specific: channel names and follow/subscribe word
-                t_lower = transcript.lower()
+                # Signoff-specific: channel names and follow/subscribe word, as canonical word runs
+                t_tokens = _canon_tokens(transcript)
                 missing_channels = []
                 for ch in channel_names:
                     # M14: check channel name OR any alias from channels.json
                     aliases = channel_aliases.get(ch, {ch.lower()})
-                    if not any(alias in t_lower for alias in aliases):
+                    if not any(_says(t_tokens, alias) for alias in aliases):
                         missing_channels.append(ch)
 
-                has_follow = any(w in t_lower for w in FOLLOW_WORDS)
+                has_follow = any(_says(t_tokens, w) for w in FOLLOW_WORDS)
 
                 # Primary: transcript match, channels, follow word.
                 # RMS delta is informational (output is a full mix).

@@ -130,7 +130,9 @@ _TERMINAL = (".", "!", "?")
 
 
 def _tok(w):
-    return [t for t in re.split(r"[^a-z0-9]+", (w or "").lower().replace("’", "'").replace("'", "")) if t]
+    """Words in the pipeline's one canonical form (pipeline/canon.py)."""
+    import canon
+    return canon.canon_tokens(w)
 
 
 def _ends_statement(word):
@@ -163,11 +165,13 @@ def align_quote(quote, words, t0, t1):
     """Locate a verified quote in word timestamps within [t0, t1]. Returns
     {"w0", "w1", "start", "end", "ratio"} or None. Never fabricates a location."""
     from difflib import SequenceMatcher
-    qt = [t for w in (quote or "").split() for t in _tok(w)]
-    toks = [(t, i) for i, w in enumerate(words) if t0 <= w["start"] <= t1 for t in _tok(w["word"])]
+    import canon                                      # one canonical form; a token spans the words it read
+    qt = canon.canon_tokens(quote)
+    idx = [i for i, w in enumerate(words) if t0 <= w["start"] <= t1]
+    toks = [(t, idx[f], idx[l]) for t, f, l in canon.canon_spans([words[i]["word"] for i in idx])]
     if len(qt) < 5 or not toks:
         return None
-    seq = [t for t, _ in toks]
+    seq = [t for t, _, _ in toks]
     blk = max(SequenceMatcher(None, qt, seq, autojunk=False).get_matching_blocks(), key=lambda b: b.size)
     if blk.size < 3:
         return None
@@ -182,7 +186,7 @@ def align_quote(quote, words, t0, t1):
     r, s, e = best
     if r < ANCHOR_MIN_RATIO:
         return None
-    w0, w1 = toks[s][1], toks[e][1]
+    w0, w1 = toks[s][1], toks[e][2]                   # first word of the first token, LAST word of the last
     return {"w0": w0, "w1": w1, "start": words[w0]["start"], "end": words[w1]["end"], "ratio": round(r, 3)}
 
 
@@ -372,12 +376,16 @@ _NOT_ENTITY = {"I", "The", "This", "That", "These", "Those", "It", "And", "But",
 
 
 def _lc_words(text):
-    return re.findall(r"[a-z0-9]+", (text or "").lower().replace("’", "'"))
+    """Words in the pipeline's one canonical form, contractions reduced to their heads ("that's" -> "that":
+    backward references and interjections ask which word a contraction starts with; pipeline/canon.py)."""
+    import canon
+    return canon.canon_tokens(text, heads=True)
 
 
 def _numbers(text):
-    t = re.sub(r"(\d)\s+([.,])\s*(\d)", r"\1\2\3", text or "")      # whisper writes '6 .3' and '80 ,000'
-    return {n.replace(",", "") for n in re.findall(r"\d[\d,]*(?:\.\d+)?", t)}
+    """The numbers a text states, as canonical values ('80 ,000' = '80,000' = 'eighty thousand'; pipeline/canon.py)."""
+    import canon
+    return {t for t in canon.canon_tokens(text) if re.fullmatch(r"\d+(?:\.\d+)?", t)}
 
 
 def _anchor_entities(anchor, q):
@@ -575,12 +583,16 @@ def _infra_error(msg):
 
 
 def select_story(run_dir, log=print, embedder=None, llm=None, universe_fn=None,
-                 stories_path=STORIES_PATH, topup=True, now=None):
+                 stories_path=STORIES_PATH, topup=True, now=None, transcript_fn=None, words_fn=None):
+    """transcript_fn(video_id) -> record and words_fn(video_id) -> (record, status) are the backtest's frozen
+    inputs (pipeline/backtest.py: a saved day's own transcript records; existing word records only, no download,
+    no GPU swap); production passes neither."""
     rec = {"law": "titles/metadata are discovery hints; transcripts establish story identity",
            "started": ts.now_iso()}
     ck = Checkpoint(run_dir, rec)
     try:
-        return _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_path, topup, now)
+        return _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_path, topup, now,
+                             transcript_fn, words_fn)
     except NoProducibleStory:
         raise
     except Exception as e:
@@ -590,7 +602,8 @@ def select_story(run_dir, log=print, embedder=None, llm=None, universe_fn=None,
         raise
 
 
-def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_path, topup, now):
+def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_path, topup, now,
+                  transcript_fn=None, words_fn=None):
     import story_semantics as sm
     from transcript_ingest import universe as ingest_universe
     t0 = time.time()
@@ -611,7 +624,7 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
     vids = [v for v in vids if v["video_id"] not in V2F_VIDEO_IDS]
     budget, used, uni = TOPUP_MAX_WHISPER_HOURS * 3600, 0.0, []
     for v in sorted(vids, key=lambda v: (0 if layout_eligible(v["channel"]) else 1, v["age_h"])):
-        r = ts.canonical_transcript(v["video_id"])
+        r = (transcript_fn or ts.canonical_transcript)(v["video_id"])
         status = "cached" if r else None
         if r is None and topup:
             try:
@@ -849,9 +862,11 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
                     need[v["video_id"]] = v["channel_id"]
         words, arb = {}, {"videos": sorted(need)}
         rec.setdefault("gpu_arbitration", {})[pname] = arb
-        todo = [vid for vid in need if not ts.sentence_ready(ts.canonical_transcript(vid))]
+        todo = [] if words_fn else [vid for vid in need if not ts.sentence_ready(ts.canonical_transcript(vid))]
         for vid in need:
-            if vid not in todo:
+            if words_fn:
+                words[vid] = words_fn(vid)                  # backtest: existing word records only
+            elif vid not in todo:
                 words[vid] = (ts.canonical_transcript(vid), "cached")
         if todo:
             try:

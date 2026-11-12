@@ -180,8 +180,9 @@ def stage_gates9(segment_dir, args):
 
 
 def stage_telegram(segment_dir, args):
-    from telegram_drop import send_telegram_preview
-    send_telegram_preview(segment_dir, args.qa_version)
+    """Removed (red-team A): this legacy path imported a module that does not exist (telegram_drop) and trusted
+    VERIFIED_BY_ORCHESTRATOR. The only send path is telegram.deliver_run on an authorised run_fresh run."""
+    raise RuntimeError("STOP: run.py telegram stage removed; deliver with telegram.deliver_run (release_auth)")
 
 
 # ── Legacy stage_all (fail-closed fix: check return values) ──

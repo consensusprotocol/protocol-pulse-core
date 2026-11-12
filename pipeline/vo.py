@@ -16,7 +16,7 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import resolve_paths
 
-sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "video_pipeline_v3"))   # this checkout, never a fixed path (Claude-gates C4)
 from relay import get_key
 
 

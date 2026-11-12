@@ -55,7 +55,8 @@ class TestTopic(unittest.TestCase):
         self.assertFalse(S.topical("clip", "Bitcoin is sitting at 77,000 today.", subject=subj)[0])   # an aside
         self.assertEqual(S.subject_terms("Bitcoin / US spot Bitcoin ETFs"), {"bitcoin", "btc"})
         self.assertEqual(S.subject_terms("", "Binance hacked for six billion dollars"),
-                         {"binance", "hacked", "billion", "dollars"})               # headline words, no Bitcoin
+                         {"binance", "hacked", "dollars"})     # headline words, no Bitcoin; 'six billion' is one
+                                                               # canonical value (canon.py) and values never count
         self.assertEqual(S.subject_terms("AI", "AI"), set())                        # nothing usable: fail closed
         self.assertFalse(S.topical("clip", "Bitcoin is sitting at 77,000 today.", subject=set())[0])
 

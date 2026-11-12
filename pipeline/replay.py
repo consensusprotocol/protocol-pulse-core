@@ -42,7 +42,7 @@ def make_copy(run_dir, start, stamp=None):
         else:
             shutil.copytree(a, b)
     k = rf.TAIL_STAGES.index(start)
-    stale = ["GATE_REPORT.json", "VERDICT.txt"]
+    stale = ["GATE_REPORT.json", "VERDICT.txt", "ATTESTATION.json"]
     if k <= 2:
         stale += ["out/segment.mp4", "out/segment_vertical.mp4"]
     for p in stale:
@@ -86,6 +86,12 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
     finally:
         run.status["elapsed_s"] = round(time.time() - t0, 1)
         run.status["ended"] = rf.now_iso()
+        try:                                            # attested for its verdict, never deliverable
+            rf.attest_run(run, deliverable=False, why_not="replay: diagnostic, deliver only a full run",
+                          code_checked=False)
+        except Exception as e:
+            run.status["verdict"] = rf.VERDICT_HOLD
+            run.status["holds"].append(f"attestation: {type(e).__name__}: {e}")
         run.save()
         rf.write_report(run)
         with open(os.path.join(dst, "VERDICT.txt"), "w") as f:

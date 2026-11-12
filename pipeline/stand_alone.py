@@ -33,12 +33,8 @@ FILLERS = {"you", "know", "like", "i", "mean"}
 
 def _words(text):
     """Lower-case word tokens; a contraction is reduced to its head ("we've" -> "we", "it's" -> "it")."""
-    out = []
-    for w in (text or "").split():
-        w = re.sub(r"^[^a-z0-9$]+|[^a-z0-9']+$", "", w.lower().replace("’", "'"))
-        if w:
-            out.append(w.split("'")[0] or w)
-    return out
+    import canon                                    # the one canonical form, contraction heads (pipeline/canon.py)
+    return canon.canon_tokens(text, heads=True)
 
 
 def opener(kind, text, score=None, fault=None):

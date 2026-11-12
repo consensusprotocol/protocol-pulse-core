@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import resolve_paths
 
 # Import the frozen shoutout renderer
-sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
 from scene_shoutout import render_shoutout, save_qa_frames
 
 

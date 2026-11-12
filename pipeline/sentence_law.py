@@ -88,7 +88,9 @@ class LawError(Exception):
 # ── text ──
 
 def tokens(text):
-    return [t for t in re.split(r"[^a-z0-9]+", (text or "").lower().replace("’", "'").replace("'", "")) if t]
+    """Words in the pipeline's one canonical form (pipeline/canon.py)."""
+    import canon
+    return canon.canon_tokens(text)
 
 
 def is_terminal(word):
@@ -144,7 +146,8 @@ class SourceAudio:
         live = d[d > DIGITAL_FLOOR_DBFS]
         if len(live) < 10:
             raise LawError(f"no audio in [{t0:.2f}, {t1:.2f}]")
-        speech = float(np.median(live[live > np.percentile(live, 30)]))
+        upper = live[live > np.percentile(live, 30)]
+        speech = float(np.median(upper if len(upper) else live))     # a flat envelope gives no NaN (GPT-cut F28)
         bed = float(np.percentile(live, 10))
         quiet = min(speech - VALLEY_BELOW_SPEECH_DB, max(speech - QUIET_BELOW_SPEECH_DB, bed + BED_PLUS_DB))
         return {"speech_db": round(speech, 1), "bed_db": round(bed, 1), "quiet_db": round(quiet, 1),
@@ -322,10 +325,12 @@ def anchor(words, text, min_ratio=ANCHOR_MIN_RATIO, t0=None, t1=None):
     """Locate the editor's selected text in a word-timestamp transcript (text alignment, never time
     arithmetic; [t0, t1] only narrows the search). The span's first and last tokens must equal the
     selection's. Returns (i0, i1, ratio) or None."""
+    import canon                                      # one canonical form; a token spans the words it read
     qt = tokens(text)
-    toks = [(t, wi) for wi, w in enumerate(words)
-            if (t0 is None or w["start"] >= t0) and (t1 is None or w["start"] <= t1) for t in tokens(w["word"])]
-    seq = [t for t, _ in toks]
+    idx = [wi for wi, w in enumerate(words)
+           if (t0 is None or w["start"] >= t0) and (t1 is None or w["start"] <= t1)]
+    toks = [(t, idx[f], idx[l]) for t, f, l in canon.canon_spans([words[wi]["word"] for wi in idx])]
+    seq = [t for t, _, _ in toks]
     if len(qt) < 3 or not seq:
         return None
     blk = max(SequenceMatcher(None, qt, seq, autojunk=False).get_matching_blocks(), key=lambda b: b.size)
@@ -344,9 +349,9 @@ def anchor(words, text, min_ratio=ANCHOR_MIN_RATIO, t0=None, t1=None):
     if best is None or best[0] < min_ratio:
         return None
     r, s, e = best
-    i0, i1 = toks[s][1], toks[e][1]
-    if tokens(words[i0]["word"])[0] != qt[0] or tokens(words[i1]["word"])[-1] != qt[-1]:
-        return None
+    i0, i1 = toks[s][1], toks[e][2]   # first word of the first token, LAST word of the last (GPT audit #4)
+    if (s and toks[s - 1][2] >= i0) or (e + 1 < len(toks) and toks[e + 1][1] <= i1):
+        return None                    # a lock starts on its first word's first token and ends on its last word's last
     return i0, i1, round(r, 3)
 
 
@@ -473,19 +478,34 @@ def edge_fades(sa, plan, cut_in, cut_out):
     return round(fi, 3), round(fo, 3), wb
 
 
-def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa=None):
+def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa=None, offset_s=0.0,
+                       gain_invariant=False):
     """G17c (law L-b): the first and the last word of a prepared clip, with their natural decay, at full level:
     every 10 ms frame of the source over [first onset, + 0.3 s] and [last end - 0.3 s, last end] that is above
     the gap level next to the cut is matched in the clip within EDGE_WORD_MAX_DB (best alignment within +-2
-    hops absorbs the codec's delay). Returns (ok, detail)."""
+    hops absorbs the codec's delay). Every word frame must be compared (GPT-cut F07: an alignment that leaves a
+    word frame outside the clip is no proof; zero compared frames is never 'perfect').
+    offset_s: where the clip starts inside clip_path (0 for a prepared clip; the segment's start in a FINAL).
+    gain_invariant: the final's constant gain (amix + loudnorm) is measured on the clip's own interior speech
+    and removed before the 1 dB comparison (law L-c: the proof is made on the final's bytes). Returns (ok,
+    detail)."""
     sa = sa or SourceAudio(src_path)
     ca = SourceAudio(clip_path)
     wb = edge_word_bounds(sa, plan, cut_in, cut_out)
+    base = offset_s - cut_in + pad_s                                # source time -> clip_path time
     det = {}
     for side, (a, b) in (("in", (wb["onset"], None)), ("out", (None, wb["end"]))):
         if (a if side == "in" else b) is None:
             det[side] = {"ok": False, "why": "edge word not measurable"}
             continue
+        gain = 0.0
+        if gain_invariant:                       # the final's gain NEXT TO this edge (it drifts along a clip)
+            g0, g1 = ((cut_in + 0.3, min(cut_out, cut_in + 1.8)) if side == "in"
+                      else (max(cut_in, cut_out - 1.8), cut_out - 0.3))
+            gain = _gain_db(sa, ca, g0, g1, base)
+            if gain is None:
+                det[side] = {"ok": False, "why": "the final's gain is not measurable next to this edge"}
+                continue
         t0, t1 = (a, min(a + 0.3, cut_out)) if side == "in" else (max(b - 0.3, cut_in), b)
         ts, ds = sa.sl(t0, t1)
         keep = ds > wb["lim_in" if side == "in" else "lim_out"]       # the word, not the gap it sits next to
@@ -494,20 +514,118 @@ def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa
             continue
         best = None
         for k in range(-2, 3):
-            tc, dc = ca.sl(t0 - cut_in + pad_s + k * HOP_S, t1 - cut_in + pad_s + k * HOP_S)
+            tc, dc = ca.sl(t0 + base + k * HOP_S, t1 + base + k * HOP_S)
             n = min(len(dc), len(ds))
-            if n == 0:
+            if n == 0 or keep[n:].any():                             # a word frame left uncompared: no proof
                 continue
-            diff = np.abs(dc[:n] - ds[:n])[keep[:n]]
-            worst = float(np.max(diff)) if len(diff) else 0.0
+            diff = np.abs(dc[:n] - gain - ds[:n])[keep[:n]]
+            if not len(diff):                                        # nothing compared: never a proof
+                continue
+            worst = float(np.max(diff))
             if best is None or worst < best[0]:
                 best = (worst, k)
         ok = best is not None and best[0] <= EDGE_WORD_MAX_DB
         det[side] = {"ok": ok, "span": [round(t0, 3), round(t1, 3)], "worst_db": None if best is None else round(best[0], 2),
-                     "shift_hops": None if best is None else best[1],
+                     "shift_hops": None if best is None else best[1], "compared_frames": int(keep.sum()),
+                     **({"gain_db": round(gain, 2)} if gain_invariant else {}),
                      "why": "edge word at full level" if ok else
-                     f"edge word up to {best[0] if best else float('nan'):.1f} dB off the source (max {EDGE_WORD_MAX_DB})"}
+                     "no alignment compares every frame of the edge word" if best is None else
+                     f"edge word up to {best[0]:.1f} dB off the source (max {EDGE_WORD_MAX_DB})"}
     return all(v["ok"] for v in det.values()), det
+
+
+SPAN_EDGE_S = 0.3               # span_matches: edges excluded (fades, dissolves)
+SPAN_MISMATCH_DB = 6.0          # a speech frame off the source by more than this is a mismatch
+SPAN_MISMATCH_RUN_S = 0.15      # this long a run of mismatching speech frames = the audio is not the source span
+SPAN_ADDED_RUN_S = 0.06         # this long a run of speech in the final where the source is quiet = an added word
+SPAN_GAIN_WINDOW_S = 1.0        # the final's gain is measured per second (it drifts along a clip)
+
+
+def span_matches(src_path, final_path, cut_in, cut_out, offset_s, pad_s=0.0, sa=None):
+    """GPT-cut F05: the acoustic adjudication of a repeat-only G18 difference. The final's audio of a segment is
+    the source span itself: after the constant gain is removed (_gain_db) and the best of +-2 hops, no run of
+    SPAN_MISMATCH_RUN_S of consecutive speech frames differs from the source by more than SPAN_MISMATCH_DB (an
+    inserted or dropped word shifts everything after it). Edges (SPAN_EDGE_S) are excluded. (ok, detail)."""
+    sa = sa or SourceAudio(src_path)
+    ca = SourceAudio(final_path)
+    base = offset_s - cut_in + pad_s
+    t0, t1 = cut_in + SPAN_EDGE_S, cut_out - SPAN_EDGE_S
+    _, ds = sa.sl(t0, t1)
+    if len(ds) < 20:
+        return False, {"why": "span too short to compare"}
+    lim = np.percentile(ds, 50)
+    speech = ds > lim
+    best = None
+    for k in range(-2, 3):
+        _, dc = ca.sl(t0 + base + k * HOP_S, t1 + base + k * HOP_S)
+        if len(dc) < len(ds):
+            continue
+        dc = dc[:len(ds)]
+        # the final's gain drifts along a clip (loudnorm, the bed): removed per SPAN_GAIN_WINDOW_S window, each the
+        # median difference over that window's source speech (a window without speech borrows its neighbour's)
+        w = int(round(SPAN_GAIN_WINDOW_S / HOP_S))
+        gains = []
+        for i in range(0, len(ds), w):
+            m = speech[i:i + w]
+            gains.append(float(np.median(dc[i:i + w][m] - ds[i:i + w][m])) if m.sum() >= 10 else None)
+        if all(g is None for g in gains):
+            continue
+        for i in range(len(gains)):                  # fill gaps from the nearest measured window
+            if gains[i] is None:
+                near = min((j for j in range(len(gains)) if gains[j] is not None), key=lambda j: abs(j - i))
+                gains[i] = gains[near]
+        fin = dc - np.repeat(gains, w)[:len(ds)]
+        # both directions (cycle-2 #4): source speech the final does not match (a shift: everything after an
+        # inserted or dropped word moves), AND speech in the final where the source is quiet (a word inserted into
+        # a pause without moving what follows)
+        bad = (np.abs(fin - ds) > SPAN_MISMATCH_DB) & (speech | (fin > lim))
+        added = (fin > lim) & ~speech & (fin - ds > SPAN_MISMATCH_DB)
+        longest, longest_added = _longest_run(bad), _longest_run(added)
+        if best is None or (longest, longest_added) < (best[0], best[3]):
+            best = (longest, k, int(bad.sum()), longest_added, gains)
+    if best is None:
+        return False, {"why": "the final is shorter than the source span, or has no speech to compare"}
+    ok = best[0] * HOP_S < SPAN_MISMATCH_RUN_S and best[3] * HOP_S < SPAN_ADDED_RUN_S
+    return ok, {"gain_db_range": [round(min(best[4]), 2), round(max(best[4]), 2)], "shift_hops": best[1],
+                "longest_mismatch_ms": int(round(best[0] * HOP_S * 1000)),
+                "longest_added_speech_ms": int(round(best[3] * HOP_S * 1000)), "mismatch_frames": best[2],
+                "speech_frames": int(speech.sum()), "compared_both_ways": True}
+
+
+def _longest_run(mask):
+    run = longest = 0
+    for b in mask:
+        run = run + 1 if b else 0
+        longest = max(longest, run)
+    return longest
+
+
+
+
+def _gain_db(sa, ca, t0, t1, base):
+    """The gain (dB) between a source window [t0, t1] and its rendered copy (source time + base): the median level
+    difference over the window's speech frames (the louder half of the source), at the best of +-2 hops. None when
+    the window has fewer than 20 speech frames or the difference is not steady there (spread > 1 dB). A final's
+    gain is not constant across a clip (loudnorm, the music bed: measured 2026-11-11 on the corrected Nov 10 cut,
+    1 s windows drift up to 5 dB within one clip), so callers measure it NEXT TO what they compare."""
+    if t1 - t0 < 0.5:
+        return None
+    _, ds = sa.sl(t0, t1)
+    if len(ds) < 20:
+        return None
+    speech = ds > np.percentile(ds, 50)
+    best = None
+    for k in range(-2, 3):
+        _, dc = ca.sl(t0 + base + k * HOP_S, t1 + base + k * HOP_S)
+        n = min(len(dc), len(ds))
+        m = speech[:n]
+        if n < len(ds) or m.sum() < 20:
+            continue
+        d = dc[:n][m] - ds[:n][m]
+        spread = float(np.percentile(d, 75) - np.percentile(d, 25))
+        if best is None or spread < best[1]:
+            best = (float(np.median(d)), spread)
+    return None if best is None or best[1] > 1.0 else best[0]
 
 
 def accepted_cut(src, plan, step=HOP_S, sa=None):
@@ -745,6 +863,39 @@ def gate_g17_edges(run_dir, source_path_fn=None):
         table[label] = {"ok": ok, **det}
         ok_all &= ok
     return ok_all, table
+
+
+def edges_on_final(final_path, segments, run_dir, source_path_fn=None):
+    """Law L-c as amended by the orchestrator (addendum 2026-11-11 '22:00', GPT-cut F03): the acoustic proof
+    that overrules a dissenting edge reading is G17c measured on the FINAL file being approved (its bytes, its
+    gain removed), never on the prepared clip. {label: {"in": detail, "out": detail}} for every talking head of
+    that final; a segment that cannot be measured has both sides ok False."""
+    with open(os.path.join(run_dir, "edl.json")) as f:
+        locks = {label: (seg.get("selection_lock"), seg["video_id"]) for label, seg in _segments(json.load(f))}
+    with open(os.path.join(run_dir, "cuts_final.json")) as f:
+        cuts = {c["clip_id"]: c for c in json.load(f)}
+    out = {}
+    for seg in segments:
+        if seg.get("type") != "talking_head":
+            continue
+        label = seg["label"]
+        (lock, vid), cut = locks.get(label, (None, None)), cuts.get(label)
+        if not lock or not cut:
+            out[label] = {s: {"ok": False, "why": "no lock / cut"} for s in ("in", "out")}
+            continue
+        try:
+            with open(os.path.join(run_dir, "transcripts", f"{vid}.json")) as f:
+                words = json.load(f)["words"]
+            src = (source_path_fn or (lambda v: os.path.join(run_dir, "sources", f"{v}.mp4")))(vid)
+            sa = SourceAudio(src)
+            plan = edge_plan(sa, words, lock["i0"], lock["i1"])
+            _, det = edge_word_fidelity(src, final_path, plan, cut["cut_in"], cut["cut_out"],
+                                        float(cut.get("lead_in_pad_s") or 0), sa=sa, offset_s=float(seg["start"]),
+                                        gain_invariant=True)
+        except Exception as e:                       # any failure for one segment = no proof for it, never a crash
+            det = {s: {"ok": False, "why": f"not measurable: {type(e).__name__}: {e}"} for s in ("in", "out")}
+        out[label] = det
+    return out
 
 
 # ── G17 ONSET/TAIL INTEGRITY (rendered audio) ──

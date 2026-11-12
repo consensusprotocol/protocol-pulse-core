@@ -143,17 +143,30 @@ class TestTailRows(unittest.TestCase):
     """Heimdall DEC-1 audit: G9_tail is the calibrated gate alone; a conform fallback (not the locked
     outro the floor was measured on) fails its own row, so the run still holds."""
 
+    def verdict(self, tail):
+        """run_fresh's verdict (release_auth's exact inventory) on an otherwise passing 16:9 row set."""
+        import run_fresh as rf
+        from test_release_auth import passing_rows
+        import release_auth
+        return rf.verdict_for({**passing_rows()["16x9"], **tail}, "16x9", release_auth.NO_EVIDENCE_CHECK)[0]
+
     def test_luma_pass_on_a_fallback_outro_fails_outro_locked(self):
-        import run_fresh as rf          # verdict_for: run_fresh's existing verdict (HOLD on any FAIL row)
+        import run_fresh as rf
         self.assertEqual(rf.tail_rows(True, True), {"G9_tail": "PASS", "outro_locked": "FAIL"})
-        self.assertEqual(rf.verdict_for(rf.tail_rows(True, True))[0], rf.VERDICT_HOLD)
+        self.assertEqual(self.verdict(rf.tail_rows(True, True)), rf.VERDICT_HOLD)
+
+    def test_an_outro_that_is_not_hash_identical_fails_outro_locked(self):
+        """GPT-cut F09: the identity was computed and then ignored; outro_locked now requires it."""
+        import run_fresh as rf
+        self.assertEqual(rf.tail_rows(True, False, identical=False), {"G9_tail": "PASS", "outro_locked": "FAIL"})
+        self.assertEqual(self.verdict(rf.tail_rows(True, False, identical=False)), rf.VERDICT_HOLD)
 
     def test_rows_follow_their_own_inputs(self):
         import run_fresh as rf
         self.assertEqual(rf.tail_rows(True, False), {"G9_tail": "PASS", "outro_locked": "PASS"})
         self.assertEqual(rf.tail_rows(False, False), {"G9_tail": "FAIL", "outro_locked": "PASS"})
-        self.assertEqual(rf.verdict_for(rf.tail_rows(False, False))[0], rf.VERDICT_HOLD)   # luma fail holds
-        self.assertEqual(rf.verdict_for(rf.tail_rows(True, False))[0], rf.VERDICT_CANDIDATE)
+        self.assertEqual(self.verdict(rf.tail_rows(False, False)), rf.VERDICT_HOLD)   # luma fail holds
+        self.assertEqual(self.verdict(rf.tail_rows(True, False)), rf.VERDICT_CANDIDATE)
 
 
 if __name__ == "__main__":

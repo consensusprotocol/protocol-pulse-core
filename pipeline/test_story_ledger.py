@@ -69,13 +69,16 @@ class TestRecordIfApproved(unittest.TestCase):
         json.dump({"selected": {"headline": "H", "evidence": ev}}, open(os.path.join(run, "TOPIC_SELECTION.json"), "w"))
         path = os.path.join(tmp, "ledger.jsonl")
 
-        def dlv(c16, c9, option=None):
-            return {"option": option, "messages": [{"format": "16x9", "caption": c16}, {"format": "9x16", "caption": c9},
-                                                   {"sheet": "contact_sheet_16x9.jpg"}]}
+        def dlv(c16, c9, option=None, authorised=True, status="complete"):
+            return {"option": option, "authorised": authorised, "status": status,
+                    "messages": [{"format": "16x9", "caption": c16}, {"format": "9x16", "caption": c9},
+                                 {"sheet": "contact_sheet_16x9.jpg"}]}
         ok = telegram.HOLD_OK + " | details"
         self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok), "pinned", path))
-        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, telegram.REVIEW + " - 1 failing"), "auto", path))
+        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, "REVIEW ONLY - 1 failing"), "auto", path))
         self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok, option="A"), "auto", path))
+        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok, authorised=False), "auto", path))
+        self.assertIsNone(story_ledger.record_if_approved(run, dlv(ok, ok, status="in_progress"), "auto", path))
         self.assertEqual(story_ledger.entries(path), [])
         self.assertEqual(story_ledger.record_if_approved(run, dlv(ok, ok), "auto", path)["run"], "fresh_20261111_130000")
 

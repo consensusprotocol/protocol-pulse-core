@@ -52,13 +52,14 @@ def record(run_dir, path=None):
 
 
 def record_if_approved(run_dir, delivery, mode, path=None):
-    """Called by scripts/pulse_check_run.sh after a delivery: an AUTO run whose BOTH finals went out as
-    "HOLD FOR APPROVAL - all gates passed, no waivers" is recorded; anything else (pinned, review-only, an
-    option) is not, so a story held for a defect is free to be produced again once the defect is fixed."""
+    """Called by scripts/pulse_check_run.sh after a delivery: an AUTO run whose drop was authorised
+    (release_auth) and completed, with BOTH finals captioned telegram.HOLD_OK, is recorded; anything else
+    (pinned, an option, a partial drop) is not, so a story held for a defect is free to be produced again once
+    the defect is fixed."""
     import telegram
     finals = [m for m in delivery["messages"] if "format" in m]
-    if mode != "auto" or delivery.get("option") or len(finals) != 2 or \
-            not all(m["caption"].startswith(telegram.HOLD_OK) for m in finals):
+    if mode != "auto" or delivery.get("option") or len(finals) != 2 or delivery.get("authorised") is not True or \
+            delivery.get("status") != "complete" or not all(m["caption"].startswith(telegram.HOLD_OK) for m in finals):
         return None
     return record(run_dir, path)
 

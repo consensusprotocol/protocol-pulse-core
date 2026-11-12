@@ -1,0 +1,862 @@
+diff --git a/pipeline/cut_accept.py b/pipeline/cut_accept.py
+index de3410bd..1a6e31c8 100644
+--- a/pipeline/cut_accept.py
++++ b/pipeline/cut_accept.py
+@@ -129,7 +129,9 @@ def check_cut_acoustics(source_path, cut_in, cut_out):
+ # ── Law 14c edge-word check on the prepared clip ──
+ 
+ def norm_word(w):
+-    return re.sub(r"[^a-z0-9']", "", (w or "").lower().replace("’", "'"))
++    """A word in the pipeline's one canonical form (pipeline/canon.py), spaces removed."""
++    import canon
++    return "".join(canon.canon_tokens(w))
+ 
+ 
+ def words_match(heard, expected):
+@@ -143,29 +145,11 @@ def words_match(heard, expected):
+     return len(a) >= 3 and len(b) >= 3 and (a.startswith(b) or b.startswith(a))
+ 
+ 
+-_MAGNITUDES = {"hundred", "thousand", "million", "billion", "trillion"}
+-
+-
+ def spoken_tokens(words):
+-    """Expand whisper's written currency/percent forms into spoken order so they
+-    compare with EDL words: '$40 trillion.' -> 40 trillion dollars ; '5%' -> 5 percent."""
+-    toks = [w for w in words]
+-    out = []
+-    i = 0
+-    while i < len(toks):
+-        w = toks[i]
+-        if w.startswith("$") and len(w) > 1:
+-            out.append(w[1:])
+-            if i + 1 < len(toks) and norm_word(toks[i + 1]) in _MAGNITUDES:
+-                out.append(toks[i + 1])
+-                i += 1
+-            out.append("dollars")
+-        elif w.endswith("%") and len(w) > 1:
+-            out.extend([w[:-1], "percent"])
+-        else:
+-            out.append(w)
+-        i += 1
+-    return out
++    """Whisper's words in the one canonical form, spoken order (pipeline/canon.py): '$40 trillion.' ->
++    40000000000000 dollars ; '5%' -> 5 percent."""
++    import canon
++    return canon.canon_tokens(" ".join(words))
+ 
+ 
+ _MODEL = None
+diff --git a/pipeline/editorial_gate.py b/pipeline/editorial_gate.py
+index 9b2c5f3c..72ee13b3 100644
+--- a/pipeline/editorial_gate.py
++++ b/pipeline/editorial_gate.py
+@@ -25,7 +25,8 @@ KNOWN_FILLER_VO = {
+ 
+ 
+ def _norm(text):
+-    return re.sub(r"[^a-z0-9]+", " ", str(text or "").lower()).strip()
++    import canon                                      # the one canonical form (pipeline/canon.py)
++    return canon.canon(str(text or ""))
+ 
+ 
+ def _fail(name, reasons):
+diff --git a/pipeline/gates.py b/pipeline/gates.py
+index aa41b151..438f8088 100644
+--- a/pipeline/gates.py
++++ b/pipeline/gates.py
+@@ -517,7 +517,7 @@ def run_gates(segment_dir, final_mp4, manifest_path, qa_version=None,
+     paths = resolve_paths(segment_dir, qa_version)
+ 
+     # Dynamically patch the frozen qa_gates module's BASE and VO_DIR
+-    sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
++    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
+     import qa_gates
+     qa_gates.BASE = segment_dir
+     qa_gates.VO_DIR = paths["vo_dir"]
+@@ -591,8 +591,8 @@ G20_NAME_RATIO = 0.85       # a spoken name matches when a same-length stretch o
+ 
+ 
+ def _g20_norm(s):
+-    import re
+-    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
++    import canon                                      # the one canonical form, spaces removed for name matching
++    return "".join(canon.canon_tokens(s))
+ 
+ 
+ def spoken_channels(transcript, registry, credited=()):
+@@ -642,7 +642,7 @@ def gate_g20(final_mp4, segments, credited, qa_dir, registry=None):
+     wav = os.path.join(qa_dir, "g20_signoff.wav")
+     subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{sh['start']:.3f}", "-t", f"{sh['end'] - sh['start']:.3f}",
+                     "-i", final_mp4, "-ac", "1", "-ar", "16000", wav], check=True, timeout=120)
+-    sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
++    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
+     import qa_gates
+     text = qa_gates.whisper_segment(wav, qa_dir)
+     heard = spoken_channels(text, registry, credited)
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index cbded1ee..bc32c967 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -243,7 +243,8 @@ def validate_range(seg, acq):
+     if approved:
+         # the human-approved words for this exact range: must correspond to the source transcript
+         from difflib import SequenceMatcher
+-        norm = lambda t: [x for x in re.split(r"[^a-z0-9]+", t.lower()) if x]
++        import canon                              # the one canonical form (orchestrator 2026-11-11 '21:10')
++        norm = canon.canon_tokens
+         a, t = norm(approved), norm(" ".join(w["word"] for w in touching))
+         ratio = SequenceMatcher(None, a, t, autojunk=False).ratio()
+         if ratio < APPROVED_TEXT_MIN_RATIO:
+diff --git a/pipeline/punctuation.py b/pipeline/punctuation.py
+index 44289da6..ad00cb42 100644
+--- a/pipeline/punctuation.py
++++ b/pipeline/punctuation.py
+@@ -22,7 +22,12 @@ TRAIL = re.compile(r"[.,!?;:]+$")
+ 
+ 
+ def _key(word):
+-    return re.sub(r"[^a-z0-9']", "", (word or "").lower().replace("’", "'"))
++    """A word's alignment key: the pipeline's one canonical form (pipeline/canon.py), spaces removed, with one
++    alignment tolerance: a currency / percent word right after a number is dropped (one decode writes '$74,000',
++    the other '74,000'; the mark must still transfer). Pure punctuation has no key and never receives a mark."""
++    import canon
++    t = canon.canon_tokens(word)
++    return "".join(w for k, w in enumerate(t) if not (w in ("dollars", "percent") and k and re.fullmatch(r"\d+(\.\d+)?", t[k - 1])))
+ 
+ 
+ def needs_restoration(words):
+diff --git a/pipeline/stand_alone.py b/pipeline/stand_alone.py
+index 664289d4..168a1cc3 100644
+--- a/pipeline/stand_alone.py
++++ b/pipeline/stand_alone.py
+@@ -33,12 +33,8 @@ FILLERS = {"you", "know", "like", "i", "mean"}
+ 
+ def _words(text):
+     """Lower-case word tokens; a contraction is reduced to its head ("we've" -> "we", "it's" -> "it")."""
+-    out = []
+-    for w in (text or "").split():
+-        w = re.sub(r"^[^a-z0-9$]+|[^a-z0-9']+$", "", w.lower().replace("’", "'"))
+-        if w:
+-            out.append(w.split("'")[0] or w)
+-    return out
++    import canon                                    # the one canonical form, contraction heads (pipeline/canon.py)
++    return canon.canon_tokens(text, heads=True)
+ 
+ 
+ def opener(kind, text, score=None, fault=None):
+diff --git a/pipeline/test_g3b_majority.py b/pipeline/test_g3b_majority.py
+index 03803f93..6a9e3a53 100644
+--- a/pipeline/test_g3b_majority.py
++++ b/pipeline/test_g3b_majority.py
+@@ -48,18 +48,20 @@ class TestG3bMajority(unittest.TestCase):
+         self.assertEqual((Q.G3B_READS, Q.G3B_CONTEXT_S), (3, 1.5))
+ 
+     def test_symbols_are_read_as_the_spoken_words(self):
+-        self.assertEqual(Q._g3b_words("above $40 trillion"), ["above", "40", "trillion", "dollars"])
+-        self.assertEqual(Q._g3b_words("hit $74,000."), ["hit", "74000", "dollars"])
+-        self.assertEqual(Q._g3b_words("$1.66 billion in outflows"), ["1.66", "billion", "dollars", "in", "outflows"])
+-        self.assertEqual(Q._g3b_words("up 50% today"), ["up", "50", "percent", "today"])
++        """L-g through the one canonical form (pipeline/canon.py): a symbol and its spoken words read the same."""
++        same = lambda a, b: Q._g3b_words(a) == Q._g3b_words(b)     # noqa: E731
++        self.assertTrue(same("above $40 trillion", "above 40 trillion dollars"))
++        self.assertTrue(same("hit $74,000.", "hit 74,000 dollars"))
++        self.assertTrue(same("$1.66 billion in outflows", "1.66 billion dollars in outflows"))
++        self.assertTrue(same("up 50% today", "up 50 percent today"))
+         self.assertEqual(Q._g3b_words("the Monday rally."), ["the", "monday", "rally"])
+-        self.assertEqual(Q._g3b_words("above 40 trillion"), ["above", "40", "trillion"])     # no symbol, no 'dollars'
++        self.assertFalse(same("above 40 trillion", "above 40 trillion dollars"))       # no symbol, no 'dollars'
+         # batch 14 audit cases: no doubled 'dollars', abbreviated scales, '$' + '%', commas between words
+-        self.assertEqual(Q._g3b_words("above $40 trillion dollars."), ["above", "40", "trillion", "dollars"])
+-        self.assertEqual(Q._g3b_words("$40M raised"), ["40", "million", "dollars", "raised"])
+-        self.assertEqual(Q._g3b_words("$50% off"), ["50", "percent", "off"])
++        self.assertTrue(same("above $40 trillion dollars.", "above 40 trillion dollars"))
++        self.assertTrue(same("$40M raised", "40 million dollars raised"))
++        self.assertEqual(Q._g3b_words("$50% off"), Q._g3b_words("50 percent off"))
+         self.assertEqual(Q._g3b_words("well,known fact"), ["well", "known", "fact"])
+-        self.assertEqual(Q._g3b_words("$5 and $6"), ["5", "dollars", "and", "6", "dollars"])
++        self.assertTrue(same("$5 and $6", "5 dollars and 6 dollars"))
+ 
+     def test_a_leak_of_any_word_of_a_symbol_next_word_fails(self):
+         """batch 14 audit (Gemini): the next source word '50%' reads as ['50', 'percent']; hearing either after the
+diff --git a/pipeline/test_stand_alone.py b/pipeline/test_stand_alone.py
+index 9ff47b2f..cdb3ce33 100644
+--- a/pipeline/test_stand_alone.py
++++ b/pipeline/test_stand_alone.py
+@@ -55,7 +55,8 @@ class TestTopic(unittest.TestCase):
+         self.assertFalse(S.topical("clip", "Bitcoin is sitting at 77,000 today.", subject=subj)[0])   # an aside
+         self.assertEqual(S.subject_terms("Bitcoin / US spot Bitcoin ETFs"), {"bitcoin", "btc"})
+         self.assertEqual(S.subject_terms("", "Binance hacked for six billion dollars"),
+-                         {"binance", "hacked", "billion", "dollars"})               # headline words, no Bitcoin
++                         {"binance", "hacked", "dollars"})     # headline words, no Bitcoin; 'six billion' is one
++                                                               # canonical value (canon.py) and values never count
+         self.assertEqual(S.subject_terms("AI", "AI"), set())                        # nothing usable: fail closed
+         self.assertFalse(S.topical("clip", "Bitcoin is sitting at 77,000 today.", subject=set())[0])
+ 
+diff --git a/segment_v1/qa_gates.py b/segment_v1/qa_gates.py
+index 9ea7cc1f..19ba78dd 100644
+--- a/segment_v1/qa_gates.py
++++ b/segment_v1/qa_gates.py
+@@ -120,14 +120,21 @@ def whisper_segment(wav_path, qa_dir):
+ 
+ 
+ def word_overlap(transcript, reference_text):
+-    """Fraction of reference words found in transcript."""
+-    ref_words = set(reference_text.lower().replace(".", "").replace(",", "").replace("?", "").split())
+-    trans_words = set(transcript.lower().replace(".", "").replace(",", "").replace("?", "").split())
++    """Fraction of reference words found in transcript, in the pipeline's one canonical form (pipeline/canon.py).
++    No reference words = 0.0: an empty expected text never scores a match (Claude-gates V1)."""
++    ref_words = set(_canon_tokens(reference_text))
++    trans_words = set(_canon_tokens(transcript))
+     if not ref_words:
+-        return 1.0
++        return 0.0
+     return len(ref_words & trans_words) / len(ref_words)
+ 
+ 
++def _canon_tokens(text):
++    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pipeline"))
++    import canon
++    return canon.canon_tokens(text or "")
++
++
+ # ==============================================================
+ # G1: VOICE IDENTITY
+ # ==============================================================
+@@ -307,8 +314,8 @@ def gate_g3(final_mp4, segments, qa_dir):
+         label = seg["label"]
+         seg_start = seg["start"]
+         seg_end = seg["end"]
+-        edl_first = seg.get("first_word", "").lower().strip().rstrip(".,?!").lstrip()
+-        edl_last = seg.get("last_word", "").lower().strip().rstrip(".,?!").lstrip()
++        cf, cl = _canon().canon_tokens(seg.get("first_word", "")), _canon().canon_tokens(seg.get("last_word", ""))
++        edl_first, edl_last = (cf[0] if cf else ""), (cl[-1] if cl else "")      # the one canonical form
+ 
+         if not edl_first and not edl_last:
+             continue
+@@ -317,7 +324,7 @@ def gate_g3(final_mp4, segments, qa_dir):
+         first_wav = os.path.join(qa_dir, f"g3_{label}_first.wav")
+         extract_audio_region(final_mp4, seg_start, 0.7, first_wav)
+         first_transcript = whisper_segment(first_wav, qa_dir)
+-        first_words = first_transcript.replace(".", "").replace(",", "").replace("?", "").split()
++        first_words = _canon().canon_tokens(first_transcript)
+         first_word_found = first_words[0] if first_words else ""
+ 
+         # Also check first 2.0s for broader word search (whisper-tiny is noisy on 0.7s)
+@@ -330,7 +337,7 @@ def gate_g3(final_mp4, segments, qa_dir):
+         last_wav = os.path.join(qa_dir, f"g3_{label}_last.wav")
+         extract_audio_region(final_mp4, last_start, 0.7, last_wav)
+         last_transcript = whisper_segment(last_wav, qa_dir)
+-        last_words = last_transcript.replace(".", "").replace(",", "").replace("?", "").split()
++        last_words = _canon().canon_tokens(last_transcript)
+         last_word_found = last_words[-1] if last_words else ""
+ 
+         # Also check last 2.0s for the EDL word (clips may have post-speech tail)
+@@ -355,14 +362,14 @@ def gate_g3(final_mp4, segments, qa_dir):
+         # Require non-empty transcript to prevent "" in "" false passes
+         if not first_ok and edl_first:
+             if first_transcript.strip():
+-                first_ok = edl_first in first_transcript
++                first_ok = edl_first in _canon().canon(first_transcript)
+             if not first_ok and first2_transcript.strip():
+-                first_ok = edl_first in first2_transcript
++                first_ok = edl_first in _canon().canon(first2_transcript)
+         if not last_ok and edl_last:
+             if last_transcript.strip():
+-                last_ok = edl_last in last_transcript
++                last_ok = edl_last in _canon().canon(last_transcript)
+             if not last_ok and last2_transcript.strip():
+-                last_ok = edl_last in last2_transcript
++                last_ok = edl_last in _canon().canon(last2_transcript)
+ 
+         ok = first_ok and last_ok
+         if not ok:
+@@ -389,42 +396,18 @@ def gate_g3(final_mp4, segments, qa_dir):
+ G3B_READS, G3B_CONTEXT_S, G3B_TAIL_S = 3, 1.5, 1.0     # DEC-12f
+ 
+ 
+-_G3B_SCALE = {"hundred", "thousand", "million", "billion", "trillion"}
+-_G3B_SUFFIX = {"k": "thousand", "m": "million", "mn": "million", "b": "billion", "bn": "billion", "t": "trillion",
+-               "tn": "trillion"}
+-_G3B_NUM_SUFFIX = re.compile(r"^(\d+(?:\.\d+)?)(k|mn|m|bn|b|tn|t)$")
++def _canon():
++    """The pipeline's one canonical form for every text comparison (pipeline/canon.py)."""
++    if os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline") not in sys.path:
++        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline"))
++    import canon
++    return canon
+ 
+ 
+ def _g3b_words(text):
+-    """Reading words, lower-case, punctuation dropped. Law L-g (2026-11-11): a word the ASR wrote as a symbol is
+-    read as the spoken word, in spoken order: '$40 trillion' = '40 trillion dollars', '$40M' = '40 million
+-    dollars', '50%' = '50 percent'; a 'dollars' the ASR also wrote is not doubled; thousands separators are
+-    dropped ('74,000' = '74000'), other commas split words, decimals stay whole ('1.66'). (v2f's approved clip_02
+-    tail '... above 40 trillion dollars.' was read 'above $40 trillion' twice.)"""
+-    text = re.sub(r"(?<=\d),(?=\d)", "", (text or "").lower())
+-    seq = []                                                  # (word, starts a '$' amount)
+-    for t in text.replace(",", " ").replace("?", " ").replace("!", " ").split():
+-        t = t.rstrip(".")
+-        cash = t.startswith("$") and len(t) > 1
+-        t = t[1:] if cash else t
+-        m = _G3B_NUM_SUFFIX.match(t)
+-        if m:
+-            seq += [(m.group(1), cash), (_G3B_SUFFIX[m.group(2)], False)]
+-        elif t.endswith("%") and len(t) > 1:
+-            seq += [(t[:-1], False), ("percent", False)]      # a percentage is not a dollar amount
+-        elif t:
+-            seq.append((t, cash))
+-    out, owed = [], False                                     # owed: an amount still owes its spoken 'dollars'
+-    for w, cash in seq:
+-        if owed and (cash or w not in _G3B_SCALE):
+-            owed = False
+-            if w != "dollars":
+-                out.append("dollars")
+-        out.append(w)
+-        owed = owed or cash
+-    if owed:
+-        out.append("dollars")
+-    return out
++    """Reading words in the one canonical form (law L-g: '$40 trillion' = '40 trillion dollars', '50%' = '50
++    percent'; pipeline/canon.py)."""
++    return _canon().canon_tokens(text)
+ 
+ 
+ def _g3b_match(expected, heard):
+@@ -461,7 +444,9 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
+         label = seg["label"]
+         seg_end = seg["end"]
+         seg_start = seg["start"]
+-        ew = _g3b_words(seg.get("last_word", ""))         # the same reading rules as the heard words (L-g)
++        lock = (edl_clips.get(label, {}).get("selection_lock") or {}).get("text") or ""
++        tail = " ".join(lock.split()[-5:]) if lock else seg.get("last_word", "")
++        ew = _g3b_words(tail)                              # the expected last word read in its own context (canon)
+         edl_last = ew[-1] if ew else ""
+ 
+         if not edl_last:
+@@ -1315,15 +1300,29 @@ FOLLOW_WORDS = {"follow", "subscribe", "check"}
+ 
+ 
+ def _fuzzy_word_overlap(scripted, transcribed):
+-    """Case-insensitive word-set overlap ratio (Jaccard-like: intersection / scripted count)."""
+-    import re
+-    s_words = set(re.sub(r"[^\w\s]", "", scripted.lower()).split())
+-    t_words = set(re.sub(r"[^\w\s]", "", transcribed.lower()).split())
++    """Word-set overlap ratio (intersection / scripted count) in the one canonical form (pipeline/canon.py)."""
++    s_words = set(_canon_tokens(scripted))
++    t_words = set(_canon_tokens(transcribed))
+     if not s_words:
+         return 0.0
+     return len(s_words & t_words) / len(s_words)
+ 
+ 
++def _is_silent_reading(transcript):
++    """An empty reading, or one that is only a known music / outro hallucination, in canonical form (Claude-gates
++    V3: the raw set never matched a transcript that carries punctuation)."""
++    t = _canon_tokens(transcript)
++    return len(" ".join(t)) < 3 or t in [_canon_tokens(h) for h in _MUSIC_HALLUCINATIONS]
++
++
++def _says(transcript_tokens, phrase):
++    """True when the canonical words of `phrase` occur as a contiguous run in the transcript's canonical words
++    (token equality, never a substring: Claude-gates T1 / T8)."""
++    p = _canon_tokens(phrase)
++    n = len(p)
++    return n > 0 and any(transcript_tokens[i:i + n] == p for i in range(len(transcript_tokens) - n + 1))
++
++
+ def _rms_db(wav_path):
+     """Compute RMS in dB from a WAV file. Returns -inf for silence."""
+     try:
+@@ -1427,9 +1426,8 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
+         print(f"    Scripted:     '{scripted}'")
+         print(f"    Transcribed:  '{transcript}'")
+ 
+-        # Check for music hallucination / silence
+-        transcript_lower = transcript.lower().strip()
+-        if transcript_lower in _MUSIC_HALLUCINATIONS or len(transcript_lower) < 3:
++        # Check for music hallucination / silence (canonical form)
++        if _is_silent_reading(transcript):
+             print(f"    FAIL: SILENT (hallucination or empty)")
+             table.append({"slot": label, "pass": False, "reason": "SILENT",
+                           "transcript": transcript, "scripted": scripted})
+@@ -1489,8 +1487,7 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
+             print(f"    Scripted:     '{signoff_text}'")
+             print(f"    Transcribed:  '{transcript}'")
+ 
+-            transcript_lower = transcript.lower().strip()
+-            if transcript_lower in _MUSIC_HALLUCINATIONS or len(transcript_lower) < 3:
++            if _is_silent_reading(transcript):
+                 print(f"    FAIL: SILENT (hallucination or empty)")
+                 table.append({"slot": label, "pass": False, "reason": "SILENT",
+                               "transcript": transcript, "scripted": signoff_text})
+@@ -1508,16 +1505,16 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
+                 rms_delta = rms_vo - rms_music if rms_music != float("-inf") else 99.0
+                 print(f"    VO RMS: {rms_vo:.1f} dB, Music RMS: {rms_music:.1f} dB, delta: {rms_delta:.1f} dB")
+ 
+-                # Signoff-specific: channel names and follow/subscribe word
+-                t_lower = transcript.lower()
++                # Signoff-specific: channel names and follow/subscribe word, as canonical word runs
++                t_tokens = _canon_tokens(transcript)
+                 missing_channels = []
+                 for ch in channel_names:
+                     # M14: check channel name OR any alias from channels.json
+                     aliases = channel_aliases.get(ch, {ch.lower()})
+-                    if not any(alias in t_lower for alias in aliases):
++                    if not any(_says(t_tokens, alias) for alias in aliases):
+                         missing_channels.append(ch)
+ 
+-                has_follow = any(w in t_lower for w in FOLLOW_WORDS)
++                has_follow = any(_says(t_tokens, w) for w in FOLLOW_WORDS)
+ 
+                 # Primary: transcript match, channels, follow word.
+                 # RMS delta is informational (output is a full mix).
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+new file mode 100644
+index 00000000..d03152a3
+--- /dev/null
++++ b/pipeline/canon.py
+@@ -0,0 +1,209 @@
++#!/usr/bin/env python3
++"""pipeline/canon.py — ONE canonical form for every text comparison in the pipeline (orchestrator 2026-11-11 '21:10').
++
++Two strings that a listener would hear as the same words compare equal; a different number, a dropped word or a
++different name does not. canon_tokens(text) -> the canonical word list; canon(text) -> those words joined by spaces.
++
++  entities / unicode  'S&amp;P' = 'S&P'; curly quotes, dashes, ellipsis, nbsp folded (NFKC)
++  split tokens        '$81 ,000' = '$81,000'; 'U .S.' = 'U.S.'; '1 .3' = '1.3' (a Whisper word joined with spaces)
++  case, punctuation   lower-case; trailing / leading punctuation dropped; a curly apostrophe is a straight one,
++                      and an apostrophe stays ("it's" and "its" are different words; heads=True gives "it")
++  hyphens / dashes    split words ('well-known' = 'well known')
++  numbers             one value form: '74,000' = '74000' = '74k' = 'seventy four thousand' = 'seventy-four
++                      thousand'; '1.66 billion' = '$1.66B' value-wise; decimals 'one point six six' = '1.66';
++                      ordinals '3rd' = 'third' = '3'
++  currency / percent  '$40 trillion' = '40 trillion dollars' (the spoken order); '5.5%' = '5.5 percent' =
++                      'five point five percent'; 'dollar' = 'dollars'
++  signs               '-5%' = 'minus 5 percent', '+5%' = 'plus 5 percent' (GPT-cut F04: -5% != +5%); a hyphen
++                      between words or a range ('2026-11', '74-75') is not a sign
++Every comparison site (quote verification, selection anchors, edge words, G3b, G18, sign-off names, ledger
++statements) goes through this module; pipeline/test_canon.py fails any site that compares text another way.
++"""
++import html
++import re
++import unicodedata
++from decimal import Decimal, InvalidOperation
++
++_UNITS = {w: i for i, w in enumerate("zero one two three four five six seven eight nine ten eleven twelve thirteen "
++                                     "fourteen fifteen sixteen seventeen eighteen nineteen".split())}
++_TENS = {w: 10 * (i + 2) for i, w in enumerate("twenty thirty forty fifty sixty seventy eighty ninety".split())}
++_SCALES = {"hundred": 100, "thousand": 10 ** 3, "million": 10 ** 6, "billion": 10 ** 9, "trillion": 10 ** 12}
++_SUFFIX = {"k": 10 ** 3, "m": 10 ** 6, "mn": 10 ** 6, "b": 10 ** 9, "bn": 10 ** 9, "t": 10 ** 12, "tn": 10 ** 12}
++_ORD = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8,
++        "ninth": 9, "tenth": 10, "eleventh": 11, "twelfth": 12, "thirteenth": 13, "fourteenth": 14,
++        "fifteenth": 15, "sixteenth": 16, "seventeenth": 17, "eighteenth": 18, "nineteenth": 19, "twentieth": 20,
++        "thirtieth": 30, "fortieth": 40, "fiftieth": 50, "sixtieth": 60, "seventieth": 70, "eightieth": 80,
++        "ninetieth": 90, "hundredth": 100, "thousandth": 1000}
++_FOLD = str.maketrans({"‘": "'", "’": "'", "‚": "'", "‛": "'", "′": "'", "´": "'",
++                       "`": "'", "“": '"', "”": '"', "„": '"', "″": '"', "‐": "-",
++                       "‑": "-", "‒": "-", "–": "-", "—": "-", "―": "-", "−": "-",
++                       "…": "...", " ": " ", " ": " ", " ": " "})
++_SPLIT = re.compile(r"\s+(?=[.,][0-9A-Za-z])")            # '$81 ,000', 'U .S.': one written word
++_THOUSANDS = re.compile(r"(?<=\d),(?=\d{3}\b)")
++_SPACED_THOUSANDS = re.compile(r"(?<![\d.,])(\d{1,3})\s+(\d{3})(?!\d|[.,]\d)")   # '74 000', '74 000.'; not '74 000.5'
++_NUM = re.compile(r"^(\d+(?:\.\d+)?)(k|mn|m|bn|b|tn|t)?$")
++_ORDNUM = re.compile(r"^(\d+)(st|nd|rd|th)$")
++_TOKEN = re.compile(r"\$|%|[a-z0-9]+(?:[.'][a-z0-9]+)*")
++
++
++def _value(d):
++    """A Decimal as the one canonical number string: '74000', '1.66', '5.5'."""
++    d = d.normalize()
++    return str(int(d)) if d == d.to_integral_value() else format(d, "f")
++
++
++def fold(text):
++    """The character-level part of the canonical form, as text: entities decoded, unicode folded, split tokens
++    joined, thousands separators dropped, lower-case (for sites with their own word rules on top, e.g.
++    stand_alone's contraction heads)."""
++    t = unicodedata.normalize("NFKC", html.unescape(text or "")).translate(_FOLD)
++    t = _SPLIT.sub("", t)
++    t = _SPACED_THOUSANDS.sub(r"\1\2", t)              # '74 000' (G18's rule since 08:30)
++    t = _THOUSANDS.sub("", t)
++    return t.lower()
++
++
++_SIGN = re.compile(r"(?<![\w.,$%])([-+])(?=\$?\d)")       # '-5%', '+5%', '(-$40M)': a sign, not a hyphen or range
++
++
++def _prepare(text):
++    t = _SIGN.sub(lambda m: " minus " if m.group(1) == "-" else " plus ", fold(text))   # GPT-cut F04: -5% != +5%
++    return _TOKEN.findall(t.replace("-", " ").replace("_", " "))
++
++
++def _words_number(toks, i):
++    """Parse a spoken number at toks[i] ('seventy four thousand', 'one point six six', 'a hundred').
++    Returns (Decimal, next index) or None."""
++    total, cur, j, seen, last = Decimal(0), Decimal(0), i, False, None
++    while j < len(toks):
++        w = toks[j]
++        if w in _UNITS:
++            if last == "unit" or (last == "tens" and _UNITS[w] >= 10):       # 'three two', 'twenty eleven': two numbers
++                break
++            cur += _UNITS[w]
++            last = "unit"
++        elif w in _TENS:
++            if last in ("unit", "tens"):                  # 'twenty twenty', 'five twenty': two numbers
++                break
++            cur += _TENS[w]
++            last = "tens"
++        elif w in _SCALES and (seen or w == "hundred"):
++            cur = (cur or 1) * _SCALES[w]
++            if w != "hundred":
++                total, cur = total + cur, Decimal(0)
++            last = "scale"
++        elif w == "a" and j + 1 < len(toks) and toks[j + 1] in _SCALES and not seen:
++            cur, last = Decimal(1), "unit"
++        elif w == "and" and seen and j + 1 < len(toks) and (toks[j + 1] in _UNITS or toks[j + 1] in _TENS):
++            pass
++        else:
++            break
++        seen, j = True, j + 1
++    if not seen:
++        return None
++    value = total + cur
++    if j + 1 < len(toks) and toks[j] == "point" and toks[j + 1] in _UNITS:      # 'one point six six'
++        digits = []
++        j += 1
++        while j < len(toks) and toks[j] in _UNITS and _UNITS[toks[j]] < 10:
++            digits.append(str(_UNITS[toks[j]]))
++            j += 1
++        value = Decimal(f"{int(value)}.{''.join(digits)}")
++    return value, j
++
++
++def _canon_seq(pairs, heads=False):
++    """The one state machine: (prepared token, owner) pairs -> (canonical token, owner) pairs; a number phrase or
++    an amount is owned by the word it starts in."""
++    toks = [t for t, _ in pairs]
++    out, i, owed = [], 0, None                     # owed: the owner of a '$' amount that still owes 'dollars'
++    while i < len(toks):
++        t, own = toks[i], pairs[i][1]
++        if t == "$":
++            if owed is not None:
++                out.append(("dollars", owed))
++            owed, i = own, i + 1
++            continue
++        if t == "%":
++            out.append(("percent", own))
++            i += 1
++            continue
++        num = None
++        m = _NUM.match(t)
++        if m:
++            try:
++                num = Decimal(m.group(1)) * (_SUFFIX[m.group(2)] if m.group(2) else 1)
++            except InvalidOperation:
++                num = None
++            i += 1
++        elif _ORDNUM.match(t):
++            num, i = Decimal(_ORDNUM.match(t).group(1)), i + 1
++        elif t in _ORD:
++            num, i = Decimal(_ORD[t]), i + 1
++        else:
++            parsed = _words_number(toks, i)
++            if parsed:
++                num, i = parsed
++        if num is not None:
++            if toks[i:i + 3] == ["and", "a", "half"]:     # 'five and a half' = 5.5 (G18's rule since 08:30)
++                num, i = num + Decimal("0.5"), i + 3
++            while i < len(toks) and toks[i] in _SCALES and toks[i] != "hundred":   # '1.66 billion', '40 trillion'
++                num, i = num * _SCALES[toks[i]], i + 1
++            out.append((_value(num), own))
++            if owed is not None and i < len(toks) and toks[i] in ("%", "percent", "pct"):
++                owed = None                        # '$50%': a percentage is never a dollar amount (batch 14)
++            if owed is not None:                   # the spoken 'dollars' sits after the amount's last word
++                if i < len(toks) and toks[i] in ("dollar", "dollars"):
++                    out.append(("dollars", pairs[i][1]))
++                    i += 1
++                else:
++                    out.append(("dollars", pairs[i - 1][1]))
++                owed = None
++            continue
++        if owed is not None:
++            out.append(("dollars", owed))
++            owed = None
++        if t in ("dollar", "dollars"):
++            out.append(("dollars", own))
++        elif t in ("percent", "pct"):
++            out.append(("percent", own))
++        elif t == "per" and i + 1 < len(toks) and toks[i + 1] == "cent":
++            out.append(("percent", own))
++            i += 1
++        else:
++            w = (t.split("'")[0] if heads and "'" in t else t).replace(".", "")   # "it's" != "its" (M1)
++            if w:
++                out.append((w, own))
++        i += 1
++    if owed is not None:
++        out.append(("dollars", owed))
++    return out
++
++
++def canon_tokens(text, heads=False):
++    """heads=True reduces a contraction to its head ("that's" -> "that", "we've" -> "we") for sites that ask
++    which word a contraction starts with (backward references, openers); the default drops the apostrophe."""
++    return [t for t, _ in _canon_seq([(p, 0) for p in _prepare(text)], heads)]
++
++
++def canon_aligned(words):
++    """Canonical tokens of a word list, each with the index of the source word it starts in (alignment sites:
++    quote anchoring, selection locks, punctuation transfer). A Whisper word split across two words ('$81', ',000')
++    is read as one, owned by its first word."""
++    pairs, i = [], 0
++    while i < len(words):
++        w, j = (words[i] or ""), i + 1
++        while j < len(words) and (re.match(r"^\s*[.,][0-9A-Za-z]", words[j] or "") or (     # '$81' ',000'
++                re.fullmatch(r"\$?\d{1,3}", w.strip()) and re.fullmatch(r"\d{3}[.,!?]*", (words[j] or "").strip()))):
++            w, j = w + (words[j] or "").strip(), j + 1                                      # '74' '000'
++        pairs += [(p, i) for p in _prepare(w)]
++        i = j
++    return _canon_seq(pairs)
++
++
++def canon(text):
++    return " ".join(canon_tokens(text))
++
++
++def same(a, b):
++    return canon_tokens(a) == canon_tokens(b)
+diff --git a/pipeline/test_canon.py b/pipeline/test_canon.py
+new file mode 100644
+index 00000000..91cc5a2d
+--- /dev/null
++++ b/pipeline/test_canon.py
+@@ -0,0 +1,228 @@
++#!/usr/bin/env python3
++"""pipeline/canon.py — one canonical form for every text comparison (orchestrator order 2026-11-11 '21:10'; the class
++behind E-FAIL-035 / 036 / 037: '$40 trillion', split tokens, HTML entities).
++property  200 real sentences (tests/fixtures/canon_20261111, sampled from the saved transcripts) under each mutation
++          compare EQUAL after canonicalisation: HTML entities, unicode quotes / dashes / ellipsis / nbsp, split
++          tokens, currency and percent symbol vs words, digits vs number words up to trillions, decimals, ordinals,
++          k / M / B suffixes, casing, trailing punctuation, hyphenation, apostrophes
++          ... and real differences compare UNEQUAL: a different number, a dropped word, a different name
++aligned   canon_aligned(words) yields the same tokens as canon(text), each owned by the word it starts in
++sites     every comparison site goes through canon (TestSites: a grep over pipeline/*.py and qa_gates.py fails any
++          ad-hoc normaliser outside canon.py)
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_canon.py"""
++import glob
++import html
++import json
++import os
++import random
++import re
++import sys
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import canon as C  # noqa: E402
++
++SENTS = [x["text"] for x in json.load(open(os.path.join(REPO, "tests", "fixtures", "canon_20261111",
++                                                          "sentences.json")))["sentences"]]
++ONES = ("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen "
++        "seventeen eighteen nineteen").split()
++TENS = "twenty thirty forty fifty sixty seventy eighty ninety".split()
++SCALES = [(10 ** 12, "trillion"), (10 ** 9, "billion"), (10 ** 6, "million"), (10 ** 3, "thousand")]
++ORDS = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh",
++        "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth",
++        "twentieth"]
++
++
++def words_int(n, hyphen=False):
++    """An integer the way a speaker says it ('seventy four thousand', or 'seventy-four thousand')."""
++    if n < 20:
++        return ONES[n]
++    if n < 100:
++        t, u = divmod(n, 10)
++        return TENS[t - 2] + (("-" if hyphen else " ") + ONES[u] if u else "")
++    if n < 1000:
++        h, r = divmod(n, 100)
++        return ONES[h] + " hundred" + (" " + words_int(r, hyphen) if r else "")
++    for v, name in SCALES:
++        if n >= v:
++            q, r = divmod(n, v)
++            return words_int(q, hyphen) + " " + name + (" " + words_int(r, hyphen) if r else "")
++
++
++def words_dec(x):
++    i, d = str(x).split(".")
++    return words_int(int(i)) + " point " + " ".join(ONES[int(c)] for c in d)
++
++
++def ordinal_digits(n):
++    return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
++
++
++def insert(s, phrase, rng):
++    """The phrase between neutral words, so an inserted spoken number never runs into a number word the sentence
++    already has ('... one hundred twenty' + 'two real big areas' would be heard as 'twenty-two')."""
++    w = s.split()
++    k = rng.randrange(len(w) + 1)
++    return " ".join(w[:k] + ["about", phrase, "units"] + w[k:])
++
++
++def amounts(rng):
++    """Integers across every magnitude up to trillions."""
++    return [rng.choice([7, 13, 45, 99, 105, 999]), rng.randrange(1000, 99999), rng.randrange(10 ** 5, 10 ** 9),
++            rng.randrange(1, 999) * 10 ** 9 + rng.randrange(0, 999) * 10 ** 6, rng.randrange(1, 99) * 10 ** 12]
++
++
++class TestEquivalence(unittest.TestCase):
++    def assert_pairs(self, pairs):
++        bad = [(a, b, C.canon(a), C.canon(b)) for a, b in pairs if not C.same(a, b)]
++        self.assertFalse(bad, bad[:3])
++
++    def test_html_entities(self):
++        self.assert_pairs([(html.escape(s, quote=True), s) for s in SENTS] +
++                          [(insert(s, "the S&amp;P 500 and it&#39;s &quot;fine&quot;", random.Random(i)),
++                            insert(s, "the S&P 500 and it's \"fine\"", random.Random(i))) for i, s in enumerate(SENTS)])
++
++    def test_unicode_quotes_dashes_ellipsis_nbsp(self):
++        def uni(s):
++            s = s.replace("'", "’").replace(" - ", " – ").replace("...", "…")
++            return re.sub(r" ", lambda m, c=[0]: " " if (c.__setitem__(0, c[0] + 1) or c[0] % 3 == 0) else " ", s)
++        self.assert_pairs([(uni(s), s) for s in SENTS] + [(f"“{s}” — well…", f'"{s}" - well...')
++                                                          for s in SENTS])
++
++    def test_split_tokens(self):
++        self.assert_pairs([(insert(s, "above $81 ,000 and 1 .3 percent in the U .S.", random.Random(i)),
++                            insert(s, "above $81,000 and 1.3 percent in the U.S.", random.Random(i)))
++                           for i, s in enumerate(SENTS)])
++
++    def test_currency_and_percent_symbols_vs_words(self):
++        pairs = []
++        for i, s in enumerate(SENTS):
++            rng = random.Random(i)
++            n = rng.choice([5, 74, 81000, 40])
++            pairs.append((insert(s, f"${n:,}", random.Random(i)), insert(s, f"{n:,} dollars", random.Random(i))))
++            pairs.append((insert(s, f"${n} trillion", random.Random(i)), insert(s, f"{n} trillion dollars", random.Random(i))))
++            pairs.append((insert(s, "5.5%", random.Random(i)), insert(s, "5.5 percent", random.Random(i))))
++            pairs.append((insert(s, "$50%", random.Random(i)), insert(s, "50 percent", random.Random(i))))
++        self.assert_pairs(pairs)
++
++    def test_digits_vs_number_words_up_to_trillions(self):
++        pairs = []
++        for i, s in enumerate(SENTS):
++            rng = random.Random(1000 + i)
++            for n in amounts(rng):
++                pairs.append((insert(s, f"{n:,}", random.Random(i)), insert(s, words_int(n, hyphen=i % 2 == 0),
++                                                                           random.Random(i))))
++        self.assert_pairs(pairs)
++
++    def test_decimals(self):
++        pairs = []
++        for i, s in enumerate(SENTS):
++            x = random.Random(i).choice(["1.66", "5.5", "0.3", "12.75", "2.05"])
++            pairs.append((insert(s, x, random.Random(i)), insert(s, words_dec(x), random.Random(i))))
++            pairs.append((insert(s, f"{x} billion", random.Random(i)), insert(s, f"{words_dec(x)} billion", random.Random(i))))
++        self.assert_pairs(pairs)
++
++    def test_ordinals(self):
++        self.assert_pairs([(insert(s, f"the {ordinal_digits(n)} of November", random.Random(i)),
++                            insert(s, f"the {ORDS[n - 1]} of November", random.Random(i)))
++                           for i, s in enumerate(SENTS) for n in [random.Random(i).randrange(1, 21)]])
++
++    def test_k_m_b_suffixes(self):
++        pairs = []
++        for i, s in enumerate(SENTS):
++            r = random.Random(i)
++            pairs.append((insert(s, "74k", r), insert(s, "74,000", random.Random(i))))
++            pairs.append((insert(s, "1.5M", random.Random(i)), insert(s, "1,500,000", random.Random(i))))
++            pairs.append((insert(s, "$1.66B", random.Random(i)), insert(s, "1.66 billion dollars", random.Random(i))))
++        self.assert_pairs(pairs)
++
++    def test_casing_trailing_punctuation_hyphens_apostrophes(self):
++        pairs = []
++        for s in SENTS:
++            pairs += [(s.upper(), s), (s.title(), s), (s.rstrip(".!?,") + ".", s.rstrip(".!?,")),
++                      (s + "?!", s), (s.replace("'", "’"), s)]       # curly = straight; "it's" != "its"
++            w = s.split()
++            if len(w) > 3:
++                pairs.append((" ".join(w[:2]) + "-" + " ".join(w[2:]), s))
++        self.assert_pairs(pairs)
++
++
++class TestDifferences(unittest.TestCase):
++    def test_a_different_number_a_dropped_word_a_different_name_stay_different(self):
++        same = []
++        for i, s in enumerate(SENTS):
++            rng = random.Random(i)
++            n = rng.choice(amounts(rng))
++            for a, b in ((insert(s, f"{n:,}", random.Random(i)), insert(s, f"{n + 1:,}", random.Random(i))),
++                         (insert(s, words_int(n), random.Random(i)), insert(s, f"{n * 10:,}", random.Random(i)))):
++                if C.same(a, b):
++                    same.append((a, b))
++            w = s.split()
++            k = next((j for j, x in enumerate(w) if re.search(r"[A-Za-z0-9]{2}", x)), None)
++            if k is not None and C.same(s, " ".join(w[:k] + w[k + 1:])):
++                same.append((s, "dropped " + w[k]))
++            if C.same(insert(s, "Natalie Brunell", random.Random(i)), insert(s, "Yahoo Finance", random.Random(i))):
++                same.append((s, "name"))
++            if C.same(insert(s, "it's", random.Random(i)), insert(s, "its", random.Random(i))):
++                same.append((s, "it's / its"))                       # different words (cross-LLM M1)
++        self.assertFalse(same, same[:3])
++
++
++class TestAligned(unittest.TestCase):
++    def test_aligned_tokens_equal_text_tokens_and_owners_are_source_words(self):
++        bad = []
++        for i, s in enumerate(SENTS):
++            for t in (s, insert(s, "above $81 ,000 and 74 000 people and $40 trillion", random.Random(i))):
++                words = t.split()
++                pairs = C.canon_aligned(words)
++                if [p for p, _ in pairs] != C.canon_tokens(t) or any(not 0 <= o < len(words) for _, o in pairs):
++                    bad.append(t)
++        self.assertFalse(bad, bad[:2])
++
++    def test_an_amount_is_owned_by_its_words(self):
++        self.assertEqual(C.canon_aligned("above $40 trillion .".split()),
++                         [("above", 0), ("40000000000000", 1), ("dollars", 2)])
++        self.assertEqual(C.canon_aligned(["up", "$81", ",000", "today"]),
++                         [("up", 0), ("81000", 1), ("dollars", 1), ("today", 3)])
++
++
++class TestSites(unittest.TestCase):
++    """Every comparison site goes through canon (orchestrator 21:10 'a grep test failing any site not using it'):
++    no ad-hoc normaliser in the pipeline's code (pipeline/*.py except tests, segment_v1/qa_gates.py). Allowed:
++    canon.py itself, and transcript_store.read_text's html.unescape (the acquisition reader that stores the
++    words as spoken, law L-h; it is not a comparison)."""
++    FORBIDDEN = [r"\.lower\(\)\.replace\(", r"re\.sub\(\s*r?[\"']\[\^\\w", r"re\.split\(\s*r?[\"']\[\^a-z0-9",
++                 r"unicodedata\.normalize\(", r"html\.unescape\(", r"str\.maketrans\(", r"\.casefold\(\)",
++                 r"translate\(str\.maketrans"]
++    ALLOWED = {("transcript_store.py", "html.unescape(")}
++
++    def test_no_ad_hoc_normaliser_outside_canon(self):
++        files = [f for f in glob.glob(os.path.join(PIPELINE, "*.py"))
++                 if not os.path.basename(f).startswith("test_") and os.path.basename(f) != "canon.py"]
++        files.append(os.path.join(REPO, "segment_v1", "qa_gates.py"))
++        bad = []
++        for f in files:
++            for n, line in enumerate(open(f, encoding="utf-8"), 1):
++                code = line.split("#", 1)[0]
++                for pat in self.FORBIDDEN:
++                    m = re.search(pat, code)
++                    if m and (os.path.basename(f), m.group(0)) not in self.ALLOWED:
++                        bad.append(f"{os.path.relpath(f, REPO)}:{n}: {line.strip()[:120]}")
++        self.assertFalse(bad, "ad-hoc text normaliser outside pipeline/canon.py:\n" + "\n".join(bad))
++
++    def test_the_comparison_sites_import_canon(self):
++        """The named comparison sites (quote verification, selection anchors, edge words, G3 / G3b, G18,
++        sign-off names, ledger statements, approved PIN text, G1 / G13 VO text) call canon."""
++        sites = ["story_semantics.py", "editorial_select.py", "sentence_law.py", "word_diff.py", "gates.py",
++                 "editorial_gate.py", "cut_accept.py", "stand_alone.py", "punctuation.py", "pinned.py"]
++        missing = [f for f in sites if "canon" not in open(os.path.join(PIPELINE, f)).read()]
++        qa = open(os.path.join(REPO, "segment_v1", "qa_gates.py")).read()
++        if "import canon" not in qa:
++            missing.append("segment_v1/qa_gates.py")
++        self.assertFalse(missing, missing)
++
++
++if __name__ == "__main__":
++    unittest.main()

@@ -1,0 +1,222 @@
+{
+ "16x9": {
+  "final": "references/v2f_2026-11-06/run/out/segment.mp4",
+  "pass": true,
+  "floor": {
+   "16x9": 27.56,
+   "9x16": 10.84
+  },
+  "table": [
+   {
+    "segment": "hook",
+    "out_variances": [
+     27.21,
+     25.68,
+     27.56,
+     28.79,
+     28.01
+    ],
+    "src_variances": [
+     27.17,
+     25.34,
+     27.22,
+     28.83,
+     27.64
+    ],
+    "out_median": 27.56,
+    "src_median": 27.22,
+    "ratio": 1.012,
+    "floor": 27.56,
+    "floor_pass": true,
+    "degradation_pass": true,
+    "degradation_reason": "soft_source(27.2<27.56)",
+    "pass": true
+   },
+   {
+    "segment": "clip_01",
+    "out_variances": [
+     171.87,
+     171.77,
+     173.86,
+     170.17,
+     173.44
+    ],
+    "src_variances": [
+     176.35,
+     181.99,
+     178.49,
+     173.65,
+     178.45
+    ],
+    "out_median": 171.87,
+    "src_median": 178.45,
+    "ratio": 0.963,
+    "floor": 27.56,
+    "floor_pass": true,
+    "degradation_pass": true,
+    "degradation_reason": null,
+    "pass": true
+   },
+   {
+    "segment": "clip_02",
+    "out_variances": [
+     271.07,
+     265.74,
+     264.84,
+     264.84,
+     266.05
+    ],
+    "src_variances": [
+     268.39,
+     268.4,
+     269.18,
+     269.21,
+     264.16
+    ],
+    "out_median": 265.74,
+    "src_median": 268.4,
+    "ratio": 0.99,
+    "floor": 27.56,
+    "floor_pass": true,
+    "degradation_pass": true,
+    "degradation_reason": null,
+    "pass": true
+   },
+   {
+    "segment": "clip_03",
+    "out_variances": [
+     115.21,
+     111.9,
+     89.39,
+     73.12,
+     56.05
+    ],
+    "src_variances": [
+     115.7,
+     114.36,
+     91.18,
+     74.84,
+     56.51
+    ],
+    "out_median": 89.39,
+    "src_median": 91.18,
+    "ratio": 0.98,
+    "floor": 27.56,
+    "floor_pass": true,
+    "degradation_pass": true,
+    "degradation_reason": null,
+    "pass": true
+   }
+  ]
+ },
+ "9x16": {
+  "final": "references/v2f_2026-11-06/run/out/segment_vertical.mp4",
+  "pass": true,
+  "floor": {
+   "16x9": 27.56,
+   "9x16": 10.84
+  },
+  "table": [
+   {
+    "segment": "hook",
+    "out_variances": [
+     18.73,
+     17.69,
+     19.72,
+     19.38,
+     19.1
+    ],
+    "src_variances": [
+     18.07,
+     17.04,
+     18.78,
+     18.56,
+     18.06
+    ],
+    "out_median": 19.1,
+    "src_median": 18.07,
+    "ratio": 1.057,
+    "floor": 10.84,
+    "floor_pass": true,
+    "degradation_pass": true,
+    "degradation_reason": null,
+    "pass": true
+   },
+   {
+    "segment": "clip_01",
+    "out_variances": [
+     48.73,
+     50.34,
+     49.0,
+     50.79,
+     54.18
+    ],
+    "src_variances": [
+     47.75,
+     53.2,
+     47.15,
+     49.54,
+     53.88
+    ],
+    "out_median": 50.34,
+    "src_median": 49.54,
+    "ratio": 1.016,
+    "floor": 10.84,
+    "floor_pass": true,
+    "degradation_pass": true,
+    "degradation_reason": null,
+    "pass": true
+   },
+   {
+    "segment": "clip_02",
+    "out_variances": [
+     27.35,
+     25.68,
+     26.21,
+     26.25,
+     26.41
+    ],
+    "src_variances": [
+     25.24,
+     25.29,
+     26.01,
+     26.11,
+     25.03
+    ],
+    "out_median": 26.25,
+    "src_median": 25.29,
+    "ratio": 1.038,
+    "floor": 10.84,
+    "floor_pass": true,
+    "degradation_pass": true,
+    "degradation_reason": null,
+    "pass": true
+   },
+   {
+    "segment": "clip_03",
+    "out_variances": [
+     10.58,
+     12.66,
+     12.42,
+     6.75,
+     10.84
+    ],
+    "src_variances": [
+     9.96,
+     11.16,
+     11.18,
+     6.32,
+     10.04
+    ],
+    "out_median": 10.84,
+    "src_median": 10.04,
+    "ratio": 1.08,
+    "floor": 10.84,
+    "floor_pass": true,
+    "degradation_pass": true,
+    "degradation_reason": "soft_source(10.0<10.84)",
+    "pass": true
+   }
+  ]
+ }
+}

@@ -25,7 +25,8 @@ KNOWN_FILLER_VO = {
 
 
 def _norm(text):
-    return re.sub(r"[^a-z0-9]+", " ", str(text or "").lower()).strip()
+    import canon                                      # the one canonical form (pipeline/canon.py)
+    return canon.canon(str(text or ""))
 
 
 def _fail(name, reasons):

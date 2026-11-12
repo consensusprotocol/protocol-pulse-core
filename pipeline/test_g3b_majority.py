@@ -48,18 +48,20 @@ class TestG3bMajority(unittest.TestCase):
         self.assertEqual((Q.G3B_READS, Q.G3B_CONTEXT_S), (3, 1.5))
 
     def test_symbols_are_read_as_the_spoken_words(self):
-        self.assertEqual(Q._g3b_words("above $40 trillion"), ["above", "40", "trillion", "dollars"])
-        self.assertEqual(Q._g3b_words("hit $74,000."), ["hit", "74000", "dollars"])
-        self.assertEqual(Q._g3b_words("$1.66 billion in outflows"), ["1.66", "billion", "dollars", "in", "outflows"])
-        self.assertEqual(Q._g3b_words("up 50% today"), ["up", "50", "percent", "today"])
+        """L-g through the one canonical form (pipeline/canon.py): a symbol and its spoken words read the same."""
+        same = lambda a, b: Q._g3b_words(a) == Q._g3b_words(b)     # noqa: E731
+        self.assertTrue(same("above $40 trillion", "above 40 trillion dollars"))
+        self.assertTrue(same("hit $74,000.", "hit 74,000 dollars"))
+        self.assertTrue(same("$1.66 billion in outflows", "1.66 billion dollars in outflows"))
+        self.assertTrue(same("up 50% today", "up 50 percent today"))
         self.assertEqual(Q._g3b_words("the Monday rally."), ["the", "monday", "rally"])
-        self.assertEqual(Q._g3b_words("above 40 trillion"), ["above", "40", "trillion"])     # no symbol, no 'dollars'
+        self.assertFalse(same("above 40 trillion", "above 40 trillion dollars"))       # no symbol, no 'dollars'
         # batch 14 audit cases: no doubled 'dollars', abbreviated scales, '$' + '%', commas between words
-        self.assertEqual(Q._g3b_words("above $40 trillion dollars."), ["above", "40", "trillion", "dollars"])
-        self.assertEqual(Q._g3b_words("$40M raised"), ["40", "million", "dollars", "raised"])
-        self.assertEqual(Q._g3b_words("$50% off"), ["50", "percent", "off"])
+        self.assertTrue(same("above $40 trillion dollars.", "above 40 trillion dollars"))
+        self.assertTrue(same("$40M raised", "40 million dollars raised"))
+        self.assertEqual(Q._g3b_words("$50% off"), Q._g3b_words("50 percent off"))
         self.assertEqual(Q._g3b_words("well,known fact"), ["well", "known", "fact"])
-        self.assertEqual(Q._g3b_words("$5 and $6"), ["5", "dollars", "and", "6", "dollars"])
+        self.assertTrue(same("$5 and $6", "5 dollars and 6 dollars"))
 
     def test_a_leak_of_any_word_of_a_symbol_next_word_fails(self):
         """batch 14 audit (Gemini): the next source word '50%' reads as ['50', 'percent']; hearing either after the

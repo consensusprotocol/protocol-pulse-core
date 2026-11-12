@@ -1,0 +1,968 @@
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index b3413b83..f2a04047 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -130,7 +130,9 @@ _TERMINAL = (".", "!", "?")
+ 
+ 
+ def _tok(w):
+-    return [t for t in re.split(r"[^a-z0-9]+", (w or "").lower().replace("’", "'").replace("'", "")) if t]
++    """Words in the pipeline's one canonical form (pipeline/canon.py)."""
++    import canon
++    return canon.canon_tokens(w)
+ 
+ 
+ def _ends_statement(word):
+@@ -163,8 +165,10 @@ def align_quote(quote, words, t0, t1):
+     """Locate a verified quote in word timestamps within [t0, t1]. Returns
+     {"w0", "w1", "start", "end", "ratio"} or None. Never fabricates a location."""
+     from difflib import SequenceMatcher
+-    qt = [t for w in (quote or "").split() for t in _tok(w)]
+-    toks = [(t, i) for i, w in enumerate(words) if t0 <= w["start"] <= t1 for t in _tok(w["word"])]
++    import canon                                      # one canonical form; a token keeps the word it starts in
++    qt = canon.canon_tokens(quote)
++    idx = [i for i, w in enumerate(words) if t0 <= w["start"] <= t1]
++    toks = [(t, idx[o]) for t, o in canon.canon_aligned([words[i]["word"] for i in idx])]
+     if len(qt) < 5 or not toks:
+         return None
+     seq = [t for t, _ in toks]
+@@ -372,12 +376,16 @@ _NOT_ENTITY = {"I", "The", "This", "That", "These", "Those", "It", "And", "But",
+ 
+ 
+ def _lc_words(text):
+-    return re.findall(r"[a-z0-9]+", (text or "").lower().replace("’", "'"))
++    """Words in the pipeline's one canonical form, contractions reduced to their heads ("that's" -> "that":
++    backward references and interjections ask which word a contraction starts with; pipeline/canon.py)."""
++    import canon
++    return canon.canon_tokens(text, heads=True)
+ 
+ 
+ def _numbers(text):
+-    t = re.sub(r"(\d)\s+([.,])\s*(\d)", r"\1\2\3", text or "")      # whisper writes '6 .3' and '80 ,000'
+-    return {n.replace(",", "") for n in re.findall(r"\d[\d,]*(?:\.\d+)?", t)}
++    """The numbers a text states, as canonical values ('80 ,000' = '80,000' = 'eighty thousand'; pipeline/canon.py)."""
++    import canon
++    return {t for t in canon.canon_tokens(text) if re.fullmatch(r"\d+(?:\.\d+)?", t)}
+ 
+ 
+ def _anchor_entities(anchor, q):
+@@ -575,12 +583,16 @@ def _infra_error(msg):
+ 
+ 
+ def select_story(run_dir, log=print, embedder=None, llm=None, universe_fn=None,
+-                 stories_path=STORIES_PATH, topup=True, now=None):
++                 stories_path=STORIES_PATH, topup=True, now=None, transcript_fn=None, words_fn=None):
++    """transcript_fn(video_id) -> record and words_fn(video_id) -> (record, status) are the backtest's frozen
++    inputs (pipeline/backtest.py: a saved day's own transcript records; existing word records only, no download,
++    no GPU swap); production passes neither."""
+     rec = {"law": "titles/metadata are discovery hints; transcripts establish story identity",
+            "started": ts.now_iso()}
+     ck = Checkpoint(run_dir, rec)
+     try:
+-        return _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_path, topup, now)
++        return _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_path, topup, now,
++                             transcript_fn, words_fn)
+     except NoProducibleStory:
+         raise
+     except Exception as e:
+@@ -590,7 +602,8 @@ def select_story(run_dir, log=print, embedder=None, llm=None, universe_fn=None,
+         raise
+ 
+ 
+-def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_path, topup, now):
++def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_path, topup, now,
++                  transcript_fn=None, words_fn=None):
+     import story_semantics as sm
+     from transcript_ingest import universe as ingest_universe
+     t0 = time.time()
+@@ -611,7 +624,7 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+     vids = [v for v in vids if v["video_id"] not in V2F_VIDEO_IDS]
+     budget, used, uni = TOPUP_MAX_WHISPER_HOURS * 3600, 0.0, []
+     for v in sorted(vids, key=lambda v: (0 if layout_eligible(v["channel"]) else 1, v["age_h"])):
+-        r = ts.canonical_transcript(v["video_id"])
++        r = (transcript_fn or ts.canonical_transcript)(v["video_id"])
+         status = "cached" if r else None
+         if r is None and topup:
+             try:
+@@ -849,9 +862,11 @@ def _select_story(run_dir, rec, ck, log, embedder, llm, universe_fn, stories_pat
+                     need[v["video_id"]] = v["channel_id"]
+         words, arb = {}, {"videos": sorted(need)}
+         rec.setdefault("gpu_arbitration", {})[pname] = arb
+-        todo = [vid for vid in need if not ts.sentence_ready(ts.canonical_transcript(vid))]
++        todo = [] if words_fn else [vid for vid in need if not ts.sentence_ready(ts.canonical_transcript(vid))]
+         for vid in need:
+-            if vid not in todo:
++            if words_fn:
++                words[vid] = words_fn(vid)                  # backtest: existing word records only
++            elif vid not in todo:
+                 words[vid] = (ts.canonical_transcript(vid), "cached")
+         if todo:
+             try:
+diff --git a/pipeline/render16.py b/pipeline/render16.py
+index 7d3fccac..18962aa2 100644
+--- a/pipeline/render16.py
++++ b/pipeline/render16.py
+@@ -32,11 +32,11 @@ from config import (FPS, PRE_ROLL, WIDTH, HEIGHT, ACCENT_COLOR,
+                     conform_outro)
+ 
+ # Import shoutout renderer from segment_v1 (frozen)
+-sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
+ from scene_shoutout import render_shoutout, save_qa_frames
+ 
+ # Import relay for API keys
+-sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "video_pipeline_v3"))   # this checkout, never a fixed path (Claude-gates C4)
+ from relay import get_key
+ 
+ 
+diff --git a/pipeline/render_vertical.py b/pipeline/render_vertical.py
+index 6a66f9a9..418fd124 100644
+--- a/pipeline/render_vertical.py
++++ b/pipeline/render_vertical.py
+@@ -36,7 +36,7 @@ from config import (FPS, PRE_ROLL, WIDTH, HEIGHT, VERT_W, VERT_H,
+ from shoutout import build_shoutout
+ 
+ # Import relay for API keys
+-sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "video_pipeline_v3"))   # this checkout, never a fixed path (Claude-gates C4)
+ from relay import get_key
+ 
+ # ── Vertical-specific constants ──
+diff --git a/pipeline/shoutout.py b/pipeline/shoutout.py
+index b9663c40..ee8dba7c 100644
+--- a/pipeline/shoutout.py
++++ b/pipeline/shoutout.py
+@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+ from config import resolve_paths
+ 
+ # Import the frozen shoutout renderer
+-sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
+ from scene_shoutout import render_shoutout, save_qa_frames
+ 
+ 
+diff --git a/pipeline/signoff.py b/pipeline/signoff.py
+index e91040c0..ec7bd872 100644
+--- a/pipeline/signoff.py
++++ b/pipeline/signoff.py
+@@ -23,7 +23,7 @@ import datetime
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+ from config import SIGNOFF_WORD_CAP
+ 
+-sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "video_pipeline_v3"))   # this checkout, never a fixed path (Claude-gates C4)
+ from relay import get_key
+ 
+ LEGACY_HISTORY_PATH = os.path.join(os.path.dirname(__file__), "signoff_history.json")
+diff --git a/pipeline/story_semantics.py b/pipeline/story_semantics.py
+index 8bc551a9..f6cbdc63 100644
+--- a/pipeline/story_semantics.py
++++ b/pipeline/story_semantics.py
+@@ -360,11 +360,10 @@ def prompt_sha(p):
+ 
+ 
+ def _norm(s):
+-    """Quote-check normal form: entities decoded and split Whisper tokens joined (law L-h, as
+-    transcript_store.read_text), lower-case, letters / digits / spaces only."""
+-    import html
+-    t = re.sub(r"\s+(?=[.,][0-9a-z])", "", html.unescape(s or "").lower())
+-    return re.sub(r"[^a-z0-9 ]+", "", re.sub(r"\s+", " ", t)).strip()
++    """Quote-check normal form = the pipeline's one canonical form (pipeline/canon.py: entities, unicode, split
++    tokens, numbers, currency / percent, case, punctuation)."""
++    import canon
++    return canon.canon(s)
+ 
+ 
+ def quote_in(quote, texts):
+diff --git a/pipeline/vo.py b/pipeline/vo.py
+index af7ab1bf..31c0d485 100644
+--- a/pipeline/vo.py
++++ b/pipeline/vo.py
+@@ -16,7 +16,7 @@ import time
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+ from config import resolve_paths
+ 
+-sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "video_pipeline_v3"))   # this checkout, never a fixed path (Claude-gates C4)
+ from relay import get_key
+ 
+ 
+diff --git a/scripts/pulse_check_run.sh b/scripts/pulse_check_run.sh
+index 0346fae3..34183a0f 100755
+--- a/scripts/pulse_check_run.sh
++++ b/scripts/pulse_check_run.sh
+@@ -11,14 +11,19 @@
+ #   detached session pipeline_pulse_check_<UTC stamp>; scripts/tmux_cleanup.sh (cron) keeps 'pipeline'
+ #   sessions, so a long render is never reaped as idle. No other session is touched.
+ # - GPU0 only (CUDA_VISIBLE_DEVICES=0); nothing is published: drops go to the Telegram approval chat
+-#   only (pipeline/telegram.deliver_run), and ONLY when every gate passed: "HOLD FOR APPROVAL - all gates
+-#   passed, no waivers" (orchestrator 2026-11-11 08:30: a HOLD is never sent; its run dir is the record).
++#   only (pipeline/telegram.deliver_run), and ONLY for a run release_auth.authorise passes (its attestation is
++#   ALL_PASS and every bound file has its attested sha256): "HOLD FOR APPROVAL - all release gates passed, no
++#   waivers" (orchestrator 2026-11-11 08:30: a HOLD is never sent; its run dir is the record). Children never
++#   inherit the lock fd (9>&-), so an orphaned child cannot keep the next run out.
+ # - log: logs/pulse_check/run_<stamp>.log (git HEAD, run dir, exit code, delivery message ids)
+ # - DEC-9 story ledger: an AUTO run whose two finals went out as HOLD FOR APPROVAL is recorded in
+ #   data/pulse_check/story_ledger.jsonl (its counted evidence statements); later auto runs never select an
+ #   event resting on one of them (pipeline/story_ledger.py)
+-# Exit (--foreground, and in the log): run_fresh's code (0 = every gate passed, 3 = HOLD), 70 = the run
+-# rendered but the Telegram drop failed, 71 = delivered but the DEC-9 story ledger write failed,
++# - preflight first (pipeline/preflight.py: GPU0, Ollama, yt-dlp, ElevenLabs quota, Telegram, disk, a clean pushed
++#   HEAD, no other run, brand assets + registry): a failure exits 3 (HOLD) before run_fresh starts
++# Exit (--foreground, and in the log): run_fresh's code (0 = every release gate passed, 3 = HOLD), 70 = the run
++# passed but was not delivered (the drop failed or was refused by release_auth, or no finals were found), 71 =
++# delivered but the DEC-9 story ledger write failed,
+ # 75 = locked, 64 = usage. The detached launcher exits 0 once the
+ # tmux session is up (1 if tmux failed, 75 if a run already holds the lock); the run's code is in the log.
+ set -uo pipefail
+@@ -49,7 +54,9 @@ if [ "$FOREGROUND" = 0 ] && [[ "$CUR_SESSION" != pipeline_* ]]; then
+   fi
+   NAME="pipeline_pulse_check_$STAMP"
+   CMD="bash $(printf '%q' "$SELF") --foreground"
+-  for a in "${ORIG[@]}"; do CMD+=" $(printf '%q' "$a")"; done
++  # the RESOLVED arguments (a relative PIN path is not re-resolved inside the new session: GPT-gates F39)
++  for a in "${ARGS[@]}"; do CMD+=" $(printf '%q' "$a")"; done
++  [ "$TELEGRAM" = 0 ] && CMD+=" --no-telegram"
+   if ! tmux new-session -d -s "$NAME" "$CMD"; then
+     echo "pulse_check_run: tmux could not start session $NAME" >&2; exit 1
+   fi
+@@ -69,7 +76,13 @@ fi
+ export CUDA_VISIBLE_DEVICES=0
+ cd "$REPO/pipeline" || exit 1
+ echo "=== pulse_check_run $STAMP | HEAD $(git -C "$REPO" rev-parse HEAD) | args: ${ARGS[*]:-auto} ===" | tee -a "$LOG"
+-python3 run_fresh.py "${ARGS[@]}" 2>&1 | tee -a "$LOG"
++# preflight (orchestrator 2026-11-11 '21:10'): seconds, before any hour is spent; a failure is a HOLD with the reason
++python3 preflight.py 9>&- 2>&1 | tee -a "$LOG" 9>&-
++if [ "${PIPESTATUS[0]}" != 0 ]; then
++  echo "run_fresh exit 3 | run dir none (preflight HOLD: run_fresh not started)" | tee -a "$LOG"
++  exit 3
++fi
++python3 run_fresh.py "${ARGS[@]}" 9>&- 2>&1 | tee -a "$LOG" 9>&-
+ RC=${PIPESTATUS[0]}
+ RUN_DIR="$(grep -m1 -oP '(?<==== FRESH-TOPIC RUN ).*(?= ===)' "$LOG" || true)"
+ echo "run_fresh exit $RC | run dir ${RUN_DIR:-none}" | tee -a "$LOG"
+@@ -80,7 +93,7 @@ if [ "$TELEGRAM" = 1 ] && [ "$RC" != 0 ]; then
+   echo "HOLD (run_fresh exit $RC): not delivered; see $RUN_DIR/REPORT.md" | tee -a "$LOG"
+ elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
+   python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
+-    "$RUN_DIR" 2>&1 | tee -a "$LOG"
++    "$RUN_DIR" 9>&- 2>&1 | tee -a "$LOG" 9>&-
+   if [ "${PIPESTATUS[0]}" != 0 ]; then
+     echo "pulse_check_run: Telegram delivery FAILED (see above); run dir $RUN_DIR" | tee -a "$LOG"
+     exit 70
+@@ -88,12 +101,15 @@ elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4"
+   # DEC-9 ledger, from the delivery record just written (a separate step: a ledger fault never reads as a
+   # failed drop, and is never silent: the next auto run could select this story again)
+   python3 -c "import json, os, sys, story_ledger; r = json.load(open(os.path.join(sys.argv[1], 'TELEGRAM_DELIVERY.json'))); e = story_ledger.record_if_approved(sys.argv[1], r, sys.argv[2]); print('story ledger:', 'recorded ' + e['run'] if e else 'not recorded (pinned, review-only or option)')" \
+-    "$RUN_DIR" "$MODE" 2>&1 | tee -a "$LOG"
++    "$RUN_DIR" "$MODE" 9>&- 2>&1 | tee -a "$LOG" 9>&-
+   if [ "${PIPESTATUS[0]}" != 0 ]; then
+     echo "pulse_check_run: delivered, but the story ledger was NOT recorded (see above): the next auto run may select this story again; run dir $RUN_DIR" | tee -a "$LOG"
+     exit 71
+   fi
+ elif [ "$TELEGRAM" = 1 ]; then
+-  echo "no finals rendered: nothing delivered (the run's REPORT.md and status.json are the ledger)" | tee -a "$LOG"
++  # run_fresh exited 0 (every release gate passed) but no run dir / finals were found: nothing was delivered,
++  # and that is never a success (GPT-gates F38, Claude-gates P2)
++  echo "pulse_check_run: run_fresh exit 0 but run dir '${RUN_DIR:-none}' has no finals: NOT delivered" | tee -a "$LOG"
++  exit 70
+ fi
+ exit "$RC"
+diff --git a/pipeline/backtest.py b/pipeline/backtest.py
+new file mode 100644
+index 00000000..5ba6215b
+--- /dev/null
++++ b/pipeline/backtest.py
+@@ -0,0 +1,236 @@
++#!/usr/bin/env python3
++"""pipeline/backtest.py — editorial selection on every saved universe (orchestrator order 2026-11-11 '21:10').
++
++Every fresh run that saved its universe (runs/fresh_*/TOPIC_SELECTION.json with transcript shas) is a free test
++day. Each day goes through editorial selection only (select_story: clusters -> coverage -> clip quality, whose
++windows already apply the stand-alone screen and the text-level sentence rules: boundary start, full-stop end,
++whole sentences, durations), with:
++  - the day's OWN transcript records (by the sha it recorded; frozen inputs, so a code change is what moves a row),
++  - existing word records only (store word records, else a run's large-v3 transcript; no download, no GPU swap),
++  - the story-engine items the day saw (rebuilt from its saved candidates),
++  - 'now' pinned to that run's start,
++  - the cached embeddings and the validated LLM reply cache (warm days re-ask nothing).
++Not covered (needs media): the acoustic sentence law at the cut, review / validate on the EDL, render, gates.
++
++One table: day, universe, clusters (>= 2 channels), Bitcoin-screened (48 h / 72 h), coverage-qualified,
++producible, and the selected lineup (story, channels), or the gate that stopped each of the top 5. From now on this
++is the selection regression suite: a change that lowers the number of producible days is a HOLD on the change.
++
++Usage: CUDA_VISIBLE_DEVICES=0 python3 pipeline/backtest.py [--runs NAME ...] [--out DIR]
++"""
++import argparse
++import glob
++import hashlib
++import json
++import os
++import sys
++import time
++import traceback
++from datetime import datetime, timezone
++
++PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE_DIR)
++sys.path.insert(0, PIPELINE_DIR)
++import transcript_store as ts  # noqa: E402
++
++RUNS_DIR = os.environ.get("PP_RUNS_DIR", os.path.join(REPO, "runs"))   # a worktree backtest reads the main runs
++# acceptance-critical day first (Nov 10: the protected preview's day), then the newest
++PRIORITY = ("fresh_20261110_093150", "fresh_20261112_013452", "fresh_20261111_213954", "fresh_20261107_080503",
++            "fresh_20261106_213852")
++
++
++def saved_days(runs_dir=RUNS_DIR):
++    """Run dirs whose TOPIC_SELECTION.json carries a universe with transcript shas, priority days first."""
++    out = []
++    for p in sorted(glob.glob(os.path.join(runs_dir, "fresh_*", "TOPIC_SELECTION.json"))):
++        try:
++            d = json.load(open(p))
++        except (OSError, ValueError):
++            continue
++        uni = d.get("universe") or []
++        if d.get("started") and any(u.get("transcript_sha256") for u in uni):
++            out.append(os.path.dirname(p))
++    rank = {n: i for i, n in enumerate(PRIORITY)}
++    return sorted(out, key=lambda r: (rank.get(os.path.basename(r), len(rank)), os.path.basename(r)))
++
++
++def frozen_transcripts(saved):
++    """transcript_fn: the record with the sha this day recorded (hash-checked on read), else None."""
++    want = {u["video_id"]: u.get("transcript_sha256") for u in saved.get("universe") or []}
++
++    def fn(video_id):
++        sha = want.get(video_id)
++        if not sha:
++            return None
++        try:
++            return next((r for r in ts.transcript_records(video_id) if r["transcript_sha256"] == sha), None)
++        except (OSError, ValueError, ts.AcquisitionError):
++            return None
++    return fn
++
++
++def _run_transcript(video_id, runs_dir=RUNS_DIR):
++    """A run's own large-v3 word transcript of this video (select_passages), wrapped as a word record."""
++    import punctuation
++    for p in sorted(glob.glob(os.path.join(runs_dir, "*", "transcripts", f"{video_id}.json"))):
++        try:
++            d = json.load(open(p))
++        except (OSError, ValueError):
++            continue
++        words = d.get("words") or []
++        if words and (d.get("punctuation") or not punctuation.needs_restoration(words)):
++            return {"video_id": video_id, "words": words, "transcript_method": "run_transcript:large-v3",
++                    "transcript_model": "large-v3 (run transcript)", "source_path": os.path.relpath(p, REPO),
++                    "transcript_sha256": hashlib.sha256(open(p, "rb").read()).hexdigest()}
++    return None
++
++
++def offline_words(runs_dir=RUNS_DIR):
++    """words_fn: a sentence-ready store word record, else a run's large-v3 transcript, else none (a live run
++    would transcribe: recorded as the gate)."""
++    def fn(video_id):
++        r = ts.canonical_transcript(video_id)
++        if ts.sentence_ready(r):
++            return r, f"store {r['transcript_method']}"
++        r = _run_transcript(video_id, runs_dir)
++        if r:
++            return r, f"run transcript {r['source_path']}"
++        return None, "backtest: no word record (a live run would transcribe it)"
++    return fn
++
++
++def stories_of(saved):
++    """The story-engine items this day saw, rebuilt from its saved candidates."""
++    items = []
++    for c in saved.get("candidates") or []:
++        if c.get("origin") != "story_engine" or not c.get("headline"):
++            continue
++        items.append({"rank": c.get("engine_rank"), "overall_score": c.get("engine_score"),
++                      "headline": c["headline"], "summary": c.get("summary") or "",
++                      "source_domain": c.get("source_domain") or "",
++                      "freshness_minutes": round((c.get("age_h") or 0) * 60)})
++    gen = (saved.get("story_engine") or {}).get("generated_at") or saved["started"]
++    return {"generated_at": gen, "stories": items}
++
++
++def universe_of(saved, registry):
++    by_cid = {c["channel_id"]: c for c in registry if c.get("channel_id")}
++
++    def fn(hours):
++        out = []
++        for u in saved.get("universe") or []:
++            ch = by_cid.get(u.get("channel_id")) or {"channel_id": u.get("channel_id"), "display_name": u.get("channel")}
++            out.append({"video_id": u["video_id"], "rss": {"title": u.get("title"), "published": u.get("published_at")},
++                        "channel": ch, "age_h": u.get("age_h")})
++        return out
++    return fn
++
++
++def summarise(day_dir, out_dir, seconds, outcome):
++    t = json.load(open(os.path.join(out_dir, "TOPIC_SELECTION.json")))
++    em = t.get("emergent_clusters") or []
++    cands = t.get("candidates") or []
++    row = {"run": os.path.basename(day_dir), "day": (t.get("today") or ""), "outcome": outcome,
++           "seconds": round(seconds), "universe": (t.get("universe_summary") or {}).get("videos"),
++           "with_transcript": (t.get("universe_summary") or {}).get("with_transcript"),
++           "clusters": len(em), "screen_48h": sum(e.get("screen") == "48h" for e in em),
++           "screen_72h": sum(e.get("screen") == "72h" for e in em),
++           "coverage_qualified": sum(1 for c in cands if c.get("clip_quality") is not None),
++           "producible": sum(1 for c in cands if c.get("decision") == "producible"),
++           "llm": t.get("llm", {}).get("calls"), "llm_cache_hits": t.get("llm", {}).get("cache_hits")}
++    if t.get("selected"):
++        chosen = json.load(open(os.path.join(out_dir, "passages.json"))).get("chosen") or []
++        row["selected"] = {"headline": t["selected"]["headline"], "origin": t["selected"]["origin"],
++                           "channels": [p["channel"] for p in chosen],
++                           "lineup": [{"kind": p["kind"], "channel": p["channel"], "video_id": p["video_id"],
++                                       "start": p["start"], "end": p["end"], "text": p["text"][:160]} for p in chosen]}
++    ranked = sorted((c for c in cands if c.get("importance")),
++                    key=lambda c: -c["importance"].get("importance_score", 0))
++    row["top5"] = [{"headline": c["headline"][:100], "origin": c["origin"],
++                    "score": c["importance"].get("importance_score"),
++                    "gate": c.get("decision") or "; ".join(c.get("importance_gate") or []) or "not evaluated"}
++                   for c in ranked[:5]]
++    return row
++
++
++def run_day(day_dir, out_root, L, E, registry):
++    import editorial_select as es
++    saved = json.load(open(os.path.join(day_dir, "TOPIC_SELECTION.json")))
++    out_dir = os.path.join(out_root, os.path.basename(day_dir))
++    os.makedirs(out_dir, exist_ok=True)
++    sp = os.path.join(out_dir, "stories.json")
++    json.dump(stories_of(saved), open(sp, "w"))
++    now = datetime.fromisoformat(saved["started"]).astimezone(timezone.utc)
++    logf = open(os.path.join(out_dir, "selection.log"), "w")
++    t0 = time.time()
++    try:
++        es.select_story(out_dir, log=lambda s: (logf.write(str(s) + "\n"), logf.flush()), embedder=E, llm=L,
++                        universe_fn=universe_of(saved, registry), stories_path=sp, topup=False, now=now,
++                        transcript_fn=frozen_transcripts(saved), words_fn=offline_words())
++        outcome = "PRODUCIBLE"
++    except es.NoProducibleStory as e:
++        outcome = f"HOLD: {e}"
++    except Exception as e:                                         # a crash is a row, never a silent skip
++        outcome = f"CRASH: {type(e).__name__}: {e}"
++        logf.write(traceback.format_exc())
++    finally:
++        logf.close()
++    try:
++        return summarise(day_dir, out_dir, time.time() - t0, outcome)
++    except (OSError, ValueError, KeyError) as e:
++        return {"run": os.path.basename(day_dir), "outcome": outcome, "summary_error": str(e),
++                "seconds": round(time.time() - t0)}
++
++
++def table(rows):
++    lines = ["| run | day | outcome | universe | clusters | 48h / 72h | cov-qualified | producible | lineup | s | LLM calls / cache hits |",
++             "|---|---|---|---|---|---|---|---|---|---|---|"]
++    for r in rows:
++        sel = r.get("selected")
++        lineup = (f"{sel['headline'][:70]} ({', '.join(sel['channels'])})" if sel else "-")
++        lines.append(f"| {r['run']} | {r.get('day', '')} | {r['outcome'][:60]} | {r.get('universe')} / "
++                     f"{r.get('with_transcript')} | {r.get('clusters')} | {r.get('screen_48h')} / {r.get('screen_72h')} | "
++                     f"{r.get('coverage_qualified')} | {r.get('producible')} | {lineup} | {r.get('seconds')} | "
++                     f"{r.get('llm')} / {r.get('llm_cache_hits')} |")
++    days = {r.get("day") for r in rows if r["outcome"] == "PRODUCIBLE"}
++    lines.append(f"\nProducible days: {len(days)} of {len({r.get('day') for r in rows})} ({sorted(days)})")
++    for r in rows:
++        if r["outcome"] != "PRODUCIBLE":
++            lines.append(f"\n{r['run']} top 5 by importance and the gate that stopped each:")
++            lines += [f"- [{c['score']}] {c['headline']} ({c['origin']}): {c['gate'][:200]}" for c in r.get("top5", [])]
++    return "\n".join(lines)
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--runs", nargs="*", help="run dir names (default: every saved universe)")
++    ap.add_argument("--out", default=os.path.join(RUNS_DIR, "backtest_" + datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")))
++    a = ap.parse_args(argv)
++    import story_semantics as sm
++    days = saved_days()
++    if a.runs:
++        days = [d for d in days if os.path.basename(d) in set(a.runs)]
++    os.makedirs(a.out, exist_ok=True)
++    registry = json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))
++    E, L = sm.Embedder(), sm.LocalLLM().start()
++    rows, t0 = [], time.time()
++    try:
++        for d in days:
++            print(f"== {os.path.basename(d)}", flush=True)
++            rows.append(run_day(d, a.out, L, E, registry))
++            r = rows[-1]
++            print(f"   {r['outcome'][:100]} | {r.get('seconds')} s | LLM {r.get('llm')} calls, "
++                  f"{r.get('llm_cache_hits')} cached", flush=True)
++            json.dump({"rows": rows, "seconds": round(time.time() - t0)}, open(os.path.join(a.out, "backtest.json"), "w"),
++                      indent=1)
++            open(os.path.join(a.out, "BACKTEST.md"), "w").write(table(rows) + "\n")
++    finally:
++        L.stop()
++        E.close()
++    print(table(rows))
++    print(f"total {round(time.time() - t0)} s -> {a.out}")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/pipeline/preflight.py b/pipeline/preflight.py
+new file mode 100644
+index 00000000..eb2afdce
+--- /dev/null
++++ b/pipeline/preflight.py
+@@ -0,0 +1,166 @@
++#!/usr/bin/env python3
++"""pipeline/preflight.py — fail fast before a Pulse Check run spends an hour (orchestrator order 2026-11-11 '21:10').
++
++Checks (seconds; secrets are read through relay.get_key and never printed):
++  gpu0        GPU0 has no compute job except the GPU0 Ollama server's own runners, and enough memory free once
++              that model is counted as ours
++  ollama      the editorial model is installed on the GPU0 Ollama and answers a 1-token request
++  yt_dlp      yt-dlp reads one known video's metadata
++  elevenlabs  the API answers with the account's quota and enough characters left for a sign-off
++  telegram    the approval bot answers getMe
++  disk        free space on the repo's filesystem
++  git         pipeline / segment_v1 tracked files unmodified, HEAD pushed (an ancestor of the upstream branch)
++  no_other_run no run_fresh.py process besides this run
++  assets      outro masters, brand mark, music, channel registry and every layout-eligible channel's avatar
++Exit 0 = all pass, 3 = HOLD (the wrapper records the reasons and never starts run_fresh). Usage: python3 preflight.py
++"""
++import glob
++import json
++import os
++import shutil
++import subprocess
++import sys
++import urllib.request
++
++PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE_DIR)
++sys.path.insert(0, PIPELINE_DIR)
++sys.path.insert(1, os.path.join(REPO, "video_pipeline_v3"))     # relay.get_key (the pipeline's key loader)
++
++GPU0_FREE_MIB = 20000             # editorial model ~19 GB + Whisper; counted with our own Ollama model released
++DISK_FREE_GB = 25
++ELEVEN_MIN_CHARS = 2000           # a sign-off is ~150 characters; this leaves room for retries
++KNOWN_VIDEO = "RBFN4CB60To"       # a v2f source video (references/v2f_2026-11-06), public and stable
++
++
++def _run(cmd, timeout=30):
++    return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
++
++
++def _get_json(url, headers=None, timeout=15, data=None):
++    req = urllib.request.Request(url, headers=headers or {}, data=data)
++    return json.loads(urllib.request.urlopen(req, timeout=timeout).read())
++
++
++def check_gpu0():
++    import story_semantics as sm
++    gpus = dict(l.split(", ") for l in _run(["nvidia-smi", "--query-gpu=index,uuid", "--format=csv,noheader"])
++                .stdout.strip().splitlines())
++    apps = [l.split(", ") for l in _run(["nvidia-smi", "--query-compute-apps=pid,gpu_uuid,used_memory",
++                                         "--format=csv,noheader,nounits"]).stdout.strip().splitlines() if l]
++    serve = sm.LocalLLM()._listener_pid()
++    ours = set(_run(["pgrep", "-P", str(serve)]).stdout.split()) | {str(serve)} if serve else set()
++    others = [(p, m) for p, u, m in apps if u == gpus.get("0") and p not in ours]
++    if others:
++        return False, "other job(s) on GPU0: " + ", ".join(
++            f"pid {p} ({m} MiB) {_run(['ps', '-o', 'args=', '-p', p]).stdout.strip()[:60]}" for p, m in others)
++    used, total = sm.gpu0_memory()
++    held = sum(int(m) for p, u, m in apps if u == gpus.get("0") and p in ours)
++    free = total - used + held
++    return free >= GPU0_FREE_MIB, f"{free} MiB available with our model released (need {GPU0_FREE_MIB})"
++
++
++def check_ollama():
++    import story_semantics as sm
++    digest = sm.model_digest(sm.LLM_HOST, sm.LLM_MODEL)
++    if not digest:
++        return False, f"{sm.LLM_MODEL} not installed on {sm.LLM_HOST}"
++    body = json.dumps({"model": sm.LLM_MODEL, "prompt": "ok", "stream": False,
++                       "options": {"num_predict": 1}}).encode()
++    r = _get_json(f"http://{sm.LLM_HOST}/api/generate", {"Content-Type": "application/json"}, timeout=180, data=body)
++    return "response" in r, f"{sm.LLM_MODEL} {digest[:12]} answered"
++
++
++def check_yt_dlp():
++    import transcript_store as ts
++    r = ts._ytdlp(["-J", "--skip-download", ts.canonical_url(KNOWN_VIDEO)], timeout=60)
++    try:
++        ok = json.loads(r.stdout).get("id") == KNOWN_VIDEO
++    except ValueError:
++        ok = False
++    return ok, "metadata read" if ok else f"yt-dlp failed: {(r.stderr or '')[-160:]}"
++
++
++def check_elevenlabs():
++    from relay import get_key
++    s = _get_json("https://api.elevenlabs.io/v1/user/subscription", {"xi-api-key": get_key("ELEVENLABS_API_KEY")})
++    left = int(s.get("character_limit", 0)) - int(s.get("character_count", 0))
++    return left >= ELEVEN_MIN_CHARS, f"{left} characters left (need {ELEVEN_MIN_CHARS})"
++
++
++def check_telegram():
++    from relay import get_key
++    r = _get_json(f"https://api.telegram.org/bot{get_key('TELEGRAM_BOT_TOKEN')}/getMe")
++    return bool(r.get("ok")), "bot answers" if r.get("ok") else "getMe not ok"
++
++
++def check_disk():
++    free = shutil.disk_usage(REPO).free / 1e9
++    return free >= DISK_FREE_GB, f"{free:.0f} GB free (need {DISK_FREE_GB})"
++
++
++def check_git():
++    dirty = _run(["git", "-C", REPO, "status", "--porcelain", "--untracked-files=no", "--", "pipeline",
++                  "segment_v1"]).stdout.strip()
++    if dirty:
++        return False, "tracked pipeline / segment_v1 files modified: " + " ".join(dirty.split()[:6])
++    up = _run(["git", "-C", REPO, "rev-parse", "--abbrev-ref", "@{u}"]).stdout.strip()
++    if not up:
++        return False, "the branch has no upstream"
++    pushed = _run(["git", "-C", REPO, "merge-base", "--is-ancestor", "HEAD", up]).returncode == 0
++    head = _run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"]).stdout.strip()
++    return pushed, f"HEAD {head} " + ("pushed" if pushed else f"NOT on {up}")
++
++
++def check_no_other_run():
++    me = os.getpid()
++    procs = [l for l in _run(["pgrep", "-af", "run_fresh.py"]).stdout.splitlines()
++             if l and int(l.split()[0]) != me and "pgrep" not in l]
++    return not procs, "none" if not procs else f"running: {procs[0][:80]}"
++
++
++def check_assets():
++    import config
++    reg = json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))
++    need = {"outro 16:9": config.OUTRO_MASTER_16x9, "outro 9:16": config.OUTRO_MASTER_9x16,
++            "brand mark": config.resolve_brand(PIPELINE_DIR)}
++    missing = [k for k, p in need.items() if not (p and os.path.isfile(p) and os.path.getsize(p) > 0)]
++    if not glob.glob(os.path.join(REPO, "video_pipeline_v3", "assets", "music", "*.mp3")):
++        missing.append("music")
++    import editorial_select as es
++    avatars = [c["display_name"] for c in reg if c.get("enabled", True) and es.layout_eligible(c)
++               and not (c.get("avatar_path") and os.path.isfile(c["avatar_path"]))]
++    missing += [f"avatar: {n}" for n in avatars]
++    return not missing, "present" if not missing else "missing: " + ", ".join(missing[:8])
++
++
++CHECKS = [("gpu0", check_gpu0), ("ollama", check_ollama), ("yt_dlp", check_yt_dlp),
++          ("elevenlabs", check_elevenlabs), ("telegram", check_telegram), ("disk", check_disk),
++          ("git", check_git), ("no_other_run", check_no_other_run), ("assets", check_assets)]
++
++
++def run_checks(checks=None):
++    out = []
++    for name, fn in (CHECKS if checks is None else checks):
++        try:
++            ok, detail = fn()
++        except Exception as e:                        # an exception is a failed check, never a pass
++            ok, detail = False, f"{type(e).__name__}: {str(e)[:160]}"
++        out.append({"check": name, "ok": bool(ok), "detail": detail})
++    return out
++
++
++def main():
++    res = run_checks()
++    for r in res:
++        print(f"  preflight {r['check']:13s} [{'PASS' if r['ok'] else 'FAIL'}] {r['detail']}", flush=True)
++    bad = [r for r in res if not r["ok"]]
++    if bad:
++        print("HOLD (preflight): " + "; ".join(f"{r['check']}: {r['detail']}" for r in bad), flush=True)
++        return 3
++    print("preflight: all checks passed", flush=True)
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/pipeline/test_backtest.py b/pipeline/test_backtest.py
+new file mode 100644
+index 00000000..1222c02a
+--- /dev/null
++++ b/pipeline/test_backtest.py
+@@ -0,0 +1,130 @@
++#!/usr/bin/env python3
++"""pipeline/backtest.py (orchestrator order 2026-11-11 '21:10'): every saved universe through editorial selection only,
++with its own transcript records, existing word records only (no download, no GPU swap), its own story-engine
++items and 'now' pinned to its run.
++unit   saved-day discovery and priority; the story items rebuilt from a day's candidates; word sources (a store word
++       record first, else a run's large-v3 transcript, else the gate text); select_story's hooks: with
++       transcript_fn / words_fn it never acquires, transcribes or releases GPU0
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_backtest.py"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import backtest as B  # noqa: E402
++import transcript_store as ts  # noqa: E402
++from test_editorial_robust import FakeLLM, Orchestration  # noqa: E402
++
++
++def _saved(started="2026-11-10T09:31:52+00:00", shas=True):
++    return {"started": started, "today": started[:10],
++            "universe": [{"video_id": "VIDAAAAAAA1", "channel": "X", "channel_id": "UCx", "title": "t",
++                          "published_at": started, "age_h": 3.0, "transcript_sha256": "ab" * 32 if shas else None}],
++            "story_engine": {"generated_at": "2026-11-10T09:10:00+00:00"},
++            "candidates": [{"origin": "story_engine", "engine_rank": 1, "engine_score": 50, "headline": "H1",
++                            "summary": "S1", "source_domain": "d.com", "age_h": 2.0},
++                           {"origin": "transcript_cluster", "headline": "C1"}]}
++
++
++class TestDays(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="btdays_")
++
++    def tearDown(self):
++        shutil.rmtree(self.tmp, ignore_errors=True)
++
++    def _day(self, name, saved):
++        os.makedirs(os.path.join(self.tmp, name))
++        json.dump(saved, open(os.path.join(self.tmp, name, "TOPIC_SELECTION.json"), "w"))
++
++    def test_only_days_with_a_saved_universe_count_and_the_priority_day_leads(self):
++        self._day("fresh_20261112_000000", _saved("2026-11-12T00:00:00+00:00"))
++        self._day("fresh_20261110_093150", _saved())
++        self._day("fresh_20261106_133059", {"started": "2026-11-06T13:30:59+00:00", "universe": []})
++        self._day("fresh_20261107_064831", _saved("2026-11-07T06:48:31+00:00", shas=False))
++        names = [os.path.basename(d) for d in B.saved_days(self.tmp)]
++        self.assertEqual(names, ["fresh_20261110_093150", "fresh_20261112_000000"])
++
++    def test_the_story_items_are_the_days_own(self):
++        st = B.stories_of(_saved())
++        self.assertEqual(st["generated_at"], "2026-11-10T09:10:00+00:00")
++        self.assertEqual([s["headline"] for s in st["stories"]], ["H1"])               # clusters are re-derived
++        self.assertEqual(st["stories"][0]["freshness_minutes"], 120)
++
++
++class TestWordSources(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="btwords_")
++        self.saved = (ts.STORE_DIR, ts.TRANSCRIPTS_DIR, ts.STATE_DIR, ts.MEDIA_DIR)
++        ts.STORE_DIR = self.tmp
++        ts.TRANSCRIPTS_DIR = os.path.join(self.tmp, "transcripts")
++        ts.STATE_DIR = os.path.join(self.tmp, "state")
++        ts.MEDIA_DIR = os.path.join(self.tmp, "media")
++        self.runs = os.path.join(self.tmp, "runs")
++
++    def tearDown(self):
++        ts.STORE_DIR, ts.TRANSCRIPTS_DIR, ts.STATE_DIR, ts.MEDIA_DIR = self.saved
++        shutil.rmtree(self.tmp, ignore_errors=True)
++
++    def test_store_then_run_transcript_then_the_gate(self):
++        words = [{"word": w + ".", "start": i, "end": i + 0.5} for i, w in enumerate(["One", "Two", "Three"])]
++        os.makedirs(os.path.join(self.runs, "pinned_x", "transcripts"))
++        json.dump({"words": words}, open(os.path.join(self.runs, "pinned_x", "transcripts", "RUNVIDAAAA1.json"), "w"))
++        fn = B.offline_words(self.runs)
++        r, st = fn("RUNVIDAAAA1")
++        self.assertTrue(st.startswith("run transcript"))
++        self.assertEqual((r["words"], r["transcript_method"]), (words, "run_transcript:large-v3"))
++        r, st = fn("NOWORDSAAA1")
++        self.assertIsNone(r)
++        self.assertIn("no word record", st)
++        vid = "STOREVIDAA1"                                   # a sentence-ready store record wins over the run's
++        meta = {"schema": 1, "video_id": vid, "canonical_url": ts.canonical_url(vid), "channel_id": "UCfakefake03",
++                "channel_name": "Fake", "exact_title": "t", "published_at": "2026-11-10T00:00:00+00:00", "duration": 9}
++        os.makedirs(ts._vdir(vid))
++        ts._store(ts._make_record(meta, "whisper_words", "fake", ts.sentences_from_words(words), extra={"words": words}))
++        json.dump({"words": words}, open(os.path.join(self.runs, "pinned_x", "transcripts", f"{vid}.json"), "w"))
++        r, st = fn(vid)
++        self.assertEqual((st, r["transcript_method"]), ("store whisper_words", "whisper_words"))
++
++
++class TestHooks(Orchestration):
++    def test_with_the_hooks_selection_never_acquires_transcribes_or_releases_gpu0(self):
++        import editorial_select as es
++        calls = {"acquire": 0, "release": 0, "words": []}
++        orig = ts.acquire
++
++        def no_acquire(*a, **k):
++            calls["acquire"] += 1
++            raise AssertionError("backtest must not acquire")
++
++        def release(llm, **kw):
++            calls["release"] += 1
++            raise AssertionError("backtest must not release GPU0")
++
++        def words_fn(vid):
++            calls["words"].append(vid)
++            return None, "backtest: no word record (a live run would transcribe it)"
++        import story_semantics as sm
++        from test_editorial_robust import NOW, FakeEmbedder
++        saved_release = sm.release_gpu0_for_whisper
++        ts.acquire, sm.release_gpu0_for_whisper = no_acquire, release
++        try:
++            with self.assertRaises(es.NoProducibleStory):
++                es.select_story(self.run_dir, log=lambda s: None, embedder=FakeEmbedder(), llm=FakeLLM(),
++                                universe_fn=lambda h: self.uni, stories_path=self.stories, topup=False, now=NOW,
++                                transcript_fn=ts.canonical_transcript, words_fn=words_fn)
++        finally:
++            ts.acquire, sm.release_gpu0_for_whisper = orig, saved_release
++        self.assertEqual((calls["acquire"], calls["release"]), (0, 0))
++        self.assertTrue(calls["words"])                          # the coverage-qualified story asked for words
++        t = self.topic()
++        dem = [c for c in t["candidates"] if c["headline"].startswith("Democrats")][0]
++        self.assertIn("no word record", json.dumps(dem.get("clip_quality") or dem.get("decision")))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_preflight.py b/pipeline/test_preflight.py
+new file mode 100644
+index 00000000..edbb2739
+--- /dev/null
++++ b/pipeline/test_preflight.py
+@@ -0,0 +1,141 @@
++#!/usr/bin/env python3
++"""pipeline/preflight.py (orchestrator order 2026-11-11 '21:10'): fail fast before a run spends an hour.
++unit   an exception in a check is a failed check (fail closed); any failure exits 3 with 'HOLD (preflight)';
++       a foreign job on GPU0 fails (the GPU0 Ollama's own runners do not); a dirty or unpushed tree fails; secrets
++       never reach the output; a disabled channel's missing avatar does not fail the asset check
++wrapper scripts/pulse_check_run.sh runs preflight.py after the run lock and before run_fresh.py, and exits 3 on a
++       failure without starting run_fresh
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_preflight.py"""
++import io
++import os
++import re
++import sys
++import types
++import unittest
++from contextlib import redirect_stdout
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import preflight as P  # noqa: E402
++
++
++class R:
++    def __init__(self, stdout="", returncode=0, stderr=""):
++        self.stdout, self.returncode, self.stderr = stdout, returncode, stderr
++
++
++class TestRunner(unittest.TestCase):
++    def test_an_exception_is_a_failed_check_and_any_failure_holds(self):
++        def boom():
++            raise RuntimeError("network down")
++        res = P.run_checks([("ok", lambda: (True, "fine")), ("boom", boom)])
++        self.assertEqual([(r["check"], r["ok"]) for r in res], [("ok", True), ("boom", False)])
++        self.assertIn("network down", res[1]["detail"])
++        saved = P.CHECKS
++        P.CHECKS = [("ok", lambda: (True, "fine")), ("bad", lambda: (False, "nope"))]
++        out = io.StringIO()
++        try:
++            with redirect_stdout(out):
++                code = P.main()
++        finally:
++            P.CHECKS = saved
++        self.assertEqual(code, 3)
++        self.assertIn("HOLD (preflight): bad: nope", out.getvalue())
++
++
++class TestChecks(unittest.TestCase):
++    def setUp(self):
++        self.saved_run = P._run
++
++    def tearDown(self):
++        P._run = self.saved_run
++
++    def test_a_foreign_job_on_gpu0_fails_and_our_ollama_runner_does_not(self):
++        import story_semantics as sm
++        saved = (sm.LocalLLM._listener_pid, sm.gpu0_memory, os.environ.get("CUDA_VISIBLE_DEVICES"))
++        os.environ["CUDA_VISIBLE_DEVICES"] = "0"                       # as the wrapper exports it
++        sm.LocalLLM._listener_pid = lambda self: 100
++        sm.gpu0_memory = lambda: (19000, 24564)
++
++        def run(cmd, timeout=30):
++            if "--query-gpu=index,uuid" in cmd:
++                return R("0, GPU-A\n1, GPU-B\n")
++            if "--query-compute-apps=pid,gpu_uuid,used_memory" in cmd:
++                return R(self.apps)
++            if cmd[0] == "pgrep":
++                return R("101\n")
++            return R("python3 something\n")
++        P._run = run
++        try:
++            self.apps = "101, GPU-A, 18900\n555, GPU-B, 21000\n"          # our runner on GPU0, GPU1 busy
++            ok, d = P.check_gpu0()
++            self.assertTrue(ok, d)
++            self.apps = "101, GPU-A, 18900\n777, GPU-A, 1962\n"          # a foreign job on GPU0
++            ok, d = P.check_gpu0()
++            self.assertFalse(ok)
++            self.assertIn("pid 777", d)
++        finally:
++            sm.LocalLLM._listener_pid, sm.gpu0_memory, cvd = saved
++            if cvd is None:
++                os.environ.pop("CUDA_VISIBLE_DEVICES", None)
++            else:
++                os.environ["CUDA_VISIBLE_DEVICES"] = cvd
++
++    def test_a_dirty_or_unpushed_tree_fails(self):
++        replies = {"status": R(" M pipeline/editorial_select.py\n")}
++        P._run = lambda cmd, timeout=30: replies.get(cmd[3] if len(cmd) > 3 else "", R(""))
++        ok, d = P.check_git()
++        self.assertFalse(ok)
++        self.assertIn("editorial_select.py", d)
++        replies = {"status": R(""), "rev-parse": R("origin/branch\n"), "merge-base": R("", returncode=1)}
++        P._run = lambda cmd, timeout=30: replies.get(cmd[3], R("abc123\n"))
++        ok, d = P.check_git()
++        self.assertFalse(ok)
++        self.assertIn("NOT on origin/branch", d)
++
++    def test_secrets_never_reach_the_output(self):
++        relay = types.ModuleType("relay")
++        relay.get_key = lambda name: "SECRET-" + name
++        saved_mod, saved_get = sys.modules.get("relay"), P._get_json
++        sys.modules["relay"] = relay
++        seen = []
++
++        def get(url, headers=None, timeout=15, data=None):
++            seen.append(url + str(headers))
++            return {"ok": True} if "telegram" in url else {"character_limit": 10000, "character_count": 100}
++        P._get_json = get
++        try:
++            res = P.run_checks([("elevenlabs", P.check_elevenlabs), ("telegram", P.check_telegram)])
++        finally:
++            P._get_json = saved_get
++            if saved_mod is None:
++                sys.modules.pop("relay", None)
++            else:
++                sys.modules["relay"] = saved_mod
++        self.assertTrue(all(r["ok"] for r in res), res)
++        self.assertTrue(any("SECRET-" in s for s in seen))                # the key was used...
++        self.assertFalse(any("SECRET" in r["detail"] for r in res))       # ...and never reported
++
++    def test_a_disabled_channel_without_an_avatar_does_not_fail_assets(self):
++        import json
++        reg = json.load(open(os.path.join(PIPELINE, "channels.json")))
++        off = [c for c in reg if not c.get("enabled", True) and not c.get("avatar_path")]
++        if not off:
++            self.skipTest("no disabled channel without an avatar in the registry")
++        ok, d = P.check_assets()
++        self.assertTrue(ok, d)
++        self.assertNotIn(off[0]["display_name"], d)
++
++
++class TestWrapper(unittest.TestCase):
++    def test_preflight_runs_before_run_fresh_and_a_failure_exits_3(self):
++        s = open(os.path.join(REPO, "scripts", "pulse_check_run.sh")).read()
++        pf, rf = s.index("python3 preflight.py"), s.index("python3 run_fresh.py")
++        lock = s.index('if ! flock -n 9; then\n  echo "pulse_check_run: another run holds', s.index('LOG_DIR='))
++        self.assertTrue(lock < pf < rf)
++        self.assertRegex(s[pf:rf], re.compile(r'PIPESTATUS\[0\]\}" != 0 \]; then.*?exit 3', re.S))
++
++
++if __name__ == "__main__":
++    unittest.main()

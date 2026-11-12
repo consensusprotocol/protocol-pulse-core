@@ -22,7 +22,12 @@ TRAIL = re.compile(r"[.,!?;:]+$")
 
 
 def _key(word):
-    return re.sub(r"[^a-z0-9']", "", (word or "").lower().replace("’", "'"))
+    """A word's alignment key: the pipeline's one canonical form (pipeline/canon.py), spaces removed, with one
+    alignment tolerance: a currency / percent word right after a number is dropped (one decode writes '$74,000',
+    the other '74,000'; the mark must still transfer). Pure punctuation has no key and never receives a mark."""
+    import canon
+    t = canon.canon_tokens(word)
+    return "".join(w for k, w in enumerate(t) if not (w in ("dollars", "percent") and k and re.fullmatch(r"\d+(\.\d+)?", t[k - 1])))
 
 
 def needs_restoration(words):

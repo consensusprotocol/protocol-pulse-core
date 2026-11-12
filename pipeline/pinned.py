@@ -243,7 +243,8 @@ def validate_range(seg, acq):
     if approved:
         # the human-approved words for this exact range: must correspond to the source transcript
         from difflib import SequenceMatcher
-        norm = lambda t: [x for x in re.split(r"[^a-z0-9]+", t.lower()) if x]
+        import canon                              # the one canonical form (orchestrator 2026-11-11 '21:10')
+        norm = canon.canon_tokens
         a, t = norm(approved), norm(" ".join(w["word"] for w in touching))
         ratio = SequenceMatcher(None, a, t, autojunk=False).ratio()
         if ratio < APPROVED_TEXT_MIN_RATIO:

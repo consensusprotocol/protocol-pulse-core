@@ -36,7 +36,7 @@ from config import (FPS, PRE_ROLL, WIDTH, HEIGHT, VERT_W, VERT_H,
 from shoutout import build_shoutout
 
 # Import relay for API keys
-sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "video_pipeline_v3"))   # this checkout, never a fixed path (Claude-gates C4)
 from relay import get_key
 
 # ── Vertical-specific constants ──

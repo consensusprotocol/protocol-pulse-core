@@ -1,0 +1,1289 @@
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index df9df791..5aa8a60a 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -1,11 +1,11 @@
+ #!/usr/bin/env python3
+-"""pipeline/telegram.py — Telegram preview drop with VERIFIED_BY_ORCHESTRATOR guard (M16).
+-
+-The ONLY path for sending review drops. Wraps segment_v1/tg_preview.py with
+-width, height, supports_streaming parameters. Refuses to send unless:
+-  1. Both aspect gate reports are all-pass (no GATE_FAIL.txt)
+-  2. segment/VERIFIED_BY_ORCHESTRATOR file exists (created by the orchestrator)
++"""pipeline/telegram.py — the ONE path for review drops to the approval chat (never publishing).
+ 
++Red-team 2026-11-11 (A): a drop is sent only when release_auth.authorise(run_dir) passes: the run's attestation is
++ALL_PASS, deliverable, and every bound file (both finals, EDL, manifests, gate report, verification pack, contact
++sheets) still has its attested sha256. There is no other send path: the legacy send_telegram_preview (guards on
++VERIFIED_BY_ORCHESTRATOR / gate_results_*.json / GATE_FAIL.txt, 16:9 only, "gates PASS") is removed, and a run
++that is not authorised is never sent (no REVIEW ONLY drop; a HOLD's run dir is its record, orchestrator 08:30).
+ Ad-hoc requests.post / curl sends are FORBIDDEN (M16).
+ """
+ import json
+@@ -13,146 +13,40 @@ import os
+ import sys
+ 
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+-from config import resolve_paths
+-
+-
+-def send_telegram_preview(segment_dir, qa_version=None):
+-    """Send both outputs to Telegram. Raises on any guard failure."""
+-    paths = resolve_paths(segment_dir, qa_version)
+-    qa_dir = paths["qa_dir"]
+-    out_dir = paths["out_dir"]
+-
+-    # Guard 1: VERIFIED_BY_ORCHESTRATOR must exist
+-    verified_path = os.path.join(segment_dir, "VERIFIED_BY_ORCHESTRATOR")
+-    if not os.path.exists(verified_path):
+-        raise RuntimeError(
+-            f"STOP: Telegram refused — {verified_path} not found. "
+-            "The orchestrator must verify and create this file first (M9, M16)."
+-        )
+-
+-    # Guard 2: no GATE_FAIL.txt in qa_dir
+-    gate_fail = os.path.join(qa_dir, "GATE_FAIL.txt")
+-    if os.path.exists(gate_fail):
+-        raise RuntimeError(f"STOP: Telegram refused — gates failed: {gate_fail}")
+-
+-    # Guard 3: both finals exist
+-    final_16 = os.path.join(out_dir, "segment.mp4")
+-    final_9 = os.path.join(out_dir, "segment_vertical.mp4")
+-    for f in [final_16, final_9]:
+-        if not os.path.exists(f):
+-            raise FileNotFoundError(f"STOP: final output missing: {f}")
+-
+-    # Guard 4: gate results for BOTH aspects exist and show all-pass
+-    for aspect in ["16x9", "9x16"]:
+-        results_path = os.path.join(qa_dir, f"gate_results_{aspect}.json")
+-        if not os.path.exists(results_path):
+-            raise FileNotFoundError(
+-                f"STOP: Telegram refused — gate results missing: {results_path}"
+-            )
+-        with open(results_path) as fp:
+-            results = json.load(fp)
+-        if not results.get("all_pass", False):
+-            raise RuntimeError(
+-                f"STOP: Telegram refused — {aspect} gates not all-pass"
+-            )
+-
+-    # Delegate to tg_preview.py (sendVideo with dimensions)
+-    sys.path.insert(0, "/home/ultron/protocol_pulse/segment_v1")
+-    try:
+-        from tg_preview import send_preview
+-        segment_name = os.path.basename(os.path.normpath(segment_dir))
+-        caption = f"Pulse Check {segment_name} — gates PASS"
+-        send_preview(final_16, caption)
+-    except ImportError:
+-        # Fallback: use requests directly with proper dimensions
+-        _send_via_requests(final_16, final_9, segment_dir)
+ 
+ 
+-def _send_via_requests(final_16, final_9, segment_dir):
+-    """Direct Telegram sendVideo with width/height/supports_streaming (M16)."""
+-    import requests
+-    import subprocess
+-
+-    sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
+-    from relay import get_key
+-
+-    bot_token = get_key("TELEGRAM_BOT_TOKEN")
+-    chat_id = get_key("TELEGRAM_CHAT_ID")
+-    if not bot_token or not chat_id:
+-        raise RuntimeError("STOP: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set")
+-
+-    base = f"https://api.telegram.org/bot{bot_token}"
+-    segment_name = os.path.basename(os.path.normpath(segment_dir))
+-
+-    for path, w, h, label in [
+-        (final_16, 1920, 1080, "16:9"),
+-        (final_9, 1080, 1920, "9:16"),
+-    ]:
+-        # Get duration
+-        r = subprocess.run(
+-            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+-             "-of", "csv=p=0", path],
+-            capture_output=True, text=True, timeout=10, check=True,
+-        )
+-        dur = int(float(r.stdout.strip()))
+-
+-        with open(path, "rb") as f:
+-            resp = requests.post(
+-                f"{base}/sendVideo",
+-                data={
+-                    "chat_id": chat_id,
+-                    "caption": f"{segment_name} ({label}) — gates PASS",
+-                    "width": w,
+-                    "height": h,
+-                    "duration": dur,
+-                    "supports_streaming": "true",
+-                },
+-                files={"video": f},
+-                timeout=300,
+-            )
+-        data = resp.json()
+-        if data.get("ok"):
+-            print(f"  Telegram {label}: message_id={data['result']['message_id']}")
+-        else:
+-            raise RuntimeError(f"STOP: Telegram send failed ({label}): {data}")
++def send_telegram_preview(*_a, **_k):
++    """Removed (red-team A, GPT-gates F03 / Claude-gates X5 / C3): the legacy entry point trusted
++    VERIFIED_BY_ORCHESTRATOR, a truthy all_pass and GATE_FAIL.txt. Every drop goes through deliver_run."""
++    raise RuntimeError("STOP: send_telegram_preview is removed; use telegram.deliver_run (release_auth.authorise)")
+ 
+ 
+ # ==============================================================
+-# run_fresh drops (mission 4a / DEC-8, 2026-11-11): both aspects, the verdict in the caption
++# run_fresh drops (mission 4a / DEC-8; red-team A 2026-11-11): authorised runs only, both aspects
+ # ==============================================================
+ 
+-HOLD_OK = "HOLD FOR APPROVAL - all gates passed, no waivers"
+-REVIEW = "REVIEW ONLY"
++HOLD_OK = "HOLD FOR APPROVAL - all release gates passed, no waivers"
+ CAPTION_MAX = 1024                       # Telegram caption limit
++TEXT_MAX = 4096                          # Telegram sendMessage limit
++VIDEO_MAX_BYTES = 49_000_000             # Bot API upload limit is 50 MB; checked BEFORE the first send (X1)
+ DIMS = {"16x9": (1920, 1080), "9x16": (1080, 1920)}
++FINALS = {"16x9": "out/segment.mp4", "9x16": "out/segment_vertical.mp4"}
+ 
+ 
+-def gate_status(run_dir):
+-    """(all_pass, failing) from GATE_REPORT.json: every row of both formats must read PASS. Placeholder rows
+-    '<gate>(run_gates)' point to the real row (G11 parity in 9x16) and are not results themselves."""
+-    with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
+-        rows = json.load(f)["rows"]
+-    failing = [f"{k} ({fmt}): {v[:60]}" for fmt in ("16x9", "9x16") for k, v in rows.get(fmt, {}).items()
+-               if not k.endswith("(run_gates)") and not str(v).startswith("PASS")]
+-    if not rows.get("16x9") or not rows.get("9x16"):
+-        failing.append("gate rows missing for a format")
+-    return not failing, failing
++def _fit(text, limit):
++    """text within limit characters, the cut marked (Claude-gates X3: the marker is counted)."""
++    sfx = " ...(see GATE_REPORT)"
++    return text if len(text) <= limit else text[:limit - len(sfx)] + sfx
+ 
+ 
+-def build_caption(run_dir, fmt, option=None, duration=None):
+-    """Verdict line first: HOLD FOR APPROVAL only when every gate passed with no waiver AND the
+-    automated verification pack is complete; otherwise REVIEW ONLY with the failing list."""
++def build_caption(run_dir, fmt, att, option=None, duration=None):
++    """The caption of an AUTHORISED run: verdict line first; the MONITORING rows that did not pass are listed as
++    reported, not release-deciding (addendum '22:15' item 4)."""
++    import release_auth
+     import vertical_layout
+-    ok, failing = gate_status(run_dir)
+-    vpath = os.path.join(run_dir, "VERIFY", "VERIFICATION.json")
+-    pack_ok = os.path.exists(vpath) and json.load(open(vpath)).get("complete") is True
+-    if not pack_ok:
+-        failing.append("verification pack missing or incomplete")
+     with open(os.path.join(run_dir, "edl.json")) as f:
+         edl = json.load(f)
+-    head = HOLD_OK if (ok and pack_ok) else f"{REVIEW} - {len(failing)} failing"
+-    if option:
+-        head = f"OPTION {option} (transition choice, not a release candidate) | {head}"
++    head = HOLD_OK if not option else f"OPTION {option} (transition choice) | {HOLD_OK}"
+     lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}"
+              + (f" | {duration:.1f} s" if duration else ""),
+              f"Story: {edl.get('topic', '')}",
+@@ -160,10 +54,10 @@ def build_caption(run_dir, fmt, option=None, duration=None):
+     note = vertical_layout.layout_note(edl) if fmt == "9x16" else ""
+     if note:
+         lines.append(note)
+-    if failing:
+-        lines.append("Failing: " + "; ".join(failing))
+-    cap = "\n".join(lines)
+-    return cap if len(cap) <= CAPTION_MAX else cap[:CAPTION_MAX - 20] + " ...(see GATE_REPORT)"
++    mon = release_auth.monitoring_report(att.get("rows") or {}).get(fmt) or {}
++    if mon:
++        lines.append("Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))
++    return _fit("\n".join(lines), CAPTION_MAX)
+ 
+ 
+ def _dims(path):
+@@ -175,40 +69,115 @@ def _dims(path):
+     return int(j["streams"][0]["width"]), int(j["streams"][0]["height"]), float(j["format"]["duration"])
+ 
+ 
+-def deliver_run(run_dir, option=None, send=None, sheets=True):
+-    """Send a run_fresh run's two finals to the approval chat (never publishing), each with its caption,
+-    plus (sheets=True) the verification pack's contact sheets; transition options send the two finals only.
+-    send(kind, path, fields) -> message_id (tests inject it).
+-    Writes TELEGRAM_DELIVERY.json. Raises on a missing/misdimensioned final (fail closed)."""
+-    import hashlib
+-    send = send or _send_bot_api
+-    finals = {"16x9": os.path.join(run_dir, "out", "segment.mp4"),
+-              "9x16": os.path.join(run_dir, "out", "segment_vertical.mp4")}
+-    record = {"option": option, "messages": []}
+-    for fmt, path in finals.items():
+-        if not os.path.exists(path):
+-            raise FileNotFoundError(f"STOP: final output missing: {path}")
++def headline_numbers_said(run_dir):
++    """Claude-gates T13: every number in the headline the drop shows (caption story line, suggested title) is said
++    in the video: it occurs in the locked sentences of the hook or a clip (canon form). Returns the numbers that
++    are not."""
++    import canon
++    import re
++    with open(os.path.join(run_dir, "edl.json")) as f:
++        edl = json.load(f)
++    said = set()
++    for seg in [edl.get("hook") or {}] + list(edl.get("clips") or []):
++        said |= set(canon.canon_tokens((seg.get("selection_lock") or {}).get("text") or ""))
++    heads = " ".join(x for x in (edl.get("headline"), edl.get("topic")) if x)
++    return sorted({t for t in canon.canon_tokens(heads) if re.fullmatch(r"\d+(\.\d+)?", t)} - said)
++
++
++def _plan(run_dir, option, sheets, att):
++    """Every message of the drop, built and checked BEFORE anything is sent (X1 / X4 / T13): the two finals at
++    their real dimensions and size, the contact sheets, and (release drop) the publishing kit."""
++    plan = []
++    bad = headline_numbers_said(run_dir)
++    if bad:
++        raise RuntimeError(f"STOP: the headline states numbers the video does not say: {bad}")
++    for fmt, rel in FINALS.items():
++        path = os.path.join(run_dir, rel)
+         w, h, dur = _dims(path)
+         if (w, h) != DIMS[fmt]:
+             raise RuntimeError(f"STOP: {fmt} final is {w}x{h}, expected {DIMS[fmt][0]}x{DIMS[fmt][1]}")
+-        cap = build_caption(run_dir, fmt, option, duration=dur)
+-        mid = send("video", path, {"caption": cap, "width": w, "height": h, "duration": int(round(dur)),
+-                                   "supports_streaming": "true"})
+-        record["messages"].append({"format": fmt, "message_id": mid, "caption": cap,
+-                                   "sha256": hashlib.sha256(open(path, "rb").read()).hexdigest()})
++        if os.path.getsize(path) > VIDEO_MAX_BYTES:
++            raise RuntimeError(f"STOP: {fmt} final is {os.path.getsize(path)} bytes > {VIDEO_MAX_BYTES} (Bot API limit)")
++        plan.append({"key": f"video:{fmt}", "kind": "video", "path": path, "rel": rel, "format": fmt,
++                     "fields": {"caption": build_caption(run_dir, fmt, att, option, duration=dur), "width": w,
++                                "height": h, "duration": int(round(dur)), "supports_streaming": "true"}})
+     for fmt in (("16x9", "9x16") if sheets else ()):        # one contact sheet of the finished video per format
+-        p = os.path.join(run_dir, "qa", f"contact_sheet_{fmt}.jpg")
+-        if os.path.exists(p):
+-            kind = "photo" if _photo_ok(p) else "document"
+-            mid = send(kind, p, {"caption": f"contact sheet {fmt}: 2 s stills, +-3 frames at every boundary, "
+-                                            f"full-resolution credits" + (" and segment first frames" if fmt == "9x16" else "")})
+-            record["messages"].append({"sheet": os.path.basename(p), "message_id": mid, "as": kind})
++        rel = f"qa/contact_sheet_{fmt}.jpg"
++        p = os.path.join(run_dir, rel)
++        kind = "photo" if _photo_ok(p) else "document"
++        if kind == "document" and os.path.getsize(p) > VIDEO_MAX_BYTES:
++            raise RuntimeError(f"STOP: {rel} is too large for a document send")
++        plan.append({"key": f"sheet:{fmt}", "kind": kind, "path": p, "rel": rel, "sheet": os.path.basename(p),
++                     "fields": {"caption": f"contact sheet {fmt}: 2 s stills, +-3 frames at every boundary, "
++                                           f"full-resolution credits" + (" and segment first frames" if fmt == "9x16" else "")}})
+     if not option:                          # the publishing kit (orchestrator 2026-11-11 15:30), same thread
+         kit = publish_kit(run_dir)
+-        mid = send("message", "", {"text": kit})
+-        record["messages"].append({"publish_kit": kit, "message_id": mid})
+-    with open(os.path.join(run_dir, f"TELEGRAM_DELIVERY{'_' + option if option else ''}.json"), "w") as f:
+-        json.dump(record, f, indent=2)
++        if len(kit) > TEXT_MAX:
++            raise RuntimeError(f"STOP: publishing kit is {len(kit)} characters > {TEXT_MAX}")
++        plan.append({"key": "kit", "kind": "message", "path": "", "rel": None, "kit": kit, "fields": {"text": kit}})
++    return plan
++
++
++def deliver_run(run_dir, option=None, send=None, sheets=True):
++    """Send an AUTHORISED run's two finals to the approval chat (never publishing), each with its caption, plus
++    (sheets=True) both contact sheets and (release drop) the publishing kit. send(kind, path, fields) ->
++    message_id (tests inject it).
++      - release_auth.authorise first: not authorised = nothing is sent (raises with the reasons)
++      - every payload is built and checked against Telegram's limits before the first send
++      - each file's digest is checked again immediately before it is sent
++      - TELEGRAM_DELIVERY[_<option>].json is rewritten after EVERY message (atomic): a rerun resumes after the
++        last sent message and never sends one twice; a message whose outcome is unknown (the request may have
++        reached Telegram) stops the drop and is never resent automatically; a complete drop is never repeated."""
++    import hashlib
++    import release_auth
++    send = send or _send_bot_api
++    ok, why, att = release_auth.authorise(run_dir)
++    if not ok:
++        raise RuntimeError("STOP: not authorised for release: " + "; ".join(why))
++    rpath = os.path.join(run_dir, f"TELEGRAM_DELIVERY{'_' + option if option else ''}.json")
++    att_sha = release_auth.sha256(os.path.join(run_dir, "ATTESTATION.json"))
++    record = {"option": option, "authorised": True, "attestation_sha256": att_sha, "status": "in_progress",
++              "messages": [], "unknown": []}
++    if os.path.exists(rpath):
++        record = json.load(open(rpath))
++        if record.get("status") == "complete":
++            raise RuntimeError(f"STOP: already delivered: {rpath}")
++        if record.get("attestation_sha256") != att_sha:
++            raise RuntimeError("STOP: a partial delivery of another attestation exists; reconcile it by hand")
++        if record.get("unknown"):
++            raise RuntimeError(f"STOP: outcome unknown for {record['unknown']}; reconcile in the chat before resending")
++    sent = {m.get("key") for m in record["messages"]}
++
++    def save():
++        tmp = rpath + ".tmp"
++        with open(tmp, "w") as f:
++            json.dump(record, f, indent=2)
++        os.replace(tmp, rpath)
++    for item in _plan(run_dir, option, sheets, att):
++        if item["key"] in sent:
++            continue
++        if item["rel"] and not release_auth.check_file(run_dir, att, item["rel"]):
++            raise RuntimeError(f"STOP: {item['rel']} changed after it was authorised")
++        try:
++            mid = send(item["kind"], item["path"], item["fields"])
++        except SendRejected:
++            raise                                    # Telegram said no: nothing was sent; a rerun may retry it
++        except Exception:
++            record["unknown"].append(item["key"])     # the request may have reached Telegram
++            save()
++            raise
++        m = {"key": item["key"], "message_id": mid}
++        if item["kind"] == "video":
++            m.update(format=item["format"], caption=item["fields"]["caption"],
++                     sha256=hashlib.sha256(open(item["path"], "rb").read()).hexdigest())
++        elif item["key"].startswith("sheet:"):
++            m.update(sheet=item["sheet"], **{"as": item["kind"]})
++        else:
++            m.update(publish_kit=item["kit"])
++        record["messages"].append(m)
++        save()
++    record["status"] = "complete"
++    save()
+     return record
+ 
+ 
+@@ -234,11 +203,15 @@ def publish_kit(run_dir):
+     headline = (edl.get("headline") or edl.get("topic") or "").strip().rstrip(".")
+     lines = [f"SUGGESTED TITLE: {headline} | Pulse Check", "", "DESCRIPTION:",
+              f"{headline}. Every clip in this Pulse Check is a creator's own words; go follow them:"]
++    missing = [ch for ch in credited if not (reg.get(ch, {}).get("yt_handle") and reg.get(ch, {}).get("url")
++                                             and vids.get(ch))]
++    if not credited or missing:                      # Claude-gates X4: never a bare name or an empty link
++        raise RuntimeError(f"STOP: publishing kit incomplete (handle / url / source video): {missing or 'no credits'}")
+     for ch in credited:
+-        e = reg.get(ch, {})
+-        src = ", ".join(f"https://www.youtube.com/watch?v={v}" for v in vids.get(ch, []))
+-        lines.append(f"- {ch} {e.get('yt_handle', '')}: {e.get('url', '')} (clip from {src})")
+-    handles = " ".join(reg.get(ch, {}).get("yt_handle") or ch for ch in credited)
++        e = reg[ch]
++        src = ", ".join(f"https://www.youtube.com/watch?v={v}" for v in vids[ch])
++        lines.append(f"- {ch} {e['yt_handle']}: {e['url']} (clip from {src})")
++    handles = " ".join(reg[ch]["yt_handle"] for ch in credited)
+     lines += ["", "FIRST COMMENT:", f"credits: {handles}", ORANGE_HEART]
+     return "\n".join(lines)
+ 
+@@ -258,27 +231,34 @@ def _photo_ok(path):
+     return os.path.getsize(path) <= PHOTO_MAX_BYTES and w + h <= 10000 and max(w, h) / max(1, min(w, h)) <= 20
+ 
+ 
++class SendRejected(RuntimeError):
++    """Telegram answered and refused the message: it was NOT sent (a rerun may send it)."""
++
++
+ def _send_bot_api(kind, path, fields):
+-    """One sendVideo / sendPhoto to the approval chat (M16 path; credentials never printed)."""
++    """One sendVideo / sendPhoto / sendDocument / sendMessage to the approval chat (M16 path). Credentials never
++    printed: a network error is re-raised by type only (its text carries the URL with the token, Claude-gates X2);
++    a refusal from Telegram raises SendRejected; anything else (timeout, connection, unreadable answer) means the
++    outcome is unknown and the caller must not resend it automatically."""
+     import requests
+-    sys.path.insert(0, "/home/ultron/protocol_pulse/video_pipeline_v3")
++    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "video_pipeline_v3"))
+     from relay import get_key
+     tok, chat = get_key("TELEGRAM_BOT_TOKEN"), get_key("TELEGRAM_CHAT_ID")
+     if not tok or not chat:
+-        raise RuntimeError("STOP: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set")
+-    if kind == "message":                   # plain text in the same chat (the publishing kit)
+-        resp = requests.post(f"https://api.telegram.org/bot{tok}/sendMessage", data={"chat_id": chat, **fields},
+-                             timeout=60)
+-        data = resp.json()
+-        if not data.get("ok"):
+-            raise RuntimeError(f"STOP: Telegram sendMessage failed: {data.get('description')}")
+-        return data["result"]["message_id"]
++        raise SendRejected("STOP: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set")
+     method, field = {"video": ("sendVideo", "video"), "photo": ("sendPhoto", "photo"),
+-                     "document": ("sendDocument", "document")}[kind]
+-    with open(path, "rb") as fh:
+-        resp = requests.post(f"https://api.telegram.org/bot{tok}/{method}", data={"chat_id": chat, **fields},
+-                             files={field: fh}, timeout=600)
+-    data = resp.json()
++                     "document": ("sendDocument", "document"), "message": ("sendMessage", None)}[kind]
++    try:
++        if field is None:                       # plain text in the same chat (the publishing kit)
++            resp = requests.post(f"https://api.telegram.org/bot{tok}/{method}", data={"chat_id": chat, **fields},
++                                 timeout=60)
++        else:
++            with open(path, "rb") as fh:
++                resp = requests.post(f"https://api.telegram.org/bot{tok}/{method}", data={"chat_id": chat, **fields},
++                                     files={field: fh}, timeout=600)
++        data = resp.json()
++    except Exception as e:
++        raise RuntimeError(f"STOP: Telegram {method}: outcome unknown ({type(e).__name__})") from None
+     if not data.get("ok"):
+-        raise RuntimeError(f"STOP: Telegram {method} failed: {data.get('description')}")
++        raise SendRejected(f"STOP: Telegram {method} refused: {data.get('error_code')} {data.get('description')}")
+     return data["result"]["message_id"]
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index 23714078..dab6f618 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -628,17 +628,24 @@ class TestFailClosedShoutout(unittest.TestCase):
+ 
+ 
+ class TestTelegramGuard(unittest.TestCase):
+-    """M16: telegram.py refuses without VERIFIED_BY_ORCHESTRATOR."""
++    """M16 on the release contract (red-team A): the legacy entry point is removed, and deliver_run refuses a run
++    without an attestation before anything is sent."""
+ 
+     def test_refuses_without_verification(self):
+-        from telegram import send_telegram_preview
+         import tempfile
++        import telegram
++        from telegram import send_telegram_preview
+         with tempfile.TemporaryDirectory() as tmpdir:
+             os.makedirs(os.path.join(tmpdir, "out"))
+             os.makedirs(os.path.join(tmpdir, "qa"))
+             with self.assertRaises(RuntimeError) as ctx:
+                 send_telegram_preview(tmpdir)
+-            self.assertIn("VERIFIED_BY_ORCHESTRATOR", str(ctx.exception))
++            self.assertIn("removed", str(ctx.exception))
++            sent = []
++            with self.assertRaises(RuntimeError) as ctx:
++                telegram.deliver_run(tmpdir, send=lambda k, p, f: sent.append(k) or 1)
++            self.assertIn("not authorised", str(ctx.exception))
++            self.assertEqual(sent, [])
+ 
+ 
+ class TestAcousticModule(unittest.TestCase):
+diff --git a/pipeline/test_failure_blocks.py b/pipeline/test_failure_blocks.py
+index a2cd60ed..17e04250 100644
+--- a/pipeline/test_failure_blocks.py
++++ b/pipeline/test_failure_blocks.py
+@@ -1,17 +1,14 @@
+ #!/usr/bin/env python3
+-"""Addendum 2 item 6: failure blocks delivery tests.
+-
+-Each test creates a scratch copy of a passing run dir, sabotages one element,
+-and verifies that send_telegram_preview raises before sending.
+-
+-Tests:
+-  (a) Delete a required clip record from gate results
+-  (b) Delete one expected gate result file
+-  (c) Modify the mp4 after VERIFIED_BY_ORCHESTRATOR (hash mismatch scenario)
+-  (d) Remove VERIFIED_BY_ORCHESTRATOR marker
+-
+-No Telegram calls are made. The guard logic raises before reaching the sender.
+-"""
++"""Addendum 2 item 6 (failure blocks delivery), on the release contract of 2026-11-11 (red-team A).
++
++Each test builds a complete AUTHORISED run dir (test_release_auth.make_run), sabotages one element, and verifies
++that telegram.deliver_run refuses before anything is sent:
++  (a) a required gate row deleted from GATE_REPORT.json after the attestation
++  (b) a required gate row set to FAIL (re-attested: the attestation itself is HOLD)
++  (c) the mp4 modified after the attestation (digest mismatch)
++  (d) the attestation removed (the old VERIFIED_BY_ORCHESTRATOR marker is gone; this is its replacement)
++  (e) a legacy GATE_FAIL.txt / truthy gate_results_*.json no longer authorise anything
++No Telegram calls are made: the sender is injected and must never be called."""
+ import json
+ import os
+ import shutil
+@@ -20,125 +17,53 @@ import tempfile
+ import unittest
+ 
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+-from config import resolve_paths
+-
+-# We need telegram.py
+-from telegram import send_telegram_preview
++import release_auth as RA  # noqa: E402
++import telegram as TG  # noqa: E402
++from test_release_auth import edit_json, make_run, passing_rows  # noqa: E402
+ 
+ 
+ class TestFailureBlocksDelivery(unittest.TestCase):
+-    """Sabotage tests against the Telegram guard in pipeline/telegram.py."""
+-
+-    @classmethod
+-    def setUpClass(cls):
+-        """Create a minimal scratch run dir that would pass all guards."""
+-        cls.tmpdir = tempfile.mkdtemp(prefix="failure_blocks_")
+-        cls.segment_dir = cls.tmpdir
+-
+-        # Create out dir with dummy mp4s
+-        out_dir = os.path.join(cls.tmpdir, "out")
+-        os.makedirs(out_dir)
+-        for name in ("segment.mp4", "segment_vertical.mp4"):
+-            with open(os.path.join(out_dir, name), "wb") as f:
+-                f.write(b"\x00" * 1024)  # dummy content
+-
+-        # Create qa dir with passing gate results
+-        qa_dir = os.path.join(cls.tmpdir, "qa")
+-        os.makedirs(qa_dir)
+-        for aspect in ("16x9", "9x16"):
+-            results = {
+-                "all_pass": True,
+-                "G1_voice": {"pass": True},
+-                "G3_cuts": {"pass": True},
+-                "G5_tech": {"pass": True},
+-                "G8_sharpness": {"pass": True},
+-            }
+-            with open(os.path.join(qa_dir, f"gate_results_{aspect}.json"), "w") as f:
+-                json.dump(results, f)
+-
+-        # Create VERIFIED_BY_ORCHESTRATOR marker
+-        with open(os.path.join(cls.tmpdir, "VERIFIED_BY_ORCHESTRATOR"), "w") as f:
+-            f.write("verified")
+-
+-        # Create edl.json (for config.resolve_paths)
+-        with open(os.path.join(cls.tmpdir, "edl.json"), "w") as f:
+-            json.dump({"clips": []}, f)
+-
+-    @classmethod
+-    def tearDownClass(cls):
+-        shutil.rmtree(cls.tmpdir, ignore_errors=True)
+-
+-    def _fresh_copy(self):
+-        """Return a fresh copy of the passing run dir."""
+-        copy_dir = tempfile.mkdtemp(prefix="sabotage_")
+-        shutil.copytree(self.segment_dir, copy_dir, dirs_exist_ok=True)
+-        return copy_dir
+-
+-    def test_a_delete_gate_result_blocks(self):
+-        """(a) Delete one gate result file — telegram must refuse."""
+-        d = self._fresh_copy()
+-        try:
+-            qa_dir = os.path.join(d, "qa")
+-            os.remove(os.path.join(qa_dir, "gate_results_16x9.json"))
+-            with self.assertRaises((FileNotFoundError, RuntimeError)) as ctx:
+-                send_telegram_preview(d)
+-            self.assertIn("gate", str(ctx.exception).lower())
+-        finally:
+-            shutil.rmtree(d, ignore_errors=True)
+-
+-    def test_b_set_gate_fail_blocks(self):
+-        """(b) Set all_pass=false in gate results — telegram must refuse."""
+-        d = self._fresh_copy()
+-        try:
+-            qa_dir = os.path.join(d, "qa")
+-            path = os.path.join(qa_dir, "gate_results_9x16.json")
+-            with open(path) as f:
+-                data = json.load(f)
+-            data["all_pass"] = False
+-            with open(path, "w") as f:
+-                json.dump(data, f)
+-            with self.assertRaises(RuntimeError) as ctx:
+-                send_telegram_preview(d)
+-            self.assertIn("not all-pass", str(ctx.exception))
+-        finally:
+-            shutil.rmtree(d, ignore_errors=True)
+-
+-    def test_c_modify_mp4_after_verified(self):
+-        """(c) Modify mp4 after VERIFIED — currently only checks existence.
+-        This test verifies the file still blocks if deleted entirely."""
+-        d = self._fresh_copy()
+-        try:
+-            out_dir = os.path.join(d, "out")
+-            os.remove(os.path.join(out_dir, "segment.mp4"))
+-            with self.assertRaises(FileNotFoundError) as ctx:
+-                send_telegram_preview(d)
+-            self.assertIn("missing", str(ctx.exception).lower())
+-        finally:
+-            shutil.rmtree(d, ignore_errors=True)
+-
+-    def test_d_remove_verified_marker_blocks(self):
+-        """(d) Remove VERIFIED_BY_ORCHESTRATOR — telegram must refuse."""
+-        d = self._fresh_copy()
+-        try:
+-            os.remove(os.path.join(d, "VERIFIED_BY_ORCHESTRATOR"))
+-            with self.assertRaises(RuntimeError) as ctx:
+-                send_telegram_preview(d)
+-            self.assertIn("VERIFIED_BY_ORCHESTRATOR", str(ctx.exception))
+-        finally:
+-            shutil.rmtree(d, ignore_errors=True)
+-
+-    def test_e_gate_fail_txt_blocks(self):
+-        """(e) Create GATE_FAIL.txt — telegram must refuse even with passing results."""
+-        d = self._fresh_copy()
+-        try:
+-            qa_dir = os.path.join(d, "qa")
+-            with open(os.path.join(qa_dir, "GATE_FAIL.txt"), "w") as f:
+-                f.write("G8 sharpness below floor")
+-            with self.assertRaises(RuntimeError) as ctx:
+-                send_telegram_preview(d)
+-            self.assertIn("gates failed", str(ctx.exception).lower())
+-        finally:
+-            shutil.rmtree(d, ignore_errors=True)
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="failure_blocks_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++
++    def refused(self, rd, needle):
++        sent = []
++        with self.assertRaises(RuntimeError) as ctx:
++            TG.deliver_run(rd, send=lambda kind, path, fields: sent.append(kind) or 1)
++        self.assertEqual(sent, [])
++        self.assertIn(needle, str(ctx.exception))
++
++    def test_a_deleted_gate_row_blocks(self):
++        rd = make_run(self.tmp)
++        edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: d["rows"]["16x9"].pop("G18_word_for_word"))
++        self.refused(rd, "GATE_REPORT.json rows / evidence differ")
++
++    def test_b_failing_gate_blocks(self):
++        rows = passing_rows()
++        rows["9x16"]["G9_tail"] = "FAIL"
++        self.refused(make_run(self.tmp, rows=rows), "9x16 G9_tail: FAIL")
++
++    def test_c_modified_mp4_after_attestation_blocks(self):
++        rd = make_run(self.tmp)
++        with open(os.path.join(rd, "out", "segment.mp4"), "ab") as f:
++            f.write(b"\0" * 16)
++        self.refused(rd, "out/segment.mp4: changed since it was attested")
++
++    def test_d_no_attestation_blocks(self):
++        rd = make_run(self.tmp)
++        os.remove(os.path.join(rd, "ATTESTATION.json"))
++        self.refused(rd, "no readable attestation")
++
++    def test_e_legacy_markers_authorise_nothing(self):
++        rd = make_run(self.tmp, attest=False)
++        open(os.path.join(rd, "VERIFIED_BY_ORCHESTRATOR"), "w").write("verified")
++        for fmt in ("16x9", "9x16"):
++            json.dump({"all_pass": True}, open(os.path.join(rd, "qa", f"gate_results_{fmt}.json"), "w"))
++        self.refused(rd, "no readable attestation")
++        with self.assertRaises(RuntimeError):
++            TG.send_telegram_preview(rd)
++        self.assertFalse(RA.authorise(rd)[0])
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/pipeline/test_telegram_delivery.py b/pipeline/test_telegram_delivery.py
+index d35c9278..390a3028 100644
+--- a/pipeline/test_telegram_delivery.py
++++ b/pipeline/test_telegram_delivery.py
+@@ -1,7 +1,10 @@
+ #!/usr/bin/env python3
+-"""Mission 4a / DEC-8 delivery contract: 'HOLD FOR APPROVAL - all gates passed, no waivers' only when every
+-gate row of both formats is PASS and the automated verification pack is complete; otherwise 'REVIEW ONLY'
+-with the failing list. Both aspects, real dimensions; safe frames named in the 9:16 caption. No network:
++"""Delivery contract (mission 4a / DEC-8; red-team 2026-11-11 A): telegram.deliver_run sends ONLY a run that
++release_auth.authorise passes, captioned 'HOLD FOR APPROVAL - all release gates passed, no waivers'; a run that
++is not authorised sends NOTHING (no REVIEW ONLY drop). Every payload is checked before the first send; each file's
++digest is checked again right before it is sent; every message is checkpointed, a rerun resumes without
++duplicates, an unknown outcome is never resent automatically, a complete drop is never repeated. Both aspects at
++real dimensions; safe frames named in the 9:16 caption; the publishing kit closes the release drop. No network:
+ the sender is injected. Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_telegram_delivery.py"""
+ import json
+ import os
+@@ -14,124 +17,187 @@ import unittest
+ PIPELINE = os.path.dirname(os.path.abspath(__file__))
+ sys.path.insert(0, PIPELINE)
+ 
++import release_auth as RA  # noqa: E402
+ import telegram as TG  # noqa: E402
++from test_release_auth import edit_json, make_run, passing_rows  # noqa: E402
+ 
+-ROWS = {"16x9": {"G1_voice": "PASS", "G11_parity(run_gates)": "NOT RUN BY run_gates (no horiz) — see G11 below",
+-                 "G16_sentence_boundary": "PASS", "G18_word_for_word": "PASS"},
+-        "9x16": {"G1_voice": "PASS", "G11_parity(run_gates)": "NOT RUN BY run_gates (no horiz) — see G11 below",
+-                 "G11_parity": "PASS", "G4s_layout_truth": "PASS", "G18_word_for_word": "PASS"}}
+-
+-
+-class TestDelivery(unittest.TestCase):
+-    @classmethod
+-    def setUpClass(cls):
+-        cls.media = tempfile.mkdtemp(prefix="tgm_")
+-        for name, (w, h) in (("segment.mp4", (1920, 1080)), ("segment_vertical.mp4", (1080, 1920)),
+-                             ("wrong.mp4", (1280, 720))):
+-            subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=c=black:s={w}x{h}:r=24:d=1",
+-                            "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+-                            os.path.join(cls.media, name)], check=True)
+-
+-    @classmethod
+-    def tearDownClass(cls):
+-        shutil.rmtree(cls.media, ignore_errors=True)
+-
+-    def run_dir(self, rows=ROWS, pack_complete=True, flagged=False):
+-        rd = tempfile.mkdtemp(prefix="tgr_")
+-        self.addCleanup(shutil.rmtree, rd, True)
+-        os.makedirs(os.path.join(rd, "out"))
+-        os.makedirs(os.path.join(rd, "VERIFY"))
+-        for name in ("segment.mp4", "segment_vertical.mp4"):
+-            shutil.copy(os.path.join(self.media, name), os.path.join(rd, "out", name))
+-        json.dump({"rows": rows}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
+-        json.dump({"complete": pack_complete}, open(os.path.join(rd, "VERIFY", "VERIFICATION.json"), "w"))
+-        shot = {"start": 0.0, "end": 9.4, "class": "screen" if flagged else "single", "flagged": flagged}
+-        json.dump({"topic": "Bitcoin price dip",
+-                   "hook": {"channel": "Yahoo Finance", "vertical_layout": {"shots": [shot], "flagged": flagged}},
+-                   "clips": [{"index": 1, "channel": "Natalie Brunell",
+-                              "vertical_layout": {"shots": [dict(shot, **{"class": "single", "flagged": False})],
+-                                                  "flagged": False}}]},
+-                  open(os.path.join(rd, "edl.json"), "w"))
+-        return rd
+-
+-    def deliver(self, rd, option=None):
++
++class Base(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="tg_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++
++    def deliver(self, rd, option=None, fail_at=None, exc=None, sheets=True):
+         sent = []
+-        rec = TG.deliver_run(rd, option=option, send=lambda kind, path, fields: sent.append(
+-            (kind, os.path.basename(path), fields)) or len(sent))
++
++        def send(kind, path, fields):
++            if fail_at is not None and len(sent) == fail_at:
++                raise exc
++            sent.append((kind, os.path.basename(path), fields))
++            return len(sent)
++        rec = TG.deliver_run(rd, option=option, send=send, sheets=sheets)
+         return rec, sent
+ 
+-    def test_all_pass_with_complete_pack_is_hold_for_approval_in_both_aspects(self):
+-        rd = self.run_dir()
++
++class TestAuthorisedDrop(Base):
++    def test_an_authorised_run_goes_out_in_both_aspects_with_sheets_and_kit(self):
++        rd = make_run(self.tmp)
+         rec, sent = self.deliver(rd)
+         vids = [s for s in sent if s[0] == "video"]
+         self.assertEqual([(s[1], s[2]["width"], s[2]["height"]) for s in vids],
+                          [("segment.mp4", 1920, 1080), ("segment_vertical.mp4", 1080, 1920)])
+         for s in vids:
+             self.assertTrue(s[2]["caption"].startswith(TG.HOLD_OK), s[2]["caption"])
+-            self.assertNotIn("Failing", s[2]["caption"])
++        self.assertEqual([(s[0], s[1]) for s in sent if s[0] not in ("video", "message")],
++                         [("photo", "contact_sheet_16x9.jpg"), ("photo", "contact_sheet_9x16.jpg")])
++        self.assertEqual(sent[-1][0], "message")
+         written = json.load(open(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
++        self.assertEqual(written["status"], "complete")
++        self.assertTrue(written["authorised"])
+         self.assertEqual([m["format"] for m in written["messages"] if "format" in m], ["16x9", "9x16"])
+ 
+-    def test_any_failing_row_is_review_only_with_the_list(self):
+-        rows = json.loads(json.dumps(ROWS))
+-        rows["9x16"]["G4s_layout_truth"] = "FAIL"
+-        _, sent = self.deliver(self.run_dir(rows))
+-        cap = sent[0][2]["caption"]
+-        self.assertTrue(cap.startswith("REVIEW ONLY - 1 failing"), cap)
+-        self.assertIn("G4s_layout_truth (9x16): FAIL", cap)
+-
+-    def test_a_waiver_is_not_a_pass(self):
+-        rows = json.loads(json.dumps(ROWS))
+-        rows["16x9"]["G8_sharpness"] = "FLAG/LIMITED (absolute floor vs soft source)"
+-        _, sent = self.deliver(self.run_dir(rows))
+-        self.assertTrue(sent[0][2]["caption"].startswith("REVIEW ONLY"), sent[0][2]["caption"])
+-        self.assertIn("G8_sharpness (16x9): FLAG/LIMITED", sent[0][2]["caption"])
+-
+-    def test_incomplete_verification_pack_is_review_only(self):
+-        _, sent = self.deliver(self.run_dir(pack_complete=False))
+-        self.assertIn("verification pack missing or incomplete", sent[0][2]["caption"])
+-        self.assertTrue(sent[0][2]["caption"].startswith("REVIEW ONLY"))
+-
+-    def test_safe_frame_is_named_in_the_vertical_caption(self):
+-        _, sent = self.deliver(self.run_dir(flagged=True))
++    def test_the_caption_carries_the_duration_and_the_vertical_names_its_safe_frames(self):
++        edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
++        shot = {"start": 0.0, "end": 9.4, "class": "screen", "flagged": True}
++        edl["hook"]["vertical_layout"] = {"shots": [shot], "flagged": True}
++        rd = make_run(self.tmp, edl=edl)
++        _, sent = self.deliver(rd)
++        self.assertIn(" s", sent[0][2]["caption"].split("\n")[1])
+         vert = [s for s in sent if s[1] == "segment_vertical.mp4"][0][2]["caption"]
+         self.assertIn("9:16 SAFE FRAME hook (Yahoo Finance): layout=screen 0.00-9.40 s", vert)
+ 
+-    def test_option_label_comes_first(self):
+-        _, sent = self.deliver(self.run_dir(), option="B")
+-        self.assertTrue(sent[0][2]["caption"].startswith("OPTION B (transition choice"), sent[0][2]["caption"])
++    def test_monitoring_rows_are_reported_in_the_caption_not_deciding(self):
++        rows = passing_rows()
++        rows["16x9"]["G1_voice"] = "FAIL"
++        _, sent = self.deliver(make_run(self.tmp, rows=rows))
++        self.assertTrue(sent[0][2]["caption"].startswith(TG.HOLD_OK))
++        self.assertIn("Monitoring (reported, not release-deciding): G1_voice FAIL", sent[0][2]["caption"])
+ 
+-    def test_one_contact_sheet_per_format_with_the_main_drop_only(self):
+-        from PIL import Image
+-        rd = self.run_dir()
+-        os.makedirs(os.path.join(rd, "qa"), exist_ok=True)
+-        Image.new("RGB", (1920, 2600)).save(os.path.join(rd, "qa", "contact_sheet_16x9.jpg"))
+-        Image.new("RGB", (6000, 4500)).save(os.path.join(rd, "qa", "contact_sheet_9x16.jpg"))   # too big for a photo
+-        _, sent = self.deliver(rd)
+-        self.assertEqual([(s[0], s[1]) for s in sent if s[0] not in ("video", "message")],
+-                         [("photo", "contact_sheet_16x9.jpg"), ("document", "contact_sheet_9x16.jpg")])
+-        sent2 = []
+-        TG.deliver_run(rd, option="A", sheets=False, send=lambda k, p, f: sent2.append(k) or 1)
+-        self.assertEqual(sent2, ["video", "video"])
++    def test_an_option_is_labelled_first_and_carries_no_kit(self):
++        rd = make_run(self.tmp)
++        _, sent = self.deliver(rd, option="B", sheets=False)
++        self.assertTrue(sent[0][2]["caption"].startswith("OPTION B (transition choice)"), sent[0][2]["caption"])
++        self.assertEqual([s[0] for s in sent], ["video", "video"])
+ 
+     def test_the_release_drop_ends_with_the_publishing_kit(self):
+         # orchestrator 2026-11-11 15:30: a suggested title, a description crediting and linking every source,
+         # and the first-comment line "credits:" + every creator's @handle, a line break, the orange heart alone
+-        rd = self.run_dir()
+-        _, sent = self.deliver(rd)
+-        self.assertEqual(sent[-1][0], "message")
++        _, sent = self.deliver(make_run(self.tmp))
+         kit = sent[-1][2]["text"]
+         self.assertIn("SUGGESTED TITLE: Bitcoin price dip", kit)
+         self.assertIn("- Yahoo Finance @YahooFinance: https://www.youtube.com/@YahooFinance", kit)
+         self.assertIn("- Natalie Brunell @nataliebrunell: https://www.youtube.com/@nataliebrunell", kit)
+         self.assertTrue(kit.endswith("credits: @YahooFinance @nataliebrunell\n\U0001F9E1"), kit[-80:])
+-        _, sent_opt = self.deliver(rd, option="B")
+-        self.assertNotIn("message", [s[0] for s in sent_opt])         # transition options carry no kit
+ 
+-    def test_the_caption_carries_the_duration(self):
+-        rd = self.run_dir()
+-        _, sent = self.deliver(rd)
+-        self.assertIn(" s", sent[0][2]["caption"].split("\n")[1])
++
++class TestNothingIsSentUnlessAuthorised(Base):
++    def refused(self, rd, label):
++        sent = []
++        with self.assertRaises(RuntimeError, msg=label):
++            TG.deliver_run(rd, send=lambda k, p, f: sent.append(k) or 1)
++        self.assertEqual(sent, [], label)
++
++    def test_a_failing_row_a_waiver_string_an_incomplete_pack_or_no_attestation_send_nothing(self):
++        for fmt, row, v in (("9x16", "G4s_layout_truth", "FAIL"), ("16x9", "G8_sharpness", "FLAG/LIMITED (soft)"),
++                            ("16x9", "G17_onset_tail", "PASS (L-c)")):
++            rows = passing_rows()
++            rows[fmt][row] = v
++            self.refused(make_run(self.tmp, rows=rows), f"{row} = {v}")
++        rd = make_run(self.tmp, attest=False)
++        edit_json(os.path.join(rd, "VERIFY", "VERIFICATION.json"), lambda d: d.__setitem__("complete", False))
++        RA.attest(rd, {"ok": True, "why": []})
++        self.refused(rd, "incomplete pack")
++        self.refused(make_run(self.tmp, attest=False), "no attestation")
++
++    def test_a_final_changed_after_authorisation_is_refused_before_it_is_sent(self):
++        rd = make_run(self.tmp)
++        real = TG._plan
++
++        def plan_then_tamper(*a, **k):                  # the 9:16 changes between authorise and its send
++            p = real(*a, **k)
++            with open(os.path.join(rd, "out", "segment_vertical.mp4"), "ab") as f:
++                f.write(b"\0")
++            return p
++        TG._plan = plan_then_tamper
++        try:
++            sent = []
++            with self.assertRaises(RuntimeError) as cm:
++                TG.deliver_run(rd, send=lambda k, p, f: sent.append(os.path.basename(p)) or 1)
++        finally:
++            TG._plan = real
++        self.assertIn("changed after it was authorised", str(cm.exception))
++        self.assertEqual(sent, ["segment.mp4"])
++
++    def test_wrong_dimensions_or_an_oversize_final_stop_before_the_first_send(self):
++        rd = make_run(self.tmp, attest=False)
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "color=c=black:s=1280x720:r=24:d=1",
++                        "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
++                        os.path.join(rd, "out", "segment.mp4")], check=True)
++        m = os.path.join(rd, "GATE_REPORT.json")
++        edit_json(m, lambda d: d["measured_files"].__setitem__("out/segment.mp4", RA.sha256(os.path.join(rd, "out", "segment.mp4"))))
++        RA.attest(rd, {"ok": True, "why": []})
++        self.refused(rd, "1280x720 16:9 final")
++        rd = make_run(self.tmp)
++        saved = TG.VIDEO_MAX_BYTES
++        TG.VIDEO_MAX_BYTES = 10
++        try:
++            self.refused(rd, "oversize final")
++        finally:
++            TG.VIDEO_MAX_BYTES = saved
++
++    def test_a_headline_number_the_video_does_not_say_stops_the_drop(self):
++        edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
++        edl["headline"] = "Bitcoin falls to $74,000 on November 8th"       # E-FAIL-038's invented date
++        self.refused(make_run(self.tmp, edl=edl), "headline date not said")
++        edl["headline"] = "Bitcoin falls to $74,000"                         # said in the hook's lock
++        self.assertEqual(TG.headline_numbers_said(make_run(self.tmp, edl=edl)), [])
++
++
++class TestCheckpoint(Base):
++    def test_a_refused_send_resumes_without_duplicates(self):
++        rd = make_run(self.tmp)
++        with self.assertRaises(TG.SendRejected):
++            self.deliver(rd, fail_at=1, exc=TG.SendRejected("429 Too Many Requests"))
++        rec = json.load(open(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
++        self.assertEqual([m["key"] for m in rec["messages"]], ["video:16x9"])
++        self.assertEqual(rec["status"], "in_progress")
++        _, sent = self.deliver(rd)                      # resumes after the 16:9
++        self.assertEqual(sent[0][1], "segment_vertical.mp4")
++        self.assertNotIn("segment.mp4", [s[1] for s in sent])
++        with self.assertRaises(RuntimeError) as cm:     # a complete drop is never repeated
++            self.deliver(rd)
++        self.assertIn("already delivered", str(cm.exception))
++
++    def test_an_unknown_outcome_is_never_resent_automatically(self):
++        rd = make_run(self.tmp)
++        with self.assertRaises(RuntimeError):
++            self.deliver(rd, fail_at=2, exc=RuntimeError("STOP: Telegram sendPhoto: outcome unknown (ReadTimeout)"))
++        rec = json.load(open(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
++        self.assertEqual(rec["unknown"], ["sheet:16x9"])
++        with self.assertRaises(RuntimeError) as cm:
++            self.deliver(rd)
++        self.assertIn("outcome unknown", str(cm.exception))
++
++    def test_the_sender_never_puts_the_token_in_an_error(self):
++        import types
++        from unittest import mock
++        relay = types.ModuleType("relay")
++        relay.get_key = lambda name: "SECRET-" + name
++        import requests
++
++        def boom(url, **kw):
++            raise requests.ConnectionError(f"HTTPSConnectionPool: Max retries exceeded with url: {url}")
++        with mock.patch.dict(sys.modules, {"relay": relay}), mock.patch.object(requests, "post", boom):
++            with self.assertRaises(RuntimeError) as cm:
++                TG._send_bot_api("message", "", {"text": "x"})
++        self.assertNotIn("SECRET", str(cm.exception))
++        self.assertIn("outcome unknown", str(cm.exception))
++
++
++class TestLimits(unittest.TestCase):
++    def test_caption_fits_including_its_marker(self):
++        self.assertEqual(len(TG._fit("x" * 5000, TG.CAPTION_MAX)), TG.CAPTION_MAX)
++        self.assertEqual(TG._fit("short", TG.CAPTION_MAX), "short")
+ 
+     def test_photo_limits_at_their_boundaries(self):
+         """Audit M1: size (PHOTO_MAX_BYTES), width + height (10000) and aspect ratio (20) boundaries."""
+@@ -157,11 +223,10 @@ class TestDelivery(unittest.TestCase):
+         open(bad, "wb").write(b"\xff\xd8\xff")                          # not an image: document, not a crash
+         self.assertFalse(TG._photo_ok(bad))
+ 
+-    def test_wrong_dimensions_stop(self):
+-        rd = self.run_dir()
+-        shutil.copy(os.path.join(self.media, "wrong.mp4"), os.path.join(rd, "out", "segment.mp4"))
+-        with self.assertRaises(RuntimeError):
+-            self.deliver(rd)
++    def test_the_legacy_entry_point_is_gone(self):
++        with self.assertRaises(RuntimeError) as cm:
++            TG.send_telegram_preview("/tmp/whatever")
++        self.assertIn("removed", str(cm.exception))
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/pipeline/test_visual_check.py b/pipeline/test_visual_check.py
+index 622b4751..e0e92ce6 100644
+--- a/pipeline/test_visual_check.py
++++ b/pipeline/test_visual_check.py
+@@ -219,16 +219,38 @@ class TestSheetWiring(unittest.TestCase):
+                 mock.patch.object(V, "boundary_check", side_effect=AssertionError("cuts asked")):
+             verify_pack._sheets_and_checklist(rd, rep, pack, vision=True)     # out/ finals do not exist
+         ask.assert_not_called()
++        out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))       # V1 lands in the report ON DISK
+         for fmt in ("16x9", "9x16"):
+             self.assertFalse(os.path.exists(os.path.join(rd, "qa", f"contact_sheet_{fmt}.jpg")))
+-            self.assertTrue(rep["rows"][fmt]["V1_visual_checklist"].startswith("FAIL (no contact sheet"),
+-                            rep["rows"][fmt]["V1_visual_checklist"])
++            self.assertEqual(out["rows"][fmt]["V1_visual_checklist"], "FAIL")       # exact verdict, reason in notes
++            self.assertTrue(out["notes"][fmt]["V1_visual_checklist"].startswith("no contact sheet"),
++                            out["notes"][fmt]["V1_visual_checklist"])
++
++
++class TestPackArtefacts(unittest.TestCase):
++    def test_a_sheet_with_any_missing_frame_is_no_sheet_and_a_failed_frame_never_reuses_an_old_file(self):
++        """GPT-gates F09 / F10: a partial sheet is not a sheet; a frame ffmpeg could not grab is None, even when a
++        file of that name is left from an earlier render."""
++        import verify_pack
++        from PIL import Image
++        tmp = tempfile.mkdtemp(prefix="pack_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        p = os.path.join(tmp, "a.jpg")
++        Image.new("RGB", (64, 36)).save(p)
++        self.assertIsNone(verify_pack._sheet([("a", p), ("b", None)], os.path.join(tmp, "s.jpg"), 64))
++        self.assertIsNone(verify_pack._sheet([], os.path.join(tmp, "s.jpg"), 64))
++        self.assertTrue(verify_pack._sheet([("a", p)], os.path.join(tmp, "s.jpg"), 64))
++        stale = os.path.join(tmp, "stale.jpg")
++        Image.new("RGB", (64, 36)).save(stale)
++        self.assertIsNone(verify_pack._frame(os.path.join(tmp, "missing.mp4"), 1.0, stale))
++        self.assertFalse(os.path.exists(stale))
+ 
+ 
+ class TestCutWiring(unittest.TestCase):
+     """The next-shot line is answered one cut at a time; the whole-sheet answer is advisory."""
+ 
+-    def wire(self, sheet_next, cuts_ok):
++    def wire(self, sheet_next, cuts_ok, per=None, shots=None, vision=True):
++        """V1 rows + notes as written into GATE_REPORT.json, with the panel / shots / cuts injected."""
+         from unittest import mock
+         import verify_pack
+         rd = tempfile.mkdtemp(prefix="cutwire_")
+@@ -237,25 +259,60 @@ class TestCutWiring(unittest.TestCase):
+         json.dump({"hook": {"channel": "A", "vertical_layout": {"shots": [], "flagged": False}}, "clips": []},
+                   open(os.path.join(rd, "edl.json"), "w"))
+         for fmt in ("16x9", "9x16"):
+-            json.dump({"segments": [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 4.0}]},
++            json.dump({"segments": [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 4.0},
++                                    {"label": "outro", "type": "outro", "start": 4.0, "end": 8.0}]},
+                       open(os.path.join(rd, "qa", f"concat_manifest_{fmt}.json"), "w"))
++        json.dump({"rows": {}}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
+         rows = {k: {"answer": "yes", "why": "w", "ok": True} for k, _ in V.CHECKLIST}
+         rows[verify_pack.NEXT_SHOT] = {"answer": sheet_next, "why": "w", "ok": sheet_next == "yes"}
++        per = per if per is not None else {m: {"rows": dict(rows), "raw": {}} for m in V.VISION_MODELS}
++        shots = shots if shots is not None else [{"label": "hook", "shot": 0, "ok": True}]
++        cut = {"boundary": "hook|outro", "ok": cuts_ok}
+         rep, pack = {"rows": {}}, {}
+         with mock.patch.object(V, "contact_sheet", return_value={"path": "s.jpg"}), \
+-                mock.patch.object(V, "ask_panel", return_value=(sheet_next == "yes", {"m": {"rows": rows, "raw": {}}})), \
++                mock.patch.object(V, "ask_panel", return_value=(sheet_next == "yes", per)), \
+                 mock.patch.object(V, "shot_frames", return_value=[]), \
+-                mock.patch.object(V, "letterbox_check", return_value=(True, [])), \
++                mock.patch.object(V, "letterbox_check", return_value=(all(x["ok"] for x in shots), shots)), \
+                 mock.patch.object(V, "boundary_pairs", return_value=[]), \
+-                mock.patch.object(V, "boundary_check",
+-                                  return_value=(cuts_ok, [] if cuts_ok else [{"boundary": "hook|clip_01", "ok": False}])):
+-            verify_pack._sheets_and_checklist(rd, rep, pack, vision=True)
+-        return rep["rows"]
++                mock.patch.object(V, "boundary_check", return_value=(cuts_ok, [cut])):
++            verify_pack._sheets_and_checklist(rd, rep, pack, vision=vision)
++        out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))
++        return out["rows"], out.get("notes", {}), out.get("evidence", {})
+ 
+     def test_the_cut_check_decides_the_next_shot_line(self):
+-        self.assertEqual(self.wire("no", True)["16x9"]["V1_visual_checklist"], "PASS")     # sheet answer advisory
+-        r = self.wire("yes", False)["9x16"]["V1_visual_checklist"]
+-        self.assertTrue(r.startswith("FAIL") and "next shot before the cut: hook|clip_01" in r, r)
++        rows, _, ev = self.wire("no", True)
++        self.assertEqual(rows["16x9"]["V1_visual_checklist"], "PASS")     # sheet answer advisory
++        self.assertGreaterEqual(ev["16x9"]["V1_visual_checklist"]["samples"], 1)
++        rows, notes, _ = self.wire("yes", False)
++        self.assertEqual(rows["9x16"]["V1_visual_checklist"], "FAIL")
++        self.assertIn("next shot before the cut: hook|outro", notes["9x16"]["V1_visual_checklist"])
++
++    def test_an_empty_or_partial_panel_is_never_a_pass(self):
++        """GPT-gates F07 / Claude-gates M1: one model missing, a model that answered nothing, a line missing,
++        a truthy string for ok: each FAILS V1."""
++        import verify_pack
++        full = {k: {"answer": "yes", "why": "w", "ok": True} for k, _ in V.CHECKLIST}
++        one = V.VISION_MODELS[0]
++        cases = {"one model only": {one: {"rows": full}},
++                 "a model answered nothing": {m: {"rows": full if m == one else {}} for m in V.VISION_MODELS},
++                 "a line missing": {m: {"rows": {k: r for k, r in full.items() if k != "watermark_present"}}
++                                    for m in V.VISION_MODELS},
++                 "ok is a string": {m: {"rows": {**full, "watermark_present": {"answer": "yes", "ok": "true"}}}
++                                    for m in V.VISION_MODELS},
++                 "no panel": {}}
++        for name, per in cases.items():
++            self.assertFalse(verify_pack.panel_ok(per), name)
++            rows, _, _ = self.wire("no", True, per=per)
++            self.assertEqual(rows["16x9"]["V1_visual_checklist"], "FAIL", name)
++        self.assertTrue(verify_pack.panel_ok({m: {"rows": full} for m in V.VISION_MODELS}))
++
++    def test_no_shots_asked_and_vision_off_are_never_a_pass(self):
++        rows, _, _ = self.wire("no", True, shots=[])                     # zero letterbox frames (Claude-gates M2)
++        self.assertEqual(rows["9x16"]["V1_visual_checklist"], "FAIL")
++        rows, notes, ev = self.wire("no", True, vision=False)            # GPT-gates F08: a waiver switch leaves a trace
++        for fmt in ("16x9", "9x16"):
++            self.assertEqual(rows[fmt]["V1_visual_checklist"], "SKIPPED")
++            self.assertEqual(ev[fmt]["V1_visual_checklist"], {"executed": False, "samples": 0})
+ 
+ 
+ def _has_vision_key():
+@@ -300,5 +357,34 @@ class TestVisionMustFail(unittest.TestCase):
+         self.assertTrue(ok, rows)
+ 
+ 
++
++@unittest.skipUnless(_has_vision_key(), "Heimdall vision route key not available")
++class TestVisionMustPass(unittest.TestCase):
++    """Addendum '22:15' item 4: V1's REAL PASSING fixture. The PBX-approved preview (references/
++    pulse_preview_2026-11-11, read only) passes the whole V1 row in both formats with the current code: the sheet
++    checklist from every vision model, the letterbox per shot (9:16) and the next shot per cut. Its failing
++    fixtures are TestVisionMustFail; its missing-evidence answer is TestCutWiring / TestSheetWiring."""
++
++    def test_the_approved_preview_passes_v1_in_both_formats(self):
++        import verify_pack
++        ref = os.path.join(REPO, "references", "pulse_preview_2026-11-11")
++        self.assertTrue(os.path.isfile(os.path.join(ref, "out", "segment.mp4")), f"must-pass fixture missing: {ref}")
++        rd = tempfile.mkdtemp(prefix="v1pass_")
++        self.addCleanup(shutil.rmtree, rd, True)
++        for sub in ("out", "qa"):
++            os.makedirs(os.path.join(rd, sub))
++        for rel in ("out/segment.mp4", "out/segment_vertical.mp4"):
++            os.symlink(os.path.join(ref, rel), os.path.join(rd, rel))           # read only: ffmpeg reads them
++        for rel in ("edl.json", "VERTICAL_LAYOUT.json", "qa/concat_manifest_16x9.json", "qa/concat_manifest_9x16.json"):
++            shutil.copy(os.path.join(ref, rel), os.path.join(rd, rel))
++        json.dump({"rows": {}}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
++        pack = {}
++        verify_pack._sheets_and_checklist(rd, {}, pack, vision=True)
++        out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))
++        for fmt in ("16x9", "9x16"):
++            self.assertEqual(out["rows"][fmt]["V1_visual_checklist"], "PASS",
++                             f"{fmt}: {out.get('notes', {}).get(fmt)} | " + json.dumps(pack["visual"].get(fmt), default=str)[:3000])
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/pipeline/verify_pack.py b/pipeline/verify_pack.py
+index 113ca816..daf11e9b 100644
+--- a/pipeline/verify_pack.py
++++ b/pipeline/verify_pack.py
+@@ -9,7 +9,10 @@ What a reviewer checks by eye, produced for every run before any delivery and at
+   4. sheets  (orchestrator 06:20 ET) qa/contact_sheet_<fmt>.jpg: the timestamped contact sheet of the finished
+              video (visual_check.contact_sheet), and the fixed visual checklist answered FROM the sheet by the
+              Heimdall vision panel (visual_check.ask_panel); any "no" or no answer = row V1_visual_checklist FAIL.
+-VERIFY/VERIFICATION.json records every artefact; `complete` is True only when all of them exist.
++VERIFY/VERIFICATION.json records every artefact; `complete` is True only when all of them exist (every requested
++frame, both G18 tables, both credits sheets, both contact sheets), and `passed` only when the pack is complete,
++built WITH the vision check, and the visual verdict of both formats is exactly True (red-team A: a pack without
++the vision check, a model that answered nothing, a missing frame are never a pass; release_auth reads this).
+ """
+ import json
+ import os
+@@ -19,6 +22,8 @@ FPS = 24
+ 
+ 
+ def _frame(video, t, out):
++    if os.path.exists(out):                          # never let a frame of an earlier render stand in (GPT-gates F10)
++        os.remove(out)
+     try:
+         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{max(0.0, t):.3f}", "-i", video, "-frames:v", "1",
+                         "-q:v", "3", out], check=True, timeout=60)
+@@ -28,11 +33,12 @@ def _frame(video, t, out):
+ 
+ 
+ def _sheet(items, out, tile_w):
+-    """items: [(label, path)] -> one labelled grid image (3 per row)."""
++    """items: [(label, path)] -> one labelled grid image (3 per row); None when ANY requested frame is missing
++    (GPT-gates F09: a partial sheet is not a sheet)."""
+     from PIL import Image, ImageDraw
+-    ims = [(lab, Image.open(p).convert("RGB")) for lab, p in items if p]
+-    if not ims:
++    if not items or any(not p for _, p in items):
+         return None
++    ims = [(lab, Image.open(p).convert("RGB")) for lab, p in items]
+     th = int(round(ims[0][1].height * tile_w / ims[0][1].width))
+     cols = 3
+     rows = (len(ims) + cols - 1) // cols
+@@ -51,7 +57,7 @@ def build(run_dir, vision=True):
+     os.makedirs(vdir, exist_ok=True)
+     with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
+         rep = json.load(f)
+-    pack = {"words": rep.get("G18"), "joins": {}, "credits": {"G12": {}, "G15": {}}}
++    pack = {"words": rep.get("G18"), "joins": {}, "credits": {"G12": {}, "G15": {}}, "vision": bool(vision)}
+     for fmt, final, tile in (("16x9", "segment.mp4", 480), ("9x16", "segment_vertical.mp4", 270)):
+         final = os.path.join(run_dir, "out", final)
+         with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
+@@ -69,7 +75,7 @@ def build(run_dir, vision=True):
+                               _frame(final, t, os.path.join(vdir, f"join_{fmt}_{tag}_{name}.jpg"))))
+         pack["joins"][fmt] = {"frames": [p for _, p in items], "sheet": _sheet(
+             items, os.path.join(vdir, f"joins_{fmt}.jpg"), tile)}
+-        sh = next((s for s in segs if s["label"] == "shoutout"), None)
++        sh = next((s for s in segs if s.get("type") == "shoutout"), None)     # by type, as the gates (V7)
+         if sh:
+             c_items = [(f"{fmt} credits {t:.2f}s", _frame(final, t, os.path.join(vdir, f"credits_{fmt}_{k}.jpg")))
+                        for k, t in enumerate((sh["start"] + 1.0, (sh["start"] + sh["end"]) / 2, sh["end"] - 0.5))]
+@@ -81,14 +87,33 @@ def build(run_dir, vision=True):
+             [pack["credits"].get(f, {}).get("sheet") for f in ("16x9", "9x16")]
+     credits_rows = [pack["credits"][g].get(f) for g in ("G12", "G15") for f in ("16x9", "9x16")]
+     _sheets_and_checklist(run_dir, rep, pack, vision)
+-    pack["complete"] = bool(pack["words"]) and all(p and os.path.exists(p) for p in files) \
++    words = pack["words"] if isinstance(pack["words"], dict) else {}
++    pack["complete"] = all(isinstance(words.get(f), list) and words[f] for f in ("16x9", "9x16")) \
++        and all(p and os.path.exists(p) for p in files) \
+         and all(r is not None for r in credits_rows) \
+         and all(os.path.exists((pack["contact_sheets"].get(f) or {}).get("path") or "") for f in ("16x9", "9x16"))
+-    with open(os.path.join(vdir, "VERIFICATION.json"), "w") as f:
++    pack["passed"] = pack["complete"] is True and pack["vision"] is True and \
++        all((pack["visual"].get(f) or {}).get("ok") is True for f in ("16x9", "9x16"))
++    tmp = os.path.join(vdir, "VERIFICATION.json.tmp")
++    with open(tmp, "w") as f:
+         json.dump(pack, f, indent=2, default=str)
++    os.replace(tmp, os.path.join(vdir, "VERIFICATION.json"))
+     return pack
+ 
+ 
++def panel_ok(per):
++    """The panel passed the sheet: EVERY vision model answered EVERY checklist line (the whole-sheet next-shot
++    line is advisory, asked per cut instead) and every answer is exactly ok True (GPT-gates F07, Claude-gates
++    M1: a model that answered nothing, a missing line, a truthy string are never a pass)."""
++    import visual_check as VC
++    keys = [k for k, _ in VC.CHECKLIST if k != NEXT_SHOT]
++    if not isinstance(per, dict) or set(per) != set(VC.VISION_MODELS):
++        return False
++    return all(isinstance(d, dict) and isinstance(d.get("rows"), dict) and
++               all(isinstance(d["rows"].get(k), dict) and d["rows"][k].get("ok") is True for k in keys)
++               for d in per.values())
++
++
+ NEXT_SHOT = "no_next_shot_before_transition"
+ 
+ 
+@@ -104,6 +129,7 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
+     channels_note = ("Channels whose clips appear in this video (from the edit decision list): " +
+                      ", ".join(f"{s.get('channel')} ({label})" for label, s in segs_edl) + ".")
+     pack["contact_sheets"], pack["visual"] = {}, {}
++    v1_rows = {}                                        # fmt -> (exact verdict, note, answers counted)
+     for fmt, final in (("16x9", "segment.mp4"), ("9x16", "segment_vertical.mp4")):
+         with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
+             segs = json.load(f)["segments"]
+@@ -115,7 +141,8 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
+                                                            os.path.join(run_dir, "VERIFY", f"sheet_{fmt}"))
+         except Exception as e:                          # no sheet = incomplete pack and a failing V1 row
+             pack["contact_sheets"][fmt] = {"error": f"{type(e).__name__}: {e}"}
+-        if not vision:
++        if not vision:                                   # the vision check is off: V1 did not run (never a pass)
++            v1_rows[fmt] = ("SKIPPED", "vision check off for this pack", 0)
+             continue
+         if "error" in pack["contact_sheets"][fmt]:
+             pack["visual"][fmt] = {"ok": False, "error": f"no contact sheet: {pack['contact_sheets'][fmt]['error']}"}
+@@ -125,7 +152,7 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
+                                        channels_note=channels_note)
+                 # the next-shot line is answered one cut at a time (below); the whole-sheet answer stays as
+                 # advisory text (run 6: it misread tile labels and missed the real defect)
+-                ok = bool(per) and all(r["ok"] for d in per.values() for k, r in d["rows"].items() if k != NEXT_SHOT)
++                ok = panel_ok(per)
+                 pack["visual"][fmt] = {"ok": ok, "per_model": per,
+                                        "sheet_next_shot_advisory": {m: d["rows"].get(NEXT_SHOT) for m, d in per.items()}}
+             except Exception as e:
+@@ -139,16 +166,18 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
+                     os.path.join(run_dir, "out", final), segs, layout, os.path.join(run_dir, "VERIFY", "shots_9x16")))
+             except Exception as e:
+                 lb_ok, lb_rows = False, [{"error": f"{type(e).__name__}: {e}"}]
++            lb_ok = lb_ok is True and bool(lb_rows)            # zero shots asked is no answer (Claude-gates M2)
+             v["letterbox_per_shot"] = {"ok": lb_ok, "shots": lb_rows}
+-            v["ok"] = v["ok"] and lb_ok
++            v["ok"] = v["ok"] is True and lb_ok
+         if "error" not in pack["contact_sheets"][fmt]:
+             try:                                        # next shot before a cut: ONE pair of frames per cut
+                 bd_ok, bd_rows = VC.boundary_check(VC.boundary_pairs(
+                     os.path.join(run_dir, "out", final), segs, os.path.join(run_dir, "VERIFY", f"cuts_{fmt}")))
+             except Exception as e:
+                 bd_ok, bd_rows = False, [{"error": f"{type(e).__name__}: {e}"}]
++            bd_ok = bd_ok is True and len(bd_rows) == max(0, len(segs) - 1) and bool(bd_rows)   # every cut asked
+             v["boundaries"] = {"ok": bd_ok, "cuts": bd_rows}
+-            v["ok"] = v["ok"] and bd_ok
++            v["ok"] = v["ok"] is True and bd_ok
+         nos = sorted({k for d in (v.get("per_model") or {}).values() for k, r in (d.get("rows") or {}).items()
+                       if not r.get("ok") and k != NEXT_SHOT})
+         if not (v.get("boundaries") or {"ok": True})["ok"]:
+@@ -158,9 +187,25 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
+             bad = [f"{r.get('label')}#{r.get('shot')}" for r in v["letterbox_per_shot"]["shots"] if not r.get("ok")]
+             nos.append(f"letterbox per shot: {', '.join(bad)}")
+         why = "; ".join(x for x in (v.get("error"), ("no/missing: " + ", ".join(nos)) if nos else None) if x)
+-        rep.setdefault("rows", {}).setdefault(fmt, {})["V1_visual_checklist"] = \
+-            "PASS" if v["ok"] else f"FAIL ({why or 'no answer'})"
++        answered = sum(len(d.get("rows") or {}) for d in (v.get("per_model") or {}).values()) + \
++            len((v.get("letterbox_per_shot") or {}).get("shots") or []) + len((v.get("boundaries") or {}).get("cuts") or [])
++        v1_rows[fmt] = ("PASS", None, answered) if v["ok"] is True else ("FAIL", why or "no answer", answered)
++    # V1 joins the report: re-read NOW (never rewrite a snapshot taken minutes ago) and replace atomically
++    path = os.path.join(run_dir, "GATE_REPORT.json")
++    with open(path) as f:
++        cur = json.load(f)
++    for fmt, (verdict, note, n) in v1_rows.items():
++        cur.setdefault("rows", {}).setdefault(fmt, {})["V1_visual_checklist"] = verdict
++        cur.setdefault("evidence", {}).setdefault(fmt, {})["V1_visual_checklist"] = \
++            {"executed": verdict != "SKIPPED", "samples": n}
++        notes = cur.setdefault("notes", {}).setdefault(fmt, {})
++        if note:
++            notes["V1_visual_checklist"] = note
++        else:
++            notes.pop("V1_visual_checklist", None)
+     if vision:
+-        rep["V1"] = pack["visual"]
+-        with open(os.path.join(run_dir, "GATE_REPORT.json"), "w") as f:
+-            json.dump(rep, f, indent=2, default=str)
++        cur["V1"] = pack["visual"]
++    tmp = path + ".tmp"
++    with open(tmp, "w") as f:
++        json.dump(cur, f, indent=2, default=str)
++    os.replace(tmp, path)

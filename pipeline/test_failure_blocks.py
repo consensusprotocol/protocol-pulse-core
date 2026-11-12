@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-"""Addendum 2 item 6: failure blocks delivery tests.
+"""Addendum 2 item 6 (failure blocks delivery), on the release contract of 2026-11-11 (red-team A).
 
-Each test creates a scratch copy of a passing run dir, sabotages one element,
-and verifies that send_telegram_preview raises before sending.
-
-Tests:
-  (a) Delete a required clip record from gate results
-  (b) Delete one expected gate result file
-  (c) Modify the mp4 after VERIFIED_BY_ORCHESTRATOR (hash mismatch scenario)
-  (d) Remove VERIFIED_BY_ORCHESTRATOR marker
-
-No Telegram calls are made. The guard logic raises before reaching the sender.
-"""
+Each test builds a complete AUTHORISED run dir (test_release_auth.make_run), sabotages one element, and verifies
+that telegram.deliver_run refuses before anything is sent:
+  (a) a required gate row deleted from GATE_REPORT.json after the attestation
+  (b) a required gate row set to FAIL (re-attested: the attestation itself is HOLD)
+  (c) the mp4 modified after the attestation (digest mismatch)
+  (d) the attestation removed (the old VERIFIED_BY_ORCHESTRATOR marker is gone; this is its replacement)
+  (e) a legacy GATE_FAIL.txt / truthy gate_results_*.json no longer authorise anything
+No Telegram calls are made: the sender is injected and must never be called."""
 import json
 import os
 import shutil
@@ -20,125 +17,53 @@ import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config import resolve_paths
-
-# We need telegram.py
-from telegram import send_telegram_preview
+import release_auth as RA  # noqa: E402
+import telegram as TG  # noqa: E402
+from test_release_auth import edit_json, make_run, passing_rows  # noqa: E402
 
 
 class TestFailureBlocksDelivery(unittest.TestCase):
-    """Sabotage tests against the Telegram guard in pipeline/telegram.py."""
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="failure_blocks_")
+        self.addCleanup(shutil.rmtree, self.tmp, True)
 
-    @classmethod
-    def setUpClass(cls):
-        """Create a minimal scratch run dir that would pass all guards."""
-        cls.tmpdir = tempfile.mkdtemp(prefix="failure_blocks_")
-        cls.segment_dir = cls.tmpdir
+    def refused(self, rd, needle):
+        sent = []
+        with self.assertRaises(RuntimeError) as ctx:
+            TG.deliver_run(rd, send=lambda kind, path, fields, data=None: sent.append(kind) or 1)
+        self.assertEqual(sent, [])
+        self.assertIn(needle, str(ctx.exception))
 
-        # Create out dir with dummy mp4s
-        out_dir = os.path.join(cls.tmpdir, "out")
-        os.makedirs(out_dir)
-        for name in ("segment.mp4", "segment_vertical.mp4"):
-            with open(os.path.join(out_dir, name), "wb") as f:
-                f.write(b"\x00" * 1024)  # dummy content
+    def test_a_deleted_gate_row_blocks(self):
+        rd = make_run(self.tmp)
+        edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: d["rows"]["16x9"].pop("G18_word_for_word"))
+        self.refused(rd, "GATE_REPORT.json rows / evidence differ")
 
-        # Create qa dir with passing gate results
-        qa_dir = os.path.join(cls.tmpdir, "qa")
-        os.makedirs(qa_dir)
-        for aspect in ("16x9", "9x16"):
-            results = {
-                "all_pass": True,
-                "G1_voice": {"pass": True},
-                "G3_cuts": {"pass": True},
-                "G5_tech": {"pass": True},
-                "G8_sharpness": {"pass": True},
-            }
-            with open(os.path.join(qa_dir, f"gate_results_{aspect}.json"), "w") as f:
-                json.dump(results, f)
+    def test_b_failing_gate_blocks(self):
+        rows = passing_rows()
+        rows["9x16"]["G9_tail"] = "FAIL"
+        self.refused(make_run(self.tmp, rows=rows), "9x16 G9_tail: FAIL")
 
-        # Create VERIFIED_BY_ORCHESTRATOR marker
-        with open(os.path.join(cls.tmpdir, "VERIFIED_BY_ORCHESTRATOR"), "w") as f:
-            f.write("verified")
+    def test_c_modified_mp4_after_attestation_blocks(self):
+        rd = make_run(self.tmp)
+        with open(os.path.join(rd, "out", "segment.mp4"), "ab") as f:
+            f.write(b"\0" * 16)
+        self.refused(rd, "out/segment.mp4: changed since it was attested")
 
-        # Create edl.json (for config.resolve_paths)
-        with open(os.path.join(cls.tmpdir, "edl.json"), "w") as f:
-            json.dump({"clips": []}, f)
+    def test_d_no_attestation_blocks(self):
+        rd = make_run(self.tmp)
+        os.remove(os.path.join(rd, "ATTESTATION.json"))
+        self.refused(rd, "no readable attestation")
 
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(cls.tmpdir, ignore_errors=True)
-
-    def _fresh_copy(self):
-        """Return a fresh copy of the passing run dir."""
-        copy_dir = tempfile.mkdtemp(prefix="sabotage_")
-        shutil.copytree(self.segment_dir, copy_dir, dirs_exist_ok=True)
-        return copy_dir
-
-    def test_a_delete_gate_result_blocks(self):
-        """(a) Delete one gate result file — telegram must refuse."""
-        d = self._fresh_copy()
-        try:
-            qa_dir = os.path.join(d, "qa")
-            os.remove(os.path.join(qa_dir, "gate_results_16x9.json"))
-            with self.assertRaises((FileNotFoundError, RuntimeError)) as ctx:
-                send_telegram_preview(d)
-            self.assertIn("gate", str(ctx.exception).lower())
-        finally:
-            shutil.rmtree(d, ignore_errors=True)
-
-    def test_b_set_gate_fail_blocks(self):
-        """(b) Set all_pass=false in gate results — telegram must refuse."""
-        d = self._fresh_copy()
-        try:
-            qa_dir = os.path.join(d, "qa")
-            path = os.path.join(qa_dir, "gate_results_9x16.json")
-            with open(path) as f:
-                data = json.load(f)
-            data["all_pass"] = False
-            with open(path, "w") as f:
-                json.dump(data, f)
-            with self.assertRaises(RuntimeError) as ctx:
-                send_telegram_preview(d)
-            self.assertIn("not all-pass", str(ctx.exception))
-        finally:
-            shutil.rmtree(d, ignore_errors=True)
-
-    def test_c_modify_mp4_after_verified(self):
-        """(c) Modify mp4 after VERIFIED — currently only checks existence.
-        This test verifies the file still blocks if deleted entirely."""
-        d = self._fresh_copy()
-        try:
-            out_dir = os.path.join(d, "out")
-            os.remove(os.path.join(out_dir, "segment.mp4"))
-            with self.assertRaises(FileNotFoundError) as ctx:
-                send_telegram_preview(d)
-            self.assertIn("missing", str(ctx.exception).lower())
-        finally:
-            shutil.rmtree(d, ignore_errors=True)
-
-    def test_d_remove_verified_marker_blocks(self):
-        """(d) Remove VERIFIED_BY_ORCHESTRATOR — telegram must refuse."""
-        d = self._fresh_copy()
-        try:
-            os.remove(os.path.join(d, "VERIFIED_BY_ORCHESTRATOR"))
-            with self.assertRaises(RuntimeError) as ctx:
-                send_telegram_preview(d)
-            self.assertIn("VERIFIED_BY_ORCHESTRATOR", str(ctx.exception))
-        finally:
-            shutil.rmtree(d, ignore_errors=True)
-
-    def test_e_gate_fail_txt_blocks(self):
-        """(e) Create GATE_FAIL.txt — telegram must refuse even with passing results."""
-        d = self._fresh_copy()
-        try:
-            qa_dir = os.path.join(d, "qa")
-            with open(os.path.join(qa_dir, "GATE_FAIL.txt"), "w") as f:
-                f.write("G8 sharpness below floor")
-            with self.assertRaises(RuntimeError) as ctx:
-                send_telegram_preview(d)
-            self.assertIn("gates failed", str(ctx.exception).lower())
-        finally:
-            shutil.rmtree(d, ignore_errors=True)
+    def test_e_legacy_markers_authorise_nothing(self):
+        rd = make_run(self.tmp, attest=False)
+        open(os.path.join(rd, "VERIFIED_BY_ORCHESTRATOR"), "w").write("verified")
+        for fmt in ("16x9", "9x16"):
+            json.dump({"all_pass": True}, open(os.path.join(rd, "qa", f"gate_results_{fmt}.json"), "w"))
+        self.refused(rd, "no readable attestation")
+        with self.assertRaises(RuntimeError):
+            TG.send_telegram_preview(rd)
+        self.assertFalse(RA.authorise(rd)[0])
 
 
 if __name__ == "__main__":

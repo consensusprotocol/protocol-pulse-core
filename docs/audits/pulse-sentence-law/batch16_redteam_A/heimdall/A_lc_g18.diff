@@ -1,0 +1,524 @@
+diff --git a/pipeline/sentence_law.py b/pipeline/sentence_law.py
+index 9dd31e3b..15657eff 100644
+--- a/pipeline/sentence_law.py
++++ b/pipeline/sentence_law.py
+@@ -88,7 +88,9 @@ class LawError(Exception):
+ # ── text ──
+ 
+ def tokens(text):
+-    return [t for t in re.split(r"[^a-z0-9]+", (text or "").lower().replace("’", "'").replace("'", "")) if t]
++    """Words in the pipeline's one canonical form (pipeline/canon.py)."""
++    import canon
++    return canon.canon_tokens(text)
+ 
+ 
+ def is_terminal(word):
+@@ -144,7 +146,8 @@ class SourceAudio:
+         live = d[d > DIGITAL_FLOOR_DBFS]
+         if len(live) < 10:
+             raise LawError(f"no audio in [{t0:.2f}, {t1:.2f}]")
+-        speech = float(np.median(live[live > np.percentile(live, 30)]))
++        upper = live[live > np.percentile(live, 30)]
++        speech = float(np.median(upper if len(upper) else live))     # a flat envelope gives no NaN (GPT-cut F28)
+         bed = float(np.percentile(live, 10))
+         quiet = min(speech - VALLEY_BELOW_SPEECH_DB, max(speech - QUIET_BELOW_SPEECH_DB, bed + BED_PLUS_DB))
+         return {"speech_db": round(speech, 1), "bed_db": round(bed, 1), "quiet_db": round(quiet, 1),
+@@ -322,9 +325,11 @@ def anchor(words, text, min_ratio=ANCHOR_MIN_RATIO, t0=None, t1=None):
+     """Locate the editor's selected text in a word-timestamp transcript (text alignment, never time
+     arithmetic; [t0, t1] only narrows the search). The span's first and last tokens must equal the
+     selection's. Returns (i0, i1, ratio) or None."""
++    import canon                                      # one canonical form; a token keeps the word it starts in
+     qt = tokens(text)
+-    toks = [(t, wi) for wi, w in enumerate(words)
+-            if (t0 is None or w["start"] >= t0) and (t1 is None or w["start"] <= t1) for t in tokens(w["word"])]
++    idx = [wi for wi, w in enumerate(words)
++           if (t0 is None or w["start"] >= t0) and (t1 is None or w["start"] <= t1)]
++    toks = [(t, idx[o]) for t, o in canon.canon_aligned([words[wi]["word"] for wi in idx])]
+     seq = [t for t, _ in toks]
+     if len(qt) < 3 or not seq:
+         return None
+@@ -345,8 +350,8 @@ def anchor(words, text, min_ratio=ANCHOR_MIN_RATIO, t0=None, t1=None):
+         return None
+     r, s, e = best
+     i0, i1 = toks[s][1], toks[e][1]
+-    if tokens(words[i0]["word"])[0] != qt[0] or tokens(words[i1]["word"])[-1] != qt[-1]:
+-        return None
++    if (s and toks[s - 1][1] == i0) or (e + 1 < len(toks) and toks[e + 1][1] == i1):
++        return None                    # a lock starts on its first word's first token and ends on its last word's last
+     return i0, i1, round(r, 3)
+ 
+ 
+@@ -473,14 +478,27 @@ def edge_fades(sa, plan, cut_in, cut_out):
+     return round(fi, 3), round(fo, 3), wb
+ 
+ 
+-def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa=None):
++def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa=None, offset_s=0.0,
++                       gain_invariant=False):
+     """G17c (law L-b): the first and the last word of a prepared clip, with their natural decay, at full level:
+     every 10 ms frame of the source over [first onset, + 0.3 s] and [last end - 0.3 s, last end] that is above
+     the gap level next to the cut is matched in the clip within EDGE_WORD_MAX_DB (best alignment within +-2
+-    hops absorbs the codec's delay). Returns (ok, detail)."""
++    hops absorbs the codec's delay). Every word frame must be compared (GPT-cut F07: an alignment that leaves a
++    word frame outside the clip is no proof; zero compared frames is never 'perfect').
++    offset_s: where the clip starts inside clip_path (0 for a prepared clip; the segment's start in a FINAL).
++    gain_invariant: the final's constant gain (amix + loudnorm) is measured on the clip's own interior speech
++    and removed before the 1 dB comparison (law L-c: the proof is made on the final's bytes). Returns (ok,
++    detail)."""
+     sa = sa or SourceAudio(src_path)
+     ca = SourceAudio(clip_path)
+     wb = edge_word_bounds(sa, plan, cut_in, cut_out)
++    base = offset_s - cut_in + pad_s                                # source time -> clip_path time
++    gain = 0.0
++    if gain_invariant:
++        gain = _gain_db(sa, ca, cut_in, cut_out, base)
++        if gain is None:
++            return False, {side: {"ok": False, "why": "the final's gain is not measurable on the clip interior"}
++                           for side in ("in", "out")}
+     det = {}
+     for side, (a, b) in (("in", (wb["onset"], None)), ("out", (None, wb["end"]))):
+         if (a if side == "in" else b) is None:
+@@ -494,22 +512,92 @@ def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa
+             continue
+         best = None
+         for k in range(-2, 3):
+-            tc, dc = ca.sl(t0 - cut_in + pad_s + k * HOP_S, t1 - cut_in + pad_s + k * HOP_S)
++            tc, dc = ca.sl(t0 + base + k * HOP_S, t1 + base + k * HOP_S)
+             n = min(len(dc), len(ds))
+-            if n == 0:
++            if n == 0 or keep[n:].any():                             # a word frame left uncompared: no proof
+                 continue
+-            diff = np.abs(dc[:n] - ds[:n])[keep[:n]]
+-            worst = float(np.max(diff)) if len(diff) else 0.0
++            diff = np.abs(dc[:n] - gain - ds[:n])[keep[:n]]
++            worst = float(np.max(diff))
+             if best is None or worst < best[0]:
+                 best = (worst, k)
+         ok = best is not None and best[0] <= EDGE_WORD_MAX_DB
+         det[side] = {"ok": ok, "span": [round(t0, 3), round(t1, 3)], "worst_db": None if best is None else round(best[0], 2),
+-                     "shift_hops": None if best is None else best[1],
++                     "shift_hops": None if best is None else best[1], "compared_frames": int(keep.sum()),
++                     **({"gain_db": round(gain, 2)} if gain_invariant else {}),
+                      "why": "edge word at full level" if ok else
+-                     f"edge word up to {best[0] if best else float('nan'):.1f} dB off the source (max {EDGE_WORD_MAX_DB})"}
++                     "no alignment compares every frame of the edge word" if best is None else
++                     f"edge word up to {best[0]:.1f} dB off the source (max {EDGE_WORD_MAX_DB})"}
+     return all(v["ok"] for v in det.values()), det
+ 
+ 
++GAIN_INTERIOR_MARGIN_S = 0.5    # law L-c: the final's gain is read away from both edges (fades, dissolves)
++SPAN_EDGE_S = 0.3               # span_matches: edges excluded (fades, dissolves)
++SPAN_MISMATCH_DB = 6.0          # a speech frame off the source by more than this is a mismatch
++SPAN_MISMATCH_RUN_S = 0.15      # this long a run of mismatching speech frames = the audio is not the source span
++
++
++def span_matches(src_path, final_path, cut_in, cut_out, offset_s, pad_s=0.0, sa=None):
++    """GPT-cut F05: the acoustic adjudication of a repeat-only G18 difference. The final's audio of a segment is
++    the source span itself: after the constant gain is removed (_gain_db) and the best of +-2 hops, no run of
++    SPAN_MISMATCH_RUN_S of consecutive speech frames differs from the source by more than SPAN_MISMATCH_DB (an
++    inserted or dropped word shifts everything after it). Edges (SPAN_EDGE_S) are excluded. (ok, detail)."""
++    sa = sa or SourceAudio(src_path)
++    ca = SourceAudio(final_path)
++    base = offset_s - cut_in + pad_s
++    gain = _gain_db(sa, ca, cut_in, cut_out, base)
++    if gain is None:
++        return False, {"why": "gain not measurable"}
++    t0, t1 = cut_in + SPAN_EDGE_S, cut_out - SPAN_EDGE_S
++    _, ds = sa.sl(t0, t1)
++    if len(ds) < 20:
++        return False, {"why": "span too short to compare"}
++    speech = ds > np.percentile(ds, 50)
++    best = None
++    for k in range(-2, 3):
++        _, dc = ca.sl(t0 + base + k * HOP_S, t1 + base + k * HOP_S)
++        if len(dc) < len(ds):
++            continue
++        bad = (np.abs(dc[:len(ds)] - gain - ds) > SPAN_MISMATCH_DB) & speech
++        run = longest = 0
++        for b in bad:
++            run = run + 1 if b else 0
++            longest = max(longest, run)
++        if best is None or longest < best[0]:
++            best = (longest, k, int(bad.sum()))
++    if best is None:
++        return False, {"why": "the final is shorter than the source span"}
++    ok = best[0] * HOP_S < SPAN_MISMATCH_RUN_S
++    return ok, {"gain_db": round(gain, 2), "shift_hops": best[1], "longest_mismatch_ms": int(round(best[0] * HOP_S * 1000)),
++                "mismatch_frames": best[2], "speech_frames": int(speech.sum())}
++
++
++
++
++def _gain_db(sa, ca, cut_in, cut_out, base):
++    """The constant gain (dB) between a source span and its rendered copy: the median level difference over the
++    span's interior speech frames (the louder half of the source), at the best of +-2 hops. None when the
++    interior has fewer than 20 speech frames or the difference is not steady (spread > 1 dB)."""
++    t0, t1 = cut_in + GAIN_INTERIOR_MARGIN_S, cut_out - GAIN_INTERIOR_MARGIN_S
++    if t1 - t0 < 0.5:
++        return None
++    _, ds = sa.sl(t0, t1)
++    if len(ds) < 20:
++        return None
++    speech = ds > np.percentile(ds, 50)
++    best = None
++    for k in range(-2, 3):
++        _, dc = ca.sl(t0 + base + k * HOP_S, t1 + base + k * HOP_S)
++        n = min(len(dc), len(ds))
++        m = speech[:n]
++        if n < len(ds) or m.sum() < 20:
++            continue
++        d = dc[:n][m] - ds[:n][m]
++        spread = float(np.percentile(d, 75) - np.percentile(d, 25))
++        if best is None or spread < best[1]:
++            best = (float(np.median(d)), spread)
++    return None if best is None or best[1] > 1.0 else best[0]
++
++
+ def accepted_cut(src, plan, step=HOP_S, sa=None):
+     """The cut nearest the plan's targets. Both edges clear of cut_accept: its unchanged acoustics check on the
+     pair (20 / 30 ms fades). An edge only reachable at the envelope minimum (DEC-10 d) gets a 2-frame fade and
+@@ -747,6 +835,39 @@ def gate_g17_edges(run_dir, source_path_fn=None):
+     return ok_all, table
+ 
+ 
++def edges_on_final(final_path, segments, run_dir, source_path_fn=None):
++    """Law L-c as amended by the orchestrator (addendum 2026-11-11 '22:00', GPT-cut F03): the acoustic proof
++    that overrules a dissenting edge reading is G17c measured on the FINAL file being approved (its bytes, its
++    gain removed), never on the prepared clip. {label: {"in": detail, "out": detail}} for every talking head of
++    that final; a segment that cannot be measured has both sides ok False."""
++    with open(os.path.join(run_dir, "edl.json")) as f:
++        locks = {label: (seg.get("selection_lock"), seg["video_id"]) for label, seg in _segments(json.load(f))}
++    with open(os.path.join(run_dir, "cuts_final.json")) as f:
++        cuts = {c["clip_id"]: c for c in json.load(f)}
++    out = {}
++    for seg in segments:
++        if seg.get("type") != "talking_head":
++            continue
++        label = seg["label"]
++        (lock, vid), cut = locks.get(label, (None, None)), cuts.get(label)
++        if not lock or not cut:
++            out[label] = {s: {"ok": False, "why": "no lock / cut"} for s in ("in", "out")}
++            continue
++        try:
++            with open(os.path.join(run_dir, "transcripts", f"{vid}.json")) as f:
++                words = json.load(f)["words"]
++            src = (source_path_fn or (lambda v: os.path.join(run_dir, "sources", f"{v}.mp4")))(vid)
++            sa = SourceAudio(src)
++            plan = edge_plan(sa, words, lock["i0"], lock["i1"])
++            _, det = edge_word_fidelity(src, final_path, plan, cut["cut_in"], cut["cut_out"],
++                                        float(cut.get("lead_in_pad_s") or 0), sa=sa, offset_s=float(seg["start"]),
++                                        gain_invariant=True)
++        except (LawError, OSError, ValueError, KeyError, subprocess.SubprocessError) as e:
++            det = {s: {"ok": False, "why": f"not measurable: {type(e).__name__}: {e}"} for s in ("in", "out")}
++        out[label] = det
++    return out
++
++
+ # ── G17 ONSET/TAIL INTEGRITY (rendered audio) ──
+ 
+ def head_tail(sa):
+diff --git a/pipeline/test_dec1_calibration.py b/pipeline/test_dec1_calibration.py
+index 3c1ed3c3..b09c8982 100644
+--- a/pipeline/test_dec1_calibration.py
++++ b/pipeline/test_dec1_calibration.py
+@@ -143,17 +143,29 @@ class TestTailRows(unittest.TestCase):
+     """Heimdall DEC-1 audit: G9_tail is the calibrated gate alone; a conform fallback (not the locked
+     outro the floor was measured on) fails its own row, so the run still holds."""
+ 
++    def verdict(self, tail):
++        """run_fresh's verdict (release_auth's exact inventory) on an otherwise passing 16:9 row set."""
++        import run_fresh as rf
++        from test_release_auth import passing_rows
++        return rf.verdict_for({**passing_rows()["16x9"], **tail}, "16x9")[0]
++
+     def test_luma_pass_on_a_fallback_outro_fails_outro_locked(self):
+-        import run_fresh as rf          # verdict_for: run_fresh's existing verdict (HOLD on any FAIL row)
++        import run_fresh as rf
+         self.assertEqual(rf.tail_rows(True, True), {"G9_tail": "PASS", "outro_locked": "FAIL"})
+-        self.assertEqual(rf.verdict_for(rf.tail_rows(True, True))[0], rf.VERDICT_HOLD)
++        self.assertEqual(self.verdict(rf.tail_rows(True, True)), rf.VERDICT_HOLD)
++
++    def test_an_outro_that_is_not_hash_identical_fails_outro_locked(self):
++        """GPT-cut F09: the identity was computed and then ignored; outro_locked now requires it."""
++        import run_fresh as rf
++        self.assertEqual(rf.tail_rows(True, False, identical=False), {"G9_tail": "PASS", "outro_locked": "FAIL"})
++        self.assertEqual(self.verdict(rf.tail_rows(True, False, identical=False)), rf.VERDICT_HOLD)
+ 
+     def test_rows_follow_their_own_inputs(self):
+         import run_fresh as rf
+         self.assertEqual(rf.tail_rows(True, False), {"G9_tail": "PASS", "outro_locked": "PASS"})
+         self.assertEqual(rf.tail_rows(False, False), {"G9_tail": "FAIL", "outro_locked": "PASS"})
+-        self.assertEqual(rf.verdict_for(rf.tail_rows(False, False))[0], rf.VERDICT_HOLD)   # luma fail holds
+-        self.assertEqual(rf.verdict_for(rf.tail_rows(True, False))[0], rf.VERDICT_CANDIDATE)
++        self.assertEqual(self.verdict(rf.tail_rows(False, False)), rf.VERDICT_HOLD)   # luma fail holds
++        self.assertEqual(self.verdict(rf.tail_rows(True, False)), rf.VERDICT_CANDIDATE)
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/pipeline/test_fresh.py b/pipeline/test_fresh.py
+index 199fb605..70b0a657 100644
+--- a/pipeline/test_fresh.py
++++ b/pipeline/test_fresh.py
+@@ -282,15 +282,17 @@ class TestClipContract(unittest.TestCase):
+ 
+ class TestRunFreshRules(unittest.TestCase):
+     def test_verdict_rules(self):
++        """Red-team 2026-11-11 A: the verdict is release_auth's exact inventory. The old prefix rules ('FLAG...',
++        'LIMITED...' and the '(run_gates)' placeholder passing) are gone: each of them now HOLDS."""
+         from run_fresh import verdict_for, VERDICT_CANDIDATE, VERDICT_HOLD
+-        ok_rows = {"G1_voice": "PASS", "G8_sharpness": "FLAG/LIMITED (x)",
+-                   "G9_tail": "FLAG (APPROVED KNOWN EXCEPTION ...)",
+-                   "G14_frame_similarity": "LIMITED (not valid)",
+-                   "G11_parity(run_gates)": "NOT RUN BY run_gates (no horiz) — see G11 below"}
+-        self.assertEqual(verdict_for(ok_rows)[0], VERDICT_CANDIDATE)
+-        for bad in ("FAIL", "HOLD(inconclusive)", "SKIPPED (no horiz_mp4)",
+-                    "FAIL (fallback occurred)"):
+-            self.assertEqual(verdict_for({**ok_rows, "Gx": bad})[0], VERDICT_HOLD, bad)
++        from test_release_auth import passing_rows
++        for fmt in ("16x9", "9x16"):
++            self.assertEqual(verdict_for(passing_rows()[fmt], fmt)[0], VERDICT_CANDIDATE, fmt)
++        for row, bad in (("G8_sharpness", "FLAG/LIMITED (x)"), ("G9_tail", "FLAG (APPROVED KNOWN EXCEPTION ...)"),
++                         ("G18_word_for_word", "FAIL"), ("G16_sentence_boundary", "HOLD(inconclusive)"),
++                         ("G20_signoff_names_all", "SKIPPED (no horiz_mp4)"), ("G11_parity(run_gates)", "NOT RUN BY run_gates")):
++            rows = {**passing_rows()["9x16"], row: bad}
++            self.assertEqual(verdict_for(rows, "9x16")[0], VERDICT_HOLD, (row, bad))
+ 
+     def test_no_publishing_path(self):
+         src = open(os.path.join(PIPELINE, "run_fresh.py")).read()
+diff --git a/pipeline/test_word_diff.py b/pipeline/test_word_diff.py
+index 90c0c055..ffe52663 100644
+--- a/pipeline/test_word_diff.py
++++ b/pipeline/test_word_diff.py
+@@ -27,10 +27,27 @@ class TestCanonical(unittest.TestCase):
+                      ("U .S. Bitcoin ETFs had about $1 .3 billion", "US Bitcoin ETFs had about one point three billion dollars"),
+                      ("around $74 000, around the 50 weekly MA", "around seventy four thousand dollars around the fifty weekly MA"),
+                      ("241 House winners and 50 senators", "two hundred forty one house winners and fifty senators"),
+-                     ("up still 25 % off the lows", "up still twenty five percent off the lows"),
+-                     ("days. Of course, of course, Bitcoin dropped", "days of course bitcoin dropped")):
++                     ("up still 25 % off the lows", "up still twenty five percent off the lows")):
+             self.assertEqual(W.diff(a, b), [], (a, b))
+ 
++    def test_a_repeat_only_difference_is_kept_as_evidence(self):
++        """GPT-cut F05: a disfluent repeat rendered differently is NOT removed from the comparison; it is a
++        repeat-only difference (gone with collapse=True) that gate_g18 decides by the audio (span_matches)."""
++        a, b = "days. Of course, of course, Bitcoin dropped", "days of course bitcoin dropped"
++        self.assertNotEqual(W.diff(a, b), [])
++        self.assertEqual(W.diff(a, b, collapse=True), [])
++        self.assertNotEqual(W.diff("bitcoin is falling", "bitcoin is falling bitcoin is falling"), [])
++
++    def test_units_and_signs_are_not_erased(self):
++        """GPT-cut F04: five percent vs five dollars, -5% vs +5%, $5 vs 5% differ; only a '$' formatting
++        difference (whisper writes '$74,000' for a spoken 'seventy-four thousand') is tolerated."""
++        for a, b in (("bitcoin fell five percent today", "bitcoin fell five dollars today"),
++                     ("it moved -5% on the day", "it moved +5% on the day"),
++                     ("it costs $5", "it costs 5%")):
++            self.assertNotEqual(W.diff(a, b), [], (a, b))
++        self.assertEqual(W.diff("around $74,000 today", "around 74 000 today"), [])
++        self.assertEqual(W.diff("it fell -5%", "it fell minus five percent"), [])
++
+     def test_a_half_written_or_spoken_is_the_same_number(self):
+         """Recut run 6 G18 clip_02: the final was heard as 'five and a half percent', the source span as
+         '5 .5%' (the same audio). Equal both ways; any real difference in the number still counts."""
+@@ -49,9 +66,10 @@ class TestCanonical(unittest.TestCase):
+         d = W.diff("It went from above $81,000 after the election. That was the week.",
+                    "81,000 after the election. That was the week. All right, you've probably seen")
+         self.assertIn(("delete", "it went from above", ""), d)
+-        self.assertIn(("insert", "", "all right you've probably seen"), d)
++        self.assertIn(("insert", "", "all right you've probably seen"), d)   # canon keeps apostrophes (M1)
+         self.assertEqual(W.diff("the market fell", "the market rose"), [("replace", "fell", "rose")])
+-        self.assertEqual(W.diff("bitcoin fell", "bitcoin fell fell sharply"), [("insert", "", "sharply")])
++        self.assertEqual(W.diff("bitcoin fell", "bitcoin fell fell sharply"), [("insert", "", "fell sharply")])
++        self.assertEqual(W.diff("bitcoin fell", "bitcoin fell fell sharply", collapse=True), [("insert", "", "sharply")])
+ 
+     def test_edges_compare_the_first_and_last_two_words(self):
+         self.assertEqual(W.edges("But I don't check it. Many times.", "but i don't check it many times"), [])
+@@ -60,6 +78,51 @@ class TestCanonical(unittest.TestCase):
+                          [("start", "it went", "above 81000"), ("end", "last week", "people celebrating")])
+ 
+ 
++class TestSpanMatches(unittest.TestCase):
++    """span_matches (sentence_law): the final's segment IS the source span when, gain removed, no 150 ms run of
++    speech frames differs by more than 6 dB. Synthetic speech-like bursts; must-pass: the same span with a gain,
++    a quiet bed and a codec round trip; must-fail: the same span with 300 ms of it repeated (a concat defect)."""
++
++    @classmethod
++    def setUpClass(cls):
++        import numpy as np
++        import subprocess
++        cls.tmp = tempfile.mkdtemp(prefix="span_")
++        sr, rng = 16000, np.random.default_rng(7)
++        t = np.arange(int(sr * 6.0)) / sr
++        env = np.zeros_like(t)
++        k = 0.2
++        while k < 5.8:                                       # syllable-like bursts of varying length and level
++            d = rng.uniform(0.08, 0.25)
++            env[(t >= k) & (t < k + d)] = rng.uniform(0.2, 0.9)
++            k += d + rng.uniform(0.05, 0.2)
++        src = env * np.sin(2 * np.pi * 220 * t) * (1 + 0.3 * np.sin(2 * np.pi * 3 * t))
++        bed = 0.003 * rng.standard_normal(len(t))
++
++        def wav(name, x):
++            path = os.path.join(cls.tmp, name)
++            raw = path + ".f32"
++            x.astype(np.float32).tofile(raw)
++            subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(sr), "-ac", "1", "-i", raw,
++                            "-c:a", "aac", "-b:a", "192k", path], check=True)
++            return path
++        cls.src = wav("src.m4a", src)
++        cls.same = wav("same.m4a", 0.5 * src + bed)                              # gain + bed + codec
++        rep = np.concatenate([src[:int(sr * 3.0)], src[int(sr * 2.7):int(sr * 3.0)], src[int(sr * 3.0):]])[:len(src)]
++        cls.repeat = wav("repeat.m4a", 0.5 * rep + bed)                          # 300 ms repeated at 3.0 s
++
++    @classmethod
++    def tearDownClass(cls):
++        shutil.rmtree(cls.tmp, ignore_errors=True)
++
++    def test_the_same_span_matches_and_a_repeat_does_not(self):
++        import sentence_law as L
++        ok, det = L.span_matches(self.src, self.same, 0.0, 5.9, 0.0)
++        self.assertTrue(ok, det)
++        ok, det = L.span_matches(self.src, self.repeat, 0.0, 5.9, 0.0)
++        self.assertFalse(ok, det)
++
++
+ def _clips():
+     """Yesterday's three clips: the editor's sentences locked on today's transcripts (as the G16 fixture),
+     and the source span each was cut from."""
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+index dad11755..386cb7a0 100644
+--- a/pipeline/word_diff.py
++++ b/pipeline/word_diff.py
+@@ -23,91 +23,17 @@ import tempfile
+ ASR = {"model": "large-v3", "language": "en", "beam_size": 5, "word_timestamps": True, "vad_filter": False}
+ EDGE_WORDS = 2
+ 
+-_UNITS = {w: i for i, w in enumerate("zero one two three four five six seven eight nine ten eleven twelve thirteen "
+-                                     "fourteen fifteen sixteen seventeen eighteen nineteen".split())}
+-_TENS = {w: 10 * i for i, w in enumerate("_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()) if w != "_"}
+-_SCALES = {"hundred": 100, "thousand": 1000}   # whisper writes '74,000' but keeps '1.3 billion' as words
+-_AFTER_NUMBER = {"dollars", "dollar", "percent", "per", "cent"}
+-
+-
+-def _spelled_numbers(tokens):
+-    """'seventy four thousand' -> '74000', 'one hundred and twenty' -> '120'. Only a well-formed phrase is
+-    joined: a unit after a unit or after a teen ('one two', 'eleven three') starts a new number, so a
+-    count like 'one two three' stays three tokens (Heimdall: additive joining hid differences)."""
+-    out, i = [], 0
+-    while i < len(tokens):
+-        if tokens[i] in _UNITS or tokens[i] in _TENS:
+-            total, cur, j, last = 0, 0, i, None
+-            while j < len(tokens):
+-                t = tokens[j]
+-                if t in _UNITS:
+-                    if last in ("unit",) or (last == "tens" and _UNITS[t] >= 10):
+-                        break
+-                    cur += _UNITS[t]
+-                    last = "unit"
+-                elif t in _TENS:
+-                    if last in ("unit", "tens"):
+-                        break
+-                    cur += _TENS[t]
+-                    last = "tens"
+-                elif t == "hundred" and last in ("unit",):
+-                    cur *= 100
+-                    last = "hundred"
+-                elif t in _SCALES and t != "hundred" and last is not None:
+-                    total += max(cur, 1) * _SCALES[t]
+-                    cur, last = 0, "scale"
+-                elif (t == "and" and last in ("hundred", "scale") and j + 1 < len(tokens)
+-                      and (tokens[j + 1] in _UNITS or tokens[j + 1] in _TENS)):
+-                    last = "and"
+-                else:
+-                    break
+-                j += 1
+-            out.append(str(total + cur))
+-            i = j
+-        else:
+-            out.append(tokens[i])
+-            i += 1
+-    return out
+-
+-
+-_NUM = re.compile(r"\d+(p\d+)?")
+-
+-
+-def _decimals(tokens):
+-    """Spoken decimals as the written form's single token: 'one point three' -> '1p3' (like '1.3'), and
+-    'five and a half' -> '5p5' (like '5.5'; recut run 6 G18: '5 .5%' vs 'five and a half percent', the same
+-    audio). Only after a number: 'a year and a half' stays words. Before 2026-11-11 a decimal split into
+-    two digit tokens and the repeat-collapser then merged '5 5' into '5', so 5.5 % and 5 % compared equal."""
+-    out, k = [], 0
+-    while k < len(tokens):
+-        w = tokens[k]
+-        if w.isdigit() and tokens[k + 1:k + 2] == ["point"] and k + 2 < len(tokens) and tokens[k + 2].isdigit():
+-            out.append(f"{w}p{tokens[k + 2]}")
+-            k += 3
+-        elif w.isdigit() and tokens[k + 1:k + 4] == ["and", "a", "half"]:
+-            out.append(f"{w}p5")
+-            k += 4
+-        else:
+-            out.append(w)
+-            k += 1
+-    return out
+-
+-
+-def norm(text):
+-    t = (text or "").lower().replace("’", "'")
+-    t = re.sub(r"(\d)\s+([.,]\d)", r"\1\2", t)            # '88 ,000' -> '88,000', '1 .3' -> '1.3'
+-    t = re.sub(r"(\d)\s+(?=\d{3}\b)", r"\1", t)             # '74 000' -> '74000'
+-    t = re.sub(r"\$\s+(\d)", r"$\1", t)
+-    t = re.sub(r"\b(\w)\s+\.(?=\w)", r"\1.", t)              # 'u .s.' -> 'u.s.'
+-    t = re.sub(r"\b([a-z])\.(?=[a-z]\b)", r"\1", t)            # 'u.s.' -> 'us.' (single-letter abbreviations)
+-    t = re.sub(r"(?<=\d)[,](?=\d{3}\b)", "", t)             # '74,000' -> '74000'
+-    t = re.sub(r"(?<=\d)\.(?=\d)", "p", t)                   # '5.5' -> '5p5': a decimal stays ONE token
+-    t = re.sub(r"[^\w\s']", " ", t)                         # punctuation, '$', '%' (both sides alike)
+-    t = re.sub(r"(?<!\w)'|'(?!\w)", "", t)                  # quote marks, not apostrophes
+-    tokens = _decimals(_spelled_numbers(t.split()))          # 'one point three' / 'five and a half' -> '1p3' / '5p5'
+-    tokens = [w for k, w in enumerate(tokens) if not (w in _AFTER_NUMBER and k and (
+-        _NUM.fullmatch(tokens[k - 1]) or tokens[k - 1] in ("million", "billion", "trillion")))]
+-    return _collapse_repeats(tokens)
++def norm(text, collapse=False):
++    """G18's comparison form: the pipeline's one canonical form (pipeline/canon.py: case, punctuation, split number
++    fragments, spelled numbers, decimals, currency / percent, signs), then G18's one tolerance, both sides alike:
++    'dollars' right after a number is dropped (whisper writes '$74,000' for a spoken 'seventy-four thousand';
++    '5 percent' vs '5 dollars' still differ: GPT-cut F04). collapse=True also folds immediate repeats of 1-3
++    words ('of course of course'); a difference that only that removes is NOT dropped from the evidence: G18
++    adjudicates it acoustically (GPT-cut F05, gate_g18)."""
++    import canon
++    t = canon.canon_tokens(text)
++    t = [w for k, w in enumerate(t) if not (w == "dollars" and k and re.fullmatch(r"\d+(\.\d+)?", t[k - 1]))]
++    return _collapse_repeats(t) if collapse else t
+ 
+ 
+ def _collapse_repeats(tokens):
+@@ -121,9 +47,9 @@ def _collapse_repeats(tokens):
+     return out
+ 
+ 
+-def diff(expected, heard):
++def diff(expected, heard, collapse=False):
+     """Word-level differences [(op, expected_words, heard_words)] after canonicalisation; [] if equal."""
+-    e, h = norm(expected), norm(heard)
++    e, h = norm(expected, collapse), norm(heard, collapse)
+     out = []
+     for op, a0, a1, b0, b1 in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes():
+         if op != "equal":
+@@ -180,6 +106,18 @@ def gate_g18(final_path, segments, clips, transcriber=None):
+         row = {"segment": label, "heard": heard, "source_span_heard": src, "lock_text": c["lock_text"],
+                "edges": edges(c["lock_text"], heard), "identity": diff(src, heard),
+                "lock_diff_reported": diff(c["lock_text"], heard)}
++        if row["identity"] and not diff(src, heard, collapse=True):
++            # only repeats differ (two whisper passes render a disfluent repeat differently, Nov 10 fixture): the
++            # difference stays in the row and is decided by the audio: the final's segment must BE the source span
++            import sentence_law as L
++            try:
++                same, det = L.span_matches(c["source"], final_path, c["cut_in"], c["cut_out"], float(seg["start"]),
++                                           float(c.get("pad_s") or 0.0))
++            except Exception as e:                   # not measurable: the difference stands
++                same, det = False, {"why": f"{type(e).__name__}: {e}"}
++            row["repeat_only_adjudication"] = {"same_audio": same, **det}
++            if same:
++                row["identity_repeats_only"], row["identity"] = row["identity"], []
+         row["pass"] = not row["edges"] and not row["identity"]
+         ok_all &= row["pass"]
+         rows.append(row)

@@ -1,17 +1,8 @@
 {
-  "last_audit": "2026-11-09T06:37:22.098098+00:00",
-  "feature": "track-a-d1-d3",
-  "commit": "421f303c",
+  "last_audit": "2026-11-12T03:57:28.601282+00:00",
+  "feature": "pulse-sentence-law",
+  "commit": "394ffe5a",
   "audits": [
-    {
-      "feature": "stage-fix",
-      "date": "2026-03-24",
-      "models": [
-        "gemini",
-        "gpt4o",
-        "grok"
-      ]
-    },
     {
       "feature": "live-terminal-design",
       "date": "2026-03-25",
@@ -177,6 +168,15 @@
     {
       "feature": "track-a-d1-d3",
       "date": "2026-11-09",
+      "models": [
+        "gemini",
+        "gpt4o",
+        "grok"
+      ]
+    },
+    {
+      "feature": "pulse-sentence-law",
+      "date": "2026-11-12",
       "models": [
         "gemini",
         "gpt4o",
