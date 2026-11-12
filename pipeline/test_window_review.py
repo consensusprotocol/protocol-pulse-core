@@ -136,8 +136,11 @@ class TestHooksUseVerifiedExpansion(unittest.TestCase):
             model = "fake"
 
             def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
-                return {"ratings": [{"id": i, "score": 3, "reason": "x"}
+                reply = {"ratings": [{"id": i, "score": 3, "fault": "none", "reason": "x"}
                                     for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]}
+                if validate:
+                    validate(reply)
+                return reply
         seen = []
         orig_e, orig_a = es.expanded_window, es.anchored_window
 
@@ -325,18 +328,27 @@ class RoutedLLM:
         self.second_quote, self.rate, self.prompts = second_quote, rate or (lambda t: (5, "none")), []
 
     def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
+        """Every reply is validated like the real call (batch 17 audit: fakes that skip the validator test nothing)."""
+        reply = self._reply(prompt)
+        if validate:
+            validate(reply)
+        return reply
+
+    def _reply(self, prompt):
         sm = self.sm
         self.prompts.append(prompt)
         if prompt.startswith("You verify whether"):
             hit = [i for i, t in re.findall(r'<excerpt id="([^"]+)">(.*?)</excerpt>', prompt, re.S)
                    if self.second_quote and sm._norm(self.second_quote) in sm._norm(t)]
             if not hit:
-                return {"verdict": "UNRELATED", "supporting_chunk_ids": [], "evidence_quote": "", "reason": "fake"}
+                return {"verdict": "UNRELATED", "supporting_chunk_ids": [], "evidence_quote": "", "confidence": 0.9,
+                        "reason": "fake"}
             return {"verdict": "CURRENT_EVENT", "supporting_chunk_ids": hit[:1],
                     "evidence_quote": self.second_quote, "confidence": 0.9, "reason": "fake"}
         if prompt.startswith("Decide whether a QUOTE"):
             q = re.search(r'<excerpt id="quote">(.*?)</excerpt>', prompt, re.S).group(1)
-            return {"support": "SUPPORTS" if sm._norm(q) in self.on_event else "TOPIC_ONLY", "reason": "fake"}
+            return {"support": "SUPPORTS" if sm._norm(q) in self.on_event else "TOPIC_ONLY",
+                    "same_actor_action_object": sm._norm(q) in self.on_event, "presented_as": "current", "reason": "fake"}
         if prompt.startswith("You check ONE SENTENCE"):                 # D4 reaction / consequence verifier
             t = re.search(r'<excerpt id="sentence">(.*?)</excerpt>', prompt, re.S).group(1)
             return {"label": sm.REACTION_OK if sm._norm(t) in self.reactions else "NEW_SUBJECT", "reason": "fake"}
