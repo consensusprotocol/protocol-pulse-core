@@ -25,6 +25,10 @@ class Box(unittest.TestCase):
                                                 "CUDA_VISIBLE_DEVICES": "0"})
         self.env.start()
         self.addCleanup(self.env.stop)
+        for name, val in (("FOREIGN_WAIT_S", 0), ("FOREIGN_POLL_S", 0)):   # L-r 4 wait: none unless a test sets it
+            p = mock.patch.object(gpu0, name, val)
+            p.start()
+            self.addCleanup(p.stop)
         self.used = [100]                 # MiB used on the fake GPU0 (a list: tests change it)
         self.procs = []                   # fake GPU0 compute processes
         self.ollama = []                  # fake resident Ollama models
@@ -127,6 +131,36 @@ class TestLease(Box):
                                        "print(gpu0.held())"], capture_output=True, text=True, timeout=60).stdout.split()
         self.assertEqual(inherited, "True")
         self.assertEqual(reopened, ["False", "False"])
+
+
+class TestForeignWaitedOut(Box):
+    """L-r item 4 as amended (orchestrator 2026-11-12 '11:57'): a foreign GPU0 user at a swap is waited out (polled
+    every FOREIGN_POLL_S for up to FOREIGN_WAIT_S), logged, and only a user still there after the wait HOLDS."""
+
+    def test_the_defaults_are_ten_minutes_polled_every_15_s(self):
+        src = open(gpu0.__file__).read()                                # the module constants, not the test's patch
+        self.assertIn("FOREIGN_WAIT_S, FOREIGN_POLL_S = 600, 15", src)
+
+    def test_an_ollama_model_that_leaves_is_waited_out_and_logged(self):
+        import threading
+        self.ollama[:] = ["deepseek-coder-v2:16b"]                      # another client's keep-alive (Nov 12, 11:47)
+        threading.Timer(0.3, lambda: self.ollama.clear()).start()
+        with gpu0.lease("t"), mock.patch.object(gpu0, "FOREIGN_WAIT_S", 5), mock.patch.object(gpu0, "FOREIGN_POLL_S", 0.05):
+            gpu0.swap_to("whisper:large-v3")
+        ev = next(e for e in gpu0.events() if e.get("key") == "foreign_wait")
+        self.assertIn("deepseek-coder-v2:16b", ev["foreign"])
+        self.assertTrue(ev["left"])
+        self.assertGreater(ev["waited_s"], 0.2)
+        self.assertEqual(self.unloaded, [])                              # never unloaded by us
+
+    def test_a_foreign_allocation_that_never_leaves_still_holds_naming_it(self):
+        self.procs[:] = [(424242, "python3", 4000)]
+        with gpu0.lease("t"), mock.patch.object(gpu0, "FOREIGN_WAIT_S", 0.4), mock.patch.object(gpu0, "FOREIGN_POLL_S", 0.05):
+            with self.assertRaisesRegex(gpu0.Gpu0Foreign, r"still there after a 0.4s wait: .*pid 424242 python3 4000 MiB"):
+                gpu0.swap_to("whisper:large-v3")
+        ev = next(e for e in gpu0.events() if e.get("key") == "foreign_wait")
+        self.assertFalse(ev["left"])
+        self.assertEqual(self.procs, [(424242, "python3", 4000)])          # nothing killed
 
 
 class TestSwap(Box):
