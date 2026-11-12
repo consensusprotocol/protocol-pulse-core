@@ -1,0 +1,38 @@
+{
+ "question": "Batch 38a = RULING 21 (orchestrator 2026-11-12 '13:06'): gate G3c (acoustic head / tail of each talking-head clip: the clip's last 120 ms must show no new onset and a valley below speech median - 11.6 dB; its first 120 ms no onset) was measured on the FINAL video, where the music bed and loudness normalisation sit under the pause and move with the VO timeline. Now, when run_fresh passes prepared_clips (label -> the prepared clip, the speech stem), gate_g3c measures each clip on its prepared clip from its start; a label without a prepared clip fails closed; every other caller (CLI, run_isolated, run.py, the calibration tests) passes nothing and still measures the final. Thresholds unchanged. Tests: the Nov 12 clip_02 tail passes on its prepared clip (it failed on the final under the bed); a prepared clip whose tail runs into the next word fails.\nFIND: any way a clipped tail or head now passes; a caller whose source_clips are raw sources reaching G3c; a fail-open when the prepared clip is missing. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 148.8,
+   "cost": 0.006658862,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 251.0,
+   "cost": 0.00240219,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.009061052,
+ "out_dir": "docs/audits/pulse-sentence-law/batch38_rulings21_22/r21/heimdall"
+}

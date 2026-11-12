@@ -576,7 +576,7 @@ def gate_g15(final_mp4, segments, qa_dir, channels=None):
 
 
 def run_gates(segment_dir, final_mp4, manifest_path, qa_version=None,
-              source_clips=None, vo_assembled_tracks=None):
+              source_clips=None, vo_assembled_tracks=None, prepared_clips=None):
     """Run all QA gates. Returns (all_pass, results_dict)."""
     paths = resolve_paths(segment_dir, qa_version)
 
@@ -609,6 +609,7 @@ def run_gates(segment_dir, final_mp4, manifest_path, qa_version=None,
         vo_assembled_tracks=vo_assembled_tracks,
         edl_path=edl_path,
         channels_json_path=channels_json_path,
+        prepared_clips=prepared_clips,                    # ruling 21: G3c on the prepared clips (speech stem)
     )
 
 

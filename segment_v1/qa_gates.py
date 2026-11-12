@@ -1567,8 +1567,12 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
 # G3c: ACOUSTIC_TAIL (M19 — last 120ms of each clip < -35 dBFS)
 # ==============================================================
 
-def gate_g3c(final_mp4, segments, qa_dir, fmt="16x9"):
+def gate_g3c(final_mp4, segments, qa_dir, fmt="16x9", source_clips=None):
     """M19a: Acoustic tail check on each talking-head clip in the OUTPUT.
+    Ruling 21 (orchestrator 2026-11-12 '13:06'): with source_clips (label -> the PREPARED clip, the speech stem before
+    the music bed and loudness normalisation) each clip is measured on its prepared clip from its start, like G17c
+    (the bed moves with the VO timeline and is not the clip's audio); a label without a prepared clip fails closed.
+    The final's clip edges stay protected by G17b and G3b. Without source_clips (direct calls): the final, as before.
 
     Two checks per clip:
       TAIL — last 120ms must show declining energy and no onset (no next-word
@@ -1600,7 +1604,13 @@ def gate_g3c(final_mp4, segments, qa_dir, fmt="16x9"):
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             full_wav = tmp.name
         try:
-            _extract_audio_mono(final_mp4, seg_start, seg_dur, full_wav)
+            if source_clips is not None:                      # ruling 21: the prepared clip (speech stem)
+                prep = source_clips.get(label)
+                if not prep or not os.path.exists(str(prep)):
+                    raise FileNotFoundError(f"ruling 21: no prepared clip for {label}")
+                _extract_audio_mono(str(prep), 0.0, seg_dur, full_wav)
+            else:
+                _extract_audio_mono(final_mp4, seg_start, seg_dur, full_wav)
             samples, sr = _load_wav_samples(full_wav)
             rms_db, times = rms_envelope(samples, sr)
 
@@ -1702,7 +1712,7 @@ def gate_g3c(final_mp4, segments, qa_dir, fmt="16x9"):
 
 def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
                    vo_assembled_tracks=None, edl_path=None, channels_json_path=None,
-                   horiz_mp4=None):
+                   horiz_mp4=None, prepared_clips=None):
     """Run all gates. Returns (all_pass, results_dict).
     source_clips: dict mapping clip label -> source mp4 path (for G4 layout classification).
     vo_assembled_tracks: dict mapping VO label -> assembled WAV path (silence + stem, no BGM).
@@ -1768,7 +1778,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         any_fail = True
 
     # G3c: Acoustic tail (M19 — last 120ms of each clip < -35 dBFS, no onset)
-    g3c_pass, g3c_table = gate_g3c(final_mp4, segments, qa_dir, fmt=fmt)
+    g3c_pass, g3c_table = gate_g3c(final_mp4, segments, qa_dir, fmt=fmt, source_clips=prepared_clips)   # ruling 21
     results["G3c_acoustic_tail"] = {"pass": g3c_pass, "table": g3c_table}
     if not g3c_pass:
         any_fail = True
