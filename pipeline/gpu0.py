@@ -61,6 +61,8 @@ REQUIREMENT_MIB = {
     "nvenc": 600,                          # measured 536 (one 1080x1920 h264_nvenc encode at a time)
 }
 WAIT_S = 180
+FOREIGN_WAIT_S, FOREIGN_POLL_S = 600, 15   # L-r 4 amended (orchestrator 2026-11-12 '11:57'): a foreign GPU0 user at a
+                                           # swap is waited out (an Ollama keep-alive leaves by itself), then HOLD
 
 
 class Gpu0Stop(BaseException):
@@ -464,9 +466,25 @@ def _ollama_key(key):
 
 
 def _refuse_foreign(what):
+    """L-r item 4 as amended (orchestrator 2026-11-12 '11:57'): a foreign GPU0 user is first WAITED OUT: polled every
+    FOREIGN_POLL_S for up to FOREIGN_WAIT_S (an Ollama model's keep-alive expires by itself), who it was printed and
+    recorded in the run's GPU0 events; Gpu0Foreign (a HOLD naming it) only when it is still there after the wait.
+    Nothing that is not this run's is ever killed or unloaded. (Nov 12 11:47: the site's article job loaded
+    deepseek-coder-v2:16b, 18 GB, on GPU0 for its 5-min keep-alive and a run HELD at prepare.)"""
     f = foreign()
+    if not f:
+        return
+    t0, first = time.time(), describe(f)
+    print(f"  GPU0: {what}: a foreign GPU0 user, waiting it out (L-r 4, up to {FOREIGN_WAIT_S}s): {first}", flush=True)
+    while f and time.time() - t0 < FOREIGN_WAIT_S:
+        time.sleep(FOREIGN_POLL_S)
+        f = foreign()
+    waited = round(time.time() - t0, 1)
+    _events.append({"key": "foreign_wait", "what": what, "foreign": first, "waited_s": waited, "left": not f})
     if f:
-        raise Gpu0Foreign(f"{what}: GPU0 is used by something that is not this run's: {describe(f)}")
+        raise Gpu0Foreign(f"{what}: GPU0 is used by something that is not this run's, still there after a "
+                          f"{FOREIGN_WAIT_S}s wait: {describe(f)}")
+    print(f"  GPU0: {what}: the foreign user left after {waited}s; proceeding", flush=True)
 
 
 def swap_to(key, wait_s=WAIT_S, poll_s=2.0):

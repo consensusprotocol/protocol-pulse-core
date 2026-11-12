@@ -1,0 +1,38 @@
+{
+ "question": "Batch 36 = law L-r item 4 amended (orchestrator 2026-11-12 '11:57'): a process using GPU0 that is not this run's ('foreign'), found at a swap (gpu0.swap_to, and the same check in release_all), used to HOLD the run at once (Gpu0Foreign). Now it is first WAITED OUT: gpu0._refuse_foreign polls foreign() every FOREIGN_POLL_S = 15 s for up to FOREIGN_WAIT_S = 600 s (an Ollama model with a keep-alive leaves by itself), prints and records who it was in the run's GPU0 events ({key: foreign_wait, what, foreign, waited_s, left}), and proceeds when it has left; Gpu0Foreign (a HOLD naming it) only if it is still there after the wait. Nothing that is not this run's is ever killed or unloaded. Tests: existing foreign-refusal tests run with a 0 s wait (unchanged expectations); new: an Ollama model that leaves during the wait is waited out, logged, nothing unloaded; a foreign allocation that never leaves still holds, naming it, nothing killed; the defaults are 600 / 15; the live test (a real foreign allocation that never leaves) still holds at every stage with a 1 s wait.\nFIND: any way a foreign GPU0 user is killed / unloaded, or the run proceeds while it is still there; any path that now waits forever or swallows a different GPU0 error; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 67.8,
+   "cost": 0.003703694,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 353.6,
+   "cost": 0.003181158,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.006884852,
+ "out_dir": "docs/audits/pulse-sentence-law/batch36_lr4_foreign_wait/cycle1/heimdall"
+}

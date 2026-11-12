@@ -16,6 +16,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE)
@@ -81,8 +82,9 @@ class TestForeignAllocationIsRefused(Live):
                   "review": lambda: gpu0.swap_to("ollama:gemma3:27b"),
                   "render": lambda: gpu0.swap_to("nvenc"),
                   "gates": lambda: self.transcribe("medium")}
-        for name, fn in stages.items():
-            with self.assertRaises(self.rf.Hold, msg=name) as cm:
+        for name, fn in stages.items():                                # L-r 4: waited out first; it never leaves
+            with self.assertRaises(self.rf.Hold, msg=name) as cm, mock.patch.object(gpu0, "FOREIGN_WAIT_S", 1), \
+                    mock.patch.object(gpu0, "FOREIGN_POLL_S", 0.2):
                 self.run_.stage(name, fn)
             msg = str(cm.exception)
             self.assertTrue(msg.startswith(f"infrastructure: {name}: GPU0 Gpu0Foreign"), msg)
