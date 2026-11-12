@@ -147,7 +147,7 @@ class TestForeignWaitedOut(Box):
         threading.Timer(0.3, lambda: self.ollama.clear()).start()
         with gpu0.lease("t"), mock.patch.object(gpu0, "FOREIGN_WAIT_S", 5), mock.patch.object(gpu0, "FOREIGN_POLL_S", 0.05):
             gpu0.swap_to("whisper:large-v3")
-        ev = next(e for e in gpu0.events() if e.get("key") == "foreign_wait")
+        ev = [e for e in gpu0.events() if e.get("key") == "foreign_wait"][-1]   # this test's (a session may hold others)
         self.assertIn("deepseek-coder-v2:16b", ev["foreign"])
         self.assertTrue(ev["left"])
         self.assertGreater(ev["waited_s"], 0.2)
@@ -158,7 +158,7 @@ class TestForeignWaitedOut(Box):
         with gpu0.lease("t"), mock.patch.object(gpu0, "FOREIGN_WAIT_S", 0.4), mock.patch.object(gpu0, "FOREIGN_POLL_S", 0.05):
             with self.assertRaisesRegex(gpu0.Gpu0Foreign, r"still there after a 0.4s wait: .*pid 424242 python3 4000 MiB"):
                 gpu0.swap_to("whisper:large-v3")
-        ev = next(e for e in gpu0.events() if e.get("key") == "foreign_wait")
+        ev = [e for e in gpu0.events() if e.get("key") == "foreign_wait"][-1]   # this test's (a session may hold others)
         self.assertFalse(ev["left"])
         self.assertEqual(self.procs, [(424242, "python3", 4000)])          # nothing killed
 
