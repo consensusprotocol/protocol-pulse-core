@@ -1,0 +1,3046 @@
+{
+ "run": "fresh_20261107_065702",
+ "now": "2026-11-07T06:57:03.895513+00:00",
+ "result": {
+  "lineup": false
+ },
+ "ledger": {
+  "path": "/home/ultron/protocol_pulse/data/pulse_check/story_ledger.jsonl",
+  "entries": 0
+ },
+ "universe": {
+  "videos": 99,
+  "records_missing": [],
+  "methods": {
+   "whisper_words": 7,
+   "yt_auto": 58,
+   "yt_manual": 34
+  }
+ },
+ "clusters": {
+  "recorded": false,
+  "recomputed_s": 13.2,
+  "chunks": 3893,
+  "no_vectors": [],
+  "groups": 220,
+  "screened": {
+   "48h": 23,
+   "72h": 16
+  }
+ },
+ "wire_pool": "not run in this CPU replay: wire retrieval needs the GPU0 embedder (DEC-13: wire only after clusters)",
+ "groups": [
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 0 48h | Altcoin Daily, BTC Sessions, Bankless, Bitcoin Magazine, Blockware Solutions, Coin Bureau ...",
+   "rows": 160,
+   "not_offered": {
+    "not_statement": 40,
+    "too_short": 35,
+    "unpunctuated": 1
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "the independent check does not find the claim's development stated as current news in id 65 (TOPIC_ONLY), id 67 (TOPIC_ONLY), id 68 (TOPIC_ONLY), id 88 (TOPIC_ONLY), id 95 (TOPIC_ONLY), id 119 (TOPIC_ONLY), id 120 (TOPIC_ONLY), id 121 (TOPIC_ONLY), id 122 (TOPIC_ONLY)",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "c4d26e961abad118066090723484d7c712f3a276308cfeef1c73d6a5ea8130f8",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [65, 67, 68, 119, 120, 121, 122, 87, 88], \"claim\": 65}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7205,
+        "completion_tokens": 40
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'it': nothing is heard before a hook (after 'but')"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "But it's important to me that Bitcoin just a couple days ago before the election was at 75, 76, you know.",
+        "targets_missed": [
+         "the claim opens on the conjunction 'but'"
+        ]
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 85,
+          "k1": 85,
+          "text": "But it's important to me that Bitcoin just a couple days ago before the election was at 75, 76, you know.",
+          "start": 392.57,
+          "end": 397.67
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 87,
+          "k1": 87,
+          "text": "It had that massive move on the short squeeze, and now it's back to those prices, while the rest of markets are actually on fire and performing far worse.",
+          "start": 400.27,
+          "end": 406.95
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 88,
+          "k1": 88,
+          "text": "So you can really look at Bitcoin, if you look at the last two weeks, and say it's pretty much trading sideways in the mid -70s or so, while everything else is starting to approach bear market territory.",
+          "start": 407.29,
+          "end": 418.74
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 110,
+          "k1": 110,
+          "text": "Yeah, post midterms Bitcoin jumped up to above 80,000.",
+          "start": 484.987,
+          "end": 488.451
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 111,
+          "k1": 111,
+          "text": "So we got above 80,000 for a moment.",
+          "start": 488.504,
+          "end": 490.348
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 112,
+          "k1": 112,
+          "text": "almost touched 81,000 and now we have set a new low just a smidge of a new low but a new low nonetheless of 75,500.",
+          "start": 490.398,
+          "end": 498.378
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 113,
+          "k1": 113,
+          "text": "We're up to 76,000 right now.",
+          "start": 498.466,
+          "end": 501.029
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 27,
+          "k1": 27,
+          "text": "For most of the 3rd of November,\u00a0 Bitcoin traded calmly between about 77 and 78K.\u00a0\u00a0 Then from around 19 UTC, the selling started.",
+          "start": 184.93,
+          "end": 198.36
+         },
+         "parts": {}
+        },
+        "story[8]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 28,
+          "k1": 28,
+          "text": "At\u00a0 2200 UTC, it dropped to the 75Ks.",
+          "start": 198.533,
+          "end": 195.886
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "b8d850ec01fcfd409b7ac080893842d3ab020104981a32341538e57e4782265a",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [119, 120, 121, 122, 65, 67, 68, 95, 87], \"claim\": 68}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7281,
+        "completion_tokens": 40
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'you': nothing is heard before a hook (after 'so')"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "So you can really look at Bitcoin, if you look at the last two weeks, and say it's pretty much trading sideways in the mid -70s or so, while everything else is starting to approach bear market territory.",
+        "targets_missed": [
+         "the claim opens on the conjunction 'so'"
+        ]
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 110,
+          "k1": 110,
+          "text": "Yeah, post midterms Bitcoin jumped up to above 80,000.",
+          "start": 484.987,
+          "end": 488.451
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 111,
+          "k1": 111,
+          "text": "So we got above 80,000 for a moment.",
+          "start": 488.504,
+          "end": 490.348
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 112,
+          "k1": 112,
+          "text": "almost touched 81,000 and now we have set a new low just a smidge of a new low but a new low nonetheless of 75,500.",
+          "start": 490.398,
+          "end": 498.378
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 113,
+          "k1": 113,
+          "text": "We're up to 76,000 right now.",
+          "start": 498.466,
+          "end": 501.029
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 85,
+          "k1": 85,
+          "text": "But it's important to me that Bitcoin just a couple days ago before the election was at 75, 76, you know.",
+          "start": 392.57,
+          "end": 397.67
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 87,
+          "k1": 87,
+          "text": "It had that massive move on the short squeeze, and now it's back to those prices, while the rest of markets are actually on fire and performing far worse.",
+          "start": 400.27,
+          "end": 406.95
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 88,
+          "k1": 88,
+          "text": "So you can really look at Bitcoin, if you look at the last two weeks, and say it's pretty much trading sideways in the mid -70s or so, while everything else is starting to approach bear market territory.",
+          "start": 407.29,
+          "end": 418.74
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 41,
+          "k1": 41,
+          "text": "At least as I make this video,\u00a0\u00a0 Bitcoin is continuing to trade just a smidge above\u00a0 80K.",
+          "start": 266.392,
+          "end": 270.941
+         },
+         "parts": {}
+        },
+        "story[8]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 27,
+          "k1": 27,
+          "text": "For most of the 3rd of November,\u00a0 Bitcoin traded calmly between about 77 and 78K.\u00a0\u00a0 Then from around 19 UTC, the selling started.",
+          "start": 184.93,
+          "end": 198.36
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "b8d850ec01fcfd409b7ac080893842d3ab020104981a32341538e57e4782265a",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [65, 67, 68, 87, 88, 95, 119, 120, 121, 122], \"claim\": 87}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7281,
+        "completion_tokens": 43
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "For most of the 3rd of November,\u00a0 Bitcoin traded calmly between about 77 and 78K.\u00a0\u00a0 Then from around 19 UTC, the selling started.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 85,
+          "k1": 85,
+          "text": "But it's important to me that Bitcoin just a couple days ago before the election was at 75, 76, you know.",
+          "start": 392.57,
+          "end": 397.67
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 87,
+          "k1": 87,
+          "text": "It had that massive move on the short squeeze, and now it's back to those prices, while the rest of markets are actually on fire and performing far worse.",
+          "start": 400.27,
+          "end": 406.95
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 11.95,
+          "tier": "48h",
+          "k0": 88,
+          "k1": 88,
+          "text": "So you can really look at Bitcoin, if you look at the last two weeks, and say it's pretty much trading sideways in the mid -70s or so, while everything else is starting to approach bear market territory.",
+          "start": 407.29,
+          "end": 418.74
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 27,
+          "k1": 27,
+          "text": "For most of the 3rd of November,\u00a0 Bitcoin traded calmly between about 77 and 78K.\u00a0\u00a0 Then from around 19 UTC, the selling started.",
+          "start": 184.93,
+          "end": 198.36
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 28,
+          "k1": 28,
+          "text": "At\u00a0 2200 UTC, it dropped to the 75Ks.",
+          "start": 198.533,
+          "end": 195.886
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 41,
+          "k1": 41,
+          "text": "At least as I make this video,\u00a0\u00a0 Bitcoin is continuing to trade just a smidge above\u00a0 80K.",
+          "start": 266.392,
+          "end": 270.941
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 110,
+          "k1": 110,
+          "text": "Yeah, post midterms Bitcoin jumped up to above 80,000.",
+          "start": 484.987,
+          "end": 488.451
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 111,
+          "k1": 111,
+          "text": "So we got above 80,000 for a moment.",
+          "start": 488.504,
+          "end": 490.348
+         },
+         "parts": {}
+        },
+        "story[8]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 112,
+          "k1": 112,
+          "text": "almost touched 81,000 and now we have set a new low just a smidge of a new low but a new low nonetheless of 75,500.",
+          "start": 490.398,
+          "end": 498.378
+         },
+         "parts": {}
+        },
+        "story[9]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 113,
+          "k1": 113,
+          "text": "We're up to 76,000 right now.",
+          "start": 498.466,
+          "end": 501.029
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 65 (TOPIC_ONLY), id 67 (TOPIC_ONLY), id 68 (TOPIC_ONLY), id 88 (TOPIC_ONLY), id 95 (TOPIC_ONLY), id 119 (TOPIC_ONLY), id 120 (TOPIC_ONLY), id 121 (TOPIC_ONLY), id 122 (TOPIC_ONLY)"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 1 48h | Bitcoin Magazine, Blockware Solutions, CoinTelegraph, Kitco NEWS, Stacker News, Strategy (MicroStrategy) ...",
+   "rows": 105,
+   "not_offered": {
+    "too_short": 36,
+    "not_statement": 30,
+    "unpunctuated": 5
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "efba1431d950ce8e5dfca38a634cb8fd02ca89136d364d7369f579f95519e34c",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4797,
+        "completion_tokens": 410
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 2 48h | Altcoin Daily, Bankless, Bloomberg Television, Coin Bureau, CoinTelegraph, DataDash ...",
+   "rows": 121,
+   "not_offered": {
+    "not_statement": 10,
+    "too_short": 29
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "4ab607588a0cfaf87b73242a62e91ccdb76f3ec538f8fb0d0d09cdca9c30ed85",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [71, 83, 88, 97], \"claim\": 83}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4720,
+        "completion_tokens": 515
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCCatR7nWbYrkVXdxXb4cGXw",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy.",
+        "targets_missed": [
+         "the claim opens on the conjunction 'then'"
+        ]
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 7,
+          "k1": 7,
+          "text": "Then it\u00a0 dropped to 75K as a blue wave became apparent,\u00a0\u00a0 but just 12 hours later, it was trading above\u00a0 $81,000.",
+          "start": 34.939,
+          "end": 37.497
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 35,
+          "k1": 35,
+          "text": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy.",
+          "start": 234.486,
+          "end": 240.747
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 83,
+          "k1": 83,
+          "text": "It bounced violently to 81K.",
+          "start": 517.826,
+          "end": 521.02
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "30MJdAwd0F8",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Uh we saw a little pop from about 75,600 up towards 81K.",
+          "start": 10.539,
+          "end": 15.566
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "46cdb5f1cfff2ea7391313052c9b48559136d403d9f893a682c626ceaa084c05",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [71, 83, 88, 97, 54], \"claim\": 83}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4778,
+        "completion_tokens": 804
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCCatR7nWbYrkVXdxXb4cGXw",
+         "UCRqBu-grVX1p97WaX4d-OuQ",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy.",
+        "targets_missed": [
+         "the claim opens on the conjunction 'then'"
+        ]
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 7,
+          "k1": 7,
+          "text": "Then it\u00a0 dropped to 75K as a blue wave became apparent,\u00a0\u00a0 but just 12 hours later, it was trading above\u00a0 $81,000.",
+          "start": 34.939,
+          "end": 37.497
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 35,
+          "k1": 35,
+          "text": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy.",
+          "start": 234.486,
+          "end": 240.747
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 83,
+          "k1": 83,
+          "text": "It bounced violently to 81K.",
+          "start": 517.826,
+          "end": 521.02
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "30MJdAwd0F8",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Uh we saw a little pop from about 75,600 up towards 81K.",
+          "start": 10.539,
+          "end": 15.566
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "L9tzgg6PXi8",
+          "channel": "CoinTelegraph",
+          "channel_id": "UCRqBu-grVX1p97WaX4d-OuQ",
+          "layout_eligible": true,
+          "age_h": 15.95,
+          "tier": "48h",
+          "k0": 16,
+          "k1": 16,
+          "text": "Look, Bitcoin holding around $80,000.",
+          "start": 47.14,
+          "end": 49.6
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 54 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "8a0e5aeca383fbfa9e54046eb0e3b0ba09d54b6860011fbe6540649d5ce8f6e4",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [71, 83, 88, 97], \"claim\": 83}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4785,
+        "completion_tokens": 697
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCCatR7nWbYrkVXdxXb4cGXw",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy.",
+        "targets_missed": [
+         "the claim opens on the conjunction 'then'"
+        ]
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 7,
+          "k1": 7,
+          "text": "Then it\u00a0 dropped to 75K as a blue wave became apparent,\u00a0\u00a0 but just 12 hours later, it was trading above\u00a0 $81,000.",
+          "start": 34.939,
+          "end": 37.497
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 35,
+          "k1": 35,
+          "text": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy.",
+          "start": 234.486,
+          "end": 240.747
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 83,
+          "k1": 83,
+          "text": "It bounced violently to 81K.",
+          "start": 517.826,
+          "end": 521.02
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "30MJdAwd0F8",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Uh we saw a little pop from about 75,600 up towards 81K.",
+          "start": 10.539,
+          "end": 15.566
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 3 48h | Altcoin Daily, Bankless, Bitcoin Magazine, Bloomberg Television, CoinDesk, Simply Bitcoin ...",
+   "rows": 156,
+   "not_offered": {
+    "too_short": 30,
+    "not_statement": 32,
+    "unpunctuated": 3
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "6e98a306a3c6569aeb65f1f865c2ea61d909f670c75edbbf261ef927329ecf9a",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [112, 117, 51, 131, 88], \"claim\": 112}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6836,
+        "completion_tokens": 463
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UC7TghOL755nBk7HelHoi9LQ",
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCIALMKvObZNtJ6AmdCLP7Lg",
+         "UCbLhGKVY-bJPcawebgtNfbw"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 3,
+        "claim": "Bitcoin pumps 10% today as Democrats win full control of Congress, the House, and the Senate.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "G_m6lLkcdDk",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Bitcoin pumps 10% today as Democrats win full control of Congress, the House, and the Senate.",
+          "start": 16.449,
+          "end": 25.109
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "G_m6lLkcdDk",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 24,
+          "k1": 24,
+          "text": "So, Democrats have won total control of Congress, but that's really a good thing for crypto.",
+          "start": 99.97,
+          "end": 106.512
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 175,
+          "k1": 175,
+          "text": "First of all, we should probably zoom out and say the structure of a Republican president and a Democratic sweep where it's sort of divided.",
+          "start": 749.302,
+          "end": 757.657
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "ThBSEd5PxF0",
+          "channel": "CoinDesk",
+          "channel_id": "UC7TghOL755nBk7HelHoi9LQ",
+          "layout_eligible": false,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 133,
+          "k1": 133,
+          "text": "Let's pivot over to the midterms because there was a bit of a blue wave last night.",
+          "start": 758.55,
+          "end": 762.41
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "HTuMh12kgUA",
+          "channel": "Bloomberg Television",
+          "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+          "layout_eligible": true,
+          "age_h": 7.95,
+          "tier": "48h",
+          "k0": 755,
+          "k1": 755,
+          "text": "PARTICULARLY SOME OF THE CONCERNS RIGHT NOW AROUND THE CLARITY ACT AND WHETHER THERE WILL BE ANY CLARITY ON THAT MOVING FORWARD IN A NEW DEMOCRATICALLY CONTROLLED CONGRESS.",
+          "start": 4282.211,
+          "end": 4295.624
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "7f6b32cf17c63778882584f4be4b5b24f2225de8f6271ebba0772cfc7903aa98",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [112, 117, 124, 37, 6, 71, 35, 108], \"claim\": 112}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6894,
+        "completion_tokens": 903
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UC7TghOL755nBk7HelHoi9LQ",
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCbLhGKVY-bJPcawebgtNfbw",
+         "UCtOV5M-T3GcsJAq8QKaf0lg"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "72h",
+        "story_layout_channels": 3,
+        "claim": "Bitcoin pumps 10% today as Democrats win full control of Congress, the House, and the Senate.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "G_m6lLkcdDk",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Bitcoin pumps 10% today as Democrats win full control of Congress, the House, and the Senate.",
+          "start": 16.449,
+          "end": 25.109
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "G_m6lLkcdDk",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 24,
+          "k1": 24,
+          "text": "So, Democrats have won total control of Congress, but that's really a good thing for crypto.",
+          "start": 99.97,
+          "end": 106.512
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "G_m6lLkcdDk",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 63,
+          "k1": 63,
+          "text": "House Democrats reportedly want to revive the Clarity Act and progress a crypto market structure bill next Congress per cryptojournalist Eleanor Tourett.",
+          "start": 361.577,
+          "end": 372.431
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 176,
+          "k1": 176,
+          "text": "House Democrats reportedly want to bring back their own crypto rules next Congress.",
+          "start": 787.93,
+          "end": 791.51
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "tK1xEU5q0LE",
+          "channel": "CoinDesk",
+          "channel_id": "UC7TghOL755nBk7HelHoi9LQ",
+          "layout_eligible": false,
+          "age_h": 13.95,
+          "tier": "48h",
+          "k0": 38,
+          "k1": 38,
+          "text": "I mean, we saw Ellie Terret report yesterday that Maxine Waters has a plan to use all the Democratic uh provisions that they put into Clarity to push a new crypto bill forward.",
+          "start": 209.997,
+          "end": 220.458
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 239,
+          "k1": 239,
+          "text": "Of course, it is incredibly early, but this is Hive tweeting out that Maxine Waters, she's proposed something called the crypto investor Bill of Rights, and it would include things like all exchange withdrawals uh have to happen within 24 hours, customer assets segregated, bankruptcy, remote, monthly proof of reserves.",
+          "start": 1008.095,
+          "end": 1024.417
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 174,
+          "k1": 174,
+          "text": "In Park's words, the thesis for Bitcoin adoption is institutional rejection.",
+          "start": 781.79,
+          "end": 785.41
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "io8ACfpKBtU",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 55,
+          "k1": 55,
+          "text": ">> And one piece of that bill that matters most to Bitcoiners was the developer protections and not regulating them like money transmitters.",
+          "start": 282.934,
+          "end": 292.444
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 117 (TOPIC_ONLY), id 124 (TOPIC_ONLY), id 37 (TOPIC_ONLY), id 6 (TOPIC_ONLY), id 71 (UNRELATED), id 35 (TOPIC_ONLY), id 108 (UNRELATED)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "ecccb04c556f25c541ff6fafb947c0ec67b43d28422a1716b3c0a3ec286e5392",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [112, 51, 88, 131], \"claim\": 112}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6989,
+        "completion_tokens": 735
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UC7TghOL755nBk7HelHoi9LQ",
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCIALMKvObZNtJ6AmdCLP7Lg",
+         "UCbLhGKVY-bJPcawebgtNfbw"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 3,
+        "claim": "Bitcoin pumps 10% today as Democrats win full control of Congress, the House, and the Senate.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "G_m6lLkcdDk",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Bitcoin pumps 10% today as Democrats win full control of Congress, the House, and the Senate.",
+          "start": 16.449,
+          "end": 25.109
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 175,
+          "k1": 175,
+          "text": "First of all, we should probably zoom out and say the structure of a Republican president and a Democratic sweep where it's sort of divided.",
+          "start": 749.302,
+          "end": 757.657
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "HTuMh12kgUA",
+          "channel": "Bloomberg Television",
+          "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+          "layout_eligible": true,
+          "age_h": 7.95,
+          "tier": "48h",
+          "k0": 755,
+          "k1": 755,
+          "text": "PARTICULARLY SOME OF THE CONCERNS RIGHT NOW AROUND THE CLARITY ACT AND WHETHER THERE WILL BE ANY CLARITY ON THAT MOVING FORWARD IN A NEW DEMOCRATICALLY CONTROLLED CONGRESS.",
+          "start": 4282.211,
+          "end": 4295.624
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "ThBSEd5PxF0",
+          "channel": "CoinDesk",
+          "channel_id": "UC7TghOL755nBk7HelHoi9LQ",
+          "layout_eligible": false,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 133,
+          "k1": 133,
+          "text": "Let's pivot over to the midterms because there was a bit of a blue wave last night.",
+          "start": 758.55,
+          "end": 762.41
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 4 48h | BTC Sessions, Kitco NEWS, Natalie Brunell, Stacker News, TFTC, TheStreet ...",
+   "rows": 147,
+   "not_offered": {
+    "not_statement": 17,
+    "too_short": 88,
+    "fragment": 2,
+    "unpunctuated": 2
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "f7090bafdd02e7a0b63d3cd8f08d5b9415368849675a23c627916b7fd78be9bb",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4729,
+        "completion_tokens": 182
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 5 48h | Altcoin Daily, BTC Sessions, CoinTelegraph, Kitco NEWS, Simply Bitcoin, Swan Bitcoin",
+   "rows": 102,
+   "not_offered": {
+    "not_statement": 15,
+    "too_short": 11
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "e4b916023e9f8e7c03fdca58dcca88b89b9a346e67b6e2a4f9b5189883802bfc",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [2, 8, 9, 52, 79, 99], \"claim\": 2}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4055,
+        "completion_tokens": 309
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UC9ijza42jVR3T6b8bColgvg",
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCl4takhOQtiyprismCPsa2Q"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 3,
+        "claim": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 1,
+          "k1": 1,
+          "text": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+          "start": 3.62,
+          "end": 9.3
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 15,
+          "k1": 15,
+          "text": "On Tuesday night, Democrats took the House and the Senate.",
+          "start": 57.24,
+          "end": 59.68
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 16,
+          "k1": 16,
+          "text": "flipping at least seven Senate seats, including Texas, which just elected its first Democratic senator since 1988.",
+          "start": 60.05,
+          "end": 66.33
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "F4xicDR_tIs",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "[snorts] Democrats have won control of the House and [music] the Senate in what news coverage is calling a blue tsunami.",
+          "start": 1.91,
+          "end": 9.969
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "B7rm7UUzqgA",
+          "channel": "Kitco News",
+          "channel_id": "UC9ijza42jVR3T6b8bColgvg",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "All right, Democrats won both the House and the Senate and gold surged more than $100 back above $4,000 an ounce on the spot side.",
+          "start": 2.149,
+          "end": 7.871
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Hcr79FgPoDM",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 167,
+          "k1": 167,
+          "text": "Democrats get Congress in January.",
+          "start": 766.601,
+          "end": 769.649
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "9e26528d92b5a01adad75adbe4d66326ba893d98a7984fc3d0bbb2924d59a428",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [2, 8, 52, 53, 79, 96, 99], \"claim\": 2}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4113,
+        "completion_tokens": 635
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UC9ijza42jVR3T6b8bColgvg",
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCl4takhOQtiyprismCPsa2Q"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 1,
+          "k1": 1,
+          "text": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+          "start": 3.62,
+          "end": 9.3
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 15,
+          "k1": 15,
+          "text": "On Tuesday night, Democrats took the House and the Senate.",
+          "start": 57.24,
+          "end": 59.68
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "F4xicDR_tIs",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "[snorts] Democrats have won control of the House and [music] the Senate in what news coverage is calling a blue tsunami.",
+          "start": 1.91,
+          "end": 9.969
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "F4xicDR_tIs",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 1,
+          "k1": 1,
+          "text": "I expect very little to change for Bitcoin.",
+          "start": 10.059,
+          "end": 12.925
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "B7rm7UUzqgA",
+          "channel": "Kitco News",
+          "channel_id": "UC9ijza42jVR3T6b8bColgvg",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "All right, Democrats won both the House and the Senate and gold surged more than $100 back above $4,000 an ounce on the spot side.",
+          "start": 2.149,
+          "end": 7.871
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Hcr79FgPoDM",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 163,
+          "k1": 163,
+          "text": "Trump said 1929, we woke up to 80K Bitcoin.",
+          "start": 755.099,
+          "end": 759.073
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Hcr79FgPoDM",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 167,
+          "k1": 167,
+          "text": "Democrats get Congress in January.",
+          "start": 766.601,
+          "end": 769.649
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 8 (TOPIC_ONLY), id 53 (TOPIC_ONLY), id 79 (TOPIC_ONLY), id 96 (TOPIC_ONLY), id 99 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "96b39c34bdfe3bd3829bb569aa628548971787e6da613acbbf68fdd3cf9c50e8",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [2, 8, 52, 79, 99], \"claim\": 2}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4184,
+        "completion_tokens": 805
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UC9ijza42jVR3T6b8bColgvg",
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCl4takhOQtiyprismCPsa2Q"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 3,
+        "claim": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 1,
+          "k1": 1,
+          "text": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+          "start": 3.62,
+          "end": 9.3
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 15,
+          "k1": 15,
+          "text": "On Tuesday night, Democrats took the House and the Senate.",
+          "start": 57.24,
+          "end": 59.68
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "F4xicDR_tIs",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "[snorts] Democrats have won control of the House and [music] the Senate in what news coverage is calling a blue tsunami.",
+          "start": 1.91,
+          "end": 9.969
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "B7rm7UUzqgA",
+          "channel": "Kitco News",
+          "channel_id": "UC9ijza42jVR3T6b8bColgvg",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "All right, Democrats won both the House and the Senate and gold surged more than $100 back above $4,000 an ounce on the spot side.",
+          "start": 2.149,
+          "end": 7.871
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Hcr79FgPoDM",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 167,
+          "k1": 167,
+          "text": "Democrats get Congress in January.",
+          "start": 766.601,
+          "end": 769.649
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 6 48h | Blockware Solutions, Bloomberg Television, Simply Bitcoin, Swan Bitcoin, The Bitcoin Layer",
+   "rows": 49,
+   "not_offered": {
+    "not_statement": 4,
+    "too_short": 4
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "0467a5602c54a6d30d76e8bf7836a55b33d090a6e856fad636ad57338be60c32",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\":[4,19,24,25,26,32,40,45,46,3,18,29],\"claim\":26}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2793,
+        "completion_tokens": 37
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UC678LSROK47l__G-pMnOMgA",
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDo6-SUypaXlTmH6AyrYBZA",
+         "UCIALMKvObZNtJ6AmdCLP7Lg",
+         "UCl4takhOQtiyprismCPsa2Q"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 5,
+        "claim": "Bitcoin actually fell less than the NASDAQ 100, down about 5% over 24 hours, and trading around $76,000 by the US close.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kUrwpp--Nps",
+          "channel": "Blockware Solutions",
+          "channel_id": "UC678LSROK47l__G-pMnOMgA",
+          "layout_eligible": true,
+          "age_h": 12.95,
+          "tier": "48h",
+          "k0": 4,
+          "k1": 4,
+          "text": "And if you hold Bitcoin, that's the only question that matters this week because Bitcoin got dragged down with the NASDAQ right to one onchain support level that's decided every move Bitcoin's made in 2026.",
+          "start": 18.371,
+          "end": 32.038
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "16ojEohQcR8",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 5.95,
+          "tier": "48h",
+          "k0": 100,
+          "k1": 100,
+          "text": "The S&P 500 nearly 4% and Bitcoin 5 a.5% around $75,700.",
+          "start": 479.04,
+          "end": 486.469
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 14.95,
+          "tier": "48h",
+          "k0": 1,
+          "k1": 1,
+          "text": "Tech stocks got crushed yesterday and dragged Bitcoin down with them.",
+          "start": 3.439,
+          "end": 7.833
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 14.95,
+          "tier": "48h",
+          "k0": 2,
+          "k1": 2,
+          "text": "The NASDAQ 100 fell 6.4%, its worst day since March 2020, and chip stocks fell 12%.",
+          "start": 7.893,
+          "end": 14.591
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 14.95,
+          "tier": "48h",
+          "k0": 3,
+          "k1": 3,
+          "text": "Bitcoin actually fell less than the NASDAQ 100, down about 5% over 24 hours, and trading around $76,000 by the US close.",
+          "start": 14.659,
+          "end": 23.837
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "xMSz99yRpAY",
+          "channel": "The Bitcoin Layer",
+          "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 6,
+          "k1": 6,
+          "text": "The Nasdaq 100 shown here by the QQQ ETF having its worst day of the year, down 6 and 1/2 %.",
+          "start": 23.149,
+          "end": 31.978
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "HTuMh12kgUA",
+          "channel": "Bloomberg Television",
+          "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+          "layout_eligible": true,
+          "age_h": 7.95,
+          "tier": "48h",
+          "k0": 492,
+          "k1": 492,
+          "text": "TIM: THE NASDAQ 100 ON THE WEEK RIGHT NOW, THIS IS AN INDEX THAT YESTERDAY HAD ITS WORST DAY GOING BACK TO THE DEPTHS OF THE COVID PANDEMIC.",
+          "start": 2697.094,
+          "end": 2709.406
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "26FnoirIW_8",
+          "channel": "Bloomberg Television",
+          "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+          "layout_eligible": true,
+          "age_h": 7.95,
+          "tier": "48h",
+          "k0": 11,
+          "k1": 11,
+          "text": "THE NASDAQ 100 WAS DOWN AS MUCH AS 6.2% EARLIER IN THE SESSION.",
+          "start": 88.555,
+          "end": 96.863
+         },
+         "parts": {}
+        },
+        "story[8]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "26FnoirIW_8",
+          "channel": "Bloomberg Television",
+          "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+          "layout_eligible": true,
+          "age_h": 7.95,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "AT ONE POINT, ITS WORST DAY GOING BACK TO 2020.",
+          "start": 92.725,
+          "end": 97.864
+         },
+         "parts": {}
+        },
+        "story[9]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kUrwpp--Nps",
+          "channel": "Blockware Solutions",
+          "channel_id": "UC678LSROK47l__G-pMnOMgA",
+          "layout_eligible": true,
+          "age_h": 12.95,
+          "tier": "48h",
+          "k0": 2,
+          "k1": 2,
+          "text": "The NASDAQ just had its worst day since June, and everyone's asking the same question.",
+          "start": 9.36,
+          "end": 15.281
+         },
+         "parts": {}
+        },
+        "story[10]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "16ojEohQcR8",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 5.95,
+          "tier": "48h",
+          "k0": 99,
+          "k1": 99,
+          "text": "In Bloomberg's 1052 a.m. New York snapshot, the NASDAQ 100 was down about 6%.",
+          "start": 472.72,
+          "end": 478.94
+         },
+         "parts": {}
+        },
+        "story[11]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "xMSz99yRpAY",
+          "channel": "The Bitcoin Layer",
+          "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "The worst day of the year for the Nasdaq.",
+          "start": 2.39,
+          "end": 2.888
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 4 (TOPIC_ONLY), id 19 (TOPIC_ONLY), id 24 (TOPIC_ONLY), id 25 (TOPIC_ONLY), id 32 (TOPIC_ONLY), id 40 (TOPIC_ONLY), id 45 (TOPIC_ONLY), id 46 (UNRELATED), id 3 (TOPIC_ONLY), id 18 (TOPIC_ONLY), id 29 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "44585b4d91bd56056e3b985167ae474c5d9bb3dd2b323db3c1c13f0dfd3dbd15",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [26, 19, 24, 4], \"claim\": 26}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 3014,
+        "completion_tokens": 753
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UC678LSROK47l__G-pMnOMgA",
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCl4takhOQtiyprismCPsa2Q"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "Bitcoin actually fell less than the NASDAQ 100, down about 5% over 24 hours, and trading around $76,000 by the US close.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 14.95,
+          "tier": "48h",
+          "k0": 3,
+          "k1": 3,
+          "text": "Bitcoin actually fell less than the NASDAQ 100, down about 5% over 24 hours, and trading around $76,000 by the US close.",
+          "start": 14.659,
+          "end": 23.837
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "16ojEohQcR8",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 5.95,
+          "tier": "48h",
+          "k0": 100,
+          "k1": 100,
+          "text": "The S&P 500 nearly 4% and Bitcoin 5 a.5% around $75,700.",
+          "start": 479.04,
+          "end": 486.469
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 14.95,
+          "tier": "48h",
+          "k0": 1,
+          "k1": 1,
+          "text": "Tech stocks got crushed yesterday and dragged Bitcoin down with them.",
+          "start": 3.439,
+          "end": 7.833
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kUrwpp--Nps",
+          "channel": "Blockware Solutions",
+          "channel_id": "UC678LSROK47l__G-pMnOMgA",
+          "layout_eligible": true,
+          "age_h": 12.95,
+          "tier": "48h",
+          "k0": 4,
+          "k1": 4,
+          "text": "And if you hold Bitcoin, that's the only question that matters this week because Bitcoin got dragged down with the NASDAQ right to one onchain support level that's decided every move Bitcoin's made in 2026.",
+          "start": 18.371,
+          "end": 32.038
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 19 (TOPIC_ONLY), id 24 (TOPIC_ONLY), id 4 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "9c0efa9abcaa725b475ffc33811243f2ff7fb2a04c98262ce2f16ea5425a51ef",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [25, 26, 18, 32, 29, 40, 45], \"claim\": 26}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2890,
+        "completion_tokens": 752
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDo6-SUypaXlTmH6AyrYBZA",
+         "UCIALMKvObZNtJ6AmdCLP7Lg",
+         "UCl4takhOQtiyprismCPsa2Q"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 4,
+        "claim": "Bitcoin actually fell less than the NASDAQ 100, down about 5% over 24 hours, and trading around $76,000 by the US close.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 14.95,
+          "tier": "48h",
+          "k0": 2,
+          "k1": 2,
+          "text": "The NASDAQ 100 fell 6.4%, its worst day since March 2020, and chip stocks fell 12%.",
+          "start": 7.893,
+          "end": 14.591
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 14.95,
+          "tier": "48h",
+          "k0": 3,
+          "k1": 3,
+          "text": "Bitcoin actually fell less than the NASDAQ 100, down about 5% over 24 hours, and trading around $76,000 by the US close.",
+          "start": 14.659,
+          "end": 23.837
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "16ojEohQcR8",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 5.95,
+          "tier": "48h",
+          "k0": 99,
+          "k1": 99,
+          "text": "In Bloomberg's 1052 a.m. New York snapshot, the NASDAQ 100 was down about 6%.",
+          "start": 472.72,
+          "end": 478.94
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "xMSz99yRpAY",
+          "channel": "The Bitcoin Layer",
+          "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 6,
+          "k1": 6,
+          "text": "The Nasdaq 100 shown here by the QQQ ETF having its worst day of the year, down 6 and 1/2 %.",
+          "start": 23.149,
+          "end": 31.978
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "xMSz99yRpAY",
+          "channel": "The Bitcoin Layer",
+          "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "The worst day of the year for the Nasdaq.",
+          "start": 2.39,
+          "end": 2.888
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "HTuMh12kgUA",
+          "channel": "Bloomberg Television",
+          "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+          "layout_eligible": true,
+          "age_h": 7.95,
+          "tier": "48h",
+          "k0": 492,
+          "k1": 492,
+          "text": "TIM: THE NASDAQ 100 ON THE WEEK RIGHT NOW, THIS IS AN INDEX THAT YESTERDAY HAD ITS WORST DAY GOING BACK TO THE DEPTHS OF THE COVID PANDEMIC.",
+          "start": 2697.094,
+          "end": 2709.406
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "26FnoirIW_8",
+          "channel": "Bloomberg Television",
+          "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+          "layout_eligible": true,
+          "age_h": 7.95,
+          "tier": "48h",
+          "k0": 11,
+          "k1": 11,
+          "text": "THE NASDAQ 100 WAS DOWN AS MUCH AS 6.2% EARLIER IN THE SESSION.",
+          "start": 88.555,
+          "end": 96.863
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 7 48h | BTC Sessions, Bankless, Coin Bureau, CoinDesk",
+   "rows": 47,
+   "not_offered": {
+    "not_statement": 6,
+    "too_short": 5
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not name Bitcoin",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "5b14d0aaa79581034cc3bd929bb9c7ab62c0d562d2c65f1715f48efc4a075644",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [4, 8, 14, 25, 28, 39, 45, 5], \"claim\": 5}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2369,
+        "completion_tokens": 37
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UC7TghOL755nBk7HelHoi9LQ",
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UChzLnWVsl3puKQwc5PoO6Zg",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "Bitcoin opened the day above\u00a0\u00a0 81K, but that $80,000 floor soon gave way and\u00a0 Bitcoin was trading just below 77K in no time.\u00a0\u00a0 So 80K flipped from support to resistance and\u00a0 75K became our next downside target.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 11,
+          "k1": 11,
+          "text": "Then came the 29th of October\u00a0\u00a0 when the biggest theft in crypto history started\u00a0 unfolding at Binance.",
+          "start": 64.49,
+          "end": 71.765
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 68,
+          "k1": 68,
+          "text": "Most\u00a0 of the $6.3 billion stolen from Binance in that\u00a0\u00a0 late October evening left across 10 blockchains in\u00a0 just 20 minutes.",
+          "start": 414.975,
+          "end": 417.995
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 76,
+          "k1": 76,
+          "text": "So, the largest crypto\u00a0\u00a0 theft on record came and went without the market\u00a0 seizing up.",
+          "start": 471.793,
+          "end": 477.253
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 331,
+          "k1": 331,
+          "text": "This was not Binance's cold storage, but this was one of its hot wallets and $6 billion.",
+          "start": 1364.529,
+          "end": 1370.465
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 359,
+          "k1": 359,
+          "text": "Uh and so to your point like this sent Bitcoin down like three or $4,000 but not really anywhere near what you would expect from the headline Binance hacked the worst like fear headline that has been in our you know potential potential brains for for years now.",
+          "start": 1509.494,
+          "end": 1527.228
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "ThBSEd5PxF0",
+          "channel": "CoinDesk",
+          "channel_id": "UC7TghOL755nBk7HelHoi9LQ",
+          "layout_eligible": false,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 34,
+          "k1": 34,
+          "text": "Yeah, I mean, the fact that we just had the largest hack pretty much of all time on the internet ever and have only seen Bitcoin drop, not like me like from 80K to like about 75K is shocking considering we've seen.",
+          "start": 132.32,
+          "end": 145.28
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "jTuJ8PXhRV4",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 711,
+          "k1": 711,
+          "text": "We just had, of course, Binance with $6.3 billion in hacks.",
+          "start": 3303.48,
+          "end": 3306.62
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "Bitcoin opened the day above\u00a0\u00a0 81K, but that $80,000 floor soon gave way and\u00a0 Bitcoin was trading just below 77K in no time.\u00a0\u00a0 So 80K flipped from support to resistance and\u00a0 75K became our next downside target.",
+          "start": 71.861,
+          "end": 89.263
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 4 (UNRELATED), id 8 (UNRELATED), id 14 (UNRELATED), id 25 (UNRELATED), id 28 (TOPIC_ONLY), id 39 (TOPIC_ONLY), id 45 (UNRELATED)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "d2b47c443fd239b956da25666a5598a20e27f375a76f74194028006c5aaa9867",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [5, 18, 28, 39], \"claim\": 18}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2510,
+        "completion_tokens": 958
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UC7TghOL755nBk7HelHoi9LQ",
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "From the\u00a0 open on the day the theft began to the election\u00a0\u00a0 day low, Bitcoin fell about 7%.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "Bitcoin opened the day above\u00a0\u00a0 81K, but that $80,000 floor soon gave way and\u00a0 Bitcoin was trading just below 77K in no time.\u00a0\u00a0 So 80K flipped from support to resistance and\u00a0 75K became our next downside target.",
+          "start": 71.861,
+          "end": 89.263
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 80,
+          "k1": 80,
+          "text": "From the\u00a0 open on the day the theft began to the election\u00a0\u00a0 day low, Bitcoin fell about 7%.",
+          "start": 499.033,
+          "end": 504.969
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 359,
+          "k1": 359,
+          "text": "Uh and so to your point like this sent Bitcoin down like three or $4,000 but not really anywhere near what you would expect from the headline Binance hacked the worst like fear headline that has been in our you know potential potential brains for for years now.",
+          "start": 1509.494,
+          "end": 1527.228
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "ThBSEd5PxF0",
+          "channel": "CoinDesk",
+          "channel_id": "UC7TghOL755nBk7HelHoi9LQ",
+          "layout_eligible": false,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 34,
+          "k1": 34,
+          "text": "Yeah, I mean, the fact that we just had the largest hack pretty much of all time on the internet ever and have only seen Bitcoin drop, not like me like from 80K to like about 75K is shocking considering we've seen.",
+          "start": 132.32,
+          "end": 145.28
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 5 (TOPIC_ONLY), id 28 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "dbff0dc57ddb788a188f1525fac6dc377ce7db998bb256bdc874e51632c9f24d",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [4, 8, 25, 39, 45], \"claim\": 8}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2450,
+        "completion_tokens": 723
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_no_bitcoin",
+         "the claim sentence does not name Bitcoin"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UC7TghOL755nBk7HelHoi9LQ",
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UChzLnWVsl3puKQwc5PoO6Zg",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 3
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 11,
+          "k1": 11,
+          "text": "Then came the 29th of October\u00a0\u00a0 when the biggest theft in crypto history started\u00a0 unfolding at Binance.",
+          "start": 64.49,
+          "end": 71.765
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 68,
+          "k1": 68,
+          "text": "Most\u00a0 of the $6.3 billion stolen from Binance in that\u00a0\u00a0 late October evening left across 10 blockchains in\u00a0 just 20 minutes.",
+          "start": 414.975,
+          "end": 417.995
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 18.95,
+          "tier": "48h",
+          "k0": 331,
+          "k1": 331,
+          "text": "This was not Binance's cold storage, but this was one of its hot wallets and $6 billion.",
+          "start": 1364.529,
+          "end": 1370.465
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "ThBSEd5PxF0",
+          "channel": "CoinDesk",
+          "channel_id": "UC7TghOL755nBk7HelHoi9LQ",
+          "layout_eligible": false,
+          "age_h": 54.95,
+          "tier": "72h",
+          "k0": 34,
+          "k1": 34,
+          "text": "Yeah, I mean, the fact that we just had the largest hack pretty much of all time on the internet ever and have only seen Bitcoin drop, not like me like from 80K to like about 75K is shocking considering we've seen.",
+          "start": 132.32,
+          "end": 145.28
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "jTuJ8PXhRV4",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 30.95,
+          "tier": "48h",
+          "k0": 711,
+          "k1": 711,
+          "text": "We just had, of course, Binance with $6.3 billion in hacks.",
+          "start": 3303.48,
+          "end": 3306.62
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not name Bitcoin"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  }
+ ],
+ "pools": [
+  {
+   "pool": "channel_clusters_48h",
+   "evaluated": true,
+   "groups": 23,
+   "stopped": "story-call budget 8 spent"
+  },
+  {
+   "pool": "channel_clusters_72h",
+   "evaluated": true,
+   "groups": 16,
+   "stopped": "story-call budget 8 spent"
+  }
+ ],
+ "story_calls": 8,
+ "lineup_calls": 0,
+ "seconds": 999.2,
+ "models": {
+  "generator": "anthropic:claude-fable-5-2@medium",
+  "judge (ModelChecks)": "xai:grok-4.20-0309-reasoning@t0",
+  "openai_probe": "ok"
+ },
+ "code": {
+  "select_by_id.py": "188a35e3c047deee",
+  "eligibility.py": "6f7055bcfdfa3aa7"
+ }
+}

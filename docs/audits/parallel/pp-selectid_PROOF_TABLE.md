@@ -11,18 +11,18 @@
 | fresh_20261112_013452 | 02:42 | grok-4.20-0309-reasoning@t0 | 39 / 21 | 8 | 4 rejected, 4 declined | no | - | - | - |
 | fresh_20261110_093150 | 02:45 | grok-4.20-0309-reasoning@t0 | 24 / 14 | 8 | 6 declined, 2 rejected | no | - | - | - |
 | fresh_20261111_192645 | 02:42 | grok-4.20-0309-reasoning@t0 | 41 / 15 | 8 | 5 declined, 3 rejected | no | - | - | - |
-| fresh_20261107_080503 | - | - | - | - | not run yet in this column | - | - | - | - |
-| fresh_20261107_065702 | - | - | - | - | not run yet in this column | - | - | - | - |
-| fresh_20261106_213852 | - | - | - | - | not run yet in this column | - | - | - | - |
+| fresh_20261107_080503 | 02:54 | grok-4.20-0309-reasoning@t0 | 31 / 28 | 8 | 5 declined, 3 rejected | no | - | - | - |
+| fresh_20261107_065702 | 03:10 | grok-4.20-0309-reasoning@t0 | 23 / 16 | 8 | 6 rejected, 2 declined | no | - | - | - |
+| fresh_20261106_213852 | 03:17 | grok-4.20-0309-reasoning@t0 | 45 / 22 | 8 | 6 declined, 2 rejected | no | - | - | - |
 | pinned_20261111_172202 | 02:37 | grok-4.20-0309-reasoning@t0 | - / - | 1 | 1 story; line-up declined | no | - | - | Bitcoin has now seen a 16 % decline from the overall high from $88,000, touching down towards about $73,400, $ |
 
 Models per run file (generator / judge): {"generator": "anthropic:claude-fable-5-2@medium", "judge (ModelChecks)": "xai:grok-4.20-0309-reasoning@t0", "openai_probe": "ok"}
 
-Stand-in spend estimate, all proof runs of this session: $23.3678 over 437 calls (1272680 prompt / 464904 completion tokens); per model, at the upper-bound USD prices per 1M tokens [input, output] each stand-in declares:
-- anthropic:claude-fable-5-2@medium: 159 calls, $9.5512 at [8.0, 40.0]
+Stand-in spend estimate, all proof runs of this session: $28.1105 over 526 calls (1392790 prompt / 616196 completion tokens); per model, at the upper-bound USD prices per 1M tokens [input, output] each stand-in declares:
+- anthropic:claude-fable-5-2@medium: 172 calls, $10.5093 at [8.0, 40.0]
 - anthropic:claude-opus-5-5@medium: 49 calls, $1.2753 at [4.0, 20.0]
 - xai:grok-4.20-0309-reasoning: 106 calls, $5.3511 at [5.0, 25.0]
-- xai:grok-4.20-0309-reasoning@t0: 81 calls, $4.2236 at [5.0, 25.0]
+- xai:grok-4.20-0309-reasoning@t0: 157 calls, $8.008 at [5.0, 25.0]
 
 ### pinned_20261111_172202 (the approved preview): overlap with its four passages
 | approved | channel | chosen by select_by_id | same words | overlap s | eligible with the model's own story | why not |
@@ -50,11 +50,11 @@ Stand-in spend estimate, all proof runs of this session: $23.3678 over 437 calls
 
 Models per run file (generator / judge): {"generator": "anthropic:claude-fable-5-2@medium", "judge (ModelChecks)": "xai:grok-4.20-0309-reasoning", "openai_probe": "HTTP 400 invalid_request_error"}
 
-Stand-in spend estimate, all proof runs of this session: $23.3678 over 437 calls (1272680 prompt / 464904 completion tokens); per model, at the upper-bound USD prices per 1M tokens [input, output] each stand-in declares:
-- anthropic:claude-fable-5-2@medium: 159 calls, $9.5512 at [8.0, 40.0]
+Stand-in spend estimate, all proof runs of this session: $28.1105 over 526 calls (1392790 prompt / 616196 completion tokens); per model, at the upper-bound USD prices per 1M tokens [input, output] each stand-in declares:
+- anthropic:claude-fable-5-2@medium: 172 calls, $10.5093 at [8.0, 40.0]
 - anthropic:claude-opus-5-5@medium: 49 calls, $1.2753 at [4.0, 20.0]
 - xai:grok-4.20-0309-reasoning: 106 calls, $5.3511 at [5.0, 25.0]
-- xai:grok-4.20-0309-reasoning@t0: 81 calls, $4.2236 at [5.0, 25.0]
+- xai:grok-4.20-0309-reasoning@t0: 157 calls, $8.008 at [5.0, 25.0]
 
 ### pinned_20261111_172202 (the approved preview): overlap with its four passages
 | approved | channel | chosen by select_by_id | same words | overlap s | eligible with the model's own story | why not |

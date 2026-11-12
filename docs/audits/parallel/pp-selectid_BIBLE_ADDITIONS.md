@@ -95,3 +95,15 @@ build_cycle2_prompt cuts each cycle-1 output to 5,000 characters and the consens
 under "WHAT THE OTHER MODELS SAID" after a "YOUR CYCLE 1 OUTPUT ... [See below]" placeholder. All three Claude
 reviewers of cycle 2 reported that their own cycle-1 text was missing; it was present, truncated, among the others.
 Score comparisons across cycles are therefore unreliable as the tool stands.
+
+### NOTE-PS12 (measured 03:06 ET, tonight's first package attempts): Step A read a dummy "it" and a generic "we" as referents outside the clip
+The context-integrity step A (grok-4.20-0309-reasoning, temperature 0) marked two referents as outside the selection:
+- What Bitcoin Did's "It's not Bitcoin that's getting hacked. It's other intermediaries.": the "It" of the cleft
+  construction, "referring" to "what is getting hacked", which the clip itself says;
+- Natalie Brunell's "we are going to have a new internet": "we" read as "humanity / society".
+
+Both are false rejects of law L-s's referent rule. A cleft "it" and a generic "we" point at nothing outside the clip.
+Step A's instruction now says so explicitly. A referent counts as inside when the selected words themselves identify
+it. Real unresolved referents are unchanged: they still fail, and the exam (pipeline_pp_tests) measures both
+directions. The same attempt CORRECTLY rejected Simply Bitcoin's "Five years after Bitcoin peaked at 69,000, Bitcoin
+is up 6%. Welcome to November." as sarcastic, not an own sincere assertion.

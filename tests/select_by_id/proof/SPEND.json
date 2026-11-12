@@ -1,8 +1,8 @@
 {
- "usd_estimate": 23.6353,
- "calls": 444,
- "prompt_tokens": 1277405,
- "completion_tokens": 474655,
+ "usd_estimate": 28.1105,
+ "calls": 526,
+ "prompt_tokens": 1392790,
+ "completion_tokens": 616196,
  "by_model": {
   "anthropic:claude-opus-5-5@medium": {
    "calls": 49,
@@ -13,8 +13,8 @@
    ]
   },
   "anthropic:claude-fable-5-2@medium": {
-   "calls": 159,
-   "usd_estimate": 9.5512,
+   "calls": 172,
+   "usd_estimate": 10.5093,
    "price_usd_per_1m": [
     8.0,
     40.0
@@ -29,8 +29,8 @@
    ]
   },
   "xai:grok-4.20-0309-reasoning@t0": {
-   "calls": 88,
-   "usd_estimate": 4.4911,
+   "calls": 157,
+   "usd_estimate": 8.008,
    "price_usd_per_1m": [
     5.0,
     25.0
