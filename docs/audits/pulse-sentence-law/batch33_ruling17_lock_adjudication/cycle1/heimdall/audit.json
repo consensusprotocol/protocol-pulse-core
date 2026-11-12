@@ -1,0 +1,98 @@
+{
+ "question": "Batch 33 = RULING 17 (orchestrator 2026-11-12 '10:20'): sentence-lock text adjudication; integrity stays fail-closed. In a PINNED run each clip's selection lock is made from the run's own Whisper decode (lock['text'] = the decoded words i0..i1) and records the pin's approved text (lock['selected_text']). NEW (pinned.adjudicate_lock, called in build_edl only when the pin has approved_text): if the two differ canonically, (1) a differing token that is a number, a negation, or a name (a capitalised word not opening a sentence, 'I' excepted) ALWAYS holds (law L-v 2), without a vote; (2) otherwise the independent second recogniser (ElevenLabs scribe_v1 on the acquired window; pipeline/second_recogniser.py, a verbatim copy of the already-audited file of branch ruling7) is read over the locked span's time range; if, at EVERY difference, it reads the approved words (and not the run's), the lock takes the approved text, records the three readings, and its digest is recomputed; if it reads the run's words, or neither, the run HOLDS (PinError) naming the three readings. (3) G18 (word_diff.gate_g18) compares the final's decode with the ADJUDICATED lock text instead of a third decode of the source span, ONLY for adjudicated locks (run_fresh passes 'adjudicated'); unadjudicated locks are unchanged. Tests: synthetic agree / run-side / neither / negation 2-1 / number / name / no-difference cases; the real Nov 12 clip_01 head (scribe_v1 reads 'I think', the pin says 'I mean,') HOLDS; G18 against an adjudicated lock passes the matching final, fails a dropped word, and an unadjudicated lock still fails on the third decode; the Nov 10 G18 fixtures still fail.\nFIND: any way a lock takes the approved text without the second recogniser reading the approved words at every difference; any number / name / negation difference that reaches the vote; any way G18 passes a final whose words differ from the lock; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 107.9,
+   "cost": 0.0072285955,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 307.3,
+   "cost": 0.002896888,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 393.0,
+   "cost": 0.0107801694,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 290.9,
+   "cost": 0.002672014,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "deepseek:F2",
+   "severity": "critical",
+   "file": "pipeline/pinned.py",
+   "line": 324,
+   "issue": "For a deletion (approved text has no token at the difference), side returns true whenever the run's token is absent from the second recogniser, even if the second recogniser reads a different word (neither the run's nor the approved empty text). This lets the lock take the approved text when the second recogniser reads neither.",
+   "evidence": "side = lambda xs, ys, cx, cy: all(i in cx for i in xs) and not any(j in cy for j in ys)\n    pin_side = all(side(range(c, d), range(a, b), in_p, in_r) for _, a, b, c, d in ops)",
+   "fix": "For deletions, require that the second recogniser has no token at that position (or explicitly check that it does not read a different word).",
+   "agree": [
+    "qwen27b",
+    "deepseek"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F3",
+   "severity": "medium",
+   "file": "pipeline/pinned.py",
+   "line": 273,
+   "issue": "The number check only matches pure digits with optional decimal, so number tokens like ordinals ('2nd', '3rd') or comma-grouped numbers ('1,000') are not treated as critical and can reach the vote, violating law L-v 2.",
+   "evidence": "if re.fullmatch(r\"-?\\d+(\\.\\d+)?\", tok) or tok in LV2_NEGATIONS or tok.endswith(\"n't\"):",
+   "fix": "Broaden number detection to cover ordinals, comma-grouped numbers, and other numeric forms.",
+   "agree": [
+    "qwen27b",
+    "deepseek"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "critical",
+   "file": "pipeline/pinned.py",
+   "line": 323,
+   "issue": "The adjudication vote checks only global token presence via SequenceMatcher over the whole span, so the second recogniser can be credited with reading the approved word even when that word occurs elsewhere in the span and the actual difference position reads something else. This allows a lock to take the approved text without the second recogniser reading the approved words at every difference.",
+   "evidence": "in_p, in_r = cover(p, s), cover(r, s)\n    side = lambda xs, ys, cx, cy: all(i in cx for i in xs) and not any(j in cy for j in ys)\n    pin_side = all(side(range(c, d), range(a, b), in_p, in_r) for _, a, b, c, d in ops)",
+   "fix": "Align the second recogniser tokens to the difference positions (e.g., use the time range of each difference or require the equal block to cover the difference indices in order) instead of checking global token presence.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0235776669,
+ "out_dir": "docs/audits/pulse-sentence-law/batch33_ruling17_lock_adjudication/cycle1/heimdall"
+}

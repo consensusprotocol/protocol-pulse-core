@@ -103,10 +103,14 @@ def gate_g18(final_path, segments, clips, transcriber=None):
             continue
         heard = tr.span(final_path, seg["start"], seg["end"])
         src = tr.span(c["source"], c["cut_in"], c["cut_out"])
+        # ruling 17: a lock adjudicated by two independent decodes IS the reference the final is compared against
+        ref = c["lock_text"] if c.get("adjudicated") else src
         row = {"segment": label, "heard": heard, "source_span_heard": src, "lock_text": c["lock_text"],
-               "edges": edges(c["lock_text"], heard), "identity": diff(src, heard),
+               "edges": edges(c["lock_text"], heard), "identity": diff(ref, heard),
                "lock_diff_reported": diff(c["lock_text"], heard)}
-        if row["identity"] and not diff(src, heard, collapse=True):
+        if c.get("adjudicated"):
+            row["identity_reference"] = "the adjudicated lock text (ruling 17)"
+        if row["identity"] and not diff(ref, heard, collapse=True):
             # only repeats differ (two whisper passes render a disfluent repeat differently, Nov 10 fixture): the
             # difference stays in the row and is decided by the audio: the final's segment must BE the source span
             import sentence_law as L

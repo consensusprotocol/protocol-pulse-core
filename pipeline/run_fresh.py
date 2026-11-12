@@ -1143,7 +1143,9 @@ def stage_gates(run, final16, man16, final9, man9):
     g18_clips = {c["clip_id"]: {"lock_text": (locks.get(c["clip_id"]) or {}).get("text", ""),
                                 "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
                                 "cut_in": c["cut_in"], "cut_out": c["cut_out"],
-                                "pad_s": float(c.get("lead_in_pad_s") or 0.0)} for c in cuts}
+                                "pad_s": float(c.get("lead_in_pad_s") or 0.0),
+                                "adjudicated": bool((locks.get(c["clip_id"]) or {}).get("adjudication"))}
+                 for c in cuts}
     missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
     tr = WD.Transcriber()
     g18 = {}
