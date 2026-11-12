@@ -75,7 +75,14 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
         cuts = json.load(f)
     t0 = time.time()
     try:
+        # L-r: a replay is a GPU0 job like a run: the lease to its end (custody when a wrapper holds it), the sampler
+        run.gpu0_stack.enter_context(rf.gpu0.lease(f"replay {os.path.basename(dst)} (pid {os.getpid()})"))
+        run.sampler = rf.gpu0.PeakSampler().start()
+        run.prov.setdefault("gpu0", {})["at_start"] = {"memory_mib": rf.gpu0.memory(), "processes": rf.gpu0.processes()}
         rf.run_tail(run, cuts, start=start, vision=vision)
+    except rf.gpu0.Gpu0Stop as e:                       # the lease is busy: a HOLD carrying the real cause
+        run.status["verdict"] = rf.VERDICT_HOLD
+        run.status["holds"].append(f"replay: infrastructure: GPU0 {type(e).__name__}: {e}")
     except rf.Hold:
         run.status["verdict"] = rf.VERDICT_HOLD
     except Exception as e:                              # as run_fresh.main: anything unexpected is a HOLD
@@ -86,6 +93,9 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
     finally:
         run.status["elapsed_s"] = round(time.time() - t0, 1)
         run.status["ended"] = rf.now_iso()
+        if run.sampler:
+            run.prov.setdefault("gpu0", {})["peaks_mib"] = run.sampler.stop()
+        run.prov.setdefault("gpu0", {})["swaps"] = rf.gpu0.events()
         try:                                            # attested for its verdict, never deliverable
             rf.attest_run(run, deliverable=False, why_not="replay: diagnostic, deliver only a full run",
                           code_checked=False)
@@ -96,6 +106,12 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
         rf.write_report(run)
         with open(os.path.join(dst, "VERDICT.txt"), "w") as f:
             f.write(str(run.status["verdict"]) + "\n")
+        try:                                            # L-r: unload this replay's models before the lease goes
+            if rf.gpu0.held():
+                rf.gpu0.leave()
+        except rf.gpu0.Gpu0Stop as e:
+            print(f"  GPU0 leave: {type(e).__name__}: {e}", flush=True)
+        run.gpu0_stack.close()                          # the GPU0 lease is held to here
     print(f"\n=== REPLAY {dst} (from {start}, vision {'on' if vision else 'OFF'}): {run.status['verdict']} ===")
     for h in run.status["holds"]:
         print(f"  HOLD: {h}")

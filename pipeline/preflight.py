@@ -20,12 +20,15 @@ import os
 import shutil
 import subprocess
 import sys
+import time
+import urllib.error
 import urllib.request
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE_DIR)
 sys.path.insert(0, PIPELINE_DIR)
 sys.path.insert(1, os.path.join(REPO, "video_pipeline_v3"))     # relay.get_key (the pipeline's key loader)
+import gpu0  # noqa: E402  (law L-r)
 
 GPU0_FREE_MIB = 20000             # editorial model ~19 GB + Whisper; counted with our own Ollama model released
 DISK_FREE_GB = 25
@@ -43,21 +46,15 @@ def _get_json(url, headers=None, timeout=15, data=None):
 
 
 def check_gpu0():
-    import story_semantics as sm
-    gpus = dict(l.split(", ") for l in _run(["nvidia-smi", "--query-gpu=index,uuid", "--format=csv,noheader"])
-                .stdout.strip().splitlines())
-    apps = [l.split(", ") for l in _run(["nvidia-smi", "--query-compute-apps=pid,gpu_uuid,used_memory",
-                                         "--format=csv,noheader,nounits"]).stdout.strip().splitlines() if l]
-    serve = sm.LocalLLM()._listener_pid()
-    ours = set(_run(["pgrep", "-P", str(serve)]).stdout.split()) | {str(serve)} if serve else set()
-    others = [(p, m) for p, u, m in apps if u == gpus.get("0") and p not in ours]
-    if others:
-        return False, "other job(s) on GPU0: " + ", ".join(
-            f"pid {p} ({m} MiB) {_run(['ps', '-o', 'args=', '-p', p]).stdout.strip()[:60]}" for p, m in others)
-    used, total = sm.gpu0_memory()
-    held = sum(int(m) for p, u, m in apps if u == gpus.get("0") and p in ours)
-    free = total - used + held
-    return free >= GPU0_FREE_MIB, f"{free} MiB available with our model released (need {GPU0_FREE_MIB})"
+    """L-r: no foreign process on GPU0 (gpu0.foreign: anything but this run's processes and the GPU0 Ollama's), and
+    room for the largest single model swap_to will load (its measured need + margin) once the Ollama's models, ours
+    to unload, are released."""
+    foreign = gpu0.foreign()
+    if foreign:
+        return False, f"GPU0 is used by something that is not this run's: {gpu0.describe(foreign)}"
+    used, total = gpu0.memory()
+    need = max(GPU0_FREE_MIB, max(gpu0.REQUIREMENT_MIB.values()) + gpu0.MARGIN_MIB)
+    return total - used >= need, f"{total - used} MiB free (need {need}: the largest single model + margin)"
 
 
 def check_ollama():
@@ -65,9 +62,16 @@ def check_ollama():
     digest = sm.model_digest(sm.LLM_HOST, sm.LLM_MODEL)
     if not digest:
         return False, f"{sm.LLM_MODEL} not installed on {sm.LLM_HOST}"
-    body = json.dumps({"model": sm.LLM_MODEL, "prompt": "ok", "stream": False,
-                       "options": {"num_predict": 1}}).encode()
-    r = _get_json(f"http://{sm.LLM_HOST}/api/generate", {"Content-Type": "application/json"}, timeout=180, data=body)
+    gpu0.swap_to(f"ollama:{sm.LLM_MODEL}")           # L-r: the model reaches GPU0 only through swap_to
+    body = json.dumps({"model": sm.LLM_MODEL, "prompt": "ok", "stream": False, "keep_alive": 0,   # unloaded after
+                       "options": {"num_predict": 1}}).encode()                                  # its answer (L-r)
+    try:
+        r = _get_json(f"http://{sm.LLM_HOST}/api/generate", {"Content-Type": "application/json"}, timeout=180, data=body)
+    except urllib.error.HTTPError as e:
+        text = e.read().decode(errors="replace")
+        if gpu0.is_oom(RuntimeError(text)):                # named as what it is, never 'HTTPError (raised)'
+            raise gpu0.GpuOOM(f"{sm.LLM_MODEL}: CUDA out of memory (HTTP {e.code}: {text[-300:]})") from None
+        raise
     return "response" in r, f"{sm.LLM_MODEL} {digest[:12]} answered"
 
 
@@ -149,6 +153,8 @@ def run_checks(checks=None):
     for name, fn in (CHECKS if checks is None else checks):
         try:
             ok, detail = fn()
+        except gpu0.Gpu0Stop as e:                    # a GPU0 refusal names its cause (pids, MiB; never a secret)
+            ok, detail = False, f"GPU0 {type(e).__name__}: {e}"
         except Exception as e:                        # an exception is a failed check, never a pass; reported by
             ok, detail = False, f"{type(e).__name__} (raised)"   # TYPE only: a network error's text can carry a
                                                                   # key or token in its URL (claude-fable audit #6)
@@ -156,8 +162,35 @@ def run_checks(checks=None):
     return out
 
 
+def left_as_found(found_used, found_models, wait_s=60, slack_mib=256):
+    """L-r item 2: (ok, detail): GPU0 holds no more than the preflight found (memory within slack_mib of it, no Ollama
+    model that was not resident before), waiting up to wait_s for an unload to land."""
+    t0 = time.time()
+    while True:
+        used, _ = gpu0.memory()
+        resident = gpu0.ollama_loaded()
+        extra = sorted(set(resident) - set(found_models))
+        if used <= found_used + slack_mib and not extra:
+            return True, f"GPU0 at {used} MiB (found at {found_used} MiB); Ollama resident now {resident or 'none'}"
+        if time.time() - t0 > wait_s:
+            return False, f"the preflight left GPU0 at {used} MiB (found at {found_used} MiB), added {extra}"
+        time.sleep(1)
+
+
 def main():
-    res = run_checks()
+    try:
+        with gpu0.lease(f"preflight (pid {os.getpid()})"):   # L-r: custody of the wrapper's fd 8, else its own
+            found_used, found_models = gpu0.memory()[0], gpu0.ollama_loaded()
+            res = run_checks()
+            try:
+                gpu0.leave()                                # what the checks loaded (keep_alive 0 may not have landed)
+                ok, detail = left_as_found(found_used, found_models)
+            except gpu0.Gpu0Stop as e:
+                ok, detail = False, f"GPU0 {type(e).__name__}: {e}"
+            res.append({"check": "gpu0_left", "ok": ok, "detail": detail})
+    except gpu0.Gpu0Stop as e:
+        print(f"HOLD (preflight): GPU0 {type(e).__name__}: {e}", flush=True)
+        return 3
     for r in res:
         print(f"  preflight {r['check']:13s} [{'PASS' if r['ok'] else 'FAIL'}] {r['detail']}", flush=True)
     bad = [r for r in res if not r["ok"]]

@@ -70,8 +70,8 @@ def edges(lock_text, heard, n=EDGE_WORDS):
 
 class Transcriber:
     def __init__(self):
-        from faster_whisper import WhisperModel
-        self.model = WhisperModel(ASR["model"], device="cuda", compute_type="float16")
+        import gpu0
+        self.model = gpu0.whisper(ASR["model"])      # L-r: loaded through swap_to on first use
 
     def span(self, media, t0, t1):
         if t1 - t0 < 0.05:

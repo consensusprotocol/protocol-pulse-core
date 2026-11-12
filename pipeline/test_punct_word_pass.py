@@ -157,34 +157,68 @@ class TestAcquireUpgrade(unittest.TestCase):
 
     def test_a_failed_restoration_is_not_sentence_ready(self):
         def boom():
-            raise RuntimeError("CUDA out of memory (simulated)")
+            raise RuntimeError("reference decode failed (simulated)")
         ts._reference = boom
         r, st = ts.acquire(self.vid, prefer_words=True)
         self.assertEqual((st, r["transcript_method"]), ("punctuation_failed", "whisper_words"))
         self.assertFalse(ts.sentence_ready(r))                 # editorial_select treats it as a failure
-        self.assertIn("out of memory", ts.LAST_ERROR[self.vid])
+        self.assertIn("reference decode failed", ts.LAST_ERROR[self.vid])
+
+    def test_an_out_of_memory_is_never_a_failure_status(self):
+        """Law L-r (E-FAIL-052): until Nov 12 a simulated out-of-memory here became 'punctuation_failed' (a video's
+        failure). It now leaves acquire as gpu0.GpuOOM for the stage's one bounded retry."""
+        import gpu0
+        def boom():
+            raise RuntimeError("CUDA out of memory (simulated)")
+        ts._reference = boom
+        saved = ts.release_whisper
+        ts.release_whisper = lambda: None
+        try:
+            with self.assertRaisesRegex(gpu0.GpuOOM, "punctuation: CUDA out of memory"):
+                ts.acquire(self.vid, prefer_words=True)
+        finally:
+            ts.release_whisper = saved
 
 
 class TestOneWhisperModelAtATime(unittest.TestCase):
     """Heimdall batch13: the word pass's GPU0 arbitration proves 7 GB free, so distil-large-v3 and the large-v3
-    reference are never resident together (stubbed models, no GPU)."""
+    reference are never resident together (stubbed models, no GPU). Law L-r makes it so by construction: both are
+    gpu0 Models, and loading one through swap_to deletes the other."""
     def test_loading_one_drops_the_other(self):
         import types
+        import tempfile
+        from unittest import mock
+        import gpu0
         fw = types.ModuleType("faster_whisper")
         fw.WhisperModel = type("WM", (), {"__init__": lambda self, name, **kw: setattr(self, "name", name)})
         fw.BatchedInferencePipeline = type("BP", (), {"__init__": lambda self, model: setattr(self, "model", model)})
         saved = (sys.modules.get("faster_whisper"), os.environ.get("CUDA_VISIBLE_DEVICES"), ts._WHISPER, ts._REFERENCE)
         sys.modules["faster_whisper"], os.environ["CUDA_VISIBLE_DEVICES"] = fw, "0"
         ts._WHISPER = ts._REFERENCE = None
+        fake = [mock.patch.object(gpu0, "memory", return_value=(100, 24564)),
+                mock.patch.object(gpu0, "processes", return_value=[]),
+                mock.patch.object(gpu0, "ollama_resident", return_value=[]),
+                mock.patch.object(gpu0, "_ollama_unload", return_value=[]),
+                mock.patch.object(gpu0, "_ollama_pids", return_value=set()),
+                mock.patch.dict(os.environ, {"PP_GPU0_LEASE": os.path.join(tempfile.mkdtemp(), "lease")})]
+        for f in fake:
+            f.start()
         try:
-            a = ts._whisper()
-            self.assertEqual((a.model.name, ts._REFERENCE), (ts.WHISPER_MODEL, None))
-            self.assertIs(ts._whisper(), a)
-            b = ts._reference()
-            self.assertEqual((b.model.name, ts._WHISPER), (ts.REFERENCE_MODEL, None))
-            ts._whisper()
-            self.assertIsNone(ts._REFERENCE)
+            with gpu0.lease("test"):
+                a = ts._whisper()
+                self.assertEqual((a.get().model.name, ts._REFERENCE), (ts.WHISPER_MODEL, None))
+                self.assertIs(ts._whisper(), a)
+                b = ts._reference()
+                self.assertEqual((b.get().model.name, ts._WHISPER), (ts.REFERENCE_MODEL, None))
+                self.assertFalse(a.loaded)                            # deleted by the swap to the reference
+                ts._whisper().get()                                    # loads on first use (lazy)
+                self.assertIsNone(ts._REFERENCE)
+                self.assertFalse(b.loaded)
         finally:
+            for f in reversed(fake):
+                f.stop()
+            for m in (gpu0.whisper(ts.WHISPER_MODEL, batched=True), gpu0.whisper(ts.REFERENCE_MODEL, batched=True)):
+                m.unload()
             mod, cvd, ts._WHISPER, ts._REFERENCE = saved
             if mod is None:
                 sys.modules.pop("faster_whisper", None)

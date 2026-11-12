@@ -39,6 +39,7 @@ Usage:
   cd ~/protocol_pulse/pipeline && CUDA_VISIBLE_DEVICES=0 python3 run_fresh.py --pinned PIN.json
 """
 import argparse
+import contextlib
 import datetime
 import hashlib
 import io
@@ -85,6 +86,9 @@ G8_DEGRADATION_RATIO = 0.85  # restored from 5409ccce; reporting threshold, not 
 
 class Hold(Exception):
     """Fail-closed stop. The run ends in HOLD with the reason recorded."""
+
+
+import gpu0  # noqa: E402  (law L-r: the one owner of GPU0; pipeline/ is this file's directory)
 
 
 # ── utilities ──
@@ -168,6 +172,78 @@ class Run:
         self.mode = "auto"                  # "auto" | "pinned"
         self.machine_cuts = False          # True only for machine-built PINs (enables snap)
         self.allow_v2f_material = False     # True only for a pin declaring reuses_v2f_material
+        self.sampler = None                 # L-r: gpu0.PeakSampler, started in stage_env
+        self.gpu0_stack = contextlib.ExitStack()   # L-r: holds the GPU0 lease from stage_env to the end of main
+
+    def _attempts(self, name, fn):
+        """Law L-r item 3. A CUDA out-of-memory gets ONE retry of the same step: everything this run owns is released
+        (outside the except clause, the exception chain's frames broken first, so the model that failed can be freed)
+        and nvidia-smi must show GPU0 free; BOTH attempts go to PROVENANCE (gpu0_oom: the first with its error and
+        traceback, the second with its outcome: passed, out of memory again, or the failure that ended it); a second
+        out-of-memory is a HOLD naming every GPU0 process, and any other failure of the retry still carries the first
+        out-of-memory. Every other GPU0 stop is a HOLD carrying its real cause, never another error. Retrying a stage
+        repeats it whole: the stages that change files in place (lead-in pads, shot snaps) do so inside stage_prepare,
+        which regenerates every clip from its source first."""
+        first = None                                      # the first attempt's out-of-memory record, once there is one
+
+        def retry_ended(outcome):
+            self.prov["gpu0_oom"][name].append({"attempt": 2, "at": now_iso(), "outcome": outcome[:600]})
+            self.save()
+        for attempt in (1, 2):
+            if self.sampler:
+                self.sampler.set(name)
+            oom = tb = None
+            try:
+                out = fn()
+                if first is not None:
+                    retry_ended("passed")
+                return out
+            except gpu0.Gpu0Stop as e:
+                if not isinstance(e, gpu0.GpuOOM):
+                    why = f"GPU0 {type(e).__name__}: {e}"
+                    if first is None:
+                        raise Hold(f"infrastructure: {name}: {why}") from None
+                    retry_ended(f"failed: {why}")
+                    raise Hold(f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); "
+                               f"the retry then stopped: {why}") from None
+                oom, tb = f"{type(e).__name__}: {str(e)[:400]}", traceback.format_exc()[-3000:]
+                gpu0.drop_traceback(e)
+            except Hold as h:
+                if first is None:
+                    raise
+                retry_ended(f"held: {h}")
+                raise Hold(f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); the "
+                           f"retry then held: {h}") from None
+            except Exception as e:
+                if not gpu0.is_oom(e):
+                    if first is None:
+                        raise
+                    retry_ended(f"failed: {type(e).__name__}: {e}")
+                    raise Hold(f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); the "
+                               f"retry then failed: {type(e).__name__}: {e}") from None
+                oom, tb = f"{type(e).__name__}: {str(e)[:400]}", traceback.format_exc()[-3000:]
+                gpu0.drop_traceback(e)
+            # here, outside the except clause: the failed call's frames are no longer pinned by a live exception
+            entry = {"attempt": attempt, "at": now_iso(), "error": oom, "traceback": tb}
+            try:
+                entry["gpu0_memory"], entry["gpu0_processes"] = gpu0.memory(), gpu0.processes()
+                on = gpu0.describe(entry["gpu0_processes"])
+            except gpu0.Gpu0Stop as e2:
+                entry["gpu0_unreadable"] = str(e2)
+                on = f"GPU0 unreadable ({e2})"
+            self.prov.setdefault("gpu0_oom", {}).setdefault(name, []).append(entry)
+            self.save()
+            if attempt == 2:
+                raise Hold(f"infrastructure: {name}: CUDA out of memory twice ({oom[:240]}); on GPU0: {on}")
+            first = entry
+            print(f"  GPU0 OUT OF MEMORY in stage {name}: {oom[:200]}; releasing everything this run owns, retrying "
+                  f"once", flush=True)
+            try:
+                entry["release"] = gpu0.release_all()
+            except gpu0.Gpu0Stop as e2:
+                raise Hold(f"infrastructure: {name}: CUDA out of memory ({oom[:200]}) and GPU0 did not come free: "
+                           f"{type(e2).__name__}: {e2}") from None
+            self.save()
 
     def stage(self, name, fn):
         rec = {"name": name, "started": now_iso(), "status": "running"}
@@ -176,7 +252,7 @@ class Run:
         print(f"\n######## STAGE {name} ########", flush=True)
         t0 = time.time()
         try:
-            out = fn()
+            out = self._attempts(name, fn)
             rec["status"] = "passed"
             return out
         except Hold as h:
@@ -198,6 +274,10 @@ class Run:
         finally:
             rec["ended"] = now_iso()
             rec["seconds"] = round(time.time() - t0, 1)
+            if self.sampler:
+                self.sampler.set(None)
+                if name in self.sampler.peaks:
+                    rec["gpu0_peak_mib"] = self.sampler.peaks[name]
             self.save()
 
     def save(self):
@@ -235,6 +315,15 @@ def stage_env(run):
                        "ffmpeg": ffv, "yt_dlp": ytv, "nvidia_smi": gpu.split("\n")}
     if "telegram" in sys.modules or "telegram_drop" in sys.modules:
         raise Hold("telegram module loaded — publishing path must not be importable here")
+    # L-r: the run holds the GPU0 lease to the end of main (custody of scripts/pulse_check_run.sh's fd 8, else its
+    # own), nothing foreign may hold GPU0 memory at its start, and GPU0 memory is sampled per stage from here on
+    run.gpu0_stack.enter_context(gpu0.lease(f"run_fresh {os.path.basename(run.dir)} (pid {os.getpid()})"))
+    foreign = gpu0.foreign()
+    if foreign:
+        raise Hold(f"infrastructure: env: GPU0 memory is held by a process that is not this run's: "
+                   f"{gpu0.describe(foreign)}")
+    run.prov["gpu0"] = {"at_start": {"memory_mib": gpu0.memory(), "processes": gpu0.processes(),
+                                     "ollama_resident": gpu0.ollama_resident(), "holder": gpu0.holder()}}
 
 
 # ── stage 1: topic ──
@@ -508,7 +597,9 @@ def free_gpu0_for_whisper(run, stage, need_free_mib=6000):
     """GPU0 is shared (other sessions load Ollama models on :11434, e.g. a 22 GB qwen3-coder at 06:02 on
     Nov 11, which OOM'd the recut's prepare). Before a Whisper stage, unload the GPU0 Ollama models and
     wait for room, exactly as the editorial stage does (story_semantics.release_gpu0_for_whisper); a
-    release that cannot be proven is an infrastructure HOLD, never an OOM mid-stage."""
+    release that cannot be proven is an infrastructure HOLD, never an OOM mid-stage. L-r: through
+    gpu0.swap_to (every other GPU0 model unloaded, a foreign process refused, the measured need proven free);
+    a refusal is a Gpu0Stop that Run.stage turns into a HOLD carrying the real cause."""
     import story_semantics as sm
     try:
         ev = sm.release_gpu0_for_whisper(sm.LocalLLM(), need_free_mib=need_free_mib, wait_s=180)
@@ -589,7 +680,13 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
 
 
 def stage_prepare(run, cuts):
-    from run_isolated import prerender_clips
+    from run_isolated import prerender_clips as _prerender_isolated
+
+    def prerender_clips(run_dir, table):
+        """L-r: run_isolated.py is a protected file (Law 22; test_fresh.TestProtected), so its NVENC encodes are
+        swapped to here, at their one caller (the fade retry below receives this same function)."""
+        gpu0.swap_to("nvenc")
+        return _prerender_isolated(run_dir, table)
     from clip_contract import check_clip
     from cut_accept import check_edge_words
     from config import FPS, NVENC_QP_INTERMEDIATE
@@ -1231,6 +1328,15 @@ def write_report(run):
     L += ["## Stages", "| stage | status | s | reason |", "|---|---|---|---|"]
     L += [f"| {r['name']} | {r['status']} | {r.get('seconds')} | {r.get('reason', '')[:200]} |"
           for r in s["stages"]]
+    g0 = p.get("gpu0") or {}
+    total = ((g0.get("at_start") or {}).get("memory_mib") or [None, None])[1]
+    L += ["", f"## GPU0 peak memory per stage (law L-r; nvidia-smi memory.used sampled every 1 s, a lower bound; GPU0 "
+              f"total {total} MiB)", "| stage | peak MiB | out-of-memory attempts | retry |", "|---|---|---|---|"]
+    for r in s["stages"]:
+        oom = (p.get("gpu0_oom") or {}).get(r["name"], [])
+        fails = [e for e in oom if e.get("error")]
+        retry = "-" if not fails else ("passed" if any(e.get("outcome") == "passed" for e in oom) else "held")
+        L.append(f"| {r['name']} | {r.get('gpu0_peak_mib', 'not sampled')} | {len(fails)} | {retry} |")
     vc = p.get("visual_checklist") or {}
     if vc:
         L += ["", "## Visual checklist (answered FROM the contact sheets qa/contact_sheet_<fmt>.jpg; any no = HOLD)"]
@@ -1344,6 +1450,7 @@ def main():
     run.status["release_state"] = RELEASE_STATE
     run.save()
     t0 = time.time()
+    run.sampler = gpu0.PeakSampler().start()        # L-r item 5: every stage sampled, env included
     try:
         run.stage("env", lambda: stage_env(run))
         if run.mode == "pinned":
@@ -1359,6 +1466,9 @@ def main():
         run_tail(run, cuts)
     except Hold:
         run.status["verdict"] = VERDICT_HOLD
+    except gpu0.Gpu0Stop as e:  # L-r: a GPU0 stop outside any stage is a HOLD carrying its real cause
+        run.status["verdict"] = VERDICT_HOLD
+        run.status["holds"].append(f"orchestrator: infrastructure: GPU0 {type(e).__name__}: {e}")
     except Exception as e:  # defensive: anything unexpected is HOLD
         run.status["verdict"] = VERDICT_HOLD
         run.status["holds"].append(f"orchestrator: {type(e).__name__}: {e}")
@@ -1370,6 +1480,10 @@ def main():
             run.status["holds"].append(f"provenance: {type(e).__name__}: {e}")
         run.status["ended"] = now_iso()
         run.status["elapsed_s"] = round(time.time() - t0, 1)
+        if run.sampler:                        # L-r item 5: peak GPU0 memory per stage, in PROVENANCE and REPORT.md
+            run.prov.setdefault("gpu0", {})["peaks_mib"] = run.sampler.stop()
+            run.prov["gpu0"]["sampler_errors"] = run.sampler.errors
+        run.prov.setdefault("gpu0", {})["swaps"] = gpu0.events()
         try:                                   # LAST: the terminal state, any hold included (release_auth)
             attest_run(run)
         except Exception as e:
@@ -1383,6 +1497,12 @@ def main():
         for h in run.status["holds"]:
             print(f"  HOLD: {h}")
         print(f"  report: {os.path.join(run_dir, 'REPORT.md')}  (no publishing)")
+        try:                                   # L-r: unload this run's models so the next owner does not find them
+            if gpu0.held():
+                gpu0.leave()
+        except gpu0.Gpu0Stop as e:
+            print(f"  GPU0 leave: {type(e).__name__}: {e}", flush=True)
+        run.gpu0_stack.close()                 # the GPU0 lease (law L-r) is held to here
     sys.exit(0 if run.status["verdict"] == VERDICT_CANDIDATE else 3)
 
 

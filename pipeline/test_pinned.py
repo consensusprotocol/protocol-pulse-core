@@ -289,8 +289,9 @@ class TestPinnedStageFreesGpu0First(Fixture):
             self.assertEqual(events, [("release", "pinned"), "prepare"])
             events.clear()
             rf.free_gpu0_for_whisper = refuse
-            with self.assertRaisesRegex(rf.Hold, "infrastructure: pinned"):
+            with self.assertRaisesRegex(rf.Hold, "^infrastructure: pinned") as cm:    # anchored (fable audit of 456a440f)
                 rf.stage_pinned(run, self.write(self.pin()))
+            self.assertNotIn("pinned decision rejected", str(cm.exception))
             self.assertEqual(events, [("release", "pinned")])        # nothing downloaded or transcribed after it
         finally:
             rf.free_gpu0_for_whisper, pinned.prepare = orig_free, orig_prep

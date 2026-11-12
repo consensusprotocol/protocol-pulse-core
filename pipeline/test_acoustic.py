@@ -67,6 +67,9 @@ def test_magnitude_whisper():
     if not os.path.exists(source):
         print("  [SKIP] Real source not found — test_magnitude_whisper")
         return
+    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":       # law L-r: Whisper is a GPU0 load, refused in a CPU session
+        print("  [SKIP] CPU session: Whisper is a GPU0 load — test_magnitude_whisper")
+        return
 
     print("\n--- Test 2: Whisper last 1.0s contains 'magnitude' ---")
     result = compute_acoustic_cut_out(source, 249.22)
@@ -82,7 +85,8 @@ def test_magnitude_whisper():
             "ffmpeg", "-y", "-ss", str(cut_out - 1.0), "-t", "1.0",
             "-i", source, "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", tmp_wav,
         ], capture_output=True, timeout=10, check=True)
-        model = WhisperModel("medium", device="cuda", compute_type="float16")
+        import gpu0
+        model = gpu0.whisper("medium")          # L-r: through swap_to, under the session's GPU0 lease
         segments, _ = model.transcribe(tmp_wav, language="en", beam_size=5)
         text = " ".join(seg.text.strip() for seg in segments).lower()
         os.unlink(tmp_wav)

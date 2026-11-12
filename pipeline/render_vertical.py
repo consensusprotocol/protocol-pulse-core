@@ -64,6 +64,8 @@ def reframe_fixed_crop(seg_path, output_path, seg_label):
     """Fixed 9:16 crop per clip. Detect faces via mediapipe, use median centre X.
     Falls back to centre crop if no faces detected.
     Returns (success: bool, crop_rect: str)."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     import cv2
     import mediapipe as mp_lib
     from mediapipe.tasks.python import vision
@@ -115,6 +117,7 @@ def reframe_fixed_crop(seg_path, output_path, seg_label):
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-movflags", "+faststart", output_path,
     ], capture_output=True, timeout=300)
+    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
 
     if r.returncode != 0:
         print(f"      ffmpeg error: {r.stderr.decode()[-300:]}")
@@ -135,6 +138,8 @@ def reframe_stack2(seg_path, output_path, seg_label, layout_cfg):
     """Stack2: speaker rect on TOP, other person rect on BOTTOM.
     Each rect cropped from source, scaled to 1080 wide, placed in 1080x960 slot.
     layout_cfg keys: speaker_rect (x,y,w,h), other_rect (x,y,w,h)."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     import cv2
     print(f"    Reframe stack2: {seg_label}")
 
@@ -183,6 +188,7 @@ def reframe_stack2(seg_path, output_path, seg_label, layout_cfg):
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-movflags", "+faststart", output_path,
     ], capture_output=True, timeout=300)
+    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
 
     if r.returncode != 0:
         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
@@ -203,6 +209,8 @@ def reframe_grid(seg_path, output_path, seg_label, layout_cfg):
     """Grid: face rect on TOP slot, chart rect on BOTTOM slot.
     layout_cfg keys: face_rect (x,y,w,h), chart_rect (x,y,w,h),
                      top_slot_h (default 810), bottom_slot_h (default 1110)."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     import cv2
     print(f"    Reframe grid: {seg_label}")
 
@@ -252,6 +260,7 @@ def reframe_grid(seg_path, output_path, seg_label, layout_cfg):
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-movflags", "+faststart", output_path,
     ], capture_output=True, timeout=300)
+    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
 
     if r.returncode != 0:
         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
@@ -270,6 +279,8 @@ def reframe_grid(seg_path, output_path, seg_label, layout_cfg):
 
 def reframe_single(seg_path, output_path, seg_label, layout_cfg):
     """Single: crop one rect from source, scale to 1080 wide, pad to 1920 tall (centred)."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     print(f"    Reframe single: {seg_label}")
 
     rect = layout_cfg["rect"]  # [x, y, w, h]
@@ -289,6 +300,7 @@ def reframe_single(seg_path, output_path, seg_label, layout_cfg):
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-movflags", "+faststart", output_path,
     ], capture_output=True, timeout=300)
+    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
 
     if r.returncode != 0:
         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
@@ -310,6 +322,8 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
     darkened (-35%), 1.25x zoomed copy of the same frame. No crop.
 
     Returns (success: bool, layout_name: str)."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     print(f"    Reframe letterbox: {seg_label}")
 
     # Full 16:9 frame scaled to 1080 wide = 1080x608 (at 16:9 ratio)
@@ -340,6 +354,7 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-movflags", "+faststart", output_path,
     ], capture_output=True, timeout=300)
+    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
 
     if r.returncode != 0:
         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
@@ -395,6 +410,8 @@ def _shot_vf(shot, src_w, src_h):
 def reframe_auto(seg_path, output_path, seg_label, plan):
     """Per-shot 9:16 from the PREPARED clip (lead-in pad and fades identical to 16:9). Video only is
     re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     fps = plan["fps"]
     graph, labels = [], []
     matrix = _input_matrix(seg_path)
@@ -413,6 +430,7 @@ def reframe_auto(seg_path, output_path, seg_label, plan):
         "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
         "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", output_path,
     ], capture_output=True, timeout=600)
+    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
     if r.returncode != 0:
         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
         return False, "auto"
@@ -428,6 +446,8 @@ def reframe_auto(seg_path, output_path, seg_label, plan):
 def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4, label, qa_dir):
     """R5 native 9:16 VO visual: face-crop BG, blur, 1.0x->1.08x zoom, waveform.
     Returns the path to the assembled VO WAV (silence + stem) for G6 measurement."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     import cv2
     import mediapipe as mp_lib
     from mediapipe.tasks.python import vision
@@ -595,7 +615,7 @@ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4, 
     ], capture_output=True, timeout=30, check=True)
 
     # Encode frames + audio
-    subprocess.run([
+    gpu0.raise_if_oom(subprocess.run([
         "ffmpeg", "-y",
         "-framerate", str(FPS),
         "-i", os.path.join(frames_dir, "frame_%05d.png"),
@@ -605,7 +625,7 @@ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4, 
         "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-shortest", "-movflags", "+faststart", output_mp4,
-    ], capture_output=True, timeout=120)
+    ], capture_output=True, timeout=120), "render_vertical nvenc")
 
     if os.path.exists(output_mp4) and os.path.getsize(output_mp4) > 1000:
         dur = get_duration(output_mp4)
@@ -623,6 +643,8 @@ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4, 
 def apply_watermark_alpha_vert(input_mp4, output_mp4, mark_path, mark_px, margin,
                                opacity, fade_in_dur, shoutout_start):
     """Overlay alpha watermark on vertical concat. Bottom-right, smaller for 9:16."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     overlay_expr = (
         f"[1:v]scale={mark_px}:-1,format=rgba,"
         f"colorchannelmixer=aa={opacity},"
@@ -643,6 +665,7 @@ def apply_watermark_alpha_vert(input_mp4, output_mp4, mark_path, mark_px, margin
         "-c:a", "copy",
         "-movflags", "+faststart", output_mp4,
     ], capture_output=True, timeout=600)
+    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
 
     if r.returncode != 0:
         print(f"    ffmpeg watermark stderr: {r.stderr.decode()[-500:]}")
@@ -658,6 +681,8 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
                 alimiter_dbfs=-3.0):
     """Full 9:16 vertical render pipeline.
     Returns (final_path, manifest_path, vo_assembled_tracks) or raises."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     t0 = time.time()
     print("=== RENDER 9:16 ===\n")
 
@@ -714,13 +739,13 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
                 s_start = shot["source_start"]
                 s_end = shot["source_end"]
                 s_dur = s_end - s_start
-                subprocess.run([
+                gpu0.raise_if_oom(subprocess.run([
                     "ffmpeg", "-y", "-ss", str(s_start), "-i", raw_src, "-t", str(s_dur),
                     "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
                     "-pix_fmt", "yuv420p", "-r", str(FPS),
                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
                     "-movflags", "+faststart", shot_trimmed,
-                ], capture_output=True, timeout=300)
+                ], capture_output=True, timeout=300), "render_vertical nvenc")
                 s_layout = shot.get("layout", "crop")
                 if s_layout == "stack2":
                     s_ok, _ = reframe_stack2(shot_trimmed, shot_out, f"{clip_id}_shot{si}", shot)
@@ -740,13 +765,13 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
                 with open(concat_list, "w") as clf:
                     for sp in shot_parts:
                         clf.write(f"file '{sp}'\n")
-                subprocess.run([
+                gpu0.raise_if_oom(subprocess.run([
                     "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
                     "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
                     "-pix_fmt", "yuv420p", "-r", str(FPS),
                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
                     "-movflags", "+faststart", vert_path,
-                ], capture_output=True, timeout=300)
+                ], capture_output=True, timeout=300), "render_vertical nvenc")
                 ok = os.path.exists(vert_path) and os.path.getsize(vert_path) > 1000
                 crop_rect = "shots"
             elif all_shots_ok and len(shot_parts) == 1:
@@ -766,13 +791,13 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
                 cut_in = cut.get("cut_in", 0)
                 cut_dur = cut.get("cut_duration", 15)
                 trimmed = os.path.join(qa_dir, f"raw_{clip_id}.mp4")
-                subprocess.run([
+                gpu0.raise_if_oom(subprocess.run([
                     "ffmpeg", "-y", "-ss", str(cut_in), "-i", raw_src, "-t", str(cut_dur),
                     "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
                     "-pix_fmt", "yuv420p", "-r", str(FPS),
                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
                     "-movflags", "+faststart", trimmed,
-                ], capture_output=True, timeout=300)
+                ], capture_output=True, timeout=300), "render_vertical nvenc")
                 if layout == "stack2":
                     ok, crop_rect = reframe_stack2(trimmed, vert_path, clip_id, override)
                 elif layout == "grid":
@@ -936,6 +961,7 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
             "-movflags", "+faststart", concat_raw,
         ], capture_output=True, timeout=600)
+        gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
         if r.returncode != 0:
             print(f"  ffmpeg stderr: {r.stderr.decode()[-500:]}")
     concat_dur = get_duration(concat_raw)
@@ -1160,6 +1186,9 @@ def _find_outro_vert(qa_dir, segment_dir=None):
     try:
         return conform_outro("9x16")
     except (FileNotFoundError, subprocess.CalledProcessError) as e:
+        import gpu0
+        if gpu0.is_oom(e):           # L-r: an NVENC out-of-memory is never a fallback (E-FAIL-052)
+            raise gpu0.GpuOOM(f"outro conform: CUDA/NVENC out of memory ({e})") from e
         print(f"  PBX 9:16 outro conform failed ({e}), falling back to qa_dir")
 
     # Fallback: pre-rendered vertical outro in qa_dir

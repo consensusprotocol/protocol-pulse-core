@@ -294,8 +294,9 @@ class TestPunctuationLayer(unittest.TestCase):
         from faster_whisper import WhisperModel
         raw = json.load(open(os.path.join(FIX, "run", "transcripts", "36HPi9UZPOc.json")))
         want = json.load(open(os.path.join(FIX, "selection", "transcripts_punctuated", "36HPi9UZPOc.json")))
+        import gpu0
         got = P.ensure(raw, os.path.join(FIX, "audio", "src_36HPi9UZPOc.flac"),
-                       WhisperModel("large-v3", device="cuda", compute_type="float16"))
+                       gpu0.whisper("large-v3"))         # L-r: through swap_to, under the session's GPU0 lease
         self.assertEqual([w["word"] for w in got["words"]], [w["word"] for w in want["words"]])
 
 

@@ -813,6 +813,8 @@ def room_tone(src_path, t0, t1, seconds, sr=48000):
 def apply_lead_in_pad(run_dir, cut, fps, qp):
     """Prepend cut['lead_in_pad_s'] of room tone + the held first frame to qa/final_<clip>.mp4
     (atomic replace). The pad is declared in cuts_final.json, so every gate knows it is there."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     import wave
     pad = float(cut["lead_in_pad_s"])
     clip = os.path.join(run_dir, "qa", f"final_{cut['clip_id']}.mp4")

@@ -72,8 +72,19 @@ if ! flock -n 9; then
   echo "pulse_check_run: another run holds /tmp/pulse_check_run.lock" | tee -a "$LOG" >&2
   exit 75
 fi
+# law L-r ONE OWNER: the GPU0 lease (pipeline/gpu0.py) on fd 8 for the whole run; preflight and run_fresh inherit
+# the descriptor (custody), nothing else may load onto GPU0 meanwhile; released when this script exits
+GPU0_LEASE="${PP_GPU0_LEASE:-/tmp/pulse_gpu0.lease}"
+exec 8>>"$GPU0_LEASE"
+if ! flock -n 8; then
+  echo "pulse_check_run: the GPU0 lease is held: $(cat "$GPU0_LEASE" 2>/dev/null)" | tee -a "$LOG" >&2
+  exit 75
+fi
+python3 -c 'import json, sys, time; json.dump({"pid": int(sys.argv[1]), "owner": "pulse_check_run " + sys.argv[2] + " (" + sys.argv[3] + ")", "since": time.time()}, open(sys.argv[4], "w"))' \
+  "$$" "$STAMP" "${ARGS[*]:-auto}" "$GPU0_LEASE"
 
 export CUDA_VISIBLE_DEVICES=0
+export CUDA_DEVICE_ORDER=PCI_BUS_ID      # law L-r: CUDA device 0 is nvidia-smi GPU 0 (gpu0.require checks it)
 cd "$REPO/pipeline" || exit 1
 echo "=== pulse_check_run $STAMP | HEAD $(git -C "$REPO" rev-parse HEAD) | args: ${ARGS[*]:-auto} ===" | tee -a "$LOG"
 # preflight (orchestrator 2026-11-11 '21:10'): seconds, before any hour is spent; a failure is a HOLD with the reason

@@ -87,8 +87,8 @@ def _whisper_transcribe(source_path, video_id, run_dir):
             if result.get("punctuation") or not punctuation.needs_restoration(result.get("words", [])):
                 return result
 
-        from faster_whisper import WhisperModel
-        model = WhisperModel("large-v3", device="cuda", compute_type="float16")
+        import gpu0
+        model = gpu0.whisper("large-v3")      # L-r: loaded through swap_to; a GPU0 stop passes the except below
         if result is None:
             segments, info = model.transcribe(
                 source_path, language="en", beam_size=5,
@@ -112,6 +112,9 @@ def _whisper_transcribe(source_path, video_id, run_dir):
         return result
 
     except Exception as e:
+        import gpu0
+        if gpu0.is_oom(e):           # L-r: an out-of-memory is never 'transcription failed' (E-FAIL-052)
+            raise gpu0.GpuOOM(f"{video_id}: Whisper: CUDA out of memory ({type(e).__name__}: {str(e)[:200]})") from e
         print(f"    WARN: whisper failed for {video_id}: {e}")
         return None
 

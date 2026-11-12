@@ -59,12 +59,18 @@ def apply(clip, cut, fps, qp):
            "hard_cuts": [(f, round(s, 3)) for f, s in changes], "frames": n, "snapped": False}
     if head == 0 and tail == n:
         return rec
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident (an encode follows)
     vf = f"trim=start_frame={head}:end_frame={tail},setpts=PTS-STARTPTS,tpad=start_mode=clone:start={head}:" \
          f"stop_mode=clone:stop={n - tail}"
     part = clip + ".snap.mp4"
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", clip, "-map", "0:v:0", "-map", "0:a:0", "-vf", vf,
-                    "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(qp), "-pix_fmt", "yuv420p",
-                    "-r", str(fps), "-c:a", "copy", "-movflags", "+faststart", part], check=True, timeout=600)
+    r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", clip, "-map", "0:v:0", "-map", "0:a:0", "-vf", vf,
+                        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(qp), "-pix_fmt", "yuv420p",
+                        "-r", str(fps), "-c:a", "copy", "-movflags", "+faststart", part], capture_output=True, timeout=600)
+    if r.returncode != 0:                      # L-r: stderr captured so an NVENC out-of-memory is named, not renamed
+        gpu0.raise_if_oom(r, "shot_snap nvenc")
+        print(r.stderr.decode(errors="replace")[-2000:], flush=True)
+        raise subprocess.CalledProcessError(r.returncode, r.args, r.stdout, r.stderr)
     if frame_count(part) != n:
         os.remove(part)
         raise RuntimeError(f"shot snap changed the frame count of {clip}")

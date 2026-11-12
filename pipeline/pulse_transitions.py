@@ -151,6 +151,8 @@ def wipe_frames(w, h, n=WIPE_FRAMES):
 
 
 def render_wipe(path, w, h, qp):
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     import tempfile
     tmp = tempfile.mkdtemp(prefix="wipe_")
     for k, f in enumerate(wipe_frames(w, h)):
@@ -181,6 +183,8 @@ def concat(segments, junctions, out_path, qp, w, h, work_dir):
     """Concatenate (label, path, type) segments with the planned junctions. Every input is normalised
     to its exact video frame count (audio padded/trimmed to it) so picture and sound stay locked.
     Returns the timeline [{"label","type","start","end"}] (overlapping entries at dissolves)."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     style_c = [j for j in junctions if j["kind"] == "insert"]
     segs = list(segments)
     if style_c:

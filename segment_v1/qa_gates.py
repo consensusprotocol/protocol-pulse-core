@@ -47,16 +47,21 @@ G9_REENCODE_SPREAD = {"16x9": 0.05, "9x16": 0.04}      # DEC-12a: MEASURED sprea
     # made a correct render pass or fail by encoder state (OD-4).
 G9_LUMA_FLOOR = {k: round(G9_V2F_LUMA[k] - G9_REENCODE_SPREAD[k], 4) for k in G9_V2F_LUMA}   # 14.2857 / 14.7315
 
-# ── Faster-Whisper singleton (medium, float16, cuda, vad OFF, word timestamps) ──
-_FW_MODEL = None
+# ── Faster-Whisper medium (float16, GPU0, vad OFF, word timestamps): law L-r, through pipeline/gpu0.py ──
+
+def _gpu0():
+    """pipeline/gpu0.py (law L-r), importable when this file runs on its own too."""
+    p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline")
+    if p not in sys.path:
+        sys.path.insert(0, p)
+    import gpu0
+    return gpu0
+
 
 def _get_fw_model():
-    """Load faster-whisper medium model once per gate run."""
-    global _FW_MODEL
-    if _FW_MODEL is None:
-        from faster_whisper import WhisperModel
-        _FW_MODEL = WhisperModel("medium", device="cuda", compute_type="float16")
-    return _FW_MODEL
+    """The process's one faster-whisper medium: gpu0.whisper loads it through swap_to on first use (every other
+    GPU0 model unloaded, the memory proven free), any later swap deletes it, and it reloads when used again."""
+    return _gpu0().whisper("medium")
 
 
 def fw_transcribe(wav_path, word_timestamps=True):
@@ -146,7 +151,7 @@ def gate_g1(final_mp4, manifest, vo_regions, qa_dir, vo_assembled_tracks=None):
     from resemblyzer import VoiceEncoder, preprocess_wav
 
     print("\n=== G1: VOICE IDENTITY ===")
-    encoder = VoiceEncoder()
+    encoder = _gpu0().model("resemblyzer", VoiceEncoder)     # L-r: loaded through swap_to; calls inside guard()
 
     if vo_assembled_tracks is None:
         vo_assembled_tracks = {}
@@ -1910,7 +1915,19 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     return not any_fail, results
 
 
+def _standalone_lease():
+    """L-r: run on its own, this file is a GPU0 job: it holds the lease (or names the holder and exits 75)."""
+    g = _gpu0()
+    cm = g.lease(f"qa_gates standalone (pid {os.getpid()})")
+    try:
+        cm.__enter__()
+    except g.Gpu0Stop as e:
+        sys.exit(f"qa_gates: GPU0 {type(e).__name__}: {e}")
+    return cm
+
+
 if __name__ == "__main__":
+    _LEASE = _standalone_lease()
     if len(sys.argv) < 3:
         print(f"Usage: {sys.argv[0]} <final_mp4> <concat_manifest.json> "
               f"[--qa-dir DIR] [--source-clip label:path ...]")

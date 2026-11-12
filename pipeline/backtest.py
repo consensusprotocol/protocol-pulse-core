@@ -201,17 +201,9 @@ def table(rows):
     return "\n".join(lines)
 
 
-def main(argv=None):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--runs", nargs="*", help="run dir names (default: every saved universe)")
-    ap.add_argument("--out", default=os.path.join(RUNS_DIR, "backtest_" + datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")))
-    a = ap.parse_args(argv)
-    import story_semantics as sm
-    days = saved_days()
-    if a.runs:
-        days = [d for d in days if os.path.basename(d) in set(a.runs)]
-    os.makedirs(a.out, exist_ok=True)
-    registry = json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))
+
+def _backtest_days(days, a, registry, sm):
+    """The GPU0 part of main, run under the lease."""
     E, L = sm.Embedder(), sm.LocalLLM().start()
     rows, t0 = [], time.time()
     try:
@@ -227,6 +219,28 @@ def main(argv=None):
     finally:
         L.stop()
         E.close()
+    return rows, t0
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--runs", nargs="*", help="run dir names (default: every saved universe)")
+    ap.add_argument("--out", default=os.path.join(RUNS_DIR, "backtest_" + datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")))
+    a = ap.parse_args(argv)
+    import story_semantics as sm
+    days = saved_days()
+    if a.runs:
+        days = [d for d in days if os.path.basename(d) in set(a.runs)]
+    os.makedirs(a.out, exist_ok=True)
+    registry = json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))
+    import gpu0
+    try:
+        with gpu0.lease(f"backtest {os.path.basename(a.out)} (pid {os.getpid()})"):  # L-r: a GPU0 job holds the lease
+            rows, t0 = _backtest_days(days, a, registry, sm)
+            gpu0.leave()
+    except gpu0.Gpu0Stop as e:
+        print(f"HOLD (backtest): GPU0 {type(e).__name__}: {e}", flush=True)
+        return 3
     print(table(rows))
     print(f"total {round(time.time() - t0)} s -> {a.out}")
     return 0

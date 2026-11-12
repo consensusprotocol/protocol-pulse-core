@@ -27,6 +27,7 @@ import os
 import re
 import subprocess
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -70,11 +71,14 @@ class Embedder:
     def __init__(self):
         _gpu_guard()
         import torch
+        import gpu0
         from transformers import AutoModel, AutoTokenizer
         from huggingface_hub import snapshot_download
         path = snapshot_download(EMBED_MODEL, revision=EMBED_REVISION, local_files_only=True)
         self.tok = AutoTokenizer.from_pretrained(path)
-        self.model = AutoModel.from_pretrained(path, dtype=torch.float16).to("cuda:0").eval()
+        # L-r: the weights reach GPU0 only through gpu0.swap_to("embedder") (Model.get), and any later swap deletes them
+        self.model = gpu0.model("embedder", lambda: AutoModel.from_pretrained(path, dtype=torch.float16).to("cuda:0").eval())
+        self.gpu0 = gpu0
         self.torch = torch
         self.model_id = f"{EMBED_MODEL}@{EMBED_REVISION[:12]}"
 
@@ -83,10 +87,12 @@ class Embedder:
         with self.torch.no_grad():
             for i in range(0, len(texts), batch):
                 bt = [(EMBED_QUERY_PREFIX + t) if query else t for t in texts[i:i + batch]]
-                enc = self.tok(bt, padding=True, truncation=True, max_length=512,
-                               return_tensors="pt").to("cuda:0")
-                cls = self.model(**enc).last_hidden_state[:, 0].float()
-                out.append(self.torch.nn.functional.normalize(cls, dim=-1).cpu().numpy())
+                self.model.get()                                  # resident before any tensor goes to GPU0
+                with self.gpu0.guard("embedder: encode"):
+                    enc = self.tok(bt, padding=True, truncation=True, max_length=512,
+                                   return_tensors="pt").to("cuda:0")
+                    cls = self.model(**enc).last_hidden_state[:, 0].float()
+                    out.append(self.torch.nn.functional.normalize(cls, dim=-1).cpu().numpy())
         return np.vstack(out) if out else np.zeros((0, 768), np.float32)
 
     def chunk_vectors(self, rec, chunks):
@@ -104,7 +110,7 @@ class Embedder:
         return ids, vecs
 
     def close(self):
-        del self.model
+        self.model.unload()
         self.torch.cuda.empty_cache()
 
 
@@ -187,13 +193,29 @@ class LocalLLM:
         return sorted(gpus.get(u, u) for u in mine)
 
     def _post(self, prompt, max_tokens, seed):
+        import gpu0
+        gpu0.require(f"ollama:{self.model}")          # L-r: every request under the lease, not only the first
+        if getattr(self, "_gpu0_gen", None) != gpu0.generation() or self.model not in gpu0.ollama_loaded():
+            gpu0.swap_to(f"ollama:{self.model}")        # L-r: nothing else resident, the memory proven free
+            self._gpu0_gen = gpu0.generation()
         body = json.dumps({"model": self.model, "stream": False, "format": "json",
                            "messages": [{"role": "user", "content": prompt}],
                            "options": {"temperature": 0, "seed": seed, "num_ctx": LLM_CTX,
                                        "num_predict": max_tokens}}).encode()
         req = urllib.request.Request(f"http://{self.host}/api/chat", data=body,
                                      headers={"Content-Type": "application/json"})
-        resp = json.loads(urllib.request.urlopen(req, timeout=600).read())
+        try:
+            resp = json.loads(urllib.request.urlopen(req, timeout=600).read())
+        except urllib.error.HTTPError as e:
+            text = e.read().decode(errors="replace")             # classified whole, reported truncated
+            if gpu0.is_oom(RuntimeError(text)):
+                raise gpu0.GpuOOM(f"ollama {self.model}: CUDA out of memory (HTTP {e.code}: {text[-400:]})") from None
+            raise RuntimeError(f"Ollama HTTP {e.code}: {text[:400]}") from None
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:   # the runner died mid-request?
+            if gpu0.is_oom(e) or self.model not in gpu0.ollama_loaded():
+                raise gpu0.GpuOOM(f"ollama {self.model}: the runner was lost mid-request and the model is no longer "
+                                  f"resident (out-of-memory suspected): {type(e).__name__}: {e}") from None
+            raise
         self.calls += 1
         if not self.placement_checked:
             placement = self.gpu_placement()
@@ -254,8 +276,11 @@ class LocalLLM:
         raise LLMParseError(f"no valid JSON after {attempts} attempts", log)
 
     def stop(self):
-        """Release our model from GPU0 VRAM (keep_alive 0)."""
-        _unload(self.host, self.model)
+        """Release our model from GPU0 VRAM (keep_alive 0) when it is this run's; a model another client loaded is
+        never unloaded (law L-r)."""
+        import gpu0
+        if self.model in gpu0.ollama_loaded() and self.model in gpu0._ollama_ours:
+            gpu0._ollama_unload([self.model])
 
 
 def _unload(host, model):
@@ -296,26 +321,15 @@ def loaded_models(host=LLM_HOST):
 
 
 def release_gpu0_for_whisper(llm, need_free_mib=7000, wait_s=180, log=print):
-    """Unload every model on the GPU0 Ollama, wait until GPU0 has need_free_mib free.
-    Returns an evidence dict; raises RuntimeError (infrastructure) if release can't be proven."""
-    ev = {"before": gpu0_memory(), "unloaded": []}
-    deadline = time.time() + wait_s
-    while True:
-        for name, _ in loaded_models(llm.host):
-            _unload(llm.host, name)
-            ev["unloaded"].append(name)
-        gc.collect()
-        used, total = gpu0_memory()
-        if not loaded_models(llm.host) and total - used >= need_free_mib:
-            ev["after"] = (used, total)
-            ev["free_mib"] = total - used
-            log(f"  GPU0 released for Whisper: {total - used} MiB free, unloaded {sorted(set(ev['unloaded']))}")
-            return ev
-        if time.time() > deadline:
-            ev["after"] = (used, total)
-            raise RuntimeError(f"GPU0 release not proven: {total - used} MiB free "
-                               f"(need {need_free_mib}), models still loaded {loaded_models(llm.host)}")
-        time.sleep(5)
+    """GPU0 made ready for the Whisper word pass. Returns an evidence dict. L-r: gpu0.swap_to does it all (every other
+    model of this run unloaded, a foreign GPU0 user refused and named, never unloaded; the batched word-pass model's
+    measured need + margin proven free by nvidia-smi); a refusal is a Gpu0Stop that no caller can rename. need_free_mib
+    stays for the callers' signature: the measured requirement (9600 + 1024) is stricter than any value they pass."""
+    import gpu0
+    ev = gpu0.swap_to("whisper:large-v3:batched", wait_s=wait_s)
+    log(f"  GPU0 released for Whisper: {ev['free_mib']} MiB free, unloaded {sorted(set(ev['unloaded']))}")
+    return {"before": tuple(ev["before"]), "unloaded": ev["unloaded"], "after": tuple(ev["after"]),
+            "free_mib": ev["free_mib"]}
 
 
 # ── untrusted transcript text (prompt-injection hardening) ──
