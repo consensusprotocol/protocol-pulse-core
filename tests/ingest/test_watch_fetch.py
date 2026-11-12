@@ -214,3 +214,40 @@ def test_meta_record_has_every_key_ensure_meta_writes(monkeypatch):
     for k in theirs:
         if k not in ("metadata_fetched_at",):
             assert ours[k] == theirs[k], k
+
+
+import subprocess  # noqa: E402
+
+
+class TestYouTubeGateAgeGate:
+    """Integrator B4: the rate-limit mark 'Sign in to confirm you' was a prefix of the age gate's text, so one
+    age-gated video tripped the global breaker, was requeued forever, and calm() was never called."""
+    AGE = "ERROR: [youtube] abc: Sign in to confirm your age. This video may be inappropriate for some users."
+    BOT = "ERROR: [youtube] abc: Sign in to confirm you\u2019re not a bot. This helps protect our community."
+
+    def gate(self, monkeypatch, stderr):
+        ts = config.ts()
+        monkeypatch.setattr(ts, "_ytdlp", lambda args, timeout=120: subprocess.CompletedProcess(args, 1, "", stderr))
+        return watch.YouTubeGate(clock=lambda: 1000.0)
+
+    def test_an_age_gate_is_never_a_rate_limit_and_is_terminal(self, monkeypatch, q):
+        g = self.gate(monkeypatch, self.AGE)
+        r = g.run(["-J", "https://www.youtube.com/watch?v=abc"])
+        assert r.returncode == 1 and g.trips == 0 and g.open_for() == 0
+        v = H.vid("a")
+        q.add_video(v, H.CHAN["channel_id"], "t", "playlist", listing_ts=NOW - 600)
+        st = fetch.process(q, g, q.video(v), H.CHAN, set(), now_ts=NOW)
+        row = q.video(v)
+        assert st == Q.UNAVAILABLE and row["next_at"] > NOW + 10 ** 8 and "age-gated" in row["reason"]
+        assert g.trips == 0
+
+    def test_the_bot_check_trips_and_a_later_answer_calms(self, monkeypatch):
+        g = self.gate(monkeypatch, self.BOT)
+        with pytest.raises(watch.ListError):
+            g.run(["-J", "x"])
+        assert g.trips == 1
+        g.until = 0.0                                                # the pause is over
+        ts = config.ts()
+        monkeypatch.setattr(ts, "_ytdlp", lambda args, timeout=120: subprocess.CompletedProcess(args, 0, "{}", ""))
+        g.run(["-J", "x"])
+        assert g.trips == 0                                          # the next trip is the short pause again

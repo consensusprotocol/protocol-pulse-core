@@ -1,8 +1,9 @@
 """pipeline/ingest/ledger.py: the append-only moment ledger and the packager's adapter.
 
-append()  one locked O_APPEND write per video (every line of it), flushed and fsynced; lines are never rewritten
-seal()    on start: a torn last line (a crash inside a write) is closed with a newline, so it stays one unreadable
-          line and the next append starts clean; readers skip and count unreadable lines
+append()  one locked O_APPEND write per video (every line of it), flushed and fsynced; lines are never rewritten. Every
+          line is checked first (line_problems): one bad line and nothing is written (ValueError). A torn tail left
+          by a failed write (ENOSPC, EIO, a crash) is closed with a newline under the same lock before writing.
+seal()    the same closing, on start; a torn line stays one unreadable line; readers skip and count unreadable lines
 best_unused_moments(path, since, now, delivered_ids, ...)
           the read the packager makes (pp-selectid contract v0): lines mined at or after `since` or published inside the
           72 h window, de-duplicated by moment_id (the latest line wins), minus moments delivered in the previous 24 h,
@@ -28,12 +29,20 @@ REQUIRED = {"schema": str, "moment_id": str, "video_id": str, "channel_id": str,
 def append(path, lines):
     if not lines:
         return 0
+    for i, l in enumerate(lines):
+        p = line_problems(l)
+        if p:
+            raise ValueError(f"line {i} ({(l or {}).get('moment_id') if isinstance(l, dict) else None}) is not a "
+                             f"usable pp.moment/1 line: {'; '.join(p)}; nothing written")
     data = "".join(json.dumps(l, ensure_ascii=False, sort_keys=True) + "\n" for l in lines).encode()
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
+    fd = os.open(path, os.O_RDWR | os.O_APPEND | os.O_CREAT, 0o644)
     try:
         fcntl.flock(fd, fcntl.LOCK_EX)
         try:
+            size = os.fstat(fd).st_size
+            if size and os.pread(fd, 1, size - 1) != b"\n":
+                data = b"\n" + data                    # a torn tail: closed, so the first new line stays whole
             view = memoryview(data)
             while view:
                 n = os.write(fd, view)
@@ -99,8 +108,10 @@ def _mined_at(raw):
 
 def offset_before(path, cutoff):
     """A byte offset at or before the first line mined at or after `cutoff` (aware datetime), by bisection over the
-    file. Lines are appended in mining order; concurrent videos interleave by minutes, so callers pass a cutoff with a
-    day of margin. Unreadable lines are stepped over. 0 when in doubt (a full read is never wrong, only slow)."""
+    file. It assumes lines are in mined.at order to within the caller's margin: a line's mined.at is the start of its
+    video's mining pass and a video's lines are appended when that pass ends, so videos mined concurrently interleave
+    by at most one pass (minutes); callers pass a cutoff with a day of margin. Unreadable lines are stepped over; where
+    no time can be read the bisection moves towards the start (a fuller read is never wrong, only slower)."""
     try:
         size = os.path.getsize(path)
     except OSError:
@@ -180,14 +191,24 @@ def _aware(s):
         return None
 
 
-def best_unused_moments(path, since, now=None, delivered_ids=(), registry=None, optout=(), store_root=None,
+def best_unused_moments(path, since, now=None, delivered_ids=(), registry=None, optout=None, store_root=None,
                         horizon_h=72, limit=None):
-    """(moments best first, report). since / now: aware datetimes. registry: the channel registry list (None = not
-    checked). store_root: where transcript records live (for re-deriving a line mined under other definitions; None =
-    such a line is excluded)."""
+    """(moments best first, report). since / now: aware datetimes. registry: the channel registry list; optout: the
+    opted-out channel ids. Either one left None is READ from its file (pipeline/channels.json, pipeline/optout.json):
+    the exclusions are never skipped by default, and an unreadable opt-out file refuses the read (law L-j).
+    store_root: where transcript records live (for re-deriving a line mined under other definitions; None = such a
+    line is excluded)."""
     now = now or datetime.now(timezone.utc)
     if since.tzinfo is None or now.tzinfo is None:
         raise ValueError("since and now must be aware datetimes")
+    if registry is None or optout is None:
+        from . import watch
+        if registry is None:
+            registry, _ = watch.registry()
+        if optout is None:
+            optout, oerr = watch.optouts()
+            if oerr:
+                raise ValueError(f"opt-out list unreadable, read refused: {oerr}")
     # every line this read can return was mined at or after min(since, now - horizon): a line inside the horizon was
     # mined after its video was published. One day of margin for the interleaving of concurrent videos.
     cutoff = min(since, now - timedelta(hours=horizon_h)) - timedelta(days=1)

@@ -14,6 +14,10 @@ reviewer's finding verified against the code; refutations are recorded with evid
   python3 tests/ingest/xllm_audit.py --cycle 1 --out docs/audits/parallel/pp-ingest_audit/c1
   python3 tests/ingest/xllm_audit.py --cycle 2 --c1 docs/audits/parallel/pp-ingest_audit/c1 \
       --consensus docs/audits/parallel/pp-ingest_audit/C1_CONSENSUS.md --out docs/audits/parallel/pp-ingest_audit/c2
+
+SPEND FREEZE (orchestrator 05:30 ET Nov 12): a reviewer whose vendor is in providers.json spend_freeze is never called
+(skipped, and said so); the Heimdall-served reviewers of other model families stand in. --base / --context add the
+diff of a later change and its orders to the package (the change is reviewed in full files plus its diff).
 """
 import argparse
 import json
@@ -36,18 +40,28 @@ FILES = ["pipeline/ingest/__init__.py", "pipeline/ingest/config.py", "pipeline/i
          "pipeline/ingest/queue.py", "pipeline/ingest/watch.py", "pipeline/ingest/fetch.py", "pipeline/ingest/mine.py",
          "pipeline/ingest/ledger.py", "pipeline/ingest/coverage.py", "pipeline/ingest/stats.py",
          "pipeline/ingest/service.py", "pipeline/ingest/ab.py", "tools/ingest_watch.py"]
+HEIMDALL = {"kind": "openai_compat", "vendor": "heimdall", "base_url": "https://api-staging.heimdallm.com/api/v1",
+            "key_env_prefix": "HEIMDALL_API_KEY", "timeout_s": 900, "cost_from_usage": True}
 REVIEWERS = {
-    "gpt4o": {"kind": "openai_compat", "base_url": "https://api.openai.com/v1", "model": "gpt-4o",
+    "gpt4o": {"kind": "openai_compat", "vendor": "openai", "base_url": "https://api.openai.com/v1", "model": "gpt-4o",
               "key_env": "OPENAI_API_KEY", "timeout_s": 600, "json_schema": False},
-    "grok": {"kind": "openai_compat", "base_url": "https://api.x.ai/v1", "model": "grok-4.20-0309-reasoning",
-             "key_env": "XAI_API_KEY_MEDLEY", "timeout_s": 900, "json_schema": False},
-    "gemini": {"kind": "gemini", "model": "gemini-pro-latest", "key_env": "GEMINI_API_KEY_MEDLEY", "timeout_s": 900,
-               "max_tokens_floor": 48000},     # c1: its thinking used ~16k of 16k and the review was cut off
-    "heimdall_qwen": {"kind": "openai_compat", "base_url": "https://api-staging.heimdallm.com/api/v1",
-                      "model": "qwen/qwen3.8-27b", "key_env_prefix": "HEIMDALL_API_KEY", "timeout_s": 900,
-                      "extra_body": {"reasoning": {"effort": "none"}}, "cost_from_usage": True},
-}  # Heimdall at effort none. deepseek-v4.1-flash dropped after c1: empty content twice (effort low, then none; its
-   # hidden reasoning took the whole budget on the 64k-token package)
+    "grok": {"kind": "openai_compat", "vendor": "xai", "base_url": "https://api.x.ai/v1",
+             "model": "grok-4.20-0309-reasoning", "key_env": "XAI_API_KEY_MEDLEY", "timeout_s": 900,
+             "json_schema": False},
+    "gemini": {"kind": "gemini", "vendor": "google", "model": "gemini-pro-latest", "key_env": "GEMINI_API_KEY_MEDLEY",
+               "timeout_s": 900, "max_tokens_floor": 48000},   # c1: its thinking used ~16k of 16k: cut off
+    "heimdall_qwen": dict(HEIMDALL, model="qwen/qwen3.8-27b", extra_body={"reasoning": {"effort": "none"}}),
+    # other model families served by Heimdall (not frozen; billed against the Heimdall cap), added under the freeze:
+    "heimdall_glm": dict(HEIMDALL, model="z-ai/glm-5.3-flash"),
+    "heimdall_muse": dict(HEIMDALL, model="meta-models/muse-spark-open-816b-a42b"),
+    "heimdall_minimax": dict(HEIMDALL, model="minimax/minimax-m3.1-flash"),
+}  # Heimdall qwen at effort none. deepseek-v4.1-flash dropped after c1: empty content twice (effort low, then none; its
+   # hidden reasoning took the whole budget on the 64k-token package); the abliterated deepseek and ling-3.0-flash are
+   # excluded by the order (incoherent on long prompts / always 429)
+
+
+def frozen():
+    return providers.frozen_vendors(providers.load_config())
 
 LAWS = """Standing order (PBX 02:30 / orchestrator 02:45 ET 2026-11-12) and laws this code must obey:
 - BUILD: continuous ingest of every registered partner channel (RSS first, yt-dlp metadata fallback, ~10 min, ETag /
@@ -69,10 +83,16 @@ LAWS = """Standing order (PBX 02:30 / orchestrator 02:45 ET 2026-11-12) and laws
   read, third-party media) are flagged and excluded before ranking; L-v: a moment never spans a speaker change;
   re-uploads excluded; time-sensitive language needs the original publish time.
 - Secrets: keys read by name from the env file inside code; never printed, logged or written.
+- SPEND FREEZE (orchestrator 05:30 ET Nov 12, until told otherwise): paid frontier vendors (OpenAI, Anthropic, xAI;
+  Google by the builder's assumption) are never called by any role; the watcher's mine chain is Heimdall then the
+  local interface ONLY; if both are down the videos queue and are mined later, never on a paid frontier model; Heimdall
+  mining continues; the 90 % tripwire is a NOTIFY ("HEIMDALL SPEND AT 90%" at the top of STATE), never a halt.
+- The integrator's merge audit (cycle 1) BLOCKING findings B1-B4 and its non-blocking list are in the change context
+  below; the change must answer each without weakening any check.
 Only report issues you can verify from the code provided. Do not speculate. Cite file:line."""
 
 
-def package(files, extra=""):
+def package(files, extra="", base=None, context=None):
     import cross_llm_audit as tool
     head = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=REPO, text=True).strip()
     parts = []
@@ -84,6 +104,11 @@ def package(files, extra=""):
     tests = subprocess.run([sys.executable, "-m", "pytest", "tests/ingest", "--collect-only", "-q"], cwd=REPO,
                            capture_output=True, text=True).stdout
     design = open(os.path.join(REPO, "docs/audits/INGEST_DESIGN.md")).read()
+    if base:
+        diff = subprocess.check_output(["git", "diff", base, "--", "pipeline/ingest", "tools/ingest_watch.py"],
+                                       cwd=REPO, text=True)
+        extra = (extra + f"\n\n## THE CHANGE UNDER REVIEW: git diff {base} (working tree)\n"
+                 + (open(context).read() if context else "") + f"\n```diff\n{diff}\n```\n")
     return f"""# PROTOCOL PULSE — CODE AUDIT PACKAGE
 # Feature: pp-ingest (continuous ingest + first-pass moment mining)
 # Branch: pp-ingest (base {BASE_REV}, working tree at {head} + the uncommitted files below = the ACTUAL diff: all new)
@@ -130,8 +155,13 @@ def call(rid, cfg, prompt, results, errors, kr):
 def fire(prompt_for, out, only=None):
     kr = providers.Keyring(ENV)
     results, errors = {}, {}
+    fz = frozen()
+    skipped = {rid: f"spend freeze: vendor {cfg['vendor']!r}" for rid, cfg in REVIEWERS.items()
+               if cfg["vendor"] in fz and (not only or rid in only)}
+    for rid, why in skipped.items():
+        print(f"  [{rid}] SKIPPED ({why})", flush=True)
     th = [threading.Thread(target=call, args=(rid, cfg, prompt_for(rid), results, errors, kr))
-          for rid, cfg in REVIEWERS.items() if not only or rid in only]
+          for rid, cfg in REVIEWERS.items() if (not only or rid in only) and rid not in skipped]
     for t in th:
         t.start()
     for t in th:
@@ -143,7 +173,7 @@ def fire(prompt_for, out, only=None):
                     + r["content"])
     with open(os.path.join(out, "results.json"), "w") as f:
         json.dump({"results": {k: {kk: vv for kk, vv in v.items() if kk != "content"} for k, v in results.items()},
-                   "errors": errors}, f, indent=1)
+                   "errors": errors, "skipped": skipped}, f, indent=1)
     return results, errors
 
 
@@ -154,10 +184,12 @@ def main():
     ap.add_argument("--c1")
     ap.add_argument("--consensus")
     ap.add_argument("--only", help="comma-separated reviewer ids (re-run failed legs)")
+    ap.add_argument("--base", help="review the change since this revision: its diff is added to the package")
+    ap.add_argument("--context", help="a text file with the orders / findings the change answers")
     a = ap.parse_args()
     only = set(a.only.split(",")) if a.only else None
     if a.cycle == 1:
-        pkg = package(FILES)
+        pkg = package(FILES, base=a.base, context=a.context)
         os.makedirs(a.out, exist_ok=True)
         open(os.path.join(a.out, "PACKAGE.md"), "w").write(pkg)
         print(f"package {len(pkg)} chars")
@@ -169,7 +201,7 @@ def main():
             if f.endswith(".md") and f != "PACKAGE.md":
                 c1[f[:-3]] = open(os.path.join(a.c1, f)).read()
         consensus = open(a.consensus).read()
-        pkg = package(FILES)
+        pkg = package(FILES, base=a.base, context=a.context)
         os.makedirs(a.out, exist_ok=True)
         open(os.path.join(a.out, "PACKAGE.md"), "w").write(pkg)
 

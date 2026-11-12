@@ -17,13 +17,15 @@ def vid(prefix="v"):
 
 def router_cfg(chain, **over):
     cfg = {"schema": "pp.providers/1", "env_file": "/nonexistent/.env", "global": {"max_inflight": 20},
-           "backends": {b: {"kind": "openai_compat", "model": f"model-{b}", "enabled": True} for b in chain},
+           "backends": {b: {"kind": "openai_compat", "vendor": f"vendor-{b}", "model": f"model-{b}", "enabled": True}
+                        for b in chain},
            "roles": {"mine": {"chain": list(chain), "attempts": 3, "max_tokens": 1000},
                      "judge": {"chain": list(chain), "attempts": 2, "max_tokens": 1000}},
            "health": {"consecutive_failures": 3, "window": 10, "failure_fraction": 0.5, "window_s": 600,
                       "slow_median_s": 150, "open_s": 300},
            "throttle": {"first_s": 0.01, "max_s": 0.05, "transport_retries": 2},
-           "heimdall_meter": {"backend": chain[0], "baseline_usage": 0.0, "cap_usd": 100.0, "notify_fraction": 0.9,
+           "spend_meter": {"backend": chain[0], "label": "GW", "baseline_usage": 0.0, "cap_usd": 100.0,
+                           "notify_fraction": 0.9,
                               "measure_every_s": 600, "stale_after_s": 3600, "probe_ledger": "/nonexistent"}}
     cfg.update(over)
     return cfg
@@ -34,7 +36,7 @@ class FakeBackend:
 
     def __init__(self, bid, script=None, fn=None, model=None, enabled=True, cfg=None, usage_total=1.0):
         self.id, self.model, self.max_inflight = bid, model or f"model-{bid}", 4
-        self.cfg = dict(cfg or {}, model=self.model, enabled=enabled)
+        self.cfg = dict({"vendor": f"vendor-{bid}"}, **(cfg or {}), model=self.model, enabled=enabled)
         self.script, self.fn = list(script or []), fn
         self.calls = []
         self.usage_total = usage_total
@@ -58,11 +60,13 @@ class FakeBackend:
         return {"data": {"total_usage": self.usage_total, "total_credits": 500}}
 
 
-def make_router(backends, chain=None, clock=None, **kw):
+def make_router(backends, chain=None, clock=None, freeze=(), **kw):
     chain = chain or [b.id for b in backends]
     cfg = router_cfg(chain)
     for b in backends:
         cfg["backends"][b.id] = dict(b.cfg, kind="openai_compat")
+    if freeze:
+        cfg["spend_freeze"] = {"vendors": list(freeze)}
     extra = {"clock": clock} if clock else {}
     return providers.Router(cfg, keyring=providers.Keyring("/nonexistent/.env"), backends={b.id: b for b in backends},
                             sleep=lambda s: None, **extra, **kw)

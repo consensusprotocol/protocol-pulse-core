@@ -2,8 +2,10 @@
 
 An INDEPENDENT listing of every watched channel at check time (RSS when its canary answers, else the uploads
 playlist; never the watcher's own queue) gives the videos published in the last `hours`. Each is matched to the
-queue: mined (its moments, possibly none, are in the ledger) or not, with the reason. A channel whose listing fails is
-UNMEASURED: its videos are never counted as covered (law L-m). Shorts are reported apart (never mined by policy).
+queue: mined (every window mined; its moments, possibly none, are in the ledger) or not, with the reason. A video mined
+only partially, or waiting out an outage, is NOT counted as mined (integrator B2): it is listed with its reason. A
+channel whose listing fails is UNMEASURED: its videos are never counted as covered (law L-m). Shorts are reported apart
+(never mined by policy).
 """
 import json
 import os
@@ -32,7 +34,8 @@ REASONS = {
     Q.PROBING: "being probed",
     Q.TRANSCRIBED: "transcribed: waiting to be mined",
     Q.MINING: "being mined",
-    Q.MINE_WAIT: "every back-end failed or refused: retrying",
+    Q.MINE_WAIT: "waiting to be mined (an outage of every back-end, or rejected windows): retrying",
+    Q.MINED_PARTIAL: "mined partially (its other windows' moments are in the ledger): retrying",
 }
 
 
@@ -72,11 +75,9 @@ def check(q, gate, hours=24, now_ts=None, rss=None, chans=None):
                 pc["shorts"] += 1
                 continue
             rep["eligible"] += 1
-            if state in (Q.MINED, Q.MINED_PARTIAL):
+            if state == Q.MINED:
                 rep["mined"] += 1
                 pc["mined"] += 1
-                if state == Q.MINED_PARTIAL:
-                    rep["missed"].append(_row(e, c, v, "mined partially: some windows failed on every back-end"))
                 continue
             pc["missed"] += 1
             age_min = (now_ts - float(pts)) / 60

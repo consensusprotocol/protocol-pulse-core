@@ -1,11 +1,14 @@
-"""pipeline/ingest/spend.py: the Heimdall spend meter and the STATE notice (orchestrator 02:45: a NOTIFY, never a halt).
+"""pipeline/ingest/spend.py: the gateway's spend meter and the STATE notice (orchestrator 02:45: a NOTIFY, never a halt).
 
-Spend is the probe's own measure: GET /credits total_usage minus the sweep baseline (PHASE3_FLEET_LOAD.md: the $460 cap
-is "total sweep spend measured by /credits delta from 0.2036796658"), plus this service's usage.cost since that reading.
-state(): 'ok' below 90 % of the cap; 'tripped' at or above it; 'unmeasured' when no reading is younger than
-stale_after_s (law L-m: an unmeasured spend is never read as below the tripwire). Anything but 'ok' routes mining to the
-other back-ends (providers.Router.available) and writes one line at the top of the STATE file.
+The metered gateway and its label live in providers.json (spend_meter). Spend is the probe's own measure: GET /credits
+total_usage minus the sweep baseline (PHASE3_FLEET_LOAD.md: the $460 cap is "total sweep spend measured by /credits
+delta from 0.2036796658"), plus this service's usage.cost since that reading. state(): 'ok' below 90 % of the cap;
+'tripped' at or above it; 'unmeasured' when no reading is younger than stale_after_s (law L-m: an unmeasured spend is
+never read as below the tripwire). Anything but 'ok' NOTIFIES: one line at the top of the STATE file ("<LABEL> SPEND AT
+90%" / "<LABEL> SPEND UNMEASURED"), and the metered back-ends go to the end of every chain (providers.Router.order);
+they keep mining (integrator B1; orchestrator 05:30: "Heimdall mining continues").
 """
+import fcntl
 import json
 import os
 import threading
@@ -13,10 +16,12 @@ import time
 
 from . import config
 
-NOTICE_PREFIXES = ("HEIMDALL SPEND AT 90%", "HEIMDALL SPEND UNMEASURED")
+
+def notice_prefixes(label):
+    return (f"{label} SPEND AT 90%", f"{label} SPEND UNMEASURED")
 
 
-class HeimdallMeter:
+class CreditMeter:
     def __init__(self, mcfg, backend, clock=time.time, on_change=None):
         self.c, self.backend, self.clock, self.on_change = mcfg, backend, clock, on_change
         self.measured_at = None
@@ -27,6 +32,10 @@ class HeimdallMeter:
         self.last_error = None
         self.lock = threading.Lock()
         self._state = None
+
+    @property
+    def label(self):
+        return str(self.c.get("label") or "GATEWAY").upper()
 
     @property
     def threshold(self):
@@ -40,8 +49,10 @@ class HeimdallMeter:
             if type(usage) not in (int, float):
                 raise ValueError(f"total_usage {usage!r}")
         except Exception as e:
+            red = getattr(self.backend, "redact", None)
+            msg = f"{type(e).__name__}: {e}"[:300]
             with self.lock:
-                self.last_error = f"{type(e).__name__}: {e}"[:300]
+                self.last_error = red(msg) if red is not None else msg
             self._check()
             return None
         with self.lock:
@@ -92,34 +103,41 @@ class HeimdallMeter:
                     "last_error": self.last_error}
 
 
-def write_state_notice(state, snap, doc=None, notify_path=None):
+def write_state_notice(state, snap, doc=None, notify_path=None, label="GATEWAY"):
     """The first line of the STATE file carries the notice while the meter is not 'ok' (idempotent: one notice line,
-    replaced, never duplicated). A 90 % notice stays once written (spend does not go back down)."""
+    replaced, never duplicated). A 90 % notice stays once written (spend does not go back down). The file is rewritten
+    only when its text changes, under a lock next to the notify log; the NOTIFY log gets every state change."""
     doc = doc or config.STATE_DOC
+    prefixes = notice_prefixes(label)
     if state == "tripped":
-        line = (f"HEIMDALL SPEND AT 90% (${snap.get('spend_usd')} of ${snap.get('cap_usd')} at "
-                f"{snap.get('measured_at')}): mining routed to the other back-ends; nothing halted.")
+        line = (f"{prefixes[0]} (${snap.get('spend_usd')} of ${snap.get('cap_usd')} at {snap.get('measured_at')}): "
+                "NOTIFY only; mining continues on it (other back-ends first where any are available); nothing halted.")
     elif state == "unmeasured":
-        line = (f"HEIMDALL SPEND UNMEASURED (last reading {snap.get('measured_at')}, error {snap.get('last_error')}): "
-                "mining routed to the other back-ends until a reading succeeds.")
+        line = (f"{prefixes[1]} (last reading {snap.get('measured_at')}, error {snap.get('last_error')}): NOTIFY "
+                "only; mining continues on it; the spend is read again every 10 min.")
     else:
         line = None
-    try:
-        with open(doc) as f:
-            lines = f.read().split("\n")
-    except OSError:
-        lines = []
-    head = []
-    while lines and lines[0].startswith(NOTICE_PREFIXES):
-        head.append(lines.pop(0))
-    kept = [h for h in head if h.startswith(NOTICE_PREFIXES[0])] if state != "tripped" else []
-    lines = ([line] if line else []) + kept[:1] + lines
-    tmp = f"{doc}.{os.getpid()}.tmp"
-    with open(tmp, "w") as f:
-        f.write("\n".join(lines))
-    os.replace(tmp, doc)
     if notify_path:
         os.makedirs(os.path.dirname(notify_path), exist_ok=True)
         with open(notify_path, "a") as f:
             f.write(json.dumps({"at": config.iso(), "state": state, "meter": snap}) + "\n")
+    lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
+    with open(lock_path, "a") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        try:
+            with open(doc) as f:
+                text = f.read()
+        except OSError:
+            text = ""
+        lines = text.split("\n") if text else []
+        head = []
+        while lines and lines[0].startswith(prefixes):
+            head.append(lines.pop(0))
+        kept = [h for h in head if h.startswith(prefixes[0])] if state != "tripped" else []
+        new = "\n".join(([line] if line else []) + kept[:1] + lines)
+        if new != text:
+            tmp = f"{doc}.{os.getpid()}.tmp"
+            with open(tmp, "w") as f:
+                f.write(new)
+            os.replace(tmp, doc)
     return line

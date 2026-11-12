@@ -13,10 +13,10 @@ from datetime import datetime, timezone
 
 from . import config
 from . import queue as Q
-from .watch import BACKFILL_H, ListError
+from .watch import AGE_GATE_MARKS, BACKFILL_H, ListError
 
 UNAVAILABLE_MARKS = ("Private video", "Video unavailable", "This video has been removed", "members-only",
-                     "Join this channel", "Sign in to confirm your age", "This video is no longer available",
+                     "Join this channel", "This video is no longer available",
                      "account associated with this video has been terminated")
 UNAVAILABLE_RETRY_S = 6 * 3600
 UNAVAILABLE_MAX_TRIES = 4
@@ -87,7 +87,7 @@ def text_fingerprint(rec):
 
 
 def probe(gate, video_id):
-    """(json, None) or (None, (kind, detail)). kind: unavailable | rate_limited | error."""
+    """(json, None) or (None, (kind, detail)). kind: age_gated | unavailable | rate_limited | error."""
     try:
         r = gate.run(["-J", "--skip-download", "--ignore-no-formats-error",
                       f"https://www.youtube.com/watch?v={video_id}"], timeout=120)
@@ -100,6 +100,8 @@ def probe(gate, video_id):
     except ValueError:
         pass
     err = (r.stderr or "")[-400:]
+    if any(m in err for m in AGE_GATE_MARKS):
+        return None, ("age_gated", err)
     if any(m in err for m in UNAVAILABLE_MARKS):
         return None, ("unavailable", err)
     return None, ("error", err or f"yt-dlp rc {r.returncode}")
@@ -128,6 +130,10 @@ def process(q, gate, v, chan, optout, now_ts=None):
     j, err = probe(gate, vid)
     if err:
         kind, detail = err
+        if kind == "age_gated":                    # terminal: this store signs in nowhere (integrator B4)
+            q.set_state(vid, Q.UNAVAILABLE, next_at=now_ts + 10 ** 9, tries=tries + 1,
+                        reason=f"age-gated (needs a signed-in session): {detail[-200:]}")
+            return Q.UNAVAILABLE
         if kind == "unavailable":
             final = tries + 1 >= UNAVAILABLE_MAX_TRIES
             q.set_state(vid, Q.UNAVAILABLE, next_at=now_ts + (10 ** 9 if final else UNAVAILABLE_RETRY_S),

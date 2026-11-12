@@ -1,5 +1,7 @@
 """End to end with fakes: listing -> probe -> captions (the store's writer) -> mining -> ledger; the outage drill
-(primary back-end dead: the fallback mines, nothing is lost; every back-end dead: videos wait, then complete)."""
+(primary back-end dead: the fallback mines, nothing is lost; every back-end dead: videos wait without using a try,
+however long, then complete); rejected windows (partial, retryable, never counted as mined); the spend freeze (a
+frozen fallback is never called: the videos wait); one service per store."""
 import json
 import os
 import shutil
@@ -18,9 +20,15 @@ def svc(monkeypatch, tmp_path):
     for k in ("ingest", "moments"):
         shutil.rmtree(p[k], ignore_errors=True)
     cfg = H.router_cfg(["primary", "fallback"])
-    cfg["backends"]["primary"]["spend_meter"] = "heimdall"
+    cfg["backends"]["primary"]["spend_meter"] = True
     cpath = tmp_path / "providers.json"
-    cpath.write_text(json.dumps(cfg))
+
+    def write_cfg(freeze=()):
+        c = json.loads(json.dumps(cfg))
+        if freeze:
+            c["spend_freeze"] = {"vendors": list(freeze)}
+        cpath.write_text(json.dumps(c))
+    write_cfg()
     monkeypatch.setattr(watch, "registry", lambda: ([H.CHAN], [H.CHAN]))
     monkeypatch.setattr(watch, "rss_canary", lambda chans: False)
     monkeypatch.setattr(service.spend, "write_state_notice", lambda *a, **k: None)
@@ -32,7 +40,8 @@ def svc(monkeypatch, tmp_path):
         return "ok", ts._make_record(meta, "yt_auto:en-orig", "youtube captions (auto-subs, en-orig)", rec["segments"])
     monkeypatch.setattr(ts, "fetch_captions", fake_captions)
 
-    def make(primary_fn, fallback_fn, n_videos=3):
+    def make(primary_fn, fallback_fn, n_videos=3, freeze=()):
+        write_cfg(freeze)
         now = __import__("time").time()
         vids = [H.vid("e") for _ in range(n_videos)]
         listing = {H.CHAN["channel_id"]: {"channel_id": H.CHAN["channel_id"], "entries": [
@@ -40,7 +49,7 @@ def svc(monkeypatch, tmp_path):
              "url": f"https://www.youtube.com/watch?v={v}"} for v in vids]}}
         gate = H.FakeGate(listing=listing, probes={v: H.probe_json(v, timestamp=now - 1800, title=f"Bitcoin {v}")
                                                    for v in vids})
-        backends = {"primary": H.FakeBackend("primary", fn=primary_fn, cfg={"spend_meter": "heimdall"},
+        backends = {"primary": H.FakeBackend("primary", fn=primary_fn, cfg={"spend_meter": True},
                                              usage_total=1.0),
                     "fallback": H.FakeBackend("fallback", fn=fallback_fn)}
         s = service.Service(providers_path=str(cpath), backends=backends, gate=gate, log=lambda m: None,
@@ -85,44 +94,131 @@ def test_outage_drill_primary_dead_fallback_mines_nothing_lost(svc):
     assert {(c["backend"], c["kind"]) for c in calls} >= {("primary", "network"), ("fallback", "ok")}
 
 
-def test_every_back_end_dead_videos_wait_then_complete(svc):
+def _again(s, n=1):
+    """n more mining passes (the retry delay skipped; open circuits re-probed)."""
+    for _ in range(n):
+        s.q.x("UPDATE videos SET next_at=0 WHERE state IN (?,?)", (Q.MINE_WAIT, Q.MINED_PARTIAL))
+        for h in s.router.health.values():
+            h.open_until = 0.0
+        while s.mine_once(wait=True):
+            pass
+
+
+def test_every_back_end_down_for_any_number_of_passes_waits_without_a_try_then_completes(svc):
+    """Integrator B2: an outage (nothing answered) never uses a try and never becomes mined_partial, however long
+    (the old code: 8 passes x 10 min = an 80 min outage turned into permanent, silent loss)."""
     state = {"up": False}
-    s, vids, b = svc(lambda p: H.first_two(p) if state["up"] else BackendError("network", "down"),
-                     lambda p: H.first_two(p) if state["up"] else "not json")
+    down = lambda p: H.first_two(p) if state["up"] else BackendError("network", "down")    # noqa: E731
+    s, vids, b = svc(down, lambda p: H.first_two(p) if state["up"] else BackendError("overloaded", "busy"))
     run_once(s)
+    _again(s, 12)                                                     # 13 passes: past the old 8-pass limit
     for v in vids:
-        assert s.q.video(v)["state"] == Q.MINE_WAIT and "every back-end" in s.q.video(v)["reason"]
+        row = s.q.video(v)
+        assert row["state"] == Q.MINE_WAIT and row["reason"].startswith("OUTAGE") and row["mine_tries"] == 0
     assert ledger.read(s.p["ledger"])[0] == []                       # nothing half-written
+    assert s.health_once()["mine_waiting_outage"] == 3
     state["up"] = True
-    for bid in ("primary", "fallback"):                               # the outage is over (breakers re-probed)
-        s.router.health[bid].open_until = 0.0
-    s.q.x("UPDATE videos SET next_at=0")
-    while s.mine_once(wait=True):
-        pass
+    _again(s)
     for v in vids:
         assert s.q.video(v)["state"] == Q.MINED, s.q.video(v)["reason"]
     assert {l["video_id"] for l in ledger.read(s.p["ledger"])[0]} == set(vids)
 
 
-def test_a_restart_recovers_and_reuses_validated_replies(svc):
+def test_rejected_windows_become_partial_retryable_and_never_counted_as_mined(svc, monkeypatch):
+    """A window every back-end answers wrongly: the good windows' moments go to the ledger after the content limit;
+    the video stays retryable (MINE_DUE) and is never counted as mined; a later success completes it."""
+    bad = {"on": True}
+
+    def picky(p):
+        ids = H.offered_ids(p)
+        if bad["on"] and ids and ids[0] == 0:                         # the first window is always answered wrongly
+            return "not json"
+        return H.first_two(p)
+    s, vids, b = svc(picky, picky, n_videos=1)
+    vid = vids[0]
+    run_once(s)
+    assert s.q.video(vid)["state"] == Q.MINE_WAIT and s.q.video(vid)["mine_tries"] == 1
+    _again(s, service.MINE_CONTENT_PASSES - 1)
+    row = s.q.video(vid)
+    assert row["state"] == Q.MINED_PARTIAL and row["windows_failed"] == 1 and row["next_at"] < s.clock() + 7 * 3600
+    assert Q.MINED_PARTIAL in Q.MINE_DUE and Q.MINED_PARTIAL not in Q.TERMINAL
+    n_partial = len(ledger.read(s.p["ledger"])[0])
+    assert n_partial >= 1                                             # the good windows' moments are served now
+    live = s.health_once()
+    assert live["videos_mined"] == 0 and live["videos_partial"] == 1
+    _again(s)                                                         # still rejected: nothing new appended
+    assert s.q.video(vid)["state"] == Q.MINED_PARTIAL and len(ledger.read(s.p["ledger"])[0]) == n_partial
+    bad["on"] = False
+    _again(s)
+    assert s.q.video(vid)["state"] == Q.MINED
+    assert s.health_once()["videos_mined"] == 1
+
+
+def test_coverage_never_counts_a_partial_or_waiting_video_as_mined(svc, monkeypatch):
+    from pipeline.ingest import coverage
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=3)
+    run_once(s)
+    s.q.x("UPDATE videos SET state=? WHERE video_id=?", (Q.MINED_PARTIAL, vids[0]))
+    s.q.x("UPDATE videos SET state=? WHERE video_id=?", (Q.MINE_WAIT, vids[1]))
+    now = __import__("time").time()
+    monkeypatch.setattr(watch, "playlist_list", lambda gate, cid: [
+        {"video_id": v, "title": "t", "ts": now - 1800, "url": f"https://www.youtube.com/watch?v={v}"} for v in vids])
+    rep = coverage.check(s.q, s.gate, hours=24, rss=False, chans=[H.CHAN])
+    assert rep["eligible"] == 3 and rep["mined"] == 1
+    assert {m["video_id"] for m in rep["missed"]} == {vids[0], vids[1]}
+
+
+def test_the_spend_freeze_never_falls_through_to_a_frozen_vendor_videos_wait_then_complete(svc):
+    """Orchestrator 05:30: Heimdall then local only; both down = queue and mine later, never a paid frontier model."""
+    state = {"up": False}
+    s, vids, b = svc(lambda p: H.first_two(p) if state["up"] else BackendError("network", "connection refused"),
+                     H.first_two, freeze=["vendor-fallback"])
+    run_once(s)
+    _again(s, 3)
+    assert b["fallback"].calls == []                                  # frozen: never called, not once
+    for v in vids:
+        row = s.q.video(v)
+        assert row["state"] == Q.MINE_WAIT and row["reason"].startswith("OUTAGE") and row["mine_tries"] == 0
+        assert "spend freeze" in row["reason"]
+    state["up"] = True
+    _again(s)
+    assert b["fallback"].calls == []
+    for v in vids:
+        assert s.q.video(v)["state"] == Q.MINED
+    assert {l["mined"]["backend"] for l in ledger.read(s.p["ledger"])[0]} == {"primary"}
+    calls = s.q.rows("SELECT DISTINCT backend FROM calls")
+    assert {c["backend"] for c in calls} == {"primary"}
+
+
+def test_one_service_per_store(svc):
+    """Integrator (non-blocking): `once` beside `run` reset the live process's MINING rows (recover) and both
+    appended. A second service on the same store is refused before it recovers anything."""
     s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
     run_once(s)
-    first = len(b["primary"].calls)
-    s.q.x("UPDATE videos SET state=?", (Q.MINING,))                  # as if the process died mid-mining
-    assert s.q.recover() == (0, 1)
-    while s.mine_once(wait=True):
-        pass
-    assert len(b["primary"].calls) == first                          # every window from the reply cache
-    assert s.q.video(vids[0])["state"] == Q.MINED
+    s.q.x("UPDATE videos SET state=? WHERE video_id=?", (Q.MINING, vids[0]))
+    kw = dict(providers_path=s.providers_path, backends=b, gate=s.gate, log=lambda m: None,
+              keyring=providers.Keyring("/nonexistent"))
+    with pytest.raises(service.ServiceBusy):
+        service.Service(**kw)
+    assert s.q.video(vids[0])["state"] == Q.MINING                   # the live row was not touched
+    s.close()
+    s2 = service.Service(**kw)                                        # free again once the holder closed
+    assert s2.q.video(vids[0])["state"] == Q.TRANSCRIBED             # recovered by the one service that holds it
+    s2.close()
 
 
-def test_the_heimdall_tripwire_falls_back_and_notifies(svc, monkeypatch):
+def test_the_tripwire_notifies_prefers_the_others_and_never_halts(svc, monkeypatch):
     notes = []
-    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
-    monkeypatch.setattr(service.spend, "write_state_notice", lambda st, snap, **k: notes.append(st))
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=2)
+    monkeypatch.setattr(service.spend, "write_state_notice", lambda st, snap, **k: notes.append((st, k.get("label"))))
     b["primary"].usage_total = 99.0                                   # 99 of the test cap 100
     s.meter.measure()
     run_once(s)
     lines, _ = ledger.read(s.p["ledger"])
-    assert lines and {l["mined"]["backend"] for l in lines} == {"fallback"} and notes == ["tripped"]
-    assert s.q.video(vids[0])["state"] == Q.MINED                     # never halted
+    assert lines and {l["mined"]["backend"] for l in lines} == {"fallback"} and notes == [("tripped", "GW")]
+    b["fallback"].cfg["enabled"] = False                              # no other back-end: the gateway keeps mining
+    s.q.x("UPDATE videos SET state=?, next_at=0 WHERE video_id=?", (Q.TRANSCRIBED, vids[1]))
+    while s.mine_once(wait=True):
+        pass
+    assert s.q.video(vids[1])["state"] == Q.MINED
+    assert {l["mined"]["backend"] for l in ledger.read(s.p["ledger"])[0] if l["video_id"] == vids[1]} >= {"primary"}

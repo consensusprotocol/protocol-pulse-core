@@ -21,8 +21,10 @@ from . import queue as Q
 
 YT_NS = "http://www.youtube.com/xml/schemas/2015"
 ATOM_NS = "http://www.w3.org/2005/Atom"
-RATE_LIMIT_MARKS = ("HTTP Error 429", "Too Many Requests", "confirm you're not a bot", "confirm you’re not a bot",
-                    "Sign in to confirm you")
+RATE_LIMIT_MARKS = ("HTTP Error 429", "Too Many Requests", "not a bot")    # the bot check, either apostrophe
+AGE_GATE_MARKS = ("Sign in to confirm your age", "confirm your age", "age-restricted", "inappropriate for some users")
+# integrator B4: the old mark "Sign in to confirm you" was a prefix of the age gate's text, so one age-gated video
+# tripped the global breaker and was requeued forever. The age gate is matched first and is never a rate limit.
 BACKFILL_H = 72              # first sight of a channel: uploads older than this are recorded as seen, not processed
 
 
@@ -56,15 +58,18 @@ class YouTubeGate:
 
     def run(self, args, timeout=120):
         """yt-dlp with the store's flags (cookies when the store has them); raises ListError('rate_limited') while
-        the breaker is open or when YouTube answers a rate limit / bot check."""
+        the breaker is open or when YouTube answers a rate limit / bot check. Any answer that is not one calms the
+        breaker by one step (so a past trip does not make every later one the 60 min pause); an age gate is a
+        property of that one video (fetch.probe: terminal 'unavailable'), never a rate limit."""
         if self.open_for() > 0:
             raise ListError("rate_limited", f"yt-dlp breaker open for {self.open_for():.0f} s")
         with self.sem:
             r = config.ts()._ytdlp(args, timeout=timeout)
         err = r.stderr or ""
-        if any(m in err for m in RATE_LIMIT_MARKS):
+        if not any(m in err for m in AGE_GATE_MARKS) and any(m in err for m in RATE_LIMIT_MARKS):
             self.trip(err[-200:])
             raise ListError("rate_limited", err[-300:])
+        self.calm()
         return r
 
 

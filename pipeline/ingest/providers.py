@@ -2,12 +2,20 @@
 
 A role (mine, judge) is an ordered chain of interchangeable back-ends named in providers.json, the only place a vendor
 or a model name appears. Router.run() tries the chain in order and returns the first reply that passes the role's
-validator; the run continues while any one back-end works. Per back-end: bounded in-flight requests (and a global cap),
-queue-aware backoff on HTTP 429 / 503 provider_overloaded (Retry-After honoured), a circuit breaker on failures,
-malformed replies and slowness, a daily dollar budget, and (Heimdall) the spend meter's tripwire. A reply is validated
-strictly and never repaired (law L-l); every attempt, accepted or not, goes to on_attempt with its raw content.
+validator. Per back-end: bounded in-flight requests (and a global cap), queue-aware backoff on HTTP 429 / 503
+provider_overloaded (Retry-After honoured), a circuit breaker on failures, malformed replies and slowness, and a daily
+dollar budget. A reply is validated strictly and never repaired (law L-l); every attempt, accepted or not, goes to
+on_attempt with its raw content.
 
-Keys are read by NAME from the env file named in the config, inside code; never logged, never in an exception.
+SPEND FREEZE (orchestrator 05:30 ET 2026-11-12): every back-end names its vendor; a vendor listed in the config's
+spend_freeze is never called by any role, whatever its chain, `only`, or `enabled` say (a stored validated reply costs
+nothing and may still be reused). The spend meter only NOTIFIES (orchestrator 02:45; integrator B1): while it is not
+'ok' the metered back-ends move to the end of every chain, so the others go first where any are available; they are
+never taken out. AllBackendsFailed.outage tells a chain that was down or refusing (the caller waits, no try used) from
+one whose back-ends answered and were rejected.
+
+Keys are read by NAME from the env file named in the config, inside code; never logged, never in an exception (error
+text is redacted of every key value before it is recorded), never sent after a redirect.
 """
 import hashlib
 import json
@@ -18,6 +26,7 @@ import statistics
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections import deque
 from dataclasses import dataclass, field
@@ -27,8 +36,11 @@ from . import config
 
 class BackendError(Exception):
     """kind: network | timeout | http_429 | overloaded | server | empty  (retried on the same back-end with backoff)
-             routing | http_4xx | refusal | disabled | budget | spend_meter   (not retried: next back-end)"""
+             routing | redirect | http_auth | http_4xx | refusal | disabled   (not retried: next back-end)
+    REJECTED kinds are about this request (the back-end answered and refused or gave nothing usable): they count as a
+    failed try of the work. Every other kind is the back-end being unavailable: the work waits."""
     RETRY = frozenset({"network", "timeout", "http_429", "overloaded", "server", "empty"})
+    REJECTED = frozenset({"http_4xx", "refusal", "empty"})
 
     def __init__(self, kind, detail="", retry_after=None, http_status=None, latency_s=None, usage=None,
                  cost_usd=None, raw=None):
@@ -46,9 +58,14 @@ class Invalid(Exception):
 
 
 class AllBackendsFailed(RuntimeError):
+    """tried: [(back-end, status, why)]; status: skipped (not called: frozen, disabled, budget, circuit open),
+    unavailable (called; down, overloaded, refusing access), rejected (called; its replies were rejected), unknown.
+    outage: no back-end answered and was rejected; the work waits and retries, it never counts as a failed try."""
+
     def __init__(self, tried):
         super().__init__("every back-end failed or refused: " + "; ".join(f"{b} {s} ({w})" for b, s, w in tried))
         self.tried = tried
+        self.outage = all(s != "rejected" for _, s, _ in tried)
 
 
 @dataclass
@@ -83,16 +100,43 @@ def sha256(s):
     return hashlib.sha256(s.encode() if isinstance(s, str) else s).hexdigest()
 
 
-def load_config(path=None):
-    with open(path or config.PROVIDERS_PATH) as f:
-        cfg = json.load(f)
+def validate_config(cfg):
+    """Strict: every back-end names its vendor (the spend freeze is per vendor), a freeze lists vendor names."""
     if cfg.get("schema") != "pp.providers/1":
         raise ValueError(f"providers config schema {cfg.get('schema')!r}")
+    for bid, b in cfg["backends"].items():
+        if type(b.get("vendor")) is not str or not b["vendor"]:
+            raise ValueError(f"back-end {bid}: no 'vendor' (every back-end names its vendor: the spend freeze)")
+    fz = cfg.get("spend_freeze")
+    if fz is not None and (type(fz) is not dict or type(fz.get("vendors")) is not list
+                           or not all(type(v) is str and v for v in fz["vendors"])):
+        raise ValueError("spend_freeze must be an object with a 'vendors' list of vendor names")
     for role, r in cfg["roles"].items():
         for b in r["chain"]:
             if b not in cfg["backends"]:
                 raise ValueError(f"role {role}: unknown back-end {b}")
     return cfg
+
+
+def load_config(path=None):
+    with open(path or config.PROVIDERS_PATH) as f:
+        return validate_config(json.load(f))
+
+
+def frozen_vendors(cfg):
+    return frozenset((cfg.get("spend_freeze") or {}).get("vendors") or ())
+
+
+def override_allowed(url, configured):
+    """A runtime base-URL override may point only at this machine (drills) or at the configured host: the bearer key
+    goes wherever the base points."""
+    try:
+        u, c = urllib.parse.urlsplit(url), urllib.parse.urlsplit(configured or "")
+    except ValueError:
+        return False
+    if u.scheme not in ("http", "https") or not u.hostname:
+        return False
+    return u.hostname in ("127.0.0.1", "localhost", "::1") or (u.hostname == c.hostname and u.scheme == c.scheme)
 
 
 class Keyring:
@@ -128,6 +172,15 @@ class Keyring:
     def __repr__(self):
         return f"Keyring({len(self._vals)} values)"
 
+    def redact(self, s):
+        """s with every key value of the env file replaced (error text from a vendor is recorded; a key never is)."""
+        if not isinstance(s, str) or not s:
+            return s
+        for _, v in self._vals:
+            if len(v) >= 8 and v in s:
+                s = s.replace(v, "[redacted]")
+        return s
+
 
 # ── back-ends ──
 
@@ -142,9 +195,16 @@ class Backend:
             keyring.get(prefix=cfg["key_env_prefix"]) if cfg.get("key_env_prefix") else [])
         self._ki = 0
         self._klock = threading.Lock()
+        self._keyring = keyring
 
     def __repr__(self):
         return f"{type(self).__name__}({self.id}, {self.model})"
+
+    def redact(self, s):
+        return self._keyring.redact(s) if self._keyring is not None else s
+
+    def release(self):
+        """End of a cycle: free what this back-end holds (the local model unloads; HTTP back-ends hold nothing)."""
 
     @property
     def model_label(self):
@@ -162,8 +222,8 @@ class Backend:
         return k
 
     def price_cost(self, usage):
-        """Dollars from the price table. Output counts hidden reasoning too: xAI reports it only inside total_tokens
-        (2026-11-12: completion 314, total 9,697 on a 2,371-token prompt)."""
+        """Dollars from the price table. Output counts hidden reasoning too: some vendors report it only inside
+        total_tokens (2026-11-12: completion 314, total 9,697 on a 2,371-token prompt)."""
         p = self.cfg.get("price") or {}
         i = float(usage.get("prompt_tokens") or usage.get("input_tokens") or 0)
         o = float(usage.get("completion_tokens") or usage.get("output_tokens") or 0)
@@ -198,6 +258,11 @@ def _http_error(e, t0):
     except ValueError:
         pass
     low = body.lower()
+    if 300 <= status < 400:
+        return BackendError("redirect", f"HTTP {status} redirect refused (the key never follows a redirect)", ra,
+                            status, lat)
+    if status in (401, 402, 403):
+        return BackendError("http_auth", body[:300], ra, status, lat)
     if status == 429:
         return BackendError("http_429", body[:300], ra, status, lat)
     if status == 503 and (etype == "routing_error" or "no endpoints" in low or "unsupported" in low):
@@ -211,6 +276,14 @@ def _http_error(e, t0):
     return BackendError("http_4xx", body[:300], ra, status, lat)
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None                     # urllib would re-send the Authorization header to the new location
+
+
+_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
 class OpenAICompatBackend(Backend):
     """OpenAI-compatible chat completions (OpenRouter-style gateways included): POST {base}/chat/completions.
     base: the runtime override file (Overrides, the service's outage drills and endpoint moves without a restart), else
@@ -220,6 +293,8 @@ class OpenAICompatBackend(Backend):
     @property
     def base(self):
         o = self.overrides.get(self.id, "base_url") if self.overrides else None
+        if o and not override_allowed(o, self.cfg.get("base_url")):
+            o = None                    # refused (the service logs the refusal when the override file changes)
         env = self.cfg.get("base_url_env")
         return (o or (os.environ.get(env) if env else None) or self.cfg["base_url"]).rstrip("/")
 
@@ -230,7 +305,7 @@ class OpenAICompatBackend(Backend):
             "User-Agent": "pp-ingest/1"})
         t0 = time.time()
         try:
-            with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
+            with _OPENER.open(req, timeout=timeout or self.timeout) as r:
                 return r.status, r.read(), dict(r.headers), time.time() - t0
         except urllib.error.HTTPError as e:
             raise _http_error(e, t0)
@@ -263,6 +338,8 @@ class OpenAICompatBackend(Backend):
         usage = j.get("usage") or {}
         if self.cfg.get("cost_from_usage") and isinstance(usage.get("cost"), (int, float)):
             cost, basis = float(usage["cost"]), "usage.cost"
+        elif isinstance(usage.get("cost_in_usd_ticks"), (int, float)):      # vendor-reported; 1 USD = 1e10 ticks
+            cost, basis = float(usage["cost_in_usd_ticks"]) / 1e10, "usage.cost_in_usd_ticks"
         else:
             cost, basis = self.price_cost(usage), (self.cfg.get("price") or {}).get("basis", "price table")
         if not isinstance(content, str) or not content.strip():
@@ -316,7 +393,7 @@ class AnthropicBackend(Backend):
         if not text.strip():
             raise BackendError("empty", f"no text (stop_reason {resp.stop_reason})", latency_s=lat, usage=usage,
                                cost_usd=cost)
-        return Reply(text, resp.model, "anthropic", lat, usage, cost,
+        return Reply(text, resp.model, self.cfg.get("vendor"), lat, usage, cost,
                      (self.cfg.get("price") or {}).get("basis", "price table"), resp.stop_reason, 200,
                      getattr(resp, "_request_id", None) or resp.id)
 
@@ -347,44 +424,68 @@ class GeminiBackend(Backend):
         text = getattr(resp, "text", None)
         if not isinstance(text, str) or not text.strip():
             raise BackendError("empty", "no text", latency_s=lat, usage=usage, cost_usd=cost)
-        return Reply(text, getattr(resp, "model_version", None) or self.model, "google", lat, usage, cost,
+        return Reply(text, getattr(resp, "model_version", None) or self.model, self.cfg.get("vendor"), lat, usage, cost,
                      (self.cfg.get("price") or {}).get("basis", "estimate"), None, 200, None)
 
 
 class OllamaLocalBackend(Backend):
-    """The local model on Ultron GPU0 through story_semantics.LocalLLM (its GPU0-only guard and weights digest). Runs only
-    when enabled in the config AND lease() is true: the integrator holds the GPU0 lease (law L-r)."""
+    """The local model on Ultron GPU0 through story_semantics.LocalLLM. Available only when enabled in the config AND
+    this process holds the GPU0 lease: gpu0.held() is a check, never an acquisition (integrator B3); LocalLLM._post
+    itself calls gpu0.require() and swap_to on every request (law L-r, main 4867a74a). Where pipeline/gpu0.py is absent
+    the back-end is never available. release() unloads this run's model (LocalLLM.stop) at the end of a cycle."""
 
-    def __init__(self, bid, cfg, keyring, lease=None):
+    def __init__(self, bid, cfg, keyring):
         super().__init__(bid, cfg, keyring)
-        self.lease, self._llm = lease, None
+        self._llm = None
+        self._llm_lock = threading.Lock()
+
+    @staticmethod
+    def _gpu0():
+        try:
+            import gpu0
+            return gpu0
+        except ImportError:
+            return None
 
     def enabled(self):
-        return bool(self.cfg.get("enabled")) and self.lease is not None
+        if not self.cfg.get("enabled"):
+            return False
+        g = self._gpu0()
+        return bool(g is not None and g.held())
 
     def complete(self, prompt, schema, max_tokens):
         if not self.cfg.get("enabled"):
             raise BackendError("disabled", "local back-end disabled in providers.json")
-        if self.lease is None or not self.lease():
-            raise BackendError("disabled", "GPU0 lease not held: the local back-end runs only under the GPU0 lease")
+        if not self.enabled():
+            raise BackendError("disabled", "GPU0 lease not held by this process (or pipeline/gpu0.py absent): the "
+                                           "local back-end runs only under the lease (law L-r)")
         import story_semantics as sm
-        if self._llm is None:
-            self._llm = sm.LocalLLM(model=self.model).start()
+        with self._llm_lock:
+            if self._llm is None:
+                self._llm = sm.LocalLLM(model=self.model).start()
+            llm = self._llm
         t0 = time.time()
         try:
-            text = self._llm._post(prompt, int(max_tokens), seed=7)
-        except Exception as e:
+            text = llm._post(prompt, int(max_tokens), seed=7)
+        except Exception as e:                        # a GPU0 stop (BaseException) is never renamed: it propagates
             raise BackendError("server", f"{type(e).__name__}: {e}"[:300], latency_s=time.time() - t0)
         lat = time.time() - t0
         if not isinstance(text, str) or not text.strip():
             raise BackendError("empty", "no content", latency_s=lat)
-        return Reply(text, f"{self.model}@{getattr(self._llm, 'digest', None)}", "ultron-gpu0", lat, {}, 0.0,
+        return Reply(text, f"{self.model}@{getattr(llm, 'digest', None)}", self.cfg.get("vendor"), lat, {}, 0.0,
                      "local", None, 200, None)
+
+    def release(self):
+        with self._llm_lock:
+            llm, self._llm = self._llm, None
+        if llm is not None and hasattr(llm, "stop"):
+            llm.stop()
 
 
 class Overrides:
     """{back-end id: {"base_url": ...}} from a JSON file, re-read when its mtime changes; on_change(old, new) is
-    called on every change (the service records it as an event). A missing or unreadable file = no overrides."""
+    called on every change (the service records it as an event). A missing or unreadable file = no overrides. A base
+    URL is honoured only for this machine or the configured host (override_allowed)."""
 
     def __init__(self, path, on_change=None):
         self.path, self.on_change = path, on_change
@@ -415,9 +516,8 @@ KINDS = {"openai_compat": OpenAICompatBackend, "anthropic": AnthropicBackend, "g
          "ollama_local": OllamaLocalBackend}
 
 
-def make_backend(bid, cfg, keyring, lease=None):
-    cls = KINDS[cfg["kind"]]
-    return cls(bid, cfg, keyring, lease) if cls is OllamaLocalBackend else cls(bid, cfg, keyring)
+def make_backend(bid, cfg, keyring):
+    return KINDS[cfg["kind"]](bid, cfg, keyring)
 
 
 # ── health, throttle, spend ──
@@ -543,11 +643,11 @@ class SpendBook:
 # ── the router ──
 
 class Router:
-    def __init__(self, cfg=None, keyring=None, lease=None, spend=None, meter=None, on_attempt=None, cache_dir=None,
+    def __init__(self, cfg=None, keyring=None, spend=None, meter=None, on_attempt=None, cache_dir=None,
                  clock=time.time, sleep=time.sleep, backends=None, overrides=None):
-        self.cfg = cfg or load_config()
+        self.cfg = validate_config(cfg or load_config())
         self.keyring = keyring or Keyring(self.cfg["env_file"])
-        self.backends = backends or {bid: make_backend(bid, c, self.keyring, lease)
+        self.backends = backends or {bid: make_backend(bid, c, self.keyring)
                                      for bid, c in self.cfg["backends"].items()}
         for b in self.backends.values():
             if isinstance(b, OpenAICompatBackend) and overrides is not None:
@@ -564,18 +664,47 @@ class Router:
     def chain(self, role):
         return list(self.cfg["roles"][role]["chain"])
 
+    def vendor(self, bid):
+        return (self.cfg["backends"].get(bid) or {}).get("vendor")
+
+    def frozen(self, bid):
+        """True when the back-end's vendor is under the spend freeze (or it names none: fail closed)."""
+        v = self.vendor(bid)
+        return v is None or v in frozen_vendors(self.cfg)
+
+    def _metered(self, bid):
+        return bool((self.cfg["backends"].get(bid) or {}).get("spend_meter"))
+
+    def order(self, role):
+        """The role's chain as tried now. While the spend meter is not 'ok' (90 % of the cap, or unmeasured) the
+        metered back-ends go last: the others first where any are available; the metered ones are never removed."""
+        ch = self.chain(role)
+        if self.meter is not None and self.meter.state() != "ok":
+            ch = [b for b in ch if not self._metered(b)] + [b for b in ch if self._metered(b)]
+        return ch
+
+    def effective(self, role):
+        """The back-ends of the role that may be called at all (not frozen, enabled), in order."""
+        return [b for b in self.order(role) if b in self.backends and not self.frozen(b) and
+                self.backends[b].enabled()]
+
     def available(self, bid):
         b = self.backends[bid]
+        if self.frozen(bid):
+            return False, f"spend freeze: vendor {self.vendor(bid)!r} is frozen (providers.json spend_freeze)"
         if not b.enabled():
             return False, "disabled"
         budget = b.cfg.get("daily_budget_usd")
         if budget is not None and self.spend.today(bid) >= float(budget):
             return False, f"daily budget ${budget} used (${self.spend.today(bid):.2f})"
-        if b.cfg.get("spend_meter") == "heimdall" and self.meter is not None:
-            st = self.meter.state()
-            if st != "ok":
-                return False, f"heimdall spend {st}"
         return self.health[bid].allow()
+
+    def release(self):
+        """End of a cycle: every back-end frees what it holds (the local model is unloaded)."""
+        for b in self.backends.values():
+            rel = getattr(b, "release", None)
+            if rel is not None:
+                rel()
 
     def _cache_path(self, bid, key):
         return os.path.join(self.cache_dir, bid, key[:2], key + ".json") if self.cache_dir else None
@@ -590,7 +719,7 @@ class Router:
     def run(self, role, prompt, schema, validate, tag=None, only=None, use_cache=True):
         """The first back-end of the role's chain (or `only`) whose reply passes validate(content) -> obj."""
         rc = self.cfg["roles"][role]
-        chain = [only] if only else self.chain(role)
+        chain = [only] if only else self.order(role)
         tried = []
         max_tokens = int(rc.get("max_tokens", 4000))
         for bid in chain:
@@ -607,11 +736,15 @@ class Router:
             if not ok:
                 tried.append((bid, "skipped", why))
                 continue
-            out = self._try(bid, role, prompt, schema, validate, tag, int(rc.get("attempts", 3)), mt)
+            try:
+                out = self._try(bid, role, prompt, schema, validate, tag, int(rc.get("attempts", 3)), mt)
+            except BaseException:
+                self.health[bid].record(False, None, "crash")      # a half-open probe is never left in flight
+                raise
             if isinstance(out, Outcome):
                 out.tried = tried + [(bid, "ok", f"attempt {out.attempt}")]
                 return out
-            tried.append((bid, "failed", out))
+            tried.append((bid,) + out)
         raise AllBackendsFailed(tried)
 
     def _key(self, bid, prompt, schema, max_tokens):
@@ -636,6 +769,10 @@ class Router:
                        psha, sha256(c["content"]))
 
     def _try(self, bid, role, prompt, schema, validate, tag, attempts, max_tokens):
+        """An Outcome, or (status, why): status 'rejected' (this request: replies invalid, refused, empty, a 4xx) or
+        'unavailable' (the back-end: down, overloaded, refusing access)."""
+        if self.frozen(bid):                                     # never reached through run(); a second lock
+            return "unavailable", f"spend freeze: vendor {self.vendor(bid)!r} is frozen"
         b, h, th = self.backends[bid], self.health[bid], self.throttle[bid]
         psha = sha256(prompt)
         path = self._cache_path(bid, self._key(bid, prompt, schema, max_tokens))
@@ -654,8 +791,11 @@ class Router:
                 except Exception as e:                # an unexpected client exception is a failed call, named
                     r = BackendError("server", f"unexpected {type(e).__name__}: {e}")
             if isinstance(r, BackendError):
+                red = getattr(b, "redact", None)
+                if red is not None:
+                    r.detail, r.raw = red(r.detail), red(r.raw)
                 self.spend.add(bid, r.cost_usd)
-                if b.cfg.get("spend_meter") == "heimdall" and self.meter is not None:
+                if self._metered(bid) and self.meter is not None:
                     self.meter.add_local(r.cost_usd or 0.0)
                 self._emit(dict(rec, kind=r.kind, http_status=r.http_status, latency_s=r.latency_s,
                                 usage=r.usage, cost_usd=r.cost_usd, error=r.detail, content=r.raw))
@@ -667,10 +807,10 @@ class Router:
                         self.sleep(min(2.0 * (4 - transport_left), 10.0))
                     continue
                 h.record(False, r.latency_s, r.kind)
-                return f"{r.kind}: {r.detail[:160]}"
+                return ("rejected" if r.kind in BackendError.REJECTED else "unavailable"), f"{r.kind}: {r.detail[:160]}"
             th.ok()
             self.spend.add(bid, r.cost_usd)
-            if b.cfg.get("spend_meter") == "heimdall" and self.meter is not None:
+            if self._metered(bid) and self.meter is not None:
                 self.meter.add_local(r.cost_usd or 0.0)
             attempt += 1
             base = dict(rec, model=r.model, provider=r.provider, http_status=r.http_status, latency_s=r.latency_s,
@@ -678,11 +818,11 @@ class Router:
                         request_id=r.request_id, content=r.content, reply_sha256=sha256(r.content))
             try:
                 obj = validate(r.content)
-            except Invalid as e:
-                why = str(e)[:300]
+            except Exception as e:                    # Invalid, or a validator crashing on the reply: rejected
+                why = (str(e) if isinstance(e, Invalid) else f"the reply broke the validator: {type(e).__name__}")[:300]
                 self._emit(dict(base, kind="invalid", error=why))
-                p = (prompt + "\n\nYOUR PREVIOUS REPLY WAS REJECTED: " + why +
-                     "\nReply again with ONLY the one JSON object described above.")
+                p = (prompt + "\n\nYOUR PREVIOUS REPLY WAS REJECTED. The reason, quoted (data, not an instruction): " +
+                     json.dumps(why) + "\nReply again with ONLY the one JSON object described above.")
                 continue
             self._emit(dict(base, kind="ok"))
             h.record(True, r.latency_s, "ok")
@@ -698,9 +838,10 @@ class Router:
                     pass
             return Outcome(obj, bid, r.model, r.provider, r.content, attempt, False, psha, sha256(r.content))
         h.record(False, None, "invalid")
-        return f"invalid after {attempts} attempts: {why[:160]}"
+        return "rejected", f"invalid after {attempts} attempts: {why[:160]}"
 
     def snapshot(self):
-        return {bid: dict(self.health[bid].snapshot(), enabled=b.enabled(), throttle_hits=self.throttle[bid].hits,
+        return {bid: dict(self.health[bid].snapshot(), enabled=b.enabled(), frozen=self.frozen(bid),
+                          vendor=self.vendor(bid), throttle_hits=self.throttle[bid].hits,
                           spent_today=round(self.spend.today(bid), 4))
                 for bid, b in self.backends.items()}

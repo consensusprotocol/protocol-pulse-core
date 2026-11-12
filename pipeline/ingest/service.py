@@ -6,9 +6,17 @@ Loops (threads, one process):
   mine    every 5 s: mine transcribed videos (3 videos at once; their windows share one executor whose real
           concurrency is bounded per back-end and globally by providers.Router), append moments, mark mined
   health  every 60 s: Heimdall spend meter (every 10 min), live numbers (ingest/live.json), the daily coverage check
-Nothing is dropped: a video whose windows failed on every back-end waits (mine_waiting) and is retried; validated
-replies are cached, so a retry or a restart re-asks only what failed. Stop with SIGINT / SIGTERM.
+Nothing is dropped (integrator B2; orchestrator 05:30 "if both are down, queue the videos and mine later"):
+  - a pass whose failed windows found every back-end down, refusing or skipped (frozen, disabled, budget, circuit
+    open) is an OUTAGE: the video waits (mine_waiting) and is retried every MINE_RETRY_S without using a try, for as
+    long as the outage lasts;
+  - a pass whose back-ends answered and were REJECTED for some window (invalid, refused, empty) uses a try; after
+    MINE_CONTENT_PASSES the good windows' moments go to the ledger and the video is mined_partial, retried every
+    MINE_PARTIAL_RETRY_S until MINE_HORIZON_S after publish, and never counted as mined (coverage, stats).
+Validated replies are cached, so a retry or a restart re-asks only what failed. One service per store (an flock on
+<store>/ingest/service.lock): a second `run` or `once` on the same store is refused. Stop with SIGINT / SIGTERM.
 """
+import fcntl
 import json
 import os
 import random
@@ -23,17 +31,24 @@ from . import config, coverage, fetch, ledger, mine, providers, spend, stats, wa
 from . import queue as Q
 from .contract import ContractUnavailable
 
-MINE_MAX_TRIES = 8             # a video that keeps failing on every back-end becomes mined_partial after this
-MINE_RETRY_S = 600
+MINE_RETRY_S = 600             # a pass with failed windows (an outage, or a rejected pass under the limit) waits this
+MINE_CONTENT_PASSES = 3        # passes with REJECTED windows before the good windows' moments go to the ledger
+MINE_PARTIAL_RETRY_S = 6 * 3600
+MINE_HORIZON_S = 72 * 3600     # a partial video is retried until 72 h after publish (the watcher's backfill horizon)
 COVERAGE_HOUR_UTC = 11         # 06:00 ET
 
 
+class ServiceBusy(RuntimeError):
+    """Another pp-ingest service holds this store."""
+
+
 class Service:
-    def __init__(self, providers_path=None, lease=None, log=None, clock=time.time, backends=None, gate=None,
+    def __init__(self, providers_path=None, log=None, clock=time.time, backends=None, gate=None,
                  keyring=None, sleep=time.sleep):
         self.p = config.paths()                         # the store transcript_store is bound to (config.ts)
         for k in ("ingest", "moments", "replies", "replies_log", "coverage", "work", "transcripts"):
             os.makedirs(self.p[k], exist_ok=True)
+        self._hold_store()                              # one service per store, before anything is recovered
         config.ts()                                     # binds transcript_store to this store, or StoreGuard
         self.clock = clock
         self.log = log or self._log
@@ -41,17 +56,18 @@ class Service:
         os.makedirs(os.path.dirname(self._log_path), exist_ok=True)
         self.q = Q.Queue(self.p["queue"], clock=clock)
         self.gate = gate or watch.YouTubeGate(clock=clock)
+        self.providers_path = providers_path
         self.cfg = providers.load_config(providers_path)
         self.spendbook = providers.SpendBook(loader=self.q.spend_by_day, clock=clock)
         self._rlog_lock = threading.Lock()
         self.overrides = providers.Overrides(os.path.join(self.p["ingest"], "overrides.json"),
                                              on_change=self._override_change)
-        self.router = providers.Router(self.cfg, keyring=keyring, lease=lease, spend=self.spendbook,
+        self.router = providers.Router(self.cfg, keyring=keyring, spend=self.spendbook,
                                        on_attempt=self._on_attempt, cache_dir=self.p["replies"], clock=clock,
                                        sleep=sleep, backends=backends, overrides=self.overrides)
-        mc = self.cfg["heimdall_meter"]
-        self.meter = spend.HeimdallMeter(mc, self.router.backends[mc["backend"]], clock=clock,
-                                         on_change=self._meter_change)
+        mc = self.cfg["spend_meter"]
+        self.meter = spend.CreditMeter(mc, self.router.backends[mc["backend"]], clock=clock,
+                                       on_change=self._meter_change)
         self.router.meter = self.meter
         self.executor = ThreadPoolExecutor(max_workers=int(self.cfg["global"]["max_inflight"]),
                                            thread_name_prefix="win")
@@ -65,6 +81,31 @@ class Service:
         if ledger.seal(self.p["ledger"]):
             self.q.event("ledger_sealed", None, None, path=self.p["ledger"])
         self.q.recover()
+
+    def _hold_store(self):
+        path = os.path.join(self.p["ingest"], "service.lock")
+        f = open(path, "a+")
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            f.seek(0)
+            who = f.read()[:200].strip()
+            f.close()
+            raise ServiceBusy(f"another pp-ingest service holds {path} ({who or 'no record'}): one service per store")
+        f.seek(0)
+        f.truncate()
+        f.write(json.dumps({"pid": os.getpid(), "since": config.iso()}))
+        f.flush()
+        self._store_lock = f
+
+    def close(self):
+        """Release the executors and the store (tests, `once`)."""
+        self.videos.shutdown(wait=True)
+        self.executor.shutdown(wait=True)
+        self.router.release()
+        f, self._store_lock = getattr(self, "_store_lock", None), None
+        if f is not None:
+            f.close()
 
     # ── recording ──
 
@@ -86,16 +127,19 @@ class Service:
                 f.write(line + "\n")
 
     def _override_change(self, old, new):
-        self.q.event("overrides", None, None, old=old, new=new)
-        self.log(f"runtime overrides changed: {old} -> {new}")
+        refused = [bid for bid, o in (new or {}).items() if isinstance(o, dict) and o.get("base_url") and
+                   not providers.override_allowed(o["base_url"], (self.cfg["backends"].get(bid) or {}).get("base_url"))]
+        self.q.event("overrides", None, None, old=old, new=new, refused=refused)
+        self.log(f"runtime overrides changed: {old} -> {new}" +
+                 (f"; REFUSED (only this machine or the configured host): {refused}" if refused else ""))
 
     def _meter_change(self, state, snap):
         try:
-            spend.write_state_notice(state, snap, notify_path=self.p["notify"])
+            spend.write_state_notice(state, snap, notify_path=self.p["notify"], label=self.meter.label)
         except OSError as e:
             self.log(f"STATE notice not written: {e}")
-        self.q.event("heimdall_meter", None, None, state=state, **snap)
-        self.log(f"heimdall meter: {state} {snap}")
+        self.q.event("spend_meter", None, None, state=state, **snap)
+        self.log(f"spend meter ({self.meter.label}): {state} {snap}")
 
     # ── watch ──
 
@@ -170,24 +214,8 @@ class Service:
             t0 = self.clock()
             lines, rep = mine.mine_video(self.router, self.executor, rec, meta, chan, reg,
                                          datetime.now(timezone.utc), self.cycle, extra_source=src)
-            tries = int(v.get("mine_tries") or 0) + 1
             cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=?", (vid,))[0]["usd"]
-            common = dict(miners=json.dumps(rep["miners"]), windows=rep["windows"], windows_screened=rep["screened"],
-                          windows_failed=len(rep["failed"]), mine_cost_usd=cost, mine_tries=tries)
-            if rep["failed"] and tries < MINE_MAX_TRIES:
-                self.q.set_state(vid, Q.MINE_WAIT, next_at=self.clock() + MINE_RETRY_S,
-                                 reason=f"{len(rep['failed'])} window(s) failed on every back-end: "
-                                        f"{json.dumps(rep['failed'][0]['tried'])[:300]}", **common)
-                self.log(f"mine {vid}: {len(rep['failed'])}/{rep['windows']} windows failed on every back-end; retry")
-                return
-            ledger.append(self.p["ledger"], lines)
-            st = Q.MINED_PARTIAL if rep["failed"] else Q.MINED
-            self.q.set_state(vid, st, next_at=self.clock() + 10 ** 9, moments=len(lines), mined_at=config.iso(),
-                             mined_ts=self.clock(), reason=None if not rep["failed"] else
-                             f"{len(rep['failed'])} window(s) failed on every back-end after {tries} passes", **common)
-            self.log(f"mine {vid} ({chan.get('display_name')}): {len(lines)} moments, windows {rep['windows']} "
-                     f"(screened {rep['screened']}, failed {len(rep['failed'])}), miners {rep['miners']}, "
-                     f"${(cost or 0):.4f}, {self.clock() - t0:.0f} s")
+            self._settle(v, chan, lines, rep, cost, t0)
         except ContractUnavailable as e:
             self.q.set_state(vid, Q.MINE_WAIT, next_at=self.clock() + MINE_RETRY_S, reason=f"contract unavailable: {e}")
             self.log(f"mine {vid}: contract unavailable: {e}")
@@ -196,15 +224,64 @@ class Service:
                              reason=f"mining crashed: {type(e).__name__}: {e}"[:300])
             self.q.event("mine_crash", vid, v.get("channel_id"), error=traceback.format_exc()[-2000:])
             self.log(f"mine {vid}: crashed {type(e).__name__}: {e}")
+        except BaseException as e:                        # e.g. a GPU0 stop: never renamed, but the video is not
+            self.q.set_state(vid, Q.MINE_WAIT, next_at=self.clock() + MINE_RETRY_S,      # left claimed
+                             reason=f"mining stopped: {type(e).__name__}: {e}"[:300])
+            self.q.event("mine_stop", vid, v.get("channel_id"), error=traceback.format_exc()[-2000:])
+            self.log(f"mine {vid}: stopped {type(e).__name__}: {e}")
+            raise
         finally:
             with self.ilock:
                 self.inflight.discard(vid)
+
+    def _settle(self, v, chan, lines, rep, cost, t0):
+        """The video's state after one mining pass (see the module docstring)."""
+        vid, now = v["video_id"], self.clock()
+        failed = rep["failed"]
+        rejected = [f for f in failed if not f["outage"]]
+        passes = int(v.get("mine_tries") or 0) + (1 if rejected else 0)
+        was_partial = v.get("state") == Q.MINED_PARTIAL
+        common = dict(miners=json.dumps(rep["miners"]), windows=rep["windows"], windows_screened=rep["screened"],
+                      windows_failed=len(failed), mine_cost_usd=cost, mine_tries=passes)
+        what = (f"{len(lines)} moments, windows {rep['windows']} (screened {rep['screened']}, failed {len(failed)}: "
+                f"{len(rejected)} rejected, {len(failed) - len(rejected)} outage), miners {rep['miners']}, "
+                f"${(cost or 0):.4f}, {now - t0:.0f} s")
+        if not failed:
+            ledger.append(self.p["ledger"], lines)        # a partial video's earlier lines appear again: latest wins
+            self.q.set_state(vid, Q.MINED, next_at=now + 10 ** 9, moments=len(lines), mined_at=config.iso(),
+                             mined_ts=now, reason=None, **common)
+            self.log(f"mine {vid} ({chan.get('display_name')}): {what}")
+            return
+        why = json.dumps(failed[0]["tried"])[:300]
+        if was_partial or (rejected and passes >= MINE_CONTENT_PASSES):
+            if not was_partial or len(failed) < int(v.get("windows_failed") or 10 ** 6):
+                ledger.append(self.p["ledger"], lines)    # first time, or a retry that mined more windows
+            pub = v.get("published_ts") or v.get("discovered_ts") or now
+            nxt = now + MINE_PARTIAL_RETRY_S if now < float(pub) + MINE_HORIZON_S else now + 10 ** 9
+            self.q.set_state(vid, Q.MINED_PARTIAL, next_at=nxt, moments=len(lines), mined_at=config.iso(),
+                             mined_ts=now, reason=f"{len(failed)} window(s) not mined ({len(rejected)} rejected on every "
+                             f"back-end after {passes} passes): retried every {MINE_PARTIAL_RETRY_S // 3600} h until "
+                             f"{MINE_HORIZON_S // 3600} h after publish; {why}", **common)
+            self.log(f"mine {vid} ({chan.get('display_name')}): PARTIAL {what}")
+            return
+        if rejected:
+            reason = (f"{len(rejected)} window(s) rejected on every back-end (pass {passes} of {MINE_CONTENT_PASSES})"
+                      f"{' and ' + str(len(failed) - len(rejected)) + ' in an outage' if len(failed) > len(rejected) else ''}"
+                      f": retry in {MINE_RETRY_S // 60} min; {why}")
+        else:
+            reason = (f"OUTAGE: every back-end down, refusing or skipped for {len(failed)} window(s); waiting, no try "
+                      f"used (retry in {MINE_RETRY_S // 60} min); {why}")
+        self.q.set_state(vid, Q.MINE_WAIT, next_at=now + MINE_RETRY_S, reason=reason[:600], **common)
+        self.log(f"mine {vid} ({chan.get('display_name')}): waiting: {what}")
 
     def mine_once(self, wait=False):
         started = []
         with self.ilock:
             free = 3 - len(self.inflight)
         if free <= 0:
+            return 0
+        if free == 3 and not self.q.due(Q.MINE_DUE, 1):
+            self.router.release()                         # idle: the local model (if any) leaves GPU0 (B3)
             return 0
         for v in self.q.due(Q.MINE_DUE, free):
             if not self.q.claim(v["video_id"], Q.MINE_DUE, Q.MINING):
@@ -221,7 +298,7 @@ class Service:
 
     def health_once(self, force_coverage=False):
         now = self.clock()
-        if now - self.last_measure >= float(self.cfg["heimdall_meter"]["measure_every_s"]):
+        if now - self.last_measure >= float(self.cfg["spend_meter"]["measure_every_s"]):
             self.meter.measure()
             self.last_measure = now
         s = stats.write_live(self.q, self.p["live"], meter=self.meter, router=self.router)
@@ -251,13 +328,16 @@ class Service:
             self.stop.wait(max(1.0, delay))
 
     def describe(self):
-        return {bid: {"model": b.model, "enabled": b.enabled(), "base": getattr(b, "base", None)}
+        return {bid: {"model": b.model, "vendor": self.router.vendor(bid), "enabled": b.enabled(),
+                      "frozen": self.router.frozen(bid), "base": getattr(b, "base", None)}
                 for bid, b in self.router.backends.items() if bid in self.router.chain("mine")}
 
     def run(self):
-        self.log(f"pp-ingest service: store {self.p['root']}, mine chain {self.router.chain('mine')}, "
-                 f"back-ends {self.describe()}")
-        self.q.event("start", None, None, pid=os.getpid(), chain=self.router.chain("mine"), backends=self.describe())
+        fz = sorted(providers.frozen_vendors(self.cfg))
+        self.log(f"pp-ingest service: store {self.p['root']}, mine chain {self.router.chain('mine')} (callable now: "
+                 f"{self.router.effective('mine')}), spend freeze {fz}, back-ends {self.describe()}")
+        self.q.event("start", None, None, pid=os.getpid(), chain=self.router.chain("mine"),
+                     effective=self.router.effective("mine"), spend_freeze=fz, backends=self.describe())
         self.meter.measure()
         self.last_measure = self.clock()
         threads = [threading.Thread(target=self._loop, args=a, daemon=True, name=a[0]) for a in (
@@ -277,7 +357,6 @@ class Service:
             self.stop.wait(1.0)
         for t in threads:
             t.join(timeout=30)
-        self.videos.shutdown(wait=True)
-        self.executor.shutdown(wait=True)
         self.q.event("stop", None, None, pid=os.getpid())
+        self.close()
         self.log("stopped")

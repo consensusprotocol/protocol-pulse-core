@@ -36,11 +36,15 @@ def _load_file(name, path):
         raise ContractUnavailable(f"{name}: {path} not found")
     mod = importlib.util.module_from_spec(spec)
     sys.modules[name] = mod
+    prev = sys.dont_write_bytecode
+    sys.dont_write_bytecode = True               # the other worktree is read, never written: no __pycache__ there
     try:
         spec.loader.exec_module(mod)
     except Exception:
         sys.modules.pop(name, None)
         raise
+    finally:
+        sys.dont_write_bytecode = prev
     return mod
 
 

@@ -23,15 +23,23 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
     fresh = [d for d in disc if d["state"] != Q.SEEN_OLD]
     new = [d for d in fresh if not d["first_sight"]]          # uploads discovered after the channel's first listing
     span_h = max(1e-9, min(hours, (now_ts - min([d["discovered_ts"] for d in disc] or [now_ts])) / 3600))
-    mined = q.rows("SELECT video_id, channel_id, published_ts, discovered_ts, transcribed_ts, mined_ts, moments, "
-                   "miners, windows, windows_screened, windows_failed, mine_cost_usd, state, first_sight FROM videos "
-                   "WHERE state IN (?,?) AND mined_ts >= ?", (Q.MINED, Q.MINED_PARTIAL, t0))
+    rows = q.rows("SELECT video_id, channel_id, published_ts, discovered_ts, transcribed_ts, mined_ts, moments, "
+                  "miners, windows, windows_screened, windows_failed, mine_cost_usd, state, first_sight FROM videos "
+                  "WHERE state IN (?,?) AND mined_ts >= ?", (Q.MINED, Q.MINED_PARTIAL, t0))
+    mined = [m for m in rows if m["state"] == Q.MINED]         # a partial video is never counted as mined (B2)
+    partial = [m for m in rows if m["state"] == Q.MINED_PARTIAL]
     live_m = [m for m in mined if not m["first_sight"]]       # latency is measured on live discoveries only
     pub_to_mined = [(m["mined_ts"] - m["published_ts"]) / 60 for m in live_m if m["published_ts"] and m["mined_ts"]]
     disc_to_mined = [(m["mined_ts"] - m["discovered_ts"]) / 60 for m in live_m if m["mined_ts"]]
     pub_to_disc = [(m["discovered_ts"] - m["published_ts"]) / 60 for m in live_m if m["published_ts"]]
-    moments = [m["moments"] or 0 for m in mined]
+    moments = [m["moments"] or 0 for m in rows]                # partial videos' moments are in the ledger too
     calls = q.rows("SELECT backend, kind, latency_s, cost_usd FROM calls WHERE ts >= ?", (t0,))
+    if router is not None:
+        cfg = router.cfg
+    else:
+        from . import providers
+        cfg = providers.load_config()
+    vendor_of = {bid: c.get("vendor") for bid, c in cfg["backends"].items()}
     by = {}
     for c in calls:
         b = by.setdefault(c["backend"], {"calls": 0, "ok": 0, "cache": 0, "errors": {}, "usd": 0.0, "lat": []})
@@ -59,7 +67,7 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
         "videos_seen": len(fresh), "videos_seen_per_hour": round(len(fresh) / span_h, 2),
         "new_uploads_seen": len(new), "new_uploads_per_hour": round(len(new) / span_h, 2),
         "backfill_seen": len(fresh) - len(new), "videos_mined_live": len(live_m),
-        "videos_mined": len(mined), "moments": sum(moments),
+        "videos_mined": len(mined), "videos_partial": len(partial), "moments": sum(moments),
         "moments_per_video": None if not moments else round(sum(moments) / len(moments), 2),
         "publish_to_mined_min": {"p50": None if not pub_to_mined else round(statistics.median(pub_to_mined), 1),
                                  "p90": None if not pub_to_mined else round(_pct(pub_to_mined, 90), 1),
@@ -70,21 +78,31 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
                                     "p90": None if not disc_to_mined else round(_pct(disc_to_mined, 90), 1)},
         "backends": backends,
         "usd_24h_total": round(sum(b["usd_24h"] for b in backends.values()), 4),
+        "usd_24h_by_vendor": _by_vendor({k: b["usd_24h"] for k, b in backends.items()}, vendor_of),
+        "usd_all_time_by_vendor": _by_vendor({r["backend"]: r["usd"] or 0.0 for r in q.rows(
+            "SELECT backend, SUM(COALESCE(cost_usd,0)) AS usd FROM calls GROUP BY backend")}, vendor_of),
+        "spend_freeze": sorted((cfg.get("spend_freeze") or {}).get("vendors") or []),
+        "mine_waiting_outage": sum(1 for r in q.rows("SELECT reason FROM videos WHERE state=?", (Q.MINE_WAIT,))
+                                   if (r["reason"] or "").startswith("OUTAGE")),
         "queue_states": states,
-        "heimdall_meter": meter.snapshot() if meter else None,
-        "heimdall_meter_state": meter.state() if meter else None,
+        "spend_meter": meter.snapshot() if meter else None,
+        "spend_meter_state": meter.state() if meter else None,
         "router": router.snapshot() if router else None,
     }
-    if router is not None:
-        cfg = router.cfg
-    else:
-        from . import providers
-        cfg = providers.load_config()
     metered = {bid for bid, c in cfg["backends"].items() if c.get("spend_meter")}
     hb = [b for k, b in backends.items() if k in metered]
     calls_h = sum(b["calls"] for b in hb)
-    out["heimdall_error_rate"] = None if not calls_h else round(1 - sum(b["ok"] for b in hb) / calls_h, 4)
-    out["heimdall_backends"] = sorted(metered)
+    out["metered_label"] = (cfg.get("spend_meter") or {}).get("label")
+    out["metered_error_rate"] = None if not calls_h else round(1 - sum(b["ok"] for b in hb) / calls_h, 4)
+    out["metered_backends"] = sorted(metered)
+    return out
+
+
+def _by_vendor(usd_by_backend, vendor_of):
+    out = {}
+    for bid, usd in usd_by_backend.items():
+        v = vendor_of.get(bid) or f"unknown ({bid})"
+        out[v] = round(out.get(v, 0.0) + (usd or 0.0), 4)
     return out
 
 

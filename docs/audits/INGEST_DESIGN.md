@@ -122,11 +122,20 @@ its TAXONOMY.
 
 ## 6. Provider interface (law L-x: NO SINGLE MODEL, ULTRON FIRST)
 
-Every model role (here: `mine`, `judge`) goes through `pipeline.ingest.providers.Role`; vendors and model names live
-ONLY in `pipeline/ingest/providers.json`. Back-ends: `openai_compat` (Heimdall, xAI, OpenAI), `anthropic` (SDK),
-`gemini` (google-genai), `ollama_local` (gemma3:27b on Ultron through `story_semantics.LocalLLM`'s GPU0 guard; refuses
-unless the GPU0 lease is held: the integrator enables it). Each role has an ordered chain of at least two enabled
-back-ends; the run continues while any one back-end works.
+Every model role (here: `mine`, `judge`) goes through `pipeline.ingest.providers.Router`; vendors and model names live
+ONLY in `pipeline/ingest/providers.json` (a test reads every identifier and string of the package for them). Back-end
+kinds (wire protocols): `openai_compat` (Heimdall, xAI, OpenAI), `anthropic` (SDK), `gemini` (google-genai),
+`ollama_local` (gemma3:27b on Ultron through `story_semantics.LocalLLM`: available only while this process holds the
+GPU0 lease, `gpu0.held()`, a check; LocalLLM itself takes `gpu0.require` + `swap_to` on every request, main 4867a74a;
+`Router.release()` unloads it when a cycle ends). Every back-end names its vendor. Each role names at least two
+back-ends.
+
+SPEND FREEZE (orchestrator 05:30 ET Nov 12, until told otherwise): `providers.json` `spend_freeze.vendors` = OpenAI,
+Anthropic, xAI, Google. A frozen vendor's back-end is never called by any role, whatever its chain, `only` or `enabled`
+say (`Router.available` and `Router._try` both refuse); its stored validated replies cost nothing and may be re-read.
+The `mine` chain is Heimdall qwen3.8-27b then the local model, so in this session (no GPU0 lease) Heimdall is the only
+callable miner: when it is down, videos WAIT (below) and are mined when it returns; nothing falls through to a paid
+frontier model. Lift: remove the vendor from `spend_freeze` (and restore the chain), restart.
 
 Per back-end: bounded in-flight (Heimdall 12, never above the global 20), queue-aware backoff on HTTP 429 and on
 503 `provider_overloaded` (Retry-After honoured, else 2 s doubling to 60 s with jitter, shared by every thread of that
@@ -134,22 +143,40 @@ back-end), a circuit breaker (open after 5 consecutive failures, or >= 50 % fail
 10 min, or median latency > 150 s over the last 10; half-open probe after 5 min), and a spend book. A 503
 `routing_error` (a request the endpoint cannot serve) is not retried on that back-end.
 
-Default order today (`mine`): local gemma3:27b (disabled until the integrator runs the A/B under the GPU0 lease and it
-meets the bar) -> Heimdall qwen3.8-27b -> Anthropic -> xAI. The order is data: the A/B (section 8) decides it and is
-re-run so the role migrates to local as local improves.
+Order before the freeze (`mine`): local gemma3:27b (disabled until the integrator runs the A/B under the GPU0 lease
+and it meets the bar) -> Heimdall qwen3.8-27b -> Anthropic -> xAI. Under the freeze: Heimdall -> local. The order is
+data: the A/B (section 8) decides it and is re-run so the role migrates to local as local improves.
 
-Heimdall spend: measured from `GET /credits` (total_usage minus the sweep baseline 0.2036796658, the probe's own
-measure, PHASE3_FLEET_LOAD.md) every 10 min, plus this service's own `usage.cost` since the last measurement. At 90 % of
-the $460 cap (orchestrator 02:45: a NOTIFY, not a halt) the service writes "HEIMDALL SPEND AT 90%" at the top of the
-STATE file and routes mining to the other back-ends. Spend unmeasured for over 60 min is treated the same way (law L-m).
-Frontier back-ends have a daily dollar budget in the config; when it is used up the back-end refuses and the next one
-is tried; when every back-end refuses, videos wait in the queue (nothing is dropped).
+Gateway spend (`spend_meter` in the config: the Heimdall back-end, label HEIMDALL): measured from `GET /credits`
+(total_usage minus the sweep baseline 0.2036796658, the probe's own measure, PHASE3_FLEET_LOAD.md) every 10 min, plus
+this service's own `usage.cost` since the last measurement. The account is shared with the fleet: the meter reads the
+fleet's spend, not only this service's. At 90 % of the $460 cap, or when the spend is unmeasured for over 60 min (law
+L-m), it NOTIFIES and never halts (orchestrator 02:45 + 05:30; integrator B1): "HEIMDALL SPEND AT 90%" (or
+"... UNMEASURED") goes on the first line of the STATE file (rewritten only when that line changes) and the metered
+back-ends move to the END of every chain, so other callable back-ends go first; when there is none, Heimdall keeps
+mining. Frontier back-ends have a daily dollar budget in the config; a used-up budget skips that back-end. Recorded
+cost: the vendor's own figure where it reports one (`usage.cost`; `usage.cost_in_usd_ticks` / 1e10), else tokens x
+the price table (estimates marked in the config). Error text is redacted of every key value before it is recorded; a
+redirect is refused (the bearer key never follows one); a runtime base-URL override is honoured only for this machine
+or the configured host.
 
 ## 7. Durability and "nothing lost"
 
-The queue is SQLite (WAL). A video's moments are appended in one write (fsync) after all its windows are mined, then
-the state moves to `mined` (a crash between the two re-appends identical lines on restart: readers keep the latest
-line per moment_id, by the contract). The adapter bisects the ledger on `mined.at` and reads only the tail that can
+One mining pass per video; each failed window carries whether its chain was in an OUTAGE (every back-end skipped,
+down or refusing access: nothing answered and was rejected) or REJECTED it (a back-end answered: invalid, refused,
+empty, a 4xx). Integrator B2:
+- outage only: the video waits (`mine_waiting`, reason `OUTAGE ...`), retried every 10 min, no try used, for as long
+  as the outage lasts (the breaker skips the dead back-end at no cost; its half-open probe every 5 min finds it back);
+- rejected windows: a try is used; after 3 such passes the good windows' moments go to the ledger and the video is
+  `mined_partial`: retried every 6 h until 72 h after publish (its later lines appended only when a retry mines more
+  windows), never counted as mined (coverage, stats);
+- every window mined: `mined`.
+The queue is SQLite (WAL). A video's moments are appended in one write (fsync) when its pass ends, then its state moves
+(a crash between the two re-appends identical lines on restart: readers keep the latest line per moment_id, by the
+contract). Every line is checked before the write (one bad line and nothing is written); a torn tail left by a failed
+write is closed with a newline under the append lock. A range seen from two overlapping windows is one line whose
+flags are the union of both observations (fail closed, L-u). One service per store: `run` / `once` hold an flock on
+`<store>/ingest/service.lock`; a second one is refused before it recovers anything. The adapter bisects the ledger on `mined.at` and reads only the tail that can
 hold a returnable line (min(since, now - 72 h) - 1 day): 16-25 s per 100k lines before, the recent tail after. A
 runtime file `<store>/ingest/overrides.json` (`{"<back-end id>": {"base_url": ...}}`) moves an OpenAI-compatible
 back-end without a restart; the service logs every change (outage drills; endpoint moves). A back-end's URL is read

@@ -75,3 +75,53 @@ reads and present at 08:54 (discovered 24 min after publish).
 window", never as a watcher miss and never as covered; "time from publish to mined" includes this delay.
 **Detection:** tests/ingest/test_ledger_coverage.py TestCoverage (a 10-minute-old unlisted upload is reported inside
 the discovery window).
+
+### INGEST-FAIL-08: A spend tripwire wired as an availability check halts the leg it was meant to watch
+**Evidence (integrator merge audit B1, 05:02 ET Nov 12; reproduced on 753dec1d):** `Router.available` returned "not
+available" while the meter was not 'ok', so at 90 % of the cap, and whenever the spend was merely unmeasured (a failed
+or stale /credits read), the metered gateway was skipped. With it alone in the chain (the spend freeze leaves exactly
+that) the chain halted with 0 calls; the 90 % state never clears, so it would have stayed halted.
+**Rule:** a NOTIFY is a notice plus a preference, never a removal: the metered back-ends move to the end of the chain
+(others first where any are callable) and keep mining. "Nothing measured is never a pass" means the notice is written,
+not that the work stops.
+**Detection:** tests/ingest/test_providers.py `test_the_tripwire_notifies_and_moves_the_metered_back_end_last_never_out`,
+`test_an_unmeasured_spend_is_never_read_as_below_the_tripwire_and_never_halts`; the old-code reproduction:
+docs/audits/parallel/pp-ingest_audit/integrator_c1/mustfail_old_753dec1d.json.
+
+### INGEST-FAIL-09: A retry limit that counts outages turns a long outage into permanent, silent loss
+**Evidence (integrator B2; reproduced on 753dec1d):** 8 passes x 10 min: a pure outage of 80 minutes (every back-end
+refusing, no reply at all) moved a video to `mined_partial` with `next_at` 32 years ahead and 0 ledger lines, and the
+coverage check counted it as mined (1/1).
+**Rule:** tell an OUTAGE (nothing answered: skipped, down, overloaded, refusing access) from a REJECTION (a back-end
+answered and the reply was refused). An outage waits as long as it lasts and uses no try; only rejections count, and
+even then the video stays retryable and is never counted as covered.
+**Detection:** tests/ingest/test_service.py
+`test_every_back_end_down_for_any_number_of_passes_waits_without_a_try_then_completes` (13 passes),
+`test_rejected_windows_become_partial_retryable_and_never_counted_as_mined`,
+`test_coverage_never_counts_a_partial_or_waiting_video_as_mined`; the live-component drill under the spend freeze:
+docs/audits/parallel/pp-ingest_audit/drill_freeze_20261112.json.
+
+### INGEST-FAIL-10: A rate-limit marker that is a prefix of a per-video refusal stalls every channel
+**Evidence (integrator B4; reproduced on 753dec1d):** the bot-check marker "Sign in to confirm you" is a prefix of the
+age gate's "Sign in to confirm your age". One age-gated video tripped the global yt-dlp breaker (600 s), was requeued
+as a rate limit forever, and since nothing called `calm()` each later trip escalated to the 60-minute pause.
+**Rule:** match the specific per-video refusal (age gate) first and make it terminal for that video; match the
+generic marker on its distinctive words ("not a bot"); every answer that is not a rate limit calms the breaker.
+**Detection:** tests/ingest/test_watch_fetch.py TestYouTubeGateAgeGate.
+
+### INGEST-FAIL-11: A price-table estimate overstated a vendor's cost 7x while the vendor reported the real one
+**Evidence (06:10 ET Nov 12):** the A/B judge (35 xAI calls) was recorded at $3.22 from the config's upper-bound
+estimate ($5 / $25 per MTok, hidden reasoning counted as output); every reply carried `usage.cost_in_usd_ticks`
+(1 USD = 1e10 ticks, xAI's cost-tracking reference) totalling $0.45.
+**Rule:** record the vendor's own per-call cost when it reports one (`usage.cost`, `usage.cost_in_usd_ticks`); the
+price table is only the fallback for vendors that report none, and its basis is recorded with every figure.
+**Detection:** tests/ingest/test_providers.py `test_a_vendor_reported_cost_in_ticks_is_the_recorded_cost`.
+
+### INGEST-FAIL-12: Merging two observations of one moment kept the first and dropped the second's risk flags
+**Evidence (integrator, non-blocking; reproduced on 753dec1d):** a range seen from two overlapping windows kept the
+first window's flags; the second window's `ad_read`, `names_person` and `altcoin` were discarded, so a hard-excluded
+moment (law L-u) could be served.
+**Rule:** observations of the same moment merge fail closed: the union of the risk flags, names_person and altcoin,
+the conjunction of about_bitcoin.
+**Detection:** tests/ingest/test_mine.py `test_a_range_seen_twice_keeps_every_observations_flags`.
+

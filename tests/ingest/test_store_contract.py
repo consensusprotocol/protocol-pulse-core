@@ -60,32 +60,44 @@ class TestContract:
 
 
 class TestStateNotice:
+    LABEL = __import__("pipeline.ingest.providers", fromlist=["load_config"]).load_config()["spend_meter"]["label"]
+
     def doc(self, tmp_path, body="# STATE\n\n## LIVE STATE\n- x\n"):
         p = tmp_path / "STATE.md"
         p.write_text(body)
         return str(p)
 
+    def test_the_real_label_writes_the_orchestrators_exact_words(self, tmp_path):
+        """Orchestrator 02:45: write "HEIMDALL SPEND AT 90%" at the top of STATE (the label lives in providers.json)."""
+        d = self.doc(tmp_path)
+        line = spend.write_state_notice("tripped", {"spend_usd": 415.0, "cap_usd": 460.0}, doc=d, label=self.LABEL)
+        assert line.startswith("HEIMDALL SPEND AT 90% ") and "nothing halted" in line
+        assert open(d).read().split("\n")[0] == line
+
     def test_the_90_percent_notice_goes_on_top_once(self, tmp_path):
         d = self.doc(tmp_path)
         snap = {"spend_usd": 415.0, "cap_usd": 460.0, "measured_at": "2026-11-12T08:00:00Z"}
-        spend.write_state_notice("tripped", snap, doc=d)
-        spend.write_state_notice("tripped", dict(snap, spend_usd=420.0), doc=d)
+        spend.write_state_notice("tripped", snap, doc=d, label=self.LABEL)
+        spend.write_state_notice("tripped", dict(snap, spend_usd=420.0), doc=d, label=self.LABEL)
         lines = open(d).read().split("\n")
         assert lines[0].startswith("HEIMDALL SPEND AT 90%") and "$420.0" in lines[0]
         assert sum(1 for l in lines if l.startswith("HEIMDALL SPEND")) == 1 and lines[1] == "# STATE"
 
     def test_unmeasured_is_noted_and_cleared_and_the_90_notice_stays(self, tmp_path):
         d = self.doc(tmp_path)
-        spend.write_state_notice("tripped", {"spend_usd": 415.0, "cap_usd": 460.0}, doc=d)
-        spend.write_state_notice("unmeasured", {"measured_at": None, "last_error": "x"}, doc=d)
+        spend.write_state_notice("tripped", {"spend_usd": 415.0, "cap_usd": 460.0}, doc=d, label=self.LABEL)
+        spend.write_state_notice("unmeasured", {"measured_at": None, "last_error": "x"}, doc=d, label=self.LABEL)
         lines = open(d).read().split("\n")
         assert lines[0].startswith("HEIMDALL SPEND UNMEASURED") and lines[1].startswith("HEIMDALL SPEND AT 90%")
-        spend.write_state_notice("ok", {}, doc=d)
+        spend.write_state_notice("ok", {}, doc=d, label=self.LABEL)
         lines = open(d).read().split("\n")
         assert lines[0].startswith("HEIMDALL SPEND AT 90%") and lines[1] == "# STATE"
 
-    def test_ok_leaves_a_clean_state_untouched(self, tmp_path):
+    def test_ok_leaves_a_clean_state_untouched_not_even_rewritten(self, tmp_path):
+        """Integrator (non-blocking): every start rewrote the tracked STATE file, even in the 'ok' state."""
+        import os
         d = self.doc(tmp_path)
         before = open(d).read()
-        spend.write_state_notice("ok", {}, doc=d)
-        assert open(d).read() == before
+        os.utime(d, (1, 1))
+        spend.write_state_notice("ok", {}, doc=d, label=self.LABEL)
+        assert open(d).read() == before and os.path.getmtime(d) == 1

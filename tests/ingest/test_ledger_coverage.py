@@ -54,17 +54,57 @@ class TestLedger:
 
     def test_a_line_whose_id_does_not_match_is_bad(self, tmp_path, rec):
         p = str(tmp_path / "m.jsonl")
-        ledger.append(p, [line(rec, 0, 1, moment_id="0" * 20), line(rec, 0, 1, scores={"quotable": 9})])
+        with open(p, "w") as f:                       # written by something else than append (it refuses them)
+            for l in (line(rec, 0, 1, moment_id="0" * 20), line(rec, 0, 1, scores={"quotable": 9})):
+                f.write(json.dumps(l) + "\n")
         lines, bad = ledger.read(p)
         assert lines == [] and len(bad) == 2
+
+    def test_append_refuses_a_bad_line_and_writes_nothing(self, tmp_path, rec):
+        """Integrator (non-blocking): a None title or channel id was written, then rejected by every reader."""
+        p = str(tmp_path / "m.jsonl")
+        with pytest.raises(ValueError, match="title missing"):
+            ledger.append(p, [line(rec, 0, 1), line(rec, 2, 3, title=None)])
+        assert not os.path.exists(p) or os.path.getsize(p) == 0
+
+    def test_append_closes_a_torn_tail_left_by_a_failed_write_in_a_live_process(self, tmp_path, rec):
+        """Integrator (non-blocking): seal() ran only at start, so after ENOSPC / EIO mid-run the next append's first
+        line was glued to the torn tail and lost."""
+        p = str(tmp_path / "m.jsonl")
+        ledger.append(p, [line(rec, 0, 1)])
+        with open(p, "a") as f:
+            f.write('{"schema": "pp.moment/1", "moment_id": "torn')
+        ledger.append(p, [line(rec, 2, 3), line(rec, 4, 5)])           # no seal() in between
+        lines, bad = ledger.read(p)
+        assert [l["sentences"] for l in lines] == [[0, 1], [2, 3], [4, 5]] and len(bad) == 1
 
 
 class TestAdapter:
     def read(self, tmp_path, lines, **kw):
         p = str(tmp_path / "m.jsonl")
         ledger.append(p, lines)
+        kw.setdefault("optout", ())
         return ledger.best_unused_moments(p, NOW - timedelta(hours=2), NOW, registry=[H.CHAN],
                                           store_root=os.environ["PP_INGEST_STORE"], **kw)
+
+    def test_the_exclusions_are_never_skipped_by_default(self, tmp_path, rec, monkeypatch):
+        """Integrator (non-blocking): registry=None / optout=() skipped the registry and opt-out exclusions. Left out,
+        both are now read from their files, and an unreadable opt-out list refuses the read (law L-j)."""
+        from pipeline.ingest import watch
+        p = str(tmp_path / "m.jsonl")
+        ledger.append(p, [line(rec)])
+        root = os.environ["PP_INGEST_STORE"]
+        monkeypatch.setattr(watch, "registry", lambda: ([H.CHAN], [H.CHAN]))
+        monkeypatch.setattr(watch, "optouts", lambda: ({H.CHAN["channel_id"]}, None))
+        out, rep = ledger.best_unused_moments(p, NOW - timedelta(hours=2), NOW, store_root=root)
+        assert out == [] and rep["excluded"] == {"channel opted out": 1}
+        monkeypatch.setattr(watch, "registry", lambda: ([], []))
+        monkeypatch.setattr(watch, "optouts", lambda: (set(), None))
+        out, rep = ledger.best_unused_moments(p, NOW - timedelta(hours=2), NOW, store_root=root)
+        assert out == [] and rep["excluded"] == {"channel not enabled in the registry": 1}
+        monkeypatch.setattr(watch, "optouts", lambda: (set(), "optout.json: malformed"))
+        with pytest.raises(ValueError, match="refused"):
+            ledger.best_unused_moments(p, NOW - timedelta(hours=2), NOW, registry=[H.CHAN])
 
     def test_must_pass_a_clean_moment(self, tmp_path, rec):
         out, rep = self.read(tmp_path, [line(rec)])

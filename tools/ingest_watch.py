@@ -10,7 +10,10 @@
   ab ...                  the blind A/B of back-ends on saved universes (pipeline/ingest/ab.py)
 
 Store: PP_INGEST_STORE (default <repo>/data/editorial; refused inside the main tree unless PP_INGEST_ALLOW_MAIN_STORE=1).
-Heimdall base URL override (outage drill): PP_INGEST_HEIMDALL_BASE.
+One service per store: `run` and `once` refuse a store another service holds (<store>/ingest/service.lock).
+Gateway base URL for a drill: the runtime override file <store>/ingest/overrides.json ({"<back-end id>": {"base_url":
+"http://127.0.0.1:9/api/v1"}}; only this machine or the configured host is honoured), or the back-end's base_url_env.
+Spend freeze: providers.json spend_freeze (vendors never called by any role; lift = remove, restart).
 """
 import argparse
 import json
@@ -50,8 +53,7 @@ def cmd_once(a):
     while s.mine_once(wait=True):
         pass
     print(json.dumps(s.health_once(force_coverage=a.coverage), indent=1, default=str))
-    s.executor.shutdown(wait=True)
-    s.videos.shutdown(wait=True)
+    s.close()
 
 
 def cmd_status(a):
@@ -117,8 +119,10 @@ def cmd_handoff(a):
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             tmp = dst + ".handoff.tmp"
             shutil.copyfile(src, tmp)
-            os.link(tmp, dst)                 # fails if dst appeared meanwhile: write-once like the store
-            os.unlink(tmp)
+            try:
+                os.link(tmp, dst)             # fails if dst appeared meanwhile: write-once like the store
+            finally:
+                os.unlink(tmp)                # never left behind, whether the link was made or refused
     for src, why in refused:
         print(f"REFUSED {src}: {why}")
     print(f"{len(plan)} files {'copied' if a.apply else 'to copy'}, {len(refused)} refused")

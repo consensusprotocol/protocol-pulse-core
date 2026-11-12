@@ -1,7 +1,9 @@
 # pp-ingest: mining back-end A/B (orchestrator 02:45 ET Nov 12, law L-x)
 
 Harness: pipeline/ingest/ab.py (`tools/ingest_watch.py ab`). Run: 2026-11-12 08:26-08:55 UTC, tmux pp_ingest_ab, 8 in
-flight (beside the live watcher's 12), budget $25 (spent $3.19 + judge). Videos: the 30 in videos.json below, from the
+flight (beside the live watcher's 12), budget $25 (spent $3.19 + judge; the judge's cost as the vendor reported it,
+usage.cost_in_usd_ticks: $0.45 for 35 calls; the price-table estimate recorded at the time said $3.22, 7x over:
+INGEST-FAIL-11). Videos: the 30 in videos.json below, from the
 saved universes runs/fresh_20261110_093150, fresh_20261111_213954, fresh_20261112_050611 (records read read-only from
 the main store, each hash-checked against the sha its run recorded): 21 channels, records {'whisper_words': 4, 'yt_auto': 20, 'yt_manual': 4, 'whisper': 1, 'whisper_words_punct': 1}, the four
 videos of the PBX-approved Nov 11 preview first. Same windows per back-end: the first 8 Bitcoin-bearing windows of each

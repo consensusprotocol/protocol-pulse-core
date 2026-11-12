@@ -1,0 +1,1132 @@
+{
+ "log": [
+  {
+   "log": "runtime overrides changed: {} -> {'heimdall_qwen27b': {'base_url': 'http://127.0.0.1:9/api/v1'}}"
+  },
+  {
+   "log": "spend meter (HEIMDALL): unmeasured {'spend_usd': None, 'cap_usd': 460.0, 'fraction': None, 'threshold_usd': 414.0, 'total_usage': None, 'total_credits': None, 'measured_at': None, 'last_error': 'BackendError: network: URLError: [Errno 111] Connection refused'}"
+  },
+  {
+   "step": "start",
+   "chain": [
+    "heimdall_qwen27b",
+    "local_gemma"
+   ],
+   "callable": [
+    "heimdall_qwen27b"
+   ],
+   "frozen": [
+    "anthropic",
+    "google",
+    "openai",
+    "xai"
+   ],
+   "meter": "unmeasured"
+  },
+  {
+   "log": "watch ingest-20261112T1106Z: {'channels': 1, 'new': 15, 'errors': 0, 'sources': {'rss': 1}, 'seconds': 0.2}"
+  },
+  {
+   "log": "fetch eqT2rFCvR0o (Swan Bitcoin): transcribed"
+  },
+  {
+   "log": "fetch bzjnh8DQ1Ew (Swan Bitcoin): transcribed"
+  },
+  {
+   "at": "2026-11-12T11:06:56.226791+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "transcribed",
+     "mine_tries": 0,
+     "windows": null,
+     "windows_failed": null,
+     "moments": null,
+     "reason": ""
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "transcribed",
+     "mine_tries": 0,
+     "windows": null,
+     "windows_failed": null,
+     "moments": null,
+     "reason": ""
+    }
+   ],
+   "calls": [],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "fetched"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 18 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 18 s"
+  },
+  {
+   "at": "2026-11-12T11:07:14.726072+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 12,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 1"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 18 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 18 s"
+  },
+  {
+   "at": "2026-11-12T11:07:33.019187+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 2"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "at": "2026-11-12T11:07:33.232176+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 3"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "at": "2026-11-12T11:07:33.507807+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 4"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "at": "2026-11-12T11:07:33.694796+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 5"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "at": "2026-11-12T11:07:33.867794+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 6"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "at": "2026-11-12T11:07:34.030138+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 7"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "at": "2026-11-12T11:07:34.260059+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 8"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "at": "2026-11-12T11:07:34.539341+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 9"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "at": "2026-11-12T11:07:34.708014+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 2,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 2 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mine_waiting",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 1,
+     "moments": null,
+     "reason": "OUTAGE: every back-end down, refusing or skipped for 1 window(s); waiting, no try used (retry in 10 min); [[\"local_gemma\", \"skipped\", \"disabled\"], [\"heimdall_qw"
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": true,
+     "why": "6 consecutive failures, last network",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "outage pass 10"
+  },
+  {
+   "step": "override removed",
+   "at": "2026-11-12T11:07:34.709304+00:00"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): waiting: 0 moments, windows 1 (screened 0, failed 1: 0 rejected, 1 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "runtime overrides changed: {'heimdall_qwen27b': {'base_url': 'http://127.0.0.1:9/api/v1'}} -> {}"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): waiting: 0 moments, windows 2 (screened 0, failed 2: 0 rejected, 2 outage), miners {}, $0.0000, 0 s"
+  },
+  {
+   "log": "mine eqT2rFCvR0o (Swan Bitcoin): 0 moments, windows 1 (screened 0, failed 0: 0 rejected, 0 outage), miners {'heimdall_qwen27b': 1}, $0.0002, 2 s"
+  },
+  {
+   "log": "mine bzjnh8DQ1Ew (Swan Bitcoin): 0 moments, windows 2 (screened 0, failed 0: 0 rejected, 0 outage), miners {'heimdall_qwen27b': 2}, $0.0004, 3 s"
+  },
+  {
+   "at": "2026-11-12T11:13:02.700159+00:00",
+   "videos": [
+    {
+     "video_id": "bzjnh8DQ1Ew",
+     "state": "mined",
+     "mine_tries": 0,
+     "windows": 2,
+     "windows_failed": 0,
+     "moments": 0,
+     "reason": ""
+    },
+    {
+     "video_id": "eqT2rFCvR0o",
+     "state": "mined",
+     "mine_tries": 0,
+     "windows": 1,
+     "windows_failed": 0,
+     "moments": 0,
+     "reason": ""
+    }
+   ],
+   "calls": [
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "network",
+     "n": 24,
+     "usd": 0.0
+    },
+    {
+     "backend": "heimdall_qwen27b",
+     "kind": "ok",
+     "n": 3,
+     "usd": 0.00065
+    }
+   ],
+   "router": {
+    "local_gemma": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "ultron-gpu0"
+    },
+    "heimdall_qwen27b": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "heimdall_deepseek": {
+     "open": false,
+     "why": "",
+     "enabled": false,
+     "frozen": false,
+     "vendor": "heimdall"
+    },
+    "anthropic_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "anthropic"
+    },
+    "xai_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "xai"
+    },
+    "gemini_frontier": {
+     "open": false,
+     "why": "",
+     "enabled": true,
+     "frozen": true,
+     "vendor": "google"
+    }
+   },
+   "step": "after restore",
+   "restore_to_done_s": 328
+  },
+  {
+   "log": "spend meter (HEIMDALL): ok {'spend_usd': 34.1658, 'cap_usd': 460.0, 'fraction': 0.0743, 'threshold_usd': 414.0, 'total_usage': 34.36949789023, 'total_credits': 500, 'measured_at': '2026-11-12T11:13:03Z', 'last_error': None}"
+  },
+  {
+   "step": "meter",
+   "state": "ok",
+   "snap": {
+    "spend_usd": 34.1658,
+    "cap_usd": 460.0,
+    "fraction": 0.0743,
+    "threshold_usd": 414.0,
+    "total_usage": 34.36949789023,
+    "total_credits": 500,
+    "measured_at": "2026-11-12T11:13:03Z",
+    "last_error": null
+   }
+  }
+ ],
+ "frozen_vendor_calls": []
+}

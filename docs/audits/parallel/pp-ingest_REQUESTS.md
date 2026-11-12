@@ -47,14 +47,38 @@ out. Unreadable or another shape = fetching and mining pause (fail closed) and t
 3. To run inside the main tree: `PP_INGEST_ALLOW_MAIN_STORE=1 python3 tools/ingest_watch.py run` in its own tmux
    (the store guard refuses the main tree without it). The main tree's own cron ingest
    (`pipeline/transcript_ingest.py`, every 30 min, captions + Whisper on GPU0) is unchanged by this branch.
-4. Local model (law L-x, ULTRON FIRST): set `"enabled": true` for the local back-end in
-   `pipeline/ingest/providers.json` only where the GPU0 lease is held: `Service(lease=<gpu0 lease predicate>)`; the
-   back-end refuses every call while the predicate is false. A/B on the same 30 videos:
-   `PP_INGEST_GPU0_LEASE_HELD=1 python3 tools/ingest_watch.py ab --video-list <AB dir>/videos.json --backends
-   local_gemma,heimdall_qwen27b --enable local_gemma` under the lease (the judge is chosen automatically: the first
-   judge-role back-end whose model is none of the generators).
+4. Local model (law L-x, ULTRON FIRST; integrator B3, 06:xx ET): no environment string stands in for custody any more.
+   The local back-end is available only while the process holds the GPU0 lease (`gpu0.held()`, a check, never an
+   acquisition) and `"enabled": true` is set for it in `pipeline/ingest/providers.json`; `story_semantics.LocalLLM`
+   (main 4867a74a) takes `gpu0.require` + `swap_to` on every request, and `Router.release()` unloads the model when a
+   cycle ends (the watcher: whenever its mine loop is idle; the A/B: at the end of the run). Without pipeline/gpu0.py
+   (this worktree before the merge) the back-end is never available. A/B on the same 30 videos, inside the lease's
+   custody: `python3 tools/ingest_watch.py ab --video-list <AB dir>/videos.json --backends local_gemma,heimdall_qwen27b
+   --enable local_gemma`. Under the spend freeze (orchestrator 05:30) the judge role's back-ends (xAI, Google,
+   Anthropic) are frozen: pass `--judge <a back-end of another model family>` or `--no-judge` (see R9).
+5. Spend freeze (orchestrator 05:30 ET): `providers.json` `spend_freeze.vendors` = openai, anthropic, xai, google; the
+   mine chain is heimdall_qwen27b -> local_gemma. Lifting it: remove the vendor(s) from `spend_freeze` and restore the
+   mine chain's frontier tail (it was local_gemma -> heimdall_qwen27b -> anthropic_frontier -> xai_frontier), then
+   restart the watcher.
 
 ## R7 The 3 h VOD ceiling
 `transcript_store.MAX_DURATION_S` (3 h) excludes long partner livestreams from the selector's universe. pp-ingest
 captions VODs up to 6 h (no Whisper cost on this path) and records longer ones as `too_long`. Whether the selector
 keeps 3 h is the integrator's call; the ledger carries the moments either way.
+
+## R8 transcript_store: make the five private functions this branch calls public (integrator, non-blocking)
+pp-ingest writes the SAME record format by calling the store's own writer, which today means private names:
+`ts._ytdlp`, `ts._vdir`, `ts._write_once`, `ts._store`, `ts._log_attempt` (and `LocalLLM._post` for the local
+back-end). Proposed: public aliases in `pipeline/transcript_store.py` (`ytdlp`, `video_dir`, `write_once`,
+`store_record`, `log_attempt`) and `LocalLLM.post`, then this branch switches to them. Until then a rename in those
+files breaks pp-ingest's fetch and local mining (tests/ingest/test_store_contract.py and test_watch_fetch.py fail
+first, by design).
+
+## R9 A judge under the spend freeze (law L-x: generator and judge are different models)
+The `judge` role's chain (xai_frontier, gemini_frontier, anthropic_frontier) is entirely frozen, so a blind A/B can
+run only with `--no-judge` or a judge of another model family that is not frozen. Heimdall serves other families at
+gateway prices (GET /models, 2026-11-12: z-ai glm-5.3-flash, minimax-m3.1-flash, meta-models muse-spark-open,
+nvidia nemotron-3.5-super-vl, openai gpt-oss-20b, ...). Proposed: after a measured check (the audit of this change used
+three of them as reviewers: results in docs/audits/parallel/pp-ingest_audit/freeze/), add the most coherent one to
+`providers.json` as a judge back-end (vendor heimdall), first in the judge chain while the freeze lasts. Not done here:
+a judge back-end is the integrator's call (it decides what the A/B measures).

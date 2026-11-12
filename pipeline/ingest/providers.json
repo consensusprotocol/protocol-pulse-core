@@ -2,49 +2,55 @@
   "schema": "pp.providers/1",
   "note": "Law L-x (orchestrator 2026-11-12 02:45): every vendor and model name used by pipeline/ingest lives in this file only. A role is an ordered chain of interchangeable back-ends; the order is decided by the measured A/B (tools/ingest_watch.py ab) and re-run so roles migrate to the local model as it meets the bar. Prices marked estimate are upper-bound guesses used only for budget guards where the vendor reports no cost.",
   "global": {"max_inflight": 20},
+  "spend_freeze": {
+    "vendors": ["openai", "anthropic", "xai", "google"],
+    "since": "2026-11-12T05:30:00-05:00",
+    "order": "orchestrator 05:30 ET Nov 12: SPEND FREEZE on paid frontier vendors (OpenAI, Anthropic, xAI) until told otherwise; the watcher's chain is Heimdall then the local interface only; if both are down the videos queue and are mined later, never on a paid frontier model. Google (Gemini) is frozen as a paid frontier vendor too (STATE assumption A10). A frozen vendor's back-end is never called by any role (providers.Router); a stored validated reply costs nothing and may be reused. Lift: remove the vendor here and restart the watcher."
+  },
   "env_file": "/home/ultron/protocol_pulse/.env",
   "backends": {
     "local_gemma": {
-      "kind": "ollama_local", "model": "gemma3:27b", "enabled": false, "requires": "gpu0_lease",
-      "note": "Ultron GPU0 (story_semantics.LocalLLM's GPU0 guard). The integrator enables it under the GPU0 lease; this session uses no GPU.",
+      "kind": "ollama_local", "vendor": "ultron-gpu0", "model": "gemma3:27b", "enabled": false, "requires": "gpu0_lease",
+      "note": "Ultron GPU0 through story_semantics.LocalLLM (gpu0.require + swap_to on every request, main 4867a74a). Available only while this process holds the GPU0 lease (gpu0.held); the integrator enables it under the lease; this session uses no GPU.",
       "max_inflight": 1, "timeout_s": 600,
       "price": {"in_per_mtok": 0.0, "out_per_mtok": 0.0, "basis": "local"}
     },
     "heimdall_qwen27b": {
-      "kind": "openai_compat", "enabled": true,
+      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "qwen/qwen3.8-27b", "key_env_prefix": "HEIMDALL_API_KEY",
       "extra_body": {"reasoning": {"effort": "none"}, "provider": {"only": ["consensusprotocol"]}},
       "note": "effort none: at effort low qwen3.8-27b spent all 4,000 tokens reasoning on the mining prompt (empty content, finish_reason length, 101 s, 2026-11-12 03:05); at none: 20 s, valid JSON, $0.0008 per window",
       "json_schema": true, "max_inflight": 12, "timeout_s": 240,
-      "cost_from_usage": true, "spend_meter": "heimdall",
+      "cost_from_usage": true, "spend_meter": true,
       "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.713, "basis": "GET /models pricing 2026-11-12"}
     },
     "heimdall_deepseek": {
-      "kind": "openai_compat", "enabled": false,
+      "kind": "openai_compat", "vendor": "heimdall", "enabled": false,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "deepseek/deepseek-v4.1-flash", "key_env_prefix": "HEIMDALL_API_KEY",
       "extra_body": {"reasoning": {"effort": "low"}},
       "json_schema": false, "max_inflight": 6, "timeout_s": 300,
-      "cost_from_usage": true, "spend_meter": "heimdall",
+      "cost_from_usage": true, "spend_meter": true,
       "price": {"in_per_mtok": 0.3, "out_per_mtok": 1.2, "basis": "estimate"}
     },
     "anthropic_frontier": {
-      "kind": "anthropic", "enabled": true, "model": "claude-opus-5-5", "key_env": "ANTHROPIC_API_KEY",
+      "kind": "anthropic", "vendor": "anthropic", "enabled": true, "model": "claude-opus-5-5", "key_env": "ANTHROPIC_API_KEY",
       "effort": "low", "max_inflight": 4, "timeout_s": 300,
       "server_fallbacks": {"beta": "server-side-fallback-2026-07-01", "value": "default"},
       "price": {"in_per_mtok": 4.0, "out_per_mtok": 20.0, "basis": "Claude API price list 2026-11-03"},
       "daily_budget_usd": 15.0
     },
     "xai_frontier": {
-      "kind": "openai_compat", "enabled": true, "base_url": "https://api.x.ai/v1",
+      "kind": "openai_compat", "vendor": "xai", "enabled": true, "base_url": "https://api.x.ai/v1",
       "model": "grok-4.20-0309-reasoning", "key_env": "XAI_API_KEY_MEDLEY",
       "json_schema": true, "max_inflight": 4, "timeout_s": 300,
+      "note": "the vendor reports each call's cost (usage.cost_in_usd_ticks, 1 USD = 1e10 ticks): that is the recorded cost; the price table is only the budget guard's fallback (2026-11-12: it over-estimated the A/B judge 7x)",
       "price": {"in_per_mtok": 5.0, "out_per_mtok": 25.0, "basis": "estimate"},
       "daily_budget_usd": 10.0
     },
     "gemini_frontier": {
-      "kind": "gemini", "enabled": true, "model": "gemini-pro-latest", "key_env": "GEMINI_API_KEY_MEDLEY",
+      "kind": "gemini", "vendor": "google", "enabled": true, "model": "gemini-pro-latest", "key_env": "GEMINI_API_KEY_MEDLEY",
       "max_inflight": 4, "timeout_s": 300, "max_tokens_floor": 16000,
       "note": "gemini-pro-latest resolved to gemini-3.1-pro-preview; at max_output_tokens 4,000 its thinking (counted in the budget) truncated the JSON (2026-11-12 03:10)",
       "price": {"in_per_mtok": 5.0, "out_per_mtok": 25.0, "basis": "estimate"},
@@ -52,12 +58,12 @@
     }
   },
   "roles": {
-    "mine": {"chain": ["local_gemma", "heimdall_qwen27b", "anthropic_frontier", "xai_frontier"],
+    "mine": {"chain": ["heimdall_qwen27b", "local_gemma"],
              "attempts": 3, "max_tokens": 4000},
     "judge": {"chain": ["xai_frontier", "gemini_frontier", "anthropic_frontier"], "attempts": 2, "max_tokens": 8000}
   },
-  "heimdall_meter": {
-    "backend": "heimdall_qwen27b", "baseline_usage": 0.2036796658, "cap_usd": 460.0, "notify_fraction": 0.9,
+  "spend_meter": {
+    "backend": "heimdall_qwen27b", "label": "HEIMDALL", "baseline_usage": 0.2036796658, "cap_usd": 460.0, "notify_fraction": 0.9,
     "measure_every_s": 600, "stale_after_s": 3600,
     "probe_ledger": "/home/ultron/heimdall_probe/fleet_sweep_20261107/fleet_master_state.json",
     "baseline_source": "/home/ultron/heimdall_probe/fleet_sweep_20261107/PHASE3_FLEET_LOAD.md (cap = 460 total sweep spend measured by /credits delta from 0.2036796658)"

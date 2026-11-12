@@ -150,11 +150,18 @@ def screened_out(win):
     return not BTC_SCREEN.search(" ".join(s["text"] for s in win))
 
 
+def _untrusted(t):
+    """Untrusted text cannot close the <sentences> block: '<' becomes '‹' (0 of 410,156 caption segments of the two
+    stores contain one, 2026-11-12, so prompts and cache keys are unchanged; '>>' speaker markers stay as they are)."""
+    return str(t).replace("<", "\u2039")
+
+
 def prompt(meta, chan, win):
-    rows = "\n".join(f"[S{s['k']} {_mmss(s['start'])}] {s['text']}" for s in win)
+    rows = "\n".join(f"[S{s['k']} {_mmss(s['start'])}] {_untrusted(s['text'])}" for s in win)
     return PROMPT.format(max_s=MAX_MOMENT_SENTENCES, reason_max=REASON_MAX, max_m=MAX_MOMENTS,
-                         channel=_q(chan.get("display_name") or meta.get("channel_name"), 120),
-                         title=_q(meta.get("exact_title"), 200), rows=rows, lo=win[0]["k"], hi=win[-1]["k"])
+                         channel=_untrusted(_q(chan.get("display_name") or meta.get("channel_name"), 120)),
+                         title=_untrusted(_q(meta.get("exact_title"), 200)), rows=rows, lo=win[0]["k"],
+                         hi=win[-1]["k"])
 
 
 def _pairs(pairs):
@@ -268,8 +275,10 @@ def build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, n
 def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra_source=None, role="mine",
                only=None, max_windows=None, use_cache=True):
     """(lines, report). lines: one pp.moment/1 line per distinct sentence range, in window order (a range seen in two
-    overlapping windows is kept once, its observation count raised). report: windows, screened, failed (with the
-    back-ends' reasons), miners {backend: windows}."""
+    overlapping windows is kept once: its observation count raised, its risk / names_person / altcoin flags the union
+    and about_bitcoin the conjunction of the observations; scores and reason are the first's). report: windows,
+    screened, failed (with the back-ends' reasons and whether the chain was in an OUTAGE: nothing answered and was
+    rejected), miners {backend: windows}."""
     timing, toks, sents = contract.sentences(rec)
     wins = windows(sents)
     if max_windows:
@@ -285,7 +294,7 @@ def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra
         try:
             done[i] = f.result()
         except AllBackendsFailed as e:
-            report["failed"].append({"window": [w[0]["k"], w[-1]["k"]], "tried": e.tried})
+            report["failed"].append({"window": [w[0]["k"], w[-1]["k"]], "tried": e.tried, "outage": e.outage})
     src = contract.source_for(rec, meta, timing, toks)
     lines, by_range = [], {}
     for i, w in jobs:
@@ -295,8 +304,14 @@ def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra
         report["miners"][out.backend] = report["miners"].get(out.backend, 0) + 1
         for cand in out.obj:
             key = tuple(cand["s"])
-            if key in by_range:
-                by_range[key]["mined"]["observations"] += 1
+            if key in by_range:                       # the same range seen from an overlapping window: one line,
+                prev = by_range[key]                  # its flags the union of every observation (fail closed, L-u)
+                prev["mined"]["observations"] += 1
+                prev["risk"] = sorted(set(prev["risk"]) | set(cand["risk"]))
+                prev["names_person"] = prev["names_person"] or cand["names_person"]
+                fx = prev["flags_ext"]
+                fx["about_bitcoin"] = fx["about_bitcoin"] and cand["about_bitcoin"]
+                fx["altcoin"] = fx["altcoin"] or cand["altcoin"]
                 continue
             line = build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, now_dt, w, cycle,
                               extra_source)

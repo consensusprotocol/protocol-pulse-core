@@ -1,0 +1,7 @@
+{
+ "B1": "HALTED at 90 % with the metered back-end alone: [('h', 'skipped', 'heimdall spend tripped')]; calls made: 0",
+ "B1_unmeasured": "HALTED when merely unmeasured: [('h2', 'skipped', 'heimdall spend unmeasured')]",
+ "B4": "age gate read as a RATE LIMIT: kind=rate_limited, breaker trips=1, open for 600 s; calm() callers in watch.py/fetch.py: 0",
+ "flags": "observations=2 risk=[] names_person=False altcoin=False (the second observation flagged ad_read / names_person / altcoin)",
+ "B2": "after 8 passes of a pure outage (= 80 min): state=mined_partial, next_at in 32 years, ledger lines=0, coverage counts it mined: 1/1"
+}
