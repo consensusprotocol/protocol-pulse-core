@@ -194,7 +194,8 @@ writer). One sample per item unless stated; read every count as "on these items"
   a "drop to $73K stalled above the 200-day average" line-up, and failed one for another reason).
   - heimdall-glm-5.3-flash: it passed all 17 recorded line-ups (its "agreement" there only reflects that the
     reference passed 16 of them) and passed 4 of the 6 swaps it answered (1 caught on rule 1, 1 failed for another
-    reason, 2 gateway 503s; 3 swaps sampled twice, one pair disagreeing). It does not discriminate: as a fallback it
+    reason, 2 gateway 503s; 3 swaps sampled twice, one pair disagreeing; 3 more 503s hit swaps another sample
+    answered, so 7 of its 16 swap calls failed on the gateway). It does not discriminate: as a fallback it
     would pass what the reference fails. 14.5 s median, $0.010 for all 25.
   - Local gemma3:27b (the integrator, under the GPU0 lease): 10 of 25 with the reference; passed 6 of 8 swaps and 1
     recorded line-up the reference failed (7 lenient); failed 6 the reference passed, 5 on a false altcoin reading;
@@ -204,8 +205,9 @@ writer). One sample per item unless stated; read every count as "on these items"
 - Witness (48 recorded verdicts on moments line-ups in their original context): heimdall-glm-5.3-flash measured 38
   (10 replies refused by the strict parser as internally inconsistent, e.g. a PASS its own fields contradict),
   agreed on 21, passed 10 the reference failed, failed 7 it passed (10.9 s median, $0.008). The local model (the
-  integrator's run, still in progress at this commit: 19 of 48 items) agreed on 6 of 15 measured and passed 7 the
-  reference failed. Neither is a usable fallback for this check.
+  integrator's run, which stopped at 36 of 48 items: its file was last written 06:16 ET and no process was running at
+  06:59 ET) measured 29 (7 without a usable reply), agreed on 16, passed 10 the reference failed and failed 3 it
+  passed (180 s median). Neither is a usable fallback for this check.
 - Grouping (16 recorded groupings): heimdall-glm-5.3-flash gave the reference's partition on 16 of 16 (56 s median,
   $0.004 for all 16); deepseek-v4.1-flash 14 of 16, qwen3.8-27b 13 of 16. Every disagreement split a reference group
   (5 developments against 4, 3 against 2): it would inflate the distinct-developments count.

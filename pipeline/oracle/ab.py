@@ -249,7 +249,8 @@ def merge(files):
     """{back-end: summary} over several AB_<role>.json batches of one role (re-runs of what a batch did not measure,
     or a second sample of the same item): per item every measured sample is combined (_combine; order never decides),
     an item with no measured sample keeps its last failure; dollars and latency count EVERY call of every batch (a
-    replaced row was still paid)."""
+    replaced row was still paid). A failed call on an item that another sample measured is never dropped: it is
+    counted in failed_resamples (the item's verdict comes from its measured samples, the failure stays visible)."""
     per, every, skipped, withdrawn, partial = {}, {}, {}, {}, set()
     for path in files:
         with open(path, encoding="utf-8") as f:
@@ -266,11 +267,12 @@ def merge(files):
                 if row["item"].endswith(WITHDRAWN):
                     withdrawn[name] = withdrawn.get(name, 0) + 1
                     continue
-                slot = items.setdefault(row["item"], {"ok": [], "last": None})
+                slot = items.setdefault(row["item"], {"ok": [], "last": None, "failed": 0})
                 if row["status"] == "OK":
                     slot["ok"].append(row)
                 else:
                     slot["last"] = row
+                    slot["failed"] += 0 if not_sent(row) else 1
     out = {}
     for name, items in per.items():
         rows = [_combine(v["ok"]) if v["ok"] else v["last"] for v in items.values()]
@@ -281,6 +283,7 @@ def merge(files):
                   median_s=round(statistics.median(lat), 1) if lat else None,
                   usd_source=sorted({r.get("usd_source") for r in every[name]} - {None}), batches=len(files),
                   withdrawn=withdrawn.get(name, 0), partial=name in partial,
+                  failed_resamples=sum(v["failed"] for v in items.values() if v["ok"]),
                   sampled_twice=sum(1 for r in rows if (r.get("samples") or 1) > 1),
                   samples_disagree=sum(1 for r in rows if r.get("samples_disagree")))
         out[name] = sm

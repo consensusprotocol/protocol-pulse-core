@@ -1,5 +1,5 @@
 pp-backtest (parallel Claude Code session, 2026-11-12, branch pp-backtest) for the Pulse Check pipeline (Python; it
-cuts a 60-70 s Bitcoin video from partner channels' own words). PACKAGE B of 2: the TESTS (tests/oracle), the session's
+cuts a 60-70 s Bitcoin video from partner channels' own words). ROUND 2 of package B (Heimdall reviewers only; spend freeze), after the fixes for its 8 round-1 findings. PACKAGE B of 2: the TESTS (tests/oracle), the session's
 written analysis and state, and the GENERATED report docs/audits/BACKTEST_SUPPLY_REPORT.md
 for a measuring instrument (package A holds its code: export of a saved day's Bitcoin statements, a blind writer that
 builds line-ups by sentence id, deterministic checks, a blind judge of another vendor, witness context checks, a

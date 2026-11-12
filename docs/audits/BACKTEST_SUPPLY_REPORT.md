@@ -1,8 +1,29 @@
 # BACKTEST SUPPLY REPORT: did a line-up that passes our rules exist, and did the selector find it?
 
-Generated 2026-11-12 10:24 UTC by `tools/backtest_oracle.py report` (branch pp-backtest). Order pp-backtest, 2026-11-12 (session pipeline_pp_backtest).
+Generated 2026-11-12 12:02 UTC by `tools/backtest_oracle.py report` (branch pp-backtest). Order pp-backtest, 2026-11-12 (session pipeline_pp_backtest).
 
 **Sample size: 10 saved runs on 5 UTC dates. This is a small sample: every number below is a count of these runs, stated with its raw count; no rate in this report generalises beyond them, and no confidence interval is claimed.**
+
+## 0. Incomplete rows (read this first)
+
+Spend freeze 2026-11-12 05:30 ET: no paid model call was made after it and nothing below was re-run. Every row listed here is incomplete or not measured; it is never counted as a pass, a miss or a result.
+
+- Selector recall, as_run: 4 of 10 runs with a line-up not measured (the record crashed, was stopped or hit NOT_RERUN before selecting).
+- Selector recall, cold_backtest_394ffe5a: 1 of 2 runs with a line-up not measured (the record crashed, was stopped or hit NOT_RERUN before selecting).
+- Selector recall, replay_head: 10 of 10 runs with a line-up not measured (the record crashed, was stopped or hit NOT_RERUN before selecting).
+- Selector precision: not measured on any record (no record accepted a line-up).
+- Loss stage NOT_REACHED (the record stopped before deciding the line-up): as_run 6 of 16; cold_backtest_394ffe5a 2 of 4; replay_head 14 of 16.
+- Windows-as-targets rule sets (same_dev, moments): lower bounds; 957 sentences longer than the 20 s clip ceiling were never shown to the writer.
+- A/B judge, grok-4.7: 8 of 25 planned items not run.
+- A/B judge, heimdall-glm-5.3-flash: 2 without a usable reply; 3 failed call(s) on items another sample measured.
+- A/B witness, local-gemma3-27b: 12 of 48 planned items not run (batch not finished at report time: still running or stopped early); 7 without a usable reply.
+- A/B witness, grok-4.7: not run (no batch).
+- A/B witness, heimdall-glm-5.3-flash: 10 without a usable reply.
+- A/B grouping, local-gemma3-27b: not run (no batch).
+- A/B grouping, grok-4.7: not run (no batch).
+- A/B writer: 1 universe(s) only (20261110_093150), back-ends beside the reference: grok-4.7, heimdall-deepseek-v4.1-flash; the local writer cannot take a universe (context guard); the other writer back-ends of the chain were not run.
+- VO fidelity (law L-w 6): not measured (the backtest writes no voiceover).
+- Audit legs that never ran or failed, per round: docs/audits/parallel/pp-backtest_AUDIT.md (round 4, after the spend freeze, ran on Heimdall only and most of its legs are NOT MEASURED).
 
 ## 1. Per run
 
@@ -502,7 +523,8 @@ writer). One sample per item unless stated; read every count as "on these items"
   a "drop to $73K stalled above the 200-day average" line-up, and failed one for another reason).
   - heimdall-glm-5.3-flash: it passed all 17 recorded line-ups (its "agreement" there only reflects that the
     reference passed 16 of them) and passed 4 of the 6 swaps it answered (1 caught on rule 1, 1 failed for another
-    reason, 2 gateway 503s; 3 swaps sampled twice, one pair disagreeing). It does not discriminate: as a fallback it
+    reason, 2 gateway 503s; 3 swaps sampled twice, one pair disagreeing; 3 more 503s hit swaps another sample
+    answered, so 7 of its 16 swap calls failed on the gateway). It does not discriminate: as a fallback it
     would pass what the reference fails. 14.5 s median, $0.010 for all 25.
   - Local gemma3:27b (the integrator, under the GPU0 lease): 10 of 25 with the reference; passed 6 of 8 swaps and 1
     recorded line-up the reference failed (7 lenient); failed 6 the reference passed, 5 on a false altcoin reading;
@@ -512,8 +534,9 @@ writer). One sample per item unless stated; read every count as "on these items"
 - Witness (48 recorded verdicts on moments line-ups in their original context): heimdall-glm-5.3-flash measured 38
   (10 replies refused by the strict parser as internally inconsistent, e.g. a PASS its own fields contradict),
   agreed on 21, passed 10 the reference failed, failed 7 it passed (10.9 s median, $0.008). The local model (the
-  integrator's run, still in progress at this commit: 19 of 48 items) agreed on 6 of 15 measured and passed 7 the
-  reference failed. Neither is a usable fallback for this check.
+  integrator's run, which stopped at 36 of 48 items: its file was last written 06:16 ET and no process was running at
+  06:59 ET) measured 29 (7 without a usable reply), agreed on 16, passed 10 the reference failed and failed 3 it
+  passed (180 s median). Neither is a usable fallback for this check.
 - Grouping (16 recorded groupings): heimdall-glm-5.3-flash gave the reference's partition on 16 of 16 (56 s median,
   $0.004 for all 16); deepseek-v4.1-flash 14 of 16, qwen3.8-27b 13 of 16. Every disagreement split a reference group
   (5 developments against 4, 3 against 2): it would inflate the distinct-developments count.
@@ -545,7 +568,7 @@ writer). One sample per item unless stated; read every count as "on these items"
 | 20261112_013452 | `d5cb7c27af4446422331394e2803fba90d40051c29c831dd176f7ce489ee2ea7` | 3751 | 1248 | 95 / 115 |
 | 20261112_050611 | `a8b812d21179a6d5a80e63f2183ef4edac6d23102cd0b5a6902566f1412c107d` | 3862 | 1272 | 109 / 121 |
 
-API spend (ledger /home/ultron/heimdall_probe/pp_redteam/oracle/SPEND.jsonl): 57.4 USD over 586 calls; per back-end: claude-fable-5-2 35.01 USD / 321 calls; gpt-6.1-sol 19.08 USD / 42 calls; grok-4.7 3.22 USD / 31 calls; heimdall-qwen3.8-27b 0.03 USD / 17 calls; heimdall-deepseek-v4.1-flash 0.03 USD / 26 calls; heimdall-glm-5.3-flash 0.03 USD / 103 calls; local-gemma3-27b 0.0 USD / 46 calls. The local back-end's calls are the integrator's runs under the GPU0 lease (REQUESTS R5); this session never called it. Of the total, 0.0896 USD is the per-call cost a gateway reported; 4 gateway calls made before per-call pricing was recorded carry no price. Guard: 60 USD (the ledger refuses any call whose worst case would pass it).
+API spend (ledger /home/ultron/heimdall_probe/pp_redteam/oracle/SPEND.jsonl): 57.4 USD over 601 calls; per back-end: claude-fable-5-2 35.01 USD / 321 calls; gpt-6.1-sol 19.08 USD / 42 calls; grok-4.7 3.22 USD / 31 calls; heimdall-qwen3.8-27b 0.03 USD / 17 calls; heimdall-deepseek-v4.1-flash 0.03 USD / 26 calls; heimdall-glm-5.3-flash 0.03 USD / 103 calls; local-gemma3-27b 0.0 USD / 61 calls. The local back-end's calls are the integrator's runs under the GPU0 lease (REQUESTS R5); this session never called it. Of the total, 0.0896 USD is the per-call cost a gateway reported; 4 gateway calls made before per-call pricing was recorded carry no price. Guard: 60 USD (the ledger refuses any call whose worst case would pass it).
 
 
 ## 7. Supply per universe under the 01:55 note: distinct line-ups, PBX's 01:48 moments rule, law L-o
@@ -619,7 +642,7 @@ Every model call of this instrument goes through pipeline/oracle/providers.py (t
 
 Judge / witness / grouping: the exact stored prompts replayed on each back-end and compared with the recorded reference verdicts (judge: plus must-fail swaps whose only right verdict is 'fails our rules'). Writer: the saved day re-run per back-end with the judge fixed. The local back-end, local-gemma3-27b (gemma3:27b), runs only inside the integrator's GPU0 lease (this session never calls it): its rows below are the integrator's runs (REQUESTS R5; they are that back-end's calls in the spend ledger); a role it has not run yet reads PENDING. 'items run / planned' shows what was never run. Dollars per call: frontier from the provider config's price table, a gateway's as it reports each call, local 0.
 
-Items the spend guard stopped before they were sent are NOT MEASURED (own column), never failures and never agreement; a batch re-run for them is merged per item (every paid call is counted in the dollars). The reference judge's own row holds only its result on the development swaps (its recorded verdicts are the reference and are not re-asked).
+Items the spend guard stopped before they were sent are NOT MEASURED (own column), never failures and never agreement; a batch re-run for them is merged per item (every paid call is counted in the dollars). A failed call on an item that another sample measured is shown beside the failed count, never dropped. The reference judge's own row holds only its result on the development swaps (its recorded verdicts are the reference and are not re-asked).
 
 | role | back-end | items run / planned | measured / not sent (spend guard) / failed (no usable reply) | agreement with the reference (of measured) | passes what the reference fails | fails what the reference passes | must-fail caught (of measured) | median s per call | USD |
 |---|---|---|---|---|---|---|---|---|---|
@@ -628,10 +651,10 @@ Items the spend guard stopped before they were sent are NOT MEASURED (own column
 | writer | local-gemma3-27b | 10 universes | - | not run: the stored writer prompt fits its context on 0 of 10 universes (context guard; a cut prompt is never sent) | - | - | - | - | - |
 | judge | grok-4.7 | 17 / 25 | 17 / 0 / 0 | 1 of 17 | 0 | 16 | 0 of 0 (10 rows of the 9 withdrawn first swaps not counted) | 221.7 | 2.5487 (price table) |
 | judge | claude-fable-5-2 | 8 / 8 | 8 / 0 / 0 | 6 of 8 | 1 | 0 | 6 of 8 (18 rows of the 9 withdrawn first swaps not counted) | 21.9 | 1.8912 (price table) |
-| judge | heimdall-glm-5.3-flash | 25 / 25 | 23 / 0 / 2 | 17 of 23 | 5 | 0 | 1 of 6 (9 rows of the 9 withdrawn first swaps not counted) | 14.5 | 0.010442 (gateway-reported) |
+| judge | heimdall-glm-5.3-flash | 25 / 25 | 23 / 0 / 2 (+3 failed call(s) on items another sample measured) | 17 of 23 | 5 | 0 | 1 of 6 (9 rows of the 9 withdrawn first swaps not counted) | 14.5 | 0.010442 (gateway-reported) |
 | judge | local-gemma3-27b | 25 / 25 | 25 / 0 / 0 | 10 of 25 | 7 | 6 | 0 of 8 | 88.1 | 0.0 (local) |
 | witness | heimdall-glm-5.3-flash | 48 / 48 | 38 / 0 / 10 | 21 of 38 | 10 | 7 | - | 10.9 | 0.008362 (gateway-reported) |
-| witness | local-gemma3-27b (batch still running or stopped early: counts are of the items it finished) | 21 / 48 | 16 / 0 / 5 | 7 of 16 | 7 | 2 | - | 172.9 | 0.0 (local) |
+| witness | local-gemma3-27b (batch still running or stopped early: counts are of the items it finished) | 36 / 48 | 29 / 0 / 7 | 16 of 29 | 10 | 3 | - | 179.9 | 0.0 (local) |
 | grouping | heimdall-deepseek-v4.1-flash | 16 / 16 | 16 / 0 / 0 | 14 of 16 | - | - | - | 99.2 | 0.013939 (gateway-reported) |
 | grouping | heimdall-glm-5.3-flash | 16 / 16 | 16 / 0 / 0 | 16 of 16 | - | - | - | 55.8 | 0.003868 (gateway-reported) |
 | grouping | heimdall-qwen3.8-27b | 16 / 16 | 16 / 0 / 0 | 13 of 16 | - | - | - | 18.4 | 0.034073 (gateway-reported) |

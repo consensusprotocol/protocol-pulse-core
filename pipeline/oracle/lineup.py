@@ -194,6 +194,8 @@ def parse_oracle(text, rows_by_id, max_lineups=MAX_LINEUPS):
         if o["lineups"] or not o["none_reason"].strip():
             raise OracleFailed("NONE needs a reason and no line-up")
         return {"verdict": "NONE", "none_reason": o["none_reason"].strip(), "lineups": []}
+    if o["none_reason"].strip():                     # the prompt's contract: "" for LINEUPS (a reply that also says
+        raise OracleFailed("LINEUPS with a none_reason contradicts itself")   # why there is none is not trusted)
     if not 1 <= len(o["lineups"]) <= max_lineups:
         raise OracleFailed(f"LINEUPS needs 1-{max_lineups} line-ups, got {len(o['lineups'])}")
     out = []

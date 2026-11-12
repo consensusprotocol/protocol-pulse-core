@@ -110,3 +110,42 @@ MEASURED (own column), never as failures. claude-fable-5-2's reply cap went from
 | B-F6 MEDIUM | witness fail-closed aggregation untested | FIXED: an unrun witness leaves every model check None; a WITNESS_FAILED line-up is counted only in the base row (tests). |
 | B-F7 MEDIUM | three text / table disagreements | FIXED: (a) the one channel counted for Nov 10 L2's candidate was Yahoo Finance through a different video (36HPi9UZPOc), not the line-up's; (b) "held one channel's, no decision recorded (NOT_REACHED)" replaces "none held any" where one-channel clusters exist; (c) six runs, not five. |
 | B-F8 LOW | the name scan misses unregistered names; no failover-aware judge test | FIXED: a shape scan (model-id patterns, vendor endpoints, the local port) over every file but providers.py; providers.paired_calls makes the judge avoid the vendor that ACTUALLY wrote (after a failover), used by the oracle command, with a test. |
+
+## Round 4: Heimdall reviewers only, after the spend freeze (packages A and B as of 05:32 ET), 05:32-06:50 ET
+
+- Orchestrator order 05:30 ET: no paid vendor. So the repo tool's legs (GPT-4o, Grok-3, Gemini) and the claude-fable-5-2
+  review were NOT run in this round. The two cycles ran on three Heimdall reviewers (heimdall-deepseek-v4.1-flash,
+  heimdall-glm-5.3-flash, heimdall-qwen3.8-27b) with the script kept in pp-backtest_audit/round4_heimdall/heimdall_audit.py:
+  cycle 1 = each reviewer reviews the package (schema-constrained findings); cycle 2 = each reviewer rules CONFIRMED /
+  REFUTED / UNSURE on every cycle-1 finding and may add what all missed; consensus = CONFIRMED by at least 2, computed
+  without a model. Packages as in rounds 1-3, rebuilt at 05:32 (A 231,230 bytes; B 226,891 bytes; questions updated).
+  Every reply, ruling and cost: pp-backtest_audit/round4_heimdall/.
+- **Measured: 4 of 12 legs.** Package A, cycle 1: deepseek only (7 findings); glm got a 503 (the gateway's marketplace
+  restarting); qwen's connection dropped. Cycle 2: qwen ruled on all 7; deepseek's reply held no rulings (verdict "x"; one
+  added finding); glm got a 503. Package B, cycle 1: none (the deepseek and qwen replies hit the 32,000-token reply budget
+  and were not JSON; glm 503). Cycle 2: qwen only (nothing to rule on; 3 added findings); the round's own 2 USD guard
+  stopped deepseek (worst-case reservations of the calls in flight); glm's reply was cut at 32,000 tokens.
+- **Consensus: none (0 of 7).** One reviewer's finding is not consensus, and a round this incomplete is NOT MEASURED,
+  never a pass (L-m). The legs that were not measured were not retried, because the order said to finish with what
+  we had. I checked every finding by hand against the code and the recorded artefacts:
+
+| # | finding (short) | disposition |
+|---|---|---|
+| deepseek#1 LOW (qwen REFUTED) | vendor / model names as literals outside providers.py (report.py section 0: "Gemini", "GPT-4o") | FIXED: that line now points to this file. A new case-insensitive scan (gpt-<digit>, gemini, claude-, grok, deepseek, qwen, glm-) over every instrument file except providers.py failed on it before the fix (test). The bare word "gemma" is allowed on purpose: it names the production selector's model that replay.py replays. |
+| deepseek#2 MEDIUM (qwen REFUTED) | the GPU0 lease is checked only in available(), not in call_backend | FIXED as defence in depth. No caller could reach the gap: call() and ab.run_role check available() first. call_backend now refuses a gpu0 back-end without PP_GPU0_LEASE_HELD=1 before anything is sent (test). This session never held the lease and made no local call. |
+| deepseek#3 LOW (qwen CONFIRMED) | the cut-prompt check, the context estimate and the reservation counted the system text without the NO_TOOLS sentence sent to a no_tools back-end (grok-4.7) | FIXED: providers.sent_system() returns the text that is sent; fits(), the reservation and the cut check count it (test: a reply counting fewer tokens than the SENT prompt allows is ContextTooLong). No recorded call can flip: the sentence is 85 characters (~23 tokens), and grok's ratio of 3.7 is 1.25 x the largest ratio measured on its stored prompts, so every recorded grok call sits at least 25 % above the line. |
+| deepseek#4 MEDIUM (qwen REFUTED) | score.py blames LAYOUT_ELIGIBILITY / WINDOWS for a candidate the record never decided | REFUTED: the selector decides coverage and layout eligibility in one step (_decide_coverage, editorial_select.py:1018-1042 sets "coverage_qualified" only after both). lineup_stage assigns COVERAGE / LAYOUT_ELIGIBILITY only when coverage.status is "done" (otherwise NOT_REACHED), and an undecided candidate returns NOT_REACHED (score.py:144) before the WINDOWS test. |
+| deepseek#5 LOW (qwen CONFIRMED) | A/B merge drops a failed call on an item that another sample measured | FIXED: merge counts it (failed_resamples). The report shows it next to the failed count and in section 0 (test, both orders). Recorded A/B: heimdall-glm judge, 3 swap calls that hit a 503 on a second sample; the analysis now says 7 of its 16 swap calls failed on the gateway. No other back-end has one; no agreement number changes. |
+| deepseek#6 LOW (qwen REFUTED) | a LINEUPS reply with a non-empty none_reason is accepted | FIXED, stricter, per the prompt's contract ("" for LINEUPS): such a reply is now ORACLE_FAILED (must-fail case added). Recorded replies affected: 0 of the 42 LINEUPS replies. |
+| deepseek#7 LOW (qwen REFUTED) | the ledger raises on a corrupt line | REFUTED: the exception leaves reserve() before any call is sent. That fails closed: nothing is sent while the ledger is unreadable. |
+| deepseek, cycle 2 LOW | a --no-judge run is labelled JUDGE_FAILED | FIXED: it now reads NOT_MEASURED (judge not asked: --no-judge ...) (test). No recorded day used --no-judge (no DAY.json carries JUDGE_FAILED). |
+| qwen, cycle 2, B MEDIUM | analysis 5.7's local witness numbers (19 of 48; 6 of 15) contradict the generated table (23 of 48 at 05:32) | FIXED: the integrator's batch kept running after the analysis was written. It stopped at 36 of 48 (file last written 06:16 ET; no process running at 06:59 ET). 5.7 and STATE now carry the final numbers (29 measured, 16 agree, 10 lenient, 3 strict, 7 without a usable reply), and the report is regenerated. |
+| qwen, cycle 2, B MEDIUM | section 0 says "25 not run (batch still running)" while section 9 says "still running or stopped early" and "0 not sent" | FIXED (wording): section 0 now says "batch not finished at report time: still running or stopped early", like section 9. "Not run" (never attempted) and "not sent" (stopped by the spend guard) are separate columns by design. |
+| qwen, cycle 2, B LOW | median seconds per call | WITHDRAWN by its author in the same reply. |
+| this session, from the round-4 run, MEDIUM | an OpenAI-SDK APIConnectionError was released as unbilled, but the SDK raises it both for a connection dropped mid-reply and for one that never connected | FIXED: it is now charged at worst case unless its cause is a failure to connect (ConnectError / ConnectTimeout) (test). Round 4's own qwen call (package A, cycle 1) is one such call: released under the old rule, so it is not in the round's ledger. Its cost is unknown, at most its worst case of 0.33 USD; Heimdall's counter rose 0.26 USD over the whole audit window (shared with other sessions), which bounds it. |
+
+- Spend: 0.0702 USD recorded (7 calls, gateway-reported, round4_heimdall/AUDIT_SPEND.jsonl). Four calls failed without
+  usage: three 503s, which carry a status and so count as unbilled under our rule, and the dropped connection above.
+  Heimdall's own counter went from 34.23 to 34.49 between 05:30 and 07:00 ET (shared with other sessions).
+- What this round does not cover: no reviewer has seen the code after the fixes above. They are this round's second
+  pass (174 tests, the must-fail cases first). Rounds 1-3 covered the code as it was before the freeze.

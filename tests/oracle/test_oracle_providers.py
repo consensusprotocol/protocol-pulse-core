@@ -32,8 +32,9 @@ def fake_backends(monkeypatch, tmp_path):
         r = script.get(b["model"], "ok")
         if isinstance(r, Exception):
             raise r
-        return '{"ok": true}', {"model": b["model"]}, {"tokens_in": max(10, (len(system) + len(user)) // 3),
-                                                      "tokens_out": 5, "seconds": 0.1}
+        sent = len(PV.sent_system(b, system)) + len(user)            # a vendor counts what it was SENT
+        return '{"ok": true}', {"model": b["model"]}, {"tokens_in": max(10, sent // 3), "tokens_out": 5,
+                                                      "seconds": 0.1}
     for k in ("ollama", "openai", "anthropic"):
         monkeypatch.setitem(PV._KIND, k, kind)
     return calls, script, llm.Ledger(str(tmp_path / "S.jsonl"))
@@ -126,19 +127,19 @@ def test_a_gateway_that_bills_per_call_is_recorded_at_its_own_figure_and_an_unpr
     import json
 
     def billed(b, system, user, schema):
-        return '{"ok": true}', {"model": b["model"]}, {"tokens_in": 10, "tokens_out": 5, "seconds": 0.1,
-                                                       "usd_reported": 0.0123}
+        return '{"ok": true}', {"model": b["model"]}, {"tokens_in": 30, "tokens_out": 5, "seconds": 0.1,
+                                                       "usd_reported": 0.0123}      # 30: it counted what it was sent
     monkeypatch.setitem(PV._KIND, "openai", billed)
     _, _, row = PV.call_backend("heimdall-glm-5.3-flash", "s", "u", {}, ledger, "t")
     assert row["usd"] == 0.0123 and row["usd_source"] == "gateway-reported" and "usd_reported" not in row
     _, _, row = PV.call_backend("grok-4.7", "s", "u", {}, ledger, "t")      # a priced back-end keeps the price table
-    assert row["usd_source"] == "price table" and row["usd"] == llm.cost(PV.BACKENDS["grok-4.7"]["price"], 10, 5)
+    assert row["usd_source"] == "price table" and row["usd"] == llm.cost(PV.BACKENDS["grok-4.7"]["price"], 30, 5)
     monkeypatch.setitem(PV._KIND, "openai", lambda b, s, u, sc: ('{}', {}, {"tokens_in": 1, "tokens_out": 1,
                                                                              "seconds": 0.1}))
     _, _, row = PV.call_backend("heimdall-qwen3.8-27b", "s", "u", {}, ledger, "t")
     worst = PV.BACKENDS["heimdall-qwen3.8-27b"]["reserve_usd"]
     assert row["usd"] == worst and row["usd_source"] == "unreported: worst case"   # never silently 'free'
-    assert ledger.spent() == round(0.0123 + llm.cost(PV.BACKENDS["grok-4.7"]["price"], 10, 5) + worst, 4)
+    assert ledger.spent() == round(0.0123 + llm.cost(PV.BACKENDS["grok-4.7"]["price"], 30, 5) + worst, 4)
     assert [json.loads(x)["usd_source"] for x in open(ledger.path)] == ["gateway-reported", "price table",
                                                                        "unreported: worst case"]
     assert ledger.in_flight() == 0.0
@@ -268,4 +269,67 @@ def test_no_model_id_shape_or_vendor_endpoint_appears_outside_the_provider_confi
         if os.path.basename(path) == "providers.py":
             continue
         hits = shapes.findall(open(path, encoding="utf-8").read())
+        assert not hits, (path, hits)
+
+
+def test_a_direct_call_to_the_local_gpu0_model_without_the_lease_is_never_sent(fake_backends):
+    calls, script, ledger = fake_backends                        # the fixture removed PP_GPU0_LEASE_HELD
+    with pytest.raises(PV.VendorDown, match="GPU0 lease"):
+        PV.call_backend("local-gemma3-27b", "s", "u", {}, ledger, "t")
+    assert "gemma3:27b" not in calls and ledger.in_flight() == 0.0
+
+
+def test_the_cut_prompt_check_counts_the_no_tools_text_that_is_actually_sent(fake_backends, monkeypatch):
+    calls, script, ledger = fake_backends
+    b = PV.BACKENDS["grok-4.7"]
+    assert b.get("no_tools")
+    user, ceiling = "y" * 37_000, b["max_chars_per_token"]
+    sent = len(PV.sent_system(b, "s")) + len(user)
+    counted = int(sent / ceiling) - 1                            # below what the SENT prompt must count ...
+    assert counted >= (1 + len(user)) / ceiling                  # ... but enough for the prompt without NO_TOOLS
+    monkeypatch.setitem(PV._KIND, "openai", lambda b_, s, u, sc: ('{}', {}, {"tokens_in": counted, "tokens_out": 5,
+                                                                             "seconds": 0.1}))
+    with pytest.raises(PV.ContextTooLong, match="input was cut"):
+        PV.call_backend("grok-4.7", "s", user, {}, ledger, "t")
+    assert PV.fits("grok-4.7", "s", user)[1] == llm.est_tokens(PV.sent_system(b, "s"), user)
+
+
+class RemoteProtocolError(Exception):
+    pass
+
+
+class ConnectError(Exception):
+    pass
+
+
+class APIConnectionError(Exception):
+    def __init__(self, cause):
+        super().__init__("Connection error.")
+        self.__cause__ = cause
+
+
+def test_a_connection_dropped_mid_reply_is_charged_at_worst_case_and_one_that_never_connected_is_not(fake_backends):
+    import json
+    calls, script, ledger = fake_backends
+    script["qwen/qwen3.8-27b"] = APIConnectionError(RemoteProtocolError("peer closed connection"))
+    with pytest.raises(APIConnectionError):
+        PV.call_backend("heimdall-qwen3.8-27b", "s", "u", {}, ledger, "t")
+    script["qwen/qwen3.8-27b"] = APIConnectionError(ConnectError("connection refused"))
+    with pytest.raises(APIConnectionError):
+        PV.call_backend("heimdall-qwen3.8-27b", "s", "u", {}, ledger, "t")
+    rows = [json.loads(x) for x in open(ledger.path)]
+    assert [r["usd_source"] for r in rows] == ["failed after sending: worst case"]       # only the dropped one
+    assert rows[0]["usd"] >= PV.BACKENDS["heimdall-qwen3.8-27b"]["reserve_usd"] and ledger.in_flight() == 0.0
+
+
+def test_no_audit_or_vendor_model_family_name_appears_in_the_instrument_code():
+    """Case-insensitive, audit legs included (Heimdall audit round 4). The bare word 'gemma' is left out on purpose:
+    it names the PRODUCTION selector's local model that replay.py replays; the instrument's own local model id is
+    caught by the shapes scan above (gemma<digit>)."""
+    import re
+    families = re.compile(r"(gpt-\d|gemini|claude-|grok|deepseek|qwen|glm-)", re.IGNORECASE)
+    for path in glob.glob(os.path.join(PKG, "*.py")) + [TOOL]:
+        if os.path.basename(path) == "providers.py":
+            continue
+        hits = families.findall(open(path, encoding="utf-8").read())
         assert not hits, (path, hits)

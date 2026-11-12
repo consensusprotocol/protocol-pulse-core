@@ -41,6 +41,7 @@ def test_an_id_that_is_not_in_the_universe_is_oracle_failed(day_rows):
     lambda o: o.update(verdict="NONE", none_reason="", lineups=[]),           # NONE without a reason
     lambda o: o.update(verdict="NONE", none_reason="nothing"),                # NONE that still lists a line-up
     lambda o: o.update(lineups=[]),                                           # LINEUPS with none
+    lambda o: o.update(none_reason="nothing reached three channels"),        # LINEUPS that also says there is none
     lambda o: o.update(lineups=[legal_lineup()] * 4),                        # more than 3
     lambda o: o.update(extra="x"),                                            # unknown key
     lambda o: o.pop("none_reason"),                                           # missing key

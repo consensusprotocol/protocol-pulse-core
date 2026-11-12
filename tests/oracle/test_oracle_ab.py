@@ -85,6 +85,21 @@ def test_guard_stopped_items_are_not_measured_and_a_rerun_merges_per_item(tmp_pa
     assert (m["must_fail_caught"], m["must_fail_measured"]) == (1, 1) and m["agree"] == 3
     assert m["withdrawn"] == 1                                                    # never counted as a result ...
     assert m["usd"] == round(0.1 + 0.4 + 0.2 + 0.1 + 0.3, 6) and m["calls_paid"] == 5   # ... but it was paid
+    assert m["failed_resamples"] == 0                       # a guard-stopped row later measured is not a failure
+
+
+def test_a_failed_call_on_an_item_another_sample_measured_stays_visible_whatever_the_order(tmp_path):
+    ok = {"item": "a/L1", "status": "OK", "agree": True, "verdict": "LEGAL", "expected": "LEGAL", "seconds": 2.0,
+          "usd": 0.01}
+    bad = {"item": "a/L1", "status": "FAILED", "seconds": 5.0, "usd": 0.02, "error": "JudgeFailed: not JSON"}
+    for k, order in enumerate(((bad, ok), (ok, bad))):
+        paths = []
+        for j, row in enumerate(order):
+            paths.append(str(tmp_path / f"{k}_{j}.json"))
+            json.dump({"results": {"b": {"rows": [row]}}}, open(paths[-1], "w"))
+        m = AB.merge(paths)["b"]
+        assert (m["items"], m["measured"], m["failed"], m["agree"]) == (1, 1, 0, 1)   # measured by its OK sample ...
+        assert m["failed_resamples"] == 1 and m["calls_paid"] == 2                     # ... the failure never dropped
 
 
 def test_a_swap_counts_as_caught_only_when_the_judge_fails_it_on_the_swapped_rule():

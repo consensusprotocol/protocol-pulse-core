@@ -65,6 +65,13 @@ def test_a_judge_that_never_answers_whole_is_not_measured_never_available(tmp_pa
     assert d["availability"].startswith("NOT_MEASURED (JUDGE_FAILED") and len(j.prompts) == 2
 
 
+def test_a_run_without_the_judge_is_not_measured_and_never_called_a_judge_failure(tmp_path, day_rows, fake):
+    o, j = fake([oracle_reply()]), fake([judge_reply("LEGAL")])
+    d = R.run_day(str(tmp_path), day_rows, NOW, o, j, llm.Ledger(str(tmp_path / "SPEND.jsonl")), judge=False)
+    assert d["availability"].startswith("NOT_MEASURED (judge not asked") and "JUDGE_FAILED" not in d["availability"]
+    assert j.prompts == [] and d["accepted"] == 0                     # nothing unjudged is ever accepted
+
+
 def test_an_illegal_verdict_is_not_available(tmp_path, day_rows, fake):
     d, _, _ = day(tmp_path, day_rows, [oracle_reply()], [judge_reply("ILLEGAL", false=("current",))], fake)
     assert d["availability"] == "NOT_AVAILABLE (the blind judge said every checked line-up fails our rules)"

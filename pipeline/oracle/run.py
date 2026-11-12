@@ -253,7 +253,8 @@ def assess_day(day_dir, o, rows, now_utc, judge_call, ledger, judge, variant, ar
     elif o.get("verdict") == "NONE":
         day["availability"] = "NONE (oracle)"
     elif unjudged:                                   # a line-up nobody judged might have been legal: not measured
-        day["availability"] = f"NOT_MEASURED (JUDGE_FAILED on {len(unjudged)} of {len(legal)} line-ups)"
+        day["availability"] = (f"NOT_MEASURED (JUDGE_FAILED on {len(unjudged)} of {len(legal)} line-ups)" if judge
+                               else f"NOT_MEASURED (judge not asked: --no-judge; {len(legal)} line-ups unjudged)")
     elif not legal and o.get("reask_answered") is False:
         # every line-up failed the checks and the corrective re-ask was never answered whole (it failed, or an
         # earlier failure used its attempt): the protocol's answer is missing, so nothing is measured

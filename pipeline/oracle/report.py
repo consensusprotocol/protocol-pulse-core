@@ -76,6 +76,7 @@ def write_report(day_dirs, out_root, path, analysis_path=None):
               f"**Sample size: {len(days)} saved runs on {len({x['man']['today'] for x in days if x['man']})} UTC dates. "
               "This is a small sample: every number below is a count of these runs, stated with its raw count; no "
               "rate in this report generalises beyond them, and no confidence interval is claimed.**", ""]
+    incomplete_at = len(lines)                      # filled in once every table is counted (incomplete_section)
     # ── the table ──
     lines += ["## 1. Per run", "",
               "| run (UTC stamp) | started (ET) | rows shown / exported | oracle | proposed / pass the code checks / pass the blind judge "
@@ -243,6 +244,7 @@ def write_report(day_dirs, out_root, path, analysis_path=None):
                   f"before per-call pricing was recorded carry no price. Guard: {llm.SPEND_CAP_USD:.0f} USD (the ledger "
                   "refuses any call whose worst case would pass it).", ""]
     lines += variant_section(day_dirs)
+    lines[incomplete_at:incomplete_at] = incomplete_section(days, day_dirs, recall, stage_counts)
     with open(path + ".tmp", "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     os.replace(path + ".tmp", path)
@@ -363,6 +365,70 @@ def _local_writer_fit(day_dirs, name):
     return fit, n
 
 
+def incomplete_section(days, day_dirs, recall, stage_counts):
+    """'Read this first': every row of this report that is incomplete or not measured, with its count, from the
+    recorded artefacts (orchestrator order 05:30 ET: nothing is re-run after the spend freeze)."""
+    from pipeline.oracle import ab as AB, providers as PV
+    out = ["## 0. Incomplete rows (read this first)", "",
+           "Spend freeze 2026-11-12 05:30 ET: no paid model call was made after it and nothing below was re-run. Every "
+           "row listed here is incomplete or not measured; it is never counted as a pass, a miss or a result.", ""]
+    for name in RECORDS:
+        k, n, m = recall[name]
+        if m:
+            out.append(f"- Selector recall, {name}: {m} of {n + m} runs with a line-up not measured (the record "
+                       "crashed, was stopped or hit NOT_RERUN before selecting).")
+    out.append("- Selector precision: not measured on any record (no record accepted a line-up).")
+    nr = {r: stage_counts[r]["NOT_REACHED"] for r in RECORDS if stage_counts[r]["NOT_REACHED"]}
+    if nr:
+        out.append("- Loss stage NOT_REACHED (the record stopped before deciding the line-up): "
+                   + "; ".join(f"{r} {k} of {sum(stage_counts[r].values())}" for r, k in nr.items()) + ".")
+    hidden = [load(d, "DAY.json").get("rows_hidden_longer_than_clip_budget") for d in day_dirs if load(d, "DAY.json")]
+    if hidden:
+        out.append(f"- Windows-as-targets rule sets (same_dev, moments): lower bounds; {sum(hidden)} sentences longer "
+                   "than the 20 s clip ceiling were never shown to the writer.")
+    for sub in ("", "same_dev_hard_max", "same_dev"):
+        missing = [os.path.basename(d) for d in day_dirs if (load(os.path.join(d, sub) if sub else d, "DAY.json") or {})
+                   .get("accepted", 0) and (load(os.path.join(d, sub) if sub else d, "DAY.json") or {})
+                   .get("distinct_developments") is None]
+        if missing:
+            out.append(f"- Distinct developments ({sub or 'same_dev_hard'}): not measured on {', '.join(missing)}.")
+    ab_dir = os.path.join(os.path.dirname(day_dirs[0]), "ab") if day_dirs else ""
+    for role in ("judge", "witness", "grouping"):
+        files = sorted(glob.glob(os.path.join(ab_dir, "**", f"AB_{role}.json"), recursive=True), key=os.path.getmtime)
+        planned, swaps = _planned(ab_dir, day_dirs, role) if day_dirs else (0, 0)
+        merged = AB.merge(files) if files else {}
+        for name in PV.ROLES[role]:
+            if name == PV.ROLES[role][1]:
+                continue                                  # the reference: its recorded verdicts ARE the yardstick
+            r = merged.get(name)
+            plan = swaps if (role == "judge" and name == PV.ROLES["judge"][1]) else planned
+            if r is None or "skipped" in r:
+                out.append(f"- A/B {role}, {name}: not run ({(r or {}).get('skipped') or 'no batch'}).")
+                continue
+            gaps = []
+            if r["items"] < plan:
+                gaps.append(f"{plan - r['items']} of {plan} planned items not run"
+                            + (" (batch not finished at report time: still running or stopped early)"
+                               if r.get("partial") else ""))
+            if r["failed"]:
+                gaps.append(f"{r['failed']} without a usable reply")
+            if r["not_sent"]:
+                gaps.append(f"{r['not_sent']} stopped by the spend guard")
+            if r.get("failed_resamples"):
+                gaps.append(f"{r['failed_resamples']} failed call(s) on items another sample measured")
+            if gaps:
+                out.append(f"- A/B {role}, {name}: " + "; ".join(gaps) + ".")
+    wfile = os.path.join(ab_dir, "AB_writer.json")
+    wd = json.load(open(wfile, encoding="utf-8")) if os.path.exists(wfile) else {"results": {}, "runs": []}
+    out += [f"- A/B writer: {len(wd.get('runs') or [])} universe(s) only ({', '.join(wd.get('runs') or []) or 'none'}), "
+            f"back-ends beside the reference: {', '.join(wd['results']) or 'none'}; the local writer cannot take a "
+            "universe (context guard); the other writer back-ends of the chain were not run.",
+            "- VO fidelity (law L-w 6): not measured (the backtest writes no voiceover).",
+            "- Audit legs that never ran or failed, per round: docs/audits/parallel/pp-backtest_AUDIT.md (round 4, "
+            "after the spend freeze, ran on Heimdall only and most of its legs are NOT MEASURED).", ""]
+    return out
+
+
 def analysis_text(path):
     """The hand-written analysis; a report is never written around an unfilled template placeholder (@NAME@)."""
     import re
@@ -400,7 +466,8 @@ def ab_section(ab_dir, day_dirs=()):
             "'items run / planned' shows what was never run. Dollars per call: "
             "frontier from the provider config's price table, a gateway's as it reports each call, local 0.", "",
             "Items the spend guard stopped before they were sent are NOT MEASURED (own column), never failures and never "
-            "agreement; a batch re-run for them is merged per item (every paid call is counted in the dollars). The "
+            "agreement; a batch re-run for them is merged per item (every paid call is counted in the dollars). A "
+            "failed call on an item that another sample measured is shown beside the failed count, never dropped. The "
             "reference judge's own row holds only its result on the development swaps (its recorded verdicts are the "
             "reference and are not re-asked).", "",
             "| role | back-end | items run / planned | measured / not sent (spend guard) / failed (no usable reply) | agreement with "
@@ -426,7 +493,10 @@ def ab_section(ab_dir, day_dirs=()):
                 part = " (batch still running or stopped early: counts are of the items it finished)" if r.get(
                     "partial") else ""
                 plan = swaps if (role == "judge" and name == PV.ROLES["judge"][1]) else planned   # the reference
-                out.append(f"| {role} | {name}{part} | {r['items']} / {plan} | {r['measured']} / {r['not_sent']} / {r['failed']} | "
+                resampled = (f" (+{r['failed_resamples']} failed call(s) on items another sample measured)"
+                             if r.get("failed_resamples") else "")
+                out.append(f"| {role} | {name}{part} | {r['items']} / {plan} | {r['measured']} / {r['not_sent']} / "
+                           f"{r['failed']}{resampled} | "
                            f"{r['agree']} of {r['measured']} | {lax} | {tight} | {mf} | {r['median_s']} | "
                            f"{r['usd']} ({', '.join(r['usd_source'])}) |")
         for path in files if role == "writer" else ():

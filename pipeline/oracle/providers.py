@@ -98,10 +98,16 @@ class ContextTooLong(RuntimeError):
     silently (the model then answers about part of the input), so it is never sent; the role moves to the next."""
 
 
+def sent_system(b, system):
+    """The system text this back-end is actually sent (a no_tools back-end also gets llm.NO_TOOLS): every size
+    estimate, reservation and cut-prompt check counts this text, never a shorter one."""
+    return system + (llm.NO_TOOLS if b.get("no_tools") else "")
+
+
 def fits(name, system, user):
     """(ok, estimated prompt tokens) against the back-end's declared context (num_ctx); no declared context: ok."""
     b = BACKENDS[name]
-    est = llm.est_tokens(system, user)
+    est = llm.est_tokens(sent_system(b, system), user)
     return (not b.get("num_ctx") or est + b["max_tokens"] <= b["num_ctx"]), est
 
 
@@ -130,9 +136,15 @@ def _vendor_error(e):
 
 def _maybe_billed(e):
     """The request may have been processed (and billed) although no reply arrived: a timeout or a dropped
-    connection, with no HTTP status (a status means the vendor refused it unbilled)."""
-    return _status(e) is None and (isinstance(e, (TimeoutError, ConnectionError)) or type(e).__name__ in (
-        "APITimeoutError", "ReadTimeout", "RemoteDisconnected", "IncompleteRead"))
+    connection, with no HTTP status (a status means the vendor refused it unbilled). The OpenAI SDK wraps every
+    transport failure as APIConnectionError, a connection dropped mid-reply included: only one whose cause is a
+    failure to connect at all proves nothing was sent."""
+    if _status(e) is not None:
+        return False
+    if type(e).__name__ == "APIConnectionError":
+        return type(e.__cause__).__name__ not in ("ConnectError", "ConnectTimeout")
+    return isinstance(e, (TimeoutError, ConnectionError)) or type(e).__name__ in (
+        "APITimeoutError", "ReadTimeout", "RemoteDisconnected", "IncompleteRead")
 
 
 _heimdall_lock = threading.Lock()
@@ -196,8 +208,8 @@ def _openai_compat(b, system, user, schema):
                                                                      "schema": schema}}}
     if b.get("reasoning_effort"):
         kw["reasoning_effort"] = b["reasoning_effort"]
-    sysmsg = system + (llm.NO_TOOLS if b.get("no_tools") else "")
-    lim = {"max_completion_tokens": b["max_tokens"]} if b["vendor"] == "openai" else {"max_tokens": b["max_tokens"]}
+    sysmsg = sent_system(b, system)
+    lim ={"max_completion_tokens": b["max_tokens"]} if b["vendor"] == "openai" else {"max_tokens": b["max_tokens"]}
     t0 = time.time()
     resp = client.chat.completions.create(model=b["model"], messages=[{"role": "system", "content": sysmsg},
                                                                       {"role": "user", "content": user}], **lim, **kw)
@@ -245,8 +257,12 @@ def call_backend(name, system, user, schema, ledger, tag, notify_dir=None):
     prompt that does not fit the declared context, a Heimdall call past its 90 % tripwire (checked on EVERY call), any
     call the spend guard refuses (priced: its worst case is reserved until it settles; unpriced: refused once the cap
     is reached). A context-length refusal, or a remote reply that counted far fewer prompt tokens than the prompt can
-    hold (a gateway that cut it), is ContextTooLong."""
+    hold (a gateway that cut it), is ContextTooLong. The GPU0 lease is checked here too, for every caller."""
     b = BACKENDS[name]
+    if b.get("gpu0"):                               # never only in call()'s chain walk: a direct caller is gated too
+        ok, why = available(name)
+        if not ok:
+            raise VendorDown(why)
     ok, est = fits(name, system, user)
     if not ok:
         raise ContextTooLong(f"{name}: prompt ~{est} tokens + {b['max_tokens']} reply > context {b['num_ctx']}")
@@ -255,7 +271,8 @@ def call_backend(name, system, user, schema, ledger, tag, notify_dir=None):
         if not ok:
             raise VendorDown(why)
     price, remote = b.get("price"), b["vendor"] != "ultron"
-    est = llm.est_tokens(system, user)
+    sysmsg = sent_system(b, system)                 # what is actually sent: the estimate and the cut check count it
+    est = llm.est_tokens(sysmsg, user)
     worst = (llm.cost(price, est, b["max_tokens"]) if price
              else max(b.get("reserve_usd", DEFAULT_RESERVE_USD),
                       round((est + b["max_tokens"]) / 1e6 * b.get("reserve_usd_per_mtok", 0.0), 4)) if remote else 0.0)
@@ -290,7 +307,7 @@ def call_backend(name, system, user, schema, ledger, tag, notify_dir=None):
     row.update(tag=tag, backend=name, vendor=b["vendor"], model=(raw.get("model") if isinstance(raw, dict) else None)
                or b["model"])
     ledger.settle(token, **row)
-    chars = len(system) + len(user)
+    chars = len(sysmsg) + len(user)
     if remote and not row.get("tokens_in"):         # no count, no proof the whole prompt was read (fail closed)
         raise ContextTooLong(f"{name}: the reply carries no prompt-token count; a cut prompt cannot be ruled out")
     ceiling = b.get("max_chars_per_token", MAX_CHARS_PER_TOKEN)
