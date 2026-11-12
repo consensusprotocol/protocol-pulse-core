@@ -20,9 +20,10 @@ The orchestrator's "about $57" is the oracle ledger alone; the audits (cross-LLM
   reviewers only (pp-backtest_AUDIT.md, round 4: 4 of 12 legs measured, no consensus, so NOT MEASURED; every
   finding checked by hand: 8 fixed, 2 refuted, 1 withdrawn, plus one spend-accounting fix found while running it).
   Final commit: see the last line of this section.
-- STATUS: DONE at commit 36ea5d60 (pushed to origin/pp-backtest 2026-11-12 04:58 ET), then the freeze commit below.
+- STATUS: DONE. First at commit 36ea5d60 (pushed 2026-11-12 04:58 ET); final at 383337b4 (the spend-freeze close-out,
+  pushed 07:04 ET); see the last line of this section.
   Report: docs/audits/BACKTEST_SUPPLY_REPORT.md
-  (sections 1-9; hand-written analysis = section 5, from pp-backtest_ANALYSIS.md). Raw artefacts (prompts, raw replies,
+  (sections 0-9, 0 = every incomplete row; hand-written analysis = section 5, from pp-backtest_ANALYSIS.md). Raw artefacts (prompts, raw replies,
   parsed records, spend ledger, A/B files): /home/ultron/heimdall_probe/pp_redteam/oracle/<stamp>/ and .../ab/.
 - DONE WHEN, item by item:
   1. Export: 10 saved universes -> BITCOIN_STATEMENTS_<stamp>.jsonl (3,018-5,384 rows each), read as spoken through
@@ -61,6 +62,12 @@ The orchestrator's "about $57" is the oracle ledger alone; the audits (cross-LLM
   re-running the target-mode variants with sentences over 20 s shown (lower bounds as reported).
 - Stop hook: it audits the MAIN tree and asks to commit files another session is editing there; not touched (B14 / R7).
 - BLOCKED: nothing.
+- FINAL: DONE at commit 383337b4 on origin/pp-backtest (pushed 2026-11-12 07:04 ET): tests/oracle 174 passed;
+  regression_test.sh 26 PASS / 0 FAIL / 5 WARN (key relay check not reachable, oracle-live and the video server not
+  running, 20 entries on the shared stash list, and this STATE edit itself uncommitted at that moment); key
+  scan of every committed file: 0 hits. No paid model call after 05:30 ET; the only rows added to the oracle ledger
+  after the freeze are the integrator's 11 local calls ($0). Next step for whoever picks this up: the round-4 fixes
+  have not been reviewed by a second model (REQUESTS R6: a Gemini key; or a paid round once the freeze lifts).
 
 ## Assumptions (K1; most defensible reading, taken without asking)
 
