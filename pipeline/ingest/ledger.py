@@ -1,6 +1,7 @@
 """pipeline/ingest/ledger.py: the append-only moment ledger and the packager's adapter.
 
-append()  one locked O_APPEND write per video (every line of it), flushed and fsynced; lines are never rewritten. Every
+append()  one locked O_APPEND write per video (every line of it), flushed and fsynced; lines are never rewritten. With
+          stamp (the service), every line's mined.at is set under the lock, so the file is in mined.at order. Every
           line is checked first (line_problems): one bad line and nothing is written (ValueError). A torn tail left
           by a failed write (ENOSPC, EIO, a crash) is closed with a newline under the same lock before writing.
 seal()    the same closing, on start; a torn line stays one unreadable line; readers skip and count unreadable lines
@@ -16,17 +17,21 @@ best_unused_moments(path, since, now, delivered_ids, ...)
 import fcntl
 import json
 import os
+import re
 from datetime import datetime, timedelta, timezone
 
 from . import contract, mine
 
+VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")       # a YouTube id: record_by_sha joins it into a path
 REQUIRED = {"schema": str, "moment_id": str, "video_id": str, "channel_id": str, "channel_name": str,
             "published_at": str, "title": str, "transcript_sha256": str, "transcript_method": str, "timing": str,
             "words": list, "sentences": list, "text": str, "speaker": dict, "scores": dict, "names_person": bool,
             "risk": list, "topics": list, "reason": str, "eligibility": dict, "mined": dict}
 
 
-def append(path, lines):
+def append(path, lines, stamp=None):
+    """stamp: a callable giving the time written as every line's mined.at, taken under the lock (the file is then in
+    mined.at order, exactly: freeze audit c1)."""
     if not lines:
         return 0
     for i, l in enumerate(lines):
@@ -34,12 +39,16 @@ def append(path, lines):
         if p:
             raise ValueError(f"line {i} ({(l or {}).get('moment_id') if isinstance(l, dict) else None}) is not a "
                              f"usable pp.moment/1 line: {'; '.join(p)}; nothing written")
-    data = "".join(json.dumps(l, ensure_ascii=False, sort_keys=True) + "\n" for l in lines).encode()
     os.makedirs(os.path.dirname(path), exist_ok=True)
     fd = os.open(path, os.O_RDWR | os.O_APPEND | os.O_CREAT, 0o644)
     try:
         fcntl.flock(fd, fcntl.LOCK_EX)
         try:
+            if stamp is not None:
+                at = stamp()
+                for l in lines:
+                    l["mined"]["at"] = at
+            data = "".join(json.dumps(l, ensure_ascii=False, sort_keys=True) + "\n" for l in lines).encode()
             size = os.fstat(fd).st_size
             if size and os.pread(fd, 1, size - 1) != b"\n":
                 data = b"\n" + data                    # a torn tail: closed, so the first new line stays whole
@@ -86,6 +95,8 @@ def line_problems(l):
         return out
     if l["schema"] != contract.SCHEMA:
         out.append(f"schema {l['schema']!r}")
+    if not VIDEO_ID.match(l["video_id"]):
+        out.append(f"video_id {l['video_id'][:40]!r} is not a YouTube id")
     for k in ("words", "sentences"):
         v = l[k]
         if len(v) != 2 or any(type(x) is not int for x in v) or v[0] > v[1]:
@@ -108,10 +119,11 @@ def _mined_at(raw):
 
 def offset_before(path, cutoff):
     """A byte offset at or before the first line mined at or after `cutoff` (aware datetime), by bisection over the
-    file. It assumes lines are in mined.at order to within the caller's margin: a line's mined.at is the start of its
-    video's mining pass and a video's lines are appended when that pass ends, so videos mined concurrently interleave
-    by at most one pass (minutes); callers pass a cutoff with a day of margin. Unreadable lines are stepped over; where
-    no time can be read the bisection moves towards the start (a fuller read is never wrong, only slower)."""
+    file. Lines are in mined.at order: the service stamps mined.at under the append lock (append(stamp=...)); lines
+    written before that stamp carry their pass's start, at most one mining pass (minutes) out of order, which the
+    caller's one day of margin covers (a skipped line is then older than both `since` and the 72 h horizon:
+    tests/ingest/test_ledger_coverage.py). Unreadable lines are stepped over; where no time can be read the bisection
+    moves towards the start (a fuller read is never wrong, only slower)."""
     try:
         size = os.path.getsize(path)
     except OSError:
@@ -163,6 +175,11 @@ def read(path, from_time=None):
                 continue
             lines.append(l)
     return lines, bad
+
+
+def video_moment_ids(path, video_id, since):
+    """The distinct moment ids of one video among the lines mined at or after `since` (aware datetime)."""
+    return {l["moment_id"] for l in read(path, from_time=since)[0] if l["video_id"] == video_id}
 
 
 def record_by_sha(store_root, video_id, sha):

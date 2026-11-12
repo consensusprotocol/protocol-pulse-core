@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS calls (
   provider TEXT, video_id TEXT, win TEXT, attempt INTEGER, kind TEXT, http_status INTEGER, latency_s REAL,
   prompt_tokens INTEGER, completion_tokens INTEGER, cost_usd REAL, error TEXT);
 CREATE INDEX IF NOT EXISTS calls_ts ON calls(ts);
+CREATE INDEX IF NOT EXISTS calls_video ON calls(video_id);
+CREATE INDEX IF NOT EXISTS calls_backend ON calls(backend, cost_usd);
 CREATE TABLE IF NOT EXISTS events (
   id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, ts REAL NOT NULL, video_id TEXT, channel_id TEXT,
   kind TEXT NOT NULL, detail TEXT);

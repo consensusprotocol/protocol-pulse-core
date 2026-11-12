@@ -125,3 +125,17 @@ moment (law L-u) could be served.
 the conjunction of about_bitcoin.
 **Detection:** tests/ingest/test_mine.py `test_a_range_seen_twice_keeps_every_observations_flags`.
 
+### INGEST-FAIL-13: A fixed window overlap re-sent text up to 3x when sentences were huge
+**Evidence (freeze audit c2, glm N8; measured 07:15 ET Nov 12):** the next window started `overlap` sentences before the
+end of the last one, but at least one sentence after its start; with sentences of ~250 words a 900-word window holds 3,
+so each window advanced ONE sentence: 60 such sentences made 58 windows and sent each sentence 3 times (no window
+ceiling in the service: cost and time grew with the redundancy, not with the content).
+**Rule:** an overlap is a fraction of the window it overlaps (at most half), so every sentence is sent at most twice;
+never a window cap, which would drop content. Measured on the staging store: 0 of 1,208 windows change (all hold >= 12
+sentences), so no stored reply is invalidated.
+**Detection:** tests/ingest/test_mine.py `test_windows_of_huge_sentences_never_walk_one_sentence_at_a_time`.
+**See also INGEST-FAIL-04:** the same hidden-reasoning budget trap hit two audit reviewers served by the gateway
+(glm-5.3-flash, minimax-m3.1-flash: empty, finish_reason length, on a 100k-token package); glm answered at reasoning
+effort none, minimax ignored the setting (empty again). A reviewer or miner on a reasoning model is configured with
+its reasoning off, and an empty answer is recorded with its cost, never as a review.
+

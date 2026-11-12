@@ -8,7 +8,7 @@ tripwire that removes it (B1) or an outage limit that drops videos (B2) would ha
 
 Evidence of each blocking defect ON THE OLD CODE (753dec1d, an untouched `git archive` export, its own helpers):
 docs/audits/parallel/pp-ingest_audit/integrator_c1/mustfail_old_753dec1d.json (script: mustfail_old.py beside it).
-Each new test below passes on the new code; 147 tests in tests/ingest pass.
+Each new test below passes on the new code; tests/ingest: 161 pass.
 
 ## BLOCKING
 
@@ -80,7 +80,7 @@ Each new test below passes on the new code; 147 tests in tests/ingest pass.
 | Q3 `seal` only at start: a failed write mid-run glues the next line | fixed: `append` closes a torn tail under its own lock before writing. Test: `test_append_closes_a_torn_tail_left_by_a_failed_write_in_a_live_process`. |
 | Q3 the second observation's risk flags discarded | fixed: union of risk / names_person / altcoin, conjunction of about_bitcoin (fail closed, L-u). Reproduced on the old code (`risk=[]` though the second observation flagged ad_read). Test: `test_a_range_seen_twice_keeps_every_observations_flags`. |
 | Q3 `append` does not run `line_problems` | fixed: one bad line and nothing is written (ValueError; the video waits with the reason). Test: `test_append_refuses_a_bad_line_and_writes_nothing`. |
-| Q3 `offset_before` "0 when in doubt" not implemented | fixed (the docstring): it states the real guarantee (lines in mined.at order to within one mining pass; the caller's 1-day margin; moving towards the start where no time can be read). |
+| Q3 `offset_before` "0 when in doubt" not implemented | fixed: the service now stamps `mined.at` under the append lock (`ledger.append(stamp=...)`), so the file is in mined.at order by construction; lines written before carry their pass's start, out of order by at most one pass, which the reader's 1-day margin covers (a skipped line is older than both `since` and the 72 h horizon). The docstring states exactly this. Tests: `test_the_service_stamp_puts_the_file_in_mined_at_order`, `test_the_bounded_read_is_exact_while_lines_are_out_of_order_by_less_than_its_margin` (1 h and 20 h of disorder, five `since` values). |
 | Q3 `best_unused_moments` skips opt-out / registry at its defaults | fixed: left out, both are read from their files; an unreadable opt-out list refuses the read. Test: `test_the_exclusions_are_never_skipped_by_default`. |
 | Q3 ids deterministic; text verbatim; timing labels | answered: ids are the contract's formula; text is `eligibility.spoken` of the record's tokens (pp-selectid's definition, fingerprinted per line); `timing` is "segment" for captions (`duration_s` null, `duration_estimate_s` set) as the contract defines it. |
 | Q4 overrides.json can point the bearer key anywhere; urllib forwards it on redirects | fixed: a base-URL override is honoured only for this machine or the configured host (refusals logged); every redirect is refused (`redirect` kind), so the key never follows one. Tests: `test_a_runtime_override_may_point_only_at_this_machine_or_the_configured_host`, `test_a_redirect_is_refused_so_the_key_never_follows_it` (a live local 302 server). |
@@ -94,4 +94,18 @@ Each new test below passes on the new code; 147 tests in tests/ingest pass.
 | Q5 private APIs (`ts._ytdlp`, `_vdir`, `_write_once`, `_store`, `_log_attempt`, `LocalLLM._post`) | answered: deliberate (the SAME record format by construction, through the store's own writer); proposed public aliases in REQUESTS R8. |
 
 ## DRILL (real components, under the spend freeze)
-See STATE and docs/audits/parallel/pp-ingest_audit/drill_freeze_20261112.json.
+Scratch store, channel swan_bitcoin, 11:06-11:13 UTC: Heimdall's URL dead for 10 mining passes: both videos
+`mine_waiting` "OUTAGE ... no try used", mine_tries 0, 24 refused calls ($0), 0 calls to a frozen vendor; URL restored:
+the breaker's half-open probe found Heimdall and both were mined 328 s later (3 calls, $0.00065).
+docs/audits/parallel/pp-ingest_audit/drill_freeze_20261112.json (tests/ingest/drill_freeze.py).
+
+## THE CROSS-LLM AUDIT OF THIS CHANGE (under the freeze)
+OpenAI, xAI and Google are frozen, so the reviewers were four model families served by Heimdall: qwen3.8-27b,
+glm-5.3-flash, muse-spark-open-816b (minimax-m3.1-flash answered empty twice). Cycle 1: docs/audits/parallel/
+pp-ingest_audit/freeze/C1_CONSENSUS.md. Fixed from it: the ledger is in mined.at order by construction (mined.at
+stamped under the append lock), the outage count in SQL, the `calls` indexes, a partial video's later passes always
+append what they mine and an outage pass keeps its count, caption downloads respect the yt-dlp breaker, a stop inside
+a fetch never strands a video, L-x's two back-ends per role checked by `load_config`, an interrupt never counts as a
+back-end failure, the local model never stopped under a request, an unmeasured coverage report retried hourly, and an
+outage longer than 30 min noticed at the top of STATE. Cycle 2: docs/audits/parallel/pp-ingest_audit/freeze/
+C2_CONSENSUS.md. Tests: 161.

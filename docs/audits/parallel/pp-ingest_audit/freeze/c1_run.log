@@ -1,0 +1,8 @@
+package 354707 chars
+  [gpt4o] SKIPPED (spend freeze: vendor 'openai')
+  [grok] SKIPPED (spend freeze: vendor 'xai')
+  [gemini] SKIPPED (spend freeze: vendor 'google')
+  [heimdall_qwen] done 181 s, 13585 chars, $0.008
+  [heimdall_minimax] ERROR BackendError: empty: no content (finish_reason length)
+  [heimdall_glm] ERROR BackendError: empty: no content (finish_reason length)
+  [heimdall_muse] ERROR BackendError: timeout: TimeoutError

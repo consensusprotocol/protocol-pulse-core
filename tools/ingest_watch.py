@@ -98,10 +98,14 @@ def cmd_handoff(a):
     ts = config.ts()
     main = os.path.realpath(a.main)
     plan, refused = [], []
+    import re
     for vid in sorted(os.listdir(p["transcripts"])):
         sdir = os.path.join(p["transcripts"], vid)
+        if not re.fullmatch(r"[A-Za-z0-9_-]{11}", vid) or not os.path.isdir(sdir):
+            refused.append((sdir, "not a video id directory"))
+            continue
         for name in sorted(os.listdir(sdir)):
-            if not (name == "meta.json" or (name.startswith("transcript.") and name.endswith(".json"))):
+            if not (name == "meta.json" or re.fullmatch(r"transcript\.[A-Za-z0-9_.-]+\.json", name)):
                 continue
             src, dst = os.path.join(sdir, name), os.path.join(main, "transcripts", vid, name)
             if os.path.exists(dst):

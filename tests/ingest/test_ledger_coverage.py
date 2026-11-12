@@ -180,7 +180,7 @@ def test_the_bounded_read_returns_exactly_what_a_full_read_returns(tmp_path, rec
             lines.append(b)
     ledger.append(p, lines)
     since = NOW - timedelta(hours=6)
-    fast, rep = ledger.best_unused_moments(p, since, NOW, registry=[H.CHAN], store_root=None)
+    fast, rep = ledger.best_unused_moments(p, since, NOW, registry=[H.CHAN], optout=(), store_root=None)
     expect = {}
     for l in ledger.read(p)[0]:                           # the contract's rule over every line, latest line wins
         at, pub = datetime.fromisoformat(l["mined"]["at"]), datetime.fromisoformat(l["published_at"])
@@ -189,6 +189,56 @@ def test_the_bounded_read_returns_exactly_what_a_full_read_returns(tmp_path, rec
     assert {(l["moment_id"], l["scores"]["quotable"]) for l in fast} == \
         {(l["moment_id"], l["scores"]["quotable"]) for l in expect.values()}
     assert ledger.offset_before(p, NOW - timedelta(days=5)) > 0 and rep["lines"] < len(lines) / 3
+
+
+@pytest.mark.parametrize("disorder_h", [1, 20])
+def test_the_bounded_read_is_exact_while_lines_are_out_of_order_by_less_than_its_margin(tmp_path, rec, disorder_h):
+    """Freeze audit c1 (qwen, P0 'bisection over an unsorted file'): lines written before the append-time stamp are out
+    of mined.at order by at most one mining pass; the reader's one day of margin keeps the bounded read exact for any
+    disorder under a day (here up to 20 h), for every `since`."""
+    import random
+    p = str(tmp_path / "m.jsonl")
+    rng = random.Random(disorder_h)
+    bases = [line(rec, a, a + 1) for a in range(11)]
+    lines = []
+    for hour in range(30 * 24, -1, -1):
+        for _ in range(12):
+            at = NOW - timedelta(hours=hour) - timedelta(minutes=rng.randint(0, disorder_h * 60))
+            b = dict(rng.choice(bases))
+            b.update(mined=dict(b["mined"], at=at.isoformat()), scores=dict(b["scores"], quotable=rng.randint(0, 5)),
+                     published_at=(at - timedelta(hours=rng.randint(0, 100))).isoformat())
+            lines.append(b)
+    ledger.append(p, lines)
+    full = ledger.read(p)[0]
+    for since_h in (1, 6, 30, 80, 200):
+        since = NOW - timedelta(hours=since_h)
+        fast, rep = ledger.best_unused_moments(p, since, NOW, registry=[H.CHAN], optout=(), store_root=None)
+        expect = {}
+        for l in full:
+            at, pub = datetime.fromisoformat(l["mined"]["at"]), datetime.fromisoformat(l["published_at"])
+            if at >= since or pub >= NOW - timedelta(hours=72):
+                expect[l["moment_id"]] = l
+        assert {(l["moment_id"], l["scores"]["quotable"]) for l in fast} == \
+            {(l["moment_id"], l["scores"]["quotable"]) for l in expect.values()}, since_h
+
+
+def test_the_service_stamp_puts_the_file_in_mined_at_order(tmp_path, rec):
+    """append(stamp=...) writes mined.at under the append lock: whatever the lines carried, the file is ordered."""
+    p = str(tmp_path / "m.jsonl")
+    clock = iter([NOW - timedelta(minutes=30 - i) for i in range(30)])
+    for i in range(10):
+        ls = [line(rec, 0, 1, mined={"at": (NOW - timedelta(hours=i)).isoformat()}),
+              line(rec, 2, 3, mined={"at": (NOW - timedelta(days=3)).isoformat()})]
+        ledger.append(p, ls, stamp=lambda: next(clock).isoformat())
+    ats = [datetime.fromisoformat(l["mined"]["at"]) for l in ledger.read(p)[0]]
+    assert ats == sorted(ats) and len(set(ats)) == 10
+
+
+def test_a_line_whose_video_id_is_not_a_youtube_id_is_bad(tmp_path, rec):
+    l = line(rec)
+    assert ledger.line_problems(dict(l, video_id="../../etc/x")) and not ledger.line_problems(l)
+    with pytest.raises(ValueError, match="not a YouTube id"):
+        ledger.append(str(tmp_path / "m.jsonl"), [dict(l, video_id="../../etc/x")])
 
 
 class TestCoverage:

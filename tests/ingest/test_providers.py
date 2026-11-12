@@ -510,3 +510,101 @@ def test_a_runtime_override_moves_a_back_end_and_is_recorded(tmp_path):
     assert b.base == "https://gw.example/api/v1" and changes[-1] == {}
     path.write_text("{not json")
     assert b.base == "https://gw.example/api/v1"            # unreadable = no override, never a crash
+
+
+def test_a_role_with_one_back_end_is_refused_by_the_loaded_config(tmp_path):
+    """Freeze audit c1 (glm C50): law L-x's two back-ends per role was met by the data, not checked by the code."""
+    cfg = H.router_cfg(["only_one"])
+    p = tmp_path / "providers.json"
+    p.write_text(json.dumps(cfg))
+    with pytest.raises(ValueError, match="at least two back-ends"):
+        providers.load_config(str(p))
+
+
+def test_an_interrupt_during_a_probe_frees_the_probe_without_counting_a_failure():
+    t = [1000.0]
+
+    def interrupted(p):
+        raise KeyboardInterrupt()
+    a = H.FakeBackend("a", fn=interrupted)
+    a.complete = lambda p, s, m: interrupted(p)
+    r = H.make_router([a], clock=lambda: t[0])
+    r.health["a"]._open(t[0], "test")
+    t[0] += 301
+    with pytest.raises(KeyboardInterrupt):
+        r.run("mine", "p", None, validate_obj)
+    snap = r.health["a"]
+    assert snap.probing is False and snap.consec == 0
+
+
+def test_the_local_model_is_never_stopped_under_a_running_request(monkeypatch):
+    import threading
+    started, finish, stopped = threading.Event(), threading.Event(), []
+
+    class LLM:
+        def __init__(self, model):
+            self.digest = "d"
+
+        def start(self):
+            return self
+
+        def _post(self, prompt, max_tokens, seed):
+            started.set()
+            finish.wait(5)
+            return OK
+
+        def stop(self):
+            stopped.append(True)
+    monkeypatch.setitem(sys.modules, "gpu0", types.SimpleNamespace(held=lambda: True))
+    monkeypatch.setitem(sys.modules, "story_semantics", types.SimpleNamespace(LocalLLM=LLM))
+    b = providers.OllamaLocalBackend("local", {"kind": "ollama_local", "vendor": "local", "model": "m",
+                                               "enabled": True}, providers.Keyring("/nonexistent"))
+    th = threading.Thread(target=b.complete, args=("p", None, 10))
+    th.start()
+    started.wait(5)
+    b.release()                                      # a request is running: not stopped
+    assert stopped == [] and b._llm is not None
+    finish.set()
+    th.join(5)
+    b.release()
+    assert stopped == [True]
+
+
+def test_a_stored_reply_is_reused_when_the_back_end_is_enabled_but_not_callable_now(tmp_path, monkeypatch):
+    """Freeze audit c2 (muse N2): the reply cache was gated on enabled(), which for the local back-end means the GPU0
+    lease: a validated reply stored under the lease could not be re-read without it (it costs nothing, uses no GPU)."""
+    held = {"v": True}
+
+    class LLM:
+        def __init__(self, model):
+            self.digest = "d"
+
+        def start(self):
+            return self
+
+        def _post(self, prompt, max_tokens, seed):
+            return OK
+
+        def stop(self):
+            pass
+    monkeypatch.setitem(sys.modules, "gpu0", types.SimpleNamespace(held=lambda: held["v"]))
+    monkeypatch.setitem(sys.modules, "story_semantics", types.SimpleNamespace(LocalLLM=LLM))
+    cfg = H.router_cfg(["local"])
+    cfg["backends"]["local"] = {"kind": "ollama_local", "vendor": "local", "model": "m", "enabled": True}
+    r = providers.Router(cfg, keyring=providers.Keyring("/nonexistent"), sleep=lambda s: None,
+                         cache_dir=str(tmp_path))
+    assert r.run("mine", "p", None, validate_obj).cached is False
+    held["v"] = False                                 # the lease is gone: no call, but the stored reply answers
+    out = r.run("mine", "p", None, validate_obj)
+    assert out.cached is True and out.backend == "local"
+    with pytest.raises(providers.AllBackendsFailed):
+        r.run("mine", "another prompt", None, validate_obj)        # nothing stored: not callable without the lease
+
+
+def test_a_back_ends_own_key_is_redacted_whatever_its_length(tmp_path):
+    env = tmp_path / ".env"
+    env.write_text("SHORT_KEY=ab12cd\n")
+    kr = providers.Keyring(str(env))
+    b = providers.OpenAICompatBackend("x", {"kind": "openai_compat", "vendor": "v", "model": "m",
+                                            "base_url": "http://127.0.0.1:9", "key_env": "SHORT_KEY"}, kr)
+    assert b.redact("bad key ab12cd given") == "bad key [redacted] given"

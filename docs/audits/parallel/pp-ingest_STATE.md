@@ -1,21 +1,47 @@
 # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
-## TOTAL SPEND BY VENDOR (this session, every use, to 06:25 ET Nov 12) - paid frontier vendors FROZEN since 05:30 ET
+## TOTAL SPEND BY VENDOR (this session, every use, to 07:25 ET Nov 12) - paid frontier vendors FROZEN since 05:30 ET
 | vendor | total | measured part | where it went | since the freeze |
 |---|---|---|---|---|
 | Anthropic | **$10.44** | all (each call's usage x the $4 / $20 per MTok list price) | the watcher's outage drill 08:36-08:43 UTC $7.17 (the whole of the watcher's Anthropic spend: $6.21 while Heimdall was dead + $0.97 windows in flight), the A/B generator $3.11, the smoke $0.13, a one-window proof $0.03 | $0.00 (0 calls) |
 | Google | **~$0.79** | none: the vendor reports no cost (estimate: usage x the $2 / $12 list price) | audit reviews c1 + c2 ~$0.74, a one-window proof ~$0.05 | $0.00 |
 | xAI | **$0.65** | $0.54 (the vendor's own `cost_in_usd_ticks`) | the A/B blind judge $0.45 (recorded at the time as $3.22 from the price-table estimate: INGEST-FAIL-11), audit c2 $0.09, audit c1 ~$0.09 and a one-window proof ~$0.02 (estimates: usage not saved) | $0.00 |
 | OpenAI | **~$0.35** | none: estimate (usage x gpt-4o's $2.50 / $10 list price) | audit reviews c1 + c2 | $0.00 |
-| Heimdall | **$0.39** | $0.31 (`usage.cost` of every reply) + at most $0.08 unrecorded (2 empty audit replies) | the watcher $0.10, the A/B $0.08, the smoke $0.05, the audits of 01:xx-04:xx and of this change (FREEZE AUDIT below) ~$0.07, the freeze drill $0.0007 | Heimdall mining continues (order) |
-| **TOTAL** | **~$12.6** | | Anthropic is 83 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
+| Heimdall | **$0.47** | $0.34 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.11, the A/B $0.08, the smoke $0.05, the audits $0.11 (the freeze audit's 2 cycles x 3-4 reviewers $0.08 of it), the freeze drill $0.0006 | $0.005 of mining (8 calls) + this change's audit; mining continues (order) |
+| **TOTAL** | **~$12.70** | | Anthropic is 82 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
 - Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261112.json (tests/ingest/spend_by_vendor.py: every
   row with its basis). Live, the watcher's own share: data/editorial/ingest/live.json `usd_all_time_by_vendor`.
-- Heimdall account (shared by the fleet's keys): /credits total_usage 33.68 at 02:50 ET -> 34.37 at 06:13 ET (+$0.69,
+- Heimdall account (shared by the fleet's keys): /credits total_usage 33.68 at 02:50 ET -> 34.58 at 07:22 ET (+$0.90,
   other sessions included: +$0.13 between 05:33 and 06:05 while this watcher made no call); the cap's sweep spend
-  $34.17 of $460 (7.4 %), meter ok, no tripwire.
+  $34.37 of $460 (7.5 %), meter ok, no tripwire.
 
 ## LIVE STATE (newest first; ET)
+
+- 07:25 Nov 12 FREEZE CHANGE AUDITED (2 cycles) AND LIVE. Nothing blocked. (commit: see git log, pushed)
+  - WATCHER restarted 07:22 on this code: mine chain heimdall_qwen27b -> local_gemma (callable: Heimdall only),
+    spend freeze openai / anthropic / xai / google, and the start line `WARNING: 1 callable mine back-end(s): when it
+    is down the videos wait in the queue ... nothing is dropped`. Frontier calls since 05:30: 0. Heimdall since 05:30:
+    8 calls, 8 ok, $0.0047 (a BTC Sessions upload: 20 moments from 8 windows in 23 s).
+  - AUDIT of the change under the freeze (A11): OpenAI / xAI / Google skipped; four model families served by Heimdall:
+    qwen3.8-27b, glm-5.3-flash, muse-spark-open-816b (minimax-m3.1-flash empty twice: its reasoning ignores effort none).
+    Cycle 2 verdicts: all three "Yes, with conditions", no P0 (glm: "the orchestrator's 05:30 order is implemented
+    exactly ... 'nothing is dropped' ... is now true and tested"). Fixed from the two cycles (each with a test):
+    mined.at stamped under the append lock (the ledger in mined.at order by construction), the `calls` indexes, the
+    outage count in SQL, a partial video's later passes append what they mine and its count is the ledger's, caption
+    downloads respect the yt-dlp breaker, a stop in a fetch never strands a video, `load_config` enforces two
+    back-ends per role, an interrupt is not a back-end failure, the local model released after 2 min idle and never
+    under a request, its stored replies reusable without the lease, an unmeasured coverage report retried hourly, an
+    outage over 30 min noticed at the top of STATE ("MINING WAITING ON AN OUTAGE ..."), windows of huge sentences no
+    longer re-sent 3x (0 of 1,208 existing windows change), the better-ranked observation's scores kept. Refutations
+    with evidence: pp-ingest_audit/freeze/C1_CONSENSUS.md, C2_CONSENSUS.md.
+  - A CONDITION from the audit (glm), recorded here: while the freeze lasts the `judge` role has no callable back-end,
+    so the NEXT A/B's quality dimension is UNMEASURED unless the integrator configures a judge of an unfrozen model
+    family (REQUESTS R9; glm-5.3-flash and muse-spark-open each reviewed a 100k-token package coherently at effort none).
+  - TESTS: tests/ingest 166 passed (py_compile clean).
+  - LIVE NUMBERS (07:23 ET; 24 h window since the watcher's start 03:26): 18 new uploads discovered (4.6 / h) + the
+    72 h backfill; 121 videos mined, 0 partial, 0 waiting on an outage; 1,310 moments (10.8 / video); publish -> mined
+    p50 21.4 min, p90 25.3 (n = 12; discovered -> mined p50 0.4 min); Heimdall error rate 0.6 % outside the 08:36 drill
+    (1 invalid in 164 calls); dollars in 24 h: Heimdall $0.11, Anthropic $7.17 (all the 08:36 drill, before the freeze).
 
 - 06:25 Nov 12 SPEND FREEZE IN FORCE + INTEGRATOR B1-B4 ANSWERED. Nothing blocked. (commit: see git log, pushed)
   - FREEZE (orchestrator 05:30): frontier back-ends out of the running watcher at 05:33 (config + restart; no frontier
@@ -47,7 +73,6 @@
     backfill; 116 videos mined, 0 partial, 1,290 moments (11.1 / video); publish -> mined p50 19.0 min, p90 24.8 (n = 7;
     discovered -> mined p50 0.4 min: the delay is YouTube's RSS cache); Heimdall error rate 0.6 % outside the 08:36
     drill (38 % with its 104 deliberate refusals); dollars in 24 h: Heimdall $0.10, Anthropic $7.17 (all the drill).
-  - FREEZE AUDIT of this change: see the entry it adds (Heimdall-served reviewers only; frozen vendors skipped).
 
 - 04:06 Nov 12 DONE WHEN MET. Commit 753dec1d (branch pp-ingest, pushed). Nothing blocked.
   - WATCHER RUNNING on 753dec1d: tmux `pipeline_pp_ingest_watch` (worktree; `python3 tools/ingest_watch.py run`;

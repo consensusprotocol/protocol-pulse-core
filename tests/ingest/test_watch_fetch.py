@@ -251,3 +251,33 @@ class TestYouTubeGateAgeGate:
         monkeypatch.setattr(ts, "_ytdlp", lambda args, timeout=120: subprocess.CompletedProcess(args, 0, "{}", ""))
         g.run(["-J", "x"])
         assert g.trips == 0                                          # the next trip is the short pause again
+
+
+class TestCaptionsRespectTheBreaker:
+    """Freeze audit c1 (glm C37): caption downloads held a yt-dlp slot but ignored the breaker, and a throttled
+    caption answer never tripped it."""
+
+    def test_no_caption_download_while_the_breaker_is_open_and_throttled_trips_it(self, q, monkeypatch):
+        ts = config.ts()
+        v = H.vid("c")
+        q.add_video(v, H.CHAN["channel_id"], "Bitcoin t", "playlist", listing_ts=NOW - 600)
+        fetched = []
+        monkeypatch.setattr(ts, "fetch_captions", lambda meta, work: (fetched.append(1), ("throttled", None))[1])
+        trips = []
+
+        class Gate(H.FakeGate):
+            until = 0.0
+
+            def open_for(self):
+                return 120.0 if self.until else 0.0
+
+            def trip(self, why):
+                trips.append(why)
+                self.until = 1.0
+        g = Gate(probes={v: H.probe_json(v, timestamp=NOW - 600)})
+        st = fetch.process(q, g, q.video(v), H.CHAN, set(), now_ts=NOW)
+        assert st == Q.CAPTIONS_PENDING and fetched == [1] and trips == ["captions: throttled"]
+        q.x("UPDATE videos SET next_at=0")
+        st = fetch.process(q, g, q.video(v), H.CHAN, set(), now_ts=NOW)
+        assert st == Q.CAPTIONS_PENDING and fetched == [1]           # breaker open: no second download
+        assert "breaker is open" in q.video(v)["reason"]

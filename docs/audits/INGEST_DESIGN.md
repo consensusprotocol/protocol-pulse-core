@@ -168,10 +168,16 @@ empty, a 4xx). Integrator B2:
 - outage only: the video waits (`mine_waiting`, reason `OUTAGE ...`), retried every 10 min, no try used, for as long
   as the outage lasts (the breaker skips the dead back-end at no cost; its half-open probe every 5 min finds it back);
 - rejected windows: a try is used; after 3 such passes the good windows' moments go to the ledger and the video is
-  `mined_partial`: retried every 6 h until 72 h after publish (its later lines appended only when a retry mines more
-  windows), never counted as mined (coverage, stats);
+  `mined_partial`: retried every 6 h until 72 h after publish (every pass that mines windows appends its lines, the
+  latest line wins; a pass that mines none leaves the ledger and the count as they are), never counted as mined
+  (coverage, stats);
 - every window mined: `mined`.
-The queue is SQLite (WAL). A video's moments are appended in one write (fsync) when its pass ends, then its state moves
+Videos waiting on an outage for over 30 min put one line at the top of the STATE file ("MINING WAITING ON AN OUTAGE: n
+video(s) waiting since T ..."), removed when none waits; it shares that top block with the spend notices, each writer
+replacing only its own lines. A coverage report with an unmeasured channel is tried again every hour that day.
+Caption downloads respect the yt-dlp breaker, and a throttled caption answer trips it.
+The queue is SQLite (WAL). A video's moments are appended in one write (fsync) when its pass ends, each line's
+`mined.at` stamped under the append lock (so the file is in mined.at order), then its state moves
 (a crash between the two re-appends identical lines on restart: readers keep the latest line per moment_id, by the
 contract). Every line is checked before the write (one bad line and nothing is written); a torn tail left by a failed
 write is closed with a newline under the append lock. A range seen from two overlapping windows is one line whose
@@ -193,6 +199,10 @@ live rate), agreement on the top 5 moments per video (sentence-range overlap, bo
 flags, recall of the PBX-approved Nov 11 preview passages, and a BLIND judge verdict (a model of another vendor than
 every generator; sides shuffled, names hidden). Local gemma3:27b runs under the GPU0 lease by the integrator with the
 same harness and prompts (`--backends local_gemma`).
+Under the spend freeze (orchestrator 05:30) the `judge` role's back-ends (xAI, Google, Anthropic) are all frozen: the
+A/B prints "no judge" and reports no blind verdict until a judge of another, unfrozen model family is configured
+(REQUESTS R9; the freeze audit measured two Heimdall-served families, glm-5.3-flash and muse-spark-open, reviewing a
+100k-token package coherently at reasoning effort none).
 
 ## 9. Coverage check
 

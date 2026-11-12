@@ -101,3 +101,20 @@ class TestStateNotice:
         os.utime(d, (1, 1))
         spend.write_state_notice("ok", {}, doc=d, label=self.LABEL)
         assert open(d).read() == before and os.path.getmtime(d) == 1
+
+
+def test_the_outage_and_spend_notices_share_the_top_and_each_writer_replaces_only_its_own(tmp_path):
+    d = tmp_path / "STATE.md"
+    d.write_text("# STATE\n- x\n")
+    d = str(d)
+    spend.write_state_notice("tripped", {"spend_usd": 415.0, "cap_usd": 460.0}, doc=d, label="HEIMDALL")
+    spend.write_outage_notice(3, "2026-11-12T12:00:00Z", doc=d)
+    lines = open(d).read().split("\n")
+    assert lines[0].startswith("MINING WAITING ON AN OUTAGE: 3") and lines[1].startswith("HEIMDALL SPEND AT 90%")
+    spend.write_state_notice("unmeasured", {"measured_at": None, "last_error": "x"}, doc=d, label="HEIMDALL")
+    lines = open(d).read().split("\n")
+    assert lines[0].startswith("HEIMDALL SPEND UNMEASURED") and lines[1].startswith("HEIMDALL SPEND AT 90%")
+    assert lines[2].startswith("MINING WAITING ON AN OUTAGE: 3") and lines[3] == "# STATE"
+    spend.write_outage_notice(0, None, doc=d)
+    spend.write_state_notice("ok", {}, doc=d, label="HEIMDALL")
+    assert open(d).read().split("\n")[:2] == [lines[1], "# STATE"]

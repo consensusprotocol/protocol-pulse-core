@@ -40,6 +40,7 @@ def queue_rows(path, source, out):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", help="the scratch smoke store (03:0x ET)")
+    ap.add_argument("--drill", help="the scratch store of the freeze drill (tests/ingest/drill_freeze.py)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     rows = []
@@ -47,6 +48,8 @@ def main():
                "outage drill only)", rows)
     if a.smoke:
         queue_rows(os.path.join(a.smoke, "ingest/queue.sqlite"), "smoke (scratch store, 03:2x ET)", rows)
+    if a.drill:
+        queue_rows(os.path.join(a.drill, "ingest/queue.sqlite"), "freeze drill (scratch store, 06:06-06:13 ET)", rows)
     for path in glob.glob(os.path.join(REPO, "data/editorial/ingest/ab/*/attempts.jsonl")):
         agg = {}
         for line in open(path):
@@ -70,10 +73,21 @@ def main():
                 usd, basis = g["usd"], "measured (per call)"
             rows.append({"vendor": v, "source": f"A/B {os.path.basename(os.path.dirname(path))} ({role})",
                          "backend": b, "calls": g["calls"], "usd": round(usd, 4), "basis": basis})
-    for c in ("c1", "c2"):
-        j = json.load(open(os.path.join(REPO, f"docs/audits/parallel/pp-ingest_audit/{c}/results.json")))
+    for c in ("c1", "c2", "freeze/c1", "freeze/c2"):
+        path = os.path.join(REPO, f"docs/audits/parallel/pp-ingest_audit/{c}/results.json")
+        if not os.path.exists(path):
+            continue
+        j = json.load(open(path))
+        failed = list((j.get("error_costs") or {}).items()) + [
+            (e["reviewer"], e["error_cost"]) for e in j.get("earlier_attempts") or [] if e.get("error_cost")]
+        for rid, ec in failed:                         # a failed call is spend too (usage.cost when the gateway sent it)
+            rows.append({"vendor": VENDOR.get(rid, "heimdall" if rid.startswith("heimdall") else rid),
+                         "source": f"audit {c} (failed: {ec.get('kind')})", "backend": rid, "calls": 1,
+                         "usd": round(ec.get("cost_usd") or 0.0, 4),
+                         "basis": "measured (usage.cost of the failed reply)" if ec.get("cost_usd") is not None
+                         else "UNMEASURED (no usage returned)"})
         for rid, r in j["results"].items():
-            v, u = VENDOR.get(rid, rid), r.get("usage") or {}
+            v, u = VENDOR.get(rid, "heimdall" if rid.startswith("heimdall") else rid), r.get("usage") or {}
             if v == "xai" and isinstance(u.get("cost_in_usd_ticks"), (int, float)):
                 usd, basis = u["cost_in_usd_ticks"] / 1e10, "measured (vendor cost_in_usd_ticks)"
             elif v in LIST:
@@ -92,6 +106,9 @@ def main():
          "basis": "ESTIMATE (~80k prompt + ~16k output at $2/$12)"},
         {"vendor": "openai", "source": "audit c1 (usage not saved)", "backend": "gpt4o", "calls": 1, "usd": 0.18,
          "basis": "ESTIMATE (~67k prompt + ~1.2k output at $2.50/$10)"},
+        {"vendor": "heimdall", "source": "freeze audit c1, first run: glm + minimax empty, muse timed out (usage not "
+         "saved by the driver then)", "backend": "heimdall_glm/minimax/muse", "calls": 3, "usd": 0.05,
+         "basis": "UPPER BOUND (111k prompt + 16k output each at the gateway's listed prices)"},
         {"vendor": "heimdall", "source": "audit c1 deepseek, 2 empty replies (usage not saved)",
          "backend": "heimdall_deepseek", "calls": 2, "usd": 0.08, "basis": "UPPER BOUND (73k prompt + 16k output "
          "each at the config's estimate $0.3/$1.2)"},

@@ -217,9 +217,16 @@ def _store_captions(q, gate, v, chan, j, common, tc, now_ts, tries):
                            rss_title=v.get("title") if v.get("discovered_via") == "rss" else None)
     existing = ts.canonical_transcript(vid)
     if existing is None:
+        wait = gate.open_for()
+        if wait > 0:                               # the yt-dlp breaker is open: no caption download either
+            q.set_state(vid, Q.CAPTIONS_PENDING, next_at=now_ts + wait + 60, title_canon=tc,
+                        reason=f"captions: the yt-dlp breaker is open for {wait:.0f} s", **common)
+            return Q.CAPTIONS_PENDING
         with gate.sem:
             status, rec = ts.fetch_captions(meta, os.path.join(paths["work"], "captions_tmp"))
         ts._log_attempt(vid, step="captions", status=status, writer="pipeline.ingest")
+        if status == "throttled" and getattr(gate, "trip", None):
+            gate.trip("captions: throttled")       # a caption download's rate limit stops every yt-dlp call
         if status != "ok":
             nxt = now_ts + 1800 if status == "throttled" else _caption_retry_at(now_ts, common["published_ts"], tries)
             q.set_state(vid, Q.CAPTIONS_PENDING, next_at=nxt, tries=tries + 1, title_canon=tc,

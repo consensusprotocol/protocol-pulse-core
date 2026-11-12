@@ -1,4 +1,8 @@
-"""pipeline/ingest/stats.py: the live numbers the STATE reports (from the queue; nothing estimated)."""
+"""pipeline/ingest/stats.py: the live numbers the STATE reports (from the queue; nothing estimated).
+
+moments: per video, the distinct moment ids it has in the ledger (a partial history counted from the ledger itself).
+usd_all_time_by_vendor: one indexed aggregate over every recorded call, each minute (cheap at ~1,000 calls a day; a
+daily accumulator would be the next step at much higher volume)."""
 import json
 import os
 import statistics
@@ -82,8 +86,8 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
         "usd_all_time_by_vendor": _by_vendor({r["backend"]: r["usd"] or 0.0 for r in q.rows(
             "SELECT backend, SUM(COALESCE(cost_usd,0)) AS usd FROM calls GROUP BY backend")}, vendor_of),
         "spend_freeze": sorted((cfg.get("spend_freeze") or {}).get("vendors") or []),
-        "mine_waiting_outage": sum(1 for r in q.rows("SELECT reason FROM videos WHERE state=?", (Q.MINE_WAIT,))
-                                   if (r["reason"] or "").startswith("OUTAGE")),
+        "mine_waiting_outage": q.rows("SELECT COUNT(*) AS n FROM videos WHERE state=? AND reason LIKE 'OUTAGE%'",
+                                      (Q.MINE_WAIT,))[0]["n"],
         "queue_states": states,
         "spend_meter": meter.snapshot() if meter else None,
         "spend_meter_state": meter.state() if meter else None,

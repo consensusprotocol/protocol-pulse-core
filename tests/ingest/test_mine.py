@@ -194,7 +194,9 @@ class TestMineVideo:
         def fn(prompt):
             ids = H.offered_ids(prompt)
             if ids[0] == 34:                                          # window 2 opens on the shared range: flagged
-                return H.reply([H.moment(34, 35, risk=["ad_read"], names_person=True, altcoin=True)])
+                return H.reply([H.moment(34, 35, risk=["ad_read"], names_person=True, altcoin=True,
+                                         scores=dict(H.moment(0, 0)["scores"], quotable=5, stakes=5),
+                                         reason="the better-ranked observation")])
             ms = [H.moment(ids[0], ids[1])]
             if 34 in ids and 35 in ids:
                 ms.append(H.moment(34, 35))                           # window 1's observation: clean
@@ -206,6 +208,7 @@ class TestMineVideo:
         dup = next(l for l in lines if tuple(l["sentences"]) == (34, 35))
         assert dup["mined"]["observations"] == 2
         assert dup["risk"] == ["ad_read"] and dup["names_person"] is True and dup["flags_ext"]["altcoin"] is True
+        assert dup["scores"]["quotable"] == 5 and dup["reason"] == "the better-ranked observation"   # c2
 
     def test_a_speaker_marker_inside_is_measured(self):
         rec, meta = H.caption_record(H.vid(), extra=["Bitcoin is fine.", ">> No it is not, said the guest.",
@@ -247,3 +250,21 @@ def test_the_prompt_marks_the_transcript_untrusted_and_names_the_id_range():
     assert "<sentences>" in p and "untrusted" in p and f"S{w[0]['k']} and S{w[-1]['k']}" in p
     assert f"[S{w[0]['k']} 00:00] {w[0]['text']}" in p
     assert json.dumps(mine.SCHEMA)          # the schema is plain JSON
+
+
+def test_windows_of_huge_sentences_never_walk_one_sentence_at_a_time():
+    """Freeze audit c2 (glm N8): with sentences longer than a window's word budget the next window started one
+    sentence later, so a transcript of n such sentences made ~n windows re-sending the same text. The overlap is now at
+    most half a window: every sentence is in at most two windows, and normal windows are unchanged."""
+    big = " ".join(["bitcoin"] * 250)                        # 3 per window: the old step re-sent each 3 times
+    sents = [{"k": i, "text": f"{big} {i}.", "complete": True} for i in range(60)]
+    wins = mine.windows(sents)
+    seen = {}
+    for w in wins:
+        for s in w:
+            seen[s["k"]] = seen.get(s["k"], 0) + 1
+    assert set(seen) == set(range(60)) and max(seen.values()) <= 2
+    assert len(wins) <= 60
+    normal = [{"k": i, "text": "Bitcoin is a short sentence here.", "complete": True} for i in range(200)]
+    nw = mine.windows(normal)
+    assert all(len(set(s["k"] for s in a) & set(s["k"] for s in b)) == mine.OVERLAP for a, b in zip(nw, nw[1:]))

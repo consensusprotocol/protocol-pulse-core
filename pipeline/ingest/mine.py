@@ -128,7 +128,9 @@ def _q(s, n):
 
 
 def windows(sents, max_sent=WINDOW_SENTENCES, max_words=WINDOW_WORDS, overlap=OVERLAP):
-    """Windows of complete sentences (the record's unfinished last sentence is never offered)."""
+    """Windows of complete sentences (the record's unfinished last sentence is never offered). Consecutive windows
+    share at most `overlap` sentences and at most half a window, so every sentence is in at most two windows even when
+    sentences are huge (freeze audit c2, glm N8: one-sentence steps made O(n) redundant windows)."""
     rows = [s for s in sents if s["complete"]]
     out, i = [], 0
     while i < len(rows):
@@ -142,7 +144,7 @@ def windows(sents, max_sent=WINDOW_SENTENCES, max_words=WINDOW_WORDS, overlap=OV
         out.append(rows[i:j])
         if j >= len(rows):
             break
-        i = max(j - overlap, i + 1)
+        i = max(j - min(overlap, (j - i) // 2), i + 1)
     return out
 
 
@@ -276,7 +278,8 @@ def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra
                only=None, max_windows=None, use_cache=True):
     """(lines, report). lines: one pp.moment/1 line per distinct sentence range, in window order (a range seen in two
     overlapping windows is kept once: its observation count raised, its risk / names_person / altcoin flags the union
-    and about_bitcoin the conjunction of the observations; scores and reason are the first's). report: windows,
+    and about_bitcoin the conjunction of the observations; scores and reason those of the better-ranked observation,
+    the first on a tie). report: windows,
     screened, failed (with the back-ends' reasons and whether the chain was in an OUTAGE: nothing answered and was
     rejected), miners {backend: windows}."""
     timing, toks, sents = contract.sentences(rec)
@@ -307,6 +310,8 @@ def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra
             if key in by_range:                       # the same range seen from an overlapping window: one line,
                 prev = by_range[key]                  # its flags the union of every observation (fail closed, L-u)
                 prev["mined"]["observations"] += 1
+                if rank_score({"scores": cand["scores"]}) > rank_score({"scores": prev["scores"]}):
+                    prev["scores"], prev["reason"] = dict(cand["scores"]), cand["reason"]   # c2: the better one
                 prev["risk"] = sorted(set(prev["risk"]) | set(cand["risk"]))
                 prev["names_person"] = prev["names_person"] or cand["names_person"]
                 fx = prev["flags_ext"]

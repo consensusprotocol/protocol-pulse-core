@@ -54,8 +54,9 @@ def main():
     os.makedirs(p["ingest"], exist_ok=True)
     state_copy = os.path.join(p["ingest"], "STATE_drill_copy.md")
     open(state_copy, "w").write("# drill copy of the STATE file\n")
-    real_notice = service.spend.write_state_notice
+    real_notice, real_outage = service.spend.write_state_notice, service.spend.write_outage_notice
     service.spend.write_state_notice = lambda st, snap, **k: real_notice(st, snap, **dict(k, doc=state_copy))
+    service.spend.write_outage_notice = lambda n, since, **k: real_outage(n, since, **dict(k, doc=state_copy))
     with open(p["overrides"], "w") as f:
         json.dump(DEAD, f)
     log = []

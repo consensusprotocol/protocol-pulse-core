@@ -1,0 +1,4 @@
+package 354707 chars
+  [heimdall_minimax] ERROR BackendError: empty: no content (finish_reason length)
+  [heimdall_glm] done 537 s, 55382 chars, $0.005
+  [heimdall_muse] done 790 s, 36404 chars, $0.026

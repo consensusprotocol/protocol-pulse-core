@@ -11,14 +11,58 @@ they keep mining (integrator B1; orchestrator 05:30: "Heimdall mining continues"
 import fcntl
 import json
 import os
+import re
 import threading
 import time
 
 from . import config
 
+OUTAGE_PREFIX = "MINING WAITING ON AN OUTAGE"
+NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + ")")
+
 
 def notice_prefixes(label):
     return (f"{label} SPEND AT 90%", f"{label} SPEND UNMEASURED")
+
+
+def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
+    """The STATE file's leading block of notice lines (NOTICE_RE): this writer's lines (mine) are replaced by `line`
+    (None: removed; one of them kept where keep(h)), every other notice stays. Rewritten only when the text changes,
+    under an flock."""
+    with open(lock_path, "a") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        try:
+            with open(doc) as f:
+                text = f.read()
+        except OSError:
+            text = ""
+        lines = text.split("\n") if text else []
+        head = []
+        while lines and NOTICE_RE.match(lines[0]):
+            head.append(lines.pop(0))
+        kept = [h for h in head if mine(h) and keep(h)][:1]
+        others = [h for h in head if not mine(h)]
+        new = "\n".join(([line] if line else []) + kept + others + lines)
+        if new != text:
+            tmp = f"{doc}.{os.getpid()}.{threading.get_ident()}.tmp"
+            with open(tmp, "w") as f:
+                f.write(new)
+            os.replace(tmp, doc)
+
+
+def write_outage_notice(waiting, since, doc=None, notify_path=None):
+    """While videos wait on an outage of every mine back-end (service.OUTAGE_NOTICE_S), one line at the top of the
+    STATE file says so; waiting == 0 removes it."""
+    doc = doc or config.STATE_DOC
+    line = (f"{OUTAGE_PREFIX}: {waiting} video(s) waiting since {since}: every mine back-end down or refusing; they "
+            "are mined when one returns (nothing dropped, no paid frontier fallback).") if waiting else None
+    lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
+    if notify_path:
+        os.makedirs(os.path.dirname(notify_path), exist_ok=True)
+        with open(notify_path, "a") as f:
+            f.write(json.dumps({"at": config.iso(), "outage_waiting": waiting, "since": since}) + "\n")
+    _rewrite_top(doc, lock_path, lambda h: h.startswith(OUTAGE_PREFIX), line)
+    return line
 
 
 class CreditMeter:
@@ -122,22 +166,6 @@ def write_state_notice(state, snap, doc=None, notify_path=None, label="GATEWAY")
         with open(notify_path, "a") as f:
             f.write(json.dumps({"at": config.iso(), "state": state, "meter": snap}) + "\n")
     lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
-    with open(lock_path, "a") as lk:
-        fcntl.flock(lk, fcntl.LOCK_EX)
-        try:
-            with open(doc) as f:
-                text = f.read()
-        except OSError:
-            text = ""
-        lines = text.split("\n") if text else []
-        head = []
-        while lines and lines[0].startswith(prefixes):
-            head.append(lines.pop(0))
-        kept = [h for h in head if h.startswith(prefixes[0])] if state != "tripped" else []
-        new = "\n".join(([line] if line else []) + kept[:1] + lines)
-        if new != text:
-            tmp = f"{doc}.{os.getpid()}.tmp"
-            with open(tmp, "w") as f:
-                f.write(new)
-            os.replace(tmp, doc)
+    _rewrite_top(doc, lock_path, lambda h: h.startswith(prefixes), line,
+                 keep=(lambda h: False) if state == "tripped" else (lambda h: h.startswith(prefixes[0])))
     return line

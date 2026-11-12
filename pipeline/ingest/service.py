@@ -36,6 +36,9 @@ MINE_CONTENT_PASSES = 3        # passes with REJECTED windows before the good wi
 MINE_PARTIAL_RETRY_S = 6 * 3600
 MINE_HORIZON_S = 72 * 3600     # a partial video is retried until 72 h after publish (the watcher's backfill horizon)
 COVERAGE_HOUR_UTC = 11         # 06:00 ET
+COVERAGE_RETRY_S = 3600        # a report with an unmeasured channel is tried again (the same day) after this
+OUTAGE_NOTICE_S = 1800         # videos waiting on an outage this long: one line at the top of STATE (a NOTIFY)
+IDLE_RELEASE_S = 120           # no mining due this long: the local model (if any) leaves GPU0 (B3; c2: no thrash)
 
 
 class ServiceBusy(RuntimeError):
@@ -182,6 +185,11 @@ class Service:
                                  tries=int(v.get("tries") or 0) + 1, reason=f"fetch crashed: {type(e).__name__}: {e}"[:300])
                 self.q.event("fetch_crash", v["video_id"], v["channel_id"], error=traceback.format_exc()[-2000:])
                 st = Q.PROBE_RETRY
+            except BaseException as e:                    # never renamed; the video is not left `probing` (glm C8)
+                self.q.set_state(v["video_id"], Q.PROBE_RETRY, next_at=self.clock() + 900,
+                                 reason=f"fetch stopped: {type(e).__name__}: {e}"[:300])
+                self.q.event("fetch_stop", v["video_id"], v["channel_id"], error=traceback.format_exc()[-2000:])
+                raise
             if st in (Q.TRANSCRIBED, Q.SHORT, Q.LIVE, Q.NO_CAPTIONS, Q.DUPLICATE, Q.TOO_LONG):
                 self.log(f"fetch {v['video_id']} ({by.get(v['channel_id'], {}).get('display_name')}): {st}")
             return st
@@ -234,6 +242,12 @@ class Service:
             with self.ilock:
                 self.inflight.discard(vid)
 
+    def _ledger_count(self, v):
+        """Distinct moment ids of the video in the ledger, read from a day before its discovery (its lines cannot be
+        older): the count a partial history leaves, never the last pass's alone (freeze audit c2)."""
+        since = datetime.fromtimestamp(float(v.get("discovered_ts") or self.clock()) - 86400, timezone.utc)
+        return len(ledger.video_moment_ids(self.p["ledger"], v["video_id"], since))
+
     def _settle(self, v, chan, lines, rep, cost, t0):
         """The video's state after one mining pass (see the module docstring)."""
         vid, now = v["video_id"], self.clock()
@@ -247,18 +261,21 @@ class Service:
                 f"{len(rejected)} rejected, {len(failed) - len(rejected)} outage), miners {rep['miners']}, "
                 f"${(cost or 0):.4f}, {now - t0:.0f} s")
         if not failed:
-            ledger.append(self.p["ledger"], lines)        # a partial video's earlier lines appear again: latest wins
-            self.q.set_state(vid, Q.MINED, next_at=now + 10 ** 9, moments=len(lines), mined_at=config.iso(),
+            ledger.append(self.p["ledger"], lines, stamp=config.iso)   # a partial video's earlier lines appear
+                                                                          # again: the latest wins
+            n = self._ledger_count(v) if (was_partial or v.get("moments") is not None) else len(lines)
+            self.q.set_state(vid, Q.MINED, next_at=now + 10 ** 9, moments=n, mined_at=config.iso(),
                              mined_ts=now, reason=None, **common)
             self.log(f"mine {vid} ({chan.get('display_name')}): {what}")
             return
         why = json.dumps(failed[0]["tried"])[:300]
         if was_partial or (rejected and passes >= MINE_CONTENT_PASSES):
-            if not was_partial or len(failed) < int(v.get("windows_failed") or 10 ** 6):
-                ledger.append(self.p["ledger"], lines)    # first time, or a retry that mined more windows
+            if lines:                                     # every pass that mined windows: its lines, the latest win
+                ledger.append(self.p["ledger"], lines, stamp=config.iso)   # (freeze audit c1, glm C2)
+            moments = self._ledger_count(v)               # the video's distinct moments in the ledger (c2 consensus)
             pub = v.get("published_ts") or v.get("discovered_ts") or now
             nxt = now + MINE_PARTIAL_RETRY_S if now < float(pub) + MINE_HORIZON_S else now + 10 ** 9
-            self.q.set_state(vid, Q.MINED_PARTIAL, next_at=nxt, moments=len(lines), mined_at=config.iso(),
+            self.q.set_state(vid, Q.MINED_PARTIAL, next_at=nxt, moments=moments, mined_at=config.iso(),
                              mined_ts=now, reason=f"{len(failed)} window(s) not mined ({len(rejected)} rejected on every "
                              f"back-end after {passes} passes): retried every {MINE_PARTIAL_RETRY_S // 3600} h until "
                              f"{MINE_HORIZON_S // 3600} h after publish; {why}", **common)
@@ -281,8 +298,10 @@ class Service:
         if free <= 0:
             return 0
         if free == 3 and not self.q.due(Q.MINE_DUE, 1):
-            self.router.release()                         # idle: the local model (if any) leaves GPU0 (B3)
+            if self.clock() - getattr(self, "_last_mining", 0.0) >= IDLE_RELEASE_S:
+                self.router.release()                     # idle: the local model (if any) leaves GPU0 (B3)
             return 0
+        self._last_mining = self.clock()
         for v in self.q.due(Q.MINE_DUE, free):
             if not self.q.claim(v["video_id"], Q.MINE_DUE, Q.MINING):
                 continue
@@ -302,17 +321,47 @@ class Service:
             self.meter.measure()
             self.last_measure = now
         s = stats.write_live(self.q, self.p["live"], meter=self.meter, router=self.router)
+        self._outage_notice(now)
         day = config.iso()[:10]
         hour = datetime.now(timezone.utc).hour
-        if force_coverage or (hour == COVERAGE_HOUR_UTC and self.q.kv_get("coverage_day") != day):
+        if force_coverage or (hour >= COVERAGE_HOUR_UTC and self.q.kv_get("coverage_day") != day and
+                              now >= float(self.q.kv_get("coverage_next_try") or 0)):
             rep = coverage.check(self.q, self.gate, rss=self.rss_mode)
             path = coverage.write(rep, self.p["coverage"])
-            self.q.kv_set("coverage_day", day)
+            if rep["measured"]:
+                self.q.kv_set("coverage_day", day)
+            else:                                         # a channel's listing failed: the day's report is tried
+                self.q.kv_set("coverage_next_try", str(now + COVERAGE_RETRY_S))   # again (muse P1)
             self.q.event("coverage", None, None, path=path, coverage=rep["coverage"], eligible=rep["eligible"],
                          mined=rep["mined"], unmeasured=len(rep["unmeasured_channels"]))
             self.log(f"coverage: {rep['mined']}/{rep['eligible']} mined, {len(rep['missed'])} listed with reasons, "
                      f"{len(rep['unmeasured_channels'])} channels unmeasured -> {path}")
         return s
+
+    def _outage_notice(self, now):
+        """Videos waiting on an outage of every mine back-end for over OUTAGE_NOTICE_S: one line at the top of STATE,
+        removed when none waits (orchestrator 05:30: they are mined later; freeze audit c1, muse: visible without
+        polling)."""
+        n = self.q.rows("SELECT COUNT(*) AS n FROM videos WHERE state=? AND reason LIKE 'OUTAGE%'",
+                        (Q.MINE_WAIT,))[0]["n"]
+        since = self.q.kv_get("outage_since")
+        if n and not since:
+            self.q.kv_set("outage_since", str(now))
+            self.q.event("outage", None, None, waiting=n)
+        elif not n and since:
+            self.q.kv_set("outage_since", "")
+            self.q.event("outage_over", None, None, lasted_s=round(now - float(since)))
+            self.log(f"outage over after {now - float(since):.0f} s: every waiting video is being mined")
+        noticed = self.q.kv_get("outage_noticed") == "1"
+        if n and since and now - float(since) >= OUTAGE_NOTICE_S:
+            line = spend.write_outage_notice(n, datetime.fromtimestamp(float(since), timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"), notify_path=self.p["notify"])
+            if not noticed:
+                self.log(line)
+                self.q.kv_set("outage_noticed", "1")
+        elif not n and noticed:
+            spend.write_outage_notice(0, None, notify_path=self.p["notify"])
+            self.q.kv_set("outage_noticed", "0")
 
     # ── run ──
 
@@ -338,6 +387,10 @@ class Service:
                  f"{self.router.effective('mine')}), spend freeze {fz}, back-ends {self.describe()}")
         self.q.event("start", None, None, pid=os.getpid(), chain=self.router.chain("mine"),
                      effective=self.router.effective("mine"), spend_freeze=fz, backends=self.describe())
+        if len(self.router.effective("mine")) < 2:
+            self.log(f"WARNING: {len(self.router.effective('mine'))} callable mine back-end(s): when it is down the "
+                     "videos wait in the queue and are mined when it returns (orchestrator 05:30: never a paid frontier "
+                     "fallback); nothing is dropped")
         self.meter.measure()
         self.last_measure = self.clock()
         threads = [threading.Thread(target=self._loop, args=a, daemon=True, name=a[0]) for a in (

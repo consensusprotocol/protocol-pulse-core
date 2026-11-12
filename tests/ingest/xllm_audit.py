@@ -52,9 +52,13 @@ REVIEWERS = {
                "timeout_s": 900, "max_tokens_floor": 48000},   # c1: its thinking used ~16k of 16k: cut off
     "heimdall_qwen": dict(HEIMDALL, model="qwen/qwen3.8-27b", extra_body={"reasoning": {"effort": "none"}}),
     # other model families served by Heimdall (not frozen; billed against the Heimdall cap), added under the freeze:
-    "heimdall_glm": dict(HEIMDALL, model="z-ai/glm-5.3-flash"),
-    "heimdall_muse": dict(HEIMDALL, model="meta-models/muse-spark-open-816b-a42b"),
-    "heimdall_minimax": dict(HEIMDALL, model="minimax/minimax-m3.1-flash"),
+    # freeze c1 (111k-token package): glm and minimax at their default reasoning spent all 16k output tokens thinking
+    # (empty, finish_reason length, like INGEST-FAIL-04); muse timed out at 900 s. Re-run at effort none / 1800 s.
+    "heimdall_glm": dict(HEIMDALL, model="z-ai/glm-5.3-flash", extra_body={"reasoning": {"effort": "none"}},
+                         max_tokens_floor=24000),     # freeze c1: its review was cut at 16,000 tokens
+    "heimdall_muse": dict(HEIMDALL, model="meta-models/muse-spark-open-816b-a42b", timeout_s=1800,
+                          extra_body={"reasoning": {"effort": "none"}}),
+    "heimdall_minimax": dict(HEIMDALL, model="minimax/minimax-m3.1-flash", extra_body={"reasoning": {"effort": "none"}}),
 }  # Heimdall qwen at effort none. deepseek-v4.1-flash dropped after c1: empty content twice (effort low, then none; its
    # hidden reasoning took the whole budget on the 64k-token package); the abliterated deepseek and ling-3.0-flash are
    # excluded by the order (incoherent on long prompts / always 429)
@@ -139,7 +143,7 @@ def package(files, extra="", base=None, context=None):
 """
 
 
-def call(rid, cfg, prompt, results, errors, kr):
+def call(rid, cfg, prompt, results, errors, kr, error_costs=None):
     b = providers.make_backend(rid, dict(cfg, enabled=True), kr)
     t0 = time.time()
     try:
@@ -149,6 +153,9 @@ def call(rid, cfg, prompt, results, errors, kr):
         print(f"  [{rid}] done {time.time() - t0:.0f} s, {len(r.content)} chars, ${r.cost_usd:.3f}", flush=True)
     except Exception as e:
         errors[rid] = f"{type(e).__name__}: {e}"[:500]
+        if error_costs is not None and isinstance(e, providers.BackendError):     # a failed call is spend too
+            error_costs[rid] = {"usage": e.usage, "cost_usd": e.cost_usd, "kind": e.kind,
+                                "seconds": round(time.time() - t0, 1)}
         print(f"  [{rid}] ERROR {errors[rid][:200]}", flush=True)
 
 
@@ -160,7 +167,8 @@ def fire(prompt_for, out, only=None):
                if cfg["vendor"] in fz and (not only or rid in only)}
     for rid, why in skipped.items():
         print(f"  [{rid}] SKIPPED ({why})", flush=True)
-    th = [threading.Thread(target=call, args=(rid, cfg, prompt_for(rid), results, errors, kr))
+    error_costs = {}
+    th = [threading.Thread(target=call, args=(rid, cfg, prompt_for(rid), results, errors, kr, error_costs))
           for rid, cfg in REVIEWERS.items() if (not only or rid in only) and rid not in skipped]
     for t in th:
         t.start()
@@ -171,9 +179,25 @@ def fire(prompt_for, out, only=None):
         with open(os.path.join(out, f"{rid}.md"), "w") as f:
             f.write(f"# {rid} ({r['model']}, {r['seconds']} s, ${r['cost_usd']:.3f}, finish {r['finish_reason']})\n\n"
                     + r["content"])
-    with open(os.path.join(out, "results.json"), "w") as f:
-        json.dump({"results": {k: {kk: vv for kk, vv in v.items() if kk != "content"} for k, v in results.items()},
-                   "errors": errors, "skipped": skipped}, f, indent=1)
+    path = os.path.join(out, "results.json")
+    prev = {}
+    if only and os.path.exists(path):              # a re-run of some legs keeps the others' records
+        with open(path) as f:
+            prev = json.load(f)
+    rec = {"results": dict(prev.get("results") or {}), "errors": dict(prev.get("errors") or {}),
+           "error_costs": dict(prev.get("error_costs") or {}), "skipped": dict(prev.get("skipped") or {}),
+           "earlier_attempts": list(prev.get("earlier_attempts") or [])}
+    for rid in set(results) | set(errors):
+        if rid in rec["errors"] or rid in rec["results"]:
+            rec["earlier_attempts"].append({"reviewer": rid, "error": rec["errors"].pop(rid, None),
+                                            "error_cost": rec["error_costs"].pop(rid, None),
+                                            "result": rec["results"].pop(rid, None)})
+    rec["results"].update({k: {kk: vv for kk, vv in v.items() if kk != "content"} for k, v in results.items()})
+    rec["errors"].update(errors)
+    rec["error_costs"].update(error_costs)
+    rec["skipped"].update(skipped)
+    with open(path, "w") as f:
+        json.dump(rec, f, indent=1)
     return results, errors
 
 

@@ -119,8 +119,13 @@ def validate_config(cfg):
 
 
 def load_config(path=None):
+    """The provider config file, validated; every role names at least two back-ends (law L-x)."""
     with open(path or config.PROVIDERS_PATH) as f:
-        return validate_config(json.load(f))
+        cfg = validate_config(json.load(f))
+    for role, r in cfg["roles"].items():
+        if len(r["chain"]) < 2:
+            raise ValueError(f"role {role}: law L-x needs at least two back-ends in its chain")
+    return cfg
 
 
 def frozen_vendors(cfg):
@@ -201,6 +206,11 @@ class Backend:
         return f"{type(self).__name__}({self.id}, {self.model})"
 
     def redact(self, s):
+        """s without this back-end's own keys (any length) nor any env-file value of 8+ characters."""
+        if isinstance(s, str):
+            for k in self._keys:
+                if k and k in s:
+                    s = s.replace(k, "[redacted]")
         return self._keyring.redact(s) if self._keyring is not None else s
 
     def release(self):
@@ -438,6 +448,7 @@ class OllamaLocalBackend(Backend):
         super().__init__(bid, cfg, keyring)
         self._llm = None
         self._llm_lock = threading.Lock()
+        self._busy = 0                                # requests in flight: release() never stops the model under one
 
     @staticmethod
     def _gpu0():
@@ -460,15 +471,19 @@ class OllamaLocalBackend(Backend):
             raise BackendError("disabled", "GPU0 lease not held by this process (or pipeline/gpu0.py absent): the "
                                            "local back-end runs only under the lease (law L-r)")
         import story_semantics as sm
+        t0 = time.time()                              # a cold load is part of this call's latency (glm c2 N1)
         with self._llm_lock:
             if self._llm is None:
                 self._llm = sm.LocalLLM(model=self.model).start()
             llm = self._llm
-        t0 = time.time()
+            self._busy += 1
         try:
             text = llm._post(prompt, int(max_tokens), seed=7)
         except Exception as e:                        # a GPU0 stop (BaseException) is never renamed: it propagates
             raise BackendError("server", f"{type(e).__name__}: {e}"[:300], latency_s=time.time() - t0)
+        finally:
+            with self._llm_lock:
+                self._busy -= 1
         lat = time.time() - t0
         if not isinstance(text, str) or not text.strip():
             raise BackendError("empty", "no content", latency_s=lat)
@@ -477,6 +492,8 @@ class OllamaLocalBackend(Backend):
 
     def release(self):
         with self._llm_lock:
+            if self._busy:                            # a request is running: released at the next idle cycle
+                return
             llm, self._llm = self._llm, None
         if llm is not None and hasattr(llm, "stop"):
             llm.stop()
@@ -577,6 +594,11 @@ class Health:
     def _open(self, now, why):
         self.open_until, self.probing, self.why = now + self.c["open_s"], False, why
         self.opened += 1
+
+    def abandon(self):
+        """A call ended without an outcome (the process is stopping): a half-open probe may be taken again."""
+        with self.lock:
+            self.probing = False
 
     def snapshot(self):
         with self.lock:
@@ -727,8 +749,9 @@ class Router:
                 tried.append((bid, "unknown", "not in providers.json"))
                 continue
             mt = max(max_tokens, int(self.backends[bid].cfg.get("max_tokens_floor", 0)))
-            if use_cache and self.backends[bid].enabled():       # a stored validated reply costs nothing and
-                out = self._cached(bid, role, prompt, schema, validate, tag, mt)   # proves nothing about health
+            if use_cache and self.backends[bid].cfg.get("enabled", True):   # a stored validated reply costs nothing,
+                out = self._cached(bid, role, prompt, schema, validate, tag, mt)   # calls nobody, proves nothing about
+                                                                                   # health (frozen / no lease: reused)
                 if out is not None:
                     out.tried = tried + [(bid, "ok", "cache")]
                     return out
@@ -738,8 +761,11 @@ class Router:
                 continue
             try:
                 out = self._try(bid, role, prompt, schema, validate, tag, int(rc.get("attempts", 3)), mt)
-            except BaseException:
-                self.health[bid].record(False, None, "crash")      # a half-open probe is never left in flight
+            except BaseException as e:                              # a half-open probe is never left in flight;
+                if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):   # an interrupt is not the
+                    self.health[bid].abandon()                      # back-end's failure
+                else:
+                    self.health[bid].record(False, None, "crash")
                 raise
             if isinstance(out, Outcome):
                 out.tried = tried + [(bid, "ok", f"attempt {out.attempt}")]

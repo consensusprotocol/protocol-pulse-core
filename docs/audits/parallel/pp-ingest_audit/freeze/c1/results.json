@@ -1,0 +1,104 @@
+{
+ "results": {
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 111370,
+    "completion_tokens": 4108,
+    "total_tokens": 115478,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 0
+    },
+    "cost": 0.008107709
+   },
+   "cost_usd": 0.008107709,
+   "seconds": 180.7,
+   "finish_reason": "stop"
+  },
+  "heimdall_glm": {
+   "model": "z-ai/glm-5.3-flash",
+   "usage": {
+    "prompt_tokens": 100625,
+    "completion_tokens": 16000,
+    "total_tokens": 116625,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.005103375
+   },
+   "cost_usd": 0.005103375,
+   "seconds": 536.5,
+   "finish_reason": "length"
+  },
+  "heimdall_muse": {
+   "model": "meta-models/muse-spark-open-816b-a42b",
+   "usage": {
+    "prompt_tokens": 100032,
+    "completion_tokens": 9831,
+    "total_tokens": 109863,
+    "prompt_tokens_details": {
+     "cached_tokens": 112,
+     "cache_write_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 21
+    },
+    "cost": 0.025904592
+   },
+   "cost_usd": 0.025904592,
+   "seconds": 789.8,
+   "finish_reason": "stop"
+  }
+ },
+ "errors": {
+  "heimdall_minimax": "BackendError: empty: no content (finish_reason length)"
+ },
+ "error_costs": {
+  "heimdall_minimax": {
+   "usage": {
+    "prompt_tokens": 101334,
+    "completion_tokens": 16000,
+    "total_tokens": 117334,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 15999
+    },
+    "cost": 0.007688031
+   },
+   "cost_usd": 0.007688031,
+   "kind": "empty",
+   "seconds": 454.3
+  }
+ },
+ "skipped": {
+  "gpt4o": "spend freeze: vendor 'openai'",
+  "grok": "spend freeze: vendor 'xai'",
+  "gemini": "spend freeze: vendor 'google'"
+ },
+ "earlier_attempts": [
+  {
+   "reviewer": "heimdall_muse",
+   "error": "BackendError: timeout: TimeoutError",
+   "error_cost": null,
+   "result": null
+  },
+  {
+   "reviewer": "heimdall_glm",
+   "error": "BackendError: empty: no content (finish_reason length)",
+   "error_cost": null,
+   "result": null
+  },
+  {
+   "reviewer": "heimdall_minimax",
+   "error": "BackendError: empty: no content (finish_reason length)",
+   "error_cost": null,
+   "result": null
+  }
+ ]
+}

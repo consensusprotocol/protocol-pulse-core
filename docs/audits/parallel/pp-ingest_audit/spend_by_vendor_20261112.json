@@ -6,9 +6,9 @@
    "calls": 425
   },
   "heimdall": {
-   "usd": 0.3375,
-   "estimated_usd": 0.08,
-   "calls": 498
+   "usd": 0.4736,
+   "estimated_usd": 0.13,
+   "calls": 543
   },
   "xai": {
    "usd": 0.6455,
@@ -26,7 +26,7 @@
    "calls": 3
   }
  },
- "total_usd": 12.57,
+ "total_usd": 12.7,
  "rows": [
   {
    "vendor": "anthropic",
@@ -42,11 +42,11 @@
    "vendor": "heimdall",
    "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
    "backend": "heimdall_qwen27b",
-   "calls": 273,
-   "usd": 0.1019,
+   "calls": 281,
+   "usd": 0.1066,
    "basis": "measured (per call)",
    "first": "2026-11-12T08:30:27.635650+00:00",
-   "last": "2026-11-12T08:46:17.166750+00:00"
+   "last": "2026-11-12T11:43:47.450120+00:00"
   },
   {
    "vendor": "anthropic",
@@ -67,6 +67,16 @@
    "basis": "measured (per call)",
    "first": "2026-11-12T08:21:34.984328+00:00",
    "last": "2026-11-12T08:25:31.517089+00:00"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "freeze drill (scratch store, 06:06-06:13 ET)",
+   "backend": "heimdall_qwen27b",
+   "calls": 27,
+   "usd": 0.0006,
+   "basis": "measured (per call)",
+   "first": "2026-11-12T11:06:56.560232+00:00",
+   "last": "2026-11-12T11:13:02.687242+00:00"
   },
   {
    "vendor": "heimdall",
@@ -153,6 +163,86 @@
    }
   },
   {
+   "vendor": "heimdall",
+   "source": "audit freeze/c1 (failed: empty)",
+   "backend": "heimdall_minimax",
+   "calls": 1,
+   "usd": 0.0077,
+   "basis": "measured (usage.cost of the failed reply)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c1",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0081,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 111370,
+    "completion_tokens": 4108
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c1",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0051,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 100625,
+    "completion_tokens": 16000
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c1",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0259,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 100032,
+    "completion_tokens": 9831
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c2",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0073,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 118787,
+    "completion_tokens": 2429
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c2",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0041,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 107498,
+    "completion_tokens": 6297
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c2",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0226,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 106706,
+    "completion_tokens": 3769
+   }
+  },
+  {
    "vendor": "xai",
    "source": "audit c1 (usage not saved)",
    "backend": "grok",
@@ -175,6 +265,14 @@
    "calls": 1,
    "usd": 0.18,
    "basis": "ESTIMATE (~67k prompt + ~1.2k output at $2.50/$10)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "freeze audit c1, first run: glm + minimax empty, muse timed out (usage not saved by the driver then)",
+   "backend": "heimdall_glm/minimax/muse",
+   "calls": 3,
+   "usd": 0.05,
+   "basis": "UPPER BOUND (111k prompt + 16k output each at the gateway's listed prices)"
   },
   {
    "vendor": "heimdall",

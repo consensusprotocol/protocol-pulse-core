@@ -32,6 +32,7 @@ def svc(monkeypatch, tmp_path):
     monkeypatch.setattr(watch, "registry", lambda: ([H.CHAN], [H.CHAN]))
     monkeypatch.setattr(watch, "rss_canary", lambda chans: False)
     monkeypatch.setattr(service.spend, "write_state_notice", lambda *a, **k: None)
+    monkeypatch.setattr(service.spend, "write_outage_notice", lambda *a, **k: None)    # never the real STATE file
     ts = config.ts()
 
     def fake_captions(meta, work):
@@ -146,8 +147,11 @@ def test_rejected_windows_become_partial_retryable_and_never_counted_as_mined(sv
     assert n_partial >= 1                                             # the good windows' moments are served now
     live = s.health_once()
     assert live["videos_mined"] == 0 and live["videos_partial"] == 1
-    _again(s)                                                         # still rejected: nothing new appended
-    assert s.q.video(vid)["state"] == Q.MINED_PARTIAL and len(ledger.read(s.p["ledger"])[0]) == n_partial
+    ids = {l["moment_id"] for l in ledger.read(s.p["ledger"])[0]}
+    _again(s)                     # still rejected: the good windows' lines again (glm C2: every pass that mined
+    lines = ledger.read(s.p["ledger"])[0]                                 # windows appends; the latest line wins)
+    assert s.q.video(vid)["state"] == Q.MINED_PARTIAL and {l["moment_id"] for l in lines} == ids
+    assert len(lines) == 2 * n_partial
     bad["on"] = False
     _again(s)
     assert s.q.video(vid)["state"] == Q.MINED
@@ -222,3 +226,117 @@ def test_the_tripwire_notifies_prefers_the_others_and_never_halts(svc, monkeypat
         pass
     assert s.q.video(vids[1])["state"] == Q.MINED
     assert {l["mined"]["backend"] for l in ledger.read(s.p["ledger"])[0] if l["video_id"] == vids[1]} >= {"primary"}
+
+
+def test_a_partial_videos_later_passes_append_what_they_mine_and_an_outage_keeps_the_count(svc):
+    """Freeze audit c1 (glm C2, C24): a retry that mined windows appends its lines (the latest win); a retry in an
+    outage (nothing mined) leaves the ledger and the recorded count as they are."""
+    mode = {"m": "picky"}
+
+    def fn(p):
+        ids = H.offered_ids(p)
+        if mode["m"] == "down":
+            return BackendError("network", "down")
+        if mode["m"] == "picky" and ids and ids[0] == 0:
+            return "not json"
+        return H.first_two(p)
+    s, vids, b = svc(fn, lambda p: BackendError("overloaded", "busy"), n_videos=1)
+    vid = vids[0]
+    run_once(s)
+    _again(s, service.MINE_CONTENT_PASSES - 1)
+    row = s.q.video(vid)
+    assert row["state"] == Q.MINED_PARTIAL and row["moments"] >= 1
+    n_lines, moments = len(ledger.read(s.p["ledger"])[0]), row["moments"]
+    s.router.cache_dir = None                                        # every window is asked again: an outage now
+    mode["m"] = "down"
+    _again(s)
+    row = s.q.video(vid)
+    assert row["state"] == Q.MINED_PARTIAL and row["moments"] == moments           # not overwritten with 0
+    assert len(ledger.read(s.p["ledger"])[0]) == n_lines                            # nothing appended
+    mode["m"] = "ok"
+    _again(s)
+    assert s.q.video(vid)["state"] == Q.MINED and len(ledger.read(s.p["ledger"])[0]) > n_lines
+
+
+def test_a_stop_inside_a_fetch_never_strands_the_video_in_probing(svc, monkeypatch):
+    """Freeze audit c1 (glm C8): a BaseException out of fetch.process left the video `probing` until a restart."""
+    from pipeline.ingest import fetch
+
+    class Stop(BaseException):
+        pass
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    s.watch_once()
+
+    def boom(*a, **k):
+        raise Stop("gpu0 stop")
+    monkeypatch.setattr(fetch, "process", boom)
+    with pytest.raises(Stop):
+        s.fetch_once(limit=5)
+    row = s.q.video(vids[0])
+    assert row["state"] == Q.PROBE_RETRY and "fetch stopped: Stop" in row["reason"]
+
+
+def test_an_outage_longer_than_the_notice_delay_is_noticed_then_cleared(svc, monkeypatch):
+    notes = []
+    s, vids, b = svc(lambda p: BackendError("network", "down"), lambda p: BackendError("overloaded", "busy"))
+    monkeypatch.setattr(service.spend, "write_outage_notice", lambda n, since, **k: notes.append((n, since)) or "x")
+    run_once(s)
+    s.health_once()
+    assert s.q.kv_get("outage_since") and notes == []                 # waiting, but not yet for 30 min
+    s.q.kv_set("outage_since", str(s.clock() - service.OUTAGE_NOTICE_S - 1))
+    s.health_once()
+    assert notes and notes[-1][0] == 3
+    s.q.x("UPDATE videos SET state=?, reason=NULL", (Q.MINED,))       # the outage is over
+    s.health_once()
+    assert notes[-1] == (0, None) and not s.q.kv_get("outage_since")
+
+
+def test_an_unmeasured_coverage_report_is_tried_again_the_same_day(svc, monkeypatch):
+    from pipeline.ingest import coverage as C
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    calls = []
+
+    def check(q, gate, hours=24, now_ts=None, rss=None, chans=None):
+        calls.append(1)
+        return {"at": config.iso(), "hours": 24, "listing": "rss", "channels": 1, "measured": len(calls) > 1,
+                "unmeasured_channels": [] if len(calls) > 1 else [{"channel": "x", "channel_id": "y", "error": "e"}],
+                "published": 0, "shorts": 0, "eligible": 0, "mined": 0, "missed": [], "per_channel": {},
+                "coverage": None}
+    monkeypatch.setattr(C, "check", check)
+    monkeypatch.setattr(C, "write", lambda rep, out: "/dev/null")
+    monkeypatch.setattr(service, "COVERAGE_HOUR_UTC", 0)
+    s.health_once()
+    assert len(calls) == 1 and s.q.kv_get("coverage_day") != config.iso()[:10]     # unmeasured: not done
+    s.health_once()
+    assert len(calls) == 1                                             # waits COVERAGE_RETRY_S
+    s.q.kv_set("coverage_next_try", "0")
+    s.health_once()
+    assert len(calls) == 2 and s.q.kv_get("coverage_day") == config.iso()[:10]
+
+
+def test_the_queue_has_the_indexes_the_per_video_cost_and_the_spend_read_need(svc):
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    names = {r["name"] for r in s.q.rows("SELECT name FROM sqlite_master WHERE type='index'")}
+    assert {"calls_video", "calls_backend"} <= names
+
+
+def test_the_local_model_is_released_only_after_an_idle_spell(svc, monkeypatch):
+    """Freeze audit c2 (glm N1): releasing on every quiet 5 s reloads the model on the next video; now only after
+    IDLE_RELEASE_S without mining due."""
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    released = []
+    monkeypatch.setattr(s.router, "release", lambda: released.append(s.clock()))
+    run_once(s)                                                     # mining happened just now
+    assert s.mine_once() == 0 and released == []
+    s._last_mining = s.clock() - service.IDLE_RELEASE_S - 1
+    assert s.mine_once() == 0 and len(released) == 1
+
+
+def test_a_partial_videos_count_is_its_distinct_moments_in_the_ledger(svc):
+    """Freeze audit c2 consensus (qwen, glm N2, muse N4): the row's count was the last pass's lines only."""
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    run_once(s)
+    vid = vids[0]
+    lines = [l for l in ledger.read(s.p["ledger"])[0] if l["video_id"] == vid]
+    s.q.x("UPDATE videos SET moments=1 WHERE video_id=?", (vid,))
+    assert s._ledger_count(s.q.video(vid)) == len({l["moment_id"] for l in lines}) >= 1

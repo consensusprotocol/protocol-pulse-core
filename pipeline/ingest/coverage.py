@@ -5,7 +5,8 @@ playlist; never the watcher's own queue) gives the videos published in the last 
 queue: mined (every window mined; its moments, possibly none, are in the ledger) or not, with the reason. A video mined
 only partially, or waiting out an outage, is NOT counted as mined (integrator B2): it is listed with its reason. A
 channel whose listing fails is UNMEASURED: its videos are never counted as covered (law L-m). Shorts are reported apart
-(never mined by policy).
+(never mined by policy). A video whose publish time lies more than 10 min in the future (a scheduled premiere, clock
+skew) is outside every window until that time: it is reported on the day it is published (freeze audit c2).
 """
 import json
 import os
@@ -111,7 +112,9 @@ def write(rep, out_dir):
           f"- partner videos published: {rep['published']} ({rep['shorts']} Shorts, never mined by policy)",
           f"- long-form videos: {rep['eligible']}; mined (in the ledger): {rep['mined']}; coverage {cov}",
           f"- channels unmeasured (listing failed): {len(rep['unmeasured_channels'])}"
-          + (" -> this report is NOT a full measurement" if rep["unmeasured_channels"] else ""), "",
+          + (" -> this report is NOT a full measurement" if rep["unmeasured_channels"] else ""),
+          "- dates: a probed video's exact publish time; " + ("the RSS publish time otherwise" if rep["listing"] == "rss"
+          else "otherwise the uploads playlist's APPROXIMATE date (RSS unavailable): the 24 h edge is approximate"), "",
           "| channel | video | published | state | reason |", "|---|---|---|---|---|"]
     for m in rep["missed"]:
         md.append(f"| {m['channel']} | {m['video_id']} | {m['published_at']} | {m['state']} | {m['reason']} |")
