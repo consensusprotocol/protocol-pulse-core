@@ -1,5 +1,54 @@
 # pp-selectid — STATE (session pipeline_pp_selectid, branch pp-selectid, worktree ~/worktrees/pp-selectid)
 
+## TOP PACKAGE, TONIGHT'S UNIVERSE (fresh_20261112_050611): first moments-first package (03:25 ET Nov 12; REVIEW ONLY)
+
+Files: `tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json` (sha256 1c3f0e783059c2f1..., PINNED decision for run_fresh.py `--pinned`; needs REQUESTS R7 item 1
+for the VO / title / caption to reach the EDL) and `tests/package/proof/fresh_20261112_050611/package.json`
+(sha256 34e70efb42d02e48..., every check and model). Branch pp-selectid, worktree ~/worktrees/pp-selectid.
+
+Gates passed:
+- VO fidelity, on every VO line, the title and the caption: the deterministic rules, then the blind verdict
+  (grok-4.20-0309-reasoning at temperature 0), every claim supported with verbatim words.
+- Context integrity (law L-s): step A (grok, context only), step B (claude-opus-5-5, the package only), step C (grok).
+  For every clip: own sincere assertion, referents inside, no false relation, entailed, not stronger.
+
+Rules met:
+- One clip per channel and <= 20 s per source video (law L-u).
+- 4 channels, all layout-eligible, all on word timing (law L-e).
+- Runtime estimate 60.42 s.
+
+Writer: openai:gpt-6.1-sol; the VO was rewritten once after a fidelity rejection.
+
+TYPE moments
+TITLE: Bitcoin ran from 16K to 126K
+CAPTION: Bitcoin ran from 16K to 126K. That move comes out to about an 8x.
+HOOK'S FIRST WORDS: Bitcoin does not have any authority that allows
+
+VO intro: Bitcoin ran from 16K to 126K.
+- [hook] Saifedean Ammous | vgsSZ4mAHfQ 5144.99-5153.37 (8.38 s) | source 30 s before: https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s
+  "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that."
+- [clip_01] Stephan Livera | Sjb6lUiL0m4 1826.54-1843.48 (16.94 s) | source 30 s before: https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s
+  "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued."
+VO bridge: Next, What Bitcoin Did on intermediaries getting hacked.
+- [clip_02] What Bitcoin Did | c1JGheQBPH4 2480.28-2491.52 (11.24 s) | source 30 s before: https://www.youtube.com/watch?v=c1JGheQBPH4&t=2450s
+  "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin."
+VO bridge: Next, Simply Bitcoin on Bitcoin's move from 16K to 126K.
+- [clip_03] Simply Bitcoin | Noq6txZU91c 399.15-405.25 (6.1 s) | source 30 s before: https://www.youtube.com/watch?v=Noq6txZU91c&t=369s
+  "Bitcoin ran from 16K to 126K. That move comes out to about an 8x."
+VO sign-off: Clips today from Saifedean Ammous, Stephan Livera, What Bitcoin Did, and Simply Bitcoin. Go follow them for more. Links are below.
+
+FLAGS (named, not hidden):
+- (a) Runtime: segments 42.66 s (word timing) + VO 24 words at 2.6 w/s (assumed) + fixed 7.38 s; the render measures the final. The estimate is 60.42 s, at the LOW edge of 60-70 s.
+  A faster VO read could land under 60 s; the release gates measure the final.
+- (b) Law L-v 2: the second recognition pass against the SOURCE audio is running now. Until it confirms them,
+  the clips' numbers (16K, 126K, 8x, $1.5 / $1.4 million) rest on one Whisper transcript, and so does the title.
+- (c) Law L-v 1: speaker turns are judged by step A ('no change inside'). No diarisation has run yet.
+  No person is named in VO or title beyond the credited shows.
+- (d) The clip_01 opener 'However, ...' is a discourse marker. Context integrity judged the clip to stand on its
+  own. Downstream stand_alone (R6 item 2) may still ask the clip scorer.
+- (e) REVIEW ONLY (law L-q): selection and VO by the new path, not yet merged or audited.
+
+
 ## MOMENTS / PACKAGE INPUT CONTRACT v0 (published 02:36 ET Nov 12 for pipeline_pp_ingest; fields may be ADDED, never renamed or removed)
 
 The moment ledger is append-only JSONL, one moment per line. Proposed path: `data/editorial/moments/moment_ledger.jsonl`

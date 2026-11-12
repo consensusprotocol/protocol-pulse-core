@@ -1,0 +1,107 @@
+{
+ "schema": "protocol_pulse.pinned_story.v1",
+ "story_id": "moments-fresh_20261112_050611-860b878d",
+ "label": "bitcoin",
+ "headline": "Bitcoin ran from 16K to 126K",
+ "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+ "approved_at": "2026-11-12T08:29:54+00:00",
+ "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, fresh_20261112_050611)",
+ "machine_cuts": true,
+ "segments": [
+  {
+   "role": "hook",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel": "Saifedean Ammous",
+   "start": 5144.99,
+   "end": 5153.37,
+   "approved_text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "start": 1826.54,
+   "end": 1843.48,
+   "approved_text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "c1JGheQBPH4",
+   "channel": "What Bitcoin Did",
+   "start": 2480.28,
+   "end": 2491.52,
+   "approved_text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "Noq6txZU91c",
+   "channel": "Simply Bitcoin",
+   "start": 399.15,
+   "end": 405.25,
+   "approved_text": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x.",
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  }
+ ],
+ "moments_package": {
+  "schema": "pp.package/1",
+  "package_sha256": "860b878d4e4961a7e2ec7f1500f57a5030d84b99565b4a78d7527ed4bd0122e4",
+  "type": "moments",
+  "edl_vo": {
+   "intro": "Bitcoin ran from 16K to 126K.",
+   "bridges": [
+    {
+     "text": "Next, What Bitcoin Did on intermediaries getting hacked.",
+     "after_clip": 1
+    },
+    {
+     "text": "Next, Simply Bitcoin on Bitcoin's move from 16K to 126K.",
+     "after_clip": 2
+    }
+   ]
+  },
+  "signoff_expected": "Clips today from Saifedean Ammous, Stephan Livera, What Bitcoin Did, and Simply Bitcoin. Go follow them for more. Links are below.",
+  "title": "Bitcoin ran from 16K to 126K",
+  "caption": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x.",
+  "hook_first_words": "Bitcoin does not have any authority that allows",
+  "vo_jobs": {
+   "intro": "context",
+   "bridge_1": "connection",
+   "bridge_2": "connection"
+  },
+  "checks": {
+   "vo_fidelity_ok": true,
+   "context_integrity_ok": true,
+   "models": {
+    "writer": "openai:gpt-6.1-sol",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": "precomputed (package-independent: context only)",
+     "B": "anthropic:claude-opus-5-5",
+     "C": "xai:grok-4.20-0309-reasoning"
+    }
+   }
+  },
+  "runtime_s_estimate": 60.42,
+  "sources_30s_before": [
+   "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s",
+   "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s",
+   "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2450s",
+   "https://www.youtube.com/watch?v=Noq6txZU91c&t=369s"
+  ]
+ }
+}
