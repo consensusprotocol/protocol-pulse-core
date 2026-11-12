@@ -6,6 +6,10 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:18 ET PRE-CHECK (decision 08:18) ON clip_02 = moment f216541b ('Bitcoin imposes a global free market for the first time ever.'): CLEAN
+
+- Window acquired as the render will (offset 3203.0); OUT 'ever.' pause 520 ms, cut 19.01, neighbour-clear OK, no backchannel; IN after 'path.' pause 260 ms, cut 14.38, neighbour-clear OK; the render's own prepare edge-word check on a clip cut like prepare: PASS ('bitcoin' / 'ever'). Named: a faint same-speaker false start 'It w-' (15-20 dB below speech) sits in the clip head before 'Bitcoin' (the second recogniser hears it; Whisper does not). Details: docs/audits/parallel/integrator_RULING7_FACTS.md (08:18).
+
 ## 07:23 ET PRE-CHECK (ruling 07:25) ON clip_02 -> 'does.': NOT CLEAN; no clean sentence end after it within 20 s
 
 - The cutter's own geometry (main, acquired window runs/pinned_20261112_120225) places 'does.''s OUT at 30.82 (pause and neighbour-clear OK), but the clip's tail then carries the HOST's backchannel "Mm." (second recogniser speaker_1, 29.92-30.04; audible 29.89-30.12): another speaker inside the clip, and a likely prepare edge-word failure ('Mm' heard last). A clean pause exists at 29.64-29.88, but the cutter does not aim there (the primary decode times 'But' 0.5 s early, so its pause search spans the 'Mm').
