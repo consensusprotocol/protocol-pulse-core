@@ -31,3 +31,11 @@ The render path from a pin to the gated finals measured 51.3 min tonight (DoD, l
 voice, prepare, render 16:9 + 9:16, the gates, verify). A pin re-sealed at about 07:00 reaches Telegram at about
 07:55; nothing in that path is skippable (every gate runs). The held run reached `cut` in 3 min 49 s, so a bad edge
 shows within about 4 minutes of the start. GPU0 is free and reserved for this pin.
+
+## 07:08 ET: the re-sealed pin f409e9d9 HOLD at prepare (clip_02 'emerges' clipped)
+- The speaker runs 'emerges-and' together: the final sibilant (26.94-26.97 s, file time) abuts 'And' (26.98); the cutter's quiet run sat
+  before it; the prepared clip was heard as '... and that's what emerged.' (CLIP_CONTRACT.json). No pause = no cuttable end at 'emerges'.
+- Recommendation: end clip_02 at 'does.' (14.42 s, YouTube 528.88-543.30): both recognisers end the sentence there, and the source has a
+  quiet run from 29.61 s (file time; a short sound at 29.23-29.60, likely the host's 'Mm', which the cutter's neighbour-clear will judge).
+- Ruling C: the CUTTABLE gate should run the renderer's own sentence lock AND cut geometry (pause, neighbour-clear) on the window; the
+  recogniser's punctuation alone passed an edge with no pause.
