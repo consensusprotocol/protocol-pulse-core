@@ -6,6 +6,11 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## TONIGHT'S MOMENTS-FIRST VIDEO, RE-SEALED PIN f409e9d9 (GO 07:03): RESULT 07:07 ET = HOLD AT STAGE `prepare`, NOT DELIVERED
+
+- Run runs/pinned_20261112_120225 (HEAD 3db3e96a; pin data/moments_pins/MOMENTS_PIN_065928.json, checked on its own content). Passed: preflight (after the 07:00 false start, bible E-FAIL-057), env, pinned, review, validate (R4 moments 30.49 % of 64.94 s; editorial laws; stand-alone), cut (all three ACCEPT under the existing rule: ruling 7 not needed), sentence_law G16 (all PASS), voice.
+- STAGE `prepare` HOLD, real cause (CLIP_CONTRACT.json): clip_02 (Natalie Brunell, wdk5JZ9hPzs) edge-word check on the PREPARED clip: expected last word 'emerges.', re-transcription hears 'emerged' (tail '... and that's what emerged.'). The cut OUT is 26.93 s while the primary decode ends 'emerges.' at 27.00 s: the cut most likely sits inside the word's low-energy '-s' tail (a clipped edge word: integrity, L-o (2)); the gate failed closed. hook and clip_01 passed (edges 'Bitcoin'/'that.' and 'I'/'US.'). Nothing was loosened or sent; GPU0 released by the run.
+
 ## TONIGHT'S MOMENTS-FIRST VIDEO (orders '06:00' / '06:22'): RESULT 06:34 ET = HOLD AT STAGE `cut`, NOT DELIVERED
 
 - Run runs/pinned_20261112_113058 (HEAD a5ec0f17; pin data/moments_pins/MOMENTS_PIN_062925.json sha256 12eff4b2..., package_sha256 add8c732..., the seal recomputed and every sealed gate PASS; started 06:30:16, ended 06:34:05, run_fresh exit 3). Passed: env, pinned (3 windows acquired + transcribed on GPU0), review (gemma3:27b), validate (R1-R10 incl. the new R4 moments: VO 19.80 s = 30.79 % of an estimated 64.30 s; editorial laws L0 + 1-4 PASS; stand-alone all PASS).
