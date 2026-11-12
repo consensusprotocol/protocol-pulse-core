@@ -260,6 +260,133 @@ def validate_range(seg, acq):
     return out
 
 
+# ── 3b. sentence-lock text adjudication (ruling 17, orchestrator 2026-11-12 '10:20') ──
+
+LV2_NEGATIONS = frozenset({"not", "no", "never", "none", "nobody", "nothing", "neither", "nor", "cannot", "can't",
+                           "won't", "don't", "doesn't", "didn't", "isn't", "aren't", "wasn't", "weren't", "shouldn't",
+                           "wouldn't", "couldn't", "hasn't", "haven't", "hadn't"})
+
+
+LV2_ORDINALS = frozenset({"first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth",
+                          "eleventh", "twelfth", "twentieth", "hundredth", "thousandth", "millionth", "billionth",
+                          "half", "quarter", "double", "triple", "dozen"})
+
+
+def _lv2_critical(tok, texts):
+    """Law L-v 2: a number, a negation, or a name (in either text, a capitalised word that does not open a
+    sentence; 'I' excepted). Conservative: a doubtful token is critical (it holds)."""
+    if re.search(r"\d", tok) or tok in LV2_NEGATIONS or tok.endswith("n't") or tok in LV2_ORDINALS:
+        return True                                    # any digit ('2nd', '1,000', '15%') or an ordinal is a number
+    for t in texts:
+        for m in re.finditer(r"[A-Za-z][A-Za-z'\u2019-]*", t or ""):
+            w = m.group(0)
+            if w.lower() == tok and w[0].isupper() and w != "I":
+                before = t[:m.start()].rstrip()
+                if before and before[-1] not in ".!?":
+                    return True
+    return False
+
+
+def _second_recogniser_words(src_path):
+    """The independent second recogniser (ElevenLabs scribe_v1) on the acquired window: words on its clock."""
+    vp3 = os.path.join(os.path.dirname(PIPELINE_DIR), "video_pipeline_v3")    # relay.get_key, the key loader
+    if vp3 not in sys.path:
+        sys.path.insert(1, vp3)
+    import second_recogniser
+    words, _text, secs = second_recogniser.scribe_words(src_path)
+    return words, round(secs / 60 * 0.012, 4)
+
+
+def _token_word(words, i0, i1, a):
+    """The index of the run word that carries canonical token a of the lock text; None when the per-word canonical
+    forms do not add up to the lock text's (fail closed)."""
+    import canon
+    per = [canon.canon_tokens(str(words[j]["word"])) for j in range(i0, i1 + 1)]
+    if [t for p in per for t in p] != canon.canon_tokens(" ".join(str(w["word"]).strip() for w in words[i0:i1 + 1])):
+        return None                                  # audit batch34 F3: token for token, not only the count
+    lens = [len(p) for p in per]
+    k = 0
+    for j, n in zip(range(i0, i1 + 1), lens):
+        if k <= a < k + n:
+            return j
+        k += n
+    return None
+
+
+def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+    """Ruling 17: the run's own decode (lock['text']) and the pin's approved text (lock['selected_text']) differ
+    inside the locked span -> a difference on a number, a name or a negation always holds (law L-v 2); otherwise
+    the independent second recogniser on the acquired window decides: when it reads the approved words at every
+    difference, the lock takes the approved text (two independent decodes agree) and G18 compares the final against
+    it; when it reads the run's decode, or neither, HOLD naming the three readings. No difference: the lock as is."""
+    import canon
+    from difflib import SequenceMatcher
+    run_t, pin_t = lock["text"], lock["selected_text"]
+    r, p = canon.canon_tokens(run_t), canon.canon_tokens(pin_t)
+    ops = [o for o in SequenceMatcher(None, r, p, autojunk=False).get_opcodes() if o[0] != "equal"]
+    if not ops:
+        return lock
+    tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
+    diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
+    crit = sorted({t for _, a, b, c, d in ops for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})
+    if crit:
+        raise PinError(f"{tag}: the run's decode and the approved text differ on a number, name or negation {crit} "
+                       f"(law L-v 2: always holds) | run decode: {run_t!r} | approved: {pin_t!r}")
+    t0, t1 = words[lock["i0"]]["start"] - 0.3, words[lock["i1"]]["end"] + 0.3
+    sw, usd = (recognise or _second_recogniser_words)(src_path)
+    sec_t = " ".join(str(w["word"]).strip() for w in sw
+                     if t0 <= (float(w["start"]) + float(w["end"])) / 2 <= t1)
+    s = canon.canon_tokens(sec_t)
+
+    def amap(x, y):                                    # x index -> the y index the in-order alignment reads it as
+        return {a + k: b + k for op, a, a2, b, _ in SequenceMatcher(None, x, y, autojunk=False).get_opcodes()
+                if op == "equal" for k in range(a2 - a)}
+
+    def reads(x, xmap, lo, hi):
+        # the second recogniser reads x's words lo..hi-1 AT this position: they and one neighbour on each side are
+        # all aligned and consecutive in its text (nothing else between them: a deletion is not 'a different word')
+        idx = list(range(max(lo - 1, 0), min(hi + 1, len(x))))
+        if not idx or not all(i in xmap for i in idx) or \
+                not all(xmap[j] == xmap[i] + 1 for i, j in zip(idx, idx[1:])):
+            return False
+        # cycle-2 F1: at the span's start / end there is no neighbour: nothing may precede / follow it in the reading
+        return (lo > 0 or xmap[idx[0]] == 0) and (hi < len(x) or xmap[idx[-1]] == len(s) - 1)
+    pmap, rmap = amap(p, s), amap(r, s)
+    pin_side = all(reads(p, pmap, c, d) for _, a, b, c, d in ops)
+    run_side = all(reads(r, rmap, a, b) for _, a, b, c, d in ops)
+    readings = {"run_decode": run_t, "approved": pin_t, "second_recogniser": sec_t}
+    if not pin_side and run_side and len(ops) == 1 and ops[0][0] == "replace" and ops[0][2] - ops[0][1] == 1 \
+            and ops[0][4] - ops[0][3] == 1:
+        # ruling 18 ('10:36'): the decodes split on ONE non-critical token: the lock records both attested readings;
+        # G18 passes the token only when the final reads one of them AND the clip's audio there is the source's
+        _, a, _, c, _ = ops[0]
+        wi = _token_word(words, lock["i0"], lock["i1"], a)
+        if wi is None:
+            raise PinError(f"{tag}: the ambiguous token cannot be located in the run's words (ruling 18: HOLD) | " +
+                           " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
+        new = {k: v for k, v in lock.items() if k != "sha256"}
+        new["alternatives"] = [{"rule": "ruling 18 (orchestrator 2026-11-12 '10:36')", "token_index": a,
+                                "readings": [r[a], p[c]], "word_index": wi,
+                                "source_span": [round(float(words[wi]["start"]), 3), round(float(words[wi]["end"]), 3)],
+                                "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}]
+        new["sha256"] = L._lock_digest(new)
+        log(f"  lock {tag}: one token heard as {r[a]!r} (run decode, second recogniser) or {p[c]!r} (approved): both "
+            f"readings recorded (ruling 18)")
+        return new
+    if not pin_side:
+        raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
+                       f"{'the run decode' if run_side else 'neither'} | " +
+                       " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
+    new = {k: v for k, v in lock.items() if k != "sha256"}
+    new.update(text=pin_t, adjudication={"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
+                                         "differences": diffs, "recogniser": "elevenlabs:scribe_v1", "usd": usd,
+                                         **readings})
+    new["sha256"] = L._lock_digest(new)
+    log(f"  lock {tag}: run decode and approved text differ at {diffs}; the second recogniser reads the approved "
+        f"words: the lock takes the approved text (ruling 17)")
+    return new
+
+
 # ── 4. canonical EDL (same shape as select_passages.select_and_build_edl) ──
 
 def build_edl(pin, acq, registry=None, log=print):
@@ -277,6 +404,8 @@ def build_edl(pin, acq, registry=None, log=print):
                            L.sha256_file(a["transcript_path"]), v["text"], [s["start"], s["end"]],
                            v.get("approved_text_similarity"),
                            "pinned approved_text" if s.get("approved_text") else "pinned exact range")
+        if s.get("approved_text"):
+            lock = adjudicate_lock(lock, a["path"], a["transcript"]["words"], log=log)    # ruling 17
         seg = {
             "video_id": s["video_id"],
             "channel": s["channel"],

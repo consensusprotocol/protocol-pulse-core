@@ -39,6 +39,8 @@ FPS = 24
 # named exception to Law 20 / M2, recorded under 'Decisions (orchestrator, delegated by PBX)' there.
 G3C_VALLEY_DEPTH_DB = {"16x9": 11.63, "9x16": 11.65}    # was 12.0: strictest depth at which the v2f hook tail passes (11.6301 / 11.6543)
 G5_TRUE_PEAK_MAX_DBFS = {"16x9": -2.0, "9x16": -1.3}    # 9x16 was -2.0: v2f segment_vertical.mp4 true peak -1.3 dBFS (16x9 -2.2 passed)
+G5_DURATION_ACCEPT_S = (58.0, 72.0)   # ruling 12 ('09:32'): the measured final's accepted runtime, both aspects
+G5_DURATION_TARGET_S = (60.0, 70.0)   # law L-o: PBX's format target; outside it = a recorded deviation
 G8_SHARPNESS_FLOOR = {"16x9": 27.56, "9x16": 10.84}     # was 60: v2f worst segment medians (16x9 hook 27.56, 9x16 clip_03 10.84)
 G9_V2F_LUMA = {"16x9": 14.3357, "9x16": 14.7715}       # DEC-1: v2f's own tail luma (the locked outro ends on black)
 G9_REENCODE_SPREAD = {"16x9": 0.05, "9x16": 0.04}      # DEC-12a: MEASURED spread (the outro's encode depends on its GOP
@@ -676,7 +678,7 @@ def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir, source_clips=None)
 # ==============================================================
 
 def gate_g5(final_mp4, fmt):
-    """Dims, SAR 1:1, fps 24, ebur128 I=-14+/-1, TP<=-2.0, vertical<=75s."""
+    """Dims, SAR 1:1, fps 24, ebur128 I=-14+/-1, TP<=-2.0, duration 58-72 s (ruling 12; target 60-70 s)."""
     print("\n=== G5: DURATION / LOUDNESS ===")
 
     probe = ffprobe_json(final_mp4)
@@ -718,15 +720,21 @@ def gate_g5(final_mp4, fmt):
         print(f"  SAR: {sar} [{'PASS' if sar_ok else 'FAIL'}]")
         print(f"  FPS: {fps_val} [{'PASS' if fps_ok else 'FAIL'}]")
 
-    # Duration window: 60-120s for both aspects (R2-14)
-    dur_min = 60.0
-    dur_max = 120.0
+    # Duration, both aspects (ruling 12, orchestrator 2026-11-12 '09:32'; was 60-120 s, R2-14): 60-70 s is PBX's
+    # FORMAT TARGET (law L-o); the measured final is ACCEPTED from 58.0 to 72.0 s, a value outside 60-70 s recorded
+    # as a deviation (named in the caption); outside 58-72 s it fails
+    dur_min, dur_max = G5_DURATION_ACCEPT_S
     dur_ok = dur_min <= dur <= dur_max
     results["duration"] = dur
     results["dur_ok"] = dur_ok
+    lo, hi = G5_DURATION_TARGET_S
+    if dur_ok and not lo <= dur <= hi:
+        results["duration_deviation"] = (f"{dur:.3f} s is {(lo - dur) if dur < lo else (dur - hi):.3f} s "
+                                         f"{'under' if dur < lo else 'over'} the {lo:.0f}-{hi:.0f} s format target")
     if not dur_ok:
         all_pass = False
-    print(f"  Duration: {dur:.2f}s ({dur_min:.0f}-{dur_max:.0f}s) [{'PASS' if dur_ok else 'FAIL'}]")
+    print(f"  Duration: {dur:.2f}s ({dur_min:.0f}-{dur_max:.0f}s accepted, {lo:.0f}-{hi:.0f}s target) "
+          f"[{'PASS' if dur_ok else 'FAIL'}]{' DEVIATION ' + results['duration_deviation'] if 'duration_deviation' in results else ''}")
 
     # EBU R128
     r = subprocess.run([

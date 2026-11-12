@@ -1,0 +1,27 @@
+# Heimdall audit
+
+**Question:** Batch 34 = RULINGS 18 + 19 (orchestrator 2026-11-12 '10:36', '10:51') + ruling 17's cycle-2 boundary fix. Integrity stays fail-closed.
+RULING 18: when the run's decode and the pin's approved text differ in a locked span on exactly ONE token (a 1-for-1 replacement), not a number / name / negation (those hold before any vote), and the independent second recogniser reads the RUN's word at that position (an even split), the lock does not hold: it records both attested readings (lock['alternatives']: token_index, readings, the run word's index and source time span) and its digest is recomputed (pinned.adjudicate_lock). Two or more differences, or a reading of neither, still HOLD. G18 (word_diff.gate_g18) for such a lock: the final's decode may read EITHER attested reading at that position (edges() and diff() with alts; any other difference fails), its identity reference is the lock text, AND the token's audio must be the source's: sentence_law.span_fidelity = G17c's frame comparison (every 10 ms source frame above the floor within EDGE_WORD_MAX_DB 1.0 dB, best of +-2 hops, every kept frame compared) on the PREPARED clip over the token's span; the same on the final bytes is recorded as evidence only (the music bed and loudnorm make a 1 dB frame test impossible there). A mismatch fails G18. RULING 19: the comparison floor for G17c AND the token check is EDGE_WORD_FLOOR_DBFS = -90 dBFS (was -96): measured AAC codec noise at -92.9 / -94.2 dBFS in a pause (1.22 dB apart) while every frame above -90 was within 0.52 dB. Ruling 17 cycle-2 F1: at the span's start / end (no neighbour) the second recogniser's reading must begin / end exactly there.
+Tests: either reading passes on the untouched prepared clip; a third word fails; the token's audio 3 dB down or silenced fails; 'can'/'can't', '15'/'50', 'one'/'two' hold; two ambiguous tokens hold; a start-of-span difference read with an extra word holds; codec-like noise between -96 and -90 passes, a real 3 dB onset loss at -50 fails.
+FIND: any way G18 passes a final whose words differ from the lock other than the one attested alternative; any way the token check passes with the token's audio changed above -90 dBFS; index errors mapping the alternative (canon index vs G18's norm index, edges at the start / end); a critical (number / name / negation) difference that reaches alternatives; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+THIS PART of the diff: pipeline/pinned.py only (the rest is audited separately). Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, deepseek  |  **Cost:** $0.0198
+## Consensus findings (majority of panel agrees)
+- **[high] pipeline/pinned.py:352** Cycle-2 F1 boundary check uses full-text boundaries instead of span boundaries. `hi < len(x)` and `lo > 0` test against the full text length, not the locked span. If the span is words 3–7 of a 10-word text, a diff at the span's end (index 7) has `hi=7 < len(x)=10` → True, so the 'reading must end exactly there' check is skipped. The fix only fires when the span coincides with the full text's start/end.
+  - evidence: `return (lo > 0 or xmap[idx[0]] == 0) and (hi < len(x) or xmap[idx[-1]] == len(s) - 1)`
+  - fix: Pass the span boundaries (lock['i0'], lock['i1']) into `reads` and test `lo > span_start` / `hi < span_end` instead of `lo > 0` / `hi < len(x)`. The 'exactly there' targets should be the span's first/last position in `s`, not 0 and len(s)-1.
+  - raised by qwen27b:F1; agree: qwen27b, deepseek
+- **[critical] pipeline/pinned.py:0** _token_word treats the global canonical token index a (from ops[0][1], an index into the full run decode's canonical tokens) as if it were relative to the lock span, so for any span not starting at canonical token 0 it returns None or the wrong word index, breaking the alternative mapping and source_span.
+  - evidence: `wi = _token_word(words, lock["i0"], lock["i1"], a)`
+  - fix: Compute the canonical token offset of the span start (e.g., sum of canon token lengths for words before i0) and subtract it from a before calling _token_word, or make _token_word accept the global index and map it correctly.
+  - raised by deepseek:F1; agree: qwen27b, deepseek
+
+## Raised but not agreed
+- qwen27b:F2 [medium] `token_index` is set to `a` from the diff op, which is an index into the run text `r` (used as `r[a]` in `reads(r, rmap, a, b)`). If the diff is computed at the canonical-token level (as Ruling 18's 'one token' language implies) while `r` is a word list, `a` is a token index but `r[a]` indexes a word list—mismatched index spaces. The recorded `token_index` may not align with G18's norm-index expectation for the lock text. (agree: 1)
+- deepseek:F2 [critical] The ruling-18 branch does not check whether the single differing token is a number, name, or negation, so a critical difference can reach alternatives and be recorded as an attested reading, violating the law that such differences always hold. (agree: 1)
+- deepseek:F3 [high] _token_word only checks that the per-word canonical tokens concatenate to the canonical form of the joined words, not that they match the lock text's canonical tokens for the span. If the words' canonical forms differ from the lock text, the mapping can silently point to the wrong word. (agree: 0)
+
+## Added in cross-examination (not voted on)
+- none

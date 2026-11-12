@@ -63,6 +63,24 @@ class TestG20(unittest.TestCase):
                          {"Bitcoin Magazine"})                     # a similar non-credited name is not heard
         self.assertEqual(G.spoken_channels("Thanks to Yahoo Finance.", reg, ["DataDash"]), {"Yahoo Finance"})
 
+    def test_ruling_14_spoken_form_aliases_are_heard_and_an_absent_name_still_fails(self):
+        # ruling 14 (orchestrator 2026-11-12 '10:02'): Whisper wrote 'seifedean amos' for 'Saifedean Ammous' (0.800
+        # against the unchanged 0.85); the registry's own alias mechanism carries the spoken forms
+        reg = json.load(open(os.path.join(PIPELINE, "channels.json")))
+        saif = next(e for e in reg if e.get("display_name") == "Saifedean Ammous")
+        self.assertIn("seifedean amos", saif.get("aliases") or [])
+        self.assertEqual(G.G20_NAME_RATIO, 0.85)                           # the ratio is not lowered
+        credited = ["Natalie Brunell", "Saifedean Ammous", "What Bitcoin Did"]
+        heard = ("big thanks to seifedean amos, whatbitcoindid, and natalie brunel for today's clips.  "
+                 "follow them all.  links below.")                         # run pinned_20261112_135315, as transcribed
+        self.assertEqual(G.spoken_channels(heard, reg, credited), set(credited))
+        bare = [dict(e, aliases=[]) if e is saif else e for e in reg]
+        self.assertNotIn("Saifedean Ammous", G.spoken_channels(heard, bare, credited))   # without them: 0.800
+        omitted = "big thanks to whatbitcoindid and natalie brunel for today's clips.  follow them all.  links below."
+        self.assertEqual(G.spoken_channels(omitted, reg, credited), {"Natalie Brunell", "What Bitcoin Did"})
+        other = "big thanks to michael saylor, whatbitcoindid, and natalie brunel for today's clips.  links below."
+        self.assertNotIn("Saifedean Ammous", G.spoken_channels(other, reg, credited))
+
     def test_no_shoutout_or_no_credited_channels_fails_closed(self):
         ok, _ = G.gate_g20("unused.mp4", [{"label": "hook", "type": "talking_head", "start": 0, "end": 1}],
                            ["DataDash"], self.tmp)

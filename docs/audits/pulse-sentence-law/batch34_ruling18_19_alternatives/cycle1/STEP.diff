@@ -1,0 +1,232 @@
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index e431c38f..86b15afd 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -297,6 +297,21 @@ def _second_recogniser_words(src_path):
+     return words, round(secs / 60 * 0.012, 4)
+ 
+ 
++def _token_word(words, i0, i1, a):
++    """The index of the run word that carries canonical token a of the lock text; None when the per-word canonical
++    forms do not add up to the lock text's (fail closed)."""
++    import canon
++    lens = [len(canon.canon_tokens(str(words[j]["word"]))) for j in range(i0, i1 + 1)]
++    if sum(lens) != len(canon.canon_tokens(" ".join(str(w["word"]).strip() for w in words[i0:i1 + 1]))):
++        return None
++    k = 0
++    for j, n in zip(range(i0, i1 + 1), lens):
++        if k <= a < k + n:
++            return j
++        k += n
++    return None
++
++
+ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+     """Ruling 17: the run's own decode (lock['text']) and the pin's approved text (lock['selected_text']) differ
+     inside the locked span -> a difference on a number, a name or a negation always holds (law L-v 2); otherwise
+@@ -330,11 +345,33 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+         # the second recogniser reads x's words lo..hi-1 AT this position: they and one neighbour on each side are
+         # all aligned and consecutive in its text (nothing else between them: a deletion is not 'a different word')
+         idx = list(range(max(lo - 1, 0), min(hi + 1, len(x))))
+-        return all(i in xmap for i in idx) and all(xmap[j] == xmap[i] + 1 for i, j in zip(idx, idx[1:]))
++        if not idx or not all(i in xmap for i in idx) or \
++                not all(xmap[j] == xmap[i] + 1 for i, j in zip(idx, idx[1:])):
++            return False
++        # cycle-2 F1: at the span's start / end there is no neighbour: nothing may precede / follow it in the reading
++        return (lo > 0 or xmap[idx[0]] == 0) and (hi < len(x) or xmap[idx[-1]] == len(s) - 1)
+     pmap, rmap = amap(p, s), amap(r, s)
+     pin_side = all(reads(p, pmap, c, d) for _, a, b, c, d in ops)
+     run_side = all(reads(r, rmap, a, b) for _, a, b, c, d in ops)
+     readings = {"run_decode": run_t, "approved": pin_t, "second_recogniser": sec_t}
++    if not pin_side and run_side and len(ops) == 1 and ops[0][0] == "replace" and ops[0][2] - ops[0][1] == 1 \
++            and ops[0][4] - ops[0][3] == 1:
++        # ruling 18 ('10:36'): the decodes split on ONE non-critical token: the lock records both attested readings;
++        # G18 passes the token only when the final reads one of them AND the clip's audio there is the source's
++        _, a, _, c, _ = ops[0]
++        wi = _token_word(words, lock["i0"], lock["i1"], a)
++        if wi is None:
++            raise PinError(f"{tag}: the ambiguous token cannot be located in the run's words (ruling 18: HOLD) | " +
++                           " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
++        new = {k: v for k, v in lock.items() if k != "sha256"}
++        new["alternatives"] = [{"rule": "ruling 18 (orchestrator 2026-11-12 '10:36')", "token_index": a,
++                                "readings": [r[a], p[c]], "word_index": wi,
++                                "source_span": [round(float(words[wi]["start"]), 3), round(float(words[wi]["end"]), 3)],
++                                "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}]
++        new["sha256"] = L._lock_digest(new)
++        log(f"  lock {tag}: one token heard as {r[a]!r} (run decode, second recogniser) or {p[c]!r} (approved): both "
++            f"readings recorded (ruling 18)")
++        return new
+     if not pin_side:
+         raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
+                        f"{'the run decode' if run_side else 'neither'} | " +
+diff --git a/pipeline/sentence_law.py b/pipeline/sentence_law.py
+index 7e23f5eb..76d8d028 100644
+--- a/pipeline/sentence_law.py
++++ b/pipeline/sentence_law.py
+@@ -443,7 +443,11 @@ FADE_MIN_S = 0.010          # law L-b: an edge fade shortens down to 10 ms to st
+ FLOOR_PLUS_DB = 3.0         # law L-b: a word has ended (not yet begun) where its envelope is within 3 dB of the
+                             # level at the cut point (the valley minimum or the room tone the cut sits in)
+ EDGE_WORD_MAX_DB = 1.0      # G17c: every frame of an edge word (and its decay) within 1 dB of the unfaded source
+-EDGE_WORD_FLOOR_DBFS = -96.0   # ruling 16 ('10:20'): G17c compares a frame only above max(the gap level, the 16-bit floor)
++EDGE_WORD_FLOOR_DBFS = -90.0   # rulings 16 / 18 / 19: G17c and the ruling-18 token check compare a frame only above
++                               # max(the gap level, this floor). Ruling 19 ('10:51'): -96 dBFS is the 16-bit floor of a LOSSLESS
++                               # signal, but prepared clips are AAC: measured 2026-11-12 on run pinned_20261112_135315,
++                               # clip_01 (c1JGheQBPH4), a pause frame at source 15.14 s: source -92.9 dBFS, prepared AAC clip
++                               # -94.2 dBFS (1.22 dB apart, codec noise); every frame above -90 dBFS of that span within 0.52 dB.
+ 
+ 
+ def edge_word_bounds(sa, plan, cut_in, cut_out):
+@@ -841,6 +845,31 @@ def apply_lead_in_pad(run_dir, cut, fps, qp):
+     return {"pad_s": pad, "room_tone_source_s": info, "wav": os.path.basename(wav)}
+ 
+ 
++def span_fidelity(src_path, clip_path, t0, t1, cut_in, pad_s=0.0, sa=None, offset_s=0.0):
++    """Ruling 18: the source span [t0, t1] is the clip's audio, frame for frame: G17c's comparison (every 10 ms source
++    frame above EDGE_WORD_FLOOR_DBFS within EDGE_WORD_MAX_DB in the clip, at the best of +-2 hops, every kept frame
++    compared). offset_s: where the clip starts inside clip_path (0 for a prepared clip). Returns (ok, detail)."""
++    sa = sa or SourceAudio(src_path)
++    ca = SourceAudio(clip_path)
++    base = offset_s - cut_in + pad_s
++    _, ds = sa.sl(t0, t1)
++    keep = ds > EDGE_WORD_FLOOR_DBFS
++    if not keep.any():
++        return False, {"span": [round(t0, 3), round(t1, 3)], "why": "no audible source frame in the span"}
++    best = None
++    for k in range(-2, 3):
++        _, dc = ca.sl(t0 + base + k * HOP_S, t1 + base + k * HOP_S)
++        n = min(len(dc), len(ds))
++        if n == 0 or keep[n:].any():                                 # a source frame left uncompared: no proof
++            continue
++        worst = float(np.max(np.abs(dc[:n] - ds[:n])[keep[:n]]))
++        if best is None or worst < best[0]:
++            best = (worst, k)
++    ok = best is not None and best[0] <= EDGE_WORD_MAX_DB
++    return ok, {"span": [round(t0, 3), round(t1, 3)], "worst_db": None if best is None else round(best[0], 2),
++                "shift_hops": None if best is None else best[1], "compared_frames": int(keep.sum())}
++
++
+ def gate_g17_edges(run_dir, source_path_fn=None):
+     """G17c (law L-b): every machine-cut segment's prepared clip keeps its first and last word, with their
+     natural decay, at full level against the source (edge_word_fidelity). Human PIN tables are measured too.
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+index f05fd77b..6e69a44a 100644
+--- a/pipeline/word_diff.py
++++ b/pipeline/word_diff.py
+@@ -47,19 +47,45 @@ def _collapse_repeats(tokens):
+     return out
+ 
+ 
+-def diff(expected, heard, collapse=False):
+-    """Word-level differences [(op, expected_words, heard_words)] after canonicalisation; [] if equal."""
++def _alt_positions(expected, alts):
++    """Ruling 18: {norm index of the expected text: set of attested readings} for each recorded alternative (its
++    token_index is a canon index; norm() drops 'dollars' after a number, shifting what follows)."""
++    import canon
++    t = canon.canon_tokens(expected)
++    out = {}
++    for x in alts or []:
++        a = x.get("token_index")
++        if not isinstance(a, int) or not 0 <= a < len(t):
++            continue
++        drop = [k for k, w in enumerate(t) if w == "dollars" and k and re.fullmatch(r"\d+(\.\d+)?", t[k - 1])]
++        if a in drop:
++            continue
++        out[a - sum(1 for k in drop if k < a)] = set(x.get("readings") or [])
++    return out
++
++
++def diff(expected, heard, collapse=False, alts=None):
++    """Word-level differences [(op, expected_words, heard_words)] after canonicalisation; [] if equal. alts (ruling
++    18): at an alternative's position, a one-word replacement by another attested reading is not a difference."""
+     e, h = norm(expected, collapse), norm(heard, collapse)
++    pos = _alt_positions(expected, alts) if not collapse else {}
+     out = []
+     for op, a0, a1, b0, b1 in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes():
++        if op == "replace" and a1 - a0 == 1 and b1 - b0 == 1 and a0 in pos and e[a0] in pos[a0] and h[b0] in pos[a0]:
++            continue
+         if op != "equal":
+             out.append((op, " ".join(e[a0:a1]), " ".join(h[b0:b1])))
+     return out
+ 
+ 
+-def edges(lock_text, heard, n=EDGE_WORDS):
+-    """[] when the heard text starts and ends with the lock's first/last n canonical words."""
++def edges(lock_text, heard, n=EDGE_WORDS, alts=None):
++    """[] when the heard text starts and ends with the lock's first/last n canonical words (ruling 18: at an
++    alternative's position any attested reading counts as the lock's word)."""
+     e, h = norm(lock_text), norm(heard)
++    for k, rd in _alt_positions(lock_text, alts).items():
++        hk = k if k < n else len(h) - (len(e) - k)
++        if e[k] in rd and 0 <= hk < len(h) and h[hk] in rd and (k < n or k >= len(e) - n):
++            e[k] = h[hk]
+     out = []
+     if h[:n] != e[:n]:
+         out.append(("start", " ".join(e[:n]), " ".join(h[:n])))
+@@ -103,13 +129,35 @@ def gate_g18(final_path, segments, clips, transcriber=None):
+             continue
+         heard = tr.span(final_path, seg["start"], seg["end"])
+         src = tr.span(c["source"], c["cut_in"], c["cut_out"])
+-        # ruling 17: a lock adjudicated by two independent decodes IS the reference the final is compared against
+-        ref = c["lock_text"] if c.get("adjudicated") else src
++        # ruling 17: a lock adjudicated by two independent decodes IS the reference the final is compared against;
++        # ruling 18: so is a lock that records the attested readings of its one ambiguous token
++        alts = [x for x in (c.get("alternatives") or []) if isinstance(x, dict)]
++        ref = c["lock_text"] if (c.get("adjudicated") or alts) else src
+         row = {"segment": label, "heard": heard, "source_span_heard": src, "lock_text": c["lock_text"],
+-               "edges": edges(c["lock_text"], heard), "identity": diff(ref, heard),
++               "edges": edges(c["lock_text"], heard, alts=alts), "identity": diff(ref, heard, alts=alts),
+                "lock_diff_reported": diff(c["lock_text"], heard)}
+         if c.get("adjudicated"):
+             row["identity_reference"] = "the adjudicated lock text (ruling 17)"
++        if alts:
++            import sentence_law as L
++            row["identity_reference"] = "the lock text with its attested alternatives (ruling 18)"
++            row["alternatives"] = []
++            for x in alts:
++                t0, t1 = (float(v) for v in x["source_span"])
++                try:                                # G17c's comparison on the prepared clip (the clip the final mixes)
++                    ok_a, det_a = L.span_fidelity(c["source"], c["prepared"], t0, t1, c["cut_in"],
++                                                  float(c.get("pad_s") or 0.0))
++                except Exception as e:                  # not measurable: the token is not proved
++                    ok_a, det_a = False, {"why": f"{type(e).__name__}: {e}"}
++                try:                                    # the final bytes (music bed + loudnorm): evidence, not deciding
++                    ok_f, det_f = L.span_fidelity(c["source"], final_path, t0, t1, c["cut_in"],
++                                                  float(c.get("pad_s") or 0.0), offset_s=float(seg["start"]))
++                except Exception as e:
++                    ok_f, det_f = False, {"why": f"{type(e).__name__}: {e}"}
++                row["alternatives"].append({"readings": x.get("readings"), "acoustic_prepared": {"ok": ok_a, **det_a},
++                                            "final_bytes_evidence": {"ok": ok_f, **det_f}})
++                if not ok_a:
++                    row["acoustic_mismatch"] = True
+         if row["identity"] and not diff(ref, heard, collapse=True):
+             # only repeats differ (two whisper passes render a disfluent repeat differently, Nov 10 fixture): the
+             # difference stays in the row and is decided by the audio: the final's segment must BE the source span
+@@ -122,7 +170,7 @@ def gate_g18(final_path, segments, clips, transcriber=None):
+             row["repeat_only_adjudication"] = {"same_audio": same, **det}
+             if same:
+                 row["identity_repeats_only"], row["identity"] = row["identity"], []
+-        row["pass"] = not row["edges"] and not row["identity"]
++        row["pass"] = not row["edges"] and not row["identity"] and not row.get("acoustic_mismatch")
+         ok_all &= row["pass"]
+         rows.append(row)
+     return ok_all, rows
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 8c47ee1e..78ce61d3 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -1144,8 +1144,14 @@ def stage_gates(run, final16, man16, final9, man9):
+                                 "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
+                                 "cut_in": c["cut_in"], "cut_out": c["cut_out"],
+                                 "pad_s": float(c.get("lead_in_pad_s") or 0.0),
+-                                "adjudicated": bool((locks.get(c["clip_id"]) or {}).get("adjudication"))}
++                                "adjudicated": bool((locks.get(c["clip_id"]) or {}).get("adjudication")),
++                                "alternatives": (locks.get(c["clip_id"]) or {}).get("alternatives"),
++                                "prepared": os.path.join(qa, f"final_{c['clip_id']}.mp4")}
+                  for c in cuts}
++    run.prov["lock_adjudication"] = {cid: (locks.get(cid) or {}).get("adjudication") for cid in g18_clips
++                                     if (locks.get(cid) or {}).get("adjudication")}         # ruling 17
++    run.prov["lock_alternatives"] = {cid: (locks.get(cid) or {}).get("alternatives") for cid in g18_clips
++                                     if (locks.get(cid) or {}).get("alternatives")}        # ruling 18
+     missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
+     tr = WD.Transcriber()
+     g18 = {}

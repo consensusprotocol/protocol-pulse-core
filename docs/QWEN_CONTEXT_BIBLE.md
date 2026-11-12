@@ -281,6 +281,46 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix:** before any audit leg is reported, its raw reply is read: content present and a verdict parsed, else the leg is reported as NO ANSWER (nothing measured is never a pass, L-m); a large diff is split so the panel answers within its budget.
 **Detection:** raw_c1_<model>.json: choices[0].message.content null, finish_reason 'length'.
 
+### E-FAIL-060: A gate refusal was claimed from a simulation that assumed the wrong transition plan
+**Evidence:** 2026-11-12 08:42 ET: the integrator's one-list said G14 would hold the 08:44 moments package (clip_02, 4.63 s: 'one clear sample point'), assuming a dissolve at every join. The deployed pulse_transitions.plan dissolves only between two talking heads of different channels, so no VO join has one. Corrected 08:49 (1136e56d), after the orchestrator had issued ruling 11 on the wrong premise (08:55). The render log then showed 'Transitions (crossfade): []'.
+**Fix:** a simulated gate verdict runs the deployed functions that produce the gate's inputs (here pulse_transitions.plan and gates.gate_g14's own sample layout), never an assumed plan; a claimed refusal names the code lines it came from.
+**Detection:** a reported gate verdict whose inputs were not produced by the deployed code path.
+
+### E-FAIL-061: A package that passed R4's 60 s floor rendered at 59.625 s
+**Evidence:** 2026-11-12 09:29 ET, run pinned_20261112_135315 (moments seal 37c5b5f5): R4 estimated 61.82 s (VO at 2.5 w/s + 1.0 s pre-roll a line, tail 14.30 s); the 16:9 final measured 59.625 s. The voice spoke 55 words in 18.88 s (2.91 w/s: the VO cards were 3.14 s shorter), the shout-out + outro tail was 13.53 s (-0.77 s), the cuts added +1.79 s over the locked words. G5's 60-120 s window refused it only after the full render: nothing re-checks the runtime once the voice stage has produced the real VO lengths.
+**Fix:** ruling 12 ('09:32'): the measured final is accepted from 58 to 72 s, outside 60-70 s a recorded deviation; packaging uses the measured VO audio durations once the voice stage has produced them, before render (builder).
+**Detection:** the render log's STEP 3 segment sum against the R4 line's 'estimated runtime'.
+
+### E-FAIL-062: A refusal list was read from a filtered log, not from the gate report
+**Evidence:** 2026-11-12 09:54 ET: the integrator reported 'the full refusal list' for run pinned_20261112_135315 as G5, G14 and G20, taken from a monitor that grepped '[FAIL]' lines. GATE_REPORT.json also had G17_onset_tail and G18_word_for_word FAIL in both formats: run_fresh computes those rows itself and prints no '[FAIL]' line for them. Corrected at 10:02.
+**Fix:** a refusal list is read from GATE_REPORT.json's rows (every row whose verdict is not exactly 'PASS', REQUIRED and MONITORING named apart), never from a log filter; the log is used only to explain a row.
+**Detection:** a reported list whose rows differ from {k for k, v in rows[fmt].items() if v != 'PASS'}.
+
+### E-FAIL-063: A credited name failed G20 on the recogniser's spelling
+**Evidence:** 2026-11-12 run pinned_20261112_135315: the sign-off named Saifedean Ammous, and Whisper wrote 'seifedean amos' (0.800 against G20_NAME_RATIO 0.85); his registry entry had no aliases.
+**Fix (ruling 14):** an unusual proper name gets spoken-form aliases in pipeline/channels.json when it enters the registry; the ratio is never lowered.
+**Detection:** G20 'missing' names a credited channel whose spoken form is in the transcript under another spelling.
+
+### E-FAIL-064: G17c compared inaudible frames because the gap beside the cut was digital silence
+**Evidence:** 2026-11-12 run pinned_20261112_135315, clip_01 IN: 'edge word up to 8.8 dB off the source'. The 8.77 dB was one frame at -160.5 dBFS (and +6.6 dB at -123 dBFS); every audible frame matched within 0.34 dB. The word threshold is the gap level beside the cut, -177 dB here (digital silence), so frames with no audio content were held to the 1 dB bar.
+**Fix (ruling 16):** a frame is compared only above max(gap level, -96 dBFS), the 16-bit quantisation floor.
+**Detection:** a G17c failure whose worst frame lies below -96 dBFS in the source.
+
+### E-FAIL-065: A selection lock took its text from one decode while the recognisers disagreed on a word
+**Evidence:** 2026-11-12 run pinned_20261112_135315, clip_01 head: the run's Whisper decode (the lock) read 'I think', the pin's approved text and G18's decode of the final read 'I mean,', a decode of the source span dropped the words, and scribe_v1 on the acquired window read 'I think' (its 'think' 20 ms long). G18 failed on the start edge.
+**Fix (ruling 17):** when the run's decode differs from the approved text, the second recogniser decides; it must read the approved words to adopt them, otherwise HOLD naming the three readings; a number, name or negation difference always holds.
+**Detection:** lock_diff_reported non-empty in a G18 row of a pinned run.
+
+### E-FAIL-066: A comparison floor was set from a lossless model of a lossy file
+**Evidence:** 2026-11-12: ruling 16 set G17c's floor at -96 dBFS, the 16-bit floor of a lossless signal. The prepared clips are AAC: in run pinned_20261112_135315's clip_01, a pause frame measured -92.9 dBFS in the source and -94.2 in the clip (1.22 dB, codec noise), which failed the ruling-18 token check, while every frame above -90 dBFS was within 0.52 dB.
+**Fix (ruling 19):** the floor is -90 dBFS, and its measured basis is recorded next to the constant.
+**Detection:** a frame-comparison failure whose worst frame lies within a few dB of the floor.
+
+### E-FAIL-067: An acoustic identity check specified on the final bytes cannot pass under the music bed
+**Evidence:** 2026-11-12 run pinned_20261112_135315, clip_01's soft head (source -40 to -47 dBFS): in the final, loudnorm (about +11 dB) and the bed fill the pause after the word (source -60 to -101 dBFS, final -31 to -36). _gain_db finds no steady gain (spread > 1 dB), so the frame test is about 60 dB off, while the prepared clip equals the source frame for frame.
+**Fix:** an acoustic identity check runs on the prepared clip (G17c's comparison); the final-bytes reading is recorded as evidence only (ruling 18, decision logged at 10:35).
+**Detection:** a final-bytes frame comparison with gain None or a worst frame far above the bar in a pause.
+
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.
 Check: pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py.
 

@@ -443,6 +443,11 @@ FADE_MIN_S = 0.010          # law L-b: an edge fade shortens down to 10 ms to st
 FLOOR_PLUS_DB = 3.0         # law L-b: a word has ended (not yet begun) where its envelope is within 3 dB of the
                             # level at the cut point (the valley minimum or the room tone the cut sits in)
 EDGE_WORD_MAX_DB = 1.0      # G17c: every frame of an edge word (and its decay) within 1 dB of the unfaded source
+EDGE_WORD_FLOOR_DBFS = -90.0   # rulings 16 / 18 / 19: G17c and the ruling-18 token check compare a frame only above
+                               # max(the gap level, this floor). Ruling 19 ('10:51'): -96 dBFS is the 16-bit floor of a LOSSLESS
+                               # signal, but prepared clips are AAC: measured 2026-11-12 on run pinned_20261112_135315,
+                               # clip_01 (c1JGheQBPH4), a pause frame at source 15.14 s: source -92.9 dBFS, prepared AAC clip
+                               # -94.2 dBFS (1.22 dB apart, codec noise); every frame above -90 dBFS of that span within 0.52 dB.
 
 
 def edge_word_bounds(sa, plan, cut_in, cut_out):
@@ -508,7 +513,8 @@ def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa
                 continue
         t0, t1 = (a, min(a + 0.3, cut_out)) if side == "in" else (max(b - 0.3, cut_in), b)
         ts, ds = sa.sl(t0, t1)
-        keep = ds > wb["lim_in" if side == "in" else "lim_out"]       # the word, not the gap it sits next to
+        keep = ds > max(wb["lim_in" if side == "in" else "lim_out"], EDGE_WORD_FLOOR_DBFS)   # the word, not the gap it
+        # sits next to; never below the 16-bit quantisation floor, where no audio exists to clip (ruling 16)
         if not keep.any():                                           # fail closed: no word frames to compare
             det[side] = {"ok": False, "why": "no frames of the edge word in the measured window"}
             continue
@@ -837,6 +843,31 @@ def apply_lead_in_pad(run_dir, cut, fps, qp):
                    check=True, capture_output=True, timeout=300)
     os.replace(part, clip)
     return {"pad_s": pad, "room_tone_source_s": info, "wav": os.path.basename(wav)}
+
+
+def span_fidelity(src_path, clip_path, t0, t1, cut_in, pad_s=0.0, sa=None, offset_s=0.0):
+    """Ruling 18: the source span [t0, t1] is the clip's audio, frame for frame: G17c's comparison (every 10 ms source
+    frame above EDGE_WORD_FLOOR_DBFS within EDGE_WORD_MAX_DB in the clip, at the best of +-2 hops, every kept frame
+    compared). offset_s: where the clip starts inside clip_path (0 for a prepared clip). Returns (ok, detail)."""
+    sa = sa or SourceAudio(src_path)
+    ca = SourceAudio(clip_path)
+    base = offset_s - cut_in + pad_s
+    _, ds = sa.sl(t0, t1)
+    keep = ds > EDGE_WORD_FLOOR_DBFS
+    if not keep.any():
+        return False, {"span": [round(t0, 3), round(t1, 3)], "why": "no audible source frame in the span"}
+    best = None
+    for k in range(-2, 3):
+        _, dc = ca.sl(t0 + base + k * HOP_S, t1 + base + k * HOP_S)
+        n = min(len(dc), len(ds))
+        if n == 0 or keep[n:].any():                                 # a source frame left uncompared: no proof
+            continue
+        worst = float(np.max(np.abs(dc[:n] - ds[:n])[keep[:n]]))
+        if best is None or worst < best[0]:
+            best = (worst, k)
+    ok = best is not None and best[0] <= EDGE_WORD_MAX_DB
+    return ok, {"span": [round(t0, 3), round(t1, 3)], "worst_db": None if best is None else round(best[0], 2),
+                "shift_hops": None if best is None else best[1], "compared_frames": int(keep.sum())}
 
 
 def gate_g17_edges(run_dir, source_path_fn=None):
