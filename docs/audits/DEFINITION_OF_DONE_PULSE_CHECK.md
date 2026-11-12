@@ -6,6 +6,11 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 07:23 ET PRE-CHECK (ruling 07:25) ON clip_02 -> 'does.': NOT CLEAN; no clean sentence end after it within 20 s
+
+- The cutter's own geometry (main, acquired window runs/pinned_20261112_120225) places 'does.''s OUT at 30.82 (pause and neighbour-clear OK), but the clip's tail then carries the HOST's backchannel "Mm." (second recogniser speaker_1, 29.92-30.04; audible 29.89-30.12): another speaker inside the clip, and a likely prepare edge-word failure ('Mm' heard last). A clean pause exists at 29.64-29.88, but the cutter does not aim there (the primary decode times 'But' 0.5 s early, so its pause search spans the 'Mm').
+- After 'does.': 'mass.' = 22.45 s (> 20 s) with the 'Mm' inside. The only clean end in this moment is 'existed.' (YouTube 535.62; cut 7.02 s; R4 runtime estimate then about 59.7 s unless the VO grows by about 1 s). Written to docs/audits/parallel/integrator_RULING7_FACTS.md for the builder. No render spent.
+
 ## TONIGHT'S MOMENTS-FIRST VIDEO, RE-SEALED PIN f409e9d9 (GO 07:03): RESULT 07:07 ET = HOLD AT STAGE `prepare`, NOT DELIVERED
 
 - Run runs/pinned_20261112_120225 (HEAD 3db3e96a; pin data/moments_pins/MOMENTS_PIN_065928.json, checked on its own content). Passed: preflight (after the 07:00 false start, bible E-FAIL-057), env, pinned, review, validate (R4 moments 30.49 % of 64.94 s; editorial laws; stand-alone), cut (all three ACCEPT under the existing rule: ruling 7 not needed), sentence_law G16 (all PASS), voice.

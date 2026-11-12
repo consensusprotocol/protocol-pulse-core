@@ -39,3 +39,18 @@ shows within about 4 minutes of the start. GPU0 is free and reserved for this pi
   quiet run from 29.61 s (file time; a short sound at 29.23-29.60, likely the host's 'Mm', which the cutter's neighbour-clear will judge).
 - Ruling C: the CUTTABLE gate should run the renderer's own sentence lock AND cut geometry (pause, neighbour-clear) on the window; the
   recogniser's punctuation alone passed an edge with no pause.
+
+## 07:23 ET: the integrator's cut-geometry pre-check on clip_02 -> 'does.' (ruling 07:25): NOT CLEAN
+Window and decode: runs/pinned_20261112_120225 (wdk5JZ9hPzs, file time = YouTube - 514.0). The cutter's own code (main, edge_plan +
+accepted_cut, unchanged):
+- 'does.' : the cutter places OUT at 30.82 (pause 30.56-30.88, neighbour-clear OK, -69.3 dB). BUT the second recogniser hears the HOST
+  ('speaker_1') say "Mm." at 29.92-30.04, audible in the source at 29.89-30.12 (low band +18 dB): the clip's tail between 'does' (which
+  really ends ~29.60: its /z/ is at 29.45-29.60) and the cut carries ANOTHER SPEAKER's voice, and the prepared clip's edge-word check may
+  hear 'Mm' as the last word. A clean pause exists at 29.64-29.88 (after 'does', before 'Mm'), but the cutter does not aim there: the
+  primary decode times 'But' at 30.38 (it starts at 30.88), so the cutter's pause search spans the 'Mm' and picks the later pause.
+- Nearest sentence end AFTER 'does.': 'mass.' (YouTube 550.66): cut 15.02-37.47 = 22.45 s (> 20 s, L-u) and the host's 'Mm' still inside.
+  -> NO clean sentence end after 'does.' in this moment within 20 s.
+- The only clean end in this moment: 'existed.' (YouTube 535.62): cut 15.02-22.04 (7.02 s), pause + neighbour-clear OK, one speaker.
+  Text: "Bitcoin is a new system of measure that's measuring the first free market that's ever existed." Runtime note: with the
+  current VO, R4's estimate drops to about 59.7 s (< 60, R4 hard) unless the VO grows by about 1 s.
+- 'emerges.' passes this geometry check but is known bad (the 07:07 prepare HOLD: its final sibilant runs into 'And').
