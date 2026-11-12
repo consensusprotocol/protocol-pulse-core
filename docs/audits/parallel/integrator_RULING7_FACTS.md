@@ -25,3 +25,9 @@ Primary decode: runs/pinned_20261112_113058/transcripts (faster-whisper large-v3
 Being implemented now in pipeline/sentence_law.py with its must-fail tests (not yet in main). Until it lands, only an
 edge with terminal punctuation in the PRIMARY decode locks. A replacement moment for tonight should be chosen with edges
 that lock under the existing rule (terminal punctuation in the primary Whisper decode at both edges), or wait for ruling 7.
+
+## Timing (for the 07:20 target), 06:44 ET
+The render path from a pin to the gated finals measured 51.3 min tonight (DoD, law L-p evidence: cut, sentence law,
+voice, prepare, render 16:9 + 9:16, the gates, verify). A pin re-sealed at about 07:00 reaches Telegram at about
+07:55; nothing in that path is skippable (every gate runs). The held run reached `cut` in 3 min 49 s, so a bad edge
+shows within about 4 minutes of the start. GPU0 is free and reserved for this pin.
