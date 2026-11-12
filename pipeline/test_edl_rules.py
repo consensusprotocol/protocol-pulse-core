@@ -972,17 +972,20 @@ class TestR4Moments(unittest.TestCase):
         self.assertEqual(why.count(";"), 0, why)                            # the ONE failure under test
         return why
 
-    def test_vo_share_41_percent_fails_and_40_passes(self):
-        """Against the TOTAL runtime (orchestrator '06:22'): VO 27.0 s (60 words + 3 pre-rolls) over hook + clips +
-        27.0 + 14.3 tail."""
-        vo3 = (30, [(15, 1), (15, 2)])
-        self.only(self.edl(8.55, [8, 8], *vo3), "VO=41.00%")                # total 65.85 s
-        self.only(self.edl(9.367, [8, 8], *vo3), "VO=40.50%")               # total 66.667: the limit is 40, not 41
-        self.only(self.edl(10.032, [8, 8], *vo3), "VO=40.10%")              # total 67.332: nor 40.4
-        ok, why = rule_r4(self.edl(10.2, [8, 8], *vo3))                     # total 67.5: 27.0 / 67.5 = 40.0 %
+    def test_vo_share_45_1_percent_fails_and_45_passes(self):
+        """Ruling 9 ('08:29'): 45 % of the TOTAL estimated runtime. VO 31.0 s (30 + 20 + 20 words, three pre-rolls) over
+        hook + clips + 31.0 + 14.3 tail; every case inside 60-70 s, so only the share decides."""
+        vo3 = (30, [(20, 1), (20, 2)])
+        self.only(self.edl(7.436, [8, 8], *vo3), "VO=45.10%")               # total 68.736 s
+        self.only(self.edl(6.832, [8, 8], *vo3), "VO=45.50%")               # total 68.132 s
+        ok, why = rule_r4(self.edl(7.59, [8, 8], *vo3))                     # 31.0 / 68.89 = 44.9995 %
         self.assertTrue(ok, why)
-        ok, why = rule_r4(self.edl(7.0, [10, 10], 30, [(15, 1)]))          # 20.0 s VO of a 61.3 s total = 32.6 %
-        self.assertTrue(ok, why)                                            # (42.6 % of hook + clips + VO alone)
+        ok, why = rule_r4(self.edl(31.0 / 0.45 - 61.3, [8, 8], *vo3))       # exactly 45.00 % passes (<=, not <)
+        self.assertTrue(ok, why)
+        ok, why = rule_r4(self.edl(5.49, [8, 8], 30, [(15, 1), (15, 2)]))   # 27.0 / 62.79 = 43.0 %: the old 40 % cap
+        self.assertTrue(ok, why)                                            # would have refused it
+        ok, why = rule_r4(self.edl(7.0, [10, 10], 30, [(15, 1)]))           # 20.0 s VO of a 61.3 s total = 32.6 %
+        self.assertTrue(ok, why)
         self.assertIn("32.63% of total runtime", why)
 
     def test_runtime_59_9_and_70_1_fail_60_and_70_pass(self):

@@ -1,0 +1,99 @@
+{
+ "question": "Batch 27 = RULING 9 (orchestrator 2026-11-12 '08:29'): EDL rule R4 for packages of type 'moments' ONLY: the VO share cap becomes 45 % of the TOTAL estimated runtime (was 40 %; a 3.5 s punchline clip cannot reach PBX's hard 60 s under 40 %). The 60-70 s runtime stays hard. The change is the constant MOMENTS_VO_SHARE (0.40 -> 0.45), its docstring, and the share tests re-cut around 45 % (45.10 % and 45.50 % rejected with only the share failing; 44.9995 % passes; a 43 % case the old cap refused now passes); mutations of the cap to 0.46 and 0.44 each fail a test. Story-type pins keep the old R4 (25 %).\nFIND: any way the change widens anything other than the moments VO share; any boundary error at 45 %; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 171.8,
+   "cost": 0.001668482,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 73.4,
+   "cost": 0.002455913,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 108.9,
+   "cost": 0.001119472,
+   "parse_ok": true
+  },
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 46.4,
+   "cost": 0.002337958,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "medium",
+   "file": "pipeline/test_edl_rules.py",
+   "line": 975,
+   "issue": "Test name claims 45% passes but only tests 44.9995%, leaving the exact 45% boundary untested; a rule using '<' instead of '<=' would still pass this test while rejecting exactly 45%.",
+   "evidence": "def test_vo_share_45_1_percent_fails_and_45_passes(self): ... ok, why = rule_r4(self.edl(7.59, [8, 8], *vo3))                     # 31.0 / 68.89 = 44.9995 %",
+   "fix": "Add a case at exactly 45.00% (e.g., hook = 7.588888... so total = 68.888... and 31/68.888... = 0.45) and assert it passes.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "deepseek:F2",
+   "severity": "low",
+   "file": "pipeline/edl_rules.py",
+   "line": 162,
+   "issue": "Docstring still attributes the rule to orchestrator '06:00' instead of ruling 9 '08:29', while the constant comment was updated to mention ruling 9.",
+   "evidence": "\"\"\"R4 for a package of type 'moments' (law L-q, orchestrator '06:00'; a TASTE rule re-set for the new product,",
+   "fix": "Update the docstring to reference ruling 9 '08:29' instead of '06:00'.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F1",
+   "severity": "medium",
+   "file": "pipeline/test_edl_rules.py",
+   "line": 975,
+   "issue": "Test method name claims '45 passes' but the actual passing case is 44.9995 %, not exactly 45.00 %. The exact boundary (VO/total == 0.45) is never exercised, so a regression that changes '<=' to '<' in the implementation would go undetected.",
+   "evidence": "ok, why = rule_r4(self.edl(7.59, [8, 8], *vo3))                     # 31.0 / 68.89 = 44.9995 %\n        self.assertTrue(ok, why)",
+   "fix": "Add a case where hook is 31.0/0.45 - 61.3 \u2248 7.5888\u2026 s so that 31.0/total is exactly 0.45, and assert it passes (matching the docstring's '<= 45 %').",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.007581825,
+ "out_dir": "docs/audits/pulse-sentence-law/batch27_ruling9_vo45/cycle1/heimdall"
+}

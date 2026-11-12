@@ -6,6 +6,11 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:35 ET RULINGS 8 / 9 (08:29): RULING 9 COMMITTED; RULING 8 CONFIRMED BEFORE RENDER
+
+- Ruling 9: moments R4 VO share cap 45 % of the total estimated runtime (edl_rules.MOMENTS_VO_SHARE 0.45; exactly 45 % passes with the runtime's 1e-9 tolerance); must-fail tests 45.10 % / 45.50 % rejected, exactly 45.00 % and 44.9995 % pass, a 43 % case the old cap refused passes; mutations 0.46 / 0.44 / an exclusive comparison each fail a test. Audit batch27 (Heimdall: both models ANSWERED, raw replies read: deepseek FAIL on the untested exact boundary + a docstring, qwen27b PASS with the same boundary note; both applied). regression_test.sh 0 FAIL, pipeline/regression.sh PASS.
+- Ruling 8 (the false start in f216541b's head): the render's own G18 (word_diff.Transcriber, large-v3, gate_g18's edges + identity) on a clip cut like prepare hears 'Bitcoin imposes a global free market for the first time ever.' for both the clip and the source span: edges [] and identity []: G18 PASS; the sentence lock locks the primary's words (the false start is not in them) and the cut sits in the IN pause range: no G18 or lock failure expected. The auto-render watcher was paused for this commit and is re-armed.
+
 ## 08:18 ET PRE-CHECK (decision 08:18) ON clip_02 = moment f216541b ('Bitcoin imposes a global free market for the first time ever.'): CLEAN
 
 - Window acquired as the render will (offset 3203.0); OUT 'ever.' pause 520 ms, cut 19.01, neighbour-clear OK, no backchannel; IN after 'path.' pause 260 ms, cut 14.38, neighbour-clear OK; the render's own prepare edge-word check on a clip cut like prepare: PASS ('bitcoin' / 'ever'). Named: a faint same-speaker false start 'It w-' (15-20 dB below speech) sits in the clip head before 'Bitcoin' (the second recogniser hears it; Whisper does not). Details: docs/audits/parallel/integrator_RULING7_FACTS.md (08:18).

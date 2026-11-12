@@ -151,7 +151,7 @@ def rule_r3(edl):
 # R4: VO_BUDGET
 # ==============================================================
 
-MOMENTS_VO_SHARE = 0.40           # law L-q (orchestrator 2026-11-12 '06:00'): the host makes points; a TASTE limit re-set
+MOMENTS_VO_SHARE = 0.45           # law L-q ('06:00': 40 %; ruling 9, '08:29': 45 %): the host makes points; a TASTE limit
 MOMENTS_RUNTIME_S = (60.0, 70.0)  # law L-o: the format, the one hard length rule (stays hard)
 FINAL_TAIL_S = 14.30              # what a final adds to its segments' word spans: credits card + sign-off, outro, cut
                                   # leads / tails, pads (approved preview: 71.08 s finals - 56.78 s word spans)
@@ -159,10 +159,10 @@ R4_WPS, R4_PREROLL_S = 2.5, 1.0   # R4's VO estimate: words at 2.5 w/s + the ren
 
 
 def _r4_moments(edl):
-    """R4 for a package of type 'moments' (law L-q, orchestrator '06:00'; a TASTE rule re-set for the new product,
+    """R4 for a package of type 'moments' (law L-q, orchestrator '06:00'; cap 45 % by ruling 9, '08:29'; a TASTE rule,
     recorded under L-o / L-q; story-type pins keep the rule below). One VO line per slot: the intro after the hook, and
     at most one line after each clip, the LAST clip included (the takeaway: render16 / render_vertical play it before
-    the shout-out); a line with no such slot fails. VO (intro + lines, each words / 2.5 + the 1.0 s pre-roll) <= 40 % of
+    the shout-out); a line with no such slot fails. VO (intro + lines, each words / 2.5 + the 1.0 s pre-roll) <= 45 % of
     the TOTAL estimated runtime (orchestrator '06:22'). The estimated final runtime (hook + clips + VO + FINAL_TAIL_S)
     inside 60-70 s (hard, L-o). Word
     caps unchanged. The sign-off is generated at the voice stage from the credits (not in the share; in the tail).
@@ -216,7 +216,7 @@ def _r4_moments(edl):
     if len(durs) == len(clips) + 1 and content > 0:
         runtime = content + vo_s + FINAL_TAIL_S      # exact; the 1e-6 absorbs float noise only
         share = vo_s / runtime                       # against the TOTAL runtime (orchestrator '06:22')
-        if share > MOMENTS_VO_SHARE:
+        if share > MOMENTS_VO_SHARE + 1e-9:          # exactly 45 % passes (the same float tolerance as the runtime)
             failures.append(f"VO={share:.2%} of total runtime (max {MOMENTS_VO_SHARE:.0%}, moments)")
         if not MOMENTS_RUNTIME_S[0] - 1e-6 <= runtime <= MOMENTS_RUNTIME_S[1] + 1e-6:
             failures.append(f"estimated runtime {runtime:.3f} s outside {MOMENTS_RUNTIME_S[0]:.0f}-"
