@@ -151,8 +151,88 @@ def rule_r3(edl):
 # R4: VO_BUDGET
 # ==============================================================
 
+MOMENTS_VO_SHARE = 0.40           # law L-q (orchestrator 2026-11-12 '06:00'): the host makes points; a TASTE limit re-set
+MOMENTS_RUNTIME_S = (60.0, 70.0)  # law L-o: the format, the one hard length rule (stays hard)
+FINAL_TAIL_S = 14.30              # what a final adds to its segments' word spans: credits card + sign-off, outro, cut
+                                  # leads / tails, pads (approved preview: 71.08 s finals - 56.78 s word spans)
+R4_WPS, R4_PREROLL_S = 2.5, 1.0   # R4's VO estimate: words at 2.5 w/s + the renderers' 1.0 s pre-roll per VO line
+
+
+def _r4_moments(edl):
+    """R4 for a package of type 'moments' (law L-q, orchestrator '06:00'; a TASTE rule re-set for the new product,
+    recorded under L-o / L-q; story-type pins keep the rule below). One VO line per slot: the intro after the hook, and
+    at most one line after each clip, the LAST clip included (the takeaway: render16 / render_vertical play it before
+    the shout-out); a line with no such slot fails. VO (intro + lines, each words / 2.5 + the 1.0 s pre-roll) <= 40 % of
+    the TOTAL estimated runtime (orchestrator '06:22'). The estimated final runtime (hook + clips + VO + FINAL_TAIL_S)
+    inside 60-70 s (hard, L-o). Word
+    caps unchanged. The sign-off is generated at the voice stage from the credits (not in the share; in the tail).
+    Fail closed (cycle 1 of its audit): the EDL must carry a validated moments package (the 64-hex package digest,
+    pinned mode, both gate verdicts exactly true, as pinned.build_edl writes them); every hook / clip a measured
+    positive finite duration; clip indexes exactly 1..n; no empty VO line; limits compared on exact values."""
+    vo = edl.get("vo") or {}
+    clips = edl.get("clips") or []
+    idx = [c.get("index") for c in clips]
+    failures = []
+    sha, checks = edl.get("moments_package_sha256"), edl.get("moments_checks")
+    if not (isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{64}", sha) and edl.get("mode") == "pinned"
+            and isinstance(checks, dict) and checks.get("vo_fidelity_ok") is True
+            and checks.get("context_integrity_ok") is True):
+        failures.append("package_type 'moments' without a validated moments package (digest, pinned mode, both gate "
+                        "verdicts)")
+    if idx != list(range(1, len(clips) + 1)):
+        failures.append(f"clip indexes {idx!r} are not 1..{len(clips)}")
+    intro = vo.get("intro") or ""
+    if not isinstance(intro, str):
+        failures.append("intro is not text")
+        intro = ""
+    if _word_count(intro) > INTRO_WORD_CAP:
+        failures.append(f"intro={_word_count(intro)} words (max {INTRO_WORD_CAP})")
+    bridges = vo.get("bridges") or []
+    prev, lines = 0, ([intro] if intro.strip() else [])
+    for i, b in enumerate(bridges, 1):
+        a = b.get("after_clip") if isinstance(b, dict) else None
+        if type(a) is not int or a not in idx or a <= prev:
+            failures.append(f"VO line {i} has no slot (after_clip {a!r}: one line after each clip index "
+                            f"{sorted(x for x in idx if isinstance(x, int))}, in order)")
+        else:
+            prev = a
+        text = b.get("text", "") if isinstance(b, dict) else ""
+        if not isinstance(text, str) or not text.strip():
+            failures.append(f"VO line {i} is empty")
+            continue
+        if _word_count(text) > BRIDGE_WORD_CAP:
+            failures.append(f"bridge {i}={_word_count(text)} words (max {BRIDGE_WORD_CAP})")
+        lines.append(text)
+    durs = []
+    for s in [edl.get("hook") or {}] + clips:
+        d = s.get("duration") if isinstance(s, dict) else None
+        if type(d) not in (int, float) or not math.isfinite(d) or d <= 0:
+            failures.append(f"{'hook' if s is edl.get('hook') else 'clip ' + str(s.get('index'))}: duration {d!r} "
+                            f"is not a measured positive number")
+        else:
+            durs.append(float(d))
+    content = sum(durs)
+    vo_s = sum(_word_count(t) / R4_WPS + R4_PREROLL_S for t in lines)
+    if len(durs) == len(clips) + 1 and content > 0:
+        runtime = content + vo_s + FINAL_TAIL_S      # exact; the 1e-6 absorbs float noise only
+        share = vo_s / runtime                       # against the TOTAL runtime (orchestrator '06:22')
+        if share > MOMENTS_VO_SHARE:
+            failures.append(f"VO={share:.2%} of total runtime (max {MOMENTS_VO_SHARE:.0%}, moments)")
+        if not MOMENTS_RUNTIME_S[0] - 1e-6 <= runtime <= MOMENTS_RUNTIME_S[1] + 1e-6:
+            failures.append(f"estimated runtime {runtime:.3f} s outside {MOMENTS_RUNTIME_S[0]:.0f}-"
+                            f"{MOMENTS_RUNTIME_S[1]:.0f} s (hook + clips {content:.2f} + VO {vo_s:.2f} + tail "
+                            f"{FINAL_TAIL_S})")
+    if failures:
+        return False, "R4 FAIL (moments): " + "; ".join(failures)
+    total = content + vo_s + FINAL_TAIL_S
+    return True, (f"R4 PASS (moments): VO {vo_s:.2f} s = {vo_s / total:.2%} of total runtime <= {MOMENTS_VO_SHARE:.0%}, "
+                  f"estimated runtime {total:.2f} s, every VO line in a slot")
+
+
 def rule_r4(edl):
-    """VO <= 25% of total runtime. Word limits enforced."""
+    """VO <= 25% of total runtime. Word limits enforced. A package of type 'moments': _r4_moments (law L-q)."""
+    if edl.get("package_type") == "moments":
+        return _r4_moments(edl)
     vo = edl.get("vo", {})
     clips = edl.get("clips", [])
     total_clip_dur = edl.get("total_clip_duration", 0)

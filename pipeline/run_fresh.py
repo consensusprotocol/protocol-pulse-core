@@ -401,6 +401,28 @@ def stage_review(run):
     print(f"  review by {review['reviewed_by']}: inconclusive={review.get('inconclusive')}")
 
 
+def stand_alone_subject(edl, story):
+    """The words every segment must use (stand_alone.subject_terms). A moments-first package (law L-q; pp-selectid
+    REQUESTS R7 item 4, 'its subject for a Bitcoin package is Bitcoin'): its pin label, never its written title (the
+    pinned angle is 'Pinned: <title>'; the title is a package line its own VO-fidelity gate checked), and only the label
+    'bitcoin' itself. Anything else carrying the moments marker is an EMPTY subject, which fails closed
+    (stand_alone.topical: no hook names it): another label (even one naming Bitcoin, e.g. 'bitcoin cash'), a marker
+    that is not the 64-hex digest pinned.build_edl writes, a non-pinned EDL, or one without the package's two passed
+    gate verdicts (moments_checks, copied by build_edl from the validated package). Every other run, unchanged: the
+    selected story's object / event, else the EDL angle / topic."""
+    import stand_alone
+    if "moments_package_sha256" in edl:
+        sha, checks = edl["moments_package_sha256"], edl.get("moments_checks")
+        bound = (isinstance(sha, str) and bool(re.fullmatch(r"[0-9a-f]{64}", sha)) and edl.get("mode") == "pinned"
+                 and isinstance(checks, dict) and checks.get("vo_fidelity_ok") is True
+                 and checks.get("context_integrity_ok") is True)
+        label = edl.get("topic")
+        return stand_alone.subject_terms("", "bitcoin") \
+            if bound and isinstance(label, str) and label.strip().lower() == "bitcoin" else set()
+    return stand_alone.subject_terms(story.get("affected_object", ""),
+                                     story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
+
+
 def stage_validate(run):
     from edl_rules import validate_edl
     from editorial_gate import run_gate
@@ -446,8 +468,7 @@ def stage_validate(run):
     if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
         with open(os.path.join(run.dir, "passages.json")) as f:
             story = json.load(f).get("story") or {}
-    subject = stand_alone.subject_terms(story.get("affected_object", ""),
-                                        story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
+    subject = stand_alone_subject(edl, story)
     sa = stand_alone.check_edl(edl, rate=rate, subject=subject)
     run.prov["stand_alone"] = sa
     for r in sa["rows"]:

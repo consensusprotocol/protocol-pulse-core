@@ -944,6 +944,104 @@ class TestShoutoutHookChannel(unittest.TestCase):
         self.assertEqual(channels[0], "SharedChan")
 
 
+class TestR4Moments(unittest.TestCase):
+    """Law L-q (orchestrator 2026-11-12 '06:00'): R4 for a package of type 'moments' ONLY: VO share <= 40 %, one VO line
+    per slot (after the hook, after each clip, after the LAST clip), the estimated runtime inside 60-70 s (hard, L-o);
+    story-type and untyped EDLs keep the old R4. Must-fail: VO share 41 %, runtime 59.9 and 70.1 s, a line with no
+    slot. Runtime = hook + clips + VO (words / 2.5 + 1.0 s pre-roll each) + 14.30 s tail. Fail closed (audit cycle 1):
+    a 'moments' EDL without a validated package, an unmeasured duration, bad clip indexes, an empty line."""
+    MARK = {"moments_package_sha256": "ab" * 32, "mode": "pinned",
+            "moments_checks": {"vo_fidelity_ok": True, "context_integrity_ok": True}}
+
+    def edl(self, hook, clips, intro_words, bridges, t="moments"):
+        e = {"hook": {"duration": hook, "channel": "H"},
+             "clips": [{"index": i, "duration": d, "channel": f"C{i}"} for i, d in enumerate(clips, 1)],
+             "vo": {"intro": " ".join(["w"] * intro_words) if intro_words else None,
+                    "bridges": [{"text": " ".join(["w"] * n), "after_clip": a} for n, a in bridges]},
+             "total_clip_duration": round(hook + sum(clips), 2)}
+        if t is not None:
+            e["package_type"] = t
+        if t == "moments":
+            e.update(self.MARK)
+        return e
+
+    def only(self, e, part):
+        ok, why = rule_r4(e)
+        self.assertFalse(ok, why)
+        self.assertIn(part, why)
+        self.assertEqual(why.count(";"), 0, why)                            # the ONE failure under test
+        return why
+
+    def test_vo_share_41_percent_fails_and_40_passes(self):
+        """Against the TOTAL runtime (orchestrator '06:22'): VO 27.0 s (60 words + 3 pre-rolls) over hook + clips +
+        27.0 + 14.3 tail."""
+        vo3 = (30, [(15, 1), (15, 2)])
+        self.only(self.edl(8.55, [8, 8], *vo3), "VO=41.00%")                # total 65.85 s
+        self.only(self.edl(9.367, [8, 8], *vo3), "VO=40.50%")               # total 66.667: the limit is 40, not 41
+        self.only(self.edl(10.032, [8, 8], *vo3), "VO=40.10%")              # total 67.332: nor 40.4
+        ok, why = rule_r4(self.edl(10.2, [8, 8], *vo3))                     # total 67.5: 27.0 / 67.5 = 40.0 %
+        self.assertTrue(ok, why)
+        ok, why = rule_r4(self.edl(7.0, [10, 10], 30, [(15, 1)]))          # 20.0 s VO of a 61.3 s total = 32.6 %
+        self.assertTrue(ok, why)                                            # (42.6 % of hook + clips + VO alone)
+        self.assertIn("32.63% of total runtime", why)
+
+    def test_runtime_59_9_and_70_1_fail_60_and_70_pass(self):
+        for hook, want in ((15.6, False), (15.696, False), (15.7, True), (25.7, True), (25.704, False), (25.8, False)):
+            e = self.edl(hook, [10, 10], 16, [(4, 2)])                       # + 20 clips + 10 VO + 14.3 tail
+            if want:
+                ok, why = rule_r4(e)
+                self.assertTrue(ok, (hook, why))
+            else:
+                self.only(e, "outside 60-70 s")
+
+    def test_a_vo_line_with_no_slot_fails(self):
+        for bridges in ([(5, 0)], [(5, 3)], [(5, 1), (5, 1)], [(5, 2), (5, 1)], [(5, "1")], [(5, None)], [(5, True)],
+                        [(5, 1.0)]):
+            self.only(self.edl(15.0, [12, 12], 10, bridges), "has no slot")   # runtime 61.3-64.3: only the slot
+        e = self.edl(15.0, [12, 12], 10, [])
+        e["vo"]["bridges"] = [{"text": "a b c"}]
+        self.only(e, "has no slot")
+
+    def test_a_line_after_each_clip_including_the_last_has_a_slot(self):
+        ok, why = rule_r4(self.edl(14.0, [12, 12], 10, [(5, 1), (5, 2)]))   # VO 5 + 3 + 3 = 11 s; 38 + 11 + 14.3
+        self.assertTrue(ok, why)
+
+    def test_word_caps_are_unchanged(self):
+        self.only(self.edl(15.0, [12, 12], 31, []), "intro=31 words")       # runtime 66.7
+        self.only(self.edl(15.0, [12, 12], 5, [(21, 1)]), "bridge 1=21 words")
+
+    def test_fail_closed_shapes(self):
+        e = self.edl(17.0, [12, 12], 10, [(5, 1)])                          # 41 + 5 (the intro only) + 14.3
+        e["vo"]["bridges"][0]["text"] = "  "
+        self.only(e, "VO line 1 is empty")
+        for bad in (None, 0, -1.0, float("nan"), float("inf"), "12", True):
+            e = self.edl(15.0, [12, 12], 10, [(5, 1)])
+            e["clips"][1]["duration"] = bad
+            ok, why = rule_r4(e)
+            self.assertFalse(ok, bad)
+            self.assertIn("is not a measured positive number", why, bad)
+        e = self.edl(15.0, [12, 12], 10, [(5, 1)])
+        e["clips"][1]["index"] = 1
+        ok, why = rule_r4(e)
+        self.assertFalse(ok)
+        self.assertIn("clip indexes", why)
+        for drop in ("moments_package_sha256", "mode", "moments_checks"):
+            e = self.edl(15.0, [12, 12], 10, [(5, 1)])
+            del e[drop]
+            self.only(e, "without a validated moments package")
+        e = self.edl(15.0, [12, 12], 10, [(5, 1)])
+        e["moments_checks"] = {"vo_fidelity_ok": True, "context_integrity_ok": "true"}
+        self.only(e, "without a validated moments package")
+
+    def test_story_type_and_untyped_edls_keep_the_old_rule(self):
+        for t in ("story", None, "Moments"):
+            e = self.edl(10.0, [10, 10], 30, [(15, 1)], t=t)              # 20 s VO of 50 s = 40 %: old max 25 %
+            ok, why = rule_r4(e)
+            self.assertFalse(ok, t)
+            self.assertIn("VO=40% of runtime (max 25%)", why, t)
+            self.assertNotIn("moments", why, t)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 

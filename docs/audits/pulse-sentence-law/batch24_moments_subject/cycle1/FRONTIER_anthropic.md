@@ -1,0 +1,17 @@
+# claude-fable-5-2 (31 s) usage={'input_tokens': 2171, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 0, 'cache_creation': {'ephemeral_5m_input_tokens': 0, 'ephemeral_1h_input_tokens': 0}, 'output_tokens': 2599, 'output_tokens_details': {'thinking_tokens': 1449}, 'service_tier': 'standard', 'inference_geo': 'global', 'speed': 'standard'} usd=0.12 stop=end_turn
+
+**Scope check first.** For any EDL without a truthy `moments_package_sha256`, the fallthrough in `stand_alone_subject` (run_fresh.py +412–413) is textually identical to the removed lines (−449–450). I find no widened non-moments run in this diff.
+
+1. **The moments branch discards `story`, not just the title.** run_fresh.py +410–411 returns `subject_terms("", edl.get("topic", ""))` before `story` is read. The old code used `story.get("affected_object")` / `underlying_event` first whenever `passages.json` existed (context line 446). If a moments-first run directory can ever contain `passages.json`, the subject silently switches from the story object to the label. I cannot tell from the diff whether that can happen. No test covers moments-first with a non-empty story; every `mf` call passes `{}`.
+
+2. **The branch is not limited to a Bitcoin label, and the "# not widened" test comment is wrong.** Line +410 takes whatever `topic` is. test_fresh.py +315 asserts `{**mf, "topic": "ethereum"}` gives `{"ethereum"}`. The old rule would have given the words of "Pinned: Keep your keys off exchanges". The new set is different, not narrower: a segment saying only "ethereum" was refused before and is accepted now. That is exactly the widening outside "Bitcoin label" you asked about, and the test pins it as correct. Nothing in the diff enforces `topic == "bitcoin"` in this branch; it relies on `pinned.build_edl`, which is not shown.
+
+3. **The gate is bare truthiness of a key on an EDL loaded from disk.** Line +410, `if edl.get("moments_package_sha256")`, does no hash-format check, no re-verification against the package, and no check that the EDL is pinned. Any EDL carrying a truthy value there, with `topic` set, gets the label rule. Whether a non-moments EDL can carry the key depends on `pinned.build_edl`, other EDL writers and the resume/load path, none of which are in the diff. "Only build_edl sets it" is unverified here; so is whether `topic` can be altered between `build_edl` and `stage_validate`.
+
+4. **"# fails closed" (test_fresh.py +316) only asserts that the helper returns `set()`.** It does not show that `stand_alone.check_edl(edl, rate=rate, subject=set())` refuses the segments. If `check_edl` treats a falsy subject as "skip the topic check", this is fail-open. `check_edl` is not in the diff, so I am uncertain. The missing-`topic`-key case is not tested either, only `""`.
+
+5. **The tests do not cover the wiring or prove "unchanged".**
+   - Nothing exercises `stage_validate`. Reverting the call-site line (+461) would leave the new test green.
+   - The "unchanged" assertions (+319, +322) compare the helper against `SA.subject_terms(...)` with hand-picked arguments. That restates the implementation. The `edl.get("topic")` fallback (no angle) and the object-present, event-absent case are never exercised.
+   - `assertIn("pinned", ...)` (+320) tests `stand_alone`'s tokenisation on the non-moments path, not this change.
+   - The headline case (`mf` gives `{"bitcoin","btc"}`, +314) passes only if `subject_terms` works as the context describes; that is not verifiable from the diff.

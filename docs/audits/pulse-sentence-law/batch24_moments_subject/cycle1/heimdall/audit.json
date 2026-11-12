@@ -1,0 +1,38 @@
+{
+ "question": "Batch 24 = the stand-alone SUBJECT of a moments-first package (law L-q; pp-selectid REQUESTS R7 item 4: \"stand_alone's topic check stays: its subject for a Bitcoin package is Bitcoin, and every segment names it by rule\"). Context: pipeline/pinned.build_edl sets edl[\"topic\"] = pin[\"label\"] (\"bitcoin\" for every moments-first pin) and edl[\"angle\"] = \"Pinned: \" + pin[\"headline\"], where a moments-first pin's headline is the package's model-written title (<= 70 chars, no rule that it names Bitcoin); a moments-first EDL is the only kind carrying \"moments_package_sha256\" (set by build_edl only after the strict moments_package validation). stand_alone.subject_terms(affected_object, headline) returns {\"bitcoin\",\"btc\"} when either names Bitcoin, else the content words of the object, else of the headline (an empty set fails closed). Before this change a moments-first EDL whose title does not name Bitcoin would be checked against the words of \"Pinned: <title>\" (including \"pinned\"). The change: run_fresh.stand_alone_subject(edl, story) uses the pin label for a moments-first EDL; every other run computes exactly what it computed before.\nFIND: any run whose subject is now WIDER (accepts a segment the old rule refused) other than a moments-first EDL with a Bitcoin label; any way a non-moments EDL could carry moments_package_sha256; tests that do not test what they claim. Quote file and line; if uncertain, say so; do not guess. At most 5 findings.",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 343.1,
+   "cost": 0.003144516,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 54.0,
+   "cost": 0.003689992,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0068345079999999996,
+ "out_dir": "docs/audits/pulse-sentence-law/batch24_moments_subject/cycle1/heimdall"
+}

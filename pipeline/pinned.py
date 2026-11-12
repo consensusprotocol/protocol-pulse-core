@@ -328,6 +328,7 @@ def build_edl(pin, acq, registry=None, log=print):
     }
     if has_mp:                                 # law L-t: the ONE title and caption travel in the EDL, whose bytes the
         edl.update(title=mp["title"], caption=mp["caption"],      # release authorisation re-hashes before any send
+                   package_type=mp.get("type"),                   # edl_rules R4: 'moments' has its own VO budget
                    moments_package_sha256=mp["package_sha256"],   # the packager's digest of its full record
                    moments_package_pin_sha256=hashlib.sha256(json.dumps(mp, sort_keys=True).encode()).hexdigest(),
                    moments_checks=mp["checks"],                   # ^ this render's own digest of what it renders
@@ -338,11 +339,13 @@ def build_edl(pin, acq, registry=None, log=print):
 
 def moments_vo(mp, clips, segments=None):
     """The package's VO, checked by its VO-fidelity and context-integrity gates (pipeline/package.py): the intro and
-    the bridges, each after a clip but the last, in the EDL's shape ({"text", "after_clip"}). Strict (cycle 1 of its
+    the bridges, each after a clip (after the LAST clip too only for a package of type 'moments', law L-q, '06:00'), in
+    the EDL's shape ({"text", "after_clip"}). Strict (cycle 1 of its
     audit): the package must be an object; both gate verdicts exactly true, and every other '*_ok' check too; title and
     caption non-empty strings; package_sha256 64 lowercase hex characters; edl_vo an object; intro null or a non-empty
     string; bridges a list of objects with non-empty string text and an INTEGER after_clip, strictly increasing, in
-    1..last-1 (render16 places bridges in list order: an out-of-order or repeated index is refused, never re-sorted).
+    1..last-1, or 1..last for type 'moments' (render16 / render_vertical key bridges by after_clip: an out-of-order or
+    repeated index is refused, never re-sorted).
     Anything else is a PinError."""
     if not isinstance(mp, dict):
         raise PinError("moments_package is not an object")
@@ -385,12 +388,13 @@ def moments_vo(mp, clips, segments=None):
     if not idx:
         raise PinError("moments_package: the pin has no clips")
     last, prev = idx[-1], 0
-    for b in bridges:
-        if not isinstance(b, dict) or not isinstance(b.get("text"), str) or not b["text"].strip():
-            raise PinError(f"moments_package bridge {b!r}: needs non-empty text")
-        a = b.get("after_clip")
-        if type(a) is not int or a not in idx or a >= last or a <= prev:
-            raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{last - 1}, "
+    top = last if mp.get("type") == "moments" else last - 1   # law L-q (orchestrator 2026-11-12 '06:00'): a package
+    for b in bridges:                                          # of type 'moments' may close on a takeaway line after
+        if not isinstance(b, dict) or not isinstance(b.get("text"), str) or not b["text"].strip():   # the LAST clip
+            raise PinError(f"moments_package bridge {b!r}: needs non-empty text")      # (render16 / render_vertical
+        a = b.get("after_clip")                                                       # play it before the shout-out)
+        if type(a) is not int or a not in idx or a > top or a <= prev:
+            raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{top}, "
                            f"strictly increasing")
         prev = a
     return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}

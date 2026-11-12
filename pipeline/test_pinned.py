@@ -285,6 +285,33 @@ class TestMomentsPackage(Fixture):
         self.assertRegex(edl["moments_package_pin_sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(len(edl["moments_sources_30s_before"]), 3)
 
+    def test_a_moments_package_may_close_on_a_takeaway_after_the_last_clip(self):
+        """Law L-q (orchestrator 2026-11-12 '06:00'): type 'moments' only: a line after the LAST clip has a slot
+        (render16 / render_vertical play it before the shout-out); any other type keeps 1..last-1; a line with no slot,
+        or two on one slot, is refused."""
+        segs = self.pin()["segments"]
+        clips = [{"index": 1}, {"index": 2}]
+
+        def br(*items):
+            return {"intro": "Intro.", "bridges": [dict(text="x", after_clip=a) for a in items]}
+        got = pinned.moments_vo(self.mp(type="moments", edl_vo=br(1, 2)), clips, segs)
+        self.assertEqual([b["after_clip"] for b in got["bridges"]], [1, 2])
+        for typ, items in (("story", (2,)), (None, (2,)), ("Moments", (2,)), ("moments", (3,)), ("moments", (2, 2)),
+                           ("moments", (0,)), ("moments", (2, 1))):
+            mp = self.mp(edl_vo=br(*items), **({"type": typ} if typ is not None else {}))
+            with self.assertRaisesRegex(pinned.PinError, "after_clip must be", msg=(typ, items)):
+                pinned.moments_vo(mp, clips, segs)
+        pinned.prepare(self.write(self.pin(moments_package=self.mp(type="moments", edl_vo=br(1, 2)))), self.run_dir,
+                       log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual((edl["package_type"], [b["after_clip"] for b in edl["vo"]["bridges"]]), ("moments", [1, 2]))
+        import edl_rules                                       # end to end: build_edl's shape is what R4 (moments) reads
+        ok, why = edl_rules.rule_r4(edl)
+        self.assertIn("(moments)", why)
+        for shape in ("without a validated moments package", "is not a measured positive number", "clip indexes",
+                      "has no slot", "is empty"):
+            self.assertNotIn(shape, why)
+
     def test_a_pin_without_a_package_is_unchanged(self):
         pinned.prepare(self.write(self.pin()), self.run_dir, log=lambda s: None)
         edl = json.load(open(os.path.join(self.run_dir, "edl.json")))

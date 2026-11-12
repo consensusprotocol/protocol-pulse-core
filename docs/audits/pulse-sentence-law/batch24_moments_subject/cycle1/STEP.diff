@@ -1,0 +1,59 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 25fd9438..80517075 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -401,6 +401,18 @@ def stage_review(run):
+     print(f"  review by {review['reviewed_by']}: inconclusive={review.get('inconclusive')}")
+ 
+ 
++def stand_alone_subject(edl, story):
++    """The words every segment must use (stand_alone.subject_terms). A moments-first package (law L-q; pp-selectid
++    REQUESTS R7 item 4, 'its subject for a Bitcoin package is Bitcoin'): the pin's label, never its written title (the
++    pinned angle is 'Pinned: <title>'; the title is a package line its own VO-fidelity gate checked). Every other run,
++    unchanged: the selected story's object / event, else the EDL angle / topic."""
++    import stand_alone
++    if edl.get("moments_package_sha256"):
++        return stand_alone.subject_terms("", edl.get("topic", ""))
++    return stand_alone.subject_terms(story.get("affected_object", ""),
++                                     story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
++
++
+ def stage_validate(run):
+     from edl_rules import validate_edl
+     from editorial_gate import run_gate
+@@ -446,8 +458,7 @@ def stage_validate(run):
+     if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
+         with open(os.path.join(run.dir, "passages.json")) as f:
+             story = json.load(f).get("story") or {}
+-    subject = stand_alone.subject_terms(story.get("affected_object", ""),
+-                                        story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
++    subject = stand_alone_subject(edl, story)
+     sa = stand_alone.check_edl(edl, rate=rate, subject=subject)
+     run.prov["stand_alone"] = sa
+     for r in sa["rows"]:
+diff --git a/pipeline/test_fresh.py b/pipeline/test_fresh.py
+index 99243c09..899fcb7c 100644
+--- a/pipeline/test_fresh.py
++++ b/pipeline/test_fresh.py
+@@ -306,6 +306,21 @@ class TestRunFreshRules(unittest.TestCase):
+                              cwd=PIPELINE).stdout.strip().splitlines()[-1]
+         self.assertEqual(out, "[]")
+ 
++    def test_a_moments_first_package_is_about_its_label_never_its_title(self):
++        """Law L-q / pp-selectid R7 item 4: the stand-alone subject of a moments-first EDL is the pin label; a pinned
++        or auto EDL keeps its story / angle subject (unchanged)."""
++        from run_fresh import stand_alone_subject
++        mf = {"topic": "bitcoin", "angle": "Pinned: Keep your keys off exchanges", "moments_package_sha256": "a" * 64}
++        self.assertEqual(stand_alone_subject(mf, {}), {"bitcoin", "btc"})
++        self.assertEqual(stand_alone_subject({**mf, "topic": "ethereum"}, {}), {"ethereum"})   # not widened
++        self.assertEqual(stand_alone_subject({**mf, "topic": ""}, {}), set())                 # fails closed
++        import stand_alone as SA
++        pinned = {k: v for k, v in mf.items() if k != "moments_package_sha256"}
++        self.assertEqual(stand_alone_subject(pinned, {}), SA.subject_terms("", pinned["angle"]))      # unchanged
++        self.assertIn("pinned", stand_alone_subject(pinned, {}))   # why a written title cannot be the subject
++        story = {"affected_object": "Binance hot wallet", "underlying_event": "hack"}
++        self.assertEqual(stand_alone_subject(pinned, story), SA.subject_terms("Binance hot wallet", "hack"))
++
+     def test_fallback_regex(self):
+         from run_fresh import FALLBACK_RE
+         self.assertEqual(FALLBACK_RE.findall("  WARNING: reframe failed for clip_02, using original\n"),
