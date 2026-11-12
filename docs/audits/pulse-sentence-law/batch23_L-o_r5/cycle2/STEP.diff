@@ -1,0 +1,158 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index b8a1ab87..195a2cff 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -15,7 +15,7 @@ Rules:
+     R4 VO_BUDGET:             VO <= 25% of total runtime. Intro <= 30 words,
+                               bridge <= 20 words, signoff <= 24 words.
+                               One bridge per channel transition.
+-    R5 CLIP_LENGTH:           8-25s continuous speech per clip. >= 2 distinct
++    R5 CLIP_LENGTH:           (law L-o) >= 2 measured clips from >= 2 channels; 12-20s = TASTE, a recorded deviation. >= 2 distinct
+                               channels. Every channel >= 8s screen time.
+     R6 CREDITS_MATCH:         Channels in shoutout/signoff/reply == channels
+                               in EDL, in EDL order. Unique avatar hashes.
+@@ -26,6 +26,7 @@ Rules:
+                               that ends a sentence (. ? !) plus 0.20-0.45s tail
+                               pause, strictly before the next source word starts.
+ """
++import math
+ import argparse
+ import json
+ import os
+@@ -212,37 +213,44 @@ def rule_r4(edl):
+ # R5: CLIP_LENGTH
+ # ==============================================================
+ 
++CLIP_TARGET_S = (12.0, 20.0)     # law L-o: the clip duration window is a TASTE target (rank, never reject)
++
++
+ def rule_r5(edl):
+-    """8-25s per clip, >= 2 distinct channels, every channel >= 8s."""
++    """INTEGRITY (law L-o, fail closed): >= 2 clips, from >= 2 distinct channels, every clip with a measured positive
++    finite duration (so no channel is counted with no screen time). TASTE (law L-o, orchestrator 2026-11-12 '01:50';
++    pp-selectid REQUESTS R6 item 2): a clip outside the 12-20 s target is a recorded deviation with its size, never a
++    rejection (a whole sentence always beats a duration window); the only hard duration rule is the format, measured
++    on the final by the gates. The validate stage writes this reason into PROVENANCE (run.prov['edl_validation'])."""
+     clips = edl.get("clips", [])
+-    failures = []
++    failures, deviations = [], []
++    lo, hi = CLIP_TARGET_S
+ 
+     if len(clips) < 2:
+         failures.append(f"only {len(clips)} clips (need >= 2)")
+ 
+-    channels = {}
++    channels = set()
+     for clip in clips:
+-        dur = clip.get("duration", 0)
++        dur = clip.get("duration")
+         ch = clip.get("channel", "unknown")
+         idx = clip.get("index", "?")
+-
+-        if dur < 8:
+-            failures.append(f"clip {idx}: {dur:.1f}s (min 8s)")
+-        if dur > 25:
+-            failures.append(f"clip {idx}: {dur:.1f}s (max 25s)")
+-
+-        channels.setdefault(ch, 0)
+-        channels[ch] += dur
++        if isinstance(dur, bool) or not isinstance(dur, (int, float)) or not math.isfinite(dur) or dur <= 0:
++            failures.append(f"clip {idx}: duration {dur!r} is not a measured positive number")   # never a pass
++            continue
++        channels.add(ch)
++        if dur < lo:
++            deviations.append(f"clip {idx}: {dur:.2f}s ({lo - dur:.2f}s under the {lo:.0f}-{hi:.0f}s target)")
++        elif dur > hi:
++            deviations.append(f"clip {idx}: {dur:.2f}s ({dur - hi:.2f}s over the {lo:.0f}-{hi:.0f}s target)")
+ 
+     if len(channels) < 2:
+-        failures.append(f"only {len(channels)} channel(s) (need >= 2)")
+-
+-    for ch, total_dur in channels.items():
+-        if total_dur < 8:
+-            failures.append(f"channel '{ch}': {total_dur:.1f}s total (min 8s)")
++        failures.append(f"only {len(channels)} channel(s) with a measured clip (need >= 2)")
+ 
++    taste = f" | law L-o taste deviations, recorded, not causes: {'; '.join(deviations)}" if deviations else ""
+     if failures:
+-        return False, "R5 FAIL: " + "; ".join(failures)
++        return False, "R5 FAIL: " + "; ".join(failures) + taste
++    if deviations:
++        return True, "R5 PASS" + taste
+     return True, "R5 PASS: clip lengths and channel diversity OK"
+ 
+ 
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index de803615..6ccf1447 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -177,7 +177,8 @@ class TestR4VoBudget(unittest.TestCase):
+ 
+ 
+ class TestR5ClipLength(unittest.TestCase):
+-    """R5: 8-25s per clip, >= 2 channels, each >= 8s."""
++    """R5 (law L-o): >= 2 clips from >= 2 channels is integrity (a failure); the 8-25 s window and the per-channel
++    >= 8 s total are taste (a recorded deviation with its size, never a rejection)."""
+ 
+     def test_good_clips_pass(self):
+         edl = {
+@@ -189,16 +190,54 @@ class TestR5ClipLength(unittest.TestCase):
+         ok, reason = rule_r5(edl)
+         self.assertTrue(ok, reason)
+ 
+-    def test_clip_too_short_fails(self):
++    def test_a_short_clip_is_a_recorded_deviation_not_a_failure(self):
++        """Law L-o (taste): until 2026-11-12 this was 'clip too short fails'. A whole sentence beats the window: the
++        6.1 s punchline is kept and its deviation recorded with its size."""
+         edl = {
+             "clips": [
+-                {"index": 1, "duration": 5, "channel": "A"},
+-                {"index": 2, "duration": 15, "channel": "B"},
++                {"index": 1, "duration": 15, "channel": "A"},
++                {"index": 2, "duration": 6.1, "channel": "B"},
+             ]
+         }
+         ok, reason = rule_r5(edl)
+-        self.assertFalse(ok, reason)
+-        self.assertIn("min 8s", reason)
++        self.assertTrue(ok, reason)
++        self.assertEqual(reason, "R5 PASS | law L-o taste deviations, recorded, not causes: clip 2: 6.10s (5.90s under "
++                                 "the 12-20s target)")
++        ok, reason = rule_r5({"clips": [{"index": 1, "duration": 30, "channel": "A"},
++                                        {"index": 2, "duration": 12, "channel": "B"}]})
++        self.assertTrue(ok, reason)
++        self.assertIn("clip 1: 30.00s (10.00s over the 12-20s target)", reason)
++        for edge in (12.0, 20.0):                                        # the target's own edges are inside it
++            ok, reason = rule_r5({"clips": [{"index": 1, "duration": edge, "channel": "A"},
++                                            {"index": 2, "duration": 15, "channel": "B"}]})
++            self.assertEqual((ok, reason), (True, "R5 PASS: clip lengths and channel diversity OK"))
++
++    def test_integrity_still_rejects_one_clip_or_one_channel(self):
++        """Must-fail (law L-o integrity: >= 2 channels per video): a short clip never rescues a single channel."""
++        for edl, why in (({"clips": [{"index": 1, "duration": 12, "channel": "A"}]}, "only 1 clips"),
++                         ({"clips": [{"index": 1, "duration": 12, "channel": "A"},
++                                     {"index": 2, "duration": 5, "channel": "A"}]}, "only 1 channel(s)"),
++                         ({"clips": [{"index": 1, "duration": 15, "channel": "A"},
++                                     {"index": 2, "duration": 0, "channel": "B"}]}, "only 1 channel(s)"),   # B: no time
++                         ({"clips": []}, "only 0 clips")):
++            ok, reason = rule_r5(edl)
++            self.assertFalse(ok, reason)
++            self.assertTrue(reason.startswith("R5 FAIL"), reason)
++            self.assertIn(why, reason)
++        ok, reason = rule_r5({"clips": [{"index": 1, "duration": 5, "channel": "A"},
++                                        {"index": 2, "duration": 6, "channel": "A"}]})
++        self.assertRegex(reason, r"^R5 FAIL: only 1 channel.* \| law L-o taste deviations, recorded, not causes: ")
++
++    def test_an_unmeasured_duration_is_never_a_pass(self):
++        """Under L-o the window no longer rejects, so a degenerate duration must fail on its own (fail closed)."""
++        for bad in (0, -3.0, None, float("nan"), float("inf"), "12", True, "missing"):
++            with self.subTest(bad=bad):
++                clip = {"index": 2, "duration": bad, "channel": "B"}
++                if bad == "missing":
++                    del clip["duration"]
++                ok, reason = rule_r5({"clips": [{"index": 1, "duration": 12, "channel": "A"}, clip]})
++                self.assertFalse(ok, reason)
++                self.assertIn("is not a measured positive number", reason)
+ 
+     def test_single_channel_fails(self):
+         edl = {

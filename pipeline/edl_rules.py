@@ -15,7 +15,7 @@ Rules:
     R4 VO_BUDGET:             VO <= 25% of total runtime. Intro <= 30 words,
                               bridge <= 20 words, signoff <= 24 words.
                               One bridge per channel transition.
-    R5 CLIP_LENGTH:           8-25s continuous speech per clip. >= 2 distinct
+    R5 CLIP_LENGTH:           (law L-o) >= 2 measured clips from >= 2 channels; 12-20s = TASTE, a recorded deviation. >= 2 distinct
                               channels. Every channel >= 8s screen time.
     R6 CREDITS_MATCH:         Channels in shoutout/signoff/reply == channels
                               in EDL, in EDL order. Unique avatar hashes.
@@ -26,6 +26,7 @@ Rules:
                               that ends a sentence (. ? !) plus 0.20-0.45s tail
                               pause, strictly before the next source word starts.
 """
+import math
 import argparse
 import json
 import os
@@ -212,37 +213,51 @@ def rule_r4(edl):
 # R5: CLIP_LENGTH
 # ==============================================================
 
+CLIP_TARGET_S = (12.0, 20.0)     # law L-o: the clip duration window is a TASTE target (rank, never reject)
+
+
 def rule_r5(edl):
-    """8-25s per clip, >= 2 distinct channels, every channel >= 8s."""
+    """INTEGRITY (law L-o, fail closed): >= 2 clips, from >= 2 distinct channels, every clip with a measured positive
+    finite duration (so no channel is counted with no screen time). TASTE (law L-o, orchestrator 2026-11-12 '01:50';
+    pp-selectid REQUESTS R6 item 2): a clip outside the 12-20 s target is a recorded deviation with its size, never a
+    rejection (a whole sentence always beats a duration window); the only hard duration rule is the format, measured
+    on the final by the gates. The validate stage writes this reason into PROVENANCE (run.prov['edl_validation'])."""
     clips = edl.get("clips", [])
-    failures = []
+    failures, deviations = [], []
+    lo, hi = CLIP_TARGET_S
 
     if len(clips) < 2:
         failures.append(f"only {len(clips)} clips (need >= 2)")
 
-    channels = {}
+    channels = set()
     for clip in clips:
-        dur = clip.get("duration", 0)
-        ch = clip.get("channel", "unknown")
-        idx = clip.get("index", "?")
-
-        if dur < 8:
-            failures.append(f"clip {idx}: {dur:.1f}s (min 8s)")
-        if dur > 25:
-            failures.append(f"clip {idx}: {dur:.1f}s (max 25s)")
-
-        channels.setdefault(ch, 0)
-        channels[ch] += dur
+        dur = clip.get("duration")
+        ch = clip.get("channel")
+        idx = str(clip.get("index", "?"))[:20]
+        try:
+            measured = not isinstance(dur, bool) and isinstance(dur, (int, float)) and math.isfinite(dur) and dur > 0
+        except OverflowError:                                    # an integer too large for a float: not a measurement
+            measured = False
+        if not measured:
+            failures.append(f"clip {idx}: duration {repr(dur)[:40]} is not a measured positive number")   # never a pass
+            continue
+        if not isinstance(ch, str) or not ch.strip():
+            failures.append(f"clip {idx}: no channel named")      # a missing channel is never a distinct channel
+            continue
+        channels.add(ch.strip())
+        if dur < lo:
+            deviations.append(f"clip {idx}: {dur:.2f}s ({max(lo - dur, 0.01):.2f}s under the {lo:.0f}-{hi:.0f}s target)")
+        elif dur > hi:
+            deviations.append(f"clip {idx}: {dur:.2f}s ({max(dur - hi, 0.01):.2f}s over the {lo:.0f}-{hi:.0f}s target)")
 
     if len(channels) < 2:
-        failures.append(f"only {len(channels)} channel(s) (need >= 2)")
+        failures.append(f"only {len(channels)} channel(s) with a measured clip (need >= 2)")
 
-    for ch, total_dur in channels.items():
-        if total_dur < 8:
-            failures.append(f"channel '{ch}': {total_dur:.1f}s total (min 8s)")
-
+    taste = f" | law L-o taste deviations, recorded, not causes: {'; '.join(deviations)}" if deviations else ""
     if failures:
-        return False, "R5 FAIL: " + "; ".join(failures)
+        return False, "R5 FAIL: " + "; ".join(failures) + taste
+    if deviations:
+        return True, "R5 PASS" + taste
     return True, "R5 PASS: clip lengths and channel diversity OK"
 
 

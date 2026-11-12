@@ -177,7 +177,8 @@ class TestR4VoBudget(unittest.TestCase):
 
 
 class TestR5ClipLength(unittest.TestCase):
-    """R5: 8-25s per clip, >= 2 channels, each >= 8s."""
+    """R5 (law L-o): >= 2 clips from >= 2 channels is integrity (a failure); the 8-25 s window and the per-channel
+    >= 8 s total are taste (a recorded deviation with its size, never a rejection)."""
 
     def test_good_clips_pass(self):
         edl = {
@@ -189,16 +190,68 @@ class TestR5ClipLength(unittest.TestCase):
         ok, reason = rule_r5(edl)
         self.assertTrue(ok, reason)
 
-    def test_clip_too_short_fails(self):
+    def test_a_short_clip_is_a_recorded_deviation_not_a_failure(self):
+        """Law L-o (taste): until 2026-11-12 this was 'clip too short fails'. A whole sentence beats the window: the
+        6.1 s punchline is kept and its deviation recorded with its size."""
         edl = {
             "clips": [
-                {"index": 1, "duration": 5, "channel": "A"},
-                {"index": 2, "duration": 15, "channel": "B"},
+                {"index": 1, "duration": 15, "channel": "A"},
+                {"index": 2, "duration": 6.1, "channel": "B"},
             ]
         }
         ok, reason = rule_r5(edl)
-        self.assertFalse(ok, reason)
-        self.assertIn("min 8s", reason)
+        self.assertTrue(ok, reason)
+        self.assertEqual(reason, "R5 PASS | law L-o taste deviations, recorded, not causes: clip 2: 6.10s (5.90s under "
+                                 "the 12-20s target)")
+        ok, reason = rule_r5({"clips": [{"index": 1, "duration": 30, "channel": "A"},
+                                        {"index": 2, "duration": 12, "channel": "B"}]})
+        self.assertTrue(ok, reason)
+        self.assertIn("clip 1: 30.00s (10.00s over the 12-20s target)", reason)
+        for edge in (12.0, 20.0):                                        # the target's own edges are inside it
+            ok, reason = rule_r5({"clips": [{"index": 1, "duration": edge, "channel": "A"},
+                                            {"index": 2, "duration": 15, "channel": "B"}]})
+            self.assertEqual((ok, reason), (True, "R5 PASS: clip lengths and channel diversity OK"))
+
+    def test_integrity_still_rejects_one_clip_or_one_channel(self):
+        """Must-fail (law L-o integrity: >= 2 channels per video): a short clip never rescues a single channel."""
+        for edl, why in (({"clips": [{"index": 1, "duration": 12, "channel": "A"}]}, "only 1 clips"),
+                         ({"clips": [{"index": 1, "duration": 12, "channel": "A"},
+                                     {"index": 2, "duration": 5, "channel": "A"}]}, "only 1 channel(s)"),
+                         ({"clips": [{"index": 1, "duration": 15, "channel": "A"},
+                                     {"index": 2, "duration": 0, "channel": "B"}]}, "only 1 channel(s)"),   # B: no time
+                         ({"clips": []}, "only 0 clips")):
+            ok, reason = rule_r5(edl)
+            self.assertFalse(ok, reason)
+            self.assertTrue(reason.startswith("R5 FAIL"), reason)
+            self.assertIn(why, reason)
+        ok, reason = rule_r5({"clips": [{"index": 1, "duration": 5, "channel": "A"},
+                                        {"index": 2, "duration": 6, "channel": "A"}]})
+        self.assertRegex(reason, r"^R5 FAIL: only 1 channel.* \| law L-o taste deviations, recorded, not causes: ")
+
+    def test_an_unmeasured_duration_or_a_missing_channel_is_never_a_pass(self):
+        """Under L-o the window no longer rejects, so a degenerate duration or channel must fail on its own (fail
+        closed); two valid channels are present, so the failure is the third clip's alone."""
+        good = [{"index": 1, "duration": 12, "channel": "A"}, {"index": 2, "duration": 14, "channel": "B"}]
+        for bad in (0, -3.0, None, float("nan"), float("inf"), "12", True, 10 ** 400, "missing"):
+            with self.subTest(duration=bad):
+                clip = {"index": 3, "duration": bad, "channel": "C"}
+                if bad == "missing":
+                    del clip["duration"]
+                ok, reason = rule_r5({"clips": good + [clip]})
+                self.assertFalse(ok, reason)
+                self.assertTrue(reason.startswith("R5 FAIL: clip 3: duration "), reason)
+                self.assertNotIn("channel(s)", reason)
+        for bad in (None, "", "   ", 7, "missing"):
+            with self.subTest(channel=bad):
+                clip = {"index": 3, "duration": 13, "channel": bad}
+                if bad == "missing":
+                    del clip["channel"]
+                ok, reason = rule_r5({"clips": [good[0], clip]})          # only A is a real channel
+                self.assertFalse(ok, reason)
+                self.assertIn("clip 3: no channel named", reason)
+                self.assertIn("only 1 channel(s)", reason)
+        ok, reason = rule_r5({"clips": good + [{"index": 3, "duration": 11.996, "channel": "C"}]})
+        self.assertIn("0.01s under", reason)                              # never 'X.XXs (0.00s under ...)'
 
     def test_single_channel_fails(self):
         edl = {
