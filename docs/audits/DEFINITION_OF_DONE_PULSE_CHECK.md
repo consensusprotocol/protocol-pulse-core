@@ -6,6 +6,10 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:42 ET RULING 10's ONE LIST: THIS PACKAGE WOULD HOLD AT G14 BY CONSTRUCTION (nothing rendered)
+
+- Every pre-render rule passes on this exact package (R4 40.44 % of 61.82 s with the takeaway cap; R1-R6, R8; stand-alone; layout; cut / G16 / prepare edge words / G18 simulated on clip_02). The one refusal: G14 AV alignment, REQUIRED in both formats, needs >= 3 clear samples per talking-head segment outside VO segments and dissolves; clip_02's 4.63 s cut between VO 2 and VO 3 leaves ONE clear sample point (2.0 s) -> HOLD after the full render. Shortest passing talking-head segment between two VO lines: 6.75 s. Full list: docs/audits/parallel/integrator_RULING7_FACTS.md (08:42). Ruling 10 (takeaway cap 30) is implemented and tested; its commit follows its audit.
+
 ## 08:35 ET RULINGS 8 / 9 (08:29): RULING 9 COMMITTED; RULING 8 CONFIRMED BEFORE RENDER
 
 - Ruling 9: moments R4 VO share cap 45 % of the total estimated runtime (edl_rules.MOMENTS_VO_SHARE 0.45; exactly 45 % passes with the runtime's 1e-9 tolerance); must-fail tests 45.10 % / 45.50 % rejected, exactly 45.00 % and 44.9995 % pass, a 43 % case the old cap refused passes; mutations 0.46 / 0.44 / an exclusive comparison each fail a test. Audit batch27 (Heimdall: both models ANSWERED, raw replies read: deepseek FAIL on the untested exact boundary + a docstring, qwen27b PASS with the same boundary note; both applied). regression_test.sh 0 FAIL, pipeline/regression.sh PASS.

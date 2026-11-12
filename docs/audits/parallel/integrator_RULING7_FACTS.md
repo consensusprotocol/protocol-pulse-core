@@ -96,3 +96,24 @@ accepted_cut, unchanged):
 - Within the rules as deployed: VO 1 has room (cap 30, now 13): +2 words (+0.8 s) lands about 60.1 s with VO 3 at 20 words (the
   builder's fidelity gate judges any new wording). Or a ruling: a moments takeaway cap >= 24 words (TASTE, R4 moments only; the
   renderers place any length).
+
+## 08:42 ET: RULING 10's question, answered in ONE list: every limit in the deployed render path, on THIS exact package
+(Dry run of pinned.build_edl + edl_rules.validate_edl + stand_alone + the layout check on the acquired windows; render-time
+limits read from the code; G14 simulated with its own sampling and clearance logic.)
+ 1. R4 moments (with ruling 10's takeaway cap): PASS. VO 25.00 s = 40.44 % of an estimated 61.82 s; intro 13 <= 30, VO 2 18 <= 20,
+    takeaway 24 <= 30; every line in its slot.
+ 2. R1 / R2 / R3 / R6 / R8 PASS; R5 PASS with two recorded taste deviations (clip_01 10.34 s, clip_02 3.64 s); R7 / R9 / R10 skip
+    as in every run.
+ 3. Stand-alone: all three segments PASS (subject 'bitcoin').
+ 4. Vertical layout: all three channels registered, 'auto' per-shot plan, status 'pending' (letterbox fallback): passes validate.
+ 5. Cut + G16: clip_02's IN and OUT clean (08:18 pre-check); hook and clip_01 accepted by the 07:07 run on the same windows.
+ 6. Prepare edge words: clip_02 PASS (simulated); hook / clip_01 passed at 07:07.  7. G18: PASS (simulated, ruling 8).
+ 8. Sign-off for three channels: 19 words (validator minimum 18), as at 07:07.  9. Credits card / shout-out with three channels:
+    as in every three-channel run tonight.  10. ElevenLabs: 359,926 characters left (preflight needs 2,000).
+11. **G14 AV alignment (REQUIRED in BOTH formats: 16x9 G14_av_alignment, 9x16 G14_audio_offset): REFUSES BY CONSTRUCTION.** A
+    talking-head segment needs >= 3 conclusive samples, taken at 0.2 s and every 2 s inside, outside every VO segment and every
+    dissolve overlap (gates.py:195-196, 250-262, 330-357). clip_02's 4.63 s cut sits between VO 2 and VO 3 (6-frame dissolves):
+    its sample points 0.2 / 2.0 / 4.0 / 4.03 leave ONE clear point (2.0) -> HOLD (< 3) on a required row, after the full render.
+    The shortest talking-head segment that can reach 3 clear samples between two VO lines is 6.75 s (cut). Hook and clip_01 have
+    4-5 clear points.
+12. G5 final duration window 60-120 s: R4's estimate is 61.82 s (about 1.8 s of margin; the final is measured).
