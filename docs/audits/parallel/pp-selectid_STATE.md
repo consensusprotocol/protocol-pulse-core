@@ -1,5 +1,56 @@
 READY TO RENDER (08:44 ET): tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json. Story moments-fresh_20261112_050611-37c5b5f5, seal 37c5b5f598e97f12a4afd62eccd57f93b946b6f6d7ef087ef1047c1c06bc086f. All 13 gates are exactly PASS, measured live, on the first run (no majority needed). The deployed factory accepts it: validate_schema, build_edl, and rule_r4 at 45 % with the takeaway cap of 30.
 
+
+## 08:53 ET: ruling 10's question, the builder's ONE list (deployed render path, read-only; agrees with the integrator's 08:42 / 08:49 list)
+
+**Nothing in the deployed path refuses the 08:44 pin as the main tree stands now** (HEAD 1136e56d, clean). Source: a
+read-only survey of pinned.py, edl_rules.py, config.py, run_fresh.py, stand_alone.py, gates.py, word_diff.py,
+render16.py / render_vertical.py, segment_v1/qa_gates.py and scene_shoutout.py. The items below that bear on this
+package I re-read myself.
+
+**Would have refused, now resolved:**
+- The clean-tree check at launch (run_fresh.py:296-303) holds a run while pipeline/ or segment_v1/ has a modified
+  tracked file. Ruling 10's edl_rules.py / test_edl_rules.py were uncommitted until 1136e56d (08:49). The tree is clean
+  now.
+- The deployed takeaway cap: 30 since 1136e56d. At HEAD before it, the takeaway took the bridge cap of 20 and 24 words
+  were refused.
+
+**Passes:**
+- intro 13 <= 30; bridge 18 <= 20 between clips; takeaway 24 <= 30.
+- VO share 41.2 % of 45 %; estimated runtime 60.74-61.82 s (60-70 hard). The factory measures its own spans
+  (pinned.py:290).
+- No cap on total VO words. Clip count 1 hook + 2 clips from 3 channels (needs >= 2 clips from >= 2 channels).
+- No minimum clip length or per-channel floor in code (R5 records taste deviations only).
+- Stand-alone: clip_01's approved text says "Bitcoin"; the pin label is "bitcoin".
+- All three channels are in the registry with handle and avatar. layout_status "pending" is not read by the render
+  path (layout "auto").
+- The credits card has no channel cap (3 fit: 1180 / 1920 px wide in 16:9, 1219 / 1920 px tall in 9:16).
+- Shout-out: the card follows VO 3; nothing is timed against the 3.5 s last clip.
+- Title and caption must be non-empty; there is no length limit.
+- The pin's fields (sources_30s_before, hook_first_words, *_ok exactly true, the sha256 form) were checked by the
+  deployed build_edl in pin_and_verify.
+- R1 / R3 / R6 / R8 pass; R7 / R9 / R10 are skipped in validate as in every run.
+
+**Measured only on the render (no refusal predicted; the risk is stated):**
+- **G5 final length 60-120 s** (segment_v1/qa_gates.py:721-724):
+  - From run 120225's measured parts I estimate 60.7-63.0 s:
+    - cuts 8.62 + 10.97 + 4.63 s;
+    - VO audio: intro 5.20 s / 13 words, bridge 5.76 s / 18 words, VO 3 of 24 words at the measured 2.4-3.1 w/s;
+    - 1 s pre-roll a line;
+    - credits 1.8 s + sign-off 8.56 s;
+    - outro 4.48 s.
+  - The margin over 60.0 is 0.7-3 s.
+- **G18 edge words** (word_diff.edges: the first two canonical words, exact, no tolerance in code). This passes only if
+  the final's decode does not write the false start ("It w-" / "Bit-"). The integrator's simulation (large-v3 on the
+  prepared clip) heard "bitcoin imposes": PASS. With the music bed it is measured at the render (ruling 8: the
+  integrator confirms).
+- **G14 AV alignment** (>= 3 conclusive samples): clip_02's 4.63 s cut keeps 0.2 / 2.0 / 4.0 / 4.03 s, all on speech.
+  There are no dissolves at VO joins (the integrator's 08:49 correction; the sampling code agrees: silent points are
+  dropped, only inconclusive ones are retaken).
+- **The editorial gate** (a local model's review) and **the vertical layout** (face detection on the prepared clips).
+- **The sign-off** is generated at the voice stage (vo.py:126-139), with the fixed 19-word template as its fallback.
+  Nothing compares it with the pin's signoff_expected, so this is not a refusal.
+
 ## 08:44 ET: the 08:40 package, sealed (attempt 0840)
 
 Files: tests/package/proof/fresh_20261112_050611/given_v0700_0840.json / .log. Wall 113 s. Spend $0.53.
