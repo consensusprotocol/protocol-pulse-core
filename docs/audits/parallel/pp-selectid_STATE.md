@@ -1,6 +1,52 @@
 # pp-selectid — STATE (session pipeline_pp_selectid, branch pp-selectid, worktree ~/worktrees/pp-selectid)
 
-## TOP PACKAGE, TONIGHT'S UNIVERSE (fresh_20261112_050611): first moments-first package (03:25 ET Nov 12; REVIEW ONLY)
+## 05:00 ET Nov 12: HELD AT THE SPEND GUARD. No package for tonight passes every gate yet (nothing to render)
+
+- **Spend.** Phase-2 stand-in spend stopped at **$39.28** of the $40 guard (254 calls, upper-bound prices). Model calls
+  are stopped as ordered. Every reply is recorded under tests/moments/fixtures and tests/package/fixtures, so a re-run
+  REPLAYS them at no cost and continues where this stopped.
+- **OpenAI is out of credit again** (HTTP 429 insufficient_quota, 04:37). The L-x failover moved the writer to
+  claude-fable-5-2, and the verdicts to vendors other than the writer's, with no human step.
+- **Tonight, fresh_20261112_050611.** 4 angle-first rebuilds after the 03:40 review, about 30 write-and-gate attempts
+  over 12 proposed angles, produced NO package that passes every gate. The integrity gates did their job:
+  - No unsupported claim, no false relation and no stale price reached a package. The 03:25 first package (score
+    first, plain-like VO) is superseded below.
+  - The blockers, measured attempt by attempt:
+    - (1) step C "stronger certainty": the VO's framing made a hedged clip ("I feel like ...", "I think ...") sound
+      firm;
+    - (2) the fidelity judge's "uncertain" on PBX MAX's own synthesis lines ("Bitcoin is secure; keeping yours still
+      takes work").
+  - The writer oscillates between (1) and (2).
+  - The calibration fixes made along the way are listed in E-FAIL-PS14. None loosens a rule:
+    - multi-segment verbatim support for a point;
+    - step B asks L-s's own relation question;
+    - VO-caused context failures go back to the writer;
+    - false NAME / NUMBER rejects fixed;
+    - production facts are citable.
+- **What decides the next step** (the orchestrator's call; I take no option on my own):
+  - (a) **Calibrate on the exam.** pipeline_pp_tests' 135 real cases measure each gate's false-reject rate. The
+    adapter is ready (pipeline/moments_gate_adapter.py), and recording its replies needs model calls. On the
+    integrator's LOCAL leg (gemma3:27b under the GPU0 lease) this is free; on the frontier chain it is about $8-20.
+    If the fidelity verdict rejects faithful paraphrases above 10 %, it is miscalibrated, and I fix it with that
+    evidence.
+  - (b) **More budget for the frontier legs.** One passing package costs about $2-3 by tonight's measurement (each
+    write-and-gate attempt about $0.45). The 9-universe yield sweep needs about $15-25.
+  - (c) **A quote-led VO style.** The VO introduces each channel with a verbatim fragment of its own words. The point
+    is carried by that sequence and by ONE checked title. Its claims are then verbatim by construction.
+- **Yield against the oracle (law L-n).** No package exists on any saved universe under these gates. The oracle
+  judged 48 moments-first line-ups to pass, but under its own rules: caption timing, two clips from one channel, no
+  context-integrity gate. These are 10 DEFECTS until packages pass. Mining is done on all 10 (word-timed: 4-14 videos
+  each, 9-65 usable moments). Packaging the other 9 is held by the guard.
+- **Cost, measured** (upper-bound prices; production mines locally at $0):
+  - per cycle: about $2-3 of frontier writing and verdicts for one passing package, plus step A (about $0.30) and
+    angles (about $0.15);
+  - per day at 6 cycles: about $12-18;
+  - at the 2 / day launch cadence: about $4-6 a day, roughly $120-180 a month, inside PBX's $100-300.
+- **Audit.** Phase 2 cycle 1 is DONE (5 reviewers per chunk: fable, opus, sonnet, grok answered; the gpt-4o leg failed
+  on OpenAI's credit). Next: dispositions, the fixes, cycle 2, commit and push (not DONE).
+
+
+## SUPERSEDED (orchestrator review 03:40: passes the safety gates, fails the product; NOT for render): the first moments-first package (03:25 ET Nov 12)
 
 Files: `tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json` (sha256 1c3f0e783059c2f1..., PINNED decision for run_fresh.py `--pinned`; needs REQUESTS R7 item 1
 for the VO / title / caption to reach the EDL) and `tests/package/proof/fresh_20261112_050611/package.json`
@@ -101,6 +147,51 @@ Rules the packager applies on reading; the ingest session may pre-apply them, ne
 
 ## LIVE STATE (newest first; ET; times corrected 01:46 from file times: four entries had been stamped
 ## from an elapsed-time estimate, 30-110 min late)
+
+- 04:20 Nov 12 TONIGHT'S ANGLE-FIRST REBUILD, attempt 3 (no package yet).
+  - Each failed pass so far was read, and the gate calibrations it exposed are fixed with evidence (E-FAIL-PS14). None
+    loosens a rule:
+    - multi-segment verbatim support for a point;
+    - step B asks L-s's relation question: no false relations since the fix;
+    - VO-caused context failures go back to the writer.
+  - The writer now oscillates between VO fidelity and step C's "stronger certainty". One rewrite passed fidelity but
+    made a hedged clip sound certain; the next fixed that and overreached in paraphrase.
+  - Phase-2 stand-in spend: $30.80 of $40. If no package comes within the remaining budget, I stop model calls and
+    record exactly where it stands.
+
+- 03:59 Nov 12 REBUILD IN PROGRESS (angle first). Measured on tonight's universe and fixed, with no rule loosened:
+  - The first angle proposals backed angles with 2 channels and 26.9 s of clips; L-u needs 3 channels. Each angle now
+    takes 4-8 moments from >= 3 channels, with the clip-seconds range given to the proposer.
+  - The fidelity verdict rejected every cross-clip POINT, because only one segment's words could support a claim. A
+    claim may now cite several segments, each with verbatim words that code verifies. The judge says yes only if
+    together they state it with nothing added. Production facts ('clips from A, B, C', 'links below') are a citable
+    manifest segment.
+  - The deterministic NAME rule flagged sentence-initial words and Title Case titles ('Past', 'Beyond', 'Bullish
+    Claims Don't Erase Risk'): false rejects, fixed. Real names are still caught by mid-sentence capitals, ATTRIBUTION
+    and the verdict; a 9-case check passes both ways.
+  - NUMBER read the idiom 'one thing' as the figure 1: number words <= 10 without a unit are counts.
+  - Step A now sees the show date, the publish date and caption speaker turns, and answers time_ok (law L-v 3).
+  - The mining A/B (blind, judged by claude-opus-5-5) found gpt-6.1-sol better than Heimdall qwen3.8-27b: 6/6
+    accepted against 5/6, 300 s against 2,067 s. The mining chain is now local -> gpt-6.1-sol -> claude-fable ->
+    Heimdall qwen. The local leg is the integrator's.
+  - The exam (pipeline_pp_tests, 135 cases) is in place. My adapter is pipeline/moments_gate_adapter.py.
+  - Phase-2 stand-in spend: $27.23 of $40.
+
+- 03:36 Nov 12 ORCHESTRATOR REVIEW 03:40 RECEIVED: the first package passes the safety gates and fails the product.
+  Rebuilt to its six rules:
+  - (1) A fidelity reject gets up to 3 rewrites with the exact rejected claims. The plain VO comes after that, is
+    labelled, and ranks last.
+  - (2) Angle first: angles, each one repeatable sentence backed by >= 3 moments from >= 2 channels, with the hook per
+    angle. A blind COHERENCE verdict on another vendor (claude-opus-5-5 when the writer is OpenAI) gives the
+    through-line and 1-5 ratings; below 4, or "none", moves to the next angle.
+  - (3) PRICE_NOW: a headline line's price level must be marked as history or match the universe's current level. The
+    case is sent to pipeline_pp_tests in REQUESTS R8.
+  - (4) DUPLICATE: no clip repeats the line before it or the title. A clip under 8 s only as the punchline.
+  - (5) The hook is chosen per angle.
+  - (6) Law L-v 2 runs inside the build: a segment whose number or negation the second pass does not confirm, or with a
+    speaker change, is dropped.
+  The first package is superseded (it stays in git as the evidence of what failed). Tonight's rebuild (a top package
+  plus 2 alternatives) is running.
 
 - 03:17 Nov 12 PHASE 2 IN PROGRESS (this machine's clock). The 03:00 note is received.
   - The exam is pipeline_pp_tests': my gates run under its harness through pipeline/moments_gate_adapter.py. Its
