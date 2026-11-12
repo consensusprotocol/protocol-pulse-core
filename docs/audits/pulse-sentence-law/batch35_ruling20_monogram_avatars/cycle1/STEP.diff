@@ -1,0 +1,54 @@
+diff --git a/pipeline/verify_pack.py b/pipeline/verify_pack.py
+index 408e64ca..5d335459 100644
+--- a/pipeline/verify_pack.py
++++ b/pipeline/verify_pack.py
+@@ -117,6 +117,22 @@ def panel_ok(per):
+ NEXT_SHOT = "no_next_shot_before_transition"
+ 
+ 
++def avatar_note(channels, registry=None):
++    """Ruling 20 ('11:28'): the channels whose REGISTERED avatar is their own monogram or logo (pipeline/channels.json
++    avatar_kind 'monogram' / 'logo' with avatar_text), stated to the vision panel so a channel's own letters are
++    not read as a thumbnail's headline text. '' when none."""
++    if registry is None:
++        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")) as f:
++            registry = json.load(f)
++    reg = {e.get("display_name"): e for e in registry}
++    marks = []
++    for ch in dict.fromkeys(channels):
++        e = reg.get(ch) or {}
++        if e.get("avatar_kind") in ("monogram", "logo") and e.get("avatar_text"):
++            marks.append(f"{ch}: its registered avatar is its own {e['avatar_kind']} showing '{e['avatar_text']}'")
++    return (" Registered avatars that are the channel's own monogram or logo: " + "; ".join(marks) + ".") if marks else ""
++
++
+ def _sheets_and_checklist(run_dir, rep, pack, vision):
+     """Contact sheet per format (qa/) and the visual checklist answered from it; V1 rows written into
+     GATE_REPORT.json (a new check on top of the gates: any "no", missing answer or route error = FAIL)."""
+@@ -128,6 +144,7 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
+     segs_edl = [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]
+     channels_note = ("Channels whose clips appear in this video (from the edit decision list): " +
+                      ", ".join(f"{s.get('channel')} ({label})" for label, s in segs_edl) + ".")
++    channels_note += avatar_note([s.get("channel") for _, s in segs_edl])       # ruling 20
+     pack["contact_sheets"], pack["visual"] = {}, {}
+     v1_rows = {}                                        # fmt -> (exact verdict, note, answers counted)
+     for fmt, final in (("16x9", "segment.mp4"), ("9x16", "segment_vertical.mp4")):
+diff --git a/pipeline/visual_check.py b/pipeline/visual_check.py
+index ccf04915..7754a705 100644
+--- a/pipeline/visual_check.py
++++ b/pipeline/visual_check.py
+@@ -29,7 +29,11 @@ CHECKLIST = [
+                                 "own round PROFILE picture: not a video thumbnail (no headline text or title words "
+                                 "inside the circle), not squashed or stretched, and the names under the circles are "
+                                 "the channels whose clips appear in the video (use the channel list given above: "
+-                                "a 9:16 crop can hide a show's own branding)."),
++                                "a 9:16 crop can hide a show's own branding). Exception (ruling 20): when the "
++                                "channel list above says a channel's registered avatar is its own monogram or logo "
++                                "showing given letters, that circle must show exactly that monogram / logo (its "
++                                "letters are not headline text); any other text in it, a thumbnail, a different "
++                                "monogram, or a squashed or warped circle is still 'no'."),
+     ("vertical_speaker_centred", "On a 9:16 sheet: every talking-head segment shows its speaker centred in the "
+                                  "frame, or the segment is a shared screen / chart (layout=screen). On a 16:9 sheet: n/a."),
+     ("no_letterbox_on_talking_heads", "Look at the full-resolution first-frame panels and the stills of every "
+ pipeline/channels.json | 70 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 70 insertions(+)

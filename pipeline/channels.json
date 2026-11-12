@@ -64,6 +64,8 @@
   {
     "slug": "base58",
     "display_name": "Base58",
+    "avatar_kind": "logo",
+    "avatar_text": "Base58",
     "yt_handle": "@Base58BTC",
     "url": "https://www.youtube.com/@Base58BTC",
     "tier": 1,
@@ -96,6 +98,8 @@
   {
     "slug": "bitcoin_explained",
     "display_name": "Bitcoin Explained",
+    "avatar_kind": "monogram",
+    "avatar_text": "B",
     "yt_handle": "@BitcoinExplained",
     "url": "https://www.youtube.com/@BitcoinExplained",
     "tier": 1,
@@ -159,6 +163,8 @@
   {
     "slug": "bitcoin_podcast",
     "display_name": "Bitcoin Podcast",
+    "avatar_kind": "monogram",
+    "avatar_text": "B",
     "yt_handle": "@BitcoinPodcast",
     "url": "https://www.youtube.com/@BitcoinPodcast",
     "tier": 1,
@@ -270,6 +276,8 @@
   {
     "slug": "robert_breedlove",
     "display_name": "Robert Breedlove",
+    "avatar_kind": "monogram",
+    "avatar_text": "WiM",
     "yt_handle": "@RobertBreedlove22",
     "url": "https://www.youtube.com/@RobertBreedlove22",
     "tier": 1,
@@ -286,6 +294,8 @@
   {
     "slug": "saifedean_ammous",
     "display_name": "Saifedean Ammous",
+    "avatar_kind": "monogram",
+    "avatar_text": "SA",
     "aliases": ["seifedean amos", "saifedean amos", "safedean ammous", "saifedean ammus"],
     "yt_handle": "@saifedean",
     "url": "https://www.youtube.com/@saifedean",
@@ -319,6 +329,8 @@
   {
     "slug": "swan_bitcoin",
     "display_name": "Swan Bitcoin",
+    "avatar_kind": "monogram",
+    "avatar_text": "S",
     "yt_handle": "@Swan_Bitcoin",
     "url": "https://www.youtube.com/@Swan_Bitcoin",
     "tier": 1,
@@ -335,6 +347,8 @@
   {
     "slug": "tftc",
     "display_name": "TFTC",
+    "avatar_kind": "logo",
+    "avatar_text": "TFTC",
     "yt_handle": "@TFTC",
     "url": "https://www.youtube.com/@TFTC",
     "tier": 1,
@@ -351,6 +365,8 @@
   {
     "slug": "the_bitcoin_layer",
     "display_name": "The Bitcoin Layer",
+    "avatar_kind": "monogram",
+    "avatar_text": "B",
     "yt_handle": "@thebitcoinlayer",
     "url": "https://www.youtube.com/@thebitcoinlayer",
     "tier": 1,
@@ -371,6 +387,8 @@
   {
     "slug": "the_bitcoin_podcast",
     "display_name": "The Bitcoin Podcast",
+    "avatar_kind": "logo",
+    "avatar_text": "THE BITCOIN PODCAST",
     "yt_handle": "@TheBitcoinPodcast",
     "url": "https://www.youtube.com/@TheBitcoinPodcast",
     "tier": 1,
@@ -418,6 +436,8 @@
   {
     "slug": "unchained",
     "display_name": "Unchained",
+    "avatar_kind": "logo",
+    "avatar_text": "BITCOIN UNCHAINED",
     "yt_handle": "@BitcoinUnchained",
     "url": "https://www.youtube.com/@BitcoinUnchained",
     "tier": 1,
@@ -482,6 +502,8 @@
   {
     "slug": "altcoin_daily",
     "display_name": "Altcoin Daily",
+    "avatar_kind": "logo",
+    "avatar_text": "ALTCOIN DAILY",
     "yt_handle": "@AltcoinDaily",
     "url": "https://www.youtube.com/@AltcoinDaily",
     "tier": 2,
@@ -529,6 +551,8 @@
   {
     "slug": "bitfarms",
     "display_name": "Bitfarms",
+    "avatar_kind": "logo",
+    "avatar_text": "bitf",
     "yt_handle": "@Bitfarms",
     "url": "https://www.youtube.com/@Bitfarms",
     "tier": 2,
@@ -545,6 +569,8 @@
   {
     "slug": "bitstamp",
     "display_name": "Bitstamp",
+    "avatar_kind": "monogram",
+    "avatar_text": "B",
     "yt_handle": "@BitstampExchange",
     "url": "https://www.youtube.com/@BitstampExchange",
     "tier": 2,
@@ -561,6 +587,8 @@
   {
     "slug": "blockware_solutions",
     "display_name": "Blockware Solutions",
+    "avatar_kind": "logo",
+    "avatar_text": "BLOCKWARE",
     "yt_handle": "@BlockwareSolutions",
     "url": "https://www.youtube.com/@BlockwareSolutions",
     "tier": 2,
@@ -577,6 +605,8 @@
   {
     "slug": "clark_moody",
     "display_name": "Clark Moody",
+    "avatar_kind": "monogram",
+    "avatar_text": "M",
     "yt_handle": "@ClarkMoody",
     "url": "https://www.youtube.com/@ClarkMoody",
     "tier": 2,
@@ -641,6 +671,8 @@
   {
     "slug": "cointelegraph",
     "display_name": "CoinTelegraph",
+    "avatar_kind": "monogram",
+    "avatar_text": "T",
     "yt_handle": "@CoinTelegraph",
     "url": "https://www.youtube.com/@CoinTelegraph",
     "tier": 2,
@@ -689,6 +721,8 @@
   {
     "slug": "digital_asset_news",
     "display_name": "Digital Asset News",
+    "avatar_kind": "logo",
+    "avatar_text": "DIGITAL ASSET NEWS",
     "yt_handle": "@DigitalAssetNews",
     "url": "https://www.youtube.com/@DigitalAssetNews",
     "tier": 2,
@@ -862,6 +896,8 @@
   {
     "slug": "real_vision",
     "display_name": "Real Vision",
+    "avatar_kind": "monogram",
+    "avatar_text": "RV",
     "yt_handle": "@RealVision",
     "url": "https://www.youtube.com/@RealVision",
     "tier": 2,
@@ -878,6 +914,8 @@
   {
     "slug": "real_vision_finance",
     "display_name": "Real Vision Finance",
+    "avatar_kind": "monogram",
+    "avatar_text": "RV",
     "yt_handle": "@RealVisionFinance",
     "url": "https://www.youtube.com/@RealVisionFinance",
     "tier": 2,
@@ -894,6 +932,8 @@
   {
     "slug": "riot_platforms",
     "display_name": "Riot Platforms",
+    "avatar_kind": "monogram",
+    "avatar_text": "R",
     "yt_handle": "@RiotPlatforms",
     "url": "https://www.youtube.com/@RiotPlatforms",
     "tier": 2,
@@ -926,6 +966,8 @@
   {
     "slug": "stacker_news",
     "display_name": "Stacker News",
+    "avatar_kind": "monogram",
+    "avatar_text": "SN",
     "yt_handle": "@StackerNews",
     "url": "https://www.youtube.com/@StackerNews",
     "tier": 2,
@@ -958,6 +1000,8 @@
   {
     "slug": "strike",
     "display_name": "Strike",
+    "avatar_kind": "monogram",
+    "avatar_text": "S",
     "yt_handle": "@Strike",
     "url": "https://www.youtube.com/@Strike",
     "tier": 2,
@@ -974,6 +1018,8 @@
   {
     "slug": "wolf_of_all_streets",
     "display_name": "Wolf Of All Streets",
+    "avatar_kind": "logo",
+    "avatar_text": "WOLF OF ALL STREETS",
     "yt_handle": "@WolfOfAllStreets",
     "url": "https://www.youtube.com/@WolfOfAllStreets",
     "tier": 2,
@@ -990,6 +1036,8 @@
   {
     "slug": "simply_bitcoin",
     "display_name": "Simply Bitcoin",
+    "avatar_kind": "monogram",
+    "avatar_text": "SB",
     "yt_handle": "@SimplyBitcoin",
     "url": "https://www.youtube.com/@SimplyBitcoin",
     "tier": 2,
@@ -1006,6 +1054,8 @@
   {
     "slug": "bankless",
     "display_name": "Bankless",
+    "avatar_kind": "monogram",
+    "avatar_text": "B",
     "yt_handle": "@Bankless",
     "url": "https://www.youtube.com/@Bankless",
     "tier": 3,
@@ -1022,6 +1072,8 @@
   {
     "slug": "bloomberg_television",
     "display_name": "Bloomberg Television",
+    "avatar_kind": "monogram",
+    "avatar_text": "B",
     "yt_handle": "@BloombergTelevision",
     "url": "https://www.youtube.com/@BloombergTelevision",
     "tier": 3,
@@ -1038,6 +1090,8 @@
   {
     "slug": "cnbc",
     "display_name": "CNBC",
+    "avatar_kind": "logo",
+    "avatar_text": "CNBC",
     "yt_handle": "@CNBC",
     "url": "https://www.youtube.com/@CNBC",
     "tier": 3,
@@ -1054,6 +1108,8 @@
   {
     "slug": "cnbc_television",
     "display_name": "CNBC Television",
+    "avatar_kind": "logo",
+    "avatar_text": "CNBC TV",
     "yt_handle": "@CNBCtelevision",
     "url": "https://www.youtube.com/@CNBCtelevision",
     "tier": 3,
@@ -1070,6 +1126,8 @@
   {
     "slug": "financial_times",
     "display_name": "Financial Times",
+    "avatar_kind": "monogram",
+    "avatar_text": "FT",
     "yt_handle": "@FinancialTimes",
     "url": "https://www.youtube.com/@FinancialTimes",
     "tier": 3,
@@ -1086,6 +1144,8 @@
   {
     "slug": "fox_business",
     "display_name": "Fox Business",
+    "avatar_kind": "logo",
+    "avatar_text": "FOX BUSINESS",
     "yt_handle": "@FoxBusiness",
     "url": "https://www.youtube.com/@FoxBusiness",
     "tier": 3,
@@ -1102,6 +1162,8 @@
   {
     "slug": "kitco_news",
     "display_name": "Kitco NEWS",
+    "avatar_kind": "logo",
+    "avatar_text": "KITCO NEWS",
     "yt_handle": "@KitcoNEWS",
     "url": "https://www.youtube.com/@kitaborrita",
     "tier": 3,
@@ -1118,6 +1180,8 @@
   {
     "slug": "kitco_news",
     "display_name": "Kitco News",
+    "avatar_kind": "logo",
+    "avatar_text": "KITCO NEWS",
     "yt_handle": "@kitco",
     "url": "https://www.youtube.com/@kitco",
     "tier": 3,
@@ -1134,6 +1198,8 @@
   {
     "slug": "the_block",
     "display_name": "The Block",
+    "avatar_kind": "monogram",
+    "avatar_text": "T",
     "yt_handle": "@TheBlockTV",
     "url": "https://www.youtube.com/@TheBlockTV",
     "tier": 3,
@@ -1150,6 +1216,8 @@
   {
     "slug": "thestreet",
     "display_name": "TheStreet",
+    "avatar_kind": "logo",
+    "avatar_text": "The Street",
     "yt_handle": "@TheStreet",
     "url": "https://www.youtube.com/@TheStreet",
     "tier": 3,
@@ -1166,6 +1234,8 @@
   {
     "slug": "wall_street_journal",
     "display_name": "Wall Street Journal",
+    "avatar_kind": "monogram",
+    "avatar_text": "WSJ",
     "yt_handle": "@WSJ",
     "url": "https://www.youtube.com/@WSJ",
     "tier": 3,
