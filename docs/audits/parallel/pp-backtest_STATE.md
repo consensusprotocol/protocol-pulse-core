@@ -2,7 +2,8 @@
 
 ## LIVE STATE (updated 2026-11-12 04:55 ET)
 
-- STATUS: DONE (commit hash in the line below once pushed). Report: docs/audits/BACKTEST_SUPPLY_REPORT.md
+- STATUS: DONE at commit 36ea5d60 (pushed to origin/pp-backtest 2026-11-12 04:58 ET; this STATE line is the
+  follow-up commit). Report: docs/audits/BACKTEST_SUPPLY_REPORT.md
   (sections 1-9; hand-written analysis = section 5, from pp-backtest_ANALYSIS.md). Raw artefacts (prompts, raw replies,
   parsed records, spend ledger, A/B files): /home/ultron/heimdall_probe/pp_redteam/oracle/<stamp>/ and .../ab/.
 - DONE WHEN, item by item:
