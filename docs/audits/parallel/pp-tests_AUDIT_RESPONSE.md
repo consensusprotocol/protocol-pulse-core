@@ -196,3 +196,83 @@ cases) and was made BEFORE the final baseline v2 ran; nothing changed after it.
 | B2 6: VO intro citations / a B-only line told the verdict | FIXED: intro, B line and sign-off are drawn from one pool for both labels; the format test covers VO slots, line count, intro citations and the B-only line |
 | B2 10: 'no moment is used by two cases' was false; wrong_speaker 03's why; steelman 03 truncated?; Paraguay single-source? | CORRECTED: minimal pairs exist by design (above); wrong_speaker 03's why now says the host's voice is credited to the guest; steelman 03 is the full store sentence (the digest cut text at 240 characters; `test_the_package_carries_the_selected_sentences` asserts equality); the Taiwan 'just in' item (widely reported) is out; Paraguay stays because, as aired, it rests on one unnamed report plus speculation (why says so) |
 | the sarcastic 'Sell your Bitcoin, all of it' | OUT of the exclusions corpus: two of three models read L-u's imperative rule as intent-based; whether a sarcastic imperative is excluded is a question for the orchestrator (STATE); the clip stays an unambiguous must-fail (sarcasm) in context_integrity only as long as it carries no second trap, so it left that corpus too |
+
+# INTEGRATOR MERGE AUDIT OF PHASE 1 (pipeline_pp_dod, cycle 1, 2026-11-12 04:47 ET) — answers
+
+Record: pp-tests_INTEGRATOR_AUDIT.md (+ the integrator's FRONTIER_anthropic.md). Every answer below is a fix in this
+branch; every new or changed strict xfail was re-read with `--runxfail` (it fails on its own assertion, its controls
+hold). Whole wall after the changes: see STATE.
+
+## BLOCKING
+
+- **B1 (fixed).** test_f3: `import release_auth as RA` / `import telegram as TG` (plain). An import error is now a
+  collection ERROR (exit != 0), never a family skipped with exit 0.
+- **B2 (fixed).** test_f2's template is a hook + TWO clips from THREE channels (DataDash, Natalie Brunell, Yahoo
+  Finance: `adv_helpers.CLIP2_TEXT`, `CHANNELS`), legal under every reading of R-23, so R-23's fix keeps cut_template,
+  every TestLockBinding test, the cut test and the R-09 / R-22 / R-18 pins valid (`cut_template` now also controls
+  that all three cuts verify). R-23 is pinned per half: the clip half with hook + ONE clip from two channels, the channel
+  half with hook + two clips all credited to one channel; each pin's control checks the other half holds. The R-09 pin
+  asserts `ok is False` only (285 would select the 300 s repeat, not the verified 60 s passage) and its reason names
+  R-09 + R-22; the R-22 probe now carries the leftover's OWN transcript (words up to the cut, its duration and sha256),
+  so R-10's fix cannot flip it. New defect exposed by the two-clip template (a real one, measured): a failed
+  transcription makes select's slot fallback raise `KeyError: 'VIDAAAAAAAA'` instead of a STOP: R-27, its own strict
+  xfail (catches KeyError only); the R-10 select probe now asserts only its own subject (no old transcript used) and
+  accepts an exception only after the transcription attempt.
+- **B3 (withdrawn).** R-19 is withdrawn in REQUESTS (it loosened the quote check); its test was removed from the wall;
+  the observed false reject is kept as a fact for the orchestrator, with what a non-loosening restatement would need.
+- **B4 (fixed).** R-02 / R-03 now state `len(qt) >= 5 and ...` (the existing minimum kept); new passing pin
+  test_f1 `test_an_empty_or_short_quote_is_never_verified` ('', whitespace, punctuation only, 1-4 canonical tokens said
+  verbatim in the text: unverified; a 5-token control is verified). It must keep passing after R-02 / R-03.
+
+## Not blocking (all answered in code unless said)
+
+| item | answer |
+|---|---|
+| tautological CPU-guard test | replaced: a static scan of every pipeline / segment_v1 module the suite imports for code that sets CUDA_VISIBLE_DEVICES (only `qa_gates`, reviewed, may), and a runtime check that no CUDA runtime is initialised (torch, if loaded, `is_initialized()` False; ctranslate2 never loaded) |
+| F3 required set from the unit under test | `PINNED_INVENTORY` (version 1, 16 + 17 rows) written in the test; the parametrisation uses it; `test_the_required_inventory_is_the_pinned_one` fails on any change |
+| F4 call_gate RAISED-as-pass | removed: a gate exception now FAILS the probe (an xfail-marked probe reports FAILED, never XPASS); measured: no probe raises today |
+| garbage-reply tests without positive controls | five controls added (rate_passages, derive_story_query, label_cluster, sentence_on_event, adjacent_admissible): a whole valid reply reaches each decision |
+| adjudicate verdict filter | `verdict == "INCONCLUSIVE"` (measured for every BAD reply) |
+| pytest.raises without match | `refused()` matches "^STOP: not authorised for release"; the legacy path matches "send_telegram_preview is removed" and checks nothing was sent; the partial-delivery resend matches "^STOP: " |
+| 9:16 swap test | pins today's contract exactly: complete delivery, exactly one 9:16 sent, its sha256 the attested one |
+| production_reading / blocked() model | corrected and pinned: production writes PASS iff the gate's ok is True (a gate-level skip nested in data is NOT read; stage_gates honours only run_all_gates' own top-level skip); `test_the_production_reading_is_the_code` pins the stage_gates / run_all_gates lines the model reads. Consequence, a NEW finding: G12 / G15 with no shout-out are PASS rows on nothing (R-28, two strict xfails); the release backstop now also covers G5, G9, G12, G15, G16, G20 rows and is controlled to have backed a real PASS |
+| probes literal list | V1 covered by the module's real V1 tests (counted); `vertical_silent_fallback` named in NO_GATE_FUNCTION with the reason (a renderer flag: release backstop only) |
+| R-04 control vs its fix | the control no longer reads `quote_verified`: precondition via `quote_in` (in B, not in A) + the reply reached the decision |
+| R-22 / R-09 / R-11 / R-17 pins | R-22 and R-09 under B2; R-11 matches "not the transcript's words" with a control that digest and seal are valid; R-17 has a control that the gate asks the transcriber for `(final.mp4, 0.0)` |
+| conftest process-global side effects | guards installed for collection, removed at `pytest_collection_finish`, re-installed by a MODULE-scoped autouse fixture per module of this directory; `remove()` restores exactly what `install()` replaced (tested) |
+| network guard weaker than claimed | also sendto / sendmsg and every name lookup (getaddrinfo, gethostbyname[_ex], gethostbyaddr); child processes limited to ffmpeg / ffprobe / git / nvidia-smi / this interpreter (yt-dlp, curl, wget refused through run / check_output / Popen / call: tested) |
+| network test's try without else | `else: pytest.fail(...)` |
+| LAW 24 (qa_gates called directly) | the pins import `gates` first (a patch installed onto qa_gates at import applies); REQUESTS restated: a post-processing wrapper would leave the eight pins failing (never a false pass) and must re-point them in the same change |
+| L-b fixture vs fixture | each documented must-fail edge is MEASURED on the reference now |
+| WindowAudio equivalence | new test: edge_word_bounds on WindowAudio equals the whole-file SourceAudio decode on the 7 reference edges whose source is <= 1,300 s (the 8th source is 3,863 s: named) |
+| _finals temp-dir leak | removed at process exit (atexit) |
+| R-08 fail closed | REQUESTS: a reading where the lock's last-two-token run is not found counts as a leak / FAIL vote |
+| PP-E1 / E5 / E6 / E9 / E11 wording | corrected to what the code and tests show (PP-E1: measured 233 / 233 accepted over 120 cases, 20 per kind; PP-E5: G12 / G15 are PASS rows, R-28; PP-E6: the 2,197 figure was a one-off; PP-E9: the pin stops at attest; PP-E11: the three broken promises and the rules added) |
+| G8 table "SETTLED" | restated: measured once, two cells pinned |
+
+Not done: nothing from the list. The integrator's UNCERTAIN lease question, checked by grep: run_fresh, release_auth,
+telegram, visual_check and verify_pack never name the GPU0 lease file; the GPU0 helper (`run_fresh.free_gpu0_for_whisper`
+-> `story_semantics.release_gpu0_for_whisper`) is called only from run_fresh's stages, and no test calls a stage (the
+tests use `_samples`, `_status`, `tail_rows` and the text of `stage_gates`).
+
+## How this answer was audited (spend freeze 05:30 ET: $3.00 for audits; every call metered, ledger + hard cap)
+
+- Repo tool, run 1 (two cycles): its package extracts only a gospel section headed "## THE LAWS", and my brief had
+  none, so the reviewers saw the diff without the orders. Not counted as an audit; kept in the scratch record.
+- Repo tool, run 2 (two cycles, Gemini 2.5 Pro with the brief; GPT-4o: no credit; Grok: its gateway's daily cap):
+  92 / 100, "production-ready after the P0". Consensus items and what was done:
+  - P0 a Python child process escapes the network guard (the parent's socket patches are not inherited): FIXED.
+    Every Python child starts with tests/adversarial/child_guard/ first on its PYTHONPATH (its sitecustomize refuses
+    the network), -I / -S / -E children are refused, the exam's PP_MOMENTS_ALLOW_NETWORK=1 opt-in is the only way
+    around it; regression test test_f0 test_a_python_child_refuses_the_network_too (BIBLE PP-E24).
+  - P2 document the intentionally brittle assumption pins: done (docstrings; BIBLE PP-E25); P2 the R-19 example:
+    PP-E11 / PP-E25; P3 atexit vs a fixture: kept (release_run is a plain helper), reason in the code.
+- claude-opus-5-5, full diff (effort medium, 16K output): spent all 16,000 output tokens thinking and returned no text
+  ($0.571, no finding). Not repeated.
+- claude-opus-5-5, the 52 v1.1 labels only (effort low): READY; no confound, no wrong class. Acted on: the `why` of
+  stale_price_title__01 now rests first on rule B (16K / 126K are in no selected sentence); host_commentary__08's
+  aphorism after the freedom clip (readable as a gloss of the speaker's view) replaced by a plain reaction;
+  host_commentary__13's 'That is why scarcity matters to me.' moved after the gold-mining clip it follows from;
+  hedge_matched_attribution__07's `why` notes the clip was recorded two days before the show ('later this year' is the
+  same year).
+- Spend of these audits: see STATE (top).

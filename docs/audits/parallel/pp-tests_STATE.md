@@ -1,5 +1,40 @@
 # pp-tests STATE — session pipeline_pp_tests (worktree /home/ultron/worktrees/pp-tests, branch pp-tests)
 
+> **FOR THE BUILDER (pipeline_pp_selectid), 2026-11-12 ~06:10 ET: vo_fidelity v1.1 IS ON DISK** (orchestrator order
+> 05:25 ET): `/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/vo_fidelity/` now holds 92 cases = the 40 v1
+> cases (ids and bytes unchanged) + **52 v1.1 cases** (schema `pp.vo_case/1.1`; INDEX.json lists all 92). Audited and
+> COMMITTED with this STATE (branch pp-tests; the hash is in the live state below). Changed after ~06:10 by the label
+> review (re-read these if you cached them): host_commentary__08 (a plain reaction replaces an aphorism),
+> host_commentary__13 (its takeaway moved after clip A), and the `why` of stale_price_title__01 and
+> hedge_matched_attribution__07. v1.1 must-pass: `host_commentary` 16 (class D teases,
+> questions, takeaways), `hedge_matched_attribution` 11 (class A: 'thinks' / 'feels' / 'expects' / 'believes' over
+> the clip's own 'I think' / 'I feel like' / 'I do expect' / 'I believe'). v1.1 must-fail 25: `commentary_smuggles_number`
+> 3, `commentary_smuggles_name` 3, `commentary_recharacterises` 3 ('Even the bulls are nervous.'), `certainty_upgrade`
+> 4 ('thinks' clip -> knows / confirms / is certain / shows), `invented_relation` 2 ('And BTC Sessions answers him.'),
+> `commentary_predicts` 2, `commentary_imperative` 2, `commentary_accuses` 2, `stale_price_title` 2 (title 'Bitcoin
+> ran from 16K to 126K' with the universe at ~$73,500; 'Bitcoin holds 76K'), `stale_price_line` 1, `commentary_as_quote` 1.
+> **v1.1 format additions** (the gate sees all of these; `expected` is stripped by the harness as before):
+> `title` (string, judged like a line); `universe` (tonight's news from runs/fresh_20261112_050611/TOPIC_SELECTION.json:
+> headline, source, published_at, summary; for staleness only, never a source of facts); each `lines[i].after` (null =
+> before clip A, "A" / "B" = after that clip; lines are in play order). In `expected`: `line_classes` (A / B / C / D per
+> line), `title_class`, `bad_line` (index or null), `bad_title` (bool), `rule` (which rule the bad line or title
+> breaks). A case is must-fail if ANY line or the title must be rejected. Same adapter call: `vo_fidelity(case)`.
+
+> **SPEND (orchestrator SPEND FREEZE 05:30 ET): the frontier baseline run is CANCELLED and was never started. Total
+> outside-model spend of this session (phases 1 + 2), by vendor:**
+> | vendor | recorded (token usage x list price) | estimated (tool keeps no usage) | total |
+> |---|---|---|---|
+> | Anthropic | $11.305 = baseline claude-opus-5-5 $5.732 (446 calls) + audit reviews claude-opus-5-5 $5.573 (7 calls) | audit tool's claude-sonnet-4-6 syntheses ~$1.96 | ~$13.27 |
+> | OpenAI | $5.756 = baseline gpt-6.1-sol (200 billed calls, 11 refused for no credit) | audit tool's gpt-4o ~$1.24 | ~$7.00 |
+> | Google | $3.173 = baseline gemini-3.1-pro-preview (177 calls) | audit tool's gemini-2.5-pro ~$2.35 (thinking assumed <= 8K tokens a call) | ~$5.52 |
+> | xAI | - | audit tool's grok-3-latest ~$0.95 (its gateway caps it at $1.00 a day) | ~$0.95 |
+> | **all, before the freeze** | **$20.234** (tests/adversarial/baselines/SPEND.jsonl + the usage lines of the review records) | **~$6.50** | **~$26.73** |
+> | after the freeze (audits only, every call metered, hard cap $3.00) | **$1.672** = Anthropic $1.088 (claude-opus-5-5 2 calls $0.720, one of them $0.571 that returned no text: its output budget went to thinking; claude-sonnet-4-6 6 calls $0.368) + Google $0.585 (gemini-2.5-pro 4 calls); OpenAI / xAI refused, $0 | - | $1.672 |
+> | **session total** | **$21.906** | **~$6.50** | **~$28.41** |
+> Not in these numbers: one claude-opus-5-5 verification call of 2026-11-12 ~04:2x whose output was lost to a missing
+> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$1.33** (no further paid
+> call planned).
+
 > **FOR THE BUILDER (pipeline_pp_selectid): the moments-first EXAM lives at**
 > **`/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/`** (`context_integrity/`, `vo_fidelity/`, `exclusions/`;
 > branch `pp-tests`); the harness is `tests/adversarial/test_moments_gates.py`. Format and adapter protocol: the
@@ -7,9 +42,28 @@
 
 ## PHASE 2 LIVE STATE (newest first; times ET, 2026-11-12)
 
+- ~06:50 **integrator answers + vo_fidelity v1.1, audited, committed and pushed in the commit that carries this line
+  (its hash: `git log -1 origin/pp-tests`; a commit cannot name itself).** Whole wall `python3 -m pytest tests/adversarial`:
+  420 tests = 377 passed, 40 strict xfails, 3 skipped (the real moments gates are absent: skip-with-reason), 0 failed,
+  0 errors; with `--runxfail` exactly the 40 fail, each an AssertionError in its own test file
+  (pp-tests_XFAIL_EVIDENCE.md, regenerated). Strict xfails 38 -> 40: R-19's removed (withdrawn), R-27 added, R-28 x2
+  added. Moments harness 32 passed / 3 skipped after the label edits. regression_test.sh 26 PASS / 0 FAIL.
+  Audit: repo tool two cycles WITH the brief (92/100; its one P0, a Python child escaping the network guard, fixed),
+  claude-opus-5-5 label check READY (4 edits made). Record: pp-tests_AUDIT_RESPONSE.md, last sections.
+- ~06:30 **vo_fidelity v1.1 written and on disk** (orchestrator 05:25: class-D host commentary both ways; section
+  "FORMAT v1.1" below; counts in the table below). 52 new cases, 40 v1 cases byte-identical. Corpus tests 13/13 and the
+  harness file 32 passed / 3 skipped (real gates absent). The format-leak test caught a position-pattern tell in my
+  first draft (PP-E23), fixed in the cases before publishing. Frontier baseline: CANCELLED by the 05:30 spend freeze
+  (not run). Next: the integrator's phase-1 items, then ONE audit pass within the $3 left, then commit + push.
+- ~06:00 integrator merge audit B1-B4 answered in the working tree (section "INTEGRATOR MERGE AUDIT" in
+  pp-tests_AUDIT_RESPONSE.md when committed): B1 plain imports; B2 F2 template = hook + two clips, three channels,
+  each half of R-23 pinned alone, R-09 / R-22 probes made consistent; B3 R-19 withdrawn and its test removed
+  (strict xfails 38 -> 37); B4 the 5-token minimum kept in R-02 / R-03, pinned by a passing test. New defect found by
+  the two-clip template: R-27 (select crashes with KeyError after a failed transcription), strict xfail (37 -> 38).
+- **PHASE 2 DONE (05:02 ET): corpora + harness + baseline committed and pushed: 5ca1c4b9 on origin/pp-tests.**
+  Next in this session: the integrator's merge audit of PHASE 1 (pp-tests_INTEGRATOR_AUDIT.md, B1-B4), separate commit.
 - 05:05 FINAL: corpus frozen at 136 cases, audited (two cycles of the repo tool on code and corpus, an independent
-  claude-opus-5-5 review of each, then a verification round), final blind baseline run; committing and pushing (the
-  hash goes in the line below once pushed). `python3 -m pytest tests/adversarial/test_moments_gates.py -q`: 31 passed,
+  claude-opus-5-5 review of each, then a verification round), final blind baseline run. `python3 -m pytest tests/adversarial/test_moments_gates.py -q`: 31 passed,
   3 skipped (the real gates are absent from this branch: skip-with-reason, never pass). Whole wall
   `python3 -m pytest tests/adversarial -q`: 365 passed, 3 skipped, 38 xfailed (Phase 1's 38 strict xfails unchanged);
   regression_test.sh 26 PASS / 0 FAIL.
@@ -23,6 +77,8 @@
 | context_integrity | pass | clean_assertion 16, clean_conjunction_opener (opens on And / So / But) 6 | 22 | 0 |
 | vo_fidelity | fail | stance_flip, could_to_will, number_swapped, number_rounded, invented_agreement, fact_not_in_clips, absent_name, banned_framing, financial_imperative (3 each) | 27 | 0 |
 | vo_fidelity | pass | faithful_paraphrase 6, manifest_language 7 | 13 | 0 |
+| vo_fidelity v1.1 | fail | commentary_smuggles_number 3, commentary_smuggles_name 3, commentary_recharacterises 3, certainty_upgrade 4, invented_relation 2, commentary_predicts 2, commentary_imperative 2, commentary_accuses 2, stale_price_title 2, stale_price_line 1, commentary_as_quote 1 | 25 | 0 |
+| vo_fidelity v1.1 | pass | host_commentary 16, hedge_matched_attribution 11 | 27 | 0 |
 | exclusions | exclude | accusation 3, ad_read 5, altcoin 3, imperative 2, single_source_breaking 2, third_party_media 2 | 17 | 0 |
 | exclusions | exclude | partner_attack 2, guaranteed_return 2 | 0 | 4 |
 | exclusions | keep | policy_criticism 4, framed_prediction 4, neutral_company 4 | 12 | 0 |
@@ -187,8 +243,49 @@ must-pass (pass / keep) cases <= 10 %, stated as a number. Report: a confusion t
 (`PP_MOMENTS_REPORT=<path>` writes it as JSON). Run: `PP_MOMENTS_GATES=<module> python3 -m pytest
 tests/adversarial/test_moments_gates.py -q -s`.
 
+## PHASE 2 — VO FORMAT v1.1 (orchestrator order 05:25 ET; additions only, v1 ids and bytes unchanged)
+
+Every VO line and the title are classed: **(A) ATTRIBUTION** (says or implies what a named speaker / show said, thinks
+or did: strict, the verb carries the clip's own hedge), **(B) FACT** (a checkable statement in the brand's voice:
+strict, maps to selected sentences, never to the news), **(C) PRODUCTION** (channel names, counts of voices, credits,
+'next': must match the manifest), **(D) HOST COMMENTARY** (the host's own opinion, question, tease or takeaway,
+attributed to nobody: allowed without clip support only if it (i) holds no checkable fact, number, price, date or
+named person / company, (ii) does not characterise any speaker's view or relation, (iii) is no financial imperative or
+prediction, (iv) is no accusation, (v) cannot be mistaken for a quote). A line that cannot be placed is strict (A / B).
+
+A v1.1 case is `"schema": "pp.vo_case/1.1"`: every v1 field, plus
+
+```
+"title":    "<string>"                       # judged like a line (its class in expected.title_class)
+"universe": {"date", "built_at", "news": [{"headline", "source", "published_at", "summary"}], "use"}
+            # tonight's news, verbatim from runs/fresh_20261112_050611/TOPIC_SELECTION.json: for staleness only,
+            # never a source of facts (rule B)
+"lines":    [{"slot": "intro" | "bridge" | "signoff", "text", "cites": ["A", "B"], "after": null | "A" | "B"}]
+            # in play order; after = null before clip A, "A" between the clips, "B" after clip B
+"expected": {"verdict", "class", "why", "bad_line": <index> | null, "bad_title": bool, "rule": <the rule broken>,
+             "line_classes": ["C", "D", "A", ...] (one per line), "title_class": "A" | "B" | "C" | "D"}
+```
+
+A case must be rejected when ANY line or its title must be (bad_line or bad_title). The intro, the B hand-off and the
+sign-off come from the v1 pools for both verdicts; honest teases are shared verbatim between must-pass and must-fail
+cases, so only the trap differs (PP-E23). Gate call unchanged: `vo_fidelity(case) -> {"verdict", "why"}`.
+
+v1.1 classes. Must-pass: `host_commentary` (16: teases, questions, takeaways; every own line class D),
+`hedge_matched_attribution` (11 real 'I think / I feel like / I do expect / I believe' sentences, each read in its
+window; the attribution verb matches the hedge; conditions kept). Must-fail (25): `commentary_smuggles_number`,
+`commentary_smuggles_name`, `commentary_recharacterises`, `certainty_upgrade`, `invented_relation`,
+`commentary_predicts`, `commentary_imperative`, `commentary_accuses`, `stale_price_title` (the order's case: title
+'Bitcoin ran from 16K to 126K' while the universe has Bitcoin near $73,500; and 'Bitcoin holds 76K'),
+`stale_price_line`, `commentary_as_quote`. Rejected while mining (not in the corpus): Bloomberg HRIjtvWogyE k1513 'I
+believe a 50 basis point hike ...' (an anchor reading a Fed official aloud), Saifedean Ammous vgsSZ4mAHfQ k19 'I still
+believe self-custody ...' (a sponsor read), store video MIDBBBBBBB1 (a synthetic id: not material).
+
 ## LIVE STATE — PHASE 1 (newest first; times ET, 2026-11-12)
 
+- UPDATE (2026-11-12 ~06:50 ET, the integrator's merge audit answered; see PHASE 2 LIVE STATE and
+  pp-tests_AUDIT_RESPONSE.md): the wall is now 420 tests, 40 strict xfails tied to R-01..R-28 (R-19 withdrawn, its test
+  removed; R-24..R-26 are phase-2 design requests without a pin; R-27 / R-28 new). The block below is the phase-1
+  record as it was at c35a2bde.
 - **DONE** (02:30 ET): the wall is committed and pushed: **c35a2bde3c2c985b7142d4c29335e239140f400b** on
   origin/pp-tests (60 files: tests/adversarial 8, tests/fixtures/adversarial 2, docs/audits/parallel 50; nothing under
   pipeline/, scripts/ or segment_v1/). DONE WHEN met: all five families committed and pushed; every test passes or is

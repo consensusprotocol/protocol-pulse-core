@@ -1,0 +1,148 @@
+{
+ "schema": "pp.vo_case/1.1",
+ "id": "vo_fidelity__commentary_recharacterises__03",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences (v1.1)",
+  "mined": "2026-11-12",
+  "universe": {
+   "record": "runs/fresh_20261112_050611/TOPIC_SELECTION.json",
+   "record_sha256": "c8a653868366a587f204a70f8a27e4b29d57138dceac966929d90d89f0c5cb18"
+  }
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "commentary_recharacterises",
+  "why": "Characterises the speaker's stance as defensive; the clip states a thesis.",
+  "bad_line": 1,
+  "bad_title": false,
+  "rule": "D(ii) fails -> A: characterises a speaker",
+  "line_classes": [
+   "C",
+   "A",
+   "C",
+   "C"
+  ],
+  "title_class": "C"
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Swan Bitcoin",
+   "Coin Bureau"
+  ]
+ },
+ "title": "Pulse Check: Swan Bitcoin and Coin Bureau",
+ "universe": {
+  "date": "2026-11-12",
+  "built_at": "2026-11-12T05:06:13.234375+00:00",
+  "news": [
+   {
+    "headline": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets",
+    "source": "bitcoinmagazine.com",
+    "published_at": "2026-11-10T14:28:12.195473+00:00",
+    "summary": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets. Bitcoin Magazine\n\nBitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets\nBitcoin price slipped to $73,500 Tuesday morning after October consumer prices rose 0.4%, topping forecasts and pushing traders toward a bigger Federal Reserve rate hike in December.\nThis post Bitcoin Pr"
+   },
+   {
+    "headline": "Bitcoin price eyes $74K as Fed rate-hike bets hit 96% after Waller speech",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T10:08:12.195473+00:00",
+    "summary": "Bitcoin price action and stock futures trended lower after Fed governor Christopher Waller said that he would vote to raise interest rates by 0.25% at the December FOMC meeting."
+   },
+   {
+    "headline": "BlackRock Bitcoin ETF outflows hit $1.66B over seven trading sessions",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T08:02:12.195473+00:00",
+    "summary": "US spot Bitcoin ETFs shed $201 million Monday, with seven straight sessions of net withdrawals from BlackRock’s IBIT totaling $1.66 billion."
+   },
+   {
+    "headline": "Stablecoin Drain, ETF Outflows Leave Bitcoin 'Running on Empty'",
+    "source": "decrypt.co",
+    "published_at": "2026-11-11T21:46:12.195473+00:00",
+    "summary": "Stablecoin supply fell $14.2 billion in 30 days, the fastest contraction since June 2022, amid weak ETF demand."
+   }
+  ],
+  "use": "staleness only: the VO's facts come from the selected sentences, never from this news"
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "w4h9HfP7Gb0",
+   "channel": "Swan Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "sentences": [
+    {
+     "k": 17,
+     "text": "AI uncertainty is a big... part of my personal thesis for investing in Bitcoin.",
+     "start": 107.45,
+     "end": 112.92
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+    "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+    "k": [
+     17,
+     17
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "n17v727G7FI",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-05T11:10:49+00:00",
+   "sentences": [
+    {
+     "k": 51,
+     "text": "Open interest hit its highest  level since September on the 3rd of November with   annualized funding around 11%.",
+     "start": 325.244,
+     "end": 332.96
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+    "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+    "k": [
+     51,
+     51
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices: Swan Bitcoin and Coin Bureau.",
+   "cites": [
+    "A",
+    "B"
+   ],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "Notice how defensive that sounds.",
+   "cites": [],
+   "after": "A"
+  },
+  {
+   "slot": "bridge",
+   "text": "Here is Coin Bureau.",
+   "cites": [
+    "B"
+   ],
+   "after": "A"
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check for November 12.",
+   "cites": [],
+   "after": "B"
+  }
+ ]
+}

@@ -6,7 +6,8 @@ collide with the integrator's E-FAIL numbers.
 
 ### PP-E1: A fuzzy anchor is a meaning changer
 **Evidence:** `editorial_select.align_quote` and `sentence_law.anchor` accepted every one of the generated meaning
-mutants (40 per kind): '$81,000' vs '$18,000', '16%' vs '60%', 'has' vs "hasn't", the Fed vs the Treasury, '-5%' vs
+mutants (measured 2026-11-12: 233 mutants of the 120 anchor cases, 20 per kind, 233 / 233 accepted by each; the pins
+fail while any one is accepted, they do not assert "every one"): '$81,000' vs '$18,000', '16%' vs '60%', 'has' vs "hasn't", the Fed vs the Treasury, '-5%' vs
 '+5%', million vs billion. A SequenceMatcher ratio >= 0.80 with pinned first / last tokens cannot see one changed token
 in a sentence of six or more.
 **Rule:** an approximate match may absorb ASR spelling, never a number, sign, unit, negation or name; compare those
@@ -38,13 +39,18 @@ G8 also passes on one of its five samples.
 ### PP-E5: A gate that loops over nothing returns its initial True
 **Evidence:** G3b, G3c, G8, G4s, G14 (both forms), G17a, G18 and G19 return PASS for empty segments / plans / manifests
 (release_auth's evidence rule blocks them at release with 0 samples; the gate verdict itself is still PASS for any
-other caller). G12 / G15 return an explicit skip (recorded SKIPPED) and G20 fails closed: the shapes to copy.
-**Rule:** every gate ends `if not measured: return False, ...`; skip is explicit, never a True.
+other caller). G20 fails closed: the shape to copy. G12 / G15 with no shout-out return `(True, {"skip": True})`, and
+production writes that as a PASS row, not SKIPPED (corrected 2026-11-12, integrator merge audit: the first version of
+this entry said "recorded SKIPPED", from the test's own model of stage_gates; run_all_gates nests the skip under
+"data" and stage_gates reads only a top-level skip; R-28).
+**Rule:** every gate ends `if not measured: return False, ...`; a skip is a verdict the row writer reads, never a
+True with a flag beside it.
 **Detection:** test_f4 test_a_required_gate_never_passes_on_nothing (R-13, R-14, R-15).
 
 ### PP-E6: A canonical form must be a fixpoint
 **Evidence:** canon('about two, three hundred dollars') reads 2 and 300; canon of that canonical text reads 2300
-(the spaced-thousands rule joins two numbers the first pass kept apart). Real transcripts measured so far are fixpoints;
+(the spaced-thousands rule joins two numbers the first pass kept apart). Real transcripts measured so far are fixpoints
+(2,197 sentences, a one-off measurement; the shipped test covers the 200 sentences of tests/fixtures/canon_20261111);
 spoken ranges are not.
 **Rule:** canon(canon(x)) == canon(x) is a property test of the canonical form. **Detection:** test_f1
 TestCanonicalForm (R-01).
@@ -63,8 +69,9 @@ one; the protected preview has four such edges besides the documented Natalie ta
 not only the check that implements it. **Detection:** test_f5 test_l_b_* (pinned table, no xfail: a decision).
 
 ### PP-E9: The bytes the drop describes must be the bytes the gates read
-**Evidence:** an EDL edited between the gates and the attestation (another credited channel) was attested ALL_PASS and
-delivered: only the finals and manifests are compared with the digests the gates measured.
+**Evidence:** an EDL edited between the gates and the attestation (another credited channel) was attested ALL_PASS
+(the pin stops at the attestation; delivery of that run was not exercised): only the finals and manifests are compared
+with the digests the gates measured.
 **Rule:** every input a gate reads is in GATE_REPORT.measured_files and re-checked at attestation.
 **Detection:** test_f3 test_an_edl_changed_after_the_gates_ran_holds (R-12).
 
@@ -87,6 +94,12 @@ broken setup is FAILED / ERROR, never the defect; fixtures write the records the
 today's code ignores), and the request names them; a probe that must flip only on fix X keeps every other fix's
 record consistent (the byte-replacement probe rewrites the download record for the new bytes so only the transcript
 binding can tell).
+**Correction (integrator merge audit, 2026-11-12):** this wall broke its own rule three times, all fixed: the F2
+template had one clip, which the wall's own R-23 makes illegal (every lock test would have errored once R-23 landed);
+the R-04 control read the very field R-04's fix changes; the R-22 probe kept a transcript of other bytes, which R-10's
+fix rejects. Added rules: a fixture must satisfy every contract the wall itself requests; a control may only read
+what no requested fix changes; a request may never loosen what a check accepts (R-19, withdrawn), and a rewrite of a
+check keeps its existing guards (R-02 / R-03: the 5-token minimum; an empty token run occurs in every text).
 
 ## Phase 2 (moments-first exam, 2026-11-12 from 03:00 ET)
 
@@ -163,3 +176,45 @@ not decidable from the words. **Rule:** a moment that follows a reported-speech 
 worst-case reservation ($0.49), the ledger read $14.68 against $9.26 billed, and every later call was refused by the
 guard. **Rule:** a call the vendor refuses before processing it (4xx other than 408 / 409) releases its reservation; a
 call with an unknown outcome keeps it. **Detection:** baselines/frontier_blind._call; SPEND.jsonl `release_refused`.
+
+## Integrator merge audit of phase 1 (pipeline_pp_dod, 2026-11-12 04:47 ET): patterns found while answering it
+
+### PP-E22: A source whose transcription failed crashes the slot fallback instead of stopping
+**Evidence (measured 2026-11-12, worktree code):** the hook's source is cached with a valid download record but has no
+transcript; transcription fails (`_whisper_transcribe` returns None: "VIDAAAAAAAA: FAILED"). select_and_build_edl drops
+the hook from `valid`, refills the hook slot from the shortlist, picks the same video, and `_source_for` reads
+`transcripts[vid]` for a video that IS in `sources` but not in `transcripts`: `KeyError: 'VIDAAAAAAAA'` escapes select
+(its contract is True / False). With a one-clip template the earlier `len(valid) < 2` STOP hid it; the two-clip template
+the integrator asked for (B2) exposed it. **Rule:** a producer that can fail leaves every map it feeds consistent ("in
+sources" must imply "has a transcript", or the lookup is `.get` with a reason); a selection failure is a STOP with a
+reason, never a traceback. **Detection:** test_f2 TestDirtyCache::test_a_failed_transcription_stops_select_cleanly (R-27).
+
+### PP-E23: A lone trap line has its own position pattern
+**Evidence (vo_fidelity v1.1, 2026-11-12 ~06:20 ET, caught by test_no_package_field_separates_the_verdicts before
+anything was published):** the first v1.1 draft wrote each must-fail case as ONE trap line, while the must-pass host
+commentary cases had a tease before clip A plus a takeaway. The play-order pattern of the lines (`after`: before A /
+after A / after B) then told the verdict without reading a word: (intro, B hand-off, takeaway after B, sign-off) occurred
+only in `commentary_recharacterises`; two more patterns only in must-fail cases. **Rule:** when an exam adds a field
+the gate sees (here: line positions, title, universe), add it to the format-leak test in the same change, and give
+must-fail packages the same honest lines (the same sentences) the must-pass packages use, so only the trap differs.
+**Detection:** tests/adversarial/test_moments_gates.py `_vo_fields` (`positions`, `title_template`, `universe`).
+
+### PP-E24: A guard installed in this process does not reach its child processes
+**Evidence (repo audit tool, cycle 2 with the brief, 2026-11-12):** the scoped conftest allowed `python` children
+(the moments harness starts one), and a child interpreter does not inherit the parent's socket patches: any test
+starting `python -c ...` had the network. Fixed: every Python child starts with tests/adversarial/child_guard/ first
+on its PYTHONPATH (its sitecustomize installs the same guard); -I / -S / -E children are refused; the moments exam's
+documented opt-in (PP_MOMENTS_ALLOW_NETWORK=1) is the only way around it. **Rule:** a process-level guard (sockets,
+GPU visibility, model stubs) is either re-installed in every child the code starts or the child is refused; test the
+child, not only the parent. **Detection:** test_f0 test_a_python_child_refuses_the_network_too, test_a_network_tool_cannot_be_started.
+
+### PP-E25: Pin the test's own model of production, on purpose (assumption pinning)
+**Evidence (this audit):** the wall's model of stage_gates read a gate-level skip as SKIPPED; production writes PASS
+(R-28). The model had nothing tying it to the code it described. **Rule:** where a test models production it cannot
+run (a GPU stage) or carries a list production also carries (the REQUIRED inventory, the modules that may expose a GPU,
+a test-side decoder replica), pin the assumption against production deliberately: the lines it models, the literal
+inventory, a static scan, an equivalence test. Such pins are intentionally brittle: when one fails, re-derive the
+model, never just the pin. **Detection:** test_f4 test_the_production_reading_is_the_code, test_f3
+test_the_required_inventory_is_the_pinned_one, test_f0 test_no_module_this_suite_imports_sets_cuda_visible_devices_unreviewed,
+test_f5 test_window_audio_reads_the_edges_the_whole_file_decode_reads. (The R-19 withdrawal is the matching rule for
+requests: when a proposed fix would loosen what a check accepts, withdraw the proposal, never the law: PP-E11.)

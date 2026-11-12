@@ -24,9 +24,9 @@ import shutil
 import pytest
 
 import adv_helpers as H
+import release_auth as RA          # plain imports (integrator B1): an import error is a collection ERROR, never a
+import telegram as TG              # family that vanishes as SKIPPED with exit 0
 
-RA = pytest.importorskip("release_auth")
-TG = pytest.importorskip("telegram")
 CLEAN = {"ok": True, "why": []}
 
 
@@ -45,11 +45,12 @@ class Sender:
 
 
 def refused(rd):
-    """authorise refuses and deliver_run sends nothing (it raises before the first send)."""
+    """authorise refuses and deliver_run sends nothing: it raises ITS refusal (matched, so any other RuntimeError on
+    the way, a crash included, fails the test instead of passing it) before the first send."""
     ok, why, _ = RA.authorise(rd)
     assert not ok, "authorised"
     s = Sender()
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="^STOP: not authorised for release"):
         TG.deliver_run(rd, send=s)
     assert s.sent == [], s.sent
     return why
@@ -88,7 +89,26 @@ def test_control_the_clean_run_is_authorised_and_delivered(parent):
 
 # ─────────────────────────────── a missing required gate ───────────────────────────────
 
-REQUIRED = [(fmt, row) for fmt in RA.FORMATS for row in sorted(RA.INVENTORY[fmt])]
+# The REQUIRED inventory as this wall pins it (release_auth INVENTORY_VERSION 1, read 2026-11-12), written out here so
+# that the parametrisation never comes from the unit under test (integrator merge audit): a row deleted from
+# release_auth.INVENTORY fails test_the_required_inventory_is_the_pinned_one AND its own refusal test below.
+PINNED_INVENTORY_VERSION = 1
+PINNED_INVENTORY = {
+    "16x9": ["G12_credits", "G14_av_alignment", "G15_credits", "G16_sentence_boundary", "G17_onset_tail",
+             "G18_word_for_word", "G19_edge_shots", "G20_signoff_names_all", "G3b_cut_out_clean", "G3c_acoustic_tail",
+             "G4s_layout_truth", "G5_tech", "G8_sharpness", "G9_tail", "V1_visual_checklist", "outro_locked"],
+    "9x16": ["G12_credits", "G14_audio_offset", "G15_credits", "G16_sentence_boundary", "G17_onset_tail",
+             "G18_word_for_word", "G19_edge_shots", "G20_signoff_names_all", "G3b_cut_out_clean", "G3c_acoustic_tail",
+             "G4s_layout_truth", "G5_tech", "G8_sharpness", "G9_tail", "V1_visual_checklist", "outro_locked",
+             "vertical_silent_fallback"]}
+REQUIRED = [(fmt, row) for fmt in sorted(PINNED_INVENTORY) for row in PINNED_INVENTORY[fmt]]
+
+
+def test_the_required_inventory_is_the_pinned_one():
+    """Any change to what release requires is a visible decision: it fails here until this pin is updated with it."""
+    assert RA.INVENTORY_VERSION == PINNED_INVENTORY_VERSION
+    assert tuple(RA.FORMATS) == ("16x9", "9x16")
+    assert {f: sorted(RA.INVENTORY[f]) for f in RA.FORMATS} == PINNED_INVENTORY
 
 
 @pytest.mark.parametrize("fmt,row", REQUIRED, ids=[f"{f}-{r}" for f, r in REQUIRED])
@@ -213,14 +233,15 @@ def test_the_9x16_swapped_during_delivery_never_reaches_the_chat(parent):
             shutil.copy(H.other_vertical(), os.path.join(rd, "out", "segment_vertical.mp4"))
             swapped.append(n)
     s = Sender(on_send=swap)
-    try:
-        TG.deliver_run(rd, send=s)
-    except RuntimeError:                                       # a delivery that re-verifies before each send and
-        pass                                                   # refuses the swapped 9:16 is also correct
+    rec = TG.deliver_run(rd, send=s)       # today's contract: every payload read and verified before the first send
     H.control(len(swapped) == 1 and s.sent[swapped[0] - 1]["name"] == "segment.mp4",
               f"the swap happened right after the 16:9 went out: {s.sent}")
     vert = [m for m in s.sent if m["name"] == "segment_vertical.mp4"]
-    assert all(m["sha256"] == att["files"]["out/segment_vertical.mp4"] for m in vert), vert
+    # exactly one 9:16 went out and it is the attested bytes, in a complete delivery (integrator audit: the old
+    # `all()` passed on an empty list and accepted a half-delivered drop; a design that re-verifies per send and
+    # refuses would raise here, a visible change this test must then be updated for)
+    assert rec["status"] == "complete" and len(vert) == 1, (rec.get("status"), s.sent)
+    assert vert[0]["sha256"] == att["files"]["out/segment_vertical.mp4"], vert
 
 
 # ─────────────────────────────── a skipped gate ───────────────────────────────
@@ -313,9 +334,12 @@ def test_legacy_markers_authorise_nothing(parent):
 
 
 def test_the_legacy_send_path_is_gone():
-    """GPT-gates F03 / Claude-gates X5: the old entry point cannot send anything."""
-    with pytest.raises(RuntimeError):
-        TG.send_telegram_preview("run_dir", "caption")
+    """GPT-gates F03 / Claude-gates X5: the old entry point cannot send anything (its own refusal, matched: a crash
+    on the non-existent "run_dir" must not satisfy this test)."""
+    s = Sender()
+    with pytest.raises(RuntimeError, match="send_telegram_preview is removed"):
+        TG.send_telegram_preview("run_dir", "caption", send=s)
+    assert s.sent == []
 
 
 # ─────────────────────────────── run-level ───────────────────────────────
@@ -367,6 +391,6 @@ def test_a_partially_delivered_run_is_never_resent_automatically(parent):
     with pytest.raises(ConnectionError):
         TG.deliver_run(rd, send=Sender(on_send=boom))
     s = Sender()
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="^STOP: "):           # its own refusal, never a crash on the way
         TG.deliver_run(rd, send=s)
     assert s.sent == []

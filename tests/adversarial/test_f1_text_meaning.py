@@ -153,14 +153,19 @@ class TestG18:
     def test_gate_g18_checks_every_occurrence_of_a_label(self):
         import word_diff as WD
         lock = "Bitcoin closed above $81,000 after a quiet weekend in Asia."
+        calls = []
 
         class T:
             def span(self, media, t0, t1):
+                calls.append((media, t0))
                 return "completely different words were heard here" if (media, t0) == ("final.mp4", 0.0) else lock
         segs = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 5.0},
                 {"label": "hook", "type": "talking_head", "start": 5.0, "end": 10.0}]
-        ok, rows = WD.gate_g18("final.mp4", segs, {"hook": {"lock_text": lock, "source": "src.mp4", "cut_in": 1.0,
-                                                            "cut_out": 6.0}}, transcriber=T())
+        clips = {"hook": {"lock_text": lock, "source": "src.mp4", "cut_in": 1.0, "cut_out": 6.0}}
+        WD.gate_g18("final.mp4", segs[:1], clips, transcriber=T())          # control (integrator, R-17 pin): the
+        H.control(("final.mp4", 0.0) in calls, f"the gate reads a segment at 0.0 s as {calls}")   # stub's key is
+        calls.clear()                                                        # what the gate asks for
+        ok, rows = WD.gate_g18("final.mp4", segs, clips, transcriber=T())
         assert ok is False, rows
 
 
@@ -183,13 +188,22 @@ class TestQuoteVerification:
         hits = [(q, t) for q, t in H.load_fixture("text_cases.json")["substring_traps"] if SM.quote_in(q, [t])]
         assert not hits, hits
 
-    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="Claude-select T1 (OPEN): the verbatim check has no tolerance for a "
-                                           "compound name written apart; REQUESTS.md R-19")
-    def test_a_compound_name_written_apart_is_the_same_quote(self):
-        """'MicroStrategy' and 'micro strategy' are the same spoken words (the model's clean-up of a transcript)."""
+    # (R-19's pin, 'a compound name written apart is the same quote', was removed from the wall: integrator B3,
+    # 2026-11-12. It could only clear by LOOSENING what the quote check accepts; R-19 is withdrawn pending an
+    # orchestrator decision, pp-tests_REQUESTS.md.)
+
+    def test_an_empty_or_short_quote_is_never_verified(self):
+        """quote_in's minimum (5 canonical tokens) stays (integrator B4): R-02 / R-03's token-run rewrite must keep
+        it, because a token run of an EMPTY quote occurs in every text. Each short quote below is said verbatim in
+        the text, so only the minimum refuses it; the 5-token control proves the text is otherwise found."""
+        import canon
         import story_semantics as SM
-        assert SM.quote_in("MicroStrategy bought more bitcoin this week", ["So micro strategy bought more bitcoin "
-                                                                          "this week, again."])
+        text = "Bitcoin ETFs saw heavy outflows last week as investors pulled money."
+        H.control(SM.quote_in("Bitcoin ETFs saw heavy outflows", [text]), "a 5-token quote said in the text is found")
+        short = ["", "   ", ".", "?!", "Bitcoin", "Bitcoin ETFs", "saw heavy outflows", "ETFs saw heavy outflows"]
+        H.control(all(len(canon.canon_tokens(q)) < 5 for q in short), "every quote below has < 5 canonical tokens")
+        verified = [q for q in short if SM.quote_in(q, [text]) or SM.quote_in(q, [text, ""]) or SM.quote_in(q, [""])]
+        assert not verified, verified
 
     @pytest.mark.xfail(strict=True, raises=AssertionError, reason="Grok47-select F19 (OPEN): a quote may straddle two excerpts; "
                                            "REQUESTS.md R-03")
@@ -217,8 +231,12 @@ class TestQuoteVerification:
         llm = H.fake_llm([json.dumps(adj), json.dumps(sup)])
         q = {"underlying_event": "Bitcoin ETFs saw $1.66B of net outflows last week", "action": "outflows",
              "affected_object": "Bitcoin ETFs", "entities": [{"name": "Bitcoin ETFs"}], "must_not_confuse_with": []}
+        quote = adj["evidence_quote"]                  # the precondition, independent of adjudicate (integrator,
+        H.control(SM.quote_in(quote, [ex[1]["text"]]) and not SM.quote_in(quote, [ex[0]["text"]]),   # R-04 control:
+                  "the quote is said in excerpt B and not in excerpt A")       # quote_verified changes WITH the fix)
         v = SM.adjudicate(llm, q, {"title": "t", "channel": "c", "published_at": "2026-11-11"}, ex, today="2026-11-12")
-        H.control(v["quote_verified"] is True, f"the quote is verbatim in excerpt B: {v}")
+        H.control(v["verdict"] == "CURRENT_EVENT" and v["supporting_chunk_ids"] == ["vidA:0010-0040"],
+                  f"the fake reply reached the decision: {v}")
         assert not v["counted_as_same_event"], v
 
 
@@ -353,6 +371,7 @@ class TestSignoffNames:
 # ─────────────────────────────── G3b last word / leak ───────────────────────────────
 
 def _g3b(tmp_path, monkeypatch, lock_text, readings, next_word=None):
+    import gates  # noqa: F401  (LAW 24: a fix pipeline/gates.py installs ON qa_gates at import applies here too)
     import qa_gates as Q
     final = str(tmp_path / "final.mp4")
     if not os.path.exists(final):

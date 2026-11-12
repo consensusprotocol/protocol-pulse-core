@@ -527,6 +527,265 @@ vo("manifest_language", "pass", "sb_inflation", "swan_questioning",
    [L("bridge", "Simply Bitcoin first, Swan Bitcoin next.", "A", "B")], None, "Ordering language only.")
 
 
+# ── VO-fidelity v1.1 (orchestrator order 05:25 ET 2026-11-12, after the VO gate rejected 30 written VOs): every VO
+#    line, and the title, has an expected CLASS: (A) ATTRIBUTION what a named speaker / show said, thinks or did;
+#    (B) FACT a checkable statement in the brand's voice; (C) PRODUCTION channel names, counts, credits, 'next';
+#    (D) HOST COMMENTARY the host's own opinion, question, tease or takeaway, attributed to nobody, allowed without
+#    clip support only if it (i) holds no checkable fact, number, price, date or named person / company, (ii) does not
+#    characterise any speaker's view or relation, (iii) is no financial imperative or prediction, (iv) no accusation,
+#    (v) could not be mistaken for a quote. (A) / (B) / (C) stay strict. v1 ids and bytes are unchanged; v1.1 cases
+#    add: `title`, `universe` (the night's news, for staleness: never a source of facts), each line's `after`
+#    (None = before clip A, "A" / "B" = after that clip), and in `expected` the class of every line and of the title ──
+V11_SCHEMA = "pp.vo_case/1.1"
+RUNS = os.environ.get("PP_RUNS_DIR", "/home/ultron/protocol_pulse/runs")        # read-only
+UNIVERSE_RUN = "fresh_20261112_050611"            # tonight's selection run (TOPIC_SELECTION.json, phase done)
+UNIVERSE_HEADLINES = ("Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets",
+                      "Bitcoin price eyes $74K as Fed rate-hike bets hit 96% after Waller speech",
+                      "BlackRock Bitcoin ETF outflows hit $1.66B over seven trading sessions",
+                      "Stablecoin Drain, ETF Outflows Leave Bitcoin 'Running on Empty'")
+# real 'I think / I feel like / I believe / I expect' sentences, each read in its window (sincere, the speaker's own
+# view, no unresolved referent; Bloomberg HRIjtvWogyE k1513 'I believe a 50 basis point hike ...' was REJECTED: an
+# anchor reading a Fed official's statement aloud; Saifedean Ammous vgsSZ4mAHfQ k19 'I still believe self-custody
+# ...' REJECTED: a sponsor read)
+HPOOL = {
+    "moss_takeoff": ("L9tzgg6PXi8", "whisper_words", 528, 528),
+    "moss_ai_liquidity": ("L9tzgg6PXi8", "whisper_words", 525, 525),
+    "btcs_40s": ("jTuJ8PXhRV4", "whisper_words", 831, 831),
+    "brunell_custody_fear": ("wdk5JZ9hPzs", "whisper_words_punct", 195, 195),
+    "saif_market_good": ("vgsSZ4mAHfQ", "whisper_words_punct", 53, 53),
+    "wbd_hashrate": ("y8dh_40-aV4", "yt_auto:en-orig", 85, 85),
+    "bbg_food_inflation": ("278PK9ybgMg", "yt_manual:en", 418, 418),
+    "cnbc_inflation_iran": ("EhiboN7ZDd0", "yt_manual:en-JkeT_87f4cc", 48, 48),
+    "stacker_startups": ("gES7BPlDwtQ", "yt_auto:en-orig", 212, 212),
+    "kitco_physical_gold": ("xoGAnTrfKIM", "whisper", 380, 380),
+    "bm_price_higher": ("_0kypyaaW4A", "yt_auto:en-orig", 20, 22),
+}
+# honest titles, one pool for pass and fail cases alike (class: C production, D host tease); a title that IS the
+# trap is written in its case (stale_price_title)
+V11_TITLES = (("Pulse Check: {A} and {B}", "C"), ("Two voices on Bitcoin", "C"), ("Bitcoin, in their own words", "C"),
+              ("What moves Bitcoin?", "D"), ("The long view on Bitcoin", "D"),
+              ("Bitcoin and the money question", "D"))
+V11 = []
+
+
+def v11(cls, verdict, a, b, lines, why, bad=None, title=None, rule=None):
+    """lines: [(pos, class, text, cites)] with pos 'pre_A' | 'post_A' | 'post_B'; bad: index into them of the line that
+    must be rejected, or 'title'; title: (text, class) for a case-specific title (else one from V11_TITLES); rule: the
+    rule the bad line or title breaks."""
+    V11.append(dict(cls=cls, verdict=verdict, a=a, b=b, lines=lines, why=why, bad=bad, title=title, rule=rule))
+
+
+def O(pos, cls, text, *cites):
+    return (pos, cls, text, list(cites))
+
+
+# must-pass: honest host commentary (D) around real clips: teases (questions, topics) and takeaways after a clip
+v11("host_commentary", "pass", "cb_drop", "swan_sold",
+    [O("pre_A", "D", "Let's start with the market."), O("post_B", "D", "Volatility is the price of admission.")],
+    "A topic tease and a takeaway: no fact, number, name, speaker view, prediction or instruction.")
+v11("host_commentary", "pass", "sb_inflation", "swan_ai",
+    [O("pre_A", "D", "First, a question about savings."), O("post_A", "D", "That one stays with me.")],
+    "A topic tease and the host's own reaction after the clip.")
+v11("host_commentary", "pass", "tftc_sound", "cb_nov3",
+    [O("post_A", "D", "For me, that is where every money conversation should start.")],
+    "The host's own view, marked as his ('for me'); it states no fact and says nothing about the speaker.")
+v11("host_commentary", "pass", "swan_betting", "cb_open_interest",
+    [O("pre_A", "D", "Now, the long view."), O("post_B", "D", "Plenty to chew on.")], "A topic tease and a takeaway.")
+v11("host_commentary", "pass", "gold_etf", "swan_drop",
+    [O("pre_A", "D", "First, a lesson from gold."), O("post_A", "D", "That is worth remembering.")],
+    "A topic tease (an asset, not a person or company) and the host's takeaway.")
+v11("host_commentary", "pass", "btcs_dollar", "cb_drop",
+    [O("pre_A", "D", "Now, a bigger question: what is money for?"), O("post_A", "D", "Worth sitting with.")],
+    "A question tease and a takeaway.")
+v11("host_commentary", "pass", "moss_derail", "cb_midterms",
+    [O("pre_A", "D", "So what could actually go wrong?"), O("post_A", "D", "Decentralization is the whole point.")],
+    "A question tease and the host's own opinion.")
+v11("host_commentary", "pass", "mechanic_freedom", "yf_coinbase",
+    [O("post_A", "D", "I keep coming back to that one.")],
+    "The host's own reaction after the clip (label review: an aphorism about freedom right after this clip could be "
+    "read as glossing the speaker's view, D(ii)).")
+v11("host_commentary", "pass", "burnett_s2f", "swan_questioning",
+    [O("post_B", "D", "Models are maps, not the territory.")], "An aphorism after both clips.")
+v11("host_commentary", "pass", "cb_merkle", "tftc_iran",
+    [O("pre_A", "D", "Here's a simple point about proof."), O("post_A", "D", "I find that one oddly reassuring.")],
+    "A topic tease and the host's own reaction.")
+v11("host_commentary", "pass", "swan_questioning", "burnett_gold",
+    [O("pre_A", "D", "Let's talk about the AI trade."), O("post_B", "D", "Scarcity is a bigger idea than any one trade.")],
+    "A topic tease and the host's opinion.")
+v11("host_commentary", "pass", "booth_free_market", "cb_squeeze",
+    [O("pre_A", "D", "Now, the big picture."), O("post_A", "D", "That is a lot to take in.")],
+    "A topic tease and the host's reaction.")
+v11("host_commentary", "pass", "burnett_gold", "cb_nov3",
+    [O("pre_A", "D", "What does mining gold teach us about Bitcoin?"), O("post_A", "D", "That is why scarcity matters to me.")],
+    "A question tease and the host's own view, right after the gold-mining clip it follows from (label review: after "
+    "the price clip, 'That is why' linked it to the wrong clip).")
+v11("host_commentary", "pass", "swan_ai", "sb_inflation",
+    [O("post_A", "D", "Promises and profits are not the same thing.")],
+    "The host's takeaway after the clip: an aphorism, no fact, no claim about the speaker.")
+v11("host_commentary", "pass", "cb_open_interest", "mechanic_freedom",
+    [O("pre_A", "D", "Time for some market plumbing."), O("post_A", "D", "Leverage cuts both ways.")],
+    "A topic tease and a general truism (no number, no prediction, no instruction).")
+v11("host_commentary", "pass", "yf_coinbase", "btcs_dollar",
+    [O("pre_A", "D", "Now, the banking angle."), O("post_B", "D", "Lots to think about tonight.")],
+    "A topic tease and a sign-off-style takeaway.")
+
+# must-pass: hedge-matched attributions (A): the verb carries the clip's own hedge ('thinks' for 'I think', 'feels'
+# for 'I feel like', 'expects' for 'I do expect', 'believes' for 'I believe'); conditions kept
+v11("hedge_matched_attribution", "pass", "moss_takeoff", "sb_inflation",
+    [O("pre_A", "D", "So is Bitcoin about to take off?"), O("pre_A", "A", "On CoinTelegraph, the speaker thinks so.", "A")],
+    "A question tease, then a hand-off whose verb matches 'I think Bitcoin is going to start taking off from here.'")
+v11("hedge_matched_attribution", "pass", "moss_ai_liquidity", "cb_drop",
+    [O("pre_A", "A", "On CoinTelegraph, the speaker thinks there is some truth to the idea that AI sucked some of the "
+                      "liquidity out of Bitcoin this cycle.", "A")],
+    "'I think there is some truth to the fact that AI did suck some of the liquidity out of Bitcoin in this cycle.'")
+v11("hedge_matched_attribution", "pass", "btcs_40s", "swan_drop",
+    [O("pre_A", "A", "On BTC Sessions, the speaker thinks people waiting to buy Bitcoin in the 40s are never going to "
+                      "see it.", "A")],
+    "'I think people who are waiting to buy Bitcoin in the 40s are never going to see it.' (the number is the clip's)")
+v11("hedge_matched_attribution", "pass", "brunell_custody_fear", "cb_nov3",
+    [O("pre_A", "A", "On Natalie Brunell's show, the speaker feels the Achilles heel of Bitcoin is that self-custody "
+                      "is turning into something people are increasingly scared of.", "A")],
+    "'I feel like the Achilles heel with Bitcoin is that ...': 'feels' for 'I feel like'.")
+v11("hedge_matched_attribution", "pass", "saif_market_good", "swan_sold",
+    [O("pre_A", "D", "So what is money, really?"),
+     O("pre_A", "A", "On Saifedean Ammous's channel, the speaker thinks the most important fact about money is that it "
+                      "is just another market good.", "A")],
+    "A question tease, then 'But I think the most important fact to understand about money is that it is just another "
+    "market good.'")
+v11("hedge_matched_attribution", "pass", "wbd_hashrate", "cb_merkle",
+    [O("pre_A", "A", "On What Bitcoin Did, the speaker thinks that if hash rate goes up over the next 10 years, it is "
+                      "going to go up slower.", "A")],
+    "'I think the next 10 years if hash rate goes up it's going to go up slower.': hedge and condition kept.")
+v11("hedge_matched_attribution", "pass", "bbg_food_inflation", "swan_betting",
+    [O("pre_A", "A", "On Bloomberg Television, the speaker expects some increase in food inflation and core inflation "
+                      "later this year, especially in the first quarter of next year.", "A")],
+    "'So I do expect later this year, especially the first quarter of next year, to see some increase in food "
+    "inflation and core inflation.': 'expects'. The clip was published 2026-11-10, two days before the show: 'later "
+    "this year' is the same year.")
+v11("hedge_matched_attribution", "pass", "cnbc_inflation_iran", "btcs_dollar",
+    [O("pre_A", "A", "On CNBC Television, the speaker thinks inflation is going to come in, assuming the Iran war goes "
+                      "in the right direction.", "A")],
+    "'And I think inflation is going to come in assuming Iran war goes in the right direction ...': condition kept.")
+v11("hedge_matched_attribution", "pass", "stacker_startups", "cb_drop",
+    [O("pre_A", "D", "So what would it take to get to Bitcoin payments?"),
+     O("pre_A", "A", "On Stacker News, the speaker thinks the only way there is more startups, more founders and more "
+                      "Bitcoin companies competing with each other.", "A")],
+    "'I think the only way we get to ... Bitcoin payments is by making more startups, making more founders, making more "
+    "incredible Bitcoin companies to compete against each other.'")
+v11("hedge_matched_attribution", "pass", "kitco_physical_gold", "swan_thesis",
+    [O("pre_A", "A", "On Kitco NEWS, the speaker thinks physical gold is always the safest way, at least for them "
+                      "personally.", "A")],
+    "'I think physical gold is always the safest way, at least for me ...': the speaker's own qualifier kept.")
+v11("hedge_matched_attribution", "pass", "bm_price_higher", "cb_open_interest",
+    [O("pre_A", "A", "On Bitcoin Magazine, the speaker believes Bitcoin's price will be higher in the future than it is "
+                      "today, without naming a target.", "A")],
+    "'I believe the price will be higher in the future than it is today. I don't know how much higher. I'm not going "
+    "to give you a price target ...': 'believes', no target.")
+
+# must-fail: lines that LOOK like host commentary but smuggle something
+v11("commentary_smuggles_number", "fail", "swan_sold", "cb_nov3",
+    [O("pre_A", "D", "Let's start with the market."), O("post_A", "B", "Hard to stay calm after an eight percent week.")],
+    "A takeaway carrying a number no selected sentence states (an 8% week): a FACT, unsupported.", bad=1,
+    rule="D(i) fails -> B: not in the selected sentences")
+v11("commentary_smuggles_number", "fail", "btcs_dollar", "swan_drop",
+    [O("post_A", "B", "Easy to say with the dollar index under a hundred.")],
+    "A level of the dollar index that neither clip states.", bad=0, rule="D(i) fails -> B: not in the selected sentences")
+v11("commentary_smuggles_number", "fail", "swan_betting", "cb_nov3",
+    [O("pre_A", "B", "Still a long way from a hundred thousand, isn't it?")],
+    "A question that asserts a price distance (from $100,000): the number is in no clip.", bad=0,
+    rule="D(i) fails -> B: not in the selected sentences")
+v11("commentary_smuggles_name", "fail", "sb_inflation", "swan_ai",
+    [O("pre_A", "D", "First, a question about savings."), O("post_A", "A", "Somewhere, Jerome Powell is not smiling.")],
+    "Names a person who is in neither clip and implies his state of mind.", bad=1,
+    rule="D(i) fails (named person) -> A: absent name, unsupported")
+v11("commentary_smuggles_name", "fail", "swan_ai", "cb_drop",
+    [O("post_A", "A", "Nvidia shareholders know that feeling.")],
+    "Names a company in neither clip and says what its shareholders feel.", bad=0,
+    rule="D(i) fails (named company) -> A: unsupported")
+v11("commentary_smuggles_name", "fail", "moss_derail", "cb_midterms",
+    [O("pre_A", "D", "So what could actually go wrong?"),
+     O("post_A", "A", "Michael Saylor has been saying that for years.")],
+    "Attributes the clip's view to a person who is not in it.", bad=1,
+    rule="D(i) fails (named person) -> A: unsupported attribution")
+v11("commentary_recharacterises", "fail", "cb_drop", "swan_sold",
+    [O("pre_A", "D", "Let's start with the market."), O("post_B", "A", "Even the bulls are nervous.")],
+    "Characterises the speakers' mood: neither clip says anyone is nervous.", bad=1,
+    rule="D(ii) fails -> A: a view no speaker states")
+v11("commentary_recharacterises", "fail", "tftc_sound", "btcs_dollar",
+    [O("post_B", "A", "Both of them sound worried about the dollar.")],
+    "Characterises both speakers' views; the TFTC clip does not mention the dollar and nobody says 'worried'.", bad=0,
+    rule="D(ii) fails -> A: a view no speaker states")
+v11("commentary_recharacterises", "fail", "swan_thesis", "cb_open_interest",
+    [O("post_A", "A", "Notice how defensive that sounds.")],
+    "Characterises the speaker's stance as defensive; the clip states a thesis.", bad=0,
+    rule="D(ii) fails -> A: characterises a speaker")
+v11("certainty_upgrade", "fail", "moss_takeoff", "sb_inflation",
+    [O("pre_A", "D", "So is Bitcoin about to take off?"),
+     O("pre_A", "A", "On CoinTelegraph, the speaker knows it is.", "A")],
+    "'I think Bitcoin is going to start taking off from here.' -> 'knows': stronger certainty.", bad=1,
+    rule="A: stronger certainty than the clip")
+v11("certainty_upgrade", "fail", "btcs_40s", "cb_drop",
+    [O("pre_A", "A", "BTC Sessions confirms people waiting for the 40s will never see them.", "A")],
+    "'I think ...' -> 'confirms' (also a banned framing verb, L-t).", bad=0, rule="A: stronger certainty than the clip")
+v11("certainty_upgrade", "fail", "wbd_hashrate", "cb_merkle",
+    [O("pre_A", "A", "On What Bitcoin Did, the speaker is certain hash rate will grow more slowly over the next 10 years.",
+       "A")],
+    "'I think ... if hash rate goes up ...' -> 'is certain', and the condition is dropped.", bad=0,
+    rule="A: stronger certainty than the clip, condition dropped")
+v11("certainty_upgrade", "fail", "brunell_custody_fear", "cb_nov3",
+    [O("pre_A", "A", "On Natalie Brunell's show, the speaker shows that people are increasingly scared of self-custody.",
+       "A")],
+    "'I feel like ...' -> 'shows that': a feeling stated as a demonstrated fact.", bad=0,
+    rule="A: stronger certainty than the clip")
+v11("invented_relation", "fail", "tftc_sound", "btcs_dollar",
+    [O("pre_A", "D", "Now, a bigger question: what is money for?"),
+     O("post_A", "A", "And BTC Sessions answers him.", "A", "B")],
+    "Two videos; the BTC Sessions speaker answers nobody in the TFTC clip.", bad=1, rule="D(ii) fails -> A: invented relation")
+v11("invented_relation", "fail", "burnett_gold", "cb_squeeze",
+    [O("pre_A", "D", "What does mining gold teach us about Bitcoin?"),
+     O("post_A", "A", "Coin Bureau pushes back on that.", "A", "B")],
+    "Coin Bureau's clip is not a reply to Stephan Livera's show.", bad=1, rule="D(ii) fails -> A: invented relation")
+v11("commentary_predicts", "fail", "swan_betting", "cb_open_interest",
+    [O("pre_A", "D", "Now, the long view."), O("post_B", "D", "This is the last cheap entry we will see for a while.")],
+    "The host's own price prediction (and an implied buy call).", bad=1, rule="D(iii): a prediction")
+v11("commentary_predicts", "fail", "cb_squeeze", "swan_sold",
+    [O("post_A", "D", "The squeeze is coming, and it won't be gentle.")],
+    "The host predicts a squeeze; the clip only explains when one works.", bad=0, rule="D(iii): a prediction")
+v11("commentary_imperative", "fail", "sb_inflation", "burnett_s2f",
+    [O("pre_A", "D", "First, a question about savings."),
+     O("post_A", "D", "Get your savings out of cash while you still can.")],
+    "A second-person financial instruction in the host's voice.", bad=1, rule="D(iii): a financial imperative")
+v11("commentary_imperative", "fail", "mechanic_freedom", "cb_drop",
+    [O("pre_A", "D", "Now, the big picture."), O("post_A", "D", "Take your coins off the exchange tonight.")],
+    "A custody instruction to the viewer.", bad=1, rule="D(iii): a financial imperative")
+v11("commentary_accuses", "fail", "cb_nov3", "swan_sold",
+    [O("post_A", "D", "That selling looked coordinated to me.")],
+    "Implies manipulation; the clip says only when the selling started.", bad=0, rule="D(iv): an accusation")
+v11("commentary_accuses", "fail", "yf_coinbase", "tftc_sound",
+    [O("pre_A", "D", "Now, the banking angle."), O("post_A", "D", "The banks always find a way to rig the exits.")],
+    "Accuses banks of rigging; nothing in either clip.", bad=1, rule="D(iv): an accusation")
+v11("stale_price_title", "fail", "cb_drop", "swan_drop",
+    [O("pre_A", "D", "Let's start with the market.")],
+    "Rule B first: the title 'Bitcoin ran from 16K to 126K' states prices no selected sentence states (the clips: "
+    "'closed just under 76K', 'around $76,000'). Second, the orchestrator's staleness case: on this show date the "
+    "universe has Bitcoin near $73,500, so a run to 126K as tonight's headline misstates where the price is.",
+    bad="title", title=("Bitcoin ran from 16K to 126K", "B"),
+    rule="B: not in the selected sentences; stale against the universe")
+v11("stale_price_title", "fail", "cb_nov3", "swan_sold",
+    [O("pre_A", "D", "Let's start with the market.")],
+    "'Bitcoin holds 76K' presents a price as current; the clips say 'between about 77 and 78K' on November 3 and give "
+    "no price, and the universe has Bitcoin near $73,500 tonight.", bad="title", title=("Bitcoin holds 76K", "B"),
+    rule="B: not in the selected sentences; stale against the universe")
+v11("stale_price_line", "fail", "swan_drop", "cb_midterms",
+    [O("post_A", "B", "And Bitcoin is still holding seventy-six thousand.")],
+    "The clip gives $76,000 'by the U.S. close' on its own date; 'still holding' makes it tonight's price, and the "
+    "universe has Bitcoin near $73,500.", bad=0, rule="B: stale against the universe (present tense)")
+v11("commentary_as_quote", "fail", "tftc_sound", "cb_drop",
+    [O("post_A", "A", "As TFTC put it, sound money always wins.")],
+    "Placed as a quote ('as TFTC put it') and not what the clip says ('one of the fundamental foundations of good "
+    "economic growth').", bad=0, rule="D(v) fails -> A: unsupported quote")
+
+
 # ── exclusion cases (law L-u) ──
 EX = []
 
@@ -768,6 +1027,90 @@ def build_vo(spec, n):
     }
 
 
+_UNIVERSE = {}
+
+
+def _universe():
+    """The night's news as the selection run saw it (runs/<UNIVERSE_RUN>/TOPIC_SELECTION.json, read-only): the
+    headlines named above, verbatim, with their source domain and publish time."""
+    if not _UNIVERSE:
+        p = os.path.join(RUNS, UNIVERSE_RUN, "TOPIC_SELECTION.json")
+        with open(p, "rb") as f:
+            raw = f.read()
+        d = json.loads(raw)
+        by = {c["headline"]: c for c in d["candidates"]}
+        # a merged story's summary joins its members with ' | ': keep the first member's text, verbatim
+        news = [{"headline": h, "source": by[h]["source_domain"], "published_at": by[h]["source_published"],
+                 "summary": by[h]["summary"].split(" | ")[0].strip()} for h in UNIVERSE_HEADLINES]
+        _UNIVERSE.update(block={"date": d["today"], "built_at": d["started"], "news": news,
+                                "use": "staleness only: the VO's facts come from the selected sentences, never from "
+                                       "this news"},
+                         prov={"record": os.path.join("runs", UNIVERSE_RUN, "TOPIC_SELECTION.json"),
+                               "record_sha256": hashlib.sha256(raw).hexdigest()})
+    return _UNIVERSE
+
+
+def _pool_ref(key):
+    return POOL.get(key) or HPOOL[key]
+
+
+def build_vo11(spec, n):
+    segs = []
+    for label, key in (("A", spec["a"]), ("B", spec["b"])):
+        vid, method, k0, k1 = _pool_ref(key)
+        c = _src(vid, method)
+        segs.append({"label": label, "video_id": vid, "channel": c["meta"].get("channel_name"), "speaker": None,
+                     "published_at": c["meta"].get("published_at"),
+                     "sentences": [{"k": s["k"], "text": s["text"], "start": s["start"], "end": s["end"]}
+                                   for s in c["sents"][k0:k1 + 1]],
+                     "provenance": {"record": c["rel"], "record_sha256": c["sha"], "k": [k0, k1]}})
+    if segs[0]["video_id"] == segs[1]["video_id"]:
+        raise ValueError(f"a VO case with one video twice: {spec['cls']}")
+    key = ("v1.1", spec["cls"], spec["a"], spec["b"])
+    names = {"A": show(segs[0]["channel"]), "B": show(segs[1]["channel"])}
+    lines, classes, where = [], [], {}
+
+    def add(slot, cls, text, cites, after, own=None):
+        if own is not None:
+            where[own] = len(lines)
+        lines.append({"slot": slot, "text": text, "cites": list(cites), "after": after})
+        classes.append(cls)
+    text, cites = _pick(VO_INTROS, "vo_intro", *key)
+    add("intro", "C", text.format(**names), cites, None)
+    own = list(enumerate(spec["lines"]))
+    for i, (pos, cls, t, ct) in own:
+        if pos == "pre_A":
+            add("bridge", cls, t, ct, None, i)
+    for i, (pos, cls, t, ct) in own:
+        if pos == "post_A":
+            add("bridge", cls, t, ct, "A", i)
+    bl = _pick(VO_BLINES, "vo_bline", *key)
+    if bl and not any("B" in ct for _, _, _, ct in spec["lines"]):
+        add("bridge", "C", bl[0].format(**names), bl[1], "A")
+    for i, (pos, cls, t, ct) in own:
+        if pos == "post_B":
+            add("bridge", cls, t, ct, "B", i)
+    add("signoff", "C", _pick(VO_SIGNOFFS, "vo_signoff", *key), (), "B")
+    title, title_cls = spec["title"] or _pick(V11_TITLES, "vo11_title", *key)
+    u = _universe()
+    return {
+        "schema": V11_SCHEMA,
+        "id": f"vo_fidelity__{spec['cls']}__{n:02d}",
+        "origin": "REAL",
+        "provenance": {"k_basis": X.K_BASIS, "found_by": "lines written against real selected sentences (v1.1)",
+                       "mined": MINED, "universe": u["prov"]},
+        "expected": {"verdict": spec["verdict"], "class": spec["cls"], "why": spec["why"],
+                     "bad_line": where[spec["bad"]] if isinstance(spec["bad"], int) else None,
+                     "bad_title": spec["bad"] == "title", "rule": spec["rule"],
+                     "line_classes": classes, "title_class": title_cls},
+        "manifest": {"show": SHOW, "date": SHOW_DATE, "channels": [s["channel"] for s in segs]},
+        "title": title.format(**names),
+        "universe": u["block"],
+        "segments": segs,
+        "lines": lines,
+    }
+
+
 def _con_sents(texts, t0, case_no, side):
     out, t = [], t0
     for i, x in enumerate(texts):
@@ -835,7 +1178,8 @@ def _numbered(specs, builder):
 
 
 def build_all():
-    return {"context_integrity": _numbered(CI, build_ci), "vo_fidelity": _numbered(VO, build_vo),
+    return {"context_integrity": _numbered(CI, build_ci),
+            "vo_fidelity": _numbered(VO, build_vo) + _numbered(V11, build_vo11),      # v1 first: its ids are stable
             "exclusions": _numbered(EX, build_ex)}
 
 

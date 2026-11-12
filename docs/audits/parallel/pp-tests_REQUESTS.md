@@ -16,16 +16,25 @@ never as the pinned defect. The fixtures already write the provenance records th
 `GATE_REPORT.measured_files`), so a fix implemented with exactly those names keeps every control valid; a fix that
 stores them differently must update `adv_helpers.write_section` / `write_source` / `release_run` in the same change
 (the controls then fail loudly until it does).
+Correction (integrator merge audit, 2026-11-12): the first version broke that promise in three places, all fixed
+now: the family-2 template had ONE clip, illegal under R-23 (now a hook + two clips, three channels: B2); the R-04
+control read `quote_verified`, which R-04's own fix changes (now a fix-independent precondition); the R-22 probe left a
+transcript of other bytes, which R-10's fix rejects (now the leftover's own transcript). Each pin was re-read with
+`--runxfail` after the change.
 
 Note for the qa_gates.py items (R-07, R-08, R-13, R-20, R-21): LAW 24 says segment_v1 scripts are not modified and
 are patched from pipeline/; qa_gates.py has nevertheless carried the DEC-1 / DEC-12 / L-g changes. Where the fix
-lives (qa_gates.py itself or a wrapper in pipeline/gates.py) is the integrator's call; the tests call the public
-qa_gates functions either way.
+lives is the integrator's call, but the pins (eight strict xfails) call `qa_gates.<gate>` directly, so they flip only
+when the fix is IN that function: in qa_gates.py, or installed onto the qa_gates attribute by pipeline/gates.py at
+import (`qa_gates.gate_g8 = ...`, which is also what makes `run_all_gates` use it; the pins import `gates` first so
+such a patch applies). A wrapper that only post-processes `run_all_gates`' results would leave them failing (never a
+false pass): such a fix must re-point these eight tests in the same change. (The earlier wording "either way" was
+wrong: integrator merge audit.)
 
 | id | finding | file : function | pinned by (tests/adversarial/...) |
 |---|---|---|---|
 | R-01 | PP-01 (new) | pipeline/canon.py : canon | test_f1 TestCanonicalForm::test_idempotent_on_adjacent_spoken_numbers |
-| R-02 | Grok47-select F4 | pipeline/story_semantics.py : quote_in | test_f1 TestQuoteVerification::test_a_quote_never_matches_inside_a_longer_word_or_number |
+| R-02 | Grok47-select F4 | pipeline/story_semantics.py : quote_in | test_f1 TestQuoteVerification::test_a_quote_never_matches_inside_a_longer_word_or_number (the fix must keep test_an_empty_or_short_quote_is_never_verified passing) |
 | R-03 | Grok47-select F19 | pipeline/story_semantics.py : quote_in | test_f1 TestQuoteVerification::test_a_quote_never_straddles_two_excerpts |
 | R-04 | GPT-select F05 | pipeline/story_semantics.py : adjudicate | test_f1 TestQuoteVerification::test_adjudicate_counts_a_quote_only_with_the_chunk_that_says_it |
 | R-05 | GPT-select F04, GPT-cut F06 | pipeline/editorial_select.py : align_quote; pipeline/sentence_law.py : anchor | test_f1 TestSelectionAnchors (2 tests) |
@@ -42,11 +51,13 @@ qa_gates functions either way.
 | R-16 | GPT-cut F08 | pipeline/word_diff.py : gate_g18 | test_f1 TestG18::test_gate_g18_fails_a_number_that_differs_from_the_lock |
 | R-17 | GPT-cut F22 | pipeline/word_diff.py : gate_g18 | test_f1 TestG18::test_gate_g18_checks_every_occurrence_of_a_label |
 | R-18 | Claude-gates T3 (named answer #3) | pipeline/select_passages.py : select_and_build_edl (_build_segment) | test_f2 TestSelectContract::test_every_segment_names_the_next_source_word_for_g3b |
-| R-19 | Claude-select T1 | pipeline/canon.py : fold (or story_semantics.quote_in) | test_f1 TestQuoteVerification::test_a_compound_name_written_apart_is_the_same_quote |
+| R-19 | WITHDRAWN (integrator B3: it loosened the quote check) | - | none (its test was removed from the wall) |
 | R-20 | GPT-gates F28 | segment_v1/qa_gates.py : gate_g8 | test_f4 test_g8_never_passes_on_one_of_five_samples |
 | R-21 | GPT-gates F10, Claude-gates C1 | segment_v1/qa_gates.py : extract_frame, extract_audio_region | test_f4 test_g8_never_measures_a_frame_of_an_earlier_render |
 | R-22 | GPT-select F23 | pipeline/select_passages.py : _download_window | test_f2 TestDirtyCache::test_a_failed_download_never_supplies_a_source |
-| R-23 | GPT-select F08 | pipeline/select_passages.py : select_and_build_edl | test_f2 TestSelectContract::test_select_with_fewer_than_two_clips_is_not_a_success; ::test_select_with_one_channel_is_not_a_success |
+| R-23 | GPT-select F08 | pipeline/select_passages.py : select_and_build_edl | test_f2 TestSelectContract::test_select_with_fewer_than_two_clips_is_not_a_success (clip half); ::test_select_with_one_channel_is_not_a_success (channel half) |
+| R-28 | PP-04b (new, integrator audit) | pipeline/run_fresh.py : stage_gates; segment_v1/qa_gates.py : run_all_gates (G12); pipeline/gates.py : gate_g15 | test_f4 test_a_required_gate_never_passes_on_nothing[G12 no shoutout / G15 no shoutout] |
+| R-27 | PP-05 (new, integrator audit) | pipeline/select_passages.py : select_and_build_edl (_source_for) | test_f2 TestDirtyCache::test_a_failed_transcription_stops_select_cleanly |
 
 ## R-01 — PP-01 (new): the canonical form is not a fixpoint on two adjacent spoken numbers
 - Defect (measured): `canon_tokens("It costs about two, three hundred dollars a month")` = `[... '2', '300', 'dollars' ...]`
@@ -54,7 +65,9 @@ qa_gates functions either way.
   with one space and `_SPACED_THOUSANDS` reads '2 300' as 2300 on the second pass. Same for 'three, four hundred
   people' (3400), 'one, two hundred basis points' (1200), 'four, five hundred points' (4500), 'ten, twenty, two
   hundred wallets' (20200). Every real sentence measured is a fixpoint (2,197 sentences: tests/fixtures/canon_20261111,
-  the preview's transcripts, every runs/*/transcripts record), so the exposure is speech with spoken ranges.
+  the preview's transcripts, every runs/*/transcripts record; a one-off measurement of 2026-11-12, NOT a shipped
+  test: the shipped idempotence test covers the 200 sentences of tests/fixtures/canon_20261111 plus the generated
+  cases), so the exposure is speech with spoken ranges.
   Order item: "Idempotence: canon(canon(x)) == canon(x)". A site that canonicalises stored canonical text (or joins
   two canonical strings, e.g. `quote_in(" ".join(texts))` across an excerpt that ends on a number) re-merges them.
 - Minimal fix: `canon()` emits a separator that `_SPACED_THOUSANDS` / `_THOUSANDS` / `_SPLIT` never join between two
@@ -67,24 +80,35 @@ qa_gates functions either way.
   quotes that are NOT said: '$81,000 by the weekend ...' inside '$181,000 by the weekend ...'; 'coin fell below 74,000
   dollars on Friday night' inside 'Bitcoin fell below $74,000 on Friday night'; 'Bitcoin is now trading at 74' inside
   '... at 74,500 dollars'; '1.6 billion dollars of outflows last week' inside '$11.6 billion of outflows last week'.
-- Minimal fix: compare canonical TOKEN runs: `qt = canon.canon_tokens(quote)`; true only when `qt` occurs as a
-  contiguous run of `canon.canon_tokens(text)` (`any(tt[i:i + len(qt)] == qt for i in range(len(tt) - len(qt) + 1))`).
+- Minimal fix: compare canonical TOKEN runs and KEEP today's minimum: `qt = canon.canon_tokens(quote)`; true only when
+  `len(qt) >= 5` (quote_in's existing 5-token minimum, unchanged) AND `qt` occurs as a contiguous run of
+  `canon.canon_tokens(text)`: `_run(qt, tt) = any(tt[i:i + len(qt)] == qt for i in range(len(tt) - len(qt) + 1))`.
+  The minimum is not optional (integrator B4): `_run([], tt)` is True for every text, so a rewrite without it verifies
+  an empty quote. Pinned (passes today, must keep passing): test_f1
+  TestQuoteVerification::test_an_empty_or_short_quote_is_never_verified ('', whitespace, punctuation only, 1-4
+  canonical tokens said verbatim in the text: all unverified; a 5-token quote is the control).
 
 ## R-03 — Grok47-select F19: a quote may straddle two excerpts
 - Defect: the excerpts are joined with a space before the substring test, so 'flows turned negative. Bitcoin is up four
   percent' is "verified" across the end of one excerpt and the start of an unrelated one.
-- Minimal fix: `quote_in(quote, texts)` is true when the quote is a token run of ONE text
-  (`any(_run(qt, canon_tokens(t)) for t in texts)`); a caller that means adjacent excerpts joins them itself.
+- Minimal fix: `quote_in(quote, texts)` = `len(qt) >= 5 and any(_run(qt, canon_tokens(t)) for t in texts)` (R-02's
+  `qt` and `_run`, the 5-token minimum kept: integrator B4): the quote is a token run of ONE text; a caller that means
+  adjacent excerpts joins them itself. The same empty / short-quote pin applies.
 
 ## R-04 — GPT-select F05: supporting chunk ids are not bound to the verified quote
 - Defect (through `adjudicate` with a fake model): the reply names excerpt A as support, the quote is only in excerpt
   B: `quote_verified` True, `counted_as_same_event` True.
 - Minimal fix: in `adjudicate`, `quote_ok = quote_in(quote, [c["text"] for c in excerpts if c["chunk_id"] in set(sup)])`
   (the quote must be in a SUPPORTING excerpt).
+- The pin's controls no longer read `quote_verified` (integrator: this fix changes it, so the control would have
+  fired instead of the pin flipping): the precondition is checked with `quote_in` itself (the quote is said in
+  excerpt B and not in A), and the fake reply is shown to reach the decision (`verdict` CURRENT_EVENT, the supporting
+  id it named).
 
 ## R-05 — GPT-select F04 / GPT-cut F06: a fuzzy anchor moves a quote onto a different claim
-- Defect (measured on 240 generated cases, 40 per kind): `editorial_select.align_quote` and `sentence_law.anchor`
-  accept EVERY meaning mutant: '$81,000' -> '$18,000' (digits swapped, off by 1,000, x10), '16%' -> '60%', percent
+- Defect (measured 2026-11-12 on the 120 generated anchor cases, 20 per kind: 233 meaning mutants; align_quote
+  accepted 233 / 233, anchor 233 / 233; the pins fail while ANY mutant is accepted): `editorial_select.align_quote`
+  and `sentence_law.anchor` accept EVERY meaning mutant: '$81,000' -> '$18,000' (digits swapped, off by 1,000, x10), '16%' -> '60%', percent
   -> dollars / percentage points, 'has' -> "hasn't" / 'has not' (all seven negation pairs), the Fed -> the Treasury
   (all five actor pairs), '-5%' -> '+5%' / '5%', million / billion / trillion, a dropped decimal. The ratio
   (>= 0.80 / 0.85 with pinned edges) cannot see a one-token change in a sentence of >= 6 tokens. The lock is then
@@ -117,7 +141,9 @@ qa_gates functions either way.
   source word 'Week', readings '... this week week' -> the leaked 'week' is taken as the last word: PASS.
 - Minimal fix: locate the lock's last two canonical tokens (`ew[-2:]`) as a contiguous run in the reading (its LAST
   complete occurrence ending at or after the expected last word's first match); `after` = the tokens after that
-  run's end; any next-word token in `after` is a leak.
+  run's end; any next-word token in `after` is a leak. FAIL CLOSED (integrator merge audit): a reading in which that
+  run is not found is not a clean vote: it counts as a leak / FAIL vote, never as 'no next word heard' (otherwise this
+  change loosens the leak check).
 
 ## R-09 — GPT-select F09: a cached download is relabelled with the newly requested offset
 - Defect (end to end through `select_and_build_edl`): `sources/<vid>.mp4` is an old download of the window at 285 s;
@@ -127,9 +153,13 @@ qa_gates functions either way.
   hit is accepted only when that record exists, its sha256 is the file's, and `[start_s - pad, end_s + pad]` lies
   inside `[dl_start, dl_end]` (inclusive); it returns the RECORDED `dl_start`; anything else is a cache miss, and a
   miss whose download fails returns `(None, 0)`, never the file already under the name (that last part is R-22: the
-  R-09 pin flips only when both hold; until then it keeps failing, never a false pass). (The test fixtures write
-  exactly this record, adv_helpers.write_section, with the request starting 0.25 s inside it, so the containment does
-  not hinge on rounding.)
+  R-09 pin flips only when both hold, and its xfail reason says so; until then it keeps failing, never a false pass).
+  (The test fixtures write exactly this record, adv_helpers.write_section, with the request starting 0.25 s inside it,
+  so the containment does not hinge on rounding.)
+- The pin asserts `ok is False` only (integrator, 2026-11-12): the window holding the verified 60 s passage cannot be
+  downloaded in the test and the shortlist has no other hook, so no EDL is the only correct outcome. Recording 285 s
+  (the stale file's true start) would put the host's 300 s repeat in place of the editor's verified 60 s passage:
+  not accepted either.
 
 ## R-10 — GPT-select F10 / Grok47-select F6: transcript and lock are not bound to the media bytes
 - Defect: (a) `sources/<vid>.mp4` replaced under the same name (same speech timing, other content):
@@ -140,7 +170,10 @@ qa_gates functions either way.
   reuses a cached transcript only when it matches; `make_lock(..., source_sha256=...)` records it;
   `verify_lock(lock, transcript_path, source_path=None)` compares it when given; `write_lock_cut_table` and `gate_g16`
   pass `sources/<vid>.mp4`. (The fixtures write `media_sha256`; the byte-replacement probes also rewrite a CONSISTENT
-  download record for the new bytes, so only this binding, not R-09's record, can flip them.)
+  download record for the new bytes, so only this binding, not R-09's record, can flip them.) With the two-clip
+  template, select's re-transcription after this fix is refused in the test and the slot fallback then hits R-27's
+  KeyError; the select probe asserts only its own subject (the old transcript is never used: a transcription was
+  attempted), and accepts an exception only AFTER that attempt (one raised before it is a control failure).
 
 ## R-11 — PP-02 (new): verify_lock never compares the lock's words with its transcript
 - Defect: a lock built from other words (first 'Ether', last 'carefully.') but carrying the sha256 of the transcript
@@ -148,12 +181,16 @@ qa_gates functions either way.
   the same run directory: GPT-select F33).
 - Minimal fix: when `transcript_path` is given, load its words and require `0 <= i0 <= i1 < len(words)` and
   `first_word`, `last_word`, `text`, `n_words` equal to those derived from `words[i0:i1 + 1]`; else
-  "lock words are not the transcript's words at i0..i1".
+  "lock words are not the transcript's words at i0..i1". The pin matches "not the transcript's words" (integrator,
+  2026-11-12: `!= []` accepted any error), with a control that the lock's digest and seal are otherwise valid; a fix
+  that words the error differently must update the pin in the same change (it keeps failing until then).
 
 ## R-12 — Grok47-select F8: an EDL changed after the gates is attested ALL_PASS
 - Defect: `attest()` binds `edl.json` by its digest at attestation time but only checks the finals and manifests
   against `GATE_REPORT.measured_files`; an EDL edited between the gates and the attestation (another credited channel,
-  another headline) is attested ALL_PASS and delivered.
+  another headline) is attested ALL_PASS. (The pin stops at `attest`; delivery of that run is not exercised:
+  its new headline's '$90,000' is not in the G18 readings, so telegram's headline-number check may refuse it. The
+  earlier wording "and delivered" was not shown by the test: integrator merge audit.)
 - Minimal fix: `run_fresh.stage_gates` adds `edl.json` to `measured` (the EDL G15 / G16 / G18 / G20 read);
   `release_auth.attest` adds `"edl.json"` to the tuple it compares with `measured_files`. (adv_helpers.release_run
   already records `edl.json` there, so the family-3 control stays authorised after this fix.)
@@ -190,6 +227,8 @@ qa_gates functions either way.
   other words -> PASS.
 - Minimal fix: a talking-head label that occurs more than once in the manifest is a FAIL row ("duplicate segment
   label"), or every occurrence is checked.
+- The pin now has a control (integrator: the stub answers only `(final.mp4, 0.0)`): on one hook segment at 0.0 s the
+  gate is shown to ask the transcriber for exactly that key.
 
 ## R-18 — Claude-gates T3 (named answer #3): the EDL never names the next source word
 - Defect: `select_and_build_edl` writes no `next_source_word` on any segment, so G3b's leak check
@@ -197,14 +236,19 @@ qa_gates functions either way.
 - Minimal fix: in `_build_segment`, `"next_source_word": words[i1 + 1]["word"].strip() if i1 + 1 < len(words) else
   None` (pinned.build_edl likewise).
 
-## R-19 — Claude-select T1: a compound name written apart fails the verbatim check
-- Defect: `quote_in("MicroStrategy bought more bitcoin this week", ["So micro strategy bought more bitcoin this week,
-  again."])` is False (the model's clean-up of the transcript's words; same spoken words).
-- Proposed (a decision: it changes what the quote check accepts): compare the quote's canonical token run with the
-  text's with the spaces between ALPHABETIC tokens removed on both sides, accepted only when the protected tokens of
-  R-05 (numbers, signs, units, negations, names) still match one for one. NOT a CamelCase split in canon.fold: that
-  would make 'MicroStrategy' read 'micro strategy' while 'MICROSTRATEGY' stays one word, breaking the all-caps surface
-  variants test_f1 requires to be equal (audit A, frontier review #3), and it misses 'Microstrategy'.
+## R-19 — WITHDRAWN (integrator merge audit B3, 2026-11-12): not a request; a decision for the orchestrator
+- What was observed (kept as a fact, nothing pins it): `quote_in("MicroStrategy bought more bitcoin this week", ["So
+  micro strategy bought more bitcoin this week, again."])` is False: a quote whose compound name the model wrote
+  together, while the transcript wrote it apart, is refused (a false reject; the spoken words are the same).
+- Why withdrawn: the proposal (spaces between alphabetic tokens removed on both sides) LOOSENS what the quote check
+  accepts: it equates different word sequences and, depending on the implementation, can re-admit R-02's own trap
+  ('coin fell below' inside 'Bitcoin fell below'). A request may not loosen what a check accepts. Its strict xfail
+  (`test_a_compound_name_written_apart_is_the_same_quote`) could only clear by that loosening, so it was removed from
+  the wall (strict xfails 38 -> 37).
+- If the orchestrator wants the false reject removed, the request must be restated so it removes ONLY that reject,
+  with must-fail tests proving no new acceptance (at least: R-02's substring traps, the meaning mutants of
+  test_f1, 'micro strategy' vs 'MicroStrategy's' / 'Micro Strategy Inc'), and the orchestrator's word. Not mine to
+  decide.
 
 ## R-20 — GPT-gates F28: G8 accepts one sample as if all five were measured
 - Defect: a segment claiming 10 s on a 2.5 s final: one of five frames extracted (out and source), medians of one
@@ -224,11 +268,42 @@ qa_gates functions either way.
   nothing; `_download_window` sees `getsize > 10_000` and returns the leftover; SELECT succeeds with it.
 - Minimal fix: check `returncode`; download to `<out>.part.mp4` and `os.replace` it on success only; remove a leftover
   below the cache size before the request; a failed request returns `(None, 0)`.
+- The probe keeps every other fix's record consistent (integrator, 2026-11-12): the leftover's transcript is what a
+  transcription of THOSE bytes yields (words up to the cut, its duration, `media_sha256` of the leftover), so R-10's
+  binding cannot flip it; it has no download record, so R-09's check makes it a cache miss, where R-22 decides.
 
 ## R-23 — GPT-select F08: SELECT reports success with one clip or one channel
-- Defect: `select_and_build_edl` returns True with a hook and ONE clip, and with hook and clip from the same channel.
+- Defect: `select_and_build_edl` returns True with a hook and ONE clip, and with hook and both clips from one channel.
 - Minimal fix (the D contract: hook + >= 2 clips + the required channels): after filling, `return False` unless
   `len(clip_segs) >= 2` and the hook + clips span >= 2 distinct channels (R5).
+- Pins (integrator B2, 2026-11-12): each half alone. The clip half: hook + ONE clip from two channels (the channel
+  half holds). The channel half: hook + TWO clips, all three credited to one channel (the clip half holds; fails
+  under either reading of R5, hook counted or not). The family-2 template itself is legal under R-23 (hook + two
+  clips, three channels), so this fix keeps every control, the cut table and the R-09 / R-22 probes valid.
+
+## R-27 — PP-05 (new, 2026-11-12): a failed transcription crashes select's slot fallback
+- Defect (measured, test_f2 TestDirtyCache::test_a_failed_transcription_stops_select_cleanly): the hook's source is
+  cached with its download record, its transcript is missing and transcription fails (`_whisper_transcribe` returns
+  None). `valid` drops the hook; `_fill(None, "hook", ...)` tries the same passage from `pool`; `_source_for` sees the
+  video in `sources` and reads `transcripts[vid]`: `KeyError: 'VIDAAAAAAAA'` escapes `select_and_build_edl`, whose
+  contract is True / False. Exposed by the two-clip template (with one clip, `len(valid) < 2` stopped first).
+- Minimal fix: in `_source_for`, `if vid not in transcripts: return "transcription failed"` (or retry the
+  transcription there), so the slot is refilled from another candidate or select STOPs with the reason in
+  SELECT_BOUNDARIES.json. The pin catches KeyError only: any other exception shows as FAILED.
+
+## R-28 — PP-04b (new, 2026-11-12, integrator merge audit): a gate's own "skip" is written as a PASS row
+- Defect (read in the code; pinned by test_f4 test_a_required_gate_never_passes_on_nothing[G12 no shoutout / G15 no
+  shoutout] and test_the_production_reading_is_the_code): `qa_gates.gate_g12` with no shout-out segment returns
+  `(True, {"skip": True, "pass": True})`; `run_all_gates` wraps it as `{"pass": True, "data": {...}}`, so
+  `stage_gates` (which honours only a TOP-LEVEL skip) writes G12_credits PASS. `gates.gate_g15` with no shout-out
+  returns `(True, {"skip": True})` and `stage_gates` writes `_status(g15_16_ok)`: G15_credits PASS. Both rows carry 0
+  samples, so release_auth's evidence rule blocks them at release (test_whatever_a_gate_returns_on_nothing_release_
+  blocks_it now covers G12 / G15); but the row itself says PASS on nothing measured (law L-m), for any reader of
+  GATE_REPORT. The first version of this wall modelled these as SKIPPED and called them "the shapes to copy"
+  (PP-E5): wrong, corrected.
+- Minimal fix: in `stage_gates`' generic loop, `v.get("skip") or (v.get("data") or {}).get("skip")` -> SKIPPED; for
+  the direct calls (G15, G20, G16, G4s, G19, G18) write SKIPPED when the returned data says skip; or the gates return
+  `(False, {"error": "nothing measured"})` like R-13. The integrator's call; either flips both pins.
 
 ## R-24 — phase 2 exam (for pp-selectid, context_integrity.py): a correction 74 s after the clip
 - Defect (a design gap, measured on real material; not yet a test failure because the gate is not merged):
@@ -286,7 +361,10 @@ passes v2f clip_02 OUT (+10 ms) and clip_03 OUT (+20 ms) while failing clip_03 I
 +-2 hops can slide a fade that covers up to 20 ms of a decay out of the comparison. Whether L-b is decided by the
 word-bounds geometry or by G17c's 1 dB comparison is not mine to choose; no test is xfailed on it.
 
-### G8 9:16 on the approved reference — SETTLED by measurement (Claude-gates #5 / A4 / A5, E-FAIL-042)
+### G8 9:16 on the approved reference — measured; two cells pinned (Claude-gates #5 / A4 / A5, E-FAIL-042)
+(Integrator merge audit: "SETTLED" overstated it. The table is a one-off measurement; the tests pin two cells: 9:16
+clip_03 through the production wiring (rebuilt in the test) and 9:16 hook without sources. The other cells are not
+re-measured by any test: each 9:16 frame grab decodes ~1,000-1,270 frames of a one-keyframe final.)
 Measured 2026-11-12 on the saved v2f files through `qa_gates.gate_g8` (frames to a scratch dir, reference read-only):
 
 | format | wiring | hook | clip_01 | clip_02 | clip_03 | verdict |

@@ -16,6 +16,7 @@ references/pulse_preview_2026-11-11 (law L-d):
   L-j        the preview's recorded (legacy) gate report is not releasable under the current contract
 A missing reference is a FAILURE here (nothing measured is never a pass), not a skip.
 """
+import functools
 import hashlib
 import json
 import os
@@ -168,7 +169,9 @@ def test_l_a_the_preview_is_the_documented_must_fail():
 
 # ─────────────────────────────── L-b: no fade overlaps an edge word ───────────────────────────────
 
+@functools.lru_cache(maxsize=None)
 def _lb_measure(name):
+    """Measured once per run per session (read-only; the callers never mutate it)."""
     import sentence_law as L
     run = RUNS[name]
     cuts = json.load(open(_need(os.path.join(run, "cuts_final.json"))))
@@ -204,10 +207,42 @@ def test_l_b_recorded_fades_against_edge_words_are_the_measured_table(name):
 
 
 def test_l_b_the_documented_must_fail_is_an_overlap():
+    """Each documented must-fail edge MEASURED now on the reference (integrator merge audit: the first version compared
+    the pinned fixture with itself)."""
+    H.control(LB["documented_must_fail"], "the fixture names the documented must-fail edges")
     for name, clip, side in LB["documented_must_fail"]:
-        assert LB["measured"][name][clip][f"{side}_overlap_ms"] > 0, (name, clip, side)
+        m = _lb_measure(name)[clip]
+        assert m[f"{side}_overlap_ms"] > 0, (name, clip, side, m)
     m = _lb_measure("pulse_preview_2026-11-11")["clip_01"]
     assert m["out_overlap_ms"] > 50 and m["fade_out_ms"] == 83, m          # '...Monday rally.' (E-FAIL-032)
+
+
+def test_window_audio_reads_the_edges_the_whole_file_decode_reads():
+    """adv_helpers.WindowAudio (decodes only around a cut) gives sentence_law.edge_word_bounds the same first-word
+    onset and last-word end as sentence_law.SourceAudio (the whole-file decode production uses), on every reference
+    edge whose source is at most 1,300 s (integrator merge audit: the claim was enforced by no test). Measured
+    2026-11-12: 7 of the 8 edges; v2f clip_03's source is 3,863 s long, too long to decode whole in this suite."""
+    import sentence_law as L
+    compared = []
+    for name, run in RUNS.items():
+        cuts = json.load(open(os.path.join(run, "cuts_final.json")))
+        for c in cuts if isinstance(cuts, list) else cuts["cuts"]:
+            src = os.path.join(run, "sources", f"{c['video_id']}.mp4")
+            if _duration(src) > 1300:
+                continue
+            wa = H.WindowAudio(src, c["cut_in"] - 3, c["cut_out"] + 3)
+            a = L.edge_word_bounds(wa, None, c["cut_in"], c["cut_out"])
+            b = L.edge_word_bounds(_whole(src), None, c["cut_in"], c["cut_out"])
+            assert (round(a["onset"], 3), round(a["end"], 3)) == (round(b["onset"], 3), round(b["end"], 3)), \
+                (name, c["clip_id"], a, b)
+            compared.append((name, c["clip_id"]))
+    H.control(len(compared) >= 7, f"edges compared: {compared}")
+
+
+@functools.lru_cache(maxsize=4)
+def _whole(path):
+    import sentence_law as L
+    return L.SourceAudio(path)
 
 
 # ─────────────────────────────── G8 9:16: settle the open claim ───────────────────────────────

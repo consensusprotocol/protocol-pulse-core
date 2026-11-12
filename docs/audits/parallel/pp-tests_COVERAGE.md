@@ -22,6 +22,7 @@ New findings from this wall (not in the ledger): PP-01 canon is not a fixpoint o
 R-01); PP-02 verify_lock never compares the lock's words with its transcript (f2, XFAIL R-11); PP-03 G4s / G14 / G19
 pass on nothing (f4, XFAIL R-15); PP-04 L-b measured on the references disagrees with G17c's dispositions (f5, pinned
 table, a decision: pp-tests_REQUESTS.md).
+Found while answering the integrator's merge audit (2026-11-12): PP-05 a failed transcription crashes select's slot fallback with a KeyError (f2, XFAIL R-27); PP-04b a gate's own skip (G12 / G15 with no shout-out) is written as a PASS row by run_all_gates / stage_gates (f4, XFAIL R-28 x2).
 
 Correction to the ledger, measured: Claude-gates T1 is marked CONFIRMED-FIXED ("never substrings"), but G3b's
 _g3b_match still accepts `expected in heard` inside a token ('week' matches 'weekend'): f1 TestG3b (XFAIL R-07).
@@ -287,4 +288,4 @@ F31; Claude-gates V1-V3, V6, T7, T8, A1-A3, A8) until each has its fixtures (add
 | Claude-gates | S2 | Expensive disqualifiers run only after the render | OPEN | UNCOVERED | outside the five families (selection logic / dates / ops / MONITORING gate / GPU path) |
 | Claude-gates | S3 | [UNSEEN] The free Bitcoin screen admits off-brand stories | OPEN | UNCOVERED | outside the five families (selection logic / dates / ops / MONITORING gate / GPU path) |
 | Claude-gates | S4 | Duplicates and stale stories | OPEN | UNCOVERED | outside the five families (selection logic / dates / ops / MONITORING gate / GPU path) |
-| Claude-select | T1 | Verbatim check has zero tolerance for the model's own clean-up (5% vs 5 percent, sell-off  | OPEN | f1 TestQuoteVerification::test_a_compound_name_written_apart_is_the_same_quote **XFAIL** R-19 |  |
+| Claude-select | T1 | Verbatim check has zero tolerance for the model's own clean-up (5% vs 5 percent, sell-off  | DECISION | none: R-19 WITHDRAWN (integrator merge audit B3: its fix loosened the quote check); the false reject is recorded in REQUESTS R-19 for the orchestrator |  |

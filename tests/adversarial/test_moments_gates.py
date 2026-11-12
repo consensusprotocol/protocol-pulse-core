@@ -37,9 +37,15 @@ CI_FAIL = ("steelman", "quoting_opponent", "sarcasm", "hypothetical", "condition
            "some_people_say", "answer_without_question", "later_retraction", "reading_aloud", "wrong_speaker",
            "stale_time_reference", "false_dialogue", "title_adds_thesis")
 CI_PASS = ("clean_assertion", "clean_conjunction_opener")
-VO_FAIL = ("stance_flip", "could_to_will", "number_swapped", "number_rounded", "invented_agreement",
-           "fact_not_in_clips", "absent_name", "banned_framing", "financial_imperative")
-VO_PASS = ("faithful_paraphrase", "manifest_language")
+VO_FAIL_V1 = ("stance_flip", "could_to_will", "number_swapped", "number_rounded", "invented_agreement",
+              "fact_not_in_clips", "absent_name", "banned_framing", "financial_imperative")
+VO_PASS_V1 = ("faithful_paraphrase", "manifest_language")
+# v1.1 (orchestrator order 05:25 ET 2026-11-12): line classes A attribution / B fact / C production / D host commentary
+VO_FAIL_V11 = ("commentary_smuggles_number", "commentary_smuggles_name", "commentary_recharacterises",
+               "certainty_upgrade", "invented_relation", "commentary_predicts", "commentary_imperative",
+               "commentary_accuses", "stale_price_title", "stale_price_line", "commentary_as_quote")
+VO_PASS_V11 = ("host_commentary", "hedge_matched_attribution")
+VO_FAIL, VO_PASS = VO_FAIL_V1 + VO_FAIL_V11, VO_PASS_V1 + VO_PASS_V11
 EX_EXCLUDE = ("accusation", "partner_attack", "imperative", "guaranteed_return", "single_source_breaking",
               "ad_read", "third_party_media", "altcoin")
 EX_KEEP = ("policy_criticism", "framed_prediction", "neutral_company")
@@ -47,7 +53,8 @@ EX_KEEP = ("policy_criticism", "framed_prediction", "neutral_company")
 CLASSES = {"context_integrity": (CI_FAIL, CI_PASS, "fail", "pass", 40, 20),
            "vo_fidelity": (VO_FAIL, VO_PASS, "fail", "pass", 25, 11),
            "exclusions": (EX_EXCLUDE, EX_KEEP, "exclude", "keep", len(EX_EXCLUDE), 11)}
-SCHEMA = {"context_integrity": "pp.ci_case/1", "vo_fidelity": "pp.vo_case/1", "exclusions": "pp.excl_case/1"}
+SCHEMA = {"context_integrity": ("pp.ci_case/1",), "vo_fidelity": ("pp.vo_case/1", "pp.vo_case/1.1"),
+          "exclusions": ("pp.excl_case/1",)}
 K_COMMIT = "d809a1f8"                     # pp-selectid's commit the cases' sentence ids are computed against
 
 
@@ -70,7 +77,10 @@ def test_every_index_matches_its_files_and_carries_no_answer(corpora):
         keys = [hashlib.sha256(r["id"].encode()).hexdigest() for r in rows]
         assert keys == sorted(keys), f"{name}: INDEX.json is not in hash order (an order can tell the verdict)"
         for c in cases:
-            assert c["schema"] == SCHEMA[name], c["id"]
+            assert c["schema"] in SCHEMA[name], c["id"]
+            if name == "vo_fidelity":                    # a class lives in one format version only
+                v11 = c["expected"]["class"] in VO_FAIL_V11 + VO_PASS_V11
+                assert c["schema"] == ("pp.vo_case/1.1" if v11 else "pp.vo_case/1"), c["id"]
             corpus, cls, nn = c["id"].split("__")
             assert corpus == name and cls == c["expected"]["class"] and nn.isdigit(), c["id"]
 
@@ -86,6 +96,34 @@ def test_counts_and_classes_meet_the_order(corpora):
         assert {c["expected"]["class"] for c in got_good} == set(good), f"{name}: must-accept classes differ"
         for c in cases:
             assert c["expected"]["why"].strip(), c["id"]
+
+
+def test_vo_v11_meets_the_order(corpora):
+    """Order 05:25 ET: >= 15 must-pass honest class-D lines, >= 10 must-pass hedge-matched attributions, >= 20
+    must-fail lines that look like commentary but smuggle a number, a name, a recharacterisation, a certainty
+    upgrade, an invented relation, a prediction, an imperative, an accusation or a stale price (the title 'Bitcoin ran
+    from 16K to 126K' against a universe at ~$73,000 included); each case carries its expected class and verdict."""
+    v11 = [c for c in corpora["vo_fidelity"] if c["schema"] == "pp.vo_case/1.1"]
+    by = {}
+    for c in v11:
+        by.setdefault((c["expected"]["verdict"], c["expected"]["class"]), []).append(c)
+    assert len(by.get(("pass", "host_commentary"), [])) >= 15
+    assert len(by.get(("pass", "hedge_matched_attribution"), [])) >= 10
+    assert sum(len(v) for (verdict, _), v in by.items() if verdict == "fail") >= 20
+    assert {cls for verdict, cls in by if verdict == "fail"} == set(VO_FAIL_V11)
+    title = [c for c in by[("fail", "stale_price_title")] if c["title"] == "Bitcoin ran from 16K to 126K"]
+    assert len(title) == 1 and title[0]["expected"]["bad_title"] is True
+    assert any("$73,500" in n["headline"] for n in title[0]["universe"]["news"]), title[0]["universe"]
+    for c in v11:
+        e = c["expected"]
+        assert len(e["line_classes"]) == len(c["lines"]) and set(e["line_classes"]) <= set("ABCD"), c["id"]
+        assert e["title_class"] in ("A", "B", "C", "D") and c["title"].strip(), c["id"]
+        if e["class"] == "host_commentary":            # its own lines are all class D
+            assert "D" in e["line_classes"] and set(e["line_classes"]) <= {"C", "D"}, c["id"]
+        if e["class"] == "hedge_matched_attribution":
+            assert "A" in e["line_classes"], c["id"]
+        if e["verdict"] == "fail":
+            assert e["rule"] and (e["bad_title"] or e["bad_line"] is not None), c["id"]
 
 
 def test_origin_is_honest(corpora):
@@ -193,8 +231,12 @@ def test_the_package_carries_the_selected_sentences(corpora):
         assert all(set(ln["cites"]) <= labels for ln in c["lines"]), c["id"]
         assert c["segments"][0]["video_id"] != c["segments"][1]["video_id"], c["id"]
         bad = c["expected"]["bad_line"]
-        assert (bad is None) == (c["expected"]["verdict"] == "pass"), c["id"]
+        bad_title = c["expected"].get("bad_title", False)
+        assert (bad is None and not bad_title) == (c["expected"]["verdict"] == "pass"), c["id"]
         assert bad is None or 0 <= bad < len(c["lines"]), c["id"]
+        if c["schema"] == "pp.vo_case/1.1":             # lines in play order: before A, after A, after B
+            order = [{None: 0, "A": 1, "B": 2}[ln["after"]] for ln in c["lines"]]
+            assert order == sorted(order) and c["lines"][0]["slot"] == "intro" and c["lines"][-1]["slot"] == "signoff"
 
 
 def _keys(x):
@@ -248,7 +290,11 @@ def _vo_fields(cases):
             "n_lines": lambda c: len(c["lines"]),
             "intro": lambda c: (norm(c["lines"][0]["text"]), tuple(c["lines"][0]["cites"])),
             "b_only_line": lambda c: any(ln["cites"] == ["B"] for ln in c["lines"]),
-            "signoff_template": lambda c: norm(c["lines"][-1]["text"]) if c["lines"][-1]["slot"] == "signoff" else ""}
+            "signoff_template": lambda c: norm(c["lines"][-1]["text"]) if c["lines"][-1]["slot"] == "signoff" else "",
+            # v1.1 fields (a v1 case has none of them)
+            "title_template": lambda c: norm(c.get("title") or ""),
+            "positions": lambda c: tuple(ln.get("after", "-") for ln in c["lines"]),
+            "universe": lambda c: json.dumps(c.get("universe"), sort_keys=True)}
 
 
 def _sents(c):
@@ -304,7 +350,8 @@ def test_no_package_field_separates_the_verdicts(corpora):
     trap (false_dialogue: bridge, order; unresolved_referent: order)."""
     exempt = {("context_integrity", "false_dialogue"): {"bridge", "order"},
               ("context_integrity", "unresolved_referent"): {"order"},
-              ("vo_fidelity", "financial_imperative"): {"signoff_template"}}      # the imperative IS the sign-off
+              ("vo_fidelity", "financial_imperative"): {"signoff_template"},     # the imperative IS the sign-off
+              ("vo_fidelity", "stale_price_title"): {"title_template"}}          # the title IS the trap
     for name, fields in (("context_integrity", _ci_fields), ("vo_fidelity", _vo_fields), ("exclusions", _ex_fields)):
         cases = [ME.blind(c) | {"expected": c["expected"]} for c in corpora[name]]
         v_bad = CLASSES[name][2]

@@ -1,0 +1,150 @@
+{
+ "schema": "pp.vo_case/1.1",
+ "id": "vo_fidelity__hedge_matched_attribution__06",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences (v1.1)",
+  "mined": "2026-11-12",
+  "universe": {
+   "record": "runs/fresh_20261112_050611/TOPIC_SELECTION.json",
+   "record_sha256": "c8a653868366a587f204a70f8a27e4b29d57138dceac966929d90d89f0c5cb18"
+  }
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "hedge_matched_attribution",
+  "why": "'I think the next 10 years if hash rate goes up it's going to go up slower.': hedge and condition kept.",
+  "bad_line": null,
+  "bad_title": false,
+  "rule": null,
+  "line_classes": [
+   "C",
+   "A",
+   "C",
+   "C"
+  ],
+  "title_class": "D"
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "What Bitcoin Did",
+   "Coin Bureau"
+  ]
+ },
+ "title": "Bitcoin and the money question",
+ "universe": {
+  "date": "2026-11-12",
+  "built_at": "2026-11-12T05:06:13.234375+00:00",
+  "news": [
+   {
+    "headline": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets",
+    "source": "bitcoinmagazine.com",
+    "published_at": "2026-11-10T14:28:12.195473+00:00",
+    "summary": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets. Bitcoin Magazine\n\nBitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets\nBitcoin price slipped to $73,500 Tuesday morning after October consumer prices rose 0.4%, topping forecasts and pushing traders toward a bigger Federal Reserve rate hike in December.\nThis post Bitcoin Pr"
+   },
+   {
+    "headline": "Bitcoin price eyes $74K as Fed rate-hike bets hit 96% after Waller speech",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T10:08:12.195473+00:00",
+    "summary": "Bitcoin price action and stock futures trended lower after Fed governor Christopher Waller said that he would vote to raise interest rates by 0.25% at the December FOMC meeting."
+   },
+   {
+    "headline": "BlackRock Bitcoin ETF outflows hit $1.66B over seven trading sessions",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T08:02:12.195473+00:00",
+    "summary": "US spot Bitcoin ETFs shed $201 million Monday, with seven straight sessions of net withdrawals from BlackRock’s IBIT totaling $1.66 billion."
+   },
+   {
+    "headline": "Stablecoin Drain, ETF Outflows Leave Bitcoin 'Running on Empty'",
+    "source": "decrypt.co",
+    "published_at": "2026-11-11T21:46:12.195473+00:00",
+    "summary": "Stablecoin supply fell $14.2 billion in 30 days, the fastest contraction since June 2022, amid weak ETF demand."
+   }
+  ],
+  "use": "staleness only: the VO's facts come from the selected sentences, never from this news"
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "y8dh_40-aV4",
+   "channel": "What Bitcoin Did",
+   "speaker": null,
+   "published_at": "2026-11-04T17:00:33+00:00",
+   "sentences": [
+    {
+     "k": 85,
+     "text": "I think the next 10 years if hash rate goes up it's going to go up slower.",
+     "start": 408.691,
+     "end": 413.085
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/y8dh_40-aV4/transcript.yt_auto.json",
+    "record_sha256": "aeea4ca2b77f2ea5204971b4e4763a1d5e97d6ec670f006205c88b89c3bfdfc5",
+    "k": [
+     85,
+     85
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "OhRh81S7B2g",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-08T12:45:18+00:00",
+   "sentences": [
+    {
+     "k": 77,
+     "text": "A loan signed in an office will not appear in a Merkel tree.",
+     "start": 406.82,
+     "end": 410.1
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/OhRh81S7B2g/transcript.whisper_words.json",
+    "record_sha256": "075489aa3b2f6b0e92dd1420d2d480f380f26cca3051def6bc240544afad6209",
+    "k": [
+     77,
+     77
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "From What Bitcoin Did and Coin Bureau.",
+   "cites": [
+    "A",
+    "B"
+   ],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "On What Bitcoin Did, the speaker thinks that if hash rate goes up over the next 10 years, it is going to go up slower.",
+   "cites": [
+    "A"
+   ],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "Over to Coin Bureau.",
+   "cites": [
+    "B"
+   ],
+   "after": "A"
+  },
+  {
+   "slot": "signoff",
+   "text": "Pulse Check for 2026-11-12.",
+   "cites": [],
+   "after": "B"
+  }
+ ]
+}

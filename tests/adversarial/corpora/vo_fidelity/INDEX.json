@@ -8,9 +8,24 @@
    "sha256": "48411e8a042050af0c357d7c0d2ca342b956776eec34d16ed37e38cdafbbe376"
   },
   {
+   "id": "vo_fidelity__host_commentary__10",
+   "file": "vo_fidelity__host_commentary__10.json",
+   "sha256": "26eb7979620d4aff67351256238ebb26fdca0a3c01b3ae01f7815d478f8052cf"
+  },
+  {
+   "id": "vo_fidelity__stale_price_line__01",
+   "file": "vo_fidelity__stale_price_line__01.json",
+   "sha256": "f7d6d340e4d20fb477fcc6fce21a6c141ef0d64a0310042eea6186c3ee082394"
+  },
+  {
    "id": "vo_fidelity__manifest_language__03",
    "file": "vo_fidelity__manifest_language__03.json",
    "sha256": "a72f1399ef4e5a90bfb7ed794205ef18fa30f4f2f01fe184b6ffc0829081936e"
+  },
+  {
+   "id": "vo_fidelity__stale_price_title__02",
+   "file": "vo_fidelity__stale_price_title__02.json",
+   "sha256": "1aac54bb5ed2d0c968ed3eb06d6cac38a81cefb1cab02ee5a3d49f22caf6bdde"
   },
   {
    "id": "vo_fidelity__faithful_paraphrase__02",
@@ -31,6 +46,11 @@
    "id": "vo_fidelity__faithful_paraphrase__04",
    "file": "vo_fidelity__faithful_paraphrase__04.json",
    "sha256": "2046694f3cb2fe4f27e35df01f6781a7b11faf7171c3ca33c1b555bb2c3881f6"
+  },
+  {
+   "id": "vo_fidelity__commentary_accuses__01",
+   "file": "vo_fidelity__commentary_accuses__01.json",
+   "sha256": "2e73ec93a3476234a360244b7160c97aca1a43c3176801612da45323f5742c55"
   },
   {
    "id": "vo_fidelity__fact_not_in_clips__03",
@@ -58,9 +78,39 @@
    "sha256": "ef597f6e447ba2f6d37e3e0312ce30f5e04dfd1c2df2e3bfff433622da2840f0"
   },
   {
+   "id": "vo_fidelity__hedge_matched_attribution__11",
+   "file": "vo_fidelity__hedge_matched_attribution__11.json",
+   "sha256": "601a3bffaa2e3e3fece4f56d1b62822fd155247d82b9e81cd50d62c2c0935006"
+  },
+  {
+   "id": "vo_fidelity__commentary_imperative__02",
+   "file": "vo_fidelity__commentary_imperative__02.json",
+   "sha256": "03724a5b738e023d4402fb1e7f49ddf65f426843a7591e220aa880bb78595bda"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__05",
+   "file": "vo_fidelity__host_commentary__05.json",
+   "sha256": "14613ef6bb674cc1669fc5abb806b055f7cf65bbe2757a636f1d81eb3e540679"
+  },
+  {
    "id": "vo_fidelity__invented_agreement__01",
    "file": "vo_fidelity__invented_agreement__01.json",
    "sha256": "ab7a4f61b4dad2ed6a14c87f84368f831c56c36b2c8d7cc36866b39343f860e5"
+  },
+  {
+   "id": "vo_fidelity__commentary_imperative__01",
+   "file": "vo_fidelity__commentary_imperative__01.json",
+   "sha256": "b2b515a556f135a3c12989259e496a207c166153573273036d780da2372059e0"
+  },
+  {
+   "id": "vo_fidelity__invented_relation__01",
+   "file": "vo_fidelity__invented_relation__01.json",
+   "sha256": "52d333faadf07a4f7eb3d0678ad4ec4a24e5b224332980b80c6a78d8b8af499e"
+  },
+  {
+   "id": "vo_fidelity__certainty_upgrade__04",
+   "file": "vo_fidelity__certainty_upgrade__04.json",
+   "sha256": "8aeca17ac2d2c1b98bdff98f1d83a7c9cfab509d80fc7df7fdc5c2115d140cac"
   },
   {
    "id": "vo_fidelity__stance_flip__01",
@@ -73,9 +123,29 @@
    "sha256": "8d6677a5f5a88442ea655866d0c0d1d4151b92e0f4137d30fa43b45337b882a6"
   },
   {
+   "id": "vo_fidelity__host_commentary__07",
+   "file": "vo_fidelity__host_commentary__07.json",
+   "sha256": "31a52ac7c7954fa6672439c6f62bc41ad4f1be7d757b2aa8e82dd5744716174a"
+  },
+  {
+   "id": "vo_fidelity__commentary_smuggles_name__03",
+   "file": "vo_fidelity__commentary_smuggles_name__03.json",
+   "sha256": "fa9e543e389b71df5492d05fc720a8c47912fb7ce5c47353c7991ccac10f1c24"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__08",
+   "file": "vo_fidelity__hedge_matched_attribution__08.json",
+   "sha256": "77d40758a674a8d5aaff2103ef89434e45a8a38b2820a77b7d763dc36ccc2d19"
+  },
+  {
    "id": "vo_fidelity__banned_framing__01",
    "file": "vo_fidelity__banned_framing__01.json",
    "sha256": "cf62955cdbf1cef5f6a2059755a2b0b2cf3d64c2d9171811fbabf630e26c023f"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__02",
+   "file": "vo_fidelity__host_commentary__02.json",
+   "sha256": "77fce48cf1da437bb4bcc8b1683a145d5758256af9e5688beec7efb4a110497a"
   },
   {
    "id": "vo_fidelity__absent_name__02",
@@ -98,9 +168,34 @@
    "sha256": "25410ee838df4f5a64a57bebcbb02b43cf6609f0b1238521300640712725315d"
   },
   {
+   "id": "vo_fidelity__hedge_matched_attribution__06",
+   "file": "vo_fidelity__hedge_matched_attribution__06.json",
+   "sha256": "50a6b9369c16c22dd80c8fd7af571b81fe5046e0e4b046c1b28b2837ecd7be25"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__11",
+   "file": "vo_fidelity__host_commentary__11.json",
+   "sha256": "63b5d90faf84ba435ba280156b581b906248d78d9d8b1dccd765ea8bfa7db75d"
+  },
+  {
+   "id": "vo_fidelity__certainty_upgrade__03",
+   "file": "vo_fidelity__certainty_upgrade__03.json",
+   "sha256": "318c9693ded524b8fb13383a7237a1218d9995e7b228a3ffb243e5fb85b4a5cd"
+  },
+  {
    "id": "vo_fidelity__invented_agreement__03",
    "file": "vo_fidelity__invented_agreement__03.json",
    "sha256": "50f65839f583cd11ba995ff91844f06c0be4d80c8e07b1f9af7047ea9805e197"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__15",
+   "file": "vo_fidelity__host_commentary__15.json",
+   "sha256": "fd87dd2154b44ca8189f889a7131a75219fb9ef2135a4d7bc5ec1d35fd7deb00"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__14",
+   "file": "vo_fidelity__host_commentary__14.json",
+   "sha256": "f8484e82e50eb19f47246d08d1fbcb5cd2b618c388881da60e8e5598eb7993be"
   },
   {
    "id": "vo_fidelity__fact_not_in_clips__01",
@@ -108,9 +203,64 @@
    "sha256": "f03a69180c0ea708edda0b40186faf279938ba52d355d766cf2713f74d1b3c72"
   },
   {
+   "id": "vo_fidelity__host_commentary__13",
+   "file": "vo_fidelity__host_commentary__13.json",
+   "sha256": "8373ad389f2a16eeaef97fdf50c93e7df8794ae19ef6780f57c866660556e94b"
+  },
+  {
+   "id": "vo_fidelity__commentary_predicts__02",
+   "file": "vo_fidelity__commentary_predicts__02.json",
+   "sha256": "e1de6e51cd96f26fe3a5c477d85d82492962863a5e96f5ee5450119e31f6125d"
+  },
+  {
+   "id": "vo_fidelity__stale_price_title__01",
+   "file": "vo_fidelity__stale_price_title__01.json",
+   "sha256": "e1488eeebab3700155ae7a29509b7ffe9aeb7badc2cc99889bf2b2ee59892d1b"
+  },
+  {
+   "id": "vo_fidelity__commentary_recharacterises__01",
+   "file": "vo_fidelity__commentary_recharacterises__01.json",
+   "sha256": "a034897b59bae0d9974546804afcffc2c12dd32cc449786e484a0488bf20caa7"
+  },
+  {
+   "id": "vo_fidelity__commentary_smuggles_number__01",
+   "file": "vo_fidelity__commentary_smuggles_number__01.json",
+   "sha256": "2326902723dc212e51135154be0c1bc06310d49892724ea8a969c327c1b3770a"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__09",
+   "file": "vo_fidelity__hedge_matched_attribution__09.json",
+   "sha256": "f1d409fe85b85de1af167dbc7b1793bafc5e410730d5d1642481bcdf93b817c7"
+  },
+  {
+   "id": "vo_fidelity__commentary_recharacterises__03",
+   "file": "vo_fidelity__commentary_recharacterises__03.json",
+   "sha256": "0101148897660e9e193cb58dac7cd1cf8e994b779ef705b0a7a569ed82352f53"
+  },
+  {
+   "id": "vo_fidelity__certainty_upgrade__01",
+   "file": "vo_fidelity__certainty_upgrade__01.json",
+   "sha256": "9adb812bad357bd8f5af4ee1e8b971511545ea1c5d33ba3328229826fd3d691e"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__04",
+   "file": "vo_fidelity__hedge_matched_attribution__04.json",
+   "sha256": "dd8d3e8bb59d0414acc1bde8759246fa301a44010703577f1c0fc05e78df034f"
+  },
+  {
    "id": "vo_fidelity__number_swapped__01",
    "file": "vo_fidelity__number_swapped__01.json",
    "sha256": "0966f2593933afbabfaf42395b1ab86eaee2b964597cd2e8690787d582948f43"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__01",
+   "file": "vo_fidelity__host_commentary__01.json",
+   "sha256": "b9a6c121f89685ed6ff14be303ab31b7dc3dad3a2648fe3216055bf629e5b1c9"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__02",
+   "file": "vo_fidelity__hedge_matched_attribution__02.json",
+   "sha256": "28f5ba170725b258d935bbbd3c06f26ecd02c5e308e802e09bd726d1d6bf42ce"
   },
   {
    "id": "vo_fidelity__faithful_paraphrase__06",
@@ -121,6 +271,21 @@
    "id": "vo_fidelity__faithful_paraphrase__03",
    "file": "vo_fidelity__faithful_paraphrase__03.json",
    "sha256": "95bf67db97c15ec62d48eba8eefe5e8fc54e9aaeb68c54d7197c3077012b611a"
+  },
+  {
+   "id": "vo_fidelity__commentary_predicts__01",
+   "file": "vo_fidelity__commentary_predicts__01.json",
+   "sha256": "21c53eeae6e3d4a232eddbffcbdfb7692be1d64a90f22ddbe23a34782776fbe3"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__01",
+   "file": "vo_fidelity__hedge_matched_attribution__01.json",
+   "sha256": "1396a8ec91351bdd46130450682291f3d61ed6933a307b8ae155b6642d203899"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__04",
+   "file": "vo_fidelity__host_commentary__04.json",
+   "sha256": "b9c2a4308fe63c43e3f90e6b4ae3d4c716c36e96e8382db7def2dbb931832606"
   },
   {
    "id": "vo_fidelity__number_rounded__02",
@@ -143,6 +308,21 @@
    "sha256": "ba936e73cc11d2c7b597dfadd28ae7a98312ebc382c43473f0563ff2f31a0585"
   },
   {
+   "id": "vo_fidelity__certainty_upgrade__02",
+   "file": "vo_fidelity__certainty_upgrade__02.json",
+   "sha256": "f2586c22af8d2cc7342798166651f36b277d87fd4c17ada8e4952dc4bdb0ac64"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__05",
+   "file": "vo_fidelity__hedge_matched_attribution__05.json",
+   "sha256": "bb7d07c21dd0cfdd87c9b1d8047196cbca9c38144148c9450df4bb29413e8635"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__08",
+   "file": "vo_fidelity__host_commentary__08.json",
+   "sha256": "9f8627c05add9a7886c5b756f81312589a7089dfc646d5212c61c4495948c2af"
+  },
+  {
    "id": "vo_fidelity__number_rounded__03",
    "file": "vo_fidelity__number_rounded__03.json",
    "sha256": "84e0235fdd59a8f57efed7cc07924cebee5b1d462029f25aa3f7902f69e1c43f"
@@ -158,6 +338,16 @@
    "sha256": "ffe10042b9667f2beac05ba15a1decf854e2b57c33f96a7c633ad7cd3412c8c5"
   },
   {
+   "id": "vo_fidelity__commentary_smuggles_name__01",
+   "file": "vo_fidelity__commentary_smuggles_name__01.json",
+   "sha256": "075ec18f6c0ab53ae1418179bb8931bc545fa726003f67cf5293e595e09b7472"
+  },
+  {
+   "id": "vo_fidelity__commentary_smuggles_name__02",
+   "file": "vo_fidelity__commentary_smuggles_name__02.json",
+   "sha256": "58f2ed8cac371c85cb178754a7b6459b48db17b812292c4ec6002fa664fcf61a"
+  },
+  {
    "id": "vo_fidelity__absent_name__03",
    "file": "vo_fidelity__absent_name__03.json",
    "sha256": "c81c46fc51eee299e3704af952d92ffbd100bfcc9d5f1eaf63c249e2724df39f"
@@ -168,9 +358,39 @@
    "sha256": "289ee0337aaca69dc34b79aa21d4f01086e4940514b0c79a1b6f83d71cb977c6"
   },
   {
+   "id": "vo_fidelity__commentary_accuses__02",
+   "file": "vo_fidelity__commentary_accuses__02.json",
+   "sha256": "9e3becf84e01f48355a8f5042a72ebe8e0930b117706a54d3237a3bcba840d8f"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__16",
+   "file": "vo_fidelity__host_commentary__16.json",
+   "sha256": "b1bf8e40101822b46bed5476edffc89911c7207acca142c7dfbc88c12d92d0be"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__03",
+   "file": "vo_fidelity__hedge_matched_attribution__03.json",
+   "sha256": "cd0f9fc8c25e78808bc720b2ab953ac5459a95760f4f38fc2b958fae8f595217"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__07",
+   "file": "vo_fidelity__hedge_matched_attribution__07.json",
+   "sha256": "36bc82085d2cf864c7027c9cacce9dc1eaca88336c0f5257941137c0a3023122"
+  },
+  {
+   "id": "vo_fidelity__commentary_as_quote__01",
+   "file": "vo_fidelity__commentary_as_quote__01.json",
+   "sha256": "b7919aa9c6b0a592452b38dadd91cbf43da253c882492453141ec594f60bbee2"
+  },
+  {
    "id": "vo_fidelity__stance_flip__03",
    "file": "vo_fidelity__stance_flip__03.json",
    "sha256": "976eede70d73e701895a50d4351097c439067b346ff9ca67f07962e4b449dcb1"
+  },
+  {
+   "id": "vo_fidelity__invented_relation__02",
+   "file": "vo_fidelity__invented_relation__02.json",
+   "sha256": "f4e92ab53ad9d9824e2cbbfa335d330154c2bca57d21a8dcaf0be7ab6426234c"
   },
   {
    "id": "vo_fidelity__manifest_language__05",
@@ -178,9 +398,19 @@
    "sha256": "93be785ab3910bacba4d933c3757a42497e5a4194e2f027c15635f2dc5d1fcff"
   },
   {
+   "id": "vo_fidelity__commentary_recharacterises__02",
+   "file": "vo_fidelity__commentary_recharacterises__02.json",
+   "sha256": "d21c7d38efbd84ce210beb87c314ed73a7b3821e876200273a1f301310a25ca1"
+  },
+  {
    "id": "vo_fidelity__faithful_paraphrase__05",
    "file": "vo_fidelity__faithful_paraphrase__05.json",
    "sha256": "9a01ca86c5e7c17691e63ea2b325973f2e044fbacca9d30e05b094a9158c7006"
+  },
+  {
+   "id": "vo_fidelity__commentary_smuggles_number__02",
+   "file": "vo_fidelity__commentary_smuggles_number__02.json",
+   "sha256": "f944990c6be26c0f988c4f88cc3341cc207943ab3795398b4f933d125145bc0b"
   },
   {
    "id": "vo_fidelity__could_to_will__03",
@@ -193,14 +423,44 @@
    "sha256": "d7fe9f03c7f0b5ecbc456957d87d96a3eff7db4472e4485b5e550e07d27a6ba4"
   },
   {
+   "id": "vo_fidelity__host_commentary__03",
+   "file": "vo_fidelity__host_commentary__03.json",
+   "sha256": "622acee9144d9edddf69c8f5fc24983366284a530ef71ff70261a5788ff9ee09"
+  },
+  {
    "id": "vo_fidelity__stance_flip__02",
    "file": "vo_fidelity__stance_flip__02.json",
    "sha256": "e5b43bbc2cff8db72facdfb4e9eeca99caec43be67cff0510fe26cab90a89d2c"
   },
   {
+   "id": "vo_fidelity__host_commentary__09",
+   "file": "vo_fidelity__host_commentary__09.json",
+   "sha256": "823eaacbebbb5ba57ce3ad5718551bc982fc2a5394a5c5ef639272aa41c5135d"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__06",
+   "file": "vo_fidelity__host_commentary__06.json",
+   "sha256": "ad139a8366a1a476484277f77577bc8a3b327cf8502133187c937d7442a3917e"
+  },
+  {
+   "id": "vo_fidelity__hedge_matched_attribution__10",
+   "file": "vo_fidelity__hedge_matched_attribution__10.json",
+   "sha256": "f65400e77e5814eff69cea3d7047dc409690c183d2121c8a504bad99f453d072"
+  },
+  {
    "id": "vo_fidelity__number_swapped__03",
    "file": "vo_fidelity__number_swapped__03.json",
    "sha256": "e0def9d4c115a113c9351e7ded721ae352cad81f46d7129179acb3bec68fa68f"
+  },
+  {
+   "id": "vo_fidelity__commentary_smuggles_number__03",
+   "file": "vo_fidelity__commentary_smuggles_number__03.json",
+   "sha256": "7d6b348a6ff7ddacde880f2203b74b732ae05fdbf5ec907c342c1b1b39824d48"
+  },
+  {
+   "id": "vo_fidelity__host_commentary__12",
+   "file": "vo_fidelity__host_commentary__12.json",
+   "sha256": "2ad63c70213c126d38abbcb01f5ca940e43e014d382cc04ac5ef986ce799b729"
   }
  ]
 }

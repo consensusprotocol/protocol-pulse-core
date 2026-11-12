@@ -9,6 +9,7 @@
   run directories      a complete release run that release_auth authorises (family 3 mutates it)
   fake model           the real story_semantics.LocalLLM.chat_json loop with only its HTTP call replaced
 """
+import atexit
 import json
 import math
 import os
@@ -359,6 +360,12 @@ HOOK_TEXT = ["Bitcoin closed the week below its fifty week moving average for th
 CLIP_TEXT = ["Spot Bitcoin funds saw heavy outflows for the third week in a row as investors pulled money.",
              "The selling was concentrated in the largest funds while smaller ones barely moved.",
              "Analysts say the flows usually turn when the price stabilises."]
+CLIP2_TEXT = ["Miners sent more coins to exchanges this week than at any point since the spring.",
+              "Hash price fell again after the difficulty adjustment pushed costs higher.",
+              "Several public miners said they would sell part of their output to cover power bills."]
+# The selection contract (D, REQUESTS R-23): hook + >= 2 clips + >= 2 distinct channels. The F2 template satisfies it
+# under every reading (three channels, hook's included), so R-23's fix keeps every control valid (integrator B2).
+CHANNELS = ("DataDash", "Natalie Brunell", "Yahoo Finance")
 PAD_S = 15.0                                                    # select_passages._download_window's pad
 
 
@@ -399,14 +406,18 @@ def write_source(run_dir, vid, passage, offset, seed=0, voice=1.0, filler=FILLER
             "duration": round(end - start, 3)}, words, (i0, i1)
 
 
-def passages_json(run_dir, hook, clip, hook_channel="DataDash", clip_channel="Natalie Brunell"):
+def passages_json(run_dir, hook, clips, hook_channel=CHANNELS[0], clip_channels=CHANNELS[1:]):
+    """passages.json with the editor's slots: one hook and `clips` (a list), each clip i credited to
+    clip_channels[i]."""
+    if len(clip_channels) < len(clips):
+        raise ValueError(f"{len(clips)} clips, {len(clip_channels)} clip channels")
     h = {**hook, "kind": "hook", "channel": hook_channel, "clip_score": 5.0, "relevance": 1.0, "score": 5.0,
          "handle": "@x", "title": "t"}
-    c = {**clip, "kind": "clip", "channel": clip_channel, "clip_score": 5.0, "relevance": 1.0, "score": 5.0,
-         "handle": "@y", "title": "t"}
+    cs = [{**c, "kind": "clip", "channel": ch, "clip_score": 5.0, "relevance": 1.0, "score": 5.0,
+           "handle": f"@y{i}", "title": "t"} for i, (c, ch) in enumerate(zip(clips, clip_channels))]
     with open(os.path.join(run_dir, "passages.json"), "w") as f:
-        json.dump({"chosen": [h, c], "passages": [h, c]}, f)
-    return h, c
+        json.dump({"chosen": [h] + cs, "passages": [h] + cs}, f)
+    return h, cs
 
 
 class FakeYtDlp:
@@ -434,6 +445,9 @@ def _finals():
     """Two one-second finals at the release dimensions, made once per process (black, libx264 ultrafast)."""
     if not _FINALS:
         d = tempfile.mkdtemp(prefix="adv_finals_")
+        atexit.register(shutil.rmtree, d, True)        # integrator merge audit: it used to stay behind per process
+        #   (atexit, not a fixture: release_run is a plain helper called from many tests; a session-scoped fixture
+        #   would be the idiomatic owner if _finals is ever refactored)
         for name, (w, h), color in (("segment.mp4", (1920, 1080), "black"),
                                     ("segment_vertical.mp4", (1080, 1920), "black"),
                                     ("other_vertical.mp4", (1080, 1920), "gray")):
@@ -522,7 +536,8 @@ def other_vertical():
 class WindowAudio:
     """sentence_law.SourceAudio's envelope (mono 16 kHz, 10 ms RMS, dBFS) of [t0, t1] only, on the same absolute
     10 ms grid (t0 is floored to a multiple of 10 ms): what edge_word_bounds reads (sl) without decoding a
-    multi-hour source. Equal to the whole-file decode on every reference edge (checked 2026-11-12)."""
+    multi-hour source. Gives edge_word_bounds the same edges as the whole-file decode: pinned by test_f5
+    test_window_audio_reads_the_edges_the_whole_file_decode_reads on the 7 reference edges whose source is <= 1,300 s."""
 
     def __init__(self, path, t0, t1):
         t0 = math.floor(max(0.0, t0) * 100) / 100

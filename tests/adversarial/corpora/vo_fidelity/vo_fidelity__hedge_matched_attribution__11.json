@@ -1,0 +1,162 @@
+{
+ "schema": "pp.vo_case/1.1",
+ "id": "vo_fidelity__hedge_matched_attribution__11",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences (v1.1)",
+  "mined": "2026-11-12",
+  "universe": {
+   "record": "runs/fresh_20261112_050611/TOPIC_SELECTION.json",
+   "record_sha256": "c8a653868366a587f204a70f8a27e4b29d57138dceac966929d90d89f0c5cb18"
+  }
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "hedge_matched_attribution",
+  "why": "'I believe the price will be higher in the future than it is today. I don't know how much higher. I'm not going to give you a price target ...': 'believes', no target.",
+  "bad_line": null,
+  "bad_title": false,
+  "rule": null,
+  "line_classes": [
+   "C",
+   "A",
+   "C",
+   "C"
+  ],
+  "title_class": "D"
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Bitcoin Magazine",
+   "Coin Bureau"
+  ]
+ },
+ "title": "What moves Bitcoin?",
+ "universe": {
+  "date": "2026-11-12",
+  "built_at": "2026-11-12T05:06:13.234375+00:00",
+  "news": [
+   {
+    "headline": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets",
+    "source": "bitcoinmagazine.com",
+    "published_at": "2026-11-10T14:28:12.195473+00:00",
+    "summary": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets. Bitcoin Magazine\n\nBitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets\nBitcoin price slipped to $73,500 Tuesday morning after October consumer prices rose 0.4%, topping forecasts and pushing traders toward a bigger Federal Reserve rate hike in December.\nThis post Bitcoin Pr"
+   },
+   {
+    "headline": "Bitcoin price eyes $74K as Fed rate-hike bets hit 96% after Waller speech",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T10:08:12.195473+00:00",
+    "summary": "Bitcoin price action and stock futures trended lower after Fed governor Christopher Waller said that he would vote to raise interest rates by 0.25% at the December FOMC meeting."
+   },
+   {
+    "headline": "BlackRock Bitcoin ETF outflows hit $1.66B over seven trading sessions",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T08:02:12.195473+00:00",
+    "summary": "US spot Bitcoin ETFs shed $201 million Monday, with seven straight sessions of net withdrawals from BlackRock’s IBIT totaling $1.66 billion."
+   },
+   {
+    "headline": "Stablecoin Drain, ETF Outflows Leave Bitcoin 'Running on Empty'",
+    "source": "decrypt.co",
+    "published_at": "2026-11-11T21:46:12.195473+00:00",
+    "summary": "Stablecoin supply fell $14.2 billion in 30 days, the fastest contraction since June 2022, amid weak ETF demand."
+   }
+  ],
+  "use": "staleness only: the VO's facts come from the selected sentences, never from this news"
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "_0kypyaaW4A",
+   "channel": "Bitcoin Magazine",
+   "speaker": null,
+   "published_at": "2026-11-11T21:30:35+00:00",
+   "sentences": [
+    {
+     "k": 20,
+     "text": "I believe the price will be higher in the future than it is today.",
+     "start": 99.055,
+     "end": 103.05
+    },
+    {
+     "k": 21,
+     "text": "I don't know how much higher.",
+     "start": 103.12,
+     "end": 104.179
+    },
+    {
+     "k": 22,
+     "text": "I'm not going to give you a price target, but I do feel conviction that the price of Bitcoin will be higher in the future than it is today.",
+     "start": 104.215,
+     "end": 110.091
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/_0kypyaaW4A/transcript.yt_auto.json",
+    "record_sha256": "cd6e545b778587f52be98c72e5a208441a1c48ff8473e52c2da0ec8e03351284",
+    "k": [
+     20,
+     22
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "n17v727G7FI",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-05T11:10:49+00:00",
+   "sentences": [
+    {
+     "k": 51,
+     "text": "Open interest hit its highest  level since September on the 3rd of November with   annualized funding around 11%.",
+     "start": 325.244,
+     "end": 332.96
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+    "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+    "k": [
+     51,
+     51
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "From Bitcoin Magazine and Coin Bureau.",
+   "cites": [
+    "A",
+    "B"
+   ],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "On Bitcoin Magazine, the speaker believes Bitcoin's price will be higher in the future than it is today, without naming a target.",
+   "cites": [
+    "A"
+   ],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "Over to Coin Bureau.",
+   "cites": [
+    "B"
+   ],
+   "after": "A"
+  },
+  {
+   "slot": "signoff",
+   "text": "Pulse Check for 2026-11-12.",
+   "cites": [],
+   "after": "B"
+  }
+ ]
+}
