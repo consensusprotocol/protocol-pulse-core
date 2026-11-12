@@ -1,10 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Events — BitcoinDay Naples & BTC in DC | Protocol Pulse{% endblock %}
-{% block meta_description %}Protocol Pulse live events. BitcoinDay Naples and BTC at the Kennedy Center in Washington DC. Bitcoin-first conferences for builders, investors, and operators.{% endblock %}
+{# BTC IN DC TAKEDOWN (2026-11-12): no BTC in DC partnership agreement exists (the organiser wrote to Consensus Protocol; PBX is replying that the references are down until one exists). Every BTC in DC reference here is behind this flag. Restore when the BTC in DC partnership agreement is signed: set show_btc_in_dc = true. #}
+{% set show_btc_in_dc = false %}
+{% block title %}{% if show_btc_in_dc %}Events — BitcoinDay Naples & BTC in DC | Protocol Pulse{% else %}Events — BitcoinDay Naples | Protocol Pulse{% endif %}{% endblock %}
+{% block meta_description %}{% if show_btc_in_dc %}Protocol Pulse live events. BitcoinDay Naples and BTC at the Kennedy Center in Washington DC. Bitcoin-first conferences for builders, investors, and operators.{% else %}Protocol Pulse live events. BitcoinDay Naples: a Bitcoin-first conference for builders, investors, and operators.{% endif %}{% endblock %}
 
 {% block og_meta %}
-<meta property="og:title" content="Protocol Pulse Events — BitcoinDay & BTC in DC">
-<meta property="og:description" content="Live Bitcoin events curated by Protocol Pulse. BitcoinDay Naples and BTC at the Kennedy Center. Sponsor our events.">
+<meta property="og:title" content="{% if show_btc_in_dc %}Protocol Pulse Events — BitcoinDay & BTC in DC{% else %}Protocol Pulse Events — BitcoinDay Naples{% endif %}">
+<meta property="og:description" content="{% if show_btc_in_dc %}Live Bitcoin events curated by Protocol Pulse. BitcoinDay Naples and BTC at the Kennedy Center. Sponsor our events.{% else %}Live Bitcoin events curated by Protocol Pulse. BitcoinDay Naples. Sponsor our events.{% endif %}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Protocol Pulse">
 <meta property="og:url" content="{{ request.url }}">
@@ -170,6 +172,7 @@
   gap: 28px;
 }
 @media (max-width: 820px) { .ev-cards { grid-template-columns: 1fr; } }
+.ev-cards.ev-cards-single { grid-template-columns: 1fr; max-width: 720px; margin-left: auto; margin-right: auto; }
 
 .ev-card {
   background: var(--ev-surface);
@@ -405,9 +408,9 @@
 
   <!-- ── HERO ── -->
   <section class="ev-hero">
-    <div class="ev-hero-badge">// Live Events · 2025–2026</div>
+    <div class="ev-hero-badge">// Live Events</div>
     <h1>Bitcoin in the <em>Real World</em></h1>
-    <p class="ev-hero-sub">Protocol Pulse brings the Bitcoin-first community together at world-class venues. Two flagship events. One mission: make Bitcoin the standard.</p>
+    <p class="ev-hero-sub">Protocol Pulse brings the Bitcoin-first community together at world-class venues. {% if show_btc_in_dc %}Two flagship events.{% else %}Our flagship event.{% endif %} One mission: make Bitcoin the standard.</p>
     <div class="ev-hero-actions">
       <a href="#events" class="ev-btn-red"><i class="fas fa-calendar"></i> View Events</a>
       <a href="mailto:sponsors@protocolpulse.io?subject=Event Sponsorship Inquiry" class="ev-btn-ghost"><i class="fas fa-handshake"></i> Sponsor an Event</a>
@@ -422,12 +425,14 @@
         <div class="ev-countdown-val" id="cdVal1">TBD</div>
         <div class="ev-countdown-name">BitcoinDay Naples</div>
       </div>
+      {% if show_btc_in_dc %}
       <div class="ev-cd-divider"></div>
       <div>
         <div class="ev-countdown-label">// Coming Next</div>
         <div class="ev-countdown-val" id="cdVal2">TBD</div>
         <div class="ev-countdown-name">BTC in DC — Kennedy Center</div>
       </div>
+      {% endif %}
       <div class="ev-cd-divider"></div>
       <div>
         <div class="ev-countdown-label">// Audience Reach</div>
@@ -439,11 +444,11 @@
 
   <!-- ── MAIN EVENTS ── -->
   <section class="ev-section" id="events">
-    <div class="ev-section-label">// Flagship Events</div>
+    <div class="ev-section-label">// Flagship Event{% if show_btc_in_dc %}s{% endif %}</div>
     <h2>Where Bitcoin Leaders Meet</h2>
     <p class="ev-section-desc">Premium Bitcoin conferences designed for high-signal networking, keynote learning, and real deal-making.</p>
 
-    <div class="ev-cards">
+    <div class="ev-cards{% if not show_btc_in_dc %} ev-cards-single{% endif %}">
 
       <!-- BitcoinDay Naples -->
       <div class="ev-card">
@@ -452,7 +457,7 @@
           <div class="ev-card-overlay">
             <div class="ev-card-location">📍 Naples, Florida</div>
             <div class="ev-card-title">BitcoinDay Naples</div>
-            <div class="ev-card-date">Date TBD — 2025</div>
+            <div class="ev-card-date">Date TBD</div>
           </div>
         </div>
         <div class="ev-card-body">
@@ -467,7 +472,7 @@
             <div class="ev-detail">
               <div class="ev-detail-icon">📅</div>
               <div class="ev-detail-label">Date</div>
-              <div class="ev-detail-val">TBD 2025</div>
+              <div class="ev-detail-val">TBD</div>
             </div>
             <div class="ev-detail">
               <div class="ev-detail-icon">👥</div>
@@ -497,6 +502,7 @@
         </div>
       </div>
 
+      {% if show_btc_in_dc %}
       <!-- BTC in DC -->
       <div class="ev-card">
         <div class="ev-card-hero">
@@ -519,7 +525,7 @@
             <div class="ev-detail">
               <div class="ev-detail-icon">📅</div>
               <div class="ev-detail-label">Date</div>
-              <div class="ev-detail-val">TBD 2025</div>
+              <div class="ev-detail-val">TBD</div>
             </div>
             <div class="ev-detail">
               <div class="ev-detail-icon">👥</div>
@@ -549,6 +555,7 @@
         </div>
       </div>
 
+      {% endif %}
     </div>
   </section>
 
@@ -646,7 +653,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Simple "TBD" display — update when dates confirmed
   document.getElementById('cdVal1').textContent = 'TBD';
-  document.getElementById('cdVal2').textContent = 'TBD';
+  {% if show_btc_in_dc %}document.getElementById('cdVal2').textContent = 'TBD';{% endif %}
 });
 </script>
 {% endblock %}

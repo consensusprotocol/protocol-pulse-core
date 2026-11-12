@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{# BTC IN DC TAKEDOWN (2026-11-12): no BTC in DC partnership agreement exists (the organiser wrote to Consensus Protocol; PBX is replying that the references are down until one exists). Every BTC in DC reference here is behind this flag. Restore when the BTC in DC partnership agreement is signed: set show_btc_in_dc = true. #}
+{% set show_btc_in_dc = false %}
 
 {% block title %}Bitcoin Map | Protocol Pulse{% endblock %}
 
@@ -784,7 +786,9 @@ function iconFor(m) {
 // --- Bitcoin events data ---
 const BITCOIN_EVENTS = [
     { name: 'BitcoinDay Naples', lat: 26.142, lon: -81.795, date: '2026-01-17', venue: 'Four Seasons Naples', url: '/events', organizer: 'Protocol Pulse', isProtocolPulse: true, description: 'Premium Bitcoin networking event at Four Seasons Naples.' },
+{% if show_btc_in_dc %}
     { name: 'BTC in DC', lat: 38.907, lon: -77.037, date: '2026-04-15', venue: 'Kennedy Center', url: '/events', organizer: 'Protocol Pulse', isProtocolPulse: true, description: 'Protocol Pulse flagship event at Kennedy Center, Washington DC.' },
+{% endif %}
     { name: 'BitcoinDay Tampa', lat: 27.950, lon: -82.457, date: '2026-06-20', venue: 'Tampa Convention Center', url: '/events', organizer: 'Protocol Pulse', isProtocolPulse: true, description: 'Full-day Bitcoin education and networking in Tampa.' },
     { name: 'Bitcoin 2026', lat: 36.163, lon: -86.781, date: '2026-07-24', venue: 'Music City Center, Nashville', url: 'https://b.tc/conference', organizer: 'Bitcoin Magazine', isProtocolPulse: false, description: 'The world\'s largest Bitcoin conference.' },
     { name: 'Bitcoin Amsterdam', lat: 52.370, lon: 4.895, date: '2026-10-09', venue: 'Westergas, Amsterdam', url: 'https://b.tc/conference/amsterdam', organizer: 'Bitcoin Magazine', isProtocolPulse: false, description: 'Europe\'s premier Bitcoin conference in Amsterdam.' },

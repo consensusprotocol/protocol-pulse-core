@@ -1,3 +1,6 @@
+# BTC IN DC TAKEDOWN (2026-11-12): 'BTC in DC at the Kennedy Center' removed from the Events line of the outreach
+# prompts below (no BTC in DC partnership agreement exists). Restore when the BTC in DC partnership agreement is
+# signed: '- Events: BitcoinDay Naples, BTC in DC at the Kennedy Center'.
 """
 Sponsor Outreach & Guest Booking Service
 ==========================================
@@ -154,7 +157,7 @@ Protocol Pulse is the "ESPN SportsCenter for Bitcoin" — premium daily intellig
 - 970K+ monthly audience reach across web, newsletter, podcast (Cypherpunkd), and video
 - Audience: Bitcoin builders, investors, operators (85% male, 25-55, high income, high net worth)
 - Content: Daily articles, Cypherpunkd podcast, Pulse Check videos, daily newsletter, live terminal
-- Events: BitcoinDay Naples, BTC in DC at the Kennedy Center
+- Events: BitcoinDay Naples
 
 This is step 1 (intro). Write 3-4 paragraphs:
 1. Mention you noticed {company} is active in the Bitcoin space and advertising on podcasts
