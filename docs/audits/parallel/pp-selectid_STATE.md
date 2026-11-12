@@ -1,4 +1,75 @@
-NOT READY (08:20 ET): f216541b FAILS CUTTABLE at the IN (the guest's false start "Bit- bitcoin"). Separately, item 2's arithmetic cannot reach 60 s within R4's 40 % with a 3.50 s clip. Per items 3 and 5: your pick.
+NOT READY (08:32 ET): rulings 8 and 9 are encoded, and clip_02 now passes CUTTABLE and the second pass. ONE BLOCKER: the 08:29 VO 3 has 24 words, and the bridge cap is 20 (deployed config.py, checked by the deployed moments R4). At 20 words VO 3 lands 59.2 s. Your decision (below).
+
+## 08:32 ET: rulings 8 / 9 encoded; a word-cap blocker in the VO (five lines)
+
+1. **Ruling 8 encoded** (transcript_truth.self_repair, used by CUTTABLE's IN and by the L-v 2 comparison).
+   - On the recorded pass (cached, $0), clip_02 CUTTABLE PASS: IN "path." | [false start "Bit-"] "bitcoin"; OUT
+     "ever." | "Okay,".
+   - Second pass PASS. Step A PASS.
+   - 52 tests pass. Must-fail cases: another speaker, a non-prefix fragment, no dash, two fragments, no sentence end
+     before it. A full repetition stays a disagreement.
+2. **Ruling 9 encoded**: package.R4_MOMENTS_SHARE = 0.45; a test refuses 45.1 %.
+   - The main tree's edl_rules.py already reads 0.45 in its working copy (MOMENTS_VO_SHARE).
+3. **BLOCKER: VO 3 is over the bridge cap.**
+   - VO 3 as ruled at 08:29 has 24 words. Bridges are capped at 20 words: config.py BRIDGE_WORD_CAP = 20 in the main
+     tree and here.
+   - The deployed moments R4 checks it (edl_rules.py:203-204): "bridge 2 24 words (max 20)". My R4 refuses it the same
+     way.
+   - With VO 1 and VO 2 as ruled, VO 3 at its 20-word maximum lands 59.2 s, under the hard 60.
+4. **The arithmetic:** 60.5-62.5 s needs 55-60 VO words in total. With VO 2 at 18 and VO 3 at most 20, VO 1 needs at
+   least 17 words (the intro cap is 30). Ways to get there:
+   - VO 1 + a clause of 4 or more words, with VO 3 at 20 words: 60.8 s at 41.1 %;
+   - VO 2 at 20 words and VO 1 at 15;
+   - or a moments bridge cap of at least 24 (the integrator's constant).
+5. **Your text or your cap.** Nothing has run beyond the cached pre-checks: $0 since 08:20 (ledger $57.11).
+   - The code audit is being re-run: the Heimdall cycle-1 replies came back empty (reasoning effort not passed).
+   - Evidence: tests/package/proof/fresh_20261112_050611/precheck_v0700_0829.json / .log.
+
+
+## ORCHESTRATOR RULINGS 08:29 ET: recorded in substance (builder + integrator)
+
+The builder and the integrator measured the same edge and disagree. The integrator's measurement on the renderer's own
+window decides: **f216541b STAYS.**
+
+**RULING 8: the IN of f216541b.**
+- The facts, from both measurements:
+  - the previous sentence ends "path.";
+  - a pause (260 ms on the renderer's window);
+  - the guest's faint false start ("Bit-" / "It w-", 15-20 dB below speech);
+  - then "Bitcoin imposes a global free market for the first time ever.";
+  - then a 520 ms pause and the host.
+- The sentence boundary is AFTER "path.": that is where this sentence begins, false start included.
+- A same-speaker self-repair at the START of a sentence is part of that sentence:
+  - the clip begins at the integrator's cut (14.38 s, after "path.");
+  - the false start stays in the clip exactly as spoken (nothing inside a clip is edited);
+  - CUTTABLE's IN evidence is "path." | [false start] "Bitcoin".
+- The integrator's simulated prepare edge-word check already passes ("bitcoin" / "ever").
+- **Builder: encode it.** A token that the second recogniser hears and the primary does not, which is a truncated
+  repetition of the clip's first word by the same speaker, is a self-repair. It is not a missing sentence start, and
+  not an L-v 2 disagreement (L-v 2 is about numbers, names and negations; "Bit-" is none).
+- The locked-text / word-for-word check (G18) must tolerate exactly that token and nothing else.
+  - INTEGRATOR: confirm that G18 and the sentence lock handle it on the real render.
+  - If G18 would fail on it, say so BEFORE rendering, and the orchestrator rules.
+
+**RULING 9: R4 for moments.**
+- The VO share cap is 45 % of the total runtime (it was 40 %, the orchestrator's number from two hours earlier).
+- The auditors asked for 30-45 % commentary, and a 3.5 s punchline clip cannot reach PBX's hard 60 s under 40 %.
+- 60-70 s stays hard.
+- INTEGRATOR: change the constant and its must-fail test (45.1 % rejected), smallest possible audit, commit.
+
+**Lines:**
+- VO 3 (24 words): "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still miss when they
+  look at Bitcoin."
+- The code's arithmetic may trim or add ONE clause of host commentary to land 60.5-62.5 s.
+- VO 1, TITLE, CAPTION and VO 2 as ruled at 08:18.
+
+**THEN:**
+- The builder runs the full gate set ONCE (the three-run majority only for a model verdict that is not PASS on its
+  first run), seals, puts READY on line 1, commits and pushes.
+- The integrator renders the moment it lands and delivers to Telegram REVIEW ONLY.
+- If the package fails only on split model votes, with every deterministic gate passing: the vote table goes to the top
+  of STATE, and no loop.
+
 
 ## 08:20 ET: the 08:18 pre-checks on f216541b (item 3, five lines)
 

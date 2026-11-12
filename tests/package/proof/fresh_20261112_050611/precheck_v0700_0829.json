@@ -1,0 +1,225 @@
+{
+ "step_a": {
+  "hook": {
+   "label": "hook",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "some people ending up with more Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they",
+     "refers_to": "some people",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If some people end up with more Bitcoin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has no authority allowing seizure of others' wealth, so any unequal holdings result purely from voluntary individual choices.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "No, it absolutely is not. And I think the fundamental difference in the way that this is presented demonstrates a very, very serious difference in the worldview. In my worldview,",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "clip_01": {
+   "label": "clip_01",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's success is independent of which political party or officials control the White House, Senate, or House.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Like, do you think it's been a success? I do. I do. I think despite, you know, not necessarily getting everything done that we wanted to get done",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "clip_02": {
+   "label": "clip_02",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "for the first time ever",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin creates or imposes a global free market in a way that has never happened before.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Okay, so let's wrap this up with maybe some news you can use. How do you... share this message with people that believe that there's a fix from within the control system",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "truth": {
+  "hook": {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "model": "elevenlabs_stt:scribe_v1",
+   "replayed": false,
+   "second_pass_text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+   "self_repair": null,
+   "transcript_ok": true,
+   "disagree": {
+    "numbers": [],
+    "negations": [],
+    "names": []
+   },
+   "critical": {
+    "numbers": [],
+    "negations": [
+     "not"
+    ],
+    "names": []
+   },
+   "speakers": {
+    "labels": [
+     "speaker_0"
+    ],
+    "turn_change_inside": false
+   },
+   "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+   "edges": {
+    "in": {
+     "ok": true,
+     "word": "Bitcoin",
+     "before": "fundamental.",
+     "why": "a sentence ends before the clip"
+    },
+    "out": {
+     "ok": true,
+     "word": "that.",
+     "after": "Your",
+     "why": "a sentence ends at the clip's last word"
+    },
+    "cuttable": true
+   },
+   "ok": true
+  },
+  "clip_01": {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "model": "elevenlabs_stt:scribe_v1",
+   "replayed": false,
+   "second_pass_text": "I mean, the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US.",
+   "self_repair": null,
+   "transcript_ok": true,
+   "disagree": {
+    "numbers": [],
+    "negations": [],
+    "names": []
+   },
+   "critical": {
+    "numbers": [],
+    "negations": [
+     "not",
+     "not"
+    ],
+    "names": []
+   },
+   "speakers": {
+    "labels": [
+     "speaker_0"
+    ],
+    "turn_change_inside": false
+   },
+   "audio": "c1JGheQBPH4_2401730_2423570.wav",
+   "edges": {
+    "in": {
+     "ok": true,
+     "word": "I",
+     "before": "Mm-hmm.",
+     "why": "a sentence ends before the clip"
+    },
+    "out": {
+     "ok": true,
+     "word": "US.",
+     "after": "Um,",
+     "why": "a sentence ends at the clip's last word"
+    },
+    "cuttable": true
+   },
+   "ok": true
+  },
+  "clip_02": {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "model": "elevenlabs_stt:scribe_v1",
+   "replayed": false,
+   "second_pass_text": "bitcoin imposes a global free market for the first time ever.",
+   "self_repair": "Bit-",
+   "transcript_ok": true,
+   "disagree": {
+    "numbers": [],
+    "negations": [],
+    "names": []
+   },
+   "critical": {
+    "numbers": [],
+    "negations": [],
+    "names": []
+   },
+   "speakers": {
+    "labels": [
+     "speaker_0"
+    ],
+    "turn_change_inside": false
+   },
+   "audio": "wdk5JZ9hPzs_3216640_3223140.wav",
+   "edges": {
+    "in": {
+     "ok": true,
+     "word": "bitcoin",
+     "before": "path.",
+     "why": "a sentence ends before the clip; the speaker's false start 'Bit-' opens the sentence (ruling 8: a self-repair, part of the sentence)",
+     "self_repair": "Bit-"
+    },
+    "out": {
+     "ok": true,
+     "word": "ever.",
+     "after": "Okay,",
+     "why": "a sentence ends at the clip's last word"
+    },
+    "cuttable": true
+   },
+   "ok": true
+  }
+ }
+}
