@@ -206,6 +206,15 @@ missed, 0 errors (tests/package/exam/ci_mustfail_*.json; claude-opus-5-5, grok f
 
 ## BUILD LOG (orchestrator 05:25: one line at least every 10 minutes while building)
 
+- 07:45 ET:
+  - The phase-2 code is COMMITTED and pushed (aef73873). Audited in 2 cycles: C1_CONSENSUS implemented; cycle 2 (opus /
+    sonnet / grok, 3 chunks), C2_DISPOSITIONS K1-K11 implemented.
+  - 105/105 tests; SMOKE R7 PASS against the deployed factory; must-fail 41/41; regression 0 FAIL.
+  - **For the integrator (REQUESTS R7 1b):** the deployed build_edl accepts a pin edited after its gates (it reads the
+    two flags, not the sealed inventory), measured by smoke_r7. Tonight's pin f409e9d9 is untampered.
+  - Audit spend runs outside the phase-2 ledger: cycle 2 about $4 by usage.
+  - Ledger $54.47 of $64.28.
+
 - 06:45 ET: after the pin (pushed 3716963e):
   - The unit tests are rewritten for tonight's contracts: 103/103 pass (phase 1 + phase 2).
   - smoke_r7 now tests a package_pin pin against the DEPLOYED pinned.py / edl_rules.py: SMOKE R7 PASS (R4 moments: VO 30.96 % of 63.95 s).
