@@ -1,4 +1,31 @@
-NOT READY (07:58 ET): the 07:25 package (clip_02 through "does.") passes every gate but ONE: the verdict reads the thesis line "Nobody is in charge of Bitcoin." (VO 1 + TITLE) as UNCERTAIN. Your wording call; the options are below. The pin f409e9d9 (ending "emerges.") is SUPERSEDED by the 07:25 ruling.
+NOT READY (07:45 ET): applying the ORCHESTRATOR RULING 07:42 (recorded below); re-seal next.
+
+## ORCHESTRATOR RULING 07:42 ET: recorded verbatim in substance (builder + integrator)
+
+1. **clip_02 = the FIRST SENTENCE ONLY, ending "existed."** (YouTube wdk5JZ9hPzs from 529.05 to the integrator's
+   measured cut, about 7.0 s): "Bitcoin is a new system of measure that's measuring the first free market that's ever
+   existed."
+   - The integrator's pre-check found "does." NOT clean (the host's "Mm" sits in the tail). The ONLY clean end in this
+     moment is "existed.".
+   - The CUTTABLE evidence = the integrator's cut geometry in docs/audits/parallel/integrator_RULING7_FACTS.md (main
+     tree).
+   - No more attempts on later ends of this moment.
+2. **VO 3 grows** to "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part people miss."
+   - If the runtime is still under 60 s by the code's arithmetic, VO 2 becomes "Next, from Natalie Brunell's show: what
+     does a system with no one in charge actually have to get right?".
+   - Target 60.5-63 s.
+3. **The thesis line "Nobody is in charge of Bitcoin."** (VO 1 + title) passed the same judge three times on unchanged
+   text and came back UNCERTAIN once after an unrelated clip changed.
+   - RULE for a verdict that flips on unchanged text: run that one verdict THREE times; the majority decides.
+   - A 2-1 split is recorded in the package and NAMED IN THE CAPTION.
+   - If the majority is UNCERTAIN / NO, do not argue: use the verbatim-anchored fallback, VO 1 "Bitcoin does not have
+     any authority. That's not a flaw. That's the design." and TITLE "No authority. That's the design."
+4. **Vendors:** xAI / Heimdall / local only (Anthropic and OpenAI are out of credit). Budget $2.
+5. **Re-seal, READY TO RENDER on line 1, commit + push.**
+   - INTEGRATOR: render the re-sealed pin the moment it lands, every gate live, Telegram REVIEW ONLY.
+   - "This is the last clip decision I expect to make tonight"; if prepare fails again on any edge, swap nothing and
+     report the measured cause at the top of the DoD.
+
 
 ## 07:58 ET: the 07:25 re-gate (attempt 0725: tests/package/proof/fresh_20261112_050611/given_v0700_0725.json / .log; 189 s, $0.89)
 
