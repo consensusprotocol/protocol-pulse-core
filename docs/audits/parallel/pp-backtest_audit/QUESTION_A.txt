@@ -1,0 +1,48 @@
+pp-backtest (parallel Claude Code session, 2026-11-12, branch pp-backtest) for the Pulse Check pipeline (Python; it
+cuts a 60-70 s Bitcoin video from partner channels' own words). PACKAGE A of 2: the instrument's CODE (all new files;
+package B holds its tests, docs and the generated report). The pipeline's own modules are imported, never edited.
+It answers: on each saved day, did a line-up that passes our rules exist (supply), and did the selector find it?
+(1) pipeline/oracle/export.py: BITCOIN_STATEMENTS_<run>.jsonl, the candidate sentences of a saved universe, read from
+    the transcript store by the sha the run recorded (hash re-checked; a missing record is a counted gap), text read as
+    spoken (transcript_store.read_text + canon.canon, imported), sentences split by sentence_law.is_terminal, Bitcoin
+    screen = editorial_select.BITCOIN_TERMS +-2 sentences; deterministic.
+(2) lineup.py / prompts.py / run.py: a blind writer ("oracle") builds line-ups by sentence id from ONLY the statements
+    and the written rules; strict schemas (malformed / empty reply or unknown id = ORACLE_FAILED, never NONE);
+    deterministic checks (consecutive ids, 8-12 s / 12-20 s windows hard or as targets, >= 2 channels, limits,
+    >= 46.5 s, altcoin word screen); a blind judge rates each line-up that passes the checks (strict schema;
+    inconsistent = JUDGE_FAILED). Variants: the order's rules; as many disjoint line-ups as exist; windows as targets;
+    moments-first; a blind development grouping. witness.py: context checks on moments line-ups (90 s before / 60 s
+    after in the original transcript).
+(3) providers.py (law L-x): the ONLY place a vendor / model name appears; every role (writer, judge, grouping, witness)
+    is a chain of >= 2 vendors, local GPU0 model first but only inside the integrator's GPU0 lease
+    (PP_GPU0_LEASE_HELD=1); a vendor-side failure moves to the next back-end, any other error raises; the judge-like
+    roles never use the writer's vendor; a prompt larger than a back-end's context is never sent (ContextTooLong);
+    Heimdall's 90 % credit tripwire notifies and falls back; dollars per call (price table / gateway-reported / local
+    0 / 'unpriced' flagged). llm.py: spend ledger with in-flight reservations (cap 60 USD); keys read by name, never
+    printed. ab.py: blind A/B of each role on the stored prompts against the recorded reference verdicts, plus
+    must-fail swaps (a clip from a different development) whose only right verdict is "fails our rules".
+(4) replay.py: editorial_select.select_story at THIS code without a GPU (cache-only gemma stand-in: a miss raises
+    NotRerun, a BaseException; stop() never unloads the live model; CPU embedder never writes the store). score.py:
+    each accepted line-up traced through the saved selector records to the furthest stage holding >= 2 of its channels.
+(5) report.py writes docs/audits/BACKTEST_SUPPLY_REPORT.md. tools/backtest_oracle.py is the CLI.
+ROUND 3: this is the package after the fixes for the 12 findings of round 1 and the 16 of round 2 (dispositions in docs/audits/parallel/pp-backtest_AUDIT.md, summarised here: ledger shared across processes with atomic settle and an unpriced-call refusal at the cap; Heimdall tripwire on every call; ContextTooLong on a context-length refusal or a cut remote prompt; swaps rebuilt from windows-hard line-ups and caught only on rule 1; failed re-ask = NOT_MEASURED; derived files archived and stamped with their ORACLE.json sha; record-time layout flags; key redaction; round 2: recall over completed records only, NOT_REACHED for incomplete records without a carrier, worst-case reservation for every remote call, local 5xx falls through, local back-end only once validated per role, whole-sentence rows, replay write guard). Check each fix, and look for what rounds 1-2 missed.
+GOVERNING LAWS FOR THIS PACKAGE (texts as given in the orders of 2026-11-12; the tool's own law list ends at L-l):
+- L-j FAIL CLOSED: a missing input, a failed call or an unreadable reply stops or fails the item; it never passes.
+- L-l A MODEL REPLY COUNTS ONLY WHOLE: strict schema; a reply missing or mistyping a deciding field is a failed call.
+- L-m NOTHING MEASURED IS NEVER A PASS: an unmeasured item is reported as not measured, never as a pass or a result.
+- L-o TASTE BENDS: the 8-12 s hook and 12-20 s clip windows are targets, not hard limits; supply is reported both with
+  them as targets and with them as hard limits.
+- L-q MOMENTS FIRST: the best stand-alone, engagement-worthy whole sentences from >= 2 channels first (they need not
+  share one development); the voiceover may stitch them and never misattributes; 60-70 s; Bitcoin only; current.
+- L-x NO SINGLE MODEL, ULTRON FIRST: every model role sits behind ONE provider interface with >= 2 interchangeable
+  back-ends; the run continues when a vendor is down; the default back-end is the local model on Ultron (GPU0, used
+  only under the integrator's lease) where a measured A/B shows it meets the bar; frontier / Heimdall only where it
+  does not; generator and blind judge are different models (different vendors here); no role hard-codes a vendor or
+  model name outside the provider config; Heimdall's 90 % credit tripwire notifies and falls back, never halts.
+- Spend guard (order): oracle + judge spend stops at about 60 USD.
+FIND: any path where a failed, empty or malformed model reply is counted as NONE, as passing, accepted, available or as
+agreement; any write into /home/ultron/protocol_pulse or the transcript store; any GPU use outside the lease gate; any
+way a key can be printed or logged; nondeterminism in the export; a stage blamed in score.py that the record never
+reached; spend-guard holes (incl. the A/B thread pool); a vendor or model name outside providers.py; a judge that can
+share the writer's vendor; a silently truncated prompt. At most 8 findings, each with quoted evidence (file:line),
+severity and a concrete fix.

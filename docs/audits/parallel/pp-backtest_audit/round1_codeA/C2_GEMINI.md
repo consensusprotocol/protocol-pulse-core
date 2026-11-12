@@ -1,0 +1,1 @@
+FAILED: NOT RUN: there is no Gemini key in /home/ultron/protocol_pulse/.env, the only key source the pp-backtest order allows (keys from anywhere else are not used)

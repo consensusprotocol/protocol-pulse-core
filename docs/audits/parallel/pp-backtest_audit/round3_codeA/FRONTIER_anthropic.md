@@ -1,0 +1,43 @@
+# claude-fable-5-2 independent review (410.4 s, 113349 in / 30818 out, 2.1395 USD, stop end_turn)
+
+VERDICT: NOT READY. Q1: no path was found where a malformed or empty model reply becomes NONE, a pass or agreement — the oracle, judge, witness and grouping parsers are strict, and failed calls are recorded as ORACLE_FAILED, JUDGE_FAILED or NOT_MEASURED. The defects are a weak cut-prompt check for remote back-ends, spend-ledger holes on killed or retried calls, word records not covered by the hash check, and score.py blaming a decided stage in records that never finished. Q2: L-l COMPLIANT in the code shown; L-j / M12 PARTIAL (cut prompt, unhashed words); L-m PARTIAL (score.py); L-x PARTIAL (truncation guard); spend guard PARTIAL; LAW 20 PARTIAL (duplicated constants). SENTENCE LAW, SELECTION LOCK, SNAP LIMIT, NEIGHBOUR, ONSET/TAIL, CREDITS, L-a to L-d, L-g, L-i, the L-j release-authorisation path and LAW 22 cannot be verified: this diff touches none of that code. Q3: cannot be verified; no tests are in this package. Q4: fix the HIGH and MEDIUM items and review the tests before merge.
+
+## F1 HIGH: pipeline/oracle/providers.py diff lines 1465, 1473-1477, 1659-1663 (fits / call_backend)
+- Defect: The cut-prompt check for remote back-ends only fires when under 1 token per 6 characters was counted. At the measured ratios, a gateway can drop about half of a writer prompt (about two thirds of a judge prompt) and still pass. No remote back-end has a declared context, though DECIDED_BY says writer prompts are 115,595-219,172 tokens. A writer that saw a cut prompt can answer NONE and the day is recorded as measured 'NONE (oracle)'.
+- Evidence: `MAX_CHARS_PER_TOKEN = 6.0`; `if remote and row["tokens_in"] < chars / MAX_CHARS_PER_TOKEN`; fits(): `not b.get("num_ctx") or ...` and only the local back-end declares num_ctx. llm.py 1102-1103 measures the real ratio as 'the writer's 2.93-3.06 and the judge's 1.84-2.07 characters per token'.
+- Fix: Declare num_ctx for every remote back-end and refuse before sending. After the call, require tokens_in at or above chars divided by a per-role ceiling near the measured ratio (about 3.5 for the writer, 2.5 for the judge); otherwise raise ContextTooLong.
+
+## F2 MEDIUM: pipeline/oracle/score.py diff lines 3030-3037 (trace) and 2959-2966 (lineup_stage)
+- Defect: In an incomplete record, a line-up with one rejected carrier and another carrier left NOT_REACHED is blamed on the rejected carrier's stage. LAYOUT_ELIGIBILITY is also blamed while coverage is unfinished and another of the line-up's channels is still unadjudicated. Both report a decided loss the record never decided (L-m); the report's stage counts use loss_stage only.
+- Evidence: `if decided: best = max(decided, key=lambda c: ORDER[c["stage"]]); stage = best["stage"]` is taken before `undecided` or `complete` are consulted. `if len(surv["layout"]) < L.MIN_CHANNELS: return "LAYOUT_ELIGIBILITY"` has no `coverage.status != "done"` check, unlike the counted branch just above it.
+- Fix: When the record is incomplete and any carrier is undecided, or coverage is not done, return NOT_REACHED and keep the furthest decided stage as a note.
+
+## F3 MEDIUM: pipeline/oracle/llm.py diff line 1038 (Ledger._inflight); providers.py diff line 1635
+- Defect: A process killed or interrupted mid-call (Ctrl-C is a BaseException, so neither settle nor release runs) leaves requests that were sent and probably billed. The next ledger read drops their reservations with no row. An interrupted 8-thread A/B batch can lose several worst cases, and the 60 USD cap is then checked against understated spend.
+- Evidence: `return {k: v for k, v in d.items() if _alive(v["pid"])}`; docstring: 'A reservation of a process that no longer exists is dropped'. call_backend settles or releases only under `except Exception as e:`.
+- Fix: When a reservation's pid is dead, append a ledger row at its worst case (usd_source 'orphaned: worst case') instead of dropping it. Settle at worst case in a `finally` for BaseException.
+
+## F4 MEDIUM: pipeline/oracle/export.py diff lines 420-423, 432-434, 499-501; witness.py diff lines 3213-3219
+- Defect: For word records, the text and timings actually read are not covered by the hash check. A words array changed after the run (for example punctuation restored) passes as the run's record, so the export is neither reproducible nor fail-closed. The witness would then mark [CLIP] on re-derived sentence indices that may no longer match the export rows. read_sha256 is recorded but nothing in this diff compares it.
+- Evidence: `if ts.segments_sha256(rec["segments"]) != sha: raise ExportError`, but tokens() reads `rec["words"]` when present. The code's own comment: 'segments_sha256 covers only the segments'. witness.context re-loads the record and marks `clip = {r["sentence_index"] for r in rows}`.
+- Fix: In witness.context (and any re-export), recompute read_sha256 and fail on mismatch with the manifest's per_video value. Ideally hash-check the words against a sha the run recorded.
+
+## F5 LOW: pipeline/oracle/providers.py diff lines 1566, 1588, 1503-1507, 1427-1434
+- Defect: The spend guard reserves one worst case per call, but the SDK can silently resend after a timeout that may have been billed. An APIConnectionError or a 5xx after processing is released as free. The Heimdall reserve is a fixed amount, not a worst case for a writer prompt of up to 219K tokens. Whether these vendors bill in those cases cannot be verified from the diff.
+- Evidence: `OpenAI(..., timeout=3600, max_retries=1)`; `anthropic.Anthropic(..., timeout=3600, max_retries=2)`; _maybe_billed lists only timeouts and dropped connections ('a status means the vendor refused it unbilled'); Heimdall `"reserve_usd": 0.25` is justified by 'its largest call tonight cost 0.034 USD'.
+- Fix: Set max_retries=0 and let the chain handle failures. Treat any failure after the request was sent without a 4xx as worst-case billed. Compute the Heimdall reserve from estimated tokens at a configured ceiling price.
+
+## F6 LOW: pipeline/oracle/replay.py diff lines 1841, 1854-1862 (no_writes_under)
+- Defect: The docstring says every write, create, rename or delete under the main tree raises, but the guard patches only these Python entry points with positional path arguments. Calls relative to a dir_fd (as shutil.rmtree makes), keyword paths, os.truncate/chmod/utime, C-level writers such as sqlite3, and subprocesses are not covered. Whether select_story uses any of these cannot be verified from the diff. Only `replay` is guarded, although every command sets PP_EDITORIAL_STORE to the main store.
+- Evidence: `names = ("replace", "rename", "remove", "unlink", "link", "symlink", "rmdir", "mkdir", "makedirs")`; `paths = [x for x in args[:2] if isinstance(x, (str, bytes, os.PathLike))]`.
+- Fix: Run the replay against a read-only bind mount or a copied store, or state the guard as best-effort and add a before/after listing (mtime and size) of the store that fails the replay on any change.
+
+## F7 LOW: pipeline/oracle/lineup.py diff lines 625-631; prompts.py diff line 1287
+- Defect: The selector's limits are copied as literals and only asserted equal in comments. If editorial_select changes, the oracle silently measures supply under different windows than the selector enforces (LAW 20: thresholds are constants, one source).
+- Evidence: `HOOK_S = (8.0, 12.0)  # = editorial_select.HOOK_MIN_S, HOOK_MAX_S`, `CLIP_S = (12.0, 20.0)`, `MAX_SENTENCES = 3  # = editorial_select.MAX_WINDOW_SENTENCES`; prompts hard-codes "hook 8-12 s, clips 12-20 s". export.py imports `es.MAX_WINDOW_SENTENCES` instead.
+- Fix: Import the values from editorial_select as export.py does, or assert equality at import; build the reminder text from the constants.
+
+## F8 MEDIUM: Audit package header versus diff lines 1-3, 28-29
+- Defect: No test file and none of sentence_law.py, run_fresh.py or the gates is in this diff. Q3 (tests) and the sentence, snap, onset, credits and release laws therefore cannot be verified here. The laws that actually govern this code (L-m, L-o, L-q, L-x) are absent from the governing list. The cited fixes from rounds 1-2 cannot be shown to be tested.
+- Evidence: The package is titled 'pulse-sentence-law' and asks about cuts, locks, gate thresholds and v2f. The diff states 'pp-backtest ... PACKAGE A of 2: the instrument's CODE (all new files; package B holds its tests, docs and the generated report)' and 'the tool's own law list ends at L-l'.
+- Fix: Review package B together with this one, or attach the tests for the fail-closed parsers, the ledger, ContextTooLong, score NOT_REACHED and the write guard. Add L-m to L-x to the governing law list.

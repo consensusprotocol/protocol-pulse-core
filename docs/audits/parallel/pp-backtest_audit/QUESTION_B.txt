@@ -1,0 +1,27 @@
+pp-backtest (parallel Claude Code session, 2026-11-12, branch pp-backtest) for the Pulse Check pipeline (Python; it
+cuts a 60-70 s Bitcoin video from partner channels' own words). PACKAGE B of 2: the TESTS (tests/oracle), the session's
+written analysis and state, and the GENERATED report docs/audits/BACKTEST_SUPPLY_REPORT.md
+for a measuring instrument (package A holds its code: export of a saved day's Bitcoin statements, a blind writer that
+builds line-ups by sentence id, deterministic checks, a blind judge of another vendor, witness context checks, a
+provider layer with >= 2 vendors per role, an A/B harness, a CPU-only replay of the selector, scoring, the report).
+Required by the order: must-fail fixtures (empty reply, malformed ids, id not in the universe, altcoin smuggled) and a
+deterministic export; nothing measured is never a pass; fail closed.
+GOVERNING LAWS FOR THIS PACKAGE (texts as given in the orders of 2026-11-12; the tool's own law list ends at L-l):
+- L-j FAIL CLOSED: a missing input, a failed call or an unreadable reply stops or fails the item; it never passes.
+- L-l A MODEL REPLY COUNTS ONLY WHOLE: strict schema; a reply missing or mistyping a deciding field is a failed call.
+- L-m NOTHING MEASURED IS NEVER A PASS: an unmeasured item is reported as not measured, never as a pass or a result.
+- L-o TASTE BENDS: the 8-12 s hook and 12-20 s clip windows are targets, not hard limits; supply is reported both with
+  them as targets and with them as hard limits.
+- L-q MOMENTS FIRST: the best stand-alone, engagement-worthy whole sentences from >= 2 channels first (they need not
+  share one development); the voiceover may stitch them and never misattributes; 60-70 s; Bitcoin only; current.
+- L-x NO SINGLE MODEL, ULTRON FIRST: every model role sits behind ONE provider interface with >= 2 interchangeable
+  back-ends; the run continues when a vendor is down; the default back-end is the local model on Ultron (GPU0, used
+  only under the integrator's lease) where a measured A/B shows it meets the bar; frontier / Heimdall only where it
+  does not; generator and blind judge are different models (different vendors here); no role hard-codes a vendor or
+  model name outside the provider config; Heimdall's 90 % credit tripwire notifies and falls back, never halts.
+- Spend guard (order): oracle + judge spend stops at about 60 USD.
+FIND: tests that pass vacuously or would still pass if the guarded behaviour were removed (name the mutation that
+survives); a must-fail case the order names that no test covers; numbers in the report or in the analysis that the
+report's own tables contradict (quote both); a percentage without its raw count; a claim stated as measured that the
+tables show NOT_RERUN / NOT_REACHED / not measured; anything in the docs that tells someone to loosen a gate to pass.
+At most 8 findings, each with quoted evidence (file:line), severity and a concrete fix.
