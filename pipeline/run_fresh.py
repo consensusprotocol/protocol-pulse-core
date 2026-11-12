@@ -1144,8 +1144,15 @@ def stage_gates(run, final16, man16, final9, man9):
                                 "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
                                 "cut_in": c["cut_in"], "cut_out": c["cut_out"],
                                 "pad_s": float(c.get("lead_in_pad_s") or 0.0),
-                                "adjudicated": bool((locks.get(c["clip_id"]) or {}).get("adjudication"))}
+                                "adjudicated": bool((locks.get(c["clip_id"]) or {}).get("adjudication")),
+                                "alternatives": (locks.get(c["clip_id"]) or {}).get("alternatives"),
+                                "prepared": os.path.join(qa, f"final_{c['clip_id']}.mp4")}   # the PREPARED clip
+                 # (qa/final_<clip>.mp4, the file G17c measures; the finals are out/segment*.mp4)
                  for c in cuts}
+    run.prov["lock_adjudication"] = {cid: (locks.get(cid) or {}).get("adjudication") for cid in g18_clips
+                                     if (locks.get(cid) or {}).get("adjudication")}         # ruling 17
+    run.prov["lock_alternatives"] = {cid: (locks.get(cid) or {}).get("alternatives") for cid in g18_clips
+                                     if (locks.get(cid) or {}).get("alternatives")}        # ruling 18
     missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
     tr = WD.Transcriber()
     g18 = {}

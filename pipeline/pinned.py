@@ -297,6 +297,22 @@ def _second_recogniser_words(src_path):
     return words, round(secs / 60 * 0.012, 4)
 
 
+def _token_word(words, i0, i1, a):
+    """The index of the run word that carries canonical token a of the lock text; None when the per-word canonical
+    forms do not add up to the lock text's (fail closed)."""
+    import canon
+    per = [canon.canon_tokens(str(words[j]["word"])) for j in range(i0, i1 + 1)]
+    if [t for p in per for t in p] != canon.canon_tokens(" ".join(str(w["word"]).strip() for w in words[i0:i1 + 1])):
+        return None                                  # audit batch34 F3: token for token, not only the count
+    lens = [len(p) for p in per]
+    k = 0
+    for j, n in zip(range(i0, i1 + 1), lens):
+        if k <= a < k + n:
+            return j
+        k += n
+    return None
+
+
 def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
     """Ruling 17: the run's own decode (lock['text']) and the pin's approved text (lock['selected_text']) differ
     inside the locked span -> a difference on a number, a name or a negation always holds (law L-v 2); otherwise
@@ -330,11 +346,33 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
         # the second recogniser reads x's words lo..hi-1 AT this position: they and one neighbour on each side are
         # all aligned and consecutive in its text (nothing else between them: a deletion is not 'a different word')
         idx = list(range(max(lo - 1, 0), min(hi + 1, len(x))))
-        return all(i in xmap for i in idx) and all(xmap[j] == xmap[i] + 1 for i, j in zip(idx, idx[1:]))
+        if not idx or not all(i in xmap for i in idx) or \
+                not all(xmap[j] == xmap[i] + 1 for i, j in zip(idx, idx[1:])):
+            return False
+        # cycle-2 F1: at the span's start / end there is no neighbour: nothing may precede / follow it in the reading
+        return (lo > 0 or xmap[idx[0]] == 0) and (hi < len(x) or xmap[idx[-1]] == len(s) - 1)
     pmap, rmap = amap(p, s), amap(r, s)
     pin_side = all(reads(p, pmap, c, d) for _, a, b, c, d in ops)
     run_side = all(reads(r, rmap, a, b) for _, a, b, c, d in ops)
     readings = {"run_decode": run_t, "approved": pin_t, "second_recogniser": sec_t}
+    if not pin_side and run_side and len(ops) == 1 and ops[0][0] == "replace" and ops[0][2] - ops[0][1] == 1 \
+            and ops[0][4] - ops[0][3] == 1:
+        # ruling 18 ('10:36'): the decodes split on ONE non-critical token: the lock records both attested readings;
+        # G18 passes the token only when the final reads one of them AND the clip's audio there is the source's
+        _, a, _, c, _ = ops[0]
+        wi = _token_word(words, lock["i0"], lock["i1"], a)
+        if wi is None:
+            raise PinError(f"{tag}: the ambiguous token cannot be located in the run's words (ruling 18: HOLD) | " +
+                           " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
+        new = {k: v for k, v in lock.items() if k != "sha256"}
+        new["alternatives"] = [{"rule": "ruling 18 (orchestrator 2026-11-12 '10:36')", "token_index": a,
+                                "readings": [r[a], p[c]], "word_index": wi,
+                                "source_span": [round(float(words[wi]["start"]), 3), round(float(words[wi]["end"]), 3)],
+                                "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}]
+        new["sha256"] = L._lock_digest(new)
+        log(f"  lock {tag}: one token heard as {r[a]!r} (run decode, second recogniser) or {p[c]!r} (approved): both "
+            f"readings recorded (ruling 18)")
+        return new
     if not pin_side:
         raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
                        f"{'the run decode' if run_side else 'neither'} | " +

@@ -148,10 +148,28 @@ class TestRuling16Floor(unittest.TestCase):
         return det["in"]
 
     def test_differences_only_below_the_16_bit_floor_pass(self):
-        self.assertEqual(L.EDGE_WORD_FLOOR_DBFS, -96.0)
+        self.assertEqual(L.EDGE_WORD_FLOOR_DBFS, -90.0)                       # ruling 19: AAC codec noise, measured
         self.assertEqual(L.EDGE_WORD_MAX_DB, 1.0)                                # the bar is unchanged
         self.assertTrue(self._in(self.below)["ok"], self._in(self.below))
         self.assertFalse(self._in(self.below, floor=-999.0)["ok"])              # without the floor: compared, fails
+
+    def test_codec_noise_between_minus_96_and_minus_90_dbfs_passes(self):           # ruling 19
+        import numpy as np
+        rng = np.random.default_rng(19)
+        x = np.concatenate([rng.standard_normal(3200) * 10 ** (-93 / 20), rng.standard_normal(9600) * 10 ** (-50 / 20),
+                            np.zeros(3200)])
+        y = x.copy()
+        y[:3200] *= 10 ** (-1.3 / 20)                                           # 1.3 dB off at -93 dBFS, like AAC
+        src = _f32_wav(os.path.join(self.tmp, "src93.wav"), x)
+        clip = _f32_wav(os.path.join(self.tmp, "clip93.wav"), y)
+        from unittest import mock
+        with mock.patch.object(L, "edge_word_bounds", return_value=dict(self.bounds)):
+            ok, det = L.edge_word_fidelity(src, clip, None, 0.0, 1.0)
+        self.assertTrue(det["in"]["ok"], det)
+        with mock.patch.object(L, "edge_word_bounds", return_value=dict(self.bounds)), \
+                mock.patch.object(L, "EDGE_WORD_FLOOR_DBFS", -96.0):
+            ok, det = L.edge_word_fidelity(src, clip, None, 0.0, 1.0)
+        self.assertFalse(det["in"]["ok"], det)                                  # at the old -96 floor it failed
 
     def test_a_real_3_db_onset_loss_at_minus_50_dbfs_fails(self):
         d = self._in(self.lost)
