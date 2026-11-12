@@ -124,3 +124,12 @@ between two talking heads of different channels; every join with a VO line is a 
 every talking head sits between VO lines (hook | VO 1 | clip_01 | VO 2 | clip_02 | VO 3 | shout-out): no dissolve at all. Re-run with
 the gate's own sampling and clearance: clip_02 (4.63 s) keeps all four sample points (0.2, 2.0, 4.0, 4.03; each on speech), hook and
 clip_01 six and seven: G14 is measurable on every segment (>= 3 possible). The list's other eleven items stand. Rendering the 08:44 pin.
+
+## 09:36 ET FOR THE BUILDER (orchestrator ruling 12, '09:32'): use the MEASURED VO durations before render
+Run pinned_20261112_135315 (seal 37c5b5f5) rendered 59.625 s against R4's estimate of 61.82 s. Measured, segment by segment (render log
+STEP 3): hook 8.64 + VO 6.10 + clip_01 11.00 + VO 6.84 + clip_02 4.67 + VO 8.92 + shout-out 9.05 + outro 4.48 = 59.70 s (concat 59.625).
+(1) The voice (eleven_v4) spoke 55 words in 5.12 + 5.84 + 7.92 = 18.88 s = 2.91 w/s, not R4_WPS 2.5, so the VO cards came to 21.86 s, not 25.00.
+(2) The tail (shout-out + outro) is 13.53 s, not FINAL_TAIL_S 14.30. (3) The renderer's cuts add +1.79 s over the locked words.
+Ruling 12 asks packaging to use the MEASURED VO audio duration once the voice stage has produced it, before render. The run already writes
+it (vo_audio/VO_MANIFEST.json; render log 'VO: x s + 1.0 s pre-roll'). Until that is built, the packaging estimate at 2.5 w/s overstates
+the VO by about 14 % for this voice. The measured final is now ACCEPTED from 58 to 72 s (G5, ruling 12), and the target stays 60-70 s.
