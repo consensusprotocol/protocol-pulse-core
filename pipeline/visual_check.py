@@ -35,7 +35,11 @@ CHECKLIST = [
                                 "letters are not headline text); any other text in it, a thumbnail, a different "
                                 "monogram, or a squashed or warped circle is still 'no'."),
     ("vertical_speaker_centred", "On a 9:16 sheet: every talking-head segment shows its speaker centred in the "
-                                 "frame, or the segment is a shared screen / chart (layout=screen). On a 16:9 sheet: n/a."),
+                                 "frame, or the segment is a shared screen / chart (layout=screen). For a time span the "
+                                 "layout note names as a STACK (two speakers in two panels, one above the other; ruling "
+                                 "23): answer about EACH face: each face centred in ITS OWN panel and no panel edge "
+                                 "cutting through a face; every other span gets the single-speaker question. On a 16:9 "
+                                 "sheet: n/a."),
     ("no_letterbox_on_talking_heads", "Look at the full-resolution first-frame panels and the stills of every "
                                       "talking-head segment (a person speaking to camera). Answer 'no' if ANY of them "
                                       "shows the person inside a smaller horizontal picture band in the middle of the "

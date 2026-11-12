@@ -117,6 +117,19 @@ def panel_ok(per):
 NEXT_SHOT = "no_next_shot_before_transition"
 
 
+def stack_note(edl):
+    """Ruling 23 ('13:18'): the 9:16 segments laid out as a STACK (two speakers in two panels), stated to the vision
+    panel so its centring question is asked of each face in its own panel. '' when none."""
+    lines = []
+    for label, seg in [("hook", edl.get("hook") or {})] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]:
+        for sh in (seg.get("vertical_layout") or {}).get("shots") or []:    # audit batch39 F1: per stacked SHOT,
+            if str(sh.get("class", "")).startswith("stack"):                 # with its time span; F2: the layout
+                lines.append(f"9:16 STACK {label} ({seg.get('channel')}) {float(sh.get('start', 0)):.2f}-"   # only,
+                             f"{float(sh.get('end', 0)):.2f} s ({sh.get('class')}): two speakers in two panels, one "   # never
+                             f"above the other")                                                           # a verdict
+    return ("\n" + "\n".join(lines)) if lines else ""
+
+
 def avatar_note(channels, registry=None):
     """Ruling 20 ('11:28'): the channels whose REGISTERED avatar is their own monogram or logo (pipeline/channels.json
     avatar_kind 'monogram' / 'logo' with avatar_text), stated to the vision panel so a channel's own letters are
@@ -140,7 +153,7 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
     import vertical_layout
     with open(os.path.join(run_dir, "edl.json")) as f:
         edl = json.load(f)
-    note = vertical_layout.layout_note(edl)
+    note = vertical_layout.layout_note(edl) + stack_note(edl)                     # ruling 23: stacks named
     segs_edl = [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]
     channels_note = ("Channels whose clips appear in this video (from the edit decision list): " +
                      ", ".join(f"{s.get('channel')} ({label})" for label, s in segs_edl) + ".")
