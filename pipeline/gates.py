@@ -127,6 +127,52 @@ def _frame_similarity(frame_a, frame_b):
 
 
 G14_MIN_CONCLUSIVE = 3      # DEC-12e: conclusive matching samples a segment needs
+G14_MIN_SPEECH = 0.6        # ruling 13 ('10:02'): a window is a sample only if >= 60 % of it is locked speech
+G14_EVEN_BELOW_S = 6.75     # ruling 11 ('08:55'): a clear region shorter than this gets its samples spread evenly
+G14_MIN_STRIDE_S = 0.75     # ruling 11: ... never closer together than this (the windows may overlap)
+
+
+def g14_locked_speech(words, i0, i1, pauses=()):
+    """Ruling 13: the speech G14 samples: the LOCKED words i0..i1 (their word timestamps) minus the measured
+    pauses (source times)."""
+    out = []
+    for w in words[i0:i1 + 1]:
+        parts = [(float(w["start"]), float(w["end"]))]
+        for p0, p1 in pauses:
+            parts = [q for x, y in parts for q in ((x, min(y, p0)), (max(x, p1), y)) if q[1] > q[0]]
+        out += [{"start": x, "end": y} for x, y in parts]
+    return out
+
+
+def g14_run_speech(run_dir, cuts):
+    """Ruling 13, per prepared clip of a run: the speech G14 samples = the clip's LOCKED words minus its cut's
+    measured pauses (cuts_final pause_in / pause_out); [] without a lock (nothing to sample: the segment holds)."""
+    import sentence_law as L
+    with open(os.path.join(run_dir, "edl.json")) as f:
+        locks = {lab: sg.get("selection_lock") or {} for lab, sg in L._segments(json.load(f))}
+    out = {}
+    for c in cuts:
+        lk = locks.get(c["clip_id"]) or {}
+        if not isinstance(lk.get("i0"), int) or not isinstance(lk.get("i1"), int):
+            out[c["clip_id"]] = []
+            continue
+        with open(os.path.join(run_dir, "transcripts", f"{c['video_id']}.json")) as f:
+            words = json.load(f)["words"]
+        pauses = [(float(p["start"]), float(p["end"])) for p in (c.get("pause_in"), c.get("pause_out"))
+                  if isinstance(p, dict) and float(p.get("end", 0)) > float(p.get("start", 0))]
+        out[c["clip_id"]] = g14_locked_speech(words, lk["i0"], lk["i1"], pauses)
+    return out
+
+
+def g14_even_offsets(clear_s, window_s=0.5):
+    """Ruling 11: sample offsets from the start of a short clear region, spread evenly at a stride of at least
+    G14_MIN_STRIDE_S inside G14's own margins (0.05 s after its start, window + 0.1 s before its end); [] when the
+    region cannot hold G14_MIN_CONCLUSIVE windows at that stride (not measurable: the segment holds)."""
+    lo, hi = 0.05, clear_s - window_s - 0.1
+    n = int((hi - lo) / G14_MIN_STRIDE_S + 1e-9) + 1 if hi >= lo else 0
+    if n < G14_MIN_CONCLUSIVE:
+        return []
+    return [lo + i * (hi - lo) / (n - 1) for i in range(n)]
 
 
 def _g14_measure(final_mp4, source_path, label, out_time, window_s, sr, src_audio, src_audio_start,
@@ -324,15 +370,32 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
         src_at = lambda t: ref_src_time + (t - ref_extract_start)          # output time -> source time
         out_at = lambda sv: ref_extract_start + (sv - ref_src_time)
 
-        def speech(t):
+        spans = []                                    # the speech intervals, merged (no double count)
+        for w in sorted(words or [], key=lambda w: w["start"]):
+            if spans and w["start"] <= spans[-1][1]:
+                spans[-1][1] = max(spans[-1][1], w["end"])
+            else:
+                spans.append([w["start"], w["end"]])
+
+        def speech(t):                                # ruling 13: >= 60 % of the window is (locked) speech
             a = src_at(t)
-            return words is None or any(w["start"] < a + window_s and w["end"] > a for w in words)
+            return words is None or sum(max(0.0, min(a + window_s, y) - max(a, x)) for x, y in spans) \
+                >= G14_MIN_SPEECH * window_s - 1e-9
 
         def clear(t):
             return all(t + window_s <= x0 or t >= x1 for x0, x1 in excluded)
 
+        cs, ce = seg_start, seg_end                   # ruling 11: the clear region (outside VO / dissolves)
+        for x0, x1 in excluded:
+            if x0 <= cs < x1:
+                cs = x1
+            if x0 < ce <= x1:
+                ce = x0
+        layout = "fixed" if ce - cs >= G14_EVEN_BELOW_S else "even"
+        cands = ([seg_start + o for o in sample_offsets] if layout == "fixed"
+                 else [cs + o for o in g14_even_offsets(ce - cs, window_s)])
         lo, hi = seg_start + 0.05, seg_end - window_s - 0.1
-        times = [seg_start + o for o in sample_offsets if speech(seg_start + o) and clear(seg_start + o)]
+        times = [t for t in cands if speech(t) and clear(t)]
         spoken = sorted({round(out_at(w["start"]), 3) for w in (words or []) if lo <= out_at(w["start"]) <= hi})
         used = list(times)
         seg_entries = []
@@ -340,7 +403,7 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
             entry = _g14_measure(final_mp4, source_path, label, out_time, window_s, sr, src_audio, src_audio_start,
                                  ref_src_time, ref_extract_start, tolerance_ms, qa_dir, frames)
             if entry["status"] == "HOLD":
-                alt = [t for t in spoken if clear(t) and all(abs(t - u) >= window_s / 2 for u in used)]
+                alt = [t for t in spoken if clear(t) and speech(t) and all(abs(t - u) >= window_s / 2 for u in used)]
                 if alt:
                     t2 = min(alt, key=lambda t: abs(t - out_time))
                     used.append(t2)
@@ -361,8 +424,9 @@ def gate_g14(final_mp4, manifest_path, source_clips=None, tolerance_ms=40,
             has_hold = True
         details.append({"label": label, "segment_verdict": verdict, "conclusive_matches": matches,
                         "conclusive_mismatches": mismatches, "samples": len(seg_entries),
-                        "status": verdict})
-        print(f"    {label}: {matches} conclusive matching, {mismatches} mismatching -> {verdict}")
+                        "layout": layout, "speech_windows": len(times), "status": verdict})
+        print(f"    {label}: {matches} conclusive matching, {mismatches} mismatching -> {verdict} "
+              f"({layout} layout, {len(times)} speech windows)")
 
     # VO segments get declared pre-roll — just verify they exist at the right time
     for seg in segments:

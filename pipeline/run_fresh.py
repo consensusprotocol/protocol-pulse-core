@@ -979,12 +979,9 @@ def stage_gates(run, final16, man16, final9, man9):
     put("9x16", "G11_parity", _status(g11_ok), g11)
 
     # G14 / G14c / G15
-    def _words(vid):                                  # DEC-12e: G14 samples where the transcript has speech
-        tp = os.path.join(run.dir, "transcripts", f"{vid}.json")
-        with open(tp) as f:
-            return [{"start": float(w["start"]), "end": float(w["end"])} for w in json.load(f)["words"]]
+    speech = G.g14_run_speech(run.dir, cuts)         # ruling 13: G14 samples the LOCKED words minus measured pauses
     src_clips = {c["clip_id"]: {"path": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
-                                "cut_in": c["cut_in"], "words": _words(c["video_id"])} for c in cuts}
+                                "cut_in": c["cut_in"], "words": speech[c["clip_id"]]} for c in cuts}
     g14dir16 = os.path.join(qa, "g14_16x9")
     g14dir9 = os.path.join(qa, "g14_9x16")
     os.makedirs(g14dir16, exist_ok=True)
