@@ -1,6 +1,55 @@
-NOT READY (07:16 ET): the 06:45 re-cut passes every gate except ONE VO line; your decision needed on VO 2 (its 2 allowed fixes are used). The 06:28 pin (add8c732) is SUPERSEDED: the integrator's cut HOLD (runs/pinned_20261112_113058) was right on both clips.
+READY TO RENDER: /home/ultron/worktrees/pp-selectid/tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json (branch pp-selectid, same path; story moments-fresh_20261112_050611-f409e9d9; package_sha256 f409e9d94fe944f415538314da1722405b49a266df632962f5a055ab762fe714)
+VARIANCE FLAG for the orchestrator (your veto): VO 2 ("Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?") FAILED speaker_view at 07:13 (attempts 0700 / 0700b, the old caption) and PASSED at 07:30 (0700c). Its text is unchanged; only the caption changed (fix 1), which made a new verdict call. This pin is the 0700c package, every gate exactly PASS.
 
-## 07:16 ET: the 06:45 re-cut (attempt 0700b, tests/package/proof/fresh_20261112_050611/given_v0700_0700b.json / .log)
+## 07:31 ET: the 06:45 package, re-sealed. Every one of 13 gates exactly PASS (attempt 0700c: 140 s, $0.56)
+
+Record: tests/package/proof/fresh_20261112_050611/given_v0700_0700c.json and .log. This supersedes the 06:28 pin
+add8c732 (the integrator's cut HOLD was right on both clips). The renderer's order:
+
+1. HOOK, Saifedean Ammous, vgsSZ4mAHfQ 5144.99-5153.37: "Bitcoin does not have any authority that allows people to
+   take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that."
+2. VO 1: "Nobody is in charge of Bitcoin. That's not a flaw. That's the design." (a fact supported by the hook and
+   clip_01, plus commentary)
+3. CLIP 1, What Bitcoin Did, c1JGheQBPH4 2403.23-2412.85 (a guest; NEW, ruling 7 B): "I mean, the good news about
+   Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the
+   Senate or the House of Representatives in the U.S."
+4. VO 2: "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?" (production
+   + commentary; see the VARIANCE FLAG)
+5. CLIP 2, Natalie Brunell's channel, wdk5JZ9hPzs 529.05-541.00 (a guest; EXTENDED to "emerges.", 06:45 A): "Bitcoin
+   is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is
+   stay decentralized and secure. And that's what emerges."
+6. VO 3 (after the last clip): "No ruler. Just rules nobody gets to bend. That's the idea." (commentary)
+7. SIGN-OFF (code, L-a): "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for
+   more. Links are below."
+
+- TITLE "Nobody is in charge of Bitcoin." (a fact, supported).
+- CAPTION (fix 1) "no authority. no ruler. three clips, links below." (fact + commentary + production).
+
+**Gates, all exactly PASS:**
+- VO fidelity: deterministic, and the classifying verdict under the cycle-2 rules (full word coverage; production
+  bound to the manifest).
+- DUPLICATE; PRICE_NOW; runtime 60.79 s; R4 (moments).
+- Context A / B / C on every segment (grok-4.20).
+- Exclusion x3.
+- L-v 2 x3 (scribe_v1).
+- **CUTTABLE x3, 6 edges** (06:45 C):
+  - hook: "fundamental. | Bitcoin", "that. | Your";
+  - clip_01: "Mm-hmm. | I", "US. | Um,";
+  - clip_02: "now. | Bitcoin", "emerges. | And".
+- Coherence 5 / 4 / 5, VO point 4.
+
+**Against the factory as deployed** (read-only copies):
+- pinned.validate_schema OK;
+- moments_vo accepts the VO, including VO 3 after the last clip;
+- edl_rules R4 (moments): "VO 19.80 s = 30.91% of total runtime <= 40%, estimated runtime 64.05 s, every VO line in a
+  slot".
+
+**Ruling 7 for the integrator's caption** (condition 5): no edge needs it. Every IN and OUT has the independent
+recogniser's terminal punctuation, and the pin carries the words as `moments_package.cut_evidence`. If the acquired
+primary decode is unpunctuated at an edge, ruling 7 condition (1) reads that evidence: REQUESTS R10.
+
+
+## (superseded 07:31) 07:16 ET: the 06:45 re-cut (attempt 0700b, tests/package/proof/fresh_20261112_050611/given_v0700_0700b.json / .log)
 
 - **A. clip_02 is extended to "emerges."** (words 1417-1447, 529.05-541.00, 11.95 s): "Bitcoin is a new system of
   measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and

@@ -591,15 +591,18 @@ The route is the existing PINNED entry point. A moments-first package becomes th
 downstream stage stays shared and unchanged: validate (edl_rules, editorial gate, stand-alone, layout), cut, sentence
 law, voice, prepare, layout, render 16:9 and 9:16, gates, verify, release authorisation.
 
-1. **`pipeline/pinned.py` (exact patch below, `git apply --check` clean on c1451047; tests/package/smoke_r7.py: SMOKE
-   R7 PASS on a temporary patched copy).**
-   - `build_edl` takes the VO from the pin's `moments_package` (written by pipeline/package_pin.py): the package's
-     intro, and one bridge after each clip but the last (`after_clip`, the renderer's placement, render_vertical.py
-     :821-872). There is none between the hook and the first clip.
-   - The EDL also carries the ONE title and caption (law L-t) and the package's sha256 and gate verdicts.
-   - It refuses (PinError) a bridge the renderer cannot place, or a package whose VO-fidelity and context-integrity
-     gates did not BOTH pass.
-   - A pin without a package is unchanged: no body VO, Editorial Law 2's default.
+1. **`pipeline/pinned.py`: LANDED by the integrator** (main tree 380a06f3, and a5ec0f17 for R4 moments). Their
+   strict moments_vo supersedes the patch this item first carried (in git history, 8d327850).
+   tests/package/smoke_r7.py now tests a package_pin pin against the DEPLOYED pinned.py / edl_rules.py (read-only
+   copies): SMOKE R7 PASS. The VO, with a line after every clip including the last, the title and caption reach the
+   EDL; R4 for moments passes; a truthy-string verdict is refused.
+   - **1b (optional hardening, one call):** the pin is SEALED (package_pin.seal over the segments, the VO, the
+     sign-off, the title, the caption and the gate inventory). In moments_vo:
+     `import package_pin; assert package_pin.seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"],
+     mp["caption"], mp["gates"]) == mp["package_sha256"]` and
+     `all(mp["gates"][g]["status"] == "PASS" and mp["gates"][g]["replayed"] is False for g in
+     package_pin.REQUIRED_GATES)`.
+     This refuses a pin edited after its gates even when its two flags still read true.
 2. **TONIGHT** (orchestrator: "the integrator renders it"): apply item 1, then run run_fresh.py with
    `--pinned` and the MOMENTS_PIN.json named at the top of pp-selectid_STATE.md.
    - The pin's segments carry `approved_text` = the moments' exact words, and `machine_cuts: true`, so the sentence law
@@ -634,59 +637,7 @@ law, voice, prepare, layout, render 16:9 and 9:16, gates, verify, release author
      a role's chain only on that measurement.
    - The Heimdall 90 % tripwire notifies, never halts (providers.Router.heimdall_tripwire).
 
-<!-- PATCH R7 BEGIN -->
-```diff
---- a/pipeline/pinned.py
-+++ b/pipeline/pinned.py
-@@ -311,20 +311,45 @@
-     for i, c in enumerate(clips, 1):
-         c["index"] = i
-     channels = sorted({x["channel"] for x in segs})
-+    mp = pin.get("moments_package")            # pp-selectid R7: a moments-first package (law L-q) as the decision
-+    vo = _generate_vo_script(pin["label"], hook["text"], clips, channels)
-+    if isinstance(mp, dict):
-+        vo = moments_vo(mp, clips)
-     edl = {
-         "topic": pin["label"],
-         "angle": f"Pinned: {pin.get('headline') or pin['label']}",
-         "hook": hook,
-         "clips": clips,
--        "vo": _generate_vo_script(pin["label"], hook["text"], clips, channels),
-+        "vo": vo,
-         "total_clip_duration": round(hook["duration"] + sum(c["duration"] for c in clips), 2),
-         "mode": "pinned",
-         "pinned_story_id": pin["story_id"],
-     }
-+    if isinstance(mp, dict):                   # law L-t: the ONE title and caption travel with the EDL to release
-+        edl.update(title=mp["title"], caption=mp["caption"], moments_package_sha256=mp["package_sha256"],
-+                   moments_checks=mp.get("checks"))
-     overrides = build_vertical_overrides(hook, clips, registry)
-     return edl, overrides, report
- 
- 
-+def moments_vo(mp, clips):
-+    """The package's VO, checked by its VO-fidelity and context-integrity gates (pipeline/package.py): the intro and
-+    one bridge after each clip but the last, in the EDL's shape ({"text", "after_clip"}). Fail closed on any shape
-+    the renderer cannot place (a bridge after the hook, after the last clip, or after a missing clip)."""
-+    v = mp.get("edl_vo") or {}
-+    intro = v.get("intro")
-+    bridges = v.get("bridges") or []
-+    idx = {c["index"] for c in clips}
-+    for b in bridges:
-+        if not isinstance(b, dict) or not str(b.get("text") or "").strip() or b.get("after_clip") not in idx or                 b["after_clip"] == max(idx):
-+            raise PinError(f"moments_package bridge {b!r}: needs text and after_clip in 1..{max(idx) - 1}")
-+    if intro is not None and not str(intro).strip():
-+        raise PinError("moments_package intro is empty")
-+    if not mp.get("checks", {}).get("vo_fidelity_ok") or not mp.get("checks", {}).get("context_integrity_ok"):
-+        raise PinError("moments_package: the VO-fidelity and context-integrity gates did not both pass")
-+    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
-+
-+
- def prepare(pin_path, run_dir, log=print):
-     """Validate + acquire + build. Writes edl.json, vertical_overrides.json, PINNED_DECISION.json.
-     Returns the PINNED_DECISION record. Raises PinError."""
-```
-<!-- PATCH R7 END -->
+(The R7 item 1 patch text that stood here is superseded by the integrator's implementation; see item 1.)
 
 ## R8 FOR pipeline_pp_tests (the exam): cases this session found (orchestrator 03:40: "send the case to pipeline_pp_tests")
 
@@ -748,6 +699,27 @@ encoding of the gate.
 - One intermediate encoding let 2 title_adds_thesis cases pass. Worth a must-fail case each in the other direction:
   (a) a title "X: <a thesis X did not assert>" over a clip the viewer reads at the same certainty alone; (b) host
   commentary attributed to nobody, which must NOT be read as the speaker's assertion (must PASS).
+
+## R10 CUTTABLE (orchestrator 06:45 C and ruling 7): what the builder now guarantees, and what the integrator's side needs
+
+- **The builder's side, done.** A moment enters a package only with the INDEPENDENT recogniser's sentence boundary at
+  its IN and its OUT, measured on the SOURCE audio (ElevenLabs scribe_v1 through the router's "transcribe" chain;
+  pipeline/transcript_truth.edges):
+  - IN: the recogniser's word at the clip's first word follows a word ending in terminal punctuation;
+  - OUT: its word at the clip's last word ends in terminal punctuation, and it heard a next word.
+- The package gate "cuttable" joins the inventory; package_pin refuses a pin without it. Store and caption punctuation
+  is never evidence.
+- Tonight: the original clip_02 OUT fails it ("secure, and that's what emer-"); the original clip_01 IN fails it ("It's,
+  it's not, it's not Bitcoin ..."). The re-cut package passes 6/6.
+- **The pin carries the evidence** in `moments_package.cut_evidence[label]`: video_id, start, end, model, audio window,
+  `in` {word, before, ok, why}, `out` {word, after, ok, why}. It is outside the seal (evidence, not a verdict).
+- **The integrator's side (ruling 7, sentence_law, with its must-fail tests).** For an edge whose primary decode has no
+  terminal punctuation, condition (1) may read `cut_evidence[label].in` / `.out` instead of re-running the recogniser:
+  - accept only `ok: true` at the SAME word;
+  - conditions (2)-(5) stay the sentence law's own.
+- The must-fail fixtures this session can hand over (both recordings in tests/package/fixtures/replies):
+  - clip_02's original OUT ("secure," with "and that's what emer-" after it);
+  - clip_01's original IN ("not," before "it's not Bitcoin").
 
 ## R5 BIBLE
 

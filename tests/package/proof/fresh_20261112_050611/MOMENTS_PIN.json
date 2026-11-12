@@ -1,10 +1,10 @@
 {
  "schema": "protocol_pulse.pinned_story.v1",
- "story_id": "moments-fresh_20261112_050611-add8c732",
+ "story_id": "moments-fresh_20261112_050611-f409e9d9",
  "label": "bitcoin",
  "headline": "Nobody is in charge of Bitcoin.",
  "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
- "approved_at": "2026-11-12T11:28:09+00:00",
+ "approved_at": "2026-11-12T11:59:00+00:00",
  "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, fresh_20261112_050611)",
  "machine_cuts": true,
  "segments": [
@@ -25,9 +25,9 @@
    "role": "clip",
    "video_id": "c1JGheQBPH4",
    "channel": "What Bitcoin Did",
-   "start": 2480.28,
-   "end": 2491.52,
-   "approved_text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+   "start": 2403.23,
+   "end": 2412.85,
+   "approved_text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
    "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
    "time_coords": "youtube",
    "source": {
@@ -39,8 +39,8 @@
    "video_id": "wdk5JZ9hPzs",
    "channel": "Natalie Brunell",
    "start": 529.05,
-   "end": 539.34,
-   "approved_text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure.",
+   "end": 541.0,
+   "approved_text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure. And that's what emerges.",
    "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
    "time_coords": "youtube",
    "source": {
@@ -50,9 +50,9 @@
  ],
  "moments_package": {
   "schema": "pp.package/1",
-  "package_sha256": "add8c7328df47e20862d74bf37d52f02e3a3b826404e7a5594f4a0d5da37478a",
+  "package_sha256": "f409e9d94fe944f415538314da1722405b49a266df632962f5a055ab762fe714",
   "type": "moments",
-  "vo_kind": "written by the orchestrator, variant v0600",
+  "vo_kind": "written by the orchestrator, variant v0700",
   "edl_vo": {
    "intro": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
    "bridges": [
@@ -68,7 +68,7 @@
   },
   "signoff_expected": "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below.",
   "title": "Nobody is in charge of Bitcoin.",
-  "caption": "no authority. three voices on why that is the point.",
+  "caption": "no authority. no ruler. three clips, links below.",
   "hook_first_words": "Bitcoin does not have any authority that allows",
   "vo_jobs": {
    "intro": "context",
@@ -115,7 +115,7 @@
    "context_a": {
     "status": "PASS",
     "by": [
-     "anthropic:claude-opus-5-5"
+     "xai:grok-4.20-0309-reasoning"
     ],
     "replayed": false,
     "n": 3
@@ -135,7 +135,8 @@
    "exclusion": {
     "status": "PASS",
     "by": [
-     "anthropic:claude-opus-5-5"
+     "anthropic:claude-opus-5-5",
+     "xai:grok-4.20-0309-reasoning"
     ],
     "replayed": false,
     "n": 3
@@ -145,6 +146,12 @@
     "by": [
      "elevenlabs_stt:scribe_v1"
     ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
     "replayed": false,
     "n": 3
    },
@@ -161,10 +168,69 @@
    "derived_from": "gates (every required row exactly PASS, checked above)",
    "models": null
   },
-  "runtime_s_estimate": 60.75,
+  "runtime_s_estimate": 60.79,
+  "cut_evidence": {
+   "hook": {
+    "video_id": "vgsSZ4mAHfQ",
+    "start": 5144.99,
+    "end": 5153.37,
+    "model": "elevenlabs_stt:scribe_v1",
+    "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+    "in": {
+     "ok": true,
+     "word": "Bitcoin",
+     "before": "fundamental.",
+     "why": "a sentence ends before the clip"
+    },
+    "out": {
+     "ok": true,
+     "word": "that.",
+     "after": "Your",
+     "why": "a sentence ends at the clip's last word"
+    }
+   },
+   "clip_01": {
+    "video_id": "c1JGheQBPH4",
+    "start": 2403.23,
+    "end": 2412.85,
+    "model": "elevenlabs_stt:scribe_v1",
+    "audio": "c1JGheQBPH4_2401730_2423570.wav",
+    "in": {
+     "ok": true,
+     "word": "I",
+     "before": "Mm-hmm.",
+     "why": "a sentence ends before the clip"
+    },
+    "out": {
+     "ok": true,
+     "word": "US.",
+     "after": "Um,",
+     "why": "a sentence ends at the clip's last word"
+    }
+   },
+   "clip_02": {
+    "video_id": "wdk5JZ9hPzs",
+    "start": 529.05,
+    "end": 541.0,
+    "model": "elevenlabs_stt:scribe_v1",
+    "audio": "wdk5JZ9hPzs_527550_542500.wav",
+    "in": {
+     "ok": true,
+     "word": "Bitcoin",
+     "before": "now.",
+     "why": "a sentence ends before the clip"
+    },
+    "out": {
+     "ok": true,
+     "word": "emerges.",
+     "after": "And",
+     "why": "a sentence ends at the clip's last word"
+    }
+   }
+  },
   "sources_30s_before": [
    "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s",
-   "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2450s",
+   "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s",
    "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=499s"
   ]
  }
