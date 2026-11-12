@@ -1,0 +1,17 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 155 s finish=stop usage in 19227 / out 813 usd~0.116 (upper-bound price)
+
+**P0: pipeline/package.py:27 (and :15, :38, :109, :64)**  
+R4_MOMENTS_SHARE changed from 0.40 to 0.45 and all derived functions (r4_max_vo_words, min_vo_words, content_range, r4, runtime, inventory) updated to the new factory-mirror formula. Concrete failure: construct pk with segments summing to 29.91 s content + VO lines of 27/18/18 words (the original 05:35-06:00 numbers). Old code produced runtime ~68 s, R4=41.0 % → FAIL. New code produces runtime=72.41 s, R4=38.9 % → PASS (and the test in test_angles.py:506 now asserts True). This alters the gate's acceptance region so that a package previously rejected by r4 now passes, violating LAW 20/M2 ("gate thresholds are constants; never change what a check accepts to make a render pass") and the explicit audit constraint "never change what a check accepts in order to make a render pass".
+
+**P1: pipeline/package.py:23 (runtime) / :39 (r4_max_vo_words) / tests/package/test_angles.py:488**  
+The new runtime() / r4_max_vo_words arithmetic is asserted to match edl_rules._r4_moments but the test only checks one point (30 s segments + two VO lines → 56.3 s). No proof is given that the algebraic rearrangement (vo_max = SHARE * (content + TAIL) / (1-SHARE)) is algebraically identical for every legal (content_s, n_vo) pair, nor that the rounding to 2 decimals cannot flip a borderline 70.00 s package across the hard runtime gate. Uncertain whether this is exactly faithful on all paths; the diff supplies no exhaustive check.
+
+**P2: pipeline/transcript_truth.py:154 (self_repair call in edges) / :174 (verify_segment)**  
+self_repair() correctly rejects every case the new test supplies (different speaker, no dash, full repetition, multiple tokens, no prior sentence end). However the fw[:4] == _w(first)[:4] prefix match is a heuristic; the diff gives no input that would make a non-repair token (e.g. a same-speaker "Bit." that is not a prefix but shares the first 4 cleaned characters) incorrectly trigger the skip, so it is impossible to verify from the diff alone that "nothing else can slip through" as required by ruling 8. The law SENTENCE LAW (fail-closed on unpunctuated stretches) is therefore only partially provable from the supplied code.
+
+**P2: pipeline/vo_fidelity.py:234 (verdict["ok"])**  
+majority() correctly treats unmeasured runs as "fail" votes, refuses even run counts, records splits, and never lets a slot that most runs failed count as PASS. The test in test_gates.py:609 exercises 2-1, 1-2, and insufficient-measurement cases. However the merged "violations" list can contain duplicate entries from the minority runs (the seen set only deduplicates inside one slot); the diff does not show that the gate inventory row produced by package.inventory remains byte-identical to what release_auth.py expects under L-j. Minor risk of non-deterministic inventory shape.
+
+No other violations of the listed laws (L-a through L-l, SENTENCE LAW, SELECTION LOCK, SNAP LIMIT, L-j release-on-exact-bytes, M12 fail-closed, LAW 20/M2, L-d protected preview) can be concretely triggered from the diff text alone; the added pin_and_verify.py, --precheck path, renderer_geometry evidence, and canon-aware tests all stay inside the permitted "smallest diff, no new renderer/selector" envelope.
+
+SHIP: no

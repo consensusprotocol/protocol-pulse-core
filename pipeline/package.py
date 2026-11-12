@@ -106,39 +106,53 @@ def time_sensitive(m):
         any(kind == "current" for _, kind in VF.price_mentions(t))
 
 
-def runtime(segs, vo_s):
-    """segments' word spans + every spoken VO second (intro, bridges AND the sign-off) + FIXED_S (audit p2 M4)."""
-    return round(sum(m["duration_s"] for m in segs) + vo_s + FIXED_S, 2)
+FINAL_TAIL_S = E.TAIL_S             # what a final adds to its word spans (credits card + sign-off, outro, cut edges, pads)
 
 
-R4_MOMENTS_SHARE = 0.40            # orchestrator 06:00 ruling 4: moments-first VO up to 40 % of the runtime; a VO line
-                                   # after the hook, after every clip and after the last clip; 60-70 s stays hard
+def runtime(segs, vo_lines):
+    """The FACTORY's own estimate, the one its hard 60-70 s check reads (edl_rules._r4_moments, main a5ec0f17: "hook +
+    clips + VO + FINAL_TAIL_S", each VO line "words / 2.5 + the 1.0 s pre-roll"): segments' word spans + every VO line
+    (intro, bridges) at R4_WPS w/s + R4_PREROLL_S each + FINAL_TAIL_S (the sign-off is inside it). It replaced (07:42)
+    this module's own estimate (2.6 w/s, no pre-roll, FIXED_S + the sign-off), which ran 3-4 s lower than the factory's
+    on three VO lines. Neither is a measurement: the render measures the final (design section 8, open)."""
+    vo = sum(len(t.split()) / R4_WPS + R4_PREROLL_S for t in vo_lines if t and t.strip())
+    return round(sum(m["duration_s"] for m in segs) + vo + FINAL_TAIL_S, 2)
+
+
+MOMENTS_TAKEAWAY_WORD_CAP = 30     # orchestrator 08:40 ruling 10: the VO line after the LAST clip (the takeaway) of a
+                                   # moments pin; bridges BETWEEN clips keep config.BRIDGE_WORD_CAP (20)
+R4_MOMENTS_SHARE = 0.45            # orchestrator 08:29 ruling 9: moments-first VO up to 45 % of the TOTAL runtime (06:00
+                                   # ruling 4 said 40 %); a VO line after the hook, after every clip and after the last
+                                   # clip; 60-70 s stays hard
 
 
 def r4_max_vo_words(content_s, n_vo):
     """The most VO words (intro + bridges) the moments-first R4 allows: edl_rules' own estimate (words / 2.5 + 1 s per
-    VO line) <= 40 % of the runtime estimate (content + VO and the standard sign-off at WPS + FIXED_S)."""
-    num = R4_MOMENTS_SHARE * (content_s + SIGNOFF_WORDS / WPS + FIXED_S) - R4_PREROLL_S * n_vo
-    return max(0, int(num / (1 / R4_WPS - R4_MOMENTS_SHARE / WPS)))
+    VO line) <= R4_MOMENTS_SHARE of the runtime estimate (runtime(): content + that VO + FINAL_TAIL_S)."""
+    # VO_s = w / R4_WPS + PRE * n ; runtime = content + VO_s + TAIL ; VO_s <= SHARE * runtime
+    vo_max = R4_MOMENTS_SHARE * (content_s + FINAL_TAIL_S) / (1 - R4_MOMENTS_SHARE)
+    return max(0, int(R4_WPS * (vo_max - R4_PREROLL_S * n_vo)))
 
 
-def min_vo_words(content_s):
-    """The fewest VO words (intro + bridges) that land 60 s: content + VO + the standard sign-off + FIXED_S >= 60."""
-    return max(0, int(WPS * (RUNTIME_S[0] - content_s - SIGNOFF_WORDS / WPS - FIXED_S) + 0.999))
+def min_vo_words(content_s, n_vo=2):
+    """The fewest VO words (intro + bridges) that land 60 s by the factory's estimate (runtime())."""
+    return max(0, int(R4_WPS * (RUNTIME_S[0] - content_s - FINAL_TAIL_S - R4_PREROLL_S * n_vo) + 0.999))
 
 
 def content_range(n_clips=2):
     """Seconds the segments may fill so that some VO lands the runtime in 60-70 s AND fits R4 (one VO line for the
     intro + one bridge per clip but the last)."""
     n_vo = 1 + (n_clips - 1)
-    lo = next(c / 10 for c in range(200, 700) if min_vo_words(c / 10) <= r4_max_vo_words(c / 10, n_vo))
-    return lo, RUNTIME_S[1] - FIXED_S - SIGNOFF_WORDS / WPS - VO_S[0]
+    lo = next(c / 10 for c in range(200, 700) if min_vo_words(c / 10, n_vo) <= r4_max_vo_words(c / 10, n_vo))
+    return lo, RUNTIME_S[1] - FINAL_TAIL_S - VO_S[0] - R4_PREROLL_S * n_vo          # runtime()'s own terms
 
 
 def r4(pk):
     """R4 for a moments-first package, as the orchestrator ordered it at 06:00 (ruling 4; the integrator brings
-    edl_rules.rule_r4 to it): VO (intro + bridges, edl_rules' estimate 2.5 w/s + 1 s per line) <= 40 % of the runtime
-    estimate; the word caps of config.py; at most one VO line after each clip (the last clip included).
+    edl_rules.rule_r4 to it; the cap is 45 % since ruling 9, 08:29): VO (intro + bridges, edl_rules' estimate 2.5 w/s +
+    1 s per line) <= R4_MOMENTS_SHARE of the runtime
+    estimate; the word caps of config.py (the takeaway after the LAST clip: MOMENTS_TAKEAWAY_WORD_CAP, ruling 10);
+    at most one VO line after each clip (the last clip included).
     -> (ok, reason). The share over clips + VO (today's edl_rules denominator) is reported beside it."""
     from config import BRIDGE_WORD_CAP, INTRO_WORD_CAP
     n_clips = len(pk["segments"]) - 1
@@ -151,7 +165,11 @@ def r4(pk):
     fails = []
     if words[0] > INTRO_WORD_CAP:
         fails.append(f"intro {words[0]} words (max {INTRO_WORD_CAP})")
-    fails += [f"bridge {i + 1} {w} words (max {BRIDGE_WORD_CAP})" for i, w in enumerate(words[1:]) if w > BRIDGE_WORD_CAP]
+    for i, w in enumerate(words[1:]):          # ruling 10: the line after the LAST clip is the takeaway (cap 30)
+        last = i < len(after) and after[i] == n_clips
+        cap = MOMENTS_TAKEAWAY_WORD_CAP if last else BRIDGE_WORD_CAP
+        if w > cap:
+            fails.append(f"{'takeaway' if last else 'bridge'} {i + 1} {w} words (max {cap})")
     if len(set(after)) != len(after) or any(type(a) is not int or not 1 <= a <= n_clips for a in after):
         fails.append(f"bridges after clips {after}: one per clip, 1..{n_clips}")
     if share > R4_MOMENTS_SHARE:
@@ -164,7 +182,7 @@ def r4(pk):
 def budgets(content_s, n_bridges=1):
     """Word budgets (intro, each bridge, (min, max) total) that land 60-70 s and fit R4; 40 % to the intro."""
     hi = min(r4_max_vo_words(content_s, 1 + n_bridges), int(VO_S[1] * WPS))
-    lo = min(min_vo_words(content_s), hi)
+    lo = min(min_vo_words(content_s, 1 + n_bridges), hi)
     return max(6, int(hi * 0.4)), max(4, int(hi * 0.6 / max(1, n_bridges))), (lo, hi)
 
 
@@ -214,11 +232,11 @@ def assemble(order, by_id, fields, ctx, vo_kind):
           "title": fields["title"]["text"], "caption": fields["caption"]["text"],
           "hook_first_words": " ".join(segs[0]["text"].split()[:8]),
           "lines": lines}
-    so_words = len(pk["vo"]["signoff"].split())
-    pk["runtime_s_estimate"] = runtime(segs, (vo_words + so_words) / WPS)
-    pk["runtime_note"] = (f"segments {sum(m['duration_s'] for m in segs):.2f} s (word timing) + VO {vo_words} words + "
-                          f"sign-off {so_words} words at {WPS} w/s (assumed) + fixed {FIXED_S} s (credits card, outro, "
-                          f"transitions); the render measures the final")
+    vo_lines = [pk["vo"]["intro"]] + list(pk["vo"]["bridges"])
+    pk["runtime_s_estimate"] = runtime(segs, vo_lines)
+    pk["runtime_note"] = (f"segments {sum(m['duration_s'] for m in segs):.2f} s (word timing) + VO {vo_words} words at "
+                          f"{R4_WPS} w/s + {R4_PREROLL_S} s pre-roll per line + tail {FINAL_TAIL_S} s (sign-off, credits, "
+                          f"outro, edges): the factory's own R4 estimate; the render measures the final")
     return pk
 
 
@@ -572,16 +590,46 @@ def paid_gates(router, pk, sources, a_by, levels, now, writers_v, writers_f, poo
     return f_fid.result(), f_ctx.result()
 
 
-def exclusion_for(router, m, sources, cache):
-    if m["moment_id"] not in cache:
+def exclusion_for(router, m, sources, cache, seed=7):
+    key = m["moment_id"] if seed == 7 else (m["moment_id"], seed)
+    if key not in cache:
         import moments as M
         src = sources[m["video_id"]]
         a, b = CI.window(src, m["sentences"][0], m["sentences"][1])
         w0, w1 = m["words"]
-        cache[m["moment_id"]] = M.exclusion_verdict(
+        cache[key] = M.exclusion_verdict(
             router, m["text"], E.spoken(src.tokens[src.sentences[a][0]:w0]),
-            E.spoken(src.tokens[w1 + 1:src.sentences[b][1] + 1]), avoid_model=(m.get("mined") or {}).get("by"))
-    return cache[m["moment_id"]]
+            E.spoken(src.tokens[w1 + 1:src.sentences[b][1] + 1]), seed=seed,
+            avoid_model=(m.get("mined") or {}).get("by"))
+    return cache[key]
+
+
+MAJORITY_SEEDS = (7, 8, 9)
+
+
+def once_then_majority(run, ok, seeds=MAJORITY_SEEDS):
+    """Orchestrator 08:18 item 4 / 08:29: a model-judged verdict that is not PASS on its first run gets the three-run
+    majority (07:42 item 3) ONCE; whole gate sets are never rerun. run(seed) -> a result; ok(result) -> True only for a
+    MEASURED pass. -> (passed, results, votes): the first result alone when it passes, else all three and a pass only
+    when more than half of them pass (an unmeasured run is a "fail" vote, law L-m)."""
+    first = run(seeds[0])
+    if ok(first):
+        return True, [first], ["pass"]
+    res = [first] + [run(sd) for sd in seeds[1:]]
+    votes = ["pass" if ok(x) else "fail" for x in res]
+    return 2 * votes.count("pass") > len(res), res, votes
+
+
+def with_votes(results, votes, passed, seeds=MAJORITY_SEEDS):
+    """The record a gate reads after once_then_majority: the first PASSING run when the majority passed (else the first
+    run), with "majority" = {"votes", "seeds", "runs": every result} and a replayed tri-state over ALL runs (C2 K4)."""
+    rep = next((x for x, v in zip(results, votes) if v == "pass"), results[0]) if passed else results[0]
+    out = dict(rep)
+    if len(results) > 1:
+        reps = [x.get("replayed") for x in results]
+        out["majority"] = {"votes": votes, "seeds": list(seeds[:len(results)]), "runs": results}
+        out["replayed"] = None if any(not isinstance(x, bool) for x in reps) else any(reps)
+    return out
 
 
 def truth_for(router, m, work_dir, cache):
@@ -770,6 +818,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
         "status": "NOT RUN" if not measured or n < 1 else ("PASS" if ok else "FAIL"), "by": by,
         "replayed": replayed if isinstance(replayed, bool) else None, "n": n}     # None (unstated) refuses the pin
 
+    votes_of = lambda x: {"votes": x["majority"]["votes"]} if isinstance(x, dict) and x.get("majority") else {}
+
     def rep(values):                                 # tri-state over several replies (audit C2 K4)
         values = list(values)
         return None if any(not isinstance(x, bool) for x in values) else any(values)
@@ -778,24 +828,30 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
     a_rows = list((a_by or {}).values())
     return {
         "vo_fidelity_deterministic": row(det["ok"], "code (vo_fidelity.check_deterministic)"),
-        "vo_fidelity_verdict": row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"), fid.get("replayed"),
-                                   measured=bool(fid.get("measured"))),
+        "vo_fidelity_verdict": dict(row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"),
+                                        fid.get("replayed"), n=fid.get("runs", 1), measured=bool(fid.get("measured"))),
+                                    **({"votes": fid["majority"]["votes"], "splits": fid["majority"]["splits"]}
+                                       if fid.get("majority") else {})),          # ruling 07:42 (3): the majority
         "duplicate": row(not dup, "code (package.duplicates)"),
         "price_now": row(not any(v["rule"] == "PRICE_NOW" for v in det["violations"]),
                          "code (vo_fidelity.price_now)", measured=bool(det.get("price_now_measured"))),
-        "runtime": row(rt_ok, f"code (estimate at {WPS} w/s)"),
+        "runtime": row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
+                              f"{FINAL_TAIL_S} s tail)"),
         "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
         "context_a": row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
                          sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
                          n=len(a_rows)),
-        "context_b": row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
-                         measured=bool(ctx_.get("measured"))),
-        "context_c": row(ctx_.get("ok") is True and not (viol & {"NOT_ENTAILED", "POLARITY", "STRONGER"}),
-                         (ctx_.get("backends") or {}).get("C"), ctx_.get("replayed"), measured=bool(ctx_.get("measured"))),
-        "exclusion": row(all(e.get("verdict") == "keep" for e in exc.values()),
-                         sorted({str(e.get("backend")) for e in exc.values()}),
-                         rep(e.get("replayed") for e in exc.values()), n=len(exc),
-                         measured=all(e.get("measured") for e in exc.values())),
+        "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
+                              measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),
+        "context_c": dict(row(ctx_.get("ok") is True and not (viol & {"NOT_ENTAILED", "POLARITY", "STRONGER"}),
+                              (ctx_.get("backends") or {}).get("C"), ctx_.get("replayed"),
+                              measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),
+        "exclusion": dict(row(all(e.get("verdict") == "keep" for e in exc.values()),
+                              sorted({str(e.get("backend")) for e in exc.values()}),
+                              rep(e.get("replayed") for e in exc.values()), n=len(exc),
+                              measured=all(e.get("measured") for e in exc.values())),
+                          **({"votes": {k: e["majority"]["votes"] for k, e in exc.items() if e.get("majority")}}
+                             if any(e.get("majority") for e in exc.values()) else {})),
         "second_pass": row(all(t.get("ok") for t in truth.values()), sorted({str(t.get("model")) for t in truth.values()}),
                            rep(t.get("replayed") for t in truth.values()), n=len(truth),
                            measured=all("error" not in t for t in truth.values())),
@@ -803,5 +859,6 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
                         "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT "
                         "(orchestrator 06:45 ruling C / 7)", rep(t.get("replayed") for t in truth.values()), n=len(truth),
                         measured=all("edges" in t for t in truth.values())),
-        "coherence": row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
+        "coherence": dict(row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
+                          **votes_of(coh)),
     }

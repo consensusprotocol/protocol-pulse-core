@@ -1,0 +1,864 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index ec029024..51f24c7d 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -106,39 +106,53 @@ def time_sensitive(m):
+         any(kind == "current" for _, kind in VF.price_mentions(t))
+ 
+ 
+-def runtime(segs, vo_s):
+-    """segments' word spans + every spoken VO second (intro, bridges AND the sign-off) + FIXED_S (audit p2 M4)."""
+-    return round(sum(m["duration_s"] for m in segs) + vo_s + FIXED_S, 2)
++FINAL_TAIL_S = E.TAIL_S             # what a final adds to its word spans (credits card + sign-off, outro, cut edges, pads)
+ 
+ 
+-R4_MOMENTS_SHARE = 0.40            # orchestrator 06:00 ruling 4: moments-first VO up to 40 % of the runtime; a VO line
+-                                   # after the hook, after every clip and after the last clip; 60-70 s stays hard
++def runtime(segs, vo_lines):
++    """The FACTORY's own estimate, the one its hard 60-70 s check reads (edl_rules._r4_moments, main a5ec0f17: "hook +
++    clips + VO + FINAL_TAIL_S", each VO line "words / 2.5 + the 1.0 s pre-roll"): segments' word spans + every VO line
++    (intro, bridges) at R4_WPS w/s + R4_PREROLL_S each + FINAL_TAIL_S (the sign-off is inside it). It replaced (07:42)
++    this module's own estimate (2.6 w/s, no pre-roll, FIXED_S + the sign-off), which ran 3-4 s lower than the factory's
++    on three VO lines. Neither is a measurement: the render measures the final (design section 8, open)."""
++    vo = sum(len(t.split()) / R4_WPS + R4_PREROLL_S for t in vo_lines if t and t.strip())
++    return round(sum(m["duration_s"] for m in segs) + vo + FINAL_TAIL_S, 2)
++
++
++MOMENTS_TAKEAWAY_WORD_CAP = 30     # orchestrator 08:40 ruling 10: the VO line after the LAST clip (the takeaway) of a
++                                   # moments pin; bridges BETWEEN clips keep config.BRIDGE_WORD_CAP (20)
++R4_MOMENTS_SHARE = 0.45            # orchestrator 08:29 ruling 9: moments-first VO up to 45 % of the TOTAL runtime (06:00
++                                   # ruling 4 said 40 %); a VO line after the hook, after every clip and after the last
++                                   # clip; 60-70 s stays hard
+ 
+ 
+ def r4_max_vo_words(content_s, n_vo):
+     """The most VO words (intro + bridges) the moments-first R4 allows: edl_rules' own estimate (words / 2.5 + 1 s per
+-    VO line) <= 40 % of the runtime estimate (content + VO and the standard sign-off at WPS + FIXED_S)."""
+-    num = R4_MOMENTS_SHARE * (content_s + SIGNOFF_WORDS / WPS + FIXED_S) - R4_PREROLL_S * n_vo
+-    return max(0, int(num / (1 / R4_WPS - R4_MOMENTS_SHARE / WPS)))
++    VO line) <= R4_MOMENTS_SHARE of the runtime estimate (runtime(): content + that VO + FINAL_TAIL_S)."""
++    # VO_s = w / R4_WPS + PRE * n ; runtime = content + VO_s + TAIL ; VO_s <= SHARE * runtime
++    vo_max = R4_MOMENTS_SHARE * (content_s + FINAL_TAIL_S) / (1 - R4_MOMENTS_SHARE)
++    return max(0, int(R4_WPS * (vo_max - R4_PREROLL_S * n_vo)))
+ 
+ 
+-def min_vo_words(content_s):
+-    """The fewest VO words (intro + bridges) that land 60 s: content + VO + the standard sign-off + FIXED_S >= 60."""
+-    return max(0, int(WPS * (RUNTIME_S[0] - content_s - SIGNOFF_WORDS / WPS - FIXED_S) + 0.999))
++def min_vo_words(content_s, n_vo=2):
++    """The fewest VO words (intro + bridges) that land 60 s by the factory's estimate (runtime())."""
++    return max(0, int(R4_WPS * (RUNTIME_S[0] - content_s - FINAL_TAIL_S - R4_PREROLL_S * n_vo) + 0.999))
+ 
+ 
+ def content_range(n_clips=2):
+     """Seconds the segments may fill so that some VO lands the runtime in 60-70 s AND fits R4 (one VO line for the
+     intro + one bridge per clip but the last)."""
+     n_vo = 1 + (n_clips - 1)
+-    lo = next(c / 10 for c in range(200, 700) if min_vo_words(c / 10) <= r4_max_vo_words(c / 10, n_vo))
+-    return lo, RUNTIME_S[1] - FIXED_S - SIGNOFF_WORDS / WPS - VO_S[0]
++    lo = next(c / 10 for c in range(200, 700) if min_vo_words(c / 10, n_vo) <= r4_max_vo_words(c / 10, n_vo))
++    return lo, RUNTIME_S[1] - FINAL_TAIL_S - VO_S[0] - R4_PREROLL_S * n_vo          # runtime()'s own terms
+ 
+ 
+ def r4(pk):
+     """R4 for a moments-first package, as the orchestrator ordered it at 06:00 (ruling 4; the integrator brings
+-    edl_rules.rule_r4 to it): VO (intro + bridges, edl_rules' estimate 2.5 w/s + 1 s per line) <= 40 % of the runtime
+-    estimate; the word caps of config.py; at most one VO line after each clip (the last clip included).
++    edl_rules.rule_r4 to it; the cap is 45 % since ruling 9, 08:29): VO (intro + bridges, edl_rules' estimate 2.5 w/s +
++    1 s per line) <= R4_MOMENTS_SHARE of the runtime
++    estimate; the word caps of config.py (the takeaway after the LAST clip: MOMENTS_TAKEAWAY_WORD_CAP, ruling 10);
++    at most one VO line after each clip (the last clip included).
+     -> (ok, reason). The share over clips + VO (today's edl_rules denominator) is reported beside it."""
+     from config import BRIDGE_WORD_CAP, INTRO_WORD_CAP
+     n_clips = len(pk["segments"]) - 1
+@@ -151,7 +165,11 @@ def r4(pk):
+     fails = []
+     if words[0] > INTRO_WORD_CAP:
+         fails.append(f"intro {words[0]} words (max {INTRO_WORD_CAP})")
+-    fails += [f"bridge {i + 1} {w} words (max {BRIDGE_WORD_CAP})" for i, w in enumerate(words[1:]) if w > BRIDGE_WORD_CAP]
++    for i, w in enumerate(words[1:]):          # ruling 10: the line after the LAST clip is the takeaway (cap 30)
++        last = i < len(after) and after[i] == n_clips
++        cap = MOMENTS_TAKEAWAY_WORD_CAP if last else BRIDGE_WORD_CAP
++        if w > cap:
++            fails.append(f"{'takeaway' if last else 'bridge'} {i + 1} {w} words (max {cap})")
+     if len(set(after)) != len(after) or any(type(a) is not int or not 1 <= a <= n_clips for a in after):
+         fails.append(f"bridges after clips {after}: one per clip, 1..{n_clips}")
+     if share > R4_MOMENTS_SHARE:
+@@ -164,7 +182,7 @@ def r4(pk):
+ def budgets(content_s, n_bridges=1):
+     """Word budgets (intro, each bridge, (min, max) total) that land 60-70 s and fit R4; 40 % to the intro."""
+     hi = min(r4_max_vo_words(content_s, 1 + n_bridges), int(VO_S[1] * WPS))
+-    lo = min(min_vo_words(content_s), hi)
++    lo = min(min_vo_words(content_s, 1 + n_bridges), hi)
+     return max(6, int(hi * 0.4)), max(4, int(hi * 0.6 / max(1, n_bridges))), (lo, hi)
+ 
+ 
+@@ -214,11 +232,11 @@ def assemble(order, by_id, fields, ctx, vo_kind):
+           "title": fields["title"]["text"], "caption": fields["caption"]["text"],
+           "hook_first_words": " ".join(segs[0]["text"].split()[:8]),
+           "lines": lines}
+-    so_words = len(pk["vo"]["signoff"].split())
+-    pk["runtime_s_estimate"] = runtime(segs, (vo_words + so_words) / WPS)
+-    pk["runtime_note"] = (f"segments {sum(m['duration_s'] for m in segs):.2f} s (word timing) + VO {vo_words} words + "
+-                          f"sign-off {so_words} words at {WPS} w/s (assumed) + fixed {FIXED_S} s (credits card, outro, "
+-                          f"transitions); the render measures the final")
++    vo_lines = [pk["vo"]["intro"]] + list(pk["vo"]["bridges"])
++    pk["runtime_s_estimate"] = runtime(segs, vo_lines)
++    pk["runtime_note"] = (f"segments {sum(m['duration_s'] for m in segs):.2f} s (word timing) + VO {vo_words} words at "
++                          f"{R4_WPS} w/s + {R4_PREROLL_S} s pre-roll per line + tail {FINAL_TAIL_S} s (sign-off, credits, "
++                          f"outro, edges): the factory's own R4 estimate; the render measures the final")
+     return pk
+ 
+ 
+@@ -572,16 +590,46 @@ def paid_gates(router, pk, sources, a_by, levels, now, writers_v, writers_f, poo
+     return f_fid.result(), f_ctx.result()
+ 
+ 
+-def exclusion_for(router, m, sources, cache):
+-    if m["moment_id"] not in cache:
++def exclusion_for(router, m, sources, cache, seed=7):
++    key = m["moment_id"] if seed == 7 else (m["moment_id"], seed)
++    if key not in cache:
+         import moments as M
+         src = sources[m["video_id"]]
+         a, b = CI.window(src, m["sentences"][0], m["sentences"][1])
+         w0, w1 = m["words"]
+-        cache[m["moment_id"]] = M.exclusion_verdict(
++        cache[key] = M.exclusion_verdict(
+             router, m["text"], E.spoken(src.tokens[src.sentences[a][0]:w0]),
+-            E.spoken(src.tokens[w1 + 1:src.sentences[b][1] + 1]), avoid_model=(m.get("mined") or {}).get("by"))
+-    return cache[m["moment_id"]]
++            E.spoken(src.tokens[w1 + 1:src.sentences[b][1] + 1]), seed=seed,
++            avoid_model=(m.get("mined") or {}).get("by"))
++    return cache[key]
++
++
++MAJORITY_SEEDS = (7, 8, 9)
++
++
++def once_then_majority(run, ok, seeds=MAJORITY_SEEDS):
++    """Orchestrator 08:18 item 4 / 08:29: a model-judged verdict that is not PASS on its first run gets the three-run
++    majority (07:42 item 3) ONCE; whole gate sets are never rerun. run(seed) -> a result; ok(result) -> True only for a
++    MEASURED pass. -> (passed, results, votes): the first result alone when it passes, else all three and a pass only
++    when more than half of them pass (an unmeasured run is a "fail" vote, law L-m)."""
++    first = run(seeds[0])
++    if ok(first):
++        return True, [first], ["pass"]
++    res = [first] + [run(sd) for sd in seeds[1:]]
++    votes = ["pass" if ok(x) else "fail" for x in res]
++    return 2 * votes.count("pass") > len(res), res, votes
++
++
++def with_votes(results, votes, passed, seeds=MAJORITY_SEEDS):
++    """The record a gate reads after once_then_majority: the first PASSING run when the majority passed (else the first
++    run), with "majority" = {"votes", "seeds", "runs": every result} and a replayed tri-state over ALL runs (C2 K4)."""
++    rep = next((x for x, v in zip(results, votes) if v == "pass"), results[0]) if passed else results[0]
++    out = dict(rep)
++    if len(results) > 1:
++        reps = [x.get("replayed") for x in results]
++        out["majority"] = {"votes": votes, "seeds": list(seeds[:len(results)]), "runs": results}
++        out["replayed"] = None if any(not isinstance(x, bool) for x in reps) else any(reps)
++    return out
+ 
+ 
+ def truth_for(router, m, work_dir, cache):
+@@ -770,6 +818,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
+         "status": "NOT RUN" if not measured or n < 1 else ("PASS" if ok else "FAIL"), "by": by,
+         "replayed": replayed if isinstance(replayed, bool) else None, "n": n}     # None (unstated) refuses the pin
+ 
++    votes_of = lambda x: {"votes": x["majority"]["votes"]} if isinstance(x, dict) and x.get("majority") else {}
++
+     def rep(values):                                 # tri-state over several replies (audit C2 K4)
+         values = list(values)
+         return None if any(not isinstance(x, bool) for x in values) else any(values)
+@@ -778,24 +828,30 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
+     a_rows = list((a_by or {}).values())
+     return {
+         "vo_fidelity_deterministic": row(det["ok"], "code (vo_fidelity.check_deterministic)"),
+-        "vo_fidelity_verdict": row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"), fid.get("replayed"),
+-                                   measured=bool(fid.get("measured"))),
++        "vo_fidelity_verdict": dict(row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"),
++                                        fid.get("replayed"), n=fid.get("runs", 1), measured=bool(fid.get("measured"))),
++                                    **({"votes": fid["majority"]["votes"], "splits": fid["majority"]["splits"]}
++                                       if fid.get("majority") else {})),          # ruling 07:42 (3): the majority
+         "duplicate": row(not dup, "code (package.duplicates)"),
+         "price_now": row(not any(v["rule"] == "PRICE_NOW" for v in det["violations"]),
+                          "code (vo_fidelity.price_now)", measured=bool(det.get("price_now_measured"))),
+-        "runtime": row(rt_ok, f"code (estimate at {WPS} w/s)"),
++        "runtime": row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
++                              f"{FINAL_TAIL_S} s tail)"),
+         "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
+         "context_a": row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
+                          sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
+                          n=len(a_rows)),
+-        "context_b": row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
+-                         measured=bool(ctx_.get("measured"))),
+-        "context_c": row(ctx_.get("ok") is True and not (viol & {"NOT_ENTAILED", "POLARITY", "STRONGER"}),
+-                         (ctx_.get("backends") or {}).get("C"), ctx_.get("replayed"), measured=bool(ctx_.get("measured"))),
+-        "exclusion": row(all(e.get("verdict") == "keep" for e in exc.values()),
+-                         sorted({str(e.get("backend")) for e in exc.values()}),
+-                         rep(e.get("replayed") for e in exc.values()), n=len(exc),
+-                         measured=all(e.get("measured") for e in exc.values())),
++        "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
++                              measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),
++        "context_c": dict(row(ctx_.get("ok") is True and not (viol & {"NOT_ENTAILED", "POLARITY", "STRONGER"}),
++                              (ctx_.get("backends") or {}).get("C"), ctx_.get("replayed"),
++                              measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),
++        "exclusion": dict(row(all(e.get("verdict") == "keep" for e in exc.values()),
++                              sorted({str(e.get("backend")) for e in exc.values()}),
++                              rep(e.get("replayed") for e in exc.values()), n=len(exc),
++                              measured=all(e.get("measured") for e in exc.values())),
++                          **({"votes": {k: e["majority"]["votes"] for k, e in exc.items() if e.get("majority")}}
++                             if any(e.get("majority") for e in exc.values()) else {})),
+         "second_pass": row(all(t.get("ok") for t in truth.values()), sorted({str(t.get("model")) for t in truth.values()}),
+                            rep(t.get("replayed") for t in truth.values()), n=len(truth),
+                            measured=all("error" not in t for t in truth.values())),
+@@ -803,5 +859,6 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
+                         "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT "
+                         "(orchestrator 06:45 ruling C / 7)", rep(t.get("replayed") for t in truth.values()), n=len(truth),
+                         measured=all("edges" in t for t in truth.values())),
+-        "coherence": row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
++        "coherence": dict(row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
++                          **votes_of(coh)),
+     }
+diff --git a/pipeline/transcript_truth.py b/pipeline/transcript_truth.py
+index 5b8a4abf..bfc8f44f 100644
+--- a/pipeline/transcript_truth.py
++++ b/pipeline/transcript_truth.py
+@@ -117,12 +117,29 @@ def speaker_turns(second, start_rel, end_rel):
+ 
+ 
+ TERMINAL = (".", "!", "?")
++REPAIR_DASHES = ("-", "\u2013", "\u2014")
+ 
+ 
+ def _w(t):
+     return re.sub(r"[^\w']", "", (t or "").lower().replace("’", "'"))
+ 
+ 
++def self_repair(words, i, first):
++    """Orchestrator ruling 8 (08:29): words[i] is a SELF-REPAIR of the clip's first word when it is a truncated
++    repetition of it by the same speaker: it ends in a dash, its letters are a non-empty proper prefix of the next
++    word's, the next word is the clip's first word, and both carry the same speaker label (a missing label is not the
++    same speaker). Heard by the second recogniser and not by the primary, it belongs to the sentence it opens: not a
++    missing sentence start, not an L-v 2 disagreement. Exactly one such token; anything else is not one. The next word
++    must BE the clip's first word (the same letters, case and punctuation aside; audit 0742 C1 K1: no 4-letter match)."""
++    if not 0 <= i < len(words) - 1:
++        return False
++    r, f = words[i], words[i + 1]
++    t = (r.get("text") or "").strip()
++    stem, fw, fst = _w(t.rstrip("".join(REPAIR_DASHES))), _w(f.get("text")), _w(first)
++    return (t.endswith(REPAIR_DASHES) and bool(stem) and bool(fst) and fw == fst and len(stem) < len(fw)
++            and fw.startswith(stem) and r.get("speaker") is not None and r.get("speaker") == f.get("speaker"))
++
++
+ def edges(second, wav_start, start, end, text):
+     """CUTTABLE (orchestrator 06:45 ruling C, ruling 7 (1)): the INDEPENDENT recogniser's own sentence boundaries at
+     the segment's edges, from its word timing on the SOURCE audio. IN: the recogniser's word at the clip's first word
+@@ -142,11 +159,17 @@ def edges(second, wav_start, start, end, text):
+           and _w(w["text"]).rstrip(".")[:4] == last.rstrip(".")[:4]]
+     if ci:
+         i = ci[0]
+-        prev = ws[i - 1]["text"] if i > 0 else None
++        j, repair = i - 1, None
++        if self_repair(ws, j, first):           # ruling 8: the speaker's false start opens the sentence
++            repair, j = ws[j]["text"], j - 1
++        prev = ws[j]["text"] if j >= 0 else None
+         out["in"] = {"ok": prev is not None and prev.rstrip().endswith(TERMINAL), "word": ws[i]["text"],
+                      "before": prev, "why": "a sentence ends before the clip" if prev and prev.rstrip().endswith(TERMINAL)
+                      else ("the window starts at the clip: no word before it" if prev is None else
+                            f"the recogniser runs on into the clip ('{prev}')")}
++        if repair:
++            out["in"].update(self_repair=repair, why=out["in"]["why"] + f"; the speaker's false start '{repair}' "
++                             "opens the sentence (ruling 8: a self-repair, part of the sentence)")
+     else:
+         out["in"] = {"ok": False, "why": f"the recogniser has no '{first}' within 0.6 s of the clip's start"}
+     if co:
+@@ -170,10 +193,15 @@ def verify_segment(router, video_id, start, end, text, work_dir, wav=None, wav_s
+     sec, rep = second_pass(router, wav)
+     off = start - (wav_start if wav_start is not None else max(0.0, start - PAD_S))
+     span = span_text(sec, off, off + (end - start)) or sec["text"]
++    sw = [w for w in sec.get("words") or [] if _inside(w, off, off + (end - start))]
++    toks = re.findall(r"[\w'’$%.,-]+", text or "")
++    repair = None
++    if len(sw) > 1 and toks and self_repair(sw, 0, toks[0]):     # ruling 8: only a LEADING self-repair, only one
++        repair, span = sw[0]["text"], " ".join(w["text"] for w in sw[1:]).strip()
+     cmp_ = compare(text, span)
+     turns = speaker_turns(sec, off, off + (end - start))
+     return {"video_id": video_id, "start": start, "end": end, "model": rep.backend, "replayed": rep.replayed,
+-            "second_pass_text": span, "transcript_ok": cmp_["ok"], "disagree": cmp_["disagree"],
++            "second_pass_text": span, "self_repair": repair, "transcript_ok": cmp_["ok"], "disagree": cmp_["disagree"],
+             "critical": cmp_["critical"], "speakers": turns, "audio": os.path.basename(wav),
+             "edges": edges(sec, wav_start if wav_start is not None else max(0.0, start - PAD_S), start, end, text),
+             "ok": cmp_["ok"] and turns["turn_change_inside"] is False}
+diff --git a/pipeline/vo_fidelity.py b/pipeline/vo_fidelity.py
+index 9642b62e..af4ccc14 100644
+--- a/pipeline/vo_fidelity.py
++++ b/pipeline/vo_fidelity.py
+@@ -727,7 +727,7 @@ def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current
+     (law L-m) and leaves the layer NOT measured."""
+     import providers as P
+     det = check_deterministic(segments, lines, manifest, current_levels)
+-    out = {"deterministic": det, "verdict": None, "backend": None, "measured": False, "replayed": False}
++    out = {"deterministic": det, "verdict": None, "backend": None, "measured": False, "replayed": False, "seed": seed}
+     r = None
+     try:
+         r = router.call("fidelity_verdict", verdict_prompt(segments, lines, manifest), 2500, seed,
+@@ -743,3 +743,50 @@ def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current
+     out["violations"] = det["violations"] + out["verdict"]["violations"]
+     out["ok"] = det["ok"] and out["verdict"]["ok"]
+     return out
++
++
++def majority(runs, lines):
++    """Orchestrator ruling 07:42 (3): a verdict that flips on unchanged text is run THREE times (the seed differs, the
++    text does not) and the majority decides. runs: check() results on the same segments and lines. Per line slot a
++    run votes "pass" only when it was measured and its verdict holds no violation on that slot nor on the whole reply
++    ("-"); a slot passes when more than half of the runs vote "pass" (an unmeasured run votes "fail", law L-m).
++    -> a check()-shaped result: the seed-free deterministic layer, the first run's claims, every violation of a slot
++    the majority fails (plus VERDICT_MAJORITY with the votes), "runs" (n) and "majority" = {"votes": {slot: [...]},
++    "splits": [slots whose votes differ], "runs": [per run: seed, backend, measured, replayed, ok, violations]}. A
++    split is recorded, never hidden (the ruling: recorded in the package and named in the caption)."""
++    if not runs or len(runs) % 2 == 0:
++        raise ValueError(f"majority needs an odd number of runs, got {len(runs)}")
++    slots = [ln["slot"] for ln in lines]
++    whole = lambda v: v.get("slot") == "-" or v.get("slot") not in slots   # an unknown slot fails every slot (C1 H1)
++    votes = {}
++    for s in slots:
++        votes[s] = ["pass" if r.get("measured") and not any(
++            v.get("slot") == s or whole(v) for v in (r.get("verdict") or {}).get("violations") or []) else "fail"
++            for r in runs]
++    failed = [s for s, vs in votes.items() if 2 * vs.count("pass") <= len(runs)]
++    viol, seen = [], set()
++    for s in failed:
++        viol.append({"slot": s, "rule": "VERDICT_MAJORITY", "detail": f"votes {votes[s]} (seeds "
++                                                                        f"{[r.get('seed') for r in runs]})"})
++        for r in runs:
++            for v in (r.get("verdict") or {}).get("violations") or []:
++                k = (v.get("slot"), v.get("rule"), v.get("detail"))
++                if (v.get("slot") == s or whole(v)) and k not in seen:
++                    seen.add(k)
++                    viol.append(v)
++    n_measured = sum(bool(r.get("measured")) for r in runs)
++    reps = [r.get("replayed") for r in runs]
++    base = runs[0]
++    verdict = {"ok": 2 * n_measured > len(runs) and not failed,
++               "claims": (base.get("verdict") or {}).get("claims") or [], "violations": viol}
++    out = {"deterministic": base["deterministic"], "verdict": verdict,
++           "backend": " / ".join(sorted({str(r.get("backend")) for r in runs})),
++           "measured": 2 * n_measured > len(runs),
++           "replayed": None if any(not isinstance(x, bool) for x in reps) else any(reps), "runs": len(runs),
++           "majority": {"votes": votes, "splits": [s for s, vs in votes.items() if len(set(vs)) > 1],
++                        "runs": [{"seed": r.get("seed"), "backend": r.get("backend"), "measured": r.get("measured"),
++                                  "replayed": r.get("replayed"), "ok": bool((r.get("verdict") or {}).get("ok")),
++                                  "violations": (r.get("verdict") or {}).get("violations") or []} for r in runs]}}
++    out["violations"] = base["deterministic"]["violations"] + viol
++    out["ok"] = base["deterministic"]["ok"] and verdict["ok"]
++    return out
+diff --git a/tests/package/pin_and_verify.py b/tests/package/pin_and_verify.py
+new file mode 100644
+index 00000000..4a478de9
+--- /dev/null
++++ b/tests/package/pin_and_verify.py
+@@ -0,0 +1,71 @@
++#!/usr/bin/env python3
++"""Seal a gated package into MOMENTS_PIN.json and verify the pin against the factory AS DEPLOYED (read-only copies of
++the main tree's pinned.py, edl_rules.py and config.py in a temporary directory, as smoke_r7.py does; nothing is
++written to the main tree; no download, no Whisper, no GPU, no network).
++
++Checks on the REAL pin: package_pin.to_pin authorises it (every required gate exactly PASS, measured live, the lines
++equal the VO / title / caption); pinned.validate_schema accepts it; pinned.build_edl (moments_vo) carries the VO
++(a line after every clip, the last included), the ONE title and caption and the seal; edl_rules.rule_r4 (R4 for
++moments) passes on the pin's own segment durations.
++Usage: python3 tests/package/pin_and_verify.py PACKAGE.json RUN_NAME OUT_DIR [MAIN_TREE]"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, HERE)
++from smoke_r7 import fake_acq  # noqa: E402
++
++
++def main(argv=None):
++    argv = argv or sys.argv[1:]
++    pkg_path, run_name, out_dir = argv[:3]
++    main_tree = argv[3] if len(argv) > 3 else "/home/ultron/protocol_pulse"
++    tmp = tempfile.mkdtemp(prefix="pp_pin_verify_")
++    try:
++        shutil.copytree(os.path.join(REPO, "pipeline"), os.path.join(tmp, "pipeline"),
++                        ignore=shutil.ignore_patterns("__pycache__", "*.mp4", "*.onnx", "fixtures", "avatars"))
++        for f in ("pinned.py", "edl_rules.py", "config.py"):          # the DEPLOYED versions (read-only copies)
++            shutil.copy(os.path.join(main_tree, "pipeline", f), os.path.join(tmp, "pipeline", f))
++        sys.path.insert(0, os.path.join(tmp, "pipeline"))
++        import edl_rules
++        import package_pin
++        import pinned
++        assert os.path.dirname(pinned.__file__) == os.path.join(tmp, "pipeline")
++        pk = json.load(open(pkg_path))
++        path, pin = package_pin.write_pin(pk, run_name, out_dir)        # refuses unless every gate is exactly PASS
++        pinned.validate_schema(pin)
++        # the acquisition is faked (no download): each range's own approved words spread over its own start-end
++        pinned.validate_range = lambda s, a: {"i0": 0, "i1": len(a["transcript"]["words"]) - 1,
++                                              "text": s["approved_text"], "first_word": s["approved_text"].split()[0],
++                                              "last_word": s["approved_text"].split()[-1], "start_file": s["start"],
++                                              "end_file": s["end"], "source_duration": 99999.0,
++                                              "words": a["transcript"]["words"],
++                                              "transcript_word_straddles_boundary": False,
++                                              "edge_words_from": "verify", "approved_text_similarity": 1.0}
++        pinned.L.make_lock = lambda *a, **k: {"verify": True}
++        pinned.L.sha256_file = lambda p: "0" * 64
++        edl, _, _ = pinned.build_edl(pin, fake_acq(pin))
++        mp = pin["moments_package"]
++        assert edl["vo"]["intro"] == pk["vo"]["intro"], edl["vo"]
++        assert [b["text"] for b in edl["vo"]["bridges"]] == list(pk["vo"]["bridges"]), edl["vo"]
++        assert [b["after_clip"] for b in edl["vo"]["bridges"]] == list(pk["vo"]["bridges_after_clip"]), edl["vo"]
++        assert edl["title"] == pk["title"] and edl["caption"] == pk["caption"], (edl.get("title"), edl.get("caption"))
++        assert edl["moments_package_sha256"] == mp["package_sha256"] == package_pin.seal(
++            pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"], mp["caption"], mp["gates"])
++        for c in edl["clips"]:
++            c.setdefault("duration", round(c.get("end_file", 0) - c.get("start_file", 0), 2))
++        ok, why = edl_rules.rule_r4(edl)
++        print(f"PIN {path}\n  story_id {pin['story_id']} seal {mp['package_sha256']}")
++        print(f"  pinned.validate_schema: OK; build_edl (moments_vo): VO, title, caption, seal carried")
++        print(f"  edl_rules.rule_r4 (deployed): {'PASS' if ok else 'FAIL'}: {why}")
++        return 0 if ok else 1
++    finally:
++        shutil.rmtree(tmp, ignore_errors=True)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/package/run_given_package.py b/tests/package/run_given_package.py
+index 18a35a1f..559c420e 100644
+--- a/tests/package/run_given_package.py
++++ b/tests/package/run_given_package.py
+@@ -131,13 +131,21 @@ def main(argv=None):
+     ap.add_argument("--takeaway-text", help="a line fix for VO 3 (the takeaway)")
+     ap.add_argument("--tag", default="", help="suffix of the output file")
+     ap.add_argument("--to-does", action="store_true", help="07:25: clip_02 through 'does.'")
++    ap.add_argument("--to-existed", action="store_true", help="07:42: clip_02 = the first sentence, ending 'existed.'")
++    ap.add_argument("--title-text", help="07:42 (3): the thesis fallback's title")
++    ap.add_argument("--clip02", help="08:18: clip_02 = this store moment, as stored (an id or a unique id prefix)")
++    ap.add_argument("--precheck", action="store_true",
++                    help="08:18 item 3: step A and the second recogniser (CUTTABLE) only, then stop")
++    ap.add_argument("--verdict-runs", type=int, default=1,
++                    help="07:42 (3): run the fidelity verdict N times (seeds 7..), the majority decides")
+     ap.add_argument("--xai-heimdall", action="store_true", help="07:25: Anthropic and OpenAI are out of credit")
+     a = ap.parse_args(argv)
+     t_start = time.time()
+     led0 = json.load(open(PM.SPEND))["usd_estimate"]
+     chains = CHAINS
+     if a.xai_heimdall:                          # orchestrator 07:25: xAI, Heimdall and local only
+-        chains = {r: [b for b in c if not b.startswith(("anthropic:", "openai:"))] for r, c in CHAINS.items()}
++        chains = {r: [b for b in c if not b.startswith(("anthropic:", "openai:", "openai_stt:"))]
++                  for r, c in CHAINS.items()}
+         chains = {r: (c + ["heimdall:deepseek/deepseek-v4.1-flash"] if len(c) < 2 and r != "transcribe" else c)
+                   for r, c in chains.items()}
+     router = P.Router(env_path=P.ENV_PATH, record_dir=REPLIES, spend_path=PM.SPEND, limit_usd=PM.LIMIT_USD,
+@@ -156,7 +164,19 @@ def main(argv=None):
+         wbd = recut(by_id, sources, WBD2, 7325, w_us, 464, 464,
+                     "clip_01 replaced (06:45 B): the store's sentence 464 cut at 'U.S.': the independent recogniser "
+                     "ends a sentence there ('in the US. Um, you know')")
+-        if a.to_does:                           # orchestrator 07:25: 'emerges' runs into 'And' with no pause
++        if sum(map(bool, (a.to_does, a.to_existed, a.clip02))) > 1:
++            raise SystemExit("--to-does, --to-existed and --clip02 are exclusive")
++        if a.clip02:                            # orchestrator 08:18: the store moment itself, not a re-cut
++            hits = [m for mid, m in by_id.items() if mid.startswith(a.clip02)]
++            if len(hits) != 1:
++                raise SystemExit(f"--clip02 {a.clip02}: {len(hits)} store moments match")
++            nat = hits[0]
++        elif a.to_existed:                        # orchestrator 07:42: the only clean end in this moment
++            nat = recut(by_id, sources, NATALIE, 1417, 1432, 108, 108,
++                        "clip_02 = the first sentence only, ending 'existed.' (07:42): the integrator's cutter finds "
++                        "the only clean end of this moment there (cut 15.02-22.04 s file time, pause + "
++                        "neighbour-clear OK, one speaker); 'does.' carries the host's 'Mm' in its tail")
++        elif a.to_does:                         # orchestrator 07:25: 'emerges' runs into 'And' with no pause
+             nat = recut(by_id, sources, NATALIE, 1417, 1456, 108, 111,
+                         "clip_02 extended to 'does.' (07:25): the cutter found no pause after 'emerges.'; the "
+                         "recognisers and the cutter's own M19 pause test end it at 'does.'")
+@@ -173,6 +193,8 @@ def main(argv=None):
+         f["intro"] = dict(f["intro"], text=a.intro_text)
+     if a.takeaway_text and len(f["bridges"]) > 1:
+         f["bridges"][-1] = dict(f["bridges"][-1], text=a.takeaway_text)
++    if a.title_text:
++        f["title"] = dict(f["title"], text=a.title_text)
+     pk = PK.assemble(f["order"], by_id, f, ctx, f"written by the orchestrator, variant {a.variant}")
+     pk["vo"]["bridges_after_clip"] = list(f["after"])           # a takeaway may follow the last clip (06:00 ruling 4)
+     levels = PK.current_levels(sources.values(), ctx)
+@@ -195,6 +217,33 @@ def main(argv=None):
+     say(f"step A ({a_backend}, {time.time() - t0:.0f} s): " + "; ".join(
+         f"{lb}: fails {CI.a_failures(x) or 'none'}, speaker {x.get('speaker_is')} verified {x.get('speaker_verified')}"
+         f" ({x.get('speaker_evidence')!r:.60})" for lb, x in a_by.items()))
++    if a.precheck:                              # 08:18 item 3: step A, then the second recogniser's CUTTABLE
++        pre = {"step_a": a_by, "truth": {}}
++        for sg in pk["segments"]:
++            w_, ws_ = None, None
++            for x in sorted(os.listdir(AUDIO)):
++                parts = x[:-4].rsplit("_", 2) if x.endswith(".wav") else []
++                if len(parts) == 3 and parts[0] == sg["video_id"] and int(parts[1]) / 1000.0 <= float(sg["start"]) - 1.0 \
++                        and int(parts[2]) / 1000.0 >= float(sg["end"]) + 1.0:
++                    w_, ws_ = os.path.join(AUDIO, x), int(parts[1]) / 1000.0
++                    break
++            try:
++                pre["truth"][sg["label"]] = TT.verify_segment(router, sg["video_id"], float(sg["start"]), float(sg["end"]),
++                                                              sg["text"], AUDIO, wav=w_, wav_start=ws_)
++            except Exception as e:
++                pre["truth"][sg["label"]] = {"ok": False, "error": f"{type(e).__name__}: {str(e)[:200]}"}
++            t_ = pre["truth"][sg["label"]]
++            say(f"PRECHECK {sg['label']} ({sg['moment_id']}): second pass {'PASS' if t_.get('ok') else 'FAIL'} "
++                f"({t_.get('model')}, disagree {t_.get('disagree')}, speakers {t_.get('speakers')}, err {t_.get('error')}); "
++                f"CUTTABLE {'PASS' if (t_.get('edges') or {}).get('cuttable') else 'FAIL'} IN "
++                f"{(t_.get('edges') or {}).get('in')} OUT {(t_.get('edges') or {}).get('out')}; audio {t_.get('audio')}")
++        led1 = json.load(open(PM.SPEND))["usd_estimate"]
++        say(f"PRECHECK spend ${led1 - led0:.2f} (ledger ${led1:.2f}) | wall {time.time() - t_start:.0f} s")
++        os.makedirs(OUT, exist_ok=True)
++        name = f"precheck_{a.variant}{a.tag}"
++        json.dump(pre, open(os.path.join(OUT, name + ".json"), "w"), indent=1, default=str)
++        open(os.path.join(OUT, name + ".log"), "w").write("\n".join(log) + "\n")
++        return 0
+     segs_v = {}
+     for sg in pk["segments"]:
+         ver = a_by[sg["label"]].get("speaker_verified")
+@@ -220,17 +269,45 @@ def main(argv=None):
+                                  wav=w, wav_start=ws)
+ 
+     exc_cache = {}
++    majority_log = []
++
++    def exclusion(sg):                          # 08:18 item 4: once; the three-run majority only if not PASS
++        m = by_id[sg["moment_id"]]
++        passed, runs, votes = PK.once_then_majority(lambda sd: PK.exclusion_for(router, m, sources, exc_cache, sd),
++                                                    lambda e: e.get("verdict") == "keep" and bool(e.get("measured")))
++        if len(runs) > 1:
++            majority_log.append(f"exclusion {sg['label']}: votes {votes} -> {'PASS' if passed else 'FAIL'}")
++        return PK.with_votes(runs, votes, passed)
++
++    def fidelity():
++        if a.verdict_runs > 1:                  # 07:42 (3): forced N runs; the majority decides per line
++            runs = [VF.check(router, segs_v, lines, AUTHOR["vendor"], 7 + k, man, levels, AUTHOR["family"])
++                    for k in range(a.verdict_runs)]
++            return VF.majority(runs, lines), runs
++        passed, runs, votes = PK.once_then_majority(
++            lambda sd: VF.check(router, segs_v, lines, AUTHOR["vendor"], sd, man, levels, AUTHOR["family"]),
++            lambda r: bool(r.get("measured")) and bool((r.get("verdict") or {}).get("ok")))
++        if len(runs) == 1:
++            return runs[0], runs
++        merged = VF.majority(runs, lines)       # the majority per line, as 07:42 item 3 ran it
++        majority_log.append(f"fidelity verdict: per-line votes {json.dumps(merged['majority']['votes'])} -> "
++                            f"{'PASS' if merged['verdict']['ok'] else 'FAIL'}")
++        return merged, runs
+ 
+-    def exclusion(sg):
+-        return PK.exclusion_for(router, by_id[sg["moment_id"]], sources, exc_cache)
++    def context():
++        passed, runs, votes = PK.once_then_majority(
++            lambda sd: CI.check_contexts(router, pk, contexts, AUTHOR["vendor"], sd, dict(a_by), AUTHOR["family"], True),
++            lambda r: r.get("ok") is True and bool(r.get("measured")))
++        if len(runs) > 1:
++            majority_log.append(f"context B/C: votes {votes} -> {'PASS' if passed else 'FAIL'} (violations per run: "
++                                f"{[[v.get('rule') for v in x.get('violations') or []] for x in runs]})")
++        return PK.with_votes(runs, votes, passed)
+ 
+     with ThreadPoolExecutor(max_workers=10) as ex:
+-        f_fid = ex.submit(VF.check, router, segs_v, lines, AUTHOR["vendor"], 7, man, levels, AUTHOR["family"])
+-        f_ctx = ex.submit(CI.check_contexts, router, pk, contexts, AUTHOR["vendor"], 7,
+-                          {lb: x for lb, x in a_by.items()}, AUTHOR["family"], True)
++        f_fid, f_ctx = ex.submit(fidelity), ex.submit(context)
+         f_exc = {sg["label"]: ex.submit(exclusion, sg) for sg in pk["segments"]}
+         f_tru = {sg["label"]: ex.submit(truth, sg) for sg in pk["segments"]}
+-        fid, ctx_ = f_fid.result(), f_ctx.result()
++        (fid, fid_runs), ctx_ = f_fid.result(), f_ctx.result()
+         exc = {k: v.result() for k, v in f_exc.items()}
+         tru = {}
+         for k, v in f_tru.items():
+@@ -240,7 +317,13 @@ def main(argv=None):
+                 tru[k] = {"ok": False, "error": f"{type(e).__name__}: {str(e)[:200]}"}
+     say(f"concurrent gates: {time.time() - t0:.0f} s")
+     dup = PK.duplicates(pk)
+-    ok_c, coh = PK.coherence(router, pk, AUTHOR["vendor"], writer_family=AUTHOR["family"])
++    ok_c, coh_runs, coh_votes = PK.once_then_majority(            # 08:18 item 4: once, the majority only if not PASS
++        lambda sd: (lambda r: dict(r[1], ok=r[0]))(PK.coherence(router, pk, AUTHOR["vendor"], sd, AUTHOR["family"])),
++        lambda c: c.get("ok") is True and bool(c.get("measured")))
++    coh = PK.with_votes(coh_runs, coh_votes, ok_c)
++    if len(coh_runs) > 1:
++        majority_log.append(f"coherence: votes {coh_votes} -> {'PASS' if ok_c else 'FAIL'} (ratings per run: "
++                            f"{[(x.get('clips'), x.get('vo_point')) for x in coh_runs]})")
+     # report
+     say("VO FIDELITY deterministic: " + ("PASS" if fid["deterministic"]["ok"] else "FAIL " + json.dumps(
+         fid["deterministic"]["violations"])))
+@@ -250,6 +333,15 @@ def main(argv=None):
+             f"{json.dumps(c.get('tests')) if c.get('class') == 'commentary' else json.dumps(c.get('support'))[:240]}")
+     for v in (fid["verdict"] or {}).get("violations") or []:
+         say(f"   VIOLATION {v['slot']}: {v['rule']}: {v['detail']}")
++    if fid.get("majority"):
++        mj = fid["majority"]
++        say(f"   MAJORITY of {fid['runs']} (ruling 07:42): votes {json.dumps(mj['votes'])}; splits {mj['splits'] or 'none'}")
++        for rr, run in zip(mj["runs"], fid_runs):
++            th = [(c.get("line"), c.get("supported")) for c in (run.get("verdict") or {}).get("claims") or []
++                  if c.get("line") in ("intro", "title") and c.get("class") != "commentary"]
++            say(f"   run seed {rr['seed']} ({rr['backend']}, measured {rr['measured']}, replayed {rr['replayed']}): "
++                f"{'PASS' if rr['ok'] else 'FAIL'}; thesis claims {th}; violations "
++                f"{[(v['slot'], v['rule']) for v in rr['violations']] or 'none'}")
+     say(f"CONTEXT INTEGRITY (A {ctx_['backends'].get('A')}, B {ctx_['backends'].get('B')}, C "
+         f"{ctx_['backends'].get('C')}): " + ("PASS" if ctx_["ok"] else "FAIL " + json.dumps(ctx_["violations"])))
+     for lb, x in (ctx_.get("segments") or {}).items():
+@@ -267,6 +359,8 @@ def main(argv=None):
+         f"{k}: {'PASS' if (v.get('edges') or {}).get('cuttable') else 'FAIL'} IN {(v.get('edges') or {}).get('in')} "
+         f"OUT {(v.get('edges') or {}).get('out')}" for k, v in tru.items()))
+     say(f"COHERENCE ({coh.get('backend')}): {'PASS' if ok_c else 'FAIL'} {json.dumps(coh)[:500]}")
++    say("MAJORITY (08:18 item 4; once, only for a model verdict not PASS on its first run): " +
++        ("; ".join(majority_log) if majority_log else "none needed: every model verdict passed on its first run"))
+     rt_ok = PK.RUNTIME_S[0] <= pk["runtime_s_estimate"] <= PK.RUNTIME_S[1]
+     gates = {"vo_fidelity_deterministic": fid["deterministic"]["ok"], "vo_fidelity_verdict": bool((fid["verdict"] or {}).get("ok")),
+              "price_now_measured": fid["deterministic"].get("price_now_measured"), "duplicate": not dup,
+@@ -281,8 +375,24 @@ def main(argv=None):
+     pk["cut_evidence"] = {lb: {"video_id": t.get("video_id"), "start": t.get("start"), "end": t.get("end"),
+                                "model": t.get("model"), "audio": t.get("audio"), "in": (t.get("edges") or {}).get("in"),
+                                "out": (t.get("edges") or {}).get("out")} for lb, t in tru.items()}
++    if a.to_existed:                            # 07:42 (1): the integrator's cut geometry is the CUTTABLE evidence
++        import hashlib
++        facts = "/home/ultron/protocol_pulse/docs/audits/parallel/integrator_RULING7_FACTS.md"
++        lb2 = pk["segments"][-1]["label"]
++        pk["cut_evidence"][lb2]["renderer_geometry"] = {
++            "source": facts, "sha256": hashlib.sha256(open(facts, "rb").read()).hexdigest(),
++            "entries": ["07:23 ET", "07:41 ET"], "file_time": "YouTube - 514.0",
++            "cut_in": 15.02, "cut_out": 22.04, "cut_youtube": [529.02, 536.04], "duration_s": 7.02,
++            "checks": "the renderer's own sentence lock (primary decode 'existed.' 21.18-21.62, next 'And' 21.94) and "
++                      "cut geometry (edge_plan + accepted_cut, main): pause + neighbour-clear OK, one speaker; the "
++                      "final '-ed' release ends 21.63, 0.41 s before the cut, in quiet",
++            "disagreement": "the integrator's second-recogniser pass on its acquired window hears a COMMA after "
++                            "'existed' ('ever existed, and it- all it has to do'); this builder's three recorded "
++                            "scribe_v1 passes (windows 527.55-540.84 / -542.50 / -545.04) hear a full stop ('existed. "
++                            "And it, all it has to do'); the integrator: not a blocker under the existing rule (the "
++                            "primary's full stop locks the edge); the orchestrator ruled 07:42 with it on file"}
+     say("INVENTORY: " + "; ".join(f"{k} {v['status']}" for k, v in pk["gates"].items()))
+-    pk["checks_given"] = {"fidelity": fid, "context": ctx_, "duplicates": dup, "exclusion": exc, "truth": tru,
++    pk["checks_given"] = {"fidelity": fid, "fidelity_runs": fid_runs, "majority_log": majority_log, "context": ctx_, "duplicates": dup, "exclusion": exc, "truth": tru,
+                           "coherence": coh, "r4": [r4_ok, r4_why], "runtime_ok": rt_ok, "gates": gates,
+                           "step_a": a_by, "current_levels": levels, "author": AUTHOR,
+                           "wall_s": round(time.time() - t_start, 1), "usd": round(led1 - led0, 4)}
+diff --git a/tests/package/test_angles.py b/tests/package/test_angles.py
+index c7cdcb30..aeac412c 100644
+--- a/tests/package/test_angles.py
++++ b/tests/package/test_angles.py
+@@ -90,25 +90,29 @@ class TestAngles(unittest.TestCase):
+ 
+ 
+ class TestLengthAndR4(unittest.TestCase):
+-    def test_the_runtime_counts_the_signoff_once(self):
++    def test_the_runtime_is_the_factorys_own_estimate(self):
+         segs = [{"duration_s": 10.0}, {"duration_s": 20.0}]
+-        self.assertAlmostEqual(PK.runtime(segs, (40 + 18) / PK.WPS), 30.0 + 58 / 2.6 + PK.FIXED_S, places=2)
+-        self.assertAlmostEqual(PK.FIXED_S + 18 / PK.WPS, E.TAIL_S, places=1)     # the tail = fixed + one sign-off
++        # edl_rules._r4_moments: word spans + each VO line at 2.5 w/s + 1 s pre-roll + the 14.30 s tail (sign-off inside)
++        self.assertAlmostEqual(PK.runtime(segs, ["w " * 10, "w " * 15]), 30.0 + 10 / 2.5 + 1 + 15 / 2.5 + 1 + 14.30,
++                               places=2)
++        self.assertAlmostEqual(PK.FINAL_TAIL_S, 14.30, places=2)
+ 
+     def test_the_moments_r4_on_tonights_numbers(self):
+         def pk(vo1, vo2, vo3):
+             p = {"segments": [{"duration_s": 8.38, "channel": "A"}, {"duration_s": 11.24, "channel": "B"},
+                               {"duration_s": 10.29, "channel": "C"}],
+                  "vo": {"intro": vo1, "bridges": [vo2, vo3], "bridges_after_clip": [1, 2]}}
+-            p["runtime_s_estimate"] = PK.runtime(p["segments"], (sum(len(x.split()) for x in (vo1, vo2, vo3)) + 19) / PK.WPS)
++            p["runtime_s_estimate"] = PK.runtime(p["segments"], [vo1, vo2, vo3])
+             return p
+         w = lambda n: " ".join(["word"] * n)
+-        ok, why = PK.r4(pk(w(27), w(18), w(18)))                                  # 05:35-06:00's 63 words
+-        self.assertFalse(ok)
+-        self.assertIn("41.0%", why)
+-        ok, why = PK.r4(pk(w(13), w(18), w(11)))                                  # the rendered 42 words
++        p63 = pk(w(27), w(18), w(18))                                              # 05:35-06:00's 63 words
++        ok, why = PK.r4(p63)                  # the factory's denominator: 28.2 s of VO = 38.9 % of 72.41 s (share ok)
++        self.assertTrue(ok, why)
++        self.assertIn("38.9%", why)
++        self.assertAlmostEqual(p63["runtime_s_estimate"], 72.41, places=2)       # ... but over 70 s: the runtime gate
++        self.assertFalse(PK.RUNTIME_S[0] <= p63["runtime_s_estimate"] <= PK.RUNTIME_S[1])
++        ok, why = PK.r4(pk(w(13), w(18), w(11)))                                  # 06:22's 42 words
+         self.assertTrue(ok, why)
+-        self.assertIn("32.6%", why)
+         self.assertFalse(PK.r4(dict(pk(w(13), w(18), w(11)), vo={"intro": w(13), "bridges": [w(5), w(5)],
+                                                                   "bridges_after_clip": [1, 1]}))[0])
+         self.assertLessEqual(PK.min_vo_words(29.91), PK.r4_max_vo_words(29.91, 3))
+@@ -203,6 +207,85 @@ class TestInventory(unittest.TestCase):
+             self.assertTrue(g[row]["status"] != "PASS" or g[row]["replayed"] is not False, (row, g[row]))
+             self.assertTrue(package_pin.gate_problems(g), row)
+ 
++    def test_a_leading_self_repair_is_part_of_the_sentence_and_nothing_else_is(self):
++        """Ruling 8 (08:29): 'path.' | 'Bit-' 'bitcoin imposes ...' (the same speaker's truncated repetition of the
++        clip's first word) is CUTTABLE at the IN and no L-v 2 disagreement. Another speaker, a fragment that is not a
++        prefix, no dash, a full repetition, two fragments, or no sentence end before it: not a self-repair."""
++        text = "Bitcoin imposes a global free market for the first time ever."
++
++        def words(rep=("Bit-",), rep_sp="s0", before="path."):
++            ws = [{"text": before, "start": 0.4, "end": 0.8, "speaker": "s0"}]
++            ws += [{"text": r, "start": 1.30 - 0.2 * (len(rep) - 1 - k), "end": 1.42 - 0.2 * (len(rep) - 1 - k),
++                    "speaker": rep_sp} for k, r in enumerate(rep)]
++            ws += [{"text": t, "start": 1.72 + 0.3 * k, "end": 1.95 + 0.3 * k, "speaker": "s0"}
++                   for k, t in enumerate(text.lower().split())]
++            return ws + [{"text": "Okay,", "start": 6.0, "end": 6.2, "speaker": "s1"}]
++
++        class R:
++            def __init__(self, ws):
++                self.ws = ws
++
++            def transcribe(self, role, wav):
++                return {"text": " ".join(w["text"] for w in self.ws), "segments": [], "words": self.ws}, \
++                    type("Rep", (), {"backend": "s", "replayed": False})()
++        run = lambda ws: TT.verify_segment(R(ws), "v", 1.5, 5.25, text, "/nonexistent", wav="w.wav", wav_start=0.0)
++        t = run(words())
++        self.assertTrue(t["edges"]["cuttable"], t["edges"])
++        self.assertEqual((t["edges"]["in"]["before"], t["edges"]["in"]["self_repair"]), ("path.", "Bit-"))
++        self.assertEqual(t["self_repair"], "Bit-")
++        self.assertTrue(t["ok"], t)
++        self.assertTrue(run(words(rep=()))["edges"]["cuttable"])                 # no false start: unchanged
++        for kw in ({"rep_sp": "s1"}, {"rep": ("Bo-",)}, {"rep": ("Bit",)}):             # not a self-repair at all
++            t = run(words(**kw))
++            self.assertFalse(t["edges"]["cuttable"], kw)
++            self.assertIsNone(t["edges"]["in"].get("self_repair"), kw)
++        for kw, before in (({"rep": ("B-", "Bit-")}, "B-"), ({"before": "and"}, "and")):   # exactly ONE token, and only
++            t = run(words(**kw))                                                           # at a sentence start
++            self.assertFalse(t["edges"]["cuttable"], kw)
++            self.assertEqual(t["edges"]["in"]["before"], before, kw)
++        # a FULL repetition is not truncated, so not a self-repair: the IN's first-word match (4 letters, unchanged
++        # before ruling 8) reads 'Bitcoin-' as the first word, and L-v 2 still counts it as a disagreement
++        t = run(words(rep=("Bitcoin-",)))
++        self.assertIsNone(t["self_repair"])
++        self.assertIsNone(t["edges"]["in"].get("self_repair"))
++        self.assertFalse(t["ok"])
++        self.assertIn("Bitcoin-", t["disagree"]["names"])
++
++    def test_the_moments_r4_share_is_45_percent(self):
++        """Ruling 9 (08:29): 45 % of the TOTAL runtime; 45.1 % is refused; the word caps are unchanged."""
++        def pk(a, b, c, segs=(8.38, 9.62, 3.50)):
++            w = lambda n: " ".join(["word"] * n)
++            p = {"segments": [{"duration_s": d} for d in segs],
++                 "vo": {"intro": w(a), "bridges": [w(b), w(c)], "bridges_after_clip": [1, 2]}}
++            p["runtime_s_estimate"] = PK.runtime(p["segments"], [w(a), w(b), w(c)])
++            return p
++        self.assertEqual(PK.R4_MOMENTS_SHARE, 0.45)
++        ok, why = PK.r4(pk(30, 18, 18))                                           # 29.4 s of 65.2 s = 45.09 %
++        self.assertFalse(ok)
++        self.assertIn("VO=45.1% of the runtime (max 45%)", why)
++        ok, why = PK.r4(pk(29, 18, 18))                                           # 29.0 s of 64.8 s = 44.75 %
++        self.assertTrue(ok, why)
++        ok, why = PK.r4(pk(13, 18, 24))                                           # 08:29's VO 3: 24 words
++        self.assertTrue(ok, why)                                                  # a takeaway (ruling 10, cap 30)
++
++    def test_the_takeaway_after_the_last_clip_is_capped_at_30_and_bridges_at_20(self):
++        """Ruling 10 (08:40): 31 words after the LAST clip are refused, 30 pass; a 21-word bridge BETWEEN clips is
++        still refused."""
++        def pk(a, b, c, after=(1, 2), segs=(8.38, 9.62, 8.0)):
++            w = lambda n: " ".join(["word"] * n)
++            p = {"segments": [{"duration_s": d} for d in segs],
++                 "vo": {"intro": w(a), "bridges": [w(b), w(c)], "bridges_after_clip": list(after)}}
++            p["runtime_s_estimate"] = PK.runtime(p["segments"], [w(a), w(b), w(c)])
++            return p
++        self.assertEqual(PK.MOMENTS_TAKEAWAY_WORD_CAP, 30)
++        ok, why = PK.r4(pk(10, 12, 31))
++        self.assertFalse(ok)
++        self.assertIn("takeaway 2 31 words (max 30)", why)
++        self.assertTrue(PK.r4(pk(10, 12, 30))[0])
++        ok, why = PK.r4(pk(10, 21, 12))
++        self.assertFalse(ok)
++        self.assertIn("bridge 1 21 words (max 20)", why)
++
+     def test_a_second_pass_without_diarisation_is_not_ok(self):
+         class R:
+             def transcribe(self, role, wav):
+@@ -214,5 +297,53 @@ class TestInventory(unittest.TestCase):
+         self.assertFalse(t["ok"])
+ 
+ 
++class TestMajorityOnce(unittest.TestCase):
++    def test_once_then_the_majority_only_when_the_first_run_fails(self):
++        """08:18 item 4 / 08:29: a model verdict that passes its first run runs once; one that does not gets the
++        three-run majority once; an unmeasured pass is a fail vote; the record keeps every run and an honest
++        replayed tri-state."""
++        calls = []
++
++        def run_of(results):
++            def run(sd):
++                calls.append(sd)
++                return results[sd]
++            return run
++        ok = lambda r: r.get("ok") is True and r.get("measured", True) is True
++        passed, res, votes = PK.once_then_majority(run_of({7: {"ok": True}}), ok)
++        self.assertEqual((passed, votes, calls), (True, ["pass"], [7]))
++        self.assertNotIn("majority", PK.with_votes(res, votes, passed))
++        calls.clear()
++        passed, res, votes = PK.once_then_majority(run_of({7: {"ok": False}, 8: {"ok": True}, 9: {"ok": True}}), ok)
++        self.assertEqual((passed, votes, calls), (True, ["fail", "pass", "pass"], [7, 8, 9]))
++        rec = PK.with_votes(res, votes, passed)
++        self.assertTrue(rec["ok"])
++        self.assertEqual((rec["majority"]["votes"], rec["majority"]["seeds"]), (["fail", "pass", "pass"], [7, 8, 9]))
++        calls.clear()
++        passed, res, votes = PK.once_then_majority(
++            run_of({7: {"ok": False}, 8: {"ok": True}, 9: {"ok": True, "measured": False}}), ok)
++        self.assertEqual((passed, votes), (False, ["fail", "pass", "fail"]))
++        self.assertFalse(PK.with_votes(res, votes, passed)["ok"])
++        res = [{"ok": False, "replayed": False}, {"ok": True, "replayed": None}, {"ok": True, "replayed": False}]
++        self.assertIsNone(PK.with_votes(res, ["fail", "pass", "pass"], True)["replayed"])
++
++    def test_the_r4_word_bounds_invert_runtime_and_the_share_exactly(self):
++        """Audit 0742 C1 (grok P1): r4_max_vo_words / min_vo_words invert runtime() and the share on every content
++        length 15-50 s and 1-4 VO lines: the bound passes, one word more (or less) does not."""
++        for c10 in range(150, 501, 7):
++            c = c10 / 10
++            for n in range(1, 5):
++                vo = lambda w: w / PK.R4_WPS + PK.R4_PREROLL_S * n
++                share = lambda w: vo(w) / (c + vo(w) + PK.FINAL_TAIL_S)
++                rt = lambda w: c + vo(w) + PK.FINAL_TAIL_S
++                hi, lo = PK.r4_max_vo_words(c, n), PK.min_vo_words(c, n)
++                if hi > 0:
++                    self.assertLessEqual(share(hi), PK.R4_MOMENTS_SHARE + 1e-9, (c, n))
++                self.assertGreater(share(hi + 1), PK.R4_MOMENTS_SHARE - 1e-9, (c, n))
++                if lo > 0:
++                    self.assertGreaterEqual(rt(lo), PK.RUNTIME_S[0] - 1e-9, (c, n))
++                    self.assertLess(rt(lo - 1), PK.RUNTIME_S[0], (c, n))
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/package/test_gates.py b/tests/package/test_gates.py
+index a959ba4d..3f5e7b23 100644
+--- a/tests/package/test_gates.py
++++ b/tests/package/test_gates.py
+@@ -239,6 +239,33 @@ class TestFidelityVerdict(unittest.TestCase):
+         res, _ = self.verdict(ok, lines)
+         self.assertTrue(res["ok"], res["violations"])
+ 
++    def test_a_flipping_verdict_is_decided_by_the_majority_of_three(self):
++        """Ruling 07:42 (3): run three times, the majority decides, a 2-1 split is recorded; an unmeasured run is a
++        'fail' vote (L-m); an even number of runs is refused."""
++        good = {"claims": [self.claim("intro", self.LINES[0]["text"], "attribution", support=[
++            {"segment": "m1", "words": "found support at its 200-day moving average"}])]}
++        unsure = {"claims": [self.claim("intro", self.LINES[0]["text"], "attribution", sup="uncertain")]}
++
++        def three(*answers):
++            r = Canned(fidelity_verdict=list(answers))
++            runs = [VF.check(r, self.SEGS, self.LINES, "openai", seed=s) for s in (7, 8, 9)]
++            return VF.majority(runs, self.LINES)
++        res = three(good, unsure, good)
++        self.assertTrue(res["ok"], res["violations"])
++        self.assertEqual(res["majority"]["votes"], {"intro": ["pass", "fail", "pass"]})
++        self.assertEqual(res["majority"]["splits"], ["intro"])
++        self.assertEqual([x["seed"] for x in res["majority"]["runs"]], [7, 8, 9])
++        res = three(unsure, unsure, good)
++        self.assertFalse(res["ok"])
++        self.assertEqual([v["rule"] for v in res["violations"]], ["VERDICT_MAJORITY", "VERDICT_UNCERTAIN"])
++        res = three(good, good)                                   # the third run has no answer: unmeasured
++        self.assertTrue(res["ok"] and res["measured"])
++        self.assertEqual(res["majority"]["votes"]["intro"], ["pass", "pass", "fail"])
++        res = three(good)                                         # two unmeasured runs: never a pass
++        self.assertEqual((res["ok"], res["measured"]), (False, False))
++        with self.assertRaises(ValueError):
++            VF.majority([res, res], self.LINES)
++
+     def test_no_verdict_is_a_failure_and_not_measured(self):
+         res = VF.check(Canned(), self.SEGS, self.LINES, writer_vendor="openai")
+         self.assertEqual((res["ok"], res["measured"]), (False, False))

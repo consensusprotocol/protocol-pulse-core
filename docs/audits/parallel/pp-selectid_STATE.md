@@ -1,4 +1,79 @@
-NOT READY (08:32 ET): rulings 8 and 9 are encoded, and clip_02 now passes CUTTABLE and the second pass. ONE BLOCKER: the 08:29 VO 3 has 24 words, and the bridge cap is 20 (deployed config.py, checked by the deployed moments R4). At 20 words VO 3 lands 59.2 s. Your decision (below).
+READY TO RENDER (08:44 ET): tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json. Story moments-fresh_20261112_050611-37c5b5f5, seal 37c5b5f598e97f12a4afd62eccd57f93b946b6f6d7ef087ef1047c1c06bc086f. All 13 gates are exactly PASS, measured live, on the first run (no majority needed). The deployed factory accepts it: validate_schema, build_edl, and rule_r4 at 45 % with the takeaway cap of 30.
+
+## 08:44 ET: the 08:40 package, sealed (attempt 0840)
+
+Files: tests/package/proof/fresh_20261112_050611/given_v0700_0840.json / .log. Wall 113 s. Spend $0.53.
+
+**The package** (rulings 08:18 / 08:29 / 08:40):
+- **hook:** Saifedean Ammous, vgsSZ4mAHfQ 5144.99-5153.37.
+- **VO 1:** "Bitcoin does not have any authority. That's not a flaw. That's the design."
+- **clip_01:** What Bitcoin Did, c1JGheQBPH4 2403.23-2412.85.
+- **VO 2:** "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?"
+- **clip_02:** Natalie Brunell, wdk5JZ9hPzs 3218.14-3221.64: "Bitcoin imposes a global free market for the first time
+  ever."
+- **VO 3, the takeaway** (24 words): "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most
+  people still miss when they look at Bitcoin."
+- **sign-off:** "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links
+  are below."
+- **TITLE:** "No authority. That's the design."
+- **CAPTION:** "no authority. that's the design. three clips, links below."
+- **Runtime:** 60.80 s by the factory's arithmetic (the deployed rule_r4 on the pin gives 60.74 s); VO 41.1 % (cap
+  45 %).
+
+**Gates.** Every model verdict passed on its first run. The judges were xai:grok-4.20-0309-reasoning; the second
+recogniser was elevenlabs scribe_v1. The writer is the orchestrator's text, so no judge shares its vendor.
+- **VO fidelity:** deterministic PASS. Verdict PASS: VO 1 is a fact supported verbatim by the hook ("Bitcoin does not
+  have any authority"); VO 2's first half and the caption's end are production, from the manifest; the rest is
+  commentary.
+- **Context A / B / C:** PASS on all three. clip_02: "the guest's own assertion", certain, entails, nothing dropped.
+- **Coherence:** PASS, hook 5, clip_01 4, clip_02 5, VO point 4.
+- **Exclusion:** keep x3.
+- **Second pass:** PASS x3.
+- **CUTTABLE:** PASS x3. clip_02 IN is "path." | [false start "Bit-"] "bitcoin" (ruling 8); OUT is "ever." | "Okay,".
+- **Duplicate, price-now, runtime, R4:** PASS.
+- **Majority:** none needed.
+
+**For the integrator:**
+- clip_02's pin range is the store's word span (3218.14-3221.64). The renderer's cut (14.38 s, after "path.") keeps
+  the false start, as ruling 8 orders.
+- G18 must tolerate exactly that one token; the integrator confirms this before rendering (ruling 8).
+- The runtime margin over the hard 60 s is 0.80 s by the store spans; the factory recomputes it from its own decode
+  (pinned.py:290).
+
+**The code is committed with this pin.** It was audited in two cycles (docs/audits/parallel/pp-selectid_audit_0742:
+C1_CONSENSUS.md, C2_DISPOSITIONS.md). The reviewers were grok-4.20, qwen3.8-27b and glm-5.3-flash. Cycle 2: all three
+say SHIP "yes with conditions", and the conditions are met.
+- package.runtime is the factory's own R4 estimate. Also: the R4 share is 45 % (ruling 9), the takeaway cap is 30
+  (ruling 10), and once_then_majority implements 08:18 item 4.
+- vo_fidelity.majority implements 07:42 item 3.
+- transcript_truth.self_repair implements ruling 8.
+- The driver gained flags, plus tests/package/pin_and_verify.py.
+- Tests: 56 pass. regression_test.sh: 26 PASS / 0 FAIL / 5 WARN.
+
+**Spend since 07:42:**
+- Ledger $55.36 -> $57.63 = $2.27. That includes $0.30 for the voided router-based audit attempt.
+- The two audit cycles by direct HTTP: $0.77, estimated at upper-bound prices.
+- Total about $3.04 of the $6.00.
+
+
+## ORCHESTRATOR RULING 10, 08:40 ET: recorded in substance (builder + integrator)
+
+- The VO line after the LAST clip is the TAKEAWAY. It is a new slot that did not exist when BRIDGE_WORD_CAP = 20 was
+  set for lines between clips.
+- For moments pins the takeaway's word cap is 30, the same as the intro cap. Bridges BETWEEN clips stay at 20.
+- INTEGRATOR: add the constant (e.g. MOMENTS_TAKEAWAY_WORD_CAP = 30), apply it only to after_clip == last in the
+  moments R4, add the must-fail tests (31 words rejected; a 21-word bridge between clips still rejected), smallest
+  audit, commit.
+- BUILDER: the same constant in my R4.
+- VO 3 stays as ruled at 08:29 (24 words). No other text changes.
+- Then:
+  - the builder runs the full gate set once, seals, puts READY on line 1, commits and pushes;
+  - the integrator renders the moment it lands and delivers to Telegram REVIEW ONLY.
+- Before either of us stops for another cap or constant: check NOW, both of us, whether any OTHER limit in the
+  deployed render path would refuse this exact package, and report them all in ONE list, not one per round. The ruling
+  names: intro cap, total VO words, clip count, min clip seconds, per-channel floor, shout-out timing, the credits card
+  with 3 channels, and vertical layout approval for all three channels.
+
 
 ## 08:32 ET: rulings 8 / 9 encoded; a word-cap blocker in the VO (five lines)
 

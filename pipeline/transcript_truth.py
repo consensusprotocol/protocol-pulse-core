@@ -117,10 +117,27 @@ def speaker_turns(second, start_rel, end_rel):
 
 
 TERMINAL = (".", "!", "?")
+REPAIR_DASHES = ("-", "\u2013", "\u2014")
 
 
 def _w(t):
     return re.sub(r"[^\w']", "", (t or "").lower().replace("’", "'"))
+
+
+def self_repair(words, i, first):
+    """Orchestrator ruling 8 (08:29): words[i] is a SELF-REPAIR of the clip's first word when it is a truncated
+    repetition of it by the same speaker: it ends in a dash, its letters are a non-empty proper prefix of the next
+    word's, the next word is the clip's first word, and both carry the same speaker label (a missing label is not the
+    same speaker). Heard by the second recogniser and not by the primary, it belongs to the sentence it opens: not a
+    missing sentence start, not an L-v 2 disagreement. Exactly one such token; anything else is not one. The next word
+    must BE the clip's first word (the same letters, case and punctuation aside; audit 0742 C1 K1: no 4-letter match)."""
+    if not 0 <= i < len(words) - 1:
+        return False
+    r, f = words[i], words[i + 1]
+    t = (r.get("text") or "").strip()
+    stem, fw, fst = _w(t.rstrip("".join(REPAIR_DASHES))), _w(f.get("text")), _w(first)
+    return (t.endswith(REPAIR_DASHES) and bool(stem) and bool(fst) and fw == fst and len(stem) < len(fw)
+            and fw.startswith(stem) and r.get("speaker") is not None and r.get("speaker") == f.get("speaker"))
 
 
 def edges(second, wav_start, start, end, text):
@@ -142,11 +159,17 @@ def edges(second, wav_start, start, end, text):
           and _w(w["text"]).rstrip(".")[:4] == last.rstrip(".")[:4]]
     if ci:
         i = ci[0]
-        prev = ws[i - 1]["text"] if i > 0 else None
+        j, repair = i - 1, None
+        if self_repair(ws, j, first):           # ruling 8: the speaker's false start opens the sentence
+            repair, j = ws[j]["text"], j - 1
+        prev = ws[j]["text"] if j >= 0 else None
         out["in"] = {"ok": prev is not None and prev.rstrip().endswith(TERMINAL), "word": ws[i]["text"],
                      "before": prev, "why": "a sentence ends before the clip" if prev and prev.rstrip().endswith(TERMINAL)
                      else ("the window starts at the clip: no word before it" if prev is None else
                            f"the recogniser runs on into the clip ('{prev}')")}
+        if repair:
+            out["in"].update(self_repair=repair, why=out["in"]["why"] + f"; the speaker's false start '{repair}' "
+                             "opens the sentence (ruling 8: a self-repair, part of the sentence)")
     else:
         out["in"] = {"ok": False, "why": f"the recogniser has no '{first}' within 0.6 s of the clip's start"}
     if co:
@@ -170,10 +193,15 @@ def verify_segment(router, video_id, start, end, text, work_dir, wav=None, wav_s
     sec, rep = second_pass(router, wav)
     off = start - (wav_start if wav_start is not None else max(0.0, start - PAD_S))
     span = span_text(sec, off, off + (end - start)) or sec["text"]
+    sw = [w for w in sec.get("words") or [] if _inside(w, off, off + (end - start))]
+    toks = re.findall(r"[\w'’$%.,-]+", text or "")
+    repair = None
+    if len(sw) > 1 and toks and self_repair(sw, 0, toks[0]):     # ruling 8: only a LEADING self-repair, only one
+        repair, span = sw[0]["text"], " ".join(w["text"] for w in sw[1:]).strip()
     cmp_ = compare(text, span)
     turns = speaker_turns(sec, off, off + (end - start))
     return {"video_id": video_id, "start": start, "end": end, "model": rep.backend, "replayed": rep.replayed,
-            "second_pass_text": span, "transcript_ok": cmp_["ok"], "disagree": cmp_["disagree"],
+            "second_pass_text": span, "self_repair": repair, "transcript_ok": cmp_["ok"], "disagree": cmp_["disagree"],
             "critical": cmp_["critical"], "speakers": turns, "audio": os.path.basename(wav),
             "edges": edges(sec, wav_start if wav_start is not None else max(0.0, start - PAD_S), start, end, text),
             "ok": cmp_["ok"] and turns["turn_change_inside"] is False}

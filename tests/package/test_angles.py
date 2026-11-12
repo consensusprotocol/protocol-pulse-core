@@ -90,25 +90,29 @@ class TestAngles(unittest.TestCase):
 
 
 class TestLengthAndR4(unittest.TestCase):
-    def test_the_runtime_counts_the_signoff_once(self):
+    def test_the_runtime_is_the_factorys_own_estimate(self):
         segs = [{"duration_s": 10.0}, {"duration_s": 20.0}]
-        self.assertAlmostEqual(PK.runtime(segs, (40 + 18) / PK.WPS), 30.0 + 58 / 2.6 + PK.FIXED_S, places=2)
-        self.assertAlmostEqual(PK.FIXED_S + 18 / PK.WPS, E.TAIL_S, places=1)     # the tail = fixed + one sign-off
+        # edl_rules._r4_moments: word spans + each VO line at 2.5 w/s + 1 s pre-roll + the 14.30 s tail (sign-off inside)
+        self.assertAlmostEqual(PK.runtime(segs, ["w " * 10, "w " * 15]), 30.0 + 10 / 2.5 + 1 + 15 / 2.5 + 1 + 14.30,
+                               places=2)
+        self.assertAlmostEqual(PK.FINAL_TAIL_S, 14.30, places=2)
 
     def test_the_moments_r4_on_tonights_numbers(self):
         def pk(vo1, vo2, vo3):
             p = {"segments": [{"duration_s": 8.38, "channel": "A"}, {"duration_s": 11.24, "channel": "B"},
                               {"duration_s": 10.29, "channel": "C"}],
                  "vo": {"intro": vo1, "bridges": [vo2, vo3], "bridges_after_clip": [1, 2]}}
-            p["runtime_s_estimate"] = PK.runtime(p["segments"], (sum(len(x.split()) for x in (vo1, vo2, vo3)) + 19) / PK.WPS)
+            p["runtime_s_estimate"] = PK.runtime(p["segments"], [vo1, vo2, vo3])
             return p
         w = lambda n: " ".join(["word"] * n)
-        ok, why = PK.r4(pk(w(27), w(18), w(18)))                                  # 05:35-06:00's 63 words
-        self.assertFalse(ok)
-        self.assertIn("41.0%", why)
-        ok, why = PK.r4(pk(w(13), w(18), w(11)))                                  # the rendered 42 words
+        p63 = pk(w(27), w(18), w(18))                                              # 05:35-06:00's 63 words
+        ok, why = PK.r4(p63)                  # the factory's denominator: 28.2 s of VO = 38.9 % of 72.41 s (share ok)
         self.assertTrue(ok, why)
-        self.assertIn("32.6%", why)
+        self.assertIn("38.9%", why)
+        self.assertAlmostEqual(p63["runtime_s_estimate"], 72.41, places=2)       # ... but over 70 s: the runtime gate
+        self.assertFalse(PK.RUNTIME_S[0] <= p63["runtime_s_estimate"] <= PK.RUNTIME_S[1])
+        ok, why = PK.r4(pk(w(13), w(18), w(11)))                                  # 06:22's 42 words
+        self.assertTrue(ok, why)
         self.assertFalse(PK.r4(dict(pk(w(13), w(18), w(11)), vo={"intro": w(13), "bridges": [w(5), w(5)],
                                                                   "bridges_after_clip": [1, 1]}))[0])
         self.assertLessEqual(PK.min_vo_words(29.91), PK.r4_max_vo_words(29.91, 3))
@@ -203,6 +207,85 @@ class TestInventory(unittest.TestCase):
             self.assertTrue(g[row]["status"] != "PASS" or g[row]["replayed"] is not False, (row, g[row]))
             self.assertTrue(package_pin.gate_problems(g), row)
 
+    def test_a_leading_self_repair_is_part_of_the_sentence_and_nothing_else_is(self):
+        """Ruling 8 (08:29): 'path.' | 'Bit-' 'bitcoin imposes ...' (the same speaker's truncated repetition of the
+        clip's first word) is CUTTABLE at the IN and no L-v 2 disagreement. Another speaker, a fragment that is not a
+        prefix, no dash, a full repetition, two fragments, or no sentence end before it: not a self-repair."""
+        text = "Bitcoin imposes a global free market for the first time ever."
+
+        def words(rep=("Bit-",), rep_sp="s0", before="path."):
+            ws = [{"text": before, "start": 0.4, "end": 0.8, "speaker": "s0"}]
+            ws += [{"text": r, "start": 1.30 - 0.2 * (len(rep) - 1 - k), "end": 1.42 - 0.2 * (len(rep) - 1 - k),
+                    "speaker": rep_sp} for k, r in enumerate(rep)]
+            ws += [{"text": t, "start": 1.72 + 0.3 * k, "end": 1.95 + 0.3 * k, "speaker": "s0"}
+                   for k, t in enumerate(text.lower().split())]
+            return ws + [{"text": "Okay,", "start": 6.0, "end": 6.2, "speaker": "s1"}]
+
+        class R:
+            def __init__(self, ws):
+                self.ws = ws
+
+            def transcribe(self, role, wav):
+                return {"text": " ".join(w["text"] for w in self.ws), "segments": [], "words": self.ws}, \
+                    type("Rep", (), {"backend": "s", "replayed": False})()
+        run = lambda ws: TT.verify_segment(R(ws), "v", 1.5, 5.25, text, "/nonexistent", wav="w.wav", wav_start=0.0)
+        t = run(words())
+        self.assertTrue(t["edges"]["cuttable"], t["edges"])
+        self.assertEqual((t["edges"]["in"]["before"], t["edges"]["in"]["self_repair"]), ("path.", "Bit-"))
+        self.assertEqual(t["self_repair"], "Bit-")
+        self.assertTrue(t["ok"], t)
+        self.assertTrue(run(words(rep=()))["edges"]["cuttable"])                 # no false start: unchanged
+        for kw in ({"rep_sp": "s1"}, {"rep": ("Bo-",)}, {"rep": ("Bit",)}):             # not a self-repair at all
+            t = run(words(**kw))
+            self.assertFalse(t["edges"]["cuttable"], kw)
+            self.assertIsNone(t["edges"]["in"].get("self_repair"), kw)
+        for kw, before in (({"rep": ("B-", "Bit-")}, "B-"), ({"before": "and"}, "and")):   # exactly ONE token, and only
+            t = run(words(**kw))                                                           # at a sentence start
+            self.assertFalse(t["edges"]["cuttable"], kw)
+            self.assertEqual(t["edges"]["in"]["before"], before, kw)
+        # a FULL repetition is not truncated, so not a self-repair: the IN's first-word match (4 letters, unchanged
+        # before ruling 8) reads 'Bitcoin-' as the first word, and L-v 2 still counts it as a disagreement
+        t = run(words(rep=("Bitcoin-",)))
+        self.assertIsNone(t["self_repair"])
+        self.assertIsNone(t["edges"]["in"].get("self_repair"))
+        self.assertFalse(t["ok"])
+        self.assertIn("Bitcoin-", t["disagree"]["names"])
+
+    def test_the_moments_r4_share_is_45_percent(self):
+        """Ruling 9 (08:29): 45 % of the TOTAL runtime; 45.1 % is refused; the word caps are unchanged."""
+        def pk(a, b, c, segs=(8.38, 9.62, 3.50)):
+            w = lambda n: " ".join(["word"] * n)
+            p = {"segments": [{"duration_s": d} for d in segs],
+                 "vo": {"intro": w(a), "bridges": [w(b), w(c)], "bridges_after_clip": [1, 2]}}
+            p["runtime_s_estimate"] = PK.runtime(p["segments"], [w(a), w(b), w(c)])
+            return p
+        self.assertEqual(PK.R4_MOMENTS_SHARE, 0.45)
+        ok, why = PK.r4(pk(30, 18, 18))                                           # 29.4 s of 65.2 s = 45.09 %
+        self.assertFalse(ok)
+        self.assertIn("VO=45.1% of the runtime (max 45%)", why)
+        ok, why = PK.r4(pk(29, 18, 18))                                           # 29.0 s of 64.8 s = 44.75 %
+        self.assertTrue(ok, why)
+        ok, why = PK.r4(pk(13, 18, 24))                                           # 08:29's VO 3: 24 words
+        self.assertTrue(ok, why)                                                  # a takeaway (ruling 10, cap 30)
+
+    def test_the_takeaway_after_the_last_clip_is_capped_at_30_and_bridges_at_20(self):
+        """Ruling 10 (08:40): 31 words after the LAST clip are refused, 30 pass; a 21-word bridge BETWEEN clips is
+        still refused."""
+        def pk(a, b, c, after=(1, 2), segs=(8.38, 9.62, 8.0)):
+            w = lambda n: " ".join(["word"] * n)
+            p = {"segments": [{"duration_s": d} for d in segs],
+                 "vo": {"intro": w(a), "bridges": [w(b), w(c)], "bridges_after_clip": list(after)}}
+            p["runtime_s_estimate"] = PK.runtime(p["segments"], [w(a), w(b), w(c)])
+            return p
+        self.assertEqual(PK.MOMENTS_TAKEAWAY_WORD_CAP, 30)
+        ok, why = PK.r4(pk(10, 12, 31))
+        self.assertFalse(ok)
+        self.assertIn("takeaway 2 31 words (max 30)", why)
+        self.assertTrue(PK.r4(pk(10, 12, 30))[0])
+        ok, why = PK.r4(pk(10, 21, 12))
+        self.assertFalse(ok)
+        self.assertIn("bridge 1 21 words (max 20)", why)
+
     def test_a_second_pass_without_diarisation_is_not_ok(self):
         class R:
             def transcribe(self, role, wav):
@@ -212,6 +295,68 @@ class TestInventory(unittest.TestCase):
         t = TT.verify_segment(R(), "v", 1.6, 2.6, "Bitcoin is money.", "/nonexistent", wav="w.wav", wav_start=0.0)
         self.assertIsNone(t["speakers"]["turn_change_inside"])
         self.assertFalse(t["ok"])
+
+
+class TestMajorityOnce(unittest.TestCase):
+    def test_once_then_the_majority_only_when_the_first_run_fails(self):
+        """08:18 item 4 / 08:29: a model verdict that passes its first run runs once; one that does not gets the
+        three-run majority once; an unmeasured pass is a fail vote; the record keeps every run and an honest
+        replayed tri-state."""
+        calls = []
+
+        def run_of(results):
+            def run(sd):
+                calls.append(sd)
+                return results[sd]
+            return run
+        ok = lambda r: r.get("ok") is True and r.get("measured", True) is True
+        passed, res, votes = PK.once_then_majority(run_of({7: {"ok": True}}), ok)
+        self.assertEqual((passed, votes, calls), (True, ["pass"], [7]))
+        self.assertNotIn("majority", PK.with_votes(res, votes, passed))
+        calls.clear()
+        passed, res, votes = PK.once_then_majority(run_of({7: {"ok": False}, 8: {"ok": True}, 9: {"ok": True}}), ok)
+        self.assertEqual((passed, votes, calls), (True, ["fail", "pass", "pass"], [7, 8, 9]))
+        rec = PK.with_votes(res, votes, passed)
+        self.assertTrue(rec["ok"])
+        self.assertEqual((rec["majority"]["votes"], rec["majority"]["seeds"]), (["fail", "pass", "pass"], [7, 8, 9]))
+        calls.clear()
+        passed, res, votes = PK.once_then_majority(
+            run_of({7: {"ok": False}, 8: {"ok": True}, 9: {"ok": True, "measured": False}}), ok)
+        self.assertEqual((passed, votes), (False, ["fail", "pass", "fail"]))
+        self.assertFalse(PK.with_votes(res, votes, passed)["ok"])
+        res = [{"ok": False, "replayed": False}, {"ok": True, "replayed": None}, {"ok": True, "replayed": False}]
+        self.assertIsNone(PK.with_votes(res, ["fail", "pass", "pass"], True)["replayed"])
+
+    def test_content_range_is_in_seconds_and_meets_both_bounds(self):
+        """Audit 0742 C2 (qwen P1-2, glm N1): VO_S is seconds (package.py: 'the VO's seconds'). The upper bound is the
+        content at which the least VO (VO_S[0] seconds of speech + one pre-roll per line) lands exactly 70 s; at the
+        lower bound some VO lands 60 s inside the share, and 0.1 s less content cannot (unless the bound is the
+        search's 20.0 s floor). content_range counts n_clips VO lines; the takeaway after the last clip (ruling 4)
+        is not in that count: an open item of the angle-first build path, not used by a given package."""
+        for n_clips in (2, 3, 4):
+            lo, hi = PK.content_range(n_clips)
+            self.assertAlmostEqual(hi + PK.VO_S[0] + PK.R4_PREROLL_S * n_clips + PK.FINAL_TAIL_S, PK.RUNTIME_S[1],
+                                   places=6)
+            self.assertLessEqual(PK.min_vo_words(lo, n_clips), PK.r4_max_vo_words(lo, n_clips))
+            if lo > 20.0:                       # 20.0 s is the search's floor: under the 45 % share it binds
+                self.assertGreater(PK.min_vo_words(lo - 0.1, n_clips), PK.r4_max_vo_words(lo - 0.1, n_clips))
+
+    def test_the_r4_word_bounds_invert_runtime_and_the_share_exactly(self):
+        """Audit 0742 C1 (grok P1): r4_max_vo_words / min_vo_words invert runtime() and the share on every content
+        length 15-50 s and 1-4 VO lines: the bound passes, one word more (or less) does not."""
+        for c10 in range(150, 501, 7):
+            c = c10 / 10
+            for n in range(1, 5):
+                vo = lambda w: w / PK.R4_WPS + PK.R4_PREROLL_S * n
+                share = lambda w: vo(w) / (c + vo(w) + PK.FINAL_TAIL_S)
+                rt = lambda w: c + vo(w) + PK.FINAL_TAIL_S
+                hi, lo = PK.r4_max_vo_words(c, n), PK.min_vo_words(c, n)
+                if hi > 0:
+                    self.assertLessEqual(share(hi), PK.R4_MOMENTS_SHARE + 1e-9, (c, n))
+                self.assertGreater(share(hi + 1), PK.R4_MOMENTS_SHARE - 1e-9, (c, n))
+                if lo > 0:
+                    self.assertGreaterEqual(rt(lo), PK.RUNTIME_S[0] - 1e-9, (c, n))
+                    self.assertLess(rt(lo - 1), PK.RUNTIME_S[0], (c, n))
 
 
 if __name__ == "__main__":

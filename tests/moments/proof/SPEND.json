@@ -1,6 +1,6 @@
 {
- "usd_estimate": 57.105595,
- "calls": 1022,
+ "usd_estimate": 57.632925,
+ "calls": 1028,
  "by_backend": {
   "heimdall:qwen/qwen3.8-27b": {
    "calls": 9,
@@ -23,10 +23,10 @@
    ]
   },
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 244,
-   "in": 266355,
-   "out": 1043804,
-   "usd_estimate": 27.426875,
+   "calls": 250,
+   "in": 272201,
+   "out": 1063728,
+   "usd_estimate": 27.954205,
    "price_usd_per_1m": [
     5,
     25
@@ -84,16 +84,16 @@
    "usd_estimate": 5.382115
   },
   "fidelity_verdict": {
-   "calls": 60,
-   "usd_estimate": 12.353315
+   "calls": 61,
+   "usd_estimate": 12.58131
   },
   "context_verdict": {
-   "calls": 416,
-   "usd_estimate": 15.387753
+   "calls": 417,
+   "usd_estimate": 15.487433
   },
   "viewer_takeaway": {
-   "calls": 416,
-   "usd_estimate": 5.855288
+   "calls": 418,
+   "usd_estimate": 6.001823
   },
   "ab_judge": {
    "calls": 1,
@@ -104,19 +104,17 @@
    "usd_estimate": 0.034858
   },
   "exclusion_verdict": {
-   "calls": 9,
-   "usd_estimate": 0.152175
+   "calls": 10,
+   "usd_estimate": 0.170945
   },
   "coherence_verdict": {
-   "calls": 9,
-   "usd_estimate": 0.4105
+   "calls": 10,
+   "usd_estimate": 0.44485
   },
   "audit:qwen3.8-27b": {
    "calls": 1,
    "usd_estimate": 0.288843
   }
  },
- "reserved": {
-  "4159068:d5cb0142b6": 0.510537
- }
+ "reserved": {}
 }

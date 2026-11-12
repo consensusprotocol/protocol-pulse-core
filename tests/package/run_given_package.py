@@ -131,13 +131,21 @@ def main(argv=None):
     ap.add_argument("--takeaway-text", help="a line fix for VO 3 (the takeaway)")
     ap.add_argument("--tag", default="", help="suffix of the output file")
     ap.add_argument("--to-does", action="store_true", help="07:25: clip_02 through 'does.'")
+    ap.add_argument("--to-existed", action="store_true", help="07:42: clip_02 = the first sentence, ending 'existed.'")
+    ap.add_argument("--title-text", help="07:42 (3): the thesis fallback's title")
+    ap.add_argument("--clip02", help="08:18: clip_02 = this store moment, as stored (an id or a unique id prefix)")
+    ap.add_argument("--precheck", action="store_true",
+                    help="08:18 item 3: step A and the second recogniser (CUTTABLE) only, then stop")
+    ap.add_argument("--verdict-runs", type=int, default=1,
+                    help="07:42 (3): run the fidelity verdict N times (seeds 7..), the majority decides")
     ap.add_argument("--xai-heimdall", action="store_true", help="07:25: Anthropic and OpenAI are out of credit")
     a = ap.parse_args(argv)
     t_start = time.time()
     led0 = json.load(open(PM.SPEND))["usd_estimate"]
     chains = CHAINS
     if a.xai_heimdall:                          # orchestrator 07:25: xAI, Heimdall and local only
-        chains = {r: [b for b in c if not b.startswith(("anthropic:", "openai:"))] for r, c in CHAINS.items()}
+        chains = {r: [b for b in c if not b.startswith(("anthropic:", "openai:", "openai_stt:"))]
+                  for r, c in CHAINS.items()}
         chains = {r: (c + ["heimdall:deepseek/deepseek-v4.1-flash"] if len(c) < 2 and r != "transcribe" else c)
                   for r, c in chains.items()}
     router = P.Router(env_path=P.ENV_PATH, record_dir=REPLIES, spend_path=PM.SPEND, limit_usd=PM.LIMIT_USD,
@@ -156,7 +164,19 @@ def main(argv=None):
         wbd = recut(by_id, sources, WBD2, 7325, w_us, 464, 464,
                     "clip_01 replaced (06:45 B): the store's sentence 464 cut at 'U.S.': the independent recogniser "
                     "ends a sentence there ('in the US. Um, you know')")
-        if a.to_does:                           # orchestrator 07:25: 'emerges' runs into 'And' with no pause
+        if sum(map(bool, (a.to_does, a.to_existed, a.clip02))) > 1:
+            raise SystemExit("--to-does, --to-existed and --clip02 are exclusive")
+        if a.clip02:                            # orchestrator 08:18: the store moment itself, not a re-cut
+            hits = [m for mid, m in by_id.items() if mid.startswith(a.clip02)]
+            if len(hits) != 1:
+                raise SystemExit(f"--clip02 {a.clip02}: {len(hits)} store moments match")
+            nat = hits[0]
+        elif a.to_existed:                        # orchestrator 07:42: the only clean end in this moment
+            nat = recut(by_id, sources, NATALIE, 1417, 1432, 108, 108,
+                        "clip_02 = the first sentence only, ending 'existed.' (07:42): the integrator's cutter finds "
+                        "the only clean end of this moment there (cut 15.02-22.04 s file time, pause + "
+                        "neighbour-clear OK, one speaker); 'does.' carries the host's 'Mm' in its tail")
+        elif a.to_does:                         # orchestrator 07:25: 'emerges' runs into 'And' with no pause
             nat = recut(by_id, sources, NATALIE, 1417, 1456, 108, 111,
                         "clip_02 extended to 'does.' (07:25): the cutter found no pause after 'emerges.'; the "
                         "recognisers and the cutter's own M19 pause test end it at 'does.'")
@@ -173,6 +193,8 @@ def main(argv=None):
         f["intro"] = dict(f["intro"], text=a.intro_text)
     if a.takeaway_text and len(f["bridges"]) > 1:
         f["bridges"][-1] = dict(f["bridges"][-1], text=a.takeaway_text)
+    if a.title_text:
+        f["title"] = dict(f["title"], text=a.title_text)
     pk = PK.assemble(f["order"], by_id, f, ctx, f"written by the orchestrator, variant {a.variant}")
     pk["vo"]["bridges_after_clip"] = list(f["after"])           # a takeaway may follow the last clip (06:00 ruling 4)
     levels = PK.current_levels(sources.values(), ctx)
@@ -195,6 +217,33 @@ def main(argv=None):
     say(f"step A ({a_backend}, {time.time() - t0:.0f} s): " + "; ".join(
         f"{lb}: fails {CI.a_failures(x) or 'none'}, speaker {x.get('speaker_is')} verified {x.get('speaker_verified')}"
         f" ({x.get('speaker_evidence')!r:.60})" for lb, x in a_by.items()))
+    if a.precheck:                              # 08:18 item 3: step A, then the second recogniser's CUTTABLE
+        pre = {"step_a": a_by, "truth": {}}
+        for sg in pk["segments"]:
+            w_, ws_ = None, None
+            for x in sorted(os.listdir(AUDIO)):
+                parts = x[:-4].rsplit("_", 2) if x.endswith(".wav") else []
+                if len(parts) == 3 and parts[0] == sg["video_id"] and int(parts[1]) / 1000.0 <= float(sg["start"]) - 1.0 \
+                        and int(parts[2]) / 1000.0 >= float(sg["end"]) + 1.0:
+                    w_, ws_ = os.path.join(AUDIO, x), int(parts[1]) / 1000.0
+                    break
+            try:
+                pre["truth"][sg["label"]] = TT.verify_segment(router, sg["video_id"], float(sg["start"]), float(sg["end"]),
+                                                              sg["text"], AUDIO, wav=w_, wav_start=ws_)
+            except Exception as e:
+                pre["truth"][sg["label"]] = {"ok": False, "error": f"{type(e).__name__}: {str(e)[:200]}"}
+            t_ = pre["truth"][sg["label"]]
+            say(f"PRECHECK {sg['label']} ({sg['moment_id']}): second pass {'PASS' if t_.get('ok') else 'FAIL'} "
+                f"({t_.get('model')}, disagree {t_.get('disagree')}, speakers {t_.get('speakers')}, err {t_.get('error')}); "
+                f"CUTTABLE {'PASS' if (t_.get('edges') or {}).get('cuttable') else 'FAIL'} IN "
+                f"{(t_.get('edges') or {}).get('in')} OUT {(t_.get('edges') or {}).get('out')}; audio {t_.get('audio')}")
+        led1 = json.load(open(PM.SPEND))["usd_estimate"]
+        say(f"PRECHECK spend ${led1 - led0:.2f} (ledger ${led1:.2f}) | wall {time.time() - t_start:.0f} s")
+        os.makedirs(OUT, exist_ok=True)
+        name = f"precheck_{a.variant}{a.tag}"
+        json.dump(pre, open(os.path.join(OUT, name + ".json"), "w"), indent=1, default=str)
+        open(os.path.join(OUT, name + ".log"), "w").write("\n".join(log) + "\n")
+        return 0
     segs_v = {}
     for sg in pk["segments"]:
         ver = a_by[sg["label"]].get("speaker_verified")
@@ -220,17 +269,47 @@ def main(argv=None):
                                  wav=w, wav_start=ws)
 
     exc_cache = {}
+    majority_log = []
 
-    def exclusion(sg):
-        return PK.exclusion_for(router, by_id[sg["moment_id"]], sources, exc_cache)
+    def exclusion(sg):                          # 08:18 item 4: once; the three-run majority only if not PASS
+        m = by_id[sg["moment_id"]]
+        passed, runs, votes = PK.once_then_majority(lambda sd: PK.exclusion_for(router, m, sources, exc_cache, sd),
+                                                    lambda e: e.get("verdict") == "keep" and bool(e.get("measured")))
+        if len(runs) > 1:
+            majority_log.append(f"exclusion {sg['label']}: votes {votes} -> {'PASS' if passed else 'FAIL'}")
+        return PK.with_votes(runs, votes, passed)
+
+    def fidelity():
+        if a.verdict_runs > 1:                  # 07:42 (3): forced N runs; the majority decides per line
+            runs = [VF.check(router, segs_v, lines, AUTHOR["vendor"], 7 + k, man, levels, AUTHOR["family"])
+                    for k in range(a.verdict_runs)]
+            return VF.majority(runs, lines), runs
+        passed, runs, votes = PK.once_then_majority(
+            lambda sd: VF.check(router, segs_v, lines, AUTHOR["vendor"], sd, man, levels, AUTHOR["family"]),
+            lambda r: bool(r.get("measured")) and bool((r.get("verdict") or {}).get("ok")))
+        if len(runs) == 1:
+            return runs[0], runs
+        # once_then_majority's whole-reply 'passed' only decides whether to run seeds 8 and 9; the verdict is then the
+        # majority PER LINE (VF.majority), as 07:42 item 3 ran it (audit 0742 C2, glm N2)
+        merged = VF.majority(runs, lines)
+        majority_log.append(f"fidelity verdict: per-line votes {json.dumps(merged['majority']['votes'])} -> "
+                            f"{'PASS' if merged['verdict']['ok'] else 'FAIL'}")
+        return merged, runs
+
+    def context():
+        passed, runs, votes = PK.once_then_majority(
+            lambda sd: CI.check_contexts(router, pk, contexts, AUTHOR["vendor"], sd, dict(a_by), AUTHOR["family"], True),
+            lambda r: r.get("ok") is True and bool(r.get("measured")))
+        if len(runs) > 1:
+            majority_log.append(f"context B/C: votes {votes} -> {'PASS' if passed else 'FAIL'} (violations per run: "
+                                f"{[[v.get('rule') for v in x.get('violations') or []] for x in runs]})")
+        return PK.with_votes(runs, votes, passed)
 
     with ThreadPoolExecutor(max_workers=10) as ex:
-        f_fid = ex.submit(VF.check, router, segs_v, lines, AUTHOR["vendor"], 7, man, levels, AUTHOR["family"])
-        f_ctx = ex.submit(CI.check_contexts, router, pk, contexts, AUTHOR["vendor"], 7,
-                          {lb: x for lb, x in a_by.items()}, AUTHOR["family"], True)
+        f_fid, f_ctx = ex.submit(fidelity), ex.submit(context)
         f_exc = {sg["label"]: ex.submit(exclusion, sg) for sg in pk["segments"]}
         f_tru = {sg["label"]: ex.submit(truth, sg) for sg in pk["segments"]}
-        fid, ctx_ = f_fid.result(), f_ctx.result()
+        (fid, fid_runs), ctx_ = f_fid.result(), f_ctx.result()
         exc = {k: v.result() for k, v in f_exc.items()}
         tru = {}
         for k, v in f_tru.items():
@@ -240,7 +319,13 @@ def main(argv=None):
                 tru[k] = {"ok": False, "error": f"{type(e).__name__}: {str(e)[:200]}"}
     say(f"concurrent gates: {time.time() - t0:.0f} s")
     dup = PK.duplicates(pk)
-    ok_c, coh = PK.coherence(router, pk, AUTHOR["vendor"], writer_family=AUTHOR["family"])
+    ok_c, coh_runs, coh_votes = PK.once_then_majority(            # 08:18 item 4: once, the majority only if not PASS
+        lambda sd: (lambda r: dict(r[1], ok=r[0]))(PK.coherence(router, pk, AUTHOR["vendor"], sd, AUTHOR["family"])),
+        lambda c: c.get("ok") is True and bool(c.get("measured")))
+    coh = PK.with_votes(coh_runs, coh_votes, ok_c)
+    if len(coh_runs) > 1:
+        majority_log.append(f"coherence: votes {coh_votes} -> {'PASS' if ok_c else 'FAIL'} (ratings per run: "
+                            f"{[(x.get('clips'), x.get('vo_point')) for x in coh_runs]})")
     # report
     say("VO FIDELITY deterministic: " + ("PASS" if fid["deterministic"]["ok"] else "FAIL " + json.dumps(
         fid["deterministic"]["violations"])))
@@ -250,6 +335,15 @@ def main(argv=None):
             f"{json.dumps(c.get('tests')) if c.get('class') == 'commentary' else json.dumps(c.get('support'))[:240]}")
     for v in (fid["verdict"] or {}).get("violations") or []:
         say(f"   VIOLATION {v['slot']}: {v['rule']}: {v['detail']}")
+    if fid.get("majority"):
+        mj = fid["majority"]
+        say(f"   MAJORITY of {fid['runs']} (ruling 07:42): votes {json.dumps(mj['votes'])}; splits {mj['splits'] or 'none'}")
+        for rr, run in zip(mj["runs"], fid_runs):
+            th = [(c.get("line"), c.get("supported")) for c in (run.get("verdict") or {}).get("claims") or []
+                  if c.get("line") in ("intro", "title") and c.get("class") != "commentary"]
+            say(f"   run seed {rr['seed']} ({rr['backend']}, measured {rr['measured']}, replayed {rr['replayed']}): "
+                f"{'PASS' if rr['ok'] else 'FAIL'}; thesis claims {th}; violations "
+                f"{[(v['slot'], v['rule']) for v in rr['violations']] or 'none'}")
     say(f"CONTEXT INTEGRITY (A {ctx_['backends'].get('A')}, B {ctx_['backends'].get('B')}, C "
         f"{ctx_['backends'].get('C')}): " + ("PASS" if ctx_["ok"] else "FAIL " + json.dumps(ctx_["violations"])))
     for lb, x in (ctx_.get("segments") or {}).items():
@@ -267,6 +361,8 @@ def main(argv=None):
         f"{k}: {'PASS' if (v.get('edges') or {}).get('cuttable') else 'FAIL'} IN {(v.get('edges') or {}).get('in')} "
         f"OUT {(v.get('edges') or {}).get('out')}" for k, v in tru.items()))
     say(f"COHERENCE ({coh.get('backend')}): {'PASS' if ok_c else 'FAIL'} {json.dumps(coh)[:500]}")
+    say("MAJORITY (08:18 item 4; once, only for a model verdict not PASS on its first run): " +
+        ("; ".join(majority_log) if majority_log else "none needed: every model verdict passed on its first run"))
     rt_ok = PK.RUNTIME_S[0] <= pk["runtime_s_estimate"] <= PK.RUNTIME_S[1]
     gates = {"vo_fidelity_deterministic": fid["deterministic"]["ok"], "vo_fidelity_verdict": bool((fid["verdict"] or {}).get("ok")),
              "price_now_measured": fid["deterministic"].get("price_now_measured"), "duplicate": not dup,
@@ -281,8 +377,24 @@ def main(argv=None):
     pk["cut_evidence"] = {lb: {"video_id": t.get("video_id"), "start": t.get("start"), "end": t.get("end"),
                                "model": t.get("model"), "audio": t.get("audio"), "in": (t.get("edges") or {}).get("in"),
                                "out": (t.get("edges") or {}).get("out")} for lb, t in tru.items()}
+    if a.to_existed:                            # 07:42 (1): the integrator's cut geometry is the CUTTABLE evidence
+        import hashlib
+        facts = "/home/ultron/protocol_pulse/docs/audits/parallel/integrator_RULING7_FACTS.md"
+        lb2 = pk["segments"][-1]["label"]
+        pk["cut_evidence"][lb2]["renderer_geometry"] = {
+            "source": facts, "sha256": hashlib.sha256(open(facts, "rb").read()).hexdigest(),
+            "entries": ["07:23 ET", "07:41 ET"], "file_time": "YouTube - 514.0",
+            "cut_in": 15.02, "cut_out": 22.04, "cut_youtube": [529.02, 536.04], "duration_s": 7.02,
+            "checks": "the renderer's own sentence lock (primary decode 'existed.' 21.18-21.62, next 'And' 21.94) and "
+                      "cut geometry (edge_plan + accepted_cut, main): pause + neighbour-clear OK, one speaker; the "
+                      "final '-ed' release ends 21.63, 0.41 s before the cut, in quiet",
+            "disagreement": "the integrator's second-recogniser pass on its acquired window hears a COMMA after "
+                            "'existed' ('ever existed, and it- all it has to do'); this builder's three recorded "
+                            "scribe_v1 passes (windows 527.55-540.84 / -542.50 / -545.04) hear a full stop ('existed. "
+                            "And it, all it has to do'); the integrator: not a blocker under the existing rule (the "
+                            "primary's full stop locks the edge); the orchestrator ruled 07:42 with it on file"}
     say("INVENTORY: " + "; ".join(f"{k} {v['status']}" for k, v in pk["gates"].items()))
-    pk["checks_given"] = {"fidelity": fid, "context": ctx_, "duplicates": dup, "exclusion": exc, "truth": tru,
+    pk["checks_given"] = {"fidelity": fid, "fidelity_runs": fid_runs, "majority_log": majority_log, "context": ctx_, "duplicates": dup, "exclusion": exc, "truth": tru,
                           "coherence": coh, "r4": [r4_ok, r4_why], "runtime_ok": rt_ok, "gates": gates,
                           "step_a": a_by, "current_levels": levels, "author": AUTHOR,
                           "wall_s": round(time.time() - t_start, 1), "usd": round(led1 - led0, 4)}

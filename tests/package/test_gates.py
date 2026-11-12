@@ -239,6 +239,33 @@ class TestFidelityVerdict(unittest.TestCase):
         res, _ = self.verdict(ok, lines)
         self.assertTrue(res["ok"], res["violations"])
 
+    def test_a_flipping_verdict_is_decided_by_the_majority_of_three(self):
+        """Ruling 07:42 (3): run three times, the majority decides, a 2-1 split is recorded; an unmeasured run is a
+        'fail' vote (L-m); an even number of runs is refused."""
+        good = {"claims": [self.claim("intro", self.LINES[0]["text"], "attribution", support=[
+            {"segment": "m1", "words": "found support at its 200-day moving average"}])]}
+        unsure = {"claims": [self.claim("intro", self.LINES[0]["text"], "attribution", sup="uncertain")]}
+
+        def three(*answers):
+            r = Canned(fidelity_verdict=list(answers))
+            runs = [VF.check(r, self.SEGS, self.LINES, "openai", seed=s) for s in (7, 8, 9)]
+            return VF.majority(runs, self.LINES)
+        res = three(good, unsure, good)
+        self.assertTrue(res["ok"], res["violations"])
+        self.assertEqual(res["majority"]["votes"], {"intro": ["pass", "fail", "pass"]})
+        self.assertEqual(res["majority"]["splits"], ["intro"])
+        self.assertEqual([x["seed"] for x in res["majority"]["runs"]], [7, 8, 9])
+        res = three(unsure, unsure, good)
+        self.assertFalse(res["ok"])
+        self.assertEqual([v["rule"] for v in res["violations"]], ["VERDICT_MAJORITY", "VERDICT_UNCERTAIN"])
+        res = three(good, good)                                   # the third run has no answer: unmeasured
+        self.assertTrue(res["ok"] and res["measured"])
+        self.assertEqual(res["majority"]["votes"]["intro"], ["pass", "pass", "fail"])
+        res = three(good)                                         # two unmeasured runs: never a pass
+        self.assertEqual((res["ok"], res["measured"]), (False, False))
+        with self.assertRaises(ValueError):
+            VF.majority([res, res], self.LINES)
+
     def test_no_verdict_is_a_failure_and_not_measured(self):
         res = VF.check(Canned(), self.SEGS, self.LINES, writer_vendor="openai")
         self.assertEqual((res["ok"], res["measured"]), (False, False))

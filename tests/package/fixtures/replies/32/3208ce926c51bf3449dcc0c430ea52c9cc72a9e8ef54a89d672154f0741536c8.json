@@ -1,0 +1,18 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: No authority. That's the design.\nCAPTION: no authority. that's the design. three clips, links below.\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nVOICE-OVER: Bitcoin does not have any authority. That's not a flaw. That's the design.\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.\"\nVOICE-OVER: Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?\nCLIP label=\"clip_02\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nVOICE-OVER: No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still miss when they look at Bitcoin.\nVOICE-OVER: Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin has no central authority or ruler by design, enabling a global free market with rules that nobody can bend.\", \"clips\": {\"hook\": 5, \"clip_01\": 4, \"clip_02\": 5}, \"vo_point\": 4}",
+ "usage": {
+  "in": 640,
+  "out": 1246
+ },
+ "usd": 0.03435,
+ "seconds": 14.13,
+ "recorded_at": "2026-11-12T13:43:18Z"
+}

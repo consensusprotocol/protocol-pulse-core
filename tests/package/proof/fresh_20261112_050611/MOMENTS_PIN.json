@@ -1,10 +1,10 @@
 {
  "schema": "protocol_pulse.pinned_story.v1",
- "story_id": "moments-fresh_20261112_050611-f409e9d9",
+ "story_id": "moments-fresh_20261112_050611-37c5b5f5",
  "label": "bitcoin",
- "headline": "Nobody is in charge of Bitcoin.",
+ "headline": "No authority. That's the design.",
  "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
- "approved_at": "2026-11-12T11:59:00+00:00",
+ "approved_at": "2026-11-12T13:43:40+00:00",
  "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, fresh_20261112_050611)",
  "machine_cuts": true,
  "segments": [
@@ -38,9 +38,9 @@
    "role": "clip",
    "video_id": "wdk5JZ9hPzs",
    "channel": "Natalie Brunell",
-   "start": 529.05,
-   "end": 541.0,
-   "approved_text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure. And that's what emerges.",
+   "start": 3218.14,
+   "end": 3221.64,
+   "approved_text": "Bitcoin imposes a global free market for the first time ever.",
    "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
    "time_coords": "youtube",
    "source": {
@@ -50,25 +50,25 @@
  ],
  "moments_package": {
   "schema": "pp.package/1",
-  "package_sha256": "f409e9d94fe944f415538314da1722405b49a266df632962f5a055ab762fe714",
+  "package_sha256": "37c5b5f598e97f12a4afd62eccd57f93b946b6f6d7ef087ef1047c1c06bc086f",
   "type": "moments",
   "vo_kind": "written by the orchestrator, variant v0700",
   "edl_vo": {
-   "intro": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
+   "intro": "Bitcoin does not have any authority. That's not a flaw. That's the design.",
    "bridges": [
     {
      "text": "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
      "after_clip": 1
     },
     {
-     "text": "No ruler. Just rules nobody gets to bend. That's the idea.",
+     "text": "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still miss when they look at Bitcoin.",
      "after_clip": 2
     }
    ]
   },
   "signoff_expected": "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below.",
-  "title": "Nobody is in charge of Bitcoin.",
-  "caption": "no authority. no ruler. three clips, links below.",
+  "title": "No authority. That's the design.",
+  "caption": "no authority. that's the design. three clips, links below.",
   "hook_first_words": "Bitcoin does not have any authority that allows",
   "vo_jobs": {
    "intro": "context",
@@ -102,7 +102,7 @@
    },
    "runtime": {
     "status": "PASS",
-    "by": "code (estimate at 2.6 w/s)",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
     "replayed": false,
     "n": 1
    },
@@ -135,7 +135,6 @@
    "exclusion": {
     "status": "PASS",
     "by": [
-     "anthropic:claude-opus-5-5",
      "xai:grok-4.20-0309-reasoning"
     ],
     "replayed": false,
@@ -168,7 +167,7 @@
    "derived_from": "gates (every required row exactly PASS, checked above)",
    "models": null
   },
-  "runtime_s_estimate": 60.79,
+  "runtime_s_estimate": 60.8,
   "cut_evidence": {
    "hook": {
     "video_id": "vgsSZ4mAHfQ",
@@ -210,20 +209,21 @@
    },
    "clip_02": {
     "video_id": "wdk5JZ9hPzs",
-    "start": 529.05,
-    "end": 541.0,
+    "start": 3218.14,
+    "end": 3221.64,
     "model": "elevenlabs_stt:scribe_v1",
-    "audio": "wdk5JZ9hPzs_527550_542500.wav",
+    "audio": "wdk5JZ9hPzs_3216640_3223140.wav",
     "in": {
      "ok": true,
-     "word": "Bitcoin",
-     "before": "now.",
-     "why": "a sentence ends before the clip"
+     "word": "bitcoin",
+     "before": "path.",
+     "why": "a sentence ends before the clip; the speaker's false start 'Bit-' opens the sentence (ruling 8: a self-repair, part of the sentence)",
+     "self_repair": "Bit-"
     },
     "out": {
      "ok": true,
-     "word": "emerges.",
-     "after": "And",
+     "word": "ever.",
+     "after": "Okay,",
      "why": "a sentence ends at the clip's last word"
     }
    }
@@ -231,7 +231,7 @@
   "sources_30s_before": [
    "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s",
    "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s",
-   "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=499s"
+   "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
   ]
  }
 }

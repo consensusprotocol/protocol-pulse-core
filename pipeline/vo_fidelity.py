@@ -727,7 +727,7 @@ def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current
     (law L-m) and leaves the layer NOT measured."""
     import providers as P
     det = check_deterministic(segments, lines, manifest, current_levels)
-    out = {"deterministic": det, "verdict": None, "backend": None, "measured": False, "replayed": False}
+    out = {"deterministic": det, "verdict": None, "backend": None, "measured": False, "replayed": False, "seed": seed}
     r = None
     try:
         r = router.call("fidelity_verdict", verdict_prompt(segments, lines, manifest), 2500, seed,
@@ -742,4 +742,51 @@ def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current
                                                                       "detail": f"{type(e).__name__}: {str(e)[:200]}"}]}
     out["violations"] = det["violations"] + out["verdict"]["violations"]
     out["ok"] = det["ok"] and out["verdict"]["ok"]
+    return out
+
+
+def majority(runs, lines):
+    """Orchestrator ruling 07:42 (3): a verdict that flips on unchanged text is run THREE times (the seed differs, the
+    text does not) and the majority decides. runs: check() results on the same segments and lines. Per line slot a
+    run votes "pass" only when it was measured and its verdict holds no violation on that slot nor on the whole reply
+    ("-"); a slot passes when more than half of the runs vote "pass" (an unmeasured run votes "fail", law L-m).
+    -> a check()-shaped result: the seed-free deterministic layer, the first run's claims, every violation of a slot
+    the majority fails (plus VERDICT_MAJORITY with the votes), "runs" (n) and "majority" = {"votes": {slot: [...]},
+    "splits": [slots whose votes differ], "runs": [per run: seed, backend, measured, replayed, ok, violations]}. A
+    split is recorded, never hidden (the ruling: recorded in the package and named in the caption)."""
+    if not runs or len(runs) % 2 == 0:
+        raise ValueError(f"majority needs an odd number of runs, got {len(runs)}")
+    slots = [ln["slot"] for ln in lines]
+    whole = lambda v: v.get("slot") == "-" or v.get("slot") not in slots   # an unknown slot fails every slot (C1 H1)
+    votes = {}
+    for s in slots:
+        votes[s] = ["pass" if r.get("measured") and not any(
+            v.get("slot") == s or whole(v) for v in (r.get("verdict") or {}).get("violations") or []) else "fail"
+            for r in runs]
+    failed = [s for s, vs in votes.items() if 2 * vs.count("pass") <= len(runs)]
+    viol, seen = [], set()
+    for s in failed:
+        viol.append({"slot": s, "rule": "VERDICT_MAJORITY", "detail": f"votes {votes[s]} (seeds "
+                                                                        f"{[r.get('seed') for r in runs]})"})
+        for r in runs:
+            for v in (r.get("verdict") or {}).get("violations") or []:
+                k = (v.get("slot"), v.get("rule"), v.get("detail"))
+                if (v.get("slot") == s or whole(v)) and k not in seen:
+                    seen.add(k)
+                    viol.append(v)
+    n_measured = sum(bool(r.get("measured")) for r in runs)
+    reps = [r.get("replayed") for r in runs]
+    base = runs[0]
+    verdict = {"ok": 2 * n_measured > len(runs) and not failed,
+               "claims": (base.get("verdict") or {}).get("claims") or [], "violations": viol}
+    out = {"deterministic": base["deterministic"], "verdict": verdict,
+           "backend": " / ".join(sorted({str(r.get("backend")) for r in runs})),
+           "measured": 2 * n_measured > len(runs),
+           "replayed": None if any(not isinstance(x, bool) for x in reps) else any(reps), "runs": len(runs),
+           "majority": {"votes": votes, "splits": [s for s, vs in votes.items() if len(set(vs)) > 1],
+                        "runs": [{"seed": r.get("seed"), "backend": r.get("backend"), "measured": r.get("measured"),
+                                  "replayed": r.get("replayed"), "ok": bool((r.get("verdict") or {}).get("ok")),
+                                  "violations": (r.get("verdict") or {}).get("violations") or []} for r in runs]}}
+    out["violations"] = base["deterministic"]["violations"] + viol
+    out["ok"] = base["deterministic"]["ok"] and verdict["ok"]
     return out

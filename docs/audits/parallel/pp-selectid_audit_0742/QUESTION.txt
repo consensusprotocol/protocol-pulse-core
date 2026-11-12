@@ -1,0 +1,31 @@
+You are auditing a small diff on branch pp-selectid (Protocol Pulse, moments-first packaging), written 07:42-08:35 ET
+Nov 12 under orchestrator rulings (07:42, 08:18, 08:29). The code gates a video package before a pinned render. Laws: nothing measured
+is never a pass (L-m); fail closed (L-j); never change what a check accepts in order to make something pass.
+
+What changed, and what to check:
+1. package.runtime() now mirrors the DEPLOYED factory's own estimate (edl_rules._r4_moments, main a5ec0f17: "hook +
+   clips + VO + FINAL_TAIL_S", each VO line "words / 2.5 + the 1.0 s pre-roll", FINAL_TAIL_S = 14.30 with the
+   sign-off inside it). It replaced the builder's own estimate (2.6 words/s, no pre-roll, FIXED_S + the sign-off),
+   which ran 3-4 s lower on three VO lines. Is the mirror faithful? Do min_vo_words / r4_max_vo_words /
+   content_range stay consistent with it? Does the change loosen anything beyond what the factory itself accepts?
+2. vo_fidelity.majority(runs, lines) implements the orchestrator's rule: "a verdict that flips on unchanged text: run
+   that one verdict three times; majority decides; a 2-1 split is recorded in the package". Check: an unmeasured run
+   never counts as a pass vote; a whole-reply failure (slot "-") votes fail on every slot; an even run count is
+   refused; the votes and splits reach the sealed gate inventory (package.inventory row "vo_fidelity_verdict");
+   the replayed tri-state stays honest; the merged result cannot pass a slot that most runs failed.
+3. The driver tests/package/run_given_package.py: --to-existed (clip_02 = store words 1417-1432, ending "existed."),
+   --verdict-runs (seeds 7, 8, 9), --title-text, the renderer_geometry evidence added to cut_evidence (outside the
+   seal), and the transcribe chain without OpenAI under --xai-heimdall.
+4. ORCHESTRATOR RULING 8 (08:29): transcript_truth.self_repair. "A token that the second recogniser hears and the
+   primary does not, which is a truncated repetition of the clip's first word by the same speaker, is a self-repair:
+   not a missing sentence start and not an L-v 2 disagreement. Exactly that token and nothing else." Check edges()
+   (the IN skips exactly one such token, then needs a sentence end) and verify_segment (only a LEADING self-repair is
+   dropped from the L-v 2 comparison). Can anything other than one same-speaker truncated prefix slip through?
+5. ORCHESTRATOR RULING 9 (08:29): the moments R4 VO share cap is 45 % (was 40 %); 60-70 s stays hard; word caps
+   unchanged. Check package.R4_MOMENTS_SHARE and everything derived from it.
+6. The driver's --clip02 (a store moment as stored) and --precheck (step A + the second recogniser only, then stop).
+7. The tests added or changed (test_gates.py majority test; test_angles.py runtime / R4 / self-repair tests).
+
+Output: findings ranked P0 / P1 / P2, each with file:line and a concrete failure scenario (inputs -> wrong result).
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess. End with a verdict line:
+"SHIP: yes | yes with conditions | no".
