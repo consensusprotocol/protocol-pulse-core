@@ -1,4 +1,80 @@
-NOT READY (07:45 ET): applying the ORCHESTRATOR RULING 07:42 (recorded below); re-seal next.
+NOT READY (07:58 ET): the 07:42 package FAILS 3 gates on measurement (clip_02 = 'existed.' fails context L-s and coherence; the thesis line loses its 3-run majority). Nothing pinned. ORCHESTRATOR DECISION NEEDED on clip_02: see the first section.
+
+## 07:58 ET: the 07:42 package, measured (attempt 0742)
+
+Files: tests/package/proof/fresh_20261112_050611/given_v0700_0742.json / .log. Wall 168 s. Spend $1.35 by the ledger
+(all xai:grok-4.20-0309-reasoning at its configured price; the second pass was served from tonight's recordings, $0).
+Ledger $56.70 of $64.28; the 07:42 budget of $2 has $0.65 left. (The line above this section said "07:45 ET"; it was
+written at 07:40, commit 9daa914d.)
+
+**Applied as ruled:**
+- clip_02 = store words 1417-1432, YouTube 529.05-535.78 (6.73 s word span). The renderer cuts 15.02-22.04 s file time
+  (7.02 s). The integrator's geometry is recorded as CUTTABLE evidence in the package's cut_evidence. So is the
+  recogniser disagreement at "existed": the integrator's pass heard a comma, my three passes heard a full stop.
+- VO 3 = "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part people miss."
+- Runtime 61.23 s by the code's arithmetic, so VO 2 is unchanged:
+  - content 24.73 + VO 48 words / 2.5 + 3 x 1 s pre-roll + 14.30 tail;
+  - that arithmetic is now the factory's own R4 estimate (edl_rules._r4_moments, main a5ec0f17);
+  - the builder's earlier estimate (2.6 w/s, no pre-roll) gives 57.88 s for the same package;
+  - neither is a measurement; the render measures the final.
+- Judges: grok-4.20-reasoning (Heimdall deepseek as fallback). Transcription: scribe_v1. No OpenAI or Anthropic call.
+
+**FAIL 1: the thesis line, three runs (07:42 item 3).**
+- seed 7: UNCERTAIN; seed 8: NO; seed 9: PASS. The majority is NOT supported (1-2).
+- So, per the ruling, the fallback applies:
+  - VO 1: "Bitcoin does not have any authority. That's not a flaw. That's the design."
+  - TITLE: "No authority. That's the design."
+  - Not yet gated: it is gated with the next clip_02 decision, because the verdict reads the clips.
+- The CAPTION "no authority. no ruler. three clips, links below." (my fix 1 of 2, 07:25) also failed 2 of 3 runs: the
+  judge read "no ruler." as a fact, and no clip says it.
+- Proposed fix 2 of 2: "no authority. that's the design. three clips, links below." Each part passed tonight as fact,
+  commentary and production.
+
+**FAIL 2: context integrity, step A on clip_02 (law L-s).**
+- CONDITION_OUTSIDE: the words right after the cut are, verbatim in the transcript, "And all it has to do, is stay
+  decentralized and secure. And that's what emerges." The first sentence alone states as unconditional what the
+  speaker conditions.
+- RETRACTION (a material limit, ruling 6): later in the window the speaker says that, measured through the existing
+  system, "it could bend light, bend Bitcoin, into the black hole that is the existing system ... it would be
+  centraliz[ed] ... So it wouldn't free people". The judge's own quote paraphrases this; the transcript words are as
+  quoted here.
+- The same moment through "does." passed step A at 07:25, with the condition inside the clip.
+
+**FAIL 3: coherence.** clip_02 scores 3 (needs >= 4). The hook scores 5, clip_01 4, the VO point 4.
+
+**PASS:** deterministic fidelity, duplicate, price-now, runtime, R4 (36.3 %), exclusion x3, second pass x3, CUTTABLE x3
+(clip_02: "now. | Bitcoin", "existed. | And").
+
+**What this means.** No end of this moment is both cleanly cuttable by the renderer's geometry and complete in
+context (L-s):
+- "existed.": clean, but drops the condition;
+- "emerges.": no pause;
+- "does.": the host's "Mm" sits in the tail;
+- "mass.": 22.45 s, over the 20 s limit (L-u).
+
+No line change can pass this clip: the failure is in the clip. 07:42 allows no more attempts on its ends, and I do not
+swap a clip without your word (05:35). Dropping clip_02 is not possible either: a hook plus one clip (18.0 s of content)
+needs at least 65 VO words to reach 60 s, and R4 allows at most 48.
+
+**DECISION NEEDED (orchestrator):**
+- **(A) RECOMMENDED: replace clip_02 with another moment.**
+  - I pre-check candidates first: store facts, the cheap gates, step A context, CUTTABLE on the second recogniser,
+    coherence fit. Then the integrator runs its cut-geometry pre-check. Then I gate the package with the fallback
+    thesis lines and the caption fix 2.
+  - Spend: about $1.50 beyond the $0.65 left.
+  - The zero-cost part of the pre-check starts now and appears below when done.
+- (B) Rule that the speaker's condition is not material (law L-s is yours to interpret, as rulings 3 / 5 / 6 did).
+  Not recommended: coherence 3 still fails, and the condition is verbatim right after the cut.
+
+**Code (uncommitted until its audit, AUDIT-FIRST):**
+- package.runtime = the factory's own R4 estimate;
+- vo_fidelity.majority (ruling 07:42 item 3), with its votes sealed in the inventory row;
+- driver flags --to-existed, --verdict-runs, --title-text;
+- tests/package/pin_and_verify.py (seals a pin and checks it against the deployed pinned.py / edl_rules.py).
+
+Tests: 50 pass across test_angles, test_gates, test_moments and test_providers (the new majority test included). regression_test.sh: 26 PASS / 0 FAIL / 5 WARN. The two-cycle audit runs
+next, on xAI and Heimdall reviewers.
+
 
 ## ORCHESTRATOR RULING 07:42 ET: recorded verbatim in substance (builder + integrator)
 
@@ -27,7 +103,7 @@ NOT READY (07:45 ET): applying the ORCHESTRATOR RULING 07:42 (recorded below); r
      report the measured cause at the top of the DoD.
 
 
-## 07:58 ET: the 07:25 re-gate (attempt 0725: tests/package/proof/fresh_20261112_050611/given_v0700_0725.json / .log; 189 s, $0.89)
+## 07:26 ET (header corrected 07:58 from '07:58', a wrong time; the commit fe0ca679 is 07:26:41): the 07:25 re-gate (attempt 0725: tests/package/proof/fresh_20261112_050611/given_v0700_0725.json / .log; 189 s, $0.89)
 
 **What changed.** clip_02 now runs through "does." (store words 1417-1456, wdk5JZ9hPzs 529.05-543.54, 14.49 s): "Bitcoin
 is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay
