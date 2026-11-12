@@ -1,0 +1,2861 @@
+diff --git a/pipeline/context_integrity.py b/pipeline/context_integrity.py
+new file mode 100644
+index 00000000..28638daa
+--- /dev/null
++++ b/pipeline/context_integrity.py
+@@ -0,0 +1,302 @@
++#!/usr/bin/env python3
++"""pipeline/context_integrity.py — CONTEXT INTEGRITY (law L-s, orchestrator 2026-11-12 '02:30'; a HARD gate, separate
++from VO fidelity): a verbatim whole sentence can still misrepresent its speaker once lifted. Per selected moment:
++
++INPUTS  the source's transcript from >= CONTEXT_BEFORE_S before the moment (pulled back to the question it answers, when
++        one ends within CONTEXT_MAX_BEFORE_S) to >= CONTEXT_AFTER_S after it, the video title, the selected sentences,
++        and the finished package (order, adjacent clips, VO, title, caption).
++STEP A  (context only, the package hidden; role "context_verdict", never the writer's vendor): who is speaking, whose
++        view it is (own sincere / attributed / hypothetical / conditional / sarcastic / question / reading aloud / ad
++        read), every pronoun and this / that / today with its referent and whether it lies inside the selection, any
++        governing condition or time frame, any retraction or qualification in the window, the proposition asserted.
++STEP B  (the package only; role "viewer_takeaway", never the writer's vendor): what an ordinary viewer concludes each
++        speaker asserts, how certain, and any implied relation (agreeing / answering / rebutting / one conversation)
++        between speakers.
++STEP C  (role "context_verdict"): does A's in-context proposition entail B's takeaway, same polarity, no stronger
++        certainty?
++DECIDE  (code) PASS only if: own sincere assertion; no speaker change inside; every referent and condition inside the
++        selection; no retraction; C entails, same polarity, not stronger; no implied relation between speakers of
++        different source videos. Any "uncertain" fails (law L-m).
++REPAIR  only extending the clip by whole locked sentences (backwards, to take in a referent or condition) and checking
++        again, or dropping the MOMENT and repacking; never writing the missing context into the VO (L-s).
++"""
++import json
++
++import eligibility as E
++
++CONTEXT_BEFORE_S = 90.0
++CONTEXT_MAX_BEFORE_S = 180.0
++CONTEXT_AFTER_S = 60.0
++VIEWS = ("own_sincere", "attributed", "hypothetical", "conditional", "sarcastic", "question", "reading_aloud",
++         "ad_read", "joke", "uncertain")
++CERTAINTY = ("certain", "likely", "possible", "speculative", "uncertain")
++RELATIONS = ("none", "agreeing", "answering", "rebutting", "same_conversation", "uncertain")
++YNU = ("yes", "no", "uncertain")
++
++
++def window(src, k0, k1, before=CONTEXT_BEFORE_S, after=CONTEXT_AFTER_S, max_before=CONTEXT_MAX_BEFORE_S):
++    """Sentence indices (a, b) of the context window around the moment k0..k1: >= `before` s earlier (back to the
++    question the moment answers, when one ends within `max_before` s), >= `after` s later; whole sentences."""
++    S, T = src.sentences, src.tokens
++    t0 = E._time(T[S[k0][0]], "start")
++    t1 = E._time(T[S[k1][1]], "end")
++    a = k0
++    while a > 0 and t0 is not None and (E._time(T[S[a - 1][0]], "start") or 0) >= t0 - before:
++        a -= 1
++    q = a
++    while q > 0 and t0 is not None and (E._time(T[S[q - 1][0]], "start") or 0) >= t0 - max_before:
++        q -= 1
++        if (T[S[q][1]].get("word") or "").rstrip().endswith("?"):
++            a = min(a, q)
++            break
++    b = k1
++    while b + 1 < len(S) and t1 is not None and (E._time(T[S[b + 1][1]], "end") or 1e18) <= t1 + after:
++        b += 1
++    return a, b
++
++
++def _window_text(src, k0, k1):
++    a, b = window(src, k0, k1)
++    S, T = src.sentences, src.tokens
++    parts = []
++    for k in range(a, b + 1):
++        t = E.spoken(T[S[k][0]:S[k][1] + 1])
++        parts.append(f"<selected>{t}</selected>" if k0 <= k <= k1 else t)
++    return " ".join(parts), (a, b)
++
++
++STEP_A = """You read transcripts of Bitcoin videos. For each EXCERPT below, the sentences inside <selected> are a clip
++that may be shown on its own. Use the whole excerpt (what comes before and after) to judge the selected words. You do
++not know how the clip will be used.
++
++{excerpts}
++
++For each excerpt answer:
++- "speaker_changes_inside": does the speaker change inside the selected words? "yes" / "no" / "uncertain"
++- "view": whose view the selected words express: "own_sincere" (the speaker's own sincere assertion), "attributed"
++  (someone else's view, quoted or reported), "hypothetical", "conditional" (true only under a condition), "sarcastic",
++  "question", "reading_aloud" (reading a post or article), "ad_read", "joke", or "uncertain"
++- "referents": every pronoun or pointing word in the selected words (it, they, this, that, he, she, today, here...)
++  that points at something specific, with what it refers to and whether the selected words themselves identify it
++  ("inside": true) or a listener needs the words before or after the selection ("inside": false). Leave out words
++  that point at nothing outside: a dummy "it" ("it's raining", "it's not X that ...", where X is in the selection),
++  and a generic "we" / "you" / "they" meaning people in general
++- "conditions": any condition or time frame that governs the selected words, and whether it is INSIDE them
++- "retraction": "none", or what the speaker later in the excerpt retracts or qualifies about the selected words
++- "time_ok": "yes" if every time word in the selected words (today, now, this week, just, recently, a "current"
++  price) still holds on the show date given when the video was published (both on the excerpt), or there is none;
++  "no" if it is stale; "uncertain"
++- "proposition": in one sentence, what the speaker asserts in the selected words, read in context
++- "certainty": "certain", "likely", "possible", "speculative" or "uncertain"
++Return ONLY this JSON object: {{"excerpts": [{{"label": "...", "speaker_changes_inside": "...", "view": "...",
++"referents": [{{"word": "...", "refers_to": "...", "inside": true}}], "conditions": [{{"text": "...", "inside": true}}],
++"retraction": "none", "time_ok": "yes", "proposition": "...", "certainty": "..."}}]}}"""
++
++STEP_B = """You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.
++
++{package}
++
++For each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative
++or neutral about its subject. Use the CLIP labels exactly as shown above (hook, clip_01, ...) in "label" and in
++"labels", never the speakers' names. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH
++OTHER: one answering the other, one rebutting the other, one agreeing WITH the other ("X agrees", "Y backs that up",
++"both say"), or the two being in one conversation. Two speakers who each state their own view on the same subject,
++each credited, are NOT related ("none") unless the video says or implies that they respond to each other.
++Return ONLY this JSON object: {{"takeaways": [{{"label": "...", "asserts": "...", "certainty": "certain" | "likely" |
++"possible" | "speculative" | "uncertain", "polarity": "positive" | "negative" | "neutral"}}], "relations":
++[{{"labels": ["...", "..."], "relation": "none" | "agreeing" | "answering" | "rebutting" | "same_conversation" |
++"uncertain"}}]}}"""
++
++STEP_C = """For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a
++short video concludes the same speaker asserted. Answer for each: does A entail B ("yes", "no", "uncertain"); do they
++have the same polarity ("yes", "no", "uncertain"); is B more certain than A ("yes", "no", "uncertain")?
++
++{pairs}
++
++Return ONLY this JSON object: {{"pairs": [{{"label": "...", "entails": "...", "same_polarity": "...",
++"stronger_certainty": "..."}}]}}"""
++
++
++def _q(t, n):
++    from story_semantics import quote_data
++    return quote_data(t, n)
++
++
++def package_view(package):
++    """The package as a viewer meets it: VO intro, then each segment with its on-screen credit, bridges between, the
++    sign-off; the title and caption."""
++    out = [f"TITLE: {_q(package['title'], 200)}", f"CAPTION: {_q(package['caption'], 400)}"]
++    vo = package["vo"]
++    if vo.get("intro"):
++        out.append(f"VOICE-OVER: {_q(vo['intro'], 400)}")
++    bridges = list(vo.get("bridges") or [])
++    after = list(vo.get("bridges_after_clip") or range(1, len(bridges) + 1))   # bridge j follows clip after[j]
++    by_clip = {a: b for a, b in zip(after, bridges)}
++    for i, seg in enumerate(package["segments"]):                            # segment 0 is the hook, i = clip index
++        out.append(f'CLIP {seg["label"]} (on screen: {_q(seg["channel"], 80)}): "{_q(seg["text"], 900)}"')
++        if by_clip.get(i):
++            out.append(f"VOICE-OVER: {_q(by_clip[i], 400)}")
++    if vo.get("signoff"):
++        out.append(f"VOICE-OVER: {_q(vo['signoff'], 300)}")
++    return "\n".join(out)
++
++
++def _strict(raw, top, item_keys):
++    obj = json.loads(raw.strip())
++    if not isinstance(obj, dict) or set(obj) != set(top):
++        raise ValueError(f"keys must be exactly {sorted(top)}")
++    for k, keys in item_keys.items():
++        if not isinstance(obj[k], list):
++            raise ValueError(f"'{k}' must be a list")
++        for it in obj[k]:
++            if not isinstance(it, dict) or set(it) != set(keys):
++                raise ValueError(f"each item of '{k}' needs exactly {sorted(keys)}")
++    return obj
++
++
++def contexts_from_sources(package, sources, now=None):
++    """{label: {"text": the window with <selected> marks, "title", "channel", "published", "show_date", "window"}}."""
++    out = {}
++    for seg in package["segments"]:
++        src = sources[seg["video_id"]]
++        text, win = _window_text(src, seg["k0"], seg["k1"])
++        out[seg["label"]] = {"text": text, "title": src.title or "", "channel": seg["channel"], "window": win,
++                             "published": str(src.published_at or "")[:16],
++                             "show_date": now.strftime("%Y-%m-%d") if now else None}
++    return out
++
++
++def check(router, package, sources, writer_vendor, seed=7):
++    """The pipeline's entry: contexts built from the sources' records (every segment is a moment)."""
++    return check_contexts(router, package, contexts_from_sources(package, sources), writer_vendor, seed)
++
++
++def step_a(router, contexts, writer_vendor, seed=7):
++    """Step A alone (context only, the package hidden): {label: item} for exactly the given labels, and the back-end.
++    Raises ValueError / ProviderError when it cannot be had or read."""
++    labels = list(contexts)
++    ex = [f'<excerpt label="{lb}" channel="{_q(contexts[lb]["channel"], 80)}" video_title='
++          f'"{_q(contexts[lb].get("title") or "", 160)}" published="{contexts[lb].get("published") or "unknown"}" '
++          f'show_date="{contexts[lb].get("show_date") or "unknown"}">{_q(contexts[lb]["text"], 6000)}</excerpt>'
++          for lb in labels]
++    ra = router.call("context_verdict", STEP_A.format(excerpts="\n".join(ex)), 4000, seed, avoid_vendor=writer_vendor)
++    A = _strict(ra.text, {"excerpts"}, {"excerpts": ("label", "speaker_changes_inside", "view", "referents",
++                                                     "conditions", "retraction", "time_ok", "proposition",
++                                                     "certainty")})
++    a_by = {e["label"]: e for e in A["excerpts"]}
++    if set(a_by) != set(labels):
++        raise ValueError(f"step A must answer exactly the labels {labels}")
++    return a_by, ra.backend
++
++
++def a_failures(a):
++    """The step-A half of the decision rule for one moment: [rule, ...] (empty = its own context passes)."""
++    out = []
++    if a.get("speaker_changes_inside") != "no":
++        out.append("SPEAKER_CHANGE")
++    if a.get("view") != "own_sincere":
++        out.append("NOT_OWN_SINCERE")
++    refs, conds = a.get("referents"), a.get("conditions")
++    if not isinstance(refs, list) or any(not isinstance(r, dict) or r.get("inside") is not True for r in refs):
++        out.append("REFERENT_OUTSIDE")
++    if not isinstance(conds, list) or any(not isinstance(c, dict) or c.get("inside") is not True for c in conds):
++        out.append("CONDITION_OUTSIDE")
++    if a.get("retraction") != "none":
++        out.append("RETRACTION")
++    if a.get("time_ok", "yes") != "yes":            # law L-v 3 (older recordings of step A lack the field)
++        out.append("STALE_TIME")
++    if a.get("certainty") not in CERTAINTY[:4]:
++        out.append("UNCERTAIN")
++    return out
++
++
++def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None):
++    """package: {"segments": [{"label", "video_id", "channel", "text"}], "vo": {"intro", "bridges", "signoff"},
++    "title", "caption"}; contexts: {label: {"text" (the window, the moment inside <selected>), "title", "channel"}}
++    for the segments to judge (a segment without a context is judged only through the package: relations).
++    -> {"ok", "segments", "relations", "violations", "backends"}. A step that cannot be had or read fails (L-m)."""
++    import providers as P
++    segs = package["segments"]
++    labels = [s["label"] for s in segs if s["label"] in contexts]
++    all_labels = [s["label"] for s in segs]
++    out = {"segments": {}, "relations": [], "violations": [], "backends": {}}
++    V = lambda label, rule, detail: out["violations"].append({"segment": label, "rule": rule, "detail": detail})
++    if not labels:
++        V("-", "CONTEXT_UNAVAILABLE", "no segment has its source context")
++        out["ok"] = False
++        return out
++    try:
++        if a_by is None:
++            a_by, out["backends"]["A"] = step_a(router, {lb: contexts[lb] for lb in labels}, writer_vendor, seed)
++        else:
++            a_by = {lb: a_by[lb] for lb in labels}
++            out["backends"]["A"] = "precomputed (package-independent: context only)"
++        rb = router.call("viewer_takeaway", STEP_B.format(package=package_view(package)), 3000, seed,
++                         avoid_vendor=writer_vendor)
++        out["backends"]["B"] = rb.backend
++        B = _strict(rb.text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
++                                                          "relations": ("labels", "relation")})
++        b_by = {t["label"]: t for t in B["takeaways"]}
++        if not set(labels) <= set(b_by):
++            raise ValueError(f"step B must answer at least {labels}")
++        pairs = "\n".join(f'<pair label="{lb}"><A>{_q(a_by[lb]["proposition"], 400)} (certainty: '
++                          f'{a_by[lb]["certainty"]})</A><B>{_q(b_by[lb]["asserts"], 400)} (certainty: '
++                          f'{b_by[lb]["certainty"]})</B></pair>' for lb in labels)
++        rc = router.call("context_verdict", STEP_C.format(pairs=pairs), 2000, seed, avoid_vendor=writer_vendor)
++        out["backends"]["C"] = rc.backend
++        C = _strict(rc.text, {"pairs"}, {"pairs": ("label", "entails", "same_polarity", "stronger_certainty")})
++        c_by = {c["label"]: c for c in C["pairs"]}
++        if set(c_by) != set(labels):
++            raise ValueError(f"step C must answer exactly the labels {labels}")
++    except (P.ProviderError, P.SpendLimit, ValueError, KeyError, TypeError) as e:
++        V("-", "CONTEXT_UNAVAILABLE", f"{type(e).__name__}: {str(e)[:240]}")
++        out["ok"] = False
++        return out
++    vid = {s["label"]: s["video_id"] for s in segs}
++    for lb in labels:
++        a, b, c = a_by[lb], b_by[lb], c_by[lb]
++        out["segments"][lb] = {"A": a, "B": b, "C": c, "window": (contexts[lb] or {}).get("window")}
++        if a["speaker_changes_inside"] != "no":
++            V(lb, "SPEAKER_CHANGE", f"speaker change inside: {a['speaker_changes_inside']}")
++        if a["view"] != "own_sincere":
++            V(lb, "NOT_OWN_SINCERE", f"view: {a['view']}")
++        for r in a["referents"] if isinstance(a["referents"], list) else [None]:
++            if not isinstance(r, dict) or r.get("inside") is not True:
++                V(lb, "REFERENT_OUTSIDE", f"{(r or {}).get('word')!r} -> {(r or {}).get('refers_to')!r}")
++        for cnd in a["conditions"] if isinstance(a["conditions"], list) else [None]:
++            if not isinstance(cnd, dict) or cnd.get("inside") is not True:
++                V(lb, "CONDITION_OUTSIDE", f"{(cnd or {}).get('text')!r}")
++        if a["retraction"] != "none":
++            V(lb, "RETRACTION", str(a["retraction"])[:200])
++        if a.get("time_ok", "yes") != "yes":
++            V(lb, "STALE_TIME", f"time words stale on the show date: {a.get('time_ok')}")
++        if a["certainty"] not in CERTAINTY[:4] or b["certainty"] not in CERTAINTY[:4]:
++            V(lb, "UNCERTAIN", f"certainty A {a['certainty']} / B {b['certainty']}")
++        if c["entails"] != "yes":
++            V(lb, "NOT_ENTAILED", f"entails: {c['entails']}")
++        if c["same_polarity"] != "yes":
++            V(lb, "POLARITY", f"same polarity: {c['same_polarity']}")
++        if c["stronger_certainty"] != "no":
++            V(lb, "STRONGER", f"stronger certainty: {c['stronger_certainty']}")
++    for rel in B["relations"]:
++        labs, kind = rel.get("labels"), rel.get("relation")
++        if kind not in RELATIONS or not isinstance(labs, list) or len(labs) != 2 or any(x not in vid for x in labs):
++            V("-", "RELATION_UNREADABLE", json.dumps(rel)[:200])
++            continue
++        if kind == "none":
++            continue
++        if kind == "uncertain" or vid[labs[0]] != vid[labs[1]]:
++            V("+".join(labs), "FALSE_RELATION", f"the package makes them look {kind}; they are not one conversation")
++    out["relations"] = B["relations"]
++    out["judged"] = labels
++    out["ok"] = not out["violations"]
++    return out
++
++
++def repairable(violations):
++    """Labels whose only failures a backward extension by whole sentences may cure (a referent or condition outside the
++    clip); everything else drops the moment."""
++    by = {}
++    for v in violations:
++        by.setdefault(v["segment"], set()).add(v["rule"])
++    return {lb for lb, rules in by.items() if rules and rules <= {"REFERENT_OUTSIDE", "CONDITION_OUTSIDE"}}
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+new file mode 100644
+index 00000000..a6e42770
+--- /dev/null
++++ b/pipeline/model_providers.json
+@@ -0,0 +1,189 @@
++{
++ "schema": "pp.providers/1",
++ "law": "L-x NO SINGLE MODEL, ULTRON FIRST (orchestrator 2026-11-12 02:45): every role names >= 2 interchangeable back-ends; the local model on Ultron is first wherever it meets the quality bar; a frontier model or Heimdall is used only where a measured blind A/B (tests/providers/ab_roles.py) shows local is not good enough, and the comparison is re-run so roles migrate to local. Verdict roles never run on the writer's vendor (law L-s; Router.call avoid_vendor). No role's code names a vendor or a model: only this file does.",
++ "decided": "2026-11-12 02:44 ET by pipeline_pp_selectid: an INITIAL order, not yet measured. Mining, story selection and the check verdict put local first (law L-w 1: local gemma mines and scores by id). Angle and writing put a frontier model first (law L-w 1 and PBX 02:35: frontier spend approved for writing and checking) until the A/B shows local meets the bar. Verdicts run on a vendor other than the writer's.",
++ "backends": {
++  "local:gemma3:27b": {
++   "vendor": "local",
++   "model": "gemma3:27b",
++   "price_usd_per_1m": [
++    0,
++    0
++   ]
++  },
++  "openai:gpt-6.1-sol": {
++   "vendor": "openai",
++   "model": "gpt-6.1-sol",
++   "price_usd_per_1m": [
++    15,
++    120
++   ],
++   "reasoning_effort": "medium",
++   "min_out": 4000
++  },
++  "anthropic:claude-fable-5-2": {
++   "vendor": "anthropic",
++   "model": "claude-fable-5-2",
++   "price_usd_per_1m": [
++    8,
++    40
++   ],
++   "effort": "medium",
++   "min_out": 16000
++  },
++  "anthropic:claude-opus-5-5": {
++   "vendor": "anthropic",
++   "model": "claude-opus-5-5",
++   "price_usd_per_1m": [
++    4,
++    20
++   ],
++   "effort": "medium",
++   "min_out": 16000
++  },
++  "xai:grok-4.20-0309-reasoning": {
++   "vendor": "xai",
++   "model": "grok-4.20-0309-reasoning",
++   "price_usd_per_1m": [
++    5,
++    25
++   ],
++   "temperature": 0,
++   "key_name": "XAI_API_KEY_MEDLEY"
++  },
++  "heimdall:qwen/qwen3.8-27b": {
++   "vendor": "heimdall",
++   "model": "qwen/qwen3.8-27b",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 16000
++  },
++  "heimdall:deepseek/deepseek-v4.1-flash": {
++   "vendor": "heimdall",
++   "model": "deepseek/deepseek-v4.1-flash",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 16000
++  },
++  "heimdall:google/gemma-4-31b-it": {
++   "vendor": "heimdall",
++   "model": "google/gemma-4-31b-it",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 16000
++  },
++  "xai_search:grok-4.7": {
++   "vendor": "xai_search",
++   "model": "grok-4.7",
++   "price_usd_per_1m": [
++    5,
++    25
++   ],
++   "key_name": "XAI_API_KEY_MEDLEY",
++   "tools": [
++    "x_search",
++    "web_search"
++   ]
++  }
++ },
++ "roles": {
++  "mine": {
++   "chain": [
++    "local:gemma3:27b",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-fable-5-2",
++    "heimdall:qwen/qwen3.8-27b"
++   ],
++   "what": "moments.py: whole-sentence ranges by id with engagement scores, risk flags, topics",
++   "measured": "blind A/B 2026-11-12 03:40 ET on fresh_20261112_050611 (tests/providers/ab/mine_fresh_20261112_050611.json, judge claude-opus-5-5): gpt-6.1-sol better than heimdall qwen3.8-27b; qwen 2067 s vs 300.5 s, 1 of 6 calls rejected by the strict contract. Local gemma3:27b: the integrator's leg (GPU0 lease)."
++  },
++  "angle_write": {
++   "chain": [
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-fable-5-2",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "package.py: the angle, the order, the PBX MAX VO intro / bridges, ONE title, ONE caption"
++  },
++  "fidelity_verdict": {
++   "chain": [
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "vo_fidelity.py: the blind claim-by-claim verdict on VO, title and caption; never the writer's vendor"
++  },
++  "context_verdict": {
++   "chain": [
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "context_integrity.py step A (source context only) and step C (entailment); never the writer's vendor"
++  },
++  "viewer_takeaway": {
++   "chain": [
++    "anthropic:claude-opus-5-5",
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:qwen/qwen3.8-27b",
++    "local:gemma3:27b"
++   ],
++   "what": "context_integrity.py step B (the finished package only); never the writer's vendor"
++  },
++  "trend_brief": {
++   "chain": [
++    "xai_search:grok-4.7"
++   ],
++   "fallback": "trend_brief.local_baseline (topic frequency across partner channels, last 24 h): free, always available",
++   "what": "trend_brief.py: one live-search call per cycle; SHADOW weight 0 (law L-w 4)"
++  },
++  "story": {
++   "chain": [
++    "local:gemma3:27b",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-fable-5-2",
++    "heimdall:qwen/qwen3.8-27b"
++   ],
++   "what": "select_by_id story + line-up calls (story-first type; REQUESTS R6 item 7)"
++  },
++  "check": {
++   "chain": [
++    "local:gemma3:27b",
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "what": "select_by_id.ModelChecks; called with avoid_model = the story's model"
++  },
++  "exclusion_verdict": {
++   "chain": [
++    "local:gemma3:27b",
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
++  },
++  "coherence_verdict": {
++   "chain": [
++    "anthropic:claude-opus-5-5",
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "package.coherence: the blind QUALITY verdict (through-line, ratings); never the writer's vendor"
++  }
++ }
++}
+diff --git a/pipeline/moments.py b/pipeline/moments.py
+new file mode 100644
+index 00000000..e1509e2c
+--- /dev/null
++++ b/pipeline/moments.py
+@@ -0,0 +1,384 @@
++#!/usr/bin/env python3
++"""pipeline/moments.py — STEP 1 MINE (law L-q, orchestrator 2026-11-12 '01:55'): the cycle's best MOMENTS, by sentence id,
++never rewritten. A moment is 1-3 consecutive whole sentences of ONE source record that makes sense heard on its own.
++
++1 LOCAL PRE-FILTER (free, deterministic, no model): sources of the window (published since the last cycle, plus the
++  recent window RECENT_H, inside the 72 h universe; opted-out channels never: pipeline/optout.json), eligible as
++  sources (partner, identity, upload, current); rows = punctuated, injection-free sentences within one sentence of a
++  sentence that names Bitcoin; an ad read (sponsor markers) is never offered; rows are taken round-robin across videos,
++  word-timed and on-screen-capable videos first, inside the model's context budget (one call per chunk).
++2 ONE BATCHED MINING PASS (role "mine" through pipeline/providers.py, law L-x: local gemma first): the model sees
++  numbered rows and answers ids only: {"moments": [{"range": [a, b], "scores": {7 axes, ints 0-5}, "names_person",
++  "risk": [enum], "topics": [taxonomy ids], "reason"}]}. The REPLY contract is strict and never repaired (law L-l):
++  exact keys, integer scores, closed enums, ranges of existing consecutive ids of one video, no overlap; anything else
++  is rejected and asked again with the reason. Each accepted moment is then judged on its own by eligibility (a
++  moment is its own statement): failures are recorded on the moment (excluded from packaging), never edited.
++3 DETERMINISTIC RANKING (law L-u): hook_first_2s + quotable + surprising_fact + stance + stakes + stands_alone
++  - 2 x contempt_outrage - soft-risk penalties + trend weight x trend match (SHADOW: weight 0, law L-w 4); "named
++  figure" is a fact, never a positive axis; hard-exclusion risks never rank. Ties by moment_id.
++
++Durations come from locked word timing (timing "word"); a caption / segment duration is only a FLAGGED estimate
++(duration_estimate_s) and never feeds a runtime. The model's `reason` is forensic only: it never enters a prompt or
++anything audience-facing. Output records follow the contract published in docs/audits/parallel/pp-selectid_STATE.md
++(pp.moment/1).
++"""
++import hashlib
++import json
++import os
++import re
++import time
++from dataclasses import replace
++
++import eligibility as E
++import select_by_id as SB
++import sentence_law
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++RECENT_H = 24.0                    # "plus a recent window": the last 24 h, beside what is new since the last cycle
++MAX_MOMENTS_PER_CALL = 12
++MINE_MAX_TOKENS = 3000
++ATTEMPTS = 3
++AXES = ("hook_first_2s", "quotable", "surprising_fact", "stance", "stakes", "stands_alone", "contempt_outrage")
++POSITIVE = AXES[:6]
++HARD_RISKS = ("accusation", "partner_attack", "imperative", "guaranteed_return", "single_source_breaking", "ad_read",
++              "third_party_media")                                  # law L-u: never auto-selected
++SOFT_RISKS = {"price_prediction": 2, "doom": 2, "politics_non_btc": 3, "time_sensitive": 0}   # down-weights (L-u)
++RISKS = HARD_RISKS + tuple(SOFT_RISKS)
++CONTEMPT_WEIGHT = 2                # contempt / outrage is a PENALTY (law L-u)
++TREND_WEIGHT = 0.0                 # SHADOW (law L-w 4): logged, zero weight; when enabled, capped at ~10-15 % of score
++REASON_MAX = 200
++AD_MARKERS = re.compile(r"\b(sponsor(ed)?|brought to you by|use (my |our )?code|promo code|link in the description|"
++                        r"affiliate link|today's sponsor|check out .{0,30}(dot com|\.com))\b", re.I)
++OPTOUT = os.path.join(HERE, "optout.json")
++
++
++class Rejected(SB.Rejected):
++    pass
++
++
++def optout_ids(path=OPTOUT):
++    """The opt-out registry (PBX 02:35: no outreach; a simple file the selector honours): channel ids never mined or
++    packaged. A missing file = nobody opted out; an unreadable one fails closed (raises)."""
++    if not os.path.exists(path):
++        return frozenset()
++    with open(path) as f:
++        d = json.load(f)
++    ids = d.get("channel_ids") if isinstance(d, dict) else None
++    if not isinstance(ids, list) or not all(isinstance(x, str) for x in ids):
++        raise ValueError(f"{path}: expected {{'channel_ids': [str, ...]}}")
++    return frozenset(ids)
++
++
++def moment_id(src, w0, w1):
++    return hashlib.sha256(f"{src.video_id}|{src.transcript_sha256}|{w0}|{w1}".encode()).hexdigest()[:20]
++
++
++# ── 1 local pre-filter ──
++
++def window_sources(sources, ctx, since=None, recent_h=RECENT_H, optout=frozenset()):
++    """The cycle's sources: published since `since` (an aware datetime: new since the last cycle) or inside the recent
++    window, eligible as sources, not opted out; on-screen-capable (word-timed, sentence-ready, layout-eligible) first,
++    then newest first. Returns (sources, {video_id: why not})."""
++    keep, skipped = [], {}
++    for src in sources:
++        if src.channel_id in optout:
++            skipped[src.video_id] = "opted out (pipeline/optout.json)"
++            continue
++        r = E.eligible(src, replace(ctx, role="evidence"))
++        if not r.ok:
++            skipped[src.video_id] = r.why()
++            continue
++        age = r.facts.get("age_h")
++        new = since is not None and E._parse_time(src.published_at) is not None and E._parse_time(src.published_at) >= since
++        if not (new or (age is not None and age <= recent_h)):
++            skipped[src.video_id] = f"outside the window ({age:.1f} h old, not new since the last cycle)"
++            continue
++        keep.append(src)
++    on = lambda s: (s.timing == "word" and E.sentence_ready(s) and E.layout_ok(ctx.channel(s.channel_id)))
++    keep.sort(key=lambda s: (not on(s), E.age_hours(s.published_at, ctx.now) or 1e9, s.video_id))
++    return keep, skipped
++
++
++def candidate_rows(src):
++    """Sentence indices of one source worth offering: punctuated, injection-free, not an ad read, within one sentence
++    of a sentence that names Bitcoin (a range of 1-3 sentences can then name it)."""
++    import story_semantics as sm
++    S, T = src.sentences, src.tokens
++    text = [E.spoken(T[a:b + 1]) for a, b in S]
++    btc = [E.names_bitcoin(t) for t in text]
++    rows = []
++    for k, (a, b) in enumerate(S):
++        if not any(btc[max(0, k - 1):k + 2]):
++            continue
++        if AD_MARKERS.search(text[k]) or sm.injection_markers(text[k]):
++            continue
++        if not (E.ends_statement(T[b].get("word")) or (T[b].get("word") or "").rstrip().endswith("?")):
++            continue
++        if not all(sentence_law.is_punctuated(T, i) for i in ([a - 1] if a > 0 else []) + [b]):
++            continue
++        rows.append(k)
++    return rows
++
++
++def tables(sources, ctx, budget_chars):
++    """Round-robin over the sources (no video crowds out the others) into Tables of at most budget_chars of row text."""
++    per = [(s, candidate_rows(s)) for s in sources]
++    order, i = [], 0
++    while any(i < len(ks) for _, ks in per):
++        for s, ks in per:
++            if i < len(ks):
++                order.append((s, ks[i]))
++        i += 1
++    chunks, cur, used = [], [], 0
++    for s, k in order:
++        cost = len(SB._q(E.Span(s, k, k).text, 600)) + 40
++        if cur and used + cost > budget_chars:
++            chunks.append(cur)
++            cur, used = [], 0
++        cur.append((s, k))
++        used += cost
++    if cur:
++        chunks.append(cur)
++    out = []
++    for ch in chunks:                                  # each table: its sources' rows in sentence order
++        srcs = list(dict.fromkeys(s for s, _ in ch))
++        items = [(s, k, False) for s in srcs for k in sorted(k for t, k in ch if t is s)]
++        out.append(SB.Table(items))
++    return out
++
++
++# ── 2 the mining call ──
++
++MINE_PROMPT = """You pick MOMENTS for 60-second Bitcoin videos built from other channels' own words: the lines a viewer
++would stop scrolling for. Below are numbered sentences, transcribed word for word, from recent videos (one block per
++video). Today is {today}.
++
++{note}
++<sentences>
++{rows}
++</sentences>
++
++A moment is a range [first id, last id] of 1 to 3 consecutive sentences of ONE video that makes sense heard with
++nothing before it, states something (not a question) and names Bitcoin.
++For each moment give:
++- "scores", integers 0-5: "hook_first_2s" (do its first words grab attention), "quotable", "surprising_fact" (a
++  surprising number or fact), "stance" (a clear opinion), "stakes" (why it matters, emotion), "stands_alone" (clear
++  without any context), "contempt_outrage" (contempt or outrage: counted AGAINST the moment)
++- "names_person": true if it names a person
++- "risk": every one that applies, from: {risks}
++  (accusation = crime, fraud, insolvency or dishonesty alleged against a named person or company; partner_attack = one
++  channel attacking another; imperative = telling the viewer to buy, sell or use leverage; ad_read = a sponsor or ad;
++  third_party_media = someone else's clip being played; time_sensitive = 'today', 'just', or a price level that dates)
++- "topics": one to three, from: {topics}
++- "reason": why it works, at most 20 words (internal note; never shown to anyone)
++Return at most {n} moments, best first, never two that overlap. Use ids only; never rewrite a sentence.
++If nothing qualifies, answer {{"moments": []}}.
++Return ONLY this JSON object: {{"moments": [{{"range": [first, last], "scores": {{...}}, "names_person": false,
++"risk": [], "topics": [], "reason": "..."}}]}}"""
++
++
++def mine_prompt(table, ctx, topics, n=MAX_MOMENTS_PER_CALL):
++    return MINE_PROMPT.format(today=ctx.now.strftime("%Y-%m-%d"), note=SB.UNTRUSTED, rows=_rows(table, ctx),
++                              risks=", ".join(RISKS), topics=", ".join(topics), n=n)
++
++
++def _rows(table, ctx):
++    out, cur, prev = [], None, None
++    for r in table.rows:
++        if prev is not None and r.source is prev.source and r.k != prev.k + 1:
++            out.append("   ... (sentences not shown here: a range never crosses this line)")
++        prev = r
++        if r.source is not cur:
++            cur = r.source
++            reg = ctx.channel(cur.channel_id) or {}
++            age = E.age_hours(cur.published_at, ctx.now)
++            out.append(f"== {reg.get('display_name') or cur.channel_name} | published "
++                       f"{'?' if age is None else f'{age:.0f} h'} ago | \"{SB._q(cur.title or '', 120)}\"")
++        sp = r.span
++        dur = f"{sp.end - sp.start:4.1f} s" if cur.timing == "word" else "  ?  s"
++        out.append(f"{r.n} | {SB._mmss(sp.start)} | {dur} | {SB._q(sp.text, 600)}")
++    return "\n".join(out)
++
++
++def check_moments(obj, table, topics, n=MAX_MOMENTS_PER_CALL):
++    """The reply contract (rejected, never repaired) -> [(span, fields)]. {"moments": []} is a valid empty answer."""
++    SB._keys(obj, ("moments",))
++    ms = obj["moments"]
++    if not isinstance(ms, list) or len(ms) > n:
++        raise Rejected(f"'moments' must be a list of at most {n}")
++    out, used = [], {}
++    for i, m in enumerate(ms):
++        what = f"moment {i + 1}"
++        if not isinstance(m, dict):
++            raise Rejected(f"{what} is not an object")
++        SB._keys(m, ("range", "scores", "names_person", "risk", "topics", "reason"))
++        sp = SB._range(m["range"], table, what)
++        for k in range(sp.k0, sp.k1 + 1):
++            if (sp.source.video_id, k) in used:
++                raise Rejected(f"{what} overlaps {used[(sp.source.video_id, k)]}")
++            used[(sp.source.video_id, k)] = what
++        sc = m["scores"]
++        if not isinstance(sc, dict) or set(sc) != set(AXES):
++            raise Rejected(f"{what}: 'scores' must have exactly {list(AXES)}")
++        for a in AXES:
++            if type(sc[a]) is not int or not 0 <= sc[a] <= 5:
++                raise Rejected(f"{what}: score {a} must be an integer 0-5")
++        if type(m["names_person"]) is not bool:
++            raise Rejected(f"{what}: 'names_person' must be true or false")
++        for key, allowed, lo, hi in (("risk", RISKS, 0, len(RISKS)), ("topics", topics, 1, 3)):
++            v = m[key]
++            if not isinstance(v, list) or not lo <= len(v) <= hi or len(set(v)) != len(v) or \
++                    any(not isinstance(x, str) or x not in allowed for x in v):
++                raise Rejected(f"{what}: '{key}' must be {lo}-{hi} distinct values from the given list")
++        if not isinstance(m["reason"], str) or not m["reason"].strip() or len(m["reason"]) > REASON_MAX:
++            raise Rejected(f"{what}: 'reason' must be a short non-empty string")
++        out.append((sp, m))
++    return out
++
++
++# ── 3 judging and ranking ──
++
++def judge(sp, ctx):
++    """The moment on its own (it is its own statement: T13 is met by its own sentences; L-s context integrity judges
++    what it leaves out). Word-timed: as hook and as clip; otherwise as evidence only (on screen after the word pass)."""
++    own = tuple(E.statement_entry(E.Span(sp.source, k, k)) for k in range(sp.k0, sp.k1 + 1))
++    if sp.source.timing == "word":
++        res = {role: E.eligible(sp, replace(ctx, role=role, story=own)) for role in ("hook", "clip")}
++    else:
++        res = {"evidence": E.eligible(sp, replace(ctx, role="evidence"))}
++    return res
++
++
++def rank_score(rec, trend=None, trend_weight=TREND_WEIGHT):
++    s = rec["scores"]
++    score = sum(s[a] for a in POSITIVE) - CONTEMPT_WEIGHT * s["contempt_outrage"]
++    score -= sum(SOFT_RISKS.get(r, 0) for r in rec["risk"])
++    if trend and trend_weight:
++        score += trend_weight * max([trend.get(t, 0.0) for t in rec["topics"]] or [0.0])
++    return score
++
++
++def record(sp, m, ctx, res, mined):
++    src = sp.source
++    dur = round(sp.end - sp.start, 2) if src.timing == "word" else None
++    elig = {role: {"ok": r.ok, "reasons": r.names(), "targets_missed": r.facts.get("targets_missed", [])}
++            for role, r in res.items()}
++    reg = ctx.channel(src.channel_id) or {}
++    return {"schema": "pp.moment/1", "moment_id": moment_id(src, sp.w0, sp.w1), "video_id": src.video_id,
++            "channel_id": src.channel_id, "channel_name": reg.get("display_name") or src.channel_name,
++            "published_at": src.published_at, "title": src.title, "transcript_sha256": src.transcript_sha256,
++            "transcript_method": src.transcript_method, "timing": src.timing, "words": [sp.w0, sp.w1],
++            "sentences": [sp.k0, sp.k1], "text": sp.text, "start": sp.start, "end": sp.end, "duration_s": dur,
++            "duration_estimate_s": None if dur is not None else round(sp.end - sp.start, 2),
++            "speaker": {"turn_change_inside": None, "label": None, "confidence": None, "named": None,
++                        "named_source": None},
++            "scores": dict(m["scores"]), "names_person": m["names_person"], "risk": list(m["risk"]),
++            "topics": list(m["topics"]), "reason": m["reason"], "eligibility": elig,
++            "on_screen_ok": any(r.ok for role, r in res.items() if role in E.ON_SCREEN), "excluded": sorted(set(m["risk"]) & set(HARD_RISKS)),
++            "mined": mined}
++
++
++def mine(router, sources, ctx, topics, since=None, optout=frozenset(), log=print, n=MAX_MOMENTS_PER_CALL,
++         budget_chars=None, attempts=ATTEMPTS, cycle="", recent_h=RECENT_H):
++    """The cycle's mining pass -> {"moments": [records, ranked], "calls": [...], "rows": n, "skipped": {...}}."""
++    srcs, skipped = window_sources(sources, ctx, since=since, recent_h=recent_h, optout=optout)
++    budget = budget_chars or SB.row_budget(MINE_MAX_TOKENS)
++    out = {"moments": [], "calls": [], "skipped": skipped, "sources": len(srcs), "rows": 0}
++    model = _MineModel(router)
++    for ti, table in enumerate(tables(srcs, ctx, budget)):
++        out["rows"] += len(table)
++        log_ = []
++        base = mine_prompt(table, ctx, topics, n)
++        status, got = SB._ask(model, base, MINE_MAX_TOKENS, lambda obj: check_moments(obj, table, topics, n),
++                              attempts, log_)
++        call = {"table": ti, "rows": len(table), "status": status, "attempts": log_}
++        out["calls"].append(call)
++        if status != "accepted":
++            continue
++        last = log_[-1]
++        mined = {"by": (last.get("meta") or {}).get("backend"), "prompt_sha256": last.get("prompt_sha256"),
++                 "reply_sha256": hashlib.sha256((last.get("raw") or "").encode()).hexdigest(),
++                 "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "cycle": cycle}
++        for sp, m in got:
++            out["moments"].append(record(sp, m, ctx, judge(sp, ctx), mined))
++    seen = {}
++    for rec in out["moments"]:                          # one record per moment id (a re-mined moment: the last wins)
++        seen[rec["moment_id"]] = rec
++    ranked = sorted(seen.values(), key=lambda r: (-rank_score(r), r["moment_id"]))
++    for i, rec in enumerate(ranked):
++        rec["rank"], rec["rank_score"] = i + 1, rank_score(rec)
++    out["moments"] = ranked
++    return out
++
++
++class _MineModel(SB.Model):
++    """select_by_id's call loop over the router's "mine" role (law L-x)."""
++
++    def __init__(self, router):
++        self.router, self.name = router, "role:mine"
++
++    def complete(self, prompt, max_tokens, seed):
++        import providers as P
++        try:
++            r = self.router.call("mine", prompt, max_tokens, seed)
++        except P.ProviderError as e:
++            raise SB.ModelError(str(e)[:300]) from None
++        except P.ReplayMiss as e:
++            raise SB.ReplayMiss(str(e)[:300]) from None
++        except P.SpendLimit as e:
++            raise SB.SpendLimit(str(e)) from None
++        return r.text, {"backend": r.backend, "vendor": r.vendor, "usd": r.usd, "usage": r.usage,
++                        "replayed": r.replayed, "tried": r.tried}
++
++
++# ── the exclusion verdict on one moment in its context (law L-u; also the pp-tests harness's exclusion gate) ──
++
++EXCLUSION_PROMPT = """You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped
++into a short video. The text around it is context only.
++
++<before>{before}</before>
++<moment>{moment}</moment>
++<after>{after}</after>
++
++Answer:
++- "risks": every one that applies to the MOMENT: "accusation" (crime, fraud, insolvency or dishonesty alleged against a
++  named person or company), "partner_attack" (one Bitcoin channel or host attacking another), "imperative" (telling
++  the viewer to buy, sell or use leverage), "guaranteed_return", "single_source_breaking" (a breaking factual claim
++  resting on one unnamed source or rumour), "ad_read" (a sponsor, ad or affiliate pitch), "third_party_media" (someone
++  else's clip, song or broadcast being played); an empty list if none
++- "about_bitcoin": "yes" if the moment is about Bitcoin, "no" if it is about another coin or no crypto at all,
++  "uncertain"
++- "why": one short line
++Criticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;
++naming a company neutrally is not an accusation.
++Return ONLY this JSON object: {{"risks": [], "about_bitcoin": "yes", "why": "..."}}"""
++
++
++def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7):
++    """-> {"verdict": "keep" | "exclude", "why", "risks", "backend"}: a deterministic ad-read screen, then the blind
++    model verdict (role "exclusion_verdict"); any hard risk, a moment not about Bitcoin, an unreadable or uncertain
++    verdict excludes (law L-m)."""
++    import providers as P
++    from story_semantics import quote_data
++    if AD_MARKERS.search(moment_text or ""):
++        return {"verdict": "exclude", "why": f"ad-read marker '{AD_MARKERS.search(moment_text).group(0)}'",
++                "risks": ["ad_read"], "backend": "deterministic"}
++    try:
++        r = router.call("exclusion_verdict", EXCLUSION_PROMPT.format(before=quote_data(before_text, 3000),
++                                                                     moment=quote_data(moment_text, 1500),
++                                                                     after=quote_data(after_text, 3000)), 800, seed)
++        obj = json.loads(r.text.strip())
++        if not isinstance(obj, dict) or set(obj) != {"risks", "about_bitcoin", "why"} or \
++                not isinstance(obj["risks"], list) or any(x not in HARD_RISKS for x in obj["risks"]) or \
++                obj["about_bitcoin"] not in ("yes", "no", "uncertain"):
++            raise ValueError("the verdict does not match its contract")
++    except (P.ProviderError, P.SpendLimit, ValueError) as e:
++        return {"verdict": "exclude", "why": f"no readable verdict ({type(e).__name__}: {str(e)[:160]})",
++                "risks": [], "backend": None}
++    if obj["risks"]:
++        return {"verdict": "exclude", "why": f"{obj['risks']}: {str(obj['why'])[:200]}", "risks": obj["risks"],
++                "backend": r.backend}
++    if obj["about_bitcoin"] != "yes":
++        return {"verdict": "exclude", "why": f"about Bitcoin: {obj['about_bitcoin']}: {str(obj['why'])[:200]}",
++                "risks": [], "backend": r.backend}
++    return {"verdict": "keep", "why": str(obj["why"])[:200], "risks": [], "backend": r.backend}
+diff --git a/pipeline/moments_gate_adapter.py b/pipeline/moments_gate_adapter.py
+new file mode 100644
+index 00000000..45268467
+--- /dev/null
++++ b/pipeline/moments_gate_adapter.py
+@@ -0,0 +1,103 @@
++#!/usr/bin/env python3
++"""The pp-tests exam adapter (pipeline_pp_tests, branch pp-tests: tests/adversarial/test_moments_gates.py; corpora
++format v1, pp.ci_case/1, pp.vo_case/1, pp.excl_case/1). The harness strips "expected" and "provenance" and calls:
++
++  context_integrity(case) -> {"verdict": "pass" | "fail" | "uncertain", "why"}     law L-s
++  vo_fidelity(case)       -> {"verdict": "pass" | "fail" | "uncertain", "why"}     law L-o 11 / L-t
++  exclusion(case)         -> {"verdict": "keep" | "exclude" | "uncertain", "why"}  law L-u
++
++These are the SAME gates the packager runs (context_integrity.check_contexts, vo_fidelity.check,
++moments.exclusion_verdict) behind the same provider config (law L-x). The harness forbids network connections, so the
++gates' model replies are recorded on a run that may call out (PP_GATES_REPLAY unset; this session's
++tests/package/run_exam_record.py, which strips "expected" exactly as the harness does) and served offline under the
++harness (PP_GATES_REPLAY=1). An exchange that was never recorded is a ReplayMiss: the gate answers "fail" / "exclude"
++with the reason (nothing measured is never a pass, law L-m).
++"""
++import os
++
++import context_integrity as CI
++import moments as M
++import providers as P
++import vo_fidelity as VF
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(HERE)
++RECORD = os.environ.get("PP_GATES_RECORD_DIR") or os.path.join(REPO, "tests", "package", "fixtures", "gate_replies")
++SPEND = os.environ.get("PP_GATES_SPEND") or os.path.join(REPO, "tests", "moments", "proof", "SPEND.json")
++ENV = "/home/ultron/protocol_pulse/" + "." + "env"
++_router = None
++
++
++def router():
++    global _router
++    if _router is None:
++        _router = P.Router(env_path=ENV, record_dir=RECORD, replay=os.environ.get("PP_GATES_REPLAY") == "1",
++                           spend_path=SPEND, limit_usd=float(os.environ.get("PP_GATES_LIMIT_USD", "40")))
++    return _router
++
++
++def _join(sentences):
++    return " ".join(s["text"] for s in sentences or [])
++
++
++def context_integrity(case):
++    w = case["window"]
++    n0, n1 = w["selected"]
++    parts, prev_turn = [], None
++    for s in w["sentences"]:                     # the caption's own speaker-turn markers, when it has them
++        t = s["text"]
++        if s.get("turn") is not None and prev_turn is not None and s["turn"] != prev_turn:
++            t = "[another speaker] " + t
++        if s.get("speaker"):
++            t = f"{s['speaker']}: " + t
++        prev_turn = s.get("turn")
++        parts.append(f"<selected>{t}</selected>" if n0 <= s["n"] <= n1 else t)
++    pkg = case["package"]
++    segs = [{"label": s["label"], "video_id": s["video_id"], "channel": s["channel"], "text": s["text"],
++             "role": s.get("role")} for s in pkg["segments"]]
++    moment = [s["label"] for s in pkg["segments"] if s.get("role") == "moment"]
++    if len(moment) != 1:
++        return {"verdict": "fail", "why": f"the case names {len(moment)} moment segments (expected 1)"}
++    src = case.get("source") or {}
++    contexts = {moment[0]: {"text": " ".join(parts), "title": src.get("title") or "", "channel": src.get("channel") or "",
++                            "published": str(src.get("published_at") or "unknown")[:16],
++                            "show_date": pkg.get("date") or "unknown"}}
++    package = {"segments": segs, "vo": {"intro": pkg["vo"].get("intro") or "", "bridges": list(pkg["vo"].get("bridges")
++                                                                                            or []),
++                                        "signoff": pkg["vo"].get("signoff") or ""},
++               "title": pkg.get("title") or "", "caption": pkg.get("caption") or ""}
++    try:
++        res = CI.check_contexts(router(), package, contexts, writer_vendor=None)
++    except P.ReplayMiss as e:
++        return {"verdict": "fail", "why": f"no recorded verdict (replay): {str(e)[:160]}"}
++    if res["ok"]:
++        return {"verdict": "pass", "why": "own sincere assertion; referents and conditions inside; entailed; no false relation"}
++    return {"verdict": "fail", "why": "; ".join(f"{v['segment']}: {v['rule']} {v['detail']}" for v in res["violations"])[:600]}
++
++
++def vo_fidelity(case):
++    man = case.get("manifest") or {}
++    segments = {}
++    for s in case["segments"]:
++        names = [s["channel"]] + ([s["speaker"]] if s.get("speaker") else [])
++        segments[s["label"]] = {"speaker": s.get("speaker") or s["channel"], "names": names, "video_id": s["video_id"],
++                                "text": _join(s["sentences"])}
++    lines = [{"slot": f"{ln['slot']}_{i}", "text": ln["text"], "cites": list(ln.get("cites") or [])}
++             for i, ln in enumerate(case["lines"])]
++    try:
++        res = VF.check(router(), segments, lines, writer_vendor=None, manifest=man)
++    except P.ReplayMiss as e:
++        return {"verdict": "fail", "why": f"no recorded verdict (replay): {str(e)[:160]}"}
++    if res["ok"]:
++        return {"verdict": "pass", "why": "every claim bound to its speaker's words; verdict yes with verbatim support"}
++    return {"verdict": "fail", "why": "; ".join(f"{v['slot']}: {v['rule']} {v['detail']}" for v in res["violations"])[:600]}
++
++
++def exclusion(case):
++    try:
++        res = M.exclusion_verdict(router(), _join(case["moment"]["sentences"]),
++                                  _join((case.get("context") or {}).get("before")),
++                                  _join((case.get("context") or {}).get("after")))
++    except P.ReplayMiss as e:
++        return {"verdict": "exclude", "why": f"no recorded verdict (replay): {str(e)[:160]}"}
++    return {"verdict": res["verdict"], "why": res["why"]}
+diff --git a/pipeline/package.py b/pipeline/package.py
+new file mode 100644
+index 00000000..54305a21
+--- /dev/null
++++ b/pipeline/package.py
+@@ -0,0 +1,698 @@
++#!/usr/bin/env python3
++"""pipeline/package.py — STEP 2 PACKAGE + STEP 3 OPTIMISE (law L-q, '01:55'; laws L-s..L-w, '02:30'): the set of
++moments that makes the best 60-70 s video, the angle that ties them, and the PBX MAX VO. The moments need not share a
++development: under moments-first there is no same-event test at all (orchestrator 03:00).
++
++CODE (deterministic, law L-w 1):
++  usable()          moments a package may use: on screen eligible (word timing, law L-e), no hard-exclusion risk
++                    (L-u), not delivered in the previous 24 h (novelty, L-p), channel not opted out, <= 20 s (L-u),
++                    a time-sensitive moment only from a source <= TIME_SENSITIVE_H old (L-v 3)
++  candidate_sets()  hook + 2-3 clips, every segment from a DIFFERENT channel (L-u: one clip per channel per video;
++                    >= 2 channels follows), the runtime arithmetic: segments + VO + FIXED_S inside 60-70 s (L-o) with
++                    the VO's length as the slack (L-w 1); ranked by the moments' scores, topic diversity, at most one
++                    price prediction (L-u)
++WRITER (role "angle_write", law L-w 1: a frontier model until the A/B shows local meets the bar): picks one set, its
++  type ("story" when every segment states one development, else "moments"), the order (hook first), the angle, the VO
++  intro and bridges with word budgets computed by code, ONE title, ONE caption (L-t), each line citing moment ids.
++  The sign-off is code: the credit set, hook first (law L-a: credits = EDL set = spoken sign-off).
++GATES (both hard): vo_fidelity.check (deterministic + blind verdict on VO, title, caption; L-o 11, L-t) and
++  context_integrity.check (L-s). A VO failure: regenerate once with the violations, then a PLAIN factual VO (L-w 2:
++  "Next, <show> on <topic>."); a context failure: extend the clip backwards by whole sentences (<= 2) and check again,
++  or drop the MOMENT and repack from the next set; an exclusion failure drops the moment.
++OUTPUT pp.package/1 (contract in STATE): segments (moment ids, verbatim text, times), VO, title, caption, the hook's
++  first words, the checks, the model per artefact, dollars.
++"""
++import itertools
++import json
++import re
++import time
++
++import context_integrity as CI
++import eligibility as E
++import trend_brief as TB
++import vo_fidelity as VF
++
++SEG_MAX_S = 20.0                   # L-u: at most 20 s per source video
++N_CLIPS = (2, 3)                   # hook + 2-3 clips (eligibility.N_CLIPS)
++RUNTIME_S = E.RUNTIME_S            # L-o: 60-70 s, the one hard length rule
++WPS = 2.6                          # PBX MAX VO words per second: an ASSUMPTION until the render measures it
++SIGNOFF_WORDS = 18                 # the preview's sign-off ("Clips today from A, B, and C. Go follow them ...")
++FIXED_S = round(E.TAIL_S - SIGNOFF_WORDS / WPS, 2)   # credits card + outro + transitions without VO (~7.4 s)
++VO_S = (6.0, 22.0)                 # the VO's seconds (intro + bridges), the slack that lands the runtime
++TIME_SENSITIVE_H = 24.0            # L-v 3: 'today' / 'just' / a price level only from a source this fresh
++TOP_SETS = 6                       # sets offered to the writer
++PRESCREEN_N = 24                   # moments whose own context is screened (step A) before any writing
++PRESCREEN_BATCH = 8                # excerpts per step-A call
++MAX_HOOKS = 10
++PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
++
++
++def channel_of(m):
++    return m["channel_id"]
++
++
++def usable(moments, ctx, delivered=(), optout=frozenset()):
++    out, why = [], {}
++    for m in moments:
++        mid = m["moment_id"]
++        if not m.get("on_screen_ok"):
++            why[mid] = "not eligible on screen: " + "; ".join(
++                f"{r}: {', '.join(v['reasons'])}" for r, v in (m.get("eligibility") or {}).items() if not v["ok"])
++        elif m.get("excluded"):
++            why[mid] = f"hard exclusion (L-u): {m['excluded']}"
++        elif mid in delivered:
++            why[mid] = "delivered in the previous 24 h"
++        elif m["channel_id"] in optout:
++            why[mid] = "channel opted out"
++        elif m.get("duration_s") is None or m["duration_s"] > SEG_MAX_S:
++            why[mid] = f"{m.get('duration_s')} s: over the {SEG_MAX_S} s per source video (L-u) or unmeasured"
++        elif "time_sensitive" in m.get("risk", []) and (E.age_hours(m["published_at"], ctx.now) or 1e9) > TIME_SENSITIVE_H:
++            why[mid] = f"time-sensitive words from a source older than {TIME_SENSITIVE_H} h (L-v 3)"
++        elif (m.get("speaker") or {}).get("turn_change_inside") is True:
++            why[mid] = "a speaker change inside (L-v 1)"
++        else:
++            out.append(m)
++    return out, why
++
++
++def runtime(segs, vo_s):
++    return round(sum(m["duration_s"] for m in segs) + vo_s + FIXED_S, 2)
++
++
++def content_range():
++    """Seconds the segments may fill so that some VO length inside VO_S lands the runtime in 60-70 s."""
++    return RUNTIME_S[0] - FIXED_S - VO_S[1], RUNTIME_S[1] - FIXED_S - VO_S[0]
++
++
++def candidate_sets(ms, k=TOP_SETS):
++    """Deterministic: hooks = moments eligible as a hook (by hook_first_2s, then rank); for each hook, the best clip
++    combinations of 2-3 moments from other channels (one segment per channel), inside content_range(); scored by the
++    moments' rank scores + topic diversity, at most PRICE_PREDICTIONS_MAX price predictions. Distinct sets, best first."""
++    lo, hi = content_range()
++    hooks = sorted([m for m in ms if (m.get("eligibility") or {}).get("hook", {}).get("ok")],
++                   key=lambda m: (-m["scores"]["hook_first_2s"], -m["rank_score"], m["moment_id"]))[:MAX_HOOKS]
++    clips = sorted([m for m in ms if (m.get("eligibility") or {}).get("clip", {}).get("ok")],
++                   key=lambda m: (-m["rank_score"], m["moment_id"]))[:24]
++    sets = []
++    for h in hooks:
++        pool = [c for c in clips if channel_of(c) != channel_of(h)]
++        for n in N_CLIPS:
++            for combo in itertools.combinations(pool, n):
++                chans = {channel_of(h)} | {channel_of(c) for c in combo}
++                if len(chans) != n + 1:
++                    continue
++                segs = [h, *combo]
++                dur = sum(m["duration_s"] for m in segs)
++                if not lo <= dur <= hi:
++                    continue
++                if sum("price_prediction" in m["risk"] for m in segs) > PRICE_PREDICTIONS_MAX:
++                    continue
++                topics = {t for m in segs for t in m["topics"]}
++                score = sum(m["rank_score"] for m in segs) + 1.5 * len(topics) + 2 * h["scores"]["hook_first_2s"]
++                sets.append((score, [m["moment_id"] for m in segs], segs))
++    sets.sort(key=lambda x: (-x[0], x[1]))
++    out, seen = [], set()
++    for score, ids, segs in sets:
++        key = frozenset(ids)
++        if key in seen or any(len(key & frozenset(o["ids"])) >= len(ids) - 1 for o in out):
++            continue                                   # distinct: no two offered sets differ by one moment only
++        seen.add(key)
++        out.append({"ids": ids, "segments": segs, "score": round(score, 2),
++                    "content_s": round(sum(m["duration_s"] for m in segs), 2)})
++        if len(out) >= k:
++            break
++    return out
++
++
++WRITE_PROMPT = """You are the editor and voice of PBX MAX, a 60-second Bitcoin video made of other channels' own words.
++Below are candidate SETS of clips. Each clip is a verbatim quote, with the channel that said it. The channels were NOT
++in one conversation (unless two clips share a video), and nobody here is answering anyone else.
++
++{note}
++{sets}
++
++Pick ONE set and write:
++- "set": its number; "order": its clip ids in play order, the hook first (the hook is the clip marked HOOK)
++- "type": "story" if every clip states the same development, else "moments"
++- "angle": one sentence: the point these clips make together (for the editor; it is checked like the VO)
++- "intro": the voice-over before the hook, at most {intro_words} words. The hook plays, then the first clip right
++  after it (no voice-over between them). "bridges": one voice-over line after each clip except the last (so a set of
++  a hook and 3 clips has 2 bridges; a hook and 2 clips has 1), each at most {bridge_words} words; a bridge names the
++  channel of the NEXT clip ("Next, Coin Bureau on ..."). The voice-over may make a point, but ONLY one the clips
++  themselves state.
++- "title": ONE title, at most 70 characters; "caption": ONE caption, at most 220 characters.
++Every line (intro, each bridge, title, caption) gives "cites": the ids of the clips it relies on.
++RULES (a line that breaks one is rejected):
++- every number, name, claim and time word ("today", "just") must be said in a cited clip, as the clip says it
++- attribute a view only to the channel that said it; never say or imply that channels agree, answer, rebut or react to
++  each other; no "both", "meanwhile ... fires back", "but X disagrees"
++- never stronger than the clip ("could" stays "could"); no "destroys", "slams", "exposes", "admits", "confirms",
++  "caught" unless the clip uses that word; no advice to the viewer to buy, sell or use leverage
++- no quotes except the clip's exact words; no names of people who are not speaking in or named by a clip
++Return ONLY this JSON object: {{"set": 1, "order": ["id", ...], "type": "moments", "angle": "...",
++"intro": {{"text": "...", "cites": ["id"]}}, "bridges": [{{"text": "...", "cites": ["id"]}}],
++"title": {{"text": "...", "cites": ["id"]}}, "caption": {{"text": "...", "cites": ["id"]}}}}"""
++
++
++def _sets_block(sets, ctx):
++    from story_semantics import quote_data
++    out = []
++    for i, s in enumerate(sets, 1):
++        out.append(f"SET {i} ({s['content_s']:.1f} s of clips):")
++        for j, m in enumerate(s["segments"]):
++            reg = ctx.channel(m["channel_id"]) or {}
++            out.append(f'  {"HOOK" if j == 0 else "clip"} id={m["moment_id"]} | {reg.get("display_name") or m["channel_name"]}'
++                       f' | {m["duration_s"]:.1f} s | topics {", ".join(TB.label(t) for t in m["topics"])} | '
++                       f'"{quote_data(m["text"], 700)}"')
++    return "\n".join(out)
++
++
++def budgets(content_s):
++    """Word budgets so the VO lands the runtime: VO seconds = target - FIXED_S - content, split intro / bridges."""
++    target = (RUNTIME_S[0] + RUNTIME_S[1]) / 2
++    vo_s = max(VO_S[0], min(VO_S[1], target - FIXED_S - content_s))
++    words = int(vo_s * WPS)
++    return max(6, int(words * 0.4)), max(5, int(words * 0.3)), vo_s
++
++
++def check_written(obj, sets):
++    """The writer's reply contract (strict; never repaired) -> (set, order, fields)."""
++    keys = {"set", "order", "type", "angle", "intro", "bridges", "title", "caption"}
++    if not isinstance(obj, dict) or set(obj) != keys:
++        raise ValueError(f"keys must be exactly {sorted(keys)}")
++    if type(obj["set"]) is not int or not 1 <= obj["set"] <= len(sets):
++        raise ValueError("'set' must be one of the offered set numbers")
++    s = sets[obj["set"] - 1]
++    if not isinstance(obj["order"], list) or sorted(obj["order"]) != sorted(s["ids"]) or obj["order"][0] != s["ids"][0]:
++        raise ValueError("'order' must be the set's ids, each once, the hook first")
++    if obj["type"] not in ("story", "moments") or not isinstance(obj["angle"], str) or not obj["angle"].strip():
++        raise ValueError("'type' must be story or moments; 'angle' a sentence")
++    lines = [("intro", obj["intro"]), ("title", obj["title"]), ("caption", obj["caption"])]
++    if not isinstance(obj["bridges"], list) or len(obj["bridges"]) != len(s["ids"]) - 2:
++        raise ValueError(f"'bridges' must hold {len(s['ids']) - 2} lines (one after each clip but the last; none "
++                         "between the hook and the first clip)")
++    lines += [(f"bridge_{i + 1}", b) for i, b in enumerate(obj["bridges"])]
++    for slot, ln in lines:
++        if not isinstance(ln, dict) or set(ln) != {"text", "cites"} or not isinstance(ln["text"], str) or \
++                not ln["text"].strip() or not isinstance(ln["cites"], list) or \
++                any(c not in s["ids"] for c in ln["cites"]):
++            raise ValueError(f"{slot}: needs text and cites from the set's ids")
++    if len(obj["title"]["text"]) > 70 or len(obj["caption"]["text"]) > 220:
++        raise ValueError("title <= 70 characters, caption <= 220")
++    return s, obj["order"], obj
++
++
++def signoff(segs, ctx):
++    """L-a: the spoken sign-off names exactly the credit set, hook first (code, never the model)."""
++    names = [(ctx.channel(m["channel_id"]) or {}).get("display_name") or m["channel_name"] for m in segs]
++    names = list(dict.fromkeys(names))
++    who = names[0] if len(names) == 1 else ", ".join(names[:-1]) + f", and {names[-1]}"
++    return f"Clips today from {who}. Go follow them for more. Links are below."
++
++
++def plain_vo(segs, ctx):
++    """L-w 2: the plain factual fallback VO ("Next, <show> on <topic>."), its topic the one every segment names by
++    rule (Bitcoin), so it claims nothing beyond who speaks."""
++    name = lambda m: (ctx.channel(m["channel_id"]) or {}).get("display_name") or m["channel_name"]
++    first = segs[0]
++    intro = {"text": f"Here's {name(first)} on Bitcoin.", "cites": [first["moment_id"]]}
++    bridges = [{"text": f"Next, {name(m)} on Bitcoin.", "cites": [m["moment_id"]]} for m in segs[2:]]
++    chans = list(dict.fromkeys(name(m) for m in segs))
++    title = {"text": (f"Bitcoin: {', '.join(chans[:-1])} and {chans[-1]}")[:70], "cites": [m["moment_id"] for m in segs]}
++    caption = {"text": f"Clips from {', '.join(chans)}. Links to every source below.",
++               "cites": [m["moment_id"] for m in segs]}
++    return intro, bridges, title, caption
++
++
++def assemble(order, by_id, fields, ctx, vo_kind):
++    segs = [by_id[i] for i in order]
++    reg = lambda m: (ctx.channel(m["channel_id"]) or {}).get("display_name") or m["channel_name"]
++    lines = [dict(fields["intro"], slot="intro")] + \
++        [dict(b, slot=f"bridge_{i + 1}") for i, b in enumerate(fields["bridges"])] + \
++        [dict(fields["title"], slot="title"), dict(fields["caption"], slot="caption")]
++    vo_words = sum(len(x["text"].split()) for x in lines if x["slot"].startswith(("intro", "bridge")))
++    pk = {"schema": "pp.package/1", "type": fields.get("type", "moments"), "angle": fields.get("angle", ""),
++          "vo_kind": vo_kind,
++          "segments": [{"label": "hook" if i == 0 else f"clip_{i:02d}", "moment_id": m["moment_id"],
++                        "video_id": m["video_id"], "channel_id": m["channel_id"], "channel": reg(m),
++                        "k0": m["sentences"][0], "k1": m["sentences"][1], "words": m["words"],
++                        "start": m["start"], "end": m["end"], "duration_s": m["duration_s"], "text": m["text"],
++                        "published_at": m["published_at"], "transcript_sha256": m["transcript_sha256"],
++                        "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s"}
++                       for i, m in enumerate(segs)],
++          "vo": {"intro": fields["intro"]["text"], "bridges": [b["text"] for b in fields["bridges"]],
++                 "bridges_after_clip": list(range(1, len(fields["bridges"]) + 1)),     # the renderer's after_clip
++                 "signoff": signoff(segs, ctx)},
++          "title": fields["title"]["text"], "caption": fields["caption"]["text"],
++          "hook_first_words": " ".join(segs[0]["text"].split()[:8]),
++          "lines": lines}
++    vo_s = vo_words / WPS + len(pk["vo"]["signoff"].split()) / WPS - SIGNOFF_WORDS / WPS
++    pk["runtime_s_estimate"] = runtime(segs, vo_s)
++    pk["runtime_note"] = (f"segments {sum(m['duration_s'] for m in segs):.2f} s (word timing) + VO {vo_words} words at "
++                          f"{WPS} w/s (assumed) + fixed {FIXED_S} s; the render measures the final")
++    return pk
++
++
++def gates(router, pk, by_id, sources, writer_vendor, a_by_moment=None):
++    segs_v = {s["moment_id"]: {"speaker": s["channel"], "names": [s["channel"]], "video_id": s["video_id"],
++                               "text": s["text"]} for s in pk["segments"]}
++    lines = [{"slot": x["slot"], "text": x["text"], "cites": x["cites"]} for x in pk["lines"]]
++    fid = VF.check(router, segs_v, lines, writer_vendor)
++    a_by = None
++    if a_by_moment is not None:
++        a_by = {s["label"]: dict(a_by_moment[s["moment_id"]], label=s["label"]) for s in pk["segments"]}
++    ctx_ = CI.check_contexts(router, pk, CI.contexts_from_sources(pk, sources), writer_vendor, a_by=a_by)
++    rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1]
++    return {"fidelity": fid, "context": ctx_, "runtime_ok": rt_ok,
++            "ok": fid["ok"] and ctx_["ok"] and rt_ok}
++
++
++def write(router, sets, ctx, extra="", seed=7):
++    from select_by_id import UNTRUSTED
++    content = min(s["content_s"] for s in sets)
++    iw, bw, _ = budgets(content)
++    prompt = WRITE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"), sets=_sets_block(sets, ctx),
++                                 intro_words=iw, bridge_words=bw)
++    if extra:
++        prompt += "\n\nYour previous script was rejected: " + extra[:1200] + "\nWrite it again, fixing exactly that."
++    r = router.call("angle_write", prompt, 3000, seed)
++    return r, check_written(json.loads(r.text.strip()), sets)
++
++
++def prescreen(router, ms, sources, ctx, n=PRESCREEN_N, batch=PRESCREEN_BATCH, writer_vendor="openai"):
++    """Step A (context only, package-independent by law L-s) on the best n usable moments, best first with distinct
++    channels first: {moment_id: A item}, {moment_id: [failing rules]}. The verdict is reused in the final decision.
++    writer_vendor: the vendor that will WRITE, so step A never runs on it."""
++    seen, order = set(), []
++    for m in sorted(ms, key=lambda m: (-m["rank_score"], m["moment_id"])):
++        if m["channel_id"] not in seen:
++            order.append(m)
++            seen.add(m["channel_id"])
++    order += [m for m in sorted(ms, key=lambda m: (-m["rank_score"], m["moment_id"])) if m not in order]
++    order = order[:n]
++    a_by, fails, vendors = {}, {}, set()
++    for i in range(0, len(order), batch):
++        chunk = order[i:i + batch]
++        contexts = {}
++        for m in chunk:
++            text, win = CI._window_text(sources[m["video_id"]], m["sentences"][0], m["sentences"][1])
++            contexts[m["moment_id"]] = {"text": text, "title": sources[m["video_id"]].title or "",
++                                        "channel": (ctx.channel(m["channel_id"]) or {}).get("display_name")
++                                        or m["channel_name"], "window": win,
++                                        "published": str(m.get("published_at") or "")[:16],
++                                        "show_date": ctx.now.strftime("%Y-%m-%d")}
++        try:
++            got, backend = CI.step_a(router, contexts, writer_vendor, seed=7 + i)
++            vendors.add(router.backends[backend].vendor if backend in router.backends else backend)
++        except Exception as e:                           # unreadable: these moments are not cleared (law L-m)
++            for m in chunk:
++                fails[m["moment_id"]] = [f"STEP_A_UNAVAILABLE: {type(e).__name__}"]
++            continue
++        for mid, a in got.items():
++            a_by[mid] = a
++            fails[mid] = CI.a_failures(a)
++    return a_by, fails, vendors
++
++
++# ── angle first (orchestrator review 03:40: "select by angle, not by score") ──
++
++SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is the angle's punchline (the last clip)
++MAX_ANGLES = 5
++REWRITES = 3                       # a fidelity reject: up to 3 rewrites with the exact rejected claims, then plain VO
++COHERENCE_MIN = 4                  # the blind coherence verdict: every rating >= 4 and a through-line, else next angle
++VO_DEPENDENT = ("NOT_ENTAILED", "POLARITY", "STRONGER", "FALSE_RELATION")   # context failures the VO's framing causes
++VO_FIX = {"NOT_ENTAILED": "the viewer would take this clip to assert more than its speaker said in context: frame it as "
++                          "exactly what the speaker says",
++          "POLARITY": "the framing flips what the speaker meant: frame it as the speaker's own view",
++          "STRONGER": "the framing makes the speaker sound more certain than they were: keep their hedges ('I think', "
++                      "'could')",
++          "FALSE_RELATION": "the voice-over makes these speakers look like they respond to or agree WITH each other: "
++                            "credit each view to its own speaker, separately"}
++PRESENT = re.compile(r"\b(is|are|now|today|currently|right now|trading|sitting|this morning|tonight|at the moment|"
++                     r"just)\b", re.I)
++
++ANGLE_PROMPT = """You are the editor of PBX MAX: 60-second Bitcoin videos made of other channels' own words, with a
++voice-over that makes a point. Below are clips (verbatim quotes, each with its channel and length) that passed our
++checks. The channels were not in one conversation and never answer each other.
++
++{note}
++{clips}
++
++Find up to {k} ANGLES, best first. An angle is ONE sentence a viewer could repeat: a point that several of these clips
++GENUINELY support together (each clip adds a different reason, fact or voice to the same point). Do not make a point
++the clips do not state. Do not build an angle on a price level or move as if it were today's news unless a clip says
++it is today's.
++The video uses ONE clip per channel: a hook and 2-3 clips, from 3-4 DIFFERENT channels, together {lo:.0f}-{hi:.0f}
++seconds of clips. Give as many good angles as the clips allow (aim for {k}); for each angle give: "angle" (the
++sentence); "moments": the ids of 5 to 8 clips that support it (more choice survives a clip that later fails a check),
++from at least 3 different channels, with enough seconds among them; "hook": one of those ids whose FIRST WORDS grab
++attention AND set up the angle; "support": for each of those ids, a few words on what it adds (an internal note).
++Return ONLY this JSON object: {{"angles": [{{"angle": "...", "moments": ["id", "id", "id"], "hook": "id",
++"support": {{"id": "..."}}}}]}}"""
++
++WRITE_V2 = """You are PBX MAX, the voice of a 60-second Bitcoin video made of other channels' own words.
++THE ANGLE (the point this video makes): "{angle}"
++The clips, in play order (verbatim; the channels were not in one conversation and never answer each other):
++
++{note}
++{lineup}
++
++Write:
++- "intro": the voice-over before the hook, at most {intro_words} words: set up the angle so the viewer knows why to
++  listen. The hook plays, then clip 1 right after it (no voice-over between them).
++- "bridges": one line after each clip except the last ({n_bridges} lines), each at most {bridge_words} words: move the
++  point forward and name the channel of the NEXT clip.
++- "title": ONE title, at most 70 characters, that states the angle; "caption": ONE caption, at most 220 characters.
++Every line gives "cites": the ids of the clips it relies on.
++RULES (a line that breaks one is rejected):
++- make the angle's point THROUGH ATTRIBUTION: say what each channel says ("Saifedean Ammous: no authority can take
++  your Bitcoin"), and tie the clips with short lines that add no claim of your own ("Three channels, one thread.");
++  every number, name and time word must be said in a cited clip, as the clip says it; never make a clip sound more
++  certain than it is ("could" stays "could", "I think" stays an opinion)
++- attribute a view only to the channel that said it; each channel speaks for itself: never say or imply that channels
++  agree WITH each other, answer, rebut or react to each other (independent views on one point are fine)
++- do not repeat a clip's own words in the line right before it or in the title: the clip says them
++- no price level or move in the intro, title or caption unless it is today's level, or you mark it as history
++  ("from the 2022 low ...")
++- no "destroys", "slams", "exposes", "admits", "confirms", "caught" unless the clip uses that word; no advice to buy,
++  sell or use leverage; no quotes except the clip's exact words; no names of people who are not speaking
++{extra}Return ONLY this JSON object: {{"intro": {{"text": "...", "cites": ["id"]}}, "bridges": [{{"text": "...",
++"cites": ["id"]}}], "title": {{"text": "...", "cites": ["id"]}}, "caption": {{"text": "...", "cites": ["id"]}}}}"""
++
++COHERENCE_PROMPT = """You watch a 60-second video. Here is everything it says and shows, in order (each clip is a
++different person's own words).
++
++{package}
++
++1) State the video's through-line in ONE sentence, or "none" if it has none.
++2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
++3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;
++   1 = no point, or a point the clips do not support).
++Return ONLY this JSON object: {{"through_line": "...", "clips": {{"<label>": 1}}, "vo_point": 1}}"""
++
++
++def current_levels(sources, ctx, hours=24.0):
++    """The Bitcoin price levels this universe states as CURRENT: numbers 10,000-500,000 in sentences that name Bitcoin
++    and speak in the present ('is', 'now', 'today', 'trading', ...), from sources <= `hours` old (L-v 3)."""
++    out = set()
++    for src in sources:
++        age = E.age_hours(src.published_at, ctx.now)
++        if age is None or age > hours:
++            continue
++        for a, b in src.sentences:
++            t = E.spoken(src.tokens[a:b + 1])
++            if E.names_bitcoin(t) and PRESENT.search(t) and not VF.HISTORY.search(t):
++                out |= {v for v in VF.price_levels(t) if 10_000 <= v <= 500_000}
++    return sorted(out)
++
++
++def check_angles(obj, by_id, k=MAX_ANGLES):
++    if not isinstance(obj, dict) or set(obj) != {"angles"} or not isinstance(obj["angles"], list) or \
++            not 1 <= len(obj["angles"]) <= k:
++        raise ValueError(f"exactly {{'angles': [1-{k} items]}}")
++    out = []
++    for i, a in enumerate(obj["angles"]):
++        if not isinstance(a, dict) or set(a) != {"angle", "moments", "hook", "support"}:
++            raise ValueError(f"angle {i + 1}: keys must be exactly angle, moments, hook, support")
++        ms = a["moments"]
++        if not isinstance(a["angle"], str) or not a["angle"].strip() or not isinstance(ms, list) or \
++                not 3 <= len(ms) <= 8 or len(set(ms)) != len(ms) or any(m not in by_id for m in ms):
++            raise ValueError(f"angle {i + 1}: a sentence and 3-8 distinct offered ids")
++        if len({by_id[m]["channel_id"] for m in ms}) < 3 or a["hook"] not in ms:
++            raise ValueError(f"angle {i + 1}: >= 3 channels (one clip per channel, L-u), and the hook one of its moments")
++        if not isinstance(a["support"], dict) or set(a["support"]) != set(ms):
++            raise ValueError(f"angle {i + 1}: 'support' needs exactly its moment ids")
++        out.append(a)
++    return out
++
++
++def lineup_for(angle, by_id, dropped=frozenset()):
++    """Hook + 2-3 clips for one angle: the proposer's hook (else the angle's best hook-eligible moment by its first
++    2 s), clips from the angle's other moments, every segment from a different channel (L-u), the runtime arithmetic,
++    a clip under SHORT_CLIP_S only as the last (the punchline). Best by the proposer's order. None if impossible."""
++    ms = [by_id[m] for m in angle["moments"] if m in by_id and m not in dropped]
++    hooks = [m for m in ms if (m.get("eligibility") or {}).get("hook", {}).get("ok")]
++    hooks.sort(key=lambda m: (m["moment_id"] != angle["hook"], -m["scores"]["hook_first_2s"]))
++    lo, hi = content_range()
++    for h in hooks:
++        pool = [m for m in ms if m is not h and (m.get("eligibility") or {}).get("clip", {}).get("ok")
++                and m["channel_id"] != h["channel_id"]]
++        best = None
++        for n in (3, 2):
++            for combo in itertools.combinations(pool, n):
++                if len({m["channel_id"] for m in combo}) != n:
++                    continue
++                order = sorted(combo, key=lambda m: angle["moments"].index(m["moment_id"]))
++                shorts = [m for m in order[:-1] if m["duration_s"] < SHORT_CLIP_S]
++                if shorts:
++                    continue
++                dur = h["duration_s"] + sum(m["duration_s"] for m in order)
++                if not lo <= dur <= hi:
++                    continue
++                key = (n, -sum(angle["moments"].index(m["moment_id"]) for m in order))
++                if best is None or key > best[0]:
++                    best = (key, [h] + order)
++            if best:
++                return best[1]
++    return None
++
++
++def duplicates(pk):
++    """A clip must add something (orchestrator 03:40): no VO line right before a clip, and no title, repeats the
++    clip's words (a run of >= 5 canonical tokens, or >= 60 % of a short clip's tokens)."""
++    out = []
++    lines = {x["slot"]: x["text"] for x in pk["lines"]}
++    before = {0: lines.get("intro", "")}
++    for a, b in zip(pk["vo"]["bridges_after_clip"], pk["vo"]["bridges"]):
++        before[a + 1] = b
++    for i, seg in enumerate(pk["segments"]):
++        ct = VF.ctoks(seg["text"])
++        for slot, text in (("before " + seg["label"], before.get(i, "")), ("title", lines.get("title", ""))):
++            lt = VF.ctoks(text)
++            run5 = any(VF._run_in(ct[j:j + 5], lt) for j in range(max(0, len(ct) - 4)))
++            share = len([t for t in ct if t in set(lt)]) / max(1, len(ct))
++            if run5 or (len(ct) <= 15 and share >= 0.6):
++                out.append({"slot": slot, "rule": "DUPLICATE", "detail": f"repeats the words of {seg['label']}"})
++    return out
++
++
++def coherence(router, pk, writer_vendor, seed=7):
++    """The blind QUALITY verdict (a different vendor than the writer): through-line + ratings. -> (ok, verdict)."""
++    import providers as P
++    try:
++        r = router.call("coherence_verdict", COHERENCE_PROMPT.format(package=CI.package_view(pk)), 1200, seed,
++                        avoid_vendor=writer_vendor)
++        v = json.loads(r.text.strip())
++        labels = [sg["label"] for sg in pk["segments"]]
++        if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
++                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labels) or \
++                any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
++            raise ValueError("coherence verdict out of contract")
++    except (P.ProviderError, P.SpendLimit, ValueError) as e:
++        return False, {"error": f"{type(e).__name__}: {str(e)[:200]}"}
++    ok = str(v["through_line"]).strip().lower() not in ("", "none") and \
++        min(list(v["clips"].values()) + [v["vo_point"]]) >= COHERENCE_MIN
++    return ok, dict(v, backend=r.backend)
++
++
++def _lineup_block(segs, ctx):
++    from story_semantics import quote_data
++    return "\n".join(f'{"HOOK" if i == 0 else f"CLIP {i}"} id={m["moment_id"]} | '
++                     f'{(ctx.channel(m["channel_id"]) or {}).get("display_name") or m["channel_name"]} | '
++                     f'{m["duration_s"]:.1f} s | "{quote_data(m["text"], 700)}"' for i, m in enumerate(segs))
++
++
++def write_v2(router, angle, segs, ctx, extra="", seed=7):
++    from select_by_id import UNTRUSTED
++    content = sum(m["duration_s"] for m in segs)
++    iw, bw, _ = budgets(content)
++    prompt = WRITE_V2.format(angle=angle["angle"].replace('"', "'"), note=UNTRUSTED.replace("<sentences>", "the quotes"),
++                             lineup=_lineup_block(segs, ctx), intro_words=iw, bridge_words=bw,
++                             n_bridges=len(segs) - 2, extra=(extra + "\n") if extra else "")
++    r = router.call("angle_write", prompt, 3000, seed)
++    obj = json.loads(r.text.strip())
++    ids = [m["moment_id"] for m in segs]
++    keys = {"intro", "bridges", "title", "caption"}
++    if not isinstance(obj, dict) or set(obj) != keys:
++        raise ValueError(f"keys must be exactly {sorted(keys)}")
++    if not isinstance(obj["bridges"], list) or len(obj["bridges"]) != len(segs) - 2:
++        raise ValueError(f"'bridges' must hold {len(segs) - 2} lines")
++    for slot, ln in [("intro", obj["intro"]), ("title", obj["title"]), ("caption", obj["caption"])] + \
++            [(f"bridge_{i + 1}", b) for i, b in enumerate(obj["bridges"])]:
++        if not isinstance(ln, dict) or set(ln) != {"text", "cites"} or not isinstance(ln["text"], str) or \
++                not ln["text"].strip() or not isinstance(ln["cites"], list) or any(c not in ids for c in ln["cites"]):
++            raise ValueError(f"{slot}: needs text and cites from the line-up's ids")
++    if len(obj["title"]["text"]) > 70 or len(obj["caption"]["text"]) > 220:
++        raise ValueError("title <= 70 characters, caption <= 220")
++    return r, dict(obj, type="moments", angle=angle["angle"])
++
++
++def integrity(router, pk, sources, writer_vendor, a_by, levels, now=None):
++    """The hard gates: VO fidelity (deterministic incl. PRICE_NOW + blind verdict), DUPLICATE, context integrity
++    (A precomputed, B, C), runtime. -> dict with ok and every violation."""
++    segs_v = {s["moment_id"]: {"speaker": s["channel"], "names": [s["channel"]], "video_id": s["video_id"],
++                               "text": s["text"]} for s in pk["segments"]}
++    lines = [{"slot": x["slot"], "text": x["text"], "cites": x["cites"]} for x in pk["lines"]]
++    fid = VF.check(router, segs_v, lines, writer_vendor, current_levels=levels)
++    dup = duplicates(pk)
++    a_use = None if a_by is None else {s["label"]: dict(a_by[s["moment_id"]], label=s["label"]) for s in pk["segments"]}
++    ctx_ = CI.check_contexts(router, pk, CI.contexts_from_sources(pk, sources, now), writer_vendor, a_by=a_use)
++    rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1]
++    return {"fidelity": fid, "duplicates": dup, "context": ctx_, "runtime_ok": rt_ok,
++            "fid_ok": fid["ok"] and not dup, "ok": fid["ok"] and not dup and ctx_["ok"] and rt_ok}
++
++
++def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, want=1, max_angles=MAX_ANGLES,
++          truth_dir=None):
++    """Angle first (orchestrator 03:40). usable -> step-A prescreen -> ANGLES (role angle_write) -> per angle: line-up
++    (code) -> write -> integrity gates (hard) -> on a fidelity reject up to REWRITES rewrites with the exact rejected
++    claims -> COHERENCE (blind quality verdict, other vendor) -> law L-v 2 second recognition pass on the segments
++    (truth_dir set) -> a package. A context / truth failure drops that moment and rebuilds the angle's line-up; a
++    coherence failure moves to the next angle. The plain VO is the last resort, ranked below every written VO.
++    -> {"packages": [best first], "package": the best or None, "tried": [...], ...}."""
++    import transcript_truth as TT
++    ms, why = usable(moments, ctx, delivered, optout)
++    writer_vendor = _writer_vendor(router)
++    a_by, fails, a_vendors = prescreen(router, ms, sources, ctx, writer_vendor=writer_vendor)
++    cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
++    levels = current_levels(sources.values(), ctx)
++    out = {"packages": [], "plain": [], "tried": [], "unusable": why, "usable": len(ms), "current_levels": levels,
++           "prescreen": {"screened": len(fails), "cleared": len(cleared),
++                         "failed": {mid: f for mid, f in fails.items() if f}}, "angles": []}
++    if len({m["channel_id"] for m in cleared.values()}) < 3:
++        out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
++        out["package"] = None
++        return out
++    from select_by_id import UNTRUSTED
++    from story_semantics import quote_data
++    clips = "\n".join(f'id={m["moment_id"]} | {(ctx.channel(m["channel_id"]) or {}).get("display_name") or m["channel_name"]}'
++                      f' | {m["duration_s"]:.1f} s | "{quote_data(m["text"], 600)}"'
++                      for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
++    try:
++        lo, hi = content_range()
++        r = router.call("angle_write", ANGLE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"),
++                                                           clips=clips, k=max_angles, lo=lo, hi=hi), 3000, 7)
++        angles = check_angles(json.loads(r.text.strip()), cleared, max_angles)
++    except Exception as e:
++        out["why_none"] = f"no readable angles: {type(e).__name__}: {str(e)[:200]}"
++        out["package"] = None
++        return out
++    out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
++    dropped = set()
++    for ai, angle in enumerate(angles):
++        if len(out["packages"]) >= want:
++            break
++        for rebuild in range(3):                         # a context / truth failure drops a moment and rebuilds
++            segs = lineup_for(angle, cleared, frozenset(dropped))
++            rec = {"angle": ai + 1, "rebuild": rebuild + 1}
++            if segs is None:
++                rec["why"] = "no line-up: fewer than a hook + 2 clips from distinct channels in the runtime arithmetic"
++                out["tried"].append(rec)
++                break
++            order = [m["moment_id"] for m in segs]
++            extra, pk, g, wr = "", None, None, None
++            for attempt in range(1 + REWRITES):
++                try:
++                    wr, fields = write_v2(router, angle, segs, ctx, extra=extra, seed=7 + attempt + 10 * ai)
++                except Exception as e:
++                    rec.setdefault("writer_errors", []).append(f"{type(e).__name__}: {str(e)[:200]}")
++                    continue
++                pk = assemble(order, cleared, fields, ctx, "written" if attempt == 0 else f"rewritten x{attempt}")
++                g = integrity(router, pk, sources, wr.vendor, None if wr.vendor in a_vendors else a_by, levels,
++                              ctx.now)
++                rec.setdefault("attempts", []).append({"fid_ok": g["fid_ok"], "context_ok": g["context"]["ok"],
++                                                       "runtime": pk["runtime_s_estimate"],
++                                                       "violations": g["fidelity"]["violations"] + g["duplicates"] +
++                                                       g["context"]["violations"]})
++                framing = [v for v in g["context"]["violations"] if v["rule"] in VO_DEPENDENT]
++                intrinsic = [v for v in g["context"]["violations"] if v["rule"] not in VO_DEPENDENT]
++                if g["ok"] or intrinsic:
++                    break                                # done, or a clip's own context fails: drop it below
++                if g["fid_ok"] and not framing:
++                    break
++                bad = g["fidelity"]["violations"] + g["duplicates"] + [
++                    {"slot": v["segment"], "rule": v["rule"], "detail": VO_FIX.get(v["rule"], v["detail"])}
++                    for v in framing]
++                extra = ("Your previous script was REJECTED. Exactly these lines failed, with the reason; rewrite them "
++                         "so they make the same point ONLY with what the cited clips state:\n" +
++                         "\n".join(f"- {v['slot']}: {v['rule']}: {v['detail']}" for v in bad))
++            if g is None:
++                out["tried"].append(rec)
++                break
++            if not g["context"]["ok"]:
++                bad = {sg["moment_id"] for sg in pk["segments"]
++                       if any(sg["label"] in v["segment"].split("+") for v in g["context"]["violations"])}
++                dropped |= bad or {order[-1]}
++                rec["why"] = "context integrity (B / C): dropped " + ", ".join(sorted(bad or {order[-1]}))
++                out["tried"].append(rec)
++                continue
++            if not g["ok"]:                              # written VO failed after the rewrites: the plain VO, ranked last
++                intro, bridges, title, caption = plain_vo(segs, ctx)
++                pk3 = assemble(order, cleared, {"intro": intro, "bridges": bridges, "title": title, "caption": caption,
++                                                "type": "moments", "angle": angle["angle"] + " (plain VO, L-w 2)"},
++                               ctx, "plain")
++                g3 = integrity(router, pk3, sources, wr.vendor, None if wr.vendor in a_vendors else a_by, levels,
++                               ctx.now)
++                rec["plain"] = {"ok": g3["ok"], "violations": g3["fidelity"]["violations"] + g3["duplicates"]}
++                if g3["ok"]:
++                    pk3["checks"] = {"integrity": _checks(g3), "coherence": None, "vo": "PLAIN VO (fallback, ranked last)"}
++                    pk3["models"] = {"writer": "plain template", "fidelity_verdict": g3["fidelity"]["backend"],
++                                     "context": g3["context"].get("backends")}
++                    out["plain"].append(pk3)
++                out["tried"].append(rec)
++                break
++            ok_c, verdict = coherence(router, pk, wr.vendor)
++            rec["coherence"] = verdict
++            if not ok_c:
++                rec["why"] = "coherence below 4 or no through-line: next angle"
++                out["tried"].append(rec)
++                break
++            if truth_dir:
++                truth = []
++                for sg in pk["segments"]:
++                    if any(TT.critical_tokens(sg["text"])[k] for k in ("numbers", "negations")):
++                        try:
++                            truth.append(dict(TT.verify_segment(sg["video_id"], float(sg["start"]), float(sg["end"]),
++                                                                sg["text"], truth_dir), label=sg["label"],
++                                              moment_id=sg["moment_id"]))
++                        except Exception as e:
++                            truth.append({"label": sg["label"], "moment_id": sg["moment_id"],
++                                          "error": f"{type(e).__name__}: {str(e)[:160]}"})
++                rec["truth"] = truth
++                bad = {t["moment_id"] for t in truth if t.get("error") or not t.get("transcript_ok")
++                       or (t.get("speakers") or {}).get("turn_change_inside")}
++                if bad:
++                    dropped |= bad
++                    rec["why"] = "law L-v: the second pass disagrees or a speaker changes: dropped " + ", ".join(sorted(bad))
++                    out["tried"].append(rec)
++                    continue
++                pk["transcript_truth"] = truth
++            pk["checks"] = {"integrity": _checks(g), "coherence": verdict, "vo": pk["vo_kind"]}
++            pk["models"] = {"writer": wr.backend, "fidelity_verdict": g["fidelity"]["backend"],
++                            "context": g["context"].get("backends"), "coherence": verdict.get("backend")}
++            out["packages"].append(pk)
++            out["tried"].append(dict(rec, result="PACKAGE"))
++            dropped |= set(order)                        # alternatives use other moments
++            break
++    rank = lambda p: (-min(list(p["checks"]["coherence"]["clips"].values()) + [p["checks"]["coherence"]["vo_point"]]),
++                      -sum(p["checks"]["coherence"]["clips"].values()))
++    out["packages"].sort(key=rank)
++    out["package"] = (out["packages"] or out["plain"] or [None])[0]
++    return out
++
++
++def _checks(g):
++    return {"vo_fidelity": {"deterministic": g["fidelity"]["deterministic"], "verdict": g["fidelity"]["verdict"],
++                            "backend": g["fidelity"]["backend"]},
++            "duplicates": g["duplicates"],
++            "context_integrity": {k: v for k, v in g["context"].items() if k != "segments"},
++            "context_segments": g["context"]["segments"], "runtime_ok": g["runtime_ok"]}
++
++
++def _writer_vendor(router):
++    """The vendor of the first available writer in the chain (so step A avoids it); 'openai' if it cannot be told."""
++    try:
++        name = router.chain("angle_write")[0]
++        return router.backends[name].vendor
++    except Exception:
++        return "openai"
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+new file mode 100644
+index 00000000..8b66ebf5
+--- /dev/null
++++ b/pipeline/package_pin.py
+@@ -0,0 +1,58 @@
++#!/usr/bin/env python3
++"""pipeline/package_pin.py — a pp.package/1 as the existing PINNED entry point's decision (pipeline/pinned.py, schema
++protocol_pulse.pinned_story.v1), so the SAME factory downstream (validate -> cut -> sentence law -> voice -> render ->
++gates -> release authorisation) renders a moments-first package.
++
++- Every segment carries `approved_text` = the moment's exact words (its source sentences, verbatim). The pin is
++  `machine_cuts`, so the sentence law locates the words BY TEXT in the acquired transcript, never by offsets.
++- Times are YouTube coordinates (the store record's own seconds in the full video).
++- `approved_by` names the machine and REVIEW ONLY. No human approved this decision (law L-q: the first delivery is
++  REVIEW ONLY).
++- The package's VO (intro, bridges), title, caption and the gate verdicts travel in `moments_package`. pinned.py at
++  c1451047 ignores the block, so its VO falls back to none; REQUESTS R7 makes pinned.build_edl use it.
++- Writes nothing itself: to_pin() returns the dict; write_pin() writes it beside the package.
++"""
++import hashlib
++import json
++import os
++from datetime import datetime, timezone
++
++SCHEMA = "protocol_pulse.pinned_story.v1"
++
++
++def to_pin(pk, run_name):
++    segs = []
++    for i, s in enumerate(pk["segments"]):
++        segs.append({"role": "hook" if i == 0 else "clip", "video_id": s["video_id"], "channel": s["channel"],
++                     "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
++                     "approved_text": s["text"], "time_coords": "youtube", "source": {"kind": "youtube"}})
++    body = json.dumps(pk, sort_keys=True, default=str).encode()
++    return {"schema": SCHEMA, "story_id": f"moments-{run_name}-{hashlib.sha256(body).hexdigest()[:8]}",
++            "label": "bitcoin", "headline": pk["title"],
++            "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
++            "approved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
++            "approval_ref": f"docs/audits/parallel/pp-selectid_STATE.md (top package, {run_name})",
++            "machine_cuts": True, "segments": segs,
++            "moments_package": {"schema": pk["schema"], "package_sha256": hashlib.sha256(body).hexdigest(),
++                                "type": pk["type"],
++                                "edl_vo": {"intro": pk["vo"]["intro"],
++                                           "bridges": [{"text": t, "after_clip": a} for t, a in
++                                                       zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]},
++                                "signoff_expected": pk["vo"]["signoff"],
++                                "title": pk["title"], "caption": pk["caption"],
++                                "hook_first_words": pk["hook_first_words"],
++                                "vo_jobs": {"intro": "context", **{f"bridge_{i + 1}": "connection"
++                                                                   for i in range(len(pk["vo"]["bridges"]))}},
++                                "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
++                                           "models": pk.get("models")},
++                                "runtime_s_estimate": pk["runtime_s_estimate"],
++                                "sources_30s_before": [s["url_30s_before"] for s in pk["segments"]]}}
++
++
++def write_pin(pk, run_name, out_dir):
++    pin = to_pin(pk, run_name)
++    os.makedirs(out_dir, exist_ok=True)
++    path = os.path.join(out_dir, "MOMENTS_PIN.json")
++    with open(path, "w") as f:
++        json.dump(pin, f, indent=1)
++    return path, pin
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+new file mode 100644
+index 00000000..de4c547c
+--- /dev/null
++++ b/pipeline/providers.py
+@@ -0,0 +1,457 @@
++#!/usr/bin/env python3
++"""pipeline/providers.py — ONE provider interface for every model role (law L-x, orchestrator 2026-11-12 '02:45':
++"no single model, Ultron first").
++
++Every role (mining, angle + writing, fidelity verdict, context verdict, viewer takeaway, trend brief, story selection,
++check verdict) calls Router.call(role, prompt, ...). The role's back-end CHAIN comes from pipeline/model_providers.json;
++no vendor or model name appears in any role's code. A back-end that cannot answer now (out of credit, rate-limited after
++backoff, server error, transport failure, not configured, the local model without its GPU0 lease) raises Unavailable and
++the chain moves on, so the run continues when any one vendor is down (tonight OpenAI ran dry mid-run). A role whose whole
++chain is unavailable raises ProviderError: a failed role, never a pass (law L-m).
++
++Verdict roles never run on the writer's vendor (law L-s: "a model from a different vendor than the writer"; orchestrator
++02:00: the blind judge on another vendor): Router.call(..., avoid_vendor=<the writer's vendor>) skips those back-ends.
++
++Replies are text only; strict parsing stays with the caller (no repair here, law L-l). Every exchange can be recorded
++(record_dir) and replayed offline (replay=True): the recorded back-end name travels with the reply, so every artefact
++names the model that produced it. Spend is priced per back-end at the config's upper-bound USD per 1M tokens into one
++ledger with a guard (SpendLimit); Heimdall's account is read from its /credits endpoint and the 90% tripwire NOTIFIES
++(Reply.notices and Router.notices), it never halts (PBX 02:45).
++
++Keys are read by name from the env file inside code; never printed or logged.
++"""
++import hashlib
++import json
++import os
++import time
++import urllib.error
++import urllib.request
++from dataclasses import dataclass, field
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++CONFIG = os.path.join(HERE, "model_providers.json")
++BACKOFF_S = (10, 30, 90)            # rate limits / server errors / transport; an exhausted account is final at once
++
++
++class Unavailable(Exception):
++    """This back-end cannot answer now: the chain moves to the next one."""
++
++
++class ProviderError(Exception):
++    """No back-end of the role's chain answered: the role failed (never a pass)."""
++
++
++class SpendLimit(Exception):
++    """The session's spend guard is reached: no further model call."""
++
++
++class ReplayMiss(Exception):
++    """Offline replay has no recorded exchange for this call."""
++
++
++@dataclass
++class Reply:
++    text: str
++    backend: str                                  # "vendor:model", the model that produced this text
++    vendor: str
++    seconds: float = 0.0
++    usage: dict = field(default_factory=dict)     # {"in": n, "out": n} (reasoning tokens counted as out)
++    usd: float = 0.0
++    replayed: bool = False
++    tried: list = field(default_factory=list)     # [(backend, why unavailable)] before this one answered
++    notices: list = field(default_factory=list)
++
++
++def env_value(path, name):
++    """One key's value from an env file, read by name inside code (never printed or logged)."""
++    try:
++        with open(path) as f:
++            for line in f:
++                k, sep, v = line.strip().partition("=")
++                k = k.strip()
++                k = k[len("export "):].strip() if k.startswith("export ") else k
++                if sep and k == name:
++                    return v.strip().strip('"').strip("'")
++    except OSError:
++        pass
++    return None
++
++
++def _http_json(url, body, headers, timeout):
++    req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={"Content-Type": "application/json",
++                                                                              **headers})
++    return json.loads(urllib.request.urlopen(req, timeout=timeout).read())
++
++
++def _with_backoff(fn, final_codes=()):
++    """fn() with BACKOFF_S retries on 429 / 5xx / transport; HTTP codes in final_codes (or any other 4xx) are final.
++    Raises Unavailable with the reason when it cannot answer."""
++    last = None
++    for wait in BACKOFF_S + (None,):
++        try:
++            return fn()
++        except urllib.error.HTTPError as e:
++            try:
++                err = json.loads(e.read() or b"{}")
++            except (ValueError, OSError):
++                err = {}
++            e_obj = err.get("error") if isinstance(err.get("error"), dict) else {}
++            code = str(e_obj.get("code") or e_obj.get("type") or err.get("type") or "")
++            last = f"HTTP {e.code} {code}".strip()
++            if e.code in final_codes or "insufficient_quota" in code or "credit" in code or "billing" in code:
++                raise Unavailable(last + " (final: account)") from None
++            if (e.code == 429 or e.code >= 500) and wait is not None:
++                time.sleep(wait)
++                continue
++            raise Unavailable(last) from None
++        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, ValueError) as e:
++            last = type(e).__name__
++            if wait is not None:
++                time.sleep(wait)
++                continue
++            raise Unavailable(last) from None
++    raise Unavailable(last or "unavailable")
++
++
++# ── back-ends ──
++
++class Backend:
++    vendor = "?"
++
++    def __init__(self, name, spec, env_path):
++        self.name, self.spec, self.env_path = name, spec, env_path
++        self.model = spec["model"]
++        self.price = tuple(spec.get("price_usd_per_1m") or (0.0, 0.0))
++        self.timeout = float(spec.get("timeout_s", 600))
++
++    def usd(self, usage):
++        return round(usage.get("in", 0) * self.price[0] / 1e6 + usage.get("out", 0) * self.price[1] / 1e6, 6)
++
++    def key(self, name):
++        k = env_value(self.env_path, name)
++        if not k:
++            raise Unavailable(f"{name} not configured")
++        return k
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        raise NotImplementedError
++
++
++class LocalBackend(Backend):
++    """gemma3:27b (or the configured local model) on Ultron's GPU0 Ollama through story_semantics.LocalLLM: its GPU0
++    placement guard, digest and temperature 0 kept. Only a STARTED LocalLLM handed in by the caller that holds the GPU0
++    lease (law L-r) makes this back-end available; without one it is Unavailable (this builder session never uses a GPU)."""
++    vendor = "local"
++
++    def __init__(self, name, spec, env_path, llm=None):
++        super().__init__(name, spec, env_path)
++        self.llm = llm
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        if self.llm is None:
++            raise Unavailable("local model needs a started LocalLLM under the GPU0 lease (law L-r)")
++        import http.client
++        import story_semantics as sm
++        if len(prompt) / 2.5 + max_tokens > sm.LLM_CTX:       # Ollama keeps the tail and drops the instructions
++            raise Unavailable(f"prompt over the local context {sm.LLM_CTX}")
++        p = (system + "\n\n" + prompt) if system else prompt
++        t0 = time.time()
++        try:
++            text = self.llm._post(p, max_tokens, seed)
++        except (OSError, http.client.HTTPException, ValueError, KeyError, TypeError) as e:
++            raise Unavailable(f"ollama: {type(e).__name__}") from None
++        return text, {"in": 0, "out": 0}, time.time() - t0
++
++
++class OpenAIBackend(Backend):
++    """OpenAI chat/completions; JSON mode (the word JSON is put in the system message, as json_object requires)."""
++    vendor = "openai"
++    URL = "https://api.openai.com/v1/chat/completions"
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        key = self.key("OPENAI_API_KEY")
++        body = {"model": self.model, "max_completion_tokens": max(int(self.spec.get("min_out", 0)), max_tokens),
++                "messages": [{"role": "system", "content": (system or "") + " Reply with one JSON object."},
++                             {"role": "user", "content": prompt}],
++                "response_format": {"type": "json_object"}, "seed": seed}
++        if self.spec.get("reasoning_effort"):
++            body["reasoning_effort"] = self.spec["reasoning_effort"]
++        t0 = time.time()
++        j = _with_backoff(lambda: _http_json(self.URL, body, {"Authorization": "Bearer " + key}, self.timeout))
++        u = j.get("usage") or {}
++        try:
++            text = j["choices"][0]["message"].get("content") or ""
++        except (KeyError, IndexError, TypeError):
++            raise Unavailable("openai: no choices") from None
++        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
++
++
++class HeimdallBackend(OpenAIBackend):
++    """Heimdall: an OpenAI-compatible multi-model API (HEIMDALL_API_KEY). JSON is asked for in words only (its models
++    differ in json_object support); its /credits endpoint feeds the 90% tripwire."""
++    vendor = "heimdall"
++    BASE = "https://api-staging.heimdallm.com/api/v1"
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        key = self.key("HEIMDALL_API_KEY")
++        body = {"model": self.model, "max_tokens": max(int(self.spec.get("min_out", 0)), max_tokens), "seed": seed,
++                "temperature": self.spec.get("temperature", 0),
++                "messages": [{"role": "system", "content": (system or "") + " Reply with one JSON object only."},
++                             {"role": "user", "content": prompt}]}
++        t0 = time.time()
++        j = _with_backoff(lambda: _http_json(self.BASE + "/chat/completions", body, {"Authorization": "Bearer " + key},
++                                             self.timeout), final_codes=(401, 402, 403))
++        u = j.get("usage") or {}
++        try:
++            text = j["choices"][0]["message"].get("content") or ""
++        except (KeyError, IndexError, TypeError):
++            raise Unavailable("heimdall: no choices") from None
++        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
++
++    def credits(self):
++        """(total_usage, total_credits) in USD from GET /credits, or None when it cannot be read."""
++        try:
++            key = self.key("HEIMDALL_API_KEY")
++            req = urllib.request.Request(self.BASE + "/credits", headers={"Authorization": "Bearer " + key})
++            d = json.loads(urllib.request.urlopen(req, timeout=30).read())
++            d = d.get("data", d)
++            return float(d["total_usage"]), float(d["total_credits"])
++        except Exception:
++            return None
++
++
++class XAIBackend(Backend):
++    """xAI chat/completions; a judge runs at temperature 0 with the attempt's seed (production parity with LocalLLM).
++    Told it has no tools and must answer in one message (orchestrator 02:00)."""
++    vendor = "xai"
++    URL = "https://api.x.ai/v1/chat/completions"
++    SYSTEM = "You have no tools and no internet access. Answer in ONE message containing only the JSON object asked for."
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        key = self.key(self.spec.get("key_name", "XAI_API_KEY_MEDLEY"))
++        body = {"model": self.model, "max_tokens": max(int(self.spec.get("min_out", 8000)), max_tokens * 8),
++                "temperature": self.spec.get("temperature", 0), "seed": seed,
++                "messages": [{"role": "system", "content": self.SYSTEM + (" " + system if system else "")},
++                             {"role": "user", "content": prompt}]}
++        t0 = time.time()
++        j = _with_backoff(lambda: _http_json(self.URL, body, {"Authorization": "Bearer " + key}, self.timeout),
++                          final_codes=(401, 402, 403))
++        u = j.get("usage") or {}
++        reasoning = int((u.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0)
++        try:
++            text = j["choices"][0]["message"].get("content") or ""
++        except (KeyError, IndexError, TypeError):
++            raise Unavailable("xai: no choices") from None
++        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0) + reasoning}, \
++            time.time() - t0
++
++
++class AnthropicBackend(Backend):
++    """Anthropic Messages (streaming; adaptive thinking at the configured effort)."""
++    vendor = "anthropic"
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        try:
++            import anthropic
++        except ImportError:
++            raise Unavailable("anthropic SDK not installed") from None
++        client = anthropic.Anthropic(api_key=self.key("ANTHROPIC_API_KEY"), max_retries=3, timeout=self.timeout)
++        kw = {"model": self.model, "max_tokens": max(int(self.spec.get("min_out", 16000)), max_tokens),
++              "messages": [{"role": "user", "content": prompt}],
++              "system": (system or "") + " Reply with one JSON object only, no prose, no code fence."}
++        if self.spec.get("effort"):
++            kw["output_config"] = {"effort": self.spec["effort"]}
++            kw["thinking"] = {"type": "adaptive"}
++        t0 = time.time()
++        try:
++            with client.messages.stream(**kw) as s:
++                msg = s.get_final_message()
++        except anthropic.APIStatusError as e:
++            raise Unavailable(f"anthropic HTTP {e.status_code}") from None
++        except anthropic.APIError as e:
++            raise Unavailable(f"anthropic {type(e).__name__}") from None
++        text = "".join(b.text for b in msg.content if b.type == "text")
++        return text, {"in": msg.usage.input_tokens, "out": msg.usage.output_tokens}, time.time() - t0
++
++
++class XAISearchBackend(Backend):
++    """xAI Responses API with live X and web search tools (x_search, web_search), for the trend brief only. The
++    reply text is returned as written; the caller validates it into the closed taxonomy (law L-w 4)."""
++    vendor = "xai_search"
++    URL = "https://api.x.ai/v1/responses"
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        key = self.key(self.spec.get("key_name", "XAI_API_KEY_MEDLEY"))
++        body = {"model": self.model, "max_output_tokens": max_tokens,
++                "input": [{"role": "system", "content": system or "Answer with one JSON object only."},
++                          {"role": "user", "content": prompt}],
++                "tools": [{"type": t} for t in self.spec.get("tools", ("x_search", "web_search"))]}
++        t0 = time.time()
++        j = _with_backoff(lambda: _http_json(self.URL, body, {"Authorization": "Bearer " + key}, self.timeout),
++                          final_codes=(401, 402, 403))
++        text = j.get("output_text") or ""
++        if not text:
++            for item in j.get("output") or []:
++                for part in (item.get("content") or []) if isinstance(item, dict) else []:
++                    if isinstance(part, dict) and part.get("type") in ("output_text", "text"):
++                        text += part.get("text") or ""
++        u = j.get("usage") or {}
++        return text, {"in": int(u.get("input_tokens") or u.get("prompt_tokens") or 0),
++                      "out": int(u.get("output_tokens") or u.get("completion_tokens") or 0)}, time.time() - t0
++
++
++VENDORS = {"local": LocalBackend, "xai_search": XAISearchBackend, "openai": OpenAIBackend, "heimdall": HeimdallBackend, "xai": XAIBackend,
++           "anthropic": AnthropicBackend}
++
++
++# ── the router ──
++
++class Router:
++    """Role -> back-end chain from the config. call() tries the chain in order (skipping back-ends this run already
++    found unavailable, and any on avoid_vendor), records every exchange when record_dir is set, prices it into the
++    spend ledger, and returns a Reply naming the back-end that answered. replay=True serves recorded exchanges only."""
++
++    def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
++                 local_llm=None, chains=None):
++        with open(config) as f:
++            self.config = json.load(f)
++        self.env_path = env_path or os.path.join(os.path.dirname(HERE), "." + "env")
++        self.record_dir, self.replay, self.spend_path, self.limit_usd = record_dir, replay, spend_path, limit_usd
++        self.down, self.notices = {}, []
++        self.backends = {}
++        for name, spec in self.config["backends"].items():
++            cls = VENDORS[spec["vendor"]]
++            self.backends[name] = cls(name, spec, self.env_path, local_llm) if cls is LocalBackend else \
++                cls(name, spec, self.env_path)
++        self.chains = dict(chains or {})          # tests / the A/B harness may pin a role's chain (still by config name)
++
++    def chain(self, role):
++        if role in self.chains:
++            return list(self.chains[role])
++        try:
++            return list(self.config["roles"][role]["chain"])
++        except KeyError:
++            raise ProviderError(f"role {role!r} has no chain in {os.path.basename(CONFIG)}") from None
++
++    # recording
++    def _path(self, role, backend, prompt, max_tokens, seed, system):
++        k = hashlib.sha256(json.dumps([role, backend, prompt, max_tokens, seed, system or ""]).encode()).hexdigest()
++        return os.path.join(self.record_dir, k[:2], k + ".json")
++
++    def _spent(self):
++        try:
++            with open(self.spend_path) as f:
++                return float(json.load(f).get("usd_estimate", 0.0))
++        except (OSError, ValueError, TypeError):
++            return 0.0
++
++    def _account(self, backend, usage, usd, role):
++        if not self.spend_path:
++            return
++        import fcntl
++        os.makedirs(os.path.dirname(self.spend_path), exist_ok=True)
++        with open(self.spend_path + ".lock", "w") as lk:
++            fcntl.flock(lk, fcntl.LOCK_EX)
++            d = {"usd_estimate": 0.0, "calls": 0, "by_backend": {}, "by_role": {}}
++            try:
++                with open(self.spend_path) as f:
++                    d.update(json.load(f))
++            except (OSError, ValueError):
++                pass
++            b = d["by_backend"].setdefault(backend.name, {"calls": 0, "in": 0, "out": 0, "usd_estimate": 0.0,
++                                                          "price_usd_per_1m": list(backend.price)})
++            b.update(calls=b["calls"] + 1, usd_estimate=round(b["usd_estimate"] + usd, 6),
++                     **{"in": b["in"] + usage.get("in", 0), "out": b["out"] + usage.get("out", 0)})
++            r = d["by_role"].setdefault(role, {"calls": 0, "usd_estimate": 0.0})
++            r.update(calls=r["calls"] + 1, usd_estimate=round(r["usd_estimate"] + usd, 6))
++            d.update(calls=d["calls"] + 1, usd_estimate=round(d["usd_estimate"] + usd, 6))
++            tmp = f"{self.spend_path}.{os.getpid()}.tmp"
++            with open(tmp, "w") as f:
++                json.dump(d, f, indent=1)
++            os.replace(tmp, self.spend_path)
++
++    def heimdall_tripwire(self, at=0.9):
++        """NOTIFY when Heimdall's account usage reaches `at` of its credits (PBX 02:45: never a halt)."""
++        h = next((b for b in self.backends.values() if isinstance(b, HeimdallBackend)), None)
++        got = h.credits() if h else None
++        if got and got[1] > 0 and got[0] / got[1] >= at:
++            msg = f"HEIMDALL SPEND AT {int(at * 100)}%: {got[0]:.2f} of {got[1]:.2f} USD"
++            if msg not in self.notices:
++                self.notices.append(msg)
++            return msg
++        return None
++
++    def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None):
++        tried, notices = [], []
++        for name in self.chain(role):
++            b = self.backends.get(name)
++            if b is None:
++                tried.append((name, "not in config backends"))
++                continue
++            if avoid_vendor and b.vendor == avoid_vendor:
++                tried.append((name, f"same vendor as the writer ({avoid_vendor}): skipped"))
++                continue
++            if avoid_model and b.name == avoid_model:
++                tried.append((name, "same model as the generator: skipped"))
++                continue
++            if name in self.down:
++                tried.append((name, f"down this run: {self.down[name]}"))
++                continue
++            path = self._path(role, name, prompt, max_tokens, seed, system) if self.record_dir else None
++            if path and os.path.exists(path):
++                with open(path) as f:
++                    rec = json.load(f)
++                return Reply(rec["text"], name, b.vendor, rec.get("seconds", 0.0), rec.get("usage") or {},
++                             rec.get("usd", 0.0), True, tried, notices)
++            if self.replay:
++                tried.append((name, "replay: not recorded"))
++                continue
++            if self.spend_path and self._spent() >= self.limit_usd:
++                raise SpendLimit(f"spend estimate {self._spent():.2f} USD >= {self.limit_usd} USD")
++            if b.vendor == "heimdall":
++                n = self.heimdall_tripwire()
++                if n:
++                    notices.append(n)
++            try:
++                text, usage, secs = b.complete(prompt, max_tokens, seed, system)
++            except Unavailable as e:
++                self.down[name] = str(e)
++                tried.append((name, str(e)))
++                continue
++            usd = b.usd(usage)
++            self._account(b, usage, usd, role)
++            if path and isinstance(text, str) and text.strip():
++                os.makedirs(os.path.dirname(path), exist_ok=True)
++                tmp = f"{path}.{os.getpid()}.tmp"
++                with open(tmp, "w") as f:
++                    json.dump({"role": role, "backend": name, "model": b.model, "vendor": b.vendor, "seed": seed,
++                               "max_tokens": max_tokens, "system": system, "prompt": prompt, "text": text,
++                               "usage": usage, "usd": usd, "seconds": round(secs, 2),
++                               "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}, f, indent=1)
++                os.replace(tmp, path)
++            return Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices)
++        if self.replay:
++            raise ReplayMiss(f"{role}: no recorded exchange ({tried})")
++        raise ProviderError(f"{role}: every back-end unavailable: {tried}")
++
++
++class RoleModel:
++    """A select_by_id.Model over a role (law L-x for the story-first selector, REQUESTS R6 item 7): complete() ->
++    (text, meta) with the answering back-end in meta; ProviderError becomes select_by_id.ModelError."""
++
++    def __init__(self, router, role, avoid_vendor=None):
++        self.router, self.role, self.avoid_vendor = router, role, avoid_vendor
++        self.name = f"role:{role}"
++
++    def complete(self, prompt, max_tokens, seed):
++        import select_by_id as SB
++        try:
++            r = self.router.call(self.role, prompt, max_tokens, seed, avoid_vendor=self.avoid_vendor)
++        except ProviderError as e:
++            raise SB.ModelError(str(e)[:300]) from None
++        except ReplayMiss as e:
++            raise SB.ReplayMiss(str(e)[:300]) from None
++        except SpendLimit as e:
++            raise SB.SpendLimit(str(e)) from None
++        return r.text, {"backend": r.backend, "vendor": r.vendor, "usd": r.usd, "replayed": r.replayed,
++                        "tried": r.tried}
+diff --git a/pipeline/transcript_truth.py b/pipeline/transcript_truth.py
+new file mode 100644
+index 00000000..e7ee2eef
+--- /dev/null
++++ b/pipeline/transcript_truth.py
+@@ -0,0 +1,111 @@
++#!/usr/bin/env python3
++"""pipeline/transcript_truth.py — SPEAKER AND TRANSCRIPT TRUTH (law L-v, orchestrator 2026-11-12 '02:30').
++
++(2) Every gate trusts one Whisper transcript. For the SELECTED sentences only, a second, independent recognition pass
++    runs on the SOURCE audio (a different model: OpenAI's transcription API). Any disagreement on a number, a name or
++    a negation makes that token unusable in VO or title, or drops the moment.
++(1) The same call's diarisation (gpt-4o-transcribe-diarize) reports the speaker turns inside the window: a moment may
++    not span a speaker change; a person is NAMED only from verified metadata, never from a diarisation label.
++
++audio_window() fetches the audio of [start - pad, end + pad] of a YouTube video on CPU (yt-dlp download sections +
++ffmpeg to 16 kHz mono WAV) into a caller-given directory (the integrator already holds the downloaded window:
++second_pass() takes any audio path). No GPU, no Whisper. Keys by name inside code (OPENAI_API_KEY).
++"""
++import json
++import os
++import re
++import subprocess
++import urllib.request
++import uuid
++
++import canon
++
++ENV = "/home/ultron/protocol_pulse/" + "." + "env"
++NEGATIONS = frozenset({"not", "no", "never", "none", "nobody", "nothing", "neither", "nor", "cannot", "can't",
++                       "won't", "don't", "doesn't", "didn't", "isn't", "aren't", "wasn't", "weren't", "shouldn't",
++                       "wouldn't", "couldn't", "hasn't", "haven't", "hadn't"})
++_NUM = re.compile(r"^-?\d+(\.\d+)?$")
++PAD_S = 1.5
++
++
++def audio_window(video_id, start, end, out_dir, pad=PAD_S):
++    """WAV (16 kHz mono) of the window, fetched with yt-dlp's download sections; returns the path."""
++    os.makedirs(out_dir, exist_ok=True)
++    a, b = max(0.0, start - pad), end + pad
++    base = os.path.join(out_dir, f"{video_id}_{int(a * 1000)}_{int(b * 1000)}")
++    wav = base + ".wav"
++    if os.path.exists(wav):
++        return wav
++    subprocess.run(["yt-dlp", "-q", "--no-playlist", "-f", "bestaudio", "--download-sections", f"*{a:.2f}-{b:.2f}",
++                    "--force-keyframes-at-cuts", "-o", base + ".%(ext)s", f"https://www.youtube.com/watch?v={video_id}"],
++                   check=True, timeout=300, capture_output=True)
++    src = next(os.path.join(out_dir, f) for f in os.listdir(out_dir)
++               if f.startswith(os.path.basename(base)) and not f.endswith(".wav"))
++    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", src, "-ac", "1", "-ar", "16000", wav], check=True,
++                   timeout=120)
++    return wav
++
++
++def second_pass(wav, model="gpt-4o-transcribe-diarize", key=None):
++    """The OpenAI transcription of the audio: {"text", "segments": [{"speaker", "start", "end", "text"}], "model"}."""
++    if key is None:
++        from providers import env_value
++        key = env_value(ENV, "OPENAI_API_KEY")
++    boundary = uuid.uuid4().hex
++    fields = {"model": model, "response_format": "diarized_json" if "diarize" in model else "json"}
++    if "diarize" in model:
++        fields["chunking_strategy"] = "auto"
++    body = b""
++    for k, v in fields.items():
++        body += f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n".encode()
++    body += (f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{os.path.basename(wav)}\"\r\n"
++             f"Content-Type: audio/wav\r\n\r\n").encode() + open(wav, "rb").read() + f"\r\n--{boundary}--\r\n".encode()
++    req = urllib.request.Request("https://api.openai.com/v1/audio/transcriptions", data=body,
++                                 headers={"Authorization": "Bearer " + (key or ""),
++                                          "Content-Type": f"multipart/form-data; boundary={boundary}"})
++    d = json.loads(urllib.request.urlopen(req, timeout=300).read())
++    segs = [{"speaker": s.get("speaker"), "start": s.get("start"), "end": s.get("end"), "text": s.get("text", "")}
++            for s in d.get("segments") or []]
++    return {"text": d.get("text") or " ".join(s["text"] for s in segs), "segments": segs, "model": model}
++
++
++def critical_tokens(text):
++    """The tokens law L-v 2 protects: numbers (canonical values), negations, and proper names (capitalised words
++    after the first word)."""
++    toks = canon.canon_tokens(text)
++    nums = [t for t in toks if _NUM.match(t)]
++    negs = [t for t in toks if t in NEGATIONS or t.endswith("n't")]
++    words = re.findall(r"(?<![\w$])[A-Za-z][A-Za-z'’-]*", text or "")     # never the K of '16K' (a number's unit)
++    names = sorted({w for i, w in enumerate(words) if i > 0 and w[0].isupper() and w not in ("I",)})
++    return {"numbers": nums, "negations": negs, "names": names}
++
++
++def compare(selected_text, second_text):
++    """Every critical token of the selected sentences must be read the same in the second pass (canonical form).
++    -> {"ok", "disagree": {"numbers": [...], "negations": [...], "names": [...]}}."""
++    a, b = critical_tokens(selected_text), canon.canon_tokens(second_text)
++    bset = set(b)
++    dis = {"numbers": [n for n in a["numbers"] if n not in bset],
++           "negations": [n for n in a["negations"] if n not in bset],
++           "names": [n for n in a["names"] if not set(canon.canon_tokens(n)) <= bset]}
++    return {"ok": not any(dis.values()), "disagree": dis, "critical": a}
++
++
++def speaker_turns(second, start_rel, end_rel):
++    """Speakers of the second pass's segments overlapping [start_rel, end_rel] (seconds inside the window): one label
++    = no change inside; more = a change (law L-v 1); none = not measured."""
++    sp = [s["speaker"] for s in second["segments"]
++          if s.get("start") is not None and s.get("end") is not None and s["end"] > start_rel and s["start"] < end_rel]
++    labels = sorted({x for x in sp if x})
++    return {"labels": labels, "turn_change_inside": (len(labels) > 1) if labels else None}
++
++
++def verify_segment(video_id, start, end, text, work_dir):
++    """Both checks for one selected segment -> a record (the second pass's text kept as evidence)."""
++    wav = audio_window(video_id, start, end, work_dir)
++    sec = second_pass(wav)
++    cmp_ = compare(text, sec["text"])
++    turns = speaker_turns(sec, PAD_S, PAD_S + (end - start))
++    return {"video_id": video_id, "start": start, "end": end, "model": sec["model"], "second_pass_text": sec["text"],
++            "transcript_ok": cmp_["ok"], "disagree": cmp_["disagree"], "critical": cmp_["critical"],
++            "speakers": turns, "audio": os.path.basename(wav)}
+diff --git a/pipeline/trend_brief.py b/pipeline/trend_brief.py
+new file mode 100644
+index 00000000..8adb17f7
+--- /dev/null
++++ b/pipeline/trend_brief.py
+@@ -0,0 +1,169 @@
++#!/usr/bin/env python3
++"""pipeline/trend_brief.py — what is hot right now, as a RANKING input only (orchestrator Phase 2 addition '01:55';
++law L-w 4, '02:30'). Trend is never a gate and never a fact source.
++
++- TAXONOMY: a closed list of Bitcoin topic ids, each with our own fixed label and a keyword pattern. Every trend signal
++  is forced into it; anything else is discarded.
++- local_baseline(): the free signal from our own corpus. For each topic, the share of partner channels (last 24 h)
++  with a Bitcoin sentence on that topic. Always available; no model, no network.
++- grok_brief(): ONE live-search call per cycle (role "trend_brief" through pipeline/providers.py: xAI's Responses API
++  with x_search + web_search). It asks for 8-12 Bitcoin-only topics with heat 0-1 and rising / fading / steady.
++  - The reply is validated into the taxonomy (strict, never repaired). Raw post text never enters any prompt: only
++    (topic id, heat, direction, source count) leave this module, and person names only as a list the packager may use
++    to boost a moment whose verified SPEAKER is that person.
++  - Cached per cycle (cycle id + timestamp + sha256 of the reply).
++  - On any failure: no boost, and the cycle says so.
++- SHADOW (law L-w 4): moments.TREND_WEIGHT is 0. The brief is logged and compared with the baseline, never used to
++  rank, until it measurably helps. When enabled, the weight is capped at ~10-15 % of a moment's score. Titles never
++  take trend phrasing: they use our taxonomy labels at most (law L-t: every word of a title must be supported by the
++  clips).
++"""
++import hashlib
++import json
++import os
++import re
++import time
++
++import eligibility as E
++
++TAXONOMY = {   # id: (our own label, pattern over a sentence that names Bitcoin)
++    "price_action": ("Bitcoin's price move", r"\b(price|all[- ]time high|support|resistance|pullback|sell[- ]?off|rally|"
++                                             r"dump|pump|correction|drawdown|breakout|\$\d)"),
++    "etf_flows": ("Bitcoin ETF flows", r"\b(etfs?|inflows?|outflows?|ibit|blackrock|fidelity|grayscale)\b"),
++    "treasury_companies": ("Bitcoin treasury companies", r"\b(strategy|microstrategy|saylor|treasury compan|metaplanet|"
++                                                         r"balance sheet|mnav|cost basis)"),
++    "us_policy": ("US Bitcoin policy", r"\b(strategic (bitcoin )?reserve|congress|senate|house|bill|sec\b|regulat|"
++                                       r"executive order|white house|legislation)"),
++    "macro_fed": ("rates, the Fed and the dollar", r"\b(fed\b|federal reserve|rate cuts?|interest rates?|inflation|cpi|"
++                                                   r"powell|dollar|yields?|liquidity|m2)\b"),
++    "mining": ("Bitcoin mining", r"\b(miners?|mining|hash ?rate|difficulty|hashprice|halving)\b"),
++    "onchain": ("on-chain signals", r"\b(on[- ]chain|whales?|long[- ]term holders?|short[- ]term holders?|"
++                                     r"exchange reserves?|realized price)\b"),
++    "derivatives_leverage": ("leverage and liquidations", r"\b(leverage|liquidat\w*|futures|options|open interest|"
++                                                          r"funding rates?)\b"),
++    "institutional_adoption": ("institutions and Bitcoin", r"\b(banks?|institution\w*|vanguard|jpmorgan|goldman|"
++                                                           r"pensions?|wall street|custod\w*)\b"),
++    "sovereign_adoption": ("countries and Bitcoin", r"\b(el salvador|bhutan|nation[- ]states?|countr(y|ies)|sovereign)\b"),
++    "protocol_dev": ("Bitcoin development", r"\b(bitcoin core|knots|op_return|soft fork|covenants?|taproot|lightning|"
++                                             r"nodes?)\b"),
++    "security_custody": ("self-custody and security", r"\b(self[- ]custody|cold storage|seed phrase|hacks?|exploit|"
++                                                       r"private keys?)\b"),
++    "quantum": ("quantum computing and Bitcoin", r"\bquantum\b"),
++    "elections_politics": ("elections and Bitcoin", r"\b(elections?|midterms?|democrats?|republicans?|votes?|campaign)\b"),
++    "market_sentiment": ("market sentiment", r"\b(fear|greed|capitulat\w*|sentiment|bear market|bull market|cycle|"
++                                             r"bottom|top)\b"),
++    "stocks_correlation": ("Bitcoin and stocks", r"\b(nasdaq|s&p|stocks?|equities|tech stocks|nvidia|correlat\w*)"),
++    "gold_comparison": ("Bitcoin and gold", r"\bgold\b"),
++    "payments_adoption": ("Bitcoin as money", r"\b(payments?|merchants?|pay with|spend(ing)?|everyday use)\b"),
++}
++TOPICS = tuple(TAXONOMY)
++_PAT = {t: re.compile(p, re.I) for t, (_, p) in TAXONOMY.items()}
++DIRECTIONS = ("rising", "fading", "steady")
++BRIEF_MAX_TOKENS = 5000            # < 6k out (token discipline, Phase 2 addition)
++
++
++def label(topic):
++    return TAXONOMY[topic][0]
++
++
++def topics_of(text):
++    """Taxonomy ids whose pattern a Bitcoin-naming text matches (the free local classifier)."""
++    if not E.names_bitcoin(text):
++        return []
++    return [t for t in TOPICS if _PAT[t].search(text)]
++
++
++def local_baseline(sources, ctx, hours=24.0):
++    """{topic: heat 0-1}: the share of the window's partner channels with a Bitcoin sentence on that topic; plus the
++    channel counts. Free, deterministic, always available (law L-w 4's baseline)."""
++    by_topic, channels = {t: set() for t in TOPICS}, set()
++    for src in sources:
++        age = E.age_hours(src.published_at, ctx.now)
++        if age is None or age > hours or age < 0:
++            continue
++        channels.add(src.channel_id)
++        for a, b in src.sentences:
++            for t in topics_of(E.spoken(src.tokens[a:b + 1])):
++                by_topic[t].add(src.channel_id)
++    n = max(1, len(channels))
++    return {"topics": {t: round(len(c) / n, 3) for t, c in by_topic.items() if c},
++            "channels": {t: len(c) for t, c in by_topic.items() if c}, "window_channels": len(channels),
++            "hours": hours}
++
++
++BRIEF_PROMPT = """Search X and the web now ({now} UTC) for what Bitcoin-focused accounts and outlets are talking about
++in the last 24 hours. Bitcoin only: ignore altcoins, memecoins and general politics unless it is about Bitcoin policy.
++Classify what you find into these topic ids ONLY (anything else is discarded): {topics}.
++Return 8 to 12 topics. For each: "topic" (an id from the list), "heat" (0 to 1: how much attention it has now),
++"direction" ("rising", "fading" or "steady"), "sources" (how many distinct posts or articles you saw on it, an integer).
++Also "persons": at most 5 names of people at the centre of today's Bitcoin conversation (names only).
++Do not include quotes, post text, links or opinions.
++Return ONLY this JSON object: {{"topics": [{{"topic": "...", "heat": 0.0, "direction": "...", "sources": 0}}],
++"persons": []}}"""
++
++
++def check_brief(obj):
++    """Strict validation into the closed taxonomy (never repaired): -> {topic: {heat, direction, sources}}, persons."""
++    if not isinstance(obj, dict) or set(obj) != {"topics", "persons"}:
++        raise ValueError("keys must be exactly ['topics', 'persons']")
++    ts = obj["topics"]
++    if not isinstance(ts, list) or not 1 <= len(ts) <= 12:
++        raise ValueError("'topics' must hold 1-12 items")
++    out = {}
++    for t in ts:
++        if not isinstance(t, dict) or set(t) != {"topic", "heat", "direction", "sources"}:
++            raise ValueError("each topic needs exactly topic, heat, direction, sources")
++        if t["topic"] not in TAXONOMY or t["topic"] in out:
++            raise ValueError(f"topic {t['topic']!r} not in the taxonomy or repeated")
++        if type(t["heat"]) not in (int, float) or not 0 <= t["heat"] <= 1 or t["direction"] not in DIRECTIONS or \
++                type(t["sources"]) is not int or t["sources"] < 0:
++            raise ValueError(f"topic {t['topic']}: heat 0-1, direction {DIRECTIONS}, sources an integer")
++        out[t["topic"]] = {"heat": float(t["heat"]), "direction": t["direction"], "sources": t["sources"]}
++    ps = obj["persons"]
++    if not isinstance(ps, list) or len(ps) > 5 or any(not isinstance(p, str) or not 2 <= len(p) <= 60 or
++                                                      not re.fullmatch(r"[A-Za-z][A-Za-z .'\-]+", p) for p in ps):
++        raise ValueError("'persons' must be at most 5 plain names")
++    return out, list(ps)
++
++
++def cycle_id(now, hours=4):
++    """A cycle is a 4 h slot of the UTC day (one call per cycle; law L-p cadence 3-5 h)."""
++    return f"{now.strftime('%Y%m%d')}T{now.hour // hours * hours:02d}"
++
++
++def grok_brief(router, now, cache_dir, log=print):
++    """ONE live-search call per cycle, cached; -> {"status", "topics", "persons", "cycle", "backend", "sha256", ...}.
++    Failure (no back-end, invalid reply) -> status "failed" and NO boost: trend is never a gate."""
++    import providers as P
++    cyc = cycle_id(now)
++    path = os.path.join(cache_dir, f"brief_{cyc}.json")
++    if os.path.exists(path):
++        with open(path) as f:
++            return dict(json.load(f), cached=True)
++    prompt = BRIEF_PROMPT.format(now=now.strftime("%Y-%m-%d %H:%M"), topics=", ".join(TOPICS))
++    rec = {"cycle": cyc, "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "mode": "shadow (weight 0)"}
++    try:
++        r = router.call("trend_brief", prompt, BRIEF_MAX_TOKENS, seed=7)
++        raw = r.text.strip()
++        rec.update(backend=r.backend, usd=r.usd, usage=r.usage, sha256=hashlib.sha256(raw.encode()).hexdigest())
++        topics, persons = check_brief(json.loads(raw))        # exactly one JSON object: prose is never repaired
++        rec.update(status="ok", topics=topics, persons=persons)
++    except (P.ProviderError, P.SpendLimit, ValueError, KeyError) as e:
++        rec.update(status="failed", why=f"{type(e).__name__}: {str(e)[:200]}", topics={}, persons=[])
++        log(f"  trend brief: no boost this cycle ({rec['why']})")
++    os.makedirs(cache_dir, exist_ok=True)
++    with open(path, "w") as f:
++        json.dump(rec, f, indent=1)
++    return rec
++
++
++def trend_match(moment, brief, baseline=None):
++    """The local trend-match axis (no model call): the hottest brief topic among the moment's topics (0 when the brief
++    failed); person-trends only for a moment whose VERIFIED speaker is that person (law L-w 4)."""
++    heat = max([((brief or {}).get("topics") or {}).get(t, {}).get("heat", 0.0) for t in moment.get("topics") or []]
++               or [0.0])
++    sp = (moment.get("speaker") or {}).get("named")
++    if sp and sp in ((brief or {}).get("persons") or []) and (moment.get("speaker") or {}).get("named_source"):
++        heat = max(heat, 0.5)
++    base = max([((baseline or {}).get("topics") or {}).get(t, 0.0) for t in moment.get("topics") or []] or [0.0])
++    return {"brief": round(heat, 3), "baseline": round(base, 3)}
+diff --git a/pipeline/vo_fidelity.py b/pipeline/vo_fidelity.py
+new file mode 100644
+index 00000000..dfa5e568
+--- /dev/null
++++ b/pipeline/vo_fidelity.py
+@@ -0,0 +1,330 @@
++#!/usr/bin/env python3
++"""pipeline/vo_fidelity.py — VO FIDELITY (law L-o 11, '01:55'; law L-t, '02:30'): the PBX MAX VO, the title and the
++caption never put words in a speaker's mouth. Two layers, BOTH must pass ("vo check needs to be real 100%"):
++
++(a) DETERMINISTIC (this module, no model): every line names the segments it relies on (cites = moment ids), and
++    - NEEDS_SOURCE: a line with a fact (number, name, quote, attribution, time word) cites at least one segment;
++    - NUMBER: every number (canon value and unit, law L-k) is in a cited segment's sentences; when the line attributes
++      it to a speaker, in THAT speaker's sentences;
++    - NAME: every proper name is in a cited segment's sentences, or is production metadata (a credited channel, the
++      show); no name of a person who does not appear (L-t);
++    - QUOTE: quoted words are a verbatim run of a cited segment (canonical form);
++    - ATTRIBUTION: "<X> says / argues / warns ..." binds X to a cited segment whose speaker is X;
++    - RELATION: words that make speakers answer, agree or rebut each other only when every cited segment is from the
++      same source video (one conversation);
++    - FRAMING: destroys / slams / exposes / admits / confirms / caught only when the source itself uses the word (L-t);
++    - IMPERATIVE: no second-person financial imperative (buy / sell / leverage / all in) (L-t);
++    - TIME: a time word (today, yesterday, this week, just, now) only when a cited segment says it (L-v 3).
++(b) BLIND VERDICT (role "fidelity_verdict" through pipeline/providers.py, never the writer's vendor): given ONLY the
++    segments' sentences and the lines, every claim the text makes, implied ones included (agreement, sequence,
++    certainty, cause), each yes / no / uncertain with the supporting segment and its words COPIED EXACTLY. The decision
++    is code: every claim "yes" AND its words a verbatim run of that segment (an unverifiable support is a "no");
++    "no" or "uncertain" anywhere fails (law L-m).
++"""
++import json
++import re
++
++import canon
++
++METADATA = ("PBX MAX", "Protocol Pulse", "Pulse Check", "Bitcoin", "BTC")
++ATTRIB_VERBS = ("says", "said", "argues", "argued", "thinks", "believes", "warns", "warned", "predicts", "predicted",
++                "claims", "claimed", "notes", "noted", "explains", "explained", "expects", "sees", "points out",
++                "pointed out", "tells", "told", "adds", "added", "calls", "called", "reckons", "insists", "suggests")
++RELATION = re.compile(r"\b(agree[sd]?|agreeing|disagree[sd]?|respond(s|ed|ing)?|repl(y|ies|ied)|answer(s|ed|ing)?|"
++                      r"rebut(s|ted)?|push(es|ed)? back|counter(s|ed)?|fire[sd]? back|echo(es|ed)?|contradict(s|ed)?|"
++                      r"back(s|ed)? (him|her|them|that) up|sides? with|takes? issue|in response|on the other side|"
++                      r"weighs? in on|shoots? down|both (say|agree|think|warn))\b", re.I)
++FRAMING = {"destroy": r"destroy\w*", "slam": r"slam\w*", "expose": r"expos\w*", "admit": r"admi(t|ts|tted|tting)\b",
++           "confirm": r"confirm\w*", "caught": r"caught"}
++IMPERATIVE = re.compile(r"(\byou (should|need to|must|have to|ought to|'?ve got to)\s+(buy|sell|short|long|load up|"
++                        r"ape|go all[- ]in|get in|stack|leverage|lever up|bet)\b)|((^|[.!?:]\s*)(buy|sell|short|load up|"
++                        r"ape in|go all[- ]in|get in now|don't miss|stack sats|lever up)\b)",
++                        re.I)
++TIME_WORDS = ("today", "tonight", "yesterday", "this morning", "this week", "this weekend", "right now", "breaking",
++              "minutes ago", "hours ago", "just announced", "just hit", "just broke", "just dropped", "just crossed",
++              "just fell", "just jumped", "just surged", "just plunged")   # recency claims (a bare 'now' / 'just' is
++                                                                          # connective VO, not a time claim)
++_NUM = re.compile(r"^-?\d+(\.\d+)?$")
++HISTORY = re.compile(r"\b(19|20)\d{2}\b|\b(since|back in|last cycle|previous cycle|history|historic(al)?|all[- ]time|"
++                     r"from the \w+ (low|high|bottom|top)|years? ago|decade|in the past|once)\b", re.I)
++PRICE_SLOTS = ("intro", "title", "caption")      # the lines that read as the headline (law L-t, orchestrator 03:40)
++
++
++def price_levels(text):
++    """Bitcoin price-like numbers a line states: canonical values >= 1000 (with or without 'dollars'), or any value
++    followed by 'dollars' (law L-v 3: a level or a move dates fast)."""
++    t = ctoks(text)
++    out = []
++    for i, w in enumerate(t):
++        if _NUM.match(w):
++            v = float(w)
++            if v >= 1000 or (i + 1 < len(t) and t[i + 1] == "dollars"):
++                out.append(v)
++    return out
++
++
++def price_now(text, current_levels, tolerance=0.05):
++    """PRICE_NOW (orchestrator 03:40; laws L-v 3 / L-t): a headline line stating a price level or move must either
++    read as history (a year, 'since', 'from the 2022 low', ...) or match a level this universe states as current
++    (within tolerance). -> [violating values]."""
++    if HISTORY.search(text or ""):
++        return []
++    cur = [float(c) for c in current_levels or ()]
++    return [v for v in price_levels(text) if not any(abs(v - c) <= tolerance * c for c in cur if c > 0)]
++_QUOTE = re.compile(r"[\"“”]([^\"“”]{3,}?)[\"“”]")
++_CAPWORD = re.compile(r"\b[A-Z][A-Za-z0-9'’.&-]*(?:\s+[A-Z][A-Za-z0-9'’.&-]*)*")
++COMMON_CAPS = frozenset("I The This That These Those It And But So We You They He She Here There Now Today Next First "
++                        "Then Also Plus Meanwhile Still Yet Why What How When Where Who Which Our Your Their Its "
++                        "Let Let's Clips Go Links Follow Watch Stay A An In On At For From With As If Not No Yes "
++                        "One Two Three Four Five Six Seven Eight Nine Ten Here's That's It's".split())
++
++
++def ctoks(text):
++    return canon.canon_tokens(text or "")
++
++
++def _run_in(sub, toks):
++    """sub (canonical tokens) occurs as a contiguous run in toks."""
++    n = len(sub)
++    return n > 0 and any(toks[i:i + n] == sub for i in range(len(toks) - n + 1))
++
++
++def numbers_of(text):
++    """[(value, unit or None)] in canonical form: '$73,000' -> ('73000', 'dollars'); '16%' -> ('16', 'percent')."""
++    t = ctoks(text)
++    out = []
++    for i, w in enumerate(t):
++        if _NUM.match(w):
++            unit = t[i + 1] if i + 1 < len(t) and t[i + 1] in ("dollars", "percent") else None
++            out.append((w, unit))
++    return out
++
++
++def _has_number(src_toks, value, unit):
++    for i, w in enumerate(src_toks):
++        if w == value and (unit is None or (i + 1 < len(src_toks) and src_toks[i + 1] == unit)):
++            return True
++    return False
++
++
++def _title_case(text):
++    """A headline written in Title Case: >= 3 longer words, production names left out, > 70 % of them capitalised."""
++    meta = {w.lower() for m in METADATA for w in m.split()}
++    ws = [w for w in re.findall(r"[A-Za-z][A-Za-z'’]+", text or "") if len(w) > 3 and w.lower().rstrip("'’s") not in meta
++          and re.sub(r"['’]s$", "", w).lower() not in meta]
++    return len(ws) >= 3 and sum(w[0].isupper() for w in ws) / len(ws) > 0.7
++
++
++def names_of(text, allowed=()):
++    """Proper names in a line: capitalised word runs that are not common sentence words or production metadata. A
++    capital that only starts a sentence, and a Title Case line, are no evidence of a name (measured false rejects,
++    03:55: 'Past', 'Beyond', 'Historical', 'Bullish Claims Don't Erase Risk'); names there are caught by ATTRIBUTION
++    and by the blind verdict, which lists every claim about a person."""
++    if _title_case(text):
++        return []
++    allowed_c = [ctoks(a) for a in tuple(allowed) + METADATA]
++    out = []
++    starts = {0} | {m.end() for m in re.finditer(r"[.!?:;]\s+|[\"“(]\s*", text or "")}
++    for m in _CAPWORD.finditer(text or ""):
++        if m.start() in starts and len(m.group(0).split()) == 1:
++            continue
++        words = [w for w in m.group(0).split() if w.strip(".,'’")]
++        while words and words[0].strip(".,'’") in COMMON_CAPS:
++            words = words[1:]
++        if not words:
++            continue
++        name = re.sub(r"['’]s$", "", " ".join(words).strip(".,'’"))     # "Bitcoin's" is the name "Bitcoin"
++        nt = ctoks(name)
++        if not nt or all(_NUM.match(x) for x in nt):
++            continue
++        if any(_run_in(nt, a) or _run_in(a, nt) for a in allowed_c if a):
++            continue
++        out.append(name)
++    return out
++
++
++def _attributions(text):
++    """[(subject words before the verb, verb)] for '<Subject> <verb>' patterns."""
++    out = []
++    for v in ATTRIB_VERBS:
++        for m in re.finditer(r"([A-Z][\w'’.&-]*(?:\s+[A-Z][\w'’.&-]*){0,4})\s+" + re.escape(v) + r"\b", text or ""):
++            out.append((m.group(1), v))
++        for m in re.finditer(r"\baccording to\s+([A-Z][\w'’.&-]*(?:\s+[A-Z][\w'’.&-]*){0,4})", text or ""):
++            out.append((m.group(1), "according to"))
++    return out
++
++
++def manifest_terms(segments, manifest=None):
++    """Production metadata a line may state without a citation (never a claim about what anyone said): the credited
++    channels and verified speaker names, the show, the date (month, weekday, day, year) and the package's own counts
++    ('two voices', 'three channels')."""
++    from datetime import date
++    names = {n for s in segments.values() for n in [s["speaker"]] + list(s.get("names") or [])}
++    m = manifest or {}
++    names |= set(m.get("channels") or []) | ({m["show"]} if m.get("show") else set())
++    nums = {str(len(segments)), str(len({s["video_id"] for s in segments.values()})),
++            str(len(set(m.get("channels") or []) or {s["speaker"] for s in segments.values()}))}
++    if m.get("date"):
++        try:
++            d = date.fromisoformat(m["date"])
++            names |= {d.strftime("%B"), d.strftime("%A"), d.strftime("%b")}
++            nums |= {str(d.day), str(d.year)}
++        except ValueError:
++            pass
++    return sorted(names), nums
++
++
++def check_deterministic(segments, lines, manifest=None, current_levels=None):
++    """segments: {moment_id: {"speaker": str, "names": [allowed attribution names], "video_id": str, "text": str}};
++    lines: [{"slot": str, "text": str, "cites": [moment_id, ...]}] (VO lines, the title, the caption); manifest:
++    {"channels", "date", "show"} (production metadata, allowed without citation).
++    -> {"ok": bool, "violations": [{"slot", "rule", "detail"}]}."""
++    v = []
++    meta, meta_nums = manifest_terms(segments, manifest)
++    seg_toks = {mid: ctoks(s["text"]) for mid, s in segments.items()}
++    for ln in lines:
++        slot, text, cites = ln["slot"], ln.get("text") or "", list(ln.get("cites") or [])
++        V = lambda rule, detail: v.append({"slot": slot, "rule": rule, "detail": detail})
++        unknown = [c for c in cites if c not in segments]
++        if unknown:
++            V("CITE_UNKNOWN", f"cites {unknown} are not segments of this package")
++        cited = [c for c in cites if c in segments]
++        pool = [t for c in cited for t in seg_toks[c]]
++        nums = [(val, unit) for val, unit in numbers_of(text) if not (unit is None and val in meta_nums)
++                and not (unit is None and _NUM.match(val) and float(val) <= 10 and not re.search(rf"\b{re.escape(val)}\b", text))]
++        names = names_of(text, meta)
++        quotes = [q for q in _QUOTE.findall(text) if len(ctoks(q)) >= 2]
++        atts = _attributions(text)
++        times = [w for w in TIME_WORDS if re.search(r"\b" + re.escape(w) + r"\b", text, re.I)]
++        if (nums or names or quotes or atts or times) and not cited:
++            V("NEEDS_SOURCE", "a line with a number, name, quote, attribution or time word cites no segment")
++        att_pool = pool
++        for subj, verb in atts:
++            st = ctoks(subj)
++            owners = [c for c in cited if any(_run_in(ctoks(n), st) or _run_in(st, ctoks(n))
++                                              for n in [segments[c]["speaker"]] + list(segments[c].get("names") or []))]
++            if not owners:
++                V("ATTRIBUTION", f"'{subj} {verb}': no cited segment is spoken by {subj}")
++            else:
++                att_pool = [t for c in owners for t in seg_toks[c]]
++        for val, unit in nums:
++            if not _has_number(att_pool if atts else pool, val, unit):
++                V("NUMBER", f"{val}{' ' + unit if unit else ''} is not in the cited sentences" +
++                  (" of the attributed speaker" if atts else ""))
++        for n in names:
++            if not _run_in(ctoks(n), pool):
++                V("NAME", f"'{n}' is not said in the cited sentences (and is not a credited channel or the show)")
++        for q in quotes:
++            if not any(_run_in(ctoks(q), seg_toks[c]) for c in cited):
++                V("QUOTE", f"\"{q}\" is not a verbatim run of a cited segment")
++        if RELATION.search(text) and len({segments[c]["video_id"] for c in cited}) != 1:
++            V("RELATION", f"'{RELATION.search(text).group(0)}' relates speakers who were not in one conversation")
++        if RELATION.search(text) and len(cited) < 2:
++            V("RELATION", f"'{RELATION.search(text).group(0)}' implies an exchange the cited segments do not show")
++        for lemma, pat in FRAMING.items():
++            if re.search(r"\b" + pat, text, re.I) and not any(re.search(r"\b" + pat, segments[c]["text"], re.I)
++                                                              for c in cited):
++                V("FRAMING", f"'{lemma}' framing is not the source's own word (L-t)")
++        if IMPERATIVE.search(text):
++            V("IMPERATIVE", f"financial imperative or advice framing: '{IMPERATIVE.search(text).group(0).strip()}'")
++        for w in times:
++            if not any(_run_in(ctoks(w), seg_toks[c]) for c in cited):
++                V("TIME", f"'{w}' is not said in the cited sentences (L-v 3: time words need the source's own)")
++        if slot.split("_")[0] in PRICE_SLOTS and current_levels is not None:
++            stale = price_now(text, current_levels)
++            if stale:
++                V("PRICE_NOW", f"states the level(s) {stale} as if current, but this universe's current levels are "
++                               f"{sorted(set(current_levels))[:6]}; mark it as history or drop it (L-v 3 / L-t)")
++    return {"ok": not v, "violations": v}
++
++
++VERDICT_PROMPT = """You check a short video script for fidelity to its sources. You see ONLY the words each speaker said
++(the segments), the production facts (true by construction), and the script's lines (voice-over, title, caption).
++Nothing else is known about these people.
++
++SEGMENTS:
++{segments}
++
++PRODUCTION FACTS (segment label "manifest"):
++{manifest}
++
++SCRIPT LINES:
++{lines}
++
++List EVERY claim the script lines make or imply, including implied ones: that a speaker said, thinks, agrees, answers
++or disagrees; a number; a time ("today"); a cause; how certain something is. For each claim answer "supported":
++"yes" only if the words you cite state it with the same meaning, polarity and certainty, adding nothing; "no" if they
++do not; "uncertain" if you cannot tell. A claim may combine what SEVERAL segments say (a point drawn from two clips):
++then cite each segment with its own supporting words, and say "yes" only if those words together state the claim
++without any added inference. Copy every supporting run EXACTLY (a continuous run of that segment's words). A purely
++connective line ("Next, ...") makes no claim.
++Return ONLY this JSON object: {{"claims": [{{"line": "<slot>", "claim": "...", "supported": "yes" | "no" | "uncertain",
++"support": [{{"segment": "<label>", "words": "<exact words>"}}]}}]}}"""
++
++
++def manifest_text(segments, manifest=None):
++    """The production facts a line may state: the credited channels, the show, the date, that source links are given."""
++    m = manifest or {}
++    chans = list(dict.fromkeys(list(m.get("channels") or []) + [s["speaker"] for s in segments.values()]))
++    parts = [f"The video is about Bitcoin and contains clips from {', '.join(chans)}.", f"There are {len(segments)} clips.",
++             "Links to every source are below.", "The voice-over is PBX MAX on Protocol Pulse."]
++    if m.get("show"):
++        parts.append(f"The show is {m['show']}.")
++    if m.get("date"):
++        parts.append(f"The show date is {m['date']}.")
++    return " ".join(parts)
++
++
++def verdict_prompt(segments, lines, manifest=None):
++    from story_semantics import quote_data
++    seg = "\n".join(f'<segment label="{mid}" speaker="{quote_data(s["speaker"], 80)}">{quote_data(s["text"], 900)}'
++                    f"</segment>" for mid, s in segments.items())
++    lns = "\n".join(f'<line slot="{ln["slot"]}">{quote_data(ln.get("text") or "", 400)}</line>' for ln in lines)
++    return VERDICT_PROMPT.format(segments=seg, lines=lns, manifest=manifest_text(segments, manifest))
++
++
++def check_verdict(raw, segments, lines, manifest=None):
++    """The blind verdict's reply (strict; never repaired) -> {"ok", "claims", "violations"}. A "yes" must cite one or
++    more segments (or "manifest"), each with words that are a verbatim run of that segment: an unverifiable support is
++    a failure (law L-m)."""
++    obj = json.loads(raw.strip()) if isinstance(raw, str) else None
++    if not isinstance(obj, dict) or set(obj) != {"claims"} or not isinstance(obj["claims"], list):
++        raise ValueError("the verdict must be exactly {'claims': [...]}")
++    slots = {ln["slot"] for ln in lines}
++    texts = dict({mid: s["text"] for mid, s in segments.items()}, manifest=manifest_text(segments, manifest))
++    v = []
++    for c in obj["claims"]:
++        if not isinstance(c, dict) or set(c) != {"line", "claim", "supported", "support"}:
++            raise ValueError("each claim needs exactly line, claim, supported, support")
++        if c["line"] not in slots or c["supported"] not in ("yes", "no", "uncertain") or \
++                not isinstance(c["claim"], str) or not isinstance(c["support"], list):
++            raise ValueError(f"claim on line {c.get('line')!r}: unknown line, 'supported' value or support list")
++        if c["supported"] != "yes":
++            v.append({"slot": c["line"], "rule": "VERDICT_" + c["supported"].upper(), "detail": c["claim"][:200]})
++            continue
++        good = [x for x in c["support"] if isinstance(x, dict) and x.get("segment") in texts and
++                isinstance(x.get("words"), str) and len(ctoks(x["words"])) >= 2 and
++                _run_in(ctoks(x["words"]), ctoks(texts[x["segment"]]))]
++        if not c["support"] or len(good) != len(c["support"]):
++            v.append({"slot": c["line"], "rule": "VERDICT_UNVERIFIED",
++                      "detail": f"supporting words are not verbatim runs of the cited segments: {c['claim'][:150]}"})
++    return {"ok": not v, "claims": obj["claims"], "violations": v}
++
++
++def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current_levels=None):
++    """Both layers. -> {"ok", "deterministic", "verdict", "violations", "backend"}; the verdict never runs on the
++    writer's vendor; a verdict that cannot be had or read is a failure (law L-m)."""
++    import providers as P
++    det = check_deterministic(segments, lines, manifest, current_levels)
++    out = {"deterministic": det, "verdict": None, "backend": None}
++    try:
++        r = router.call("fidelity_verdict", verdict_prompt(segments, lines, manifest), 2500, seed,
++                        avoid_vendor=writer_vendor)
++        out["backend"] = r.backend
++        out["verdict"] = check_verdict(r.text, segments, lines, manifest)
++    except (P.ProviderError, P.SpendLimit, ValueError) as e:
++        out["verdict"] = {"ok": False, "claims": [], "violations": [{"slot": "-", "rule": "VERDICT_UNAVAILABLE",
++                                                                      "detail": f"{type(e).__name__}: {str(e)[:200]}"}]}
++    out["violations"] = det["violations"] + out["verdict"]["violations"]
++    out["ok"] = det["ok"] and out["verdict"]["ok"]
++    return out

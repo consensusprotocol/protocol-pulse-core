@@ -603,6 +603,10 @@ law, voice, prepare, layout, render 16:9 and 9:16, gates, verify, release author
      `all(mp["gates"][g]["status"] == "PASS" and mp["gates"][g]["replayed"] is False for g in
      package_pin.REQUIRED_GATES)`.
      This refuses a pin edited after its gates even when its two flags still read true.
+   - **MEASURED 07:40 (tests/package/smoke_r7.py on the deployed pinned.py):** the deployed build_edl ACCEPTS a title
+     edited after the gates, a VO edited after the gates, and a FAIL inventory row with both flags still true. It reads
+     the flags, not the sealed inventory. Tonight's pin is untampered (its seal verifies). Item 1b closes the gap for
+     every later pin.
 2. **TONIGHT** (orchestrator: "the integrator renders it"): apply item 1, then run run_fresh.py with
    `--pinned` and the MOMENTS_PIN.json named at the top of pp-selectid_STATE.md.
    - The pin's segments carry `approved_text` = the moments' exact words, and `machine_cuts: true`, so the sentence law

@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Bitcoin is by far the most undervalued asset in the global financial system right now, with gold parity around $1.4-1.5 million per Bitcoin, making it very undervalued. (certainty: speculative)</A><B>Bitcoin is by far the most undervalued asset globally and is worth around $1.4-1.5M per BTC based on gold parity (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>Higher interest rates make cash more attractive and borrowing more expensive, a bad combination for risky assets such as Bitcoin which the market views as risky. (certainty: certain)</A><B>Higher rates are the wrong combination for risky assets like Bitcoin, which the market sees as risky (certainty: certain)</B></pair>\n<pair label=\"clip_02\"><A>Bitcoin's success is independent of who controls the White House, Senate or House, and the asset tends to perform well price-wise when it faces persecution. (certainty: certain)</A><B>Bitcoin's success is independent of who controls the White House or Congress and it tends to perform well when persecuted (certainty: likely)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_02\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}]}",
+ "usage": {
+  "in": 581,
+  "out": 3304
+ },
+ "usd": 0.085505,
+ "seconds": 21.82,
+ "recorded_at": "2026-11-12T09:45:27Z"
+}

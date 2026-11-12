@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; CLIP is the speaker's exact\nwords as the viewer hears them; B is what a viewer of a short video concludes the same speaker asserted (from the clip\nand from whatever the video's title, caption or voice-over attributes to the speaker). The video's own words are:\n\nTITLE: Morgan Stanley's Mike Wilson: The Midterm Effect 'Puts a Governor' on the Administration\nCAPTION: Clips: CNBC Television (2026-11-09); TFTC (2026-11-07). Pulse Check, 2026-11-12.\nVOICE-OVER after the hook: From CNBC Television.\nVOICE-OVER after clip 1: Also on the record, TFTC:\n\nAnswer for each pair:\n- \"entails\": does A support what the CLIP'S OWN WORDS assert? Judge the speaker's in-context assertion against the\n  clip's words as heard, not two paraphrases. A difference of scope is \"no\" ONLY when the context LIMITS the claim in a\n  way the clip's words drop (\"in this one case\", \"for small holders only\", \"back in 2021\") and that limit changes what\n  a reasonable viewer concludes; a presupposed topic or occasion is not such a limit. \"yes\", \"no\" or \"uncertain\".\n- \"dropped_limit\": when \"entails\" is \"no\", that limit in the context's own words; otherwise \"\".\n- \"added_by\": the EXACT words of the video's title, caption or voice-over that ATTRIBUTE to this speaker something A\n  does not support (e.g. a title \"Swan Bitcoin: the AI bubble is about to pop\" when the speaker said investors could\n  lose money), or \"\" when none do. The host's own commentary, attributed to nobody, attributes nothing.\n- \"same_polarity\": do A and B have the same polarity? \"yes\", \"no\" or \"uncertain\".\n- \"stronger_certainty\": is B more certain than A? \"yes\", \"no\" or \"uncertain\"; and \"raising_words\": when it is, the\n  EXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\n  such words exist (the speaker's own words alone).\n\n<pair label=\"M\"><A>The questioner asks whether the guest means that the midterms act as a check on the administration, preventing extreme actions such as military action and forcing it to work with the opposition. (certainty: uncertain)</A><CLIP>\u203a\u203a SO YOU'RE SAYING THE MIDTERM EFFECT IS THAT IT PUTS A GOVERNOR, ESSENTIALLY ON THE ADMINISTRATION AND DOESN'T ALLOW THEM TO DO ANYTHING EXTREME THAT YOU HAVE TO COME TO MEASURES THAT YOU ARE MEETING WITH THE OPPOSITION, BASICALLY.</CLIP><B>The midterm effect puts a governor on the administration, keeping it from doing anything extreme and forcing it toward measures that meet the opposition partway. The title credits this to Mike Wilson, though the clip voices it as an interviewer's restatement. (certainty: likely)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"dropped_limit\": \"...\",\n\"added_by\": \"...\", \"same_polarity\": \"...\", \"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"M\", \"entails\": \"yes\", \"dropped_limit\": \"\", \"added_by\": \"Morgan Stanley's Mike Wilson: The Midterm Effect 'Puts a Governor' on the Administration\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\", \"raising_words\": \"Morgan Stanley's Mike Wilson: The Midterm Effect 'Puts a Governor' on the Administration\"}]}",
+ "usage": {
+  "in": 1180,
+  "out": 413
+ },
+ "usd": 0.01298,
+ "seconds": 4.28,
+ "recorded_at": "2026-11-12T11:25:40Z"
+}

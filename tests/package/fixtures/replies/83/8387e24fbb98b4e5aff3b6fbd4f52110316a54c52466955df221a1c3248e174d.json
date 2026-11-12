@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Bitcoin is not a set-it-and-forget-it asset because hodling is an active process. (certainty: certain)</A><B>Holding Bitcoin is not set-and-forget; holding it is an active process that requires ongoing attention. (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>Bitcoin itself is not getting hacked but other intermediaries are, which highlights Bitcoin's secure and unique nature. (certainty: certain)</A><B>Hacks happen to intermediaries, not to Bitcoin itself, and this highlights Bitcoin's secure and unique nature. (certainty: certain)</B></pair>\n<pair label=\"clip_02\"><A>Bitcoin is by far the most undervalued asset in the global financial system at present, with gold parity around $1.4-1.5 million per Bitcoin. (certainty: likely)</A><B>Bitcoin is by far the most undervalued asset in the global financial system, with gold parity around $1.4\u20131.5 million per bitcoin. (certainty: likely)</B></pair>\n<pair label=\"clip_03\"><A>A new internet bound by Bitcoin will emerge and provide abundance for 8 billion people. (certainty: speculative)</A><B>A new internet bound by Bitcoin is coming and will provide abundance for 8 billion people. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_02\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_03\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}]}",
+ "usage": {
+  "in": 621,
+  "out": 1855
+ },
+ "usd": 0.04948,
+ "seconds": 13.6,
+ "recorded_at": "2026-11-12T08:26:26Z"
+}

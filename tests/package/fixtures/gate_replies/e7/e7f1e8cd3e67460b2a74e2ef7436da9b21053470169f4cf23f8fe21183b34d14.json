@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: \nCAPTION: \nCLIP label=\"A\" (on screen: Swan Bitcoin): \"And Bitcoin gets sold alongside stocks when investors need cash or want less risk.\"\nCLIP label=\"M\" (on screen: Coin Bureau): \"On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.\"\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. Each clip's label is the text inside label=\"...\" after the word CLIP: use exactly that\nlabel in \"label\" and in \"labels\", never the speakers' names. Labels: A, M. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\"takeaways\": [{\"label\": \"A\", \"asserts\": \"Bitcoin is sold alongside stocks when investors need cash or want to reduce risk, so it behaves like a risk asset.\", \"certainty\": \"certain\", \"polarity\": \"negative\"}, {\"label\": \"M\", \"asserts\": \"On November 5th, Bitcoin fell 5.5% in a single day and closed just under $76K.\", \"certainty\": \"certain\", \"polarity\": \"negative\"}], \"relations\": [{\"labels\": [\"A\", \"M\"], \"relation\": \"none\"}]}",
+ "usage": {
+  "in": 587,
+  "out": 180
+ },
+ "usd": 0.005948,
+ "seconds": 1.83,
+ "recorded_at": "2026-11-12T11:10:36Z"
+}

@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: Swan Bitcoin and Coin Bureau on the Market\nCAPTION: Clips: Swan Bitcoin (2026-11-06); Coin Bureau (2026-11-05). Pulse Check, 2026-11-12.\nCLIP A (on screen: Swan Bitcoin): \"AI can deliver on its promises and still cause huge losses for investors in the buildout.\"\nVOICE-OVER: First, Swan Bitcoin.\nCLIP M (on screen: Coin Bureau): \"And a short squeeze only works while there\u00a0 are short sellers still trying to short.\"\nVOICE-OVER: Coin Bureau responds:\nVOICE-OVER: That's Pulse Check.\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. Use the CLIP labels exactly as shown above (hook, clip_01, ...) in \"label\" and in\n\"labels\", never the speakers' names. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\"takeaways\": [{\"label\": \"A\", \"asserts\": \"Even if AI delivers on its promises, investors funding the AI buildout could still suffer huge losses.\", \"certainty\": \"possible\", \"polarity\": \"negative\"}, {\"label\": \"M\", \"asserts\": \"A short squeeze only keeps working while there are still short sellers trying to short.\", \"certainty\": \"certain\", \"polarity\": \"neutral\"}], \"relations\": [{\"labels\": [\"A\", \"M\"], \"relation\": \"uncertain\"}]}",
+ "usage": {
+  "in": 689,
+  "out": 817
+ },
+ "usd": 0.019096,
+ "seconds": 7.92,
+ "recorded_at": "2026-11-12T11:08:26Z"
+}

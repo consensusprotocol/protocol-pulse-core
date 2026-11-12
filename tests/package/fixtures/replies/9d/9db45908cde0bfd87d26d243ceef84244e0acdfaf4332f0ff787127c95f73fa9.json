@@ -1,0 +1,314 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "cec20abc4d53da07add35095fa82181e550554aee72a929e412937039477d016",
+ "result": {
+  "text": "Parallel tomorrow. However, I think Bitcoin is by far the most undervalued asset in, like, the entire global financial system right now. So, you know, Bitcoin gold parity is around, like, $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued. Like, this thing could r-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 19.5,
+    "text": "Parallel tomorrow. However, I think Bitcoin is by far the most undervalued asset in, like, the entire global financial system right now. So, you know, Bitcoin gold parity is around, like, $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued. Like, this thing could r-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Parallel",
+    "start": 0.0,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tomorrow.",
+    "start": 0.48,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "However,",
+    "start": 1.5,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.4,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.46,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.74,
+    "end": 3.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.42,
+    "end": 3.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 4.62,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "far",
+    "start": 4.96,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.42,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 5.58,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "undervalued",
+    "start": 5.88,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 6.66,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 7.26,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 7.54,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.9,
+    "end": 7.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "entire",
+    "start": 8.0,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "global",
+    "start": 8.34,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 8.72,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system",
+    "start": 9.18,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 9.52,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.",
+    "start": 9.7,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So,",
+    "start": 10.44,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.02,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 11.08,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.2,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 11.54,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "parity",
+    "start": 11.78,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.24,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around,",
+    "start": 12.86,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 13.06,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$1.5,",
+    "start": 13.18,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$1.4",
+    "start": 14.26,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 14.84,
+    "end": 15.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "per",
+    "start": 15.54,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 15.7,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 16.1,
+    "end": 16.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 16.4,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "checked.",
+    "start": 16.52,
+    "end": 16.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 17.12,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very,",
+    "start": 17.3,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 17.64,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "undervalued.",
+    "start": 17.88,
+    "end": 18.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 18.54,
+    "end": 18.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 18.8,
+    "end": 18.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 19.0,
+    "end": 19.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 19.24,
+    "end": 19.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "r-",
+    "start": 19.46,
+    "end": 19.5,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.94
+ },
+ "usd": 0.003988,
+ "seconds": 1.37,
+ "recorded_at": "2026-11-12T10:46:30Z"
+}

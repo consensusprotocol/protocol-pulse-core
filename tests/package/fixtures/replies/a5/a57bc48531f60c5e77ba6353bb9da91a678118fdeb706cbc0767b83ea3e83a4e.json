@@ -1,0 +1,18 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Nobody is in charge of Bitcoin\nCAPTION: no authority. three voices on why that is the point.\nCLIP hook (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nVOICE-OVER: Nobody is in charge of Bitcoin. That's not a flaw. That's the design.\nCLIP clip_01 (on screen: What Bitcoin Did): \"It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.\"\nVOICE-OVER: Next, on Stephan Livera's show: is it still underpriced?\nCLIP clip_02 (on screen: Stephan Livera): \"However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.\"\nVOICE-OVER: Clips today from Saifedean Ammous, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Nobody is in charge of Bitcoin; that's by design, not a flaw.\", \"clips\": {\"hook\": 5, \"clip_01\": 3, \"clip_02\": 1}, \"vo_point\": 2}",
+ "usage": {
+  "in": 627,
+  "out": 1790
+ },
+ "usd": 0.047885,
+ "seconds": 13.85,
+ "recorded_at": "2026-11-12T10:48:07Z"
+}

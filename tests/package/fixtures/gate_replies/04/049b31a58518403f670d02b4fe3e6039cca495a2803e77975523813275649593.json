@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. The video's own words (its voice-over, title and caption) are:\n\nTITLE: On Scott Melker's Show: Opting Out Is 'a Political Statement'\nCAPTION: Clips: Coin Bureau (2026-11-10); Scott Melker's show (2026-11-05). Pulse Check, 2026-11-12.\nVOICE-OVER after the hook: Here's Coin Bureau.\nVOICE-OVER after clip 1: Also on the record, Scott Melker's show:\n\nAnswer for each pair: does A entail B (\"yes\", \"no\", \"uncertain\"); do they have the same polarity (\"yes\", \"no\",\n\"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\"); and \"raising_words\": when B is more certain, the\nEXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\nsuch words exist (the speaker's own words alone).\n\n<pair label=\"M\"><A>The speaker raises, without endorsing, two possible readings of companies opting out of stock tokenization: a political statement or a kind of psy-op. (certainty: speculative)</A><B>Opting out (of something unspecified in the clip) could be argued to be a political statement, or even seen as a kind of psy-op. (certainty: speculative)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"M\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\", \"raising_words\": \"\"}]}",
+ "usage": {
+  "in": 580,
+  "out": 204
+ },
+ "usd": 0.0064,
+ "seconds": 3.04,
+ "recorded_at": "2026-11-12T11:10:41Z"
+}

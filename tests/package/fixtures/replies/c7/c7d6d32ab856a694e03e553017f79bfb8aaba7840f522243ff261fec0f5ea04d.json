@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Bitcoin has no authority that lets anyone take others' wealth, so unequal holdings result purely from voluntary choices. (certainty: certain)</A><B>Bitcoin has no authority that lets anyone take others' wealth, so anyone holding more Bitcoin got it by their own choices. (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>Bitcoin's success is not dependent on who is in the White House or controlling Congress, and it tends to perform well price-wise when persecuted. (certainty: certain)</A><B>Bitcoin's success does not depend on who controls the White House or Congress, and it tends to do well on price when it is persecuted. (certainty: likely)</B></pair>\n<pair label=\"clip_02\"><A>Bitcoin is a new system of measure for the first free market that has ever existed and only needs to stay decentralized and secure. (certainty: likely)</A><B>Bitcoin is a new system of measure for the first true free market, and it only needs to stay decentralized and secure to succeed. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_02\", \"entails\": \"uncertain\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}]}",
+ "usage": {
+  "in": 568,
+  "out": 3271
+ },
+ "usd": 0.084615,
+ "seconds": 25.29,
+ "recorded_at": "2026-11-12T08:42:45Z"
+}

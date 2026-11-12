@@ -1,0 +1,320 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e065a4b7ffcfb41556cb70fbea250acf0e02a4505539400034cad1e33d55a347",
+ "result": {
+  "text": "It's, it's not, it's not Bitcoin that's getting hacked. It's, um, you know, it's, it's other, uh, uh, intermediaries. So, uh, in some ways it, it kind of shines a light on the, the, uh, secure nature and the, the unique nature of Bitcoin. Um, so if there's any",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.22,
+    "text": "It's, it's not, it's not Bitcoin that's getting hacked. It's, um, you know, it's, it's other, uh, uh, intermediaries. So, uh, in some ways it, it kind of shines a light on the, the, uh, secure nature and the, the unique nature of Bitcoin. Um, so if there's any"
+   }
+  ],
+  "words": [
+   {
+    "text": "It's,",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 0.84,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not,",
+    "start": 1.02,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 1.64,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 1.74,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.9,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 2.26,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "getting",
+    "start": 2.42,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hacked.",
+    "start": 2.6,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's,",
+    "start": 2.94,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 3.28,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 3.78,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 3.9,
+    "end": 3.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's,",
+    "start": 3.98,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 4.2,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other,",
+    "start": 4.44,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 4.94,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 5.34,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "intermediaries.",
+    "start": 5.56,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So,",
+    "start": 6.44,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 7.14,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.28,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 7.44,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ways",
+    "start": 7.64,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 7.92,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.16,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 8.28,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.42,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shines",
+    "start": 8.54,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.78,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "light",
+    "start": 8.84,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 9.08,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 9.3,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 9.74,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 10.18,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "secure",
+    "start": 10.34,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nature",
+    "start": 10.72,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 11.16,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 11.28,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.5,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "unique",
+    "start": 11.64,
+    "end": 11.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nature",
+    "start": 11.92,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.26,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 12.4,
+    "end": 12.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 13.44,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 13.86,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 14.0,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 14.1,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any",
+    "start": 14.22,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.24
+ },
+ "usd": 0.002848,
+ "seconds": 0.88,
+ "recorded_at": "2026-11-12T10:46:30Z"
+}

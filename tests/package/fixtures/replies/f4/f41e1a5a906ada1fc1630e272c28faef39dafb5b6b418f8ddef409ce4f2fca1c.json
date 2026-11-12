@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: Nobody is in charge of Bitcoin.\nCAPTION: no authority. three voices on why that is the point.\nCLIP hook (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nVOICE-OVER: Nobody is in charge of Bitcoin. That's not a flaw. That's the design. So the next time you hear about a hack, ask what actually got hacked.\nCLIP clip_01 (on screen: What Bitcoin Did): \"It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.\"\nVOICE-OVER: Here's Natalie Brunell on what that takes.\nCLIP clip_02 (on screen: Natalie Brunell): \"Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure.\"\nVOICE-OVER: No ruler. Just rules. That's the whole idea.\nVOICE-OVER: Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below.\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. Use the CLIP labels exactly as shown above (hook, clip_01, ...) in \"label\" and in\n\"labels\", never the speakers' names. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\n  \"takeaways\": [\n    {\n      \"label\": \"hook\",\n      \"asserts\": \"Bitcoin has no authority that can seize people's wealth; greater holdings result from voluntary choice.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_01\",\n      \"asserts\": \"Hacks do not target Bitcoin but intermediaries instead, demonstrating Bitcoin's security and uniqueness.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_02\",\n      \"asserts\": \"Bitcoin is a measure for the first free market ever and only needs to remain decentralized and secure.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    }\n  ],\n  \"relations\": [\n    {\n      \"labels\": [\"hook\", \"clip_01\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"hook\", \"clip_02\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"clip_01\", \"clip_02\"],\n      \"relation\": \"none\"\n    }\n  ]\n}",
+ "usage": {
+  "in": 759,
+  "out": 3516
+ },
+ "usd": 0.091695,
+ "seconds": 31.09,
+ "recorded_at": "2026-11-12T11:01:11Z"
+}

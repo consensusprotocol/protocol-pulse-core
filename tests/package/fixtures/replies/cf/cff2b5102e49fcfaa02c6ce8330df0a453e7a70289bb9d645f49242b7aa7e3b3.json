@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: Bitcoin's price, AI pivots, and security\nCAPTION: Stephan Livera on public miners pivoting into AI; Natalie Brunell on an internet bound by Bitcoin; What Bitcoin Did on intermediaries getting hacked.\nVOICE-OVER: Here's Simply Bitcoin on Bitcoin's price.\nCLIP hook (on screen: Simply Bitcoin): \"Five years after Bitcoin peaked at 69,000, Bitcoin is up 6%. Welcome to November.\"\nVOICE-OVER: Here's Stephan Livera on public miners pivoting into AI.\nCLIP clip_01 (on screen: Stephan Livera): \"A lot of the public miners are pivoting from Bitcoin into AI, and many of them are actually selling their Bitcoin or winding down their Bitcoin mining operations to fund their AI data center buildout.\"\nVOICE-OVER: Here's Natalie Brunell on an internet bound by Bitcoin.\nCLIP clip_02 (on screen: Natalie Brunell): \"But we are going to have a new internet. And the new internet is going to be bound by Bitcoin. And it is going to provide abundance, 8 billion people.\"\nVOICE-OVER: Here's What Bitcoin Did on intermediaries getting hacked.\nCLIP clip_03 (on screen: What Bitcoin Did): \"It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.\"\nVOICE-OVER: Clips today from Simply Bitcoin, Stephan Livera, Natalie Brunell, and What Bitcoin Did. Go follow them for more. Links are below.\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. Then say whether the video makes any two speakers look related: agreeing with each\nother, answering each other, rebutting each other, or being in the same conversation.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\"takeaways\":[{\"label\":\"hook\",\"asserts\":\"Five years after peaking at $69,000, Bitcoin is only up about 6%, framed wryly as a typical November.\",\"certainty\":\"certain\",\"polarity\":\"negative\"},{\"label\":\"clip_01\",\"asserts\":\"Many public Bitcoin miners are pivoting into AI, selling their Bitcoin or winding down mining to fund AI data center buildouts.\",\"certainty\":\"certain\",\"polarity\":\"neutral\"},{\"label\":\"clip_02\",\"asserts\":\"A new internet bound by Bitcoin is coming and will provide abundance for 8 billion people.\",\"certainty\":\"certain\",\"polarity\":\"positive\"},{\"label\":\"clip_03\",\"asserts\":\"Hacks hit intermediaries, not Bitcoin itself, which in some ways highlights how secure and unique Bitcoin is.\",\"certainty\":\"likely\",\"polarity\":\"positive\"}],\"relations\":[{\"labels\":[\"hook\",\"clip_01\"],\"relation\":\"none\"},{\"labels\":[\"hook\",\"clip_02\"],\"relation\":\"none\"},{\"labels\":[\"hook\",\"clip_03\"],\"relation\":\"none\"},{\"labels\":[\"clip_01\",\"clip_02\"],\"relation\":\"none\"},{\"labels\":[\"clip_01\",\"clip_03\"],\"relation\":\"none\"},{\"labels\":[\"clip_02\",\"clip_03\"],\"relation\":\"none\"}]}",
+ "usage": {
+  "in": 913,
+  "out": 860
+ },
+ "usd": 0.020852,
+ "seconds": 8.09,
+ "recorded_at": "2026-11-12T08:05:46Z"
+}

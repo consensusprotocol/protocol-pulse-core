@@ -1,0 +1,5868 @@
+{
+ "run": "fresh_20261111_190259",
+ "now": "2026-11-11T19:03:01.014209+00:00",
+ "seconds": 350.6,
+ "scope": {
+  "word_sources": 13,
+  "caption_only_awaiting_word_pass": 83
+ },
+ "baseline": {
+  "topics": {
+   "price_action": 0.333,
+   "treasury_companies": 0.333,
+   "us_policy": 0.333,
+   "macro_fed": 0.333,
+   "mining": 0.333,
+   "institutional_adoption": 0.333,
+   "security_custody": 0.333,
+   "market_sentiment": 0.333,
+   "stocks_correlation": 0.333,
+   "gold_comparison": 0.333
+  },
+  "channels": {
+   "price_action": 1,
+   "treasury_companies": 1,
+   "us_policy": 1,
+   "macro_fed": 1,
+   "mining": 1,
+   "institutional_adoption": 1,
+   "security_custody": 1,
+   "market_sentiment": 1,
+   "stocks_correlation": 1,
+   "gold_comparison": 1
+  },
+  "window_channels": 3,
+  "hours": 24.0
+ },
+ "rows": 1270,
+ "sources_in_window": 13,
+ "skipped": {},
+ "calls": [
+  {
+   "table": 0,
+   "rows": 227,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.44577,
+      "usage": {
+       "in": 9342,
+       "out": 2547
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  },
+  {
+   "table": 1,
+   "rows": 229,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.515955,
+      "usage": {
+       "in": 9285,
+       "out": 3139
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  },
+  {
+   "table": 2,
+   "rows": 245,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.45891,
+      "usage": {
+       "in": 9330,
+       "out": 2658
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  },
+  {
+   "table": 3,
+   "rows": 253,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.433335,
+      "usage": {
+       "in": 9385,
+       "out": 2438
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  },
+  {
+   "table": 4,
+   "rows": 236,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.450585,
+      "usage": {
+       "in": 9207,
+       "out": 2604
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  },
+  {
+   "table": 5,
+   "rows": 80,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.275475,
+      "usage": {
+       "in": 3613,
+       "out": 1844
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "876662b7dc4e961d47e1",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7545,
+    7573
+   ],
+   "sentences": [
+    472,
+    474
+   ],
+   "text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+   "start": 2480.28,
+   "end": 2491.52,
+   "duration_s": 11.24,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "security_custody"
+   ],
+   "reason": "Sharp distinction between Bitcoin security and intermediary hacks; immediate hook with a clear payoff.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "11.24 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 1,
+   "rank_score": 28,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "b0b787f8a62d97d81dbb",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    5401,
+    5443
+   ],
+   "sentences": [
+    331,
+    333
+   ],
+   "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+   "start": 1826.54,
+   "end": 1843.48,
+   "duration_s": 16.94,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 5,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "gold_comparison",
+    "market_sentiment"
+   ],
+   "reason": "An emphatic undervaluation claim gets a memorable numerical benchmark from gold parity.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "16.94 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 2,
+   "rank_score": 28,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8055c5252b61b9639cbe",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7080,
+    7109
+   ],
+   "sentences": [
+    577,
+    579
+   ],
+   "text": "But we are going to have a new internet. And the new internet is going to be bound by Bitcoin. And it is going to provide abundance, 8 billion people.",
+   "start": 2614.46,
+   "end": 2623.06,
+   "duration_s": 8.6,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "payments_adoption",
+    "protocol_dev"
+   ],
+   "reason": "Builds from a new internet to Bitcoin and abundance for eight billion people.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "8.6 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 3,
+   "rank_score": 26,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c38aec1a984e418619d5",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    242,
+    290
+   ],
+   "sentences": [
+    20,
+    22
+   ],
+   "text": "Bitcoin's last cycle high was 69K in November of 2021. Run that through the government's own inflation calculator, and it's about $83.5,000 today. So five years later, Bitcoin is still about 10 % below that high in real terms, and that's using CPI, which understates real inflation.",
+   "start": 74.19,
+   "end": 90.13,
+   "duration_s": 15.94,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 5,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "market_sentiment"
+   ],
+   "reason": "Inflation-adjusted comparison challenges the assumption that long-term holders have meaningfully gained.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "15.94 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 4,
+   "rank_score": 26,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c49cd35dfd86efb624e0",
+   "video_id": "Irt0jKj7ISw",
+   "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+   "channel_name": "BTC Sessions",
+   "published_at": "2026-11-10T16:00:34+00:00",
+   "title": "\"The Safest Way To Use A Computer Is To Never Turn It On\" | Jameson Lopp",
+   "transcript_sha256": "0153050b3ba7e01533bbb8beea1ffeeabfe87cbe8cabdd4aee9c78abcfea82f8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    4042,
+    4056
+   ],
+   "sentences": [
+    201,
+    202
+   ],
+   "text": "Bitcoin is not a set at and forget an asset. Hoddling is an active process.",
+   "start": 1450.31,
+   "end": 1453.97,
+   "duration_s": 3.66,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "security_custody"
+   ],
+   "reason": "Challenges passive holding with a compact security warning and memorable closing line.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.66 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.66 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 5,
+   "rank_score": 26,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "e375df8065e9bd8f421b",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    14864,
+    14878
+   ],
+   "sentences": [
+    1065,
+    1065
+   ],
+   "text": "Bitcoin is the first technology that we have for moving money outside of the state.",
+   "start": 4597.96,
+   "end": 4601.98,
+   "duration_s": 4.02,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "payments_adoption"
+   ],
+   "reason": "A short, self-contained definition of Bitcoin's political significance: moving money outside state institutions.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.02 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.02 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 6,
+   "rank_score": 26,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f216541bd2f9e5eb672d",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    8742,
+    8752
+   ],
+   "sentences": [
+    715,
+    715
+   ],
+   "text": "Bitcoin imposes a global free market for the first time ever.",
+   "start": 3218.14,
+   "end": 3221.64,
+   "duration_s": 3.5,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "payments_adoption",
+    "sovereign_adoption"
+   ],
+   "reason": "A compact, sweeping thesis about Bitcoin creating the first global free market.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.5 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.5 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 7,
+   "rank_score": 26,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "0990b99129499373816b",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    15031,
+    15104
+   ],
+   "sentences": [
+    1080,
+    1082
+   ],
+   "text": "Bitcoin has grown at about 50, 60 % per year over the last 15 years. The supply grows around 1 % or 2 % over the last couple of years or so. So the size of the Bitcoin economy grows far more than the size of the Bitcoin supply, which again is another nail in the coffin of the idea that we need to increase the money supply in order to... increase economic activity.",
+   "start": 4643.74,
+   "end": 4663.95,
+   "duration_s": 20.21,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed"
+   ],
+   "reason": "Contrasts Bitcoin's claimed economic growth with supply growth to challenge the necessity of monetary expansion.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "20.21 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "20.21 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 8,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4f9d38e1d86556b36d9c",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7325,
+    7386
+   ],
+   "sentences": [
+    464,
+    464
+   ],
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+   "start": 2403.23,
+   "end": 2422.07,
+   "duration_s": 18.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "us_policy",
+    "elections_politics",
+    "market_sentiment"
+   ],
+   "reason": "Separates Bitcoin's survival from political control, with a provocative observation about persecution and price.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "18.84 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 9,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "55722e7365cc43558d7e",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    8633,
+    8667
+   ],
+   "sentences": [
+    541,
+    541
+   ],
+   "text": "A lot of the public miners are pivoting from Bitcoin into AI, and many of them are actually selling their Bitcoin or winding down their Bitcoin mining operations to fund their AI data center buildout.",
+   "start": 2890.8,
+   "end": 2902.82,
+   "duration_s": 12.02,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 2,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "mining",
+    "institutional_adoption"
+   ],
+   "reason": "Miners selling Bitcoin to fund AI creates an immediate, consequential conflict.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "12.02 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 10,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "5e38ec62aa36eae80132",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    1417,
+    1443
+   ],
+   "sentences": [
+    108,
+    109
+   ],
+   "text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure.",
+   "start": 529.05,
+   "end": 539.34,
+   "duration_s": 10.29,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "protocol_dev",
+    "market_sentiment"
+   ],
+   "reason": "A sweeping free-market thesis lands on a clear condition: Bitcoin must remain decentralized and secure.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.29 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 11,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7228c100eebac9ff2d80",
+   "video_id": "Irt0jKj7ISw",
+   "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+   "channel_name": "BTC Sessions",
+   "published_at": "2026-11-10T16:00:34+00:00",
+   "title": "\"The Safest Way To Use A Computer Is To Never Turn It On\" | Jameson Lopp",
+   "transcript_sha256": "0153050b3ba7e01533bbb8beea1ffeeabfe87cbe8cabdd4aee9c78abcfea82f8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    2925,
+    2974
+   ],
+   "sentences": [
+    149,
+    151
+   ],
+   "text": "That's the one thing I'll give to gold is when it's in the safe, it's kind of done. With Bitcoin, especially right now, I think we have to be keeping on top of things and it's going to be a lot more work. But I think it's ultimately worth it.",
+   "start": 1063.11,
+   "end": 1072.15,
+   "duration_s": 9.04,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "security_custody",
+    "gold_comparison"
+   ],
+   "reason": "An unexpected concession to gold makes the practical burden of Bitcoin custody immediately relatable.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "9.04 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 12,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7a17f3252d14fe2ed7aa",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    556,
+    571
+   ],
+   "sentences": [
+    39,
+    39
+   ],
+   "text": "This is another glaring reason why Bitcoin having no CEO is a feature, not a bug.",
+   "start": 169.68,
+   "end": 174.12,
+   "duration_s": 4.44,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "institutional_adoption",
+    "stocks_correlation"
+   ],
+   "reason": "A crisp, memorable defense of Bitcoin's lack of corporate leadership.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "4.44 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.44 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 13,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7bb7f7d4ad16f88b819a",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    155,
+    234
+   ],
+   "sentences": [
+    11,
+    13
+   ],
+   "text": "I'm reminded of a current, you know, negative aspect of framing Bitcoin right now where people will say, oh, Bitcoin's five -year return is practically zero, which is factually correct. If you happen to have bought Bitcoin at the November of 2021 and held it to today, and if you bought the exact peak, you would have bought it around $69,000 per Bitcoin. Today, Bitcoin's at $73,000 per Bitcoin, and you had... pretty much a 0 % return.",
+   "start": 55.9,
+   "end": 88.35,
+   "duration_s": 32.45,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 5,
+    "surprising_fact": 5,
+    "stance": 3,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "market_sentiment"
+   ],
+   "reason": "A provocative five-year return claim becomes concrete through an immediately understandable purchase-price comparison.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "hook_lead"
+     ],
+     "targets_missed": [
+      "32.45 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "32.45 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 14,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "984b91dd88d5f86e3158",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    8113,
+    8155
+   ],
+   "sentences": [
+    509,
+    511
+   ],
+   "text": "Bitcoin priced in gold also peaked in late 2024. So you can make arguments that like similar to 2021, Maybe the real peak was like spring of 2021. Maybe the real Bitcoin peak was like December 2024, measured in like another hard money.",
+   "start": 2717.95,
+   "end": 2734.71,
+   "duration_s": 16.76,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "gold_comparison",
+    "price_action"
+   ],
+   "reason": "Challenges the usual Bitcoin peak narrative by changing the measuring stick to gold.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "16.76 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 15,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9d3621a7156736bc9f96",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    534,
+    588
+   ],
+   "sentences": [
+    46,
+    48
+   ],
+   "text": "We either live in a free market, or we live in a control system. And Bitcoin gives us a chance to escape that control system that we've always lived in, that that control system always resets through 80, 100, 120 years, and new controllers come in, and own the currency. And the same thing happens.",
+   "start": 173.99,
+   "end": 195.79,
+   "duration_s": 21.8,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment"
+   ],
+   "reason": "A stark freedom-versus-control framing gives Bitcoin a purpose beyond investment returns.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "21.8 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "21.8 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 16,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f91c4a6b4a5ea9388c32",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    2476,
+    2507
+   ],
+   "sentences": [
+    195,
+    195
+   ],
+   "text": "I feel like the Achilles heel with Bitcoin is that, especially now, with all these things happening with AI, quantum, self -custody is turning into something that people are increasingly scared of.",
+   "start": 922.84,
+   "end": 934.8,
+   "duration_s": 11.96,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "security_custody",
+    "quantum"
+   ],
+   "reason": "Frames fear of self-custody as Bitcoin's Achilles heel, creating immediate tension around personal ownership.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "11.96 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 17,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "04a149678014424229d3",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    22134,
+    22182
+   ],
+   "sentences": [
+    1612,
+    1612
+   ],
+   "text": "You can have the Bitcoin standard, and if somebody makes a loan in Bitcoin, that will create a deposit, and then somebody else is going to deposit in another bank, and they will be credit creation, and money will be created, and it will be denominated in something else.",
+   "start": 6793.19,
+   "end": 6808.75,
+   "duration_s": 15.56,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "surprising_fact": 4,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed"
+   ],
+   "reason": "Challenges the assumption that a Bitcoin standard necessarily eliminates bank-created money.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "15.56 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 18,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2d2ee640cf1d2adab655",
+   "video_id": "UJFQBaMh3yg",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "title": "Why Bitcoin Just Dumped.",
+   "transcript_sha256": "78c2fb1eee588f01d19cd2956a6a44b41a7a8e515632bc267d761d4004421c25",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    1762,
+    1779
+   ],
+   "sentences": [
+    108,
+    108
+   ],
+   "text": "Meanwhile, Bitcoin ETFs are bleeding billions and the broader market is still reeling from the midterm sell -off.",
+   "start": 667.12,
+   "end": 674.44,
+   "duration_s": 7.32,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 2,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "etf_flows",
+    "market_sentiment",
+    "elections_politics"
+   ],
+   "reason": "Compresses institutional outflows and broader market stress into one immediately understandable warning.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.32 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.32 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 19,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "316f66f81603ea55899a",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    5221,
+    5281
+   ],
+   "sentences": [
+    317,
+    319
+   ],
+   "text": "And if the price of Bitcoin goes higher, it becomes better collateral, where you could issue more dollar credit. And, you know, the reason that it could be sustainable is because Bitcoin is a perfectly scarce asset, and the dollar is not a perfectly scarce asset. We're creating more and more dollars in the financial system all the time by design.",
+   "start": 1768.6,
+   "end": 1787.44,
+   "duration_s": 18.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "derivatives_leverage",
+    "macro_fed"
+   ],
+   "reason": "Explains a counterintuitive feedback loop between scarce Bitcoin collateral and expanding dollar credit.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "18.84 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 20,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "43e6d312e1a1e6a4e33c",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    3462,
+    3487
+   ],
+   "sentences": [
+    218,
+    218
+   ],
+   "text": "And certainly, if you want to have confidence that any purchases of Bitcoin are going to be legal, then, yeah, you would need authorization from Congress.",
+   "start": 1135.5,
+   "end": 1145.44,
+   "duration_s": 9.94,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "us_policy",
+    "sovereign_adoption"
+   ],
+   "reason": "Identifies congressional authorization as the legal hurdle for government Bitcoin purchases, rather than merely presidential enthusiasm.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "9.94 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 21,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "6d91c6af0e23f79c946e",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7525,
+    7563
+   ],
+   "sentences": [
+    469,
+    470
+   ],
+   "text": "I mean, like, It's this whole concept of digital credit was pioneered with Bitcoin basically at all time highs, and it went straight down after that. Like this, we haven't even really seen this in a Bitcoin bull market.",
+   "start": 2524.05,
+   "end": 2537.46,
+   "duration_s": 13.41,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "treasury_companies",
+    "price_action"
+   ],
+   "reason": "Highlights that Bitcoin-backed digital credit has faced falling prices without yet experiencing a bull market.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "hook_lead"
+     ],
+     "targets_missed": [
+      "13.41 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 22,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7605290f4214546e1fd0",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2426,
+    2478
+   ],
+   "sentences": [
+    177,
+    179
+   ],
+   "text": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K. And James Lavish pointed out that more than $10 billion of levered shorts are stacked between here and 83K. So if price turns up even a little bit, those shorts become forced buyers and we get a big squeeze.",
+   "start": 705.29,
+   "end": 719.15,
+   "duration_s": 13.86,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": true,
+   "risk": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "derivatives_leverage"
+   ],
+   "reason": "Oversold Bitcoin meets a concrete liquidation catalyst: ten billion dollars of shorts potentially becoming forced buyers.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "13.86 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 23,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "a9b44bc541d18b8378ba",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    330,
+    403
+   ],
+   "sentences": [
+    27,
+    29
+   ],
+   "text": "Galaxy's head of research, Alex Thorne, pointed out that Bitcoin has only lost its 50 week right after reclaiming it off a bear market bottom twice before, in 2012 and from late 2019 into 2020. Neither time did the bear make a lower low, not even in the COVID crash. Now, two cases is a small sample, but it shows why it's important to not react to short -term price action with this asset.",
+   "start": 103.06,
+   "end": 125.28,
+   "duration_s": 22.22,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 3,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [
+    "price_action",
+    "market_sentiment"
+   ],
+   "reason": "Two historical exceptions challenge bearish certainty, while the small-sample caveat preserves useful nuance.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "22.22 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "22.22 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 24,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f81db985a39acf8dcc8e",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7012,
+    7048
+   ],
+   "sentences": [
+    435,
+    436
+   ],
+   "text": "I mean, I think like in the past cycle, like, if the, if the treasury companies didn't exist, maybe the bull, maybe the Bitcoin bull market would have been higher. Like, it's kind of hard to tell.",
+   "start": 2359.3,
+   "end": 2369.03,
+   "duration_s": 9.73,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "treasury_companies",
+    "price_action"
+   ],
+   "reason": "A treasury-company insider entertains the counterintuitive possibility that treasury companies weakened Bitcoin's bull market.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "9.73 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 25,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "0c751a33022013fb3086",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    9335,
+    9403
+   ],
+   "sentences": [
+    584,
+    586
+   ],
+   "text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom.",
+   "start": 3090.75,
+   "end": 3109.87,
+   "duration_s": 19.12,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment",
+    "price_action"
+   ],
+   "reason": "A simple contrast exposes the emotional trap of loving tops and hating bottoms.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "19.12 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 26,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "219465c7c3b73c49143a",
+   "video_id": "UJFQBaMh3yg",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "title": "Why Bitcoin Just Dumped.",
+   "transcript_sha256": "78c2fb1eee588f01d19cd2956a6a44b41a7a8e515632bc267d761d4004421c25",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    1706,
+    1726
+   ],
+   "sentences": [
+    105,
+    105
+   ],
+   "text": "Strategy bought about $82 million of Bitcoin last week, but more than twice that was spent on its own preferred shares.",
+   "start": 643.89,
+   "end": 651.59,
+   "duration_s": 7.7,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 1,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "treasury_companies"
+   ],
+   "reason": "The unexpected spending comparison challenges the assumption that Strategy's main cash priority is buying Bitcoin.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.7 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.7 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 27,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2952b07ede23dd542a69",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2723,
+    2760
+   ],
+   "sentences": [
+    196,
+    197
+   ],
+   "text": "So the same AI crash that dragged Bitcoin under its 50 -week line is building the pressure that ends at the printer. Bare markets usually end when the sellers run out, even while the headlines still look terrible.",
+   "start": 786.38,
+   "end": 796.16,
+   "duration_s": 9.78,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 3,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "stocks_correlation",
+    "macro_fed",
+    "price_action"
+   ],
+   "reason": "Turns an AI-driven selloff into a monetary-policy argument, then challenges headline-driven pessimism.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "9.78 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 28,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "6353ef6c32236e89f0cc",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    18527,
+    18561
+   ],
+   "sentences": [
+    1333,
+    1334
+   ],
+   "text": "And even if you have Bitcoin as a standard, you will not... prevent the speculators issuing liabilities denominated in Bitcoin, right? The problem is that there will always be somebody issuing some kind of loan.",
+   "start": 5713.27,
+   "end": 5725.94,
+   "duration_s": 12.67,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed"
+   ],
+   "reason": "A clear objection to monetary utopianism: Bitcoin does not stop people issuing loans and liabilities.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "12.67 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 29,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "91ca972a48f7ce95d11b",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    1443,
+    1493
+   ],
+   "sentences": [
+    92,
+    94
+   ],
+   "text": "Even if you don't have your wealth in Bitcoin, you can measure your wealth today in Bitcoin, like your house or your equities or your bonds or whatever else you hold. And you can measure it in Bitcoin. And over a long period of time, historically, these assets are underperforming Bitcoin.",
+   "start": 519.17,
+   "end": 534.58,
+   "duration_s": 15.41,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 3,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action"
+   ],
+   "reason": "Reframes familiar assets in Bitcoin terms, making portfolio underperformance feel personal.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "15.41 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 30,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9a9ed680fa64a4ae7305",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    6933,
+    6965
+   ],
+   "sentences": [
+    571,
+    571
+   ],
+   "text": "So you can now use Bitcoin privately, completely privately on top of Bitcoin, pegged in one -to -one Bitcoin and be in e -cash really easily and have private money and private communications.",
+   "start": 2555.02,
+   "end": 2566.2,
+   "duration_s": 11.18,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "protocol_dev",
+    "payments_adoption"
+   ],
+   "reason": "A concrete claim about private Bitcoin-backed payments offers a practical alternative to price-focused discussion.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "hook_lead"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "11.18 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 31,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c6cdbadebbac52e4e623",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7166,
+    7213
+   ],
+   "sentences": [
+    587,
+    588
+   ],
+   "text": "If you look at your constitution and the way that the constitution was, it's individual rights and freedoms, founding principles of what created one of the greatest nations in the world are the same founding principles of Bitcoin. And so while that exists in us, this is unstoppable.",
+   "start": 2649.62,
+   "end": 2665.2,
+   "duration_s": 15.58,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "elections_politics"
+   ],
+   "reason": "Connects Bitcoin to constitutional freedoms and ends with a forceful claim of inevitability.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "15.58 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 32,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f56505eda00b45f4675e",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    16659,
+    16696
+   ],
+   "sentences": [
+    1179,
+    1181
+   ],
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that. Your friends chose to buy Bitcoin in 2020.",
+   "start": 5144.99,
+   "end": 5156.05,
+   "duration_s": 11.06,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment"
+   ],
+   "reason": "A sharp defense of voluntary ownership, ending with a personal challenge about choosing to buy.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "11.06 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 33,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "01154f025a00f40132a7",
+   "video_id": "UJFQBaMh3yg",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "title": "Why Bitcoin Just Dumped.",
+   "transcript_sha256": "78c2fb1eee588f01d19cd2956a6a44b41a7a8e515632bc267d761d4004421c25",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    516,
+    545
+   ],
+   "sentences": [
+    28,
+    28
+   ],
+   "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky.",
+   "start": 191.38,
+   "end": 203.06,
+   "duration_s": 11.68,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed",
+    "price_action"
+   ],
+   "reason": "Explains the interest-rate pressure on Bitcoin in plain language without requiring chart knowledge.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "11.68 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 34,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "35a2c1a8744795e870df",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    4922,
+    5024
+   ],
+   "sentences": [
+    309,
+    311
+   ],
+   "text": "I think we've seen over time, Bitcoin's volatility has trended lower and lower, effectively making Bitcoin better collateral, because you can borrow more against it and not have to worry about, a 90 % drawdown that we saw, many, many years ago in Bitcoin. And I think if Bitcoin is becoming better collateral and the volatility has been declining, then I think it... becomes more appropriate to create credit against it. This could be banks, you know, using Bitcoin as deposits and or using Bitcoin as, you know, an asset that you can hold in your account and then lending dollars against it.",
+   "start": 1655.83,
+   "end": 1696.18,
+   "duration_s": 40.35,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "derivatives_leverage",
+    "institutional_adoption"
+   ],
+   "reason": "Builds a complete argument connecting declining volatility, better collateral, and bank lending against Bitcoin.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "40.35 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "40.35 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 35,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "57671945c6879045237c",
+   "video_id": "lusJ1m-J0Mc",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-09T23:21:12+00:00",
+   "title": "The Real Reason Nvidia's CEO Is Facing Washington Oversight | News Block",
+   "transcript_sha256": "d7d6b0e9bdb6d8ba711c5ae59029b7f1630494ea82aca11ec8a63b0b0d83767e",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    228,
+    242
+   ],
+   "sentences": [
+    19,
+    19
+   ],
+   "text": "U.S. Bitcoin ETFs had about $1.3 billion in net outflows just last week.",
+   "start": 73.63,
+   "end": 78.19,
+   "duration_s": 4.56,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 0,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "etf_flows",
+    "institutional_adoption"
+   ],
+   "reason": "A billion-dollar weekly outflow figure makes institutional selling pressure tangible in one sentence.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "4.56 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.56 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 36,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "82a9946883d124030934",
+   "video_id": "jbDqdLytkNM",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-09T19:33:09+00:00",
+   "title": "Bitcoin Loses Key Moving Average \u2014\u00a0What Comes Next",
+   "transcript_sha256": "579e571b02ffbab995309ff147ed95f5325028f289d826d65ba9317c4c47b51d",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    722,
+    768
+   ],
+   "sentences": [
+    44,
+    46
+   ],
+   "text": "We want to see Bitcoin reclaim the 50 week urgently. It's not good that it was lost, but that doesn't change that the true market bottom is most likely in. The historical examples, back that up, and we're just on the cusp of this new bull market.",
+   "start": 278.14,
+   "end": 294.42,
+   "duration_s": 16.28,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "market_sentiment"
+   ],
+   "reason": "Pairs an urgent technical warning with the counterintuitive claim that the bottom is already in.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener"
+     ],
+     "targets_missed": [
+      "16.28 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 37,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "83fbf1f4e09cb79baa84",
+   "video_id": "jbDqdLytkNM",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-09T19:33:09+00:00",
+   "title": "Bitcoin Loses Key Moving Average \u2014\u00a0What Comes Next",
+   "transcript_sha256": "579e571b02ffbab995309ff147ed95f5325028f289d826d65ba9317c4c47b51d",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    45,
+    86
+   ],
+   "sentences": [
+    2,
+    4
+   ],
+   "text": "Last night was Bitcoin's first weekly closed below the 50 -week moving average since September. The 50 -week was around $75,500, and Bitcoin closed around $74.7,000, just 1 % below the line. But 1 % is still a miss.",
+   "start": 15.2,
+   "end": 31.52,
+   "duration_s": 16.32,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 3,
+    "stakes": 4,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action"
+   ],
+   "reason": "A narrow technical miss becomes memorable through the blunt closing line about one percent still counting.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "16.32 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 38,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9c14612153405f8983e4",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    3975,
+    4021
+   ],
+   "sentences": [
+    248,
+    250
+   ],
+   "text": "Like, I think Bitcoin will outperform like US equities as a whole. And I think it will likely outperform individual companies within US equities. In a way, I think of Bitcoin being like this global productivity index, similar to the S &P 500 is to individual stocks.",
+   "start": 1339.08,
+   "end": 1355.47,
+   "duration_s": 16.39,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [
+    "stocks_correlation"
+   ],
+   "reason": "Pairs an explicit equities-outperformance thesis with the memorable idea of Bitcoin as a global productivity index.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "16.39 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 39,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "b472bc84989dfbe7ac2d",
+   "video_id": "UJFQBaMh3yg",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "title": "Why Bitcoin Just Dumped.",
+   "transcript_sha256": "78c2fb1eee588f01d19cd2956a6a44b41a7a8e515632bc267d761d4004421c25",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    615,
+    648
+   ],
+   "sentences": [
+    34,
+    35
+   ],
+   "text": "In the week to the 6th of November, US -spot Bitcoin ETFs saw $1.28 billion leave. That's the most since late June, and almost all of it came from one fund, BlackRock's iBit.",
+   "start": 228.28,
+   "end": 241.62,
+   "duration_s": 13.34,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 1,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "etf_flows",
+    "institutional_adoption"
+   ],
+   "reason": "A billion-dollar outflow figure lands harder when almost all of it traces to one recognizable fund.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "13.34 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 40,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c6e1e853c2ae8ea88ddb",
+   "video_id": "Irt0jKj7ISw",
+   "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+   "channel_name": "BTC Sessions",
+   "published_at": "2026-11-10T16:00:34+00:00",
+   "title": "\"The Safest Way To Use A Computer Is To Never Turn It On\" | Jameson Lopp",
+   "transcript_sha256": "0153050b3ba7e01533bbb8beea1ffeeabfe87cbe8cabdd4aee9c78abcfea82f8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    4778,
+    4861
+   ],
+   "sentences": [
+    246,
+    248
+   ],
+   "text": "And then covenants at the protocol layer, I would say covenants is a bigger deal, because if we had covenants, we wouldn't need, for example, some of the more complex scripting stuff. Basically, you know, Covenants is like the other half of this missing half of security for Bitcoin, where right now, you know, this is a digital bearer asset. So once someone is able to meet the spending conditions for whatever is describing your wallet, and they move the funds, then that's it.",
+   "start": 1645.72,
+   "end": 1686.11,
+   "duration_s": 40.39,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "protocol_dev",
+    "security_custody"
+   ],
+   "reason": "Links a proposed protocol capability to the irreversible consequences of compromised wallet spending conditions.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and then'",
+      "40.39 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and then'",
+      "40.39 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 41,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "ff167c51fb38dfbc03b5",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    1537,
+    1653
+   ],
+   "sentences": [
+    99,
+    101
+   ],
+   "text": "And then we created the SBR, the strategic Bitcoin Reserve with the executive order, stopped the bleeding, so to speak, of all of the sales of crypto assets, really done in some ways in fire sale fashion. And we also found evidence of almost like punitive, you know, kind of trying to dump the asset on the market, you know, in a strange way that it's like, okay, why would you do this, you know, if you weren't trying to hurt the price. you know, putting it into that, making clear that we needed to properly custody these assets that are on the government balance sheet and exploring ways to potentially acquire more onto the balance sheet.",
+   "start": 479.43,
+   "end": 517.56,
+   "duration_s": 38.13,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 2
+   },
+   "names_person": false,
+   "risk": [
+    "single_source_breaking"
+   ],
+   "topics": [
+    "us_policy",
+    "sovereign_adoption",
+    "security_custody"
+   ],
+   "reason": "An insider describes stopping government sales, suspected price suppression, and potential additional Bitcoin acquisitions.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and then'",
+      "38.13 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and then'",
+      "38.13 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "single_source_breaking"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 42,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "128b99b7a2487f58d3ba",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    14,
+    45
+   ],
+   "sentences": [
+    1,
+    3
+   ],
+   "text": "If I own a form of money, but you have the ability to print more of that money, you're essentially stealing my purchasing power. Until Bitcoin came around. We had no choice.",
+   "start": 4.84,
+   "end": 13.56,
+   "duration_s": 8.72,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment"
+   ],
+   "reason": "A simple ownership analogy turns monetary dilution into a personal loss, then introduces Bitcoin as the alternative.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.72 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 43,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "14daf2da53fd3fe0b104",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    24030,
+    24074
+   ],
+   "sentences": [
+    1719,
+    1720
+   ],
+   "text": "And this is really why Bitcoin is such a powerful solution because it just allows people who are productive, who have wealth, to opt out of being robbed. And therefore, they're able to continue to allocate their capital towards the thing that they see important.",
+   "start": 7431.31,
+   "end": 7445.63,
+   "duration_s": 14.32,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 1,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed"
+   ],
+   "reason": "Frames Bitcoin as protection from confiscation, then explains the consequence for productive capital.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "14.32 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 44,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1853fbf19737b9a0e0f9",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    2121,
+    2184
+   ],
+   "sentences": [
+    138,
+    138
+   ],
+   "text": "And if Bitcoin is the best performer going into this world of abundance because it's better money and its perfect scarcity, then that possibly or likely, in my opinion, will outperform all of these other assets and it will enable me to capture more abundance in the future because I'll have that one asset that kind of holds up through this transition towards abundance.",
+   "start": 752.67,
+   "end": 775.26,
+   "duration_s": 22.59,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [
+    "macro_fed"
+   ],
+   "reason": "Connects Bitcoin's scarcity to preserving purchasing power through a future of material abundance.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "22.59 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "22.59 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 45,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1df196cbd1858b330e38",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    16321,
+    16388
+   ],
+   "sentences": [
+    1163,
+    1164
+   ],
+   "text": "So a couple of years ago, during the COVID pandemic, a lot of people that I know, a lot of my friends started buying Bitcoin, and I didn't. And now I'm at a point where I feel like if I go and buy Bitcoin, I'm at a disadvantage because my friends that boarded a few years ago are going to be so much more wealthy than I am.",
+   "start": 5039.73,
+   "end": 5057.01,
+   "duration_s": 17.28,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 1,
+    "stance": 3,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment"
+   ],
+   "reason": "Personal regret about friends buying earlier captures the emotional barrier facing late adopters.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "hook_lead"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "17.28 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 46,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2b9544ad347ef6e6c56e",
+   "video_id": "UJFQBaMh3yg",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "title": "Why Bitcoin Just Dumped.",
+   "transcript_sha256": "78c2fb1eee588f01d19cd2956a6a44b41a7a8e515632bc267d761d4004421c25",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    815,
+    862
+   ],
+   "sentences": [
+    49,
+    50
+   ],
+   "text": "On Deribit, the single most traded contract was a put at 74K, which is basically insurance against Bitcoin falling below that level. Now, to be clear, that's the busiest contract, not a market full of bears, but a lot of traders clearly want protection right around that level.",
+   "start": 304.7,
+   "end": 323.74,
+   "duration_s": 19.04,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "surprising_fact": 4,
+    "stance": 2,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "derivatives_leverage",
+    "market_sentiment"
+   ],
+   "reason": "Identifies a concrete downside protection level while preserving the speaker's important caveat about bearish positioning.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "19.04 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 47,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "3a42a132b57aa0902899",
+   "video_id": "Irt0jKj7ISw",
+   "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+   "channel_name": "BTC Sessions",
+   "published_at": "2026-11-10T16:00:34+00:00",
+   "title": "\"The Safest Way To Use A Computer Is To Never Turn It On\" | Jameson Lopp",
+   "transcript_sha256": "0153050b3ba7e01533bbb8beea1ffeeabfe87cbe8cabdd4aee9c78abcfea82f8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    5276,
+    5297
+   ],
+   "sentences": [
+    266,
+    267
+   ],
+   "text": "Though, you know, we're currently in uncharted territory. We've never gone this long before without any sort of consensus upgrade to Bitcoin.",
+   "start": 1819.29,
+   "end": 1826.41,
+   "duration_s": 7.12,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 2,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "protocol_dev"
+   ],
+   "reason": "An uncharted-territory setup introduces a clear claim about Bitcoin's unusually long consensus-upgrade drought.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'though'",
+      "7.12 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'though'",
+      "7.12 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 48,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "43a7b30e487e0135cf6f",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    5914,
+    6002
+   ],
+   "sentences": [
+    370,
+    371
+   ],
+   "text": "So with Treasury properly setting that up, again, it may not seem like a big deal, but if you're going to consider purchases of Bitcoin or conversions into Bitcoin, but like holding these on the balance sheet, if you don't have your house in order from a custody standpoint, Like, no one's going to authorize those kinds of, you know, more bold actions if they're not even sure if we're going to be able to keep these safely on the U.S. government balance sheet. So that's step one.",
+   "start": 1949.48,
+   "end": 1979.2,
+   "duration_s": 29.72,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 1,
+    "quotable": 3,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "us_policy",
+    "security_custody",
+    "sovereign_adoption"
+   ],
+   "reason": "Identifies secure custody as a concrete prerequisite for larger US government Bitcoin purchases.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "29.72 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "29.72 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 49,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "863cc95ab7c5e0c11482",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    2518,
+    2544
+   ],
+   "sentences": [
+    154,
+    156
+   ],
+   "text": "But in our modern world, we have no choice. Well, until Bitcoin came around, we had no choice. You had to sign up to the government's money.",
+   "start": 829.42,
+   "end": 836.2,
+   "duration_s": 6.78,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "payments_adoption"
+   ],
+   "reason": "A quick reversal presents Bitcoin as the escape from compulsory government money.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "6.78 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "6.78 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 50,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "885875fc8337379c0e77",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    15352,
+    15375
+   ],
+   "sentences": [
+    1105,
+    1106
+   ],
+   "text": "People store Bitcoin value the way they would might store, you know, gold, you know, that is, it is not money. Gold is money.",
+   "start": 4733.83,
+   "end": 4741.27,
+   "duration_s": 7.44,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "gold_comparison"
+   ],
+   "reason": "A compact disagreement over whether Bitcoin and gold qualify as money delivers an immediate debate hook.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.44 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.44 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 51,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9d6b467cd59d5988decb",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2019,
+    2046
+   ],
+   "sentences": [
+    151,
+    151
+   ],
+   "text": "Bitcoin is going to continue to go up for the rest of our lives because the politicians are going to print money for the rest of our lives.",
+   "start": 600.19,
+   "end": 605.79,
+   "duration_s": 5.6,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 1,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [
+    "guaranteed_return",
+    "price_prediction"
+   ],
+   "topics": [
+    "macro_fed",
+    "price_action"
+   ],
+   "reason": "A sweeping lifetime Bitcoin prediction tied to perpetual money printing; exceptionally quotable but explicitly guarantees appreciation.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.6 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.6 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "guaranteed_return"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 52,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9eb4b93bfebabd2c853c",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    15105,
+    15138
+   ],
+   "sentences": [
+    1083,
+    1085
+   ],
+   "text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed.",
+   "start": 4664.57,
+   "end": 4673.21,
+   "duration_s": 8.64,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed"
+   ],
+   "reason": "Turns purchasing-power growth into a concise ownership argument, ending with an emotionally direct claim about protecting holders.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.64 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 53,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "bcd37ecdc57447149a39",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    476,
+    577
+   ],
+   "sentences": [
+    30,
+    32
+   ],
+   "text": "But ultimately, I think because of Bitcoin's superior monetary policy and superior monetary properties, eventually supply just dries up and eventually new demand or new liquidity gets injected into the financial system that starts to move the price higher, maybe kind of like we've seen from the June low of this year to kind of where we are today. The price is slowly drifting higher despite sentiment being absolutely terrible in the space. And once the price keeps moving up further and further, the narrative starts to come back in and people start to grasp that, wait, maybe Bitcoin is better money.",
+   "start": 184.72,
+   "end": 222.19,
+   "duration_s": 37.47,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "market_sentiment",
+    "macro_fed"
+   ],
+   "reason": "Explains how scarce supply and fresh liquidity can overpower terrible sentiment and restart Bitcoin's narrative.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "37.47 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "37.47 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "e092240958e17cb6f896b94e8888a365c9975f76bf16df05136dfe45a0c35252",
+    "reply_sha256": "7e54c6da4fed65e3325b7238960f0d3ce3ba186669dcf3a1a39309bd26b29608",
+    "at": "2026-11-12T08:14:34Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 54,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1dd835fcfbdcc4cba847",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    9180,
+    9240
+   ],
+   "sentences": [
+    576,
+    578
+   ],
+   "text": "But if the board or the executives, you know, kind of lose faith in the strategy, like they don't have the long -term conviction on Bitcoin, well, they're going to pivot, like at the worst possible time because they're going to be like, oh, I thought this was working. It's not working 12 months later. We need to do something else.",
+   "start": 3046.72,
+   "end": 3062.95,
+   "duration_s": 16.23,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "treasury_companies",
+    "market_sentiment"
+   ],
+   "reason": "Corporate conviction collapses into a memorable twelve-month impatience story.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "16.23 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 55,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "3c2018635aaee62fb2dc",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    9143,
+    9175
+   ],
+   "sentences": [
+    572,
+    574
+   ],
+   "text": "You know, Eric Simler, who is, you know, chairman of similar scientific. He famously said, like, the zombie companies should be the ones that buy Bitcoin. And obviously, I completely agree with that.",
+   "start": 3036.66,
+   "end": 3045.2,
+   "duration_s": 8.54,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 4,
+    "contempt_outrage": 1
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [
+    "treasury_companies"
+   ],
+   "reason": "The provocative zombie-company argument supplies a named attribution and explicit agreement.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.54 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 56,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "69cd6a94f00b24cc1818",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    383,
+    399
+   ],
+   "sentences": [
+    25,
+    25
+   ],
+   "text": "But ultimately, I think Bitcoin is objectively the best form of money that humanity is ever discovered.",
+   "start": 146.1,
+   "end": 151.94,
+   "duration_s": 5.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 5,
+    "surprising_fact": 0,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment"
+   ],
+   "reason": "An unequivocal monetary thesis offers a concise, highly reusable conviction statement.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "5.84 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "5.84 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 57,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8b0e448545f495ae298d",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    8341,
+    8363
+   ],
+   "sentences": [
+    525,
+    526
+   ],
+   "text": "Like strategy had like decades and decades worth of dividend coverage, even at the Bitcoin low. It was just people like freaking out.",
+   "start": 2800.29,
+   "end": 2809.03,
+   "duration_s": 8.74,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 4,
+    "contempt_outrage": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "treasury_companies",
+    "market_sentiment"
+   ],
+   "reason": "Decades of claimed dividend coverage sharply contrasts with investor panic.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.74 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 58,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "98148a8112d2b2a996d6",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2336,
+    2380
+   ],
+   "sentences": [
+    172,
+    174
+   ],
+   "text": "Sam Callahan and Lynn Alden probably have like the quintessential study that shows Bitcoin is the single most sensitive asset to money printing. So when you look at that, now that's in the past. That doesn't mean it has to be true in the future.",
+   "start": 682.06,
+   "end": 692.77,
+   "duration_s": 10.71,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "surprising_fact": 4,
+    "stance": 3,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [
+    "macro_fed",
+    "price_action"
+   ],
+   "reason": "Makes a striking liquidity-sensitivity claim while preserving the speaker's explicit warning that historical relationships may change.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.71 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 59,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9cb329e18466e54edca1",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7904,
+    7961
+   ],
+   "sentences": [
+    496,
+    498
+   ],
+   "text": "But, you know, at least the way I would explain it, like if someone's asking me at a Bitcoin meetup or whatever, I would just say, look, fundamentals, you know, set up your cold storage and DCA. That's what works for, you know, for most people. But DCA Bitcoin should be the standard thing that most people do.",
+   "start": 2651.42,
+   "end": 2668.02,
+   "duration_s": 16.6,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "surprising_fact": 0,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "imperative"
+   ],
+   "topics": [
+    "security_custody",
+    "market_sentiment"
+   ],
+   "reason": "Offers a concrete, accessible baseline: cold storage and recurring Bitcoin purchases rather than complicated alternatives.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "16.6 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "imperative"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 60,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "a5c0719876e5cf6ee160",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    8786,
+    8871
+   ],
+   "sentences": [
+    548,
+    550
+   ],
+   "text": "I've, I've interacted with some financial advisors that they say like one of the reasons they don't allocate a large portion of a client's portfolio to Bitcoin is because one, they know it's going to be volatile. Like they know Bitcoin's probably going to fall 50 % at some point, like it just did. And when it falls 50%, if they over -allocated to the client, and the client didn't understand it, clients can be like, why did you just lose a lot of my money?",
+   "start": 2935.85,
+   "end": 2957.8,
+   "duration_s": 21.95,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "surprising_fact": 3,
+    "stance": 3,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "topics": [
+    "institutional_adoption",
+    "price_action"
+   ],
+   "reason": "Explains restrained adviser allocations through the emotionally concrete prospect of clients losing half their money.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "opener"
+     ],
+     "targets_missed": [
+      "21.95 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "21.95 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 61,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c901cc837fc36e987a46",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    8882,
+    8911
+   ],
+   "sentences": [
+    552,
+    554
+   ],
+   "text": "Like for normal people, 12 months is a long time, right? Like, if Bitcoin falls 50%, you're like, what were you doing for the last year? Like, that was terrible.",
+   "start": 2961.34,
+   "end": 2969.86,
+   "duration_s": 8.52,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 1,
+    "stance": 3,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "price_action",
+    "market_sentiment"
+   ],
+   "reason": "Makes Bitcoin drawdowns relatable by framing a year as a long time for ordinary investors.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.52 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 62,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "cc661d19abea81e5b9b7",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2805,
+    2827
+   ],
+   "sentences": [
+    201,
+    203
+   ],
+   "text": "The first Bitcoin president has been a huge disappointment. Sure, he freed Ross. But the strategic Bitcoin reserve has been a nothing burger.",
+   "start": 807.44,
+   "end": 814.72,
+   "duration_s": 7.28,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 3
+   },
+   "names_person": true,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "us_policy",
+    "market_sentiment"
+   ],
+   "reason": "Blunt disappointment in the Bitcoin president creates immediate tension around the reserve's lack of results.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.28 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.28 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 63,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "d2edb1d68968426ad68e",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    18410,
+    18447
+   ],
+   "sentences": [
+    1323,
+    1324
+   ],
+   "text": "Have no illusion that wars are going to stop because there's Bitcoin. I expect that far more exploitation is going to happen if that very scarce resource is somehow the only thing we use to pay for things.",
+   "start": 5667.43,
+   "end": 5679.97,
+   "duration_s": 12.54,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 2
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [
+    "sovereign_adoption"
+   ],
+   "reason": "Directly challenges Bitcoin's peace narrative and raises the stakes with a prediction of greater exploitation.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "12.54 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "25133e2a52edae39c017c2769cf9d9ed873f2bf0dc270aef92e6fcce3f62d161",
+    "reply_sha256": "1bcdbe9444abed0a4504b0b68b943dd3131bf58a120030631a8cc5bddb32e4bc",
+    "at": "2026-11-12T08:17:35Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 64,
+   "rank_score": 20,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "805a9282d37c5a2aff3e",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    4739,
+    4786
+   ],
+   "sentences": [
+    298,
+    300
+   ],
+   "text": "But eventually I think that the dollar and other fiat monies will ultimately fail. because they are inferior forms of money to Bitcoin compared to Bitcoin. And I think when that happens, Bitcoin could break above the power law and it could sustainably break above the power law.",
+   "start": 1589.23,
+   "end": 1607.69,
+   "duration_s": 18.46,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [
+    "doom",
+    "price_prediction"
+   ],
+   "topics": [
+    "macro_fed",
+    "price_action"
+   ],
+   "reason": "Connects fiat failure to Bitcoin breaking its historical valuation model, with unmistakable conviction.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "18.46 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 65,
+   "rank_score": 19,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "cf7681ff0a45df38713e",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    8912,
+    8970
+   ],
+   "sentences": [
+    555,
+    556
+   ],
+   "text": "And so, like, you have, if you were obtaining exposure to Bitcoin, whether it's for a company, financial advisor, or an individual, you have to have that longer time horizon. If you don't have the longer time horizon or the key stakeholders within any of those structures don't have the long time horizon, you're going to do something dumb.",
+   "start": 2970.22,
+   "end": 2991.21,
+   "duration_s": 20.99,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 1,
+    "quotable": 4,
+    "surprising_fact": 1,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "institutional_adoption",
+    "market_sentiment"
+   ],
+   "reason": "Connects Bitcoin time horizons to costly mistakes across individuals, advisers, and companies.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "20.99 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "20.99 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 66,
+   "rank_score": 19,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "e0d1228b3c5e27e8855d",
+   "video_id": "Irt0jKj7ISw",
+   "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+   "channel_name": "BTC Sessions",
+   "published_at": "2026-11-10T16:00:34+00:00",
+   "title": "\"The Safest Way To Use A Computer Is To Never Turn It On\" | Jameson Lopp",
+   "transcript_sha256": "0153050b3ba7e01533bbb8beea1ffeeabfe87cbe8cabdd4aee9c78abcfea82f8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    2840,
+    2898
+   ],
+   "sentences": [
+    144,
+    145
+   ],
+   "text": "I think it's a, one thing that I've kind of taken away from this whole experience is I feel like it's a really, Bitcoin is a very active process that you can't be necessarily passive in your custody. You have to be paying attention to updates and, like, firmware updates and how's your setup and can you improve it?",
+   "start": 1047.21,
+   "end": 1059.45,
+   "duration_s": 12.24,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 1,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 3,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "security_custody"
+   ],
+   "reason": "Challenges passive custody assumptions and turns security into an ongoing responsibility rather than a one-time setup.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "opener"
+     ],
+     "targets_missed": [
+      "12.24 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "9a294baaec334c192ae37ebc751c88563ae066cf1c96eae0420eddea2cb3c07c",
+    "reply_sha256": "a488c5b17327755ea14507ec249470324ce39755efddd1e2e277d3a093dccb74",
+    "at": "2026-11-12T08:13:23Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 67,
+   "rank_score": 19,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "fe72ad4eedbaf6a85797",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    9632,
+    9644
+   ],
+   "sentences": [
+    601,
+    602
+   ],
+   "text": "Like Bitcoin is a better form of money. It's in this monetization process.",
+   "start": 3171.48,
+   "end": 3175.88,
+   "duration_s": 4.4,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 1,
+    "stance": 5,
+    "stakes": 2,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "payments_adoption"
+   ],
+   "reason": "A compact, explicit monetary thesis that needs almost no setup.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.4 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.4 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 68,
+   "rank_score": 19,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "a51d8398638df74b3f4a",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    8486,
+    8552
+   ],
+   "sentences": [
+    534,
+    535
+   ],
+   "text": "On the question of cycles and surviving these cycles, I think that's perhaps an interesting one also, because what we might naively think is that people just come and adopt Bitcoin and they're here and they're with us now, you know, and they just stay. But actually, in practice, what I've noticed is sometimes people, you know, try to take the orange pill, but it goes out.",
+   "start": 2850.17,
+   "end": 2870.65,
+   "duration_s": 20.48,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 1,
+    "quotable": 3,
+    "surprising_fact": 2,
+    "stance": 4,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment",
+    "institutional_adoption"
+   ],
+   "reason": "Challenges the assumption that Bitcoin adoption is permanent, ending with a memorable orange-pill reversal.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "20.48 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "20.48 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "4255a68e4e6af512c1b05248ce3b9613eb5b4214fa3a86f45044ad25f4d7197f",
+    "reply_sha256": "4072378397873bc8f056b258806a385faffb2161a5e31466cc75d0c4bb115ab7",
+    "at": "2026-11-12T08:18:19Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 69,
+   "rank_score": 18,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "6ad350843b54d1f48f05",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    15816,
+    15860
+   ],
+   "sentences": [
+    1141,
+    1142
+   ],
+   "text": "I don't think that Bitcoin as such solves that from a libertarian perspective because it's the same framework, letting rich people do what they want to do, hoarding money, using it for their own enrichments, right? This is not how money should be used, right?",
+   "start": 4883.13,
+   "end": 4899.15,
+   "duration_s": 16.02,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 1,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 4,
+    "contempt_outrage": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment",
+    "elections_politics"
+   ],
+   "reason": "A direct ideological attack on Bitcoin's wealth model creates substantive debate rather than routine bullish commentary.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "opener"
+     ],
+     "targets_missed": [
+      "16.02 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "becb2f3b75e02deadda7695f1c8650722955e4dc99bffc484284e0f6edde70f3",
+    "reply_sha256": "7259870903502a6f2823efdb87f85b02b37b65c2cd8aca92b27b7c7fb69afa05",
+    "at": "2026-11-12T08:16:29Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 70,
+   "rank_score": 17,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "92cb01ed12e93b548805",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel_name": "Saifedean Ammous",
+   "published_at": "2026-11-10T08:21:50+00:00",
+   "title": "351. What Is Money? Debating MMTers",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    14562,
+    14595
+   ],
+   "sentences": [
+    1049,
+    1049
+   ],
+   "text": "Yeah, well, the short answer to this question is that Bitcoin is the first way for an individual to opt out of the central banking slavery system that everybody has to be part of.",
+   "start": 4518.47,
+   "end": 4529.23,
+   "duration_s": 10.76,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 1,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 4
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed"
+   ],
+   "reason": "Defines Bitcoin as an individual escape from central banking, with an emotionally charged, polarizing formulation.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "10.76 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "d14ff163033a668b3c9bbf7035b31ef7eac3c9032544ab84baac437ad7452168",
+    "reply_sha256": "716b05ac8bab9154ad87f4a727d4e38a51cc1a4634a368008d14ffe433671760",
+    "at": "2026-11-12T08:15:33Z",
+    "cycle": "proof:fresh_20261111_190259"
+   },
+   "rank": 71,
+   "rank_score": 15,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.333
+   }
+  }
+ ]
+}

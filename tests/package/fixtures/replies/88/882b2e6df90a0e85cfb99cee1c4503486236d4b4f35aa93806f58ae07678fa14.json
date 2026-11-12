@@ -1,0 +1,458 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "132a15555d2ddc17fb2085bf38c75f0b9350c0f6bfce693a9be954cae196f27a",
+ "result": {
+  "text": "Mm-hmm. I mean, the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US. Um, you know, price-wise, some people would say, uh, when it's, when it's persecuted and when it's, uh, in the crosshairs, it, it tends to do, uh, pretty well. Um, I think",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 21.38,
+    "text": "Mm-hmm. I mean, the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US. Um, you know, price-wise, some people would say, uh, when it's, when it's persecuted and when it's, uh, in the crosshairs, it, it tends to do, uh, pretty well. Um, I think"
+   }
+  ],
+  "words": [
+   {
+    "text": "Mm-hmm.",
+    "start": 0.1,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.46,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 1.5,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.58,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "good",
+    "start": 1.66,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "news",
+    "start": 1.78,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 1.98,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.22,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.7,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 2.94,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not,",
+    "start": 3.18,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 3.62,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.1,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 4.2,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its,",
+    "start": 4.36,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 4.62,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "success",
+    "start": 4.78,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.28,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 5.4,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dependent",
+    "start": 5.58,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "upon",
+    "start": 5.96,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who's",
+    "start": 6.4,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.68,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.8,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "White",
+    "start": 6.9,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "House,",
+    "start": 7.12,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 7.64,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 7.92,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who's",
+    "start": 8.08,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "controlling",
+    "start": 8.3,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.86,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Senate",
+    "start": 9.0,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 9.44,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.54,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "House",
+    "start": 9.62,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.82,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Representatives",
+    "start": 9.92,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.58,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.66,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "US.",
+    "start": 10.8,
+    "end": 11.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 11.84,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.2,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.28,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price-wise,",
+    "start": 12.46,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 13.22,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 13.4,
+    "end": 13.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 13.66,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say,",
+    "start": 13.88,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 14.48,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 14.72,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's,",
+    "start": 14.88,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 15.22,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 15.34,
+    "end": 15.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "persecuted",
+    "start": 15.52,
+    "end": 16.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 16.16,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 16.28,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's,",
+    "start": 16.42,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 16.7,
+    "end": 16.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 16.98,
+    "end": 17.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.1,
+    "end": 17.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crosshairs,",
+    "start": 17.22,
+    "end": 17.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 17.86,
+    "end": 17.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 18.12,
+    "end": 18.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tends",
+    "start": 18.26,
+    "end": 18.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.54,
+    "end": 18.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do,",
+    "start": 18.68,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 19.46,
+    "end": 19.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty",
+    "start": 19.76,
+    "end": 19.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well.",
+    "start": 20.02,
+    "end": 20.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 20.6,
+    "end": 20.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 21.0,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 21.12,
+    "end": 21.38,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.84
+ },
+ "usd": 0.004368,
+ "seconds": 1.11,
+ "recorded_at": "2026-11-12T11:43:27Z"
+}

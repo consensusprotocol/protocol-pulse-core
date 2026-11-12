@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. The video's own words (its voice-over, title and caption) are:\n\nTITLE: CoinTelegraph: 'Bitcoin Is Down Year to Date in a Midterm Year Today'\nCAPTION: Clips: TFTC (2026-11-07); CoinTelegraph (2026-11-06). Pulse Check, 2026-11-12.\nVOICE-OVER after the hook: TFTC first.\nVOICE-OVER after clip 1: CoinTelegraph:\n\nAnswer for each pair: does A entail B (\"yes\", \"no\", \"uncertain\"); do they have the same polarity (\"yes\", \"no\",\n\"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\"); and \"raising_words\": when B is more certain, the\nEXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\nsuch words exist (the speaker's own words alone).\n\n<pair label=\"M\"><A>As of the recording, the day after the 2026 US midterm elections, Bitcoin's price is down for the year, in line with midterm years historically being weak for markets. (certainty: certain)</A><B>Bitcoin is down year to date in a midterm year. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"M\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\", \"raising_words\": \"\"}]}",
+ "usage": {
+  "in": 556,
+  "out": 115
+ },
+ "usd": 0.004524,
+ "seconds": 1.84,
+ "recorded_at": "2026-11-12T11:15:45Z"
+}

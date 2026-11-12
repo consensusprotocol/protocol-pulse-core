@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: Nobody is in charge of Bitcoin\nCAPTION: no authority. no back door. three voices on why that is the point.\nCLIP hook (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nVOICE-OVER: Nobody is in charge of Bitcoin. That's not a flaw. That's the design.\nCLIP clip_01 (on screen: What Bitcoin Did): \"It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.\"\nVOICE-OVER: And Stephan Livera thinks the market still hasn't priced that in.\nCLIP clip_02 (on screen: Stephan Livera): \"However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.\"\nVOICE-OVER: Clips today from Saifedean Ammous, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below.\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. Use the CLIP labels exactly as shown above (hook, clip_01, ...) in \"label\" and in\n\"labels\", never the speakers' names. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\n  \"takeaways\": [\n    {\n      \"label\": \"hook\",\n      \"asserts\": \"Bitcoin has no authority allowing seizure of others' wealth; unequal holdings result from voluntary choice\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_01\",\n      \"asserts\": \"Bitcoin itself is not hacked (only intermediaries are), highlighting its secure and unique nature\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_02\",\n      \"asserts\": \"Bitcoin is the most undervalued asset globally with gold parity value of about $1.4-1.5 million per BTC\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    }\n  ],\n  \"relations\": [\n    {\n      \"labels\": [\"hook\", \"clip_01\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"hook\", \"clip_02\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"clip_01\", \"clip_02\"],\n      \"relation\": \"none\"\n    }\n  ]\n}",
+ "usage": {
+  "in": 763,
+  "out": 4139
+ },
+ "usd": 0.10729,
+ "seconds": 34.19,
+ "recorded_at": "2026-11-12T10:42:07Z"
+}

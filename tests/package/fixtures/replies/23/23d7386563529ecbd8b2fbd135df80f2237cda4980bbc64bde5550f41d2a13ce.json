@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Bitcoin has no authority allowing seizure of others' wealth, so any unequal holdings result from voluntary choices to acquire it. (certainty: certain)</A><B>Saifedean Ammous says Bitcoin has no authority that can take other people's wealth, so anyone who holds more Bitcoin got there by choosing to. (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>Many public Bitcoin miners are switching focus to AI and selling Bitcoin or reducing mining to pay for AI data center construction. (certainty: certain)</A><B>Stephan Livera says many public miners are pivoting from Bitcoin to AI, selling their Bitcoin or winding down mining to pay for AI data center buildouts. (certainty: certain)</B></pair>\n<pair label=\"clip_02\"><A>Bitcoin is not a set-it-and-forget-it asset because hodling requires ongoing active effort and maintenance. (certainty: certain)</A><B>BTC Sessions says Bitcoin is not a set-and-forget asset and that hodling takes active effort. (certainty: certain)</B></pair>\n<pair label=\"clip_03\"><A>Funds affected by the MSCI change would sell MicroStrategy shares rather than Bitcoin, and the removal would not compel MicroStrategy to sell any of its BTC. (certainty: certain)</A><B>Coin Bureau says the funds in question would sell Strategy's stock rather than Bitcoin, so a removal would not force Strategy to sell any of its BTC. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_02\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_03\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}]}",
+ "usage": {
+  "in": 656,
+  "out": 3255
+ },
+ "usd": 0.084655,
+ "seconds": 32.22,
+ "recorded_at": "2026-11-12T08:13:45Z"
+}

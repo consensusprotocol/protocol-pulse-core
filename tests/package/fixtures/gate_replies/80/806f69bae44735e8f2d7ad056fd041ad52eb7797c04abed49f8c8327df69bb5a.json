@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. The video's own words (its voice-over, title and caption) are:\n\nTITLE: Bitcoin Magazine: Bitcoin 'Looking Incredibly Strong Right Now'\nCAPTION: Clips: Bitcoin Magazine (2026-11-04); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.\nVOICE-OVER after the hook: First, Bitcoin Magazine.\nVOICE-OVER after clip 1: Also on the record, Swan Bitcoin:\n\nAnswer for each pair: does A entail B (\"yes\", \"no\", \"uncertain\"); do they have the same polarity (\"yes\", \"no\",\n\"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\"); and \"raising_words\": when B is more certain, the\nEXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\nsuch words exist (the speaker's own words alone).\n\n<pair label=\"M\"><A>On election day, Nov. 3, 2026, Sean said Bitcoin looked very strong, having closed seven straight weeks above its 50-week moving average. (certainty: likely)</A><B>Bitcoin is looking incredibly strong right now. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"M\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\", \"raising_words\": \"\"}]}",
+ "usage": {
+  "in": 575,
+  "out": 403
+ },
+ "usd": 0.01036,
+ "seconds": 5.03,
+ "recorded_at": "2026-11-12T11:10:36Z"
+}

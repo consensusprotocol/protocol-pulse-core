@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Bitcoin is not a set-it-and-forget-it asset because hodling is an active process. (certainty: certain)</A><B>BTC Sessions says Bitcoin is not a set-and-forget asset and that holding it (hodling) takes active effort. (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>A lot of public miners are pivoting from Bitcoin to AI and selling their Bitcoin or winding down mining operations to fund AI data center buildouts. (certainty: certain)</A><B>Stephan Livera says many public miners are pivoting from Bitcoin to AI, with many selling their Bitcoin or winding down mining to fund AI data center buildouts. (certainty: certain)</B></pair>\n<pair label=\"clip_02\"><A>Self-custody is the Achilles heel of Bitcoin especially with AI and quantum developments as people are becoming increasingly scared of it. (certainty: possible)</A><B>Natalie Brunell says self-custody is Bitcoin's Achilles heel, because people are increasingly scared of it amid developments in AI and quantum computing. (certainty: likely)</B></pair>\n<pair label=\"clip_03\"><A>Bitcoin itself is not getting hacked but other intermediaries are, which highlights Bitcoin's secure and unique nature. (certainty: certain)</A><B>What Bitcoin Did says hacks hit intermediaries rather than Bitcoin itself, which highlights Bitcoin's secure and unique nature. (certainty: likely)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_02\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}, {\"label\": \"clip_03\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}]}",
+ "usage": {
+  "in": 644,
+  "out": 3602
+ },
+ "usd": 0.09327,
+ "seconds": 30.0,
+ "recorded_at": "2026-11-12T08:23:06Z"
+}

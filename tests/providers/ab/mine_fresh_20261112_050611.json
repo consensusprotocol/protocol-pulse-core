@@ -1,0 +1,36 @@
+{
+ "role": "mine",
+ "run": "fresh_20261112_050611",
+ "judge": "anthropic:claude-opus-5-5",
+ "legs": [
+  {
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "calls": 6,
+   "accepted": 5,
+   "failures": {
+    "rejected": 1
+   },
+   "seconds": 2066.9,
+   "usd": 1.6304,
+   "n_moments": 54
+  },
+  {
+   "backend": "openai:gpt-6.1-sol",
+   "calls": 6,
+   "accepted": 6,
+   "failures": {},
+   "seconds": 1.7,
+   "usd": 2.1669,
+   "n_moments": 62
+  }
+ ],
+ "pairs": [
+  {
+   "A": "heimdall:qwen/qwen3.8-27b",
+   "B": "openai:gpt-6.1-sol",
+   "better": "B",
+   "why": "List A has more surprising, self-contained hooks: gold parity at about $1.4M, miners pivoting to AI, 'it's not Bitcoin that's getting hacked', and the five-years-up-6% line. List B leans on fragments that need context ('So the people who hold Bitcoin don't get robbed'), an alarming hack claim and control-system framing that drifts toward outrage.",
+   "judge": "anthropic:claude-opus-5-5"
+  }
+ ]
+}

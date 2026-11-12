@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: \nCAPTION: \nCLIP label=\"A\" (on screen: BTC Sessions): \"I mean, all of the currencies, in my opinion, are on their way out.\"\nCLIP label=\"M\" (on screen: CoinTelegraph): \"Yeah, I don't see any reason why we wouldn't.\"\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. Each clip's label is the text inside label=\"...\" after the word CLIP: use exactly that\nlabel in \"label\" and in \"labels\", never the speakers' names. Labels: A, M. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\"takeaways\": [{\"label\": \"A\", \"asserts\": \"All (fiat) currencies are on their way out, stated as personal opinion.\", \"certainty\": \"likely\", \"polarity\": \"negative\"}, {\"label\": \"M\", \"asserts\": \"Sees no reason why 'we' wouldn't do or achieve something; the subject is unspecified in the clip.\", \"certainty\": \"likely\", \"polarity\": \"positive\"}], \"relations\": [{\"labels\": [\"A\", \"M\"], \"relation\": \"none\"}]}",
+ "usage": {
+  "in": 565,
+  "out": 299
+ },
+ "usd": 0.00824,
+ "seconds": 3.28,
+ "recorded_at": "2026-11-12T11:10:03Z"
+}

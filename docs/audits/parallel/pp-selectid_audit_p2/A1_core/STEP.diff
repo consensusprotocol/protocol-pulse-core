@@ -1,0 +1,2003 @@
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+new file mode 100644
+index 00000000..1709764a
+--- /dev/null
++++ b/pipeline/model_providers.json
+@@ -0,0 +1,223 @@
++{
++ "schema": "pp.providers/1",
++ "law": "L-x NO SINGLE MODEL, ULTRON FIRST (orchestrator 2026-11-12 02:45): every role names >= 2 interchangeable back-ends; the local model on Ultron is first wherever it meets the quality bar; a frontier model or Heimdall is used only where a measured blind A/B (tests/providers/ab_roles.py) shows local is not good enough, and the comparison is re-run so roles migrate to local. Verdict roles never run on the writer's vendor (law L-s; Router.call avoid_vendor). No role's code names a vendor or a model: only this file does. Each back-end names its model family: a verdict avoids the vendors AND families of the text it judges (Router.call avoid_vendor / avoid_family). Prices are upper bounds (USD per 1M tokens; per minute of audio for transcription); each paid call reserves its upper bound before it runs.",
++ "decided": "2026-11-12 02:44 ET by pipeline_pp_selectid: an INITIAL order, not yet measured. Mining, story selection and the check verdict put local first (law L-w 1: local gemma mines and scores by id). Angle and writing put a frontier model first (law L-w 1 and PBX 02:35: frontier spend approved for writing and checking) until the A/B shows local meets the bar. Verdicts run on a vendor other than the writer's.",
++ "backends": {
++  "local:gemma3:27b": {
++   "vendor": "local",
++   "model": "gemma3:27b",
++   "price_usd_per_1m": [
++    0,
++    0
++   ],
++   "family": "gemma"
++  },
++  "openai:gpt-6.1-sol": {
++   "vendor": "openai",
++   "model": "gpt-6.1-sol",
++   "price_usd_per_1m": [
++    15,
++    120
++   ],
++   "reasoning_effort": "medium",
++   "min_out": 4000,
++   "family": "gpt"
++  },
++  "anthropic:claude-fable-5-2": {
++   "vendor": "anthropic",
++   "model": "claude-fable-5-2",
++   "price_usd_per_1m": [
++    8,
++    40
++   ],
++   "effort": "medium",
++   "min_out": 16000,
++   "family": "claude"
++  },
++  "anthropic:claude-opus-5-5": {
++   "vendor": "anthropic",
++   "model": "claude-opus-5-5",
++   "price_usd_per_1m": [
++    4,
++    20
++   ],
++   "effort": "medium",
++   "min_out": 16000,
++   "family": "claude"
++  },
++  "xai:grok-4.20-0309-reasoning": {
++   "vendor": "xai",
++   "model": "grok-4.20-0309-reasoning",
++   "price_usd_per_1m": [
++    5,
++    25
++   ],
++   "temperature": 0,
++   "key_name": "XAI_API_KEY_MEDLEY",
++   "family": "grok"
++  },
++  "heimdall:qwen/qwen3.8-27b": {
++   "vendor": "heimdall",
++   "model": "qwen/qwen3.8-27b",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 16000,
++   "family": "qwen",
++   "base_url": "https://api-staging.heimdallm.com/api/v1"
++  },
++  "heimdall:deepseek/deepseek-v4.1-flash": {
++   "vendor": "heimdall",
++   "model": "deepseek/deepseek-v4.1-flash",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 16000,
++   "family": "deepseek",
++   "base_url": "https://api-staging.heimdallm.com/api/v1"
++  },
++  "heimdall:google/gemma-4-31b-it": {
++   "vendor": "heimdall",
++   "model": "google/gemma-4-31b-it",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 16000,
++   "family": "gemma",
++   "base_url": "https://api-staging.heimdallm.com/api/v1"
++  },
++  "xai_search:grok-4.7": {
++   "vendor": "xai_search",
++   "model": "grok-4.7",
++   "price_usd_per_1m": [
++    5,
++    25
++   ],
++   "key_name": "XAI_API_KEY_MEDLEY",
++   "tools": [
++    "x_search",
++    "web_search"
++   ],
++   "family": "grok"
++  },
++  "openai_stt:gpt-4o-transcribe-diarize": {
++   "vendor": "openai_stt",
++   "model": "gpt-4o-transcribe-diarize",
++   "family": "gpt",
++   "diarize": true,
++   "price_usd_per_min": 0.012,
++   "timeout_s": 300
++  },
++  "elevenlabs_stt:scribe_v1": {
++   "vendor": "elevenlabs_stt",
++   "model": "scribe_v1",
++   "family": "scribe",
++   "price_usd_per_min": 0.012,
++   "timeout_s": 300
++  }
++ },
++ "roles": {
++  "mine": {
++   "chain": [
++    "local:gemma3:27b",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-fable-5-2",
++    "heimdall:qwen/qwen3.8-27b"
++   ],
++   "what": "moments.py: whole-sentence ranges by id with engagement scores, risk flags, topics",
++   "measured": "blind A/B 2026-11-12 03:40 ET on fresh_20261112_050611 (tests/providers/ab/mine_fresh_20261112_050611.json, judge claude-opus-5-5): gpt-6.1-sol better than heimdall qwen3.8-27b; qwen 2067 s vs 300.5 s, 1 of 6 calls rejected by the strict contract. Local gemma3:27b: the integrator's leg (GPU0 lease)."
++  },
++  "angle_write": {
++   "chain": [
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-fable-5-2",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "package.py: the angle, the order, the PBX MAX VO intro / bridges, ONE title, ONE caption"
++  },
++  "fidelity_verdict": {
++   "chain": [
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "vo_fidelity.py: the blind claim-by-claim verdict on VO, title and caption; never the writer's vendor"
++  },
++  "context_verdict": {
++   "chain": [
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "context_integrity.py step A (source context only) and step C (entailment); never the writer's vendor"
++  },
++  "viewer_takeaway": {
++   "chain": [
++    "anthropic:claude-opus-5-5",
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:qwen/qwen3.8-27b",
++    "local:gemma3:27b"
++   ],
++   "what": "context_integrity.py step B (the finished package only); never the writer's vendor"
++  },
++  "trend_brief": {
++   "chain": [
++    "xai_search:grok-4.7"
++   ],
++   "fallback": "trend_brief.local_baseline (topic frequency across partner channels, last 24 h): free, always available",
++   "what": "trend_brief.py: one live-search call per cycle; SHADOW weight 0 (law L-w 4)"
++  },
++  "story": {
++   "chain": [
++    "local:gemma3:27b",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-fable-5-2",
++    "heimdall:qwen/qwen3.8-27b"
++   ],
++   "what": "select_by_id story + line-up calls (story-first type; REQUESTS R6 item 7)"
++  },
++  "check": {
++   "chain": [
++    "local:gemma3:27b",
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "what": "select_by_id.ModelChecks; called with avoid_model = the story's model"
++  },
++  "exclusion_verdict": {
++   "chain": [
++    "local:gemma3:27b",
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
++  },
++  "coherence_verdict": {
++   "chain": [
++    "anthropic:claude-opus-5-5",
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "package.coherence: the blind QUALITY verdict (through-line, ratings); never the writer's vendor"
++  },
++  "transcribe": {
++   "chain": [
++    "openai_stt:gpt-4o-transcribe-diarize",
++    "elevenlabs_stt:scribe_v1"
++   ],
++   "what": "transcript_truth.py: law L-v 2's second, independent recognition pass with speaker turns on the selected segment's source audio (CPU fetch; no GPU, no Whisper)"
++  }
++ }
++}
+diff --git a/pipeline/moments_gate_adapter.py b/pipeline/moments_gate_adapter.py
+new file mode 100644
+index 00000000..75e32d37
+--- /dev/null
++++ b/pipeline/moments_gate_adapter.py
+@@ -0,0 +1,121 @@
++#!/usr/bin/env python3
++"""The pp-tests exam adapter (pipeline_pp_tests, branch pp-tests: tests/adversarial/test_moments_gates.py; corpora
++format v1, pp.ci_case/1, pp.vo_case/1, pp.excl_case/1). The harness strips "expected" and "provenance" and calls:
++
++  context_integrity(case) -> {"verdict": "pass" | "fail" | "uncertain", "why"}     law L-s
++  vo_fidelity(case)       -> {"verdict": "pass" | "fail" | "uncertain", "why"}     law L-o 11 / L-t
++  exclusion(case)         -> {"verdict": "keep" | "exclude" | "uncertain", "why"}  law L-u
++
++These are the SAME gates the packager runs (context_integrity.check_contexts, vo_fidelity.check,
++moments.exclusion_verdict) behind the same provider config (law L-x). The harness forbids network connections, so the
++gates' model replies are recorded on a run that may call out (PP_GATES_REPLAY unset; this session's
++tests/package/run_exam_record.py, which strips "expected" exactly as the harness does) and served offline under the
++harness (PP_GATES_REPLAY=1). A gate that could not MEASURE (an exchange never recorded, every back-end unavailable, an
++unreadable verdict) RAISES GateNotMeasured, which the harness counts as an ERROR (audit p2 M5): it is never a pass and
++never a free rejection either (law L-m). A deterministic failure is a measured "fail".
++"""
++import os
++
++import context_integrity as CI
++import moments as M
++import providers as P
++import vo_fidelity as VF
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(HERE)
++RECORD = os.environ.get("PP_GATES_RECORD_DIR") or os.path.join(REPO, "tests", "package", "fixtures", "gate_replies")
++SPEND = os.environ.get("PP_GATES_SPEND") or os.path.join(REPO, "tests", "moments", "proof", "SPEND.json")
++ENV = P.ENV_PATH
++THREAD_SAFE = True                     # the router's ledger and recordings are safe across the harness's threads
++_router = None
++
++
++class GateNotMeasured(Exception):
++    """The gate could not measure this case (the harness's ERROR)."""
++
++
++def router():
++    global _router
++    if _router is None:
++        _router = P.Router(env_path=ENV, record_dir=RECORD, replay=os.environ.get("PP_GATES_REPLAY") == "1",
++                           spend_path=SPEND, limit_usd=float(os.environ.get("PP_GATES_LIMIT_USD", "64.28")))
++    return _router
++
++
++def _join(sentences):
++    return " ".join(s["text"] for s in sentences or [])
++
++
++def context_integrity(case):
++    w = case["window"]
++    n0, n1 = w["selected"]
++    parts, prev_turn = [], None
++    for s in w["sentences"]:                     # the caption's own speaker-turn markers, when it has them
++        t = s["text"]
++        if s.get("turn") is not None and prev_turn is not None and s["turn"] != prev_turn:
++            t = "[another speaker] " + t
++        if s.get("speaker"):
++            t = f"{s['speaker']}: " + t
++        prev_turn = s.get("turn")
++        parts.append((t, n0 <= s["n"] <= n1))
++    pkg = case["package"]
++    segs = [{"label": s["label"], "video_id": s["video_id"], "channel": s["channel"], "text": s["text"],
++             "role": s.get("role")} for s in pkg["segments"]]
++    moment = [s["label"] for s in pkg["segments"] if s.get("role") == "moment"]
++    if len(moment) != 1:
++        return {"verdict": "fail", "why": f"the case names {len(moment)} moment segments (expected 1)"}
++    src = case.get("source") or {}
++    contexts = {moment[0]: {"text": CI.mark(parts), "title": src.get("title") or "", "channel": src.get("channel") or "",
++                            "published": str(src.get("published_at") or "unknown")[:16],
++                            "show_date": pkg.get("date") or "unknown"}}
++    bridges = list(pkg["vo"].get("bridges") or [])
++    package = {"segments": segs, "vo": {"intro": pkg["vo"].get("intro") or "", "bridges": bridges,
++                                        "bridges_after_clip": list(pkg["vo"].get("bridges_after_clip") or
++                                                                   range(1, len(bridges) + 1)),
++                                        "signoff": pkg["vo"].get("signoff") or ""},
++               "title": pkg.get("title") or "", "caption": pkg.get("caption") or ""}
++    try:
++        res = CI.check_contexts(router(), package, contexts, writer_vendor=None)
++    except P.ReplayMiss as e:
++        raise GateNotMeasured(f"no recorded verdict (replay): {str(e)[:160]}") from None
++    if not res.get("measured"):
++        raise GateNotMeasured("; ".join(v["detail"] for v in res["violations"])[:300])
++    if res["ok"]:
++        return {"verdict": "pass", "why": "own sincere assertion; referents and conditions inside; entailed; no false relation"}
++    return {"verdict": "fail", "why": "; ".join(f"{v['segment']}: {v['rule']} {v['detail']}" for v in res["violations"])[:600]}
++
++
++def vo_fidelity(case):
++    man = case.get("manifest") or {}
++    segments = {}
++    for s in case["segments"]:                  # a speaker is named only when the case states it (law L-v 1)
++        segments[s["label"]] = {"show": s["channel"], "speaker": s.get("speaker") or None,
++                                "names": [s["speaker"]] if s.get("speaker") else [], "video_id": s["video_id"],
++                                "text": _join(s["sentences"])}
++    lines = [{"slot": f"{ln['slot']}_{i}", "text": ln["text"], "cites": list(ln.get("cites") or [])}
++             for i, ln in enumerate(case["lines"])]
++    levels = case.get("current_levels") if isinstance(case.get("current_levels"), list) else None
++    try:
++        res = VF.check(router(), segments, lines, writer_vendor=None, manifest=man, current_levels=levels)
++    except P.ReplayMiss as e:
++        raise GateNotMeasured(f"no recorded verdict (replay): {str(e)[:160]}") from None
++    if not res["deterministic"]["ok"]:
++        return {"verdict": "fail", "why": "; ".join(f"{v['slot']}: {v['rule']} {v['detail']}"
++                                                     for v in res["deterministic"]["violations"])[:600]}
++    if not res.get("measured"):
++        raise GateNotMeasured("; ".join(v["detail"] for v in res["verdict"]["violations"])[:300])
++    if res["ok"]:
++        return {"verdict": "pass", "why": "every claim bound to its speaker's words; verdict yes with verbatim support"}
++    return {"verdict": "fail", "why": "; ".join(f"{v['slot']}: {v['rule']} {v['detail']}" for v in res["violations"])[:600]}
++
++
++def exclusion(case):
++    try:
++        res = M.exclusion_verdict(router(), _join(case["moment"]["sentences"]),
++                                  _join((case.get("context") or {}).get("before")),
++                                  _join((case.get("context") or {}).get("after")))
++    except P.ReplayMiss as e:
++        raise GateNotMeasured(f"no recorded verdict (replay): {str(e)[:160]}") from None
++    if not res.get("measured"):
++        raise GateNotMeasured(res["why"])
++    return {"verdict": res["verdict"], "why": res["why"]}
+diff --git a/pipeline/package.py b/pipeline/package.py
+new file mode 100644
+index 00000000..5be27ff6
+--- /dev/null
++++ b/pipeline/package.py
+@@ -0,0 +1,780 @@
++#!/usr/bin/env python3
++"""pipeline/package.py — STEP 2 PACKAGE + STEP 3 OPTIMISE (law L-q, '01:55'; laws L-s..L-x; orchestrator 03:40, 05:25,
++05:30): ANGLE FIRST. The moments need not share a development: under moments-first there is no same-event test.
++
++usable()      moments a package may use: on screen eligible (word timing, law L-e), no hard-exclusion risk (L-u), not
++              overlapping a moment delivered in the previous 24 h (novelty by video and time, L-p), channel not opted
++              out, <= 20 s (L-u), a time-sensitive moment only from a source <= TIME_SENSITIVE_H old (L-v 3), no
++              measured speaker change (L-v 1)
++prescreen()   step A of law L-s on each usable moment's own context, ONCE per moment (package-independent), stored on
++              the moment (`store`: a JSON ledger keyed by moment and the step-A prompt); never recomputed
++ANGLES        role angle_write: up to MAX_ANGLES one-sentence angles, each backed by 3-8 cleared moments from >= 3
++              channels (one clip per channel, L-u)
++lineup_for()  code: hook + 2-3 clips for one angle, every segment from a different channel, at most one price prediction
++              (L-u), a clip under SHORT_CLIP_S only as the punchline, and the length the runtime (60-70 s, L-o) AND the
++              factory's EDL rule R4 (VO <= 25 % of runtime, one bridge per channel transition) both allow
++write_v3()    role angle_write: the PBX MAX VO in the renderer's order (hook -> intro -> clip 1 -> bridge -> ...), in
++              one of two styles (05:25 item 3): "host" (tease / hedge-matched hand-off of a VERIFIED speaker / the
++              host's own takeaway after a clip) or "quote" (show + topic, at most four exact words quoted); NEVER a
++              restatement of a clip's claim; word budgets from R4 and the runtime
++GATES (hard, every one, recorded in a sealed inventory, package_pin.REQUIRED_GATES):
++              cheap first (no model): VO fidelity's deterministic rules, DUPLICATE, runtime, R4;
++              then concurrently: the classifying fidelity verdict (A / B / C / D, 05:25 items 1-2) and context
++              integrity B0 / B / C (L-s; step A precomputed); exclusion (L-u) and the second recognition pass (L-v 2)
++              start in the background as soon as a line-up is fixed; then COHERENCE (blind, >= 4).
++              Every verdict avoids the vendors and model families of every reply whose text it judges (L-x).
++              A rejected line goes back to the writer with the exact violations; a clip that fails exclusion or L-v 2
++              is dropped and the angle re-lined; at most WRITES writes per angle and MAX_ANGLES angles; the first
++              package with coherence >= COHERENCE_MIN wins (05:30).
++OUTPUT pp.package/1: segments (moment ids, verbatim text, times), VO, title, caption, the gate inventory, the model per
++              artefact, seconds and dollars.
++"""
++import hashlib
++import itertools
++import json
++import os
++import re
++import time
++from concurrent.futures import ThreadPoolExecutor
++
++import context_integrity as CI
++import eligibility as E
++import vo_fidelity as VF
++
++SEG_MAX_S = 20.0                   # L-u: at most 20 s per source video
++RUNTIME_S = E.RUNTIME_S            # L-o: 60-70 s, the one hard length rule
++WPS = 2.6                          # PBX MAX VO words per second: an ASSUMPTION until the render measures it
++SIGNOFF_WORDS = 18                 # the preview's sign-off ("Clips today from A, B, and C. Go follow them ...")
++FIXED_S = round(E.TAIL_S - SIGNOFF_WORDS / WPS, 2)   # credits card + outro + transitions without VO (~7.4 s)
++VO_S = (6.0, 22.0)                 # the VO's seconds (intro + bridges), the slack that lands the runtime
++R4_WPS, R4_PREROLL_S, R4_SHARE = 2.5, 1.0, 0.25      # edl_rules.rule_r4's own estimate (the factory's rule)
++TIME_SENSITIVE_H = 24.0            # L-v 3: 'today' / 'just' / a price level only from a source this fresh
++PRESCREEN_N = 24                   # moments whose own context is screened (step A) before any writing
++PRESCREEN_BATCH = 8                # excerpts per step-A call
++PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
++SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is the angle's punchline (the last clip)
++MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
++WRITES = 2
++COHERENCE_MIN = 4                  # the blind coherence verdict: every rating >= 4 and a through-line, else next angle
++BUDGET_S, BUDGET_USD = 360.0, 1.50  # orchestrator 05:25 item 5: per package
++VO_DEPENDENT = ("NOT_ENTAILED", "POLARITY", "STRONGER", "FALSE_RELATION")   # context failures the VO's framing causes
++VO_FIX = {"NOT_ENTAILED": "the viewer would take this clip to assert more than its speaker said in context: do not "
++                          "frame or restate it",
++          "POLARITY": "the framing flips what the speaker meant: do not characterise the speaker's view",
++          "STRONGER": "the framing makes the speaker sound more certain than in context: do not restate or reinforce "
++                      "the clip; keep any attribution's verb as hedged as the clip",
++          "FALSE_RELATION": "the voice-over makes these speakers look like they respond to or agree WITH each other: "
++                            "never relate one speaker to another"}
++
++
++def usable(moments, ctx, delivered=(), optout=frozenset()):
++    """delivered: moment ids, or {"video_id", "start", "end"} of moments delivered in the previous 24 h; a moment that
++    overlaps a delivered one in the same video is not novel (audit p2 U2: an id changes when a record is re-punctuated)."""
++    ids = {d for d in delivered if isinstance(d, str)}
++    spans = [d for d in delivered if isinstance(d, dict)]
++    out, why = [], {}
++    for m in moments:
++        mid = m["moment_id"]
++        overlap = any(d.get("video_id") == m["video_id"] and float(d["start"]) < float(m["end"]) and
++                      float(m["start"]) < float(d["end"]) for d in spans)
++        if not m.get("on_screen_ok"):
++            why[mid] = "not eligible on screen: " + "; ".join(
++                f"{r}: {', '.join(v['reasons'])}" for r, v in (m.get("eligibility") or {}).items() if not v["ok"])
++        elif m.get("excluded"):
++            why[mid] = f"hard exclusion (L-u): {m['excluded']}"
++        elif mid in ids or overlap:
++            why[mid] = "delivered in the previous 24 h (or overlaps a delivered moment)"
++        elif m["channel_id"] in optout:
++            why[mid] = "channel opted out"
++        elif m.get("duration_s") is None or m["duration_s"] > SEG_MAX_S:
++            why[mid] = f"{m.get('duration_s')} s: over the {SEG_MAX_S} s per source video (L-u) or unmeasured"
++        elif "time_sensitive" in m.get("risk", []) and (E.age_hours(m["published_at"], ctx.now) or 1e9) > TIME_SENSITIVE_H:
++            why[mid] = f"time-sensitive words from a source older than {TIME_SENSITIVE_H} h (L-v 3)"
++        elif (m.get("speaker") or {}).get("turn_change_inside") is True:
++            why[mid] = "a speaker change inside (L-v 1)"
++        else:
++            out.append(m)                              # an unmeasured speaker is a CANDIDATE; L-v 2 decides (M11)
++    return out, why
++
++
++def runtime(segs, vo_s):
++    """segments' word spans + every spoken VO second (intro, bridges AND the sign-off) + FIXED_S (audit p2 M4)."""
++    return round(sum(m["duration_s"] for m in segs) + vo_s + FIXED_S, 2)
++
++
++R4_MOMENTS_SHARE = 0.40            # orchestrator 06:00 ruling 4: moments-first VO up to 40 % of the runtime; a VO line
++                                   # after the hook, after every clip and after the last clip; 60-70 s stays hard
++
++
++def r4_max_vo_words(content_s, n_vo):
++    """The most VO words (intro + bridges) the moments-first R4 allows: edl_rules' own estimate (words / 2.5 + 1 s per
++    VO line) <= 40 % of the runtime estimate (content + VO and the standard sign-off at WPS + FIXED_S)."""
++    num = R4_MOMENTS_SHARE * (content_s + SIGNOFF_WORDS / WPS + FIXED_S) - R4_PREROLL_S * n_vo
++    return max(0, int(num / (1 / R4_WPS - R4_MOMENTS_SHARE / WPS)))
++
++
++def min_vo_words(content_s):
++    """The fewest VO words (intro + bridges) that land 60 s: content + VO + the standard sign-off + FIXED_S >= 60."""
++    return max(0, int(WPS * (RUNTIME_S[0] - content_s - SIGNOFF_WORDS / WPS - FIXED_S) + 0.999))
++
++
++def content_range(n_clips=2):
++    """Seconds the segments may fill so that some VO lands the runtime in 60-70 s AND fits R4 (one VO line for the
++    intro + one bridge per clip but the last)."""
++    n_vo = 1 + (n_clips - 1)
++    lo = next(c / 10 for c in range(200, 700) if min_vo_words(c / 10) <= r4_max_vo_words(c / 10, n_vo))
++    return lo, RUNTIME_S[1] - FIXED_S - SIGNOFF_WORDS / WPS - VO_S[0]
++
++
++def r4(pk):
++    """R4 for a moments-first package, as the orchestrator ordered it at 06:00 (ruling 4; the integrator brings
++    edl_rules.rule_r4 to it): VO (intro + bridges, edl_rules' estimate 2.5 w/s + 1 s per line) <= 40 % of the runtime
++    estimate; the word caps of config.py; at most one VO line after each clip (the last clip included).
++    -> (ok, reason). The share over clips + VO (today's edl_rules denominator) is reported beside it."""
++    from config import BRIDGE_WORD_CAP, INTRO_WORD_CAP
++    n_clips = len(pk["segments"]) - 1
++    words = [len((pk["vo"]["intro"] or "").split())] + [len(b.split()) for b in pk["vo"]["bridges"]]
++    n_lines = (1 if pk["vo"]["intro"] else 0) + len(pk["vo"]["bridges"])
++    vo_s = sum(words) / R4_WPS + R4_PREROLL_S * n_lines
++    share = vo_s / pk["runtime_s_estimate"]
++    share_old = vo_s / (sum(sg["duration_s"] for sg in pk["segments"]) + vo_s)
++    after = list(pk["vo"]["bridges_after_clip"])
++    fails = []
++    if words[0] > INTRO_WORD_CAP:
++        fails.append(f"intro {words[0]} words (max {INTRO_WORD_CAP})")
++    fails += [f"bridge {i + 1} {w} words (max {BRIDGE_WORD_CAP})" for i, w in enumerate(words[1:]) if w > BRIDGE_WORD_CAP]
++    if len(set(after)) != len(after) or any(type(a) is not int or not 1 <= a <= n_clips for a in after):
++        fails.append(f"bridges after clips {after}: one per clip, 1..{n_clips}")
++    if share > R4_MOMENTS_SHARE:
++        fails.append(f"VO={share:.1%} of the runtime (max {R4_MOMENTS_SHARE:.0%})")
++    note = f"VO {vo_s:.1f} s = {share:.1%} of the {pk['runtime_s_estimate']} s runtime ({share_old:.1%} of clips + VO)"
++    return (not fails), ("R4 (moments-first, 06:00) FAIL: " + "; ".join(fails) if fails else
++                         "R4 (moments-first, 06:00) PASS") + f" | {note}"
++
++
++def budgets(content_s, n_bridges=1):
++    """Word budgets (intro, each bridge, (min, max) total) that land 60-70 s and fit R4; 40 % to the intro."""
++    hi = min(r4_max_vo_words(content_s, 1 + n_bridges), int(VO_S[1] * WPS))
++    lo = min(min_vo_words(content_s), hi)
++    return max(6, int(hi * 0.4)), max(4, int(hi * 0.6 / max(1, n_bridges))), (lo, hi)
++
++
++def _name(m, ctx):
++    return (ctx.channel(m["channel_id"]) or {}).get("display_name") or m["channel_name"]
++
++
++def signoff(segs, ctx):
++    """L-a: the spoken sign-off names exactly the credit set, hook first (code, never the model)."""
++    names = list(dict.fromkeys(_name(m, ctx) for m in segs))
++    who = names[0] if len(names) == 1 else ", ".join(names[:-1]) + f", and {names[-1]}"
++    return f"Clips today from {who}. Go follow them for more. Links are below."
++
++
++def plain_vo(segs, ctx):
++    """L-w 2: the plain factual fallback VO ("Next, <show> on <topic>."): it claims nothing beyond who speaks. Ranked
++    last (orchestrator 03:40); the title names whole channels only (U11)."""
++    intro = {"text": f"Here's {_name(segs[0], ctx)} on Bitcoin.", "cites": []}
++    bridges = [{"text": f"Next, {_name(m, ctx)} on Bitcoin.", "cites": []} for m in segs[2:]]
++    chans = list(dict.fromkeys(_name(m, ctx) for m in segs))
++    title = "Bitcoin: " + ", ".join(chans[:-1]) + f" and {chans[-1]}"
++    while len(title) > 70 and len(chans) > 1:
++        chans = chans[:-1]
++        title = "Bitcoin: " + ", ".join(chans) + " and others"
++    caption = f"Clips from {', '.join(dict.fromkeys(_name(m, ctx) for m in segs))}. Links to every source below."
++    return intro, bridges, {"text": title[:70], "cites": []}, {"text": caption, "cites": []}
++
++
++def assemble(order, by_id, fields, ctx, vo_kind):
++    segs = [by_id[i] for i in order]
++    lines = [dict(fields["intro"], slot="intro")] + \
++        [dict(b, slot=f"bridge_{i + 1}") for i, b in enumerate(fields["bridges"])] + \
++        [dict(fields["title"], slot="title"), dict(fields["caption"], slot="caption")]
++    vo_words = sum(len(x["text"].split()) for x in lines if x["slot"].startswith(("intro", "bridge")))
++    pk = {"schema": "pp.package/1", "type": fields.get("type", "moments"), "angle": fields.get("angle", ""),
++          "vo_kind": vo_kind, "style": fields.get("style"),
++          "segments": [{"label": "hook" if i == 0 else f"clip_{i:02d}", "moment_id": m["moment_id"],
++                        "video_id": m["video_id"], "channel_id": m["channel_id"], "channel": _name(m, ctx),
++                        "k0": m["sentences"][0], "k1": m["sentences"][1], "words": m["words"],
++                        "start": m["start"], "end": m["end"], "duration_s": m["duration_s"], "text": m["text"],
++                        "published_at": m["published_at"], "transcript_sha256": m["transcript_sha256"],
++                        "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s"}
++                       for i, m in enumerate(segs)],
++          "vo": {"intro": fields["intro"]["text"], "bridges": [b["text"] for b in fields["bridges"]],
++                 "bridges_after_clip": list(range(1, len(fields["bridges"]) + 1)),     # the renderer's after_clip
++                 "signoff": signoff(segs, ctx)},
++          "title": fields["title"]["text"], "caption": fields["caption"]["text"],
++          "hook_first_words": " ".join(segs[0]["text"].split()[:8]),
++          "lines": lines}
++    so_words = len(pk["vo"]["signoff"].split())
++    pk["runtime_s_estimate"] = runtime(segs, (vo_words + so_words) / WPS)
++    pk["runtime_note"] = (f"segments {sum(m['duration_s'] for m in segs):.2f} s (word timing) + VO {vo_words} words + "
++                          f"sign-off {so_words} words at {WPS} w/s (assumed) + fixed {FIXED_S} s (credits card, outro, "
++                          f"transitions); the render measures the final")
++    return pk
++
++
++# ── step A once per moment (orchestrator 05:25 item 5) ──
++
++STEP_A_VERSION = hashlib.sha256(CI.STEP_A.encode()).hexdigest()[:12]
++
++
++def _load_store(store):
++    if not store or not os.path.exists(store):
++        return {}
++    with open(store) as f:
++        return json.load(f)
++
++
++def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
++              store=None, log=print):
++    """Step A (context only, package-independent by law L-s) on the best n usable moments, distinct channels first:
++    ({moment_id: A item}, {moment_id: [failing rules]}, {vendor}, {family}). Each moment is screened ONCE: a stored item
++    (same moment, same step-A prompt, a back-end off the writers' vendor and family) is reused, never recomputed.
++    writer_vendor / writer_family: of the writers, so step A never runs on them."""
++    import providers as P
++    seen, order = set(), []
++    ranked = sorted(ms, key=lambda m: (-m["rank_score"], m["moment_id"]))
++    for m in ranked:
++        if m["channel_id"] not in seen:
++            order.append(m)
++            seen.add(m["channel_id"])
++    order = (order + [m for m in ranked if m not in order])[:n]
++    db = _load_store(store)
++    wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
++    a_by, fails, vendors, families, todo = {}, {}, set(), set(), []
++    for m in order:
++        rec = db.get(f"{m['moment_id']}:{STEP_A_VERSION}")
++        b = router.backends.get((rec or {}).get("backend"))
++        if rec and b is not None and b.vendor not in wv and b.family not in wf:
++            a_by[m["moment_id"]] = rec
++            fails[m["moment_id"]] = CI.a_failures(rec)
++            vendors.add(b.vendor)
++            families.add(b.family)
++        else:
++            todo.append(m)
++    for i in range(0, len(todo), batch):
++        chunk = todo[i:i + batch]
++        contexts = {}
++        for m in chunk:
++            text, win = CI._window_text(sources[m["video_id"]], m["sentences"][0], m["sentences"][1])
++            contexts[m["moment_id"]] = {"text": text, "title": sources[m["video_id"]].title or "",
++                                        "channel": _name(m, ctx), "window": win,
++                                        "published": str(m.get("published_at") or "")[:16],
++                                        "show_date": ctx.now.strftime("%Y-%m-%d")}
++        try:
++            got, backend = CI.step_a(router, contexts, writer_vendor, seed=7 + i, writer_family=writer_family)
++        except Exception as e:                           # unreadable: these moments are not cleared (law L-m)
++            for m in chunk:
++                fails[m["moment_id"]] = [f"STEP_A_UNAVAILABLE: {type(e).__name__}"]
++            continue
++        b = router.backends.get(backend)
++        vendors.add(b.vendor if b else backend)
++        families.add(b.family if b else backend)
++        for mid, a in got.items():
++            a_by[mid] = a
++            fails[mid] = CI.a_failures(a)
++            db[f"{mid}:{STEP_A_VERSION}"] = a
++    if store and todo:
++        os.makedirs(os.path.dirname(os.path.abspath(store)), exist_ok=True)
++        with open(store + ".tmp", "w") as f:
++            json.dump(db, f, indent=1)
++        os.replace(store + ".tmp", store)
++    return a_by, fails, vendors, families
++
++
++ANGLE_PROMPT = """You are the editor of PBX MAX: 60-second Bitcoin videos made of other channels' own words, with a
++voice-over that makes a point. Below are clips (verbatim quotes, each with its channel and length) that passed our
++checks. The channels were not in one conversation and never answer each other.
++
++{note}
++{clips}
++
++Find up to {k} ANGLES, best first. An angle is ONE sentence a viewer could repeat: a point that several of these clips
++GENUINELY support together (each clip adds a different reason, fact or voice to the same point). Do not make a point
++the clips do not state. Do not build an angle on a price level or move as if it were today's news unless a clip says
++it is today's.
++The video uses ONE clip per channel: a hook and 2-3 clips, from 3-4 DIFFERENT channels, together {lo:.0f}-{hi:.0f}
++seconds of clips. Give as many good angles as the clips allow (aim for {k}); for each angle give: "angle" (the
++sentence); "moments": the ids of 5 to 8 clips that support it (more choice survives a clip that later fails a check),
++from at least 3 different channels, with enough seconds among them; "hook": one of those ids whose FIRST WORDS grab
++attention AND set up the angle; "support": for each of those ids, a few words on what it adds (an internal note).
++Return ONLY this JSON object: {{"angles": [{{"angle": "...", "moments": ["id", "id", "id"], "hook": "id",
++"support": {{"id": "..."}}}}]}}"""
++
++STYLES = {
++    "host": "HOST STYLE: you have a point of view. A bridge may (a) tease the next clip with a question or a topic, never "
++            "saying what its speaker thinks; (b) hand off with an attribution ONLY for a clip whose speaker is marked "
++            "VERIFIED, with the clip's own hedge (\"Stephan Livera thinks so.\"); (c) land your own takeaway AFTER a "
++            "clip, as your opinion, never as what the speaker said.",
++    "quote": "QUOTE-LED STYLE: introduce each clip by its show and its topic in a few words; you may quote AT MOST FOUR "
++             "exact words of that clip in quotation marks; the point is carried by the sequence of clips and the ONE "
++             "title."}
++
++WRITE_V3 = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
++THE ANGLE (the point this video makes): "{angle}"
++The clips, in play order (verbatim; the channels were not in one conversation and never answer each other):
++
++{note}
++{lineup}
++
++The video plays: the HOOK clip, then your INTRO, then clip 1, then {slots}, then a sign-off that credits every channel
++(written by code).
++Write:
++- "intro": heard right AFTER the hook: your own take that sets up the angle.
++- "bridges": exactly {n_bridges} line(s), one after each clip but the last.
++- "title": ONE title, at most 70 characters; "caption": ONE caption, at most 220 characters.
++- LENGTH: intro + bridges together {lo}-{hi} words; the intro at most {intro_words}, each bridge at most {bridge_words}.
++Every line gives "cites": the ids of the clips it relies on (none for your own commentary).
++{style}
++RULES (a line that breaks one is rejected):
++- NEVER restate a clip's claim before or after it, and never repeat its words: the clip says it, in its own words.
++- Your OWN commentary (an opinion, framing, a question, a tease, a takeaway) is welcome, but it must contain no number,
++  price, date, named person or company, must not say or imply what any speaker thinks, and must not relate speakers.
++- Say what a speaker says or thinks ONLY for a clip marked VERIFIED, by that name, with the clip's own hedge: "thinks"
++  for "I think", "feels" for "I feel like", "says" only for a flat statement. For any other clip credit the SHOW only
++  ("on Coin Bureau", "from What Bitcoin Did's show"), never "<name> says".
++- Never say or imply that channels agree, answer, rebut or react to each other.
++- No price level; no advice to buy, sell or use leverage; no quotes except a clip's exact words; no "destroys",
++  "slams", "exposes", "admits", "confirms", "caught".
++{extra}Return ONLY this JSON object: {{"intro": {{"text": "...", "cites": []}}, "bridges": [{{"text": "...", "cites": ["id"]}}],
++"title": {{"text": "...", "cites": []}}, "caption": {{"text": "...", "cites": []}}}}"""
++
++COHERENCE_PROMPT = """You watch a 60-second video. Here is everything it says and shows, in order (each clip is a
++different person's own words).
++
++{package}
++
++1) State the video's through-line in ONE sentence, or "none" if it has none.
++2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
++3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;
++   1 = no point, or a point the clips do not support).
++Return ONLY this JSON object: {{"through_line": "...", "clips": {{"<label>": 1}}, "vo_point": 1}}"""
++
++
++def current_levels(sources, ctx, hours=24.0):
++    """The Bitcoin price levels this universe states as CURRENT (audit p2 C10): from sentences that name Bitcoin, in a
++    clause with a present-tense word before the price and no future, conditional or history word in the sentence
++    (vo_fidelity.current_level_values), from sources <= `hours` old (L-v 3)."""
++    out = set()
++    for src in sources:
++        age = E.age_hours(src.published_at, ctx.now)
++        if age is None or age > hours:
++            continue
++        for a, b in src.sentences:
++            t = E.spoken(src.tokens[a:b + 1])
++            if E.names_bitcoin(t):
++                out |= set(VF.current_level_values(t))
++    return sorted(out)
++
++
++def check_angles(obj, by_id, k=MAX_ANGLES):
++    if not isinstance(obj, dict) or set(obj) != {"angles"} or not isinstance(obj["angles"], list) or \
++            not 1 <= len(obj["angles"]) <= k:
++        raise ValueError(f"exactly {{'angles': [1-{k} items]}}")
++    out = []
++    for i, a in enumerate(obj["angles"]):
++        if not isinstance(a, dict) or set(a) != {"angle", "moments", "hook", "support"}:
++            raise ValueError(f"angle {i + 1}: keys must be exactly angle, moments, hook, support")
++        ms = a["moments"]
++        if not isinstance(a["angle"], str) or not a["angle"].strip() or not isinstance(ms, list) or \
++                not all(isinstance(m, str) for m in ms):
++            raise ValueError(f"angle {i + 1}: a sentence and a list of offered ids")
++        unknown = [m for m in ms if m not in by_id]
++        if unknown:
++            raise ValueError(f"angle {i + 1}: ids not offered {unknown[:3]} (never dropped silently)")
++        if not 3 <= len(ms) <= 8 or len(set(ms)) != len(ms):
++            raise ValueError(f"angle {i + 1}: 3-8 distinct offered ids")
++        if len({by_id[m]["channel_id"] for m in ms}) < 3 or a["hook"] not in ms:
++            raise ValueError(f"angle {i + 1}: >= 3 channels (one clip per channel, L-u), and the hook one of its moments")
++        if not isinstance(a["support"], dict) or set(a["support"]) != set(ms):
++            raise ValueError(f"angle {i + 1}: 'support' needs exactly its moment ids")
++        out.append(a)
++    return out
++
++
++def lineup_for(angle, by_id, dropped=frozenset()):
++    """Hook + 2-3 clips for one angle: the proposer's hook (else the angle's best hook-eligible moment by its first
++    2 s), clips from the angle's other moments, every segment from a different channel (L-u), at most
++    PRICE_PREDICTIONS_MAX price predictions (L-u), a clip under SHORT_CLIP_S only as the last (the punchline), the
++    length the runtime AND R4 allow. Best by the proposer's order. None if impossible."""
++    ms = [by_id[m] for m in angle["moments"] if m in by_id and m not in dropped]
++    hooks = [m for m in ms if (m.get("eligibility") or {}).get("hook", {}).get("ok")]
++    hooks.sort(key=lambda m: (m["moment_id"] != angle["hook"], -m["scores"]["hook_first_2s"]))
++    for h in hooks:
++        pool = [m for m in ms if m is not h and (m.get("eligibility") or {}).get("clip", {}).get("ok")
++                and m["channel_id"] != h["channel_id"]]
++        best = None
++        for n in (3, 2):
++            lo, hi = content_range(n)
++            for combo in itertools.combinations(pool, n):
++                if len({m["channel_id"] for m in combo}) != n:
++                    continue
++                if sum("price_prediction" in m.get("risk", []) for m in (h, *combo)) > PRICE_PREDICTIONS_MAX:
++                    continue
++                order = sorted(combo, key=lambda m: angle["moments"].index(m["moment_id"]))
++                if [m for m in order[:-1] if m["duration_s"] < SHORT_CLIP_S]:
++                    continue
++                dur = h["duration_s"] + sum(m["duration_s"] for m in order)
++                if not lo <= dur <= hi:
++                    continue
++                key = (n, -sum(angle["moments"].index(m["moment_id"]) for m in order))
++                if best is None or key > best[0]:
++                    best = (key, [h] + order)
++            if best:
++                return best[1]
++    return None
++
++
++STOP = frozenset("a an the and or but so of to in on at for from with by as is are was were be been it its it's this that "
++                 "these those there here i you he she we they me him her us them my your his our their not no do does "
++                 "did just like kind sort very really some any all".split())
++
++
++def duplicates(pk):
++    """A clip must add something (orchestrator 03:40; audit p2 C16): no VO line (intro, every bridge), no title and no
++    caption repeats ANY clip's words: a run of >= 5 canonical tokens with >= 3 content words, or >= 60 % of a short
++    clip's (<= 15 content words) CONTENT words."""
++    out = []
++    lines = [(x["slot"], x["text"]) for x in pk["lines"]]
++    for seg in pk["segments"]:
++        ct = VF.ctoks(seg["text"])
++        content = [t for t in ct if t not in STOP]
++        for slot, text in lines:
++            lt = VF.ctoks(text)
++            run5 = any(VF._run_in(ct[j:j + 5], lt) and sum(t not in STOP for t in ct[j:j + 5]) >= 3
++                       for j in range(max(0, len(ct) - 4)))
++            lset = {t for t in lt if t not in STOP}
++            share = len([t for t in content if t in lset]) / max(1, len(content))
++            if run5 or (len(content) <= 15 and share >= 0.6):
++                out.append({"slot": slot, "rule": "DUPLICATE", "detail": f"repeats the words of {seg['label']}"})
++    return out
++
++
++NO_LINE = re.compile(r"^\W*(none|no\b|n/?a\b|unclear|nothing|there is no)", re.I)
++
++
++def coherence(router, pk, writer_vendor, seed=7, writer_family=None):
++    """The blind QUALITY verdict (never the vendor / family of the text it judges): through-line + ratings. ->
++    (ok, verdict). A through-line that reads 'None.', 'no through-line', 'n/a' or is under 4 words is none (M7)."""
++    import providers as P
++    r = None
++    try:
++        r = router.call("coherence_verdict", COHERENCE_PROMPT.format(package=CI.package_view(pk)), 1200, seed,
++                        avoid_vendor=writer_vendor, avoid_family=writer_family)
++        v = json.loads(r.text.strip())
++        labels = [sg["label"] for sg in pk["segments"]]
++        if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
++                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labels) or \
++                any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
++            raise ValueError("coherence verdict out of contract")
++    except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
++        if r is not None and isinstance(e, (ValueError, TypeError)):
++            router.reject(r)
++        return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False}
++    tl = v["through_line"] if isinstance(v["through_line"], str) else ""
++    ok = bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4 and \
++        min(list(v["clips"].values()) + [v["vo_point"]]) >= COHERENCE_MIN
++    return ok, dict(v, backend=r.backend, measured=True, replayed=bool(getattr(r, "replayed", False)))
++
++
++def _lineup_block(segs, ctx, a_by):
++    from story_semantics import quote_data
++    out = []
++    for i, m in enumerate(segs):
++        ver = (a_by.get(m["moment_id"]) or {}).get("speaker_verified")
++        who = f"speaker VERIFIED: {_name(m, ctx)}" if ver else "speaker NOT verified (credit the show only)"
++        out.append(f'{"HOOK" if i == 0 else f"CLIP {i}"} id={m["moment_id"]} | show: {_name(m, ctx)} | {who} | '
++                   f'{m["duration_s"]:.1f} s | "{quote_data(m["text"], 700)}"')
++    return "\n".join(out)
++
++
++def write_v3(router, angle, segs, ctx, a_by, style="host", extra="", seed=7, avoid_vendor=None):
++    from select_by_id import UNTRUSTED
++    from story_semantics import quote_data
++    content = sum(m["duration_s"] for m in segs)
++    nb = len(segs) - 2
++    iw, bw, (lo, hi) = budgets(content, nb)
++    slots = ", then ".join(f"your bridge, then clip {i + 2}" for i in range(nb)) or "nothing"
++    angle_text = " ".join(quote_data(angle["angle"], 300).replace('"', "'").split())     # M9: escaped, one line
++    prompt = WRITE_V3.format(angle=angle_text, note=UNTRUSTED.replace("<sentences>", "the quotes"),
++                             lineup=_lineup_block(segs, ctx, a_by), slots=slots, n_bridges=nb, lo=lo, hi=hi,
++                             intro_words=min(iw, 30), bridge_words=min(bw, 20), style=STYLES[style],
++                             extra=(extra + "\n") if extra else "")
++    r = router.call("angle_write", prompt, 3000, seed, avoid_vendor=avoid_vendor)
++    try:
++        obj = json.loads(r.text.strip())
++        ids = [m["moment_id"] for m in segs]
++        keys = {"intro", "bridges", "title", "caption"}
++        if not isinstance(obj, dict) or set(obj) != keys:
++            raise ValueError(f"keys must be exactly {sorted(keys)}")
++        if not isinstance(obj["bridges"], list) or len(obj["bridges"]) != nb:
++            raise ValueError(f"'bridges' must hold {nb} lines")
++        for slot, ln in [("intro", obj["intro"]), ("title", obj["title"]), ("caption", obj["caption"])] + \
++                [(f"bridge_{i + 1}", b) for i, b in enumerate(obj["bridges"])]:
++            if not isinstance(ln, dict) or set(ln) != {"text", "cites"} or not isinstance(ln["text"], str) or \
++                    not ln["text"].strip() or not isinstance(ln["cites"], list) or \
++                    any(not isinstance(c, str) or c not in ids for c in ln["cites"]):
++                raise ValueError(f"{slot}: needs text and cites from the line-up's ids")
++        if len(obj["title"]["text"]) > 70 or len(obj["caption"]["text"]) > 220:
++            raise ValueError("title <= 70 characters, caption <= 220")
++    except (ValueError, TypeError):
++        router.reject(r)
++        raise
++    return r, dict(obj, type="moments", angle=angle["angle"], style=style)
++
++
++def fidelity_segments(pk, a_by):
++    """The fidelity gate's view of the segments: the show always; the speaker only when step A VERIFIED the channel's
++    host with quoted evidence (law L-v 1); otherwise not verified."""
++    out = {}
++    for sg in pk["segments"]:
++        ver = (a_by.get(sg["moment_id"]) or {}).get("speaker_verified")
++        out[sg["moment_id"]] = {"show": sg["channel"], "speaker": sg["channel"] if ver else None,
++                                "names": [sg["channel"]] if ver else [], "video_id": sg["video_id"], "text": sg["text"]}
++    return out
++
++
++def cheap_checks(pk, a_by, levels, now):
++    """The gates that cost nothing, run before any paid verdict: VO fidelity's deterministic rules, DUPLICATE,
++    runtime, R4. -> (violations, det, dup, rt_ok, r4_res)."""
++    segs_v = fidelity_segments(pk, a_by)
++    lines = [{"slot": x["slot"], "text": x["text"], "cites": x["cites"]} for x in pk["lines"]]
++    man = {"channels": [sg["channel"] for sg in pk["segments"]], "date": now.strftime("%Y-%m-%d") if now else None}
++    det = VF.check_deterministic(segs_v, lines, man, levels)
++    dup = duplicates(pk)
++    rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1]
++    r4_res = r4(pk)
++    v = det["violations"] + dup + ([] if rt_ok else [{"slot": "-", "rule": "RUNTIME", "detail":
++                                                      f"{pk['runtime_s_estimate']} s outside 60-70 s: change the VO's "
++                                                      f"length"}]) + \
++        ([] if r4_res[0] else [{"slot": "-", "rule": "R4", "detail": r4_res[1]}])
++    return v, det, dup, rt_ok, r4_res
++
++
++def paid_gates(router, pk, sources, a_by, levels, now, writers_v, writers_f, pool):
++    """The classifying fidelity verdict and context integrity (B0, B, C; step A precomputed), concurrently."""
++    segs_v = fidelity_segments(pk, a_by)
++    lines = [{"slot": x["slot"], "text": x["text"], "cites": x["cites"]} for x in pk["lines"]]
++    man = {"channels": [sg["channel"] for sg in pk["segments"]], "date": now.strftime("%Y-%m-%d") if now else None}
++    a_use = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
++    f_fid = pool.submit(VF.check, router, segs_v, lines, writers_v, 7, man, levels, writers_f)
++    f_ctx = pool.submit(CI.check_contexts, router, pk, CI.contexts_from_sources(pk, sources, now), writers_v, 7, a_use,
++                        writers_f)
++    return f_fid.result(), f_ctx.result()
++
++
++def exclusion_for(router, m, sources, cache):
++    if m["moment_id"] not in cache:
++        import moments as M
++        src = sources[m["video_id"]]
++        a, b = CI.window(src, m["sentences"][0], m["sentences"][1])
++        sent = lambda k: E.spoken(src.tokens[src.sentences[k][0]:src.sentences[k][1] + 1])
++        cache[m["moment_id"]] = M.exclusion_verdict(
++            router, m["text"], " ".join(sent(k) for k in range(a, m["sentences"][0])),
++            " ".join(sent(k) for k in range(m["sentences"][1] + 1, b + 1)),
++            avoid_model=(m.get("mined") or {}).get("by"))
++    return cache[m["moment_id"]]
++
++
++def truth_for(router, m, work_dir, cache):
++    if m["moment_id"] not in cache:
++        import transcript_truth as TT
++        try:
++            cache[m["moment_id"]] = TT.verify_segment(router, m["video_id"], float(m["start"]), float(m["end"]),
++                                                      m["text"], work_dir)
++        except Exception as e:                         # not measured: never a pass (law L-m)
++            cache[m["moment_id"]] = {"ok": False, "error": f"{type(e).__name__}: {str(e)[:200]}"}
++    return cache[m["moment_id"]]
++
++
++def _writers(router):
++    """The vendor and family of the angle_write chain's first back-end not down (verdicts avoid them; a live failover
++    adds the next writer's)."""
++    for name in router.chain("angle_write"):
++        b = router.backends.get(name)
++        if b is not None and name not in router.down:
++            return {b.vendor}, {b.family}
++    return set(), set()
++
++
++def _redo(violations):
++    return ("Your previous script was REJECTED. Exactly these lines failed, with the reason; rewrite ONLY them:\n" +
++            "\n".join(f"- {v['slot']}: {v['rule']}: {v['detail']}" for v in violations)[:1800])
++
++
++def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
++          writes=WRITES, work_dir=None, store=None, styles=("host", "quote"), spend=None):
++    """Angle first, inside the orchestrator's budgets (05:25 item 5, 05:30): at most max_angles angles x `writes`
++    writes, stopped at the first package that passes every hard gate with coherence >= COHERENCE_MIN. work_dir: where
++    law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger. spend: a
++    callable returning the ledger's USD (dollars per package). -> {"package", "packages", "tried", "angles", ...}."""
++    t0 = time.time()
++    usd0 = spend() if spend else None
++    ms, why = usable(moments, ctx, delivered, optout)
++    wv, wf = _writers(router)
++    a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log)
++    cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
++    levels = current_levels(sources.values(), ctx)
++    out = {"packages": [], "tried": [], "unusable": why, "usable": len(ms), "current_levels": levels,
++           "prescreen": {"screened": len(fails), "cleared": len(cleared),
++                         "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "package": None}
++    log(f"  {len(ms)} usable, {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
++    if len({m["channel_id"] for m in cleared.values()}) < 3:
++        out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
++        return out
++    if not work_dir:
++        out["why_none"] = "no work_dir: law L-v 2's second pass cannot run, so no package can pass (fail closed)"
++        return out
++    from select_by_id import UNTRUSTED
++    from story_semantics import quote_data
++    clips = "\n".join(f'id={m["moment_id"]} | {_name(m, ctx)} | {m["duration_s"]:.1f} s | "{quote_data(m["text"], 600)}"'
++                      for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
++    lo, hi = content_range(2)[0], content_range(3)[1]
++    angles, angle_reply = None, None
++    for seed in (7, 8):                               # one re-ask on an out-of-contract reply (never served again)
++        r = None
++        try:
++            r = router.call("angle_write", ANGLE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"),
++                                                               clips=clips, k=max_angles, lo=lo, hi=hi), 3000, seed)
++            angles, angle_reply = check_angles(json.loads(r.text.strip()), cleared, max_angles), r
++            break
++        except Exception as e:
++            if r is not None:
++                router.reject(r)
++            out["why_none"] = f"no readable angles: {type(e).__name__}: {str(e)[:200]}"
++    if not angles:
++        return out
++    out.pop("why_none", None)
++    out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
++    writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
++    log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)")
++    exc, tru = {}, {}
++    with ThreadPoolExecutor(max_workers=8) as pool:
++        for ai, angle in enumerate(angles):
++            dropped, w_used = set(), 0
++            while w_used < writes and not out["packages"]:
++                segs = lineup_for(angle, cleared, frozenset(dropped))
++                rec = {"angle": ai + 1, "text": angle["angle"],
++                       "lineup": [m["moment_id"] for m in segs] if segs else None, "attempts": []}
++                out["tried"].append(rec)
++                if segs is None:
++                    rec["why"] = "no line-up: fewer than a hook + 2 clips from distinct channels in the length rules"
++                    break
++                bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
++                                       pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
++                extra, relined = "", False
++                while w_used < writes:
++                    style = styles[min(w_used, len(styles) - 1)]
++                    w_used += 1
++                    try:
++                        wr, fields = write_v3(router, angle, segs, ctx, a_by, style, extra, seed=7 + w_used + 10 * ai)
++                    except Exception as e:
++                        rec["attempts"].append({"style": style, "writer_error": f"{type(e).__name__}: {str(e)[:200]}"})
++                        continue
++                    writers_v.add(wr.vendor)
++                    writers_f.add(wr.family)
++                    pk = assemble([m["moment_id"] for m in segs], cleared, fields, ctx,
++                                  f"written ({style}), attempt {w_used}")
++                    cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
++                    att = {"style": style, "writer": wr.backend, "runtime": pk["runtime_s_estimate"],
++                           "lines": [{k: x[k] for k in ("slot", "text", "cites")} for x in pk["lines"]]}
++                    rec["attempts"].append(att)
++                    log(f"  angle {ai + 1} write {w_used} ({style}, {wr.backend}): " +
++                        ("cheap gates fail " + ", ".join(sorted({v["rule"] for v in cheap})) if cheap else "cheap PASS")
++                        + f" ({time.time() - t0:.0f} s)")
++                    if cheap:
++                        att["violations"] = cheap
++                        extra = _redo(cheap)
++                        continue
++                    fid, cx = paid_gates(router, pk, sources, a_by, levels, ctx.now, writers_v, writers_f, pool)
++                    framing = [v for v in cx["violations"] if v["rule"] in VO_DEPENDENT]
++                    att["violations"] = fid["violations"] + cx["violations"]
++                    att["verdict_classes"] = (fid.get("verdict") or {}).get("classes")
++                    log(f"    fidelity {'PASS' if fid['ok'] else 'FAIL'}, context {'PASS' if cx['ok'] else 'FAIL'} "
++                        f"({time.time() - t0:.0f} s)")
++                    if not fid["ok"] or not cx["ok"]:
++                        if fid["ok"] and not framing:
++                            rec["why"] = "context integrity failed on something the VO cannot fix"
++                            w_used = writes
++                            break
++                        extra = _redo(fid["violations"] + [{"slot": v["segment"], "rule": v["rule"],
++                                                            "detail": VO_FIX.get(v["rule"], v["detail"])}
++                                                           for v in framing])
++                        continue
++                    got = {mid: (f[0].result(), f[1].result()) for mid, f in bg.items()}
++                    lost = {mid for mid, (e, t) in got.items() if e.get("verdict") != "keep" or not t.get("ok")}
++                    att["exclusion"] = {mid: e for mid, (e, _) in got.items()}
++                    att["second_pass"] = {mid: t for mid, (_, t) in got.items()}
++                    if lost:
++                        dropped |= lost
++                        rec["why"] = f"exclusion / L-v 2 dropped {sorted(lost)}: re-lined"
++                        relined = True
++                        break
++                    ok_c, coh = coherence(router, pk, writers_v, writer_family=writers_f)
++                    att["coherence"] = coh
++                    log(f"    coherence {'PASS' if ok_c else 'FAIL'} {coh.get('clips')} vo {coh.get('vo_point')} "
++                        f"({time.time() - t0:.0f} s)")
++                    a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
++                    pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab,
++                                            {k: v for k, (v, _) in got.items()}, {k: v for k, (_, v) in got.items()},
++                                            ok_c, coh)
++                    if not ok_c:
++                        rec["why"] = "coherence below 4 or no through-line: next angle"
++                        w_used = writes
++                        break
++                    pk["models"] = {"angle": angle_reply.backend, "writer": wr.backend,
++                                    "fidelity_verdict": fid.get("backend"), "context": cx.get("backends"),
++                                    "coherence": coh.get("backend")}
++                    pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh}
++                    pk["seconds"] = round(time.time() - t0, 1)
++                    pk["usd"] = round(spend() - usd0, 4) if spend else None
++                    out["packages"].append(pk)
++                    rec["result"] = "PACKAGE"
++                    break
++                if out["packages"] or not relined:
++                    break
++            if out["packages"]:
++                break
++            if time.time() - t0 > BUDGET_S * 2 or (spend and spend() - usd0 > BUDGET_USD * 2):
++                out["why_none"] = "twice the per-package time / spend budget is used: stopped"
++                break
++    out["package"] = out["packages"][0] if out["packages"] else None
++    out["seconds"] = round(time.time() - t0, 1)
++    out["usd"] = round(spend() - usd0, 4) if spend else None
++    return out
++
++
++def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
++    """The sealed GATE INVENTORY (audit p2 C1; package_pin.REQUIRED_GATES): one row per hard gate, each
++    {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m)."""
++    row = lambda ok, by, replayed=False, n=1, measured=True: {
++        "status": "NOT RUN" if not measured or n < 1 else ("PASS" if ok else "FAIL"), "by": by,
++        "replayed": bool(replayed), "n": n}
++    det = fid["deterministic"]
++    viol = {v["rule"] for v in ctx_.get("violations") or []}
++    a_rows = list((a_by or {}).values())
++    return {
++        "vo_fidelity_deterministic": row(det["ok"], "code (vo_fidelity.check_deterministic)"),
++        "vo_fidelity_verdict": row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"), fid.get("replayed"),
++                                   measured=bool(fid.get("measured"))),
++        "duplicate": row(not dup, "code (package.duplicates)"),
++        "price_now": row(not any(v["rule"] == "PRICE_NOW" for v in det["violations"]),
++                         "code (vo_fidelity.price_now)", measured=bool(det.get("price_now_measured"))),
++        "runtime": row(rt_ok, f"code (estimate at {WPS} w/s)"),
++        "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
++        "context_a": row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
++                         sorted({str(a.get("backend")) for a in a_rows}), any(a.get("replayed") for a in a_rows),
++                         n=len(a_rows)),
++        "context_b": row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
++                         measured=bool(ctx_.get("measured"))),
++        "context_c": row(ctx_.get("ok") is True and not (viol & {"NOT_ENTAILED", "POLARITY", "STRONGER"}),
++                         (ctx_.get("backends") or {}).get("C"), ctx_.get("replayed"), measured=bool(ctx_.get("measured"))),
++        "exclusion": row(all(e.get("verdict") == "keep" for e in exc.values()),
++                         sorted({str(e.get("backend")) for e in exc.values()}),
++                         any(e.get("replayed") for e in exc.values()), n=len(exc),
++                         measured=all(e.get("measured") for e in exc.values())),
++        "second_pass": row(all(t.get("ok") for t in truth.values()), sorted({str(t.get("model")) for t in truth.values()}),
++                           any(t.get("replayed") for t in truth.values()), n=len(truth),
++                           measured=all("error" not in t for t in truth.values())),
++        "coherence": row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
++    }
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+new file mode 100644
+index 00000000..e1fd886f
+--- /dev/null
++++ b/pipeline/package_pin.py
+@@ -0,0 +1,98 @@
++#!/usr/bin/env python3
++"""pipeline/package_pin.py — a pp.package/1 as the existing PINNED entry point's decision (pipeline/pinned.py, schema
++protocol_pulse.pinned_story.v1), so the SAME factory downstream (validate -> cut -> sentence law -> voice -> render ->
++gates -> release authorisation) renders a moments-first package.
++
++- Every segment carries `approved_text` = the moment's exact words (its source sentences, verbatim) and the record's
++  transcript sha256. The pin is `machine_cuts`, so the sentence law locates the words BY TEXT in the acquired
++  transcript, never by offsets. Times are YouTube coordinates (the store record's own seconds in the full video).
++- `approved_by` names the machine and REVIEW ONLY. No human approved this decision (law L-q).
++- The package's VO (intro, bridges with the renderer's after_clip), title, caption and its GATE INVENTORY travel in
++  `moments_package`, SEALED (audit p2 C1, the L-j pattern): `package_sha256` = seal() over exactly those bytes and the
++  inventory. to_pin() REFUSES a package whose inventory is missing a required gate, holds anything but exactly "PASS",
++  or rests on a replayed verdict (never deliverable, law L-j). REQUESTS R7's pinned.py patch recomputes the seal and
++  refuses any pin whose bytes or gates differ from what was sealed.
++- Writes nothing itself: to_pin() returns the dict; write_pin() writes it.
++"""
++import hashlib
++import json
++import os
++from datetime import datetime, timezone
++
++SCHEMA = "protocol_pulse.pinned_story.v1"
++REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime", "r4",
++                  "context_a", "context_b", "context_c", "exclusion", "second_pass", "coherence")
++
++
++class PinRefused(Exception):
++    """The package may not become a pinned decision."""
++
++
++def seal(segments, edl_vo, signoff, title, caption, gates):
++    """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
++    words, the transcript sha), the VO the renderer will speak (intro, bridges with after_clip), the sign-off, the ONE
++    title and caption (law L-t), and the gate inventory."""
++    body = {"segments": [{"video_id": s["video_id"], "start": round(float(s["start"]), 3),
++                          "end": round(float(s["end"]), 3), "text": s["approved_text"],
++                          "transcript_sha256": s.get("transcript_sha256")} for s in segments],
++            "vo": {"intro": edl_vo.get("intro"), "bridges": [{"text": b["text"], "after_clip": b["after_clip"]}
++                                                             for b in edl_vo.get("bridges") or []]},
++            "signoff": signoff, "title": title, "caption": caption, "gates": gates}
++    return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
++
++
++def gate_problems(gates):
++    """[why] for an inventory that does not authorise a pin (empty = every required gate exactly PASS, measured live)."""
++    if not isinstance(gates, dict):
++        return ["no gate inventory"]
++    out = []
++    for g in REQUIRED_GATES:
++        row = gates.get(g)
++        if not isinstance(row, dict) or row.get("status") != "PASS":
++            out.append(f"{g}: {(row or {}).get('status') if isinstance(row, dict) else 'missing'}")
++        elif row.get("replayed") is not False:
++            out.append(f"{g}: replayed or not stated (never deliverable, law L-j)")
++    return out
++
++
++def to_pin(pk, run_name):
++    problems = gate_problems(pk.get("gates"))
++    if problems:
++        raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
++    segs = []
++    for i, s in enumerate(pk["segments"]):
++        segs.append({"role": "hook" if i == 0 else "clip", "video_id": s["video_id"], "channel": s["channel"],
++                     "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
++                     "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
++                     "time_coords": "youtube", "source": {"kind": "youtube"}})
++    edl_vo = {"intro": pk["vo"]["intro"],
++              "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
++    sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"])
++    return {"schema": SCHEMA, "story_id": f"moments-{run_name}-{sha[:8]}",
++            "label": "bitcoin", "headline": pk["title"],
++            "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
++            "approved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
++            "approval_ref": f"docs/audits/parallel/pp-selectid_STATE.md (top package, {run_name})",
++            "machine_cuts": True, "segments": segs,
++            "moments_package": {"schema": pk["schema"], "package_sha256": sha, "type": pk["type"],
++                                "vo_kind": pk.get("vo_kind"), "edl_vo": edl_vo,
++                                "signoff_expected": pk["vo"]["signoff"],
++                                "title": pk["title"], "caption": pk["caption"],
++                                "hook_first_words": pk["hook_first_words"],
++                                "vo_jobs": {"intro": "context", **{f"bridge_{i + 1}": "connection"
++                                                                   for i in range(len(pk["vo"]["bridges"]))}},
++                                "gates": pk["gates"],
++                                "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
++                                           "derived_from": "gates (every required row exactly PASS, checked above)",
++                                           "models": pk.get("models")},
++                                "runtime_s_estimate": pk["runtime_s_estimate"],
++                                "sources_30s_before": [s["url_30s_before"] for s in pk["segments"]]}}
++
++
++def write_pin(pk, run_name, out_dir, name="MOMENTS_PIN.json"):
++    pin = to_pin(pk, run_name)
++    os.makedirs(out_dir, exist_ok=True)
++    path = os.path.join(out_dir, name)
++    with open(path, "w") as f:
++        json.dump(pin, f, indent=1)
++    return path, pin
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+new file mode 100644
+index 00000000..0412d035
+--- /dev/null
++++ b/pipeline/providers.py
+@@ -0,0 +1,751 @@
++#!/usr/bin/env python3
++"""pipeline/providers.py — ONE provider interface for every model role (law L-x, orchestrator 2026-11-12 '02:45':
++"no single model, Ultron first").
++
++Every role (mining, angle + writing, fidelity verdict, context verdict, viewer takeaway, trend brief, story selection,
++check verdict) calls Router.call(role, prompt, ...). The role's back-end CHAIN comes from pipeline/model_providers.json;
++no vendor or model name appears in any role's code. A back-end that cannot answer now (out of credit, rate-limited after
++backoff, server error, transport failure, not configured, the local model without its GPU0 lease) raises Unavailable and
++the chain moves on, so the run continues when any one vendor is down (tonight OpenAI ran dry mid-run). A role whose whole
++chain is unavailable raises ProviderError: a failed role, never a pass (law L-m).
++
++Verdict roles never run on the writer's vendor or model family (law L-s: "a model from a different vendor than the
++writer"; law L-x: generator and judge are different models): Router.call(..., avoid_vendor=<vendors>,
++avoid_family=<families>) skips those back-ends; both accept one value or a set (the angle and every writer attempt).
++
++Replies are text only; strict parsing stays with the caller (no repair here, law L-l). Every exchange can be recorded
++(record_dir) and replayed offline (replay=True): the recorded back-end name travels with the reply, so every artefact
++names the model that produced it. A recording served in a LIVE run is `cached` (the same model's reply to the same
++bytes); one served offline is `replayed` (never deliverable, law L-j). A reply its caller finds out of contract is
++dropped from the recordings (Router.reject), so it is asked again next time instead of served again.
++
++A back-end that refuses ONE request (RequestRejected: a bad request, over its context, an empty reply) is skipped for
++that call only; one that cannot answer at all (Unavailable: account, auth, rate limit after backoff, server, transport)
++is down for the rest of the run. Spend is priced per back-end at the config's upper-bound USD per 1M tokens (per minute
++for transcription) into one ledger with a guard: each paid call RESERVES its upper bound under the ledger lock before it
++runs and settles after; an unreadable ledger stops every paid call (fail closed); a free back-end is never stopped
++(SpendLimit). Heimdall's account is read from its /credits endpoint and the 90% tripwire NOTIFIES (Reply.notices and
++Router.notices), it never halts (PBX 02:45).
++
++Keys are read by name from the env file inside code; never printed or logged.
++"""
++import hashlib
++import json
++import os
++import time
++import urllib.error
++import urllib.request
++import uuid
++from dataclasses import dataclass, field
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++CONFIG = os.path.join(HERE, "model_providers.json")
++ENV_PATH = os.path.join("/home/ultron/protocol_pulse", ".env")   # the order's key file (read by name inside code only)
++BACKOFF_S = (10, 30, 90)            # rate limits / server errors / transport; an exhausted account is final at once
++PER_REQUEST_CODES = (400, 413, 422)  # the request itself was refused: skip this back-end for THIS call only
++
++
++class Unavailable(Exception):
++    """This back-end cannot answer now: the chain moves to the next one, and it is down for the rest of the run."""
++
++
++class RequestRejected(Exception):
++    """This back-end refused THIS request (bad request, over its context, empty reply): the chain moves on for this
++    call only; the back-end stays available to other calls."""
++
++
++class ProviderError(Exception):
++    """No back-end of the role's chain answered: the role failed (never a pass)."""
++
++
++class SpendLimit(Exception):
++    """The session's spend guard is reached: no further model call."""
++
++
++class ReplayMiss(Exception):
++    """Offline replay has no recorded exchange for this call."""
++
++
++@dataclass
++class Reply:
++    text: str
++    backend: str                                  # "vendor:model", the model that produced this text
++    vendor: str
++    seconds: float = 0.0
++    usage: dict = field(default_factory=dict)     # {"in": n, "out": n} (reasoning tokens counted as out)
++    usd: float = 0.0
++    replayed: bool = False                        # served OFFLINE from a recording (never deliverable, law L-j)
++    tried: list = field(default_factory=list)     # [(backend, why unavailable)] before this one answered
++    notices: list = field(default_factory=list)
++    family: str = ""                              # the model family (law L-x: generator and judge differ)
++    cached: bool = False                          # a live run served this model's recorded reply to the same bytes
++    record_path: str = ""                         # where the exchange is recorded (Router.reject removes it)
++
++
++def env_value(path, name):
++    """One key's value from an env file, read by name inside code (never printed or logged)."""
++    try:
++        with open(path) as f:
++            for line in f:
++                k, sep, v = line.strip().partition("=")
++                k = k.strip()
++                k = k[len("export "):].strip() if k.startswith("export ") else k
++                if sep and k == name:
++                    return v.strip().strip('"').strip("'")
++    except OSError:
++        pass
++    return None
++
++
++def _http_json(url, body, headers, timeout):
++    req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={"Content-Type": "application/json",
++                                                                              **headers})
++    return json.loads(urllib.request.urlopen(req, timeout=timeout).read())
++
++
++def _with_backoff(fn, final_codes=()):
++    """fn() with BACKOFF_S retries on 429 / 5xx / transport; HTTP codes in final_codes, an exhausted account and any
++    other 4xx are final. A refusal of the request itself (PER_REQUEST_CODES) raises RequestRejected; anything else
++    that cannot answer raises Unavailable, with the reason."""
++    last = None
++    for wait in BACKOFF_S + (None,):
++        try:
++            return fn()
++        except urllib.error.HTTPError as e:
++            try:
++                err = json.loads(e.read() or b"{}")
++            except (ValueError, OSError):
++                err = {}
++            e_obj = err.get("error") if isinstance(err.get("error"), dict) else {}
++            code = str(e_obj.get("code") or e_obj.get("type") or err.get("type") or "")
++            last = f"HTTP {e.code} {code}".strip()
++            if e.code in final_codes or "insufficient_quota" in code or "credit" in code or "billing" in code:
++                raise Unavailable(last + " (final: account)") from None
++            if (e.code == 429 or e.code >= 500) and wait is not None:
++                time.sleep(wait)
++                continue
++            if e.code in PER_REQUEST_CODES:
++                raise RequestRejected(last) from None
++            raise Unavailable(last) from None
++        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, ValueError) as e:
++            last = type(e).__name__
++            if wait is not None:
++                time.sleep(wait)
++                continue
++            raise Unavailable(last) from None
++    raise Unavailable(last or "unavailable")
++
++
++# ── back-ends ──
++
++class Backend:
++    vendor = "?"
++
++    def __init__(self, name, spec, env_path):
++        self.name, self.spec, self.env_path = name, spec, env_path
++        self.model = spec["model"]
++        self.family = spec.get("family") or self.model.split("/")[-1].split(":")[0].split("-")[0]
++        self.price = tuple(spec.get("price_usd_per_1m") or (0.0, 0.0))
++        self.timeout = float(spec.get("timeout_s", 600))
++
++    def usd(self, usage):
++        return round(usage.get("in", 0) * self.price[0] / 1e6 + usage.get("out", 0) * self.price[1] / 1e6, 6)
++
++    def free(self):
++        return not any(self.price)
++
++    def max_out(self, max_tokens):
++        """The most output tokens this back-end may bill for one call (its own floor applied)."""
++        return max(int(self.spec.get("min_out", 0)), max_tokens)
++
++    def upper_usd(self, prompt, max_tokens, system=None):
++        """The call's spend upper bound: every prompt character a token (a safe over-estimate) + the output cap."""
++        return self.usd({"in": len(prompt) + len(system or "") + 200, "out": self.max_out(max_tokens)})
++
++    def key(self, name):
++        k = env_value(self.env_path, name)
++        if not k:
++            raise Unavailable(f"{name} not configured")
++        return k
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        raise NotImplementedError
++
++
++class LocalBackend(Backend):
++    """gemma3:27b (or the configured local model) on Ultron's GPU0 Ollama through story_semantics.LocalLLM: its GPU0
++    placement guard, digest and temperature 0 kept. Only a STARTED LocalLLM handed in by the caller that holds the GPU0
++    lease (law L-r) makes this back-end available; without one it is Unavailable (this builder session never uses a GPU)."""
++    vendor = "local"
++
++    def __init__(self, name, spec, env_path, llm=None):
++        super().__init__(name, spec, env_path)
++        self.llm = llm
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        if self.llm is None:
++            raise Unavailable("local model needs a started LocalLLM under the GPU0 lease (law L-r)")
++        import http.client
++        import story_semantics as sm
++        if len(prompt) / 2.5 + max_tokens > sm.LLM_CTX:       # Ollama keeps the tail and drops the instructions
++            raise RequestRejected(f"prompt over the local context {sm.LLM_CTX}")
++        p = (system + "\n\n" + prompt) if system else prompt
++        t0 = time.time()
++        try:
++            text = self.llm._post(p, max_tokens, seed)
++        except (OSError, http.client.HTTPException, ValueError, KeyError, TypeError) as e:
++            raise Unavailable(f"ollama: {type(e).__name__}") from None
++        return text, {"in": 0, "out": 0}, time.time() - t0
++
++
++class OpenAIBackend(Backend):
++    """OpenAI chat/completions; JSON mode (the word JSON is put in the system message, as json_object requires)."""
++    vendor = "openai"
++    URL = "https://api.openai.com/v1/chat/completions"
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        key = self.key("OPENAI_API_KEY")
++        body = {"model": self.model, "max_completion_tokens": max(int(self.spec.get("min_out", 0)), max_tokens),
++                "messages": [{"role": "system", "content": (system or "") + " Reply with one JSON object."},
++                             {"role": "user", "content": prompt}],
++                "response_format": {"type": "json_object"}, "seed": seed}
++        if self.spec.get("reasoning_effort"):
++            body["reasoning_effort"] = self.spec["reasoning_effort"]
++        t0 = time.time()
++        j = _with_backoff(lambda: _http_json(self.URL, body, {"Authorization": "Bearer " + key}, self.timeout))
++        u = j.get("usage") or {}
++        try:
++            text = j["choices"][0]["message"].get("content") or ""
++        except (KeyError, IndexError, TypeError):
++            raise RequestRejected("openai: no choices") from None
++        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
++
++
++class HeimdallBackend(OpenAIBackend):
++    """Heimdall: an OpenAI-compatible multi-model API (HEIMDALL_API_KEY) at the config's base_url. JSON is asked for in
++    words only (its models differ in json_object support); its /credits endpoint feeds the 90% tripwire."""
++    vendor = "heimdall"
++
++    def _base(self):
++        if not self.spec.get("base_url"):
++            raise Unavailable("heimdall: no base_url in the config")
++        return self.spec["base_url"].rstrip("/")
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        key = self.key("HEIMDALL_API_KEY")
++        body = {"model": self.model, "max_tokens": self.max_out(max_tokens), "seed": seed,
++                "temperature": self.spec.get("temperature", 0),
++                "messages": [{"role": "system", "content": (system or "") + " Reply with one JSON object only."},
++                             {"role": "user", "content": prompt}]}
++        t0 = time.time()
++        base = self._base()
++        j = _with_backoff(lambda: _http_json(base + "/chat/completions", body, {"Authorization": "Bearer " + key},
++                                             self.timeout), final_codes=(401, 402, 403))
++        u = j.get("usage") or {}
++        try:
++            text = j["choices"][0]["message"].get("content") or ""
++        except (KeyError, IndexError, TypeError):
++            raise RequestRejected("heimdall: no choices") from None
++        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
++
++    def credits(self):
++        """(total_usage, total_credits) in USD from GET /credits, or None when it cannot be read."""
++        try:
++            key = self.key("HEIMDALL_API_KEY")
++            req = urllib.request.Request(self._base() + "/credits", headers={"Authorization": "Bearer " + key})
++            d = json.loads(urllib.request.urlopen(req, timeout=30).read())
++            d = d.get("data", d)
++            return float(d["total_usage"]), float(d["total_credits"])
++        except Exception:
++            return None
++
++
++class XAIBackend(Backend):
++    """xAI chat/completions; a judge runs at temperature 0 with the attempt's seed (production parity with LocalLLM).
++    Told it has no tools and must answer in one message (orchestrator 02:00)."""
++    vendor = "xai"
++    URL = "https://api.x.ai/v1/chat/completions"
++    SYSTEM = "You have no tools and no internet access. Answer in ONE message containing only the JSON object asked for."
++
++    def max_out(self, max_tokens):
++        return max(int(self.spec.get("min_out", 8000)), max_tokens * 8)       # a reasoning model thinks inside it
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        key = self.key(self.spec.get("key_name", "XAI_API_KEY_MEDLEY"))
++        body = {"model": self.model, "max_tokens": self.max_out(max_tokens),
++                "temperature": self.spec.get("temperature", 0), "seed": seed,
++                "messages": [{"role": "system", "content": self.SYSTEM + (" " + system if system else "")},
++                             {"role": "user", "content": prompt}]}
++        t0 = time.time()
++        j = _with_backoff(lambda: _http_json(self.URL, body, {"Authorization": "Bearer " + key}, self.timeout),
++                          final_codes=(401, 402, 403))
++        u = j.get("usage") or {}
++        reasoning = int((u.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0)
++        try:
++            text = j["choices"][0]["message"].get("content") or ""
++        except (KeyError, IndexError, TypeError):
++            raise RequestRejected("xai: no choices") from None
++        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0) + reasoning}, \
++            time.time() - t0
++
++
++class AnthropicBackend(Backend):
++    """Anthropic Messages (streaming; adaptive thinking at the configured effort)."""
++    vendor = "anthropic"
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        try:
++            import anthropic
++        except ImportError:
++            raise Unavailable("anthropic SDK not installed") from None
++        client = anthropic.Anthropic(api_key=self.key("ANTHROPIC_API_KEY"), max_retries=3, timeout=self.timeout)
++        kw = {"model": self.model, "max_tokens": self.max_out(max_tokens),
++              "messages": [{"role": "user", "content": prompt}],
++              "system": (system or "") + " Reply with one JSON object only, no prose, no code fence."}
++        if self.spec.get("effort"):
++            kw["output_config"] = {"effort": self.spec["effort"]}
++            kw["thinking"] = {"type": "adaptive"}
++        t0 = time.time()
++        try:
++            with client.messages.stream(**kw) as s:
++                msg = s.get_final_message()
++        except anthropic.APIStatusError as e:
++            if e.status_code in PER_REQUEST_CODES:
++                raise RequestRejected(f"anthropic HTTP {e.status_code}") from None
++            raise Unavailable(f"anthropic HTTP {e.status_code}") from None
++        except anthropic.APIError as e:
++            raise Unavailable(f"anthropic {type(e).__name__}") from None
++        text = "".join(b.text for b in msg.content if b.type == "text")
++        return text, {"in": msg.usage.input_tokens, "out": msg.usage.output_tokens}, time.time() - t0
++
++
++class XAISearchBackend(Backend):
++    """xAI Responses API with live X and web search tools (x_search, web_search), for the trend brief only. The
++    reply text is returned as written; the caller validates it into the closed taxonomy (law L-w 4)."""
++    vendor = "xai_search"
++    URL = "https://api.x.ai/v1/responses"
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        key = self.key(self.spec.get("key_name", "XAI_API_KEY_MEDLEY"))
++        body = {"model": self.model, "max_output_tokens": max_tokens,
++                "input": [{"role": "system", "content": system or "Answer with one JSON object only."},
++                          {"role": "user", "content": prompt}],
++                "tools": [{"type": t} for t in self.spec.get("tools", ("x_search", "web_search"))]}
++        t0 = time.time()
++        j = _with_backoff(lambda: _http_json(self.URL, body, {"Authorization": "Bearer " + key}, self.timeout),
++                          final_codes=(401, 402, 403))
++        text = j.get("output_text") or ""
++        if not text:
++            for item in j.get("output") or []:
++                for part in (item.get("content") or []) if isinstance(item, dict) else []:
++                    if isinstance(part, dict) and part.get("type") in ("output_text", "text"):
++                        text += part.get("text") or ""
++        u = j.get("usage") or {}
++        return text, {"in": int(u.get("input_tokens") or u.get("prompt_tokens") or 0),
++                      "out": int(u.get("output_tokens") or u.get("completion_tokens") or 0)}, time.time() - t0
++
++
++# ── transcription back-ends (law L-v 2's second recognition pass; role "transcribe") ──
++
++def _multipart(fields, file_field, path, content_type="audio/wav"):
++    boundary = uuid.uuid4().hex
++    body = b"".join(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n".encode()
++                    for k, v in fields.items())
++    with open(path, "rb") as f:
++        data = f.read()
++    body += (f"--{boundary}\r\nContent-Disposition: form-data; name=\"{file_field}\"; "
++             f"filename=\"{os.path.basename(path)}\"\r\nContent-Type: {content_type}\r\n\r\n").encode() + data + \
++        f"\r\n--{boundary}--\r\n".encode()
++    return body, f"multipart/form-data; boundary={boundary}"
++
++
++def _wav_seconds(path):
++    import wave
++    try:
++        with wave.open(path) as w:
++            return w.getnframes() / float(w.getframerate())
++    except (wave.Error, OSError, EOFError):
++        return 600.0                                   # not measurable: priced as ten minutes (an upper bound)
++
++
++def _sha_file(path):
++    h = hashlib.sha256()
++    with open(path, "rb") as f:
++        for chunk in iter(lambda: f.read(1 << 20), b""):
++            h.update(chunk)
++    return h.hexdigest()
++
++
++class STTBackend(Backend):
++    """A transcription back-end: transcribe(wav) -> ({"text", "segments": [{"speaker", "start", "end", "text"}]},
++    seconds), times in seconds from the start of the audio. Priced per minute of audio (price_usd_per_min)."""
++
++    def usd(self, usage):
++        return round(float(usage.get("seconds", 0.0)) / 60.0 * float(self.spec.get("price_usd_per_min", 0.0)), 6)
++
++    def free(self):
++        return not float(self.spec.get("price_usd_per_min", 0.0))
++
++    def upper_usd(self, wav, max_tokens=0, system=None):
++        return self.usd({"seconds": _wav_seconds(wav) + 5.0})
++
++    def _post(self, url, body, headers):
++        req = urllib.request.Request(url, data=body, headers=headers)
++        return json.loads(urllib.request.urlopen(req, timeout=self.timeout).read())
++
++    def transcribe(self, wav):
++        raise NotImplementedError
++
++
++class OpenAITranscribe(STTBackend):
++    """OpenAI's transcription API (diarised JSON when the config says diarize)."""
++    vendor = "openai"
++    URL = "https://api.openai.com/v1/audio/transcriptions"
++
++    def transcribe(self, wav):
++        key = self.key("OPENAI_API_KEY")
++        fields = {"model": self.model, "response_format": "diarized_json" if self.spec.get("diarize") else "json"}
++        if self.spec.get("diarize"):
++            fields["chunking_strategy"] = "auto"
++        body, ctype = _multipart(fields, "file", wav)
++        t0 = time.time()
++        d = _with_backoff(lambda: self._post(self.URL, body, {"Authorization": "Bearer " + key, "Content-Type": ctype}),
++                          final_codes=(401, 402, 403))
++        segs = [{"speaker": s.get("speaker"), "start": s.get("start"), "end": s.get("end"), "text": s.get("text") or ""}
++                for s in d.get("segments") or [] if isinstance(s, dict)]
++        return {"text": d.get("text") or " ".join(s["text"] for s in segs), "segments": segs}, time.time() - t0
++
++
++class ElevenLabsTranscribe(STTBackend):
++    """ElevenLabs speech-to-text with diarisation: word timings with speaker ids, grouped into speaker runs."""
++    vendor = "elevenlabs"
++    URL = "https://api.elevenlabs.io/v1/speech-to-text"
++
++    def transcribe(self, wav):
++        key = self.key("ELEVENLABS_API_KEY")
++        body, ctype = _multipart({"model_id": self.model, "diarize": "true", "timestamps_granularity": "word",
++                                  "tag_audio_events": "false"}, "file", wav)
++        t0 = time.time()
++        d = _with_backoff(lambda: self._post(self.URL, body, {"xi-api-key": key, "Content-Type": ctype}),
++                          final_codes=(401, 402, 403))
++        segs, words = [], []
++        for w in d.get("words") or []:
++            if not isinstance(w, dict) or w.get("type", "word") != "word":
++                continue
++            words.append({"text": w.get("text") or "", "start": w.get("start"), "end": w.get("end"),
++                          "speaker": w.get("speaker_id")})
++            if segs and segs[-1]["speaker"] == w.get("speaker_id"):
++                segs[-1]["end"] = w.get("end")
++                segs[-1]["text"] += " " + (w.get("text") or "")
++            else:
++                segs.append({"speaker": w.get("speaker_id"), "start": w.get("start"), "end": w.get("end"),
++                             "text": w.get("text") or ""})
++        return {"text": d.get("text") or " ".join(s["text"] for s in segs), "segments": segs, "words": words}, \
++            time.time() - t0
++
++
++VENDORS = {"local": LocalBackend, "xai_search": XAISearchBackend, "openai": OpenAIBackend, "heimdall": HeimdallBackend, "xai": XAIBackend,
++           "anthropic": AnthropicBackend, "openai_stt": OpenAITranscribe, "elevenlabs_stt": ElevenLabsTranscribe}
++
++
++def _as_set(x):
++    if not x:
++        return frozenset()
++    return frozenset(v for v in x if v) if isinstance(x, (set, frozenset, list, tuple)) else frozenset([x])
++
++
++# ── the router ──
++
++class Router:
++    """Role -> back-end chain from the config. call() tries the chain in order (skipping back-ends this run already
++    found unavailable, and any on avoid_vendor), records every exchange when record_dir is set, prices it into the
++    spend ledger, and returns a Reply naming the back-end that answered. replay=True serves recorded exchanges only."""
++
++    def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
++                 local_llm=None, chains=None):
++        with open(config) as f:
++            self.config = json.load(f)
++        self.env_path = env_path or ENV_PATH
++        self.record_dir, self.replay, self.spend_path, self.limit_usd = record_dir, replay, spend_path, limit_usd
++        self.down, self.notices = {}, []
++        self.backends = {}
++        for name, spec in self.config["backends"].items():
++            cls = VENDORS[spec["vendor"]]
++            self.backends[name] = cls(name, spec, self.env_path, local_llm) if cls is LocalBackend else \
++                cls(name, spec, self.env_path)
++        self.chains = dict(chains or {})          # tests / the A/B harness may pin a role's chain (still by config name)
++
++    def chain(self, role):
++        if role in self.chains:
++            return list(self.chains[role])
++        try:
++            return list(self.config["roles"][role]["chain"])
++        except KeyError:
++            raise ProviderError(f"role {role!r} has no chain in {os.path.basename(CONFIG)}") from None
++
++    # recording
++    def _path(self, role, backend, prompt, max_tokens, seed, system):
++        k = hashlib.sha256(json.dumps([role, backend, prompt, max_tokens, seed, system or ""]).encode()).hexdigest()
++        return os.path.join(self.record_dir, k[:2], k + ".json")
++
++    # the spend ledger: reserve the upper bound before a paid call, settle after (fail closed)
++    def _lock(self):
++        import fcntl
++        os.makedirs(os.path.dirname(os.path.abspath(self.spend_path)), exist_ok=True)
++        lk = open(self.spend_path + ".lock", "w")
++        fcntl.flock(lk, fcntl.LOCK_EX)
++        return lk
++
++    def _ledger(self):
++        """The ledger (a missing file is an empty one). An unreadable ledger is a SpendLimit: no paid call runs on a
++        spend total nobody can read (fail closed). Reservations of processes that are gone are released."""
++        if not os.path.exists(self.spend_path):
++            return {"usd_estimate": 0.0, "calls": 0, "by_backend": {}, "by_role": {}, "reserved": {}}
++        try:
++            with open(self.spend_path) as f:
++                d = json.load(f)
++            if not isinstance(d, dict) or not isinstance(d.get("usd_estimate", 0.0), (int, float)):
++                raise ValueError("not a ledger")
++        except (OSError, ValueError) as e:
++            raise SpendLimit(f"the spend ledger {self.spend_path} is unreadable ({type(e).__name__}): no paid call "
++                             "until it is repaired") from None
++        for k, v in (("calls", 0), ("by_backend", {}), ("by_role", {}), ("reserved", {})):
++            d.setdefault(k, v)
++        live = {}
++        for k, v in d["reserved"].items():
++            try:
++                os.kill(int(str(k).split(":")[0]), 0)
++                live[k] = v
++            except PermissionError:
++                live[k] = v                            # another user's live process
++            except (ValueError, ProcessLookupError, OSError):
++                pass
++        d["reserved"] = live
++        return d
++
++    def _save(self, d):
++        tmp = f"{self.spend_path}.{os.getpid()}.tmp"
++        with open(tmp, "w") as f:
++            json.dump(d, f, indent=1)
++        os.replace(tmp, self.spend_path)
++
++    def _spent(self):
++        """The ledger's total (raises SpendLimit when it cannot be read)."""
++        if not self.spend_path:
++            return 0.0
++        with self._lock():
++            return float(self._ledger()["usd_estimate"])
++
++    def _reserve(self, b, upper):
++        """Reserve a paid call's upper bound -> a reservation key (None for a free back-end or no ledger); raises
++        SpendLimit when spent + reserved + this call's upper bound would pass the limit."""
++        if not self.spend_path or b.free():
++            return None
++        with self._lock():
++            d = self._ledger()
++            held = sum(float(x) for x in d["reserved"].values())
++            if d["usd_estimate"] + held + upper > self.limit_usd:
++                raise SpendLimit(f"spend estimate {d['usd_estimate']:.2f} USD + reserved {held:.2f} + this call's upper "
++                                 f"bound {upper:.2f} > the limit {self.limit_usd} USD")
++            key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
++            d["reserved"][key] = round(upper, 6)
++            self._save(d)
++        return key
++
++    def _settle(self, key, backend=None, usage=None, usd=0.0, role=""):
++        """Release a reservation and account the call that answered (a free one too, when the ledger is readable)."""
++        if not self.spend_path or (key is None and backend is None):
++            return
++        with self._lock():
++            try:
++                d = self._ledger()
++            except SpendLimit:
++                if key is None:
++                    return                             # a free call: nothing to guard, nothing to write
++                raise
++            d["reserved"].pop(key, None)
++            if backend is not None:
++                usage = usage or {}
++                b = d["by_backend"].setdefault(backend.name, {"calls": 0, "in": 0, "out": 0, "usd_estimate": 0.0,
++                                                              "price_usd_per_1m": list(backend.price)})
++                b.update(calls=b["calls"] + 1, usd_estimate=round(b["usd_estimate"] + usd, 6),
++                         **{"in": b["in"] + int(usage.get("in", 0)), "out": b["out"] + int(usage.get("out", 0))})
++                if usage.get("seconds"):
++                    b["audio_s"] = round(b.get("audio_s", 0.0) + float(usage["seconds"]), 2)
++                r = d["by_role"].setdefault(role, {"calls": 0, "usd_estimate": 0.0})
++                r.update(calls=r["calls"] + 1, usd_estimate=round(r["usd_estimate"] + usd, 6))
++                d.update(calls=d["calls"] + 1, usd_estimate=round(d["usd_estimate"] + usd, 6))
++            self._save(d)
++
++    def reject(self, reply, why=""):
++        """The caller found this reply out of its contract: drop its recording, so the exchange is asked again next
++        time instead of served again (fable C1 U1). Offline replay keeps its recordings. -> True if one was dropped."""
++        if self.replay or reply is None or not getattr(reply, "record_path", ""):
++            return False
++        try:
++            os.remove(reply.record_path)
++            return True
++        except OSError:
++            return False
++
++    def heimdall_tripwire(self, at=0.9):
++        """NOTIFY when Heimdall's account usage reaches `at` of its credits (PBX 02:45: never a halt)."""
++        h = next((b for b in self.backends.values() if isinstance(b, HeimdallBackend)), None)
++        got = h.credits() if h else None
++        if got and got[1] > 0 and got[0] / got[1] >= at:
++            msg = f"HEIMDALL SPEND AT {int(at * 100)}%: {got[0]:.2f} of {got[1]:.2f} USD"
++            if msg not in self.notices:
++                self.notices.append(msg)
++            return msg
++        return None
++
++    def _skip(self, name, b, av, am, af):
++        """Why this back-end may not answer this call, or None."""
++        if b is None:
++            return "not in config backends"
++        if b.vendor in av:
++            return f"same vendor as the text it judges ({b.vendor}): skipped"
++        if name in am:
++            return "same model as the generator: skipped"
++        if b.family in af:
++            return f"same model family as the generator ({b.family}): skipped"
++        if name in self.down:
++            return f"down this run: {self.down[name]}"
++        return None
++
++    def _record(self, path, rec):
++        import threading
++        os.makedirs(os.path.dirname(path), exist_ok=True)
++        tmp = f"{path}.{os.getpid()}.{threading.get_ident()}.tmp"      # the gates call concurrently (05:25 item 5)
++        with open(tmp, "w") as f:
++            json.dump(dict(rec, recorded_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())), f, indent=1)
++        os.replace(tmp, path)
++
++    def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
++             avoid_family=None):
++        av, am, af = _as_set(avoid_vendor), _as_set(avoid_model), _as_set(avoid_family)
++        tried, notices = [], []
++        for name in self.chain(role):
++            b = self.backends.get(name)
++            why = self._skip(name, b, av, am, af)
++            if why is None and isinstance(b, STTBackend):
++                why = "a transcription back-end (Router.transcribe)"
++            if why:
++                tried.append((name, why))
++                continue
++            path = self._path(role, name, prompt, max_tokens, seed, system) if self.record_dir else None
++            if path and os.path.exists(path):
++                with open(path) as f:
++                    rec = json.load(f)
++                return Reply(rec["text"], name, b.vendor, rec.get("seconds", 0.0), rec.get("usage") or {},
++                             rec.get("usd", 0.0), self.replay, tried, notices, b.family, not self.replay, path)
++            if self.replay:
++                tried.append((name, "replay: not recorded"))
++                continue
++            key = self._reserve(b, b.upper_usd(prompt, max_tokens, system))
++            if b.vendor == "heimdall":
++                n = self.heimdall_tripwire()
++                if n:
++                    notices.append(n)
++            try:
++                text, usage, secs = b.complete(prompt, max_tokens, seed, system)
++            except RequestRejected as e:
++                self._settle(key)
++                tried.append((name, f"refused this request: {e}"))
++                continue
++            except Unavailable as e:
++                self._settle(key)
++                self.down[name] = str(e)
++                tried.append((name, str(e)))
++                continue
++            except BaseException:
++                self._settle(key)
++                raise
++            usd = b.usd(usage)
++            self._settle(key, b, usage, usd, role)
++            recorded = ""
++            if path and isinstance(text, str) and text.strip():
++                self._record(path, {"role": role, "backend": name, "model": b.model, "vendor": b.vendor, "seed": seed,
++                                    "max_tokens": max_tokens, "system": system, "prompt": prompt, "text": text,
++                                    "usage": usage, "usd": usd, "seconds": round(secs, 2)})
++                recorded = path
++            return Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices, b.family, False,
++                         recorded)
++        if self.replay:
++            raise ReplayMiss(f"{role}: no recorded exchange ({tried})")
++        raise ProviderError(f"{role}: every back-end unavailable: {tried}")
++
++    def transcribe(self, role, wav):
++        """The role's TRANSCRIPTION chain on one audio file (law L-v 2) -> (result, Reply naming the back-end); the
++        same down / record / replay / spend rules as call(). Recorded by the audio's sha256."""
++        tried = []
++        audio = _sha_file(wav)
++        for name in self.chain(role):
++            b = self.backends.get(name)
++            why = self._skip(name, b, frozenset(), frozenset(), frozenset())
++            if why is None and not isinstance(b, STTBackend):
++                why = "not a transcription back-end"
++            if why:
++                tried.append((name, why))
++                continue
++            path = self._path(role, name, "audio:" + audio, 0, 0, None) if self.record_dir else None
++            if path and os.path.exists(path):
++                with open(path) as f:
++                    rec = json.load(f)
++                return rec["result"], Reply(json.dumps(rec["result"]), name, b.vendor, rec.get("seconds", 0.0),
++                                            rec.get("usage") or {}, rec.get("usd", 0.0), self.replay, tried, [],
++                                            b.family, not self.replay, path)
++            if self.replay:
++                tried.append((name, "replay: not recorded"))
++                continue
++            key = self._reserve(b, b.upper_usd(wav))
++            try:
++                result, secs = b.transcribe(wav)
++            except RequestRejected as e:
++                self._settle(key)
++                tried.append((name, f"refused this request: {e}"))
++                continue
++            except Unavailable as e:
++                self._settle(key)
++                self.down[name] = str(e)
++                tried.append((name, str(e)))
++                continue
++            except BaseException:
++                self._settle(key)
++                raise
++            usage = {"seconds": round(_wav_seconds(wav), 2)}
++            usd = b.usd(usage)
++            self._settle(key, b, usage, usd, role)
++            recorded = ""
++            if path:
++                self._record(path, {"role": role, "backend": name, "model": b.model, "vendor": b.vendor,
++                                    "audio_sha256": audio, "result": result, "usage": usage, "usd": usd,
++                                    "seconds": round(secs, 2)})
++                recorded = path
++            return result, Reply(json.dumps(result), name, b.vendor, round(secs, 2), usage, usd, False, tried, [],
++                                 b.family, False, recorded)
++        if self.replay:
++            raise ReplayMiss(f"{role}: no recorded transcription ({tried})")
++        raise ProviderError(f"{role}: every transcription back-end unavailable: {tried}")
++
++
++class RoleModel:
++    """A select_by_id.Model over a role (law L-x for the story-first selector, REQUESTS R6 item 7): complete() ->
++    (text, meta) with the answering back-end in meta; ProviderError becomes select_by_id.ModelError."""
++
++    def __init__(self, router, role, avoid_vendor=None):
++        self.router, self.role, self.avoid_vendor = router, role, avoid_vendor
++        self.name = f"role:{role}"
++
++    def complete(self, prompt, max_tokens, seed):
++        import select_by_id as SB
++        try:
++            r = self.router.call(self.role, prompt, max_tokens, seed, avoid_vendor=self.avoid_vendor)
++        except ProviderError as e:
++            raise SB.ModelError(str(e)[:300]) from None
++        except ReplayMiss as e:
++            raise SB.ReplayMiss(str(e)[:300]) from None
++        except SpendLimit as e:
++            raise SB.SpendLimit(str(e)) from None
++        return r.text, {"backend": r.backend, "vendor": r.vendor, "usd": r.usd, "replayed": r.replayed,
++                        "tried": r.tried}

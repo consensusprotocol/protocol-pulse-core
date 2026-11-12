@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Answering a question about whether early Bitcoin adopters recreate inequality, the speaker asserts that Bitcoin has no authority letting anyone take others' wealth, so unequal Bitcoin holdings result from people's own choices to buy it. (certainty: certain)</A><B>Bitcoin has no authority allowing seizure of others' wealth; unequal holdings result from voluntary choice (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>Referring to recent hacks in the crypto space, the speaker says Bitcoin itself is not being hacked, only intermediaries, which highlights Bitcoin's security and uniqueness. (certainty: likely)</A><B>Bitcoin itself is not hacked (only intermediaries are), highlighting its secure and unique nature (certainty: certain)</B></pair>\n<pair label=\"clip_02\"><A>The speaker believes Bitcoin is currently the most undervalued asset in the global financial system, noting that parity with gold's market value would be roughly $1.4-1.5 million per Bitcoin. (certainty: likely)</A><B>Bitcoin is the most undervalued asset globally with gold parity value of about $1.4-1.5 million per BTC (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}, {\"label\": \"clip_02\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}]}",
+ "usage": {
+  "in": 583,
+  "out": 2513
+ },
+ "usd": 0.06574,
+ "seconds": 21.28,
+ "recorded_at": "2026-11-12T10:42:28Z"
+}

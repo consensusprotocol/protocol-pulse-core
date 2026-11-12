@@ -1,0 +1,1047 @@
+{
+ "run": "fresh_20261106_213852",
+ "now": "2026-11-06T21:38:54.269034+00:00",
+ "seconds": 47.2,
+ "scope": {
+  "word_sources": 5,
+  "caption_only_awaiting_word_pass": 91
+ },
+ "baseline": {
+  "topics": {
+   "price_action": 0.75,
+   "etf_flows": 0.25,
+   "treasury_companies": 0.5,
+   "us_policy": 0.75,
+   "mining": 0.25,
+   "onchain": 0.25,
+   "derivatives_leverage": 0.25,
+   "institutional_adoption": 0.25,
+   "sovereign_adoption": 0.5,
+   "protocol_dev": 0.25,
+   "security_custody": 0.25,
+   "elections_politics": 0.5,
+   "market_sentiment": 0.25,
+   "stocks_correlation": 1.0,
+   "gold_comparison": 0.25
+  },
+  "channels": {
+   "price_action": 3,
+   "etf_flows": 1,
+   "treasury_companies": 2,
+   "us_policy": 3,
+   "mining": 1,
+   "onchain": 1,
+   "derivatives_leverage": 1,
+   "institutional_adoption": 1,
+   "sovereign_adoption": 2,
+   "protocol_dev": 1,
+   "security_custody": 1,
+   "elections_politics": 2,
+   "market_sentiment": 1,
+   "stocks_correlation": 4,
+   "gold_comparison": 1
+  },
+  "window_channels": 4,
+  "hours": 24.0
+ },
+ "rows": 181,
+ "sources_in_window": 5,
+ "skipped": {},
+ "calls": [
+  {
+   "table": 0,
+   "rows": 181,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.389625,
+      "usage": {
+       "in": 6951,
+       "out": 2378
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8e71e37db05ccbcdb34c",
+   "video_id": "l987bgGZjS0",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-05T22:00:19+00:00",
+   "title": "Bitcoin Dumps as Democrats Take Congress! Now What?",
+   "transcript_sha256": "1daffbee0a36db5650bbca74fff4d8fda97951709135571907668913b49d4747",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2098,
+    2120
+   ],
+   "sentences": [
+    148,
+    149
+   ],
+   "text": "Bitcoin you hold yourself has no app anyone can switch off. So holding your own keys means nobody can switch your money off.",
+   "start": 666.03,
+   "end": 672.19,
+   "duration_s": 6.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "security_custody"
+   ],
+   "reason": "The off-switch metaphor makes self-custody immediately understandable and memorable.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.16 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.16 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 1,
+   "rank_score": 27,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.25
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9e0c3559f20421578450",
+   "video_id": "l987bgGZjS0",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-05T22:00:19+00:00",
+   "title": "Bitcoin Dumps as Democrats Take Congress! Now What?",
+   "transcript_sha256": "1daffbee0a36db5650bbca74fff4d8fda97951709135571907668913b49d4747",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    0,
+    11
+   ],
+   "sentences": [
+    0,
+    0
+   ],
+   "text": "Bitcoin just gave back its entire election pump in a single morning.",
+   "start": 0.0,
+   "end": 3.3,
+   "duration_s": 3.3,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 4,
+    "stance": 2,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "elections_politics"
+   ],
+   "reason": "An entire rally erased in one morning delivers an immediate, self-contained reversal.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.3 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.3 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 2,
+   "rank_score": 26,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.75
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f3c63dbbcf82798343da",
+   "video_id": "l987bgGZjS0",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-05T22:00:19+00:00",
+   "title": "Bitcoin Dumps as Democrats Take Congress! Now What?",
+   "transcript_sha256": "1daffbee0a36db5650bbca74fff4d8fda97951709135571907668913b49d4747",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    1873,
+    1927
+   ],
+   "sentences": [
+    132,
+    134
+   ],
+   "text": "Michael Saylor pointed out that Florida just elected a Republican governor who backed a U.S. Bitcoin Reserve, and Texas elected a Democratic senator who voted to create one for his state. The case for holding Bitcoin crosses party lines. So whoever you voted for this week, what you save in is still your call.",
+   "start": 599.22,
+   "end": 614.42,
+   "duration_s": 15.2,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 4,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": true,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "elections_politics",
+    "us_policy",
+    "sovereign_adoption"
+   ],
+   "reason": "Opposing parties backing Bitcoin reserves provides a concrete setup for a bipartisan savings message.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "15.2 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 3,
+   "rank_score": 26,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.75
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "102d49fd12436f88a600",
+   "video_id": "w4h9HfP7Gb0",
+   "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+   "channel_name": "Swan Bitcoin",
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "title": "You Don\u2019t Have to Pick the AI Winners to Own Bitcoin",
+   "transcript_sha256": "7cf9539b0d26b0f96ed5d6b8c3a06bb5d1566521cd3fe7cb07dc4028f5bdc361",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    290,
+    322
+   ],
+   "sentences": [
+    17,
+    18
+   ],
+   "text": "AI uncertainty is a big... part of my personal thesis for investing in Bitcoin. I love that I don't have to predict which companies will win the AI race to make that bet.",
+   "start": 107.45,
+   "end": 118.24,
+   "duration_s": 10.79,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "stocks_correlation",
+    "market_sentiment"
+   ],
+   "reason": "Reframes AI uncertainty as a Bitcoin investment thesis without needing to pick winning companies.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.79 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 4,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "173710b2b1821c4450e5",
+   "video_id": "l987bgGZjS0",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-05T22:00:19+00:00",
+   "title": "Bitcoin Dumps as Democrats Take Congress! Now What?",
+   "transcript_sha256": "1daffbee0a36db5650bbca74fff4d8fda97951709135571907668913b49d4747",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2742,
+    2775
+   ],
+   "sentences": [
+    190,
+    191
+   ],
+   "text": "If Washington ever goes the route of capital controls and seizing assets, that hurts the price of just about everything, Bitcoin included. But that's also exactly when holding your own keys matters the most.",
+   "start": 872.56,
+   "end": 882.61,
+   "duration_s": 10.05,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [
+    "us_policy",
+    "security_custody",
+    "price_action"
+   ],
+   "reason": "Acknowledges Bitcoin's price vulnerability before explaining why self-custody matters under capital controls.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.05 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 5,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.75
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "ce17615c59f5c75c5329",
+   "video_id": "w4h9HfP7Gb0",
+   "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+   "channel_name": "Swan Bitcoin",
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "title": "You Don\u2019t Have to Pick the AI Winners to Own Bitcoin",
+   "transcript_sha256": "7cf9539b0d26b0f96ed5d6b8c3a06bb5d1566521cd3fe7cb07dc4028f5bdc361",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    17,
+    58
+   ],
+   "sentences": [
+    2,
+    3
+   ],
+   "text": "The NASDAQ 100 fell 6.4%, its worst day since March 2020, and chip stocks fell 12%. Bitcoin actually fell less than the NASDAQ 100, down about 5 % over 24 hours and trading around $76,000 by the U.S. close.",
+   "start": 8.06,
+   "end": 23.62,
+   "duration_s": 15.56,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 2,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "stocks_correlation",
+    "price_action"
+   ],
+   "reason": "Historic stock losses set up the surprising reveal that Bitcoin fell less.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "15.56 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 6,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "5490fe25a19b66f4ab94",
+   "video_id": "y0SjcqQPdpA",
+   "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+   "channel_name": "Scott Melker",
+   "published_at": "2026-11-06T14:29:19+00:00",
+   "title": "Bitcoin Just Wiped Out The Bulls",
+   "transcript_sha256": "a9a11418a3e0526ce90d37ac297c93970c70998e122b1f6f19fcae7d3222a08f",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    1554,
+    1605
+   ],
+   "sentences": [
+    140,
+    141
+   ],
+   "text": "Well, the NADAQ is down 10%, and we're still $17,000 or $18,000 above Bitcoin's low. So the case that the NASDAQ or the market dropping 20 % would send Bitcoin to 10,000 to me or something way lower right now does not make any sense because we're halfway there.",
+   "start": 518.3,
+   "end": 535.52,
+   "duration_s": 17.22,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "topics": [
+    "stocks_correlation",
+    "price_action"
+   ],
+   "reason": "Uses Bitcoin's relative resilience to directly challenge a dramatic bearish price scenario.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "hook_lead"
+     ],
+     "targets_missed": [
+      "17.22 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 7,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "a4a840619cc6dd510fd7",
+   "video_id": "w4h9HfP7Gb0",
+   "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+   "channel_name": "Swan Bitcoin",
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "title": "You Don\u2019t Have to Pick the AI Winners to Own Bitcoin",
+   "transcript_sha256": "7cf9539b0d26b0f96ed5d6b8c3a06bb5d1566521cd3fe7cb07dc4028f5bdc361",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    170,
+    196
+   ],
+   "sentences": [
+    12,
+    12
+   ],
+   "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+   "start": 67.05,
+   "end": 76.21,
+   "duration_s": 9.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 2,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "derivatives_leverage",
+    "price_action"
+   ],
+   "reason": "A billion-dollar liquidation figure explains the sell-off through concrete consequences.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "9.16 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 8,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.75
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8793ee774e91835ff3b5",
+   "video_id": "y0SjcqQPdpA",
+   "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+   "channel_name": "Scott Melker",
+   "published_at": "2026-11-06T14:29:19+00:00",
+   "title": "Bitcoin Just Wiped Out The Bulls",
+   "transcript_sha256": "a9a11418a3e0526ce90d37ac297c93970c70998e122b1f6f19fcae7d3222a08f",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    4173,
+    4202
+   ],
+   "sentences": [
+    342,
+    342
+   ],
+   "text": "Russia's largest exchange Moscow Exchange will open Bitcoin trading on December 1st under the country's new crypto law, with retail buyers tested and capped at 300,000 rubles a year.",
+   "start": 1408.71,
+   "end": 1419.47,
+   "duration_s": 10.76,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 1,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "topics": [
+    "institutional_adoption",
+    "sovereign_adoption"
+   ],
+   "reason": "A major national exchange opening Bitcoin trading offers concrete adoption news with specific retail restrictions.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.76 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "single_source_breaking"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 9,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.5
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "d6eb1618ee8fe0691778",
+   "video_id": "kUrwpp--Nps",
+   "channel_id": "UC678LSROK47l__G-pMnOMgA",
+   "channel_name": "Blockware Solutions",
+   "published_at": "2026-11-06T17:52:20+00:00",
+   "title": "I Studied Every Stock Market Crash of the Last 40 Years (Here\u2019s What Happens Next)",
+   "transcript_sha256": "9768a7b51fb00115b4f64461c7740e4007b49e29ec55c602dad8d26b8c52f5c6",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2043,
+    2054
+   ],
+   "sentences": [
+    129,
+    129
+   ],
+   "text": "And that is fundamental Bitcoin 101 finite supply into infinitely debasing currency.",
+   "start": 688.13,
+   "end": 694.13,
+   "duration_s": 6.0,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed",
+    "market_sentiment"
+   ],
+   "reason": "Compresses the scarcity-versus-debasement thesis into one punchy, reusable line.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "6.0 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "6.0 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 10,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.25
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "71a70788e75b17f227d8",
+   "video_id": "kUrwpp--Nps",
+   "channel_id": "UC678LSROK47l__G-pMnOMgA",
+   "channel_name": "Blockware Solutions",
+   "published_at": "2026-11-06T17:52:20+00:00",
+   "title": "I Studied Every Stock Market Crash of the Last 40 Years (Here\u2019s What Happens Next)",
+   "transcript_sha256": "9768a7b51fb00115b4f64461c7740e4007b49e29ec55c602dad8d26b8c52f5c6",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    1623,
+    1656
+   ],
+   "sentences": [
+    100,
+    100
+   ],
+   "text": "And if it can hold the line here at the short term holder cost basis, I think we're going to see Bitcoin closed 2026 above 90,000, which is about where the year started.",
+   "start": 549.9,
+   "end": 559.86,
+   "duration_s": 9.96,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "topics": [
+    "onchain",
+    "price_action"
+   ],
+   "reason": "Connects a specific onchain support condition to a clear year-end price forecast.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "9.96 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 11,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.75
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "47a1131355459c927162",
+   "video_id": "kUrwpp--Nps",
+   "channel_id": "UC678LSROK47l__G-pMnOMgA",
+   "channel_name": "Blockware Solutions",
+   "published_at": "2026-11-06T17:52:20+00:00",
+   "title": "I Studied Every Stock Market Crash of the Last 40 Years (Here\u2019s What Happens Next)",
+   "transcript_sha256": "9768a7b51fb00115b4f64461c7740e4007b49e29ec55c602dad8d26b8c52f5c6",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    1885,
+    1906
+   ],
+   "sentences": [
+    119,
+    119
+   ],
+   "text": "Right now, that number is at 64%, which means almost two -thirds of all the Bitcoin hasn't moved over the past year.",
+   "start": 633.67,
+   "end": 641.69,
+   "duration_s": 8.02,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "surprising_fact": 5,
+    "stance": 1,
+    "stakes": 3,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "onchain",
+    "market_sentiment"
+   ],
+   "reason": "Almost two-thirds of Bitcoin remaining unmoved is a striking, easily understood holder-conviction statistic.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "8.02 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "a11eb38d2ceb5162643b4bd6078a146a778ee26e792cba2190111d05ffad5cf6",
+    "reply_sha256": "d1860795677fd8102bde0afe47897e019d3af82bb3cbdfc396a9a4d7cf923516",
+    "at": "2026-11-12T08:08:58Z",
+    "cycle": "proof:fresh_20261106_213852"
+   },
+   "rank": 12,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.25
+   }
+  }
+ ]
+}

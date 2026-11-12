@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. The video's own words (its voice-over, title and caption) are:\n\nTITLE: CoinTelegraph: 'It's a Scam'\nCAPTION: Clips: Yahoo Finance (2026-11-09); CoinTelegraph (2026-11-06). Pulse Check, 2026-11-12.\nVOICE-OVER after the hook: Starting with Yahoo Finance.\nVOICE-OVER after clip 1: Also on the record, CoinTelegraph:\n\nAnswer for each pair: does A entail B (\"yes\", \"no\", \"uncertain\"); do they have the same polarity (\"yes\", \"no\",\n\"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\"); and \"raising_words\": when B is more certain, the\nEXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\nsuch words exist (the speaker's own words alone).\n\n<pair label=\"M\"><A>Despite Bitcoin's price holding up after devastating news, most people still believe Bitcoin is a scam. (certainty: likely)</A><B>The title presents CoinTelegraph as saying 'It's a scam' about Coinbase/crypto. The clip itself says that most people still think it's a scam, which describes public perception. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"M\", \"entails\": \"no\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\", \"raising_words\": \"CoinTelegraph: 'It's a Scam'\"}]}",
+ "usage": {
+  "in": 579,
+  "out": 194
+ },
+ "usd": 0.006196,
+ "seconds": 2.8,
+ "recorded_at": "2026-11-12T11:12:40Z"
+}

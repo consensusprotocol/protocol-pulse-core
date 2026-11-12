@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. The video's own words (its voice-over, title and caption) are:\n\nTITLE: Bloomberg Television: 'He's Done'\nCAPTION: Clips: Bloomberg Television (2026-11-09); Stephan Livera's show (2026-11-11). Pulse Check, 2026-11-12.\nVOICE-OVER after the hook: Starting with Bloomberg Television.\nVOICE-OVER after clip 1: Now Stephan Livera's show.\n\nAnswer for each pair: does A entail B (\"yes\", \"no\", \"uncertain\"); do they have the same polarity (\"yes\", \"no\",\n\"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\"); and \"raising_words\": when B is more certain, the\nEXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\nsuch words exist (the speaker's own words alone).\n\n<pair label=\"M\"><A>The guest predicts that people will say JD Vance is politically finished after the midterm losses, a view he then calls way premature. (certainty: likely)</A><B>The speaker predicts that people will say an unnamed man is finished, though the video never says who he is or what he is done with. (certainty: likely)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"M\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\", \"raising_words\": \"\"}]}",
+ "usage": {
+  "in": 555,
+  "out": 203
+ },
+ "usd": 0.00628,
+ "seconds": 2.71,
+ "recorded_at": "2026-11-12T11:08:53Z"
+}

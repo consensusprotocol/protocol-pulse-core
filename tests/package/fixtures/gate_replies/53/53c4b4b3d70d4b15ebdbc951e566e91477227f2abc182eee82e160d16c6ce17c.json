@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. The video's own words (its voice-over, title and caption) are:\n\nTITLE: BTC Sessions: 'They're Just Going to Hit It Out of the Park'\nCAPTION: Clips: Swan Bitcoin (2026-11-06); BTC Sessions (2026-11-06). Pulse Check, 2026-11-12.\nVOICE-OVER after the hook: Swan Bitcoin first.\nVOICE-OVER after clip 1: Next, BTC Sessions.\n\nAnswer for each pair: does A entail B (\"yes\", \"no\", \"uncertain\"); do they have the same polarity (\"yes\", \"no\",\n\"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\"); and \"raising_words\": when B is more certain, the\nEXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\nsuch words exist (the speaker's own words alone).\n\n<pair label=\"M\"><A>The speaker describes Masayoshi Son's theory that SoftBank's widely spread bets will pay off, so that even if only a few succeed the fund will be lucrative for investors. (certainty: speculative)</A><B>They're just going to hit it out of the park; even if only a few of them land, it's going to be lucrative for investors. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"M\", \"entails\": \"no\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\", \"raising_words\": \"BTC Sessions: 'They're Just Going to Hit It Out of the Park'\"}]}",
+ "usage": {
+  "in": 583,
+  "out": 461
+ },
+ "usd": 0.011552,
+ "seconds": 5.17,
+ "recorded_at": "2026-11-12T11:12:30Z"
+}

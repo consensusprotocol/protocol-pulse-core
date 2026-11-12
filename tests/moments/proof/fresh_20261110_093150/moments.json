@@ -1,0 +1,2047 @@
+{
+ "run": "fresh_20261110_093150",
+ "now": "2026-11-10T09:31:52.394260+00:00",
+ "seconds": 110.5,
+ "scope": {
+  "word_sources": 8,
+  "caption_only_awaiting_word_pass": 79
+ },
+ "baseline": {
+  "topics": {
+   "price_action": 1.0,
+   "etf_flows": 0.286,
+   "treasury_companies": 0.286,
+   "us_policy": 0.714,
+   "macro_fed": 0.143,
+   "mining": 0.286,
+   "derivatives_leverage": 0.286,
+   "institutional_adoption": 0.571,
+   "sovereign_adoption": 0.143,
+   "protocol_dev": 0.143,
+   "security_custody": 0.286,
+   "elections_politics": 0.429,
+   "market_sentiment": 0.571,
+   "stocks_correlation": 0.571,
+   "gold_comparison": 0.286
+  },
+  "channels": {
+   "price_action": 7,
+   "etf_flows": 2,
+   "treasury_companies": 2,
+   "us_policy": 5,
+   "macro_fed": 1,
+   "mining": 2,
+   "derivatives_leverage": 2,
+   "institutional_adoption": 4,
+   "sovereign_adoption": 1,
+   "protocol_dev": 1,
+   "security_custody": 2,
+   "elections_politics": 3,
+   "market_sentiment": 4,
+   "stocks_correlation": 4,
+   "gold_comparison": 2
+  },
+  "window_channels": 7,
+  "hours": 24.0
+ },
+ "rows": 468,
+ "sources_in_window": 8,
+ "skipped": {},
+ "calls": [
+  {
+   "table": 0,
+   "rows": 233,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.45819,
+      "usage": {
+       "in": 9282,
+       "out": 2658
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  },
+  {
+   "table": 1,
+   "rows": 235,
+   "status": "accepted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+     "meta": {
+      "backend": "openai:gpt-6.1-sol",
+      "vendor": "openai",
+      "usd": 0.432735,
+      "usage": {
+       "in": 9129,
+       "out": 2465
+      },
+      "replayed": false,
+      "tried": []
+     },
+     "accepted": true
+    }
+   ]
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "876662b7dc4e961d47e1",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7545,
+    7573
+   ],
+   "sentences": [
+    472,
+    474
+   ],
+   "text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+   "start": 2480.28,
+   "end": 2491.52,
+   "duration_s": 11.24,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "security_custody"
+   ],
+   "reason": "A punchy distinction between Bitcoin and hacked intermediaries delivers an immediately understandable security argument.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "11.24 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 1,
+   "rank_score": 27,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.286
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "27bf8bffdcdc5f785bb8",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2075,
+    2126
+   ],
+   "sentences": [
+    154,
+    155
+   ],
+   "text": "If you look at Bitcoin, gold, and land as equal sleeves of a portfolio, that portfolio is about 170 % over the same five year period. During that five years, the reason why that period is really important is the dollar has lost 30 % of its purchasing power over five years.",
+   "start": 614.06,
+   "end": 628.86,
+   "duration_s": 14.8,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 3,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "third_party_media"
+   ],
+   "topics": [
+    "gold_comparison",
+    "macro_fed",
+    "price_action"
+   ],
+   "reason": "A 170% portfolio return contrasts sharply with a claimed 30% loss in dollar purchasing power.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "14.8 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "third_party_media"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 2,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9d6b467cd59d5988decb",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2019,
+    2046
+   ],
+   "sentences": [
+    151,
+    151
+   ],
+   "text": "Bitcoin is going to continue to go up for the rest of our lives because the politicians are going to print money for the rest of our lives.",
+   "start": 600.19,
+   "end": 605.79,
+   "duration_s": 5.6,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "guaranteed_return",
+    "third_party_media",
+    "price_prediction"
+   ],
+   "topics": [
+    "macro_fed",
+    "price_action"
+   ],
+   "reason": "An absolute lifetime claim ties Bitcoin directly to perpetual money printing.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.6 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.6 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "guaranteed_return",
+    "third_party_media"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 3,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "a9b44bc541d18b8378ba",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    330,
+    403
+   ],
+   "sentences": [
+    27,
+    29
+   ],
+   "text": "Galaxy's head of research, Alex Thorne, pointed out that Bitcoin has only lost its 50 week right after reclaiming it off a bear market bottom twice before, in 2012 and from late 2019 into 2020. Neither time did the bear make a lower low, not even in the COVID crash. Now, two cases is a small sample, but it shows why it's important to not react to short -term price action with this asset.",
+   "start": 103.06,
+   "end": 125.28,
+   "duration_s": 22.22,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [
+    "price_action",
+    "market_sentiment"
+   ],
+   "reason": "Two historical exceptions deliver a surprising counterpoint, with the small-sample caveat preserved.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "22.22 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "22.22 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 4,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c38aec1a984e418619d5",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    242,
+    290
+   ],
+   "sentences": [
+    20,
+    22
+   ],
+   "text": "Bitcoin's last cycle high was 69K in November of 2021. Run that through the government's own inflation calculator, and it's about $83.5,000 today. So five years later, Bitcoin is still about 10 % below that high in real terms, and that's using CPI, which understates real inflation.",
+   "start": 74.19,
+   "end": 90.13,
+   "duration_s": 15.94,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 5,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "market_sentiment"
+   ],
+   "reason": "Inflation-adjusted comparison challenges the nominal-price narrative with memorable numbers and a clear emotional payoff.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "15.94 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 5,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "fa8873536a79d37e65f6",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    0,
+    12
+   ],
+   "sentences": [
+    0,
+    0
+   ],
+   "text": "Bitcoin just lost the line that told us the bear market was over.",
+   "start": 0.0,
+   "end": 3.16,
+   "duration_s": 3.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 5,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "doom",
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "market_sentiment"
+   ],
+   "reason": "Immediate reversal of the recovery narrative creates tension in one clean sentence.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.16 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.16 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 6,
+   "rank_score": 25,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "0e55596721a0f5def287",
+   "video_id": "OhRh81S7B2g",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-08T12:45:18+00:00",
+   "title": "Where Should You REALLY Keep Your Bitcoin.",
+   "transcript_sha256": "ecaa8c1e82e863aca60dc100e2d2100fbf8d9f001569309cf5104a92cacbc4ed",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    540,
+    607
+   ],
+   "sentences": [
+    35,
+    37
+   ],
+   "text": "Within hours, Tether, Circle and other stablecoin issuers had frozen billions of the stolen tokens, and the total eventually climbed to $3 billion. But Bitcoin and Ethereum have no issuer, so nobody could freeze them and they kept on moving. So Binance filled that hole itself, drawing on its emergency fund known as Seifu, its futures insurance fund, and its own treasury, and it promised users no haircuts.",
+   "start": 176.72,
+   "end": 200.33,
+   "duration_s": 23.61,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 2,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "security_custody"
+   ],
+   "reason": "Billions in frozen tokens establish stakes before the sharp contrast with Bitcoin's issuerless design.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "23.61 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "23.61 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 7,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.286
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7605290f4214546e1fd0",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2426,
+    2478
+   ],
+   "sentences": [
+    177,
+    179
+   ],
+   "text": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K. And James Lavish pointed out that more than $10 billion of levered shorts are stacked between here and 83K. So if price turns up even a little bit, those shorts become forced buyers and we get a big squeeze.",
+   "start": 705.29,
+   "end": 719.15,
+   "duration_s": 13.86,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": true,
+   "risk": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "derivatives_leverage"
+   ],
+   "reason": "Oversold conditions and $10 billion in shorts build a clear, consequential squeeze narrative.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "13.86 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 8,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7a17f3252d14fe2ed7aa",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    556,
+    571
+   ],
+   "sentences": [
+    39,
+    39
+   ],
+   "text": "This is another glaring reason why Bitcoin having no CEO is a feature, not a bug.",
+   "start": 169.68,
+   "end": 174.12,
+   "duration_s": 4.44,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "market_sentiment"
+   ],
+   "reason": "A compact, reusable thesis turns Bitcoin's lack of corporate leadership into an advantage.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "4.44 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.44 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 9,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.571
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "85e40a4fdf17e2f794ed",
+   "video_id": "lusJ1m-J0Mc",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-09T23:21:12+00:00",
+   "title": "Bitcoin Falls to Its Lowest Since August While Stocks Rally and Nvidia Sinks | News Block",
+   "transcript_sha256": "d7d6b0e9bdb6d8ba711c5ae59029b7f1630494ea82aca11ec8a63b0b0d83767e",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    451,
+    512
+   ],
+   "sentences": [
+    34,
+    36
+   ],
+   "text": "So yes, there are more Democrats who support Bitcoin than ever before, and that is real progress. But committee chairs are the ones who decide what gets a hearing. And so you can have hundreds of lawmakers who call themselves pro Bitcoin, but it won't mean much if the two people holding the gavels never let a bill out of the room.",
+   "start": 149.15,
+   "end": 166.19,
+   "duration_s": 17.04,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "surprising_fact": 3,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "us_policy",
+    "elections_politics"
+   ],
+   "reason": "Cuts through pro-Bitcoin political celebrations by explaining who actually controls whether legislation advances.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "17.04 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 10,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.714
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "93a72a73ccc6c44ed897",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    577,
+    609
+   ],
+   "sentences": [
+    41,
+    42
+   ],
+   "text": "Over the last 10 years, Bitcoin and Nvidia have both gone up 100x. And as of this morning, Bitcoin is back on top as the best performing asset of the last 10 years.",
+   "start": 175.69,
+   "end": 184.35,
+   "duration_s": 8.66,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 5,
+    "stance": 2,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "stocks_correlation"
+   ],
+   "reason": "The shared 100x comparison sets up a punchy Bitcoin-versus-Nvidia performance reversal.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.66 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 11,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "98148a8112d2b2a996d6",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2336,
+    2380
+   ],
+   "sentences": [
+    172,
+    174
+   ],
+   "text": "Sam Callahan and Lynn Alden probably have like the quintessential study that shows Bitcoin is the single most sensitive asset to money printing. So when you look at that, now that's in the past. That doesn't mean it has to be true in the future.",
+   "start": 682.06,
+   "end": 692.77,
+   "duration_s": 10.71,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": true,
+   "risk": [
+    "third_party_media"
+   ],
+   "topics": [
+    "macro_fed"
+   ],
+   "reason": "A striking research claim about money-printing sensitivity includes its own explicit limitation.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.71 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "third_party_media"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 12,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.143
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "a5836cd284a9185c2350",
+   "video_id": "36HPi9UZPOc",
+   "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "channel_name": "Yahoo Finance",
+   "published_at": "2026-11-09T18:00:10+00:00",
+   "title": "Coinbase just got what it always wanted.",
+   "transcript_sha256": "4af4e5b91d377d91a1fdf5420c6c7df1a84fa3c5fc1132702469c3691a3f5584",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    134,
+    180
+   ],
+   "sentences": [
+    12,
+    14
+   ],
+   "text": "I actually take the silver lining view that Bitcoin has performed exceptionally well considering all the bad news. Remember, it wasn't very long ago that Bitcoin was trading under $60,000. So up still 25 % off the lows while all other markets seem to be rattled.",
+   "start": 57.34,
+   "end": 73.46,
+   "duration_s": 16.12,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action",
+    "market_sentiment",
+    "stocks_correlation"
+   ],
+   "reason": "A clear contrarian interpretation reframes the selloff around Bitcoin's remaining gains rather than recent losses.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "16.12 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 13,
+   "rank_score": 24,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4931432a6157accb80d7",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    1537,
+    1573
+   ],
+   "sentences": [
+    99,
+    99
+   ],
+   "text": "And then we created the SBR, the strategic Bitcoin Reserve with the executive order, stopped the bleeding, so to speak, of all of the sales of crypto assets, really done in some ways in fire sale fashion.",
+   "start": 479.43,
+   "end": 492.45,
+   "duration_s": 13.02,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 4,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "sovereign_adoption",
+    "us_policy"
+   ],
+   "reason": "A direct account of creating the strategic reserve connects government policy to stopping Bitcoin sales.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and then'",
+      "13.02 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and then'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 14,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.714
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4be7bf773bbcbb896e0c",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    1894,
+    1901
+   ],
+   "sentences": [
+    114,
+    114
+   ],
+   "text": "You know, Bitcoin's pretty clearly not a security.",
+   "start": 612.57,
+   "end": 615.07,
+   "duration_s": 2.5,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "us_policy"
+   ],
+   "reason": "A short, unequivocal position on Bitcoin\u2019s regulatory classification needs no surrounding explanation.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "2.5 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.5 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 15,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.714
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4cfbe7d62b15e6fa0825",
+   "video_id": "36HPi9UZPOc",
+   "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "channel_name": "Yahoo Finance",
+   "published_at": "2026-11-09T18:00:10+00:00",
+   "title": "Coinbase just got what it always wanted.",
+   "transcript_sha256": "4af4e5b91d377d91a1fdf5420c6c7df1a84fa3c5fc1132702469c3691a3f5584",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    4,
+    23
+   ],
+   "sentences": [
+    1,
+    2
+   ],
+   "text": "Strategy purchased 1,036 Bitcoin, taking them over 850,000 Bitcoin. Meanwhile, Coinbase just officially became a nationally chartered bank.",
+   "start": 1.94,
+   "end": 15.58,
+   "duration_s": 13.64,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 1,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "topics": [
+    "treasury_companies",
+    "institutional_adoption"
+   ],
+   "reason": "Pairs a major corporate Bitcoin accumulation milestone with a striking banking-status headline.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "13.64 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "single_source_breaking"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 16,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.571
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4f9d38e1d86556b36d9c",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7325,
+    7386
+   ],
+   "sentences": [
+    464,
+    464
+   ],
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+   "start": 2403.23,
+   "end": 2422.07,
+   "duration_s": 18.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "elections_politics",
+    "market_sentiment"
+   ],
+   "reason": "Separates Bitcoin\u2019s success from political control and challenges the assumption that persecution necessarily hurts it.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "18.84 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 17,
+   "rank_score": 23,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.571
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "43a7d3ec8936ca00c313",
+   "video_id": "36HPi9UZPOc",
+   "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+   "channel_name": "Yahoo Finance",
+   "published_at": "2026-11-09T18:00:10+00:00",
+   "title": "Coinbase just got what it always wanted.",
+   "transcript_sha256": "4af4e5b91d377d91a1fdf5420c6c7df1a84fa3c5fc1132702469c3691a3f5584",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2174,
+    2187
+   ],
+   "sentences": [
+    159,
+    159
+   ],
+   "text": "The Bank of Russia has approved Bitcoin, Ether, and USDT for non -accredited investors.",
+   "start": 768.63,
+   "end": 773.15,
+   "duration_s": 4.52,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 0,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "single_source_breaking"
+   ],
+   "topics": [
+    "sovereign_adoption"
+   ],
+   "reason": "Russia opening Bitcoin access to ordinary investors is a compact, unexpected regulatory headline.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.52 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.52 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [
+    "single_source_breaking"
+   ],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 18,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.143
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "57671945c6879045237c",
+   "video_id": "lusJ1m-J0Mc",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-09T23:21:12+00:00",
+   "title": "Bitcoin Falls to Its Lowest Since August While Stocks Rally and Nvidia Sinks | News Block",
+   "transcript_sha256": "d7d6b0e9bdb6d8ba711c5ae59029b7f1630494ea82aca11ec8a63b0b0d83767e",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    228,
+    242
+   ],
+   "sentences": [
+    19,
+    19
+   ],
+   "text": "U.S. Bitcoin ETFs had about $1.3 billion in net outflows just last week.",
+   "start": 73.63,
+   "end": 78.19,
+   "duration_s": 4.56,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "surprising_fact": 5,
+    "stance": 0,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "etf_flows",
+    "institutional_adoption"
+   ],
+   "reason": "A billion-dollar weekly outflow gives institutional selling pressure an immediately understandable scale.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "4.56 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.56 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 19,
+   "rank_score": 22,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.571
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "a746ada209ac1c17a521",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    2818,
+    2833
+   ],
+   "sentences": [
+    203,
+    204
+   ],
+   "text": "But the strategic Bitcoin reserve has been a nothing burger. They haven't bought a single coin.",
+   "start": 812.62,
+   "end": 816.26,
+   "duration_s": 3.64,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 4,
+    "stance": 5,
+    "stakes": 4,
+    "stands_alone": 5,
+    "contempt_outrage": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "us_policy",
+    "sovereign_adoption"
+   ],
+   "reason": "The reserve promise meets a blunt criticism and an easily grasped claim: zero coins purchased.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "3.64 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "3.64 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 20,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.714
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "ac48048d07c26b36e347",
+   "video_id": "qo8rDU3bbMo",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-09T22:18:53+00:00",
+   "title": "Bitcoin Has Only Done This Twice Before. Here\u2019s What Came Next",
+   "transcript_sha256": "315a2763b4ad1b20f5ea028a86093d7b34f83c22637a4928de9b32be670071cf",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    3478,
+    3509
+   ],
+   "sentences": [
+    276,
+    277
+   ],
+   "text": "Bitcoin can take the printer out of the hands of powerful and corrupt men, and thank God for that. But it can't teach any of us how to live a meaningful life.",
+   "start": 1011.31,
+   "end": 1018.43,
+   "duration_s": 7.12,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "surprising_fact": 1,
+    "stance": 5,
+    "stakes": 5,
+    "stands_alone": 5,
+    "contempt_outrage": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "macro_fed",
+    "market_sentiment"
+   ],
+   "reason": "An emotional contrast sets Bitcoin\u2019s monetary promise against its inability to provide personal meaning.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.12 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.12 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 21,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.571
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "db58b1d6896609b862a4",
+   "video_id": "jbDqdLytkNM",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-09T19:33:09+00:00",
+   "title": "Bitcoin Loses Key Moving Average \u2014\u00a0What Comes Next",
+   "transcript_sha256": "579e571b02ffbab995309ff147ed95f5325028f289d826d65ba9317c4c47b51d",
+   "transcript_method": "whisper_words",
+   "timing": "word",
+   "words": [
+    647,
+    684
+   ],
+   "sentences": [
+    40,
+    41
+   ],
+   "text": "In 2012 and 2020, when Bitcoin lost its 50 -week moving averages, Bitcoin set 200 % and 169 % respectively above their previous bare market lows. Today, the 50 weeks sits just 29 % above the June low.",
+   "start": 247.76,
+   "end": 264.26,
+   "duration_s": 16.5,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "surprising_fact": 5,
+    "stance": 2,
+    "stakes": 4,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [
+    "price_action"
+   ],
+   "reason": "Contrasts historical cushions with today's much thinner margin, complicating reassuring historical analogies.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "16.5 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "98a15e9442257d84ec7b5d1ed50e970676afcf5e18e0e926e1b611f7fe360176",
+    "reply_sha256": "bf0592266be114804a3cd863197c64c8142aff2d4a8f3536d8ce7cfe55c182ba",
+    "at": "2026-11-12T08:11:36Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 22,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 1.0
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f03f906c88ea8280f9d2",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    3906,
+    3968
+   ],
+   "sentences": [
+    240,
+    241
+   ],
+   "text": "So, um, I would say executive orders are in a precarious position anytime there's a changeover between the political parties. But I would hope that, you know, at the very least, they would recognize the value of these assets, their strategic importance, the strategic importance of Bitcoin in particular, and not do things that would jeopardize, you know, our custody over these assets.",
+   "start": 1279.82,
+   "end": 1305.61,
+   "duration_s": 25.79,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "surprising_fact": 2,
+    "stance": 4,
+    "stakes": 5,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "us_policy",
+    "elections_politics",
+    "security_custody"
+   ],
+   "reason": "Explains why political turnover could threaten executive orders and custody of strategically important Bitcoin.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "25.79 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "25.79 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 23,
+   "rank_score": 21,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.714
+   }
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1dbd4849fda93f42298f",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel_name": "What Bitcoin Did",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "title": "Inside the White House\u2019s Plan to Buy Bitcoin | Patrick Witt",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7137,
+    7202
+   ],
+   "sentences": [
+    454,
+    455
+   ],
+   "text": "And so like, I think we have, we have dramatically entered a different era where you have, um, a lot of old traditional institutions now starting to adopt Bitcoin, starting to think about it as an asset class amongst others in a different way. So I think we've certainly done a lot to advance that and kind of de -risk it and normalize the asset class.",
+   "start": 2340.2,
+   "end": 2365.72,
+   "duration_s": 25.52,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "surprising_fact": 2,
+    "stance": 5,
+    "stakes": 3,
+    "stands_alone": 4,
+    "contempt_outrage": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [
+    "institutional_adoption"
+   ],
+   "reason": "Frames traditional institutions adopting Bitcoin as evidence of a fundamentally different era.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "25.52 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "25.52 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "by": "openai:gpt-6.1-sol",
+    "prompt_sha256": "816190ef048a3bdef792d1851cc0529692f04ea0a9165da2c39a4ea9a99a116d",
+    "reply_sha256": "330883970a1141eb6ec651f67169acd2a7f52dcdd1b712e8d1261c9091c5731f",
+    "at": "2026-11-12T08:12:24Z",
+    "cycle": "proof:fresh_20261110_093150"
+   },
+   "rank": 24,
+   "rank_score": 19,
+   "trend": {
+    "brief": 0.0,
+    "baseline": 0.571
+   }
+  }
+ ]
+}

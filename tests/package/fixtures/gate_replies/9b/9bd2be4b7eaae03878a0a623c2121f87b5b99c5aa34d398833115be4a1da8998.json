@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: Bloomberg Television: 'We Will Pass That and It Will Be a Strong Bill for America'\nCAPTION: Clips: TFTC (2026-11-07); Bloomberg Television (2026-11-09). Pulse Check, 2026-11-12.\nCLIP label=\"A\" (on screen: TFTC): \"Look, sound money is one of the fundamental foundations of good economic growth.\"\nVOICE-OVER: Starting with TFTC.\nCLIP label=\"M\" (on screen: Bloomberg Television): \"WE WILL PASS THAT AND IT WILL BE A STRONG BILL FOR AMERICA.\"\nVOICE-OVER: Now Bloomberg Television.\nVOICE-OVER: That's the Pulse Check.\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. What you conclude a speaker asserts INCLUDES whatever the title, the caption or the\nvoice-over attributes to that speaker or presents as that clip's point: a title \"X: Y\" tells you that X asserts Y. Each clip's label is the text inside label=\"...\" after the word CLIP: use exactly that\nlabel in \"label\" and in \"labels\", never the speakers' names. Labels: A, M. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\"takeaways\": [{\"label\": \"A\", \"asserts\": \"Sound money is one of the fundamental foundations of good economic growth.\", \"certainty\": \"certain\", \"polarity\": \"positive\"}, {\"label\": \"M\", \"asserts\": \"We will pass that bill and it will be a strong bill for America.\", \"certainty\": \"certain\", \"polarity\": \"positive\"}], \"relations\": [{\"labels\": [\"A\", \"M\"], \"relation\": \"none\"}]}",
+ "usage": {
+  "in": 790,
+  "out": 147
+ },
+ "usd": 0.0061,
+ "seconds": 1.87,
+ "recorded_at": "2026-11-12T11:12:09Z"
+}

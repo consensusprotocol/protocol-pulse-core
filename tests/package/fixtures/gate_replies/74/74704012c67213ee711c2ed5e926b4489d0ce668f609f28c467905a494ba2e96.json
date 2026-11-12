@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; CLIP is the speaker's exact\nwords as the viewer hears them; B is what a viewer of a short video concludes the same speaker asserted (from the clip\nand from whatever the video's title, caption or voice-over attributes to the speaker). The video's own words are:\n\nTITLE: On Scott Melker's Show: Opting Out Is 'a Political Statement'\nCAPTION: Clips: Coin Bureau (2026-11-10); Scott Melker's show (2026-11-05). Pulse Check, 2026-11-12.\nVOICE-OVER after the hook: Here's Coin Bureau.\nVOICE-OVER after clip 1: Also on the record, Scott Melker's show:\n\nAnswer for each pair:\n- \"entails\": does A support what the CLIP'S OWN WORDS assert? Judge the speaker's in-context assertion against the\n  clip's words as heard, not two paraphrases. A difference of scope is \"no\" ONLY when the context LIMITS the claim in a\n  way the clip's words drop (\"in this one case\", \"for small holders only\", \"back in 2021\") and that limit changes what\n  a reasonable viewer concludes; a presupposed topic or occasion is not such a limit. \"yes\", \"no\" or \"uncertain\".\n- \"dropped_limit\": when \"entails\" is \"no\", that limit in the context's own words; otherwise \"\".\n- \"package_adds\": does B contain anything the video's title, caption or voice-over attributes to the speaker that A\n  does not support? \"yes\", \"no\" or \"uncertain\".\n- \"same_polarity\": do A and B have the same polarity? \"yes\", \"no\" or \"uncertain\".\n- \"stronger_certainty\": is B more certain than A? \"yes\", \"no\" or \"uncertain\"; and \"raising_words\": when it is, the\n  EXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\n  such words exist (the speaker's own words alone).\n\n<pair label=\"M\"><A>The speaker raises, as possible interpretations he goes on to reject, that companies opting out of stock tokenization could be seen as a political statement or a kind of psy-op. (certainty: speculative)</A><CLIP>You know, you could argue it's a political statement. You could all view it's a sci -op of sorts.</CLIP><B>Opting out is a political statement; one could argue it is political, or view it as a psy-op of sorts. (certainty: possible)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"dropped_limit\": \"...\",\n\"package_adds\": \"...\", \"same_polarity\": \"...\", \"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"M\", \"entails\": \"yes\", \"dropped_limit\": \"\", \"package_adds\": \"yes\", \"same_polarity\": \"no\", \"stronger_certainty\": \"yes\", \"raising_words\": \"Opting Out Is 'a Political Statement'\"}]}",
+ "usage": {
+  "in": 944,
+  "out": 465
+ },
+ "usd": 0.013076,
+ "seconds": 5.23,
+ "recorded_at": "2026-11-12T11:21:35Z"
+}

@@ -1,0 +1,223 @@
+{
+ "schema": "pp.providers/1",
+ "law": "L-x NO SINGLE MODEL, ULTRON FIRST (orchestrator 2026-11-12 02:45): every role names >= 2 interchangeable back-ends; the local model on Ultron is first wherever it meets the quality bar; a frontier model or Heimdall is used only where a measured blind A/B (tests/providers/ab_roles.py) shows local is not good enough, and the comparison is re-run so roles migrate to local. Verdict roles never run on the writer's vendor (law L-s; Router.call avoid_vendor). No role's code names a vendor or a model: only this file does. Each back-end names its model family: a verdict avoids the vendors AND families of the text it judges (Router.call avoid_vendor / avoid_family). Prices are upper bounds (USD per 1M tokens; per minute of audio for transcription); each paid call reserves its upper bound before it runs.",
+ "decided": "2026-11-12 02:44 ET by pipeline_pp_selectid: an INITIAL order, not yet measured. Mining, story selection and the check verdict put local first (law L-w 1: local gemma mines and scores by id). Angle and writing put a frontier model first (law L-w 1 and PBX 02:35: frontier spend approved for writing and checking) until the A/B shows local meets the bar. Verdicts run on a vendor other than the writer's.",
+ "backends": {
+  "local:gemma3:27b": {
+   "vendor": "local",
+   "model": "gemma3:27b",
+   "price_usd_per_1m": [
+    0,
+    0
+   ],
+   "family": "gemma"
+  },
+  "openai:gpt-6.1-sol": {
+   "vendor": "openai",
+   "model": "gpt-6.1-sol",
+   "price_usd_per_1m": [
+    15,
+    120
+   ],
+   "reasoning_effort": "medium",
+   "min_out": 4000,
+   "family": "gpt"
+  },
+  "anthropic:claude-fable-5-2": {
+   "vendor": "anthropic",
+   "model": "claude-fable-5-2",
+   "price_usd_per_1m": [
+    8,
+    40
+   ],
+   "effort": "medium",
+   "min_out": 16000,
+   "family": "claude"
+  },
+  "anthropic:claude-opus-5-5": {
+   "vendor": "anthropic",
+   "model": "claude-opus-5-5",
+   "price_usd_per_1m": [
+    4,
+    20
+   ],
+   "effort": "medium",
+   "min_out": 16000,
+   "family": "claude"
+  },
+  "xai:grok-4.20-0309-reasoning": {
+   "vendor": "xai",
+   "model": "grok-4.20-0309-reasoning",
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "temperature": 0,
+   "key_name": "XAI_API_KEY_MEDLEY",
+   "family": "grok"
+  },
+  "heimdall:qwen/qwen3.8-27b": {
+   "vendor": "heimdall",
+   "model": "qwen/qwen3.8-27b",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "qwen",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "vendor": "heimdall",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "deepseek",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "heimdall:google/gemma-4-31b-it": {
+   "vendor": "heimdall",
+   "model": "google/gemma-4-31b-it",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "gemma",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "xai_search:grok-4.7": {
+   "vendor": "xai_search",
+   "model": "grok-4.7",
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "key_name": "XAI_API_KEY_MEDLEY",
+   "tools": [
+    "x_search",
+    "web_search"
+   ],
+   "family": "grok"
+  },
+  "openai_stt:gpt-4o-transcribe-diarize": {
+   "vendor": "openai_stt",
+   "model": "gpt-4o-transcribe-diarize",
+   "family": "gpt",
+   "diarize": true,
+   "price_usd_per_min": 0.012,
+   "timeout_s": 300
+  },
+  "elevenlabs_stt:scribe_v1": {
+   "vendor": "elevenlabs_stt",
+   "model": "scribe_v1",
+   "family": "scribe",
+   "price_usd_per_min": 0.012,
+   "timeout_s": 300
+  }
+ },
+ "roles": {
+  "mine": {
+   "chain": [
+    "local:gemma3:27b",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-fable-5-2",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "what": "moments.py: whole-sentence ranges by id with engagement scores, risk flags, topics",
+   "measured": "blind A/B 2026-11-12 03:40 ET on fresh_20261112_050611 (tests/providers/ab/mine_fresh_20261112_050611.json, judge claude-opus-5-5): gpt-6.1-sol better than heimdall qwen3.8-27b; qwen 2067 s vs 300.5 s, 1 of 6 calls rejected by the strict contract. Local gemma3:27b: the integrator's leg (GPU0 lease)."
+  },
+  "angle_write": {
+   "chain": [
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-fable-5-2",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "local:gemma3:27b"
+   ],
+   "what": "package.py: the angle, the order, the PBX MAX VO intro / bridges, ONE title, ONE caption"
+  },
+  "fidelity_verdict": {
+   "chain": [
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "local:gemma3:27b"
+   ],
+   "what": "vo_fidelity.py: the blind claim-by-claim verdict on VO, title and caption; never the writer's vendor"
+  },
+  "context_verdict": {
+   "chain": [
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "local:gemma3:27b"
+   ],
+   "what": "context_integrity.py step A (source context only) and step C (entailment); never the writer's vendor"
+  },
+  "viewer_takeaway": {
+   "chain": [
+    "anthropic:claude-opus-5-5",
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:qwen/qwen3.8-27b",
+    "local:gemma3:27b"
+   ],
+   "what": "context_integrity.py step B (the finished package only); never the writer's vendor"
+  },
+  "trend_brief": {
+   "chain": [
+    "xai_search:grok-4.7"
+   ],
+   "fallback": "trend_brief.local_baseline (topic frequency across partner channels, last 24 h): free, always available",
+   "what": "trend_brief.py: one live-search call per cycle; SHADOW weight 0 (law L-w 4)"
+  },
+  "story": {
+   "chain": [
+    "local:gemma3:27b",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-fable-5-2",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "what": "select_by_id story + line-up calls (story-first type; REQUESTS R6 item 7)"
+  },
+  "check": {
+   "chain": [
+    "local:gemma3:27b",
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "what": "select_by_id.ModelChecks; called with avoid_model = the story's model"
+  },
+  "exclusion_verdict": {
+   "chain": [
+    "local:gemma3:27b",
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
+  },
+  "coherence_verdict": {
+   "chain": [
+    "anthropic:claude-opus-5-5",
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "local:gemma3:27b"
+   ],
+   "what": "package.coherence: the blind QUALITY verdict (through-line, ratings); never the writer's vendor"
+  },
+  "transcribe": {
+   "chain": [
+    "openai_stt:gpt-4o-transcribe-diarize",
+    "elevenlabs_stt:scribe_v1"
+   ],
+   "what": "transcript_truth.py: law L-v 2's second, independent recognition pass with speaker turns on the selected segment's source audio (CPU fetch; no GPU, no Whisper)"
+  }
+ }
+}

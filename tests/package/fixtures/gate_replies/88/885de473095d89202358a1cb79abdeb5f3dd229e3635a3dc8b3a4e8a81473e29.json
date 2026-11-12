@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: On Scott Melker's Show: 'It'll Literally Be Impossible to Stop It at All'\nCAPTION: Clips: Scott Melker's show (2026-11-05); Coin Bureau (2026-11-08). Pulse Check, 2026-11-12.\nCLIP M (on screen: Scott Melker): \"It'll literally be impossible to stop it at all.\"\nVOICE-OVER: Scott Melker's show first.\nCLIP A (on screen: Coin Bureau): \"A loan signed in an office will not appear in a Merkel tree.\"\nVOICE-OVER: Next, Coin Bureau.\nVOICE-OVER: That's the Pulse Check.\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. Use the CLIP labels exactly as shown above (hook, clip_01, ...) in \"label\" and in\n\"labels\", never the speakers' names. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\"takeaways\":[{\"label\":\"M\",\"asserts\":\"Something (unspecified in the clip) will be completely impossible to stop.\",\"certainty\":\"certain\",\"polarity\":\"neutral\"},{\"label\":\"A\",\"asserts\":\"Loans signed off-chain in an office will not be recorded in a Merkle tree, so on-chain proofs cannot capture such liabilities.\",\"certainty\":\"certain\",\"polarity\":\"negative\"}],\"relations\":[{\"labels\":[\"M\",\"A\"],\"relation\":\"none\"}]}",
+ "usage": {
+  "in": 684,
+  "out": 167
+ },
+ "usd": 0.006076,
+ "seconds": 2.47,
+ "recorded_at": "2026-11-12T11:08:21Z"
+}

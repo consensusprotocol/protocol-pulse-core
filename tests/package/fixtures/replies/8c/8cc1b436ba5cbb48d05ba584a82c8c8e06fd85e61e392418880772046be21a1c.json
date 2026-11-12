@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. The video's own words (its voice-over, title and caption) are:\n\nTITLE: Nobody is in charge of Bitcoin.\nCAPTION: no authority. three voices on why that is the point.\nVOICE-OVER after the hook: Nobody is in charge of Bitcoin. That's not a flaw. That's the design.\nVOICE-OVER after clip 1: Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?\nVOICE-OVER after clip 2: No ruler. Just rules nobody gets to bend. That's the idea.\n\nAnswer for each pair: does A entail B (\"yes\", \"no\", \"uncertain\"); do they have the same polarity (\"yes\", \"no\",\n\"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\"); and \"raising_words\": when B is more certain, the\nEXACT words of the video's voice-over, title or caption above that make the speaker sound more certain, or \"\" when no\nsuch words exist (the speaker's own words alone).\n\n<pair label=\"hook\"><A>Unlike central banks, Bitcoin grants no one the authority to take others' wealth, so unequal Bitcoin holdings result from people's own choices to buy it. (certainty: certain)</A><B>Bitcoin has no authority that can seize wealth from others, with any resulting wealth differences arising from voluntary choices. (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>Recent crypto hacks have targeted intermediaries rather than Bitcoin itself, which highlights Bitcoin's security and uniqueness. (certainty: likely)</A><B>Bitcoin itself does not get hacked, only intermediaries do, which demonstrates its secure and unique nature. (certainty: certain)</B></pair>\n<pair label=\"clip_02\"><A>Bitcoin is a new measuring system for the first truly free market, and it only needs to remain decentralized and secure for that to emerge. (certainty: likely)</A><B>Bitcoin is a new system of measure for the first free market ever, and all it needs to do is remain decentralized and secure. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\", \"raising_words\": \"...\"}]}",
+ "text": "{\n  \"pairs\": [\n    {\n      \"label\": \"hook\",\n      \"entails\": \"yes\",\n      \"same_polarity\": \"yes\",\n      \"stronger_certainty\": \"no\",\n      \"raising_words\": \"\"\n    },\n    {\n      \"label\": \"clip_01\",\n      \"entails\": \"no\",\n      \"same_polarity\": \"yes\",\n      \"stronger_certainty\": \"yes\",\n      \"raising_words\": \"\"\n    },\n    {\n      \"label\": \"clip_02\",\n      \"entails\": \"yes\",\n      \"same_polarity\": \"yes\",\n      \"stronger_certainty\": \"yes\",\n      \"raising_words\": \"No ruler. Just rules nobody gets to bend. That's the idea.\"\n    }\n  ]\n}",
+ "usage": {
+  "in": 728,
+  "out": 8943
+ },
+ "usd": 0.227215,
+ "seconds": 75.56,
+ "recorded_at": "2026-11-12T11:05:54Z"
+}

@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Five years after Bitcoin peaked at 69,000, Bitcoin is up 6% as we enter November. (certainty: certain)</A><B>Five years after peaking at $69,000, Bitcoin is only up about 6%, framed wryly as a typical November. (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>A lot of public miners are pivoting from Bitcoin into AI and selling their Bitcoin or winding down Bitcoin mining to fund their AI data center buildout. (certainty: certain)</A><B>Many public Bitcoin miners are pivoting into AI, selling their Bitcoin or winding down mining to fund AI data center buildouts. (certainty: certain)</B></pair>\n<pair label=\"clip_02\"><A>We are going to have a new internet bound by Bitcoin that provides abundance for 8 billion people. (certainty: speculative)</A><B>A new internet bound by Bitcoin is coming and will provide abundance for 8 billion people. (certainty: certain)</B></pair>\n<pair label=\"clip_03\"><A>Bitcoin itself is not getting hacked but other intermediaries are, which in some ways highlights Bitcoin's secure and unique nature. (certainty: certain)</A><B>Hacks hit intermediaries, not Bitcoin itself, which in some ways highlights how secure and unique Bitcoin is. (certainty: likely)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"no\", \"same_polarity\": \"no\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_02\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}, {\"label\": \"clip_03\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}]}",
+ "usage": {
+  "in": 626,
+  "out": 2694
+ },
+ "usd": 0.07048,
+ "seconds": 25.72,
+ "recorded_at": "2026-11-12T08:06:12Z"
+}

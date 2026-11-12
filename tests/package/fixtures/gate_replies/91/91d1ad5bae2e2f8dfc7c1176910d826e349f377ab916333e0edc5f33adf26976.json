@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: \nCAPTION: \nCLIP label=\"M\" (on screen: Bloomberg Television): \"YOU JUST SAID THAT JD VANCE WAS COMPLETELY MISGUIDED ON SUCH A CRITICAL ISSUE.\"\nCLIP label=\"A\" (on screen: Coin Bureau): \"For most of the 3rd of November,\u00a0 Bitcoin traded calmly between about 77 and 78K.\u00a0\u00a0 Then from around 19 UTC, the selling started.\"\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. What you conclude a speaker asserts INCLUDES whatever the title, the caption or the\nvoice-over attributes to that speaker or presents as that clip's point: a title \"X: Y\" tells you that X asserts Y. Each clip's label is the text inside label=\"...\" after the word CLIP: use exactly that\nlabel in \"label\" and in \"labels\", never the speakers' names. Labels: M, A. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\"takeaways\": [{\"label\": \"M\", \"asserts\": \"The speaker points out that the person they are addressing had just said JD Vance was completely misguided on a critical issue.\", \"certainty\": \"certain\", \"polarity\": \"negative\"}, {\"label\": \"A\", \"asserts\": \"Bitcoin traded calmly between about 77K and 78K for most of November 3rd, then selling began around 19 UTC.\", \"certainty\": \"certain\", \"polarity\": \"negative\"}], \"relations\": [{\"labels\": [\"M\", \"A\"], \"relation\": \"none\"}]}",
+ "usage": {
+  "in": 697,
+  "out": 182
+ },
+ "usd": 0.006428,
+ "seconds": 1.96,
+ "recorded_at": "2026-11-12T11:12:49Z"
+}

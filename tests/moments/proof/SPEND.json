@@ -1,0 +1,106 @@
+{
+ "usd_estimate": 54.467709,
+ "calls": 1001,
+ "by_backend": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "calls": 9,
+   "in": 87008,
+   "out": 97445,
+   "usd_estimate": 1.722699,
+   "price_usd_per_1m": [
+    3,
+    15
+   ]
+  },
+  "openai:gpt-6.1-sol": {
+   "calls": 69,
+   "in": 372904,
+   "out": 121781,
+   "usd_estimate": 20.20728,
+   "price_usd_per_1m": [
+    15,
+    120
+   ]
+  },
+  "xai:grok-4.20-0309-reasoning": {
+   "calls": 226,
+   "in": 240916,
+   "out": 955122,
+   "usd_estimate": 25.08263,
+   "price_usd_per_1m": [
+    5,
+    25
+   ]
+  },
+  "anthropic:claude-opus-5-5": {
+   "calls": 667,
+   "in": 619880,
+   "out": 213326,
+   "usd_estimate": 6.74604,
+   "price_usd_per_1m": [
+    4,
+    20
+   ]
+  },
+  "anthropic:claude-fable-5-2": {
+   "calls": 20,
+   "in": 27745,
+   "out": 11426,
+   "usd_estimate": 0.679,
+   "price_usd_per_1m": [
+    8,
+    40
+   ]
+  },
+  "elevenlabs_stt:scribe_v1": {
+   "calls": 10,
+   "in": 0,
+   "out": 0,
+   "usd_estimate": 0.03006,
+   "price_usd_per_1m": [
+    0.0,
+    0.0
+   ],
+   "audio_s": 150.3
+  }
+ },
+ "by_role": {
+  "mine": {
+   "calls": 47,
+   "usd_estimate": 17.226864
+  },
+  "angle_write": {
+   "calls": 51,
+   "usd_estimate": 5.382115
+  },
+  "fidelity_verdict": {
+   "calls": 56,
+   "usd_estimate": 11.158655
+  },
+  "context_verdict": {
+   "calls": 411,
+   "usd_estimate": 14.686728
+  },
+  "viewer_takeaway": {
+   "calls": 412,
+   "usd_estimate": 5.555778
+  },
+  "ab_judge": {
+   "calls": 1,
+   "usd_estimate": 0.013884
+  },
+  "transcribe": {
+   "calls": 10,
+   "usd_estimate": 0.03006
+  },
+  "exclusion_verdict": {
+   "calls": 6,
+   "usd_estimate": 0.0765
+  },
+  "coherence_verdict": {
+   "calls": 7,
+   "usd_estimate": 0.337125
+  }
+ },
+ "reserved": {}
+}

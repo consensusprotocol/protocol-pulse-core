@@ -1,0 +1,18 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "anthropic:claude-opus-5-5",
+ "model": "claude-opus-5-5",
+ "vendor": "anthropic",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: Bitcoin\u2019s past gains don\u2019t erase its risk label\nCAPTION: Bitcoin's historical gains don't remove the market's view of it as risky. Higher rates favor cash; bull and bear markets bring sharply different attitudes.\nVOICE-OVER: Historical gains don't stop the market treating Bitcoin as a risk.\nCLIP hook (on screen: Simply Bitcoin): \"Bitcoin ran from 16K to 126K. That move comes out to about an 8x.\"\nCLIP clip_01 (on screen: Coin Bureau): \"Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky.\"\nVOICE-OVER: Stephan Livera describes how sentiment swings with the price.\nCLIP clip_02 (on screen: Stephan Livera): \"When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom.\"\nVOICE-OVER: Clips today from Simply Bitcoin, Coin Bureau, and Stephan Livera. Go follow them for more. Links are below.\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. Then say whether the video makes any two speakers look related: agreeing with each\nother, answering each other, rebutting each other, or being in the same conversation.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\"takeaways\": [{\"label\": \"hook\", \"asserts\": \"Bitcoin rose from about 16K to 126K, roughly an 8x gain.\", \"certainty\": \"certain\", \"polarity\": \"positive\"}, {\"label\": \"clip_01\", \"asserts\": \"Higher interest rates make cash more attractive and borrowing more expensive, which is bad for risky assets, and the market views Bitcoin as risky.\", \"certainty\": \"certain\", \"polarity\": \"negative\"}, {\"label\": \"clip_02\", \"asserts\": \"Sentiment toward Bitcoin follows the price: everyone loves it in hot bull markets and hates it in bear markets, and those crowd attitudes are what pushed the price to its highs and lows.\", \"certainty\": \"certain\", \"polarity\": \"neutral\"}], \"relations\": [{\"labels\": [\"hook\", \"clip_01\"], \"relation\": \"none\"}, {\"labels\": [\"clip_01\", \"clip_02\"], \"relation\": \"none\"}, {\"labels\": [\"hook\", \"clip_02\"], \"relation\": \"none\"}]}",
+ "usage": {
+  "in": 792,
+  "out": 347
+ },
+ "usd": 0.010108,
+ "seconds": 3.25,
+ "recorded_at": "2026-11-12T08:53:14Z"
+}

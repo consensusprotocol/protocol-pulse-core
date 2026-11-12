@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Bitcoin has no authority that lets anyone take others' wealth, so unequal holdings result purely from voluntary choices. (certainty: certain)</A><B>Saifedean Ammous says Bitcoin has no authority that lets people take others' wealth, so anyone who ends up with more Bitcoin chose to acquire it. (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>Bitcoin is by far the most undervalued asset in the global financial system at present, with gold parity around $1.4-1.5 million per Bitcoin. (certainty: likely)</A><B>Stephan Livera thinks Bitcoin is the most undervalued asset in the global financial system, citing gold parity of roughly $1.4-1.5 million per Bitcoin. (certainty: likely)</B></pair>\n<pair label=\"clip_02\"><A>Bitcoin itself is not getting hacked but other intermediaries are, which highlights Bitcoin's secure and unique nature. (certainty: certain)</A><B>What Bitcoin Did says hacks hit intermediaries, not Bitcoin itself, which highlights Bitcoin's secure and unique nature. (certainty: certain)</B></pair>\n<pair label=\"clip_03\"><A>Bitcoin is a new system of measure for the first free market that has ever existed and only needs to stay decentralized and secure. (certainty: likely)</A><B>Natalie Brunell says Bitcoin is a new system of measure for the first free market ever, and it only needs to stay decentralized and secure. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_02\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_03\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}]}",
+ "usage": {
+  "in": 661,
+  "out": 3641
+ },
+ "usd": 0.09433,
+ "seconds": 30.1,
+ "recorded_at": "2026-11-12T08:21:13Z"
+}

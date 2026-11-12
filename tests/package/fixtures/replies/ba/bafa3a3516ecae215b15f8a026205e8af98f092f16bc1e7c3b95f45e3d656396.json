@@ -1,0 +1,18 @@
+{
+ "role": "context_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "For each pair below, A is what a speaker asserted, read in its original context; B is what a viewer of a\nshort video concludes the same speaker asserted. Answer for each: does A entail B (\"yes\", \"no\", \"uncertain\"); do they\nhave the same polarity (\"yes\", \"no\", \"uncertain\"); is B more certain than A (\"yes\", \"no\", \"uncertain\")?\n\n<pair label=\"hook\"><A>Bitcoin is not a set-it-and-forget-it asset and hodling is an active process. (certainty: certain)</A><B>Bitcoin is not a set-and-forget asset; holding it (hodling) requires active effort. (certainty: certain)</B></pair>\n<pair label=\"clip_01\"><A>Bitcoin itself is not getting hacked but other intermediaries are, which highlights Bitcoin's secure and unique nature. (certainty: certain)</A><B>Hacks involve intermediaries, not Bitcoin itself, which highlights Bitcoin's secure and unique nature. (certainty: likely)</B></pair>\n<pair label=\"clip_02\"><A>The Achilles heel with Bitcoin is that self-custody is turning into something people are increasingly scared of, especially now with AI and quantum computing developments. (certainty: possible)</A><B>Bitcoin's Achilles heel is that people are increasingly scared of self-custody, especially amid AI and quantum developments. (certainty: likely)</B></pair>\n<pair label=\"clip_03\"><A>Bitcoin as the hurdle rate basically means do not lose any of the Bitcoin you have today, and even if your wealth is not in Bitcoin you should measure the value of your house, equities, bonds and other assets in Bitcoin terms today. (certainty: certain)</A><B>Bitcoin works as a hurdle rate meaning don't lose the Bitcoin you have, and any wealth such as houses, equities or bonds can be measured in Bitcoin. (certainty: certain)</B></pair>\n\nReturn ONLY this JSON object: {\"pairs\": [{\"label\": \"...\", \"entails\": \"...\", \"same_polarity\": \"...\",\n\"stronger_certainty\": \"...\"}]}",
+ "text": "{\"pairs\": [{\"label\": \"hook\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_01\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}, {\"label\": \"clip_02\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"yes\"}, {\"label\": \"clip_03\", \"entails\": \"yes\", \"same_polarity\": \"yes\", \"stronger_certainty\": \"no\"}]}",
+ "usage": {
+  "in": 650,
+  "out": 1636
+ },
+ "usd": 0.04415,
+ "seconds": 10.39,
+ "recorded_at": "2026-11-12T09:20:37Z"
+}
