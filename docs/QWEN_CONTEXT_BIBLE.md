@@ -321,6 +321,11 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix:** an acoustic identity check runs on the prepared clip (G17c's comparison); the final-bytes reading is recorded as evidence only (ruling 18, decision logged at 10:35).
 **Detection:** a final-bytes frame comparison with gain None or a worst frame far above the bar in a pause.
 
+### E-FAIL-068: A unit test reached a paid recogniser on a 64-minute source
+**Evidence:** 2026-11-12 11:16-11:33 ET: after ruling 17 merged, test_pinned's two v2f proof-pin tests ran pinned.prepare. The proof pin's third range has approved text over a different word range than its lock, so adjudicate_lock called the real second recogniser (ElevenLabs scribe_v1) on references/.../QCgW8RlTu5Q.mp4 (3862.6 s, about $0.77 a call). Up to three calls were possible (the reference run's two tests and one separate run, stopped); the tests failed.
+**Fix:** pipeline/conftest.py refuses the paid second recogniser in every test session (autouse fixture); a test injects its own reading. The two tests inject a recogniser that reads the approved text, so they test cut acceptance as before.
+**Detection:** a test session that runs longer than its peers with network traffic to api.elevenlabs.io.
+
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.
 Check: pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py.
 

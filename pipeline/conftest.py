@@ -71,3 +71,14 @@ def pytest_runtest_teardown(item, nextitem):
         pytest.exit(f"law L-r: this CPU test session holds a CUDA context on GPU0 after {item.module.__name__} "
                     f"(last test {item.nodeid}, CUDA_VISIBLE_DEVICES now {os.environ.get('CUDA_VISIBLE_DEVICES')!r})",
                     returncode=3)
+
+
+@pytest.fixture(autouse=True)
+def _no_paid_second_recogniser(monkeypatch):
+    """Ruling 17's second recogniser (ElevenLabs scribe_v1) is a PAID call on a whole acquired window: no test may
+    reach it (2026-11-12: two v2f proof-pin tests sent a 64-min source to it). A test injects its own recogniser."""
+    import pinned
+
+    def _refuse(src):
+        raise RuntimeError(f"test sessions never call the paid second recogniser (scribe_v1) on {src}: inject one")
+    monkeypatch.setattr(pinned, "_second_recogniser_words", _refuse)

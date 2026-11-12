@@ -16,6 +16,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE)
@@ -437,6 +438,21 @@ class TestV2fProofPins(unittest.TestCase):
         self.tmp = tempfile.mkdtemp(prefix="pin_v2f_")
         for sub in ("sources", "transcripts"):
             os.makedirs(os.path.join(self.tmp, sub))
+        # ruling 17: the v2f proof pins predate it, and their third range's approved text covers a different word
+        # range than its lock (3 words before it, 11 fewer at its end). These are cut-acceptance tests: they inject a
+        # second recogniser that reads the approved text over the lock's span, so the lock adopts it and the cut
+        # checks run as before (the adjudication itself: test_ruling17_lock). No paid call (conftest guard).
+        orig = pinned.adjudicate_lock
+
+        def reads_approved(lock, src, words, recognise=None, log=print):
+            t0, t1 = float(words[lock["i0"]]["start"]), float(words[lock["i1"]]["end"])
+            ws = lock["selected_text"].split()
+            step = (t1 - t0) / max(len(ws), 1)
+            fake = [{"word": w, "start": t0 + k * step, "end": t0 + (k + 0.8) * step} for k, w in enumerate(ws)]
+            return orig(lock, src, words, recognise=lambda s: (fake, 0.0), log=log)
+        patcher = mock.patch.object(pinned, "adjudicate_lock", reads_approved)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
