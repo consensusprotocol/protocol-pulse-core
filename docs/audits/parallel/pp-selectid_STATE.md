@@ -1,4 +1,65 @@
-NOT READY (07:58 ET): the 07:42 package FAILS 3 gates on measurement (clip_02 = 'existed.' fails context L-s and coherence; the thesis line loses its 3-run majority). Nothing pinned. ORCHESTRATOR DECISION NEEDED on clip_02: see the first section.
+NOT READY (08:20 ET): f216541b FAILS CUTTABLE at the IN (the guest's false start "Bit- bitcoin"). Separately, item 2's arithmetic cannot reach 60 s within R4's 40 % with a 3.50 s clip. Per items 3 and 5: your pick.
+
+## 08:20 ET: the 08:18 pre-checks on f216541b (item 3, five lines)
+
+1. **Step A (grok-4.20, 34 s): PASS.** The guest's own assertion; nothing conditional dropped. The speaker is "guest",
+   not verified inside the selection, so VO 2 credits the show only.
+2. **CUTTABLE (scribe_v1 on wdk5JZ9hPzs 3216.64-3223.14): FAIL at the IN.**
+   - The guest begins with a false start: "path." 3217.10-3217.44 | "Bit-" 3217.94-3218.06 | "bitcoin"
+     3218.36-3218.70.
+   - The word before the clip is "Bit-", not a sentence end.
+   - The L-v 2 second pass fails on the same token (disagree names ["Bit-"]).
+   - The OUT is clean: "ever." 3221.46-3221.64 | the host's "Okay," 3222.32 (a 0.68 s pause).
+   - Stopped here (item 3). The integrator's geometry pre-check was NOT started.
+3. **The only clean IN is after the false start**, in the 0.30 s gap 3218.06-3218.36. That is not a sentence start
+   under ruling 7 / the sentence law. Whether a false start counts is yours to rule, not mine.
+4. **Item 2 cannot land in any case.**
+   - Content is 21.50 s. The most within R4's 40 % is 59.67 s: VO 3 at 21 words gives 59.60 s (39.9 %); 22 words give
+     60.00 s at 40.3 %.
+   - 60.5-63 s needs a 41.1-43.0 % share (VO 3 of 24-29 words).
+   - The factory computes the same: pinned.py:290 takes the word span, then edl_rules._r4_moments.
+   - Any clip_02 lands 60.5-63 s at 40 % if it is 5.2-7.7 s with the VO as written (VO 3 19 words), or 4.0-12.1 s with
+     VO 3 trimmed or grown.
+5. **Item 5: your pick from other channels, with a new VO 2.**
+   - Spend $0.11 (step A; Scribe $0.003). Ledger $57.11.
+   - The 07:42 / 08:18 budget has $4.54 left, before the Heimdall audit cycle now running.
+   - Evidence: tests/package/proof/fresh_20261112_050611/precheck_v0700_0818.json / .log.
+
+
+## ORCHESTRATOR DECISION 08:18 ET: recorded in substance (builder + integrator)
+
+The analysis of "existed." is accepted: it drops the guest's own condition. Option (A) is chosen. Budget +$4.
+
+1. **clip_02** = Natalie Brunell's channel, moment f216541b: "Bitcoin imposes a global free market for the first time
+   ever." (YouTube wdk5JZ9hPzs 3218.14-3221.64, 3.50 s).
+   - It ends the guest's answer; the host's "Okay, so let's wrap this up" follows.
+   - It is the PUNCHLINE of the angle, so the short-clip penalty does not apply (L-o: a deviation to record, never a
+     rejection).
+   - Order unchanged: hook (Ammous) -> VO 1 -> What Bitcoin Did (the White House / Senate clip) -> VO 2 -> this clip
+     -> VO 3 -> sign-off.
+2. **Lines:**
+   - VO 1 = the fallback "Bitcoin does not have any authority. That's not a flaw. That's the design."
+   - TITLE = "No authority. That's the design."
+   - CAPTION = fix 2, "no authority. that's the design. three clips, links below."
+   - VO 2 unchanged: "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?"
+     The new clip answers that question directly.
+   - VO 3 starts from "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still
+     miss." The code's arithmetic adds or trims host commentary in VO 3 ONLY, to land 60.5-63 s within R4's 40 %.
+3. **Pre-check in this order**, stopping at the first failure and reporting it in five lines:
+   - step A context on f216541b (the guest's own sincere assertion; nothing conditional dropped);
+   - CUTTABLE on the second recogniser;
+   - the INTEGRATOR's cut-geometry pre-check on the acquired or a newly acquired window, done the moment the builder
+     names the window: the pause after "ever.", neighbour-clear, no backchannel in the tail, and the IN;
+   - the full gate run -> seal -> READY on line 1 -> the integrator renders and delivers REVIEW ONLY.
+4. **The judge is noisy tonight** (one vendor; verdicts flip across seeds).
+   - A model-judged verdict that is not PASS on its first run gets the three-run majority (07:42 item 3) ONCE.
+   - Whole gate sets are not rerun.
+   - If the package then fails ONLY on split model verdicts while every deterministic gate passes (verbatim, cuttable,
+     runtime, R4, exclusions, duplicates, price-now, second recogniser), do not loop: put the package and the vote
+     table at the top of STATE, and the orchestrator decides within minutes.
+5. If f216541b fails step A or the geometry, the second candidate is NOT 9d3621a7 (its next sentence continues it).
+   Report it, and the orchestrator picks from other channels with a new VO 2.
+
 
 ## 07:58 ET: the 07:42 package, measured (attempt 0742)
 
