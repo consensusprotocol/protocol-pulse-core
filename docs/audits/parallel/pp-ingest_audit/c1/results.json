@@ -1,0 +1,25 @@
+{
+ "results": {
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 73238,
+    "completion_tokens": 4612,
+    "total_tokens": 77850,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 0
+    },
+    "cost": 0.006693923
+   },
+   "cost_usd": 0.006693923,
+   "seconds": 143.3,
+   "finish_reason": "stop"
+  }
+ },
+ "errors": {
+  "heimdall_deepseek": "BackendError: empty: no content (finish_reason length)"
+ }
+}

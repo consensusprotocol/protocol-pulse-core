@@ -1,0 +1,77 @@
+{
+ "results": {
+  "gpt4o": {
+   "model": "gpt-4o-2024-08-06",
+   "usage": {
+    "prompt_tokens": 66834,
+    "completion_tokens": 698,
+    "total_tokens": 67532,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 0,
+     "audio_tokens": 0,
+     "accepted_prediction_tokens": 0,
+     "rejected_prediction_tokens": 0
+    }
+   },
+   "cost_usd": 0.0,
+   "seconds": 16.7,
+   "finish_reason": "stop"
+  },
+  "grok": {
+   "model": "grok-4.20-0309-reasoning",
+   "usage": {
+    "prompt_tokens": 66781,
+    "completion_tokens": 1396,
+    "total_tokens": 69123,
+    "prompt_tokens_details": {
+     "text_tokens": 66781,
+     "audio_tokens": 0,
+     "image_tokens": 0,
+     "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 946,
+     "audio_tokens": 0,
+     "accepted_prediction_tokens": 0,
+     "rejected_prediction_tokens": 0
+    },
+    "num_sources_used": 0,
+    "cost_in_usd_ticks": 891968500
+   },
+   "cost_usd": 0.0,
+   "seconds": 24.2,
+   "finish_reason": "stop"
+  },
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 76237,
+    "completion_tokens": 2261,
+    "total_tokens": 78498,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.0114419977
+   },
+   "cost_usd": 0.0114419977,
+   "seconds": 120.8,
+   "finish_reason": "stop"
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "usage": {
+    "prompt_tokens": 80559,
+    "completion_tokens": 18654
+   },
+   "cost_usd": 0.0,
+   "seconds": 137.0,
+   "finish_reason": null
+  }
+ },
+ "errors": {}
+}
