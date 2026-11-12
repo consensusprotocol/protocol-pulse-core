@@ -86,3 +86,13 @@ accepted_cut, unchanged):
    fade-in 10 ms, fade-out 60 ms): PASS, heard first 'bitcoin', last 'ever' (head 'Bitcoin imposes a global free market.').
 5. Evidence: scratchpad precheck_f216541b (window, decode, scribe_v1 $0.007, PRECHECK.json); this is the window and decode the render
    acquires for this pin.
+
+## 08:36 ET: the VO 3 word cap (builder's blocker, 08:32), by the deployed R4's own arithmetic
+- R4 (moments) = word caps unchanged (config: intro 30, bridge 20; the takeaway after the last clip is a bridge) + share <= 45 % +
+  runtime 60-70 s, runtime = word spans (8.38 + 9.62 + 3.64 = 21.64 s) + each VO line (words / 2.5 + 1.0 s pre-roll) + 14.30 s tail.
+- VO 1 13 words (6.2 s), VO 2 18 words (8.2 s):
+  - VO 3 24 words (10.6 s): runtime 60.94 s, share 41.0 %: passes share and runtime, FAILS the bridge cap (24 > 20).
+  - VO 3 20 words (9.0 s):  runtime 59.34 s: FAILS runtime (< 60).
+- Within the rules as deployed: VO 1 has room (cap 30, now 13): +2 words (+0.8 s) lands about 60.1 s with VO 3 at 20 words (the
+  builder's fidelity gate judges any new wording). Or a ruling: a moments takeaway cap >= 24 words (TASTE, R4 moments only; the
+  renderers place any length).
