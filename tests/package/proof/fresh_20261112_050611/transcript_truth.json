@@ -1,0 +1,129 @@
+[
+ {
+  "video_id": "vgsSZ4mAHfQ",
+  "start": 5144.99,
+  "end": 5153.37,
+  "model": "gpt-4o-transcribe-diarize",
+  "second_pass_text": "Very, very fundamental. Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that. Your friends chose to...",
+  "transcript_ok": true,
+  "disagree": {
+   "numbers": [],
+   "negations": [],
+   "names": []
+  },
+  "critical": {
+   "numbers": [],
+   "negations": [
+    "not"
+   ],
+   "names": [
+    "Bitcoin",
+    "If"
+   ]
+  },
+  "speakers": {
+   "labels": [
+    "A"
+   ],
+   "turn_change_inside": false
+  },
+  "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+  "label": "hook"
+ },
+ {
+  "video_id": "Sjb6lUiL0m4",
+  "start": 1826.54,
+  "end": 1843.48,
+  "model": "gpt-4o-transcribe-diarize",
+  "second_pass_text": "are allowed tomorrow however i think bitcoin is by far the most undervalued asset in like the entire global financial system right now so you know bitcoin gold parity is around like 1.5 1.4 million dollars per bitcoin last i checked it's very very undervalued like this thing could",
+  "transcript_ok": true,
+  "disagree": {
+   "numbers": [],
+   "negations": [],
+   "names": []
+  },
+  "critical": {
+   "numbers": [
+    "1.5",
+    "1400000"
+   ],
+   "negations": [],
+   "names": [
+    "Bitcoin",
+    "It's",
+    "So"
+   ]
+  },
+  "speakers": {
+   "labels": [
+    "A"
+   ],
+   "turn_change_inside": false
+  },
+  "audio": "Sjb6lUiL0m4_1825040_1844980.wav",
+  "label": "clip_01"
+ },
+ {
+  "video_id": "c1JGheQBPH4",
+  "start": 2480.28,
+  "end": 2491.52,
+  "model": "gpt-4o-transcribe-diarize",
+  "second_pass_text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+  "transcript_ok": true,
+  "disagree": {
+   "numbers": [],
+   "negations": [],
+   "names": []
+  },
+  "critical": {
+   "numbers": [],
+   "negations": [
+    "not"
+   ],
+   "names": [
+    "Bitcoin",
+    "It's",
+    "So"
+   ]
+  },
+  "speakers": {
+   "labels": [
+    "A"
+   ],
+   "turn_change_inside": false
+  },
+  "audio": "c1JGheQBPH4_2478780_2493020.wav",
+  "label": "clip_02"
+ },
+ {
+  "video_id": "Noq6txZU91c",
+  "start": 399.15,
+  "end": 405.25,
+  "model": "gpt-4o-transcribe-diarize",
+  "second_pass_text": "Then what happened? Bitcoin ran from 16k to 126k. That move comes out to about an 8x, so let's take a look at today.",
+  "transcript_ok": true,
+  "disagree": {
+   "numbers": [],
+   "negations": [],
+   "names": []
+  },
+  "critical": {
+   "numbers": [
+    "16000",
+    "126000"
+   ],
+   "negations": [],
+   "names": [
+    "That"
+   ]
+  },
+  "speakers": {
+   "labels": [
+    "A"
+   ],
+   "turn_change_inside": false
+  },
+  "audio": "Noq6txZU91c_397650_406750.wav",
+  "label": "clip_03"
+ }
+]

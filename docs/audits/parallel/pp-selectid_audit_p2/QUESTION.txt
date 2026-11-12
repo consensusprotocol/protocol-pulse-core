@@ -1,0 +1,48 @@
+## YOUR REVIEW TASK: MOMENTS FIRST, THEN PACKAGE, BEHIND ONE PROVIDER INTERFACE (Python pipeline, no UI, no DB)
+
+Context: Protocol Pulse makes 60-70 s Bitcoin videos made of other channels' own words (a hook + 2-3 clips, one clip
+per channel) with a PBX MAX voice-over (VO) that makes a point. Nothing is published without a human. New modules:
+- pipeline/providers.py + model_providers.json: ONE interface for every model role; a back-end chain per role (local
+  gemma first); failover when a vendor is down; verdict roles never on the writer's vendor; record / replay; spend guard.
+- pipeline/moments.py: mines MOMENTS by sentence id (strict reply contract, never repaired), judges each by the
+  eligibility predicate, ranks deterministically; an exclusion verdict (accusations, ads, imperatives...).
+- pipeline/package.py: angle first: step-A context prescreen -> angles (frontier) -> line-up per angle (code: one clip
+  per channel, <= 20 s, 60-70 s runtime arithmetic) -> writer -> HARD integrity gates (vo_fidelity, DUPLICATE,
+  PRICE_NOW, context_integrity) -> up to 3 rewrites with the exact rejected claims -> blind COHERENCE quality verdict
+  -> law L-v 2 second recognition pass (transcript_truth.py) -> a package; plain VO only as the last resort.
+- pipeline/vo_fidelity.py: deterministic rules (numbers, names, quotes, attribution, relation words, framing verbs,
+  imperatives, time words, PRICE_NOW) + a blind verdict whose supporting words must be verbatim runs (code-checked).
+- pipeline/context_integrity.py: step A (source context only), step B (the package only), step C (entailment), the
+  decision rule in code; any "uncertain" fails.
+- pipeline/trend_brief.py (shadow, weight 0), transcript_truth.py, moments_gate_adapter.py (the exam's adapter),
+  package_pin.py (a package as the existing PINNED decision); REQUESTS R7 (exact pinned.py patch) / R8.
+
+The only file is the exact diff under review. Review that diff, nothing else. Only state what you can verify from the
+diff shown. If uncertain, say so. Do not guess. Cite diff lines (file + the code you quote).
+
+### Q1: FAIL-OPEN IN THE GATES
+Can a package be produced (returned as "package") while ANY hard gate failed, could not run, or ran on nothing: VO
+fidelity (deterministic or verdict), DUPLICATE, PRICE_NOW, context integrity (A, B, C), runtime, the second
+recognition pass? Can an unreadable / partial / "uncertain" model reply ever count as a pass? Can an exception inside a
+gate be swallowed into a pass? Can the plain-VO fallback ship while failing a gate?
+
+### Q2: VENDOR SEPARATION AND L-x
+Can a verdict (fidelity, context A / B / C, coherence) ever run on the SAME vendor as the writer of the text it judges
+(including after a failover, a rewrite by a fallback writer, or a precomputed step A)? Does any role hard-code a
+vendor or model outside model_providers.json? Does the router's failover ever turn a contract violation into "use the
+next back-end silently"?
+
+### Q3: VERBATIM AND MODEL TEXT
+Can text a model wrote (a miner's reason, an angle sentence, a verdict's reason, the trend brief) reach a clip's text,
+the title, the caption or the VO without passing the fidelity gate? Is every clip the source sentences verbatim?
+
+### Q4: THE DETERMINISTIC RULES
+For each rule in vo_fidelity.check_deterministic and package.duplicates / price_now / current_levels: a false PASS
+(something misleading that gets through) or a false REJECT (an honest line refused)? Name concrete inputs.
+
+### Q5: TESTS AND THE WIRING (R7)
+Do the tests fail for the right reason? Any vacuous assertion? Does R7's pinned.py patch refuse an ungated or
+unplaceable package, and keep a plain pin unchanged?
+
+Output: a scored list per question (0-100), then FINDINGS: P0 / P1 / P2 with file + quoted code + a concrete failing
+input, then the single highest-leverage change.

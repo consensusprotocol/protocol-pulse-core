@@ -1,556 +1,251 @@
 {
- "package": {
-  "schema": "pp.package/1",
-  "type": "moments",
-  "angle": "These clips cover Bitcoin ownership, an undervaluation view, intermediaries getting hacked, and Bitcoin's move from 16K to 126K.",
-  "vo_kind": "rewritten",
-  "segments": [
-   {
-    "label": "hook",
-    "moment_id": "3b3050f4afd6f3c011e7",
-    "video_id": "vgsSZ4mAHfQ",
-    "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
-    "channel": "Saifedean Ammous",
-    "k0": 1179,
-    "k1": 1180,
-    "words": [
-     16659,
-     16688
-    ],
-    "start": 5144.99,
-    "end": 5153.37,
-    "duration_s": 8.38,
-    "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
-    "published_at": "2026-11-11T00:00:00+00:00",
-    "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
-    "url_30s_before": "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s"
-   },
-   {
-    "label": "clip_01",
-    "moment_id": "b0b787f8a62d97d81dbb",
-    "video_id": "Sjb6lUiL0m4",
-    "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
-    "channel": "Stephan Livera",
-    "k0": 331,
-    "k1": 333,
-    "words": [
-     5401,
-     5443
-    ],
-    "start": 1826.54,
-    "end": 1843.48,
-    "duration_s": 16.94,
-    "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
-    "published_at": "2026-11-11T18:03:23+00:00",
-    "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
-    "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s"
-   },
-   {
-    "label": "clip_02",
-    "moment_id": "876662b7dc4e961d47e1",
-    "video_id": "c1JGheQBPH4",
-    "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
-    "channel": "What Bitcoin Did",
-    "k0": 472,
-    "k1": 474,
-    "words": [
-     7545,
-     7573
-    ],
-    "start": 2480.28,
-    "end": 2491.52,
-    "duration_s": 11.24,
-    "text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
-    "published_at": "2026-11-09T17:00:09+00:00",
-    "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
-    "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2450s"
-   },
-   {
-    "label": "clip_03",
-    "moment_id": "a3a5a50ffc1f5bed0174",
-    "video_id": "Noq6txZU91c",
-    "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
-    "channel": "Simply Bitcoin",
-    "k0": 87,
-    "k1": 88,
-    "words": [
-     1160,
-     1173
-    ],
-    "start": 399.15,
-    "end": 405.25,
-    "duration_s": 6.1,
-    "text": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x.",
-    "published_at": "2026-11-11T22:10:49+00:00",
-    "transcript_sha256": "1a15d53a9ccafc2d28f72baf59152f16456b511c6c58065282b210a36ff8a9b8",
-    "url_30s_before": "https://www.youtube.com/watch?v=Noq6txZU91c&t=369s"
-   }
-  ],
-  "vo": {
-   "intro": "Bitcoin ran from 16K to 126K.",
-   "bridges": [
-    "Next, What Bitcoin Did on intermediaries getting hacked.",
-    "Next, Simply Bitcoin on Bitcoin's move from 16K to 126K."
-   ],
-   "bridges_after_clip": [
-    1,
-    2
-   ],
-   "signoff": "Clips today from Saifedean Ammous, Stephan Livera, What Bitcoin Did, and Simply Bitcoin. Go follow them for more. Links are below."
-  },
-  "title": "Bitcoin ran from 16K to 126K",
-  "caption": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x.",
-  "hook_first_words": "Bitcoin does not have any authority that allows",
-  "lines": [
-   {
-    "text": "Bitcoin ran from 16K to 126K.",
-    "cites": [
-     "a3a5a50ffc1f5bed0174"
-    ],
-    "slot": "intro"
-   },
-   {
-    "text": "Next, What Bitcoin Did on intermediaries getting hacked.",
-    "cites": [
-     "876662b7dc4e961d47e1"
-    ],
-    "slot": "bridge_1"
-   },
-   {
-    "text": "Next, Simply Bitcoin on Bitcoin's move from 16K to 126K.",
-    "cites": [
-     "a3a5a50ffc1f5bed0174"
-    ],
-    "slot": "bridge_2"
-   },
-   {
-    "text": "Bitcoin ran from 16K to 126K",
-    "cites": [
-     "a3a5a50ffc1f5bed0174"
-    ],
-    "slot": "title"
-   },
-   {
-    "text": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x.",
-    "cites": [
-     "a3a5a50ffc1f5bed0174"
-    ],
-    "slot": "caption"
-   }
-  ],
-  "runtime_s_estimate": 60.42,
-  "runtime_note": "segments 42.66 s (word timing) + VO 24 words at 2.6 w/s (assumed) + fixed 7.38 s; the render measures the final",
-  "checks": {
-   "vo_fidelity": {
-    "deterministic": {
-     "ok": true,
-     "violations": []
-    },
-    "verdict": {
-     "ok": true,
-     "claims": [
-      {
-       "line": "intro",
-       "claim": "Bitcoin ran from 16K to 126K",
-       "supported": "yes",
-       "segment": "a3a5a50ffc1f5bed0174",
-       "words": "Bitcoin ran from 16K to 126K"
-      },
-      {
-       "line": "bridge_1",
-       "claim": "What Bitcoin Did on intermediaries getting hacked",
-       "supported": "yes",
-       "segment": "876662b7dc4e961d47e1",
-       "words": "It's not Bitcoin that's getting hacked. It's other intermediaries."
-      },
-      {
-       "line": "bridge_2",
-       "claim": "Simply Bitcoin on Bitcoin's move from 16K to 126K",
-       "supported": "yes",
-       "segment": "a3a5a50ffc1f5bed0174",
-       "words": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x."
-      },
-      {
-       "line": "title",
-       "claim": "Bitcoin ran from 16K to 126K",
-       "supported": "yes",
-       "segment": "a3a5a50ffc1f5bed0174",
-       "words": "Bitcoin ran from 16K to 126K"
-      },
-      {
-       "line": "caption",
-       "claim": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x.",
-       "supported": "yes",
-       "segment": "a3a5a50ffc1f5bed0174",
-       "words": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x."
-      }
-     ],
-     "violations": []
-    },
-    "backend": "xai:grok-4.20-0309-reasoning"
-   },
-   "context_integrity": {
-    "relations": [
-     {
-      "labels": [
-       "hook",
-       "clip_01"
-      ],
-      "relation": "none"
-     },
-     {
-      "labels": [
-       "clip_01",
-       "clip_02"
-      ],
-      "relation": "none"
-     },
-     {
-      "labels": [
-       "clip_02",
-       "clip_03"
-      ],
-      "relation": "none"
-     },
-     {
-      "labels": [
-       "hook",
-       "clip_02"
-      ],
-      "relation": "none"
-     },
-     {
-      "labels": [
-       "hook",
-       "clip_03"
-      ],
-      "relation": "none"
-     },
-     {
-      "labels": [
-       "clip_01",
-       "clip_03"
-      ],
-      "relation": "none"
-     }
-    ],
-    "violations": [],
-    "backends": {
-     "A": "precomputed (package-independent: context only)",
-     "B": "anthropic:claude-opus-5-5",
-     "C": "xai:grok-4.20-0309-reasoning"
-    },
-    "judged": [
-     "hook",
-     "clip_01",
-     "clip_02",
-     "clip_03"
-    ],
-    "ok": true
-   },
-   "context_segments": {
-    "hook": {
-     "A": {
-      "label": "hook",
-      "speaker_changes_inside": "no",
-      "view": "own_sincere",
-      "referents": [
-       {
-        "word": "that",
-        "refers_to": "some people ending up with more Bitcoin",
-        "inside": true
-       },
-       {
-        "word": "they",
-        "refers_to": "some people",
-        "inside": true
-       }
-      ],
-      "conditions": [
-       {
-        "text": "If some people end up with more Bitcoin",
-        "inside": true
-       }
-      ],
-      "retraction": "none",
-      "proposition": "Bitcoin has no authority that lets anyone take others' wealth, so unequal holdings result purely from voluntary choices.",
-      "certainty": "certain"
-     },
-     "B": {
-      "label": "hook",
-      "asserts": "Bitcoin has no authority that can take people's wealth from them, so anyone who holds more Bitcoin got it by their own choice.",
-      "certainty": "certain",
-      "polarity": "positive"
-     },
-     "C": {
-      "label": "hook",
-      "entails": "yes",
-      "same_polarity": "yes",
-      "stronger_certainty": "no"
-     },
-     "window": [
-      1157,
-      1199
-     ]
-    },
-    "clip_01": {
-     "A": {
-      "label": "clip_01",
-      "speaker_changes_inside": "no",
-      "view": "own_sincere",
-      "referents": [
-       {
-        "word": "It",
-        "refers_to": "Bitcoin",
-        "inside": true
-       }
-      ],
-      "conditions": [],
-      "retraction": "none",
-      "proposition": "Bitcoin is by far the most undervalued asset in the global financial system at present, with gold parity around $1.4-1.5 million per Bitcoin.",
-      "certainty": "likely"
-     },
-     "B": {
-      "label": "clip_01",
-      "asserts": "Bitcoin is the most undervalued asset in the global financial system. Gold parity would put it at roughly $1.4 to $1.5 million per coin.",
-      "certainty": "likely",
-      "polarity": "positive"
-     },
-     "C": {
-      "label": "clip_01",
-      "entails": "yes",
-      "same_polarity": "yes",
-      "stronger_certainty": "no"
-     },
-     "window": [
-      317,
-      348
-     ]
-    },
-    "clip_02": {
-     "A": {
-      "label": "clip_02",
-      "speaker_changes_inside": "no",
-      "view": "own_sincere",
-      "referents": [
-       {
-        "word": "it",
-        "refers_to": "the fact that hacks are occurring to other intermediaries rather than Bitcoin",
-        "inside": true
-       }
-      ],
-      "conditions": [],
-      "retraction": "none",
-      "proposition": "Bitcoin itself is not getting hacked but other intermediaries are, which highlights Bitcoin's secure and unique nature.",
-      "certainty": "certain"
-     },
-     "B": {
-      "label": "clip_02",
-      "asserts": "The hacks are hitting intermediaries rather than Bitcoin itself, which highlights how secure Bitcoin is.",
-      "certainty": "certain",
-      "polarity": "positive"
-     },
-     "C": {
-      "label": "clip_02",
-      "entails": "yes",
-      "same_polarity": "yes",
-      "stronger_certainty": "no"
-     },
-     "window": [
-      461,
-      485
-     ]
-    },
-    "clip_03": {
-     "A": {
-      "label": "clip_03",
-      "speaker_changes_inside": "no",
-      "view": "own_sincere",
-      "referents": [
-       {
-        "word": "That",
-        "refers_to": "Bitcoin running from 16K to 126K",
-        "inside": true
-       }
-      ],
-      "conditions": [],
-      "retraction": "none",
-      "proposition": "Bitcoin ran from 16K to 126K, which was an 8x move.",
-      "certainty": "certain"
-     },
-     "B": {
-      "label": "clip_03",
-      "asserts": "Bitcoin rose from 16K to 126K, which is roughly an 8x move.",
-      "certainty": "certain",
-      "polarity": "positive"
-     },
-     "C": {
-      "label": "clip_03",
-      "entails": "yes",
-      "same_polarity": "yes",
-      "stronger_certainty": "no"
-     },
-     "window": [
-      44,
-      101
-     ]
-    }
-   },
-   "runtime_ok": true
-  },
-  "models": {
-   "writer": "openai:gpt-6.1-sol",
-   "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
-   "context": {
-    "A": "precomputed (package-independent: context only)",
-    "B": "anthropic:claude-opus-5-5",
-    "C": "xai:grok-4.20-0309-reasoning"
-   }
-  }
- },
+ "packages": [],
+ "plain": [],
  "tried": [
   {
-   "attempt": 1,
-   "writer": "openai:gpt-6.1-sol",
-   "set": [
-    "3b3050f4afd6f3c011e7",
-    "b0b787f8a62d97d81dbb",
-    "876662b7dc4e961d47e1",
-    "5e38ec62aa36eae80132"
-   ],
-   "fidelity_ok": false,
-   "context_ok": false,
-   "runtime": 63.46,
-   "seconds": 109.9,
-   "violations": [
+   "angle": 1,
+   "rebuild": 1,
+   "attempts": [
     {
-     "slot": "title",
-     "rule": "NAME",
-     "detail": "'Ownership' is not said in the cited sentences (and is not a credited channel or the show)"
+     "fid_ok": false,
+     "context_ok": false,
+     "runtime": 63.51,
+     "violations": [
+      {
+       "slot": "intro",
+       "rule": "VERDICT_NO",
+       "detail": "What Bitcoin Did separates protocol safeguards from gatekeepers"
+      },
+      {
+       "slot": "intro",
+       "rule": "VERDICT_NO",
+       "detail": "BTC Sessions addresses the responsibilities of ownership"
+      },
+      {
+       "slot": "caption",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "there is a time today"
+      },
+      {
+       "segment": "clip_02",
+       "rule": "STRONGER",
+       "detail": "stronger certainty: yes"
+      }
+     ]
     },
     {
-     "slot": "title",
-     "rule": "NAME",
-     "detail": "'Valuation' is not said in the cited sentences (and is not a credited channel or the show)"
+     "fid_ok": false,
+     "context_ok": false,
+     "runtime": 61.2,
+     "violations": [
+      {
+       "slot": "bridge_2",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "Stephan Livera emphasizes keeping what you already own."
+      },
+      {
+       "slot": "caption",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "Stephan Livera stresses not losing your Bitcoin."
+      },
+      {
+       "segment": "clip_02",
+       "rule": "STRONGER",
+       "detail": "stronger certainty: yes"
+      }
+     ]
     },
     {
-     "slot": "title",
-     "rule": "NAME",
-     "detail": "'Security' is not said in the cited sentences (and is not a credited channel or the show)"
+     "fid_ok": true,
+     "context_ok": false,
+     "runtime": 59.66,
+     "violations": [
+      {
+       "segment": "clip_02",
+       "rule": "STRONGER",
+       "detail": "stronger certainty: yes"
+      }
+     ]
     },
     {
-     "segment": "clip_03",
-     "rule": "STRONGER",
-     "detail": "stronger certainty: yes"
+     "fid_ok": false,
+     "context_ok": true,
+     "runtime": 63.51,
+     "violations": [
+      {
+       "slot": "intro",
+       "rule": "VERDICT_NO",
+       "detail": "BTC Sessions describes Bitcoin ownership as an ongoing responsibility, rather than a passive position."
+      },
+      {
+       "slot": "bridge_2",
+       "rule": "VERDICT_NO",
+       "detail": "Stephan Livera frames the challenge around preserving what you hold."
+      },
+      {
+       "slot": "title",
+       "rule": "VERDICT_NO",
+       "detail": "BTC Sessions: Bitcoin ownership demands ongoing effort"
+      }
+     ]
     }
-   ]
+   ],
+   "plain": {
+    "ok": false,
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "VERDICT_UNCERTAIN",
+      "detail": "The video is about Bitcoin featuring clips from BTC Sessions, What Bitcoin Did, Natalie Brunell and Stephan L"
+     }
+    ]
+   }
   },
   {
-   "attempt": 2,
-   "writer": "openai:gpt-6.1-sol",
-   "set": [
-    "c49cd35dfd86efb624e0",
-    "55722e7365cc43558d7e",
-    "876662b7dc4e961d47e1",
-    "f91c4a6b4a5ea9388c32"
-   ],
-   "fidelity_ok": false,
-   "context_ok": false,
-   "runtime": 59.72,
-   "seconds": 113.4,
-   "violations": [
+   "angle": 2,
+   "rebuild": 1,
+   "attempts": [
     {
-     "slot": "intro",
-     "rule": "NAME",
-     "detail": "'Some' is not said in the cited sentences (and is not a credited channel or the show)"
-    },
-    {
-     "segment": "clip_02",
-     "rule": "STRONGER",
-     "detail": "stronger certainty: yes"
+     "fid_ok": false,
+     "context_ok": false,
+     "runtime": 61.38,
+     "violations": [
+      {
+       "slot": "intro",
+       "rule": "VERDICT_NO",
+       "detail": "Coin Bureau weighs the pressure."
+      },
+      {
+       "slot": "title",
+       "rule": "VERDICT_NO",
+       "detail": "the squeeze, per Coin Bureau"
+      },
+      {
+       "segment": "-",
+       "rule": "CONTEXT_UNAVAILABLE",
+       "detail": "ValueError: step B must answer at least ['hook', 'clip_01', 'clip_02']"
+      }
+     ]
     }
-   ]
+   ],
+   "why": "context integrity (B / C): dropped 4f9d38e1d86556b36d9c"
   },
   {
-   "attempt": 3,
-   "writer": "openai:gpt-6.1-sol",
-   "set": [
-    "3b3050f4afd6f3c011e7",
-    "b0b787f8a62d97d81dbb",
-    "876662b7dc4e961d47e1",
-    "f216541bd2f9e5eb672d"
-   ],
-   "fidelity_ok": false,
-   "context_ok": false,
-   "runtime": 57.44,
-   "seconds": 106.6,
-   "violations": [
-    {
-     "slot": "title",
-     "rule": "NAME",
-     "detail": "'Ownership' is not said in the cited sentences (and is not a credited channel or the show)"
-    },
-    {
-     "slot": "title",
-     "rule": "NAME",
-     "detail": "'Valuation' is not said in the cited sentences (and is not a credited channel or the show)"
-    },
-    {
-     "slot": "title",
-     "rule": "NAME",
-     "detail": "'Security' is not said in the cited sentences (and is not a credited channel or the show)"
-    },
-    {
-     "segment": "clip_03",
-     "rule": "STRONGER",
-     "detail": "stronger certainty: yes"
-    }
-   ]
+   "angle": 2,
+   "rebuild": 2,
+   "why": "no line-up: fewer than a hook + 2 clips from distinct channels in the runtime arithmetic"
   },
   {
-   "attempt": 4,
-   "writer": "openai:gpt-6.1-sol",
-   "set": [
-    "c49cd35dfd86efb624e0",
-    "b0b787f8a62d97d81dbb",
-    "8055c5252b61b9639cbe",
-    "876662b7dc4e961d47e1"
-   ],
-   "fidelity_ok": false,
-   "context_ok": false,
-   "runtime": 59.74,
-   "seconds": 92.6,
-   "violations": [
+   "angle": 3,
+   "rebuild": 1,
+   "attempts": [
     {
-     "slot": "title",
-     "rule": "NAME",
-     "detail": "'Holding Is' is not said in the cited sentences (and is not a credited channel or the show)"
-    },
-    {
-     "segment": "clip_03",
-     "rule": "STRONGER",
-     "detail": "stronger certainty: yes"
+     "fid_ok": false,
+     "context_ok": false,
+     "runtime": 59.75,
+     "violations": [
+      {
+       "slot": "title",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "Bitcoin's promise comes with conditions"
+      },
+      {
+       "slot": "intro",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "what Bitcoin changes about money, and what it needs to hold up"
+      },
+      {
+       "slot": "bridge_2",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "That's the network."
+      },
+      {
+       "segment": "-",
+       "rule": "CONTEXT_UNAVAILABLE",
+       "detail": "ValueError: step B must answer at least ['hook', 'clip_01', 'clip_02', 'clip_03']"
+      }
+     ]
     }
-   ]
+   ],
+   "why": "context integrity (B / C): dropped c49cd35dfd86efb624e0"
   },
   {
-   "attempt": 5,
-   "writer": "openai:gpt-6.1-sol",
-   "set": [
-    "3b3050f4afd6f3c011e7",
-    "b0b787f8a62d97d81dbb",
-    "876662b7dc4e961d47e1",
-    "a3a5a50ffc1f5bed0174"
+   "angle": 3,
+   "rebuild": 2,
+   "why": "no line-up: fewer than a hook + 2 clips from distinct channels in the runtime arithmetic"
+  },
+  {
+   "angle": 4,
+   "rebuild": 1,
+   "attempts": [
+    {
+     "fid_ok": false,
+     "context_ok": false,
+     "runtime": 57.47,
+     "violations": [
+      {
+       "slot": "caption",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "Three channels, one thread."
+      },
+      {
+       "slot": "intro",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "Can Bitcoin be a ruler for what you own while traders still call it a gamble?"
+      },
+      {
+       "segment": "-",
+       "rule": "CONTEXT_UNAVAILABLE",
+       "detail": "ValueError: step B must answer at least ['hook', 'clip_01', 'clip_02']"
+      }
+     ]
+    }
    ],
-   "fidelity_ok": false,
-   "context_ok": true,
-   "runtime": 65.42,
-   "rewrite": {
-    "fidelity_ok": true,
-    "context_ok": true
-   },
-   "seconds": 208.4,
-   "violations": []
+   "why": "context integrity (B / C): dropped 01154f025a00f40132a7"
+  },
+  {
+   "angle": 4,
+   "rebuild": 2,
+   "why": "no line-up: fewer than a hook + 2 clips from distinct channels in the runtime arithmetic"
+  },
+  {
+   "angle": 5,
+   "rebuild": 1,
+   "attempts": [
+    {
+     "fid_ok": false,
+     "context_ok": false,
+     "runtime": 59.29,
+     "violations": [
+      {
+       "slot": "intro",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "Bitcoin's rules are one thing. What banks and intermediaries do around it is another."
+      },
+      {
+       "slot": "title",
+       "rule": "VERDICT_NO",
+       "detail": "Bitcoin's rules don't end bank credit or middleman failures"
+      },
+      {
+       "slot": "caption",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "Separate views, one distinction: the protocol versus what sits around it."
+      },
+      {
+       "segment": "-",
+       "rule": "CONTEXT_UNAVAILABLE",
+       "detail": "ValueError: step B must answer at least ['hook', 'clip_01', 'clip_02']"
+      }
+     ]
+    }
+   ],
+   "why": "context integrity (B / C): dropped 876662b7dc4e961d47e1"
+  },
+  {
+   "angle": 5,
+   "rebuild": 2,
+   "why": "no line-up: fewer than a hook + 2 clips from distinct channels in the runtime arithmetic"
   }
  ],
  "unusable": {
@@ -580,9 +275,13 @@
   "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener"
  },
  "usable": 38,
+ "current_levels": [
+  69000.0,
+  73000.0
+ ],
  "prescreen": {
   "screened": 24,
-  "cleared": 19,
+  "cleared": 18,
   "failed": {
    "aff2e3571d56180a9e06": [
     "NOT_OWN_SINCERE"
@@ -594,13 +293,78 @@
     "REFERENT_OUTSIDE"
    ],
    "7a5f734f844bbfd67c1f": [
-    "NOT_OWN_SINCERE"
+    "NOT_OWN_SINCERE",
+    "RETRACTION",
+    "STALE_TIME",
+    "UNCERTAIN"
    ],
    "5d5e163125435e85061a": [
     "NOT_OWN_SINCERE"
+   ],
+   "60174b6059b1d67c34bd": [
+    "REFERENT_OUTSIDE"
    ]
   }
  },
- "seconds": 631.7,
+ "angles": [
+  {
+   "angle": "Bitcoin's security does not make holding it hands-off: intermediaries can fail, self-custody can feel intimidating, and protecting your holdings takes work.",
+   "moments": [
+    "c49cd35dfd86efb624e0",
+    "876662b7dc4e961d47e1",
+    "f91c4a6b4a5ea9388c32",
+    "b67215ae008c60a827bd",
+    "5e38ec62aa36eae80132"
+   ],
+   "hook": "c49cd35dfd86efb624e0"
+  },
+  {
+   "angle": "Calling Bitcoin undervalued does not make it immune to interest rates, investor sentiment, or miners choosing AI instead.",
+   "moments": [
+    "b0b787f8a62d97d81dbb",
+    "01154f025a00f40132a7",
+    "0c751a33022013fb3086",
+    "55722e7365cc43558d7e",
+    "4f9d38e1d86556b36d9c"
+   ],
+   "hook": "b0b787f8a62d97d81dbb"
+  },
+  {
+   "angle": "Bitcoin offers an alternative to government-controlled money, but its promise depends on decentralization, security, and active ownership.",
+   "moments": [
+    "128b99b7a2487f58d3ba",
+    "863cc95ab7c5e0c11482",
+    "3b3050f4afd6f3c011e7",
+    "5e38ec62aa36eae80132",
+    "876662b7dc4e961d47e1",
+    "c49cd35dfd86efb624e0"
+   ],
+   "hook": "128b99b7a2487f58d3ba"
+  },
+  {
+   "angle": "Bitcoin can be a yardstick for wealth even while markets treat it as a risky asset.",
+   "moments": [
+    "5e38ec62aa36eae80132",
+    "b67215ae008c60a827bd",
+    "01154f025a00f40132a7",
+    "5314289c424298d950c4",
+    "0c751a33022013fb3086"
+   ],
+   "hook": "5e38ec62aa36eae80132"
+  },
+  {
+   "angle": "A Bitcoin standard does not eliminate bank-created credit or intermediary failures; those are different from Bitcoin's underlying monetary rules and security.",
+   "moments": [
+    "40ffa6e345a223d30429",
+    "876662b7dc4e961d47e1",
+    "3b3050f4afd6f3c011e7",
+    "128b99b7a2487f58d3ba",
+    "5e38ec62aa36eae80132"
+   ],
+   "hook": "40ffa6e345a223d30429"
+  }
+ ],
+ "package": null,
+ "seconds": 1013.8,
  "run": "fresh_20261112_050611"
 }

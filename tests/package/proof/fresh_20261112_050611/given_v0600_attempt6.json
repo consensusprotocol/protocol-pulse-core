@@ -1,0 +1,827 @@
+{
+ "schema": "pp.package/1",
+ "type": "moments",
+ "angle": "Nobody is in charge of Bitcoin, and that is the point.",
+ "vo_kind": "written by the orchestrator, variant v0600",
+ "style": null,
+ "segments": [
+  {
+   "label": "hook",
+   "moment_id": "3b3050f4afd6f3c011e7",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel": "Saifedean Ammous",
+   "k0": 1179,
+   "k1": 1180,
+   "words": [
+    16659,
+    16688
+   ],
+   "start": 5144.99,
+   "end": 5153.37,
+   "duration_s": 8.38,
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+   "published_at": "2026-11-11T00:00:00+00:00",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "url_30s_before": "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s"
+  },
+  {
+   "label": "clip_01",
+   "moment_id": "876662b7dc4e961d47e1",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel": "What Bitcoin Did",
+   "k0": 472,
+   "k1": 474,
+   "words": [
+    7545,
+    7573
+   ],
+   "start": 2480.28,
+   "end": 2491.52,
+   "duration_s": 11.24,
+   "text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2450s"
+  },
+  {
+   "label": "clip_02",
+   "moment_id": "5e38ec62aa36eae80132",
+   "video_id": "wdk5JZ9hPzs",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel": "Natalie Brunell",
+   "k0": 108,
+   "k1": 109,
+   "words": [
+    1417,
+    1443
+   ],
+   "start": 529.05,
+   "end": 539.34,
+   "duration_s": 10.29,
+   "text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure.",
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "url_30s_before": "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=499s"
+  }
+ ],
+ "vo": {
+  "intro": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
+  "bridges": [
+   "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
+   "No ruler. Just rules nobody gets to bend. That's the idea."
+  ],
+  "bridges_after_clip": [
+   1,
+   2
+  ],
+  "signoff": "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below."
+ },
+ "title": "Nobody is in charge of Bitcoin.",
+ "caption": "no authority. three voices on why that is the point.",
+ "hook_first_words": "Bitcoin does not have any authority that allows",
+ "lines": [
+  {
+   "text": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "876662b7dc4e961d47e1"
+   ],
+   "slot": "intro"
+  },
+  {
+   "text": "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
+   "cites": [
+    "5e38ec62aa36eae80132"
+   ],
+   "slot": "bridge_1"
+  },
+  {
+   "text": "No ruler. Just rules nobody gets to bend. That's the idea.",
+   "cites": [],
+   "slot": "bridge_2"
+  },
+  {
+   "text": "Nobody is in charge of Bitcoin.",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "876662b7dc4e961d47e1",
+    "5e38ec62aa36eae80132"
+   ],
+   "slot": "title"
+  },
+  {
+   "text": "no authority. three voices on why that is the point.",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "876662b7dc4e961d47e1",
+    "5e38ec62aa36eae80132"
+   ],
+   "slot": "caption"
+  }
+ ],
+ "runtime_s_estimate": 60.75,
+ "runtime_note": "segments 29.91 s (word timing) + VO 42 words + sign-off 19 words at 2.6 w/s (assumed) + fixed 7.38 s (credits card, outro, transitions); the render measures the final",
+ "gates": {
+  "vo_fidelity_deterministic": {
+   "status": "PASS",
+   "by": "code (vo_fidelity.check_deterministic)",
+   "replayed": false,
+   "n": 1
+  },
+  "vo_fidelity_verdict": {
+   "status": "PASS",
+   "by": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "n": 1
+  },
+  "duplicate": {
+   "status": "PASS",
+   "by": "code (package.duplicates)",
+   "replayed": false,
+   "n": 1
+  },
+  "price_now": {
+   "status": "PASS",
+   "by": "code (vo_fidelity.price_now)",
+   "replayed": false,
+   "n": 1
+  },
+  "runtime": {
+   "status": "PASS",
+   "by": "code (estimate at 2.6 w/s)",
+   "replayed": false,
+   "n": 1
+  },
+  "r4": {
+   "status": "PASS",
+   "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+   "replayed": false,
+   "n": 1
+  },
+  "context_a": {
+   "status": "FAIL",
+   "by": [
+    "anthropic:claude-opus-5-5"
+   ],
+   "replayed": false,
+   "n": 3
+  },
+  "context_b": {
+   "status": "FAIL",
+   "by": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "n": 1
+  },
+  "context_c": {
+   "status": "FAIL",
+   "by": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "n": 1
+  },
+  "exclusion": {
+   "status": "PASS",
+   "by": [
+    "anthropic:claude-opus-5-5"
+   ],
+   "replayed": false,
+   "n": 3
+  },
+  "second_pass": {
+   "status": "PASS",
+   "by": [
+    "elevenlabs_stt:scribe_v1"
+   ],
+   "replayed": false,
+   "n": 3
+  },
+  "coherence": {
+   "status": "PASS",
+   "by": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "n": 1
+  }
+ },
+ "checks_given": {
+  "fidelity": {
+   "deterministic": {
+    "ok": true,
+    "violations": [],
+    "price_now_measured": true
+   },
+   "verdict": {
+    "ok": true,
+    "claims": [
+     {
+      "line": "intro",
+      "words": "Nobody is in charge of Bitcoin.",
+      "class": "commentary",
+      "claim": "Nobody is in charge of Bitcoin.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "intro",
+      "words": "That's not a flaw. That's the design.",
+      "class": "commentary",
+      "claim": "That's not a flaw. That's the design.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "bridge_1",
+      "words": "Next, from Natalie Brunell's show:",
+      "class": "production",
+      "claim": "Next from Natalie Brunell's show",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "manifest",
+        "words": "contains clips from Saifedean Ammous, What Bitcoin Did, Natalie Brunell"
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "bridge_1",
+      "words": "what does a system with no one in charge have to get right?",
+      "class": "commentary",
+      "claim": "what does a system with no one in charge have to get right?",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "bridge_2",
+      "words": "No ruler. Just rules nobody gets to bend. That's the idea.",
+      "class": "commentary",
+      "claim": "No ruler. Just rules nobody gets to bend. That's the idea.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "title",
+      "words": "Nobody is in charge of Bitcoin.",
+      "class": "commentary",
+      "claim": "Nobody is in charge of Bitcoin.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "caption",
+      "words": "no authority.",
+      "class": "fact",
+      "claim": "no authority",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "3b3050f4afd6f3c011e7",
+        "words": "Bitcoin does not have any authority"
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "caption",
+      "words": "three voices on why that is the point.",
+      "class": "production",
+      "claim": "three voices on why that is the point",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "manifest",
+        "words": "There are 3 clips"
+       }
+      ],
+      "tests": {}
+     }
+    ],
+    "violations": [],
+    "classes": {
+     "intro": [
+      "commentary",
+      "commentary"
+     ],
+     "bridge_1": [
+      "production",
+      "commentary"
+     ],
+     "bridge_2": [
+      "commentary"
+     ],
+     "title": [
+      "commentary"
+     ],
+     "caption": [
+      "fact",
+      "production"
+     ]
+    }
+   },
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false,
+   "violations": [],
+   "ok": true
+  },
+  "context": {
+   "segments": {
+    "hook": {
+     "A": {
+      "label": "hook",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "they",
+        "refers_to": "the people who end up with more Bitcoin",
+        "inside": true,
+        "changes_assertion": "no"
+       },
+       {
+        "word": "that",
+        "refers_to": "acquiring more Bitcoin (choosing to buy it)",
+        "inside": true,
+        "changes_assertion": "no"
+       }
+      ],
+      "conditions": [],
+      "retraction": "none",
+      "time_ok": "yes",
+      "proposition": "Unlike central banks, Bitcoin grants no one the authority to take others' wealth, so unequal Bitcoin holdings result from people's own choices to buy it.",
+      "certainty": "certain",
+      "speaker_is": "uncertain",
+      "speaker_evidence": "",
+      "backend": "anthropic:claude-opus-5-5",
+      "replayed": false,
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "hook",
+      "asserts": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "B0": {
+      "label": "hook",
+      "asserts": "Bitcoin has no authority that lets people take others' wealth; anyone holding more Bitcoin chose to acquire it.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "hook",
+      "entails": "yes",
+      "same_polarity": "yes",
+      "stronger_certainty": "no",
+      "raising_words": ""
+     },
+     "window": [
+      1157,
+      1200
+     ]
+    },
+    "clip_01": {
+     "A": {
+      "label": "clip_01",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "It's other intermediaries",
+        "refers_to": "other intermediaries are what is getting hacked",
+        "inside": true,
+        "changes_assertion": "no"
+       },
+       {
+        "word": "it",
+        "refers_to": "the fact that hacks hit intermediaries rather than Bitcoin itself",
+        "inside": true,
+        "changes_assertion": "no"
+       }
+      ],
+      "conditions": [],
+      "retraction": "none",
+      "time_ok": "yes",
+      "proposition": "Recent crypto hacks have targeted intermediaries rather than Bitcoin itself, which highlights Bitcoin's security and uniqueness.",
+      "certainty": "likely",
+      "speaker_is": "guest",
+      "speaker_evidence": "But I guess the thing I'm nervous about is because Trump has been supportive of Bitcoin, does that mean that any of these sort of future Democrat Party is automatically going to be against Bitcoin?",
+      "backend": "anthropic:claude-opus-5-5",
+      "replayed": false,
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "clip_01",
+      "asserts": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "B0": {
+      "label": "clip_01",
+      "asserts": "Hacks involve intermediaries, not Bitcoin itself, which highlights Bitcoin's security and uniqueness.",
+      "certainty": "likely",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "clip_01",
+      "entails": "yes",
+      "same_polarity": "yes",
+      "stronger_certainty": "yes",
+      "raising_words": "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?"
+     },
+     "window": [
+      461,
+      486
+     ]
+    },
+    "clip_02": {
+     "A": {
+      "label": "clip_02",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "it",
+        "refers_to": "Bitcoin",
+        "inside": true,
+        "changes_assertion": "no"
+       }
+      ],
+      "conditions": [
+       {
+        "text": "all it has to do, is stay decentralized and secure",
+        "inside": true
+       }
+      ],
+      "retraction": "Later he warns that if people measure Bitcoin through the debt-based system it could become centralized and a different control system.",
+      "time_ok": "yes",
+      "proposition": "Bitcoin is a new measuring system for the first truly free market, and it only needs to remain decentralized and secure for that to emerge.",
+      "certainty": "likely",
+      "speaker_is": "guest",
+      "speaker_evidence": "And why that's interesting for this conversation to your initial question is how could we superimpose those two thoughts on what's going on right now?",
+      "backend": "anthropic:claude-opus-5-5",
+      "replayed": false,
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "clip_02",
+      "asserts": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "B0": {
+      "label": "clip_02",
+      "asserts": "Bitcoin is a new system of measure for the first true free market and only needs to stay decentralized and secure.",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "clip_02",
+      "entails": "uncertain",
+      "same_polarity": "yes",
+      "stronger_certainty": "yes",
+      "raising_words": "No ruler. Just rules nobody gets to bend. That's the idea."
+     },
+     "window": [
+      88,
+      121
+     ]
+    }
+   },
+   "relations": [
+    {
+     "labels": [
+      "hook",
+      "clip_01"
+     ],
+     "relation": "none"
+    },
+    {
+     "labels": [
+      "hook",
+      "clip_02"
+     ],
+     "relation": "none"
+    },
+    {
+     "labels": [
+      "clip_01",
+      "clip_02"
+     ],
+     "relation": "none"
+    }
+   ],
+   "violations": [
+    {
+     "segment": "clip_01",
+     "rule": "STRONGER",
+     "detail": "stronger certainty: the video's words \"Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?\" make the clip sound certain (in context likely; the clip alone likely)"
+    },
+    {
+     "segment": "clip_02",
+     "rule": "RETRACTION",
+     "detail": "Later he warns that if people measure Bitcoin through the debt-based system it could become centralized and a different control system."
+    },
+    {
+     "segment": "clip_02",
+     "rule": "NOT_ENTAILED",
+     "detail": "entails: uncertain"
+    }
+   ],
+   "backends": {
+    "A": {
+     "hook": "anthropic:claude-opus-5-5",
+     "clip_01": "anthropic:claude-opus-5-5",
+     "clip_02": "anthropic:claude-opus-5-5"
+    },
+    "B0": "anthropic:claude-opus-5-5",
+    "B": "xai:grok-4.20-0309-reasoning",
+    "C": "xai:grok-4.20-0309-reasoning"
+   },
+   "measured": true,
+   "replayed": false,
+   "notes": [
+    "clip_02: step C reads the viewer's takeaway as firmer than the speaker in context (likely -> certain) but the clip ALONE already sounds certain: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)"
+   ],
+   "judged": [
+    "hook",
+    "clip_01",
+    "clip_02"
+   ],
+   "ok": false
+  },
+  "duplicates": [],
+  "exclusion": {
+   "hook": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Speaker argues Bitcoin has no authority to seize wealth and holdings reflect choice; no buy imperative within the moment itself.",
+    "risks": [],
+    "backend": "anthropic:claude-opus-5-5"
+   },
+   "clip_01": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Speaker argues hacks hit intermediaries, not Bitcoin, highlighting its security; no named accusations or calls to action.",
+    "risks": [],
+    "backend": "anthropic:claude-opus-5-5"
+   },
+   "clip_02": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Speaker's own view of Bitcoin as a new measuring system for a free market; no accusation, imperative, ad or media.",
+    "risks": [],
+    "backend": "anthropic:claude-opus-5-5"
+   }
+  },
+  "truth": {
+   "hook": {
+    "video_id": "vgsSZ4mAHfQ",
+    "start": 5144.99,
+    "end": 5153.37,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+    "transcript_ok": true,
+    "disagree": {
+     "numbers": [],
+     "negations": [],
+     "names": []
+    },
+    "critical": {
+     "numbers": [],
+     "negations": [
+      "not"
+     ],
+     "names": []
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+    "ok": true
+   },
+   "clip_01": {
+    "video_id": "c1JGheQBPH4",
+    "start": 2480.28,
+    "end": 2491.52,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "it's not Bitcoin that's getting hacked. It's, um, you know, it's, it's other, uh, uh, intermediaries. So, uh, in some ways it, it kind of shines a light on the, the, uh, secure nature and the, the unique nature of Bitcoin.",
+    "transcript_ok": true,
+    "disagree": {
+     "numbers": [],
+     "negations": [],
+     "names": []
+    },
+    "critical": {
+     "numbers": [],
+     "negations": [
+      "not"
+     ],
+     "names": []
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "c1JGheQBPH4_2478780_2493020.wav",
+    "ok": true
+   },
+   "clip_02": {
+    "video_id": "wdk5JZ9hPzs",
+    "start": 529.05,
+    "end": 539.34,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And it, all it has to do is stay decentralized and secure,",
+    "transcript_ok": true,
+    "disagree": {
+     "numbers": [],
+     "negations": [],
+     "names": []
+    },
+    "critical": {
+     "numbers": [],
+     "negations": [],
+     "names": []
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "wdk5JZ9hPzs_527550_540840.wav",
+    "ok": true
+   }
+  },
+  "coherence": {
+   "through_line": "Nobody is in charge of Bitcoin and that is by design, enabling a decentralized, secure free market with immutable rules and no authority to seize wealth.",
+   "clips": {
+    "hook": 5,
+    "clip_01": 4,
+    "clip_02": 5
+   },
+   "vo_point": 4,
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false
+  },
+  "r4": [
+   true,
+   "R4 (moments-first, 06:00) PASS | VO 19.8 s = 32.6% of the 60.75 s runtime (39.8% of clips + VO)"
+  ],
+  "runtime_ok": true,
+  "gates": {
+   "vo_fidelity_deterministic": true,
+   "vo_fidelity_verdict": true,
+   "price_now_measured": true,
+   "duplicate": true,
+   "runtime": true,
+   "r4": true,
+   "context": false,
+   "exclusion": true,
+   "second_pass": true,
+   "coherence": true
+  },
+  "step_a": {
+   "hook": {
+    "label": "hook",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "they",
+      "refers_to": "the people who end up with more Bitcoin",
+      "inside": true,
+      "changes_assertion": "no"
+     },
+     {
+      "word": "that",
+      "refers_to": "acquiring more Bitcoin (choosing to buy it)",
+      "inside": true,
+      "changes_assertion": "no"
+     }
+    ],
+    "conditions": [],
+    "retraction": "none",
+    "time_ok": "yes",
+    "proposition": "Unlike central banks, Bitcoin grants no one the authority to take others' wealth, so unequal Bitcoin holdings result from people's own choices to buy it.",
+    "certainty": "certain",
+    "speaker_is": "uncertain",
+    "speaker_evidence": "",
+    "backend": "anthropic:claude-opus-5-5",
+    "replayed": false,
+    "speaker_verified": false
+   },
+   "clip_01": {
+    "label": "clip_01",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "It's other intermediaries",
+      "refers_to": "other intermediaries are what is getting hacked",
+      "inside": true,
+      "changes_assertion": "no"
+     },
+     {
+      "word": "it",
+      "refers_to": "the fact that hacks hit intermediaries rather than Bitcoin itself",
+      "inside": true,
+      "changes_assertion": "no"
+     }
+    ],
+    "conditions": [],
+    "retraction": "none",
+    "time_ok": "yes",
+    "proposition": "Recent crypto hacks have targeted intermediaries rather than Bitcoin itself, which highlights Bitcoin's security and uniqueness.",
+    "certainty": "likely",
+    "speaker_is": "guest",
+    "speaker_evidence": "But I guess the thing I'm nervous about is because Trump has been supportive of Bitcoin, does that mean that any of these sort of future Democrat Party is automatically going to be against Bitcoin?",
+    "backend": "anthropic:claude-opus-5-5",
+    "replayed": false,
+    "speaker_verified": false
+   },
+   "clip_02": {
+    "label": "clip_02",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "it",
+      "refers_to": "Bitcoin",
+      "inside": true,
+      "changes_assertion": "no"
+     }
+    ],
+    "conditions": [
+     {
+      "text": "all it has to do, is stay decentralized and secure",
+      "inside": true
+     }
+    ],
+    "retraction": "Later he warns that if people measure Bitcoin through the debt-based system it could become centralized and a different control system.",
+    "time_ok": "yes",
+    "proposition": "Bitcoin is a new measuring system for the first truly free market, and it only needs to remain decentralized and secure for that to emerge.",
+    "certainty": "likely",
+    "speaker_is": "guest",
+    "speaker_evidence": "And why that's interesting for this conversation to your initial question is how could we superimpose those two thoughts on what's going on right now?",
+    "backend": "anthropic:claude-opus-5-5",
+    "replayed": false,
+    "speaker_verified": false
+   }
+  },
+  "current_levels": [],
+  "author": {
+   "vendor": "anthropic",
+   "family": "claude"
+  },
+  "wall_s": 207.3,
+  "usd": 0.3159
+ }
+}

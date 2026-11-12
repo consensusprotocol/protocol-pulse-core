@@ -107,3 +107,92 @@ Step A's instruction now says so explicitly. A referent counts as inside when th
 it. Real unresolved referents are unchanged: they still fail, and the exam (pipeline_pp_tests) measures both
 directions. The same attempt CORRECTLY rejected Simply Bitcoin's "Five years after Bitcoin peaked at 69,000, Bitcoin
 is up 6%. Welcome to November." as sarcastic, not an own sincere assertion.
+
+### E-FAIL-PS13 (this session's own tooling, 03:22 ET): an unquoted heredoc executed the backtick spans of a document
+A shell heredoc with an unquoted delimiter (`<<EOF`) performs command substitution on its body. A Markdown section
+being written through it held inline code in backticks: a file path, a command line with `--pinned`, a `git apply
+--check`. Bash tried to run each of them. A git command hung on its input until the session's timeout and was
+stopped. Verified afterwards:
+- no run_fresh process ran;
+- no run directory appeared, in the worktree or in the main tree;
+- no tracked file changed.
+
+**Rule:** any heredoc that carries document text uses a quoted delimiter (`<<'EOF'`), with values passed through the
+environment or argv, never interpolated.
+
+### E-FAIL-PS14 (measured 03:20-04:05 ET, tonight's universe): a VO that makes a point collides with three gates built for VO that only introduces
+The orchestrator's 03:40 review asked for angle-led packages ("the VO makes a point"). Three integrity checks, each
+correct in its own terms, then refused every angle on tonight's universe.
+
+1. **The fidelity verdict supported a claim from ONE segment only.** A point drawn from two clips ("past gains don't
+   erase risk": one clip's move plus another's rates) had no single supporting segment, so it was "uncertain" or "no".
+   **Fix:** a claim may cite several segments, each with words that code verifies as verbatim. The judge says yes only
+   if those words together state the claim, adding nothing.
+2. **Step B (viewer takeaway) read independent compatible views as "agreeing".** Three credited speakers each making
+   their own point on one subject were flagged FALSE_RELATION. L-s forbids an implied relation between speakers (one
+   answering, rebutting or agreeing WITH another, or one conversation), not two attributed views on one point. The
+   orchestrator's own example angle (Ammous / What Bitcoin Did / Livera) is exactly that.
+   **Fix:** step B asks the relation question as L-s states it.
+3. **A context failure caused by the VO's framing (NOT_ENTAILED, STRONGER, FALSE_RELATION) dropped the MOMENT.** The
+   angle then ran out of moments.
+   **Fix:** a VO-dependent context failure goes back to the writer with its reason, within the 3-rewrite budget. Only
+   a clip's own context (step A) drops it.
+
+None of the three loosens a rule. Each now asks what the law asks, with the same strictness. The deterministic NAME
+and NUMBER rules also produced false rejects on angle VO ('Past', 'Beyond', a Title Case title, 'one thing'), fixed
+with evidence in MOMENTS_FIRST_DESIGN section 4b.
+
+### E-FAIL-PS15 (audit p2 cycle 1, unanimous): a gate's verdict that the artefact asserts instead of carries
+package_pin wrote `"vo_fidelity_ok": True, "context_integrity_ok": True` as literals. R7 then tested those flags for
+truthiness. An ungated, hand-edited or failed package would have rendered as "gated".
+**Rule:** the artefact carries a fixed GATE INVENTORY. Each row is exactly "PASS", with who measured it and "replayed":
+false. The inventory is SEALED with the gated bytes (package_pin.seal), and every consumer recomputes the seal. A row
+that is missing, "FAIL" or "NOT RUN" refuses the pin.
+
+### E-FAIL-PS16 (audit p2 cycle 1, 3 of 4): a verdict that may answer with nothing passes on nothing
+`{"claims": []}` passed the blind fidelity verdict, and so did a verdict covering one line of four. Step B passed with
+`"relations": []`.
+**Rule:** the code requires COVERAGE:
+- every sentence of every line is covered by a claim whose words are the line's own;
+- every pair of clips has exactly one relation;
+- every segment has a second-pass result with a measured speaker. "Not measured" (None) never passes.
+
+### E-FAIL-PS17 (tonight 05:45-06:30 ET, the orchestrator's rulings 3, 5, 6): a model verdict that names no words is a note, not a failure
+Several false rejects came from a judge disagreeing with another model's paraphrase, with no word of the video or of
+the context to point at:
+- STRONGER: A "likely" against B "certain";
+- NOT_ENTAILED: two summaries of different scope;
+- RETRACTION: a consistent later elaboration;
+- a package "adding" to a clip when B was the clip's own words.
+
+**Rule:** a context failure that blames the video must quote the video's own words; one that blames the context must
+quote the context's own words, outside the clip. Code checks each quote:
+- `raising_words` / `added_by`: verbatim in the VO, title or caption; `added_by` must also name the speaker's show;
+- `dropped_limit`: verbatim in the window, outside the selection.
+
+Unquoted, it is a NOTE.
+- An "uncertain" still fails (L-m).
+- After each change, the exam's 41 must-fail context cases are re-run: 41/41 rejected.
+- One intermediate encoding let two title-thesis cases through. The exemption had been written wider than the ruling's
+  own words ("the clip alone reads as CERTAIN"), so encode the ruling's words exactly.
+
+### E-FAIL-PS18 (tonight 05:40 ET): the gates judged a play order the renderer does not use
+The renderers play hook -> VO intro -> clip 1 -> bridge -> ... -> shout-out (render16.py:306-334,
+render_vertical.py:853-880). The intro is heard AFTER the hook. The packager's view for step B and coherence put the
+intro before the hook.
+**Rule:** every gate that judges "the video as a viewer meets it" builds that view from the renderer's own segment
+order, and is re-checked whenever the renderer changes.
+
+### E-FAIL-PS19 (tonight 05:45 ET, this session's own defect): a second-pass comparison over the padded window
+The L-v 2 comparison took the second transcript of the whole padded audio window (selection +/- 1.5 s). It also
+treated sentence-initial capitals as names. So "Your", "Um" and an extra "not" from outside the clip failed two clean
+clips.
+**Rule:** compare only the words whose timing lies inside the selection, in BOTH directions, with counts. A name is a
+capitalised token that is not an English word.
+
+### E-FAIL-PS20 (tonight 05:41 ET): a factory rule outside the gates (edl_rules R4) would have HELD every host-VO package
+R4 (VO <= 25 % of clips + VO; one bridge per channel transition) runs on pinned runs at validate. The moments-first VO
+the orchestrator wrote at 05:35 was 38 %.
+**Rule:** the packager mirrors every downstream hard rule that the package's bytes can fail (runtime, R4, the R7 shape)
+and checks them for free, before any paid verdict. The integrator's R4 for moments (a5ec0f17) is mirrored: VO <= 40 %
+of the total runtime, one line per slot.

@@ -1,0 +1,267 @@
+{
+ "corpus": "/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/context_integrity",
+ "must_fail": 41,
+ "rejected": 6,
+ "passed": 1,
+ "errors": 34,
+ "chains": {
+  "context_verdict": [
+   "anthropic:claude-opus-5-5",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "viewer_takeaway": [
+   "anthropic:claude-opus-5-5",
+   "xai:grok-4.20-0309-reasoning"
+  ]
+ },
+ "seconds": 76.7,
+ "usd": 1.3486,
+ "rows": [
+  {
+   "id": "context_integrity__answer_without_question__01",
+   "class": "answer_without_question",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__answer_without_question__02",
+   "class": "answer_without_question",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__answer_without_question__03",
+   "class": "answer_without_question",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__conditional_split__01",
+   "class": "conditional_split",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__conditional_split__02",
+   "class": "conditional_split",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: conditional; M: REFERENT_OUTSIDE \"It'll\" -> \"the shift to tokenized stocks becoming the primary way things are traded (the 'train' of tokenization)\" (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'it' -> 'the shift to tokenized stocks becoming the primary way things are"
+  },
+  {
+   "id": "context_integrity__false_dialogue__01",
+   "class": "false_dialogue",
+   "verdict": "fail",
+   "why": "A+M: FALSE_RELATION the package makes them look uncertain; they are not one conversation"
+  },
+  {
+   "id": "context_integrity__false_dialogue__02",
+   "class": "false_dialogue",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__false_dialogue__03",
+   "class": "false_dialogue",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__hypothetical__01",
+   "class": "hypothetical",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__hypothetical__02",
+   "class": "hypothetical",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__hypothetical__03",
+   "class": "hypothetical",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__later_retraction__01",
+   "class": "later_retraction",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__later_retraction__02",
+   "class": "later_retraction",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__quoting_opponent__01",
+   "class": "quoting_opponent",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__quoting_opponent__02",
+   "class": "quoting_opponent",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__quoting_opponent__03",
+   "class": "quoting_opponent",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__reading_aloud__01",
+   "class": "reading_aloud",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__reading_aloud__02",
+   "class": "reading_aloud",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: reading_aloud; M: REFERENT_OUTSIDE \"it's\" -> 'what US voters cared about as their number one issue in the midterm elections (the economy)' (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'the economy' -> 'the economy as the number one issue for voters in the U.S. midterm"
+  },
+  {
+   "id": "context_integrity__reading_aloud__03",
+   "class": "reading_aloud",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: ad_read; M: CONDITION_OUTSIDE 'framed as part of a Square sponsored advertisement promoting Bitcoin payments via Square'"
+  },
+  {
+   "id": "context_integrity__sarcasm__01",
+   "class": "sarcasm",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__sarcasm__02",
+   "class": "sarcasm",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__sarcasm__03",
+   "class": "sarcasm",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__some_people_say__01",
+   "class": "some_people_say",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__some_people_say__02",
+   "class": "some_people_say",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'he' -> 'Vice President JD Vance, after his post blaming the Iran war for the midterm losses' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE \"after the midterm election results and Vance's post blaming the war in Iran\"; M: RETRACTION The"
+  },
+  {
+   "id": "context_integrity__some_people_say__03",
+   "class": "some_people_say",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__stale_time_reference__01",
+   "class": "stale_time_reference",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__stale_time_reference__02",
+   "class": "stale_time_reference",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__stale_time_reference__03",
+   "class": "stale_time_reference",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__steelman__01",
+   "class": "steelman",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__steelman__02",
+   "class": "steelman",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__steelman__03",
+   "class": "steelman",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__01",
+   "class": "title_adds_thesis",
+   "verdict": "pass",
+   "why": "own sincere assertion; referents and conditions inside; entailed; no false relation"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__02",
+   "class": "title_adds_thesis",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__03",
+   "class": "title_adds_thesis",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__01",
+   "class": "unresolved_referent",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__02",
+   "class": "unresolved_referent",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__03",
+   "class": "unresolved_referent",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__04",
+   "class": "unresolved_referent",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__01",
+   "class": "wrong_speaker",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B (clips alone) must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__02",
+   "class": "wrong_speaker",
+   "verdict": "ERROR",
+   "why": "not measured: ValueError: step B must answer at least ['M']"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__03",
+   "class": "wrong_speaker",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'YOU' -> \"Nikki Haley (labelled 'MR. HALEY' in the transcript), the ambassador being interviewed\" (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'SUCH A CRITICAL ISSUE' -> 'the policy issue Haley had just discussed, apparently U.S. suppor"
+  }
+ ]
+}

@@ -1,10 +1,10 @@
 {
  "schema": "protocol_pulse.pinned_story.v1",
- "story_id": "moments-fresh_20261112_050611-860b878d",
+ "story_id": "moments-fresh_20261112_050611-add8c732",
  "label": "bitcoin",
- "headline": "Bitcoin ran from 16K to 126K",
+ "headline": "Nobody is in charge of Bitcoin.",
  "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
- "approved_at": "2026-11-12T08:29:54+00:00",
+ "approved_at": "2026-11-12T11:28:09+00:00",
  "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, fresh_20261112_050611)",
  "machine_cuts": true,
  "segments": [
@@ -15,18 +15,7 @@
    "start": 5144.99,
    "end": 5153.37,
    "approved_text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
-   "time_coords": "youtube",
-   "source": {
-    "kind": "youtube"
-   }
-  },
-  {
-   "role": "clip",
-   "video_id": "Sjb6lUiL0m4",
-   "channel": "Stephan Livera",
-   "start": 1826.54,
-   "end": 1843.48,
-   "approved_text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
    "time_coords": "youtube",
    "source": {
     "kind": "youtube"
@@ -39,6 +28,7 @@
    "start": 2480.28,
    "end": 2491.52,
    "approved_text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
    "time_coords": "youtube",
    "source": {
     "kind": "youtube"
@@ -46,11 +36,12 @@
   },
   {
    "role": "clip",
-   "video_id": "Noq6txZU91c",
-   "channel": "Simply Bitcoin",
-   "start": 399.15,
-   "end": 405.25,
-   "approved_text": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x.",
+   "video_id": "wdk5JZ9hPzs",
+   "channel": "Natalie Brunell",
+   "start": 529.05,
+   "end": 539.34,
+   "approved_text": "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure.",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
    "time_coords": "youtube",
    "source": {
     "kind": "youtube"
@@ -59,49 +50,122 @@
  ],
  "moments_package": {
   "schema": "pp.package/1",
-  "package_sha256": "860b878d4e4961a7e2ec7f1500f57a5030d84b99565b4a78d7527ed4bd0122e4",
+  "package_sha256": "add8c7328df47e20862d74bf37d52f02e3a3b826404e7a5594f4a0d5da37478a",
   "type": "moments",
+  "vo_kind": "written by the orchestrator, variant v0600",
   "edl_vo": {
-   "intro": "Bitcoin ran from 16K to 126K.",
+   "intro": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
    "bridges": [
     {
-     "text": "Next, What Bitcoin Did on intermediaries getting hacked.",
+     "text": "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
      "after_clip": 1
     },
     {
-     "text": "Next, Simply Bitcoin on Bitcoin's move from 16K to 126K.",
+     "text": "No ruler. Just rules nobody gets to bend. That's the idea.",
      "after_clip": 2
     }
    ]
   },
-  "signoff_expected": "Clips today from Saifedean Ammous, Stephan Livera, What Bitcoin Did, and Simply Bitcoin. Go follow them for more. Links are below.",
-  "title": "Bitcoin ran from 16K to 126K",
-  "caption": "Bitcoin ran from 16K to 126K. That move comes out to about an 8x.",
+  "signoff_expected": "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below.",
+  "title": "Nobody is in charge of Bitcoin.",
+  "caption": "no authority. three voices on why that is the point.",
   "hook_first_words": "Bitcoin does not have any authority that allows",
   "vo_jobs": {
    "intro": "context",
    "bridge_1": "connection",
    "bridge_2": "connection"
   },
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (estimate at 2.6 w/s)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "anthropic:claude-opus-5-5"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "anthropic:claude-opus-5-5"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   }
+  },
   "checks": {
    "vo_fidelity_ok": true,
    "context_integrity_ok": true,
-   "models": {
-    "writer": "openai:gpt-6.1-sol",
-    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
-    "context": {
-     "A": "precomputed (package-independent: context only)",
-     "B": "anthropic:claude-opus-5-5",
-     "C": "xai:grok-4.20-0309-reasoning"
-    }
-   }
+   "derived_from": "gates (every required row exactly PASS, checked above)",
+   "models": null
   },
-  "runtime_s_estimate": 60.42,
+  "runtime_s_estimate": 60.75,
   "sources_30s_before": [
    "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s",
-   "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s",
    "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2450s",
-   "https://www.youtube.com/watch?v=Noq6txZU91c&t=369s"
+   "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=499s"
   ]
  }
 }

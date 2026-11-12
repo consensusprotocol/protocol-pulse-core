@@ -585,6 +585,170 @@ block is unchanged. `_run_transcript` is then unused.
    - no model name in the code.
    The `select_by_id.Model` interface is the seam, and no change to select_by_id's contract is needed.
 
+## R7 MOMENTS-FIRST WIRING (phase 2; laws L-q, L-s..L-x): the package rendered by the SAME factory
+
+The route is the existing PINNED entry point. A moments-first package becomes the pinned decision, and every
+downstream stage stays shared and unchanged: validate (edl_rules, editorial gate, stand-alone, layout), cut, sentence
+law, voice, prepare, layout, render 16:9 and 9:16, gates, verify, release authorisation.
+
+1. **`pipeline/pinned.py` (exact patch below, `git apply --check` clean on c1451047; tests/package/smoke_r7.py: SMOKE
+   R7 PASS on a temporary patched copy).**
+   - `build_edl` takes the VO from the pin's `moments_package` (written by pipeline/package_pin.py): the package's
+     intro, and one bridge after each clip but the last (`after_clip`, the renderer's placement, render_vertical.py
+     :821-872). There is none between the hook and the first clip.
+   - The EDL also carries the ONE title and caption (law L-t) and the package's sha256 and gate verdicts.
+   - It refuses (PinError) a bridge the renderer cannot place, or a package whose VO-fidelity and context-integrity
+     gates did not BOTH pass.
+   - A pin without a package is unchanged: no body VO, Editorial Law 2's default.
+2. **TONIGHT** (orchestrator: "the integrator renders it"): apply item 1, then run run_fresh.py with
+   `--pinned` and the MOMENTS_PIN.json named at the top of pp-selectid_STATE.md.
+   - The pin's segments carry `approved_text` = the moments' exact words, and `machine_cuts: true`, so the sentence law
+     locates them BY TEXT in the acquired transcript, as for a machine PIN today.
+   - Its `approved_by` names the machine and REVIEW ONLY. No human approved it (law L-q: the first moments-first
+     delivery is REVIEW ONLY, with its duration deviations listed per L-o).
+   - stage_review (local gemma) still writes its own independent review of the VO jobs. The editorial gate's Law 2
+     then needs each body-VO line affirmed: intro = "context", each bridge = "connection".
+3. **Moments mode in `pipeline/run_fresh.py` (the integrator's code; every step is a function here).**
+   - A stage "moments":
+     - `moments.mine(providers.Router(local_llm=<the LocalLLM started under the gpu0 lease>), <the cycle's word
+       Sources>, ctx, trend_brief.TOPICS, since=<the last cycle's start>)`;
+     - `package.build(router, mined["moments"], sources, ctx, delivered=<moment ids delivered in 24 h>,
+       optout=moments.optout_ids())`;
+     - `package_pin.write_pin(pk, run_name, run.dir)`.
+   - Then `stage_pinned(run, pin_path)`. "No package" is a HOLD naming `why_none` / `tried`.
+   - The cycle's word Sources are pipeline_pp_ingest's: the moment ledger plus the store's sentence-ready records,
+     law L-e.
+4. **Gates for moments-first runs ONLY** (law L-q CHECK, '01:58').
+   - The same-event / topic gates are replaced by the package's recorded verdicts: VO fidelity (deterministic and the
+     blind verdict) and context integrity (L-s). The release authorisation must require both, from
+     `edl["moments_checks"]`.
+   - stand_alone's topic check stays: its subject for a Bitcoin package is Bitcoin, and every segment names it by rule.
+   - Every other integrity gate is unchanged.
+   - L-t: the title and caption are bound into the release authorisation (release_auth's attested set, with both
+     finals). Any change after the gates re-runs them.
+5. **The windows still applied downstream** (R6 item 2: edl_rules R5 8-25 s, select_passages:333, stand_alone at
+   validate) must follow law L-o.
+   - The packager keeps every segment at <= 20 s (L-u). A hook under 8 s HOLDs at R5 until R6 item 2 lands.
+6. **L-x.** Every role resolves through pipeline/model_providers.json, so no model name lives in code.
+   - The integrator runs the local legs of tests/providers/ab_roles.py under the GPU0 lease (`--local`), and re-orders
+     a role's chain only on that measurement.
+   - The Heimdall 90 % tripwire notifies, never halts (providers.Router.heimdall_tripwire).
+
+<!-- PATCH R7 BEGIN -->
+```diff
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -311,20 +311,45 @@
+     for i, c in enumerate(clips, 1):
+         c["index"] = i
+     channels = sorted({x["channel"] for x in segs})
++    mp = pin.get("moments_package")            # pp-selectid R7: a moments-first package (law L-q) as the decision
++    vo = _generate_vo_script(pin["label"], hook["text"], clips, channels)
++    if isinstance(mp, dict):
++        vo = moments_vo(mp, clips)
+     edl = {
+         "topic": pin["label"],
+         "angle": f"Pinned: {pin.get('headline') or pin['label']}",
+         "hook": hook,
+         "clips": clips,
+-        "vo": _generate_vo_script(pin["label"], hook["text"], clips, channels),
++        "vo": vo,
+         "total_clip_duration": round(hook["duration"] + sum(c["duration"] for c in clips), 2),
+         "mode": "pinned",
+         "pinned_story_id": pin["story_id"],
+     }
++    if isinstance(mp, dict):                   # law L-t: the ONE title and caption travel with the EDL to release
++        edl.update(title=mp["title"], caption=mp["caption"], moments_package_sha256=mp["package_sha256"],
++                   moments_checks=mp.get("checks"))
+     overrides = build_vertical_overrides(hook, clips, registry)
+     return edl, overrides, report
+ 
+ 
++def moments_vo(mp, clips):
++    """The package's VO, checked by its VO-fidelity and context-integrity gates (pipeline/package.py): the intro and
++    one bridge after each clip but the last, in the EDL's shape ({"text", "after_clip"}). Fail closed on any shape
++    the renderer cannot place (a bridge after the hook, after the last clip, or after a missing clip)."""
++    v = mp.get("edl_vo") or {}
++    intro = v.get("intro")
++    bridges = v.get("bridges") or []
++    idx = {c["index"] for c in clips}
++    for b in bridges:
++        if not isinstance(b, dict) or not str(b.get("text") or "").strip() or b.get("after_clip") not in idx or                 b["after_clip"] == max(idx):
++            raise PinError(f"moments_package bridge {b!r}: needs text and after_clip in 1..{max(idx) - 1}")
++    if intro is not None and not str(intro).strip():
++        raise PinError("moments_package intro is empty")
++    if not mp.get("checks", {}).get("vo_fidelity_ok") or not mp.get("checks", {}).get("context_integrity_ok"):
++        raise PinError("moments_package: the VO-fidelity and context-integrity gates did not both pass")
++    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
++
++
+ def prepare(pin_path, run_dir, log=print):
+     """Validate + acquire + build. Writes edl.json, vertical_overrides.json, PINNED_DECISION.json.
+     Returns the PINNED_DECISION record. Raises PinError."""
+```
+<!-- PATCH R7 END -->
+
+## R8 FOR pipeline_pp_tests (the exam): cases this session found (orchestrator 03:40: "send the case to pipeline_pp_tests")
+
+1. **title_misleads_about_now** (vo_fidelity corpus, a new fail class; laws L-v 3 / L-t). REAL case, fresh_20261112_050611:
+   - The candidate title, caption and VO intro were "Bitcoin ran from 16K to 126K" (Simply Bitcoin, Noq6txZU91c
+     399.15-405.25, verbatim).
+   - The universe's own current level that night was about $73,000: Bitcoin falling and testing its 200-day average.
+   - Every word is in a clip, and the line is still misleading as a headline.
+   - Must FAIL: a headline line (title / caption / intro) stating a price level or move that is neither marked as
+     history ("from the 2022 low ...") nor within tolerance of a level the universe states as current.
+   - Must PASS: the same numbers marked as history; today's level stated as today's.
+   - This session's gate: vo_fidelity PRICE_NOW with package.current_levels.
+2. **clip_repeats_the_line_before_it** (a package-structure fail class). Same night: the intro and the title repeated
+   clip_03's words, which then played as a 6.1 s clip that added nothing.
+   - Must FAIL: a VO line right before a clip, or the title, carrying a run of >= 5 canonical tokens of that clip.
+   - This session's gate: package.duplicates.
+3. **cleft_it / generic_we** (context_integrity must-PASS near misses, NOTE-PS12): "It's not Bitcoin that's getting
+   hacked. It's other intermediaries." (What Bitcoin Did) and "we are going to have a new internet" (Natalie Brunell).
+   A referent rule that rejects these is a false reject.
+
+## R9 FOR pipeline_pp_tests: MUST-PASS context-integrity cases ruled by the orchestrator (06:00 ruling 3, 06:22 rulings 5-6)
+
+All four come from tonight's universe (fresh_20261112_050611); the orchestrator ruled each a FALSE REJECT of an earlier
+encoding of the gate.
+
+1. **ellipsis_completed_inside** (context_integrity, must PASS; ruling 3, REFERENT_OUTSIDE). What Bitcoin Did,
+   c1JGheQBPH4 2480.28-2491.52: "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it
+   kind of shines a light on the secure nature and the unique nature of Bitcoin."
+   - The orchestrator's text: "that is ellipsis completed by the sentence immediately before it INSIDE the clip
+     ('It's not Bitcoin that's getting hacked. It's other intermediaries [that are getting hacked].'). Same family as
+     the cleft-'it' false reject. Rule: a referent is OUTSIDE only if no antecedent or completing predicate exists in
+     the selected sentences AND resolving it differently would change what the speaker asserts. A presupposed general
+     topic (that hacks have happened) is not an outside referent."
+2. **own_hedge_heard_verbatim** (must PASS; ruling 3, STRONGER). The same clip: "the speaker's own hedge ('in some
+   ways, it kind of shines a light') is verbatim in the clip the viewer hears. A STRONGER failure must cite the exact
+   VO/title words that raise the certainty, or an attribution verb stronger than the clip's hedge. A bare
+   A-says-likely / B-says-certain disagreement between two models with no cited words is recorded as a NOTE, not a
+   failure."
+3. **scope_of_presupposed_occasion** (must PASS; ruling 5, NOT_ENTAILED). The same clip.
+   - "The viewer hears the speaker's exact words, including the present progressive 'that's getting hacked' and the
+     speaker's OWN generalisation ... RULE: entailment is judged between the speaker's in-context assertion and the
+     CLIP'S OWN WORDS as heard, not between two model paraphrases."
+   - "A difference of scope fails only when the context LIMITS the claim in a way the selected words drop (e.g. 'in
+     this one case', 'for small holders only', 'back in 2021') and the limit changes what a reasonable viewer
+     concludes. A presupposed topic or occasion is not such a limit."
+4. **elaboration_consistent_with_inside_condition** (must PASS; ruling 6, RETRACTION). A guest on Natalie Brunell's
+   channel, wdk5JZ9hPzs 529.05-539.34: "Bitcoin is a new system of measure that's measuring the first free market
+   that's ever existed. And all it has to do, is stay decentralized and secure." Later in the window: "if people
+   measure Bitcoin through the debt-based system it could become centralized and a different control system."
+   - "RETRACTION means the speaker later withdraws, reverses, corrects or materially limits the selected assertion
+     ('actually I misspoke', 'that said, I don't believe that', 'but that only holds if...'). Here the clip itself
+     carries the condition ('all it has to do, is stay decentralized and secure'), and the later passage elaborates
+     how that condition could be lost. A later elaboration or warning that is CONSISTENT with a condition stated
+     inside the clip is not a retraction. It would be one if the selected words had dropped the condition."
+   - The MUST-FAIL twin: the same later passage, with the selection cut to "Bitcoin is a new system of measure that's
+     measuring the first free market that's ever existed." (the condition dropped).
+- This session's gate after the rulings: the corpus's 41 context-integrity must-fail cases, 41/41 rejected
+  (tests/package/exam/ci_mustfail_20261112T062725.json).
+- One intermediate encoding let 2 title_adds_thesis cases pass. Worth a must-fail case each in the other direction:
+  (a) a title "X: <a thesis X did not assert>" over a clip the viewer reads at the same certainty alone; (b) host
+  commentary attributed to nobody, which must NOT be read as the speaker's assertion (must PASS).
+
 ## R5 BIBLE
 
 Fold docs/audits/parallel/pp-selectid_BIBLE_ADDITIONS.md (E-FAIL-PS1..PS4, NOTE-PS5, NOTE-PS6) into

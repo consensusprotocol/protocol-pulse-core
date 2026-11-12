@@ -1,0 +1,267 @@
+{
+ "corpus": "/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/context_integrity",
+ "must_fail": 41,
+ "rejected": 41,
+ "passed": 0,
+ "errors": 0,
+ "chains": {
+  "context_verdict": [
+   "anthropic:claude-opus-5-5",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "viewer_takeaway": [
+   "anthropic:claude-opus-5-5",
+   "xai:grok-4.20-0309-reasoning"
+  ]
+ },
+ "seconds": 30.3,
+ "usd": 0.5071,
+ "rows": [
+  {
+   "id": "context_integrity__answer_without_question__01",
+   "class": "answer_without_question",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'it' -> \"the Bitair, Heatbit's air purifier with a single-chip Bitcoin miner inside (the point of that product)\" (changes the assertion: 'yes')"
+  },
+  {
+   "id": "context_integrity__answer_without_question__02",
+   "class": "answer_without_question",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'we' -> \"Bitcoin/the market, as in the interviewer's question 'are we going to reach new all-time highs'\" (changes the assertion: 'yes'); M: REFERENT_OUTSIDE \"wouldn't (ellipsis)\" -> \"reach new all-time highs in 2027, completed by the interviewer's preceding question\" (changes th"
+  },
+  {
+   "id": "context_integrity__answer_without_question__03",
+   "class": "answer_without_question",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: hypothetical; M: CONDITION_OUTSIDE \"Answer to the host's question 'what would actually make you walk away from Bitcoin and go, you know what, I was wrong' \u2014 the clip describes a scenario that would make him abandon Bitcoin\"; M: NOT_ENTAILED entails: no; the context's limit t"
+  },
+  {
+   "id": "context_integrity__conditional_split__01",
+   "class": "conditional_split",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: conditional; M: REFERENT_OUTSIDE 'we' -> 'House Democrats (incoming majority)' (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'that' -> 'the bipartisan transportation infrastructure (roads and bridges) bill' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE 'IF MIKE "
+  },
+  {
+   "id": "context_integrity__conditional_split__02",
+   "class": "conditional_split",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: conditional; M: REFERENT_OUTSIDE 'it' -> \"the move to tokenized stocks (the DTCC tokenizing stocks and that becoming the primary way things are traded), the 'train' that nothing stops\" (changes the assertion: 'yes'); M: CONDITION_OUTSIDE \"if in the next two years under the i"
+  },
+  {
+   "id": "context_integrity__false_dialogue__01",
+   "class": "false_dialogue",
+   "verdict": "fail",
+   "why": "A+M: FALSE_RELATION the package makes them look answering; they are not one conversation"
+  },
+  {
+   "id": "context_integrity__false_dialogue__02",
+   "class": "false_dialogue",
+   "verdict": "fail",
+   "why": "M: CONDITION_OUTSIDE \"Offered as the explanation for the tech-stock and Bitcoin selloff of November 5 (around the video's publication)\""
+  },
+  {
+   "id": "context_integrity__false_dialogue__03",
+   "class": "false_dialogue",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: conditional"
+  },
+  {
+   "id": "context_integrity__hypothetical__01",
+   "class": "hypothetical",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: hypothetical; M: REFERENT_OUTSIDE 'I' -> 'the speaker (Mark Moss) in a hypothetical where he bought one Bitcoin and borrowed 30% against it' (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'you' -> 'the interviewer in the hypothetical, who bought one Bitcoin without leve"
+  },
+  {
+   "id": "context_integrity__hypothetical__02",
+   "class": "hypothetical",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: hypothetical; M: REFERENT_OUTSIDE 'The accountant' -> 'the accountant performing the proof-of-reserves attestation (not an audit) in the illustrative scenario' (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'its' -> 'the hypothetical exchange that owes its customers 100"
+  },
+  {
+   "id": "context_integrity__hypothetical__03",
+   "class": "hypothetical",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: hypothetical; M: REFERENT_OUTSIDE 'in that case' -> \"the hypothetical case where an oil well operator could turn the well on and off with a day's notice\" (changes the assertion: 'yes'); M: CONDITION_OUTSIDE \"Let's say I can turn that oil well on and off with like a day's not"
+  },
+  {
+   "id": "context_integrity__later_retraction__01",
+   "class": "later_retraction",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'next month' -> 'December 2026 (the month after the November 2026 broadcast)' (changes the assertion: 'yes')"
+  },
+  {
+   "id": "context_integrity__later_retraction__02",
+   "class": "later_retraction",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'this one' -> \"an unspecified call or stock Cramer missed, never named in the excerpt (possibly Nvidia, per the video title); 'cut' is likely a transcription error\" (changes the assertion: 'yes'); M: RETRACTION Immediately after, he reverses 'It happens' with 'Actually, no, it do"
+  },
+  {
+   "id": "context_integrity__quoting_opponent__01",
+   "class": "quoting_opponent",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: CONDITION_OUTSIDE 'when STRC was trading down in the 70s, before returning to $100 par'; M: NOT_ENTAILED entails: no; the context's limit the clip drops: \"'doomers' claimed, when STRC was down in the 70s\"; M: NOT_ENTAILED the video's words \"On Scott Melker's S"
+  },
+  {
+   "id": "context_integrity__quoting_opponent__02",
+   "class": "quoting_opponent",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: reading_aloud; M: NOT_ENTAILED entails: no; the context's limit the clip drops: \"reads aloud, mockingly, Matt Cratter's tweet\"; M: NOT_ENTAILED the video's words \"BTC Sessions: 'MNAV Will Probably Never Get Above 1.0 Again'\" attribute to this speaker more than they asserted "
+  },
+  {
+   "id": "context_integrity__quoting_opponent__03",
+   "class": "quoting_opponent",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'It' -> \"Bitcoin (as described by figureheads like Justin Trudeau who say 'Bitcoin's bad')\" (changes the assertion: 'yes'); M: RETRACTION Immediately after, the speaker rebuts the claim: 'Everyone above them is a criminal and a money launderer"
+  },
+  {
+   "id": "context_integrity__reading_aloud__01",
+   "class": "reading_aloud",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: reading_aloud; M: RETRACTION Right after reading it, the speaker cites the attached community note and says 'it's neither'. That note states that no outflows from Satoshi-attributed wallets have occurred since 2010 and that 1.1 m; M: UNCERTAIN certainty A uncertain; M: NOT_E"
+  },
+  {
+   "id": "context_integrity__reading_aloud__02",
+   "class": "reading_aloud",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: reading_aloud; M: REFERENT_OUTSIDE \"it's\" -> 'what US voters cared about most in the midterm elections, per the post being read' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE 'in the U.S. midterm elections (the context of the quoted post)'"
+  },
+  {
+   "id": "context_integrity__reading_aloud__03",
+   "class": "reading_aloud",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: ad_read"
+  },
+  {
+   "id": "context_integrity__sarcasm__01",
+   "class": "sarcasm",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'they' -> \"Masayoshi Son's SoftBank and its venture capital arm\" (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'it' -> \"SoftBank's bets, the 'golden goose' investment strategy\" (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'them' -"
+  },
+  {
+   "id": "context_integrity__sarcasm__02",
+   "class": "sarcasm",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: sarcastic; M: REFERENT_OUTSIDE 'HE (both instances)' -> 'Bernie Sanders, who wants to expand Social Security' (changes the assertion: 'yes'); M: NOT_ENTAILED the video's words \"Fox Business: The Government Is 'Doing So Well'\" attribute to this speaker more than they asserted"
+  },
+  {
+   "id": "context_integrity__sarcasm__03",
+   "class": "sarcasm",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: sarcastic; M: REFERENT_OUTSIDE 'here' -> 'OpenAI reporting a $10.9 billion third-quarter operating loss and slowing sales, yet reportedly raising $11 billion at a $1.25 trillion valuation, with investors shrugging it off' (changes the assertion: 'yes'); M: NOT_ENTAILED the v"
+  },
+  {
+   "id": "context_integrity__some_people_say__01",
+   "class": "some_people_say",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'I' -> 'the hypothetical investor being quoted, not the speaker' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE \"if you have a market that's going to come down on you ... in 27, at least the first three quarters / when the markets come o"
+  },
+  {
+   "id": "context_integrity__some_people_say__02",
+   "class": "some_people_say",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'he' -> 'Vice President JD Vance' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE \"in the wake of the Republican midterm losses and Vance's post blaming the Iran war\"; M: RETRACTION The speaker immediately rejects the view: 'I think that'"
+  },
+  {
+   "id": "context_integrity__some_people_say__03",
+   "class": "some_people_say",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'it' -> 'Bitcoin' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE 'at the time of recording (Bitcoin around $80,000, after the Binance hack, while the price is holding despite bad news)'; M: NOT_ENTAILED the video's words \"CoinTelegraph: "
+  },
+  {
+   "id": "context_integrity__stale_time_reference__01",
+   "class": "stale_time_reference",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'right now' -> 'the morning of election day, Nov. 3, 2026, when Bitcoin was trading near its 50-week moving average after seven weekly closes above it' (changes the assertion: 'yes'); M: STALE_TIME time words stale on the show date: no"
+  },
+  {
+   "id": "context_integrity__stale_time_reference__02",
+   "class": "stale_time_reference",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'today' -> 'the broadcast day of the market update, 2026-11-06 (a Friday)' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE 'as of the time of the Bloomberg business flash (about 1:40 p.m. Wall Street time on 2026-11-06)'; M: STALE_TIME time words stale on the show date: no"
+  },
+  {
+   "id": "context_integrity__stale_time_reference__03",
+   "class": "stale_time_reference",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'today' -> 'the recording date, the day after the 2026 U.S. midterm elections (early November 2026)' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE 'recorded the day after the U.S. midterm elections'; M: STALE_TIME time words stale on the show date: uncertain"
+  },
+  {
+   "id": "context_integrity__steelman__01",
+   "class": "steelman",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'This' -> \"the speaker's (Jeff Booth's) version: a decentralized, free-market Bitcoin world that doesn't recreate a central-bank-like system\" (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'It' -> 'the same decentralized Bitcoin/free-mark"
+  },
+  {
+   "id": "context_integrity__steelman__02",
+   "class": "steelman",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: hypothetical; M: REFERENT_OUTSIDE 'it' -> 'companies opting out of tokenized trading of their stock under the SEC innovation exemption sandbox' (changes the assertion: 'yes'); M: RETRACTION Right after, the speaker sets these readings aside: 'To be honest, I think it's just,"
+  },
+  {
+   "id": "context_integrity__steelman__03",
+   "class": "steelman",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'THE COUNTERARGUMENT' -> \"the counterargument to tech figures (Marc Andreessen, Palmer Luckey and others) who support the Trump administration's H-1B visa crackdown\" (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'THESE TECH GUYS' -> \"Mar"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__01",
+   "class": "title_adds_thesis",
+   "verdict": "fail",
+   "why": "M: NOT_ENTAILED the video's words 'Coin Bureau: Bitcoin Will Fall Below 70K Next' attribute to this speaker more than they asserted in context"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__02",
+   "class": "title_adds_thesis",
+   "verdict": "fail",
+   "why": "M: CONDITION_OUTSIDE \"Offered as the explanation for the tech-stock and Bitcoin selloff of November 5 (around the video's publication)\"; M: NOT_ENTAILED the video's words 'Swan Bitcoin: Investors Will Dump AI Stocks for Bitcoin' attribute to this speaker more than they asserted in context"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__03",
+   "class": "title_adds_thesis",
+   "verdict": "fail",
+   "why": "M: NOT_ENTAILED the video's words 'Swan Bitcoin: The AI Bubble Is About to Pop' attribute to this speaker more than they asserted in context; M: STRONGER stronger certainty: the video's words 'The AI Bubble Is About to Pop' make the clip sound likely (in context possible; the clip alone possible)"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__01",
+   "class": "unresolved_referent",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'He' -> \"Bessent (Treasury Secretary), specifically his financial pressure campaign against Iran ('Economic Outcast')\" (changes the assertion: 'yes'); M: CONDITION_OUTSIDE \"The 'job' praised is the financial pressure campaign on Iran during the Iran war, not his overall economic "
+  },
+  {
+   "id": "context_integrity__unresolved_referent__02",
+   "class": "unresolved_referent",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'It' -> \"accepting Bitcoin payments through a system (like X/Twitter's) that forces KYC and attaches identity to payment activity instead of allowing peer-to-peer payment to any valid address\" (changes the assertion: 'yes'); M: CONDITION_OUTSIDE 'when a payment system on top of B"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__03",
+   "class": "unresolved_referent",
+   "verdict": "fail",
+   "why": "M: REFERENT_OUTSIDE 'It' -> 'what caused the rust belt in the United States (the 1960s-80s period)' (changes the assertion: 'yes'); M: CONDITION_OUTSIDE 'the time period that caused the rust belt (60s-80s, mainly the 70s)'"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__04",
+   "class": "unresolved_referent",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'That' -> \"Bitcoin's roughly 20-25% negative five-year return from the 2017 peak (~$20,000) to the 2022 bear-market low (~$15,000-16,000), a framing that was being used against Bitcoin at the time\" (changes the assertion: 'yes'); M: CONDITION_"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__01",
+   "class": "wrong_speaker",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: question; M: REFERENT_OUTSIDE 'anything extreme' -> 'military action / conflict the president had threatened, as discussed just before' (changes the assertion: 'yes'); M: UNCERTAIN certainty A uncertain; M: STRONGER stronger certainty: the video's words \"Morgan Stanley's Mik"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__02",
+   "class": "wrong_speaker",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: UNCERTAIN certainty A uncertain; M: NOT_ENTAILED entails: uncertain; the context's limit the clip drops: ''"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__03",
+   "class": "wrong_speaker",
+   "verdict": "fail",
+   "why": "M: NOT_OWN_SINCERE view: attributed; M: REFERENT_OUTSIDE 'YOU' -> 'Ambassador Haley, the guest being interviewed' (changes the assertion: 'yes'); M: REFERENT_OUTSIDE 'SUCH A CRITICAL ISSUE' -> \"the issue Haley had just discussed, apparently U.S. policy toward Israel and Iran ('don't shoot your partn"
+  }
+ ]
+}

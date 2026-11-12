@@ -1,0 +1,755 @@
+{
+ "schema": "pp.package/1",
+ "type": "moments",
+ "angle": "Nobody is in charge of Bitcoin, and that is the point.",
+ "vo_kind": "written by the orchestrator (05:35), variant r4",
+ "segments": [
+  {
+   "label": "hook",
+   "moment_id": "3b3050f4afd6f3c011e7",
+   "video_id": "vgsSZ4mAHfQ",
+   "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+   "channel": "Saifedean Ammous",
+   "k0": 1179,
+   "k1": 1180,
+   "words": [
+    16659,
+    16688
+   ],
+   "start": 5144.99,
+   "end": 5153.37,
+   "duration_s": 8.38,
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+   "published_at": "2026-11-11T00:00:00+00:00",
+   "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+   "url_30s_before": "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s"
+  },
+  {
+   "label": "clip_01",
+   "moment_id": "876662b7dc4e961d47e1",
+   "video_id": "c1JGheQBPH4",
+   "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+   "channel": "What Bitcoin Did",
+   "k0": 472,
+   "k1": 474,
+   "words": [
+    7545,
+    7573
+   ],
+   "start": 2480.28,
+   "end": 2491.52,
+   "duration_s": 11.24,
+   "text": "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.",
+   "published_at": "2026-11-09T17:00:09+00:00",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2450s"
+  },
+  {
+   "label": "clip_02",
+   "moment_id": "b0b787f8a62d97d81dbb",
+   "video_id": "Sjb6lUiL0m4",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel": "Stephan Livera",
+   "k0": 331,
+   "k1": 333,
+   "words": [
+    5401,
+    5443
+   ],
+   "start": 1826.54,
+   "end": 1843.48,
+   "duration_s": 16.94,
+   "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s"
+  }
+ ],
+ "vo": {
+  "intro": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
+  "bridges": [
+   "And Stephan Livera thinks the market still hasn't priced that in."
+  ],
+  "bridges_after_clip": [
+   1
+  ],
+  "signoff": "Clips today from Saifedean Ammous, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below."
+ },
+ "title": "Nobody is in charge of Bitcoin",
+ "caption": "no authority. no back door. three voices on why that is the point.",
+ "hook_first_words": "Bitcoin does not have any authority that allows",
+ "lines": [
+  {
+   "text": "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "876662b7dc4e961d47e1",
+    "b0b787f8a62d97d81dbb"
+   ],
+   "slot": "intro"
+  },
+  {
+   "text": "And Stephan Livera thinks the market still hasn't priced that in.",
+   "cites": [
+    "b0b787f8a62d97d81dbb"
+   ],
+   "slot": "bridge_1"
+  },
+  {
+   "text": "Nobody is in charge of Bitcoin",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "876662b7dc4e961d47e1",
+    "b0b787f8a62d97d81dbb"
+   ],
+   "slot": "title"
+  },
+  {
+   "text": "no authority. no back door. three voices on why that is the point.",
+   "cites": [
+    "3b3050f4afd6f3c011e7",
+    "876662b7dc4e961d47e1",
+    "b0b787f8a62d97d81dbb"
+   ],
+   "slot": "caption"
+  }
+ ],
+ "runtime_s_estimate": 60.48,
+ "runtime_note": "segments 36.56 s (word timing) + VO 24 words + sign-off 19 words at 2.6 w/s (assumed) + fixed 7.38 s (credits card, outro, transitions); the render measures the final",
+ "checks_given": {
+  "fidelity": {
+   "deterministic": {
+    "ok": false,
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'Stephan Livera' with a speech verb names a person, but the speaker of Stephan Livera's clip is not verified (law L-v 1): credit the show ('on Stephan Livera')"
+     }
+    ],
+    "price_now_measured": true
+   },
+   "verdict": {
+    "ok": false,
+    "claims": [
+     {
+      "line": "intro",
+      "words": "Nobody is in charge of Bitcoin",
+      "class": "fact",
+      "claim": "Nobody is in charge of Bitcoin",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "3b3050f4afd6f3c011e7",
+        "words": "Bitcoin does not have any authority"
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "intro",
+      "words": "That's not a flaw. That's the design.",
+      "class": "commentary",
+      "claim": "That's not a flaw. That's the design.",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     },
+     {
+      "line": "bridge_1",
+      "words": "And Stephan Livera thinks the market still hasn't priced that in.",
+      "class": "attribution",
+      "claim": "Stephan Livera thinks the market still hasn't priced that in",
+      "supported": "no",
+      "support": [],
+      "tests": {}
+     },
+     {
+      "line": "title",
+      "words": "Nobody is in charge of Bitcoin",
+      "class": "fact",
+      "claim": "Nobody is in charge of Bitcoin",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "3b3050f4afd6f3c011e7",
+        "words": "Bitcoin does not have any authority"
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "caption",
+      "words": "no authority",
+      "class": "fact",
+      "claim": "no authority",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "3b3050f4afd6f3c011e7",
+        "words": "does not have any authority"
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "caption",
+      "words": "no back door",
+      "class": "fact",
+      "claim": "no back door",
+      "supported": "no",
+      "support": [],
+      "tests": {}
+     },
+     {
+      "line": "caption",
+      "words": "three voices",
+      "class": "production",
+      "claim": "three voices",
+      "supported": "yes",
+      "support": [
+       {
+        "segment": "manifest",
+        "words": "There are 3 clips"
+       }
+      ],
+      "tests": {}
+     },
+     {
+      "line": "caption",
+      "words": "on why that is the point.",
+      "class": "commentary",
+      "claim": "on why that is the point",
+      "supported": "n/a",
+      "support": [],
+      "tests": {
+       "fact": "no",
+       "speaker_view": "no",
+       "imperative_or_prediction": "no",
+       "accusation": "no",
+       "sounds_like_a_speaker": "no"
+      }
+     }
+    ],
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "VERDICT_NO",
+      "detail": "Stephan Livera thinks the market still hasn't priced that in"
+     },
+     {
+      "slot": "caption",
+      "rule": "VERDICT_NO",
+      "detail": "no back door"
+     }
+    ],
+    "classes": {
+     "intro": [
+      "fact",
+      "commentary"
+     ],
+     "bridge_1": [
+      "attribution"
+     ],
+     "title": [
+      "fact"
+     ],
+     "caption": [
+      "fact",
+      "fact",
+      "production",
+      "commentary"
+     ]
+    }
+   },
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false,
+   "violations": [
+    {
+     "slot": "bridge_1",
+     "rule": "ATTRIBUTION",
+     "detail": "'Stephan Livera' with a speech verb names a person, but the speaker of Stephan Livera's clip is not verified (law L-v 1): credit the show ('on Stephan Livera')"
+    },
+    {
+     "slot": "bridge_1",
+     "rule": "VERDICT_NO",
+     "detail": "Stephan Livera thinks the market still hasn't priced that in"
+    },
+    {
+     "slot": "caption",
+     "rule": "VERDICT_NO",
+     "detail": "no back door"
+    }
+   ],
+   "ok": false
+  },
+  "context": {
+   "segments": {
+    "hook": {
+     "A": {
+      "label": "hook",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "they",
+        "refers_to": "the people who end up with more Bitcoin",
+        "inside": true
+       },
+       {
+        "word": "that",
+        "refers_to": "acquiring more Bitcoin",
+        "inside": true
+       }
+      ],
+      "conditions": [
+       {
+        "text": "If some people end up with more Bitcoin",
+        "inside": true
+       }
+      ],
+      "retraction": "none",
+      "time_ok": "yes",
+      "proposition": "Answering a question about whether early Bitcoin adopters recreate inequality, the speaker asserts that Bitcoin has no authority letting anyone take others' wealth, so unequal Bitcoin holdings result from people's own choices to buy it.",
+      "certainty": "certain",
+      "speaker_is": "uncertain",
+      "speaker_evidence": "",
+      "backend": "anthropic:claude-opus-5-5",
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "hook",
+      "asserts": "Bitcoin has no authority allowing seizure of others' wealth; unequal holdings result from voluntary choice",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "hook",
+      "entails": "yes",
+      "same_polarity": "yes",
+      "stronger_certainty": "no"
+     },
+     "window": [
+      1157,
+      1200
+     ]
+    },
+    "clip_01": {
+     "A": {
+      "label": "clip_01",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "It's (other intermediaries)",
+        "refers_to": "what is being hacked in the recent crypto-space hacks",
+        "inside": false
+       },
+       {
+        "word": "it (shines a light)",
+        "refers_to": "the fact that the hacks hit intermediaries rather than Bitcoin",
+        "inside": true
+       }
+      ],
+      "conditions": [],
+      "retraction": "none",
+      "time_ok": "yes",
+      "proposition": "Referring to recent hacks in the crypto space, the speaker says Bitcoin itself is not being hacked, only intermediaries, which highlights Bitcoin's security and uniqueness.",
+      "certainty": "likely",
+      "speaker_is": "guest",
+      "speaker_evidence": "Our office intentionally stayed out of any pardon discussions.",
+      "backend": "anthropic:claude-opus-5-5",
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "clip_01",
+      "asserts": "Bitcoin itself is not hacked (only intermediaries are), highlighting its secure and unique nature",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "clip_01",
+      "entails": "yes",
+      "same_polarity": "yes",
+      "stronger_certainty": "yes"
+     },
+     "window": [
+      461,
+      486
+     ]
+    },
+    "clip_02": {
+     "A": {
+      "label": "clip_02",
+      "speaker_changes_inside": "no",
+      "view": "own_sincere",
+      "referents": [
+       {
+        "word": "It's",
+        "refers_to": "Bitcoin",
+        "inside": true
+       }
+      ],
+      "conditions": [
+       {
+        "text": "right now",
+        "inside": true
+       },
+       {
+        "text": "last I checked",
+        "inside": true
+       }
+      ],
+      "retraction": "none",
+      "time_ok": "yes",
+      "proposition": "The speaker believes Bitcoin is currently the most undervalued asset in the global financial system, noting that parity with gold's market value would be roughly $1.4-1.5 million per Bitcoin.",
+      "certainty": "likely",
+      "speaker_is": "guest",
+      "speaker_evidence": "And when would you say that could be?",
+      "backend": "anthropic:claude-opus-5-5",
+      "speaker_verified": false
+     },
+     "B": {
+      "label": "clip_02",
+      "asserts": "Bitcoin is the most undervalued asset globally with gold parity value of about $1.4-1.5 million per BTC",
+      "certainty": "certain",
+      "polarity": "positive"
+     },
+     "C": {
+      "label": "clip_02",
+      "entails": "yes",
+      "same_polarity": "yes",
+      "stronger_certainty": "yes"
+     },
+     "window": [
+      316,
+      349
+     ]
+    }
+   },
+   "relations": [
+    {
+     "labels": [
+      "hook",
+      "clip_01"
+     ],
+     "relation": "none"
+    },
+    {
+     "labels": [
+      "hook",
+      "clip_02"
+     ],
+     "relation": "none"
+    },
+    {
+     "labels": [
+      "clip_01",
+      "clip_02"
+     ],
+     "relation": "none"
+    }
+   ],
+   "violations": [
+    {
+     "segment": "clip_01",
+     "rule": "REFERENT_OUTSIDE",
+     "detail": "\"It's (other intermediaries)\" -> 'what is being hacked in the recent crypto-space hacks'"
+    },
+    {
+     "segment": "clip_01",
+     "rule": "STRONGER",
+     "detail": "stronger certainty: yes"
+    },
+    {
+     "segment": "clip_02",
+     "rule": "STRONGER",
+     "detail": "stronger certainty: yes"
+    }
+   ],
+   "backends": {
+    "A": {
+     "hook": "anthropic:claude-opus-5-5",
+     "clip_01": "anthropic:claude-opus-5-5",
+     "clip_02": "anthropic:claude-opus-5-5"
+    },
+    "B": "xai:grok-4.20-0309-reasoning",
+    "C": "xai:grok-4.20-0309-reasoning"
+   },
+   "measured": true,
+   "replayed": false,
+   "judged": [
+    "hook",
+    "clip_01",
+    "clip_02"
+   ],
+   "ok": false
+  },
+  "duplicates": [],
+  "exclusion": {
+   "hook": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Speaker argues Bitcoin has no authority to seize wealth and holdings reflect choice; no buy imperative within the moment itself.",
+    "risks": [],
+    "backend": "anthropic:claude-opus-5-5"
+   },
+   "clip_01": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Speaker argues hacks hit intermediaries, not Bitcoin, highlighting its security; no named accusations or calls to action.",
+    "risks": [],
+    "backend": "anthropic:claude-opus-5-5"
+   },
+   "clip_02": {
+    "measured": true,
+    "replayed": false,
+    "verdict": "keep",
+    "why": "Speaker's own view that Bitcoin is undervalued relative to gold parity; no imperative, guarantee, accusation or ad.",
+    "risks": [],
+    "backend": "anthropic:claude-opus-5-5"
+   }
+  },
+  "truth": {
+   "hook": {
+    "video_id": "vgsSZ4mAHfQ",
+    "start": 5144.99,
+    "end": 5153.37,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "Very, very fundamental. Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that. Your friends chose to",
+    "transcript_ok": false,
+    "disagree": {
+     "numbers": [],
+     "negations": [],
+     "names": [
+      "Your"
+     ]
+    },
+    "critical": {
+     "numbers": [],
+     "negations": [
+      "not"
+     ],
+     "names": [
+      "Bitcoin",
+      "If"
+     ]
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+    "ok": false
+   },
+   "clip_01": {
+    "video_id": "c1JGheQBPH4",
+    "start": 2480.28,
+    "end": 2491.52,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "It's, it's not, it's not Bitcoin that's getting hacked. It's, um, you know, it's, it's other, uh, uh, intermediaries. So, uh, in some ways it, it kind of shines a light on the, the, uh, secure nature and the, the unique nature of Bitcoin. Um, so if there's any",
+    "transcript_ok": false,
+    "disagree": {
+     "numbers": [],
+     "negations": [
+      "not"
+     ],
+     "names": [
+      "Um"
+     ]
+    },
+    "critical": {
+     "numbers": [],
+     "negations": [
+      "not"
+     ],
+     "names": [
+      "Bitcoin",
+      "It's",
+      "So"
+     ]
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "c1JGheQBPH4_2478780_2493020.wav",
+    "ok": false
+   },
+   "clip_02": {
+    "video_id": "Sjb6lUiL0m4",
+    "start": 1826.54,
+    "end": 1843.48,
+    "model": "elevenlabs_stt:scribe_v1",
+    "replayed": false,
+    "second_pass_text": "Parallel tomorrow. However, I think Bitcoin is by far the most undervalued asset in, like, the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued. Like, this thing could r-",
+    "transcript_ok": true,
+    "disagree": {
+     "numbers": [],
+     "negations": [],
+     "names": []
+    },
+    "critical": {
+     "numbers": [
+      "1.5",
+      "1400000"
+     ],
+     "negations": [],
+     "names": [
+      "Bitcoin",
+      "It's",
+      "So"
+     ]
+    },
+    "speakers": {
+     "labels": [
+      "speaker_0"
+     ],
+     "turn_change_inside": false
+    },
+    "audio": "Sjb6lUiL0m4_1825040_1844980.wav",
+    "ok": true
+   }
+  },
+  "coherence": {
+   "through_line": "Nobody is in charge of Bitcoin; that's by design rather than a flaw, highlighting its security and being undervalued.",
+   "clips": {
+    "hook": 5,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "vo_point": 4,
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false
+  },
+  "r4": [
+   true,
+   "R4 PASS: VO within budget"
+  ],
+  "runtime_ok": true,
+  "gates": {
+   "vo_fidelity_deterministic": false,
+   "vo_fidelity_verdict": false,
+   "price_now_measured": true,
+   "duplicate": true,
+   "runtime": true,
+   "r4": true,
+   "context": false,
+   "exclusion": true,
+   "second_pass": false,
+   "coherence": false
+  },
+  "step_a": {
+   "hook": {
+    "label": "hook",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "they",
+      "refers_to": "the people who end up with more Bitcoin",
+      "inside": true
+     },
+     {
+      "word": "that",
+      "refers_to": "acquiring more Bitcoin",
+      "inside": true
+     }
+    ],
+    "conditions": [
+     {
+      "text": "If some people end up with more Bitcoin",
+      "inside": true
+     }
+    ],
+    "retraction": "none",
+    "time_ok": "yes",
+    "proposition": "Answering a question about whether early Bitcoin adopters recreate inequality, the speaker asserts that Bitcoin has no authority letting anyone take others' wealth, so unequal Bitcoin holdings result from people's own choices to buy it.",
+    "certainty": "certain",
+    "speaker_is": "uncertain",
+    "speaker_evidence": "",
+    "backend": "anthropic:claude-opus-5-5",
+    "speaker_verified": false
+   },
+   "clip_01": {
+    "label": "clip_01",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "It's (other intermediaries)",
+      "refers_to": "what is being hacked in the recent crypto-space hacks",
+      "inside": false
+     },
+     {
+      "word": "it (shines a light)",
+      "refers_to": "the fact that the hacks hit intermediaries rather than Bitcoin",
+      "inside": true
+     }
+    ],
+    "conditions": [],
+    "retraction": "none",
+    "time_ok": "yes",
+    "proposition": "Referring to recent hacks in the crypto space, the speaker says Bitcoin itself is not being hacked, only intermediaries, which highlights Bitcoin's security and uniqueness.",
+    "certainty": "likely",
+    "speaker_is": "guest",
+    "speaker_evidence": "Our office intentionally stayed out of any pardon discussions.",
+    "backend": "anthropic:claude-opus-5-5",
+    "speaker_verified": false
+   },
+   "clip_02": {
+    "label": "clip_02",
+    "speaker_changes_inside": "no",
+    "view": "own_sincere",
+    "referents": [
+     {
+      "word": "It's",
+      "refers_to": "Bitcoin",
+      "inside": true
+     }
+    ],
+    "conditions": [
+     {
+      "text": "right now",
+      "inside": true
+     },
+     {
+      "text": "last I checked",
+      "inside": true
+     }
+    ],
+    "retraction": "none",
+    "time_ok": "yes",
+    "proposition": "The speaker believes Bitcoin is currently the most undervalued asset in the global financial system, noting that parity with gold's market value would be roughly $1.4-1.5 million per Bitcoin.",
+    "certainty": "likely",
+    "speaker_is": "guest",
+    "speaker_evidence": "And when would you say that could be?",
+    "backend": "anthropic:claude-opus-5-5",
+    "speaker_verified": false
+   }
+  },
+  "current_levels": [],
+  "author": {
+   "vendor": "anthropic",
+   "family": "claude"
+  },
+  "wall_s": 132.1,
+  "usd": 0.586
+ }
+}

@@ -1,4 +1,168 @@
+READY TO RENDER: /home/ultron/worktrees/pp-selectid/tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json (branch pp-selectid, same path; package_sha256 add8c7328df47e20862d74bf37d52f02e3a3b826404e7a5594f4a0d5da37478a)
+
 # pp-selectid — STATE (session pipeline_pp_selectid, branch pp-selectid, worktree ~/worktrees/pp-selectid)
+
+## 06:28 ET: tonight's package (fresh_20261112_050611) passes EVERY gate. The pin is written and sealed. REVIEW ONLY (law L-q)
+
+This is the orchestrator's 06:00 package with the line fixes of attempt 4, approved for render at 06:22. Gated as
+attempt 9: tests/package/proof/fresh_20261112_050611/given_v0600_attempt9.json and .log. Pin: MOMENTS_PIN.json,
+story moments-fresh_20261112_050611-add8c732, `machine_cuts`, approved_by "machine ... REVIEW ONLY".
+
+**The video, in the renderer's order** (render16.py:306-334 / render_vertical.py:853-880):
+
+| # | segment / VO line | class (blind verdict) |
+|---|---|---|
+| 1 | HOOK, Saifedean Ammous, vgsSZ4mAHfQ 5144.99-5153.37: "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that." | - |
+| 2 | VO 1 (after the hook): "Nobody is in charge of Bitcoin. That's not a flaw. That's the design." | commentary (D) |
+| 3 | CLIP 1, What Bitcoin Did, c1JGheQBPH4 2480.28-2491.52: "It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin." | - |
+| 4 | VO 2 (after clip 1): "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?" | production (C) + commentary (D) |
+| 5 | CLIP 2, Natalie Brunell's channel (a guest speaks; the VO credits the show only), wdk5JZ9hPzs 529.05-539.34: "Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure." | - |
+| 6 | VO 3 (after clip 2, the takeaway): "No ruler. Just rules nobody gets to bend. That's the idea." | commentary (D) |
+| 7 | SIGN-OFF (code, L-a): "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below." | - |
+
+- TITLE "Nobody is in charge of Bitcoin." (commentary).
+- CAPTION "no authority. three voices on why that is the point." (a fact supported by "Bitcoin does not have any
+  authority", plus production).
+- **Runtime:** my estimate 60.75 s. The integrator's moments R4 estimate is 64.01 s. Both are inside 60-70 s.
+
+**The sealed gate inventory: every row exactly PASS, measured live (not replayed):**
+
+| gate | status | by |
+|---|---|---|
+| vo_fidelity_deterministic | PASS | code |
+| vo_fidelity_verdict (classifying A/B/C/D) | PASS | xai:grok-4.20-0309-reasoning |
+| duplicate | PASS | code |
+| price_now | PASS | code |
+| runtime | PASS | code |
+| r4 (moments, 06:00) | PASS | code. The main tree's own edl_rules R4 for moments (a5ec0f17) on this pin's EDL: "VO 19.80 s = 30.93% of total runtime <= 40%, estimated runtime 64.01 s, every VO line in a slot" |
+| context_a (x3) | PASS | anthropic:claude-opus-5-5 |
+| context_b | PASS | xai:grok-4.20-0309-reasoning |
+| context_c | PASS | xai:grok-4.20-0309-reasoning |
+| exclusion (x3) | PASS | anthropic:claude-opus-5-5 (never the miner's model) |
+| second_pass, L-v 2 (x3) | PASS | elevenlabs_stt:scribe_v1: one speaker each, no number / negation / name disagreement in either direction |
+| coherence | PASS | xai:grok-4.20-0309-reasoning: hook 5, clip_01 4, clip_02 5, VO point 4. Through-line "Nobody is in charge of Bitcoin and that is by design, enabling a decentralized, secure free market with immutable rules and no authority to seize wealth." |
+
+**Notes recorded by the gate.** These are not failures, under rulings 3 and 5:
+- clip_01 and clip_02: step C reads the viewer as firmer than the context, but cites no words of the video that raise
+  it.
+- clip_02: step C's "entails: no" names no limit in the context's own words. It named "for that to emerge", which is
+  step A's paraphrase and not in the transcript.
+
+**The attribution check (06:22).**
+- Step A rates the HOOK's speaker "uncertain": no evidence of anyone but Saifedean Ammous. No VO, title or caption
+  line names or implies him.
+- CLIP 1 is a guest on a brand channel that no VO line names.
+- CLIP 2 is a guest: VO 2 credits "Natalie Brunell's show" and nothing implies Natalie Brunell says it.
+- The sign-off credits CHANNELS (L-a).
+
+**Checked against the factory as deployed** (read-only copies of the main tree in the scratchpad):
+- pinned.validate_schema: OK.
+- pinned.moments_vo (380a06f3 + later) accepts the VO, including VO 3 after the last clip.
+- edl_rules R4 for moments (a5ec0f17): PASS.
+
+**The rulings, encoded** (pipeline/context_integrity.py):
+- Ruling 3: STRONGER fails only on cited VO / title / caption words, and not when the clip alone already sounds
+  certain.
+- Ruling 5: entailment is judged against the clip's own words; a scope failure needs a limit in the context's OWN
+  words, outside the clip; the package's attributions are checked separately through cited words that name the
+  speaker's show.
+- Ruling 6: RETRACTION means a withdrawal, reversal, correction or material limit, not an elaboration consistent with
+  a condition stated in the clip.
+- REFERENT_OUTSIDE needs "changes_assertion" not "no".
+
+**The must-fail re-check after every ruling:** the exam's context-integrity MUST-FAIL cases, 41 of 41 rejected, 0
+missed, 0 errors (tests/package/exam/ci_mustfail_*.json; claude-opus-5-5, grok fallback, about $0.01 a call).
+- An intermediate encoding missed 2 title_adds_thesis cases. Both were closed before the pin: STRONGER was matched to
+  the ruling's exact words, and step B was made to count what a title attributes.
+- The corpus holds 41 must-fail cases now, not 43.
+
+**Measured cost and time** (05:25 item 5):
+- Tonight's package: 9 gate attempts, **$3.46**: $0.59, $0.44, $0.57, $0.58, $0.26, $0.32, $0.45, $0.25, and $0.00
+  (attempt 9 re-decided attempt 8's recorded replies under the corrected rule). Each full gate run: 76-144 s wall and
+  $0.25-0.59, so every attempt was inside the 05:25 budgets ($1.50, 6 minutes).
+- The 7 must-fail checks: **$5.78** ($1.35 of it wasted on the step-B label bug, now fixed).
+
+
+## SPEND SO FAR (phase-2 ledger tests/moments/proof/SPEND.json, upper-bound prices; updated after every attempt)
+
+- 06:30 ET, the package PASSES: **$52.79 of $64.28**. By vendor: openai $20.21, xai $23.42, anthropic $7.43, heimdall $1.72, elevenlabs $0.02. **$11.49 left.**
+
+- 06:12 ET, after attempt 4: **$45.75 of $64.28** (attempts 1-4: $0.59, $0.44, $0.57, $0.58). **$18.53 left.**
+
+- 05:49 ET, after attempt 2: **$44.60 of $64.28** (attempt 1 $0.59, attempt 2 $0.44). By vendor: openai $20.21, xai $21.13, heimdall $1.72, anthropic $1.52, elevenlabs $0.02. **$19.68 left.**
+- 05:44 ET, after attempt 1: $44.16 of $64.28 (attempt 1: $0.59).
+
+- 05:36 ET: **$43.58 of the $64.28 guard** ($39.28 + the 05:30 amendment's $25). By vendor:
+  - openai $20.21
+  - xai $20.21
+  - heimdall $1.72
+  - anthropic $1.44
+  - elevenlabs $0.002
+- Measured per call: claude-opus-5-5 $0.0105, claude-fable-5-2 $0.034, grok-4.20 $0.106, heimdall qwen $0.19,
+  gpt-6.1-sol $0.29.
+- Of the $25: **$4.30 went on the BEFORE exam** (05:28-05:33, 107 frontier calls, mostly grok). It was started under
+  05:25 item 4 and stopped at once on the 05:30 amendment. Its 103 recorded replies are kept (scratchpad
+  before_exam/replies). It counts against the exam's $5 frontier allowance, so $0.70 of that allowance is left.
+- **Left for tonight's package: $20.70.**
+
+## BUILD LOG (orchestrator 05:25: one line at least every 10 minutes while building)
+
+- 06:30 ET: rulings 5 and 6 are encoded; the must-fail check is 41/41; attempt 9 passes every gate; the pin is written; READY TO RENDER on line 1.
+- 06:20 ET: rulings 3-4 encoded; the must-fail check is 41/41; attempts 5-8 narrowed the context gate to cited words (no change to what a must-fail case gets).
+
+- 06:12 ET: attempts 3-4 on the 06:00 package. Every line passes; coherence 5/4/5 (VO 5); context integrity fails clip_01 (NOT_ENTAILED) and clip_02 (RETRACTION). Both are held for the orchestrator's rulings. Next: ruling 3's must-fail check on the exam's context-integrity cases (the cheapest capable model).
+
+- 05:50 ET: attempt 2 done (110 s, $0.44): every line and gate passes except clip_01's context (referent), coherence (clip_02 off the angle) and the runtime (59.71 s). Held for the orchestrator's clip decision; meanwhile the audit fixes continue (no model calls).
+
+- 05:41 ET: ORDER 05:35. The orchestrator's own package is running through the corrected gates now (attempt 1,
+  tests/package/run_given_package.py). Two structural findings before any model call, from the factory's own code:
+  - (1) **The renderers play hook -> VO intro -> clip_01 -> bridge (after clip 1) -> clip_02 -> bridge (after clip 2)
+    -> shout-out** (render16.py:306-334, render_vertical.py:853-880).
+    - So the VO "intro" is heard AFTER the hook.
+    - The 05:35 intro and the hack tease share that one slot.
+    - A takeaway after the last clip IS placeable (after_clip 2).
+  - (2) **The factory's EDL rule R4 runs on pinned runs** (run_fresh.stage_validate -> edl_rules.validate_edl, a HOLD
+    on failure). It caps VO at 25 % of runtime and at one bridge per channel transition.
+    - The 05:35 package as written fails R4: "2 bridges but only 1 channel transitions; VO=38% of runtime (max 25%)",
+      at an estimated 70.09 s.
+    - The variant that FITS R4 keeps: hook (Saifedean Ammous) -> intro "Nobody is in charge of Bitcoin. That's not a
+      flaw. That's the design." -> What Bitcoin Did -> "And Stephan Livera thinks the market still hasn't priced that
+      in." -> Stephan Livera (all three sentences: L-v 2 confirmed his numbers) -> sign-off. It estimates 60.48 s,
+      R4 PASS.
+    - The hack tease and the takeaway do not fit R4. Keeping them is an R4 change, which is the integrator's /
+      orchestrator's call.
+  - Gate fixes landed for this run (audit p2 C1_CONSENSUS):
+    - the classifying verdict (A / B / C / D);
+    - hedge-matched attribution verbs;
+    - the context window at least 90 s / 60 s, with intact selection markers;
+    - step B rates every pair;
+    - step A names who speaks with quoted evidence (L-v 1);
+    - L-v 2 in both directions through the router (ElevenLabs while OpenAI is dry);
+    - the runtime arithmetic (the sign-off was subtracted twice);
+    - DUPLICATE against every clip;
+    - the exclusion verdict never on the miner's model.
+
+- 05:36 ET: AMENDMENT 05:30 applied. Budget $25 (guard $64.28). Order:
+  1. Classification A / B / C / D + the no-paraphrase VO style, replaying wherever a prompt is unchanged.
+  2. Tonight's package: at most 3 angles x 2 writes; the cheapest capable model per verdict (claude-opus-5-5 at
+     $0.01 a call, measured, so the writer runs on another vendor: grok-4.20); stop at the first coherence >= 4.
+  3. The exam, then, on Heimdall / local plus at most $5 frontier ($0.70 left of that).
+  - The yield sweep is postponed.
+- 05:30 ET: the ElevenLabs Scribe back-end works for L-v 2's second pass while OpenAI is dry. One live call: 9.1 s of
+  audio, 1.0 s, $0.0018, one diarised speaker, the clip's words.
+- 05:27 ET: DECISION 05:25 received.
+  - Guard: $39.28 spent, plus the $60 raise = limit **$99.28** on the same ledger.
+  - Plan, in order:
+    1. Exam BEFORE: the gates exactly as audited, rebuilt from the audit's STEP.diff, run in the background by the
+       pp-tests harness with network.
+    2. In parallel: the VO-gate classification A / B / C / D (05:25 item 1-2), the write styles (item 3: tease /
+       hedge-matched hand-off / host takeaway; quote-led second; plain last), the step-A-once ledger and the
+       concurrent verdicts (item 5).
+    3. The audit cycle-1 consensus fixes already under way (docs/audits/parallel/pp-selectid_audit_p2/C1_CONSENSUS.md):
+       the sealed gate inventory, verdict coverage, exclusion in production, L-v 2 mandatory, ...
+    4. Exam AFTER.
+    5. Rebuild tonight's package, at most 4 angles x 3 writes, stopped at the first coherence >= 4, at <= 6 min and
+       <= $1.50 per package (measured), at the top of STATE.
 
 ## 05:00 ET Nov 12: HELD AT THE SPEND GUARD. No package for tonight passes every gate yet (nothing to render)
 
