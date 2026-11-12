@@ -6,7 +6,9 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## 08:42 ET RULING 10's ONE LIST: THIS PACKAGE WOULD HOLD AT G14 BY CONSTRUCTION (nothing rendered)
+## 08:49 CORRECTION: G14 does NOT refuse this package (the 08:42 simulation wrongly assumed dissolves at VO joins; the deployed plan puts transitions only between two talking heads of different channels, so clip_02 keeps 4 clear sample points). Ruling 10 committed (audit: qwen27b PASS, deepseek no answer); the 08:44 pin (seal 37c5b5f5) renders now.
+
+## 08:42 ET RULING 10's ONE LIST: THIS PACKAGE (item 11 CORRECTED at 08:49) (nothing rendered)
 
 - Every pre-render rule passes on this exact package (R4 40.44 % of 61.82 s with the takeaway cap; R1-R6, R8; stand-alone; layout; cut / G16 / prepare edge words / G18 simulated on clip_02). The one refusal: G14 AV alignment, REQUIRED in both formats, needs >= 3 clear samples per talking-head segment outside VO segments and dissolves; clip_02's 4.63 s cut between VO 2 and VO 3 leaves ONE clear sample point (2.0 s) -> HOLD after the full render. Shortest passing talking-head segment between two VO lines: 6.75 s. Full list: docs/audits/parallel/integrator_RULING7_FACTS.md (08:42). Ruling 10 (takeaway cap 30) is implemented and tested; its commit follows its audit.
 

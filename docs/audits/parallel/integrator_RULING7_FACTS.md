@@ -117,3 +117,10 @@ limits read from the code; G14 simulated with its own sampling and clearance log
     The shortest talking-head segment that can reach 3 clear samples between two VO lines is 6.75 s (cut). Hook and clip_01 have
     4-5 clear points.
 12. G5 final duration window 60-120 s: R4's estimate is 61.82 s (about 1.8 s of margin; the final is measured).
+
+## 08:49 ET CORRECTION to item 11 of the 08:42 list: G14 does NOT refuse this package
+The 08:42 simulation assumed a 6-frame dissolve at every join. The deployed plan (pulse_transitions.plan) puts a transition ONLY
+between two talking heads of different channels; every join with a VO line is a hard cut, so no overlap is excluded. In this package
+every talking head sits between VO lines (hook | VO 1 | clip_01 | VO 2 | clip_02 | VO 3 | shout-out): no dissolve at all. Re-run with
+the gate's own sampling and clearance: clip_02 (4.63 s) keeps all four sample points (0.2, 2.0, 4.0, 4.03; each on speech), hook and
+clip_01 six and seven: G14 is measurable on every segment (>= 3 possible). The list's other eleven items stand. Rendering the 08:44 pin.

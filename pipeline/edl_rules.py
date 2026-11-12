@@ -155,6 +155,8 @@ MOMENTS_VO_SHARE = 0.45           # law L-q ('06:00': 40 %; ruling 9, '08:29': 4
 MOMENTS_RUNTIME_S = (60.0, 70.0)  # law L-o: the format, the one hard length rule (stays hard)
 FINAL_TAIL_S = 14.30              # what a final adds to its segments' word spans: credits card + sign-off, outro, cut
                                   # leads / tails, pads (approved preview: 71.08 s finals - 56.78 s word spans)
+MOMENTS_TAKEAWAY_WORD_CAP = 30    # ruling 10 ('08:40'): the TAKEAWAY (the line after the LAST clip, a slot that did not exist
+                                  # when BRIDGE_WORD_CAP was set) has the intro's cap; bridges BETWEEN clips keep 20
 R4_WPS, R4_PREROLL_S = 2.5, 1.0   # R4's VO estimate: words at 2.5 w/s + the renderers' 1.0 s pre-roll per VO line
 
 
@@ -200,8 +202,9 @@ def _r4_moments(edl):
         if not isinstance(text, str) or not text.strip():
             failures.append(f"VO line {i} is empty")
             continue
-        if _word_count(text) > BRIDGE_WORD_CAP:
-            failures.append(f"bridge {i}={_word_count(text)} words (max {BRIDGE_WORD_CAP})")
+        cap = MOMENTS_TAKEAWAY_WORD_CAP if (type(a) is int and clips and a == idx[-1]) else BRIDGE_WORD_CAP
+        if _word_count(text) > cap:
+            failures.append(f"bridge {i}={_word_count(text)} words (max {cap})")
         lines.append(text)
     durs = []
     for s in [edl.get("hook") or {}] + clips:

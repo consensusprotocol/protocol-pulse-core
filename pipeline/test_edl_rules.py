@@ -1013,6 +1013,18 @@ class TestR4Moments(unittest.TestCase):
         self.only(self.edl(15.0, [12, 12], 31, []), "intro=31 words")       # runtime 66.7
         self.only(self.edl(15.0, [12, 12], 5, [(21, 1)]), "bridge 1=21 words")
 
+    def test_the_takeaway_has_its_own_cap_and_bridges_keep_theirs(self):
+        """Ruling 10 ('08:40'): the line after the LAST clip may carry up to 30 words (31 rejected); a bridge BETWEEN
+        clips keeps 20 (21 rejected). Every case inside 60-70 s and 45 %, so only the cap decides."""
+        from edl_rules import MOMENTS_TAKEAWAY_WORD_CAP, BRIDGE_WORD_CAP
+        self.assertEqual((MOMENTS_TAKEAWAY_WORD_CAP, BRIDGE_WORD_CAP), (30, 20))
+        ok, why = rule_r4(self.edl(10.0, [9, 5], 13, [(18, 1), (24, 2)]))      # the night's shape: 24 after the last
+        self.assertTrue(ok, why)
+        ok, why = rule_r4(self.edl(8.0, [9, 5], 13, [(18, 1), (30, 2)]))       # exactly 30 after the last
+        self.assertTrue(ok, why)
+        self.only(self.edl(8.0, [9, 5], 13, [(18, 1), (31, 2)]), "bridge 2=31 words (max 30)")
+        self.only(self.edl(10.0, [9, 5], 13, [(21, 1), (20, 2)]), "bridge 1=21 words (max 20)")   # between clips
+
     def test_fail_closed_shapes(self):
         e = self.edl(17.0, [12, 12], 10, [(5, 1)])                          # 41 + 5 (the intro only) + 14.3
         e["vo"]["bridges"][0]["text"] = "  "
