@@ -311,18 +311,89 @@ def build_edl(pin, acq, registry=None, log=print):
     for i, c in enumerate(clips, 1):
         c["index"] = i
     channels = sorted({x["channel"] for x in segs})
+    has_mp = "moments_package" in pin           # pp-selectid R7: a moments-first package (law L-q) as the decision;
+    mp = pin.get("moments_package")            # PRESENT = validated strictly (null or a non-object is refused)
+    vo = _generate_vo_script(pin["label"], hook["text"], clips, channels)
+    if has_mp:
+        vo = moments_vo(mp, clips, pin["segments"])
     edl = {
         "topic": pin["label"],
         "angle": f"Pinned: {pin.get('headline') or pin['label']}",
         "hook": hook,
         "clips": clips,
-        "vo": _generate_vo_script(pin["label"], hook["text"], clips, channels),
+        "vo": vo,
         "total_clip_duration": round(hook["duration"] + sum(c["duration"] for c in clips), 2),
         "mode": "pinned",
         "pinned_story_id": pin["story_id"],
     }
+    if has_mp:                                 # law L-t: the ONE title and caption travel in the EDL, whose bytes the
+        edl.update(title=mp["title"], caption=mp["caption"],      # release authorisation re-hashes before any send
+                   moments_package_sha256=mp["package_sha256"],   # the packager's digest of its full record
+                   moments_package_pin_sha256=hashlib.sha256(json.dumps(mp, sort_keys=True).encode()).hexdigest(),
+                   moments_checks=mp["checks"],                   # ^ this render's own digest of what it renders
+                   moments_sources_30s_before=list(mp["sources_30s_before"]))
     overrides = build_vertical_overrides(hook, clips, registry)
     return edl, overrides, report
+
+
+def moments_vo(mp, clips, segments=None):
+    """The package's VO, checked by its VO-fidelity and context-integrity gates (pipeline/package.py): the intro and
+    the bridges, each after a clip but the last, in the EDL's shape ({"text", "after_clip"}). Strict (cycle 1 of its
+    audit): the package must be an object; both gate verdicts exactly true, and every other '*_ok' check too; title and
+    caption non-empty strings; package_sha256 64 lowercase hex characters; edl_vo an object; intro null or a non-empty
+    string; bridges a list of objects with non-empty string text and an INTEGER after_clip, strictly increasing, in
+    1..last-1 (render16 places bridges in list order: an out-of-order or repeated index is refused, never re-sorted).
+    Anything else is a PinError."""
+    if not isinstance(mp, dict):
+        raise PinError("moments_package is not an object")
+    if segments is not None:                   # bound to THIS pin's segments (cycle 2: a package rides only its clips)
+        links = mp.get("sources_30s_before")
+        if not isinstance(links, list) or len(links) != len(segments) or not all(
+                isinstance(u, str) and f"v={s['video_id']}" in u for u, s in zip(links, segments)):
+            raise PinError("moments_package sources_30s_before must list one link per pin segment, in order, each to "
+                           "that segment's video")
+        first = mp.get("hook_first_words")
+        if first is not None and (not isinstance(first, str) or not " ".join(
+                str(segments[0].get("approved_text") or "").lower().split()).startswith(" ".join(first.lower().split()))):
+            raise PinError("moments_package hook_first_words do not open the pin's hook")
+    checks = mp.get("checks")
+    if not isinstance(checks, dict) or checks.get("vo_fidelity_ok") is not True \
+            or checks.get("context_integrity_ok") is not True:
+        raise PinError("moments_package: the VO-fidelity and context-integrity gates did not both pass (each must be "
+                       "exactly true)")
+    if not all(isinstance(k, str) for k in checks):
+        raise PinError("moments_package checks keys must be strings")
+    failed = sorted(k for k, v in checks.items() if k.endswith("_ok") and v is not True)
+    if failed:
+        raise PinError(f"moments_package: checks not passed: {failed}")
+    for k in ("title", "caption"):
+        if not isinstance(mp.get(k), str) or not mp[k].strip():
+            raise PinError(f"moments_package {k} must be a non-empty string")
+    if not isinstance(mp.get("package_sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", mp["package_sha256"]):
+        raise PinError("moments_package package_sha256 must be 64 lowercase hex characters")
+    v = mp.get("edl_vo")
+    if not isinstance(v, dict):
+        raise PinError("moments_package edl_vo must be an object {intro, bridges}")
+    if "intro" not in v or "bridges" not in v:
+        raise PinError("moments_package edl_vo must state both intro and bridges (null / [] when there are none)")
+    intro, bridges = v["intro"], v["bridges"]
+    if intro is not None and (not isinstance(intro, str) or not intro.strip()):
+        raise PinError("moments_package intro must be null or a non-empty string")
+    if not isinstance(bridges, list):
+        raise PinError("moments_package bridges must be a list")
+    idx = sorted(c["index"] for c in clips)
+    if not idx:
+        raise PinError("moments_package: the pin has no clips")
+    last, prev = idx[-1], 0
+    for b in bridges:
+        if not isinstance(b, dict) or not isinstance(b.get("text"), str) or not b["text"].strip():
+            raise PinError(f"moments_package bridge {b!r}: needs non-empty text")
+        a = b.get("after_clip")
+        if type(a) is not int or a not in idx or a >= last or a <= prev:
+            raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{last - 1}, "
+                           f"strictly increasing")
+        prev = a
+    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
 
 
 def prepare(pin_path, run_dir, log=print):

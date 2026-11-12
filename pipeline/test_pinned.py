@@ -261,6 +261,113 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
         self.assertEqual(rf.RELEASE_STATE, "HOLD_FOR_HUMAN_APPROVAL")
 
 
+class TestMomentsPackage(Fixture):
+    """pp-selectid REQUESTS R7 item 1 (laws L-q, L-t): a moments-first package rides the pinned path: its VO (intro, a
+    bridge after each clip but the last), its ONE title and caption, its sha256 and gate verdicts enter the EDL; a
+    package whose VO-fidelity and context-integrity gates did not both pass, or a bridge the renderer cannot place, is
+    refused; a pin without a package is unchanged (no body VO)."""
+
+    def mp(self, segs=None, **kw):
+        segs = segs or self.pin()["segments"]
+        m = {"title": "T", "caption": "C", "package_sha256": "ab" * 32,
+             "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
+             "edl_vo": {"intro": "Intro line.", "bridges": [{"text": "Bridge one.", "after_clip": 1}]},
+             "sources_30s_before": [f"https://www.youtube.com/watch?v={s['video_id']}&t=0s" for s in segs]}
+        m.update(kw)
+        return m
+
+    def test_the_package_vo_title_and_caption_enter_the_edl(self):
+        pinned.prepare(self.write(self.pin(moments_package=self.mp())), self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual(edl["vo"], {"intro": "Intro line.", "bridges": [{"text": "Bridge one.", "after_clip": 1}]})
+        self.assertEqual((edl["title"], edl["caption"], edl["moments_package_sha256"]), ("T", "C", "ab" * 32))
+        self.assertEqual(edl["moments_checks"], {"vo_fidelity_ok": True, "context_integrity_ok": True})
+        self.assertRegex(edl["moments_package_pin_sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(len(edl["moments_sources_30s_before"]), 3)
+
+    def test_a_pin_without_a_package_is_unchanged(self):
+        pinned.prepare(self.write(self.pin()), self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual(edl["vo"], {"intro": None, "bridges": []})
+        for k in ("title", "caption", "moments_package_sha256", "moments_checks"):
+            self.assertNotIn(k, edl)
+
+    def test_refused_packages(self):
+        """Every shape the renderer cannot place, every verdict that is not exactly true, every malformed field: a
+        PinError naming it (cycle 1 of the R7 audit), never a KeyError / AttributeError / TypeError, never ignored."""
+        def br(*items):
+            return {"intro": None, "bridges": [dict(text="x", after_clip=a) for a in items]}
+        cases = [("gates not both passed", self.mp(checks={"vo_fidelity_ok": True}), "did not both pass"),
+                 ("a verdict that is truthy but not true", self.mp(checks={"vo_fidelity_ok": "false",
+                                                                          "context_integrity_ok": True}), "did not both pass"),
+                 ("checks null", self.mp(checks=None), "did not both pass"),
+                 ("checks a list", self.mp(checks=[True]), "did not both pass"),
+                 ("another check failed", self.mp(checks={"vo_fidelity_ok": True, "context_integrity_ok": True,
+                                                          "title_ok": False}), "checks not passed"),
+                 ("bridge after the last clip", self.mp(edl_vo=br(2)), "after_clip must be"),
+                 ("bridge after no clip", self.mp(edl_vo=br(7)), "after_clip must be"),
+                 ("bridge after the hook", self.mp(edl_vo=br(0)), "after_clip must be"),
+                 ("bool index", self.mp(edl_vo=br(True)), "after_clip must be"),
+                 ("float index", self.mp(edl_vo=br(1.0)), "after_clip must be"),
+                 ("string index", self.mp(edl_vo=br("1")), "after_clip must be"),
+                 ("unhashable index", self.mp(edl_vo=br([1])), "after_clip must be"),
+                 ("empty bridge", self.mp(edl_vo={"intro": None, "bridges": [{"text": " ", "after_clip": 1}]}), "text"),
+                 ("non-string bridge text", self.mp(edl_vo={"intro": None, "bridges": [{"text": 5, "after_clip": 1}]}), "text"),
+                 ("bridges not a list", self.mp(edl_vo={"intro": None, "bridges": 5}), "must be a list"),
+                 ("edl_vo not an object", self.mp(edl_vo=[1]), "edl_vo must be"),
+                 ("edl_vo missing", {k: v for k, v in self.mp().items() if k != "edl_vo"}, "edl_vo must be"),
+                 ("empty intro", self.mp(edl_vo={"intro": "  ", "bridges": []}), "intro must be"),
+                 ("non-string intro", self.mp(edl_vo={"intro": 123, "bridges": []}), "intro must be"),
+                 ("title missing", {k: v for k, v in self.mp().items() if k != "title"}, "title must be"),
+                 ("caption empty", self.mp(caption=" "), "caption must be"),
+                 ("sha not hex", self.mp(package_sha256="zz"), "package_sha256"),
+                 ("package not an object", "not a package", "not an object"),
+                 ("package null", None, "not an object"),
+                 ("package a list", [], "not an object"),
+                 ("package false", False, "not an object"),
+                 ("package empty object", {}, "sources_30s_before"),
+                 ("bridges key missing", self.mp(edl_vo={"intro": None}), "must state both"),
+                 ("intro key missing", self.mp(edl_vo={"bridges": []}), "must state both"),
+                 ("edl_vo empty", self.mp(edl_vo={}), "must state both"),
+                 ("non-object bridge", self.mp(edl_vo={"intro": None, "bridges": ["x"]}), "needs non-empty text"),
+                 ("null bridge", self.mp(edl_vo={"intro": None, "bridges": [None]}), "needs non-empty text"),
+                 ("after_clip missing", self.mp(edl_vo={"intro": None, "bridges": [{"text": "x"}]}), "after_clip must be"),
+                 ("negative after_clip", self.mp(edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": -1}]}),
+                  "after_clip must be"),
+                 ("verdict 1, not true", self.mp(checks={"vo_fidelity_ok": 1, "context_integrity_ok": True}),
+                  "did not both pass"),
+                 ("sha upper case", self.mp(package_sha256="AB" * 32), "package_sha256"),
+                 ("sha 63 characters", self.mp(package_sha256="a" * 63), "package_sha256"),
+                 ("sha missing", {k: v for k, v in self.mp().items() if k != "package_sha256"}, "package_sha256"),
+                 ("links for other videos", self.mp(sources_30s_before=["https://www.youtube.com/watch?v=ZZZ"] * 3),
+                  "sources_30s_before"),
+                 ("one link short", self.mp(sources_30s_before=self.mp()["sources_30s_before"][:2]), "sources_30s_before"),
+                 ("hook first words of another sentence", self.mp(hook_first_words="Something else entirely"),
+                  "hook_first_words")]
+        for name, m, why in cases:
+            with self.subTest(name):
+                edl_path = os.path.join(self.run_dir, "edl.json")
+                if os.path.exists(edl_path):
+                    os.remove(edl_path)
+                with self.assertRaisesRegex(pinned.PinError, why):
+                    pinned.prepare(self.write(self.pin(moments_package=m)), self.run_dir, log=lambda s: None)
+                self.assertFalse(os.path.exists(edl_path))                   # nothing built from a refused package
+
+    def test_duplicate_or_reordered_bridges_are_refused_with_three_clips(self):
+        segs = self.pin()["segments"] + [{"role": "clip", "video_id": "BBBBBBBBBB2", "channel": PENDING, "start": 18.5,
+                                          "end": 28.9, "time_coords": "source_file", "source": self.src["BBBBBBBBBB2"]}]
+        for name, bridges in (("duplicate", [1, 1]), ("reordered", [2, 1])):
+            with self.subTest(name):
+                m = self.mp(segs, edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": a} for a in bridges]})
+                with self.assertRaisesRegex(pinned.PinError, "strictly increasing"):
+                    pinned.prepare(self.write(self.pin(segments=segs, moments_package=m)), self.run_dir,
+                                   log=lambda s: None)
+        m = self.mp(segs, edl_vo={"intro": "I.", "bridges": [{"text": "a", "after_clip": 1}, {"text": "b", "after_clip": 2}]})
+        pinned.prepare(self.write(self.pin(segments=segs, moments_package=m)), self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual([b["after_clip"] for b in edl["vo"]["bridges"]], [1, 2])
+
+
 class TestPinnedStageFreesGpu0First(Fixture):
     """E-FAIL-052: pinned.acquire transcribes every downloaded source with Whisper on GPU0, so the editorial model the
     preflight's Ollama check loaded is released first, as before every other Whisper stage (runs/pinned_20261112_064032:
