@@ -1,0 +1,1576 @@
+{
+ "run": "fresh_20261112_013452",
+ "now": "2026-11-12T01:34:53.766719+00:00",
+ "result": {
+  "lineup": false
+ },
+ "ledger": {
+  "path": "/home/ultron/protocol_pulse/data/pulse_check/story_ledger.jsonl",
+  "entries": 0
+ },
+ "universe": {
+  "videos": 89,
+  "records_missing": [],
+  "methods": {
+   "whisper": 6,
+   "whisper_words": 5,
+   "whisper_words_punct": 2,
+   "yt_auto": 46,
+   "yt_manual": 30
+  }
+ },
+ "clusters": {
+  "recorded": true,
+  "groups": 225,
+  "screened": {
+   "48h": 39,
+   "72h": 21
+  }
+ },
+ "wire_pool": "not run in this CPU replay: wire retrieval needs the GPU0 embedder (DEC-13: wire only after clusters)",
+ "groups": [
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 0 48h | Anthony Pompliano, BTC Sessions, Bankless, Bitcoin Magazine, CoinTelegraph, DataDash ...",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 62,
+    "not_statement": 64,
+    "unpunctuated": 8
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "the independent check does not find the claim's development stated as current news in id 18 (TOPIC_ONLY)",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "73e96a938a18eb3570e5c76bb14578ca815c9ad1257c437c0a0c5cefa5466b3b",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [18, 116], \"claim\": 116}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6924,
+        "completion_tokens": 605
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDqPIrJSzHyyJpmH6wnxVxA"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "Speaking of poverty, Bitcoin is now up like 6% in 5 years.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 7.53,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "I'm reminded of a current, you know, negative aspect of, of framing Bitcoin right now, where people will say, oh, Bitcoin's five-year return is practically zero, which is factually correct.",
+          "start": 56.208,
+          "end": 71.071
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 85,
+          "k1": 85,
+          "text": "Speaking of poverty, Bitcoin is now up like 6% in 5 years.",
+          "start": 359.18,
+          "end": 364.125
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 18 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "440831a7fe447659d705d657e49f7b0b41cb8ef823cb3249b00b079f355bda6c",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [3, 98, 137], \"claim\": 137}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6989,
+        "completion_tokens": 581
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCCatR7nWbYrkVXdxXb4cGXw",
+         "UCRqBu-grVX1p97WaX4d-OuQ"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "Check on change says that Bitcoin is hanging on at 75K by its fingernails.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "EjzQS-l-bIw",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 12.58,
+          "tier": "48h",
+          "k0": 18,
+          "k1": 18,
+          "text": "So, I'll start off with at the time of recording right now, we are trading at about $80,000 Bitcoin.",
+          "start": 102.475,
+          "end": 107.27
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "LGzfQjA2SHA",
+          "channel": "CoinTelegraph",
+          "channel_id": "UCRqBu-grVX1p97WaX4d-OuQ",
+          "layout_eligible": true,
+          "age_h": 59.08,
+          "tier": "72h",
+          "k0": 103,
+          "k1": 103,
+          "text": "And yet Bitcoin is hovering at around 75 80,000.",
+          "start": 378.13,
+          "end": 383.49
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "DcUbBkyeh9M",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 26.66,
+          "tier": "48h",
+          "k0": 169,
+          "k1": 169,
+          "text": "Check on change says that Bitcoin is hanging on at 75K by its fingernails.",
+          "start": 677.007,
+          "end": 681.587
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 3 (TOPIC_ONLY), id 98 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "72dad82c885512ccedae90ad3257b976b487640ea3a558fdd52640ef8135a130",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [18, 116], \"claim\": 116}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7005,
+        "completion_tokens": 370
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDqPIrJSzHyyJpmH6wnxVxA"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "Speaking of poverty, Bitcoin is now up like 6% in 5 years.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 7.53,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "I'm reminded of a current, you know, negative aspect of, of framing Bitcoin right now, where people will say, oh, Bitcoin's five-year return is practically zero, which is factually correct.",
+          "start": 56.208,
+          "end": 71.071
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 85,
+          "k1": 85,
+          "text": "Speaking of poverty, Bitcoin is now up like 6% in 5 years.",
+          "start": 359.18,
+          "end": 364.125
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 18 (TOPIC_ONLY)"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 1 48h | Altcoin Daily, BTC Sessions, Bitcoin Audible, Bitcoin Magazine, Stacker News, What Bitcoin Did ...",
+   "rows": 160,
+   "not_offered": {
+    "not_statement": 26,
+    "too_short": 28,
+    "unpunctuated": 1
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "5d5edc05afb92c560e2026d5df840123b792ccbff62fb31dc36c099e4d8fb567",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [25, 27, 30, 36, 114, 115, 117], \"claim\": 117}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6404,
+        "completion_tokens": 673
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'there': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCtvg5cXLY_tHDJeBoRySBtg"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "72h",
+        "story_layout_channels": 2,
+        "claim": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 206,
+          "k1": 206,
+          "text": "I can tell you the president's interested in it.",
+          "start": 1078.89,
+          "end": 1080.89
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 208,
+          "k1": 208,
+          "text": "Different ideas that, again, you know, it's of questionable legality, whether or not, you know, there could be outright open market purchases.",
+          "start": 1087.95,
+          "end": 1095.55
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 211,
+          "k1": 211,
+          "text": "I would say the stance of the administration is that we want the SBR to be codified.",
+          "start": 1114.7,
+          "end": 1121.46
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 218,
+          "k1": 218,
+          "text": "And certainly, if you want to have confidence that any purchases of Bitcoin are going to be legal, then, yeah, you would need authorization from Congress.",
+          "start": 1135.5,
+          "end": 1145.44
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 119,
+          "k1": 119,
+          "text": "And Patrick Wit just bringing up the fact that we would still love to add more Bitcoin for the strategic Bitcoin reserve but sort of poking uh fund saying we would love to do it but we have legal and custody issues and we need a way to do it in a budget neutral manner from Congress.",
+          "start": 570.218,
+          "end": 585.129
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 120,
+          "k1": 120,
+          "text": "So kind of uh just uh telling Congress to get their act together because Trump does in fact want the strategic Bitcoin reserve.",
+          "start": 585.203,
+          "end": 592.128
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 122,
+          "k1": 122,
+          "text": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+          "start": 598.377,
+          "end": 602.717
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "9ada89ec14e911648b3450e6df0c94a4a7de5e4b9361a88241700a1d0276c733",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [25, 27, 30, 36, 76, 114, 115, 117], \"claim\": 117}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6480,
+        "completion_tokens": 559
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'there': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCtvg5cXLY_tHDJeBoRySBtg"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "72h",
+        "story_layout_channels": 2,
+        "claim": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 206,
+          "k1": 206,
+          "text": "I can tell you the president's interested in it.",
+          "start": 1078.89,
+          "end": 1080.89
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 208,
+          "k1": 208,
+          "text": "Different ideas that, again, you know, it's of questionable legality, whether or not, you know, there could be outright open market purchases.",
+          "start": 1087.95,
+          "end": 1095.55
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 211,
+          "k1": 211,
+          "text": "I would say the stance of the administration is that we want the SBR to be codified.",
+          "start": 1114.7,
+          "end": 1121.46
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 218,
+          "k1": 218,
+          "text": "And certainly, if you want to have confidence that any purchases of Bitcoin are going to be legal, then, yeah, you would need authorization from Congress.",
+          "start": 1135.5,
+          "end": 1145.44
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 344,
+          "k1": 344,
+          "text": "But within the executive branch, as I mentioned, it's an ongoing effort right now at Treasury to properly follow through on the SBR.",
+          "start": 1808.97,
+          "end": 1817.61
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 119,
+          "k1": 119,
+          "text": "And Patrick Wit just bringing up the fact that we would still love to add more Bitcoin for the strategic Bitcoin reserve but sort of poking uh fund saying we would love to do it but we have legal and custody issues and we need a way to do it in a budget neutral manner from Congress.",
+          "start": 570.218,
+          "end": 585.129
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 120,
+          "k1": 120,
+          "text": "So kind of uh just uh telling Congress to get their act together because Trump does in fact want the strategic Bitcoin reserve.",
+          "start": 585.203,
+          "end": 592.128
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 122,
+          "k1": 122,
+          "text": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+          "start": 598.377,
+          "end": 602.717
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "9ada89ec14e911648b3450e6df0c94a4a7de5e4b9361a88241700a1d0276c733",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [25, 26, 27, 30, 36, 76, 114, 115, 116, 117], \"claim\": 117}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6480,
+        "completion_tokens": 666
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'there': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCtvg5cXLY_tHDJeBoRySBtg"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "72h",
+        "story_layout_channels": 2,
+        "claim": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 206,
+          "k1": 206,
+          "text": "I can tell you the president's interested in it.",
+          "start": 1078.89,
+          "end": 1080.89
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 207,
+          "k1": 207,
+          "text": "I can tell you that there's been a lot of discussion about how we might be able to do that.",
+          "start": 1081.49,
+          "end": 1086.55
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 208,
+          "k1": 208,
+          "text": "Different ideas that, again, you know, it's of questionable legality, whether or not, you know, there could be outright open market purchases.",
+          "start": 1087.95,
+          "end": 1095.55
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 211,
+          "k1": 211,
+          "text": "I would say the stance of the administration is that we want the SBR to be codified.",
+          "start": 1114.7,
+          "end": 1121.46
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 218,
+          "k1": 218,
+          "text": "And certainly, if you want to have confidence that any purchases of Bitcoin are going to be legal, then, yeah, you would need authorization from Congress.",
+          "start": 1135.5,
+          "end": 1145.44
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 56.58,
+          "tier": "72h",
+          "k0": 344,
+          "k1": 344,
+          "text": "But within the executive branch, as I mentioned, it's an ongoing effort right now at Treasury to properly follow through on the SBR.",
+          "start": 1808.97,
+          "end": 1817.61
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 119,
+          "k1": 119,
+          "text": "And Patrick Wit just bringing up the fact that we would still love to add more Bitcoin for the strategic Bitcoin reserve but sort of poking uh fund saying we would love to do it but we have legal and custody issues and we need a way to do it in a budget neutral manner from Congress.",
+          "start": 570.218,
+          "end": 585.129
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 120,
+          "k1": 120,
+          "text": "So kind of uh just uh telling Congress to get their act together because Trump does in fact want the strategic Bitcoin reserve.",
+          "start": 585.203,
+          "end": 592.128
+         },
+         "parts": {}
+        },
+        "story[8]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 121,
+          "k1": 121,
+          "text": "This is only interesting because we haven't heard about it in quite a while and now it is at least back on the menu.",
+          "start": 592.164,
+          "end": 598.312
+         },
+         "parts": {}
+        },
+        "story[9]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 7.58,
+          "tier": "48h",
+          "k0": 122,
+          "k1": 122,
+          "text": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+          "start": 598.377,
+          "end": 602.717
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 2 48h | Altcoin Daily, Bitcoin Magazine, Simply Bitcoin, Stephan Livera, The Bitcoin Layer",
+   "rows": 57,
+   "not_offered": {
+    "too_short": 4,
+    "not_statement": 5
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "f32ebd08b4820ba3a219147916b499ce4240fe08f91be042dea09cc399cd1732",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [16, 36], \"claim\": 16}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2936,
+        "completion_tokens": 459
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDqPIrJSzHyyJpmH6wnxVxA"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "Like they know Bitcoin's probably going to fall 50% at some point like it just did.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 7.53,
+          "tier": "48h",
+          "k0": 429,
+          "k1": 429,
+          "text": "Like they know Bitcoin's probably going to fall 50% at some point like it just did.",
+          "start": 2946.519,
+          "end": 2950.01
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 99,
+          "k1": 99,
+          "text": "126k peak bottomed at the prophetic 58k.",
+          "start": 407.606,
+          "end": 411.488
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "bf6e33430ad8a921a97b883eae29d55d3e4e35f0285c3ba2386aa2c14ec56c1d",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [16, 36, 38], \"claim\": 16}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2994,
+        "completion_tokens": 976
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDqPIrJSzHyyJpmH6wnxVxA"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "Like they know Bitcoin's probably going to fall 50% at some point like it just did.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 7.53,
+          "tier": "48h",
+          "k0": 429,
+          "k1": 429,
+          "text": "Like they know Bitcoin's probably going to fall 50% at some point like it just did.",
+          "start": 2946.519,
+          "end": 2950.01
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 99,
+          "k1": 99,
+          "text": "126k peak bottomed at the prophetic 58k.",
+          "start": 407.606,
+          "end": 411.488
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 101,
+          "k1": 101,
+          "text": "If Bitcoin went on that same run, we could see 480k nearly 500k Bitcoin this cycle.",
+          "start": 414.764,
+          "end": 421.363
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 36 (TOPIC_ONLY), id 38 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "99fc10b5bb08c9c6795e396733bc292d38eaf5d5d22c7f1b16a4c62a3b031bde",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [16, 36], \"claim\": 16}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 3017,
+        "completion_tokens": 1040
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDqPIrJSzHyyJpmH6wnxVxA"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "Like they know Bitcoin's probably going to fall 50% at some point like it just did.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 7.53,
+          "tier": "48h",
+          "k0": 429,
+          "k1": 429,
+          "text": "Like they know Bitcoin's probably going to fall 50% at some point like it just did.",
+          "start": 2946.519,
+          "end": 2950.01
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 99,
+          "k1": 99,
+          "text": "126k peak bottomed at the prophetic 58k.",
+          "start": 407.606,
+          "end": 411.488
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 3 48h | Anthony Pompliano, BTC Sessions, Bitcoin Magazine, Natalie Brunell, TFTC",
+   "rows": 74,
+   "not_offered": {
+    "too_short": 19,
+    "unpunctuated": 1,
+    "not_statement": 2
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "66f3c2d7240fa370bef39abfd862aedfb688634d3cfe8dde52ef155ec951c340",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 3010,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 4 48h | BTC Sessions, Bitcoin Magazine, Coin Bureau, Robert Breedlove, Stephan Livera",
+   "rows": 41,
+   "not_offered": {
+    "too_short": 6,
+    "not_statement": 16
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "2c360b7c85a7f273eaeb3763c8f170ca8880eac87ffa2f1aab7fbcc7c2e195b0",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2326,
+        "completion_tokens": 206
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 5 48h | Bitcoin Magazine, Coin Bureau, Robert Breedlove, Simply Bitcoin, Stephan Livera",
+   "rows": 28,
+   "not_offered": {
+    "too_short": 2,
+    "not_statement": 4
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "5e118d2ed3fce360cd30d9f6b6af956c085404a0e4c91ea528d04f126c021876",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [1, 7], \"claim\": 1}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 1644,
+        "completion_tokens": 435
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDqPIrJSzHyyJpmH6wnxVxA"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "Today, Bitcoin's at $73,000 per Bitcoin, and you had pretty much a, a, a 0% return.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 7.53,
+          "tier": "48h",
+          "k0": 14,
+          "k1": 14,
+          "text": "Today, Bitcoin's at $73,000 per Bitcoin, and you had pretty much a, a, a 0% return.",
+          "start": 82.199,
+          "end": 89.025
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 94,
+          "k1": 94,
+          "text": "Let's focus on this chart because 2017 to 2022 paints a very similar picture to today up only.99% in 5 years.",
+          "start": 387.081,
+          "end": 397.127
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "1eef68c6ddf4a76ca8e93b897caf312b22cc534a45192b89dcdb60b0976cbd73",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [8, 11, 28], \"claim\": 28}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 1702,
+        "completion_tokens": 616
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'this': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCqK_GSMbpiV8spgD3ZGloSw"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "This time, at its very worst point, Bitcoin was down 55% from its late 2025 peak.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 96,
+          "k1": 96,
+          "text": "Bitcoin ran from 16K to 126K.",
+          "start": 398.974,
+          "end": 401.91
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 99,
+          "k1": 99,
+          "text": "126k peak bottomed at the prophetic 58k.",
+          "start": 407.606,
+          "end": 411.488
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "SIbzTHUCJWY",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 13.03,
+          "tier": "48h",
+          "k0": 72,
+          "k1": 72,
+          "text": "This time, at its very worst point, Bitcoin was down 55% from its late 2025 peak.",
+          "start": 433.759,
+          "end": 440.443
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "c739ce71b64e8a48a7a9eb64f72bfa85cca9d5900ec9e05ca8e404d4ae50f89f",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [1, 7], \"claim\": 1}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 1720,
+        "completion_tokens": 432
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCDqPIrJSzHyyJpmH6wnxVxA"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "Today, Bitcoin's at $73,000 per Bitcoin, and you had pretty much a, a, a 0% return.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 7.53,
+          "tier": "48h",
+          "k0": 14,
+          "k1": 14,
+          "text": "Today, Bitcoin's at $73,000 per Bitcoin, and you had pretty much a, a, a 0% return.",
+          "start": 82.199,
+          "end": 89.025
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Noq6txZU91c",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 3.4,
+          "tier": "48h",
+          "k0": 94,
+          "k1": 94,
+          "text": "Let's focus on this chart because 2017 to 2022 paints a very similar picture to today up only.99% in 5 years.",
+          "start": 387.081,
+          "end": 397.127
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 6 48h | CoinTelegraph, Natalie Brunell, Robert Breedlove, Saifedean Ammous",
+   "rows": 138,
+   "not_offered": {
+    "too_short": 18,
+    "not_statement": 26,
+    "unpunctuated": 2
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "276c380bc7f9b317075531035bbac3733f55882f6ce3e293ef3e80186c57ece4",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 5117,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 7 48h | BTC Sessions, Simply Bitcoin, The Bitcoin Layer, What Bitcoin Did",
+   "rows": 53,
+   "not_offered": {
+    "too_short": 8,
+    "not_statement": 8
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "69cddae163a784d60d6928fbbabcd28fb5d80afde3da21c5551dd48b2e263fe6",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2668,
+        "completion_tokens": 231
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  }
+ ],
+ "pools": [
+  {
+   "pool": "channel_clusters_48h",
+   "evaluated": true,
+   "groups": 39,
+   "stopped": "story-call budget 8 spent"
+  },
+  {
+   "pool": "channel_clusters_72h",
+   "evaluated": true,
+   "groups": 21,
+   "stopped": "story-call budget 8 spent"
+  }
+ ],
+ "story_calls": 8,
+ "lineup_calls": 0,
+ "seconds": 172.8,
+ "models": {
+  "generator": "anthropic:claude-fable-5-2@medium",
+  "judge (ModelChecks)": "xai:grok-4.20-0309-reasoning@t0",
+  "openai_probe": "ok"
+ },
+ "code": {
+  "select_by_id.py": "188a35e3c047deee",
+  "eligibility.py": "6f7055bcfdfa3aa7"
+ }
+}

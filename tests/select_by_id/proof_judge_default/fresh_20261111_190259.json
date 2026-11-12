@@ -1,0 +1,1846 @@
+{
+ "run": "fresh_20261111_190259",
+ "now": "2026-11-11T19:03:01.014209+00:00",
+ "result": {
+  "lineup": false
+ },
+ "universe": {
+  "videos": 91,
+  "records_missing": [],
+  "methods": {
+   "whisper": 6,
+   "whisper_words": 5,
+   "yt_auto": 44,
+   "yt_manual": 36
+  }
+ },
+ "clusters": {
+  "recorded": false,
+  "recomputed_s": 13.5,
+  "chunks": 3663,
+  "no_vectors": [],
+  "groups": 198,
+  "screened": {
+   "48h": 41,
+   "72h": 12
+  }
+ },
+ "wire_pool": "not run in this CPU replay: wire retrieval needs the GPU0 embedder (DEC-13: wire only after clusters)",
+ "groups": [
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 0 48h | Altcoin Daily, Anthony Pompliano, BTC Sessions, Bankless, Bitcoin Magazine, Natalie Brunell ...",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 28,
+    "not_statement": 41,
+    "unpunctuated": 1
+   },
+   "story": {
+    "status": "accepted",
+    "why": null,
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "a266a3de8c2b894a82fdf79866943b32b60c22fd0a3fc1dbf6fd0c02ce5f5367",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [52, 136, 157], \"claim\": 52}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7333,
+        "completion_tokens": 682
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCbLhGKVY-bJPcawebgtNfbw",
+         "UCtOV5M-T3GcsJAq8QKaf0lg"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "qo8rDU3bbMo",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 44.74,
+          "tier": "48h",
+          "k0": 177,
+          "k1": 177,
+          "text": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K.",
+          "start": 705.29,
+          "end": 708.85
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "WQJYqRAzkio",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 21.09,
+          "tier": "48h",
+          "k0": 54,
+          "k1": 54,
+          "text": "like we saw the selloff of 5% or 6% in in tech stocks and and and on Thursday because of the the mere fear that the Democrats in certain you know that when certain gubernatorial elections and you know in Texas they won the house that they would even put even a small slowdown in data center roll out which in my opinion they won't do uh is simple.",
+          "start": 339.08,
+          "end": 369.247
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Ov5jg52HqIY",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 68.03,
+          "tier": "72h",
+          "k0": 38,
+          "k1": 38,
+          "text": "Even thinking about the seasonality, I mean, really, there's been a scare after the blue wave of the midterms.",
+          "start": 161.509,
+          "end": 169.206
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "939d114550198faea9b84af3aa3ffeddd7e3c4c753001394c5c197ae3ea72a45",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [52, 157, 158], \"claim\": 52}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7391,
+        "completion_tokens": 486
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCbLhGKVY-bJPcawebgtNfbw"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "72h",
+        "story_layout_channels": 2,
+        "claim": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "qo8rDU3bbMo",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 44.74,
+          "tier": "48h",
+          "k0": 177,
+          "k1": 177,
+          "text": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K.",
+          "start": 705.29,
+          "end": 708.85
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Ov5jg52HqIY",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 68.03,
+          "tier": "72h",
+          "k0": 38,
+          "k1": 38,
+          "text": "Even thinking about the seasonality, I mean, really, there's been a scare after the blue wave of the midterms.",
+          "start": 161.509,
+          "end": 169.206
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Ov5jg52HqIY",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 68.03,
+          "tier": "72h",
+          "k0": 40,
+          "k1": 40,
+          "text": "But the counternarrative is bullish because historically buying Bitcoin around the US midterm elections has been one hell of an opportunity.",
+          "start": 170.72,
+          "end": 180.927
+         },
+         "parts": {}
+        }
+       }
+      },
+      "checks": {
+       "verify_support": "SUPPORTS"
+      },
+      "accepted": true
+     }
+    ],
+    "story": [
+     {
+      "video_id": "qo8rDU3bbMo",
+      "k0": 177,
+      "k1": 177,
+      "text": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K.",
+      "start": 705.29,
+      "end": 708.85,
+      "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+     },
+     {
+      "video_id": "Ov5jg52HqIY",
+      "k0": 38,
+      "k1": 38,
+      "text": "Even thinking about the seasonality, I mean, really, there's been a scare after the blue wave of the midterms.",
+      "start": 161.509,
+      "end": 169.206,
+      "channel_id": "UCbLhGKVY-bJPcawebgtNfbw"
+     },
+     {
+      "video_id": "Ov5jg52HqIY",
+      "k0": 40,
+      "k1": 40,
+      "text": "But the counternarrative is bullish because historically buying Bitcoin around the US midterm elections has been one hell of an opportunity.",
+      "start": 170.72,
+      "end": 180.927,
+      "channel_id": "UCbLhGKVY-bJPcawebgtNfbw"
+     }
+    ],
+    "claim": {
+     "video_id": "qo8rDU3bbMo",
+     "k0": 177,
+     "k1": 177,
+     "text": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K.",
+     "start": 705.29,
+     "end": 708.85,
+     "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+    },
+    "hook": null,
+    "clips": [],
+    "eligibility": {
+     "ok": true,
+     "reasons": [],
+     "facts": {
+      "story_channels": [
+       "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+       "UCbLhGKVY-bJPcawebgtNfbw"
+      ],
+      "bitcoin_channels": 2,
+      "tier": "72h",
+      "story_layout_channels": 2,
+      "claim": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K."
+     },
+     "parts": {
+      "story[0]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "qo8rDU3bbMo",
+        "channel": "Simply Bitcoin",
+        "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+        "layout_eligible": true,
+        "age_h": 44.74,
+        "tier": "48h",
+        "k0": 177,
+        "k1": 177,
+        "text": "On the daily chart, Bitcoin is the most oversold since the bottom near 58K.",
+        "start": 705.29,
+        "end": 708.85
+       },
+       "parts": {}
+      },
+      "story[1]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "Ov5jg52HqIY",
+        "channel": "Altcoin Daily",
+        "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+        "layout_eligible": true,
+        "age_h": 68.03,
+        "tier": "72h",
+        "k0": 38,
+        "k1": 38,
+        "text": "Even thinking about the seasonality, I mean, really, there's been a scare after the blue wave of the midterms.",
+        "start": 161.509,
+        "end": 169.206
+       },
+       "parts": {}
+      },
+      "story[2]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "Ov5jg52HqIY",
+        "channel": "Altcoin Daily",
+        "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+        "layout_eligible": true,
+        "age_h": 68.03,
+        "tier": "72h",
+        "k0": 40,
+        "k1": 40,
+        "text": "But the counternarrative is bullish because historically buying Bitcoin around the US midterm elections has been one hell of an opportunity.",
+        "start": 170.72,
+        "end": 180.927
+       },
+       "parts": {}
+      }
+     }
+    }
+   },
+   "lineup_input": {
+    "rows": 17,
+    "no_word_record": [
+     "Ov5jg52HqIY"
+    ],
+    "not_offered": {}
+   },
+   "lineup": {
+    "status": "not asked",
+    "why": "fewer than 2 on-screen channels with a sentence-ready word record"
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 1 48h | Altcoin Daily, Bitcoin Magazine, CoinTelegraph, DataDash, Marty Bent (Rabbit Hole Recap), Robert Breedlove ...",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 42,
+    "not_statement": 30,
+    "unpunctuated": 11
+   },
+   "story": {
+    "status": "accepted",
+    "why": null,
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "3dda1bb76c1eb485e2bd8c319d21397eab1ba9d278327c7721b7386a2abaffcc",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [59, 67, 89], \"claim\": 89}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7068,
+        "completion_tokens": 492
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCDo6-SUypaXlTmH6AyrYBZA",
+         "UCbLhGKVY-bJPcawebgtNfbw"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "Bitcoin dropping to $73,000 yet finding support on the 200day moving average."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "f22H17BKYRw",
+          "channel": "The Bitcoin Layer",
+          "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+          "layout_eligible": true,
+          "age_h": 0.23,
+          "tier": "48h",
+          "k0": 2,
+          "k1": 2,
+          "text": "Bitcoin touching its 200 day moving average.",
+          "start": 13.454,
+          "end": 16.544
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "f22H17BKYRw",
+          "channel": "The Bitcoin Layer",
+          "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+          "layout_eligible": true,
+          "age_h": 0.23,
+          "tier": "48h",
+          "k0": 22,
+          "k1": 22,
+          "text": "Bitcoin touched its 200 day moving average today.",
+          "start": 164.024,
+          "end": 166.416
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "R-iKNbc7-zk",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 21.44,
+          "tier": "48h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Bitcoin dropping to $73,000 yet finding support on the 200day moving average.",
+          "start": 18.16,
+          "end": 26.398
+         },
+         "parts": {}
+        }
+       }
+      },
+      "checks": {
+       "verify_support": "SUPPORTS"
+      },
+      "accepted": true
+     }
+    ],
+    "story": [
+     {
+      "video_id": "f22H17BKYRw",
+      "k0": 2,
+      "k1": 2,
+      "text": "Bitcoin touching its 200 day moving average.",
+      "start": 13.454,
+      "end": 16.544,
+      "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA"
+     },
+     {
+      "video_id": "f22H17BKYRw",
+      "k0": 22,
+      "k1": 22,
+      "text": "Bitcoin touched its 200 day moving average today.",
+      "start": 164.024,
+      "end": 166.416,
+      "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA"
+     },
+     {
+      "video_id": "R-iKNbc7-zk",
+      "k0": 5,
+      "k1": 5,
+      "text": "Bitcoin dropping to $73,000 yet finding support on the 200day moving average.",
+      "start": 18.16,
+      "end": 26.398,
+      "channel_id": "UCbLhGKVY-bJPcawebgtNfbw"
+     }
+    ],
+    "claim": {
+     "video_id": "R-iKNbc7-zk",
+     "k0": 5,
+     "k1": 5,
+     "text": "Bitcoin dropping to $73,000 yet finding support on the 200day moving average.",
+     "start": 18.16,
+     "end": 26.398,
+     "channel_id": "UCbLhGKVY-bJPcawebgtNfbw"
+    },
+    "hook": null,
+    "clips": [],
+    "eligibility": {
+     "ok": true,
+     "reasons": [],
+     "facts": {
+      "story_channels": [
+       "UCDo6-SUypaXlTmH6AyrYBZA",
+       "UCbLhGKVY-bJPcawebgtNfbw"
+      ],
+      "bitcoin_channels": 2,
+      "tier": "48h",
+      "story_layout_channels": 2,
+      "claim": "Bitcoin dropping to $73,000 yet finding support on the 200day moving average."
+     },
+     "parts": {
+      "story[0]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "f22H17BKYRw",
+        "channel": "The Bitcoin Layer",
+        "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+        "layout_eligible": true,
+        "age_h": 0.23,
+        "tier": "48h",
+        "k0": 2,
+        "k1": 2,
+        "text": "Bitcoin touching its 200 day moving average.",
+        "start": 13.454,
+        "end": 16.544
+       },
+       "parts": {}
+      },
+      "story[1]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "f22H17BKYRw",
+        "channel": "The Bitcoin Layer",
+        "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+        "layout_eligible": true,
+        "age_h": 0.23,
+        "tier": "48h",
+        "k0": 22,
+        "k1": 22,
+        "text": "Bitcoin touched its 200 day moving average today.",
+        "start": 164.024,
+        "end": 166.416
+       },
+       "parts": {}
+      },
+      "story[2]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "R-iKNbc7-zk",
+        "channel": "Altcoin Daily",
+        "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+        "layout_eligible": true,
+        "age_h": 21.44,
+        "tier": "48h",
+        "k0": 5,
+        "k1": 5,
+        "text": "Bitcoin dropping to $73,000 yet finding support on the 200day moving average.",
+        "start": 18.16,
+        "end": 26.398
+       },
+       "parts": {}
+      }
+     }
+    }
+   },
+   "lineup_input": {
+    "rows": 0,
+    "no_word_record": [
+     "f22H17BKYRw",
+     "R-iKNbc7-zk"
+    ],
+    "not_offered": {}
+   },
+   "lineup": {
+    "status": "not asked",
+    "why": "fewer than 2 on-screen channels with a sentence-ready word record"
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 2 48h | Anthony Pompliano, Bloomberg Television, Coffeezilla Extras, Fox Business, Kitco NEWS, Marty Bent (Rabbit Hole Recap) ...",
+   "rows": 160,
+   "not_offered": {
+    "not_statement": 29,
+    "too_short": 16,
+    "unpunctuated": 5
+   },
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "05b669660ab0c90ba9fb19d22ccffa569672d6cd2e2d46382e4507b65cd26a63",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [64, 78, 83, 84], \"claim\": 83}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 8576,
+        "completion_tokens": 754
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 0 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_no_bitcoin",
+         "the claim sentence does not name Bitcoin"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCl4takhOQtiyprismCPsa2Q",
+         "UCru3nlhzHrbgK21x0MdB_eg"
+        ],
+        "bitcoin_channels": 0,
+        "tier": null,
+        "story_layout_channels": 2
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "lusJ1m-J0Mc",
+          "channel": "Natalie Brunell",
+          "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+          "layout_eligible": true,
+          "age_h": 43.7,
+          "tier": "48h",
+          "k0": 53,
+          "k1": 53,
+          "text": "Three House committee chairman have requested a closed door briefing with Jensen on November 18th.",
+          "start": 254.14,
+          "end": 260.36
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bzjnh8DQ1Ew",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 21.04,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "Three House committees want Jensen Hang to explain his relationship with a woman US intelligence reportedly identified as a Chinese spy.",
+          "start": 2.71,
+          "end": 9.393
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bzjnh8DQ1Ew",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 21.04,
+          "tier": "48h",
+          "k0": 32,
+          "k1": 32,
+          "text": "The House Intelligence, Foreign Affairs, and China Committee chairman, all three of them have asked Hang to brief them together behind closed doors on November 18th.",
+          "start": 249.835,
+          "end": 260.069
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bzjnh8DQ1Ew",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 21.04,
+          "tier": "48h",
+          "k0": 33,
+          "k1": 33,
+          "text": "Congress wants Hang to explain his relationship with the alleged Chinese intelligent asset and how Nvidia protected sensitive information from foreign spies.",
+          "start": 260.079,
+          "end": 270.39
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not name Bitcoin"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "d63e4276ccd045bc910f4a2c990d0d0147d2deece04d5500f5538577f3cfe737",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 8650,
+        "completion_tokens": 234
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 3 48h | Anthony Pompliano, Bitcoin Magazine, Bloomberg Television, CNBC Television, CoinDesk, Swan Bitcoin ...",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 29,
+    "fragment": 1,
+    "not_statement": 25
+   },
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "67a6f9e8813ed4fa9577d0930e8e59bc77336d5bb33275238926c81f7d552ad3",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [4, 20, 120, 135], \"claim\": 120}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7678,
+        "completion_tokens": 849
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 0 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_no_bitcoin",
+         "the claim sentence does not name Bitcoin"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCIALMKvObZNtJ6AmdCLP7Lg",
+         "UCl4takhOQtiyprismCPsa2Q",
+         "UCrp_UI8XtuYfpiqluWLD7Lw"
+        ],
+        "bitcoin_channels": 0,
+        "tier": null,
+        "story_layout_channels": 4
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "FK3h-3J8Nl4",
+          "channel": "CNBC Television",
+          "channel_id": "UCrp_UI8XtuYfpiqluWLD7Lw",
+          "layout_eligible": true,
+          "age_h": 1.56,
+          "tier": "48h",
+          "k0": 4,
+          "k1": 4,
+          "text": "AT ANTHROPIC IS FINALLY ON ITS ROADSHOW AFTER FILING THIS SUMMER.",
+          "start": 28.565,
+          "end": 32.177
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "2rHDngzB0bs",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 2.46,
+          "tier": "48h",
+          "k0": 47,
+          "k1": 47,
+          "text": "Anthropics Roadshow looks to be off to a good start out of a planned IPO next Thursday of Friday.",
+          "start": 183.629,
+          "end": 189.137
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eqT2rFCvR0o",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 24.6,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "Anthropic launched its IPO road show today after growing revenue more than 1,200% in the first nine months of this year.",
+          "start": 2.95,
+          "end": 9.75
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "HRIjtvWogyE",
+          "channel": "Bloomberg Television",
+          "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+          "layout_eligible": true,
+          "age_h": 2.41,
+          "tier": "48h",
+          "k0": 421,
+          "k1": 421,
+          "text": "TRADERS GET COMFORT FROM COREWEAVE'S BETTER THAN EXPECTED EARNINGS PROPPING UP OTHER NEO-CLOUDS AND ADDING TO MORE CONFIDENCE IN THE AI TRADE, ADDING TO OPTIMISM AS ANTHROPIC KICKS OFF THIS ROADSHOW REPORTEDLY EYEING AN INCREASE IN ITS TARGET VALUATION, POSSIBLY TO ONE POINT $5 TRILLION FROM 1.4 TRILLION DOLLARS.",
+          "start": 2937.034,
+          "end": 2958.322
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not name Bitcoin"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "b0c78d5e67fdb48bdcb764e72791af6c603829503244c4d0ba204ba3f2a6f3cd",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7752,
+        "completion_tokens": 225
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 4 48h | Bitcoin Magazine, CoinTelegraph, Natalie Brunell, Stacker News, What Bitcoin Did, Yahoo Finance",
+   "rows": 151,
+   "not_offered": {
+    "not_statement": 24,
+    "too_short": 19,
+    "unpunctuated": 2
+   },
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "b1e1f1b23b51ed401ba709150cd3196c4dde33ebb9fea075e98ced683b493dae",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [51, 52, 53, 87, 90, 91, 93], \"claim\": 93}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6322,
+        "completion_tokens": 674
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'there': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCtvg5cXLY_tHDJeBoRySBtg"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 190,
+          "k1": 190,
+          "text": ">> I can tell you the president's interested in it.",
+          "start": 1078.96,
+          "end": 1081.288
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 191,
+          "k1": 191,
+          "text": "Um, I can tell you that there's been a lot of discussion about how we might be able to do that.",
+          "start": 1081.354,
+          "end": 1086.63
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 192,
+          "k1": 192,
+          "text": "Um, uh, different ideas that, um, again, you know, it's it's of questionable legality whether or not, you know, there could be outright open market purchases.",
+          "start": 1086.64,
+          "end": 1096.31
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 115,
+          "k1": 115,
+          "text": "And it has been reported by uh ex White House advisor Patrick Whit that Trump remains interested in buying Bitcoin for US Strategic Reserve, but legal and custody issues stall process progress.",
+          "start": 542.29,
+          "end": 556.853
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 119,
+          "k1": 119,
+          "text": "And Patrick Wit just bringing up the fact that we would still love to add more Bitcoin for the strategic Bitcoin reserve but sort of poking uh fund saying we would love to do it but we have legal and custody issues and we need a way to do it in a budget neutral manner from Congress.",
+          "start": 570.218,
+          "end": 585.129
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 120,
+          "k1": 120,
+          "text": "So kind of uh just uh telling Congress to get their act together because Trump does in fact want the strategic Bitcoin reserve.",
+          "start": 585.203,
+          "end": 592.128
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 122,
+          "k1": 122,
+          "text": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+          "start": 598.377,
+          "end": 602.717
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "83f27bf69776322db883afb19dc339cd837d52b401ded9768fc2a6d9e00c97c3",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [46, 51, 52, 53, 87, 90, 91, 93], \"claim\": 93}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6420,
+        "completion_tokens": 863
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'there': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCtvg5cXLY_tHDJeBoRySBtg"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "72h",
+        "story_layout_channels": 2,
+        "claim": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 116,
+          "k1": 116,
+          "text": "And so with the strategic Bitcoin reserve now, um when Trump came in, the things that we were sort of told was that there was going to be an audit of the entire Bitcoin held by government agencies and then the idea was that that Bitcoin was then never going to be sold.",
+          "start": 682.568,
+          "end": 696.091
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 190,
+          "k1": 190,
+          "text": ">> I can tell you the president's interested in it.",
+          "start": 1078.96,
+          "end": 1081.288
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 191,
+          "k1": 191,
+          "text": "Um, I can tell you that there's been a lot of discussion about how we might be able to do that.",
+          "start": 1081.354,
+          "end": 1086.63
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 192,
+          "k1": 192,
+          "text": "Um, uh, different ideas that, um, again, you know, it's it's of questionable legality whether or not, you know, there could be outright open market purchases.",
+          "start": 1086.64,
+          "end": 1096.31
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 115,
+          "k1": 115,
+          "text": "And it has been reported by uh ex White House advisor Patrick Whit that Trump remains interested in buying Bitcoin for US Strategic Reserve, but legal and custody issues stall process progress.",
+          "start": 542.29,
+          "end": 556.853
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 119,
+          "k1": 119,
+          "text": "And Patrick Wit just bringing up the fact that we would still love to add more Bitcoin for the strategic Bitcoin reserve but sort of poking uh fund saying we would love to do it but we have legal and custody issues and we need a way to do it in a budget neutral manner from Congress.",
+          "start": 570.218,
+          "end": 585.129
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 120,
+          "k1": 120,
+          "text": "So kind of uh just uh telling Congress to get their act together because Trump does in fact want the strategic Bitcoin reserve.",
+          "start": 585.203,
+          "end": 592.128
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 122,
+          "k1": 122,
+          "text": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+          "start": 598.377,
+          "end": 602.717
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "870268c113abbb87900c0154c97ad2c0f30322ed6fde4f0df382adad657a97d1",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [51, 52, 53, 87, 90, 91, 93], \"claim\": 93}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6398,
+        "completion_tokens": 530
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'there': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCtvg5cXLY_tHDJeBoRySBtg"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 2,
+        "claim": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 190,
+          "k1": 190,
+          "text": ">> I can tell you the president's interested in it.",
+          "start": 1078.96,
+          "end": 1081.288
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 191,
+          "k1": 191,
+          "text": "Um, I can tell you that there's been a lot of discussion about how we might be able to do that.",
+          "start": 1081.354,
+          "end": 1086.63
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "c1JGheQBPH4",
+          "channel": "What Bitcoin Did",
+          "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+          "layout_eligible": true,
+          "age_h": 50.05,
+          "tier": "72h",
+          "k0": 192,
+          "k1": 192,
+          "text": "Um, uh, different ideas that, um, again, you know, it's it's of questionable legality whether or not, you know, there could be outright open market purchases.",
+          "start": 1086.64,
+          "end": 1096.31
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 115,
+          "k1": 115,
+          "text": "And it has been reported by uh ex White House advisor Patrick Whit that Trump remains interested in buying Bitcoin for US Strategic Reserve, but legal and custody issues stall process progress.",
+          "start": 542.29,
+          "end": 556.853
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 119,
+          "k1": 119,
+          "text": "And Patrick Wit just bringing up the fact that we would still love to add more Bitcoin for the strategic Bitcoin reserve but sort of poking uh fund saying we would love to do it but we have legal and custody issues and we need a way to do it in a budget neutral manner from Congress.",
+          "start": 570.218,
+          "end": 585.129
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 120,
+          "k1": 120,
+          "text": "So kind of uh just uh telling Congress to get their act together because Trump does in fact want the strategic Bitcoin reserve.",
+          "start": 585.203,
+          "end": 592.128
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "bk40WI1XgV0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 1.05,
+          "tier": "48h",
+          "k0": 122,
+          "k1": 122,
+          "text": "There's nothing being announced here as far as plans for United States government to actually buy Bitcoin.",
+          "start": 598.377,
+          "end": 602.717
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 5 48h | Bankless, Bitcoin Magazine, DataDash, Marty Bent (Rabbit Hole Recap), Simply Bitcoin, Stephan Livera",
+   "rows": 90,
+   "not_offered": {
+    "unpunctuated": 6,
+    "not_statement": 16,
+    "too_short": 6
+   },
+   "story": {
+    "status": "accepted",
+    "why": null,
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "74e8bcd6dddbd7fb5d9d10581d1acc509ceca5c5b003397184e453222511efc3",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [20, 36, 45, 49], \"claim\": 36}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4543,
+        "completion_tokens": 1031
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 0 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_no_bitcoin",
+         "the claim sentence does not name Bitcoin"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCDqPIrJSzHyyJpmH6wnxVxA"
+        ],
+        "bitcoin_channels": 0,
+        "tier": null,
+        "story_layout_channels": 2
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "CM3oXmVoxWo",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 7.54,
+          "tier": "48h",
+          "k0": 710,
+          "k1": 710,
+          "text": "And I think that that's like a very interesting conversation to have where it's like the AI bubble popping to some degree in actually some ways is kind of accommodative of crypto.",
+          "start": 3466.25,
+          "end": 3476.208
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "CM3oXmVoxWo",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 7.54,
+          "tier": "48h",
+          "k0": 727,
+          "k1": 727,
+          "text": "Like people need to realize that it's like, yeah, like, you know, the AI bubble might be popping to some degree and they're coming down from all time highs.",
+          "start": 3551.264,
+          "end": 3557.627
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 0.99,
+          "tier": "48h",
+          "k0": 88,
+          "k1": 88,
+          "text": "Obviously, right now, there's a lot of excitement around AI and people are trying to invest in AI, although right now maybe the price is down a little bit.",
+          "start": 587.611,
+          "end": 595.823
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Sjb6lUiL0m4",
+          "channel": "Stephan Livera",
+          "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+          "layout_eligible": true,
+          "age_h": 0.99,
+          "tier": "48h",
+          "k0": 156,
+          "k1": 156,
+          "text": "Where AI stocks did look great for a long time because and and now that maybe, you know, price performance over the last few months has not been too good for the AI stocks.",
+          "start": 1052.048,
+          "end": 1062.721
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not name Bitcoin"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "69ad11003fd5a39f9914c630fac0fe96230001dc847801ccb0f17d83093eb50e",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [37, 75, 81], \"claim\": 81}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4617,
+        "completion_tokens": 727
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "Bitcoin not being bit up and allocated to the way that people thought that they would being down about 13% this year."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "CM3oXmVoxWo",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 7.54,
+          "tier": "48h",
+          "k0": 728,
+          "k1": 728,
+          "text": "But, you know, Bitcoin's trading well, well, well below.",
+          "start": 3557.668,
+          "end": 3559.952
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "DcUbBkyeh9M",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 20.13,
+          "tier": "48h",
+          "k0": 110,
+          "k1": 110,
+          "text": "Everything is near its all-time high except Bitcoin.",
+          "start": 440.0,
+          "end": 442.762
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "DcUbBkyeh9M",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 20.13,
+          "tier": "48h",
+          "k0": 127,
+          "k1": 127,
+          "text": "Bitcoin not being bit up and allocated to the way that people thought that they would being down about 13% this year.",
+          "start": 511.767,
+          "end": 517.284
+         },
+         "parts": {}
+        }
+       }
+      },
+      "checks": {
+       "verify_support": "SUPPORTS"
+      },
+      "accepted": true
+     }
+    ],
+    "story": [
+     {
+      "video_id": "CM3oXmVoxWo",
+      "k0": 728,
+      "k1": 728,
+      "text": "But, you know, Bitcoin's trading well, well, well below.",
+      "start": 3557.668,
+      "end": 3559.952,
+      "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA"
+     },
+     {
+      "video_id": "DcUbBkyeh9M",
+      "k0": 110,
+      "k1": 110,
+      "text": "Everything is near its all-time high except Bitcoin.",
+      "start": 440.0,
+      "end": 442.762,
+      "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+     },
+     {
+      "video_id": "DcUbBkyeh9M",
+      "k0": 127,
+      "k1": 127,
+      "text": "Bitcoin not being bit up and allocated to the way that people thought that they would being down about 13% this year.",
+      "start": 511.767,
+      "end": 517.284,
+      "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+     }
+    ],
+    "claim": {
+     "video_id": "DcUbBkyeh9M",
+     "k0": 127,
+     "k1": 127,
+     "text": "Bitcoin not being bit up and allocated to the way that people thought that they would being down about 13% this year.",
+     "start": 511.767,
+     "end": 517.284,
+     "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+    },
+    "hook": null,
+    "clips": [],
+    "eligibility": {
+     "ok": true,
+     "reasons": [],
+     "facts": {
+      "story_channels": [
+       "UCAl9Ld79qaZxp9JzEOwd3aA",
+       "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+      ],
+      "bitcoin_channels": 2,
+      "tier": "48h",
+      "story_layout_channels": 2,
+      "claim": "Bitcoin not being bit up and allocated to the way that people thought that they would being down about 13% this year."
+     },
+     "parts": {
+      "story[0]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "CM3oXmVoxWo",
+        "channel": "Bankless",
+        "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+        "layout_eligible": true,
+        "age_h": 7.54,
+        "tier": "48h",
+        "k0": 728,
+        "k1": 728,
+        "text": "But, you know, Bitcoin's trading well, well, well below.",
+        "start": 3557.668,
+        "end": 3559.952
+       },
+       "parts": {}
+      },
+      "story[1]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "DcUbBkyeh9M",
+        "channel": "Simply Bitcoin",
+        "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+        "layout_eligible": true,
+        "age_h": 20.13,
+        "tier": "48h",
+        "k0": 110,
+        "k1": 110,
+        "text": "Everything is near its all-time high except Bitcoin.",
+        "start": 440.0,
+        "end": 442.762
+       },
+       "parts": {}
+      },
+      "story[2]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "DcUbBkyeh9M",
+        "channel": "Simply Bitcoin",
+        "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+        "layout_eligible": true,
+        "age_h": 20.13,
+        "tier": "48h",
+        "k0": 127,
+        "k1": 127,
+        "text": "Bitcoin not being bit up and allocated to the way that people thought that they would being down about 13% this year.",
+        "start": 511.767,
+        "end": 517.284
+       },
+       "parts": {}
+      }
+     }
+    }
+   },
+   "lineup_input": {
+    "rows": 0,
+    "no_word_record": [
+     "CM3oXmVoxWo",
+     "DcUbBkyeh9M"
+    ],
+    "not_offered": {}
+   },
+   "lineup": {
+    "status": "not asked",
+    "why": "fewer than 2 on-screen channels with a sentence-ready word record"
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 6 48h | Anthony Pompliano, BTC Sessions, Natalie Brunell, TFTC, What Bitcoin Did",
+   "rows": 69,
+   "not_offered": {
+    "too_short": 16,
+    "unpunctuated": 1,
+    "not_statement": 2
+   },
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "fd12f324f2a271942ba9635379021a16a816daef14b06b436e72641e6540a122",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2889,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 7 48h | Anthony Pompliano, Natalie Brunell, Simply Bitcoin, TFTC, What Bitcoin Did",
+   "rows": 71,
+   "not_offered": {
+    "too_short": 12,
+    "not_statement": 4
+   },
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "ad25eabb690505a1fee832392c0686a07fb9482671e81c18b78e4aec00e4efa8",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2845,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  }
+ ],
+ "pools": [
+  {
+   "pool": "channel_clusters_48h",
+   "evaluated": true,
+   "groups": 41,
+   "stopped": "story-call budget 8 spent"
+  },
+  {
+   "pool": "channel_clusters_72h",
+   "evaluated": true,
+   "groups": 12,
+   "stopped": "story-call budget 8 spent"
+  }
+ ],
+ "story_calls": 8,
+ "lineup_calls": 0,
+ "seconds": 124.7,
+ "models": {
+  "generator": "anthropic:claude-fable-5-2@medium",
+  "judge (ModelChecks)": "xai:grok-4.20-0309-reasoning",
+  "openai_probe": "HTTP 400 invalid_request_error"
+ }
+}

@@ -1,0 +1,45 @@
+## YOUR REVIEW TASK: CONSTRAINED SELECTION BY SENTENCE ID + ONE ELIGIBILITY PREDICATE (Python pipeline, no UI, no DB)
+
+Context: Protocol Pulse cuts a 60-90 s Bitcoin news video out of other channels' own clips (a hook + 2-3 clips),
+nothing is published without a human. Four automatic runs held because the editorial model WROTE text (a cluster
+headline, an event, an evidence quote) that the pipeline then tried to find back in transcripts (HTML entities, split
+Whisper tokens, re-read claims). The new modules replace that: pipeline/select_by_id.py shows the model NUMBERED source
+sentences and accepts ONLY ids (a story = ids from >= 2 channels + a claim id; a line-up = a hook range + 2-3 clip
+ranges of consecutive whole sentences of one video); any other reply is rejected, never repaired; the claim and every
+segment are the source sentences verbatim. pipeline/eligibility.py is ONE pure predicate (no model, no I/O) holding
+every eligibility rule that was spread over editorial_select / stand_alone / sentence_law / select_passages /
+transcript_ingest / edl_rules (where two disagreed it takes the stricter). The diff also holds the tests, the proof
+driver, a smoke test that applies the wiring patch to a temp copy, and docs (the design with the rule inventory, the
+exact wiring patch for the integrator).
+
+The only file is the exact diff under review. Review that diff, nothing else. Only state what you can verify from the
+diff shown. If uncertain, say so. Do not guess. Cite diff lines (file + the code you quote).
+
+### Q1: FAIL-OPEN
+Can any reply that is not exactly ids (prose, code fences, a string or float or bool id, an id not in the input, an
+extra key such as a restated claim, a duplicate key, NaN, an empty reply) ever be ACCEPTED? Can a range that crosses
+two videos or skips a sentence be accepted? Can a one-channel story or line-up be accepted? Can an exception, a model
+error or a missing measurement produce an accepted story / line-up instead of no selection?
+
+### Q2: ELIGIBILITY FAITHFULNESS
+For each rule in eligibility.py: does it match the cited source rule (file:line in the comments / design doc), or is
+it looser? A rule that became LOOSER than today's without saying so is a defect. Check especially: freshness (missing,
+future, naive times), partner channel (registry / enabled), layout (has_chyron), openers (hook / clip), Bitcoin
+naming, sentence count, durations, the hook's lead, D4 adjacency (backward reference, 8 s, cap 2), the 5-token
+statement floor, overlap / per-video / per-channel / channel-diversity rules.
+
+### Q3: VERBATIM GUARANTEE
+Is there any path where text the model wrote can reach the claim, a segment's text, passages.json or the story ledger?
+
+### Q4: THE WIRING PATCH (inside pp-selectid_REQUESTS.md)
+Does the patch keep DEC-13's pool order and laziness, the free Bitcoin screen before any model call, the word pass
+before the line-up call, the backtest's frozen-input hooks, and fail closed (NoProducibleStory) when nothing is
+selected? Any name it uses that is undefined in the patched function?
+
+### Q5: TESTS
+Do the must-fail tests fail for the right reason, and the must-pass for the right reason? Any assertion that could
+pass vacuously?
+
+### OUTPUT
+List every defect as: SEVERITY (CRITICAL / HIGH / MEDIUM / LOW) | file + quoted code | issue | concrete failing
+scenario | minimal fix. At most 8 defects, most severe first. Then: SCORE: N/100 and VERDICT: READY or NOT READY.

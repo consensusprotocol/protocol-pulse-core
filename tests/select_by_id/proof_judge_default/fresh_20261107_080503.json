@@ -1,0 +1,2535 @@
+{
+ "run": "fresh_20261107_080503",
+ "now": "2026-11-07T08:05:05.575245+00:00",
+ "result": {
+  "lineup": false
+ },
+ "universe": {
+  "videos": 102,
+  "records_missing": [],
+  "methods": {
+   "whisper": 3,
+   "whisper_words": 15,
+   "yt_auto": 56,
+   "yt_manual": 28
+  }
+ },
+ "clusters": {
+  "recorded": false,
+  "recomputed_s": 20.5,
+  "chunks": 4868,
+  "no_vectors": [],
+  "groups": 309,
+  "screened": {
+   "48h": 31,
+   "72h": 28
+  }
+ },
+ "wire_pool": "not run in this CPU replay: wire retrieval needs the GPU0 embedder (DEC-13: wire only after clusters)",
+ "groups": [
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 0 48h | Altcoin Daily, BTC Sessions, Bankless, Bitcoin Magazine, Bitcoin Mechanic, Blockware Solutions ...",
+   "rows": 160,
+   "not_offered": {
+    "not_statement": 39,
+    "too_short": 93,
+    "unpunctuated": 1,
+    "fragment": 1
+   },
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "5e8ff7b5c186c6c90325d64e9978c920997899eb96839b8a2eb3174b74fbdd03",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [20, 50, 51, 53, 67, 138, 139], \"claim\": 50}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6356,
+        "completion_tokens": 611
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "opens on the continuation word 'then'"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCCatR7nWbYrkVXdxXb4cGXw",
+         "UCJgHxpqfhWEEjYH9cLXqhIQ",
+         "UCqK_GSMbpiV8spgD3ZGloSw",
+         "UCxIU1RFIdDpvA8VOITswQ1A"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 4,
+        "claim": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "OFHhbjowhQc",
+          "channel": "Digital Asset News",
+          "channel_id": "UCJgHxpqfhWEEjYH9cLXqhIQ",
+          "layout_eligible": true,
+          "age_h": 58.24,
+          "tier": "72h",
+          "k0": 14,
+          "k1": 14,
+          "text": "We went from a low within 24 hours of 757 all the way up to over 80,000 almost 81,000.",
+          "start": 75.657,
+          "end": 83.209
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 44.9,
+          "tier": "48h",
+          "k0": 35,
+          "k1": 35,
+          "text": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy.",
+          "start": 234.486,
+          "end": 240.747
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 44.9,
+          "tier": "48h",
+          "k0": 36,
+          "k1": 36,
+          "text": "A big part of that move was a classic\u00a0\u00a0 short squeeze.",
+          "start": 240.837,
+          "end": 246.907
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 44.9,
+          "tier": "48h",
+          "k0": 38,
+          "k1": 38,
+          "text": "According to Coin Glass\u00a0 data, around $950 million in positions were\u00a0\u00a0 liquidated, more than $560 million of it from\u00a0 shorts.",
+          "start": 254.374,
+          "end": 258.731
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "30MJdAwd0F8",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 37.56,
+          "tier": "48h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Uh we saw a little pop from about 75,600 up towards 81K.",
+          "start": 10.539,
+          "end": 15.566
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "-meUTTtD1Rw",
+          "channel": "Scott Melker",
+          "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+          "layout_eligible": true,
+          "age_h": 41.33,
+          "tier": "48h",
+          "k0": 341,
+          "k1": 341,
+          "text": "I think right now it's back below as Democratic spark sweep sparks short squeeze.",
+          "start": 1893.656,
+          "end": 1899.896
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "-meUTTtD1Rw",
+          "channel": "Scott Melker",
+          "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+          "layout_eligible": true,
+          "age_h": 41.33,
+          "tier": "48h",
+          "k0": 342,
+          "k1": 342,
+          "text": "You see right there, 215 million in Bitcoin shorts liquidated in just one hour.",
+          "start": 1899.999,
+          "end": 1904.47
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "a991d0d4d82da67483834dab07ccb971a8803ec9fda7f8252cfd62d635e30f17",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [25, 27, 29, 65, 66, 68, 121], \"claim\": 25}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6432,
+        "completion_tokens": 1262
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCCatR7nWbYrkVXdxXb4cGXw",
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCJgHxpqfhWEEjYH9cLXqhIQ"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 3,
+        "claim": "Now, for me, the story about Bitcoin, which is what you're obviously here for, is that it's still trading at prices where it had already bottomed last week."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 14.07,
+          "tier": "48h",
+          "k0": 83,
+          "k1": 83,
+          "text": "Now, for me, the story about Bitcoin, which is what you're obviously here for, is that it's still trading at prices where it had already bottomed last week.",
+          "start": 375.07,
+          "end": 383.69
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 14.07,
+          "tier": "48h",
+          "k0": 85,
+          "k1": 85,
+          "text": "But it's important to me that Bitcoin just a couple days ago before the election was at 75, 76, you know.",
+          "start": 392.57,
+          "end": 397.67
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 14.07,
+          "tier": "48h",
+          "k0": 87,
+          "k1": 87,
+          "text": "It had that massive move on the short squeeze, and now it's back to those prices, while the rest of markets are actually on fire and performing far worse.",
+          "start": 400.27,
+          "end": 406.95
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "30MJdAwd0F8",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 37.56,
+          "tier": "48h",
+          "k0": 3,
+          "k1": 3,
+          "text": "Taking a mighty plunge here.",
+          "start": 4.681,
+          "end": 6.55
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "30MJdAwd0F8",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 37.56,
+          "tier": "48h",
+          "k0": 4,
+          "k1": 4,
+          "text": "Basically erasing all of the gains that we saw uh earlier this week.",
+          "start": 6.56,
+          "end": 10.465
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "30MJdAwd0F8",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 37.56,
+          "tier": "48h",
+          "k0": 6,
+          "k1": 6,
+          "text": "And now we are back down uh and potentially heading a little bit lower here.",
+          "start": 15.644,
+          "end": 19.636
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "yysArgDrtvQ",
+          "channel": "Digital Asset News",
+          "channel_id": "UCJgHxpqfhWEEjYH9cLXqhIQ",
+          "layout_eligible": true,
+          "age_h": 12.5,
+          "tier": "48h",
+          "k0": 6,
+          "k1": 6,
+          "text": "Now, we had quite a drop-off yesterday, and it was... I mean, it was a drop-off.",
+          "start": 36.548,
+          "end": 40.74
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "46bf879ee23dfa311c22b38903b5503e38949c216cdb3c417f6faeb1902afcda",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [50, 51, 53, 20, 138, 139, 67, 29, 27], \"claim\": 50}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6414,
+        "completion_tokens": 40
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "opens on the continuation word 'then'"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCCatR7nWbYrkVXdxXb4cGXw",
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCJgHxpqfhWEEjYH9cLXqhIQ",
+         "UCqK_GSMbpiV8spgD3ZGloSw",
+         "UCxIU1RFIdDpvA8VOITswQ1A"
+        ],
+        "bitcoin_channels": 3,
+        "tier": "48h",
+        "story_layout_channels": 5,
+        "claim": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 44.9,
+          "tier": "48h",
+          "k0": 35,
+          "k1": 35,
+          "text": "Then, Bitcoin ripped to\u00a0 about $81,100, a 7% pump in the space of 12 hours.\u00a0\u00a0 Now, this wasn't necessarily just people rushing\u00a0 in to buy.",
+          "start": 234.486,
+          "end": 240.747
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 44.9,
+          "tier": "48h",
+          "k0": 36,
+          "k1": 36,
+          "text": "A big part of that move was a classic\u00a0\u00a0 short squeeze.",
+          "start": 240.837,
+          "end": 246.907
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 44.9,
+          "tier": "48h",
+          "k0": 38,
+          "k1": 38,
+          "text": "According to Coin Glass\u00a0 data, around $950 million in positions were\u00a0\u00a0 liquidated, more than $560 million of it from\u00a0 shorts.",
+          "start": 254.374,
+          "end": 258.731
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "OFHhbjowhQc",
+          "channel": "Digital Asset News",
+          "channel_id": "UCJgHxpqfhWEEjYH9cLXqhIQ",
+          "layout_eligible": true,
+          "age_h": 58.24,
+          "tier": "72h",
+          "k0": 14,
+          "k1": 14,
+          "text": "We went from a low within 24 hours of 757 all the way up to over 80,000 almost 81,000.",
+          "start": 75.657,
+          "end": 83.209
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "-meUTTtD1Rw",
+          "channel": "Scott Melker",
+          "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+          "layout_eligible": true,
+          "age_h": 41.33,
+          "tier": "48h",
+          "k0": 341,
+          "k1": 341,
+          "text": "I think right now it's back below as Democratic spark sweep sparks short squeeze.",
+          "start": 1893.656,
+          "end": 1899.896
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "-meUTTtD1Rw",
+          "channel": "Scott Melker",
+          "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+          "layout_eligible": true,
+          "age_h": 41.33,
+          "tier": "48h",
+          "k0": 342,
+          "k1": 342,
+          "text": "You see right there, 215 million in Bitcoin shorts liquidated in just one hour.",
+          "start": 1899.999,
+          "end": 1904.47
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "30MJdAwd0F8",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 37.56,
+          "tier": "48h",
+          "k0": 5,
+          "k1": 5,
+          "text": "Uh we saw a little pop from about 75,600 up towards 81K.",
+          "start": 10.539,
+          "end": 15.566
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 14.07,
+          "tier": "48h",
+          "k0": 87,
+          "k1": 87,
+          "text": "It had that massive move on the short squeeze, and now it's back to those prices, while the rest of markets are actually on fire and performing far worse.",
+          "start": 400.27,
+          "end": 406.95
+         },
+         "parts": {}
+        },
+        "story[8]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kK4b6PFhLz4",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 14.07,
+          "tier": "48h",
+          "k0": 85,
+          "k1": 85,
+          "text": "But it's important to me that Bitcoin just a couple days ago before the election was at 75, 76, you know.",
+          "start": 392.57,
+          "end": 397.67
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 1 48h | Altcoin Daily, BTC Sessions, Bankless, Bitcoin Magazine, Coin Bureau, CoinDesk ...",
+   "rows": 142,
+   "not_offered": {
+    "not_statement": 22,
+    "too_short": 26
+   },
+   "story": {
+    "status": "accepted",
+    "why": null,
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "95e3b1ec13f62b1ac7ff4f45c006b09f84bf67e1164cf4c8445119be2337a9bb",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [2, 8, 38, 45, 46, 61, 67, 68, 77, 82, 125], \"claim\": 2}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 5606,
+        "completion_tokens": 544
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCAl9Ld79qaZxp9JzEOwd3aA",
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UChzLnWVsl3puKQwc5PoO6Zg",
+         "UCl4takhOQtiyprismCPsa2Q",
+         "UCqK_GSMbpiV8spgD3ZGloSw",
+         "UCtOV5M-T3GcsJAq8QKaf0lg",
+         "UCxIU1RFIdDpvA8VOITswQ1A"
+        ],
+        "bitcoin_channels": 5,
+        "tier": "48h",
+        "story_layout_channels": 6,
+        "claim": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 34.08,
+          "tier": "48h",
+          "k0": 1,
+          "k1": 1,
+          "text": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+          "start": 3.62,
+          "end": 9.3
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "l987bgGZjS0",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 34.08,
+          "tier": "48h",
+          "k0": 15,
+          "k1": 15,
+          "text": "On Tuesday night, Democrats took the House and the Senate.",
+          "start": 57.24,
+          "end": 59.68
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "F4xicDR_tIs",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 41.08,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "[snorts] Democrats have won control of the House and [music] the Senate in what news coverage is calling a blue tsunami.",
+          "start": 1.91,
+          "end": 9.969
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "spZdfbq_6eA",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 51.07,
+          "tier": "72h",
+          "k0": 3,
+          "k1": 3,
+          "text": "Well, a blue wave is indeed headed for Washington, D.C. as the Democrats take control of both chambers of Congress as broadly expected.",
+          "start": 802.24,
+          "end": 811.16
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "spZdfbq_6eA",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 51.07,
+          "tier": "72h",
+          "k0": 4,
+          "k1": 4,
+          "text": "Now, the markets saw a small decline last night on the news, but rebounding this morning and most notably Bitcoin with a $4,000 swing since about 9 o 'clock Eastern time last night.",
+          "start": 811.32,
+          "end": 822.74
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "spZdfbq_6eA",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 51.07,
+          "tier": "72h",
+          "k0": 79,
+          "k1": 79,
+          "text": "Democrats now hold the majority in both chambers of Congress.",
+          "start": 1181.23,
+          "end": 1184.17
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "9La50F_lmd0",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 57.15,
+          "tier": "72h",
+          "k0": 0,
+          "k1": 0,
+          "text": "Democrats swept the midterms and Bitcoin didn't flitch.",
+          "start": 18.64,
+          "end": 22.44
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "9La50F_lmd0",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 57.15,
+          "tier": "72h",
+          "k0": 1,
+          "k1": 1,
+          "text": "In fact, it ripped over 80K, wiping out $320 million in shorts in 30 minutes.",
+          "start": 22.76,
+          "end": 30.98
+         },
+         "parts": {}
+        },
+        "story[8]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "T8VdyLZcBas",
+          "channel": "Scott Melker",
+          "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+          "layout_eligible": true,
+          "age_h": 65.17,
+          "tier": "72h",
+          "k0": 0,
+          "k1": 0,
+          "text": "Bitcoin crashed and immediately recovered after the election results came in.",
+          "start": 3.55,
+          "end": 6.326
+         },
+         "parts": {}
+        },
+        "story[9]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "n17v727G7FI",
+          "channel": "Coin Bureau",
+          "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+          "layout_eligible": true,
+          "age_h": 44.9,
+          "tier": "48h",
+          "k0": 7,
+          "k1": 7,
+          "text": "Then it\u00a0 dropped to 75K as a blue wave became apparent,\u00a0\u00a0 but just 12 hours later, it was trading above\u00a0 $81,000.",
+          "start": 34.939,
+          "end": 37.497
+         },
+         "parts": {}
+        },
+        "story[10]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "Zng5DkMO8e8",
+          "channel": "Bankless",
+          "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+          "layout_eligible": true,
+          "age_h": 20.58,
+          "tier": "48h",
+          "k0": 110,
+          "k1": 110,
+          "text": "Yeah, post midterms Bitcoin jumped up to above 80,000.",
+          "start": 484.987,
+          "end": 488.451
+         },
+         "parts": {}
+        }
+       }
+      },
+      "checks": {
+       "verify_support": "SUPPORTS"
+      },
+      "accepted": true
+     }
+    ],
+    "story": [
+     {
+      "video_id": "l987bgGZjS0",
+      "k0": 1,
+      "k1": 1,
+      "text": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+      "start": 3.62,
+      "end": 9.3,
+      "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+     },
+     {
+      "video_id": "l987bgGZjS0",
+      "k0": 15,
+      "k1": 15,
+      "text": "On Tuesday night, Democrats took the House and the Senate.",
+      "start": 57.24,
+      "end": 59.68,
+      "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+     },
+     {
+      "video_id": "F4xicDR_tIs",
+      "k0": 0,
+      "k1": 0,
+      "text": "[snorts] Democrats have won control of the House and [music] the Senate in what news coverage is calling a blue tsunami.",
+      "start": 1.91,
+      "end": 9.969,
+      "channel_id": "UCl4takhOQtiyprismCPsa2Q"
+     },
+     {
+      "video_id": "spZdfbq_6eA",
+      "k0": 3,
+      "k1": 3,
+      "text": "Well, a blue wave is indeed headed for Washington, D.C. as the Democrats take control of both chambers of Congress as broadly expected.",
+      "start": 802.24,
+      "end": 811.16,
+      "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg"
+     },
+     {
+      "video_id": "spZdfbq_6eA",
+      "k0": 4,
+      "k1": 4,
+      "text": "Now, the markets saw a small decline last night on the news, but rebounding this morning and most notably Bitcoin with a $4,000 swing since about 9 o 'clock Eastern time last night.",
+      "start": 811.32,
+      "end": 822.74,
+      "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg"
+     },
+     {
+      "video_id": "spZdfbq_6eA",
+      "k0": 79,
+      "k1": 79,
+      "text": "Democrats now hold the majority in both chambers of Congress.",
+      "start": 1181.23,
+      "end": 1184.17,
+      "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg"
+     },
+     {
+      "video_id": "9La50F_lmd0",
+      "k0": 0,
+      "k1": 0,
+      "text": "Democrats swept the midterms and Bitcoin didn't flitch.",
+      "start": 18.64,
+      "end": 22.44,
+      "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg"
+     },
+     {
+      "video_id": "9La50F_lmd0",
+      "k0": 1,
+      "k1": 1,
+      "text": "In fact, it ripped over 80K, wiping out $320 million in shorts in 30 minutes.",
+      "start": 22.76,
+      "end": 30.98,
+      "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg"
+     },
+     {
+      "video_id": "T8VdyLZcBas",
+      "k0": 0,
+      "k1": 0,
+      "text": "Bitcoin crashed and immediately recovered after the election results came in.",
+      "start": 3.55,
+      "end": 6.326,
+      "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A"
+     },
+     {
+      "video_id": "n17v727G7FI",
+      "k0": 7,
+      "k1": 7,
+      "text": "Then it\u00a0 dropped to 75K as a blue wave became apparent,\u00a0\u00a0 but just 12 hours later, it was trading above\u00a0 $81,000.",
+      "start": 34.939,
+      "end": 37.497,
+      "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw"
+     },
+     {
+      "video_id": "Zng5DkMO8e8",
+      "k0": 110,
+      "k1": 110,
+      "text": "Yeah, post midterms Bitcoin jumped up to above 80,000.",
+      "start": 484.987,
+      "end": 488.451,
+      "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA"
+     }
+    ],
+    "claim": {
+     "video_id": "l987bgGZjS0",
+     "k0": 1,
+     "k1": 1,
+     "text": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+     "start": 3.62,
+     "end": 9.3,
+     "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ"
+    },
+    "hook": null,
+    "clips": [],
+    "eligibility": {
+     "ok": true,
+     "reasons": [],
+     "facts": {
+      "story_channels": [
+       "UCAl9Ld79qaZxp9JzEOwd3aA",
+       "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+       "UChzLnWVsl3puKQwc5PoO6Zg",
+       "UCl4takhOQtiyprismCPsa2Q",
+       "UCqK_GSMbpiV8spgD3ZGloSw",
+       "UCtOV5M-T3GcsJAq8QKaf0lg",
+       "UCxIU1RFIdDpvA8VOITswQ1A"
+      ],
+      "bitcoin_channels": 5,
+      "tier": "48h",
+      "story_layout_channels": 6,
+      "claim": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000."
+     },
+     "parts": {
+      "story[0]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "l987bgGZjS0",
+        "channel": "Simply Bitcoin",
+        "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+        "layout_eligible": true,
+        "age_h": 34.08,
+        "tier": "48h",
+        "k0": 1,
+        "k1": 1,
+        "text": "Democrats took Congress, and on Wednesday stocks had their best day in three months, while Bitcoin ripped back above 80,000.",
+        "start": 3.62,
+        "end": 9.3
+       },
+       "parts": {}
+      },
+      "story[1]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "l987bgGZjS0",
+        "channel": "Simply Bitcoin",
+        "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+        "layout_eligible": true,
+        "age_h": 34.08,
+        "tier": "48h",
+        "k0": 15,
+        "k1": 15,
+        "text": "On Tuesday night, Democrats took the House and the Senate.",
+        "start": 57.24,
+        "end": 59.68
+       },
+       "parts": {}
+      },
+      "story[2]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "F4xicDR_tIs",
+        "channel": "Swan Bitcoin",
+        "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+        "layout_eligible": true,
+        "age_h": 41.08,
+        "tier": "48h",
+        "k0": 0,
+        "k1": 0,
+        "text": "[snorts] Democrats have won control of the House and [music] the Senate in what news coverage is calling a blue tsunami.",
+        "start": 1.91,
+        "end": 9.969
+       },
+       "parts": {}
+      },
+      "story[3]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "spZdfbq_6eA",
+        "channel": "Bitcoin Magazine",
+        "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+        "layout_eligible": false,
+        "age_h": 51.07,
+        "tier": "72h",
+        "k0": 3,
+        "k1": 3,
+        "text": "Well, a blue wave is indeed headed for Washington, D.C. as the Democrats take control of both chambers of Congress as broadly expected.",
+        "start": 802.24,
+        "end": 811.16
+       },
+       "parts": {}
+      },
+      "story[4]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "spZdfbq_6eA",
+        "channel": "Bitcoin Magazine",
+        "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+        "layout_eligible": false,
+        "age_h": 51.07,
+        "tier": "72h",
+        "k0": 4,
+        "k1": 4,
+        "text": "Now, the markets saw a small decline last night on the news, but rebounding this morning and most notably Bitcoin with a $4,000 swing since about 9 o 'clock Eastern time last night.",
+        "start": 811.32,
+        "end": 822.74
+       },
+       "parts": {}
+      },
+      "story[5]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "spZdfbq_6eA",
+        "channel": "Bitcoin Magazine",
+        "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+        "layout_eligible": false,
+        "age_h": 51.07,
+        "tier": "72h",
+        "k0": 79,
+        "k1": 79,
+        "text": "Democrats now hold the majority in both chambers of Congress.",
+        "start": 1181.23,
+        "end": 1184.17
+       },
+       "parts": {}
+      },
+      "story[6]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "9La50F_lmd0",
+        "channel": "BTC Sessions",
+        "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+        "layout_eligible": true,
+        "age_h": 57.15,
+        "tier": "72h",
+        "k0": 0,
+        "k1": 0,
+        "text": "Democrats swept the midterms and Bitcoin didn't flitch.",
+        "start": 18.64,
+        "end": 22.44
+       },
+       "parts": {}
+      },
+      "story[7]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "9La50F_lmd0",
+        "channel": "BTC Sessions",
+        "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+        "layout_eligible": true,
+        "age_h": 57.15,
+        "tier": "72h",
+        "k0": 1,
+        "k1": 1,
+        "text": "In fact, it ripped over 80K, wiping out $320 million in shorts in 30 minutes.",
+        "start": 22.76,
+        "end": 30.98
+       },
+       "parts": {}
+      },
+      "story[8]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "T8VdyLZcBas",
+        "channel": "Scott Melker",
+        "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+        "layout_eligible": true,
+        "age_h": 65.17,
+        "tier": "72h",
+        "k0": 0,
+        "k1": 0,
+        "text": "Bitcoin crashed and immediately recovered after the election results came in.",
+        "start": 3.55,
+        "end": 6.326
+       },
+       "parts": {}
+      },
+      "story[9]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "n17v727G7FI",
+        "channel": "Coin Bureau",
+        "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+        "layout_eligible": true,
+        "age_h": 44.9,
+        "tier": "48h",
+        "k0": 7,
+        "k1": 7,
+        "text": "Then it\u00a0 dropped to 75K as a blue wave became apparent,\u00a0\u00a0 but just 12 hours later, it was trading above\u00a0 $81,000.",
+        "start": 34.939,
+        "end": 37.497
+       },
+       "parts": {}
+      },
+      "story[10]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "Zng5DkMO8e8",
+        "channel": "Bankless",
+        "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+        "layout_eligible": true,
+        "age_h": 20.58,
+        "tier": "48h",
+        "k0": 110,
+        "k1": 110,
+        "text": "Yeah, post midterms Bitcoin jumped up to above 80,000.",
+        "start": 484.987,
+        "end": 488.451
+       },
+       "parts": {}
+      }
+     }
+    }
+   },
+   "lineup_input": {
+    "rows": 23,
+    "no_word_record": [
+     "F4xicDR_tIs",
+     "9La50F_lmd0",
+     "T8VdyLZcBas",
+     "n17v727G7FI",
+     "Zng5DkMO8e8"
+    ],
+    "not_offered": {}
+   },
+   "lineup": {
+    "status": "not asked",
+    "why": "fewer than 2 on-screen channels with a sentence-ready word record"
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 2 48h | Anthony Pompliano, Bankless, Bloomberg Television, CNBC Television, CoinTelegraph, Kitco NEWS ...",
+   "rows": 157,
+   "not_offered": {
+    "not_statement": 44,
+    "too_short": 35,
+    "unpunctuated": 1
+   },
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "9ab8d9a8a6d031719a4bb32e81962ae835f5603cee60ce1503bdc55d3a37948d",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [46, 51, 95, 96, 112], \"claim\": 95}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7128,
+        "completion_tokens": 399
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 0 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_no_bitcoin",
+         "the claim sentence does not name Bitcoin"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCEAZeUIeJs0IjQiqTCdVSIg",
+         "UCrp_UI8XtuYfpiqluWLD7Lw"
+        ],
+        "bitcoin_channels": 0,
+        "tier": null,
+        "story_layout_channels": 2
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "nkARRr6ohjk",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 9.11,
+          "tier": "48h",
+          "k0": 59,
+          "k1": 59,
+          "text": "Uh those shares have been were hammered yesterday as Democrats have now won control of Congress and now taken over as governors in several states where moratoriums on data center construction are favored.",
+          "start": 354.929,
+          "end": 368.819
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "nkARRr6ohjk",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 9.11,
+          "tier": "48h",
+          "k0": 66,
+          "k1": 66,
+          "text": "What the market I think told us yesterday is that the anti-SI anti-data center uh rhetoric of the candidates who were successful uh that that suggests that there's going to be a lot of downward pressure on uh those companies going forward and uh you know I think that President Trump's view is that uh the presence or lack thereof of a data center is a local decision and a lot of municipalities decided we don't like having them here.",
+          "start": 395.663,
+          "end": 425.079
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "h5b2aDOXZII",
+          "channel": "CNBC Television",
+          "channel_id": "UCrp_UI8XtuYfpiqluWLD7Lw",
+          "layout_eligible": true,
+          "age_h": 10.34,
+          "tier": "48h",
+          "k0": 17,
+          "k1": 17,
+          "text": ">> Voters sent a clear message in Tuesday's midterm elections in favor of a pause on AI data center construction.",
+          "start": 99.84,
+          "end": 106.977
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "h5b2aDOXZII",
+          "channel": "CNBC Television",
+          "channel_id": "UCrp_UI8XtuYfpiqluWLD7Lw",
+          "layout_eligible": true,
+          "age_h": 10.34,
+          "tier": "48h",
+          "k0": 18,
+          "k1": 18,
+          "text": "Open AI CFO Sarah Frier tells CNBC her firm will keep investing in AI data centers despite the election results.",
+          "start": 107.054,
+          "end": 113.91
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "IQxX-wI-5UM",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 17.04,
+          "tier": "48h",
+          "k0": 326,
+          "k1": 326,
+          "text": "It will just take a higher bar to get them done in the era of the blue wave and it will be costlier to get the deals done.",
+          "start": 1488.342,
+          "end": 1495.493
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not name Bitcoin"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "6f6dc49cdb4fea016719798d0d109575095f41099d51ec2893d1b49d22ae861e",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 7202,
+        "completion_tokens": 373
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 3 48h | CoinTelegraph, Kitco NEWS, Natalie Brunell, Scott Melker, Stacker News, Strategy (MicroStrategy) ...",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 120,
+    "not_statement": 33,
+    "unpunctuated": 2,
+    "fragment": 2
+   },
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "00bb69d56c3d5aeae01eecdb7896741f96a8b33db54fd8e6ddfd3ea7026029b7",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 5936,
+        "completion_tokens": 354
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 4 48h | Altcoin Daily, Blockware Solutions, CoinDesk, CoinTelegraph, Fox Business, Natalie Brunell ...",
+   "rows": 67,
+   "not_offered": {
+    "not_statement": 10,
+    "too_short": 5
+   },
+   "story": {
+    "status": "accepted",
+    "why": null,
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "f75d49701e0b7d9985dd9444e71f87d95e55a8825a5d9baff91a2e7b6924fe4c",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [22, 58, 52], \"claim\": 22}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 3489,
+        "completion_tokens": 626
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCCXoCcu9Rp7NPbTzIvogpZg",
+         "UCbLhGKVY-bJPcawebgtNfbw",
+         "UCl4takhOQtiyprismCPsa2Q"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 3,
+        "claim": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 16.59,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+          "start": 67.05,
+          "end": 76.21
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "71Ba6RNeDWg",
+          "channel": "Fox Business",
+          "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+          "layout_eligible": true,
+          "age_h": 4.08,
+          "tier": "48h",
+          "k0": 64,
+          "k1": 64,
+          "text": "THE FACT THAT CYBER SOLD OFF ON A DAY LIKE YESTERDAY BECAUSE INVESTORS THOUGHT A.I. GROWTH WAS SLOWING DOWN, WHETHER OR NOT THAT TAKES PLACE, WHICH I DON'T THINK IT IS GOING TO, WE NEED MORE CYBERSECURITY.",
+          "start": 554.583,
+          "end": 568.166
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "QBs3_dE8c9c",
+          "channel": "Altcoin Daily",
+          "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+          "layout_eligible": true,
+          "age_h": 32.58,
+          "tier": "48h",
+          "k0": 124,
+          "k1": 124,
+          "text": "And next coin to pay attention to which is just on Jason Calcanis' startup podcast as all of these traditional AI players like the stalwarts that are on the stock exchange now as all these as as there's fear in traditional AI centralized AI we do have we do have decentralized AI which is growing steadily.",
+          "start": 572.793,
+          "end": 594.457
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "2792c2e4ed70fcd0541813da62e5b831d7cf0de647d518441baa6fd916626d99",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [22, 57, 58], \"claim\": 22}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 3547,
+        "completion_tokens": 547
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UC678LSROK47l__G-pMnOMgA",
+         "UCCXoCcu9Rp7NPbTzIvogpZg",
+         "UCl4takhOQtiyprismCPsa2Q"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 3,
+        "claim": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "w4h9HfP7Gb0",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 16.59,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+          "start": 67.05,
+          "end": 76.21
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "kUrwpp--Nps",
+          "channel": "Blockware Solutions",
+          "channel_id": "UC678LSROK47l__G-pMnOMgA",
+          "layout_eligible": true,
+          "age_h": 14.21,
+          "tier": "48h",
+          "k0": 95,
+          "k1": 95,
+          "text": "Well, I think Bitcoin is showing incredible strength and resilience holding the line right here at 76,000.",
+          "start": 523.68,
+          "end": 529.94
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "71Ba6RNeDWg",
+          "channel": "Fox Business",
+          "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+          "layout_eligible": true,
+          "age_h": 4.08,
+          "tier": "48h",
+          "k0": 64,
+          "k1": 64,
+          "text": "THE FACT THAT CYBER SOLD OFF ON A DAY LIKE YESTERDAY BECAUSE INVESTORS THOUGHT A.I. GROWTH WAS SLOWING DOWN, WHETHER OR NOT THAT TAKES PLACE, WHICH I DON'T THINK IT IS GOING TO, WE NEED MORE CYBERSECURITY.",
+          "start": 554.583,
+          "end": 568.166
+         },
+         "parts": {}
+        }
+       }
+      },
+      "checks": {
+       "verify_support": "SUPPORTS"
+      },
+      "accepted": true
+     }
+    ],
+    "story": [
+     {
+      "video_id": "w4h9HfP7Gb0",
+      "k0": 12,
+      "k1": 12,
+      "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+      "start": 67.05,
+      "end": 76.21,
+      "channel_id": "UCl4takhOQtiyprismCPsa2Q"
+     },
+     {
+      "video_id": "kUrwpp--Nps",
+      "k0": 95,
+      "k1": 95,
+      "text": "Well, I think Bitcoin is showing incredible strength and resilience holding the line right here at 76,000.",
+      "start": 523.68,
+      "end": 529.94,
+      "channel_id": "UC678LSROK47l__G-pMnOMgA"
+     },
+     {
+      "video_id": "71Ba6RNeDWg",
+      "k0": 64,
+      "k1": 64,
+      "text": "THE FACT THAT CYBER SOLD OFF ON A DAY LIKE YESTERDAY BECAUSE INVESTORS THOUGHT A.I. GROWTH WAS SLOWING DOWN, WHETHER OR NOT THAT TAKES PLACE, WHICH I DON'T THINK IT IS GOING TO, WE NEED MORE CYBERSECURITY.",
+      "start": 554.583,
+      "end": 568.166,
+      "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg"
+     }
+    ],
+    "claim": {
+     "video_id": "w4h9HfP7Gb0",
+     "k0": 12,
+     "k1": 12,
+     "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+     "start": 67.05,
+     "end": 76.21,
+     "channel_id": "UCl4takhOQtiyprismCPsa2Q"
+    },
+    "hook": null,
+    "clips": [],
+    "eligibility": {
+     "ok": true,
+     "reasons": [],
+     "facts": {
+      "story_channels": [
+       "UC678LSROK47l__G-pMnOMgA",
+       "UCCXoCcu9Rp7NPbTzIvogpZg",
+       "UCl4takhOQtiyprismCPsa2Q"
+      ],
+      "bitcoin_channels": 2,
+      "tier": "48h",
+      "story_layout_channels": 3,
+      "claim": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices."
+     },
+     "parts": {
+      "story[0]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "w4h9HfP7Gb0",
+        "channel": "Swan Bitcoin",
+        "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+        "layout_eligible": true,
+        "age_h": 16.59,
+        "tier": "48h",
+        "k0": 12,
+        "k1": 12,
+        "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+        "start": 67.05,
+        "end": 76.21
+       },
+       "parts": {}
+      },
+      "story[1]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "kUrwpp--Nps",
+        "channel": "Blockware Solutions",
+        "channel_id": "UC678LSROK47l__G-pMnOMgA",
+        "layout_eligible": true,
+        "age_h": 14.21,
+        "tier": "48h",
+        "k0": 95,
+        "k1": 95,
+        "text": "Well, I think Bitcoin is showing incredible strength and resilience holding the line right here at 76,000.",
+        "start": 523.68,
+        "end": 529.94
+       },
+       "parts": {}
+      },
+      "story[2]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "71Ba6RNeDWg",
+        "channel": "Fox Business",
+        "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+        "layout_eligible": true,
+        "age_h": 4.08,
+        "tier": "48h",
+        "k0": 64,
+        "k1": 64,
+        "text": "THE FACT THAT CYBER SOLD OFF ON A DAY LIKE YESTERDAY BECAUSE INVESTORS THOUGHT A.I. GROWTH WAS SLOWING DOWN, WHETHER OR NOT THAT TAKES PLACE, WHICH I DON'T THINK IT IS GOING TO, WE NEED MORE CYBERSECURITY.",
+        "start": 554.583,
+        "end": 568.166
+       },
+       "parts": {}
+      }
+     }
+    }
+   },
+   "lineup_input": {
+    "rows": 21,
+    "no_word_record": [
+     "71Ba6RNeDWg"
+    ],
+    "not_offered": {}
+   },
+   "lineup": {
+    "status": "declined",
+    "why": "no legal line-up in the offered sentences",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "1e88f9fc7966d70aae295d75415d71acccef1f3b56afd125bd5624a15e7ecad5",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"hook\": null, \"clips\": []}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 1850,
+        "completion_tokens": 229
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no legal line-up in the offered sentences"
+     }
+    ],
+    "story": [
+     {
+      "video_id": "w4h9HfP7Gb0",
+      "k0": 12,
+      "k1": 12,
+      "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+      "start": 67.05,
+      "end": 76.21,
+      "channel_id": "UCl4takhOQtiyprismCPsa2Q"
+     },
+     {
+      "video_id": "kUrwpp--Nps",
+      "k0": 95,
+      "k1": 95,
+      "text": "Well, I think Bitcoin is showing incredible strength and resilience holding the line right here at 76,000.",
+      "start": 523.68,
+      "end": 529.94,
+      "channel_id": "UC678LSROK47l__G-pMnOMgA"
+     },
+     {
+      "video_id": "71Ba6RNeDWg",
+      "k0": 64,
+      "k1": 64,
+      "text": "THE FACT THAT CYBER SOLD OFF ON A DAY LIKE YESTERDAY BECAUSE INVESTORS THOUGHT A.I. GROWTH WAS SLOWING DOWN, WHETHER OR NOT THAT TAKES PLACE, WHICH I DON'T THINK IT IS GOING TO, WE NEED MORE CYBERSECURITY.",
+      "start": 554.583,
+      "end": 568.166,
+      "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg"
+     }
+    ],
+    "claim": {
+     "video_id": "w4h9HfP7Gb0",
+     "k0": 12,
+     "k1": 12,
+     "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+     "start": 67.05,
+     "end": 76.21,
+     "channel_id": "UCl4takhOQtiyprismCPsa2Q"
+    },
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 5 48h | BTC Sessions, Bitcoin Magazine, Bitcoin Mechanic, Digital Asset News, Scott Melker, Stacker News ...",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 18,
+    "not_statement": 11
+   },
+   "story": {
+    "status": "accepted",
+    "why": null,
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "69af770f92eb31662eb4e470d116baf08966a59065afc3d6d8683aeb56e9343f",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [49, 150, 62, 80, 87, 99, 107], \"claim\": 107}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6147,
+        "completion_tokens": 1056
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'i': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCJgHxpqfhWEEjYH9cLXqhIQ",
+         "UChzLnWVsl3puKQwc5PoO6Zg",
+         "UCl4takhOQtiyprismCPsa2Q",
+         "UCtOV5M-T3GcsJAq8QKaf0lg",
+         "UCxIU1RFIdDpvA8VOITswQ1A"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 4,
+        "claim": "I don't know what this means going forward, but I don't think that the Democrats are going to be more favorable towards Bitcoin than the Republicans have been."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "spZdfbq_6eA",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 51.07,
+          "tier": "72h",
+          "k0": 512,
+          "k1": 512,
+          "text": "And from where the BPI sits in D.C., I mean, obviously, Democrats took control of both chambers of Congress.",
+          "start": 3567.12,
+          "end": 3573.2
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "io8ACfpKBtU",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 59.07,
+          "tier": "72h",
+          "k0": 31,
+          "k1": 31,
+          "text": "And from where the BPI sits in D.C., I mean, obviously, Democrats took control of both chambers of Congress.",
+          "start": 121.36,
+          "end": 127.44
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "yysArgDrtvQ",
+          "channel": "Digital Asset News",
+          "channel_id": "UCJgHxpqfhWEEjYH9cLXqhIQ",
+          "layout_eligible": true,
+          "age_h": 12.5,
+          "tier": "48h",
+          "k0": 107,
+          "k1": 107,
+          "text": "And everybody's saying, now the Democrats are in, now they're going to shut down all the data centers.",
+          "start": 419.139,
+          "end": 424.854
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "F4xicDR_tIs",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 41.08,
+          "tier": "48h",
+          "k0": 59,
+          "k1": 59,
+          "text": "And I [music] don't expect a Democratic Congress and a Republican president to suddenly fix the federal government's finances.",
+          "start": 360.791,
+          "end": 368.096
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "T8VdyLZcBas",
+          "channel": "Scott Melker",
+          "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+          "layout_eligible": true,
+          "age_h": 65.17,
+          "tier": "72h",
+          "k0": 77,
+          "k1": 77,
+          "text": "I think we basically saw the reverse of the last election.",
+          "start": 462.77,
+          "end": 465.923
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "9La50F_lmd0",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 57.15,
+          "tier": "72h",
+          "k0": 44,
+          "k1": 44,
+          "text": "But nonetheless, I do think, obviously, more Democrats in power, more crackdowns on... uh, we'll say the broader crypto ecosystem, which could go one of two ways.",
+          "start": 177.08,
+          "end": 189.4
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "9La50F_lmd0",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 57.15,
+          "tier": "72h",
+          "k0": 54,
+          "k1": 54,
+          "text": "I don't know what this means going forward, but I don't think that the Democrats are going to be more favorable towards Bitcoin than the Republicans have been.",
+          "start": 245.28,
+          "end": 255.32
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "16b17e56a8601b9b5849837e6aed2bd8394f4a434cddefd04cbc8b06db0e72ce",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [49, 150, 62, 80, 87, 92, 99, 107, 112], \"claim\": 92}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6245,
+        "completion_tokens": 849
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCJgHxpqfhWEEjYH9cLXqhIQ",
+         "UChzLnWVsl3puKQwc5PoO6Zg",
+         "UCl4takhOQtiyprismCPsa2Q",
+         "UCtOV5M-T3GcsJAq8QKaf0lg",
+         "UCxIU1RFIdDpvA8VOITswQ1A"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "72h",
+        "story_layout_channels": 4,
+        "claim": "At the most basic level, I'm not surprised that Bitcoin price didn't change."
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "spZdfbq_6eA",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 51.07,
+          "tier": "72h",
+          "k0": 512,
+          "k1": 512,
+          "text": "And from where the BPI sits in D.C., I mean, obviously, Democrats took control of both chambers of Congress.",
+          "start": 3567.12,
+          "end": 3573.2
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "io8ACfpKBtU",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 59.07,
+          "tier": "72h",
+          "k0": 31,
+          "k1": 31,
+          "text": "And from where the BPI sits in D.C., I mean, obviously, Democrats took control of both chambers of Congress.",
+          "start": 121.36,
+          "end": 127.44
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "yysArgDrtvQ",
+          "channel": "Digital Asset News",
+          "channel_id": "UCJgHxpqfhWEEjYH9cLXqhIQ",
+          "layout_eligible": true,
+          "age_h": 12.5,
+          "tier": "48h",
+          "k0": 107,
+          "k1": 107,
+          "text": "And everybody's saying, now the Democrats are in, now they're going to shut down all the data centers.",
+          "start": 419.139,
+          "end": 424.854
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "F4xicDR_tIs",
+          "channel": "Swan Bitcoin",
+          "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+          "layout_eligible": true,
+          "age_h": 41.08,
+          "tier": "48h",
+          "k0": 59,
+          "k1": 59,
+          "text": "And I [music] don't expect a Democratic Congress and a Republican president to suddenly fix the federal government's finances.",
+          "start": 360.791,
+          "end": 368.096
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "T8VdyLZcBas",
+          "channel": "Scott Melker",
+          "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+          "layout_eligible": true,
+          "age_h": 65.17,
+          "tier": "72h",
+          "k0": 77,
+          "k1": 77,
+          "text": "I think we basically saw the reverse of the last election.",
+          "start": 462.77,
+          "end": 465.923
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "T8VdyLZcBas",
+          "channel": "Scott Melker",
+          "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+          "layout_eligible": true,
+          "age_h": 65.17,
+          "tier": "72h",
+          "k0": 497,
+          "k1": 497,
+          "text": "At the most basic level, I'm not surprised that Bitcoin price didn't change.",
+          "start": 2724.525,
+          "end": 2729.493
+         },
+         "parts": {}
+        },
+        "story[6]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "9La50F_lmd0",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 57.15,
+          "tier": "72h",
+          "k0": 44,
+          "k1": 44,
+          "text": "But nonetheless, I do think, obviously, more Democrats in power, more crackdowns on... uh, we'll say the broader crypto ecosystem, which could go one of two ways.",
+          "start": 177.08,
+          "end": 189.4
+         },
+         "parts": {}
+        },
+        "story[7]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "9La50F_lmd0",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 57.15,
+          "tier": "72h",
+          "k0": 54,
+          "k1": 54,
+          "text": "I don't know what this means going forward, but I don't think that the Democrats are going to be more favorable towards Bitcoin than the Republicans have been.",
+          "start": 245.28,
+          "end": 255.32
+         },
+         "parts": {}
+        },
+        "story[8]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "9La50F_lmd0",
+          "channel": "BTC Sessions",
+          "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+          "layout_eligible": true,
+          "age_h": 57.15,
+          "tier": "72h",
+          "k0": 115,
+          "k1": 115,
+          "text": "The larger thing here is, I think it is interesting that Bitcoin popped a little bit.",
+          "start": 401.82,
+          "end": 405.2
+         },
+         "parts": {}
+        }
+       }
+      },
+      "checks": {
+       "verify_support": "SUPPORTS"
+      },
+      "accepted": true
+     }
+    ],
+    "story": [
+     {
+      "video_id": "spZdfbq_6eA",
+      "k0": 512,
+      "k1": 512,
+      "text": "And from where the BPI sits in D.C., I mean, obviously, Democrats took control of both chambers of Congress.",
+      "start": 3567.12,
+      "end": 3573.2,
+      "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg"
+     },
+     {
+      "video_id": "io8ACfpKBtU",
+      "k0": 31,
+      "k1": 31,
+      "text": "And from where the BPI sits in D.C., I mean, obviously, Democrats took control of both chambers of Congress.",
+      "start": 121.36,
+      "end": 127.44,
+      "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg"
+     },
+     {
+      "video_id": "yysArgDrtvQ",
+      "k0": 107,
+      "k1": 107,
+      "text": "And everybody's saying, now the Democrats are in, now they're going to shut down all the data centers.",
+      "start": 419.139,
+      "end": 424.854,
+      "channel_id": "UCJgHxpqfhWEEjYH9cLXqhIQ"
+     },
+     {
+      "video_id": "F4xicDR_tIs",
+      "k0": 59,
+      "k1": 59,
+      "text": "And I [music] don't expect a Democratic Congress and a Republican president to suddenly fix the federal government's finances.",
+      "start": 360.791,
+      "end": 368.096,
+      "channel_id": "UCl4takhOQtiyprismCPsa2Q"
+     },
+     {
+      "video_id": "T8VdyLZcBas",
+      "k0": 77,
+      "k1": 77,
+      "text": "I think we basically saw the reverse of the last election.",
+      "start": 462.77,
+      "end": 465.923,
+      "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A"
+     },
+     {
+      "video_id": "T8VdyLZcBas",
+      "k0": 497,
+      "k1": 497,
+      "text": "At the most basic level, I'm not surprised that Bitcoin price didn't change.",
+      "start": 2724.525,
+      "end": 2729.493,
+      "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A"
+     },
+     {
+      "video_id": "9La50F_lmd0",
+      "k0": 44,
+      "k1": 44,
+      "text": "But nonetheless, I do think, obviously, more Democrats in power, more crackdowns on... uh, we'll say the broader crypto ecosystem, which could go one of two ways.",
+      "start": 177.08,
+      "end": 189.4,
+      "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg"
+     },
+     {
+      "video_id": "9La50F_lmd0",
+      "k0": 54,
+      "k1": 54,
+      "text": "I don't know what this means going forward, but I don't think that the Democrats are going to be more favorable towards Bitcoin than the Republicans have been.",
+      "start": 245.28,
+      "end": 255.32,
+      "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg"
+     },
+     {
+      "video_id": "9La50F_lmd0",
+      "k0": 115,
+      "k1": 115,
+      "text": "The larger thing here is, I think it is interesting that Bitcoin popped a little bit.",
+      "start": 401.82,
+      "end": 405.2,
+      "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg"
+     }
+    ],
+    "claim": {
+     "video_id": "T8VdyLZcBas",
+     "k0": 497,
+     "k1": 497,
+     "text": "At the most basic level, I'm not surprised that Bitcoin price didn't change.",
+     "start": 2724.525,
+     "end": 2729.493,
+     "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A"
+    },
+    "hook": null,
+    "clips": [],
+    "eligibility": {
+     "ok": true,
+     "reasons": [],
+     "facts": {
+      "story_channels": [
+       "UCJgHxpqfhWEEjYH9cLXqhIQ",
+       "UChzLnWVsl3puKQwc5PoO6Zg",
+       "UCl4takhOQtiyprismCPsa2Q",
+       "UCtOV5M-T3GcsJAq8QKaf0lg",
+       "UCxIU1RFIdDpvA8VOITswQ1A"
+      ],
+      "bitcoin_channels": 2,
+      "tier": "72h",
+      "story_layout_channels": 4,
+      "claim": "At the most basic level, I'm not surprised that Bitcoin price didn't change."
+     },
+     "parts": {
+      "story[0]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "spZdfbq_6eA",
+        "channel": "Bitcoin Magazine",
+        "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+        "layout_eligible": false,
+        "age_h": 51.07,
+        "tier": "72h",
+        "k0": 512,
+        "k1": 512,
+        "text": "And from where the BPI sits in D.C., I mean, obviously, Democrats took control of both chambers of Congress.",
+        "start": 3567.12,
+        "end": 3573.2
+       },
+       "parts": {}
+      },
+      "story[1]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "io8ACfpKBtU",
+        "channel": "Bitcoin Magazine",
+        "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+        "layout_eligible": false,
+        "age_h": 59.07,
+        "tier": "72h",
+        "k0": 31,
+        "k1": 31,
+        "text": "And from where the BPI sits in D.C., I mean, obviously, Democrats took control of both chambers of Congress.",
+        "start": 121.36,
+        "end": 127.44
+       },
+       "parts": {}
+      },
+      "story[2]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "yysArgDrtvQ",
+        "channel": "Digital Asset News",
+        "channel_id": "UCJgHxpqfhWEEjYH9cLXqhIQ",
+        "layout_eligible": true,
+        "age_h": 12.5,
+        "tier": "48h",
+        "k0": 107,
+        "k1": 107,
+        "text": "And everybody's saying, now the Democrats are in, now they're going to shut down all the data centers.",
+        "start": 419.139,
+        "end": 424.854
+       },
+       "parts": {}
+      },
+      "story[3]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "F4xicDR_tIs",
+        "channel": "Swan Bitcoin",
+        "channel_id": "UCl4takhOQtiyprismCPsa2Q",
+        "layout_eligible": true,
+        "age_h": 41.08,
+        "tier": "48h",
+        "k0": 59,
+        "k1": 59,
+        "text": "And I [music] don't expect a Democratic Congress and a Republican president to suddenly fix the federal government's finances.",
+        "start": 360.791,
+        "end": 368.096
+       },
+       "parts": {}
+      },
+      "story[4]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "T8VdyLZcBas",
+        "channel": "Scott Melker",
+        "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+        "layout_eligible": true,
+        "age_h": 65.17,
+        "tier": "72h",
+        "k0": 77,
+        "k1": 77,
+        "text": "I think we basically saw the reverse of the last election.",
+        "start": 462.77,
+        "end": 465.923
+       },
+       "parts": {}
+      },
+      "story[5]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "T8VdyLZcBas",
+        "channel": "Scott Melker",
+        "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+        "layout_eligible": true,
+        "age_h": 65.17,
+        "tier": "72h",
+        "k0": 497,
+        "k1": 497,
+        "text": "At the most basic level, I'm not surprised that Bitcoin price didn't change.",
+        "start": 2724.525,
+        "end": 2729.493
+       },
+       "parts": {}
+      },
+      "story[6]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "9La50F_lmd0",
+        "channel": "BTC Sessions",
+        "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+        "layout_eligible": true,
+        "age_h": 57.15,
+        "tier": "72h",
+        "k0": 44,
+        "k1": 44,
+        "text": "But nonetheless, I do think, obviously, more Democrats in power, more crackdowns on... uh, we'll say the broader crypto ecosystem, which could go one of two ways.",
+        "start": 177.08,
+        "end": 189.4
+       },
+       "parts": {}
+      },
+      "story[7]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "9La50F_lmd0",
+        "channel": "BTC Sessions",
+        "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+        "layout_eligible": true,
+        "age_h": 57.15,
+        "tier": "72h",
+        "k0": 54,
+        "k1": 54,
+        "text": "I don't know what this means going forward, but I don't think that the Democrats are going to be more favorable towards Bitcoin than the Republicans have been.",
+        "start": 245.28,
+        "end": 255.32
+       },
+       "parts": {}
+      },
+      "story[8]": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "video_id": "9La50F_lmd0",
+        "channel": "BTC Sessions",
+        "channel_id": "UChzLnWVsl3puKQwc5PoO6Zg",
+        "layout_eligible": true,
+        "age_h": 57.15,
+        "tier": "72h",
+        "k0": 115,
+        "k1": 115,
+        "text": "The larger thing here is, I think it is interesting that Bitcoin popped a little bit.",
+        "start": 401.82,
+        "end": 405.2
+       },
+       "parts": {}
+      }
+     }
+    }
+   },
+   "lineup_input": {
+    "rows": 0,
+    "no_word_record": [
+     "yysArgDrtvQ",
+     "F4xicDR_tIs",
+     "T8VdyLZcBas",
+     "9La50F_lmd0"
+    ],
+    "not_offered": {}
+   },
+   "lineup": {
+    "status": "not asked",
+    "why": "fewer than 2 on-screen channels with a sentence-ready word record"
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 6 48h | BTC Sessions, Bitcoin Magazine, CoinTelegraph, Digital Asset News, Strategy (MicroStrategy)",
+   "rows": 108,
+   "not_offered": {
+    "not_statement": 17,
+    "too_short": 18
+   },
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "04864177aab8285ccdf9b4d8ce0e5cb41e2d0ab9b009389b08de1dc2832f230f",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4587,
+        "completion_tokens": 264
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 7 48h | BTC Sessions, CoinDesk, CoinTelegraph, Digital Asset News, Stacker News",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 65,
+    "not_statement": 24,
+    "unpunctuated": 2
+   },
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "6d8aaf0dc179fc88a2c788e0c58817134c174545bb1f2a04980feea1626b6b4c",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 5205,
+        "completion_tokens": 307
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  }
+ ],
+ "pools": [
+  {
+   "pool": "channel_clusters_48h",
+   "evaluated": true,
+   "groups": 31,
+   "stopped": "story-call budget 8 spent"
+  },
+  {
+   "pool": "channel_clusters_72h",
+   "evaluated": true,
+   "groups": 28,
+   "stopped": "story-call budget 8 spent"
+  }
+ ],
+ "story_calls": 8,
+ "lineup_calls": 1,
+ "seconds": 210.2,
+ "models": {
+  "generator": "anthropic:claude-fable-5-2@medium",
+  "judge (ModelChecks)": "xai:grok-4.20-0309-reasoning",
+  "openai_probe": "HTTP 400 invalid_request_error"
+ }
+}

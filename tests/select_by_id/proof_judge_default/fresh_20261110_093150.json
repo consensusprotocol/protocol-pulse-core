@@ -1,0 +1,1102 @@
+{
+ "run": "fresh_20261110_093150",
+ "now": "2026-11-10T09:31:52.394260+00:00",
+ "result": {
+  "lineup": false
+ },
+ "ledger": {
+  "path": "/home/ultron/protocol_pulse/data/pulse_check/story_ledger.jsonl",
+  "entries": 0
+ },
+ "universe": {
+  "videos": 84,
+  "records_missing": [],
+  "methods": {
+   "whisper": 12,
+   "whisper_words": 3,
+   "yt_auto": 39,
+   "yt_manual": 30
+  }
+ },
+ "clusters": {
+  "recorded": false,
+  "recomputed_s": 16.8,
+  "chunks": 4126,
+  "no_vectors": [],
+  "groups": 208,
+  "screened": {
+   "48h": 24,
+   "72h": 14
+  }
+ },
+ "wire_pool": "not run in this CPU replay: wire retrieval needs the GPU0 embedder (DEC-13: wire only after clusters)",
+ "groups": [
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 0 48h | Altcoin Daily, Anthony Pompliano, Bitcoin Magazine, CoinDesk, CoinTelegraph, DataDash ...",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 69,
+    "not_statement": 37,
+    "unpunctuated": 5
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "the independent check does not find the claim's development stated as current news in id 106 (TOPIC_ONLY), id 107 (TOPIC_ONLY), id 108 (TOPIC_ONLY), id 33 (TOPIC_ONLY), id 44 (UNRELATED)",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "48c40178d87a68356b79e8d05d8686b796f1ec43523485012f4cfb89c63aeb05",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [106, 107, 129, 33, 44], \"claim\": 129}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6579,
+        "completion_tokens": 552
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCUQcW3jxfQfEUS8kqR5pJtQ",
+         "UCtOV5M-T3GcsJAq8QKaf0lg"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "Galaxy's head of research, Alex Thorne, pointed out that Bitcoin has only lost its 50w week right after reclaiming it off a bare market bottom twice before.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eEB0nt6jvEw",
+          "channel": "Marty Bent (Rabbit Hole Recap)",
+          "channel_id": "UCUQcW3jxfQfEUS8kqR5pJtQ",
+          "layout_eligible": true,
+          "age_h": 15.56,
+          "tier": "48h",
+          "k0": 270,
+          "k1": 270,
+          "text": "Bitcoin closed the week just below.",
+          "start": 2190.6,
+          "end": 2192.836
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eEB0nt6jvEw",
+          "channel": "Marty Bent (Rabbit Hole Recap)",
+          "channel_id": "UCUQcW3jxfQfEUS8kqR5pJtQ",
+          "layout_eligible": true,
+          "age_h": 15.56,
+          "tier": "48h",
+          "k0": 271,
+          "k1": 271,
+          "text": "It's 50-week moving average after seven straight weekly closes above it.",
+          "start": 2192.9,
+          "end": 2197.5
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "qo8rDU3bbMo",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 11.22,
+          "tier": "48h",
+          "k0": 30,
+          "k1": 30,
+          "text": "Galaxy's head of research, Alex Thorne, pointed out that Bitcoin has only lost its 50w week right after reclaiming it off a bare market bottom twice before.",
+          "start": 102.796,
+          "end": 111.484
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "jbDqdLytkNM",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 13.98,
+          "tier": "48h",
+          "k0": 49,
+          "k1": 49,
+          "text": "Um there's only been two times that it actually flipped under the 50we after reclaiming it post an extended bare market.",
+          "start": 307.955,
+          "end": 315.331
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "jbDqdLytkNM",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 13.98,
+          "tier": "48h",
+          "k0": 104,
+          "k1": 104,
+          "text": "I'm not that concerned given that we only missed it by a 1% at the close.",
+          "start": 675.15,
+          "end": 679.82
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 106 (TOPIC_ONLY), id 107 (TOPIC_ONLY), id 33 (TOPIC_ONLY), id 44 (UNRELATED)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "0e1c407b445b6e337883b3bdbb5e1523044733330107bda13a92dc4d54510385",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [60, 47, 144], \"claim\": 60}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6688,
+        "completion_tokens": 404
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCCatR7nWbYrkVXdxXb4cGXw",
+         "UCEAZeUIeJs0IjQiqTCdVSIg"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "Bitcoin has now seen a 16% decline from the overall high from 88,000, touching down towards about 73,400, 500, give or take.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "RXTVaDsN11M",
+          "channel": "DataDash",
+          "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+          "layout_eligible": true,
+          "age_h": 16.3,
+          "tier": "48h",
+          "k0": 0,
+          "k1": 0,
+          "text": "Bitcoin has now seen a 16% decline from the overall high from 88,000, touching down towards about 73,400, 500, give or take.",
+          "start": 0.0,
+          "end": 7.18
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "_cGepHL1Rf0",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 16.16,
+          "tier": "48h",
+          "k0": 9,
+          "k1": 9,
+          "text": "Of course, Bitcoin dropped pretty massively over the weekend alongside the tech selloff that we saw, the Democrat blue wave, the Binance hack, but I don't check it on an hourly basis.",
+          "start": 98.887,
+          "end": 109.588
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "36HPi9UZPOc",
+          "channel": "Yahoo Finance",
+          "channel_id": "UCEAZeUIeJs0IjQiqTCdVSIg",
+          "layout_eligible": true,
+          "age_h": 15.53,
+          "tier": "48h",
+          "k0": 9,
+          "k1": 9,
+          "text": "Of course, of course, Bitcoin dropped pretty massively over the weekend alongside the tech selloff that we saw, the Democrat blue wave, the Binance hack, but I don't check it on an hourly basis.",
+          "start": 38.314,
+          "end": 49.783
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 47 (TOPIC_ONLY), id 144 (TOPIC_ONLY)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "a364a3afc1b8a1287c67f97e6d0163bad29f0dc473c1153e0188cf816349f269",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [106, 107, 108, 129, 33, 44], \"claim\": 129}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6660,
+        "completion_tokens": 344
+       },
+       "stop_reason": "end_turn",
+       "request_id": null
+      },
+      "eligibility": {
+       "ok": true,
+       "reasons": [],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCUQcW3jxfQfEUS8kqR5pJtQ",
+         "UCtOV5M-T3GcsJAq8QKaf0lg"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "48h",
+        "story_layout_channels": 2,
+        "claim": "Galaxy's head of research, Alex Thorne, pointed out that Bitcoin has only lost its 50w week right after reclaiming it off a bare market bottom twice before.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eEB0nt6jvEw",
+          "channel": "Marty Bent (Rabbit Hole Recap)",
+          "channel_id": "UCUQcW3jxfQfEUS8kqR5pJtQ",
+          "layout_eligible": true,
+          "age_h": 15.56,
+          "tier": "48h",
+          "k0": 270,
+          "k1": 270,
+          "text": "Bitcoin closed the week just below.",
+          "start": 2190.6,
+          "end": 2192.836
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eEB0nt6jvEw",
+          "channel": "Marty Bent (Rabbit Hole Recap)",
+          "channel_id": "UCUQcW3jxfQfEUS8kqR5pJtQ",
+          "layout_eligible": true,
+          "age_h": 15.56,
+          "tier": "48h",
+          "k0": 271,
+          "k1": 271,
+          "text": "It's 50-week moving average after seven straight weekly closes above it.",
+          "start": 2192.9,
+          "end": 2197.5
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eEB0nt6jvEw",
+          "channel": "Marty Bent (Rabbit Hole Recap)",
+          "channel_id": "UCUQcW3jxfQfEUS8kqR5pJtQ",
+          "layout_eligible": true,
+          "age_h": 15.56,
+          "tier": "48h",
+          "k0": 272,
+          "k1": 272,
+          "text": "The two prior times that slipped back after a post-bottom reclaim, the bear didn't make a lower low.",
+          "start": 2197.564,
+          "end": 2203.952
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "qo8rDU3bbMo",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 11.22,
+          "tier": "48h",
+          "k0": 30,
+          "k1": 30,
+          "text": "Galaxy's head of research, Alex Thorne, pointed out that Bitcoin has only lost its 50w week right after reclaiming it off a bare market bottom twice before.",
+          "start": 102.796,
+          "end": 111.484
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "jbDqdLytkNM",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 13.98,
+          "tier": "48h",
+          "k0": 49,
+          "k1": 49,
+          "text": "Um there's only been two times that it actually flipped under the 50we after reclaiming it post an extended bare market.",
+          "start": 307.955,
+          "end": 315.331
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "jbDqdLytkNM",
+          "channel": "Bitcoin Magazine",
+          "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+          "layout_eligible": false,
+          "age_h": 13.98,
+          "tier": "48h",
+          "k0": 104,
+          "k1": 104,
+          "text": "I'm not that concerned given that we only missed it by a 1% at the close.",
+          "start": 675.15,
+          "end": 679.82
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "the independent check does not find the claim's development stated as current news in id 106 (TOPIC_ONLY), id 107 (TOPIC_ONLY), id 108 (TOPIC_ONLY), id 33 (TOPIC_ONLY), id 44 (UNRELATED)"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 1 48h | Anthony Pompliano, Bitcoin Magazine, CoinDesk, Marty Bent (Rabbit Hole Recap), Robert Breedlove, Scott Melker ...",
+   "rows": 87,
+   "not_offered": {
+    "too_short": 13,
+    "not_statement": 17,
+    "unpunctuated": 4
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "4686c59c2c2099fa459d8c7046ad77365b65eea960e8c250b9e4321f5c1433a6",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 4110,
+        "completion_tokens": 229
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 2 48h | BTC Sessions, Bitcoin Magazine, Marty Bent (Rabbit Hole Recap), Simply Bitcoin, Stacker News, TFTC ...",
+   "rows": 160,
+   "not_offered": {
+    "too_short": 58,
+    "not_statement": 46,
+    "unpunctuated": 3
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "rejected",
+    "why": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not name Bitcoin",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "5fc46227df8466afb47e0d8cb4319de2b59768ff32e1b9cd6c7e3a6b85f9afaf",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [1, 139, 59, 94, 110], \"claim\": 1}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6572,
+        "completion_tokens": 358
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_not_standalone",
+         "starts lower-case ('the')"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCUQcW3jxfQfEUS8kqR5pJtQ",
+         "UCUbpAtpGwoRxD8GOpRL-_4g",
+         "UCtdbWsnfA08KhSUO4amVLaQ"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 4,
+        "claim": "the most pertinent maybe yeah let's actually let's go to my post because it's we're going to talk about the whole uh democrat thing okay so yeah let's go to my post first one was from uh simple stacker he says let's discuss what the democrat sweep means for financial markets and bitcoin there's 48 comments this this actually was a big deal on november 4th on stacker news it was on the ask s n territory the bitcoin territory he covered all the territories I had 48 comments.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "ncQLmoKTQ0Y",
+          "channel": "Stacker News",
+          "channel_id": "UCUbpAtpGwoRxD8GOpRL-_4g",
+          "layout_eligible": true,
+          "age_h": 69.17,
+          "tier": "72h",
+          "k0": 712,
+          "k1": 712,
+          "text": "the most pertinent maybe yeah let's actually let's go to my post because it's we're going to talk about the whole uh democrat thing okay so yeah let's go to my post first one was from uh simple stacker he says let's discuss what the democrat sweep means for financial markets and bitcoin there's 48 comments this this actually was a big deal on november 4th on stacker news it was on the ask s n territory the bitcoin territory he covered all the territories I had 48 comments.",
+          "start": 2433.39,
+          "end": 2464.241
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "oTdoixNO9p8",
+          "channel": "Stacker News",
+          "channel_id": "UCUbpAtpGwoRxD8GOpRL-_4g",
+          "layout_eligible": true,
+          "age_h": 67.66,
+          "tier": "72h",
+          "k0": 698,
+          "k1": 698,
+          "text": "He says, let's discuss what the Democrat suite means for financial markets and Bitcoin.",
+          "start": 2446.313,
+          "end": 2452.004
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "vqFt75tN3AI",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 62.16,
+          "tier": "72h",
+          "k0": 281,
+          "k1": 281,
+          "text": "And like what the results we saw on Tuesday, I think is a like firm tombstone on, you know, the MAGA movement.",
+          "start": 907.14,
+          "end": 914.64
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eEB0nt6jvEw",
+          "channel": "Marty Bent (Rabbit Hole Recap)",
+          "channel_id": "UCUQcW3jxfQfEUS8kqR5pJtQ",
+          "layout_eligible": true,
+          "age_h": 15.56,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "I'm sure we'll talk about the Iran war a little bit because it seems like even... Republicans, J.D. Vance, Vice President J.D. Vance came out and said that, that the war was certainly an issue for voters and is one of the driving factors for why things shifted dramatically left at the midterms.",
+          "start": 78.838,
+          "end": 98.575
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "W2LIxB2kAH0",
+          "channel": "TFTC",
+          "channel_id": "UCtdbWsnfA08KhSUO4amVLaQ",
+          "layout_eligible": true,
+          "age_h": 66.52,
+          "tier": "72h",
+          "k0": 380,
+          "k1": 380,
+          "text": "Although, at this point, um, you know, having lost the Senate for the foreseeable future.",
+          "start": 2000.093,
+          "end": 2006.005
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 2,
+      "prompt_sha256": "aa36a59aa3ce245e1104c5a3e7d2b84511049f60fac1122da3ad37e421abd8ca",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [1, 139, 59, 61, 94, 110], \"claim\": 139}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6670,
+        "completion_tokens": 1573
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "claim_not_standalone",
+         "hook opens on the pronoun 'he': nothing is heard before a hook"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCUQcW3jxfQfEUS8kqR5pJtQ",
+         "UCUbpAtpGwoRxD8GOpRL-_4g",
+         "UCtdbWsnfA08KhSUO4amVLaQ"
+        ],
+        "bitcoin_channels": 2,
+        "tier": "72h",
+        "story_layout_channels": 4,
+        "claim": "He says, let's discuss what the Democrat suite means for financial markets and Bitcoin.",
+        "targets_missed": []
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "ncQLmoKTQ0Y",
+          "channel": "Stacker News",
+          "channel_id": "UCUbpAtpGwoRxD8GOpRL-_4g",
+          "layout_eligible": true,
+          "age_h": 69.17,
+          "tier": "72h",
+          "k0": 712,
+          "k1": 712,
+          "text": "the most pertinent maybe yeah let's actually let's go to my post because it's we're going to talk about the whole uh democrat thing okay so yeah let's go to my post first one was from uh simple stacker he says let's discuss what the democrat sweep means for financial markets and bitcoin there's 48 comments this this actually was a big deal on november 4th on stacker news it was on the ask s n territory the bitcoin territory he covered all the territories I had 48 comments.",
+          "start": 2433.39,
+          "end": 2464.241
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "oTdoixNO9p8",
+          "channel": "Stacker News",
+          "channel_id": "UCUbpAtpGwoRxD8GOpRL-_4g",
+          "layout_eligible": true,
+          "age_h": 67.66,
+          "tier": "72h",
+          "k0": 698,
+          "k1": 698,
+          "text": "He says, let's discuss what the Democrat suite means for financial markets and Bitcoin.",
+          "start": 2446.313,
+          "end": 2452.004
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "vqFt75tN3AI",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 62.16,
+          "tier": "72h",
+          "k0": 281,
+          "k1": 281,
+          "text": "And like what the results we saw on Tuesday, I think is a like firm tombstone on, you know, the MAGA movement.",
+          "start": 907.14,
+          "end": 914.64
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "vqFt75tN3AI",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 62.16,
+          "tier": "72h",
+          "k0": 285,
+          "k1": 285,
+          "text": "But if you are, you know, one of these very hardcore Bitcoin Republicans or Bitcoin conservatives, I think there is an opportunity here of rebuilding.",
+          "start": 923.95,
+          "end": 931.73
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eEB0nt6jvEw",
+          "channel": "Marty Bent (Rabbit Hole Recap)",
+          "channel_id": "UCUQcW3jxfQfEUS8kqR5pJtQ",
+          "layout_eligible": true,
+          "age_h": 15.56,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "I'm sure we'll talk about the Iran war a little bit because it seems like even... Republicans, J.D. Vance, Vice President J.D. Vance came out and said that, that the war was certainly an issue for voters and is one of the driving factors for why things shifted dramatically left at the midterms.",
+          "start": 78.838,
+          "end": 98.575
+         },
+         "parts": {}
+        },
+        "story[5]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "W2LIxB2kAH0",
+          "channel": "TFTC",
+          "channel_id": "UCtdbWsnfA08KhSUO4amVLaQ",
+          "layout_eligible": true,
+          "age_h": 66.52,
+          "tier": "72h",
+          "k0": 380,
+          "k1": 380,
+          "text": "Although, at this point, um, you know, having lost the Senate for the foreseeable future.",
+          "start": 2000.093,
+          "end": 2006.005
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: the claim sentence does not stand on its own (it begins lower-case or with a pronoun, a conjunction or a reply word)"
+     },
+     {
+      "attempt": 3,
+      "prompt_sha256": "01e26bc4cc5a78b7972dcc4d2af254bacc6ceb7ae3536b347ce5b6ecf9da7acf",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [1, 139, 59, 94, 110], \"claim\": 94}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 6648,
+        "completion_tokens": 824
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "eligibility": {
+       "ok": false,
+       "reasons": [
+        [
+         "story_bitcoin_screen",
+         "Bitcoin is named by 1 channel(s) < 2 (DEC-13 c)"
+        ],
+        [
+         "claim_no_bitcoin",
+         "the claim sentence does not name Bitcoin"
+        ]
+       ],
+       "facts": {
+        "story_channels": [
+         "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+         "UCUQcW3jxfQfEUS8kqR5pJtQ",
+         "UCUbpAtpGwoRxD8GOpRL-_4g",
+         "UCtdbWsnfA08KhSUO4amVLaQ"
+        ],
+        "bitcoin_channels": 1,
+        "tier": null,
+        "story_layout_channels": 4
+       },
+       "parts": {
+        "story[0]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "ncQLmoKTQ0Y",
+          "channel": "Stacker News",
+          "channel_id": "UCUbpAtpGwoRxD8GOpRL-_4g",
+          "layout_eligible": true,
+          "age_h": 69.17,
+          "tier": "72h",
+          "k0": 712,
+          "k1": 712,
+          "text": "the most pertinent maybe yeah let's actually let's go to my post because it's we're going to talk about the whole uh democrat thing okay so yeah let's go to my post first one was from uh simple stacker he says let's discuss what the democrat sweep means for financial markets and bitcoin there's 48 comments this this actually was a big deal on november 4th on stacker news it was on the ask s n territory the bitcoin territory he covered all the territories I had 48 comments.",
+          "start": 2433.39,
+          "end": 2464.241
+         },
+         "parts": {}
+        },
+        "story[1]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "oTdoixNO9p8",
+          "channel": "Stacker News",
+          "channel_id": "UCUbpAtpGwoRxD8GOpRL-_4g",
+          "layout_eligible": true,
+          "age_h": 67.66,
+          "tier": "72h",
+          "k0": 698,
+          "k1": 698,
+          "text": "He says, let's discuss what the Democrat suite means for financial markets and Bitcoin.",
+          "start": 2446.313,
+          "end": 2452.004
+         },
+         "parts": {}
+        },
+        "story[2]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "vqFt75tN3AI",
+          "channel": "Simply Bitcoin",
+          "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+          "layout_eligible": true,
+          "age_h": 62.16,
+          "tier": "72h",
+          "k0": 281,
+          "k1": 281,
+          "text": "And like what the results we saw on Tuesday, I think is a like firm tombstone on, you know, the MAGA movement.",
+          "start": 907.14,
+          "end": 914.64
+         },
+         "parts": {}
+        },
+        "story[3]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "eEB0nt6jvEw",
+          "channel": "Marty Bent (Rabbit Hole Recap)",
+          "channel_id": "UCUQcW3jxfQfEUS8kqR5pJtQ",
+          "layout_eligible": true,
+          "age_h": 15.56,
+          "tier": "48h",
+          "k0": 12,
+          "k1": 12,
+          "text": "I'm sure we'll talk about the Iran war a little bit because it seems like even... Republicans, J.D. Vance, Vice President J.D. Vance came out and said that, that the war was certainly an issue for voters and is one of the driving factors for why things shifted dramatically left at the midterms.",
+          "start": 78.838,
+          "end": 98.575
+         },
+         "parts": {}
+        },
+        "story[4]": {
+         "ok": true,
+         "reasons": [],
+         "facts": {
+          "video_id": "W2LIxB2kAH0",
+          "channel": "TFTC",
+          "channel_id": "UCtdbWsnfA08KhSUO4amVLaQ",
+          "layout_eligible": true,
+          "age_h": 66.52,
+          "tier": "72h",
+          "k0": 380,
+          "k1": 380,
+          "text": "Although, at this point, um, you know, having lost the Senate for the foreseeable future.",
+          "start": 2000.093,
+          "end": 2006.005
+         },
+         "parts": {}
+        }
+       }
+      },
+      "rejected": "eligibility: fewer than two channels name Bitcoin in the story's sentences; the claim sentence does not name Bitcoin"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 3 48h | Altcoin Daily, Anthony Pompliano, Bitcoin Magazine, Scott Melker, Stacker News",
+   "rows": 77,
+   "not_offered": {
+    "too_short": 4,
+    "not_statement": 13
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "ec93a33f509243e3674e3b85313f695ddfc67206edb6fa61f3561a3bc9dd0e0d",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 3379,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 4 48h | Bankless, Bitcoin Magazine, CoinDesk, What Bitcoin Did",
+   "rows": 55,
+   "not_offered": {
+    "not_statement": 13,
+    "too_short": 5
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "77a3e5085e731df586f8015b74bce86365bb614208a8f2fe0365fc9211cab023",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 3135,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 5 48h | BTC Sessions, Robert Breedlove, Simply Bitcoin, TFTC",
+   "rows": 42,
+   "not_offered": {
+    "too_short": 11,
+    "not_statement": 1
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "ddfd764e351759c2fe7cba4453b510d767b7a9d9418eb837e3736d42368c124c",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 1947,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 6 48h | BTC Sessions, Robert Breedlove, Simply Bitcoin",
+   "rows": 55,
+   "not_offered": {
+    "too_short": 9,
+    "unpunctuated": 1,
+    "not_statement": 3
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "fbe5a3665901505f8f0e634cf9c96c4d59de81a5c53a1f15945d34d463fa32bb",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2405,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  },
+  {
+   "pool": "channel_clusters_48h",
+   "group": "cluster 7 48h | Anthony Pompliano, Robert Breedlove, Simply Bitcoin",
+   "rows": 41,
+   "not_offered": {
+    "not_statement": 7,
+    "too_short": 4
+   },
+   "capped_by_context": false,
+   "story": {
+    "status": "declined",
+    "why": "no development stated by two different channels",
+    "attempts": [
+     {
+      "attempt": 1,
+      "prompt_sha256": "9ffb677c63cb5057f5d8477985560e888272a95643f3760044c31ebb6031fe12",
+      "model": "anthropic:claude-fable-5-2@medium",
+      "raw": "{\"story\": [], \"claim\": null}",
+      "meta": {
+       "model": "claude-fable-5-2",
+       "usage": {
+        "prompt_tokens": 2049,
+        "completion_tokens": 14
+       },
+       "stop_reason": "end_turn",
+       "request_id": null,
+       "replayed": true
+      },
+      "declined": "no development stated by two different channels"
+     }
+    ],
+    "story": [],
+    "claim": null,
+    "hook": null,
+    "clips": [],
+    "eligibility": null
+   }
+  }
+ ],
+ "pools": [
+  {
+   "pool": "channel_clusters_48h",
+   "evaluated": true,
+   "groups": 24,
+   "stopped": "story-call budget 8 spent"
+  },
+  {
+   "pool": "channel_clusters_72h",
+   "evaluated": true,
+   "groups": 14,
+   "stopped": "story-call budget 8 spent"
+  }
+ ],
+ "story_calls": 8,
+ "lineup_calls": 0,
+ "seconds": 238.7,
+ "models": {
+  "generator": "anthropic:claude-fable-5-2@medium",
+  "judge (ModelChecks)": "xai:grok-4.20-0309-reasoning",
+  "openai_probe": "HTTP 400 invalid_request_error"
+ }
+}
