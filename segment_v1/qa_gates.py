@@ -389,8 +389,30 @@ def gate_g3(final_mp4, segments, qa_dir):
 G3B_READS, G3B_CONTEXT_S, G3B_TAIL_S = 3, 1.5, 1.0     # DEC-12f
 
 
+_G3B_SCALE = {"hundred", "thousand", "million", "billion", "trillion", "k", "m", "b", "bn"}
+
+
 def _g3b_words(text):
-    return [w for w in text.lower().replace(".", " ").replace(",", " ").replace("?", " ").replace("!", " ").split()]
+    """Reading words, lower-case, punctuation dropped. Law L-g (2026-11-11): a word the ASR wrote as a symbol
+    is read as the spoken word, in spoken order: '$40 trillion' = '40 trillion dollars', '50%' = '50 percent'
+    (v2f's approved clip_02 tail '... above 40 trillion dollars.' was read 'above $40 trillion' twice)."""
+    toks = text.lower().replace(",", "").replace("?", " ").replace("!", " ").split()
+    out, dollars = [], False
+    for t in toks:
+        t = t.rstrip(".")
+        if dollars and t not in _G3B_SCALE:
+            out.append("dollars")
+            dollars = False
+        if t.startswith("$") and len(t) > 1:
+            t, dollars = t[1:], True
+        if t.endswith("%") and len(t) > 1:
+            out += [t[:-1], "percent"]
+            continue
+        if t:
+            out.append(t)
+    if dollars:
+        out.append("dollars")
+    return out
 
 
 def _g3b_match(expected, heard):
@@ -427,7 +449,8 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
         label = seg["label"]
         seg_end = seg["end"]
         seg_start = seg["start"]
-        edl_last = seg.get("last_word", "").lower().strip().rstrip(".,?!")
+        ew = _g3b_words(seg.get("last_word", ""))         # the same reading rules as the heard words (L-g)
+        edl_last = ew[-1] if ew else ""
 
         if not edl_last:
             continue
@@ -450,7 +473,8 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
         # Check 2: next source word must NOT appear (if declared in EDL)
         # R2-03: check ALL next words including short ones like "So"
         edl_entry = edl_clips.get(label, {})
-        next_word = edl_entry.get("next_source_word", "").lower().strip().rstrip(".,?!")
+        nw = _g3b_words(edl_entry.get("next_source_word", "") or "")
+        next_word = nw[0] if nw else ""
         next_leaked = False
         if next_word:                     # heard AFTER the expected last word (or at the very end) in a majority
             def _leak(ws):

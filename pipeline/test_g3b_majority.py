@@ -5,6 +5,9 @@ corrected Nov 10 cut's '... rally.' as 'route.' while G17b, G18 and the 9:16 dec
 must-pass  the corrected cut's tails (runs/pinned_20261111_172202_replay_cut1329, 16:9)
 must-fail  yesterday's Natalie tail, which ran on into '... people celebrating', against its locked last word
            'week.'; a tail cut 250 ms into its last word
+law L-g    a word the ASR writes as a symbol is read as the spoken word ('$40 trillion' = '40 trillion dollars'):
+           must-pass the approved v2f's 9:16 clip_02 '... above 40 trillion dollars.' (two of three readings wrote
+           'above $40 trillion'; the Law 22 re-render of 2026-11-11 23:27 UTC failed G3b on it)
 Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 -m pytest -q pipeline/test_g3b_majority.py"""
 import json
 import os
@@ -20,6 +23,7 @@ sys.path.insert(0, os.path.join(REPO, "segment_v1"))
 import qa_gates as Q  # noqa: E402
 
 FIX = os.path.join(REPO, "tests", "fixtures", "pulse_20261110")
+V2F = os.path.join(REPO, "references", "v2f_2026-11-06", "run")
 RUN = os.path.join(REPO, "runs", "pinned_20261111_172202_replay_cut1329")
 
 
@@ -42,6 +46,22 @@ class TestG3bMajority(unittest.TestCase):
 
     def test_three_readings_with_context(self):
         self.assertEqual((Q.G3B_READS, Q.G3B_CONTEXT_S), (3, 1.5))
+
+    def test_symbols_are_read_as_the_spoken_words(self):
+        self.assertEqual(Q._g3b_words("above $40 trillion"), ["above", "40", "trillion", "dollars"])
+        self.assertEqual(Q._g3b_words("hit $74,000."), ["hit", "74000", "dollars"])
+        self.assertEqual(Q._g3b_words("$1.66 billion in outflows"), ["1.66", "billion", "dollars", "in", "outflows"])
+        self.assertEqual(Q._g3b_words("up 50% today"), ["up", "50", "percent", "today"])
+        self.assertEqual(Q._g3b_words("the Monday rally."), ["the", "monday", "rally"])
+        self.assertEqual(Q._g3b_words("above 40 trillion"), ["above", "40", "trillion"])     # no symbol, no 'dollars'
+
+    @unittest.skipUnless(os.path.exists(os.path.join(V2F, "out", "segment_vertical.mp4")), "v2f reference missing")
+    def test_v2f_vertical_dollars_tail_passes(self):
+        segs = [s for s in _segs(os.path.join(V2F, "qa", "concat_manifest_9x16.json")) if s["label"] == "clip_02"]
+        ok, table = Q.gate_g3b(os.path.join(V2F, "out", "segment_vertical.mp4"), segs, self.tmp,
+                               edl_path=os.path.join(V2F, "edl.json"))
+        self.assertTrue(ok, table)
+        self.assertEqual(table[0]["edl_last"], "dollars")
 
     @unittest.skipUnless(os.path.exists(os.path.join(FIX, "audio", "out_16x9.flac")), "Nov 10 fixture missing")
     def test_yesterdays_natalie_tail_fails_against_its_locked_last_word(self):
