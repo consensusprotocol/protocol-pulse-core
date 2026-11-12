@@ -54,6 +54,39 @@ class TestG3bMajority(unittest.TestCase):
         self.assertEqual(Q._g3b_words("up 50% today"), ["up", "50", "percent", "today"])
         self.assertEqual(Q._g3b_words("the Monday rally."), ["the", "monday", "rally"])
         self.assertEqual(Q._g3b_words("above 40 trillion"), ["above", "40", "trillion"])     # no symbol, no 'dollars'
+        # batch 14 audit cases: no doubled 'dollars', abbreviated scales, '$' + '%', commas between words
+        self.assertEqual(Q._g3b_words("above $40 trillion dollars."), ["above", "40", "trillion", "dollars"])
+        self.assertEqual(Q._g3b_words("$40M raised"), ["40", "million", "dollars", "raised"])
+        self.assertEqual(Q._g3b_words("$50% off"), ["50", "percent", "off"])
+        self.assertEqual(Q._g3b_words("well,known fact"), ["well", "known", "fact"])
+        self.assertEqual(Q._g3b_words("$5 and $6"), ["5", "dollars", "and", "6", "dollars"])
+
+    def test_a_leak_of_any_word_of_a_symbol_next_word_fails(self):
+        """batch 14 audit (Gemini): the next source word '50%' reads as ['50', 'percent']; hearing either after the
+        last word is a leak (the old rule matched the whole '50%' token)."""
+        import json as _json
+        saved = (Q.extract_audio_region, Q.whisper_segment)
+        heard = {"text": "the market rose. percent"}
+        Q.extract_audio_region = lambda *a, **k: None
+        Q.whisper_segment = lambda wav, qa_dir: heard["text"]
+        edl = os.path.join(self.tmp, "edl_leak.json")
+        _json.dump({"hook": {}, "clips": [{"index": 1, "next_source_word": "50%"}]}, open(edl, "w"))
+        seg = [{"type": "talking_head", "label": "clip_01", "start": 0.0, "end": 10.0, "last_word": "rose."}]
+        try:
+            ok, table = Q.gate_g3b("x.mp4", seg, self.tmp, edl_path=edl)
+            self.assertFalse(ok, table)
+            self.assertTrue(table[0]["last_found"] and table[0]["next_leaked"], table)
+            self.assertEqual(table[0]["next_source_word"], "50 percent")
+            heard["text"] = "the market rose."                       # nothing after the last word: clean
+            ok, table = Q.gate_g3b("x.mp4", seg, self.tmp, edl_path=edl)
+            self.assertTrue(ok, table)
+            heard["text"] = "above $40 trillion"                     # a symbol never stands in for another word
+            ok, table = Q.gate_g3b("x.mp4", [{**seg[0], "last_word": "rally."}], self.tmp, edl_path=edl)
+            self.assertFalse(ok, table)
+            ok, table = Q.gate_g3b("x.mp4", [{**seg[0], "last_word": "$40."}], self.tmp, edl_path=edl)
+            self.assertEqual((ok, table[0]["edl_last"]), (True, "dollars"))   # the EDL's word is read the same way
+        finally:
+            Q.extract_audio_region, Q.whisper_segment = saved
 
     @unittest.skipUnless(os.path.exists(os.path.join(V2F, "out", "segment_vertical.mp4")), "v2f reference missing")
     def test_v2f_vertical_dollars_tail_passes(self):

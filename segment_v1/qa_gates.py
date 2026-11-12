@@ -16,7 +16,7 @@ Gates:
 
 Exit non-zero on any FAIL. Writes GATE_FAIL.txt on failure.
 """
-import json, os, subprocess, sys, math, struct, wave, time
+import json, os, re, subprocess, sys, math, struct, wave, time
 import numpy as np
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -389,28 +389,40 @@ def gate_g3(final_mp4, segments, qa_dir):
 G3B_READS, G3B_CONTEXT_S, G3B_TAIL_S = 3, 1.5, 1.0     # DEC-12f
 
 
-_G3B_SCALE = {"hundred", "thousand", "million", "billion", "trillion", "k", "m", "b", "bn"}
+_G3B_SCALE = {"hundred", "thousand", "million", "billion", "trillion"}
+_G3B_SUFFIX = {"k": "thousand", "m": "million", "mn": "million", "b": "billion", "bn": "billion", "t": "trillion",
+               "tn": "trillion"}
+_G3B_NUM_SUFFIX = re.compile(r"^(\d+(?:\.\d+)?)(k|mn|m|bn|b|tn|t)$")
 
 
 def _g3b_words(text):
-    """Reading words, lower-case, punctuation dropped. Law L-g (2026-11-11): a word the ASR wrote as a symbol
-    is read as the spoken word, in spoken order: '$40 trillion' = '40 trillion dollars', '50%' = '50 percent'
-    (v2f's approved clip_02 tail '... above 40 trillion dollars.' was read 'above $40 trillion' twice)."""
-    toks = text.lower().replace(",", "").replace("?", " ").replace("!", " ").split()
-    out, dollars = [], False
-    for t in toks:
+    """Reading words, lower-case, punctuation dropped. Law L-g (2026-11-11): a word the ASR wrote as a symbol is
+    read as the spoken word, in spoken order: '$40 trillion' = '40 trillion dollars', '$40M' = '40 million
+    dollars', '50%' = '50 percent'; a 'dollars' the ASR also wrote is not doubled; thousands separators are
+    dropped ('74,000' = '74000'), other commas split words, decimals stay whole ('1.66'). (v2f's approved clip_02
+    tail '... above 40 trillion dollars.' was read 'above $40 trillion' twice.)"""
+    text = re.sub(r"(?<=\d),(?=\d)", "", (text or "").lower())
+    seq = []                                                  # (word, starts a '$' amount)
+    for t in text.replace(",", " ").replace("?", " ").replace("!", " ").split():
         t = t.rstrip(".")
-        if dollars and t not in _G3B_SCALE:
-            out.append("dollars")
-            dollars = False
-        if t.startswith("$") and len(t) > 1:
-            t, dollars = t[1:], True
-        if t.endswith("%") and len(t) > 1:
-            out += [t[:-1], "percent"]
-            continue
-        if t:
-            out.append(t)
-    if dollars:
+        cash = t.startswith("$") and len(t) > 1
+        t = t[1:] if cash else t
+        m = _G3B_NUM_SUFFIX.match(t)
+        if m:
+            seq += [(m.group(1), cash), (_G3B_SUFFIX[m.group(2)], False)]
+        elif t.endswith("%") and len(t) > 1:
+            seq += [(t[:-1], False), ("percent", False)]      # a percentage is not a dollar amount
+        elif t:
+            seq.append((t, cash))
+    out, owed = [], False                                     # owed: an amount still owes its spoken 'dollars'
+    for w, cash in seq:
+        if owed and (cash or w not in _G3B_SCALE):
+            owed = False
+            if w != "dollars":
+                out.append("dollars")
+        out.append(w)
+        owed = owed or cash
+    if owed:
         out.append("dollars")
     return out
 
@@ -473,13 +485,14 @@ def gate_g3b(final_mp4, segments, qa_dir, edl_path=None):
         # Check 2: next source word must NOT appear (if declared in EDL)
         # R2-03: check ALL next words including short ones like "So"
         edl_entry = edl_clips.get(label, {})
-        nw = _g3b_words(edl_entry.get("next_source_word", "") or "")
-        next_word = nw[0] if nw else ""
+        next_words = _g3b_words(edl_entry.get("next_source_word", "") or "")   # '50%' -> ['50', 'percent']
+        next_word = " ".join(next_words)
         next_leaked = False
-        if next_word:                     # heard AFTER the expected last word (or at the very end) in a majority
-            def _leak(ws):
+        if next_words:                    # any of its words heard AFTER the expected last word (or at the very end)
+            def _leak(ws):               # in a majority (batch 14 audit: every token of a symbol word, fail closed)
                 idx = max((i for i, w in enumerate(ws) if _g3b_match(edl_last, w)), default=None)
-                return next_word in (ws[idx + 1:] if idx is not None else ws[-2:])
+                after = ws[idx + 1:] if idx is not None else ws[-2:]
+                return any(n in after for n in next_words)
             next_leaked = sum(1 for ws in reads if _leak(ws)) * 2 > len(reads)
 
         ok = last_found and not next_leaked
