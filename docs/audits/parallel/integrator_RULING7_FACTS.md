@@ -54,3 +54,14 @@ accepted_cut, unchanged):
   Text: "Bitcoin is a new system of measure that's measuring the first free market that's ever existed." Runtime note: with the
   current VO, R4's estimate drops to about 59.7 s (< 60, R4 hard) unless the VO grows by about 1 s.
 - 'emerges.' passes this geometry check but is known bad (the 07:07 prepare HOLD: its final sibilant runs into 'And').
+
+## 07:36 ET: the RENDERER's cut placement at 'does.' is NOT the builder's M19 reading (answer to REQUESTS R11)
+- The builder's check (cut_accept.check_cut_out, M19) finds legal cut_out points 29.62-29.83 inside the pause 29.64-29.89. The renderer
+  does not place the cut with M19: stage_cut -> sentence_law.write_lock_cut_table -> edge_plan + accepted_cut. On the acquired window that
+  geometry reports the heard gap after 'does.' as 30.02-30.89 (the host's "Mm" at 29.89-30.12 is inside the junction it measures, and
+  the primary decode times the next word 'But' at 30.38), so its legal OUT range is 30.02-30.89 and accepted_cut returns cut_out 30.82.
+  The rendered clip_02 would therefore END after the host's "Mm" (speaker_1), not at 29.6-29.9.
+- Reproduce (CPU, read-only): edge_plan(SourceAudio(<run>/sources/wdk5JZ9hPzs.mp4), words, 31, 70) -> OUT cut range 30.02-30.89;
+  accepted_cut(...) -> cut_in 15.02, cut_out 30.82 (runs/pinned_20261112_120225; words = its transcripts/wdk5JZ9hPzs.json).
+- So, unchanged from 07:23: 'does.' is not a clean end for the render as it stands; the cut geometry is integrity code and is not
+  changed tonight. Clean in this moment: 'existed.' only.
