@@ -281,6 +281,16 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix:** before any audit leg is reported, its raw reply is read: content present and a verdict parsed, else the leg is reported as NO ANSWER (nothing measured is never a pass, L-m); a large diff is split so the panel answers within its budget.
 **Detection:** raw_c1_<model>.json: choices[0].message.content null, finish_reason 'length'.
 
+### E-FAIL-060: A gate refusal was claimed from a simulation that assumed the wrong transition plan
+**Evidence:** 2026-11-12 08:42 ET: the integrator's one-list said G14 would hold the 08:44 moments package (clip_02, 4.63 s: 'one clear sample point'), assuming a dissolve at every join. The deployed pulse_transitions.plan dissolves only between two talking heads of different channels, so no VO join has one. Corrected 08:49 (1136e56d), after the orchestrator had issued ruling 11 on the wrong premise (08:55). The render log then showed 'Transitions (crossfade): []'.
+**Fix:** a simulated gate verdict runs the deployed functions that produce the gate's inputs (here pulse_transitions.plan and gates.gate_g14's own sample layout), never an assumed plan; a claimed refusal names the code lines it came from.
+**Detection:** a reported gate verdict whose inputs were not produced by the deployed code path.
+
+### E-FAIL-061: A package that passed R4's 60 s floor rendered at 59.625 s
+**Evidence:** 2026-11-12 09:29 ET, run pinned_20261112_135315 (moments seal 37c5b5f5): R4 estimated 61.82 s (VO at 2.5 w/s + 1.0 s pre-roll a line, tail 14.30 s); the 16:9 final measured 59.625 s. The voice spoke 55 words in 18.88 s (2.91 w/s: the VO cards were 3.14 s shorter), the shout-out + outro tail was 13.53 s (-0.77 s), the cuts added +1.79 s over the locked words. G5's 60-120 s window refused it only after the full render: nothing re-checks the runtime once the voice stage has produced the real VO lengths.
+**Fix:** ruling 12 ('09:32'): the measured final is accepted from 58 to 72 s, outside 60-70 s a recorded deviation; packaging uses the measured VO audio durations once the voice stage has produced them, before render (builder).
+**Detection:** the render log's STEP 3 segment sum against the R4 line's 'estimated runtime'.
+
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.
 Check: pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py.
 

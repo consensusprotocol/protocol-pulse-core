@@ -174,7 +174,9 @@ class TestGateFailClears(unittest.TestCase):
 
 
 class TestDurationWindow(unittest.TestCase):
-    """Bug 7. Approved vertical is 102.9 s. Product window is 60-120 s, both aspects."""
+    """Bug 7. Approved vertical is 102.9 s. Product window was 60-120 s, both aspects. Ruling 12 (orchestrator
+    2026-11-12 '09:32'): the measured final is accepted from 58.0 to 72.0 s in both aspects, 60-70 s is the
+    format target (a value outside it is a recorded deviation), outside 58-72 s it fails."""
 
     def _g5(self, dur, fmt):
         qa = _qa()
@@ -203,28 +205,47 @@ class TestDurationWindow(unittest.TestCase):
             }],
         }
         try:
-            ok, _ = qa.gate_g5("x.mp4", fmt)
+            ok, self.last = qa.gate_g5("x.mp4", fmt)
             return ok
         finally:
             qa.subprocess.run = real_run
             qa.get_duration = real_dur
             qa.ffprobe_json = real_probe
 
-    def test_approved_102s_vertical_passes(self):
-        self.assertTrue(
+    def test_the_old_102s_vertical_now_fails(self):
+        # ruling 12: the 60-120 s product window is gone; 102.9 s is outside 58-72 s
+        self.assertFalse(
             self._g5(102.9, "9x16"),
-            "G5 rejected the approved 102.9 s vertical",
+            "G5 accepted a 102.9 s vertical; ruling 12 accepts 58-72 s",
         )
 
     def test_50s_vertical_fails(self):
         self.assertFalse(
             self._g5(50.0, "9x16"),
-            "G5 accepted a 50 s vertical; floor is 60 s",
+            "G5 accepted a 50 s vertical; floor is 58 s",
         )
 
     def test_130s_either_aspect_fails(self):
         self.assertFalse(self._g5(130.0, "9x16"))
         self.assertFalse(self._g5(130.0, "16x9"), "16:9 duration is not checked")
+
+    def test_ruling_12_accepts_58_to_72_and_rejects_beyond_in_both_aspects(self):
+        for fmt in ("16x9", "9x16"):
+            self.assertFalse(self._g5(57.9, fmt), f"57.9 s accepted ({fmt})")
+            self.assertFalse(self._g5(72.1, fmt), f"72.1 s accepted ({fmt})")
+            self.assertTrue(self._g5(58.0, fmt), f"58.0 s rejected ({fmt})")
+            self.assertTrue(self._g5(72.0, fmt), f"72.0 s rejected ({fmt})")
+
+    def test_outside_the_target_is_a_recorded_deviation_inside_it_none(self):
+        self.assertTrue(self._g5(59.625, "16x9"))                       # tonight's moments render
+        self.assertEqual(self.last["duration_deviation"], "59.625 s is 0.375 s under the 60-70 s format target")
+        self.assertTrue(self._g5(71.084, "9x16"))                       # the approved Nov 11 preview
+        self.assertEqual(self.last["duration_deviation"], "71.084 s is 1.084 s over the 60-70 s format target")
+        for d in (60.0, 65.0, 70.0):
+            self.assertTrue(self._g5(d, "16x9"))
+            self.assertNotIn("duration_deviation", self.last, d)
+        self.assertFalse(self._g5(57.9, "16x9"))
+        self.assertNotIn("duration_deviation", self.last)              # a failure is a failure, not a deviation
 
 
 class TestMagnitudeCut(unittest.TestCase):
