@@ -96,6 +96,11 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
         if run.sampler:
             run.prov.setdefault("gpu0", {})["peaks_mib"] = run.sampler.stop()
         run.prov.setdefault("gpu0", {})["swaps"] = rf.gpu0.events()
+        try:                                            # L-r: unload this replay's models before the report is written
+            run.prov["gpu0"]["left"] = rf.gpu0.leave() if rf.gpu0.held() else "no lease held"
+        except rf.gpu0.Gpu0Stop as e:
+            run.prov["gpu0"]["left"] = f"FAILED: {type(e).__name__}: {e}"
+            run.status["gpu0_leave_failed"] = run.prov["gpu0"]["left"]
         try:                                            # attested for its verdict, never deliverable
             rf.attest_run(run, deliverable=False, why_not="replay: diagnostic, deliver only a full run",
                           code_checked=False)
@@ -106,11 +111,6 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
         rf.write_report(run)
         with open(os.path.join(dst, "VERDICT.txt"), "w") as f:
             f.write(str(run.status["verdict"]) + "\n")
-        try:                                            # L-r: unload this replay's models before the lease goes
-            if rf.gpu0.held():
-                rf.gpu0.leave()
-        except rf.gpu0.Gpu0Stop as e:
-            print(f"  GPU0 leave: {type(e).__name__}: {e}", flush=True)
         run.gpu0_stack.close()                          # the GPU0 lease is held to here
     print(f"\n=== REPLAY {dst} (from {start}, vision {'on' if vision else 'OFF'}): {run.status['verdict']} ===")
     for h in run.status["holds"]:

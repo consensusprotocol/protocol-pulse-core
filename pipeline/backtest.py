@@ -217,8 +217,10 @@ def _backtest_days(days, a, registry, sm):
                       indent=1)
             open(os.path.join(a.out, "BACKTEST.md"), "w").write(table(rows) + "\n")
     finally:
-        L.stop()
-        E.close()
+        try:
+            L.stop()
+        finally:
+            E.close()
     return rows, t0
 
 
@@ -236,8 +238,10 @@ def main(argv=None):
     import gpu0
     try:
         with gpu0.lease(f"backtest {os.path.basename(a.out)} (pid {os.getpid()})"):  # L-r: a GPU0 job holds the lease
-            rows, t0 = _backtest_days(days, a, registry, sm)
-            gpu0.leave()
+            try:
+                rows, t0 = _backtest_days(days, a, registry, sm)
+            finally:
+                gpu0.leave()
     except gpu0.Gpu0Stop as e:
         print(f"HOLD (backtest): GPU0 {type(e).__name__}: {e}", flush=True)
         return 3

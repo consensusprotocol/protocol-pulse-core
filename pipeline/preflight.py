@@ -67,7 +67,9 @@ def check_ollama():
                        "options": {"num_predict": 1}}).encode()                                  # its answer (L-r)
     try:
         r = _get_json(f"http://{sm.LLM_HOST}/api/generate", {"Content-Type": "application/json"}, timeout=180, data=body)
+        gpu0.ollama_settle(sm.LLM_MODEL)                  # keep_alive 0: gone again, so no pending ownership remains
     except urllib.error.HTTPError as e:
+        gpu0.ollama_settle(sm.LLM_MODEL)
         text = e.read().decode(errors="replace")
         if gpu0.is_oom(RuntimeError(text)):                # named as what it is, never 'HTTPError (raised)'
             raise gpu0.GpuOOM(f"{sm.LLM_MODEL}: CUDA out of memory (HTTP {e.code}: {text[-300:]})") from None

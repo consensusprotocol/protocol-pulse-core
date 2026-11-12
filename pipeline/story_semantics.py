@@ -195,7 +195,8 @@ class LocalLLM:
     def _post(self, prompt, max_tokens, seed):
         import gpu0
         gpu0.require(f"ollama:{self.model}")          # L-r: every request under the lease, not only the first
-        if getattr(self, "_gpu0_gen", None) != gpu0.generation() or self.model not in gpu0.ollama_loaded():
+        if getattr(self, "_gpu0_gen", None) != gpu0.generation() or self.model not in gpu0.ollama_loaded() \
+                or self.model not in gpu0._ollama_ours:                 # ownership pruned: a newcomer is foreign
             gpu0.swap_to(f"ollama:{self.model}")        # L-r: nothing else resident, the memory proven free
             self._gpu0_gen = gpu0.generation()
         body = json.dumps({"model": self.model, "stream": False, "format": "json",
@@ -208,11 +209,19 @@ class LocalLLM:
             resp = json.loads(urllib.request.urlopen(req, timeout=600).read())
         except urllib.error.HTTPError as e:
             text = e.read().decode(errors="replace")             # classified whole, reported truncated
-            if gpu0.is_oom(RuntimeError(text)):
-                raise gpu0.GpuOOM(f"ollama {self.model}: CUDA out of memory (HTTP {e.code}: {text[-400:]})") from None
+            gone = self.model not in gpu0.ollama_loaded()
+            gpu0.ollama_settle(self.model)
+            if gpu0.is_oom(RuntimeError(text)) or gone:
+                raise gpu0.GpuOOM(f"ollama {self.model}: HTTP {e.code} with "
+                                  f"{'the model no longer resident (out-of-memory suspected)' if gone else 'a CUDA out of memory'}: "
+                                  f"{text[-400:]}") from None
             raise RuntimeError(f"Ollama HTTP {e.code}: {text[:400]}") from None
         except (urllib.error.URLError, ConnectionError, TimeoutError) as e:   # the runner died mid-request?
-            if gpu0.is_oom(e) or self.model not in gpu0.ollama_loaded():
+            if isinstance(e, ConnectionRefusedError) or isinstance(getattr(e, "reason", None), ConnectionRefusedError):
+                raise RuntimeError(f"Ollama {self.host} refused the connection (the server is down): {e}") from None
+            gone = self.model not in gpu0.ollama_loaded()
+            gpu0.ollama_settle(self.model)
+            if gpu0.is_oom(e) or gone:
                 raise gpu0.GpuOOM(f"ollama {self.model}: the runner was lost mid-request and the model is no longer "
                                   f"resident (out-of-memory suspected): {type(e).__name__}: {e}") from None
             raise

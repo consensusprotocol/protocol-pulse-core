@@ -1922,7 +1922,8 @@ def _standalone_lease():
     try:
         cm.__enter__()
     except g.Gpu0Stop as e:
-        sys.exit(f"qa_gates: GPU0 {type(e).__name__}: {e}")
+        print(f"qa_gates: GPU0 {type(e).__name__}: {e}", file=sys.stderr)
+        sys.exit(75)
     return cm
 
 

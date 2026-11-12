@@ -224,6 +224,32 @@ class TestSwap(Box):
             self.used[0] = 400
             self.assertEqual(gpu0.release_all(wait_s=0)["this_process_mib"], 400)
 
+    def test_a_newcomer_is_never_unloaded_and_an_unreported_memory_proves_nothing(self):
+        self.ollama[:] = ["qwen3-coder:30b"]                             # appeared after the foreign check
+        with gpu0.lease("t"), mock.patch.object(gpu0, "_refuse_foreign", lambda what: None):
+            gpu0.release_all(wait_s=0)
+            self.assertEqual(self.unloaded, [])                          # not this run's: never unloaded
+            self.procs[:] = [(os.getpid(), "python3", None)]
+            with self.assertRaisesRegex(gpu0.Gpu0NotFree, "still holds None MiB"):
+                gpu0.release_all(wait_s=0, poll_s=0)
+
+    def test_a_finished_request_leaves_no_pending_ownership(self):
+        with gpu0.lease("t"):
+            gpu0.swap_to("ollama:gemma3:27b")                            # pending
+            gpu0.ollama_settle("gemma3:27b")                             # the request ended (keep_alive 0): gone
+            self.assertNotIn("gemma3:27b", gpu0._ollama_ours)
+            self.ollama[:] = ["gemma3:27b"]                              # another client's later load
+            with self.assertRaisesRegex(gpu0.Gpu0Foreign, "not requested by this run"):
+                gpu0.swap_to("nvenc")
+
+    def test_a_swap_that_fails_leaves_no_pending_claim(self):
+        self.used[0] = 23000                                            # never free (an idle runner holds it)
+        self.procs[:] = [(999999, "ollama", 22900)]
+        with gpu0.lease("t"):
+            with self.assertRaises(gpu0.Gpu0NotFree):
+                gpu0.swap_to("ollama:gemma3:27b", wait_s=0, poll_s=0)
+            self.assertNotIn("gemma3:27b", gpu0._ollama_ours)             # no request followed: no claim stays
+
     def test_decoding_continues_only_under_the_lease(self):
         it = gpu0.guard_iter(iter([1, 2]), "decode")
         with gpu0.lease("t"):
@@ -414,7 +440,7 @@ class TestStageRunner(Box):
 
 class TestOllamaReadingsFailClosed(unittest.TestCase):
     def test_an_empty_or_malformed_answer_is_unreadable_never_nothing_resident(self):
-        for body in ({}, [], {"models": None}, {"models": "x"}):
+        for body in ({}, [], {"models": None}, {"models": "x"}, {"models": [{"name": []}]}, {"models": [{}]}):
             with mock.patch.object(gpu0, "_ollama", return_value=body):
                 with self.assertRaises(gpu0.Gpu0Unreadable, msg=repr(body)):
                     gpu0.ollama_resident()

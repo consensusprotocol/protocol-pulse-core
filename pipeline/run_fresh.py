@@ -1330,6 +1330,8 @@ def write_report(run):
           for r in s["stages"]]
     g0 = p.get("gpu0") or {}
     total = ((g0.get("at_start") or {}).get("memory_mib") or [None, None])[1]
+    if "left" in g0:
+        L += ["", f"- GPU0 at the run's end (law L-r leave): {g0['left']}"]
     L += ["", f"## GPU0 peak memory per stage (law L-r; nvidia-smi memory.used sampled every 1 s, a lower bound; GPU0 "
               f"total {total} MiB)", "| stage | peak MiB | out-of-memory attempts | retry |", "|---|---|---|---|"]
     for r in s["stages"]:
@@ -1484,6 +1486,11 @@ def main():
             run.prov.setdefault("gpu0", {})["peaks_mib"] = run.sampler.stop()
             run.prov["gpu0"]["sampler_errors"] = run.sampler.errors
         run.prov.setdefault("gpu0", {})["swaps"] = gpu0.events()
+        try:                                   # L-r: unload this run's models now, so the report records the outcome
+            run.prov["gpu0"]["left"] = gpu0.leave() if gpu0.held() else "no lease held"
+        except gpu0.Gpu0Stop as e:             # the next owner would find a model of this run: said, not hidden
+            run.prov["gpu0"]["left"] = f"FAILED: {type(e).__name__}: {e}"
+            run.status["gpu0_leave_failed"] = run.prov["gpu0"]["left"]
         try:                                   # LAST: the terminal state, any hold included (release_auth)
             attest_run(run)
         except Exception as e:
@@ -1497,11 +1504,8 @@ def main():
         for h in run.status["holds"]:
             print(f"  HOLD: {h}")
         print(f"  report: {os.path.join(run_dir, 'REPORT.md')}  (no publishing)")
-        try:                                   # L-r: unload this run's models so the next owner does not find them
-            if gpu0.held():
-                gpu0.leave()
-        except gpu0.Gpu0Stop as e:
-            print(f"  GPU0 leave: {type(e).__name__}: {e}", flush=True)
+        if run.status.get("gpu0_leave_failed"):
+            print(f"  GPU0 leave: {run.status['gpu0_leave_failed']}", flush=True)
         run.gpu0_stack.close()                 # the GPU0 lease (law L-r) is held to here
     sys.exit(0 if run.status["verdict"] == VERDICT_CANDIDATE else 3)
 

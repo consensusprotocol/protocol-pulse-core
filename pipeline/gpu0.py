@@ -319,9 +319,17 @@ def _lease_holders():
         p = line.split()
         if len(p) >= 6 and p[1] == "FLOCK" and p[5].rsplit(":", 1)[-1] == str(ino) and p[4].isdigit():
             out.add(int(p[4]))
-    for pid in list(out):
-        out |= _descendants(pid)
-    return out
+    live = set()
+    for pid in out:                                    # the locker must still be alive with the lease file open (a
+        try:                                           # dead flock(1) helper's pid, or a reused pid, is no holder)
+            if any(os.path.realpath(os.readlink(f"/proc/{pid}/fd/{fd}")) == lease_path()
+                   for fd in os.listdir(f"/proc/{pid}/fd")):
+                live.add(pid)
+        except OSError:
+            continue
+    for pid in list(live):
+        live |= _descendants(pid)
+    return live
 
 
 def _ollama_pids():
@@ -376,6 +384,8 @@ def ollama_resident():
         r = _ollama("/api/ps")
         if not isinstance(r, dict) or not isinstance(r.get("models"), list):
             raise ValueError(f"no models list in {str(r)[:80]!r}")
+        if not all(isinstance(m, dict) and isinstance(m.get("name"), str) and m["name"] for m in r["models"]):
+            raise ValueError("a model entry without a name string")
         out = [(m["name"], int(m.get("size_vram") or 0) // (1024 * 1024)) for m in r["models"]]
     except urllib.error.URLError as e:
         if isinstance(getattr(e, "reason", None), ConnectionRefusedError):
@@ -396,6 +406,15 @@ def ollama_resident():
 
 def ollama_loaded():
     return [n for n, _ in ollama_resident()]
+
+
+def ollama_settle(name):
+    """Called when a request for `name` has ended (answered or failed): a still-'pending' ownership whose model is not
+    resident now is dropped, so another client's later load of the same name is foreign, never 'ours'."""
+    resident = name in ollama_loaded()
+    with _lock:
+        if _ollama_ours.get(name) == "pending" and not resident:
+            del _ollama_ours[name]
 
 
 def _ollama_unload(names, wait_s=60):
@@ -463,10 +482,20 @@ def swap_to(key, wait_s=WAIT_S, poll_s=2.0):
             m.unload()
             ev["unloaded"].append(m.key)
         name = _ollama_key(key)
-        drop = [n for n in ollama_loaded() if n != name]          # all this run's: foreign() passed
+        drop = [n for n in ollama_loaded() if n != name and n in _ollama_ours]   # this run's only, never a newcomer
         ev["unloaded"] += [f"ollama:{n}" for n in _ollama_unload(drop)]
         if name and name not in _ollama_ours:
             _ollama_ours[name] = "pending"                     # ours once seen resident; a request loads it now
+        try:
+            return _swap_wait(key, name, ev, wait_s, poll_s)
+        except BaseException:
+            if name:
+                ollama_settle(name)                            # the swap failed: no request follows, no claim stays
+            raise
+
+
+def _swap_wait(key, name, ev, wait_s, poll_s):
+    with _lock:
         already = name in ollama_loaded() if name else any(m.key == key for m in _resident)
         _empty_caches()
         need = MARGIN_MIB if already else REQUIREMENT_MIB[key] + MARGIN_MIB
@@ -501,14 +530,15 @@ def release_all(wait_s=WAIT_S, poll_s=2.0):
         for m in list(_resident):
             m.unload()
             ev["unloaded"].append(m.key)
-        ev["unloaded"] += [f"ollama:{n}" for n in _ollama_unload(ollama_loaded())]
+        ev["unloaded"] += [f"ollama:{n}" for n in _ollama_unload([n for n in ollama_loaded() if n in _ollama_ours])]
         _empty_caches()
         _gen[0] += 1
         t0 = time.time()
         while True:
             used, total = memory()
-            mine = sum(m or 0 for p, _, m in processes() if p == os.getpid())
-            if total - used >= need and mine <= CONTEXT_MAX_MIB:
+            rows = [m for p, _, m in processes() if p == os.getpid()]
+            mine = None if any(m is None for m in rows) else sum(rows)          # unreported: cannot prove the release
+            if total - used >= need and mine is not None and mine <= CONTEXT_MAX_MIB:
                 ev.update(after=[used, total], this_process_mib=mine, waited_s=round(time.time() - t0, 1))
                 return ev
             if time.time() - t0 > wait_s:
