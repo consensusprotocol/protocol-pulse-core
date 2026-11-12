@@ -2,8 +2,11 @@
 
 ## LIVE STATE (newest first; times ET, 2026-11-12)
 
-- IN PROGRESS: commit + push of the wall (all five families, fixtures, REQUESTS, BIBLE_ADDITIONS, COVERAGE, audit
-  record); then this block gets the commit hash and DONE.
+- **DONE** (02:30 ET): the wall is committed and pushed: **c35a2bde3c2c985b7142d4c29335e239140f400b** on
+  origin/pp-tests (60 files: tests/adversarial 8, tests/fixtures/adversarial 2, docs/audits/parallel 50; nothing under
+  pipeline/, scripts/ or segment_v1/). DONE WHEN met: all five families committed and pushed; every test passes or is
+  a strict xfail tied to a written request (R-01..R-23); the findings-to-tests table exists (pp-tests_COVERAGE.md,
+  all 244 ledger rows); this block names the commit. Not merged anywhere (the integrator merges after its own audit).
 - AUDITED (pp-tests_AUDIT_RESPONSE.md): repo cross_llm_audit.py, two cycles, round 1 (GPT-4o out of credits; Gemini +
   Grok) and a final round on the fixed code with all three models (code 96/100 from each); a frontier review
   (claude-opus-5-5) found 8 real weaknesses in the wall itself, all fixed, then two verification rounds (final: READY);

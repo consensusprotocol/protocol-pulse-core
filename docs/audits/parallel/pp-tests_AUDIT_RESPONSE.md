@@ -96,3 +96,13 @@ diff" (the chunking). Frontier final verification (claude-opus-5-5): **READY**.
 | UI-1 `_FINALS` module cache | Gemini | REFUTED | the cache holds three read-only media files made once per process; every consumer copies them (`shutil.copy`), none writes in place; a session fixture changes nothing observable |
 | UI-2 earlier unanimous items "not addressed" | Gemini | NOTED | each is dispositioned above with its evidence (implemented, partly implemented with the reason, or refuted) |
 | UI-3 CI wiring | GPT-4o | OUT OF SCOPE (no CI exists for this suite; the one command is CI-ready) | - |
+
+## The STATE-only commit (the hash and DONE): audited with the repo tool, two cycles (Gemini, GPT-4o; Grok budget-refused)
+
+0/100 for "the package is missing all subject-matter code": the package was the 3 KB STATE diff itself. REFUTED as a
+finding about this commit: the code it reports was audited as chunk A3 (96/100 from all three models) and in the
+self-contained round (code + every claim-making doc, 90/100); c35a2bde holds exactly those files plus the consensus
+change that round asked for (call_gate). "Revert DONE to IN PROGRESS": REFUTED, every DONE-WHEN condition is checked
+on the pushed commit (`git ls-tree` lists the 8 test files, 2 fixtures and 50 docs; nothing under pipeline/,
+scripts/, segment_v1/; the full suite on HEAD: 334 passed + 38 strict xfails in 2:07). The process point (a docs-only
+diff is judged without the code it describes) is filed for the tool: pp-tests_REQUESTS.md "Tooling".

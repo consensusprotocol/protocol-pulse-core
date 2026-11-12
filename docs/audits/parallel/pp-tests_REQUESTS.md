@@ -268,3 +268,16 @@ Measured 2026-11-12 on the saved v2f files through `qa_gates.gate_g8` (frames to
 passes with zero margin on clip_03 (10.84 = the calibrated floor, Claude-gates A5). The recorded FAIL is G8 called
 without source clips (the harness), which fails closed by design. Pinned: test_f5
 test_g8_9x16_v2f_passes_through_the_production_wiring_at_its_floor and test_g8_9x16_v2f_fails_without_sources_the_harness_reading.
+
+## Tooling (not a pipeline defect): utils/cross_llm_audit.py, as met by a worktree session (for the integrator)
+- `BASE = Path.home() / "protocol_pulse"` fixes its inputs, its output directory (`AUDITS / feature`) and
+  `AUDIT_REGISTRY.json` to the MAIN tree: a worktree session cannot run it as is without writing there (this session
+  redirected the module's paths from a driver; pp-tests_AUDIT_RESPONSE.md). Proposed: a `--base` / `--out` argument.
+- A file of 220,000 bytes or more is silently left out of the package (batch 16 saw an empty Grok review). Proposed:
+  fail with a message instead of dropping it.
+- It needs `GEMINI_API_KEY` / `XAI_API_KEY`; the project's file defines the `_MEDLEY` names (the tool exits "MISSING
+  API KEYS"). Proposed: read the `_MEDLEY` names as fallbacks, as pipeline/signoff.py does.
+- The xAI gateway it loads enforces `max_usd_per_day` $1.00 per budget ledger: a session that runs several rounds
+  loses Grok for the day.
+- A docs-only diff is reviewed without the code it describes, so it is scored as "code missing" (0/100 on a status
+  update). Proposed: a package type (code / docs) and, for docs, the files they cite.
