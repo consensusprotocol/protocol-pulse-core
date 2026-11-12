@@ -6,6 +6,11 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## TONIGHT'S MOMENTS-FIRST VIDEO (orders '06:00' / '06:22'): RESULT 06:34 ET = HOLD AT STAGE `cut`, NOT DELIVERED
+
+- Run runs/pinned_20261112_113058 (HEAD a5ec0f17; pin data/moments_pins/MOMENTS_PIN_062925.json sha256 12eff4b2..., package_sha256 add8c732..., the seal recomputed and every sealed gate PASS; started 06:30:16, ended 06:34:05, run_fresh exit 3). Passed: env, pinned (3 windows acquired + transcribed on GPU0), review (gemma3:27b), validate (R1-R10 incl. the new R4 moments: VO 19.80 s = 30.79 % of an estimated 64.30 s; editorial laws L0 + 1-4 PASS; stand-alone all PASS).
+- STAGE `cut` HOLD, real cause (CUT_ACCEPTANCE.json): the sentence lock (integrity, L-o (1)-(2), fail closed) found no sentence boundary in OUR Whisper transcript at two locked edges: clip_01 (What Bitcoin Did, c1JGheQBPH4) IN 'unpunctuated transcript stretch: no sentence evidence' and OUT 'bitcoin' does not end a sentence; clip_02 (Natalie Brunell, wdk5JZ9hPzs) OUT 'secure,' does not end a sentence. The package's approved text ends both on a full stop (its store transcript's punctuation); the transcript this render acquired does not. Nothing was loosened; nothing was sent to Telegram. GPU0 left as found (the run released it).
+
 ## PAID OUTSIDE-MODEL SPEND TONIGHT, BY VENDOR (orchestrator order 05:30 ET; read 05:37 ET from each session's own STATE and ledgers; SPEND FREEZE since 05:30)
 
 Window: 2026-11-11 18:00 ET to 05:37 ET. "Recorded" = a ledger or a usage line per call, priced as that ledger prices it; "est." = a tool that keeps no usage. Prices used where this record priced usage itself: claude-fable-5-2 $8/$40, claude-opus-5-5 $4/$20, claude-sonnet-5-5 $2/$10 per 1M input/output tokens (Anthropic list, the claude-api reference cached 2026-11-03); gpt-6.1-sol $15/$120 (the price pp-tests and pp-selectid used; pp-selectid calls it an upper bound); grok-4.20 $5/$25 (pp-selectid's assumption).
