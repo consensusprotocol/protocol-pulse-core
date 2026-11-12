@@ -1,0 +1,155 @@
+line/telegram.py b/pipeline/telegram.py
+index 4abd104f..4e3be548 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -392,3 +392,250 @@ def _send_bot_api(kind, path, fields, data=None):
+     if isinstance(data, dict) and data.get("ok") is False and type(data.get("error_code")) is int:
+         raise SendRejected(f"STOP: Telegram {method} refused: {data.get('error_code')} {data.get('description')}")
+     raise RuntimeError(f"STOP: Telegram {method}: outcome unknown (unrecognised answer)")
++
++
++# ==============================================================
++# REVIEW DROP (orchestrator order 2026-11-12 '13:06'; law L-j unchanged): an engineering REVIEW of a run that is NOT
++# a pass, beside the release path and never part of it. GPT audit batch 16: "Unverified material can go to a clearly
++# labelled engineering review destination. It must not carry the production PASS label." A review drop never creates
++# or implies a release authorisation (deliver_run still requires release_auth.authorise).
++# ==============================================================
++
++REVIEW_HEAD = "REVIEW ONLY - NOT A PASS - not for publishing"
++# content-integrity rows: a run that fails any of them is never dropped, not even for review. V1 (two vision models)
++# is droppable ONLY when every failing V1 item is a SPLIT (one model yes, one no; ruling 23 '13:18'); both-no, a
++# missing answer, or a failing credits item whose measured ring geometry (G15_credits, DEC-11) is not PASS refuse.
++REVIEW_NOT_DROPPABLE = ("G16_sentence_boundary", "G17_onset_tail", "G12_credits", "G15_credits",
++                        "G20_signoff_names_all", "V1_visual_checklist")
++
++
++def _v1_split(run_dir, fmt, rows):
++    """Ruling 23: (droppable, description) for a V1 row that is not PASS, from VERIFY/VERIFICATION.json."""
++    try:
++        with open(os.path.join(run_dir, "VERIFY", "VERIFICATION.json")) as f:
++            vis = (json.load(f).get("visual") or {}).get(fmt) or {}
++    except (OSError, ValueError):
++        return False, "VERIFICATION.json not readable"
++    per = vis.get("per_model") or {}
++    if len(per) < 2:
++        return False, "fewer than two vision models answered"
++    items, desc = {}, []
++    for m, d in per.items():                                       # the checklist, per model
++        for k, a in (d.get("rows") or {}).items():
++            items.setdefault(("checklist", k), {})[m] = (bool(a.get("ok")), str(a.get("answer")), a.get("why") or "")
++    for part, key in (("letterbox_per_shot", "shots"), ("boundaries", "cuts")):   # per shot / per boundary
++        for e in (vis.get(part) or {}).get(key) or []:
++            if isinstance(e, dict) and e.get("ok") is False:
++                name = e.get("boundary") or f"{e.get('label')}#{e.get('shot')}"
++                items[(part, name)] = {m: (False, str(a), "") for m, a in (e.get("answers") or {}).items()}
++    failing = {k: v for k, v in items.items() if not all(ok for ok, _, _ in v.values())}
++    if not failing and vis.get("ok") is not True:
++        return False, "V1 failed with no item that can be read"
++    for (part, name), ans in sorted(failing.items()):
++        yes = [m for m, (ok, a, _) in ans.items() if ok]
++        no = [m for m, (ok, a, _) in ans.items() if not ok and a.strip().lower() == "no"]
++        if not yes or len(yes) + len(no) != len(ans):
++            return False, f"{name}: not a split ({'; '.join(f'{m} {a}' for m, (ok, a, _) in ans.items())})"
++        if name == "credits_round_and_match" and rows.get("G15_credits") != "PASS":
++            return False, f"{name}: the measured ring geometry (G15_credits) is {rows.get('G15_credits')}"
++        desc.append(f"split on {name}: " + "; ".join(f"{m} '{a}'" + (f" (\"{w[:220]}\")" if w else "")
++                                                     for m, (ok, a, w) in sorted(ans.items())))
++    try:
++        with open(os.path.join(run_dir, "VERTICAL_LAYOUT.json")) as f:
++            lay = json.load(f)
++        layouts = ", ".join(f"{k} {','.join(sorted({s.get('class') for s in v.get('shots') or []}))}"
++                            for k, v in lay.items() if isinstance(v, dict) and v.get("shots"))
++        if fmt == "9x16" and layouts:
++            desc.append(f"9:16 layouts: {layouts}")
++    except (OSError, ValueError):
++        pass
++    return True, " | ".join(desc)
++
++
++def _review_forbidden(text):
++    """The wording a review drop may never carry (its own head excepted): PASS as a verdict, CANDIDATE FOR APPROVAL,
++    approved."""
++    import re
++    body = text.replace(REVIEW_HEAD, "")
++    hits = [m.group(0) for rx in (r"(?i)\bPASS(ED)?\b", r"(?i)CANDIDATE FOR APPROVAL", r"(?i)\bapproved\b")
++            for m in re.finditer(rx, body)]
++    return hits
++
++
++def _row_reason(rep, fmt, row, note):
++    """One measured line for a REQUIRED row that is not PASS (its note when the gate wrote one)."""
++    if row == "G18_word_for_word":
++        bad = [r for r in rep.get("G18", {}).get(fmt) or [] if isinstance(r, dict) and not r.get("pass")]
++        def words(op, a, b):
++            return {"delete": f"the final's decode omits '{a}'", "insert": f"the final's decode adds '{b}'",
++                    "start": f"starts '{b}' where the lock starts '{a}'", "end": f"ends '{b}' where the lock ends '{a}'"
++                    }.get(op, f"'{a}' heard as '{b}'")
++        return "; ".join(f"{r.get('segment')}: " + (r.get("error") or ", ".join(
++            words(op, a, b) for op, a, b in (r.get("edges") or []) + (r.get("identity") or [])) or
++            ("the token's audio is not the source's" if r.get("acoustic_mismatch") else "see GATE_REPORT")) for r in bad) \
++            or "see GATE_REPORT.json"
++    if row == "G3c_acoustic_tail":
++        lc = (rep.get("L-c") or {}).get(fmt) or {}
++        edges = lc.get("g3c_failed_edges") or []
++        proof = lc.get("final_proof") or {}
++        return "; ".join(f"{seg} {side} edge: acoustic onset on the final; not proved by L-c "
++                         f"({((proof.get(seg) or {}).get(side) or {}).get('why', 'no proof')})"
++                         + _edge_levels(rep.get("_run_dir"), fmt, seg, side) for seg, side in edges) \
++            or (note or "see GATE_REPORT.json")
++    return str(note) if note else "see GATE_REPORT.json"
++
++
++def _edge_levels(run_dir, fmt, seg, side, span=0.4):
++    """The measured level over a clip edge's last / first `span` s: the prepared clip (speech stem) vs the final."""
++    try:
++        import numpy as np
++        import sentence_law as L
++        with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
++            sg = {s["label"]: s for s in json.load(f)["segments"]}[seg]
++        prep = os.path.join(run_dir, "qa", (f"final_{seg}.mp4" if fmt == "16x9" else f"vert_{seg}.mp4"))
++        dur = float(sg["end"]) - float(sg["start"])
++        t0 = dur - span - 0.05 if side == "out" else 0.05
++        _, dp = L.SourceAudio(prep).sl(t0, t0 + span)
++        _, df = L.SourceAudio(os.path.join(run_dir, FINALS[fmt])).sl(float(sg["start"]) + t0, float(sg["start"]) + t0 + span)
++        return (f"; measured over the clip's {'last' if side == 'out' else 'first'} {span} s: prepared clip median "
++                f"{np.median(dp):.1f} dB, final median {np.median(df):.1f} dB")
++    except Exception:
++        return ""
++
++
++def review_nonpass(run_dir):
++    """[(format, row, verdict, reason)] for every REQUIRED row (release_auth's inventory) that is not exactly
++    PASS, from the run's GATE_REPORT.json; refuses without one."""
++    import release_auth
++    p = os.path.join(run_dir, "GATE_REPORT.json")
++    if not os.path.exists(p):
++        raise RuntimeError("STOP: review drop: no GATE_REPORT.json for this run")
++    with open(p) as f:
++        rep = json.load(f)
++    rep["_run_dir"] = run_dir
++    out = []
++    for fmt in ("16x9", "9x16"):
++        rows = (rep.get("rows") or {}).get(fmt) or {}
++        notes = (rep.get("notes") or {}).get(fmt) or {}
++        for k in sorted(release_auth.INVENTORY[fmt]):
++            v = rows.get(k, "MISSING")
++            if v != "PASS":
++                out.append((fmt, k, str(v), _row_reason(rep, fmt, k, notes.get(k))))
++    return out
++
++
++def review_texts(run_dir, nonpass, digests):
++    """The video captions and the review note, generated here and nowhere else (the caller cannot edit them):
++    the head first, then every non-pass REQUIRED row, the files' sha256, run id, HEAD, title, caption, the
++    per-clip source links and the deviations."""
++    with open(os.path.join(run_dir, "edl.json")) as f:
++        edl = json.load(f)
++    head = ""
++    try:
++        with open(os.path.join(run_dir, "PROVENANCE.json")) as f:
++            prov = json.load(f)
++        head = str((prov.get("code") or {}).get("git_head") or prov.get("launch_revision") or "")
++    except (OSError, ValueError):
++        pass
++    run_id = os.path.basename(os.path.abspath(run_dir).rstrip("/"))
++    rows = ", ".join(sorted({f"{k} {v}" fo

@@ -1,0 +1,177 @@
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index 4abd104f..4cc6d891 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -392,3 +392,172 @@ def _send_bot_api(kind, path, fields, data=None):
+     if isinstance(data, dict) and data.get("ok") is False and type(data.get("error_code")) is int:
+         raise SendRejected(f"STOP: Telegram {method} refused: {data.get('error_code')} {data.get('description')}")
+     raise RuntimeError(f"STOP: Telegram {method}: outcome unknown (unrecognised answer)")
++
++
++# ==============================================================
++# REVIEW DROP (orchestrator order 2026-11-12 '13:06'; law L-j unchanged): an engineering REVIEW of a run that is NOT
++# a pass, beside the release path and never part of it. GPT audit batch 16: "Unverified material can go to a clearly
++# labelled engineering review destination. It must not carry the production PASS label." A review drop never creates
++# or implies a release authorisation (deliver_run still requires release_auth.authorise).
++# ==============================================================
++
++REVIEW_HEAD = "REVIEW ONLY - NOT A PASS - not for publishing"
++# content-integrity rows: a run that fails any of them is never dropped, not even for review
++REVIEW_NOT_DROPPABLE = ("G16_sentence_boundary", "G17_onset_tail", "G12_credits", "G15_credits",
++                        "G20_signoff_names_all", "V1_visual_checklist")
++
++
++def _review_forbidden(text):
++    """The wording a review drop may never carry (its own head excepted): PASS as a verdict, CANDIDATE FOR APPROVAL,
++    approved."""
++    import re
++    body = text.replace(REVIEW_HEAD, "")
++    hits = [m.group(0) for rx in (r"\bPASS(ED)?\b", r"(?i)CANDIDATE FOR APPROVAL", r"(?i)\bapproved\b")
++            for m in re.finditer(rx, body)]
++    return hits
++
++
++def _row_reason(rep, fmt, row, note):
++    """One measured line for a REQUIRED row that is not PASS (its note when the gate wrote one)."""
++    if row == "G18_word_for_word":
++        bad = [r for r in rep.get("G18", {}).get(fmt) or [] if isinstance(r, dict) and not r.get("pass")]
++        return "; ".join(f"{r.get('segment')}: " + (r.get("error") or ", ".join(
++            f"{op} '{a}' -> '{b}'" for op, a, b in (r.get("edges") or []) + (r.get("identity") or [])) or
++            ("token audio not the source's" if r.get("acoustic_mismatch") else "see GATE_REPORT")) for r in bad) \
++            or "see GATE_REPORT.json"
++    if row == "G3c_acoustic_tail":
++        lc = (rep.get("L-c") or {}).get(fmt) or {}
++        edges = lc.get("g3c_failed_edges") or []
++        proof = lc.get("final_proof") or {}
++        return "; ".join(f"{seg} {side} edge: acoustic onset on the final; not proved by L-c "
++                         f"({((proof.get(seg) or {}).get(side) or {}).get('why', 'no proof')})" for seg, side in edges) \
++            or (note or "see GATE_REPORT.json")
++    return str(note) if note else "see GATE_REPORT.json"
++
++
++def review_nonpass(run_dir):
++    """[(format, row, verdict, reason)] for every REQUIRED row (release_auth's inventory) that is not exactly
++    PASS, from the run's GATE_REPORT.json; refuses without one."""
++    import release_auth
++    p = os.path.join(run_dir, "GATE_REPORT.json")
++    if not os.path.exists(p):
++        raise RuntimeError("STOP: review drop: no GATE_REPORT.json for this run")
++    with open(p) as f:
++        rep = json.load(f)
++    out = []
++    for fmt in ("16x9", "9x16"):
++        rows = (rep.get("rows") or {}).get(fmt) or {}
++        notes = (rep.get("notes") or {}).get(fmt) or {}
++        for k in sorted(release_auth.INVENTORY[fmt]):
++            v = rows.get(k, "MISSING")
++            if v != "PASS":
++                out.append((fmt, k, str(v), _row_reason(rep, fmt, k, notes.get(k))))
++    return out
++
++
++def review_texts(run_dir, nonpass, digests):
++    """The video captions and the review note, generated here and nowhere else (the caller cannot edit them):
++    the head first, then every non-pass REQUIRED row, the files' sha256, run id, HEAD, title, caption, the
++    per-clip source links and the deviations."""
++    with open(os.path.join(run_dir, "edl.json")) as f:
++        edl = json.load(f)
++    head = ""
++    try:
++        with open(os.path.join(run_dir, "PROVENANCE.json")) as f:
++            prov = json.load(f)
++        head = str(prov.get("launch_revision") or prov.get("git_head") or (prov.get("code") or {}).get("head") or "")
++    except (OSError, ValueError):
++        pass
++    run_id = os.path.basename(os.path.abspath(run_dir).rstrip("/"))
++    rows = ", ".join(sorted({f"{k} {v}" for _, k, v, _ in nonpass})) or "none"
++    caps = {fmt: _fit(f"{REVIEW_HEAD}\nNot passing (required): {rows}\nrun {run_id} | {fmt} sha256 {digests[fmt]}"
++                      f"\nReasons, links and deviations: the review note in this chat.", CAPTION_MAX)
++            for fmt in FINALS}
++    segs = [("hook", edl.get("hook") or {})] + [(f"clip {c.get('index', i + 1)}", c)
++                                                 for i, c in enumerate(edl.get("clips") or [])]
++    links = edl.get("moments_sources_30s_before") or []
++    lines = [REVIEW_HEAD, "", "Required rows NOT passing (verbatim, with the measured reason):"]
++    lines += [f"- {fmt} {k} {v}: {why}" for fmt, k, v, why in nonpass] or ["- none"]
++    lines += ["", f"Run {run_id} | HEAD {head or 'not recorded'}",
++              f"16:9 sha256 {digests['16x9']}", f"9:16 sha256 {digests['9x16']}", "",
++              f"Title: {edl.get('title')}", f"Caption: {edl.get('caption')}", "", "Sources (~30 s before each clip):"]
++    for i, (role, s) in enumerate(segs):
++        link = links[i] if isinstance(links, list) and i < len(links) else \
++            f"https://www.youtube.com/watch?v={s.get('video_id')}"
++        lines.append(f"- {role}: {s.get('channel')} | {s.get('duration')} s of locked words | {link}")
++    dev = []
++    for fmt, rel in FINALS.items():
++        try:
++            d = _dims(os.path.join(run_dir, rel))[2]
++            if not 60.0 <= d <= 70.0:
++                dev.append(f"{fmt} runtime {d:.3f} s, outside the 60-70 s format target (ruling 12: 58-72 accepted)")
++        except Exception:
++            dev.append(f"{fmt} runtime not measured")
++    for i, (role, s) in enumerate(segs):
++        lo, hi = (8.0, 12.0) if i == 0 else (12.0, 20.0)
++        dur = s.get("duration")
++        if isinstance(dur, (int, float)) and not lo <= dur <= hi:
++            dev.append(f"{role}: {dur} s of locked words, outside the {lo:.0f}-{hi:.0f} s taste target (L-o)")
++        for alt in (s.get("selection_lock") or {}).get("alternatives") or []:
++            dev.append(f"{role}: one unstressed word heard as " + " or ".join(f"'{r}'" for r in alt.get("readings") or [])
++                       + " by different transcribers; audio is the speaker's own, unedited (ruling 18)")
++    try:
++        with open(os.path.join(run_dir, "vo_audio", "VO_MANIFEST.json")) as f:
++            spoken = ((json.load(f).get("signoff") or {}).get("text") or "").strip()
++        if spoken:
++            dev.append(f"sign-off spoken: the renderer's template \"{spoken}\" (ruling 15)")
++    except (OSError, ValueError):
++        pass
++    lines += ["", "Deviations:"] + ([f"- {d}" for d in dev] or ["- none"])
++    return caps, "\n".join(lines)
++
++
++def review_drop(run_dir, send=None):
++    """Send a run that is NOT authorised for release to the approval chat as an engineering REVIEW (order
++    '13:06'): both finals + the review note. Refuses (nothing sent) without GATE_REPORT.json, when a
++    content-integrity row (REVIEW_NOT_DROPPABLE) is not PASS, when any text would carry PASS-as-verdict wording,
++    'CANDIDATE FOR APPROVAL' or 'approved', or when this run was already review-dropped. Writes REVIEW_DROP.json
++    (what was sent, to which chat, the message ids). Never writes or reads the release ledger."""
++    import hashlib
++    send = send or _send_bot_api
++    nonpass = review_nonpass(run_dir)
++    blocked = sorted({f"{fmt} {k} {v}" for fmt, k, v, _ in nonpass if k in REVIEW_NOT_DROPPABLE})
++    if blocked:
++        raise RuntimeError("STOP: review drop refused: content-integrity rows not passing: " + ", ".join(blocked))
++    rpath = os.path.join(run_dir, "REVIEW_DROP.json")
++    if os.path.exists(rpath):
++        raise RuntimeError("STOP: this run was already review-dropped (REVIEW_DROP.json exists)")
++    payload, digests = {}, {}
++    for fmt, rel in FINALS.items():
++        p = os.path.join(run_dir, rel)
++        if os.path.getsize(p) > VIDEO_MAX_BYTES:
++            raise RuntimeError(f"STOP: {fmt} final is {os.path.getsize(p)} bytes > {VIDEO_MAX_BYTES} (Bot API limit)")
++        with open(p, "rb") as f:
++            payload[fmt] = f.read()                    # read once; exactly these bytes are hashed and sent
++        digests[fmt] = hashlib.sha256(payload[fmt]).hexdigest()
++    caps, note = review_texts(run_dir, nonpass, digests)
++    for t in list(caps.values()) + [note]:
++        if not t.startswith(REVIEW_HEAD):
++            raise RuntimeError("STOP: review drop text does not begin with the review head")
++        bad = _review_forbidden(t)
++        if bad:
++            raise RuntimeError(f"STOP: review drop refused: forbidden wording {sorted(set(bad))}")
++    if len(note) > TEXT_MAX:
++        raise RuntimeError(f"STOP: review note is {len(note)} characters > {TEXT_MAX}")
++    rec = {"kind": "review_drop", "label": REVIEW_HEAD, "rule": "orchestrator order 2026-11-12 '13:06'",
++           "chat": "the approval chat (TELEGRAM_CHAT_ID)", "nonpass": [list(x) for x in nonpass],
++           "sha256": digests, "texts": {"captions": caps, "note": note}, "messages": []}
++    try:
++        for fmt, rel in FINALS.items():
++            w, h, dur = _dims(os.path.join(run_dir, rel))
++            mid = send("video", os.path.join(run_dir, rel), {"caption": caps[fmt], "width": w, "height": h,
++                                                            "duration": int(round(dur)), "supports_streaming": "true"},
++                       data=payload[fmt])
++            rec["messages"].append({"key": f"video:{fmt}", "message_id": mid})
++        mid = send("message", "", {"text": note})
++        rec["messages"].append({"key": "note", "message_id": mid})
++        rec["status"] = "complete"
++    finally:
++        with open(rpath, "w") as f:                    # whatever was sent is recorded, even on a failure midway
++            json.dump(rec, f, indent=1)
++    return rec
