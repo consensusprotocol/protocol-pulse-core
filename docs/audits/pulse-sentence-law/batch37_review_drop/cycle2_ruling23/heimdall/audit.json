@@ -1,0 +1,108 @@
+{
+ "question": "Batch 37 cycle 2 = RULING 23 (orchestrator 2026-11-12 '13:18') in the REVIEW DROP (telegram.review_drop: an engineering review of a run that is NOT a pass, labelled 'REVIEW ONLY - NOT A PASS - not for publishing'; the release path is unchanged). V1 (the visual checklist answered by two vision models) used to make a run never droppable. Now a failing V1 row is droppable ONLY when every failing V1 item (checklist rows per model, letterbox shots, boundary pairs, from VERIFY/VERIFICATION.json) is a SPLIT: at least one model 'yes' and every other model an explicit 'no'; both 'no', a missing / other answer, fewer than two models, an unreadable file, or a failing credits_round_and_match while the measured ring geometry row G15_credits is not PASS: refused (nothing sent). A droppable split is quoted in the note: the item, each model's answer and reason. Also: the forbidden-wording check is now case-insensitive (cycle 1 consensus F2).\nFIND: any way a V1 failure on which both models said no, or a ring-geometry failure, is dropped; any way a split is dropped without being quoted; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 265.6,
+   "cost": 0.0084290891,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 308.4,
+   "cost": 0.003247374,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 77.2,
+   "cost": 0.0028636777,
+   "parse_ok": false
+  },
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 304.5,
+   "cost": 0.003047176,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/telegram.py",
+   "line": 430,
+   "issue": "A V1 row that is not PASS in GATE_REPORT but has no failing items in VERIFICATION.json (all per-model rows ok=True, no failing letterbox/boundary entries) and visual.ok is True is returned as droppable with an empty description. No split is quoted, violating the ruling that 'A droppable split is quoted in the note: the item, each model's answer and reason.' The guard only refuses when failing is empty AND vis.ok is not True; when vis.ok IS True it falls through to return (True, '').",
+   "evidence": "if not failing and vis.get(\"ok\") is not True:\n        return False, \"V1 failed with no item that can be read\"",
+   "fix": "Remove the vis.get('ok') condition so that an empty failing set always refuses: `if not failing: return False, 'V1 failed with no item that can be read'`. Alternatively, after the for-loop, add `if not desc: return False, 'no split to quote'` before the return True.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/telegram.py",
+   "line": 422,
+   "issue": "Letterbox shots and boundary pairs are stored with ok hardcoded to False for every model, so the split check (which requires at least one model with ok=True) can never recognise a valid split on these items. The ruling explicitly lists 'letterbox shots, boundary pairs' as V1 items eligible for split-dropping. A genuine one-yes-one-no split on a letterbox shot is incorrectly refused, and more critically, the per-model ok status from the verification data is discarded, making the item's answers untrustworthy for any downstream logic.",
+   "evidence": "items[(part, name)] = {m: (False, str(a), \"\") for m, a in (e.get(\"answers\") or {}).items()}",
+   "fix": "Preserve the per-model ok flag from the verification data instead of hardcoding False. For example, if the answers dict maps model\u2192{ok, answer, why}, use those values; if it maps model\u2192answer-string, derive ok from the answer text (e.g., ok = a.strip().lower() == 'yes').",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": []
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "high",
+   "file": "pipeline/telegram.py",
+   "line": 431,
+   "issue": "Missing per-item answers are not detected: if one model lacks a row and the other's ok is True, the item is not in failing, so a V1 failure with a missing answer can be dropped.",
+   "evidence": "failing = {k: v for k, v in items.items() if not all(ok for ok, _, _ in v.values())}",
+   "fix": "Require every model to have an answer for every item; if any model is missing, refuse."
+  },
+  {
+   "by": "deepseek",
+   "severity": "high",
+   "file": "pipeline/telegram.py",
+   "line": 435,
+   "issue": "Split check uses ok boolean for yes instead of verifying answer is 'yes'; a model with ok=True but answer 'no' is counted as yes, allowing a both-no item to be dropped.",
+   "evidence": "yes = [m for m, (ok, a, _) in ans.items() if ok]",
+   "fix": "Check a.strip().lower() == 'yes' for yes models."
+  },
+  {
+   "by": "deepseek",
+   "severity": "medium",
+   "file": "pipeline/telegram.py",
+   "line": 441,
+   "issue": "Reason is omitted from the quoted split when empty; ruling requires each model's answer and reason.",
+   "evidence": "f\" (\\\"{w[:220]}\\\")\" if w else \"\"",
+   "fix": "Always include the reason field, even if empty, or refuse if reason is missing."
+  }
+ ],
+ "total_cost": 0.0175873168,
+ "out_dir": "docs/audits/pulse-sentence-law/batch37_review_drop/cycle2_ruling23/heimdall"
+}
