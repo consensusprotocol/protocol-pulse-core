@@ -443,6 +443,7 @@ FADE_MIN_S = 0.010          # law L-b: an edge fade shortens down to 10 ms to st
 FLOOR_PLUS_DB = 3.0         # law L-b: a word has ended (not yet begun) where its envelope is within 3 dB of the
                             # level at the cut point (the valley minimum or the room tone the cut sits in)
 EDGE_WORD_MAX_DB = 1.0      # G17c: every frame of an edge word (and its decay) within 1 dB of the unfaded source
+EDGE_WORD_FLOOR_DBFS = -96.0   # ruling 16 ('10:20'): G17c compares a frame only above max(the gap level, the 16-bit floor)
 
 
 def edge_word_bounds(sa, plan, cut_in, cut_out):
@@ -508,7 +509,8 @@ def edge_word_fidelity(src_path, clip_path, plan, cut_in, cut_out, pad_s=0.0, sa
                 continue
         t0, t1 = (a, min(a + 0.3, cut_out)) if side == "in" else (max(b - 0.3, cut_in), b)
         ts, ds = sa.sl(t0, t1)
-        keep = ds > wb["lim_in" if side == "in" else "lim_out"]       # the word, not the gap it sits next to
+        keep = ds > max(wb["lim_in" if side == "in" else "lim_out"], EDGE_WORD_FLOOR_DBFS)   # the word, not the gap it
+        # sits next to; never below the 16-bit quantisation floor, where no audio exists to clip (ruling 16)
         if not keep.any():                                           # fail closed: no word frames to compare
             det[side] = {"ok": False, "why": "no frames of the edge word in the measured window"}
             continue
