@@ -261,6 +261,41 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
         self.assertEqual(rf.RELEASE_STATE, "HOLD_FOR_HUMAN_APPROVAL")
 
 
+class TestPinnedStageFreesGpu0First(Fixture):
+    """E-FAIL-052: pinned.acquire transcribes every downloaded source with Whisper on GPU0, so the editorial model the
+    preflight's Ollama check loaded is released first, as before every other Whisper stage (runs/pinned_20261112_064032:
+    gemma3:27b held 20548 of 24564 MiB and Whisper ran out of memory)."""
+
+    def test_the_release_comes_before_the_pin_is_acquired_and_a_failed_release_holds(self):
+        import run_fresh as rf
+        events = []
+        orig_free, orig_prep = rf.free_gpu0_for_whisper, pinned.prepare
+
+        def release(run, stage, **kw):
+            events.append(("release", stage))
+
+        def prep(*a, **k):
+            events.append("prepare")
+            raise pinned.PinError("stopped once the order is seen")
+
+        def refuse(run, stage, **kw):
+            events.append(("release", stage))
+            raise rf.Hold(f"infrastructure: {stage}: GPU0 release not proven")
+        try:
+            rf.free_gpu0_for_whisper, pinned.prepare = release, prep
+            run = rf.Run(self.run_dir)
+            with self.assertRaisesRegex(rf.Hold, "pinned decision rejected"):
+                rf.stage_pinned(run, self.write(self.pin()))
+            self.assertEqual(events, [("release", "pinned"), "prepare"])
+            events.clear()
+            rf.free_gpu0_for_whisper = refuse
+            with self.assertRaisesRegex(rf.Hold, "infrastructure: pinned"):
+                rf.stage_pinned(run, self.write(self.pin()))
+            self.assertEqual(events, [("release", "pinned")])        # nothing downloaded or transcribed after it
+        finally:
+            rf.free_gpu0_for_whisper, pinned.prepare = orig_free, orig_prep
+
+
 @unittest.skipUnless(HAVE_REF, "v2f reference sources not present")
 class TestV2fProofPins(unittest.TestCase):
     def setUp(self):

@@ -267,6 +267,7 @@ def stage_pinned(run, pin_path):
     """PINNED entry point: validate the human decision and write the canonical EDL. Replaces
     stage_editorial + stage_select only; everything downstream is shared."""
     from pinned import prepare, PinError
+    free_gpu0_for_whisper(run, "pinned")   # pinned.acquire runs Whisper on GPU0 (E-FAIL-052: the preflight's model OOM'd it)
     try:
         rec = prepare(pin_path, run.dir, log=lambda s: print(s, flush=True))
     except PinError as e:
