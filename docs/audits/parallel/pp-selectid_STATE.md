@@ -1,4 +1,54 @@
-READY TO RENDER: /home/ultron/worktrees/pp-selectid/tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json (branch pp-selectid, same path; package_sha256 add8c7328df47e20862d74bf37d52f02e3a3b826404e7a5594f4a0d5da37478a)
+NOT READY (07:16 ET): the 06:45 re-cut passes every gate except ONE VO line; your decision needed on VO 2 (its 2 allowed fixes are used). The 06:28 pin (add8c732) is SUPERSEDED: the integrator's cut HOLD (runs/pinned_20261112_113058) was right on both clips.
+
+## 07:16 ET: the 06:45 re-cut (attempt 0700b, tests/package/proof/fresh_20261112_050611/given_v0700_0700b.json / .log)
+
+- **A. clip_02 is extended to "emerges."** (words 1417-1447, 529.05-541.00, 11.95 s): "Bitcoin is a new system of
+  measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and
+  secure. And that's what emerges."
+  - The independent recogniser (ElevenLabs scribe_v1, source audio) reads: "...decentralized and secure, and that's
+    what emerges.[540.53] And it doesn't matter...".
+  - **Must-fail confirmed:** the ORIGINAL OUT is rejected under ruling 7. On the original window, scribe shows the
+    sentence continuing: "secure, and that's what emer-".
+- **B. clip_01 (c1JGheQBPH4 2480.28) FAILS ruling 7 (1) on the facts at its IN.** Scribe reads "It's, it's not, it's
+  not Bitcoin that's getting hacked." as ONE sentence. Before the clip's first word there is a comma ("not,"), and
+  "it's" is not capitalised. Its OUT would pass ("...unique nature of Bitcoin. Um, so").
+  - Not bent. **Replaced** by the next-best moment for the angle: What Bitcoin Did 4f9d38e1d86556b36d9c, re-cut to its
+    first sentence (words 7325-7361, 2403.23-2412.97, 9.74 s; the WBD channel is allowed, the excluded two being
+    Saifedean Ammous and Natalie Brunell): "I mean, the good news about Bitcoin is it's not, you know, its success is not
+    dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S."
+  - Scribe: "Mm-hmm.[2401.83] I mean, ... in the US.[2412.53] Um, you know, price-wise...". A boundary before the IN
+    and at the OUT; the next word is a filler (ruling 7 (4)).
+- **C. CUTTABLE is a package gate now** (transcript_truth.edges + the inventory row "cuttable", required by package_pin).
+  Every IN and OUT needs the independent recogniser's sentence boundary on the source audio; store / caption
+  punctuation is never evidence. **All 6 edges PASS:**
+  - hook: "fundamental. | Bitcoin" / "that. | Your";
+  - clip_01: "Mm-hmm. | I" / "US. | Um,";
+  - clip_02: "now. | Bitcoin" / "emerges. | And".
+
+**The verdicts** (attempt 0700b: 78 s, $0.26; with 0700: 177 s, $0.84):
+- PASS:
+  - context integrity A / B / C on all three clips (grok-4.20);
+  - CUTTABLE 6/6;
+  - L-v 2 x3 (scribe_v1: one speaker each, no disagreement);
+  - exclusion keep x3;
+  - DUPLICATE;
+  - runtime 60.79 s (the integrator's own estimate about 64.0 s);
+  - R4: VO 32.6 % of runtime, 39.8 % of clips + VO;
+  - coherence hook 5, clip_01 4, clip_02 5, VO point 5: "Nobody is in charge of Bitcoin; that's by design rather
+    than a flaw, enabling a decentralized free market with immutable rules.";
+  - step A now verifies Saifedean Ammous as the hook's own host.
+- **VO 1** "Nobody is in charge of Bitcoin. That's not a flaw. That's the design.": PASS. An attribution supported by
+  the hook's "Bitcoin does not have any authority..." and clip_01's "its success is not dependent upon who's in the
+  White House...", plus commentary.
+- **VO 2** "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?": **FAIL**:
+  `host commentary 'what does a system with no one in charge have to get right?' fails speaker_view`. It passed in
+  attempts 4-9 with the old clip_01. Its two fixes are used (your fallback "Here's Natalie Brunell on what that takes."
+  names the guest's host as the speaker: L-v 1). **Yours to decide.** The length rule: VO 1 + VO 2 + VO 3 need >= 42
+  words for 60 s (VO 1 13, VO 3 11, so VO 2 >= 18; the bridge cap is 20).
+- **CAPTION** "no authority. three voices on why that is the point.": **FAIL** `fails speaker_view`. Fix 1, "no
+  authority. no ruler. three clips, links below.", is ready but was NOT yet gated (a driver bug of mine, fixed).
+- VO 3, the TITLE: PASS.
+
 
 # pp-selectid — STATE (session pipeline_pp_selectid, branch pp-selectid, worktree ~/worktrees/pp-selectid)
 
@@ -106,6 +156,12 @@ missed, 0 errors (tests/package/exam/ci_mustfail_*.json; claude-opus-5-5, grok f
 - **Left for tonight's package: $20.70.**
 
 ## BUILD LOG (orchestrator 05:25: one line at least every 10 minutes while building)
+
+- 06:45 ET: after the pin (pushed 3716963e):
+  - The unit tests are rewritten for tonight's contracts: 103/103 pass (phase 1 + phase 2).
+  - smoke_r7 now tests a package_pin pin against the DEPLOYED pinned.py / edl_rules.py: SMOKE R7 PASS (R4 moments: VO 30.96 % of 63.95 s).
+  - The design doc is current; REQUESTS R7 item 1 is marked LANDED by the integrator (1b: the optional seal re-check, as exact code).
+  - The phase-2 AUDIT CYCLE 2 is running: claude-opus-5-5, claude-sonnet-5-5 and grok-4.20, on 3 chunks (about $4). The code commit waits on it.
 
 - 06:30 ET: rulings 5 and 6 are encoded; the must-fail check is 41/41; attempt 9 passes every gate; the pin is written; READY TO RENDER on line 1.
 - 06:20 ET: rulings 3-4 encoded; the must-fail check is 41/41; attempts 5-8 narrowed the context gate to cited words (no change to what a must-fail case gets).
