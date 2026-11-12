@@ -1,0 +1,2813 @@
+diff --git a/tests/adversarial/adv_helpers.py b/tests/adversarial/adv_helpers.py
+new file mode 100644
+index 00000000..8a058a50
+--- /dev/null
++++ b/tests/adversarial/adv_helpers.py
+@@ -0,0 +1,563 @@
++"""Shared helpers for tests/adversarial (CPU only; see conftest.py).
++
++  sentence generator   seeded (hypothesis is not installed): a finance sentence built from slots, its SURFACE
++                       variants (the same spoken words written differently: entities, unicode, split tokens,
++                       currency / percent order, number words, case, punctuation) and its MEANING mutants (one
++                       slot's value changed: digits swapped, teen / ty, scale, negation, actor, sign, unit)
++  synthetic media      ffmpeg on CPU, libx264 ultrafast, tiny frames: speech-like audio (noise bursts per word,
++                       room tone between words, pauses between sentences) with its exact word transcript
++  run directories      a complete release run that release_auth authorises (family 3 mutates it)
++  fake model           the real story_semantics.LocalLLM.chat_json loop with only its HTTP call replaced
++"""
++import json
++import math
++import os
++import random
++import shutil
++import subprocess
++import tempfile
++import wave
++
++import numpy as np
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++FIXTURES = os.path.join(REPO, "tests", "fixtures", "adversarial")
++MAIN_TREE_REFS = os.environ.get("PP_REFS_DIR", "/home/ultron/protocol_pulse/references")   # read-only (order:
++#   allowed data); PP_REFS_DIR overrides it on another machine. A missing reference FAILS (law L-m), never skips.
++
++
++class NetworkBlocked(BaseException):
++    """Raised by conftest's socket guard for any AF_INET / AF_INET6 connect. A BaseException on purpose: a production
++    `except Exception` cannot swallow it and a test's pytest.raises(RuntimeError) cannot take it for the refusal it
++    expects (a regressed send path FAILS its test instead of satisfying it)."""
++
++
++def control(ok, msg):
++    """A precondition of a test (its setup or a control inside it) that must hold for the test to mean anything.
++    pytest.fail, not assert: every strict xfail is raises=AssertionError, so a broken control or fixture shows as
++    FAILED / ERROR instead of being counted as the pinned defect (frontier review, audit A #2)."""
++    if not ok:
++        import pytest
++        pytest.fail(f"CONTROL (test setup, not the pinned defect): {msg}", pytrace=True)
++
++
++def load_fixture(name):
++    with open(os.path.join(FIXTURES, name)) as f:
++        return json.load(f)
++
++
++# ── sentence generator ──
++
++ONES = ("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen "
++        "seventeen eighteen nineteen").split()
++TENS = "twenty thirty forty fifty sixty seventy eighty ninety".split()
++
++
++def words_int(n, hyphen=False):
++    """An integer as a speaker says it ('eighty one thousand', 'eighty-one thousand')."""
++    if n < 20:
++        return ONES[n]
++    if n < 100:
++        t, u = divmod(n, 10)
++        return TENS[t - 2] + (("-" if hyphen else " ") + ONES[u] if u else "")
++    if n < 1000:
++        h, r = divmod(n, 100)
++        return ONES[h] + " hundred" + (" " + words_int(r, hyphen) if r else "")
++    for v, name in ((10 ** 12, "trillion"), (10 ** 9, "billion"), (10 ** 6, "million"), (10 ** 3, "thousand")):
++        if n >= v:
++            q, r = divmod(n, v)
++            return words_int(q, hyphen) + " " + name + (" " + words_int(r, hyphen) if r else "")
++
++
++SUBJECTS = ["Bitcoin", "Ether", "MicroStrategy", "BlackRock's fund", "the S&P 500", "Coinbase"]
++ACTOR_SWAPS = [("the Fed", "the Treasury"), ("the SEC", "the CFTC"), ("BlackRock", "Fidelity"),
++               ("the ECB", "the Fed"), ("Michael Saylor", "Jack Mallers")]
++NEGATIONS = [("has", "hasn't"), ("has", "has not"), ("is", "isn't"), ("did", "didn't"), ("will", "won't"),
++             ("can", "can't"), ("was", "wasn't")]
++TEEN_TY = [(13, 30), (14, 40), (15, 50), (16, 60), (17, 70), (18, 80), (19, 90)]
++SCALES = ["million", "billion", "trillion"]
++SCALE_SUFFIX = {"million": "M", "billion": "B", "trillion": "T"}
++VERB_AFTER = {"has": "broken out", "hasn't": "broken out", "has not": "broken out", "is": "holding",
++              "isn't": "holding", "did": "break out", "didn't": "break out", "will": "break out",
++              "won't": "break out", "can": "hold", "can't": "hold", "was": "holding", "wasn't": "holding"}
++
++
++def _dollars(n, style):
++    """A whole-dollar amount (n in thousands range) written in one surface style."""
++    if style == "symbol":
++        return f"${n:,}"
++    if style == "split":                                   # a Whisper word split into tokens ('$81 ,000')
++        s = f"${n:,}"
++        return s.replace(",", " ,", 1)
++    if style == "words":
++        return words_int(n) + " dollars"
++    if style == "words_hyphen":
++        return words_int(n, hyphen=True) + " dollars"
++    if style == "suffix" and n % 1000 == 0:
++        return f"${n // 1000}k"
++    if style == "thousand" and n % 1000 == 0:
++        return f"{n // 1000} thousand dollars"
++    if style == "narrow_nbsp" and n >= 1000:
++        return f"${n // 1000}\u202f{n % 1000:03d}"
++    if style == "digits_dollars":
++        return f"{n:,} dollars"
++    return f"${n:,}"
++
++
++DOLLAR_STYLES = ["symbol", "split", "words", "words_hyphen", "suffix", "thousand", "narrow_nbsp", "digits_dollars"]
++
++
++def _percent(p, style):
++    if style == "symbol":
++        return f"{p}%"
++    if style == "word":
++        return f"{p} percent"
++    if style == "spoken":
++        return words_int(p) + " percent"
++    if style == "per_cent":
++        return f"{p} per cent"
++    if style == "spaced":
++        return f"{p} %"
++    return f"{p}%"
++
++
++PERCENT_STYLES = ["symbol", "word", "spoken", "per_cent", "spaced"]
++
++
++def _scaled(x, scale, style):
++    """'$1.66 billion' in one surface style (x a short decimal string)."""
++    if style == "symbol":
++        return f"${x} {scale}"
++    if style == "spoken_order":
++        return f"{x} {scale} dollars"
++    if style == "suffix":
++        return f"${x}{SCALE_SUFFIX[scale]}"
++    if style == "split" and "." in x:
++        a, b = x.split(".")
++        return f"${a} .{b} {scale}"
++    if style == "words" and "." not in x:
++        return words_int(int(x)) + f" {scale} dollars"
++    return f"${x} {scale}"
++
++
++SCALED_STYLES = ["symbol", "spoken_order", "suffix", "split", "words"]
++
++
++def _surface(text, rng):
++    """Whole-sentence surface changes a listener cannot hear: entities, unicode quotes / dashes, case,
++    trailing punctuation, no-break spaces."""
++    t = text
++    k = rng.randrange(6)
++    if k == 0:
++        t = t.replace("&", "&amp;").replace("'", "&#39;").replace('"', "&quot;")
++    elif k == 1:
++        t = t.replace("'", "\u2019").replace(" - ", " \u2014 ")
++    elif k == 2:
++        t = t.upper()
++    elif k == 3:
++        t = t.rstrip(".") + "..."
++    elif k == 4:
++        t = t.replace(" ", "\u00a0", 2)
++    else:
++        t = "\u201c" + t + "\u201d"
++    return t
++
++
++class Case:
++    """One generated sentence: base text, surface variants (equal), meaning mutants (unequal, labelled)."""
++
++    def __init__(self, base, variants, mutants, kind, numbers=None):
++        self.base, self.variants, self.mutants, self.kind = base, variants, mutants, kind
++        self.numbers = numbers or {}
++
++    def __repr__(self):
++        return f"Case({self.kind}: {self.base!r})"
++
++
++def gen_cases(seed, n):
++    """n seeded cases; every case has >= 6 canonical tokens, its mutation strictly INSIDE the sentence (the
++    first and last words are never mutated, so anchoring sites that pin the edges are tested on the middle)."""
++    rng = random.Random(seed)
++    out = []
++    makers = [_case_dollars, _case_percent, _case_scale, _case_negation, _case_actor, _case_sign]
++    for i in range(n):
++        out.append(makers[i % len(makers)](rng))
++    return out
++
++
++def _case_dollars(rng):
++    a, b = rng.sample(range(1, 10), 2)                     # two different digits: 81,000 vs 18,000
++    n, m = (10 * a + b) * 1000, (10 * b + a) * 1000
++    subj = rng.choice(SUBJECTS)
++    fmt = "Yesterday {subj} closed above {amt} after a quiet weekend in Asia."
++    base = fmt.format(subj=subj, amt=_dollars(n, "symbol"))
++    variants = [_surface(fmt.format(subj=subj, amt=_dollars(n, st)), rng) for st in DOLLAR_STYLES]
++    mutants = [("digits swapped", fmt.format(subj=subj, amt=_dollars(m, rng.choice(DOLLAR_STYLES)))),
++               ("off by one thousand", fmt.format(subj=subj, amt=_dollars(n + 1000, "symbol"))),
++               ("ten times", fmt.format(subj=subj, amt=_dollars(n * 10, "symbol")))]
++    return Case(base, variants, mutants, "dollars", {"value": n, "mutant": m})
++
++
++def _case_percent(rng):
++    p, q = rng.choice(TEEN_TY)
++    if rng.random() < 0.5:
++        p, q = q, p
++    subj = rng.choice(SUBJECTS)
++    fmt = "Over the month {subj} fell {pct} while gold barely moved at all."
++    base = fmt.format(subj=subj, pct=_percent(p, "symbol"))
++    variants = [_surface(fmt.format(subj=subj, pct=_percent(p, st)), rng) for st in PERCENT_STYLES]
++    mutants = [("teen / ty", fmt.format(subj=subj, pct=_percent(q, rng.choice(PERCENT_STYLES)))),
++               ("percent read as dollars", fmt.format(subj=subj, pct=f"${p}")),
++               ("percentage points", fmt.format(subj=subj, pct=f"{p} percentage points"))]
++    return Case(base, variants, mutants, "percent", {"value": p, "mutant": q})
++
++
++def _case_scale(rng):
++    x = rng.choice(["1.66", "40", "2.5", "12", "7.25"])
++    scale = rng.choice(SCALES)
++    other = rng.choice([s for s in SCALES if s != scale])
++    fmt = "Last week spot ETFs saw {amt} of net outflows according to the filings."
++    base = fmt.format(amt=_scaled(x, scale, "symbol"))
++    variants = [_surface(fmt.format(amt=_scaled(x, scale, st)), rng) for st in SCALED_STYLES]
++    mutants = [("scale", fmt.format(amt=_scaled(x, other, rng.choice(SCALED_STYLES))))]
++    if "." in x:
++        mutants.append(("decimal dropped", fmt.format(amt=_scaled(x.split(".")[0], scale, "symbol"))))
++    return Case(base, variants, mutants, "scale", {"value": x, "scale": scale, "mutant": other})
++
++
++def _case_negation(rng):
++    pos, neg = rng.choice(NEGATIONS)
++    subj = rng.choice(SUBJECTS)
++    fmt = "Analysts say {subj} {aux} {verb} of its range this week despite the noise."
++    v = VERB_AFTER[pos]
++    base = fmt.format(subj=subj, aux=pos, verb=v)
++    variants = [_surface(base, rng) for _ in range(3)]
++    mutants = [("negation", fmt.format(subj=subj, aux=neg, verb=VERB_AFTER[neg]))]
++    return Case(base, variants, mutants, "negation")
++
++
++def _case_actor(rng):
++    a, b = rng.choice(ACTOR_SWAPS)
++    if rng.random() < 0.5:
++        a, b = b, a
++    fmt = "On Monday {actor} said it would review its policy on digital assets next quarter."
++    base = fmt.format(actor=a)
++    variants = [_surface(base, rng) for _ in range(3)]
++    mutants = [("actor swapped", fmt.format(actor=b))]
++    return Case(base, variants, mutants, "actor")
++
++
++def _case_sign(rng):
++    p = rng.choice([3, 5, 7, 12])
++    fmt = "In the session the dollar index moved {chg} against the euro before the close."
++    base = fmt.format(chg=f"-{p}%")
++    variants = [_surface(fmt.format(chg=c), rng) for c in (f"-{p}%", f"- {p}%", f"minus {p} percent",
++                                                             f"−{p}%", f"minus {words_int(p)} percent")]
++    mutants = [("sign flipped", fmt.format(chg=f"+{p}%")), ("sign dropped", fmt.format(chg=f"{p}%"))]
++    return Case(base, variants, mutants, "sign")
++
++
++def words_of(text, t0=0.0, step=0.30, dur=0.25):
++    """A word-timestamp transcript of `text` (whitespace words), one word every `step` s."""
++    return [{"word": w, "start": round(t0 + k * step, 3), "end": round(t0 + k * step + dur, 3)}
++            for k, w in enumerate(text.split())]
++
++
++CONTEXT_BEFORE = "Good morning and welcome back to the channel. Here is what moved overnight."
++CONTEXT_AFTER = "That is the story for today. Thanks for watching and see you tomorrow."
++
++
++def in_context(text):
++    return f"{CONTEXT_BEFORE} {text} {CONTEXT_AFTER}"
++
++
++# ── synthetic media (CPU: ffmpeg, libx264 ultrafast, tiny frames) ──
++
++def _run(cmd):
++    subprocess.run(cmd, check=True, capture_output=True, timeout=120)
++
++
++# PERF: synthetic media (speech_like + make_media) and the G8 frame grabs on the frozen 9:16 final are the suite's
++# dominant CPU cost (2:00 at low load, up to ~4:00 on the shared box; budget 5:00). Build media once per module and
++# copy it (test_f2 template / cut_template) rather than per test.
++def speech_like(sentences, word_s=0.30, gap_s=0.08, pause_s=0.50, lead_s=0.60, tail_s=1.20, sr=48000,
++                seed=0, level_db=-20.0, room_db=-62.0, shift_s=0.0, voice=1.0):
++    """(samples float32, words, duration): speech-like audio with its exact transcript. Each word is a noise
++    burst with 8 ms raised-cosine ramps at level_db (RMS), room tone at room_db everywhere else; gap_s between
++    words of a sentence, pause_s between sentences. shift_s prepends that much room tone (the same speech later
++    in the file: a different window start). voice changes the burst's spectral colour (different content,
++    same timing)."""
++    rng = np.random.default_rng(seed)
++    t, words = lead_s + shift_s, []
++    for si, sent in enumerate(sentences):
++        toks = sent.split()
++        for wi, w in enumerate(toks):
++            words.append({"word": w, "start": round(t, 3), "end": round(t + word_s, 3), "probability": 0.99})
++            t += word_s + (gap_s if wi < len(toks) - 1 else 0.0)
++        t += pause_s if si < len(sentences) - 1 else 0.0
++    dur = t + tail_s
++    n = int(round(dur * sr))
++    x = rng.standard_normal(n).astype(np.float64) * (10 ** (room_db / 20))
++    ramp = int(0.008 * sr)
++    win = np.ones(int(round(word_s * sr)))
++    win[:ramp] = 0.5 - 0.5 * np.cos(np.linspace(0, math.pi, ramp))
++    win[-ramp:] = win[:ramp][::-1]
++    for w in words:
++        a = int(round(w["start"] * sr))
++        burst = rng.standard_normal(len(win))
++        if voice != 1.0:                                   # a different colour: same envelope, other content
++            burst = np.convolve(burst, np.ones(int(3 * voice)) / int(3 * voice), mode="same")
++        burst *= (10 ** (level_db / 20)) / (np.sqrt(np.mean(burst ** 2)) + 1e-12)
++        x[a:a + len(win)] += burst[:len(x) - a] * win[:len(x) - a]
++    return x.astype(np.float32), words, round(dur, 3)
++
++
++def write_wav(path, x, sr=48000):
++    y = np.clip(x, -1, 1)
++    with wave.open(path, "wb") as w:
++        w.setnchannels(1)
++        w.setsampwidth(2)
++        w.setframerate(sr)
++        w.writeframes((y * 32767).astype("<i2").tobytes())
++
++
++def make_media(path, x=None, sr=48000, size=(64, 36), dur=None, pattern="testsrc2", fps=24, audio_kbps=192):
++    """An mp4 (libx264 ultrafast, tiny frames) with the given mono samples as AAC audio (or silence)."""
++    tmpd = tempfile.mkdtemp(prefix="adv_media_")
++    try:
++        if x is None:
++            x = np.zeros(int(round((dur or 1.0) * sr)), np.float32)
++        wav = os.path.join(tmpd, "a.wav")
++        write_wav(wav, x, sr)
++        d = len(x) / sr
++        src = (f"{pattern}=s={size[0]}x{size[1]}:r={fps}:d={d:.3f}" if pattern in ("testsrc2", "testsrc")
++               else f"color=c={pattern}:s={size[0]}x{size[1]}:r={fps}:d={d:.3f}")
++        _run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", src, "-i", wav, "-map", "0:v", "-map", "1:a",
++              "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a",
++              f"{audio_kbps}k", "-ar", str(sr), "-ac", "1", "-shortest", path])
++    finally:
++        shutil.rmtree(tmpd, True)
++    return path
++
++
++def make_video(path, w, h, dur=1.0, color="black", fps=24):
++    """A silent-picture final at the given dimensions (no audio)."""
++    _run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=c={color}:s={w}x{h}:r={fps}:d={dur}",
++          "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", path])
++    return path
++
++
++# ── a synthetic selection run (select_passages.select_and_build_edl on CPU, no network, no Whisper) ──
++
++FILLER = ["Good morning everyone and welcome back to the show.", "Here is what moved in the market overnight.",
++          "Grab a coffee because there is a lot to cover today.", "Let us start with the biggest story."]
++AFTER = ["We will come back to that later in the show.", "Now let us look at the other headlines.",
++         "Stay with us for the rest of the hour.", "That is all for this part of the program."]
++HOOK_TEXT = ["Bitcoin closed the week below its fifty week moving average for the first time since September.",
++             "That is a level many traders watch very closely."]
++CLIP_TEXT = ["Spot Bitcoin funds saw heavy outflows for the third week in a row as investors pulled money.",
++             "The selling was concentrated in the largest funds while smaller ones barely moved.",
++             "Analysts say the flows usually turn when the price stabilises."]
++PAD_S = 15.0                                                    # select_passages._download_window's pad
++
++
++def source_audio(passage, first_word_at=PAD_S + 0.25, seed=0, voice=1.0, filler=FILLER, after=AFTER):
++    """(samples, words, duration, passage_word_range): filler sentences, the passage sentences (first word at
++    `first_word_at` s into the file), then more sentences, as select_passages expects a downloaded window."""
++    sents = list(filler) + list(passage) + list(after)
++    _, w0, _ = speech_like(sents, lead_s=0.6, seed=seed)
++    k = sum(len(s.split()) for s in filler)
++    lead = 0.6 + (first_word_at - w0[k]["start"])
++    x, words, dur = speech_like(sents, lead_s=lead, seed=seed, voice=voice)
++    n = sum(len(s.split()) for s in passage)
++    return x, words, dur, (k, k + n - 1)
++
++
++def write_section(run_dir, vid, dl_start, dl_end):
++    """sources/<vid>.section.json, the download record pp-tests_REQUESTS.md R-09 proposes (dl_start, dl_end, the
++    sha256 of the file): written by every fixture so the wall stays valid when that fix lands (frontier review,
++    audit A #1). Today's code ignores it."""
++    path = os.path.join(run_dir, "sources", f"{vid}.mp4")
++    with open(os.path.join(run_dir, "sources", f"{vid}.section.json"), "w") as f:
++        json.dump({"dl_start": dl_start, "dl_end": round(dl_end, 3), "sha256": sha256(path)}, f)
++
++
++def write_source(run_dir, vid, passage, offset, seed=0, voice=1.0, filler=FILLER, after=AFTER, transcript=True):
++    """sources/<vid>.mp4 (+ transcripts/<vid>.json) for a window downloaded at `offset` (full-video seconds).
++    Returns the passage record select_passages reads (full-video times) and the file's words."""
++    os.makedirs(os.path.join(run_dir, "sources"), exist_ok=True)
++    os.makedirs(os.path.join(run_dir, "transcripts"), exist_ok=True)
++    x, words, dur, (i0, i1) = source_audio(passage, seed=seed, voice=voice, filler=filler, after=after)
++    media = make_media(os.path.join(run_dir, "sources", f"{vid}.mp4"), x)
++    write_section(run_dir, vid, offset, offset + dur)
++    if transcript:
++        with open(os.path.join(run_dir, "transcripts", f"{vid}.json"), "w") as f:
++            json.dump({"words": words, "language": "en", "duration": dur, "media_sha256": sha256(media)}, f)
++    start, end = offset + words[i0]["start"], offset + words[i1]["end"]
++    return {"video_id": vid, "start": round(start, 3), "end": round(end, 3), "text": " ".join(passage),
++            "duration": round(end - start, 3)}, words, (i0, i1)
++
++
++def passages_json(run_dir, hook, clip, hook_channel="DataDash", clip_channel="Natalie Brunell"):
++    h = {**hook, "kind": "hook", "channel": hook_channel, "clip_score": 5.0, "relevance": 1.0, "score": 5.0,
++         "handle": "@x", "title": "t"}
++    c = {**clip, "kind": "clip", "channel": clip_channel, "clip_score": 5.0, "relevance": 1.0, "score": 5.0,
++         "handle": "@y", "title": "t"}
++    with open(os.path.join(run_dir, "passages.json"), "w") as f:
++        json.dump({"chosen": [h, c], "passages": [h, c]}, f)
++    return h, c
++
++
++class FakeYtDlp:
++    """A stand-in for select_passages' `subprocess` module (monkeypatch.setattr(select_passages, "subprocess",
++    FakeYtDlp())): run() 'fails' like yt-dlp without network (exit 1, nothing written) and is recorded; every
++    other attribute is the real module's. A test that expects no download asserts calls == []."""
++
++    def __init__(self):
++        self.calls = []
++
++    def run(self, cmd, *a, **k):
++        self.calls.append(list(cmd))
++        return subprocess.CompletedProcess(cmd, 1, "", "ERROR: network disabled in tests/adversarial")
++
++    def __getattr__(self, name):
++        return getattr(subprocess, name)
++
++
++# ── a complete release run (release_auth authorises it; family 3 mutates it) ──
++
++_FINALS = {}
++
++
++def _finals():
++    """Two one-second finals at the release dimensions, made once per process (black, libx264 ultrafast)."""
++    if not _FINALS:
++        d = tempfile.mkdtemp(prefix="adv_finals_")
++        for name, (w, h), color in (("segment.mp4", (1920, 1080), "black"),
++                                    ("segment_vertical.mp4", (1080, 1920), "black"),
++                                    ("other_vertical.mp4", (1080, 1920), "gray")):
++            make_video(os.path.join(d, name), w, h, 1.0, color)
++        _FINALS["dir"] = d
++    return _FINALS["dir"]
++
++
++def passing_rows(ra):
++    rows = {fmt: {k: "PASS" for k in ra.INVENTORY[fmt] | ra.MONITORING[fmt]} for fmt in ra.FORMATS}
++    for fmt in ra.FORMATS:
++        for k, allowed in ra.NONBLOCKING[fmt].items():
++            rows[fmt][k] = sorted(allowed)[0]
++    return rows
++
++
++def sha256(path):
++    import hashlib
++    h = hashlib.sha256()
++    with open(path, "rb") as f:
++        for b in iter(lambda: f.read(1 << 20), b""):
++            h.update(b)
++    return h.hexdigest()
++
++
++MEASURED = ("edl.json", "out/segment.mp4", "out/segment_vertical.mp4", "qa/concat_manifest_16x9.json",
++            "qa/concat_manifest_9x16.json")
++
++
++def release_run(parent, rows=None, attest=True, run_state=None):
++    """A run directory exactly as run_fresh leaves a clean candidate: both finals, EDL, both manifests, contact
++    sheets, GATE_REPORT.json (rows, execution evidence, the digests the gates measured, G18 readings) and the
++    verification pack; attested ALL_PASS unless attest=False."""
++    import release_auth as RA
++    from PIL import Image
++    rd = tempfile.mkdtemp(prefix="fresh_adv_", dir=parent)
++    for sub in ("out", "qa", "VERIFY"):
++        os.makedirs(os.path.join(rd, sub))
++    for name in ("segment.mp4", "segment_vertical.mp4"):
++        shutil.copy(os.path.join(_finals(), name), os.path.join(rd, "out", name))
++    shot = {"start": 0.0, "end": 0.5, "class": "single", "flagged": False}
++    edl = {"topic": "Bitcoin price dip", "headline": "Bitcoin price dip",
++           "hook": {"channel": "Yahoo Finance", "video_id": "YAH0000000a",
++                    "selection_lock": {"text": "Bitcoin fell to 74,000 dollars today."},
++                    "vertical_layout": {"shots": [shot], "flagged": False}},
++           "clips": [{"index": 1, "channel": "Natalie Brunell", "video_id": "NAT0000000b",
++                      "selection_lock": {"text": "It is a bear market rally."},
++                      "vertical_layout": {"shots": [shot], "flagged": False}}]}
++    with open(os.path.join(rd, "edl.json"), "w") as f:
++        json.dump(edl, f)
++    for fmt in RA.FORMATS:
++        with open(os.path.join(rd, "qa", f"concat_manifest_{fmt}.json"), "w") as f:
++            json.dump({"format": fmt, "segments": [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 0.5},
++                                                   {"label": "outro", "type": "outro", "start": 0.5, "end": 1.0}]}, f)
++        Image.new("RGB", (120, 80), (10, 10, 15)).save(os.path.join(rd, "qa", f"contact_sheet_{fmt}.jpg"))
++    rows = rows or passing_rows(RA)
++    heard = [{"segment": "hook", "heard": edl["hook"]["selection_lock"]["text"]},
++             {"segment": "clip_01", "heard": edl["clips"][0]["selection_lock"]["text"]}]
++    report = {"inventory_version": RA.INVENTORY_VERSION, "rows": rows,
++              "evidence": {fmt: {k: {"executed": True, "samples": 3} for k in r} for fmt, r in rows.items()},
++              "notes": {}, "measured_files": {rel: sha256(os.path.join(rd, rel)) for rel in MEASURED},
++              "G18": {"16x9": heard, "9x16": heard}}
++    with open(os.path.join(rd, "GATE_REPORT.json"), "w") as f:
++        json.dump(report, f)
++    with open(os.path.join(rd, "VERIFY", "VERIFICATION.json"), "w") as f:
++        json.dump({"complete": True, "vision": True, "passed": True, "visual": {x: {"ok": True} for x in RA.FORMATS}}, f)
++    if attest:
++        RA.attest(rd, run_state or {"ok": True, "why": []})
++    return rd
++
++
++def edit_json(path, fn):
++    with open(path) as f:
++        d = json.load(f)
++    fn(d)
++    with open(path, "w") as f:
++        json.dump(d, f)
++
++
++def other_vertical():
++    return os.path.join(_finals(), "other_vertical.mp4")
++
++
++# ── windowed source envelope (sentence_law.SourceAudio's 10 ms grid, decoded only around a cut) ──
++
++class WindowAudio:
++    """sentence_law.SourceAudio's envelope (mono 16 kHz, 10 ms RMS, dBFS) of [t0, t1] only, on the same absolute
++    10 ms grid (t0 is floored to a multiple of 10 ms): what edge_word_bounds reads (sl) without decoding a
++    multi-hour source. Equal to the whole-file decode on every reference edge (checked 2026-11-12)."""
++
++    def __init__(self, path, t0, t1):
++        t0 = math.floor(max(0.0, t0) * 100) / 100
++        r = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{t0:.3f}", "-i", path, "-t", f"{t1 - t0:.3f}", "-vn",
++                            "-ac", "1", "-ar", "16000", "-f", "f32le", "-"], capture_output=True, check=True, timeout=120)
++        x = np.frombuffer(r.stdout, np.float32)
++        n = len(x) // 160
++        self.path, self.dur = path, t0 + len(x) / 16000
++        self.t = t0 + np.arange(n) * 0.010
++        self.db = 20 * np.log10(np.sqrt(np.mean(x[:n * 160].reshape(n, 160).astype(np.float64) ** 2, axis=1)) + 1e-9)
++
++    def sl(self, a, b):
++        m = (self.t >= a - 1e-9) & (self.t < b - 1e-9)
++        return self.t[m], self.db[m]
++
++
++# ── fake model: the real chat_json loop, only the HTTP call replaced ──
++
++def fake_llm(replies):
++    """A story_semantics.LocalLLM whose _post returns the given raw replies in order (then repeats the last).
++    No digest = no reply cache (nothing written); no GPU guard, no network."""
++    import story_semantics as sm
++    llm = object.__new__(sm.LocalLLM)
++    llm.model, llm.host, llm.calls, llm.cache_hits = "fake-model", "127.0.0.1:9", 0, 0
++    llm.serve_pid, llm.placement_checked, llm.digest = None, True, None
++    seq = list(replies)
++
++    def _post(prompt, max_tokens, seed):
++        llm.calls += 1
++        return seq.pop(0) if len(seq) > 1 else seq[0]
++    llm._post = _post
++    return llm
++
++
++# garbage a model can return: empty, prose, truncated JSON, JSON of the wrong shape, null, a number
++GARBAGE_REPLIES = ["", "   ", "I think the answer is yes.", "{", '{"verdict": ', "null", "[]", "[1, 2, 3]",
++                   "42", '"yes"', "true", '{"answer": "yes"}', '{"result": {}}', "```json\n{}\n```",
++                   '{"verdict": null}', "NaN"]
+diff --git a/tests/adversarial/conftest.py b/tests/adversarial/conftest.py
+new file mode 100644
+index 00000000..2f23fce7
+--- /dev/null
++++ b/tests/adversarial/conftest.py
+@@ -0,0 +1,99 @@
++"""tests/adversarial: the adversarial test wall (red-team 2026-11-11; session pipeline_pp_tests).
++
++CPU ONLY, NO NETWORK. GPU0 is leased to the live run and GPU1 is quarantined, and nothing may reach Telegram, the
++vision gateway or a model server, so every such path is made impossible before any pipeline module is imported:
++  - CUDA_VISIBLE_DEVICES is emptied (segment_v1/qa_gates.py sets it to "0" at import: it is imported here first and
++    the variable emptied again; the autouse fixture empties it before every test), so no CUDA library sees a device;
++  - faster_whisper is replaced by a stub whose WhisperModel raises (and records the attempt), so no Whisper model
++    can load; a test that needs a transcript injects it (qa_gates.whisper_segment, gate_g18's transcriber);
++  - no socket of this process can connect over AF_INET / AF_INET6 (loopback included: a real Ollama listens on
++    127.0.0.1): a fake that is missing, or a send path that regressed, raises NetworkBlocked (a BaseException, so no
++    `except Exception` in the code under test and no pytest.raises(RuntimeError) in a test can absorb it);
++    model / vision replies are injected at their one HTTP seam (LocalLLM._post, visual_check._call), the Telegram
++    sender at deliver_run's `send`.
++At session end a read-only nvidia-smi query fails the session if this process is a CUDA compute app. It is an extra
++probe, not the guarantee (the guarantee is that no device is visible): it cannot see memory held and released
++earlier, and it is skipped when nvidia-smi is unavailable.
++
++Run: cd <worktree> && python3 -m pytest tests/adversarial -q
++"""
++import os
++import socket
++import subprocess
++import sys
++import types
++
++os.environ["CUDA_VISIBLE_DEVICES"] = ""
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++for _p in (os.path.join(REPO, "segment_v1"), os.path.join(REPO, "pipeline"), HERE):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++
++class _NoWhisper:
++    """faster_whisper.WhisperModel stand-in: any attempt to load a model is recorded and refused."""
++    attempts = []
++
++    def __init__(self, *a, **k):
++        _NoWhisper.attempts.append((a, k))
++        raise RuntimeError("tests/adversarial: Whisper (GPU) is forbidden in this suite")
++
++
++_fw = types.ModuleType("faster_whisper")
++_fw.WhisperModel = _NoWhisper
++sys.modules["faster_whisper"] = _fw
++
++
++from adv_helpers import NetworkBlocked  # noqa: E402  (a BaseException: see adv_helpers)
++
++_REAL_CONNECT, _REAL_CONNECT_EX = socket.socket.connect, socket.socket.connect_ex
++
++
++def _no_network(self, address, *a, **k):
++    if self.family in (socket.AF_INET, socket.AF_INET6):
++        raise NetworkBlocked(f"tests/adversarial: network is disabled in this suite (connect to {address!r})")
++    return _REAL_CONNECT(self, address, *a, **k)
++
++
++def _no_network_ex(self, address, *a, **k):
++    if self.family in (socket.AF_INET, socket.AF_INET6):
++        raise NetworkBlocked(f"tests/adversarial: network is disabled in this suite (connect to {address!r})")
++    return _REAL_CONNECT_EX(self, address, *a, **k)
++
++
++socket.socket.connect, socket.socket.connect_ex = _no_network, _no_network_ex
++
++import qa_gates  # noqa: E402,F401  (it sets CUDA_VISIBLE_DEVICES='0' at import: load it first, then undo that
++os.environ["CUDA_VISIBLE_DEVICES"] = ""          # before any test module is collected; modules are cached)
++
++import pytest  # noqa: E402
++
++
++@pytest.fixture(autouse=True)
++def _cpu_only():
++    """Before every test: no CUDA device visible (qa_gates re-sets it to '0' when it is imported)."""
++    os.environ["CUDA_VISIBLE_DEVICES"] = ""
++    yield
++    os.environ["CUDA_VISIBLE_DEVICES"] = ""
++
++
++@pytest.fixture
++def whisper_attempts():
++    """The Whisper loads attempted during one test (each one was refused)."""
++    start = len(_NoWhisper.attempts)
++    yield lambda: _NoWhisper.attempts[start:]
++
++
++def pytest_sessionfinish(session, exitstatus):
++    """Read-only extra probe: this process must not be listed as a CUDA compute app (only this process's own pid
++    is compared, so another job's GPU use on a shared host can never fail this suite)."""
++    try:
++        out = subprocess.run(["nvidia-smi", "--query-compute-apps=pid", "--format=csv,noheader"],
++                             capture_output=True, text=True, timeout=20).stdout
++    except (OSError, subprocess.TimeoutExpired):
++        return
++    if str(os.getpid()) in {line.strip() for line in out.splitlines()}:
++        session.exitstatus = 1
++        print(f"\nGPU USED by the adversarial suite (pid {os.getpid()} listed by nvidia-smi): FAIL")
+diff --git a/tests/adversarial/test_f0_cpu_guard.py b/tests/adversarial/test_f0_cpu_guard.py
+new file mode 100644
+index 00000000..f8075baf
+--- /dev/null
++++ b/tests/adversarial/test_f0_cpu_guard.py
+@@ -0,0 +1,45 @@
++"""The suite's own guard (order: no GPU at all; GPU0 is leased to the live run, GPU1 is quarantined): no CUDA device
++is visible to any library, and every Whisper load a pipeline module could attempt is refused and recorded."""
++import os
++
++import pytest
++
++
++def test_no_cuda_device_is_visible():
++    import qa_gates  # noqa: F401  (sets CUDA_VISIBLE_DEVICES='0' at import; conftest undid it)
++    assert os.environ.get("CUDA_VISIBLE_DEVICES") == ""
++
++
++def test_no_network_connection_can_be_opened():
++    """Telegram, the vision gateway and a model server are unreachable from this suite (a missing fake or a
++    regressed send path raises instead of sending): IPv4 / IPv6, loopback included (Ollama listens on 127.0.0.1)."""
++    import socket
++    import urllib.request
++    from adv_helpers import NetworkBlocked
++    addrs = [("127.0.0.1", 11434), ("192.0.2.1", 443)]           # literal addresses: no DNS lookup
++    try:                                                         # IPv6 only where the kernel has it (else socket()
++        socket.socket(socket.AF_INET6).close()                   # itself fails before any connect)
++        addrs.append(("::1", 11434))
++    except OSError:
++        pass
++    for addr in addrs:
++        with pytest.raises(NetworkBlocked, match="network is disabled"):
++            socket.create_connection(addr, timeout=2)
++    with pytest.raises(NetworkBlocked, match="network is disabled"):
++        urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=2)
++    try:                                                   # what a production `except Exception` would do
++        socket.create_connection(("127.0.0.1", 9), timeout=2)
++    except Exception:                                      # noqa: BLE001
++        pytest.fail("the network guard was absorbed by `except Exception`")
++    except NetworkBlocked:
++        pass
++
++
++def test_every_whisper_load_is_refused_and_recorded(whisper_attempts):
++    import faster_whisper
++    import word_diff
++    with pytest.raises(RuntimeError, match="forbidden"):
++        faster_whisper.WhisperModel("large-v3", device="cuda", compute_type="float16")
++    with pytest.raises(RuntimeError, match="forbidden"):
++        word_diff.Transcriber()                       # G18's default transcriber cannot start
++    assert len(whisper_attempts()) == 2
+diff --git a/tests/adversarial/test_f1_text_meaning.py b/tests/adversarial/test_f1_text_meaning.py
+new file mode 100644
+index 00000000..534028ad
+--- /dev/null
++++ b/tests/adversarial/test_f1_text_meaning.py
+@@ -0,0 +1,401 @@
++"""FAMILY 1 - text / meaning fuzz (law L-k: one canonical form; two strings a listener hears as the same words
++compare equal, a different number, unit, sign, name, negation or dropped word never does).
++
++Seeded generator (hypothesis is not installed): adv_helpers.gen_cases builds finance sentences, their SURFACE
++variants (entities &#39; &amp; &quot;, unicode quotes / dashes, split tokens '$81 ,000', '$40 trillion' vs '40
++trillion dollars', number words vs digits, case, punctuation, no-break spaces) and their MEANING mutants ($81,000
++vs $18,000, 16% vs 60%, has vs hasn't, million vs billion vs trillion, Fed vs Treasury, -5% vs +5%, percent vs
++dollars). Every comparator that uses the canonical form is exercised through its public entry point:
++  canon.same / canon_tokens            the form itself (+ idempotence)
++  word_diff.diff / gate_g18            G18 word-for-word (fake transcriber, no Whisper)
++  story_semantics.quote_in / adjudicate quote verification (fake model at the HTTP seam)
++  editorial_select.align_quote          selection anchor of a verified quote
++  sentence_law.anchor                   the selection lock's anchor
++  telegram.headline_numbers_said        the drop's headline numbers vs G18's readings
++  gates.spoken_channels / gate_g20      sign-off names (L-a)
++  qa_gates.gate_g3b                     G3b's last word / leak (readings injected, no Whisper)
++A strict xfail names the red-team finding it pins and the request in docs/audits/parallel/pp-tests_REQUESTS.md.
++"""
++import json
++import os
++
++import pytest
++
++import adv_helpers as H
++
++SEED = 20261112
++CASES = H.gen_cases(SEED, 600)
++ANCHOR_CASES = CASES[:120]          # SequenceMatcher-heavy sites: 20 of each kind (every mutant kind)
++
++
++def _pairs(cases, kind):
++    if kind == "equal":
++        return [(c, v) for c in cases for v in c.variants]
++    return [(c, (lab, m)) for c in cases for lab, m in c.mutants]
++
++
++# ─────────────────────────────── the canonical form itself ───────────────────────────────
++
++class TestCanonicalForm:
++    def test_surface_variants_compare_equal(self):
++        import canon
++        bad = [(c.base, v) for c, v in _pairs(CASES, "equal") if not canon.same(v, c.base)]
++        assert not bad, bad[:5]
++
++    def test_meaning_mutants_compare_unequal(self):
++        import canon
++        bad = [(c.kind, lab, m) for c, (lab, m) in _pairs(CASES, "mutant") if canon.same(m, c.base)]
++        assert not bad, bad[:5]
++
++    @pytest.mark.parametrize("a,b", [
++        ("$81,000", "$18,000"), ("16%", "60%"), ("sixteen percent", "sixty percent"), ("it has broken out",
++         "it hasn't broken out"), ("$1.66 million", "$1.66 billion"), ("$1.66 billion", "$1.66 trillion"),
++        ("40 million dollars", "40 trillion dollars"), ("the Fed said", "the Treasury said"), ("-5%", "+5%"),
++        ("5%", "$5"), ("eighty one thousand", "eighteen thousand"), ("5.5%", "5%"), ("$81,000", "$181,000")])
++    def test_named_collisions_stay_different(self, a, b):
++        import canon
++        assert not canon.same(a, b), (canon.canon_tokens(a), canon.canon_tokens(b))
++
++    @pytest.mark.parametrize("a,b", [
++        ("$40 trillion", "40 trillion dollars"), ("it&#39;s S&amp;P &quot;fine&quot;", "it's S&P \"fine\""),
++        ("$81 ,000", "$81,000"), ("“Bitcoin” — it’s up", "\"Bitcoin\" - it's up"),
++        ("eighty one thousand dollars", "$81,000"), ("eighty-one thousand dollars", "$81k"),
++        ("sixteen percent", "16%"), ("$1.66B", "1.66 billion dollars"), ("minus five percent", "-5%"),
++        ("74 000", "74,000"), ("U .S.", "U.S."), ("above $74,000 dollars", "above 74,000 dollars")])
++    def test_named_equivalences_compare_equal(self, a, b):
++        import canon
++        assert canon.same(a, b), (canon.canon_tokens(a), canon.canon_tokens(b))
++
++    def test_idempotent_on_generated_and_real_sentences(self):
++        """canon(canon(x)) == canon(x) for every generated sentence, variant, mutant and the 200 real
++        sentences of tests/fixtures/canon_20261111."""
++        import canon
++        real = [x["text"] for x in json.load(open(os.path.join(H.REPO, "tests", "fixtures", "canon_20261111",
++                                                                "sentences.json")))["sentences"]]
++        texts = real + [c.base for c in CASES] + [v for c, v in _pairs(CASES, "equal")] + \
++            [m for c, (_, m) in _pairs(CASES, "mutant")]
++        bad = [t for t in texts if canon.canon_tokens(canon.canon(t)) != canon.canon_tokens(t)]
++        assert not bad, bad[:5]
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="PP-01 (new, idempotence): two adjacent spoken numbers re-merge on a "
++                                           "second pass (_SPACED_THOUSANDS); REQUESTS.md R-01")
++    def test_idempotent_on_adjacent_spoken_numbers(self):
++        """Speech often puts two numbers side by side ('two, three hundred dollars'): canon reads them as 2 and
++        300, but canon of that canonical text reads 2300. The canonical form must be a fixpoint."""
++        import canon
++        bad = []
++        for t in H.load_fixture("text_cases.json")["adjacent_numbers"]:
++            once = canon.canon_tokens(t)
++            twice = canon.canon_tokens(canon.canon(t))
++            if once != twice:
++                bad.append((t, once, twice))
++        assert not bad, bad
++
++
++# ─────────────────────────────── G18 word-for-word ───────────────────────────────
++
++class TestG18:
++    def test_diff_equal_variants_and_unequal_mutants(self):
++        import word_diff as WD
++        bad = [("equal", c.base, v) for c, v in _pairs(CASES, "equal") if WD.diff(c.base, v)]
++        bad += [("mutant", lab, m) for c, (lab, m) in _pairs(CASES, "mutant") if not WD.diff(c.base, m)]
++        assert not bad, bad[:5]
++
++    def test_edges_see_a_changed_edge_word(self):
++        import word_diff as WD
++        assert WD.edges("Bitcoin closed above $81,000.", "bitcoin closed above eighty one thousand dollars") == []
++        assert WD.edges("Bitcoin closed above $81,000.", "bitcoin closed above $18,000") != []
++        assert WD.edges("It has not broken out.", "it has not broken") != []        # a lost last word
++        assert WD.edges("It has not broken out.", "it has broken out") == []        # edges see edges only: the
++        assert WD.diff("It has not broken out.", "it has broken out") != []         # middle is diff's job
++
++    @pytest.mark.parametrize("heard,ok", [
++        ("Bitcoin closed above eighty one thousand dollars after a quiet weekend in Asia.", True),
++        ("Bitcoin closed above $81 ,000 after a quiet weekend in Asia.", True),
++        ("Bitcoin closed above $18,000 after a quiet weekend in Asia.", False),
++        ("Bitcoin closed above $81,000 after a quiet weekend in Asia. All right", False),
++        ("closed above $81,000 after a quiet weekend in Asia.", False)])
++    def test_gate_g18_through_its_public_entry(self, heard, ok, tmp_path):
++        """gate_g18 with an injected transcriber: the final's segment reads `heard`, the source span reads the
++        lock (a faithful source)."""
++        import word_diff as WD
++        lock = "Bitcoin closed above $81,000 after a quiet weekend in Asia."
++
++        class T:
++            def span(self, media, t0, t1):
++                return heard if media == "final.mp4" else lock
++        segs = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 5.0}]
++        clips = {"hook": {"lock_text": lock, "source": "src.mp4", "cut_in": 1.0, "cut_out": 6.0}}
++        got, rows = WD.gate_g18("final.mp4", segs, clips, transcriber=T())
++        assert got is ok, rows
++
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-cut F08 (OPEN, D): a meaningful middle-word mismatch against the "
++                                           "selection lock is report-only; REQUESTS.md R-16")
++    def test_gate_g18_fails_a_number_that_differs_from_the_lock(self):
++        """The source span and the final agree with each other ('$18,000') but not with the editor's locked
++        sentence ('$81,000'): the edges match, so only the reported lock diff sees it."""
++        import word_diff as WD
++        lock = "Bitcoin closed above $81,000 after a quiet weekend in Asia."
++        said = "Bitcoin closed above $18,000 after a quiet weekend in Asia."
++
++        class T:
++            def span(self, media, t0, t1):
++                return said
++        segs = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 5.0}]
++        ok, rows = WD.gate_g18("final.mp4", segs, {"hook": {"lock_text": lock, "source": "src.mp4", "cut_in": 1.0,
++                                                            "cut_out": 6.0}}, transcriber=T())
++        H.control(bool(rows[0]["lock_diff_reported"]), f"G18 reports the lock difference: {rows}")
++        assert ok is False, rows
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-cut F22 (OPEN): with duplicate manifest labels G18 checks only the "
++                                           "last occurrence; REQUESTS.md R-17")
++    def test_gate_g18_checks_every_occurrence_of_a_label(self):
++        import word_diff as WD
++        lock = "Bitcoin closed above $81,000 after a quiet weekend in Asia."
++
++        class T:
++            def span(self, media, t0, t1):
++                return "completely different words were heard here" if (media, t0) == ("final.mp4", 0.0) else lock
++        segs = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 5.0},
++                {"label": "hook", "type": "talking_head", "start": 5.0, "end": 10.0}]
++        ok, rows = WD.gate_g18("final.mp4", segs, {"hook": {"lock_text": lock, "source": "src.mp4", "cut_in": 1.0,
++                                                            "cut_out": 6.0}}, transcriber=T())
++        assert ok is False, rows
++
++
++# ─────────────────────────────── quote verification ───────────────────────────────
++
++class TestQuoteVerification:
++    def test_variants_verified_mutants_refused(self):
++        import story_semantics as SM
++        bad = [("equal", v) for c, v in _pairs(CASES, "equal") if not SM.quote_in(v, [H.in_context(c.base)])]
++        bad += [("mutant", lab, m) for c, (lab, m) in _pairs(CASES, "mutant")
++                if SM.quote_in(m, [H.in_context(c.base)])]
++        assert not bad, bad[:5]
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="Grok47-select F4 (OPEN): quote_in is a character substring test on "
++                                           "canonical text; REQUESTS.md R-02")
++    def test_a_quote_never_matches_inside_a_longer_word_or_number(self):
++        """'$81,000 by the weekend' is not said in '$181,000 by the weekend'; 'coin fell below ...' is not
++        said in 'Bitcoin fell below ...'; '... fell 16' is not said in '... fell 160 percent'."""
++        import story_semantics as SM
++        hits = [(q, t) for q, t in H.load_fixture("text_cases.json")["substring_traps"] if SM.quote_in(q, [t])]
++        assert not hits, hits
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="Claude-select T1 (OPEN): the verbatim check has no tolerance for a "
++                                           "compound name written apart; REQUESTS.md R-19")
++    def test_a_compound_name_written_apart_is_the_same_quote(self):
++        """'MicroStrategy' and 'micro strategy' are the same spoken words (the model's clean-up of a transcript)."""
++        import story_semantics as SM
++        assert SM.quote_in("MicroStrategy bought more bitcoin this week", ["So micro strategy bought more bitcoin "
++                                                                          "this week, again."])
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="Grok47-select F19 (OPEN): a quote may straddle two excerpts; "
++                                           "REQUESTS.md R-03")
++    def test_a_quote_never_straddles_two_excerpts(self):
++        import story_semantics as SM
++        a = "The ETF saw heavy selling on Friday and the flows turned negative."
++        b = "Bitcoin is up four percent this morning on strong demand."
++        quote = "flows turned negative. Bitcoin is up four percent"
++        H.control(SM.quote_in("and the flows turned negative", [a]), "inside one excerpt the quote is found")
++        assert not SM.quote_in(quote, [a, b])
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F05 (OPEN): supporting chunk ids are not bound to the "
++                                           "verified quote; REQUESTS.md R-04")
++    def test_adjudicate_counts_a_quote_only_with_the_chunk_that_says_it(self):
++        """adjudicate (public) with a fake model at the HTTP seam: the model names excerpt A as support but the
++        quote is only in excerpt B. Counted coverage must rest on the chunk that says the quote."""
++        import story_semantics as SM
++        ex = [{"chunk_id": "vidA:0010-0040", "text": "Gold was flat and the euro barely moved this week."},
++              {"chunk_id": "vidA:0300-0330",
++               "text": "Bitcoin ETFs saw one point six six billion dollars of outflows last week."}]
++        adj = {"verdict": "CURRENT_EVENT", "supporting_chunk_ids": ["vidA:0010-0040"],
++               "evidence_quote": "Bitcoin ETFs saw one point six six billion dollars of outflows",
++               "confidence": 0.9, "reason": "x"}
++        sup = {"support": "SUPPORTS", "same_actor_action_object": True, "presented_as": "current", "reason": "x"}
++        llm = H.fake_llm([json.dumps(adj), json.dumps(sup)])
++        q = {"underlying_event": "Bitcoin ETFs saw $1.66B of net outflows last week", "action": "outflows",
++             "affected_object": "Bitcoin ETFs", "entities": [{"name": "Bitcoin ETFs"}], "must_not_confuse_with": []}
++        v = SM.adjudicate(llm, q, {"title": "t", "channel": "c", "published_at": "2026-11-11"}, ex, today="2026-11-12")
++        H.control(v["quote_verified"] is True, f"the quote is verbatim in excerpt B: {v}")
++        assert not v["counted_as_same_event"], v
++
++
++# ─────────────────────────────── selection anchors ───────────────────────────────
++
++class TestSelectionAnchors:
++    def test_surface_variants_anchor_on_the_sentence(self):
++        import editorial_select as ES
++        import sentence_law as L
++        bad = []
++        for c, v in _pairs(ANCHOR_CASES, "equal"):
++            words = H.words_of(H.in_context(c.base))
++            if ES.align_quote(v, words, 0.0, 1e9) is None:
++                bad.append(("align_quote", v))
++            if L.anchor(words, v) is None:
++                bad.append(("anchor", v))
++        assert not bad, bad[:5]
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F04 / GPT-cut F06 (OPEN, D): a fuzzy anchor changes a "
++                                           "number, negation, sign, unit or name; REQUESTS.md R-05")
++    def test_align_quote_never_moves_a_quote_onto_a_different_claim(self):
++        import editorial_select as ES
++        accepted = [(c.kind, lab, m) for c, (lab, m) in _pairs(ANCHOR_CASES, "mutant")
++                    if ES.align_quote(m, H.words_of(H.in_context(c.base)), 0.0, 1e9) is not None]
++        assert not accepted, (len(accepted), accepted[:6])
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-cut F06 / GPT-select F04 (OPEN, D): the selection lock is made "
++                                           "on words that say something else; REQUESTS.md R-05")
++    def test_sentence_law_anchor_never_locks_a_different_claim(self):
++        import sentence_law as L
++        accepted = [(c.kind, lab, m) for c, (lab, m) in _pairs(ANCHOR_CASES, "mutant")
++                    if L.anchor(H.words_of(H.in_context(c.base)), m) is not None]
++        assert not accepted, (len(accepted), accepted[:6])
++
++
++# ─────────────────────────────── the drop's headline numbers ───────────────────────────────
++
++def _snap(headline, heard):
++    return {"edl": {"headline": headline, "topic": headline},
++            "report": {"G18": {f: [{"segment": "hook", "heard": heard}] for f in ("16x9", "9x16")}}}
++
++
++class TestHeadlineNumbers:
++    NUMERIC = ("dollars", "percent", "scale", "sign")
++
++    def test_a_headline_number_said_in_any_written_form_is_said(self):
++        import telegram as T
++        bad = []
++        for c in CASES[:240]:
++            if c.kind not in self.NUMERIC:
++                continue
++            for v in c.variants:
++                miss = T.headline_numbers_said("", _snap(c.base, v))
++                if miss:
++                    bad.append((c.base, v, miss))
++        assert not bad, bad[:5]
++
++    def test_a_different_number_sign_or_unit_is_not_said(self):
++        import telegram as T
++        bad = []
++        for c in CASES[:240]:
++            if c.kind not in self.NUMERIC:
++                continue
++            for lab, m in c.mutants:
++                if not T.headline_numbers_said("", _snap(c.base, m)):
++                    bad.append((c.base, lab, m))
++        assert not bad, bad[:5]
++
++    def test_actor_swap_in_a_numeric_headline_is_not_said(self):
++        import telegram as T
++        assert T.headline_numbers_said("", _snap("Treasury yields climb 5% on Monday",
++                                                 "the fed yields climb five percent on monday")) != []
++        assert T.headline_numbers_said("", _snap("Treasury yields climb 5% on Monday",
++                                                 "treasury yields climb five percent on monday")) == []
++
++
++# ─────────────────────────────── sign-off names (G20, law L-a) ───────────────────────────────
++
++def _registry():
++    return json.load(open(os.path.join(H.REPO, "pipeline", "channels.json")))
++
++
++class TestSignoffNames:
++    @pytest.mark.parametrize("text", [
++        "Big thanks to DataDash, Natalie Brunell, Yahoo Finance &amp; Bitcoin Magazine for the clips today.",
++        "BIG THANKS TO DATADASH, NATALIE BRUNELL, YAHOO FINANCE AND BITCOIN MAGAZINE. FOLLOW THEM ALL.",
++        "Big thanks to Data‑Dash, Natalie Brunell’s show, Yahoo Finance, and Bitcoin Magazine.",
++        "Big thanks to DataDash, Natalie Brunel, Yahoo Finance, and Bitcoin Magazine for the clips today."])
++    def test_every_credited_name_heard_in_any_surface_form(self, text):
++        import gates as G
++        cred = ["DataDash", "Natalie Brunell", "Yahoo Finance", "Bitcoin Magazine"]
++        assert G.spoken_channels(text, _registry(), cred) == set(cred)
++
++    def test_a_missing_name_is_missing(self):
++        import gates as G
++        cred = ["DataDash", "Natalie Brunell", "Yahoo Finance", "Bitcoin Magazine"]
++        heard = G.spoken_channels("Clips today from Natalie Brunell, Yahoo Finance, and Bitcoin Magazine. Go "
++                                  "follow them for more.", _registry(), cred)
++        assert heard == set(cred) - {"DataDash"}
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-gates F17 (OPEN): G20 hears another registry channel's name as "
++                                           "the credited one; REQUESTS.md R-06")
++    @pytest.mark.parametrize("credited,spoken", [
++        ("Bitcoin Magazine", "Bitcoin Magazine Pro"), ("Bitcoin Magazine Pro", "Bitcoin Magazine"),
++        ("Coffeezilla", "Coffeezilla Extras"), ("CNBC", "CNBC Television")])
++    def test_a_different_channel_variant_is_not_the_credited_channel(self, credited, spoken):
++        import gates as G
++        heard = G.spoken_channels(f"Big thanks to {spoken} for the clips today. Follow them for more.",
++                                  _registry(), [credited])
++        assert credited not in heard, heard
++
++    def test_a_shorter_spoken_name_is_not_a_longer_credited_name(self):
++        import gates as G
++        assert G.spoken_channels("Big thanks to Real Vision for the clips today. Follow them for more.",
++                                 _registry(), ["Real Vision Finance"]) == {"Real Vision"}
++
++    def test_gate_g20_public_entry_names_all_and_fails_a_missing_one(self, tmp_path, monkeypatch):
++        import gates as G
++        import qa_gates as Q
++        final = H.make_media(str(tmp_path / "final.mp4"), dur=4.0)
++        segs = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 2.0},
++                {"label": "shoutout", "type": "shoutout", "start": 2.0, "end": 4.0}]
++        cred = ["DataDash", "Natalie Brunell"]
++        for text, ok in (("Big thanks to DataDash and Natalie Brunell for the clips.", True),
++                         ("Big thanks to Natalie Brunell for the clips.", False),
++                         ("", False)):
++            monkeypatch.setattr(Q, "whisper_segment", lambda wav, qa, t=text: t)
++            got, det = G.gate_g20(final, segs, cred, str(tmp_path))
++            assert got is ok, (text, det)
++
++
++# ─────────────────────────────── G3b last word / leak ───────────────────────────────
++
++def _g3b(tmp_path, monkeypatch, lock_text, readings, next_word=None):
++    import qa_gates as Q
++    final = str(tmp_path / "final.mp4")
++    if not os.path.exists(final):
++        H.make_media(final, dur=6.0)
++    edl = {"hook": {"channel": "DataDash", "video_id": "v1", "selection_lock": {"text": lock_text}}, "clips": []}
++    if next_word is not None:
++        edl["hook"]["next_source_word"] = next_word
++    p = tmp_path / "edl.json"
++    p.write_text(json.dumps(edl))
++    seq = list(readings)
++    monkeypatch.setattr(Q, "whisper_segment", lambda wav, qa: seq.pop(0) if len(seq) > 1 else seq[0])
++    segs = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 5.0}]
++    return Q.gate_g3b(final, segs, str(tmp_path), edl_path=str(p))
++
++
++class TestG3b:
++    def test_written_and_spoken_amount_is_the_same_last_word(self, tmp_path, monkeypatch):
++        ok, t = _g3b(tmp_path, monkeypatch, "Its market cap sits above $40 trillion.",
++                     ["sits above 40 trillion dollars.", "sits above $40 trillion.", "above forty trillion dollars"])
++        assert ok, t
++
++    def test_a_clipped_last_word_fails(self, tmp_path, monkeypatch):
++        ok, t = _g3b(tmp_path, monkeypatch, "how the market shapes up this week.",
++                     ["how the market shapes up this", "shapes up this", "the market shapes up"])
++        assert not ok, t
++
++    def test_a_leaked_next_word_fails(self, tmp_path, monkeypatch):
++        ok, t = _g3b(tmp_path, monkeypatch, "how the market shapes up this week.",
++                     ["shapes up this week. All", "shapes up this week all", "this week. All"], next_word="All")
++        assert not ok, t
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-gates F15 (OPEN): G3b's match is 'expected in heard' (a "
++                                           "substring); REQUESTS.md R-07")
++    def test_a_longer_word_containing_the_last_word_is_a_different_word(self, tmp_path, monkeypatch):
++        ok, t = _g3b(tmp_path, monkeypatch, "how the market shapes up this week.",
++                     ["shapes up this weekend.", "shapes up this weekend", "up this weekend."])
++        assert not ok, t
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-gates F16 / Claude-gates T2 (OPEN): the leak check anchors on "
++                                           "the LAST match, so a next word equal to the last word hides; "
++                                           "REQUESTS.md R-08")
++    def test_a_next_word_equal_to_the_last_word_still_leaks(self, tmp_path, monkeypatch):
++        """'... rose again this week. Week after week ...': the cut leaked 'Week'."""
++        ok, t = _g3b(tmp_path, monkeypatch, "Bitcoin rose again this week.",
++                     ["rose again this week. Week", "again this week week", "this week. Week"], next_word="Week")
++        assert not ok, t
+diff --git a/tests/adversarial/test_f2_provenance.py b/tests/adversarial/test_f2_provenance.py
+new file mode 100644
+index 00000000..d96bb995
+--- /dev/null
++++ b/tests/adversarial/test_f2_provenance.py
+@@ -0,0 +1,249 @@
++"""FAMILY 2 - coordinates and provenance (E-FAIL-002: the offset recorded must be the file's; E-FAIL-001: a lock
++is sealed at selection and never recomputed; GPT-select F09 / F10, Grok47-select F5 / F6).
++
++A synthetic two-source selection run (adv_helpers.write_source: speech-like audio with its exact word transcript,
++each source a window downloaded at a KNOWN full-video offset) goes through the public entry points:
++  select_passages.select_and_build_edl   download cache + transcript cache + sentence-law anchor + lock
++  sentence_law.write_lock_cut_table      cuts inside the locked pauses
++  sentence_law.gate_g16 / verify_lock    the lock checked against the transcript (and the media) on disk
++yt-dlp is replaced by a stand-in that fails like a machine without network (it must not even be called on a cache
++hit) and Whisper by a stub that refuses to load, so nothing leaves the CPU.
++"""
++import json
++import os
++import shutil
++
++import pytest
++
++import adv_helpers as H
++
++HOOK_VID, CLIP_VID = "VIDAAAAAAAA", "VIDBBBBBBBB"
++HOOK_OFFSET, CLIP_OFFSET = 45, 120
++
++
++@pytest.fixture(scope="module")
++def template(tmp_path_factory):
++    """One clean run directory (sources, transcripts, passages.json), built once and copied per test."""
++    rd = str(tmp_path_factory.mktemp("f2_template") / "run")
++    os.makedirs(rd)
++    hook, hw, hr = H.write_source(rd, HOOK_VID, H.HOOK_TEXT, offset=HOOK_OFFSET, seed=1)
++    clip, cw, cr = H.write_source(rd, CLIP_VID, H.CLIP_TEXT, offset=CLIP_OFFSET, seed=2)
++    H.passages_json(rd, hook, clip)
++    return {"dir": rd, "hook": hook, "clip": clip, "hw": hw, "hr": hr, "cw": cw, "cr": cr}
++
++
++@pytest.fixture
++def run(template, tmp_path, monkeypatch):
++    import select_passages as SP
++    rd = str(tmp_path / "run")
++    shutil.copytree(template["dir"], rd)
++    fake = H.FakeYtDlp()
++    monkeypatch.setattr(SP, "subprocess", fake)
++    return {**template, "dir": rd, "ytdlp": fake}
++
++
++@pytest.fixture(scope="module")
++def cut_template(template, tmp_path_factory):
++    """The template after select + cut table + G16 PASS, made ONCE (the lock-binding tests copy it)."""
++    import select_passages as SP
++    import sentence_law as L
++    rd = str(tmp_path_factory.mktemp("f2_cut") / "run")
++    shutil.copytree(template["dir"], rd)
++    real, SP.subprocess = SP.subprocess, H.FakeYtDlp()
++    try:
++        H.control(SP.select_and_build_edl("bitcoin", "bitcoin", rd) is True, "select on the clean template")
++    finally:
++        SP.subprocess = real
++    cuts = L.write_lock_cut_table(rd)
++    H.control(all(c["verified"] for c in cuts), f"cut table on the clean template: {cuts}")
++    ok, table = L.gate_g16(rd)
++    H.control(ok, f"G16 on the clean template: {table}")
++    return {**template, "dir": rd}
++
++
++@pytest.fixture
++def cut_run(cut_template, tmp_path, monkeypatch):
++    import select_passages as SP
++    rd = str(tmp_path / "run")
++    shutil.copytree(cut_template["dir"], rd)
++    monkeypatch.setattr(SP, "subprocess", H.FakeYtDlp())
++    return {**cut_template, "dir": rd}
++
++
++def _select(run):
++    import select_passages as SP
++    return SP.select_and_build_edl("bitcoin", "bitcoin", run["dir"])
++
++
++def _edl(run):
++    return json.load(open(os.path.join(run["dir"], "edl.json")))
++
++
++def _replace_source(run, vid, passage, seed, voice, offset):
++    """New bytes under the same name: the same speech timing (every pause where it was), other content, and the
++    download record rewritten for them (a re-download properly recorded), so only a binding of the transcript /
++    lock to the media bytes can tell (R-10), not the download record (R-09)."""
++    x, _, dur, _ = H.source_audio(passage, seed=seed, voice=voice)
++    H.make_media(os.path.join(run["dir"], "sources", f"{vid}.mp4"), x)
++    H.write_section(run["dir"], vid, offset, offset + dur)
++
++
++class TestKnownOffset:
++    def test_a_window_at_a_known_offset_is_recorded_in_file_coordinates(self, run):
++        assert _select(run) is True
++        assert run["ytdlp"].calls == []                                  # a valid cache hit downloads nothing
++        e = _edl(run)
++        for seg, words, (i0, i1), off, p in ((e["hook"], run["hw"], run["hr"], HOOK_OFFSET, run["hook"]),
++                                             (e["clips"][0], run["cw"], run["cr"], CLIP_OFFSET, run["clip"])):
++            assert seg["time_coords"] == "source_file"
++            assert seg["source_window_offset_s"] == off                  # the requested whole-second start
++            assert seg["word_start"] == words[i0]["start"] and seg["word_end"] == words[i1]["end"]
++            assert abs(seg["word_start"] + off - p["start"]) < 1e-6     # file + offset = full-video time
++            assert seg["selection_lock"]["first_word"] == p["text"].split()[0]
++            assert seg["selection_lock"]["last_word"] == p["text"].split()[-1]
++
++    def test_cuts_sit_in_the_pauses_around_the_locked_words_and_g16_passes(self, cut_run):
++        import sentence_law as L
++        run = cut_run                                    # selected + cut table written (cut_template)
++        cuts = {c["clip_id"]: c for c in json.load(open(os.path.join(run["dir"], "cuts_final.json")))}
++        e = _edl(run)
++        for label, seg in (("hook", e["hook"]), ("clip_01", e["clips"][0])):
++            c = cuts[label]
++            assert c["verified"] is True, c
++            assert seg["word_start"] - 0.6 < c["cut_in"] < seg["word_start"]       # inside the 0.5 s pause
++            assert seg["word_end"] < c["cut_out"] < seg["word_end"] + 0.6
++        ok, table = L.gate_g16(run["dir"])
++        assert ok, table
++
++
++class TestDirtyCache:
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F09 (OPEN): a cached download is relabelled with the newly "
++                                           "requested offset; REQUESTS.md R-09")
++    def test_a_cached_window_of_another_request_is_never_relabelled(self, run):
++        """sources/<hook>.mp4 is an OLD download of the window at 285 s (the host repeats the hook sentences at
++        300 s); the editor's verified passage is at 60 s, so the new request starts at 45 s. Whatever happens,
++        the EDL must never record 45 s for a file that starts at 285 s."""
++        import select_passages as SP
++        rd = run["dir"]
++        old, ow, (oi0, _) = H.write_source(rd, HOOK_VID, H.HOOK_TEXT, offset=285, seed=7)   # the stale cache
++        first = ow[oi0]["start"]                           # the passage's place in a window (same layout)
++        hook = {**run["hook"], "start": HOOK_OFFSET + first, "end": HOOK_OFFSET + first + old["duration"]}
++        H.passages_json(rd, hook, run["clip"])
++        ok = SP.select_and_build_edl("bitcoin", "bitcoin", rd)
++        assert ok is False or _edl(run)["hook"]["source_window_offset_s"] == 285, _edl(run)["hook"]
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F10 (OPEN): the transcript cache is keyed by video id, not "
++                                           "by the bytes it transcribed; REQUESTS.md R-10")
++    def test_a_transcript_of_other_bytes_is_never_used(self, cut_run, whisper_attempts):
++        """The source's bytes changed under the same name (same timing, other content); its cached transcript
++        describes the old bytes. select must transcribe the new bytes (here: refused, so no EDL) or stop."""
++        run = cut_run
++        os.remove(os.path.join(run["dir"], "edl.json"))
++        _replace_source(run, HOOK_VID, H.HOOK_TEXT, seed=99, voice=3.0, offset=HOOK_OFFSET)
++        try:
++            ok = _select(run)
++        except RuntimeError as e:                          # a re-transcription attempt refused by the Whisper stub
++            H.control("forbidden" in str(e), f"select raised something else: {e}")
++            ok = False
++        assert ok is False or whisper_attempts(), "the old transcript was used for new bytes"
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F23 (OPEN): yt-dlp's exit status is ignored and a partial "
++                                           "file already under the name is taken as the download; REQUESTS.md R-22")
++    def test_a_failed_download_never_supplies_a_source(self, run):
++        """sources/<hook>.mp4 is a 10-100 KB leftover (too small for a cache hit, so yt-dlp runs); yt-dlp exits 1
++        and writes nothing. Nothing from that video may be selected."""
++        x, words, _, (_, i1) = H.source_audio(H.HOOK_TEXT, seed=1)
++        cut = int((words[i1]["end"] + 2.0) * 48000)                    # a truncated download: the hook, then 2 s
++        p = os.path.join(run["dir"], "sources", f"{HOOK_VID}.mp4")
++        H.make_media(p, x[:cut:3], sr=16000, audio_kbps=12, size=(16, 16))
++        os.remove(os.path.join(run["dir"], "sources", f"{HOOK_VID}.section.json"))   # a partial download has none
++        H.control(10_000 < os.path.getsize(p) <= 100_000, f"leftover size {os.path.getsize(p)}")
++        ok = _select(run)
++        H.control(any(f"watch?v={HOOK_VID}" in " ".join(c) for c in run["ytdlp"].calls), "yt-dlp was asked (and failed)")
++        assert ok is False, "a failed download supplied the hook"
++
++    def test_yt_dlp_failure_on_a_cache_miss_selects_nothing(self, run):
++        """Control: no cached file and a failing yt-dlp = no source = no EDL (and yt-dlp WAS asked)."""
++        os.remove(os.path.join(run["dir"], "sources", f"{HOOK_VID}.mp4"))
++        os.remove(os.path.join(run["dir"], "sources", f"{HOOK_VID}.section.json"))
++        assert _select(run) is False
++        assert any(f"watch?v={HOOK_VID}" in " ".join(c) for c in run["ytdlp"].calls)
++
++
++class TestSelectContract:
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F08 (OPEN, D: SELECT = hook + >= 2 clips + the required "
++                                           "channels): success with one clip; REQUESTS.md R-23")
++    def test_select_with_fewer_than_two_clips_is_not_a_success(self, run):
++        ok = _select(run)                                   # the template has a hook and ONE clip
++        assert ok is False or len(_edl(run)["clips"]) >= 2, f"SELECT reported success with {len(_edl(run)['clips'])} clip"
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F08 (OPEN; R5: >= 2 distinct channels): success with one "
++                                           "channel; REQUESTS.md R-23")
++    def test_select_with_one_channel_is_not_a_success(self, run):
++        H.passages_json(run["dir"], run["hook"], run["clip"], hook_channel="DataDash", clip_channel="DataDash")
++        ok = _select(run)
++        assert ok is False or len({_edl(run)["hook"]["channel"]} | {c["channel"] for c in _edl(run)["clips"]}) >= 2
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="Claude-gates T3 / named answer #3 (OPEN): the EDL never names the "
++                                           "source's next word, so G3b's leak check never runs; REQUESTS.md R-18")
++    def test_every_segment_names_the_next_source_word_for_g3b(self, run):
++        H.control(_select(run) is True, "select on the clean template")
++        e = _edl(run)
++        missing = [lab for lab, s in [("hook", e["hook"])] + [(f"clip_{c['index']:02d}", c) for c in e["clips"]]
++                   if not s.get("next_source_word")]
++        assert not missing, missing
++
++
++class TestLockBinding:
++    """Each test starts from cut_run: selected, cut table written, G16 PASS (the control, made once)."""
++
++    def test_a_lock_checked_against_another_transcript_is_refused(self, cut_run):
++        """The transcript on disk is not the one the lock was made on (one word changed): verify_lock, the cut
++        table and G16 all refuse it."""
++        import sentence_law as L
++        run = cut_run
++        tp = os.path.join(run["dir"], "transcripts", f"{HOOK_VID}.json")
++        d = json.load(open(tp))
++        d["words"][run["hr"][0] + 2]["word"] = "nearly"
++        with open(tp, "w") as f:
++            json.dump(d, f)
++        lock = _edl(run)["hook"]["selection_lock"]
++        assert any("transcript changed" in e for e in L.verify_lock(lock, tp))
++        ok, table = L.gate_g16(run["dir"])
++        assert not ok and any("transcript changed" in e for e in table[0]["errors"]), table
++        cut = next(c for c in L.write_lock_cut_table(run["dir"]) if c["clip_id"] == "hook")
++        assert cut["verified"] is False and "transcript changed" in cut["error"]
++
++    def test_a_lock_edited_after_selection_is_refused(self, cut_run):
++        import sentence_law as L
++        run = cut_run
++        lock = dict(_edl(run)["hook"]["selection_lock"])
++        lock["last_word"] = "September."
++        assert any("modified after selection" in e for e in L.verify_lock(lock))
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="PP-02 (new): verify_lock compares only the transcript's digest, never "
++                                           "the lock's words with the transcript's words at i0..i1; REQUESTS.md R-11")
++    def test_a_lock_whose_words_are_not_its_transcripts_words_is_refused(self, cut_run):
++        """A lock built from ANOTHER transcript's words but carrying the digest of the file on disk (a rewrite
++        between hashing and reading, a concurrent attempt in the same run directory): verify_lock must see that
++        its first / last word and text are not that transcript's words at its indices."""
++        import sentence_law as L
++        run = cut_run
++        tp = os.path.join(run["dir"], "transcripts", f"{HOOK_VID}.json")
++        i0, i1 = run["hr"]
++        other = [dict(w) for w in run["hw"]]
++        other[i0]["word"], other[i1]["word"] = "Ether", "carefully."
++        lock = L.make_lock(HOOK_VID, other, i0, i1, L.sha256_file(tp), run["hook"]["text"], None, 1.0, "test")
++        assert L.verify_lock(lock, tp) != []
++
++    @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F10 / Grok47-select F6 (OPEN): the lock and the cut table "
++                                           "bind the transcript's digest, never the source media's; REQUESTS.md R-10")
++    def test_g16_refuses_a_source_whose_bytes_changed_after_the_lock(self, cut_run):
++        """Same name, same speech timing, other content (a re-download of another rendition, a rerun on a dirty
++        run directory): every cut is still 'legal' by the envelope, but it is no longer the audio the editor's
++        sentence was located in. G16 must refuse the changed bytes."""
++        import sentence_law as L
++        run = cut_run
++        _replace_source(run, HOOK_VID, H.HOOK_TEXT, seed=99, voice=3.0, offset=HOOK_OFFSET)
++        ok, table = L.gate_g16(run["dir"])
++        assert not ok, table
+diff --git a/tests/adversarial/test_f3_release_auth.py b/tests/adversarial/test_f3_release_auth.py
+new file mode 100644
+index 00000000..730ed636
+--- /dev/null
++++ b/tests/adversarial/test_f3_release_auth.py
+@@ -0,0 +1,372 @@
++"""FAMILY 3 - authorisation mutations (law L-j: release is authorised on THESE bytes; fail closed).
++
++One complete clean candidate run (adv_helpers.release_run: both finals at release dimensions, EDL, manifests,
++contact sheets, GATE_REPORT with rows / evidence / measured digests, verification pack, ATTESTATION) is
++authorised and delivered (the control). Every mutation the order names must then REFUSE through both public
++entry points: release_auth.authorise (attest + authorise) AND telegram.deliver_run (nothing is sent; the sender
++is injected, no network):
++  a missing required gate          every REQUIRED row of both formats deleted, one at a time
++  an extra unknown gate            unlisted rows, case / whitespace / lookalike variants of real rows
++  a row that says 'PASS (waived)'  and every other non-exact verdict
++  an empty evidence list           the whole evidence, a format's, a row's; non-int / zero / NaN samples
++  a digest of a different file     in the attestation and in the gates' measured digests
++  16:9 authorised, 9:16 swapped    replaced after attestation, finals swapped, swapped DURING delivery
++  a skipped gate                   SKIPPED, with and without forged execution evidence
++  a stale manifest                 edited after the gates measured it, replaced by an older one after attestation
++plus the run-level ones (not deliverable, did not end clean, registry changed, another run's attestation).
++"""
++import copy
++import json
++import math
++import os
++import shutil
++
++import pytest
++
++import adv_helpers as H
++
++RA = pytest.importorskip("release_auth")
++TG = pytest.importorskip("telegram")
++CLEAN = {"ok": True, "why": []}
++
++
++class Sender:
++    """telegram.deliver_run's send(kind, path, fields, data): records what would have gone out."""
++
++    def __init__(self, on_send=None):
++        self.sent, self.on_send = [], on_send
++
++    def __call__(self, kind, path, fields, data=None):
++        self.sent.append({"kind": kind, "name": os.path.basename(path or ""), "sha256": None if data is None
++                          else __import__("hashlib").sha256(data).hexdigest()})
++        if self.on_send:
++            self.on_send(len(self.sent), kind)
++        return len(self.sent)
++
++
++def refused(rd):
++    """authorise refuses and deliver_run sends nothing (it raises before the first send)."""
++    ok, why, _ = RA.authorise(rd)
++    assert not ok, "authorised"
++    s = Sender()
++    with pytest.raises(RuntimeError):
++        TG.deliver_run(rd, send=s)
++    assert s.sent == [], s.sent
++    return why
++
++
++def attested_hold(rd):
++    att = RA.attest(rd, CLEAN)
++    assert att["verdict"] == "HOLD", att
++    return refused(rd)
++
++
++@pytest.fixture
++def parent(tmp_path):
++    return str(tmp_path)
++
++
++def mutate_report(parent, fn):
++    rd = H.release_run(parent, attest=False)
++    H.edit_json(os.path.join(rd, "GATE_REPORT.json"), fn)
++    return rd
++
++
++# ─────────────────────────────── control ───────────────────────────────
++
++def test_control_the_clean_run_is_authorised_and_delivered(parent):
++    rd = H.release_run(parent)
++    ok, why, att = RA.authorise(rd)
++    assert ok, why
++    s = Sender()
++    rec = TG.deliver_run(rd, send=s)
++    assert rec["status"] == "complete"
++    vids = [m for m in s.sent if m["kind"] == "video"]
++    assert [v["name"] for v in vids] == ["segment.mp4", "segment_vertical.mp4"]
++    assert [v["sha256"] for v in vids] == [att["files"]["out/segment.mp4"], att["files"]["out/segment_vertical.mp4"]]
++
++
++# ─────────────────────────────── a missing required gate ───────────────────────────────
++
++REQUIRED = [(fmt, row) for fmt in RA.FORMATS for row in sorted(RA.INVENTORY[fmt])]
++
++
++@pytest.mark.parametrize("fmt,row", REQUIRED, ids=[f"{f}-{r}" for f, r in REQUIRED])
++def test_a_missing_required_gate_refuses(parent, fmt, row):
++    rd = mutate_report(parent, lambda d: d["rows"][fmt].pop(row))
++    attested_hold(rd)
++
++
++def test_a_missing_format_refuses(parent):
++    for fn in (lambda d: d["rows"].pop("9x16"), lambda d: d["rows"].__setitem__("16x9", None),
++               lambda d: d["rows"].__setitem__("16x9", []), lambda d: d.__setitem__("rows", {})):
++        attested_hold(mutate_report(parent, fn))
++
++
++# ─────────────────────────────── an extra unknown gate ───────────────────────────────
++
++@pytest.mark.parametrize("extra", ["G21_new", "g5_tech", " G5_tech", "G5_tech ", "G5_TECH",
++                                   "G3b_cut_out_clean(run_gates)", "G5_tеch", "V1_visual_checklist_v2", ""])
++def test_an_extra_unknown_gate_refuses(parent, extra):
++    rd = mutate_report(parent, lambda d: (d["rows"]["16x9"].__setitem__(extra, "PASS"),
++                                          d["evidence"]["16x9"].__setitem__(extra, {"executed": True, "samples": 3})))
++    attested_hold(rd)
++
++
++# ─────────────────────────────── 'PASS (waived)' and every other non-exact verdict ───────────────────────────────
++
++@pytest.mark.parametrize("verdict", ["PASS (waived)", "PASS ", " PASS", "pass", "Pass", "PASS\n", "PASS*",
++                                     "PASS/WAIVED", "WAIVED", "PАSS", "PASS (L-c: proved)", "PASSED", "OK",
++                                     "SKIPPED", "LIMITED", "HOLD", "FAIL", "", True, 1, ["PASS"], {"v": "PASS"}, None])
++def test_a_required_row_that_is_not_exactly_pass_refuses(parent, verdict):
++    rd = mutate_report(parent, lambda d: d["rows"]["9x16"].__setitem__("G20_signoff_names_all", verdict))
++    attested_hold(rd)
++
++
++def test_a_monitoring_row_reported_with_a_waiver_string_refuses(parent):
++    rd = mutate_report(parent, lambda d: d["rows"]["16x9"].__setitem__("G1_voice", "PASS (waived)"))
++    attested_hold(rd)
++
++
++# ─────────────────────────────── an empty evidence list ───────────────────────────────
++
++@pytest.mark.parametrize("label,fn", [
++    ("evidence = []", lambda d: d.__setitem__("evidence", [])),
++    ("evidence = {}", lambda d: d.__setitem__("evidence", {})),
++    ("evidence missing", lambda d: d.pop("evidence")),
++    ("format evidence = []", lambda d: d["evidence"].__setitem__("16x9", [])),
++    ("row evidence = []", lambda d: d["evidence"]["9x16"].__setitem__("G18_word_for_word", [])),
++    ("samples = []", lambda d: d["evidence"]["16x9"].__setitem__("G16_sentence_boundary",
++                                                                 {"executed": True, "samples": []})),
++    ("samples = 0", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", 0)),
++    ("samples = -1", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", -1)),
++    ("samples = 3.0", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", 3.0)),
++    ("samples = NaN", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", math.nan)),
++    ("samples = '3'", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", "3")),
++    ("samples = True", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", True)),
++    ("executed = 'true'", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("executed", "true")),
++    ("executed = 1", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("executed", 1))])
++def test_empty_or_malformed_evidence_refuses(parent, label, fn):
++    attested_hold(mutate_report(parent, fn))
++
++
++# ─────────────────────────────── a digest of a different file ───────────────────────────────
++
++def test_an_attested_digest_of_a_different_file_refuses(parent):
++    rd = H.release_run(parent)
++    other = H.sha256(os.path.join(rd, "out", "segment_vertical.mp4"))
++    H.edit_json(os.path.join(rd, "ATTESTATION.json"), lambda d: d["files"].__setitem__("out/segment.mp4", other))
++    why = refused(rd)
++    assert any("out/segment.mp4" in w for w in why), why
++
++
++def test_the_two_finals_digests_swapped_in_the_attestation_refuses(parent):
++    rd = H.release_run(parent)
++
++    def swap(d):
++        f = d["files"]
++        f["out/segment.mp4"], f["out/segment_vertical.mp4"] = f["out/segment_vertical.mp4"], f["out/segment.mp4"]
++    H.edit_json(os.path.join(rd, "ATTESTATION.json"), swap)
++    refused(rd)
++
++
++def test_gates_that_measured_a_different_file_hold(parent):
++    rd = mutate_report(parent, lambda d: d["measured_files"].__setitem__("out/segment_vertical.mp4",
++                                                                          H.sha256(H.other_vertical())))
++    why = attested_hold(rd)
++    assert any("not the bytes the gates measured" in w for w in json.load(
++        open(os.path.join(rd, "ATTESTATION.json")))["other_blockers"]), why
++
++
++# ─────────────────────────────── 16:9 authorised, 9:16 swapped ───────────────────────────────
++
++def test_the_9x16_replaced_after_authorisation_refuses_and_nothing_is_sent(parent):
++    rd = H.release_run(parent)
++    assert RA.authorise(rd)[0]
++    shutil.copy(H.other_vertical(), os.path.join(rd, "out", "segment_vertical.mp4"))
++    why = refused(rd)                                   # the 16:9 is NOT sent either
++    assert any("segment_vertical.mp4" in w for w in why), why
++
++
++def test_the_two_finals_swapped_on_disk_refuses(parent):
++    rd = H.release_run(parent)
++    a, b = os.path.join(rd, "out", "segment.mp4"), os.path.join(rd, "out", "segment_vertical.mp4")
++    tmp = a + ".tmp"
++    os.replace(a, tmp)
++    os.replace(b, a)
++    os.replace(tmp, b)
++    refused(rd)
++
++
++def test_the_9x16_swapped_during_delivery_never_reaches_the_chat(parent):
++    """The 16:9 goes out, then the 9:16 on disk is replaced: what is sent as the 9:16 must still be exactly the
++    attested bytes (deliver_run reads and verifies every payload before the first send)."""
++    rd = H.release_run(parent)
++    att = RA.authorise(rd)[2]
++    # NOTE: this pins deliver_run's contract that EVERY payload is read and verified before the first send (the
++    # bytes sent are the bytes verified, never a re-read path). If delivery is ever refactored to stream payloads
++    # one by one, this swap must still never reach the chat (audit A, Gemini UI-2).
++    swapped = []
++
++    def swap(n, kind):
++        if kind == "video" and not swapped:                    # right after the first VIDEO goes out (the 16:9)
++            shutil.copy(H.other_vertical(), os.path.join(rd, "out", "segment_vertical.mp4"))
++            swapped.append(n)
++    s = Sender(on_send=swap)
++    try:
++        TG.deliver_run(rd, send=s)
++    except RuntimeError:                                       # a delivery that re-verifies before each send and
++        pass                                                   # refuses the swapped 9:16 is also correct
++    H.control(len(swapped) == 1 and s.sent[swapped[0] - 1]["name"] == "segment.mp4",
++              f"the swap happened right after the 16:9 went out: {s.sent}")
++    vert = [m for m in s.sent if m["name"] == "segment_vertical.mp4"]
++    assert all(m["sha256"] == att["files"]["out/segment_vertical.mp4"] for m in vert), vert
++
++
++# ─────────────────────────────── a skipped gate ───────────────────────────────
++
++@pytest.mark.parametrize("forged", [False, True])
++def test_a_skipped_required_gate_refuses(parent, forged):
++    ev = {"executed": True, "samples": 3} if forged else {"executed": False, "samples": 0}
++    rd = mutate_report(parent, lambda d: (d["rows"]["16x9"].__setitem__("G12_credits", "SKIPPED"),
++                                          d["evidence"]["16x9"].__setitem__("G12_credits", ev)))
++    attested_hold(rd)
++
++
++# ─────────────────────────────── a stale manifest ───────────────────────────────
++
++def test_a_manifest_edited_after_the_gates_measured_it_holds(parent):
++    rd = H.release_run(parent, attest=False)
++    H.edit_json(os.path.join(rd, "qa", "concat_manifest_9x16.json"),
++                lambda d: d["segments"][0].__setitem__("end", 0.45))
++    attested_hold(rd)
++
++
++def test_an_older_manifest_put_back_after_attestation_refuses(parent):
++    old = H.release_run(parent)
++    H.edit_json(os.path.join(old, "qa", "concat_manifest_16x9.json"),
++                lambda d: d["segments"].insert(1, {"label": "clip_01", "type": "talking_head", "start": 0.5,
++                                                   "end": 0.5}))
++    rd = H.release_run(parent)
++    shutil.copy(os.path.join(old, "qa", "concat_manifest_16x9.json"),
++                os.path.join(rd, "qa", "concat_manifest_16x9.json"))
++    why = refused(rd)
++    assert any("concat_manifest_16x9.json" in w for w in why), why
++
++
++def test_gates_that_measured_a_stale_manifest_hold(parent):
++    rd = mutate_report(parent, lambda d: d["measured_files"].__setitem__("qa/concat_manifest_16x9.json", "0" * 64))
++    attested_hold(rd)
++
++
++@pytest.mark.xfail(strict=True, raises=AssertionError, reason="Grok47-select F8 (OPEN): the EDL the drop is described from is bound at "
++                                       "attestation but never proven to be the EDL the gates measured; REQUESTS.md R-12")
++def test_an_edl_changed_after_the_gates_ran_holds(parent):
++    """The finals and manifests must be the bytes the gates measured; the EDL (locks read by G16 / G18, channels
++    read by G15 / G20, headline and credits of the drop) must be too: here another headline and another credited
++    channel replace the gated ones before the attestation is written."""
++    rd = H.release_run(parent, attest=False)
++    H.edit_json(os.path.join(rd, "edl.json"), lambda d: (d.__setitem__("headline", "Bitcoin price surges past "
++                                                                                    "$90,000"),
++                                                         d["clips"][0].__setitem__("channel", "Coin Bureau")))
++    att = RA.attest(rd, CLEAN)
++    assert att["verdict"] == "HOLD", "an EDL the gates never saw was attested ALL_PASS"
++
++
++# ─────────────────────────────── the verification pack and legacy state ───────────────────────────────
++
++@pytest.mark.parametrize("label,fn", [
++    ("built without vision", lambda d: d.__setitem__("vision", False)),
++    ("vision a string", lambda d: d.__setitem__("vision", "true")),
++    ("incomplete", lambda d: d.__setitem__("complete", False)),
++    ("complete missing", lambda d: d.pop("complete")),
++    ("complete a string", lambda d: d.__setitem__("complete", "yes")),
++    ("not a mapping", None)])
++def test_a_pack_without_vision_or_incomplete_refuses(parent, label, fn):
++    """GPT-gates F08 / F09, Claude-gates V9 / V10: a pack built without the vision check, or incomplete, is a
++    waiver switch; release refuses it."""
++    rd = H.release_run(parent, attest=False)
++    p = os.path.join(rd, "VERIFY", "VERIFICATION.json")
++    if fn is None:
++        with open(p, "w") as f:
++            json.dump(["complete", "vision"], f)
++    else:
++        H.edit_json(p, fn)
++    attested_hold(rd)
++
++
++def test_a_missing_pack_refuses(parent):
++    rd = H.release_run(parent, attest=False)
++    os.remove(os.path.join(rd, "VERIFY", "VERIFICATION.json"))
++    attested_hold(rd)
++
++
++def test_legacy_markers_authorise_nothing(parent):
++    """GPT-gates F11 / Claude-gates C3 / Grok-gates 15: a run killed before its attestation, carrying the legacy
++    markers (VERIFIED_BY_ORCHESTRATOR, gate_results_*.json all_pass, no GATE_FAIL.txt), is never authorised."""
++    rd = H.release_run(parent, attest=False)
++    open(os.path.join(rd, "out", "VERIFIED_BY_ORCHESTRATOR_16x9"), "w").close()
++    for fmt in RA.FORMATS:
++        with open(os.path.join(rd, "qa", f"gate_results_{fmt}.json"), "w") as f:
++            json.dump({"all_pass": True, "format": fmt}, f)
++    refused(rd)
++
++
++def test_the_legacy_send_path_is_gone():
++    """GPT-gates F03 / Claude-gates X5: the old entry point cannot send anything."""
++    with pytest.raises(RuntimeError):
++        TG.send_telegram_preview("run_dir", "caption")
++
++
++# ─────────────────────────────── run-level ───────────────────────────────
++
++def test_a_replay_or_an_unclean_run_refuses(parent):
++    rd = H.release_run(parent, attest=False)
++    RA.attest(rd, CLEAN, deliverable=False, why_not="replay")
++    refused(rd)
++    for state in ({"ok": False, "why": ["hold: G16"]}, {"ok": "true"}, {}, None):
++        rd = H.release_run(parent, attest=False)
++        RA.attest(rd, state)
++        refused(rd)
++
++
++def test_a_run_without_an_attestation_refuses(parent):
++    """GPT-cut F25: a killed or crashed run has no attestation and is never sent."""
++    rd = H.release_run(parent, attest=False)
++    refused(rd)
++    with open(os.path.join(rd, "ATTESTATION.json"), "w") as f:
++        f.write('{"schema": "pulse.attestation.v1"')                           # truncated JSON
++    refused(rd)
++
++
++def test_another_runs_attestation_copied_in_refuses(parent):
++    a = H.release_run(parent)
++    b = H.release_run(parent, attest=False)
++    shutil.copy(H.other_vertical(), os.path.join(b, "out", "segment_vertical.mp4"))
++    H.edit_json(os.path.join(b, "GATE_REPORT.json"), lambda d: d["measured_files"].__setitem__(
++        "out/segment_vertical.mp4", H.sha256(os.path.join(b, "out", "segment_vertical.mp4"))))
++    shutil.copy(os.path.join(a, "ATTESTATION.json"), os.path.join(b, "ATTESTATION.json"))
++    refused(b)
++
++
++def test_an_attestation_edited_to_all_pass_refuses(parent):
++    rows = H.passing_rows(RA)
++    rows["16x9"]["G18_word_for_word"] = "FAIL"
++    rd = H.release_run(parent, rows=rows)
++    H.edit_json(os.path.join(rd, "ATTESTATION.json"), lambda d: (d.__setitem__("verdict", "ALL_PASS"),
++                                                                 d["rows"]["16x9"].__setitem__("G18_word_for_word", "PASS")))
++    refused(rd)
++
++
++def test_a_partially_delivered_run_is_never_resent_automatically(parent):
++    rd = H.release_run(parent)
++
++    def boom(n, kind):
++        if n == 1:
++            raise ConnectionError("network dropped after the request")
++    with pytest.raises(ConnectionError):
++        TG.deliver_run(rd, send=Sender(on_send=boom))
++    s = Sender()
++    with pytest.raises(RuntimeError):
++        TG.deliver_run(rd, send=s)
++    assert s.sent == []
+diff --git a/tests/adversarial/test_f4_vacuity.py b/tests/adversarial/test_f4_vacuity.py
+new file mode 100644
+index 00000000..ea3697ef
+--- /dev/null
++++ b/tests/adversarial/test_f4_vacuity.py
+@@ -0,0 +1,408 @@
++"""FAMILY 4 - vacuity (law L-m: nothing measured is never a pass; law L-l: a model reply counts only whole).
++
++1. Every gate of the REQUIRED inventory (release_auth.INVENTORY) is called through its public function with
++   vacuous input: empty segments / plans / manifests, zero samples, None, NaN. Expected: FAIL, or an explicit
++   skip that the production mapping records as SKIPPED (run_fresh.stage_gates: a result with skip=True is never
++   a PASS) - never a plain PASS. A gate that PASSES on nothing is a strict xfail tied to its finding.
++2. Defence in depth: whatever a gate returns on nothing, the production evidence rule (run_fresh._samples; the
++   stage itself needs GPU0) counts zero samples and release_auth.blockers blocks the row.
++3. A model reply that is empty / prose / truncated / not JSON / JSON of the wrong shape / NaN, through the V1
++   vision panel (visual_check.ask_panel -> verify_pack.panel_ok, HTTP seam faked) and every editorial decision
++   that reads a model (adjudicate, verify_support via adjudicate, rate_passages, derive_story_query,
++   label_cluster, sentence_on_event, adjacent_admissible; LocalLLM.chat_json with only _post faked): never a
++   pass, a count, a rating or an admission.
++"""
++import json
++import math
++import os
++import traceback
++import warnings
++
++import numpy as np
++import pytest
++
++import adv_helpers as H
++
++NAN = float("nan")
++
++
++@pytest.fixture(scope="module")
++def media(tmp_path_factory):
++    d = tmp_path_factory.mktemp("f4_media")
++    x, _, _ = H.speech_like(["Bitcoin closed the week below its average.", "That is a level traders watch."],
++                            lead_s=0.3, tail_s=0.5, seed=4)
++    final = H.make_media(str(d / "final.mp4"), x)
++    silent = H.make_video(str(d / "silent.mp4"), 64, 36, 2.0)
++    return {"final": final, "silent": silent, "dir": str(d)}
++
++
++@pytest.fixture
++def qa(tmp_path, monkeypatch):
++    import qa_gates as Q
++    monkeypatch.setattr(Q, "whisper_segment", lambda *a, **k: "")          # ASR hears nothing (no Whisper)
++    return str(tmp_path)
++
++
++def TH(s=0.0, e=2.0, label="hook", **kw):
++    return {"label": label, "type": "talking_head", "start": s, "end": e, **kw}
++
++
++SHOUT = {"label": "shoutout", "type": "shoutout", "start": 2.0, "end": 3.0}
++
++
++def production_reading(result):
++    """What run_fresh.stage_gates writes for a gate result: an explicit skip is SKIPPED, else PASS iff ok is True."""
++    ok, data = result if isinstance(result, tuple) else (result, None)
++    if isinstance(data, dict) and data.get("skip"):
++        return "SKIPPED"
++    return "PASS" if ok is True else "FAIL"
++
++
++def _manifest(tmp, segs, name="m.json"):
++    p = os.path.join(tmp, name)
++    with open(p, "w") as f:
++        json.dump({"segments": segs}, f)
++    return p
++
++
++class _Silent:
++    def span(self, *a, **k):                              # any arity: a changed call is not read as a gate crash
++        return ""
++
++
++def _g16_run(tmp, edl, cuts):
++    os.makedirs(os.path.join(tmp, "run"), exist_ok=True)
++    rd = os.path.join(tmp, "run")
++    for name, obj in (("edl.json", edl), ("cuts_final.json", cuts)):
++        with open(os.path.join(rd, name), "w") as f:
++            json.dump(obj, f)
++    return rd
++
++
++def _xf(finding, req):
++    return pytest.mark.xfail(strict=True, raises=AssertionError, reason=f"{finding}: PASS on nothing measured; REQUESTS.md {req}")
++
++
++F05 = _xf("GPT-gates F05 / Claude-gates V4-V5 / Grok-gates 13 (OPEN)", "R-13")
++F23 = _xf("GPT-cut F23 (OPEN)", "R-14")
++PP03 = _xf("PP-03 (new: pipeline gates not named by F05 / F23)", "R-15")
++
++
++def _cases():
++    import qa_gates as Q
++    import gates as G
++    import sentence_law as L
++    import word_diff as WD
++    import edge_shots as ES
++    import vertical_layout as V
++    import run_fresh as RF
++    no_face = lambda *a, **k: []                                    # noqa: E731  (no SCRFD, no GPU)
++    return [
++        # G3b_cut_out_clean
++        ("G3b empty segments", lambda m, t: Q.gate_g3b(m["final"], [], t), F05),
++        ("G3b talking head with no expected last word", lambda m, t: Q.gate_g3b(m["final"], [TH()], t), F05),
++        ("G3b reading empty", lambda m, t: Q.gate_g3b(m["final"], [TH(last_word="week")], t), None),
++        ("G3b NaN segment", lambda m, t: Q.gate_g3b(m["final"], [TH(NAN, NAN, last_word="week")], t), None),
++        # G3c_acoustic_tail
++        ("G3c empty segments", lambda m, t: Q.gate_g3c(m["final"], [], t, "16x9"), F05),
++        ("G3c NaN segment", lambda m, t: Q.gate_g3c(m["final"], [TH(NAN, NAN)], t, "16x9"), None),
++        ("G3c no audio", lambda m, t: Q.gate_g3c(m["silent"], [TH()], t, "9x16"), None),
++        # G4s_layout_truth
++        ("G4s empty plans", lambda m, t: V.gate_g4s({}, {}, detect=no_face), PP03),
++        ("G4s a clip with no shots", lambda m, t: V.gate_g4s({"hook": {"shots": []}}, {"hook": m["final"]},
++                                                             detect=no_face), PP03),
++        ("G4s NaN shot", lambda m, t: V.gate_g4s({"hook": {"shots": [{"start": NAN, "end": NAN, "class": "single"}]}},
++                                                {"hook": m["final"]}, detect=no_face), None),
++        # G5_tech
++        ("G5 no audio, wrong frame", lambda m, t: Q.gate_g5(m["silent"], "16x9"), None),
++        # G8_sharpness
++        ("G8 empty segments", lambda m, t: Q.gate_g8(m["final"], [], t), F05),
++        ("G8 no source clips", lambda m, t: Q.gate_g8(m["final"], [TH()], t), None),
++        ("G8 NaN segment", lambda m, t: Q.gate_g8(m["final"], [TH(NAN, NAN)], t, source_clips={"hook": m["final"]}),
++         None),
++        # G9_tail / outro_locked
++        ("G9 no audio", lambda m, t: Q.gate_g9(m["silent"], t, "16x9"), None),
++        ("outro_locked identity unknown", lambda m, t: (RF.tail_rows(True, False, None)["outro_locked"] == "PASS",
++                                                        None), None),
++        # G12_credits / G15_credits
++        ("G12 no shoutout", lambda m, t: Q.gate_g12(m["final"], [], 0, t), None),
++        ("G12 zero expected rings", lambda m, t: Q.gate_g12(m["final"], [TH(), SHOUT], 0, t), None),
++        ("G12 expected None", lambda m, t: Q.gate_g12(m["final"], [SHOUT], None, t), None),
++        ("G15 no shoutout", lambda m, t: G.gate_g15(m["final"], [], t, channels=[]), None),
++        ("G15 no credited channels", lambda m, t: G.gate_g15(m["final"], [SHOUT], t, channels=[]), None),
++        ("G15 channels None", lambda m, t: G.gate_g15(m["final"], [SHOUT], t, channels=None), None),
++        # G16_sentence_boundary
++        ("G16 hook without lock or cut", lambda m, t: L.gate_g16(_g16_run(t, {"hook": {"video_id": "v"}}, [])), None),
++        # G17_onset_tail
++        ("G17a no prepared clips", lambda m, t: L.gate_g17_prepared({}), F23),
++        ("G17c hook without lock or cut", lambda m, t: L.gate_g17_edges(_g16_run(t, {"hook": {"video_id": "v"}}, [])),
++         None),
++        # G18_word_for_word
++        ("G18 empty segments and clips", lambda m, t: WD.gate_g18(m["final"], [], {}, transcriber=_Silent()), F23),
++        ("G18 empty lock text, nothing heard", lambda m, t: WD.gate_g18(
++            m["final"], [TH()], {"hook": {"lock_text": "", "source": m["final"], "cut_in": 0, "cut_out": 2}},
++            transcriber=_Silent()), F23),
++        ("G18 nothing heard", lambda m, t: WD.gate_g18(
++            m["final"], [TH()], {"hook": {"lock_text": "Bitcoin closed the week below its average.",
++                                          "source": m["final"], "cut_in": 0, "cut_out": 2}},
++            transcriber=_Silent()), None),
++        ("G18 talking head without a lock", lambda m, t: WD.gate_g18(m["final"], [TH()], {}, transcriber=_Silent()),
++         None),
++        # G19_edge_shots
++        ("G19 empty segments", lambda m, t: ES.gate_g19(m["final"], [], {}, 24), PP03),
++        ("G19 talking head without a speech record", lambda m, t: ES.gate_g19(m["final"], [TH()], {}, 24), None),
++        # G20_signoff_names_all
++        ("G20 empty", lambda m, t: G.gate_g20(m["final"], [], [], t), None),
++        ("G20 nothing heard", lambda m, t: G.gate_g20(m["final"], [TH(), SHOUT], ["DataDash"], t), None),
++        # G14_av_alignment (16:9) / G14_audio_offset (9:16)
++        ("G14 16x9 empty manifest", lambda m, t: G.gate_g14(m["final"], _manifest(t, []), source_clips={}, qa_dir=t),
++         PP03),
++        ("G14 9x16 empty manifest", lambda m, t: G.gate_g14(m["final"], _manifest(t, []), source_clips={}, qa_dir=t,
++                                                           frames=False), PP03),
++        ("G14 talking head without a source", lambda m, t: G.gate_g14(m["final"], _manifest(t, [TH()]),
++                                                                     source_clips={}, qa_dir=t), None),
++        ("G14 NaN segment", lambda m, t: G.gate_g14(m["final"], _manifest(t, [TH(NAN, NAN)]),
++                                                   source_clips={"hook": {"path": m["final"], "cut_in": 0}},
++                                                   qa_dir=t), None),
++    ]
++
++
++CASES = _cases()
++
++
++RAISED = object()
++
++
++def call_gate(call, media, qa):
++    """The probe's one exception rule: an exception raised INSIDE the gate fails the stage (a HOLD: RAISED, never a
++    PASS) and is reported as a warning (never silent); one raised by this test's own code (a wrong signature, a broken
++    stub) is a probe bug, and a resource failure (MemoryError, RecursionError) is not a gate's decision: both
++    propagate (final audit round U-1)."""
++    try:
++        return call(media, qa)
++    except (MemoryError, RecursionError):
++        raise
++    except Exception as e:
++        tb = traceback.extract_tb(e.__traceback__)
++        if not tb or os.path.abspath(tb[-1].filename).startswith(H.HERE):
++            raise
++        warnings.warn(f"the gate raised {type(e).__name__}: {e} (counted as a stage failure, never a PASS)")
++        return RAISED
++
++
++@pytest.mark.parametrize("label,call", [pytest.param(lab, fn, marks=mark or (), id=lab) for lab, fn, mark in CASES])
++def test_a_required_gate_never_passes_on_nothing(media, qa, label, call):
++    res = call_gate(call, media, qa)
++    if res is RAISED:
++        return
++    assert production_reading(res) != "PASS", res
++
++
++def test_every_required_row_has_a_vacuity_probe():
++    """The probe list covers the whole REQUIRED inventory (a row added to the inventory without a probe fails)."""
++    import release_auth as RA
++    covered = {"G3b_cut_out_clean": "G3b", "G3c_acoustic_tail": "G3c", "G4s_layout_truth": "G4s", "G5_tech": "G5",
++               "G8_sharpness": "G8", "G9_tail": "G9", "outro_locked": "outro_locked", "G12_credits": "G12",
++               "G15_credits": "G15", "G16_sentence_boundary": "G16", "G17_onset_tail": "G17",
++               "G18_word_for_word": "G18", "G19_edge_shots": "G19", "G20_signoff_names_all": "G20",
++               "V1_visual_checklist": "V1", "G14_av_alignment": "G14 16x9", "G14_audio_offset": "G14 9x16",
++               "vertical_silent_fallback": "vertical_silent_fallback"}
++    required = set().union(*RA.INVENTORY.values())
++    assert required <= set(covered), sorted(required - set(covered))
++    probes = [lab for lab, _, _ in CASES] + ["V1", "vertical_silent_fallback"]       # V1: below; fallback: backstop
++    missing = [row for row, key in covered.items() if row in required and not any(p.startswith(key) for p in probes)]
++    assert not missing, missing
++
++
++# ─────────────────────────────── partial and stale samples (G8) ───────────────────────────────
++
++@pytest.fixture(scope="module")
++def g8_media(tmp_path_factory):
++    d = tmp_path_factory.mktemp("f4_g8")
++    sharp = H.make_media(str(d / "sharp_src.mp4"), dur=10.0, size=(320, 180), pattern="testsrc2")
++    short = H.make_media(str(d / "short_sharp.mp4"), dur=2.5, size=(320, 180), pattern="testsrc2")
++    black = H.make_media(str(d / "black_now.mp4"), dur=2.5, size=(320, 180), pattern="black")
++    return {"sharp_src": sharp, "short_sharp": short, "black_now": black}
++
++
++@pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-gates F28 (OPEN): G8 accepts one measured sample as if all five were "
++                                       "measured; REQUESTS.md R-20")
++def test_g8_never_passes_on_one_of_five_samples(g8_media, tmp_path):
++    """The segment claims 10 s, the final holds 2.5 s: four of G8's five sample times have no frame."""
++    import qa_gates as Q
++    ok, table = Q.gate_g8(g8_media["short_sharp"], [TH(0.0, 10.0)], str(tmp_path),
++                          source_clips={"hook": g8_media["short_sharp"]})
++    H.control(len(table[0]["out_variances"]) == 1, f"one sample was measured: {table}")
++    assert ok is False, table
++
++
++@pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-gates F10 / Claude-gates C1 (OPEN): a failed frame extraction leaves "
++                                       "an earlier render's frame to be measured; REQUESTS.md R-21")
++def test_g8_never_measures_a_frame_of_an_earlier_render(g8_media, tmp_path):
++    """qa/ still holds what an earlier, good render's G8 wrote there (the gate's own files, whatever their names);
++    the current final is black and too short for four of the five sample times. The black render must not pass on
++    the earlier render's frames."""
++    import qa_gates as Q
++    qa_dir = tmp_path / "qa"
++    qa_dir.mkdir()
++    ok0, t0 = Q.gate_g8(g8_media["sharp_src"], [TH(0.0, 10.0)], str(qa_dir), source_clips={"hook": g8_media["sharp_src"]})
++    H.control(ok0 is True and len(t0[0]["out_variances"]) == 5, f"the earlier render passed on 5 samples: {t0}")
++    ok, table = Q.gate_g8(g8_media["black_now"], [TH(0.0, 10.0)], str(qa_dir),
++                          source_clips={"hook": g8_media["sharp_src"]})
++    assert ok is False and len(table[0]["out_variances"]) <= 1, table
++
++
++# ─────────────────────────────── release-level backstop ───────────────────────────────
++
++def test_whatever_a_gate_returns_on_nothing_release_blocks_it(media, qa):
++    """For every vacuous probe that reads PASS at gate level TODAY (the filter is the reading, not the xfail mark, so
++    this stays true as the gate fixes land), the production evidence rule counts 0 samples and release_auth blocks
++    that row (the second wall behind the gate); the rule is also checked on the vacuous result shapes themselves
++    ((True, []), an explicit skip, None), so the test never checks nothing. vertical_silent_fallback: no vertical
++    clip checked = 0 samples."""
++    import release_auth as RA
++    import run_fresh as RF
++    rows = H.passing_rows(RA)
++    rowname = {"G3b": "G3b_cut_out_clean", "G3c": "G3c_acoustic_tail", "G4s": "G4s_layout_truth",
++               "G8": "G8_sharpness", "G17a": "G17_onset_tail", "G18": "G18_word_for_word", "G19": "G19_edge_shots",
++               "G14 16x9": "G14_av_alignment", "G14 9x16": "G14_audio_offset"}
++
++    def blocked(fmt, row, data):
++        ev = {f: {k: {"executed": True, "samples": 3} for k in r} for f, r in rows.items()}
++        ev[fmt][row] = {"executed": True, "samples": RF._samples(data)}
++        return RF._samples(data) == 0 and row in RA.blockers(fmt, rows[fmt], ev)
++
++    for data in ([], {}, {"skip": True, "pass": True}, None, [None, {}, []]):        # the vacuous shapes themselves
++        assert blocked("16x9", "G8_sharpness", data), data
++    for lab, fn, mark in CASES:
++        key = next((k for k in rowname if lab.startswith(k)), None)
++        if key is None or key == "G18" and "lock" in lab:  # G18 empty lock: stage_gates' own 'missing' rule FAILS it
++            continue
++        res = call_gate(fn, media, qa)
++        if res is RAISED or production_reading(res) != "PASS":
++            continue                                       # not a vacuous PASS (any more): nothing to back up
++        fmt = "9x16" if key == "G14 9x16" else "16x9"
++        assert blocked(fmt, rowname[key], res[1]), (lab, res)
++    assert blocked("9x16", "vertical_silent_fallback", [])
++
++
++# ─────────────────────────────── model replies: V1 vision panel ───────────────────────────────
++
++def _answers(fn):
++    import visual_check as VC
++    return {"answers": {k: fn(k) for k, _ in VC.CHECKLIST}}
++
++
++WRONG_SHAPE = [json.dumps({"answers": []}), json.dumps({"answers": "yes"}), json.dumps({"answers": None}),
++               json.dumps({"answers": {"credits_round_and_match": {"answer": "yes"}}}),          # one line only
++               json.dumps({"verdict": "PASS"}), "ANSWERS_AS_STRINGS"]
++
++
++def _v1(monkeypatch, tmp_path, content):
++    import visual_check as VC
++    import verify_pack as VP
++    from PIL import Image
++    sheet = str(tmp_path / "sheet.jpg")
++    Image.new("RGB", (64, 36)).save(sheet)
++    monkeypatch.setattr(VC, "_key", lambda: "test-key")
++    monkeypatch.setattr(VC, "_call", lambda req, timeout: (content, {"choices": [{"message": {"content": content},
++                                                                                   "finish_reason": "stop"}]}))
++    ok, per = VC.ask_panel(sheet, "9x16")
++    return ok, VP.panel_ok(per)
++
++
++@pytest.mark.parametrize("content", H.GARBAGE_REPLIES + WRONG_SHAPE)
++def test_v1_never_passes_on_a_garbage_reply(monkeypatch, tmp_path, content):
++    if content == "ANSWERS_AS_STRINGS":                            # every line 'yes' but not an object
++        content = json.dumps(_answers(lambda k: "yes"))
++    assert _v1(monkeypatch, tmp_path, content) == (False, False)
++
++
++@pytest.mark.parametrize("bad", ["no", "yes, mostly", "n/a", "", None, True, "YES!"])
++def test_v1_one_line_not_exactly_yes_fails(monkeypatch, tmp_path, bad):
++    import visual_check as VC
++    first = VC.CHECKLIST[0][0]
++    content = json.dumps(_answers(lambda k: {"answer": bad if k == first else "yes", "why": "x"}))
++    assert _v1(monkeypatch, tmp_path, content) == (False, False)
++
++
++def test_v1_control_a_whole_yes_reply_passes(monkeypatch, tmp_path):
++    """Harmless variation (case, whitespace) is accepted: the control proves the fake reaches the verdict."""
++    content = "```json\n" + json.dumps(_answers(lambda k: {"answer": " YES ", "why": "looked"})) + "\n```"
++    assert _v1(monkeypatch, tmp_path, content) == (True, True)
++
++
++# ─────────────────────────────── model replies: editorial decisions ───────────────────────────────
++
++Q_EVENT = {"underlying_event": "Bitcoin ETFs saw $1.66B of net outflows last week", "action": "outflows",
++           "affected_object": "Bitcoin ETFs", "entities": [{"name": "Bitcoin ETFs"}], "must_not_confuse_with": []}
++EXCERPTS = [{"chunk_id": "vid1:0300-0330",
++             "text": "Bitcoin ETFs saw one point six six billion dollars of outflows last week, the data shows."}]
++GOOD_ADJ = {"verdict": "CURRENT_EVENT", "supporting_chunk_ids": ["vid1:0300-0330"],
++            "evidence_quote": "Bitcoin ETFs saw one point six six billion dollars of outflows last week",
++            "confidence": 0.9, "reason": "states it"}
++GOOD_SUP = {"support": "SUPPORTS", "same_actor_action_object": True, "presented_as": "current", "reason": "x"}
++VIDEO = {"title": "t", "channel": "c", "published_at": "2026-11-11"}
++BAD = H.GARBAGE_REPLIES + [json.dumps({**GOOD_SUP, "same_actor_action_object": "true"}),
++                           json.dumps({**GOOD_SUP, "presented_as": None}), json.dumps({"support": "SUPPORTS"}),
++                           json.dumps(GOOD_ADJ).replace('"confidence": 0.9', '"confidence": NaN'),   # NaN in a
++                           json.dumps({**GOOD_ADJ, "confidence": 1.5}),                              # validated field
++                           json.dumps({**GOOD_ADJ, "supporting_chunk_ids": "vid1:0300-0330"})]
++
++
++def test_control_whole_replies_are_counted():
++    import story_semantics as SM
++    v = SM.adjudicate(H.fake_llm([json.dumps(GOOD_ADJ), json.dumps(GOOD_SUP)]), Q_EVENT, VIDEO, EXCERPTS, "2026-11-12")
++    assert v["counted_as_same_event"] is True, v
++
++
++@pytest.mark.parametrize("raw", BAD)
++def test_adjudicate_never_counts_a_garbage_reply(raw):
++    import story_semantics as SM
++    v = SM.adjudicate(H.fake_llm([raw]), Q_EVENT, VIDEO, EXCERPTS, "2026-11-12")
++    assert v["counted_as_same_event"] is False and v["verdict"] in ("INCONCLUSIVE", "UNRELATED", "TOPIC_ONLY",
++                                                                    "BACKGROUND", "CURRENT_EVENT"), v
++    v = SM.adjudicate(H.fake_llm([json.dumps(GOOD_ADJ), raw]), Q_EVENT, VIDEO, EXCERPTS, "2026-11-12")
++    assert v["counted_as_same_event"] is False and v["support"] != "SUPPORTS", v
++
++
++@pytest.mark.parametrize("raw", H.GARBAGE_REPLIES + [
++    json.dumps({"ratings": [{"id": "p1", "score": 9, "fault": "none"}]}),
++    json.dumps({"ratings": [{"id": "p1", "score": "5", "fault": "none"}]}),
++    '{"ratings": [{"id": "p1", "score": NaN, "fault": "none"}]}',
++    json.dumps({"ratings": [{"id": "p1", "score": 5, "fault": "great"}]}),
++    json.dumps({"ratings": [{"id": "p1", "score": 5, "fault": "none"}, {"id": "p1", "score": 1, "fault": "none"}]}),
++    json.dumps({"ratings": []})])
++def test_rate_passages_never_rates_from_a_garbage_reply(raw):
++    import story_semantics as SM
++    passages = [{"pid": "p1", "channel": "c", "duration": 10.0, "text": "Bitcoin fell."},
++                {"pid": "p2", "channel": "d", "duration": 11.0, "text": "ETFs saw outflows."}]
++    out, err = SM.rate_passages(H.fake_llm([raw]), Q_EVENT, passages)
++    assert out == {} and err, (out, err)
++
++
++@pytest.mark.parametrize("raw", H.GARBAGE_REPLIES)
++def test_derive_story_query_never_invents_a_query(raw):
++    import story_semantics as SM
++    with pytest.raises(SM.LLMParseError):
++        SM.derive_story_query(H.fake_llm([raw]), {"headline": "Bitcoin ETFs shed $1.66B", "summary": "s",
++                                                  "source": "x"}, "2026-11-12")
++
++
++@pytest.mark.parametrize("raw", H.GARBAGE_REPLIES)
++def test_label_cluster_never_labels_from_a_garbage_reply(raw):
++    import story_semantics as SM
++    chunks = [{"chunk_id": f"v{i}:0000-0030", "video_id": f"v{i}", "channel_name": f"C{i}",
++               "text": "Bitcoin ETFs saw heavy outflows last week as investors pulled money."} for i in range(2)]
++    r = SM.label_cluster(H.fake_llm([raw]), chunks, np.eye(2, dtype=np.float32), {"chunk_idx": [0, 1]}, "2026-11-12")
++    assert r["current_ok"] is False and not r.get("is_specific_event"), r
++
++
++@pytest.mark.parametrize("raw", H.GARBAGE_REPLIES)
++def test_sentence_and_adjacency_checks_never_admit_on_a_garbage_reply(raw):
++    import editorial_select as ES
++    ok, why = ES.sentence_on_event(H.fake_llm([raw]), Q_EVENT, "Bitcoin ETFs saw 1.66 billion dollars of outflows.")
++    assert ok is False, why
++    ok, why = ES.adjacent_admissible(H.fake_llm([raw]), Q_EVENT, "Bitcoin fell to 74,000 dollars today.",
++                                     "That 74,000 dollar level is the one to watch.")
++    assert ok is False, why
+diff --git a/tests/adversarial/test_f5_references.py b/tests/adversarial/test_f5_references.py
+new file mode 100644
+index 00000000..ea21fccb
+--- /dev/null
++++ b/tests/adversarial/test_f5_references.py
+@@ -0,0 +1,257 @@
++"""FAMILY 5 - reference integrity (CPU only; READ-ONLY on /home/ultron/protocol_pulse/references by absolute path).
++
++The frozen reference references/v2f_2026-11-06 (PBX-approved v2f) and the protected preview
++references/pulse_preview_2026-11-11 (law L-d):
++  hashes     every file SHA256SUMS lists has its digest, nothing unlisted, the directories are read-only; the
++             worktree's tracked copy of the preview is the same bytes
++  manifests  each concat manifest describes its final: ordered, starts at 0, ends at the final's duration, its
++             talking heads are the EDL's segments in order, shout-out then outro last, 16:9 and 9:16 one timeline
++  L-a        the sign-off's spoken channels, the credits card and the clips used are one set: v2f must pass; the
++             preview is the documented must-fail (DataDash, the hook's channel, is not said)
++  L-b        no recorded fade overlaps an edge word: measured with sentence_law.edge_word_bounds on the sources
++             and pinned (tests/fixtures/adversarial/reference_lb_edges.json); the documented must-fail (the
++             preview's Natalie Brunell tail) must be flagged
++  G8 9:16    the open claim 'the reference fails 9:16 G8', settled on the saved files through the public gate
++             with the production wiring (qa/vert_<clip> sources) and the harness wiring (no sources)
++  L-j        the preview's recorded (legacy) gate report is not releasable under the current contract
++A missing reference is a FAILURE here (nothing measured is never a pass), not a skip.
++"""
++import hashlib
++import json
++import os
++import stat
++import subprocess
++
++import pytest
++
++import adv_helpers as H
++
++ROOT = H.MAIN_TREE_REFS
++PREVIEW = os.path.join(ROOT, "pulse_preview_2026-11-11")
++V2F_ROOT = os.path.join(ROOT, "v2f_2026-11-06")
++V2F = os.path.join(V2F_ROOT, "run")
++RUNS = {"pulse_preview_2026-11-11": PREVIEW, "v2f_2026-11-06": V2F}
++FRAME = 1 / 24
++
++
++def _need(path):
++    H.control(os.path.exists(path), f"reference missing on this machine: {path} (a missing reference is a FAIL, law "
++                                    f"L-m; set PP_REFS_DIR to the directory holding the references)")
++    return path
++
++
++@pytest.fixture(autouse=True, scope="module")
++def _references_present():
++    """One clear, early answer when the reference root is absent: every test of this family ERRORS with it (the
++    other families still run and measure; a session exit would stop them too)."""
++    for p in (ROOT, PREVIEW, V2F_ROOT, V2F):
++        _need(p)
++
++
++def _sha(path):
++    h = hashlib.sha256()
++    with open(path, "rb") as f:
++        for b in iter(lambda: f.read(1 << 22), b""):
++            h.update(b)
++    return h.hexdigest()
++
++
++def _sums(root):
++    out = {}
++    for line in open(_need(os.path.join(root, "SHA256SUMS"))):
++        if line.strip():
++            d, p = line.rstrip("\n").split(None, 1)
++            out[os.path.normpath(p.strip().lstrip("*"))] = d
++    return out
++
++
++def _duration(path):
++    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
++                       capture_output=True, text=True, check=True, timeout=60)
++    return float(r.stdout.strip())
++
++
++def _registry():
++    return json.load(open(os.path.join(H.REPO, "pipeline", "channels.json")))
++
++
++# ─────────────────────────────── hashes ───────────────────────────────
++
++@pytest.mark.parametrize("root", [PREVIEW, V2F_ROOT], ids=["preview", "v2f"])
++def test_every_listed_file_has_its_recorded_sha256_and_nothing_is_unlisted(root):
++    sums = _sums(root)
++    assert sums
++    bad = [p for p, d in sums.items() if not os.path.isfile(os.path.join(root, p)) or _sha(os.path.join(root, p)) != d]
++    assert not bad, bad
++    on_disk = {os.path.normpath(os.path.relpath(os.path.join(dp, f), root))
++               for dp, _, fs in os.walk(root) for f in fs} - {"SHA256SUMS"}
++    assert on_disk - set(sums) == set(), sorted(on_disk - set(sums))[:10]
++
++
++@pytest.mark.parametrize("root", [PREVIEW, V2F_ROOT], ids=["preview", "v2f"])
++def test_the_protected_reference_is_read_only(root):
++    for dp, dirs, fs in os.walk(_need(root)):
++        for p in [dp] + [os.path.join(dp, f) for f in fs]:
++            assert not os.stat(p).st_mode & (stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH), p
++
++
++def test_the_worktree_copy_of_the_preview_is_the_same_bytes():
++    sums = _sums(PREVIEW)
++    wt = os.path.join(H.REPO, "references", "pulse_preview_2026-11-11")
++    if not os.path.isdir(wt):
++        pytest.fail("the worktree carries no references/pulse_preview_2026-11-11 (it is tracked in git)")
++    assert open(os.path.join(wt, "SHA256SUMS"), "rb").read() == open(os.path.join(PREVIEW, "SHA256SUMS"), "rb").read()
++    tracked = [os.path.normpath(os.path.relpath(os.path.join(dp, f), wt)) for dp, _, fs in os.walk(wt) for f in fs]
++    tracked = [p for p in tracked if p != "SHA256SUMS"]
++    assert tracked
++    bad = [p for p in tracked if sums.get(p) != _sha(os.path.join(wt, p))]
++    assert not bad, bad
++
++
++# ─────────────────────────────── manifests ───────────────────────────────
++
++def _edl_labels(edl):
++    return ["hook"] + [f"clip_{c['index']:02d}" for c in edl.get("clips", [])]
++
++
++@pytest.mark.parametrize("name", list(RUNS))
++@pytest.mark.parametrize("fmt", ["16x9", "9x16"])
++def test_each_manifest_describes_its_final(name, fmt):
++    run = RUNS[name]
++    segs = json.load(open(_need(os.path.join(run, "qa", f"concat_manifest_{fmt}.json"))))["segments"]
++    edl = json.load(open(os.path.join(run, "edl.json")))
++    final = os.path.join(run, "out", "segment.mp4" if fmt == "16x9" else "segment_vertical.mp4")
++    starts = [s["start"] for s in segs]
++    assert starts == sorted(starts) and segs[0]["start"] == 0.0
++    for a, b in zip(segs, segs[1:]):                      # contiguous, or a dissolve (< 0.5 s of overlap)
++        assert -1e-3 <= a["end"] - b["start"] < 0.5, (a, b)
++    assert [s["label"] for s in segs if s.get("type") == "talking_head"] == _edl_labels(edl)
++    assert [s.get("type") for s in segs[-2:]] == ["shoutout", "outro"]
++    assert abs(segs[-1]["end"] - _duration(final)) <= FRAME + 1e-3, (segs[-1]["end"], _duration(final))
++
++
++@pytest.mark.parametrize("name", list(RUNS))
++def test_the_two_formats_share_one_timeline(name):
++    run = RUNS[name]
++    a, b = (json.load(open(os.path.join(run, "qa", f"concat_manifest_{f}.json")))["segments"] for f in ("16x9", "9x16"))
++    assert [(s["label"], s.get("type"), s["start"], s["end"]) for s in a] == \
++        [(s["label"], s.get("type"), s["start"], s["end"]) for s in b]
++
++
++# ─────────────────────────────── L-a: sign-off == card == clips ───────────────────────────────
++
++def _la_sets(run):
++    import credit_rings
++    import gates as G
++    edl = json.load(open(os.path.join(run, "edl.json")))
++    card = credit_rings.credit_channels(edl)
++    clips = {edl["hook"]["channel"]} | {c["channel"] for c in edl["clips"]}
++    text = json.load(open(os.path.join(run, "vo_audio", "VO_MANIFEST.json")))["signoff"]["text"]
++    return set(G.spoken_channels(text, _registry(), card)), card, clips, text
++
++
++def test_l_a_v2f_signoff_card_and_clips_are_one_set():
++    spoken, card, clips, text = _la_sets(V2F)
++    assert len(card) == len(set(card)) == 3
++    assert spoken == set(card) == clips, (text, spoken, card, clips)
++
++
++def test_l_a_the_preview_is_the_documented_must_fail():
++    """The card (measured on the rendered card: G15's registered-avatar discs) and the clips name four channels;
++    the sign-off says three: DataDash (the hook's channel) is missing (E-FAIL-031)."""
++    spoken, card, clips, text = _la_sets(PREVIEW)
++    measured_card = {a["channel"] for a in json.load(open(os.path.join(PREVIEW, "GATE_REPORT.json")))["G15_16x9"]["avatars"]
++                     if a.get("r", 0) >= 0.90}
++    assert set(card) == clips == measured_card == {"DataDash", "Natalie Brunell", "Yahoo Finance", "Bitcoin Magazine"}
++    assert spoken == set(card) - {"DataDash"}, (text, spoken)
++
++
++# ─────────────────────────────── L-b: no fade overlaps an edge word ───────────────────────────────
++
++def _lb_measure(name):
++    import sentence_law as L
++    run = RUNS[name]
++    cuts = json.load(open(_need(os.path.join(run, "cuts_final.json"))))
++    cuts = cuts if isinstance(cuts, list) else cuts["cuts"]
++    rows = {}
++    for c in cuts:
++        sa = H.WindowAudio(os.path.join(run, "sources", f"{c['video_id']}.mp4"), c["cut_in"] - 3, c["cut_out"] + 3)
++        wb = L.edge_word_bounds(sa, None, c["cut_in"], c["cut_out"])
++        fi, fo = c.get("fade_in_ms", 20) / 1000, c.get("fade_out_ms", 30) / 1000
++        rows[c["clip_id"]] = {"cut_in": c["cut_in"], "cut_out": c["cut_out"], "fade_in_ms": c.get("fade_in_ms", 20),
++                              "fade_out_ms": c.get("fade_out_ms", 30), "first_word_onset": round(wb["onset"], 3),
++                              "last_word_end": round(wb["end"], 3),
++                              "in_overlap_ms": int(round((c["cut_in"] + fi - wb["onset"]) * 1000)),
++                              "out_overlap_ms": int(round((wb["end"] - (c["cut_out"] - fo)) * 1000))}
++    return rows
++
++
++LB = H.load_fixture("reference_lb_edges.json")
++
++
++def _ffmpeg_version():
++    return subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True, timeout=30).stdout.splitlines()[0]
++
++
++@pytest.mark.parametrize("name", list(RUNS))
++def test_l_b_recorded_fades_against_edge_words_are_the_measured_table(name):
++    got = _lb_measure(name)
++    assert got == LB["measured"][name], (
++        f"measured now with {_ffmpeg_version()!r}; pinned with {LB['ffmpeg_version']!r}"
++        + (" -- the DECODER changed: re-measure the table (tests/fixtures/adversarial/reference_lb_edges.json)"
++           if _ffmpeg_version() != LB["ffmpeg_version"] else " -- same decoder: the reference or edge_word_bounds changed"),
++        got)
++
++
++def test_l_b_the_documented_must_fail_is_an_overlap():
++    for name, clip, side in LB["documented_must_fail"]:
++        assert LB["measured"][name][clip][f"{side}_overlap_ms"] > 0, (name, clip, side)
++    m = _lb_measure("pulse_preview_2026-11-11")["clip_01"]
++    assert m["out_overlap_ms"] > 50 and m["fade_out_ms"] == 83, m          # '...Monday rally.' (E-FAIL-032)
++
++
++# ─────────────────────────────── G8 9:16: settle the open claim ───────────────────────────────
++
++def _g8(tmp_path, wiring, label="clip_03"):
++    """The public gate on the saved 9:16 final, one segment. (The final has one keyframe, so each frame grab near
++    clip_03 decodes ~1,000-1,270 frames; the full four-segment table is measured once and kept in
++    pp-tests_REQUESTS.md.)"""
++    import qa_gates as Q
++    segs = json.load(open(os.path.join(V2F, "qa", "concat_manifest_9x16.json")))["segments"]
++    seg = next(s for s in segs if s["label"] == label)
++    src = {label: os.path.join(V2F, "qa", f"vert_{label}.mp4")} if wiring == "production" else None
++    ok, table = Q.gate_g8(os.path.join(V2F, "out", "segment_vertical.mp4"), [seg], str(tmp_path),
++                          source_clips=src, fmt="9x16")
++    return ok, table[0], Q.G8_SHARPNESS_FLOOR["9x16"]
++
++
++def test_g8_9x16_v2f_passes_through_the_production_wiring_at_its_floor(tmp_path):
++    """Claude-gates #5: measured on the saved finals, run_fresh.stage_gates' wiring (9:16 sources = the
++    reframed vertical clips): PASS, clip_03 out median exactly the calibrated floor (zero margin, A5)."""
++    ok, row, floor = _g8(tmp_path, "production")
++    assert ok is True, row
++    assert len(row["out_variances"]) == 5 and len(row["src_variances"]) == 5, row
++    assert abs(row["out_median"] - floor) < 0.005 and row["ratio"] >= 0.85, (row, _ffmpeg_version(), LB["ffmpeg_version"])
++
++
++def test_g8_9x16_v2f_fails_without_sources_the_harness_reading(tmp_path):
++    """E-FAIL-042: called without its source clips (the Law 22 harness), G8 cannot measure degradation and
++    FAILS (fail closed) - the recorded 'v2f fails 9:16 G8' is this reading, not the production verdict. Measured on
++    the hook (near the file's only keyframe; every segment reads no_source the same way: REQUESTS.md table)."""
++    ok, row, floor = _g8(tmp_path, "no_sources", label="hook")
++    assert ok is False and row["degradation_reason"] == "no_source" and row["src_median"] == 0.0, row
++    assert row["out_median"] >= floor, row                  # the picture itself clears the floor
++
++
++# ─────────────────────────────── L-j on the preview's recorded report ───────────────────────────────
++
++def test_the_preview_recorded_gate_report_is_not_releasable():
++    """The preview's GATE_REPORT predates law L-j: 'HOLD(inconclusive)', a '(run_gates)' placeholder row, FAIL
++    rows and no execution evidence. The current contract must refuse it (it was reviewed, never released)."""
++    import release_auth as RA
++    rep = json.load(open(os.path.join(PREVIEW, "GATE_REPORT.json")))
++    for fmt in RA.FORMATS:
++        bad = RA.blockers(fmt, rep["rows"].get(fmt), rep.get("evidence"))
++        assert bad, fmt
++    bad16 = RA.blockers("16x9", rep["rows"]["16x9"], RA.NO_EVIDENCE_CHECK)
++    assert "G11_parity(run_gates)" in bad16 and "G14_av_alignment" in bad16, bad16
+diff --git a/docs/audits/parallel/pp-tests_BIBLE_ADDITIONS.md b/docs/audits/parallel/pp-tests_BIBLE_ADDITIONS.md
+new file mode 100644
+index 00000000..cb671a15
+--- /dev/null
++++ b/docs/audits/parallel/pp-tests_BIBLE_ADDITIONS.md
+@@ -0,0 +1,89 @@
++# pp-tests BIBLE ADDITIONS — failure patterns found by the adversarial wall (for the integrator to fold into docs/QWEN_CONTEXT_BIBLE.md)
++
++Session pipeline_pp_tests, 2026-11-12. Each pattern names its evidence (a test in tests/adversarial that fails on it
++today, strict xfail) and the request in docs/audits/parallel/pp-tests_REQUESTS.md. Numbered PP-E* so they cannot
++collide with the integrator's E-FAIL numbers.
++
++### PP-E1: A fuzzy anchor is a meaning changer
++**Evidence:** `editorial_select.align_quote` and `sentence_law.anchor` accepted every one of the generated meaning
++mutants (40 per kind): '$81,000' vs '$18,000', '16%' vs '60%', 'has' vs "hasn't", the Fed vs the Treasury, '-5%' vs
++'+5%', million vs billion. A SequenceMatcher ratio >= 0.80 with pinned first / last tokens cannot see one changed token
++in a sentence of six or more.
++**Rule:** an approximate match may absorb ASR spelling, never a number, sign, unit, negation or name; compare those
++tokens exactly after the fuzzy span is chosen. **Detection:** test_f1 TestSelectionAnchors (R-05).
++
++### PP-E2: A character substring on canonical text matches inside words and numbers
++**Evidence:** `story_semantics.quote_in` verified '$81,000 by the weekend' inside '$181,000 by the weekend', 'coin fell
++below ...' inside 'Bitcoin fell below ...', 'trading at 74' inside 'trading at 74,500 dollars', and a quote straddling
++two unrelated excerpts. The same shape in G3b: 'week' matched 'weekend'.
++**Rule:** compare canonical TOKENS as runs (or whole tokens), inside one excerpt; never `in` on strings.
++**Detection:** test_f1 TestQuoteVerification, TestG3b (R-02, R-03, R-07).
++
++### PP-E3: A cache keyed by a name is not a cache of these bytes
++**Evidence:** select_passages relabelled an old download of the window at 285 s as the new request's 45 s; reused a
++transcript made from bytes that are no longer under the name; accepted a leftover partial file after yt-dlp exited 1;
++the selection lock binds the transcript's digest but not the media's, so G16 passes a source replaced after the lock.
++**Rule:** every cached artefact carries the identity of what it was made from (section, sha256 of the input) and is
++used only when that identity is re-checked; a failed producer never leaves its output name holding older bytes.
++**Detection:** test_f2 TestDirtyCache, TestLockBinding (R-09, R-10, R-22).
++
++### PP-E4: A failed extraction leaves the previous output to be measured
++**Evidence:** qa_gates.extract_frame writes to a fixed name and never deletes it; when ffmpeg writes nothing, G8 read
++the frame an earlier render left there: a black current final passed G8 on four sharp frames of the previous render.
++G8 also passes on one of its five samples.
++**Rule:** delete a fixed-name output before producing it; a gate that asks for N samples fails on fewer.
++**Detection:** test_f4 test_g8_never_measures_a_frame_of_an_earlier_render, test_g8_never_passes_on_one_of_five_samples
++(R-20, R-21).
++
++### PP-E5: A gate that loops over nothing returns its initial True
++**Evidence:** G3b, G3c, G8, G4s, G14 (both forms), G17a, G18 and G19 return PASS for empty segments / plans / manifests
++(release_auth's evidence rule blocks them at release with 0 samples; the gate verdict itself is still PASS for any
++other caller). G12 / G15 return an explicit skip (recorded SKIPPED) and G20 fails closed: the shapes to copy.
++**Rule:** every gate ends `if not measured: return False, ...`; skip is explicit, never a True.
++**Detection:** test_f4 test_a_required_gate_never_passes_on_nothing (R-13, R-14, R-15).
++
++### PP-E6: A canonical form must be a fixpoint
++**Evidence:** canon('about two, three hundred dollars') reads 2 and 300; canon of that canonical text reads 2300
++(the spaced-thousands rule joins two numbers the first pass kept apart). Real transcripts measured so far are fixpoints;
++spoken ranges are not.
++**Rule:** canon(canon(x)) == canon(x) is a property test of the canonical form. **Detection:** test_f1
++TestCanonicalForm (R-01).
++
++### PP-E7: Name matching by containment hears a different channel
++**Evidence:** G20 counted 'Bitcoin Magazine' as said when the sign-off says 'Bitcoin Magazine Pro' (and the reverse
++fuzzily), Coffeezilla / Coffeezilla Extras, CNBC / CNBC Television: the registry has such families.
++**Rule:** match all registry names longest-first, each claiming its span; a credited name never matches inside a
++longer registry name. **Detection:** test_f1 TestSignoffNames (R-06).
++
++### PP-E8: A law's statement and its check can disagree on the reference
++**Evidence:** L-b says no fade overlaps an edge word; its check G17c aligns within +-2 hops and passes v2f edges whose
++recorded fade reaches 10-20 ms into the word's decay by the law's own word-bounds measure, while failing another 10 ms
++one; the protected preview has four such edges besides the documented Natalie tail (pp-tests_REQUESTS.md PP-04).
++**Rule:** when a law is written as a property ("never overlaps"), measure the property directly on the references,
++not only the check that implements it. **Detection:** test_f5 test_l_b_* (pinned table, no xfail: a decision).
++
++### PP-E9: The bytes the drop describes must be the bytes the gates read
++**Evidence:** an EDL edited between the gates and the attestation (another credited channel) was attested ALL_PASS and
++delivered: only the finals and manifests are compared with the digests the gates measured.
++**Rule:** every input a gate reads is in GATE_REPORT.measured_files and re-checked at attestation.
++**Detection:** test_f3 test_an_edl_changed_after_the_gates_ran_holds (R-12).
++
++### PP-E10: A test that patches a module attribute patches the whole process
++**Evidence (this session, test-side):** replacing `select_passages.subprocess.run` replaced `subprocess.run` for
++sentence_law too (the attribute is the shared module object); a strict xfail also "passes" on an unrelated crash of
++the test's own setup (two of mine did until re-run with `--runxfail`: a 4-token control quote under quote_in's
++5-token minimum, a "partial" file 3 KB over the cache size).
++**Rule:** patch a stand-in module object on the caller (`monkeypatch.setattr(mod, "subprocess", Proxy())`), and read
++every strict xfail's failure with `--runxfail` before trusting it.
++
++### PP-E11: A pinned defect must be the only way its test can fail, and its fixtures must already speak the fix's contract
++**Evidence (frontier review of this wall, verified):** pytest counts ANY exception of an xfail-marked test as the
++expected failure, a failing fixture `assert` included (even with `raises=AssertionError`, since that is an
++AssertionError too); and the first fixtures wrote no download record, no `media_sha256` and no measured EDL digest, so
++the very fixes R-09 / R-10 / R-12 request would have broken the controls and left other xfails "failing" for the
++wrong reason, or flipping because a fixture stopped working.
++**Rule:** a strict xfail is `raises=AssertionError`; every precondition (fixture, control) is `pytest.fail`, so a
++broken setup is FAILED / ERROR, never the defect; fixtures write the records the requested fix will read (extra data
++today's code ignores), and the request names them; a probe that must flip only on fix X keeps every other fix's
++record consistent (the byte-replacement probe rewrites the download record for the new bytes so only the transcript
++binding can tell).
+diff --git a/docs/audits/parallel/pp-tests_REQUESTS.md b/docs/audits/parallel/pp-tests_REQUESTS.md
+new file mode 100644
+index 00000000..8a899a03
+--- /dev/null
++++ b/docs/audits/parallel/pp-tests_REQUESTS.md
+@@ -0,0 +1,270 @@
++# pp-tests REQUESTS — defects the adversarial wall exposed (for the integrator, tmux pipeline_pp_dod)
++
++Session pipeline_pp_tests, branch `pp-tests`, worktree `/home/ultron/worktrees/pp-tests`. I write tests only; every
++defect below is pinned by a test marked `xfail(strict=True)` that FAILS today for exactly this reason (each one was
++re-run with `--runxfail` and its assertion read). When a fix lands, that test XPASSes, strict turns it into a
++failure: that is the signal to remove the mark. File paths are relative to the repo root.
++
++Priority (final audit round, three models, M1): R-09 and R-10 first: a stale download or transcript silently
++supplies a clip the editor never verified (cache poisoning), and nothing downstream measures provenance.
++
++How the pins stay honest when a fix lands (audit A, frontier review): every strict xfail is
++`raises=AssertionError`, and every precondition of a test (its fixtures, a control inside it) is `pytest.fail`
++(adv_helpers.control), never `assert`: a crash, a renamed field or a fixture broken by a fix shows as FAILED / ERROR,
++never as the pinned defect. The fixtures already write the provenance records three fixes below propose (R-09: a
++`sources/<vid>.section.json` download record; R-10: `media_sha256` in each transcript; R-12: `edl.json` in
++`GATE_REPORT.measured_files`), so a fix implemented with exactly those names keeps every control valid; a fix that
++stores them differently must update `adv_helpers.write_section` / `write_source` / `release_run` in the same change
++(the controls then fail loudly until it does).
++
++Note for the qa_gates.py items (R-07, R-08, R-13, R-20, R-21): LAW 24 says segment_v1 scripts are not modified and
++are patched from pipeline/; qa_gates.py has nevertheless carried the DEC-1 / DEC-12 / L-g changes. Where the fix
++lives (qa_gates.py itself or a wrapper in pipeline/gates.py) is the integrator's call; the tests call the public
++qa_gates functions either way.
++
++| id | finding | file : function | pinned by (tests/adversarial/...) |
++|---|---|---|---|
++| R-01 | PP-01 (new) | pipeline/canon.py : canon | test_f1 TestCanonicalForm::test_idempotent_on_adjacent_spoken_numbers |
++| R-02 | Grok47-select F4 | pipeline/story_semantics.py : quote_in | test_f1 TestQuoteVerification::test_a_quote_never_matches_inside_a_longer_word_or_number |
++| R-03 | Grok47-select F19 | pipeline/story_semantics.py : quote_in | test_f1 TestQuoteVerification::test_a_quote_never_straddles_two_excerpts |
++| R-04 | GPT-select F05 | pipeline/story_semantics.py : adjudicate | test_f1 TestQuoteVerification::test_adjudicate_counts_a_quote_only_with_the_chunk_that_says_it |
++| R-05 | GPT-select F04, GPT-cut F06 | pipeline/editorial_select.py : align_quote; pipeline/sentence_law.py : anchor | test_f1 TestSelectionAnchors (2 tests) |
++| R-06 | GPT-gates F17 (Claude-gates T9) | pipeline/gates.py : spoken_channels | test_f1 TestSignoffNames::test_a_different_channel_variant_is_not_the_credited_channel (4) |
++| R-07 | GPT-gates F15 | segment_v1/qa_gates.py : _g3b_match | test_f1 TestG3b::test_a_longer_word_containing_the_last_word_is_a_different_word |
++| R-08 | GPT-gates F16, Claude-gates T2 | segment_v1/qa_gates.py : gate_g3b (_leak) | test_f1 TestG3b::test_a_next_word_equal_to_the_last_word_still_leaks |
++| R-09 | GPT-select F09 | pipeline/select_passages.py : _download_window | test_f2 TestDirtyCache::test_a_cached_window_of_another_request_is_never_relabelled |
++| R-10 | GPT-select F10, Grok47-select F6 | pipeline/select_passages.py : _whisper_transcribe; pipeline/sentence_law.py : make_lock / verify_lock / gate_g16 | test_f2 TestDirtyCache::test_a_transcript_of_other_bytes_is_never_used; TestLockBinding::test_g16_refuses_a_source_whose_bytes_changed_after_the_lock |
++| R-11 | PP-02 (new) | pipeline/sentence_law.py : verify_lock | test_f2 TestLockBinding::test_a_lock_whose_words_are_not_its_transcripts_words_is_refused |
++| R-12 | Grok47-select F8 | pipeline/run_fresh.py : stage_gates; pipeline/release_auth.py : attest | test_f3 test_an_edl_changed_after_the_gates_ran_holds |
++| R-13 | GPT-gates F05, Claude-gates V4 / V5, Grok-gates 13 | segment_v1/qa_gates.py : gate_g3b, gate_g3c, gate_g8 | test_f4 test_a_required_gate_never_passes_on_nothing[G3b empty segments / G3b talking head with no expected last word / G3c empty segments / G8 empty segments] |
++| R-14 | GPT-cut F23 | pipeline/word_diff.py : gate_g18; pipeline/sentence_law.py : gate_g17_prepared | test_f4 ...[G18 empty segments and clips / G18 empty lock text, nothing heard / G17a no prepared clips] |
++| R-15 | PP-03 (new) | pipeline/vertical_layout.py : gate_g4s; pipeline/gates.py : gate_g14; pipeline/edge_shots.py : gate_g19 | test_f4 ...[G4s empty plans / G4s a clip with no shots / G14 16x9 empty manifest / G14 9x16 empty manifest / G19 empty segments] |
++| R-16 | GPT-cut F08 | pipeline/word_diff.py : gate_g18 | test_f1 TestG18::test_gate_g18_fails_a_number_that_differs_from_the_lock |
++| R-17 | GPT-cut F22 | pipeline/word_diff.py : gate_g18 | test_f1 TestG18::test_gate_g18_checks_every_occurrence_of_a_label |
++| R-18 | Claude-gates T3 (named answer #3) | pipeline/select_passages.py : select_and_build_edl (_build_segment) | test_f2 TestSelectContract::test_every_segment_names_the_next_source_word_for_g3b |
++| R-19 | Claude-select T1 | pipeline/canon.py : fold (or story_semantics.quote_in) | test_f1 TestQuoteVerification::test_a_compound_name_written_apart_is_the_same_quote |
++| R-20 | GPT-gates F28 | segment_v1/qa_gates.py : gate_g8 | test_f4 test_g8_never_passes_on_one_of_five_samples |
++| R-21 | GPT-gates F10, Claude-gates C1 | segment_v1/qa_gates.py : extract_frame, extract_audio_region | test_f4 test_g8_never_measures_a_frame_of_an_earlier_render |
++| R-22 | GPT-select F23 | pipeline/select_passages.py : _download_window | test_f2 TestDirtyCache::test_a_failed_download_never_supplies_a_source |
++| R-23 | GPT-select F08 | pipeline/select_passages.py : select_and_build_edl | test_f2 TestSelectContract::test_select_with_fewer_than_two_clips_is_not_a_success; ::test_select_with_one_channel_is_not_a_success |
++
++## R-01 — PP-01 (new): the canonical form is not a fixpoint on two adjacent spoken numbers
++- Defect (measured): `canon_tokens("It costs about two, three hundred dollars a month")` = `[... '2', '300', 'dollars' ...]`
++  but `canon_tokens(canon(that))` = `[... '2300', 'dollars' ...]`: the canonical TEXT puts the two numbers side by side
++  with one space and `_SPACED_THOUSANDS` reads '2 300' as 2300 on the second pass. Same for 'three, four hundred
++  people' (3400), 'one, two hundred basis points' (1200), 'four, five hundred points' (4500), 'ten, twenty, two
++  hundred wallets' (20200). Every real sentence measured is a fixpoint (2,197 sentences: tests/fixtures/canon_20261111,
++  the preview's transcripts, every runs/*/transcripts record), so the exposure is speech with spoken ranges.
++  Order item: "Idempotence: canon(canon(x)) == canon(x)". A site that canonicalises stored canonical text (or joins
++  two canonical strings, e.g. `quote_in(" ".join(texts))` across an excerpt that ends on a number) re-merges them.
++- Minimal fix: `canon()` emits a separator that `_SPACED_THOUSANDS` / `_THOUSANDS` / `_SPLIT` never join between two
++  consecutive numeric tokens, e.g. `" , "` (`canon_tokens("2 , 300") == ['2', '300']`): in `canon(text)`, build the
++  string token by token and insert `","` between two tokens that both match `\d+(\.\d+)?`. canon_tokens is unchanged,
++  so token-based sites see no difference; quote_in canonicalises both sides alike.
++
++## R-02 — Grok47-select F4: quote_in is a character-substring test
++- Defect: `quote_in(q, texts)` = `canon(q) in canon(" ".join(texts))`, a substring of characters. Measured true for
++  quotes that are NOT said: '$81,000 by the weekend ...' inside '$181,000 by the weekend ...'; 'coin fell below 74,000
++  dollars on Friday night' inside 'Bitcoin fell below $74,000 on Friday night'; 'Bitcoin is now trading at 74' inside
++  '... at 74,500 dollars'; '1.6 billion dollars of outflows last week' inside '$11.6 billion of outflows last week'.
++- Minimal fix: compare canonical TOKEN runs: `qt = canon.canon_tokens(quote)`; true only when `qt` occurs as a
++  contiguous run of `canon.canon_tokens(text)` (`any(tt[i:i + len(qt)] == qt for i in range(len(tt) - len(qt) + 1))`).
++
++## R-03 — Grok47-select F19: a quote may straddle two excerpts
++- Defect: the excerpts are joined with a space before the substring test, so 'flows turned negative. Bitcoin is up four
++  percent' is "verified" across the end of one excerpt and the start of an unrelated one.
++- Minimal fix: `quote_in(quote, texts)` is true when the quote is a token run of ONE text
++  (`any(_run(qt, canon_tokens(t)) for t in texts)`); a caller that means adjacent excerpts joins them itself.
++
++## R-04 — GPT-select F05: supporting chunk ids are not bound to the verified quote
++- Defect (through `adjudicate` with a fake model): the reply names excerpt A as support, the quote is only in excerpt
++  B: `quote_verified` True, `counted_as_same_event` True.
++- Minimal fix: in `adjudicate`, `quote_ok = quote_in(quote, [c["text"] for c in excerpts if c["chunk_id"] in set(sup)])`
++  (the quote must be in a SUPPORTING excerpt).
++
++## R-05 — GPT-select F04 / GPT-cut F06: a fuzzy anchor moves a quote onto a different claim
++- Defect (measured on 240 generated cases, 40 per kind): `editorial_select.align_quote` and `sentence_law.anchor`
++  accept EVERY meaning mutant: '$81,000' -> '$18,000' (digits swapped, off by 1,000, x10), '16%' -> '60%', percent
++  -> dollars / percentage points, 'has' -> "hasn't" / 'has not' (all seven negation pairs), the Fed -> the Treasury
++  (all five actor pairs), '-5%' -> '+5%' / '5%', million / billion / trillion, a dropped decimal. The ratio
++  (>= 0.80 / 0.85 with pinned edges) cannot see a one-token change in a sentence of >= 6 tokens. The lock is then
++  made on words that state another number / negation / actor than the verified quote.
++- Minimal fix (the "D" rule already named in the ledger): after the best span is chosen, refuse it unless the
++  quote's PROTECTED tokens equal the span's, in order: numbers and ordinals (`\d+(\.\d+)?|ord\d+`), 'minus' / 'plus',
++  'dollars' / 'percent', negations ('not', 'no', 'never', 'nor', any token ending "n't"), and the quote's names
++  (canonical tokens of words written with a capital, first word excluded) must all be in the span. One helper in
++  canon.py used by both sites.
++
++## R-06 — GPT-gates F17: G20 hears another registry channel's name as the credited one
++- Defect: credited 'Bitcoin Magazine', sign-off says 'Bitcoin Magazine Pro' -> heard {'Bitcoin Magazine'} (exact
++  containment; the longer non-credited name is skipped because it overlaps the credited span). Credited 'Bitcoin
++  Magazine Pro', sign-off says 'Bitcoin Magazine' -> heard (fuzzy 0.89 >= 0.85 against 'bitcoinmagazinefor').
++  Same for Coffeezilla / Coffeezilla Extras and CNBC / CNBC Television. (Real Vision Finance credited, 'Real Vision'
++  said: correctly not heard.)
++- Minimal fix in `spoken_channels`: one exact pass over ALL registry names and aliases, LONGEST first, each claiming
++  its span; a name never matches inside a span a longer name claimed; the fuzzy pass for credited names runs only on
++  unclaimed text and never where a non-credited name matches exactly.
++
++## R-07 — GPT-gates F15: G3b's last-word match is a substring test
++- Defect: `_g3b_match(expected, heard)` = `heard == expected or expected in heard`; lock '... shapes up this week.',
++  three readings '... this weekend' -> PASS (3/3 votes).
++- Minimal fix (a TIGHTENING; it changes what the check accepts, so it needs the orchestrator's word): `heard ==
++  expected or (heard.startswith(expected) and heard[len(expected):] in ("s", "es", "'s"))` (keeps 'magnitude' /
++  'magnitudes', refuses 'week' / 'weekend').
++
++## R-08 — GPT-gates F16 / Claude-gates T2: a next word equal to the last word hides the leak
++- Defect: `_leak` anchors on the LAST reading word matching the expected last word; lock '... this week.', next
++  source word 'Week', readings '... this week week' -> the leaked 'week' is taken as the last word: PASS.
++- Minimal fix: locate the lock's last two canonical tokens (`ew[-2:]`) as a contiguous run in the reading (its LAST
++  complete occurrence ending at or after the expected last word's first match); `after` = the tokens after that
++  run's end; any next-word token in `after` is a leak.
++
++## R-09 — GPT-select F09: a cached download is relabelled with the newly requested offset
++- Defect (end to end through `select_and_build_edl`): `sources/<vid>.mp4` is an old download of the window at 285 s;
++  the editor's passage is at 60 s (request start 45 s); the host repeats the sentence at 300 s, so it anchors, and the
++  EDL records `source_window_offset_s` 45 for a file that starts at 285.
++- Minimal fix: on a successful download write `sources/<vid>.section.json` `{"dl_start", "dl_end", "sha256"}`; a cache
++  hit is accepted only when that record exists, its sha256 is the file's, and `[start_s - pad, end_s + pad]` lies
++  inside `[dl_start, dl_end]` (inclusive); it returns the RECORDED `dl_start`; anything else is a cache miss, and a
++  miss whose download fails returns `(None, 0)`, never the file already under the name (that last part is R-22: the
++  R-09 pin flips only when both hold; until then it keeps failing, never a false pass). (The test fixtures write
++  exactly this record, adv_helpers.write_section, with the request starting 0.25 s inside it, so the containment does
++  not hinge on rounding.)
++
++## R-10 — GPT-select F10 / Grok47-select F6: transcript and lock are not bound to the media bytes
++- Defect: (a) `sources/<vid>.mp4` replaced under the same name (same speech timing, other content):
++  `select_and_build_edl` reuses `transcripts/<vid>.json` of the old bytes (no transcription attempted) and succeeds;
++  (b) after the lock and cut table are written, the same replacement passes `gate_g16` (the lock binds only the
++  transcript's digest).
++- Minimal fix: `_whisper_transcribe` stores `"media_sha256"` (sha256 of `sources/<vid>.mp4`) in the transcript and
++  reuses a cached transcript only when it matches; `make_lock(..., source_sha256=...)` records it;
++  `verify_lock(lock, transcript_path, source_path=None)` compares it when given; `write_lock_cut_table` and `gate_g16`
++  pass `sources/<vid>.mp4`. (The fixtures write `media_sha256`; the byte-replacement probes also rewrite a CONSISTENT
++  download record for the new bytes, so only this binding, not R-09's record, can flip them.)
++
++## R-11 — PP-02 (new): verify_lock never compares the lock's words with its transcript
++- Defect: a lock built from other words (first 'Ether', last 'carefully.') but carrying the sha256 of the transcript
++  on disk passes `verify_lock(lock, transcript_path)` (a rewrite between hashing and reading, a concurrent attempt in
++  the same run directory: GPT-select F33).
++- Minimal fix: when `transcript_path` is given, load its words and require `0 <= i0 <= i1 < len(words)` and
++  `first_word`, `last_word`, `text`, `n_words` equal to those derived from `words[i0:i1 + 1]`; else
++  "lock words are not the transcript's words at i0..i1".
++
++## R-12 — Grok47-select F8: an EDL changed after the gates is attested ALL_PASS
++- Defect: `attest()` binds `edl.json` by its digest at attestation time but only checks the finals and manifests
++  against `GATE_REPORT.measured_files`; an EDL edited between the gates and the attestation (another credited channel,
++  another headline) is attested ALL_PASS and delivered.
++- Minimal fix: `run_fresh.stage_gates` adds `edl.json` to `measured` (the EDL G15 / G16 / G18 / G20 read);
++  `release_auth.attest` adds `"edl.json"` to the tuple it compares with `measured_files`. (adv_helpers.release_run
++  already records `edl.json` there, so the family-3 control stays authorised after this fix.)
++
++## R-13 — GPT-gates F05 / Claude-gates V4, V5 / Grok-gates 13: qa_gates REQUIRED gates pass on nothing
++- Defect: `gate_g3b(final, [])`, `gate_g3b(final, [talking head with no lock text and no last_word])`,
++  `gate_g3c(final, [])`, `gate_g8(final, [])` return `(True, [])`. (run_fresh's evidence rule gives them 0 samples and
++  release_auth blocks the row — test_f4 test_whatever_a_gate_returns_on_nothing_release_blocks_it — but the gate
++  verdict itself is PASS for any other caller, e.g. run_gates' aggregate, the Law 22 harness.)
++- Minimal fix: each returns `(False, [{"error": "nothing measured"}])` when its table is empty; G3b writes a FAIL row
++  (not `continue`) for a talking head with no expected last word.
++
++## R-14 — GPT-cut F23: G18 and G17a pass on zero work
++- Defect: `word_diff.gate_g18(final, [], {})` -> `(True, [])`; a clip with an EMPTY lock text whose final and source
++  both read empty -> PASS with one row (stage_gates turns that case FAIL through its own `missing` list, but the gate
++  does not); `sentence_law.gate_g17_prepared({})` -> `(True, [])`.
++- Minimal fix: gate_g18 returns FAIL when `clips` is empty and writes a FAIL row for a clip whose `lock_text` is empty;
++  gate_g17_prepared returns FAIL for an empty `clip_paths`.
++
++## R-15 — PP-03 (new): pipeline-side REQUIRED gates pass on nothing
++- Defect: `vertical_layout.gate_g4s({}, {})` and a clip with `"shots": []` -> `(True, [])`; `gates.gate_g14(final,
++  manifest with no segments)` -> `(True, [])` in both the 16:9 and the 9:16 (`frames=False`) form;
++  `edge_shots.gate_g19(final, [], {}, fps)` -> `(True, [])`.
++- Minimal fix: each returns FAIL when it measured nothing (no shot / no talking-head sample / no talking head).
++
++## R-16 — GPT-cut F08: a number that differs from the selection lock is report-only in G18
++- Defect: lock '... above $81,000 ...'; the source span and the final both read '... above $18,000 ...': edges equal,
++  identity equal, `lock_diff_reported` = `[('replace', '81000', '18000')]`, PASS.
++- Minimal fix: G18 fails a row whose `diff(lock_text, heard)` contains a PROTECTED token (R-05's helper: number,
++  sign, unit, negation, name); other lock differences stay reported only.
++
++## R-17 — GPT-cut F22: G18 checks only the last occurrence of a duplicated label
++- Defect: `by_label = {s["label"]: s ...}` keeps the last segment of a label; two 'hook' segments, the first reading
++  other words -> PASS.
++- Minimal fix: a talking-head label that occurs more than once in the manifest is a FAIL row ("duplicate segment
++  label"), or every occurrence is checked.
++
++## R-18 — Claude-gates T3 (named answer #3): the EDL never names the next source word
++- Defect: `select_and_build_edl` writes no `next_source_word` on any segment, so G3b's leak check
++  (`edl_entry.get("next_source_word")`) never runs in production.
++- Minimal fix: in `_build_segment`, `"next_source_word": words[i1 + 1]["word"].strip() if i1 + 1 < len(words) else
++  None` (pinned.build_edl likewise).
++
++## R-19 — Claude-select T1: a compound name written apart fails the verbatim check
++- Defect: `quote_in("MicroStrategy bought more bitcoin this week", ["So micro strategy bought more bitcoin this week,
++  again."])` is False (the model's clean-up of the transcript's words; same spoken words).
++- Proposed (a decision: it changes what the quote check accepts): compare the quote's canonical token run with the
++  text's with the spaces between ALPHABETIC tokens removed on both sides, accepted only when the protected tokens of
++  R-05 (numbers, signs, units, negations, names) still match one for one. NOT a CamelCase split in canon.fold: that
++  would make 'MicroStrategy' read 'micro strategy' while 'MICROSTRATEGY' stays one word, breaking the all-caps surface
++  variants test_f1 requires to be equal (audit A, frontier review #3), and it misses 'Microstrategy'.
++
++## R-20 — GPT-gates F28: G8 accepts one sample as if all five were measured
++- Defect: a segment claiming 10 s on a 2.5 s final: one of five frames extracted (out and source), medians of one
++  value, PASS.
++- Minimal fix: `ok = False` (reason "partial samples") when `len(out_variances) < 5` or, with a source,
++  `len(src_variances) < 5`.
++
++## R-21 — GPT-gates F10 / Claude-gates C1: a failed extraction measures an earlier render's frame
++- Defect: `extract_frame` writes to a fixed name and never removes an existing file; when ffmpeg writes nothing (a
++  sample time past the end), `gate_g8` reads the frame an EARLIER render left at that name. Measured: a black current
++  final (one real sample) passes G8 on four sharp frames of the previous render.
++- Minimal fix: `extract_frame` / `extract_audio_region` delete `out_png` / `out_wav` before running ffmpeg (as
++  `verify_pack._frame` already does) and return False when ffmpeg failed.
++
++## R-22 — GPT-select F23: a failed yt-dlp leaves a leftover file accepted as the download
++- Defect: `sources/<vid>.mp4` holds a 10-100 KB partial file (too small for a cache hit); yt-dlp runs, exits 1, writes
++  nothing; `_download_window` sees `getsize > 10_000` and returns the leftover; SELECT succeeds with it.
++- Minimal fix: check `returncode`; download to `<out>.part.mp4` and `os.replace` it on success only; remove a leftover
++  below the cache size before the request; a failed request returns `(None, 0)`.
++
++## R-23 — GPT-select F08: SELECT reports success with one clip or one channel
++- Defect: `select_and_build_edl` returns True with a hook and ONE clip, and with hook and clip from the same channel.
++- Minimal fix (the D contract: hook + >= 2 clips + the required channels): after filling, `return False` unless
++  `len(clip_segs) >= 2` and the hook + clips span >= 2 distinct channels (R5).
++
++## Not code requests: measured facts and decisions for the orchestrator
++
++### PP-04 — law L-b on the recorded EDLs of both references (measured; references frozen, nothing adjusted)
++Measured with `sentence_law.edge_word_bounds` (the acoustic word extent `edge_fades` itself uses) on each source around
++its cut, against the fade recorded in `cuts_final.json` (tests/fixtures/adversarial/reference_lb_edges.json, pinned
++by test_f5). Overlap = how far the recorded fade reaches into the edge word (> 0 = it overlaps):
++
++| reference | clip | IN overlap ms | OUT overlap ms | recorded disposition |
++|---|---|---|---|---|
++| preview | hook | -30 | **+20** | none |
++| preview | clip_01 (Natalie Brunell) | -100 | **+73** (83 ms fade) | L-b must-fail (E-FAIL-032) |
++| preview | clip_02 (Yahoo Finance) | **+53** (83 ms fade into 'Of') | **+20** | none |
++| preview | clip_03 (Bitcoin Magazine) | **+10** | -160 | none |
++| v2f | hook | -10 | -10 | passes G17c |
++| v2f | clip_01 | -20 | **+20** | G17c legacy FAIL (recorded) |
++| v2f | clip_02 | -130 | **+10** | passes G17c |
++| v2f | clip_03 | **+10** | **+20** | IN: G17c legacy FAIL (recorded); OUT passes G17c |
++
++Two things for a decision: (1) the protected preview carries four more fades that overlap an edge word by the law's
++own measure (hook OUT, clip_02 IN / OUT, clip_03 IN) besides the documented Natalie tail; (2) G17c (the law's check)
++passes v2f clip_02 OUT (+10 ms) and clip_03 OUT (+20 ms) while failing clip_03 IN (+10 ms): its best alignment within
+++-2 hops can slide a fade that covers up to 20 ms of a decay out of the comparison. Whether L-b is decided by the
++word-bounds geometry or by G17c's 1 dB comparison is not mine to choose; no test is xfailed on it.
++
++### G8 9:16 on the approved reference — SETTLED by measurement (Claude-gates #5 / A4 / A5, E-FAIL-042)
++Measured 2026-11-12 on the saved v2f files through `qa_gates.gate_g8` (frames to a scratch dir, reference read-only):
++
++| format | wiring | hook | clip_01 | clip_02 | clip_03 | verdict |
++|---|---|---|---|---|---|---|
++| 16:9 (floor 27.56) | production (prepared clips) | 27.56 / 27.22 (1.012) | 171.87 / 178.45 (0.963) | 265.74 / 268.40 (0.990) | 89.39 / 91.18 (0.980) | PASS |
++| 16:9 | no sources (Law 22 harness) | 27.56 / 0 | 171.87 / 0 | 265.74 / 0 | 89.39 / 0 | FAIL (no_source x4) |
++| 9:16 (floor 10.84) | production (qa/vert_<clip>) | 19.10 / 18.07 (1.057) | 50.34 / 49.54 (1.016) | 26.25 / 25.29 (1.038) | **10.84** / 10.04 (1.080) | PASS |
++| 9:16 | no sources (Law 22 harness) | 19.10 / 0 | 50.34 / 0 | 26.25 / 0 | 10.84 / 0 | FAIL (no_source x4) |
++
++(out median / source median (ratio)). The approved reference does NOT fail 9:16 G8 through the production wiring; it
++passes with zero margin on clip_03 (10.84 = the calibrated floor, Claude-gates A5). The recorded FAIL is G8 called
++without source clips (the harness), which fails closed by design. Pinned: test_f5
++test_g8_9x16_v2f_passes_through_the_production_wiring_at_its_floor and test_g8_9x16_v2f_fails_without_sources_the_harness_reading.
