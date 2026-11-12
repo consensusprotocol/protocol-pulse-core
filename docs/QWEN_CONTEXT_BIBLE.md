@@ -253,7 +253,7 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 
 ### E-FAIL-053: A module forced CUDA_VISIBLE_DEVICES=0 at import, putting a CPU test session on GPU0 without the lease
 **Evidence:** 2026-11-12 02:28 ET, law L-r's live tests: the GPU0 swap refused 'GPU0 memory is held by a process that is not this run's: pid 2592808 python3 394 MiB'; pid 2592808 was the CPU-only test session (CUDA_VISIBLE_DEVICES='' at start, 20 nvidia device descriptors open). pipeline/render16.py:24 set os.environ['CUDA_VISIBLE_DEVICES'] = '0' on import, overriding the explicit CPU request for the rest of the process, so a later CUDA initialisation in that session landed on GPU0. (An early cuInit with no device is not sticky: measured, a second cuInit after the variable changes succeeds.)
-**Fix:** render16 keeps an explicit CPU request ('' or '-1') and forces GPU0 otherwise; pipeline/conftest.py stops a CPU session at once, naming the module, when its own process holds a CUDA context on GPU0 after any test module.
+**Fix:** render16 keeps an explicit CPU request ('' or '-1') and forces GPU0 otherwise (the same unguarded line was then found in render_vertical.py:25 and segment_v1/qa_gates.py:22 and guarded the same way, follow-up 2); pipeline/conftest.py stops a CPU session at once, naming the module, when its own process holds a CUDA context on GPU0 after any test module.
 **Detection:** pipeline/conftest.py pytest_runtest_teardown; pipeline/test_gpu0_live.py (the foreign-process refusal is what caught it).
 
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.

@@ -564,6 +564,67 @@ class TestNoDirectLoaders(unittest.TestCase):
         fn = src[src.index("def prerender_clips(run_dir, table):"):]
         self.assertLess(fn.index('gpu0.swap_to("nvenc")'), fn.index("_prerender_isolated(run_dir, table)"))
 
+    def test_no_module_forces_gpu0_over_an_explicit_cpu_request(self):
+        """E-FAIL-053 (render16, then render_vertical and qa_gates) by AST over the code a run imports: every write of
+        CUDA_VISIBLE_DEVICES is `os.environ["CUDA_VISIBLE_DEVICES"] = "0"` directly under
+        `if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("", "-1"):`; any other write form (augmented, del, setdefault,
+        update, pop, putenv) is refused; and the three known sites must be found (no vacuous pass)."""
+        import ast
+        KEY = "CUDA_VISIBLE_DEVICES"
+
+        def is_key_sub(n):
+            return (isinstance(n, ast.Subscript) and isinstance(n.value, ast.Attribute) and n.value.attr == "environ"
+                    and isinstance(n.slice, ast.Constant) and n.slice.value == KEY)
+
+        def is_guard(n):
+            t = n.test if isinstance(n, ast.If) else None
+            return (isinstance(t, ast.Compare) and len(t.ops) == 1 and isinstance(t.ops[0], ast.NotIn)
+                    and isinstance(t.left, ast.Call) and isinstance(t.left.func, ast.Attribute)
+                    and t.left.func.attr == "get" and t.left.args and isinstance(t.left.args[0], ast.Constant)
+                    and t.left.args[0].value == KEY and isinstance(t.comparators[0], ast.Tuple)
+                    and [getattr(e, "value", None) for e in t.comparators[0].elts] == ["", "-1"])
+        bad, guarded = [], []
+        for f in self.FILES:
+            with open(f, encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
+            parents = {}
+            for node in ast.walk(tree):
+                for ch in ast.iter_child_nodes(node):
+                    parents[ch] = node
+            rel = os.path.relpath(f, os.path.dirname(PIPELINE))
+            for n in ast.walk(tree):
+                if isinstance(n, ast.Assign) and any(is_key_sub(t) for t in n.targets):
+                    par = parents.get(n)
+                    ok = (is_guard(par) and n in par.body and isinstance(n.value, ast.Constant) and n.value.value == "0"
+                          and len(n.targets) == 1)
+                    (guarded if ok else bad).append(f"{rel}:{n.lineno}")
+                elif isinstance(n, ast.AugAssign) and is_key_sub(n.target):
+                    bad.append(f"{rel}:{n.lineno} augmented")
+                elif isinstance(n, ast.Delete) and any(is_key_sub(t) for t in n.targets):
+                    bad.append(f"{rel}:{n.lineno} del")
+                elif (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                      and n.func.attr in ("setdefault", "update", "pop", "putenv", "unsetenv")
+                      and any(isinstance(a, ast.Constant) and a.value == KEY for a in n.args)):
+                    bad.append(f"{rel}:{n.lineno} {n.func.attr}")
+        self.assertEqual(bad, [])
+        self.assertEqual(sorted(x.split(":")[0] for x in guarded),
+                         ["pipeline/render16.py", "pipeline/render_vertical.py", "segment_v1/qa_gates.py"])
+
+    def test_an_explicit_cpu_request_survives_the_import(self):
+        """Behaviour, not text: import each of the three modules in a fresh process and read the variable back."""
+        root = os.path.dirname(PIPELINE)
+        code = ("import os, sys; sys.path.insert(0, %r); sys.path.insert(0, %r); import {m}; "
+                "print(repr(os.environ.get('CUDA_VISIBLE_DEVICES')))") % (PIPELINE, os.path.join(root, "segment_v1"))
+        for m in ("render16", "render_vertical", "qa_gates"):
+            for given, want in (("", "''"), ("-1", "'-1'"), (None, "'0'"), ("1", "'0'"), ("0,1", "'0'")):
+                env = {k: v for k, v in os.environ.items() if k != "CUDA_VISIBLE_DEVICES"}
+                if given is not None:
+                    env["CUDA_VISIBLE_DEVICES"] = given
+                r = subprocess.run([sys.executable, "-c", code.format(m=m)], capture_output=True, text=True,
+                                   timeout=120, env=env, cwd=PIPELINE)
+                with self.subTest(module=m, given=given):
+                    self.assertEqual(r.stdout.strip().splitlines()[-1:], [want], r.stderr[-500:])
+
     def test_the_gpu0_ollama_is_called_only_through_gpu0(self):
         """AST: a string naming the Ollama generate / chat endpoints appears only in LocalLLM._post (chat, after
         swap_to), story_semantics._unload (keep_alive 0) and preflight.check_ollama (after swap_to)."""

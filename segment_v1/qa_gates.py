@@ -19,7 +19,8 @@ Exit non-zero on any FAIL. Writes GATE_FAIL.txt on failure.
 import json, os, re, subprocess, sys, math, struct, wave, time
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("", "-1"):   # L-r (E-FAIL-053): an explicit CPU request stays CPU;
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"                    # otherwise GPU0 only (GPU1 is quarantined)
 
 BASE = "/home/ultron/protocol_pulse/segment_v1"
 VO_DIR = os.path.join(BASE, "vo_audio")
