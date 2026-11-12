@@ -53,7 +53,7 @@ Rules the packager applies on reading; the ingest session may pre-apply them, ne
 ## LIVE STATE (newest first; ET; times corrected 01:46 from file times: four entries had been stamped
 ## from an elapsed-time estimate, 30-110 min late)
 
-- 02:52 Nov 12 PHASE 1 COMPLETE, COMMITTING. Audit cycle 2 dispositions: pp-selectid_audit/C2_DISPOSITIONS.md (23
+- 02:53 Nov 12 PHASE 1 DONE: d809a1f8, pushed. Was: COMPLETE, COMMITTING. Audit cycle 2 dispositions: pp-selectid_audit/C2_DISPOSITIONS.md (23
   fixes implemented, each with a test that fails on the pre-fix code; 6 refuted with evidence; 8 limits for PBX or the
   integrator). Checks: 123 tests passed (10 GPU-skipped), SMOKE PASS, regression_test.sh 26 PASS / 0 FAIL.
   - Proof column of record: judge at temperature 0, production parity. The proof table is below; the per-defect
@@ -220,7 +220,13 @@ Stand-in spend estimate, all proof runs of this session: $23.3678 over 437 calls
 
 ## DONE (commit hashes)
 
-- (none yet)
+- PHASE 1 DONE: d809a1f8 (pushed to origin/pp-selectid 02:53 ET Nov 12). Contents:
+  - pipeline/eligibility.py and pipeline/select_by_id.py, with tests (23 + 29 + 27 cases);
+  - the design doc docs/audits/SELECT_BY_ID_DESIGN.md;
+  - the exact wiring patch, REQUESTS R1, `git apply --check` clean on c1451047, SMOKE PASS;
+  - the proof table (above) with per-defect answers (pp-selectid_PROOF.md);
+  - audit cycles 1 and 2, recorded in pp-selectid_audit/.
+  The 3 Nov 6-7 rows of the column of record follow in a later commit, and do not change any answer above.
 
 ## BLOCKED
 
