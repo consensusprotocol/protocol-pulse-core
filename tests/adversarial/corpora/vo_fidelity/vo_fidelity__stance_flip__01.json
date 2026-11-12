@@ -1,0 +1,91 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__stance_flip__01",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "stance_flip",
+  "why": "The clip says Bitcoin 'imposes a global free market'.",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Natalie Brunell",
+   "Swan Bitcoin"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "wdk5JZ9hPzs",
+   "channel": "Natalie Brunell",
+   "speaker": null,
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "sentences": [
+    {
+     "k": 715,
+     "text": "Bitcoin imposes a global free market for the first time ever.",
+     "start": 3218.14,
+     "end": 3221.64
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+    "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+    "k": [
+     715,
+     715
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "w4h9HfP7Gb0",
+   "channel": "Swan Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "sentences": [
+    {
+     "k": 11,
+     "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+     "start": 61.8,
+     "end": 66.5
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+    "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+    "k": [
+     11,
+     11
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices.",
+   "cites": []
+  },
+  {
+   "slot": "bridge",
+   "text": "On Natalie Brunell's show: Bitcoin cannot impose a free market.",
+   "cites": [
+    "A"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check for November 12.",
+   "cites": []
+  }
+ ]
+}

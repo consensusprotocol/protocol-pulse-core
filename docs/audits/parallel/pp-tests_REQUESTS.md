@@ -230,6 +230,38 @@ qa_gates functions either way.
 - Minimal fix (the D contract: hook + >= 2 clips + the required channels): after filling, `return False` unless
   `len(clip_segs) >= 2` and the hook + clips span >= 2 distinct channels (R5).
 
+## R-24 — phase 2 exam (for pp-selectid, context_integrity.py): a correction 74 s after the clip
+- Defect (a design gap, measured on real material; not yet a test failure because the gate is not merged):
+  `context_integrity.window` reads `CONTEXT_AFTER_S = 60.0` after the moment. Yahoo Finance F6YuzU0C8ho says the
+  summit is 'next month, I believe' (k123, ends 439.3 s) and corrects it at 513.3 s ('Also, I misspoke. The Shenzhen
+  summit is next week.', k155-156): 74 s later, outside the window, so Step A cannot see the retraction.
+- Minimal fix: besides the window, Step A also receives every sentence of the record that matches an explicit
+  correction cue ('misspoke', 'I should say', 'sorry, it was', 'let me correct', 'actually, no', 'I take that back')
+  within the same speaker turn region, or the after-window grows to the next correction cue within 180 s. The exam's
+  case context_integrity__later_retraction__01 carries an 80 s after-window (marked in the case); a gate that
+  re-derives its own 60 s window from the record fails it today.
+
+## R-25 — phase 2 exam (for pp-selectid, context_integrity.py / eligibility): 'no speaker label' is not 'one speaker'
+- Defect (design gap): Whisper records carry no speaker turns; manual captions do ('>>' and 'NAME:'). L-v (1) forbids a
+  moment that spans a speaker change, and Step A must say who is speaking; on a Whisper record both are unknown, and
+  an interviewer's framing reads as the guest's (Kai-Fu Lee 4cfjpf_IDwU k174: the interviewer's 'There is a fear
+  amongst politicians and actually Europe is just late to the game ...' sits between Lee's own answers).
+- Minimal fix: a moment from a record without turn information carries speaker = UNKNOWN into Step A, and Step A must
+  return 'uncertain' (a FAIL under L-s) when it cannot attribute the selected words from the window alone; when a
+  manual-caption record exists for the same video, its '>>' / 'NAME:' turns are used to label the Whisper sentences
+  by time overlap. The exam's cases carry the caption turns (`window.sentences[].turn`) where the record has them.
+
+## R-26 — phase 2 exam (for the orchestrator and pp-selectid): a temporal held-out slice
+- Gap: every case and its answer is readable by the builder (same user, one machine; the published format puts
+  `expected` in each case), so a gate can be tuned on the exam itself.
+- Protocol (the frontier verification round's proposal, accepted): when pp-selectid freezes its gates it records the
+  commit sha in its STATE; pp-tests then mines a FRESH slice (>= 15 context_integrity, >= 8 vo_fidelity, >= 6
+  exclusions) from store material the corpus does not use, in the same format, and runs the frozen gates on it; the
+  slice is reported apart, with the gate sha, and only then added to the corpus.
+- Question for the orchestrator (from the exam's audit): does L-u's 'buy / sell / leverage imperatives' cover a
+  sarcastic imperative ('Sell your Bitcoin, all of it', BTC Sessions jTuJ8PXhRV4 k179-180, mocking central bankers)?
+  Two of three frontier models said no (intent), one said yes (form). The case is out of the exam until decided.
+
 ## Not code requests: measured facts and decisions for the orchestrator
 
 ### PP-04 — law L-b on the recorded EDLs of both references (measured; references frozen, nothing adjusted)

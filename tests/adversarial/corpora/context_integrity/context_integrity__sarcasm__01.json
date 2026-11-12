@@ -1,0 +1,399 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__sarcasm__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/NMhilOtqU98/transcript.whisper.json",
+  "record_sha256": "12b62fba98af6f19fbfc773aa6de5ccba98632d3172261fbcd1316670a95c0b8",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "genius|golden goose",
+  "mined": "2026-11-12",
+  "selected_k": [
+   474,
+   474
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "sarcasm",
+  "why": "Mocking a venture firm's plan ('his idea is', k472; 'their sort of genius evaluation ... a golden goose', k473); the next lines turn to its defaults (k476)."
+ },
+ "source": {
+  "video_id": "NMhilOtqU98",
+  "channel": "BTC Sessions",
+  "title": "Banking Collapse LOCKS OUT Half A Country And Wall Street Loses $3 Trillion",
+  "description": "🔴 LIVE – Banking Collapse LOCKS OUT Half A Country And Wall Street Loses $3 Trillion\n\nParaguay's president has resigned after a bank collapse locked millions of people out of their own savings. In the US, Wall Street just shed $3 trillion, and two hedge funds, Walleye Capital and Engineers Gate, have collapsed after the tech sell-off.\n\nWe break down what happened, who is stuck holding the bag, and what it means for anyone keeping their savings inside the banking system.\n\n📌 Subscribe for weekly Bitcoin-only education and live commentary: https://www.youtube.com/@BTCSessions\n\n🐦 Follow on X for r",
+  "description_truncated": true,
+  "published_at": "2026-11-06T20:05:10+00:00",
+  "url": "https://www.youtube.com/watch?v=NMhilOtqU98"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 453,
+    "start": 1721.589,
+    "end": 1726.03,
+    "text": "With abundant mines, you own your machines and keep 100% of the Bitcoin you mine.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 454,
+    "start": 1726.03,
+    "end": 1728.776,
+    "text": "There's no revenue share, no hidden skims.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 455,
+    "start": 1728.842,
+    "end": 1730.019,
+    "text": "Pricing is simple.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 456,
+    "start": 1730.084,
+    "end": 1734.073,
+    "text": "One flat monthly fee covers power, parts, labor, and repairs.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 457,
+    "start": 1734.138,
+    "end": 1735.904,
+    "text": "They also guarantee uptime.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 458,
+    "start": 1735.969,
+    "end": 1743.816,
+    "text": "The machine goes down, their hash rate redirect system, routes hash power from their fleet, so earnings don't just stop.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 459,
+    "start": 1743.881,
+    "end": 1747.478,
+    "text": "And every machine is insured at full replacement value.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 460,
+    "start": 1747.543,
+    "end": 1755.39,
+    "text": "Everything is hosted in the U.S., powered by hydro, and mining equipment may qualify for 100% Year 1 bonus depreciation.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 461,
+    "start": 1755.39,
+    "end": 1759.127,
+    "text": "Learn more at abundant minds.com slash sessions.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 462,
+    "start": 1759.205,
+    "end": 1759.983,
+    "text": "All right.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 463,
+    "start": 1760.061,
+    "end": 1760.372,
+    "text": "God.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 464,
+    "start": 1760.45,
+    "end": 1768.936,
+    "text": "Before we get to the impeachment stuff, we got to go through this because I had not seen these things before.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 465,
+    "start": 1769.014,
+    "end": 1773.062,
+    "text": "I fucking said this on the show like six months ago.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 466,
+    "start": 1773.14,
+    "end": 1779.758,
+    "text": "This guy had this golden egg theory that he was pumping at his fucking meetings, man.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 467,
+    "start": 1779.835,
+    "end": 1780.225,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 468,
+    "start": 1780.302,
+    "end": 1780.692,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 469,
+    "start": 1780.77,
+    "end": 1782.716,
+    "text": "Tell me about this, Joey.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 470,
+    "start": 1782.794,
+    "end": 1784.74,
+    "text": "This whole thing is that.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 471,
+    "start": 1784.74,
+    "end": 1793.477,
+    "text": "Like, okay, so Masayoshi's son, obviously like big venture capitalist firm runs soft bank and they have this like whatever VC arm, let's say.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 472,
+    "start": 1793.539,
+    "end": 1796.948,
+    "text": "And his idea is that they are going to just spray bets.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 473,
+    "start": 1797.01,
+    "end": 1811.82,
+    "text": "And on the back of, you know, their sort of genius evaluation of these projects, this thing is going to wind up being a golden goose for them and lay, you know, a million golden eggs, quite literally, quite literally a million golden eggs.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 474,
+    "start": 1811.82,
+    "end": 1818.042,
+    "text": "And they're just going to hit it out of the park, even if a few of them land, it's going to be lucrative for investors.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 475,
+    "start": 1818.094,
+    "end": 1820.186,
+    "text": "It's going to be lucrative for the fund.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 476,
+    "start": 1820.238,
+    "end": 1827.349,
+    "text": "Obviously, you know, they've had some problems because they have defaulted on these like, you know, space data center turbines, I guess.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 477,
+    "start": 1827.401,
+    "end": 1829.806,
+    "text": "Is that the story from Elon the last few days?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 478,
+    "start": 1829.859,
+    "end": 1831.218,
+    "text": "But this is a, it's funny.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 479,
+    "start": 1831.27,
+    "end": 1837.702,
+    "text": "I don't know if this is an English or not, but it might be worth watching anyway, just for the vibe of the conference here.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 480,
+    "start": 1837.754,
+    "end": 1841.205,
+    "text": "Let's take a listen because I got to hear what this guy is to say.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 481,
+    "start": 1841.257,
+    "end": 1841.78,
+    "text": "It's good.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 482,
+    "start": 1841.78,
+    "end": 1855.715,
+    "text": "Absolute focus is to own specific areas that we identified AI, for example, and we have built our expertise in the last 40 years.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 30,
+    "k": 483,
+    "start": 1855.823,
+    "end": 1863.06,
+    "text": "So the value of golden X and the value of the goose should be seen.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 31,
+    "k": 484,
+    "start": 1863.06,
+    "end": 1864.897,
+    "text": "not only just buy egg value.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 32,
+    "k": 485,
+    "start": 1864.963,
+    "end": 1875.527,
+    "text": "Yeah, it's like a bad, it's like a bad PS2 game dub over like, you know, like I just, I look at this and I'm like, man, I'm telling you this is not a good thing.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 33,
+    "k": 486,
+    "start": 1875.592,
+    "end": 1879.201,
+    "text": "You do not want to be involved with this kind of stuff.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   21,
+   21
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "BTC Sessions: 'They're Just Going to Hit It Out of the Park'",
+  "caption": "Clips: Swan Bitcoin (2026-11-06); BTC Sessions (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Swan Bitcoin first.",
+   "bridges": [
+    "Next, BTC Sessions."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "AI can deliver on its promises and still cause huge losses for investors in the buildout.",
+    "start": 77.21,
+    "end": 81.67,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      13,
+      13
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "NMhilOtqU98",
+    "channel": "BTC Sessions",
+    "published_at": "2026-11-06T20:05:10+00:00",
+    "text": "And they're just going to hit it out of the park, even if a few of them land, it's going to be lucrative for investors.",
+    "start": 1811.82,
+    "end": 1818.042,
+    "provenance": {
+     "record": "transcripts/NMhilOtqU98/transcript.whisper.json",
+     "record_sha256": "12b62fba98af6f19fbfc773aa6de5ccba98632d3172261fbcd1316670a95c0b8",
+     "k": [
+      474,
+      474
+     ]
+    }
+   }
+  ]
+ }
+}

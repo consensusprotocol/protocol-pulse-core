@@ -1,0 +1,98 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__number_swapped__02",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "number_swapped",
+  "why": "The clip says 'between about 77 and 78K'.",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Coin Bureau",
+   "Swan Bitcoin"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "n17v727G7FI",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-05T11:10:49+00:00",
+   "sentences": [
+    {
+     "k": 27,
+     "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+     "start": 184.93,
+     "end": 198.36
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+    "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+    "k": [
+     27,
+     27
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "w4h9HfP7Gb0",
+   "channel": "Swan Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "sentences": [
+    {
+     "k": 13,
+     "text": "AI can deliver on its promises and still cause huge losses for investors in the buildout.",
+     "start": 77.21,
+     "end": 81.67
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+    "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+    "k": [
+     13,
+     13
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices.",
+   "cites": []
+  },
+  {
+   "slot": "bridge",
+   "text": "Coin Bureau: for most of November 3, Bitcoin traded calmly between about 77 and 79K.",
+   "cites": [
+    "A"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Next, Swan Bitcoin.",
+   "cites": [
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check for November 12.",
+   "cites": []
+  }
+ ]
+}

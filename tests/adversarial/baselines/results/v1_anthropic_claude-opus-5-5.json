@@ -1,0 +1,1635 @@
+{
+ "gate_module": "baselines.frontier_blind",
+ "gate_identity": {
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "price": [
+   4.0,
+   20.0
+  ],
+  "effort": "medium"
+ },
+ "absent_reason": null,
+ "network": true,
+ "started_at": "2026-11-12T04:14:24-0500",
+ "seed": 3324088200,
+ "corpora": {
+  "context_integrity": {
+   "table": {
+    "per_class": {
+     "clean_assertion": {
+      "expected": "pass",
+      "n": 13,
+      "rejected": 0,
+      "accepted": 13,
+      "error": 0,
+      "absent": 0
+     },
+     "wrong_speaker": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "title_adds_thesis": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "steelman": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "conditional_split": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "some_people_say": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "reading_aloud": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "clean_conjunction_opener": {
+      "expected": "pass",
+      "n": 9,
+      "rejected": 2,
+      "accepted": 7,
+      "error": 0,
+      "absent": 0
+     },
+     "false_dialogue": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "hypothetical": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "stale_time_reference": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "unresolved_referent": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "sarcasm": {
+      "expected": "fail",
+      "n": 4,
+      "rejected": 4,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "later_retraction": {
+      "expected": "fail",
+      "n": 2,
+      "rejected": 2,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "answer_without_question": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "quoting_opponent": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 42,
+     "rejected": 42,
+     "missed": 0,
+     "must_accept": 22,
+     "accepted": 20,
+     "false_rejects": 2,
+     "false_reject_rate": 0.0909,
+     "errors": 0,
+     "absent": 0,
+     "ok": true
+    }
+   },
+   "rows": [
+    {
+     "id": "context_integrity__clean_assertion__04",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is Guy's own factual statement with an explicit date, and nothing in the window qualifies or retracts it. The title restates it accurately with the right attribution, and the neutral 'From Swan Bitcoin:' bridge implies no reply or agreement between the two videos.",
+     "seconds": 10.778
+    },
+    {
+     "id": "context_integrity__wrong_speaker__01",
+     "class": "wrong_speaker",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The MOMENT is an interviewer's question paraphrasing Wilson ('So you're saying...'), not Wilson's own assertion, and Wilson immediately answers 'Maybe. Or maybe...' with a different explanation. The title nonetheless presents the 'governor' claim as Wilson's thesis, which misattributes the speaker and overstates his certainty.",
+     "seconds": 9.723
+    },
+    {
+     "id": "context_integrity__wrong_speaker__02",
+     "class": "wrong_speaker",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The MOMENT is the interviewer describing politicians' fears as a lead-in to the question 'So you're telling me that it's not too late?', not Kai-Fu Lee's own assertion. Lee immediately pushes back ('these models aren't going to be that big shiny'), yet the title attributes 'Europe Is Just Late to the Game' to him, reversing his meaning and naming the wrong speaker.",
+     "seconds": 9.424
+    },
+    {
+     "id": "context_integrity__title_adds_thesis__01",
+     "class": "title_adds_thesis",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The title attributes a prediction ('Bitcoin Will Fall Below 70K Next') to Coin Bureau that no clip states. In the source window the speaker actually says the selling 'seemed to run out of road', with Bitcoin holding around 75K, so the package adds a thesis and misstates the speaker's view.",
+     "seconds": 9.501
+    },
+    {
+     "id": "context_integrity__steelman__02",
+     "class": "steelman",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In the window the guest, not Scott Melker (who asks the question), only floats 'you could argue it's a political statement' and then rejects it: 'I think it's just simple... it's a new thing... I don't think it's nothing more than that.' The title presents a dismissed hypothetical as Melker's own claim, which gets the speaker wrong and reverses the meaning.",
+     "seconds": 9.71
+    },
+    {
+     "id": "context_integrity__conditional_split__02",
+     "class": "conditional_split",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In context, 'it' means tokenized stocks becoming the main way things trade, and the claim depends on an 'if' about the DTCC tokenizing stocks in the next two years. The clip leaves both the referent and the condition out, and the package, by pairing it with a clip about Bitcoin as sound money, implies that Bitcoin is what can't be stopped.",
+     "seconds": 9.866
+    },
+    {
+     "id": "context_integrity__some_people_say__03",
+     "class": "some_people_say",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In the clip Mark Moss is describing what other people believe ('most people still think it's a scam') in order to argue that Bitcoin is the 'best buying opportunity ever.' The title 'CoinTelegraph: 'It's a Scam'' turns this into the channel's own assertion, which reverses the polarity and names the wrong speaker.",
+     "seconds": 3.631
+    },
+    {
+     "id": "context_integrity__reading_aloud__02",
+     "class": "reading_aloud",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The MOMENT is the host reading aloud an X post by an economist at insurer Allianz ('He wrote on X, ...'), not the speaker's own assertion. The title also misattributes the words to Bitcoin Magazine.",
+     "seconds": 6.308
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__04",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Mark Valek sincerely states his own hedged view (\"I think\"), and nothing in the window retracts or conditions it. The title keeps the hedge, \"now\" refers to a broad market phase with the clip dated in the caption, and the unrelated Swan Bitcoin clip is bridged neutrally without implying any exchange between speakers.",
+     "seconds": 7.48
+    },
+    {
+     "id": "context_integrity__false_dialogue__02",
+     "class": "false_dialogue",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In context Oakley is saying he wouldn't buy big tech names like Google and Microsoft after the post-vote bounce, but the clip never resolves 'them' or 'any of them'. The 'Not everyone is convinced' bridge after the CoinTelegraph Bitcoin clip recasts his remark as skepticism about Bitcoin and as a rebuttal to a speaker from another video.",
+     "seconds": 3.762
+    },
+    {
+     "id": "context_integrity__hypothetical__03",
+     "class": "hypothetical",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is the conclusion of a hypothetical ('Let's say I can turn that oil well on and off with like a day's notice. Well, in that case...'), so the condition that governs it and the referent of 'that case' sit outside the clip. Placing it right after a Bitcoin price-drop clip, with a quote title, falsely presents it as a sincere claim about adapting to Bitcoin volatility and implies a link between the two videos.",
+     "seconds": 7.46
+    },
+    {
+     "id": "context_integrity__clean_assertion__06",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The line is the host's own conclusion, drawn from the Saylor-cited examples just before it, and nothing later in the window retracts or conditions it. The package attributes it to Simply Bitcoin, adds no time word, implies no relation to the Swan Bitcoin AI clip, and the title only restates the clip.",
+     "seconds": 6.106
+    },
+    {
+     "id": "context_integrity__false_dialogue__01",
+     "class": "false_dialogue",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "Placed right after Melker's \"Doomers are usually wrong, guys,\" Oakley's \"No, you can't. They all go down\" plays as a rebuttal between speakers of different videos. The clip also leaves \"you can't\" (hide in one industry) unresolved and drops the governing condition (if the market comes down in 2027).",
+     "seconds": 5.082
+    },
+    {
+     "id": "context_integrity__stale_time_reference__02",
+     "class": "stale_time_reference",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip is Charlie Pellett's own sincere market recap, but it was published 2026-11-06 and the show date is 2026-11-12. The title 'Bitcoin Just Below $76,000, Up Today' and the undated VO bridge present that six-day-old 'today' price as current.",
+     "seconds": 4.865
+    },
+    {
+     "id": "context_integrity__unresolved_referent__02",
+     "class": "unresolved_referent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In context, 'it' means paying with Bitcoin through KYC-gated checkouts like X Premium's, but neither the clip nor the package resolves that. Placed right after Brunell's 'Bitcoin imposes a global free market,' the line reads as Bitcoin itself being pointless and as a rebuttal between the two speakers, which distorts his meaning and implies a dialogue that doesn't exist.",
+     "seconds": 4.385
+    },
+    {
+     "id": "context_integrity__steelman__03",
+     "class": "steelman",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In the clip Taylor is describing Big Tech's counterargument ('the counterargument in Big Tech is...') and then says she sees the other side, so it is not her own sincere assertion. The title presents that paraphrased position as Fox Business's own claim.",
+     "seconds": 2.093
+    },
+    {
+     "id": "context_integrity__title_adds_thesis__03",
+     "class": "title_adds_thesis",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip is Cory Klippsten's sincere point that AI can succeed and still cause losses for buildout investors, which is a possibility, not a prediction. The title 'The AI Bubble Is About to Pop' attributes to Swan Bitcoin a stronger, imminent thesis that no clip states.",
+     "seconds": 3.158
+    },
+    {
+     "id": "context_integrity__clean_assertion__01",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The founder sincerely asserts that AI can deliver and still cause investor losses, and the following lines elaborate the claim with historical parallels rather than retracting it. The title repeats the claim with correct attribution, there is no time word, and the neutral bridge to Simply Bitcoin implies no relation between the speakers.",
+     "seconds": 3.018
+    },
+    {
+     "id": "context_integrity__sarcasm__04",
+     "class": "sarcasm",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip is Lepard mockingly voicing the complacent 'it's all under control' crowd. He says right afterward, 'I don't believe it. None of us believe it,' so 'sell your Bitcoin, all of it' is not his sincere assertion. The title presents it as a straight take, which reverses his meaning.",
+     "seconds": 2.566
+    },
+    {
+     "id": "context_integrity__later_retraction__02",
+     "class": "later_retraction",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "Cramer immediately retracts the clipped line with \"Actually, no, it doesn't happen. This is incredible,\" so the title and clip present a resigned \"It happens\" that he reversed in the next breath. \"This one\" is also never resolved for the viewer (the source context points to Nvidia), and pairing it with Swan Bitcoin's AI-losses clip implies a link that no clip states.",
+     "seconds": 3.738
+    },
+    {
+     "id": "context_integrity__reading_aloud__01",
+     "class": "reading_aloud",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The MOMENT is the host reading aloud a tweet from 'Dumerified' ('This is a tweet from Dumerified'), and the Community Note he then reads, which he endorses ('Spoiler alert, it's neither'), says no outflows from Satoshi-attributed wallets have occurred since 2010. The title and package present the claim as BTC Sessions' own assertion, which reverses the speaker's meaning in context.",
+     "seconds": 2.282
+    },
+    {
+     "id": "context_integrity__clean_assertion__08",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "In context, the guest (apparently Jeff Booth) sincerely concludes his own free-market argument with this line, and nothing in the window qualifies or retracts it. The package credits it to Natalie Brunell's show rather than to her personally, adds no thesis beyond the quote, and only neutrally juxtaposes the Swan clip without implying any reply or rebuttal.",
+     "seconds": 8.092
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__03",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "uncertain",
+     "why": "The moment directly follows 'Jameson Lopp posted about exactly that this week. Red team, then blue team\u2026', so it may be the host continuing a paraphrase of Lopp's post rather than his own assertion. The window gives no clear marker of where the paraphrase ends, so the speaker's own sincere assertion cannot be verified.",
+     "seconds": 6.027
+    },
+    {
+     "id": "context_integrity__sarcasm__01",
+     "class": "sarcasm",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The host is paraphrasing, with mockery, Masayoshi Son's 'golden goose' theory, which he goes on to call 'not a good thing' and 'AI slop'. The title and package present the line as BTC Sessions' own bullish view, which reverses its polarity, and placing it after the Swan clip implies a rebuttal that neither video makes.",
+     "seconds": 3.228
+    },
+    {
+     "id": "context_integrity__steelman__01",
+     "class": "steelman",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In context Jeff Booth is voicing a critic's view of himself ('you could argue on my side, he's delusional'), not his own sincere assertion. The package also presents the line as a flat claim and the VO bridge ('Also on the record, Natalie Brunell:') credits it to the host rather than Booth.",
+     "seconds": 3.065
+    },
+    {
+     "id": "context_integrity__clean_assertion__13",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Mark Moss sincerely gives his own answer to the interviewer's devil's-advocate question: the 'decentralized and secure' condition sits inside the clip, nothing later retracts it, and the title keeps his hedged 'I don't think' wording. The neutral VO bridge implies no relation to the Simply Bitcoin clip, and there is no time word to misdate.",
+     "seconds": 10.164
+    },
+    {
+     "id": "context_integrity__hypothetical__02",
+     "class": "hypothetical",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip is part of a hypothetical worked example ('So imagine an exchange that owes its customers 100,000 Bitcoin'), not a factual assertion. 'It' and 'its wallets' refer to that imaginary exchange, yet the title presents the line as if a real accountant had confirmed real holdings.",
+     "seconds": 2.62
+    },
+    {
+     "id": "context_integrity__clean_assertion__03",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Cory Klippsten sincerely gives this as his own explanation of the selloff, with no quotation, hypothetical or retraction in the window, and the clip has no unresolved referents or time words. The title restates the clip without adding certainty, and the neutral 'First\u2026 Now\u2026' VO implies no link to the Natalie Brunell clip.",
+     "seconds": 4.589
+    },
+    {
+     "id": "context_integrity__unresolved_referent__03",
+     "class": "unresolved_referent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The referent 'It' means the cause of the Rust Belt's decline in the 1960s to 80s, which is resolved only in the window and never in the clip or package. Placed right after the Coin Bureau clip about Bitcoin selling starting on 3 November, the package makes 'massive over-regulation' read as an explanation of that sell-off, implying a cross-video relation the speaker never made.",
+     "seconds": 3.341
+    },
+    {
+     "id": "context_integrity__some_people_say__01",
+     "class": "some_people_say",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In the clip Oakley is voicing what other people say ('People will say, well, I can hide in this industry'), and he rejects it at once with 'No, you can't. They all go down.' The title presents that rejected claim as Kitco's or Oakley's own view, which reverses his meaning.",
+     "seconds": 2.432
+    },
+    {
+     "id": "context_integrity__answer_without_question__03",
+     "class": "answer_without_question",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "Scaramucci's line is a hyperbolic, half-joking answer to 'what would make you walk away from Bitcoin?' (paired with 'the aliens eventually land'), meaning nothing realistic could. The package cuts the question and the punchline, so the title and clip read as a sincere claim that 'we lose electricity', changing its meaning and leaving the condition outside the clip.",
+     "seconds": 3.925
+    },
+    {
+     "id": "context_integrity__quoting_opponent__02",
+     "class": "quoting_opponent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The line is a tweet read aloud on the show, attributed to Matt Cratter, and the hosts quote it to mock it ('Where were those lawsuits?'). It is not the speaker's own sincere assertion, yet the title presents it as BTC Sessions' own claim, which reverses its meaning in context.",
+     "seconds": 2.906
+    },
+    {
+     "id": "context_integrity__some_people_say__02",
+     "class": "some_people_say",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip reports what other people will say about JD Vance, and Short immediately rejects it with \"I think that's way premature.\" The title \"'He's Done'\" reverses his meaning, and the unresolved \"he\" leaves viewers unable to tell who is meant.",
+     "seconds": 3.185
+    },
+    {
+     "id": "context_integrity__stale_time_reference__03",
+     "class": "stale_time_reference",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "Mark Moss's own claim ties 'today' and 'year to date' to the recording date (the day after the midterms, before the 2026-11-06 publish), but the title presents it as current on the 2026-11-12 show date. The title also credits the claim to 'CoinTelegraph' rather than the guest who said it.",
+     "seconds": 3.784
+    },
+    {
+     "id": "context_integrity__clean_assertion__09",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is Bitcoin Mechanic's own sincere conclusion that protocol capture works by changing user behavior. It contains no unresolved referents, time words or retraction, the title quotes it verbatim with the right speaker, and the neutral 'Also on the record' bridge implies no reply or rebuttal with Natalie Brunell's clip.",
+     "seconds": 4.501
+    },
+    {
+     "id": "context_integrity__quoting_opponent__03",
+     "class": "quoting_opponent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is the speaker paraphrasing what figureheads like Justin Trudeau say ('Those people will be like, Bitcoin's bad. It's for criminals and money launderers'), which he immediately rebuts by saying everyone above them is the real criminal. The title presents it as Bitcoin Mechanic's own claim, and placing it right after the TFTC sound-money clip suggests a rebuttal between the two videos.",
+     "seconds": 2.312
+    },
+    {
+     "id": "context_integrity__stale_time_reference__01",
+     "class": "stale_time_reference",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "Sean Hagan said Bitcoin was 'looking incredibly strong right now' on the Nov. 3 broadcast (published 2026-11-04), but the title presents that 'right now' as current on a show dated 2026-11-12. He also immediately qualified the claim, noting the price had yet to properly test its 50-week moving average.",
+     "seconds": 4.015
+    },
+    {
+     "id": "context_integrity__reading_aloud__03",
+     "class": "reading_aloud",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip is the opening line of a Square advertisement read during an ad break (it is followed by 'Head to squareup.com slash Bitcoin'), not a sincere assertion by Bitcoin Magazine's hosts. The title and VO present this ad copy as Bitcoin Magazine's own claim.",
+     "seconds": 2.78
+    },
+    {
+     "id": "context_integrity__false_dialogue__03",
+     "class": "false_dialogue",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In context, 'Bitcoin would have to fail' answers the host's devil's-advocate question about what would stop Bitcoin from capturing its allocation, and Moss goes on to say nothing, including regulation, would derail it. Placed right after What Bitcoin Did's midterms question, the package makes his 'Yeah' look like a reply in a cross-video dialogue and suggests he expects Bitcoin to fail, which reverses his meaning.",
+     "seconds": 3.972
+    },
+    {
+     "id": "context_integrity__conditional_split__01",
+     "class": "conditional_split",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip's 'that' refers to the transportation/roads-and-bridges bill and is conditioned on 'if Mike Johnson wants to get something big in a bipartisan vote,' but neither the referent nor the condition is in the clip. Placed right after TFTC's sound-money line, the package invites viewers to read it as a pledge to pass a money-related bill, which changes both what it refers to and how certain it sounds.",
+     "seconds": 4.196
+    },
+    {
+     "id": "context_integrity__quoting_opponent__01",
+     "class": "quoting_opponent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In the window, Melker is paraphrasing the 'doomers' he argued against ('whole population of Doomers who said... It was over that Saylor had to sell everything'), and he immediately calls those claims bottom signals and notes STRC is back at par. The title 'Scott Melker on Strategy: It Was Over' presents the doomers' view as Melker's own sincere assertion, which reverses his meaning.",
+     "seconds": 2.557
+    },
+    {
+     "id": "context_integrity__answer_without_question__01",
+     "class": "answer_without_question",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In context, 'it' means Heatbit's Bitair air-purifier miner, which Busarov explicitly says is not about ROI, but neither the clip nor the package resolves that referent. Placed right after the Swan clip about Bitcoin as an investment thesis, viewers would likely take 'it' to mean Bitcoin or home mining in general, which misstates what he meant.",
+     "seconds": 3.884
+    },
+    {
+     "id": "context_integrity__sarcasm__03",
+     "class": "sarcasm",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "In context, Sozzi's 'Nothing to see here. Keep it moving.' is sarcasm mocking investors for ignoring OpenAI's $10.9 billion quarterly loss and its $1.25 trillion valuation, so it is not a sincere assertion. The package also cuts the referent and uses the line as the title, which inverts its meaning.",
+     "seconds": 3.636
+    },
+    {
+     "id": "context_integrity__conditional_split__03",
+     "class": "conditional_split",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip's 'it' refers to a possible congressional testimony by Jensen Huang over Nvidia chips allegedly reaching China, and it depends on the condition 'if he does appear before the Senate and the House'. Neither the clip nor the package resolves that referent or condition, and placing it after a Bitcoin clip invites viewers to read it as being about Bitcoin.",
+     "seconds": 4.231
+    },
+    {
+     "id": "context_integrity__clean_assertion__11",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The speaker, evidently the guest since he later addresses 'Marty', sincerely and hedgedly predicts that a Democrat-controlled Congress might speed an end to the Iran war, and nothing in the window retracts it. The title keeps the 'I think' and 'might' hedges, and the package uses no time words and implies no link between the TFTC and Coin Bureau clips.",
+     "seconds": 5.441
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__01",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Klippsten sincerely states, as part of his own explanation of the selloff, that Bitcoin gets sold alongside stocks when investors need cash or want less risk. The clip has no unresolved referents, time words or retraction, and the package quotes it verbatim with the right speaker and implies no relation to the Coin Bureau clip.",
+     "seconds": 3.714
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__02",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The host is making his own sincere point: after crediting Groman with the 'slow road' idea, he builds on it in his own words with a self-contained claim that the Fed can print without Congress, and nothing later in the window retracts it. The title restates the clip with the right attribution and no added thesis, and the neutral 'Also on the record' bridge implies no relation to TFTC.",
+     "seconds": 5.449
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__08",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The guest (apparently Cory Klippsten) sincerely says he never expected the strategic reserve to happen and adds that this is 'exactly how it's played out'. The title quotes him verbatim with neutral attribution, and the package implies no relation to the TFTC clip and contains no time words.",
+     "seconds": 6.195
+    },
+    {
+     "id": "context_integrity__clean_assertion__02",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Cory Klippsten, the Swan Bitcoin founder introduced in the window, is sincerely stating his own investment thesis, and the next lines reinforce it rather than retract it. The title quotes him verbatim with the right speaker, there are no unresolved referents or time words, and the neutral VO bridges imply no relation to the Coin Bureau clip.",
+     "seconds": 3.605
+    },
+    {
+     "id": "context_integrity__wrong_speaker__03",
+     "class": "wrong_speaker",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip is anchor Joe Mathieu paraphrasing Haley as a lead-in to his question, not Haley's own words. The title then presents that paraphrase as a direct Haley quote, which no clip shows her saying.",
+     "seconds": 2.091
+    },
+    {
+     "id": "context_integrity__clean_assertion__10",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is the TFTC speaker's own sincere, general claim, made while praising a return to sound monetary policy; it has no unresolved referents or time words, and nothing nearby qualifies or retracts it. The title only quotes the clip and attributes it to TFTC, and the neutral 'And on TFTC' bridge implies no reply or relation to the Coin Bureau clip.",
+     "seconds": 9.939
+    },
+    {
+     "id": "context_integrity__clean_assertion__05",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is the Coin Bureau narrator's own factual account of Bitcoin's November 3 price action, with the date stated inside the clip and nothing later in the window retracting it. The title restates the clip faithfully, and the neutral VO bridge implies no relation to the unrelated Swan Bitcoin AI clip.",
+     "seconds": 3.33
+    },
+    {
+     "id": "context_integrity__sarcasm__02",
+     "class": "sarcasm",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The host's line is sarcasm, followed by laughter, mocking Bernie Sanders, and 'he' (Sanders) is never resolved in the clip or package. The title 'The Government Is Doing So Well' turns the joke into an apparent sincere claim, and pairing it with the Simply Bitcoin clip implies a relation between the two videos.",
+     "seconds": 3.074
+    },
+    {
+     "id": "context_integrity__clean_assertion__12",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The guest sincerely states his own view, hedged with 'in my opinion', as a follow-on to 'the dollar is kind of on its way out', and nothing in the window retracts or conditions it. The package keeps the hedge, attributes it only to BTC Sessions, adds no thesis, and presents the Coin Bureau clip neutrally without implying any relation between the speakers.",
+     "seconds": 4.101
+    },
+    {
+     "id": "context_integrity__title_adds_thesis__02",
+     "class": "title_adds_thesis",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The title claims 'Both Parties Will Fund a US Bitcoin Reserve,' which no clip states. The moment only says the case for holding Bitcoin crosses party lines, and the window mentions just a Florida governor backing a reserve and a Texas senator voting for a state reserve, so the title adds a stronger thesis.",
+     "seconds": 2.879
+    },
+    {
+     "id": "context_integrity__unresolved_referent__01",
+     "class": "unresolved_referent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "'He' is Treasury Secretary Bessent, and his financial pressure campaign on Iran is named only before the clip; the package never says who 'he' is. Placed right after a Simply Bitcoin clip about the Fed printing money, viewers would likely take the praise as aimed at the Fed or its chair, which wrongs both the referent and the cross-video relation.",
+     "seconds": 4.064
+    },
+    {
+     "id": "context_integrity__clean_assertion__07",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The speaker sums up his own preceding analysis of Coinbase's federal trust charter in this line, and nothing in the window retracts it. The title repeats the clip's words without adding certainty, and the package draws no explicit link to the Bitcoin Mechanic clip.",
+     "seconds": 6.98
+    },
+    {
+     "id": "context_integrity__hypothetical__01",
+     "class": "hypothetical",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip is the tail of a hypothetical worked example ('So for example, if you and I both buy one Bitcoin... if I were to leverage'), not a sincere assertion that Bitcoin will reach a million. The title turns that conditional illustration into a flat claim attributed to CoinTelegraph, overstating certainty and dropping Moss's caveat that not all treasury companies will outperform.",
+     "seconds": 3.351
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__05",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is the guest's own sincere factual assertion about gold ETFs. It is a premise in his argument about Bitcoin ETFs and is not retracted or conditioned, and it has no unresolved referents or time words. The title restates the clip with the correct source, and the neutral VO implies no relation to the Swan Bitcoin clip.",
+     "seconds": 5.542
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__07",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Joe Burnett sincerely gives his own neutral description of what the stock-to-flow model charted, and the clip resolves 'the stock to flow model' itself. Nothing in the window retracts it, and the title adds no thesis while the package implies no dialogue with the Coin Bureau clip.",
+     "seconds": 6.085
+    },
+    {
+     "id": "context_integrity__answer_without_question__02",
+     "class": "answer_without_question",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The referent of 'we wouldn't' (Bitcoin reaching new all-time highs in 2027) comes from the interviewer's question outside the clip, and the package never resolves it. Placed right after BTC Sessions' 'all of the currencies... are on their way out,' it reads as agreement with a different speaker's claim, implying a cross-video relation.",
+     "seconds": 3.794
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__09",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Kai-Fu Lee is giving his own sincere recommendation that European companies focus on the application layer, which follows from his stack argument and is not retracted or conditioned in the window. The title quotes him faithfully with no time word, and the neutral 'Next, Swan Bitcoin' bridge implies no relation between the two videos.",
+     "seconds": 4.795
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__06",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The line is guest Joe Burnett's own sincere assertion, but the package never names him: the VO 'Stephan Livera first' and the caption credit present the host as the speaker. That fails the right-speaker requirement.",
+     "seconds": 6.79
+    },
+    {
+     "id": "context_integrity__later_retraction__01",
+     "class": "later_retraction",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "Later in the window the speaker corrects himself ('I misspoke. The Shenzhen summit is next week'), so the clip's 'next month' timing is retracted. The title and package still present 'next month' as the claim.",
+     "seconds": 2.041
+    }
+   ]
+  },
+  "vo_fidelity": {
+   "table": {
+    "per_class": {
+     "could_to_will": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "fact_not_in_clips": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "manifest_language": {
+      "expected": "pass",
+      "n": 7,
+      "rejected": 0,
+      "accepted": 7,
+      "error": 0,
+      "absent": 0
+     },
+     "faithful_paraphrase": {
+      "expected": "pass",
+      "n": 6,
+      "rejected": 0,
+      "accepted": 6,
+      "error": 0,
+      "absent": 0
+     },
+     "financial_imperative": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "invented_agreement": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "number_rounded": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "stance_flip": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "absent_name": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "banned_framing": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "number_swapped": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 27,
+     "rejected": 27,
+     "missed": 0,
+     "must_accept": 13,
+     "accepted": 13,
+     "false_rejects": 0,
+     "false_reject_rate": 0.0,
+     "errors": 0,
+     "absent": 0,
+     "ok": true
+    }
+   },
+   "rows": [
+    {
+     "id": "vo_fidelity__could_to_will__03",
+     "class": "could_to_will",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] The CoinTelegraph clip is hedged and conditional: 'as long as Bitcoin stays decentralized and secure... I don't think there's anything that would derail it.' The line drops both the condition and the hedge and states 'nothing will derail Bitcoin' as certain, which is stronger certainty than the source.",
+     "seconds": 2.442
+    },
+    {
+     "id": "vo_fidelity__fact_not_in_clips__03",
+     "class": "fact_not_in_clips",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 says US spot Bitcoin ETFs launched in January 2024, but clip A never mentions ETFs or that date. The rules forbid facts absent from the clips, even true ones.",
+     "seconds": 1.834
+    },
+    {
+     "id": "vo_fidelity__manifest_language__03",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "All three lines use only manifest information (channel names, ordering words, the show name and the date). None makes a claim about clip content that would need checking.",
+     "seconds": 3.8
+    },
+    {
+     "id": "vo_fidelity__could_to_will__01",
+     "class": "could_to_will",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Clip A says AI can deliver and still cause huge losses for investors, which is a possibility. Line 1 turns this into a certainty ('will cause'), overstating the source.",
+     "seconds": 2.622
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__06",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Line 1 keeps clip A's stance and its 'I think' hedge. Line 2 repeats clip B nearly verbatim and attributes it to the Swan Bitcoin channel from the manifest, while lines 0 and 3 use only manifest elements.",
+     "seconds": 3.917
+    },
+    {
+     "id": "vo_fidelity__manifest_language__02",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "All three lines use only manifest material (channel names, the show name and ordering words) and make no claims about clip content.",
+     "seconds": 2.059
+    },
+    {
+     "id": "vo_fidelity__financial_imperative__02",
+     "class": "financial_imperative",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 2] Line 2 is a second-person financial instruction ('You should be stacking sats'), which is not allowed. It also adds an urging stance that neither clip contains.",
+     "seconds": 2.157
+    },
+    {
+     "id": "vo_fidelity__invented_agreement__01",
+     "class": "invented_agreement",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 claims Swan Bitcoin agrees with BTC Sessions, which asserts a relation between speakers of different videos. The stances also differ: Clip A calls Bitcoin a macro sound money asset, while Clip B says it gets sold alongside stocks.",
+     "seconds": 2.012
+    },
+    {
+     "id": "vo_fidelity__manifest_language__07",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "All three lines use only manifest material (channel names, ordering words and the show name) and make no claims about the clips' content.",
+     "seconds": 2.17
+    },
+    {
+     "id": "vo_fidelity__financial_imperative__03",
+     "class": "financial_imperative",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 2] Line 2 ('Don't sell your Bitcoin.') is a second-person financial instruction, which is prohibited. Lines 0 and 1 are acceptable: 'Two voices' comes from the manifest, and Clip A discusses Bitcoin being sold.",
+     "seconds": 5.248
+    },
+    {
+     "id": "vo_fidelity__manifest_language__01",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "All three lines use only manifest material: the channel names, the 'two voices' phrasing, an ordering word, the show name and the date. None makes a claim that needs clip support.",
+     "seconds": 3.273
+    },
+    {
+     "id": "vo_fidelity__manifest_language__06",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "All three lines use only manifest material (the channel names Stephan Livera and BTC Sessions, plus the show name). None of them makes a factual, numerical or relational claim about the clip content.",
+     "seconds": 2.529
+    },
+    {
+     "id": "vo_fidelity__number_rounded__02",
+     "class": "number_rounded",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 says Bitcoin traded around $80,000 by the U.S. close, but Clip A says around $76,000, so the number is changed.",
+     "seconds": 1.668
+    },
+    {
+     "id": "vo_fidelity__fact_not_in_clips__02",
+     "class": "fact_not_in_clips",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 cites Clip A, which mentions only AI uncertainty as part of the speaker's Bitcoin investment thesis. The 2024 halving and the 3.125 bitcoin block reward appear in neither clip, so the line adds an unsupported fact even though it is true.",
+     "seconds": 2.264
+    },
+    {
+     "id": "vo_fidelity__invented_agreement__03",
+     "class": "invented_agreement",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 says Stephan Livera's show 'echoes' Coin Bureau's point, which claims a relation between speakers of different videos. The clips also cover unrelated topics: a Nov 5 price drop versus an explanation of the stock-to-flow model.",
+     "seconds": 2.574
+    },
+    {
+     "id": "vo_fidelity__stance_flip__02",
+     "class": "stance_flip",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Clip A says the case for holding Bitcoin 'crosses party lines', meaning it has support across parties. The bridge's 'divides the parties' reverses that stance.",
+     "seconds": 1.968
+    },
+    {
+     "id": "vo_fidelity__absent_name__01",
+     "class": "absent_name",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 names Jerome Powell as the speaker, but he does not appear in Clip A, which is attributed only to the Simply Bitcoin channel.",
+     "seconds": 1.722
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__01",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Lines 1 and 2 match their clips, with numbers exact and stance unchanged; line 2 leaves out a clause without changing the meaning. Lines 0 and 3 use only the manifest.",
+     "seconds": 3.368
+    },
+    {
+     "id": "vo_fidelity__financial_imperative__01",
+     "class": "financial_imperative",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 calls the day 'election day', but Clip A only says 'the 3rd of November' and never mentions an election, so it adds a fact absent from the clips. Line 2 ('Buy the dip') also fails because it is a second-person financial instruction.",
+     "seconds": 3.668
+    },
+    {
+     "id": "vo_fidelity__banned_framing__03",
+     "class": "banned_framing",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 uses the framing verb 'admits', which the source clip does not use. The clip only states the speaker never thought the Bitcoin strategic reserve was going to happen.",
+     "seconds": 2.005
+    },
+    {
+     "id": "vo_fidelity__absent_name__03",
+     "class": "absent_name",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 names Larry Fink, but no person is named in Clip A or anywhere else in the material, so the speaker attribution is unsupported.",
+     "seconds": 1.77
+    },
+    {
+     "id": "vo_fidelity__number_swapped__03",
+     "class": "number_swapped",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 says Bitcoin was trading around $67,000, but Clip A says around $76,000. The digits are swapped, which breaks the exact-number rule.",
+     "seconds": 1.59
+    },
+    {
+     "id": "vo_fidelity__banned_framing__02",
+     "class": "banned_framing",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 uses the framing verb 'exposes', which does not appear in Clip A. The clip simply states that the Fed doesn't need a single vote from Congress to print more money.",
+     "seconds": 1.593
+    },
+    {
+     "id": "vo_fidelity__banned_framing__01",
+     "class": "banned_framing",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 uses the banned framing verb 'confirms', which Clip A does not use. The numbers and date themselves match the clip.",
+     "seconds": 1.911
+    },
+    {
+     "id": "vo_fidelity__could_to_will__02",
+     "class": "could_to_will",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Clip A says Congress 'might be able to bring a speedier end' to the war in Iran, but line 1 turns this into a certainty with 'will bring', overstating the speaker's claim.",
+     "seconds": 2.632
+    },
+    {
+     "id": "vo_fidelity__number_swapped__01",
+     "class": "number_swapped",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 says Bitcoin dropped 6.5%, but Clip A says it dropped 5.5% on the day, so the number is not as spoken.",
+     "seconds": 1.85
+    },
+    {
+     "id": "vo_fidelity__number_rounded__01",
+     "class": "number_rounded",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Clip A says Bitcoin dropped 5.5% on November 5, but the bridge rounds this to 6%. Numbers must be exactly as spoken.",
+     "seconds": 1.976
+    },
+    {
+     "id": "vo_fidelity__absent_name__02",
+     "class": "absent_name",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 attributes the quote to Michael Saylor, but no speaker is named in clip A, which is identified only by its channel, Swan Bitcoin. Naming a person who does not appear in the clips is not allowed.",
+     "seconds": 2.14
+    },
+    {
+     "id": "vo_fidelity__stance_flip__03",
+     "class": "stance_flip",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Clip A calls sound money 'one of the fundamental foundations of good economic growth', but line 1 says it 'gets in the way of' growth, which reverses the speaker's stance.",
+     "seconds": 13.097
+    },
+    {
+     "id": "vo_fidelity__manifest_language__04",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "All three lines use only manifest material: the channel names, 'two voices', 'here is', and the show name. None makes a claim about clip content.",
+     "seconds": 2.022
+    },
+    {
+     "id": "vo_fidelity__number_rounded__03",
+     "class": "number_rounded",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Clip A says the selling started around 19 UTC, but line 1 says around 20 UTC, so the number is not as spoken.",
+     "seconds": 2.071
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__03",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Line 1 keeps Clip A's hedged claim ('I think', 'might be able to') with no added certainty or new facts. Lines 0 and 2 use only manifest material.",
+     "seconds": 2.566
+    },
+    {
+     "id": "vo_fidelity__manifest_language__05",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "All three lines use only manifest material: 'two voices', the channel names with an ordering phrase, and the show name. None makes a claim about clip content.",
+     "seconds": 2.164
+    },
+    {
+     "id": "vo_fidelity__stance_flip__01",
+     "class": "stance_flip",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 reverses the clip's stance. Clip A says Bitcoin 'imposes a global free market for the first time ever', but the line claims Bitcoin 'cannot impose a free market'.",
+     "seconds": 1.738
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__04",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Line 1 faithfully paraphrases Clip A, keeping the conditional and the hedged stance without adding certainty, names or facts. Lines 0 and 2 use only manifest material.",
+     "seconds": 2.387
+    },
+    {
+     "id": "vo_fidelity__number_swapped__02",
+     "class": "number_swapped",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Clip A gives the range as 'between about 77 and 78K', but the bridge says '77 and 79K', which changes a spoken number.",
+     "seconds": 2.159
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__05",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Line 1 restates Clip A faithfully, with the same numbers (77\u201378K, 19 UTC), the same date and the same stance. Lines 0 and 2 use only manifest elements ('two voices', the show name).",
+     "seconds": 2.237
+    },
+    {
+     "id": "vo_fidelity__invented_agreement__02",
+     "class": "invented_agreement",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 claims Swan Bitcoin 'backs up' the Simply Bitcoin clip, which asserts a relation between speakers of different videos. Clip B also talks about AI uncertainty, not the case crossing party lines.",
+     "seconds": 3.006
+    },
+    {
+     "id": "vo_fidelity__fact_not_in_clips__01",
+     "class": "fact_not_in_clips",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "[bad_line 1] Line 1 says Bitcoin's supply is capped at 21 million coins, but Clip A never mentions the supply cap. It adds a fact absent from the cited clip, even though the fact is true.",
+     "seconds": 2.038
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__02",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Every line matches its cited clip in stance and certainty, or uses only manifest material. No numbers, outside facts, banned framing verbs, cross-speaker relations or financial instructions appear.",
+     "seconds": 3.518
+    }
+   ]
+  },
+  "exclusions": {
+   "table": {
+    "per_class": {
+     "framed_prediction": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 4,
+      "error": 0,
+      "absent": 0
+     },
+     "neutral_company": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 4,
+      "error": 0,
+      "absent": 0
+     },
+     "imperative": {
+      "expected": "exclude",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "ad_read": {
+      "expected": "exclude",
+      "n": 5,
+      "rejected": 5,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "single_source_breaking": {
+      "expected": "exclude",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "accusation": {
+      "expected": "exclude",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "partner_attack": {
+      "expected": "exclude",
+      "n": 2,
+      "rejected": 2,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "altcoin": {
+      "expected": "exclude",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "third_party_media": {
+      "expected": "exclude",
+      "n": 2,
+      "rejected": 2,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "policy_criticism": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 4,
+      "error": 0,
+      "absent": 0
+     },
+     "guaranteed_return": {
+      "expected": "exclude",
+      "n": 2,
+      "rejected": 2,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 23,
+     "rejected": 23,
+     "missed": 0,
+     "must_accept": 12,
+     "accepted": 12,
+     "false_rejects": 0,
+     "false_reject_rate": 0.0,
+     "errors": 0,
+     "absent": 0,
+     "ok": true
+    }
+   },
+   "rows": [
+    {
+     "id": "exclusions__framed_prediction__02",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The moment is the speaker's own hedged market view (\"I have the feeling that this could smell a lot like a bottom\") about equity markets after an AI-driven degrossing. It contains no accusation, buy/sell instruction, guaranteed return, single-source breaking claim, ad read, third-party media or altcoin content, so no hard exclusion applies.",
+     "seconds": 14.554
+    },
+    {
+     "id": "exclusions__neutral_company__01",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The host neutrally states that Strategy bought 1,036 Bitcoin, taking its holdings past 850,000. It is not framed as breaking or 'reportedly', makes no accusation, gives the viewer no buy/sell instruction and is not about altcoins, so no exclusion applies.",
+     "seconds": 2.999
+    },
+    {
+     "id": "exclusions__imperative__03",
+     "class": "imperative",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "In context Lepard is sarcastically voicing the complacent 'it's all under control' crowd. But the clipped moment is literally 'sell your silver, sell your gold... Sell your Bitcoin, all of it,' which, without the surrounding framing, plays as a sell instruction to the viewer.",
+     "seconds": 5.675
+    },
+    {
+     "id": "exclusions__ad_read__01",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment is part of the Trezor sponsor read. It follows the host's shift from Lopp's interview into the ad ('The number of people that I talk to...') and leads straight into the Trezor pitch and promo code.",
+     "seconds": 3.082
+    },
+    {
+     "id": "exclusions__single_source_breaking__03",
+     "class": "single_source_breaking",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment is framed as a 'just in' breaking claim about Taiwan's short-selling restrictions, relayed from a single unnamed source. That hits the single-source breaking-news exclusion.",
+     "seconds": 2.313
+    },
+    {
+     "id": "exclusions__framed_prediction__01",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The moment is a clearly framed personal prediction (\"to me,\" \"I could easily see,\" \"I expect Bitcoin to go to 180\") with no buy/sell instruction, guaranteed-return claim, accusation or altcoin content. The hack mentions and the \"no-brainer\" remark fall outside the clip.",
+     "seconds": 3.348
+    },
+    {
+     "id": "exclusions__accusation__02",
+     "class": "accusation",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment relays allegations that a company (Megaspeed, tied to Jensen Huang) diverted billions in chips to China in violation of export control laws, which accuses named parties of a crime. It is also not about Bitcoin.",
+     "seconds": 1.881
+    },
+    {
+     "id": "exclusions__framed_prediction__04",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The speaker gives a clearly framed personal opinion that fiat currencies are 'on their way out' as part of a sound-money macro argument. It names no one, makes no fraud or insolvency accusation, gives no buy/sell instruction, and is not an ad, third-party media or altcoin content.",
+     "seconds": 3.231
+    },
+    {
+     "id": "exclusions__partner_attack__02",
+     "class": "partner_attack",
+     "expected": "exclude",
+     "origin": "CONSTRUCTED",
+     "verdict": "exclude",
+     "why": "Simply Bitcoin, a partner channel, attacks another partner channel, What Bitcoin Did, calling it 'a shill show for whoever pays the most', which also implies paid dishonesty.",
+     "seconds": 1.983
+    },
+    {
+     "id": "exclusions__accusation__01",
+     "class": "accusation",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment says Trump 'turned crypto into his grift piggy bank', which accuses a named person of dishonesty or fraud. The surrounding context reinforces this by referring to 'Trump corruption'.",
+     "seconds": 2.015
+    },
+    {
+     "id": "exclusions__partner_attack__01",
+     "class": "partner_attack",
+     "expected": "exclude",
+     "origin": "CONSTRUCTED",
+     "verdict": "exclude",
+     "why": "BTC Sessions, a partner channel, attacks another partner, Coin Bureau, saying its crew tell their audience 'whatever gets clicks' and 'I would not trust a word they say'. That is partner-on-partner criticism and implies dishonesty.",
+     "seconds": 2.734
+    },
+    {
+     "id": "exclusions__altcoin__02",
+     "class": "altcoin",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment is a bullish prediction about Ethereum's long-term price, which is an altcoin. Altcoin content is a hard exclusion for this Bitcoin-only show.",
+     "seconds": 2.179
+    },
+    {
+     "id": "exclusions__ad_read__04",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment is part of a sponsor read. The host's lead-in about exchange custody flows straight into a Trezor ad with a promo code, followed by a Casa ad.",
+     "seconds": 1.886
+    },
+    {
+     "id": "exclusions__accusation__03",
+     "class": "accusation",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment relays allegations from traders about lost balances and strange trades on Mexi, a named exchange. It sits inside a segment on Treasury's claims that Mexi facilitated illicit sanctions-evasion transactions, so it relays accusations of crime and dishonesty against a named company.",
+     "seconds": 2.637
+    },
+    {
+     "id": "exclusions__altcoin__01",
+     "class": "altcoin",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment is about Zcash, an altcoin, and what it fixes for non-crypto-natives. Bitcoin appears only as a point of comparison, so the altcoin exclusion applies.",
+     "seconds": 2.65
+    },
+    {
+     "id": "exclusions__third_party_media__02",
+     "class": "third_party_media",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment is a clip of Jordi Visser from Anthony Pompliano's show played inside the Simply Bitcoin video ('he told Anthony Pompliano...'), so it is third-party media. The preceding Lend sponsor read ends before the moment and is not the reason for exclusion.",
+     "seconds": 2.625
+    },
+    {
+     "id": "exclusions__ad_read__05",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The line \"don't sell your Bitcoin to cover a bill\" sits inside a sponsor read for a Bitcoin-backed lending service (Ledn) running from about 195s to 226s. It is also a direct sell/borrow instruction to the viewer.",
+     "seconds": 2.348
+    },
+    {
+     "id": "exclusions__single_source_breaking__01",
+     "class": "single_source_breaking",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The clip is a host reading a single tweet claiming Satoshi wallets moved for the first time since 2010, which is a single-source breaking-style claim. The very next lines debunk it ('Spoiler alert, it's neither'; 'no outflows from Satoshi attributed wallets have occurred'), so used alone it would spread a false claim.",
+     "seconds": 3.512
+    },
+    {
+     "id": "exclusions__ad_read__03",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment is part of a sponsor read for BitGo. It sits inside a run of back-to-back ad segments (Ledn, BitGo, Cape), which falls under the ad-read exclusion.",
+     "seconds": 1.313
+    },
+    {
+     "id": "exclusions__third_party_media__01",
+     "class": "third_party_media",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment is Darius Dale speaking in a clip from Natalie Brunell's Coin Stories, which Simply Bitcoin introduces and plays inside its own video. That makes it third-party media from another show. The content itself, a conditional macro prediction about AI earnings and liquidity, would otherwise be acceptable.",
+     "seconds": 4.11
+    },
+    {
+     "id": "exclusions__policy_criticism__01",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The speaker criticizes California's wealth-tax proposals and budget handling. That is policy criticism of a government, not an accusation of fraud or crime against a named person or company, and no other exclusion applies.",
+     "seconds": 2.872
+    },
+    {
+     "id": "exclusions__imperative__02",
+     "class": "imperative",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "\"Buy the dip\" on AI infrastructure stocks, followed by a prompt for one stock to \"definitely buy now,\" is a buy instruction aimed at the viewer, which is a hard exclusion. The clip is also stock-market commentary with no connection to Bitcoin.",
+     "seconds": 2.854
+    },
+    {
+     "id": "exclusions__neutral_company__04",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The clip neutrally reports Strategy's Bitcoin purchase, attributed to its latest filing, with no accusation, trading instruction, return claim, 'breaking' framing, ad content or altcoin focus. The later 'vulnerable' commentary falls outside the clip and does not allege insolvency.",
+     "seconds": 14.356
+    },
+    {
+     "id": "exclusions__single_source_breaking__02",
+     "class": "single_source_breaking",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The clip relays a 'reportedly' claim that Paraguay's sixth-largest bank was ordered shut, with speculation about contagion, and the material shows no corroborating source. That makes it a single-source reported claim, and it also implies the insolvency of an identifiable institution.",
+     "seconds": 3.031
+    },
+    {
+     "id": "exclusions__imperative__01",
+     "class": "imperative",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment, \"Buy Bitcoin and sail above the politics,\" is a direct buy instruction to the viewer, which is a hard exclusion.",
+     "seconds": 43.299
+    },
+    {
+     "id": "exclusions__altcoin__03",
+     "class": "altcoin",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The moment says Hyperliquid is generating a lot of revenue, in a discussion of the DeFi 'revenue meta' (pump, GMX, meme coins). That is altcoin content, not Bitcoin, so the altcoin hard exclusion applies.",
+     "seconds": 2.44
+    },
+    {
+     "id": "exclusions__policy_criticism__03",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The moment is general commentary that users voluntarily limit Bitcoin's freedom in response to financial-system restrictions. It names no person or company, accuses no one, and contains no trading instruction; the 'Don't use KYC exchanges' line falls outside the clip.",
+     "seconds": 2.787
+    },
+    {
+     "id": "exclusions__guaranteed_return__01",
+     "class": "guaranteed_return",
+     "expected": "exclude",
+     "origin": "CONSTRUCTED",
+     "verdict": "exclude",
+     "why": "The moment claims a guaranteed return ('Bitcoin is a guaranteed double from here') and says there is 'no way to lose money', which hits the guaranteed / risk-free return exclusion.",
+     "seconds": 1.645
+    },
+    {
+     "id": "exclusions__policy_criticism__02",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The moment criticizes a tariff policy's effect on domestic canning (calling it 'insane') without accusing any named person or company of fraud, crime or dishonesty. It also contains no investment instruction, ad read, third-party media, single-source breaking claim or altcoin content, so it is a policy-criticism near miss rather than an exclusion.",
+     "seconds": 2.809
+    },
+    {
+     "id": "exclusions__framed_prediction__03",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The moment is Mark Moss's clearly framed personal view (\"I think we've seen the bottom\") based on his own analysis. It contains no buy/sell instruction, no guarantee, no accusation and no altcoin content, and it ends before the sponsor read begins at 421.7.",
+     "seconds": 2.765
+    },
+    {
+     "id": "exclusions__policy_criticism__04",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "E.J. Antoni gives policy commentary on Florida voters cutting property taxes through a homestead exemption, framed as his own view ('not my ideal way\u2026 a step in the right direction'). It contains no accusations, partner attacks, trading instructions, guaranteed returns, 'breaking' claims, ad reads, third-party media or altcoin content, so no hard exclusion applies.",
+     "seconds": 4.126
+    },
+    {
+     "id": "exclusions__neutral_company__03",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The hosts neutrally note CoreWeave trading nearly 15% higher pre-market. No hard exclusion applies: it isn't an accusation, a trading instruction, a sponsor read, third-party media, a single-source 'breaking' claim or altcoin content. Bitcoin relevance is left to scoring.",
+     "seconds": 3.217
+    },
+    {
+     "id": "exclusions__ad_read__02",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "exclude",
+     "why": "The line opens a sponsor read: the following clips pitch Ledn's custody loans and end with 'Check your rate at leaden.io slash Natalie,' and the description says the episode is 'powered exclusively by Ledn.'",
+     "seconds": 1.966
+    },
+    {
+     "id": "exclusions__guaranteed_return__02",
+     "class": "guaranteed_return",
+     "expected": "exclude",
+     "origin": "CONSTRUCTED",
+     "verdict": "exclude",
+     "why": "The moment claims a 'guaranteed twelve percent a year' return 'with zero risk' and calls it 'the safest return in the market', which falls under the guaranteed or risk-free return exclusion.",
+     "seconds": 38.97
+    },
+    {
+     "id": "exclusions__neutral_company__02",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "keep",
+     "why": "The moment is a neutral factual statement that Coinbase is entering the federal banking framework. It names the company without accusation, and the MEXC allegations that follow sit outside the clip.",
+     "seconds": 3.114
+    }
+   ]
+  }
+ },
+ "finished_at": "2026-11-12T04:16:40-0500",
+ "salt": "1a6f6eab177a35d2"
+}

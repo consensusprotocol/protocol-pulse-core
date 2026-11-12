@@ -1,0 +1,321 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__ad_read__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/c1JGheQBPH4/transcript.whisper_words_punct.json",
+  "record_sha256": "779a3e98cbc0b72b814ba5724b30e3406d93156d036c2b1990b9f3558065258b",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "sponsor (context)",
+  "mined": "2026-11-12",
+  "selected_k": [
+   184,
+   184
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "ad_read",
+  "why": "Sponsor copy ('my new sponsor, BitGo', k183)."
+ },
+ "source": {
+  "video_id": "c1JGheQBPH4",
+  "channel": "What Bitcoin Did",
+  "title": "Inside the White House’s Plan to Buy Bitcoin | Patrick Witt",
+  "description": "“I think we set in motion a number of things that will come to fruition over the years.”\n\nTrump put Bitcoin on the White House agenda. But will the US government actually buy it?\n\nPatrick Witt, former executive director of the White House Crypto Council, joins me to explain what happened behind the scenes of Trump’s Bitcoin push and what still stands in the way of delivering on those promises.\n\nWe discuss the unfinished audit of government Bitcoin, disagreements over the authority granted by the executive order, and custody practices that included cold wallets kept in drawers. Witt explains th",
+  "description_truncated": true,
+  "published_at": "2026-11-09T17:00:09+00:00",
+  "url": "https://www.youtube.com/watch?v=c1JGheQBPH4"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 184,
+    "start": 978.25,
+    "end": 985.15,
+    "text": "For over a decade, BitGo have been the backbone of the entire industry, securing billions of dollars of Bitcoin for major funds, exchanges, and institutions.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 165,
+    "start": 914.16,
+    "end": 918.62,
+    "text": "It took discipline to build your position and the platform you use for Bitcoin back loan should have the same discipline.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 166,
+    "start": 919.1,
+    "end": 921.28,
+    "text": "That's Leiden, the leaden, the leaden sponsor of what Bitcoin did.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 167,
+    "start": 921.6,
+    "end": 926.84,
+    "text": "When the next opportunity comes along, a leaden loan puts liquidity in your hands without selling what you spent years building.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 168,
+    "start": 927.42,
+    "end": 929.24,
+    "text": "Loans are funded in hours, not days.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 169,
+    "start": 929.42,
+    "end": 930.48,
+    "text": "There's no monthly payments.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 170,
+    "start": 930.64,
+    "end": 933.98,
+    "text": "There's no penalty for repaying early, and all the rates are published up front.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 171,
+    "start": 934.16,
+    "end": 935.74,
+    "text": "The larger the loan, the lower the rate.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 172,
+    "start": 936.23,
+    "end": 942.85,
+    "text": "Eight years of protecting client assets with a perfect track record and over $11 billion in loans have taught Ledham what really matters.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 173,
+    "start": 943.09,
+    "end": 944.77,
+    "text": "Your Bitcoin stays custodied.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 174,
+    "start": 944.95,
+    "end": 948.57,
+    "text": "It's never learned out to generate interest and Ledden doesn't ask you to take its word for it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 175,
+    "start": 948.67,
+    "end": 953.09,
+    "text": "Every month, Ledon publishes its open book report with all metrics independently reported.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 176,
+    "start": 953.63,
+    "end": 954.73,
+    "text": "It's proof over promises.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 177,
+    "start": 954.97,
+    "end": 956.67,
+    "text": "Hard assets, higher standards.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 178,
+    "start": 957.01,
+    "end": 963.45,
+    "text": "Check your rate at leaden.io forward slash WBD, which is LEDN.io forward slash WBD.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 179,
+    "start": 964.03,
+    "end": 967.51,
+    "text": "Bitcoin back loans involve risk, do your own research before taking out a loan.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 180,
+    "start": 968.11,
+    "end": 971.35,
+    "text": "APR, eligibility, and terms apply and may vary by jurisdiction.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 181,
+    "start": 971.79,
+    "end": 973.93,
+    "text": "In the world of Bitcoin, security isn't just a feature.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 182,
+    "start": 974.33,
+    "end": 975.39,
+    "text": "It's the entire foundation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 183,
+    "start": 976.01,
+    "end": 977.73,
+    "text": "And that's where my new sponsor, BitGo, come in.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 185,
+    "start": 985.66,
+    "end": 994.82,
+    "text": "Following their 2026 public listing on the New York Stock Exchange, under the ticker BTGO, BitGo are now bringing that exact same enterprise infrastructure to individual bitcoins.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 186,
+    "start": 995.24,
+    "end": 1001.44,
+    "text": "Self -custody is still the gold standard, but as your stat grows, it's worth thinking about whether diversifying your custody can make sense.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 187,
+    "start": 1001.46,
+    "end": 1009.1,
+    "text": "BitGo pioneered commercial multisig, and their cold storage combines distributed keys, offline key generation, and geographically separated vaults.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 188,
+    "start": 1009.34,
+    "end": 1013.4,
+    "text": "Head to bitgo.com slash danny to get started with institutional grade custody today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 189,
+    "start": 1013.9,
+    "end": 1015.9,
+    "text": "Your Bitcoin secured like an institution.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 190,
+    "start": 1016.5,
+    "end": 1017.16,
+    "text": "That's BitGo.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 191,
+    "start": 1018.29,
+    "end": 1021.31,
+    "text": "Bitcoiners hate single points of failures, but your phone has three of them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 192,
+    "start": 1021.63,
+    "end": 1026.33,
+    "text": "One network, one identifier for life, and one carrier employee who can be taught into handing over your number.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 193,
+    "start": 1026.63,
+    "end": 1027.91,
+    "text": "And that's where Cape comes in.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 194,
+    "start": 1028.29,
+    "end": 1029.45,
+    "text": "Cape fixes all three.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 195,
+    "start": 1029.83,
+    "end": 1033.01,
+    "text": "It's the only US carrier running two major networks on one sim.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 196,
+    "start": 1033.33,
+    "end": 1034.71,
+    "text": "So if one drops, you're on the other.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 197,
+    "start": 1035.09,
+    "end": 1039.89,
+    "text": "Your identifier rotates every 24 hours, so to the network, you're a different person every single day.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 198,
+    "start": 1040.05,
+    "end": 1043.95,
+    "text": "And the big one, your number only moves with a 24 -word phrase that you control.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 199,
+    "start": 1044.15,
+    "end": 1045.25,
+    "text": "just like a Bitcoin wallet.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

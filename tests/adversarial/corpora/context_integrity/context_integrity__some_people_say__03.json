@@ -1,0 +1,318 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__some_people_say__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+  "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "most people still think",
+  "mined": "2026-11-12",
+  "selected_k": [
+   3,
+   3
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "some_people_say",
+  "why": "'But most people still think it's a scam.' reports a view the speaker opposes: 'So I think it's this is like the best buying opportunity ever.' (k4)."
+ },
+ "source": {
+  "video_id": "L9tzgg6PXi8",
+  "channel": "CoinTelegraph",
+  "title": "Bitcoin to $1 MILLION by 2030? Mark Moss Reveals His Model",
+  "description": "Is Bitcoin's bottom finally in? Could BTC reach $1 MILLION by 2030? Investor and Bitcoin Opportunity Fund partner Mark Moss explains why he believes Bitcoin is entering one of the biggest buying opportunities in its history, despite recent crypto hacks and market uncertainty. He breaks down why Bitcoin could hit new all-time highs in 2027, how Wall Street adoption could push BTC to $1 million, and whether Strategy (MSTR) could outperform Bitcoin itself. Plus, Moss explains why he believes AI has killed the altcoin market and where investors should position themselves for the next bull run.\n\n00",
+  "description_truncated": true,
+  "published_at": "2026-11-06T14:30:20+00:00",
+  "url": "https://www.youtube.com/watch?v=L9tzgg6PXi8"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 0,
+    "start": 0.0,
+    "end": 3.18,
+    "text": "Markets stop going up when there's no more buyers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 1,
+    "start": 3.98,
+    "end": 6.36,
+    "text": "And markets stop going down when there's no more sellers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 2,
+    "start": 6.74,
+    "end": 10.16,
+    "text": "I mean, the largest in history, devastating news happened and the price doesn't go down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 3,
+    "start": 10.36,
+    "end": 13.16,
+    "text": "But most people still think it's a scam.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 4,
+    "start": 13.92,
+    "end": 16.92,
+    "text": "So I think it's this is like the best buying opportunity ever.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 5,
+    "start": 17.1,
+    "end": 19.12,
+    "text": "I said, Bitcoin will keep going, but crypto's dead.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 6,
+    "start": 19.82,
+    "end": 20.98,
+    "text": "And people hated me for that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 7,
+    "start": 21.26,
+    "end": 24.92,
+    "text": "The reward of being right is not worth the risk of getting it wrong.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 8,
+    "start": 30.97,
+    "end": 36.55,
+    "text": "Hello, welcome back to Coin Telegraphs, Trade Secrets, our very own Crypto Markets show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 9,
+    "start": 36.81,
+    "end": 37.43,
+    "text": "My name's Kieran.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 10,
+    "start": 37.61,
+    "end": 38.15,
+    "text": "I'm your host.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 11,
+    "start": 38.85,
+    "end": 41.37,
+    "text": "And today I'm joined by Mark Moss.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 12,
+    "start": 41.77,
+    "end": 42.41,
+    "text": "Mark, how you doing?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 13,
+    "start": 43.23,
+    "end": 44.13,
+    "text": "Yeah, I'm doing amazing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 14,
+    "start": 44.51,
+    "end": 45.15,
+    "text": "Thanks for having me on.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 15,
+    "start": 46.0,
+    "end": 46.84,
+    "text": "Thanks for joining us.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 16,
+    "start": 47.14,
+    "end": 49.6,
+    "text": "Look, Bitcoin holding around $80,000.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 17,
+    "start": 50.14,
+    "end": 53.68,
+    "text": "We've just had the Binance hack last week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 18,
+    "start": 53.84,
+    "end": 56.54,
+    "text": "We've had the midterm elections today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 19,
+    "start": 58.14,
+    "end": 59.94,
+    "text": "Are we, is the bottom behind us?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 20,
+    "start": 60.04,
+    "end": 61.58,
+    "text": "Where are we in the market right now, Mark?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 21,
+    "start": 62.18,
+    "end": 63.4,
+    "text": "Yeah, that's a great question.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 22,
+    "start": 63.64,
+    "end": 64.62,
+    "text": "I think a couple things.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 23,
+    "start": 65.42,
+    "end": 72.98,
+    "text": "You know, sometimes we can overcomplicate markets and we can certainly dive into the deep, deep macro world and talk about liquidity and cycles and all those types of things.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 24,
+    "start": 73.12,
+    "end": 81.74,
+    "text": "But I think if we make it more simple, markets stop going up when there's no more buyers and markets stop going down when there's no more sellers.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   3,
+   3
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "CoinTelegraph: 'It's a Scam'",
+  "caption": "Clips: Yahoo Finance (2026-11-09); CoinTelegraph (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with Yahoo Finance.",
+   "bridges": [
+    "Also on the record, CoinTelegraph:"
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "36HPi9UZPOc",
+    "channel": "Yahoo Finance",
+    "published_at": "2026-11-09T18:00:10+00:00",
+    "text": "Coinbase is entering the federal banking framework.",
+    "start": 339.02,
+    "end": 341.16,
+    "provenance": {
+     "record": "transcripts/36HPi9UZPOc/transcript.whisper_words.json",
+     "record_sha256": "11818b5033dc9b5e8ab3000df3dada34a5e42dae20b850543bb0202bbd3a24a3",
+     "k": [
+      69,
+      69
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "L9tzgg6PXi8",
+    "channel": "CoinTelegraph",
+    "published_at": "2026-11-06T14:30:20+00:00",
+    "text": "But most people still think it's a scam.",
+    "start": 10.36,
+    "end": 13.16,
+    "provenance": {
+     "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+     "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+     "k": [
+      3,
+      3
+     ]
+    }
+   }
+  ]
+ }
+}

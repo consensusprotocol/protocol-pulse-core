@@ -1,0 +1,282 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__title_adds_thesis__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+  "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "title",
+  "mined": "2026-11-12",
+  "selected_k": [
+   13,
+   13
+  ],
+  "trap_in": "package"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "title_adds_thesis",
+  "why": "'AI can deliver on its promises and still cause huge losses' does not say a bubble is about to pop."
+ },
+ "source": {
+  "video_id": "w4h9HfP7Gb0",
+  "channel": "Swan Bitcoin",
+  "title": "You Don’t Have to Pick the AI Winners to Own Bitcoin",
+  "description": "Markets in chaos. Tech stocks got crushed, the NASDAQ 100 just had its worst day since March 2020, and chip stocks fell 12%. Bitcoin fell about 5% over 24 hours and was trading around $76,000 by the US close.\n\nCory Klippsten explains what's behind the selling. Investors are questioning whether future returns can justify all of the money pouring into AI, and more than a billion dollars of crypto derivatives positions were liquidated over 24 hours. AI can deliver on its promises and still cause huge losses for investors in the build-out.\n\nWant help with Bitcoin purchasing or custody? Swan Privat",
+  "description_truncated": true,
+  "published_at": "2026-11-06T15:29:48+00:00",
+  "url": "https://www.youtube.com/watch?v=w4h9HfP7Gb0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 0,
+    "start": 0.0,
+    "end": 2.62,
+    "text": "Remember, remember, the 5th of November.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 1,
+    "start": 3.56,
+    "end": 7.42,
+    "text": "Tech stocks got crushed yesterday and dragged Bitcoin down with them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 2,
+    "start": 8.06,
+    "end": 14.96,
+    "text": "The NASDAQ 100 fell 6.4%, its worst day since March 2020, and chip stocks fell 12%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 3,
+    "start": 14.96,
+    "end": 23.62,
+    "text": "Bitcoin actually fell less than the NASDAQ 100, down about 5 % over 24 hours and trading around $76,000 by the U.S. close.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 4,
+    "start": 24.14,
+    "end": 28.54,
+    "text": "I'm Corey Clifston, founder of Swan Bitcoin, and this is outside money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 5,
+    "start": 28.92,
+    "end": 34.1,
+    "text": "Email me at Corey at Swan.com with feedback on the show or for help with Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 6,
+    "start": 35.2,
+    "end": 41.1,
+    "text": "The selling spread to Asia this morning, with Japan and South Korea both closing down 6%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 7,
+    "start": 41.1,
+    "end": 45.98,
+    "text": "Korea had fallen almost 9 % earlier in the session, triggering a 20 -minute trading call.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 8,
+    "start": 46.58,
+    "end": 48.28,
+    "text": "So what's behind the turmoil?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 9,
+    "start": 48.78,
+    "end": 54.0,
+    "text": "Investors are questioning whether future returns can justify all of the money pouring into AI.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 10,
+    "start": 54.64,
+    "end": 61.06,
+    "text": "This week's Democratic victories added fears that political opposition could slow construction of new data centers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 11,
+    "start": 61.8,
+    "end": 66.5,
+    "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 12,
+    "start": 67.05,
+    "end": 76.21,
+    "text": "Leverage also made things worse for Bitcoin, as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 13,
+    "start": 77.21,
+    "end": 81.67,
+    "text": "AI can deliver on its promises and still cause huge losses for investors in the buildout.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 14,
+    "start": 82.35,
+    "end": 87.79,
+    "text": "We've seen this movie with the broadband buildout and with railroads more than a century earlier.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 15,
+    "start": 88.49,
+    "end": 98.69,
+    "text": "If competition drives down the price of AI, much of the benefit could go to customers and businesses riding on the infra buildout while the companies building the infrastructure struggle to earn back what they spent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 16,
+    "start": 99.47,
+    "end": 106.39,
+    "text": "Plus, cheaper and better AI is already wrecking the stocks of many public companies by making it easier for new competitors to take their customers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 17,
+    "start": 107.45,
+    "end": 112.92,
+    "text": "AI uncertainty is a big... part of my personal thesis for investing in Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 18,
+    "start": 113.76,
+    "end": 118.24,
+    "text": "I love that I don't have to predict which companies will win the AI race to make that bet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 19,
+    "start": 118.9,
+    "end": 126.96,
+    "text": "I'm betting on more and more people choosing to hold and use scarce money over time and I think that will be the case regardless of what happens with the AI trade.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 20,
+    "start": 128.0,
+    "end": 130.82,
+    "text": "Thanks for watching outside money and I will see you next time.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   13,
+   13
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Swan Bitcoin: The AI Bubble Is About to Pop",
+  "caption": "Clips: Simply Bitcoin (2026-11-05); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Simply Bitcoin.",
+   "bridges": [
+    "Over to Swan Bitcoin."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "l987bgGZjS0",
+    "channel": "Simply Bitcoin",
+    "published_at": "2026-11-05T22:00:19+00:00",
+    "text": "Inflation takes your savings slowly, and it happens no matter who wins.",
+    "start": 615.08,
+    "end": 618.8,
+    "provenance": {
+     "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+     "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+     "k": [
+      135,
+      135
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "AI can deliver on its promises and still cause huge losses for investors in the buildout.",
+    "start": 77.21,
+    "end": 81.67,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      13,
+      13
+     ]
+    }
+   }
+  ]
+ }
+}

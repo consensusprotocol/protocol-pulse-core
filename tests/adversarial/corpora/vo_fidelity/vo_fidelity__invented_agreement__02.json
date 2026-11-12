@@ -1,0 +1,95 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__invented_agreement__02",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "invented_agreement",
+  "why": "Swan Bitcoin's clip was not a reply to Simply Bitcoin.",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Simply Bitcoin",
+   "Swan Bitcoin"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "l987bgGZjS0",
+   "channel": "Simply Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-05T22:00:19+00:00",
+   "sentences": [
+    {
+     "k": 135,
+     "text": "Inflation takes your savings slowly, and it happens no matter who wins.",
+     "start": 615.08,
+     "end": 618.8
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+    "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+    "k": [
+     135,
+     135
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "w4h9HfP7Gb0",
+   "channel": "Swan Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "sentences": [
+    {
+     "k": 17,
+     "text": "AI uncertainty is a big... part of my personal thesis for investing in Bitcoin.",
+     "start": 107.45,
+     "end": 112.92
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+    "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+    "k": [
+     17,
+     17
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Simply Bitcoin, then Swan Bitcoin.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Swan Bitcoin backs that up.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check.",
+   "cites": []
+  }
+ ]
+}

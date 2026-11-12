@@ -1,0 +1,233 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__accusation__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/36HPi9UZPOc/transcript.whisper_words.json",
+  "record_sha256": "11818b5033dc9b5e8ab3000df3dada34a5e42dae20b850543bb0202bbd3a24a3",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "allegations",
+  "mined": "2026-11-12",
+  "selected_k": [
+   81,
+   81
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "accusation",
+  "why": "Names an exchange and relays allegations of lost balances and strange trades."
+ },
+ "source": {
+  "video_id": "36HPi9UZPOc",
+  "channel": "Yahoo Finance",
+  "title": "Coinbase got the charter Jamie Dimon did not want it to have.",
+  "description": "Strategy bought 1,036 Bitcoin for about $81.9 million, taking its holdings past 850,000 for the first time. Scott Melker's point is that the headlines about Michael Saylor being underwater on his average cost miss what matters, because Strategy is never getting margin called.\n\nCoinbase won full approval for a national trust bank charter from the OCC. The Treasury cut MEXC off from the US financial system over an alleged $16 billion in illicit transactions. Binance will close affected European accounts on December 31. And Circle froze $1.1 billion of USDC tied to the Binance theft.\n\nTimestamps\n",
+  "description_truncated": true,
+  "published_at": "2026-11-09T18:00:10+00:00",
+  "url": "https://www.youtube.com/watch?v=36HPi9UZPOc"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 81,
+    "start": 409.63,
+    "end": 418.73,
+    "text": "Now, listen, there have been a lot of allegations from individual traders about losing balances or strange trades happening on Mexi.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 73,
+    "start": 349.04,
+    "end": 358.42,
+    "text": "Treasury cuts off Mexi Global over alleged $16 billion in transactions linked to Iran, North Korea, and Russia.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 74,
+    "start": 359.56,
+    "end": 365.18,
+    "text": "So, FinCEN issued an order against Mexi on November 6th, just three days ago.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 75,
+    "start": 365.56,
+    "end": 376.49,
+    "text": "This order prohibits covered U.S. financial institutions from transmitting funds to or from Mexi, which takes 30... days in effect after the Federal Register publication.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 76,
+    "start": 376.79,
+    "end": 384.45,
+    "text": "So what they're claiming here, Treasury is saying that Mexico facilitated at least $16 billion in illicit transactions between May 2021 and May 26.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 77,
+    "start": 384.81,
+    "end": 390.45,
+    "text": "They attribute nearly 1.5 billion of those flows to Russian sanctions evasion.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 78,
+    "start": 391.13,
+    "end": 398.73,
+    "text": "Now, Treasury says transactions with Garrentex and its successor Grinix, which were Russian exchanges, continued as recently as June.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 79,
+    "start": 399.69,
+    "end": 403.97,
+    "text": "2026, those are sanctioned entities since April 2022.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 80,
+    "start": 404.55,
+    "end": 409.49,
+    "text": "So the order uses Section 9714 of the Combating Russian Money Laundering Act.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 82,
+    "start": 418.81,
+    "end": 421.95,
+    "text": "So this is not a surprise, but one thing that you should never be surprised about.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 83,
+    "start": 422.32,
+    "end": 430.18,
+    "text": "is that the United States government is going to take action when they think that a crypto exchange or anyone else is interacting with a sanctioned entity.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 84,
+    "start": 430.7,
+    "end": 433.8,
+    "text": "I mean, Mexie here got a quote from Scott Bessent himself.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 85,
+    "start": 434.36,
+    "end": 436.76,
+    "text": "Financial institutions cannot have it both ways.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 86,
+    "start": 437.44,
+    "end": 440.8,
+    "text": "If you support the Iranian regime or you have access to the U.S. financial system.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 87,
+    "start": 441.48,
+    "end": 445.22,
+    "text": "Pretty clear messaging there from him.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 88,
+    "start": 445.38,
+    "end": 446.62,
+    "text": "Treasury will continue to sever.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 89,
+    "start": 447.07,
+    "end": 453.35,
+    "text": "the Iranian regime's economic lifelines and thwart its desperate attempts to circumvent U.S. sanctions using digital accidents.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 90,
+    "start": 453.43,
+    "end": 458.79,
+    "text": "So like I told you, this was a $16 billion total, $1.5 billion specifically were Russian.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 91,
+    "start": 458.89,
+    "end": 463.15,
+    "text": "That leaves about $14.5 billion for the rest of the axis of evil.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 92,
+    "start": 463.99,
+    "end": 464.31,
+    "text": "Right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 93,
+    "start": 464.47,
+    "end": 467.25,
+    "text": "So Iran, North Korea, obviously.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 94,
+    "start": 467.51,
+    "end": 473.45,
+    "text": "So listen, like, Mexie is a exchange to my knowledge that didn't have very thorough KYC, AML.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 95,
+    "start": 473.89,
+    "end": 475.93,
+    "text": "Nothing about this is surprising to me.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 96,
+    "start": 477.27,
+    "end": 485.65,
+    "text": "But once again, a cautionary tale that you need to be exceptionally careful where you keep your coins and where you decide to trade, right?",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

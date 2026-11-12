@@ -1,0 +1,399 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__hypothetical__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+  "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "let's say",
+  "mined": "2026-11-12",
+  "selected_k": [
+   778,
+   778
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "hypothetical",
+  "why": "The consequence of a supposition ('Let's say I can turn that oil well on and off with like a day's notice.', k777); the speaker's point is that regulation prevents exactly this (k779-781)."
+ },
+ "source": {
+  "video_id": "W2LIxB2kAH0",
+  "channel": "TFTC",
+  "title": "The One Mistake That Cost Trump",
+  "description": "E.J. Antoni returns to break down the midterm blue wave and why he says Republicans lost because of the Iran war. Marty and E.J. cover energy prices bleeding into inflation, falling home affordability, a 35-point youth swing to the left, and the Grover Cleveland parallel. They also dig into tariffs and reindustrialization, Chevron deference and deregulation, Warsh's Fed, bank capital rules, Bessent and the Treasury's role in the repo market, and what a Democrat-controlled Congress means for interest rates.\n\nThe Bitcoin Playbook for Commercial Real Estate Owners & Investors: https://www.tftc.io",
+  "description_truncated": true,
+  "published_at": "2026-11-07T15:00:39+00:00",
+  "url": "https://www.youtube.com/watch?v=W2LIxB2kAH0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 757,
+    "start": 3401.8,
+    "end": 3405.54,
+    "text": "I mean, so much of our construction has just been completely hamstrung.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 758,
+    "start": 3405.95,
+    "end": 3408.29,
+    "text": "by these crazy environmental regulations.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 759,
+    "start": 3409.73,
+    "end": 3417.03,
+    "text": "And it's also made it impossible, even if projects can actually get built, it's made it impossible to do them quickly.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 760,
+    "start": 3417.85,
+    "end": 3421.65,
+    "text": "And so a lot of projects, because of that, it makes it so they're not even worth it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 761,
+    "start": 3422.37,
+    "end": 3429.05,
+    "text": "Or I should say, it creates so much uncertainty that people aren't sure if it will be worth it so they don't go ahead and do them, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 762,
+    "start": 3429.74,
+    "end": 3431.76,
+    "text": "You see this to a lesser extent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 763,
+    "start": 3431.88,
+    "end": 3433.34,
+    "text": "It doesn't have as much to do with regulation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 764,
+    "start": 3433.5,
+    "end": 3434.68,
+    "text": "It's just the dynamics of the industry.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 765,
+    "start": 3434.78,
+    "end": 3442.3,
+    "text": "But we've seen this this year with oil where so many market participants have basically been predicting that the war would get wrapped up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 766,
+    "start": 3442.8,
+    "end": 3443.72,
+    "text": "And it obviously hasn't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 767,
+    "start": 3444.12,
+    "end": 3448.74,
+    "text": "But they kept thinking, all right, this is wrapped up in a month, maybe 60 days, maybe 90 days.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 768,
+    "start": 3449.34,
+    "end": 3453.28,
+    "text": "And then energy prices will come down as energy markets normalize.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 769,
+    "start": 3453.48,
+    "end": 3459.16,
+    "text": "Well, if that's the case, it doesn't make sense for me to start operating a well that's profitable at $100, does it?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 770,
+    "start": 3459.35,
+    "end": 3465.71,
+    "text": "Because I'm not anticipating it's going to still be, the oil is still going to be at 100 when I get this thing running.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 771,
+    "start": 3466.23,
+    "end": 3469.11,
+    "text": "Furthermore, it doesn't instantly pay itself off, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 772,
+    "start": 3469.23,
+    "end": 3471.21,
+    "text": "I need to operate this for a number of years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 773,
+    "start": 3471.79,
+    "end": 3477.65,
+    "text": "And so if I have to run it for several years and I'm going to be running it at a loss, it's not worth it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 774,
+    "start": 3477.69,
+    "end": 3479.71,
+    "text": "I'm just not even going to tap that well in the first place.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 775,
+    "start": 3480.11,
+    "end": 3485.41,
+    "text": "You see the exact same thing because of regulation in countless industries throughout the economy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 776,
+    "start": 3485.93,
+    "end": 3489.67,
+    "text": "And because I can't respond quickly enough, there might be a window.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 777,
+    "start": 3490.25,
+    "end": 3494.19,
+    "text": "Let's say I can turn that oil well on and off with like a day's notice.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 778,
+    "start": 3494.57,
+    "end": 3499.51,
+    "text": "Well, in that case, it makes it very easy to adapt to these volatile price conditions.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 779,
+    "start": 3500.45,
+    "end": 3511.13,
+    "text": "That's kind of a rough parallel to what you see in a lot of instances throughout the economy, where people look at the regulatory environment and they say, I can no longer, I can't be a nimble business anymore.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 780,
+    "start": 3511.19,
+    "end": 3514.35,
+    "text": "I can't respond quickly to changing market conditions.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 781,
+    "start": 3514.83,
+    "end": 3521.55,
+    "text": "And therefore, I don't want to risk running into one of those periods where I lose my shirt and I just don't have the flexibility to change.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 782,
+    "start": 3522.21,
+    "end": 3522.33,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 783,
+    "start": 3522.63,
+    "end": 3529.24,
+    "text": "So that's, yeah, that's, that's the kind of energy side.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 784,
+    "start": 3529.82,
+    "end": 3531.6,
+    "text": "The finance side is another big one.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 785,
+    "start": 3531.86,
+    "end": 3534.22,
+    "text": "And, you know, look, the Fed has a big role to play here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 786,
+    "start": 3534.36,
+    "end": 3540.84,
+    "text": "I think the new Fed under Warsh is, let me put it this way.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 787,
+    "start": 3540.92,
+    "end": 3543.7,
+    "text": "I think Mickey Bowman is free to actually do the right thing now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 788,
+    "start": 3543.72,
+    "end": 3545.02,
+    "text": "She's not getting strong armed.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 789,
+    "start": 3545.34,
+    "end": 3547.4,
+    "text": "into doing all this woke nonsense.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 790,
+    "start": 3547.64,
+    "end": 3563.04,
+    "text": "And I mean, if you look at the capital requirements that they had previously proposed, not the new ones, but the previous ones, they had all kinds of ridiculous requirements there that had nothing to do with default risk, which is what your capital requirements are supposed to be there to help protect against.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   21,
+   21
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On TFTC: 'It Makes It Very Easy to Adapt to These Volatile Price Conditions'",
+  "caption": "Clips: Coin Bureau (2026-11-10); TFTC (2026-11-07). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Coin Bureau.",
+   "bridges": [
+    "And on TFTC:"
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "Well, in that case, it makes it very easy to adapt to these volatile price conditions.",
+    "start": 3494.57,
+    "end": 3499.51,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      778,
+      778
+     ]
+    }
+   }
+  ]
+ }
+}

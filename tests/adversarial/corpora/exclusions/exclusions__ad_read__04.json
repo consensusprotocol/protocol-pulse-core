@@ -1,0 +1,353 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__ad_read__04",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+  "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "Trezor (context)",
+  "mined": "2026-11-12",
+  "selected_k": [
+   675,
+   676
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "ad_read",
+  "why": "The same Trezor ad read, in another BTC Sessions episode (k677-680); no marker in the moment."
+ },
+ "source": {
+  "video_id": "jTuJ8PXhRV4",
+  "channel": "BTC Sessions",
+  "title": "Markets Just Realized How Wrong They Are | Lepard & Valek",
+  "description": "Mentor Sessions EP 109: Lawrence Lepard & Mark Valek on the Sovereign Debt Crisis, the Fed Trap, Gold, Silver & Bitcoin\n\nAmerica's debt just blew past $40 trillion, interest now costs more than the entire military budget, and yet gold and Bitcoin are both down on the year. Larry Lepard of Equity Management Associates and Mark Valek of Incrementum explain why the debasement trade stalled and what sets it off again.\n\nIn this conversation you'll learn why Valek sees a melting system against Lawrence Lepard's Big Print, why higher short-term rates trap the Fed under fiscal dominance, and which str",
+  "description_truncated": true,
+  "published_at": "2026-11-05T16:00:38+00:00",
+  "url": "https://www.youtube.com/watch?v=jTuJ8PXhRV4"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 675,
+    "start": 3163.34,
+    "end": 3165.26,
+    "text": "Bitcoin is not a set -itin -forget an asset.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 676,
+    "start": 3165.42,
+    "end": 3167.0,
+    "text": "Hoddling is an active process.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 652,
+    "start": 3103.52,
+    "end": 3106.1,
+    "text": "And that's what happens in a fourth turning, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 653,
+    "start": 3106.2,
+    "end": 3106.82,
+    "text": "Things break.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 654,
+    "start": 3108.72,
+    "end": 3110.46,
+    "text": "Canada is awful, by the way.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 655,
+    "start": 3110.6,
+    "end": 3111.1,
+    "text": "Yeah, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 656,
+    "start": 3111.34,
+    "end": 3111.7,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 657,
+    "start": 3111.96,
+    "end": 3113.2,
+    "text": "Oh, it's so bad.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 658,
+    "start": 3113.42,
+    "end": 3115.3,
+    "text": "And all the best, I feel like I got to find my way out of here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 659,
+    "start": 3115.66,
+    "end": 3117.82,
+    "text": "All the best and brightest around me are leaving.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 660,
+    "start": 3118.3,
+    "end": 3120.74,
+    "text": "Like it's, it's, and they're doing so at an accelerating pace.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 661,
+    "start": 3120.86,
+    "end": 3122.56,
+    "text": "I'm not sure if you're seeing the same thing there kind of mark.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 662,
+    "start": 3122.86,
+    "end": 3127.56,
+    "text": "If people are leaving Austria, Germany, they're trying to find greener pastures elsewhere and where they may even be going.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 663,
+    "start": 3127.78,
+    "end": 3133.34,
+    "text": "But for Canada, for sure, it's, it's any, anyone that I've seen be very successful is already looking for an exit.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 664,
+    "start": 3133.76,
+    "end": 3134.08,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 665,
+    "start": 3134.58,
+    "end": 3135.16,
+    "text": "Oh, yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 666,
+    "start": 3135.36,
+    "end": 3136.28,
+    "text": "Yeah, we see that a lot.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 667,
+    "start": 3136.52,
+    "end": 3140.84,
+    "text": "And the community in Switzerland, Liechtenstein, I mean, the expert community is growing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 668,
+    "start": 3141.56,
+    "end": 3143.92,
+    "text": "And everybody who is here is pretty happy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 669,
+    "start": 3144.14,
+    "end": 3148.56,
+    "text": "I think that we're able to be here, which I think it's a great place to live here in the mountains.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 670,
+    "start": 3149.54,
+    "end": 3150.1,
+    "text": "That's beautiful.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 671,
+    "start": 3150.44,
+    "end": 3152.34,
+    "text": "All right, Larry, so I want to get into Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 672,
+    "start": 3152.74,
+    "end": 3156.46,
+    "text": "The number of people that I talk to that haven't taken Bitcoin off the exchange is honestly quite frightening.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 673,
+    "start": 3156.58,
+    "end": 3159.8,
+    "text": "And those that do, a lot of them buy one device, get it set up, and never look at it again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 674,
+    "start": 3160.16,
+    "end": 3162.84,
+    "text": "Their security ends up becoming a snapshot of whatever the hell they knew that day.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 677,
+    "start": 3167.14,
+    "end": 3173.16,
+    "text": "I've helped a lot of people build their way to multi -sick setups and almost every time Treasor was one of those devices.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 678,
+    "start": 3173.38,
+    "end": 3176.0,
+    "text": "Intuitive, secure, Bitcoin -only firmware available in open source.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 679,
+    "start": 3176.08,
+    "end": 3177.38,
+    "text": "And that last one is really important.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 680,
+    "start": 3177.78,
+    "end": 3182.98,
+    "text": "They've always been open source since the very beginning, since 2014 when they built the very... first hardware wallet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 681,
+    "start": 3183.4,
+    "end": 3187.4,
+    "text": "And those recovery words they got stamped into metal, that standard was co -authored by Trezor's founders.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 682,
+    "start": 3187.6,
+    "end": 3192.04,
+    "text": "This is a company that the industry has literally been building on for over a decade.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 683,
+    "start": 3192.34,
+    "end": 3196.56,
+    "text": "But there's one thing that nobody could open up, the secure element, the place where you actually store your keys.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 684,
+    "start": 3197.1,
+    "end": 3203.48,
+    "text": "The Treasor Safe 7 has two of them, and Tropic 1 is the first open source secure element that security researchers can actually audit.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 685,
+    "start": 3203.62,
+    "end": 3209.72,
+    "text": "So, if you're taking self -custy for the first time or you're building something a little bit more robust, level up, get a Treasor Safe 7 today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 686,
+    "start": 3209.9,
+    "end": 3212.66,
+    "text": "Use promo code BTC Sessions 10 for 10 % off any model.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 687,
+    "start": 3212.86,
+    "end": 3215.44,
+    "text": "Scan the QR code on the screen or click the link in the description down below.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 688,
+    "start": 3216.16,
+    "end": 3220.9,
+    "text": "Unless for some reason you think they're about to stop printing and stop borrowing, you know exactly where Bitcoin is going.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 689,
+    "start": 3221.06,
+    "end": 3225.82,
+    "text": "And whether your stack is already at the size where you know you should do something about it or it's headed there, it's time your security caught up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 690,
+    "start": 3226.16,
+    "end": 3227.66,
+    "text": "That's why you need CASA premium.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

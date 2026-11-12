@@ -1,0 +1,483 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__quoting_opponent__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/-meUTTtD1Rw/transcript.whisper_words.json",
+  "record_sha256": "ff018105fee1de4ddecf27e830eeacf5c40af72ffada010fc50198f42db3a506",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "population of Doomers who said",
+  "mined": "2026-11-12",
+  "selected_k": [
+   425,
+   425
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "quoting_opponent",
+  "why": "The speaker is reciting what 'a whole population of Doomers' said (k424) and rejects it at once: 'I continually said those were bottom signals' (k426).",
+  "also": [
+   "accusation (L-u): the quoted doomers' words call a named person insolvent"
+  ]
+ },
+ "source": {
+  "video_id": "-meUTTtD1Rw",
+  "channel": "Scott Melker",
+  "title": "Bitcoin's Short Squeeze Just Flipped The Market",
+  "description": "Bitcoin short squeeze and spot ETF inflows with Backpack's Armani Ferrante on tokenized stocks and what holds the Bitcoin bid. Bitcoin rebounded above $80,000 after about $560 million in short liquidations, and Wednesday's spot Bitcoin ETFs flipped to a $74.6 million net inflow after three outflow days. I ask Armani Ferrante whether the squeeze is durable, what a $657 million day of tokenized US stock trading on Solana means for Backpack Securities, and how a Democratic Congress that wants a bigger SEC changes the path for on-chain equities and stock perps. We also cover Strategy's STRC prefer",
+  "description_truncated": true,
+  "published_at": "2026-11-05T14:45:07+00:00",
+  "url": "https://www.youtube.com/watch?v=-meUTTtD1Rw"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 403,
+    "start": 1966.73,
+    "end": 1969.89,
+    "text": "But when I take a look at the market, as usual, you know, we work with Kalshi.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 404,
+    "start": 1970.03,
+    "end": 1970.73,
+    "text": "You can see up the corner.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 405,
+    "start": 1971.15,
+    "end": 1973.71,
+    "text": "I always take a look at the Kalshi odds at this point.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 406,
+    "start": 1973.91,
+    "end": 1976.31,
+    "text": "Like I think, especially look at the elections and such.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 407,
+    "start": 1976.47,
+    "end": 1980.77,
+    "text": "I mean, prediction market is probably the best gauge we have of what sentiment is right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 408,
+    "start": 1981.53,
+    "end": 1983.37,
+    "text": "How high will Bitcoin go this year?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 409,
+    "start": 1983.49,
+    "end": 1984.13,
+    "text": "I mean, you go down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 410,
+    "start": 1984.49,
+    "end": 1988.15,
+    "text": "Only 14 % of people believe it'll go above 100,000 above.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 411,
+    "start": 1988.47,
+    "end": 1991.21,
+    "text": "Much higher, obviously, the odds go down massively.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 412,
+    "start": 1991.65,
+    "end": 1997.23,
+    "text": "But on the flip side, well, Bitcoin hit 50,000 before 100,000, only at 7 % right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 413,
+    "start": 1997.39,
+    "end": 2001.07,
+    "text": "If you went back to this summer, you know, it was a 60 % chance.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 414,
+    "start": 2001.37,
+    "end": 2007.13,
+    "text": "So once we had that move above 80, now people really are not at least pricing those much, much lower prices.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 415,
+    "start": 2007.31,
+    "end": 2011.85,
+    "text": "By the way, if you want to trade on Kashi, use a link down below.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 416,
+    "start": 2012.28,
+    "end": 2015.18,
+    "text": "And you get 25 bucks when you trade 25 bucks.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 417,
+    "start": 2015.34,
+    "end": 2019.46,
+    "text": "So moving on in other news because I have some dunking to do.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 418,
+    "start": 2021.3,
+    "end": 2022.06,
+    "text": "Not going to name names.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 419,
+    "start": 2022.82,
+    "end": 2028.84,
+    "text": "Strategies, STRC, hits $100 par for first time since May after over $2 billion in buybacks.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 420,
+    "start": 2029.12,
+    "end": 2038.22,
+    "text": "Yes, Strategy did everything in their own power to, you know, take this thing on their shoulders like Atlas and bring it back.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 421,
+    "start": 2038.34,
+    "end": 2039.52,
+    "text": "But back to par, $100.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 422,
+    "start": 2039.98,
+    "end": 2040.72,
+    "text": "I had countless.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 423,
+    "start": 2041.87,
+    "end": 2050.53,
+    "text": "arguments with people on X, especially when this was down in the 70s, that this was a great buy, that SCRC would naturally go back to $100.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 424,
+    "start": 2051.05,
+    "end": 2058.85,
+    "text": "And there was this whole population of Doomers, I tweeted about it, whole population of Doomers who said it could never go back to 100.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 425,
+    "start": 2059.07,
+    "end": 2065.85,
+    "text": "It was over that Saylor had to sell everything, would be insolvent, would be bankrupt, that he was going to be the reason for the bear market.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 426,
+    "start": 2066.01,
+    "end": 2068.51,
+    "text": "I continually said those were bottom signals.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 427,
+    "start": 2068.78,
+    "end": 2072.08,
+    "text": "Not top signals, not signals that we are going to go lower.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 428,
+    "start": 2073.0,
+    "end": 2077.18,
+    "text": "And listen, it's not a story about me being vindicated.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 429,
+    "start": 2077.48,
+    "end": 2078.5,
+    "text": "Plenty of people said it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 430,
+    "start": 2078.8,
+    "end": 2083.3,
+    "text": "The point is, don't listen to doomers who are having an emotional argument at the bottom.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 431,
+    "start": 2083.5,
+    "end": 2085.62,
+    "text": "I mean, I literally, I love CryptoKlio, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 432,
+    "start": 2086.0,
+    "end": 2088.14,
+    "text": "But I think we went on Defiant with Camry Russo.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 433,
+    "start": 2088.58,
+    "end": 2089.44,
+    "text": "And I took the strategy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 434,
+    "start": 2089.62,
+    "end": 2090.46,
+    "text": "It'll be fine side.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 435,
+    "start": 2090.72,
+    "end": 2093.64,
+    "text": "And he took the, they have to sell 10 billion versus Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 436,
+    "start": 2093.86,
+    "end": 2095.18,
+    "text": "STRC will never go down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 437,
+    "start": 2095.63,
+    "end": 2097.23,
+    "text": "No, you never go back again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 438,
+    "start": 2097.49,
+    "end": 2100.11,
+    "text": "It's going to zero, blah, blah, blah, blah, blah, blah, blah, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 439,
+    "start": 2100.67,
+    "end": 2102.53,
+    "text": "It is back at par.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 440,
+    "start": 2103.93,
+    "end": 2105.59,
+    "text": "Doomers are usually wrong, guys.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 38,
+    "k": 441,
+    "start": 2106.33,
+    "end": 2107.01,
+    "text": "That's the bottom line.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 39,
+    "k": 442,
+    "start": 2107.31,
+    "end": 2108.11,
+    "text": "Doomers are usually wrong.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 40,
+    "k": 443,
+    "start": 2108.41,
+    "end": 2118.97,
+    "text": "Now, where people, doomers have been a little bit right, is that, not doomers, but is that Bitcoin miners are going to sell a lot of Bitcoin and become AI data centers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 41,
+    "k": 444,
+    "start": 2119.13,
+    "end": 2123.39,
+    "text": "Riot platforms reports third quarter 2026 financial results and strategic highlights.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 42,
+    "k": 445,
+    "start": 2123.81,
+    "end": 2130.37,
+    "text": "The highlight is that they basically sold all the Bitcoin that they're mining to fund AI data center, AI data centers.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   22,
+   22
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Scott Melker's Show: 'It Was Over'",
+  "caption": "Clips: Coin Bureau (2026-11-05); Scott Melker's show (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "From Coin Bureau.",
+   "bridges": [
+    "Now Scott Melker's show."
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+    "start": 184.93,
+    "end": 198.36,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      27,
+      27
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "-meUTTtD1Rw",
+    "channel": "Scott Melker",
+    "published_at": "2026-11-05T14:45:07+00:00",
+    "text": "It was over that Saylor had to sell everything, would be insolvent, would be bankrupt, that he was going to be the reason for the bear market.",
+    "start": 2059.07,
+    "end": 2065.85,
+    "provenance": {
+     "record": "transcripts/-meUTTtD1Rw/transcript.whisper_words.json",
+     "record_sha256": "ff018105fee1de4ddecf27e830eeacf5c40af72ffada010fc50198f42db3a506",
+     "k": [
+      425,
+      425
+     ]
+    }
+   }
+  ]
+ }
+}

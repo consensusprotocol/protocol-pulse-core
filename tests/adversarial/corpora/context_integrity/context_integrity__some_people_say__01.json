@@ -1,0 +1,417 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__some_people_say__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/B7rm7UUzqgA/transcript.whisper_words.json",
+  "record_sha256": "ab299b2eed93bcda0a297504b886d807e23b678223b0ee4fd1242d7dab7a143b",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "people will say",
+  "mined": "2026-11-12",
+  "selected_k": [
+   381,
+   381
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "some_people_say",
+  "why": "Reported view the speaker rejects in the next breath: 'No, you can't. They all go down.' (k382-383)."
+ },
+ "source": {
+  "video_id": "B7rm7UUzqgA",
+  "channel": "Kitco NEWS",
+  "title": "Ted Oakley: This Cycle Is Ending, I’m 50% in Cash and Treasuries",
+  "description": "Ted Oakley of Oxbow Advisors expects interest rate cuts by mid-2027 as the economy slows, and says gold will like that. But after gold jumped more than $100 on the midterm vote, he's cutting gold miners, he's out of silver, he's selling Google and Microsoft, and he's holding about half his clients' money in cash and Treasuries.\n\nOakley, who has managed money through every cycle since the 1970s, says we're at the end of this cycle and expects weakness for most of 2027. He explains why the \"just buy the S&P 500\" approach is coming to an end, why commodities are signaling a slowdown, why he sold ",
+  "description_truncated": true,
+  "published_at": "2026-11-05T14:00:10+00:00",
+  "url": "https://www.youtube.com/watch?v=B7rm7UUzqgA"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 367,
+    "start": 1589.46,
+    "end": 1594.48,
+    "text": "So we just, again, we have toned down that portfolio a lot.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 368,
+    "start": 1595.02,
+    "end": 1600.58,
+    "text": "because we think it'll be slower next year and we don't want as much exposure as we have had.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 369,
+    "start": 1600.58,
+    "end": 1601.72,
+    "text": "We've had a okay year.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 370,
+    "start": 1601.86,
+    "end": 1605.14,
+    "text": "It's okay, but you can't let it get away from you, you know.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 371,
+    "start": 1605.64,
+    "end": 1609.32,
+    "text": "And so that's why we did that two weeks ago or so.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 372,
+    "start": 1609.86,
+    "end": 1610.28,
+    "text": "Interesting.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 373,
+    "start": 1610.86,
+    "end": 1613.5,
+    "text": "What would make you kind of sell the other 80 %?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 374,
+    "start": 1614.34,
+    "end": 1616.48,
+    "text": "And I guess where do you deploy the capital?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 375,
+    "start": 1618.43,
+    "end": 1622.39,
+    "text": "Well, I think anything you sell now, you shouldn't redeploy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 376,
+    "start": 1622.73,
+    "end": 1626.33,
+    "text": "You need to go into the... to the fixed income treasury market.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 377,
+    "start": 1627.03,
+    "end": 1636.67,
+    "text": "Now, I can go into that too, but what's the key now, I think, when you sell something, is if you want to make more money, move your maturities out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 378,
+    "start": 1637.21,
+    "end": 1667.65,
+    "text": "to four or five years in the treasury because you those will trade those are going to trade okay for you or maybe if you want a little tenure could do that too but it looks like to us by the time we get into the second third quarter all the bonds you bought here that are three four five six year maturities for us three four and five we'll make a lot more money because we're putting them in at a really good price we'll see but that's again that's what makes a horse race but Everything we're selling now is going in that direction.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 379,
+    "start": 1668.21,
+    "end": 1679.95,
+    "text": "Because if you're slowing down and you have a market that's going to come down on you and we think it will in 27, at least the first three quarters, then you don't want to be buying something else because they all go down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 380,
+    "start": 1680.29,
+    "end": 1682.87,
+    "text": "It doesn't make any difference which one you buy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 381,
+    "start": 1683.43,
+    "end": 1685.63,
+    "text": "People will say, well, I can hide in this industry.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 382,
+    "start": 1685.81,
+    "end": 1686.35,
+    "text": "No, you can't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 383,
+    "start": 1686.89,
+    "end": 1687.59,
+    "text": "They all go down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 384,
+    "start": 1687.77,
+    "end": 1689.41,
+    "text": "I've been there too many times.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 385,
+    "start": 1690.13,
+    "end": 1693.01,
+    "text": "And when the markets come off big, everything goes down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 386,
+    "start": 1693.53,
+    "end": 1695.07,
+    "text": "Including the goal, including the miners.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 387,
+    "start": 1695.99,
+    "end": 1696.01,
+    "text": "Interesting.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 388,
+    "start": 1696.69,
+    "end": 1701.81,
+    "text": "I mean, I got to ask you about the treasuries more, but before we do that, I mean, obviously we're watching Brent here today, WTI.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 389,
+    "start": 1701.97,
+    "end": 1706.99,
+    "text": "I mean, oil fell after this vote, and the president has said that there's no immediate plans to strike Iran.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 390,
+    "start": 1707.51,
+    "end": 1708.43,
+    "text": "You and I've talked about it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 391,
+    "start": 1708.63,
+    "end": 1709.79,
+    "text": "I mean, is this what you kind of saw coming?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 392,
+    "start": 1709.93,
+    "end": 1715.05,
+    "text": "I mean, what's your outlook for the producers and, you know, I guess the pipelines next year, all of it?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 393,
+    "start": 1716.33,
+    "end": 1718.33,
+    "text": "Well, the pipelines are off of their highs, too.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 394,
+    "start": 1718.55,
+    "end": 1720.09,
+    "text": "We don't sell the pipelines, though.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 395,
+    "start": 1720.65,
+    "end": 1720.81,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 396,
+    "start": 1721.13,
+    "end": 1723.73,
+    "text": "And I'll tell you why they're like a piece of real estate.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 397,
+    "start": 1723.95,
+    "end": 1725.51,
+    "text": "Everything's paid on a K -1.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 398,
+    "start": 1726.1,
+    "end": 1729.04,
+    "text": "And so you don't pay any current income tax hardly at all.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 399,
+    "start": 1729.3,
+    "end": 1732.46,
+    "text": "And so we buy those for long -term cash flow.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 400,
+    "start": 1732.54,
+    "end": 1740.22,
+    "text": "And they'll correct on you sometimes, 20 % or more, and even more during 0 -8 -09.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 401,
+    "start": 1740.5,
+    "end": 1743.0,
+    "text": "But we hold them long -term.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 402,
+    "start": 1743.84,
+    "end": 1746.16,
+    "text": "And maybe we add to them if they're really cheap.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   14,
+   14
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Kitco NEWS: 'I Can Hide in This Industry'",
+  "caption": "Clips: TFTC (2026-11-07); Kitco NEWS (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with TFTC.",
+   "bridges": [
+    "From Kitco NEWS:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "I think actually Congress, with being all Democrat controlled, might be able to bring a speedier end to the war in Iran.",
+    "start": 2340.16,
+    "end": 2349.68,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      526,
+      526
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "B7rm7UUzqgA",
+    "channel": "Kitco NEWS",
+    "published_at": "2026-11-05T14:00:10+00:00",
+    "text": "People will say, well, I can hide in this industry.",
+    "start": 1683.43,
+    "end": 1685.63,
+    "provenance": {
+     "record": "transcripts/B7rm7UUzqgA/transcript.whisper_words.json",
+     "record_sha256": "ab299b2eed93bcda0a297504b886d807e23b678223b0ee4fd1242d7dab7a143b",
+     "k": [
+      381,
+      381
+     ]
+    }
+   }
+  ]
+ }
+}

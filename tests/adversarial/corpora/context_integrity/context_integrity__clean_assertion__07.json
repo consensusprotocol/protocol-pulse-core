@@ -1,0 +1,363 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__07",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+  "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   51,
+   51
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "A dated factual statement; single narrator."
+ },
+ "source": {
+  "video_id": "n17v727G7FI",
+  "channel": "Coin Bureau",
+  "title": "The Midterms Couldn't Stop Bitcoin!",
+  "description": "👥 Join CBC Lite 👉 https://go.coinbureau.com/CBC-Lite-CB-Des\n🛒 Get The Hottest Crypto Deals 👉 https://www.coinbureau.com/deals/ \n\nCrypto Exchanges:\n\n📊TOOBIT: Deposit, Trade & Win Up to 60,000 USDT👉 https://go.coinbureau.com/toobit\n📈BINANCE: https://go.coinbureau.com/binance-cb\n\nCoin Bureau Community:\n\n♣️ Join The Coin Bureau Club 👉 https://go.coinbureau.com/cbc-cb-des\n📱 Coin Bureau Telegram 👉 https://go.coinbureau.com/yt-telegram\n💥 Coin Bureau Discord 👉 https://go.coinbureau.com/cb-discord \n📲 Insider Info in our Socials 👉 https://www.coinbureau.com/socials/ \n🔥 TOP Crypto TIPS In our Newsletter ",
+  "description_truncated": true,
+  "published_at": "2026-11-05T11:10:49+00:00",
+  "url": "https://www.youtube.com/watch?v=n17v727G7FI"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 35,
+    "start": 234.486,
+    "end": 240.747,
+    "text": "Then, Bitcoin ripped to  about $81,100, a 7% pump in the space of 12 hours.   Now, this wasn't necessarily just people rushing  in to buy.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 36,
+    "start": 240.837,
+    "end": 246.907,
+    "text": "A big part of that move was a classic   short squeeze.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 37,
+    "start": 247.023,
+    "end": 254.252,
+    "text": "That's when traders betting on a  drop are forced to buy back as the price rises,   pushing it even higher.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 38,
+    "start": 254.374,
+    "end": 258.731,
+    "text": "According to Coin Glass  data, around $950 million in positions were   liquidated, more than $560 million of it from  shorts.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 39,
+    "start": 258.847,
+    "end": 267.825,
+    "text": "So, the market had already taken a hit   before the results were final.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 40,
+    "start": 267.932,
+    "end": 266.295,
+    "text": "Which brings us to  the here and now.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 41,
+    "start": 266.392,
+    "end": 270.941,
+    "text": "At least as I make this video,   Bitcoin is continuing to trade just a smidge above  80K.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 42,
+    "start": 271.056,
+    "end": 277.798,
+    "text": "So, can we say it has definitely reclaimed   80K?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 43,
+    "start": 277.927,
+    "end": 280.516,
+    "text": "Well, not quite yet.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 44,
+    "start": 280.646,
+    "end": 287.065,
+    "text": "Bitcoin has pushed back  above this key level, but it hasn't yet proven   that it could hold that level as support through  a retest and a weekly close.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 45,
+    "start": 287.16,
+    "end": 293.854,
+    "text": "Since the 29th of   October, 80K has been the ceiling.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 46,
+    "start": 293.97,
+    "end": 300.886,
+    "text": "And as of right  now, we're merely poking through that ceiling.   A proper reclaim needs three things.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 47,
+    "start": 301.011,
+    "end": 304.659,
+    "text": "The first  is daily closes above 80K, ideally with a weekly   close to match.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 48,
+    "start": 304.777,
+    "end": 314.754,
+    "text": "The second is a successful retest,  meaning Bitcoin dips back to 80K or a little below   it and bounces, proving its support again.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 49,
+    "start": 314.878,
+    "end": 318.334,
+    "text": "The  third is the right fuel, meaning rising spot   volume and ETF inflows rather than just leverage  and a short squeeze.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 50,
+    "start": 318.451,
+    "end": 325.137,
+    "text": "And to be clear, leverage is   running fairly hot.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 51,
+    "start": 325.244,
+    "end": 332.96,
+    "text": "Open interest hit its highest  level since September on the 3rd of November with   annualized funding around 11%.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 52,
+    "start": 333.093,
+    "end": 337.861,
+    "text": "Funding is the  fee leveraged traders pay each other to hold   their positions.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 53,
+    "start": 337.992,
+    "end": 339.465,
+    "text": "And when it's that high, a lot  of them are leaning the same way.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 54,
+    "start": 339.577,
+    "end": 343.259,
+    "text": "Now, if 80k does   flip back to support, here's what we should look  for.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 55,
+    "start": 343.393,
+    "end": 352.386,
+    "text": "The first hurdle is at around 81.5K to 82K.   That's where the average cost basis of the US spot  ETF buyer is.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 56,
+    "start": 352.508,
+    "end": 362.447,
+    "text": "Then there's 85K, a zone that has   rejected Bitcoin four times this year.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 57,
+    "start": 362.564,
+    "end": 367.411,
+    "text": "Long-term  holders own about 4 million coins with cost basis   between 85K and 118K.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 58,
+    "start": 367.558,
+    "end": 367.698,
+    "text": "So, there is plenty of  break even selling overhead.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 59,
+    "start": 367.819,
+    "end": 374.294,
+    "text": "In the bullish case,   Bitcoin clears 85K.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 60,
+    "start": 374.432,
+    "end": 379.378,
+    "text": "That support gets worked  through and the 87K high would likely go quickly   after.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 61,
+    "start": 379.514,
+    "end": 387.141,
+    "text": "On the flip side, getting rejected at 80K  and sent back down to 75K would undo the whole   picture.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 62,
+    "start": 387.293,
+    "end": 386.585,
+    "text": "Never mind what happens if 75K fails to  hold.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 63,
+    "start": 386.717,
+    "end": 389.243,
+    "text": "So 80K is the line.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 64,
+    "start": 389.375,
+    "end": 395.794,
+    "text": "85K is the next possible   major test.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   16,
+   16
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Coin Bureau: Open Interest Hit Its Highest Level Since September on November 3",
+  "caption": "Clips: Natalie Brunell's show (2026-11-10); Coin Bureau (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with Natalie Brunell's show.",
+   "bridges": [
+    "Over to Coin Bureau."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "wdk5JZ9hPzs",
+    "channel": "Natalie Brunell",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "start": 3218.14,
+    "end": 3221.64,
+    "provenance": {
+     "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+     "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+     "k": [
+      715,
+      715
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "Open interest hit its highest  level since September on the 3rd of November with   annualized funding around 11%.",
+    "start": 325.244,
+    "end": 332.96,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      51,
+      51
+     ]
+    }
+   }
+  ]
+ }
+}

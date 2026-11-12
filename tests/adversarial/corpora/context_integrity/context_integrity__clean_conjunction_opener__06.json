@@ -1,0 +1,390 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_conjunction_opener__06",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+  "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   285,
+   285
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_conjunction_opener",
+  "why": "Opens on 'And'; an explanation complete in itself."
+ },
+ "source": {
+  "video_id": "Sjb6lUiL0m4",
+  "channel": "Stephan Livera",
+  "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+  "description": "Joe Burnett, VP of Bitcoin Strategy at Strive, argues that wealth stored in dollars, gold, houses and even mega-cap stocks is melting: technology can produce more of those things, so they lose value when measured in bitcoin. He says AI speeds that process up by destroying moats, and that after the moats are gone, bitcoin is what's left.\n\nStephan and Joe also talk through whether a portfolio that is up in dollars can still leave you poorer, why Joe thinks Bitcoin's power law could break if fiat credit keeps expanding, and whether treasury companies and digital credit such as Strive's SATA and S",
+  "description_truncated": true,
+  "published_at": "2026-11-11T18:03:23+00:00",
+  "url": "https://www.youtube.com/watch?v=Sjb6lUiL0m4"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 265,
+    "start": 1431.32,
+    "end": 1436.12,
+    "text": "But of course, like, you know, Bitcoin, we woke up tomorrow and Bitcoin's $10 million per coin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 266,
+    "start": 1436.44,
+    "end": 1439.36,
+    "text": "And, you know, the cost of mine is still what it is today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 267,
+    "start": 1439.72,
+    "end": 1442.14,
+    "text": "And we have like a massive mining build out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 268,
+    "start": 1442.66,
+    "end": 1447.86,
+    "text": "You know, I could see a scenario where maybe $10 million per Bitcoin doesn't stay up there forever.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 269,
+    "start": 1448.02,
+    "end": 1451.86,
+    "text": "And maybe it might make sense to rotate some of the money into.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 270,
+    "start": 1452.47,
+    "end": 1460.81,
+    "text": "an equity that has a relatively reasonable valuation, assuming that maybe Bitcoin's price will come down relative to that equity.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 271,
+    "start": 1461.01,
+    "end": 1467.39,
+    "text": "Maybe you'll be able to use cash flows from that company to buy cheaper Bitcoin in the future, things like that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 272,
+    "start": 1467.51,
+    "end": 1469.25,
+    "text": "So I think it all kind of depends on valuation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 273,
+    "start": 1469.57,
+    "end": 1479.87,
+    "text": "But I think like, especially as of right now in the current early stage of Bitcoin adoption, I would expect Bitcoin to outperform, you know, many of the broader asset classes and many of the individual.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 274,
+    "start": 1480.55,
+    "end": 1482.33,
+    "text": "entities within these asset classes.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 275,
+    "start": 1482.51,
+    "end": 1486.81,
+    "text": "You're kind of also getting into this idea of mean reversion and maybe the power law aspects as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 276,
+    "start": 1487.13,
+    "end": 1488.63,
+    "text": "So talk to us a little bit about that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 277,
+    "start": 1489.03,
+    "end": 1493.51,
+    "text": "I know you are recently writing and speaking about this idea that the power law might break.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 278,
+    "start": 1494.01,
+    "end": 1498.21,
+    "text": "So I guess first offer a quick explanation, like what is this Bitcoin power law stuff?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 279,
+    "start": 1498.67,
+    "end": 1502.87,
+    "text": "And then explain for us why you think the power law could break in Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 280,
+    "start": 1503.39,
+    "end": 1503.97,
+    "text": "Yeah, absolutely.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 281,
+    "start": 1504.13,
+    "end": 1509.85,
+    "text": "I mean, over the years, like the Bitcoin community has been interested in various models, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 282,
+    "start": 1510.31,
+    "end": 1513.73,
+    "text": "We had the stock to flow model, which was quite popular.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 283,
+    "start": 1514.85,
+    "end": 1519.49,
+    "text": "At this point, it's been concluded that Bitcoin broke to the downside in the stock to flow model.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 284,
+    "start": 1519.59,
+    "end": 1521.71,
+    "text": "The stock to flow model was too bullish.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 285,
+    "start": 1522.29,
+    "end": 1529.15,
+    "text": "And the stock to flow model was simply charting the stock to flow of Bitcoin, which is basically the inverse of Bitcoin supply and inflation rate.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 286,
+    "start": 1529.77,
+    "end": 1538.37,
+    "text": "So showing that, you know, the stock might be, you know, a certain amount, and the flow of new coins being mined relative to that existing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 287,
+    "start": 1538.81,
+    "end": 1540.59,
+    "text": "relatively large stock at this point.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 288,
+    "start": 1541.05,
+    "end": 1542.05,
+    "text": "That's kind of the measurement.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 289,
+    "start": 1542.53,
+    "end": 1548.49,
+    "text": "The power law is, you know, another model where it's just charting the growth of Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 290,
+    "start": 1548.95,
+    "end": 1551.11,
+    "text": "And it's a it's a log log model.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 291,
+    "start": 1551.35,
+    "end": 1561.37,
+    "text": "So the returns are diminishing over time, but they're still modeled out to be like far greater than pretty much every other asset class, at least over the next 10, 20 years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 292,
+    "start": 1561.49,
+    "end": 1564.25,
+    "text": "But ultimately, it does diminish over time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 293,
+    "start": 1564.49,
+    "end": 1571.8,
+    "text": "And my, my view is, is that is probably a great model for like the foreseeable future.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 294,
+    "start": 1572.5,
+    "end": 1579.72,
+    "text": "But I don't know if it will last forever because ultimately I think we're measuring the price of Bitcoin in fiat money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 295,
+    "start": 1580.4,
+    "end": 1583.46,
+    "text": "Fiat monies historically eventually fail.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 296,
+    "start": 1584.49,
+    "end": 1588.35,
+    "text": "You know, maybe it lasts 10 years, maybe it lasts 20 years, maybe last 50 years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 297,
+    "start": 1588.49,
+    "end": 1588.77,
+    "text": "I don't know.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   20,
+   20
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Stephan Livera's Show: What the Stock-to-Flow Model Was Charting",
+  "caption": "Clips: Stephan Livera's show (2026-11-11); Coin Bureau (2026-11-10). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "From Stephan Livera's show.",
+   "bridges": [
+    "From Coin Bureau:"
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "Sjb6lUiL0m4",
+    "channel": "Stephan Livera",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "text": "And the stock to flow model was simply charting the stock to flow of Bitcoin, which is basically the inverse of Bitcoin supply and inflation rate.",
+    "start": 1522.29,
+    "end": 1529.15,
+    "provenance": {
+     "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+     "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+     "k": [
+      285,
+      285
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,241 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__altcoin__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/CM3oXmVoxWo/transcript.whisper.json",
+  "record_sha256": "306a46a74b73d0e94ffe79d967a671d434aa4ad4bd587bf1691c12672ea741cb",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "hyperliquid",
+  "mined": "2026-11-12",
+  "selected_k": [
+   102,
+   102
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "altcoin",
+  "why": "Hyperliquid content."
+ },
+ "source": {
+  "video_id": "CM3oXmVoxWo",
+  "channel": "Bankless",
+  "title": "How a Top 100 Hyperliquid Trader Finds the Next Big Trade",
+  "description": "📣SPOTIFY PREMIUM RSS FEED | USE CODE: SPOTIFY24\nhttps://bankless.cc/spotify-premium\n\n---\nHow does a top 100 Hyperliquid trader find opportunities without blowing up? David Hoffman sits down with KoolKrypto to unpack his risk-first approach to perps, how he spots mispriced DeFi tokens, and why buybacks change the investment case. They debate the upside of Hyperliquid versus Lighter, the bull and bear cases for Zcash, and why crypto options could become the next major growth market. Plus, how a changing macro environment could set up crypto's next inflection point.\n\n---\nBANKLESS SPONSOR TOOLS:\n\n",
+  "description_truncated": true,
+  "published_at": "2026-11-11T11:30:25+00:00",
+  "url": "https://www.youtube.com/watch?v=CM3oXmVoxWo"
+ },
+ "moment": {
+  "timing": "segment",
+  "sentences": [
+   {
+    "k": 102,
+    "start": 461.62,
+    "end": 464.077,
+    "text": "Hyperliquid generating a ton of revenue.",
+    "speaker": null,
+    "turn": 0
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 92,
+    "start": 395.722,
+    "end": 405.967,
+    "text": "So, you know, I kept trying to say, like, you know, tokens like GMX, for example, it's like, oh, they're so cheap on like a PE ratio back when people were like blasting billions of dollars in the meme coins.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 93,
+    "start": 406.017,
+    "end": 409.63,
+    "text": "And so my, my, like, frame of reference for a lot of crypto right now is.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 94,
+    "start": 409.63,
+    "end": 416.556,
+    "text": "is more of, from the point of view of, like, you know, revenue meta, defy, etc. But I don't actually have, like, any real trad-five background.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 95,
+    "start": 416.605,
+    "end": 420.867,
+    "text": "Like, I never worked traditionally in any sort of, you know, banking or trading setting.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 96,
+    "start": 420.915,
+    "end": 423.676,
+    "text": "A lot of, a lot of, yeah, entirely self-taught in crypto.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 97,
+    "start": 423.725,
+    "end": 436.56,
+    "text": "And so, like, I've been close to a lot of that side of the industry, like, increasingly more so over the past couple of years of seeing, like, what institutional trading, like, ends up looking like, but never, never really had any experience into myself beforehand.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 98,
+    "start": 436.56,
+    "end": 446.51,
+    "text": "Yeah, for the mainball assessment chronically online on Twitter, revenue meta is this meme where there would finally be a rotation into revenue generating assets.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 99,
+    "start": 446.572,
+    "end": 454.987,
+    "text": "And we would like leave this era of like fake value capture tokens and meme coins behind and people would buy, would rotate into quality.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 100,
+    "start": 455.048,
+    "end": 458.856,
+    "text": "I would say lately, at least 2026, that has decently happened.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 101,
+    "start": 458.918,
+    "end": 461.559,
+    "text": "You know, pump generating a ton of revenue.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "after": [
+   {
+    "k": 103,
+    "start": 464.139,
+    "end": 465.49,
+    "text": "Do you think there is?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 104,
+    "start": 465.49,
+    "end": 468.946,
+    "text": "more revenue meta rotation ahead of us, how we kind of completed that.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 105,
+    "start": 468.996,
+    "end": 472.353,
+    "text": "Like revenue is actually valued as much as it ought to be in crypto.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 106,
+    "start": 472.402,
+    "end": 475.562,
+    "text": "Where do you think we are in the expression of the revenue meta?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 107,
+    "start": 475.612,
+    "end": 491.658,
+    "text": "It's actually like a really interesting question that kind of goes into like a broader theme, which is the fact that especially with like recent midterm results, for example, you're actually kind of potentially going to see a rotation out of the revenue meta tokens because they're a little bit more sensitive to regulations.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 108,
+    "start": 491.708,
+    "end": 493.09,
+    "text": "And then people are kind of.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 109,
+    "start": 493.09,
+    "end": 495.458,
+    "text": "more so long, the more store of value tokens.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 110,
+    "start": 495.51,
+    "end": 501.719,
+    "text": "And so like Bitcoin and Zek are kind of position, like you saw gold rally, for example, like with the midterm results.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 111,
+    "start": 501.771,
+    "end": 507.348,
+    "text": "And so it's this presumption like, okay, like, you know, rates down, spending bazooka to infinity back on.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 112,
+    "start": 507.401,
+    "end": 511.505,
+    "text": "And so that's more favorable and more supportive of the store of value assets.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 113,
+    "start": 511.557,
+    "end": 513.978,
+    "text": "It's not to say that the revenue meta is over.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 114,
+    "start": 514.03,
+    "end": 516.135,
+    "text": "I would actually say quite the opposite.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 115,
+    "start": 516.187,
+    "end": 519.66,
+    "text": "Like I do think that there's still going to be a very, very, very.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 116,
+    "start": 519.66,
+    "end": 549.751,
+    "text": "pronounced like flight to fundamentals and crypto and a lot of that just does come down to like you know does your token actually generate revenue um but i will say that it's like yeah from from a regulatory perspective those tokens tend to be more under threat than the store value tokens and so we might see an interesting rotation out of some of those uh revenue meta tokens into more of the bitcoins and zex of the world you in the camp that like there's uh store value coins bitcoin zek and there's revenue generating coins hyper liquid pump uh derive And that's it.",
+    "speaker": null,
+    "turn": 0
+   }
+  ]
+ }
+}

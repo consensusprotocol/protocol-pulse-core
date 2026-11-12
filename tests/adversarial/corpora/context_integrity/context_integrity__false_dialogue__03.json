@@ -1,0 +1,417 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__false_dialogue__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+  "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "sequence",
+  "mined": "2026-11-12",
+  "selected_k": [
+   355,
+   355
+  ],
+  "trap_in": "package"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "false_dialogue",
+  "why": "Sequence alone: What Bitcoin Did's interviewer asks whether losing Congress stops 'anything happening on Bitcoin' (2026-11-09) and the next clip, from a CoinTelegraph interview (2026-11-06), plays as the answer. The moment is clean on its own."
+ },
+ "source": {
+  "video_id": "L9tzgg6PXi8",
+  "channel": "CoinTelegraph",
+  "title": "Bitcoin to $1 MILLION by 2030? Mark Moss Reveals His Model",
+  "description": "Is Bitcoin's bottom finally in? Could BTC reach $1 MILLION by 2030? Investor and Bitcoin Opportunity Fund partner Mark Moss explains why he believes Bitcoin is entering one of the biggest buying opportunities in its history, despite recent crypto hacks and market uncertainty. He breaks down why Bitcoin could hit new all-time highs in 2027, how Wall Street adoption could push BTC to $1 million, and whether Strategy (MSTR) could outperform Bitcoin itself. Plus, Moss explains why he believes AI has killed the altcoin market and where investors should position themselves for the next bull run.\n\n00",
+  "description_truncated": true,
+  "published_at": "2026-11-06T14:30:20+00:00",
+  "url": "https://www.youtube.com/watch?v=L9tzgg6PXi8"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 331,
+    "start": 1219.16,
+    "end": 1255.54,
+    "text": "announced that they're doing they have bitcoin right black rock has rolled out their bitcoin etia obviously about a year ago fidelity so now we have all the the people that hold the public's money have all come on and now they're recommending to their people to buy it and so for example river put out a great piece of research um a couple of months ago i think maybe two months ago uh a great piece of research and they basically went through and kind of audited what financial advisors are telling and recommending to their clients to buy And all of the big financial advisors said that they're recommending between a two to seven percent allocation to Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 332,
+    "start": 1256.48,
+    "end": 1258.96,
+    "text": "Seven percent on the high end, two percent on the low end.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 333,
+    "start": 1259.18,
+    "end": 1259.82,
+    "text": "Let's split the middle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 334,
+    "start": 1259.9,
+    "end": 1260.62,
+    "text": "It's call five.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 335,
+    "start": 1261.14,
+    "end": 1263.48,
+    "text": "So what would it take for Bitcoin to get to five percent?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 336,
+    "start": 1264.18,
+    "end": 1268.14,
+    "text": "Well, looks like the financial advisors are recommending a five percent allocation right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 337,
+    "start": 1268.5,
+    "end": 1271.1,
+    "text": "So that will happen over the next year or two, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 338,
+    "start": 1271.1,
+    "end": 1274.42,
+    "text": "Like this is all happening and people expect it to happen too fast.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 339,
+    "start": 1274.66,
+    "end": 1275.98,
+    "text": "So that's happening right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 340,
+    "start": 1275.98,
+    "end": 1276.92,
+    "text": "They're starting to recommend it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 341,
+    "start": 1277.0,
+    "end": 1282.59,
+    "text": "And over the next year or two, We'll see that 2%, 5%, 7 % allocation start playing out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 342,
+    "start": 1283.03,
+    "end": 1288.85,
+    "text": "And so, you know, some of the money I would have typically put into stocks or commodities or bonds or whatever.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 343,
+    "start": 1289.09,
+    "end": 1290.05,
+    "text": "I'll put a little bit.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 344,
+    "start": 1290.07,
+    "end": 1291.13,
+    "text": "I'm not going to go all in.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 345,
+    "start": 1291.27,
+    "end": 1295.33,
+    "text": "I'm not going to go full Bitcoin maxi and put 100 % in, but I'll put 5%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 346,
+    "start": 1295.33,
+    "end": 1296.47,
+    "text": "Sure, why not, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 347,
+    "start": 1297.03,
+    "end": 1298.23,
+    "text": "And that's what we're talking about, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 348,
+    "start": 1298.65,
+    "end": 1307.05,
+    "text": "And so I wanted that the other side then if, you know, for what would have to happen, you know, there's still a few years away, but what would have to happen then for it to go the other side?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 349,
+    "start": 1308.65,
+    "end": 1316.17,
+    "text": "you know, a Bitcoiner, so like from a devil's advocate point of view, what would have to happen for Bitcoin to not capture that 1 %?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 350,
+    "start": 1316.77,
+    "end": 1320.95,
+    "text": "Would it be something to do with a technology scare or what would that be?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 351,
+    "start": 1321.11,
+    "end": 1322.27,
+    "text": "Yeah, I think Bitcoin would have to fail.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 352,
+    "start": 1322.57,
+    "end": 1327.89,
+    "text": "I think, and the two ways it would fail would be, it would no longer be decentralized and secure, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 353,
+    "start": 1328.19,
+    "end": 1328.75,
+    "text": "Or secure, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 354,
+    "start": 1328.89,
+    "end": 1332.43,
+    "text": "So it's like that, some don't have to happen to the network that would cause it to fail.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 355,
+    "start": 1332.99,
+    "end": 1338.47,
+    "text": "As long as Bitcoin stays decentralized and secure, then... I don't think there's anything that would derail it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 356,
+    "start": 1338.71,
+    "end": 1341.37,
+    "text": "I don't think government regulation would change.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 357,
+    "start": 1341.53,
+    "end": 1343.35,
+    "text": "And even if it did, I don't think that would derail it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 358,
+    "start": 1343.93,
+    "end": 1356.09,
+    "text": "At this point, as an American, I know this maybe sounds a little bit arrogant, but unfortunately, you know, the financial world revolves around the dollar in the U.S. financial system and BlackRock and J.P. Morgan.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 359,
+    "start": 1356.67,
+    "end": 1361.93,
+    "text": "And so as long as they're backing Bitcoin, like, it's just not going to fail.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 360,
+    "start": 1361.93,
+    "end": 1366.59,
+    "text": "And what we've done now is we've sort of reached escape velocity.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 361,
+    "start": 1366.99,
+    "end": 1369.67,
+    "text": "where Bitcoin is too entrenched now to fail.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 362,
+    "start": 1370.03,
+    "end": 1375.13,
+    "text": "And so, sure, we have a democracy and sure we just voted the midterms yesterday and sure.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 363,
+    "start": 1375.31,
+    "end": 1383.09,
+    "text": "But like the government sort of really sets its policy based off of lobby groups and like that's pharmaceutical companies, that's financial institutions.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 364,
+    "start": 1383.67,
+    "end": 1391.99,
+    "text": "And so when you have all the financial institutions and like I said, BlackRock, the largest one in the world and Fidelity and JP Morgan, all of them have spent billions of dollars to create Bitcoin products.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 365,
+    "start": 1392.54,
+    "end": 1396.74,
+    "text": "They're not going to sit back and watch a government all of a sudden change their tune and make it illegal.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 366,
+    "start": 1397.41,
+    "end": 1398.75,
+    "text": "They're going to lobby, right?",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   24,
+   24
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "What Bitcoin Did and CoinTelegraph",
+  "caption": "Clips: What Bitcoin Did (2026-11-09); CoinTelegraph (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with What Bitcoin Did.",
+   "bridges": [
+    "Now CoinTelegraph."
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "c1JGheQBPH4",
+    "channel": "What Bitcoin Did",
+    "published_at": "2026-11-09T17:00:09+00:00",
+    "text": "But if the Republicans do lose the House or they lose the House and the Senate in the midterms, does that essentially just put a stop to anything happening on Bitcoin right now?",
+    "start": 1736.2,
+    "end": 1743.98,
+    "provenance": {
+     "record": "transcripts/c1JGheQBPH4/transcript.whisper_words_punct.json",
+     "record_sha256": "779a3e98cbc0b72b814ba5724b30e3406d93156d036c2b1990b9f3558065258b",
+     "k": [
+      327,
+      327
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "L9tzgg6PXi8",
+    "channel": "CoinTelegraph",
+    "published_at": "2026-11-06T14:30:20+00:00",
+    "text": "As long as Bitcoin stays decentralized and secure, then... I don't think there's anything that would derail it.",
+    "start": 1332.99,
+    "end": 1338.47,
+    "provenance": {
+     "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+     "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+     "k": [
+      355,
+      355
+     ]
+    }
+   }
+  ]
+ }
+}

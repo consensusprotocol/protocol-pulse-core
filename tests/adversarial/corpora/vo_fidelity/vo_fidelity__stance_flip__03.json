@@ -1,0 +1,101 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__stance_flip__03",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "stance_flip",
+  "why": "The clip calls sound money 'one of the fundamental foundations of good economic growth'.",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "TFTC",
+   "Swan Bitcoin"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "W2LIxB2kAH0",
+   "channel": "TFTC",
+   "speaker": null,
+   "published_at": "2026-11-07T15:00:39+00:00",
+   "sentences": [
+    {
+     "k": 432,
+     "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+     "start": 1979.43,
+     "end": 1985.33
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+    "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+    "k": [
+     432,
+     432
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "w4h9HfP7Gb0",
+   "channel": "Swan Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "sentences": [
+    {
+     "k": 3,
+     "text": "Bitcoin actually fell less than the NASDAQ 100, down about 5 % over 24 hours and trading around $76,000 by the U.S. close.",
+     "start": 14.96,
+     "end": 23.62
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+    "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+    "k": [
+     3,
+     3
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "From TFTC and Swan Bitcoin.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "On TFTC: sound money gets in the way of good economic growth.",
+   "cites": [
+    "A"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Over to Swan Bitcoin.",
+   "cites": [
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check for November 12.",
+   "cites": []
+  }
+ ]
+}

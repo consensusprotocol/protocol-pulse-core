@@ -1,0 +1,265 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__policy_criticism__04",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+  "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "wealth tax",
+  "mined": "2026-11-12",
+  "selected_k": [
+   242,
+   243
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "policy_criticism",
+  "why": "Criticises how a state cut a wealth tax ('not my ideal way'); no one accused."
+ },
+ "source": {
+  "video_id": "W2LIxB2kAH0",
+  "channel": "TFTC",
+  "title": "The One Mistake That Cost Trump",
+  "description": "E.J. Antoni returns to break down the midterm blue wave and why he says Republicans lost because of the Iran war. Marty and E.J. cover energy prices bleeding into inflation, falling home affordability, a 35-point youth swing to the left, and the Grover Cleveland parallel. They also dig into tariffs and reindustrialization, Chevron deference and deregulation, Warsh's Fed, bank capital rules, Bessent and the Treasury's role in the repo market, and what a Democrat-controlled Congress means for interest rates.\n\nThe Bitcoin Playbook for Commercial Real Estate Owners & Investors: https://www.tftc.io",
+  "description_truncated": true,
+  "published_at": "2026-11-07T15:00:39+00:00",
+  "url": "https://www.youtube.com/watch?v=W2LIxB2kAH0"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 242,
+    "start": 1125.82,
+    "end": 1132.18,
+    "text": "I think it was via a homestead exemption, if I remember correctly, which, look, that's not my ideal way to reduce a wealth tax.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 243,
+    "start": 1132.34,
+    "end": 1133.92,
+    "text": "But hey, it's a step in the right direction, right?",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 233,
+    "start": 1065.6,
+    "end": 1069.76,
+    "text": "We had Governor Shapiro here in Pennsylvania yesterday announced he's going to raise the minimum wage.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 234,
+    "start": 1069.88,
+    "end": 1078.22,
+    "text": "And so you have an overconfident left about to double down on incompetent economic policies is what I'm reading right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 235,
+    "start": 1079.47,
+    "end": 1081.57,
+    "text": "Yeah, Marty, I think there's a lot of truth to that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 236,
+    "start": 1081.69,
+    "end": 1089.23,
+    "text": "Now, one thing I do think is very interesting and worth pointing out here is that then it goes back to the first part of our conversation, the fact that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 237,
+    "start": 1089.47,
+    "end": 1096.47,
+    "text": "This was voters rejecting something as opposed to, in other words, voters were running away from something, not running to something else.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 238,
+    "start": 1096.97,
+    "end": 1099.63,
+    "text": "I don't think this is an embrace by voters of the DSA.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 239,
+    "start": 1099.75,
+    "end": 1115.61,
+    "text": "And the reason I say that is because in many instances when, at least on the economic side, maybe not the social side, but on the economic side, in many instances, when the DSA's actual policies were put on the ballot, were put to the voters, they rejected them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 240,
+    "start": 1115.82,
+    "end": 1117.18,
+    "text": "And it wasn't just red states.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 241,
+    "start": 1117.36,
+    "end": 1125.34,
+    "text": "So you can point to Florida, for example, where voters chose to reduce property taxes, right?",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 244,
+    "start": 1134.5,
+    "end": 1137.1,
+    "text": "It's going to cause some distortionary effects is what I mean by that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 245,
+    "start": 1137.16,
+    "end": 1139.3,
+    "text": "But I still like a tax cut.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 246,
+    "start": 1139.42,
+    "end": 1139.76,
+    "text": "Trust me.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 247,
+    "start": 1140.57,
+    "end": 1142.31,
+    "text": "But you can say, well, that's a red state.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 248,
+    "start": 1142.35,
+    "end": 1143.19,
+    "text": "What about a blue state?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 249,
+    "start": 1143.63,
+    "end": 1143.99,
+    "text": "California.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 250,
+    "start": 1144.19,
+    "end": 1145.39,
+    "text": "Does it get more blue than that?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 251,
+    "start": 1145.63,
+    "end": 1147.07,
+    "text": "Prop 40 got shot down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 252,
+    "start": 1147.19,
+    "end": 1156.29,
+    "text": "Not only that, but voters went and went for, I think it was Prop 41 and 42, which basically would have had like nullifying effects on 40 more or less.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 253,
+    "start": 1156.73,
+    "end": 1163.57,
+    "text": "And so in one instance, voters said we don't want a wealth tax increase.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 254,
+    "start": 1164.05,
+    "end": 1167.19,
+    "text": "And in another state, voters said we do want a wealth tax decrease.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 255,
+    "start": 1167.21,
+    "end": 1168.89,
+    "text": "Okay, that's the same thing, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 256,
+    "start": 1169.03,
+    "end": 1170.81,
+    "text": "Distinction without a difference to some extent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 257,
+    "start": 1171.17,
+    "end": 1175.23,
+    "text": "Because the, the, you know, the direction there is exactly the same.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 258,
+    "start": 1175.49,
+    "end": 1182.69,
+    "text": "So my point is that whether it was in red states or blue states, voters were saying we don't want these DSA policies, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 259,
+    "start": 1183.11,
+    "end": 1188.05,
+    "text": "But you know what they don't want even more, I guess, is Republicans anymore.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 260,
+    "start": 1188.94,
+    "end": 1204.4,
+    "text": "And you brought up a really interesting point with the kind of this, the generational divide here where, and it's most pronounced now with young people, especially young men, especially young white men.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

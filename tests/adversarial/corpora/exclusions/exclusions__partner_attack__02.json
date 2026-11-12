@@ -1,0 +1,220 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__partner_attack__02",
+ "origin": "CONSTRUCTED",
+ "provenance": {
+  "record": null,
+  "record_sha256": null,
+  "found_by": "searched for a real instance: partner host / channel names x (grifter|shill|liar|lying|clown|idiot|dishonest|fraud|scam|wrong|stupid|garbage|nonsense|terrible) in every store record of a partner channel (config/partner_channels.json) and in the 39,999 statements of the oracle exports (/home/ultron/heimdall_probe/pp_redteam/oracle/*/BITCOIN_STATEMENTS_*.jsonl): none",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "partner_attack",
+  "why": "CONSTRUCTED: a partner channel (Simply Bitcoin) deriding another partner (What Bitcoin Did) by name; both are in config/partner_channels.json."
+ },
+ "source": {
+  "video_id": null,
+  "channel": "Simply Bitcoin",
+  "title": "After the Midterms: What Now for Bitcoin?",
+  "description": "Daily Bitcoin news and analysis. In this episode we go through the week's price action, the on-chain data we watch, and your questions from the comments. Chapters: 00:00 Intro 01:12 Price action 06:40 On-chain 11:05 Your questions 18:30 Wrap-up. If you enjoy the show, subscribe and turn on notifications so you never miss an episode, and share it with a friend who is just getting started. Nothing in this video is financial advice; always do your own research before making any decision with your money. Thank you for watching, for the comments and for the support, and we will see you on the next ",
+  "description_truncated": true,
+  "published_at": "2026-11-11T22:13:48+00:00",
+  "url": null
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": null,
+    "start": 845.12,
+    "end": 849.65,
+    "text": "What Bitcoin Did is unwatchable these days, if you ask me.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 850.34,
+    "end": 852.93,
+    "text": "It's just embarrassing for everyone involved.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": null,
+    "start": 781.97,
+    "end": 786.37,
+    "text": "So, the comments section has not really moved since the weekend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 787.64,
+    "end": 791.84,
+    "text": "Now, the question box keeps coming up in the questions every week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 793.23,
+    "end": 798.27,
+    "text": "Look, the hash rate chart deserves a closer look before we wrap up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 798.58,
+    "end": 803.27,
+    "text": "Listen, the mempool looks a lot like it did at this point last cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 804.9,
+    "end": 809.51,
+    "text": "Listen, the weekly chart is getting a lot of attention from you guys tonight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 810.25,
+    "end": 814.89,
+    "text": "So, the long-term holder data tells a fairly boring story at the moment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 816.39,
+    "end": 822.35,
+    "text": "Look, the long-term holder data is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 824.05,
+    "end": 829.41,
+    "text": "So, the question box is a good place to start before the main topic.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 829.6,
+    "end": 834.94,
+    "text": "Honestly, the funding rate is a good place to start before the main topic.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 836.09,
+    "end": 840.54,
+    "text": "Now, the question box has been pretty quiet over the last few days.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": null,
+    "start": 854.96,
+    "end": 859.64,
+    "text": "Well, the funding rate has been pretty quiet over the last few days.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 859.95,
+    "end": 864.62,
+    "text": "Anyway, the exchange balance chart deserves a closer look before we wrap up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 864.83,
+    "end": 869.0,
+    "text": "Well, the monthly candle tells a fairly boring story at the moment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 869.18,
+    "end": 874.46,
+    "text": "Now, the exchange balance chart is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 874.94,
+    "end": 879.87,
+    "text": "Right, the monthly candle looks a lot like it did at this point last cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 880.73,
+    "end": 886.23,
+    "text": "Listen, the miner revenue chart looks a lot like it did at this point last cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 886.53,
+    "end": 891.23,
+    "text": "Honestly, the mempool is something we keep an eye on every single show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 891.92,
+    "end": 897.82,
+    "text": "Alright, the hash rate chart looks a lot like it did at this point last cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 898.96,
+    "end": 904.44,
+    "text": "Honestly, the volume profile is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 905.11,
+    "end": 910.29,
+    "text": "Right, the weekly chart is a good place to start before the main topic.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 910.47,
+    "end": 915.42,
+    "text": "Look, the order book is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

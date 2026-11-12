@@ -1,0 +1,209 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__policy_criticism__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/MJzWDJf4thg/transcript.whisper_words.json",
+  "record_sha256": "851ebf13cf5ef8db000c496febc7a48b500e8c5ad7e57c2fff1f8952e0604584",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "wealth tax",
+  "mined": "2026-11-12",
+  "selected_k": [
+   709,
+   709
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "policy_criticism",
+  "why": "Criticises a state's wealth-tax plans and budget; no one is accused of a crime."
+ },
+ "source": {
+  "video_id": "MJzWDJf4thg",
+  "channel": "Bitcoin Magazine",
+  "title": "Bitcoin and Election Day 2026 | BMTV Nov. 3, 2026",
+  "description": "Grace Remington and Sean Hagan break down #ElectionDay, the #CryptoVote, and #BitcoinPolicy on #BitcoinMagazine TV (BMTV). Live Monday through Friday at 9:30am ET.\n\nGuests:\nMason Lynaugh — Executive Director, Stand With Crypto\nCory Klippsten — CEO, Swan Bitcoin\nTyler Stevens — Founder & CEO, Exergy\nand more!\n\nTo learn more and get the latest news on BMTV, visit: https://bitcoinmagazine.com/bmtv\n\nThank you to our BMTV Founding Sponsors! 🎺\n\n🟩 Cash App: For a limited time, new customers can get $21 added to their balance. Just use the code BMTV21 when you sign up, and send at least $5 to a friend",
+  "description_truncated": true,
+  "published_at": "2026-11-04T06:09:20+00:00",
+  "url": "https://www.youtube.com/watch?v=MJzWDJf4thg"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 709,
+    "start": 4202.27,
+    "end": 4207.6,
+    "text": "But You know, I'm aware that they're trying to hand down wealth taxes and they're kind of ruining the budget.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 700,
+    "start": 4138.23,
+    "end": 4142.73,
+    "text": "How likely do you think it is that something like that could happen in the United States?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 701,
+    "start": 4143.13,
+    "end": 4144.95,
+    "text": "And what should savers be watching for?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 702,
+    "start": 4145.11,
+    "end": 4146.13,
+    "text": "What should bitcoins be doing?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 703,
+    "start": 4147.72,
+    "end": 4160.56,
+    "text": "So what we've seen time and time again is we think that there's this line in the sand where a Western nation would not do something retroactive, where they will give you notice in advance and you can take some kind of action before.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 704,
+    "start": 4161.12,
+    "end": 4170.06,
+    "text": "But the truth is, whenever any economy, any government that overspends and gets out over their skis gets stressed, they do cross that line over and over and over again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 705,
+    "start": 4170.22,
+    "end": 4181.47,
+    "text": "So the reason that I wrote about Italy, which is just not... classics like Lebanon or Argentina or Cyprus or any of these others from kind of Bitcoin lore.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 706,
+    "start": 4182.05,
+    "end": 4184.45,
+    "text": "What was interesting about that one is they did it retroactively.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 707,
+    "start": 4185.03,
+    "end": 4191.09,
+    "text": "So they did it based on balances from a few days before and didn't give you a chance to do anything about it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 708,
+    "start": 4191.65,
+    "end": 4201.27,
+    "text": "And I do think that I'm obviously a proud resident of the California Socialist Republic.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 710,
+    "start": 4208.04,
+    "end": 4213.2,
+    "text": "And I could see them like why there's no rule that they can't do something.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 711,
+    "start": 4213.46,
+    "end": 4219.54,
+    "text": "It would be super unpopular, but there isn't a rule hard and fast that says they couldn't legislate something that was retroactive.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 712,
+    "start": 4220.04,
+    "end": 4231.54,
+    "text": "And I just wanted to wake people up to the fact that retroactive taxes and retroactive confiscation actually is a common pattern, even though we haven't seen it very recently in the West.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 713,
+    "start": 4232.47,
+    "end": 4240.99,
+    "text": "And, Corey, on that topic, you know, midterms are today, obviously, the nature of what we were just discussing is innately political, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 714,
+    "start": 4240.99,
+    "end": 4243.35,
+    "text": "This idea that governments are going to regulate.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 715,
+    "start": 4243.57,
+    "end": 4246.45,
+    "text": "They are going to exert their authority.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 716,
+    "start": 4246.93,
+    "end": 4249.21,
+    "text": "What's your outlook for the midterms?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 717,
+    "start": 4249.35,
+    "end": 4253.93,
+    "text": "And what do you make of sort of the politicalization around our industry over recent years?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 718,
+    "start": 4256.0,
+    "end": 4260.96,
+    "text": "Boy, that is a, that's a meaty topic that I've written about and talked about at length.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 719,
+    "start": 4261.0,
+    "end": 4263.2,
+    "text": "I'll try to do a very short version of it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 720,
+    "start": 4263.48,
+    "end": 4277.12,
+    "text": "So I think there was a bit of a devil's bargain made by some in the Bitcoin industry, some of whom had large megaphones, basically to get in bed with one party.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

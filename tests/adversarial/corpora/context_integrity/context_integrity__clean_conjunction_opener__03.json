@@ -1,0 +1,345 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_conjunction_opener__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+  "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   85,
+   85
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_conjunction_opener",
+  "why": "Opens on 'And'; a general statement complete in itself; single narrator."
+ },
+ "source": {
+  "video_id": "n17v727G7FI",
+  "channel": "Coin Bureau",
+  "title": "The Midterms Couldn't Stop Bitcoin!",
+  "description": "👥 Join CBC Lite 👉 https://go.coinbureau.com/CBC-Lite-CB-Des\n🛒 Get The Hottest Crypto Deals 👉 https://www.coinbureau.com/deals/ \n\nCrypto Exchanges:\n\n📊TOOBIT: Deposit, Trade & Win Up to 60,000 USDT👉 https://go.coinbureau.com/toobit\n📈BINANCE: https://go.coinbureau.com/binance-cb\n\nCoin Bureau Community:\n\n♣️ Join The Coin Bureau Club 👉 https://go.coinbureau.com/cbc-cb-des\n📱 Coin Bureau Telegram 👉 https://go.coinbureau.com/yt-telegram\n💥 Coin Bureau Discord 👉 https://go.coinbureau.com/cb-discord \n📲 Insider Info in our Socials 👉 https://www.coinbureau.com/socials/ \n🔥 TOP Crypto TIPS In our Newsletter ",
+  "description_truncated": true,
+  "published_at": "2026-11-05T11:10:49+00:00",
+  "url": "https://www.youtube.com/watch?v=n17v727G7FI"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 70,
+    "start": 426.269,
+    "end": 439.034,
+    "text": "The attackers   used fake job interviews and a tampered homebrew  package, a popular tool for installing software to   compromise wallet engineers.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 71,
+    "start": 439.159,
+    "end": 443.749,
+    "text": "On October 29th,  a malicious script reached the wallet signing   service, which authorized mass transfers out  of the hot wallets.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 72,
+    "start": 443.845,
+    "end": 452.831,
+    "text": "The finger has been pointed   squarely at North Korea's Lazarus group.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 73,
+    "start": 452.962,
+    "end": 457.272,
+    "text": "North  Korea, for its part, called the accusation a grave   political provocation, but I'll let you decide  on who to believe on that one.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 74,
+    "start": 457.368,
+    "end": 462.123,
+    "text": "As for the latest,   around 3 billion, mostly USDT and USDC, was frozen  within hours.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 75,
+    "start": 462.268,
+    "end": 471.666,
+    "text": "Binance pledged that users would   bear no losses and the exchange has replenished  98% of effective assets.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 76,
+    "start": 471.793,
+    "end": 477.253,
+    "text": "So, the largest crypto   theft on record came and went without the market  seizing up.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 77,
+    "start": 477.36,
+    "end": 486.651,
+    "text": "And so, when you consider everything   that's happened over the last few days, Bitcoin's  resilience is nothing short of incredible.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 78,
+    "start": 486.75,
+    "end": 492.056,
+    "text": "the   largest theft in crypto history.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 79,
+    "start": 492.175,
+    "end": 498.924,
+    "text": "The outcome in  Washington, the market feared most and it broken   support level with a swift visit to 75K.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 80,
+    "start": 499.033,
+    "end": 504.969,
+    "text": "From the  open on the day the theft began to the election   day low, Bitcoin fell about 7%.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 81,
+    "start": 505.111,
+    "end": 510.493,
+    "text": "For a theft more  than four times bigger than anything before it,   stacked on top of a political shock, that's a very  shallow draw down.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 82,
+    "start": 510.618,
+    "end": 517.711,
+    "text": "And our 75K target never broke.   And once the results were in, Bitcoin didn't  make a new low.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 83,
+    "start": 517.826,
+    "end": 521.02,
+    "text": "It bounced violently to 81K.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 84,
+    "start": 521.134,
+    "end": 528.81,
+    "text": "Now,   as I've covered, much of that bounce was driven  more by short covering rather than just new spot   demand.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 85,
+    "start": 528.926,
+    "end": 532.249,
+    "text": "And a short squeeze only works while there  are short sellers still trying to short.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 86,
+    "start": 532.355,
+    "end": 537.269,
+    "text": "But this   week, they ran out fast.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 87,
+    "start": 537.386,
+    "end": 541.74,
+    "text": "So, shrugging off both  shocks in the same week is a strong signal for   a reversal.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 88,
+    "start": 541.84,
+    "end": 542.94,
+    "text": "Absolutely.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 89,
+    "start": 543.04,
+    "end": 547.734,
+    "text": "But there's still more  work to do before we could talk about breaking   that 87K high.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 90,
+    "start": 547.869,
+    "end": 557.911,
+    "text": "First things first though, we look  for a daily close above 80K and or a clean retest   to prove that that line is support again.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 91,
+    "start": 558.024,
+    "end": 555.584,
+    "text": "But  that's our view on it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 92,
+    "start": 555.689,
+    "end": 559.834,
+    "text": "Let us know what you   think.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 93,
+    "start": 559.966,
+    "end": 567.447,
+    "text": "Does Bitcoin turn 80K back into support  and make a run for 85K plus or does it go back   to 75K first?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 94,
+    "start": 567.564,
+    "end": 567.044,
+    "text": "Let us know in the comments  down below.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 95,
+    "start": 567.147,
+    "end": 577.491,
+    "text": "And if you want the next price   action update as soon as it lands, along with the  private Discord and our team's daily research,   the link to the Coin Bureau Club is in the  description.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 96,
+    "start": 577.576,
+    "end": 589.74,
+    "text": "And I'll also put a description   for my own personal portfolio in there as well.  And if you want the full story of how the Binance   theft unfolded on the night, well, check out  our video on that right over here.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 97,
+    "start": 589.839,
+    "end": 594.281,
+    "text": "As always,   thank you so much for watching and I'll see  you again very soon.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   15,
+   15
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Coin Bureau: 'A Short Squeeze Only Works While There Are Short Sellers Still Trying to Short'",
+  "caption": "Clips: Coin Bureau (2026-11-05); TFTC (2026-11-07). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Coin Bureau.",
+   "bridges": [
+    "Next, TFTC."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "And a short squeeze only works while there  are short sellers still trying to short.",
+    "start": 528.926,
+    "end": 532.249,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      85,
+      85
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "I think actually Congress, with being all Democrat controlled, might be able to bring a speedier end to the war in Iran.",
+    "start": 2340.16,
+    "end": 2349.68,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      526,
+      526
+     ]
+    }
+   }
+  ]
+ }
+}

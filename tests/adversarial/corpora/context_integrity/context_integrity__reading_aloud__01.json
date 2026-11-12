@@ -1,0 +1,552 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__reading_aloud__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/9La50F_lmd0/transcript.whisper_words.json",
+  "record_sha256": "016757b26fe6efa30c34ee284c7709f45a43375aa05aae625c82d8d4fb27d193",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "this is a tweet from",
+  "mined": "2026-11-12",
+  "selected_k": [
+   368,
+   368
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "reading_aloud",
+  "why": "Read from a tweet ('This is a tweet from Dumerified', k367); the hosts then dispute the reading ('Spoiler alert, it's neither', k371)."
+ },
+ "source": {
+  "video_id": "9La50F_lmd0",
+  "channel": "BTC Sessions",
+  "title": "Trump Loses Both House And Senate BUT Bitcoin Rips To $81K Anyway",
+  "description": "🔴 LIVE – A Satoshi-era Bitcoin wallet dormant since 2010 just moved for the first time ever — sixteen years of silence, broken — while Bitcoin ripped to $81,000 and $320M in shorts got wiped out in thirty minutes. The real story here isn't the price, it's the wallet.\n\nIn this Bitcast live roundup you'll see exactly what the Satoshi-era wallet move means, with $1.7 million in untouched gains sitting since 2014. You'll hear Michael Saylor explain how Bitcoin reserve support just crossed party lines after the midterms — a Republican governor and a Democratic senator backing the same reserve. You'",
+  "description_truncated": true,
+  "published_at": "2026-11-04T22:55:59+00:00",
+  "url": "https://www.youtube.com/watch?v=9La50F_lmd0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 331,
+    "start": 1461.86,
+    "end": 1465.32,
+    "text": "But I don't think it's like the last like nothing is forever.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 332,
+    "start": 1465.84,
+    "end": 1470.52,
+    "text": "I think shit's going to, and if you go to supercycle theory.com and follow along there and subscribe to the substack.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 333,
+    "start": 1470.66,
+    "end": 1473.1,
+    "text": "And also, I swear I'm going to really do the QR code in this segment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 334,
+    "start": 1473.38,
+    "end": 1474.28,
+    "text": "Don't do it again, Nathan.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 335,
+    "start": 1474.44,
+    "end": 1475.02,
+    "text": "Don't you do it again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 336,
+    "start": 1476.42,
+    "end": 1481.24,
+    "text": "But literally like the, the period of reckoning is 2028 through 2032.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 337,
+    "start": 1481.86,
+    "end": 1487.62,
+    "text": "That's where we're going to have the highest, the highest frequency of cyclical convergence across all these different metrics.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 338,
+    "start": 1488.36,
+    "end": 1489.5,
+    "text": "That is the period to watch.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 339,
+    "start": 1489.68,
+    "end": 1491.48,
+    "text": "I mean, I don't have a crystal ball.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 340,
+    "start": 1491.98,
+    "end": 1492.14,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 341,
+    "start": 1492.6,
+    "end": 1494.02,
+    "text": "But 2028 to 2032.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 342,
+    "start": 1494.69,
+    "end": 1495.99,
+    "text": "that's probably going to be the worst.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 343,
+    "start": 1496.69,
+    "end": 1497.79,
+    "text": "You talk to Martin Armstrong, Walker?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 344,
+    "start": 1498.51,
+    "end": 1499.11,
+    "text": "You talk to Martin Armstrong?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 345,
+    "start": 1499.69,
+    "end": 1501.63,
+    "text": "He's another guy who's big on cycle theory.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 346,
+    "start": 1501.85,
+    "end": 1502.81,
+    "text": "He's impossible to talk to.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 347,
+    "start": 1502.93,
+    "end": 1503.55,
+    "text": "He doesn't leave his house.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 348,
+    "start": 1503.75,
+    "end": 1505.53,
+    "text": "He was in jail for a long time in the States.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 349,
+    "start": 1507.5,
+    "end": 1509.06,
+    "text": "Monetary theorist investor guy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 350,
+    "start": 1509.74,
+    "end": 1511.74,
+    "text": "Also big super cycle, though he doesn't quite call it that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 351,
+    "start": 1512.62,
+    "end": 1516.58,
+    "text": "I would love to hear what he thinks about the election.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 352,
+    "start": 1516.8,
+    "end": 1518.8,
+    "text": "I haven't seen him tweet last like there too.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 353,
+    "start": 1519.06,
+    "end": 1521.8,
+    "text": "But yeah, I think this is becoming a popular theory, Walker.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 354,
+    "start": 1522.11,
+    "end": 1527.27,
+    "text": "That, you know, it's not to say that it wasn't popular before, but more and more people are going, there's too much going on for nothing to happen here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 355,
+    "start": 1527.95,
+    "end": 1531.87,
+    "text": "Many people are saying that Walker really pioneered the cyclical convergence super cycle theory.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 356,
+    "start": 1531.97,
+    "end": 1533.03,
+    "text": "They're saying it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 357,
+    "start": 1533.37,
+    "end": 1533.81,
+    "text": "I've been saying it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 358,
+    "start": 1533.83,
+    "end": 1534.69,
+    "text": "Nathan's been saying it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 359,
+    "start": 1534.81,
+    "end": 1535.69,
+    "text": "Yeah, really at the forefront.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 360,
+    "start": 1536.07,
+    "end": 1536.51,
+    "text": "Really at the forefront.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 361,
+    "start": 1536.67,
+    "end": 1537.95,
+    "text": "Video's coming soon, guys, I swear.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 362,
+    "start": 1538.15,
+    "end": 1540.01,
+    "text": "I just finally got the clanker to fix them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 363,
+    "start": 1540.45,
+    "end": 1541.67,
+    "text": "Screw them up three times in a row.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 364,
+    "start": 1542.49,
+    "end": 1542.75,
+    "text": "Amazing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 365,
+    "start": 1543.15,
+    "end": 1547.85,
+    "text": "Okay, Jens, I wanted to talk about another item here that I mentioned off the top of the show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 366,
+    "start": 1548.22,
+    "end": 1551.74,
+    "text": "Satoshi -era coins, are they moving?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 367,
+    "start": 1551.86,
+    "end": 1554.14,
+    "text": "This is a tweet from Dumerified.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 368,
+    "start": 1554.74,
+    "end": 1558.76,
+    "text": "Outflows observed from Satoshi wallets for the first time since 2010.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 38,
+    "k": 369,
+    "start": 1559.1,
+    "end": 1563.56,
+    "text": "Unclear whether Stoci is back or an attacker has access to these wallets on chain.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 39,
+    "k": 370,
+    "start": 1564.06,
+    "end": 1568.34,
+    "text": "Notice the gigantic notes suggested context to be shown.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 40,
+    "k": 371,
+    "start": 1568.64,
+    "end": 1569.52,
+    "text": "Spoiler alert, it's neither.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 41,
+    "k": 372,
+    "start": 1569.84,
+    "end": 1571.06,
+    "text": "It's neither of those things.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 42,
+    "k": 373,
+    "start": 1571.33,
+    "end": 1575.13,
+    "text": "Yeah, no outflows from Satoshi attributed wallets have occurred since 2010.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 43,
+    "k": 374,
+    "start": 1575.49,
+    "end": 1579.63,
+    "text": "Braggers show only minor inflows or none with holdings intact.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 44,
+    "k": 375,
+    "start": 1580.05,
+    "end": 1586.09,
+    "text": "Furthermore, Arkham and others show 1.1 million BTC unmoved since 2010.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 45,
+    "k": 376,
+    "start": 1586.27,
+    "end": 1590.89,
+    "text": "Satoshi era wallets of other early miners have moved recently.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 46,
+    "k": 377,
+    "start": 1591.23,
+    "end": 1593.99,
+    "text": "So some old minor wallets, there's been some moves.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 47,
+    "k": 378,
+    "start": 1594.49,
+    "end": 1607.21,
+    "text": "Now, the other thing that... This kind of came up earlier in the year, but I just wanted to throw back to an article here on decrypt.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 48,
+    "k": 379,
+    "start": 1608.76,
+    "end": 1614.51,
+    "text": "And the reason this kind of stuck out to me is just when the coins were from.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 49,
+    "k": 380,
+    "start": 1615.21,
+    "end": 1616.89,
+    "text": "And it was like, oh, my God, look at this.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 50,
+    "k": 381,
+    "start": 1617.29,
+    "end": 1621.43,
+    "text": "So another dormant Bitcoin wallet holding millions wakes up after 12 years.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   37,
+   37
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "BTC Sessions: 'Outflows Observed From Satoshi Wallets for the First Time Since 2010'",
+  "caption": "Clips: Natalie Brunell's show (2026-11-10); BTC Sessions (2026-11-04). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Natalie Brunell's show.",
+   "bridges": [
+    "BTC Sessions:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "wdk5JZ9hPzs",
+    "channel": "Natalie Brunell",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "start": 3218.14,
+    "end": 3221.64,
+    "provenance": {
+     "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+     "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+     "k": [
+      715,
+      715
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "9La50F_lmd0",
+    "channel": "BTC Sessions",
+    "published_at": "2026-11-04T22:55:59+00:00",
+    "text": "Outflows observed from Satoshi wallets for the first time since 2010.",
+    "start": 1554.74,
+    "end": 1558.76,
+    "provenance": {
+     "record": "transcripts/9La50F_lmd0/transcript.whisper_words.json",
+     "record_sha256": "016757b26fe6efa30c34ee284c7709f45a43375aa05aae625c82d8d4fb27d193",
+     "k": [
+      368,
+      368
+     ]
+    }
+   }
+  ]
+ }
+}

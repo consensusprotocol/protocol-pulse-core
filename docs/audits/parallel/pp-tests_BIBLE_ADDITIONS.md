@@ -87,3 +87,79 @@ broken setup is FAILED / ERROR, never the defect; fixtures write the records the
 today's code ignores), and the request names them; a probe that must flip only on fix X keeps every other fix's
 record consistent (the byte-replacement probe rewrites the download record for the new bytes so only the transcript
 binding can tell).
+
+## Phase 2 (moments-first exam, 2026-11-12 from 03:00 ET)
+
+### PP-E12: A clean-looking clip can be the set-up the speaker knocks down next
+**Evidence:** Bitcoin Magazine (MJzWDJf4thg k1227-1229) 'So every Bitcoin bear market has been shallower than the
+last ... And now our most recent of just minus 53%.' reads as a stand-alone thesis; the next 20 s say 'The consensus
+view is that this bear market's drawdown was mild. But maybe there's a more nuanced view owed' and re-measure it in
+sigma. I first labelled it MUST-PASS from a 2-sentence look; both frontier baseline models rejected it with the reason.
+**Rule:** a moment is judged on its whole after-window, never on its first neighbours; 'the consensus view', 'but maybe',
+'a more nuanced view' after a clip are reversals. **Detection:** context_integrity__later_retraction__04.
+
+### PP-E13: A correction can land after the 60 s window
+**Evidence:** Yahoo Finance (F6YuzU0C8ho) says the Trump-Xi summit is 'next month, I believe' (k123) and corrects it 74 s
+after the clip ends ('Also, I misspoke. The Shenzhen summit is next week.', k155-156). A gate that reads a fixed 60 s
+after-window passes the retracted claim. **Rule:** besides the window, search the whole record for explicit
+corrections ('I misspoke', 'I should say', 'sorry, it was', 'actually, no') and test them against the moment.
+**Detection:** context_integrity__later_retraction__01 (window widened to 80 s and marked so); request R-24.
+
+### PP-E14: Whisper records carry no speaker turns; captions do
+**Evidence:** manual captions mark turns ('>>' and 'NAME:' labels: CNBC, Bloomberg, Fox), so a host's paraphrase ('>> SO
+YOU'RE SAYING ...', 9iyI2LddOoE k49) is visibly another turn; the Whisper records of the same kind of exchange (Kai-Fu
+Lee, 4cfjpf_IDwU k173-174 'So you're telling me ... There is a fear ...') carry none. L-v (1) 'a moment may not span a
+speaker change' cannot be checked on a record that does not know turns. **Rule:** a Whisper-only moment has an UNKNOWN
+speaker until diarised; a gate must not treat 'no label' as 'same speaker'. **Detection:** context_integrity__wrong_speaker__01..03.
+
+### PP-E15: Ad copy recurs across episodes and carries no marker in its first sentences
+**Evidence:** the same Trezor read opens 'Bitcoin is not a set and forget asset. Hodling is an active process.' in two
+BTC Sessions episodes (Irt0jKj7ISw k201, jTuJ8PXhRV4 k675); Square's 'Bitcoin can help diversify how you spend, save,
+and invest ...' runs in three Bitcoin Magazine episodes; Ledn's 'Selling Bitcoin to cover a big expense is the move
+most holders end up regretting' reads as editorial advice (lusJ1m-J0Mc k60). None of these sentences contains 'sponsor',
+'code' or a URL; the marker comes 10-40 s later. **Rule:** detect ad reads on the window (and on repetition of the same
+sentence across a channel's episodes), never on the moment's own words. **Detection:** exclusions__ad_read__01..05,
+context_integrity__reading_aloud__03.
+
+### PP-E16: A channel's upload can be another show's production
+**Evidence:** 'Saifedean Ammous' (vgsSZ4mAHfQ) is a Doha Debates debate republished on the channel (its description says
+so); Simply Bitcoin plays Darius Dale from Natalie Brunell's Coin Stories (l987bgGZjS0 k32-40) and Jordi Visser from
+Anthony Pompliano's show (qo8rDU3bbMo k60-64) inside its own episodes. The channel name says nothing about whose audio
+it is. **Rule:** third-party media is decided from the description and the window ('sat down with', 'told <host>',
+'hosts ... to debate'), per moment. **Detection:** exclusions__third_party_media__01..02.
+
+### PP-E17: A VO line can add a topic, and a name the case cannot verify
+**Evidence:** my first VO corpus opened every case with 'Two voices on Bitcoin.' even where neither clip says Bitcoin,
+and named speakers ('Mark Moss', 'Kai-Fu Lee') whose names appear in no clip and in no field of the VO case; both
+frontier models rejected four MUST-PASS cases for exactly this. **Rule:** manifest language may name channels, the show,
+the date and the count of voices; a topic or a person needs a clip or verified metadata (L-v (1)).
+**Detection:** vo_fidelity__faithful_paraphrase__03/04/06 and manifest_language__04 (corrected).
+
+### PP-E18: An exam's packaging can carry the answer
+**Evidence:** in the first corpus every must-pass case had the VO bridge "Also on the record:" and no must-fail case
+did; the stale-time cases alone had undated captions; one case alone had an 80 s window; the INDEX listed every
+must-fail case first. A one-line gate keyed on the bridge met every threshold (frontier review, chunk A).
+**Rule:** an exam's stimulus format is drawn from one pool for both labels, the order is shuffled per run, the ids
+are salted per run, and a test proves that no single format field lets a lookup gate pass.
+**Detection:** test_no_package_field_separates_the_verdicts, test_a_gate_that_answers_by_position_fails.
+
+### PP-E19: A channel named after a person turns a guest's words into the host's
+**Evidence:** a must-pass package opened "Stephan Livera first." over Joe Burnett's sentence (and "Natalie Brunell"
+over Jeff Booth's); both frontier baseline models failed it as a wrong-speaker package. The channel name is the host's
+name, so crediting the channel names the host.
+**Rule:** a person-named channel is credited as "<name>'s show" in VO, captions and titles unless that person is the
+speaker. **Detection:** the must-pass packages of context_integrity (clean_assertion 03 / 08 / 09,
+clean_conjunction_opener 06 / 07).
+
+### PP-E20: Narration right after "X posted / X pointed out" may still be X's
+**Evidence:** Simply Bitcoin (l987bgGZjS0) k128 'Jameson Lopp posted about exactly that this week.' k129 'Red team, then
+blue team ...' k130 'And the whole time, the debt keeps climbing ...'; k132 'Michael Saylor pointed out that ...'
+k133 'The case for holding Bitcoin crosses party lines.' Whether k130 / k133 are the narrator's or the paraphrase's is
+not decidable from the words. **Rule:** a moment that follows a reported-speech lead-in without a clear boundary is
+'uncertain' (a FAIL under L-s); never a must-pass. **Detection:** both clips were removed from the must-pass set.
+
+### PP-E21: A spend guard that keeps refused calls' reservations starves its own run
+**Evidence:** OpenAI's credits ran out mid-baseline (HTTP 429 insufficient_quota); the guard kept each refused call's
+worst-case reservation ($0.49), the ledger read $14.68 against $9.26 billed, and every later call was refused by the
+guard. **Rule:** a call the vendor refuses before processing it (4xx other than 408 / 409) releases its reservation; a
+call with an unknown outcome keeps it. **Detection:** baselines/frontier_blind._call; SPEND.jsonl `release_refused`.

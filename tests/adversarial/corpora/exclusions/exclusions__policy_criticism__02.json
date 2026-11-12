@@ -1,0 +1,241 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__policy_criticism__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+  "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "that's insane",
+  "mined": "2026-11-12",
+  "selected_k": [
+   601,
+   603
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "policy_criticism",
+  "why": "Criticises a tariff schedule; no person or company accused."
+ },
+ "source": {
+  "video_id": "W2LIxB2kAH0",
+  "channel": "TFTC",
+  "title": "The One Mistake That Cost Trump",
+  "description": "E.J. Antoni returns to break down the midterm blue wave and why he says Republicans lost because of the Iran war. Marty and E.J. cover energy prices bleeding into inflation, falling home affordability, a 35-point youth swing to the left, and the Grover Cleveland parallel. They also dig into tariffs and reindustrialization, Chevron deference and deregulation, Warsh's Fed, bank capital rules, Bessent and the Treasury's role in the repo market, and what a Democrat-controlled Congress means for interest rates.\n\nThe Bitcoin Playbook for Commercial Real Estate Owners & Investors: https://www.tftc.io",
+  "description_truncated": true,
+  "published_at": "2026-11-07T15:00:39+00:00",
+  "url": "https://www.youtube.com/watch?v=W2LIxB2kAH0"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 601,
+    "start": 2759.71,
+    "end": 2765.13,
+    "text": "And now that has a lower effective tariff rate than the canned good that's being filled with American -made food.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 602,
+    "start": 2766.39,
+    "end": 2767.33,
+    "text": "That's insane.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 603,
+    "start": 2767.57,
+    "end": 2774.59,
+    "text": "So instead of encouraging people to move their canning facilities here to the United States, you're actually encouraging them to do the opposite.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 590,
+    "start": 2694.83,
+    "end": 2708.13,
+    "text": "And if you're going to have tariffs that have a kind of on -ramp to them, in other words, you say today that X date in the future, it's going to be this percent tariff and that's going to ramp up until this number of years out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 591,
+    "start": 2708.67,
+    "end": 2712.63,
+    "text": "And that number of years out is the time it should take you to, let's say, build a factory here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 592,
+    "start": 2712.73,
+    "end": 2714.33,
+    "text": "Okay, that provides people an on -ramp.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 593,
+    "start": 2714.67,
+    "end": 2718.45,
+    "text": "But hitting them right away when they have no way to source the material here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 594,
+    "start": 2719.24,
+    "end": 2721.44,
+    "text": "That kills a lot of these manufacturers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 595,
+    "start": 2721.64,
+    "end": 2726.22,
+    "text": "And so people are bringing in this tin plate from overseas, paying a huge tariff on it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 596,
+    "start": 2726.7,
+    "end": 2737.16,
+    "text": "And then the cans are actually getting filled here in the United States with food that's made here in America, whether it's, you know, it doesn't matter if it's like canned chicken or canned spinach, whatever.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 597,
+    "start": 2737.48,
+    "end": 2740.76,
+    "text": "The food is coming from here in the United States and then sold here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 598,
+    "start": 2740.96,
+    "end": 2748.36,
+    "text": "That canned good has a higher effective tariff rate than product that's coming in from Southeast Asia.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 599,
+    "start": 2748.67,
+    "end": 2755.13,
+    "text": "where the can and the food comes from a different country, not here, and it's actually canned.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 600,
+    "start": 2755.37,
+    "end": 2759.27,
+    "text": "They're put together and labeled and packaged and everything overseas as well.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 604,
+    "start": 2776.34,
+    "end": 2779.62,
+    "text": "And, you know, look, we've made the administration aware of a lot of these examples.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 605,
+    "start": 2779.9,
+    "end": 2782.68,
+    "text": "They are, you know, USTR is trying to fix them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 606,
+    "start": 2783.54,
+    "end": 2785.0,
+    "text": "Clearly, they're not moving fast enough.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 607,
+    "start": 2785.16,
+    "end": 2791.74,
+    "text": "And I think, you know, did this factor into voters decision in the midterms, maybe to a small extent?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 608,
+    "start": 2792.26,
+    "end": 2801.64,
+    "text": "But if we look at the polling data on tariffs, you know, it pretty much most people, it just aligned essentially with how they voted in the previous election.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 609,
+    "start": 2801.72,
+    "end": 2804.68,
+    "text": "I don't think there was really much moving in the needle on that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 610,
+    "start": 2804.89,
+    "end": 2812.19,
+    "text": "I don't think people see the price increases that they have felt since the Iran War as being the result of tariffs.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 611,
+    "start": 2812.35,
+    "end": 2823.59,
+    "text": "I think people are pretty easily able to see the causation there, that tariffs were not a huge cost increase, did not cause a huge cost increase before March of this year.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 612,
+    "start": 2823.83,
+    "end": 2823.83,
+    "text": "Right.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 613,
+    "start": 2825.64,
+    "end": 2832.68,
+    "text": "So whatever the case, yeah, in terms of that reindustrialization, sorry, I'm doing the weave, as the president says, getting back to your point, though.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 614,
+    "start": 2833.71,
+    "end": 2837.27,
+    "text": "Regarding the reindustrialization, I think tariffs have been a very mixed bag.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

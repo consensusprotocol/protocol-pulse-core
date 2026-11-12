@@ -1,0 +1,98 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__banned_framing__03",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "banned_framing",
+  "why": "'admits' is banned unless it is the source's own word (L-t).",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "TFTC",
+   "Coin Bureau"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "W2LIxB2kAH0",
+   "channel": "TFTC",
+   "speaker": null,
+   "published_at": "2026-11-07T15:00:39+00:00",
+   "sentences": [
+    {
+     "k": 432,
+     "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+     "start": 1979.43,
+     "end": 1985.33
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+    "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+    "k": [
+     432,
+     432
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "n17v727G7FI",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-05T11:10:49+00:00",
+   "sentences": [
+    {
+     "k": 27,
+     "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+     "start": 184.93,
+     "end": 198.36
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+    "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+    "k": [
+     27,
+     27
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices.",
+   "cites": []
+  },
+  {
+   "slot": "bridge",
+   "text": "On TFTC, the speaker admits sound money is one of the fundamental foundations of good economic growth.",
+   "cites": [
+    "A"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Next, Coin Bureau.",
+   "cites": [
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check.",
+   "cites": []
+  }
+ ]
+}

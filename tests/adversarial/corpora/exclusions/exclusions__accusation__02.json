@@ -1,0 +1,161 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__accusation__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/2jwTRDvQtUo/transcript.yt_manual.json",
+  "record_sha256": "6426483828fbece737143c98a4e8311d137b00e7e8d896f59f11732a3de87184",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "spy|smuggl",
+  "mined": "2026-11-12",
+  "selected_k": [
+   382,
+   382
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "accusation",
+  "why": "Names companies and people in an alleged chip-diversion scheme 'in violation' of the law, on one report."
+ },
+ "source": {
+  "video_id": "2jwTRDvQtUo",
+  "channel": "Bloomberg Television",
+  "title": "Nvidia Preparing to Oust CEO Jensen Huang: WSJ",
+  "description": "\"Balance of Power\" focuses on the intersection of politics and global business. On today's show, Rep. Suzan DelBene says there should be an investigation into Nvidia and Jensen Huang to understand potential national security implications. Kevin Brady, former Republican Congressman from Texas, says Democrats are effectively in control of the timing and content of government funding legislation during the lame-duck session as control of the House changes hands. Gregory Allen, Founder and CEO of Decision Tree Research, says Nvidia is not structured to easily absorb the loss of Jensen Huang and ar",
+  "description_truncated": true,
+  "published_at": "2026-11-12T00:09:02+00:00",
+  "url": "https://www.youtube.com/watch?v=2jwTRDvQtUo"
+ },
+ "moment": {
+  "timing": "segment",
+  "sentences": [
+   {
+    "k": 382,
+    "start": 2701.965,
+    "end": 2724.722,
+    "text": "NOT ONLY DO WE LEARN ABOUT HOWARD LUTNICK'S SITUATION BUT MEGASPEED, CONTROLLED BY THE CHINESE SPY THAT HAVE THE RELATIONSHIP WITH JENSEN HUANG, WAS POTENTIALLY DIVERTING BILLIONS OF DOLLARS OF CHIPS TO CHINA IN VIOLATION OF OUR EXPORT CONTROL LAWS.",
+    "speaker": null,
+    "turn": 76
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 374,
+    "start": 2628.626,
+    "end": 2656.487,
+    "text": "THAT'S SIMPLY UNACCEPTABLE AND I EXPECT THE TRUMP ADMINISTRATION TO USE THIS UNFORTUNATE SITUATION AS AN OPPORTUNITY TO VECTOR CHECK AND IF JENSEN HUANG IS ABOUT TO LOSE HIS JOB, THE SCUTTLEBUTT IN WASHINGTON IS BEHIND.",
+    "speaker": "GREGORY",
+    "turn": 74
+   },
+   {
+    "k": 375,
+    "start": 2649.346,
+    "end": 2656.487,
+    "text": "KAILEY: HOLD THAT THOUGHT.",
+    "speaker": "KAILEY",
+    "turn": 75
+   },
+   {
+    "k": 376,
+    "start": 2656.487,
+    "end": 2664.795,
+    "text": "WE ARE ADDING THE VOICE OF A DEMOCRATIC CONGRESSMAN WHO IS ON THE OVERSIGHT AND INTELLIGENCE COMMITTEES.",
+    "speaker": "KAILEY",
+    "turn": 75
+   },
+   {
+    "k": 377,
+    "start": 2664.795,
+    "end": 2676.14,
+    "text": "THE WALL STREET JOURNAL IS REPORTING THE BOARD IS PREPARING TO MAKE THE DECISION AS TO WHETHER OR NOT TO OUST JENSEN HUANG.",
+    "speaker": "KAILEY",
+    "turn": 75
+   },
+   {
+    "k": 378,
+    "start": 2670.034,
+    "end": 2683.347,
+    "text": "I DON'T KNOW IF YOU FEEL THAT'S THE CORRECT DECISION BUT IF HE GOES, MIGHT THERE NEED TO BE HEADS THAT ROLE IN THE ADMINISTRATION AS WELL?",
+    "speaker": "KAILEY",
+    "turn": 75
+   },
+   {
+    "k": 379,
+    "start": 2683.347,
+    "end": 2692.656,
+    "text": ">> I SAW THE REPORTS OF HOWARD LUTNICK AND HOW HE GOT IN THE WAY OF TRYING TO GET AROUND OUR LAWS.",
+    "speaker": null,
+    "turn": 76
+   },
+   {
+    "k": 380,
+    "start": 2692.656,
+    "end": 2700.931,
+    "text": "IT'S DEEPLY DISTURBING.",
+    "speaker": null,
+    "turn": 76
+   },
+   {
+    "k": 381,
+    "start": 2692.656,
+    "end": 2709.239,
+    "text": "I THINK WE SHOULD LOOK AT OUR ENFORCEMENT REGIME IN GENERAL WITH REGARD TO THESE EXPORT CONTROLS.",
+    "speaker": null,
+    "turn": 76
+   }
+  ],
+  "after": [
+   {
+    "k": 383,
+    "start": 2724.722,
+    "end": 2735.065,
+    "text": "AND THEY MIGHT HAVE BEEN REMOTE ACCESS TO THE CLOUD BY BLACKLISTED ENTITIES.",
+    "speaker": null,
+    "turn": 76
+   },
+   {
+    "k": 384,
+    "start": 2727.825,
+    "end": 2751.548,
+    "text": "THIS IS A DISASTER AT THIS POINT AND IT DESERVES TREMENDOUS SCRUTINY NOT ONLY BY OBVIOUSLY NVIDIA'S BOARD BUT THE INTELLIGENCE COMMUNITY IN U.S. GOVERNMENT AS WELL.",
+    "speaker": null,
+    "turn": 76
+   },
+   {
+    "k": 385,
+    "start": 2742.272,
+    "end": 2756.62,
+    "text": "JOE: IF THE FORMER TOP DEMOCRAT ON THE HOUSE COMMITTEE IS CALLING THIS A FREAKING DISASTER, WHAT NEEDS TO BE HAPPENING?",
+    "speaker": "JOE",
+    "turn": 77
+   },
+   {
+    "k": 386,
+    "start": 2756.62,
+    "end": 2759.723,
+    "text": "SUBPOENAS FOR JENSEN HUANG?",
+    "speaker": "JOE",
+    "turn": 77
+   },
+   {
+    "k": 387,
+    "start": 2756.62,
+    "end": 2766.063,
+    "text": "WHAT ABOUT THE CONGRESSIONAL SYSTEM ON?",
+    "speaker": "JOE",
+    "turn": 77
+   },
+   {
+    "k": 388,
+    "start": 2759.723,
+    "end": 2789.653,
+    "text": ">> I JUST WROTE A LETTER ALONG WITH COLLEAGUES REQUESTING A CLASSIFIED BRIEFING BY THE INTELLIGENCE COMMITTEE EXPLAINING EXACTLY THE STATE OF INTELLIGENCE WITH REGARD TO WHAT THIS CHINESE SPY MIGHT HAVE LEARNED ABOUT OUR SECRETS, WHAT JENSEN HUANG'S PARTICIPATION IN ANY ILLICIT ACTIVITIES MIGHT HAVE BEEN THAT'S THE FIRST POINT.",
+    "speaker": null,
+    "turn": 78
+   }
+  ]
+ }
+}

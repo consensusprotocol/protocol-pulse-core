@@ -1,0 +1,92 @@
+{
+ "gate_module": "baselines.frontier_blind",
+ "gate_identity": {
+  "vendor": "google",
+  "model": "gemini-3.1-pro-preview",
+  "price": [
+   2.5,
+   15.0
+  ],
+  "effort": "default"
+ },
+ "absent_reason": null,
+ "network": true,
+ "started_at": "2026-11-12T04:31:10-0500",
+ "seed": 2848432101,
+ "corpora": {
+  "context_integrity": {
+   "table": {
+    "per_class": {
+     "clean_assertion": {
+      "expected": "pass",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 3,
+      "error": 0,
+      "absent": 0
+     },
+     "clean_conjunction_opener": {
+      "expected": "pass",
+      "n": 1,
+      "rejected": 0,
+      "accepted": 1,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 0,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 4,
+     "accepted": 4,
+     "false_rejects": 0,
+     "false_reject_rate": 0.0,
+     "errors": 0,
+     "absent": 0,
+     "ok": true
+    }
+   },
+   "rows": [
+    {
+     "id": "context_integrity__clean_assertion__01",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion by the speaker, contains no unresolved references, and the package neutrally presents it without implying a dialogue with the other clip or adding an unsupported thesis to the title.",
+     "seconds": 24.201
+    },
+    {
+     "id": "context_integrity__clean_assertion__13",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion where all referents are resolved internally. The package presents it clearly without altering its original meaning or implying an unwarranted dialogue with the other clip.",
+     "seconds": 22.98
+    },
+    {
+     "id": "context_integrity__clean_assertion__14",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion by the host about inflation, all pronouns and referents are self-contained, and the package preserves its original meaning without implying an invalid relation to the other clip.",
+     "seconds": 58.922
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__03",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion by the speaker, contains no unresolved referents, and is presented accurately in the package without any altering context or implied dialogue.",
+     "seconds": 22.393
+    }
+   ]
+  }
+ },
+ "finished_at": "2026-11-12T04:32:09-0500",
+ "salt": "ffb545474e319280"
+}

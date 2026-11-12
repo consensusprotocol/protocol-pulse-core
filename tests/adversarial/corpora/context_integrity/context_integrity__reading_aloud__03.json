@@ -1,0 +1,372 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__reading_aloud__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/MJzWDJf4thg/transcript.whisper_words.json",
+  "record_sha256": "851ebf13cf5ef8db000c496febc7a48b500e8c5ad7e57c2fff1f8952e0604584",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "Square, you can now accept Bitcoin",
+  "mined": "2026-11-12",
+  "selected_k": [
+   811,
+   811
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "reading_aloud",
+  "why": "Sponsor copy read on air (Square: 'with zero payment processing fees', k815), repeated verbatim in other episodes."
+ },
+ "source": {
+  "video_id": "MJzWDJf4thg",
+  "channel": "Bitcoin Magazine",
+  "title": "Bitcoin and Election Day 2026 | BMTV Nov. 3, 2026",
+  "description": "Grace Remington and Sean Hagan break down #ElectionDay, the #CryptoVote, and #BitcoinPolicy on #BitcoinMagazine TV (BMTV). Live Monday through Friday at 9:30am ET.\n\nGuests:\nMason Lynaugh — Executive Director, Stand With Crypto\nCory Klippsten — CEO, Swan Bitcoin\nTyler Stevens — Founder & CEO, Exergy\nand more!\n\nTo learn more and get the latest news on BMTV, visit: https://bitcoinmagazine.com/bmtv\n\nThank you to our BMTV Founding Sponsors! 🎺\n\n🟩 Cash App: For a limited time, new customers can get $21 added to their balance. Just use the code BMTV21 when you sign up, and send at least $5 to a friend",
+  "description_truncated": true,
+  "published_at": "2026-11-04T06:09:20+00:00",
+  "url": "https://www.youtube.com/watch?v=MJzWDJf4thg"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 792,
+    "start": 4761.21,
+    "end": 4764.11,
+    "text": "Corey Clipson, founder and CEO of Swam Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 793,
+    "start": 4764.33,
+    "end": 4765.17,
+    "text": "Thanks so much for joining us.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 794,
+    "start": 4765.27,
+    "end": 4765.89,
+    "text": "It was great having you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 795,
+    "start": 4767.43,
+    "end": 4767.85,
+    "text": "Thank you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 796,
+    "start": 4767.99,
+    "end": 4768.53,
+    "text": "See you in Amsterdam.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 797,
+    "start": 4771.78,
+    "end": 4776.28,
+    "text": "Well, Bitcoin is valuable because of the ownership, control, and liquidity that it gives you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 798,
+    "start": 4776.46,
+    "end": 4781.96,
+    "text": "The challenge has always been finding ways to make Bitcoin more useful without giving up the properties that made you want to own it in the first place.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 799,
+    "start": 4782.44,
+    "end": 4787.0,
+    "text": "That's what's attractive about Verified X, the Bitcoin custody sponsor of BMTV.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 800,
+    "start": 4787.46,
+    "end": 4798.24,
+    "text": "Verified X is designed to let you use Bitcoin across things like payments, borrowing, lending, trading, treasury management, and settlement without requiring you to wrap it into a synthetic asset or hand control over to a third party.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 801,
+    "start": 4798.6,
+    "end": 4802.12,
+    "text": "And importantly for Bitcoins, Verified X is built around self -custody.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 802,
+    "start": 4802.44,
+    "end": 4811.46,
+    "text": "You maintain control of your own signing while still being able to access native Bitcoin liquidity across programmable financial applications and integrated venues like exchanges.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 803,
+    "start": 4812.04,
+    "end": 4818.4,
+    "text": "The idea is to expand what you can do with Bitcoin without compromising what makes Bitcoin valuable in the first place.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 804,
+    "start": 4818.7,
+    "end": 4821.18,
+    "text": "Keep Bitcoin as Bitcoin and activate it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 805,
+    "start": 4821.42,
+    "end": 4828.88,
+    "text": "Explore VerifiedX and see how Bitcoin can move, settle, and work across programmable financial networks at verifiedx.io.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 806,
+    "start": 4829.27,
+    "end": 4830.83,
+    "text": "Digital assets involve risk.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 807,
+    "start": 4831.03,
+    "end": 4833.15,
+    "text": "Learn more before participate it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 808,
+    "start": 4833.66,
+    "end": 4838.78,
+    "text": "Coming up next, how Bitcoin miners are using waste heat to adapt to a changing market.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 809,
+    "start": 4839.06,
+    "end": 4840.56,
+    "text": "And what's next for Bitcoin's hash rate?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 810,
+    "start": 4840.7,
+    "end": 4844.68,
+    "text": "Tyler Stevens, the founder and CEO of Exergy, joins the show next to discuss more.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 811,
+    "start": 4850.26,
+    "end": 4858.06,
+    "text": "Bitcoin can help diversify how you spend, save, and invest in your business, especially when every swipe of a credit card eats away at your bottom line.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 812,
+    "start": 4858.5,
+    "end": 4860.24,
+    "text": "Let's say you run a local grocery chain.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 813,
+    "start": 4860.52,
+    "end": 4864.06,
+    "text": "Most purchases are small, like a bag of produce or a gallon of milk.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 814,
+    "start": 4864.26,
+    "end": 4866.8,
+    "text": "so credit card fees start to add up fast.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 815,
+    "start": 4867.52,
+    "end": 4874.32,
+    "text": "But Square, you can now accept Bitcoin, with zero payment processing fees, no chargebacks, and near instant access to funds.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 816,
+    "start": 4874.96,
+    "end": 4881.44,
+    "text": "And you choose how money settles into your account, whether in USD or Bitcoin, instantly and right from your square dashboard.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 817,
+    "start": 4882.47,
+    "end": 4891.25,
+    "text": "Whether you're aiming for short -term goals or planning for the long haul, you can automatically convert a percentage of your daily card sales into Bitcoin, no extra steps, no added complexity.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 818,
+    "start": 4891.61,
+    "end": 4897.01,
+    "text": "It's a smart, seamless way to build savings in the background, all while keeping your day -to -day cash flow predictable.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 819,
+    "start": 4897.93,
+    "end": 4902.77,
+    "text": "And when tax time comes, you'll get the paperwork you need right where you find your reports and bank statement.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 820,
+    "start": 4903.41,
+    "end": 4907.61,
+    "text": "Bitcoin is just another way for you to take control of how your business makes and spends money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 821,
+    "start": 4909.27,
+    "end": 4912.21,
+    "text": "Enable Bitcoin payments and conversions in your square dashboard.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 822,
+    "start": 4912.79,
+    "end": 4915.65,
+    "text": "Head to squareup.com slash Bitcoin to learn more.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   19,
+   19
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Bitcoin Magazine: 'Bitcoin Can Help Diversify How You Spend, Save, and Invest in Your Business'",
+  "caption": "Clips: Bitcoin Magazine (2026-11-04); Coin Bureau (2026-11-10). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Here's Bitcoin Magazine.",
+   "bridges": [
+    "Next, Coin Bureau."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "MJzWDJf4thg",
+    "channel": "Bitcoin Magazine",
+    "published_at": "2026-11-04T06:09:20+00:00",
+    "text": "Bitcoin can help diversify how you spend, save, and invest in your business, especially when every swipe of a credit card eats away at your bottom line.",
+    "start": 4850.26,
+    "end": 4858.06,
+    "provenance": {
+     "record": "transcripts/MJzWDJf4thg/transcript.whisper_words.json",
+     "record_sha256": "851ebf13cf5ef8db000c496febc7a48b500e8c5ad7e57c2fff1f8952e0604584",
+     "k": [
+      811,
+      811
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,426 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__15",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+  "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   531,
+   531
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "Framed as opinion ('in my opinion') and kept so."
+ },
+ "source": {
+  "video_id": "jTuJ8PXhRV4",
+  "channel": "BTC Sessions",
+  "title": "Markets Just Realized How Wrong They Are | Lepard & Valek",
+  "description": "Mentor Sessions EP 109: Lawrence Lepard & Mark Valek on the Sovereign Debt Crisis, the Fed Trap, Gold, Silver & Bitcoin\n\nAmerica's debt just blew past $40 trillion, interest now costs more than the entire military budget, and yet gold and Bitcoin are both down on the year. Larry Lepard of Equity Management Associates and Mark Valek of Incrementum explain why the debasement trade stalled and what sets it off again.\n\nIn this conversation you'll learn why Valek sees a melting system against Lawrence Lepard's Big Print, why higher short-term rates trap the Fed under fiscal dominance, and which str",
+  "description_truncated": true,
+  "published_at": "2026-11-05T16:00:38+00:00",
+  "url": "https://www.youtube.com/watch?v=jTuJ8PXhRV4"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 510,
+    "start": 2274.11,
+    "end": 2284.35,
+    "text": "He asked him about the gold standard and Greenspan kind of lied and said, well, I think the Federal Reserve did a good job of basically emulating the gold standard, which is complete bullshit, but he said that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 511,
+    "start": 2284.95,
+    "end": 2294.61,
+    "text": "And then Brian also asked him, he said, and this is in my book, actually, he said, you know, how does it feel, you know, being, you know, being the guy who controls the cost of money and Greenspan, he was honest about it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 512,
+    "start": 2294.69,
+    "end": 2296.03,
+    "text": "He said, he said, it's incredible.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 513,
+    "start": 2296.33,
+    "end": 2300.81,
+    "text": "He said, the power is just, it's intoxicating to just, you know, to be running the show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 514,
+    "start": 2301.29,
+    "end": 2303.47,
+    "text": "and everybody hanging on your every single word.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 515,
+    "start": 2303.73,
+    "end": 2305.25,
+    "text": "It's just, it's unbelievable.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 516,
+    "start": 2305.87,
+    "end": 2310.15,
+    "text": "So, yeah, I mean, he was honest about the feeling, and I guess you could understand that, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 517,
+    "start": 2310.27,
+    "end": 2313.49,
+    "text": "I mean, it's just like being president must fit pretty cool.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 518,
+    "start": 2313.83,
+    "end": 2321.37,
+    "text": "You know, I mean, I wouldn't want the job, but for some people who are, if you're an egomaniac, you know, it's probably feels, it'd be heaven, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 519,
+    "start": 2322.38,
+    "end": 2328.46,
+    "text": "I might be able to argue that controlling the money printer might be even more intoxicating and more powerful than being president necessarily.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 520,
+    "start": 2328.62,
+    "end": 2332.16,
+    "text": "Well, yeah, I mean, a nice thing about that is you can hide.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 521,
+    "start": 2332.48,
+    "end": 2334.36,
+    "text": "You know, people don't really know what you're doing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 522,
+    "start": 2335.22,
+    "end": 2339.02,
+    "text": "And you could be loved by all the financial types who benefit from your actions.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 523,
+    "start": 2339.94,
+    "end": 2348.18,
+    "text": "And you don't get criticized very much except by guys like Ron Paul and Mark and me and Ronnie and you and safe and, you know, sound money camp.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 524,
+    "start": 2348.5,
+    "end": 2348.64,
+    "text": "But.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 525,
+    "start": 2349.43,
+    "end": 2351.25,
+    "text": "The sound money camp is a pretty small camp.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 526,
+    "start": 2351.37,
+    "end": 2352.09,
+    "text": "I mean, it's getting bigger.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 527,
+    "start": 2353.73,
+    "end": 2354.91,
+    "text": "We've had some success.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 528,
+    "start": 2355.49,
+    "end": 2360.67,
+    "text": "And I think we're on the right side of what's really going to be an earth -changing event in terms of the sovereign debt crisis.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 529,
+    "start": 2360.79,
+    "end": 2367.59,
+    "text": "I mean, we haven't really talked about the bigger picture of the fact that the U.S. Treasury bond is down 80 % in gold terms since 2020.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 530,
+    "start": 2368.33,
+    "end": 2371.29,
+    "text": "I mean, the dollar is kind of on its way out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 531,
+    "start": 2371.43,
+    "end": 2374.45,
+    "text": "I mean, all of the currencies, in my opinion, are on their way out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 532,
+    "start": 2374.55,
+    "end": 2382.98,
+    "text": "And based on the behavior of the Chinese and the sovereign debt crisis, You know, the markets are telling us that, you know, we need sound money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 533,
+    "start": 2383.84,
+    "end": 2384.94,
+    "text": "And it's that simple.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 534,
+    "start": 2385.84,
+    "end": 2391.42,
+    "text": "And people are making choices every day in the marketplace to sell their treasury bonds and buy gold instead.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 535,
+    "start": 2392.26,
+    "end": 2394.66,
+    "text": "You know, the Chinese might trade with the Saudis.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 536,
+    "start": 2394.78,
+    "end": 2397.94,
+    "text": "And if the Saudis get too many yuan, pay for oil in yuan.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 537,
+    "start": 2398.56,
+    "end": 2402.14,
+    "text": "And the Saudi's yuan balance gets too large and they don't need things the Chinese make.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 538,
+    "start": 2402.28,
+    "end": 2405.1,
+    "text": "Fine, they just go to the Shanghai Gold Exchange and convert the yuan into gold.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 539,
+    "start": 2405.85,
+    "end": 2415.25,
+    "text": "And so what we're seeing, and this is why, you know, because of this trend, it's a multi -decade trend and we're only six years into it, it kind of started in my view in 2020.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 540,
+    "start": 2416.39,
+    "end": 2425.21,
+    "text": "You know, because of this trend, I think we're going to see, you know, much, much higher gold prices in a vastly different world in the next five or ten years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 541,
+    "start": 2426.51,
+    "end": 2427.77,
+    "text": "Well, actually, Mark, I'll throw to you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 542,
+    "start": 2427.87,
+    "end": 2428.63,
+    "text": "I want to get your response there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 543,
+    "start": 2428.73,
+    "end": 2430.77,
+    "text": "But I also want to tag in because I was trying to figure this out the other day.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 544,
+    "start": 2430.99,
+    "end": 2431.59,
+    "text": "And I'll be honest.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 545,
+    "start": 2431.85,
+    "end": 2433.17,
+    "text": "Like the answer could just be minors.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 546,
+    "start": 2433.29,
+    "end": 2433.91,
+    "text": "It could be that simple.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   21,
+   21
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On BTC Sessions: 'All of the Currencies, in My Opinion, Are on Their Way Out'",
+  "caption": "Clips: BTC Sessions (2026-11-05); Coin Bureau (2026-11-10). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "From BTC Sessions.",
+   "bridges": [
+    "Now Coin Bureau."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "jTuJ8PXhRV4",
+    "channel": "BTC Sessions",
+    "published_at": "2026-11-05T16:00:38+00:00",
+    "text": "I mean, all of the currencies, in my opinion, are on their way out.",
+    "start": 2371.43,
+    "end": 2374.45,
+    "provenance": {
+     "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+     "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+     "k": [
+      531,
+      531
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   }
+  ]
+ }
+}

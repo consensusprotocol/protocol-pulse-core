@@ -1,0 +1,220 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__guaranteed_return__01",
+ "origin": "CONSTRUCTED",
+ "provenance": {
+  "record": null,
+  "record_sha256": null,
+  "found_by": "searched for a real instance: guarantee(d)|can't lose|risk-free|free money|easy money|sure thing|will Nx|only goes up|can't go wrong in every store record: no claim of a guaranteed return to the viewer (the nearest, 'That seems like a fairly but risk free trade to me', is a hedged personal view of a block-sale deal and was dropped by the audit)",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "guaranteed_return",
+  "why": "CONSTRUCTED: a guaranteed-return claim (no real instance in the store)."
+ },
+ "source": {
+  "video_id": null,
+  "channel": "Satoshi Street Daily",
+  "title": "Is the Bottom In? Bitcoin Price Analysis",
+  "description": "Daily Bitcoin price analysis with charts and levels. In this episode we go through the week's price action, the on-chain data we watch, and your questions from the comments. Chapters: 00:00 Intro 01:12 Price action 06:40 On-chain 11:05 Your questions 18:30 Wrap-up. If you enjoy the show, subscribe and turn on notifications so you never miss an episode, and share it with a friend who is just getting started. Nothing in this video is financial advice; always do your own research before making any decision with your money. Thank you for watching, for the comments and for the support, and we will ",
+  "description_truncated": true,
+  "published_at": "2026-11-10T14:27:05+00:00",
+  "url": null
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": null,
+    "start": 402.88,
+    "end": 405.97,
+    "text": "Bitcoin is a guaranteed double from here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 406.79,
+    "end": 411.31,
+    "text": "There is simply no way to lose money at these prices.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": null,
+    "start": 339.53,
+    "end": 343.48,
+    "text": "Anyway, the mempool keeps coming up in the questions every week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 344.6,
+    "end": 350.07,
+    "text": "Well, the mempool is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 351.35,
+    "end": 356.98,
+    "text": "Alright, the exchange balance chart is a good place to start before the main topic.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 358.52,
+    "end": 363.71,
+    "text": "Okay, the daily close is getting a lot of attention from you guys tonight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 364.04,
+    "end": 369.03,
+    "text": "Well, the open interest chart is something we keep an eye on every single show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 370.13,
+    "end": 375.68,
+    "text": "Well, the miner revenue chart is something we keep an eye on every single show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 376.86,
+    "end": 382.33,
+    "text": "Look, the open interest chart is getting a lot of attention from you guys tonight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 383.12,
+    "end": 387.85,
+    "text": "Alright, the long-term holder data has not really moved since the weekend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 389.56,
+    "end": 394.65,
+    "text": "Right, the open interest chart tells a fairly boring story at the moment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 396.24,
+    "end": 401.67,
+    "text": "Alright, the monthly candle is getting a lot of attention from you guys tonight.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": null,
+    "start": 412.31,
+    "end": 417.74,
+    "text": "Right, the volume profile is getting a lot of attention from you guys tonight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 418.41,
+    "end": 422.56,
+    "text": "Anyway, the daily close has not really moved since the weekend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 423.1,
+    "end": 428.42,
+    "text": "Right, the exchange balance chart is getting a lot of attention from you guys tonight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 429.83,
+    "end": 434.29,
+    "text": "Now, the miner revenue chart keeps coming up in the questions every week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 435.0,
+    "end": 440.9,
+    "text": "So, the hash rate chart is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 442.41,
+    "end": 446.84,
+    "text": "Now, the mempool is a good place to start before the main topic.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 447.56,
+    "end": 452.75,
+    "text": "Anyway, the order book is something we keep an eye on every single show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 453.31,
+    "end": 457.33,
+    "text": "Well, the question box deserves a closer look before we wrap up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 457.82,
+    "end": 463.31,
+    "text": "Right, the long-term holder data is getting a lot of attention from you guys tonight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 463.95,
+    "end": 469.28,
+    "text": "Look, the hash rate chart is getting a lot of attention from you guys tonight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 470.83,
+    "end": 475.51,
+    "text": "Listen, the weekly chart deserves a closer look before we wrap up.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

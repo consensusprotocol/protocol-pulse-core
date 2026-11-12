@@ -1,0 +1,553 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__later_retraction__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/F6YuzU0C8ho/transcript.whisper.json",
+  "record_sha256": "d7b5c09dea41d3b48cb5a96c5a71bdffe77082d824cc09c3cabb42b08d24bb7b",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "I misspoke",
+  "mined": "2026-11-12",
+  "selected_k": [
+   123,
+   123
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "later_retraction",
+  "why": "Corrected 74 s after the clip ends: 'Also, I misspoke. The Shenzhen summit is next week.' (k155-156), beyond the 60 s window: a gate must search the whole record for corrections (request R-24). Reported as its own stratum, outside the thresholds.",
+  "stratum": "beyond_window"
+ },
+ "source": {
+  "video_id": "F6YuzU0C8ho",
+  "channel": "Yahoo Finance",
+  "title": "The 8:30 (8:30–9:30 a.m. ET)",
+  "description": "Hosted by an ensemble including Julie Hyman, Jake Conley and Pras Subramanian, The 8:30 breaks down the day's biggest market drivers and what investors need to know ahead of the opening bell.\n==\nAlphaSpace by Yahoo Finance: A Professional-Grade Investment Platform Built for Everyday Investors.\n👉 https://finance.yahoo.com/about/promos/gold/alphaspace?ncid=100003571",
+  "description_truncated": false,
+  "published_at": "2026-11-09T14:57:21+00:00",
+  "url": "https://www.youtube.com/watch?v=F6YuzU0C8ho"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 98,
+    "start": 339.359,
+    "end": 345.008,
+    "text": "Which suggests, again, that it was this conduit for the chips to get into China, possibly to Alibaba.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 99,
+    "start": 345.064,
+    "end": 346.518,
+    "text": "There's different reports.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 100,
+    "start": 346.574,
+    "end": 350.384,
+    "text": "Again, among all the questions surrounding this whole thing, are those questions also.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 101,
+    "start": 350.428,
+    "end": 351.0,
+    "text": "Right, right.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 102,
+    "start": 351.044,
+    "end": 358.828,
+    "text": "And you funnel these trips to, let's say, Singapore, Malaysia, where they're in data centers, and then Chinese AI startups can actually start using that stuff through the cloud.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 103,
+    "start": 358.872,
+    "end": 369.25,
+    "text": "Also noting that New York Times story about how there's several different shell companies that, or they call, so-called shell companies where they went to a company called New Matrix, they go to the office there, and it's totally empty.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 104,
+    "start": 369.25,
+    "end": 369.597,
+    "text": "Right.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 105,
+    "start": 369.655,
+    "end": 370.986,
+    "text": "So what does that mean?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 106,
+    "start": 371.044,
+    "end": 381.115,
+    "text": "And this was like a separate report from the Jensen Wong report just about Nvidia sort of shipping things to China to companies that look like that they don't actually exist.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 107,
+    "start": 381.172,
+    "end": 382.388,
+    "text": "It seemed legitimate.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 108,
+    "start": 382.446,
+    "end": 386.96,
+    "text": "And these are, that's what the H200 chips, I believe, which is like the lower.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 109,
+    "start": 386.96,
+    "end": 389.372,
+    "text": "And those are under case-by-case U.S. license.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 110,
+    "start": 389.425,
+    "end": 390.159,
+    "text": "You know what?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 111,
+    "start": 390.212,
+    "end": 394.932,
+    "text": "Chinese firms can buy them, but only with explicit approval of the Department of Congress.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 112,
+    "start": 394.984,
+    "end": 397.921,
+    "text": "Well, the H-200 trips are actually pretty powerful, too.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 113,
+    "start": 397.974,
+    "end": 400.91,
+    "text": "And they're using a lot of data centers in this country.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 114,
+    "start": 400.963,
+    "end": 401.592,
+    "text": "So it's not.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 115,
+    "start": 401.645,
+    "end": 407.571,
+    "text": "And getting that case-by-case approval was Jensen's huge win with Trump last year, getting that approval in 2025.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 116,
+    "start": 407.623,
+    "end": 413.917,
+    "text": "You even go back to the state summit dinner that happened a few months ago when Chinese President Xi came to Washington.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 117,
+    "start": 413.969,
+    "end": 415.7,
+    "text": "Who was seated at the head table?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 118,
+    "start": 415.76,
+    "end": 416.669,
+    "text": "Jensen Wong.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 119,
+    "start": 416.745,
+    "end": 417.805,
+    "text": "With his wife.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 120,
+    "start": 417.881,
+    "end": 418.942,
+    "text": "With his wife.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 121,
+    "start": 419.018,
+    "end": 420.608,
+    "text": "We'll see about that.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 122,
+    "start": 420.684,
+    "end": 430.835,
+    "text": "Go back maybe a year or so when Trump is flying to flying overseas and stops the plane in Alaska to pick up Jensen Wong along the way.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 123,
+    "start": 430.911,
+    "end": 439.32,
+    "text": "Trump is reportedly set to meet with President Xi in Shenzhen next month, I believe it is, for the Apex Summit.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 124,
+    "start": 439.396,
+    "end": 444.32,
+    "text": "He had expressed interest in bringing Jensen Wong along with him.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 125,
+    "start": 444.32,
+    "end": 446.288,
+    "text": "Does that now throw this into question?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 126,
+    "start": 446.339,
+    "end": 449.418,
+    "text": "This is going to be a huge question hanging over that summit.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 127,
+    "start": 449.468,
+    "end": 451.588,
+    "text": "Well, he did express some support for him.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 30,
+    "k": 128,
+    "start": 451.638,
+    "end": 454.869,
+    "text": "So a reporter asked him what he thought of this whole situation.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 31,
+    "k": 129,
+    "start": 454.919,
+    "end": 459.714,
+    "text": "And he said something like, well, he must have had a good excuse for it or something like that.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 32,
+    "k": 130,
+    "start": 459.764,
+    "end": 462.894,
+    "text": "And he said, then they said, should he still be CEO of Nvidia?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 33,
+    "k": 131,
+    "start": 462.944,
+    "end": 464.155,
+    "text": "And he said, yeah, sure.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 34,
+    "k": 132,
+    "start": 464.206,
+    "end": 466.073,
+    "text": "But, you know, it wasn't like Nissan.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 35,
+    "k": 133,
+    "start": 466.124,
+    "end": 467.638,
+    "text": "He said probably had a reason.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 36,
+    "k": 134,
+    "start": 467.688,
+    "end": 469.102,
+    "text": "He didn't do anything wrong.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 37,
+    "k": 135,
+    "start": 469.152,
+    "end": 469.707,
+    "text": "It's funny.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 38,
+    "k": 136,
+    "start": 469.758,
+    "end": 471.07,
+    "text": "Because if you're Trump's.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 39,
+    "k": 137,
+    "start": 471.07,
+    "end": 472.689,
+    "text": "team, that security team, whatever.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 40,
+    "k": 138,
+    "start": 472.735,
+    "end": 477.084,
+    "text": "If you're Howard Lutnik at the Department of Commerce or if you're on the security team, sure.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 41,
+    "k": 139,
+    "start": 477.13,
+    "end": 480.369,
+    "text": "I was going to say you cannot have him talking to Jensen Long anymore.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 42,
+    "k": 140,
+    "start": 480.415,
+    "end": 481.34,
+    "text": "You cannot have him.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 43,
+    "k": 141,
+    "start": 481.34,
+    "end": 483.266,
+    "text": "interact anymore based on what's happening.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 44,
+    "k": 142,
+    "start": 483.31,
+    "end": 487.699,
+    "text": "You know, like, it needs to be a kind of a clean sort of break here between the president and him.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 45,
+    "k": 143,
+    "start": 487.744,
+    "end": 490.073,
+    "text": "It would be difficult to see that happening, though.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 46,
+    "k": 144,
+    "start": 490.118,
+    "end": 492.222,
+    "text": "I mean, and that's... I mean, it has to happen.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 47,
+    "k": 145,
+    "start": 492.267,
+    "end": 494.014,
+    "text": "But given Nvidia's role in the economy.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 48,
+    "k": 146,
+    "start": 494.058,
+    "end": 496.074,
+    "text": "Listen, lots of things have to happen, right?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 49,
+    "k": 147,
+    "start": 496.118,
+    "end": 498.761,
+    "text": "I mean, but that doesn't mean that they're going to happen.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 50,
+    "k": 148,
+    "start": 498.805,
+    "end": 499.388,
+    "text": "That's right.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   25,
+   25
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Yahoo Finance: Trump 'Reportedly Set to Meet' Xi in Shenzhen 'Next Month, I Believe'",
+  "caption": "Clips: Yahoo Finance (2026-11-09); Coin Bureau (2026-11-10). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Here's Yahoo Finance.",
+   "bridges": [
+    "Now Coin Bureau."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "F6YuzU0C8ho",
+    "channel": "Yahoo Finance",
+    "published_at": "2026-11-09T14:57:21+00:00",
+    "text": "Trump is reportedly set to meet with President Xi in Shenzhen next month, I believe it is, for the Apex Summit.",
+    "start": 430.911,
+    "end": 439.32,
+    "provenance": {
+     "record": "transcripts/F6YuzU0C8ho/transcript.whisper.json",
+     "record_sha256": "d7b5c09dea41d3b48cb5a96c5a71bdffe77082d824cc09c3cabb42b08d24bb7b",
+     "k": [
+      123,
+      123
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   }
+  ]
+ }
+}

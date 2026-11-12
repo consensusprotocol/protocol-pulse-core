@@ -1,0 +1,300 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__unresolved_referent__04",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+  "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "^that's",
+  "mined": "2026-11-12",
+  "selected_k": [
+   18,
+   18
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "unresolved_referent",
+  "why": "'That' is a five-year negative return for Bitcoin bought at the 2017 peak (k16-17), outside the clip; after a clip about open interest it reads as a verdict on leverage."
+ },
+ "source": {
+  "video_id": "Sjb6lUiL0m4",
+  "channel": "Stephan Livera",
+  "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+  "description": "Joe Burnett, VP of Bitcoin Strategy at Strive, argues that wealth stored in dollars, gold, houses and even mega-cap stocks is melting: technology can produce more of those things, so they lose value when measured in bitcoin. He says AI speeds that process up by destroying moats, and that after the moats are gone, bitcoin is what's left.\n\nStephan and Joe also talk through whether a portfolio that is up in dollars can still leave you poorer, why Joe thinks Bitcoin's power law could break if fiat credit keeps expanding, and whether treasury companies and digital credit such as Strive's SATA and S",
+  "description_truncated": true,
+  "published_at": "2026-11-11T18:03:23+00:00",
+  "url": "https://www.youtube.com/watch?v=Sjb6lUiL0m4"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 7,
+    "start": 30.71,
+    "end": 39.05,
+    "text": "Today would be a great time to just talk a bit about the thesis for Bitcoin because I think sometimes people can kind of lose sight of the fundamentals sometimes.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 8,
+    "start": 39.31,
+    "end": 47.29,
+    "text": "So maybe just offer an initial comment on your kind of broad macro view and what you're seeing in terms of Bitcoin sentiment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 9,
+    "start": 47.88,
+    "end": 48.92,
+    "text": "Yeah, absolutely.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 10,
+    "start": 49.1,
+    "end": 55.86,
+    "text": "I mean, I think it's very important to go back to the fundamentals of Bitcoin in times like this, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 11,
+    "start": 55.9,
+    "end": 69.89,
+    "text": "I'm reminded of a current, you know, negative aspect of framing Bitcoin right now where people will say, oh, Bitcoin's five -year return is practically zero, which is factually correct.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 12,
+    "start": 70.19,
+    "end": 81.79,
+    "text": "If you happen to have bought Bitcoin at the November of 2021 and held it to today, and if you bought the exact peak, you would have bought it around $69,000 per Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 13,
+    "start": 82.21,
+    "end": 88.35,
+    "text": "Today, Bitcoin's at $73,000 per Bitcoin, and you had... pretty much a 0 % return.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 14,
+    "start": 88.75,
+    "end": 111.81,
+    "text": "But I'm reminded of what actually happened at the bottom of the 2022 Bitcoin bear market, where literally the exact same argument was being used, where, okay, from the peak in 2020, 2017, which was around like $20,000 per Bitcoin, Bitcoin in 2022, it was actually below $20,000.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 15,
+    "start": 112.17,
+    "end": 114.43,
+    "text": "Like I think it was $16,000, $15,000.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 16,
+    "start": 115.26,
+    "end": 116.68,
+    "text": "was the low back in 2022.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 17,
+    "start": 117.02,
+    "end": 122.9,
+    "text": "So that was like a, you know, a 20, 25 % a negative return over five years for Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 18,
+    "start": 123.14,
+    "end": 124.04,
+    "text": "That's terrible.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 19,
+    "start": 124.54,
+    "end": 129.88,
+    "text": "But of course, in hindsight, that was like the ideal time to load up on additional Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 20,
+    "start": 130.54,
+    "end": 135.52,
+    "text": "So yeah, I mean, I think like, one Bitcoin is an incredibly, incredibly volatile asset.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 21,
+    "start": 135.7,
+    "end": 137.52,
+    "text": "Like the bull markets are insane.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 22,
+    "start": 138.02,
+    "end": 142.88,
+    "text": "The bear markets are brutal and can be devastating if you don't have the right time horizon.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 23,
+    "start": 143.12,
+    "end": 143.96,
+    "text": "And if you weren't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 24,
+    "start": 144.12,
+    "end": 145.18,
+    "text": "expecting the volatility.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 25,
+    "start": 146.1,
+    "end": 151.94,
+    "text": "But ultimately, I think Bitcoin is objectively the best form of money that humanity is ever discovered.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 26,
+    "start": 152.58,
+    "end": 162.36,
+    "text": "It has these unique monetary properties, scarcity, portability, durability, durability, divisibility, divisibility, and fungibility that make Bitcoin a better form of money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 27,
+    "start": 163.0,
+    "end": 170.18,
+    "text": "And this volatility is just normal market processes, trying to grok and understand what Bitcoin is.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 28,
+    "start": 170.38,
+    "end": 173.94,
+    "text": "Sometimes everyone... loves it because the price is going up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 29,
+    "start": 174.24,
+    "end": 184.12,
+    "text": "Sometimes everyone hates it because there's another hot investment at the time or the price just hasn't cooperated for a certain period of time and people lose interest.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   11,
+   11
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Stephan Livera's Show: 'That's Terrible'",
+  "caption": "Clips: Coin Bureau (2026-11-05); Stephan Livera's show (2026-11-11). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Coin Bureau.",
+   "bridges": [
+    "Over to Stephan Livera's show."
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "Open interest hit its highest  level since September on the 3rd of November with   annualized funding around 11%.",
+    "start": 325.244,
+    "end": 332.96,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      51,
+      51
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "Sjb6lUiL0m4",
+    "channel": "Stephan Livera",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "text": "That's terrible.",
+    "start": 123.14,
+    "end": 124.04,
+    "provenance": {
+     "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+     "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+     "k": [
+      18,
+      18
+     ]
+    }
+   }
+  ]
+ }
+}

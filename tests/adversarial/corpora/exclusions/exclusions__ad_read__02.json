@@ -1,0 +1,233 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__ad_read__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/lusJ1m-J0Mc/transcript.whisper_words.json",
+  "record_sha256": "a8d252e3d422bcd274cb4ca3195ddc628a25e0296ee7b6de64e4f19fb2378d7c",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "custody loans (context)",
+  "mined": "2026-11-12",
+  "selected_k": [
+   60,
+   60
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "ad_read",
+  "why": "The lead-in of a Ledn ad (k61-63); reads like editorial advice."
+ },
+ "source": {
+  "video_id": "lusJ1m-J0Mc",
+  "channel": "Natalie Brunell",
+  "title": "Bitcoin Falls to Its Lowest Since August While Stocks Rally and Nvidia Sinks | News Block",
+  "description": "Stocks closed sharply higher today, but Nvidia fell more than 4 percent as its board investigates CEO Jensen Huang's ties to a suspected Chinese spy, and Bitcoin hit its lowest level since August.\n\nIn this episode of the News Block, powered exclusively by Ledn:\n\n• Stocks rebounded after Wall Street's worst day since April 2025\n• Bitcoin hits its lowest level since August\n• The Nvidia spy scandal: U.S. intelligence knew a year ago, so why did it leak now?\n• The battle over whether America sells AI chips to China\n• How North Korea spent five months inside Binance before the $6.3 billion theft\n• ",
+  "description_truncated": true,
+  "published_at": "2026-11-09T23:21:12+00:00",
+  "url": "https://www.youtube.com/watch?v=lusJ1m-J0Mc"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 60,
+    "start": 294.68,
+    "end": 299.4,
+    "text": "Selling Bitcoin to cover a big expense is the move most holders end up regretting.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 49,
+    "start": 229.64,
+    "end": 235.78,
+    "text": "She developed a very close relationship with Jensen, who admitted over the weekend that he'd been unfaithful to his wife.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 50,
+    "start": 235.96,
+    "end": 240.14,
+    "text": "Now, Megaspid also happens to be under investigation over concerns.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 51,
+    "start": 240.54,
+    "end": 245.06,
+    "text": "It helped Chinese customers get around American chip restrictions.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 52,
+    "start": 245.52,
+    "end": 253.88,
+    "text": "NVIDIA's board is investigating all of this, but says it has no reason to believe that company secrets were compromised or that Jensen did anything wrong.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 53,
+    "start": 254.14,
+    "end": 260.36,
+    "text": "Three House committee chairman have requested a closed door briefing with Jensen on November 18th.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 54,
+    "start": 260.48,
+    "end": 264.52,
+    "text": "Taiwanese semiconductor analyst Andrew Liu had a very fascinating take.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 55,
+    "start": 264.66,
+    "end": 268.32,
+    "text": "He believes that this scandal could have three major consequences.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 56,
+    "start": 268.38,
+    "end": 270.98,
+    "text": "It could undermine Jensen's influence in Washington.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 57,
+    "start": 271.34,
+    "end": 279.02,
+    "text": "give officials a reason to reconsider chip exports to China and crack down on chips getting there through Southeast Asia.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 58,
+    "start": 279.4,
+    "end": 283.7,
+    "text": "And of course, it could bring Nvidia under much tighter congressional oversight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 59,
+    "start": 284.0,
+    "end": 294.32,
+    "text": "Now, there's no public evidence, again, that Jensen shared secrets or did anything, but this investigation could really complicate his efforts to convince Washington to loosen AI chip restrictions.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 61,
+    "start": 299.58,
+    "end": 300.78,
+    "text": "And it isn't your only option.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 62,
+    "start": 301.0,
+    "end": 307.84,
+    "text": "Letton offers custody loans, never lent out for interest with a track record of protecting billions in client assets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 63,
+    "start": 308.0,
+    "end": 309.56,
+    "text": "Hard assets, higher standards.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 64,
+    "start": 309.84,
+    "end": 312.3,
+    "text": "Check your rate at leaden.io slash Natalie.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 65,
+    "start": 312.62,
+    "end": 314.46,
+    "text": "Availability varies by jurisdiction.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 66,
+    "start": 315.2,
+    "end": 322.14,
+    "text": "We now know a lot more about how the $6.3 billion Bynance hack happened, and it actually started five months before any money moved.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 67,
+    "start": 322.34,
+    "end": 327.56,
+    "text": "Binance says that back in June, one of its engineers downloaded software that had been tampered with.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 68,
+    "start": 327.76,
+    "end": 333.8,
+    "text": "Binance caught it and swapped out his computer, but the hackers now knew who his coworkers were.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 69,
+    "start": 334.06,
+    "end": 338.9,
+    "text": "So in September, they went after another engineer with a fake job offer.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 70,
+    "start": 339.15,
+    "end": 344.29,
+    "text": "There were interviews and then a coding test, and the test had malware hidden inside.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 71,
+    "start": 344.99,
+    "end": 348.01,
+    "text": "That gave them a foothold into Binance's systems.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 72,
+    "start": 348.43,
+    "end": 361.17,
+    "text": "In October, they used one of Binance's own internal AI tools to spread the bugs to two more employees' computers, and on one of them, they found a login that let them push code into Binance's infrastructure.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

@@ -1,0 +1,363 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_conjunction_opener__05",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+  "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   54,
+   54
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_conjunction_opener",
+  "why": "Opens on 'But' (contrasting k51-53) and stands alone as a statement about gold mining."
+ },
+ "source": {
+  "video_id": "Sjb6lUiL0m4",
+  "channel": "Stephan Livera",
+  "title": "Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788",
+  "description": "Joe Burnett, VP of Bitcoin Strategy at Strive, argues that wealth stored in dollars, gold, houses and even mega-cap stocks is melting: technology can produce more of those things, so they lose value when measured in bitcoin. He says AI speeds that process up by destroying moats, and that after the moats are gone, bitcoin is what's left.\n\nStephan and Joe also talk through whether a portfolio that is up in dollars can still leave you poorer, why Joe thinks Bitcoin's power law could break if fiat credit keeps expanding, and whether treasury companies and digital credit such as Strive's SATA and S",
+  "description_truncated": true,
+  "published_at": "2026-11-11T18:03:23+00:00",
+  "url": "https://www.youtube.com/watch?v=Sjb6lUiL0m4"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 34,
+    "start": 224.29,
+    "end": 225.57,
+    "text": "Maybe I need some allocation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 35,
+    "start": 226.23,
+    "end": 227.99,
+    "text": "And then I think we'll be off to the races once again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 36,
+    "start": 228.11,
+    "end": 231.29,
+    "text": "Now, you've spoken about this concept of your wealth is melting.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 37,
+    "start": 231.69,
+    "end": 232.47,
+    "text": "What does that actually mean?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 38,
+    "start": 233.35,
+    "end": 233.65,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 39,
+    "start": 234.23,
+    "end": 237.79,
+    "text": "So this is a report that I published back when I was working at Unchained.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 40,
+    "start": 238.15,
+    "end": 242.89,
+    "text": "And it's inspired largely with Jeff Booth's original thesis.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 41,
+    "start": 243.25,
+    "end": 250.23,
+    "text": "The Price of Tomorrow was like his famous book that he published almost, I guess, 10 years ago at this point, or close to it at least.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 42,
+    "start": 250.35,
+    "end": 251.83,
+    "text": "Maybe 4 or 5, but yeah, go on.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 43,
+    "start": 252.02,
+    "end": 252.54,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 44,
+    "start": 253.3,
+    "end": 265.44,
+    "text": "But so so his book was was quite interesting in the sense that he had this view that technology deflation was going to or or is going to be like extremely disruptive.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 45,
+    "start": 265.44,
+    "end": 271.06,
+    "text": "like it's it's with AI, robotics, and just all sorts of new technology.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 46,
+    "start": 271.78,
+    "end": 280.2,
+    "text": "It's not unreasonable for the price of, you know, basic consumer goods to decrease in value over time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 47,
+    "start": 280.2,
+    "end": 282.99,
+    "text": "So my view is like, Completely agree with that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 48,
+    "start": 283.45,
+    "end": 284.39,
+    "text": "Seems very logical.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 49,
+    "start": 284.39,
+    "end": 285.45,
+    "text": "In real terms.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 50,
+    "start": 286.21,
+    "end": 288.33,
+    "text": "Basic consumer goods should be depreciating.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 51,
+    "start": 288.85,
+    "end": 305.16,
+    "text": "But I think you could arguably take it one step further in the sense that if you actually look back at what people use as traditional stores of value today, the same concept of technology deflation can apply to those traditional stores of value as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 52,
+    "start": 305.22,
+    "end": 309.48,
+    "text": "Yes, it's on a slower basis and not nearly as effective as.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 53,
+    "start": 309.79,
+    "end": 314.93,
+    "text": "being able to produce a calculator or other very simple basic consumer goods.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 54,
+    "start": 315.43,
+    "end": 319.33,
+    "text": "But as technology improves, we're able to mine more gold.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 55,
+    "start": 319.63,
+    "end": 322.85,
+    "text": "We're able to do it more efficiently, more cheaply.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 56,
+    "start": 323.25,
+    "end": 330.91,
+    "text": "New technology enables you to search in places that you may not have been able to search before, like the ocean, or in different parts of the world.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 57,
+    "start": 331.27,
+    "end": 332.71,
+    "text": "We're able to build more houses.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 58,
+    "start": 332.71,
+    "end": 334.43,
+    "text": "We're able to build it more efficiently.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 59,
+    "start": 334.81,
+    "end": 338.93,
+    "text": "I've seen videos of like people 3D printing houses and things like that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 60,
+    "start": 339.13,
+    "end": 349.61,
+    "text": "And so all of these like traditional assets that we use to store wealth, the same concept applies to them as it does to the basic calculator.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 61,
+    "start": 350.05,
+    "end": 352.09,
+    "text": "And I think it even applies to companies, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 62,
+    "start": 352.67,
+    "end": 378.85,
+    "text": "If Nvidia, you know, exists and had or has a $5 trillion market cap or whatever it is now, That's a massive bounty for the market to go out there and figure out how to produce either a better GPU at a lower cost or simply a better GPU at a higher cost or simply a new way to train and build AI models or run inference on AI models.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 63,
+    "start": 378.91,
+    "end": 382.41,
+    "text": "Maybe there's something even better than a GPU that we can't even comprehend today.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   20,
+   20
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Stephan Livera's Show: 'As Technology Improves, We're Able to Mine More Gold'",
+  "caption": "Clips: Stephan Livera's show (2026-11-11); Bitcoin Mechanic's show (2026-11-04). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Stephan Livera's show first.",
+   "bridges": [
+    "And on Bitcoin Mechanic's show:"
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "Sjb6lUiL0m4",
+    "channel": "Stephan Livera",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "text": "But as technology improves, we're able to mine more gold.",
+    "start": 315.43,
+    "end": 319.33,
+    "provenance": {
+     "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+     "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+     "k": [
+      54,
+      54
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "NM_WPezsI0I",
+    "channel": "Bitcoin Mechanic",
+    "published_at": "2026-11-04T22:36:21+00:00",
+    "text": "The amount of freedom Bitcoin offers us is something we voluntarily limit in response to the impositions placed on us and restrictions placed on us by the financial system itself.",
+    "start": 2038.07,
+    "end": 2050.95,
+    "provenance": {
+     "record": "transcripts/NM_WPezsI0I/transcript.whisper_words.json",
+     "record_sha256": "68014216ac2b657de7b71173dce953d9a371deb52cea7e9e921e38296d87fe8a",
+     "k": [
+      411,
+      411
+     ]
+    }
+   }
+  ]
+ }
+}

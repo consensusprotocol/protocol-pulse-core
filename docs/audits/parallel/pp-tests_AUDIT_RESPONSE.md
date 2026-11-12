@@ -106,3 +106,93 @@ change that round asked for (call_gate). "Revert DONE to IN PROGRESS": REFUTED, 
 on the pushed commit (`git ls-tree` lists the 8 test files, 2 fixtures and 50 docs; nothing under pipeline/,
 scripts/, segment_v1/; the full suite on HEAD: 334 passed + 38 strict xfails in 2:07). The process point (a docs-only
 diff is judged without the code it describes) is filed for the tool: pp-tests_REQUESTS.md "Tooling".
+
+# PHASE 2 — the moments-first exam (order 03:00 ET 2026-11-12)
+
+## How it was audited
+Same scratch driver and unmodified `utils/cross_llm_audit.py`, two cycles, with a phase-2 brief
+(`PP_TESTS_MOMENTS_GOSPEL.md`: the order's requirements, laws L-s / L-t / L-u / L-v, what to check, label correctness
+first). Chunk A = the code (store_extract, build_corpora, moments_exam, test_moments_gates, the toy gates, the
+baseline adapter) + the STATE diff, 114,861 bytes. Chunk B = a digest of all 137 cases (the answer, the selected words,
+the context the 'why' relies on, the package), 179,923 bytes (the full JSON is 1.3 MB). Grok was refused by its $1/day
+budget both cycles, so the tool ran on Gemini 2.5 Pro and GPT-4o; an independent claude-opus-5-5 review (effort high)
+ran on each chunk. Before the audit, the blind frontier baseline v0 had already acted as a label audit (STATE: six
+label defects of mine found, each verified in the source window and corrected).
+
+## Chunk A (code) — cycle 1 consensus 87/100, cycle 2 80/100 ("ready for a targeted second pass")
+| # | finding (cycle) | disposition | evidence |
+|---|---|---|---|
+| A1 | hard-coded absolute paths, `.env` and the store (U1, both cycles, P0) | REFUTED for `.env`: the order fixes it ("keys are read only from /home/ultron/protocol_pulse/.env, by name, inside code"); an override variable would let keys come from elsewhere. Store: already `$PP_EDITORIAL_STORE` (store_extract.py `STORE = os.environ.get(...)`). The default test run reads no key at all; only the opt-in baseline does. | order text; `store_extract.STORE`; `test_moments_gates` imports no key |
+| A2 | `print()` instead of `logging` (U2, both cycles, P1) | REFUTED as framed, root cause FIXED: the runner's stdout IS the report (the confusion table), every verdict / error is a structured row in the JSON report and the exit status encodes the result; what was really missing was where a gate crashed: ERROR rows now keep `traceback` (last 1,500 chars). | `moments_exam._judge`; `test_a_crash_or_an_invalid_verdict_is_an_error` asserts the traceback |
+| A3 | oracle toy gate loads the corpora at import (Gemini c1, both c2, P1) | FIXED: loaded on first call. | `moments_toy_gates/oracle.py` |
+| A4 | `--jobs` silently requires a thread-safe gate (Gemini c2, P2) | FIXED: threads only for a module that declares `THREAD_SAFE = True`; any other gate runs one case at a time and the run says so. The baseline declares it (SDK clients are thread-safe; spend guarded by the lock). | `moments_exam.run_corpus`; checked: oracle at `--jobs 4` -> "does not declare THREAD_SAFE = True: --jobs 4 -> 1" |
+| A5 | 600 s subprocess timeout hard-coded (Gemini c2, P2) | FIXED and it was a real bug: a model-backed gate at one case at a time on 66 cases would be killed. The real-gate test now takes `PP_MOMENTS_TIMEOUT_S` (default 3 h); the toy controls keep 600 s. | `test_the_gate_sits_the_exam` |
+| A6 | rate limiting / back-off (Gemini c1, P2) | REFUTED (measured): both SDK clients run with `max_retries=3` (exponential back-off on 429 / 5xx); the full v0 baseline made 274 calls at 6 threads per vendor with 0 errors. | `baselines/SPEND.jsonl`; v0 reports |
+| A7 | thread lock + file lock may deadlock (GPT-4o c1) | REFUTED (the tool's own tiebreak agreed): one context manager takes them in a fixed order and they are never nested; `_client()` takes the thread lock outside it. Comment added. | `frontier_blind._locked` |
+| A8 | linear word-time interpolation (Gemini) | KEPT, documented: it is pp-selectid's own `tokens_from_record`, which `k` must match; segment timing is never enough for an on-screen cut. | `store_extract.tokens` comment |
+| A9 | partner_attack text inline in Python; INDEX meta block with build time / git sha (Gemini) | REFUTED: one spec file keeps every case reviewable in one place, CONSTRUCTED marked in the case; a build time or sha in INDEX would break the byte-identical rebuild that `test_every_case_rebuilds_verbatim_from_the_store` relies on. | that test |
+
+## Chunk B (corpus digest) — repo tool cycle 1 87/100, cycle 2 (Gemini, GPT-4o)
+The tool's two models contested no label. Their items: multimodal (avatar / TTS / lip-sync) tests, transcription-error
+cases, enumerating legal statutes, a corpus refresh cadence, structured result logs, structured `why` fields, keeping
+the digest private. Dispositions: OUT OF SCOPE for this order (three text corpora + harness): multimodal, TTS and
+transcription-error tests (the second recognition pass is law L-v (2), the builder's; Phase 1's family 1 already
+fuzzes meaning-changing text mutations), legal statutes and refresh cadence (orchestrator / PBX decisions, noted in
+STATE); FIXED: structured result logs (every report now carries `started_at`, `finished_at`, the gate's `IDENTITY`,
+the run's `seed` and, after the run, its `salt`; every row carries case id, class, expected, verdict, why, seconds,
+traceback on ERROR); REFUTED: structured `why` fields (the 74 s figure is derivable from the window's own times);
+the digest is a scratch audit artifact and is not committed.
+
+## Frontier review, chunk A (claude-opus-5-5, effort high): NOT READY, 12 findings — all acted on
+| # | finding | disposition |
+|---|---|---|
+| 1 CRITICAL | every must-pass CI case had the bridge "Also on the record:": a one-line gate met every threshold | FIXED: intro, bridge, sign-off and clip order are drawn by hash from ONE pool for both labels; captions all dated; windows all 90 / 80 s; `test_no_package_field_separates_the_verdicts` proves no single field lets a lookup gate pass (each would false-reject 100% of the must-pass set) and no value is a free win for one class (bridge / order exempt only where they ARE the trap) |
+| 2 HIGH | order leak (fails first), unsalted id, answers in INDEX.json, no held-out set | FIXED: seeded shuffle per run (seed in the report; `test_a_gate_that_answers_by_position_fails`), id salted per run (salt written to the report after the run), INDEX.json back to v1 (`id`, `file`, `sha256`) in hash order. HELD-OUT: REFUTED as not achievable under the rules: every session runs as the same user on one machine, so no file is unreadable to the builder; the case files carry `expected` by the published format; the mitigation is the blinding plus the instruction to the builder, and a sealed set needs storage the orchestrator controls (noted in STATE) |
+| 3 HIGH | must-pass speaker attribution unverifiable (Saifedean debate clips, kaifu_apps) | FIXED: the must-pass set was rebuilt: 10 single-narrator clips (Swan, Coin Bureau, Simply Bitcoin, Yahoo Finance) and 12 one-sentence interview clips credited to the SHOW; the three debate clips are out of the corpus |
+| 4 HIGH | must-pass titles name persons not verifiable (Booth, Moss, Lee, Burnett) | FIXED: no must-pass package names a person; the one role named ('Swan Bitcoin's Founder') is verified inside its own window (k4 'I'm Corey Clifston, founder of Swan Bitcoin') |
+| 5 MEDIUM | hedges dropped in must-pass titles; inconsistent BTC Sessions attribution | FIXED: titles quote the hedges ('I Think', 'in My Opinion', 'I Don't Think'); BTC Sessions clips are all credited 'On BTC Sessions'; the time-sensitive 'bottom's in' clip is out |
+| 6 MEDIUM | the bear-market relabel: weak either way; baseline-influenced; still used in VO | FIXED: the clip is out of every corpus (an exam case must be unambiguous); the VO number cases use Coin Bureau and Swan clips instead; the baseline's influence on labels is disclosed in STATE |
+| 7 MEDIUM | must-fail packages with second defects | FIXED: CI VO lines are channel-only templates (no topic, number or name); titles quote the clip verbatim or restate it without adding a name, number, imperative or accusation (sarcasm 04, quoting_opponent 01, answer_without_question 02, steelman 02, conditional 03 rewritten); false_dialogue 03 now crosses channels (What Bitcoin Did's question, CoinTelegraph's answer) and no moment is used by two cases |
+| 8 MEDIUM | banned-framing VO lines also flip stance | FIXED: each line is the clip's own words plus the banned verb only ('confirms', 'exposes', 'admits') |
+| 9 MEDIUM | undated captions, constructed metadata, unique 80 s window | FIXED: all captions dated; constructed cases carry the same fields, realistic contexts (8-10 sentences a side, inside the real range 1-27) and fictional show names where no real channel is needed; blinding drops video id, url and sentence ids from every exclusion case; all CI windows 90 / 80 s; the blinding test now checks values too |
+| 10 MEDIUM | skip decided by exit code; a gate's `SystemExit(3)` looked ABSENT | FIXED: `_judge` records any BaseException except KeyboardInterrupt as ERROR (`test_a_gate_that_exits_is_an_error_never_absent`); the real-gate test skips only when the report says the gate is absent |
+| 11 MEDIUM | spend guard under-reserved | FIXED: each call reserves its worst case (input at 2.5 chars / token + full max_out) and settles to actual; vendors run one after the other (6 and 3 threads) so spent + open reservations stays under $15; shuffled order spreads any refusal |
+| 12 LOW | sentence-id claim untested against pp-selectid; DNS / UDP not blocked; single_source 01 wording | FIXED: `test_sentence_ids_match_pp_selectid_at_the_named_commit` runs pp-selectid's own `tokens_from_record` / `split_sentences` / `read_text` / `is_terminal` from the git object d809a1f8 on every record the corpora use (44 records, every sentence equal); `refuse_network` also refuses name resolution and datagram sends; the why now says the tweet is single-source AND disputed |
+
+## Frontier review, chunk B (claude-opus-5-5): 11 findings (reply cut at the token limit) — all acted on
+| # | finding | disposition |
+|---|---|---|
+| 1 CRITICAL | bridge leak; undated stale captions; both-clip cites only in invented_agreement | FIXED (as A1 / A9); a must-pass VO bridge now cites both clips ('Swan Bitcoin and Coin Bureau, one after the other.') |
+| 2 HIGH | harness not in the material; 9 keep cases make 10% effectively 0 | the harness was in chunk A; keep cases now 12 (one false exclude = 8.3%) and every must-accept set has >= 11 (asserted) |
+| 3 HIGH | later_retraction 04 (bear market) not defensible | FIXED: removed (A6) |
+| 4 HIGH | must-pass titles naming guests | FIXED (A4) |
+| 5 MEDIUM | steelman 03 (Scaramucci) reaffirmed at k175 | FIXED: replaced by Fox Business's reporter stating Big Tech's counterargument (1s_i1us5q8w k7) |
+| 6 MEDIUM | eight confounded must-fails | FIXED (A7); hypothetical 03 (Saifedean debate) replaced by TFTC's 'Let's say ... in that case' (W2LIxB2kAH0 k777-778); quoting_opponent 03 (debate audio in Simply Bitcoin) replaced by the Bitcoin Mechanic mimicking officials (NM_WPezsI0I k503); later_retraction 02 (the interviewer's question) removed |
+| 7 MEDIUM | later_retraction 01: 80 s window, title dropped 'reportedly' / 'I believe' | FIXED: all windows 80 s after (the case is no longer unique); title keeps both hedges |
+| 8 MEDIUM | a hedge dropped in a must-pass title | FIXED (A5) |
+| 9 MEDIUM | guaranteed_return 01 is a hedged personal view; one case | FIXED: dropped; no real guaranteed-return claim exists in the store (search recorded), so the class is two CONSTRUCTED cases under fictional show names, labelled so |
+| 10 LOW | neutral_company 01 names no company in the moment; single_source 04 reported twice | FIXED: replaced by 'Coinbase is entering the federal banking framework.' and 'Strategy bought 1,036 BTC per its latest filing'; single_source 04 removed |
+| 11 LOW | absent_name lines add false claims | FIXED: each line now puts the clip's own words in an absent person's mouth ('Jerome Powell says ...', 'Michael Saylor: ...', 'Larry Fink on BTC Sessions: ...') |
+
+## Verification round (claude-opus-5-5, effort high, shown its own findings + the fixed code / digest): NOT READY ×2 — all acted on
+Code (A2), 10 new items; corpus (B2), 10 new items. Overlaps merged. Every change below is in the final corpus (136
+cases) and was made BEFORE the final baseline v2 ran; nothing changed after it.
+| item | disposition |
+|---|---|
+| A2 N1 / B2 1: must-pass 'our 75K target never broke ... once the results were in' (unresolved 'the results'; time claim) | FIXED: out (both baseline models had also failed it in v1c) |
+| A2 N2: the clean pool is both the must-pass set and the filler (a must-pass moment recurs as an adjacent clip; a must-fail one does not) | PARTLY FIXED / REFUTED in part: a gate sees one blind case per call in a shuffled order; using recurrence needs the other case files, which carry the answers by the published format anyway; the remedy for a builder tuning on the corpus is the temporal held-out slice (next row). Minimal pairs are now on both sides: three false_dialogue and three title_adds_thesis cases are built FROM must-pass clips |
+| A2 #2 / B2 held-out | ACCEPTED in the reviewer's form: a temporal seal needs no unreadable file. Protocol (pp-tests_REQUESTS.md R-26): when the builder freezes its gate it records the commit sha; pp-tests then mines a fresh slice (>= 15 CI, >= 8 VO, >= 6 exclusions) from material the corpus does not use, the frozen gate sits it, and the slice is reported apart. Not run in this order (no frozen gate exists yet) |
+| A2 N3 / B2 4: Simply Bitcoin k203 may continue Gromen's argument; kaifu_apps unlabelled | FIXED: both out of the must-pass set (and out of every adjacent / VO use); the Simply Bitcoin clips left are k135 only, after the narrator's own 'So whoever you voted for ...' |
+| A2 N4: 'Bitcoin Mechanic' reads as a person | FIXED: the channel is named 'Bitcoin Mechanic'; it is now credited 'Bitcoin Mechanic's show' everywhere |
+| A2 N5: the real-gate test passed on exit status 0 alone | FIXED: it needs a report, the report's rows must be exactly the committed corpus, the table is recomputed in the test process, and PP_MOMENTS_CORPORA is not passed to the real exam |
+| A2 N6 / B2 3, 7, 8: second defects in must-fails | FIXED: false_dialogue rebuilt from clean must-pass clips (the bridge 'Coin Bureau responds:', the bridge 'Not everyone is convinced.', and the sequence alone); sarcasm 04 (an imperative in the clip) and conditional_split 03 (condition expected to be met) out; Scott Melker titles now credit the show; hypothetical 02's title drops the source's own 'confirms'; where the real material carries a second trap by nature (a consequence clause's 'that' / 'it', a quoted opponent's accusation, a garbled referent) the case says so in `expected.also` |
+| A2 N7 / B2 9: constructed cases recognisable (timing, spans, short descriptions, shared filler) | FIXED: each constructed case has its own neutral filler (no sentence shared with another case), irregular 2-decimal timings, ~60 s of context a side, a channel-style description cut at 600 characters like the real ones, a non-round publish time; `test_constructed_cases_look_like_real_ones` checks each shape occurs among the real cases; the partner attacks are now opinion-level ('have completely lost the plot', 'unwatchable'), no factual accusation |
+| A2 N8: baseline not blind; cue words in the prompt; '60 s' text | FIXED: the prompt is now the laws' own wording (no example lists: the VO imperative and the exclusions are stated as L-t / L-u state them); v0 / v1 are labelled label-informing in STATE; v2 ran once on the frozen corpus |
+| A2 N9: VO wording drift | FIXED: the paraphrases keep the clip's verbs and full disjunctions |
+| A2 N10: no run pre-estimate; per-process ledgers; key fragments in reports | FIXED: a gate may define `preflight(counts)` and the baseline refuses a run its remaining budget cannot finish; the ledger path is pinned; every report row's why / traceback is redacted (sk-…, AIza…, xai-…, Bearer …, masked keys) |
+| B2 1: the 80 s window departs from the order's 60 s | FIXED: every window is 90 s before / 60 s after; the one correction 74 s after the clip is stratum `beyond_window`, reported apart from the thresholds (R-24) |
+| B2 2: only must-fail titles named persons; Scott Melker credited as a person | FIXED: one must-pass title names a verified person ('Swan Bitcoin's Cory Klippsten': the source description names him and he introduces himself inside the window); Scott Melker titles credit the show; the wrong_speaker titles keep the guest's name because that misattribution IS the class |
+| B2 5: stale boundary unstated; a must-pass 'now' | FIXED: the rule is in every stale case's why ('a time word the title presents as current on the show date is a FAIL even though the caption dates the clip'); the 'we are now already at the phase' clip is out |
+| B2 6: VO intro citations / a B-only line told the verdict | FIXED: intro, B line and sign-off are drawn from one pool for both labels; the format test covers VO slots, line count, intro citations and the B-only line |
+| B2 10: 'no moment is used by two cases' was false; wrong_speaker 03's why; steelman 03 truncated?; Paraguay single-source? | CORRECTED: minimal pairs exist by design (above); wrong_speaker 03's why now says the host's voice is credited to the guest; steelman 03 is the full store sentence (the digest cut text at 240 characters; `test_the_package_carries_the_selected_sentences` asserts equality); the Taiwan 'just in' item (widely reported) is out; Paraguay stays because, as aired, it rests on one unnamed report plus speculation (why says so) |
+| the sarcastic 'Sell your Bitcoin, all of it' | OUT of the exclusions corpus: two of three models read L-u's imperative rule as intent-based; whether a sarcastic imperative is excluded is a question for the orchestrator (STATE); the clip stays an unambiguous must-fail (sarcasm) in context_integrity only as long as it carries no second trap, so it left that corpus too |

@@ -1,0 +1,206 @@
+{
+ "schema": "pp.corpus_index/1",
+ "corpus": "vo_fidelity",
+ "cases": [
+  {
+   "id": "vo_fidelity__financial_imperative__01",
+   "file": "vo_fidelity__financial_imperative__01.json",
+   "sha256": "48411e8a042050af0c357d7c0d2ca342b956776eec34d16ed37e38cdafbbe376"
+  },
+  {
+   "id": "vo_fidelity__manifest_language__03",
+   "file": "vo_fidelity__manifest_language__03.json",
+   "sha256": "a72f1399ef4e5a90bfb7ed794205ef18fa30f4f2f01fe184b6ffc0829081936e"
+  },
+  {
+   "id": "vo_fidelity__faithful_paraphrase__02",
+   "file": "vo_fidelity__faithful_paraphrase__02.json",
+   "sha256": "5ae36ae0051312d22ce01625bd5b136950ca307669419a9684197955b1732050"
+  },
+  {
+   "id": "vo_fidelity__financial_imperative__02",
+   "file": "vo_fidelity__financial_imperative__02.json",
+   "sha256": "83c7df00365f9bb18807689288937d81b5e36c8646824c9c718ef2b99c76b919"
+  },
+  {
+   "id": "vo_fidelity__manifest_language__04",
+   "file": "vo_fidelity__manifest_language__04.json",
+   "sha256": "b1fc41d32dcc18d01285a47f82034fa2b65a5c536afe29161ec6bd405dbe0284"
+  },
+  {
+   "id": "vo_fidelity__faithful_paraphrase__04",
+   "file": "vo_fidelity__faithful_paraphrase__04.json",
+   "sha256": "2046694f3cb2fe4f27e35df01f6781a7b11faf7171c3ca33c1b555bb2c3881f6"
+  },
+  {
+   "id": "vo_fidelity__fact_not_in_clips__03",
+   "file": "vo_fidelity__fact_not_in_clips__03.json",
+   "sha256": "1df7e78b6580853e64aeb064bbc2184bbf0aaa72cc65fc98837fd3004d77a766"
+  },
+  {
+   "id": "vo_fidelity__financial_imperative__03",
+   "file": "vo_fidelity__financial_imperative__03.json",
+   "sha256": "f6d2ec7252a1dd40b697af64da02f2861d3c089d561ffbe8f301a55cc88479cd"
+  },
+  {
+   "id": "vo_fidelity__faithful_paraphrase__01",
+   "file": "vo_fidelity__faithful_paraphrase__01.json",
+   "sha256": "6cbf8c46bbd9fbe6afb8291e1d1868e506e8080d08c961fd77f6d59a8193cb13"
+  },
+  {
+   "id": "vo_fidelity__banned_framing__02",
+   "file": "vo_fidelity__banned_framing__02.json",
+   "sha256": "543d75b1aa8e66efb18f47ac0ad526fe535e34e2d1206a45858e4d65bd92a283"
+  },
+  {
+   "id": "vo_fidelity__fact_not_in_clips__02",
+   "file": "vo_fidelity__fact_not_in_clips__02.json",
+   "sha256": "ef597f6e447ba2f6d37e3e0312ce30f5e04dfd1c2df2e3bfff433622da2840f0"
+  },
+  {
+   "id": "vo_fidelity__invented_agreement__01",
+   "file": "vo_fidelity__invented_agreement__01.json",
+   "sha256": "ab7a4f61b4dad2ed6a14c87f84368f831c56c36b2c8d7cc36866b39343f860e5"
+  },
+  {
+   "id": "vo_fidelity__stance_flip__01",
+   "file": "vo_fidelity__stance_flip__01.json",
+   "sha256": "0dec2a58e56d18887eb85794a7d0f3e6a9ca264e12322ae4cc55aebfc542a66e"
+  },
+  {
+   "id": "vo_fidelity__manifest_language__02",
+   "file": "vo_fidelity__manifest_language__02.json",
+   "sha256": "8d6677a5f5a88442ea655866d0c0d1d4151b92e0f4137d30fa43b45337b882a6"
+  },
+  {
+   "id": "vo_fidelity__banned_framing__01",
+   "file": "vo_fidelity__banned_framing__01.json",
+   "sha256": "cf62955cdbf1cef5f6a2059755a2b0b2cf3d64c2d9171811fbabf630e26c023f"
+  },
+  {
+   "id": "vo_fidelity__absent_name__02",
+   "file": "vo_fidelity__absent_name__02.json",
+   "sha256": "bda776d56dd1e701dc602dbbe9dc82fb4a8dcf7d897ff784731620891156c045"
+  },
+  {
+   "id": "vo_fidelity__absent_name__01",
+   "file": "vo_fidelity__absent_name__01.json",
+   "sha256": "540ff279c764ab8da91be733f06ad0cba55112fe852b2b8ea2ba0b5c1e527581"
+  },
+  {
+   "id": "vo_fidelity__number_rounded__01",
+   "file": "vo_fidelity__number_rounded__01.json",
+   "sha256": "a6deb0e414465f759d1bafbdaea793bf763293f2fb0b281175ae02b6a6d5fd59"
+  },
+  {
+   "id": "vo_fidelity__could_to_will__01",
+   "file": "vo_fidelity__could_to_will__01.json",
+   "sha256": "25410ee838df4f5a64a57bebcbb02b43cf6609f0b1238521300640712725315d"
+  },
+  {
+   "id": "vo_fidelity__invented_agreement__03",
+   "file": "vo_fidelity__invented_agreement__03.json",
+   "sha256": "50f65839f583cd11ba995ff91844f06c0be4d80c8e07b1f9af7047ea9805e197"
+  },
+  {
+   "id": "vo_fidelity__fact_not_in_clips__01",
+   "file": "vo_fidelity__fact_not_in_clips__01.json",
+   "sha256": "f03a69180c0ea708edda0b40186faf279938ba52d355d766cf2713f74d1b3c72"
+  },
+  {
+   "id": "vo_fidelity__number_swapped__01",
+   "file": "vo_fidelity__number_swapped__01.json",
+   "sha256": "0966f2593933afbabfaf42395b1ab86eaee2b964597cd2e8690787d582948f43"
+  },
+  {
+   "id": "vo_fidelity__faithful_paraphrase__06",
+   "file": "vo_fidelity__faithful_paraphrase__06.json",
+   "sha256": "5f67eac7bb1f87b07df04c1ea01d4eaa948dc0d4155fa1e4686ef94a1c12edaf"
+  },
+  {
+   "id": "vo_fidelity__faithful_paraphrase__03",
+   "file": "vo_fidelity__faithful_paraphrase__03.json",
+   "sha256": "95bf67db97c15ec62d48eba8eefe5e8fc54e9aaeb68c54d7197c3077012b611a"
+  },
+  {
+   "id": "vo_fidelity__number_rounded__02",
+   "file": "vo_fidelity__number_rounded__02.json",
+   "sha256": "725b768c7e635ebe619918370b18cd7b5c42531962c119a727525ce268c7b0c3"
+  },
+  {
+   "id": "vo_fidelity__could_to_will__02",
+   "file": "vo_fidelity__could_to_will__02.json",
+   "sha256": "e09753d06166851911b9b5eefb462211e5938fe7a52d83fc36fe63be88b464da"
+  },
+  {
+   "id": "vo_fidelity__invented_agreement__02",
+   "file": "vo_fidelity__invented_agreement__02.json",
+   "sha256": "6971416fd243bbb7b5e66f2544f93f405a2d02b29145c8a8183dbf6e2daef75f"
+  },
+  {
+   "id": "vo_fidelity__manifest_language__06",
+   "file": "vo_fidelity__manifest_language__06.json",
+   "sha256": "ba936e73cc11d2c7b597dfadd28ae7a98312ebc382c43473f0563ff2f31a0585"
+  },
+  {
+   "id": "vo_fidelity__number_rounded__03",
+   "file": "vo_fidelity__number_rounded__03.json",
+   "sha256": "84e0235fdd59a8f57efed7cc07924cebee5b1d462029f25aa3f7902f69e1c43f"
+  },
+  {
+   "id": "vo_fidelity__banned_framing__03",
+   "file": "vo_fidelity__banned_framing__03.json",
+   "sha256": "843fe55a7706c7b86aa1628ee9b573be51d96ec82ab1d35b6bf74e44fc5adc4c"
+  },
+  {
+   "id": "vo_fidelity__number_swapped__02",
+   "file": "vo_fidelity__number_swapped__02.json",
+   "sha256": "ffe10042b9667f2beac05ba15a1decf854e2b57c33f96a7c633ad7cd3412c8c5"
+  },
+  {
+   "id": "vo_fidelity__absent_name__03",
+   "file": "vo_fidelity__absent_name__03.json",
+   "sha256": "c81c46fc51eee299e3704af952d92ffbd100bfcc9d5f1eaf63c249e2724df39f"
+  },
+  {
+   "id": "vo_fidelity__manifest_language__07",
+   "file": "vo_fidelity__manifest_language__07.json",
+   "sha256": "289ee0337aaca69dc34b79aa21d4f01086e4940514b0c79a1b6f83d71cb977c6"
+  },
+  {
+   "id": "vo_fidelity__stance_flip__03",
+   "file": "vo_fidelity__stance_flip__03.json",
+   "sha256": "976eede70d73e701895a50d4351097c439067b346ff9ca67f07962e4b449dcb1"
+  },
+  {
+   "id": "vo_fidelity__manifest_language__05",
+   "file": "vo_fidelity__manifest_language__05.json",
+   "sha256": "93be785ab3910bacba4d933c3757a42497e5a4194e2f027c15635f2dc5d1fcff"
+  },
+  {
+   "id": "vo_fidelity__faithful_paraphrase__05",
+   "file": "vo_fidelity__faithful_paraphrase__05.json",
+   "sha256": "9a01ca86c5e7c17691e63ea2b325973f2e044fbacca9d30e05b094a9158c7006"
+  },
+  {
+   "id": "vo_fidelity__could_to_will__03",
+   "file": "vo_fidelity__could_to_will__03.json",
+   "sha256": "db74f995e7f4c1cd7d57815583ddabc51fb46ca46692a928dafa10c06e118d7a"
+  },
+  {
+   "id": "vo_fidelity__manifest_language__01",
+   "file": "vo_fidelity__manifest_language__01.json",
+   "sha256": "d7fe9f03c7f0b5ecbc456957d87d96a3eff7db4472e4485b5e550e07d27a6ba4"
+  },
+  {
+   "id": "vo_fidelity__stance_flip__02",
+   "file": "vo_fidelity__stance_flip__02.json",
+   "sha256": "e5b43bbc2cff8db72facdfb4e9eeca99caec43be67cff0510fe26cab90a89d2c"
+  },
+  {
+   "id": "vo_fidelity__number_swapped__03",
+   "file": "vo_fidelity__number_swapped__03.json",
+   "sha256": "e0def9d4c115a113c9351e7ded721ae352cad81f46d7129179acb3bec68fa68f"
+  }
+ ]
+}

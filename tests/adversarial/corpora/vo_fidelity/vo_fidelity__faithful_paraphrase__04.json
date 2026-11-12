@@ -1,0 +1,101 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__faithful_paraphrase__04",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "faithful_paraphrase",
+  "why": "Condition and hedge kept; no name.",
+  "bad_line": null
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "CoinTelegraph",
+   "Coin Bureau"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "L9tzgg6PXi8",
+   "channel": "CoinTelegraph",
+   "speaker": null,
+   "published_at": "2026-11-06T14:30:20+00:00",
+   "sentences": [
+    {
+     "k": 355,
+     "text": "As long as Bitcoin stays decentralized and secure, then... I don't think there's anything that would derail it.",
+     "start": 1332.99,
+     "end": 1338.47
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+    "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+    "k": [
+     355,
+     355
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "UJFQBaMh3yg",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "sentences": [
+    {
+     "k": 12,
+     "text": "So, on the 3rd of November, Democrats won both the House and the Senate by much wider margins than many expected.",
+     "start": 90.95,
+     "end": 97.89
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+    "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+    "k": [
+     12,
+     12
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices: CoinTelegraph and Coin Bureau.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "On CoinTelegraph: as long as Bitcoin stays decentralized and secure, the speaker doesn't see anything that would derail it.",
+   "cites": [
+    "A"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Here is Coin Bureau.",
+   "cites": [
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check.",
+   "cites": []
+  }
+ ]
+}
