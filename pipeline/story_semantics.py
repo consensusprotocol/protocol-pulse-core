@@ -93,7 +93,7 @@ class Embedder:
         """Cached per (video, transcript sha, model). Returns (ids, vecs)."""
         d = os.path.join(EMB_DIR, rec["video_id"])
         os.makedirs(d, exist_ok=True)
-        p = os.path.join(d, f"{rec['transcript_sha256'][:16]}.{EMBED_REVISION[:12]}.npz")
+        p = os.path.join(d, f"{rec['transcript_sha256'][:16]}.{EMBED_REVISION[:12]}.t2.npz")   # t2: entity-decoded text
         ids = [c["chunk_id"] for c in chunks]
         if os.path.exists(p):
             z = np.load(p, allow_pickle=False)
@@ -360,7 +360,11 @@ def prompt_sha(p):
 
 
 def _norm(s):
-    return re.sub(r"[^a-z0-9 ]+", "", re.sub(r"\s+", " ", (s or "").lower())).strip()
+    """Quote-check normal form: entities decoded and split Whisper tokens joined (law L-h, as
+    transcript_store.read_text), lower-case, letters / digits / spaces only."""
+    import html
+    t = re.sub(r"\s+(?=[.,][0-9a-z])", "", html.unescape(s or "").lower())
+    return re.sub(r"[^a-z0-9 ]+", "", re.sub(r"\s+", " ", t)).strip()
 
 
 def quote_in(quote, texts):
@@ -402,11 +406,22 @@ def _v_derive(o):
     int(o["bitcoin_relevance"]), int(o["importance"])
 
 
+CLUSTER_NOTE = ("This item is a development several Bitcoin channels state in common (DEC-13): underlying_event "
+                "restates THIS development itself, never its cause, its background or one detail of it.")
+
+
 def derive_story_query(llm, item, today):
+    """A wire item's underlying event. A channel cluster's claim IS the event (DEC-13 a): its query is derived from
+    the claim alone with CLUSTER_NOTE (no summary: its details pulled 2026-11-12's $74K claim onto a Schwab listing)
+    and its underlying_event is the claim verbatim (the model re-read 'after the elections, Bitcoin sold off and
+    ETFs saw outflows' as 'the US held its elections' with an invented date even with the note) (E-FAIL-038)."""
+    cluster = item.get("origin") == "transcript_cluster"
     p = DERIVE_PROMPT.format(today=today, headline=quote_data(item.get("headline", ""), 300),
-                             summary=quote_data(item.get("summary") or "", 800),
+                             summary=CLUSTER_NOTE if cluster else quote_data(item.get("summary") or "", 800),
                              source=item.get("source_domain") or item.get("source", ""))
     q = llm.chat_json(p, validate=_v_derive)
+    if cluster:                         # the claim IS the event; the model's reading is kept for audit only
+        q["underlying_event_derived"], q["underlying_event"] = q.get("underlying_event"), item.get("headline")
     q["_prompt_sha"] = prompt_sha(DERIVE_PROMPT)
     q["_model"] = llm.model
     return q

@@ -32,3 +32,10 @@ Heimdall deepseek + qwen27b + glm (heimdall/).
 
 ## Verified
 - CUDA_VISIBLE_DEVICES=0: test_g3b_majority 7 passed (with the added cases), test_round2_mustfail 15 passed.
+
+## Closing state (19:22)
+- Heimdall cross-examination (heimdall/): 7 consensus findings = the cycle-1 findings implemented above (every word
+  of the next word, digit-only comma removal, abbreviated scales, no doubled 'dollars', '$'+'%'); the panel itself
+  rejected the '$' false-accept worry, the test-coverage note (implemented anyway) and the 'U.S.' note.
+- heimdall_pass2/ (the final reader): all three models stopped at the 16,384-token cap without an answer; the
+  fixes are the panel's own consensus items, each with a test.

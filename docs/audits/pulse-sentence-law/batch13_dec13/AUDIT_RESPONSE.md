@@ -98,12 +98,19 @@ hit their 16,384-token cap on editorial_select's indented diff, so it was re-aud
     (fail closed). "decision '' falls through", "text None" (both): no producer emits either.
   - "story_ledger entries counted once" (qwen27b): the ledger is read-only during selection.
 
+## The fixes, audited (heimdall_pass2b: transfer_case both-decodes rule, _load one model at a time, plural screen)
+- qwen27b: PASS, 0 findings; deepseek and glm stopped at the token cap without an answer.
+
 ## Heimdall passes that produced no findings
 - Both panel models stopped at the tool's fixed 16,384-token output cap before answering on: editorial_select
   (per-file and -w), the first fix pass (heimdall_pass2), test_punct_word_pass. editorial_select was then audited
   in three chunks (heimdall_chunks) and the fixes on a minimal diff (heimdall_pass2b); the test files are covered
   by the cross-LLM audit (Test Quality 9 / 10 and 10 / 10).
 
-## Pending at the time of writing
-- heimdall/ for punctuation.py, story_semantics.py and the two test files; heimdall_w/ (editorial_select -w);
-  heimdall_pass2/ (the fixes). Appended below when they land.
+## Closing state (19:15)
+- heimdall_chunks cross-examination: a_screen_ledger 0 consensus (all 8 cycle-1 claims rejected by the panel),
+  c_pools_evaluate 0 consensus (3 rejected), b_step3_label 2 consensus findings, both already handled above (the
+  candidates now enter the record inside the loop; 'current_ok with a None chunk id' rejected with evidence). Its
+  unvoted 'the derive checkpoint only fires on a parse error' is false: the loop body ends with a second
+  ck('derive', ...) for every successful derivation.
+- heimdall/test_dec13_clusters: see heimdall/ when it lands; the test files are covered by the cross-LLM audit.

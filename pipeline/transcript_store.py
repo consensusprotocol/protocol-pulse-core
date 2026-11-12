@@ -24,6 +24,7 @@ each chunk inheriting the full source identity + transcript_sha256.
 """
 import glob
 import hashlib
+import html
 import json
 import os
 import re
@@ -345,6 +346,16 @@ def download_audio(video_id):
     return files[0]
 
 
+_SPLIT_TOKEN = re.compile(r"\s+(?=[.,][0-9A-Za-z])")     # '$81 ,000', 'U .S.', '1 .3': one written word
+
+
+def read_text(text):
+    """Transcript text as the words it stands for (E-FAIL-036 / 037): caption HTML entities decoded ('S&amp;P'
+    = 'S&P'); a Whisper word split into tokens and joined with a space read whole ('$81 ,000' = '$81,000',
+    'U .S.' = 'U.S.', '1 .3' = '1.3'). Stored records are never rewritten; chunks are built through this."""
+    return _SPLIT_TOKEN.sub("", html.unescape(text))
+
+
 def sentences_from_words(words):
     """Sentence segments from word timestamps (split after . ! ?)."""
     segs, cur = [], []
@@ -505,7 +516,7 @@ def chunks(rec):
         if cur:
             s, e = cur[0]["start"], cur[-1]["end"]
             out.append({**prov, "chunk_id": chunk_id(rec["video_id"], s, e), "start": s, "end": e,
-                        "text": " ".join(x["text"] for x in cur)})
+                        "text": read_text(" ".join(x["text"] for x in cur))})
     for seg in rec["segments"]:
         if cur and seg["end"] - cur[0]["start"] > CHUNK_MAX_S:
             flush()

@@ -1,0 +1,13 @@
+{
+ "source": "runs/fresh_20261112_001448 TOPIC_SELECTION.json (wrapper at 5dde8179), cluster 'Following the US elections, Bitcoin experienced a sell-off and net outflows from US Bitcoin ETFs.'",
+ "video_id": "lusJ1m-J0Mc",
+ "transcript_method": "whisper_words",
+ "verdict": "CURRENT_EVENT",
+ "evidence_quote": "It went from above $81,000 after the election to below $75,000 by the weekend.",
+ "excerpt": {
+  "chunk_id": "lusJ1m-J0Mc:66350-96350",
+  "start": 66.35,
+  "end": 96.35,
+  "text": "Bitcoin also. wasn't spared in the sell -off. It went from above $81 ,000 after the election to below $75 ,000 by the weekend. U .S. Bitcoin ETFs had about $1 .3 billion in net outflows just last week. And Bitcoin really hasn't participated in the Monday rally, but of course, things can change quickly, so we'll see how the market shapes up this week. All right, you've probably seen people celebrating what they're calling the most pro -crypto Congress ever. Stand with crypto now rates 241 House winners and 50 senators as pro -crypto."
+ }
+}
