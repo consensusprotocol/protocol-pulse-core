@@ -943,8 +943,8 @@ def stage_gates(run, final16, man16, final9, man9):
     # waived): 16:9 = the prepared clips (source camera, 1920x1080), 9:16 = the reframed vertical clips.
     src16 = {c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4") for c in cuts}
     src9 = {c["clip_id"]: os.path.join(qa, f"vert_{c['clip_id']}.mp4") for c in cuts}
-    ok16, r16 = run_gates(run.dir, final16, man16, source_clips=src16)
-    ok9, r9 = run_gates(run.dir, final9, man9, source_clips=src9)
+    ok16, r16 = run_gates(run.dir, final16, man16, source_clips=src16, prepared_clips=src16)   # ruling 21: G3c on
+    ok9, r9 = run_gates(run.dir, final9, man9, source_clips=src9, prepared_clips=src9)         # the prepared clips
     import qa_gates  # patched by run_gates (BASE/VO_DIR) — same module instance
 
     rows = {"16x9": {}, "9x16": {}}
@@ -1146,7 +1146,9 @@ def stage_gates(run, final16, man16, final9, man9):
                                 "pad_s": float(c.get("lead_in_pad_s") or 0.0),
                                 "adjudicated": bool((locks.get(c["clip_id"]) or {}).get("adjudication")),
                                 "alternatives": (locks.get(c["clip_id"]) or {}).get("alternatives"),
-                                "prepared": os.path.join(qa, f"final_{c['clip_id']}.mp4")}   # the PREPARED clip
+                                "prepared": os.path.join(qa, f"final_{c['clip_id']}.mp4"),   # the PREPARED clip
+                                "fade_in_s": float(c.get("fade_in_ms") or 0) / 1000,          # ruling 22: the
+                                "fade_out_s": float(c.get("fade_out_ms") or 0) / 1000}        # interior between fades
                  # (qa/final_<clip>.mp4, the file G17c measures; the finals are out/segment*.mp4)
                  for c in cuts}
     run.prov["lock_adjudication"] = {cid: (locks.get(cid) or {}).get("adjudication") for cid in g18_clips

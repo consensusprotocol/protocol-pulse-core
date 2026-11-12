@@ -78,6 +78,27 @@ def diff(expected, heard, collapse=False, alts=None):
     return out
 
 
+def _omitted_or_repeated_only(expected, heard, alts=None):
+    """Ruling 22: True when the heard text differs from the expected ONLY by omitted expected words or by repeats of
+    the expected words just before them (nothing substituted, nothing added); attested alternatives (ruling 18)
+    count as the expected word."""
+    e, h = norm(expected), norm(heard)
+    pos = _alt_positions(expected, alts)
+    ops = [o for o in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes() if o[0] != "equal"]
+    if not ops:
+        return False
+    for op, a0, a1, b0, b1 in ops:
+        if op == "delete":
+            continue
+        n = b1 - b0
+        if op == "insert" and 0 < n and (h[b0:b1] == e[max(0, a0 - n):a0] or h[b0:b1] == e[a0:a0 + n]):
+            continue                                     # a repeat of the locked words just before or after it
+        if op == "replace" and a1 - a0 == 1 and b1 - b0 == 1 and a0 in pos and e[a0] in pos[a0] and h[b0] in pos[a0]:
+            continue                                     # an attested reading, not a substitution
+        return False
+    return True
+
+
 def edges(lock_text, heard, n=EDGE_WORDS, alts=None):
     """[] when the heard text starts and ends with the lock's first/last n canonical words (ruling 18: at an
     alternative's position any attested reading counts as the lock's word)."""
@@ -174,6 +195,22 @@ def gate_g18(final_path, segments, clips, transcriber=None):
             row["repeat_only_adjudication"] = {"same_audio": same, **det}
             if same:
                 row["identity_repeats_only"], row["identity"] = row["identity"], []
+        if row["identity"] and _omitted_or_repeated_only(c["lock_text"], heard, alts) and c.get("prepared"):
+            # ruling 22 (orchestrator 2026-11-12 '13:06'): the final's decode is a proxy, the audio is the truth: a
+            # difference that only OMITS or REPEATS locked words is decided acoustically: the prepared clip (speech
+            # stem) over its interior (between the edge fades) must be the source span, G17c's comparison (-90 dBFS
+            # floor, 1 dB). Identical = the omission is recorded and does not fail; not identical = it stands.
+            import sentence_law as L
+            t0 = float(c["cut_in"]) + float(c.get("fade_in_s") or 0.0)
+            t1 = float(c["cut_out"]) - float(c.get("fade_out_s") or 0.0)
+            try:
+                same, det = L.span_fidelity(c["source"], c["prepared"], t0, t1, float(c["cut_in"]),
+                                            float(c.get("pad_s") or 0.0))
+            except Exception as e:                   # not measurable: the difference stands
+                same, det = False, {"why": f"{type(e).__name__}: {e}"}
+            row["omission_adjudication"] = {"same_audio": same, **det}
+            if same:
+                row["identity_omitted_only"], row["identity"] = row["identity"], []
         row["pass"] = not row["edges"] and not row["identity"] and not row.get("acoustic_mismatch")
         ok_all &= row["pass"]
         rows.append(row)
