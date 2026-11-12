@@ -66,6 +66,36 @@ needs at least 65 VO words to reach 60 s, and R4 allows at most 48.
 - (B) Rule that the speaker's condition is not material (law L-s is yours to interpret, as rulings 3 / 5 / 6 did).
   Not recommended: coherence 3 still fails, and the condition is verbatim right after the cut.
 
+**08:00 ET: the zero-cost candidate pre-check for clip_02 (store facts only; no model call; no swap).**
+
+Tonight's store has 62 moments. The current VO puts clip_02 between 5.5 s and 15.5 s: 60-70 s with the ruled VO.
+
+Natalie Brunell, same episode (VO 2 and the sign-off stay valid):
+- **f216541b**, 3.50 s, "Bitcoin imposes a global free market for the first time ever." (YouTube 3218.14-3221.64)
+  - The sentence ends the guest's answer; the host's "Okay, so let's wrap this up ..." follows.
+  - On the angle, but short: runtime 58.0 s, so the VO needs about +2 s (5 words) to reach 60.
+- **9d3621a7**, first sentence only, 2.96 s, "We either live in a free market, or we live in a control system." (173.99-176.95)
+  - The next sentence continues it ("And Bitcoin gives us a chance to escape that control system ..."), so the
+    context may fail like 'existed.'.
+  - Runtime 57.5 s.
+  - With that next sentence the clip is 20.64 s, over the 20 s limit (L-u). The next sentence alone is 16.02 s and
+    starts on a referent outside it.
+- Longer moments in this episode are off the angle or over 20 s:
+  - a new internet "bound by Bitcoin" (predictions, 8.6 s);
+  - Main Street adoption (12.9 s);
+  - self-custody fears (12.0 s);
+  - "outside of the bubble" (9.7 s, referent outside);
+  - privacy (17.5 s);
+  - the constitution (15.6 s; runtime 70.1).
+
+Other channels: VO 2 names Natalie Brunell, so it would need your new text.
+- Saifedean Ammous and What Bitcoin Did are already the hook and clip_01.
+- Coin Bureau, Simply Bitcoin and Yahoo Finance are price or flow items (time-sensitive).
+- The Livera moment was dropped at 06:00.
+
+Every candidate still needs the measured gates (step A, CUTTABLE on the second recogniser) and the integrator's cut
+geometry.
+
 **Code (uncommitted until its audit, AUDIT-FIRST):**
 - package.runtime = the factory's own R4 estimate;
 - vo_fidelity.majority (ruling 07:42 item 3), with its votes sealed in the inventory row;
