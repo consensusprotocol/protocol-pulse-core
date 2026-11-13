@@ -608,23 +608,31 @@ class TestBuildLoop(unittest.TestCase):
         self.assertEqual(out["angle_backend"], "fake:angle_write")
         self.assertEqual(out["angle_tried"], [])
 
-    def test_the_budget_stops_on_the_reported_cost_or_the_estimate_ceiling(self):
-        """Ruling 5 (22:40): per package 15 min wall / $1.50 by the vendors' reported cost; the estimate only as a $5
-        ceiling. Checked before every line-up and every write (audit 2240 C1, glm), not only when an angle ends."""
-        for spent, why in (((0.10, 1.51), "reported"), ((5.01, 0.20), "estimate ceiling")):
+    def test_the_search_budget_ends_the_build_and_the_package_budget_ends_only_its_line_up(self):
+        """Ruling 41 (04:58): a build may spend $3.00 reported searching (a $10.00 estimate ceiling); ruling 5's $1.50 /
+        15 min is per PACKAGE delivered, counted from its own line-up's clips-alone verdict."""
+        for spent, why in (((0.10, 3.01), "reported"), ((10.01, 0.20), "estimate ceiling")):
             reads = [(0.0, 0.0), (0.0, 0.0)]                  # the baseline, then the check before line-up 1
-            calls = iter(reads + [spent] * 50)                # ... then over budget from the next check on
+            calls = iter(reads + [spent] * 80)                # ... then over the search budget from the next check on
             rig = Rig(self.MS, [["h", "x", "y"], ["h", "x", "z"]], [(False, [], None, "none")] * 2, [],
                       spend=lambda: next(calls))
             out = rig.run()
-            self.assertIn("ruling 5", out["why_none"], why)
+            self.assertIn("ruling 41", out["why_none"], why)
             self.assertEqual(len(rig.medley_calls), 1, why)          # line-up 1 ran; nothing after the stop
             self.assertEqual(out["budget_stop"]["angles_tried"], 1, why)
-        over = iter([(0.0, 0.0)] + [(9.0, 9.0)] * 50)               # over budget from the very first check
+            self.assertEqual(out["search"]["lineups"], 1, why)
+        over = iter([(0.0, 0.0)] + [(11.0, 11.0)] * 80)             # over the search budget from the very first check
         rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], spend=lambda: next(over))
         out = rig.run()
         self.assertEqual((rig.medley_calls, rig.write_calls), ([], []))   # no clips-alone call, no write paid
         self.assertIsNone(out["package"])
+        rig = Rig(self.MS, [["h", "x", "y"], ["h", "x", "z"]], [(True, [], None, Rig.LINE)] * 2, [None, None])
+        rig.spend = lambda: (0.0, 1.6) if rig.medley_calls else (0.0, 0.0)  # line-up 1's package: $1.60 > $1.50
+        out = rig.run()
+        self.assertIn("per package delivered", out["tried"][0]["why"])      # only that line-up stopped
+        self.assertEqual(len(rig.write_calls), 1)                          # line-up 2 (its own $0.00) wrote
+        self.assertIsNotNone(out["package"])                               # the search went on: $1.60 < $3.00
+        self.assertEqual((out["search"]["lineups"], out["search"]["usd_reported"]), (2, 1.6))
 
     def test_a_hook_without_80_ms_of_genuine_quiet_gives_way_and_none_means_no_line_up(self):
         """Batch pin #1, held 01:39 ET Nov 13 (G17a: 30 ms of genuine lead before the hook). A moment opens a medley
@@ -724,6 +732,76 @@ class TestStandAloneAtThePinStage(unittest.TestCase):
         gates = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
         gates["stand_alone"] = {"status": "PASS" if r["ok"] else "FAIL", "by": "x", "replayed": False, "n": 1}
         self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
+
+
+class TestRuling41Search(unittest.TestCase):
+    """Ruling 41 (04:58): when the clips-alone verdict fails, the segments rated below the bar are swapped at their
+    place for the next by score from the whole cleared pool (a hook for the next hook, a clip for the next clip), the
+    ones rated 4-5 kept; up to 8 line-ups per build; the bar unchanged."""
+
+    def pool(self, *spec):
+        out = {}
+        for mid, ch, dur, rank, h2s in spec:
+            m = dict(pm(mid, ch, dur, rank=rank), hook_onset={"pass": True})
+            m["scores"] = dict(m["scores"], hook_first_2s=h2s)
+            out[mid] = m
+        return out
+
+    def test_a_clip_below_the_bar_is_swapped_at_its_place_for_the_next_clip_by_rank(self):
+        p = self.pool(("h", "A", 12.0, 9.0, 4), ("x", "B", 14.0, 9.0, 3), ("y", "C", 13.0, 9.0, 3),
+                      ("z", "D", 13.0, 5.0, 3), ("w", "E", 13.0, 8.0, 3), ("v", "B", 13.0, 9.5, 3))
+        segs = [p["h"], p["x"], p["y"]]
+        new, swaps = PK.swap_lineup(segs, {"x"}, p)
+        self.assertEqual([m["moment_id"] for m in new], ["h", "v", "y"])     # v: the best rank, x's place, B again
+        self.assertEqual(swaps, {"x": "v"})
+        new, swaps = PK.swap_lineup(segs, {"x"}, p, avoid={"v"})
+        self.assertEqual([m["moment_id"] for m in new], ["h", "w", "y"])     # then the next by rank
+        self.assertTrue(PK.lineup_ok(new)[0])
+
+    def test_a_hook_below_the_bar_is_swapped_for_the_next_hook_by_score(self):
+        p = self.pool(("h", "A", 12.0, 9.0, 3), ("x", "B", 14.0, 9.0, 3), ("y", "C", 13.0, 9.0, 3),
+                      ("g", "D", 12.0, 1.0, 5), ("k", "E", 12.0, 9.9, 2))
+        new, swaps = PK.swap_lineup([p["h"], p["x"], p["y"]], {"h"}, p)
+        self.assertEqual(swaps, {"h": "g"})                                  # by hook_first_2s, not by rank
+        p["g"]["hook_onset"] = {"pass": False}                               # a hook must still open (G17a)
+        self.assertEqual(PK.swap_lineup([p["h"], p["x"], p["y"]], {"h"}, p)[1], {"h": "k"})
+
+    def test_the_place_s_own_rule_comes_before_the_cap(self):        # audit 0510 C1, glm P1-3
+        spec = [("h", "A", 12.0, 9.0, 3), ("x", "B", 14.0, 1.0, 3), ("y", "C", 13.0, 9.0, 3)]
+        spec += [(f"s{i}", f"S{i}", 5.0, 9.0 - i / 100, 3) for i in range(12)]        # 12 short clips ranked higher
+        spec += [("f", "F", 14.0, 2.0, 3)]                                          # a full clip, ranked below them
+        p = self.pool(*spec)
+        new, swaps = PK.swap_lineup([p["h"], p["x"], p["y"]], {"x"}, p)              # x's place is not the last
+        self.assertEqual(swaps, {"x": "f"})
+
+    def test_no_swap_when_nothing_fits_the_line_up_rules(self):
+        p = self.pool(("h", "A", 12.0, 9.0, 3), ("x", "B", 14.0, 9.0, 3), ("y", "C", 13.0, 9.0, 3),
+                      ("s", "D", 3.0, 9.0, 3))                               # 12 + 3 + 13 = 28 s < the medley's seconds
+        self.assertEqual(PK.swap_lineup([p["h"], p["x"], p["y"]], {"x"}, p), (None, None))
+        self.assertEqual(PK.swap_lineup([p["h"], p["x"], p["y"]], set(), p), (None, None))
+
+    def test_lineup_for_s_own_line_ups_pass_lineup_ok(self):
+        p = self.pool(("h", "A", 12.0, 9.0, 4), ("x", "B", 14.0, 9.0, 3), ("y", "C", 13.0, 9.0, 3),
+                      ("z", "D", 13.0, 9.0, 3), ("w", "E", 6.0, 9.0, 3))
+        for order in (["h", "x", "y", "z"], ["h", "w", "x", "y"], ["x", "h", "z", "w"]):
+            segs = PK.lineup_for(angle(order, order[0]), p, need_onset=True, need_stand_alone=True)
+            if segs is not None:
+                self.assertEqual(PK.lineup_ok(segs), (True, "ok"), order)
+
+    def test_the_build_swaps_a_low_rated_hook_and_stops_at_8_line_ups(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0), pm("g", "E", 12.0)]
+        rig = Rig(ms, ["h", "x", "y", "z"], [(False, [], {"hook": 3}, Rig.LINE), (True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(rig.medley_calls[0][0], "h")
+        self.assertNotEqual(rig.medley_calls[1][0], "h")                    # the hook rated 3 was swapped
+        self.assertIn("swapped", out["tried"][0]["why"])
+        self.assertIsNotNone(out["package"])
+        many = [pm(c, c.upper(), 13.0) for c in "abcdefghijklmnop"]
+        fails = [(False, [], {"clip_01": 2}, Rig.LINE)] * 12
+        rig = Rig(many, [list("abcdefgh"), list("ijklmnop"), list("aceg")], fails, [])
+        out = rig.run()
+        self.assertEqual(len(rig.medley_calls), PK.LINEUPS_PER_BUILD)       # 8, over every angle
+        self.assertEqual(out["search"]["lineups"], 8)
 
 
 class TestRuling37QuestionHook(unittest.TestCase):

@@ -1,0 +1,78 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips:
+a hook and 2-4 clips from other channels, played back to back, then one spoken takeaway).
+
+How package.build() works:
+- An angle step proposes up to 3 angles, each a set of moments in play order.
+- Per angle, lineup_for() picks a line-up: the hook + clips inside the medley's seconds, one per channel, a short clip
+  only last, the render's STAND_ALONE.
+- A blind clips-alone verdict (medley()) rates each segment 1-5 and judges each join. It passes only with a
+  through-line and every rating >= COHERENCE_MIN (4).
+- Then the writes and the gates. The first package that passes every hard gate wins.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why: ORCHESTRATOR ORDER 04:58 ET Nov 13, RULING 41 (LINE-UP SEARCH): "With 11 cuttable moments and 8 possible hooks,
+two line-ups is not a search. When the clips-alone verdict fails, read WHICH clip rated below the bar and swap that
+clip (a hook rated 3 -> the next hook by score; a clip rated 2 -> the next clip), keep the ones rated 4-5, and
+re-judge. Up to 8 line-ups per build, inside the package budget ($1.50 / 15 min is per PACKAGE delivered; a build may
+spend up to $3 searching, report it). Stop at the first that passes. The bar itself is unchanged."
+- Before: 2 line-ups per angle. A low-rated HOOK was never swapped: the old code excluded the hook from the weak set,
+  and its angle ended. A low-rated clip was re-lined only from the angle's own moments (often 4).
+- Ruling 5's budget (15 min wall / $1.50 reported / $5 estimate) was counted from the build's start, so step A, L-v 2
+  and slow angle calls used it up before any line-up.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass. Every line-up the search judges must pass the
+  same line-up rules, and the clips-alone bar (COHERENCE_MIN) and every gate are unchanged.
+
+The change (pipeline/package.py):
+1. Constants:
+   - LINEUPS_PER_BUILD = 8;
+   - SEARCH_USD_REPORTED = 3.00, and SEARCH_USD_ESTIMATE = 10.00 (ruling 5's $5.00 : $1.50 ratio, for calls whose
+     vendor reports no cost);
+   - SEARCH_WALL_S = 2400 (the build ends cleanly before its driver's timeout; a killed build writes no record);
+   - SWAP_TOP = 6.
+2. lineup_ok(segs, crange, repeat_ok): lineup_for's rules checked on a GIVEN line-up:
+   - the hook is hook-eligible and its G17a onset passed;
+   - the clips are clip-eligible, and there are 2-4 of them;
+   - one segment per channel, or repeat_ok with one channel giving two videos;
+   - price predictions are capped;
+   - a short clip plays only last;
+   - the seconds are inside crange;
+   - stand_alone_check passes.
+3. swap_lineup(segs, weak, pool, avoid):
+   - Each weak segment (rated below the bar) is swapped at its place for the next candidate by score from the WHOLE
+     cleared pool: the hook for the next hook by scores.hook_first_2s, a clip by rank_score.
+   - The others stay in place.
+   - The first combination (up to SWAP_TOP per place) that passes lineup_ok wins, one per channel first, then the supply
+     exception. -> (segs, {old: new}) or (None, None).
+4. supply_exception(segs, ctx): the L-y 4 text, factored out verbatim, and now also used for swapped line-ups.
+5. build():
+   - lineups (default LINEUPS_PER_BUILD) counts line-ups judged over the WHOLE build.
+   - On a clips-alone failure, the weak set includes the HOOK. No weak segment or an unmeasured verdict ends the
+     angle, as before.
+   - The weak moments join `dropped`, and swap_lineup proposes the next line-up (judged next). If no swap fits,
+     lineup_for re-lines from the angle as before.
+   - over_budget(ai) is now the SEARCH budget: $3.00 reported, $10.00 estimate and SEARCH_WALL_S from the build's
+     start. It ends the build.
+   - package_over(line): ruling 5's 15 min / $1.50 / $5, counted from each line-up's clips-alone verdict. It ends only
+     that line-up; the search goes on.
+   - A line-up whose writes all fail now records why. out["search"] reports the line-ups, the reported and estimated
+     spend, and the seconds, with a log line.
+6. Tests (tests/package/test_medley.py):
+   - the budget test is rewritten to ruling 41's semantics;
+   - swap_lineup (a clip at its place by rank, a hook by hook score, a hook must still open, none when nothing fits);
+   - lineup_for's own line-ups pass lineup_ok;
+   - the build swaps a low-rated hook, and stops at 8 line-ups over every angle.
+
+Check in particular:
+- that every line-up the search judges passes exactly the rules lineup_for applies (lineup_ok vs lineup_for), and the
+  bar is unchanged;
+- that the weak set, the swap and `dropped` cannot loop or re-judge a dropped moment;
+- that the per-package budget cannot be dodged: a package is still bound by 15 min / $1.50 from its own line-up's
+  start, and the search by $3.00;
+- the counting of line-ups;
+- that nothing else changes: the writes, the gates, the no-voice path and the per-clip drops.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".

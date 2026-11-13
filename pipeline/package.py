@@ -72,6 +72,15 @@ COHERENCE_MIN = 4                  # the blind coherence verdict: every rating >
 BUDGET_WALL_S = 900.0              # orchestrator 22:40 ruling 5 (Heimdall as the writer; was 05:25 item 5's 360 s x2):
 BUDGET_USD_REPORTED = 1.50         # per package 15 min wall and $1.50 by the vendors' OWN reported cost,
 BUDGET_USD_ESTIMATE = 5.00         # with the price-table estimate (it over-states ~7x) only as a hard ceiling
+LINEUPS_PER_BUILD = 8              # RULING 41 (04:58 ET Nov 13): up to 8 line-ups per BUILD, over every angle. A clips-
+                                   # alone failure is answered by swapping the segments rated below the bar (swap_lineup);
+                                   # the bar itself is unchanged
+SEARCH_USD_REPORTED = 3.00         # ruling 41: a build may spend $3 (vendor-reported) searching, reported in out["search"];
+SEARCH_USD_ESTIMATE = 10.00        # ruling 5's $1.50 / 15 min is per PACKAGE delivered (its own line-up). The estimate
+                                   # ceiling keeps ruling 5's ratio ($5.00 : $1.50) for calls whose vendor reports no cost
+SEARCH_WALL_S = 2400.0             # the build ends cleanly before its driver's timeout (a killed build writes no record)
+SWAP_TOP = 10                      # candidates read per swapped place, best by score first, after the place's own
+                                   # rules (a short clip only at the last place): audit 0510 C1, glm P1-3
 NO_VOICE_AFTER = 2                 # ruling 3 (22:40): the takeaway failing its gates this many times ships no VO line
 WRITER_DEADLINE_S = 300.0          # ruling 5: one writer call never waits more than 5 min; it fails over (deepseek ->
                                    # qwen -> xAI in the writer chain) and the failover is recorded
@@ -612,6 +621,80 @@ def no_role_on_screen(m):
     return None if (c_ok or h_ok) else f"the render's STAND_ALONE with no clip scorer at the pin stage: {c_why}; {h_why}"
 
 
+def lineup_ok(segs, crange=None, repeat_ok=False):
+    """The rules lineup_for applies, checked on a GIVEN line-up in play order -> (ok, why): the hook can open (hook
+    eligibility and the G17a measure), every clip is clip-eligible, the hook + LY_CLIPS clips, one segment per channel
+    (or, repeat_ok, one channel with two clips from two videos: L-y 4), at most PRICE_PREDICTIONS_MAX price predictions,
+    a clip under SHORT_CLIP_S only last, the seconds inside crange, and the render's STAND_ALONE (stand_alone_check)."""
+    lo, hi = crange or medley_content_range()
+    h, clips = segs[0], segs[1:]
+    if not LY_CLIPS[0] <= len(clips) <= LY_CLIPS[1]:
+        return False, f"{len(clips)} clips"
+    if not ((h.get("eligibility") or {}).get("hook", {}).get("ok") and (h.get("hook_onset") or {}).get("pass") is True):
+        return False, "the hook cannot open"
+    if not all((m.get("eligibility") or {}).get("clip", {}).get("ok") for m in clips):
+        return False, "a clip is not clip-eligible"
+    chans = [m["channel_id"] for m in segs]
+    if len(set(chans)) != len(segs) and not (repeat_ok and len(set(chans)) == len(segs) - 1 and
+                                             len({m["video_id"] for m in segs}) == len(segs)):
+        return False, "one segment per channel"
+    if sum("price_prediction" in m.get("risk", []) for m in segs) > PRICE_PREDICTIONS_MAX:
+        return False, "price predictions"
+    if any(m["duration_s"] < SHORT_CLIP_S for m in clips[:-1]):
+        return False, "a short clip that is not last"
+    dur = sum(m["duration_s"] for m in segs)
+    if not lo <= dur <= hi:
+        return False, f"{dur:.1f} s outside {lo}-{hi} s"
+    if not stand_alone_check(segs)["ok"]:
+        return False, "the render's STAND_ALONE"
+    return True, "ok"
+
+
+def swap_lineup(segs, weak, pool, avoid=frozenset(), crange=None):
+    """RULING 41: the next line-up after a clips-alone failure. Every segment in `weak` (moment ids rated below the
+    bar) is swapped AT ITS PLACE for the next candidate by score from the whole cleared pool: the hook for the next hook
+    by its first 2 s (scores.hook_first_2s), a clip for the next clip by rank_score. The segments rated 4-5 stay where
+    they are. The first combination (up to SWAP_TOP candidates per place, in score order) that passes lineup_ok wins,
+    one clip per channel first, then L-y 4's supply exception. -> (segs, {old id: new id}) or (None, None)."""
+    used = {m["moment_id"] for m in segs}
+    places = [i for i, m in enumerate(segs) if m["moment_id"] in weak]
+    if not places:
+        return None, None
+    free = [m for m in pool.values() if m["moment_id"] not in used and m["moment_id"] not in avoid]
+
+    def cands(i):
+        if i == 0:
+            c = [m for m in free if (m.get("eligibility") or {}).get("hook", {}).get("ok")
+                 and (m.get("hook_onset") or {}).get("pass") is True]
+            c.sort(key=lambda m: (-m["scores"]["hook_first_2s"], -m["rank_score"], m["moment_id"]))
+        else:
+            c = [m for m in free if (m.get("eligibility") or {}).get("clip", {}).get("ok")
+                 and (i == len(segs) - 1 or m["duration_s"] >= SHORT_CLIP_S)]     # the place's own rule first
+            c.sort(key=lambda m: (-m["rank_score"], m["moment_id"]))
+        return c[:SWAP_TOP]
+    options = [cands(i) for i in places]
+    for repeat_ok in (False, True):
+        for combo in itertools.product(*options):
+            if len({m["moment_id"] for m in combo}) != len(combo):
+                continue
+            new = list(segs)
+            for i, m in zip(places, combo):
+                new[i] = m
+            if lineup_ok(new, crange, repeat_ok)[0]:
+                return new, {segs[i]["moment_id"]: m["moment_id"] for i, m in zip(places, combo)}
+    return None, None
+
+
+def supply_exception(segs, ctx):
+    """L-y 4: the reason a line-up takes two clips from one channel (two videos), else None."""
+    rep = [c for c in dict.fromkeys(m["channel_id"] for m in segs) if sum(m["channel_id"] == c for m in segs) > 1]
+    if not rep:
+        return None
+    return (f"one clip per channel cannot fill the medley's seconds from this angle's moments: "
+            f"{', '.join(_name(next(m for m in segs if m['channel_id'] == c), ctx) for c in rep)}"
+            f" gives two clips, from two videos (L-y 4)")
+
+
 def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, repeat_ok=False, need_onset=False,
                need_stand_alone=False):
     """The hook + clips[0]..clips[1] clips for one angle, in the PROPOSER'S PLAY ORDER (L-y 3: the order carries a
@@ -1052,7 +1135,7 @@ def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None):
 
 
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
-          writes=WRITES, work_dir=None, store=None, spend=None, lineups=LY_LINEUPS):
+          writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -1142,18 +1225,32 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     doomed = set()                                         # moments a per-moment gate dropped: out of every angle
 
     def over_budget(ai):
-        """Ruling 5 (22:40): per package 15 min wall / $1.50 reported / the $5 estimate ceiling. Checked before every
-        line-up and every write (audit 2240 C1, glm), not only when an angle ends. -> the stop record, or None."""
+        """The SEARCH budget (ruling 41, 04:58): a build may spend $3.00 vendor-reported searching ($10.00 estimate
+        ceiling), inside SEARCH_WALL_S. Checked before every line-up and every write. -> the stop record (it ends the
+        build), or None. Ruling 5's 15 min / $1.50 is per PACKAGE delivered: package_over()."""
         used_s = time.time() - t0
         est, rep = (a - b for a, b in zip(_spent(spend), usd0))
-        if used_s <= BUDGET_WALL_S and rep <= BUDGET_USD_REPORTED and est <= BUDGET_USD_ESTIMATE:
+        if used_s <= SEARCH_WALL_S and rep <= SEARCH_USD_REPORTED and est <= SEARCH_USD_ESTIMATE:
             return None
-        out["why_none"] = (f"stopped in angle {ai + 1} of {len(angles)}: {used_s:.0f} s of {BUDGET_WALL_S:.0f} s wall / "
-                           f"${rep:.2f} of ${BUDGET_USD_REPORTED:.2f} reported / ${est:.2f} of the "
-                           f"${BUDGET_USD_ESTIMATE:.2f} estimate ceiling (ruling 5, 22:40)")
+        out["why_none"] = (f"stopped in angle {ai + 1} of {len(angles)}: the search spent {used_s:.0f} s of "
+                           f"{SEARCH_WALL_S:.0f} s / ${rep:.2f} of ${SEARCH_USD_REPORTED:.2f} reported / ${est:.2f} of "
+                           f"the ${SEARCH_USD_ESTIMATE:.2f} estimate ceiling (ruling 41, 04:58)")
         out["budget_stop"] = {"seconds": round(used_s, 1), "usd_reported": round(rep, 4), "usd_estimate": round(est, 4),
                               "angles_tried": ai + 1, "angles": len(angles)}
         return out["budget_stop"]
+
+    def package_over(line):
+        """Ruling 5 (22:40) as ruling 41 reads it: per PACKAGE delivered, 15 min wall and $1.50 reported (the $5
+        estimate ceiling), counted from the moment its own line-up's clips-alone verdict is requested, that call
+        included (line = (time, spend then)). Checked before every write. -> why this line-up stops (the search goes
+        on), or None."""
+        l_s = time.time() - line[0]
+        l_est, l_rep = (a - b for a, b in zip(_spent(spend), line[1]))
+        if l_s <= BUDGET_WALL_S and l_rep <= BUDGET_USD_REPORTED and l_est <= BUDGET_USD_ESTIMATE:
+            return None
+        return (f"this line-up's package spent {l_s:.0f} s of {BUDGET_WALL_S:.0f} s / ${l_rep:.2f} of "
+                f"${BUDGET_USD_REPORTED:.2f} reported / ${l_est:.2f} of the ${BUDGET_USD_ESTIMATE:.2f} estimate (ruling 5, "
+                f"per package delivered: ruling 41)")
 
     def no_voice(angle, segs, med, last, exception, dropped, rec, ai, n_lineup):
         """Ruling 3 (22:40): the takeaway failed its gates twice on a line-up whose clips ALONE passed with no join a
@@ -1243,23 +1340,24 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
         return pk
 
+    total = 0                                             # ruling 41: line-ups judged in this build, over every angle
     with ThreadPoolExecutor(max_workers=8) as pool:
         for ai, angle in enumerate(angles):
-            dropped, n_lineup = set(), 0
-            while n_lineup < lineups and not out["packages"] and not out.get("budget_stop"):
+            dropped, n_lineup, swapped = set(), 0, None
+            while total < lineups and not out["packages"] and not out.get("budget_stop"):
                 if over_budget(ai):
                     break
-                segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed), need_onset=True,
-                                             need_stand_alone=True), None
-                if segs is None:                          # L-y 4: one clip per channel unless the supply forces otherwise
-                    segs = lineup_for(angle, cleared, frozenset(dropped | doomed), repeat_ok=True, need_onset=True,
-                                     need_stand_alone=True)
-                    if segs is not None:
-                        rep = [c for c in dict.fromkeys(m["channel_id"] for m in segs)
-                               if sum(m["channel_id"] == c for m in segs) > 1]
-                        exception = (f"one clip per channel cannot fill the medley's seconds from this angle's moments: "
-                                     f"{', '.join(_name(next(m for m in segs if m['channel_id'] == c), ctx) for c in rep)}"
-                                     f" gives two clips, from two videos (L-y 4)")
+                if swapped is not None:                   # ruling 41: the swapped line-up is judged next
+                    segs, swapped = swapped, None
+                    exception = supply_exception(segs, ctx)
+                else:
+                    segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed), need_onset=True,
+                                                 need_stand_alone=True), None
+                    if segs is None:                      # L-y 4: one clip per channel unless the supply forces otherwise
+                        segs = lineup_for(angle, cleared, frozenset(dropped | doomed), repeat_ok=True, need_onset=True,
+                                          need_stand_alone=True)
+                        if segs is not None:
+                            exception = supply_exception(segs, ctx)
                 rec = {"angle": ai + 1, "text": angle["angle"], "lineup": [m["moment_id"] for m in segs] if segs else None,
                        "supply_exception": exception, "attempts": []}
                 out["tried"].append(rec)
@@ -1267,6 +1365,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     rec["why"] = "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
                     break
                 n_lineup += 1
+                total += 1
+                line = (time.time(), _spent(spend))         # this line-up's package budget counts from here (ruling 41)
                 ok_m, med = medley(router, segs, ctx, writers_v, seed=7 + n_lineup + 10 * ai, writer_family=writers_f)
                 rec["medley"], rec["medley_ok"] = med, ok_m
                 log(f"  angle {ai + 1} line-up {n_lineup} ({len(segs)} clips, "
@@ -1276,14 +1376,18 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 if not ok_m:                              # L-y 2 / 3: pick clips that sit together
                     by_lab = dict(zip(labs, segs))
                     weak = {by_lab[lb]["moment_id"] for lb, x in (med.get("clips") or {}).items()
-                            if lb in by_lab and lb != "hook" and x < COHERENCE_MIN}
+                            if lb in by_lab and x < COHERENCE_MIN}      # ruling 41: the HOOK too (the next hook)
                     if len(med.get("flagged") or []) > LY_MAX_BRIDGES:
                         weak |= {by_lab[j.split(" -> ")[1]]["moment_id"] for j in med["flagged"][1:]}
                     if not med.get("measured") or not weak:
                         rec["why"] = "the clips alone have no through-line a viewer can state (or it was not measured)"
                         break
                     dropped |= weak
-                    rec["why"] = f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, re-lined"
+                    swapped, swaps = swap_lineup(segs, weak, cleared, frozenset(dropped | doomed))
+                    rec["why"] = (f"the clips alone fail (ratings / joins): swapped {swaps}, re-judged (ruling 41)"
+                                  if swapped is not None else
+                                  f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, no swap fits the "
+                                  f"line-up rules: re-lined")
                     continue
                 if question_hook(segs) and joins(labs)[0] in med["flagged"]:   # ruling 37: no bridge after a question
                     dropped.add(segs[1]["moment_id"])
@@ -1300,6 +1404,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
                 while w_used < writes:
                     if over_budget(ai):
+                        break
+                    w_over = package_over(line)
+                    if w_over:
+                        rec["why"] = w_over
                         break
                     w_used += 1
                     try:
@@ -1448,11 +1556,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     if nv is not None:
                         out["packages"].append(nv)
                         rec["result"] = "PACKAGE (no voice, ruling 3)"
+                if not out["packages"] and not rec.get("why") and not rec.get("result"):
+                    last = (rec.get("attempts") or [{}])[-1]
+                    rules = sorted({str(v.get("rule")) for v in last.get("violations") or []})
+                    rec["why"] = f"{w_used} write(s) failed their gates" + (f" ({', '.join(rules)})" if rules else "")
                 if out["packages"] or not relined:
                     break
             if out["packages"] or out.get("budget_stop") or over_budget(ai):
                 break
     out["package"] = out["packages"][0] if out["packages"] else None
+    s_est, s_rep = (a - b for a, b in zip(_spent(spend), usd0))
+    out["search"] = {"lineups": total, "limit": lineups, "usd_reported": round(s_rep, 4),
+                     "usd_estimate": round(s_est, 4), "seconds": round(time.time() - t0, 1)}
+    log(f"  search: {total} line-up(s) of {lineups}, ${s_rep:.2f} reported / ${s_est:.2f} estimate (ruling 41: $3.00 "
+        f"reported per build)")
     if out["package"] is None and not out.get("why_none"):       # every angle ended without a package: say why
         out["why_none"] = ("no angle gave a package: " + "; ".join(
             f"angle {t.get('angle')}: {str(t.get('why') or t.get('result') or 'no reason recorded')[:250]}"
