@@ -13,7 +13,7 @@ Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fa
   - the speaker attestation in the kit (SPEAKERS_ATTESTED.json, not read);
   - ruling 72's spelling variants ('because' / "'cause");
   - the edge-placement proposals (a)-(c) from 13949b7c's hold.
-- FROM THE BUILDER (17:3x): the only other line-up in its pool whose clips pass (the Livera candidate) opens on the SAME hook span (DcUbBkyeh9M 216.054-228.674), so it would meet the same OUT-edge hold until (a) is ruled. The builder seals nothing until its ruling-72 wiring is committed.
+- FROM THE BUILDER (a message received while the merge ran; date read 17:30:50 when the merge ended): the only other line-up in its pool whose clips pass (the Livera candidate) opens on the SAME hook span (DcUbBkyeh9M 216.054-228.674), so it would meet the same OUT-edge hold until (a) is ruled. The builder seals nothing until its ruling-72 wiring is committed.
 
 ## 17:27 FACTS, 13949b7c's prepare HOLD: both failures are the RENDER's edge placement (sentence law), caught by prepare's edge-word check working as designed. The pin's texts passed ruling 17. FOR THE ORCHESTRATOR TO RULE.
 - HOOK OUT EDGE (DcUbBkyeh9M, window clock, offset 201.0 s):
