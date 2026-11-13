@@ -461,7 +461,8 @@ def build_edl(pin, acq, registry=None, log=print):
                    moments_package_sha256=mp["package_sha256"],   # the packager's digest of its full record
                    moments_package_pin_sha256=hashlib.sha256(json.dumps(mp, sort_keys=True).encode()).hexdigest(),
                    moments_checks=mp["checks"],                   # ^ this render's own digest of what it renders
-                   moments_sources_30s_before=list(mp["sources_30s_before"]))
+                   moments_sources_30s_before=list(mp["sources_30s_before"]),
+                   moments_bridge=mp.get("bridge"))               # law L-y 2: the one bridge's record, read by R11
     overrides = build_vertical_overrides(hook, clips, registry)
     return edl, overrides, report
 
@@ -526,9 +527,7 @@ def moments_vo(mp, clips, segments=None):
             raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{top}, "
                            f"strictly increasing")
         prev = a
-    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"],   # law L-y 2: a bridge's
-                                         **({"why": b["why"]} if "why" in b else {})}       # recorded reason,
-                                        for b in bridges]}                                   # read by R11
+    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
 
 
 def prepare(pin_path, run_dir, log=print):
