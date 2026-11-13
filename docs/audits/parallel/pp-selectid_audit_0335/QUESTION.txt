@@ -1,0 +1,27 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+pipeline/eligibility.py decides whether a span of a word-timed transcript may be shown on screen as a hook or a clip.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why: ORCHESTRATOR RULING 35 (03:12 ET Nov 13): "too_many_sentences: retired. The 20 s clip limit and the per-source
+limit govern length." Rule T9 (MAX_WINDOW_SENTENCES = 3) came from the OLD story selector (editorial_select.py:52).
+In the latest build's funnel it kept 17 of 70 moments off screen, 7 of them for that reason alone. The hard length
+rules stay elsewhere and are not touched:
+- package.usable() refuses a moment over SEG_MAX_S = 20 s per source video (L-u), or with an unmeasured duration;
+- the line-up's seconds must land the runtime inside 60-70 s (L-o).
+Law L-o already treats the clip and hook length targets this way: they are recorded in facts["targets_missed"], and
+they rank nothing and reject nothing.
+
+The change:
+1. pipeline/eligibility.py: a span of more than MAX_WINDOW_SENTENCES (non-interjection) sentences no longer adds the
+   reason "too_many_sentences". The count is recorded in facts["targets_missed"] instead. The constant stays (a test
+   mirrors it against editorial_select.py). n == 0 ("no_content": interjections only) is unchanged.
+2. tests/eligibility/test_eligibility.py: the 4-sentence hook no longer carries the reason, and records the target.
+
+Check in particular:
+- that nothing else in eligibility changes;
+- that no other hard length rule depends on this reason;
+- that facts["targets_missed"] is information only. Its only other readers: moments.py copies it into the moment's
+  eligibility record, and eligibility.py:621 appends to it.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".

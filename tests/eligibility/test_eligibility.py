@@ -258,7 +258,12 @@ class TestSpan(unittest.TestCase):
         self.assertTrue(any("target" in t for t in short.facts["targets_missed"]), short.facts)
         four = source(["Bitcoin fell.", "Bitcoin rose.", "Bitcoin fell again.", "Bitcoin is flat now after all that."])
         sp = E.Span(four, 0, 3)
-        self.assertIn("too_many_sentences", E.eligible(sp, ctx("hook", story=statements(sp))).names())
+        four_r = E.eligible(sp, ctx("hook", story=statements(sp)))           # ruling 35: retired, recorded only
+        self.assertNotIn("too_many_sentences", four_r.names())
+        self.assertTrue(any(f"4 sentences > {E.MAX_WINDOW_SENTENCES} (T9, retired by ruling 35" in t
+                            for t in four_r.facts["targets_missed"]), four_r.facts)          # audit 0335 C1, glm
+        three = E.eligible(E.Span(four, 0, 2), ctx("hook", story=statements(E.Span(four, 0, 2))))
+        self.assertFalse(any("T9" in t for t in three.facts["targets_missed"]), three.facts)   # at the cap: nothing
         alt = self.hook(["Solana rallied twenty percent this week after the exchange listing news broke on "
                          "Monday morning, leading every large cap token higher into the weekend close."])
         self.assertIn("no_bitcoin", alt.names())                                                 # an altcoin sentence

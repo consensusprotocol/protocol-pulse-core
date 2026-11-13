@@ -45,7 +45,7 @@ RUNTIME_S = (60.0, 70.0)                    # L1b law L-o (PBX 2026-11-12 01:50)
 TAIL_S = 14.30                              # what a final adds to its segments' word spans (credits card, outro, cut
                                             # leads / tails, pads): the approved preview's finals 71.08 s (DoD 14:47)
                                             # minus its four word spans 56.78 s (references/pulse_preview_2026-11-11)
-MAX_WINDOW_SENTENCES = 3                    # T9 editorial_select.py:52
+MAX_WINDOW_SENTENCES = 3                    # T9 editorial_select.py:52; recorded only since ruling 35
 N_CLIPS = (2, 3)                            # L1 >= 2: edl_rules.py:220; <= 3: editorial_select.py:54
 MAX_SPANS_PER_VIDEO = 2                     # L4 editorial_select.py:55 (MAX_VERIFIED_QUOTES_PER_VIDEO)
 MAX_CLIPS_PER_CHANNEL = 2                   # L5 editorial_select.py:1291; select_passages.py:291
@@ -437,8 +437,9 @@ def _span(span, ctx, role):
     facts["n_sentences"] = n
     if n == 0:
         R("no_content", "interjections only")
-    elif n > MAX_WINDOW_SENTENCES:
-        R("too_many_sentences", f"{n} sentences > {MAX_WINDOW_SENTENCES}")
+    elif n > MAX_WINDOW_SENTENCES:                 # ruling 35 (03:12 ET Nov 13): RETIRED as a rule, recorded only. The 20 s
+        targets.append(f"{n} sentences > {MAX_WINDOW_SENTENCES} (T9, retired by ruling 35: the 20 s clip limit and "
+                       f"the per-source limit govern length)")
     # T10 duration of the span's own words: a target (law L-o); not measured = fail closed (the runtime needs it)
     lo, hi = HOOK_S if role == "hook" else CLIP_S
     a, b = _time(toks[w0], "start"), _time(toks[w1], "end")

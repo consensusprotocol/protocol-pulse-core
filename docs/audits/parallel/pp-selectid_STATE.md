@@ -8,7 +8,7 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 | 33, part 1: run stage_validate's STAND_ALONE at the pin stage | DONE: change A (audit 0310, 2 cycles). The check is stand_alone.check_edl, byte-identical to main's, with no scorer. | none |
 | 33, part 2: trim ONE leading but/and/so/well/now/yeah | NOT STARTED: it cannot render yet. | BLOCKED. G16 / write_lock_cut_table lock WHOLE sentences, so a trimmed clip is held. Their STAND_ALONE scorer must also be asked about trimmed clips. The integrator agrees with the shape (pin carries trimmed_leading and the untrimmed sentence start; the IN cut sits in the measured pause), but builds it only on YOUR order. |
 | 34: no_bitcoin regex retired for clips; the medley names Bitcoin once | NOT STARTED (a no-op until the render changes). | BLOCKED: their stand_alone.topical requires EVERY segment to name Bitcoin. The integrator needs your order. |
-| 35: too_many_sentences retired | in audit (0335, cycle 1 done). | none: no sentence cap in run_fresh, pinned, sentence_law, editorial_gate or edl_rules. |
+| 35: too_many_sentences retired | DONE (audit 0335, 2 cycles, all three reviewers SHIP yes): recorded only, never rejects. | none: no sentence cap in run_fresh, pinned, sentence_law, editorial_gate or edl_rules. |
 | 36: layout_ineligible stays | no change | none |
 | 37: a question ending allowed in the HOOK role only | NOT STARTED (a no-op until the render changes). | BLOCKED: their edl_rules R1 NO_QUESTION_HOOK refuses a hook that ends on "?", the exact opposite. The integrator needs your order. |
 | 38: IN edge, a 4 s pad before; a sentence end OR a measured pause >= 700 ms; a file-head start counts | next | none (mine) |
