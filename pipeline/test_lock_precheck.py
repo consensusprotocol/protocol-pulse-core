@@ -357,6 +357,20 @@ class TestRuling72(Base):
             self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("decoded", "same"), e)
         self.assertEqual(len(self.heard), 1)
 
+    def test_a_failed_second_reading_is_an_error_never_a_pass(self):
+        def broken(src):
+            raise KeyError("no recogniser key")
+        with mock.patch.object(pinned, "_second_recogniser_words", broken):
+            self.request(approved_text=ATTESTED)                  # ruling 17: no difference, so no reading there
+            LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["outcome"], e["lock"], e["as_spoken"]), ("error", None, None), e)
+        self.assertIn("KeyError", e["reason"])
+        self.request("r2", approved_text=ATTESTED)                # an error is not reused: asked again, answered
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["request_id"], e["outcome"], e["reused"]), ("r2", "no_difference", False))
+
     def test_an_entry_under_other_rules_is_never_reused(self):
         out = LP.result_path(VID, START, END, LP.decoder_sha())
         os.makedirs(os.path.dirname(out))

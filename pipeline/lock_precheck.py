@@ -327,9 +327,9 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                                   f"{text!r}")
                         outcome, lock = "hold", None
                 except pinned.PinError as e:                     # what the render's stage pinned would hold on
-                    outcome, reason = "hold", str(e)
-                except Exception as e:
-                    reason = f"{type(e).__name__}: {str(e)[:300]}"
+                    outcome, reason, lock = "hold", str(e), None
+                except Exception as e:                           # any step failed (the second reading included): no
+                    outcome, reason, lock = "error", f"{type(e).__name__}: {str(e)[:300]}", None   # verdict, never a pass
             entry = {"request_id": r["request_id"], "video_id": vid, "start": s["start"], "end": s["end"],
                      "role": s["role"], "window": [float(lo), float(hi)],
                      "offset": a["offset"] if a else None,
