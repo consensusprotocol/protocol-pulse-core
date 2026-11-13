@@ -39,8 +39,20 @@ def q(t, n=140):
     return t if len(t) <= n else t[:n - 1] + "…"
 
 
+def mom(mid):
+    """The moment's record; a trimmed variant ("<id>~trim", ruling 33 part 2) is named by its original, with the
+    trimmed word marked (the record keeps the variant's id only)."""
+    if mid in by:
+        return by[mid]
+    o = by.get(str(mid).removesuffix("~trim"))
+    if o is None:
+        return {}
+    w, _, rest = (o.get("text") or "").partition(" ")
+    return dict(o, moment_id=mid, text=f"[{w} trimmed] {rest}", duration_s=f"under {o.get('duration_s')}")
+
+
 def tx(mid):
-    return by.get(mid, {}).get("text") or texts.get(mid) or ""
+    return mom(mid).get("text") or texts.get(mid) or ""
 
 
 def emit(title, rows, head=("lost", "exact reason", "one example (moment text)")):
@@ -189,7 +201,7 @@ try:
     import transcript_truth as TT
     rt = P.Router(record_dir=REPLIES, replay=True)
     for mid in lost3:
-        m = by[mid]
+        m = mom(mid)
         try:
             t = TT.verify_segment(rt, m["video_id"], float(m["start"]), float(m["end"]), m["text"], LV2)
             e = t.get("edges") or {}
@@ -219,25 +231,36 @@ if len(lost3) > 1:
     print("\nEvery stage-3 loss, exactly:")
     for mid in lost3:
         k, d = detail.get(mid, (sp[mid], ""))
-        print(f"- {by[mid].get('channel_name')}: {k}: {q(d, 260)}")
+        print(f"- {mom(mid).get('channel_name')}: {k}: {q(d, 260)}")
 
 # ---- stage 4: cuttable -> can open
 ho = pre.get("hook_onset") or {}
 lost4 = [(v, mid) for mid, v in ho.items() if v != "PASS"]
 emit(f"Stage 4: {pre.get('cuttable')} cuttable -> {sum(v == 'PASS' for v in ho.values())} can open a medley (G17a; "
      f"the others stay in play as non-hook clips)", grouped(lost4) or [[0, "-", "-"]])
+tc, sv = pre.get("trim_cut") or {}, pre.get("second_vendor") or {}
+if pk.get("trimmed") is not None:
+    print(f"\nTrimmed variants (ruling 33 part 2): {len(pk['trimmed'])} of the {len(pk.get('no_role') or {})} left "
+          f"out by STAND_ALONE joined the usable moments; {len(tc)} cleared to here and failed the trimmed cut (a), at "
+          f"any place:")
+    for mid, why in tc.items():
+        print(f"- {mom(mid).get('channel_name')}: {q(why, 200)}: \"{q(tx(mid), 120)}\"")
+sv_lost = [(v, mid) for mid, v in sv.items() if not str(v).startswith("PASS")]
+if sv:
+    emit(f"Stage 4b: step A from the second vendor (order 06:22 item 45): {len(sv) - len(sv_lost)} of {len(sv)} pass",
+         grouped(sv_lost) or [[0, "-", "-"]])
 
 # ---- stage 5: -> angle -> line-ups
 print(f"\n**Stage 5: the angle step and the line-ups.** why_none: {pk.get('why_none')!r}; angles: "
       f"{len(pk.get('angles') or [])} from {pk.get('angle_backend')}")
-cl = [mid for mid, v in sp.items() if v == "PASS"]
+cl = [mid for mid, v in sp.items() if v == "PASS" and mid not in tc and not str(sv.get(mid, "PASS")).startswith("FAIL")]
 print("\nThe moments offered to the angle step:")
 for mid in cl:
-    m = by.get(mid, {})
+    m = mom(mid)
     print(f"- {m.get('channel_name')} ({m.get('video_id')}), {m.get('duration_s')} s, can open: "
           f"{ho.get(mid) == 'PASS'}: \"{q(m.get('text'), 150)}\"")
 print(f"\nTogether {round(sum(float(by[m]['duration_s']) for m in cl if m in by), 2)} s from "
-      f"{len({by[m]['channel_id'] for m in cl if m in by})} channels.")
+      f"{len({mom(m)['channel_id'] for m in cl if mom(m)})} channels (a trimmed variant's seconds not counted).")
 for a in pk.get("angles") or []:
     print(f"- angle: \"{q(a.get('angle'), 200)}\" moments {len(a.get('moments') or [])}")
 log = open(os.path.join(D, "package.log")).read().splitlines()

@@ -79,6 +79,7 @@ PUNCT_WINDOW_WORDS = 60
 WORD_DURATION_RATIO_MIN = 0.85  # G17: rendered edge word keeps >= 85 % of its duration
 _TERMINAL = (".", "!", "?")
 _ABBREV = {"mr", "mrs", "ms", "dr", "st", "vs", "etc", "jr", "sr", "inc", "ltd", "corp", "prof", "approx"}
+TRIMMABLE_LEADING = frozenset({"but", "and", "so", "well", "now", "yeah"})   # ruling 33 part 2 (orchestrator '03:42')
 
 
 class LawError(Exception):
@@ -287,9 +288,47 @@ def boundary(sa, words, k):
     return {**rec, "valid": True}
 
 
-def edge_plan(sa, words, i0, i1):
-    """Boundaries around words[i0..i1] and the legal cut ranges they allow."""
-    bin_ = boundary(sa, words, i0 - 1)
+def trimmed_boundary(sa, words, i0, trimmed):
+    """Ruling 33 part 2 (orchestrator 2026-11-13 '03:42'): a lock may leave out ONE leading word (TRIMMABLE_LEADING) of a
+    whole sentence, recorded as lock['trimmed_leading']. Its IN edge is then the MEASURED PAUSE after that word, not a
+    sentence boundary: (1) words[i0 - 1] is the trimmed word; (2) the untrimmed sentence starts a sentence (the word
+    before it ends one in a punctuated stretch, or it is the transcript's first word): everything else about whole
+    sentences is unchanged; (3) a quiet run lies between the trimmed word and the first kept word, with a heard gap.
+    Otherwise invalid: the word cannot be cut cleanly (no pause, co-articulated) and the clip is held."""
+    import canon
+    k, word = i0 - 1, str((trimmed or {}).get("word") or "")
+    rec = {"after_word": words[k]["word"] if k >= 0 else "<file head>", "before_word": words[i0]["word"],
+           "trimmed_leading": word, "lexical": "trimmed leading word (ruling 33 part 2)"}
+    tok = canon.canon_tokens(word)
+    if k < 0 or len(tok) != 1 or tok[0] not in TRIMMABLE_LEADING or canon.canon_tokens(words[k]["word"]) != tok:
+        return {**rec, "valid": False, "reason": f"the trimmed word {word!r} is not one of "
+                f"{'/'.join(sorted(TRIMMABLE_LEADING))} or not the word before the lock ({rec['after_word']!r})"}
+    if k > 0 and not (is_punctuated(words, k - 1) and is_terminal(words[k - 1]["word"])):
+        return {**rec, "valid": False, "reason": f"the untrimmed sentence does not start a sentence: "
+                f"{words[k - 1]['word']!r} before {word!r} does not end one"}
+    mid = lambda w: (w["start"] + w["end"]) / 2
+    quiet, lv = find_pause(sa, mid(words[k]), mid(words[i0]))
+    point, gap, pause = boundary_geometry(sa, words, k, lv, quiet)
+    rec.update(levels=lv, pause=pause, quiet_run=quiet, point=point, word_gap=gap)
+    if quiet is None or gap["end"] <= gap["start"]:
+        return {**rec, "valid": False, "reason": f"the trimmed word {word!r} cannot be cut cleanly: no measured pause "
+                f"between it and {words[i0]['word']!r} (co-articulated)"}
+    return {**rec, "valid": True}
+
+
+def trimmed_onset(src, cut_in, fade_in_ms):
+    """Ruling 33 part 2, the onset rule on the audio as cut: G17a's own measure (head_tail on the cut audio with the
+    clip's fade-in, hook_lead_at) finds quiet before the first sound (the first onset after the first 10 ms hop, the
+    criterion ruling 28 uses for 'quiet after the cut'): nothing of the trimmed word opens the clip. (ok, record)."""
+    lead, onset = hook_lead_at(src, cut_in, fade_in_ms)
+    ok = onset is not None and onset > HOP_S + 1e-9
+    return ok, {"cut_in": cut_in, "fade_in_ms": fade_in_ms, "onset_s": onset, "lead_ms": lead, "ok": ok}
+
+
+def edge_plan(sa, words, i0, i1, trimmed=None):
+    """Boundaries around words[i0..i1] and the legal cut ranges they allow. trimmed: the lock's trimmed_leading
+    (ruling 33 part 2): the IN edge is the measured pause after that word, and the cut must SIT in its quiet run."""
+    bin_ = trimmed_boundary(sa, words, i0, trimmed) if trimmed else boundary(sa, words, i0 - 1)
     bout = boundary(sa, words, i1)
     plan = {"in": bin_, "out": bout}
     if bin_["valid"]:
@@ -301,11 +340,14 @@ def edge_plan(sa, words, i0, i1):
             bin_.update(cut_lo=0.0, cut_hi=p["start"], cut=p["start"], lead_in_pad_s=pad, cuttable=True)
         else:                                             # DEC-10: anywhere in the heard gap; aim at the pause
             g = bin_.get("word_gap") or {"start": p["start"], "end": p["end"]}
-            hi = round(g["end"] - LEAD_MIN_S, 3)
+            lo, hi = g["start"], round(g["end"] - LEAD_MIN_S, 3)
+            if trimmed:                                   # ruling 33 part 2: inside the measured quiet run as well
+                q = bin_["quiet_run"]
+                lo, hi = max(lo, q["start"]), min(hi, round(q["end"] - LEAD_MIN_S, 3))
             target = max(p["start"], p["end"] - LEAD_TARGET_S) if p.get("ms", 0) > 0 else bin_.get("point", p["start"])
-            bin_.update(cut_lo=g["start"], cut_hi=hi, cuttable=hi >= g["start"] - 1e-9,
-                        cut=round(min(max(target, g["start"]), hi), 3), lead_in_pad_s=0.0,
-                        reason=None if hi >= g["start"] - 1e-9 else "no room before the first word")
+            bin_.update(cut_lo=lo, cut_hi=hi, cuttable=hi >= lo - 1e-9,
+                        cut=round(min(max(target, lo), hi), 3), lead_in_pad_s=0.0,
+                        reason=None if hi >= lo - 1e-9 else "no room before the first word")
     if bout["valid"]:
         p = bout["pause"]
         guard = 0.0 if bout.get("file_end") else GUARD_S
@@ -665,6 +707,37 @@ def _accepted_cut_pair(src, plan, step=HOP_S):
     a prepared clip fails the clip contract's fade check (Nov 11 recut clip_02: 37.87)."""
     c = accepted_cut(src, plan, step)
     return (c["cut_in"], c["cut_out"]) if c else None
+
+
+def _cut_head(src, c, fade_ms):
+    """LEVEL_WINDOW_S of `src` from `c`, stereo 48 kHz float, with the clip's own linear fade-in of `fade_ms` applied
+    as prepare applies it (audit batch 56 C1, qwen: measure what the prepared clip will hold)."""
+    r = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{c:.3f}", "-i", src, "-t", f"{LEVEL_WINDOW_S}", "-vn", "-ac",
+                        "2", "-ar", "48000", "-f", "f32le", "-"], capture_output=True, check=True, timeout=60)
+    x = np.frombuffer(r.stdout, np.float32).reshape(-1, 2).astype(np.float64).copy()
+    k = min(len(x), int(round(fade_ms / 1000 * 48000)))
+    if k > 0:
+        x[:k] *= np.linspace(0.0, 1.0, k)[:, None]
+    return x
+
+
+def _head_tail_of(x):
+    import tempfile
+    import wave
+    with tempfile.TemporaryDirectory() as d:
+        w = os.path.join(d, "head.wav")
+        with wave.open(w, "wb") as f:
+            f.setnchannels(2)
+            f.setsampwidth(2)
+            f.setframerate(48000)
+            f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
+        return head_tail(SourceAudio(w))
+
+
+def hook_lead_at(src, c, fade_ms=0):
+    """(genuine lead ms, onset s) of the audio as cut at `c` with its fade-in: G17a's own measure (head_tail)."""
+    ht = _head_tail_of(_cut_head(src, c, fade_ms))
+    return ht["lead_ms"], ht["onset"]
 
 
 def write_lock_cut_table(run_dir):

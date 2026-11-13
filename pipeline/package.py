@@ -1180,7 +1180,8 @@ def hook_onset_for(m, sources, work_dir, cache):
         import hook_onset as HO
         try:
             cache[m["moment_id"]] = HO.measure(src_of(m, sources), m["words"][0], m["words"][1], m["video_id"],
-                                               float(m["start"]), float(m["end"]), work_dir)
+                                               float(m["start"]), float(m["end"]), work_dir,
+                                               trimmed=m.get("trimmed_leading"))     # ruling 33 part 2 (item 42)
         except Exception as e:
             cache[m["moment_id"]] = {"pass": False, "measured": False, "why": f"{type(e).__name__}: {str(e)[:200]}"}
     return cache[m["moment_id"]]
@@ -1259,7 +1260,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
            "package": None}
     log(f"  {n_usable} usable, {len(no_role)} of them left out by the render's STAND_ALONE (an opener the clip scorer "
-        f"would have to affirm, or no place under the topic rule with the pin's screen), {len(ad_read)} on an ad-read "
+        f"would have to affirm, or no place under the topic rule with the pin's screen; {len(trims)} of them back as "
+        f"variants with ONE leading word trimmed, ruling 33 part 2), {len(ad_read)} on an ad-read "
         f"marker (the exclusion screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
     if len({m["channel_id"] for m in cleared.values()}) < 3:
         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
@@ -1288,9 +1290,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["prescreen"]["hook_onset"] = {mid: "PASS" if m["hook_onset"].get("pass") is True else
                                       ("NOT MEASURED: " if not m["hook_onset"].get("measured") else "FAIL: ") +
                                       str(m["hook_onset"].get("why")) for mid, m in cleared.items()}
-    trim_cut = {mid: out["prescreen"]["hook_onset"][mid] for mid, m in cleared.items()     # ruling 33 (a): the
-                if m.get("trimmed_leading") and m["hook_onset"].get("pass") is not True}    # acoustic onset rule on the
-    cleared = {mid: m for mid, m in cleared.items() if mid not in trim_cut}                 # trimmed cut, any place
+    trim_cut = {mid: ("NOT MEASURED: " if not t.get("measured") else "FAIL: ") + str(t.get("why"))   # ruling 33 (a):
+                for mid, m in cleared.items() if m.get("trimmed_leading")        # the trimmed cut as the render plans
+                for t in [m["hook_onset"].get("trim") or {"measured": False, "why": "no trimmed-cut record"}]   # it
+                if t.get("pass") is not True}                                    # opens in quiet, at ANY place. Its
+    cleared = {mid: m for mid, m in cleared.items() if mid not in trim_cut}     # hook lead decides only whether it
+    # may OPEN the medley (hook_onset "pass", need_onset), never whether it may play as a clip (audit 0710 C1, qwen)
     out["prescreen"]["trim_cut"] = trim_cut
     log(f"  {sum(m['hook_onset'].get('pass') is True for m in cleared.values())} of them can open a medley "
         f"(G17a at the pin stage: genuine quiet before the first onset)")

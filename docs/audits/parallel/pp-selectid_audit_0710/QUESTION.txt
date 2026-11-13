@@ -1,0 +1,78 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+This branch builds sealed pins of short video medleys (a hook + 2-4 clips from other channels); the integrator
+renders them. Your role: a strict reviewer of the pin stage's acoustic cut measure for TRIMMED clips.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background (static):
+- ORCHESTRATOR RULING 33 (03:12 ET Nov 13): "A clip that opens on a discourse conjunction or reply word (but, and,
+  so, well, now, yeah) may have that ONE leading word trimmed at the cut when (a) the acoustic onset rule is met on
+  the trimmed cut, and (b) the pipeline's STAND_ALONE scorer affirms the trimmed clip at its unchanged threshold, and
+  (c) L-s step A is re-judged on the trimmed span. The locked text is the trimmed text. If any of the three fails, the
+  clip is out." ORDER 04:58 item 42: use it now (the render merged it).
+- The RENDER (the integrator's branch, pipeline/sentence_law.py at c6605895, unchanged since) cuts a trimmed clip so:
+  edge_plan(sa, words, i0, i1, trimmed=lock["trimmed_leading"]) plans the IN edge with trimmed_boundary (the
+  word before the lock is the trimmed word; the untrimmed sentence starts a sentence; a quiet run with a heard gap
+  lies between the trimmed word and the first kept word), and the cut must sit inside that quiet run; then
+  accepted_cut picks the cut and its fade; then trimmed_onset(src, cut_in, fade_in_ms) holds the clip unless the
+  audio as cut opens in quiet (the first onset after the first 10 ms hop).
+- The pin stage (this branch) measures each cuttable moment on its law-L-v-2 audio window (a 16 kHz WAV of
+  [start - 4 s, end + 1.5 s], fetched once) with hook_onset.measure: a planned cut, then G17a's genuine lead before
+  the first onset, with ONE extra 10 ms frame of margin (the slice vs the render's own decode).
+- THE DEFECT this diff fixes: hook_onset.measure planned every IN edge with the OLD edge_plan, which only cuts after a
+  sentence end. A trimmed clip's IN edge sits after the trimmed word, which never ends a sentence. So both trimmed
+  variants that cleared step A and L-v 2 in the 05:48 build failed with "no cut before the hook: 'So' does not end a
+  sentence": a gap in the pin stage, not a property of the moments.
+- Ruling 33 (b) is NOT in this diff: the pin stage keeps (b) strict (TRIM_SCORER_PENDING = False), so a line-up with
+  a trimmed clip still fails STAND_ALONE until the orchestrator rules. This diff only makes (a) measurable as the
+  render measures it.
+- Laws: nothing measured is never a pass (L-m); fail closed (L-j); never change what a check accepts to make
+  something pass.
+
+The change:
+1. pipeline/sentence_law.py: copied VERBATIM from the render's c6605895 (verified byte-identical by an AST source
+   comparison): TRIMMABLE_LEADING, trimmed_boundary, trimmed_onset, edge_plan(trimmed=None) (identical to the old
+   edge_plan when trimmed is None), and the three helpers trimmed_onset needs (_cut_head, _head_tail_of,
+   hook_lead_at). Nothing else of the render's newer law is taken. No function is removed.
+2. pipeline/hook_onset.py:
+   - measure(..., trimmed=None): with a trimmed word, the plan is edge_plan(..., trimmed={"word": trimmed}), the
+     render's own shape (its lock carries {"word": ...}).
+   - trim_onset(sa, plan, a): accepted_cut on the window file, then trimmed_onset, then the pin stage's one-frame
+     margin: the onset must lie after 10 ms + 10 ms. Any exception: "not measured", never a pass.
+   - The record carries "trim" on every path for a trimmed moment; "pass" (may it OPEN a medley) also needs it.
+3. pipeline/package.py:
+   - hook_onset_for passes trimmed=m.get("trimmed_leading").
+   - build(): a trimmed moment is left out at ANY place when its "trim" record is not a pass (ruling 33 (a)). Before,
+     it was left out whenever its HOOK lead failed, which is a different rule (G17a applies to the hook only).
+   - The STAND_ALONE log line counts the trimmed variants (order 06:22 item 47).
+4. tests/package/funnel.py (the build-record report): a "<id>~trim" variant is named by its original moment instead
+   of a blank row or a KeyError; the variants are counted; the moments offered to the angle step exclude the
+   trimmed-cut failures (and, when the record has it, the second vendor's step-A failures of the other change).
+5. Tests:
+   - test_hook_onset: four tests on a GENERATED 16 kHz audio file (the render's rule decodes the file): a measured
+     pause after "So" passes (the cut inside the pause, the onset after 20 ms, and the hook lead too); "So" run into
+     the next word cannot be cut cleanly; a trimmed word that is not the word before the clip fails; the untrimmed
+     rule is unchanged and an envelope with no file is "not measured", never a pass.
+   - test_medley: the build rig's onset stub carries the "trim" record. A trimmed moment whose trimmed cut fails is
+     out at any place, never offered to the angles; one whose cut is clean but whose hook lead fails stays as a clip.
+- Measured on the real data (the 05:48 build's two cleared trims, their own L-v 2 windows), before this audit:
+  "So MSCI didn't force any Bitcoin selling this week..." passes (cut in the pause after "So", first onset 130 ms,
+  83 ms fade); "So if you look at the average income..." fails ("So" runs into "if": no measured pause).
+
+Stated assumption (K1): the render's trimmed_boundary treats a trimmed word that is the transcript's FIRST word as a
+file head. On the pin stage's window the first word is only the window's first word, so that sentence-start check can
+pass without its evidence there. The untrimmed sentence's start is ALREADY verified on the full word record by
+eligibility (the original moment's IN rule: the word before it ends a sentence, or the file head), and a trimmed
+variant inherits that verdict. Say so if you think that is not enough.
+
+Check in particular:
+- that the copied functions are used exactly as the render uses them (the trimmed dict shape, the plan, accepted_cut,
+  then trimmed_onset), and that any divergence only makes the pin stage stricter;
+- that every failure to plan, cut or decode is never a pass, and that "trim" is present on every path for a trimmed
+  moment;
+- that untrimmed moments are judged exactly as before (the hook lead rule and the old IN boundary);
+- that the build's new rule (out at any place only when the trimmed cut fails) is right under ruling 33 (a), and
+  that the hook still needs both;
+- the funnel changes: nothing in them changes a build.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

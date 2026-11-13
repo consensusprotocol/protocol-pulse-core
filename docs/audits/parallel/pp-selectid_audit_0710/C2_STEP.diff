@@ -1,0 +1,495 @@
+diff --git a/pipeline/hook_onset.py b/pipeline/hook_onset.py
+index b5cc7c4..2faa5d1 100644
+--- a/pipeline/hook_onset.py
++++ b/pipeline/hook_onset.py
+@@ -20,6 +20,14 @@ applied, which can only make this check stricter.
+ 
+ measure(...) -> {"pass", "measured", "lead_ms", "cut_in", "pad_s", "why"}. Not measured (no audio, no plan) is never
+ a pass (law L-m).
++
++RULING 33 PART 2 (a trimmed moment: ONE leading but/and/so/well/now/yeah left out; item 42): the render plans the IN
++edge at the measured pause AFTER the trimmed word (sentence_law.trimmed_boundary, edge_plan(trimmed=...)), takes
++accepted_cut's cut and fade, and holds the clip unless the audio as cut opens in quiet (sentence_law.trimmed_onset:
++the first onset after the first 10 ms hop). measure(..., trimmed=word) plans and measures exactly that on the L-v 2
++window, with this slice's one-frame margin, in "trim" ({"pass", "measured", "why", ...}): ruling 33 (a), at any
++place. "pass" (may it OPEN a medley?) then also needs "trim". The render's functions are copied verbatim from its
++sentence_law.py at c6605895.
+ """
+ import sentence_law as SL
+ import transcript_truth as TT
+@@ -35,10 +43,41 @@ class _Slice(SL.SourceAudio):
+         self.path, self.t, self.db, self.dur = sa.path, sa.t[m] - t0, sa.db[m], max(0.0, t1 - t0)
+ 
+ 
+-def measure(src, w0, w1, video_id, start, end, work_dir, audio=None):
++def trim_onset(sa, plan, a):
++    """Ruling 33 (a) as the render measures it at its cut table (write_lock_cut_table): accepted_cut's cut and fade,
++    then trimmed_onset on the audio as cut. Here on the L-v 2 window (sa.path), so the onset must lie one more 10 ms
++    frame after the cut than the render's rule asks (the slice vs the render's own decode, as for the hook's lead).
++    a: the window's start (video seconds). -> {"pass", "measured", "why", "onset_s", "cut_in", "fade_in_ms"}."""
++    try:
++        pick = SL.accepted_cut(sa.path, plan, sa=sa)
++        if pick is None:
++            return {"pass": False, "measured": True, "why": "no cut keeps the neighbour words inaudible (the render's "
++                                                                "accepted_cut finds none: it holds the clip)"}
++        _, r = SL.trimmed_onset(sa.path, pick["cut_in"], pick["fade_in_ms"])
++    except Exception as e:                               # no audio, no plan for an edge: never a pass (law L-m)
++        return {"pass": False, "measured": False, "why": f"not measured: {type(e).__name__}: {str(e)[:120]}"}
++    need = SL.HOP_S + MARGIN_MS / 1000
++    on = r.get("onset_s")
++    ok = on is not None and on > need + 1e-9
++    return {"pass": ok, "measured": True, "onset_s": on, "lead_ms": r.get("lead_ms"),
++            "cut_in": round(a + pick["cut_in"], 3), "fade_in_ms": pick["fade_in_ms"],
++            "why": "ok" if ok else f"the audio as cut opens on sound: first onset {on} s, not after {need:.2f} s (the "
++                                   f"render's first 10 ms hop + one {MARGIN_MS} ms frame)"}
++
++
++def measure(src, w0, w1, video_id, start, end, work_dir, audio=None, trimmed=None):
+     """The hook moment's planned prepared clip: does it keep >= HEAD_LEAD_MIN_S of genuine quiet before its first
+     onset? src: the moment's eligibility Source; w0 / w1: its first / last word indices in src.tokens; start / end:
+-    the clip's times (video seconds). audio: (SourceAudio, window start s) to reuse (tests); else the L-v 2 window."""
++    the clip's times (video seconds). audio: (SourceAudio, window start s) to reuse (tests); else the L-v 2 window.
++    trimmed: the moment's trimmed_leading (ruling 33 part 2): the IN edge is planned after that word, and ruling
++    33 (a) is measured in "trim"; the record then carries "trim" on every path."""
++    rec = _measure(src, w0, w1, video_id, start, end, work_dir, audio, trimmed)
++    if trimmed and "trim" not in rec:                   # no plan was reached: the trimmed cut is not measured either
++        rec["trim"] = {"pass": False, "measured": rec.get("measured", False), "why": rec.get("why")}
++    return rec
++
++
++def _measure(src, w0, w1, video_id, start, end, work_dir, audio, trimmed):
+     need = SL.HEAD_LEAD_MIN_S * 1000 + MARGIN_MS
+     try:
+         if audio is None:
+@@ -56,13 +95,14 @@ def measure(src, w0, w1, video_id, start, end, work_dir, audio=None):
+     words = [{"word": toks[i]["word"], "start": float(toks[i]["start"]) - a, "end": float(toks[i]["end"]) - a}
+              for i in idx]
+     i0, i1 = idx.index(w0), idx.index(w1)
+-    try:
+-        plan = SL.edge_plan(sa, words, i0, i1)
++    try:                                                 # ruling 33 part 2: the render's planning of a trimmed IN edge
++        plan = SL.edge_plan(sa, words, i0, i1, trimmed={"word": trimmed} if trimmed else None)
+     except Exception as e:                               # LawError: no audio to read levels from, and the like
+         return {"pass": False, "measured": False, "why": f"no cut plan: {type(e).__name__}: {str(e)[:120]}"}
+     cin = plan.get("in") or {}
+     if not cin.get("cuttable"):
+-        return {"pass": False, "measured": True, "lead_ms": 0, "why": f"no cut before the hook: "
++        return {"pass": False, "measured": True, "lead_ms": 0, "why": f"no cut "
++                f"{'after the trimmed word ' + repr(trimmed) if trimmed else 'before the hook'}: "
+                 f"{cin.get('reason') or 'not cuttable'}"}
+     cut_in = float(cin["cut"])
+     out = plan.get("out") or {}
+@@ -74,6 +114,12 @@ def measure(src, w0, w1, video_id, start, end, work_dir, audio=None):
+     pad = float(cin.get("lead_in_pad_s") or 0.0)         # a room-tone pad: edge_plan allows one only at a file head
+     lead = int(round(ht["lead_ms"] + pad * 1000))
+     ok = lead >= need
+-    return {"pass": ok, "measured": True, "lead_ms": lead, "cut_in": round(a + cut_in, 3), "pad_s": pad,
+-            "why": "ok" if ok else f"{lead} ms of genuine quiet before the hook's first onset < {need:.0f} ms "
+-                                    f"(G17a's {SL.HEAD_LEAD_MIN_S * 1000:.0f} ms + one {MARGIN_MS} ms frame)"}
++    rec = {"pass": ok, "measured": True, "lead_ms": lead, "cut_in": round(a + cut_in, 3), "pad_s": pad,
++           "why": "ok" if ok else f"{lead} ms of genuine quiet before the hook's first onset < {need:.0f} ms "
++                                   f"(G17a's {SL.HEAD_LEAD_MIN_S * 1000:.0f} ms + one {MARGIN_MS} ms frame)"}
++    if trimmed:                                          # ruling 33 (a): the trimmed cut opens in quiet, any place
++        rec["trim"] = trim_onset(sa, plan, a)
++        if rec["trim"]["pass"] is not True:
++            rec.update(passed_lead=ok, why=f"the trimmed cut: {rec['trim']['why']}")
++            rec["pass"] = False
++    return rec
+diff --git a/pipeline/package.py b/pipeline/package.py
+index d266dbe..eb534da 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1137,7 +1137,8 @@ def hook_onset_for(m, sources, work_dir, cache):
+         import hook_onset as HO
+         try:
+             cache[m["moment_id"]] = HO.measure(src_of(m, sources), m["words"][0], m["words"][1], m["video_id"],
+-                                               float(m["start"]), float(m["end"]), work_dir)
++                                               float(m["start"]), float(m["end"]), work_dir,
++                                               trimmed=m.get("trimmed_leading"))     # ruling 33 part 2 (item 42)
+         except Exception as e:
+             cache[m["moment_id"]] = {"pass": False, "measured": False, "why": f"{type(e).__name__}: {str(e)[:200]}"}
+     return cache[m["moment_id"]]
+@@ -1216,7 +1217,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
+            "package": None}
+     log(f"  {n_usable} usable, {len(no_role)} of them left out by the render's STAND_ALONE (an opener the clip scorer "
+-        f"would have to affirm, or no place under the topic rule with the pin's screen), {len(ad_read)} on an ad-read "
++        f"would have to affirm, or no place under the topic rule with the pin's screen; {len(trims)} of them back as "
++        f"variants with ONE leading word trimmed, ruling 33 part 2), {len(ad_read)} on an ad-read "
+         f"marker (the exclusion screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+     if len({m["channel_id"] for m in cleared.values()}) < 3:
+         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
+@@ -1245,9 +1247,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     out["prescreen"]["hook_onset"] = {mid: "PASS" if m["hook_onset"].get("pass") is True else
+                                       ("NOT MEASURED: " if not m["hook_onset"].get("measured") else "FAIL: ") +
+                                       str(m["hook_onset"].get("why")) for mid, m in cleared.items()}
+-    trim_cut = {mid: out["prescreen"]["hook_onset"][mid] for mid, m in cleared.items()     # ruling 33 (a): the
+-                if m.get("trimmed_leading") and m["hook_onset"].get("pass") is not True}    # acoustic onset rule on the
+-    cleared = {mid: m for mid, m in cleared.items() if mid not in trim_cut}                 # trimmed cut, any place
++    trim_cut = {mid: ("NOT MEASURED: " if not t.get("measured") else "FAIL: ") + str(t.get("why"))   # ruling 33 (a):
++                for mid, m in cleared.items() if m.get("trimmed_leading")        # the trimmed cut as the render plans
++                for t in [m["hook_onset"].get("trim") or {"measured": False, "why": "no trimmed-cut record"}]   # it
++                if t.get("pass") is not True}                                    # opens in quiet, at ANY place. Its
++    cleared = {mid: m for mid, m in cleared.items() if mid not in trim_cut}     # hook lead decides only whether it
++    # may OPEN the medley (hook_onset "pass", need_onset), never whether it may play as a clip (audit 0710 C1, qwen)
+     out["prescreen"]["trim_cut"] = trim_cut
+     log(f"  {sum(m['hook_onset'].get('pass') is True for m in cleared.values())} of them can open a medley "
+         f"(G17a at the pin stage: genuine quiet before the first onset)")
+diff --git a/pipeline/sentence_law.py b/pipeline/sentence_law.py
+index b283500..708c64a 100644
+--- a/pipeline/sentence_law.py
++++ b/pipeline/sentence_law.py
+@@ -79,6 +79,7 @@ PUNCT_WINDOW_WORDS = 60
+ WORD_DURATION_RATIO_MIN = 0.85  # G17: rendered edge word keeps >= 85 % of its duration
+ _TERMINAL = (".", "!", "?")
+ _ABBREV = {"mr", "mrs", "ms", "dr", "st", "vs", "etc", "jr", "sr", "inc", "ltd", "corp", "prof", "approx"}
++TRIMMABLE_LEADING = frozenset({"but", "and", "so", "well", "now", "yeah"})   # ruling 33 part 2 (orchestrator '03:42')
+ 
+ 
+ class LawError(Exception):
+@@ -287,9 +288,47 @@ def boundary(sa, words, k):
+     return {**rec, "valid": True}
+ 
+ 
+-def edge_plan(sa, words, i0, i1):
+-    """Boundaries around words[i0..i1] and the legal cut ranges they allow."""
+-    bin_ = boundary(sa, words, i0 - 1)
++def trimmed_boundary(sa, words, i0, trimmed):
++    """Ruling 33 part 2 (orchestrator 2026-11-13 '03:42'): a lock may leave out ONE leading word (TRIMMABLE_LEADING) of a
++    whole sentence, recorded as lock['trimmed_leading']. Its IN edge is then the MEASURED PAUSE after that word, not a
++    sentence boundary: (1) words[i0 - 1] is the trimmed word; (2) the untrimmed sentence starts a sentence (the word
++    before it ends one in a punctuated stretch, or it is the transcript's first word): everything else about whole
++    sentences is unchanged; (3) a quiet run lies between the trimmed word and the first kept word, with a heard gap.
++    Otherwise invalid: the word cannot be cut cleanly (no pause, co-articulated) and the clip is held."""
++    import canon
++    k, word = i0 - 1, str((trimmed or {}).get("word") or "")
++    rec = {"after_word": words[k]["word"] if k >= 0 else "<file head>", "before_word": words[i0]["word"],
++           "trimmed_leading": word, "lexical": "trimmed leading word (ruling 33 part 2)"}
++    tok = canon.canon_tokens(word)
++    if k < 0 or len(tok) != 1 or tok[0] not in TRIMMABLE_LEADING or canon.canon_tokens(words[k]["word"]) != tok:
++        return {**rec, "valid": False, "reason": f"the trimmed word {word!r} is not one of "
++                f"{'/'.join(sorted(TRIMMABLE_LEADING))} or not the word before the lock ({rec['after_word']!r})"}
++    if k > 0 and not (is_punctuated(words, k - 1) and is_terminal(words[k - 1]["word"])):
++        return {**rec, "valid": False, "reason": f"the untrimmed sentence does not start a sentence: "
++                f"{words[k - 1]['word']!r} before {word!r} does not end one"}
++    mid = lambda w: (w["start"] + w["end"]) / 2
++    quiet, lv = find_pause(sa, mid(words[k]), mid(words[i0]))
++    point, gap, pause = boundary_geometry(sa, words, k, lv, quiet)
++    rec.update(levels=lv, pause=pause, quiet_run=quiet, point=point, word_gap=gap)
++    if quiet is None or gap["end"] <= gap["start"]:
++        return {**rec, "valid": False, "reason": f"the trimmed word {word!r} cannot be cut cleanly: no measured pause "
++                f"between it and {words[i0]['word']!r} (co-articulated)"}
++    return {**rec, "valid": True}
++
++
++def trimmed_onset(src, cut_in, fade_in_ms):
++    """Ruling 33 part 2, the onset rule on the audio as cut: G17a's own measure (head_tail on the cut audio with the
++    clip's fade-in, hook_lead_at) finds quiet before the first sound (the first onset after the first 10 ms hop, the
++    criterion ruling 28 uses for 'quiet after the cut'): nothing of the trimmed word opens the clip. (ok, record)."""
++    lead, onset = hook_lead_at(src, cut_in, fade_in_ms)
++    ok = onset is not None and onset > HOP_S + 1e-9
++    return ok, {"cut_in": cut_in, "fade_in_ms": fade_in_ms, "onset_s": onset, "lead_ms": lead, "ok": ok}
++
++
++def edge_plan(sa, words, i0, i1, trimmed=None):
++    """Boundaries around words[i0..i1] and the legal cut ranges they allow. trimmed: the lock's trimmed_leading
++    (ruling 33 part 2): the IN edge is the measured pause after that word, and the cut must SIT in its quiet run."""
++    bin_ = trimmed_boundary(sa, words, i0, trimmed) if trimmed else boundary(sa, words, i0 - 1)
+     bout = boundary(sa, words, i1)
+     plan = {"in": bin_, "out": bout}
+     if bin_["valid"]:
+@@ -301,11 +340,14 @@ def edge_plan(sa, words, i0, i1):
+             bin_.update(cut_lo=0.0, cut_hi=p["start"], cut=p["start"], lead_in_pad_s=pad, cuttable=True)
+         else:                                             # DEC-10: anywhere in the heard gap; aim at the pause
+             g = bin_.get("word_gap") or {"start": p["start"], "end": p["end"]}
+-            hi = round(g["end"] - LEAD_MIN_S, 3)
++            lo, hi = g["start"], round(g["end"] - LEAD_MIN_S, 3)
++            if trimmed:                                   # ruling 33 part 2: inside the measured quiet run as well
++                q = bin_["quiet_run"]
++                lo, hi = max(lo, q["start"]), min(hi, round(q["end"] - LEAD_MIN_S, 3))
+             target = max(p["start"], p["end"] - LEAD_TARGET_S) if p.get("ms", 0) > 0 else bin_.get("point", p["start"])
+-            bin_.update(cut_lo=g["start"], cut_hi=hi, cuttable=hi >= g["start"] - 1e-9,
+-                        cut=round(min(max(target, g["start"]), hi), 3), lead_in_pad_s=0.0,
+-                        reason=None if hi >= g["start"] - 1e-9 else "no room before the first word")
++            bin_.update(cut_lo=lo, cut_hi=hi, cuttable=hi >= lo - 1e-9,
++                        cut=round(min(max(target, lo), hi), 3), lead_in_pad_s=0.0,
++                        reason=None if hi >= lo - 1e-9 else "no room before the first word")
+     if bout["valid"]:
+         p = bout["pause"]
+         guard = 0.0 if bout.get("file_end") else GUARD_S
+@@ -667,6 +709,37 @@ def _accepted_cut_pair(src, plan, step=HOP_S):
+     return (c["cut_in"], c["cut_out"]) if c else None
+ 
+ 
++def _cut_head(src, c, fade_ms):
++    """LEVEL_WINDOW_S of `src` from `c`, stereo 48 kHz float, with the clip's own linear fade-in of `fade_ms` applied
++    as prepare applies it (audit batch 56 C1, qwen: measure what the prepared clip will hold)."""
++    r = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{c:.3f}", "-i", src, "-t", f"{LEVEL_WINDOW_S}", "-vn", "-ac",
++                        "2", "-ar", "48000", "-f", "f32le", "-"], capture_output=True, check=True, timeout=60)
++    x = np.frombuffer(r.stdout, np.float32).reshape(-1, 2).astype(np.float64).copy()
++    k = min(len(x), int(round(fade_ms / 1000 * 48000)))
++    if k > 0:
++        x[:k] *= np.linspace(0.0, 1.0, k)[:, None]
++    return x
++
++
++def _head_tail_of(x):
++    import tempfile
++    import wave
++    with tempfile.TemporaryDirectory() as d:
++        w = os.path.join(d, "head.wav")
++        with wave.open(w, "wb") as f:
++            f.setnchannels(2)
++            f.setsampwidth(2)
++            f.setframerate(48000)
++            f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
++        return head_tail(SourceAudio(w))
++
++
++def hook_lead_at(src, c, fade_ms=0):
++    """(genuine lead ms, onset s) of the audio as cut at `c` with its fade-in: G17a's own measure (head_tail)."""
++    ht = _head_tail_of(_cut_head(src, c, fade_ms))
++    return ht["lead_ms"], ht["onset"]
++
++
+ def write_lock_cut_table(run_dir):
+     """cuts_final.json with every cut placed inside the pause that bounds its LOCKED sentence(s):
+     the cut can never add or drop a word. A segment whose locked edges are not cuttable is written
+diff --git a/tests/package/funnel.py b/tests/package/funnel.py
+index 45ccfe8..5e25d43 100644
+--- a/tests/package/funnel.py
++++ b/tests/package/funnel.py
+@@ -39,8 +39,20 @@ def q(t, n=140):
+     return t if len(t) <= n else t[:n - 1] + "…"
+ 
+ 
++def mom(mid):
++    """The moment's record; a trimmed variant ("<id>~trim", ruling 33 part 2) is named by its original, with the
++    trimmed word marked (the record keeps the variant's id only)."""
++    if mid in by:
++        return by[mid]
++    o = by.get(str(mid).removesuffix("~trim"))
++    if o is None:
++        return {}
++    w, _, rest = (o.get("text") or "").partition(" ")
++    return dict(o, moment_id=mid, text=f"[{w} trimmed] {rest}", duration_s=f"under {o.get('duration_s')}")
++
++
+ def tx(mid):
+-    return by.get(mid, {}).get("text") or texts.get(mid) or ""
++    return mom(mid).get("text") or texts.get(mid) or ""
+ 
+ 
+ def emit(title, rows, head=("lost", "exact reason", "one example (moment text)")):
+@@ -189,7 +201,7 @@ try:
+     import transcript_truth as TT
+     rt = P.Router(record_dir=REPLIES, replay=True)
+     for mid in lost3:
+-        m = by[mid]
++        m = mom(mid)
+         try:
+             t = TT.verify_segment(rt, m["video_id"], float(m["start"]), float(m["end"]), m["text"], LV2)
+             e = t.get("edges") or {}
+@@ -219,25 +231,36 @@ if len(lost3) > 1:
+     print("\nEvery stage-3 loss, exactly:")
+     for mid in lost3:
+         k, d = detail.get(mid, (sp[mid], ""))
+-        print(f"- {by[mid].get('channel_name')}: {k}: {q(d, 260)}")
++        print(f"- {mom(mid).get('channel_name')}: {k}: {q(d, 260)}")
+ 
+ # ---- stage 4: cuttable -> can open
+ ho = pre.get("hook_onset") or {}
+ lost4 = [(v, mid) for mid, v in ho.items() if v != "PASS"]
+ emit(f"Stage 4: {pre.get('cuttable')} cuttable -> {sum(v == 'PASS' for v in ho.values())} can open a medley (G17a; "
+      f"the others stay in play as non-hook clips)", grouped(lost4) or [[0, "-", "-"]])
++tc, sv = pre.get("trim_cut") or {}, pre.get("second_vendor") or {}
++if pk.get("trimmed") is not None:
++    print(f"\nTrimmed variants (ruling 33 part 2): {len(pk['trimmed'])} of the {len(pk.get('no_role') or {})} left "
++          f"out by STAND_ALONE joined the usable moments; {len(tc)} cleared to here and failed the trimmed cut (a), at "
++          f"any place:")
++    for mid, why in tc.items():
++        print(f"- {mom(mid).get('channel_name')}: {q(why, 200)}: \"{q(tx(mid), 120)}\"")
++sv_lost = [(v, mid) for mid, v in sv.items() if not str(v).startswith("PASS")]
++if sv:
++    emit(f"Stage 4b: step A from the second vendor (order 06:22 item 45): {len(sv) - len(sv_lost)} of {len(sv)} pass",
++         grouped(sv_lost) or [[0, "-", "-"]])
+ 
+ # ---- stage 5: -> angle -> line-ups
+ print(f"\n**Stage 5: the angle step and the line-ups.** why_none: {pk.get('why_none')!r}; angles: "
+       f"{len(pk.get('angles') or [])} from {pk.get('angle_backend')}")
+-cl = [mid for mid, v in sp.items() if v == "PASS"]
++cl = [mid for mid, v in sp.items() if v == "PASS" and mid not in tc and not str(sv.get(mid, "PASS")).startswith("FAIL")]
+ print("\nThe moments offered to the angle step:")
+ for mid in cl:
+-    m = by.get(mid, {})
++    m = mom(mid)
+     print(f"- {m.get('channel_name')} ({m.get('video_id')}), {m.get('duration_s')} s, can open: "
+           f"{ho.get(mid) == 'PASS'}: \"{q(m.get('text'), 150)}\"")
+ print(f"\nTogether {round(sum(float(by[m]['duration_s']) for m in cl if m in by), 2)} s from "
+-      f"{len({by[m]['channel_id'] for m in cl if m in by})} channels.")
++      f"{len({mom(m)['channel_id'] for m in cl if mom(m)})} channels (a trimmed variant's seconds not counted).")
+ for a in pk.get("angles") or []:
+     print(f"- angle: \"{q(a.get('angle'), 200)}\" moments {len(a.get('moments') or [])}")
+ log = open(os.path.join(D, "package.log")).read().splitlines()
+diff --git a/tests/package/test_hook_onset.py b/tests/package/test_hook_onset.py
+index 536bcd7..6b01bd6 100644
+--- a/tests/package/test_hook_onset.py
++++ b/tests/package/test_hook_onset.py
+@@ -4,8 +4,11 @@ kept 30 ms of genuine quiet before its first onset. The word record showed a 400
+ then DIGITAL ZEROS (a hard edit), then speech. Offline: synthetic 10 ms envelopes, built to the render's own level
+ rules (sentence_law: speech near -20 dBFS, room tone near -55, digital zeros below DIGITAL_FLOOR_DBFS)."""
+ import os
++import shutil
+ import sys
++import tempfile
+ import unittest
++import wave
+ 
+ import numpy as np
+ 
+@@ -89,5 +92,77 @@ class TestHookOnset(unittest.TestCase):
+         self.assertIn("not inside its audio window", r["why"])
+ 
+ 
++TRIM_WORDS = [("Before", 0.20, 0.60), ("this", 0.60, 0.95), ("markets.", 0.95, 1.35),   # the previous sentence
++              ("So", 1.75, 1.95),                                                       # the trimmed word
++              ("Bitcoin", 2.40, 2.80), ("rises.", 2.80, 3.30),                          # the clip: words 4..5
++              ("Next", 3.70, 4.10), ("words", 4.10, 4.50), ("follow.", 4.50, 5.10)]
++TRIM_SPEECH = [(0.20, 1.35, -20.0), (2.40, 3.30, -20.0), (3.70, 5.10, -20.0)]
++
++
++def wav(path, spans, dur=6.0, bed=-55.0, sr=16000):
++    """A real 16 kHz file: white noise at `bed` dBFS RMS (room tone), louder noise over `spans` [(t0, t1, dBFS)]."""
++    lv = np.full(int(dur * sr), 10 ** (bed / 20))
++    for a, b, v in spans:
++        lv[int(a * sr):int(b * sr)] = 10 ** (v / 20)
++    x = np.clip(np.random.default_rng(7).standard_normal(len(lv)) * lv, -1, 1)
++    with wave.open(path, "wb") as f:
++        f.setnchannels(1)
++        f.setsampwidth(2)
++        f.setframerate(sr)
++        f.writeframes((x * 32767).astype(np.int16).tobytes())
++    return path
++
++
++def trim_src():
++    toks = tuple({"word": w, "start": a, "end": b} for w, a, b in TRIM_WORDS)
++    return E.Source("vidT", "UCx", "X", "2026-11-12T00:00:00+00:00", "sha", "whisper_words_punct", toks,
++                    timing="word", file_head=False, vod=True)
++
++
++class TestTrimmedCut(unittest.TestCase):
++    """Ruling 33 part 2 (item 42): a trimmed moment's IN edge is planned AFTER the trimmed word, as the render plans it
++    (sentence_law.trimmed_boundary / edge_plan(trimmed=...), verbatim from its c6605895), and ruling 33 (a) is the
++    render's own onset rule on the audio as cut (accepted_cut's cut and fade, then trimmed_onset), with one more 10 ms
++    frame here. On a generated audio file: the render's rule decodes the file. The 05:48 build's two cleared trims
++    failed the old measure, which only cut after a sentence end ("'So' does not end a sentence")."""
++
++    def setUp(self):
++        self.d = tempfile.mkdtemp()
++
++    def tearDown(self):
++        shutil.rmtree(self.d, ignore_errors=True)
++
++    def measure(self, spans, trimmed="So"):
++        sa = SL.SourceAudio(wav(os.path.join(self.d, "t.wav"), spans))
++        return HO.measure(trim_src(), 4, 5, "vidT", 2.40, 3.30, self.d, audio=(sa, 0.0), trimmed=trimmed)
++
++    def test_a_measured_pause_after_the_trimmed_word_passes(self):
++        r = self.measure(TRIM_SPEECH + [(1.75, 1.95, -20.0)])                 # "So", 450 ms of room tone, "Bitcoin"
++        self.assertEqual((r["trim"]["pass"], r["trim"]["measured"]), (True, True), r)
++        self.assertGreater(r["trim"]["onset_s"], SL.HOP_S + HO.MARGIN_MS / 1000)
++        self.assertTrue(1.95 <= r["trim"]["cut_in"] < 2.40, r["trim"])        # the cut sits in the pause
++        self.assertTrue(SL.FADE_MIN_S * 1000 - 1e-6 <= r["trim"]["fade_in_ms"] <= SL.VALLEY_FADE_S * 1000 + 1,
++                        r["trim"])                                            # with law L-b's fade (accepted_cut)
++        self.assertTrue(r["pass"], r)                                         # and its lead lets it open a medley
++
++    def test_a_trimmed_word_run_into_the_next_cannot_be_cut(self):
++        r = self.measure([(0.20, 1.35, -20.0), (1.75, 3.30, -20.0), (3.70, 5.10, -20.0)])   # no pause after "So"
++        self.assertEqual((r["trim"]["pass"], r["trim"]["measured"], r["pass"]), (False, True, False), r)
++        self.assertIn("cannot be cut cleanly", r["trim"]["why"])
++
++    def test_the_trimmed_word_must_be_the_word_heard_before_the_clip(self):
++        r = self.measure(TRIM_SPEECH + [(1.75, 1.95, -20.0)], trimmed="But")
++        self.assertEqual((r["trim"]["pass"], r["pass"]), (False, False), r)
++        self.assertIn("not the word before the lock", r["trim"]["why"])
++
++    def test_untrimmed_is_unchanged_and_no_audio_file_is_never_a_pass(self):
++        r = self.measure(TRIM_SPEECH + [(1.75, 1.95, -20.0)], trimmed=None)   # the old rule: a sentence end first
++        self.assertEqual((r["pass"], "trim" in r), (False, False), r)
++        self.assertIn("does not end a sentence", r["why"])
++        env = Env(TRIM_SPEECH + [(1.75, 1.95, -20.0)])                        # an envelope, no file to cut (law L-m)
++        r = HO.measure(trim_src(), 4, 5, "vidT", 2.40, 3.30, self.d, audio=(env, 0.0), trimmed="So")
++        self.assertEqual((r["trim"]["pass"], r["trim"]["measured"], r["pass"]), (False, False, False), r)
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 3cb6fa9..89f8ad6 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -425,11 +425,12 @@ class Rig:
+             "referents": [], "conditions": [], "retraction": "none", "time_ok": "yes", "certainty": "certain"}
+ 
+     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
+-                 spend=None, no_hook=()):
++                 spend=None, no_hook=(), trim_fail=()):
+         import providers as P
+         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
+         self.takeaways, self.spend = list(takeaways or []), spend
+         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
++        self.trim_fail = set(trim_fail)                    # trimmed moments whose trimmed cut fails ruling 33 (a)
+         self.medley_calls, self.write_calls, self.prompts = [], [], []
+         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
+         self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}])
+@@ -462,6 +463,17 @@ class Rig:
+                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
+         return self.P.Reply("{}", "heimdall:deepseek", "heimdall", family="deepseek"), fields
+ 
++    def onset(self, m, *a, **k):
++        """hook_onset.measure's record: the hook lead, and for a trimmed moment its trimmed cut ("trim")."""
++        r = ({"pass": False, "measured": True, "lead_ms": 20, "why": "20 ms < 80"} if m["moment_id"] in self.no_hook
++             else {"pass": True, "measured": True, "lead_ms": 200, "why": "ok"})
++        if m.get("trimmed_leading"):
++            ok = m["moment_id"] not in self.trim_fail
++            r["trim"] = {"pass": ok, "measured": True, "why": "ok" if ok else "the trimmed word 'But' cannot be cut "
++                                                                              "cleanly: no measured pause (co-articulated)"}
++            r["pass"] = r["pass"] and ok
++        return r
++
+     def run(self):
+         fid = {"ok": True, "violations": [], "measured": True, "replayed": False, "backend": "xai:grok",
+                "deterministic": {"ok": True, "violations": [], "price_now_measured": True},
+@@ -479,9 +491,7 @@ class Rig:
+                                                          "backend": "xai:grok"},
+             "truth_for": lambda router, m, *a, **k: {"ok": True, "replayed": False, "model": "scribe_v1",
+                                                      "edges": {"cuttable": m["moment_id"] not in self.uncuttable}},
+-            "hook_onset_for": lambda m, *a, **k: ({"pass": False, "measured": True, "lead_ms": 20, "why": "20 ms < 80"}
+-                                                  if m["moment_id"] in self.no_hook else
+-                                                  {"pass": True, "measured": True, "lead_ms": 200, "why": "ok"}),
++            "hook_onset_for": self.onset,
+             "coherence": lambda router, pk, *a, **k: (True, {"through_line": "Nobody gets to bend the rules.",
+                                                              "clips": {sg["label"]: 5 for sg in pk["segments"]},
+                                                              "vo_point": 5, "backend": "xai:grok", "measured": True,
+@@ -828,13 +838,18 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+         saved = PK.trim_variant
+         try:
+             PK.trim_variant = lambda m, sources: v if m["moment_id"] == "b" else None
+-            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"})
++            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], trim_fail={"b~trim"})
+             out = rig.run()
++            rig2 = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"})
++            out2 = rig2.run()
+         finally:
+             PK.trim_variant = saved
+         self.assertEqual(out["trimmed"], {"b": "b~trim"})
+-        self.assertIn("b~trim", out["prescreen"]["trim_cut"])                     # ruling 33 (a): out, any place
++        self.assertTrue(out["prescreen"]["trim_cut"]["b~trim"].startswith("FAIL: the trimmed word"))   # (a): out
++        self.assertNotIn("id=b~trim ", next(p for r, p in rig.prompts if r == "angle_write"))         # at any place
+         self.assertIsNotNone(out["package"])
++        self.assertEqual(out2["prescreen"]["trim_cut"], {})        # its cut is clean, only its hook lead fails: it
++        self.assertIn("id=b~trim ", next(p for r, p in rig2.prompts if r == "angle_write"))   # stays as a clip
+ 
+ 
+ class TestRuling41Search(unittest.TestCase):

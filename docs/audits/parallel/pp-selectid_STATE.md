@@ -1,4 +1,23 @@
-BLOCKED ON SPEND (since 06:31 ET; 06:50 ET now): every build fails step A with SpendLimit on the builder's own cap ($40 by the price-table estimate = $3.46 vendor-reported). YOUR RULING: a running total (section below). Ready for the next build: 45 + 44 are COMMITTED (audit 0640, 2 cycles, all three reviewers yes); the item-42 cut fix is in audit 0710. Item 42 also needs your yes/no from 05:44 (seal a trimmed clip with the clip scorer's verdict pending at the render).
+BLOCKED ON SPEND (since 06:31 ET; 06:56 ET now): every build fails step A with SpendLimit on the builder's own cap ($40 by the price-table estimate = $3.46 vendor-reported). YOUR RULING: a running total (section below). COMMITTED and ready for the next build: 45 + 44 (audit 0640) and item 42's cut fix (audit 0710), both audited 2 cycles. Item 42 still needs your yes/no from 05:44: may a trimmed clip be sealed with the clip scorer's verdict pending at the render? Until then no trimmed clip can be sealed.
+
+## 06:56 ET: item 42's cut fix is committed (audit 0710, 2 cycles); one trimmed clip now passes (a)
+
+- **What changed:**
+  - The pin stage now plans a trimmed clip's IN cut the way the render does: after the trimmed word, inside its
+    measured pause. It then applies the render's own onset rule to the audio as cut, with one extra 10 ms frame.
+  - The functions are copied verbatim from the integrator's sentence_law.py at c6605895: trimmed_boundary,
+    trimmed_onset, edge_plan(trimmed=...) and three helpers. Untrimmed moments are judged exactly as before.
+  - A trimmed moment is out at any place when its trimmed cut fails (ruling 33 (a)). Its hook lead decides only
+    whether it may OPEN the medley.
+- **Measured on the 05:48 build's two cleared trims:**
+  - "So MSCI didn't force any Bitcoin selling this week..." (Coin Bureau) passes (a): cut in the pause after "So",
+    83 ms fade, first onset 130 ms. It could also open the medley.
+  - "So if you look at the average income..." (What Bitcoin Did) stays out: "So" runs into "if".
+- **What still blocks a trimmed clip:** (b). The pin stage keeps the clip scorer's verdict strict, because the scorer
+  runs only on GPU0. Your yes/no from 05:44 decides.
+- The funnel table now names the trimmed variants (FUNNEL.md: "[So trimmed] ...") and lists the moments actually
+  offered to the angle step.
+
 
 ## 06:50 ET: ORDER 06:22 items 45 and 44 are committed (audit 0640, 2 cycles)
 

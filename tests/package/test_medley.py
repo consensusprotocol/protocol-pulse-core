@@ -425,11 +425,13 @@ class Rig:
             "referents": [], "conditions": [], "retraction": "none", "time_ok": "yes", "certainty": "certain"}
 
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
-                 spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None):
+                 spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
+                 trim_fail=()):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
+        self.trim_fail = set(trim_fail)                    # trimmed moments whose trimmed cut fails ruling 33 (a)
         self.medley_calls, self.write_calls, self.prompts = [], [], []
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
         self.screens, self.events, self.a_seen = [], [], []
@@ -493,6 +495,17 @@ class Rig:
                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
         return self.P.Reply("{}", self.write_from[0], self.write_from[1], family=self.write_from[2]), fields
 
+    def onset(self, m, *a, **k):
+        """hook_onset.measure's record: the hook lead, and for a trimmed moment its trimmed cut ("trim")."""
+        r = ({"pass": False, "measured": True, "lead_ms": 20, "why": "20 ms < 80"} if m["moment_id"] in self.no_hook
+             else {"pass": True, "measured": True, "lead_ms": 200, "why": "ok"})
+        if m.get("trimmed_leading"):
+            ok = m["moment_id"] not in self.trim_fail
+            r["trim"] = {"pass": ok, "measured": True, "why": "ok" if ok else "the trimmed word 'But' cannot be cut "
+                                                                              "cleanly: no measured pause (co-articulated)"}
+            r["pass"] = r["pass"] and ok
+        return r
+
     def run(self):
         fid = {"ok": True, "violations": [], "measured": True, "replayed": False, "backend": "xai:grok",
                "deterministic": {"ok": True, "violations": [], "price_now_measured": True},
@@ -509,9 +522,7 @@ class Rig:
                                                          "backend": "xai:grok"},
             "truth_for": lambda router, m, *a, **k: {"ok": True, "replayed": False, "model": "scribe_v1",
                                                      "edges": {"cuttable": m["moment_id"] not in self.uncuttable}},
-            "hook_onset_for": lambda m, *a, **k: ({"pass": False, "measured": True, "lead_ms": 20, "why": "20 ms < 80"}
-                                                  if m["moment_id"] in self.no_hook else
-                                                  {"pass": True, "measured": True, "lead_ms": 200, "why": "ok"}),
+            "hook_onset_for": self.onset,
             "coherence": lambda router, pk, *a, **k: (True, {"through_line": "Nobody gets to bend the rules.",
                                                              "clips": {sg["label"]: 5 for sg in pk["segments"]},
                                                              "vo_point": 5, "backend": "xai:grok", "measured": True,
@@ -858,13 +869,19 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         saved = PK.trim_variant
         try:
             PK.trim_variant = lambda m, sources: v if m["moment_id"] == "b" else None
-            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"})
+            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], trim_fail={"b~trim"})
             out = rig.run()
+            rig2 = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"})
+            out2 = rig2.run()
         finally:
             PK.trim_variant = saved
         self.assertEqual(out["trimmed"], {"b": "b~trim"})
-        self.assertIn("b~trim", out["prescreen"]["trim_cut"])                     # ruling 33 (a): out, any place
+        self.assertTrue(out["prescreen"]["trim_cut"]["b~trim"].startswith("FAIL: the trimmed word"))   # (a): out
+        self.assertNotIn("id=b~trim ", next(p for r, p in rig.prompts if r == "angle_write"))         # at any place
         self.assertIsNotNone(out["package"])
+        self.assertTrue(out2["prescreen"]["hook_onset"]["b~trim"].startswith("FAIL"))   # cannot open (glm C2 N5)
+        self.assertEqual(out2["prescreen"]["trim_cut"], {})        # its cut is clean, only its hook lead fails: it
+        self.assertIn("id=b~trim ", next(p for r, p in rig2.prompts if r == "angle_write"))   # stays as a clip
 
 
 class TestOrder0622StepAFromBothVendors(unittest.TestCase):
