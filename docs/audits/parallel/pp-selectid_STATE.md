@@ -1,4 +1,30 @@
-SPEND (ruling 48): $5.85 of $12.00 vendor-reported after the 07:14 build (+ the estimate where a vendor reports none; no build starts at $10). 07:37 ET: no pin yet. The 07:14 build gave NO LINE-UP (cause below). The next build carries ruling 49 (6a36025a) and the one-token fix (60f2eaed). Two proposals for you below.
+SPEND (ruling 48): $5.95 of $12.00 vendor-reported after the 07:36 build (+ the estimate where a vendor reports none; no build starts at $10). 07:48 ET: no pin yet; the chain keeps building on each word-pass cycle. Binding now: the clips-alone verdict rates the HOOK 3 (item 3, asked 05:35), and angles that form no line-up (Proposal 1). Three rulings asked below.
+
+## 07:48 ET: the 07:36 build (code 60f2eaed: rulings 48 + 49 + the one-token fix): no package
+
+Record: tests/package/proof/ledger_20261113_123611.
+- **The funnel:**
+  - 291 moments (the 24 h window moved on); 158 usable; 105 left out by STAND_ALONE (32 back as trimmed variants);
+  - 8 pass L-v 2 + CUTTABLE; 5 can open; **7 clear step A from both vendors** (the screen took 416 s on its clock);
+  - 3 angles from Heimdall deepseek, in time (618 s on its clock); $0.10 reported for the build.
+- **Three line-ups judged; each failed the clips-alone verdict:**
+  | angle | hook | ratings | through-line the verdict stated |
+  |---|---|---|---|
+  | 2 | Bitcoin Mechanic: "Bitcoin on the Blake 2B chain is incredible..." | hook 4, clip_01 3 (What Bitcoin Did, the RSA bet), 5, 5; 2 joins flagged | "Bitcoin and cryptocurrency provide technological superiority, security against traditional banks, and financial freedom for the world." |
+  | 3 | The Bitcoin Layer: "Bitcoin started turning though before liquidity turned red..." | **hook 3**, 5, 5, 4 | "Reasons to believe in and adopt Bitcoin as a financial alternative." |
+  | 3 (ruling 41's hook swap) | Bitcoin Mechanic | **hook 3**, 5, 5, 4 | "Bitcoin provides financial freedom from traditional banks..." |
+  - Angle 1 formed no line-up, and neither did each angle's re-line after a drop.
+- **Trims (ruling 49 live):**
+  - The one trimmed variant that reached the cut stage, "So if you look...", cannot be cut cleanly (co-articulated).
+  - "So MSCI..." failed step A again (REFERENT_OUTSIDE).
+  - No trimmed clip reached a line-up.
+- **The three rulings asked (yours):**
+  1. **Item 3 (since 05:35):** the clips-alone verdict rates the HOOK on "how much it advances the through-line", like
+     a clip, with the bar of 4. Hooks keep scoring 3 while their clips score 4-5. Should the hook be rated on its own
+     job (it grabs attention and sets up the medley)?
+  2. **Proposal 1** (pool fill for an angle's first line-up; measured above, ready to audit).
+  3. **Proposal 2** (the same speech re-posted by a second channel counts as one moment).
+
 
 ## 07:37 ET: the 07:14 build (code e8c622b8): no line-up; the measured cause, and two proposals
 

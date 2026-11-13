@@ -1,0 +1,17 @@
+=== 07:36:11 EST LEDGER medley build, code 60f2eaed+4aac3ae936cc, now (render clock) 2026-11-13T12:36:11+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 24.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00), moments-ledger_20261113_073738-d2657bbe (2026-11-13T07:53:42+00:00); 12 clip spans out
+  adapter: 503 rows ({"altcoin or not about Bitcoin": 36, "hard exclusion flag (L-u)": 118, "speaker change inside (caption marker)": 28})
+  word pass: {"rows": 1358, "unreadable": 0, "ready": 883, "not_ready": 145, "failed": 102, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 503: 291 moments on 20 videos (291 word records); 19 rows wait for a word record, 78 wait for their own window, 80 do not re-anchor, 0 malformed, 35 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 406 window record(s) used (0 video(s) without a caption record for L-s)
+  spend (ruling 48): $5.85 of $12.00 vendor-reported before this build (no build starts at $10.00)
+  158 usable, 105 of them left out by the render's STAND_ALONE (an opener the clip scorer would have to affirm, or no place under the topic rule with the pin's screen; 32 of them back as variants with ONE leading word trimmed, ruling 33 part 2), 1 on an ad-read marker (the exclusion screen's deterministic part), 13 cleared step A (178 s)
+  8 of them pass the second recognition pass and CUTTABLE (183 s)
+  5 of them can open a medley (G17a at the pin stage: genuine quiet before the first onset)
+  7 of them clear step A from both vendors too (order 06:22 item 45: whichever vendor writes, a verdict off it exists) (416 s)
+  3 angles from heimdall:deepseek/deepseek-v4.1-flash (618 s)
+  angle 2 line-up 1 (4 clips, 39.4 s): clips alone FAIL {'hook': 4, 'clip_01': 3, 'clip_02': 5, 'clip_03': 5} flagged ['hook -> clip_01', 'clip_01 -> clip_02'] (637 s)
+  angle 3 line-up 1 (4 clips, 37.0 s): clips alone FAIL {'hook': 3, 'clip_01': 5, 'clip_02': 5, 'clip_03': 4} flagged ['hook -> clip_01', 'clip_02 -> clip_03'] (665 s)
+  angle 3 line-up 2 (4 clips, 36.9 s): clips alone FAIL {'hook': 3, 'clip_01': 5, 'clip_02': 5, 'clip_03': 4} flagged ['hook -> clip_01'] (686 s)
+  search: 3 line-up(s) of 8, $0.10 reported / $1.17 estimate (ruling 41: $3.00 reported per build)
+no package (no angle gave a package: angle 1: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 2: the clips alone fail (ratings / joins): dropped ['95d20143d5e2af5612b1', 'c3be6f1c71c4397b081a'], no swap fits the line-up rules: re-lined; angle 2: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 3: the clips alone fail (ratings / joins): swapped {'2e77a0a7af2aab66a3a4': '06f73bef2e37ba14bee4', '95d20143d5e2af5612b1': 'c7646b4ee91f955cf58f'}, re-judged (ruling 41); angle 3: the clips alone fail (ratings / joins): dropped ['06f73bef2e37ba14bee4'], no swap fits the line-up rules: re-lined; angle 3: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules); usable 158, cleared 13
+  spend (ruling 48): $5.95 of $12.00 vendor-reported after this build (before it: $5.85)
