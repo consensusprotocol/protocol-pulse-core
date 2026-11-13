@@ -6,7 +6,14 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## 15:18 HOLD, two 9:16 rows, both RENDER-SIDE, not the pin's: pin 0c68b589 (ruling 67 re-seal), run runs/pinned_20261113_191409, run_fresh exit 3 at 15:18:01 ET. Not delivered on the pass path. REVIEW DROP: decided below the facts.
+## 15:20 REVIEW DROP SENT, BOTH FORMATS, 'REVIEW ONLY - NOT A PASS - not for publishing': Telegram 67841 (16:9 video), 67842 (9:16 video), 67843 (the review note), status complete, 15:19:50-15:20:00 ET (order '15:28' 1). Run runs/pinned_20261113_191409, pin 0c68b589, HOLD (run_fresh exit 3 at 15:18:01 ET). No release authorisation was created.
+- NO PER-FORMAT PASS PATH EXISTS, so none was invented. telegram.deliver_run sends only a run that release_auth.authorise passes, and authorise requires the run's ONE attestation to be ALL_PASS, deliverable, and blocker-free in BOTH formats. deliver_run's 'option' is a delivery label, not a format selector.
+- THE REVIEW TEXTS ARE CODE-WRITTEN (telegram.review_texts); the caller cannot edit them. The captions and the note list 'Not passing (required): G19_edge_shots FAIL, G9_tail FAIL'.
+  - In the note both rows are prefixed '9x16' and NO 16x9 row appears, so the note shows the 16:9 passed every required row.
+  - It does not say so in a sentence; that would be a code change.
+  - Each row's reason reads 'see GATE_REPORT.json': the run records no per-row detail for G9 or G19. The facts follow below.
+- sha256: 16:9 c053cbc865577ed1cce8f675ba02ab0ab5a1d10f2426bd640edc0779f5eead71; 9:16 da7f8dc05e512f81cb217801c5fce1d0206cc6ce4cdc01766af0359a34cf601e. HEAD 6fd7c8fc. REVIEW_DROP.json is in the run dir.
+- The two 9:16 rows are both RENDER-SIDE, not the pin's.
 - The pin itself passed everything that judges it: stage pinned (ruling 17, no difference left), validate, and G16 / G17 / G18 / G20 / V1 in both formats. Every 16:9 row PASS.
 - 9:16 G9_tail FAIL: luma 13.6 against the floor 14.7315.
   - Cause, measured with ffprobe over every 9:16 part: the 9:16 final is UNTAGGED (range / space / transfer / primaries unknown). It takes its first part's tags, and vert_hook opens on a stack2 shot; reframe_auto's stack2 path (split, vstack, pad) drops all four tags.
