@@ -25,6 +25,25 @@
       "cost_from_usage": true, "spend_meter": true,
       "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.713, "basis": "GET /models pricing 2026-11-12"}
     },
+    "heimdall_glm53flash": {
+      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "z-ai/glm-5.3-flash", "key_env_prefix": "HEIMDALL_API_KEY",
+      "note": "a model family other than the miner's, for checks of the miner's labels (ruling 40, 2026-11-13); short prompts only. Its default reasoning: 24/24 on the flag-check calibration quotes (about 300 reply tokens, median 26 s); at effort none 21/24 (a yes to a speaker's own purchase, a historical fact and a prediction), at effort low 22/24 (2026-11-13). On a 111k-token review package its default reasoning used a whole 16k reply budget (freeze audit c1: empty content). Timeout 300 s: at 8 in flight its replies took p50 5 s but p90 74 s, and a quarter of the first 110 questions ran past 120 s (a timed-out request restarts from zero and, at temperature 0, reasons the same way again).",
+      "json_schema": true, "max_inflight": 8, "timeout_s": 300,
+      "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-13"}
+    },
+    "heimdall_muse": {
+      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "meta-models/muse-spark-open-816b-a42b", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "none"}},
+      "note": "the checker role's second back-end (law L-x: two per role). Flag-check calibration 2026-11-13 at effort none: 20/20 of the quotes it answered, but 4 of 24 calls failed (provider 502) and up to 84 s each; 8-13 min on a 100k-token review package (freeze audit c1-c2).",
+      "json_schema": true, "max_inflight": 4, "timeout_s": 600,
+      "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.186, "out_per_mtok": 0.744, "basis": "GET /models pricing 2026-11-13"}
+    },
     "heimdall_deepseek": {
       "kind": "openai_compat", "vendor": "heimdall", "enabled": false,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
@@ -60,7 +79,9 @@
   "roles": {
     "mine": {"chain": ["heimdall_qwen27b", "local_gemma"],
              "attempts": 3, "max_tokens": 4000},
-    "judge": {"chain": ["xai_frontier", "gemini_frontier", "anthropic_frontier"], "attempts": 2, "max_tokens": 8000}
+    "judge": {"chain": ["xai_frontier", "gemini_frontier", "anthropic_frontier"], "attempts": 2, "max_tokens": 8000},
+    "flagcheck": {"chain": ["heimdall_glm53flash", "heimdall_muse"], "attempts": 2, "max_tokens": 4000,
+                  "note": "ruling 40 (2026-11-13): a second model, never one that mined the row's video, answers one narrow question per hard flag (pipeline/ingest/flagcheck.py). A measurement: the adapter's exclusions do not read it."}
   },
   "spend_meter": {
     "backend": "heimdall_qwen27b", "label": "HEIMDALL", "baseline_usage": 0.2036796658, "cap_usd": 460.0, "notify_fraction": 0.9,

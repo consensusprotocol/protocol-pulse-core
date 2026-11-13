@@ -1,0 +1,65 @@
+{
+ "24": {
+  "horizon_h": 24,
+  "now": "2026-11-13T09:18:21.934712+00:00",
+  "real": {
+   "lines": 2072,
+   "excluded": {
+    "hard exclusion flag (L-u)": 123,
+    "altcoin or not about Bitcoin": 30,
+    "speaker change inside (caption marker)": 22
+   },
+   "returned": 510
+  },
+  "if_a_flag_needs_both_models": {
+   "lines": 2072,
+   "excluded": {
+    "hard exclusion flag (L-u)": 116,
+    "altcoin or not about Bitcoin": 31,
+    "speaker change inside (caption marker)": 24
+   },
+   "returned": 514
+  },
+  "rows_that_would_reach_the_packager": 4,
+  "released_ids": [
+   "43beb168359c5a27231a",
+   "6a7ab7645ab3920e9e69",
+   "d3579c7d953ba27163f1",
+   "c9fe4a64430c294a05f0"
+  ]
+ },
+ "72": {
+  "horizon_h": 72,
+  "now": "2026-11-13T09:18:21.934712+00:00",
+  "real": {
+   "lines": 2072,
+   "excluded": {
+    "hard exclusion flag (L-u)": 311,
+    "altcoin or not about Bitcoin": 183,
+    "speaker change inside (caption marker)": 31
+   },
+   "returned": 1025
+  },
+  "if_a_flag_needs_both_models": {
+   "lines": 2072,
+   "excluded": {
+    "hard exclusion flag (L-u)": 295,
+    "altcoin or not about Bitcoin": 188,
+    "speaker change inside (caption marker)": 33
+   },
+   "returned": 1034
+  },
+  "rows_that_would_reach_the_packager": 9,
+  "released_ids": [
+   "e5d9125fbe2b0d30a0cb",
+   "43beb168359c5a27231a",
+   "88deba3b23f5f865cfc3",
+   "b7ae3de139f9e3db388b",
+   "6a7ab7645ab3920e9e69",
+   "d3579c7d953ba27163f1",
+   "c1f47e2329192118b0bd",
+   "c9fe4a64430c294a05f0",
+   "e2168822533fa0b919b3"
+  ]
+ }
+}

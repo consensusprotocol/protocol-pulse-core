@@ -1,0 +1,398 @@
+{
+ "totals": {
+  "anthropic": {
+   "usd": 10.4436,
+   "estimated_usd": 0.0,
+   "calls": 425
+  },
+  "heimdall": {
+   "usd": 0.8632,
+   "estimated_usd": 0.13,
+   "calls": 1905
+  },
+  "xai": {
+   "usd": 0.6455,
+   "estimated_usd": 0.11,
+   "calls": 38
+  },
+  "openai": {
+   "usd": 0.3541,
+   "estimated_usd": 0.3541,
+   "calls": 2
+  },
+  "google": {
+   "usd": 0.785,
+   "estimated_usd": 0.785,
+   "calls": 3
+  }
+ },
+ "total_usd": 13.09,
+ "rows": [
+  {
+   "vendor": "anthropic",
+   "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
+   "backend": "anthropic_frontier",
+   "calls": 292,
+   "usd": 7.1745,
+   "basis": "measured (per call)",
+   "first": "2026-11-12T08:36:54.026633+00:00",
+   "last": "2026-11-12T08:43:04.551018+00:00"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
+   "backend": "heimdall_qwen27b",
+   "calls": 529,
+   "usd": 0.2704,
+   "basis": "measured (per call)",
+   "first": "2026-11-12T08:30:27.635650+00:00",
+   "last": "2026-11-13T08:02:26.632866+00:00"
+  },
+  {
+   "vendor": "anthropic",
+   "source": "smoke (scratch store, 03:2x ET)",
+   "backend": "anthropic_frontier",
+   "calls": 5,
+   "usd": 0.1328,
+   "basis": "measured (per call)",
+   "first": "2026-11-12T08:22:46.746710+00:00",
+   "last": "2026-11-12T08:23:07.673960+00:00"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "smoke (scratch store, 03:2x ET)",
+   "backend": "heimdall_qwen27b",
+   "calls": 89,
+   "usd": 0.054,
+   "basis": "measured (per call)",
+   "first": "2026-11-12T08:21:34.984328+00:00",
+   "last": "2026-11-12T08:25:31.517089+00:00"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "freeze drill (scratch store, 06:06-06:13 ET)",
+   "backend": "heimdall_qwen27b",
+   "calls": 27,
+   "usd": 0.0006,
+   "basis": "measured (per call)",
+   "first": "2026-11-12T11:06:56.560232+00:00",
+   "last": "2026-11-12T11:13:02.687242+00:00"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "A/B 20261112_heimdall_vs_anthropic (mine)",
+   "backend": "heimdall_qwen27b",
+   "calls": 131,
+   "usd": 0.0827,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "anthropic",
+   "source": "A/B 20261112_heimdall_vs_anthropic (mine)",
+   "backend": "anthropic_frontier",
+   "calls": 127,
+   "usd": 3.1083,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "xai",
+   "source": "A/B 20261112_heimdall_vs_anthropic (judge)",
+   "backend": "xai_frontier",
+   "calls": 35,
+   "usd": 0.4463,
+   "basis": "measured (vendor cost_in_usd_ticks; the recorded price-table estimate was $3.2153)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40 flag check 20261113T0825Z",
+   "backend": "heimdall_glm53flash",
+   "calls": 137,
+   "usd": 0.004515,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40 flag check 20261113T0825Z",
+   "backend": "heimdall_muse",
+   "calls": 50,
+   "usd": 0.002015,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40 flag check 20261113T0855Z",
+   "backend": "heimdall_glm53flash",
+   "calls": 98,
+   "usd": 0.006245,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40 flag check 20261113T0855Z",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 9.7e-05,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40 flag check 20261113T0918Z",
+   "backend": "heimdall_glm53flash",
+   "calls": 453,
+   "usd": 0.029038,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40 flag check 20261113T0918Z",
+   "backend": "heimdall_muse",
+   "calls": 18,
+   "usd": 0.001601,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40 flag check 20261113T0918Z/dryrun_definitions",
+   "backend": "heimdall_qwen27b",
+   "calls": 253,
+   "usd": 0.177333,
+   "basis": "measured (per call)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit c1",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0067,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 73238,
+    "completion_tokens": 4612
+   }
+  },
+  {
+   "vendor": "openai",
+   "source": "audit c2",
+   "backend": "gpt4o",
+   "calls": 1,
+   "usd": 0.1741,
+   "basis": "ESTIMATE (usage x list price $2.5/$10.0 per MTok)",
+   "usage": {
+    "prompt_tokens": 66834,
+    "completion_tokens": 698
+   }
+  },
+  {
+   "vendor": "xai",
+   "source": "audit c2",
+   "backend": "grok",
+   "calls": 1,
+   "usd": 0.0892,
+   "basis": "measured (vendor cost_in_usd_ticks)",
+   "usage": {
+    "prompt_tokens": 66781,
+    "completion_tokens": 1396
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit c2",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0114,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 76237,
+    "completion_tokens": 2261
+   }
+  },
+  {
+   "vendor": "google",
+   "source": "audit c2",
+   "backend": "gemini",
+   "calls": 1,
+   "usd": 0.385,
+   "basis": "ESTIMATE (usage x list price $2.0/$12.0 per MTok)",
+   "usage": {
+    "prompt_tokens": 80559,
+    "completion_tokens": 18654
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c1 (failed: empty)",
+   "backend": "heimdall_minimax",
+   "calls": 1,
+   "usd": 0.0077,
+   "basis": "measured (usage.cost of the failed reply)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c1",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0081,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 111370,
+    "completion_tokens": 4108
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c1",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0051,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 100625,
+    "completion_tokens": 16000
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c1",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0259,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 100032,
+    "completion_tokens": 9831
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c2",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0073,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 118787,
+    "completion_tokens": 2429
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c2",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0041,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 107498,
+    "completion_tokens": 6297
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit freeze/c2",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0226,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 106706,
+    "completion_tokens": 3769
+   }
+  },
+  {
+   "vendor": "xai",
+   "source": "audit c1 (usage not saved)",
+   "backend": "grok",
+   "calls": 1,
+   "usd": 0.09,
+   "basis": "ESTIMATE (= the c2 call: same package size)"
+  },
+  {
+   "vendor": "google",
+   "source": "audit c1 (usage not saved)",
+   "backend": "gemini",
+   "calls": 1,
+   "usd": 0.35,
+   "basis": "ESTIMATE (~80k prompt + ~16k output at $2/$12)"
+  },
+  {
+   "vendor": "openai",
+   "source": "audit c1 (usage not saved)",
+   "backend": "gpt4o",
+   "calls": 1,
+   "usd": 0.18,
+   "basis": "ESTIMATE (~67k prompt + ~1.2k output at $2.50/$10)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "freeze audit c1, first run: glm + minimax empty, muse timed out (usage not saved by the driver then)",
+   "backend": "heimdall_glm/minimax/muse",
+   "calls": 3,
+   "usd": 0.05,
+   "basis": "UPPER BOUND (111k prompt + 16k output each at the gateway's listed prices)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit c1 deepseek, 2 empty replies (usage not saved)",
+   "backend": "heimdall_deepseek",
+   "calls": 2,
+   "usd": 0.08,
+   "basis": "UPPER BOUND (73k prompt + 16k output each at the config's estimate $0.3/$1.2)"
+  },
+  {
+   "vendor": "anthropic",
+   "source": "one-window proof 03:0x ET (STATE 03:31)",
+   "backend": "anthropic_frontier",
+   "calls": 1,
+   "usd": 0.028,
+   "basis": "measured, printed to the terminal (not in a file)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "one-window proof 03:0x ET (STATE 03:31)",
+   "backend": "heimdall_qwen27b",
+   "calls": 1,
+   "usd": 0.0008,
+   "basis": "measured, printed to the terminal (not in a file)"
+  },
+  {
+   "vendor": "xai",
+   "source": "one-window proof 03:0x ET",
+   "backend": "xai_frontier",
+   "calls": 1,
+   "usd": 0.02,
+   "basis": "ESTIMATE (2,371 prompt / 9,697 total tokens at the per-token rate of the measured judge calls)"
+  },
+  {
+   "vendor": "google",
+   "source": "one-window proof 03:0x ET (truncated at 4,000 tokens)",
+   "backend": "gemini_frontier",
+   "calls": 1,
+   "usd": 0.05,
+   "basis": "ESTIMATE (~2.4k + 4k tokens at $2/$12)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40: the check's smoke, 2 rows x 3 questions (Nov 13 03:2x ET)",
+   "backend": "heimdall_glm53flash",
+   "calls": 6,
+   "usd": 0.000137,
+   "basis": "measured (usage.cost of each reply; printed, scratch run)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40: choosing the checker, 24 quotes x 4 configurations (Nov 13 03:3x ET)",
+   "backend": "heimdall_glm53flash/heimdall_muse",
+   "calls": 96,
+   "usd": 0.003662,
+   "basis": "measured (usage.cost of each reply; printed, scratch run)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "ruling 40: option A dry run's smoke, 1 window x 2 arms (Nov 13 03:3x ET)",
+   "backend": "heimdall_qwen27b",
+   "calls": 2,
+   "usd": 0.001315,
+   "basis": "measured (usage.cost of each reply; scratch run)"
+  }
+ ]
+}

@@ -115,6 +115,20 @@ over 160 chars, more than 6 moments. A rejected reply is asked again with the re
 to the next back-end. Every attempt is saved with its verdict. Heimdall's qwen runs at reasoning effort `none` (at
 `low` it spent the whole 4,000-token budget reasoning and returned empty content: INGEST-FAIL-04).
 
+HARD-FLAG PRECISION (orchestrator ruling 40, 2026-11-13: "L-u stays hard; a wrong label is not L-u"):
+`tools/ingest_watch.py flagcheck` (pipeline/ingest/flagcheck.py) MEASURES how often the miner's imperative /
+accusation / single_source_breaking labels meet the ruling's definitions, and changes nothing (no flag is cleared, the
+adapter's exclusions do not read it). Sample: the flagged rows published in the last 72 h, newest first, at most 200.
+A second model (role `flagcheck`: two gateway back-ends, never a model or back-end that mined any line of the row's
+video) answers ONE narrow question per flag with the definition in the prompt, for every flag of every sampled row:
+strict JSON `{"answer": "yes" | "no" | "unsure", "evidence": <words copied from the quote when yes, else empty>,
+"why": <= 200 chars}`; a question no back-end answered is unmeasured, never agreement. The checker is calibrated
+first on 24 quotes with a clear answer (4 yes + 4 no per flag, fictional names) and its score is reported with the
+tables. Option B of the ruling (a flag stands only when both models agree; unsure / unmeasured keep it) is simulated
+with the adapter's own read on a copy of the ledger. Option A (the ruling's definitions in the miner's prompt) is
+dry-run by `tests/ingest/dryrun_definitions.py` against a control re-run of mine/2. Report:
+docs/audits/parallel/pp-ingest_FLAG_PRECISION.md.
+
 Moment line = the pp.moment/1 fields + additions (fields may be added): `flags_ext {about_bitcoin, altcoin}`,
 `source {discovered_via, live_status, media_type, published_at_source, duplicate_of}`, `mined.backend`,
 `mined.provider`, `mined.window`, `mined.attempt`, `mined.contract_fp`. `topics` stays `[]` until pp-selectid publishes
@@ -122,7 +136,7 @@ its TAXONOMY.
 
 ## 6. Provider interface (law L-x: NO SINGLE MODEL, ULTRON FIRST)
 
-Every model role (here: `mine`, `judge`) goes through `pipeline.ingest.providers.Router`; vendors and model names live
+Every model role (here: `mine`, `judge`, `flagcheck`) goes through `pipeline.ingest.providers.Router`; vendors and model names live
 ONLY in `pipeline/ingest/providers.json` (a test reads every identifier and string of the package for them). Back-end
 kinds (wire protocols): `openai_compat` (Heimdall, xAI, OpenAI), `anthropic` (SDK), `gemini` (google-genai),
 `ollama_local` (gemma3:27b on Ultron through `story_semantics.LocalLLM`: available only while this process holds the

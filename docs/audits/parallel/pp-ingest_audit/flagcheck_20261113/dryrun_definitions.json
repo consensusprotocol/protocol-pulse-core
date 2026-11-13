@@ -1,0 +1,1658 @@
+{
+ "report": {
+  "backend": "heimdall_qwen27b",
+  "rows": 178,
+  "windows": 123,
+  "not_re_mined": {
+   "mined by claude-opus-5-5 (not callable now)": 22
+  },
+  "control_prompts_rebuilt": {
+   "same as recorded": 101
+  },
+  "failed_windows": [],
+  "re_observed": {
+   "control": 146,
+   "A": 127
+  },
+  "common_rows": 119,
+  "flags": {
+   "imperative": {
+    "original": {
+     "flagged": 31,
+     "checker": {
+      "yes": 27,
+      "no": 4,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.871,
+     "checker_yes_not_flagged": 1
+    },
+    "control": {
+     "flagged": 30,
+     "checker": {
+      "yes": 26,
+      "no": 4,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.867,
+     "checker_yes_not_flagged": 2
+    },
+    "A": {
+     "flagged": 28,
+     "checker": {
+      "yes": 25,
+      "no": 3,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.893,
+     "checker_yes_not_flagged": 3
+    },
+    "control_differs_from_original": 1,
+    "A_differs_from_original": 3
+   },
+   "accusation": {
+    "original": {
+     "flagged": 77,
+     "checker": {
+      "yes": 46,
+      "no": 31,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.597,
+     "checker_yes_not_flagged": 1
+    },
+    "control": {
+     "flagged": 76,
+     "checker": {
+      "yes": 45,
+      "no": 31,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.592,
+     "checker_yes_not_flagged": 2
+    },
+    "A": {
+     "flagged": 70,
+     "checker": {
+      "yes": 41,
+      "no": 29,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.586,
+     "checker_yes_not_flagged": 6
+    },
+    "control_differs_from_original": 1,
+    "A_differs_from_original": 11
+   },
+   "single_source_breaking": {
+    "original": {
+     "flagged": 18,
+     "checker": {
+      "yes": 11,
+      "no": 7,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.611,
+     "checker_yes_not_flagged": 38
+    },
+    "control": {
+     "flagged": 18,
+     "checker": {
+      "yes": 12,
+      "no": 6,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.667,
+     "checker_yes_not_flagged": 37
+    },
+    "A": {
+     "flagged": 26,
+     "checker": {
+      "yes": 19,
+      "no": 7,
+      "unsure": 0,
+      "unmeasured": 0
+     },
+     "precision": 0.731,
+     "checker_yes_not_flagged": 30
+    },
+    "control_differs_from_original": 4,
+    "A_differs_from_original": 12
+   }
+  },
+  "all_moments": {
+   "control": {
+    "moments": 456,
+    "imperative": 42,
+    "accusation": 119,
+    "single_source_breaking": 26,
+    "any_hard": 190
+   },
+   "A": {
+    "moments": 439,
+    "imperative": 42,
+    "accusation": 117,
+    "single_source_breaking": 38,
+    "any_hard": 192
+   }
+  },
+  "spend_usd": 0.177333,
+  "calls": {
+   "ok": 246,
+   "invalid": 7
+  },
+  "seconds": 607.0,
+  "template_a_flag_lines": [
+   "  \"accusation\"              alleges wrongdoing by a named or identifiable person or organisation",
+   "  \"imperative\"              tells the viewer to buy, sell, hold or act financially",
+   "  \"single_source_breaking\"  a new factual claim about a current event resting on this speaker alone"
+  ]
+ },
+ "arms": {
+  "original": {
+   "8270499b0eb329ad29e8": [
+    "accusation"
+   ],
+   "f2f112fe67d2bc2126c1": [
+    "accusation"
+   ],
+   "bb072f70e2ae0ffcbece": [
+    "accusation"
+   ],
+   "43beb168359c5a27231a": [
+    "imperative",
+    "time_sensitive"
+   ],
+   "0b509df88964e06ba981": [
+    "accusation"
+   ],
+   "174d754d351a9dc5e9c9": [
+    "single_source_breaking"
+   ],
+   "1de632dab9335c9c100d": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "20209cf5c1cc072a8b42": [
+    "accusation",
+    "politics_non_btc"
+   ],
+   "b555c1a4002547242e71": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "cbf63bb68feac8c34ed7": [
+    "accusation"
+   ],
+   "09422c9eedfe28b24a8a": [
+    "accusation"
+   ],
+   "5767ba900538628c293f": [
+    "accusation"
+   ],
+   "836cfb20c5c5fa0b4a90": [
+    "accusation"
+   ],
+   "6a7ab7645ab3920e9e69": [
+    "imperative"
+   ],
+   "83ed732c4140f9994639": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "b3a0fd5f4de741ef35b5": [
+    "imperative"
+   ],
+   "ca0302ed369a8f0c72ca": [
+    "imperative"
+   ],
+   "d3579c7d953ba27163f1": [
+    "single_source_breaking"
+   ],
+   "0bfcc8d7479f109deca6": [
+    "doom",
+    "imperative"
+   ],
+   "36192592423509fff1a6": [
+    "imperative"
+   ],
+   "a25c69cf74aa3d0111cc": [
+    "imperative"
+   ],
+   "cb35da6dd8f5d1f2549e": [
+    "imperative",
+    "partner_attack"
+   ],
+   "f00e6a9b080a8f44626d": [
+    "imperative"
+   ],
+   "fbc7f51f686ca1601163": [
+    "imperative",
+    "price_prediction"
+   ],
+   "6a1b14c96bda60c8e6fa": [
+    "imperative"
+   ],
+   "90e7bbb3468bfdcf3cbc": [
+    "imperative"
+   ],
+   "1b90ae84cdcfdc487376": [
+    "accusation",
+    "partner_attack"
+   ],
+   "1f2868d1e0caa399442b": [
+    "imperative"
+   ],
+   "403f762b59fde51f942e": [
+    "accusation"
+   ],
+   "4a21ae729b8e07b6fc86": [
+    "accusation",
+    "partner_attack"
+   ],
+   "4b78ce1df1c09d1678b5": [
+    "accusation"
+   ],
+   "54f34737543d9e53d061": [
+    "accusation"
+   ],
+   "71aaed3f9dd8ab8b7055": [
+    "accusation",
+    "partner_attack"
+   ],
+   "76e2ed08c8c38ad97b42": [
+    "imperative"
+   ],
+   "7d37f79ef92348fb2718": [
+    "accusation",
+    "guaranteed_return",
+    "imperative"
+   ],
+   "8221a7b913bd5c8ffb02": [
+    "accusation",
+    "partner_attack",
+    "price_prediction"
+   ],
+   "e904e3a98a765e47f85f": [
+    "accusation"
+   ],
+   "effbdaa058516d86cbc6": [
+    "accusation",
+    "partner_attack"
+   ],
+   "0341e73babc1f4e22f8e": [
+    "accusation",
+    "imperative"
+   ],
+   "224912640684b56b0bb9": [
+    "accusation"
+   ],
+   "241bfaee53b5bee735a1": [
+    "accusation"
+   ],
+   "44918e1456e858d64101": [
+    "single_source_breaking"
+   ],
+   "610e6967858cd3e4b770": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "72349fe97ac04496452d": [
+    "accusation"
+   ],
+   "89dc68c8a6f82aa50a9d": [
+    "accusation"
+   ],
+   "90ddd3c95b569638fdc1": [
+    "single_source_breaking"
+   ],
+   "932eb98a0f07b48f6579": [
+    "accusation"
+   ],
+   "9eb21191782ec3ce37d0": [
+    "accusation"
+   ],
+   "a8bfc4fc3a330805eaee": [
+    "accusation"
+   ],
+   "bcbdc047b85057d62bbf": [
+    "imperative"
+   ],
+   "c7325468999fcacf6fbb": [
+    "accusation"
+   ],
+   "d605ba06f65349044bb7": [
+    "accusation"
+   ],
+   "00c4fbc5da052487e949": [
+    "accusation"
+   ],
+   "0fbaf81380ff27c211e2": [
+    "accusation"
+   ],
+   "200e2d8be8cff0da2921": [
+    "ad_read",
+    "imperative"
+   ],
+   "24b822ec3e7f8bac0263": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "2abf7603245b6c8600ec": [
+    "accusation"
+   ],
+   "459aa6c531395af35f28": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "50a707add5cfc33f2cd1": [
+    "accusation",
+    "third_party_media"
+   ],
+   "6660ac98887a3dab34b9": [
+    "imperative"
+   ],
+   "67d2b3060f6bb47011a9": [
+    "accusation"
+   ],
+   "6c259f842b06ec0f5fdb": [
+    "accusation"
+   ],
+   "7b94da73b6cabfbb347f": [
+    "accusation"
+   ],
+   "7e5cd60436974be776ab": [
+    "accusation"
+   ],
+   "b5d6556583b814c5a094": [
+    "ad_read",
+    "imperative"
+   ],
+   "c179c89e78c2f9b9547f": [
+    "ad_read",
+    "imperative"
+   ],
+   "c9eaa3a83a8a4749a559": [
+    "accusation"
+   ],
+   "d2053c10d825ce9672f0": [
+    "accusation"
+   ],
+   "d378ea2c1fe877333bf5": [
+    "single_source_breaking"
+   ],
+   "dc5de48d8869033e2bb2": [
+    "accusation"
+   ],
+   "e49bd9bcc08f9ab68999": [
+    "accusation"
+   ],
+   "f0d473c321ec5ab2b0f8": [
+    "accusation"
+   ],
+   "f36c97ebd82fb1c5c949": [
+    "imperative"
+   ],
+   "c9fe4a64430c294a05f0": [
+    "imperative"
+   ],
+   "1e38d318fb9cf441d6eb": [
+    "accusation"
+   ],
+   "3cdd092f693b8a02b38f": [
+    "accusation"
+   ],
+   "4c21ee5c7d363fd90c73": [
+    "accusation",
+    "doom"
+   ],
+   "4fd92203561233275a66": [
+    "accusation"
+   ],
+   "6d5cab1d4436d44d9531": [
+    "accusation"
+   ],
+   "8b39464afe27c0620e16": [
+    "accusation"
+   ],
+   "9fcd1656b45fa9a1891d": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "a31e1e1ac5c9438cbdf7": [
+    "accusation"
+   ],
+   "dd97584ab1fcb70742ba": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "e7f44daa43cd35a7458f": [
+    "accusation"
+   ],
+   "efccacd8bc42e4daf1f8": [
+    "accusation",
+    "imperative"
+   ],
+   "27c4e025cc2ad9ea956b": [
+    "single_source_breaking"
+   ],
+   "72421acd240463645e70": [
+    "accusation"
+   ],
+   "914f28dd98b29f181518": [
+    "accusation"
+   ],
+   "bbaac42584bd7860fea7": [
+    "accusation"
+   ],
+   "bf394cf2ba2c3ecc8509": [
+    "accusation"
+   ],
+   "dbb798dccee6a29a021c": [
+    "accusation"
+   ],
+   "ecf930a95e3ceb01ccb5": [
+    "accusation"
+   ],
+   "2cbb1674313f9fa52d4f": [
+    "imperative"
+   ],
+   "4f74babec484b3b240f0": [
+    "imperative"
+   ],
+   "505417fbb111474f0d29": [
+    "accusation",
+    "politics_non_btc"
+   ],
+   "65b19fcd450d903c0140": [
+    "accusation",
+    "doom",
+    "politics_non_btc"
+   ],
+   "8dfa9df7dbfcb31507b1": [
+    "imperative"
+   ],
+   "8829a23a6665badee371": [
+    "accusation"
+   ],
+   "eacbbe335a5d48c88e89": [
+    "imperative"
+   ],
+   "2b6a05700c0951a6079f": [
+    "accusation"
+   ],
+   "2b88b8eff5ec4b89ca12": [
+    "accusation"
+   ],
+   "5867bd2dddbb0bf582ab": [
+    "accusation"
+   ],
+   "81c08e0fce0e36f80f45": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "b66cb0a972935453a7d4": [
+    "accusation"
+   ],
+   "d782b8d929f0e6a2ddd4": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "ea63da076391cdbd38bc": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "324aab69fcc061d39247": [
+    "ad_read",
+    "imperative"
+   ],
+   "d8c45ff6709910ac6895": [
+    "single_source_breaking"
+   ],
+   "f674e35be2656986ea12": [
+    "single_source_breaking"
+   ],
+   "e5085743fab00640c4e8": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "88deba3b23f5f865cfc3": [
+    "single_source_breaking"
+   ],
+   "1c9a0074dc769abe3757": [
+    "imperative"
+   ],
+   "4bac36830b753fb0a66e": [
+    "accusation",
+    "politics_non_btc",
+    "single_source_breaking"
+   ],
+   "93eabf34070e301adbe5": [
+    "ad_read",
+    "imperative"
+   ],
+   "a469e9b42cfbe8e6c078": [
+    "accusation"
+   ],
+   "a5e9ed4abfc5bcbcee5c": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "c1f47e2329192118b0bd": [
+    "single_source_breaking"
+   ],
+   "03c09d66ae3072c89df1": [
+    "ad_read",
+    "imperative"
+   ],
+   "501029928c288df90e03": [
+    "ad_read",
+    "guaranteed_return",
+    "imperative"
+   ],
+   "4da2eac587cd511c1d98": [
+    "imperative"
+   ],
+   "9ba193781fdaef29398b": [
+    "imperative"
+   ],
+   "34bc9bc1cd8b4b8c6f19": [
+    "imperative"
+   ],
+   "bc7bf5e71d9f4554232f": [
+    "accusation",
+    "politics_non_btc"
+   ],
+   "f682f0cb1f2b916d2e74": [
+    "imperative"
+   ],
+   "7a92f696a28501e3e457": [
+    "imperative"
+   ],
+   "0e9b5b932e50dcb6c945": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "24d5721f0bc93ed758ee": [
+    "accusation"
+   ],
+   "28629dd1ba43a799609a": [
+    "accusation"
+   ],
+   "349feda47bd829c0c086": [
+    "accusation"
+   ],
+   "3959d7c70701a3bc6896": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "3ff144944cd6b5d51829": [
+    "accusation"
+   ],
+   "44ba00fe32c8b0a99171": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "4b0d74b36a8dc60f539b": [
+    "accusation"
+   ],
+   "4cbed9594d3579802c7f": [
+    "accusation"
+   ],
+   "53f438f63faff439156e": [
+    "accusation"
+   ],
+   "549af1d388cdf16320bf": [
+    "imperative"
+   ],
+   "5844ac81fb3dbc6a6fa3": [
+    "accusation",
+    "third_party_media"
+   ],
+   "606bf6cc32433c53c5ed": [
+    "accusation",
+    "price_prediction"
+   ],
+   "64a9ef5abbed1a005fec": [
+    "accusation"
+   ],
+   "64ab8aa47797d93e6a93": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "8761e1dc6d45773f2c6d": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "9cdf8b72eb50664c43fa": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "9de59bc10c885e568761": [
+    "accusation"
+   ],
+   "a185e29f61267d834b5c": [
+    "imperative"
+   ],
+   "a3c34ae1435f0a6b83ca": [
+    "accusation"
+   ],
+   "aa0de859851aebbcd0ea": [
+    "accusation"
+   ],
+   "b07b21a27d4441f0231d": [
+    "accusation",
+    "partner_attack"
+   ],
+   "b86ed0aa4babbf1852d5": [
+    "accusation"
+   ],
+   "b949c657d8b1dd0bb5ca": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "bbd396e76827e34df5c9": [
+    "accusation"
+   ],
+   "bd8af84fa3645fbde6b5": [
+    "accusation"
+   ],
+   "c3320bc08a6a911ba37d": [
+    "accusation",
+    "partner_attack",
+    "price_prediction"
+   ],
+   "c4e75baf81928790cef7": [
+    "accusation"
+   ],
+   "c62c26c16bf870c757a1": [
+    "accusation"
+   ],
+   "c9012c8573141dceb0d7": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "d8ee4cc86346d90da002": [
+    "accusation"
+   ],
+   "db675d6f1fcb5a8ddbd8": [
+    "accusation"
+   ],
+   "e150ea09972e30609ecb": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "e306b4dd3d027d35a536": [
+    "accusation"
+   ],
+   "e5d9125fbe2b0d30a0cb": [
+    "imperative"
+   ],
+   "ecd41662d10838df633a": [
+    "accusation"
+   ],
+   "edcfe3096e392398cda9": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "f14ff214ff89e50d768a": [
+    "accusation"
+   ],
+   "f2f8eff693d0d95a3447": [
+    "accusation"
+   ],
+   "fb5462ac859350a4890d": [
+    "imperative"
+   ],
+   "29e8eb33f15675bfd21f": [
+    "accusation"
+   ],
+   "c9adac7e64b60e33cc7e": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "27c55a5d7939618306b1": [
+    "accusation"
+   ],
+   "82f4871df46d1a07837e": [
+    "accusation",
+    "doom"
+   ],
+   "e704e4b545366868f2b8": [
+    "accusation",
+    "politics_non_btc"
+   ],
+   "91fb7895c8c2065a8155": [
+    "imperative"
+   ],
+   "925bb460680d74aa7fbe": [
+    "imperative"
+   ],
+   "97adb10b55e71711c720": [
+    "imperative"
+   ],
+   "9b400953e2d74b1ac0ab": [
+    "imperative"
+   ],
+   "b4e687357b88622fd97f": [
+    "single_source_breaking"
+   ],
+   "b7dd9927dd2ac3797291": [
+    "accusation"
+   ],
+   "ee62d106350a67cc428a": [
+    "imperative",
+    "time_sensitive"
+   ],
+   "04189add8b472f1e8d92": [
+    "imperative"
+   ]
+  },
+  "control": {
+   "8270499b0eb329ad29e8": [
+    "accusation"
+   ],
+   "f2f112fe67d2bc2126c1": [
+    "accusation"
+   ],
+   "bb072f70e2ae0ffcbece": [
+    "accusation"
+   ],
+   "43beb168359c5a27231a": [
+    "imperative",
+    "time_sensitive"
+   ],
+   "0b509df88964e06ba981": [
+    "accusation"
+   ],
+   "174d754d351a9dc5e9c9": [
+    "single_source_breaking"
+   ],
+   "1de632dab9335c9c100d": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "09422c9eedfe28b24a8a": [
+    "accusation"
+   ],
+   "5767ba900538628c293f": [
+    "accusation"
+   ],
+   "836cfb20c5c5fa0b4a90": [
+    "accusation"
+   ],
+   "6a7ab7645ab3920e9e69": [
+    "imperative"
+   ],
+   "83ed732c4140f9994639": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "b3a0fd5f4de741ef35b5": [
+    "imperative"
+   ],
+   "ca0302ed369a8f0c72ca": [
+    "imperative"
+   ],
+   "d3579c7d953ba27163f1": [
+    "price_prediction"
+   ],
+   "0bfcc8d7479f109deca6": [
+    "doom",
+    "imperative"
+   ],
+   "36192592423509fff1a6": [
+    "imperative"
+   ],
+   "a25c69cf74aa3d0111cc": [
+    "imperative"
+   ],
+   "cb35da6dd8f5d1f2549e": [
+    "imperative",
+    "partner_attack"
+   ],
+   "fbc7f51f686ca1601163": [
+    "imperative",
+    "price_prediction"
+   ],
+   "6a1b14c96bda60c8e6fa": [
+    "imperative"
+   ],
+   "90e7bbb3468bfdcf3cbc": [
+    "imperative"
+   ],
+   "1b90ae84cdcfdc487376": [
+    "accusation"
+   ],
+   "1f2868d1e0caa399442b": [
+    "imperative"
+   ],
+   "403f762b59fde51f942e": [
+    "accusation"
+   ],
+   "4a21ae729b8e07b6fc86": [
+    "accusation"
+   ],
+   "4b78ce1df1c09d1678b5": [
+    "accusation"
+   ],
+   "54f34737543d9e53d061": [
+    "accusation"
+   ],
+   "76e2ed08c8c38ad97b42": [
+    "imperative"
+   ],
+   "8221a7b913bd5c8ffb02": [
+    "accusation",
+    "partner_attack",
+    "price_prediction"
+   ],
+   "e904e3a98a765e47f85f": [
+    "accusation"
+   ],
+   "224912640684b56b0bb9": [
+    "accusation"
+   ],
+   "44918e1456e858d64101": [
+    "single_source_breaking"
+   ],
+   "610e6967858cd3e4b770": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "72349fe97ac04496452d": [
+    "accusation"
+   ],
+   "9eb21191782ec3ce37d0": [
+    "accusation"
+   ],
+   "a8bfc4fc3a330805eaee": [
+    "accusation"
+   ],
+   "c7325468999fcacf6fbb": [
+    "accusation"
+   ],
+   "d605ba06f65349044bb7": [
+    "accusation"
+   ],
+   "00c4fbc5da052487e949": [
+    "accusation"
+   ],
+   "0fbaf81380ff27c211e2": [
+    "accusation"
+   ],
+   "24b822ec3e7f8bac0263": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "2abf7603245b6c8600ec": [
+    "accusation"
+   ],
+   "459aa6c531395af35f28": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "50a707add5cfc33f2cd1": [
+    "accusation",
+    "third_party_media"
+   ],
+   "6660ac98887a3dab34b9": [
+    "imperative"
+   ],
+   "67d2b3060f6bb47011a9": [
+    "accusation"
+   ],
+   "6c259f842b06ec0f5fdb": [
+    "accusation"
+   ],
+   "7b94da73b6cabfbb347f": [
+    "accusation"
+   ],
+   "7e5cd60436974be776ab": [
+    "accusation"
+   ],
+   "b5d6556583b814c5a094": [
+    "ad_read",
+    "imperative"
+   ],
+   "c179c89e78c2f9b9547f": [
+    "ad_read",
+    "imperative"
+   ],
+   "c9eaa3a83a8a4749a559": [
+    "accusation"
+   ],
+   "d2053c10d825ce9672f0": [
+    "accusation"
+   ],
+   "d378ea2c1fe877333bf5": [
+    "single_source_breaking"
+   ],
+   "dc5de48d8869033e2bb2": [
+    "accusation"
+   ],
+   "e49bd9bcc08f9ab68999": [
+    "accusation"
+   ],
+   "f0d473c321ec5ab2b0f8": [
+    "accusation"
+   ],
+   "f36c97ebd82fb1c5c949": [
+    "imperative"
+   ],
+   "c9fe4a64430c294a05f0": [
+    "imperative"
+   ],
+   "1e38d318fb9cf441d6eb": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "4c21ee5c7d363fd90c73": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "6d5cab1d4436d44d9531": [
+    "accusation"
+   ],
+   "9fcd1656b45fa9a1891d": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "dd97584ab1fcb70742ba": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "efccacd8bc42e4daf1f8": [
+    "time_sensitive"
+   ],
+   "27c4e025cc2ad9ea956b": [
+    "single_source_breaking"
+   ],
+   "72421acd240463645e70": [
+    "accusation"
+   ],
+   "bbaac42584bd7860fea7": [
+    "accusation"
+   ],
+   "bf394cf2ba2c3ecc8509": [
+    "accusation"
+   ],
+   "dbb798dccee6a29a021c": [
+    "accusation"
+   ],
+   "ecf930a95e3ceb01ccb5": [
+    "accusation"
+   ],
+   "2cbb1674313f9fa52d4f": [
+    "imperative"
+   ],
+   "4f74babec484b3b240f0": [
+    "imperative"
+   ],
+   "505417fbb111474f0d29": [
+    "accusation",
+    "politics_non_btc"
+   ],
+   "65b19fcd450d903c0140": [
+    "accusation",
+    "doom",
+    "politics_non_btc"
+   ],
+   "8829a23a6665badee371": [
+    "accusation"
+   ],
+   "eacbbe335a5d48c88e89": [
+    "imperative"
+   ],
+   "2b6a05700c0951a6079f": [
+    "accusation"
+   ],
+   "2b88b8eff5ec4b89ca12": [
+    "doom"
+   ],
+   "5867bd2dddbb0bf582ab": [
+    "accusation"
+   ],
+   "81c08e0fce0e36f80f45": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "b66cb0a972935453a7d4": [
+    "accusation"
+   ],
+   "d782b8d929f0e6a2ddd4": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "ea63da076391cdbd38bc": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "324aab69fcc061d39247": [
+    "ad_read",
+    "imperative"
+   ],
+   "d8c45ff6709910ac6895": [
+    "single_source_breaking"
+   ],
+   "f674e35be2656986ea12": [
+    "single_source_breaking"
+   ],
+   "e5085743fab00640c4e8": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "88deba3b23f5f865cfc3": [
+    "single_source_breaking"
+   ],
+   "1c9a0074dc769abe3757": [
+    "imperative"
+   ],
+   "a469e9b42cfbe8e6c078": [
+    "accusation"
+   ],
+   "a5e9ed4abfc5bcbcee5c": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "c1f47e2329192118b0bd": [
+    "single_source_breaking"
+   ],
+   "03c09d66ae3072c89df1": [
+    "ad_read",
+    "imperative"
+   ],
+   "501029928c288df90e03": [
+    "imperative",
+    "time_sensitive"
+   ],
+   "4da2eac587cd511c1d98": [
+    "imperative"
+   ],
+   "9ba193781fdaef29398b": [
+    "imperative"
+   ],
+   "34bc9bc1cd8b4b8c6f19": [
+    "imperative"
+   ],
+   "bc7bf5e71d9f4554232f": [
+    "accusation"
+   ],
+   "f682f0cb1f2b916d2e74": [
+    "imperative"
+   ],
+   "7a92f696a28501e3e457": [
+    "imperative"
+   ],
+   "0e9b5b932e50dcb6c945": [
+    "accusation",
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "24d5721f0bc93ed758ee": [
+    "accusation"
+   ],
+   "28629dd1ba43a799609a": [
+    "price_prediction"
+   ],
+   "349feda47bd829c0c086": [
+    "accusation"
+   ],
+   "3ff144944cd6b5d51829": [
+    "accusation"
+   ],
+   "44ba00fe32c8b0a99171": [
+    "accusation",
+    "third_party_media"
+   ],
+   "4b0d74b36a8dc60f539b": [
+    "accusation"
+   ],
+   "4cbed9594d3579802c7f": [
+    "accusation"
+   ],
+   "549af1d388cdf16320bf": [
+    "imperative"
+   ],
+   "5844ac81fb3dbc6a6fa3": [
+    "accusation",
+    "third_party_media"
+   ],
+   "606bf6cc32433c53c5ed": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "64a9ef5abbed1a005fec": [
+    "accusation"
+   ],
+   "64ab8aa47797d93e6a93": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "8761e1dc6d45773f2c6d": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "9cdf8b72eb50664c43fa": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "9de59bc10c885e568761": [
+    "accusation"
+   ],
+   "a185e29f61267d834b5c": [
+    "imperative"
+   ],
+   "a3c34ae1435f0a6b83ca": [
+    "accusation"
+   ],
+   "aa0de859851aebbcd0ea": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "b07b21a27d4441f0231d": [
+    "accusation",
+    "partner_attack"
+   ],
+   "b86ed0aa4babbf1852d5": [
+    "accusation"
+   ],
+   "b949c657d8b1dd0bb5ca": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "bd8af84fa3645fbde6b5": [
+    "accusation"
+   ],
+   "d8ee4cc86346d90da002": [
+    "accusation"
+   ],
+   "db675d6f1fcb5a8ddbd8": [
+    "accusation"
+   ],
+   "e150ea09972e30609ecb": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "e306b4dd3d027d35a536": [
+    "accusation"
+   ],
+   "e5d9125fbe2b0d30a0cb": [
+    "imperative"
+   ],
+   "ecd41662d10838df633a": [
+    "accusation"
+   ],
+   "f2f8eff693d0d95a3447": [
+    "accusation"
+   ],
+   "fb5462ac859350a4890d": [
+    "imperative"
+   ],
+   "29e8eb33f15675bfd21f": [
+    "accusation"
+   ],
+   "c9adac7e64b60e33cc7e": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "27c55a5d7939618306b1": [
+    "accusation"
+   ],
+   "82f4871df46d1a07837e": [
+    "accusation",
+    "doom"
+   ],
+   "e704e4b545366868f2b8": [
+    "accusation",
+    "politics_non_btc"
+   ],
+   "91fb7895c8c2065a8155": [
+    "imperative"
+   ],
+   "925bb460680d74aa7fbe": [
+    "imperative"
+   ],
+   "97adb10b55e71711c720": [
+    "imperative"
+   ],
+   "9b400953e2d74b1ac0ab": [],
+   "b4e687357b88622fd97f": [
+    "single_source_breaking"
+   ],
+   "b7dd9927dd2ac3797291": [
+    "accusation"
+   ],
+   "ee62d106350a67cc428a": [
+    "imperative",
+    "time_sensitive"
+   ],
+   "04189add8b472f1e8d92": [
+    "imperative"
+   ]
+  },
+  "A": {
+   "8270499b0eb329ad29e8": [
+    "accusation"
+   ],
+   "f2f112fe67d2bc2126c1": [
+    "single_source_breaking"
+   ],
+   "43beb168359c5a27231a": [
+    "imperative"
+   ],
+   "0b509df88964e06ba981": [
+    "accusation"
+   ],
+   "174d754d351a9dc5e9c9": [
+    "single_source_breaking"
+   ],
+   "1de632dab9335c9c100d": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "20209cf5c1cc072a8b42": [
+    "accusation"
+   ],
+   "09422c9eedfe28b24a8a": [
+    "accusation"
+   ],
+   "5767ba900538628c293f": [
+    "accusation"
+   ],
+   "836cfb20c5c5fa0b4a90": [
+    "single_source_breaking"
+   ],
+   "6a7ab7645ab3920e9e69": [
+    "imperative"
+   ],
+   "83ed732c4140f9994639": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "b3a0fd5f4de741ef35b5": [
+    "imperative"
+   ],
+   "ca0302ed369a8f0c72ca": [
+    "imperative"
+   ],
+   "d3579c7d953ba27163f1": [
+    "price_prediction"
+   ],
+   "36192592423509fff1a6": [
+    "imperative"
+   ],
+   "a25c69cf74aa3d0111cc": [
+    "imperative"
+   ],
+   "cb35da6dd8f5d1f2549e": [
+    "imperative",
+    "partner_attack"
+   ],
+   "90e7bbb3468bfdcf3cbc": [
+    "imperative"
+   ],
+   "1b90ae84cdcfdc487376": [
+    "accusation"
+   ],
+   "1f2868d1e0caa399442b": [
+    "imperative"
+   ],
+   "403f762b59fde51f942e": [
+    "accusation"
+   ],
+   "4a21ae729b8e07b6fc86": [
+    "accusation"
+   ],
+   "4b78ce1df1c09d1678b5": [
+    "accusation"
+   ],
+   "54f34737543d9e53d061": [
+    "accusation"
+   ],
+   "71aaed3f9dd8ab8b7055": [
+    "accusation"
+   ],
+   "76e2ed08c8c38ad97b42": [
+    "imperative"
+   ],
+   "8221a7b913bd5c8ffb02": [
+    "accusation",
+    "partner_attack",
+    "price_prediction"
+   ],
+   "224912640684b56b0bb9": [
+    "accusation"
+   ],
+   "241bfaee53b5bee735a1": [],
+   "44918e1456e858d64101": [
+    "single_source_breaking"
+   ],
+   "610e6967858cd3e4b770": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "72349fe97ac04496452d": [
+    "doom"
+   ],
+   "89dc68c8a6f82aa50a9d": [
+    "accusation",
+    "doom"
+   ],
+   "932eb98a0f07b48f6579": [
+    "accusation"
+   ],
+   "9eb21191782ec3ce37d0": [
+    "accusation"
+   ],
+   "a8bfc4fc3a330805eaee": [
+    "accusation"
+   ],
+   "c7325468999fcacf6fbb": [
+    "accusation"
+   ],
+   "d605ba06f65349044bb7": [
+    "accusation"
+   ],
+   "00c4fbc5da052487e949": [
+    "accusation"
+   ],
+   "0fbaf81380ff27c211e2": [
+    "accusation"
+   ],
+   "200e2d8be8cff0da2921": [
+    "ad_read",
+    "imperative"
+   ],
+   "24b822ec3e7f8bac0263": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "2abf7603245b6c8600ec": [
+    "accusation"
+   ],
+   "459aa6c531395af35f28": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "50a707add5cfc33f2cd1": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "6660ac98887a3dab34b9": [
+    "accusation",
+    "imperative"
+   ],
+   "6c259f842b06ec0f5fdb": [],
+   "7b94da73b6cabfbb347f": [
+    "accusation"
+   ],
+   "7e5cd60436974be776ab": [
+    "accusation"
+   ],
+   "b5d6556583b814c5a094": [
+    "ad_read",
+    "imperative"
+   ],
+   "c179c89e78c2f9b9547f": [
+    "ad_read",
+    "imperative"
+   ],
+   "c9eaa3a83a8a4749a559": [
+    "accusation"
+   ],
+   "d2053c10d825ce9672f0": [
+    "accusation",
+    "doom"
+   ],
+   "d378ea2c1fe877333bf5": [
+    "single_source_breaking"
+   ],
+   "e49bd9bcc08f9ab68999": [
+    "accusation"
+   ],
+   "1e38d318fb9cf441d6eb": [
+    "accusation",
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "6d5cab1d4436d44d9531": [
+    "accusation"
+   ],
+   "dd97584ab1fcb70742ba": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "27c4e025cc2ad9ea956b": [
+    "single_source_breaking"
+   ],
+   "72421acd240463645e70": [
+    "single_source_breaking"
+   ],
+   "bbaac42584bd7860fea7": [
+    "accusation"
+   ],
+   "bf394cf2ba2c3ecc8509": [
+    "accusation"
+   ],
+   "dbb798dccee6a29a021c": [
+    "accusation"
+   ],
+   "ecf930a95e3ceb01ccb5": [
+    "accusation"
+   ],
+   "2cbb1674313f9fa52d4f": [
+    "imperative"
+   ],
+   "65b19fcd450d903c0140": [
+    "accusation",
+    "doom",
+    "time_sensitive"
+   ],
+   "8dfa9df7dbfcb31507b1": [
+    "imperative"
+   ],
+   "8829a23a6665badee371": [
+    "accusation"
+   ],
+   "eacbbe335a5d48c88e89": [
+    "imperative"
+   ],
+   "5867bd2dddbb0bf582ab": [
+    "accusation"
+   ],
+   "81c08e0fce0e36f80f45": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "b66cb0a972935453a7d4": [
+    "accusation"
+   ],
+   "d782b8d929f0e6a2ddd4": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "ea63da076391cdbd38bc": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "324aab69fcc061d39247": [
+    "ad_read"
+   ],
+   "d8c45ff6709910ac6895": [
+    "single_source_breaking"
+   ],
+   "f674e35be2656986ea12": [
+    "single_source_breaking"
+   ],
+   "e5085743fab00640c4e8": [
+    "single_source_breaking",
+    "time_sensitive"
+   ],
+   "1c9a0074dc769abe3757": [
+    "imperative"
+   ],
+   "a469e9b42cfbe8e6c078": [
+    "politics_non_btc"
+   ],
+   "c1f47e2329192118b0bd": [
+    "doom"
+   ],
+   "501029928c288df90e03": [
+    "imperative"
+   ],
+   "9ba193781fdaef29398b": [
+    "imperative"
+   ],
+   "34bc9bc1cd8b4b8c6f19": [
+    "imperative"
+   ],
+   "bc7bf5e71d9f4554232f": [
+    "accusation"
+   ],
+   "f682f0cb1f2b916d2e74": [
+    "imperative"
+   ],
+   "7a92f696a28501e3e457": [
+    "imperative"
+   ],
+   "0e9b5b932e50dcb6c945": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "24d5721f0bc93ed758ee": [
+    "accusation"
+   ],
+   "349feda47bd829c0c086": [
+    "accusation"
+   ],
+   "3959d7c70701a3bc6896": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "3ff144944cd6b5d51829": [
+    "accusation"
+   ],
+   "44ba00fe32c8b0a99171": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "4cbed9594d3579802c7f": [
+    "accusation",
+    "price_prediction"
+   ],
+   "549af1d388cdf16320bf": [
+    "imperative"
+   ],
+   "5844ac81fb3dbc6a6fa3": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "606bf6cc32433c53c5ed": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "64a9ef5abbed1a005fec": [
+    "accusation"
+   ],
+   "64ab8aa47797d93e6a93": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "8761e1dc6d45773f2c6d": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "9cdf8b72eb50664c43fa": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "9de59bc10c885e568761": [
+    "accusation"
+   ],
+   "a185e29f61267d834b5c": [
+    "imperative"
+   ],
+   "a3c34ae1435f0a6b83ca": [
+    "accusation"
+   ],
+   "aa0de859851aebbcd0ea": [],
+   "b07b21a27d4441f0231d": [
+    "accusation",
+    "partner_attack"
+   ],
+   "b949c657d8b1dd0bb5ca": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "bd8af84fa3645fbde6b5": [
+    "accusation"
+   ],
+   "d8ee4cc86346d90da002": [
+    "accusation"
+   ],
+   "e150ea09972e30609ecb": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "e306b4dd3d027d35a536": [
+    "accusation"
+   ],
+   "e5d9125fbe2b0d30a0cb": [
+    "accusation"
+   ],
+   "ecd41662d10838df633a": [
+    "accusation"
+   ],
+   "f2f8eff693d0d95a3447": [
+    "accusation",
+    "single_source_breaking"
+   ],
+   "fb5462ac859350a4890d": [
+    "imperative"
+   ],
+   "29e8eb33f15675bfd21f": [
+    "accusation"
+   ],
+   "c9adac7e64b60e33cc7e": [
+    "accusation",
+    "time_sensitive"
+   ],
+   "27c55a5d7939618306b1": [
+    "accusation"
+   ],
+   "82f4871df46d1a07837e": [
+    "accusation",
+    "doom"
+   ],
+   "e704e4b545366868f2b8": [
+    "accusation",
+    "politics_non_btc"
+   ],
+   "91fb7895c8c2065a8155": [
+    "imperative"
+   ],
+   "97adb10b55e71711c720": [
+    "imperative"
+   ],
+   "9b400953e2d74b1ac0ab": [],
+   "b4e687357b88622fd97f": [
+    "single_source_breaking"
+   ],
+   "ee62d106350a67cc428a": [
+    "imperative"
+   ],
+   "04189add8b472f1e8d92": [
+    "imperative"
+   ]
+  }
+ }
+}

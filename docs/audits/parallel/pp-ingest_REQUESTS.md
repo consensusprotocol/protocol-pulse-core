@@ -82,3 +82,14 @@ nvidia nemotron-3.5-super-vl, openai gpt-oss-20b, ...). Proposed: after a measur
 three of them as reviewers: results in docs/audits/parallel/pp-ingest_audit/freeze/), add the most coherent one to
 `providers.json` as a judge back-end (vendor heimdall), first in the judge chain while the freeze lasts. Not done here:
 a judge back-end is the integrator's call (it decides what the A/B measures).
+
+## R10 The reply cache's key omits the request's reasoning setting (integrator's call; found during ruling 40)
+`providers.Router._key` hashes the back-end id, its model, the prompt, the schema and max_tokens, but not the
+back-end's `extra_body` (where Heimdall's reasoning effort and provider routing live). So after a back-end's reasoning
+setting changes in providers.json, the replies stored under the old setting are reused as if they came from the new
+one. Ruling 40's checker changed glm-5.3-flash from effort none (calibration 21/24) to its default (24/24); its six
+stored effort-none replies were deleted by hand before the measured run. Adding `extra_body` (and the anthropic
+back-ends' `effort`) to the key fixes it, but every stored reply then stops matching, including the frozen vendors'
+replies an A/B re-reads (R6.4, R9), which can no longer be asked again under the freeze. Proposed: add it to the key
+when the freeze is lifted, or now with a one-time key migration of the stored replies (a back-end whose config did
+not change keeps its replies). Not changed here.

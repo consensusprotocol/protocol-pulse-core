@@ -1,21 +1,74 @@
 # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
-## TOTAL SPEND BY VENDOR (this session, every use, to 07:25 ET Nov 12) - paid frontier vendors FROZEN since 05:30 ET
+## TOTAL SPEND BY VENDOR (this session, every use, to 05:30 ET Nov 13) - paid frontier vendors FROZEN since 05:30 ET Nov 12
 | vendor | total | measured part | where it went | since the freeze |
 |---|---|---|---|---|
-| Anthropic | **$10.44** | all (each call's usage x the $4 / $20 per MTok list price) | the watcher's outage drill 08:36-08:43 UTC $7.17 (the whole of the watcher's Anthropic spend: $6.21 while Heimdall was dead + $0.97 windows in flight), the A/B generator $3.11, the smoke $0.13, a one-window proof $0.03 | $0.00 (0 calls) |
+| Anthropic | **$10.44** | all (each call's usage x the $4 / $20 per MTok list price) | the watcher's outage drill 08:36-08:43 UTC Nov 12 $7.17 (the whole of the watcher's Anthropic spend), the A/B generator $3.11, the smoke $0.13, a one-window proof $0.03 | $0.00 (0 calls) |
 | Google | **~$0.79** | none: the vendor reports no cost (estimate: usage x the $2 / $12 list price) | audit reviews c1 + c2 ~$0.74, a one-window proof ~$0.05 | $0.00 |
 | xAI | **$0.65** | $0.54 (the vendor's own `cost_in_usd_ticks`) | the A/B blind judge $0.45 (recorded at the time as $3.22 from the price-table estimate: INGEST-FAIL-11), audit c2 $0.09, audit c1 ~$0.09 and a one-window proof ~$0.02 (estimates: usage not saved) | $0.00 |
 | OpenAI | **~$0.35** | none: estimate (usage x gpt-4o's $2.50 / $10 list price) | audit reviews c1 + c2 | $0.00 |
-| Heimdall | **$0.47** | $0.34 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.11, the A/B $0.08, the smoke $0.05, the audits $0.11 (the freeze audit's 2 cycles x 3-4 reviewers $0.08 of it), the freeze drill $0.0006 | $0.005 of mining (8 calls) + this change's audit; mining continues (order) |
-| **TOTAL** | **~$12.70** | | Anthropic is 82 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
-- Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261112.json (tests/ingest/spend_by_vendor.py: every
+| Heimdall | **$0.86** | $0.73 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.27 (mining since 03:26 ET Nov 12: $0.10 before the freeze, $0.17 after), ruling 40 $0.23 (the flag check $0.05, option A's dry run $0.18), the audits $0.11, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $0.53: mining $0.17 (267 calls), ruling 40 $0.23, the freeze audit $0.08 + at most $0.05 unrecorded |
+| **TOTAL** | **~$13.09** | | Anthropic is 80 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
+- Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261113.json (tests/ingest/spend_by_vendor.py: every
   row with its basis). Live, the watcher's own share: data/editorial/ingest/live.json `usd_all_time_by_vendor`.
-- Heimdall account (shared by the fleet's keys): /credits total_usage 33.68 at 02:50 ET -> 34.58 at 07:22 ET (+$0.90,
-  other sessions included: +$0.13 between 05:33 and 06:05 while this watcher made no call); the cap's sweep spend
-  $34.37 of $460 (7.5 %), meter ok, no tripwire.
+- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 36.30 at 05:22 ET
+  Nov 13 (+$1.72, the fleet's other sessions included); the cap's sweep spend $36.09 of $460 (7.8 %), meter ok, no
+  tripwire.
 
 ## LIVE STATE (newest first; ET)
+
+- 05:35 Nov 13 RULING 40 (03:13): HARD-FLAG PRECISION MEASURED; FIX PROPOSED; WAITING FOR YOUR RULING. No flag
+  cleared, no ledger line written, the adapter's exclusions untouched, the watcher still mines with mine/2.
+  (commit: see git log, pushed) Report: docs/audits/parallel/pp-ingest_FLAG_PRECISION.md (confusion tables, 5
+  examples per cell, option A dry run, option B simulation, proposal, spend); evidence pp-ingest_audit/flagcheck_20261113/.
+  - SAMPLE: the 200 newest of the 225 rows flagged imperative / accusation / single_source_breaking and published in
+    the last 72 h (A13); every row of the builder's 24 h funnel is inside (the adapter's own read reproduces it: 685
+    rows, 123 removed by hard flags, imperative 28, alone 21).
+  - SECOND MODEL: z-ai/glm-5.3-flash on Heimdall, default reasoning (role `flagcheck` in providers.json: glm then
+    muse-spark-open; never a model that mined the row's video). Calibrated first on 24 quotes with a clear answer:
+    24/24 (at reasoning effort none it scored 21/24, all misses false "yes": INGEST-FAIL-15). One narrow question per
+    flag, your definition in the prompt verbatim, all three asked of every row (A14); strict JSON, a "yes" quotes the
+    words (law L-l). 581 answers from glm, 19 from muse, 0 unmeasured.
+  - CONFUSION (the miner's flag -> the checker): imperative 41 yes / 15 no = precision 73 % (95 % CI 60-83 %);
+    accusation 68 / 62 = 52 % (44-61 %); single_source_breaking 20 / 10 = 67 % (49-81 %). Rows the miner did not
+    give the flag (flagged with another of the three): imperative 1 yes / 143 no, accusation 2 / 68,
+    single_source_breaking 64 / 106 (your definition is broader than the miner's: all 64 carry accusation or
+    imperative, so they are excluded anyway). Agreement with a calibrated model, not ground truth: the checker is a
+    little lenient on imperative ("I'm very excited to buy these dips": yes) and literal on accusation (below).
+  - WHERE THE WRONG LABELS COME FROM: imperative: predictions, the speaker's own trades, "ignore / listen / look", your
+    stablecoin line (checker: no). Accusation: any negative mention of a named party (a hack's victim, earnings,
+    market talk, criticism with no wrongdoing). single_source_breaking: attributed claims, history, speculation. Not
+    the union of overlapping windows (4 of 200 rows seen twice); both miners (qwen 79 / 53 / 62 %, Opus during the
+    outage drill 38 / 46 / 83 %, small samples).
+  - OPTION A (your definitions in the miner's prompt), DRY RUN on the same 123 windows, same model, against a control
+    re-run of mine/2 (prompts rebuilt to the recorded hashes, 101 of 101): on the 119 rows both arms returned,
+    imperative precision 87 -> 89 %, accusation 60 -> 59 %, single_source_breaking flags 18 -> 26 (61 -> 73 %); the
+    control moved 1-4 labels per flag. A does not fix precision; it changes which ranges become moments.
+  - OPTION B (a flag stands only when both models agree; unsure / unmeasured keep it), SIMULATED with the adapter's
+    own read on a copy of the ledger: the 24 h funnel's hard-flag removals 123 -> 84, +25 rows to the packager
+    (72 h: 311 -> 237, +52). BUT about 10 of the 52 are insinuations against identifiable parties (7 from one channel:
+    CZ / Binance "manipulating" the market; nepotism; a registered partner's chairman called a gambler): the checker
+    reads "alleges" literally and "identifiable" as named-in-the-quote.
+  - PROPOSAL (your ruling): P1 option B now for imperative and single_source_breaking only (simulated: 24 h removals
+    123 -> 116, +4 rows; 72 h +9; all 9 clean on my reading); P2 accusation NOT yet: sharpen its definition
+    (insinuation; identifiable from the clip, its title or its channel; criticism alleges no wrongdoing), re-measure
+    the same 130 questions (~$0.01, ~30 min), then rule; P3 option A is not the fix. Details and the implementation
+    plan in the report. Also seen: a partner_attack recall gap (the gambler clip was flagged accusation only).
+  - SPEND (ruling 40): $0.226, Heimdall only: the check $0.044 (757 calls over three runs; the first two were stopped
+    for slowness and their answers reused from the cache), choosing the checker $0.004, smokes $0.002, option A's dry
+    run $0.177 (253 qwen calls). Frontier vendors: not called (freeze).
+  - NEW: pipeline/ingest/flagcheck.py + `tools/ingest_watch.py flagcheck`; providers.json back-ends
+    heimdall_glm53flash / heimdall_muse and role `flagcheck` (the `mine` and `judge` chains unchanged; the running
+    watcher does not use them); mine.prompt takes an optional template (the service never passes one);
+    tests/ingest/dryrun_definitions.py; the spend tool counts the check. Tests: tests/ingest 191 passed (py_compile clean).
+  - FINDING (not changed; K2): the reply-cache key (providers.Router._key) holds the back-end, model, prompt, schema
+    and max_tokens but not `extra_body` (the reasoning setting): after a back-end's reasoning setting changes, its
+    old replies would be reused as if new. I cleared this check's cache by hand when glm's setting changed. Adding
+    `extra_body` to the key would invalidate the stored replies the A/B re-reads for frozen vendors, so it is the
+    integrator's call (REQUESTS R10).
+  - LIVE (05:30 ET; 24 h): 132 videos mined, 0 partial, 0 waiting on an outage; 782 moments (5.9 / video); publish ->
+    mined p50 18.3 min, p90 31.7 (n = 129); Heimdall error rate 3.9 % (10 replies with a reason over 160 characters,
+    each asked again and answered); $0.17 in 24 h.
 
 - 07:25 Nov 12 FREEZE CHANGE AUDITED (2 cycles) AND LIVE. Nothing blocked. (commit: see git log, pushed)
   - WATCHER restarted 07:22 on this code: mine chain heimdall_qwen27b -> local_gemma (callable: Heimdall only),
@@ -170,6 +223,20 @@ See docs/audits/INGEST_DESIGN.md section 11 (A1-A6). Added:
   four families (qwen, glm, muse, minimax), and the integrator's merge audit is the cross-vendor check.
 - A12 Spend not measured by its vendor is reported as an estimate with its basis (Google, OpenAI; unsaved usages),
   never as zero (law L-m).
+- A13 Ruling 40's "the last 72 h" is by PUBLISH time, the adapter's window (`best_unused_moments` horizon): the
+  builder's funnel counts that way (the adapter's own read of this ledger reproduces it: 685 rows in 24 h, 123
+  removed by hard flags, imperative on 28, alone on 21). Over the cap of 200, the newest 200 by publish time are
+  checked (every row of the builder's 24 h funnel is inside).
+- A14 "One narrow question per flag": one call per (row, flag), and every sampled row is asked all three questions,
+  so each flag gets a full table (the miner's yes / no by the checker's yes / no / unsure / unmeasured). Its "miner
+  no" rows are rows flagged with one of the other two flags: they are not an estimate of what the miner misses.
+- A15 The checker sees what the clip would show: the moment's exact text, with its channel, title and date as
+  context; never the miner's flags or reason. It may answer "unsure"; "unsure" and "unmeasured" never count as
+  agreement or disagreement, and both keep the flag in the option-B simulation (fail closed, L-j).
+- A16 The checker's setting is chosen by its score on 24 quotes with a clear answer (glm-5.3-flash at its default
+  reasoning 24/24; at effort none 21/24, every miss a false "yes"). A question it timed out on (300 s) or answered
+  empty goes to the role's second back-end (muse) without a same-back-end retry, since at temperature 0 a retry
+  reasons the same way again; the report says which model answered each question.
 
 ## HOW TO OPERATE (for the orchestrator)
 - status: `cd ~/worktrees/pp-ingest && python3 tools/ingest_watch.py status`

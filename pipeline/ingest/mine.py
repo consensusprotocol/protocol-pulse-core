@@ -158,9 +158,10 @@ def _untrusted(t):
     return str(t).replace("<", "\u2039")
 
 
-def prompt(meta, chan, win):
+def prompt(meta, chan, win, template=None):
+    """template: another wording of PROMPT with the same fields (a dry run of a candidate prompt; never the service)."""
     rows = "\n".join(f"[S{s['k']} {_mmss(s['start'])}] {_untrusted(s['text'])}" for s in win)
-    return PROMPT.format(max_s=MAX_MOMENT_SENTENCES, reason_max=REASON_MAX, max_m=MAX_MOMENTS,
+    return (template or PROMPT).format(max_s=MAX_MOMENT_SENTENCES, reason_max=REASON_MAX, max_m=MAX_MOMENTS,
                          channel=_untrusted(_q(chan.get("display_name") or meta.get("channel_name"), 120)),
                          title=_untrusted(_q(meta.get("exact_title"), 200)), rows=rows, lo=win[0]["k"],
                          hi=win[-1]["k"])

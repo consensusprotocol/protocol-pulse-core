@@ -139,3 +139,27 @@ sentences), so no stored reply is invalidated.
 effort none, minimax ignored the setting (empty again). A reviewer or miner on a reasoning model is configured with
 its reasoning off, and an empty answer is recorded with its cost, never as a review.
 
+### INGEST-FAIL-14: Hard flags the miner set without meeting their definition kept good moments from the packager
+**Evidence (orchestrator ruling 40, 03:13 ET Nov 13; measured 03:25-05:25 ET):** the builder's funnel showed the hard flags
+removing 123 of 682 rows in 24 h; "imperative" was set on "So if you think about it, stablecoins are going to
+continue growing ...", which tells the viewer nothing. A second model asked one narrow question per flag with the
+ruling's definition: the miner's imperative agreed 73 % of the time (41/56), accusation 52 % (68/130), single_source_breaking 67 % (20/30). The wrong ones are predictions, the speaker's own trades and rhetorical "look / listen" (imperative); any negative mention of a named party, a hack's victim included (accusation); attributed claims and history (single_source_breaking). Putting the ruling's definitions into the miner's prompt did not raise imperative or accusation precision on the same windows (87 -> 89 %, 60 -> 59 %). The miner's prompt (mine/2) asks for 11 flags at once inside a 40-sentence
+extraction and says "When unsure whether a risk flag applies, set it"; observations of one range are merged as the
+union of their flags (INGEST-FAIL-12).
+**Rule:** a hard flag (law L-u) is a claim about the words of the moment under a WRITTEN definition; its precision
+against that definition is measured by a second model of another family (never the miner) on a sample, and the
+exclusion it causes is reported with that precision. L-u stays hard; a wrong label is not L-u. Nothing is cleared
+without the orchestrator's ruling.
+**Detection:** `tools/ingest_watch.py flagcheck` (report: docs/audits/parallel/pp-ingest_FLAG_PRECISION.md);
+tests/ingest/test_flagcheck.py. A second model's "no" is not automatically safe: on accusation it missed insinuations against identifiable parties, so its answers are read cell by cell before any rule trusts them.
+
+### INGEST-FAIL-15: A checker with its reasoning off said "yes" to quotes that do not meet the definition
+**Evidence (03:2x ET Nov 13):** on 24 quotes with a clear answer under ruling 40's definitions, glm-5.3-flash at
+reasoning effort none (the setting that made it usable as a long-package reviewer, INGEST-FAIL-04) scored 21/24: three
+false "yes" (a speaker's own purchase as an imperative; a historical fact and a price prediction as single-source
+breaking news); at effort low 22/24; at its default reasoning 24/24 (about 300 reply tokens, median 26 s, on short
+prompts). The muse model answered 20/20 of what it returned but 4 of 24 calls failed (provider 502).
+**Rule:** a model that judges another model's labels is calibrated first on known cases and its score is reported
+with its table; its reasoning setting is chosen by that score, per prompt length (off for 100k-token packages, where
+reasoning empties the reply; default for one-question prompts).
+**Detection:** `flagcheck.calibrate` runs before every check; the calibration table heads the report.

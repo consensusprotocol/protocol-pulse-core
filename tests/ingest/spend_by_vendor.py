@@ -22,6 +22,7 @@ import sqlite3
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 VENDOR = {"anthropic_frontier": "anthropic", "heimdall_qwen27b": "heimdall", "heimdall_deepseek": "heimdall",
+          "heimdall_glm53flash": "heimdall", "heimdall_muse": "heimdall",
           "heimdall_qwen": "heimdall", "xai_frontier": "xai", "grok": "xai", "gemini_frontier": "google",
           "gemini": "google", "gpt4o": "openai"}
 LIST = {"google": (2.0, 12.0), "openai": (2.5, 10.0)}
@@ -73,6 +74,20 @@ def main():
                 usd, basis = g["usd"], "measured (per call)"
             rows.append({"vendor": v, "source": f"A/B {os.path.basename(os.path.dirname(path))} ({role})",
                          "backend": b, "calls": g["calls"], "usd": round(usd, 4), "basis": basis})
+    for path in sorted(glob.glob(os.path.join(REPO, "data/editorial/ingest/flagcheck/**/attempts.jsonl"),
+                              recursive=True)):              # ruling 40: the flag check and option A's dry run
+        agg = {}
+        for line in open(path):
+            r = json.loads(line)
+            if r.get("kind") == "cache":
+                continue
+            g = agg.setdefault(r["backend"], {"calls": 0, "usd": 0.0})
+            g["calls"] += 1
+            g["usd"] += r.get("cost_usd") or 0.0
+        rel = os.path.relpath(os.path.dirname(path), os.path.join(REPO, "data/editorial/ingest/flagcheck"))
+        for b, g in agg.items():
+            rows.append({"vendor": VENDOR.get(b, b), "source": f"ruling 40 flag check {rel}", "backend": b,
+                         "calls": g["calls"], "usd": round(g["usd"], 6), "basis": "measured (per call)"})
     for c in ("c1", "c2", "freeze/c1", "freeze/c2"):
         path = os.path.join(REPO, f"docs/audits/parallel/pp-ingest_audit/{c}/results.json")
         if not os.path.exists(path):
@@ -120,6 +135,15 @@ def main():
          "basis": "ESTIMATE (2,371 prompt / 9,697 total tokens at the per-token rate of the measured judge calls)"},
         {"vendor": "google", "source": "one-window proof 03:0x ET (truncated at 4,000 tokens)",
          "backend": "gemini_frontier", "calls": 1, "usd": 0.05, "basis": "ESTIMATE (~2.4k + 4k tokens at $2/$12)"},
+        {"vendor": "heimdall", "source": "ruling 40: the check's smoke, 2 rows x 3 questions (Nov 13 03:2x ET)",
+         "backend": "heimdall_glm53flash", "calls": 6, "usd": 0.000137,
+         "basis": "measured (usage.cost of each reply; printed, scratch run)"},
+        {"vendor": "heimdall", "source": "ruling 40: choosing the checker, 24 quotes x 4 configurations (Nov 13 "
+         "03:3x ET)", "backend": "heimdall_glm53flash/heimdall_muse", "calls": 96, "usd": 0.003662,
+         "basis": "measured (usage.cost of each reply; printed, scratch run)"},
+        {"vendor": "heimdall", "source": "ruling 40: option A dry run's smoke, 1 window x 2 arms (Nov 13 03:3x ET)",
+         "backend": "heimdall_qwen27b", "calls": 2, "usd": 0.001315,
+         "basis": "measured (usage.cost of each reply; scratch run)"},
     ]
     tot = {}
     for r in rows:

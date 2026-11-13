@@ -1,0 +1,98 @@
+{
+ "note": "Choosing the checker (ruling 40, Nov 13 03:2x-03:3x ET, scratch run): the same 24-quote design as flagcheck.PROBES (4 yes + 4 no per flag), in an earlier wording that used real names; the committed PROBES use fictional names, so the quotes and the models' explanations are not kept here. Spend $0.003662 (usage.cost of each reply).",
+ "configs": {
+  "glm_none": {
+   "setting": "z-ai/glm-5.3-flash, reasoning effort none (max_tokens 1000)",
+   "right": 21,
+   "of": 24,
+   "median_s": 7.949999999999999,
+   "max_s": 15.9,
+   "median_reply_tokens": 60.0,
+   "not_right": [
+    {
+     "probe": "imp-3",
+     "flag": "imperative",
+     "expected": "no",
+     "got": "yes"
+    },
+    {
+     "probe": "ssb-2",
+     "flag": "single_source_breaking",
+     "expected": "no",
+     "got": "yes"
+    },
+    {
+     "probe": "ssb-3",
+     "flag": "single_source_breaking",
+     "expected": "no",
+     "got": "yes"
+    }
+   ]
+  },
+  "glm_low": {
+   "setting": "z-ai/glm-5.3-flash, reasoning effort low (max_tokens 6000)",
+   "right": 22,
+   "of": 24,
+   "median_s": 9.1,
+   "max_s": 20.2,
+   "median_reply_tokens": 63,
+   "not_right": [
+    {
+     "probe": "ssb-1",
+     "flag": "single_source_breaking",
+     "expected": "no",
+     "got": "invalid reply"
+    },
+    {
+     "probe": "ssb-3",
+     "flag": "single_source_breaking",
+     "expected": "no",
+     "got": "yes"
+    }
+   ]
+  },
+  "glm_default": {
+   "setting": "z-ai/glm-5.3-flash, default reasoning (max_tokens 6000)",
+   "right": 24,
+   "of": 24,
+   "median_s": 25.35,
+   "max_s": 55.5,
+   "median_reply_tokens": 286.0,
+   "not_right": []
+  },
+  "muse_none": {
+   "setting": "meta-models/muse-spark-open-816b-a42b, reasoning effort none (max_tokens 1000)",
+   "right": 20,
+   "of": 24,
+   "median_s": 10.8,
+   "max_s": 84.4,
+   "median_reply_tokens": 44.5,
+   "not_right": [
+    {
+     "probe": "imp-2",
+     "flag": "imperative",
+     "expected": "no",
+     "got": "error: server: {\"error\":{\"code\":502,\"message\":\"The provider returne"
+    },
+    {
+     "probe": "ssb+3",
+     "flag": "single_source_breaking",
+     "expected": "yes",
+     "got": "error: server: {\"error\":{\"code\":502,\"message\":\"The provider returne"
+    },
+    {
+     "probe": "ssb-3",
+     "flag": "single_source_breaking",
+     "expected": "no",
+     "got": "error: server: {\"error\":{\"code\":502,\"message\":\"The provider returne"
+    },
+    {
+     "probe": "ssb-4",
+     "flag": "single_source_breaking",
+     "expected": "no",
+     "got": "error: server: {\"error\":{\"code\":502,\"message\":\"The provider returne"
+    }
+   ]
+  }
+ }
+}

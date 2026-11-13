@@ -8,6 +8,8 @@
   moments --since ISO     the packager's read: best unused moments since T (ledger adapter), as JSON lines
   handoff --main DIR      list (default) or --apply the staging transcript files absent from the main store
   ab ...                  the blind A/B of back-ends on saved universes (pipeline/ingest/ab.py)
+  flagcheck ...           a second model's check of the miner's hard flags (ruling 40; measurement only:
+                          pipeline/ingest/flagcheck.py)
 
 Store: PP_INGEST_STORE (default <repo>/data/editorial; refused inside the main tree unless PP_INGEST_ALLOW_MAIN_STORE=1).
 One service per store: `run` and `once` refuse a store another service holds (<store>/ingest/service.lock).
@@ -137,6 +139,11 @@ def cmd_ab(a):
     ab.main(a)
 
 
+def cmd_flagcheck(a):
+    from pipeline.ingest import flagcheck
+    flagcheck.main(a)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -166,6 +173,10 @@ def main():
     from pipeline.ingest import ab as _ab
     _ab.add_args(b)
     b.set_defaults(fn=cmd_ab)
+    fc = sub.add_parser("flagcheck")
+    from pipeline.ingest import flagcheck as _fc
+    _fc.add_args(fc)
+    fc.set_defaults(fn=cmd_flagcheck)
     a = ap.parse_args()
     a.fn(a)
 
