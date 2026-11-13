@@ -93,7 +93,7 @@ def pm(mid, channel, dur, rank=10.0, hook=True, clip=True, risk=(), topics=("pri
             "duration_s": dur, "rank_score": rank, "scores": dict(SCORES), "risk": list(risk), "topics": list(topics),
             "eligibility": {"hook": {"ok": hook}, "clip": {"ok": clip}}, "on_screen_ok": True, "excluded": [],
             "published_at": (NOW - timedelta(hours=6)).isoformat(), "speaker": {"turn_change_inside": None},
-            "text": "Bitcoin x.", "sentences": [0, 0], "words": [0, 1], "start": 0.0, "end": dur,
+            "text": f"Bitcoin {mid} x.", "sentences": [0, 0], "words": [0, 1], "start": 0.0, "end": dur,
             "transcript_sha256": "s"}
 
 

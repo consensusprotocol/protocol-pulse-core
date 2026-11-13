@@ -1,0 +1,183 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 5b7a168..cc901e5 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -711,6 +711,81 @@ def trim_variant(m, sources):
+     return v
+ 
+ 
++REPOST_ALIGN_MIN = 0.80          # ruling 53: the share of the shorter moment's words that align in order
++
++
++def reposted_once(ms):
++    """RULING 53 (08:06 Nov 13): the same speech re-posted by a SECOND channel is ONE moment. Two moments on different
++    channels are the same speech when their canonical tokens (canon.canon_tokens, the one normal form) are equal, or
++    when an in-order alignment (difflib's matching blocks) covers at least REPOST_ALIGN_MIN of the shorter one's words.
++    Of each such group the ORIGINAL publisher's moment is kept: the earliest published_at (a moment with no readable
++    time is never preferred; a tie goes to the lower moment id). Its channel is the one credited, since only it plays.
++    -> (the moments kept, in their order, {copy's moment id: why})."""
++    import collections
++    import difflib
++    from datetime import datetime, timezone
++    import canon
++    toks = {m["moment_id"]: canon.canon_tokens(m.get("text") or "") for m in ms}
++
++    def at(m):                                    # the earliest readable publish time first; none is never first
++        try:
++            t = datetime.fromisoformat(str(m.get("published_at") or "").replace("Z", "+00:00"))
++        except ValueError:
++            t = None
++        if t is None or t.tzinfo is None:
++            return (1, 0.0, m["moment_id"])
++        return (0, t.astimezone(timezone.utc).timestamp(), m["moment_id"])
++
++    def same(a, b):
++        ta, tb = toks[a["moment_id"]], toks[b["moment_id"]]
++        if not ta or not tb:
++            return None
++        if ta == tb:
++            return "equal text after normalisation"
++        short = min(len(ta), len(tb))
++        if sum((collections.Counter(ta) & collections.Counter(tb)).values()) < REPOST_ALIGN_MIN * short:
++            return None                           # the shared words bound the aligned ones: 80 % is out of reach
++        hit = sum(x.size for x in difflib.SequenceMatcher(None, ta, tb, autojunk=False).get_matching_blocks())
++        return f"{hit} of the shorter's {short} words align in order" if hit >= REPOST_ALIGN_MIN * short else None
++    parent = {m["moment_id"]: m["moment_id"] for m in ms}
++
++    def root_of(x):
++        while parent[x] != x:
++            parent[x] = parent[parent[x]]
++            x = parent[x]
++        return x
++    how = {}
++    for i, a in enumerate(ms):
++        for b in ms[i + 1:]:
++            if a["channel_id"] == b["channel_id"]:
++                continue                                  # the rule is about a SECOND channel
++            w = same(a, b)
++            if w:
++                ra, rb = root_of(a["moment_id"]), root_of(b["moment_id"])
++                if ra != rb:
++                    parent[rb] = ra
++                how[(a["moment_id"], b["moment_id"])] = how[(b["moment_id"], a["moment_id"])] = w
++    groups = {}
++    for m in ms:
++        groups.setdefault(root_of(m["moment_id"]), []).append(m)
++    out, dup = [], {}
++    keep = {min(g, key=at)["moment_id"] for g in groups.values()}
++    by = {m["moment_id"]: m for m in ms}
++    for m in ms:
++        mid = m["moment_id"]
++        if mid in keep:
++            out.append(m)
++            continue
++        k = next(x for x in keep if root_of(x) == root_of(mid))
++        o = by[k]
++        dup[mid] = (f"the same speech as {k} ({o.get('channel_name') or o['channel_id']}, published "
++                    f"{o.get('published_at')}), re-posted by a second channel "
++                    f"({m.get('channel_name') or m['channel_id']}, published {m.get('published_at')}): "
++                    f"{how.get((k, mid)) or 'aligned through another copy'} (ruling 53: the original publisher's is kept "
++                    f"and credited)")
++    return out, dup
++
++
+ def no_topic(m):
+     """Why a moment can take NO place under the render's topic rule with the pin's screen (ruling 34), else None: it
+     fails the miner's about-Bitcoin screen, and could not complete a previous claim even right after a segment that
+@@ -1269,6 +1344,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     usd0 = _spent(spend)
+     ms, why = usable(moments, ctx, delivered, optout)
+     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
++    ms, reposted = reposted_once(ms)                   # ruling 53: a speech re-posted by a second channel is ONE
+     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
+                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
+     trims = {m["moment_id"]: v for m in ms if m["moment_id"] in no_role for v in [trim_variant(m, sources)] if v}
+@@ -1281,10 +1357,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     levels = current_levels(sources.values(), ctx)
+     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
+            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
++           "reposted": reposted,
+            "prescreen": {"screened": len(fails), "cleared": len(cleared),
+                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
+            "package": None}
+-    log(f"  {n_usable} usable, {len(no_role)} of them left out by the render's STAND_ALONE (an opener the clip scorer "
++    log(f"  {n_usable} usable, {len(reposted)} of them the same speech re-posted by a second channel (ruling 53: "
++        f"the original publisher's kept), {len(no_role)} left out by the render's STAND_ALONE (an opener the clip scorer "
+         f"would have to affirm, or no place under the topic rule with the pin's screen; {len(trims)} of them back as "
+         f"variants with ONE leading word trimmed, ruling 33 part 2), {len(ad_read)} on an ad-read "
+         f"marker (the exclusion screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+diff --git a/tests/moments/test_moments.py b/tests/moments/test_moments.py
+index 7a41a3a..c8814db 100644
+--- a/tests/moments/test_moments.py
++++ b/tests/moments/test_moments.py
+@@ -93,7 +93,7 @@ def pm(mid, channel, dur, rank=10.0, hook=True, clip=True, risk=(), topics=("pri
+             "duration_s": dur, "rank_score": rank, "scores": dict(SCORES), "risk": list(risk), "topics": list(topics),
+             "eligibility": {"hook": {"ok": hook}, "clip": {"ok": clip}}, "on_screen_ok": True, "excluded": [],
+             "published_at": (NOW - timedelta(hours=6)).isoformat(), "speaker": {"turn_change_inside": None},
+-            "text": "Bitcoin x.", "sentences": [0, 0], "words": [0, 1], "start": 0.0, "end": dur,
++            "text": f"Bitcoin {mid} x.", "sentences": [0, 0], "words": [0, 1], "start": 0.0, "end": dur,
+             "transcript_sha256": "s"}
+ 
+ 
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 062acfe..243c19c 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -14,6 +14,7 @@ import json
+ import os
+ import sys
+ import unittest
++from datetime import timedelta
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(os.path.dirname(HERE))
+@@ -1059,6 +1060,49 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+         self.assertTrue(fail["z"][0].startswith("STEP_A_SAME_VENDOR"))
+ 
+ 
++class TestRuling53Reposted(unittest.TestCase):
++    """RULING 53 (08:06): the same speech re-posted by a second channel is ONE moment, the original publisher's kept and
++    credited; equal text after normalisation, or 80 % of the words aligned in order. The 07:14 build's pair: CNBC
++    Television (published 20:55 UTC Nov 12) and Strategy (MicroStrategy) (02:57 UTC Nov 13), the same 13.9 s."""
++    SPEECH = "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin is about markets."
++
++    def m(self, mid, ch, text, hours_ago):
++        return dict(pm(mid, ch, 13.0), text=text, published_at=(NOW - timedelta(hours=hours_ago)).isoformat())
++
++    def test_the_original_publishers_moment_is_kept_and_the_copy_recorded(self):
++        orig, copy = self.m("o", "CNBC", self.SPEECH, 10), self.m("c", "STRATEGY", self.SPEECH.upper(), 4)
++        kept, dup = PK.reposted_once([copy, orig, pm("z", "Z", 9.0)])
++        self.assertEqual([m["moment_id"] for m in kept], ["o", "z"])        # the earliest published, order kept
++        self.assertIn("the same speech as o (CNBC", dup["c"])
++        self.assertIn("equal text after normalisation", dup["c"])
++
++    def test_eighty_percent_of_the_words_aligned_in_order(self):
++        words = self.SPEECH.split()
++        near = " ".join(words[:12] + ["really", "truly"] + words[12:])           # 2 extra words: all 15 align
++        far = " ".join(words[:7] + ["something", "else", "entirely", "said", "here"])   # 7 of 12 words: 58 %
++        kept, dup = PK.reposted_once([self.m("o", "A", self.SPEECH, 9), self.m("n", "B", near, 3)])
++        self.assertEqual((list(dup), [m["moment_id"] for m in kept]), (["n"], ["o"]))
++        self.assertIn("align in order", dup["n"])
++        kept, dup = PK.reposted_once([self.m("o", "A", self.SPEECH, 9), self.m("f", "B", far, 3)])
++        self.assertEqual(dup, {})
++
++    def test_only_a_second_channel_and_a_readable_time_first(self):
++        kept, dup = PK.reposted_once([self.m("a", "A", self.SPEECH, 9), self.m("b", "A", self.SPEECH, 3)])
++        self.assertEqual(dup, {})                                          # one channel twice: not this rule
++        nodate = dict(self.m("u", "B", self.SPEECH, 0), published_at=None)
++        kept, dup = PK.reposted_once([nodate, self.m("d", "A", self.SPEECH, 2)])
++        self.assertEqual(list(dup), ["u"])                                 # no readable time is never preferred
++
++    def test_the_build_never_offers_the_copy_and_records_it(self):
++        ms = [pm("h", "A", 12.0), self.m("x", "B", self.SPEECH, 10), pm("y", "C", 13.0), pm("z", "D", 13.0),
++              self.m("w", "E", self.SPEECH, 2)]
++        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
++        out = rig.run()
++        self.assertEqual(list(out["reposted"]), ["w"])
++        self.assertNotIn("id=w ", next(p for r, p in rig.prompts if r == "angle_write"))
++        self.assertEqual(out["usable"], 5)                                 # usable keeps its meaning
++
++
+ class TestRuling41Search(unittest.TestCase):
+     """Ruling 41 (04:58): when the clips-alone verdict fails, the segments rated below the bar are swapped at their
+     place for the next by score from the whole cleared pool (a hook for the next hook, a clip for the next clip), the

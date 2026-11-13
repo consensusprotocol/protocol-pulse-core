@@ -711,6 +711,119 @@ def trim_variant(m, sources):
     return v
 
 
+REPOST_ALIGN_MIN = 0.80          # ruling 53: the share of the shorter moment's words that are TIME-aligned
+REPOST_TIME_TOL_S = 0.30         # a re-post is the same audio: its matched words keep their spacing within this
+
+
+def _timed_words(m, sources):
+    """[(the word's canonical form, its start s)] for a moment's own words, from its word record; None without one."""
+    import canon
+    try:
+        toks = src_of(m, sources).tokens
+        w0, w1 = m["words"]
+    except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+        return None
+    out = []
+    for t in toks[w0:w1 + 1]:
+        key, st = " ".join(canon.canon_tokens(t.get("word") or "")), t.get("start")
+        if key and isinstance(st, (int, float)) and not isinstance(st, bool):
+            out.append((key, float(st)))
+    return out or None
+
+
+def _time_aligned(ta, tb):
+    """How many words of two timed word lists match IN ORDER (difflib's matching blocks) AND keep one clock offset:
+    each matched pair's start-time difference lies within REPOST_TIME_TOL_S of the median difference. Two uploads of
+    one audio share the spacing of every word; two speakers saying similar words do not."""
+    import difflib
+    import statistics
+    sm = difflib.SequenceMatcher(None, [w for w, _ in ta], [w for w, _ in tb], autojunk=False)
+    pairs = [(ta[x.a + k][1], tb[x.b + k][1]) for x in sm.get_matching_blocks() for k in range(x.size)]
+    if not pairs:
+        return 0
+    off = statistics.median(y - x for x, y in pairs)
+    return sum(abs((y - x) - off) <= REPOST_TIME_TOL_S for x, y in pairs)
+
+
+def reposted_once(ms, sources):
+    """RULING 53 (08:06 Nov 13): the same speech re-posted by a SECOND channel is ONE moment. Two moments on different
+    channels are the same speech when their texts are equal after normalisation (canon.canon_tokens, the one normal
+    form), or when at least REPOST_ALIGN_MIN of the shorter one's words are TIME-ALIGNED: the same words in order, at
+    one clock offset (each within REPOST_TIME_TOL_S; _time_aligned); the 80 % counts the words that HAVE timings
+    (a word with no start or no canonical form cannot be aligned). ONE offset per pair: a copy spliced with words
+    inserted mid-speech sits at two offsets and is not merged by timing (audit 0816 C2, glm P1-1). One offset per
+    matched block instead would merge two speakers saying near-identical words (qwen's C1 example passes per block
+    at 0.3 s), and a spliced copy still falls to the package's duplicate check. Without a word record with timings
+    only equal text merges, so two moments are never merged on a guess. Of each such group the ORIGINAL publisher's moment is kept:
+    the earliest published_at (a time with no zone is read as UTC, the pipeline's own; an unreadable one is never
+    preferred; a tie goes to the lower moment id). Only it plays, so its channel is the one credited.
+    -> (the moments kept, in their order, {copy's moment id: why})."""
+    import collections
+    from datetime import datetime, timezone
+    import canon
+    text = {m["moment_id"]: canon.canon_tokens(m.get("text") or "") for m in ms}
+    timed = {m["moment_id"]: _timed_words(m, sources) for m in ms}
+
+    def at(m):                                    # the earliest readable publish time first; none is never first
+        try:
+            t = datetime.fromisoformat(str(m.get("published_at") or "").replace("Z", "+00:00"))
+        except ValueError:
+            return (1, 0.0, m["moment_id"])
+        t = t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+        return (0, t.astimezone(timezone.utc).timestamp(), m["moment_id"])
+
+    def same(a, b):
+        if text[a["moment_id"]] and text[a["moment_id"]] == text[b["moment_id"]]:
+            return "equal text after normalisation"
+        ta, tb = timed[a["moment_id"]], timed[b["moment_id"]]
+        if not ta or not tb:
+            return None                           # no timings: only equal text merges
+        short = min(len(ta), len(tb))
+        shared = collections.Counter(w for w, _ in ta) & collections.Counter(w for w, _ in tb)
+        if sum(shared.values()) < REPOST_ALIGN_MIN * short:     # shared words >= words in matched blocks >= the
+            return None                           # time-aligned ones: below 80 % here, below 80 % there (C2, glm P2-1)
+        hit = _time_aligned(ta, tb)
+        return (f"{hit} of the shorter's {short} words time-aligned (the same words in order, one clock offset within "
+                f"{REPOST_TIME_TOL_S:.1f} s)") if hit >= REPOST_ALIGN_MIN * short else None
+    parent = {m["moment_id"]: m["moment_id"] for m in ms}
+
+    def root_of(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    how = {}
+    for i, a in enumerate(ms):
+        for b in ms[i + 1:]:
+            if a["channel_id"] == b["channel_id"]:
+                continue                                  # the rule is about a SECOND channel
+            w = same(a, b)
+            if w:
+                ra, rb = root_of(a["moment_id"]), root_of(b["moment_id"])
+                if ra != rb:
+                    parent[rb] = ra
+                how[(a["moment_id"], b["moment_id"])] = how[(b["moment_id"], a["moment_id"])] = w
+    groups = {}
+    for m in ms:
+        groups.setdefault(root_of(m["moment_id"]), []).append(m)
+    kept_of = {r: min(g, key=at)["moment_id"] for r, g in groups.items()}     # each group's original, once
+    by = {m["moment_id"]: m for m in ms}
+    out, dup = [], {}
+    for m in ms:
+        mid = m["moment_id"]
+        k = kept_of[root_of(mid)]
+        if k == mid:
+            out.append(m)
+            continue
+        o = by[k]
+        dup[mid] = (f"the same speech as {k} ({o.get('channel_name') or o['channel_id']}, published "
+                    f"{o.get('published_at')}), re-posted by a second channel "
+                    f"({m.get('channel_name') or m['channel_id']}, published {m.get('published_at')}): "
+                    f"{how.get((k, mid)) or 'matched through another copy'} (ruling 53: the original publisher's is "
+                    f"kept and credited)")
+    return out, dup
+
+
 def no_topic(m):
     """Why a moment can take NO place under the render's topic rule with the pin's screen (ruling 34), else None: it
     fails the miner's about-Bitcoin screen, and could not complete a previous claim even right after a segment that
@@ -1269,6 +1382,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     usd0 = _spent(spend)
     ms, why = usable(moments, ctx, delivered, optout)
     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
+    ms, reposted = reposted_once(ms, sources)          # ruling 53: a speech re-posted by a second channel is ONE
     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
     trims = {m["moment_id"]: v for m in ms if m["moment_id"] in no_role for v in [trim_variant(m, sources)] if v}
@@ -1281,10 +1395,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     levels = current_levels(sources.values(), ctx)
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
+           "reposted": reposted,
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
            "package": None}
-    log(f"  {n_usable} usable, {len(no_role)} of them left out by the render's STAND_ALONE (an opener the clip scorer "
+    log(f"  {n_usable} usable, {len(reposted)} of them the same speech re-posted by a second channel (ruling 53: "
+        f"the original publisher's kept), {len(no_role)} left out by the render's STAND_ALONE (an opener the clip scorer "
         f"would have to affirm, or no place under the topic rule with the pin's screen; {len(trims)} of them back as "
         f"variants with ONE leading word trimmed, ruling 33 part 2), {len(ad_read)} on an ad-read "
         f"marker (the exclusion screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")

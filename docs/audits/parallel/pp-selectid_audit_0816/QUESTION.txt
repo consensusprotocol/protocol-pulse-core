@@ -1,0 +1,59 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips
+from several YouTube channels). Your role: a strict reviewer of a de-duplication rule.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background:
+- build() takes the usable moments (each with moment_id, channel_id, channel_name, video_id, text, published_at),
+  screens them (step A, L-v 2, CUTTABLE, ...), and offers the survivors to an angle writer, which proposes line-ups.
+  The sign-off credits the channel of every clip that plays.
+- The 07:14 build: Strategy (MicroStrategy) re-posted CNBC Television's interview six hours later. The same 13.9 s
+  speech appeared as two moments, and the angle writer built every angle on both copies.
+
+The order this diff implements (ORCHESTRATOR RULING 53, 08:06 ET Nov 13, verbatim): "PROPOSAL 2: YES. The same speech
+re-posted by a second channel is ONE moment before the angle step; keep the ORIGINAL publisher's (earliest
+published_at), credit the original, and record the copy as a duplicate with its reason. Equal text after
+normalisation, or time-aligned overlap of 80 % of the words."
+
+The change:
+1. pipeline/package.py:
+   - reposted_once(ms) -> (kept, {copy id: why}). Two moments on DIFFERENT channels are the same speech when:
+     - their canonical tokens (canon.canon_tokens, the pipeline's one normal form) are equal; or
+     - an in-order alignment (difflib.SequenceMatcher matching blocks, autojunk off) covers at least 80 %
+       (REPOST_ALIGN_MIN) of the SHORTER moment's words.
+     A multiset-overlap pre-check skips a pair whose shared words cannot reach 80 %. It is an upper bound, so no
+     match is lost.
+   - Groups are merged transitively (union-find). Per group the kept moment is the earliest READABLE published_at;
+     a moment with no readable time is never preferred; a tie goes to the lower moment id.
+   - Each copy's reason names the original (id, channel, time), the copy's channel and time, and the match.
+   - build() applies it right after usable(), before the STAND_ALONE screens, the trimmed variants and step A.
+     out["reposted"] records the copies; out["usable"] keeps its count from before (its meaning since audit 0310);
+     the log line counts the copies.
+   - "Credit the original": only the kept moment plays, so the sign-off credits the original's channel.
+2. tests/moments/test_moments.py: the shared test helper pm() gave EVERY test moment the same text "Bitcoin x.". Under
+   this rule those would all be one speech on many channels, so the default text is now distinct per moment
+   ("Bitcoin <id> x.").
+3. tests/package/test_medley.py (+ `from datetime import timedelta`):
+   - the original is kept and the copy is recorded, with the order kept;
+   - 2 extra words still align (a duplicate); 7 of 12 words do not;
+   - one channel twice is not this rule;
+   - a moment with no readable time is never preferred;
+   - the build never offers the copy, records it, and keeps usable's count.
+- Measured on the 07:14 build's real 308 moments: 2 copies found, both Strategy re-posts of CNBC Television, one with
+  equal text and one with 38 of 38 words aligned. 2.3 s.
+- test_medley 86 OK; every other suite OK.
+
+Stated readings (say so if you read the ruling differently):
+- K1: "time-aligned overlap of 80 % of the words" is read as an in-order alignment of the two word sequences covering
+  80 % of the shorter moment's words. Two re-posts have different clocks, so the alignment is by the words.
+- K2: the rule runs on the usable moments, before step A, not only on the cleared pool just before the angle. That
+  keeps the original even when a copy would survive a later gate the original fails, as "keep the ORIGINAL
+  publisher's, credit the original" asks, and it saves the copy's step-A and L-v 2 calls.
+- K3: only DIFFERENT channels ("a second channel"). The same speech twice from one channel is out of this rule; the
+  package's duplicate check still covers it.
+
+Check in particular: the match never merges two different speeches that merely share words (the 80 % bound, the
+pre-check); the original is chosen by publish time and not by order; no copy can reach the angle step; the recorded
+reason; and anything that could be slow on 300 moments.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

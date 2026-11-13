@@ -14,6 +14,7 @@ import json
 import os
 import sys
 import unittest
+from datetime import timedelta
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -1057,6 +1058,75 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         self.assertEqual(sorted(two), ["h", "x"])
         self.assertTrue(fail["y"][0].startswith("STEP_A_UNKNOWN_BACKEND: the first verdict's back-end 'nowhere:model'"))
         self.assertTrue(fail["z"][0].startswith("STEP_A_SAME_VENDOR"))
+
+
+class TestRuling53Reposted(unittest.TestCase):
+    """RULING 53 (08:06): the same speech re-posted by a second channel is ONE moment, the original publisher's kept and
+    credited: equal text after normalisation, or 80 % of the words TIME-aligned (the same words in order at one clock
+    offset). The 07:14 build's pair: CNBC Television (20:55 UTC Nov 12) and Strategy (MicroStrategy) (02:57 UTC Nov
+    13), the same 13.9 s. Audit 0816 C1 (qwen P0): two speakers saying near-identical words are never merged."""
+    SPEECH = "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin is about markets."
+
+    def m(self, mid, ch, text, hours_ago, vid=None):
+        return dict(pm(mid, ch, 13.0, vid=vid), text=text, words=[0, len(text.split()) - 1],
+                    published_at=(NOW - timedelta(hours=hours_ago)).isoformat())
+
+    def timed(self, vid, words, t0, gaps):
+        t, toks = t0, []
+        for w, g in zip(words, gaps):
+            toks.append({"word": w, "start": round(t, 3), "end": round(t + g * 0.8, 3)})
+            t += g
+        return E.Source(vid, "UCx", "X", "2026-11-12T00:00:00+00:00", "sha", "whisper_words_punct", tuple(toks),
+                        timing="word", file_head=False, vod=True)
+
+    def test_the_original_publishers_moment_is_kept_and_the_copy_recorded(self):
+        orig, copy = self.m("o", "CNBC", self.SPEECH, 10), self.m("c", "STRATEGY", self.SPEECH.upper(), 4)
+        kept, dup = PK.reposted_once([copy, orig, pm("z", "Z", 9.0)], {})
+        self.assertEqual([m["moment_id"] for m in kept], ["o", "z"])        # the earliest published, order kept
+        self.assertIn("the same speech as o (CNBC", dup["c"])
+        self.assertIn("equal text after normalisation", dup["c"])
+
+    def test_a_re_post_aligns_in_time_and_two_speakers_never_merge(self):
+        words = self.SPEECH.split()                                        # 15 words
+        rhythm = [0.31, 0.22, 0.4, 0.28, 0.35, 0.3, 0.45, 0.26, 0.33, 0.5, 0.29, 0.37, 0.24, 0.41, 0.3, 0.3, 0.3]
+        src = {"vA": self.timed("vA", words, 100.0, rhythm),
+               "vB": self.timed("vB", words + ["and", "more", "after"], 2.5, rhythm)}   # the same audio, +3 words
+        a = self.m("a", "A", self.SPEECH, 9, vid="vA")
+        b = dict(self.m("b", "B", self.SPEECH + " and more after", 3, vid="vB"), words=[0, 16])
+        kept, dup = PK.reposted_once([a, b], src)
+        self.assertEqual((list(dup), [m["moment_id"] for m in kept]), (["b"], ["a"]))
+        self.assertIn("15 of the shorter's 15 words time-aligned", dup["b"])
+        gold, silver = "Bitcoin is the new gold. It is digital.", "Bitcoin is the new silver. It is digital."
+        src2 = {"vG": self.timed("vG", gold.split(), 5.0, [0.4] * 8),            # qwen's P0: 7 of 8 words equal,
+                "vS": self.timed("vS", silver.split(), 5.0, [0.25] * 8)}         # another speaker's rhythm
+        kept, dup = PK.reposted_once([self.m("g", "A", gold, 9, vid="vG"), self.m("s", "B", silver, 3, vid="vS")], src2)
+        self.assertEqual(dup, {})
+        kept, dup = PK.reposted_once([self.m("g", "A", gold, 9), self.m("s", "B", silver, 3)], {})
+        self.assertEqual(dup, {})                                          # no timings: only equal text merges
+        spliced = words[:5] + ["seven", "words", "of", "the", "re-poster's", "own", "talk"] + words[5:]
+        src3 = {"vA": src["vA"], "vC": self.timed("vC", spliced, 2.5, rhythm[:5] + [0.3] * 7 + rhythm[5:])}
+        c = dict(self.m("c", "C", " ".join(spliced), 3, vid="vC"), words=[0, len(spliced) - 1])
+        kept, dup = PK.reposted_once([a, c], src3)                         # audit 0816 C2, glm P1-1: a copy spliced
+        self.assertEqual(dup, {})                                          # mid-speech sits at two clock offsets
+
+    def test_only_a_second_channel_and_a_readable_time_first(self):
+        kept, dup = PK.reposted_once([self.m("a", "A", self.SPEECH, 9), self.m("b", "A", self.SPEECH, 3)], {})
+        self.assertEqual(dup, {})                                          # one channel twice: not this rule
+        nodate = dict(self.m("u", "B", self.SPEECH, 0), published_at=None)
+        kept, dup = PK.reposted_once([nodate, self.m("d", "A", self.SPEECH, 2)], {})
+        self.assertEqual(list(dup), ["u"])                                 # no readable time is never preferred
+        naive = dict(self.m("n", "B", self.SPEECH, 0), published_at="2026-11-01T00:00:00")
+        kept, dup = PK.reposted_once([self.m("d", "A", self.SPEECH, 2), naive], {})
+        self.assertEqual(list(dup), ["d"])                                 # no zone: read as UTC (the earliest)
+
+    def test_the_build_never_offers_the_copy_and_records_it(self):
+        ms = [pm("h", "A", 12.0), self.m("x", "B", self.SPEECH, 10), pm("y", "C", 13.0), pm("z", "D", 13.0),
+              self.m("w", "E", self.SPEECH, 2)]
+        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(list(out["reposted"]), ["w"])
+        self.assertNotIn("id=w ", next(p for r, p in rig.prompts if r == "angle_write"))
+        self.assertEqual(out["usable"], 5)                                 # usable keeps its meaning
 
 
 class TestRuling41Search(unittest.TestCase):
