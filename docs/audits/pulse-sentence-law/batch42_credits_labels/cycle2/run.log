@@ -1,0 +1,20 @@
+# Heimdall audit
+
+**Question:** Batch 42 cycle 2 (verification) = CREDITS LABELS NEVER TOUCH (segment_v1/scene_shoutout.fit_label_sizes: unchanged sizes when every label keeps 20 px inside the frame and 16:9 neighbours keep >= 12 px by _ink's measure; otherwise names and handles shrink together until gaps are >= 40 px; under 60 % it raises). This diff implements the cycle-1 findings: (glm F1 / qwen F1 / deepseek F2, measured vs drawn ink) a test draws each label exactly as render_shoutout does (its textbbox, integer centring cx - tw // 2, no anchor) and proves the lit pixels lie inside _ink's extent, at most 4 px in, so a measured gap is a lower bound on the drawn gap; (glm F3) a 9:16 stack with a long label shrinks every label inside the frame; (deepseek F1) the handle size never rounds under the 60 % floor; comments corrected.
+FIND: whether each fix is correct and complete; a test that does not prove what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0006
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/test_credits_labels.py:0** The 'measured ink is drawn ink' test only checks the right edge against `right - 5 <= cols[-1] <= right - 1`, i.e. it asserts the last lit column is at least 1 px inside `_ink`'s right extent, but the docstring claims lit pixels lie 'at most 4 px in on either side' — the left edge is checked as `left <= cols[0] <= left + 4` (0..4 px in) while the right edge can be 1..5 px in, so the two sides are not symmetric and the right-side bound is 5, not 4, weakening the claimed 'at most 4 px in' guarantee slightly.
+  - evidence: ``self.assertTrue(left <= cols[0] <= left + 4 and right - 5 <= cols[-1] <= right - 1,``
+  - fix: Use `right - 4 <= cols[-1] <= right - 1` (or document the asymmetric 5 px right-side allowance) so both edges match the docstring's 'at most 4 px in' claim.
+  - raised by glm:F1; agree: qwen27b, glm
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- glm: [low] test_no_size_goes_under_the_60_percent_floor's loop assertion is a tautology, not a check of fit_label_sizes' rounding
+
+
+saved: /home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch42_credits_labels/cycle2/heimdall

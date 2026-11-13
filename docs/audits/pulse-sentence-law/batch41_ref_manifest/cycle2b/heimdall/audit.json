@@ -1,0 +1,97 @@
+{
+ "question": "Batch 41 cycle 2 = PROTECTED REFERENCE (orchestrator order 2026-11-12 '20:30' (c)): pipeline/regression.sh step 7 checks references/pulse_moments_2026-11-12 with pipeline/check_reference_manifest.py (exit 0 = every file listed in SHA256SUMS present with its sha256 and nothing unlisted; 1 = changed / missing / added / bad manifest). Cycle 1 finding (deepseek F1): a MISSING checker made python3 exit 2, which the step read as SKIP. Fixed here: the shell decides SKIP only when the reference's SHA256SUMS is absent; when it is present, ANY nonzero exit of the checker fails the regression (exit 1). The script runs under set -euo pipefail.\nFIND: any remaining way the regression passes while the reference is changed, removed, or the checker cannot run; a shell error that is silently ignored. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "glm": "z-ai/glm-5.3-flash",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 8.8,
+   "cost": 4.8267e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 406.1,
+   "cost": 0.004623092,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 2.9,
+   "cost": 3.9525e-05,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 147.4,
+   "cost": 0.001312664,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/regression.sh",
+   "line": 101,
+   "issue": "SKIP decision uses -f on SHA256SUMS only; a directory with SHA256SUMS but missing/renamed checker still yields nonzero exit, which now correctly fails, so no silent pass. However, if the reference directory exists but SHA256SUMS itself is unreadable (permissions), -f is true and the checker's nonzero exit fails \u2014 correct. No remaining silent-pass path found: nonzero checker exit (including 2, missing checker, permission errors) now fails the step because the if ! construct catches any nonzero status under set -e.",
+   "evidence": "if ! python3 pipeline/check_reference_manifest.py references/pulse_moments_2026-11-12; then ... exit 1",
+   "fix": "None required; behavior matches the stated intent.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "deepseek"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "high",
+   "file": "pipeline/regression.sh",
+   "line": 106,
+   "issue": "If the entire reference directory is removed, SHA256SUMS is absent, so the step prints SKIP and the regression passes even though the protected reference is gone.",
+   "evidence": "if [ -f references/pulse_moments_2026-11-12/SHA256SUMS ]; then ... else echo \"  SKIP: protected reference not on this machine...\"",
+   "fix": "Distinguish missing reference from not-on-machine, e.g., check if the directory exists; if it exists but SHA256SUMS is missing, fail; or require an explicit opt-out."
+  },
+  {
+   "by": "deepseek",
+   "severity": "high",
+   "file": "pipeline/regression.sh",
+   "line": 102,
+   "issue": "The checker uses SHA256SUMS as the source of truth; if an attacker modifies a file and updates SHA256SUMS, the checker exits 0 and the regression passes, so the reference is changed but not detected.",
+   "evidence": "python3 pipeline/check_reference_manifest.py references/pulse_moments_2026-11-12",
+   "fix": "Verify SHA256SUMS against a trusted hash (e.g., hardcoded in the script or signed)."
+  },
+  {
+   "by": "deepseek",
+   "severity": "medium",
+   "file": "pipeline/regression.sh",
+   "line": 101,
+   "issue": "`-f` only checks for a regular file; if SHA256SUMS is a directory or broken symlink, the condition is false and the step skips, allowing a changed/removed reference to pass.",
+   "evidence": "[ -f references/pulse_moments_2026-11-12/SHA256SUMS ]",
+   "fix": "Use `[ -e ... ]` and then check if it's a regular file, or fail if not a regular file."
+  }
+ ],
+ "total_cost": 0.006023548,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch41_ref_manifest/cycle2b/heimdall"
+}

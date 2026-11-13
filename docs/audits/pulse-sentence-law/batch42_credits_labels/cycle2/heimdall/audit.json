@@ -1,0 +1,78 @@
+{
+ "question": "Batch 42 cycle 2 (verification) = CREDITS LABELS NEVER TOUCH (segment_v1/scene_shoutout.fit_label_sizes: unchanged sizes when every label keeps 20 px inside the frame and 16:9 neighbours keep >= 12 px by _ink's measure; otherwise names and handles shrink together until gaps are >= 40 px; under 60 % it raises). This diff implements the cycle-1 findings: (glm F1 / qwen F1 / deepseek F2, measured vs drawn ink) a test draws each label exactly as render_shoutout does (its textbbox, integer centring cx - tw // 2, no anchor) and proves the lit pixels lie inside _ink's extent, at most 4 px in, so a measured gap is a lower bound on the drawn gap; (glm F3) a 9:16 stack with a long label shrinks every label inside the frame; (deepseek F1) the handle size never rounds under the 60 % floor; comments corrected.\nFIND: whether each fix is correct and complete; a test that does not prove what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 2.9,
+   "cost": 0.0001636955,
+   "provider": "ImpCC",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 10.0,
+   "cost": 0.000101804,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 3.5,
+   "cost": 0.000218953,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 5.9,
+   "cost": 0.000115475,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/test_credits_labels.py",
+   "line": 0,
+   "issue": "The 'measured ink is drawn ink' test only checks the right edge against `right - 5 <= cols[-1] <= right - 1`, i.e. it asserts the last lit column is at least 1 px inside `_ink`'s right extent, but the docstring claims lit pixels lie 'at most 4 px in on either side' \u2014 the left edge is checked as `left <= cols[0] <= left + 4` (0..4 px in) while the right edge can be 1..5 px in, so the two sides are not symmetric and the right-side bound is 5, not 4, weakening the claimed 'at most 4 px in' guarantee slightly.",
+   "evidence": "`self.assertTrue(left <= cols[0] <= left + 4 and right - 5 <= cols[-1] <= right - 1,`",
+   "fix": "Use `right - 4 <= cols[-1] <= right - 1` (or document the asymmetric 5 px right-side allowance) so both edges match the docstring's 'at most 4 px in' claim.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/test_credits_labels.py",
+   "line": 0,
+   "issue": "test_no_size_goes_under_the_60_percent_floor's loop assertion is a tautology, not a check of fit_label_sizes' rounding",
+   "evidence": "`max(int(S.math.ceil(32 * S.LABEL_MIN_SCALE)), int(round(32 * k / 46)))` >= 19.2 is trivially true since ceil(32*0.6)=20 >= 19.2; it never exercises the hs = max(ceil, round(...)) code path, so the deepseek F1 fix (hs never rounds below the 60% floor) is only indirectly covered by the ns,hs assertions for one input, not for the boundary case where round(32*k/46) < 20 (e.g. k=28 gives round(19.478)=19 < 20).",
+   "fix": "Assert hs == max(ceil(handle_size*MIN_SCALE), round(handle_size*ns/name_size)) for the returned ns, or add a case where round() alone would dip below the floor (k=28) and assert hs >= 20."
+  }
+ ],
+ "total_cost": 0.0005999274999999999,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch42_credits_labels/cycle2/heimdall"
+}

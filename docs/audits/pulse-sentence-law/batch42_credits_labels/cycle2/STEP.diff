@@ -1,0 +1,86 @@
+diff --git a/pipeline/test_credits_labels.py b/pipeline/test_credits_labels.py
+index 476d8ff4..5aff2414 100644
+--- a/pipeline/test_credits_labels.py
++++ b/pipeline/test_credits_labels.py
+@@ -73,12 +73,48 @@ class TestCreditsLabels(unittest.TestCase):
+         self.assertEqual(S.fit_label_sizes(self.MOMENTS[0], self.MOMENTS[1], [540] * 3, 1080, 46, 32, BOLD, REG,
+                                            row=False), (46, 32))      # the 9:16 card was never affected
+ 
++    def test_the_measured_ink_is_the_drawn_ink(self):
++        """Audit batch 42 (glm F1 / qwen F1): _ink is measured the way render_shoutout draws (the same textbbox, the same
++        integer centring name_x = cx - tw // 2, no anchor). Each label is drawn that way on black: its lit columns lie
++        INSIDE _ink's extent (the box includes side bearings), at most 4 px in on either side, so a measured gap of g px
++        is at least g px on screen."""
++        from PIL import Image, ImageDraw
++        for font in (ImageFont.truetype(BOLD, 46), ImageFont.truetype(BOLD, 41), ImageFont.truetype(REG, 29)):
++            for text, cx in (("Saifedean Ammous", 500), ("What Bitcoin Did", 961), ("@nataliebrunell", 1420), ("Il", 77)):
++                im = Image.new("L", (1920, 120), 0)
++                d = ImageDraw.Draw(im)
++                bb = d.textbbox((0, 0), text, font=font)                  # render_shoutout's own measure and centring
++                d.text((cx - (bb[2] - bb[0]) // 2, 20), text, fill=255, font=font)
++                cols = [x for x in range(1920) if any(im.getpixel((x, y)) for y in range(120))]
++                left, right = S._ink(font, text, cx)
++                self.assertTrue(left <= cols[0] <= left + 4 and right - 5 <= cols[-1] <= right - 1,
++                                (text, cols[0], cols[-1], left, right))
++
++    def test_a_9x16_stack_with_a_long_label_shrinks_every_label_inside_the_frame(self):
++        """Audit batch 42 (glm F3): several labels on the 9:16 stack (one per line, so only the frame edge applies)."""
++        names = ["W" * 24, "Natalie Brunell", "What Bitcoin Did"]
++        ns, hs = S.fit_label_sizes(names, ["@a", "@b", "@c"], [540] * 3, 1080, 46, 32, BOLD, REG, row=False)
++        self.assertLess(ns, 46)
++        f = ImageFont.truetype(BOLD, ns)
++        for t in names:
++            l, r = S._ink(f, t, 540)
++            self.assertTrue(l >= S.LABEL_MARGIN and r <= 1080 - S.LABEL_MARGIN, (t, l, r))
++
+     def test_a_card_that_needs_labels_under_60_percent_is_refused(self):
+         names = ["MARA Holdings (Marathon Digital)", "Marty Bent (Rabbit Hole Recap)", "The Investors Podcast Network",
+                  "Strategy (MicroStrategy)"]
+         with self.assertRaisesRegex(RuntimeError, "do not fit without touching"):
+             S.fit_label_sizes(names, [""] * 4, row_xs(4), 1920, 46, 32, BOLD, REG)
+ 
++    def test_no_size_goes_under_the_60_percent_floor(self):
++        """Audit batch 42 (deepseek F1): at the smallest name size the handle's rounding stays >= 60 % too."""
++        names = ["W" * 9, "W" * 9, "W" * 9]                            # needs about 61 % at the 16:9 spacing
++        ns, hs = S.fit_label_sizes(names, ["@" + "h" * 10] * 3, row_xs(3), 1920, 46, 32, BOLD, REG)
++        self.assertGreaterEqual(ns, 46 * S.LABEL_MIN_SCALE)
++        self.assertGreaterEqual(hs, 32 * S.LABEL_MIN_SCALE)
++        for k in range(28, 46):                                       # every name size the loop can try
++            self.assertGreaterEqual(max(int(S.math.ceil(32 * S.LABEL_MIN_SCALE)), int(round(32 * k / 46))), 19.2)
++
+     def test_handles_are_checked_too(self):
+         names = ["A", "B", "C"]
+         handles = ["@" + "h" * 30, "@" + "h" * 30, "@c"]
+diff --git a/segment_v1/scene_shoutout.py b/segment_v1/scene_shoutout.py
+index 0dbb84a3..d74b5fe1 100644
+--- a/segment_v1/scene_shoutout.py
++++ b/segment_v1/scene_shoutout.py
+@@ -34,15 +34,16 @@ FONT_REG_PATHS = [
+ ]
+ 
+ 
+-LABEL_MIN_GAP = 12      # px at 1080p between neighbouring credit labels on the 16:9 row: the tightest gap PBX approved
+-                        # (the v2f card, 'The Bitcoin Layer' / 'Bitcoin Magazine', 12 px as drawn)
++LABEL_MIN_GAP = 12      # px at 1080p between neighbouring credit labels on the 16:9 row, by _ink's measure: the tightest
++                        # gap PBX approved (the v2f card, 'The Bitcoin Layer' / 'Bitcoin Magazine': 12 px, 16 lit px)
+ LABEL_FIT_GAP = 40      # px at 1080p: a card that must change is sized for a clear gap, not the bare minimum
+ LABEL_MARGIN = 20       # px at 1080p kept between any credit label and the frame edge
+ LABEL_MIN_SCALE = 0.6   # labels are shrunk no further than this; a card that would need it is refused, never drawn touching
+ 
+ 
+ def _ink(font, text, cx):
+-    """The drawn ink extent [left, right) of `text` centred on cx exactly as render_shoutout draws it."""
++    """The extent [left, right) of `text` centred on cx the way render_shoutout draws it (its textbbox, its integer
++    centring): the glyph box with side bearings, so the lit pixels lie inside it (a measured gap is a lower bound)."""
+     x0, _, x1, _ = font.getbbox(text)
+     left = cx - (x1 - x0) // 2 + x0
+     return left, left + (x1 - x0)
+@@ -68,7 +69,7 @@ def fit_label_sizes(names, handles, xs, frame_w, name_size, handle_size, font_bo
+             fits(handles, ImageFont.truetype(font_reg, handle_size), LABEL_MIN_GAP * scale):
+         return name_size, handle_size
+     for ns in range(name_size - 1, int(math.ceil(name_size * LABEL_MIN_SCALE)) - 1, -1):
+-        hs = max(1, int(round(handle_size * ns / name_size)))
++        hs = max(int(math.ceil(handle_size * LABEL_MIN_SCALE)), int(round(handle_size * ns / name_size)))  # batch 42 F1
+         if fits(names, ImageFont.truetype(font_bold, ns), LABEL_FIT_GAP * scale) and \
+                 fits(handles, ImageFont.truetype(font_reg, hs), LABEL_FIT_GAP * scale):
+             return ns, hs

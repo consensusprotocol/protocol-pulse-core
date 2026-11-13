@@ -1,0 +1,99 @@
+{
+ "question": "Batch 40 cycle 3 = LAW L-y VOICEOVER IS MINIMAL (orchestrator 2026-11-12 '20:30'; PBX: too much voiceover, keep one line at the end unless needed to stick content together). The whole R11 change, reworked after the packager stated its shape. A package of type 'moments' plays hook clip -> clips back to back -> ONE takeaway line after the LAST clip -> sign-off. L-y 2: a bridge between two clips is the exception, at most ONE per video, used only when the packager judges and a blind coherence check confirms a viewer could not follow the jump; the package records why. The renderer's only line between the hook and clip 1 is the EDL 'intro' slot; lines after clip k are vo.bridges[{text, after_clip}]. New edl_rules.rule_r11 (run by validate_edl before any cut): at most one line after the last clip; at most ONE line before the takeaway (intro slot or after clip k < last), and that line passes only if the EDL's moments_bridge (the package's record, copied by pinned.build_edl) has text exactly equal to it (after strip), a non-empty 'why', a non-empty 'confirmed_by' (string, list or dict), and the line is <= 20 words; two or more lines before the takeaway fail even with a record; a record with no bridge line fails; a non-text line, a line whose after_clip is not a clip index, malformed vo / bridges / clip indexes fail. Story-type and untyped EDLs (protected references) are unchanged. Cycle 1 findings (F1 clip indexes, F2 bridges shape / slots, F3 whitespace intro) are in.\nFIND: any way a second VO line before the takeaway, an unrecorded or unconfirmed bridge, an old-style intro, or a second takeaway passes for a moments package; a mismatch between what R11 counts and what the renderer / vo.py actually voice (e.g. whitespace, a non-string text); story / untyped regressions; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 334.3,
+   "cost": 0.0111088128,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 338.6,
+   "cost": 0.003432878,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 459.9,
+   "cost": 0.002213369,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 170.5,
+   "cost": 0.003119406,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 309.6,
+   "cost": 0.00346456,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 452.6,
+   "cost": 0.002228249,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "medium",
+   "file": "pipeline/edl_rules.py",
+   "line": 689,
+   "issue": "The fail-closed condition 'a non-text line' is enforced only for lines in the `before` list (intro / bridge before the takeaway) but not for closing (takeaway) lines. A bridge whose `after_clip == max(idx)` and whose `text` is not a string (e.g. None, 123, a list) is counted as a valid closing line with no text-type check, so R11 passes it to the renderer which will attempt to voice a non-string.",
+   "evidence": "elif a == max(idx):\n            closing += 1",
+   "fix": "After `closing += 1`, add a text-type guard: `t = b.get(\"text\"); if not isinstance(t, str) or not t.strip(): failures.append(f\"VO line {i}: takeaway text is not text\")`. This mirrors the existing check in the `elif before:` branch and satisfies the spec's fail-closed list ('a non-text line \u2026 fail').",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "low",
+   "file": "pipeline/test_edl_rules.py",
+   "line": 1148,
+   "issue": "No test exercises a non-string or whitespace-only `text` on a closing (takeaway) bridge, so the gap in F1 is untested. The `test_a_line_without_a_clip_slot_fails` and `test_an_intro_or_a_bridge_without_the_record_fails` tests cover non-text for before-lines only.",
+   "evidence": "def test_two_lines_after_the_last_clip_fail(self):\n        self.fails(self.edl(bridges=(self.TAKE, self.TAKE)), \"law L-y 1: 2 VO lines after the last clip\")",
+   "fix": "Add a case: `self.fails(self.edl(bridges=({\"text\": None, \"after_clip\": 3},)), \"takeaway text is not text\")` (and a whitespace variant) to lock in the fix for F1.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.025567274799999998,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch40_ly_r11/cycle3/heimdall"
+}

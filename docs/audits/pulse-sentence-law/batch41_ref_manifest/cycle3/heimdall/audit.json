@@ -1,0 +1,163 @@
+{
+ "question": "Batch 41 cycle 3 (verification) = PROTECTED REFERENCE references/pulse_moments_2026-11-12 (orchestrator order 2026-11-12 '20:30' (c)). Its small files (SHA256SUMS among them) are tracked in git and pinned by annotated tag ref-pulse-moments-2026-11-12; its videos and other large files are untracked, read-only, and listed with their sha256 in SHA256SUMS. pipeline/regression.sh step 7 (runs under set -euo pipefail) after cycle 2 (deepseek: a deleted reference was read as SKIP; an edited SHA256SUMS went undetected): SKIP only when this checkout neither tracks references/pulse_moments_2026-11-12/SHA256SUMS (git ls-files --error-unmatch) nor has the directory; otherwise check_reference_manifest.py must exit 0 (every listed file present with its sha256, nothing unlisted; exit 2 = no manifest, which now FAILS here) AND `git diff --quiet ref-pulse-moments-2026-11-12 -- references/pulse_moments_2026-11-12` must hold (tracked files equal to the tag). Proven on a throwaway repo: intact 0; a file changed with SHA256SUMS re-made to match 1; the directory deleted 1; an untracked checkout SKIP 0.\nFIND: any remaining way the regression passes while the reference is changed, deleted or replaced, or fails on an intact reference; shell errors silently ignored. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 20.8,
+   "cost": 0.0011111175,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 12.5,
+   "cost": 8.8784e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 265.5,
+   "cost": 0.00234608,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 19.4,
+   "cost": 0.0009971088,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 12.1,
+   "cost": 0.000194556,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 221.3,
+   "cost": 0.00204383,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "deepseek:F2",
+   "severity": "high",
+   "file": "pipeline/regression.sh",
+   "line": 110,
+   "issue": "The tag comparison trusts the tag name. If the tag ref-pulse-moments-2026-11-12 is moved to a different commit (e.g. `git tag -f ref-pulse-moments-2026-11-12 <other-commit>`), `git diff --quiet` compares against the new tag and passes, even though the reference has changed. The script does not verify the tag's object ID, so the reference can be replaced while the regression passes.",
+   "evidence": "if ! git diff --quiet ref-pulse-moments-2026-11-12 -- \"$REF_M\"; then",
+   "fix": "Verify the tag's object ID against a hardcoded expected SHA, or use the expected SHA directly in the diff, e.g. `git diff --quiet <expected-sha> -- \"$REF_M\"`.",
+   "agree": [
+    "qwen27b",
+    "deepseek"
+   ],
+   "disagree": [
+    "glm"
+   ]
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/regression.sh",
+   "line": 102,
+   "issue": "The condition `[ -e \"$REF_M\" ]` allows the reference directory to exist without being tracked by git. If the directory exists but `git ls-files` fails (e.g., in a shallow clone or if the file was removed from the index but the directory remains), the script proceeds to check. However, the critical flaw is that if the directory exists but is *not* tracked, `git diff --quiet ref-pulse-moments-2026-11-12 -- \"$REF_M\"` will compare the working tree against the tag. If the working tree has untracked files or if the tag doesn't exist in this checkout, `git diff` might behave unexpectedly or fail. More critically, the requirement states SKIP only when the checkout *neither tracks* the file *nor has the directory*. The current logic is `if tracked OR exists`. This is correct for the SKIP condition (SKIP if NOT (tracked OR exists)). However, the `git diff` command relies on the tag `ref-pulse-moments-2026-11-12` existing. If the tag is missing (e.g., in a fresh clone without tags), `git diff` will fail with an error. Under `set -euo pipefail`, a failing `git diff` inside an `if !` block is caught, but the error message might be misleading or the exit code might not be 1 (it could be 128 for bad ref). The script treats any non-zero exit as FAIL, which is safe, but the specific check for 'tracked files equal to the tag' is invalid if the tag is missing. The prompt implies the tag is pinned. A more subtle issue: if the directory exists but is empty or contains only untracked files, `git diff` will show no differences for tracked files (since there are none), potentially passing the git check, while the python check might fail if SHA256SUMS is missing (exit 2 -> FAIL). This seems consistent. Let's look closer at the 'replaced' scenario. If the reference is replaced with a different set of files, but the SHA256SUMS is updated to match, the python check passes. The git check compares tracked files to the tag. If the new files are untracked, `git diff` ignores them. If the new files replace tracked files, `git diff` catches it. If the new files are *added* and tracked, `git diff` catches it. The main risk is if the tag is not present. But assuming the tag is present, the logic holds. Wait, the prompt says 'fails on an intact reference'. If the tag is missing, `git diff` fails, causing a FAIL on an intact reference (if the files are correct but the tag is missing). This is a defect if the tag is not guaranteed to be present in all checkouts that track the file. However, the prompt says 'pinned by annotated tag'. Usually, tags are fetched. If not, it fails. This is a potential false positive (FAIL on intact).",
+   "evidence": "if ! git diff --quiet ref-pulse-moments-2026-11-12 -- \"$REF_M\"; then",
+   "fix": "Ensure the tag exists before diffing, or handle the case where the tag is missing as a SKIP or specific error, not a generic FAIL if the files are otherwise intact. Alternatively, verify the tag's existence first.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b",
+    "deepseek"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/regression.sh",
+   "line": 102,
+   "issue": "The condition `[ -e \"$REF_M\" ]` checks for the existence of the directory. If the directory exists but is empty, and `SHA256SUMS` is not tracked (e.g., deleted from index but directory remains), `git ls-files` fails. The script enters the check block. `check_reference_manifest.py` will exit 2 (no manifest). The script treats exit 2 as a failure (`if ! python3 ...`). This is correct per the new spec ('exit 2 = no manifest, which now FAILS here'). However, if the directory exists but is *not* the reference (e.g., a user created a directory with that name for other purposes), the script will fail. This is acceptable as 'fail closed'. The real issue is if the directory exists but the *files* are missing. The python check handles that. The git check handles tracked files. The combination seems robust. Let's re-read the 'SKIP' condition. 'SKIP only when this checkout neither tracks ... nor has the directory'. The code does `if tracked || exists`. So `if !(tracked || exists)` is the else branch (SKIP). This matches. The defect might be in the `git diff` scope. `git diff --quiet <tag> -- <path>` compares the working tree to the tag for that path. If the working tree has *untracked* files in that path, they are ignored by `git diff`. The python check catches untracked files (via 'nothing unlisted'). So the combination is safe. Is there a race condition? No. Is there a shell error ignored? `set -euo pipefail` is active. `git ls-files` stderr is redirected. `python3` stderr is not redirected, but its exit code is checked. `git diff` stderr is not redirected, but its exit code is checked. The only potential issue is if `git diff` outputs an error to stderr that is not captured, but the exit code is what matters. The verdict is likely PASS unless the tag missing issue is considered critical. Given 'fails on an intact reference', if the tag is missing, it fails. This is a real defect in environments where tags are not fetched.",
+   "evidence": "if ! git diff --quiet ref-pulse-moments-2026-11-12 -- \"$REF_M\"; then",
+   "fix": "Check if the tag exists (`git rev-parse --verify ref-pulse-moments-2026-11-12`) before running `git diff`. If the tag is missing, decide whether to SKIP or FAIL based on policy. If the reference is tracked but the tag is missing, it's likely a broken checkout, so FAIL is appropriate, but the error message should be clearer. If the reference is NOT tracked, we wouldn't be in this block. So if we are in this block, the reference is tracked or exists. If tracked, the tag *should* exist. If the tag is missing, it's a repo integrity issue. FAIL is correct. So maybe no defect here.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm",
+    "deepseek"
+   ]
+  },
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/regression.sh",
+   "line": 104,
+   "issue": "If the reference directory exists but SHA256SUMS is untracked, the checker exits 2 (no manifest) yet step 7 treats exit 0 as the only pass-through, so an intact-but-untracked-SHA256SUMS checkout fails; conversely the SKIP branch's condition (tracked OR -e) means a checkout where the dir exists but is fully untracked still runs the checker and fails on exit 2 rather than SKIPping \u2014 the proven 'untracked checkout SKIP 0' case only holds when the dir is absent, not merely untracked",
+   "evidence": "if git ls-files --error-unmatch \"$REF_M/SHA256SUMS\" >/dev/null 2>&1 || [ -e \"$REF_M\" ]; then ... if ! python3 pipeline/check_reference_manifest.py \"$REF_M\"; then ... exit 1",
+   "fix": "Branch SKIP on the tracked test alone (or treat checker exit 2 as SKIP when the dir is untracked), e.g. `if ! git ls-files --error-unmatch ...; then echo SKIP; else ... fi`.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b",
+    "deepseek"
+   ]
+  },
+  {
+   "ref": "deepseek:F1",
+   "severity": "critical",
+   "file": "pipeline/regression.sh",
+   "line": 103,
+   "issue": "The SKIP condition only checks the index (git ls-files) and the working tree ([ -e ]); it never checks whether the tag ref-pulse-moments-2026-11-12 exists. An attacker can remove the index entry and delete the directory, causing both checks to fail and the script to print SKIP and exit 0, even though the tag still pins the reference. This allows the reference to be deleted while the regression passes.",
+   "evidence": "if git ls-files --error-unmatch \"$REF_M/SHA256SUMS\" >/dev/null 2>&1 || [ -e \"$REF_M\" ]; then",
+   "fix": "Also check for the tag, e.g. add `git rev-parse -q --verify ref-pulse-moments-2026-11-12 >/dev/null ||` to the condition, and only SKIP when the tag is absent and the index/working tree lack the reference.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/regression.sh",
+   "line": 102,
+   "issue": "git diff --quiet compares working tree to the tag, but if the reference's tracked files were modified AND the index not refreshed... actually the real gap: git diff --quiet without --cached compares worktree vs tag, which is correct; the genuine gap is that a modified SHA256SUMS that is also staged+committed to match, with the tag unchanged, passes \u2014 but that's by design. Remaining real gap: if the whole reference dir is replaced by a tracked copy whose SHA256SUMS matches its own (re-made) files AND committed, git diff vs the old tag still catches it \u2014 so none. Actual missed: none of consequence; the only residual is the missing-tag 128 case (covered by qwen27b:F1).",
+   "evidence": "if ! git diff --quiet ref-pulse-moments-2026-11-12 -- \"$REF_M\"; then",
+   "fix": "Optionally guard with git rev-parse -q --verify ref-pulse-moments-2026-11-12 to give a clearer failure, though FAIL-on-missing-tag is fail-closed and acceptable."
+  }
+ ],
+ "total_cost": 0.0067814763,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch41_ref_manifest/cycle3/heimdall"
+}

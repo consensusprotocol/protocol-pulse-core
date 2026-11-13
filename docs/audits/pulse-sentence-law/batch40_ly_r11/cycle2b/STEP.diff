@@ -1,0 +1,132 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index 36ac0547..f635bc6a 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -657,39 +657,49 @@ def rule_r10(edl, transcripts=None):
+ 
+ def rule_r11(edl):
+     """Law L-y VOICEOVER IS MINIMAL, for a package of type 'moments' (the packager's packages): (1) no VO intro after
+-    the hook; (2) at most ONE bridge BETWEEN clips (a VO line after any clip but the last), carrying the package's
++    the hook, and at most ONE line after the LAST clip; (2) at most ONE bridge BETWEEN clips (a VO line after any clip but the last), carrying the package's
+     recorded reason why it was needed ('why', non-empty text, from moments_package edl_vo via pinned.moments_vo). The
+     one line after the LAST clip is the takeaway (its slot and its 30-word cap are R4's). No minimum: a package with no
+     VO line passes this rule. Story-type and untyped EDLs (the protected references) are not moments packages and are
+-    unchanged. Fail closed: a 'moments' EDL without a vo object and clips, or whose bridges are not a list, fails; a line
+-    whose slot is not the last clip counts as a bridge between clips."""
++    unchanged. Fail closed (audit batch 40): a 'moments' EDL without a vo object and clips, a clip without an integer
++    index, bridges that are not a list, a line whose after_clip is not a clip index, and any intro that is not null or
++    the empty string ('   ' included: the renderer and vo.py would voice it) fail."""
+     if edl.get("package_type") != "moments":
+         return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
+     vo, clips = edl.get("vo"), edl.get("clips")
+     if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
+         return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"
+-    bridges = vo.get("bridges") if vo.get("bridges") is not None else []
+-    if not isinstance(bridges, list):
+-        return False, "R11 FAIL (law L-y): vo bridges is not a list"
++    idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
++    if not all(type(i) is int for i in idx):                      # audit batch 40 F1: fail closed on its own
++        return False, f"R11 FAIL (law L-y): clip indexes {idx!r} are not all integers"
++    bridges = vo.get("bridges")
++    if not isinstance(bridges, list):                             # F2: a moments EDL always states its lines
++        return False, "R11 FAIL (law L-y): vo bridges is not a list ([] when there are none)"
+     failures = []
+     intro = vo.get("intro")
+-    if intro is not None and (not isinstance(intro, str) or intro.strip()):
++    if intro is not None and intro != "":                         # F3: '   ' is an intro to the renderer and vo.py
+         failures.append("law L-y 1: a VO intro after the hook (a moments package opens hook -> clip)")
+-    last = max((c.get("index") for c in clips if isinstance(c, dict) and type(c.get("index")) is int), default=None)
+-    between = [b for b in bridges
+-               if not (isinstance(b, dict) and type(b.get("after_clip")) is int and b["after_clip"] == last)]
++    between, closing = [], 0
++    for i, b in enumerate(bridges, 1):
++        a = b.get("after_clip") if isinstance(b, dict) else None
++        if type(a) is not int or a not in idx:                    # F2: a line with no clip slot fails here too
++            failures.append(f"VO line {i}: after_clip {a!r} is not a clip index")
++        elif a != max(idx):
++            between.append(b)
++        else:
++            closing += 1
++    if closing > 1:                                               # (1): ONE line at the end
++        failures.append(f"law L-y 1: {closing} VO lines after the last clip (one takeaway)")
+     if len(between) > 1:
+         failures.append(f"law L-y 2: {len(between)} bridges between clips (at most one; two or more = the line-up "
+                         f"is wrong)")
+     for b in between:
+-        why = b.get("why") if isinstance(b, dict) else None
++        why = b.get("why")
+         if not isinstance(why, str) or not why.strip():
+-            failures.append(f"law L-y 2: the bridge after clip {(b.get('after_clip') if isinstance(b, dict) else None)!r}"
+-                            f" has no recorded reason ('why')")
++            failures.append(f"law L-y 2: the bridge after clip {b['after_clip']!r} has no recorded reason ('why')")
+     if failures:
+         return False, "R11 FAIL (law L-y): " + "; ".join(failures)
+-    return True, (f"R11 PASS (law L-y): no intro; {len(between)} bridge(s) between clips; "
+-                  f"{len(bridges) - len(between)} takeaway line(s)")
++    return True, f"R11 PASS (law L-y): no intro; {len(between)} bridge(s) between clips; {closing} takeaway line(s)"
+ 
+ 
+ def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index 210bf67a..c8f56285 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -1090,12 +1090,17 @@ class TestR11VoShape(unittest.TestCase):
+         self.assertTrue(ok, why)
+ 
+     def test_an_intro_fails(self):
+-        for intro in ("Bitcoin does not have any authority.", "w", 5, ["w"]):
++        for intro in ("Bitcoin does not have any authority.", "w", "   ", 5, ["w"]):   # audit F3: whitespace
+             ok, why = rule_r11(self.edl(intro=intro, bridges=(self.TAKE,)))
+             self.assertFalse(ok, intro)
+             self.assertIn("law L-y 1", why, intro)
+             self.assertNotIn("law L-y 2", why, intro)
+ 
++    def test_two_lines_after_the_last_clip_fail(self):
++        ok, why = rule_r11(self.edl(bridges=(self.TAKE, self.TAKE)))
++        self.assertFalse(ok, why)
++        self.assertIn("law L-y 1: 2 VO lines after the last clip", why)
++
+     def test_two_bridges_between_clips_fail(self):
+         two = ({"text": "a b", "after_clip": 1, "why": "the referent of 'it' in clip 2 is clip 1's"},
+                {"text": "c d", "after_clip": 2, "why": "clip 3 names no subject"}, self.TAKE)
+@@ -1111,10 +1116,11 @@ class TestR11VoShape(unittest.TestCase):
+             ok, reason = rule_r11(self.edl(bridges=(b, self.TAKE)))
+             self.assertFalse(ok, why)
+             self.assertIn("the bridge after clip 1 has no recorded reason", reason, why)
+-        for bad in ({"text": "a b", "after_clip": "3", "why": ""}, {"text": "a b"}, "a b"):   # no valid slot = between
+-            ok, reason = rule_r11(self.edl(bridges=(bad,)))
++        for bad in ({"text": "a b", "after_clip": "3", "why": "x"}, {"text": "a b", "why": "x"}, "a b",
++                    {"text": "a b", "after_clip": 99, "why": "x"}, {"text": "a b", "after_clip": 0, "why": "x"}):
++            ok, reason = rule_r11(self.edl(bridges=(bad,)))             # audit F2: no clip slot fails, reason or not
+             self.assertFalse(ok, bad)
+-            self.assertIn("has no recorded reason", reason, bad)
++            self.assertIn("is not a clip index", reason, bad)
+ 
+     def test_fail_closed_shapes(self):
+         e = self.edl()
+@@ -1124,6 +1130,24 @@ class TestR11VoShape(unittest.TestCase):
+             e = self.edl()
+             del e[drop]
+             self.assertFalse(rule_r11(e)[0], drop)
++        for bridges in (None, "missing"):                              # audit F2: the lines are always stated
++            e = self.edl()
++            if bridges is None:
++                e["vo"]["bridges"] = None
++            else:
++                del e["vo"]["bridges"]
++            ok, why = rule_r11(e)
++            self.assertFalse(ok, bridges)
++            self.assertIn("vo bridges is not a list", why)
++        for index in ("1", None, 1.0, True):                         # audit F1: R11 fails closed on its own
++            e = self.edl()
++            e["clips"][0]["index"] = index
++            ok, why = rule_r11(e)
++            self.assertFalse(ok, index)
++            self.assertIn("are not all integers", why)
++        e = self.edl()
++        e["clips"][1] = "clip"
++        self.assertFalse(rule_r11(e)[0])
+ 
+     def test_story_type_and_untyped_edls_are_unchanged(self):
+         busy = ({"text": "a b", "after_clip": 1}, {"text": "c d", "after_clip": 2})
