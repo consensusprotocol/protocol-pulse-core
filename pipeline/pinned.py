@@ -545,7 +545,8 @@ def build_edl(pin, acq, registry=None, log=print):
                    moments_checks=mp["checks"],                   # ^ this render's own digest of what it renders
                    moments_sources_30s_before=list(mp["sources_30s_before"]),
                    moments_bridge=mp.get("bridge"),               # law L-y 2: the one bridge's record, read by R11
-                   moments_btc_screen=mp.get("btc_screen"))       # ruling 34: the miner's screen, read by validate
+                   moments_btc_screen=mp.get("btc_screen"),       # ruling 34: the miner's screen, read by validate
+                   moments_gates=mp.get("gates"))                 # ruling 37: the sealed verdicts R1 reads
     overrides = build_vertical_overrides(hook, clips, registry)
     return edl, overrides, report
 
