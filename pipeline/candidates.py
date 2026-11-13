@@ -18,6 +18,8 @@ record's tried entry and package.load_candidate rebuilds it. A try's outcome cla
   "line":    its clips passed but a line failed again            -> resting 6 h, then ONE try with fresh writes;
                                                                     a line failing that try too -> closed
   "budget":  a budget stopped it before an outcome               -> as it was
+  "expired": RULING 76 (18:08 Nov 13): a clip's source is over 12 h old on the render clock (expire()) -> closed for
+             good: "out of the candidates registry, never offered again"
 Pure functions; the driver (tests/package/proof_ledger.py) reads and writes the file."""
 from datetime import datetime, timedelta, timezone
 
@@ -45,7 +47,7 @@ def outcome(entry, cls, at, build, why=""):
     entry["history"].append({"build": build, "at": at, "class": cls, "fresh": bool(entry.get("trying_fresh")),
                              "why": str(why or "")[:300]})
     entry.pop("trying_fresh", None)
-    if cls in ("package", "clip"):
+    if cls in ("package", "clip", "expired"):
         entry["state"], entry["until"] = "closed", None
     elif cls == "line":
         if entry.get("fresh_used"):
@@ -86,6 +88,32 @@ def seed(reg, record, source):
             cls = c.get("class") or ("package" if res.startswith("PACKAGE") else "clip")
             outcome(reg["candidates"][k], cls, at, source, res or c.get("closed"))
     return added
+
+
+def expire(reg, published, now, window_h, notes=None):
+    """RULING 76 (a): close for good (class "expired") every candidate not yet closed with a clip whose source was
+    published more than window_h before the render clock `now`, or whose publish time is not known (never assumed
+    fresh). published: {moment id: published_at}; notes: {key: where its times were read, and whether the read
+    succeeded}, put in the expiry's why (audit 1810 C2). -> [the keys expired now]."""
+    out = []
+    for k, e in reg["candidates"].items():
+        if e["state"] == "closed":
+            continue
+        old = []
+        for mid in e.get("lineup") or []:
+            try:
+                t = _at(published[mid])
+            except (KeyError, TypeError, ValueError):
+                old.append(f"{mid}: no known publish time")
+                continue
+            age = (now - t).total_seconds() / 3600.0
+            if age > window_h:
+                old.append(f"{mid}: {age:.1f} h")
+        if old:
+            outcome(e, "expired", now.isoformat(), "ruling 76", f"over {window_h:g} h on the render clock: " +
+                    "; ".join(old) + (f" [{(notes or {})[k]}]" if (notes or {}).get(k) else ""))
+            out.append(k)
+    return out
 
 
 def registered(reg):

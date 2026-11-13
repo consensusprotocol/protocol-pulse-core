@@ -2166,6 +2166,62 @@ class TestRuling72Lock(unittest.TestCase):
         self.assertIn("ruling 68 / 72: the render's lock", out["tried"][0]["no_voice"]["why_not"])
 
 
+class TestRuling76Window(unittest.TestCase):
+    """RULING 76 (18:08 Nov 13): (a) a moment only while its source is <= 12 h old on the RENDER clock, no exception for
+    one that is not time-sensitive; (b) a delivered span never again, nor the same speech re-posted in another video;
+    (c) the pin stage re-checks (a) on the render clock."""
+
+    def at(self, mid, hours_ago, **kw):
+        return dict(pm(mid, mid.upper(), 12.0, **kw), published_at=(NOW - timedelta(hours=hours_ago)).isoformat())
+
+    def test_a_moment_over_12_h_or_of_unknown_age_is_expired(self):
+        ok, why = PK.usable([self.at("a", 11.9), self.at("b", 12.1), dict(self.at("c", 1), published_at=None),
+                             dict(self.at("d", 1), published_at="yesterday")], ctx())
+        self.assertEqual([m["moment_id"] for m in ok], ["a"])
+        for mid in "bcd":
+            self.assertIn("ruling 76 (a)", why[mid])
+        both = PK.usable([self.at("t", 30, risk=("time_sensitive",)), dict(self.at("e", 13), excluded=["x"])],
+                         ctx())[1]
+        self.assertIn("ruling 76 (a)", both["t"])                              # expired first (audit 1810 C2): the
+        self.assertIn("ruling 76 (a)", both["e"])                              # why agrees with (d)'s count
+
+    def test_delivered_speech_is_never_used_again_in_any_other_video(self):
+        said = "Currencies are often born for political reasons, but fail for economic reasons."
+        delivered = [{"video_id": "vD", "start": 10.0, "end": 20.0, "pin": "moments-x-1", "text": said}]
+        copy = dict(self.at("c", 1), text="Currencies are often born for political reasons but fail for economic "
+                                          "reasons, he said.", video_id="vOther")
+        other = dict(self.at("o", 1), text="Bitcoin launched in January of 2009 and was never renamed.",
+                     video_id="vOther2")
+        same_video_elsewhere = dict(self.at("s", 1), text=said, video_id="vD", start=40.0, end=50.0)
+        ok, why = PK.usable([copy, other, same_video_elsewhere], ctx(), delivered)
+        self.assertEqual([m["moment_id"] for m in ok], ["o"])
+        self.assertIn("ruling 76 (b): the same speech as a delivered clip (moments-x-1: vD 10.0-20.0), re-posted",
+                      why["c"])
+        self.assertIn("said again at another time of the same video", why["s"])    # audit 1810 C3
+        self.assertTrue(PK.same_speech(said, said.upper()))
+        self.assertFalse(PK.same_speech("Bitcoin", "Bitcoin"))                 # never on one word
+        self.assertFalse(PK.same_speech(said, "Currencies fail."))             # short: only an equal text
+        self.assertTrue(PK.same_speech("Bitcoin fixes this.", "bitcoin fixes this"))
+        scattered = "Currencies are rarely political, but reasons fail for many economic reasons of their own."
+        self.assertFalse(PK.same_speech(said, scattered))                      # common words, not runs of three
+
+    def test_the_pin_stage_re_checks_on_the_render_clock(self):
+        now = NOW
+        fresh = {"video_id": "v1", "source_published_at": (now - timedelta(hours=11)).strftime("%Y-%m-%dT%H:%M:%SZ")}
+        stale = {"video_id": "v2", "source_published_at": (now - timedelta(hours=12, minutes=1)).isoformat()}
+        naive = {"video_id": "v3", "source_published_at": (now - timedelta(hours=2)).replace(tzinfo=None).isoformat()}
+        self.assertEqual(package_pin.window_problems([fresh], now), [])
+        p = package_pin.window_problems([fresh, stale, {"video_id": "v4", "source_published_at": None}, naive], now)
+        self.assertEqual(len(p), 3)
+        self.assertIn("v2 was published", p[0])
+        self.assertIn("over 12 h): expired", p[0])
+        self.assertIn("v4: no readable publish time", p[1])
+        self.assertIn("v3: a publish time without a zone", p[2])               # audit 1810 C1: no measurement
+        with self.assertRaises(ValueError):                                     # audit 1810 C3: never a zoneless
+            package_pin.window_problems([fresh], now.replace(tzinfo=None))      # render clock
+        self.assertEqual(package_pin.WINDOW_H, 12.0)
+
+
 class TestRuling65Caption(unittest.TestCase):
     """RULING 65 (12:52): A CAPTION NEVER KILLS A PACKAGE. Only the caption fails fidelity: ONE more write for the caption
     alone (a new prompt, told the refused sentence and why; the takeaway and title kept as gated); if that fails too,
@@ -2532,7 +2588,8 @@ class TestProposal1PoolFill(unittest.TestCase):
 class TestRuling57Fresh(unittest.TestCase):
     """RULING 57 (09:59): with a 72 h window, a line-up with at least one clip from the last 24 h is preferred over one
     with none, then the newest clips. The build stops at its first passing package, so the preference decides what is
-    TRIED first: inside an angle and across angles."""
+    TRIED first: inside an angle and across angles. RULING 76 (18:08 Nov 13) superseded the 72 h window: a moment over
+    12 h old is expired and never offered (the line-up preference itself is unchanged, and moot inside 12 h)."""
 
     def at(self, mid, ch, dur, hours_ago, **kw):
         return dict(pm(mid, ch, dur, **kw), published_at=(NOW - timedelta(hours=hours_ago)).isoformat(),
@@ -2554,12 +2611,18 @@ class TestRuling57Fresh(unittest.TestCase):
         self.assertLess(PK.fresh_key(unknown, NOW), PK.fresh_key(ms[:3], NOW))   # ranks below 50-70 h, never newest
 
     def test_the_angle_with_a_fresh_line_up_is_judged_first(self):
-        ms = [self.at("h", "A", 12.0, 50), self.at("x", "B", 14.0, 60), self.at("y", "C", 13.0, 70),
+        """Since ruling 76: the 13-70 h moments are expired, never offered to the angle writer, and the line-up is
+        built from the 12 h pool."""
+        ms = [self.at("h", "A", 12.0, 13), self.at("x", "B", 14.0, 60), self.at("y", "C", 13.0, 70),
               self.at("f", "D", 12.0, 3), self.at("g", "E", 14.0, 4), self.at("k", "F", 13.0, 6)]
-        rig = Rig(ms, [["h", "x", "y"], ["f", "g", "k"]], [(True, [], None, Rig.LINE)], [None])
+        rig = Rig(ms, [["f", "g", "k"]], [(True, [], None, Rig.LINE)], [None])
         out = rig.run()
-        self.assertEqual(rig.medley_calls[0], ["f", "g", "k"])             # the writer's 2nd angle, fresh, first
+        self.assertEqual(rig.medley_calls[0], ["f", "g", "k"])
         self.assertEqual(out["angles"][0]["hook"], "f")
+        prompt = next(p for r, p in rig.prompts if r == "angle_write")
+        for old in ("h", "x", "y"):
+            self.assertNotIn(f"id={old} ", prompt)                            # never offered
+            self.assertIn("ruling 76 (a)", out["unusable"][old])
 
 
 class TestRuling41Search(unittest.TestCase):

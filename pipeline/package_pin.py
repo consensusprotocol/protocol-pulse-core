@@ -82,6 +82,36 @@ TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33: the ONE 
 SCORER_MIN = 3.5                                           # = stand_alone.CLIP_MIN_SCORE (a test holds them equal)
 
 
+WINDOW_H = 12.0          # RULING 76 (orchestrator 18:08 Nov 13): a clip only while its source is <= 12 h old on the
+                         # RENDER clock; past it, expired for good (it superseded ruling 57's 72 h window)
+
+
+def window_problems(segments, now=None):
+    """RULING 76 (a) and (c): every segment's source was published within WINDOW_H of the render clock `now` (default:
+    this moment, so the check is made again whenever a pin would go to render). An unknown or unreadable publish time
+    is a problem (never assumed fresh), and so is a time without a zone: as eligibility._parse_time reads it, no
+    measurement (audit 1810 C1). -> [why]."""
+    now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:                               # audit 1810 C3: the render clock is never zoneless
+        raise ValueError("the render clock needs a zone")
+    out = []
+    for s in segments or []:
+        p = s.get("source_published_at") or s.get("published_at")
+        try:
+            t = datetime.fromisoformat(str(p).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            out.append(f"ruling 76: {s.get('video_id')}: no readable publish time ({p!r})")
+            continue
+        if t.tzinfo is None:
+            out.append(f"ruling 76: {s.get('video_id')}: a publish time without a zone ({p!r}) is no measurement")
+            continue
+        age = (now - t).total_seconds() / 3600.0
+        if age > WINDOW_H:
+            out.append(f"ruling 76: {s.get('video_id')} was published {p}, {age:.1f} h before the render clock (over "
+                       f"{WINDOW_H:g} h): expired")
+    return out
+
+
 def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
     words, the transcript sha, and each SEALED_LATER field the segment carries), the VO the renderer will speak (intro,

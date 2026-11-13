@@ -117,6 +117,32 @@ class TestRegistry(unittest.TestCase):
             with self.assertRaises(ValueError):
                 CA.registered(reg)
 
+    def test_ruling_76_expires_a_candidate_with_a_clip_over_12_h_for_good(self):
+        reg = CA.new_registry()
+        CA.seed(reg, record(T0, [t(["a", "b", "c"]), t(["d", "e", "f"]), t(["g", "h", "i"])]), "r")
+        CA.outcome(reg["candidates"]["g+h+i"], "clip", T0.isoformat(), "b")              # already closed: untouched
+        pub = {m: (T0 - timedelta(hours=2)).isoformat() for m in "abcdefghi"}
+        pub["e"] = (T0 - timedelta(hours=12, minutes=1)).isoformat()                    # one clip over 12 h
+        del pub["c"]                                                                    # one clip of unknown age
+        self.assertEqual(sorted(CA.expire(reg, pub, T0, 12.0, {"d+e+f": "publish times from r/inputs.json"})),
+                         ["a+b+c", "d+e+f"])
+        self.assertIn("[publish times from r/inputs.json]", reg["candidates"]["d+e+f"]["history"][-1]["why"])
+        e = reg["candidates"]["d+e+f"]
+        self.assertEqual((e["state"], e["history"][-1]["class"]), ("closed", "expired"))
+        self.assertIn("e: 12.0 h", e["history"][-1]["why"])
+        self.assertIn("c: no known publish time", reg["candidates"]["a+b+c"]["history"][-1]["why"])
+        self.assertEqual(reg["candidates"]["g+h+i"]["history"][-1]["class"], "clip")
+        self.assertEqual(CA.due(reg, T0), [])                                          # never offered again
+        fresh = CA.new_registry()
+        CA.seed(fresh, record(T0, [t(["a", "b"])]), "r")
+        self.assertEqual(CA.expire(fresh, {"a": T0.isoformat(), "b": T0.isoformat()}, T0, 12.0), [])
+        # audit 1810 C1 (grok P1, glm P1-1): a later record that passes the same line-up again never revives it
+        CA.seed(reg, record(T0 + timedelta(hours=1), [t(["d", "e", "f"])], package={"segments": [
+            {"moment_id": m} for m in "def"]}), "r-later")
+        self.assertEqual((reg["candidates"]["d+e+f"]["state"], reg["candidates"]["d+e+f"]["history"][-1]["class"]),
+                         ("closed", "expired"))
+        self.assertEqual([k for k, _, _ in CA.due(reg, T0 + timedelta(hours=1))], [])
+
     def test_run_due_stops_at_a_package_inside_the_judged_line_ups(self):
         reg = CA.new_registry()
         for h, lu in enumerate((["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"])):

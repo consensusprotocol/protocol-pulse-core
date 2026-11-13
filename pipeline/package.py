@@ -121,9 +121,45 @@ VO_FIX = {"NOT_ENTAILED": "the viewer would take this clip to assert more than i
                             "never relate one speaker to another"}
 
 
+SAME_SPEECH_MIN_WORDS = 8         # ruling 76 (b): below this, only an equal text is the same speech
+SAME_SPEECH_RUN = 3               # only runs of at least this many words in order count: never scattered common words
+
+
+def same_speech(a, b):
+    """RULING 76 (b): two texts of at least two words are the same speech when they are equal after normalisation
+    (canon.canon_tokens), or, with the shorter at least SAME_SPEECH_MIN_WORDS long, when at least REPOST_ALIGN_MIN
+    (ruling 53's 0.80) of the shorter one's words lie in runs of SAME_SPEECH_RUN or more words that the other says in
+    the same order (difflib's matching blocks): a re-post cut a little differently is still the same speech; a few
+    common words in common never are. It decides only what is EXCLUDED: a wrong match loses one moment (fail closed),
+    a missed one would reuse delivered speech."""
+    import difflib
+    import canon
+    ta, tb = canon.canon_tokens(a or ""), canon.canon_tokens(b or "")
+    short = min(len(ta), len(tb))
+    if short < 2:
+        return False
+    if ta == tb:
+        return True
+    if short < SAME_SPEECH_MIN_WORDS:
+        return False
+    sm = difflib.SequenceMatcher(None, ta, tb, autojunk=False)
+    return sum(x.size for x in sm.get_matching_blocks() if x.size >= SAME_SPEECH_RUN) >= REPOST_ALIGN_MIN * short
+
+
+def expired(m, now):
+    """RULING 76 (a): the moment's source is more than package_pin.WINDOW_H old on the render clock, or its publish time
+    cannot be read (never assumed fresh). No exception for a moment that is not time-sensitive."""
+    import package_pin
+    age = E.age_hours(m.get("published_at"), now)
+    return age is None or age > package_pin.WINDOW_H
+
+
 def usable(moments, ctx, delivered=(), optout=frozenset()):
-    """delivered: moment ids, or {"video_id", "start", "end"} of moments delivered in the previous 24 h; a moment that
-    overlaps a delivered one in the same video is not novel (audit p2 U2: an id changes when a record is re-punctuated)."""
+    """delivered: moment ids, or {"video_id", "start", "end"[, "text", "pin"]} of every DELIVERED clip. A moment that
+    overlaps a delivered one in the same video is not novel (audit p2 U2: an id changes when a record is re-punctuated),
+    and (RULING 76 b) neither is the same speech (same_speech) anywhere: re-posted by another channel, or said again
+    at another time of the same video (audit 1810 C3: "never reuse any of it"). RULING 76 (a): a moment whose source
+    is over 12 h old on the render clock (ctx.now) is expired."""
     ids = {d for d in delivered if isinstance(d, str)}
     spans = [d for d in delivered if isinstance(d, dict)]
     out, why = [], {}
@@ -131,13 +167,22 @@ def usable(moments, ctx, delivered=(), optout=frozenset()):
         mid = m["moment_id"]
         overlap = any(d.get("video_id") == m["video_id"] and float(d["start"]) < float(m["end"]) and
                       float(m["start"]) < float(d["end"]) for d in spans)
-        if not m.get("on_screen_ok"):
+        if expired(m, ctx.now):                    # first (audit 1810 C2): its why agrees with ruling 76 (d)'s count
+            why[mid] = (f"ruling 76 (a): published {m.get('published_at')}, over 12 h before the render clock "
+                        f"{ctx.now.isoformat(timespec='seconds')}: expired")
+        elif not m.get("on_screen_ok"):
             why[mid] = "not eligible on screen: " + "; ".join(
                 f"{r}: {', '.join(v['reasons'])}" for r, v in (m.get("eligibility") or {}).items() if not v["ok"])
         elif m.get("excluded"):
             why[mid] = f"hard exclusion (L-u): {m['excluded']}"
         elif mid in ids or overlap:
-            why[mid] = "delivered in the previous 24 h (or overlaps a delivered moment)"
+            why[mid] = "delivered (or overlaps a delivered moment)"
+        elif any(d.get("text") and same_speech(d["text"], m.get("text")) for d in spans):
+            d = next(d for d in spans if d.get("text") and same_speech(d["text"], m.get("text")))
+            why[mid] = (f"ruling 76 (b): the same speech as a delivered clip ({d.get('pin')}: {d.get('video_id')} "
+                        f"{d.get('start')}-{d.get('end')})" +
+                        (", re-posted in another video" if d.get("video_id") != m["video_id"] else
+                         ", said again at another time of the same video"))
         elif m["channel_id"] in optout:
             why[mid] = "channel opted out"
         elif m.get("duration_s") is None or m["duration_s"] > SEG_MAX_S:

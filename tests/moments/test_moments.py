@@ -109,7 +109,8 @@ class TestPackageUsable(unittest.TestCase):
         ok, why = PK.usable([long_, unmeasured, stale, fresh, excluded, changed], ctx)
         self.assertEqual([m["moment_id"] for m in ok], ["f"])     # an UNMEASURED speaker (None) is a candidate only:
         self.assertIn("20.0 s", why["l"])                          # L-v 2 measures it at packaging and the pin refuses
-        self.assertIn("L-v 3", why["s"])                           # an unmeasured second pass (audit p2 M11)
+        self.assertIn("ruling 76 (a)", why["s"])                   # an unmeasured second pass (audit p2 M11); a 30 h
+        #   time-sensitive source is now expired first (ruling 76, 18:08 Nov 13: 12 h), before L-v 3's 24 h rule
         self.assertIn("accusation", why["x"])
         self.assertIn("L-v 1", why["t"])
 

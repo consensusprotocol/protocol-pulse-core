@@ -1,0 +1,75 @@
+You are auditing a change to the medley pin builder on branch pp-selectid (Protocol Pulse: it builds sealed pins of
+other channels' clips; an integrator renders them). Only state what you can verify from the diff; if uncertain, say so;
+do not guess.
+
+The order being implemented, RULING 76 (orchestrator 18:08 Nov 13), quoting the owner: "do we have a system in place to
+stop our coping system from reusing old clips? We need to delete all the contents after like 6 to 12 hours so that we
+never reuse any of it". It supersedes ruling 57's 72 h window, effective now for every build and every pin not yet
+rendered:
+ (a) "A moment is usable only while its source video's published_at is within 12 HOURS of the RENDER clock. Past 12 h
+     it is expired for good: out of the pool, out of the candidates registry, never offered again. No exception for
+     'not time-sensitive'."
+ (b) "A span that has been DELIVERED in any video is never used again (already so: keep it, and extend it to any
+     overlapping span of the same video and to the same speech re-posted on another channel)."
+ (c) "Open candidates and sealed-but-unrendered pins are re-checked against (a) at the moment they would render."
+ (d) STATE line 1 carries: moments inside 12 h, how many cleared, how many cuttable, hooks >= 4.
+ "Audit as one change (the window constant, the registry expiry, the render-clock re-check)." If the 12 h pool cannot
+ form a video, the stage it dies at is reported, rather than widening the window.
+
+The change:
+1. package_pin.WINDOW_H = 12.0 and window_problems(segments, now=None):
+   - each segment's source published within 12 h of the render clock (default: this moment);
+   - an unknown or unreadable time is a problem; a zoneless time is UTC, the pipeline's own convention.
+   seal() is not changed (the integrator imports this file live for its seal recompute).
+2. package.usable():
+   - a moment whose source is over 12 h old on ctx.now (the build's render clock), or of unknown age, is out:
+     "ruling 76 (a)". It sits after the time-sensitive rule, so a stale time-sensitive moment still reports L-v 3;
+     both exclude.
+   - delivered spans may carry their text. A moment in ANY OTHER video whose text is the same speech as a delivered
+     clip (same_speech) is out: "ruling 76 (b)".
+   - same_speech: equal canonical tokens; or, with the shorter text at least 8 words, at least 80 % of the shorter
+     one's words in runs of >= 3 words that the other says in the same order (difflib matching blocks).
+   - The same-video overlap rule is unchanged.
+3. candidates.expire(reg, published, now, window_h): every candidate not yet closed with a clip over 12 h, or of
+   unknown age, closes for good, class "expired" (outcome() accepts it).
+4. The driver (tests/package/proof_ledger.py):
+   - --hours defaults to 12, and a value outside (0, 12] refuses the run before anything is written;
+   - delivered spans carry the pin's approved_text;
+   - in the refusal block, after the registry is seeded and its stored times checked (CA.due), the open candidates'
+     clip publish times are read from the records that found them (inputs.json; unknown means expired), and
+     CA.expire runs before any candidate is tried;
+   - at the pin stage, package_pin.window_problems(segments) on the real clock joins ruling 68's pin_problems
+     (refuse);
+   - the record carries ruling_76 counts (inside 12 h, cleared, cuttable, hooks >= 4) and logs them.
+5. Tests:
+   - test_medley TestRuling76Window (3): (a) with an unknown or unreadable time; (b) with a re-post in another video
+     and same_speech's limits; (c) window_problems;
+   - ruling 57's build test rewritten: the old moments are now expired and never offered;
+   - test_candidates: expire;
+   - test_ledger_build: --hours over 12 refuses (under the refusal guard); delivered spans carry text.
+   Mutation runs: each of usable's (a) and (b), outcome's "expired", and the --hours refusal fails a test.
+   15 suites OK.
+
+Check, against the diff:
+- that no moment over 12 h (or of unknown age) can enter a line-up, a candidate try or a pin, on any path;
+- that no delivered speech can be reused in another video (and what same_speech might wrongly merge or miss);
+- that the registry expiry is for good, and cannot be undone by a later seed;
+- that the window can never be widened by an argument;
+- that the pin-stage re-check uses the render clock at that moment;
+- that nothing else a gate accepts changes, and seal() is unchanged.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
+
+ROUND 2 (cycle 3). The diff now also carries the cycle-1 and cycle-2 consensus. Review the WHOLE diff again, and
+these changes in particular:
+- usable(): the ruling-76 (a) check is now FIRST, so every expired moment's why says "ruling 76 (a)" and agrees with
+  ruling 76 (d)'s independent count. A 30 h time-sensitive moment now reports (a), not L-v 3: L-v 3's 24 h rule can
+  no longer fire, since every moment over 12 h is already out (tests/moments/test_moments.py updated).
+- candidates.expire(..., notes): each expiry's why names where the publish times were read, or that the record's
+  inputs.json could not be read. An unreadable record still expires the candidate (ruling 76: an unknown age is
+  never assumed fresh). Its clips are also out of the pool by usable() on their own.
+- package_pin.window_problems: a publish time without a zone is no measurement (a problem), as
+  eligibility._parse_time reads it behind usable().
+- Tests pin the durability of an expiry (a later record that passes or packages the same line-up never revives
+  it) and the accepted bound --hours 12.
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

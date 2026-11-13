@@ -81,7 +81,7 @@ def delivered_pins(paths):
             if not isinstance(segs, list) or not segs:
                 raise ValueError("no clip")
             spans += [{"video_id": str(s["video_id"]), "start": float(s["start"]), "end": float(s["end"]),
-                       "pin": pin["story_id"]} for s in segs]
+                       "pin": pin["story_id"], "text": s.get("approved_text")} for s in segs]   # ruling 76 (b)
             pins.append({"path": os.path.relpath(os.path.abspath(p), REPO), "story_id": pin["story_id"],
                          "approved_at": at.isoformat(), "clips": len(segs)})
         except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:       # which pin (glm C3 P2-3)
@@ -96,7 +96,8 @@ def main(argv=None):
                     help="every pin already delivered: their clip spans are out (L-p), and 'since' defaults to the "
                          "newest one's approved_at")
     ap.add_argument("--since", help="ISO time with a zone; default: the newest delivered pin's approved_at")
-    ap.add_argument("--hours", type=float, default=72.0, help="the adapter's publish window (horizon_h)")
+    ap.add_argument("--hours", type=float, default=package_pin.WINDOW_H,
+                    help="the adapter's publish window (horizon_h); RULING 76: at most 12 h, never widened")
     ap.add_argument("--work-dir", default=os.path.join(PL.SCRATCH, "lv2"))
     ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
@@ -104,6 +105,9 @@ def main(argv=None):
                          "record (its tried[N]; default the first that passed), as it was judged")
     a = ap.parse_args(argv)
     now = datetime.now(timezone.utc)
+    if not 0 < a.hours <= package_pin.WINDOW_H:          # ruling 76: "rather than widen the window"
+        print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {package_pin.WINDOW_H:g}]", file=sys.stderr)
+        return 2
     try:                                                 # read before anything is written (glm C2 N-4)
         delivered, last, pins = delivered_pins(a.delivered)
         since = datetime.fromisoformat(a.since.replace("Z", "+00:00")) if a.since else last
@@ -126,6 +130,18 @@ def main(argv=None):
             with open(p) as f:
                 CA.seed(reg, json.load(f), os.path.relpath(os.path.dirname(p), REPO))
         CA.due(reg, now)                                 # every stored time reads (audit 1420 C1), or exit 2
+        pub, notes = {}, {}                              # RULING 76 (a): the open candidates' clips' publish times,
+        for k, e in reg["candidates"].items():           # from the record that found them (its inputs.json holds every
+            if e["state"] != "closed":                   # moment of its line-ups); unknown: expired, never fresh
+                src = os.path.join(e["source"], "inputs.json")
+                try:
+                    with open(os.path.join(REPO, src)) as f:
+                        pub.update({m["moment_id"]: m.get("published_at") for m in json.load(f).get("moments") or []
+                                    if m.get("moment_id") in e["lineup"]})
+                    notes[k] = f"publish times from {src}"
+                except (OSError, ValueError, AttributeError, TypeError) as ex:   # audit 1810 C2: attributable
+                    notes[k] = f"{src} could not be read ({type(ex).__name__}): no known publish time"
+        gone = CA.expire(reg, pub, now, package_pin.WINDOW_H, notes)
         CA.registered(reg)                               # and every line-up (the search leaves them alone), or exit 2
     except (OSError, ValueError, KeyError, TypeError) as e:
         print(f"REFUSED: the delivered pins, 'since', the candidate or the candidate registry cannot be read "
@@ -146,6 +162,8 @@ def main(argv=None):
         (f"; RULING 66: ONLY the candidate {cand['source']} tried[{cand['index']}] {cand['lineup']}" if cand else ""))
     say(f"  delivered: {', '.join(p['story_id'] + ' (' + p['approved_at'] + ')' for p in pins)}; "
         f"{len(delivered)} clip spans out")
+    say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
+        (f": {gone}" if gone else ""))
     rows, rep = LB.rows(since, now, horizon_h=a.hours)
     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
     wp, wp_rep = LB.word_pass_index(a.word_pass)
@@ -223,7 +241,8 @@ def main(argv=None):
     if res["package"]:
         SP.attribute_package(router, res["package"], sources, log=say)     # 00:05 ET Nov 13 item 3: sealed in the pin
         try:
-            lock = LP.pin_problems(res["package"])       # ruling 68: sealed only with a passing lock pre-check
+            lock = LP.pin_problems(res["package"]) + \
+                package_pin.window_problems(res["package"]["segments"])   # ruling 68; ruling 76 (c), render clock
             if lock:
                 raise package_pin.PinRefused("; ".join(lock))
             path, pin = package_pin.write_pin(res["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
@@ -244,6 +263,14 @@ def main(argv=None):
             say(f"PIN REFUSED: {e}")
     else:
         say(f"no package ({res.get('why_none')}); usable {res['usable']}, cleared {res['prescreen'].get('cleared')}")
+    hp = res.get("hook_pool") or {}                      # RULING 76 (d): the four counts STATE line 1 carries;
+    #   `moments` is the adapter's pool from LB.build_inputs, BEFORE usable() filters it (audit 1810 C3)
+    res["ruling_76"] = {"inside_12h": sum(not PK.expired(m, now) for m in moments),
+                        "cleared": (res.get("prescreen") or {}).get("cleared"),
+                        "cuttable": (res.get("prescreen") or {}).get("cuttable"),
+                        "hooks_4": len(hp.get("passing") or []) if isinstance(hp.get("passing"), list) else None}
+    say(f"  RULING 76 (d): {res['ruling_76']['inside_12h']} moments inside 12 h, {res['ruling_76']['cleared']} "
+        f"cleared, {res['ruling_76']['cuttable']} cuttable, {res['ruling_76']['hooks_4']} hooks >= 4")
     try:                                         # the record is written whatever the ledger says (audit 0707 C1)
         after = round(router.spent(), 4)
     except Exception as e:                       # noqa: BLE001

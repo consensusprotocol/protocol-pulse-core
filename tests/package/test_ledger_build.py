@@ -762,6 +762,34 @@ class TestDriverRefuses(unittest.TestCase):
         self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json"),
                          before)
 
+    def test_ruling_76_the_window_is_never_widened_and_delivered_spans_carry_their_text(self):
+        """RULING 76 (18:08 Nov 13): --hours over 12 refuses the run before anything is written; the delivered spans
+        carry the approved text, for the same-speech rule."""
+        sys.path.insert(0, HERE)
+        import proof_ledger as PLG
+        pins = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
+                                                                                 "MOMENTS_PIN_LY.json")]
+        with mock.patch("sys.stderr", new=io.StringIO()) as err, refused_only():
+            for h in ("12.5", "72", "0", "-1"):
+                self.assertEqual(PLG.main(["--delivered", *pins, "--hours", h]), 2, h)
+            self.assertIn("REFUSED (ruling 76)", err.getvalue())
+            for h in ("12", "6"):                       # audit 1810 C1 (glm P2-1): the bound itself is accepted; the run
+                with self.assertRaises(AssertionError) as cm:   # goes on, and the guard stops it at the proof dir
+                    PLG.main(["--delivered", *pins, "--hours", h])
+                self.assertIn("went on to write a proof dir", str(cm.exception))
+        spans, _, _ = PLG.delivered_pins(pins)
+        self.assertTrue(all(isinstance(s["text"], str) and s["text"] for s in spans))
+        for p in pins:                                   # audit 1810 C3 (glm P1-2): the CLIP's own approved words, never
+            with open(p) as f:                           # a VO line, title or caption
+                pin = json.load(f)
+            mp = pin["moments_package"]
+            vo = {mp["title"], mp["caption"], (mp.get("edl_vo") or {}).get("intro")} | {
+                b.get("text") for b in (mp.get("edl_vo") or {}).get("bridges") or []}
+            for seg in pin["segments"]:
+                self.assertIn(seg["approved_text"], [s["text"] for s in spans if s["video_id"] == seg["video_id"] and
+                                                     s["start"] == float(seg["start"])])
+                self.assertNotIn(seg["approved_text"], vo)
+
     def test_a_moment_overlapping_any_delivered_span_is_out_whatever_the_pins_age(self):
         """Audit 2315 C3 K7 (grok, glm): the adapter's delivered_ids (ledger moment ids, 24 h) stay empty: tonight's
         pins carry no ledger id. L-p is carried by package.usable, which drops any moment that overlaps a delivered

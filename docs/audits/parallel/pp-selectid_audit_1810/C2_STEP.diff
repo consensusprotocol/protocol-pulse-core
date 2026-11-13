@@ -1,0 +1,408 @@
+diff --git a/pipeline/candidates.py b/pipeline/candidates.py
+index ea38cca..a45a456 100644
+--- a/pipeline/candidates.py
++++ b/pipeline/candidates.py
+@@ -18,6 +18,8 @@ record's tried entry and package.load_candidate rebuilds it. A try's outcome cla
+   "line":    its clips passed but a line failed again            -> resting 6 h, then ONE try with fresh writes;
+                                                                     a line failing that try too -> closed
+   "budget":  a budget stopped it before an outcome               -> as it was
++  "expired": RULING 76 (18:08 Nov 13): a clip's source is over 12 h old on the render clock (expire()) -> closed for
++             good: "out of the candidates registry, never offered again"
+ Pure functions; the driver (tests/package/proof_ledger.py) reads and writes the file."""
+ from datetime import datetime, timedelta, timezone
+ 
+@@ -45,7 +47,7 @@ def outcome(entry, cls, at, build, why=""):
+     entry["history"].append({"build": build, "at": at, "class": cls, "fresh": bool(entry.get("trying_fresh")),
+                              "why": str(why or "")[:300]})
+     entry.pop("trying_fresh", None)
+-    if cls in ("package", "clip"):
++    if cls in ("package", "clip", "expired"):
+         entry["state"], entry["until"] = "closed", None
+     elif cls == "line":
+         if entry.get("fresh_used"):
+@@ -88,6 +90,31 @@ def seed(reg, record, source):
+     return added
+ 
+ 
++def expire(reg, published, now, window_h):
++    """RULING 76 (a): close for good (class "expired") every candidate not yet closed with a clip whose source was
++    published more than window_h before the render clock `now`, or whose publish time is not known (never assumed
++    fresh). published: {moment id: published_at}. -> [the keys expired now]."""
++    out = []
++    for k, e in reg["candidates"].items():
++        if e["state"] == "closed":
++            continue
++        old = []
++        for mid in e.get("lineup") or []:
++            try:
++                t = _at(published[mid])
++            except (KeyError, TypeError, ValueError):
++                old.append(f"{mid}: no known publish time")
++                continue
++            age = (now - t).total_seconds() / 3600.0
++            if age > window_h:
++                old.append(f"{mid}: {age:.1f} h")
++        if old:
++            outcome(e, "expired", now.isoformat(), "ruling 76", f"over {window_h:g} h on the render clock: " +
++                    "; ".join(old))
++            out.append(k)
++    return out
++
++
+ def registered(reg):
+     """The line-ups the registry holds, whatever their state, for the search to leave alone (the 16:30 Nov 13 build's
+     search re-formed the resting candidate and re-wrote it: free from its recordings, but a try inside its 6 h all the
+diff --git a/pipeline/package.py b/pipeline/package.py
+index ad6dd60..d9982e7 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -121,9 +121,44 @@ VO_FIX = {"NOT_ENTAILED": "the viewer would take this clip to assert more than i
+                             "never relate one speaker to another"}
+ 
+ 
++SAME_SPEECH_MIN_WORDS = 8         # ruling 76 (b): below this, only an equal text is the same speech
++SAME_SPEECH_RUN = 3               # only runs of at least this many words in order count: never scattered common words
++
++
++def same_speech(a, b):
++    """RULING 76 (b): two texts of at least two words are the same speech when they are equal after normalisation
++    (canon.canon_tokens), or, with the shorter at least SAME_SPEECH_MIN_WORDS long, when at least REPOST_ALIGN_MIN
++    (ruling 53's 0.80) of the shorter one's words lie in runs of SAME_SPEECH_RUN or more words that the other says in
++    the same order (difflib's matching blocks): a re-post cut a little differently is still the same speech; a few
++    common words in common never are. It decides only what is EXCLUDED: a wrong match loses one moment (fail closed),
++    a missed one would reuse delivered speech."""
++    import difflib
++    import canon
++    ta, tb = canon.canon_tokens(a or ""), canon.canon_tokens(b or "")
++    short = min(len(ta), len(tb))
++    if short < 2:
++        return False
++    if ta == tb:
++        return True
++    if short < SAME_SPEECH_MIN_WORDS:
++        return False
++    sm = difflib.SequenceMatcher(None, ta, tb, autojunk=False)
++    return sum(x.size for x in sm.get_matching_blocks() if x.size >= SAME_SPEECH_RUN) >= REPOST_ALIGN_MIN * short
++
++
++def expired(m, now):
++    """RULING 76 (a): the moment's source is more than package_pin.WINDOW_H old on the render clock, or its publish time
++    cannot be read (never assumed fresh). No exception for a moment that is not time-sensitive."""
++    import package_pin
++    age = E.age_hours(m.get("published_at"), now)
++    return age is None or age > package_pin.WINDOW_H
++
++
+ def usable(moments, ctx, delivered=(), optout=frozenset()):
+-    """delivered: moment ids, or {"video_id", "start", "end"} of moments delivered in the previous 24 h; a moment that
+-    overlaps a delivered one in the same video is not novel (audit p2 U2: an id changes when a record is re-punctuated)."""
++    """delivered: moment ids, or {"video_id", "start", "end"[, "text", "pin"]} of every DELIVERED clip. A moment that
++    overlaps a delivered one in the same video is not novel (audit p2 U2: an id changes when a record is re-punctuated),
++    and (RULING 76 b) neither is the same speech (same_speech) in any other video, re-posted by another channel or the
++    same one. RULING 76 (a): a moment whose source is over 12 h old on the render clock (ctx.now) is expired."""
+     ids = {d for d in delivered if isinstance(d, str)}
+     spans = [d for d in delivered if isinstance(d, dict)]
+     out, why = [], {}
+@@ -137,7 +172,13 @@ def usable(moments, ctx, delivered=(), optout=frozenset()):
+         elif m.get("excluded"):
+             why[mid] = f"hard exclusion (L-u): {m['excluded']}"
+         elif mid in ids or overlap:
+-            why[mid] = "delivered in the previous 24 h (or overlaps a delivered moment)"
++            why[mid] = "delivered (or overlaps a delivered moment)"
++        elif any(d.get("text") and d.get("video_id") != m["video_id"] and same_speech(d["text"], m.get("text"))
++                 for d in spans):
++            d = next(d for d in spans if d.get("text") and d.get("video_id") != m["video_id"] and
++                     same_speech(d["text"], m.get("text")))
++            why[mid] = (f"ruling 76 (b): the same speech as a delivered clip ({d.get('pin')}: {d.get('video_id')} "
++                        f"{d.get('start')}-{d.get('end')}), re-posted in another video")
+         elif m["channel_id"] in optout:
+             why[mid] = "channel opted out"
+         elif m.get("duration_s") is None or m["duration_s"] > SEG_MAX_S:
+@@ -145,6 +186,9 @@ def usable(moments, ctx, delivered=(), optout=frozenset()):
+         elif time_sensitive(m) and (E.age_hours(m["published_at"], ctx.now) is None or
+                                     E.age_hours(m["published_at"], ctx.now) > TIME_SENSITIVE_H):
+             why[mid] = f"time-sensitive words from a source older than {TIME_SENSITIVE_H} h (L-v 3)"
++        elif expired(m, ctx.now):
++            why[mid] = (f"ruling 76 (a): published {m.get('published_at')}, over 12 h before the render clock "
++                        f"{ctx.now.isoformat(timespec='seconds')}: expired")
+         elif (m.get("speaker") or {}).get("turn_change_inside") is True:
+             why[mid] = "a speaker change inside (L-v 1)"
+         else:
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index a846a1c..2a97444 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -82,6 +82,34 @@ TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33: the ONE
+ SCORER_MIN = 3.5                                           # = stand_alone.CLIP_MIN_SCORE (a test holds them equal)
+ 
+ 
++WINDOW_H = 12.0          # RULING 76 (orchestrator 18:08 Nov 13): a clip only while its source is <= 12 h old on the
++                         # RENDER clock; past it, expired for good (it superseded ruling 57's 72 h window)
++
++
++def window_problems(segments, now=None):
++    """RULING 76 (a) and (c): every segment's source was published within WINDOW_H of the render clock `now` (default:
++    this moment, so the check is made again whenever a pin would go to render). An unknown or unreadable publish time
++    is a problem (never assumed fresh), and so is a time without a zone: as eligibility._parse_time reads it, no
++    measurement (audit 1810 C1). -> [why]."""
++    now = now or datetime.now(timezone.utc)
++    out = []
++    for s in segments or []:
++        p = s.get("source_published_at") or s.get("published_at")
++        try:
++            t = datetime.fromisoformat(str(p).replace("Z", "+00:00"))
++        except (TypeError, ValueError):
++            out.append(f"ruling 76: {s.get('video_id')}: no readable publish time ({p!r})")
++            continue
++        if t.tzinfo is None:
++            out.append(f"ruling 76: {s.get('video_id')}: a publish time without a zone ({p!r}) is no measurement")
++            continue
++        age = (now - t).total_seconds() / 3600.0
++        if age > WINDOW_H:
++            out.append(f"ruling 76: {s.get('video_id')} was published {p}, {age:.1f} h before the render clock (over "
++                       f"{WINDOW_H:g} h): expired")
++    return out
++
++
+ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
+     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
+     words, the transcript sha, and each SEALED_LATER field the segment carries), the VO the renderer will speak (intro,
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 38e802b..2b6ad64 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -81,7 +81,7 @@ def delivered_pins(paths):
+             if not isinstance(segs, list) or not segs:
+                 raise ValueError("no clip")
+             spans += [{"video_id": str(s["video_id"]), "start": float(s["start"]), "end": float(s["end"]),
+-                       "pin": pin["story_id"]} for s in segs]
++                       "pin": pin["story_id"], "text": s.get("approved_text")} for s in segs]   # ruling 76 (b)
+             pins.append({"path": os.path.relpath(os.path.abspath(p), REPO), "story_id": pin["story_id"],
+                          "approved_at": at.isoformat(), "clips": len(segs)})
+         except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:       # which pin (glm C3 P2-3)
+@@ -96,7 +96,8 @@ def main(argv=None):
+                     help="every pin already delivered: their clip spans are out (L-p), and 'since' defaults to the "
+                          "newest one's approved_at")
+     ap.add_argument("--since", help="ISO time with a zone; default: the newest delivered pin's approved_at")
+-    ap.add_argument("--hours", type=float, default=72.0, help="the adapter's publish window (horizon_h)")
++    ap.add_argument("--hours", type=float, default=package_pin.WINDOW_H,
++                    help="the adapter's publish window (horizon_h); RULING 76: at most 12 h, never widened")
+     ap.add_argument("--work-dir", default=os.path.join(PL.SCRATCH, "lv2"))
+     ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
+     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
+@@ -104,6 +105,9 @@ def main(argv=None):
+                          "record (its tried[N]; default the first that passed), as it was judged")
+     a = ap.parse_args(argv)
+     now = datetime.now(timezone.utc)
++    if not 0 < a.hours <= package_pin.WINDOW_H:          # ruling 76: "rather than widen the window"
++        print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {package_pin.WINDOW_H:g}]", file=sys.stderr)
++        return 2
+     try:                                                 # read before anything is written (glm C2 N-4)
+         delivered, last, pins = delivered_pins(a.delivered)
+         since = datetime.fromisoformat(a.since.replace("Z", "+00:00")) if a.since else last
+@@ -126,6 +130,16 @@ def main(argv=None):
+             with open(p) as f:
+                 CA.seed(reg, json.load(f), os.path.relpath(os.path.dirname(p), REPO))
+         CA.due(reg, now)                                 # every stored time reads (audit 1420 C1), or exit 2
++        pub = {}                                         # RULING 76 (a): the open candidates' clips' publish times,
++        for e in reg["candidates"].values():             # from the records that found them (unknown: expired)
++            if e["state"] != "closed":
++                try:
++                    with open(os.path.join(REPO, e["source"], "inputs.json")) as f:
++                        pub.update({m["moment_id"]: m.get("published_at") for m in json.load(f).get("moments") or []
++                                    if m.get("moment_id") in e["lineup"]})
++                except (OSError, ValueError, AttributeError, TypeError):
++                    pass
++        gone = CA.expire(reg, pub, now, package_pin.WINDOW_H)
+         CA.registered(reg)                               # and every line-up (the search leaves them alone), or exit 2
+     except (OSError, ValueError, KeyError, TypeError) as e:
+         print(f"REFUSED: the delivered pins, 'since', the candidate or the candidate registry cannot be read "
+@@ -146,6 +160,8 @@ def main(argv=None):
+         (f"; RULING 66: ONLY the candidate {cand['source']} tried[{cand['index']}] {cand['lineup']}" if cand else ""))
+     say(f"  delivered: {', '.join(p['story_id'] + ' (' + p['approved_at'] + ')' for p in pins)}; "
+         f"{len(delivered)} clip spans out")
++    say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
++        (f": {gone}" if gone else ""))
+     rows, rep = LB.rows(since, now, horizon_h=a.hours)
+     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
+     wp, wp_rep = LB.word_pass_index(a.word_pass)
+@@ -223,7 +239,8 @@ def main(argv=None):
+     if res["package"]:
+         SP.attribute_package(router, res["package"], sources, log=say)     # 00:05 ET Nov 13 item 3: sealed in the pin
+         try:
+-            lock = LP.pin_problems(res["package"])       # ruling 68: sealed only with a passing lock pre-check
++            lock = LP.pin_problems(res["package"]) + \
++                package_pin.window_problems(res["package"]["segments"])   # ruling 68; ruling 76 (c), render clock
+             if lock:
+                 raise package_pin.PinRefused("; ".join(lock))
+             path, pin = package_pin.write_pin(res["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
+@@ -244,6 +261,13 @@ def main(argv=None):
+             say(f"PIN REFUSED: {e}")
+     else:
+         say(f"no package ({res.get('why_none')}); usable {res['usable']}, cleared {res['prescreen'].get('cleared')}")
++    hp = res.get("hook_pool") or {}                      # RULING 76 (d): the four counts STATE line 1 carries
++    res["ruling_76"] = {"inside_12h": sum(not PK.expired(m, now) for m in moments),
++                        "cleared": (res.get("prescreen") or {}).get("cleared"),
++                        "cuttable": (res.get("prescreen") or {}).get("cuttable"),
++                        "hooks_4": len(hp.get("passing") or []) if isinstance(hp.get("passing"), list) else None}
++    say(f"  RULING 76 (d): {res['ruling_76']['inside_12h']} moments inside 12 h, {res['ruling_76']['cleared']} "
++        f"cleared, {res['ruling_76']['cuttable']} cuttable, {res['ruling_76']['hooks_4']} hooks >= 4")
+     try:                                         # the record is written whatever the ledger says (audit 0707 C1)
+         after = round(router.spent(), 4)
+     except Exception as e:                       # noqa: BLE001
+diff --git a/tests/package/test_candidates.py b/tests/package/test_candidates.py
+index 7c06985..b477f88 100644
+--- a/tests/package/test_candidates.py
++++ b/tests/package/test_candidates.py
+@@ -117,6 +117,30 @@ class TestRegistry(unittest.TestCase):
+             with self.assertRaises(ValueError):
+                 CA.registered(reg)
+ 
++    def test_ruling_76_expires_a_candidate_with_a_clip_over_12_h_for_good(self):
++        reg = CA.new_registry()
++        CA.seed(reg, record(T0, [t(["a", "b", "c"]), t(["d", "e", "f"]), t(["g", "h", "i"])]), "r")
++        CA.outcome(reg["candidates"]["g+h+i"], "clip", T0.isoformat(), "b")              # already closed: untouched
++        pub = {m: (T0 - timedelta(hours=2)).isoformat() for m in "abcdefghi"}
++        pub["e"] = (T0 - timedelta(hours=12, minutes=1)).isoformat()                    # one clip over 12 h
++        del pub["c"]                                                                    # one clip of unknown age
++        self.assertEqual(sorted(CA.expire(reg, pub, T0, 12.0)), ["a+b+c", "d+e+f"])
++        e = reg["candidates"]["d+e+f"]
++        self.assertEqual((e["state"], e["history"][-1]["class"]), ("closed", "expired"))
++        self.assertIn("e: 12.0 h", e["history"][-1]["why"])
++        self.assertIn("c: no known publish time", reg["candidates"]["a+b+c"]["history"][-1]["why"])
++        self.assertEqual(reg["candidates"]["g+h+i"]["history"][-1]["class"], "clip")
++        self.assertEqual(CA.due(reg, T0), [])                                          # never offered again
++        fresh = CA.new_registry()
++        CA.seed(fresh, record(T0, [t(["a", "b"])]), "r")
++        self.assertEqual(CA.expire(fresh, {"a": T0.isoformat(), "b": T0.isoformat()}, T0, 12.0), [])
++        # audit 1810 C1 (grok P1, glm P1-1): a later record that passes the same line-up again never revives it
++        CA.seed(reg, record(T0 + timedelta(hours=1), [t(["d", "e", "f"])], package={"segments": [
++            {"moment_id": m} for m in "def"]}), "r-later")
++        self.assertEqual((reg["candidates"]["d+e+f"]["state"], reg["candidates"]["d+e+f"]["history"][-1]["class"]),
++                         ("closed", "expired"))
++        self.assertEqual([k for k, _, _ in CA.due(reg, T0 + timedelta(hours=1))], [])
++
+     def test_run_due_stops_at_a_package_inside_the_judged_line_ups(self):
+         reg = CA.new_registry()
+         for h, lu in enumerate((["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"])):
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 74817cb..807e186 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -762,6 +762,24 @@ class TestDriverRefuses(unittest.TestCase):
+         self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json"),
+                          before)
+ 
++    def test_ruling_76_the_window_is_never_widened_and_delivered_spans_carry_their_text(self):
++        """RULING 76 (18:08 Nov 13): --hours over 12 refuses the run before anything is written; the delivered spans
++        carry the approved text, for the same-speech rule."""
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        pins = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
++                                                                                 "MOMENTS_PIN_LY.json")]
++        with mock.patch("sys.stderr", new=io.StringIO()) as err, refused_only():
++            for h in ("12.5", "72", "0", "-1"):
++                self.assertEqual(PLG.main(["--delivered", *pins, "--hours", h]), 2, h)
++            self.assertIn("REFUSED (ruling 76)", err.getvalue())
++            for h in ("12", "6"):                       # audit 1810 C1 (glm P2-1): the bound itself is accepted; the run
++                with self.assertRaises(AssertionError) as cm:   # goes on, and the guard stops it at the proof dir
++                    PLG.main(["--delivered", *pins, "--hours", h])
++                self.assertIn("went on to write a proof dir", str(cm.exception))
++        spans, _, _ = PLG.delivered_pins(pins)
++        self.assertTrue(all(isinstance(s["text"], str) and s["text"] for s in spans))
++
+     def test_a_moment_overlapping_any_delivered_span_is_out_whatever_the_pins_age(self):
+         """Audit 2315 C3 K7 (grok, glm): the adapter's delivered_ids (ledger moment ids, 24 h) stay empty: tonight's
+         pins carry no ledger id. L-p is carried by package.usable, which drops any moment that overlaps a delivered
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index b395b01..8c8c160 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -2166,6 +2166,55 @@ class TestRuling72Lock(unittest.TestCase):
+         self.assertIn("ruling 68 / 72: the render's lock", out["tried"][0]["no_voice"]["why_not"])
+ 
+ 
++class TestRuling76Window(unittest.TestCase):
++    """RULING 76 (18:08 Nov 13): (a) a moment only while its source is <= 12 h old on the RENDER clock, no exception for
++    one that is not time-sensitive; (b) a delivered span never again, nor the same speech re-posted in another video;
++    (c) the pin stage re-checks (a) on the render clock."""
++
++    def at(self, mid, hours_ago, **kw):
++        return dict(pm(mid, mid.upper(), 12.0, **kw), published_at=(NOW - timedelta(hours=hours_ago)).isoformat())
++
++    def test_a_moment_over_12_h_or_of_unknown_age_is_expired(self):
++        ok, why = PK.usable([self.at("a", 11.9), self.at("b", 12.1), dict(self.at("c", 1), published_at=None),
++                             dict(self.at("d", 1), published_at="yesterday")], ctx())
++        self.assertEqual([m["moment_id"] for m in ok], ["a"])
++        for mid in "bcd":
++            self.assertIn("ruling 76 (a)", why[mid])
++        self.assertIn("L-v 3", PK.usable([self.at("t", 30, risk=("time_sensitive",))], ctx())[1]["t"])   # as before
++
++    def test_delivered_speech_is_never_used_again_in_any_other_video(self):
++        said = "Currencies are often born for political reasons, but fail for economic reasons."
++        delivered = [{"video_id": "vD", "start": 10.0, "end": 20.0, "pin": "moments-x-1", "text": said}]
++        copy = dict(self.at("c", 1), text="Currencies are often born for political reasons but fail for economic "
++                                          "reasons, he said.", video_id="vOther")
++        other = dict(self.at("o", 1), text="Bitcoin launched in January of 2009 and was never renamed.",
++                     video_id="vOther2")
++        same_video_elsewhere = dict(self.at("s", 1), text=said, video_id="vD", start=40.0, end=50.0)
++        ok, why = PK.usable([copy, other, same_video_elsewhere], ctx(), delivered)
++        self.assertEqual([m["moment_id"] for m in ok], ["o", "s"])         # (the same video: the span rule, as before)
++        self.assertIn("ruling 76 (b): the same speech as a delivered clip (moments-x-1: vD 10.0-20.0)", why["c"])
++        self.assertTrue(PK.same_speech(said, said.upper()))
++        self.assertFalse(PK.same_speech("Bitcoin", "Bitcoin"))                 # never on one word
++        self.assertFalse(PK.same_speech(said, "Currencies fail."))             # short: only an equal text
++        self.assertTrue(PK.same_speech("Bitcoin fixes this.", "bitcoin fixes this"))
++        scattered = "Currencies are rarely political, but reasons fail for many economic reasons of their own."
++        self.assertFalse(PK.same_speech(said, scattered))                      # common words, not runs of three
++
++    def test_the_pin_stage_re_checks_on_the_render_clock(self):
++        now = NOW
++        fresh = {"video_id": "v1", "source_published_at": (now - timedelta(hours=11)).strftime("%Y-%m-%dT%H:%M:%SZ")}
++        stale = {"video_id": "v2", "source_published_at": (now - timedelta(hours=12, minutes=1)).isoformat()}
++        naive = {"video_id": "v3", "source_published_at": (now - timedelta(hours=2)).replace(tzinfo=None).isoformat()}
++        self.assertEqual(package_pin.window_problems([fresh], now), [])
++        p = package_pin.window_problems([fresh, stale, {"video_id": "v4", "source_published_at": None}, naive], now)
++        self.assertEqual(len(p), 3)
++        self.assertIn("v2 was published", p[0])
++        self.assertIn("over 12 h): expired", p[0])
++        self.assertIn("v4: no readable publish time", p[1])
++        self.assertIn("v3: a publish time without a zone", p[2])               # audit 1810 C1: no measurement
++        self.assertEqual(package_pin.WINDOW_H, 12.0)
++
++
+ class TestRuling65Caption(unittest.TestCase):
+     """RULING 65 (12:52): A CAPTION NEVER KILLS A PACKAGE. Only the caption fails fidelity: ONE more write for the caption
+     alone (a new prompt, told the refused sentence and why; the takeaway and title kept as gated); if that fails too,
+@@ -2532,7 +2581,8 @@ class TestProposal1PoolFill(unittest.TestCase):
+ class TestRuling57Fresh(unittest.TestCase):
+     """RULING 57 (09:59): with a 72 h window, a line-up with at least one clip from the last 24 h is preferred over one
+     with none, then the newest clips. The build stops at its first passing package, so the preference decides what is
+-    TRIED first: inside an angle and across angles."""
++    TRIED first: inside an angle and across angles. RULING 76 (18:08 Nov 13) superseded the 72 h window: a moment over
++    12 h old is expired and never offered (the line-up preference itself is unchanged, and moot inside 12 h)."""
+ 
+     def at(self, mid, ch, dur, hours_ago, **kw):
+         return dict(pm(mid, ch, dur, **kw), published_at=(NOW - timedelta(hours=hours_ago)).isoformat(),
+@@ -2554,12 +2604,18 @@ class TestRuling57Fresh(unittest.TestCase):
+         self.assertLess(PK.fresh_key(unknown, NOW), PK.fresh_key(ms[:3], NOW))   # ranks below 50-70 h, never newest
+ 
+     def test_the_angle_with_a_fresh_line_up_is_judged_first(self):
+-        ms = [self.at("h", "A", 12.0, 50), self.at("x", "B", 14.0, 60), self.at("y", "C", 13.0, 70),
++        """Since ruling 76: the 13-70 h moments are expired, never offered to the angle writer, and the line-up is
++        built from the 12 h pool."""
++        ms = [self.at("h", "A", 12.0, 13), self.at("x", "B", 14.0, 60), self.at("y", "C", 13.0, 70),
+               self.at("f", "D", 12.0, 3), self.at("g", "E", 14.0, 4), self.at("k", "F", 13.0, 6)]
+-        rig = Rig(ms, [["h", "x", "y"], ["f", "g", "k"]], [(True, [], None, Rig.LINE)], [None])
++        rig = Rig(ms, [["f", "g", "k"]], [(True, [], None, Rig.LINE)], [None])
+         out = rig.run()
+-        self.assertEqual(rig.medley_calls[0], ["f", "g", "k"])             # the writer's 2nd angle, fresh, first
++        self.assertEqual(rig.medley_calls[0], ["f", "g", "k"])
+         self.assertEqual(out["angles"][0]["hook"], "f")
++        prompt = next(p for r, p in rig.prompts if r == "angle_write")
++        for old in ("h", "x", "y"):
++            self.assertNotIn(f"id={old} ", prompt)                            # never offered
++            self.assertIn("ruling 76 (a)", out["unusable"][old])
+ 
+ 
+ class TestRuling41Search(unittest.TestCase):

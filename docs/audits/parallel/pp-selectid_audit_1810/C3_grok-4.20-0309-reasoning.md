@@ -1,0 +1,8 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 45 s finish=stop usage in 14813 / out 316 usd~0.082 (upper-bound price)
+
+**P2: pipeline/package.py:76 (same_speech)**: difflib.SequenceMatcher + REPOST_ALIGN_MIN (0.80 per comment) on canon_tokens can false-positive on two distinct long speeches sharing one >=3-word run covering >=80% of shorter text (e.g. two overlapping but non-identical Bitcoin commentary clips); ruling 76(b) comment explicitly accepts this as "wrong match loses one moment (fail closed)". Verifiable in added test cases (scattered/common-word rejection, exact-after-canon acceptance).  
+**P2: pipeline/package.py:112 & tests/moments/test_moments.py:180**: usable() now places ruling-76(a) check first (before L-v 3 / time-sensitive); a 30 h time-sensitive moment now always reports "ruling 76 (a)" and agrees with ruling-76(d) count. Updated test and TestRuling76Window confirm.  
+**P2: tests/package/test_candidates.py:297 & proof_ledger.py:232**: later CA.seed() of identical lineup on an already-"expired" candidate cannot revive it (state stays closed, due() returns []); inputs.json read failure still expires with attributable note. Verifiable in added test.  
+**P2: pipeline/package_pin.py:158 & test_medley.py:392**: zoneless publish time is explicitly "no measurement" (problem) per eligibility._parse_time convention; render-clock now= passed or utcnow(). No change to seal(), other gate paths, or acceptance criteria.  
+
+SHIP: yes
