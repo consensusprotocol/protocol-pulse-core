@@ -6,6 +6,13 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 05:25 YOUTUBE ANSWERS AGAIN: the 05:25:36 probe returned the reference video's metadata (wdk5JZ9hPzs, 3523 s); the 05:10:27 probe was still refused. The block lasted from 04:47:03 to between 05:10 and 05:25. Pins can acquire sources again; the builder is told (and asked to pace requests).
+- The word-pass worker stays paused until its block-safe change is audited and merged (batch 60):
+  - ONE control request per cycle on a sign-in failure;
+  - no row is written for a platform failure;
+  - the 330 rows lost at 04:47 are retried once.
+  The old code would burn rows again if YouTube re-blocks.
+
 ## 05:09 THE 03:42 ORDER'S RENDER SIDE IS DONE: rulings 34, 33 part 2 and 37 all merged and pushed (afc73752). YouTube is still blocked (probe 05:09: "Sign in to confirm you're not a bot"), so no pin can acquire its sources.
 RULING 37 MERGED (a14e7dcc, audits batch 59 x2): R1 NO_QUESTION_HOOK is relaxed for moments pins.
 - pinned.build_edl carries the package's sealed gate rows into the EDL as moments_gates.
