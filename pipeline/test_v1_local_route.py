@@ -34,6 +34,22 @@ class TestLocalRoute(unittest.TestCase):
         self.assertEqual(self.calls, [("local", "ollama:gemma3:27b"), ("xai", "xai:grok-4.3")]
                          + [("heimdall", m) for m in VC.VISION_MODELS])
 
+    def test_an_unparseable_empty_or_failed_reply_from_a_new_route_is_no_answer(self):
+        """Audit batch 43 cycle 3 (consensus): the xAI and local replies go through the same fail-closed parsers: garbage,
+        an empty reply or a route error give no answers, and every checklist line is then 'missing' (not ok)."""
+        def boom(*a, **k):
+            raise OSError("route down")
+        for name, reply in (("garbage", lambda p, t, m, timeout: ("I think it looks fine!", {})),
+                            ("empty", lambda p, t, m, timeout: ("", {})), ("error", boom)):
+            for model, attr in (("xai:grok-4.3", "_call_xai"), (VC.LOCAL_VISION, "_call_local")):
+                setattr(VC, attr, reply)
+                answers, raw = VC.ask_vision("x.jpg", "9x16", model=model, attempts=2)
+                self.assertEqual(answers, {}, (name, model))
+                self.assertIn("unparseable", raw, (name, model))
+                ok, rows = VC.verdict(answers, "9x16")
+                self.assertFalse(ok)
+                self.assertTrue(all(r["answer"] == "missing" for r in rows.values()), (name, model))
+
     def test_the_default_panel_is_unchanged(self):
         self.assertEqual(VC.VISION_MODELS, ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl"))
         self.assertTrue(VC.LOCAL_VISION.startswith("ollama:") and VC.LOCAL_VISION not in VC.VISION_MODELS)
