@@ -1,0 +1,330 @@
+{
+  "mode": "pinned",
+  "pin_path": "/home/ultron/protocol_pulse/data/moments_pins/MOMENTS_PIN_115548.json",
+  "pin_sha256": "fe29a10f5312ee5bbe93d98ea52886985813ff89d0e2aa7f994b0bf506cd4f3d",
+  "pin": {
+    "schema": "protocol_pulse.pinned_story.v1",
+    "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+    "label": "bitcoin",
+    "headline": "No authority. That's the design.",
+    "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+    "approved_at": "2026-11-12T13:43:40+00:00",
+    "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, fresh_20261112_050611)",
+    "machine_cuts": true,
+    "segments": [
+      {
+        "role": "hook",
+        "video_id": "vgsSZ4mAHfQ",
+        "channel": "Saifedean Ammous",
+        "start": 5144.99,
+        "end": 5153.37,
+        "approved_text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+        "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+        "time_coords": "youtube",
+        "source": {
+          "kind": "youtube"
+        }
+      },
+      {
+        "role": "clip",
+        "video_id": "c1JGheQBPH4",
+        "channel": "What Bitcoin Did",
+        "start": 2403.23,
+        "end": 2412.85,
+        "approved_text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
+        "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+        "time_coords": "youtube",
+        "source": {
+          "kind": "youtube"
+        }
+      },
+      {
+        "role": "clip",
+        "video_id": "wdk5JZ9hPzs",
+        "channel": "Natalie Brunell",
+        "start": 3218.14,
+        "end": 3221.64,
+        "approved_text": "Bitcoin imposes a global free market for the first time ever.",
+        "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+        "time_coords": "youtube",
+        "source": {
+          "kind": "youtube"
+        }
+      }
+    ],
+    "moments_package": {
+      "schema": "pp.package/1",
+      "package_sha256": "37c5b5f598e97f12a4afd62eccd57f93b946b6f6d7ef087ef1047c1c06bc086f",
+      "type": "moments",
+      "vo_kind": "written by the orchestrator, variant v0700",
+      "edl_vo": {
+        "intro": "Bitcoin does not have any authority. That's not a flaw. That's the design.",
+        "bridges": [
+          {
+            "text": "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
+            "after_clip": 1
+          },
+          {
+            "text": "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still miss when they look at Bitcoin.",
+            "after_clip": 2
+          }
+        ]
+      },
+      "signoff_expected": "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below.",
+      "title": "No authority. That's the design.",
+      "caption": "no authority. that's the design. three clips, links below.",
+      "hook_first_words": "Bitcoin does not have any authority that allows",
+      "vo_jobs": {
+        "intro": "context",
+        "bridge_1": "connection",
+        "bridge_2": "connection"
+      },
+      "gates": {
+        "vo_fidelity_deterministic": {
+          "status": "PASS",
+          "by": "code (vo_fidelity.check_deterministic)",
+          "replayed": false,
+          "n": 1
+        },
+        "vo_fidelity_verdict": {
+          "status": "PASS",
+          "by": "xai:grok-4.20-0309-reasoning",
+          "replayed": false,
+          "n": 1
+        },
+        "duplicate": {
+          "status": "PASS",
+          "by": "code (package.duplicates)",
+          "replayed": false,
+          "n": 1
+        },
+        "price_now": {
+          "status": "PASS",
+          "by": "code (vo_fidelity.price_now)",
+          "replayed": false,
+          "n": 1
+        },
+        "runtime": {
+          "status": "PASS",
+          "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+          "replayed": false,
+          "n": 1
+        },
+        "r4": {
+          "status": "PASS",
+          "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+          "replayed": false,
+          "n": 1
+        },
+        "context_a": {
+          "status": "PASS",
+          "by": [
+            "xai:grok-4.20-0309-reasoning"
+          ],
+          "replayed": false,
+          "n": 3
+        },
+        "context_b": {
+          "status": "PASS",
+          "by": "xai:grok-4.20-0309-reasoning",
+          "replayed": false,
+          "n": 1
+        },
+        "context_c": {
+          "status": "PASS",
+          "by": "xai:grok-4.20-0309-reasoning",
+          "replayed": false,
+          "n": 1
+        },
+        "exclusion": {
+          "status": "PASS",
+          "by": [
+            "xai:grok-4.20-0309-reasoning"
+          ],
+          "replayed": false,
+          "n": 3
+        },
+        "second_pass": {
+          "status": "PASS",
+          "by": [
+            "elevenlabs_stt:scribe_v1"
+          ],
+          "replayed": false,
+          "n": 3
+        },
+        "cuttable": {
+          "status": "PASS",
+          "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+          "replayed": false,
+          "n": 3
+        },
+        "coherence": {
+          "status": "PASS",
+          "by": "xai:grok-4.20-0309-reasoning",
+          "replayed": false,
+          "n": 1
+        }
+      },
+      "checks": {
+        "vo_fidelity_ok": true,
+        "context_integrity_ok": true,
+        "derived_from": "gates (every required row exactly PASS, checked above)",
+        "models": null
+      },
+      "runtime_s_estimate": 60.8,
+      "cut_evidence": {
+        "hook": {
+          "video_id": "vgsSZ4mAHfQ",
+          "start": 5144.99,
+          "end": 5153.37,
+          "model": "elevenlabs_stt:scribe_v1",
+          "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+          "in": {
+            "ok": true,
+            "word": "Bitcoin",
+            "before": "fundamental.",
+            "why": "a sentence ends before the clip"
+          },
+          "out": {
+            "ok": true,
+            "word": "that.",
+            "after": "Your",
+            "why": "a sentence ends at the clip's last word"
+          }
+        },
+        "clip_01": {
+          "video_id": "c1JGheQBPH4",
+          "start": 2403.23,
+          "end": 2412.85,
+          "model": "elevenlabs_stt:scribe_v1",
+          "audio": "c1JGheQBPH4_2401730_2423570.wav",
+          "in": {
+            "ok": true,
+            "word": "I",
+            "before": "Mm-hmm.",
+            "why": "a sentence ends before the clip"
+          },
+          "out": {
+            "ok": true,
+            "word": "US.",
+            "after": "Um,",
+            "why": "a sentence ends at the clip's last word"
+          }
+        },
+        "clip_02": {
+          "video_id": "wdk5JZ9hPzs",
+          "start": 3218.14,
+          "end": 3221.64,
+          "model": "elevenlabs_stt:scribe_v1",
+          "audio": "wdk5JZ9hPzs_3216640_3223140.wav",
+          "in": {
+            "ok": true,
+            "word": "bitcoin",
+            "before": "path.",
+            "why": "a sentence ends before the clip; the speaker's false start 'Bit-' opens the sentence (ruling 8: a self-repair, part of the sentence)",
+            "self_repair": "Bit-"
+          },
+          "out": {
+            "ok": true,
+            "word": "ever.",
+            "after": "Okay,",
+            "why": "a sentence ends at the clip's last word"
+          }
+        }
+      },
+      "sources_30s_before": [
+        "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s",
+        "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s",
+        "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
+      ]
+    }
+  },
+  "validation": [
+    {
+      "role": "hook",
+      "video_id": "vgsSZ4mAHfQ",
+      "channel": "Saifedean Ammous",
+      "input": [
+        5144.99,
+        5153.37,
+        "youtube"
+      ],
+      "source_file_range": [
+        14.99,
+        23.37
+      ],
+      "source_duration": 38.12,
+      "words_in_range": 29,
+      "first_word": "Bitcoin",
+      "last_word": "that.",
+      "transcript_word_straddles_boundary": [
+        "Bitcoin"
+      ],
+      "edge_words_from": "approved_text located by text in the transcript (sentence_law.anchor)",
+      "approved_text_similarity": 1.0,
+      "provenance": {
+        "kind": "youtube_window",
+        "window_offset_s": 5130.0,
+        "source_file_sha256": "67836eb9ed67d8425c59eb510d949fd14eab194ca5d83c01f0010dd03c75db9b"
+      }
+    },
+    {
+      "role": "clip",
+      "video_id": "c1JGheQBPH4",
+      "channel": "What Bitcoin Did",
+      "input": [
+        2403.23,
+        2412.85,
+        "youtube"
+      ],
+      "source_file_range": [
+        15.23,
+        24.85
+      ],
+      "source_duration": 40.051,
+      "words_in_range": 34,
+      "first_word": "I",
+      "last_word": "US.",
+      "transcript_word_straddles_boundary": [
+        "think",
+        "You"
+      ],
+      "edge_words_from": "approved_text located by text in the transcript (sentence_law.anchor)",
+      "approved_text_similarity": 0.944,
+      "provenance": {
+        "kind": "youtube_window",
+        "window_offset_s": 2388.0,
+        "source_file_sha256": "51bf0ed5541e269cbd23bec6438973a9a59c96124d7f8eef1a4cbc29b512d66b"
+      }
+    },
+    {
+      "role": "clip",
+      "video_id": "wdk5JZ9hPzs",
+      "channel": "Natalie Brunell",
+      "input": [
+        3218.14,
+        3221.64,
+        "youtube"
+      ],
+      "source_file_range": [
+        15.14,
+        18.64
+      ],
+      "source_duration": 34.109,
+      "words_in_range": 10,
+      "first_word": "Bitcoin",
+      "last_word": "ever.",
+      "transcript_word_straddles_boundary": [
+        "Bitcoin"
+      ],
+      "edge_words_from": "approved_text located by text in the transcript (sentence_law.anchor)",
+      "approved_text_similarity": 1.0,
+      "provenance": {
+        "kind": "youtube_window",
+        "window_offset_s": 3203.0,
+        "source_file_sha256": "ca81e53c35fdd641d693473dabaafd74d6d6b609030ae98ba28aeff4390ad711"
+      }
+    }
+  ],
+  "rule": "ranges are used exactly as supplied: never extended, trimmed, snapped or improved"
+}

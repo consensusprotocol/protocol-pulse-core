@@ -1,0 +1,164 @@
+{
+  "pass": true,
+  "segments": [
+    {
+      "segment": "hook",
+      "video_id": "vgsSZ4mAHfQ",
+      "errors": [],
+      "in": {
+        "cut": 14.79,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.79,
+          "end": 14.91,
+          "ms": 120
+        },
+        "lexical": "punctuation",
+        "after_word": "fundamental.",
+        "before_word": "Bitcoin",
+        "cut_lo": 14.42,
+        "cut_hi": 14.92,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 23.41,
+        "boundary_valid": true,
+        "pause": {
+          "start": 23.39,
+          "end": 23.44,
+          "ms": 50
+        },
+        "lexical": "punctuation",
+        "after_word": "that.",
+        "before_word": "Your",
+        "cut_lo": 23.21,
+        "cut_hi": 23.7,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 90,
+          "worst_db_after_fade": -50.0,
+          "valley_db": -35.2,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'Bitcoin' ... 'that.' (30 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_01",
+      "video_id": "c1JGheQBPH4",
+      "errors": [],
+      "in": {
+        "cut": 14.3,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.19,
+          "end": 14.61,
+          "ms": 420
+        },
+        "lexical": "punctuation",
+        "after_word": "all?",
+        "before_word": "I",
+        "cut_lo": 14.16,
+        "cut_hi": 14.3,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 25.27,
+        "boundary_valid": true,
+        "pause": {
+          "start": 24.97,
+          "end": 25.45,
+          "ms": 480
+        },
+        "lexical": "punctuation",
+        "after_word": "US.",
+        "before_word": "You",
+        "cut_lo": 24.87,
+        "cut_hi": 25.48,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'I' ... 'US.' (36 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_02",
+      "video_id": "wdk5JZ9hPzs",
+      "errors": [],
+      "in": {
+        "cut": 14.38,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.37,
+          "end": 14.63,
+          "ms": 260
+        },
+        "lexical": "punctuation",
+        "after_word": "path.",
+        "before_word": "Bitcoin",
+        "cut_lo": 14.32,
+        "cut_hi": 14.99,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 19.01,
+        "boundary_valid": true,
+        "pause": {
+          "start": 18.71,
+          "end": 19.23,
+          "ms": 520
+        },
+        "lexical": "punctuation",
+        "after_word": "ever.",
+        "before_word": "Okay,",
+        "cut_lo": 18.52,
+        "cut_hi": 19.33,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 100,
+          "worst_db_after_fade": -47.9,
+          "valley_db": -36.6,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "neighbour_kept_ms": 90,
+          "worst_db_after_fade": -57.8,
+          "valley_db": -38.4,
+          "why": "below the valley threshold after the fade"
+        }
+      },
+      "locked": "'Bitcoin' ... 'ever.' (11 words)",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+[
+  {
+    "clip_id": "hook",
+    "video_id": "vgsSZ4mAHfQ",
+    "cut_in": 14.79,
+    "cut_out": 23.41,
+    "cut_duration": 8.62,
+    "verified": true,
+    "speech_median_db": -23.9,
+    "out": {
+      "pass": null,
+      "m19": {
+        "pass": false,
+        "reason": "cut_out not inside a genuine pause with >=60 ms ahead",
+        "quiet_db": -48.9,
+        "nearby_pauses": [
+          [
+            23.59,
+            23.68
+          ]
+        ]
+      },
+      "deferred_to": "G16 neighbour_clear (DEC-10 c-ii)"
+    },
+    "in": {
+      "pass": true,
+      "lookback_min_db": -46.4,
+      "loud_db": -35.9
+    },
+    "pass": true
+  },
+  {
+    "clip_id": "clip_01",
+    "video_id": "c1JGheQBPH4",
+    "cut_in": 14.3,
+    "cut_out": 25.27,
+    "cut_duration": 10.97,
+    "verified": true,
+    "speech_median_db": -15.1,
+    "out": {
+      "pass": true,
+      "pause_start": 25.19,
+      "pause_end": 25.45,
+      "gap_after_ms": 180,
+      "quiet_db": -40.1
+    },
+    "in": {
+      "pass": true,
+      "lookback_min_db": -179.7,
+      "loud_db": -27.1
+    },
+    "pass": true
+  },
+  {
+    "clip_id": "clip_02",
+    "video_id": "wdk5JZ9hPzs",
+    "cut_in": 14.38,
+    "cut_out": 19.01,
+    "cut_duration": 4.63,
+    "verified": true,
+    "speech_median_db": -26.2,
+    "out": {
+      "pass": true,
+      "pause_start": 18.72,
+      "pause_end": 19.07,
+      "gap_after_ms": 60,
+      "quiet_db": -51.2
+    },
+    "in": {
+      "pass": true,
+      "lookback_min_db": -45.6,
+      "loud_db": -38.2
+    },
+    "pass": true
+  }
+]

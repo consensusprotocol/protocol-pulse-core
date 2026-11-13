@@ -1,0 +1,22 @@
+{
+  "style": "crossfade",
+  "lead_tail": {
+    "hook": [
+      0.12,
+      0.01
+    ],
+    "clip_01": [
+      0.01,
+      0.31
+    ],
+    "clip_02": [
+      0.26,
+      0.31
+    ]
+  },
+  "channels": {
+    "hook": "Saifedean Ammous",
+    "clip_01": "What Bitcoin Did",
+    "clip_02": "Natalie Brunell"
+  }
+}
