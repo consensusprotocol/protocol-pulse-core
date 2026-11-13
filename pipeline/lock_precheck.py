@@ -255,7 +255,7 @@ def pending():
 
 def serve_once(log=print):
     """Answer up to BATCH pending requests: downloads first, the decodes under ONE GPU0 lease, the locks after it.
-    -> how many were answered (0: none pending, a render asked, or the lease is held)."""
+    -> how many were answered (0: none pending, a render asked, the lease is held, or a GPU0 stop)."""
     import gpu0
     todo = pending()[:BATCH]
     if not todo or LJ.render_wants_gpu0():
@@ -289,8 +289,8 @@ def serve_once(log=print):
                         decoded[path] = d
                 finally:
                     gpu0.release_all()                           # GPU0 left as found before the lease goes
-        except gpu0.LeaseBusy as e:
-            log(f"  GPU0 lease busy ({e})")
+        except gpu0.Gpu0Stop as e:          # busy, a foreign user, out of memory: what was decoded is answered below,
+            log(f"  GPU0 stop, the rest stay pending: {type(e).__name__}: {e}")   # the rest asked again (b64 c2)
     for path, r, dl in ready:
         if path in decoded:
             answer(path, r, dl, decoded[path], sha, log=log)

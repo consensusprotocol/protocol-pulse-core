@@ -256,6 +256,18 @@ class TestDiscipline(Base):
         self.assertEqual(LP.latest(VID, START, END, role="hook")["request_id"], "r2")
         self.assertEqual(self.decodes, [VID])                    # one decode: the acquisition is cached
 
+    def test_a_gpu0_stop_leaves_the_rest_pending_and_the_service_running(self):
+        self.request("r1")
+        LP.serve_once(log=self.log)                               # r1 decoded (its transcript cached)
+        self.request("r2", start=700.0, end=710.0, role="hook")    # a new window: a new decode
+        oom = mock.Mock(side_effect=gpu0.GpuOOM("CUDA out of memory"))
+        with mock.patch.object(select_passages, "_whisper_transcribe", oom):
+            self.assertEqual(LP.serve_once(log=self.log), 0)       # no crash out of the serve loop
+        self.assertEqual([os.path.basename(p) for p in LP.pending()], ["r2.json"])
+        self.assertIsNone(LP.latest(VID, 700.0, 710.0, role="hook"))   # nothing invented
+        self.assertEqual(LP.serve_once(log=self.log), 1)            # asked again once GPU0 is back
+        self.assertEqual(LP.latest(VID, 700.0, 710.0, role="hook")["outcome"], "decoded")
+
     def test_a_failed_download_is_an_error_never_a_pass(self):
         self.fail_download = True
         self.request(approved_text=ATTESTED)
