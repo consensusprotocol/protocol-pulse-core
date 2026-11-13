@@ -522,7 +522,8 @@ class Rig:
 
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
-                 trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None):
+                 trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
+                 cached=False):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
@@ -535,7 +536,9 @@ class Rig:
         self.screens, self.events, self.a_seen = [], [], []
         self.write_from = write_from or ("heimdall:deepseek", "heimdall", "deepseek")
         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
-        self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}] + ([follow_up] if follow_up else []))
+        self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}] + ([follow_up] if follow_up else [])
+                             + list(lines or []))                  # ruling 65: the replies for a line written alone
+        self.fids, self.cached = list(fids or []), cached     # ruling 65: the paid fidelity results, in order
         self.angle_hooks = {a[0] for a in many}           # ruling 59: by default only the canned angles' hooks pass
         call = self.router.call
 
@@ -592,7 +595,8 @@ class Rig:
         ok, flagged, ratings, line = self.medleys.pop(0)
         labs = PK.labels(len(segs))
         v = verdict(labs, flagged, ratings, line)
-        return ok, dict(v, flagged=list(flagged), backend="xai:grok", measured=True, replayed=False)
+        return ok, dict(v, flagged=list(flagged), backend="xai:grok", measured=True, replayed=False,
+                        cached=self.cached)
 
     def write(self, router, angle_, segs, ctx_, a_by, join=None, extra="", seed=7, avoid_vendor=None, other=()):
         if join is not None and not other and PK.bridge_budget(sum(m["duration_s"] for m in segs)) is None:
@@ -629,7 +633,7 @@ class Rig:
             "prescreen": self.prescreen,
             "current_levels": lambda *a, **k: [],
             "medley": self.medley, "write_takeaway": self.write,
-            "paid_gates": lambda *a, **k: (fid, cx),
+            "paid_gates": lambda *a, **k: (self.fids.pop(0) if self.fids else fid, cx),
             "exclusion_for": lambda router, m, *a, **k: {"verdict": "drop" if m["moment_id"] in self.excluded else
                                                          "keep", "measured": True, "replayed": False,
                                                          "backend": "xai:grok"},
@@ -1579,6 +1583,119 @@ class TestRulings6264Search(unittest.TestCase):
         self.assertEqual(len(rig.medley_calls), 1)                          # judged once
         self.assertEqual(out["search"]["lineups"], 1)
         self.assertTrue(out["tried"][1].get("verdict_again"))               # the second angle's: free
+
+
+class TestRuling65Caption(unittest.TestCase):
+    """RULING 65 (12:52): A CAPTION NEVER KILLS A PACKAGE. Only the caption fails fidelity: ONE more write for the caption
+    alone (a new prompt, told the refused sentence and why; the takeaway and title kept as gated); if that fails too,
+    the FIXED caption (the gated title in lowercase, a line break, the channel names in play order), code-written,
+    caption_fallback: true. The title alone: one more write, then hold."""
+    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+    OK = {"ok": True, "violations": [], "measured": True, "replayed": False, "backend": "xai:grok",
+          "deterministic": {"ok": True, "violations": [], "price_now_measured": True},
+          "verdict": {"ok": True, "violations": [], "classes": {"takeaway": ["commentary"], "title": ["fact"],
+                                                                "caption": ["fact"]}, "claims": []}}
+
+    def failing(self, slot, detail="it belongs to everyone who uses it.", rule="VERDICT_NO"):
+        v = {"slot": slot, "rule": rule, "detail": detail}
+        return dict(self.OK, ok=False, violations=[v], verdict=dict(self.OK["verdict"], ok=False, violations=[v]))
+
+    def run_rig(self, fids, lines, line_ok=True):
+        import context_integrity as CI
+        import vo_fidelity as VF
+        seen = []
+
+        def one(router, segs, lns, *a, **k):
+            seen.append([ln["text"] for ln in lns])
+            v = [] if line_ok else [{"slot": lns[0]["slot"], "rule": "VERDICT_UNCERTAIN", "detail": lns[0]["text"]}]
+            return {"ok": line_ok, "violations": v, "measured": True, "replayed": False, "backend": "xai:grok",
+                    "deterministic": {"ok": True, "violations": [], "price_now_measured": True},
+                    "verdict": {"ok": line_ok, "violations": v, "classes": {lns[0]["slot"]: ["commentary"]}, "claims": []}}
+        saved = (VF.check, CI.check_contexts, CI.contexts_from_sources)
+        VF.check = one
+        CI.check_contexts = lambda *a, **k: {"ok": True, "violations": [], "measured": True, "replayed": False,
+                                             "backends": {"B": "xai", "C": "xai"}}
+        CI.contexts_from_sources = lambda *a, **k: {}
+        try:
+            rig = Rig(self.MS, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None], fids=fids, lines=lines)
+            return rig, rig.run(), seen
+        finally:
+            VF.check, CI.check_contexts, CI.contexts_from_sources = saved
+
+    def test_only_the_caption_fails_and_its_own_write_passes(self):
+        new = "nobody holds the keys to these rules."
+        rig, out, seen = self.run_rig([self.failing("caption")], [{"caption": {"text": new, "cites": []}}])
+        pk = out["package"]
+        self.assertIsNotNone(pk)
+        lines = {x["slot"]: x["text"] for x in pk["lines"]}
+        self.assertEqual(lines["caption"], new)
+        self.assertEqual((lines["takeaway"], lines["title"]), (Rig.LINE, "Nobody bends the rules"))   # kept as gated
+        self.assertFalse(pk.get("caption_fallback"))
+        prompt = [p for r, p in rig.prompts if r == "angle_write"][-1]
+        self.assertIn("Your caption was refused", prompt)                   # a new prompt, never a replay
+        self.assertIn('"it belongs to everyone who uses it." (the fact check found that the clips do not say it)', prompt)
+        self.assertIn('TAKEAWAY: "' + Rig.LINE, prompt)
+        self.assertEqual(seen, [[new]])                                       # the verdict on that line alone
+        rw = out["tried"][0]["attempts"][0]["rewrite"]
+        self.assertEqual((rw["slot"], rw["passed"]), ("caption", True))
+        self.assertEqual(pk["gates"]["vo_fidelity_verdict"]["status"], "PASS")
+        self.assertEqual(len(rig.write_calls), 1)                            # no second full write was spent
+
+    def test_a_caption_that_fails_again_is_the_fixed_line(self):
+        rig, out, seen = self.run_rig([self.failing("caption")], [{"caption": {"text": "anyone can join it.",
+                                                                               "cites": []}}], line_ok=False)
+        pk = out["package"]
+        self.assertIsNotNone(pk)                                              # a caption never kills a package
+        cap = next(x for x in pk["lines"] if x["slot"] == "caption")
+        self.assertEqual(cap["text"], "nobody bends the rules\na / b / c")   # the title, lowercase; the channels
+        self.assertEqual(cap["cites"], ["h", "x", "y"])
+        self.assertTrue(pk["caption_fallback"])
+        self.assertTrue(out["tried"][0]["attempts"][0]["rewrite"]["caption_fallback"])
+        self.assertIn("ruling 65 b", pk["gates"]["vo_fidelity_verdict"]["by"])
+        self.assertEqual(pk["gates"]["house_style"]["status"], "PASS")
+        self.assertEqual(HS.lint("caption", cap["text"]), [])
+        bad_reply = self.run_rig([self.failing("caption")], [{"caption": "not an object"}])[1]   # the write fails
+        self.assertTrue(bad_reply["package"]["caption_fallback"])
+
+    def test_the_title_alone_gets_one_more_write_then_is_held(self):
+        rig, out, _ = self.run_rig([self.failing("title", "Bitcoin is owned by nobody at all")],
+                                   [{"title": {"text": "Rules nobody can bend", "cites": []}}])
+        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "title"),
+                         "Rules nobody can bend")
+        rig, out, _ = self.run_rig([self.failing("title")], [{"title": {"text": "Rules nobody can bend", "cites": []}}],
+                                   line_ok=False)
+        self.assertIsNone(out["package"])                                     # no fixed title without a ruling
+        self.assertIn("held (ruling 65 c)", out["tried"][0]["why"])
+
+    def test_only_a_lone_caption_or_title_takes_the_path(self):
+        self.assertEqual(PK.lone_slot([{"slot": "caption"}, {"slot": "caption"}]), "caption")
+        self.assertEqual(PK.lone_slot([{"slot": "title"}]), "title")
+        for vs in ([], [{"slot": "takeaway"}], [{"slot": "caption"}, {"slot": "title"}], [{"slot": "-"}],
+                   [{"slot": "caption"}, {"slot": "-"}]):
+            self.assertIsNone(PK.lone_slot(vs), vs)
+        rig, out, _ = self.run_rig([dict(self.failing("caption"), violations=[
+            {"slot": "caption", "rule": "VERDICT_NO", "detail": "x"}, {"slot": "takeaway", "rule": "VERDICT_NO",
+                                                                      "detail": "y"}])], [])
+        self.assertNotIn("rewrite", out["tried"][0]["attempts"][0])          # the takeaway failed too: as before
+
+    def test_merge_keeps_the_other_lines_as_gated(self):
+        merged = PK.merge_fid(self.failing("caption"), "caption",
+                              {"deterministic": {"ok": True, "violations": []}, "measured": True, "replayed": False,
+                               "verdict": {"ok": True, "violations": [], "classes": {"caption": ["commentary"]},
+                                           "claims": []}, "backend": "heimdall:qwen"})
+        self.assertTrue(merged["ok"])
+        self.assertEqual(merged["verdict"]["classes"], {"takeaway": ["commentary"], "title": ["fact"],
+                                                        "caption": ["commentary"]})
+        self.assertIn("the caption alone: heimdall:qwen (ruling 65)", merged["backend"])
+        unmeasured = PK.merge_fid(self.OK, "caption", {"deterministic": {"ok": True, "violations": []},
+                                                       "measured": False, "verdict": {"ok": True, "violations": []}})
+        self.assertFalse(unmeasured["ok"])                                   # law L-m
+
+    def test_a_cached_clips_alone_verdict_is_free(self):
+        rig = Rig([pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)], ["h", "x", "y"],
+                  [(False, [], None, "none")], [None], cached=True)
+        out = rig.run()
+        self.assertEqual((len(rig.medley_calls), out["search"]["lineups"]), (1, 0))
 
 
 class TestOrder0622StepAFromBothVendors(unittest.TestCase):

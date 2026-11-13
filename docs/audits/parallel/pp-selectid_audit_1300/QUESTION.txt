@@ -1,0 +1,91 @@
+You are auditing a SMALL change on branch pp-selectid (Protocol Pulse: the L-y MEDLEY, sealed in a pin the integrator
+renders). Your role: a strict reviewer of a gate path. Only state what you can verify from the diff; if uncertain, say
+so; do not guess.
+
+Background (static):
+- A line-up that passes the clips-alone verdict gets at most WRITES (2) writes. Each write produces ONE takeaway (the
+  VO line), ONE title and ONE caption (the post text).
+- Each write runs the gates:
+  - cheap_checks: the deterministic fidelity rules, house style, DUPLICATE, runtime, R4, the shape;
+  - then the paid gates (paid_gates): the blind fidelity verdict on every line (VF.check), and context integrity
+    (CI.check_contexts) on the package, whose view includes the title and caption.
+  - A failure gets the whole write redone with the violations (_redo).
+  - After the gates: coherence, then the sealed inventory (every required row exactly PASS; a replayed verdict is never
+    deliverable, law L-j).
+- In the 12:22 build, a line-up passed the clips alone and both writes' takeaway and title passed, but one caption
+  sentence was refused each time (VERDICT_NO, then VERDICT_UNCERTAIN). No package came out.
+
+The order this diff implements (ORCHESTRATOR RULING 65, 12:52 ET Nov 13, verbatim):
+"65. A CAPTION NEVER KILLS A PACKAGE. The caption is the post text PBX reads and approves before anything is
+published; the video does not carry it.
+(a) When the takeaway and the title pass and ONLY the caption fails fidelity, the writer gets ONE more write for the
+caption alone, told the refused sentence and why; the takeaway and title are kept as gated, not rewritten. The caption
+stays under L-t (every audience text gated) and the house style lint.
+(b) If that write fails too, the caption is the FIXED line, which states no fact: the gated title in lowercase, a line
+break, then the channel names in play order separated by ' / '. Code-written, no model. It is recorded as
+caption_fallback: true so I tell PBX the caption is a placeholder.
+(c) Same principle for the title only if you ever see it: one more write alone, then hold (a title is burned into
+nothing but is the YouTube title, so no fixed fallback without my ruling).
+The identical-prompt replay must not trap this line-up: the caption-only write is a new prompt."
+(And the 12:00 budget, made exact here: "The search budget of 8 line-ups counts JUDGED line-ups; cached verdicts for an
+identical line-up are free.")
+
+The change (pipeline/package.py, pipeline/package_pin.py, tests/package/test_medley.py):
+1. lone_slot(violations) returns "caption" or "title" when EVERY violation is on that one line, else None.
+2. In the write loop:
+   - A cheap failure whose violations are all on the caption, or all on the title, no longer redoes the write at once.
+     It goes on to the paid gates.
+   - Then, when context integrity passed, the fidelity verdict was measured, and lone_slot(cheap + fidelity
+     violations) is "caption" or "title", rewrite_alone() runs.
+   - Otherwise the old redo runs, its instructions now including any cheap violations.
+3. rewrite_alone(): ONE write for that line alone.
+   - The prompt is a NEW one, WRITE_LINE: the angle, the line-up, the other lines quoted as kept, and the refused
+     sentence(s) with why (LINE_WHY), under the house style rules.
+   - The reply contract: exactly {slot: {text, cites}}, cites from the line-up's ids, within the length limit; a
+     violation raises and is rejected. The line writer's vendor and family join the writers' sets (L-x).
+   - The new line is gated alone:
+     - cheap_checks on the package with it (its deterministic layer and the house style);
+     - the blind fidelity verdict on THAT LINE ALONE (VF.check with one line);
+     - context integrity again on the package as it will be sealed.
+   - On a pass, merge_fid() gives the record: the other lines' results as gated, the line's own from its run. measured
+     and replayed hold over both runs, and the back-end names both.
+   - If the caption's write fails any of it (or raises), the caption becomes the FIXED line, fixed_caption(): the gated
+     title in lowercase, "\n", the channel names in play order, lowercase too, joined by " / ", citing every clip.
+     pk["caption_fallback"] = True. Its record is the deterministic layer only, with the verdict entry "code, no model"
+     (no model judges a code-written line). The cheap checks (house style) and context integrity still run on it.
+   - A title that fails again: held (the fidelity record is set to failed; the line-up stops), with no fixed title.
+4. package_pin.to_pin carries moments_package.caption_fallback (outside the seal body, like no_voice).
+5. The budget: medley() records Reply.cached (a live run served its recorded reply to the same bytes), and the line-up
+   counts toward the 8 only when neither replayed nor cached.
+6. Tests (TestRuling65Caption, 6):
+   - the caption alone rewritten and passing, with the takeaway and title unchanged and one full write spent;
+   - a caption failing again becomes the fixed line (house style PASS, caption_fallback) — including when the
+     caption-only reply is out of contract;
+   - the title rewritten once, then held;
+   - only a lone caption or title takes the path;
+   - merge_fid;
+   - a cached verdict is free.
+   test_medley 125 OK; all 11 suites OK.
+
+Stated readings (say so if you read the ruling differently):
+- K1: "fails fidelity" covers the deterministic layer and house style too (the cheap checks): a caption failing there
+  alone takes the same path, because the principle is "a caption never kills a package".
+- K2: PBX's house style makes a caption all lowercase, NAMES TOO, so the fixed line's channel names are lowercase as
+  well as the title. Otherwise the house_style row (required) could never pass.
+- K3: "code-written, no model" also means no model VERDICT on the fixed line (it states no fact). Its deterministic
+  layer, house style and context integrity run.
+- K4: context integrity runs again on the package as sealed, because its view includes the caption (L-j: the gates
+  on the bytes sent). The takeaway and title's fidelity results stand as gated (not re-judged: ruling 61's lesson,
+  judge noise).
+- K5: the caption-only write does not count toward WRITES (it is the ruling's "ONE more write").
+
+Check in particular:
+- that no path seals a caption or title that was not gated (the merged record, the fallback);
+- that the fixed line's format matches the ruling;
+- L-x for the line writer;
+- that a failure on the takeaway (or on both other lines) never takes this path;
+- the title hold;
+- any change to the old redo path;
+- the budget fix.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

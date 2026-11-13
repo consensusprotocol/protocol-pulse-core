@@ -302,6 +302,7 @@ def to_pin(pk, run_name):
                                 "bridge": pk.get("bridge"),
                                 "supply_exception": pk.get("supply_exception"),
                                 "no_voice": pk.get("no_voice"),          # ruling 3 (22:40): why no VO line ships
+                                "caption_fallback": bool(pk.get("caption_fallback")),   # ruling 65 (b): a placeholder
                                 "gates": pk["gates"],
                                 **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
