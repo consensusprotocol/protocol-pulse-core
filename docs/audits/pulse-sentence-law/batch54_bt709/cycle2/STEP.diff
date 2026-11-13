@@ -1,0 +1,211 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 384ac133..6db842d6 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -695,6 +695,60 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
+     return False, d1
+ 
+ 
++BT601_MATRICES = ("smpte170m", "bt470bg")
++
++
++def to_bt709(run_dir, video_ids):
++    """Ruling 30 (orchestrator 2026-11-13 '01:55'): a source whose MATRIX is BT.601 (color_space smpte170m / bt470bg)
++    is converted to BT.709 before any clip is prepared, so its frames read, and its final's tail measures, as a 709
++    source's do (pin #1: Sjb6lUiL0m4 is smpte170m; its 9:16 and 16:9 finals came out untagged and G9 read 13.6 / 13.9
++    through RGB while the luma plane was the 709 sources' own). The colorspace filter maps the matrix (and the
++    primaries / transfer the source declares, else BT.601's own) to BT.709. It is a lossless x264 encode (qp 0) with
++    every frame's timestamp passed through (-vsync 0), so the cuts' source times and the one lossy encode of prepare
++    are unchanged. The audio is copied. Output tags: bt709 / bt709 / bt709 / tv. The original is kept as
++    sources_bt601/<vid>.mp4. 709 and untagged sources are not touched. Returns {video_id: record}."""
++    out = {}
++    for vid in sorted(set(video_ids)):
++        src = os.path.join(run_dir, "sources", f"{vid}.mp4")
++        tags = media_tags(src)
++        if tags.get("color_space") not in BT601_MATRICES:
++            continue
++        keep = os.path.join(run_dir, "sources_bt601", f"{vid}.mp4")
++        os.makedirs(os.path.dirname(keep), exist_ok=True)
++        ip = tags.get("color_primaries") if tags.get("color_primaries") not in (None, "", "unknown") else tags["color_space"]
++        it = tags.get("color_transfer") if tags.get("color_transfer") not in (None, "", "unknown") else tags["color_space"]
++        ir = "pc" if tags.get("color_range") == "pc" else "tv"     # a full-range source keeps its own range in
++        vf = (f"colorspace=space=bt709:primaries=bt709:trc=bt709:range=tv:format=yuv420p:"   # (batch 54 C1, glm)
++              f"ispace={tags['color_space']}:iprimaries={ip}:itrc={it}:irange={ir}")
++        tmp = src + ".bt709.mp4"
++        r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-map", "0:v:0", "-map", "0:a?", "-vf", vf,
++                            "-vsync", "0", "-c:v", "libx264", "-qp", "0", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
++                            "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
++                            "-color_range", "tv", "-c:a", "copy", "-movflags", "+faststart", tmp],
++                           capture_output=True, text=True, timeout=1800)
++        if r.returncode != 0 or not os.path.exists(tmp):
++            if os.path.exists(tmp):
++                os.unlink(tmp)
++            raise Hold(f"ruling 30: the BT.601 -> BT.709 conversion of {vid} failed: {r.stderr.strip()[-200:]}")
++        before = sha256(src)
++        os.replace(src, keep)
++        os.replace(tmp, src)
++        out[vid] = {"from": {k: tags.get(k) for k in ("color_space", "color_primaries", "color_transfer", "color_range")},
++                    "filter": vf, "original": os.path.relpath(keep, run_dir), "original_sha256": before,
++                    "converted_sha256": sha256(src), "lossless": "libx264 qp 0, -vsync 0, audio copied"}
++    return out
++
++
++def media_tags(path):
++    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
++                        "stream=color_space,color_primaries,color_transfer,color_range", "-of", "json", path],
++                       capture_output=True, text=True, timeout=60)
++    try:
++        return (json.loads(r.stdout).get("streams") or [{}])[0]
++    except ValueError:
++        return {}
++
++
+ def stage_prepare(run, cuts):
+     from run_isolated import prerender_clips as _prerender_isolated
+ 
+@@ -706,6 +760,10 @@ def stage_prepare(run, cuts):
+     from clip_contract import check_clip
+     from cut_accept import check_edge_words
+     from config import FPS, NVENC_QP_INTERMEDIATE
++    run.prov["bt709_conversion"] = {**(run.prov.get("bt709_conversion") or {}),       # ruling 30, before any clip;
++                                    **to_bt709(run.dir, [c["video_id"] for c in cuts])}  # a re-run keeps the record
++    for vid, rec in run.prov["bt709_conversion"].items():
++        print(f"  {vid}: BT.601 ({rec['from'].get('color_space')}) source converted to BT.709 (lossless)")
+     prerender_clips(run.dir, cuts)
+     pads = {}
+     for c in cuts:
+diff --git a/pipeline/test_bt709.py b/pipeline/test_bt709.py
+new file mode 100644
+index 00000000..0a6290ec
+--- /dev/null
++++ b/pipeline/test_bt709.py
+@@ -0,0 +1,129 @@
++#!/usr/bin/env python3
++"""Ruling 30 (orchestrator 2026-11-13 '01:55'): a BT.601 source is converted to BT.709 at prepare, so it reads, and its
++final's tail measures, as a 709 source. The fixture is pin #1's own hook source (run pinned_20261113_054035,
++Sjb6lUiL0m4: tv / smpte170m matrix / bt709 primaries and transfer), a 4 s span stream-copied into a scratch run.
++must-pass  the converted source: tags bt709 x3 + tv; the same frames, frame times and audio bytes; the same picture
++           (RGB within 1 level, each decoded with its own matrix); G9's own decode path (ffmpeg PNG -> OpenCV gray)
++           within 0.2 of the original's
++must-not   a 709 source or an untagged source is touched; a failed conversion leaves the source and holds the run"""
++import hashlib
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++import numpy as np
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import run_fresh as rf  # noqa: E402
++
++HOOK = os.path.join(REPO, "runs", "pinned_20261113_054035", "sources", "Sjb6lUiL0m4.mp4")
++
++
++def sha(p):
++    return hashlib.sha256(open(p, "rb").read()).hexdigest()
++
++
++def probe(p, entries, sel="v:0"):
++    return subprocess.run(["ffprobe", "-v", "error", "-select_streams", sel, "-show_entries", entries, "-of", "csv=p=0",
++                           p], capture_output=True, text=True).stdout.strip()
++
++
++def pts(p):                                             # presentation times, sorted: the packet ORDER may differ
++    return sorted(float(x) for x in probe(p, "packet=pts_time").split())   # (the lossless encode uses B-frames)
++
++
++def rgb(path, t, matrix):
++    raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(t), "-i", path, "-frames:v", "1", "-vf",
++                          f"scale=in_color_matrix={matrix}:in_range=tv,format=rgb24", "-f", "rawvideo", "-"],
++                         capture_output=True).stdout
++    return np.frombuffer(raw, np.uint8).astype(float)
++
++
++def g9_gray(path, t):                                   # gate_g9's own path: ffmpeg PNG (its default decode), cv2 gray
++    import cv2
++    raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(t), "-i", path, "-frames:v", "1", "-f", "image2pipe",
++                          "-vcodec", "png", "-"], capture_output=True).stdout
++    return float(cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_GRAYSCALE).mean())
++
++
++class TestBt709(unittest.TestCase):
++    def setUp(self):
++        self.run = tempfile.mkdtemp(prefix="bt709_")
++        self.addCleanup(shutil.rmtree, self.run)
++        os.makedirs(os.path.join(self.run, "sources"))
++
++    def src(self, vid):
++        return os.path.join(self.run, "sources", f"{vid}.mp4")
++
++    @unittest.skipUnless(os.path.isfile(HOOK), "pin #1's hook source is not on this machine")
++    def test_the_bt601_hook_becomes_bt709_with_the_same_frames_audio_and_picture(self):
++        s = self.src("Sjb6lUiL0m4")
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", "14", "-t", "4", "-i", HOOK, "-map", "0", "-c", "copy", s],
++                       check=True)
++        self.assertEqual(probe(s, "stream=color_space"), "smpte170m")
++        before_sha = sha(s)
++        frames, times = probe(s, "stream=nb_frames,duration"), pts(s)
++        rec = rf.to_bt709(self.run, ["Sjb6lUiL0m4", "Sjb6lUiL0m4"])["Sjb6lUiL0m4"]
++        self.assertEqual(probe(s, "stream=color_space,color_primaries,color_transfer,color_range"),
++                         "tv,bt709,bt709,bt709")
++        keep = os.path.join(self.run, rec["original"])
++        self.assertEqual((sha(keep), rec["original_sha256"], rec["converted_sha256"]), (before_sha, before_sha, sha(s)))
++        self.assertEqual((probe(s, "stream=nb_frames,duration"), pts(s)), (frames, times))   # every frame time kept
++        md5 = [subprocess.run(["ffmpeg", "-v", "error", "-i", p, "-map", "0:a", "-c", "copy", "-f", "framemd5", "-"],
++                              capture_output=True, text=True).stdout.split("\n", 8)[-1] for p in (keep, s)]
++        self.assertEqual(md5[0], md5[1])                                          # the audio: copied
++        for t in (0.5, 2.0, 3.5):
++            self.assertLess(np.abs(rgb(keep, t, "bt601") - rgb(s, t, "bt709")).mean(), 1.0)
++            self.assertLess(abs(g9_gray(keep, t) - g9_gray(s, t)), 0.2)
++
++    def test_a_bt709_or_untagged_source_is_never_touched(self):
++        for vid, tags in (("v709", ["-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
++                                    "-color_range", "tv"]), ("vunk", [])):
++            with self.subTest(vid=vid):
++                s = self.src(vid)
++                subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=320x180:rate=24:duration=1",
++                                "-c:v", "libx264", "-pix_fmt", "yuv420p", *tags, s], check=True)
++                before = sha(s)
++                self.assertEqual(rf.to_bt709(self.run, [vid]), {})
++                self.assertEqual(sha(s), before)
++        self.assertFalse(os.path.exists(os.path.join(self.run, "sources_bt601")))
++
++    def test_a_source_declaring_only_its_bt601_matrix_converts_with_the_matrix_defaults(self):   # batch 54 C1
++        for space, rng in (("smpte170m", "tv"), ("bt470bg", "tv"), ("smpte170m", "pc")):
++            with self.subTest(space=space, range=rng):
++                vid = f"v_{space}_{rng}"
++                s = self.src(vid)
++                subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
++                                "testsrc=size=320x180:rate=24:duration=1", "-c:v", "libx264", "-pix_fmt", "yuv420p",
++                                "-colorspace", space, "-color_range", rng, s], check=True)
++                rec = rf.to_bt709(self.run, [vid])[vid]                  # primaries / transfer undeclared
++                self.assertIn(f"iprimaries={space}:itrc={space}:irange={rng}", rec["filter"])
++                self.assertEqual(probe(s, "stream=color_space,color_primaries,color_transfer,color_range"),
++                                 "tv,bt709,bt709,bt709")
++
++    def test_a_failed_conversion_holds_and_leaves_the_source(self):
++        s = self.src("v601")
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=320x180:rate=24:duration=1",
++                        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-colorspace", "smpte170m", "-color_range", "tv", s],
++                       check=True)
++        before, real = sha(s), subprocess.run
++
++        def fail_ffmpeg(cmd, *a, **k):
++            if cmd and cmd[0] == "ffmpeg":
++                return subprocess.CompletedProcess(cmd, 1, "", "colorspace: unsupported input")
++            return real(cmd, *a, **k)
++        with mock.patch.object(rf.subprocess, "run", fail_ffmpeg):
++            with self.assertRaisesRegex(rf.Hold, "ruling 30: the BT.601 -> BT.709 conversion of v601 failed"):
++                rf.to_bt709(self.run, ["v601"])
++        self.assertEqual(sha(s), before)
++        self.assertEqual([n for n in os.listdir(os.path.join(self.run, "sources")) if n != "v601.mp4"], [])
++
++
++if __name__ == "__main__":
++    unittest.main()

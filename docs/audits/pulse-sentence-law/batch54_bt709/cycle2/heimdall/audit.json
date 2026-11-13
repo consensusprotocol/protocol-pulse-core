@@ -1,0 +1,94 @@
+{
+ "question": "Batch 54 cycle 2 (verification). Cycle 1 implemented: the provenance merges on a re-run; irange follows the source (pc / tv); the matrix-default names proven by real conversions (see CONSENSUS.md).\n\nBatch 54 = RULING 30 (orchestrator 2026-11-13 '01:55'), verbatim: \"G9 tail with a BT.601 source in both formats: this is the measured cause ruling 26 waited for. Fix at prepare: convert BT.601 sources to BT.709 with correct matrix and tag so the tail measures the same as a 709 source. Add a test with this hook as the fixture. The G9 floor stays.\"\nMeasured facts (ruling 26):\n- pin #1's and the medley's untagged finals both trace to one BT.601 source, Sjb6lUiL0m4: tv / smpte170m MATRIX / bt709 primaries and transfer;\n- their luma plane equals that of the 709 sources;\n- G9 reads through RGB (ffmpeg PNG with its default decode, then OpenCV gray), so the tag and the chroma moved its number.\nThe change, run_fresh.to_bt709(run_dir, video_ids), called at the start of stage_prepare before any clip is prepared (run_isolated.prerender_clips is a protected file and is unchanged):\n- a source whose color_space is smpte170m or bt470bg is re-encoded with the colorspace filter:\n  - output space / primaries / trc bt709, range tv;\n  - input ispace from the source; iprimaries / itrc from the source when declared, else the matrix's own;\n- lossless libx264 qp 0, -vsync 0 (every frame timestamp passed through; ffmpeg 4.4 has no -fps_mode), audio copied;\n- output tags -colorspace / -color_primaries / -color_trc bt709, -color_range tv;\n- the original is kept as run_dir/sources_bt601/<vid>.mp4. It is outside sources/ because record_assets lists every file in sources/ as a video;\n- both sha256 values and the filter go to PROVENANCE[\"bt709_conversion\"];\n- a failed encode raises Hold and leaves the source as it was;\n- 709 and untagged sources are never touched.\nMeasured on a 4 s span of the real hook, original against converted:\n- the same 97 frames and duration; the same sorted frame times; byte-identical audio;\n- RGB with each file decoded by its own matrix: mean abs diff 0.30;\n- G9's decode path: 99.49 / 99.54.\nTests: 3 (that fixture; 709 and untagged untouched; a failed conversion holds).\nFIND: anything still open; a wrong mapping; a frame retimed; the original lost; a later stage reading the wrong file; a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.5,
+   "cost": 0.000249457,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 24.6,
+   "cost": 0.000210614,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 14.5,
+   "cost": 0.0009899447,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 14.2,
+   "cost": 0.000191332,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/test_bt709.py",
+   "line": 0,
+   "issue": "The failed-conversion test's fail_ffmpeg also breaks the ffprobe call inside to_bt709? No \u2014 it only fails ffmpeg, but it also fails the *setup* ffmpeg? No, setup runs before the patch; however the mock returns CompletedProcess(cmd,1,...) for the *conversion* ffmpeg only, and the test then asserts the source is unchanged \u2014 but to_bt709 raises Hold before os.replace, so the assertion passes trivially; the test never verifies sources_bt601/ was not created",
+   "evidence": "self.assertEqual([n for n in os.listdir(os.path.join(self.run, \"sources\")) if n != \"v601.mp4\"], [])",
+   "fix": "Also assert not os.path.exists(os.path.join(self.run, 'sources_bt601'))",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/run_fresh.py",
+   "line": 760,
+   "issue": "On a re-run, the provenance record's 'from' tags are overwritten with the converted file's tags, so the original BT.601 matrix is lost from PROVENANCE['bt709_conversion']",
+   "evidence": "run.prov[\"bt709_conversion\"] = {**(run.prov.get(\"bt709_conversion\") or {}), **to_bt709(run.dir, [c[\"video_id\"] for c in cuts])}",
+   "fix": "Skip videos already recorded in run.prov['bt709_conversion'] (or only merge new keys), since after the first pass the source at sources/<vid>.mp4 is already BT.709 and to_bt709 returns {} for it anyway \u2014 but if it were re-converted, the old record's 'from' would be clobbered",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/run_fresh.py",
+   "line": 713,
+   "issue": "media_tags returns {} on ffprobe failure or a stream with no tags, and to_bt709 then treats the source as untagged and skips it \u2014 but if the stream exists yet ffprobe fails transiently, a 601 source silently skips conversion with no provenance note",
+   "evidence": "except ValueError: return {}",
+   "fix": "Distinguish 'no video stream' from 'ffprobe failed' (check r.returncode) and raise Hold on the latter, or record the skip in provenance"
+  }
+ ],
+ "total_cost": 0.0016413477,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch54_bt709/cycle2/heimdall"
+}

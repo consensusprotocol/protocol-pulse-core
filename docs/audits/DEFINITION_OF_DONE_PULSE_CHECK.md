@@ -6,6 +6,33 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 02:59 THE FIRST FRESH MEDLEY IS RENDERING (order '01:55' item 2): run pinned_20261113_075638, started 02:56:38 from HEAD 5be6f301; preflight all PASS.
+THE PIN: the builder's ledger build, seal d2657bbe, frozen as data/moments_pins/MOMENTS_PIN_LEDGER_073738.json (sha256 d15fbfa8...). It checks READY against the builder's package_pin.py at 307e2ca7. The clips:
+- hook: Simply Bitcoin BS0XC_tixa8 994.33-1005.91, published 2026-11-12T22:14Z;
+- clip 1: Simply Bitcoin WTCwyxW-lHk 1685.97-1695.70, TIME-SENSITIVE ('six negative weeks'), published 2026-11-12T17:42Z. L-v 3 deadline: 12:42 ET today;
+- clip 2: Anthony Pompliano mJviDNOhIyw 1614.60-1630.83, published 2026-11-12T22:00Z.
+One recorded bridge sits in the intro slot (the clips-alone verdict flagged that join), then the takeaway. Title 'Open code, rough weeks, small allocations'. The builder's 17 gates PASS, including G17a hook_onset on the source audio. Speakers: all three unknown, measured. Supply exception: two Simply Bitcoin clips from two videos. All three sources are BT.709. This is the first run with ruling 29 (loudness corrected before the gates).
+ORDER '02:46':
+(a) THE WORKER READS THE LIVE LEDGER (~/worktrees/pp-ingest/data/editorial/moments/moment_ledger.jsonl): 2069 lines, 2069 distinct moments, last written 22:06:21 Nov 12. The ingest has mined nothing since; the file is live, not a stale copy. 1340 = 2069 minus the adapter's exclusions (378 hard flags + 309 altcoin / not Bitcoin + 42 speaker changes = 729) over the 72 h horizon. The builder's 507 is the same adapter within 24 h.
+(b) WHERE THE TIME WENT, from the code (the old cycles had no phase timing):
+- every video's audio downloaded SEQUENTIALLY before any GPU work;
+- every window swapped the two Whisper models (the verbatim distil-large-v3, then the large-v3 punctuation reference), i.e. two model loads per moment, because gpu0.swap_to keeps one model per GPU;
+- one 216.4 s wait-out of the foreign GPU1 user (02:3x).
+MERGED 5be6f301 (audits batch 55 x2):
+- audio fetched in 4 threads ahead of the GPU, which starts as soon as 16 jobs are ready;
+- each batch runs every verbatim decode first, then the reference only where punctuation needs restoring: one model change per batch;
+- cycles of 120;
+- order: the last 10 h, then the last 24 h, then older;
+- a dying fetch writes failure rows;
+- the report now times fetch_s / lease_wait_s / gpu_s / foreign_wait_s.
+Restarted 02:58:36 (tmux pipeline_pp_wordpass): 120 picked, all from the last 24 h, 13 channels. Its report gives the per-phase split; minutes per 120 and the 24 h backlog follow here.
+(c) the media-sync GPU user: a read-only watcher is set on the 03:00 run (which GPU, how much, which GPU libraries are mapped); the result follows. The cron is untouched; the worker's wait-out stays.
+RULING 28, PARKED UNCOMMITTED (worktree hook-lead), measured on pin #1's real hook:
+- every legal cut in the 230 ms pause (14.45-14.81 s) keeps 0-20 ms of genuine quiet, because the hard edit's digital zeros run until about 40 ms before the first word;
+- the only cut whose quiet is genuine all the way to the word is 14.81;
+- but a simulation of the D1 room-tone pad prepended there still measures 20 ms in G17a's own measure: the pad does NOT join the run, and why is not yet known.
+Nothing is merged for 28. Pin #1's hook cannot open a video as cut today; the builder's G17a pin-stage check now refuses such hooks (20 ms < 90 ms).
+
 ## 02:21 ORDER '01:55' ITEM 1 REPORT (the fresh batch) + RULING 29 MERGED (fb9813d1).
 THE WORD-PASS WORKER, measured per cycle (data/editorial/moments/word_pass_cycles.jsonl):
 

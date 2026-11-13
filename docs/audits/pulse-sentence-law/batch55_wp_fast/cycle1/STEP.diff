@@ -1,0 +1,403 @@
+diff --git a/pipeline/test_word_pass_worker.py b/pipeline/test_word_pass_worker.py
+index 58e4a3b4..d89218de 100644
+--- a/pipeline/test_word_pass_worker.py
++++ b/pipeline/test_word_pass_worker.py
+@@ -16,30 +16,34 @@ PIPELINE = os.path.dirname(os.path.abspath(__file__))
+ sys.path.insert(0, PIPELINE)
+ import word_pass_worker as W  # noqa: E402
+ 
++import datetime as _dt                                                   # a fixed clock: never the wall clock
++NOW = _dt.datetime(2026, 11, 13, 6, 0, tzinfo=_dt.timezone.utc)
+ 
+-def row(i, ch, vid=None, start=100.0, end=112.0, pub="2026-11-12T10:00:00+00:00"):
++
++def row(i, ch, vid=None, start=100.0, end=112.0, pub="2026-11-10T10:00:00+00:00"):   # > 24 h before NOW: "older"
+     return {"moment_id": f"m{i:03d}", "video_id": vid or f"v{ch}", "channel_id": f"UC{ch}", "start": start, "end": end,
+             "published_at": pub}
+ 
+ 
+ class TestPickAndWindow(unittest.TestCase):
+     def test_at_most_seven_per_channel_so_forty_span_six_channels(self):
++        self.assertEqual(W.PER_CHANNEL, -(-W.PER_CYCLE // W.MIN_CHANNELS))     # the cap still makes 6 channels
+         rows = [row(i, i % 8 if i >= 30 else 0) for i in range(80)]           # the top 30 all from one channel
+-        picks, nch = W.pick(rows, set(), full=lambda v: False)
+-        self.assertEqual(len(picks), W.PER_CYCLE)
++        picks, nch = W.pick(rows, set(), full=lambda v: False, per_cycle=40, per_channel=7, now=NOW)
++        self.assertEqual(len(picks), 40)
+         self.assertGreaterEqual(nch, W.MIN_CHANNELS)
+         per = {}
+         for r in picks:
+             per[r["channel_id"]] = per.get(r["channel_id"], 0) + 1
+-        self.assertLessEqual(max(per.values()), W.PER_CHANNEL)
++        self.assertLessEqual(max(per.values()), 7)
+         self.assertEqual(picks[0]["moment_id"], "m000")                       # rank order kept
+ 
+     def test_five_channels_of_ten_give_thirty_five_and_a_sixth_channel_fills_in(self):   # audit batch 51 C1
+         five = [row(i, i // 10) for i in range(50)]                            # ranked: ch0 x10, ch1 x10, ... ch4 x10
+-        picks, nch = W.pick(five, set(), full=lambda v: False)
++        picks, nch = W.pick(five, set(), full=lambda v: False, per_cycle=40, per_channel=7, now=NOW)
+         self.assertEqual((len(picks), nch), (35, 5))                           # the ledger allows no more channels
+         six = five + [row(100 + i, 9) for i in range(3)]                       # three lower-ranked rows of a 6th
+-        picks, nch = W.pick(six, set(), full=lambda v: False)
++        picks, nch = W.pick(six, set(), full=lambda v: False, per_cycle=40, per_channel=7, now=NOW)
+         self.assertEqual((len(picks), nch), (38, 6))
+         self.assertEqual([r["moment_id"] for r in picks][-3:], ["m100", "m101", "m102"])
+ 
+@@ -66,6 +70,16 @@ class TestPickAndWindow(unittest.TestCase):
+         self.assertEqual(ids[:10], [f"m{i:03d}" for i in range(10)])          # 7 capped, then the other 3 fresh
+         self.assertEqual(ids[10:], ["m100", "m101"])                            # only then older rows
+ 
++    def test_order_0246_last_10_h_then_last_24_h_then_older(self):
++        import datetime as dt
++        now = dt.datetime(2026, 11, 13, 6, 0, tzinfo=dt.timezone.utc)
++        older = [row(i, 10 + i, pub="2026-11-11T06:00:00+00:00") for i in range(3)]      # 48 h old, ranked first
++        day = [row(100 + i, 20 + i, pub="2026-11-12T12:00:00+00:00") for i in range(3)]   # 18 h old
++        ten = [row(200 + i, 30 + i, pub="2026-11-13T02:00:00+00:00") for i in range(3)]   # 4 h old, ranked last
++        picks, _ = W.pick(older + day + ten, set(), full=lambda v: False, per_cycle=8, now=now)
++        self.assertEqual([r["moment_id"] for r in picks],
++                         ["m200", "m201", "m202", "m100", "m101", "m102", "m000", "m001"])
++
+     def test_passed_moments_and_videos_with_a_full_record_are_skipped(self):
+         rows = [row(1, 1), row(2, 2), row(3, 3, vid="vfull")]
+         picks, _ = W.pick(rows, {"m001"}, full=lambda v: v == "vfull")
+@@ -138,7 +152,7 @@ class TestCycle(unittest.TestCase):
+ 
+         def fake_decode(wav):
+             if wav.endswith("m003.wav"):
+-                raise RuntimeError("decoder crashed")
++                return RuntimeError("decoder crashed")
+             w = [{"word": "Bitcoin", "start": 2.0, "end": 2.4}, {"word": "holds.", "start": 2.5, "end": 2.9}]
+             return w, w, None
+ 
+@@ -150,7 +164,7 @@ class TestCycle(unittest.TestCase):
+                         mock.patch.object(W.ts, "ensure_meta", lambda vid: dict(meta, video_id=vid)),
+                         mock.patch.object(W.ts, "download_audio", fake_audio),
+                         mock.patch.object(W.ts, "release_whisper", lambda: None),
+-                        mock.patch.object(W, "decode", fake_decode),
++                        mock.patch.object(W, "decode_batch", lambda wavs: [fake_decode(w) for w in wavs]),
+                         mock.patch.dict(os.environ, {"CUDA_VISIBLE_DEVICES": "1", "PP_GPU1_LEASE": lease})]
+         for p in self.patches:
+             p.start()
+@@ -183,7 +197,7 @@ class TestCycle(unittest.TestCase):
+         W.cycle()
+         os.remove(W.ROWS_FILE)                                                 # the rows were lost, the records stay
+         calls = []
+-        with mock.patch.object(W, "decode", lambda wav: calls.append(wav) or ([], [], None)):
++        with mock.patch.object(W, "decode_batch", lambda wavs: [calls.append(w) or ([], [], None) for w in wavs]):
+             W.cycle()
+         got = {r["moment_id"]: r for r in self.rows_written()}
+         self.assertTrue(got["m001"].get("reused") and got["m001"]["sentence_ready"])
+@@ -200,15 +214,60 @@ class TestCycle(unittest.TestCase):
+         import gpu0
+         seen = []
+ 
+-        def spy(wav):
+-            seen.append(gpu0.held() if hasattr(gpu0, "held") else None)
+-            return [{"word": "Ok.", "start": 1.0, "end": 1.2}], [{"word": "Ok.", "start": 1.0, "end": 1.2}], None
+-        with mock.patch.object(W, "decode", spy):
+-            W.cycle()
++        def spy(wavs):
++            seen.append(gpu0.held())
++            w = [{"word": "Ok.", "start": 1.0, "end": 1.2}]
++            return [(w, w, None) for _ in wavs]
++        with mock.patch.object(W, "decode_batch", spy):
++            rep = W.cycle()
++        self.assertEqual(rep["batches"], 1)
++        for k in ("fetch_s", "lease_wait_s", "foreign_wait_s", "gpu_s"):
++            self.assertIsInstance(rep[k], float)
+         self.assertTrue(seen and all(seen), seen)
+         self.assertFalse(gpu0.held())
+ 
+ 
++class TestDecodeBatch(unittest.TestCase):
++    """Order '02:46': ONE load of each model per batch (before: two swaps per moment), the punctuation reference only
++    where the verbatim words need it, and a failed window never stops the others."""
++
++    def test_each_model_is_loaded_once_per_batch_and_the_reference_only_where_needed(self):
++        loads = []
++
++        class Seg:
++            def __init__(self, ws):
++                self.words = ws
++
++        class Word:
++            def __init__(self, w, s, e):
++                self.word, self.start, self.end = w, s, e
++
++        class Model:
++            def transcribe(self, wav, **k):
++                if wav == "bad.wav":
++                    return iter([]), None
++                last = "ends." if wav == "clean.wav" else "ends"
++                return iter([Seg([Word("It", 0.0, 0.2), Word(last, 0.3, 0.6)])]), None
++
++        def whisper():
++            loads.append("verbatim")
++            return Model()
++
++        def reference():
++            loads.append("reference")
++            return Model()
++        import punctuation
++        with mock.patch.object(W.ts, "_whisper", whisper), mock.patch.object(W.ts, "_reference", reference), \
++                mock.patch.object(punctuation, "needs_restoration", lambda words: not words[-1]["word"].endswith(".")), \
++                mock.patch.object(punctuation, "ensure", lambda rec, wav, model, **k: dict(rec, punctuation={"x": 1})):
++            out = W.decode_batch(["clean.wav", "raw1.wav", "bad.wav", "raw2.wav"])
++        self.assertEqual(out[0][2], None)                                     # needed no reference
++        self.assertEqual((out[1][2], out[3][2]), ({"x": 1}, {"x": 1}))
++        self.assertIsInstance(out[2], Exception)                              # one window failed, the others ran
++        self.assertEqual(loads, ["verbatim"] * 4 + ["reference"] * 2)         # every verbatim decode first, then the
++                                                                              # references (one load each through gpu0)
++
++
+ class TestGpu1Only(unittest.TestCase):
+     def test_the_worker_refuses_any_gpu_but_gpu1(self):
+         for v in ("0", "", "0,1"):
+diff --git a/pipeline/word_pass_worker.py b/pipeline/word_pass_worker.py
+index 72d1e8f9..9525081e 100644
+--- a/pipeline/word_pass_worker.py
++++ b/pipeline/word_pass_worker.py
+@@ -44,8 +44,9 @@ INGEST_ROOT = os.environ.get("PP_INGEST_ROOT", "/home/ultron/worktrees/pp-ingest
+ STORE = ts.STORE_DIR
+ ROWS_FILE = os.path.join(STORE, "moments", "word_pass.jsonl")
+ CYCLES_FILE = os.path.join(STORE, "moments", "word_pass_cycles.jsonl")
+-PER_CYCLE, MIN_CHANNELS, PAD_S, BATCH, HORIZON_H = 40, 6, 45.0, 8, 72
+-FRESH_H = 10              # orchestrator '01:55': the moments published in the last 10 h first (by score inside it)
++PER_CYCLE, MIN_CHANNELS, PAD_S, BATCH, HORIZON_H = 120, 6, 45.0, 16, 72   # order '02:46': bigger cycles
++FRESH_H, DAY_H = 10, 24   # orchestrators '01:55' / '02:46': the last 10 h first, then the last 24 h, then older
++FETCH_WORKERS = 4         # order '02:46': audio fetched in parallel, ahead of the GPU step
+ PER_CHANNEL = math.ceil(PER_CYCLE / MIN_CHANNELS)
+ OWNER = "word-pass worker (integrator, GPU1)"
+ LEASE_WAIT_S = 1800
+@@ -123,12 +124,12 @@ def is_fresh(row, now, hours=FRESH_H):
+ 
+ 
+ def pick(rows, done, full=None, per_cycle=PER_CYCLE, per_channel=PER_CHANNEL, now=None):
+-    """The rows to work, up to per_cycle, never one that is done or whose video has a full record. Order '01:55': the
+-    rows published in the last FRESH_H hours come before anything older. Filled in three passes, each in the
+-    adapter's own rank order (score):
+-    (1) fresh rows, at most per_channel per channel;
+-    (2) the remaining fresh rows, no cap, so a capped channel's fresh rows still come before older rows;
+-    (3) older rows, the cap counting on."""
++    """The rows to work, up to per_cycle, never one that is done or whose video has a full record. Orders '01:55' /
++    '02:46': the last FRESH_H hours, then the last DAY_H hours, then older. Each tier is filled in the adapter's own
++    rank order (score):
++    - for the 10 h and 24 h tiers, first at most per_channel per channel, then the rest of the tier uncapped, so a
++      capped channel's newer rows still come before any older row;
++    - older rows are capped, the per-channel counts carrying on."""
+     now = now or dt.datetime.now(dt.timezone.utc)
+     full, out, per, full_cache, taken = full or has_full_record, [], {}, {}, set()
+ 
+@@ -147,10 +148,13 @@ def pick(rows, done, full=None, per_cycle=PER_CYCLE, per_channel=PER_CHANNEL, no
+             taken.add(r["moment_id"])
+             out.append(r)
+ 
+-    fresh = [r for r in rows if is_fresh(r, now)]
+-    take(fresh, True)
+-    take(fresh, False)
+-    take([r for r in rows if not is_fresh(r, now)], True)
++    t10 = [r for r in rows if is_fresh(r, now, FRESH_H)]
++    t24 = [r for r in rows if not is_fresh(r, now, FRESH_H) and is_fresh(r, now, DAY_H)]
++    take(t10, True)
++    take(t10, False)
++    take(t24, True)                                   # order '02:46': then the last 24 h, the same two passes
++    take(t24, False)
++    take([r for r in rows if not is_fresh(r, now, DAY_H)], True)
+     return out, len(per)
+ 
+ def window(row, duration=None):
+@@ -181,18 +185,48 @@ def words_sha256(words):
+                                      ensure_ascii=False).encode()).hexdigest()
+ 
+ 
+-def decode(wav):
+-    """The store's word pass on one window: (verbatim words, punctuated words, punctuation provenance), window clock."""
+-    import punctuation
++def decode_verbatim(wav):
++    """The store's verbatim word decode of one window (WHISPER_MODEL, word timestamps), window clock."""
+     it, _ = ts._whisper().transcribe(wav, language="en", batch_size=ts.WHISPER_BATCH, word_timestamps=True)
+     words = [{"word": w.word.strip(), "start": round(w.start, 3), "end": round(w.end, 3)}
+              for s in it for w in (s.words or [])]
+     if not words:
+         raise ts.AcquisitionError("no words in the window")
++    return words
++
++
++def decode_punct(words, wav):
++    """The punctuation reference (REFERENCE_MODEL, case=True) when the verbatim words need it; else none."""
++    import punctuation
++    if not punctuation.needs_restoration(words):
++        return words, None
+     out = punctuation.ensure({"words": words}, wav, ts._reference(),
+                              model_name=ts.whisper_model_id().replace(ts.WHISPER_MODEL, ts.REFERENCE_MODEL)
+                              + " word_timestamps", settings={"batch_size": ts.WHISPER_BATCH}, case=True)
+-    return words, out["words"], out.get("punctuation")
++    return out["words"], out.get("punctuation")
++
++
++def decode_batch(wavs):
++    """Order '02:46': a batch's verbatim decodes all run on ONE load of WHISPER_MODEL, then the punctuation reference
++    runs on ONE load of REFERENCE_MODEL. Before, every window swapped the two models (two loads per moment). Returns,
++    per wav, (verbatim, words, punctuation) or the exception."""
++    first = []
++    for w in wavs:
++        try:
++            first.append(decode_verbatim(w))
++        except Exception as e:
++            first.append(e)
++    out = []
++    for w, v in zip(wavs, first):
++        if isinstance(v, Exception):
++            out.append(v)
++            continue
++        try:
++            words, pun = decode_punct(v, w)
++            out.append((v, words, pun))
++        except Exception as e:
++            out.append(e)
++    return out
+ 
+ 
+ def make_record(meta, verbatim, words, pun, w0, w1, media_sha256):
+@@ -239,61 +273,97 @@ def gpu1_used():
+         return None
+ 
+ 
++def _fetch(vid, rows, tmp):
++    """One video: its meta, its audio ONCE, every window cut. Runs in a fetch thread, never under a lease.
++    -> (jobs, failures, seconds)."""
++    t0, jobs, fails = time.time(), [], []
++    try:
++        meta = ts.ensure_meta(vid)
++        audio = ts.download_audio(vid)
++    except Exception as e:
++        return [], [(r, f"acquisition: {type(e).__name__}: {e}") for r in rows], time.time() - t0
++    try:
++        media_sha = ts.sha256_file(audio)
++        for r in rows:
++            try:
++                w0, w1 = window(r, meta.get("duration"))
++                jobs.append((r, meta, media_sha, w0, w1, cut_wav(audio, w0, w1, os.path.join(tmp, f"{r['moment_id']}.wav"))))
++            except Exception as e:
++                fails.append((r, f"window: {type(e).__name__}: {e}"))
++    finally:
++        os.unlink(audio)
++    return jobs, fails, time.time() - t0
++
++
+ def cycle(now=None, limit=PER_CYCLE):
+     import gpu0
++    from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+     t0, now = time.time(), now or dt.datetime.now(dt.timezone.utc)
+     rows, rep = ledger_rows(now)
+     picks, nch = pick(rows, passed_ids(), per_cycle=limit, now=now)
+     fresh = [r for r in rows if is_fresh(r, now)]
++    day = [r for r in rows if is_fresh(r, now, DAY_H)]
+     report = {"at": now.isoformat(), "ledger_rows": len(rows), "ledger_excluded": rep.get("excluded"),
+               "fresh_h": FRESH_H, "fresh_rows": len(fresh), "fresh_picked": sum(is_fresh(r, now) for r in picks),
+-              "fresh_channels": len({r["channel_id"] for r in fresh}),
++              "fresh_channels": len({r["channel_id"] for r in fresh}), "day_rows": len(day),
++              "day_picked": sum(is_fresh(r, now, DAY_H) for r in picks),
+               "picked": len(picks), "channels": nch, "written": 0, "sentence_ready": 0, "failed": 0, "peak_gpu1_mib": 0,
+-              "newest_ready_published_at": None, "_ready_channels": set()}
+-    log(f"cycle: {len(rows)} ledger rows ({len(fresh)} published in the last {FRESH_H} h), {len(picks)} picked "
+-        f"({report['fresh_picked']} of them fresh) from {nch} channels")
+-    jobs, tmp = [], tempfile.mkdtemp(prefix="word_pass_")
+-    try:
+-        for vid in dict.fromkeys(r["video_id"] for r in picks):           # each video's audio once, outside the lease
+-            mine = [r for r in picks if r["video_id"] == vid]
++              "newest_ready_published_at": None, "_ready_channels": set(),
++              "fetch_s": 0.0, "lease_wait_s": 0.0, "foreign_wait_s": 0.0, "gpu_s": 0.0, "batches": 0}
++    log(f"cycle: {len(rows)} ledger rows ({len(fresh)} in the last {FRESH_H} h, {len(day)} in the last {DAY_H} h), "
++        f"{len(picks)} picked ({report['fresh_picked']} from the last {FRESH_H} h, {report['day_picked']} from the "
++        f"last {DAY_H} h) from {nch} channels")
++    tmp = tempfile.mkdtemp(prefix="word_pass_")
++
++    def gpu_batch(batch):
++        tw = time.time()
++        with gpu0.lease(OWNER, wait_s=LEASE_WAIT_S):
++            tg, ev0 = time.time(), len(gpu0.events())
++            report["lease_wait_s"] += tg - tw
+             try:
+-                meta = ts.ensure_meta(vid)
+-                audio = ts.download_audio(vid)
+-            except Exception as e:
+-                for r in mine:
+-                    _fail(r, report, f"acquisition: {type(e).__name__}: {e}")
+-                continue
+-            try:
+-                media_sha = ts.sha256_file(audio)
+-                for r in mine:
+-                    try:
+-                        w0, w1 = window(r, meta.get("duration"))
+-                        jobs.append((r, meta, media_sha, w0, w1,
+-                                     cut_wav(audio, w0, w1, os.path.join(tmp, f"{r['moment_id']}.wav"))))
+-                    except Exception as e:
+-                        _fail(r, report, f"window: {type(e).__name__}: {e}")
++                todo = [j for j in batch if not os.path.exists(record_path(j[0]["video_id"], j[3], j[4])[1])]
++                res = dict(zip((j[0]["moment_id"] for j in todo), decode_batch([j[5] for j in todo])))
++                for j in batch:
++                    _one(*j, report, res.get(j[0]["moment_id"]))
++                report["peak_gpu1_mib"] = max(report["peak_gpu1_mib"], gpu1_used() or 0)
+             finally:
+-                os.unlink(audio)
+-        for k in range(0, len(jobs), BATCH):                              # the GPU1 lease per batch, left after it
+-            with gpu0.lease(OWNER, wait_s=LEASE_WAIT_S):
+-                try:
+-                    for r, meta, media_sha, w0, w1, wav in jobs[k:k + BATCH]:
+-                        _one(r, meta, media_sha, w0, w1, wav, report)
+-                        report["peak_gpu1_mib"] = max(report["peak_gpu1_mib"], gpu1_used() or 0)
+-                finally:
+-                    ts.release_whisper()
++                ts.release_whisper()
++                report["gpu_s"] += time.time() - tg
++                report["foreign_wait_s"] += sum(e.get("waited_s", 0) for e in gpu0.events()[ev0:]
++                                                if e.get("key") == "foreign_wait")
++                report["batches"] += 1
++    try:
++        with ThreadPoolExecutor(FETCH_WORKERS) as ex:                     # order '02:46': fetched ahead, in parallel
++            pending = {ex.submit(_fetch, v, [r for r in picks if r["video_id"] == v], tmp)
++                       for v in dict.fromkeys(r["video_id"] for r in picks)}
++            ready = []
++            while pending or ready:
++                for f in [f for f in pending if f.done()]:
++                    pending.discard(f)
++                    jobs, fails, secs = f.result()
++                    report["fetch_s"] += secs
++                    ready += jobs
++                    for r, why in fails:
++                        _fail(r, report, why)
++                if len(ready) >= BATCH or (ready and not pending):
++                    gpu_batch(ready[:BATCH])                              # the lease per batch, left after it
++                    ready = ready[BATCH:]
++                elif pending:
++                    wait(pending, timeout=5, return_when=FIRST_COMPLETED)
+     finally:
+         for f in os.listdir(tmp):
+             os.unlink(os.path.join(tmp, f))
+         os.rmdir(tmp)
+     report["minutes"] = round((time.time() - t0) / 60, 2)
++    for k in ("fetch_s", "lease_wait_s", "foreign_wait_s", "gpu_s"):
++        report[k] = round(report[k], 1)
+     report["channels_ready"] = len(report.pop("_ready_channels"))   # channels with a sentence-ready record this cycle
+     append_row(report, CYCLES_FILE)
+     log(f"cycle done: {json.dumps(report)}")
+     return report
+ 
+ 
+-def _one(r, meta, media_sha, w0, w1, wav, report):
++def _one(r, meta, media_sha, w0, w1, wav, report, decoded=None):
+     try:
+         rel, path = record_path(r["video_id"], w0, w1)
+         if os.path.exists(path):                     # written before a crash, its row never appended: reuse it, never
+@@ -301,7 +371,9 @@ def _one(r, meta, media_sha, w0, w1, wav, report):
+                 rec = json.load(f)
+             sha, reused = ts.sha256_file(path), True
+         else:
+-            verbatim, words, pun = decode(wav)
++            if decoded is None or isinstance(decoded, Exception):
++                raise decoded or RuntimeError("no decode result for this window")
++            verbatim, words, pun = decoded
+             rec = make_record(meta, verbatim, words, pun, w0, w1, media_sha)
+             (rel, sha), reused = write_record(rec, w0, w1), False
+         ready = not rec["punctuation"].get("still_unpunctuated")
