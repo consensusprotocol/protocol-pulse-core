@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 05:39 THE WORD-PASS WORKER IS BACK, block-safe (merge cdc85c1a, audits batch 60 x2, pushed ed33a1bf); its first cycle (05:39:02) picked 120 older-tier moments from 17 channels, the 330 lost rows among them.
+- THE CHANGE:
+  - a sign-in acquisition failure is checked ONCE per cycle against a control video (the medley reference's public source, through the store's own yt-dlp call and cookies);
+  - control refused = the platform's failure: no row written, unstarted fetches cancelled, the cycle reports 'blocked', and the worker sleeps 900 s;
+  - control answered = that video's own failure (an age gate): written as before, marked control_ok;
+  - a per-cycle hold event, set by the first sign-in failure in its own thread, stops any later fetch from asking the platform. Its rows come back SKIPPED and are retried.
+  - a blocked cycle now costs at most the fetches already in flight (4) plus one control request. Before the change it was 330 requests in 2 minutes.
+  - sign-in failure rows without control_ok (the 330) are retried once.
+- test_word_pass_worker 27 (7 new; three runs in a row); regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0.
+- THE RESTART: the old pane (tmux pipeline_pp_wordpass, its sh from 01:45:39) no longer took keystrokes: send-keys exited 0 but nothing reached its terminal (input not disabled, not in copy mode, only that sh on /dev/pts/6; send-keys to a fresh session worked). It was respawned in place with the worker command (respawn-pane -k), keeping the session name. Worker PID 2648518.
+- The ledger is not growing: 1343 rows, 6 in the last 10 h, none new to pick. The 10 h and 24 h tiers are done.
+
 ## 05:25 YOUTUBE ANSWERS AGAIN: the 05:25:36 probe returned the reference video's metadata (wdk5JZ9hPzs, 3523 s); the 05:10:27 probe was still refused. The block lasted from 04:47:03 to between 05:10 and 05:25. Pins can acquire sources again; the builder is told (and asked to pace requests).
 - The word-pass worker stays paused until its block-safe change is audited and merged (batch 60):
   - ONE control request per cycle on a sign-in failure;
