@@ -714,7 +714,6 @@ def to_bt709(run_dir, video_ids):
         if tags.get("color_space") not in BT601_MATRICES:
             continue
         keep = os.path.join(run_dir, "sources_bt601", f"{vid}.mp4")
-        os.makedirs(os.path.dirname(keep), exist_ok=True)
         ip = tags.get("color_primaries") if tags.get("color_primaries") not in (None, "", "unknown") else tags["color_space"]
         it = tags.get("color_transfer") if tags.get("color_transfer") not in (None, "", "unknown") else tags["color_space"]
         ir = "pc" if tags.get("color_range") == "pc" else "tv"     # a full-range source keeps its own range in
@@ -731,6 +730,7 @@ def to_bt709(run_dir, video_ids):
                 os.unlink(tmp)
             raise Hold(f"ruling 30: the BT.601 -> BT.709 conversion of {vid} failed: {r.stderr.strip()[-200:]}")
         before = sha256(src)
+        os.makedirs(os.path.dirname(keep), exist_ok=True)              # only once the encode has succeeded
         os.replace(src, keep)
         os.replace(tmp, src)
         out[vid] = {"from": {k: tags.get(k) for k in ("color_space", "color_primaries", "color_transfer", "color_range")},
