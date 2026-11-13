@@ -6,6 +6,13 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 03:01 RESULT: THE FIRST FRESH MEDLEY (seal d2657bbe, run pinned_20261113_075638) HELD AT VALIDATE at 03:00:24, before any render. Nothing to send: no finals exist, and a validate hold has nothing to review-drop.
+MEASURED: the pipeline's STAND_ALONE check (stage_validate) fails two of the three clips.
+- clip_01 (Simply Bitcoin WTCwyxW-lHk) opens on 'but', and the clip scorer does not affirm it stands alone (3.0, fault other).
+- clip_02 (Anthony Pompliano mJviDNOhIyw) opens on 'but', scored 3.0.
+Everything else in validate passed: R1-R11 (R11: 1 recorded and confirmed bridge, 1 takeaway; R4 VO 18.15 %, estimated 63.90 s), L0 and LAWS 1-4, and the hook's stand-alone check.
+THE GAP: the builder's 17 pin-stage gates passed this pin, but they do not run the pipeline's stand-alone check. Sent to the builder: seal only clips the pipeline's STAND_ALONE affirms (no 'but' opener; the scorer >= its threshold), or run stage_validate's check at the pin stage. Nothing was loosened. The L-v 3 deadline for clip_01 (12:42 ET) still stands if a re-seal keeps it.
+
 ## 02:59 THE FIRST FRESH MEDLEY IS RENDERING (order '01:55' item 2): run pinned_20261113_075638, started 02:56:38 from HEAD 5be6f301; preflight all PASS.
 THE PIN: the builder's ledger build, seal d2657bbe, frozen as data/moments_pins/MOMENTS_PIN_LEDGER_073738.json (sha256 d15fbfa8...). It checks READY against the builder's package_pin.py at 307e2ca7. The clips:
 - hook: Simply Bitcoin BS0XC_tixa8 994.33-1005.91, published 2026-11-12T22:14Z;
