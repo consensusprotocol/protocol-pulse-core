@@ -1090,11 +1090,16 @@ class TestR11VoShape(unittest.TestCase):
         self.assertTrue(ok, why)
 
     def test_an_intro_fails(self):
-        for intro in ("Bitcoin does not have any authority.", "w", 5, ["w"]):
+        for intro in ("Bitcoin does not have any authority.", "w", "   ", 5, ["w"]):   # audit F3: whitespace
             ok, why = rule_r11(self.edl(intro=intro, bridges=(self.TAKE,)))
             self.assertFalse(ok, intro)
             self.assertIn("law L-y 1", why, intro)
             self.assertNotIn("law L-y 2", why, intro)
+
+    def test_two_lines_after_the_last_clip_fail(self):
+        ok, why = rule_r11(self.edl(bridges=(self.TAKE, self.TAKE)))
+        self.assertFalse(ok, why)
+        self.assertIn("law L-y 1: 2 VO lines after the last clip", why)
 
     def test_two_bridges_between_clips_fail(self):
         two = ({"text": "a b", "after_clip": 1, "why": "the referent of 'it' in clip 2 is clip 1's"},
@@ -1111,10 +1116,11 @@ class TestR11VoShape(unittest.TestCase):
             ok, reason = rule_r11(self.edl(bridges=(b, self.TAKE)))
             self.assertFalse(ok, why)
             self.assertIn("the bridge after clip 1 has no recorded reason", reason, why)
-        for bad in ({"text": "a b", "after_clip": "3", "why": ""}, {"text": "a b"}, "a b"):   # no valid slot = between
-            ok, reason = rule_r11(self.edl(bridges=(bad,)))
+        for bad in ({"text": "a b", "after_clip": "3", "why": "x"}, {"text": "a b", "why": "x"}, "a b",
+                    {"text": "a b", "after_clip": 99, "why": "x"}, {"text": "a b", "after_clip": 0, "why": "x"}):
+            ok, reason = rule_r11(self.edl(bridges=(bad,)))             # audit F2: no clip slot fails, reason or not
             self.assertFalse(ok, bad)
-            self.assertIn("has no recorded reason", reason, bad)
+            self.assertIn("is not a clip index", reason, bad)
 
     def test_fail_closed_shapes(self):
         e = self.edl()
@@ -1124,6 +1130,24 @@ class TestR11VoShape(unittest.TestCase):
             e = self.edl()
             del e[drop]
             self.assertFalse(rule_r11(e)[0], drop)
+        for bridges in (None, "missing"):                              # audit F2: the lines are always stated
+            e = self.edl()
+            if bridges is None:
+                e["vo"]["bridges"] = None
+            else:
+                del e["vo"]["bridges"]
+            ok, why = rule_r11(e)
+            self.assertFalse(ok, bridges)
+            self.assertIn("vo bridges is not a list", why)
+        for index in ("1", None, 1.0, True):                         # audit F1: R11 fails closed on its own
+            e = self.edl()
+            e["clips"][0]["index"] = index
+            ok, why = rule_r11(e)
+            self.assertFalse(ok, index)
+            self.assertIn("are not all integers", why)
+        e = self.edl()
+        e["clips"][1] = "clip"
+        self.assertFalse(rule_r11(e)[0])
 
     def test_story_type_and_untyped_edls_are_unchanged(self):
         busy = ({"text": "a b", "after_clip": 1}, {"text": "c d", "after_clip": 2})

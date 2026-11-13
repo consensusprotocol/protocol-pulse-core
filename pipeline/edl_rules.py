@@ -657,39 +657,49 @@ def rule_r10(edl, transcripts=None):
 
 def rule_r11(edl):
     """Law L-y VOICEOVER IS MINIMAL, for a package of type 'moments' (the packager's packages): (1) no VO intro after
-    the hook; (2) at most ONE bridge BETWEEN clips (a VO line after any clip but the last), carrying the package's
+    the hook, and at most ONE line after the LAST clip; (2) at most ONE bridge BETWEEN clips (a VO line after any clip but the last), carrying the package's
     recorded reason why it was needed ('why', non-empty text, from moments_package edl_vo via pinned.moments_vo). The
     one line after the LAST clip is the takeaway (its slot and its 30-word cap are R4's). No minimum: a package with no
     VO line passes this rule. Story-type and untyped EDLs (the protected references) are not moments packages and are
-    unchanged. Fail closed: a 'moments' EDL without a vo object and clips, or whose bridges are not a list, fails; a line
-    whose slot is not the last clip counts as a bridge between clips."""
+    unchanged. Fail closed (audit batch 40): a 'moments' EDL without a vo object and clips, a clip without an integer
+    index, bridges that are not a list, a line whose after_clip is not a clip index, and any intro that is not null or
+    the empty string ('   ' included: the renderer and vo.py would voice it) fail."""
     if edl.get("package_type") != "moments":
         return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
     vo, clips = edl.get("vo"), edl.get("clips")
     if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
         return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"
-    bridges = vo.get("bridges") if vo.get("bridges") is not None else []
-    if not isinstance(bridges, list):
-        return False, "R11 FAIL (law L-y): vo bridges is not a list"
+    idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
+    if not all(type(i) is int for i in idx):                      # audit batch 40 F1: fail closed on its own
+        return False, f"R11 FAIL (law L-y): clip indexes {idx!r} are not all integers"
+    bridges = vo.get("bridges")
+    if not isinstance(bridges, list):                             # F2: a moments EDL always states its lines
+        return False, "R11 FAIL (law L-y): vo bridges is not a list ([] when there are none)"
     failures = []
     intro = vo.get("intro")
-    if intro is not None and (not isinstance(intro, str) or intro.strip()):
+    if intro is not None and intro != "":                         # F3: '   ' is an intro to the renderer and vo.py
         failures.append("law L-y 1: a VO intro after the hook (a moments package opens hook -> clip)")
-    last = max((c.get("index") for c in clips if isinstance(c, dict) and type(c.get("index")) is int), default=None)
-    between = [b for b in bridges
-               if not (isinstance(b, dict) and type(b.get("after_clip")) is int and b["after_clip"] == last)]
+    between, closing = [], 0
+    for i, b in enumerate(bridges, 1):
+        a = b.get("after_clip") if isinstance(b, dict) else None
+        if type(a) is not int or a not in idx:                    # F2: a line with no clip slot fails here too
+            failures.append(f"VO line {i}: after_clip {a!r} is not a clip index")
+        elif a != max(idx):
+            between.append(b)
+        else:
+            closing += 1
+    if closing > 1:                                               # (1): ONE line at the end
+        failures.append(f"law L-y 1: {closing} VO lines after the last clip (one takeaway)")
     if len(between) > 1:
         failures.append(f"law L-y 2: {len(between)} bridges between clips (at most one; two or more = the line-up "
                         f"is wrong)")
     for b in between:
-        why = b.get("why") if isinstance(b, dict) else None
+        why = b.get("why")
         if not isinstance(why, str) or not why.strip():
-            failures.append(f"law L-y 2: the bridge after clip {(b.get('after_clip') if isinstance(b, dict) else None)!r}"
-                            f" has no recorded reason ('why')")
+            failures.append(f"law L-y 2: the bridge after clip {b['after_clip']!r} has no recorded reason ('why')")
     if failures:
         return False, "R11 FAIL (law L-y): " + "; ".join(failures)
-    return True, (f"R11 PASS (law L-y): no intro; {len(between)} bridge(s) between clips; "
-                  f"{len(bridges) - len(between)} takeaway line(s)")
+    return True, f"R11 PASS (law L-y): no intro; {len(between)} bridge(s) between clips; {closing} takeaway line(s)"
 
 
 def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
