@@ -102,6 +102,8 @@ class TestRecencyRenderClock(Fixture):
 
     def mpin(self, *segs):
         p = self.pin(moments_package={"type": "moments"})
+        for seg in p["segments"]:                         # every segment on THIS class's fixed clock, never the wall
+            seg.update(time_sensitive=False, source_published_at=self.at(1))   # clock (E-FAIL-080)
         for seg, (ts, pub) in zip(p["segments"], segs):
             seg.update(time_sensitive=ts, source_published_at=pub)
         return p
