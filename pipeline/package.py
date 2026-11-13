@@ -828,6 +828,12 @@ def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7, 
                    type="moments", angle=angle["angle"], style="medley", takeaway_budget=list(budget))
 
 
+def question_hook(segs):
+    """Ruling 37: the hook ends on a question (its text ends with '?', the render's R1 test). Such a hook is allowed; the
+    clips-alone verdict must find the join after it followable, since no bridge may follow a question."""
+    return bool(segs) and str(segs[0].get("text") or "").rstrip().endswith("?")
+
+
 def ly_shape(pk):
     """L-y (orchestrator 20:30), checked by code on the package -> (ok, [why]): 3-5 segments; ONE takeaway, after the
     last clip; at most LY_MAX_BRIDGES bridge(s), each at a join the clips-alone verdict flagged (pk["medley"], measured)
@@ -862,6 +868,9 @@ def ly_shape(pk):
     med = pk.get("medley") or {}
     if med.get("measured") is not True or not isinstance(med.get("flagged"), list):
         fails.append("the clips-alone verdict was not measured (L-y 3)")
+    elif question_hook(segs) and js and js[0] in med["flagged"]:
+        fails.append(f"ruling 37: a hook ending on a question takes no bridge after it, so {js[0]} must be followable "
+                     f"(the render's R1 reads the sealed clips-alone verdict)")
     elif sorted(bridged) != sorted(med["flagged"]):
         fails.append(f"bridges at {bridged or 'no join'}, the clips-alone verdict flagged {med['flagged'] or 'no join'}"
                      f": a bridge goes only, and always, where a viewer could not follow the jump (L-y 2)")
@@ -1275,6 +1284,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         break
                     dropped |= weak
                     rec["why"] = f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, re-lined"
+                    continue
+                if question_hook(segs) and joins(labs)[0] in med["flagged"]:   # ruling 37: no bridge after a question
+                    dropped.add(segs[1]["moment_id"])
+                    rec["why"] = (f"ruling 37: the join after the question hook must be followable without a bridge, and "
+                                  f"the clips alone flag {joins(labs)[0]}: re-lined")
                     continue
                 join = None
                 if med["flagged"]:

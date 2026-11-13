@@ -1,0 +1,39 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips:
+a hook and 2-4 clips from other channels, played back to back, then one spoken takeaway). This branch BUILDS sealed
+pins; the integrator renders them. The pin stage must never seal a line-up the render would refuse.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why: ORCHESTRATOR RULING 37 (03:12 ET Nov 13): "not_statement: a clip that ends on a question is allowed in the HOOK
+role only; the clips-alone verdict and coherence check judge the join after it as usual. Not as a middle or last
+clip." The integrator is changing the render's edl_rules R1 to match. It accepts a hook ending on "?" when the sealed
+clips-alone verdict (gates.medley) is PASS, not replayed, and its "flagged" list does NOT contain "hook -> clip_01",
+and gates.coherence is PASS. A flagged join takes a bridge, and the render's bridge rule refuses a bridge after a
+clip that ends on a question.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass (the relaxation is the orchestrator's ruling).
+
+The change:
+1. pipeline/eligibility.py: the "not_statement" reason (the span ends on a question) is no longer raised for the HOOK
+   role; it stays for every other role (clip, evidence).
+2. pipeline/package.py:
+   - question_hook(segs): the hook's text ends with "?" (the render's R1 test);
+   - in build()'s line-up loop, right after the clips-alone verdict passes: if the hook is a question and the verdict
+     flags the join after it, clip_01 is dropped and the angle re-lined (no bridge may follow a question);
+   - ly_shape(pk), the sealed L-y shape gate: refuses a package whose question hook's first join was flagged.
+3. Tests:
+   - eligibility: a hook ending on "?" carries no not_statement; a clip still does;
+   - the predicate;
+   - a flagged join after a question hook re-lines without that clip and then packages;
+   - a flagged join between clips is bridged as before;
+   - ly_shape refuses the question-hook case.
+
+Check in particular:
+- that a question can now end ONLY the hook, never a middle or last clip;
+- that the join after a question hook can never carry a bridge in a sealed pin;
+- that the re-line cannot loop forever (dropped grows);
+- that nothing else changes.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".

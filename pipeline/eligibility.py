@@ -407,8 +407,8 @@ def _span(span, ctx, role):
     last = toks[w1].get("word")
     if not sentence_law.is_terminal(last):
         R("fragment", f"ends on {last!r}: no terminal punctuation")
-    elif not ends_statement(last):
-        R("not_statement", "ends on a question")
+    elif not ends_statement(last) and role != "hook":   # RULING 37 (03:12 ET Nov 13): a question may end the HOOK only;
+        R("not_statement", "ends on a question")         # the clips-alone verdict judges the join after it (package.py)
     # T5 lexical evidence at both boundaries (E-FAIL-013: an unpunctuated stretch has no boundary)
     for k in ([w0 - 1] if w0 > 0 else []) + [w1]:
         if not sentence_law.is_punctuated(toks, k):

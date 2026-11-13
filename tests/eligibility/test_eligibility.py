@@ -401,8 +401,11 @@ class TestSpan(unittest.TestCase):
         src = source(["so " + ("bitcoin went sideways " * 2) + "today?"], timing="segment", channel="Bitcoin Magazine",
                      age_h=100)
         r = E.eligible(E.Span(src, 0, 0), ctx("hook", story=statements(E.Span(src, 0, 0))))
-        for n in ("not_current", "layout_ineligible", "not_sentence_ready", "not_statement", "start_case", "duration"):
+        for n in ("not_current", "layout_ineligible", "not_sentence_ready", "start_case", "duration"):
             self.assertIn(n, r.names())
+        self.assertNotIn("not_statement", r.names())                   # ruling 37: a question may end the HOOK
+        rc = E.eligible(E.Span(src, 0, 0), ctx("clip", story=statements(E.Span(src, 0, 0))))
+        self.assertIn("not_statement", rc.names())                     # ... never a clip
         self.assertTrue(any("conjunction" in t for t in r.facts["targets_missed"]))             # L-o: ranked
 
 

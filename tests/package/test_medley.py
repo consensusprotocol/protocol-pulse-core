@@ -726,6 +726,49 @@ class TestStandAloneAtThePinStage(unittest.TestCase):
         self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
 
 
+class TestRuling37QuestionHook(unittest.TestCase):
+    """Ruling 37: a clip ending on a question may be the HOOK only; the clips-alone verdict judges the join after it,
+    which must be followable with no bridge (no bridge may follow a question; the render's R1 reads the sealed
+    gates.medley flagged list)."""
+
+    Q = "Why does Bitcoin keep falling every time Nvidia does?"
+
+    def ms(self):
+        return [dict(pm("h", "A", 12.0), text=self.Q), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 14.0)]
+
+    def test_the_question_hook_test(self):
+        self.assertTrue(PK.question_hook([{"text": self.Q + "  "}]))
+        self.assertFalse(PK.question_hook([{"text": "Bitcoin is money."}]))
+        self.assertFalse(PK.question_hook([]))
+
+    def test_a_flagged_join_after_a_question_hook_re_lines_without_that_clip(self):
+        rig = Rig(self.ms(), ["h", "x", "y", "z"], [(True, ["hook -> clip_01"], None, Rig.LINE),
+                                                    (True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "y", "z"]])          # x dropped, never bridged
+        self.assertIn("ruling 37", out["tried"][0]["why"])
+        self.assertIsNotNone(out["package"])
+        self.assertEqual(out["package"]["segments"][0]["text"], self.Q)
+
+    def test_a_flagged_join_between_clips_is_bridged_as_usual(self):
+        rig = Rig(self.ms(), ["h", "x", "y", "z"], [(True, ["clip_01 -> clip_02"], None, Rig.LINE)],
+                  [{"text": "Next, a show on chips.", "cites": ["y"], "why": "no referent"}])
+        out = rig.run()
+        self.assertEqual(rig.write_calls[0][1][0], 1)                                     # the bridge after clip 1
+        self.assertIsNotNone(out["package"])
+
+    def test_ly_shape_refuses_a_question_hook_whose_first_join_was_flagged(self):
+        pk = medley_pk(bridge="hook -> clip_01", after=0, flagged=["hook -> clip_01"], intro="Next, on chips.")
+        pk["segments"][0]["text"] = self.Q
+        ok, why = PK.ly_shape(pk)
+        self.assertFalse(ok)
+        self.assertTrue(any("ruling 37" in w for w in why), why)
+        pk = medley_pk(flagged=[])                                     # must-pass (audit 0500 C1, glm): a question
+        pk["segments"][0]["text"] = self.Q                             # hook, its first join followable, no bridge
+        self.assertEqual(PK.ly_shape(pk), (True, []))
+        self.assertEqual(PK.joins(PK.labels(4))[0], "hook -> clip_01")  # the join R1 reads, in production labels
+
+
 class TestRuling34Screen(unittest.TestCase):
     """Ruling 34 (render side merged at 55315124): the topic test is the miner's about-Bitcoin screen the pin seals;
     the hook must pass it itself, a clip may complete the previous claim, and the MEDLEY must name Bitcoin once."""

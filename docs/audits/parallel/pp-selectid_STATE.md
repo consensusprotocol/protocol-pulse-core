@@ -10,7 +10,7 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 | 34: no_bitcoin regex retired for clips; the medley names Bitcoin once | DONE on both sides. The render merged at 55315124; the pin side is audit 0426 (2 cycles, all three SHIP yes). The pin seals the miner's screen (moments_package.btc_screen, mine.py@8e6afb61); the line-up runs the render's check_edl with it, and the medley must say bitcoin/btc once. | BLOCKED: their stand_alone.topical requires EVERY segment to name Bitcoin. The integrator needs your order. |
 | 35: too_many_sentences retired | DONE (audit 0335, 2 cycles, all three reviewers SHIP yes): recorded only, never rejects. | none: no sentence cap in run_fresh, pinned, sentence_law, editorial_gate or edl_rules. |
 | 36: layout_ineligible stays | no change | none |
-| 37: a question ending allowed in the HOOK role only | NOT STARTED (a no-op until the render changes). | BLOCKED: their edl_rules R1 NO_QUESTION_HOOK refuses a hook that ends on "?", the exact opposite. The integrator needs your order. |
+| 37: a question ending allowed in the HOOK role only | DONE on my side (audit 0500, 2 cycles): a hook may end on '?', a clip may not; the join after a question hook must be followable (no bridge), or the line-up is re-lined. The integrator's R1 is in audit; until it merges, a question-hook pin holds at validate. | BLOCKED: their edl_rules R1 NO_QUESTION_HOOK refuses a hook that ends on "?", the exact opposite. The integrator needs your order. |
 | 38: IN edge, a 4 s pad before; a sentence end OR a measured pause >= 700 ms; a file-head start counts | DONE (audit 0338, 2 cycles). The pause is measured on the independent recogniser's word timing, as the ruling words it; the acoustic check of the cut stays the render's (check_cut_acoustics / G16). Want an acoustic confirmation at the pin stage too? Say so. | none (mine) |
 | 39: OUT edge, the L-v 2 number canonicaliser | DONE (audit 0338). Both edges also read the occurrence nearest the clip's own time, not an earlier or later same word. That closes a fail-open the audit's test exposed. | none (mine) |
 | 32: snap outward to whole sentences, <= 20 s, one speaker | DONE (audit 0332, 2 cycles). SNAP_GUARD retired: the exclusion verdict, step A and L-v 2 judge the added words. A snapped moment's price prediction is counted. A caption speaker marker inside the span keeps it out. Measured on today's 510 rows: 12 come back (4 eligible on screen), 23 stay out over 20 s, 1 for a marker, 35 do not anchor. | none (mine) |
@@ -22,7 +22,25 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 - **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
   (merged at 785c374a, per the integrator).
 
-### 04:52 ET: the 04:41 build, ruling 34 in: no package; the binding gate is now the clips-alone verdict
+### ORDER 04:58, item 43 (measured on the 04:41 record): angle 2's "no line-up" is NOT a channel shortage
+
+- **The supply:** the 11 cuttable moments sit on **9 channels**: What Bitcoin Did, CNBC Television, Altcoin Daily,
+  Bitcoin Mechanic, Strategy, Coin Bureau x3, Scott Melker, Simply Bitcoin and The Bitcoin Layer. Together they hold
+  116.9 s. Widening the window is not needed for channels.
+- **Angle 2 offered 4 of them:**
+  - The Bitcoin Layer, 4.8 s (the hook);
+  - Coin Bureau, 19.5 s (cannot open, G17a);
+  - Altcoin Daily, 6.9 s (cannot open);
+  - What Bitcoin Did, 9.5 s.
+- **Why no line-up:** lineup_for keeps the proposer's PLAY ORDER (L-y 3), and a clip under 8 s may play only LAST
+  (SHORT_CLIP_S). In that order, the 6.9 s clip sits mid-line-up; without it, the other clips total 33.8 s (< 36.7 s);
+  with What Bitcoin Did as the hook instead, the clips total 35.9 s (< 36.7 s). The binding rules are the seconds
+  range, the short-clip position and the fixed play order, on only the 4 moments the angle offered. Over every
+  permutation of those 4, 2 orders would fit (a short clip moved last), but neither is the proposer's order.
+- **For 41:** the line-up step only sees each angle's 4 moments, not the 11. The search swaps a below-bar segment for
+  the next by score from the whole cleared pool.
+
+### 04:54 ET: the 04:41 build, ruling 34 in: no package; the binding gate is now the clips-alone verdict
 
 Record: tests/package/proof/ledger_20261113_094156 (code 56582b6b), with FUNNEL.md. Funnel:
 - 313 moments -> **171 usable** (95 before ruling 34);

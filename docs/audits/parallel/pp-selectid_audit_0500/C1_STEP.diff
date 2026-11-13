@@ -1,0 +1,121 @@
+diff --git a/pipeline/eligibility.py b/pipeline/eligibility.py
+index f2e898ba..adb3d406 100644
+--- a/pipeline/eligibility.py
++++ b/pipeline/eligibility.py
+@@ -407,8 +407,8 @@ def _span(span, ctx, role):
+     last = toks[w1].get("word")
+     if not sentence_law.is_terminal(last):
+         R("fragment", f"ends on {last!r}: no terminal punctuation")
+-    elif not ends_statement(last):
+-        R("not_statement", "ends on a question")
++    elif not ends_statement(last) and role != "hook":   # RULING 37 (03:12 ET Nov 13): a question may end the HOOK only;
++        R("not_statement", "ends on a question")         # the clips-alone verdict judges the join after it (package.py)
+     # T5 lexical evidence at both boundaries (E-FAIL-013: an unpunctuated stretch has no boundary)
+     for k in ([w0 - 1] if w0 > 0 else []) + [w1]:
+         if not sentence_law.is_punctuated(toks, k):
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 31ffb345..ac10906d 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -828,6 +828,12 @@ def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7,
+                    type="moments", angle=angle["angle"], style="medley", takeaway_budget=list(budget))
+ 
+ 
++def question_hook(segs):
++    """Ruling 37: the hook ends on a question (its text ends with '?', the render's R1 test). Such a hook is allowed; the
++    clips-alone verdict must find the join after it followable, since no bridge may follow a question."""
++    return bool(segs) and str(segs[0].get("text") or "").rstrip().endswith("?")
++
++
+ def ly_shape(pk):
+     """L-y (orchestrator 20:30), checked by code on the package -> (ok, [why]): 3-5 segments; ONE takeaway, after the
+     last clip; at most LY_MAX_BRIDGES bridge(s), each at a join the clips-alone verdict flagged (pk["medley"], measured)
+@@ -862,6 +868,9 @@ def ly_shape(pk):
+     med = pk.get("medley") or {}
+     if med.get("measured") is not True or not isinstance(med.get("flagged"), list):
+         fails.append("the clips-alone verdict was not measured (L-y 3)")
++    elif question_hook(segs) and js and js[0] in med["flagged"]:
++        fails.append(f"ruling 37: a hook ending on a question takes no bridge after it, so {js[0]} must be followable "
++                     f"(the render's R1 reads the sealed clips-alone verdict)")
+     elif sorted(bridged) != sorted(med["flagged"]):
+         fails.append(f"bridges at {bridged or 'no join'}, the clips-alone verdict flagged {med['flagged'] or 'no join'}"
+                      f": a bridge goes only, and always, where a viewer could not follow the jump (L-y 2)")
+@@ -1276,6 +1285,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     dropped |= weak
+                     rec["why"] = f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, re-lined"
+                     continue
++                if question_hook(segs) and joins(labs)[0] in med["flagged"]:   # ruling 37: no bridge after a question
++                    dropped.add(segs[1]["moment_id"])
++                    rec["why"] = (f"ruling 37: the join after the question hook must be followable without a bridge, and "
++                                  f"the clips alone flag {joins(labs)[0]}: re-lined")
++                    continue
+                 join = None
+                 if med["flagged"]:
+                     k = joins(labs).index(med["flagged"][0])
+diff --git a/tests/eligibility/test_eligibility.py b/tests/eligibility/test_eligibility.py
+index afffc2c0..17896e45 100644
+--- a/tests/eligibility/test_eligibility.py
++++ b/tests/eligibility/test_eligibility.py
+@@ -401,8 +401,11 @@ class TestSpan(unittest.TestCase):
+         src = source(["so " + ("bitcoin went sideways " * 2) + "today?"], timing="segment", channel="Bitcoin Magazine",
+                      age_h=100)
+         r = E.eligible(E.Span(src, 0, 0), ctx("hook", story=statements(E.Span(src, 0, 0))))
+-        for n in ("not_current", "layout_ineligible", "not_sentence_ready", "not_statement", "start_case", "duration"):
++        for n in ("not_current", "layout_ineligible", "not_sentence_ready", "start_case", "duration"):
+             self.assertIn(n, r.names())
++        self.assertNotIn("not_statement", r.names())                   # ruling 37: a question may end the HOOK
++        rc = E.eligible(E.Span(src, 0, 0), ctx("clip", story=statements(E.Span(src, 0, 0))))
++        self.assertIn("not_statement", rc.names())                     # ... never a clip
+         self.assertTrue(any("conjunction" in t for t in r.facts["targets_missed"]))             # L-o: ranked
+ 
+ 
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 15b1d5a1..0422f1e0 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -726,6 +726,45 @@ class TestStandAloneAtThePinStage(unittest.TestCase):
+         self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
+ 
+ 
++class TestRuling37QuestionHook(unittest.TestCase):
++    """Ruling 37: a clip ending on a question may be the HOOK only; the clips-alone verdict judges the join after it,
++    which must be followable with no bridge (no bridge may follow a question; the render's R1 reads the sealed
++    gates.medley flagged list)."""
++
++    Q = "Why does Bitcoin keep falling every time Nvidia does?"
++
++    def ms(self):
++        return [dict(pm("h", "A", 12.0), text=self.Q), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 14.0)]
++
++    def test_the_question_hook_test(self):
++        self.assertTrue(PK.question_hook([{"text": self.Q + "  "}]))
++        self.assertFalse(PK.question_hook([{"text": "Bitcoin is money."}]))
++        self.assertFalse(PK.question_hook([]))
++
++    def test_a_flagged_join_after_a_question_hook_re_lines_without_that_clip(self):
++        rig = Rig(self.ms(), ["h", "x", "y", "z"], [(True, ["hook -> clip_01"], None, Rig.LINE),
++                                                    (True, [], None, Rig.LINE)], [None])
++        out = rig.run()
++        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "y", "z"]])          # x dropped, never bridged
++        self.assertIn("ruling 37", out["tried"][0]["why"])
++        self.assertIsNotNone(out["package"])
++        self.assertEqual(out["package"]["segments"][0]["text"], self.Q)
++
++    def test_a_flagged_join_between_clips_is_bridged_as_usual(self):
++        rig = Rig(self.ms(), ["h", "x", "y", "z"], [(True, ["clip_01 -> clip_02"], None, Rig.LINE)],
++                  [{"text": "Next, a show on chips.", "cites": ["y"], "why": "no referent"}])
++        out = rig.run()
++        self.assertEqual(rig.write_calls[0][1][0], 1)                                     # the bridge after clip 1
++        self.assertIsNotNone(out["package"])
++
++    def test_ly_shape_refuses_a_question_hook_whose_first_join_was_flagged(self):
++        pk = medley_pk(bridge="hook -> clip_01", after=0, flagged=["hook -> clip_01"], intro="Next, on chips.")
++        pk["segments"][0]["text"] = self.Q
++        ok, why = PK.ly_shape(pk)
++        self.assertFalse(ok)
++        self.assertTrue(any("ruling 37" in w for w in why), why)
++
++
+ class TestRuling34Screen(unittest.TestCase):
+     """Ruling 34 (render side merged at 55315124): the topic test is the miner's about-Bitcoin screen the pin seals;
+     the hook must pass it itself, a clip may complete the previous claim, and the MEDLEY must name Bitcoin once."""
