@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 04:56 YOUTUBE BOT-CHECK: every yt-dlp request from this machine is refused ("Sign in to confirm you're not a bot"). The word-pass worker is PAUSED (stopped by its PID; it is mine). A pin cannot acquire its sources until this clears.
+- MEASURED:
+  - data/editorial/moments/word_pass.jsonl: 330 rows failed between 04:47:03 and 04:48:55 ET, all "audio download failed: ... --cookies for the authentication".
+  - All 330 were older-tier rows. The 10 h and 24 h tiers were already done: the 04:48 cycles picked 0 from either.
+  - 04:55: a metadata-only probe (yt-dlp --skip-download) on the medley reference's own video wdk5JZ9hPzs, and on a failed row's video tm8hB3Vy-94: both "Sign in to confirm you're not a bot".
+  - data/yt_cookies.txt exists (872 bytes; yt-dlp writes it back on each use). It is passed to every download and is not accepted.
+- WHY THE WORKER IS PAUSED: a failed row is never retried (the worker's rule). Every fresh moment it picked during the block would be lost for good, and a failed download fails fast, so it had fired 330 requests in 2 minutes. It was sleeping (900 s after an empty cycle) when stopped; its GPU1 memory is freed; the tmux session pipeline_pp_wordpass is kept for the restart.
+- CONSEQUENCE FOR RENDERS: pinned.acquire downloads through select_passages._download_window (yt-dlp, the same cookies). A pin that reaches me now HOLDS at acquisition ("source download failed"). The builder is told.
+- NOT DONE: no evasion of YouTube's bot-check (no client spoofing). There are two remedies:
+  - a fresh, valid cookie export from a logged-in browser into data/yt_cookies.txt;
+  - the block clearing by itself.
+  I probe with ONE metadata request about every 15 minutes, restart the worker when a probe passes, and say so here.
+- THE 330 BURNED ROWS: all older than 24 h. They come back only if the worker treats an acquisition failure as retryable (an audited code change after rulings 33 / 34 / 37), or if their failure rows are removed. Proposed, not done.
+
 ## 04:52 RULING 33 PART 2 MERGED (11e361cc, audits batch 58 x2, pushed 0a1ad85f): a clip may be locked with ONE leading word trimmed (but / and / so / well / now / yeah).
 - THE PIN (sent to the builder):
   - a segment may carry "trimmed_leading", the one word as spoken; its canonical token must be one of the six.
