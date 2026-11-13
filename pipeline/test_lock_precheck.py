@@ -409,6 +409,13 @@ class TestBuildersDirectory(Base):
         self.assertEqual([e["request_id"] for e in LP._entries(LP.result_path(VID, START, END, LP.decoder_sha()))],
                          ["b1", "b2"])
 
+    def test_a_file_removed_after_it_was_listed_is_skipped_not_a_crash(self):
+        os.makedirs(LP.EXTRA)
+        p = os.path.join(LP.EXTRA, "gone.json")
+        with mock.patch.object(LP, "pending", lambda: [p]):      # listed, then removed by the builder before the read
+            self.assertEqual(LP.serve_once(log=self.log), 0)
+        self.assertFalse(os.path.exists(os.path.join(self.root, "answered")))
+
     def test_a_malformed_request_there_is_recorded_here_and_left_alone(self):
         os.makedirs(LP.EXTRA)
         p = os.path.join(LP.EXTRA, "bad.json")

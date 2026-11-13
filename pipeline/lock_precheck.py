@@ -422,7 +422,11 @@ def serve_once(log=print):
         return 0
     sha, ready, n = decoder_sha(), [], 0
     for path in todo:
-        r, why, dg = _load(path)
+        try:
+            r, why, dg = _load(path)
+        except OSError as e:                     # renamed or removed after it was listed (the builder's own file):
+            log(f"  {os.path.basename(path)}: not readable now ({type(e).__name__}); the next pass sees it")
+            continue
         if why:
             _close(path, r, dg, why)
             log(f"  {os.path.basename(path)}: malformed: {'; '.join(why)}")
