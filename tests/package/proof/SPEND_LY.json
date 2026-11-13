@@ -1,30 +1,30 @@
 {
- "usd_estimate": 56.352732,
- "calls": 591,
+ "usd_estimate": 59.277963,
+ "calls": 617,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 313,
-   "in": 730095,
-   "out": 1548273,
-   "usd_estimate": 42.3573,
+   "calls": 332,
+   "in": 749251,
+   "out": 1633695,
+   "usd_estimate": 44.58863,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 4.72255245,
-   "reported_calls": 313
+   "usd_reported": 4.95749885,
+   "reported_calls": 332
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 102,
-   "in": 167511,
-   "out": 681362,
-   "usd_estimate": 11.983686,
+   "calls": 106,
+   "in": 174723,
+   "out": 701872,
+   "usd_estimate": 12.312972,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.13629106,
-   "reported_calls": 97
+   "usd_reported": 0.14054533,
+   "reported_calls": 101
   },
   "elevenlabs_stt:scribe_v1": {
    "calls": 169,
@@ -48,43 +48,59 @@
    ],
    "usd_reported": 0.0339217,
    "reported_calls": 4
+  },
+  "xai_vision:grok-4.7": {
+   "calls": 3,
+   "in": 8293,
+   "out": 12926,
+   "usd_estimate": 0.364615,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.088958,
+   "reported_calls": 3
   }
  },
  "by_role": {
   "context_verdict": {
-   "calls": 128,
-   "usd_estimate": 26.119228
+   "calls": 132,
+   "usd_estimate": 26.871197
   },
   "angle_write": {
-   "calls": 90,
-   "usd_estimate": 12.329588
+   "calls": 93,
+   "usd_estimate": 12.612005
   },
   "coherence_verdict": {
-   "calls": 97,
-   "usd_estimate": 7.164527
+   "calls": 105,
+   "usd_estimate": 7.767092
   },
   "exclusion_verdict": {
-   "calls": 32,
-   "usd_estimate": 0.749075
+   "calls": 35,
+   "usd_estimate": 0.81966
   },
   "transcribe": {
    "calls": 169,
    "usd_estimate": 0.533034
   },
   "viewer_takeaway": {
-   "calls": 42,
-   "usd_estimate": 3.500495
+   "calls": 45,
+   "usd_estimate": 3.76952
   },
   "fidelity_verdict": {
-   "calls": 27,
-   "usd_estimate": 5.39749
+   "calls": 29,
+   "usd_estimate": 5.981545
   },
   "speaker_verdict": {
    "calls": 6,
    "usd_estimate": 0.559295
+  },
+  "visual_check": {
+   "calls": 3,
+   "usd_estimate": 0.364615
   }
  },
  "reserved": {},
- "usd_reported": 4.89276521,
+ "usd_reported": 5.22092388,
  "usd_unreported_estimate": 2.549094
 }

@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-13T18:33:30+00:00",
- "build": "ledger_20261113_183302",
+ "generated_at": "2026-11-13T21:02:41+00:00",
+ "build": "ledger_20261113_210211",
  "kind": "moments",
  "candidates": [
   {
@@ -562,15 +562,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "4e3d088f16dcdc0b2032",
-   "video_id": "anSDOymvNk8",
-   "channel": "Digital Asset News",
-   "duration": 14.36,
-   "text": "So, you know, again, I think people, they get upset about, you know, who's in office, but maybe it really doesn't matter. Maybe it just doesn't matter. Maybe just Bitcoin will do its own thing and crypto will do its own thing. And they're like, whatever.",
-   "text_sha256": "bcb92d5d8cbb4013da5580c6317322545c9c47432f2c62d059c56c84a861b104",
-   "trimmed_leading": null
-  },
-  {
    "pid": "6cb6ed9c32d8d25a9079",
    "video_id": "OGI3nIsnXF8",
    "channel": "Digital Asset News",
@@ -658,15 +649,6 @@
    "duration": 12.26,
    "text": "And that brings us back to the bigger picture, the potential for Bitcoin to become more than simply in an asset investors' hold. The opportunity is to develop financial markets around that asset, and Stax is positioning itself as part of that infrastructure.",
    "text_sha256": "12e65c60960daeedb181303de51c4fba8f51e78c900b4a9b755b0ef29c2b9764",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "079fe82d1bb35ca12e17",
-   "video_id": "anSDOymvNk8",
-   "channel": "Digital Asset News",
-   "duration": 6.66,
-   "text": "But it's not just Gary Gensler. But as Gary was in there, he gave everybody an opportunity to buy some cheap Bitcoin.",
-   "text_sha256": "34ec74aa7393fac7ca8ae77cd8f18c4a033fc146399aea2ce76e944131c4b97f",
    "trimmed_leading": null
   },
   {
@@ -1138,15 +1120,6 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "4e3d088f16dcdc0b2032~trim",
-   "video_id": "anSDOymvNk8",
-   "channel": "Digital Asset News",
-   "duration": 13.98,
-   "text": "you know, again, I think people, they get upset about, you know, who's in office, but maybe it really doesn't matter. Maybe it just doesn't matter. Maybe just Bitcoin will do its own thing and crypto will do its own thing. And they're like, whatever.",
-   "text_sha256": "824514f519872e506414a8aa673b0d0c2ff6c352fdc33e666e5bb89eb5fff44b",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "6cb6ed9c32d8d25a9079~trim",
    "video_id": "OGI3nIsnXF8",
    "channel": "Digital Asset News",
@@ -1235,15 +1208,6 @@
    "text": "that brings us back to the bigger picture, the potential for Bitcoin to become more than simply in an asset investors' hold. The opportunity is to develop financial markets around that asset, and Stax is positioning itself as part of that infrastructure.",
    "text_sha256": "5f11e6a37d276e18c8edfabecca08666f60645cbbe76fa7830ab11b647d916b0",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "079fe82d1bb35ca12e17~trim",
-   "video_id": "anSDOymvNk8",
-   "channel": "Digital Asset News",
-   "duration": 6.64,
-   "text": "it's not just Gary Gensler. But as Gary was in there, he gave everybody an opportunity to buy some cheap Bitcoin.",
-   "text_sha256": "5d8dd248c8685d389f1ec3e8917895842d809a344eefc3c756c92848070fa04d",
-   "trimmed_leading": "But"
   }
  ]
 }

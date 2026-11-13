@@ -6513,5 +6513,71 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "3a6cb29a4d904118192c:51346d09216b05c3bdd003d79ec0a432cf008238762587179f69ae75d6741014:3a3a92eb6ef5cf847914c698c67314087403273baef664666827b7bb87acbf67:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3a6cb29a4d904118192c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin and crypto are not partisan issues but are about modernizing financial markets and creating financial freedom for 350 million Americans and 8 billion people around the world.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "What is your message to the new Congress and how might it impact the regulatory framework that you and the entire crypto industry has to deal with every day?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "3a6cb29a4d904118192c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Phong Le)",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin and crypto are not partisan issues; they are about modernizing financial markets and creating financial freedom for Americans and people worldwide.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "Fong, outside of that, we've had this thing called the election.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3785a718b9cab116ab16:66ed32972eb16243b99666e3b8215d3bda28297d34dec2767cdf25aa2405eced:e2eabd09a6dd9431d9f0a03ada9c38d672b3861020a61166ec3e7bd1147ece1f:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3785a718b9cab116ab16",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "the proposal to drop Strategy from the MSCI indexes",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Strategy, the world's biggest corporate Bitcoin holder, is to be dropped from MSCI indexes after Strategy described the proposal as discriminatory, arbitrary and misguided and encouraged shareholders to oppose it.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Welcome to the Daily Wolf on Yahoo Finance. I am your host Scott Melker, also known as the Wolf of All Streets.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

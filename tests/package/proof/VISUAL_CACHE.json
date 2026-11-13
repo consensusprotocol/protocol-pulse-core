@@ -1,0 +1,130 @@
+{
+ "82473bb0964f115fbdda:216.054-228.674:visual-1:67a8dd1749c407cd": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "Bitcoin Genesis Block",
+    "why": "Title card labeling the hex graphic as the Bitcoin genesis block, which illustrates the spoken point that Bitcoin launched in January 2009 and adds no separate claim."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "Raw Hex Version",
+    "why": "Subtitle of the same title card describing the display format, not a factual assertion beyond the spoken words."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_7aa15a546b84bd5e.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_7aa15a546b84bd5e.jpg",
+   "sha256": "7aa15a546b84bd5ed9eb262ff06962fb9f6b2e79869631322b77d389f1aaa9a9",
+   "times": [
+    216.05,
+    218.05,
+    220.05,
+    222.05,
+    224.05,
+    226.05,
+    228.05,
+    228.62
+   ]
+  },
+  "third_person": {
+   "finding": "No person other than the speaker appears as a still, photo, or graphic in any frame, and no on-screen text names anyone.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2758,
+   "out": 6226,
+   "usd_reported": 0.041144
+  },
+  "version": "visual-1"
+ },
+ "9c14612153405f8983e4:1339.080-1355.470:visual-1:502915c2d8927a3f": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_b16099012e9f19bc.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_b16099012e9f19bc.jpg",
+   "sha256": "b16099012e9f19bc032d31ec0473c8945229fc3fc7f62d19bd2d7dfb6460713d",
+   "times": [
+    1339.08,
+    1341.41,
+    1343.75,
+    1346.08,
+    1348.42,
+    1350.75,
+    1353.09,
+    1355.42
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker appears live on camera; no third person is shown as a still, photo, or graphic, and the words make a positive claim about Bitcoin outperforming equities.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2769,
+   "out": 962,
+   "usd_reported": 0.009582
+  },
+  "version": "visual-1"
+ },
+ "afe8101ad97672f4a9ad:3799.476-3815.836:visual-1:04751cd9f52004ea": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_35759e5738355245.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_35759e5738355245.jpg",
+   "sha256": "35759e573835524587185791f34efd2a7c73838345cca018b961d4c44286563c",
+   "times": [
+    3799.48,
+    3801.81,
+    3804.14,
+    3806.47,
+    3808.8,
+    3811.13,
+    3813.46,
+    3815.79
+   ]
+  },
+  "third_person": {
+   "finding": "The frames show a social-media screen recording with live participant video in side windows and a payment demo, and the narration describes a Bitcoin checkout feature without any negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2766,
+   "out": 5738,
+   "usd_reported": 0.038232
+  },
+  "version": "visual-1"
+ }
+}

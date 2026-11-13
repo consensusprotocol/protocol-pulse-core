@@ -1,0 +1,193 @@
+{
+ "records": [
+  "tests/package/proof/ledger_20261113_0405",
+  "tests/package/proof/ledger_20261113_052637",
+  "tests/package/proof/ledger_20261113_054549",
+  "tests/package/proof/ledger_20261113_065638",
+  "tests/package/proof/ledger_20261113_070124",
+  "tests/package/proof/ledger_20261113_070852",
+  "tests/package/proof/ledger_20261113_071837",
+  "tests/package/proof/ledger_20261113_072138",
+  "tests/package/proof/ledger_20261113_073738",
+  "tests/package/proof/ledger_20261113_082157",
+  "tests/package/proof/ledger_20261113_083956",
+  "tests/package/proof/ledger_20261113_092234",
+  "tests/package/proof/ledger_20261113_094156",
+  "tests/package/proof/ledger_20261113_102658",
+  "tests/package/proof/ledger_20261113_104817",
+  "tests/package/proof/ledger_20261113_111825",
+  "tests/package/proof/ledger_20261113_113101",
+  "tests/package/proof/ledger_20261113_114153",
+  "tests/package/proof/ledger_20261113_114716",
+  "tests/package/proof/ledger_20261113_120240",
+  "tests/package/proof/ledger_20261113_121442",
+  "tests/package/proof/ledger_20261113_123611",
+  "tests/package/proof/ledger_20261113_124751",
+  "tests/package/proof/ledger_20261113_130318",
+  "tests/package/proof/ledger_20261113_131801",
+  "tests/package/proof/ledger_20261113_132702",
+  "tests/package/proof/ledger_20261113_134638",
+  "tests/package/proof/ledger_20261113_135746",
+  "tests/package/proof/ledger_20261113_140632",
+  "tests/package/proof/ledger_20261113_141050",
+  "tests/package/proof/ledger_20261113_142617",
+  "tests/package/proof/ledger_20261113_144114",
+  "tests/package/proof/ledger_20261113_145246",
+  "tests/package/proof/ledger_20261113_152651",
+  "tests/package/proof/ledger_20261113_163106",
+  "tests/package/proof/ledger_20261113_172217",
+  "tests/package/proof/ledger_20261113_180515",
+  "tests/package/proof/ledger_20261113_183302",
+  "tests/package/proof/ledger_20261113_210211"
+ ],
+ "candidates": {
+  "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
+   "lineup": [
+    "35b7b52533b4220b2672",
+    "5307d23dced4f444919a",
+    "f03d79cf73eb188924ee"
+   ],
+   "source": "tests/package/proof/ledger_20261113_0405",
+   "index": 1,
+   "found_at": "2026-11-13T04:05:51.736402+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261113_210211",
+     "at": "2026-11-13T21:02:11.111137+00:00",
+     "class": "clip",
+     "fresh": false,
+     "why": "it cannot be rebuilt from its record (ValueError: tried[1] does not open on its angle's hook (ruling 59 c))"
+    }
+   ]
+  },
+  "326b88b0592bba35452b+05e5643da9b3c67c371a+8ff542f9877c3a1afc36": {
+   "lineup": [
+    "326b88b0592bba35452b",
+    "05e5643da9b3c67c371a",
+    "8ff542f9877c3a1afc36"
+   ],
+   "source": "tests/package/proof/ledger_20261113_073738",
+   "index": 0,
+   "found_at": "2026-11-13T07:37:38.262997+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261113_073738",
+     "at": "2026-11-13T07:37:38.262997+00:00",
+     "class": "package",
+     "fresh": false,
+     "why": "packaged by the build that passed it"
+    }
+   ]
+  },
+  "a4bfff4015e2bc11a4ab+95d20143d5e2af5612b1+c3be6f1c71c4397b081a+7376e34f2c5978c017bc": {
+   "lineup": [
+    "a4bfff4015e2bc11a4ab",
+    "95d20143d5e2af5612b1",
+    "c3be6f1c71c4397b081a",
+    "7376e34f2c5978c017bc"
+   ],
+   "source": "tests/package/proof/ledger_20261113_083956",
+   "index": 0,
+   "found_at": "2026-11-13T08:39:56.153392+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261113_210211",
+     "at": "2026-11-13T21:02:11.111137+00:00",
+     "class": "clip",
+     "fresh": false,
+     "why": "it cannot be rebuilt from its record (ValueError: tried[0] does not open on its angle's hook (ruling 59 c))"
+    }
+   ]
+  },
+  "8eb7874dda967502eb6b+b805e69a19c24703d799+7e3e7de8b12c647dca24": {
+   "lineup": [
+    "8eb7874dda967502eb6b",
+    "b805e69a19c24703d799",
+    "7e3e7de8b12c647dca24"
+   ],
+   "source": "tests/package/proof/ledger_20261113_092234",
+   "index": 3,
+   "found_at": "2026-11-13T09:22:34.044539+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261113_210211",
+     "at": "2026-11-13T21:02:11.111137+00:00",
+     "class": "clip",
+     "fresh": false,
+     "why": "it cannot be rebuilt from its record (ValueError: tried[3] does not open on its angle's hook (ruling 59 c))"
+    }
+   ]
+  },
+  "8eb7874dda967502eb6b+c3be6f1c71c4397b081a+a45d26b88cd5b176ae13+fda2c6856295ea156a9d": {
+   "lineup": [
+    "8eb7874dda967502eb6b",
+    "c3be6f1c71c4397b081a",
+    "a45d26b88cd5b176ae13",
+    "fda2c6856295ea156a9d"
+   ],
+   "source": "tests/package/proof/ledger_20261113_104817",
+   "index": 1,
+   "found_at": "2026-11-13T10:48:17.836244+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261113_210211",
+     "at": "2026-11-13T21:02:11.111137+00:00",
+     "class": "clip",
+     "fresh": false,
+     "why": "it cannot be rebuilt from its record (ValueError: tried[1] does not open on its angle's hook (ruling 59 c))"
+    }
+   ]
+  },
+  "f29c27fb49bdc3fd050e+a45d26b88cd5b176ae13+c3be6f1c71c4397b081a": {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "a45d26b88cd5b176ae13",
+    "c3be6f1c71c4397b081a"
+   ],
+   "source": "tests/package/proof/ledger_20261113_172217",
+   "index": 0,
+   "found_at": "2026-11-13T17:22:17.104682+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261113_183302",
+     "at": "2026-11-13T18:33:02.084340+00:00",
+     "class": "package",
+     "fresh": false,
+     "why": "PACKAGE"
+    }
+   ]
+  },
+  "82473bb0964f115fbdda+afe8101ad97672f4a9ad+9c14612153405f8983e4": {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "afe8101ad97672f4a9ad",
+    "9c14612153405f8983e4"
+   ],
+   "source": "tests/package/proof/ledger_20261113_210211",
+   "index": 5,
+   "found_at": "2026-11-13T21:02:11.111137+00:00",
+   "state": "open",
+   "until": null,
+   "fresh_used": false,
+   "history": []
+  }
+ }
+}
