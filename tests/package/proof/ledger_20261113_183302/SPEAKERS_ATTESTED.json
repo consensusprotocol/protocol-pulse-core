@@ -1,0 +1,100 @@
+{
+ "schema": "speakers_attested/1",
+ "rule": "orchestrator 15:29 (2): the speaker is attested beside the pin, NOT re-sealed; the tagging and the description read it",
+ "pin": {
+  "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+  "story_id": "moments-ledger_20261113_183302-0c68b589",
+  "package_sha256": "0c68b589371297c066f4ad16576592e8ee0a125383b58b5713db6e654d05769d"
+ },
+ "clips": [
+  {
+   "segment": 2,
+   "label": "clip_02",
+   "video_id": "mKNAcOFMYD4",
+   "channel": "Scott Melker",
+   "start": 755.454,
+   "end": 764.214,
+   "approved_text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin.",
+   "speaker": "Mark Yusko",
+   "role": "guest",
+   "sealed_speaker": "unknown",
+   "basis": "the episode's own captions mark speaker turns ('>>'). The clip sits inside ONE turn that opens at 696.24 and runs with no marker until a one-word backchannel ('>> Yeah.', 908.24); the same speaker then resumes the same argument and addresses the host by name ('...super intelligent, Scott?', 945.28), so the speaker is not Scott Melker. The episode has two speakers, the host Scott Melker and the guest Mark Yusko (title; introductions at 36.56 and 67.76). The orchestrator saw the lower third 'Mark W. Yusko' in the frames.",
+   "evidence": [
+    {
+     "t": 36.56,
+     "line": "and global economy. I've got Mark Yusco",
+     "why": "the host introduces the guest"
+    },
+    {
+     "t": 67.76,
+     "line": "excited to have Mark joining me today.",
+     "why": "the host introduces the guest"
+    },
+    {
+     "t": 694.4,
+     "line": ">> Tell that to his wife.",
+     "why": "the other speaker's interjection: the turn holding the clip answers it"
+    },
+    {
+     "t": 696.24,
+     "line": ">> No. And And here's the thing is cheaters",
+     "why": "a new turn opens (turn marker)"
+    },
+    {
+     "t": 750.64,
+     "line": "I'll tell you, this is my biggest fear",
+     "why": "the same turn, no marker: the speaker introduces the clip's statement"
+    },
+    {
+     "t": 755.76,
+     "line": "biggest fear is that I go to the bank",
+     "why": "inside the clip (no turn marker)"
+    },
+    {
+     "t": 764.8,
+     "line": "My second biggest fear and th this is",
+     "why": "the same turn continues past the clip"
+    },
+    {
+     "t": 908.24,
+     "line": ">> Yeah.",
+     "why": "the only marker before 956: a one-word backchannel by the other speaker"
+    },
+    {
+     "t": 909.36,
+     "line": ">> And now Reddit stock is going like this",
+     "why": "the same speaker resumes the same argument (AI models trained on Reddit, from 894.64)"
+    },
+    {
+     "t": 944.0,
+     "line": "supposed to call him super intelligent,",
+     "why": "the same turn"
+    },
+    {
+     "t": 945.28,
+     "line": "Scott? Well, because the president and",
+     "why": "the speaker addresses the host by name: the speaker is not Scott Melker"
+    }
+   ],
+   "source": {
+    "file": "/home/ultron/worktrees/pp-ingest/data/editorial/transcripts/mKNAcOFMYD4/transcript.yt_auto.json",
+    "sha256": "0c40621a518bd9b759cd4d30c55088e087036ef5ed654d7190564659681ea397",
+    "method": "yt_auto:en-orig",
+    "acquired_at": "2026-11-12T17:35:26.891560+00:00"
+   }
+  }
+ ],
+ "not_attested": [
+  {
+   "segment": 0,
+   "video_id": "DcUbBkyeh9M",
+   "speaker": "unknown"
+  },
+  {
+   "segment": 1,
+   "video_id": "GXWj2JO9bz8",
+   "speaker": "unknown"
+  }
+ ],
+ "written_at": "2026-11-13T20:20:05+00:00"
+}
