@@ -6,6 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 03:08 ORDER '02:46' (c) ANSWERED, AND RULING 30 MERGED (c87fe34e).
+(c) WHAT THE MEDIA-SYNC CRON LOADS ON GPU1, caught live by a read-only watcher on its 03:00 run:
+- At 03:01:48 PID 1225446 (scripts/sync_media_feeds.py) held 388 MiB on GPU1 (uuid GPU-408ad2ea = index 1).
+- Its log at that second: 'PCAF v1 model loaded successfully (device=cuda:1, training=2026-03-26 19:22 UTC)'.
+- Mapped: libtorch_cuda, cuDNN 9, cuBLAS, cudart, nvrtc.
+WHAT PCAF IS: services/pcaf_v1_engine.py, 'Real-Time Inference Engine', a TorchScript graph neural network (torch_geometric) that scores on-chain chain-state graphs for anomalies. It is loaded lazily by core/services/intelligence_engine_v2.py, where it replaced the rule-based on-chain scoring.
+WHY GPU1: its __init__ picks 'cuda:1' whenever torch sees more than one GPU (else cuda:0, else cpu).
+SIZE: the model file models/pcaf_v1.pt is 856 KB. So the 388-480 MiB is almost all CUDA context (torch + cuDNN), not the network.
+The website's own GPU1 context (480 MiB, the named co-tenant) carries the same libraries; it is presumably the same engine, inferred, not caught.
+COST TONIGHT: the word-pass worker waited it out 216.4 s (cycle 4) and 310.2 s (the 03:00 run). Each wait is correct under L-r. Nothing touched: no cron change, no kill.
+FOR PBX's PROPOSAL (the orchestrator's): (1) run PCAF on the CPU, where an 856 KB GNN does not need a GPU; (2) or make the engine take the GPU1 lease, or join the named co-tenants with a cap.
+RULING 30 MERGED (c87fe34e; audits batch 54 x2). to_bt709 runs at the start of stage_prepare. A BT.601 source (matrix smpte170m / bt470bg) becomes BT.709: the colorspace filter, lossless x264 qp 0, every frame time passed through, the audio copied, tagged bt709 / tv, the original kept in sources_bt601/. 709 and untagged sources are untouched. Tested on pin #1's own hook source: the same 97 frames, frame times and audio; RGB within 0.30 levels; G9's decode path 99.49 against 99.54. The audit's last consensus point came from its own new test: sources_bt601/ is created only after a successful encode. regression_test.sh 0 FAIL; pipeline/regression.sh exit 0 (all three references reproduce); test_fresh, test_loudness and test_attestation_trees pass. The G9 floor is unchanged.
+
 ## 03:01 RESULT: THE FIRST FRESH MEDLEY (seal d2657bbe, run pinned_20261113_075638) HELD AT VALIDATE at 03:00:24, before any render. Nothing to send: no finals exist, and a validate hold has nothing to review-drop.
 MEASURED: the pipeline's STAND_ALONE check (stage_validate) fails two of the three clips.
 - clip_01 (Simply Bitcoin WTCwyxW-lHk) opens on 'but', and the clip scorer does not affirm it stands alone (3.0, fault other).
