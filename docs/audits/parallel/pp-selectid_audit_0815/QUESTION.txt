@@ -1,0 +1,58 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips:
+a hook + 2-4 clips played back to back). Your role: a strict reviewer of the blind "clips-alone" verdict.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background:
+- medley() asks a blind judge (never the writer's vendor or family) about the clips alone, in play order: is there a
+  through-line a viewer can state; a 1-5 rating per clip of how much it advances it; and per join, can a viewer follow
+  it. ok = a stated through-line (>= 4 words, not "none"), every rating >= COHERENCE_MIN (4), at most LY_MAX_BRIDGES
+  (1) joins not followable. The returned verdict's "clips" dict (keyed "hook", "clip_01", ...) feeds the build loop:
+  a rating under 4 marks that segment weak, and ruling 41's swap replaces it (the hook by the next hook).
+- Until now the HOOK was rated like a clip, on "how much it advances the through-line". Builds kept failing on hooks
+  rated 3 while their clips were rated 4-5.
+
+The order this diff implements (ORCHESTRATOR RULING 52, 08:06 ET Nov 13, verbatim): "THE HOOK IS RATED ON ITS OWN JOB:
+YES. In the clips-alone verdict the hook is no longer rated on 'how much it advances the through-line'. The hook's
+rating is: does it stop a scroll in its first 2-3 seconds, does it stand alone, and does it set up what follows (a
+viewer who hears it wants the next clip). Bar 4, unchanged. The clips keep their present rating and bar. The join
+after the hook is judged as now: followable, or the ONE bridge L-y allows. Two flagged joins still fail. Write the hook
+question so the judge answers the three parts separately and the rating is derived, not free-form."
+
+The change (pipeline/package.py, tests/package/test_medley.py):
+1. MEDLEY_PROMPT:
+   - says the first clip (label "hook") opens the video;
+   - asks the hook's three parts separately, each 1-5: "scroll" (do its first 2-3 seconds stop a viewer from
+     scrolling past), "alone" (does it stand alone), "setup" (does it set up what follows, so that a viewer who hears
+     it wants the next clip);
+   - asks the through-line rating only "for each clip AFTER the hook";
+   - the join question is unchanged;
+   - the JSON shape is {"through_line", "hook": {"scroll", "alone", "setup"}, "clips": {the labels after the hook},
+     "joins"}, with the clip keys written out per line-up.
+2. medley():
+   - the contract requires exactly those keys, the three hook parts as ints 1-5, and the clips after the hook only;
+     anything else is out of contract: not measured, rejected, never a pass;
+   - the hook's rating is DERIVED as the LOWEST of its three parts (HOOK_RULE: every part must reach the bar) and
+     written to verdict["clips"]["hook"]. The parts stay in verdict["hook"], the rule in verdict["hook_rule"];
+   - the pass rule is unchanged (min over every rating, the hook's derived one included, >= 4; joins as before).
+     Every downstream reader (weak-segment detection, ruling 41's hook swap, the logs, the sealed medley row) is
+     unchanged.
+3. tests:
+   - reply() builds the judge's raw reply in the new shape;
+   - the clips-alone tests use it;
+   - a new test: one part at 3 gives a derived hook rating of 3 and a FAIL; all parts at 4 pass; the prompt asks the
+     three parts and no through-line rating for the hook; a clip at 3 still fails;
+   - out-of-contract cases: a part missing, a part out of range or a string, the hook among the clips, no "hook" key.
+- test_medley 82 OK; every other suite OK.
+
+A stated choice (K1): the derivation is min(scroll, alone, setup), so the hook passes only when ALL three parts reach
+the bar. The ruling says the rating is "derived, not free-form" but does not fix the formula. Say so if you read it
+differently (for example, a mean).
+
+Check in particular:
+- that the hook can no longer pass or fail on a through-line rating, and that clips are rated exactly as before;
+- that the derived rating cannot be free-form or missing, and that every malformed reply is never a pass;
+- that the joins (the one bridge, two flagged joins fail) are unchanged;
+- that the build loop's weak detection and the hook swap still see the hook's rating under "hook".
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

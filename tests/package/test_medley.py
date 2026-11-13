@@ -44,6 +44,16 @@ def verdict(labs, flagged=(), ratings=None, line="Nobody can change the rules of
                           if j in flagged else "same subject"} for j in js}}
 
 
+def reply(labs, flagged=(), ratings=None, line="Nobody can change the rules of Bitcoin.", hook=None):
+    """The clips-alone JUDGE's raw reply (ruling 52): the hook's three parts, the clips after the hook, the joins."""
+    js = PK.joins(labs)
+    h = (ratings or {}).get("hook", 5)
+    return {"through_line": line, "hook": dict({"scroll": h, "alone": h, "setup": h}, **(hook or {})),
+            "clips": {lb: (ratings or {}).get(lb, 5) for lb in labs[1:]},
+            "joins": {j: {"followable": j not in flagged, "why": "the next speaker's 'it' has no referent"
+                          if j in flagged else "same subject"} for j in js}}
+
+
 def medley_pk(n=3, bridge=None, after=None, flagged=(), measured=True, chans=None, supply=None, intro=None):
     """A medley package the shape check reads: n segments; the takeaway after the last clip; an optional bridge."""
     labs = PK.labels(n)
@@ -137,7 +147,7 @@ class TestClipsAloneVerdict(unittest.TestCase):
         return ok, v, r
 
     def test_no_narration_in_the_prompt_and_the_writers_vendor_avoided(self):
-        r = Canned(coherence_verdict=[verdict(self.LABS)])
+        r = Canned(coherence_verdict=[reply(self.LABS)])
         prompts = []
         call = r.call
         r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
@@ -150,24 +160,47 @@ class TestClipsAloneVerdict(unittest.TestCase):
         self.assertEqual(r.calls[0], ("coherence_verdict", {"heimdall"}, {"deepseek"}))
 
     def test_one_unfollowable_join_passes_flagged_and_two_fail(self):
-        ok, v, _ = self.run_it(verdict(self.LABS, flagged=["clip_01 -> clip_02"]))
+        ok, v, _ = self.run_it(reply(self.LABS, flagged=["clip_01 -> clip_02"]))
         self.assertTrue(ok)
         self.assertEqual(v["flagged"], ["clip_01 -> clip_02"])
-        ok, v, _ = self.run_it(verdict(self.LABS, flagged=["hook -> clip_01", "clip_01 -> clip_02"]))
+        ok, v, _ = self.run_it(reply(self.LABS, flagged=["hook -> clip_01", "clip_01 -> clip_02"]))
         self.assertFalse(ok)                              # two bridges would be needed: the line-up is wrong (L-y 2)
 
     def test_no_through_line_or_a_weak_clip_fails(self):
-        self.assertFalse(self.run_it(verdict(self.LABS, line="none"))[0])
-        self.assertFalse(self.run_it(verdict(self.LABS, line="Bitcoin."))[0])
-        self.assertFalse(self.run_it(verdict(self.LABS, ratings={"clip_02": 3}))[0])
+        self.assertFalse(self.run_it(reply(self.LABS, line="none"))[0])
+        self.assertFalse(self.run_it(reply(self.LABS, line="Bitcoin."))[0])
+        self.assertFalse(self.run_it(reply(self.LABS, ratings={"clip_02": 3}))[0])
+
+    def test_ruling_52_the_hook_is_rated_on_its_own_job_in_three_parts(self):
+        prompts = []
+        r = Canned(coherence_verdict=[reply(self.LABS, hook={"setup": 3})])
+        call = r.call
+        r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
+        ok, v = PK.medley(r, self.SEGS, E.Context(NOW, REG), {"heimdall"}, writer_family={"deepseek"})
+        self.assertFalse(ok)                              # one part under the bar: the hook's derived rating is 3
+        self.assertEqual((v["clips"]["hook"], v["hook"]), (3, {"scroll": 5, "alone": 5, "setup": 3}))
+        self.assertIn("lowest of scroll / alone / setup", v["hook_rule"])
+        for part in ('"scroll"', '"alone"', '"setup"', "first 2-3 seconds", "wants the next clip",
+                     "For each clip AFTER the hook", '"clip_01": 1, "clip_02": 1'):
+            self.assertIn(part, prompts[0])
+        self.assertNotIn('"hook": 1', prompts[0])         # the hook is not asked for a through-line rating
+        ok, v, _ = self.run_it(reply(self.LABS, hook={"scroll": 4, "alone": 4, "setup": 4}))
+        self.assertTrue(ok)                               # every part at the bar of 4
+        self.assertEqual(v["clips"], {"hook": 4, "clip_01": 5, "clip_02": 5})
+        ok, v, _ = self.run_it(reply(self.LABS, ratings={"hook": 5, "clip_01": 3}))
+        self.assertFalse(ok)                              # the clips keep their own rating and bar
 
     def test_out_of_contract_is_not_measured_and_rejected(self):
-        good = verdict(self.LABS)
+        good = reply(self.LABS)
         for bad in (dict(good, joins={"hook -> clip_01": good["joins"]["hook -> clip_01"]}),      # a join missing
                     dict(good, joins=dict(good["joins"], **{"clip_02 -> hook": {"followable": True, "why": ""}})),
                     dict(good, joins={j: {"followable": "yes", "why": ""} for j in good["joins"]}),
                     dict(good, vo_point=5),
-                    dict(good, clips={"hook": 5, "clip_01": 5})):
+                    dict(good, clips={"hook": 5, "clip_01": 5, "clip_02": 5}),            # the hook among the clips
+                    dict(good, hook={"scroll": 5, "alone": 5}),                           # a part missing (ruling 52)
+                    dict(good, hook={"scroll": 5, "alone": 5, "setup": 6}),
+                    dict(good, hook={"scroll": "5", "alone": 5, "setup": 5}),
+                    {k: x for k, x in good.items() if k != "hook"}):
             ok, v, r = self.run_it(bad)
             self.assertFalse(ok)
             self.assertFalse(v["measured"])

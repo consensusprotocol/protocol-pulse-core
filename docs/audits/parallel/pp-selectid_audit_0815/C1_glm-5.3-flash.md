@@ -1,0 +1,91 @@
+# glm-5.3-flash (z-ai/glm-5.3-flash) 177 s finish=stop usage in 8925 / out 4983 usd~0.102 (upper-bound price)
+
+# Audit: ruling 52 — the hook rated on its own job (pp-selectid)
+
+Scope note: I can only verify what the diff shows. `medley()`'s tail (the `ok` computation, `flagged`, the return) is truncated at diff line 81/82 — the last visible lines are the `tl`/`flagged` assignments and the start of the `ok =` expression. I assume the remainder is unchanged; where that matters I say so.
+
+## P0
+
+None.
+
+## P1
+
+**P1-1 — The hook's derived rating is computed after the contract check but the derivation itself is unvalidated only by construction of `min()`; however the reply's `hook` parts are validated, so this is actually fine — the real P1 is the truncated `ok` line.**
+File: pipeline/package.py, diff lines 78–81 (hunk `@@ -944,6 +959,7 @@`).
+
+The diff shows:
+
+```python
+v = dict(v, clips={labs[0]: min(v["hook"][k] for k in HOOK_PARTS), **v["clips"]}, hook_rule=HOOK_RULE)
+tl = v["through_line"] if isinstance(v["through_line"], str) else ""
+flagged = [j for j in js if v["joins"][j]["followable"] is False]
+ok = bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4 and \
+```
+
+and then the diff ends. The pass rule per the brief is `min(all ratings) >= COHERENCE_MIN and flagged <= LY_MAX_BRIDGES`. Since the derivation at line 78 injects the hook's rating into `v["clips"]` *before* `ok` is computed, the hook's derived rating participates in the min **only if** the unchanged remainder of the `ok` expression still mins over `v["clips"].values()`. That is the pre-existing pattern (the old code validated `set(v["clips"]) == set(labs)` and presumably minned over it), and the new code keeps `v["clips"]` complete (hook + others) at that point, so the unchanged tail should pick it up. But I cannot see the tail, so I cannot confirm the hook's derived rating actually reaches the pass rule — if the tail mins over the *original* `v["clips"]` captured before line 78, or over a separately-held dict, the hook would silently drop out of the pass rule and a hook part at 3 would pass. The new test `test_ruling_52...` does assert `assertFalse(ok)` for `setup: 3`, which would catch this — so conditional on that test actually exercising `medley()` (it calls `PK.medley(r, self.SEGS, ...)` directly, yes it does), this is covered. Downgrade: verified by test, not by diff. Keep as P1-verified-by-test-only: **the pass rule's treatment of the derived hook rating is not visible in the diff; it is covered only by the new test.** If the test suite is trusted, this is fine; if the diff is the sole evidence, the tail must be shown.
+
+**P1-2 — `verdict["hook_rule"]` is added at the top level of the verdict, but the brief says the parts stay in `verdict["hook"]` and the rule in `verdict["hook_rule"]`; downstream readers of the verdict dict are said to be "unchanged", yet the verdict now carries two new keys (`hook`, `hook_rule`) that any strict-shape consumer (e.g. the sealed medley row, logs) may reject.**
+File: pipeline/package.py, diff line 78.
+
+`v = dict(v, clips={...}, hook_rule=HOOK_RULE)` — this adds `hook_rule` as a *new top-level key* to the verdict that `medley()` returns. The brief asserts "Every downstream reader (weak-segment detection, ruling 41's hook swap, the logs, the sealed medley row) is unchanged." I cannot verify from this diff that the sealed medley row (whatever serializes the verdict) tolerates extra keys. If it does a strict `set(v) == {...}` check like `medley()` itself does on the judge's reply (line 67: `set(v) != {"through_line", "hook", "clips", "joins"}` — note it demands *exactly* those keys), the added `hook_rule` (and `hook`) would fail it. Concrete scenario: the sealed medley row writer does `set(row) != {"through_line","clips","joins","flagged","measured","error"}` → KeyError/never-sealed → the run HOLDs. This is the same class of bug the code itself guards against internally, so it's plausible the row writer is equally strict. Not verifiable from the diff; flag for the author to confirm, or show the row-writer's shape check.
+
+**P1-3 — `min(v["hook"][k] for k in HOOK_PARTS)` — the derivation reads `v["hook"]` after `v` was reassigned by `dict(v, ...)`, which is fine, but the derivation happens *outside* the try/except.**
+File: pipeline/package.py, diff lines 74–78.
+
+Look at the control flow:
+
+```python
+    except ... :
+        if r is not None and isinstance(e, (ValueError, TypeError)):
+            router.reject(r)
+        return False, {"error": ..., "measured": False, "flagged": None}
++   v = dict(v, clips={labs[0]: min(v["hook"][k] for k in HOOK_PARTS), **v["clips"]}, hook_rule=EXACT)
+```
+
+Wait — actually, reading the hunk header `@@ -944,6 +959,7 @@` with context: the `except` block's last line (line 77 in the diff, `return False, {...}`) is context, and the new line 78 is inserted *after* the `return`, i.e. after the try/except completes. That means: if the JSON parse or contract check raised, we returned; otherwise we reach line 78. But the contract check (lines 67–73) — does it *raise* or *return*? Looking at the structure: the `if not isinstance(v, dict) or set(v) != ...` at line 67–73 ends with (truncated) presumably `: raise ValueError(...)` — because the except clause catches `ValueError/TypeError` and calls `router.reject(r)`. So the contract failure path is: raise → except → reject → return not-measured. Good, that's fail-closed and matches M12. Then line 78 runs only on a fully-validated reply, where `v["hook"]` is guaranteed to have exactly `HOOK_PARTS` keys with int values 1–5 (line 68–69), so `min(...)` cannot KeyError or hit an empty sequence. Verified: the derivation cannot be free-form or missing, because the contract check at lines 67–69 requires `set(v["hook"]) == set(HOOK_PARTS)` and every part `type(x) is not int or not 1 <= x <= 5` → rejected. Note `type(x) is not int` (not `isinstance`) — a `bool` `True` would pass `isinstance(x, int)` but fail `type(x) is int`... actually `type(True) is int` is `False` (it's `bool`), so `True` is *rejected* as a rating. Is that intended? A judge replying `"scroll": true` for a 1-5 rating is out of contract anyway; strictness is fine and matches the pre-existing clips check (line 71, same `type(x) is not int` pattern — it's the pre-existing convention). Not a defect; noted for completeness.
+
+So P1-3 dissolves on close reading — the placement is correct. What remains genuinely worth a P1: **the `except` clause catches only `(ValueError, TypeError)`** (line 75). If `json.loads` succeeds but the reply's `hook` value is, say, a dict-of-dicts, the contract check raises ValueError — fine. But if `router.call` itself raises something else (KeyError from a canned provider, etc.), it propagates. That's pre-existing behavior, unchanged by this diff — out of scope, mention only.
+
+## P2
+
+**P2-1 — The prompt's JSON template hardcodes `"clips": {"clip_01": 1, "clip_02": 1}` via `clip_keys` but the hook's parts template hardcodes `1` as the example value; a judge copying the example literally still passes the contract (1 is in range), so no defect — but the example shows `1` for every part, which biases toward... nothing. Not a defect.** Instead, a real P2:
+
+**P2-1 (real) — `HOOK_PARTS` / `HOOK_RULE` are module constants placed mid-file after the prompt, and the prompt's part descriptions are duplicated as prose in the ruling text of `medley()`'s docstring; if the part names or the bar ever change, the prompt, the contract (`set(v["hook"]) != set(HOOK_PARTS)`), the derivation, and the docstring must all change in step, and nothing ties the prompt's prose ("scroll", "alone", "setup") to `HOOK_PARTS` programmatically.**
+File: pipeline/package.py, diff lines 31–32 vs 19–23 vs 68.
+
+Concrete scenario: someone renames "setup" → "sets_up" in the prompt prose but not in `HOOK_PARTS`; the judge answers with the prompt's key, the contract check `set(v["hook"]) != set(HOOK_PARTS)` fails, every reply is rejected, `medley` returns `ok=False, measured=False` — fail-closed (M12 honored), but the pipeline HOLDs with no hint that the prompt and the constant diverged. Given LAW 20 (thresholds/constants, never change what a check accepts) this is acceptable, but a one-line assertion (e.g. each part name appears in `MEDLEY_PROMPT`) would make the coupling self-enforcing. Minor.
+
+**P2-2 — The new test's prompt-contents assertions are order- and phrasing-fragile.**
+File: tests/package/test_medley.py, diff lines 141–144.
+
+```python
+for part in ('"scroll"', '"alone"', '"setup"', "first 2-3 seconds", "wants the next clip",
+             "For each clip AFTER the hook", '"clip_01": 1, "clip_02": 1'):
+    self.assertIn(part, prompts[0])
+```
+
+`'"clip_01": 1, "clip_02": 1'` asserts the *exact serialization* of `clip_keys` — `", ".join(f'"{lb}": 1' ...)` — including the two-space... no, the single-comma-join. If the join separator or the example value changes (say to `2`), the test breaks without any behavioral change. Also `assertNotIn('"hook": 1', prompts[0])` (line 144): the prompt's JSON template contains `"hook": {"scroll": 1, "alone": 1, "setup": 1}` — does `'"hook": 1'` appear? No: it's `"hook": {` — so the assertion holds, but it's testing a serialization accident. These are brittle-but-correct; P2.
+
+**P2-3 — `reply()` in the test helper defaults every hook part to the *same* value `h` (from `ratings["hook"]`), so the "all parts at 4" case (`hook={"scroll": 4, "alone": 4, "setup": 4}`) exercises the derivation's min only at equal values; the min semantics (one part strictly lowest, others higher) is exercised only in the `setup: 3` case.** Actually — `hook={"setup": 3}` with `h=5` default gives `{scroll:5, alone:5, setup:3}`, which *is* a strict-min case, and the assertion `(v["clips"]["hook"], v["hook"]) == (3, {scroll:5, alone:5, setup:3})` pins it. So the min semantics *is* tested. What is *not* tested: a part at the boundary 5 and 1 (range extremes), and — more substantively — **that the derived hook rating of 4 exactly at the bar passes while 3 fails is tested, but the interaction with `COHERENCE_MIN` (the constant) is not: the tests hardcode 4/3/5, so if `COHERENCE_MIN` were changed the tests would silently diverge from the gate.** That's the pre-existing test convention (the old tests also hardcode 3/5), so P2 at most; arguably out of scope.
+
+**P2-4 — The out-of-contract case `dict(good, clips={"hook": 5, "clip_01": 5, "clip_02": 5})` ("the hook among the clips") is now rejected because the contract demands `set(v["clips"]) == set(labs[1:])`. Good. But there is no test for the *dual* case: `clips` missing a non-hook clip (e.g. `{"clip_01": 5}` for a 3-clip line-up) — the old test's `dict(good, clips={"hook": 5, "clip_01": 5})` case was *replaced* (it's now the "hook among the clips" variant with clip_02 added back).** Looking at diff line 158–159: the old case `dict(good, clips={"hook": 5, "clip_01": 5})` (a *missing* clip_02) became `dict(good, clips={"hook": 5, "clip_01": 5, "clip_02": 5})` (the hook *present*). So the "missing clip" mutation lost its slot in the loop. Is a missing clip still covered? Yes — indirectly: `set(v["clips"]) != set(labs[1:])` catches it, and the *new* case `{k: x for k, x in good.items() if k != "hook"}` (missing the whole `hook` key) covers the other side. But the specific mutation "a non-hook clip missing" is no longer in the must-fail list. Concrete scenario: someone changes the contract to `set(v["clips"]) != set(labs)` (a regression to the old shape) — would any test fail? `dict(good, clips={hook,clip_01,clip_02})` would then *pass* the (wrong) contract... but `set(v) != {"through_line","hook","clips","joins"}` — no, that checks the top level. Hmm: if the contract regressed to `set(v["clips"]) == set(labs)`, then the *good* reply (clips = labs[1:], no "hook" key) would fail the contract → `test_no_narration...` and the pass tests would fail. So the regression *is* caught, just not by the mutation loop. Net: coverage moved, not lost. P2, note only.
+
+**P2-5 — K1 (min, not mean): the ruling says "derived, not free-form" but does not fix the formula.** The chosen `min` matches the ruling's own gloss — "every part must reach the bar" (HOOK_RULE, diff line 32) — and the ruling's phrasing "Bar 4, unchanged" applied to a hook whose *rating* had to clear 4. Under a mean, a hook at (5,5,3) would rate 4.33 → 4 → pass, contradicting "every part must reach the bar" only if you read the gloss as normative; under min it's 3 → fail. The ruling's three-part question ("does it stop a scroll... does it stand alone... does it set up what follows") reads conjunctively — a hook that fails one part has not done its job — which is exactly min. I read min as the correct reading; a mean would let a 3 in one part hide behind 5s, which contradicts "the judge answers the three parts separately" having any force. **Agree with K1; no condition.** But note: the derivation produces an int (parts are ints, min of ints is int) — good, because downstream `v["clips"]` values are compared `>= COHERENCE_MIN` and, if anything ever did `type(x) is int` on the *verdict's* clips (the sealed row?), a mean would have broken it. min keeps the type invariant. Worth one sentence in the ruling's record.
+
+## Answers to the specific checks
+
+1. **Hook no longer passes/fails on a through-line rating; clips rated exactly as before.** Verified. The prompt asks the through-line rating "For each clip AFTER the hook" (diff line 24) and the contract requires `set(v["clips"]) == set(labs[1:])` (line 70) — the hook *cannot* appear in the clips ratings, so no through-line rating for the hook exists to affect anything. The clips' rating question (line 24), 1–5 int contract (line 71), and bar are byte-identical in convention to the old code; the only change to clips is the *key set* (labs[1:] instead of labs) — which is exactly the ruling. The join question text is unchanged (diff lines 25–27 are context, only the numbering "3) → 4)" shifted). One caveat: the join question's *numbering* changed from 3 to 4 and the hook-parts block was inserted as new item 2, shifting old-2→3 — if the judge's attention depends on numbering (it doesn't, contractually), irrelevant; the *contract* on joins (line 72–73) is untouched: `set(v["joins"]) != set(js)`, `followable` must be bool, `why` present. Two flagged joins still fail — that's the unchanged `ok` tail (LY_MAX_BRIDGES=1), which I cannot see but the existing test `test_one_unfollowable_join_passes_flagged_and_two_fail` (diff lines 115–122) still passes per the report and exercises exactly hook→clip_01 + clip_01→clip_02 both flagged. Verified by test.
+
+2. **Derived rating cannot be free-form or missing; every malformed reply never a pass.** Verified. Free-form: the judge never supplies the hook's clip-rating at all — it's computed at line 78 as `min` over exactly `HOOK_PARTS`, whose values the contract (lines 68–69) has already forced to be ints 1–5. Missing: `set(v["hook"]) != set(HOOK_PARTS)` → reject; missing top-level `hook` → `set(v) != {...}` → reject (tested, diff line 163). Malformed → raise → except → `router.reject(r)` → return `measured: False, ok=False` — never a pass (M12). The mutation tests (diff lines 154–163) cover: a part missing, a part = 6, a part = "5" (string), the hook among clips, no "hook" key, plus the pre-existing joins/extra-key mutations. One residual: there is no mutation for a *non-int-1-5* value like `0` or `5.0` (float) — `5.0` would fail `type(x) is not int` (type is float) → rejected; `0` fails the range. Covered by the contract, untested but trivially. Also: `bool` — `type(True) is int` is False, so `true` in JSON (→Python bool) is rejected; consistent with the clips check. Fine.
+
+3. **Joins unchanged.** Verified, as far as the diff shows: the join question prose is context-unchanged (only renumbered), the joins contract lines (72–73) are context, `flagged` computation (line 80) is context, and the tests for one-bridge-passes/two-fail are context-updated only in the helper they call (`verdict`→`reply`), with the same assertions. The one-bridge/two-bridge semantics live in the unseen `ok` tail; covered by the surviving test.
+
+4. **Build loop / ruling 41 still see the hook's rating under "hook".** Verified by construction: line 78 writes the derived rating to `v["clips"][labs[0]]` where `labs[0]` is by definition the hook's label ("hook" — `labels(n)` produces "hook", "clip_01", ...; the joins in the tests are literally "hook -> clip_01", confirming labs[0] == "hook"). So `verdict["clips"]["hook"]` exists exactly as before, now holding the derived min instead of the judge's through-line rating. Weak detection (rating < 4) and the ruling-41 hook swap read `verdict["clips"]["hook"]` — unchanged key, unchanged type (int), unchanged value domain (1–5). The swap's "next hook" logic is untouched by this diff. Caveat: the verdict now also carries `hook` and `hook_rule` top-level keys (see P1-2) — if the ruling-41 swap or the sealed row does a strict key check on the *verdict* (not the reply), that's the one place this could bite. Not verifiable from the diff.
+
+## Verdict
+
+**SHIP: yes with conditions** —
+1. Show (or confirm) the unseen tail of the `ok` expression mins over `v["clips"].values()` *after* line 78's derivation, and that the sealed medley row / any verdict consumer tolerates the two new top-level keys (`hook`, `hook_rule`) — P1-1/P1-2. Both are one-line confirmations; the tests suggest they hold, but the diff alone doesn't prove either.
+2. (Optional, P2-1) One assertion tying the part names in `MEDLEY_PROMPT` to `HOOK_PARTS`, so a prompt/constant divergence fails a test instead of HOLDing a run.
+
+On K1: min is the right derivation — the ruling's "every part must reach the bar" and the conjunctive three-part question both read as min; a mean would let a 3 hide behind 5s and would also break the int invariant of `clips` values. Keep it, and record the formula in the ruling's record (the ruling fixes "derived", not the formula; HOOK_RULE now does — good).

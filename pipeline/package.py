@@ -516,17 +516,26 @@ Return ONLY this JSON object: {{"angles": [{{"angle": "...", "moments": ["id", "
 "support": {{"id": "..."}}}}]}}"""
 
 MEDLEY_PROMPT = """You watch a short video made ONLY of these clips, played back to back with NO narration between them.
-Each clip is a person's own words from a show; the shows were not in one conversation.
+Each clip is a person's own words from a show; the shows were not in one conversation. The first clip (label "hook")
+opens the video.
 
 {clips}
 
 1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or
    "none" if there is none.
-2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
-3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next
+2) THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:
+   "scroll": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)
+   "alone": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)
+   "setup": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not
+   at all)
+3) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
+4) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next
    clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few
    words.
-Return ONLY this JSON object: {{"through_line": "...", "clips": {{"<label>": 1}}, "joins": {{{joins}}}}}"""
+Return ONLY this JSON object: {{"through_line": "...", "hook": {{"scroll": 1, "alone": 1, "setup": 1}},
+"clips": {{{clip_keys}}}, "joins": {{{joins}}}}}"""
+HOOK_PARTS = ("scroll", "alone", "setup")   # ruling 52 (08:06 Nov 13): the hook's own job, each part rated 1-5
+HOOK_RULE = "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
 
 WRITE_LY = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
 THE ANGLE (the point this video makes): "{angle}"
@@ -917,10 +926,14 @@ def joins(labs):
 
 def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
     """L-y 3: the blind coherence verdict on the clips ALONE (no VO, no title), asked FIRST: "played back to back with
-    no narration, is there a through-line a viewer can state?", a 1-5 rating per clip, and per join whether a viewer
-    can follow the jump. Never the vendor / family of the writer. -> (ok, verdict): ok when the through-line is stated
-    (>= 4 words, not 'none'), every clip rates >= COHERENCE_MIN and at most LY_MAX_BRIDGES joins are not followable;
-    verdict["flagged"] = the joins a viewer could not follow (a bridge may go only there, L-y 2)."""
+    no narration, is there a through-line a viewer can state?", a 1-5 rating per clip after the hook on how much it
+    advances it, and per join whether a viewer can follow the jump. RULING 52: the HOOK is rated on its own job, in
+    three parts the judge answers separately (HOOK_PARTS: stops a scroll in its first 2-3 s, stands alone, sets up
+    what follows), and its rating is DERIVED, never free-form: the lowest part (HOOK_RULE), written to
+    verdict["clips"]["hook"]; the parts stay in verdict["hook"]. Never the vendor / family of the writer. -> (ok,
+    verdict): ok when the through-line is stated (>= 4 words, not 'none'), every rating (the hook's derived one
+    included) is >= COHERENCE_MIN and at most LY_MAX_BRIDGES joins are not followable; verdict["flagged"] = the joins
+    a viewer could not follow (a bridge may go only there, L-y 2)."""
     import providers as P
     labs = labels(len(segs))
     js = joins(labs)
@@ -929,12 +942,14 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
     r = None
     try:
         r = router.call("coherence_verdict",
-                        MEDLEY_PROMPT.format(clips=clips, joins=", ".join(
-                            f'"{j}": {{"followable": true, "why": "..."}}' for j in js)),
+                        MEDLEY_PROMPT.format(clips=clips, clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:]),
+                                             joins=", ".join(f'"{j}": {{"followable": true, "why": "..."}}' for j in js)),
                         1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
         v = json.loads(r.text.strip())
-        if not isinstance(v, dict) or set(v) != {"through_line", "clips", "joins"} or \
-                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs) or \
+        if not isinstance(v, dict) or set(v) != {"through_line", "hook", "clips", "joins"} or \
+                not isinstance(v["hook"], dict) or set(v["hook"]) != set(HOOK_PARTS) or \
+                any(type(x) is not int or not 1 <= x <= 5 for x in v["hook"].values()) or \
+                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
                 any(type(x) is not int or not 1 <= x <= 5 for x in v["clips"].values()) or \
                 not isinstance(v["joins"], dict) or set(v["joins"]) != set(js) or \
                 any(not isinstance(x, dict) or set(x) != {"followable", "why"} or type(x["followable"]) is not bool
@@ -944,6 +959,7 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
         if r is not None and isinstance(e, (ValueError, TypeError)):
             router.reject(r)
         return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False, "flagged": None}
+    v = dict(v, clips={labs[0]: min(v["hook"][k] for k in HOOK_PARTS), **v["clips"]}, hook_rule=HOOK_RULE)
     tl = v["through_line"] if isinstance(v["through_line"], str) else ""
     flagged = [j for j in js if v["joins"][j]["followable"] is False]
     ok = bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4 and \
