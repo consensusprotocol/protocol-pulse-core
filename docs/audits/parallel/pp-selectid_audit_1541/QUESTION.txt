@@ -1,0 +1,111 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse: the builder that seals medley pins the render plays,
+built from other channels' clips). Your role: a strict reviewer of a NEW gate that looks at source video and seals
+its findings. Only state what you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- A build:
+  - screens the pool;
+  - rates hooks (ruling 59: only a hook rated >= 4 opens);
+  - asks a writer for angles;
+  - judges each line-up on the clips alone;
+  - writes (takeaway / title / caption);
+  - gates everything;
+  - seals the pin.
+- package_pin.seal is sha256 over the pin's body; a SEALED_LATER key enters it only when a segment carries it. The
+  integrator's check_pin_only recomputes seals with this file and checks gate_problems() with the default
+  REQUIRED_GATES.
+- providers.Router routes each role's chain (failover), records every exchange, and runs the spend guard: each paid
+  call reserves Backend.upper_usd first and settles after.
+- The 13:38 pin's hook (Simply Bitcoin) opened on a split-screen photo of a real CEO while the host said "A CEO makes a
+  personal mistake and shareholders pay". The words named nobody, so no text gate saw it; the picture named him.
+
+The ruling this diff implements (ORCHESTRATOR 15:29 Nov 13, verbatim):
+"(1) C: YES, build it (RULING 70). One contact sheet per clip, the three questions including lower_third; xAI first,
+Heimdall image models as failover; fail closed. A finding on third_person or on_screen_text does not reject the clip
+by itself: it is sealed as a FLAG that I and PBX see with the pin (text of the finding + the sheet), and a clip with a
+third_person finding may not be the HOOK unless the claim in the words is confirmed as reported fact by step A's
+context. lower_third feeds ruling 69 as one more piece of evidence, never alone. Report the measured cost on the first
+build."
+The three questions, from the proposal it rules on:
+(1) third_person: is a person who is NOT speaking shown as a still, photo or graphic while the words make a negative
+    claim (reporting on-screen NAME TEXT only, never naming from a face)?
+(2) on_screen_text: the source's headline graphics or chyrons, and whether each asserts more than the words.
+(3) lower_third: the speaker's on-screen name.
+
+The change:
+1. pipeline/visual_pin.py (new):
+   - fetch(): the span at <= 480p (yt-dlp download sections, CPU).
+   - sheet(): at most 8 stills (the cut-in, one every 2 s, the last; evenly spaced if more), each labelled with its
+     source time, in ONE JPEG (ffmpeg + PIL, CPU).
+   - visual_for(): ONE verdict (role visual_check). Checked in code (check(): exact keys, enums, types). Out of
+     contract or unanswered: retried once with a new seed, then NOT measured. No sheet: not measured, nothing asked.
+     Cached per moment + span + VERSION, measured live only.
+   - flags(): a third_person finding (shown, as still/photo/graphic, with negative words), and every on_screen_text
+     that asserts more than the words.
+   - hook_block(): not measured, or a third_person flag, blocks the HOOK.
+   - sealed(): the subset a pin seals (findings, flags, the sheet's name/sha256/times, backend; never a scratch path
+     or a cost).
+2. pipeline/providers.py: a VISION prompt {"text", "images": [base64 JPEG]}.
+   - is_vision / prompt_text: the recordings and logs carry each image's sha256, never the image; the record KEY
+     still covers the image bytes.
+   - Backend.vision (False by default). The router skips a non-vision back-end for a vision prompt, and the vision
+     back-end for a text prompt.
+   - upper_usd adds IMAGE_TOKENS_UPPER (6000) per image.
+   - XAIVisionBackend (vendor xai_vision): the Responses API with "input_image" parts, "detail": "high",
+     "store": false (xAI's image-understanding guide uses grok-4.7 and warns a stored record can make image requests
+     fail); it refuses a text prompt. Cost from cost_in_usd_ticks when the reply carries it.
+   - HeimdallBackend sends a vision prompt as chat-completions content parts (text + image_url data URLs), the form
+     the render's pipeline/visual_check.py uses with these models.
+3. pipeline/model_providers.json:
+   - backends xai_vision:grok-4.7 ([5, 25] per 1M, an upper bound) and heimdall:nvidia/nemotron-3.5-super-vl;
+   - role visual_check = [xai_vision:grok-4.7, heimdall:qwen/qwen3.8-27b, heimdall:nvidia/nemotron-3.5-super-vl].
+4. pipeline/package.py:
+   - build(visual_cache=).
+   - The hooks that would open (rated >= 4) are seen right after the hook ratings, BEFORE any angle call.
+     hook_block -> m["visual_hook_block"] -> can_open() is False, so no angle is written for it. hook_pool records
+     visual_blocked.
+   - Every clip of a line-up that passes the clips-alone verdict is seen BEFORE any write. A clip not measured is
+     dropped and the line-up re-lined, with no write.
+   - The no-voice fallback sees its added clip too.
+   - Segments carry visual_pin.sealed(); the inventory has a "visual" row: PASS only when every clip is measured,
+     with all flags listed.
+   - out["visual"] = {calls, cached, usd, unmeasured, flags}.
+5. pipeline/package_pin.py: SEALED_LATER gains "visual"; to_pin carries it; MEDLEY_GATES gains "visual" (required for
+   a new medley pin; check_pin_only uses REQUIRED_GATES, so earlier pins are untouched).
+6. tests/package/proof_ledger.py: passes visual_cache, copies each sealed sheet beside the pin, and logs the measured
+   cost.
+7. Tests:
+   - test_visual_pin (10): the stills; the contract; the flags; the hook block; the seal subset; xAI first, then
+     Heimdall, the text-only back-end never asked, the cache; out-of-contract twice is unmeasured; no sheet asks
+     nothing; the recording without the image; the image upper bound; the two request bodies.
+   - test_medley +6 (TestRuling70Visual):
+     - hooks seen before the angle, and a clean package sealing every sheet;
+     - a clip flag sealed, not a reject;
+     - a third-person hook blocked with no angle written;
+     - a third-person clip (not the hook) kept with its flag;
+     - an unmeasured clip dropped before any write;
+     - an unmeasured hook blocked.
+   - Old tests updated for the new required row. All 14 suites OK.
+
+Stated readings (say so if you read the ruling differently):
+- K1: "confirmed as reported fact by step A's context": step A passes only a clip whose view is "own_sincere" (the
+  speaker's own assertion; context_integrity.a_failures). No step-A verdict classifies a claim as REPORTED fact, so
+  today a third_person finding always blocks the HOOK (fail closed). Asking step A that question is a contract change
+  for a later ruling.
+- K2: "fail closed" = a clip whose visual check is not measured cannot be sealed: required row, dropped clip, blocked
+  hook. A FLAG itself never rejects.
+- K3: the sheet and the findings are sealed in the pin (the sheet by sha256; the file beside the pin), so the
+  orchestrator and PBX see exactly what the model saw.
+- K4: lower_third reaches ruling 69 through the segment's visual record (speakers.attribute_package reads
+  visual.lower_third.name). Ruling 69's decide() lets it confirm or veto only.
+
+Check in particular:
+- that no path seals a clip without a measured visual check;
+- that a third-person hook can never open;
+- the router changes (could a text role ever reach a vision back-end, or an image reach a text one; the spend guard;
+  the recording);
+- the Responses / chat bodies;
+- the seal compatibility for earlier pins;
+- the cost accounting.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

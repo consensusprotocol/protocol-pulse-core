@@ -29,7 +29,8 @@ REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate
 # L-y (20:30): the clips-alone verdict and the medley's shape; ruling 6 (22:40): PBX's copy rules on every line;
 # hook_onset: G17a at the pin stage, after batch pin #1's render hold (01:39 ET Nov 13); stand_alone: the render's
 # STAND_ALONE at the pin stage, after pin d2657bbe's hold at the integrator's validate (03:00 ET Nov 13)
-MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone")
+MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone",
+                "visual")                                  # ruling 70: every clip's sheet judged (flags sealed)
 
 
 def required_gates(pk):
@@ -71,7 +72,8 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
                 "scorer_pending",                          # is trimmed, so every other pin seals as before (ruling 49 a;
                                                            # retired by ruling 56: kept so its pins still recompute)
                 "scorer_verdict",                          # ruling 56: the clip scorer's affirmation, only when sealed
-                "attested")                                # ruling 67: the attested-text re-seal's record (re-sealed)
+                "attested",                                # ruling 67: the attested-text re-seal's record (re-sealed)
+                "visual")                                  # ruling 70: the clip's visual record (flags, sheet sha)
 TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
                                                            # separate constant (a test holds them equal): the
                                                            # integrator's check_pin_only imports this module, which
@@ -279,7 +281,8 @@ def to_pin(pk, run_name):
                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
-                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict") if k in s},
+                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict", "visual")
+                        if k in s},
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],
               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}

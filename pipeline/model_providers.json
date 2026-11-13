@@ -106,6 +106,29 @@
    ],
    "family": "grok"
   },
+  "xai_vision:grok-4.7": {
+   "vendor": "xai_vision",
+   "model": "grok-4.7",
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "temperature": 0,
+   "key_name": "XAI_API_KEY_MEDLEY",
+   "family": "grok"
+  },
+  "heimdall:nvidia/nemotron-3.5-super-vl": {
+   "vendor": "heimdall",
+   "model": "nvidia/nemotron-3.5-super-vl",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "nemotron",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
   "openai_stt:gpt-4o-transcribe-diarize": {
    "vendor": "openai_stt",
    "model": "gpt-4o-transcribe-diarize",
@@ -220,6 +243,14 @@
     "local:gemma3:27b"
    ],
    "what": "speakers.attribute: who speaks one pin segment, from the source's own title / channel / description and the transcript around the clip (orchestrator 00:05 ET Nov 13 item 3); code keeps only what the text shows"
+  },
+  "visual_check": {
+   "chain": [
+    "xai_vision:grok-4.7",
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:nvidia/nemotron-3.5-super-vl"
+   ],
+   "what": "RULING 70 (orchestrator 15:29 Nov 13): visual_pin.visual_for, one contact sheet per clip: a third person shown as a still while the words make a negative claim, the source's on-screen text that asserts more than the words, the lower third; xAI first, the Heimdall image models (pipeline/visual_check.py's) as failover; fail closed"
   },
   "transcribe": {
    "chain": [

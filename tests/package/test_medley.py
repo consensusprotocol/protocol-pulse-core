@@ -465,8 +465,8 @@ class TestMedleyPackageAndPin(unittest.TestCase):
 
     def test_the_pin_requires_the_medley_rows_and_carries_intro_null(self):
         pk = self.build()
-        self.assertEqual(package_pin.required_gates(pk)[-5:], ("medley", "ly_shape", "house_style", "hook_onset",
-                                                               "stand_alone"))
+        self.assertEqual(package_pin.required_gates(pk)[-6:], ("medley", "ly_shape", "house_style", "hook_onset",
+                                                               "stand_alone", "visual"))
         pk["gates"] = self.gates(pk)
         pin = package_pin.to_pin(spk(pk), "test")
         self.assertEqual(pin["label"], "bitcoin")     # the render's STAND_ALONE subject rests on it (audit 0310 C2)
@@ -523,7 +523,7 @@ class Rig:
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
-                 cached=False, candidate=None):
+                 cached=False, candidate=None, visuals=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
@@ -533,6 +533,7 @@ class Rig:
         self.hooks, self.hook_err, self.hook_calls = dict(hooks or {}), hook_err, []   # ruling 59 (a): {id: (s, a, u)}
         self.medley_calls, self.write_calls, self.prompts = [], [], []
         self.candidate, self.seeds = candidate, []          # ruling 66: build from a candidate; the seeds asked with
+        self.visuals, self.visual_calls = dict(visuals or {}), []   # ruling 70: {moment id: record} (default: clean)
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
         self.screens, self.events, self.a_seen = [], [], []
         self.write_from = write_from or ("heimdall:deepseek", "heimdall", "deepseek")
@@ -615,6 +616,17 @@ class Rig:
                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
         return self.P.Reply("{}", self.write_from[0], self.write_from[1], family=self.write_from[2]), fields
 
+    def visual(self, router, m, work_dir, cache, seed=7, log=print):
+        """visual_pin.visual_for as the build calls it: a measured clean record unless self.visuals says otherwise."""
+        self.visual_calls.append(m["moment_id"])
+        base = {"version": "visual-1", "measured": True, "flags": [],
+                "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
+                                 "finding": "no third person"},
+                "on_screen_text": [], "lower_third": {"name": None, "text": None},
+                "sheet": {"name": f"visual_{m['moment_id']}.jpg", "sha256": "0" * 64, "times": [0.0], "path": "/x"},
+                "backend": "xai_vision:grok-4.7", "replayed": False, "usd": 0.002, "cached": False}
+        return dict(base, **self.visuals.get(m["moment_id"], {}))
+
     def onset(self, m, *a, **k):
         """hook_onset.measure's record: the hook lead, and for a trimmed moment its trimmed cut ("trim")."""
         r = ({"pass": False, "measured": True, "lead_ms": 20, "why": "20 ms < 80"} if m["moment_id"] in self.no_hook
@@ -661,12 +673,15 @@ class Rig:
             kw["scorer_verdicts_path"] = path
             stubs["render_scorer_sha"] = lambda *a, **k: "s" * 64       # the render's scorer code, as it is now
         saved = {k: getattr(PK, k) for k in stubs}
+        import visual_pin as VP
+        saved_vp, VP.visual_for = VP.visual_for, self.visual       # ruling 70
         try:
             for k, v in stubs.items():
                 setattr(PK, k, v)
             return PK.build(self.router, self.moments, {}, ctx(), log=lambda s: None, work_dir="/nonexistent",
                             spend=self.spend, **kw)
         finally:
+            VP.visual_for = saved_vp
             for k, v in saved.items():
                 setattr(PK, k, v)
             if path:
@@ -1588,6 +1603,72 @@ class TestRulings6264Search(unittest.TestCase):
         self.assertTrue(out["tried"][1].get("verdict_again"))               # the second angle's: free
 
 
+class TestRuling70Visual(unittest.TestCase):
+    """RULING 70 (15:29): one contact sheet per clip; xAI first, Heimdall image models as failover; fail closed. A finding
+    is sealed as a FLAG, never a reject by itself; a third_person finding may not be the HOOK (step A confirms no claim
+    as reported fact: it passes only the speaker's own view)."""
+    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+    TP = {"flags": [{"kind": "third_person", "text": "a photo of a CEO beside the host", "name_on_screen": None}],
+          "third_person": {"shown": True, "how": "photo", "words_negative": True, "name_on_screen": None,
+                           "finding": "a photo of a CEO beside the host"}}
+
+    def test_hooks_are_seen_before_the_angle_and_a_clean_package_seals_every_sheet(self):
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertLess(rig.events.index("hook_ratings"), rig.events.index("angle_write"))
+        self.assertEqual(rig.visual_calls[0], "h")                     # the hook, at the hook stage
+        self.assertEqual(sorted(set(rig.visual_calls)), ["h", "x", "y"])
+        pk = out["package"]
+        self.assertEqual(pk["gates"]["visual"]["status"], "PASS")
+        self.assertEqual([sg["visual"]["sheet"]["name"] for sg in pk["segments"]],
+                         ["visual_h.jpg", "visual_x.jpg", "visual_y.jpg"])
+        self.assertNotIn("path", pk["segments"][0]["visual"]["sheet"])  # never a scratch path in the seal
+        self.assertIn("visual", package_pin.MEDLEY_GATES)
+        pin = package_pin.to_pin(spk(pk), "r")
+        self.assertIn("visual", pin["segments"][1])
+        segs = [{k: v for k, v in sg.items() if k != "visual"} for sg in pin["segments"]]
+        mp = pin["moments_package"]
+        self.assertNotEqual(package_pin.seal(segs, mp["edl_vo"], mp["signoff_expected"], mp["title"], mp["caption"],
+                                             mp["gates"], mp.get("btc_screen")), mp["package_sha256"])   # sealed
+
+    def test_a_clip_flag_is_sealed_never_a_reject(self):
+        flag = {"flags": [{"kind": "on_screen_text", "text": "CEO SCANDAL", "why": "the words say no such thing"}]}
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], visuals={"x": flag}).run()
+        pk = out["package"]
+        self.assertIsNotNone(pk)
+        self.assertEqual(pk["gates"]["visual"]["status"], "PASS")
+        self.assertEqual(pk["gates"]["visual"]["flags"], [dict(flag["flags"][0], segment=1)])
+        self.assertEqual(pk["segments"][1]["visual"]["flags"], flag["flags"])
+
+    def test_a_third_person_finding_may_not_open_and_no_angle_is_written_for_it(self):
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [], [], visuals={"h": self.TP})
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertIn("h", out["hook_pool"]["visual_blocked"])
+        self.assertIn("ruling 70", out["hook_pool"]["visual_blocked"]["h"])
+        self.assertNotIn("angle_write", rig.events)                      # "no hook in the pool": nothing written
+        self.assertTrue(out["why_none"].startswith("no hook in the pool"), out["why_none"])
+
+    def test_a_third_person_clip_that_is_not_the_hook_is_kept_with_its_flag(self):
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], visuals={"y": self.TP}).run()
+        self.assertIsNotNone(out["package"])
+        self.assertEqual([f["kind"] for f in out["package"]["gates"]["visual"]["flags"]], ["third_person"])
+
+    def test_an_unmeasured_clip_is_dropped_before_any_write(self):
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)], [None],
+                  visuals={"y": {"measured": False, "why": "no verdict in contract after two tries"}})
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "x", "z"]])
+        self.assertTrue(out["tried"][0]["why"].startswith("ruling 70: y: no verdict"), out["tried"][0]["why"])
+        self.assertEqual(rig.write_calls, [(["h", "x", "z"], None)])     # no write for the line-up with y
+        self.assertIsNotNone(out["package"])
+
+    def test_an_unmeasured_hook_may_not_open(self):
+        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], visuals={"h": {"measured": False, "why": "no sheet"}}).run()
+        self.assertIn("not measured", out["hook_pool"]["visual_blocked"]["h"])
+        self.assertIsNone(out["package"])
+
+
 class TestRuling66Candidate(unittest.TestCase):
     """RULING 66 (13:18): A PASSED LINE-UP IS KEPT. A line-up that passed the clips-alone verdict is a candidate. A build
     from it asks no angle, tries exactly its clips in its order with its own seeds (so its recorded calls are served
@@ -2372,7 +2453,9 @@ class TestNoVoiceRealGates(unittest.TestCase):
         pk["gates"] = PK.inventory(fid, dup, rt_ok, r4_res, cx, a_lab, exc, tru, True, coh, medley=(True, med),
                                    shape=PK.ly_shape(pk), style=HS.lint_lines(pk["lines"]),
                                    hook={"pass": True, "measured": True, "lead_ms": 200, "cut_in": 1.0, "why": "ok"},
-                                   stand=PK.stand_alone_check(pk["segments"]))
+                                   stand=PK.stand_alone_check(pk["segments"]),
+                                   visual=[{"measured": True, "replayed": False, "backend": "xai_vision:grok-4.7",
+                                            "flags": []} for _ in pk["segments"]])      # ruling 70
         self.assertEqual(package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk)), [])
         mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
         self.assertEqual((mp["edl_vo"], mp["no_voice"]["added_clip"]), ({"intro": None, "bridges": []}, None))

@@ -66,6 +66,25 @@ class ReplayMiss(Exception):
     """Offline replay has no recorded exchange for this call."""
 
 
+IMAGE_TOKENS_UPPER = 6000            # ruling 70: one image's input tokens, as the spend guard's upper bound
+
+
+def is_vision(prompt):
+    """RULING 70: a VISION prompt is {"text": str, "images": [base64 JPEG, ...]}; only a back-end with vision = True
+    is asked it (the others are skipped for that call)."""
+    return isinstance(prompt, dict) and isinstance(prompt.get("text"), str) and isinstance(prompt.get("images"), list) \
+        and all(isinstance(i, str) and i for i in prompt["images"])
+
+
+def prompt_text(prompt):
+    """The prompt as text, for the spend estimate, the logs and the recordings: a vision prompt's text with each image
+    as its sha256 (a recording never stores the image; its key still covers the image bytes)."""
+    if not is_vision(prompt):
+        return prompt
+    return prompt["text"] + "".join(f"\n[image sha256={hashlib.sha256(i.encode()).hexdigest()}]"
+                                    for i in prompt["images"])
+
+
 @dataclass
 class Reply:
     text: str
@@ -140,6 +159,7 @@ def _with_backoff(fn, final_codes=()):
 
 class Backend:
     vendor = "?"
+    vision = False                   # ruling 70: True only where complete() takes a vision prompt
 
     def __init__(self, name, spec, env_path):
         self.name, self.spec, self.env_path = name, spec, env_path
@@ -159,8 +179,11 @@ class Backend:
         return max(int(self.spec.get("min_out", 0)), max_tokens)
 
     def upper_usd(self, prompt, max_tokens, system=None):
-        """The call's spend upper bound: every prompt character a token (a safe over-estimate) + the output cap."""
-        return self.usd({"in": len(prompt) + len(system or "") + 200, "out": self.max_out(max_tokens)})
+        """The call's spend upper bound: every prompt character a token (a safe over-estimate), IMAGE_TOKENS_UPPER per
+        image of a vision prompt, + the output cap."""
+        n_img, text = (len(prompt["images"]), prompt["text"]) if is_vision(prompt) else (0, prompt)
+        return self.usd({"in": len(text) + len(system or "") + 200 + IMAGE_TOKENS_UPPER * n_img,
+                         "out": self.max_out(max_tokens)})
 
     def key(self, name):
         k = env_value(self.env_path, name)
@@ -260,8 +283,11 @@ def _reported(usd):
 
 class HeimdallBackend(OpenAIBackend):
     """Heimdall: an OpenAI-compatible multi-model API (HEIMDALL_API_KEY) at the config's base_url. JSON is asked for in
-    words only (its models differ in json_object support); its /credits endpoint feeds the 90% tripwire."""
+    words only (its models differ in json_object support); its /credits endpoint feeds the 90% tripwire. A vision
+    prompt (ruling 70) goes as chat-completions content parts: the text, then each image as an image_url data URL, the
+    form pipeline/visual_check.py uses with these image models."""
     vendor = "heimdall"
+    vision = True
 
     def _base(self):
         if not self.spec.get("base_url"):
@@ -270,10 +296,13 @@ class HeimdallBackend(OpenAIBackend):
 
     def complete(self, prompt, max_tokens, seed, system=None):
         key = self.key("HEIMDALL_API_KEY")
+        content = prompt if not is_vision(prompt) else \
+            [{"type": "text", "text": prompt["text"]}] + [{"type": "image_url", "image_url": {
+                "url": "data:image/jpeg;base64," + i}} for i in prompt["images"]]
         body = {"model": self.model, "max_tokens": self.max_out(max_tokens), "seed": seed,
                 "temperature": self.spec.get("temperature", 0),
                 "messages": [{"role": "system", "content": (system or "") + " Reply with one JSON object only."},
-                             {"role": "user", "content": prompt}]}
+                             {"role": "user", "content": content}]}
         t0 = time.time()
         base = self._base()
         j = _with_backoff(lambda: _http_json(base + "/chat/completions", body, {"Authorization": "Bearer " + key},
@@ -384,6 +413,47 @@ class XAISearchBackend(Backend):
                       "out": int(u.get("output_tokens") or u.get("completion_tokens") or 0)}, time.time() - t0
 
 
+class XAIVisionBackend(Backend):
+    """RULING 70: xAI's Responses API with image input (docs.x.ai, image understanding: "type": "input_image", a data
+    URL, "detail": "high"; "store": false, since a server-side record can make image requests fail). Only a vision
+    prompt is asked here. Its cost is the vendor's own figure when the reply carries one (cost_in_usd_ticks)."""
+    vendor = "xai_vision"
+    vision = True
+    URL = "https://api.x.ai/v1/responses"
+    SYSTEM = "You have no tools and no internet access. Answer in ONE message containing only the JSON object asked for."
+
+    def max_out(self, max_tokens):
+        return max(int(self.spec.get("min_out", 8000)), max_tokens * 4)        # a reasoning model thinks inside it
+
+    def complete(self, prompt, max_tokens, seed, system=None):
+        if not is_vision(prompt):
+            raise RequestRejected("xai_vision takes a vision prompt only")
+        key = self.key(self.spec.get("key_name", "XAI_API_KEY_MEDLEY"))
+        parts = [{"type": "input_text", "text": prompt["text"]}] + [
+            {"type": "input_image", "image_url": "data:image/jpeg;base64," + i, "detail": "high"}
+            for i in prompt["images"]]
+        body = {"model": self.model, "max_output_tokens": self.max_out(max_tokens), "store": False,
+                "temperature": self.spec.get("temperature", 0),
+                "input": [{"role": "system", "content": self.SYSTEM + (" " + system if system else "")},
+                          {"role": "user", "content": parts}]}
+        t0 = time.time()
+        j = _with_backoff(lambda: _http_json(self.URL, body, {"Authorization": "Bearer " + key}, self.timeout),
+                          final_codes=(401, 402, 403))
+        text = j.get("output_text") or ""
+        if not text:
+            for item in j.get("output") or []:
+                for part in (item.get("content") or []) if isinstance(item, dict) else []:
+                    if isinstance(part, dict) and part.get("type") in ("output_text", "text"):
+                        text += part.get("text") or ""
+        u = j.get("usage") or {}
+        reasoning = int((u.get("output_tokens_details") or {}).get("reasoning_tokens") or 0)
+        out = int(u.get("output_tokens") or u.get("completion_tokens") or 0)
+        ticks = u.get("cost_in_usd_ticks")                    # the vendor's own cost: 1 USD = 1e10 ticks
+        return text, dict({"in": int(u.get("input_tokens") or u.get("prompt_tokens") or 0),
+                           "out": out + (reasoning if reasoning > out else 0)},
+                          **_reported(ticks / 1e10 if _num(ticks) else None)), time.time() - t0
+
+
 # ── transcription back-ends (law L-v 2's second recognition pass; role "transcribe") ──
 
 def _multipart(fields, file_field, path, content_type="audio/wav"):
@@ -483,7 +553,7 @@ class ElevenLabsTranscribe(STTBackend):
             time.time() - t0
 
 
-VENDORS = {"local": LocalBackend, "xai_search": XAISearchBackend, "openai": OpenAIBackend, "heimdall": HeimdallBackend, "xai": XAIBackend,
+VENDORS = {"local": LocalBackend, "xai_search": XAISearchBackend, "xai_vision": XAIVisionBackend, "openai": OpenAIBackend, "heimdall": HeimdallBackend, "xai": XAIBackend,
            "anthropic": AnthropicBackend, "openai_stt": OpenAITranscribe, "elevenlabs_stt": ElevenLabsTranscribe}
 
 
@@ -718,6 +788,10 @@ class Router:
             why = self._skip(name, b, av, am, af)
             if why is None and isinstance(b, STTBackend):
                 why = "a transcription back-end (Router.transcribe)"
+            if why is None and is_vision(prompt) and not b.vision:
+                why = "no image input (ruling 70)"
+            if why is None and not is_vision(prompt) and isinstance(b, XAIVisionBackend):
+                why = "a vision back-end (ruling 70)"
             if why:
                 tried.append((name, why))
                 continue
@@ -745,7 +819,8 @@ class Router:
                 self._settle(key, b, {"in": 0, "out": 0}, upper, role)     # booked as spent (estimate, unreported)
                 tried.append((name, f"{e} (abandoned at the deadline; its upper bound ${upper:.2f} booked as spent)"))
                 self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
-                                "deadline_s": deadline_s, "seconds": deadline_s, "prompt_chars": len(prompt),
+                                "deadline_s": deadline_s, "seconds": deadline_s,
+                                "prompt_chars": len(prompt_text(prompt)),
                                 "max_tokens": max_tokens})
                 continue
             except RequestRejected as e:
@@ -765,7 +840,8 @@ class Router:
             if secs >= self.slow_log_s:                # item 55: an answer this slow is evidence too
                 self._log_slow({"kind": "answered_slowly", "threshold_s": self.slow_log_s, "role": role, "model": name,
                                 "vendor": b.vendor, "deadline_s": deadline_s, "seconds": round(secs, 2),
-                                "prompt_chars": len(prompt), "max_tokens": max_tokens, "in": (usage or {}).get("in"),
+                                "prompt_chars": len(prompt_text(prompt)), "max_tokens": max_tokens,
+                                "in": (usage or {}).get("in"),
                                 "out": (usage or {}).get("out")})
             if not (isinstance(text, str) and text.strip()):   # an empty reply: this call moves on (audit C2 K7)
                 tried.append((name, "refused this request: an empty reply"))
@@ -773,7 +849,8 @@ class Router:
             recorded = ""
             if path and isinstance(text, str) and text.strip():
                 self._record(path, {"role": role, "backend": name, "model": b.model, "vendor": b.vendor, "seed": seed,
-                                    "max_tokens": max_tokens, "system": system, "prompt": prompt, "text": text,
+                                    "max_tokens": max_tokens, "system": system, "prompt": prompt_text(prompt),
+                                    "text": text,
                                     "usage": usage, "usd": usd, "seconds": round(secs, 2)})
                 recorded = path
             return Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices, b.family, False,

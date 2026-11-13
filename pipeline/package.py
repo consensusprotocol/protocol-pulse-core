@@ -329,6 +329,8 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s",
                         **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"]}
                            if m.get("trimmed_leading") else {}),
+                        **({"visual": __import__("visual_pin").sealed(m["visual"])}    # ruling 70: sealed
+                           if m.get("visual") else {}),
                         **({"scorer_verdict": verdict_of(m)}  # ruling 56: "seal only what it affirms" (the pin
                            if (verdict_of(m) or {}).get("affirmed") is True else {})}   # refuses any other)
                        for lb, m in zip(labels(len(segs)), segs)],
@@ -1151,6 +1153,12 @@ def hook_own(m):
 
 
 def can_open(m):
+    if m.get("visual_hook_block"):                       # RULING 70: its picture may not open the medley
+        return False
+    return _can_open(m)
+
+
+def _can_open(m):
     """Whether a moment may OPEN a line-up: hook-eligible, its hook onset measured and passed (G17a), a first word the
     render's STAND_ALONE takes for a hook (stand_alone.opener), and, once the build has rated the pool's hooks (RULING
     59: build() sets "hook_rating" on every cleared moment before any line-up), rated >= HOOK_MIN on the hook's own job
@@ -2024,7 +2032,8 @@ def candidate_lineup(router, candidate, cleared, now):
 
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
-          hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None):
+          hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
+          visual_cache=None):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -2039,6 +2048,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ('no hook in the pool', the three best listed) before the second screen, the angles and any line-up. The angle
     writer is given THE HOOKS and writes each angle FOR one; the angles are tried best hook first (ruling 57's
     freshness next), each line-up opens on its angle's own hook and never swaps it.
+    RULING 70, THE VISUAL CHECK (visual_pin): every hook rated >= HOOK_MIN is seen right after the ratings, before any
+    angle is asked (a hook whose sheet shows a third person while its words make a negative claim, or that is not
+    measured, may not open: can_open); every clip of a line-up that passes the clips-alone verdict is seen before any
+    write (not measured: dropped and re-lined, law L-m). Findings are sealed as FLAGS on the segment, never a reject by
+    themselves; the "visual" row is required (package_pin.MEDLEY_GATES). visual_cache: the verdicts by moment and span.
     RULING 66, A PASSED LINE-UP IS KEPT: candidate (load_candidate) tries ONLY that line-up, after the same pool stages:
     no angle is asked for (its own angle and back-end), its clips must still form it (candidate_lineup), and it is
     judged and written with its own seeds, so its recorded calls are served from their recordings; it is never
@@ -2049,6 +2063,22 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
     t0 = time.time()
     usd0 = _spent(spend)
+    import visual_pin as VP                            # ruling 70
+    vcache = VP.load_cache(visual_cache) if visual_cache else {}
+    out_visual = {"calls": 0, "cached": 0, "usd": 0.0, "unmeasured": 0, "flags": 0}
+
+    def see(ms_):                                      # RULING 70: the clips' sheets, judged (cached per moment)
+        todo = [m for m in ms_ if not (m.get("visual") or {}).get("measured")]
+        if todo:
+            with ThreadPoolExecutor(max_workers=4) as vp:
+                recs = list(vp.map(lambda m: VP.visual_for(router, m, work_dir, vcache), todo))
+            for m, rec in zip(todo, recs):
+                m["visual"] = rec
+                out_visual["cached" if rec.get("cached") else "calls"] += 1     # audit 1541 C1: every attempt
+                out_visual["usd"] = round(out_visual["usd"] + float(rec.get("usd") or 0.0), 6)
+                out_visual["unmeasured"] += 0 if rec.get("measured") else 1
+                out_visual["flags"] += len(rec.get("flags") or [])
+            VP.save_cache(visual_cache, vcache)
     ms, why = usable(moments, ctx, delivered, optout)
     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
     ms, reposted = reposted_once(ms, sources)          # ruling 53: a speech re-posted by a second channel is ONE
@@ -2134,10 +2164,25 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         m["hook_rating"] = rated.get(mid) or {"rating": None, "why": (f"not rated: {hook_err}" if mid in openers else
                                                                       "cannot open (hook eligibility, G17a or the "
                                                                       "render's hook rule)")}
+    for m in cleared.values():
+        m.pop("visual_hook_block", None)
+    rated_open = [m for m in cleared.values() if can_open(m)]              # RULING 70: the hooks that would open,
+    see(rated_open)                                                          # seen before any angle is asked
+    blocked = {}
+    for m in rated_open:
+        why_v = VP.hook_block(m["visual"])
+        if why_v:
+            m["visual_hook_block"] = blocked[m["moment_id"]] = why_v
+    out["visual"] = out_visual
+    if rated_open:
+        log(f"  visual (ruling 70): {len(rated_open)} hook(s) seen, {len(blocked)} may not open"
+            + (f" ({'; '.join(f'{k}: {v[:90]}' for k, v in blocked.items())})" if blocked else "")
+            + f" ({time.time() - t0:.0f} s)")
     best = [hook_line(m, ctx) for m in hook_order([m for mid, m in openers.items() if mid in rated])[:3]]
     out["hook_pool"] = {"can_open": len(openers), "rated": len(rated), "error": hook_err, "min": HOOK_MIN,
                         "ratings": {mid: rated[mid] for mid in sorted(rated)}, "best": best,
-                        "passing": [m["moment_id"] for m in hook_order([m for m in cleared.values() if can_open(m)])]}
+                        "passing": [m["moment_id"] for m in hook_order([m for m in cleared.values() if can_open(m)])],
+                        "visual_blocked": blocked}
     log(f"  hooks (ruling 59): {len(openers)} can open, {len(rated)} rated, {len(out['hook_pool']['passing'])} rated >= "
         f"{HOOK_MIN} on the hook's own job" + (f"; NOT RATED: {hook_err}" if hook_err else "") +
         f" ({time.time() - t0:.0f} s)")
@@ -2336,6 +2381,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                   "no_voice": {"why": "the takeaway failed its gates in both writes; ruling 3 (22:40) ships the clips "
                                       "back to back with the sign-off only", "added_clip": added,
                                "lineup_before": [m["moment_id"] for m in segs]}}
+        see(order)                                        # RULING 70: the added clip is seen too
+        vbad = [m["moment_id"] for m in order if not (m.get("visual") or {}).get("measured")]
+        if vbad:
+            note["why_not"] = f"ruling 70: the visual check is not measured for {vbad}"
+            return None
         pk = assemble_medley([m["moment_id"] for m in order], cleared, fields, ctx, "medley (L-y), no voice")
         pk["medley"] = nv_med
         cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
@@ -2362,7 +2412,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                 {k: v for k, (_, v) in got.items()}, True, coh, medley=(True, nv_med),
                                 shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]),
                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
-                                stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]))
+                                stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]])
         import package_pin
         problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
         if problems:
@@ -2491,6 +2542,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
                                        pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
                 extra, relined, w_used, written = "", False, 0, ()
+                see(segs)                                   # RULING 70: every clip seen before any write is paid
+                vbad = {m["moment_id"]: (m.get("visual") or {}).get("why") for m in segs
+                        if not (m.get("visual") or {}).get("measured")}
+                if vbad or segs[0].get("visual_hook_block"):
+                    vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
+                    dropped |= set(vbad)
+                    doomed |= set(vbad)
+                    rec["why"] = "ruling 70: " + "; ".join(f"{k}: {v}" for k, v in vbad.items())[:400] + ": re-lined"
+                    relined, w_used = True, writes      # no write is paid
                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
                 while w_used < writes:
                     if over_budget(ai):
@@ -2642,7 +2702,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                             ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk),
                                             style=HS.lint_lines(pk["lines"]),
                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
-                                            stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]))
+                                            stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                            visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]])
                     if not ok_c:
                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
                         if coh.get("measured") and type(coh.get("vo_point")) is int and \
@@ -2722,7 +2783,7 @@ def _spent(spend):
 
 
 def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
-              hook=None, stand=None):
+              hook=None, stand=None, visual=None):
     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
     A medley (L-y) adds two rows: "medley" (the blind clips-alone verdict, medley=(ok, verdict)) and "ly_shape"
@@ -2797,4 +2858,12 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                       f"topic: {r['topic']['why']}" for r in stand.get("rows") or []],
                                 medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"))}
            if stand is not None else {}),
+        **({"visual": dict(row(bool(visual) and all((v or {}).get("measured") is True for v in visual),
+                               sorted({str((v or {}).get("backend")) for v in visual}) or None,
+                               rep((v or {}).get("replayed") for v in visual), n=len(visual or []),
+                               measured=bool(visual) and all((v or {}).get("measured") is True for v in visual)),
+                           flags=[{"segment": i, **f} for i, v in enumerate(visual) for f in (v or {}).get("flags") or []],
+                           by_rule="visual_pin (ruling 70): one contact sheet per clip; a finding is a FLAG, sealed, "
+                                   "never a reject by itself")}
+           if visual is not None else {}),
     }

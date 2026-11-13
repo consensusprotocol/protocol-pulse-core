@@ -173,7 +173,8 @@ def main(argv=None):
               step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
               hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
               scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
-              scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir))
+              scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir),
+              visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"))       # ruling 70
     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
         res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)
@@ -222,6 +223,13 @@ def main(argv=None):
                                               name="MOMENTS_PIN_LEDGER.json")
             res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
                           "package_sha256": pin["moments_package"]["package_sha256"]}
+            import shutil                                # ruling 70: each segment's sheet beside the pin
+            for sg in pin["segments"]:
+                sh = (sg.get("visual") or {}).get("sheet") or {}
+                if sh.get("name"):
+                    src = os.path.join(a.work_dir, "visual", sh["name"])
+                    if os.path.exists(src):
+                        shutil.copyfile(src, os.path.join(out_dir, sh["name"]))
             say(f"PACKAGE ({res['seconds']} s, ${res['usd_estimate']} estimate, ${res['usd_best_known']} best known) "
                 f"pin {path}")
         except package_pin.PinRefused as e:
@@ -235,6 +243,10 @@ def main(argv=None):
         after = f"unreadable: {type(e).__name__}: {str(e)[:120]}"
     res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": PL.LY_LIMIT_USD,
                               "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
+    vis = res.get("visual") or {}
+    say(f"  visual (ruling 70): {vis.get('calls', 0)} sheet(s) asked ({vis.get('unmeasured', 0)} not measured), "
+        f"{vis.get('cached', 0)} cached, {vis.get('flags', 0)} flag(s); measured cost ${vis.get('usd', 0):.4f} "
+        f"(the router's figure: vendor-reported where the reply carries it)")
     say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${PL.LY_LIMIT_USD:.2f} "
         f"vendor-reported after this build (before it: ${spent0:.2f})")
     try:                                                 # audit 1420 C2: a registry failure never loses the record;
