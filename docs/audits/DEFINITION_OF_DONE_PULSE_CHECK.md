@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 00:43 BATCH (order '00:05'): PIN #1 RENDERING, run pinned_20261113_054035, started 00:40:35. RULINGS 24 (b) AND 27 MERGED FIRST.
+PIN #1:
+- the builder's seal 1b4a63d0 (fresh_20261111_213954), frozen as data/moments_pins/MOMENTS_PIN_BATCH_B1.json (sha256 53cb1eff...); checked on its own content: READY, with the builder's package_pin.py identical to their commit 5ecd5500, the file that sealed it;
+- from HEAD 0a645ab4, pushed; preflight all PASS;
+- the hook is Stephan Livera Sjb6lUiL0m4 3090.75-3109.87, clip 1 Saifedean Ammous vgsSZ4mAHfQ 4664.57-4673.21, clip 2 Coin Bureau UJFQBaMh3yg 191.38-203.06; none overlaps 37c5b5f5 or 41f29b1f; all three time_sensitive false;
+- one bridge after clip 1 (recorded, with why and confirmed_by), then the takeaway; title 'The crowd feels. The structure holds.';
+- speakers: all three 'unknown', as measured by the builder. The people the sources name, for PBX's tags: Stephan Livera + Joe Burnett (Sjb6...), Saifedean Ammous + Jason Hickel + Pavlina Tcherneva (vgsS..., a Doha Debates debate), none (Coin Bureau).
+Pins #2 / #3: the builder is still building; pin #1's spans are excluded and moments never repeat.
+MERGED BEFORE THE RENDER:
+(1) RULING 24 (b) (a5d94e62): G20 hears a credited name of two or more words when the 0.85 text ratio holds OR every token matches phonetically (Double Metaphone, vendored unchanged with its license). 'stefan lavera' is Stephan Livera; 'Steven Lubka' is not. One-word names keep the text routes (measured: 'Casa' = 'case' = KS); uncredited channels and the pre-render script check are never phonetic. The medley's real decodes now name all three channels in both formats. With it, the REVIEW-DROP G20 AMENDMENT: a G20 failure drops only when the script names every credited channel, nothing extra was heard, and each missing name's decoded stretch is >= 0.75 similar; both strings are quoted (the medley's evidence reads 'the script says Stephan Livera, the decoder wrote dstefanlavera (0.77)'). Audits batch 47 x2.
+(2) RULING 27 (0a645ab4): the attestation binds a run to the git TREE of what it executes and reads from git (pipeline/ with the registry, segment_v1/, scripts/, video_pipeline_v3/relay.py: enumerated from the medley run's PROVENANCE), recorded at launch and verified at the end. A docs commit mid-run is accepted. A changed tree, a file differing from the launch revision (uncommitted too) or an unreadable tree is refused. Untracked runtime assets stay hashed per run. Audits batch 48 x2. THIS ENTRY IS THE FIRST DOCS COMMIT DURING A RUN UNDER IT.
+RULING 24 (a), IN PROGRESS: the second recogniser (ElevenLabs scribe_v1) on the medley's CLEAN sign-off stem hears '... and Stephan Livera.' exactly. 'stefan lavera' was G20's own decoder on the final mix, under the music. The Whisper forced scoring and the first-vowel formants are running (CPU). 24 (c), a pronunciation hint, only if (a) finds a mispronunciation.
+RULINGS 25 / 26: they need GPU0, which the batch now holds back to back: measured between renders. No code is edited in the main checkout while a run is in flight (ruling 27 compares that working tree); code work goes in a worktree and merges between runs.
+
 ## 23:57 THE APPROVED L-y MEDLEY IS PROTECTED (orchestrator note '23:35'). PBX on run pinned_20261113_031328, verbatim: "yooo!!!!! YES!!!!"; at '00:05': "effin love this!!!! let's immediately replicate this!!! let's prove we got the pipeline working!! :) new batch!".
 WHERE IT IS:
 - Tag ref-pulse-medley-2026-11-12 (annotated, with PBX's words).
