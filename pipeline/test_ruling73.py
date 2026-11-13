@@ -115,11 +115,18 @@ class TestTheDeliveredCuts(unittest.TestCase):
             run = os.path.join(RUNS, name)
             old = {c["clip_id"]: c for c in json.load(open(os.path.join(run, "cuts_final.json")))}
             new = _recut(run)
+            edl = json.load(open(os.path.join(run, "edl.json")))
+            segs = dict(SL._segments(edl))
             for cid, o in old.items():
                 n = new[cid]
                 self.assertLessEqual(abs(n["cut_out"] - o["cut_out"]), HOP, (name, cid, "out", o, n))
                 want_in = MOVED.get((name, cid), o["cut_in"])
                 self.assertLessEqual(abs(n["cut_in"] - want_in), HOP, (name, cid, "in", o, n))
+                seg = segs[cid]                                   # and every cut, moved or not, meets ruling 73
+                words = json.load(open(os.path.join(run, "transcripts", f"{seg['video_id']}.json")))["words"]
+                lock = seg["selection_lock"]
+                self.assertGreaterEqual(n["cut_in"], round(words[lock["i0"]]["start"] - SL.IN_LEAD_MAX_S, 3) - 1e-9)
+                self.assertGreaterEqual(n["cut_out"], round(words[lock["i1"]]["end"], 3) - 1e-9)
 
 
 if __name__ == "__main__":

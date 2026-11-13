@@ -728,9 +728,10 @@ def accepted_cut(src, plan, step=HOP_S, sa=None):
     # the point guard is reachable: a file head / file end edge has no point, and cut_candidates marks it a
     # valley when cut_accept clears none of its candidates; it keeps the plan's cut there
     clamp = lambda b, x: round(min(max(x, b["cut_lo"]), b["cut_hi"]), 3)       # ruling 73: never outside the ranges
-    cut_in = clamp(plan["in"], plan["in"]["point"]) if v["in"] and plan["in"].get("point") is not None else cand["in"][0]
-    cut_out = clamp(plan["out"], plan["out"]["point"]) if v["out"] and plan["out"].get("point") is not None \
-        else cand["out"][0]
+    cut_in = clamp(plan["in"], plan["in"]["point"] if v["in"] and plan["in"].get("point") is not None
+                   else cand["in"][0])                                       # b69 c1: every path clamped
+    cut_out = clamp(plan["out"], plan["out"]["point"] if v["out"] and plan["out"].get("point") is not None
+                    else cand["out"][0])
     # DEC-12b amended / law L-b: every machine-cut edge gets a fade that never overlaps its edge word: 2 frames
     # (83 ms) inside the gap when it fits, shorter down to 10 ms when it does not (human PIN tables keep 20 / 30)
     fi, fo, _ = edge_fades(sa, plan, cut_in, cut_out)
