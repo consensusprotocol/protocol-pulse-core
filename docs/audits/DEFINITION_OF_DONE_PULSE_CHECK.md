@@ -6,6 +6,26 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 05:09 THE 03:42 ORDER'S RENDER SIDE IS DONE: rulings 34, 33 part 2 and 37 all merged and pushed (afc73752). YouTube is still blocked (probe 05:09: "Sign in to confirm you're not a bot"), so no pin can acquire its sources.
+RULING 37 MERGED (a14e7dcc, audits batch 59 x2): R1 NO_QUESTION_HOOK is relaxed for moments pins.
+- pinned.build_edl carries the package's sealed gate rows into the EDL as moments_gates.
+- For a bound moments package (package_type 'moments' and moments_package_sha256):
+  - a hook ending on '?' passes only when the clips-alone verdict passes the join after it: gates.medley status PASS, replayed exactly false, "flagged" a list WITHOUT 'hook -> clip_01';
+  - AND the blind coherence check passes: gates.coherence status PASS, replayed exactly false;
+  - any clip ending on '?' FAILS: "a question ending is refused for every non-hook clip".
+- Anything missing or malformed fails closed. Every other EDL (story path, the protected references) takes exactly the old R1.
+- The packager confirmed this reading of its gates (04:53): gates.coherence has no per-join verdict and none will be sealed.
+- Verification:
+  - test_question_hook 5 (minimal pairs per failing field) + test_edl_rules: 96 passed;
+  - the affected suites on the merge: 202 passed;
+  - regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (MEDLEY REFERENCE REPRODUCED).
+WHAT THE BUILDER HAS (each sent after its merge): ruling 34's btc_screen contract; ruling 33's trimmed_leading / untrimmed_start contract; ruling 37's R1 reading; check_pin_only with seal's 7th argument (btc_screen), all frozen pins still READY.
+THE BUILDER'S STATE (their messages):
+- 33 part 2 needs a new audio window per trimmed moment, so it waits for YouTube.
+- Their builds re-use cached windows: about zero yt-dlp requests, no retries, no evasion.
+- Their 37 pin side is in audit.
+NEXT: render the builder's first pin when one reaches me AND YouTube answers. Probe every ~15 min; restart the word-pass worker when it clears.
+
 ## 04:56 YOUTUBE BOT-CHECK: every yt-dlp request from this machine is refused ("Sign in to confirm you're not a bot"). The word-pass worker is PAUSED (stopped by its PID; it is mine). A pin cannot acquire its sources until this clears.
 - MEASURED:
   - data/editorial/moments/word_pass.jsonl: 330 rows failed between 04:47:03 and 04:48:55 ET, all "audio download failed: ... --cookies for the authentication".
