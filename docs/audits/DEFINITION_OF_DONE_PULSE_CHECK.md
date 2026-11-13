@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 18:54 RULING 77.4 MERGED (8172f906; audits batch 70 x2: cycle 1 no consensus, cycle 2 a verification with 'fix: none required'). The word-pass worker's tiers are the LAST 6 h, then 6-12 h, NOTHING older (was 10 h, 24 h, then older), and the ledger is read 12 h back (was 72 h).
+- regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, the references reproduced. test_word_pass_worker 27 passed.
+- Must-fail: the two ruling-77.4 tier tests (12 h + 1 s, 18 h and 48 h never picked; 6 h and 12 h inclusive) FAIL on the old worker and pass on the merge.
+- The worker was restarted at 18:53 (tmux pipeline_pp_wordpass, GPU1). Its first cycle:
+  - ledger 301 rows within 12 h; 71 in the last 6 h, from 5 channels;
+  - the ingest adapter already excludes 48 as 'expired (rulings 76 + 77)', 61 hard-flagged, 48 with a speaker change, 20 altcoin;
+  - picked 0: every row inside the window already has its word pass. Nothing waits on GPU1.
+- THE BUILDER ON RULING 73: switched (its 8cbdccee). It reads only rules 'ruling 17 + ruling 72 + ruling 73' from decoder file 8a101f222598, re-asks every span, and takes a ruling-73 hold as a hold. No request is pending: its 12 h pool still dies at the hook stage (7 can open, 0 rated >= 4).
+- THE SCORER'S 76 vs 66, the builder's account against its 18:29 build record:
+  - 28 of the 76 fail only the opener rule, and all 28 are in the file;
+  - 48 fail ruling 34's TOPIC screen, which no clip-scorer verdict can lift, so they are not listed (by design, ruling 56);
+  - the file's 66 = 34 plain (the 28 plus 6 already affirmed) + 32 trimmed variants.
+  - Nothing the scorer could lift is missing, and every listed candidate has its verdict.
+
 ## 18:43 RULING 73 MERGED as AMENDED '18:40' (585b6da5; audits batch 69 x4). The IN lead cap is 600 ms; the references are untouched. regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, every protected reference reproduced (preview, moments, medley with its hook at 14.38-19.01, first pass).
 - WITH 600 ms, recomputed on the runs' own files (cut_in-cut_out, seconds on the window clock):
   - 41f29b1f (the medley reference's run): hook 14.38-19.01, clip_01 14.30-34.16, clip_02 14.30-31.56. ALL UNCHANGED.
