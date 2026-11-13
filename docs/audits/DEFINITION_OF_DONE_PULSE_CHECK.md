@@ -6,6 +6,8 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 05:48 WORD-PASS, the first cycle after the block: 120 picked (17 channels), 120 written, 106 sentence-ready, 0 failed, not blocked, 9.5 min (fetch 552.7 s, GPU 528.4 s, GPU1 peak 4785 MiB). The second cycle (05:48:32) picked the remaining 48 older rows (9 channels). The 330 rows lost to the block are coming back. The ledger is still not growing (1343 rows, 6 in the last 10 h).
+
 ## 05:39 THE WORD-PASS WORKER IS BACK, block-safe (merge cdc85c1a, audits batch 60 x2, pushed ed33a1bf); its first cycle (05:39:02) picked 120 older-tier moments from 17 channels, the 330 lost rows among them.
 - THE CHANGE:
   - a sign-in acquisition failure is checked ONCE per cycle against a control video (the medley reference's public source, through the store's own yt-dlp call and cookies);
