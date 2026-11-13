@@ -1,0 +1,490 @@
+diff --git a/pipeline/attest.py b/pipeline/attest.py
+new file mode 100644
+index 0000000..78a4fde
+--- /dev/null
++++ b/pipeline/attest.py
+@@ -0,0 +1,149 @@
++"""RULING 67 (orchestrator 14:02 Nov 13): ATTESTED-TEXT RE-SEAL.
++
++When the render's decode and the second recogniser AGREE on a span and the pin's text differs, the pin is re-sealed
++with the attested text (law L-v: the words as spoken). The verdicts already paid for carry over, recorded as carried
++with the exact diff, ONLY when every differing token is a function word or an immediate repetition of the speaker's
++own words. If any differing token is a number, a name, a negation or a content word, the clip's step A (both vendors)
++and the stand-alone verdict are re-judged on the attested text before the seal (not done here: such a diff is
++refused). The takeaway, title and caption are re-gated only if they quote the changed words (refused here too).
++
++The diff is the render's own (pipeline/pinned.adjudicate_lock): canon.canon_tokens of the run's decode against the
++approved text, difflib.SequenceMatcher(autojunk=False) opcodes. canon.py here is byte-identical to the render's, and
++critical() is the render's _lv2_critical with its lists. CPU only, no model call. Imports nothing from package.py
++(package_pin, which the integrator's check imports, must never pull it in)."""
++import re
++from difflib import SequenceMatcher
++
++import canon
++
++# pipeline/pinned.py (the render), LV2_NEGATIONS / LV2_ORDINALS / _lv2_critical, copied verbatim in behaviour
++LV2_NEGATIONS = frozenset({"not", "no", "never", "none", "nobody", "nothing", "neither", "nor", "cannot", "can't",
++                           "won't", "don't", "doesn't", "didn't", "isn't", "aren't", "wasn't", "weren't", "shouldn't",
++                           "wouldn't", "couldn't", "hasn't", "haven't", "hadn't"})
++LV2_ORDINALS = frozenset({"first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth",
++                          "eleventh", "twelfth", "twentieth", "hundredth", "thousandth", "millionth", "billionth",
++                          "half", "quarter", "double", "triple", "dozen"})
++# English closed-class words: articles, demonstratives, pronouns, prepositions, conjunctions, auxiliaries and their
++# contractions, wh-words. NO negation, number or ordinal is in it (those are law L-v 2's critical tokens).
++FUNCTION_WORDS = frozenset("""
++a an the this that these those that's this's there there's here here's
++i you he she it we they me him her us them my your his its our their mine yours hers ours theirs
++myself yourself himself herself itself ourselves themselves one's
++i'm you're he's she's it's we're they're i've you've we've they've i'll you'll he'll she'll it'll we'll they'll
++i'd you'd he'd she'd we'd they'd
++in on at to of for from with by about into onto upon over under up down out off through as like than via per
++and or but so because if then when while though although whether
++is are was were be been being am do does did have has had will would can could shall should may might must
++what which who whom whose why how where
++""".split())
++
++
++def critical(tok, texts):
++    """Law L-v 2 as the render tests it (pinned._lv2_critical): a number, a negation, or a name (in either text, a
++    capitalised word that does not open a sentence; 'I' excepted). A doubtful token is critical."""
++    if re.search(r"\d", tok) or tok in LV2_NEGATIONS or tok.endswith("n't") or tok in LV2_ORDINALS:
++        return True
++    for t in texts:
++        for m in re.finditer(r"[A-Za-z][A-Za-z'’-]*", t or ""):
++            w = m.group(0)
++            if w.lower() == tok and w[0].isupper() and w != "I":
++                before = t[:m.start()].rstrip()
++                if before and before[-1] not in ".!?":
++                    return True
++    return False
++
++
++def diff(run_text, pin_text):
++    """The render's ruling-17 diff -> (run tokens, pin tokens, the non-equal opcodes (tag, a, b, c, d))."""
++    r, p = canon.canon_tokens(run_text), canon.canon_tokens(pin_text)
++    return r, p, [o for o in SequenceMatcher(None, r, p, autojunk=False).get_opcodes() if o[0] != "equal"]
++
++
++def carry_class(r, p, op, texts):
++    """RULING 67: the class of one difference -> "immediate repetition", "function word", or None (re-judge).
++    Each side's tokens (the run's r[a:b], the pin's p[c:d]; one may be empty) must be an immediate repetition on that
++    side (they repeat the tokens right before or right after them there: the speaker's own words said twice) or all
++    function words. That holds for a delete, an insert, and a replace alike, so the class never depends on how the
++    matcher aligns a repetition (audit 1400 C2). No critical token (L-v 2) is ever carried over."""
++    _tag, a, b, c, d = op
++    if any(critical(t, texts) for t in r[a:b] + p[c:d]):
++        return None
++
++    def repeats(x, lo, hi):
++        n = hi - lo
++        return n > 0 and (x[max(lo - n, 0):lo] == x[lo:hi] or x[hi:hi + n] == x[lo:hi])
++    sides = ((r, a, b), (p, c, d))
++    if not all(repeats(x, lo, hi) or all(t in FUNCTION_WORDS for t in x[lo:hi]) for x, lo, hi in sides):
++        return None
++    return "immediate repetition" if any(repeats(*s) for s in sides) else "function word"
++
++
++def reads(x, s, lo, hi):
++    """The second recogniser's tokens s read x's tokens lo..hi-1 AT this position (pinned.adjudicate_lock's reads):
++    they and one neighbour on each side are aligned and consecutive in s; at x's start / end nothing may precede /
++    follow them in s."""
++    xmap = {a + k: b + k for op, a, a2, b, _ in SequenceMatcher(None, x, s, autojunk=False).get_opcodes()
++            if op == "equal" for k in range(a2 - a)}
++    idx = list(range(max(lo - 1, 0), min(hi + 1, len(x))))
++    if not idx or not all(i in xmap for i in idx) or not all(xmap[j] == xmap[i] + 1 for i, j in zip(idx, idx[1:])):
++        return False
++    return (lo > 0 or xmap[idx[0]] == 0) and (hi < len(x) or xmap[idx[-1]] == len(s) - 1)
++
++
++def attested_text(pin_text, run_words):
++    """The minimal edit of the approved text to the run's decode: the approved surface words wherever the tokens are
++    equal, the run's own decoded words at each difference. run_words: the run's decoded words of the locked span, in
++    order. Raises ValueError when a difference does not fall on whole words (fail closed). The result's canonical
++    tokens equal the run decode's exactly (checked)."""
++    pw = pin_text.split()
++    rw = [str(w).strip() for w in run_words if str(w).strip()]
++    pt = [canon.canon_tokens(w) for w in pw]
++    rt = [canon.canon_tokens(w) for w in rw]
++    p, r = [t for x in pt for t in x], [t for x in rt for t in x]
++    if p != canon.canon_tokens(pin_text) or r != canon.canon_tokens(" ".join(rw)):
++        raise ValueError("the per-word canonical tokens do not add up to the text's (fail closed)")
++
++    def word_at(tok_lens):                              # token index -> (word index, first token of that word)
++        out, k = {}, 0
++        for i, n in enumerate(tok_lens):
++            for j in range(n):
++                out[k + j] = (i, j == 0)
++            k += n
++        return out, k
++    pmap, pn = word_at([len(x) for x in pt])
++    rmap, rn = word_at([len(x) for x in rt])
++
++    def words(wmap, n, lo, hi, side):                  # the whole words covering tokens lo..hi-1
++        if lo == hi:                                    # an insertion point must fall between two words
++            if lo < n and not wmap[lo][1]:
++                raise ValueError(f"a difference splits a word on the {side} side (fail closed)")
++            return []
++        if not wmap[lo][1] or (hi < n and not wmap[hi][1]):
++            raise ValueError(f"a difference splits a word on the {side} side (fail closed)")
++        return sorted({wmap[t][0] for t in range(lo, hi)})
++    out = []
++    for tag, c, d, a, b in SequenceMatcher(None, p, r, autojunk=False).get_opcodes():   # pin -> run
++        if tag == "equal":
++            out += [pw[i] for i in words(pmap, pn, c, d, "approved")]
++        else:
++            words(pmap, pn, c, d, "approved")
++            out += [rw[i] for i in words(rmap, rn, a, b, "run")]
++    text = " ".join(out)
++    if canon.canon_tokens(text) != r:
++        raise ValueError("the attested text's tokens are not the run decode's (fail closed)")
++    return text
++
++
++def quotes(lines, r, p, ops):
++    """The lines (takeaway, title, caption, ...) that quote the changed words: a line holding, consecutively, the
++    approved tokens of a difference with one neighbour on each side, or the run's. -> [line text]."""
++    def has(text, w):
++        t, n = canon.canon_tokens(text), len(w)
++        return n > 0 and any(t[i:i + n] == w for i in range(len(t) - n + 1))
++    hit = []
++    for line in lines:
++        for _, a, b, c, d in ops:
++            if has(line, p[max(c - 1, 0):d + 1]) or has(line, r[max(a - 1, 0):b + 1]):
++                hit.append(line)
++                break
++    return hit
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 0573b1d..90c18f3 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -70,7 +70,8 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
+                 "trimmed_leading", "untrimmed_start",      # ruling 33 part 2 (render merged 11e361cc): only when a word
+                 "scorer_pending",                          # is trimmed, so every other pin seals as before (ruling 49 a;
+                                                            # retired by ruling 56: kept so its pins still recompute)
+-                "scorer_verdict")                          # ruling 56: the clip scorer's affirmation, only when sealed
++                "scorer_verdict",                          # ruling 56: the clip scorer's affirmation, only when sealed
++                "attested")                                # ruling 67: the attested-text re-seal's record (re-sealed)
+ TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
+                                                            # separate constant (a test holds them equal): the
+                                                            # integrator's check_pin_only imports this module, which
+diff --git a/tests/package/reseal_attested.py b/tests/package/reseal_attested.py
+new file mode 100644
+index 0000000..1a4df4a
+--- /dev/null
++++ b/tests/package/reseal_attested.py
+@@ -0,0 +1,137 @@
++#!/usr/bin/env python3
++"""RULING 67 (orchestrator 14:02 Nov 13): re-seal a pin the render HELD at ruling 17 with the ATTESTED text of the
++clip it held (pipeline/attest.py). CPU only, no model call; every input is read only.
++
++usage: reseal_attested.py PIN RUN_DIR BUILD_DIR
++  PIN        the sealed pin the render held
++  RUN_DIR    the render's run that held it: PROVENANCE.json names the pin file it rendered (its seal must be PIN's);
++             status.json's one hold reads "<video> words <i0>-<i1>: lock text not adjudicated (ruling 17): ... the
++             second recogniser reads the run decode"; transcripts/<video>.json holds the run's decoded words
++  BUILD_DIR  the build that sealed PIN: its package.json holds this side's own second recogniser (scribe_v1) reading
++             of that clip, recorded live by law L-v 2
++
++Writes MOMENTS_PIN_ATTESTED.json beside PIN (never over an existing file). Refuses (exit 2, nothing written) unless:
++the render's hold says its second recogniser reads the run decode; this side's second recogniser reads the run decode
++at every difference too; every difference is in ruling 67's carry-over class (a function word, or an immediate
++repetition of the speaker's own words; never a number, a name or a negation); no line quotes the changed words; and
++the attested text's canonical tokens are the run decode's, so no ruling-17 difference is left. The re-sealed segment
++carries "attested" (package_pin.SEALED_LATER: sealed): the text it replaced, the exact diff with each difference's
++class, and that the pin's verdicts and gates carry over."""
++import copy
++import json
++import os
++import re
++import sys
++from datetime import datetime, timezone
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import attest as AT  # noqa: E402
++import package_pin  # noqa: E402
++
++HOLD = re.compile(r"(?P<vid>[A-Za-z0-9_-]{11}) words (?P<i0>\d+)-(?P<i1>\d+): lock text not adjudicated \(ruling 17\): "
++                  r"at .*? the second recogniser reads the run decode \|")
++
++
++def reseal(pin, run_dir, build_rec, build_dir="", now=None):
++    """-> (the re-sealed pin, a summary). Raises ValueError with the reason (fail closed)."""
++    mp = pin["moments_package"]
++    args = lambda segs: (segs, mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"], mp["gates"],
++                         mp.get("btc_screen"))
++    if package_pin.seal(*args(pin["segments"])) != mp["package_sha256"]:
++        raise ValueError("the pin does not recompute to its own seal with this package_pin")
++    prov = open(os.path.join(run_dir, "PROVENANCE.json")).read()
++    m = re.search(r"--pinned (\S+?\.json)", prov)
++    if not m:
++        raise ValueError("the run's PROVENANCE names no pinned file")
++    with open(m.group(1)) as f:
++        if json.load(f)["moments_package"]["package_sha256"] != mp["package_sha256"]:
++            raise ValueError(f"the run rendered another pin ({m.group(1)})")
++    with open(os.path.join(run_dir, "status.json")) as f:
++        holds = [h for h in json.load(f).get("holds") or [] if HOLD.search(str(h))]
++    if len(holds) != 1:
++        raise ValueError(f"{len(holds)} ruling-17 holds where the second recogniser reads the run decode (need 1)")
++    h = HOLD.search(str(holds[0]))
++    vid, i0, i1 = h["vid"], int(h["i0"]), int(h["i1"])
++    idx = [i for i, s in enumerate(pin["segments"]) if s["video_id"] == vid]
++    if len(idx) != 1:
++        raise ValueError(f"{len(idx)} segments on {vid} (need 1)")
++    seg = pin["segments"][idx[0]]
++    with open(os.path.join(run_dir, "transcripts", f"{vid}.json")) as f:
++        words = [str(w["word"]) for w in json.load(f)["words"][i0:i1 + 1]]
++    run_t, pin_t = " ".join(w.strip() for w in words), seg["approved_text"]
++    r, p, ops = AT.diff(run_t, pin_t)
++    if not ops:
++        raise ValueError("the approved text already reads the run decode")
++    classes = [AT.carry_class(r, p, o, (run_t, pin_t)) for o in ops]
++    if None in classes:
++        raise ValueError("ruling 67: a differing token is a number, a name, a negation or a content word: step A "
++                         "(both vendors) and the stand-alone verdict are re-judged first: " +
++                         str([[" ".join(r[a:b]), " ".join(p[c:d])] for (_, a, b, c, d), k in zip(ops, classes)
++                              if k is None]))
++    near = [t for tr in build_rec.get("tried") or [] for at in tr.get("attempts") or []
++            for t in (at.get("second_pass") or {}).values() if t.get("video_id") == vid]
++    sp = [t for t in near if abs(float(t.get("start", -1)) - float(seg["start"])) < 0.0015
++          and abs(float(t.get("end", -1)) - float(seg["end"])) < 0.0015]          # audit 1400 C2: within 1.5 ms
++    if not sp or sp[0].get("replayed") is not False or not sp[0].get("second_pass_text"):
++        raise ValueError(f"this side's second recogniser has no live reading of {vid} {seg['start']}-{seg['end']} in "
++                         f"the build record (its readings of {vid}: "
++                         f"{sorted({(t.get('start'), t.get('end'), t.get('replayed')) for t in near}, key=str)})")
++    s = AT.canon.canon_tokens(sp[0]["second_pass_text"])
++    if not all(AT.reads(r, s, a, b) for _, a, b, _c, _d in ops):
++        raise ValueError("this side's second recogniser does not read the run decode at every difference")
++    text = AT.attested_text(pin_t, words)
++    lines = [x["text"] for x in mp["edl_vo"].get("bridges") or []] + \
++        ([mp["edl_vo"]["intro"]] if mp["edl_vo"].get("intro") else []) + [mp["title"], mp["caption"]]
++    q = AT.quotes(lines, r, p, ops)
++    if q:
++        raise ValueError(f"ruling 67: these lines quote the changed words and are re-gated first: {q}")
++    out = copy.deepcopy(pin)
++    diffs = [{"run": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "class": k}
++             for (_, a, b, c, d), k in zip(ops, classes)]
++    out["segments"][idx[0]].update(approved_text=text, attested={
++        "rule": "ruling 67 (orchestrator 14:02 Nov 13): the attested-text re-seal",
++        "was": pin_t, "differences": diffs,
++        "carried": "every verdict and gate this pin was sealed with, judged on the text it replaces: each difference "
++                   "is in ruling 67's carry-over class, and no line quotes the changed words",
++        "render": {"run": os.path.basename(os.path.normpath(run_dir)), "words": [i0, i1], "decode": run_t},
++        "second_recogniser": {"model": sp[0].get("model"), "text": sp[0]["second_pass_text"], "record": build_dir}})
++    sha = package_pin.seal(*args(out["segments"]))
++    old = mp["package_sha256"]
++    at = (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")
++    out["story_id"] = re.sub(r"-[0-9a-f]{8}$", "-" + sha[:8], pin["story_id"])
++    out["approved_at"] = at
++    out["approval_ref"] = f"{pin.get('approval_ref')}; re-sealed under ruling 67 (the attested text of {vid})"
++    out["moments_package"].update(package_sha256=sha, resealed={"of": pin["story_id"], "package_sha256": old,
++                                                                 "rule": "ruling 67", "at": at})
++    return out, {"segment": idx[0], "video_id": vid, "differences": diffs, "text": text, "was": pin_t,
++                 "story_id": out["story_id"], "package_sha256": sha}
++
++
++def main(argv=None):
++    a = argv if argv is not None else sys.argv[1:]
++    if len(a) != 3:
++        print(__doc__, file=sys.stderr)
++        return 2
++    pin_path, run_dir, build_dir = a
++    dest = os.path.join(os.path.dirname(os.path.abspath(pin_path)), "MOMENTS_PIN_ATTESTED.json")
++    try:
++        if os.path.exists(dest):
++            raise ValueError(f"{dest} exists (never written over)")
++        with open(pin_path) as f:
++            pin = json.load(f)
++        with open(os.path.join(build_dir, "package.json")) as f:
++            rec = json.load(f)
++        out, summary = reseal(pin, run_dir, rec, os.path.relpath(os.path.abspath(build_dir), REPO))
++    except (OSError, ValueError, KeyError, TypeError) as e:
++        print(f"REFUSED (ruling 67): {type(e).__name__}: {e}", file=sys.stderr)
++        return 2
++    with open(dest, "x") as f:
++        json.dump(out, f, indent=1)
++    print(json.dumps(dict(summary, path=os.path.relpath(dest, REPO)), indent=1))
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/package/test_attest.py b/tests/package/test_attest.py
+new file mode 100644
+index 0000000..5263b7a
+--- /dev/null
++++ b/tests/package/test_attest.py
+@@ -0,0 +1,158 @@
++#!/usr/bin/env python3
++"""RULING 67 (orchestrator 14:02 Nov 13): the attested-text re-seal (pipeline/attest.py, tests/package/reseal_attested.py).
++The fixture is the pin the render held at 13:48 ET (ledger_20261113_183302, clip 3 mKNAcOFMYD4 words 32-73)."""
++import copy
++import json
++import os
++import sys
++import tempfile
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++import attest as AT  # noqa: E402
++import package_pin  # noqa: E402
++import reseal_attested as RA  # noqa: E402
++
++PIN = os.path.join(HERE, "proof", "ledger_20261113_183302", "MOMENTS_PIN_LEDGER.json")
++APPROVED = ("My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank "
++            "owns the money and they could just take it from me. And that's why we Bitcoin.")
++RUN = ("my biggest fear is that i go to the bank and i punch in my code and the money's not there because the bank owns "
++       "the money and they could just take it from me. and that's why that's why we bitcoin.")
++SCRIBE = ("My biggest fear is that I go to the bank and I punch in my code and the money's not there, 'cause the bank "
++          "owns the money and they could just take it from me. And that's why, that's why we Bitcoin.")
++ATTESTED = ("My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank "
++            "owns the money and they could just take it from me. And that's why that's why we Bitcoin.")
++
++
++class TestAttest(unittest.TestCase):
++    def test_the_held_clip_is_the_carry_over_class(self):
++        r, p, ops = AT.diff(RUN, APPROVED)
++        self.assertEqual([[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops],
++                         [["in", "you"], ["that's why", ""]])            # the render's own diffs, verbatim
++        self.assertEqual([AT.carry_class(r, p, o, (RUN, APPROVED)) for o in ops],
++                         ["function word", "immediate repetition"])
++        s = AT.canon.canon_tokens(SCRIBE)
++        self.assertEqual([AT.reads(r, s, a, b) for _, a, b, c, d in ops], [True, True])    # reads the run decode
++        self.assertEqual([AT.reads(p, s, c, d) for _, a, b, c, d in ops], [False, False])  # not the approved text
++        self.assertEqual(AT.attested_text(APPROVED, RUN.split()), ATTESTED)
++        self.assertEqual(AT.diff(RUN, ATTESTED)[2], [])                   # no ruling-17 difference is left
++
++    def test_a_number_a_name_a_negation_or_a_content_word_is_never_carried(self):
++        for run, pin in (("the money is there", "the money is not there"),          # a negation
++                         ("i paid 3 coins", "i paid 2 coins"),                     # a number
++                         ("the first block", "the second block"),                  # an ordinal
++                         ("i punch in my card", "i punch in my code"),             # a content word
++                         ("as I told Saylor today", "as I told him today"),        # a name (capitalised mid-sentence)
++                         ("no no it is fine", "no it is fine")):                   # a repeated negation stays critical
++            r, p, ops = AT.diff(run, pin)
++            self.assertTrue(ops, (run, pin))
++            self.assertIn(None, [AT.carry_class(r, p, o, (run, pin)) for o in ops], (run, pin))
++        r, p, ops = AT.diff("we buy it we buy it now", "we buy it now")            # a repeated phrase: carried
++        self.assertEqual([AT.carry_class(r, p, o, ("", "")) for o in ops], ["immediate repetition"])
++        r, p, ops = AT.diff("and that's why that's why we", "and that's why so we")   # aligned as a REPLACE
++        self.assertEqual([o[0] for o in ops], ["replace"])
++        self.assertEqual([AT.carry_class(r, p, o, ("", "")) for o in ops], ["immediate repetition"])
++        r, p, ops = AT.diff("and that's why that's why we", "and that's why bank we")   # its other side: content
++        self.assertEqual([AT.carry_class(r, p, o, ("", "")) for o in ops], [None])
++
++    def test_the_attested_text_is_a_minimal_edit_with_the_run_tokens(self):
++        self.assertEqual(AT.attested_text("So it is, Mr. Big.", "so it was mr big".split()),
++                         "So it was Mr. Big.")                           # the run's whole word replaces "is,"
++        with self.assertRaises(ValueError):                                       # a difference inside a word
++            AT.attested_text("a well-known fact", "a well made fact".split())
++        self.assertEqual(AT.canon.canon_tokens(AT.attested_text(APPROVED, RUN.split())), AT.canon.canon_tokens(RUN))
++
++    def test_a_line_quoting_the_changed_words_is_found(self):
++        r, p, ops = AT.diff(RUN, APPROVED)
++        self.assertEqual(AT.quotes(["i punch you my code, he says", "no single owner"], r, p, ops),
++                         ["i punch you my code, he says"])
++        self.assertEqual(AT.quotes(["No single owner controls the bitcoin network"], r, p, ops), [])
++
++
++class TestReseal(unittest.TestCase):
++    """reseal() on the pin the render held, with its run's records rebuilt in a temporary directory."""
++
++    def setUp(self):
++        with open(PIN) as f:
++            self.pin = json.load(f)
++        self.tmp = tempfile.TemporaryDirectory()
++        d = self.tmp.name
++        self.frozen = os.path.join(d, "MOMENTS_PIN_LEDGER_183302.json")
++        with open(self.frozen, "w") as f:
++            json.dump(self.pin, f)
++        os.makedirs(os.path.join(d, "transcripts"))
++        with open(os.path.join(d, "PROVENANCE.json"), "w") as f:
++            json.dump({"x": {"owner": f"pulse_check_run 1 (--pinned {self.frozen})"}}, f)
++        with open(os.path.join(d, "transcripts", "mKNAcOFMYD4.json"), "w") as f:
++            json.dump({"words": [{"word": "x"}] * 32 + [{"word": " " + w} for w in RUN.split()]}, f)
++        self.hold("the run decode")
++        seg = self.pin["segments"][2]
++        self.rec = {"tried": [{"attempts": [{"second_pass": {"c3": {
++            "video_id": "mKNAcOFMYD4", "start": seg["start"], "end": seg["end"], "model": "elevenlabs_stt:scribe_v1",
++            "replayed": False, "second_pass_text": SCRIBE}}}]}]}
++
++    def tearDown(self):
++        self.tmp.cleanup()
++
++    def hold(self, side):
++        with open(os.path.join(self.tmp.name, "status.json"), "w") as f:
++            json.dump({"holds": [f"pinned: pinned decision rejected: mKNAcOFMYD4 words 32-{32 + len(RUN.split()) - 1}"
++                                 f": lock text not adjudicated (ruling 17): at [['in', 'you']] the second recogniser "
++                                 f"reads {side} | run_decode: '...'"]}, f)
++
++    def test_the_held_pin_is_re_sealed_with_the_attested_text(self):
++        out, summary = RA.reseal(self.pin, self.tmp.name, self.rec, "tests/package/proof/ledger_x")
++        seg, mp = out["segments"][2], out["moments_package"]
++        self.assertEqual(seg["approved_text"], ATTESTED)
++        self.assertEqual(seg["attested"]["was"], APPROVED)
++        self.assertEqual([(x["run"], x["approved"], x["class"]) for x in seg["attested"]["differences"]],
++                         [("in", "you", "function word"), ("that's why", "", "immediate repetition")])
++        sha = package_pin.seal(out["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"],
++                               mp["gates"], mp.get("btc_screen"))
++        self.assertEqual((mp["package_sha256"], out["story_id"]), (sha, "moments-ledger_20261113_183302-" + sha[:8]))
++        self.assertNotEqual(sha, self.pin["moments_package"]["package_sha256"])
++        self.assertEqual(mp["resealed"]["package_sha256"], self.pin["moments_package"]["package_sha256"])
++        segs = [{k: v for k, v in s.items() if k != "attested"} for s in out["segments"]]
++        self.assertNotEqual(package_pin.seal(segs, mp["edl_vo"], mp.get("signoff_expected"), mp["title"],
++                                             mp["caption"], mp["gates"], mp.get("btc_screen")), sha)   # sealed
++        self.assertEqual([s["approved_text"] for i, s in enumerate(out["segments"]) if i != 2],
++                         [s["approved_text"] for i, s in enumerate(self.pin["segments"]) if i != 2])   # one clip
++
++    def test_it_refuses_without_both_recognisers_or_on_another_pin(self):
++        self.hold("neither")                                               # the render's recogniser did not attest
++        with self.assertRaises(ValueError):
++            RA.reseal(self.pin, self.tmp.name, self.rec)
++        self.hold("the run decode")
++        rec = copy.deepcopy(self.rec)                                      # this side's recogniser reads the pin
++        rec["tried"][0]["attempts"][0]["second_pass"]["c3"]["second_pass_text"] = APPROVED
++        with self.assertRaises(ValueError):
++            RA.reseal(self.pin, self.tmp.name, rec)
++        rec["tried"][0]["attempts"][0]["second_pass"]["c3"].update(second_pass_text=SCRIBE, start=1.0)
++        with self.assertRaises(ValueError) as e:                           # another span: named in the refusal
++            RA.reseal(self.pin, self.tmp.name, rec)
++        self.assertIn("its readings of mKNAcOFMYD4", str(e.exception))
++        rec["tried"][0]["attempts"][0]["second_pass"]["c3"].update(start=self.pin["segments"][2]["start"] + 0.001)
++        self.assertEqual(RA.reseal(self.pin, self.tmp.name, rec)[1]["text"], ATTESTED)   # 1 ms apart: the same
++        rec["tried"][0]["attempts"][0]["second_pass"]["c3"].update(replayed=True)
++        with self.assertRaises(ValueError):                                # a replayed reading is never evidence
++            RA.reseal(self.pin, self.tmp.name, rec)
++        other = copy.deepcopy(self.pin)
++        other["moments_package"]["package_sha256"] = "0" * 64
++        with open(self.frozen, "w") as f:
++            json.dump(other, f)
++        with self.assertRaises(ValueError):                                # the run rendered another pin
++            RA.reseal(self.pin, self.tmp.name, self.rec)
++
++    def test_it_refuses_a_difference_outside_the_carry_over_class(self):
++        with open(os.path.join(self.tmp.name, "transcripts", "mKNAcOFMYD4.json"), "w") as f:
++            json.dump({"words": [{"word": "x"}] * 32 + [{"word": w} for w in RUN.replace("code", "card").split()]}, f)
++        with self.assertRaises(ValueError) as e:
++            RA.reseal(self.pin, self.tmp.name, self.rec)
++        self.assertIn("re-judged first", str(e.exception))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/package/test_speakers.py b/tests/package/test_speakers.py
+index 876be01..f3230cd 100644
+--- a/tests/package/test_speakers.py
++++ b/tests/package/test_speakers.py
+@@ -219,7 +219,8 @@ class TestPinCarriesTheSpeaker(unittest.TestCase):
+                 continue
+             n += 1
+             self.assertEqual(package_pin.seal(pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"],
+-                                              mp["caption"], mp["gates"]), mp["package_sha256"], p)
++                                              mp["caption"], mp["gates"], mp.get("btc_screen")),   # as check_pin_only
++                             mp["package_sha256"], p)
+         self.assertGreaterEqual(n, 6)                                    # 37c5b5f5, 41f29b1f and the four L-y pins
+         unknown = {"name": "unknown", "role": None, "line": None, "basis": None, "why": "", "people": [],
+                    "measured": True}

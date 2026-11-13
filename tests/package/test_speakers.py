@@ -219,7 +219,8 @@ class TestPinCarriesTheSpeaker(unittest.TestCase):
                 continue
             n += 1
             self.assertEqual(package_pin.seal(pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"],
-                                              mp["caption"], mp["gates"]), mp["package_sha256"], p)
+                                              mp["caption"], mp["gates"], mp.get("btc_screen")),   # as check_pin_only
+                             mp["package_sha256"], p)
         self.assertGreaterEqual(n, 6)                                    # 37c5b5f5, 41f29b1f and the four L-y pins
         unknown = {"name": "unknown", "role": None, "line": None, "basis": None, "why": "", "people": [],
                    "measured": True}

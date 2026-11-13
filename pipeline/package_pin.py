@@ -70,7 +70,8 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
                 "trimmed_leading", "untrimmed_start",      # ruling 33 part 2 (render merged 11e361cc): only when a word
                 "scorer_pending",                          # is trimmed, so every other pin seals as before (ruling 49 a;
                                                            # retired by ruling 56: kept so its pins still recompute)
-                "scorer_verdict")                          # ruling 56: the clip scorer's affirmation, only when sealed
+                "scorer_verdict",                          # ruling 56: the clip scorer's affirmation, only when sealed
+                "attested")                                # ruling 67: the attested-text re-seal's record (re-sealed)
 TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
                                                            # separate constant (a test holds them equal): the
                                                            # integrator's check_pin_only imports this module, which

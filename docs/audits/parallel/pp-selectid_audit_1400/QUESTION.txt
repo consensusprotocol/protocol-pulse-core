@@ -1,0 +1,101 @@
+You are auditing a SMALL change on branch pp-selectid (Protocol Pulse: the builder that seals the pins the integrator
+renders). Your role: a strict reviewer of a path that changes a SEALED pin's text. Only state what you can verify from
+the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- A pin seals each clip's approved_text, the exact words the render must find. package_pin.seal is sha256 over a
+  canonical body: the segments (video, start, end, text, transcript sha, and each SEALED_LATER key a segment carries),
+  the VO, the sign-off, title, caption, the gate inventory, and btc_screen.
+  - The integrator's check_pin_only imports THIS package_pin.py from the worktree and recomputes every pin's seal.
+  - A SEALED_LATER key enters the body only when a segment carries it, so every earlier pin keeps its digest.
+- The render's ruling 17 (pipeline/pinned.adjudicate_lock, main tree, read only here):
+  - It decodes the clip itself and compares canon.canon_tokens(run decode) with canon_tokens(approved_text) using
+    difflib.SequenceMatcher(autojunk=False). No difference: the lock stands.
+  - A difference on a number, name or negation always holds.
+  - Otherwise its second recogniser (ElevenLabs scribe_v1) decides. If it reads the approved text at every
+    difference, the lock takes the approved text; if it reads the run decode, or neither, the render HOLDS.
+- 13:48 ET: the render held pin 61fd55d0 at ruling 17 on clip 3 (mKNAcOFMYD4, run words 32-73), with diffs
+  [['in','you'], ["that's why",'']] (run decode first). Its second recogniser read the run decode at both places.
+  - The approved text came from the word pass's decode: "...I punch you my code ... And that's why we Bitcoin."
+  - The speaker says "punch in my code" and "and that's why, that's why we Bitcoin".
+
+The ruling this diff implements (ORCHESTRATOR 14:02 Nov 13, verbatim):
+"67. ATTESTED-TEXT RE-SEAL. When the render's decode and the second recogniser AGREE on a span and the pin's text
+differs, the pin is re-sealed with the attested text (L-v: the words as spoken). The verdicts already paid for carry
+over, recorded as carried with the exact diff, ONLY when every differing token is a function word or an immediate
+repetition of the speaker's own words (here: you -> in; a repeated "that's why"). If any differing token is a number, a
+name, a negation or a content word, the clip's step A (both vendors) and the stand-alone verdict are re-judged on the
+attested text before the seal. The takeaway, title and caption are re-gated only if they quote the changed words.
+Here: both differences are in the carry-over class. Re-seal, verify, send to the integrator at once."
+
+The change:
+1. pipeline/attest.py (new; imports canon only, never package.py):
+   - diff(): the render's own diff (canon.py here is byte-identical to the render's).
+   - critical(): the render's _lv2_critical with its negation and ordinal lists: a number, a negation, or a name
+     (capitalised mid-sentence in either text).
+   - carry_class(): "immediate repetition" (a delete/insert whose tokens repeat the tokens right before or after them
+     on that side), or "function word" (every token in a closed FUNCTION_WORDS list with no negation, number or
+     ordinal), else None. A critical token is never carried.
+   - reads(): the render's reads() rule, i.e. the second recogniser reads x's tokens at that position (with one
+     neighbour each side, consecutive).
+   - attested_text(): the minimal edit. It keeps the approved surface words where tokens are equal and uses the run's
+     own decoded words at each difference. A difference that splits a word raises; the result's canonical tokens must
+     equal the run decode's.
+   - quotes(): the lines quoting the changed words (the approved or run tokens of a difference, with one neighbour
+     each side).
+2. tests/package/reseal_attested.py PIN RUN_DIR BUILD_DIR (new). reseal() refuses (ValueError; exit 2, nothing written)
+   unless all of these hold:
+   - the pin recomputes to its own seal;
+   - the run's PROVENANCE names a pinned file whose seal is the pin's;
+   - status.json has exactly one ruling-17 hold whose second recogniser "reads the run decode";
+   - exactly one segment is on that video;
+   - this side's own second recogniser reading of that clip (live, not replayed, from the build record that sealed
+     the pin) reads the run decode at every difference;
+   - every difference is in the carry-over class (otherwise: "re-judged first");
+   - no line (takeaway/bridges/intro, title, caption) quotes the changed words.
+   It then sets that segment's approved_text to the attested text and its "attested" record: the text replaced, the
+   exact diffs with their classes, what is carried, the render's run and words and decode, and the second
+   recogniser's reading. It re-seals, sets story_id with the new sha8, approved_at, and moments_package.resealed {of,
+   old sha, rule, at} (outside the seal), and writes MOMENTS_PIN_ATTESTED.json beside the pin (never over a file).
+3. package_pin.SEALED_LATER gains "attested". Earlier pins carry no such key, so they recompute unchanged.
+4. tests/package/test_speakers.py: its "every earlier pin still recomputes" test called seal() without btc_screen, so
+   the first pin carrying btc_screen (the 13:38 pin, committed at 13:45) failed it. It now passes mp.get("btc_screen"),
+   as the integrator's check_pin_only does. Test-only.
+5. Tests: test_attest.py (7) runs the held clip's real texts:
+   - the render's exact diffs and the classes;
+   - the second recogniser reads the run decode, not the approved text;
+   - the attested text, with no ruling-17 difference left;
+   - negation, number, ordinal, content word, name, and a repeated negation are never carried;
+   - a word-splitting difference raises; the quoting check;
+   - reseal() end to end on the real held pin with its run records rebuilt in a temp dir (the seal recomputes, the
+     "attested" record is sealed, only clip 3 changes);
+   - the refusals: neither recogniser, this side reads the pin, a replayed reading, another pin, a content word.
+   All 12 suites OK.
+
+Real-data dry run, on a copy of the held pin with the real run dir and build record:
+- differences [{run "in", approved "you", "function word"}, {run "that's why", approved "", "immediate repetition"}];
+- attested text "My biggest fear is that I go to the bank and I punch in my code and the money's not there because
+  the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin.";
+- re-sealed; no line quotes the changed words.
+
+Stated readings (say so if you read the ruling differently):
+- K1: "the render's decode and the second recogniser AGREE": the render's own hold says so ("the second recogniser
+  reads the run decode"), AND this side's own live scribe_v1 reading must read the run decode at every difference.
+  Both are required (fail closed).
+- K2: "immediate repetition of the speaker's own words": the tokens one side lacks repeat the tokens right before or
+  right after them. A critical token (L-v 2) is never carried, even when repeated.
+- K3: a difference outside the carry-over class, or a line quoting the changed words, REFUSES here. The re-judge path
+  the ruling describes for those is not built (not needed for this pin; fail closed).
+- K4: the "attested" record is SEALED (a SEALED_LATER key), so the text's provenance cannot be altered without
+  breaking the seal. resealed {of, old sha, at} is outside the seal (bookkeeping).
+- K5: the minimal edit uses the run's own words at the differences, so the display text keeps the approved casing
+  elsewhere; equal canonical tokens make the render's lock stand with no difference.
+
+Check in particular:
+- that no path re-seals a text the render's lock would still hold, or carries over a critical or content-word diff;
+- the seal compatibility for every earlier pin and for check_pin_only;
+- the refusal paths, and that nothing is written on a refusal;
+- the minimal edit's correctness (word boundaries, insert/delete/replace);
+- the test_speakers fix.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
