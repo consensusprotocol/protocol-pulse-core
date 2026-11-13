@@ -34,6 +34,7 @@ def _load(ref, name):
 
 
 def main(ref=REF, layout=True):
+    ref = os.path.abspath(ref)                    # the scratch dir's links must resolve from /tmp (step 8 passes it relative)
     if not os.path.isfile(os.path.join(ref, "PIN.json")):
         print(f"SKIP: protected reference missing: {ref}")
         return 2

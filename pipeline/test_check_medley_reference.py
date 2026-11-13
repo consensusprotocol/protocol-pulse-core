@@ -149,7 +149,8 @@ class TestMedleyReference(unittest.TestCase):
     def test_the_command_line_reproduces_without_layout(self):     # the path regression.sh step 8 calls
         import subprocess
         import sys
-        r = subprocess.run([sys.executable, C.__file__, REF, "--no-layout"], capture_output=True, text=True, timeout=300)
+        r = subprocess.run([sys.executable, C.__file__, os.path.relpath(REF, C.REPO), "--no-layout"],   # RELATIVE, as
+                           cwd=C.REPO, capture_output=True, text=True, timeout=300)                 # step 8 passes it
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn("PULSE MEDLEY REFERENCE: REPRODUCED", r.stdout)
 
