@@ -25,6 +25,12 @@ Record: tests/package/proof/ledger_20261113_121442. It ran 45 + 44 + item 42's c
 - **Proposal 1 (yours to rule):** when an angle's own moments cannot form any line-up, complete it from the WHOLE
   cleared pool by score. That is ruling 41's swap applied to the missing places, with the angle's hook and play order
   kept and every line-up rule unchanged. Here, adding any of the three unused clips would have reached the seconds.
+- **Proposal 1, measured on the 07:14 pool (prepared and tested in a scratch copy, NOT committed or used):** all 3
+  angles get a line-up (36.89 s, 43.78 s, 36.77 s). Each adds Bitcoin Mechanic (7.26 s) as the HOOK: the angle's own
+  hook ("My biggest fear is that I go to the bank...") does not name Bitcoin, so it cannot open (the hook's topic
+  rule), and the next opener by its first 2 s comes from the pool, as ruling 41's hook swap would choose it. Scope: an
+  angle's FIRST line-up only; a re-line after a drop moves on to the next angle, as now. Two of the 3 still pair the
+  CNBC / Strategy copies, hence Proposal 2.
 - **Proposal 2 (yours to rule):** the same speech re-posted by a second channel (equal text, different channel)
   counts as ONE moment before the angle step, keeping the original publisher's. Without it, the angle writer keeps
   building on the pair.
