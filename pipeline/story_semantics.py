@@ -5,7 +5,8 @@ Resources (all local, GPU0 only):
   embeddings  BAAI/bge-base-en-v1.5 (pinned revision), transformers, fp16 on cuda:0
   LLM         gemma3:27b via the shared Ollama service on :11434, used only after proving from
               the live process environment and nvidia-smi that it is GPU0-only. The separate
-              Ollama on :11435 is pinned to the quarantined GPU1 and is never called.
+              Ollama on :11435 belongs to GPU1 (the watchdog, the site's fallback, local A/B runs;
+              law L-r layout) and is never called by this layer.
 
 Identity rules (nothing lexical stands in for semantics):
   - retrieval  = embedding similarity + word-boundary alias hits (recall only)
@@ -62,7 +63,8 @@ class LLMParseError(Exception):
 
 def _gpu_guard():
     if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
-        raise RuntimeError("semantic layer requires CUDA_VISIBLE_DEVICES=0 (GPU1 quarantined)")
+        raise RuntimeError("semantic layer requires CUDA_VISIBLE_DEVICES=0 (law L-r layout: the editorial models "
+                           "run on GPU0)")
 
 
 # ── embeddings ──
@@ -141,8 +143,8 @@ def parse_json_lenient(txt):
 class LocalLLM:
     """Uses the shared Ollama service on :11434 ONLY after proving it is GPU0-only:
     the listening process must run with CUDA_VISIBLE_DEVICES=0, and after the first call every
-    runner under it must sit on GPU0. (A separate instance on :11435 is pinned to the
-    quarantined GPU1 and is never used.)"""
+    runner under it must sit on GPU0. (The instance on :11435 belongs to GPU1 under the law L-r
+    layout and is never used here: the editorial models run on GPU0.)"""
 
     def __init__(self, model=LLM_MODEL, host=LLM_HOST):
         _gpu_guard()

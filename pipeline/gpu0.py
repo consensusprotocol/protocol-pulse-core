@@ -23,6 +23,16 @@ lease file open (the wrapper that holds it); a model resident on the shared GPU0
 request; GPU0 memory no listed process accounts for, beyond UNLISTED_MAX_MIB. A foreign user is named and the run HOLDs;
 nothing of it is unloaded or killed.
 
+EVERY GPU HAS ONE OWNER AT A TIME (PBX 2026-11-12, the GPU1 quarantine lifted; orchestrator '22:50'). GPU0 = renders
+and the gates that need render-side models (NVENC, the face detector / vision gates, gemma for the editorial gate); GPU1
+= everything else (the word-pass worker, the website's Ollama fallback, the watchdog / morning brief / stage broadcast
+models, local A/B runs). Each GPU has its own lease (/tmp/pulse_gpu<N>.lease, PP_GPU<N>_LEASE) and its own Ollama
+(:11434 on GPU0, :11435 on GPU1); everything above holds per GPU. A process that loads models itself works on ONE GPU,
+the one its CUDA_VISIBLE_DEVICES names ('0' or '1'); every function here reads that GPU (current_gpu()). A caller that
+only asks a GPU's Ollama (it loads nothing itself: the watchdog, the website) uses ollama_call(gpu, ...). Some Ollama
+keys are pinned to one GPU (ON_GPU). A named CO-TENANT within its cap (CO_TENANTS: the website's own CUDA context on
+GPU1) is reported, not foreign; the free-memory proof still counts its memory.
+
 STOPS. Every refusal is a Gpu0Stop, a BaseException, so no `except Exception` between a load and the stage runner can
 turn it into another error ('transcription failed' hid an out-of-memory on Nov 12, E-FAIL-052): GpuOOM (a CUDA / NVENC
 out-of-memory inside guard() or a finished subprocess), Gpu0Foreign, LeaseMissing, LeaseBusy, Gpu0NotFree (the memory
@@ -45,6 +55,12 @@ os.environ.setdefault("CUDA_DEVICE_ORDER", "PCI_BUS_ID")   # CUDA device 0 = nvi
 
 DEFAULT_LEASE = "/tmp/pulse_gpu0.lease"
 OLLAMA_HOST = "127.0.0.1:11434"            # the GPU0 Ollama listener (story_semantics.LLM_HOST)
+GPUS = (0, 1)
+DEFAULT_LEASES = {0: DEFAULT_LEASE, 1: "/tmp/pulse_gpu1.lease"}
+OLLAMA_HOSTS = {0: OLLAMA_HOST, 1: "127.0.0.1:11435"}
+# A named co-tenant within its cap is not foreign (its memory still counts in every free-memory proof): the website's
+# waitress process keeps a small CUDA context on GPU1 (480 MiB, nvidia-smi 2026-11-12 22:43)
+CO_TENANTS = {1: ((re.compile(r"\bwaitress\b"), 1024),)}
 MARGIN_MIB = 1024
 UNLISTED_MAX_MIB = 1024                    # GPU0 memory no listed compute process accounts for, beyond this = foreign
 # Peak GPU0 memory one load needs (MiB, its process's CUDA context included): the peak measured on this host's 24564 MiB
@@ -59,7 +75,10 @@ REQUIREMENT_MIB = {
     "embedder": 1500,                      # measured 1379 (bge-base fp16, 64 x 512 tokens)
     "resemblyzer": 850,                    # measured 775
     "nvenc": 600,                          # measured 536 (one 1080x1920 h264_nvenc encode at a time)
+    "ollama:qwen3-coder:30b": 22400,       # GPU1 Ollama runner 21302 (nvidia-smi 2026-11-12 22:43): the watchdog, briefs
+    "ollama:deepseek-coder-v2:16b": 19100,  # 18128 when the site's fallback loaded it on GPU0 (11:50 ET): now GPU1's
 }
+ON_GPU = {"ollama:qwen3-coder:30b": 1, "ollama:deepseek-coder-v2:16b": 1}   # keys pinned to one GPU (the layout)
 WAIT_S = 180
 FOREIGN_WAIT_S, FOREIGN_POLL_S = 600, 15   # L-r 4 amended (orchestrator 2026-11-12 '11:57'): a foreign GPU0 user at a
                                            # swap is waited out (an Ollama keep-alive leaves by itself), then HOLD
@@ -96,7 +115,9 @@ class Gpu0Unreadable(Gpu0Stop):
 _lock = threading.RLock()
 _own = {}           # lease path -> {"file", "pid", "depth"}: this process's own lease() holdings
 _resident = []      # Model objects loaded on GPU0 by this process
-_ollama_ours = {}   # name -> 'pending' (requested by this process, not yet seen resident) | 'resident' (seen resident
+_ollama_ours_by = {g: {} for g in GPUS}
+_ollama_ours = _ollama_ours_by[0]   # GPU0's (story_semantics.LocalLLM and the tests read it by this name). Per GPU:
+                    # name -> 'pending' (requested by this process, not yet seen resident) | 'resident' (seen resident
                     # ever since it was requested); a model seen gone is no longer this process's: a later load of the
                     # same name by another client is foreign
 CONTEXT_MAX_MIB = 1024                     # what this process may still hold on GPU0 once its models are released
@@ -104,10 +125,39 @@ _events = []        # every swap's evidence (run_fresh copies it into PROVENANCE
 _gen = [0]          # bumped whenever the resident set changes (LocalLLM re-swaps only when it moved)
 
 
+_tls = threading.local()
+
+
+def current_gpu():
+    """The GPU these calls act on: inside ollama_call, the GPU it was given; otherwise this process's own, named by its
+    CUDA_VISIBLE_DEVICES ('1' is GPU1; anything else, a CPU session included, reads GPU0's lease and listener)."""
+    g = getattr(_tls, "gpu", None)
+    if g is not None:
+        return g
+    return 1 if os.environ.get("CUDA_VISIBLE_DEVICES") == "1" else 0
+
+
+@contextlib.contextmanager
+def _on(g):
+    if g not in GPUS:
+        raise LeaseMissing(f"no GPU{g} on this host (GPUs {GPUS})")
+    prev = getattr(_tls, "gpu", None)
+    _tls.gpu = g
+    try:
+        yield
+    finally:
+        _tls.gpu = prev
+
+
+def _ours():
+    return _ollama_ours_by[current_gpu()]
+
+
 # ── the lease ──
 
 def lease_path():
-    return os.path.realpath(os.environ.get("PP_GPU0_LEASE", DEFAULT_LEASE))
+    g = current_gpu()
+    return os.path.realpath(os.environ.get(f"PP_GPU{g}_LEASE", DEFAULT_LEASES[g]))
 
 
 def _fds_on(target):
@@ -202,7 +252,7 @@ def lease(owner, wait_s=0.0, poll_s=0.2):
                 rec = _record(f)
                 f.close()
                 if time.time() - t0 >= wait_s:
-                    raise LeaseBusy(f"the GPU0 lease is held by {rec.get('owner', 'an unrecorded owner')} "
+                    raise LeaseBusy(f"the GPU{current_gpu()} lease is held by {rec.get('owner', 'an unrecorded owner')} "
                                     f"(pid {rec.get('pid')})") from None
                 f = None
             if f is not None:
@@ -227,15 +277,19 @@ def lease(owner, wait_s=0.0, poll_s=0.2):
                 h["file"].close()
 
 
-def require(what):
-    """No lease, no load; GPU0 only (GPU1 is quarantined), CUDA device 0 being nvidia-smi GPU 0."""
-    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
-        raise LeaseMissing(f"{what}: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is "
-                           f"{os.environ.get('CUDA_VISIBLE_DEVICES')!r}; GPU1 is quarantined)")
-    if os.environ.get("CUDA_DEVICE_ORDER") != "PCI_BUS_ID":
-        raise LeaseMissing(f"{what}: CUDA_DEVICE_ORDER must be PCI_BUS_ID (CUDA device 0 = nvidia-smi GPU 0)")
+def require(what, in_process=True):
+    """No lease, no load (law L-r: every GPU has one owner at a time). An in-process load (torch, Whisper, NVENC) also
+    needs CUDA_VISIBLE_DEVICES to name exactly the lease's GPU ('0' or '1': CUDA device 0 is then that nvidia-smi GPU;
+    one GPU per process); a load inside a GPU's own Ollama server (keys 'ollama:') needs only that GPU's lease."""
+    g = current_gpu()
+    if in_process:
+        if os.environ.get("CUDA_VISIBLE_DEVICES") != str(g):
+            raise LeaseMissing(f"{what}: GPU{g} loads need CUDA_VISIBLE_DEVICES={g} (it is "
+                               f"{os.environ.get('CUDA_VISIBLE_DEVICES')!r}; one GPU per process)")
+        if os.environ.get("CUDA_DEVICE_ORDER") != "PCI_BUS_ID":
+            raise LeaseMissing(f"{what}: CUDA_DEVICE_ORDER must be PCI_BUS_ID (CUDA device 0 = nvidia-smi GPU {g})")
     if not held():
-        raise LeaseMissing(f"{what}: a GPU0 load without the GPU0 lease (law L-r: no lease, no load); "
+        raise LeaseMissing(f"{what}: a GPU{g} load without the GPU{g} lease (law L-r: no lease, no load); "
                            f"holder: {holder()}")
 
 
@@ -252,8 +306,8 @@ def _smi(args, timeout=15):
 
 
 def memory():
-    """(used_mib, total_mib) of GPU index 0."""
-    out = _smi(["-i", "0", "--query-gpu=memory.used,memory.total", "--format=csv,noheader,nounits"])
+    """(used_mib, total_mib) of this caller's GPU (current_gpu())."""
+    out = _smi(["-i", str(current_gpu()), "--query-gpu=memory.used,memory.total", "--format=csv,noheader,nounits"])
     try:
         used, total = (int(x) for x in out.strip().split(","))
     except ValueError:
@@ -262,10 +316,12 @@ def memory():
 
 
 def processes():
-    """[(pid, name, MiB or None)] of every compute process on GPU index 0; an unreadable line is a Gpu0Unreadable."""
-    uuid = _smi(["-i", "0", "--query-gpu=uuid", "--format=csv,noheader"]).strip()
+    """[(pid, name, MiB or None)] of every compute process on this caller's GPU; an unreadable line is a
+    Gpu0Unreadable."""
+    g = current_gpu()
+    uuid = _smi(["-i", str(g), "--query-gpu=uuid", "--format=csv,noheader"]).strip()
     if not uuid:
-        raise Gpu0Unreadable("nvidia-smi names no GPU 0")
+        raise Gpu0Unreadable(f"nvidia-smi names no GPU {g}")
     out = []
     for line in _smi(["--query-compute-apps=pid,gpu_uuid,used_memory,process_name",
                       "--format=csv,noheader,nounits"]).strip().splitlines():
@@ -278,7 +334,8 @@ def processes():
 
 
 def describe(procs):
-    return ", ".join(f"pid {p if p is not None else '?'} {n} {m} MiB" for p, n, m in procs) or "no GPU0 process"
+    return ", ".join(f"pid {p if p is not None else '?'} {n} {m} MiB" for p, n, m in procs) or \
+        f"no GPU{current_gpu()} process"
 
 
 def _children(pid):
@@ -335,17 +392,17 @@ def _lease_holders():
 
 
 def _ollama_pids():
-    """The GPU0 Ollama listener (the process on its port) and every process under it."""
-    port = OLLAMA_HOST.rsplit(":", 1)[1]
+    """This GPU's Ollama listener (the process on its port) and every process under it."""
+    port = OLLAMA_HOSTS[current_gpu()].rsplit(":", 1)[1]
     try:
         r = subprocess.run(["ss", "-ltnpH", f"sport = :{port}"], capture_output=True, text=True, timeout=10)
     except (OSError, subprocess.TimeoutExpired) as e:
-        raise Gpu0Unreadable(f"cannot read the GPU0 Ollama listener: {type(e).__name__}") from None
+        raise Gpu0Unreadable(f"cannot read the GPU{current_gpu()} Ollama listener: {type(e).__name__}") from None
     if r.returncode != 0:
         raise Gpu0Unreadable(f"ss exit {r.returncode}: {r.stderr.strip()[:200]}")
     serve = {int(p) for p in re.findall(r"pid=(\d+)", r.stdout)}
     if r.stdout.strip() and not serve:
-        raise Gpu0Unreadable("the GPU0 Ollama listener's pid is not visible to this user")
+        raise Gpu0Unreadable(f"the GPU{current_gpu()} Ollama listener's pid is not visible to this user")
     out = set(serve)
     for p in serve:
         out |= _descendants(p)
@@ -357,9 +414,10 @@ def foreign():
     procs = processes()
     ollama = _ollama_pids()
     ours = {os.getpid()} | _descendants() | _lease_holders() | ollama
-    out = [p for p in procs if p[0] not in ours]
+    co = _co_tenants([p for p in procs if p[0] not in ours])
+    out = [p for p in procs if p[0] not in ours and p not in co]
     for name, mib in ollama_resident():
-        if name not in _ollama_ours:
+        if name not in _ours():
             out.append((min(ollama) if ollama else None, f"ollama model {name} (not requested by this run)", mib))
     if all(m is not None for _, _, m in procs):             # a process whose memory is not reported: cannot account
         used, _ = memory()
@@ -369,10 +427,26 @@ def foreign():
     return out
 
 
-# ── the GPU0 Ollama ──
+def _co_tenants(procs):
+    """The processes among `procs` that are a named co-tenant of this GPU within its cap (CO_TENANTS): reported in the
+    swap evidence, not foreign; a co-tenant over its cap, or with its memory unreported, is foreign."""
+    out = []
+    for p in procs:
+        pid, _, mib = p
+        try:
+            with open(f"/proc/{pid}/cmdline", "rb") as f:
+                cmd = f.read().replace(b"\0", b" ").decode(errors="replace")
+        except OSError:
+            continue
+        if any(rx.search(cmd) and mib is not None and mib <= cap for rx, cap in CO_TENANTS.get(current_gpu(), ())):
+            out.append(p)
+    return out
+
+
+# ── the GPU's Ollama ──
 
 def _ollama(path, body=None, timeout=30):
-    req = urllib.request.Request(f"http://{OLLAMA_HOST}{path}",
+    req = urllib.request.Request(f"http://{OLLAMA_HOSTS[current_gpu()]}{path}",
                                  data=None if body is None else json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json"})
     return json.loads(urllib.request.urlopen(req, timeout=timeout).read() or b"{}")
@@ -393,16 +467,16 @@ def ollama_resident():
         if isinstance(getattr(e, "reason", None), ConnectionRefusedError):
             out = []
         else:
-            raise Gpu0Unreadable(f"Ollama {OLLAMA_HOST} /api/ps: {e}") from None
+            raise Gpu0Unreadable(f"Ollama {OLLAMA_HOSTS[current_gpu()]} /api/ps: {e}") from None
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
-        raise Gpu0Unreadable(f"Ollama {OLLAMA_HOST} /api/ps: {type(e).__name__}: {e}") from None
+        raise Gpu0Unreadable(f"Ollama {OLLAMA_HOSTS[current_gpu()]} /api/ps: {type(e).__name__}: {e}") from None
     names = {n for n, _ in out}
     with _lock:
-        for n, state in list(_ollama_ours.items()):
+        for n, state in list(_ours().items()):
             if n in names:
-                _ollama_ours[n] = "resident"
+                _ours()[n] = "resident"
             elif state == "resident":
-                del _ollama_ours[n]
+                del _ours()[n]
     return out
 
 
@@ -415,8 +489,8 @@ def ollama_settle(name):
     resident now is dropped, so another client's later load of the same name is foreign, never 'ours'."""
     resident = name in ollama_loaded()
     with _lock:
-        if _ollama_ours.get(name) == "pending" and not resident:
-            del _ollama_ours[name]
+        if _ours().get(name) == "pending" and not resident:
+            del _ours()[name]
 
 
 def _ollama_unload(names, wait_s=60):
@@ -432,7 +506,7 @@ def _ollama_unload(names, wait_s=60):
         if not left:
             with _lock:
                 for n in names:
-                    _ollama_ours.pop(n, None)
+                    _ours().pop(n, None)
             return list(names)
         if time.time() - t0 > wait_s:
             raise Gpu0NotFree(f"Ollama still holds {left} {wait_s}s after keep_alive=0")
@@ -475,35 +549,43 @@ def _refuse_foreign(what):
     if not f:
         return
     t0, first = time.time(), describe(f)
-    print(f"  GPU0: {what}: a foreign GPU0 user, waiting it out (L-r 4, up to {FOREIGN_WAIT_S}s): {first}", flush=True)
+    g = current_gpu()
+    print(f"  GPU{g}: {what}: a foreign GPU{g} user, waiting it out (L-r 4, up to {FOREIGN_WAIT_S}s): {first}", flush=True)
     while f and time.time() - t0 < FOREIGN_WAIT_S:
         time.sleep(FOREIGN_POLL_S)
         f = foreign()
     waited = round(time.time() - t0, 1)
-    _events.append({"key": "foreign_wait", "what": what, "foreign": first, "waited_s": waited, "left": not f})
+    _events.append({"key": "foreign_wait", "gpu": g, "what": what, "foreign": first, "waited_s": waited, "left": not f})
     if f:
-        raise Gpu0Foreign(f"{what}: GPU0 is used by something that is not this run's, still there after a "
+        raise Gpu0Foreign(f"{what}: GPU{g} is used by something that is not this run's, still there after a "
                           f"{FOREIGN_WAIT_S}s wait: {describe(f)}")
-    print(f"  GPU0: {what}: the foreign user left after {waited}s; proceeding", flush=True)
+    print(f"  GPU{g}: {what}: the foreign user left after {waited}s; proceeding", flush=True)
 
 
-def swap_to(key, wait_s=WAIT_S, poll_s=2.0):
-    """Make GPU0 ready for `key` and nothing else of this run's (see the module docstring). Returns the evidence it
-    recorded. Raises a Gpu0Stop."""
-    require(f"swap_to({key})")
+def swap_to(key, wait_s=WAIT_S, poll_s=2.0, gpu=None):
+    """Make this caller's GPU ready for `key` and nothing else of this run's (see the module docstring). `gpu`, when
+    given, must be that GPU (a process works on one GPU; an Ollama-only caller uses ollama_call). Returns the evidence
+    it recorded. Raises a Gpu0Stop."""
+    g = current_gpu()
+    if gpu is not None and gpu != g:
+        raise LeaseMissing(f"swap_to({key}, gpu={gpu}): this caller works on GPU{g} (one GPU per process; a caller that "
+                           f"only asks an Ollama uses ollama_call)")
+    require(f"swap_to({key})", in_process=_ollama_key(key) is None)
     if key not in REQUIREMENT_MIB:
-        raise Gpu0NotFree(f"{key}: no measured GPU0 requirement (gpu0.REQUIREMENT_MIB): never loaded")
+        raise Gpu0NotFree(f"{key}: no measured GPU{g} requirement (gpu0.REQUIREMENT_MIB): never loaded")
+    if ON_GPU.get(key, g) != g:
+        raise Gpu0NotFree(f"{key}: pinned to GPU{ON_GPU[key]} by the layout (law L-r), never loaded on GPU{g}")
     with _lock:
         _refuse_foreign(f"swap_to({key})")
-        ev = {"key": key, "at": time.time(), "before": memory(), "unloaded": []}
+        ev = {"key": key, "gpu": g, "at": time.time(), "before": memory(), "unloaded": []}
         for m in [m for m in _resident if m.key != key]:
             m.unload()
             ev["unloaded"].append(m.key)
         name = _ollama_key(key)
-        drop = [n for n in ollama_loaded() if n != name and n in _ollama_ours]   # this run's only, never a newcomer
+        drop = [n for n in ollama_loaded() if n != name and n in _ours()]   # this run's only, never a newcomer
         ev["unloaded"] += [f"ollama:{n}" for n in _ollama_unload(drop)]
-        if name and name not in _ollama_ours:
-            _ollama_ours[name] = "pending"                     # ours once seen resident; a request loads it now
+        if name and name not in _ours():
+            _ours()[name] = "pending"                     # ours once seen resident; a request loads it now
         try:
             return _swap_wait(key, name, ev, wait_s, poll_s)
         except BaseException:
@@ -523,9 +605,9 @@ def _swap_wait(key, name, ev, wait_s, poll_s):
             if total - used >= need:
                 break
             if time.time() - t0 > wait_s:
-                raise Gpu0NotFree(f"{key}: GPU0 has {total - used} MiB free {wait_s}s after the swap, needs {need} "
+                raise Gpu0NotFree(f"{key}: GPU{current_gpu()} has {total - used} MiB free {wait_s}s after the swap, needs {need} "
                                   f"({'already resident: the margin' if already else f'{REQUIREMENT_MIB[key]} + margin {MARGIN_MIB}'}); "
-                                  f"on GPU0: {describe(processes())}")
+                                  f"on GPU{current_gpu()}: {describe(processes())}")
             time.sleep(poll_s)
             _refuse_foreign(f"swap_to({key}) while waiting")
         if not already:
@@ -541,14 +623,15 @@ def release_all(wait_s=WAIT_S, poll_s=2.0):
     shows GPU0 free: room for the largest single model (max REQUIREMENT_MIB + MARGIN_MIB). Under the lease; a foreign
     user is refused, never unloaded. Returns evidence; Gpu0NotFree names every GPU0 process when it does not come free."""
     require("release_all")
-    need = max(REQUIREMENT_MIB.values()) + MARGIN_MIB
+    g = current_gpu()
+    need = max(v for k, v in REQUIREMENT_MIB.items() if ON_GPU.get(k, g) == g) + MARGIN_MIB   # the largest load THIS GPU takes
     with _lock:
         _refuse_foreign("release_all")
         ev = {"at": time.time(), "before": memory(), "unloaded": []}
         for m in list(_resident):
             m.unload()
             ev["unloaded"].append(m.key)
-        ev["unloaded"] += [f"ollama:{n}" for n in _ollama_unload([n for n in ollama_loaded() if n in _ollama_ours])]
+        ev["unloaded"] += [f"ollama:{n}" for n in _ollama_unload([n for n in ollama_loaded() if n in _ours()])]
         _empty_caches()
         _gen[0] += 1
         t0 = time.time()
@@ -560,9 +643,9 @@ def release_all(wait_s=WAIT_S, poll_s=2.0):
                 ev.update(after=[used, total], this_process_mib=mine, waited_s=round(time.time() - t0, 1))
                 return ev
             if time.time() - t0 > wait_s:
-                raise Gpu0NotFree(f"GPU0 has {total - used} MiB free and this process still holds {mine} MiB {wait_s}s "
+                raise Gpu0NotFree(f"GPU{g} has {total - used} MiB free and this process still holds {mine} MiB {wait_s}s "
                                   f"after releasing everything it owns (free means >= {need} with this process at <= "
-                                  f"{CONTEXT_MAX_MIB}: the failed model was not freed); on GPU0: {describe(processes())}")
+                                  f"{CONTEXT_MAX_MIB}: the failed model was not freed); on GPU{g}: {describe(processes())}")
             time.sleep(poll_s)
             _refuse_foreign("release_all while waiting")
 
@@ -573,12 +656,44 @@ def leave():
     with _lock:
         for m in list(_resident):
             m.unload()
-        mine = [n for n in ollama_loaded() if n in _ollama_ours]
+        mine = [n for n in ollama_loaded() if n in _ours()]
         if mine:
             _ollama_unload(mine)
-        _ollama_ours.clear()
+        _ours().clear()
         _empty_caches()
         return mine
+
+
+# ── a caller that only asks a GPU's Ollama ──
+
+_call_locks = {g: threading.Lock() for g in GPUS}
+
+
+def ollama_call(gpu, model, path, body, owner, wait_s=600.0, timeout=300):
+    """One request to GPU `gpu`'s Ollama for a caller that loads nothing itself (the watchdog, the morning brief, the
+    stage broadcast, the website): law L-r, every GPU has one owner at a time. One call per GPU per process at a time
+    (an in-process lock: the website serves several threads); GPU `gpu`'s lease is taken, waiting up to wait_s for its
+    holder to leave (the word-pass worker leaves between batches); swap_to proves the memory free and waits a foreign
+    user out (then a Gpu0Foreign naming it); the request runs with keep_alive 0; the model is confirmed gone from that
+    Ollama before the lease is released, so the GPU is left as found. Nothing of this process on another GPU is
+    touched. Returns the reply's JSON; raises a Gpu0Stop (LeaseBusy, Gpu0Foreign, Gpu0NotFree, ...) or the request's
+    own error."""
+    key = f"ollama:{model}"
+    with _on(gpu):
+        if not _call_locks[gpu].acquire(timeout=max(0.0, float(wait_s))):
+            raise LeaseBusy(f"{owner}: another call of this process has held GPU{gpu} for longer than {wait_s}s")
+        try:
+            with lease(owner, wait_s=wait_s, poll_s=1.0):
+                swap_to(key, wait_s=min(WAIT_S, float(wait_s)))          # the caller's bound covers the memory wait too
+                try:
+                    return _ollama(path, dict(body, model=model, keep_alive=0), timeout=timeout)
+                finally:
+                    ollama_settle(model)
+                    mine = [n for n in ollama_loaded() if n in _ours()]
+                    if mine:
+                        _ollama_unload(mine)                     # keep_alive 0 asked; this confirms it on /api/ps
+        finally:
+            _call_locks[gpu].release()
 
 
 # ── out of memory ──
@@ -739,11 +854,13 @@ def model(key, build):
 # ── evidence ──
 
 class PeakSampler:
-    """GPU0 memory.used sampled every interval_s on a daemon thread; the peak per label (run_fresh: the stage). A sampled
-    maximum: a lower bound of the true peak (transients shorter than the interval are missed)."""
+    """memory.used of EVERY GPU sampled every interval_s on a daemon thread; the peak per label (run_fresh: the stage)
+    per GPU (peaks_by_gpu) and for this run's own GPU (peaks). A sampled maximum: a lower bound of the true peak
+    (transients shorter than the interval are missed)."""
 
     def __init__(self, interval_s=1.0):
         self.interval_s, self.label, self.peaks, self.errors = interval_s, None, {}, 0
+        self.peaks_by_gpu = {g: {} for g in GPUS}       # every GPU's (REPORT.md's per-GPU table); peaks = this run's GPU
         self._stop = threading.Event()
         self._thread = threading.Thread(target=self._run, daemon=True)
 
@@ -757,13 +874,19 @@ class PeakSampler:
 
     def _sample(self):
         label = self.label                       # read before the measurement: a sample never crosses a stage edge
-        try:
-            used, _ = memory()
-        except Gpu0Stop:
-            self.errors += 1
-            return
-        if label is not None and self.label == label:
-            self.peaks[label] = max(self.peaks.get(label, 0), used)
+        mine = current_gpu()
+        for g in GPUS:
+            try:
+                with _on(g):
+                    used, _ = memory()
+            except Gpu0Stop:
+                self.errors += 1
+                continue
+            if label is not None and self.label == label:
+                by = self.peaks_by_gpu[g]
+                by[label] = max(by.get(label, 0), used)
+                if g == mine:
+                    self.peaks[label] = max(self.peaks.get(label, 0), used)
 
     def _run(self):
         while not self._stop.wait(self.interval_s):

@@ -70,7 +70,7 @@ class TestLease(Box):
         with gpu0.lease("test"):
             gpu0.require("a load")
             with mock.patch.dict(os.environ, {"CUDA_VISIBLE_DEVICES": "0,1"}):
-                with self.assertRaisesRegex(gpu0.LeaseMissing, "GPU1 is quarantined"):
+                with self.assertRaisesRegex(gpu0.LeaseMissing, "one GPU per process"):
                     gpu0.require("a load")
         self.assertFalse(gpu0.held())
 

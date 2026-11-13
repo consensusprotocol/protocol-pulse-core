@@ -3,7 +3,9 @@
                                    it is refused (gpu0.require), and a CUDA context of it on GPU0 stops the session
   '0'                              a GPU session, GPU0 only: holds the GPU0 lease for the whole session, or stops at
                                    once with exit 75 naming the holder (a run or another session has GPU0)
-  anything else ('0,1', '1', ...)  refused (exit 2): GPU1 is quarantined"""
+  '1'                              a GPU session, GPU1 only: the same with the GPU1 lease (law L-r: every GPU has
+                                   one owner at a time)
+  anything else ('0,1', ...)       refused (exit 2): one GPU per session"""
 import os
 import sys
 
@@ -19,20 +21,23 @@ if _CPU:
     os.environ["CUDA_VISIBLE_DEVICES"] = ""            # unset would show every GPU to the libraries: hide them all
     # and a private lease file: code under test that enters gpu0.lease() (preflight.main, replay) never takes or blocks
     # the production GPU0 lease from a CPU session (Nov 12: test_preflight briefly held /tmp/pulse_gpu0.lease)
-    os.environ["PP_GPU0_LEASE"] = os.path.join(tempfile.mkdtemp(prefix="pp_cpu_session_"), "gpu0.lease")
+    _private = tempfile.mkdtemp(prefix="pp_cpu_session_")
+    os.environ["PP_GPU0_LEASE"] = os.path.join(_private, "gpu0.lease")
+    os.environ["PP_GPU1_LEASE"] = os.path.join(_private, "gpu1.lease")   # neither real lease, GPU1's included
 
 
 def pytest_configure(config):
     if _CPU:
         return
-    if _CVD != "0":
-        pytest.exit(f"CUDA_VISIBLE_DEVICES={_CVD!r}: test sessions run on GPU0 only ('0', or '' for CPU)", returncode=2)
+    if _CVD not in ("0", "1"):
+        pytest.exit(f"CUDA_VISIBLE_DEVICES={_CVD!r}: a test session runs on ONE GPU ('0' or '1', or '' for CPU)",
+                    returncode=2)
     import gpu0
     cm = gpu0.lease(f"pytest session (pid {os.getpid()})")
     try:
         cm.__enter__()
     except gpu0.LeaseBusy as e:
-        pytest.exit(f"GPU0 is busy, no GPU test session now: {e}", returncode=75)
+        pytest.exit(f"GPU{gpu0.current_gpu()} is busy, no GPU test session now: {e}", returncode=75)
     _LEASE.append(cm)
 
 
