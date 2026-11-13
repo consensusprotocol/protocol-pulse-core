@@ -1,4 +1,28 @@
-NO PIN YET (06:25 ET). The 05:48 and 06:18 builds (code 1d928276) gave no package. The next build gets 45 + 44 (step A from both vendors before the angles; a failed re-screen swaps out one clip) and the item-42 cut fix, each after its 2-cycle audit. The answers owed (42, 43, 46) are directly below.
+BLOCKED ON SPEND (06:36 ET): every build now fails step A with SpendLimit. The builder's own cap on this order's ledger ($40 by the price-table estimate, set at 20:30 Nov 12 when no budget was stated) is reached: $39.49 estimate, which is $3.46 vendor-reported (+ $0.29 STT estimate). YOUR RULING: a running total for these builds (see the first section below). Meanwhile 45 + 44 and the item-42 cut fix are built and go through their audits.
+
+## 06:36 ET: BLOCKED ON SPEND: the 06:31 build failed step A on the builder's own cap; your ruling is needed
+
+- **What happened:** the 06:31 build (ledger_20261113_113101, code 1d928276) screened 24 moments at step A. 16 got
+  "STEP_A_UNAVAILABLE: SpendLimit" and 4 failed REFERENT_OUTSIDE. 4 cleared; 2 of them passed L-v 2 + CUTTABLE, from
+  fewer than 3 channels: no package.
+- **The guard:** tests/package/proof_ly.py LY_LIMIT_USD = 40.0, by the price-table ESTIMATE (an upper bound). I set
+  it at 20:30 Nov 12 because no budget was stated (STATE said so then). Every paid call also reserves its upper bound
+  while in flight.
+- **This order's ledger (tests/package/proof/SPEND_LY.json), by back-end:**
+  | back-end | calls | estimate | vendor-reported |
+  |---|---|---|---|
+  | xai grok-4.20 | 228 | $30.11 | $3.34 |
+  | heimdall deepseek | 70 | $7.87 | $0.09 |
+  | heimdall qwen | 6 | $1.23 | $0.03 |
+  | elevenlabs scribe (STT) | 98 | $0.29 | none (estimate only) |
+  | **total** | 402 | **$39.49** | **$3.46** (+ $0.29 STT estimate) |
+- **Your budgets since then are per build and per package, in vendor-reported dollars:** ruling 41, $3.00 reported
+  per build ($10 estimate ceiling); ruling 5, $1.50 per package ($5 estimate). build() enforces both. No running total
+  was ever ordered; mine is the only one, and it binds now.
+- **Proposal (yours to rule):** raise this order's cap to $60 by the estimate (about $2 more vendor-reported, at the
+  measured ratio of about 1/11), or name a running total in vendor-reported dollars and I re-base the guard on it.
+  Until you rule, no build can pass step A, and I change nothing about the cap.
+
 
 ## 06:25 ET: order 06:22: the answers owed (42, 43, 46) and the plan for 45 / 44
 

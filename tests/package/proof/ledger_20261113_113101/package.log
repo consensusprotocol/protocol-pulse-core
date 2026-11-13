@@ -1,0 +1,9 @@
+=== 06:31:01 EST LEDGER medley build, code ef6e3dc7, now (render clock) 2026-11-13T11:31:01+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 24.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00), moments-ledger_20261113_073738-d2657bbe (2026-11-13T07:53:42+00:00); 12 clip spans out
+  adapter: 502 rows ({"altcoin or not about Bitcoin": 27, "hard exclusion flag (L-u)": 114, "speaker change inside (caption marker)": 22})
+  word pass: {"rows": 1318, "unreadable": 0, "ready": 845, "not_ready": 143, "failed": 142, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 502: 308 moments on 21 videos (308 word records); 0 rows wait for a word record, 78 wait for their own window, 80 do not re-anchor, 0 malformed, 36 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 424 window record(s) used (0 video(s) without a caption record for L-s)
+  173 usable, 113 of them left out by the render's STAND_ALONE (an opener the clip scorer would have to affirm, or no place under the topic rule with the pin's screen), 1 on an ad-read marker (the exclusion screen's deterministic part), 4 cleared step A (7 s)
+  2 of them pass the second recognition pass and CUTTABLE (8 s)
+  2 of them can open a medley (G17a at the pin stage: genuine quiet before the first onset)
+no package (2 cleared moments pass the second pass and CUTTABLE, from fewer than 3 channels); usable 173, cleared 4
