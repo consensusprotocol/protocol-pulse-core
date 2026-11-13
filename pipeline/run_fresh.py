@@ -810,6 +810,8 @@ def stage_prepare(run, cuts):
         if ok1 and ok2:                         # V1 (run 6): no frame of a neighbouring shot outside the speech
             import shot_snap
             snap = shot_snap.apply(clip, c, FPS, NVENC_QP_INTERMEDIATE)
+            if snap.get("refused"):             # ruling 71: a snap that cannot keep the required quiet
+                raise Hold(f"{c['clip_id']}: shot snap refused (ruling 71): {snap['refused']}")
             if snap["snapped"]:
                 print(f"  {c['clip_id']}: shot snap: {snap['why']}")
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
