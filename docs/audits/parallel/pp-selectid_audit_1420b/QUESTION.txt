@@ -1,0 +1,34 @@
+You are auditing an INCREMENT on branch pp-selectid: the consensus fixes from audit 1420's cycle 2, applied to ruling
+66's standing part (the candidate registry, pipeline/candidates.py, and the build driver tests/package/proof_ledger.py).
+Only state what you can verify from the diff; if uncertain, say so; do not guess.
+
+Background: candidates.due(reg, now) lists the candidates to try newest first. candidates.run_due tries them inside the
+build's 8 JUDGED line-ups (a verdict served from its recording is free: ruling 66 at 14:02, "recorded verdicts free"),
+stopping at the first package; try_one(entry, fresh, left) -> (out, class, why, judged). The driver
+(proof_ledger.main) reads and seeds the registry before anything is written, tries the due candidates, then the
+normal build with the line-ups left, writes package.json, then seeds the registry from its own record and saves it.
+
+The increment (the cycle-2 consensus of audit 1420):
+F1 (grok P2, qwen P1): due() sorted by the found_at STRING; ISO strings with different offsets do not sort by time.
+   Now: by _at(found_at) (a zoneless time is UTC), and a missing one is the oldest (datetime.min, UTC). A malformed
+   found_at now raises in due(), which the driver already evaluates in its refusal block (exit 2, nothing written).
+F2 (grok P1 "mechanically enforced", qwen P1 "validate judged"): run_due trusted try_one's judged count. Now an
+   out-of-range count (< 0 or > the line-ups left) charges every line-up left, so the 8 are never exceeded, and the
+   try's why says so. (Grok's other proposal, charging 1 for every cached candidate, is not taken: the ruling makes
+   recorded verdicts free.)
+F3 (glm P1-2, qwen P2-NEW-2): a failure around the registry could lose a paid build's record, and a candidate build
+   that raised crashed the driver. Now:
+   - try_one catches an exception from package.build: no outcome ("budget": the candidate stays as it was), and
+     every judged line-up left is charged (what it spent is unknown: no further search).
+   - With no line-up left and no try's out, the record is a minimal no-package dict.
+   - The --from-candidate outcome, the record's seeding and the registry save all run AFTER package.json is written,
+     in one guarded block: a failure there is logged and the record stands.
+F4 (grok C1 P2, glm C2 P2): the --from-candidate record lacked candidate_tries; it now has one entry.
+Tests: test_candidates 8 (new: time sort across offsets, and a missing time; an out-of-range judged count charges all).
+All 13 suites OK.
+
+Check in particular: that F1 really orders by time and that a malformed time still refuses before anything is written;
+that F2 can never let the candidates plus the angle build exceed 8 judged line-ups; that F3 never closes or rests a
+candidate on a crash, never loses package.json, and that the driver cannot crash on the new paths; F4's record shape.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

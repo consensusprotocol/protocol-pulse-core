@@ -2042,7 +2042,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     RULING 66, A PASSED LINE-UP IS KEPT: candidate (load_candidate) tries ONLY that line-up, after the same pool stages:
     no angle is asked for (its own angle and back-end), its clips must still form it (candidate_lineup), and it is
     judged and written with its own seeds, so its recorded calls are served from their recordings; it is never
-    re-lined or swapped (a failing gate closes it: out["candidate"]).
+    re-lined or swapped (a failing gate closes it: out["candidate"]). Its outcome class (candidates.outcome) is
+    out["candidate"]["class"]: "package", "clip" (closed for good), "line" (its clips passed, a line failed) or
+    "budget". candidate["write_seed"] (ruling 66 at 14:02: a candidate's one more try "with fresh writes") is added to
+    every write's seed, so no recorded write is served again; 0 (the default) keeps the recorded ones.
     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
     t0 = time.time()
     usd0 = _spent(spend)
@@ -2177,8 +2180,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     if candidate is not None:                         # RULING 66 (13:18): A PASSED LINE-UP IS KEPT: its own angle and
         cand_segs, why_c = candidate_lineup(router, candidate, cleared, ctx.now)   # line-up; no angle is asked for
         out["candidate"] = {"source": candidate.get("source"), "index": candidate.get("index"),
-                            "lineup": list(candidate["lineup"]), "closed": why_c}
+                            "lineup": list(candidate["lineup"]), "closed": why_c,
+                            "fresh": bool(candidate.get("write_seed"))}
         if why_c is not None:
+            out["candidate"].update(result=why_c, **{"class": "clip"})
             out["why_none"] = f"ruling 66: the candidate is closed: {why_c}"
             log(f"  {out['why_none']}")
             return out
@@ -2374,6 +2379,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
         return pk
 
+    wseed = int((candidate or {}).get("write_seed") or 0)  # ruling 66 (14:02): a candidate's fresh writes
     total = 0                                             # ruling 41: line-ups judged in this build, over every angle
     judged, bad_pairs, spins = {}, set(), 0               # 12:00: verdicts by line-up; ruling 63's unfollowable pairs
     with ThreadPoolExecutor(max_workers=8) as pool:
@@ -2491,12 +2497,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         break
                     w_over = package_over(line)
                     if w_over:
-                        rec["why"] = w_over
+                        rec["why"], rec["budget"] = w_over, True      # ruling 66: a budget, not an outcome
                         break
                     w_used += 1
                     try:
                         wr, fields = write_takeaway(router, angle, segs, ctx, a_by, join, extra,
-                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup,
+                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup + wseed,
                                                     avoid_vendor=writer_avoid or None, other=written)
                     except NoBridgeFits as e:                  # the seconds rule it out: re-line, no write is paid
                         if join is not None:
@@ -2602,7 +2608,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         pk, fid, cx, cheap_t, rw = rewrite_alone(
                             router, slot, pk, fields, fid, [v for v in cheap + fid["violations"]], angle, segs, cleared,
                             ctx, a_by, sources, levels, writers_v, writers_f, writer_avoid or None,
-                            seed=7 + w_used + 10 * ai + 100 * n_lineup)
+                            seed=7 + w_used + 10 * ai + 100 * n_lineup + wseed)
                         att["rewrite"] = rw
                         cheap, det, dup, rt_ok, r4_res = cheap_t
                         log(f"    the {slot} alone (ruling 65): " + ("PASS" if rw.get("passed") else
@@ -2669,6 +2675,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     out["packages"].append(pk)
                     rec["result"] = "PACKAGE"
                     break
+                rec["relined"] = relined                    # ruling 66: a clip was dropped (or a line-up rule)
                 if not out["packages"] and not relined and ok_m and not med["flagged"] and \
                         take_failed >= NO_VOICE_AFTER and last_fields is not None and not out.get("budget_stop"):
                     nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup)
@@ -2687,6 +2694,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     if candidate is not None:                             # RULING 66: what became of the candidate
         t_ = next((t for t in out["tried"] if t.get("candidate") is not None), {})
         out["candidate"]["result"] = t_.get("result") or t_.get("why") or out.get("why_none") or "not tried"
+        out["candidate"]["class"] = (                     # candidates.outcome reads it
+            "package" if out["packages"] else
+            "budget" if not t_ or out.get("budget_stop") or t_.get("budget") else
+            "line" if t_.get("medley_ok") and t_.get("attempts") and not t_.get("relined") else "clip")
     s_est, s_rep = (a - b for a, b in zip(_spent(spend), usd0))
     out["search"] = {"lineups": total, "limit": lineups, "usd_reported": round(s_rep, 4),
                      "usd_estimate": round(s_est, 4), "seconds": round(time.time() - t0, 1)}

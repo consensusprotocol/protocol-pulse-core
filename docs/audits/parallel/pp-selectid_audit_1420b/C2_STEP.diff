@@ -1,0 +1,168 @@
+diff --git a/pipeline/candidates.py b/pipeline/candidates.py
+index 36640fc..d89ed67 100644
+--- a/pipeline/candidates.py
++++ b/pipeline/candidates.py
+@@ -97,7 +97,9 @@ def due(reg, now):
+             out.append((k, e, False))
+         elif e["state"] == "resting" and e.get("until") and _at(e["until"]) <= now:
+             out.append((k, e, True))
+-    return sorted(out, key=lambda x: (str(x[1].get("found_at") or ""), x[1]["source"], x[1]["index"]), reverse=True)
++    old = datetime.min.replace(tzinfo=timezone.utc)             # no time: the oldest (audit 1420 C2: by time)
++    return sorted(out, key=lambda x: (_at(x[1]["found_at"]) if x[1].get("found_at") else old, x[1]["source"],
++                                      x[1]["index"]), reverse=True)
+ 
+ 
+ def run_due(reg, now, try_one, lineups, build=""):
+@@ -111,11 +113,13 @@ def run_due(reg, now, try_one, lineups, build=""):
+         if fresh:
+             e["fresh_used"], e["trying_fresh"] = True, True
+         out, cls, why, judged = try_one(e, fresh, lineups)
+-        lineups -= int(judged or 0)
++        judged = int(judged or 0)
++        if not 0 <= judged <= lineups:                            # audit 1420 C2: never past the judged line-ups
++            why, judged = f"{why} (it reported {judged} judged line-ups of {lineups} left: all are charged)", lineups
++        lineups -= judged
+         outcome(e, cls, now.isoformat(), build, why)
+         tries.append({"key": k, "source": e["source"], "index": e["index"], "fresh": fresh, "class": cls,
+-                      "why": str(why or "")[:300], "judged": int(judged or 0), "state": e["state"],
+-                      "until": e["until"]})
++                      "why": str(why or "")[:300], "judged": judged, "state": e["state"], "until": e["until"]})
+         if cls == "package":
+             return out, tries, lineups
+     return None, tries, lineups
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 0b0f059..91fd2a7 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -177,9 +177,10 @@ def main(argv=None):
+     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
+     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
+         res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)
+-        k = CA.key(cand["lineup"])
+-        if k in reg["candidates"]:
+-            CA.outcome(reg["candidates"][k], res["candidate"]["class"], at, name, res["candidate"].get("result"))
++        res["candidate_tries"] = [{"key": CA.key(cand["lineup"]), "source": cand["source"], "index": cand["index"],
++                                   "fresh": bool(cand.get("write_seed")), "class": res["candidate"]["class"],
++                                   "why": str(res["candidate"].get("result") or "")[:300],
++                                   "judged": (res.get("search") or {}).get("lineups", 0)}]   # audit 1420 C2
+     else:                                                # RULING 66 (14:02): the due candidates first, newest first
+         last = {}
+ 
+@@ -193,7 +194,12 @@ def main(argv=None):
+                 c["write_seed"] = CA.FRESH_SEED          # "then may be tried once more with fresh writes"
+             say(f"  RULING 66: the candidate {e['source']} tried[{e['index']}] {e['lineup']}" +
+                 (" with fresh writes" if fresh else "") + f", {left} judged line-up(s) left")
+-            o = PK.build(router, moments, sources, ctx, candidate=c, lineups=left, **kw)
++            try:
++                o = PK.build(router, moments, sources, ctx, candidate=c, lineups=left, **kw)
++            except Exception as ex:                  # noqa: BLE001  audit 1420 C2: a build that raised is no outcome;
++                say(f"  RULING 66: its build raised ({type(ex).__name__}: {str(ex)[:200]}): it stays as it was, and "
++                    f"every judged line-up left is charged")              # what it spent is unknown: no more search
++                return None, "budget", f"its build raised {type(ex).__name__}: {str(ex)[:200]}", left
+             last["out"] = o
+             return o, o["candidate"]["class"], o["candidate"].get("result"), (o.get("search") or {}).get("lineups", 0)
+         res, tries, left = CA.run_due(reg, now, try_one, PK.LINEUPS_PER_BUILD, build=name)
+@@ -203,7 +209,7 @@ def main(argv=None):
+         if res is None and left > 0:
+             res = PK.build(router, moments, sources, ctx, lineups=left, **kw)
+         elif res is None:                                # every judged line-up went to candidates: no angle asked
+-            res = dict(last["out"], package=None, packages=[],
++            res = dict(last.get("out") or {"usable": None, "prescreen": {}, "tried": []}, package=None, packages=[],
+                        why_none="ruling 66: the 8 judged line-ups were spent on candidates; no angle asked")
+         res["candidate_tries"] = tries
+     res["registry"] = True                               # its outcomes are in the registry already (CA.seed)
+@@ -234,10 +240,17 @@ def main(argv=None):
+         f"vendor-reported after this build (before it: ${spent0:.2f})")
+     with open(os.path.join(out_dir, "package.json"), "w") as f:
+         json.dump(res, f, indent=1, default=str)
+-    CA.seed(reg, json.loads(json.dumps(res, default=str)), name)   # this build's passed line-ups join the registry
+-    with open(REGISTRY + ".tmp", "w") as f:
+-        json.dump(reg, f, indent=1)
+-    os.replace(REGISTRY + ".tmp", REGISTRY)
++    try:                                                 # audit 1420 C2: a registry failure never loses the record
++        if cand is not None and CA.key(cand["lineup"]) in reg["candidates"]:
++            CA.outcome(reg["candidates"][CA.key(cand["lineup"])], res["candidate"]["class"], at, name,
++                       res["candidate"].get("result"))
++        CA.seed(reg, json.loads(json.dumps(res, default=str)), name)   # this build's passed line-ups join it
++        with open(REGISTRY + ".tmp", "w") as f:
++            json.dump(reg, f, indent=1)
++        os.replace(REGISTRY + ".tmp", REGISTRY)
++    except Exception as e:                               # noqa: BLE001
++        say(f"  RULING 66: the candidate registry was NOT saved ({type(e).__name__}: {str(e)[:200]}); the record "
++            f"(package.json) is written")
+     logf.close()
+     return 0
+ 
+diff --git a/tests/package/test_candidates.py b/tests/package/test_candidates.py
+index 810a3bc..14bcc8b 100644
+--- a/tests/package/test_candidates.py
++++ b/tests/package/test_candidates.py
+@@ -63,6 +63,22 @@ class TestRegistry(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             CA.outcome(e2, "maybe", T0.isoformat(), "b")
+ 
++    def test_due_sorts_by_time_not_by_text(self):
++        reg = CA.new_registry()
++        CA.seed(reg, record(T0, [t(["a", "b", "c"])]), "utc")                              # 19:00Z
++        CA.seed(reg, dict(record(T0, [t(["d", "e", "f"])]), now="2026-11-13T14:30:00-05:00"), "et")   # 19:30Z
++        CA.seed(reg, dict(record(T0, [t(["g", "h", "i"])]), now=None), "none")             # no time: the oldest
++        self.assertEqual([k for k, _, _ in CA.due(reg, T0)], ["d+e+f", "a+b+c", "g+h+i"])
++
++    def test_a_found_at_without_a_zone_is_utc_and_a_malformed_one_raises(self):
++        reg = CA.new_registry()
++        CA.seed(reg, dict(record(T0, [t(["a", "b", "c"])]), now="2026-11-13T20:00:00"), "zoneless")   # 20:00 UTC
++        CA.seed(reg, record(T0, [t(["d", "e", "f"])]), "utc")                                          # 19:00 UTC
++        self.assertEqual([k for k, _, _ in CA.due(reg, T0)], ["a+b+c", "d+e+f"])
++        reg["candidates"]["a+b+c"]["found_at"] = "tomorrow"
++        with self.assertRaises(ValueError):
++            CA.due(reg, T0)
++
+     def test_due_is_newest_first_and_a_rested_one_gets_fresh_writes(self):
+         reg = CA.new_registry()
+         CA.seed(reg, record(T0, [t(["a", "b", "c"])]), "old")
+@@ -101,6 +117,9 @@ class TestRegistry(unittest.TestCase):
+         self.assertEqual(reg["candidates"]["a+b+c"]["state"], "open")                    # never reached: still open
+         out, tries, left = CA.run_due(reg, T0 + timedelta(hours=3), lambda e, f, l: (None, "budget", "", 0), 0)
+         self.assertEqual((out, tries, left), (None, [], 0))                              # no line-up left: no try
++        out, tries, left = CA.run_due(reg, T0 + timedelta(hours=3), lambda e, f, l: (None, "budget", "w", 99), 8)
++        self.assertEqual((left, tries[0]["judged"]), (0, 8))                             # out of range: all charged
++        self.assertIn("all are charged", tries[0]["why"])
+ 
+     def test_the_fresh_try_is_marked_and_a_line_failing_it_closes(self):
+         reg = CA.new_registry()
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index f2b6bbc..076c82d 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -714,6 +714,31 @@ class TestDriverRefuses(unittest.TestCase):
+             self.assertIn("nostart.json", str(cm.exception))
+         self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_")), before)
+ 
++    def test_a_malformed_candidate_registry_refuses_the_run_before_anything_is_written(self):
++        """Ruling 66 (audit 1420b C1: grok, qwen, glm): the registry is read, seeded and its times read (CA.due) in
++        the refusal block: a malformed stored time refuses the run (exit 2) and nothing is written."""
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        pins = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
++                                                                                 "MOMENTS_PIN_LY.json")]
++        proof = os.path.join(HERE, "proof")
++        before = sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json")
++        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()) as err:
++            reg = os.path.join(d, "CANDIDATES.json")
++            with open(reg, "w") as f:
++                json.dump({"records": [], "candidates": {"x+y+z": {
++                    "lineup": ["x", "y", "z"], "source": "r", "index": 0, "found_at": "tomorrow", "state": "open",
++                    "until": None, "fresh_used": False, "history": []}}}, f)
++            with open(reg) as f:
++                was = f.read()
++            with mock.patch.object(PLG, "REGISTRY", reg):
++                self.assertEqual(PLG.main(["--delivered", *pins]), 2)
++            self.assertIn("registry", err.getvalue())
++            with open(reg) as f:
++                self.assertEqual(f.read(), was)                                     # never rewritten
++        self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json"),
++                         before)
++
+     def test_a_moment_overlapping_any_delivered_span_is_out_whatever_the_pins_age(self):
+         """Audit 2315 C3 K7 (grok, glm): the adapter's delivered_ids (ledger moment ids, 24 h) stay empty: tonight's
+         pins carry no ledger id. L-p is carried by package.usable, which drops any moment that overlaps a delivered

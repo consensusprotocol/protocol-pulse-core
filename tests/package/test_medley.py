@@ -1670,6 +1670,26 @@ class TestRuling66Candidate(unittest.TestCase):
         self.assertEqual(out["tried"][0]["why"], "ruling 66: the candidate fails its clips-alone verdict now: closed")
         self.assertEqual(out["candidate"]["result"], out["tried"][0]["why"])
 
+    def test_the_outcome_class_and_the_fresh_writes(self):
+        """14:02: the class candidates.outcome reads: "package"; "clip" (closed before any call, or its clips-alone
+        verdict fails now); "line" (its clips pass, its writes fail). write_seed shifts every write's seed."""
+        c = PK.load_candidate(self.record(), source="r")
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c).run()
+        self.assertEqual(out["candidate"]["class"], "package")
+        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], uncuttable={"y"}, candidate=c).run()
+        self.assertEqual((out["candidate"]["class"], out["candidate"]["result"][:16]), ("clip", "no longer cleare"))
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(False, [], {"clip_02": 2}, Rig.LINE)], [], candidate=c).run()
+        self.assertEqual(out["candidate"]["class"], "clip")
+        bad = dict(TestRuling65Caption.OK, ok=False, violations=[{"slot": "takeaway", "rule": "VERDICT_NO",
+                                                                    "detail": "x"}])
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None, None], fids=[bad, bad],
+                  candidate=dict(c, write_seed=1000))
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertEqual((out["candidate"]["class"], out["candidate"]["fresh"]), ("line", True))
+        self.assertEqual(rig.seeds, [("medley", 8), ("write", 1108), ("write", 1109)])   # fresh writes, the verdict
+                                                                                          # still its recorded seed
+
     def test_exactly_its_clips_never_a_subset(self):
         ms = [pm("h", "A", 13.0), pm("x", "B", 13.0), pm("y", "C", 13.0), pm("z", "D", 11.0)]
         rec = self.record(tried=[{"angle": 1, "text": self.TEXT, "lineup": ["h", "x", "y", "z"],

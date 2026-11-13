@@ -1,0 +1,105 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse: the builder of medley packages and sealed pins).
+Your role: a strict reviewer of the build driver's selection logic. Only state what you can verify from the diff; if
+uncertain, say so; do not guess.
+
+Background (static):
+- package.build() screens the pool (cached step A, the clip scorer's verdicts, L-v 2 and CUTTABLE, G17a, hook ratings,
+  the second vendor), then asks a writer model for ANGLES. It judges line-ups on the clips ALONE (medley(); a budget of
+  8 JUDGED line-ups per build, where a verdict served from its recording is free), writes and gates the passing ones,
+  and returns a package or why none.
+- The router serves a recorded reply to byte-identical bytes (role, back-end, prompt, max_tokens, seed) as
+  cached=True, free and deliverable.
+- Ruling 66's first part (audited and committed, 912370bf):
+  - package.load_candidate(record, index) rebuilds a tried line-up that passed the clips-alone verdict from an
+    earlier build's record (package.json): its angle and the angle's back-end, its clips in order, and its seeds
+    (ai, n_lineup).
+  - build(candidate=...) then tries ONLY that line-up, after the same pool stages, with its own seeds, so its recorded
+    calls are served. It closes the candidate (out["candidate"]) when a clip left the pool, the hook no longer opens,
+    exactly its clips no longer form a line-up, or its clips-alone verdict fails now.
+  - proof_ledger --from-candidate BUILD_DIR[:N] runs it.
+
+The ruling this diff implements (ORCHESTRATOR, verbatim):
+13:18: "66. A PASSED LINE-UP IS KEPT. Any line-up that passes the clips-alone verdict is recorded as a CANDIDATE
+(clips, order, the verdict, the gated takeaway and title if written) and stays a candidate until one of its clips is
+delivered, ages out, or fails a gate. Every build first tries the open candidates, newest first, before asking for new
+angles."
+14:02, answering my question: "66, YOUR QUESTION: a candidate whose clips still pass but whose LINE fails again (the
+takeaway, or the title after ruling 65's extra write) is CLOSED for 6 hours, then may be tried once more with fresh
+writes; it is closed for good when a clip is delivered, ages out or fails a gate. Open candidates are tried newest
+first inside the 8 judged line-ups, recorded verdicts free, before any angle is asked. Build it after the re-seal is
+out."
+
+The change:
+1. pipeline/candidates.py (new, pure functions; the driver does the file I/O). The registry is {"records": [build
+   dirs seeded], "candidates": {"id+id+id": entry}}.
+   - seed(reg, record, source), once per record:
+     - every tried entry with medley_ok True, a list line-up, and no "candidate" flag (not itself a candidate's try)
+       becomes a candidate: one per line-up, from the earliest record;
+     - a line-up the record packaged is closed;
+     - a record written BEFORE the registry (no "registry" flag) applies the outcome of the candidate it tried
+       (out["candidate"]): "package" for a PACKAGE result, else its class, else "clip".
+   - outcome(entry, cls, at, build, why):
+     - "package" and "clip" -> closed;
+     - "line" -> resting until at + 6 h, or closed if its fresh try was already used;
+     - "budget" -> unchanged;
+     - any other class raises.
+   - due(reg, now), newest first by found_at: every open entry (fresh False), and every resting one whose 6 h are
+     over (fresh True).
+   - run_due(reg, now, try_one, lineups, build): tries the due candidates in that order while judged line-ups are
+     left (lineups -= judged), applies each outcome, and stops at the first "package". A fresh try sets fresh_used
+     first.
+2. package.build():
+   - out["candidate"]["class"] is "package" | "clip" (closed before any call, the verdict fails now, a clip dropped
+     or re-lined) | "line" (its clips passed, at least one write, not re-lined, no package) | "budget" (not tried,
+     budget_stop, or ruling 5's per-package budget, now marked rec["budget"]).
+   - rec["relined"] is recorded after the writes.
+   - candidate["write_seed"] (default 0) is added to every write's seed (write_takeaway, and ruling 65's
+     rewrite_alone): "fresh writes" seeds no recorded write used. The clips-alone verdict keeps its recorded seed.
+   - out["candidate"]["fresh"] records it.
+3. tests/package/proof_ledger.py:
+   - BEFORE anything is written (in the existing refusal block, exit 2 on failure), the registry
+     tests/package/proof/CANDIDATES.json is read (or started empty) and seeded from every
+     tests/package/proof/ledger_*/package.json.
+   - Then, without --from-candidate: CA.run_due with try_one = load_candidate from the entry's record. A record that
+     cannot rebuild it gives class "clip", with the reason and no build call. Otherwise
+     build(candidate=..., lineups=left), with write_seed = 1000 on a fresh try.
+   - If no candidate packages: the normal build (angles) with the judged line-ups left. With none left, no angle is
+     asked (why_none says so).
+   - With --from-candidate: that candidate alone, and its outcome is applied to the registry.
+   - The record gets candidate_tries and "registry": True.
+   - After package.json is written, the record is seeded (its new passed line-ups join), and the registry is saved
+     atomically (tmp + os.replace).
+4. Tests: test_candidates.py (6, new) and test_medley (+1: the class for package / clip / clip / line, and the fresh
+   seeds 1108 / 1109 with the verdict's seed 8). All 13 suites OK.
+
+Real data (read only): seeding the 38 build records gives 6 candidates.
+- Closed as packaged: 07:37's (pin d2657bbe) and 12:22's (the 18:33 PACKAGE, now rendering as 0c68b589).
+- Open: 10:48's, 09:22's, 08:39's and 04:05's.
+- load_candidate refuses all four open ones ("does not open on its angle's hook (ruling 59 c)": records made before
+  ruling 59), so a build closes them as "clip", with that reason, before any pool stage or paid call.
+
+Stated readings (say so if you read the ruling differently):
+- K1: "recorded as a CANDIDATE": the build record already holds everything (clips, order, verdict, writes).
+  - The registry indexes records and keeps each candidate's state.
+  - Seeding from all records makes every line-up that ever passed a candidate, including those from before the
+    registry.
+- K2: "fails a gate" closes it for good. That covers: a clip left the pool; its hook, line-up rules or clips-alone
+  verdict fail now; a clip is dropped (exclusion, L-v 2, CUTTABLE, step A re-screen); and it cannot be rebuilt as
+  judged (e.g. it does not open on its angle's own rated hook, ruling 59 c).
+- K3: "a LINE fails again": its clips passed now, and at least one write was made and failed its gates without a
+  re-line. The first try replays its recorded writes (free; ruling 65 may still rescue a caption or title). Its
+  6-hour retry writes with fresh seeds (write_seed 1000), and the clips-alone verdict keeps its recorded seed.
+- K4: "inside the 8 judged line-ups": the candidates and the angle build share one budget of 8 JUDGED line-ups.
+  Ruling 41's per-build $3 search budget applies inside each build() call; candidate tries are mostly served from
+  recordings.
+- K5: a candidate never reached (the budget ran out, or a package came first) stays as it was.
+
+Check in particular:
+- the 6-hour / one-fresh-try / closed-for-good state machine against the 14:02 text;
+- that no candidate is tried twice in one build, and none is re-added after closing;
+- that "line" can never be assigned to a clip-level failure, nor "clip" to a pure line failure;
+- the budget accounting across candidates and the angle build;
+- the driver's read-before-write and the atomic registry save;
+- that nothing changes for a build with no due candidate (the normal build, 8 line-ups, write_seed 0).
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

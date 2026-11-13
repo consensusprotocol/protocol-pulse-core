@@ -714,6 +714,31 @@ class TestDriverRefuses(unittest.TestCase):
             self.assertIn("nostart.json", str(cm.exception))
         self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_")), before)
 
+    def test_a_malformed_candidate_registry_refuses_the_run_before_anything_is_written(self):
+        """Ruling 66 (audit 1420b C1: grok, qwen, glm): the registry is read, seeded and its times read (CA.due) in
+        the refusal block: a malformed stored time refuses the run (exit 2) and nothing is written."""
+        sys.path.insert(0, HERE)
+        import proof_ledger as PLG
+        pins = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
+                                                                                 "MOMENTS_PIN_LY.json")]
+        proof = os.path.join(HERE, "proof")
+        before = sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json")
+        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()) as err:
+            reg = os.path.join(d, "CANDIDATES.json")
+            with open(reg, "w") as f:
+                json.dump({"records": [], "candidates": {"x+y+z": {
+                    "lineup": ["x", "y", "z"], "source": "r", "index": 0, "found_at": "tomorrow", "state": "open",
+                    "until": None, "fresh_used": False, "history": []}}}, f)
+            with open(reg) as f:
+                was = f.read()
+            with mock.patch.object(PLG, "REGISTRY", reg):
+                self.assertEqual(PLG.main(["--delivered", *pins]), 2)
+            self.assertIn("registry", err.getvalue())
+            with open(reg) as f:
+                self.assertEqual(f.read(), was)                                     # never rewritten
+        self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json"),
+                         before)
+
     def test_a_moment_overlapping_any_delivered_span_is_out_whatever_the_pins_age(self):
         """Audit 2315 C3 K7 (grok, glm): the adapter's delivered_ids (ledger moment ids, 24 h) stay empty: tonight's
         pins carry no ledger id. L-p is carried by package.usable, which drops any moment that overlaps a delivered

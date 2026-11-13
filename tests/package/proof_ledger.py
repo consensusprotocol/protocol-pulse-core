@@ -20,7 +20,11 @@
 Writes tests/package/proof/ledger_<UTC stamp, to the second>/ (a run never writes into an existing one): inputs.json,
 package.json, package.log, step_a.json and, on a package, MOMENTS_PIN_LEDGER.json.
 
-RULING 66 (13:18), A PASSED LINE-UP IS KEPT: --from-candidate BUILD_DIR[:N] tries ONLY the line-up that passed the
+RULING 66 (13:18; its standing part ruled 14:02), A PASSED LINE-UP IS KEPT: every build first tries the due
+candidates of the registry (tests/package/proof/CANDIDATES.json, seeded from the build records; pipeline/candidates.py),
+newest first, inside the 8 judged line-ups (a recorded verdict is free), each as package.build(candidate=...); only when
+none gives a package are angles asked, with the judged line-ups left. The registry is read (and seeded) before anything
+is written and saved after the record. --from-candidate BUILD_DIR[:N] tries ONLY the line-up that passed the
 clips-alone verdict in that earlier build's record (its tried[N]; default the first that passed), after the same pool
 stages: its own angle, play order and seeds (package.load_candidate), so its recorded calls are served from their
 recordings and only what is missing is paid for; never re-lined, swapped or a new angle.
@@ -31,6 +35,7 @@ Usage: python3 tests/package/proof_ledger.py --delivered PIN [PIN ...] [--since 
                        tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json
 """
 import argparse
+import glob
 import json
 import os
 import sys
@@ -44,6 +49,7 @@ sys.path.insert(0, os.path.join(REPO, "tests", "select_by_id"))
 sys.path.insert(0, os.path.join(REPO, "tests", "moments"))
 sys.path.insert(0, HERE)
 import eligibility as E  # noqa: E402
+import candidates as CA  # noqa: E402
 import ledger_build as LB  # noqa: E402
 import moments as M  # noqa: E402
 import package as PK  # noqa: E402
@@ -52,6 +58,9 @@ import proof_ly as PL  # noqa: E402
 import proof_saved_runs as PS  # noqa: E402
 import providers as P  # noqa: E402
 import speakers as SP  # noqa: E402
+
+REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
+
 
 def delivered_pins(paths):
     """The pins already delivered -> (every clip span {video_id, start, end, pin} for package.usable's overlap check,
@@ -108,9 +117,17 @@ def main(argv=None):
             with open(os.path.join(cdir, "package.json")) as f:
                 cand = PK.load_candidate(json.load(f), int(idx) if idx else None,
                                          source=os.path.relpath(os.path.abspath(cdir), REPO))
+        reg = CA.new_registry()                          # RULING 66: the candidates, seeded from every build record
+        if os.path.exists(REGISTRY):
+            with open(REGISTRY) as f:
+                reg = json.load(f)
+        for p in sorted(glob.glob(os.path.join(HERE, "proof", "ledger_*", "package.json"))):
+            with open(p) as f:
+                CA.seed(reg, json.load(f), os.path.relpath(os.path.dirname(p), REPO))
+        CA.due(reg, now)                                 # every stored time reads (audit 1420 C1), or exit 2
     except (OSError, ValueError, KeyError, TypeError) as e:
-        print(f"REFUSED: the delivered pins, 'since' or the candidate cannot be read ({type(e).__name__}: {e})",
-              file=sys.stderr)
+        print(f"REFUSED: the delivered pins, 'since', the candidate or the candidate registry cannot be read "
+              f"({type(e).__name__}: {e})", file=sys.stderr)
         return 2
     out_dir = os.path.join(HERE, "proof", f"ledger_{now.strftime('%Y%m%d_%H%M%S')}")
     try:
@@ -150,14 +167,51 @@ def main(argv=None):
         f"starts at ${PL.LY_STOP_USD:.2f})")
     own, used = PL.meter(router), PL.reply_meter(router)
     t0 = time.time()
-    res = PK.build(router, moments, sources, ctx, delivered=delivered, optout=M.optout_ids(), log=say,
-                   work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
-                   spend=lambda: (own["est"], own["best"]),
-                   step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
-                   hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
-                   scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
-                   scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir),
-                   candidate=cand)                                                     # ruling 66
+    kw = dict(delivered=delivered, optout=M.optout_ids(), log=say,
+              work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
+              spend=lambda: (own["est"], own["best"]),
+              step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
+              hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
+              scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
+              scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir))
+    name, at = os.path.relpath(out_dir, REPO), now.isoformat()
+    if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
+        res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)
+        res["candidate_tries"] = [{"key": CA.key(cand["lineup"]), "source": cand["source"], "index": cand["index"],
+                                   "fresh": bool(cand.get("write_seed")), "class": res["candidate"]["class"],
+                                   "why": str(res["candidate"].get("result") or "")[:300],
+                                   "judged": (res.get("search") or {}).get("lineups", 0)}]   # audit 1420 C2
+    else:                                                # RULING 66 (14:02): the due candidates first, newest first
+        last = {}
+
+        def try_one(e, fresh, left):
+            try:
+                with open(os.path.join(REPO, e["source"], "package.json")) as f:
+                    c = PK.load_candidate(json.load(f), e["index"], source=e["source"])
+            except (OSError, ValueError, KeyError, TypeError) as ex:
+                return None, "clip", f"it cannot be rebuilt from its record ({type(ex).__name__}: {ex})", 0
+            if fresh:
+                c["write_seed"] = CA.FRESH_SEED          # "then may be tried once more with fresh writes"
+            say(f"  RULING 66: the candidate {e['source']} tried[{e['index']}] {e['lineup']}" +
+                (" with fresh writes" if fresh else "") + f", {left} judged line-up(s) left")
+            try:
+                o = PK.build(router, moments, sources, ctx, candidate=c, lineups=left, **kw)
+            except Exception as ex:                  # noqa: BLE001  audit 1420 C2: a build that raised is no outcome;
+                say(f"  RULING 66: its build raised ({type(ex).__name__}: {str(ex)[:200]}): it stays as it was, and "
+                    f"every judged line-up left is charged")              # what it spent is unknown: no more search
+                return None, "budget", f"its build raised {type(ex).__name__}: {str(ex)[:200]}", left
+            last["out"] = o
+            return o, o["candidate"]["class"], o["candidate"].get("result"), (o.get("search") or {}).get("lineups", 0)
+        res, tries, left = CA.run_due(reg, now, try_one, PK.LINEUPS_PER_BUILD, build=name)
+        say(f"  RULING 66: {len(tries)} candidate(s) tried: " + "; ".join(
+            f"{t['source']}[{t['index']}] {t['class']} -> {t['state']}" for t in tries) if tries else
+            "  RULING 66: no candidate is due")
+        if res is None and left > 0:
+            res = PK.build(router, moments, sources, ctx, lineups=left, **kw)
+        elif res is None:                                # every judged line-up went to candidates: no angle asked
+            res = dict(last.get("out") or {"usable": None, "prescreen": {}, "tried": []}, package=None, packages=[],
+                       why_none="ruling 66: the 8 judged line-ups were spent on candidates; no angle asked")
+        res["candidate_tries"] = tries
     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
@@ -183,6 +237,19 @@ def main(argv=None):
                               "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
     say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${PL.LY_LIMIT_USD:.2f} "
         f"vendor-reported after this build (before it: ${spent0:.2f})")
+    try:                                                 # audit 1420 C2: a registry failure never loses the record;
+        if cand is not None and CA.key(cand["lineup"]) in reg["candidates"]:      # 1420b C2: its flag tells the truth
+            CA.outcome(reg["candidates"][CA.key(cand["lineup"])], res["candidate"]["class"], at, name,
+                       res["candidate"].get("result"))
+        CA.seed(reg, json.loads(json.dumps(dict(res, registry=True), default=str)), name)   # its passed line-ups
+        with open(REGISTRY + ".tmp", "w") as f:
+            json.dump(reg, f, indent=1)
+        os.replace(REGISTRY + ".tmp", REGISTRY)
+        res["registry"] = True                           # its outcomes are in the saved registry
+    except Exception as e:                               # noqa: BLE001
+        res["registry"], res["registry_error"] = False, f"{type(e).__name__}: {str(e)[:200]}"   # a later seed
+        say(f"  RULING 66: the candidate registry was NOT saved ({res['registry_error']}); the record (package.json) "
+            f"is written with registry false")           # applies this record's outcome (CA.seed)
     with open(os.path.join(out_dir, "package.json"), "w") as f:
         json.dump(res, f, indent=1, default=str)
     logf.close()

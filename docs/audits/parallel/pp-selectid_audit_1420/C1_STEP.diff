@@ -1,0 +1,473 @@
+diff --git a/pipeline/candidates.py b/pipeline/candidates.py
+new file mode 100644
+index 0000000..b1530ae
+--- /dev/null
++++ b/pipeline/candidates.py
+@@ -0,0 +1,118 @@
++"""RULING 66 (orchestrator 13:18 Nov 13; its standing part ruled 14:02): A PASSED LINE-UP IS KEPT.
++
++"Any line-up that passes the clips-alone verdict is recorded as a CANDIDATE (clips, order, the verdict, the gated
++takeaway and title if written) and stays a candidate until one of its clips is delivered, ages out, or fails a gate.
++Every build first tries the open candidates, newest first, before asking for new angles."
++14:02: "a candidate whose clips still pass but whose LINE fails again (the takeaway, or the title after ruling 65's
++extra write) is CLOSED for 6 hours, then may be tried once more with fresh writes; it is closed for good when a clip
++is delivered, ages out or fails a gate. Open candidates are tried newest first inside the 8 judged line-ups, recorded
++verdicts free, before any angle is asked."
++
++The registry ({"records": [build dirs seeded], "candidates": {key: entry}}) is seeded from the build records
++themselves (each build's package.json: its tried line-ups, their verdicts and writes), so a candidate is exactly a
++record's tried entry and package.load_candidate rebuilds it. A try's outcome class comes from package.build
++(out["candidate"]["class"]):
++  "package": it became a package (its clips go to a pin)        -> closed
++  "clip":    a clip left the pool or failed a gate, its clips-alone verdict failed now, or it could not be rebuilt
++             from its record                                     -> closed for good
++  "line":    its clips passed but a line failed again            -> resting 6 h, then ONE try with fresh writes;
++                                                                    a line failing that try too -> closed
++  "budget":  a budget stopped it before an outcome               -> as it was
++Pure functions; the driver (tests/package/proof_ledger.py) reads and writes the file."""
++from datetime import datetime, timedelta
++
++RESTING_H = 6.0                 # 14:02: "CLOSED for 6 hours, then may be tried once more with fresh writes"
++FRESH_SEED = 1000               # the writes of that one more try: seeds no recorded write used (package.build)
++
++
++def key(lineup):
++    return "+".join(lineup)
++
++
++def _at(s):
++    return datetime.fromisoformat(str(s).replace("Z", "+00:00"))
++
++
++def new_registry():
++    return {"records": [], "candidates": {}}
++
++
++def outcome(entry, cls, at, build, why=""):
++    """Record one try of a candidate and apply ruling 66's rule for its class."""
++    entry["history"].append({"build": build, "at": at, "class": cls, "fresh": bool(entry.get("trying_fresh")),
++                             "why": str(why or "")[:300]})
++    entry.pop("trying_fresh", None)
++    if cls in ("package", "clip"):
++        entry["state"], entry["until"] = "closed", None
++    elif cls == "line":
++        if entry.get("fresh_used"):
++            entry["state"], entry["until"] = "closed", None
++        else:
++            entry["state"], entry["until"] = "resting", (_at(at) + timedelta(hours=RESTING_H)).isoformat()
++    elif cls != "budget":
++        raise ValueError(f"unknown outcome class {cls!r}")
++
++
++def seed(reg, record, source):
++    """Seed the registry from one build record, once per record (reg["records"]). Every tried line-up that passed the
++    clips-alone verdict and is not itself a candidate's try becomes a candidate (one per line-up, the earliest record
++    that passed it). A line-up the record packaged is closed. A record written before the registry existed applies
++    the outcome of the candidate it tried (its out["candidate"]). -> the keys added."""
++    if source in reg["records"]:
++        return []
++    reg["records"].append(source)
++    added, at = [], record.get("now")
++    pk = record.get("package") or {}
++    packaged = [s.get("moment_id") for s in pk.get("segments") or []]
++    for i, t in enumerate(record.get("tried") or []):
++        lu = t.get("lineup")
++        if t.get("medley_ok") is not True or not isinstance(lu, list) or not lu or t.get("candidate") is not None:
++            continue
++        k = key(lu)
++        if k not in reg["candidates"]:
++            reg["candidates"][k] = {"lineup": list(lu), "source": source, "index": i, "found_at": at,
++                                    "state": "open", "until": None, "fresh_used": False, "history": []}
++            added.append(k)
++        if lu == packaged and reg["candidates"][k]["state"] != "closed":
++            outcome(reg["candidates"][k], "package", at, source, "packaged by the build that passed it")
++    c = record.get("candidate")
++    if c and not record.get("registry"):                # a try made before the registry: its outcome, once
++        k = key(c.get("lineup") or [])
++        if k in reg["candidates"] and reg["candidates"][k]["state"] != "closed":
++            res = str(c.get("result") or "")
++            cls = c.get("class") or ("package" if res.startswith("PACKAGE") else "clip")
++            outcome(reg["candidates"][k], cls, at, source, res or c.get("closed"))
++    return added
++
++
++def due(reg, now):
++    """The candidates to try now, newest first (by the time their line-up passed): every open one (its recorded
++    verdicts and writes, free), and every resting one whose 6 h are over (fresh writes). -> [(key, entry, fresh)]."""
++    out = []
++    for k, e in reg["candidates"].items():
++        if e["state"] == "open":
++            out.append((k, e, False))
++        elif e["state"] == "resting" and e.get("until") and _at(e["until"]) <= now:
++            out.append((k, e, True))
++    return sorted(out, key=lambda x: (str(x[1].get("found_at") or ""), x[1]["source"], x[1]["index"]), reverse=True)
++
++
++def run_due(reg, now, try_one, lineups, build=""):
++    """RULING 66: try the due candidates newest first, inside `lineups` judged line-ups (a recorded verdict is free), and
++    stop at the first package. try_one(entry, fresh, lineups_left) -> (out, cls, why, judged).
++    -> (the package's out or None, [one summary per try], the judged line-ups left)."""
++    tries = []
++    for k, e, fresh in due(reg, now):
++        if lineups <= 0:
++            break
++        if fresh:
++            e["fresh_used"], e["trying_fresh"] = True, True
++        out, cls, why, judged = try_one(e, fresh, lineups)
++        lineups -= int(judged or 0)
++        outcome(e, cls, now.isoformat(), build, why)
++        tries.append({"key": k, "source": e["source"], "index": e["index"], "fresh": fresh, "class": cls,
++                      "why": str(why or "")[:300], "judged": int(judged or 0), "state": e["state"],
++                      "until": e["until"]})
++        if cls == "package":
++            return out, tries, lineups
++    return None, tries, lineups
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 5f5b4b8..978628c 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -2042,7 +2042,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     RULING 66, A PASSED LINE-UP IS KEPT: candidate (load_candidate) tries ONLY that line-up, after the same pool stages:
+     no angle is asked for (its own angle and back-end), its clips must still form it (candidate_lineup), and it is
+     judged and written with its own seeds, so its recorded calls are served from their recordings; it is never
+-    re-lined or swapped (a failing gate closes it: out["candidate"]).
++    re-lined or swapped (a failing gate closes it: out["candidate"]). Its outcome class (candidates.outcome) is
++    out["candidate"]["class"]: "package", "clip" (closed for good), "line" (its clips passed, a line failed) or
++    "budget". candidate["write_seed"] (ruling 66 at 14:02: a candidate's one more try "with fresh writes") is added to
++    every write's seed, so no recorded write is served again; 0 (the default) keeps the recorded ones.
+     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
+     t0 = time.time()
+     usd0 = _spent(spend)
+@@ -2177,8 +2180,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     if candidate is not None:                         # RULING 66 (13:18): A PASSED LINE-UP IS KEPT: its own angle and
+         cand_segs, why_c = candidate_lineup(router, candidate, cleared, ctx.now)   # line-up; no angle is asked for
+         out["candidate"] = {"source": candidate.get("source"), "index": candidate.get("index"),
+-                            "lineup": list(candidate["lineup"]), "closed": why_c}
++                            "lineup": list(candidate["lineup"]), "closed": why_c,
++                            "fresh": bool(candidate.get("write_seed"))}
+         if why_c is not None:
++            out["candidate"].update(result=why_c, **{"class": "clip"})
+             out["why_none"] = f"ruling 66: the candidate is closed: {why_c}"
+             log(f"  {out['why_none']}")
+             return out
+@@ -2374,6 +2379,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
+         return pk
+ 
++    wseed = int((candidate or {}).get("write_seed") or 0)  # ruling 66 (14:02): a candidate's fresh writes
+     total = 0                                             # ruling 41: line-ups judged in this build, over every angle
+     judged, bad_pairs, spins = {}, set(), 0               # 12:00: verdicts by line-up; ruling 63's unfollowable pairs
+     with ThreadPoolExecutor(max_workers=8) as pool:
+@@ -2491,12 +2497,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         break
+                     w_over = package_over(line)
+                     if w_over:
+-                        rec["why"] = w_over
++                        rec["why"], rec["budget"] = w_over, True      # ruling 66: a budget, not an outcome
+                         break
+                     w_used += 1
+                     try:
+                         wr, fields = write_takeaway(router, angle, segs, ctx, a_by, join, extra,
+-                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup,
++                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup + wseed,
+                                                     avoid_vendor=writer_avoid or None, other=written)
+                     except NoBridgeFits as e:                  # the seconds rule it out: re-line, no write is paid
+                         if join is not None:
+@@ -2602,7 +2608,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         pk, fid, cx, cheap_t, rw = rewrite_alone(
+                             router, slot, pk, fields, fid, [v for v in cheap + fid["violations"]], angle, segs, cleared,
+                             ctx, a_by, sources, levels, writers_v, writers_f, writer_avoid or None,
+-                            seed=7 + w_used + 10 * ai + 100 * n_lineup)
++                            seed=7 + w_used + 10 * ai + 100 * n_lineup + wseed)
+                         att["rewrite"] = rw
+                         cheap, det, dup, rt_ok, r4_res = cheap_t
+                         log(f"    the {slot} alone (ruling 65): " + ("PASS" if rw.get("passed") else
+@@ -2669,6 +2675,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     out["packages"].append(pk)
+                     rec["result"] = "PACKAGE"
+                     break
++                rec["relined"] = relined                    # ruling 66: a clip was dropped (or a line-up rule)
+                 if not out["packages"] and not relined and ok_m and not med["flagged"] and \
+                         take_failed >= NO_VOICE_AFTER and last_fields is not None and not out.get("budget_stop"):
+                     nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup)
+@@ -2687,6 +2694,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     if candidate is not None:                             # RULING 66: what became of the candidate
+         t_ = next((t for t in out["tried"] if t.get("candidate") is not None), {})
+         out["candidate"]["result"] = t_.get("result") or t_.get("why") or out.get("why_none") or "not tried"
++        out["candidate"]["class"] = (                     # candidates.outcome reads it
++            "package" if out["packages"] else
++            "budget" if not t_ or out.get("budget_stop") or t_.get("budget") else
++            "line" if t_.get("medley_ok") and t_.get("attempts") and not t_.get("relined") else "clip")
+     s_est, s_rep = (a - b for a, b in zip(_spent(spend), usd0))
+     out["search"] = {"lineups": total, "limit": lineups, "usd_reported": round(s_rep, 4),
+                      "usd_estimate": round(s_est, 4), "seconds": round(time.time() - t0, 1)}
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index ed6cbba..2a87046 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -20,7 +20,11 @@
+ Writes tests/package/proof/ledger_<UTC stamp, to the second>/ (a run never writes into an existing one): inputs.json,
+ package.json, package.log, step_a.json and, on a package, MOMENTS_PIN_LEDGER.json.
+ 
+-RULING 66 (13:18), A PASSED LINE-UP IS KEPT: --from-candidate BUILD_DIR[:N] tries ONLY the line-up that passed the
++RULING 66 (13:18; its standing part ruled 14:02), A PASSED LINE-UP IS KEPT: every build first tries the due
++candidates of the registry (tests/package/proof/CANDIDATES.json, seeded from the build records; pipeline/candidates.py),
++newest first, inside the 8 judged line-ups (a recorded verdict is free), each as package.build(candidate=...); only when
++none gives a package are angles asked, with the judged line-ups left. The registry is read (and seeded) before anything
++is written and saved after the record. --from-candidate BUILD_DIR[:N] tries ONLY the line-up that passed the
+ clips-alone verdict in that earlier build's record (its tried[N]; default the first that passed), after the same pool
+ stages: its own angle, play order and seeds (package.load_candidate), so its recorded calls are served from their
+ recordings and only what is missing is paid for; never re-lined, swapped or a new angle.
+@@ -31,6 +35,7 @@ Usage: python3 tests/package/proof_ledger.py --delivered PIN [PIN ...] [--since
+                        tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json
+ """
+ import argparse
++import glob
+ import json
+ import os
+ import sys
+@@ -44,6 +49,7 @@ sys.path.insert(0, os.path.join(REPO, "tests", "select_by_id"))
+ sys.path.insert(0, os.path.join(REPO, "tests", "moments"))
+ sys.path.insert(0, HERE)
+ import eligibility as E  # noqa: E402
++import candidates as CA  # noqa: E402
+ import ledger_build as LB  # noqa: E402
+ import moments as M  # noqa: E402
+ import package as PK  # noqa: E402
+@@ -53,6 +59,9 @@ import proof_saved_runs as PS  # noqa: E402
+ import providers as P  # noqa: E402
+ import speakers as SP  # noqa: E402
+ 
++REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
++
++
+ def delivered_pins(paths):
+     """The pins already delivered -> (every clip span {video_id, start, end, pin} for package.usable's overlap check,
+     the newest approved_at, [{path, story_id, approved_at, clips}]). Raises ValueError (or OSError / KeyError /
+@@ -108,9 +117,16 @@ def main(argv=None):
+             with open(os.path.join(cdir, "package.json")) as f:
+                 cand = PK.load_candidate(json.load(f), int(idx) if idx else None,
+                                          source=os.path.relpath(os.path.abspath(cdir), REPO))
++        reg = CA.new_registry()                          # RULING 66: the candidates, seeded from every build record
++        if os.path.exists(REGISTRY):
++            with open(REGISTRY) as f:
++                reg = json.load(f)
++        for p in sorted(glob.glob(os.path.join(HERE, "proof", "ledger_*", "package.json"))):
++            with open(p) as f:
++                CA.seed(reg, json.load(f), os.path.relpath(os.path.dirname(p), REPO))
+     except (OSError, ValueError, KeyError, TypeError) as e:
+-        print(f"REFUSED: the delivered pins, 'since' or the candidate cannot be read ({type(e).__name__}: {e})",
+-              file=sys.stderr)
++        print(f"REFUSED: the delivered pins, 'since', the candidate or the candidate registry cannot be read "
++              f"({type(e).__name__}: {e})", file=sys.stderr)
+         return 2
+     out_dir = os.path.join(HERE, "proof", f"ledger_{now.strftime('%Y%m%d_%H%M%S')}")
+     try:
+@@ -150,14 +166,46 @@ def main(argv=None):
+         f"starts at ${PL.LY_STOP_USD:.2f})")
+     own, used = PL.meter(router), PL.reply_meter(router)
+     t0 = time.time()
+-    res = PK.build(router, moments, sources, ctx, delivered=delivered, optout=M.optout_ids(), log=say,
+-                   work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
+-                   spend=lambda: (own["est"], own["best"]),
+-                   step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
+-                   hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
+-                   scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
+-                   scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir),
+-                   candidate=cand)                                                     # ruling 66
++    kw = dict(delivered=delivered, optout=M.optout_ids(), log=say,
++              work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
++              spend=lambda: (own["est"], own["best"]),
++              step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
++              hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
++              scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
++              scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir))
++    name, at = os.path.relpath(out_dir, REPO), now.isoformat()
++    if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
++        res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)
++        k = CA.key(cand["lineup"])
++        if k in reg["candidates"]:
++            CA.outcome(reg["candidates"][k], res["candidate"]["class"], at, name, res["candidate"].get("result"))
++    else:                                                # RULING 66 (14:02): the due candidates first, newest first
++        last = {}
++
++        def try_one(e, fresh, left):
++            try:
++                with open(os.path.join(REPO, e["source"], "package.json")) as f:
++                    c = PK.load_candidate(json.load(f), e["index"], source=e["source"])
++            except (OSError, ValueError, KeyError, TypeError) as ex:
++                return None, "clip", f"it cannot be rebuilt from its record ({type(ex).__name__}: {ex})", 0
++            if fresh:
++                c["write_seed"] = CA.FRESH_SEED          # "then may be tried once more with fresh writes"
++            say(f"  RULING 66: the candidate {e['source']} tried[{e['index']}] {e['lineup']}" +
++                (" with fresh writes" if fresh else "") + f", {left} judged line-up(s) left")
++            o = PK.build(router, moments, sources, ctx, candidate=c, lineups=left, **kw)
++            last["out"] = o
++            return o, o["candidate"]["class"], o["candidate"].get("result"), (o.get("search") or {}).get("lineups", 0)
++        res, tries, left = CA.run_due(reg, now, try_one, PK.LINEUPS_PER_BUILD, build=name)
++        say(f"  RULING 66: {len(tries)} candidate(s) tried: " + "; ".join(
++            f"{t['source']}[{t['index']}] {t['class']} -> {t['state']}" for t in tries) if tries else
++            "  RULING 66: no candidate is due")
++        if res is None and left > 0:
++            res = PK.build(router, moments, sources, ctx, lineups=left, **kw)
++        elif res is None:                                # every judged line-up went to candidates: no angle asked
++            res = dict(last["out"], package=None, packages=[],
++                       why_none="ruling 66: the 8 judged line-ups were spent on candidates; no angle asked")
++        res["candidate_tries"] = tries
++    res["registry"] = True                               # its outcomes are in the registry already (CA.seed)
+     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
+                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
+                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
+@@ -185,6 +233,10 @@ def main(argv=None):
+         f"vendor-reported after this build (before it: ${spent0:.2f})")
+     with open(os.path.join(out_dir, "package.json"), "w") as f:
+         json.dump(res, f, indent=1, default=str)
++    CA.seed(reg, json.loads(json.dumps(res, default=str)), name)   # this build's passed line-ups join the registry
++    with open(REGISTRY + ".tmp", "w") as f:
++        json.dump(reg, f, indent=1)
++    os.replace(REGISTRY + ".tmp", REGISTRY)
+     logf.close()
+     return 0
+ 
+diff --git a/tests/package/test_candidates.py b/tests/package/test_candidates.py
+new file mode 100644
+index 0000000..ae023f5
+--- /dev/null
++++ b/tests/package/test_candidates.py
+@@ -0,0 +1,105 @@
++#!/usr/bin/env python3
++"""RULING 66's standing part (orchestrator 14:02 Nov 13): the candidate registry (pipeline/candidates.py)."""
++import os
++import sys
++import unittest
++from datetime import datetime, timedelta, timezone
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import candidates as CA  # noqa: E402
++
++T0 = datetime(2026, 11, 13, 19, 0, tzinfo=timezone.utc)
++
++
++def record(now, tried, package=None, candidate=None, registry=False):
++    return {"now": now.isoformat(), "tried": tried, "package": package, "candidate": candidate,
++            **({"registry": True} if registry else {})}
++
++
++def t(lineup, ok=True, cand=None):
++    return {"lineup": lineup, "medley_ok": ok, **({"candidate": cand} if cand else {})}
++
++
++class TestRegistry(unittest.TestCase):
++    def test_a_passed_line_up_is_a_candidate_once_and_a_packaged_one_is_closed(self):
++        reg = CA.new_registry()
++        self.assertEqual(CA.seed(reg, record(T0, [t(["a", "b", "c"], ok=False), t(["a", "b", "d"])]), "r1"),
++                         ["a+b+d"])
++        self.assertEqual(CA.seed(reg, record(T0, [t(["a", "b", "d"])]), "r1"), [])          # a record seeds once
++        self.assertEqual(CA.seed(reg, record(T0 + timedelta(hours=1), [t(["a", "b", "d"])]), "r2"), [])   # one entry
++        self.assertEqual((reg["candidates"]["a+b+d"]["source"], reg["candidates"]["a+b+d"]["index"]), ("r1", 1))
++        CA.seed(reg, record(T0, [t(["x", "y", "z"])], package={"segments": [{"moment_id": m} for m in "xyz"]}), "r3")
++        self.assertEqual(reg["candidates"]["x+y+z"]["state"], "closed")                  # its own build packaged it
++        CA.seed(reg, record(T0, [t(["a", "b", "d"], cand="r1")]), "r4")                  # a candidate's own try
++        self.assertEqual(set(reg["candidates"]), {"a+b+d", "x+y+z"})                     # is never a new candidate
++
++    def test_a_try_made_before_the_registry_counts_once(self):
++        reg = CA.new_registry()
++        CA.seed(reg, record(T0, [t(["a", "b", "d"])]), "r1")
++        legacy = record(T0, [t(["a", "b", "d"], cand="r1")],
++                        candidate={"source": "r1", "index": 0, "lineup": ["a", "b", "d"], "result": "PACKAGE"})
++        CA.seed(reg, legacy, "r2")
++        self.assertEqual(reg["candidates"]["a+b+d"]["state"], "closed")
++        reg2 = CA.new_registry()
++        CA.seed(reg2, record(T0, [t(["a", "b", "d"])]), "r1")
++        CA.seed(reg2, dict(legacy, registry=True), "r2")                                # a registry build: no again
++        self.assertEqual(reg2["candidates"]["a+b+d"]["state"], "open")
++
++    def test_the_14_02_rules(self):
++        e = {"history": [], "state": "open", "until": None, "fresh_used": False}
++        CA.outcome(e, "budget", T0.isoformat(), "b1")
++        self.assertEqual(e["state"], "open")                                              # a budget is no outcome
++        CA.outcome(e, "line", T0.isoformat(), "b2")                                       # a line failed again
++        self.assertEqual((e["state"], e["until"]), ("resting", (T0 + timedelta(hours=6)).isoformat()))
++        e["fresh_used"] = True                                                            # its one more try
++        CA.outcome(e, "line", (T0 + timedelta(hours=7)).isoformat(), "b3")
++        self.assertEqual(e["state"], "closed")
++        for cls in ("clip", "package"):
++            e2 = {"history": [], "state": "open", "until": None, "fresh_used": False}
++            CA.outcome(e2, cls, T0.isoformat(), "b")
++            self.assertEqual(e2["state"], "closed", cls)
++        with self.assertRaises(ValueError):
++            CA.outcome(e2, "maybe", T0.isoformat(), "b")
++
++    def test_due_is_newest_first_and_a_rested_one_gets_fresh_writes(self):
++        reg = CA.new_registry()
++        CA.seed(reg, record(T0, [t(["a", "b", "c"])]), "old")
++        CA.seed(reg, record(T0 + timedelta(hours=2), [t(["d", "e", "f"])]), "new")
++        CA.seed(reg, record(T0 + timedelta(hours=1), [t(["g", "h", "i"])]), "mid")
++        CA.outcome(reg["candidates"]["g+h+i"], "line", T0.isoformat(), "b")              # resting until T0 + 6 h
++        self.assertEqual([(k, f) for k, _, f in CA.due(reg, T0 + timedelta(hours=3))],
++                         [("d+e+f", False), ("a+b+c", False)])
++        self.assertEqual([(k, f) for k, _, f in CA.due(reg, T0 + timedelta(hours=6))],
++                         [("d+e+f", False), ("g+h+i", True), ("a+b+c", False)])
++
++    def test_run_due_stops_at_a_package_inside_the_judged_line_ups(self):
++        reg = CA.new_registry()
++        for h, lu in enumerate((["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"])):
++            CA.seed(reg, record(T0 + timedelta(hours=h), [t(lu)]), f"r{h}")
++        seen = []
++
++        def try_one(e, fresh, left):
++            seen.append((CA.key(e["lineup"]), fresh, left))
++            return ({"package": "pk"} if e["lineup"][0] == "d" else None,
++                    {"g": "clip", "d": "package"}[e["lineup"][0]], "why", 1)
++        out, tries, left = CA.run_due(reg, T0 + timedelta(hours=3), try_one, 8, build="b")
++        self.assertEqual(out, {"package": "pk"})
++        self.assertEqual(seen, [("g+h+i", False, 8), ("d+e+f", False, 7)])                # newest first; then stop
++        self.assertEqual((left, [x["class"] for x in tries]), (6, ["clip", "package"]))
++        self.assertEqual(reg["candidates"]["a+b+c"]["state"], "open")                    # never reached: still open
++        out, tries, left = CA.run_due(reg, T0 + timedelta(hours=3), lambda e, f, l: (None, "budget", "", 0), 0)
++        self.assertEqual((out, tries, left), (None, [], 0))                              # no line-up left: no try
++
++    def test_the_fresh_try_is_marked_and_a_line_failing_it_closes(self):
++        reg = CA.new_registry()
++        CA.seed(reg, record(T0, [t(["a", "b", "c"])]), "r")
++        CA.outcome(reg["candidates"]["a+b+c"], "line", T0.isoformat(), "b1")
++        out, tries, _ = CA.run_due(reg, T0 + timedelta(hours=6, minutes=1), lambda e, f, l: (None, "line", "w", 1), 8)
++        self.assertEqual((tries[0]["fresh"], tries[0]["state"]), (True, "closed"))
++        self.assertTrue(reg["candidates"]["a+b+c"]["history"][-1]["fresh"])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index b590b0f..33c7418 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -1670,6 +1670,26 @@ class TestRuling66Candidate(unittest.TestCase):
+         self.assertEqual(out["tried"][0]["why"], "ruling 66: the candidate fails its clips-alone verdict now: closed")
+         self.assertEqual(out["candidate"]["result"], out["tried"][0]["why"])
+ 
++    def test_the_outcome_class_and_the_fresh_writes(self):
++        """14:02: the class candidates.outcome reads: "package"; "clip" (closed before any call, or its clips-alone
++        verdict fails now); "line" (its clips pass, its writes fail). write_seed shifts every write's seed."""
++        c = PK.load_candidate(self.record(), source="r")
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c).run()
++        self.assertEqual(out["candidate"]["class"], "package")
++        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], uncuttable={"y"}, candidate=c).run()
++        self.assertEqual((out["candidate"]["class"], out["candidate"]["result"][:16]), ("clip", "no longer cleare"))
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(False, [], {"clip_02": 2}, Rig.LINE)], [], candidate=c).run()
++        self.assertEqual(out["candidate"]["class"], "clip")
++        bad = dict(TestRuling65Caption.OK, ok=False, violations=[{"slot": "takeaway", "rule": "VERDICT_NO",
++                                                                    "detail": "x"}])
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None, None], fids=[bad, bad],
++                  candidate=dict(c, write_seed=1000))
++        out = rig.run()
++        self.assertIsNone(out["package"])
++        self.assertEqual((out["candidate"]["class"], out["candidate"]["fresh"]), ("line", True))
++        self.assertEqual(rig.seeds, [("medley", 8), ("write", 1108), ("write", 1109)])   # fresh writes, the verdict
++                                                                                          # still its recorded seed
++
+     def test_exactly_its_clips_never_a_subset(self):
+         ms = [pm("h", "A", 13.0), pm("x", "B", 13.0), pm("y", "C", 13.0), pm("z", "D", 11.0)]
+         rec = self.record(tried=[{"angle": 1, "text": self.TEXT, "lineup": ["h", "x", "y", "z"],
