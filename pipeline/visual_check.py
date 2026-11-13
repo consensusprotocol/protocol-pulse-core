@@ -23,6 +23,8 @@ BOUNDARY_FRAMES = 3
 VISION_MODELS = ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl")   # Heimdall gateway, image input
                                            # (listed 2026-11-11); a "no" from EITHER holds
 VISION_BASE = "https://api-staging.heimdallm.com/api/v1"
+LOCAL_VISION = "ollama:gemma3:27b"   # law L-x: V1's second back-end, the local model on Ultron's GPU0 (L-r: lease + swap_to)
+OLLAMA_URL = "http://localhost:11434"
 
 CHECKLIST = [
     ("credits_round_and_match", "On the credits card (full-resolution panel) every channel avatar is the channel's "
@@ -193,17 +195,40 @@ def _call(req, timeout):
     return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
 
 
+def _call_local(image_path, text, model, timeout):
+    """(content, raw) of one LOCAL vision call (law L-x second back-end): Ollama on Ultron, loaded through
+    gpu0.swap_to (law L-r: the caller holds the GPU0 lease; without it swap_to refuses and nothing loads)."""
+    import urllib.request
+    import gpu0
+    gpu0.swap_to(model)
+    body = {"model": model.split(":", 1)[1], "stream": False, "keep_alive": "5m",
+            "options": {"temperature": 0, "num_predict": 4096, "num_ctx": 8192},
+            "messages": [{"role": "user", "content": text,
+                          "images": [base64.b64encode(open(image_path, "rb").read()).decode()]}]}
+    req = urllib.request.Request(f"{OLLAMA_URL}/api/chat", data=json.dumps(body).encode(),
+                                 headers={"Content-Type": "application/json"})
+    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+    return (raw.get("message") or {}).get("content") or "", raw
+
+
+def _call_any(image_path, text, model, timeout):
+    """(content, raw) from the model's own route: 'ollama:<name>' is the local back-end (law L-x), any other name the
+    Heimdall gateway. Raises on a route error (callers retry, then HOLD)."""
+    if model.startswith("ollama:"):
+        return _call_local(image_path, text, model, timeout)
+    return _call(_request(image_path, text, model), timeout)
+
+
 def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2, channels_note=""):
     """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
     unparseable reply or a route error is retried, then answers = {} (every line missing = HOLD, never a crash)."""
     qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
     text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", channels_note=channels_note or "", questions=qs,
                          keys=[k for k, _ in CHECKLIST])
-    req = _request(sheet_path, text, model)
     tries = []
     for _ in range(attempts):
         try:
-            content, raw = _call(req, timeout)
+            content, raw = _call_any(sheet_path, text, model, timeout)
         except Exception as e:                      # network / HTTP / bad body: retried, then no answer = HOLD
             tries.append({"error": f"{type(e).__name__}: {e}"[:500]})
             continue
@@ -268,10 +293,9 @@ def ask_letterbox(path, model, timeout=600, attempts=2, trail=None):
     """'yes' / 'no' from one model about one frame, or None (no clear answer after the retries). Every attempt
     (error, or the reply's answer and reason) is appended to `trail` when given (it lands in GATE_REPORT)."""
     trail = [] if trail is None else trail
-    req = _request(path, LETTERBOX_PROMPT, model)
     for _ in range(attempts):
         try:
-            content, _raw = _call(req, timeout)
+            content, _raw = _call_any(path, LETTERBOX_PROMPT, model, timeout)
         except Exception as e:                      # route error: retried, then no answer
             trail.append({"error": f"{type(e).__name__}: {e}"[:300]})
             continue
@@ -342,10 +366,9 @@ def boundary_pairs(final, segments, work_dir):
 def ask_boundary(path, model, timeout=600, attempts=2, trail=None):
     """'yes' (the left frame shows the next segment) / 'no', or None (no clear answer after the retries)."""
     trail = [] if trail is None else trail
-    req = _request(path, BOUNDARY_PROMPT, model)
     for _ in range(attempts):
         try:
-            content, _raw = _call(req, timeout)
+            content, _raw = _call_any(path, BOUNDARY_PROMPT, model, timeout)
         except Exception as e:
             trail.append({"error": f"{type(e).__name__}: {e}"[:300]})
             continue
