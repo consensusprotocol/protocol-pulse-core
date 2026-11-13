@@ -1,0 +1,109 @@
+{
+ "question": "Batch 48 cycle 2 (verification). Cycle-1 consensus implemented, see CONSENSUS.md: exec_trees fails closed (UNREADABLE marker, 40-hex check); a failing git diff is its own reason; tests for docs-commit + uncommitted registry edit, an unknown launch revision, and an untracked IMPORTED module (refused at the end). NOT implemented, with the measured reason: extending the launch untracked check to segment_v1/scripts (1724 historical untracked files there; imported untracked modules are refused at the end; untracked data read is hashed in runtime_assets_sha256).\n\nBatch 48 = RULING 27 (orchestrator 2026-11-12 '23:20'). The ruling, verbatim in substance: \"the attestation records and verifies the git TREE hash of executable paths (pipeline/, segment_v1/, scripts/, the registry and config data the run reads - enumerate from what run_fresh imports/reads) at launch and end. docs/ and *.md outside those are excluded. Must-fail: touching pipeline/ mid-run is refused; committing docs mid-run is accepted.\"\nEnumeration, measured on the Nov 12 medley run's PROVENANCE:\n- executed modules: 34 under pipeline/, 2 under segment_v1/, 1 = video_pipeline_v3/relay.py;\n- tracked data read: pipeline/channels.json (the registry), segment_v1's brand mark and face model;\n- launcher: scripts/pulse_check_run.sh;\n- untracked runtime assets (the brand/ outros, the music mp3s): in no tree; runtime_assets_sha256 already hashes them per run;\n- vertical/ layout tables: not read by runs (validate_edl is called without layout_tables_dir).\n\nHence EXEC_PATHS = (pipeline, segment_v1, scripts, video_pipeline_v3/relay.py). The change:\n- stage_env requires all of them clean at launch (porcelain, untracked excluded, as before for pipeline / segment_v1) and records exec_trees(HEAD) = {path: git rev-parse <rev>:<path>}.\n- executed_code(launch) no longer gives \"HEAD moved\" as a reason. Instead:\n  - a tree id at HEAD differing from the launch commit's is a reason;\n  - git diff --name-only <launch> -- EXEC_PATHS (the working tree, uncommitted edits included, vs the launch commit) non-empty or failing is a reason;\n  - the per-module checks are unchanged.\n- The end records git_head_at_end and exec_trees_at_end.\nFIND: anything still open from cycle 1; a new way a change to executed code or read data mid-run still attests; a docs-only commit still refused; a git failure that passes; a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 5.0,
+   "cost": 0.0005969577,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 40.7,
+   "cost": 0.000248341,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 11.7,
+   "cost": 0.0008003115,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 24.0,
+   "cost": 0.000238421,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/test_attestation_trees.py",
+   "line": 60,
+   "issue": "test_the_launch_trees_are_recorded_for_every_executable_path asserts all values are 40 chars, but exec_trees stores 'UNREADABLE: ...' strings on failure, so the test would catch that; however the test's assertTrue(len(v or '')==40) also passes for a 40-hex UNREADABLE-prefixed... no, it would fail; the weaker claim: the test never exercises stage_env at all, so the launch-side requirement (all EXEC_PATHS clean, recorded exec_trees(HEAD)) is untested \u2014 the new stage_env behavior (porcelain over EXEC_PATHS, the new prov key) has no test, despite the ruling's must-fail 'touching pipeline/ mid-run is refused' being an end-check only; a regression in stage_env's EXEC_PATHS spread (e.g. reverting to the old two-path list) would pass the whole suite.",
+   "evidence": "def why(self): return rf.executed_code(self.launch, modules={}, repo=self.repo)[1]  # stage_env never called in any test",
+   "fix": "Add a test that runs stage_env (or its porcelain+exec_trees portion) in the scratch repo with a dirty scripts/ file and asserts the Hold and the recorded exec_trees key.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/run_fresh.py",
+   "line": 1259,
+   "issue": "A mid-run change to read data outside EXEC_PATHS still attests: segment_v1's brand mark and face model are read data per the ruling, but only the whole segment_v1 tree id is compared; the diff check covers them, yet the tracked-data read of pipeline/channels.json is only caught by the diff, and the end-of-run evidence records exec_trees_at_end but never re-runs the porcelain cleanliness check, so an uncommitted edit made and reverted before the end check passes silently \u2014 actually the diff catches it only if still present; a transient edit that is reverted attests. More importantly, exec_trees_at_end is computed at record_assets time, but executed_code's tree comparison uses the same call, so the recorded evidence and the verdict are consistent; the real gap: the launch-side stage_env porcelain check now includes scripts/ and video_pipeline_v3/relay.py, but the untracked_py check still only covers pipeline/*.py, so an untracked module under segment_v1/ or video_pipeline_v3/ that the run imports passes stage_env (the consensus said this is measured/accepted for segment_v1, but video_pipeline_v3/relay.py itself, if untracked, would pass launch and only fail at the end via ls-files).",
+   "evidence": "untracked_py = subprocess.run([\"git\", \"ls-files\", \"--others\", \"--exclude-standard\", \"--\", \"pipeline/*.py\"], ...",
+   "fix": "Extend the untracked_py glob to segment_v1/*.py and video_pipeline_v3/*.py, or record the measured exclusion in CONSENSUS.md.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/run_fresh.py",
+   "line": 1266,
+   "issue": "The 'executable tree changed' reason compares launch vs HEAD trees, but the working-tree diff against launch is a separate reason; a committed change plus a reverted-then-recommitted identical content yields no reason (correct), yet a change committed mid-run whose tree id happens to equal launch (empty commit) is correctly ignored \u2014 however the moved list filters out UNREADABLE end trees, so when the end tree is UNREADABLE but the launch tree was readable, the only reason is 'not readable', which is fine; the residual gap: git diff --name-only compares the working tree, but untracked-but-tracked-ignored edits (skip-worktree/assume-unchanged files) are invisible to both diff and porcelain, so a modified tracked module with assume-unchanged set attests clean while the executed bytes differ from the launch tree.",
+   "evidence": "diff = subprocess.run([\"git\", \"diff\", \"--name-only\", launch, \"--\", *EXEC_PATHS], ...",
+   "fix": "Use `git diff --name-only` plus `git ls-files -v` filtering for assume-unchanged/skip-worktree, or hash the executed files (already done per-module) and cross-check against the launch blobs.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/run_fresh.py",
+   "line": 1262,
+   "issue": "exec_trees('HEAD') in record_assets and executed_code both run at end-of-run, but the diff-vs-launch in executed_code compares the working tree, while exec_trees_at_end records the committed HEAD tree; if a mid-run committed change to EXEC_PATHS is later reverted by a second commit before record_assets, the diff is empty and t0==t1, so the mid-run code change attests with no evidence it ever differed \u2014 the ruling's 'touching pipeline/ mid-run is refused' only holds if the change survives to the end check",
+   "evidence": "moved = [f\"{p} {t0[p]} -> {t1[p]}\" ... if t0[p] != t1[p]]; diff = git diff --name-only launch -- EXEC_PATHS; both evaluated once at record_assets time",
+   "fix": "Record exec_trees (or a diff) at each stage boundary, or accept and document that mid-run-then-reverted changes attest \u2014 the ruling's wording ('touching ... mid-run is refused') arguably requires more than an end-of-run snapshot."
+  }
+ ],
+ "total_cost": 0.0018840312,
+ "out_dir": "docs/audits/pulse-sentence-law/batch48_attest_trees/cycle2/heimdall"
+}

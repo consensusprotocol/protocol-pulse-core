@@ -60,6 +60,12 @@ RUNS_DIR = os.path.join(REPO, "runs")
 CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
 REF_DIR = os.path.join(REPO, "references", "v2f_2026-11-06")
 REF_VO_MANIFEST = os.path.join(REF_DIR, "run", "vo_audio", "VO_MANIFEST.json")
+# ruling 27 (orchestrator 2026-11-12 '23:20'): a run is bound to the git TREE of what it executes and reads from git,
+# not to HEAD: pipeline/ (its modules, the registry channels.json, its data), segment_v1/ (the frozen scripts, the
+# brand mark, the face model), scripts/ (the launcher) and video_pipeline_v3/relay.py (the key loader). docs/ and *.md
+# outside them are not code: a docs commit while a run is in flight is accepted. Untracked runtime assets (the brand/
+# outros, the music) are not in any tree: runtime_assets_sha256 records them per run.
+EXEC_PATHS = ("pipeline", "segment_v1", "scripts", "video_pipeline_v3/relay.py")
 
 V2F_VIDEO_IDS = {"RBFN4CB60To", "Pxrak-iMT0g", "QCgW8RlTu5Q"}
 V2F_VO_SHA = {
@@ -292,27 +298,14 @@ class Run:
 def stage_env(run):
     if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
         raise Hold("CUDA_VISIBLE_DEVICES must be exactly '0': renders and their gates run on GPU0 (law L-r layout)")
-    # tracked code must be unmodified; untracked pipeline/*.py must not exist (segment_v1
-    # holds historical untracked scratch; executed files are verified tracked+unmodified
-    # at the end of the run from sys.modules)
-    porcelain = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--",
-                                "pipeline", "segment_v1"], cwd=REPO, capture_output=True,
-                               text=True).stdout.strip()
-    untracked_py = subprocess.run(["git", "ls-files", "--others", "--exclude-standard", "--",
-                                   "pipeline/*.py"], cwd=REPO, capture_output=True,
-                                  text=True).stdout.strip()
-    if porcelain or untracked_py:
-        raise Hold(f"pipeline/segment_v1 not clean at launch:\n{porcelain}\n{untracked_py}")
-    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True,
-                          text=True).stdout.strip()
+    code = launch_code()                          # ruling 27: one snapshot of the executable trees
     tag = subprocess.run(["git", "describe", "--tags", "--always", "--exact-match"], cwd=REPO,
                          capture_output=True, text=True).stdout.strip()
     ffv = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True).stdout.split("\n")[0]
     ytv = subprocess.run(["yt-dlp", "--version"], capture_output=True, text=True).stdout.strip()
     gpu = subprocess.run(["nvidia-smi", "--query-gpu=index,name,memory.used",
                           "--format=csv,noheader"], capture_output=True, text=True).stdout.strip()
-    run.prov["code"] = {"git_head": head, "git_exact_tag": tag or None,
-                        "pipeline_tree_clean_at_launch": True}
+    run.prov["code"] = {**code, "git_exact_tag": tag or None}
     run.prov["env"] = {"CUDA_VISIBLE_DEVICES": "0", "python": sys.version.split()[0],
                        "ffmpeg": ffv, "yt_dlp": ytv, "nvidia_smi": gpu.split("\n")}
     if "telegram" in sys.modules or "telegram_drop" in sys.modules:
@@ -1208,11 +1201,41 @@ def verdict_for(rows, fmt, evidence):
 
 # ── provenance helpers ──
 
+def launch_code(repo=None):
+    """The launch half of the attestation (ruling 27): tracked files under EXEC_PATHS unmodified and no untracked
+    pipeline/*.py (segment_v1 holds historical untracked scratch; every executed module is verified tracked and
+    unmodified at the end of the run from sys.modules), else a Hold. Returns {"git_head", "exec_trees",
+    "pipeline_tree_clean_at_launch": True}."""
+    repo = repo or REPO
+    porcelain = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--", *EXEC_PATHS],
+                               cwd=repo, capture_output=True, text=True).stdout.strip()
+    untracked_py = subprocess.run(["git", "ls-files", "--others", "--exclude-standard", "--", "pipeline/*.py"],
+                                  cwd=repo, capture_output=True, text=True).stdout.strip()
+    if porcelain or untracked_py:
+        raise Hold(f"executable paths {list(EXEC_PATHS)} not clean at launch:\n{porcelain}\n{untracked_py}")
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout.strip()
+    return {"git_head": head, "pipeline_tree_clean_at_launch": True, "exec_trees": exec_trees(head, repo)}
+
+
+def exec_trees(rev, repo=None):
+    """Ruling 27: {path: git object id of EXEC_PATHS[path] at `rev`}. A path git cannot resolve there (missing, or git
+    failing) is recorded as 'UNREADABLE: <git's message>', never as an id: executed_code refuses it (fail closed)."""
+    out = {}
+    for p in EXEC_PATHS:
+        r = subprocess.run(["git", "rev-parse", "--verify", f"{rev}:{p}"], cwd=repo or REPO,
+                           capture_output=True, text=True)
+        oid = r.stdout.strip()
+        out[p] = oid if r.returncode == 0 and re.fullmatch(r"[0-9a-f]{40}", oid) else \
+            f"UNREADABLE: {(r.stderr.strip() or oid or 'no output')[:200]}"
+    return out
+
+
 def executed_code(launch, modules=None, repo=None):
     """({rel path: sha256} of every loaded module of this checkout, [why not at the launch revision]). A module whose
     NAME is a pipeline module (any *.py of pipeline/, segment_v1/, video_pipeline_v3/) but whose file is outside
-    this checkout, a module under another protocol_pulse / worktrees checkout, HEAD moved since launch, and a
-    module untracked or modified against the launch revision are all reasons."""
+    this checkout, a module under another protocol_pulse / worktrees checkout, an executable tree (EXEC_PATHS) changed
+    since launch or a file under them differing from the launch revision (ruling 27: HEAD moving for a docs commit is
+    not a reason), and a module untracked or modified against the launch revision are all reasons."""
     repo = repo or REPO
     modules = sys.modules if modules is None else modules
     first_party = {os.path.splitext(fn)[0] for d in ("pipeline", "segment_v1", "video_pipeline_v3")
@@ -1230,9 +1253,21 @@ def executed_code(launch, modules=None, repo=None):
         elif re.search(r"/(protocol_pulse|worktrees)/", f) and \
                 not any(x in f for x in ("site-packages", "dist-packages", "/venv/")):
             why.append(f"{name} from {f} (outside this checkout {repo})")
-    head_now = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout.strip()
-    if launch != "HEAD" and head_now != launch:
-        why.append(f"HEAD moved during the run: {launch} -> {head_now}")
+    if launch != "HEAD":                          # ruling 27: the executable trees, not HEAD (a docs commit is fine)
+        t0, t1 = exec_trees(launch, repo), exec_trees("HEAD", repo)
+        bad = [f"{p} at {rev}: {t[p]}" for rev, t in (("launch", t0), ("end", t1)) for p in EXEC_PATHS
+               if t[p].startswith("UNREADABLE")]
+        if bad:
+            why.append("executable tree not readable: " + "; ".join(bad))
+        moved = [f"{p} {t0[p]} -> {t1[p]}" for p in EXEC_PATHS if t0[p] != t1[p] and not t1[p].startswith("UNREADABLE")]
+        if moved:
+            why.append("executable tree changed during the run: " + "; ".join(moved))
+        diff = subprocess.run(["git", "diff", "--name-only", launch, "--", *EXEC_PATHS], cwd=repo,
+                              capture_output=True, text=True)
+        if diff.returncode != 0:                                  # could not compare: never a pass
+            why.append(f"git diff against the launch revision failed: {diff.stderr.strip()[:200]}")
+        elif diff.stdout.strip():                                 # working tree vs the launch commit, uncommitted too
+            why.append(f"executable paths differ from the launch revision: {diff.stdout.split()}")
     for rel in sorted(mods):
         tracked = subprocess.run(["git", "ls-files", "--error-unmatch", rel], cwd=repo,
                                  capture_output=True).returncode == 0
@@ -1297,6 +1332,9 @@ def record_assets(run):
     # from this run's revision (Claude-gates C4; by module NAME, not path spelling: GPT audit batch 16 #8)
     launch = (run.prov.get("code") or {}).get("git_head")
     mods, not_clean = executed_code(launch or "HEAD")
+    run.prov.setdefault("code", {}).update(               # ruling 27: the evidence, both ends (HEAD is informational)
+        git_head_at_end=subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True,
+                                       text=True).stdout.strip(), exec_trees_at_end=exec_trees("HEAD"))
     if not launch:                                   # no recorded launch revision: nothing to compare with (F6)
         not_clean.append("no launch revision recorded")
     run.prov["executed_code_sha256"] = mods

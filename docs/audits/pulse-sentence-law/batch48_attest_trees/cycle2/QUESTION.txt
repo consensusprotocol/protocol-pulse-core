@@ -1,0 +1,18 @@
+Batch 48 cycle 2 (verification). Cycle-1 consensus implemented, see CONSENSUS.md: exec_trees fails closed (UNREADABLE marker, 40-hex check); a failing git diff is its own reason; tests for docs-commit + uncommitted registry edit, an unknown launch revision, and an untracked IMPORTED module (refused at the end). NOT implemented, with the measured reason: extending the launch untracked check to segment_v1/scripts (1724 historical untracked files there; imported untracked modules are refused at the end; untracked data read is hashed in runtime_assets_sha256).
+
+Batch 48 = RULING 27 (orchestrator 2026-11-12 '23:20'). The ruling, verbatim in substance: "the attestation records and verifies the git TREE hash of executable paths (pipeline/, segment_v1/, scripts/, the registry and config data the run reads - enumerate from what run_fresh imports/reads) at launch and end. docs/ and *.md outside those are excluded. Must-fail: touching pipeline/ mid-run is refused; committing docs mid-run is accepted."
+Enumeration, measured on the Nov 12 medley run's PROVENANCE:
+- executed modules: 34 under pipeline/, 2 under segment_v1/, 1 = video_pipeline_v3/relay.py;
+- tracked data read: pipeline/channels.json (the registry), segment_v1's brand mark and face model;
+- launcher: scripts/pulse_check_run.sh;
+- untracked runtime assets (the brand/ outros, the music mp3s): in no tree; runtime_assets_sha256 already hashes them per run;
+- vertical/ layout tables: not read by runs (validate_edl is called without layout_tables_dir).
+
+Hence EXEC_PATHS = (pipeline, segment_v1, scripts, video_pipeline_v3/relay.py). The change:
+- stage_env requires all of them clean at launch (porcelain, untracked excluded, as before for pipeline / segment_v1) and records exec_trees(HEAD) = {path: git rev-parse <rev>:<path>}.
+- executed_code(launch) no longer gives "HEAD moved" as a reason. Instead:
+  - a tree id at HEAD differing from the launch commit's is a reason;
+  - git diff --name-only <launch> -- EXEC_PATHS (the working tree, uncommitted edits included, vs the launch commit) non-empty or failing is a reason;
+  - the per-module checks are unchanged.
+- The end records git_head_at_end and exec_trees_at_end.
+FIND: anything still open from cycle 1; a new way a change to executed code or read data mid-run still attests; a docs-only commit still refused; a git failure that passes; a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.

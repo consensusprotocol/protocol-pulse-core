@@ -340,6 +340,7 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix:** wait on a PID (wait / kill -0 <pid>) or a sentinel file the job writes at its end, never on pgrep -f with a pattern that appears in the waiter's own command line.
 **Detection:** a waiter still running long after the process it waits for has exited; pgrep -af <pattern> lists only the waiter's own shell.
 
+**Recurrence 2026-11-13 00:33 ET (worse):** `kill -9 $(pgrep -f "heimdall-audit --question Batch 48")` matched the integrator's OWN tool shells. One of them was the parent of a background measurement (ruling 24 (a)), whose subshell carries the same command line, and both were killed. Rule: never select a process to stop with `pgrep -f <text>` when that text appears in any command line of this session; read the PID with `ps` (or from the launcher's `$!`) and stop exactly that PID.
 ### E-FAIL-072: Status lines carried times that were estimated, not read from the clock
 **Evidence:** 2026-11-12, integrator status lines after the 20:30 order: '20:37', '20:41', '20:47', '20:52' were written from an estimate of elapsed work. `date` at the next command read 20:31:22 (20:31:54 a moment later), so the stated times ran 6-21 minutes ahead of the clock. The DoD's own heading used `date +%H:%M` and was right.
 **Fix:** every status line and every DoD time is taken from a `date` call made immediately before it is written; a line without a fresh `date` reading carries no time.
