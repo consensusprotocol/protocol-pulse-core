@@ -302,3 +302,19 @@ class TestCoverage:
         q = Q.Queue(str(tmp_path / "q.sqlite"))
         rep = coverage.check(q, H.FakeGate(listing={}), hours=24, rss=False, chans=[H.CHAN])
         assert rep["measured"] is False and rep["coverage"] is None and len(rep["unmeasured_channels"]) == 1
+
+
+def test_a_later_pass_carries_every_earlier_flag_and_the_hook_hint(rec):
+    """Ruling 80: the adapter returns a moment's LATEST line, so a hook-pass line (or a re-mine) for a moment the
+    ledger already holds carries the union of the earlier flags, either's names_person / altcoin, both's
+    about_bitcoin, and the hook hint."""
+    first = line(rec, 0, 1, risk=["accusation"], names_person=True, flags_ext={"about_bitcoin": False, "altcoin": False})
+    hook = line(rec, 0, 1, risk=["time_sensitive"], role_hint="hook")
+    later = line(rec, 0, 1, risk=[])                                   # a re-mine after the hook pass
+    other = line(rec, 2, 3, risk=[])
+    out = ledger.carry_forward([dict(hook)], [first])
+    assert out[0]["risk"] == ["accusation", "time_sensitive"] and out[0]["names_person"] is True
+    assert out[0]["flags_ext"] == {"about_bitcoin": False, "altcoin": False} and out[0]["role_hint"] == "hook"
+    again = ledger.carry_forward([dict(later), dict(other)], [first, out[0]])
+    assert again[0]["role_hint"] == "hook" and again[0]["risk"] == ["accusation", "time_sensitive"]
+    assert again[1]["risk"] == [] and "role_hint" not in again[1]

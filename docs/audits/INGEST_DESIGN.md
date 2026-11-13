@@ -265,6 +265,24 @@ within 12 h of its video's publish time, then never again.
 - MINING ORDER: newest uploads first, always (`Queue.due` orders by publish time, newest first, for both the caption
   fetch and the mining; three videos mine at once).
 
+## 13. The hook pass (ruling 80, orchestrator 18:42 ET Nov 13)
+
+The 12 h pool had no moment rated 4 as a HOOK: the miner finds good statements, not openers. The hook pass is a
+second mining question over the SAME windows (`mine.HOOK_PROMPT`, version mine-hook/1; role `hook` in providers.json,
+the mine role's chain): "the 1 to 3 lines in this window that would stop a scroll as the FIRST words of a short
+video". The prompt carries the builder's judge question VERBATIM (pp-selectid package.py HOOK_QUESTION, rulings 52 /
+59: "scroll", "alone", "setup", each 1-5; a test compares it with the builder's source), the ruling's definition of a
+hook (4 to 14 s, whole sentences, one speaker, understandable alone, a concrete / surprising / sharply put claim,
+contrast, number or question about Bitcoin or money) and its NOT list (a greeting or show intro, a date or "this
+week", an ad read, a price prediction, an accusation), and the moment prompt's own score axes and flag list. A hook row
+is a moment line (pp.moment/1) with `role_hint: "hook"`, eligibility judged with the builder's role "hook", and
+`mined.prompt_version` mine-hook/1; it has the moment id of its span (the builder's dedupe and delivered checks keep
+working). A row outside 4-14 s (or unmeasured) is not written. Every ledger append goes through one lock that carries
+the video's earlier flags for the same moment (`ledger.carry_forward`): the adapter returns the latest line, which
+must never lose a flag. The watcher's `hook` loop (every 5 s, 2 videos at once) runs it on mined videos published in
+the last 12 h, newest first: the current window at start, then every new upload after its moment pass. Report:
+`tools/ingest_watch.py hooks` and live.json `hooks_12h`.
+
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 
 - A1 Registry: the selector's universe = `pipeline/channels.json` enabled with a channel id (64 channels at c1451047,

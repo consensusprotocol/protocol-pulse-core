@@ -20,6 +20,7 @@ def router_cfg(chain, **over):
            "backends": {b: {"kind": "openai_compat", "vendor": f"vendor-{b}", "model": f"model-{b}", "enabled": True}
                         for b in chain},
            "roles": {"mine": {"chain": list(chain), "attempts": 3, "max_tokens": 1000},
+                     "hook": {"chain": list(chain), "attempts": 3, "max_tokens": 1000},
                      "judge": {"chain": list(chain), "attempts": 2, "max_tokens": 1000}},
            "health": {"consecutive_failures": 3, "window": 10, "failure_fraction": 0.5, "window_s": 600,
                       "slow_median_s": 150, "open_s": 300},
@@ -160,3 +161,18 @@ def probe_json(video_id, channel=CHAN, **over):
          "release_timestamp": None, "description": "d", "subtitles": {}, "automatic_captions": {"en-orig": [{}], "en": [{}]}}
     j.update(over)
     return j
+
+
+def is_hook(prompt):
+    return "You are the HOOK miner" in prompt
+
+
+def hooks_reply(prompt, spans=((0, 1),)):
+    """The hook pass's answer: hooks at the offered ids' positions given (relative), each a valid moment shape."""
+    ids = offered_ids(prompt)
+    return json.dumps({"hooks": [moment(ids[a], ids[b]) for a, b in spans if b < len(ids)]})
+
+
+def first_two_and_hooks(prompt):
+    """The moment pass answers its first two ids; the hook pass answers the same two ids as a hook."""
+    return hooks_reply(prompt) if is_hook(prompt) else first_two(prompt)

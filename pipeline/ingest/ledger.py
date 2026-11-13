@@ -179,6 +179,31 @@ def read(path, from_time=None):
     return lines, bad
 
 
+def video_lines(path, video_id, since):
+    """Every line of one video among the lines mined at or after `since` (aware datetime), in file order."""
+    return [l for l in read(path, from_time=since)[0] if l["video_id"] == video_id]
+
+
+def carry_forward(lines, earlier):
+    """Fail closed across passes (ruling 80): a line appended for a moment the ledger already holds (the same moment
+    id: the same video, transcript and words) carries every earlier line's flags (risk: the union; names_person and
+    altcoin: either; about_bitcoin: both) and its hook hint. The adapter returns the LATEST line of a moment, so the
+    latest must lose nothing an earlier pass said (a hook pass after the moment pass, or a re-mine)."""
+    by = {}
+    for e in earlier:
+        by.setdefault(e.get("moment_id"), []).append(e)
+    for l in lines:
+        for e in by.get(l["moment_id"], []):
+            l["risk"] = sorted(set(l["risk"]) | set(e.get("risk") or []))
+            l["names_person"] = bool(l["names_person"] or e.get("names_person"))
+            fx, ex = l.setdefault("flags_ext", {}), e.get("flags_ext") or {}
+            fx["altcoin"] = bool(fx.get("altcoin") is not False or ex.get("altcoin") is not False)
+            fx["about_bitcoin"] = bool(fx.get("about_bitcoin") is True and ex.get("about_bitcoin") is True)
+            if e.get("role_hint") == "hook":
+                l["role_hint"] = "hook"
+    return lines
+
+
 def video_moment_ids(path, video_id, since):
     """The distinct moment ids of one video among the lines mined at or after `since` (aware datetime)."""
     return {l["moment_id"] for l in read(path, from_time=since)[0] if l["video_id"] == video_id}

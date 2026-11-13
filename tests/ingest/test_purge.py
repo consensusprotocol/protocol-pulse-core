@@ -243,3 +243,49 @@ def test_a_bare_upload_date_is_read_as_the_end_of_that_day_so_nothing_is_deleted
     late = day + timedelta(days=1) + timedelta(hours=12) > NOW
     assert _exists(tree, f"runs/pinned_old/sources/{V['C']}.mp4") == late
     assert purge._latest(day, "youtube_rss") == day and purge._latest(day, None) == day + timedelta(days=1)
+
+
+def test_a_corrupt_record_of_a_delivered_run_stops_the_pass(tree):
+    """Audit r77 c1 (glm P1): a delivered run's edl.json that cannot be parsed must not silently shrink the delivered
+    set: nothing is deleted that pass."""
+    _touch(str(tree["main"] / "runs" / "pinned_delivered" / "edl.json"), data=b"{not json")
+    _age_dir(str(tree["main"] / "runs" / "pinned_delivered"), 3)
+    rep = _run(tree)
+    assert rep["refused"] and "edl.json not readable" in rep["refused"] and rep["freed_bytes"] == 0
+    assert _exists(tree, f"runs/pinned_old/sources/{VIDS['A']}.mp4")
+
+
+def test_an_unreadable_directory_makes_its_run_in_use(tree):
+    """Audit r77 c1 (qwen): activity behind an unreadable directory is unknown, so the run counts as in use."""
+    locked = tree["main"] / "runs" / "pinned_old" / "qa"
+    os.chmod(str(locked), 0)
+    try:
+        rep = _run(tree)
+    finally:
+        os.chmod(str(locked), 0o755)
+    assert _exists(tree, f"runs/pinned_old/sources/{VIDS['A']}.mp4")
+    assert rep["kept"]["its run or unit is in use (touched under 2 h ago)"]["files"] >= 2
+
+
+def test_a_file_exactly_12_h_after_its_publish_time_is_expired_as_in_the_adapter(tree):
+    """Audit r77 c1 (muse P2): the boundary is the adapter's: at publish + 12 h the moment is expired and its media
+    goes."""
+    tree["q"].pub[VIDS["B"]] = NOW - timedelta(hours=12)
+    rep = _run(tree)
+    assert not _exists(tree, f"runs/pinned_old/sources/{VIDS['B']}.mp4")
+
+
+@pytest.mark.parametrize("edit", [
+    lambda s: s.update(targets={"a": 1}),
+    lambda s: s["targets"][0].update(enabled="yes"),
+    lambda s: s["delivered"].update(markers="TELEGRAM_DELIVERY.json"),
+    lambda s: s["delivered"].update(runs="runs/*"),
+    lambda s: s.update(publish_time={}),
+])
+def test_the_spec_refuses_wrong_types(tmp_path, edit):
+    s = json.load(open(config.PURGE_SPEC))
+    edit(s)
+    p = tmp_path / "s.json"
+    p.write_text(json.dumps(s))
+    with pytest.raises(purge.SpecError):
+        purge.load_spec(str(p))

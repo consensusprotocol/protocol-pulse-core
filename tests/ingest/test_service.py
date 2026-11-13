@@ -5,6 +5,7 @@ frozen fallback is never called: the videos wait); one service per store."""
 import json
 import os
 import shutil
+from datetime import datetime, timezone
 
 import pytest
 
@@ -376,3 +377,70 @@ def test_the_watcher_runs_the_purge_in_its_own_loop_and_a_refused_spec_deletes_n
     s.stop.set()
     s.run()
     assert loops["purge"] == 600.0 and {"watch", "fetch", "mine", "health"} <= set(loops)
+
+
+def test_a_purge_that_cannot_run_safely_for_30_min_is_noticed_at_the_top_of_state(svc, monkeypatch, tmp_path):
+    """Audit r77 c1 (muse P1): a refused purge must not be silent; the notice goes when a pass runs again."""
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    doc = tmp_path / "STATE.md"
+    doc.write_text("# STATE\nbody\n")
+    monkeypatch.setattr(config, "STATE_DOC", str(doc))
+    refused = {"at": "t", "dry_run": False, "deleted": {}, "kept": {}, "problems": ["/proc not readable"],
+               "delivered_runs": [], "delivered_videos": 0, "freed_bytes": 0, "refused": "nothing deleted: /proc"}
+    monkeypatch.setattr(service.purge, "run_pass", lambda spec, **kw: dict(refused))
+    s.purge_once()
+    assert not doc.read_text().startswith("PURGE NOT RUNNING")          # not yet 30 min
+    s.q.kv_set("purge_blocked_since", str(s.clock() - service.PURGE_NOTICE_S - 1))
+    s.purge_once()
+    assert doc.read_text().startswith("PURGE NOT RUNNING since ")
+    ok = dict(refused, refused=None, problems=[])
+    monkeypatch.setattr(service.purge, "run_pass", lambda spec, **kw: dict(ok))
+    s.purge_once()
+    assert doc.read_text() == "# STATE\nbody\n"
+
+
+def test_the_hook_pass_mines_the_12_h_window_newest_first_and_its_rows_carry_earlier_flags(svc, monkeypatch):
+    """Ruling 80: after the moment pass, the hook loop asks the hook question of every mined video published in the
+    last 12 h, newest first; its rows are moments with role_hint 'hook'; the same span's earlier flags are carried,
+    so a hook the moment pass flagged is still excluded; a video older than 12 h is never hook-mined."""
+    def fn(prompt):
+        if H.is_hook(prompt):
+            return H.hooks_reply(prompt, ((0, 1), (2, 3)))
+        ids = H.offered_ids(prompt)
+        return H.reply([H.moment(ids[0], ids[1], risk=["accusation"])])  # the moment pass flags the first span
+    s, vids, b = svc(fn, fn, n_videos=3)
+    run_once(s)
+    old = vids[2]
+    s.q.x("UPDATE videos SET published_ts=? WHERE video_id=?", (s.clock() - 13 * 3600, old))
+    s.q.x("UPDATE videos SET published_ts=published_ts+60 WHERE video_id=?", (vids[1],))     # vids[1] is the newest
+    due = [v["video_id"] for v in s.q.hook_due(service.HOOK_HORIZON_S)]
+    assert due[0] == vids[1] and old not in due
+    while s.hook_once(wait=True):
+        pass
+    for v in vids[:2]:
+        row = s.q.video(v)
+        assert row["hook_ts"] and row["hook_rows"] >= 2 and row["hook_cost_usd"] is not None
+    assert s.q.video(old)["hook_ts"] is None
+    lines = ledger.read(s.p["ledger"])[0]
+    latest = {}
+    for l in lines:
+        latest[l["moment_id"]] = l
+    hooks = [l for l in latest.values() if l.get("role_hint") == "hook"]
+    assert hooks and {l["video_id"] for l in hooks} == set(vids[:2])
+    flagged = [l for l in hooks if l["sentences"] == latest[l["moment_id"]]["sentences"] and "accusation" in l["risk"]]
+    assert flagged                                                  # the span the moment pass flagged keeps it
+    out, rep = ledger.best_unused_moments(s.p["ledger"], datetime.fromtimestamp(s.clock() - 3600, timezone.utc),
+                                          registry=[H.CHAN], optout=(), store_root=s.p["root"])
+    assert any(l.get("role_hint") == "hook" for l in out)           # returned like any row
+    assert not [l for l in out if "accusation" in l["risk"]]        # never a hard-flagged one
+    assert s.hook_once(wait=True) == 0                              # done: not asked again
+
+
+def test_a_hook_pass_in_an_outage_waits_without_using_a_try(svc):
+    s, vids, b = svc(H.first_two_and_hooks, H.first_two_and_hooks, n_videos=1)
+    run_once(s)
+    b["primary"].fn = b["fallback"].fn = lambda p: providers.BackendError("network", "down")
+    s.hook_once(wait=True)
+    row = s.q.video(vids[0])
+    assert row["hook_ts"] is None and not row["hook_tries"] and row["hook_next_ts"] > s.clock()
+    assert row["hook_note"].startswith("OUTAGE")

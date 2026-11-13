@@ -6,6 +6,9 @@ Loops (threads, one process):
   mine    every 5 s: mine transcribed videos (3 videos at once; their windows share one executor whose real
           concurrency is bounded per back-end and globally by providers.Router), append moments, mark mined
   health  every 60 s: Heimdall spend meter (every 10 min), live numbers (ingest/live.json), the daily coverage check
+  hook    every 5 s (ruling 80): the HOOK PASS, a second mining question over the same windows (mine.HOOK_PROMPT),
+          on mined videos published in the last 12 h, newest first (2 videos at once): the current window's backfill
+          at start, then every new upload once its moment pass is done; its rows are moments with role_hint "hook"
   purge   every purge.json every_s (600 s; ruling 77, no cron): media of videos published more than 12 h ago is
           deleted from the targets purge.json names, never a delivered video's (purge.py); the ledger keeps every row
 Nothing is dropped (integrator B2; orchestrator 05:30 "if both are down, queue the videos and mine later"):
@@ -41,6 +44,11 @@ COVERAGE_HOUR_UTC = 11         # 06:00 ET
 COVERAGE_RETRY_S = 3600        # a report with an unmeasured channel is tried again (the same day) after this
 OUTAGE_NOTICE_S = 1800         # videos waiting on an outage this long: one line at the top of STATE (a NOTIFY)
 IDLE_RELEASE_S = 120           # no mining due this long: the local model (if any) leaves GPU0 (B3; c2: no thrash)
+PURGE_NOTICE_S = 1800          # the purge unable to run safely this long: one line at the top of STATE (ruling 77)
+HOOK_HORIZON_S = config.EXPIRY_H * 3600   # ruling 80: the hook pass runs on videos whose moments are still usable
+HOOK_VIDEOS = 2                # videos in their hook pass at once (their windows share the router's bounds)
+HOOK_RETRY_S = 600             # a hook pass with failed windows is tried again (stored replies make it cheap)
+HOOK_TRIES = 3                 # passes with REJECTED windows before the hooks of the good windows are written
 
 
 class ServiceBusy(RuntimeError):
@@ -77,8 +85,10 @@ class Service:
         self.executor = ThreadPoolExecutor(max_workers=int(self.cfg["global"]["max_inflight"]),
                                            thread_name_prefix="win")
         self.videos = ThreadPoolExecutor(max_workers=3, thread_name_prefix="vid")
-        self.inflight = set()
-        self.ilock = threading.Lock()
+        self.hooks = ThreadPoolExecutor(max_workers=HOOK_VIDEOS, thread_name_prefix="hook")
+        self.inflight, self.hook_inflight = set(), set()
+        self.ilock, self.hlock = threading.Lock(), threading.Lock()
+        self.wlock = threading.Lock()                   # every ledger append of this service (carry_forward + append)
         self.stop = threading.Event()
         self.rss_mode, self.rss_checked = False, 0.0
         self.cycle = None
@@ -88,7 +98,7 @@ class Service:
         self.q.recover()
         try:
             self.purge_spec, self.purge_error = purge.load_spec(), None
-        except (OSError, ValueError) as e:              # a refused spec deletes nothing, and says so every pass
+        except Exception as e:                          # a refused spec deletes nothing, and says so every pass
             self.purge_spec, self.purge_error = None, f"{type(e).__name__}: {e}"
 
     def _hold_store(self):
@@ -228,7 +238,8 @@ class Service:
             t0 = self.clock()
             lines, rep = mine.mine_video(self.router, self.executor, rec, meta, chan, reg,
                                          datetime.now(timezone.utc), self.cycle, extra_source=src)
-            cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=?", (vid,))[0]["usd"]
+            cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=? AND "
+                               "COALESCE(role, 'mine')='mine'", (vid,))[0]["usd"]
             self._settle(v, chan, lines, rep, cost, t0)
         except ContractUnavailable as e:
             self.q.set_state(vid, Q.MINE_WAIT, next_at=self.clock() + MINE_RETRY_S, reason=f"contract unavailable: {e}")
@@ -247,6 +258,17 @@ class Service:
         finally:
             with self.ilock:
                 self.inflight.discard(vid)
+
+    def _append(self, v, lines):
+        """Every ledger append of the service, under one lock: each line carries the flags (and the hook hint) of the
+        video's earlier lines for the same moment (ledger.carry_forward), so a later pass (the hook pass, a re-mine)
+        never drops what an earlier one flagged; the read and the append are one step for this process (ruling 80)."""
+        if not lines:
+            return 0
+        since = datetime.fromtimestamp(float(v.get("discovered_ts") or self.clock()) - 86400, timezone.utc)
+        with self.wlock:
+            ledger.carry_forward(lines, ledger.video_lines(self.p["ledger"], v["video_id"], since))
+            return ledger.append(self.p["ledger"], lines, stamp=config.iso)
 
     def _ledger_count(self, v):
         """Distinct moment ids of the video in the ledger, read from a day before its discovery (its lines cannot be
@@ -267,8 +289,8 @@ class Service:
                 f"{len(rejected)} rejected, {len(failed) - len(rejected)} outage), miners {rep['miners']}, "
                 f"${(cost or 0):.4f}, {now - t0:.0f} s")
         if not failed:
-            ledger.append(self.p["ledger"], lines, stamp=config.iso)   # a partial video's earlier lines appear
-                                                                          # again: the latest wins
+            self._append(v, lines)                        # a partial video's earlier lines appear again: the latest
+                                                          # wins, carrying every earlier flag (ruling 80)
             n = self._ledger_count(v) if (was_partial or v.get("moments") is not None) else len(lines)
             self.q.set_state(vid, Q.MINED, next_at=now + 10 ** 9, moments=n, mined_at=config.iso(),
                              mined_ts=now, reason=None, **common)
@@ -277,7 +299,7 @@ class Service:
         why = json.dumps(failed[0]["tried"])[:300]
         if was_partial or (rejected and passes >= MINE_CONTENT_PASSES):
             if lines:                                     # every pass that mined windows: its lines, the latest win
-                ledger.append(self.p["ledger"], lines, stamp=config.iso)   # (freeze audit c1, glm C2)
+                self._append(v, lines)                    # (freeze audit c1, glm C2), carrying earlier flags
             moments = self._ledger_count(v)               # the video's distinct moments in the ledger (c2 consensus)
             pub = v.get("published_ts") or v.get("discovered_ts") or now
             nxt = now + MINE_PARTIAL_RETRY_S if now < float(pub) + MINE_HORIZON_S else now + 10 ** 9
@@ -296,6 +318,82 @@ class Service:
                       f"used (retry in {MINE_RETRY_S // 60} min); {why}")
         self.q.set_state(vid, Q.MINE_WAIT, next_at=now + MINE_RETRY_S, reason=reason[:600], **common)
         self.log(f"mine {vid} ({chan.get('display_name')}): waiting: {what}")
+
+    def hook_video(self, v):
+        """RULING 80: the hook pass on one mined video: the hook question over the same windows; its rows (moments
+        with role_hint "hook", 4-14 s) go to the ledger with every earlier flag carried. A pass with failed windows is
+        retried (an outage uses no try); after HOOK_TRIES passes with rejected windows the good windows' hooks are
+        written. Videos published more than 12 h ago are never hook-mined: their moments are expired."""
+        vid, t0 = v["video_id"], self.clock()
+        try:
+            ts = config.ts()
+            rec = ts.canonical_transcript(vid)
+            with open(os.path.join(ts._vdir(vid), "meta.json")) as f:
+                meta = json.load(f)
+            reg, chans = watch.registry()
+            chan = next((c for c in chans if c["channel_id"] == v["channel_id"]), None)
+            optout, oerr = watch.optouts()
+            if oerr:
+                self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S, hook_note=f"opt-out list: {oerr}"[:300])
+                return
+            if chan is None or v["channel_id"] in optout:
+                self.q.set_hook(vid, hook_ts=self.clock(), hook_rows=0, hook_note="channel opted out or not watched")
+                return
+            src = {"discovered_via": v.get("discovered_via"), "live_status": v.get("live_status"),
+                   "media_type": v.get("media_type"), "published_at_source": v.get("published_source"),
+                   "duplicate_of": v.get("duplicate_of"), "canonical_url": ts.canonical_url(vid)}
+            lines, rep = mine.mine_video(self.router, self.executor, rec, meta, chan, reg, datetime.now(timezone.utc),
+                                         self.cycle, extra_source=src, kind="hook")
+            cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=? AND role='hook'",
+                               (vid,))[0]["usd"] or 0.0
+            failed = rep["failed"]
+            rejected = [f for f in failed if not f["outage"]]
+            tries = int(v.get("hook_tries") or 0) + (1 if rejected else 0)
+            what = (f"{len(lines)} hook rows, windows {rep['windows']} (screened {rep['screened']}, failed "
+                    f"{len(failed)}: {len(rejected)} rejected), dropped {rep['dropped'] or 0}, ${cost:.4f}, "
+                    f"{self.clock() - t0:.0f} s")
+            if failed and tries < HOOK_TRIES:
+                self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S, hook_tries=tries, hook_cost_usd=cost,
+                                hook_note=("OUTAGE: " if not rejected else "") + f"{len(failed)} window(s) failed; "
+                                f"retry in {HOOK_RETRY_S // 60} min: {json.dumps(failed[0]['tried'])[:200]}")
+                self.log(f"hooks {vid} ({(chan or {}).get('display_name')}): waiting: {what}")
+                return
+            self._append(v, lines)
+            self.q.set_hook(vid, hook_ts=self.clock(), hook_rows=len(lines), hook_cost_usd=cost, hook_tries=tries,
+                            hook_next_ts=None, hook_note=(f"{len(failed)} window(s) failed after {tries} passes"
+                                                          if failed else None))
+            self.q.event("hooks", vid, v.get("channel_id"), rows=len(lines), windows=rep["windows"],
+                         screened=rep["screened"], failed=len(failed), dropped=rep["dropped"], cost=cost)
+            self.log(f"hooks {vid} ({chan.get('display_name')}): {what}")
+        except ContractUnavailable as e:
+            self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S, hook_note=f"contract unavailable: {e}"[:300])
+            self.log(f"hooks {vid}: contract unavailable: {e}")
+        except Exception as e:
+            self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S,
+                            hook_note=f"hook pass crashed: {type(e).__name__}: {e}"[:300])
+            self.q.event("hook_crash", vid, v.get("channel_id"), error=traceback.format_exc()[-2000:])
+            self.log(f"hooks {vid}: crashed {type(e).__name__}: {e}")
+        finally:
+            with self.hlock:
+                self.hook_inflight.discard(vid)
+
+    def hook_once(self, wait=False):
+        """Ruling 80: start the hook pass on the newest due videos (mined, published in the last 12 h)."""
+        started = []
+        with self.hlock:
+            free = HOOK_VIDEOS - len(self.hook_inflight)
+        if free <= 0:
+            return 0
+        for v in self.q.hook_due(HOOK_HORIZON_S, HOOK_VIDEOS * 2):
+            with self.hlock:
+                if v["video_id"] in self.hook_inflight or len(self.hook_inflight) >= HOOK_VIDEOS:
+                    continue
+                self.hook_inflight.add(v["video_id"])
+            started.append(self.hooks.submit(self.hook_video, v))
+        if wait:
+            for f in started:
+                f.result()
+        return len(started)
 
     def mine_once(self, wait=False):
         started = []
@@ -344,12 +442,30 @@ class Service:
                      f"{len(rep['unmeasured_channels'])} channels unmeasured -> {path}")
         return s
 
+    def _purge_blocked(self, why):
+        """A purge that cannot run safely: once it has lasted PURGE_NOTICE_S, a line at the top of STATE (audit r77
+        c1, muse P1); cleared by the first pass that runs."""
+        now = self.clock()
+        if why is None:
+            if self.q.kv_get("purge_blocked_since"):
+                self.q.kv_set("purge_blocked_since", "")
+                spend.write_purge_notice(None, None, notify_path=self.p["notify"])
+            return
+        since = float(self.q.kv_get("purge_blocked_since") or 0) or now
+        self.q.kv_set("purge_blocked_since", str(since))
+        if now - since >= PURGE_NOTICE_S:
+            spend.write_purge_notice(why[:300], datetime.fromtimestamp(since, timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"), notify_path=self.p["notify"])
+
     def purge_once(self, dry_run=False):
         """Ruling 77: one pass of the rolling purge of expired media (purge.py), in this process's own loop."""
         if self.purge_spec is None:
             self.log(f"purge: not run, its spec is refused ({self.purge_error}); nothing deleted")
+            self._purge_blocked(f"its spec is refused ({self.purge_error})")
             return None
         rep = purge.run_pass(self.purge_spec, q=self.q, dry_run=dry_run, log_dir=self.p["purge"])
+        if not dry_run:
+            self._purge_blocked(rep.get("refused"))
         if not dry_run:
             total = float(self.q.kv_get("purge_freed_total") or 0) + rep.get("freed_bytes", 0)
             self.q.kv_set("purge_freed_total", str(total))
@@ -421,6 +537,7 @@ class Service:
             ("watch", self.watch_once, config.POLL_S, config.POLL_JITTER_S),
             ("fetch", self.fetch_once, 10.0),
             ("mine", self.mine_once, 5.0),
+            ("hook", self.hook_once, 5.0),
             ("health", self.health_once, 60.0),
             ("purge", self.purge_once, float((self.purge_spec or {}).get("every_s", 600))))]
         for t in threads:

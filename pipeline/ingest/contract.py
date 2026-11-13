@@ -145,16 +145,17 @@ def source_for(rec, meta, timing, toks):
                     vod=True, title=meta.get("exact_title") or "")
 
 
-def eligibility_at_mining(src, registry, k0, k1, now):
-    """eligibility.eligible(Span, role clip) as judged at mining time; the packager re-judges with its own clock and
-    word timing. A failure to evaluate is recorded as a failed evaluation, never as ok."""
+def eligibility_at_mining(src, registry, k0, k1, now, role="clip"):
+    """eligibility.eligible(Span, role) as judged at mining time (role "clip", or "hook" for the hook pass of ruling
+    80); the packager re-judges with its own clock and word timing. A failure to evaluate is recorded as a failed
+    evaluation, never as ok."""
     E, _, _ = modules()
     try:
-        res = E.eligible(E.Span(src, k0, k1), E.Context(now=now, registry=registry, role="clip"))
-        return {"role": "clip", "ok": bool(res.ok), "reasons": [[r.name, r.detail] for r in res.reasons],
+        res = E.eligible(E.Span(src, k0, k1), E.Context(now=now, registry=registry, role=role))
+        return {"role": role, "ok": bool(res.ok), "reasons": [[r.name, r.detail] for r in res.reasons],
                 "targets_missed": list(res.facts.get("targets_missed") or [])}
     except Exception as e:
-        return {"role": "clip", "ok": False, "reasons": [["not_evaluated", f"{type(e).__name__}: {e}"[:300]]],
+        return {"role": role, "ok": False, "reasons": [["not_evaluated", f"{type(e).__name__}: {e}"[:300]]],
                 "targets_missed": []}
 
 

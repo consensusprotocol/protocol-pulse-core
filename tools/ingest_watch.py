@@ -10,6 +10,7 @@
   ab ...                  the blind A/B of back-ends on saved universes (pipeline/ingest/ab.py)
   flagcheck ...           a second model's check of the miner's hard flags (ruling 40; measurement only:
                           pipeline/ingest/flagcheck.py)
+  hooks [--hours 12]      ruling 80: the hook pass per video (rows, cost, state), newest first (read only)
   purge [--apply]         ruling 77: one pass of the rolling purge of expired media (default: a dry run that
                           deletes nothing); --measure also sizes the media it never deletes. The watcher
                           runs the same pass every 10 min in its own loop (pipeline/ingest/purge.py)
@@ -147,6 +148,22 @@ def cmd_flagcheck(a):
     flagcheck.main(a)
 
 
+def cmd_hooks(a):
+    from pipeline.ingest import queue as Q
+    q = Q.Queue(config.paths()["queue"])
+    since = q.clock() - a.hours * 3600
+    rows = q.rows("SELECT video_id, channel_id, title, published_at, state, moments, hook_ts, hook_rows, hook_cost_usd, "
+                  "hook_note, hook_tries FROM videos WHERE published_ts >= ? AND state IN (?, ?) "
+                  "ORDER BY published_ts DESC", (since, Q.MINED, Q.MINED_PARTIAL))
+    done = [r for r in rows if r["hook_ts"]]
+    print(f"{len(rows)} mined videos published in the last {a.hours:g} h; hook pass done on {len(done)}; "
+          f"{sum(r['hook_rows'] or 0 for r in done)} hook rows; ${sum(r['hook_cost_usd'] or 0 for r in rows):.4f}")
+    for r in rows:
+        state = (f"{r['hook_rows']} hook rows, ${(r['hook_cost_usd'] or 0):.4f}" if r["hook_ts"] else
+                 f"waiting ({r['hook_note'] or 'not yet run'})")
+        print(f"  {r['published_at']}  {r['video_id']}  {(r['title'] or '')[:60]!r}: {state}")
+
+
 def cmd_purge(a):
     from pipeline.ingest import purge
     from pipeline.ingest import queue as Q
@@ -195,6 +212,9 @@ def main():
     from pipeline.ingest import ab as _ab
     _ab.add_args(b)
     b.set_defaults(fn=cmd_ab)
+    hk = sub.add_parser("hooks")
+    hk.add_argument("--hours", type=float, default=12.0)
+    hk.set_defaults(fn=cmd_hooks)
     pg = sub.add_parser("purge")
     pg.add_argument("--apply", action="store_true", help="delete (default: a dry run)")
     pg.add_argument("--measure", action="store_true", help="also size the media outside the targets")

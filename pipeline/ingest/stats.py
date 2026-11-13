@@ -105,6 +105,12 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
         last = None
     out["purge"] = {"expiry_h": config.EXPIRY_H, "last_pass": last,
                     "freed_total_bytes": float(q.kv_get("purge_freed_total") or 0)}
+    h0 = (now_ts or time.time()) - config.EXPIRY_H * 3600           # ruling 80: the hook pass over the 12 h window
+    hk = q.rows("SELECT COUNT(*) AS videos, SUM(hook_ts IS NOT NULL) AS done, SUM(COALESCE(hook_rows,0)) AS rows_, "
+                "SUM(COALESCE(hook_cost_usd,0)) AS usd FROM videos WHERE state IN (?, ?) AND published_ts >= ?",
+                (Q.MINED, Q.MINED_PARTIAL, h0))[0]
+    out["hooks_12h"] = {"mined_videos": hk["videos"] or 0, "hook_pass_done": hk["done"] or 0,
+                        "hook_rows": hk["rows_"] or 0, "usd": round(hk["usd"] or 0.0, 4)}
     return out
 
 

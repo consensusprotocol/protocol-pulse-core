@@ -65,7 +65,11 @@ def load_spec(path=None):
     if not isinstance(ext, list) or not ext or not all(isinstance(e, str) and re.fullmatch(r"\.[a-z0-9]+", e)
                                                         for e in ext):
         raise SpecError("media_ext must be a list of lower-case extensions like '.mp4'")
-    for t in spec.get("targets") or []:
+    if not isinstance(spec.get("targets"), list) or not all(isinstance(t, dict) for t in spec["targets"]):
+        raise SpecError("targets must be a list of objects")
+    for t in spec["targets"]:
+        if not all(isinstance(t.get(k), str) for k in ("name", "units", "files")) or type(t.get("enabled")) is not bool:
+            raise SpecError(f"target {t.get('name')}: name / units / files must be strings and enabled true or false")
         if t.get("mode") not in MODES:
             raise SpecError(f"target {t.get('name')}: mode must be one of {MODES}")
         where = f"{t.get('units', '')}/{t.get('files', '')}"
@@ -76,6 +80,17 @@ def load_spec(path=None):
               "video_records"):
         if k not in d:
             raise SpecError(f"delivered.{k} missing (the delivered set protects the attribution law's sources)")
+    for k in ("runs", "scorer_results", "references"):
+        if not isinstance(d[k], str) or not d[k].startswith("/"):
+            raise SpecError(f"delivered.{k} must be an absolute path")
+    for k in ("markers", "run_records", "reference_markers", "video_records"):
+        if not isinstance(d[k], list) or not d[k] or not all(isinstance(x, str) and x for x in d[k]):
+            raise SpecError(f"delivered.{k} must be a non-empty list of names")
+    if not isinstance((spec.get("publish_time") or {}).get("main_store_meta"), str):
+        raise SpecError("publish_time.main_store_meta must be a path with {video_id}")
+    for r in spec.get("reported_not_purged") or []:
+        if not isinstance(r, dict) or not isinstance(r.get("globs"), list):
+            raise SpecError("reported_not_purged entries need a list of globs")
     return spec
 
 
@@ -100,34 +115,38 @@ def _ids(o, out):
     return out
 
 
-def unit_videos(unit, records):
+def unit_videos(unit, records, problems):
     """The videos a delivery cut and sent: the files of its sources/ (and run/sources/) and transcripts/, the videos
     its edl.json / cuts_final.json / PIN.json name (`records`), and PROVENANCE.json's `sources`. Not every video a
-    record mentions (alternatives, reuse checks): those were never delivered."""
+    record mentions (alternatives, reuse checks): those were never delivered. A record that EXISTS but cannot be read
+    or parsed is a problem (the pass deletes nothing: a corrupt record must not shrink the delivered set; audit r77
+    c1, glm P1)."""
     vids = set()
     for sub in ("sources", "transcripts", os.path.join("run", "sources")):
         try:
             names = os.listdir(os.path.join(unit, sub))
-        except OSError:
-            continue
-        vids |= {v for v in map(_vid_of, names) if v}
-    for r in records:
-        try:
-            with open(os.path.join(unit, r)) as f:
-                _ids(json.load(f), vids)
         except FileNotFoundError:
             continue
-        except (OSError, ValueError):
+        except OSError as e:
+            problems.append(f"{unit}/{sub} not readable: {type(e).__name__}")
             continue
-    try:
-        with open(os.path.join(unit, "PROVENANCE.json")) as f:
-            prov = json.load(f)
-        for s in prov.get("sources") or []:
-            v = s.get("video_id") if isinstance(s, dict) else None
-            if isinstance(v, str) and VIDEO_ID.match(v):
-                vids.add(v)
-    except (OSError, ValueError, AttributeError):
-        pass
+        vids |= {v for v in map(_vid_of, names) if v}
+    for r in list(records) + ["PROVENANCE.json"]:
+        try:
+            with open(os.path.join(unit, r)) as f:
+                obj = json.load(f)
+        except FileNotFoundError:
+            continue
+        except (OSError, ValueError) as e:
+            problems.append(f"{unit}/{r} not readable: {type(e).__name__}")
+            continue
+        if r == "PROVENANCE.json":
+            for s in (obj.get("sources") if isinstance(obj, dict) else None) or []:
+                v = s.get("video_id") if isinstance(s, dict) else None
+                if isinstance(v, str) and VIDEO_ID.match(v):
+                    vids.add(v)
+        else:
+            _ids(obj, vids)
     return vids
 
 
@@ -165,10 +184,10 @@ def delivered(spec):
             why = [f"pin {p} (stand-alone scorer: delivered)" for p in sorted(pins) if p in joined]
         if why:
             runs.append({"run": run, "why": why})
-            vids |= unit_videos(run, d["video_records"])
+            vids |= unit_videos(run, d["video_records"], problems)
     for ref in sorted(glob.glob(d["references"])):
         if os.path.isdir(ref) and any(os.path.lexists(os.path.join(ref, m)) for m in d["reference_markers"]):
-            vids |= unit_videos(ref, d["video_records"])
+            vids |= unit_videos(ref, d["video_records"], problems)
     return vids, runs, problems
 
 
@@ -201,30 +220,45 @@ def published(vid, q, spec, cache):
     return t
 
 
+UNREADABLE_PIDS = [0]          # processes whose open files the last scan could not read (another user's): reported
+
+
 def open_paths():
-    """Real paths of every file a readable process holds open, or None when /proc cannot be listed (fail closed)."""
+    """Real paths of every file a readable process holds open, or None when /proc cannot be listed (fail closed).
+    A process of another user cannot be read: counted in UNREADABLE_PIDS and reported (the media this purge deletes is
+    written by this user's processes; the 2 h idle rule is the second guard)."""
     try:
         pids = [p for p in os.listdir("/proc") if p.isdigit()]
     except OSError:
         return None
-    out = set()
+    out, unreadable = set(), 0
     for pid in pids:
         d = f"/proc/{pid}/fd"
         try:
             fds = os.listdir(d)
+        except FileNotFoundError:
+            continue
         except OSError:
+            unreadable += 1
             continue
         for fd in fds:
             try:
                 out.add(os.path.realpath(os.readlink(os.path.join(d, fd))))
             except OSError:
                 continue
+    UNREADABLE_PIDS[0] = unreadable
     return out
 
 
+def _raise(e):
+    raise e
+
+
 def newest_mtime(unit):
+    """The newest modification under a unit; a directory that cannot be read raises (the unit is then treated as in
+    use: fail closed). Symlinked directories are not followed (the files deleted are never behind one)."""
     newest = os.lstat(unit).st_mtime
-    for root, dirs, files in os.walk(unit):                       # symlinks are not followed
+    for root, dirs, files in os.walk(unit, onerror=_raise):
         for n in dirs + files:
             try:
                 newest = max(newest, os.lstat(os.path.join(root, n)).st_mtime)
@@ -257,6 +291,7 @@ def run_pass(spec, q=None, now=None, dry_run=False, log_dir=None, opened=None, s
         rep["delivered_runs"], rep["delivered_videos"] = druns, len(vids_delivered)
         if opened is None:
             opened = open_paths()
+            rep["proc_unreadable_pids"] = UNREADABLE_PIDS[0]
         if opened is None:
             problems.append("/proc not readable: which files are open is unknown")
         rep["problems"] = problems
@@ -297,6 +332,9 @@ def run_pass(spec, q=None, now=None, dry_run=False, log_dir=None, opened=None, s
                     try:
                         st = os.lstat(p)
                     except FileNotFoundError:
+                        continue
+                    except OSError:
+                        keep("not readable", 0)
                         continue
                     size = st.st_size
                     if not stat.S_ISREG(st.st_mode):

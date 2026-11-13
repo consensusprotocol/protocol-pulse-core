@@ -1,11 +1,12 @@
 """Mining: the strict reply contract (law L-l), windows, the Bitcoin screen, moment lines (pp.moment/1)."""
 import json
+import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
 import pytest
 
-from pipeline.ingest import contract, mine
+from pipeline.ingest import contract, ledger, mine, providers
 from pipeline.ingest.providers import Invalid
 import helpers as H
 
@@ -277,3 +278,69 @@ def test_the_expiry_is_the_publish_time_plus_12_hours_and_unknown_without_a_zone
     assert config.expires_at("2026-11-13T01:00:00+00:00") == "2026-11-13T13:00:00+00:00"
     assert config.expires_at("2026-11-13T01:00:00Z") == "2026-11-13T13:00:00+00:00"
     assert config.expires_at("2026-11-13T01:00:00") is None and config.expires_at(None) is None
+
+
+def test_the_hook_question_is_the_builders_judge_question_verbatim():
+    """Ruling 80: the judge's three-part hook definition the builder uses (pp-selectid package.py HOOK_QUESTION,
+    rulings 52 / 59), verbatim in the hook prompt, so the miner aims at the target the judge scores."""
+    import ast
+    from pipeline.ingest import contract
+    d = os.environ.get("PP_SELECTID_PIPELINE", contract.SELECTID_DEFAULT)
+    tree = ast.parse(open(os.path.join(d, "package.py")).read())
+    val = next(n.value.value for n in ast.walk(tree) if isinstance(n, ast.Assign) and
+               any(getattr(t, "id", None) == "HOOK_QUESTION" for t in n.targets))
+    assert mine.JUDGE_HOOK_QUESTION == val and val in mine.HOOK_PROMPT
+    for part in ('"scroll"', '"alone"', '"setup"'):
+        assert part in mine.HOOK_PROMPT
+
+
+def test_the_hook_prompt_states_the_rulings_hook_and_the_moment_prompts_own_flags():
+    win = [{"k": 3, "start": 0.0, "text": "Bitcoin is a bet against every central bank."},
+           {"k": 4, "start": 4.0, "text": "Here is why."}]
+    p = mine.hook_prompt({"exact_title": "t"}, {"display_name": "c"}, win)
+    for s in ("4 to 14 seconds", "starts at a\n  sentence start and ends at a sentence end", "One speaker throughout",
+              "Understandable with nothing before it", "about Bitcoin or money", "a greeting or a show intro",
+              '"this week"', "an ad read", "a price prediction", "an accusation", "the FIRST words of a short video"):
+        assert s in p, s
+    assert mine._FLAGS_TEXT.format(reason_max=mine.REASON_MAX) in p and mine._AXES_TEXT in p
+    assert '{"hooks": [' in p and "S3" in p and mine.prompt({"exact_title": "t"}, {"display_name": "c"}, win) != p
+
+
+@pytest.mark.parametrize("reply,why", [
+    ('{"moments": []}', "exactly the key 'hooks'"),
+    ('{"hooks": [M, M, M, M]}', "4 hooks > 3"),
+    ('{"hooks": [C4]}', "count 4 is not 1-3"),
+])
+def test_the_hook_reply_is_strict(reply, why):
+    m = json.dumps(H.moment(0, 1))
+    reply = reply.replace("M", m).replace("C4", json.dumps(H.moment(0, 3)))
+    k = mine.KINDS["hook"]
+    with pytest.raises(providers.Invalid, match=why):
+        mine.validator(range(10), k["key"], k["max_n"], k["max_count"])(reply)
+
+
+def test_the_hook_pass_writes_hook_rows_of_4_to_14_seconds_judged_as_hooks(monkeypatch):
+    rec, meta = H.caption_record(H.vid(), n_rep=3)
+    r = H.make_router([H.FakeBackend("primary", fn=lambda p: H.hooks_reply(p, ((0, 1), (2, 3))))])
+    with ThreadPoolExecutor(4) as ex:
+        lines, rep = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                     use_cache=False, kind="hook")
+    assert lines and rep["kind"] == "hook" and not rep["failed"]
+    for l in lines:
+        assert l["role_hint"] == "hook" and l["eligibility"]["role"] == "hook" and l["mined"]["pass"] == "hook"
+        assert l["mined"]["prompt_version"] == "mine-hook/1" and 4.0 <= l["duration_estimate_s"] <= 14.0
+        assert not ledger.line_problems(l)
+    monkeypatch.setattr(mine, "KINDS", dict(mine.KINDS, hook=dict(mine.KINDS["hook"], seconds=(30.0, 40.0))))
+    with ThreadPoolExecutor(4) as ex:
+        none, rep2 = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                     use_cache=False, kind="hook")
+    assert none == [] and rep2["dropped"] == {"outside 30-40 s": len(lines)}
+
+
+def test_a_moment_row_never_carries_a_hook_hint():
+    rec, meta = H.caption_record(H.vid(), n_rep=3)
+    r = H.make_router([H.FakeBackend("primary", fn=H.first_two)])
+    with ThreadPoolExecutor(4) as ex:
+        lines, _ = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                   use_cache=False)
+    assert lines and all("role_hint" not in l and l["eligibility"]["role"] == "clip" for l in lines)

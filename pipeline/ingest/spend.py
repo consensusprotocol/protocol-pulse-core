@@ -18,7 +18,8 @@ import time
 from . import config
 
 OUTAGE_PREFIX = "MINING WAITING ON AN OUTAGE"
-NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + ")")
+PURGE_PREFIX = "PURGE NOT RUNNING"
+NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + "|" + PURGE_PREFIX + ")")
 
 
 def notice_prefixes(label):
@@ -168,4 +169,16 @@ def write_state_notice(state, snap, doc=None, notify_path=None, label="GATEWAY")
     lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
     _rewrite_top(doc, lock_path, lambda h: h.startswith(prefixes), line,
                  keep=(lambda h: False) if state == "tripped" else (lambda h: h.startswith(prefixes[0])))
+    return line
+
+
+def write_purge_notice(why, since, doc=None, notify_path=None):
+    """Ruling 77 (audit c1, muse P1): while the rolling purge has deleted nothing because it could not run safely (its
+    spec refused, the delivered set or /proc unreadable) for longer than service.PURGE_NOTICE_S, one line at the top of
+    the STATE file says so; why None removes it."""
+    doc = doc or config.STATE_DOC
+    line = (f"{PURGE_PREFIX} since {since}: {why} (expired media is kept until this is fixed; nothing is deleted "
+            "while it cannot run safely)") if why else None
+    lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
+    _rewrite_top(doc, lock_path, lambda h: h.startswith(PURGE_PREFIX), line)
     return line

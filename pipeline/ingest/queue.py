@@ -66,6 +66,10 @@ VIDEO_FIELDS = ("title", "published_at", "published_ts", "published_source", "me
                 "duplicate_of", "title_canon", "text_fp", "tries", "mine_tries", "listing_url")
 
 
+HOOK_COLUMNS = (("hook_ts", "REAL"), ("hook_rows", "INTEGER"), ("hook_cost_usd", "REAL"), ("hook_next_ts", "REAL"),
+                ("hook_note", "TEXT"), ("hook_tries", "INTEGER"))
+
+
 class Queue:
     def __init__(self, path, clock=time.time):
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -80,6 +84,9 @@ class Queue:
             cols = {r[1] for r in self.db.execute("PRAGMA table_info(videos)").fetchall()}
             if "first_sight" not in cols:          # queues created before the column (2026-11-12 03:26 ET)
                 self.db.execute("ALTER TABLE videos ADD COLUMN first_sight INTEGER NOT NULL DEFAULT 0")
+            for c, t in HOOK_COLUMNS:               # ruling 80 (2026-11-13): the hook pass's state, per video
+                if c not in cols:
+                    self.db.execute(f"ALTER TABLE videos ADD COLUMN {c} {t}")
 
     def x(self, sql, args=()):
         with self.lock:
@@ -166,6 +173,21 @@ class Queue:
         return self.rows(f"SELECT * FROM videos WHERE state IN ({q}) AND next_at <= ? "
                          "ORDER BY COALESCE(published_ts, listing_ts, discovered_ts) DESC LIMIT ?",
                          tuple(states) + (self.clock(), limit))
+
+    def hook_due(self, horizon_s, limit=50):
+        """Ruling 80: mined videos published inside the last `horizon_s` (12 h) whose hook pass has not run, newest
+        first; a pass that waited on an outage is due again at hook_next_ts."""
+        now = self.clock()
+        return self.rows(f"SELECT * FROM videos WHERE state IN (?, ?) AND hook_ts IS NULL AND COALESCE(hook_next_ts, 0) "
+                         "<= ? AND published_ts >= ? ORDER BY published_ts DESC LIMIT ?",
+                         (MINED, MINED_PARTIAL, now, now - horizon_s, limit))
+
+    def set_hook(self, vid, **kw):
+        bad = [k for k in kw if k not in dict(HOOK_COLUMNS)]
+        if bad:
+            raise ValueError(f"not hook columns: {bad}")
+        cols = ", ".join(f"{k}=?" for k in kw)
+        self.x(f"UPDATE videos SET {cols} WHERE video_id=?", tuple(kw.values()) + (vid,))
 
     def recover(self):
         """After a restart: a probe or a mining pass that was running is due again (cached replies make it free)."""
