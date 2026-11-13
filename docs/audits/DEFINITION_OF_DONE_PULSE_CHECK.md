@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:55 ORDER '09:58' ITEM 56, PRIORITY ONE, THE PLAN (written first, as ordered): the render's own STAND_ALONE clip scorer, offered to the builder at the pin stage.
+- THE SCORER, as validate asks it today: run_fresh.stage_validate's nested rate() runs story_semantics.LocalLLM (gemma3:27b on GPU0, temperature 0) and then rate_passages(llm, {"underlying_event": edl angle or topic}, passages).
+  - The prompt: CLIP_PROMPT with the event, then one <excerpt id=pid channel seconds=round(duration)> per passage.
+  - The reply is cached by the prompt (chat_json).
+  - The rule: score >= CLIP_MIN_SCORE 3.5 and fault != starts_mid_thought (stand_alone.opener / trimmed_opener).
+- ONE CODE PATH: that rate() moves into stand_alone.clip_scorer(event, llm=None), with the threshold in stand_alone.affirmed(score, fault). run_fresh.stage_validate, opener and trimmed_opener call them; the pin-stage service calls the same functions.
+- THE SERVICE: pipeline/stand_alone_scorer.py, on GPU0 under the lease, with the yield flag, batches of 8.
+  - Requests: data/stand_alone_scorer/requests/<id>.json = {event, passages: [{moment_id, pid, channel, duration, text}]}. One rate_passages call per request, exactly validate's shape.
+  - Results: data/stand_alone_scorer/results/<moment_id>.<text_sha256[:16]>.<scorer_code_sha[:12]>.json. Each entry: score, reason, fault, affirmed, threshold, event, pid, prompt_sha256, model digest.
+- A request built exactly as validate builds it (event 'Pinned: <headline>', the EDL's pids, channels and seconds) is byte-identical, and the reply cache serves validate the same answer. Validate re-checks at render as now. Nothing is loosened.
+- NEXT: build it (audited), run it on the builder's ~105 excluded moments, report how many it affirms, tell the builder the contract, then render the builder's first pin.
+
 ## 09:53 ORDER '07:28' ITEM 2 RESULT: THE LOCAL JUDGE'S REPLAY. It is NOT a time saver for any of the three verdicts (L-aa: a measured proposal). The orchestrator accepted this at 09:58: the local judge is not used for the clips-alone verdict or the angle step. Report: docs/audits/local_judge/REPLAY_2026-11-13.md / .json (every disagreement listed). Local answers: data/local_judge/replay_answers.jsonl.
 - The run: 92 prompts (48 step A, 27 clips-alone, 17 angle), all the builder recorded from 04:00Z. gemma3:27b on GPU0: 92 answers, 0 failed calls, done 08:19 ET; GPU0 released after every batch of 8. Read with the builder's own rules at pp-selectid 88aa6d9c.
 - STEP A, per moment (116 moments in 19 in-contract prompts):
