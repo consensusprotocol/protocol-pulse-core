@@ -209,6 +209,51 @@ class TestClipsAloneVerdict(unittest.TestCase):
             self.assertEqual(r.rejected, ["fake:coherence_verdict"])
 
 
+class TestCoherenceHookRating(unittest.TestCase):
+    """The orchestrator's answer (09:59): ruling 52's hook rating applies to the coherence verdict after the takeaway as
+    well. ONE definition of the hook's job (HOOK_QUESTION) in both verdicts; the hook's rating derived, never free-form."""
+    PK_ = {"title": "Nobody bends the rules", "caption": "three clips",
+           "vo": {"intro": None, "bridges": ["No ruler, just rules."], "bridges_after_clip": [2], "signoff": "S"},
+           "segments": [{"label": "hook", "channel": "A", "text": "Bitcoin a."},
+                        {"label": "clip_01", "channel": "B", "text": "Bitcoin b."},
+                        {"label": "clip_02", "channel": "C", "text": "Bitcoin c."}]}
+
+    def reply(self, hook=None, clips=None, vo=5, line="Nobody can change the rules of Bitcoin."):
+        return {"through_line": line, "hook": dict({"scroll": 5, "alone": 5, "setup": 5}, **(hook or {})),
+                "clips": dict({"clip_01": 5, "clip_02": 5}, **(clips or {})), "vo_point": vo}
+
+    def run_it(self, reply):
+        r = Canned(coherence_verdict=[reply])
+        prompts = []
+        call = r.call
+        r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
+        ok, v = PK.coherence(r, self.PK_, {"heimdall"}, writer_family={"deepseek"})
+        return ok, v, r, prompts
+
+    def test_the_hook_is_rated_on_its_own_job_and_derived(self):
+        ok, v, _, prompts = self.run_it(self.reply(hook={"setup": 3}))
+        self.assertFalse(ok)
+        self.assertEqual((v["clips"]["hook"], v["hook"]), (3, {"scroll": 5, "alone": 5, "setup": 3}))
+        self.assertIn(PK.HOOK_QUESTION, prompts[0])                 # the one definition, as in the clips-alone verdict
+        self.assertIn(PK.HOOK_QUESTION, PK.MEDLEY_PROMPT)
+        self.assertIn("For each clip AFTER the hook", prompts[0])
+        self.assertIn('"clips": {"clip_01": 1, "clip_02": 1}', prompts[0])
+        ok, v, _, _ = self.run_it(self.reply(hook={"scroll": 4, "alone": 4, "setup": 4}))
+        self.assertTrue(ok)
+        self.assertEqual(v["clips"], {"hook": 4, "clip_01": 5, "clip_02": 5})
+        self.assertFalse(self.run_it(self.reply(clips={"clip_02": 3}))[0])      # clips and vo_point as before
+        self.assertFalse(self.run_it(self.reply(vo=3))[0])
+
+    def test_out_of_contract_is_not_measured(self):
+        good = self.reply()
+        for bad in ({k: x for k, x in good.items() if k != "hook"}, dict(good, hook={"scroll": 5, "alone": 5}),
+                    dict(good, clips={"hook": 5, "clip_01": 5, "clip_02": 5}), dict(good, hook={"scroll": 5, "alone": 5,
+                                                                                               "setup": 0})):
+            ok, v, r, _ = self.run_it(bad)
+            self.assertEqual((ok, v["measured"]), (False, False))
+            self.assertEqual(r.rejected, ["fake:coherence_verdict"])
+
+
 class TestWriteTakeaway(unittest.TestCase):
     SEGS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
 

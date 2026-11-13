@@ -1,0 +1,45 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: the L-y MEDLEY, a hook + 2-4 clips, then ONE host
+takeaway line). Your role: a strict reviewer of a blind verdict's contract.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background:
+- Ruling 52 (committed at 88aa6d9c) changed the CLIPS-ALONE verdict (MEDLEY_PROMPT / medley()). The HOOK is rated on
+  its own job in three parts the judge answers separately, each 1-5: "scroll" (its first 2-3 seconds stop a scroll),
+  "alone" (it stands alone), "setup" (it sets up what follows). Its rating is DERIVED as the lowest part (HOOK_RULE),
+  written to verdict["clips"]["hook"]. The clips after the hook keep their through-line rating; the bar is 4.
+- The COHERENCE verdict that runs after the takeaway is written (COHERENCE_PROMPT / coherence()) still rated EVERY
+  clip, the hook included, on "how much it advances the through-line", plus vo_point. ok = a stated through-line and
+  min(all clip ratings + vo_point) >= 4.
+- THE ORCHESTRATOR'S ANSWER (09:59 ET Nov 13, verbatim): "YES. Ruling 52's hook rating (the hook judged on its own job:
+  stops the scroll, stands alone, sets up what follows) applies to the coherence verdict after the takeaway as well.
+  One definition of the hook's job everywhere it is rated."
+
+The change:
+1. HOOK_QUESTION: the hook's three-part question, ONE text, defined before both prompts.
+   - MEDLEY_PROMPT now embeds it. Verified: the formatted MEDLEY_PROMPT is BYTE-IDENTICAL to the committed one, so the
+     clips-alone verdict is unchanged.
+   - COHERENCE_PROMPT embeds the same text. It says the first clip ("hook") opens the video, asks the through-line
+     rating "for each clip AFTER the hook", keeps vo_point, and writes the clip keys out per package.
+2. coherence():
+   - the contract requires exactly {"through_line", "hook" (the three parts, ints 1-5), "clips" (the labels after the
+     hook), "vo_point"}; anything else is not measured, rejected, never a pass;
+   - the hook's rating is derived as the lowest part and written to verdict["clips"]["hook"], as in medley();
+   - the pass rule is unchanged.
+   Downstream readers are unchanged: the takeaway-redo branch reads min(coh["clips"]) and vo_point; the weak-clip
+   drop reads segments[1:] only.
+3. tests/package/test_medley.py:
+   - one hook part at 3 fails, all parts at 4 pass, and the derived rating is recorded;
+   - the prompt carries HOOK_QUESTION, which is also in MEDLEY_PROMPT;
+   - a clip at 3 or vo_point 3 still fails;
+   - out-of-contract replies are not measured and are rejected.
+- test_medley 92 OK; every other suite OK.
+
+Check in particular:
+- that the hook's job has exactly one definition, used by both verdicts;
+- that the clips-alone verdict did not change;
+- that the coherence verdict's clips and vo_point are judged exactly as before;
+- that a malformed reply is never a pass;
+- that the derived hook rating feeds the same pass rule.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

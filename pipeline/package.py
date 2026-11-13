@@ -518,6 +518,12 @@ words on what it adds and why it follows the clip before it (an internal note).
 Return ONLY this JSON object: {{"angles": [{{"angle": "...", "moments": ["id", "id", "id"], "hook": "id",
 "support": {{"id": "..."}}}}]}}"""
 
+HOOK_QUESTION = """THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:
+   "scroll": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)
+   "alone": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)
+   "setup": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not
+   at all)"""                    # ruling 52 + the 09:59 answer: ONE definition of the hook's job, in both verdicts
+
 MEDLEY_PROMPT = """You watch a short video made ONLY of these clips, played back to back with NO narration between them.
 Each clip is a person's own words from a show; the shows were not in one conversation. The first clip (label "hook")
 opens the video.
@@ -526,11 +532,7 @@ opens the video.
 
 1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or
    "none" if there is none.
-2) THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:
-   "scroll": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)
-   "alone": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)
-   "setup": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not
-   at all)
+2) """ + HOOK_QUESTION + """
 3) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
 4) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next
    clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few
@@ -579,15 +581,17 @@ picked).
 """
 
 COHERENCE_PROMPT = """You watch a 60-second video. Here is everything it says and shows, in order (each clip is a
-different person's own words).
+different person's own words; the first clip, label "hook", opens the video).
 
 {package}
 
 1) State the video's through-line in ONE sentence, or "none" if it has none.
-2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
-3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;
+2) """ + HOOK_QUESTION + """
+3) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
+4) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;
    1 = no point, or a point the clips do not support).
-Return ONLY this JSON object: {{"through_line": "...", "clips": {{"<label>": 1}}, "vo_point": 1}}"""
+Return ONLY this JSON object: {{"through_line": "...", "hook": {{"scroll": 1, "alone": 1, "setup": 1}},
+"clips": {{{clip_keys}}}, "vo_point": 1}}"""
 
 
 def current_levels(sources, ctx, hours=24.0):
@@ -1041,22 +1045,29 @@ NO_LINE = re.compile(r"^\W*(none|no\b|n/?a\b|unclear|nothing|there is no)", re.I
 
 def coherence(router, pk, writer_vendor, seed=7, writer_family=None):
     """The blind QUALITY verdict (never the vendor / family of the text it judges): through-line + ratings. ->
-    (ok, verdict). A through-line that reads 'None.', 'no through-line', 'n/a' or is under 4 words is none (M7)."""
+    (ok, verdict). A through-line that reads 'None.', 'no through-line', 'n/a' or is under 4 words is none (M7).
+    Ruling 52, as the orchestrator answered at 09:59 Nov 13: the HOOK is rated on its own job here too (HOOK_QUESTION,
+    the same three parts as the clips-alone verdict), and its rating is DERIVED as the lowest part (HOOK_RULE), written
+    to verdict["clips"]["hook"]; the clips after the hook and vo_point are rated as before."""
     import providers as P
     r = None
+    labs = [sg["label"] for sg in pk["segments"]]
     try:
-        r = router.call("coherence_verdict", COHERENCE_PROMPT.format(package=CI.package_view(pk)), 1200, seed,
-                        avoid_vendor=writer_vendor, avoid_family=writer_family)
+        r = router.call("coherence_verdict", COHERENCE_PROMPT.format(
+                            package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])),
+                        1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
         v = json.loads(r.text.strip())
-        labs = [sg["label"] for sg in pk["segments"]]
-        if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
-                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs) or \
+        if not isinstance(v, dict) or set(v) != {"through_line", "hook", "clips", "vo_point"} or \
+                not isinstance(v["hook"], dict) or set(v["hook"]) != set(HOOK_PARTS) or \
+                any(type(x) is not int or not 1 <= x <= 5 for x in v["hook"].values()) or \
+                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
                 any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
             raise ValueError("coherence verdict out of contract")
     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
         if r is not None and isinstance(e, (ValueError, TypeError)):
             router.reject(r)
         return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False}
+    v = dict(v, clips={labs[0]: min(v["hook"][k] for k in HOOK_PARTS), **v["clips"]}, hook_rule=HOOK_RULE)
     tl = v["through_line"] if isinstance(v["through_line"], str) else ""
     ok = bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4 and \
         min(list(v["clips"].values()) + [v["vo_point"]]) >= COHERENCE_MIN
