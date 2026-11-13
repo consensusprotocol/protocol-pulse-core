@@ -1,0 +1,307 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is an unstoppable open-source asset, but its volatility means you must size positions to survive deep drawdowns.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin's price is becoming less tied to old four-year cycles and macro liquidity, so investors should focus on long-term conviction and risk.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 3,
+   "text": "Institutional adoption of Bitcoin is cautious because its volatility can force unsophisticated holders to sell, so small allocations like 1-5% are logical.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  }
+ ],
+ "unusable": {
+  "df03a41d4042bcc725bb": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "c58e95e73ab9e1e7f4a3": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, opener",
+  "1e2bb73ac82b4d7665ca": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "4178ddd19465e979f8f1": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "b618302f54cdb669520f": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "c28f29b576c2cd7ef805": "not eligible on screen: hook: not_statement, no_bitcoin; clip: not_statement, no_bitcoin",
+  "102c159070b6117b5dfc": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "c1112b13bb88daba32ba": "not eligible on screen: hook: layout_ineligible, too_many_sentences, hook_lead; clip: layout_ineligible, too_many_sentences",
+  "12b74e9893af988262c6": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "36fe85b3dae986208380": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "4c6a5339e833e18dcfee": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "da6df4e8b39553cf9c20": "not eligible on screen: hook: not_statement, too_many_sentences; clip: not_statement, too_many_sentences",
+  "e8b910e6041e1e8033b6": "not eligible on screen: hook: layout_ineligible, opener, too_many_sentences; clip: layout_ineligible, too_many_sentences",
+  "896d7f492e5f77e4da7a": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "904b25c5d5e37d19913e": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "b2bf0b55140f711795d0": "not eligible on screen: hook: layout_ineligible, opener, too_many_sentences, no_bitcoin; clip: layout_ineligible, too_many_sentences, no_bitcoin",
+  "b36b3ff54650a043183a": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "c869d7f10b2821d9a1f5": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "810f058d45f2831e0b0b": "20.06 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff84fb3a9eba7f43ab5f": "21.82 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "51e08e417bc63324ee48": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences"
+ },
+ "usable": 11,
+ "current_levels": [
+  68000.0,
+  71000.0
+ ],
+ "prescreen": {
+  "screened": 11,
+  "cleared": 5,
+  "failed": {
+   "8935a0b351127fe16b1c": [
+    "REFERENT_OUTSIDE",
+    "STALE_TIME"
+   ],
+   "eb63e8dcd4eb9502451e": [
+    "STALE_TIME"
+   ],
+   "0d4d772b8d54fe42950f": [
+    "REFERENT_OUTSIDE",
+    "STALE_TIME"
+   ],
+   "ce90631aaac92be0d6d1": [
+    "REFERENT_OUTSIDE"
+   ],
+   "eb5ef19bc37fa4ee9ad5": [
+    "REFERENT_OUTSIDE"
+   ],
+   "301b5c1e6f3f2a8a2eb3": [
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "3a6cb29a4d904118192c": "not cuttable at an edge (ruling C / 7)",
+   "326b88b0592bba35452b": "PASS",
+   "2e77a0a7af2aab66a3a4": "PASS",
+   "8ff542f9877c3a1afc36": "PASS",
+   "16df0954cc411a943bbc": "PASS"
+  },
+  "cuttable": 4,
+  "hook_onset": {
+   "326b88b0592bba35452b": "PASS",
+   "16df0954cc411a943bbc": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "2e77a0a7af2aab66a3a4": "PASS",
+   "8ff542f9877c3a1afc36": "PASS"
+  }
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is an unstoppable open-source asset, but its volatility means you must size positions to survive deep drawdowns.",
+   "moments": [
+    "326b88b0592bba35452b",
+    "2e77a0a7af2aab66a3a4",
+    "16df0954cc411a943bbc",
+    "8ff542f9877c3a1afc36"
+   ],
+   "hook": "326b88b0592bba35452b"
+  },
+  {
+   "angle": "Bitcoin's price is becoming less tied to old four-year cycles and macro liquidity, so investors should focus on long-term conviction and risk.",
+   "moments": [
+    "2e77a0a7af2aab66a3a4",
+    "16df0954cc411a943bbc",
+    "8ff542f9877c3a1afc36",
+    "326b88b0592bba35452b"
+   ],
+   "hook": "2e77a0a7af2aab66a3a4"
+  },
+  {
+   "angle": "Institutional adoption of Bitcoin is cautious because its volatility can force unsophisticated holders to sell, so small allocations like 1-5% are logical.",
+   "moments": [
+    "8ff542f9877c3a1afc36",
+    "16df0954cc411a943bbc",
+    "2e77a0a7af2aab66a3a4",
+    "326b88b0592bba35452b"
+   ],
+   "hook": "8ff542f9877c3a1afc36"
+  }
+ ],
+ "takeaways": [],
+ "package": null,
+ "angle_backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "angle_tried": [],
+ "seconds": 512.8,
+ "usd": 0.5877,
+ "usd_estimate": 0.5877,
+ "usd_best_known": 0.0596,
+ "full": {
+  "est": 0.5911,
+  "best": 0.063,
+  "model_s": 488.62,
+  "calls": 8
+ },
+ "code": "307e2ca7+739b647092be",
+ "now": "2026-11-13T07:08:52.657775+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "inputs": {
+  "rows": 74,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "BS0XC_tixa8": [
+    "transcripts/BS0XC_tixa8/windows/949.209-1032.000.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/956.097-1032.000.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/284.012-385.970.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/867.891-971.790.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/624.807-735.146.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/535.818-636.487.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-66.585.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/543.979-640.457.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/284.012-387.586.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-89.648.whisper_words_punct.json"
+   ],
+   "-6iycj8dTss": [
+    "transcripts/-6iycj8dTss/windows/303.890-409.552.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/0.000-55.664.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/38.621-145.710.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/0.953-102.481.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/352.840-439.000.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/73.717-172.144.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/182.949-298.289.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/222.612-331.651.whisper_words_punct.json"
+   ],
+   "mJviDNOhIyw": [
+    "transcripts/mJviDNOhIyw/windows/226.017-334.510.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/215.816-320.243.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/538.862-638.214.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1115.454-1223.424.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/244.520-346.151.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/734.572-839.025.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/453.918-558.470.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/232.586-340.656.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1087.335-1202.778.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1569.201-1675.315.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/922.388-1035.096.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1604.968-1679.000.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/356.842-468.780.whisper_words_punct.json"
+   ],
+   "xfLi0cH_VqM": [
+    "transcripts/xfLi0cH_VqM/windows/67.320-171.365.whisper_words_punct.json",
+    "transcripts/xfLi0cH_VqM/windows/170.496-274.509.whisper_words_punct.json",
+    "transcripts/xfLi0cH_VqM/windows/175.177-274.509.whisper_words_punct.json"
+   ],
+   "lYca6Bg0FkM": [
+    "transcripts/lYca6Bg0FkM/windows/113.332-208.418.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/324.574-419.606.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/418.599-523.127.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/15.652-127.219.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/658.742-760.000.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/206.599-316.832.whisper_words_punct.json"
+   ],
+   "eHfc3uZPzYc": [
+    "transcripts/eHfc3uZPzYc/windows/223.220-324.710.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 33,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "35f403d415d518b14586": "the row's text does not anchor in the word record (sentence_law.anchor, searched 241-320 s)",
+   "7242d436827e66a080c8": "the row's text does not anchor in the word record (sentence_law.anchor, searched 554-623 s)",
+   "92bab9e3c71c9e146acf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1130-1208 s)",
+   "c627679ac7b969fc04f0": "the anchored text is not whole sentences of the word record (0 word(s) before it and 39 after it inside its edge sentences; at most 3)",
+   "d8e41854d328617c1e0c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 469-543 s)"
+  },
+  "malformed": {},
+  "duplicates": 4,
+  "duplicates_of": {
+   "33e1a38c8a2f1fae3d32": "2cbfca353511dc5c92c2",
+   "dfde70043a82e3a6e227": "7b6e62ea0fbe37be7408",
+   "47c34386c4994a945d0b": "d7899e5a37203b45c07a",
+   "272f2a914aa1f0ea6953": "b256bf8d178283dff8df"
+  },
+  "moments": 32,
+  "videos": 6,
+  "sources": 32,
+  "word_records": {},
+  "word_pass": {
+   "rows": 80,
+   "unreadable": 0,
+   "ready": 70,
+   "not_ready": 10,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ }
+}

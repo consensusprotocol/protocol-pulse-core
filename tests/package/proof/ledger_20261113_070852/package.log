@@ -1,0 +1,10 @@
+=== 02:08:52 EST LEDGER medley build, code 307e2ca7+8c9a7ab8d5d1, now (render clock) 2026-11-13T07:08:52+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 10.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00); 9 clip spans out
+  adapter: 74 rows ({"hard exclusion flag (L-u)": 14, "altcoin or not about Bitcoin": 6})
+  word pass: {"rows": 80, "unreadable": 0, "ready": 70, "not_ready": 10, "failed": 0, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 74: 32 moments on 6 videos (32 word records); 0 rows wait for a word record, 33 wait for their own window, 5 do not re-anchor, 0 malformed, 4 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 41 window record(s) used (0 video(s) without a caption record for L-s)
+  11 usable, 5 cleared step A (193 s)
+  4 of them pass the second recognition pass and CUTTABLE (221 s)
+  3 of them can open a medley (G17a at the pin stage: genuine quiet before the first onset)
+  3 angles from heimdall:deepseek/deepseek-v4.1-flash (513 s)
+no package (None); usable 11, cleared 5

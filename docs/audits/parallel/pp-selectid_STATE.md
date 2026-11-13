@@ -1,5 +1,17 @@
-BATCH: pin #1 (tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json, 1b4a63d0) was HELD at render 01:39 ET and NOT SENT. G17 hook onset: 30 ms of genuine lead < 80 ms. The packaging root cause is found (below), and the pin-stage pre-check is being built. G5 (-15.2 LUFS) and G9 (BT.601) are render rows.
+NO PIN READY. Batch pin #1 (1b4a63d0) was HELD at render 01:39 ET (G17 hook onset 30 ms; the pin-stage check that would have caught it is built and pushed, 307e2ca7). The FRESH medley has no package yet: after every gate the fresh supply is too thin. Builds re-run after each word-pass cycle (since 02:28 ET).
 
+
+## 02:28 ET: FRESH, the 24 h window (in scope: the integrator's reading of the 01:55 order, item 2)
+
+- **02:21 build** (code 6c6e4926: one window per moment, audited; ledger_20261113_072138):
+  - 507 adapter rows gave 62 moments on 14 videos (91 windows, every caption record found). 308 rows still wait for
+    their own window, and 108 for any word record.
+  - 20 usable, 8 cleared step A, 3 passed L-v 2 + CUTTABLE, 3 can open (G17a).
+  - Then "no readable angles": 3 moments cannot make a medley angle. No package.
+- **Now:** a chain re-runs the same 24 h build after each worker cycle (up to 4), and stops on the first sealed pin.
+- **Not changed tonight:** "prefer the newest moments when several line-ups pass" (the integrator, for PBX). The build
+  returns the FIRST package that passes every gate, and recency as a tie-break needs its own audited change.
+- **Spend:** $1.95 best known of the batch's $6 (SPEND_BATCH $1.113 + the ledger builds since 23:05, $0.839).
 
 ## 02:18 ET: the FRESH medley (ruling 2 + the 01:55 order: the last 10 h first). No package yet; supply is the bottleneck
 

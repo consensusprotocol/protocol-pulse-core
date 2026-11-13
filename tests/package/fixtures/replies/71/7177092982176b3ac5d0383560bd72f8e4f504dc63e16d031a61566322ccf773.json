@@ -1,0 +1,338 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "386c5740f48a5ce707979be185ffb7b5ba68183fc19df0c869916903d409c8bb",
+ "result": {
+  "text": "means to be human. Bitcoin is the one piece of open source technology that can't be shut down, silenced, or removed. If Bitcoin wins, open source wins, and every sat you hold is a vote against the digital prison being built around all of us. So let me know in the comments",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 14.56,
+    "text": "means to be human. Bitcoin is the one piece of open source technology that can't be shut down, silenced, or removed. If Bitcoin wins, open source wins, and every sat you hold is a vote against the digital prison being built around all of us. So let me know in the comments"
+   }
+  ],
+  "words": [
+   {
+    "text": "means",
+    "start": 0.08,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.34,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 0.42,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "human.",
+    "start": 0.58,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.52,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.82,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.92,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 2.04,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "piece",
+    "start": 2.2,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.4,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "open",
+    "start": 2.5,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "source",
+    "start": 2.72,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "technology",
+    "start": 2.92,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.46,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 3.6,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 3.82,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shut",
+    "start": 3.96,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down,",
+    "start": 4.18,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "silenced,",
+    "start": 4.86,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 5.32,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "removed.",
+    "start": 5.42,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 6.48,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.54,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wins,",
+    "start": 6.9,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "open",
+    "start": 7.32,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "source",
+    "start": 7.56,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wins,",
+    "start": 7.88,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.66,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 8.8,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sat",
+    "start": 9.06,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.32,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 9.46,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.84,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.96,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "vote",
+    "start": 10.02,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "against",
+    "start": 10.24,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.66,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 10.8,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prison",
+    "start": 11.22,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 11.62,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "built",
+    "start": 11.84,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 12.08,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 12.56,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.7,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us.",
+    "start": 12.82,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 13.66,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let",
+    "start": 13.74,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 13.84,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 13.94,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.08,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.16,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "comments",
+    "start": 14.28,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.58
+ },
+ "usd": 0.002916,
+ "seconds": 0.79,
+ "recorded_at": "2026-11-13T07:12:15Z"
+}

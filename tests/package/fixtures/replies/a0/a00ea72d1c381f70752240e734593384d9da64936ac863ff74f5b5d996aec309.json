@@ -1,0 +1,410 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "35b0c79b44133da3e3c404af678bf0746981f34e4d15ccdb025f3391c0b415d8",
+ "result": {
+  "text": "in a portfolio. But then if someone doesn't understand Bitcoin and you drop 25% of their portfolio in Bitcoin and Bitcoin goes down 50%, you get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one five percent allocation. And you've seen that kind of be the base-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 19.2,
+    "text": "in a portfolio. But then if someone doesn't understand Bitcoin and you drop 25% of their portfolio in Bitcoin and Bitcoin goes down 50%, you get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one five percent allocation. And you've seen that kind of be the base-"
+   }
+  ],
+  "words": [
+   {
+    "text": "in",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.12,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "portfolio.",
+    "start": 0.2,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 1.44,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 1.64,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 2.2,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "someone",
+    "start": 2.36,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 2.66,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 2.9,
+    "end": 3.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.32,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.7,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 3.84,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drop",
+    "start": 4.24,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "25%",
+    "start": 4.9,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.42,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 5.48,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "portfolio",
+    "start": 5.58,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.96,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.08,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.44,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.56,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 6.88,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 7.08,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "50%,",
+    "start": 7.38,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.92,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 8.0,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fired",
+    "start": 8.2,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.52,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 8.6,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 8.7,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 8.84,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 8.96,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 9.74,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 9.96,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.3,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 10.46,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.58,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think,",
+    "start": 10.64,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 10.9,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you've",
+    "start": 11.38,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 11.56,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 11.78,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 12.08,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BlackRock,",
+    "start": 12.3,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.94,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think,",
+    "start": 13.0,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "logically",
+    "start": 13.48,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "walk",
+    "start": 14.68,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.96,
+    "end": 15.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 15.18,
+    "end": 15.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.62,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 16.379,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 16.66,
+    "end": 16.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "percent",
+    "start": 16.9,
+    "end": 17.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "allocation.",
+    "start": 17.24,
+    "end": 17.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 17.84,
+    "end": 18.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you've",
+    "start": 18.06,
+    "end": 18.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 18.16,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 18.34,
+    "end": 18.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 18.58,
+    "end": 18.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.7,
+    "end": 18.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 18.78,
+    "end": 18.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.88,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "base-",
+    "start": 19.0,
+    "end": 19.2,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.23
+ },
+ "usd": 0.003846,
+ "seconds": 0.96,
+ "recorded_at": "2026-11-13T07:12:23Z"
+}

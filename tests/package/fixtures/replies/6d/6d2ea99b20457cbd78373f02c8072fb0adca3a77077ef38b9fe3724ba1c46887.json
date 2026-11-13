@@ -1,0 +1,284 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "075ab52f8453762a07a5e9d2d2c05548db37f013d29484b4ccba9766359a47ae",
+ "result": {
+  "text": "I, I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how do we create financial freedom for 350 Americans and eight billion people around the world. Uh, and-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 1.92,
+    "end": 16.76,
+    "text": "I, I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how do we create financial freedom for 350 Americans and eight billion people around the world. Uh, and-"
+   }
+  ],
+  "words": [
+   {
+    "text": "I,",
+    "start": 1.92,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.08,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 2.16,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 2.3,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.56,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.78,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.18,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto",
+    "start": 3.32,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 3.7,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "partisan",
+    "start": 3.9,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "issues,",
+    "start": 4.44,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 5.14,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.42,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.84,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto",
+    "start": 5.98,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 6.34,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 6.48,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 6.72,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 6.86,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 6.98,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "modernize",
+    "start": 7.26,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.0,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 8.14,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "markets",
+    "start": 8.68,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.16,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 9.3,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 9.48,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 9.6,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "create",
+    "start": 9.78,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 10.12,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "freedom",
+    "start": 10.66,
+    "end": 11.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 11.22,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "350",
+    "start": 12.14,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Americans",
+    "start": 12.86,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 13.66,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eight",
+    "start": 13.78,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 13.98,
+    "end": 14.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 14.32,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 14.62,
+    "end": 14.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.9,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world.",
+    "start": 15.04,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 16.04,
+    "end": 16.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and-",
+    "start": 16.4,
+    "end": 16.76,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.82
+ },
+ "usd": 0.003364,
+ "seconds": 1.79,
+ "recorded_at": "2026-11-13T07:03:44Z"
+}

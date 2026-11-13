@@ -1,0 +1,5367 @@
+{
+ "since": "2026-11-13T03:01:09+00:00",
+ "publish_window_h": 10.0,
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  }
+ ],
+ "adapter_report": {
+  "lines": 2069,
+  "bad_lines": 0,
+  "bad": [],
+  "excluded": {
+   "hard exclusion flag (L-u)": 14,
+   "altcoin or not about Bitcoin": 6
+  },
+  "drift_checked": 0,
+  "returned": 74
+ },
+ "inputs": {
+  "rows": 74,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "BS0XC_tixa8": [
+    "transcripts/BS0XC_tixa8/windows/949.209-1032.000.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/956.097-1032.000.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/284.012-385.970.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/867.891-971.790.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/624.807-735.146.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/535.818-636.487.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-66.585.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/543.979-640.457.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/284.012-387.586.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-89.648.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-66.585.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/638.631-737.943.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/924.858-1021.856.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/782.600-882.246.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/792.310-891.389.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/505.410-606.137.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/527.640-625.741.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/683.959-787.372.whisper_words_punct.json"
+   ],
+   "-6iycj8dTss": [
+    "transcripts/-6iycj8dTss/windows/303.890-409.552.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/0.000-55.664.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/38.621-145.710.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/0.953-102.481.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/352.840-439.000.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/73.717-172.144.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/182.949-298.289.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/222.612-331.651.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/110.756-209.317.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/313.125-422.085.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/381.615-439.000.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/290.331-393.816.whisper_words_punct.json"
+   ],
+   "mJviDNOhIyw": [
+    "transcripts/mJviDNOhIyw/windows/226.017-334.510.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/215.816-320.243.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/538.862-638.214.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1115.454-1223.424.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/244.520-346.151.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/734.572-839.025.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/453.918-558.470.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/232.586-340.656.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1087.335-1202.778.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1569.201-1675.315.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/922.388-1035.096.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1604.968-1679.000.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/356.842-468.780.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/140.264-242.377.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/783.324-894.632.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/766.353-873.270.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1023.490-1139.401.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1136.764-1245.414.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1127.085-1226.669.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1561.675-1667.932.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1608.479-1679.000.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1322.712-1430.124.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1073.621-1170.420.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1235.140-1367.374.whisper_words_punct.json"
+   ],
+   "xfLi0cH_VqM": [
+    "transcripts/xfLi0cH_VqM/windows/67.320-171.365.whisper_words_punct.json",
+    "transcripts/xfLi0cH_VqM/windows/170.496-274.509.whisper_words_punct.json",
+    "transcripts/xfLi0cH_VqM/windows/175.177-274.509.whisper_words_punct.json"
+   ],
+   "lYca6Bg0FkM": [
+    "transcripts/lYca6Bg0FkM/windows/113.332-208.418.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/324.574-419.606.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/418.599-523.127.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/15.652-127.219.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/658.742-760.000.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/206.599-316.832.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/531.019-646.172.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/318.964-417.444.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/350.985-453.231.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/216.820-316.832.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/0.000-102.670.whisper_words_punct.json"
+   ],
+   "eHfc3uZPzYc": [
+    "transcripts/eHfc3uZPzYc/windows/223.220-324.710.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 5,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "35f403d415d518b14586": "the row's text does not anchor in the word record (sentence_law.anchor, searched 241-320 s)",
+   "7242d436827e66a080c8": "the row's text does not anchor in the word record (sentence_law.anchor, searched 554-623 s)",
+   "92bab9e3c71c9e146acf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1130-1208 s)",
+   "c627679ac7b969fc04f0": "the anchored text is not whole sentences of the word record (0 word(s) before it and 39 after it inside its edge sentences; at most 3)",
+   "d8e41854d328617c1e0c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 469-543 s)",
+   "f26da623f40a82f837eb": "the anchored text is not whole sentences of the word record (9 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "24b980f447493d07af9b": "the anchored text is not whole sentences of the word record (0 word(s) before it and 47 after it inside its edge sentences; at most 3)",
+   "66c931f8324de6e1c613": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1152-1230 s)",
+   "fb2912a0450eb6593999": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1142-1212 s)",
+   "ae77e7982c51d938c130": "the anchored text is not whole sentences of the word record (0 word(s) before it and 32 after it inside its edge sentences; at most 3)",
+   "fe56662e63c4664c3e41": "the anchored text is not whole sentences of the word record (0 word(s) before it and 57 after it inside its edge sentences; at most 3)"
+  },
+  "malformed": {},
+  "duplicates": 11,
+  "duplicates_of": {
+   "33e1a38c8a2f1fae3d32": "2cbfca353511dc5c92c2",
+   "dfde70043a82e3a6e227": "7b6e62ea0fbe37be7408",
+   "47c34386c4994a945d0b": "d7899e5a37203b45c07a",
+   "98ae27d234079bdaaa69": "a5f5e1f06421da7e8955",
+   "9a2bb7065288ed039953": "40f162dd1c5caa94e1dd",
+   "ca9280e1b53d54caca7b": "55f5e2be2dac6ae33e98",
+   "8533bef7d59bfafca173": "dcd2ee89c6490bba3587",
+   "4e12f09e7b5009cfdc7e": "09726516dbd81cec5f0f",
+   "272f2a914aa1f0ea6953": "b256bf8d178283dff8df",
+   "832252b379c58c6e485c": "a2eeb075fe7d1420a616",
+   "0fecafbfbaf6b71c38f0": "0032edb1b34015e3895d"
+  },
+  "moments": 47,
+  "videos": 6,
+  "sources": 47,
+  "word_records": {},
+  "word_pass": {
+   "rows": 120,
+   "unreadable": 0,
+   "ready": 107,
+   "not_ready": 13,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ },
+ "delivered": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0"
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0"
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0"
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "326b88b0592bba35452b",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "66e70e0d1b2a44bb9d995fa4df41499d6d3448c34abf84010c5352bb54423926",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    165,
+    205
+   ],
+   "sentences": [
+    12,
+    14
+   ],
+   "text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us.",
+   "start": 994.329,
+   "end": 1005.909,
+   "duration_s": 11.58,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 5,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong, quotable thesis linking Bitcoin to open source resilience and anti-censorship. Clear stance and high engagement potential.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "11.58 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "6fce23e2900360946de7d001fb8d741795c1155a3b6b8b43d62ab564cb5797b8",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "bcd4cf1da3f21a4a92482a1767ca2b31a178f7e850cc99bd4f3d059b064fb80d",
+    "window": {
+     "start_s": 949.209,
+     "end_s": 1032.0,
+     "record": "transcripts/BS0XC_tixa8/windows/949.209-1032.000.whisper_words_punct.json",
+     "words_sha256": "1d4ab38d57333be8b163128707cfe15a7bf59170bb2770529cf12c6a784348c2",
+     "record_sha256": "ae3156a2e38d8b16247a3c6b9a2be2d6a9d0974e86b9c45f0732289ecea25bb0",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "2cbfca353511dc5c92c2",
+    "reanchored": {
+     "anchor_ratio": 0.976,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      14
+     ],
+     "offset_s": [
+      0.12,
+      -0.03
+     ]
+    },
+    "ledger_text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced, or removed. If Bitcoin wins, open source wins. And every sat you hold is a vote against the digital prison being built around all of us."
+   },
+   "rank_score": 25,
+   "source_key": "BS0XC_tixa8@949.209-1032.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "df03a41d4042bcc725bb",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "6de0444c4e8eaf2bc921439b33e2414c2147ffacceaf628ec166456d48b533b4",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    127,
+    175
+   ],
+   "sentences": [
+    9,
+    11
+   ],
+   "text": "But the headline sounds far, far, far worse than what's actually happening, right? The cycle ran on time and the calendar split it in an awkward place. You know, a Bitcoin that front runs its own cycle and then falls half as hard is a Bitcoin that's growing up.",
+   "start": 348.88,
+   "end": 364.54,
+   "duration_s": 15.66,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 5,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Reframes the 'red years' narrative as a sign of maturity, offering a clear, quotable counter-argument to panic with a strong stance.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "15.66 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "a673e464d5a489a19cbea828b09b4490db65ff904bc5a516e85e8fc28d7ba8bb",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "cf047bd45ac2df5d249f4aa7f06cf0bc138ac932fbb4ce88a90bb5feb80c2337",
+    "window": {
+     "start_s": 303.89,
+     "end_s": 409.552,
+     "record": "transcripts/-6iycj8dTss/windows/303.890-409.552.whisper_words_punct.json",
+     "words_sha256": "c41163590576dfec1d023e9f3ff2c13536c3664581e05ccdf764370f107cd22d",
+     "record_sha256": "34241e199f0e8338a919b9789eef3bea08cd87d7e43e7406a5bf592a5c0b3e75",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "55f5e2be2dac6ae33e98",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      11
+     ],
+     "offset_s": [
+      -0.01,
+      -0.01
+     ]
+    },
+    "ledger_text": "But the headline sounds far far far worse than what's actually happening, right? The cycle ran on time and the calendar split it in an awkward place. You know, a Bitcoin that front runs its own cycle and then falls half as hard is a Bitcoin that's growing up."
+   },
+   "rank_score": 25,
+   "source_key": "-6iycj8dTss@303.890-409.552"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "16df0954cc411a943bbc",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "252462db3c6b61357251cb777badad9afeeb3efa451a2fd49bfcbcf21581e988",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    139,
+    176
+   ],
+   "sentences": [
+    9,
+    10
+   ],
+   "text": "And so we've seen kind of the four -year cycles play out, which my belief is that those will become less meaningful over the course of into the future. But we're willing to underwrite Bitcoin going down 80%.",
+   "start": 260.926,
+   "end": 275.006,
+   "duration_s": 14.08,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 5,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Bold risk management claim: underwriting an 80% drop. High stakes for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "14.08 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "277b9799f82eadf5ee869fd067adae4a33fb0481e2ff2e50c6655314712fcbf0",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "183ecfbdcec83014d514cb43d4a5c387e8ab8b461fd3b52fc86a7eadc763cb20",
+    "window": {
+     "start_s": 215.816,
+     "end_s": 320.243,
+     "record": "transcripts/mJviDNOhIyw/windows/215.816-320.243.whisper_words_punct.json",
+     "words_sha256": "644ee24a99a0d5dbc8e2cf092426556b1cad8e1a5824700d9b00252d909f7f7a",
+     "record_sha256": "830eb7458339b67bcd54333130e91e848e8b1bafd1670615cde218245bf4bde6",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "d558c3caa1885c68cf79",
+    "reanchored": {
+     "anchor_ratio": 0.975,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      10
+     ],
+     "offset_s": [
+      0.11,
+      -0.24
+     ]
+    },
+    "ledger_text": "And and so, we've seen kind of the four-year cycles play out, which my belief is that those will become less meaningful over the course of into the future. Um, but we're willing to underwrite Bitcoin going down 80%."
+   },
+   "rank_score": 24,
+   "source_key": "mJviDNOhIyw@215.816-320.243"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c58e95e73ab9e1e7f4a3",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "03152274151a61b66c497a31e1f0906fa98ea9cff08da1b1b6754c3a36e09b1e",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    0,
+    29
+   ],
+   "sentences": [
+    0,
+    1
+   ],
+   "text": "Well, Bitcoin has never posted back -to -back losing years, but 2026 could change that. And while that sounds like a troubling milestone, the numbers may tell a different story.",
+   "start": 0.4,
+   "end": 10.38,
+   "duration_s": 9.98,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 5,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 5,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Strong hook stating a historical first for Bitcoin, clear stakes and standalone context.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener"
+     ],
+     "targets_missed": [
+      "9.98 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "13de459624c16c9371ddc45119d5ac0646b10ade15e490a97222da5c84a8a0f3",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ae4080ee870d0af6efe9139c971d947fbef561d3e62d994e5e10584c087b3a42",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 55.664,
+     "record": "transcripts/-6iycj8dTss/windows/0.000-55.664.whisper_words_punct.json",
+     "words_sha256": "68921e0c6fad505b3a26aee19440982e770d147129c2bde5c39a93a48f59be4b",
+     "record_sha256": "026a916b28cfbb371661e0985fa5b2ddd9fd9aa7806ae1ee6f524f8e91c00c62",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b7c1082eab1ef7b549c3",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      0,
+      1
+     ],
+     "offset_s": [
+      -2.07,
+      -0.28
+     ]
+    },
+    "ledger_text": "Well, Bitcoin has never posted back-to-back losing years, but 2026 could change that. And while that sounds like a troubling milestone, the numbers may tell a different story."
+   },
+   "rank_score": 23,
+   "source_key": "-6iycj8dTss@0.000-55.664"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "eb63e8dcd4eb9502451e",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "b571590c2079940826d8731b6dc0ccb38dbd4fa4fab4c9134335628195a1262b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    134,
+    175
+   ],
+   "sentences": [
+    10,
+    12
+   ],
+   "text": "Days like today are when people get shaken out. Bitcoin dumps on a scandal that has nothing to do with it. You panic or a bill comes due, and suddenly you're selling the scarcest asset on Earth at the worst possible time.",
+   "start": 329.472,
+   "end": 340.722,
+   "duration_s": 11.25,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 5,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Strong Bitcoin-specific narrative about panic selling during unrelated news events. High stakes and clear stance on holding.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "11.25 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "e588ad8783323a36f5c0259044ff813006814063ceab2cf042dfb0b331c52b5e",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "60f00ad7f0f0ebaa3da7f98ccec792eae918bb2749c1d5c6b99f3bd1774cf93d",
+    "window": {
+     "start_s": 284.012,
+     "end_s": 385.97,
+     "record": "transcripts/BS0XC_tixa8/windows/284.012-385.970.whisper_words_punct.json",
+     "words_sha256": "ee8620b32d41d63e25277d6108d7a54bf54aeb14529af3d94bdbc9d8423d6ef4",
+     "record_sha256": "e52225b4c124c33d45ae9855f3b4d71b85d63837c83327b79bebd7a49316193e",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "d7899e5a37203b45c07a",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      12
+     ],
+     "offset_s": [
+      0.46,
+      -0.25
+     ]
+    },
+    "ledger_text": "Days like today are when people get shaken out. Bitcoin dumps on a scandal that has nothing to do with it. You panic or a bill comes due and suddenly you're selling the scarcest asset on Earth at the worst possible time."
+   },
+   "rank_score": 22,
+   "source_key": "BS0XC_tixa8@284.012-385.970"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "0d4d772b8d54fe42950f",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "87f10b4f61344a4881d80c17aedb12b38c7620b8492ca596768dd78820374c5c",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    170,
+    217
+   ],
+   "sentences": [
+    10,
+    12
+   ],
+   "text": "And that's why Bitcoin matters so much in this fight. For 17 years, they've come at it through the price, through the banks, through the rules, and now through its biggest buyer. And there's still no CEO to pressure, no board to lean on, and nobody to remove.",
+   "start": 913.341,
+   "end": 926.461,
+   "duration_s": 13.12,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 1,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 5,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong thematic conclusion linking AI centralization to Bitcoin's decentralization and lack of a single point of failure.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "13.12 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "249f81f46bbe7bbb283e91936821832da66f07591f5b0d7de9cc909d96801a08",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "12d45cf7f26772dc3a9970469883d49f9456b00e944fbfc95de2bc7f46bd15cb",
+    "window": {
+     "start_s": 867.891,
+     "end_s": 971.79,
+     "record": "transcripts/BS0XC_tixa8/windows/867.891-971.790.whisper_words_punct.json",
+     "words_sha256": "67607d747a0ffdb98f73f56b5219f73a5c831caf7beca90130b8c40ac622b923",
+     "record_sha256": "9e5fe21298b74aee2ef6e42ff65e596486a1ff6898d8978c28346b54038e5277",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "0508f7db6ea5c7298835",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      12
+     ],
+     "offset_s": [
+      0.45,
+      -0.33
+     ]
+    },
+    "ledger_text": "And that's why Bitcoin matters so much in this fight. For 17 years, they've come at it through the price, through the banks, through the rules, and now through its biggest buyer. And there's still no CEO to pressure, no board to lean on, and nobody to remove."
+   },
+   "rank_score": 21,
+   "source_key": "BS0XC_tixa8@867.891-971.790"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1e2bb73ac82b4d7665ca",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "8753bf60256a6ee90485ef053eb73b46485ae04c06c595c1fe861f16cd4b8ed9",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    174,
+    215
+   ],
+   "sentences": [
+    13,
+    14
+   ],
+   "text": "James Lavish posted this morning that sentiment is about as bad as he's ever experienced, as bad as the FTX days, and yet the price is still above 70,000. That is what the early part of a bull market feels like.",
+   "start": 581.028,
+   "end": 591.358,
+   "duration_s": 10.33,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": true,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Strong sentiment comparison to FTX days with current price context, high engagement potential for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "10.33 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "fede00cd3f25a324d8edb52e44e510b4d0cf63c91f1716a889b9c062b3782c0d",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "52dd4a2b51d244ab079dccc3673999e9879d702e19d235dcb07e8e484da293bd",
+    "window": {
+     "start_s": 535.818,
+     "end_s": 636.487,
+     "record": "transcripts/BS0XC_tixa8/windows/535.818-636.487.whisper_words_punct.json",
+     "words_sha256": "46f21c07f93bab9a1a808cb7beff31c6c909059d55525ef1271146ab933b7f7c",
+     "record_sha256": "192c6d2b9471cae5f2c17db4dd7f02f3c110d6412dc7894089bb9b98e743a830",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "7b6e62ea0fbe37be7408",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      13,
+      14
+     ],
+     "offset_s": [
+      0.21,
+      -0.13
+     ]
+    },
+    "ledger_text": "James Lavish posted this morning that sentiment is about as bad as he's ever experienced, as bad as the FTX days. And yet, the price is still above 70,000. That is what the early part of a bull market feels like."
+   },
+   "rank_score": 21,
+   "source_key": "BS0XC_tixa8@535.818-636.487"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4178ddd19465e979f8f1",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "c68ab0f8d5db1d5549fade1fa180f013b4a95ed246222791e809ea66bff9ec42",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    119,
+    167
+   ],
+   "sentences": [
+    10,
+    14
+   ],
+   "text": "The Bitcoin ETFs, in my opinion, first people became bitcoins individually. And then they would go to their investment committee and say, hey, I own Bitcoin personally. I think we should as a fund or as an institution go and buy Bitcoin. There's now the ETF. Let's go allocate.",
+   "start": 777.612,
+   "end": 793.872,
+   "duration_s": 16.26,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear narrative on bottom-up institutional adoption of Bitcoin via personal conviction leading to committee approval.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "16.26 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "8ff26b5798d32a8ffeeb24dfcf93747fadd73b30bcba8b56f6fcaca7c8fc3a46",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "e5b0f5ef26021d516dc98bf3af943c65dbd0467abe5c7c6e53332b1856f142f0",
+    "window": {
+     "start_s": 734.572,
+     "end_s": 839.025,
+     "record": "transcripts/mJviDNOhIyw/windows/734.572-839.025.whisper_words_punct.json",
+     "words_sha256": "3520320361c8eb826e2cf53f3d86c900c40a103659ae493c0f2ec043f017dfa4",
+     "record_sha256": "2e1e465608e253880b8f7fd344d3ae45e1c066ec0f11c2c4dbef16de7df740a6",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "80ca23e0cee490e6d9b2",
+    "reanchored": {
+     "anchor_ratio": 0.978,
+     "snapped_words": [
+      3,
+      0
+     ],
+     "sentences": [
+      10,
+      14
+     ],
+     "offset_s": [
+      0.32,
+      -0.15
+     ]
+    },
+    "ledger_text": "In my opinion, first people became Bitcoiners individually and then they would go to their investment committee and say, \"Hey, I own Bitcoin personally. I think we should as a fund or as an institution go and buy Bitcoin. There's now the ETF. Let's go allocate.\""
+   },
+   "rank_score": 21,
+   "source_key": "mJviDNOhIyw@734.572-839.025"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "b618302f54cdb669520f",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "91bc4a6a0e8c05c541b38cfdf01f00a5ea8ef84847f690c132939a8ac4ac3542",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    163,
+    238
+   ],
+   "sentences": [
+    9,
+    14
+   ],
+   "text": "On Wednesday evening, in the very same hour, the Nvidia story blew up. The index giant MSCI kicked strategy out of the global indexes. Effective at the end of this month. That means every fund tracking those indexes has to sell the stock. Somewhere around $2 billion of it. Now, strategy doesn't have to sell a single Bitcoin because of this, but a weaker stock makes it harder for Sailor to raise money and keep buying.",
+   "start": 669.807,
+   "end": 690.007,
+   "duration_s": 20.2,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 5,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": true,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Explains the immediate financial consequence of MSCI removing Strategy from indexes, linking it to Bitcoin buying capacity.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "20.2 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "20.2 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "0012ce292c1223e1f059499f816159a79b781a61d05c32481af62a47db7b80db",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "0c8254812b37fc4fb060f23bb4ef22597c1f31990096ce5d661e5210149f82e4",
+    "window": {
+     "start_s": 624.807,
+     "end_s": 735.146,
+     "record": "transcripts/BS0XC_tixa8/windows/624.807-735.146.whisper_words_punct.json",
+     "words_sha256": "932b604b133d8c8eccb7347dc8d1c74be2f6ade72619e9d5ec874d52f0627a4d",
+     "record_sha256": "c359d0e7824dfe51956359803bb02936f131ee7205a9a20528d940033ad40e5d",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "40f162dd1c5caa94e1dd",
+    "reanchored": {
+     "anchor_ratio": 0.987,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      14
+     ],
+     "offset_s": [
+      0.0,
+      -0.14
+     ]
+    },
+    "ledger_text": "On Wednesday evening, in the very same hour the Nvidia story blew up, the index giant Msei kicked Strategy out of the global indexes, effective at the end of this month. That means every fund tracking those indexes has to sell the stock, somewhere around $2 billion of it. Now, Strategy doesn't have to sell a single Bitcoin because of this, but a weaker stock makes it harder for Sailor to raise money and keep buying."
+   },
+   "rank_score": 21,
+   "source_key": "BS0XC_tixa8@624.807-735.146"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c28f29b576c2cd7ef805",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "9c572cbd0ccf58e2465867733a6159542e4de36ad2938731d61ee7b4e666ac37",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    56,
+    72
+   ],
+   "sentences": [
+    4,
+    4
+   ],
+   "text": "A chip company lost its CEO, so why is the hardest money on Earth paying for it?",
+   "start": 17.28,
+   "end": 21.6,
+   "duration_s": 4.32,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 5,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "A strong rhetorical question highlighting the paradox of Bitcoin's correlation with a tech stock, serving as a good hook.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "4.32 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "4.32 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "f23b59649e016afb1958d69359221925a6c8502e530f917e5acc935e7ea5c147",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "465cd89badc25b287c671d2acedecdd4aa148bbf2e7e41c5c01ea79ab1d7c32a",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 66.585,
+     "record": "transcripts/BS0XC_tixa8/windows/0.000-66.585.whisper_words_punct.json",
+     "words_sha256": "0dcd280addbf76be1a1163641e95419002d74112f5f39a3693289776dc6c9a5b",
+     "record_sha256": "f38b853646b4f6d69da38883084d50fd7969e3755d568c51e5bb6719de967b03",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a5f5e1f06421da7e8955",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      4,
+      4
+     ],
+     "offset_s": [
+      0.08,
+      0.02
+     ]
+    },
+    "ledger_text": "A chip company lost its CEO, so why is the hardest money on Earth paying for it?"
+   },
+   "rank_score": 21,
+   "source_key": "BS0XC_tixa8@0.000-66.585"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "102c159070b6117b5dfc",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "72fbdb23746f1b62d15b5489dfaa1280dbaf8e49999bf40c2ffb20185f9914a4",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    126,
+    169
+   ],
+   "sentences": [
+    11,
+    13
+   ],
+   "text": "So, you know, 2025 closing down about 6 % making the first, first red year directly after a halving. And then 2026 is down about 16 % with seven weeks to go. To finish green, Bitcoin has to be back up above 87.5K.",
+   "start": 83.551,
+   "end": 100.261,
+   "duration_s": 16.71,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 5,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Provides specific current price data and the exact threshold needed to avoid a historical first.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "16.71 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "13de459624c16c9371ddc45119d5ac0646b10ade15e490a97222da5c84a8a0f3",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ae4080ee870d0af6efe9139c971d947fbef561d3e62d994e5e10584c087b3a42",
+    "window": {
+     "start_s": 38.621,
+     "end_s": 145.71,
+     "record": "transcripts/-6iycj8dTss/windows/38.621-145.710.whisper_words_punct.json",
+     "words_sha256": "7e23cf3e13e989e759fda5645545363ba7a433dee513f54ef940ff05650ab15f",
+     "record_sha256": "6c24587b4e825f6e8e72bc8a1f7ed8fa5eda199598b2931bc9476b1a70be6b55",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "1b1ea19e4d0539224e75",
+    "reanchored": {
+     "anchor_ratio": 0.977,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      13
+     ],
+     "offset_s": [
+      -0.07,
+      -0.45
+     ]
+    },
+    "ledger_text": "So you know 2025 closing down about 6% making the first first red year directly after a havinging and then 2026 is down about 16% with 7 weeks to go to finish green. Bitcoin has to be back up above 87.5K."
+   },
+   "rank_score": 20,
+   "source_key": "-6iycj8dTss@38.621-145.710"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "3a6cb29a4d904118192c",
+   "video_id": "xfLi0cH_VqM",
+   "channel_id": "UCd6VYGFkZ3mFLPAyJwwTjMg",
+   "channel_name": "Strategy (MicroStrategy)",
+   "published_at": "2026-11-13T02:57:20+00:00",
+   "title": "Phong Le on CNBC PowerLunch | November 12, 2026",
+   "transcript_sha256": "987c62e1e21991ccdcf3546a17a7f3203946db700d219da2f69161e1598c7989",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    137,
+    175
+   ],
+   "sentences": [
+    10,
+    11
+   ],
+   "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we create financial freedom for 350 Americans and 8 billion people around the world.",
+   "start": 111.98,
+   "end": 125.8,
+   "duration_s": 13.82,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 5,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear stance that Bitcoin is non-partisan and a vision for financial freedom, standing alone well.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "13.82 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-13T03:06:21.474815+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261113T0304Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "07acd0ebabff495a565074b92eb5efab4455d2c57f2d5c27b13414a7fde287df",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "bf56f4ca7c920e20f159318f9d0412f42331585f26f19fa4fe99fc69d631b4a5",
+    "window": {
+     "start_s": 67.32,
+     "end_s": 171.365,
+     "record": "transcripts/xfLi0cH_VqM/windows/67.320-171.365.whisper_words_punct.json",
+     "words_sha256": "c92189f7a63bbe1856f04f31fe38a0d9d29d4044db545b1f7b1ca39dd38a3877",
+     "record_sha256": "5187e912735fded161ae51ad15d80f4e8ff3d44f7e3b7b9aac55f2f0d5cff484",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "8564172a83739011618a",
+    "reanchored": {
+     "anchor_ratio": 0.974,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      11
+     ],
+     "offset_s": [
+      -0.34,
+      -0.56
+     ]
+    },
+    "ledger_text": "I I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how do we create financial freedom for 350 Americans and 8 billion people around the world."
+   },
+   "rank_score": 20,
+   "source_key": "xfLi0cH_VqM@67.320-171.365"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c1112b13bb88daba32ba",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "43331487188065a71693310fe7076920732182a1979a67d1eb2eafa2f7d049e4",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    107,
+    139
+   ],
+   "sentences": [
+    10,
+    13
+   ],
+   "text": "Like 2014, 2018, 2022, just brutal years. Each one wiped out by more than half. Yet every time the next year came back green, right? That's always been the redeeming quality of Bitcoin.",
+   "start": 45.473,
+   "end": 57.513,
+   "duration_s": 12.04,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Contrasts past brutal years with the consistent recovery pattern, highlighting Bitcoin's resilience.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "too_many_sentences",
+      "hook_lead"
+     ],
+     "targets_missed": [
+      "12.04 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "too_many_sentences"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "13de459624c16c9371ddc45119d5ac0646b10ade15e490a97222da5c84a8a0f3",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ae4080ee870d0af6efe9139c971d947fbef561d3e62d994e5e10584c087b3a42",
+    "window": {
+     "start_s": 0.953,
+     "end_s": 102.481,
+     "record": "transcripts/-6iycj8dTss/windows/0.953-102.481.whisper_words_punct.json",
+     "words_sha256": "4e0ab76d4194fc0caab15f51b3391e5522b9302067d288a53bdaa78d115011a3",
+     "record_sha256": "536ed3276369e88155573dd7fe83e2b7c207840c9d24c85b998ae8dd16b683b8",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "bd8d9d3d08101ff6b126",
+    "reanchored": {
+     "anchor_ratio": 0.985,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      13
+     ],
+     "offset_s": [
+      -0.48,
+      0.03
+     ]
+    },
+    "ledger_text": "Like 2014, 2018, 2022, just brutal years, each one wiped out by more than half. Yet, every time the next year came back green, right? That's always been the the redeeming quality of Bitcoin."
+   },
+   "rank_score": 20,
+   "source_key": "-6iycj8dTss@0.953-102.481"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "12b74e9893af988262c6",
+   "video_id": "lYca6Bg0FkM",
+   "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+   "channel_name": "The Bitcoin Layer",
+   "published_at": "2026-11-12T23:54:14+00:00",
+   "title": "When Will Bitcoin Finally Recover?",
+   "transcript_sha256": "b30b3f4508e2dfa6887b5afdfe0be344e7192bfa8cdfe6edde81b5f9123518fa",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    119,
+    131
+   ],
+   "sentences": [
+    7,
+    8
+   ],
+   "text": "And that's the key word here. Strong dollar means fear around the world.",
+   "start": 158.552,
+   "end": 163.292,
+   "duration_s": 4.74,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 3,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong, quotable thesis linking a strong dollar to global fear, directly impacting Bitcoin sentiment.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "4.74 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "4.74 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T23:59:22.592901+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2358Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "3f27e54c485dd1d23ea7e064a133875f591712a9bb49f7f69643cd6118a2d71c",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "35410701b9b9af701e978572f9999fe7a91ec4fa4a81b4d77e5514ed1f49153a",
+    "window": {
+     "start_s": 113.332,
+     "end_s": 208.418,
+     "record": "transcripts/lYca6Bg0FkM/windows/113.332-208.418.whisper_words_punct.json",
+     "words_sha256": "4df3da2412383769e0a9a6d900e73485d04944ca3544df89496f57bbb7925839",
+     "record_sha256": "1dbe936827311d2652db1c146c2f7e57c6dc27081795edf9823e711d3679fd06",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "835279c615bb408bfc61",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      8
+     ],
+     "offset_s": [
+      0.22,
+      -0.13
+     ]
+    },
+    "ledger_text": "And that's the key word here. Strong dollar means fear around the world."
+   },
+   "rank_score": 19,
+   "source_key": "lYca6Bg0FkM@113.332-208.418"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2e77a0a7af2aab66a3a4",
+   "video_id": "lYca6Bg0FkM",
+   "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+   "channel_name": "The Bitcoin Layer",
+   "published_at": "2026-11-12T23:54:14+00:00",
+   "title": "When Will Bitcoin Finally Recover?",
+   "transcript_sha256": "e0ad68fca550fd5f74bc0fceb45624d9189bac5c71e671aeb218888b570f4613",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    121,
+    134
+   ],
+   "sentences": [
+    7,
+    8
+   ],
+   "text": "Bitcoin started turning though before liquidity turned red. And that's an important caveat here.",
+   "start": 369.434,
+   "end": 374.234,
+   "duration_s": 4.8,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Points out a crucial nuance: Bitcoin often turns before liquidity does, which is a valuable trading/holding insight.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.8 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.8 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T23:59:22.592901+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2358Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "c5d8087865f93618f3a9756f93cc2f24c6ae35aed1af4710d42578e5c1beb5e6",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "1738c7aa45135f22013f4325e66ebc16ad5efcafc4b507319463ef032f1b1b8f",
+    "window": {
+     "start_s": 324.574,
+     "end_s": 419.606,
+     "record": "transcripts/lYca6Bg0FkM/windows/324.574-419.606.whisper_words_punct.json",
+     "words_sha256": "de5ba909b6fb83eaa2e60c141b42504859e55910404969908a8be60673f19a25",
+     "record_sha256": "716733d0a66b02b7c6e430e24607e8c989c673602434f8b6adb52700a83ed2ac",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a2eeb075fe7d1420a616",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      8
+     ],
+     "offset_s": [
+      -0.14,
+      -0.37
+     ]
+    },
+    "ledger_text": "Bitcoin started turning though before liquidity turned red. And that's an important caveat here."
+   },
+   "rank_score": 19,
+   "source_key": "lYca6Bg0FkM@324.574-419.606"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "36fe85b3dae986208380",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "77b9b7475f9118b783cb1f1ca93ffb29a3911f62c4f3210ff5e8fbc476411f12",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    155,
+    234
+   ],
+   "sentences": [
+    12,
+    14
+   ],
+   "text": "I mean, that was myself where, you know, when I was looking at strategy in our team, when we were looking at strategy, Our criticism of them was actually the opposite of the consensus criticism. So the consensus criticism was that they're over levered, they're going to blow up. Our view was that they were under levered and they were at such a scale that they were going to struggle to get the type of amplified exposure that they want.",
+   "start": 967.368,
+   "end": 990.048,
+   "duration_s": 22.68,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Contrarian take that Strategy was underlevered, not overlevered, offering a unique perspective on institutional Bitcoin exposure.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "22.68 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "22.68 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "f6aca89ae8492896ce7a4f3f5005487bf3c670c08c65ffcc8e0ab158db305ae0",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "14b31318bd4bb1d95e4587dca6fb39f292618da63f6a0056e13b9db0d0759ea9",
+    "window": {
+     "start_s": 922.388,
+     "end_s": 1035.096,
+     "record": "transcripts/mJviDNOhIyw/windows/922.388-1035.096.whisper_words_punct.json",
+     "words_sha256": "9ac9fbfc7a5b75a32c0f1287e2681b1e2c560a2f99e321be7f4db68c45ddce3e",
+     "record_sha256": "d3d752d4d9af25a773dd3a1f2fdd557f0143e571a74ffff4407f046c56b6818e",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "fa23b448c92b7a5533fd",
+    "reanchored": {
+     "anchor_ratio": 0.944,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      14
+     ],
+     "offset_s": [
+      -0.02,
+      -0.05
+     ]
+    },
+    "ledger_text": "I mean that would that was myself uh where you know when I was looking at strategy in our team when we were looking at strategy our criticism of them was actually the opposite of the consensus criticism. So the consensus criticism was that they're overlevered they're going to blow up. Our view was that they were underlevered and they were at such a scale that they were going to struggle to get the type of amplified exposure that they want."
+   },
+   "rank_score": 19,
+   "source_key": "mJviDNOhIyw@922.388-1035.096"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4c6a5339e833e18dcfee",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "cf2528981fa4a0350f7b735fdc9d76f061f3703d5fda76e1a241e87f80fa794f",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    128,
+    153
+   ],
+   "sentences": [
+    7,
+    8
+   ],
+   "text": "But if it doesn't get there, we get Bitcoin's first back -to -back red years ever. So, you know, I saw this all over the timeline.",
+   "start": 118.367,
+   "end": 126.727,
+   "duration_s": 8.36,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Clear statement of the potential historical milestone if the price target is not met.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "8.36 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "13de459624c16c9371ddc45119d5ac0646b10ade15e490a97222da5c84a8a0f3",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ae4080ee870d0af6efe9139c971d947fbef561d3e62d994e5e10584c087b3a42",
+    "window": {
+     "start_s": 73.717,
+     "end_s": 172.144,
+     "record": "transcripts/-6iycj8dTss/windows/73.717-172.144.whisper_words_punct.json",
+     "words_sha256": "4c4d5b1b46c0581802caa2cd419fda7dd9585ac75f558677a6fc454e1a6eeeed",
+     "record_sha256": "81e4b9bef739342d1b3e124d27ad3cd80671c212ffe4b09f6c295933315d0878",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "fa96ac7987ad22fe13bf",
+    "reanchored": {
+     "anchor_ratio": 0.941,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      8
+     ],
+     "offset_s": [
+      -0.35,
+      -0.42
+     ]
+    },
+    "ledger_text": "But if it doesn't get there, we get Bitcoin's first back-toback red years ever. So, you know, I saw this all over the timeline."
+   },
+   "rank_score": 19,
+   "source_key": "-6iycj8dTss@73.717-172.144"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8ff542f9877c3a1afc36",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "eecf0697932a7a61373f38d050952752aed1666e60ffab8c0648697c9743c153",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    135,
+    187
+   ],
+   "sentences": [
+    9,
+    11
+   ],
+   "text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation.",
+   "start": 1614.601,
+   "end": 1630.831,
+   "duration_s": 16.23,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the behavioral finance reason why high allocations fail for non-conviction holders, highlighting real stakes.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'but then'",
+      "16.23 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'but then'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "b2f25138baa23aa7ca25029c6755de648d1bf5df0ce94579f00c8cc02b945887",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "48c75ee30ac7271f2124ea962a3f095a8107262a17643b93d514740d035a9ac7",
+    "window": {
+     "start_s": 1569.201,
+     "end_s": 1675.315,
+     "record": "transcripts/mJviDNOhIyw/windows/1569.201-1675.315.whisper_words_punct.json",
+     "words_sha256": "4d3d57d0ff135503d4d50b1a479b94b75ab6b048abf47203d55d85ea1b9fbf3b",
+     "record_sha256": "d69b94ace20f23b598bdf13332e54bb5b685795a3c24dc61d0c8acff84ae4f01",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "dcd2ee89c6490bba3587",
+    "reanchored": {
+     "anchor_ratio": 0.972,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      11
+     ],
+     "offset_s": [
+      0.4,
+      0.52
+     ]
+    },
+    "ledger_text": "But then if someone doesn't understand Bitcoin and you drop 25% of their portfolio in Bitcoin and Bitcoin goes down 50% you get fired and they sell their Bitcoin. And so that is I think why you've seen people like Black Rockck I think logically walk that back to one 5% allocation."
+   },
+   "rank_score": 19,
+   "source_key": "mJviDNOhIyw@1569.201-1675.315"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "ce90631aaac92be0d6d1",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "5a4f54227fdca234433dca4d42c74f9a3948f608eb9a501994e836d4c8ab2f4e",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    135,
+    153
+   ],
+   "sentences": [
+    8,
+    8
+   ],
+   "text": "Today, I'll show you who wanted Jensen Huang gone and why the same fight is coming for your Bitcoin.",
+   "start": 39.65,
+   "end": 44.49,
+   "duration_s": 4.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 5,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Directly addresses the viewer's Bitcoin holdings and the threat from the Jensen Huang situation.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.84 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.84 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "f23b59649e016afb1958d69359221925a6c8502e530f917e5acc935e7ea5c147",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "465cd89badc25b287c671d2acedecdd4aa148bbf2e7e41c5c01ea79ab1d7c32a",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 89.648,
+     "record": "transcripts/BS0XC_tixa8/windows/0.000-89.648.whisper_words_punct.json",
+     "words_sha256": "fb595a3b09e23521c061cdc6267c4c5717a7899a4138438fde9c50a1f9887fbc",
+     "record_sha256": "20389fbed11b8dfd2076d3672eb35fe697dce1495568a5e24c403fad8cd7005b",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "840ac7d2d70f1eb39275",
+    "reanchored": {
+     "anchor_ratio": 0.947,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      8
+     ],
+     "offset_s": [
+      0.31,
+      -0.16
+     ]
+    },
+    "ledger_text": "Today, I'll show you who wanted Jensen Wang gone and why the same fight is coming for your Bitcoin."
+   },
+   "rank_score": 19,
+   "source_key": "BS0XC_tixa8@0.000-89.648"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "da6df4e8b39553cf9c20",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "492230b04b74ecb0b3af71af16b119ffbe5d7e0a1f343704606702d26d8701bc",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    150,
+    212
+   ],
+   "sentences": [
+    11,
+    14
+   ],
+   "text": "And so really using Bitcoin as the hurdle rate comes back to your... conviction in the debasement trade and ultimately the denominator. And so you can have the numerator of any assets. So the S &P 500 Bitcoin treasuries. But if the value of the dollar, the denominators being debased, you have to really question, am I really winning or am I losing?",
+   "start": 1131.905,
+   "end": 1157.545,
+   "duration_s": 25.64,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the 'debasement trade' and why Bitcoin is the correct hurdle rate for measuring real returns against fiat currency decline.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "25.64 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "25.64 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "1db22ffcf6905193181a0c87bfbfc90294da33f2f4b1d0ece67662eb7d1a5423",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "4e7d1214774dbb257e0f8820f89529fff5dbc7605d0ba5c5cafc4a554ba368fb",
+    "window": {
+     "start_s": 1087.335,
+     "end_s": 1202.778,
+     "record": "transcripts/mJviDNOhIyw/windows/1087.335-1202.778.whisper_words_punct.json",
+     "words_sha256": "baf7e63944e14aa07898cd29b0f0572235bfbaf1e171b46e22613d82d917968e",
+     "record_sha256": "c945aadb77cdb44ee4f2f34cb26cef9f787ff24fb781f3658a87ea2bdb290053",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "7f4257716baea0d28fb2",
+    "reanchored": {
+     "anchor_ratio": 0.93,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      14
+     ],
+     "offset_s": [
+      -0.43,
+      -0.23
+     ]
+    },
+    "ledger_text": "And so really using Bitcoin as a hurdle rate comes back to your conviction in the debasement trade and ultimately the the denominator. And so you can have the numerator of any asset. So the S&P 500, Bitcoin, uh, treasuries, but if the value of the dollar, the denominator is being debased, you have to really question, am I really winning or am I losing?"
+   },
+   "rank_score": 19,
+   "source_key": "mJviDNOhIyw@1087.335-1202.778"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "e8b910e6041e1e8033b6",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "8355a2f523c2c21334bab02a3b9ce20ddd13da147290dda92425ef7162a3a858",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    122,
+    220
+   ],
+   "sentences": [
+    11,
+    15
+   ],
+   "text": "I love that you brought this up today because when I first saw this stat circulating online, my first thought was, this is a big nothing burger. Because if you've been studying the underlying reasons for why the shape of Bitcoin cycle is changing and the shallower bear market, I mean, it really is like, it's just an awkward spot on the calendar. And we've mentioned, you know, you can be biased with me. So if you're bearish on Bitcoin, hey, that stat is for you. But in the long run, I mean, it's just a sign of maturity.",
+   "start": 397.61,
+   "end": 426.53,
+   "duration_s": 28.92,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 1,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 3,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Speaker dismisses the 'two red years' stat as a 'nothing burger' caused by calendar bias. Strong hook and clear stance.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener",
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "28.92 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "28.92 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "324038982e3e6701b1d0a539c884ccc68e9840a7c487a9203c44a9f7c4dd7626",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "3059f1cbe4c954a4d3609f2ce9f66948911300aaccfa2b0f3ab109c7807c6f11",
+    "window": {
+     "start_s": 352.84,
+     "end_s": 439.0,
+     "record": "transcripts/-6iycj8dTss/windows/352.840-439.000.whisper_words_punct.json",
+     "words_sha256": "5723ffe7d17f2bc5df1f733255e2d0dc24fcee2287e3a7069146b33bcaf73ce4",
+     "record_sha256": "1fd677bb7f4fd23c93dfe9ba123423ebcf3cf0a9de951455c53938d979145722",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "270beb207fcae6540343",
+    "reanchored": {
+     "anchor_ratio": 0.936,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      15
+     ],
+     "offset_s": [
+      -0.23,
+      -0.05
+     ]
+    },
+    "ledger_text": ">> I love that you brought this up today because when I first saw this stat circulating online, my first thought was this is a big nothing burger. because if you've been studying the underlying reasons for why the shape of Bitcoin cycle is changing and you know the shallower and uh shallower bare market I mean it really is like it's just an awkward spot on the calendar and and we've mentioned you know you can be biased with math so if you're bearish on Bitcoin hey that status for you but in the long run I mean it's just a sign of maturity."
+   },
+   "rank_score": 19,
+   "source_key": "-6iycj8dTss@352.840-439.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "eb5ef19bc37fa4ee9ad5",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "a971ea02c83e6c5ff2ae7a1121f953b63aa3b6e1bdd0544c453699cbc7baa457",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    132,
+    176
+   ],
+   "sentences": [
+    9,
+    10
+   ],
+   "text": "So it's kind of like you mix for us about 85%, 90 % Bitcoin, 10, 15 % cash to be able to have cash to write out that downside. we could ride out any historical bare market without even have to sell a single Bitcoin.",
+   "start": 277.386,
+   "end": 295.436,
+   "duration_s": 18.05,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Concrete portfolio allocation (85-90% BTC, 15-10% cash) that explains how to survive bear markets without selling.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "18.05 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "73beeaf5323ef39a3b21b36ece996fd500f37fada06d2e6ad6d876218fc39990",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "3345d36e8bf3790873525dd0ea8db0205bcd523d1815238c891129265c94a405",
+    "window": {
+     "start_s": 232.586,
+     "end_s": 340.656,
+     "record": "transcripts/mJviDNOhIyw/windows/232.586-340.656.whisper_words_punct.json",
+     "words_sha256": "b2d40af105a99b7135afb73ae3b366f80917b5256b3cd9143ae3ca77313c5540",
+     "record_sha256": "26d983b53ea52764ad76190424a18821e058dcfe6b0cf38a2c1b96b79e41014a",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "6e0423c1ab4ed1c6cca0",
+    "reanchored": {
+     "anchor_ratio": 0.957,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      10
+     ],
+     "offset_s": [
+      -0.2,
+      -0.22
+     ]
+    },
+    "ledger_text": "So it's kind of like you mix for us about 85% 90% Bitcoin, 15 10 15% cash to be able to have cash to ride out that downside. So we could ride out any historical bare market without even have to sell a single Bitcoin."
+   },
+   "rank_score": 19,
+   "source_key": "mJviDNOhIyw@232.586-340.656"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "6ca2fa2312c708ff6145",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "6669bc43056e7d88c8b8c523bbe23f966a0b4cd9eb0ff5a528cf5c7aa08a16bd",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    150,
+    173
+   ],
+   "sentences": [
+    13,
+    14
+   ],
+   "text": "So we made a new all -time high in March of 2024, a month before the halving. That's something that had never happened before.",
+   "start": 155.726,
+   "end": 163.406,
+   "duration_s": 7.68,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the structural change in the market cycle due to ETFs, a key insight for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "7.68 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "7.68 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "13de459624c16c9371ddc45119d5ac0646b10ade15e490a97222da5c84a8a0f3",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ae4080ee870d0af6efe9139c971d947fbef561d3e62d994e5e10584c087b3a42",
+    "window": {
+     "start_s": 110.756,
+     "end_s": 209.317,
+     "record": "transcripts/-6iycj8dTss/windows/110.756-209.317.whisper_words_punct.json",
+     "words_sha256": "8fd7c4caa4d5401ae9a558617584def45b46b979ffaa7ed05888eb9c3b58a520",
+     "record_sha256": "2b9b115fcb1865ebbd79b1896af812b9efc1bc8c18a17bf871a45b99a6e81fb9",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "d1bdfb3c571e2eb59560",
+    "reanchored": {
+     "anchor_ratio": 0.958,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      13,
+      14
+     ],
+     "offset_s": [
+      -0.03,
+      -0.91
+     ]
+    },
+    "ledger_text": "So we made a new all-time high in March of 2024 a month before the having. That's something that had never happened before."
+   },
+   "rank_score": 18,
+   "source_key": "-6iycj8dTss@110.756-209.317"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "896d7f492e5f77e4da7a",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "ed2c88e56b61d7bdd63f486d0df7a218f397ae1d2e14fd4b9638d4bf56d139c6",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    140,
+    164
+   ],
+   "sentences": [
+    9,
+    11
+   ],
+   "text": "Do I think it's probably going to be adding it too slow? Yes. But I think it's a net great product because it's not scary.",
+   "start": 1649.918,
+   "end": 1656.888,
+   "duration_s": 6.97,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "stakes": 3,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear stance that current adoption methods are too slow but necessary to reduce fear, a quotable opinion.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6.97 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6.97 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "b2f25138baa23aa7ca25029c6755de648d1bf5df0ce94579f00c8cc02b945887",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "48c75ee30ac7271f2124ea962a3f095a8107262a17643b93d514740d035a9ac7",
+    "window": {
+     "start_s": 1604.968,
+     "end_s": 1679.0,
+     "record": "transcripts/mJviDNOhIyw/windows/1604.968-1679.000.whisper_words_punct.json",
+     "words_sha256": "3fbe8446b1e72f97c5aaa0ab6bbc68f6bcec1b477cfeaa8f4cf45ceb628563c3",
+     "record_sha256": "391630069bc29fb99aea5d664b842acfab0380503f66690fa8639c087473b5c8",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "09726516dbd81cec5f0f",
+    "reanchored": {
+     "anchor_ratio": 0.96,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      11
+     ],
+     "offset_s": [
+      -0.05,
+      -0.27
+     ]
+    },
+    "ledger_text": "Do I think it's probably going to be adding it too slow? Yes. But I think it's a net great product cuz it's not scary."
+   },
+   "rank_score": 18,
+   "source_key": "mJviDNOhIyw@1604.968-1679.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "904b25c5d5e37d19913e",
+   "video_id": "lYca6Bg0FkM",
+   "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+   "channel_name": "The Bitcoin Layer",
+   "published_at": "2026-11-12T23:54:14+00:00",
+   "title": "When Will Bitcoin Finally Recover?",
+   "transcript_sha256": "fe02b8b664c9696f124635e2f5837997f64091aaf552e71a1164063a53c9bfa2",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    100,
+    138
+   ],
+   "sentences": [
+    4,
+    7
+   ],
+   "text": "So that begs the question, is Bitcoin a leader for global liquidity? Is it able to sniff out a rollover in liquidity before it happens? Or is it able to sniff out a pop in liquidity? before it happens.",
+   "start": 463.659,
+   "end": 477.899,
+   "duration_s": 14.24,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Poses a compelling, standalone question about Bitcoin's role as a liquidity leader, suitable for a hook.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "14.24 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T23:59:22.592901+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2358Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "90231a21ae812ade208399294769114e0e74613a7d294b523150c53f6f5fe00c",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "a8d491af2a0eb4bb5e74595084417d4125b75b6dbe4bd2e7d742ba4ee78d7f35",
+    "window": {
+     "start_s": 418.599,
+     "end_s": 523.127,
+     "record": "transcripts/lYca6Bg0FkM/windows/418.599-523.127.whisper_words_punct.json",
+     "words_sha256": "90b0219a3e11a801ca680f5ed2ae63ca2a5e3f86765ff10b3128b6808e30e157",
+     "record_sha256": "23f6f968dcc5407818f23458a636a2e615327daf73499891f632ff9a39d588ac",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "26f12cdd0adac65b26e1",
+    "reanchored": {
+     "anchor_ratio": 0.962,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      4,
+      7
+     ],
+     "offset_s": [
+      0.06,
+      -0.23
+     ]
+    },
+    "ledger_text": "So that begs the question, is Bitcoin a leader for global liquidity? Is it able to sniff out a roll over in liquidity before it happens or is it able to sniff out a pop in liquidity before it happens?"
+   },
+   "rank_score": 18,
+   "source_key": "lYca6Bg0FkM@418.599-523.127"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "b2bf0b55140f711795d0",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "2ede82e0947424f87a33a81e94d60b2d373ff182e21e66941d8b0594f4832ad4",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    127,
+    203
+   ],
+   "sentences": [
+    7,
+    10
+   ],
+   "text": "And so, you know, as we've talked about on this show, this bear market has actually been shorter and shallower. in terms of peak to bottom as of now as it stands now, then any previous bear market before it. The last two took a full year to find a floor and took roughly 80 % off the top. This one bottomed at 58.5k in June, about nine months and only about halfway off the high.",
+   "start": 227.749,
+   "end": 253.019,
+   "duration_s": 25.27,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Contrasts current bear market depth/duration with historical cycles, providing concrete data points (58.5K, 9 months) that stand alone as a factual observation.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener",
+      "too_many_sentences",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "25.27 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "too_many_sentences",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "25.27 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "a673e464d5a489a19cbea828b09b4490db65ff904bc5a516e85e8fc28d7ba8bb",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "cf047bd45ac2df5d249f4aa7f06cf0bc138ac932fbb4ce88a90bb5feb80c2337",
+    "window": {
+     "start_s": 182.949,
+     "end_s": 298.289,
+     "record": "transcripts/-6iycj8dTss/windows/182.949-298.289.whisper_words_punct.json",
+     "words_sha256": "7b48eede1c8778a9edd9ce901772baad6a2885b560f45b0c18241103c62da4ab",
+     "record_sha256": "880cc3e8b79e4d0794aaf7ad526ba879e7a937dcd9f68e994efb5e6948595694",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "3d73fe607e902fc2942c",
+    "reanchored": {
+     "anchor_ratio": 0.954,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      10
+     ],
+     "offset_s": [
+      -0.2,
+      -0.27
+     ]
+    },
+    "ledger_text": "And so, you know, as we've talked about on this show, this bare market has actually been shorter and shallower in terms of peak to bottom as of now, as it stands now, uh, than any previous bare market before it. The last two took a full year to find a floor and took roughly 80% off the top. This one bottomed at 58.5K in June, about 9 months, and only about halfway off the high."
+   },
+   "rank_score": 18,
+   "source_key": "-6iycj8dTss@182.949-298.289"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "b36b3ff54650a043183a",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "3d94f034b63052031fe758014ae36979e1dc683a1e9e6cd7b12e731b35f66843",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    149,
+    219
+   ],
+   "sentences": [
+    10,
+    13
+   ],
+   "text": "And their concern was that... the variable rate nature of SATA, or preferred, was going to be so successful that the yield would come down over time. And that in three years, five years, the interest rate might only be 7 % or 8 % because people are going to understand the credit risk. And they said, that makes me uncomfortable. Actually, I'm not uncomfortable that you won't pay the dividend.",
+   "start": 401.882,
+   "end": 423.582,
+   "duration_s": 21.7,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Reveals a counter-intuitive investor concern: fear of yield dropping to 7-8% rather than fear of default, highlighting market dynamics.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "too_many_sentences",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "21.7 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "21.7 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "73beeaf5323ef39a3b21b36ece996fd500f37fada06d2e6ad6d876218fc39990",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "3345d36e8bf3790873525dd0ea8db0205bcd523d1815238c891129265c94a405",
+    "window": {
+     "start_s": 356.842,
+     "end_s": 468.78,
+     "record": "transcripts/mJviDNOhIyw/windows/356.842-468.780.whisper_words_punct.json",
+     "words_sha256": "43b82c859b4e0d434cbc63db1d958fc631894f02184ca950b56d1dd61f671787",
+     "record_sha256": "2fbf69f200b6d08fc062618c30799202fa4d0b987f0907b35dd1739a52313463",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "338ef57918f811064baa",
+    "reanchored": {
+     "anchor_ratio": 0.993,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      13
+     ],
+     "offset_s": [
+      0.04,
+      -0.2
+     ]
+    },
+    "ledger_text": "And their concern was that the variable rate nature of SATA or P preferred was going to be so successful that the yield would come down over time and that in 3 years 5 years the interest rate might only be 7% or 8% because people are going to understand the credit risk. And they said that makes me uncomfortable. Actually I'm not uncomfortable that you won't pay the dividend."
+   },
+   "rank_score": 18,
+   "source_key": "mJviDNOhIyw@356.842-468.780"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c869d7f10b2821d9a1f5",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "81c5dfa5f7c1a61f592559dad1f946a4a6602426b7b6185d5c3fbdfd04dd0a1f",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    142,
+    188
+   ],
+   "sentences": [
+    7,
+    9
+   ],
+   "text": "And so, you know, if we look back by mid -October in 2020, 2014, 2018, and 2022, Bitcoin was down roughly half on the year. This October, it was down 6%. So even a red 2026 would be the mildest post -top year Bitcoin has ever seen.",
+   "start": 267.572,
+   "end": 286.412,
+   "duration_s": 18.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Uses specific historical comparisons (Oct 2014/18/22 vs Oct 2024) to highlight the mildness of the current drawdown, a strong factual hook.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "18.84 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "a673e464d5a489a19cbea828b09b4490db65ff904bc5a516e85e8fc28d7ba8bb",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "cf047bd45ac2df5d249f4aa7f06cf0bc138ac932fbb4ce88a90bb5feb80c2337",
+    "window": {
+     "start_s": 222.612,
+     "end_s": 331.651,
+     "record": "transcripts/-6iycj8dTss/windows/222.612-331.651.whisper_words_punct.json",
+     "words_sha256": "bee82f0abeb088048b08b69ef90b7ecfa6e9c9c35e947a3d38affb8b20b9c07d",
+     "record_sha256": "9c2a4d87850c654d6c4f2efa64d99027e0bb6b85991bb3f2452adadd5c7315af",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a132a247801d56f57a0f",
+    "reanchored": {
+     "anchor_ratio": 0.918,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      9
+     ],
+     "offset_s": [
+      -0.04,
+      -0.24
+     ]
+    },
+    "ledger_text": "And so, you know, if we look back by mid-occtober in 2024, 2020 or 2020, 2014, 2018, and 2022, Bitcoin was down roughly half on the year. This October, it was down 6%. So, even a red 2026 would be the mildest posttop year Bitcoin has ever seen."
+   },
+   "rank_score": 18,
+   "source_key": "-6iycj8dTss@222.612-331.651"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f159818401398182a256",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "335947b31f894516f37b1d4d39581d7e81411c19a3816f8f757dc96aa018e8ea",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    110,
+    143
+   ],
+   "sentences": [
+    7,
+    8
+   ],
+   "text": "And our belief is that there's an income crisis, there's a retirement crisis in this country. We're deep in the belief of the K -shaped economy and that the average person... just needs yield.",
+   "start": 185.274,
+   "end": 196.844,
+   "duration_s": 11.57,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Connects Bitcoin yield to solving the retirement/income crisis. Emotional stakes.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "11.57 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "277b9799f82eadf5ee869fd067adae4a33fb0481e2ff2e50c6655314712fcbf0",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "183ecfbdcec83014d514cb43d4a5c387e8ab8b461fd3b52fc86a7eadc763cb20",
+    "window": {
+     "start_s": 140.264,
+     "end_s": 242.377,
+     "record": "transcripts/mJviDNOhIyw/windows/140.264-242.377.whisper_words_punct.json",
+     "words_sha256": "766faefc007df9162bc1b7b7d1596165725a0467aa57b3bec5522e802c1ffa4d",
+     "record_sha256": "6e5e92d563fd3f0f49829ea0bd707319c405d96ae87550a5b341dbd5603f46b5",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b4dded06e47b964c4f8c",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      8
+     ],
+     "offset_s": [
+      0.01,
+      -0.53
+     ]
+    },
+    "ledger_text": "And our belief is that there's an income crisis, there's a retirement crisis in this country. We're deep in the belief of the K-shaped economy and that the average person just needs yield."
+   },
+   "rank_score": 18,
+   "source_key": "mJviDNOhIyw@140.264-242.377"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "0a7f484be379188f64ef",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "f2ac645dbb6433306ef5e1abba4dc26a81f3262771895c3877b249f8e9a0de40",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    144,
+    172
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "I believe open source will win, and I believe Bitcoin will win too. Will that help us find our way back to each other, to nature, and to God?",
+   "start": 970.058,
+   "end": 976.818,
+   "duration_s": 6.76,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear, optimistic stance on the future of Bitcoin and open source. Good for community building and sentiment.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "opener"
+     ],
+     "targets_missed": [
+      "6.76 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "6.76 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "6fce23e2900360946de7d001fb8d741795c1155a3b6b8b43d62ab564cb5797b8",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "bcd4cf1da3f21a4a92482a1767ca2b31a178f7e850cc99bd4f3d059b064fb80d",
+    "window": {
+     "start_s": 924.858,
+     "end_s": 1021.856,
+     "record": "transcripts/BS0XC_tixa8/windows/924.858-1021.856.whisper_words_punct.json",
+     "words_sha256": "a2c8e625fd8ce5ae7d29c898ab38e84341eb555ff5385e1eaf65c17dd6c4a9e0",
+     "record_sha256": "97b8631e502af6b0038880fbb0fb3b61885f01959ffc536603bfe1613c6e3a4b",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "9ba447bf3096c655ae79",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "offset_s": [
+      0.2,
+      -0.04
+     ]
+    },
+    "ledger_text": "I believe open source will win and I believe Bitcoin will win, too. Will that help us find our way back to each other, to nature, and to God?"
+   },
+   "rank_score": 17,
+   "source_key": "BS0XC_tixa8@924.858-1021.856"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "810f058d45f2831e0b0b",
+   "video_id": "lYca6Bg0FkM",
+   "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+   "channel_name": "The Bitcoin Layer",
+   "published_at": "2026-11-12T23:54:14+00:00",
+   "title": "When Will Bitcoin Finally Recover?",
+   "transcript_sha256": "bb612316e31fbf1241571affbd0981a7efb01774d4275ba393d5aa2f9293d39e",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    125,
+    175
+   ],
+   "sentences": [
+    11,
+    13
+   ],
+   "text": "Can Bitcoin front run it perhaps? But I believe Bitcoin does need the dollar to come back down. to give the market that behavior sense that things are okay again and that we don't need to be afraid of this tight liquidity environment that we've been in a lot of 2026.",
+   "start": 703.792,
+   "end": 723.852,
+   "duration_s": 20.06,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "Directly addresses the video title question with a clear stance on Bitcoin's dependency on the dollar.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "20.06 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "20.06 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T23:59:22.592901+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2358Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "81e9df521e5998373eb53295712fe475498f258f3bfad5be2ea4a0847c95480f",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "be43d5980b792220556b239209741e9ab4a32979d39d29676c86cf19df63197a",
+    "window": {
+     "start_s": 658.742,
+     "end_s": 760.0,
+     "record": "transcripts/lYca6Bg0FkM/windows/658.742-760.000.whisper_words_punct.json",
+     "words_sha256": "e1c3b3740f394216ec6365ddf2f8c2fe7b5b99e637225e755e0800bc91c2d07b",
+     "record_sha256": "ad0166f678e6a2380b899f680269b373019bd548d4b1206fa298915e507908fb",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "d4ed879fcd3c2db7e4ba",
+    "reanchored": {
+     "anchor_ratio": 0.98,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      13
+     ],
+     "offset_s": [
+      0.05,
+      0.18
+     ]
+    },
+    "ledger_text": "Can Bitcoin frontr run it perhaps. But I believe Bitcoin does need the dollar to come back down to give the market that behavior sense that things are okay again and that we don't need to be afraid of this tight liquidity environment that we've been in a lot of 2026."
+   },
+   "rank_score": 17,
+   "source_key": "lYca6Bg0FkM@658.742-760.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "88574641595f10d34454",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "723bcfbef027d04d653368bc9b6e0f1ddad939c5828f5c3264a3b1c1e96e3ab8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    114,
+    150
+   ],
+   "sentences": [
+    10,
+    11
+   ],
+   "text": "Now if a board can take a founder's company from him in four days, it's worth asking who could take your Bitcoin from you. But secure self -custody has to be something your family can actually access.",
+   "start": 827.69,
+   "end": 837.07,
+   "duration_s": 9.38,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Connects corporate governance risks to Bitcoin self-custody, posing a rhetorical question about security.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "9.38 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "249f81f46bbe7bbb283e91936821832da66f07591f5b0d7de9cc909d96801a08",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "12d45cf7f26772dc3a9970469883d49f9456b00e944fbfc95de2bc7f46bd15cb",
+    "window": {
+     "start_s": 782.6,
+     "end_s": 882.246,
+     "record": "transcripts/BS0XC_tixa8/windows/782.600-882.246.whisper_words_punct.json",
+     "words_sha256": "bb4f28ce60e57aa3967369f28c793985e9e0fd0c2949a1f1aa524903d53e4814",
+     "record_sha256": "129f160a3c12b868abe4f49537b3c50bd4b7e871c5589e5ed02bdd6a540039fc",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "e0594b2ec1f42174d967",
+    "reanchored": {
+     "anchor_ratio": 0.973,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      11
+     ],
+     "offset_s": [
+      0.09,
+      -0.18
+     ]
+    },
+    "ledger_text": "Now, if a board can take a founders's company from him in 4 days, it's worth asking who could take your Bitcoin from you. But secure self-custody has to be something your family can actually access."
+   },
+   "rank_score": 17,
+   "source_key": "BS0XC_tixa8@782.600-882.246"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "cebf528e7f0a9b482156",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "7ca6a8e6f99d087c570fbc1266c08014e2b5189ca9d24e9857b662e63edb3419",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    144,
+    235
+   ],
+   "sentences": [
+    10,
+    13
+   ],
+   "text": "I mean, I'll just say one point that people miss sometimes is because one of the digital credit products that's not out there, I don't think strive will offer it, would be. income plus upside to Bitcoin. And people will say, well, that's kind of similar to like a covered call ETF. But one of the things that they miss is that in the corporate wrapper, you could offer it as a return of capital dividend, which juices up the after tax returns in a way that the ETF structure never could.",
+   "start": 1068.75,
+   "end": 1094.2,
+   "duration_s": 25.45,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains a specific tax advantage of corporate Bitcoin structures over ETFs, a niche but valuable insight for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "25.45 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "25.45 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "f6aca89ae8492896ce7a4f3f5005487bf3c670c08c65ffcc8e0ab158db305ae0",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "14b31318bd4bb1d95e4587dca6fb39f292618da63f6a0056e13b9db0d0759ea9",
+    "window": {
+     "start_s": 1023.49,
+     "end_s": 1139.401,
+     "record": "transcripts/mJviDNOhIyw/windows/1023.490-1139.401.whisper_words_punct.json",
+     "words_sha256": "2a90c34ad48790819f9d163d9cb603dbf2ac25b41bbe5b09886befc09e24a517",
+     "record_sha256": "e80c2f2ea4f00fcad9df743741cc90449c4ff32cf5e5b3b207e5c96f46b26da9",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "376a709d3dda20ea53b8",
+    "reanchored": {
+     "anchor_ratio": 0.978,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      13
+     ],
+     "offset_s": [
+      0.26,
+      -0.2
+     ]
+    },
+    "ledger_text": "I mean, I'll just say one point that people miss sometimes is cuz one of the digital credit products that's not out there, I don't think Strive will offer it would be income plus upside to Bitcoin. And people will say, well, that's kind of similar to like a covered call ETF. But one of the things that they miss is that in the corporate rapper, you could offer it as a return of capital dividend, which juices up the after tax returns in a way that the ETF structure never could."
+   },
+   "rank_score": 17,
+   "source_key": "mJviDNOhIyw@1023.490-1139.401"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "ff84fb3a9eba7f43ab5f",
+   "video_id": "lYca6Bg0FkM",
+   "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+   "channel_name": "The Bitcoin Layer",
+   "published_at": "2026-11-12T23:54:14+00:00",
+   "title": "When Will Bitcoin Finally Recover?",
+   "transcript_sha256": "23fa4e87d569f526c7f1f64aceaade46f5d847970a974b4ea18a85d669e4a443",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    84,
+    126
+   ],
+   "sentences": [
+    8,
+    10
+   ],
+   "text": "But it is a liquidity negative environment that has its strong grip on Bitcoin right now. Bitcoin cannot shake the tightness in financial liquidity. a default cycle that is potentially on the horizon and a very strong dollar, the DXY, charging forward today.",
+   "start": 60.392,
+   "end": 82.212,
+   "duration_s": 21.82,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Identifies the core macro headwind (liquidity) affecting Bitcoin, with specific factors like default cycle and DXY.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "21.82 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "21.82 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T23:59:22.592901+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2358Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "3f27e54c485dd1d23ea7e064a133875f591712a9bb49f7f69643cd6118a2d71c",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "35410701b9b9af701e978572f9999fe7a91ec4fa4a81b4d77e5514ed1f49153a",
+    "window": {
+     "start_s": 15.652,
+     "end_s": 127.219,
+     "record": "transcripts/lYca6Bg0FkM/windows/15.652-127.219.whisper_words_punct.json",
+     "words_sha256": "8a8c46bbcd31c9c374168e73f13bd637d65d87719eafafe9d918761863127623",
+     "record_sha256": "8613dccfff406fb329a67fd9e9ef676802636822561d50b16002ee1cdb865867",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "127134a5438ac5681d27",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      10
+     ],
+     "offset_s": [
+      -0.26,
+      -0.01
+     ]
+    },
+    "ledger_text": "But it is a liquidity negative environment that has its strong grip on Bitcoin right now. Bitcoin cannot shake the tightness in financial liquidity, a default cycle that is potentially on the horizon, and a very strong dollar, the DXY, charging forward today."
+   },
+   "rank_score": 17,
+   "source_key": "lYca6Bg0FkM@15.652-127.219"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "301b5c1e6f3f2a8a2eb3",
+   "video_id": "xfLi0cH_VqM",
+   "channel_id": "UCd6VYGFkZ3mFLPAyJwwTjMg",
+   "channel_name": "Strategy (MicroStrategy)",
+   "published_at": "2026-11-13T02:57:20+00:00",
+   "title": "Phong Le on CNBC PowerLunch | November 12, 2026",
+   "transcript_sha256": "c6e33fe56b716531cb80c2863b5fb550cb50f19eae291f1bce29a43d23d9a8e0",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    124,
+    166
+   ],
+   "sentences": [
+    10,
+    12
+   ],
+   "text": "We hold all of our Bitcoin and U.S.-based custodians and cold storage. So I do agree it creates reputational risk to the space, but it's not a real hard risk to how we're holding our Bitcoin. But we have to stay vigilant.",
+   "start": 215.526,
+   "end": 229.306,
+   "duration_s": 13.78,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear statement of Strategy's security posture regarding Bitcoin custody, directly addressing the hack context.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "13.78 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-13T03:06:21.474815+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261113T0304Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "0a90d58fb2981016ea46e636f1449be0f1aa54d07b55b14b34655b3f95bcc5ce",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "35a6fd147922a3f88d79a86e709b2a887696af4682b1740aee52b2418702a01f",
+    "window": {
+     "start_s": 170.496,
+     "end_s": 274.509,
+     "record": "transcripts/xfLi0cH_VqM/windows/170.496-274.509.whisper_words_punct.json",
+     "words_sha256": "bf79197985cc667d8d48dde3daa94af12037e01c6d9251901b51e218dc7f6af6",
+     "record_sha256": "cf5402020ba451527efb7f527be4c15a6c54e5b2274f75f5bab18acf9422fca5",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b256bf8d178283dff8df",
+    "reanchored": {
+     "anchor_ratio": 0.977,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      12
+     ],
+     "offset_s": [
+      0.03,
+      -0.2
+     ]
+    },
+    "ledger_text": "We hold all of our Bitcoin and US-based custodians and cold storage. So, uh, I do agree it creates reputational risk to the space. Uh, but it's not a real hard risk to how we're holding our Bitcoin, but we have to stay vigilant."
+   },
+   "rank_score": 16,
+   "source_key": "xfLi0cH_VqM@170.496-274.509"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "51e08e417bc63324ee48",
+   "video_id": "lYca6Bg0FkM",
+   "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+   "channel_name": "The Bitcoin Layer",
+   "published_at": "2026-11-12T23:54:14+00:00",
+   "title": "When Will Bitcoin Finally Recover?",
+   "transcript_sha256": "ecbfafedcea4fb790c7029445a30b59af64fc86e30b2093a48e67c7ff8ff08ba",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    119,
+    165
+   ],
+   "sentences": [
+    9,
+    14
+   ],
+   "text": "Lower interest rates. Lower DXY, meaning a cheaper dollar versus the rest of the world. And also lower volatility, less fear. It's the opposite that is restrictive to Bitcoin. More fear, higher dollar, higher rates. And that is the regime that we have been in all year.",
+   "start": 251.669,
+   "end": 271.699,
+   "duration_s": 20.03,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the macro drivers (rates, DXY, volatility) that create easy conditions for Bitcoin, providing clear context for market behavior.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "20.03 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "too_many_sentences"
+     ],
+     "targets_missed": [
+      "20.03 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T23:59:22.592901+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2358Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "c5d8087865f93618f3a9756f93cc2f24c6ae35aed1af4710d42578e5c1beb5e6",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "1738c7aa45135f22013f4325e66ebc16ad5efcafc4b507319463ef032f1b1b8f",
+    "window": {
+     "start_s": 206.599,
+     "end_s": 316.832,
+     "record": "transcripts/lYca6Bg0FkM/windows/206.599-316.832.whisper_words_punct.json",
+     "words_sha256": "99a67e90ac474d10c0d84f190f8c9504278d73a7396aaff26ee2ab5d3aaf7ef3",
+     "record_sha256": "155291f1ad6f79f2f46673e6ff63447c9f9e018a44d6bf4bb6cd2d62496a4834",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "0032edb1b34015e3895d",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      14
+     ],
+     "offset_s": [
+      0.07,
+      -0.13
+     ]
+    },
+    "ledger_text": "lower interest rates, lower DXY, meaning a cheaper dollar versus the rest of the world, and also lower volatility, less fear. It's the opposite that is restrictive to Bitcoin. More fear, higher dollar, higher rates, and that is the regime that we have been in all year."
+   },
+   "rank_score": 16,
+   "source_key": "lYca6Bg0FkM@206.599-316.832"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "28fb4e4d24ab818032f0",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "b71e5b01d455da1815f2dacbd4c2db19cd133ba4b404b4eb1eaf2e45817dbc86",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    131,
+    178
+   ],
+   "sentences": [
+    6,
+    7
+   ],
+   "text": "And so my view is it almost has to be in the realm of Bitcoin, AI, energy, and then something that provides some benefit to the investors. And so it could be the benefit is using the ETF wrapper for tax purposes to rebalance within a thematic trade.",
+   "start": 1367.572,
+   "end": 1384.742,
+   "duration_s": 17.17,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Identifies the three key thematic areas for future ETF growth, explicitly naming Bitcoin as a primary sector.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'",
+      "17.17 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunctions 'and so'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "bfa085aacd1caa88fb6e2692af620f32c60e51cb8b4c818cfe5c08d4b8b15352",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "adce8549383ddc911f5724ca2d92850a3242b8eca5c8d73359aebee14261bfb4",
+    "window": {
+     "start_s": 1322.712,
+     "end_s": 1430.124,
+     "record": "transcripts/mJviDNOhIyw/windows/1322.712-1430.124.whisper_words_punct.json",
+     "words_sha256": "9b77306459cabbdbafe7ee35415a6d2a422b923f45e765c3d09dd65cd8081cf9",
+     "record_sha256": "2e084b28b75a3795deca0ed1720c56be182bbbd73493a94d52ce0e41471d75ff",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "9424f4668c1793aee3f5",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      6,
+      7
+     ],
+     "offset_s": [
+      -0.14,
+      -0.38
+     ]
+    },
+    "ledger_text": "And so my view is it almost has to be in the realm of Bitcoin, AI, energy and then something that provides some benefit to the investors. And so it could be the benefit is using the ETF wrapper for tax purposes to rebalance within a thematic trade."
+   },
+   "rank_score": 15,
+   "source_key": "mJviDNOhIyw@1322.712-1430.124"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "358ecb08f94c6ba7aba6",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "66e86eacc9c80941a49228cc9e82d5d68ad94915962335cd6b052de6de572c81",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    173,
+    219
+   ],
+   "sentences": [
+    11,
+    13
+   ],
+   "text": "Well, every time Nvidia has taken a hit over the last month, Bitcoin has gone down with it. It doesn't match point for point, but the pattern is hard to miss. Maybe it's the same old story of Wall Street treating Bitcoin like a risky tech stock.",
+   "start": 550.53,
+   "end": 561.01,
+   "duration_s": 10.48,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Highlights correlation between Nvidia and Bitcoin price action, relevant to tech-invested BTC holders.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "10.48 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "fede00cd3f25a324d8edb52e44e510b4d0cf63c91f1716a889b9c062b3782c0d",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "52dd4a2b51d244ab079dccc3673999e9879d702e19d235dcb07e8e484da293bd",
+    "window": {
+     "start_s": 505.41,
+     "end_s": 606.137,
+     "record": "transcripts/BS0XC_tixa8/windows/505.410-606.137.whisper_words_punct.json",
+     "words_sha256": "28cb03dc7b9f64da52fa0ff7ee909877c88354c68db5d0e036c1fba54fa89608",
+     "record_sha256": "8ad379c5cdb894b6c7fde47e6f39b42a0581f8c879014d540fae73bff4b5a0a4",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "bed7b9d4f9e2552750ae",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      13
+     ],
+     "offset_s": [
+      0.12,
+      -0.13
+     ]
+    },
+    "ledger_text": "Well, every time Nvidia has taken a hit over the last month, Bitcoin has gone down with it. It doesn't match point for point, but the pattern is hard to miss. Maybe it's the same old story of Wall Street treating Bitcoin like a risky tech stock."
+   },
+   "rank_score": 15,
+   "source_key": "BS0XC_tixa8@505.410-606.137"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "49324a44353254567fe7",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "298f8e29cbeedd696b6874f8d97306dbd5fbc5046e8e050cc18267183916b653",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    134,
+    169
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "So, you know, if I had to put a call, I'd say 2026 is probably closing red at roughly 85 to 90 % odds. And that would mean it's Bitcoin's first back -to -back red years.",
+   "start": 335.091,
+   "end": 348.391,
+   "duration_s": 13.3,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [],
+   "reason": "States a high-probability prediction for 2026 closing red, which is a specific forecast with clear stakes for investors.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "13.3 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "a673e464d5a489a19cbea828b09b4490db65ff904bc5a516e85e8fc28d7ba8bb",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "cf047bd45ac2df5d249f4aa7f06cf0bc138ac932fbb4ce88a90bb5feb80c2337",
+    "window": {
+     "start_s": 290.331,
+     "end_s": 393.816,
+     "record": "transcripts/-6iycj8dTss/windows/290.331-393.816.whisper_words_punct.json",
+     "words_sha256": "1228386008a909d65724737113cf0e58e53298412c51426afd249b317afc04f7",
+     "record_sha256": "30506ada4770457d18233913684f1716d01de6c266699998862de70f52b5501f",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "bb00ac3e8938f6117771",
+    "reanchored": {
+     "anchor_ratio": 0.947,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "offset_s": [
+      -0.24,
+      -0.42
+     ]
+    },
+    "ledger_text": "So, you know, if I had to put a call, I'd say 2026 uh is probably closing red at roughly 85 to to 90% odds. Uh and and that would mean it's Bitcoin's first back-to-back red years."
+   },
+   "rank_score": 15,
+   "source_key": "-6iycj8dTss@290.331-393.816"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "720619e88bc57e6948e8",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "d69b9c751b24fe608934446fe4050c069d80a41998d3df4145b5c7550f28449d",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    123,
+    158
+   ],
+   "sentences": [
+    10,
+    11
+   ],
+   "text": "For years, I ran a multi -sig setup so complicated that I'd lie awake wondering how my wife would ever get to our Bitcoin if I wasn't around. That's why this episode is sponsored by Bitkey.",
+   "start": 837.81,
+   "end": 846.21,
+   "duration_s": 8.4,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Personal anecdote about the complexity of multisig setups and the fear of inheritance issues.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.4 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "249f81f46bbe7bbb283e91936821832da66f07591f5b0d7de9cc909d96801a08",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "12d45cf7f26772dc3a9970469883d49f9456b00e944fbfc95de2bc7f46bd15cb",
+    "window": {
+     "start_s": 792.31,
+     "end_s": 891.389,
+     "record": "transcripts/BS0XC_tixa8/windows/792.310-891.389.whisper_words_punct.json",
+     "words_sha256": "83e70567811578a5cb4d98cc888e05aa74bf55e8ea095e0d30dc949d68bf42d8",
+     "record_sha256": "0fabc5e764e000d5da31d29032e5fec38b91239e44ffdca00f9b936d0c49f6ea",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "822d84ab6829e6b14c69",
+    "reanchored": {
+     "anchor_ratio": 0.958,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      11
+     ],
+     "offset_s": [
+      0.5,
+      -0.18
+     ]
+    },
+    "ledger_text": "For years, I ran a multisig setup so complicated that I'd lie awake wondering how my wife would ever get to our Bitcoin if I wasn't around. That's why this episode is sponsored by BitKey."
+   },
+   "rank_score": 15,
+   "source_key": "BS0XC_tixa8@792.310-891.389"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8935a0b351127fe16b1c",
+   "video_id": "eHfc3uZPzYc",
+   "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "channel_name": "Bloomberg Television",
+   "published_at": "2026-11-12T22:12:28+00:00",
+   "title": "Nvidia\u2019s Huang Ousted by Board",
+   "transcript_sha256": "d622ad6b960af44276514ebcf974933390f75a01a18d15a78a8df88da365a34d",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    128,
+    145
+   ],
+   "sentences": [
+    8,
+    10
+   ],
+   "text": "And Bitcoin cannot ignore the move there down 3.8%. Bitcoin now at 71,000. $500 on Bitcoin.",
+   "start": 268.01,
+   "end": 276.23,
+   "duration_s": 8.22,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 1,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Directly links market volatility to Bitcoin price action with a specific current price point.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "hook_lead"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "8.22 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:27:10.069600+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2226Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "1a5dfc1754ec309181c7b5b66c7971def28f180086e65ad80610018d2f985422",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "cbbd09d0ebf1901be8fe198795e3c16d54fb39b6472af60a663c6a5096030443",
+    "window": {
+     "start_s": 223.22,
+     "end_s": 324.71,
+     "record": "transcripts/eHfc3uZPzYc/windows/223.220-324.710.whisper_words_punct.json",
+     "words_sha256": "a335598063a58ee21ed2e65e5ed17f4c93cf6f62460de6acd4022cf0cea01171",
+     "record_sha256": "ec99c447d01dc38d6d8f2ad21861de0e46474dd0d0d960b02469f0c226e93ee5",
+     "context_record": "yt_manual:en"
+    },
+    "ledger_moment_id": "869cbd55a7383692821c",
+    "reanchored": {
+     "anchor_ratio": 0.857,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      10
+     ],
+     "offset_s": [
+      -0.21,
+      -3.48
+     ]
+    },
+    "ledger_text": "And Bitcoin cannot ignore the move. They're down 3.8%. Bitcoin now at $71,500 on bitcoin."
+   },
+   "rank_score": 15,
+   "source_key": "eHfc3uZPzYc@223.220-324.710"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "96196a23c87ed724acf0",
+   "video_id": "-6iycj8dTss",
+   "channel_id": "UCtOV5M-T3GcsJAq8QKaf0lg",
+   "channel_name": "Bitcoin Magazine",
+   "published_at": "2026-11-12T22:30:06+00:00",
+   "title": "Bitcoin Faces Two Red Years For the First Time Ever",
+   "transcript_sha256": "10191702d6c14c07ade9ce64fa173b7dabc7b53fa0d1e06cd7fa7644e471768b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    148,
+    173
+   ],
+   "sentences": [
+    11,
+    12
+   ],
+   "text": "Yeah, there's several assets that have had multiple down years in a row. You know, gold, for example, the NASDAQ, for example, even in recent history.",
+   "start": 426.745,
+   "end": 434.945,
+   "duration_s": 8.2,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Uses gold and NASDAQ as comparables to normalize Bitcoin's down years. Factual context that reduces panic.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "layout_ineligible",
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "8.2 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:42.091828+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "324038982e3e6701b1d0a539c884ccc68e9840a7c487a9203c44a9f7c4dd7626",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "3059f1cbe4c954a4d3609f2ce9f66948911300aaccfa2b0f3ab109c7807c6f11",
+    "window": {
+     "start_s": 381.615,
+     "end_s": 439.0,
+     "record": "transcripts/-6iycj8dTss/windows/381.615-439.000.whisper_words_punct.json",
+     "words_sha256": "ef1b1c1bf7b2c50b0098458d962d0738cddc72909a613bc5b1e4645c1378d6a3",
+     "record_sha256": "957f2df90db6a56829832847503d29a827c84814916b5140c9cc656654d281d5",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "9c8db5b2fa61db7dcab0",
+    "reanchored": {
+     "anchor_ratio": 0.929,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      12
+     ],
+     "offset_s": [
+      0.13,
+      -0.34
+     ]
+    },
+    "ledger_text": "Yeah, there's been several assets that have had multiple down years in a row. Um, you know, gold, for example, um the the NASDAQ, for example, even in recent history."
+   },
+   "rank_score": 15,
+   "source_key": "-6iycj8dTss@381.615-439.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "fc6210c28e9d1eaf2dd3",
+   "video_id": "lYca6Bg0FkM",
+   "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+   "channel_name": "The Bitcoin Layer",
+   "published_at": "2026-11-12T23:54:14+00:00",
+   "title": "When Will Bitcoin Finally Recover?",
+   "transcript_sha256": "ebda3ae6e6ab9ea1f12f3ed6ef1b4bca2461f4261bbb9eeec759b2ab936d263d",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    133,
+    163
+   ],
+   "sentences": [
+    13,
+    14
+   ],
+   "text": "You can see that during 2021 and 2022, liquidity was very negative. Remember, this is when rates were being hiked up to 5 % and treasury yields were above 5.5%.",
+   "start": 396.085,
+   "end": 407.725,
+   "duration_s": 11.64,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Connects the 2021-2022 Bitcoin downturn to specific macro conditions (negative liquidity, high rates), explaining the cause.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "11.64 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T23:59:22.592901+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2358Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "c5d8087865f93618f3a9756f93cc2f24c6ae35aed1af4710d42578e5c1beb5e6",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "1738c7aa45135f22013f4325e66ebc16ad5efcafc4b507319463ef032f1b1b8f",
+    "window": {
+     "start_s": 350.985,
+     "end_s": 453.231,
+     "record": "transcripts/lYca6Bg0FkM/windows/350.985-453.231.whisper_words_punct.json",
+     "words_sha256": "24779fbd74b42ec56e3971f92af6f4798c15b21d6a0692110f8b74110cd3dfd2",
+     "record_sha256": "af181f796e0650b547bfb92a0809804812b45f877535940189f67b93d04442d3",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b692dfe20c0d4a4e2b57",
+    "reanchored": {
+     "anchor_ratio": 0.938,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      13,
+      14
+     ],
+     "offset_s": [
+      0.1,
+      -0.51
+     ]
+    },
+    "ledger_text": "You can see that during 2021 and 2022, liquidity was very negative. Remember, this is when rates were being hiked up to 5% and treasury yields were above 5 1/2%."
+   },
+   "rank_score": 15,
+   "source_key": "lYca6Bg0FkM@350.985-453.231"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1b82dacefeedb64dae9d",
+   "video_id": "mJviDNOhIyw",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-12T22:00:05+00:00",
+   "title": "How Bitcoin Can Pay You 15% Forever",
+   "transcript_sha256": "669466028c74ab5e117024778e23b109f0bb7dc6ec58bb1eb9c477bb966d97d8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    148,
+    172
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "If you put Bitcoin as the hurdle rate, the game changes very quickly, especially over long periods of time. How do you guys judge this?",
+   "start": 1118.531,
+   "end": 1125.551,
+   "duration_s": 7.02,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Argues that using Bitcoin as the hurdle rate changes the game for long-term performance evaluation.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "7.02 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "7.02 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:08:22.947440+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2207Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "1db22ffcf6905193181a0c87bfbfc90294da33f2f4b1d0ece67662eb7d1a5423",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "4e7d1214774dbb257e0f8820f89529fff5dbc7605d0ba5c5cafc4a554ba368fb",
+    "window": {
+     "start_s": 1073.621,
+     "end_s": 1170.42,
+     "record": "transcripts/mJviDNOhIyw/windows/1073.621-1170.420.whisper_words_punct.json",
+     "words_sha256": "0fbf5a59a88e4aa746d6180938f8f01446e945401fc187bb5d3cc1fd91f073a0",
+     "record_sha256": "d5d88a1763208d482004ff9c2d7e31cdfa65a6de501633040b0c75fd9d2328fb",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "f7fcecad5cf5743a3a62",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "offset_s": [
+      -0.09,
+      0.13
+     ]
+    },
+    "ledger_text": "If you put Bitcoin as the hurdle rate, the game changes very quickly, especially over long periods of time. How do you guys judge this?"
+   },
+   "rank_score": 14,
+   "source_key": "mJviDNOhIyw@1073.621-1170.420"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4e1c31ba109b9b76b357",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "63ceea55d3e0a9ad924a75984447563c0f9a7051321a2b162978e12a4ab0a78c",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    175,
+    204
+   ],
+   "sentences": [
+    13,
+    14
+   ],
+   "text": "Bitcoin has dipped below its 50 -week and its 200 -day moving averages. And the next big one below us is the 200 week, down around 67 to 68,000.",
+   "start": 572.74,
+   "end": 580.68,
+   "duration_s": 7.94,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 3,
+    "stance": 1,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Specific technical analysis with price levels, useful for traders but less emotionally engaging.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.94 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.94 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "fede00cd3f25a324d8edb52e44e510b4d0cf63c91f1716a889b9c062b3782c0d",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "52dd4a2b51d244ab079dccc3673999e9879d702e19d235dcb07e8e484da293bd",
+    "window": {
+     "start_s": 527.64,
+     "end_s": 625.741,
+     "record": "transcripts/BS0XC_tixa8/windows/527.640-625.741.whisper_words_punct.json",
+     "words_sha256": "fe9026d412d557c77c0a196b8b9fe7b5be570ac190b7cb93682f7a4587511bb7",
+     "record_sha256": "fd90754d0bcb9bca21744b11a305c2763d1cebe5a25d4bd2eb67766a5b8103a8",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "28db4fa0bcd68fb8335d",
+    "reanchored": {
+     "anchor_ratio": 0.947,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      13,
+      14
+     ],
+     "offset_s": [
+      0.1,
+      -0.06
+     ]
+    },
+    "ledger_text": "Bitcoin has dipped below its 50we and its 200 day moving averages. And the next big one below us is the 200 week down around 67 to 68,000."
+   },
+   "rank_score": 12,
+   "source_key": "BS0XC_tixa8@527.640-625.741"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4cd1e2ff6234a0aea238",
+   "video_id": "BS0XC_tixa8",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-12T22:14:35+00:00",
+   "title": "Was Nvidia\u2019s CEO Taken Out? The Bitcoin Link No One Is Talking About!",
+   "transcript_sha256": "8a095b51f8cdb6eab337b08edc4882255061a20f14a0e5b71cd8ec6f2501db13",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    141,
+    166
+   ],
+   "sentences": [
+    17,
+    19
+   ],
+   "text": "But there has been a hit on. Bitcoin and the technology surrounding Bitcoin and crypto for a long time. And guess who makes the rules, right?",
+   "start": 728.899,
+   "end": 742.109,
+   "duration_s": 13.21,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 2,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "Asserts that Bitcoin has faced long-standing attacks and questions who makes the rules, setting up a conspiracy angle.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "not_statement",
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "13.21 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T22:37:34.423455+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2236Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "0012ce292c1223e1f059499f816159a79b781a61d05c32481af62a47db7b80db",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "0c8254812b37fc4fb060f23bb4ef22597c1f31990096ce5d661e5210149f82e4",
+    "window": {
+     "start_s": 683.959,
+     "end_s": 787.372,
+     "record": "transcripts/BS0XC_tixa8/windows/683.959-787.372.whisper_words_punct.json",
+     "words_sha256": "cb37200afb83b19b3ebc9af1cd4329ad379fb7a890e42c9c661e7d8b808fc98d",
+     "record_sha256": "01ca63666d26fc870860955812bd38c7e69377cfddcb4208da9dec21b0959d79",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "065030c75cfbf35bf4fb",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      17,
+      19
+     ],
+     "offset_s": [
+      -0.06,
+      -0.26
+     ]
+    },
+    "ledger_text": "But there has been a hit on Bitcoin and the technology surrounding Bitcoin and crypto for a long time. And guess who makes the rules, right?"
+   },
+   "rank_score": 11,
+   "source_key": "BS0XC_tixa8@683.959-787.372"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8071219c5dfba7c99978",
+   "video_id": "lYca6Bg0FkM",
+   "channel_id": "UCDo6-SUypaXlTmH6AyrYBZA",
+   "channel_name": "The Bitcoin Layer",
+   "published_at": "2026-11-12T23:54:14+00:00",
+   "title": "When Will Bitcoin Finally Recover?",
+   "transcript_sha256": "7eff547ab0bed19971a3656681aa8f82cc58267a186e09eb0912de4c1bb9326d",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    63,
+    108
+   ],
+   "sentences": [
+    8,
+    10
+   ],
+   "text": "Bitcoin price. lost its 200 -day moving average today and falling down toward its 200 week moving average, which is right around 68,000. We flagged earlier this week that losing 75,600 was a key level and opens the door down to approximately 66,300.",
+   "start": 34.92,
+   "end": 56.87,
+   "duration_s": 21.95,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction",
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Provides specific technical levels (200-day MA, 200-week MA) and price targets for Bitcoin.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "21.95 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "21.95 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-12T23:59:22.592901+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261112T2358Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "prompt_sha256": "3f27e54c485dd1d23ea7e064a133875f591712a9bb49f7f69643cd6118a2d71c",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "35410701b9b9af701e978572f9999fe7a91ec4fa4a81b4d77e5514ed1f49153a",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 102.67,
+     "record": "transcripts/lYca6Bg0FkM/windows/0.000-102.670.whisper_words_punct.json",
+     "words_sha256": "542e99f9091c5b6dfe3a3db7844d25b949b18b374d1ace58a1016b6124a40a82",
+     "record_sha256": "c0d953bb9d762cb440afdd6e9459b058e5eee4a960aab19ad5785efe5b92aeb1",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "6895f81a45f13dddd1a6",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      10
+     ],
+     "offset_s": [
+      -0.09,
+      -0.8
+     ]
+    },
+    "ledger_text": "Bitcoin price lost its 200 day moving average today and falling down toward its 200 week moving average which is right around 68,000. We flagged earlier this week that losing 75,600 was a key level and opens the door down to approximately 66,300."
+   },
+   "rank_score": 11,
+   "source_key": "lYca6Bg0FkM@0.000-102.670"
+  }
+ ]
+}

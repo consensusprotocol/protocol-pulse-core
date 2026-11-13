@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2fda0bc9a45563a9af5606f629c938551f14486729ed41fccbadd436b173c671",
+ "result": {
+  "text": "I will bet you one Bitcoin that RSA is broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of conviction I have. We just didn't budget for-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 1.94,
+    "end": 12.42,
+    "text": "I will bet you one Bitcoin that RSA is broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of conviction I have. We just didn't budget for-"
+   }
+  ],
+  "words": [
+   {
+    "text": "I",
+    "start": 1.94,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 2.0,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bet",
+    "start": 2.12,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.3,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 2.48,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.68,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.42,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "RSA",
+    "start": 3.62,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.9,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "broken",
+    "start": 4.059,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.36,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10",
+    "start": 4.52,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years,",
+    "start": 4.76,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.18,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'll",
+    "start": 5.28,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bet",
+    "start": 5.4,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.58,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "half",
+    "start": 5.74,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.0,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.06,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.4,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 6.52,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "broken",
+    "start": 6.72,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.0,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 7.16,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years.",
+    "start": 7.44,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 9.46,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.68,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "level",
+    "start": 9.82,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.02,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "conviction",
+    "start": 10.14,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.62,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have.",
+    "start": 10.72,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 11.24,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 11.48,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "didn't",
+    "start": 11.68,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "budget",
+    "start": 11.98,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for-",
+    "start": 12.36,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.46
+ },
+ "usd": 0.002492,
+ "seconds": 0.66,
+ "recorded_at": "2026-11-13T07:26:10Z"
+}

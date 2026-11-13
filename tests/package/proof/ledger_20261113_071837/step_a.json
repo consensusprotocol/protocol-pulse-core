@@ -1,0 +1,480 @@
+{
+ "326b88b0592bba35452b:9d43580c729b": {
+  "label": "326b88b0592bba35452b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is an unclosable open-source technology whose success equates to open-source victory, with every unit held counting as a vote against the digital prison being built around everyone.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Hurley. This is Truth Block with Simply Bitcoin.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "16df0954cc411a943bbc:9d43580c729b": {
+  "label": "16df0954cc411a943bbc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "those",
+    "refers_to": "four-year cycles",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the course into the future",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker's firm has observed four-year Bitcoin cycles becoming less meaningful going forward and is prepared to underwrite Bitcoin declining 80%.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a It's really about duration risk. And so, as we know, Bitcoin is very volatile. And so, you have to be able to underwrite the potential for downside in Bitcoin. And",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3a6cb29a4d904118192c:9d43580c729b": {
+  "label": "3a6cb29a4d904118192c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin and crypto are not partisan issues but are instead about modernizing financial markets and creating financial freedom for 350 million Americans and 8 billion people globally.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Phong Le on CNBC PowerLunch | November 12, 2026",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2e77a0a7af2aab66a3a4:9d43580c729b": {
+  "label": "2e77a0a7af2aab66a3a4",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin started turning though before liquidity turned red",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "in this chart discussion and analysis",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin price action began turning before liquidity indicators turned red, and this is an important caveat to the relationship.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So that is the look at the liquidity index. But you might be asking, well, what does that mean for Bitcoin?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8935a0b351127fe16b1c:9d43580c729b": {
+  "label": "8935a0b351127fe16b1c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "there",
+    "refers_to": "Nvidia news and associated market moves",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "no",
+  "proposition": "Bitcoin cannot ignore the Nvidia-related move, is down 3.8%, and is now trading at $71,500.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Charlie. Tim and Carol. That is a Bloomberg Businessweek Charlie.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb63e8dcd4eb9502451e:9d43580c729b": {
+  "label": "eb63e8dcd4eb9502451e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "on days like today amid unrelated scandals",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "no",
+  "proposition": "Days like today shake people out because Bitcoin dumps on unrelated scandals, prompting panic or bill-driven sales of the scarcest asset at the worst time.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Hurley. This is Truth Block with Simply Bitcoin.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0d4d772b8d54fe42950f:9d43580c729b": {
+  "label": "0d4d772b8d54fe42950f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the fact that an open-source AI champion can be removed in four days",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "opponents of open source who need AI closed and permissioned",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin's",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "no",
+  "proposition": "Bitcoin matters in this fight because opponents have attacked it for 17 years via price, banks, rules, and now its biggest buyer, yet Bitcoin has no CEO, board, or individual who can be pressured or removed.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Hurley. This is Truth Block with Simply Bitcoin.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8ff542f9877c3a1afc36:9d43580c729b": {
+  "label": "8ff542f9877c3a1afc36",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the scenario of an advisor getting fired if clients sell Bitcoin after a 50% drop from a large allocation",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If someone lacks Bitcoin understanding and an advisor allocates 25% only for it to drop 50%, the advisor is fired and the client sells, which explains why firms like BlackRock have walked recommendations back to 1-5% allocations.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "All right, Matt Cole, everyone, thank you.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ce90631aaac92be0d6d1:9d43580c729b": {
+  "label": "ce90631aaac92be0d6d1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Today",
+    "refers_to": "the publication or show date",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "the audience",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "the same fight",
+    "refers_to": "the fight against open-source AI by powerful interests",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "your Bitcoin",
+    "refers_to": "viewers' Bitcoin holdings",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker will show who wanted Jensen Huang removed as CEO and that the same powers fighting open-source AI are coming for the audience's Bitcoin.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mine truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb5ef19bc37fa4ee9ad5:9d43580c729b": {
+  "label": "eb5ef19bc37fa4ee9ad5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "generic investor or allocator",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "us",
+    "refers_to": "the speaker's company or fund",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that downside",
+    "refers_to": "Bitcoin declining up to 80%",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "the speaker's company or fund",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as long as the company can underwrite Bitcoin declining 80% with its cash buffer",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The company allocates about 85-90% to Bitcoin and 10-15% to cash so it can endure any historical bear market without selling Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a It's really about duration risk. And so, as we know, Bitcoin is very volatile.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "88574641595f10d34454:9d43580c729b": {
+  "label": "88574641595f10d34454",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "him",
+    "refers_to": "Jensen Huang",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "your Bitcoin",
+    "refers_to": "the audience's Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "your family",
+    "refers_to": "the audience's family",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If a board can remove a founder from his company in four days then it is worth asking who could take your Bitcoin, but self-custody must be accessible to your family.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mine truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "301b5c1e6f3f2a8a2eb3:9d43580c729b": {
+  "label": "301b5c1e6f3f2a8a2eb3",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "our Bitcoin",
+    "refers_to": "MicroStrategy's Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the Binance hack",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we're",
+    "refers_to": "MicroStrategy",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "our Bitcoin",
+    "refers_to": "MicroStrategy's Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "MicroStrategy",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy holds all its Bitcoin with U.S. custodians in cold storage, so the Binance incident creates only reputational risk to crypto but not material risk to their holdings, though vigilance is required.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Fun Lee, Strategy CEO, thank you for your time.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "28fb4e4d24ab818032f0:9d43580c729b": {
+  "label": "28fb4e4d24ab818032f0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "a unique wedge or opportunity in the ETF industry",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "the investors",
+    "refers_to": "a distinct set of investors who value thematic or tax-advantaged strategies",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "New ETF opportunities will need to focus on Bitcoin, AI, energy or provide investor benefits like tax-efficient rebalancing within thematic trades using the ETF structure.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Yeah. Uh a a tip would be I I mean you think about Strive in the early days",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "720619e88bc57e6948e8:9d43580c729b": {
+  "label": "720619e88bc57e6948e8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker (host)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "my wife",
+    "refers_to": "the speaker's wife",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "our Bitcoin",
+    "refers_to": "the speaker and his wife's Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this episode",
+    "refers_to": "the current video",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "For years the speaker ran an overly complicated multisig that worried him about whether his wife could access their Bitcoin without him, which is why this episode is sponsored by Bitkey.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mine truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4e1c31ba109b9b76b357:9d43580c729b": {
+  "label": "4e1c31ba109b9b76b357",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin's",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "us",
+    "refers_to": "current price levels",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has fallen below its 50-week and 200-day moving averages, with the 200-week moving average near 67-68k as the next major support below.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mine truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

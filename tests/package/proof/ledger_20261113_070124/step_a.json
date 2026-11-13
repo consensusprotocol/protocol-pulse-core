@@ -1,0 +1,131 @@
+{
+ "326b88b0592bba35452b:9d43580c729b": {
+  "label": "326b88b0592bba35452b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "If Bitcoin wins",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is the one piece of open source technology that cannot be shut down, silenced or removed, such that if it wins then open source wins and every sat held is a vote against the digital prison being built around everyone.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Hurley. This is Truth Block with Simply Bitcoin.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ed8f13788939cd6a110c:9d43580c729b": {
+  "label": "ed8f13788939cd6a110c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "those",
+    "refers_to": "four-year cycles",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "the speaker's company",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the course of into the future",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker's company has seen four-year Bitcoin cycles play out but believes they will become less meaningful going forward and is willing to underwrite Bitcoin declining 80%.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "What are the risks that you identify or that you try to manage and mitigate? \u203a\u203a It's really about duration risk.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3a6cb29a4d904118192c:9d43580c729b": {
+  "label": "3a6cb29a4d904118192c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin and crypto are not partisan issues but are instead about modernizing financial markets and creating financial freedom for 350 million Americans and 8 billion people worldwide.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Phong Le on CNBC PowerLunch | November 12, 2026",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8935a0b351127fe16b1c:9d43580c729b": {
+  "label": "8935a0b351127fe16b1c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "there",
+    "refers_to": "the Nvidia ouster and related market moves",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "no",
+  "proposition": "Bitcoin cannot ignore the related market move and is down 3.8% to now trade at $71,500.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Charlie. Tim and Carol. That is a Bloomberg Businessweek Charlie.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4cf7d447e86d85454896:9d43580c729b": {
+  "label": "4cf7d447e86d85454896",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "us",
+    "refers_to": "the speaker's company",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "the speaker's company",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that downside",
+    "refers_to": "Bitcoin going down 80%",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The company mixes 85-90% Bitcoin and 10-15% cash on the balance sheet so it can ride out any historical bear market without selling a single Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "What are the risks that you identify or that you try to manage and mitigate? \u203a\u203a It's really about duration risk.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

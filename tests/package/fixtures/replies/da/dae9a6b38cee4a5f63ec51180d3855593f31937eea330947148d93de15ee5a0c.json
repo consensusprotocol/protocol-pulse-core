@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "422d612e2a4537e285c163f1f11c1143bf9b4e88c33225e3e2ef482dcbb419f6",
+ "result": {
+  "text": "downside in Bitcoin. And, and so we've seen kind of the four-year cycles play out, which my belief is that those will become less meaningful over the course of into the future. Um, but we're willing to underwrite Bitcoin going down 80%. We put cash-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 17.04,
+    "text": "downside in Bitcoin. And, and so we've seen kind of the four-year cycles play out, which my belief is that those will become less meaningful over the course of into the future. Um, but we're willing to underwrite Bitcoin going down 80%. We put cash-"
+   }
+  ],
+  "words": [
+   {
+    "text": "downside",
+    "start": 0.18,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.76,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 0.88,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 1.3,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.5,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 1.64,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 1.76,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 1.98,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 2.86,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 3.02,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.1,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "four-year",
+    "start": 3.22,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cycles",
+    "start": 3.64,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "play",
+    "start": 4.1,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out,",
+    "start": 4.36,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 4.64,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 5.58,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "belief",
+    "start": 5.82,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.28,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.5,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 7.18,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 7.38,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 7.5,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "less",
+    "start": 8.24,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "meaningful",
+    "start": 8.64,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 9.5,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.7,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course",
+    "start": 9.94,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.22,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 10.38,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.58,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "future.",
+    "start": 10.7,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 11.78,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 12.24,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 13.08,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "willing",
+    "start": 13.28,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 13.54,
+    "end": 13.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "underwrite",
+    "start": 13.68,
+    "end": 14.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 14.14,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 14.54,
+    "end": 14.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 14.78,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "80%.",
+    "start": 15.12,
+    "end": 15.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 15.76,
+    "end": 15.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 15.92,
+    "end": 16.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cash-",
+    "start": 16.78,
+    "end": 17.04,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.08
+ },
+ "usd": 0.003416,
+ "seconds": 1.12,
+ "recorded_at": "2026-11-13T07:12:35Z"
+}

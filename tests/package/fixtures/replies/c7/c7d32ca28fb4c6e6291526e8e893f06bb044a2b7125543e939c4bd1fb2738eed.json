@@ -1,0 +1,152 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7627eec03ee80b66409f61c5b9bd8387143fc497c083ffc8999cd1dc841747ff",
+ "result": {
+  "text": "The Bitcoin did well. Bitcoin started turning though before liquidity turned red, and that's an important caveat here. We're not trying",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 7.76,
+    "text": "The Bitcoin did well. Bitcoin started turning though before liquidity turned red, and that's an important caveat here. We're not trying"
+   }
+  ],
+  "words": [
+   {
+    "text": "The",
+    "start": 0.0,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.28,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "did",
+    "start": 0.7,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well.",
+    "start": 0.92,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.66,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "started",
+    "start": 2.1,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turning",
+    "start": 2.46,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though",
+    "start": 2.76,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 2.96,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidity",
+    "start": 3.36,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turned",
+    "start": 3.98,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "red,",
+    "start": 4.28,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.72,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 4.84,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 5.06,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "important",
+    "start": 5.16,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "caveat",
+    "start": 5.62,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 6.14,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 6.94,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 7.18,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trying",
+    "start": 7.48,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 7.8
+ },
+ "usd": 0.00156,
+ "seconds": 0.6,
+ "recorded_at": "2026-11-13T07:12:18Z"
+}

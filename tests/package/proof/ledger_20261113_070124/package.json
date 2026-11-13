@@ -1,0 +1,219 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "df03a41d4042bcc725bb": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "c599f79cc119b3435c6c": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "12b74e9893af988262c6": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "5a7cb4059797dc06230d": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "9584fad0c35138811cf9": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "7ecda825839b5b92b2ce": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible"
+ },
+ "usable": 5,
+ "current_levels": [
+  71000.0
+ ],
+ "prescreen": {
+  "screened": 5,
+  "cleared": 3,
+  "failed": {
+   "8935a0b351127fe16b1c": [
+    "REFERENT_OUTSIDE",
+    "STALE_TIME"
+   ],
+   "4cf7d447e86d85454896": [
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "326b88b0592bba35452b": "NOT MEASURED: CalledProcessError: Command '['yt-dlp', '-q', '--no-playlist', '-f', 'bestaudio', '--download-sections', '*992.83-1007.41', '--force-keyframes-at-cuts', '-o', '/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0",
+   "3a6cb29a4d904118192c": "not cuttable at an edge (ruling C / 7)",
+   "ed8f13788939cd6a110c": "PASS"
+  },
+  "cuttable": 1,
+  "hook_onset": {
+   "ed8f13788939cd6a110c": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)"
+  }
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "why_none": "1 cleared moments pass the second pass and CUTTABLE, from fewer than 3 channels",
+ "seconds": 154.6,
+ "usd_estimate": 0.1956,
+ "usd_best_known": 0.0287,
+ "full": {
+  "est": 0.1956,
+  "best": 0.0287,
+  "model_s": 130.63,
+  "calls": 3
+ },
+ "code": "0fc772a9+7b8f266d2cfc",
+ "now": "2026-11-13T07:01:24.917975+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "inputs": {
+  "rows": 74,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "BS0XC_tixa8": "transcripts/BS0XC_tixa8/windows/949.209-1032.000.whisper_words_punct.json",
+   "-6iycj8dTss": "transcripts/-6iycj8dTss/windows/303.890-409.552.whisper_words_punct.json",
+   "mJviDNOhIyw": "transcripts/mJviDNOhIyw/windows/226.017-334.510.whisper_words_punct.json",
+   "xfLi0cH_VqM": "transcripts/xfLi0cH_VqM/windows/67.320-171.365.whisper_words_punct.json",
+   "lYca6Bg0FkM": "transcripts/lYca6Bg0FkM/windows/113.332-208.418.whisper_words_punct.json",
+   "eHfc3uZPzYc": "transcripts/eHfc3uZPzYc/windows/223.220-324.710.whisper_words_punct.json"
+  },
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "c125e2f11616d0ece0d3": "the row's text does not anchor in the word record (sentence_law.anchor, searched 886-957 s)",
+   "d7899e5a37203b45c07a": "the row's text does not anchor in the word record (sentence_law.anchor, searched 299-371 s)",
+   "0508f7db6ea5c7298835": "the row's text does not anchor in the word record (sentence_law.anchor, searched 883-957 s)",
+   "40f162dd1c5caa94e1dd": "the row's text does not anchor in the word record (sentence_law.anchor, searched 640-720 s)",
+   "7b6e62ea0fbe37be7408": "the row's text does not anchor in the word record (sentence_law.anchor, searched 551-621 s)",
+   "a5f5e1f06421da7e8955": "the row's text does not anchor in the word record (sentence_law.anchor, searched -13-52 s)",
+   "dfde70043a82e3a6e227": "the row's text does not anchor in the word record (sentence_law.anchor, searched 559-625 s)",
+   "47c34386c4994a945d0b": "the row's text does not anchor in the word record (sentence_law.anchor, searched 299-373 s)",
+   "840ac7d2d70f1eb39275": "the row's text does not anchor in the word record (sentence_law.anchor, searched 9-75 s)",
+   "98ae27d234079bdaaa69": "the row's text does not anchor in the word record (sentence_law.anchor, searched -18-52 s)",
+   "9a2bb7065288ed039953": "the row's text does not anchor in the word record (sentence_law.anchor, searched 654-723 s)",
+   "e0594b2ec1f42174d967": "the row's text does not anchor in the word record (sentence_law.anchor, searched 798-867 s)",
+   "822d84ab6829e6b14c69": "the row's text does not anchor in the word record (sentence_law.anchor, searched 807-876 s)",
+   "bed7b9d4f9e2552750ae": "the row's text does not anchor in the word record (sentence_law.anchor, searched 520-591 s)",
+   "28db4fa0bcd68fb8335d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 543-611 s)",
+   "065030c75cfbf35bf4fb": "the row's text does not anchor in the word record (sentence_law.anchor, searched 699-772 s)",
+   "b7c1082eab1ef7b549c3": "the row's text does not anchor in the word record (sentence_law.anchor, searched -28-41 s)",
+   "1b1ea19e4d0539224e75": "the row's text does not anchor in the word record (sentence_law.anchor, searched 54-131 s)",
+   "bd8d9d3d08101ff6b126": "the row's text does not anchor in the word record (sentence_law.anchor, searched 16-87 s)",
+   "270beb207fcae6540343": "the row's text does not anchor in the word record (sentence_law.anchor, searched 368-457 s)",
+   "fa96ac7987ad22fe13bf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 89-157 s)",
+   "3d73fe607e902fc2942c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 198-283 s)",
+   "a132a247801d56f57a0f": "the row's text does not anchor in the word record (sentence_law.anchor, searched 238-317 s)",
+   "d1bdfb3c571e2eb59560": "the row's text does not anchor in the word record (sentence_law.anchor, searched 126-194 s)",
+   "9c8db5b2fa61db7dcab0": "the row's text does not anchor in the word record (sentence_law.anchor, searched 397-465 s)",
+   "35f403d415d518b14586": "the row's text does not anchor in the word record (sentence_law.anchor, searched 241-320 s)",
+   "7242d436827e66a080c8": "the row's text does not anchor in the word record (sentence_law.anchor, searched 554-623 s)",
+   "92bab9e3c71c9e146acf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1130-1208 s)",
+   "c627679ac7b969fc04f0": "the anchored text is not whole sentences of the word record (0 word(s) before it and 42 after it inside its edge sentences; at most 3)",
+   "80ca23e0cee490e6d9b2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 750-824 s)",
+   "954c0a2d3b0133d2341d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2-74 s)",
+   "d8e41854d328617c1e0c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 469-543 s)",
+   "7f4257716baea0d28fb2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1102-1188 s)",
+   "dcd2ee89c6490bba3587": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1584-1660 s)",
+   "fa23b448c92b7a5533fd": "the row's text does not anchor in the word record (sentence_law.anchor, searched 937-1020 s)",
+   "09726516dbd81cec5f0f": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1620-1687 s)",
+   "338ef57918f811064baa": "the row's text does not anchor in the word record (sentence_law.anchor, searched 372-454 s)",
+   "b4dded06e47b964c4f8c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 155-227 s)",
+   "f26da623f40a82f837eb": "the row's text does not anchor in the word record (sentence_law.anchor, searched 798-880 s)",
+   "fc24287ab36375755e5a": "the row's text does not anchor in the word record (sentence_law.anchor, searched 423-515 s)",
+   "24b980f447493d07af9b": "the row's text does not anchor in the word record (sentence_law.anchor, searched 781-858 s)",
+   "376a709d3dda20ea53b8": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1038-1124 s)",
+   "66c931f8324de6e1c613": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1152-1230 s)",
+   "fb2912a0450eb6593999": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1142-1212 s)",
+   "8533bef7d59bfafca173": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1577-1653 s)",
+   "4e12f09e7b5009cfdc7e": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1623-1692 s)",
+   "9424f4668c1793aee3f5": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1338-1415 s)",
+   "a1e2d91d323a57b5de29": "the row's text does not anchor in the word record (sentence_law.anchor, searched 540-614 s)",
+   "f7fcecad5cf5743a3a62": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1089-1155 s)",
+   "ae77e7982c51d938c130": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1250-1352 s)",
+   "b256bf8d178283dff8df": "the row's text does not anchor in the word record (sentence_law.anchor, searched 185-260 s)",
+   "272f2a914aa1f0ea6953": "the row's text does not anchor in the word record (sentence_law.anchor, searched 190-260 s)",
+   "a2eeb075fe7d1420a616": "the row's text does not anchor in the word record (sentence_law.anchor, searched 340-405 s)",
+   "26f12cdd0adac65b26e1": "the row's text does not anchor in the word record (sentence_law.anchor, searched 434-508 s)",
+   "127134a5438ac5681d27": "the row's text does not anchor in the word record (sentence_law.anchor, searched 31-112 s)",
+   "d4ed879fcd3c2db7e4ba": "the row's text does not anchor in the word record (sentence_law.anchor, searched 674-754 s)",
+   "0032edb1b34015e3895d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 222-302 s)",
+   "2e5c3ff4488c946c1320": "the row's text does not anchor in the word record (sentence_law.anchor, searched 232-309 s)",
+   "fe56662e63c4664c3e41": "the row's text does not anchor in the word record (sentence_law.anchor, searched 546-631 s)",
+   "832252b379c58c6e485c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 334-402 s)",
+   "b692dfe20c0d4a4e2b57": "the row's text does not anchor in the word record (sentence_law.anchor, searched 366-438 s)",
+   "0fecafbfbaf6b71c38f0": "the row's text does not anchor in the word record (sentence_law.anchor, searched 232-302 s)",
+   "6895f81a45f13dddd1a6": "the row's text does not anchor in the word record (sentence_law.anchor, searched 5-88 s)"
+  },
+  "malformed": {},
+  "duplicates": 0,
+  "duplicates_of": {},
+  "moments": 11,
+  "videos": 6,
+  "word_records": {},
+  "word_pass": {
+   "rows": 80,
+   "unreadable": 0,
+   "ready": 70,
+   "not_ready": 10,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ }
+}

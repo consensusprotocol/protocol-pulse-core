@@ -1,0 +1,9 @@
+=== 02:01:24 EST LEDGER medley build, code 0fc772a9+f534548ff913, now (render clock) 2026-11-13T07:01:24+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 10.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00); 9 clip spans out
+  adapter: 74 rows ({"hard exclusion flag (L-u)": 14, "altcoin or not about Bitcoin": 6})
+  word pass: {"rows": 80, "unreadable": 0, "ready": 70, "not_ready": 10, "failed": 0, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 74: 11 moments on 6 word records; 0 rows wait for a word record, 63 do not re-anchor, 0 malformed, 0 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 6 window record(s) used (0 without a caption record for L-s)
+  5 usable, 3 cleared step A (124 s)
+  1 of them pass the second recognition pass and CUTTABLE (154 s)
+  0 of them can open a medley (>= 80 ms of genuine quiet before the first onset, G17a)
+no package (1 cleared moments pass the second pass and CUTTABLE, from fewer than 3 channels); usable 5, cleared 3

@@ -1,0 +1,266 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "fd2f4b72dac0cbeae4428282a700d929b267d44ac5bd1471c6a645ecb057ea81",
+ "result": {
+  "text": "The pain is real. Bitcoin has dipped below its fifty-week and its two hundred day moving averages, and the next big one below us is the two hundred week, down around sixty-seven to sixty-eight thousand. James Lavish posted this morning-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 10.92,
+    "text": "The pain is real. Bitcoin has dipped below its fifty-week and its two hundred day moving averages, and the next big one below us is the two hundred week, down around sixty-seven to sixty-eight thousand. James Lavish posted this morning-"
+   }
+  ],
+  "words": [
+   {
+    "text": "The",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pain",
+    "start": 0.16,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.46,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real.",
+    "start": 0.64,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.5,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 1.76,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dipped",
+    "start": 1.9,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 2.12,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 2.36,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fifty-week",
+    "start": 2.62,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.38,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 3.48,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 3.64,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hundred",
+    "start": 3.76,
+    "end": 3.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day",
+    "start": 4.04,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving",
+    "start": 4.28,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "averages,",
+    "start": 4.58,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.42,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.48,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 5.56,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 5.74,
+    "end": 5.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 5.9,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 6.04,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 6.3,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.44,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.52,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 6.66,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hundred",
+    "start": 6.82,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week,",
+    "start": 7.12,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 7.68,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 7.84,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sixty-seven",
+    "start": 8.06,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.56,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sixty-eight",
+    "start": 8.66,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thousand.",
+    "start": 9.1,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "James",
+    "start": 9.88,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Lavish",
+    "start": 10.14,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "posted",
+    "start": 10.46,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 10.7,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "morning-",
+    "start": 10.84,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.94
+ },
+ "usd": 0.002188,
+ "seconds": 0.78,
+ "recorded_at": "2026-11-13T07:20:09Z"
+}
