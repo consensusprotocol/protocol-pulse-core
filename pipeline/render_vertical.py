@@ -417,14 +417,12 @@ def _shot_vf(shot, src_w, src_h):
     return LETTERBOX_VF                                   # screen / uncertain: safe frame (flagged)
 
 
-def reframe_auto(seg_path, output_path, seg_label, plan):
-    """Per-shot 9:16 from the PREPARED clip (lead-in pad and fades identical to 16:9). Video only is
-    re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
-    import gpu0
-    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+def auto_graph(plan, colour=""):
+    """reframe_auto's 9:16 picture as one filtergraph ending in [vout] (no encode): each shot of the plan trimmed from
+    the prepared clip, its own filter, the input's colour re-declared, concatenated. The one code path of the render
+    and of prepare's 9:16 shot check (ruling 71, shot_snap.scene_changes_9x16)."""
     fps = plan["fps"]
     graph, labels = [], []
-    colour = _input_colour(seg_path)
     for k, shot in enumerate(plan["shots"]):
         a, b = int(round(shot["start"] * fps)), int(round(shot["end"] * fps))
         vf = _shot_vf(shot, plan["width"], plan["height"])
@@ -434,8 +432,16 @@ def reframe_auto(seg_path, output_path, seg_label, plan):
                      f"{vf},setsar=1:1[v{k}]")
         labels.append(f"[v{k}]")
     graph.append("".join(labels) + f"concat=n={len(labels)}:v=1:a=0[vout]")
+    return ";".join(graph)
+
+
+def reframe_auto(seg_path, output_path, seg_label, plan):
+    """Per-shot 9:16 from the PREPARED clip (lead-in pad and fades identical to 16:9). Video only is
+    re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     r = subprocess.run([
-        "ffmpeg", "-y", "-i", seg_path, "-filter_complex", ";".join(graph),
+        "ffmpeg", "-y", "-i", seg_path, "-filter_complex", auto_graph(plan, _input_colour(seg_path)),
         "-map", "[vout]", "-map", "0:a", "-r", str(FPS),
         "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
         "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", output_path,

@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 import numpy as np
 
@@ -91,6 +92,96 @@ class TestApply(unittest.TestCase):
         rec = SS.apply(clip, self.cut, 24, 18)
         self.assertFalse(rec["snapped"])
         self.assertEqual(hashlib.sha256(open(clip, "rb").read()).hexdigest(), before)
+
+
+class TestRuling71Parity(unittest.TestCase):
+    """Ruling 71 (orchestrator '15:45'): both formats in parity, on CPU (the snap's encode replaced)."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="snap71_")
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.clip = os.path.join(self.tmp, "final_hook.mp4")
+        open(self.clip, "wb").write(b"x")
+        self.hook = {"clip_id": "hook", "cut_in": 14.6, "lead_in_pad_s": 0.0, "pause_in": {"end": 14.69},
+                     "pause_out": {"start": 31.46}}               # speech 0.09-16.86 s of the clip, as 0c68b589's hook
+
+    def _apply(self, c16, c9, n=407):
+        def fake_encode(cmd, **k):
+            open(cmd[-1], "wb").write(b"y")
+            return mock.Mock(returncode=0)
+        with mock.patch.object(SS, "scene_changes", lambda p: c16), \
+                mock.patch.object(SS, "scene_changes_9x16", lambda p: c9), \
+                mock.patch.object(SS, "frame_count", lambda p: n), \
+                mock.patch.object(SS.subprocess, "run", fake_encode), mock.patch("gpu0.swap_to", lambda *a: None):
+            return SS.apply(self.clip, self.hook, 24, 18)
+
+    def test_a_change_only_the_9x16_crop_sees_is_snapped(self):
+        rec = self._apply([(336, 0.997)], [(336, 1.0), (406, 0.3172)])   # 16:9 scored frame 406 at 0.2718
+        self.assertTrue(rec["snapped"], rec)
+        self.assertEqual((rec["held_head_frames"], rec["held_tail_frames"]), (0, 1))
+        self.assertEqual(rec["hard_cuts_9x16"], [(336, 1.0), (406, 0.317)])
+        self.assertIn("tail: frames 406-406 were the next shot, held on frame 405", rec["why"])
+
+    def test_nothing_to_snap_in_either_format_leaves_the_clip(self):
+        rec = self._apply([(336, 0.997)], [(336, 1.0)])
+        self.assertFalse(rec["snapped"])
+        self.assertNotIn("refused", rec)
+
+    def test_a_snap_that_cannot_keep_the_hooks_lead_is_refused(self):
+        self.hook["pause_in"] = {"end": 14.6 + 2 / 24 + 0.05}    # the first word 50 ms after a change at frame 2
+        rec = self._apply([], [(2, 0.5)])
+        self.assertEqual(rec.get("refused"),
+                         "the speaker's own shot starts 0.050 s before the first word (< 0.080 s)")
+        self.assertFalse(rec["snapped"])
+        self.assertEqual(open(self.clip, "rb").read(), b"x")     # refused: nothing re-encoded
+        self.hook["clip_id"] = "clip_01"                         # not the hook: LEAD_MIN_S, snapped
+        self.assertTrue(self._apply([], [(2, 0.5)])["snapped"])
+
+
+HOOK_0C68 = "/home/ultron/protocol_pulse/runs/pinned_20261113_191409"
+
+
+def _scores_9x16(clip):
+    """The clip's 9:16 picture scored frame by frame with the renderer's own per-shot filters (render_vertical._shot_vf
+    on vertical_layout.classify's plan): built here so this test runs on the code before ruling 71 too."""
+    import re
+    import render_vertical
+    import vertical_layout
+    plan = vertical_layout.classify(clip)
+    g, lab = [], []
+    for k, sh in enumerate(plan["shots"]):
+        a, b = int(round(sh["start"] * plan["fps"])), int(round(sh["end"] * plan["fps"]))
+        g.append(f"[0:v]trim=start_frame={a}:end_frame={b},setpts=PTS-STARTPTS,"
+                 f"{render_vertical._shot_vf(sh, plan['width'], plan['height'])},setsar=1:1[v{k}]")
+        lab.append(f"[v{k}]")
+    g.append("".join(lab) + f"concat=n={len(lab)}:v=1:a=0,select='gte(scene,0)',"
+                            "metadata=print:key=lavfi.scene_score:file=-[s]")
+    r = subprocess.run(["ffmpeg", "-v", "error", "-i", clip, "-filter_complex", ";".join(g), "-map", "[s]", "-f", "null",
+                        "-"], capture_output=True, text=True, check=True, timeout=600)
+    return {int(f): float(x) for f, x in
+            re.findall(r"frame:(\d+)\s+pts:\S+\s+pts_time:\S+\s+lavfi\.scene_score=([0-9.]+)", r.stdout)}
+
+
+@unittest.skipUnless(os.environ.get("CUDA_VISIBLE_DEVICES") == "0" and
+                     os.path.exists(os.path.join(HOOK_0C68, "qa", "final_hook.mp4")), "NVENC + the 0c68b589 run")
+class TestRuling71OnTheHeldHook(unittest.TestCase):
+    """MUST-FAIL: 0c68b589's prepared hook (run pinned_20261113_191409): the source's punch-in at frame 406, after the
+    last word, scored 0.3172 in the 9:16 crop and 0.2718 in 16:9. Before ruling 71 prepare kept it (G19 held the 9:16)."""
+
+    def test_the_punch_in_after_the_last_word_is_snapped_in_both_formats(self):
+        import json
+        tmp = tempfile.mkdtemp(prefix="snap71h_")
+        self.addCleanup(shutil.rmtree, tmp, True)
+        clip = os.path.join(tmp, "final_hook.mp4")
+        shutil.copy(os.path.join(HOOK_0C68, "qa", "final_hook.mp4"), clip)
+        cut = next(c for c in json.load(open(os.path.join(HOOK_0C68, "cuts_final.json"))) if c["clip_id"] == "hook")
+        self.assertGreaterEqual(_scores_9x16(clip)[406], SS.SCENE_CUT)            # the fixture really has it
+        rec = SS.apply(clip, cut, 24, 18)
+        off = int(rec["speech_off_s"] * 24)
+        late9 = {f: s for f, s in _scores_9x16(clip).items() if f > off and s >= SS.SCENE_CUT}
+        late16 = [f for f, s in SS.scene_changes(clip) if f > off]
+        self.assertEqual((late9, late16), ({}, []), rec)                           # no shot change after the last word
+        self.assertEqual(SS.frame_count(clip), 407)
 
 
 if __name__ == "__main__":
