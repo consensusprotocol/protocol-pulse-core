@@ -858,12 +858,13 @@ def exclusion_for(router, m, sources, cache, seed=7):
     if key not in cache:
         import moments as M
         src = sources[m["video_id"]]
-        a, b = CI.window(src, m["sentences"][0], m["sentences"][1])
-        w0, w1 = m["words"]
-        cache[key] = M.exclusion_verdict(
-            router, m["text"], E.spoken(src.tokens[src.sentences[a][0]:w0]),
-            E.spoken(src.tokens[w1 + 1:src.sentences[b][1] + 1]), seed=seed,
-            avoid_model=(m.get("mined") or {}).get("by"))
+        before, after = CI.context_around(src, m["sentences"][0], m["sentences"][1], *m["words"])
+        if before is None:                                    # no context to judge in (a window record without its
+            cache[key] = {"verdict": "exclude", "why": "no context: the moment's context is unavailable",   # caption
+                          "risks": [], "backend": None, "measured": False, "replayed": False}            # record)
+        else:
+            cache[key] = M.exclusion_verdict(router, m["text"], before, after, seed=seed,
+                                             avoid_model=(m.get("mined") or {}).get("by"))
     return cache[key]
 
 

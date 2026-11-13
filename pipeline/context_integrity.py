@@ -30,6 +30,8 @@ CONTEXT_BEFORE_S = 90.0
 CONTEXT_MAX_BEFORE_S = 180.0
 CONTEXT_AFTER_S = 60.0
 EXCERPT_MAX = 12000                # characters of one escaped window; a longer one is CONTEXT_TOO_LONG (never cut)
+EDGE_TOL_S = 30.0                  # a caption record's first / last word this close to the media's start / end
+                                   # (its duration) counts as reaching that edge: intros and outros are often wordless
 A_KEYS = ("label", "speaker_changes_inside", "view", "referents", "conditions", "retraction", "time_ok", "proposition",
           "certainty", "speaker_is", "speaker_evidence")
 VIEWS = ("own_sincere", "attributed", "hypothetical", "conditional", "sarcastic", "question", "reading_aloud",
@@ -83,9 +85,81 @@ def mark(parts):
     return " ".join(out)
 
 
+def caption_parts(src, k0, k1, w0=None, w1=None, before=CONTEXT_BEFORE_S, after=CONTEXT_AFTER_S,
+                  max_before=CONTEXT_MAX_BEFORE_S):
+    """A moment on a WINDOW word record (the integrator's word-pass worker: about +-45 s of words around one moment,
+    on the YouTube clock). Under the contract agreed with the integrator, its L-s context comes from the full-video
+    CAPTION record the ledger mined it from (src.context_source). The selection is the window record's own words, and
+    the context is the caption's words by TIME: every caption word overlapping the >= `before` s before the selection,
+    and every caption word starting in the `after` s after it, or to the media's edge (a caption record is the whole
+    video). YouTube's automatic captions carry no punctuation, so the window is cut by time, never by sentences, and
+    the pull-back to a question (which needs a '?') does not apply.
+    The coverage is MEASURED, never assumed (audit 0123 C1: qwen, glm). The caption must reach `before` s ahead of the
+    selection, or begin within EDGE_TOL_S of the media's start. It must reach `after` s past the selection, or end
+    within EDGE_TOL_S of the video's duration (cs.duration_s). A caption record that stops short, or an unknown
+    duration where the end would need it, leaves the context unavailable. The media's start is 0 s: the YouTube clock.
+    The words reach the marks the way window() does for a full-video record (audit 0123 C2: grok, glm). The context
+    goes back to the last caption word starting at or before the `before` mark (never past `max_before`), so a
+    wordless stretch inside the window is bridged. It goes forward to the first caption word ending at or past the
+    `after` mark.
+    -> ([(text, selected?)], (from_s, to_s) actually covered), or (None, None) when there is no caption record, a
+    time is missing, or the coverage falls short: the context is unavailable and L-s fails closed."""
+    cs = getattr(src, "context_source", None)
+    S, T = src.sentences, src.tokens
+    lo, hi = (w0, w1) if w0 is not None and w1 is not None else (S[k0][0], S[k1][1])
+    t0, t1 = E._time(T[lo], "start"), E._time(T[hi], "end")
+    if cs is None or t0 is None or t1 is None or not cs.tokens:
+        return None, None
+    timed = [(tok, E._time(tok, "start"), E._time(tok, "end")) for tok in cs.tokens]
+    if any(a is None or b is None for _, a, b in timed):
+        return None, None                            # an unclocked caption record: no measurable window
+    first, last = min(a for _, a, _ in timed), max(b for _, _, b in timed)
+    dur = getattr(cs, "duration_s", None)
+    if not (first <= t0 - before or first <= EDGE_TOL_S):
+        return None, None                            # the caption starts too late to show what came before
+    if not (last >= t1 + after or (isinstance(dur, (int, float)) and last >= float(dur) - EDGE_TOL_S)):
+        return None, None                            # it stops short of what comes after, and short of the end
+    j = max((i for i, (_, a, _) in enumerate(timed) if t0 - max_before <= a <= t0 - before), default=None)
+    pre = ([tok for i, (tok, a, b) in enumerate(timed) if i >= j and a < t0] if j is not None else
+           [tok for tok, a, b in timed if b > t0 - before and a < t0])    # nothing within max_before: window()'s stop
+    m = min((i for i, (_, a, b) in enumerate(timed) if a >= t1 and b >= t1 + after), default=None)
+    post = [tok for i, (tok, a, b) in enumerate(timed) if a >= t1 and (m is None or i <= m)]
+    sel = E.spoken(T[lo:hi + 1])
+    if not sel.strip():
+        return None, None
+    parts = [(E.spoken(pre), False), (sel, True), (E.spoken(post), False)]
+    covered = (round(min([E._time(x, "start") for x in pre] or [t0]), 3),
+               round(max([E._time(x, "end") for x in post] or [t1]), 3))
+    return [(t, s_) for t, s_ in parts if t.strip()], covered
+
+
+def context_around(src, k0, k1, w0=None, w1=None):
+    """(the context before the selection, the context after it) as text, for any Source: a window record's from its
+    caption record (caption_parts), every other record's from its own window(). (None, None) when unavailable."""
+    if getattr(src, "window", None) is not None:
+        parts, win = caption_parts(src, k0, k1, w0, w1)
+        if parts is None:
+            return None, None
+        i = next((n for n, (_, sel) in enumerate(parts) if sel), None)
+        if i is None:                                # no selection (never from caption_parts; checked anyway)
+            return None, None
+        return " ".join(t for t, _ in parts[:i]), " ".join(t for t, _ in parts[i + 1:])
+    win = window(src, k0, k1)
+    if win is None:
+        return None, None
+    a, b = win
+    S, T = src.sentences, src.tokens
+    lo, hi = (w0, w1) if w0 is not None and w1 is not None else (S[k0][0], S[k1][1])
+    return E.spoken(T[S[a][0]:lo]), E.spoken(T[hi + 1:S[b][1] + 1])
+
+
 def _window_text(src, k0, k1, w0=None, w1=None):
     """The window's text with the selection marked. With word indices w0..w1 the selection is marked by WORDS (a
-    moment cut inside a store sentence, ruling 7 / orchestrator 06:45), else by sentences k0..k1."""
+    moment cut inside a store sentence, ruling 7 / orchestrator 06:45), else by sentences k0..k1. A moment on a WINDOW
+    word record takes its context from its caption record (caption_parts)."""
+    if getattr(src, "window", None) is not None:
+        parts, win = caption_parts(src, k0, k1, w0, w1)
+        return (mark(parts), win) if parts is not None else (None, None)
     win = window(src, k0, k1)
     if win is None:
         return None, None

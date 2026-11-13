@@ -4,6 +4,7 @@
 - reading the store's word record (its sha checked, sentence-ready only);
 - turning rows into the packager's moments (counted drops, no duplicate spans);
 - the adapter's failures are raised, never read as an empty ledger."""
+import hashlib
 import io
 import json
 import os
@@ -19,7 +20,7 @@ sys.path.insert(0, os.path.join(REPO, "tests", "eligibility"))
 import eligibility as E  # noqa: E402
 import ledger_build as LB  # noqa: E402
 import transcript_store as ts  # noqa: E402
-from test_eligibility import NOW, REG, source  # noqa: E402
+from test_eligibility import NOW, REG, source, tokens  # noqa: E402
 
 SENTS = ["Bitcoin is a global free market.", "Nobody can stop Bitcoin from settling a payment.",
          "That is the whole design and it works every day.", "Bitcoin does not ask for permission.",
@@ -241,7 +242,8 @@ class TestWordSourceAndInputs(unittest.TestCase):
             self.assertEqual(ms, [])
             self.assertEqual(rep["no_word_record_why"],
                              {"transcript.whisper_words_punct.json: its segments do not match its transcript_sha256; "
-                              "transcript.whisper_words.json: not sentence-ready (law L-e)": 1})
+                              "transcript.whisper_words.json: not sentence-ready (law L-e); "
+                              "no sentence-ready window record": 1})
             self.store_with(d, "vidA", SENTS, method="whisper_words")           # a verbatim record that IS ready
             ms, _, rep = LB.build_inputs([row(SENTS[0])], ctx, d, log=lambda s: None)
             self.assertEqual(len(ms), 1)
@@ -271,7 +273,8 @@ class TestWordSourceAndInputs(unittest.TestCase):
             self.assertEqual([m["mined"]["ledger_moment_id"] for m in ms], ["L1"])
             self.assertEqual(sorted(rep["malformed"]), ["L2", "row 2", "row 3", "row 4"])
             ms, _, rep = LB.build_inputs([row(SENTS[0], vid="vidZ")], ctx, d, log=lambda s: None)
-            self.assertEqual(rep["no_word_record_videos"], {"vidZ": {"rows": 1, "why": "no word record in the store"}})
+            self.assertEqual(rep["no_word_record_videos"], {"vidZ": {"rows": 1, "why": "no word record in the store; "
+                                                                                 "no sentence-ready window record"}})
 
     def test_rows_become_the_packagers_moments_with_every_drop_counted(self):
         ctx = E.Context(NOW, REG)
@@ -326,6 +329,220 @@ class TestAdapter(unittest.TestCase):
         with mock.patch("subprocess.run", return_value=empty):
             rows, rep = LB.rows(NOW - timedelta(hours=72), NOW)
             self.assertEqual((rows, rep["excluded"]), ([], {"delivered in the previous 24 h": 3}))
+
+
+SENTS_W = ["So we were talking about money before the break.", "Bitcoin is a global free market.",
+           "Nobody can stop Bitcoin from settling a payment.", "That is the whole design and it works every day.",
+           "Anyway, let us move on to the next question."]
+
+
+def window_fixture(d, vid="vidW", w0=600.0, still=False, clock="youtube", caption=True, cap_from=0, cap_to=900,
+                   duration=900.0, cap_gap=None):
+    """A window record exactly as the word-pass worker's make_record writes it (words on the YouTube clock, segments
+    from sentences_from_words, words_sha256, window, punctuation), its word_pass.jsonl row, and the full-video caption
+    record the ledger mined from (unpunctuated lines over the whole video)."""
+    words = [{"word": t["word"], "start": t["start"], "end": t["end"]} for t in tokens(SENTS_W, t0=w0 + 1.0)]
+    segs = [{"start": round(x["start"], 3), "end": round(x["end"], 3), "text": x["text"].strip()}
+            for x in ts.sentences_from_words(words)]
+    w1 = round(words[-1]["end"] + 1.0, 3)
+    rec = {"video_id": vid, "transcript_method": "whisper_words_punct", "segments": segs,
+           "transcript_sha256": ts.segments_sha256(segs), "words": words,
+           "words_sha256": hashlib.sha256(json.dumps([[w["word"], w["start"], w["end"]] for w in words],
+                                                     ensure_ascii=False).encode()).hexdigest(),
+           "punctuation": {"still_unpunctuated": still},
+           "window": {"start_s": w0, "end_s": w1, "clock": clock, "offset_s": w0}}
+    rel = f"transcripts/{vid}/windows/{w0:.3f}-{w1:.3f}.whisper_words_punct.json"
+    os.makedirs(os.path.dirname(os.path.join(d, rel)), exist_ok=True)
+    with open(os.path.join(d, rel), "w") as f:
+        json.dump(rec, f)
+    with open(os.path.join(d, rel), "rb") as f:
+        sha = hashlib.sha256(f.read()).hexdigest()
+    wp = {"moment_id": "W1", "video_id": vid, "window_record": rel, "record_sha256": sha, "sentence_ready": not still,
+          "window": [w0, w1], "at": "2026-11-13T06:00:00+00:00"}
+    cap = None
+    if caption:
+        lines = [{"start": float(t), "end": float(t + 5), "text": f"caption line {t} about money"}
+                 for t in range(cap_from, cap_to, 5) if not (cap_gap and cap_gap[0] <= t < cap_gap[1])]
+        cap = ts.segments_sha256(lines)
+        with open(os.path.join(d, "transcripts", vid, "transcript.yt_auto.json"), "w") as f:
+            json.dump({"video_id": vid, "transcript_method": "yt_auto", "segments": lines, "transcript_sha256": cap,
+                       "duration": duration}, f)
+    k = [i for i, t in enumerate(words) if t["word"] == "Nobody"][0]
+    n = len(SENTS_W[2].split())
+    r = dict(row(SENTS_W[2], start=words[k]["start"], end=words[k + n - 1]["end"], mid="W1", vid=vid),
+             transcript_sha256=cap)
+    return rel, wp, r, words
+
+
+class TestWindowRecords(unittest.TestCase):
+    """The integrator's word-pass worker (word-pass 514dd704): window records listed in moments/word_pass.jsonl."""
+
+    def test_the_word_pass_index_reads_each_moments_last_ready_row_and_counts_the_rest(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "word_pass.jsonl")
+            self.assertEqual(LB.word_pass_index(p)[0], {})                          # no file yet: no window record
+            rows = [{"moment_id": "A", "window_record": None, "record_sha256": None, "sentence_ready": False,
+                     "error": "word pass: boom"},
+                    {"moment_id": "B", "window_record": "x", "record_sha256": "s", "sentence_ready": False},
+                    {"moment_id": "C", "window_record": "x", "record_sha256": "s1", "sentence_ready": True},
+                    {"moment_id": "C", "window_record": "y", "record_sha256": "s2", "sentence_ready": True,
+                     "reused": True}]
+            with open(p, "w") as f:
+                f.write("\n".join(json.dumps(r) for r in rows) + "\nnot json\n")
+            idx, rep = LB.word_pass_index(p)
+            self.assertEqual(list(idx), ["C"])
+            self.assertEqual(idx["C"]["record_sha256"], "s2")                       # the last row of a moment wins
+            self.assertEqual((rep["failed"], rep["not_ready"], rep["ready"], rep["unreadable"]), (1, 1, 1, 1))
+
+    def test_a_window_record_is_used_only_when_every_claim_checks_out(self):
+        ctx = E.Context(NOW, REG)
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d)
+            src, path, why = LB.window_source(r, wp, ctx, d)
+            self.assertIsNone(why)
+            self.assertEqual((src.timing, src.file_head, src.window["start_s"]), ("word", False, 600.0))
+            p = os.path.join(d, rel)
+            with open(p) as f:
+                good = json.load(f)
+
+            def tampered(rec, **row_change):
+                with open(p, "w") as f:
+                    json.dump(rec, f)
+                with open(p, "rb") as f:
+                    sha = hashlib.sha256(f.read()).hexdigest()
+                return LB.window_source(dict(r, **row_change.get("row", {})), dict(wp, record_sha256=sha), ctx, d)[2]
+            w = [dict(x) for x in good["words"]]
+            w[3]["start"] += 0.05                                     # an INTERIOR word's time: only words_sha256 sees it
+            self.assertIn("words_sha256", tampered(dict(good, words=w)))
+            self.assertIn("still unpunctuated", tampered(dict(good, punctuation={"still_unpunctuated": True})))
+            self.assertIn("YouTube clock", tampered(dict(good, window=dict(good["window"], clock="window"))))
+            self.assertIn("not inside the window", tampered(good, row={"start": 10.0, "end": 20.0}))
+            self.assertIn("transcript_sha256", tampered(dict(good, transcript_sha256="0" * 64)))
+            self.assertIn("not a punctuated word record", tampered(dict(good, transcript_method="whisper_words")))
+            self.assertIn("names channel UCother", tampered(dict(good, channel_id="UCother")))
+            segs = [dict(x) for x in good["segments"]]
+            segs[1]["start"] = segs[1]["start"] + 0.5                     # a segment edge off its first word's time
+            self.assertIn("do not spell", tampered(dict(good, segments=segs, transcript_sha256=ts.segments_sha256(segs))))
+            with open(p, "w") as f:
+                json.dump(good, f)
+            self.assertIn("record_sha256", LB.window_source(r, dict(wp, record_sha256="0" * 64), ctx, d)[2])
+            self.assertIn("not this video's window record",
+                          LB.window_source(r, dict(wp, window_record="transcripts/vidW/x.json"), ctx, d)[2])
+
+    def test_a_window_from_the_media_start_is_file_head(self):
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d, w0=0.0)
+            self.assertTrue(LB.window_source(r, wp, E.Context(NOW, REG), d)[0].file_head)
+
+    def test_a_video_without_a_full_record_is_built_from_its_window_with_caption_context(self):
+        import context_integrity as CI
+        ctx = E.Context(NOW, REG)
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d)
+            far = dict(row("Bitcoin started as a quiet experiment.", start=100.0, end=104.0, mid="W2", vid="vidW"),
+                       transcript_sha256=r["transcript_sha256"])               # outside the window: it cannot anchor
+            ms, srcs, rep = LB.build_inputs([r, far], ctx, d, log=lambda s: None, word_pass={"W1": wp})
+            self.assertEqual([m["mined"]["ledger_moment_id"] for m in ms], ["W1"])
+            self.assertEqual(ms[0]["text"], SENTS_W[2])
+            self.assertEqual(list(rep["not_anchored"]), ["W2"])
+            self.assertEqual(rep["window_records"], {"vidW": rel})
+            src = srcs["vidW"]
+            self.assertEqual(src.context_source.transcript_method, "yt_auto")
+            text, win = CI._window_text(src, ms[0]["sentences"][0], ms[0]["sentences"][1], *ms[0]["words"])
+            t0 = words[[w["word"] for w in words].index("Nobody")]["start"]
+            self.assertLessEqual(win[0], t0 - CI.CONTEXT_BEFORE_S)                  # at least 90 s covered before
+            self.assertGreater(win[0], t0 - CI.CONTEXT_BEFORE_S - 5.0)                  # (one caption line over)
+            self.assertEqual(ms[0]["mined"]["window"]["record"], rel)                    # provenance in the moment
+            self.assertEqual(ms[0]["mined"]["window"]["context_record"], "yt_auto")
+            self.assertIn(f"caption line {int(t0 - 85) // 5 * 5} about money", text)   # the caption, 85 s before
+            self.assertIn("<selected>" + SENTS_W[2] + "</selected>", text)            # the window's own words
+            before, after = CI.context_around(src, ms[0]["sentences"][0], ms[0]["sentences"][1], *ms[0]["words"])
+            self.assertIn("caption line", before)
+            self.assertIn("caption line", after)
+
+    def test_the_caption_coverage_is_measured_never_assumed(self):
+        """Audit 0123 C1 (qwen, glm): a caption that stops short of 60 s after the clip (and short of the media's end),
+        or starts after the 90 s before it (and not near the media's start), leaves the context unavailable."""
+        import context_integrity as CI
+        ctx = E.Context(NOW, REG)
+        for kw, ok in (({"cap_to": 650}, False),                         # stops at 650 s; the clip ends ~616 s
+                       ({"cap_to": 650, "duration": 660.0}, True),        # ... but 650 s is the media's end, nearly
+                       ({"cap_from": 560}, False),                        # starts 560 s; 90 s before is ~526 s
+                       ({}, True)):
+            with tempfile.TemporaryDirectory() as d:
+                rel, wp, r, words = window_fixture(d, **kw)
+                ms, srcs, rep = LB.build_inputs([r], ctx, d, log=lambda s: None, word_pass={"W1": wp})
+                m = ms[0]
+                text, win = CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"])
+                self.assertEqual(text is not None, ok, kw)
+
+    def test_a_wordless_stretch_inside_the_window_is_bridged_to_reach_the_marks(self):
+        """Audit 0123 C2 (grok P2-1, glm N1): the words must reach 90 s back and 60 s on, as window() does for a
+        full-video record, across a stretch with no words (music) inside the window."""
+        import context_integrity as CI
+        ctx = E.Context(NOW, REG)
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d, cap_gap=(515, 585))        # nothing said from 515 s to 585 s
+            ms, srcs, rep = LB.build_inputs([r], ctx, d, log=lambda s: None, word_pass={"W1": wp})
+            m = ms[0]
+            t0 = words[[w["word"] for w in words].index("Nobody")]["start"]
+            text, win = CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"])
+            self.assertLessEqual(win[0], t0 - CI.CONTEXT_BEFORE_S)          # it reaches past the gap
+            self.assertLess(win[0], 515.0)                                     # a word from before the gap ...
+            self.assertTrue(text.startswith("money caption line 585"))        # ... ("money", the last word of line 510)
+            self.assertGreaterEqual(win[1], m["end"] + CI.CONTEXT_AFTER_S)
+
+    def test_two_records_matching_the_rows_sha_are_ambiguous_and_give_no_context(self):
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d)
+            src = os.path.join(d, "transcripts", "vidW", "transcript.yt_auto.json")
+            with open(src) as f, open(os.path.join(d, "transcripts", "vidW", "transcript.yt_manual.json"), "w") as g:
+                g.write(f.read())
+            cs, why = LB.caption_source(r, E.Context(NOW, REG), d)
+            self.assertIsNone(cs)
+            self.assertIn("ambiguous", why)
+            os.remove(os.path.join(d, "transcripts", "vidW", "transcript.yt_manual.json"))
+            with open(src, "w") as f:                                        # glm C2 N2: unreadable is said, not
+                f.write("{not json")                                         # "no record matches" alone
+            self.assertIn("1 transcript file(s) could not be read", LB.caption_source(r, E.Context(NOW, REG), d)[1])
+
+    def test_the_exclusion_verdict_reads_the_caption_context(self):
+        """glm C1 P2-7: the normal path, measured: the verdict's prompt carries the caption's words around the clip."""
+        import package as PK
+
+        class Canned:
+            def __init__(self):
+                self.prompts = []
+
+            def call(self, role, prompt, max_tokens=2000, seed=7, **k):
+                self.prompts.append(prompt)
+                return type("R", (), {"text": json.dumps({"risks": [], "about_bitcoin": "yes", "why": "ok"}),
+                                      "backend": "xai:grok", "replayed": False})()
+
+            def reject(self, r):
+                pass
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d)
+            ms, srcs, rep = LB.build_inputs([r], E.Context(NOW, REG), d, log=lambda s: None, word_pass={"W1": wp})
+            router = Canned()
+            ex = PK.exclusion_for(router, ms[0], srcs, {})
+            self.assertEqual((ex["verdict"], ex["measured"]), ("keep", True))
+            self.assertIn("caption line", router.prompts[0])
+
+    def test_a_window_without_its_caption_record_has_no_context_and_fails_closed(self):
+        import context_integrity as CI
+        import package as PK
+        ctx = E.Context(NOW, REG)
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d, caption=False)
+            ms, srcs, rep = LB.build_inputs([r], ctx, d, log=lambda s: None, word_pass={"W1": wp})
+            self.assertEqual(rep["no_caption_context"], {"vidW": "no record in the store matches the row's "
+                                                                  "transcript_sha256"})
+            m = ms[0]
+            self.assertEqual(CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"]),
+                             (None, None))                                 # step A: unavailable, never cleared
+            ex = PK.exclusion_for(None, m, srcs, {})                       # no model call is made
+            self.assertEqual((ex["verdict"], ex["measured"]), ("exclude", False))
 
 
 class TestDriverRefuses(unittest.TestCase):

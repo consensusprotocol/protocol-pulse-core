@@ -1,0 +1,61 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+It wires WINDOW word records into the ledger build path (orchestrator ruling 2, 22:40 ET Nov 12: "when [ingest ledger]
+rows turn sentence-ready, build from the ledger and seal a pin; that is the first FRESH medley"). The integrator's
+word-pass worker (branch word-pass, 514dd704) writes the window records.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass;
+- clips are verbatim WHOLE sentences of a sentence-ready, word-timed record (L-o 1, L-e);
+- CONTEXT INTEGRITY (L-s): every clip is judged inside its source's transcript from >= 90 s before to >= 60 s after;
+- no delivered span is used again (L-p).
+
+The worker's contract, as built:
+- A window record is transcripts/<vid>/windows/<w0>-<w1>.whisper_words_punct.json in the store: about +-45 s of words
+  around one ledger moment, clipped to the video. It holds:
+  - words on the YouTube clock;
+  - segments from those words, plus transcript_sha256 (the segments sha);
+  - words_sha256 = sha256(json.dumps([[word, start, end], ...], ensure_ascii=False));
+  - punctuation.still_unpunctuated;
+  - window = {start_s, end_s, clock: "youtube", offset_s}.
+- A row in moments/word_pass.jsonl is {moment_id, video_id, window_record (relative to the store), record_sha256 (the
+  file's sha256), sentence_ready, window, at}. It may also carry "reused"; a failed moment's row has an error and
+  window_record null, and is never retried.
+- L-s context for a window clip comes from the full-video CAPTION record the ledger mined the moment from (the
+  contract): a window holds only +-45 s, and L-s needs 90 s / 60 s.
+
+The files:
+1. pipeline/ledger_build.py:
+   - word_pass_index(): the last row per moment_id; only sentence_ready rows with a record count.
+   - window_source(): every claim checked before use: the path is under transcripts/<vid>/windows/; the file sha256
+     is the row's record_sha256; the method; the segments sha; words_sha256; the words spell the segments; the
+     YouTube clock; nothing still unpunctuated; the ledger row's span inside the window; the channel;
+     sentence_ready. file_head is True only when the window starts at 0.
+   - caption_source(): the full-video record whose segments sha is the ledger row's transcript_sha256.
+   - build_inputs(): a video with no full-video word record uses the best-ranked row's window record (one per video;
+     the video's other rows re-anchor in it or are counted out), with .context_source = the caption record.
+2. pipeline/context_integrity.py:
+   - caption_parts(): for a window Source, the selection is the window's own words and the context is the caption's
+     words by TIME (>= 90 s before, 60 s after, or to the media's edge), because auto captions carry no punctuation.
+     No caption record, or a missing time, gives (None, None).
+   - context_around(): the same for the exclusion verdict.
+   - _window_text() routes window Sources through caption_parts.
+3. pipeline/package.py exclusion_for(): takes its context from context_around(). With no context, it returns exclude
+   with measured false.
+4. tests/package/proof_ledger.py: passes the word-pass index (--word-pass).
+5. tests/package/test_ledger_build.py: fixtures built exactly as the worker's make_record, plus tamper cases.
+
+Check, concretely:
+(a) Can a window record that is tampered with, or not sentence-ready, reach a moment (file, segments, words, clock,
+    punctuation, path)?
+(b) Can a window clip be judged for L-s with LESS than its 90 s / 60 s context, or pass when the context is missing?
+(c) Is the caption record the one the ledger mined, and can a wrong one be used?
+(d) Does anything change for the full-video records path (byte-identical contexts and exclusion prompts)?
+(e) Do the tests fail on the defect each one names?
+
+Output:
+- Findings ranked P0 / P1 / P2, each with file:line and a concrete failure scenario (inputs -> wrong result).
+- Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+- End with a verdict line: "SHIP: yes | yes with conditions | no".

@@ -2,7 +2,9 @@
 """ORCHESTRATOR 22:40 ruling 2: build the medley from the INGEST LEDGER and seal a pin.
 
 - The rows are pp-ingest's adapter (best_unused_moments), read-only.
-- Only rows on a sentence-ready WORD record are used, each re-anchored by its text (pipeline/ledger_build.py).
+- Only rows on a sentence-ready WORD record are used, each re-anchored by its text (pipeline/ledger_build.py). That
+  is the store's full-video record, or else the integrator's word-pass WINDOW record (moments/word_pass.jsonl,
+  --word-pass), whose L-s context comes from the caption record the ledger mined.
 - "now" is the RENDER clock (ruling 1): L-v 3 and currency are judged against tonight, not against a universe snapshot.
 - Novelty (L-p): every clip span of the pins already delivered (--delivered, required; tonight: the 37c5b5f5 review,
   run 165629, and the 41f29b1f medley) is passed to package.usable as delivered. usable drops ANY moment that overlaps
@@ -80,6 +82,7 @@ def main(argv=None):
     ap.add_argument("--since", help="ISO time with a zone; default: the newest delivered pin's approved_at")
     ap.add_argument("--hours", type=float, default=72.0, help="the adapter's publish window (horizon_h)")
     ap.add_argument("--work-dir", default=os.path.join(PL.SCRATCH, "lv2"))
+    ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
     a = ap.parse_args(argv)
     now = datetime.now(timezone.utc)
     try:                                                 # read before anything is written (glm C2 N-4)
@@ -108,7 +111,10 @@ def main(argv=None):
         f"{len(delivered)} clip spans out")
     rows, rep = LB.rows(since, now, horizon_h=a.hours)
     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
-    moments, sources, inputs = LB.build_inputs(rows, ctx, log=say)
+    wp, wp_rep = LB.word_pass_index(a.word_pass)
+    say(f"  word pass: {json.dumps(wp_rep)}")
+    moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp)
+    inputs["word_pass"] = wp_rep
     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
