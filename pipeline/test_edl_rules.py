@@ -1113,6 +1113,8 @@ class TestR11VoShape(unittest.TestCase):
             self.fails(self.edl(intro=intro, bridges=(self.TAKE,)), "is not text")
         self.fails(self.edl(bridges=({"text": self.BRIDGE, "after_clip": 1}, self.TAKE)),
                    "a line in the slot after clip 1 without the package's recorded bridge")
+        for text in (123, None, "  ", ["w"]):                          # cycle 4 glm F1: a non-text bridge fails too
+            self.fails(self.edl(bridges=({"text": text, "after_clip": 1}, self.TAKE), rec=self.rec()), "is not text")
 
     def test_the_one_exception_passes_in_either_slot_with_its_record(self):
         ok, why = rule_r11(self.edl(bridges=({"text": self.BRIDGE, "after_clip": 1}, self.TAKE), rec=self.rec()))
@@ -1178,6 +1180,9 @@ class TestR11VoShape(unittest.TestCase):
             e = self.edl()
             e["clips"][0]["index"] = index
             self.fails(e, "are not 1..3")
+        e = self.edl()                                                  # cycle 4 glm: out of order, all integers
+        e["clips"][0]["index"], e["clips"][1]["index"] = 2, 1
+        self.fails(e, "are not 1..3")
         e = self.edl(bridges=(self.TAKE, {"text": "y", "after_clip": 3}))
         e["clips"][2]["index"] = 2                                      # a duplicated last index cannot hide a takeaway
         self.fails(e, "are not 1..3")
