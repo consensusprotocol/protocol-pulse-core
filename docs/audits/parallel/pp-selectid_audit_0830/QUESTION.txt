@@ -1,0 +1,59 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY: a hook + 2-4
+clips from different channels, 36.7-51.5 s of clips). Your role: a strict reviewer of how line-ups are formed.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background:
+- An angle writer proposes ANGLES: a sentence plus 4-8 cleared clip ids in PLAY ORDER, the hook first.
+- lineup_for(angle, cleared, dropped, ...) picks the hook + 2-4 clips from the angle's own moments, in the proposer's
+  play order, one per channel (or L-y 4's supply exception), under every line-up rule:
+  - the hook can open (hook eligibility + the G17a onset measure);
+  - a clip under SHORT_CLIP_S (8 s) only LAST;
+  - the seconds range;
+  - at most one price prediction;
+  - at most one trimmed clip (ruling 49);
+  - the render's STAND_ALONE.
+  It prefers the proposer's earliest moments (the lowest sum of play positions). The line-up is then judged on the
+  clips alone; ruling 41's swap replaces below-bar segments from the whole cleared pool.
+- The 07:14 build: every angle's own 4 moments formed NO line-up (36.52 s, 0.18 s short of 36.7 s, and a 6.93 s clip
+  placed mid-order), so nothing was judged. Three cleared clips were never offered.
+
+The order this diff implements (ORCHESTRATOR RULING 54, 08:06 ET Nov 13, verbatim): "PROPOSAL 1: YES, as you scoped and
+measured it: when an angle's own moments cannot form a line-up, complete it from the whole cleared pool by score, the
+angle's play order kept, every line-up rule unchanged, first line-up only. One addition: the proposer is told each
+clip's seconds and placement limits (a clip that may only play last is never offered mid-order), so fewer angles arrive
+unformable."
+
+The change (pipeline/package.py, tests/package/test_medley.py):
+1. pool_fill(angle, pool, dropped):
+   - appends the pool's other moments, best by rank_score, AFTER the angle's own;
+   - runs lineup_for again (one per channel first, then L-y 4's exception) with every rule unchanged;
+   - lineup_for's preference for the proposer's earliest moments keeps as many of the angle's own as fit, and puts the
+     added clips after them in play order;
+   - returns (segs, [the added ids]) or (None, None).
+2. build(): only when an angle has formed NOT EVEN ITS FIRST line-up (n_lineup == 0, after both lineup_for tries), the
+   pool completes it, and the record carries "pool_filled". A re-line after a drop moves on to the next angle, as
+   before.
+3. placement(m) and the angle prompt:
+   - every clip line now states its limits: "may only play LAST (under 8 s)" for a clip under SHORT_CLIP_S, and
+     "cannot open (never the hook)" for a clip without hook eligibility and a passed hook onset;
+   - the prompt says such a clip is the LAST id of an angle's list or is not in it, and is never the hook.
+4. tests:
+   - the 07:14 shape (the hook + 13.9 s + a short clip mid-order + 13.8 s; the two long ones cannot open) forms no
+     line-up of its own, and the pool adds a 9.5 s clip after the angle's own;
+   - nothing to add gives None;
+   - the build records pool_filled and judges the line-up;
+   - the prompt carries the limits, and nothing for an unlimited clip.
+- Measured on the 07:14 pool before this diff: all 3 angles would have formed a line-up. Each opened on a pool clip,
+  because the angle's own hook fails the hook's topic rule; the next opener by its first 2 s came from the pool, as
+  ruling 41's hook swap would choose it.
+- test_medley 89 OK; every other suite OK.
+
+Check in particular:
+- that every line-up rule still applies to a pool-filled line-up (lineup_for runs unchanged on the extended list);
+- that the angle's own moments keep their play order and come before the added clips;
+- that the fill runs only for an angle's first line-up and never re-admits a dropped or doomed moment;
+- that the limits shown to the proposer match the rules lineup_for applies exactly;
+- anything that could blow up the combinations (the pool's size) or loop.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

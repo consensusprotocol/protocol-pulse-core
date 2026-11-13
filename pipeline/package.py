@@ -494,8 +494,8 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print):
 
 ANGLE_PROMPT = """You are the editor of PBX MAX: 60-second Bitcoin videos made of other channels' own words. The clips
 play BACK TO BACK as a medley, with NO narration between them; the host speaks ONE closing line at the end. Below are
-clips (verbatim quotes, each with its channel and length) that passed our checks. The channels were not in one
-conversation and never answer each other.
+clips (verbatim quotes, each with its channel, its length and its PLACEMENT LIMITS) that passed our checks. The
+channels were not in one conversation and never answer each other.
 
 {note}
 {clips}
@@ -507,7 +507,9 @@ it is today's.
 With no narration the ORDER carries the video: list each angle's clips in the order they should PLAY, so that every
 clip's opening makes sense right after the previous clip's ending, in the speakers' own words (no clip may need an
 introduction to be understood). The video plays the hook and 2-4 more clips, ONE per channel, from 3-5 DIFFERENT
-channels, together {lo:.0f}-{hi:.0f} seconds of clips. Give as many good angles as the clips allow (aim for {k}); for
+channels, together {lo:.0f}-{hi:.0f} seconds of clips. PLACEMENT LIMITS: a clip marked "may only play LAST" is the
+LAST id of an angle's list or is not in it; a clip marked "cannot open" is never the hook. Give as many good angles as
+the clips allow (aim for {k}); for
 each angle give: "angle" (the sentence); "moments": the ids of 4 to 8 clips IN PLAY ORDER, the hook first (more choice
 survives a clip that later fails a check), from at least 3 different channels, with enough seconds among them;
 "hook": the first id, whose FIRST WORDS grab attention AND set up the angle; "support": for each of those ids, a few
@@ -910,6 +912,42 @@ def swap_lineup(segs, weak, pool, avoid=frozenset(), crange=None):
     return None, None
 
 
+def placement(m):
+    """RULING 54: a clip's placement limits as the angle proposer is told them, by the line-up's own rules: under
+    SHORT_CLIP_S it may only play LAST; without hook eligibility and a passed hook onset (G17a) it cannot open."""
+    lim = []
+    if m["duration_s"] < SHORT_CLIP_S:
+        lim.append(f"may only play LAST (under {SHORT_CLIP_S:.0f} s)")
+    if not ((m.get("eligibility") or {}).get("hook", {}).get("ok") and (m.get("hook_onset") or {}).get("pass") is True):
+        lim.append("cannot open (never the hook)")
+    return "".join(f" | {x}" for x in lim)
+
+
+def pool_fill(angle, pool, dropped=frozenset()):
+    """PROPOSAL 1: an angle whose own moments form no line-up (lineup_for, one clip per channel, then L-y 4's
+    exception) is completed from the WHOLE cleared pool, as ruling 41's swap fills a place: the pool's other moments
+    are appended to the angle's after its own, best by rank_score, and lineup_for runs again under every unchanged
+    rule. Its preference (the proposer's earliest moments first) keeps as many of the angle's own as fit, and the added
+    clips play after them. The pool adds at most SWAP_TOP candidates (the best by score, as ruling 41's swap reads
+    them), and a filled line-up keeps at least HALF of its segments from the angle's own moments: the pool completes
+    the angle's missing places, it never replaces the angle (audit 0830 C1, glm P1-4 / P1-5). "First line-up only"
+    is the CALLER's rule (build() calls it only while the angle has judged no line-up).
+    -> (segs, [the added moment ids]) or (None, None)."""
+    own = [mid for mid in angle["moments"] if mid in pool]
+    rest = [m["moment_id"] for m in sorted(pool.values(), key=lambda m: (-m["rank_score"], m["moment_id"]))
+            if m["moment_id"] not in own and m["moment_id"] not in dropped][:SWAP_TOP]
+    if not rest:
+        return None, None
+    ext = dict(angle, moments=own + rest)
+    mine = set(own)
+    half = lambda segs: 2 * sum(m["moment_id"] in mine for m in segs) >= len(segs)   # the angle's own: >= half
+    for repeat_ok in (False, True):
+        segs = lineup_for(ext, pool, dropped, repeat_ok=repeat_ok, need_onset=True, need_stand_alone=True, accept=half)
+        if segs is not None:
+            return segs, [m["moment_id"] for m in segs if m["moment_id"] not in mine]
+    return None, None
+
+
 def supply_exception(segs, ctx):
     """L-y 4: the reason a line-up takes two clips from one channel (two videos), else None."""
     rep = [c for c in dict.fromkeys(m["channel_id"] for m in segs) if sum(m["channel_id"] == c for m in segs) > 1]
@@ -921,7 +959,7 @@ def supply_exception(segs, ctx):
 
 
 def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, repeat_ok=False, need_onset=False,
-               need_stand_alone=False):
+               need_stand_alone=False, accept=None):
     """The hook + clips[0]..clips[1] clips for one angle, in the PROPOSER'S PLAY ORDER (L-y 3: the order carries a
     medley): the proposer's hook (else the angle's best hook-eligible moment by its first 2 s), the clips from the
     angle's other moments, every segment from a different channel (L-u), at most PRICE_PREDICTIONS_MAX price
@@ -958,6 +996,8 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
                     continue
                 dur = h["duration_s"] + sum(m["duration_s"] for m in order)
                 if not lo <= dur <= hi:
+                    continue
+                if accept is not None and not accept([h] + order):       # the caller's own condition (pool_fill)
                     continue
                 if need_stand_alone and not stand_alone_check([h] + order)["ok"]:
                     continue
@@ -1451,7 +1491,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         out["why_none"] = (f"{len(cleared)} cleared moments pass the second pass, CUTTABLE and step A from both "
                            f"vendors, from fewer than 3 channels")
         return out
-    clips = "\n".join(f'id={m["moment_id"]} | {_name(m, ctx)} | {m["duration_s"]:.1f} s | "{quote_data(m["text"], 600)}"'
+    clips = "\n".join(f'id={m["moment_id"]} | {_name(m, ctx)} | {m["duration_s"]:.1f} s{placement(m)} | '
+                      f'"{quote_data(m["text"], 600)}"'
                       for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
     lo, hi = medley_content_range()
     angles, angle_reply = None, None
@@ -1626,8 +1667,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                           need_stand_alone=True)
                         if segs is not None:
                             exception = supply_exception(segs, ctx)
+                    filled = None
+                    if segs is None and n_lineup == 0:    # PROPOSAL 1: the angle's own moments form not even its
+                        segs, filled = pool_fill(angle, cleared, frozenset(dropped | doomed))   # FIRST line-up: the
+                        # pool completes it. A re-line after a drop moves on to the next angle, as before
+                        exception = supply_exception(segs, ctx) if segs is not None else None
                 rec = {"angle": ai + 1, "text": angle["angle"], "lineup": [m["moment_id"] for m in segs] if segs else None,
-                       "supply_exception": exception, "attempts": []}
+                       "supply_exception": exception, "attempts": [],
+                       **({"pool_filled": filled} if filled else {})}
                 out["tried"].append(rec)
                 if segs is None:
                     rec["why"] = "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"

@@ -1129,6 +1129,60 @@ class TestRuling53Reposted(unittest.TestCase):
         self.assertEqual(out["usable"], 5)                                 # usable keeps its meaning
 
 
+class TestProposal1PoolFill(unittest.TestCase):
+    """PROPOSAL 1 (pending the orchestrator): the 07:14 build's angles held 4 clips that formed no line-up (36.52 s
+    < 36.7 s; a short clip mid-order), while 3 cleared clips were never offered. The pool completes such an angle."""
+
+    def test_an_angle_that_forms_no_line_up_is_completed_from_the_pool(self):
+        ms = [pm("h", "A", 8.8), pm("x", "B", 13.9), pm("s", "C", 6.9), pm("y", "D", 13.8), pm("z", "E", 9.5)]
+        for m in ms:
+            m["hook_onset"] = {"pass": m["moment_id"] not in ("s", "y")}   # as at 07:14: those two cannot open
+        by = {m["moment_id"]: m for m in ms}
+        a = angle(["h", "x", "s", "y"], "h")                          # the 07:14 shape: short "s" mid-order
+        self.assertIsNone(PK.lineup_for(a, by, need_onset=True))      # 8.8 + 13.9 + 13.8 = 36.5 s < 36.7 s
+        segs, added = PK.pool_fill(a, by)
+        self.assertEqual([m["moment_id"] for m in segs][:3], ["h", "x", "y"])     # the angle's own first
+        self.assertEqual(added, ["z"])                                            # the pool's clip after them
+        self.assertTrue(PK.lineup_ok(segs)[0])
+        self.assertEqual(PK.pool_fill(a, {k: by[k] for k in ("h", "x", "s", "y")}), (None, None))   # nothing to add
+        lone = angle(["s", "y"], "s")                                  # neither can open: the pool would supply the
+        self.assertEqual(PK.pool_fill(lone, by), (None, None))        # hook and a clip, more than half: no fill
+        more = dict(pm("q", "F", 9.0), hook_onset={"pass": True})     # the preferred (fewest-clip) line-up has one
+        pair = angle(["x", "y", "q"], "x")                            # own clip; the half rule is part of the search,
+        segs, added = PK.pool_fill(pair, dict(by, q=more))            # so a line-up with half its own still comes
+        self.assertGreaterEqual(2 * sum(m["moment_id"] in ("x", "y", "q") for m in segs), len(segs), segs)
+
+    def test_the_pool_adds_only_its_best_swap_top_candidates(self):         # audit 0830 C2, qwen P2-1
+        own = [dict(pm("h", "A", 8.8), hook_onset={"pass": True}), dict(pm("x", "B", 13.9), hook_onset={"pass": True})]
+        shorts = [dict(pm(f"s{i}", f"S{i}", 5.0, rank=20.0 - i), hook_onset={"pass": False}) for i in range(10)]
+        fit = dict(pm("f", "F", 14.5, rank=5.0), hook_onset={"pass": False})   # the only clip that reaches 36.7 s
+        by = {m["moment_id"]: m for m in own + shorts + [fit]}
+        a = angle(["h", "x"], "h")
+        self.assertEqual(PK.pool_fill(a, by), (None, None))          # "f" ranks 11th: outside SWAP_TOP (10)
+        by["f"] = dict(fit, rank_score=30.0)                          # in the top 10: it completes the angle
+        segs, added = PK.pool_fill(a, by)
+        self.assertEqual(([m["moment_id"] for m in segs], added), (["h", "x", "f"], ["f"]))
+
+    def test_ruling_54_the_proposer_is_told_each_clips_placement_limits(self):
+        ms = [pm("h", "A", 8.8), pm("x", "B", 13.9), pm("s", "C", 6.9), pm("y", "D", 13.8), pm("z", "E", 9.5)]
+        rig = Rig(ms, ["h", "x", "s", "y"], [(True, [], None, Rig.LINE)], [None], no_hook={"s", "y"})
+        rig.run()
+        p = next(p for r, p in rig.prompts if r == "angle_write")
+        self.assertIn('id=s | C | 6.9 s | may only play LAST (under 8 s) | cannot open (never the hook) | "', p)
+        self.assertIn('id=y | D | 13.8 s | cannot open (never the hook) | "', p)
+        self.assertIn('id=z | E | 9.5 s | "', p)                       # no limit, nothing added
+        self.assertIn('a clip marked "may only play LAST" is the\nLAST id of an angle', p)
+        self.assertIn('a clip marked "cannot open" is never the hook', p)
+
+    def test_the_build_records_the_pool_fill_and_judges_the_line_up(self):
+        ms = [pm("h", "A", 8.8), pm("x", "B", 13.9), pm("s", "C", 6.9), pm("y", "D", 13.8), pm("z", "E", 9.5)]
+        rig = Rig(ms, ["h", "x", "s", "y"], [(True, [], None, Rig.LINE)], [None], no_hook={"s", "y"})
+        out = rig.run()
+        self.assertEqual(out["tried"][0]["pool_filled"], ["z"])
+        self.assertEqual(rig.medley_calls[0][:3], ["h", "x", "y"])
+        self.assertIsNotNone(out["package"])
+
+
 class TestRuling41Search(unittest.TestCase):
     """Ruling 41 (04:58): when the clips-alone verdict fails, the segments rated below the bar are swapped at their
     place for the next by score from the whole cleared pool (a hook for the next hook, a clip for the next clip), the
