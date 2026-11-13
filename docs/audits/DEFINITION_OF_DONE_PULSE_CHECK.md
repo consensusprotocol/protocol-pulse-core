@@ -6,6 +6,25 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 17:27 FACTS, 13949b7c's prepare HOLD: both failures are the RENDER's edge placement (sentence law), caught by prepare's edge-word check working as designed. The pin's texts passed ruling 17. FOR THE ORCHESTRATOR TO RULE.
+- HOOK OUT EDGE (DcUbBkyeh9M, window clock, offset 201.0 s):
+  - The run's decode puts the last locked word 'reissued.' at 26.66-27.54 and 'Countries' at 27.54.
+  - The sentence law's pause_out is a 130 ms quiet run at 26.99-27.12, INSIDE that word's decoded span. cut_out 27.09.
+  - The prepared hook's own decode ends '... re-denominated, or' (large-v3 on CPU, the clip's last 2.8 s), then 0.4 s of quiet.
+  - So the speaker says 'or [pause] reissued', and the cut fell in the hesitation. 'reissued' is not in the clip.
+- CLIP_01 IN EDGE (MqVqfEDXgLo, offset 923.0 s):
+  - The run's decode has a 4.58 s HOLE: 'pieces.' ends at 9.86, and the first locked word 'I' starts at 14.44.
+  - The sentence law's pause_in is a 60 ms dip at 10.96-11.02, so cut_in 10.97 opens the clip 3.47 s before 'I'.
+  - The second recogniser (scribe_v1, $0.0008) hears NO words in the prepared clip's first 4.2 s; large-v3 hears only 'It' at 2.74-4.14.
+  - So the stretch is non-speech that is not quiet to the dB measure (presumably music or room tone). The edge check's 'thank' is Whisper's known 'Thank you' hallucination on non-speech.
+  - No other speaker's words are in the clip.
+- clip_02: both edges PASS.
+- PROPOSALS, not built (sentence-law rules, so the orchestrator rules):
+  - (a) OUT: pause_out must not start before the last locked word's decoded end. A quiet run inside the decoded word is a hesitation, not the sentence's end. Search after it, or HOLD at cut.
+  - (b) IN: the cut_in may not open more than a set lead before the first onset. A 'pause' 3.47 s early is not the pause before the sentence. Place it LEAD_TARGET_S (0.25 s) before the onset where the decode shows no words, or HOLD at cut.
+  - (c) L-aa: the pin-stage pre-check could also run the render's own cut placement (write_lock_cut_table) and flag these edges before the seal.
+- The builder is told. The pin is unchanged; a re-render needs (a) / (b), or a span choice that avoids these edges.
+
 ## 17:24 HOLD AT STAGE PREPARE: pin 13949b7c, run runs/pinned_20261113_221758, run_fresh exit 3 at 17:23 ET. Not delivered; nothing published. The edge-word check (the prepared clip's own decode against the lock's first / last word) failed twice. The cause is being measured.
 - hook (Simply Bitcoin DcUbBkyeh9M 216.054-228.674): first 'currencies' OK; LAST heard 'or', expected 'reissued.'.
 - clip_01 (Yahoo Finance MqVqfEDXgLo 937.971-957.291, CZ): FIRST heard 'thank', expected 'I'; last 'percent' / '6%.' OK.
