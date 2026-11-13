@@ -1164,15 +1164,23 @@ class TestProposal1PoolFill(unittest.TestCase):
         self.assertEqual(([m["moment_id"] for m in segs], added), (["h", "x", "f"], ["f"]))
 
     def test_ruling_54_the_proposer_is_told_each_clips_placement_limits(self):
-        ms = [pm("h", "A", 8.8), pm("x", "B", 13.9), pm("s", "C", 6.9), pm("y", "D", 13.8), pm("z", "E", 9.5)]
+        ms = [pm("h", "A", 8.8), pm("x", "B", 13.9), pm("s", "C", 6.9), pm("y", "D", 13.8), pm("z", "E", 9.5),
+              pm("o", "F", 7.3)]
         rig = Rig(ms, ["h", "x", "s", "y"], [(True, [], None, Rig.LINE)], [None], no_hook={"s", "y"})
         rig.run()
         p = next(p for r, p in rig.prompts if r == "angle_write")
-        self.assertIn('id=s | C | 6.9 s | may only play LAST (under 8 s) | cannot open (never the hook) | "', p)
+        self.assertIn('id=o | F | 7.3 s | under 8 s: only the hook or the LAST clip | "', p)   # audit 0855 C1, qwen
+        self.assertIn('id=s | C | 6.9 s | under 8 s: only the LAST clip | "', p)            # short, cannot open
         self.assertIn('id=y | D | 13.8 s | cannot open (never the hook) | "', p)
         self.assertIn('id=z | E | 9.5 s | "', p)                       # no limit, nothing added
-        self.assertIn('a clip marked "may only play LAST" is the\nLAST id of an angle', p)
+        self.assertIn('marked "only the hook or the LAST\nclip" is the first or the LAST id', p)
         self.assertIn('a clip marked "cannot open" is never the hook', p)
+        short_opener = dict(pm("b", "F", 7.3), hook_onset={"pass": True})   # the 08:46 build's only formable hook
+        self.assertEqual(PK.placement(short_opener), " | under 8 s: only the hook or the LAST clip")
+        both = [short_opener] + [dict(m, hook_onset={"pass": True}) for m in (pm("c", "G", 13.9), pm("w", "H", 9.5))] + \
+            [dict(pm("a", "I", 6.9), hook_onset={"pass": False})]     # 7.3 + 13.9 + 9.5 + 6.9 = 37.6 s
+        segs = PK.lineup_for(angle(["b", "c", "w", "a"], "b"), {m["moment_id"]: m for m in both}, need_onset=True)
+        self.assertEqual([m["moment_id"] for m in segs], ["b", "c", "w", "a"])   # lineup_for agrees: a short hook
 
     def test_the_build_records_the_pool_fill_and_judges_the_line_up(self):
         ms = [pm("h", "A", 8.8), pm("x", "B", 13.9), pm("s", "C", 6.9), pm("y", "D", 13.8), pm("z", "E", 9.5)]

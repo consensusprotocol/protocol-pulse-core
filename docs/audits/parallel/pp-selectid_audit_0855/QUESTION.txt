@@ -1,0 +1,36 @@
+You are auditing a small corrective diff on branch pp-selectid (Protocol Pulse: the L-y MEDLEY, a hook + 2-4 clips).
+Your role: a strict reviewer.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background:
+- Ruling 54 (committed an hour ago at ebf6ff32) tells the angle proposer each clip's placement limits, so it proposes
+  formable angles. lineup_for's rules:
+  - the hook needs hook eligibility and a passed hook onset (G17a);
+  - a clip under SHORT_CLIP_S (8 s) may play only LAST AMONG THE CLIPS AFTER THE HOOK. In code:
+    `[m for m in order[:-1] if m["duration_s"] < SHORT_CLIP_S]` over the clips after the hook, and
+    lineup_ok's `clips[:-1]` with `clips = segs[1:]`.
+  So a short clip MAY be the hook.
+- THE DEFECT (measured at 08:46 ET, ledger_20261113_134638): the committed placement() marked every short clip "may
+  only play LAST". The only formable line-up of that build opened on a 7.26 s clip (Bitcoin Mechanic): 7.26 + 13.94 +
+  9.46 + 6.93 = 37.59 s, the short 6.93 s clip last. Told that the opener "may only play LAST", the writer returned no
+  angle, which check_angles refuses ("no readable angles"). The limits did not match lineup_for's rules, which ruling 54
+  requires.
+
+The change (pipeline/package.py, tests/package/test_medley.py):
+1. placement(m) states exactly lineup_for's rules:
+   - under 8 s and able to open: "under 8 s: only the hook or the LAST clip";
+   - under 8 s and not able to open: "under 8 s: only the LAST clip";
+   - 8 s or more and not able to open: "cannot open (never the hook)";
+   - otherwise nothing.
+2. The angle prompt's PLACEMENT LIMITS sentence names the three markings and what each allows.
+3. tests:
+   - the limits for each case;
+   - the 08:46 shape: lineup_for itself accepts the 7.3 s hook with the short clip last, and placement() says
+     "only the hook or the LAST clip" for it.
+- test_medley 90 OK; every other suite OK.
+
+Check: that the three markings are exactly the rules lineup_for and lineup_ok apply (in particular the hook exception
+of the short-clip rule), that nothing else changed, and the prompt sentence.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

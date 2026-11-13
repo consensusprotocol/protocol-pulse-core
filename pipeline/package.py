@@ -507,9 +507,10 @@ it is today's.
 With no narration the ORDER carries the video: list each angle's clips in the order they should PLAY, so that every
 clip's opening makes sense right after the previous clip's ending, in the speakers' own words (no clip may need an
 introduction to be understood). The video plays the hook and 2-4 more clips, ONE per channel, from 3-5 DIFFERENT
-channels, together {lo:.0f}-{hi:.0f} seconds of clips. PLACEMENT LIMITS: a clip marked "may only play LAST" is the
-LAST id of an angle's list or is not in it; a clip marked "cannot open" is never the hook. Give as many good angles as
-the clips allow (aim for {k}); for
+channels, together {lo:.0f}-{hi:.0f} seconds of clips. PLACEMENT LIMITS: a clip marked "only the hook or the LAST
+clip" is the first or the LAST id of an angle's list, never in between; a clip marked "only the LAST clip" is the LAST
+id or is not in it; a clip marked "cannot open" is never the hook. Give as many good angles as the clips allow (aim for
+{k}); for
 each angle give: "angle" (the sentence); "moments": the ids of 4 to 8 clips IN PLAY ORDER, the hook first (more choice
 survives a clip that later fails a check), from at least 3 different channels, with enough seconds among them;
 "hook": the first id, whose FIRST WORDS grab attention AND set up the angle; "support": for each of those ids, a few
@@ -913,14 +914,15 @@ def swap_lineup(segs, weak, pool, avoid=frozenset(), crange=None):
 
 
 def placement(m):
-    """RULING 54: a clip's placement limits as the angle proposer is told them, by the line-up's own rules: under
-    SHORT_CLIP_S it may only play LAST; without hook eligibility and a passed hook onset (G17a) it cannot open."""
-    lim = []
+    """RULING 54: a clip's placement limits as the angle proposer is told them, exactly lineup_for's rules. Without hook
+    eligibility and a passed hook onset (G17a) it cannot open. Under SHORT_CLIP_S it may not play mid-line-up: the
+    short-clip rule binds the clips AFTER the hook only, so a short clip that can open may be the hook or the LAST clip,
+    and one that cannot open only the LAST (the 08:46 build: a 7.26 s opener was the only formable hook)."""
+    opens = bool((m.get("eligibility") or {}).get("hook", {}).get("ok")) and \
+        (m.get("hook_onset") or {}).get("pass") is True
     if m["duration_s"] < SHORT_CLIP_S:
-        lim.append(f"may only play LAST (under {SHORT_CLIP_S:.0f} s)")
-    if not ((m.get("eligibility") or {}).get("hook", {}).get("ok") and (m.get("hook_onset") or {}).get("pass") is True):
-        lim.append("cannot open (never the hook)")
-    return "".join(f" | {x}" for x in lim)
+        return f" | under {SHORT_CLIP_S:.0f} s: " + ("only the hook or the LAST clip" if opens else "only the LAST clip")
+    return "" if opens else " | cannot open (never the hook)"
 
 
 def pool_fill(angle, pool, dropped=frozenset()):
