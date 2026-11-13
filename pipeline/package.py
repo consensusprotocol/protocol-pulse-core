@@ -1964,9 +1964,67 @@ def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None):
     return rec
 
 
+def load_candidate(record, index=None, source=""):
+    """RULING 66 (13:18): A PASSED LINE-UP IS KEPT. The candidate an earlier build's record (its package.json) holds: a
+    tried line-up that passed the clips-alone verdict (medley_ok True), with what a build needs to try it again AS IT WAS
+    JUDGED: its angle (text, moments, hook) and the angle's back-end (the writers' vendor and family, law L-x), its clips
+    in play order, its supply exception, the recorded verdict, and the seeds it was judged and written with (the angle's
+    index and the line-up's number in that angle), so every call it made is served from its recording and only what is
+    missing is paid for. index: the record's tried[] entry (None: the first that passed). Raises ValueError."""
+    tried = record.get("tried") or []
+    ids_ok = lambda t: isinstance(t.get("lineup"), list) and bool(t["lineup"]) and \
+        all(isinstance(x, str) for x in t["lineup"]) and type(t.get("angle")) is int    # audit 1330 C2: the shape
+    if index is None:
+        index = next((i for i, t in enumerate(tried) if t.get("medley_ok") is True and ids_ok(t)), None)
+        if index is None:
+            raise ValueError("no line-up in this record passed the clips-alone verdict")
+    if not 0 <= index < len(tried):
+        raise ValueError(f"the record has no tried[{index}] ({len(tried)} line-ups tried)")
+    t = tried[index]
+    if t.get("medley_ok") is not True or not ids_ok(t):
+        raise ValueError(f"tried[{index}] did not pass the clips-alone verdict (or its line-up / angle is malformed)")
+    med = t.get("medley") or {}
+    if med.get("measured") is not True or med.get("replayed") is not False:
+        raise ValueError(f"tried[{index}]'s clips-alone verdict was not measured live (law L-j)")
+    ai, angles = int(t["angle"]) - 1, record.get("angles") or []
+    if not 0 <= ai < len(angles) or angles[ai].get("angle") != t.get("text"):
+        raise ValueError(f"tried[{index}]'s angle is not the record's angle {ai + 1}")
+    a = {k: angles[ai][k] for k in ("angle", "moments", "hook")}
+    if a["hook"] != t["lineup"][0]:
+        raise ValueError(f"tried[{index}] does not open on its angle's hook (ruling 59 c)")
+    if not record.get("angle_backend"):
+        raise ValueError("the record names no angle back-end")
+    n = sum(1 for u in tried[:index + 1] if u.get("angle") == t["angle"] and u.get("lineup"))   # its line-up number
+    return {"source": source, "index": index, "ai": ai, "n_lineup": n, "angle": a,
+            "angle_backend": record["angle_backend"], "angle_tried": list(record.get("angle_tried") or []),
+            "lineup": list(t["lineup"]), "supply_exception": t.get("supply_exception"), "medley": med}
+
+
+def candidate_lineup(router, candidate, cleared, now):
+    """RULING 66: the candidate's line-up as THIS build's pool holds it, or why it is closed. Every clip must still be
+    cleared (a clip delivered, aged out or failing a gate closes it), its hook must still open (its cached rating >=
+    HOOK_MIN, G17a), and exactly its clips, in its order, must still form a line-up under lineup_for's own rules
+    (the seconds, the channels, price predictions, short clips, trims, the render's STAND_ALONE).
+    -> (segs, None) or (None, why)."""
+    ids = list(candidate["lineup"])
+    if router.backends.get(candidate.get("angle_backend")) is None:
+        return None, f"its angle's back-end {candidate.get('angle_backend')!r} is not in the router"
+    gone = [mid for mid in ids if mid not in cleared]
+    if gone:
+        return None, f"no longer cleared in this pool (delivered, aged out, or a gate fails): {gone}"
+    if not can_open(cleared[ids[0]]):
+        return None, f"its hook no longer opens (rating >= {HOOK_MIN} and G17a): {ids[0]}"
+    segs = lineup_for(dict(candidate["angle"], moments=ids), cleared, clips=(len(ids) - 1, len(ids) - 1),
+                      repeat_ok=candidate.get("supply_exception") is not None, need_onset=True,
+                      need_stand_alone=True, now=now, hook_only=True)
+    if segs is None or [m["moment_id"] for m in segs] != ids:
+        return None, "its clips no longer form its line-up under the line-up rules (lineup_for)"
+    return segs, None
+
+
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
-          hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name=""):
+          hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -1981,6 +2039,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ('no hook in the pool', the three best listed) before the second screen, the angles and any line-up. The angle
     writer is given THE HOOKS and writes each angle FOR one; the angles are tried best hook first (ruling 57's
     freshness next), each line-up opens on its angle's own hook and never swaps it.
+    RULING 66, A PASSED LINE-UP IS KEPT: candidate (load_candidate) tries ONLY that line-up, after the same pool stages:
+    no angle is asked for (its own angle and back-end), its clips must still form it (candidate_lineup), and it is
+    judged and written with its own seeds, so its recorded calls are served from their recordings; it is never
+    re-lined or swapped (a failing gate closes it: out["candidate"]).
     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
     t0 = time.time()
     usd0 = _spent(spend)
@@ -2111,7 +2173,21 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     per = max(1, max_angles // len(offered))
     lo, hi = medley_content_range()
     angles, angle_reply, errs = None, None, []
-    for seed in (7, 8):                               # one re-ask on an out-of-contract reply (never served again)
+    cand_segs = None
+    if candidate is not None:                         # RULING 66 (13:18): A PASSED LINE-UP IS KEPT: its own angle and
+        cand_segs, why_c = candidate_lineup(router, candidate, cleared, ctx.now)   # line-up; no angle is asked for
+        out["candidate"] = {"source": candidate.get("source"), "index": candidate.get("index"),
+                            "lineup": list(candidate["lineup"]), "closed": why_c}
+        if why_c is not None:
+            out["why_none"] = f"ruling 66: the candidate is closed: {why_c}"
+            log(f"  {out['why_none']}")
+            return out
+        from types import SimpleNamespace
+        b = router.backends[candidate["angle_backend"]]
+        angles = [dict(candidate["angle"])]
+        angle_reply = SimpleNamespace(backend=candidate["angle_backend"], vendor=b.vendor, family=b.family,
+                                      tried=[list(x) for x in candidate.get("angle_tried") or []])
+    for seed in ((7, 8) if candidate is None else ()):   # one re-ask on an out-of-contract reply (never served again)
         r = None
         try:
             r = router.call("angle_write", ANGLE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"),
@@ -2132,7 +2208,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     if not angles:
         return out
     out.pop("why_none", None)
-    missing = [m for m in offered if m["moment_id"] not in {a["hook"] for a in angles}]
+    missing = [m for m in offered if m["moment_id"] not in {a["hook"] for a in angles}] if candidate is None else []
     if missing and len(angles) < max_angles:            # RULING 64: a passing hook left without an angle is asked
         k2, r = max_angles - len(angles), None          # for, once, written for exactly those hooks (12:00)
         try:
@@ -2175,7 +2251,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         a_by[mid] = off_writers(mid) or a_by[mid]
     writer_avoid = {router.backends[n].vendor for n in router.chain("angle_write") if n in router.backends} - \
         {angle_reply.vendor}                   # every write stays on the angle's vendor, so a judge is always left
-    log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)")
+    log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)" if candidate is None else
+        f"  ruling 66: the candidate {candidate.get('source')} tried[{candidate.get('index')}] (angle "
+        f"{candidate['ai'] + 1} line-up {candidate['n_lineup']}), as judged: its angle from {angle_reply.backend}, "
+        f"no angle asked ({time.time() - t0:.0f} s)")
     doomed = set()                                         # moments a per-moment gate dropped: out of every angle
 
     def over_budget(ai):
@@ -2298,9 +2377,13 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     total = 0                                             # ruling 41: line-ups judged in this build, over every angle
     judged, bad_pairs, spins = {}, set(), 0               # 12:00: verdicts by line-up; ruling 63's unfollowable pairs
     with ThreadPoolExecutor(max_workers=8) as pool:
-        for ai, angle in enumerate(angles):
-            dropped, n_lineup, swapped = set(), 0, None
+        for ai, angle in (enumerate(angles) if candidate is None else [(candidate["ai"], angles[0])]):
+            dropped, n_lineup, swapped, filled = set(), 0, None, None
+            if candidate is not None:                     # RULING 66: its own seeds, so its recorded calls are served
+                n_lineup, swapped = candidate["n_lineup"] - 1, cand_segs
             while total < lineups and not out["packages"] and not out.get("budget_stop"):
+                if candidate is not None and n_lineup >= candidate["n_lineup"]:
+                    break                                 # RULING 66: the candidate alone, never re-lined or swapped
                 if over_budget(ai):
                     break
                 if swapped is not None:                   # ruling 41: the swapped line-up is judged next
@@ -2322,7 +2405,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         exception = supply_exception(segs, ctx) if segs is not None else None
                 rec = {"angle": ai + 1, "text": angle["angle"], "lineup": [m["moment_id"] for m in segs] if segs else None,
                        "supply_exception": exception, "attempts": [],
-                       **({"pool_filled": filled} if filled else {})}
+                       **({"pool_filled": filled} if filled else {}),
+                       **({"candidate": candidate.get("source")} if candidate is not None else {})}
                 out["tried"].append(rec)
                 if segs is None:
                     rec["why"] = "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
@@ -2350,6 +2434,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     f"{sum(m['duration_s'] for m in segs):.1f} s): clips alone {'PASS' if ok_m else 'FAIL'} "
                     f"{med.get('clips')} flagged {med.get('flagged')} ({time.time() - t0:.0f} s)")
                 labs = labels(len(segs))
+                if candidate is not None and not ok_m:    # RULING 66: a candidate failing a gate is closed
+                    rec["why"] = "ruling 66: the candidate fails its clips-alone verdict now: closed"
+                    break
                 if not ok_m:                              # L-y 2 / 3: pick clips that sit together
                     by_lab = dict(zip(labs, segs))
                     cl = med.get("clips") or {}
@@ -2597,6 +2684,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             if out["packages"] or out.get("budget_stop") or over_budget(ai):
                 break
     out["package"] = out["packages"][0] if out["packages"] else None
+    if candidate is not None:                             # RULING 66: what became of the candidate
+        t_ = next((t for t in out["tried"] if t.get("candidate") is not None), {})
+        out["candidate"]["result"] = t_.get("result") or t_.get("why") or out.get("why_none") or "not tried"
     s_est, s_rep = (a - b for a, b in zip(_spent(spend), usd0))
     out["search"] = {"lineups": total, "limit": lineups, "usd_reported": round(s_rep, 4),
                      "usd_estimate": round(s_est, 4), "seconds": round(time.time() - t0, 1)}

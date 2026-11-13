@@ -20,7 +20,13 @@
 Writes tests/package/proof/ledger_<UTC stamp, to the second>/ (a run never writes into an existing one): inputs.json,
 package.json, package.log, step_a.json and, on a package, MOMENTS_PIN_LEDGER.json.
 
+RULING 66 (13:18), A PASSED LINE-UP IS KEPT: --from-candidate BUILD_DIR[:N] tries ONLY the line-up that passed the
+clips-alone verdict in that earlier build's record (its tried[N]; default the first that passed), after the same pool
+stages: its own angle, play order and seeds (package.load_candidate), so its recorded calls are served from their
+recordings and only what is missing is paid for; never re-lined, swapped or a new angle.
+
 Usage: python3 tests/package/proof_ledger.py --delivered PIN [PIN ...] [--since ISO] [--hours 72]
+                                             [--from-candidate BUILD_DIR[:N]]
   tonight: --delivered tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json \\
                        tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json
 """
@@ -83,6 +89,9 @@ def main(argv=None):
     ap.add_argument("--hours", type=float, default=72.0, help="the adapter's publish window (horizon_h)")
     ap.add_argument("--work-dir", default=os.path.join(PL.SCRATCH, "lv2"))
     ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
+    ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
+                    help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
+                         "record (its tried[N]; default the first that passed), as it was judged")
     a = ap.parse_args(argv)
     now = datetime.now(timezone.utc)
     try:                                                 # read before anything is written (glm C2 N-4)
@@ -92,8 +101,16 @@ def main(argv=None):
             raise ValueError("--since has no time zone")
         if since > now:
             raise ValueError(f"since {since.isoformat()} is after now")
+        cand = None
+        if a.from_candidate:                             # RULING 66: read before anything is written
+            cdir, sep, idx = a.from_candidate.rpartition(":")
+            cdir, idx = (cdir, idx) if sep and idx.isdigit() else (a.from_candidate, "")
+            with open(os.path.join(cdir, "package.json")) as f:
+                cand = PK.load_candidate(json.load(f), int(idx) if idx else None,
+                                         source=os.path.relpath(os.path.abspath(cdir), REPO))
     except (OSError, ValueError, KeyError, TypeError) as e:
-        print(f"REFUSED: the delivered pins or 'since' cannot be read ({type(e).__name__}: {e})", file=sys.stderr)
+        print(f"REFUSED: the delivered pins, 'since' or the candidate cannot be read ({type(e).__name__}: {e})",
+              file=sys.stderr)
         return 2
     out_dir = os.path.join(HERE, "proof", f"ledger_{now.strftime('%Y%m%d_%H%M%S')}")
     try:
@@ -106,7 +123,8 @@ def main(argv=None):
     ctx = E.Context(now, PS.REG, ledger=PS.ledger_entries())
     say(f"=== {time.strftime('%H:%M:%S %Z')} LEDGER medley build, code {PL.code_sha()}, now (render clock) "
         f"{now.isoformat(timespec='seconds')}, since {since.isoformat(timespec='seconds')} "
-        f"({'--since' if a.since else 'the newest delivered pin'}), publish window {a.hours} h")
+        f"({'--since' if a.since else 'the newest delivered pin'}), publish window {a.hours} h" +
+        (f"; RULING 66: ONLY the candidate {cand['source']} tried[{cand['index']}] {cand['lineup']}" if cand else ""))
     say(f"  delivered: {', '.join(p['story_id'] + ' (' + p['approved_at'] + ')' for p in pins)}; "
         f"{len(delivered)} clip spans out")
     rows, rep = LB.rows(since, now, horizon_h=a.hours)
@@ -138,7 +156,8 @@ def main(argv=None):
                    step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
                    hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
                    scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
-                   scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir))
+                   scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir),
+                   candidate=cand)                                                     # ruling 66
     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)

@@ -523,7 +523,7 @@ class Rig:
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
-                 cached=False):
+                 cached=False, candidate=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
@@ -532,6 +532,7 @@ class Rig:
         self.verdicts = verdicts                           # ruling 56: {pid: verdict} in the integrator's file shape
         self.hooks, self.hook_err, self.hook_calls = dict(hooks or {}), hook_err, []   # ruling 59 (a): {id: (s, a, u)}
         self.medley_calls, self.write_calls, self.prompts = [], [], []
+        self.candidate, self.seeds = candidate, []          # ruling 66: build from a candidate; the seeds asked with
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
         self.screens, self.events, self.a_seen = [], [], []
         self.write_from = write_from or ("heimdall:deepseek", "heimdall", "deepseek")
@@ -592,6 +593,7 @@ class Rig:
 
     def medley(self, router, segs, ctx_, wv, seed=7, writer_family=None):
         self.medley_calls.append([m["moment_id"] for m in segs])
+        self.seeds.append(("medley", seed))
         ok, flagged, ratings, line = self.medleys.pop(0)
         labs = PK.labels(len(segs))
         v = verdict(labs, flagged, ratings, line)
@@ -602,6 +604,7 @@ class Rig:
         if join is not None and not other and PK.bridge_budget(sum(m["duration_s"] for m in segs)) is None:
             raise PK.NoBridgeFits("no bridge of 3-12 words fits (the real write_takeaway's precondition)")
         self.write_calls.append(([m["moment_id"] for m in segs], join))
+        self.seeds.append(("write", seed))
         self.write_avoid.append(avoid_vendor)
         self.a_seen.append({m["moment_id"]: a_by[m["moment_id"]]["backend"] for m in segs})
         b = self.writes.pop(0)
@@ -646,7 +649,7 @@ class Rig:
                                                              "vo_point": 5, "backend": "xai:grok", "measured": True,
                                                              "replayed": False}),
         }
-        kw, path = {}, None
+        kw, path = ({"candidate": self.candidate} if self.candidate is not None else {}), None
         if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader
             import tempfile
             fd, path = tempfile.mkstemp(suffix=".json")
@@ -1583,6 +1586,99 @@ class TestRulings6264Search(unittest.TestCase):
         self.assertEqual(len(rig.medley_calls), 1)                          # judged once
         self.assertEqual(out["search"]["lineups"], 1)
         self.assertTrue(out["tried"][1].get("verdict_again"))               # the second angle's: free
+
+
+class TestRuling66Candidate(unittest.TestCase):
+    """RULING 66 (13:18): A PASSED LINE-UP IS KEPT. A line-up that passed the clips-alone verdict is a candidate. A build
+    from it asks no angle, tries exactly its clips in its order with its own seeds (so its recorded calls are served
+    from their recordings), and never re-lines or swaps it: a failing gate closes it."""
+    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+    TEXT, T2 = "Nobody controls Bitcoin.", "Nobody can change it."
+    MED = {"through_line": "Nobody controls the rules.", "clips": {"hook": 4, "clip_01": 4, "clip_02": 4},
+           "flagged": [], "measured": True, "replayed": False, "backend": "xai:grok"}
+
+    def record(self, tried=None):
+        return {"tried": tried if tried is not None else [
+            {"angle": 1, "text": self.TEXT, "lineup": ["h", "x", "y"], "supply_exception": None, "medley": self.MED,
+             "medley_ok": True},
+            {"angle": 1, "text": self.TEXT, "lineup": ["h", "x", "z"], "supply_exception": None,
+             "medley": dict(self.MED, clips={"hook": 4, "clip_01": 2, "clip_02": 4}), "medley_ok": False}],
+            "angles": [{"angle": self.TEXT, "moments": ["h", "x", "y", "z"], "hook": "h"},
+                       {"angle": self.T2, "moments": ["x", "h", "y", "z"], "hook": "x"}],
+            "angle_backend": "heimdall:deepseek", "angle_tried": []}
+
+    def test_the_record_gives_the_first_passing_line_up_with_its_seeds(self):
+        c = PK.load_candidate(self.record(), source="proof/ledger_x")
+        self.assertEqual((c["index"], c["ai"], c["n_lineup"], c["lineup"], c["angle"]["hook"], c["angle_backend"]),
+                         (0, 0, 1, ["h", "x", "y"], "h", "heimdall:deepseek"))
+        self.assertEqual(c["medley"], self.MED)                              # the verdict travels with it
+        with self.assertRaises(ValueError):
+            PK.load_candidate(self.record(), 1)                              # tried[1] did not pass
+        r = self.record()
+        for bad in (dict(r, tried=[]),                                       # nothing passed
+                    dict(r, angles=[dict(r["angles"][0], angle="another angle")]),   # not its angle
+                    dict(r, tried=[dict(r["tried"][0], medley=dict(self.MED, replayed=True))]),   # replayed (L-j)
+                    dict(r, tried=[dict(r["tried"][0], lineup=["x", "h", "y"])]),    # not its angle's hook
+                    dict(r, tried=[dict(r["tried"][0], lineup="hxy")]),             # malformed (audit 1330 C2)
+                    dict(r, tried=[dict(r["tried"][0], angle="1")])):
+            with self.assertRaises(ValueError):
+                PK.load_candidate(bad)
+
+    def test_the_line_up_number_counts_only_this_angles_line_ups(self):
+        rec = self.record(tried=[
+            {"angle": 1, "text": self.TEXT, "lineup": ["h", "x", "y"], "medley": self.MED, "medley_ok": False},
+            {"angle": 1, "text": self.TEXT, "lineup": None},
+            {"angle": 2, "text": self.T2, "lineup": ["x", "h", "y"], "medley": self.MED, "medley_ok": False},
+            {"angle": 2, "text": self.T2, "lineup": ["x", "h", "z"], "medley": self.MED, "medley_ok": True}])
+        c = PK.load_candidate(rec)
+        self.assertEqual((c["index"], c["ai"], c["n_lineup"], c["lineup"]), (3, 1, 2, ["x", "h", "z"]))
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], hooks={"x": (5, 5, 5)},
+                  candidate=c)
+        out = rig.run()
+        self.assertIsNotNone(out["package"])
+        self.assertEqual(rig.seeds, [("medley", 7 + 2 + 10), ("write", 7 + 1 + 10 + 200)])   # angle 2, line-up 2's
+
+    def test_a_build_from_the_candidate_asks_no_angle_and_judges_it_with_its_own_seeds(self):
+        c = PK.load_candidate(self.record(), source="proof/ledger_x")
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c)
+        out = rig.run()
+        self.assertIsNotNone(out["package"])
+        self.assertEqual([r for r, _ in rig.prompts if r == "angle_write"], [])   # no angle asked for
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"]])
+        self.assertEqual(rig.seeds, [("medley", 8), ("write", 108)])        # angle 1 line-up 1's, as recorded
+        self.assertEqual(out["tried"][0]["candidate"], "proof/ledger_x")
+        self.assertEqual((out["candidate"]["closed"], out["candidate"]["result"]), (None, "PACKAGE"))
+        self.assertEqual(out["angle_backend"], "heimdall:deepseek")          # L-x: the writers' vendor as recorded
+
+    def test_a_candidate_whose_clip_left_the_pool_is_closed_before_any_call(self):
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [], [], uncuttable={"y"}, candidate=PK.load_candidate(self.record()))
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertTrue(out["why_none"].startswith("ruling 66: the candidate is closed: no longer cleared"),
+                        out["why_none"])
+        self.assertIn("'y'", out["candidate"]["closed"])
+        self.assertEqual((rig.medley_calls, rig.write_calls, [r for r, _ in rig.prompts if r == "angle_write"]),
+                         ([], [], []))
+
+    def test_a_candidate_failing_its_verdict_now_is_closed_never_re_lined(self):
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(False, [], {"clip_02": 2}, Rig.LINE)], [],
+                  candidate=PK.load_candidate(self.record()))
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"]])               # no swap, no second line-up
+        self.assertEqual(len(out["tried"]), 1)
+        self.assertEqual(out["tried"][0]["why"], "ruling 66: the candidate fails its clips-alone verdict now: closed")
+        self.assertEqual(out["candidate"]["result"], out["tried"][0]["why"])
+
+    def test_exactly_its_clips_never_a_subset(self):
+        ms = [pm("h", "A", 13.0), pm("x", "B", 13.0), pm("y", "C", 13.0), pm("z", "D", 11.0)]
+        rec = self.record(tried=[{"angle": 1, "text": self.TEXT, "lineup": ["h", "x", "y", "z"],
+                                  "supply_exception": None, "medley": self.MED, "medley_ok": True}])
+        self.assertEqual(PK.lineup_for(rec["angles"][0], {m["moment_id"]: m for m in ms}),
+                         [ms[0], ms[1], ms[2]])                              # the search alone would take a subset
+        rig = Rig(ms, ["h", "x", "y", "z"], [(False, [], None, "none")], [], candidate=PK.load_candidate(rec))
+        rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y", "z"]])
 
 
 class TestRuling65Caption(unittest.TestCase):

@@ -1,0 +1,92 @@
+You are auditing a SMALL change on branch pp-selectid (Protocol Pulse: the L-y MEDLEY, sealed in a pin the integrator
+renders). Your role: a strict reviewer of a build path that may seal a pin. Only state what you can verify from the
+diff; if uncertain, say so; do not guess.
+
+Background (static):
+- A build screens the pool (cached step-A verdicts, the render's clip-scorer verdicts, the second recognition pass
+  and CUTTABLE, the hook onset G17a, cached hook ratings, a second vendor's step A).
+- It then asks a writer model for ANGLES. Each line-up is judged on the clips ALONE (medley(), seed
+  7 + n_lineup + 10 * ai). A line-up that passes gets at most 2 writes (write_takeaway, seed
+  7 + w_used + 10 * ai + 100 * n_lineup). Each write is gated: the cheap checks; the paid fidelity verdict and context
+  integrity; ruling 65's caption-only write; coherence. Then the sealed inventory, and the pin.
+- The router records every exchange by sha256(role, back-end, prompt, max_tokens, seed, system). A LIVE run serves a
+  recorded reply to identical bytes with cached=True, replayed=False: free, and deliverable. An offline replay sets
+  replayed=True, never deliverable (law L-j).
+- In the 12:22 build (record tests/package/proof/ledger_20261113_172217), angle 1 line-up 1 passed the clips-alone
+  verdict (Simply Bitcoin -> CNBC Television -> Scott Melker, 39.3 s, 4/4/4, no flagged join). Its writes' takeaway
+  and title passed; its caption failed fidelity. Ruling 65 (committed since) now gives a caption-only write.
+- The 13:05 rebuild could not reach that line-up. The pool had changed, so the angle prompt differed and the writer
+  wrote other angles.
+
+The order this diff implements (ORCHESTRATOR ORDER 13:18, verbatim):
+"66. A PASSED LINE-UP IS KEPT. Any line-up that passes the clips-alone verdict is recorded as a CANDIDATE (clips,
+order, the verdict, the gated takeaway and title if written) and stays a candidate until one of its clips is delivered,
+ages out, or fails a gate. Every build first tries the open candidates, newest first, before asking for new angles.
+RIGHT NOW, before anything else and without waiting for the running build's remaining line-ups: take the 12:22 build's
+passing line-up from its record (ledger_20261113_172217: Simply Bitcoin -> CNBC Television -> Scott Melker, 39.3 s,
+hook 4 / 4 / 4, no flagged join; takeaway and title gated in its writes), run ONLY what is missing: ruling 65's
+caption-only write (then the fixed fallback if it fails), the coherence verdict, your verifier, and seal. Use the
+recorded verdicts; pay only for the new calls. If the smallest way to do that is a --from-candidate path on
+proof_ledger, build that as the audited change for 66; if it needs the audit before it may seal, run the audit now, it
+is one small change."
+
+The change (pipeline/package.py, tests/package/proof_ledger.py, tests/package/test_medley.py):
+1. load_candidate(record, index=None, source) reads an earlier build's package.json and returns the candidate.
+   - It takes the first tried[] entry with medley_ok True, or the given index, which must have passed.
+   - It returns: the angle {angle, moments, hook} (record["angles"][ai], whose text must equal the entry's), the
+     angle's back-end and the line-up's ids in order, the supply exception, the recorded verdict, and the seeds:
+     ai = entry["angle"] - 1, and n_lineup = the count of this angle's entries with a line-up up to it (exactly the
+     loop's counter).
+   - Refused (ValueError): no passing entry; a verdict not measured live (replayed / unmeasured); an angle mismatch;
+     a line-up not opening on its angle's hook; no angle back-end.
+2. candidate_lineup(router, candidate, cleared, now) gives the candidate as THIS build's pool holds it, or why it is
+   closed:
+   - every clip still cleared (a clip delivered, aged out or failing a gate is gone from `cleared`);
+   - the hook still can_open (its cached rating >= 4, G17a);
+   - exactly its clips in its order still form a line-up under lineup_for's own rules: the seconds, channels, price
+     predictions, short clips, trims, STAND_ALONE. clips=(n, n) pins the clip count so the search cannot pick a subset.
+3. build(..., candidate=None). With a candidate, after the SAME pool stages:
+   - candidate_lineup; if closed, return why_none "ruling 66: the candidate is closed: ..." before any further call;
+   - no angle call and no follow-up angle call; angles = [its angle]; the writers' vendor and family come from the
+     recorded angle back-end (L-x);
+   - the loop runs once, with ai = the recorded index and n_lineup starting at the recorded number - 1, and the
+     candidate's segments preset as `swapped`, so the first iteration judges exactly them with the recorded seeds;
+   - a guard at the loop's top ends it after that line-up (never re-lined, swapped or reordered);
+   - a failing clips-alone verdict closes it at once;
+   - everything else is the unchanged code: the verdict call, the writes, every gate, ruling 65, coherence, the
+     inventory and the pin.
+   - out["candidate"] records the source, index, line-up, closed-why and result; the tried entry names its candidate.
+   - `filled` is now initialised per angle, because a candidate's first iteration takes the swapped branch, where it
+     was never set.
+4. proof_ledger.py --from-candidate BUILD_DIR[:N]: the record is read before anything is written (a bad record refuses
+   the run, exit 2), logged in the header line, and passed to build(candidate=...).
+5. Tests (TestRuling66Candidate, 6): the loader and its refusals; the line-up number; a build from a candidate asking
+   no angle, with the seeds (8, 108) and (19, 218); closed before any call when a clip left the pool; closed (one
+   verdict call, no re-line) when its verdict fails now; exactly its clips (the plain search would take a subset).
+   test_medley 131 OK.
+
+Stated readings (say so if you read the order differently):
+- K1: "use the recorded verdicts; pay only for the new calls" is met by asking the SAME calls with the SAME bytes and
+  seeds. The router then serves each recorded reply (cached, live, deliverable), and pays for a call only when its
+  bytes differ. Then it is judged afresh on the bytes that will be sealed, which is L-j.
+  - We do NOT paste the recorded verdict into a package without asking. A recording is served only for byte-identical
+    prompts, which proves the verdict is about these exact clips and lines.
+- K2: the candidate goes through every pool stage of THIS build (delivered pins, the 72 h window, step A, CUTTABLE,
+  G17a, the hook rating, the second vendor). Order 66's "until one of its clips is delivered, ages out, or fails a
+  gate" is then exactly "a clip left `cleared`, or a line-up rule fails".
+- K3: this change is the --from-candidate path the order names as the audited change for 66, for RIGHT NOW. "Every
+  build first tries the open candidates, newest first" (a standing registry read by every build) is the next change,
+  built on load_candidate / build(candidate=).
+- K4: in candidate mode a failing clips-alone verdict closes the candidate at once; ruling 62/63's retries and swaps
+  are not run. The order says to try that line-up, and a swap would be a new line-up.
+
+Check in particular:
+- that the recorded seeds reproduce exactly (ai, n_lineup) for any tried entry, including after a None line-up and
+  across angles;
+- that no path in candidate mode calls the angle writer, judges a second line-up, or seals without every gate;
+- L-x (the writers' vendor and family);
+- the `filled` initialisation (no change to normal builds);
+- the guard and the closure paths;
+- the proof_ledger refusal path.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
